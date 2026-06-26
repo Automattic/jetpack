@@ -104,6 +104,9 @@ prefixes; Woo `analytics/reports/*` → `proxy/v2/analytics/reports/*`. The dash
 - `v2` vs `v1.x` changes the WPCOM base — a wrong version silently hits a different endpoint.
 - Sync code under `src/Sync/` is interim (WOOA7S-1550); don't build on it.
 - Don't edit dashboard React in Calypso — it lives here now.
+- Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
+  never `@automattic/jetpack-premium-analytics-*`.
+- All source code comments must be in English.
 
 ## Widgets
 
@@ -300,3 +303,71 @@ controls, so there's no need to add custom size decorators per widget.
   legacy widgets that haven't been migrated yet.
 - Using the legacy `withWidgetRoot()` decorator for new stories — new widgets render via the
   real `WidgetDashboard` through the shared story helper instead.
+- Declaring `presentation` in `widget.ts` — `widget.json` is the source of truth for that
+  field; omit it from `widget.ts` entirely.
+- Re-declaring the attribute type in `render.tsx` — the shape is declared once in `widget.ts`
+  and imported in `render.tsx` via `WidgetRenderProps<YourAttributesType>`. Duplicating it
+  lets the schema and the render props drift silently.
+- Writing `<button>` without an explicit `type` — the HTML default is `type="submit"`, which
+  can fire accidental form submissions. Use `type="button"` for non-submit actions.
+- Using inline `style={{ … }}` props — all styles belong in the widget's CSS Module.
+- Reimplementing a utility that already exists in `widgets-toolkit` (e.g. `flagUrl`) — check
+  `packages/widgets-toolkit/src/helpers/` before writing a new one.
+
+### Stats widgets
+
+Ports of Jetpack Stats modules into the dashboard follow a fixed pattern. Read this
+before writing any Stats widget — many mistakes here are silent at build time.
+
+**Data layer**
+
+`packages/data/` already has a typed hook for every Stats module (`useStatsTopPosts`,
+`useStatsSearchTerms`, `useStatsLocations`, `useStatsDevices`, …). Look there first —
+do not call `fetchStatsProxy` or `apiFetch` directly from a widget.
+
+Each hook returns `{ primary, comparison, isLoading, isError, … }`. For the standard
+leaderboard/list widgets, reach data through:
+
+```ts
+const report = primary.data as StatsNormalizedReport< StatsXxxItem > | undefined;
+const items  = report?.data?.[ 0 ]?.items ?? [];
+```
+
+Date-range conversion (`from`/`to` → `period`/`end_date`/`days`) is handled inside
+the query factory — do not do it in the widget or the view hook.
+
+**`max` semantics**
+
+`max = 0` means "all rows". Use `slice( 0, max > 0 ? max : undefined )`, never
+`slice( 0, max )` (the latter returns an empty array when `max` is 0).
+
+**Loading and stale data**
+
+Show `<WidgetLoadingOverlay />` only when there is no data yet:
+`isLoading && data.length === 0`. When stale data exists, pass `loading={ isLoading }`
+to the chart component so an in-place spinner appears without hiding the rows.
+
+**Comparison data**
+
+Comparison-period fetching is not yet wired for most Stats endpoints. Use
+`previousValue: 0` and `delta: 0` as placeholders — but keep the `withComparison`
+prop plumbed through so enabling it later is a one-line change.
+
+**Visual conventions**
+
+- Widget title: `<Text variant="heading-md" render={ <h3 /> }>`
+- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`
+- Leaderboard row height: wrap the label in a container with `min-height: 36px` via the
+  CSS Module so all leaderboard widgets have consistent row height.
+- Empty state: pass `emptyStateText` to `LeaderboardChart` — do not add a separate
+  `data.length === 0` render branch in the widget.
+- Widget picker preview: add this to the CSS Module so the preview tile renders at a
+  sensible aspect ratio instead of collapsing:
+
+```css
+:global( [inert]:not( [inert='true'] ) ) .root {
+    height: auto;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+}
+```

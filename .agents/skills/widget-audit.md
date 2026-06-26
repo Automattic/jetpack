@@ -31,13 +31,18 @@ assume: namespace, text domain, and the dependency versions the package resolves
   `category`, `presentation` (`framed` | `content-bleed` | `full-bleed`).
 - `widget.ts` default-exports `title`, `icon`, and — when configurable —
   `attributes` + `example`. The attribute TS shape is declared once and reused.
+  `widget.ts` does NOT declare `presentation` — that field belongs only in `widget.json`.
+- Every attribute declared in `widget.ts` is consumed somewhere in `render.tsx`; flag any
+  ghost attribute (declared but never read from `attributes`).
 - `render.tsx` default-exports the component.
 - `package.json` `dependencies` mirror the imports across the widget source:
-  nothing missing, nothing unused.
+  nothing missing, nothing unused. Internal packages use `@jetpack-premium-analytics/*`
+  aliases (never `@automattic/jetpack-premium-analytics-*` names).
 
 **Contract**
-- `render.tsx` props are typed by `WidgetRenderProps<Item>` from
-  `@wordpress/widget-primitives`, not a hand-rolled shape.
+- `render.tsx` props are typed by `WidgetRenderProps<T>` from
+  `@wordpress/widget-primitives`, not a hand-rolled shape. `T` is the attribute type
+  imported from `../widget` — it is NOT re-declared in `render.tsx`.
 - `attributes` is defended — the host may pass it empty or undefined, so default it.
 - The component receives only `{ attributes, setAttributes }`; no dashboard /
   surface / wp-admin imports, no `onRemove` / header / kebab.
@@ -45,12 +50,19 @@ assume: namespace, text domain, and the dependency versions the package resolves
 **Chrome**
 - The body renders content only — never a `Card`, header, title bar, or remove
   control (the host owns chrome). `presentation` in `widget.json` is a valid value.
+- Verify that the `presentation` value in `widget.json` matches the widget's actual layout
+  assumptions (e.g. `full-bleed` vs `framed` changes whether the host renders a border and
+  padding). A mismatch causes incorrect chrome without a compile error.
 
 **Style + i18n**
 - Every `--wpds-*` token in the CSS exists in the resolved `@wordpress/theme`
   `design-tokens.css` (grep it; do not infer renamed names). Styles are CSS
-  Modules, never global CSS.
-- User-visible strings go through `__( …, '<text-domain>' )`.
+  Modules, never global CSS. No inline `style={{ … }}` props.
+- Every `<button>` element has an explicit `type` attribute (`type="button"` for non-submit
+  actions; `type="submit"` only when the button is intentionally a form submit).
+- User-visible strings go through `__( …, '<text-domain>' )`. Check data-transform and
+  display files, not just the render component.
+- All source code comments are in English.
 
 **Docs (JSDoc)**
 - Props are a named `type`/`interface` with each field documented on the type,

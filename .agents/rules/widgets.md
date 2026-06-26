@@ -19,4 +19,29 @@ The host owns all chrome. The widget renders body only — never a `Card`, heade
 title, or remove control. `presentation` in `widget.json` declares how the widget
 wants to be framed; the host decides how.
 
+## Two-component structure
+
+Every widget that reads dashboard state splits into two components:
+
+```tsx
+// outer — receives host props, seeds WidgetRoot
+export default function MyWidget( { attributes = {} }: { attributes?: MyAttributes } ) {
+    return (
+        <WidgetRoot attributes={ attributes }>
+            <MyWidgetInner />
+        </WidgetRoot>
+    );
+}
+
+// inner — reads dashboard context, does all data work
+function MyWidgetInner() {
+    const { reportParams } = useWidgetRootContext();
+    // ...
+}
+```
+
+`useWidgetRootContext()` must be called inside a `<WidgetRoot>` — calling it in the
+outer component throws. `reportParams` always comes from context; the dashboard date
+picker owns it. Never read date range from `attributes`.
+
 <!-- TODO: link to the canonical widget API declaration (contract types). -->
