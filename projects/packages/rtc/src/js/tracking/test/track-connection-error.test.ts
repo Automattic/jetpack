@@ -45,6 +45,8 @@ const entityRoom = {
 	objectType: 'postType',
 	objectId: 'post-42',
 	ydoc: {} as never,
+	// Only clientID is read (via getSessionId); the rest of awareness is unused here.
+	awareness: { clientID: 777 } as never,
 };
 
 describe( 'withConnectionErrorTracking', () => {
@@ -64,6 +66,7 @@ describe( 'withConnectionErrorTracking', () => {
 		expect( recordRtcEventMock ).toHaveBeenCalledTimes( 1 );
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_connection_error', {
 			error_code: undefined,
+			session_id: '777',
 		} );
 	} );
 
@@ -77,6 +80,23 @@ describe( 'withConnectionErrorTracking', () => {
 
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_connection_error', {
 			error_code: 'authentication-failed',
+			session_id: '777',
+		} );
+	} );
+
+	it( 'omits the session id when awareness is not provided', async () => {
+		const provider = makeProvider();
+		const creator = jest.fn().mockResolvedValue( provider );
+		const wrapped = withConnectionErrorTracking( creator as never );
+
+		// No awareness on the room (the session id ties to clientID, which lives
+		// on awareness); recordRtcEvent drops the undefined before it reaches Tracks.
+		await wrapped( { ...entityRoom, awareness: undefined } as never );
+		provider.emitStatus( { status: 'disconnected' } );
+
+		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_connection_error', {
+			error_code: undefined,
+			session_id: undefined,
 		} );
 	} );
 

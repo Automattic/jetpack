@@ -1,5 +1,6 @@
 import { addFilter } from '@wordpress/hooks';
 import { isRoomLimitBreached } from '../notices/room-limit';
+import { getSessionId } from './awareness';
 import { recordRtcEvent } from './tracks';
 import type { ConnectionStatus, ProviderCreator } from '@wordpress/sync';
 
@@ -41,7 +42,9 @@ function isRoomLimitDisconnect( status: ConnectionStatus ): boolean {
  * room-limit and join-tracking wrappers.
  *
  * `transport`, `post_id`, `post_type`, and `wp_user_id` are added by
- * `recordRtcEvent`; this only supplies the error code.
+ * `recordRtcEvent`; this only supplies the error code and the session id.
+ * `session_id` (the client's `clientID`) ties this error to the same client's
+ * `jetpack_rtc_join`; it is omitted when awareness has not been provided.
  *
  * @param creator - The provider creator to wrap.
  * @return The wrapped provider creator.
@@ -53,6 +56,7 @@ export function withConnectionErrorTracking( creator: ProviderCreator ): Provide
 			return result;
 		}
 
+		const sessionId = options.awareness ? getSessionId( options.awareness ) : undefined;
 		let recorded = false;
 		let tearingDown = false;
 
@@ -66,6 +70,7 @@ export function withConnectionErrorTracking( creator: ProviderCreator ): Provide
 			recorded = true;
 			recordRtcEvent( CONNECTION_ERROR_EVENT, {
 				error_code: status.error?.code,
+				session_id: sessionId,
 			} );
 		} );
 

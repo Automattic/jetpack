@@ -51,6 +51,7 @@ describe( 'recordBlocked', () => {
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_blocked', {
 			contributor_count: 2,
 			contributors: [ 7, 8 ],
+			session_id: '3',
 			is_admin: false,
 			is_plan_owner: true,
 		} );

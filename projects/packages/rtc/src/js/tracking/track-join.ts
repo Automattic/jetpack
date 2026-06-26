@@ -1,6 +1,6 @@
 import { addFilter } from '@wordpress/hooks';
 import { isRoomLimitBreached } from '../notices/room-limit';
-import { getContributorIds, getLocalUserId } from './awareness';
+import { getContributorIds, getLocalUserId, getSessionId } from './awareness';
 import { recordRtcEvent } from './tracks';
 import type { Awareness, ProviderCreator } from '@wordpress/sync';
 
@@ -28,7 +28,7 @@ function isLocalClientPresent( awareness: Awareness ): boolean {
  * Record the join event with a snapshot of the contributors currently present.
  *
  * `transport`, `post_id`, `post_type`, and `wp_user_id` are added by
- * `recordRtcEvent`; this only supplies the room roster.
+ * `recordRtcEvent`; this only supplies the room roster and the session id.
  *
  * @param awareness - The Yjs awareness instance for the room.
  */
@@ -37,6 +37,7 @@ function recordJoin( awareness: Awareness ): void {
 	recordRtcEvent( JOIN_EVENT, {
 		contributor_count: contributors.length,
 		contributors,
+		session_id: getSessionId( awareness ),
 	} );
 }
 

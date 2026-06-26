@@ -1,4 +1,4 @@
-import { getContributorIds } from './awareness';
+import { getContributorIds, getSessionId } from './awareness';
 import { recordRtcEvent } from './tracks';
 import type { Awareness } from '@wordpress/sync';
 
@@ -26,6 +26,7 @@ export function recordBlocked( awareness: Awareness ): void {
 	recordRtcEvent( BLOCKED_EVENT, {
 		contributor_count: contributors.length,
 		contributors,
+		session_id: getSessionId( awareness ),
 		is_admin: config?.isAdmin ?? false,
 		is_plan_owner: config?.isPlanOwner ?? false,
 	} );

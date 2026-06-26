@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+RTC: Add a session_id (derived from the awareness clientID) to the jetpack_rtc_* Tracks events so unique collaboration sessions can be measured.

@@ -89,6 +89,7 @@ describe( 'withJoinTracking', () => {
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
 			contributor_count: 3,
 			contributors: [ 7, 7, 9 ],
+			session_id: '1',
 		} );
 	} );
 
@@ -108,6 +109,7 @@ describe( 'withJoinTracking', () => {
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
 			contributor_count: 2,
 			contributors: [ 7, 9 ],
+			session_id: '1',
 		} );
 	} );
 
@@ -133,6 +135,7 @@ describe( 'withJoinTracking', () => {
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
 			contributor_count: 1,
 			contributors: [ 7 ],
+			session_id: '1',
 		} );
 	} );
 
@@ -204,6 +207,7 @@ describe( 'withJoinTracking', () => {
 		expect( recordRtcEventMock ).toHaveBeenCalledWith( 'jetpack_rtc_join', {
 			contributor_count: 2,
 			contributors: [ 7, 9 ],
+			session_id: '1',
 		} );
 	} );
 

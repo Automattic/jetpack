@@ -1,4 +1,4 @@
-import { getContributorIds, getLocalUserId } from '../awareness';
+import { getContributorIds, getLocalUserId, getSessionId } from '../awareness';
 
 type StateSpec = Record< number, number | null >;
 
@@ -46,5 +46,19 @@ describe( 'getLocalUserId', () => {
 	it( 'returns undefined when the local client is not present', () => {
 		const awareness = fakeAwareness( { 2: 9 }, 1 );
 		expect( getLocalUserId( awareness as never ) ).toBeUndefined();
+	} );
+} );
+
+describe( 'getSessionId', () => {
+	it( 'returns the local clientID as a string', () => {
+		const awareness = fakeAwareness( { 1: 7 }, 4242 );
+		expect( getSessionId( awareness as never ) ).toBe( '4242' );
+	} );
+
+	it( 'does not depend on the collaborator id being populated', () => {
+		// clientID is set the moment the Y.Doc exists, before core-data fills in
+		// collaboratorInfo — so a session id is available even with no states.
+		const awareness = fakeAwareness( {}, 99 );
+		expect( getSessionId( awareness as never ) ).toBe( '99' );
 	} );
 } );

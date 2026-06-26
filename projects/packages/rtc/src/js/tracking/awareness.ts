@@ -41,6 +41,28 @@ export function getContributorIds(
 }
 
 /**
+ * A stable identifier for the local client's collaboration session in a room.
+ *
+ * Derived from the Yjs awareness `clientID`, which is generated fresh for each
+ * Y.Doc instance — i.e. each time a client connects to a room (a page load /
+ * provider creation) — and stays constant for that connection's lifetime. So
+ * every event a client emits during one editing session (join, then any later
+ * connection error) shares the same `session_id`, while a reload, a second tab,
+ * or a different user each get a distinct one.
+ *
+ * Returned as a string because it is an opaque token, not a quantity. Like
+ * `contributors`, `clientID` is only unique within a room, so count distinct
+ * sessions scoped to a single `blog_id`/`post_id` (both attached to every
+ * event) rather than globally — see `getContributorIds` for the id-space notes.
+ *
+ * @param awareness - The Yjs awareness instance for the room.
+ * @return The local client's session id.
+ */
+export function getSessionId( awareness: Awareness ): string {
+	return String( awareness.clientID );
+}
+
+/**
  * The local client's WordPress user id, read from the local awareness state's
  * `collaboratorInfo.id` (same id-space as `contributors` — see
  * `getContributorIds`). Undefined until core-data populates it, shortly after
