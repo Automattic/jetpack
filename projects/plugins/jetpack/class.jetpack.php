@@ -885,7 +885,6 @@ class Jetpack {
 		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
-		// Loaded here, outside the connection-gated module loader, so the podcast feed and dashboard survive a disconnect.
 		\Automattic\Jetpack\Podcast\Podcast::init();
 
 		/*
