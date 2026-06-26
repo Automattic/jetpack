@@ -702,7 +702,7 @@ class Cookie_Consent {
 				'cookiePolicyUrl'   => $config['cookie_policy_url'],
 				'gdprCountries'     => $config['gdpr_countries'],
 				'ccpaRegions'       => $config['ccpa_regions'],
-				'gdprHonorsGpc'     => $config['gdpr_honors_gpc'],
+				'gdprHonorsGpc'     => $config['gdpr_honors_gpc'] ?? true,
 				'showOnError'       => $config['show_on_error'],
 				'forcePreview'      => $force_preview,
 			)
