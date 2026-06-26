@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Cookie Consent: honor a Global Privacy Control signal as an opt-out in GDPR regions, force-denying non-essential cookies. Gated by the `gdpr_honors_gpc` config flag (default on).
+GDPR: Honor Global Privacy Control (GPC) as an opt-out signal, denying non-essential cookies (configurable via `gdpr_honors_gpc`).
