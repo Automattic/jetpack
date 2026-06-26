@@ -22,6 +22,7 @@ use function current_user_can;
 use function did_action;
 use function do_action;
 use function function_exists;
+use function is_admin;
 use function is_multisite;
 use function remove_action;
 use function remove_all_actions;
@@ -101,10 +102,18 @@ class Jetpack_Scan {
 	 * Load wp-build generated registration files. Mirrors Newsletter / Forms.
 	 */
 	public static function load_wp_build() {
-		WP_Build_Polyfills::register(
-			'jetpack-scan',
-			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
-		);
+		// The polyfills force-replace core script handles (notably
+		// `wp-private-apis`, a stateful singleton shared by every @wordpress
+		// package on the page) during `wp_default_scripts`. Scope registration
+		// to the Scan admin page so it never runs on other admin pages such as
+		// the block editor. `$_GET['page']` is reliable this early — it's the
+		// raw query param, available well before `current_screen` exists.
+		if ( self::is_scan_admin_request() ) {
+			WP_Build_Polyfills::register(
+				'jetpack-scan',
+				array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			);
+		}
 
 		$wp_build_index = dirname( __DIR__ ) . '/build/build.php';
 		if ( file_exists( $wp_build_index ) ) {
@@ -119,6 +128,26 @@ class Jetpack_Scan {
 			'admin_init',
 			'jetpack_scan_jetpack_scan_intercept_render'
 		);
+	}
+
+	/**
+	 * Whether the current request targets the Scan admin page.
+	 *
+	 * Used to scope the wp-build polyfill registration (which force-replaces
+	 * core script handles) to this one page, so it never affects other admin
+	 * pages. Reads the menu page slug directly so it is cheap and safe to call
+	 * at plugin-load time, before `current_screen` exists.
+	 *
+	 * @return bool True when serving the Scan page in wp-admin.
+	 */
+	public static function is_scan_admin_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! is_admin() || ! isset( $_GET['page'] ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return self::PAGE_SLUG === sanitize_text_field( wp_unslash( $_GET['page'] ) );
 	}
 
 	/**

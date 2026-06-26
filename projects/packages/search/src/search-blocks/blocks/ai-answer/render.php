@@ -101,7 +101,7 @@ $wrapper_attrs   = get_block_wrapper_attributes(
 		>
 			<template
 				data-wp-each--citation="state.aiVisibleCitations"
-				data-wp-key="context.citation.key"
+				data-wp-each-key="context.citation.key"
 			>
 				<li>
 					<a

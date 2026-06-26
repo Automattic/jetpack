@@ -82,4 +82,33 @@ class Jetpack_SEO_Admin_Columns_Test extends WP_UnitTestCase {
 		update_post_meta( $post_id, Jetpack_SEO_Posts::NOINDEX_META_KEY, '1' );
 		$this->assertStringContainsString( 'Hidden', $this->render( 'jetpack_seo_search', $post_id ) );
 	}
+
+	/**
+	 * On a post-list screen the three SEO columns are added to the default-hidden
+	 * set, so they don't crowd out the title column for users who never touched
+	 * Screen Options.
+	 */
+	public function test_columns_hidden_by_default_on_edit_screen() {
+		$screen = WP_Screen::get( 'edit-post' );
+
+		$hidden = Jetpack_SEO_Admin_Columns::default_hidden_columns( array( 'comments' ), $screen );
+
+		$this->assertContains( 'jetpack_seo_schema', $hidden );
+		$this->assertContains( 'jetpack_seo_description', $hidden );
+		$this->assertContains( 'jetpack_seo_search', $hidden );
+		// Existing defaults are preserved.
+		$this->assertContains( 'comments', $hidden );
+	}
+
+	/**
+	 * Off the post-list tables (e.g. the dashboard) the filter is a no-op, so it
+	 * never pollutes unrelated screens' hidden-column defaults.
+	 */
+	public function test_columns_untouched_off_edit_screen() {
+		$screen = WP_Screen::get( 'dashboard' );
+
+		$hidden = Jetpack_SEO_Admin_Columns::default_hidden_columns( array( 'welcome_panel' ), $screen );
+
+		$this->assertSame( array( 'welcome_panel' ), $hidden );
+	}
 }

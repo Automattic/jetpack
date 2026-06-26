@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-stores",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Shared WordPress data stores used by the Jetpack block editor extensions, externalized into a single bundle to avoid duplicate store registration.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/jetpack-shared-stores/#readme",
 	"bugs": {
@@ -29,7 +29,6 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@babel/preset-react": "7.29.7",
 		"@babel/runtime": "7.29.7",
 		"@types/jest": "30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",

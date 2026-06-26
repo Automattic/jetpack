@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { TextareaControl, ToggleControl } from '@wordpress/components';
+import { Button, TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
@@ -18,6 +18,7 @@ const setLabel = __( 'Set', 'jetpack-seo' );
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
 const enabledLabel = __( 'Enabled', 'jetpack-seo' );
 const disabledLabel = __( 'Disabled', 'jetpack-seo' );
+const saveLabel = __( 'Save', 'jetpack-seo' );
 const sitemapHelp = __(
 	"Publishes an XML sitemap that search engines crawl to discover your content, generated automatically from your site's published posts, pages, and custom post types.",
 	'jetpack-seo'
@@ -40,17 +41,28 @@ interface Props {
 type SettingsSearch = Record< string, unknown > & { focus?: string };
 
 /**
- * Consolidated Settings screen. State + auto-save live in the `form` controller
+ * Consolidated Settings screen. State + saving live in the `form` controller
  * (owned by the Settings route stage); this component is the presentation.
- * There's no Save button — toggles save on change, text and token fields save
- * on blur.
+ * Saving is hybrid: toggle sections save on change, while the text-heavy
+ * sections (title structure, front-page description) edit local state while
+ * typing and persist on an explicit per-section Save button.
  *
  * @param props      - Component props.
  * @param props.form - The settings form controller from `useSettingsForm`.
  * @return The Settings tab content.
  */
 const SettingsScreen: FC< Props > = ( { form } ) => {
-	const { local, isSaving, setField, setVerification, commit } = form;
+	const {
+		local,
+		isSaving,
+		setField,
+		setVerification,
+		commit,
+		commitFields,
+		isDirty,
+		commitTitleFormat,
+		isTitleFormatDirty,
+	} = form;
 
 	// Overview deep links (`?focus=visibility|verification`) scroll the matching
 	// section to its top. `scroll-margin-top` on the section (style.scss) clears
@@ -161,7 +173,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				<VerificationCard
 					value={ local.verification }
 					onChange={ setVerification }
-					onCommit={ () => commit() }
+					onCommit={ () => commitFields( [ 'verification' ] ) }
 					disabled={ isSaving }
 					open={ verificationOpen }
 					onOpenChange={ setVerificationOpen }
@@ -195,8 +207,10 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			<TitleStructureField
 				formats={ local.title_formats }
 				onChange={ ( pageType, next ) =>
-					commit( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
+					setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
 				}
+				onSaveFormat={ pageType => commitTitleFormat( pageType ) }
+				isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
 				disabled={ isSaving }
 			/>
 
@@ -210,15 +224,25 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					</Stack>
 				</CollapsibleCard.Header>
 				<CollapsibleCard.Content>
-					<TextareaControl
-						label={ __( 'Meta description shown on the home page', 'jetpack-seo' ) }
-						value={ local.front_page_description }
-						onChange={ next => setField( { front_page_description: next } ) }
-						onBlur={ () => commit() }
-						rows={ 3 }
-						disabled={ isSaving }
-						__nextHasNoMarginBottom
-					/>
+					<Stack direction="column" gap="md">
+						<TextareaControl
+							label={ __( 'Meta description shown on the home page', 'jetpack-seo' ) }
+							value={ local.front_page_description }
+							onChange={ next => setField( { front_page_description: next } ) }
+							rows={ 3 }
+							disabled={ isSaving }
+							__nextHasNoMarginBottom
+						/>
+						<div className="jetpack-seo-settings__save">
+							<Button
+								variant="primary"
+								onClick={ () => commitFields( [ 'front_page_description' ] ) }
+								disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
+							>
+								{ saveLabel }
+							</Button>
+						</div>
+					</Stack>
 				</CollapsibleCard.Content>
 			</CollapsibleCard.Root>
 

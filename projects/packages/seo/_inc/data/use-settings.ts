@@ -15,21 +15,44 @@ const SAVE_NOTICE_ID = 'jetpack-seo-settings-save';
 export interface SettingsForm {
 	local: SettingsResponse | null;
 	isSaving: boolean;
-	/** Update local state only — for controlled typing; pair with `commit()` on blur. */
+	/** Update local state only — for controlled typing; persisted by a per-section save. */
 	setField: ( patch: Partial< SettingsResponse > ) => void;
-	/** Update a verification code locally — pair with `commit()` on blur. */
+	/** Update a verification code locally — persisted via `commitFields(['verification'])` on blur. */
 	setVerification: ( key: VerificationKey, value: string ) => void;
-	/** Apply an optional patch and immediately save the changed fields. */
-	commit: ( patch?: Partial< SettingsResponse > ) => void;
+	/**
+	 * Save a toggle change immediately. Persists only the patched field(s) — not
+	 * the rest of local — so unsaved edits in the text-heavy sections stay local
+	 * until their own Save (per-section isolation).
+	 */
+	commit: ( patch: Partial< SettingsResponse > ) => void;
+	/**
+	 * Save only the named fields — a per-section Save for text-heavy sections
+	 * (e.g. the front-page description) that edit local state while typing and
+	 * persist on an explicit button. Other pending edits stay local.
+	 */
+	commitFields: ( fields: Array< keyof SettingsResponse > ) => void;
+	/** Whether any of the named fields differ from the last-saved baseline. */
+	isDirty: ( fields: Array< keyof SettingsResponse > ) => boolean;
+	/**
+	 * Save one page type's title format — a per-row Save for the title-structure
+	 * editor. Persists only that page type, leaving unsaved edits in other rows
+	 * local (the back-end stores all formats in one option, so this writes the
+	 * whole map with just this page type advanced past the baseline).
+	 */
+	commitTitleFormat: ( pageType: string ) => void;
+	/** Whether one page type's title format differs from the last-saved baseline. */
+	isTitleFormatDirty: ( pageType: string ) => boolean;
 }
 
 /**
- * Owns the Settings form: seeds local state from the page bootstrap and
- * auto-saves changes — there's no explicit Save button. Toggles `commit()` on
- * change; text/token fields `setField()` while editing and `commit()` on blur.
- * Saves diff against the last-saved baseline (so an unchanged save is a no-op
- * and the sitemaps module is never re-toggled needlessly), surfacing a single
- * "Updating settings…"→"Settings saved." snackbar.
+ * Owns the Settings form: seeds local state from the page bootstrap and saves
+ * on a hybrid model. Toggle sections (Site visibility, Canonical) `commit()` on
+ * change; the front-page description `setField()`s while typing and persists on
+ * an explicit Save (`commitFields()`); the title-structure editor saves
+ * per page-type row (`commitTitleFormat()`). Saves diff against the last-saved
+ * baseline (so an unchanged save is a no-op and the sitemaps module is never
+ * re-toggled needlessly), surfacing a single "Updating settings…"→"Settings
+ * saved." snackbar.
  *
  * The Settings tab is its own route, so this controller remounts on every tab
  * switch. State is seeded from (and written back to) [settings-store] rather
@@ -119,20 +142,102 @@ export function useSettingsForm(): SettingsForm {
 	);
 
 	const commit = useCallback(
-		( patch?: Partial< SettingsResponse > ) => {
+		( patch: Partial< SettingsResponse > ) => {
 			const current = localRef.current;
-			if ( ! current ) {
+			const baseline = baselineRef.current;
+			if ( ! current || ! baseline ) {
 				return;
 			}
-			const next = patch ? { ...current, ...patch } : current;
-			if ( patch ) {
-				localRef.current = next;
-				setLocal( next );
-			}
-			saveValues( next );
+			// Update local for immediate UI feedback...
+			const next = { ...current, ...patch };
+			localRef.current = next;
+			setLocal( next );
+			// ...but persist only the patched field(s): start from the last-saved
+			// baseline and apply just this patch, so unsaved edits in the text-heavy
+			// sections aren't dragged in by a toggle save (per-section isolation).
+			saveValues( { ...baseline, ...patch } );
 		},
 		[ saveValues ]
 	);
 
-	return { local, isSaving, setField, setVerification, commit };
+	const commitFields = useCallback(
+		( fields: Array< keyof SettingsResponse > ) => {
+			const current = localRef.current;
+			const baseline = baselineRef.current;
+			if ( ! current || ! baseline ) {
+				return;
+			}
+			// Save only the named section: start from the baseline and override just
+			// those fields from local, so the diff — and the snapshot saved back as
+			// the new baseline — is limited to this section, leaving any other
+			// pending (unsaved) edits local until the user saves their own section.
+			const values: SettingsResponse = { ...baseline };
+			fields.forEach( field => {
+				( values as unknown as Record< string, unknown > )[ field ] = current[ field ];
+			} );
+			saveValues( values );
+		},
+		[ saveValues ]
+	);
+
+	const isDirty = useCallback(
+		( fields: Array< keyof SettingsResponse > ) => {
+			const baseline = baselineRef.current;
+			if ( ! local || ! baseline ) {
+				return false;
+			}
+			return fields.some(
+				field => JSON.stringify( local[ field ] ) !== JSON.stringify( baseline[ field ] )
+			);
+		},
+		[ local ]
+	);
+
+	const commitTitleFormat = useCallback(
+		( pageType: string ) => {
+			const current = localRef.current;
+			const baseline = baselineRef.current;
+			if ( ! current || ! baseline ) {
+				return;
+			}
+			// Persist only this page type's format: write the whole title-formats map
+			// but advance just this page type past the baseline, so an unsaved edit in
+			// another row stays pending until that row is saved.
+			const values: SettingsResponse = {
+				...baseline,
+				title_formats: {
+					...baseline.title_formats,
+					[ pageType ]: current.title_formats[ pageType ] ?? [],
+				},
+			};
+			saveValues( values );
+		},
+		[ saveValues ]
+	);
+
+	const isTitleFormatDirty = useCallback(
+		( pageType: string ) => {
+			const baseline = baselineRef.current;
+			if ( ! local || ! baseline ) {
+				return false;
+			}
+			return (
+				JSON.stringify( local.title_formats[ pageType ] ?? [] ) !==
+				JSON.stringify( baseline.title_formats[ pageType ] ?? [] )
+			);
+		},
+		[ local ]
+	);
+
+	return {
+		local,
+		isSaving,
+		setField,
+		setVerification,
+		commit,
+		commitFields,
+		isDirty,
+		commitTitleFormat,
+		isTitleFormatDirty,
+	};
 }

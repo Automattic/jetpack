@@ -2,7 +2,6 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useBreakpointMatch } from '@automattic/jetpack-components';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import {
@@ -10,6 +9,7 @@ import {
 	Button,
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useMemo, useState, useCallback, useRef } from '@wordpress/element';
@@ -99,7 +99,7 @@ export default function usePageHeaderDetails(
 	}, [ sourceId ] );
 
 	// Detect mobile viewport
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 	const navigate = useNavigate();
 
 	// Mutually-exclusive screen flags.

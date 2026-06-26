@@ -15,3 +15,10 @@
 		padding: 24px;
 	}
 }
+
+// De-emphasized caption text. `@wordpress/ui`'s `Text` has no muted/color
+// prop, so the dimmed treatment lives here and is applied via className
+// alongside `variant="body-sm"`.
+.jpb-text-muted {
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+}
