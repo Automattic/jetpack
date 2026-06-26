@@ -137,7 +137,10 @@ jQuery( function ( $ ) {
 		e.preventDefault();
 
 		if ( $condition.is( ':first-child' ) && $condition.is( ':last-child' ) ) {
-			$( this ).closest( 'div.widget, .wp-block-legacy-widget__edit-form' ).find( 'a.display-options' ).click();
+			$( this )
+				.closest( 'div.widget, .wp-block-legacy-widget__edit-form' )
+				.find( 'a.display-options' )
+				.click();
 			$condition.find( 'select.conditions-rule-major' ).val( '' ).change();
 		} else {
 			$condition.find( 'select.conditions-rule-major' ).change();
