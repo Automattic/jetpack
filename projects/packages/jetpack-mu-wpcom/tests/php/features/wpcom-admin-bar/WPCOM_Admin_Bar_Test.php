@@ -107,8 +107,8 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The Themes sub-item opens classic Calypso in a new tab and renders a
-	 * trailing external-link arrow, matching the Calypso masterbar.
+	 * The Themes sub-item opens classic Calypso in a new tab and carries the
+	 * external-link class that renders the trailing arrow, matching the Calypso masterbar.
 	 */
 	public function test_themes_node_is_an_external_link() {
 		$admin_bar = self::make_test_admin_bar();
@@ -116,7 +116,7 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertNotNull( $themes, 'The wpcom-themes node should exist.' );
 		$this->assertSame( '_blank', $themes->meta['target'] ?? null );
-		$this->assertStringContainsString( '↗', $themes->title );
+		$this->assertStringContainsString( 'wpcom-admin-bar-external-link', $themes->meta['class'] ?? '' );
 	}
 
 	/**
