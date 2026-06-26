@@ -29,18 +29,37 @@ function extractScenarioMetrics( scenario, summary ) {
 }
 
 /**
- * Check a metric value against its sanity range.
+ * Check whether a metric value is safe to post to CodeVitals.
  *
- * Returns true when the value is safe to post: either the type has no range
- * defined, or the value falls within it. CodeVitals is append-only, so an
- * out-of-range value must never reach it.
+ * CodeVitals is append-only, so anything uncertain fails closed. A typed metric
+ * whose type has no range row (a typo, or a forgotten SANITY_RANGES entry) and a
+ * non-finite value (null, NaN, Infinity, a numeric string) are both rejected
+ * rather than posted. Only a genuinely untyped legacy entry passes unchecked.
+ *
+ * @param {string|undefined} type  - Metric type, or falsy for an untyped legacy entry.
+ * @param {*}                value - Candidate metric value.
+ * @return {{ ok: boolean, reason?: string }} Whether the value may be posted, and why not.
  */
-function isWithinSanityRange( type, value ) {
-	const range = type && SANITY_RANGES[ type ];
-	if ( ! range ) {
-		return true;
+function checkSanityRange( type, value ) {
+	// Genuinely untyped legacy entry: no declared type, so no range to enforce.
+	if ( ! type ) {
+		return { ok: true };
 	}
-	return value >= range.min && value <= range.max;
+
+	const range = SANITY_RANGES[ type ];
+	if ( ! range ) {
+		return { ok: false, reason: `no sanity range is defined for type "${ type }"` };
+	}
+
+	if ( typeof value !== 'number' || ! Number.isFinite( value ) ) {
+		return { ok: false, reason: `value ${ JSON.stringify( value ) } is not a finite number` };
+	}
+
+	if ( value < range.min || value > range.max ) {
+		return { ok: false, reason: `${ value } is outside [${ range.min }, ${ range.max }]` };
+	}
+
+	return { ok: true };
 }
 
 /** Post metrics to CodeVitals. */
@@ -70,11 +89,10 @@ async function postToCodeVitals( resultsPath, config ) {
 		}
 
 		for ( const entry of extractScenarioMetrics( scenario, measurement.summary ) ) {
-			if ( ! isWithinSanityRange( entry.type, entry.value ) ) {
-				const range = SANITY_RANGES[ entry.type ];
+			const check = checkSanityRange( entry.type, entry.value );
+			if ( ! check.ok ) {
 				console.error(
-					`✗ Sanity check failed for "${ entry.key }" (${ entry.type }): ${ entry.value } ` +
-						`is outside [${ range.min }, ${ range.max }] — skipping this metric.`
+					`✗ Sanity check failed for "${ entry.key }" (${ entry.type }): ${ check.reason }. Skipping this metric.`
 				);
 				validationFailed = true;
 				continue;
@@ -205,7 +223,10 @@ async function main() {
 	}
 }
 
-// Run if called directly
-main();
+// Run only when executed directly, not when imported (e.g. by the unit test),
+// so importing the pure helpers does not trigger main()'s env checks or exits.
+if ( import.meta.url === `file://${ process.argv[ 1 ] }` ) {
+	main();
+}
 
-export { postToCodeVitals };
+export { postToCodeVitals, checkSanityRange, extractScenarioMetrics };
