@@ -607,6 +607,7 @@ class Cookie_Consent {
 				'delaware',
 			),
 			'show_on_error'       => true, // Show banner if geolocation fails.
+			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
 		);
 
@@ -701,6 +702,7 @@ class Cookie_Consent {
 				'cookiePolicyUrl'   => $config['cookie_policy_url'],
 				'gdprCountries'     => $config['gdpr_countries'],
 				'ccpaRegions'       => $config['ccpa_regions'],
+				'gdprHonorsGpc'     => $config['gdpr_honors_gpc'] ?? true,
 				'showOnError'       => $config['show_on_error'],
 				'forcePreview'      => $force_preview,
 			)
