@@ -1,5 +1,12 @@
-import { SalesByUtmWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * External dependencies
+ */
+import { WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ComponentProps } from 'react';
+/**
+ * Internal dependencies
+ */
+import { SalesByUtmWidget } from './sales-by-utm-widget';
 
 type SalesByUtmChannelRenderProps = Pick< ComponentProps< typeof WidgetRoot >, 'attributes' > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
@@ -8,9 +15,9 @@ type SalesByUtmChannelRenderProps = Pick< ComponentProps< typeof WidgetRoot >, '
 /**
  * Sales by UTM channel widget.
  *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; SalesByUtmWidget fetches
- * the order-attribution report and renders the channel leaderboard.
+ * WidgetRoot provides the query client, chart theme, and resolved report params;
+ * SalesByUtmWidget composes toolkit primitives to fetch the order-attribution
+ * report and render the channel leaderboard.
  *
  * @param root0            - Component props.
  * @param root0.attributes - Widget attributes.

@@ -2,19 +2,19 @@
  * External dependencies
  */
 import {
-	useReportOrderAttribution,
 	ORDER_ATTRIBUTION_VIEWS,
+	useReportOrderAttribution,
 } from '@jetpack-premium-analytics/data';
-import { megaphone, search, channel } from '@jetpack-premium-analytics/icons';
-import { useMemo } from 'react';
-import { LeaderboardChart } from '../../components/chart-leaderboard';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
-/**
- * Internal dependencies
- */
-import { useWidgetRootContext } from '../../components/widget-root';
-import { buildSalesByUtmData, formatLegendLabels } from '../../helpers';
-import { useWidgetError } from '../../hooks';
+import { channel, megaphone, search } from '@jetpack-premium-analytics/icons';
+import {
+	LeaderboardChart,
+	WidgetLoadingOverlay,
+	buildSalesByUtmData,
+	formatLegendLabels,
+	useWidgetError,
+	useWidgetRootContext,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import { useMemo, type CSSProperties } from 'react';
 
 type OrderAttributionView = ( typeof ORDER_ATTRIBUTION_VIEWS )[ number ];
 
@@ -31,21 +31,11 @@ type SalesByUtmWidgetProps = {
  * Displays order attribution data in a leaderboard chart, showing how sales are
  * distributed across different UTM parameters (source, channel, or campaign).
  *
- * Features:
- * - Multiple views: source, channel, campaign
- * - Displays data for all product types
- * - Comparison support (current vs previous period)
- * - Formatted legend labels with date ranges
- *
  * Must be used within a WidgetRoot which provides reportParams via context.
  *
- * @param props      - Component props
- * @param props.view - The order attribution view (source, channel, campaign)
- *
- * @example
- * <WidgetRoot attributes={ attributes }>
- *   <SalesByUtmWidget view="source" />
- * </WidgetRoot>
+ * @param props      - Component props.
+ * @param props.view - The order attribution view (source, channel, campaign).
+ * @return The rendered widget.
  */
 export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -65,7 +55,6 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 	const isRefetching = isFetching && hasData;
 
 	const chartData = useMemo( () => buildSalesByUtmData( primary.data ), [ primary.data ] );
-
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	const emptyStateIcon = useMemo( () => {
@@ -100,7 +89,7 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 				style={
 					{
 						'--a8c--charts--leaderboard--bar--border-radius': '0 1px 1px 0',
-					} as React.CSSProperties
+					} as CSSProperties
 				}
 			/>
 			{ isRefetching && <WidgetLoadingOverlay /> }

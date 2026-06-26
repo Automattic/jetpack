@@ -58,6 +58,8 @@ export {
 	PAYMENT_STATUS_FILTERS,
 	buildPaymentStatusData,
 	type PaymentStatusData,
+	buildSalesByUtmData,
+	formatLegendLabels,
 } from './helpers';
 
 /**
@@ -92,7 +94,6 @@ export {
 	SalesByDeviceWidget,
 	BookingsByDeviceWidget,
 	SessionsByDeviceWidget,
-	SalesByUtmWidget,
 	TopPerformingProductLeaderboardWidget,
 	type TopPerformingProductLeaderboardWidgetProps,
 	TopPerformingProductsWidget,
