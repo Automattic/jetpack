@@ -103,6 +103,9 @@ class Jetpack_Gutenberg {
 	 *   - it uses `plan_check` (its availability is computed from the init-time
 	 *     `jetpack_register_gutenberg_extensions` hook, which lazy registration bypasses,
 	 *     so the front-end availability nudge/render could read a stale value); or
+	 *   - a front-end path reads its entry from get_cached_availability() before the
+	 *     block renders. Deferred blocks appear unavailable there until the lazy
+	 *     registration callback runs; or
 	 *   - its block file can be `require`d by another runtime code path after `init`
 	 *     (e.g. slideshow is included by modules/shortcodes/slideshow.php). The lazy
 	 *     loader registers a block by running the `init` callback its include adds; if
@@ -1095,6 +1098,7 @@ class Jetpack_Gutenberg {
 	private static function load_and_register_deferred_block( $feature ) {
 		$path = JETPACK__PLUGIN_DIR . "extensions/blocks/{$feature}/{$feature}.php";
 		if ( ! file_exists( $path ) ) {
+			self::warn_about_deferred_block_registration_failure( $feature, 'missing block registration file' );
 			return;
 		}
 
@@ -1105,8 +1109,11 @@ class Jetpack_Gutenberg {
 		include_once $path;
 
 		if ( ! isset( $wp_filter['init'] ) ) {
+			self::warn_about_deferred_block_registration_failure( $feature, 'block file did not add an init callback' );
 			return;
 		}
+
+		$registered_callback = false;
 
 		// Run (and then detach) any callback the include just added to `init`.
 		foreach ( $wp_filter['init']->callbacks as $priority => $callbacks ) {
@@ -1114,12 +1121,44 @@ class Jetpack_Gutenberg {
 				if ( isset( $before[ $priority ][ $id ] ) ) {
 					continue;
 				}
+				$registered_callback = true;
 				if ( is_callable( $callback['function'] ) ) {
 					call_user_func( $callback['function'] );
 				}
 				remove_action( 'init', $callback['function'], $priority );
 			}
 		}
+
+		if ( ! $registered_callback ) {
+			self::warn_about_deferred_block_registration_failure( $feature, 'block file did not add a new init callback' );
+		}
+	}
+
+	/**
+	 * Surface lazy-registration mistakes during debugging without adding front-end noise.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $feature Block feature name (directory name without the `jetpack/` prefix).
+	 * @param string $reason  Short reason for the failure.
+	 *
+	 * @return void
+	 */
+	private static function warn_about_deferred_block_registration_failure( $feature, $reason ) {
+		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) || ! function_exists( '_doing_it_wrong' ) ) {
+			return;
+		}
+
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				/* translators: 1: Jetpack block feature name. 2: Failure reason. */
+				esc_html__( 'Lazy Jetpack block registration failed for "%1$s": %2$s.', 'jetpack' ),
+				esc_html( $feature ),
+				esc_html( $reason )
+			),
+			'16.0'
+		);
 	}
 
 	/**
