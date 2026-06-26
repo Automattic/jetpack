@@ -2,6 +2,11 @@
  * Internal dependencies
  */
 import { statsAppProxyQuery } from '../stats-app-query';
+import {
+	statsAppReferrersMarkSpamMutation,
+	statsAppReferrersSpamQuery,
+	statsAppReferrersUnmarkSpamMutation,
+} from '../stats-app-referrers-spam-query';
 import { statsAppSiteHasNeverPublishedPostQuery } from '../stats-app-site-has-never-published-post-query';
 import { statsArchivesQuery } from '../stats-archives-query';
 import { statsCommentFollowersQuery } from '../stats-comment-followers-query';
@@ -695,5 +700,32 @@ describe( 'Stats query factories', () => {
 				{},
 			]
 		);
+	} );
+
+	it( 'builds the referrers spam app query key', () => {
+		expect( statsAppReferrersSpamQuery().queryKey ).toEqual( [
+			'stats-app',
+			'referrers-spam',
+			'1.1',
+			'stats/referrers/spam',
+			'GET',
+			{},
+			{},
+		] );
+	} );
+
+	it( 'builds referrers spam mutation requests with domain query params', () => {
+		expect( statsAppReferrersMarkSpamMutation( { domain: 'spam.example' } ) ).toEqual( {
+			version: '1.1',
+			endpoint: 'stats/referrers/spam/new',
+			method: 'POST',
+			params: { domain: 'spam.example' },
+		} );
+		expect( statsAppReferrersUnmarkSpamMutation( { domain: 'spam.example' } ) ).toEqual( {
+			version: '1.1',
+			endpoint: 'stats/referrers/spam/delete',
+			method: 'POST',
+			params: { domain: 'spam.example' },
+		} );
 	} );
 } );

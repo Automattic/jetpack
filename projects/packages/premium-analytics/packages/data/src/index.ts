@@ -116,6 +116,16 @@ export {
 	type StatsWordAdsRawResponse,
 	type StatsWordAdsResponse,
 } from './hooks/use-stats-wordads';
+export {
+	useStatsAppReferrersSpam,
+	useStatsAppReferrersMarkSpamMutation,
+	useStatsAppReferrersUnmarkSpamMutation,
+} from './hooks/use-stats-app-referrers-spam';
+export type {
+	StatsAppReferrersSpamMutationParams,
+	StatsAppReferrersSpamMutationResponse,
+	StatsAppReferrersSpamResponse,
+} from './hooks/use-stats-app-referrers-spam';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
