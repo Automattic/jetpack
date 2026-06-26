@@ -1,6 +1,7 @@
-import { IconTooltip, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { IconTooltip, Text } from '@automattic/jetpack-components';
 import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
 import { Spinner } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
@@ -126,7 +127,7 @@ export const PaidAccordionItem = ( {
 		setOpen( current => ( current === id ? null : id ) );
 	}, [ isOpen, onOpen, setOpen, id ] );
 
-	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	return (
 		<div className={ styles[ 'accordion-item' ] }>

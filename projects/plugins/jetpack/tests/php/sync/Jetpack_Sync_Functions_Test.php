@@ -1096,6 +1096,38 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
+	 * Test that deleting a plugin forces a callable sync.
+	 *
+	 * Deleting an inactive plugin fires neither 'upgrader_process_complete' nor
+	 * 'update_option_active_plugins', so the 'deleted_plugin' action must unlock
+	 * callables on its own to keep the synced get_plugins list fresh.
+	 */
+	public function test_force_sync_callable_on_plugin_delete() {
+		// fake the cron so that we really prevent the callables from being called.
+		Settings::$is_doing_cron = true;
+
+		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable_random' ) );
+		$this->sender->do_sync();
+		$this->server_replica_storage->get_callable( 'jetpack_foo' );
+
+		$this->server_replica_storage->reset();
+
+		$synced_value2 = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		$this->assertEmpty( $synced_value2 );
+
+		// WordPress fires 'delete_plugin' before 'deleted_plugin'; the former
+		// captures the plugin info that the latter reads, so fire both to mirror
+		// real deletion and avoid an "undefined array key" warning.
+		do_action( 'delete_plugin', 'the/the.php' );
+		do_action( 'deleted_plugin', 'the/the.php', true );
+
+		$this->sender->do_sync();
+		$synced_value3           = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		Settings::$is_doing_cron = false;
+		$this->assertNotEmpty( $synced_value3, 'value is empty!' );
+	}
+
+	/**
 	 * Test "xml_rpc_request_callables_has_actor".
 	 */
 	public function test_xml_rpc_request_callables_has_actor() {

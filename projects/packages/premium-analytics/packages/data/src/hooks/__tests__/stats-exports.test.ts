@@ -5,6 +5,7 @@ import * as dataPackage from '../../index';
 
 const statsHookNames = [
 	'useStatsSite',
+	'useStatsPost',
 	'useStatsTopPosts',
 	'useStatsReferrers',
 	'useStatsClicks',
@@ -14,6 +15,30 @@ const statsHookNames = [
 	'useStatsLocations',
 	'useStatsCountryViews',
 	'useStatsVideoPlays',
+	'useStatsAppCommercialClassificationMutation',
+	'useStatsAppDashboardModuleSettings',
+	'useStatsAppDashboardModuleSettingsMutation',
+	'useStatsAppPlanUsage',
+	'useStatsArchives',
+	'useStatsCommentFollowers',
+	'useStatsFollowers',
+	'useStatsPublicize',
+	'useStatsComments',
+	'useStatsSubscribers',
+	'useStatsSubscribersCounts',
+	'useStatsStreak',
+	'useStatsVisits',
+	'useStatsInsights',
+	'useStatsUtm',
+	'useStatsHighlights',
+	'useStatsTags',
+	'useStatsDevices',
+	'useStatsAppSiteHasNeverPublishedPost',
+	'useStatsWordAdsStats',
+	'useStatsWordAdsEarnings',
+	'useStatsAppReferrersSpam',
+	'useStatsAppReferrersMarkSpamMutation',
+	'useStatsAppReferrersUnmarkSpamMutation',
 ] as const satisfies ReadonlyArray< keyof typeof dataPackage >;
 
 describe( 'Stats public hook names', () => {

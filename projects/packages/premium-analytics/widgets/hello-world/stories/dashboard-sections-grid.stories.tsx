@@ -130,12 +130,7 @@ function DashboardSectionsGridStory() {
 				onChange={ setActiveSection }
 			>
 				{ sections.map( section => (
-					<Tabs.Panel
-						key={ section.id }
-						value={ section.id }
-						focusable={ false }
-						className={ styles.content }
-					>
+					<Tabs.Panel key={ section.id } value={ section.id } className={ styles.content }>
 						{ activeSection === section.id ? (
 							<WidgetDashboard
 								widgetTypes={ widgetTypes }

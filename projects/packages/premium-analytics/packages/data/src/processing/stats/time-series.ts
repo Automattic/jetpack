@@ -19,6 +19,15 @@ import {
 import type { StatsNormalizedDataPoint, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
+export type StatsTimeSeriesDataPoint = StatsNormalizedDataPoint & {
+	label: string;
+	value: number;
+};
+
+export type StatsTimeSeriesReport = StatsNormalizedReport & {
+	data: StatsTimeSeriesDataPoint[];
+};
+
 const nonMetricFields = [ 'period', 'time_interval', 'date', 'date_start', 'date_end' ];
 const dateFormat = 'yyyy-MM-dd';
 const referenceDate = new Date( 2001, 0, 1 );
@@ -183,7 +192,7 @@ export function isStatsTimeSeriesPayload( payload: unknown ) {
 export function sanitizeStatsTimeSeriesResponse(
 	payload: unknown,
 	query?: StatsQueryParams
-): StatsNormalizedReport {
+): StatsTimeSeriesReport {
 	const response = coerceStatsRecord( payload );
 	const unit = String( response.unit ?? query?.period ?? 'day' );
 	const rows = parseTimeSeriesRows( payload );
@@ -196,7 +205,7 @@ export function sanitizeStatsTimeSeriesResponse(
 
 		return totals;
 	}, {} );
-	const data = rows.map< StatsNormalizedDataPoint >( row => {
+	const data = rows.map< StatsTimeSeriesDataPoint >( row => {
 		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
 		const range =
 			typeof row.date_start === 'string' && typeof row.date_end === 'string'

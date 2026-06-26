@@ -20,7 +20,7 @@ class ExPlat {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.4.32';
+	const PACKAGE_VERSION = '0.4.33';
 
 	/**
 	 * Initializer.

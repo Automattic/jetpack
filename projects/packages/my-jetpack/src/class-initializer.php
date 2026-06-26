@@ -40,7 +40,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.40.1';
+	const PACKAGE_VERSION = '5.40.3';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -472,12 +472,11 @@ class Initializer {
 	 * @return array{showCard: bool, redirect: string}
 	 */
 	public static function get_seo_opt_in_state() {
-		// Single source of truth lives on the SEO package's public API. Guarded with
-		// class_exists because both packages ship inside the Jetpack plugin but SEO isn't a
-		// composer dependency here (and the surface is feature-flagged).
-		$seo_loaded = class_exists( 'Automattic\\Jetpack\\SEO\\Initializer' );
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by the $seo_loaded check.
-		$show_card = $seo_loaded && \Automattic\Jetpack\SEO\Initializer::is_optin_available();
+		// Guard with method_exists rather than class_exists: an older bundled SEO package can ship
+		// the Initializer class without this method, and class_exists alone would still fatal.
+		$seo_initializer = 'Automattic\Jetpack\SEO\Initializer';
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional SEO package, guarded by method_exists.
+		$show_card = method_exists( $seo_initializer, 'is_optin_available' ) && $seo_initializer::is_optin_available();
 
 		return array(
 			'showCard' => $show_card,

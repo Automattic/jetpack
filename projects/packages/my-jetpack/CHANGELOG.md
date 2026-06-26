@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.40.3] - 2026-06-26
+### Changed
+- Migrate ProductDetailCard typography from the in-house @automattic/jetpack-components Text to @wordpress/ui Text, adopting the closest design-system variants. [#49704]
+
+### Fixed
+- Fix fatal error when an older bundled SEO package is loaded: guard the SEO opt-in card with method_exists instead of class_exists. [#49988]
+
+## [5.40.2] - 2026-06-25
+### Changed
+- Internal updates.
+
 ## [5.40.1] - 2026-06-24
 ### Changed
 - Update dependencies. [#46951]
@@ -2739,6 +2750,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.40.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.2...5.40.3
+[5.40.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.1...5.40.2
 [5.40.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.0...5.40.1
 [5.40.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.39.0...5.40.0
 [5.39.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.38.4...5.39.0

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix `@wordpress/ui` 0.15 type error: pass a valid Stack `wrap` value in the SEO title-structure field.

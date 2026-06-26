@@ -105,5 +105,22 @@ export default defineConfig(
 			'@wordpress/no-unsafe-wp-apis': 'off',
 			'@wordpress/no-unknown-ds-tokens': 'off',
 		},
+	},
+	{
+		// Ported widget code keeps the upstream next-woocommerce-analytics
+		// JSDoc style, and imports internal `@jetpack-premium-analytics/*`
+		// link: packages whose deps are declared on the parent manifest.
+		files: [ 'widgets/**' ],
+		rules: {
+			'import/order': 'off',
+			'jsdoc/require-description': 'off',
+			'jsdoc/require-param-description': 'off',
+			'jsdoc/require-returns': 'off',
+			'jsdoc/check-indentation': 'off',
+			'jsdoc/require-param': 'off',
+			'jsdoc/require-jsdoc': 'off',
+			'jsdoc/escape-inline-tags': 'off',
+			'import/no-extraneous-dependencies': 'off',
+		},
 	}
 );

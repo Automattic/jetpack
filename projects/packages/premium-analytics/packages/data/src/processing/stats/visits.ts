@@ -2,12 +2,12 @@
  * Internal dependencies
  */
 import { sanitizeStatsTimeSeriesResponse } from './time-series';
-import type { StatsNormalizedReport } from './types';
+import type { StatsTimeSeriesReport } from './time-series';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
 export function sanitizeStatsVisitsResponse(
 	response: unknown,
 	query?: StatsQueryParams
-): StatsNormalizedReport {
+): StatsTimeSeriesReport {
 	return sanitizeStatsTimeSeriesResponse( response, query );
 }

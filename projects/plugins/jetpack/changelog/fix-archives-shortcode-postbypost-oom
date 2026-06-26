@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Archives shortcode: Cap the unbounded postbypost type with a sane, filterable default limit to prevent memory exhaustion on large sites.

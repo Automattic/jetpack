@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Centralize podcatcher host allowlist in PHP script data and preload mount-time REST responses to drop first-render round-trips

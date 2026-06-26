@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 16.0-a.3
+Stable tag: 16.0-a.5
 Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
@@ -326,26 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.0-a.3 - 2026-06-22
+### 16.0-a.5 - 2026-06-25
 #### Enhancements
-- Add AI-powered "Generate/Improve with Jetpack" buttons to the Content Guidelines admin page.
-- AI Sidebar: Enable Optimize Title suggestions.
-- Newsletter: Allow setting a custom description for the free tier and hiding it from the subscriber plan selector.
-- Render the unified Jetpack admin header and footer on Akismet's admin pages.
-- SEO: Add a per-post schema type control and SEO columns (schema, meta description, search visibility) to post-list tables.
-- SEO: Auto-discover the new SEO surface on fresh installs (opt-in on existing sites), and add an opt-in banner to the legacy Traffic > SEO settings page.
-- SEO: Surface SEO Tools as a Plugin Search Hint when users search the plugin directory for SEO-related terms.
-- Subscriptions: Replace the Subscribers menu link with a transitional announcement page when the Newsletter modernization filter is enabled.
+- SEO: Hide the legacy Traffic-page SEO and Sitemaps sections once a site is on the new SEO dashboard (fresh install, opted-in, or WordPress.com); existing self-hosted installs that haven't opted in keep the legacy sections.
 
 #### Bug fixes
-- Akismet: Hide the empty `#screen-meta-links` container so it no longer reserves a blank slot above the Jetpack header (notably on WordPress.com Simple sites).
-- Blaze: Warn users with active campaigns before disabling the Blaze module.
-- Donations Form: Prevent the editor from flickering when hovering the block as an inserter preview.
-- Newsletter: When setting up paid subscriptions, only prompt for the steps that are actually missing (Stripe connection and/or a newsletter tier).
-- Subscriptions: Prevent a duplicate Subscribers menu entry on WordPress.com (Atomic) sites.
-- Top Posts & Pages: Use the live post permalink so links reflect the current site URL.
-- VideoPress: Load player scripts only once when a page contains multiple videos.
-- VideoPress: Fix the player overflowing the page on the non-iframe embed path.
+- AI Assistant: Hide legacy block toolbar controls when Jetpack AI Sidebar content editing is enabled.
+- AI Chat block: Stop prompting to enable Jetpack Search when the Search module is active in a non-Instant Search experience (Theme, Inline, or Embedded).
+- Akismet: Show the Akismet logo (instead of the Jetpack logo) in the unified admin header.
+- Newsletter: Fix "Sorry, you are not allowed to do this" error for Contributors on the first Submit for Review when the Subscriptions module is active.
+- Paid Content: Ensure paid subscribers on Atomic-hosted sites retain access to gated content.
+- SEO: Default the Schema, Meta description, and Search post-list columns to hidden in Screen Options.
+- Social: Prevent errors in the post-publish sharing status panel from crashing the editor.
 
 --------
 
