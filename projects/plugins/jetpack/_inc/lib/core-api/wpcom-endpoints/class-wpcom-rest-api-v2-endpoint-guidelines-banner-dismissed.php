@@ -48,6 +48,15 @@ class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed extends WP_REST_Con
 		$this->is_wpcom                     = true;
 		$this->wpcom_is_wpcom_only_endpoint = true;
 
+		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
+		}
+
+		// Match the suggest-guidelines endpoint: register on Simple/Atomic only.
+		if ( ! \Jetpack_AI_Helper::is_enabled() ) {
+			return;
+		}
+
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
