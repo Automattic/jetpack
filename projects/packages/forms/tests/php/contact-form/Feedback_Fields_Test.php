@@ -669,6 +669,72 @@ class Feedback_Fields_Test extends BaseTestCase {
 		$this->assertEquals( $default_expected, $default );
 	}
 
+	public function test_get_compiled_fields_skips_empty_device_hidden_field() {
+		$test_email = 'jane.smith@example.com';
+		$form_id    = Utility::get_form_id();
+		// The device-hidden "Name" field is intentionally left empty in the submission.
+		$_post_data = Utility::get_post_request(
+			array(
+				'email' => $test_email,
+			),
+			'g' . $form_id
+		);
+
+		$form     = new Contact_Form( array(), '[contact-field label="Name" type="name" fieldwrapperclasses="wp-block-jetpack-field-name wp-block-hidden-tablet"][contact-field label="Email" type="email"]' );
+		$response = Feedback::from_submission( $_post_data, $form );
+
+		$web     = $response->get_compiled_fields( 'web' );
+		$default = $response->get_compiled_fields( 'default' );
+
+		// The empty device-hidden field is excluded from the user-facing confirmation...
+		$this->assertEquals(
+			array(
+				'2_Email' => array(
+					'label' => 'Email',
+					'value' => $test_email,
+				),
+			),
+			$web
+		);
+
+		// ...but is still present in storage / email contexts.
+		$this->assertArrayHasKey( '1_Name', $default );
+	}
+
+	public function test_get_compiled_fields_keeps_filled_device_hidden_field() {
+		$test_name  = 'Filled On Desktop';
+		$test_email = 'jane.smith@example.com';
+		$form_id    = Utility::get_form_id();
+		// The device-hidden "Name" field has a value (the visitor was on a viewport where it shows).
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'  => $test_name,
+				'email' => $test_email,
+			),
+			'g' . $form_id
+		);
+
+		$form     = new Contact_Form( array(), '[contact-field label="Name" type="name" fieldwrapperclasses="wp-block-jetpack-field-name wp-block-hidden-tablet"][contact-field label="Email" type="email"]' );
+		$response = Feedback::from_submission( $_post_data, $form );
+
+		$web = $response->get_compiled_fields( 'web' );
+
+		// A device-hidden field that was filled in is still shown on the confirmation.
+		$this->assertEquals(
+			array(
+				'1_Name'  => array(
+					'label' => 'Name',
+					'value' => $test_name,
+				),
+				'2_Email' => array(
+					'label' => 'Email',
+					'value' => $test_email,
+				),
+			),
+			$web
+		);
+	}
+
 	public function test_get_field_by_id_and_value_by_id_new_submission() {
 		$form_id    = Utility::get_form_id();
 		$_post_data = Utility::get_post_request(

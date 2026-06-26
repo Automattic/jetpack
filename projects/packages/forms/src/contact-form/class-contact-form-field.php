@@ -545,7 +545,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * @return bool True when the field wrapper carries a device-visibility class.
 	 */
-	private function is_hidden_by_device_visibility() {
+	public function is_hidden_by_device_visibility() {
 		$wrapper_classes = (string) $this->get_attribute( 'fieldwrapperclasses' );
 		return str_contains( $wrapper_classes, 'wp-block-hidden-' );
 	}

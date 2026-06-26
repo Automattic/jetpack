@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Don't list an empty device-hidden field on the post-submission confirmation page.

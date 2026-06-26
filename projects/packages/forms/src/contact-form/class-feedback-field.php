@@ -69,6 +69,14 @@ class Feedback_Field {
 	protected $form_field_id = '';
 
 	/**
+	 * Whether the field can be hidden for the visitor's device via block device visibility.
+	 * Transient (not persisted): only set when the feedback is built from a live submission.
+	 *
+	 * @var bool
+	 */
+	private $is_hidden_for_device = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string      $key           The key of the field.
@@ -137,6 +145,37 @@ class Feedback_Field {
 	 */
 	public function get_form_field_id() {
 		return $this->form_field_id;
+	}
+
+	/**
+	 * Set whether the field can be hidden for the visitor's device via block device visibility.
+	 *
+	 * @param bool $is_hidden_for_device Whether the field carries a device-visibility restriction.
+	 * @return void
+	 */
+	public function set_hidden_for_device( $is_hidden_for_device ) {
+		$this->is_hidden_for_device = (bool) $is_hidden_for_device;
+	}
+
+	/**
+	 * Whether the field can be hidden for the visitor's device via block device visibility.
+	 *
+	 * @return bool
+	 */
+	public function is_hidden_for_device() {
+		return $this->is_hidden_for_device;
+	}
+
+	/**
+	 * Whether the field has no submitted value.
+	 *
+	 * @return bool
+	 */
+	public function is_empty() {
+		if ( is_array( $this->value ) ) {
+			return empty( array_filter( $this->value ) );
+		}
+		return '' === trim( (string) $this->value );
 	}
 
 	/**
