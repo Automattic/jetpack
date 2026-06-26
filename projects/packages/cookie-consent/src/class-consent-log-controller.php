@@ -168,8 +168,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
-				// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
-				array(
+				0        => array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_consent_log' ),
 					'permission_callback' => '__return_true', // Allow unauthenticated access.
@@ -211,8 +210,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
-				// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
-				array(
+				0        => array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_consent_logs' ),
 					'permission_callback' => array( $this, 'check_read_permission' ),

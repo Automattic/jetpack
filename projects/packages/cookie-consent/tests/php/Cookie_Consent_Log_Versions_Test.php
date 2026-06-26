@@ -3,8 +3,6 @@
  * Tests for Cookie_Consent::get_log_versions().
  *
  * @package automattic/jetpack-cookie-consent
- * @phan-file-suppress PhanUndeclaredClassAttribute
- * @phan-file-suppress PhanUndeclaredMethod
  */
 
 namespace Automattic\Jetpack\CookieConsent;
