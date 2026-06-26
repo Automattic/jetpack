@@ -649,9 +649,11 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Get configuration with filters
+	 * Get configuration with filters.
 	 *
-	 * @return array Configuration array
+	 * @internal
+	 *
+	 * @return array Configuration array.
 	 */
 	public static function get_config() {
 		$default_config = array(
