@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
 
@@ -15,15 +14,11 @@ require_once __DIR__ . '/../../src/widget-types.php';
 require_once __DIR__ . '/../../src/widget-availability.php';
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\get_available_widget_types
- * @covers \Automattic\Jetpack\PremiumAnalytics\filter_widget_types_by_environment
- * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_widget_types_by_environment
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_available_widget_types
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_widget_types_by_environment
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_available_widget_types' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_widget_types_by_environment' )]
-#[CoversClass( filter_widget_types_by_environment::class )]
-#[CoversClass( get_available_widget_types::class )]
 class Widget_Availability_Test extends BaseTestCase {
 
 	/**
