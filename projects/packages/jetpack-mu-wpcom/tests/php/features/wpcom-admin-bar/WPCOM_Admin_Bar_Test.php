@@ -5,11 +5,13 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-bar/wpcom-admin-bar.php';
 require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+require_once __DIR__ . '/get-user-attribute-stub.php';
 
 /**
  * Class WPCOM_Admin_Bar_Test
@@ -141,6 +143,31 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 
 		set_transient( $cache_key, 1, HOUR_IN_SECONDS );
 		$this->assertTrue( wpcom_admin_bar_is_hosting_dashboard_enrolled() );
+	}
+
+	/**
+	 * On a Simple site the opt-in preference is read locally from the user's
+	 * calypso_preferences attribute.
+	 */
+	public function test_hosting_dashboard_enrollment_reads_simple_preference() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'simple_user',
+				'user_pass'  => 'pass',
+				'user_email' => 'simple@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		Constants::set_constant( 'IS_WPCOM', true );
+		$GLOBALS['_test_user_attributes']['calypso_preferences'] = array(
+			'hosting-dashboard-opt-in' => array( 'value' => 'opt-in' ),
+		);
+
+		$this->assertTrue( wpcom_admin_bar_is_hosting_dashboard_enrolled() );
+
+		unset( $GLOBALS['_test_user_attributes'] );
+		Constants::clear_single_constant( 'IS_WPCOM' );
 	}
 
 	/**

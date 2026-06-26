@@ -104,6 +104,7 @@ function wpcom_admin_bar_is_hosting_dashboard_enrolled() {
 			}
 		}
 	} elseif ( ( new Connection_Manager() )->is_user_connected() ) {
+		// @codeCoverageIgnoreStart -- Signed remote request over Connection\Client; exercised in the connection package, not unit-testable here.
 		$response = Client::wpcom_json_api_request_as_user(
 			'/me/preferences',
 			'2',
@@ -114,6 +115,7 @@ function wpcom_admin_bar_is_hosting_dashboard_enrolled() {
 			$body         = json_decode( wp_remote_retrieve_body( $response ) );
 			$opt_in_value = $body->calypso_preferences->{'hosting-dashboard-opt-in'}->value ?? null;
 		}
+		// @codeCoverageIgnoreEnd
 	}
 
 	$enrolled = in_array( $opt_in_value, array( 'opt-in', 'forced-opt-in' ), true );
