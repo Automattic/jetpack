@@ -1,0 +1,33 @@
+.podcast-connect-prompt {
+
+	&__inner {
+		padding: 24px 16px;
+		text-align: center;
+	}
+
+	&__icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		background: var(--jp-gray-0, #f6f7f7);
+		color: var(--jp-black, #1e1e1e);
+
+		svg {
+			width: 28px;
+			height: 28px;
+		}
+	}
+
+	&__title {
+		margin: 0;
+		font-size: 20px;
+		font-weight: 500;
+	}
+
+	&__description {
+		max-width: 420px;
+	}
+}

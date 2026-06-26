@@ -142,6 +142,21 @@ class Admin_Page {
 			$data = array();
 		}
 
+		// jetpack-mu-wpcom populates `site.wpcom.blog_id` on Simple/Atomic, but it
+		// doesn't run on self-hosted. The dashboard reads that value both as the
+		// "connected" signal and to address the stats proxy, so mirror the
+		// connected blog ID here. It stays 0 while disconnected, which the SPA
+		// renders as a connect prompt rather than the paid upsell.
+		if ( ! ( new Host() )->is_wpcom_platform()
+			&& empty( $data['site']['wpcom']['blog_id'] )
+			&& class_exists( '\\Jetpack_Options' )
+		) {
+			$blog_id = (int) \Jetpack_Options::get_option( 'id' );
+			if ( $blog_id > 0 ) {
+				$data['site']['wpcom']['blog_id'] = $blog_id;
+			}
+		}
+
 		// A buyer returning from checkout carries the purchase marker; bust the
 		// cached purchases lookup so the gate re-reads `/upgrades` and unlocks
 		// the paid surfaces now instead of after the transient expires.

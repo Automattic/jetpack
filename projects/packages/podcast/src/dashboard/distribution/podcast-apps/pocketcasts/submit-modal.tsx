@@ -17,6 +17,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
+import { getConnectUrl, isSiteConnected } from '../../../connection';
 import { usePodcastSettings } from '../../../hooks/use-podcast-settings';
 import './style.scss';
 import { extractRejectionReasons, usePocketCastsSubmit } from './use-submit';
@@ -62,6 +63,10 @@ const PocketCastsSubmitModal = ( { app, feedUrl, onClose, onFirstSave }: Podcast
 
 	const { submit, isSubmitting, result, errorMessage } = usePocketCastsSubmit();
 	const celebratedRef = useRef( false );
+
+	// Pocket Casts submits through the WordPress.com relay, so it needs a
+	// connection. Surface that up front rather than letting the request fail.
+	const connected = isSiteConnected();
 
 	// Live result wins over the persisted state until the modal is reopened.
 	const liveState = result ? liveStateFromResult( result.state ) : null;
@@ -134,6 +139,18 @@ const PocketCastsSubmitModal = ( { app, feedUrl, onClose, onFirstSave }: Podcast
 					</Text>
 				) }
 
+				{ ! connected && (
+					<Notice status="warning" isDismissible={ false }>
+						{ __(
+							'Connect this site to WordPress.com to submit your podcast to Pocket Casts.',
+							'jetpack-podcast'
+						) }{ ' ' }
+						<ExternalLink href={ getConnectUrl() }>
+							{ __( 'Connect Jetpack', 'jetpack-podcast' ) }
+						</ExternalLink>
+					</Notice>
+				) }
+
 				{ result?.state === 'rejected' && (
 					<Notice status="error" isDismissible={ false }>
 						{ rejectedMessage ??
@@ -162,7 +179,7 @@ const PocketCastsSubmitModal = ( { app, feedUrl, onClose, onFirstSave }: Podcast
 					iconPosition="left"
 					onClick={ handleSubmit }
 					isBusy={ isSubmitting }
-					disabled={ ! feedUrl || isSubmitting || isDone }
+					disabled={ ! connected || ! feedUrl || isSubmitting || isDone }
 					accessibleWhenDisabled
 				>
 					{ isSubmitting && ! effectiveState

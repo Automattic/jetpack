@@ -11,8 +11,10 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
 use Automattic\Jetpack\Podcast\Podcast_Gate;
 use Automattic\Jetpack\Podcast\Settings;
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
+use WorDBless\Options as WorDBless_Options;
 
 /**
  * @covers \Automattic\Jetpack\Podcast\Admin_Page
@@ -37,6 +39,7 @@ class Admin_Page_Test extends BaseTestCase {
 		// Drops the transient and the request-scoped memo so neither leaks into
 		// a sibling test.
 		Podcast_Gate::flush_purchases_cache();
+		WorDBless_Options::init()->clear_options();
 		wp_set_current_user( 0 );
 		parent::tearDown();
 	}
@@ -147,6 +150,46 @@ class Admin_Page_Test extends BaseTestCase {
 			$data['podcast']['upgrade']
 		);
 		$this->assertTrue( $data['podcast']['has_product_access'] );
+	}
+
+	/**
+	 * Self-hosted connected: the connected blog ID is mirrored into
+	 * `site.wpcom.blog_id` (nothing else populates it off WordPress.com), giving
+	 * the dashboard its connection signal. Purchases are seeded empty to keep
+	 * the gate's access check hermetic.
+	 */
+	public function test_inject_script_data_sets_blog_id_when_connected_on_self_hosted() {
+		Podcast_Gate::flush_purchases_cache();
+		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, array() );
+		Jetpack_Options::update_option( 'id', 456 );
+
+		$data = Admin_Page::inject_podcast_script_data( array() );
+
+		$this->assertSame( 456, $data['site']['wpcom']['blog_id'] );
+	}
+
+	/**
+	 * Self-hosted disconnected: no blog ID to mirror, so the dashboard reads a
+	 * falsy value and renders a connect prompt instead of the paid upsell.
+	 */
+	public function test_inject_script_data_leaves_blog_id_unset_when_disconnected() {
+		$data = Admin_Page::inject_podcast_script_data( array() );
+
+		$this->assertEmpty( $data['site']['wpcom']['blog_id'] ?? null );
+	}
+
+	/**
+	 * WordPress.com platforms already get `site.wpcom.blog_id` from
+	 * jetpack-mu-wpcom, so the podcast injection must not overwrite it.
+	 */
+	public function test_inject_script_data_preserves_existing_blog_id() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$data = Admin_Page::inject_podcast_script_data(
+			array( 'site' => array( 'wpcom' => array( 'blog_id' => 789 ) ) )
+		);
+
+		$this->assertSame( 789, $data['site']['wpcom']['blog_id'] );
 	}
 
 	/**
