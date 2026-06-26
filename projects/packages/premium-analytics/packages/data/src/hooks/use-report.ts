@@ -47,7 +47,7 @@ type QueryFactory< TData > = (
  * );
  * ```
  */
-export function useReport< TData, TParams extends Partial< ReportParams > = ReportParams >(
+export function useReport< TData, TParams extends ReportParams = ReportParams >(
 	queryFactory: QueryFactory< TData >,
 	params: TParams,
 	options?: UseReportOptions
