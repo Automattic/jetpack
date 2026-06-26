@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Charts: fix Bar Chart comparison mode — pair the keyboard tooltip with the focused bar and keep the value axis zero-based.
+Charts: fix Bar Chart comparison mode — pair the keyboard tooltip with the focused bar, keep the value axis zero-based, and make the tooltip label/value separator translatable.
