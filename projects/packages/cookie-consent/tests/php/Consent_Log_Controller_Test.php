@@ -5,8 +5,70 @@
  * @package automattic/jetpack-cookie-consent
  */
 
-use Automattic\Jetpack\CookieConsent\Consent_Log_Controller;
-use PHPUnit\Framework\TestCase;
+namespace Automattic\Jetpack\CookieConsent;
+
+use ReflectionMethod;
+
+/**
+ * Test double for function_exists() calls made from this namespace.
+ *
+ * @param string $function_name Function name.
+ * @return bool
+ */
+function function_exists( $function_name ) {
+	if ( 'wp_privacy_anonymize_ip' === $function_name ) {
+		return $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_exists'] ?? true;
+	}
+
+	return \function_exists( $function_name );
+}
+
+/**
+ * Test double for WordPress's wp_privacy_anonymize_ip().
+ *
+ * @param string $ip_address IP address.
+ * @return string|null
+ */
+function wp_privacy_anonymize_ip( $ip_address ) {
+	$GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_calls'][] = $ip_address;
+
+	return jetpack_cookie_consent_test_anonymize_ip( $ip_address );
+}
+
+/**
+ * Match WordPress IP anonymization masks for tests.
+ *
+ * @param string $ip_address IP address.
+ * @return string|null
+ */
+function jetpack_cookie_consent_test_anonymize_ip( $ip_address ) {
+	if ( \filter_var( $ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+		$octets    = explode( '.', $ip_address );
+		$octets[3] = '0';
+		return implode( '.', $octets );
+	}
+
+	if ( \filter_var( $ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+		$packed = inet_pton( $ip_address );
+		if ( false === $packed ) {
+			return null;
+		}
+
+		$bytes = unpack( 'C*', $packed );
+		if ( false === $bytes ) {
+			return null;
+		}
+
+		for ( $i = 9; $i <= 16; $i++ ) {
+			$bytes[ $i ] = 0;
+		}
+
+		$truncated = inet_ntop( pack( 'C*', ...array_values( $bytes ) ) );
+		return false === $truncated ? null : $truncated;
+	}
+
+	return null;
+}
 
 /**
  * Consent log controller test suite.
@@ -34,6 +96,8 @@ class Consent_Log_Controller_Test extends TestCase {
 
 		$this->controller = new Consent_Log_Controller();
 		$this->server     = $_SERVER;
+		$GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_exists'] = true;
+		$GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_calls']  = array();
 	}
 
 	/**
@@ -42,6 +106,8 @@ class Consent_Log_Controller_Test extends TestCase {
 	public function tearDown(): void {
 		$_SERVER = $this->server;
 		remove_all_filters( 'jetpack_cookie_consent_config' );
+		unset( $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_exists'] );
+		unset( $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_calls'] );
 
 		parent::tearDown();
 	}
@@ -110,6 +176,43 @@ class Consent_Log_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that truncate mode uses WordPress's anonymizer when available.
+	 */
+	public function test_truncate_ip_mode_uses_wp_privacy_anonymize_ip() {
+		$this->set_config_ip_mode( 'truncate' );
+
+		$this->set_server_ip( '203.0.113.42' );
+		$this->assertSame( '203.0.113.0', $this->get_consent_log_ip_address() );
+
+		$this->set_server_ip( '2001:db8:abcd:1234:5678:90ab:cdef:1234' );
+		$this->assertSame( '2001:db8:abcd:1234::', $this->get_consent_log_ip_address() );
+
+		$this->assertSame(
+			array(
+				'203.0.113.42',
+				'2001:db8:abcd:1234:5678:90ab:cdef:1234',
+			),
+			$GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_calls']
+		);
+	}
+
+	/**
+	 * Test that truncate mode falls back when WordPress's anonymizer is unavailable.
+	 */
+	public function test_truncate_ip_mode_uses_fallback_without_wp_privacy_anonymize_ip() {
+		$GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_exists'] = false;
+		$this->set_config_ip_mode( 'truncate' );
+
+		$this->set_server_ip( '203.0.113.42' );
+		$this->assertSame( '203.0.113.0', $this->get_consent_log_ip_address() );
+
+		$this->set_server_ip( '2001:db8:abcd:1234:5678:90ab:cdef:1234' );
+		$this->assertSame( '2001:db8:abcd:1234::', $this->get_consent_log_ip_address() );
+
+		$this->assertSame( array(), $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_calls'] );
+	}
+
+	/**
 	 * Test that the read schema allows dropped IP addresses.
 	 */
 	public function test_consent_logs_schema_allows_null_ip_address() {
@@ -126,8 +229,6 @@ class Consent_Log_Controller_Test extends TestCase {
 	private function get_ip_mode_cases() {
 		return array(
 			'raw'           => array( 'raw', '203.0.113.42', '203.0.113.42' ),
-			'truncate IPv4' => array( 'truncate', '203.0.113.42', '203.0.113.0' ),
-			'truncate IPv6' => array( 'truncate', '2001:db8:abcd:1234:5678:90ab:cdef:1234', '2001:db8:abcd:1234::' ),
 			'drop'          => array( 'drop', '203.0.113.42', null ),
 		);
 	}
