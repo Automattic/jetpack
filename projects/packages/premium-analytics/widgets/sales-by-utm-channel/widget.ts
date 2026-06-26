@@ -1,0 +1,26 @@
+/**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+import { chartBar } from '@wordpress/icons';
+
+/**
+ * Widget type definition.
+ *
+ * Ported from `woocommerce-analytics/sales-by-utm-channel` in
+ * woocommerce/woocommerce-analytics (next-woocommerce-analytics).
+ *
+ * Report params intentionally come from the analytics dashboard's global
+ * date-range state for now. Adding widget-level overrides needs a host-level
+ * control registry so analytics dashboards can hide the field while other
+ * dashboards can opt in.
+ */
+export default {
+	name: 'jpa/sales-by-utm-channel',
+	title: __( 'Sales by UTM channel', 'jetpack-premium-analytics' ),
+	description: __(
+		'Shows the top UTM channels by order revenue over the selected time period.',
+		'jetpack-premium-analytics'
+	),
+	icon: chartBar,
+};
