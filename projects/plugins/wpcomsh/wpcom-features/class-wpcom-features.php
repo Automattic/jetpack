@@ -238,14 +238,13 @@ class WPCOM_Features {
 	private const A4A_JETPACK_CREATOR_MONTHLY                 = 'a4a_jetpack_creator_monthly'; // 3341
 
 	// WPCOM "Level 2": Groups of level 1s.
-	private const WPCOM_BLOGGER_PLANS         = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
-	private const WPCOM_PERSONAL_PLANS        = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y, self::PERSONAL_BUNDLE_3Y );
-	private const WPCOM_STARTER_PLANS         = array( self::STARTER_PLAN );
-	private const WPCOM_PREMIUM_PLANS         = array( self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y, self::VALUE_BUNDLE_3Y );
-	private const WPCOM_PRO_PLANS             = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
-	private const WPCOM_MIGRATION_TRIAL_PLANS = array( self::WPCOM_MIGRATION_TRIAL_BUNDLE_MONTHLY );
-	private const WPCOM_HOSTING_TRIAL_PLANS   = array( self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY );
-	// The Student plan is a yearly bundle that mirrors the Business plan's feature set (storage excepted, which is governed by its bundled space product, not these mappings). Nesting it in WPCOM_BUSINESS_PLANS grants it full Business parity across every tier grouping and direct reference.
+	private const WPCOM_BLOGGER_PLANS           = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
+	private const WPCOM_PERSONAL_PLANS          = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y, self::PERSONAL_BUNDLE_3Y );
+	private const WPCOM_STARTER_PLANS           = array( self::STARTER_PLAN );
+	private const WPCOM_PREMIUM_PLANS           = array( self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y, self::VALUE_BUNDLE_3Y );
+	private const WPCOM_PRO_PLANS               = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
+	private const WPCOM_MIGRATION_TRIAL_PLANS   = array( self::WPCOM_MIGRATION_TRIAL_BUNDLE_MONTHLY );
+	private const WPCOM_HOSTING_TRIAL_PLANS     = array( self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY );
 	private const WPCOM_STUDENT_PLANS           = array( self::STUDENT_BUNDLE );
 	private const WPCOM_BUSINESS_PLANS          = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y, self::WPCOM_MIGRATION_TRIAL_PLANS, self::WPCOM_HUNDRED_YEAR_BUNDLE, self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY, self::A4A_WPCOM_BUSINESS_BUNDLE_YEARLY, self::A4A_WPCOM_BUSINESS_BUNDLE_MONTHLY, self::WPCOM_STUDENT_PLANS );
 	private const WPCOM_ECOMMERCE_PLANS         = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y, self::ECOMMERCE_BUNDLE_3Y );
