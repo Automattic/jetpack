@@ -141,6 +141,16 @@ class Colors_Manager_Common {
 	 * Initialize the object.
 	 */
 	public static function init() {
+		// COLOURLovers support has been discontinued, so we must stop requesting
+		// COLOURLovers-hosted assets. Atomic sites store background images on
+		// COLOURLovers' S3 bucket and emit those URLs straight into the page, so
+		// every visitor's browser requests them directly. Blank them at render time.
+		// Attached unconditionally (before the enable_custom_customizer guard) so the
+		// requests stop even where the rest of the custom-colors tool is disabled.
+		// No fallback: broken backgrounds are acceptable.
+		add_filter( 'theme_mod_background_image', array( __CLASS__, 'remove_colourlovers_background' ) );
+		add_filter( 'theme_mod_background_image_thumb', array( __CLASS__, 'remove_colourlovers_background' ) );
+
 		if ( ! apply_filters( 'enable_custom_customizer', true ) ) {
 			return;
 		}
@@ -632,6 +642,31 @@ class Colors_Manager_Common {
 		header( 'Content-Type: text/javascript' );
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
+	 * Stop serving COLOURLovers background images.
+	 *
+	 * COLOURLovers support has been discontinued, so we must no longer make
+	 * requests to COLOURLovers-hosted infrastructure. Atomic sites store
+	 * background images on the legacy `colourlovers.com.s3.amazonaws.com` bucket
+	 * (and historically the `colourlovers-static-replica` bucket) and emit those
+	 * URLs straight into the page, so every visitor's browser requests them
+	 * directly. Blank any such value at render time. We intentionally provide no
+	 * fallback: broken backgrounds are acceptable.
+	 *
+	 * @param mixed $url The stored background image URL.
+	 * @return mixed Empty string for COLOURLovers-hosted images, otherwise the original value.
+	 */
+	public static function remove_colourlovers_background( $url ) {
+		if ( is_string( $url ) && (
+			false !== stripos( $url, 'colourlovers.com.s3.amazonaws.com' )
+			|| false !== stripos( $url, 'colourlovers-static-replica.s3.amazonaws.com' )
+		) ) {
+			return '';
+		}
+
+		return $url;
 	}
 
 	/**
