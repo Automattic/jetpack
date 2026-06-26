@@ -49,6 +49,13 @@ class Cookie_Consent {
 	private const CCPA_PAGE_SLUG = 'your-privacy-choices';
 
 	/**
+	 * Post meta marker for CCPA pages created by this package.
+	 *
+	 * @var string
+	 */
+	private const CCPA_PAGE_CREATED_META = '_jetpack_cookie_consent_created_ccpa_page';
+
+	/**
 	 * Whether the class has been initialized.
 	 *
 	 * @var bool
@@ -159,7 +166,11 @@ class Cookie_Consent {
 
 		if ( $page_id ) {
 			$page = get_post( $page_id );
-			if ( $page && 'page' === $page->post_type ) {
+			if (
+				$page
+				&& 'page' === $page->post_type
+				&& get_post_meta( $page_id, self::CCPA_PAGE_CREATED_META, true )
+			) {
 				wp_delete_post( $page_id, true );
 			}
 		}
@@ -223,6 +234,7 @@ class Cookie_Consent {
 
 		// Store the page ID and mark as created.
 		if ( $page_id && ! is_wp_error( $page_id ) ) {
+			update_post_meta( $page_id, self::CCPA_PAGE_CREATED_META, 1 );
 			update_option( self::CCPA_PAGE_ID_OPTION, $page_id );
 			update_option( self::CCPA_PAGE_CREATED_OPTION, 1 );
 		}

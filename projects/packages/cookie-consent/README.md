@@ -30,9 +30,11 @@ function my_plugin_uninstall() {
 `deactivate()` unschedules the daily consent-log cleanup cron while keeping the
 CCPA page, options, and consent logs intact.
 
-`uninstall()` unschedules cron, deletes the auto-created CCPA page, and clears
-the `jetpack_cookie_consent_ccpa_page_id` and
-`jetpack_cookie_consent_ccpa_page_created` options. Consent logs are retained by
+`uninstall()` unschedules cron, deletes the package-created CCPA page, and
+clears the `jetpack_cookie_consent_ccpa_page_id` and
+`jetpack_cookie_consent_ccpa_page_created` options. If the stored CCPA page ID
+points to a manually configured page or a page adopted by slug, the page is left
+intact and only the package options are cleared. Consent logs are retained by
 default because they may be compliance records. To drop the consent-log table and
 clear `jetpack_cookie_consent_consent_log_db_version`, call:
 

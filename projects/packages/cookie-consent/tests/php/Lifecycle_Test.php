@@ -34,6 +34,13 @@ class Lifecycle_Test extends TestCase {
 	private const CCPA_PAGE_CREATED_OPTION = 'jetpack_cookie_consent_ccpa_page_created';
 
 	/**
+	 * The post meta marker for package-created CCPA pages.
+	 *
+	 * @var string
+	 */
+	private const CCPA_PAGE_CREATED_META = '_jetpack_cookie_consent_created_ccpa_page';
+
+	/**
 	 * The consent-log DB version option.
 	 *
 	 * @var string
@@ -85,12 +92,58 @@ class Lifecycle_Test extends TestCase {
 
 		$this->assertGreaterThan( 0, $page_id );
 		$this->assertNotNull( get_post( $page_id ) );
+		$this->assertSame( 1, get_post_meta( $page_id, self::CCPA_PAGE_CREATED_META, true ) );
 
 		Cookie_Consent::uninstall();
 
 		$this->assertNull( get_post( $page_id ) );
 		Cookie_Consent::uninstall();
 
+		$this->assertFalse( get_option( self::CCPA_PAGE_ID_OPTION ) );
+		$this->assertFalse( get_option( self::CCPA_PAGE_CREATED_OPTION ) );
+	}
+
+	/**
+	 * Uninstall clears options but keeps a manually configured CCPA page.
+	 */
+	public function test_uninstall_keeps_manually_configured_ccpa_page() {
+		$page_id = wp_insert_post(
+			array(
+				'post_title'  => 'Manual Privacy Choices',
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+			)
+		);
+		update_option( self::CCPA_PAGE_ID_OPTION, $page_id );
+
+		Cookie_Consent::uninstall();
+
+		$this->assertNotNull( get_post( $page_id ) );
+		$this->assertFalse( get_option( self::CCPA_PAGE_ID_OPTION ) );
+		$this->assertFalse( get_option( self::CCPA_PAGE_CREATED_OPTION ) );
+	}
+
+	/**
+	 * Uninstall clears options but keeps a page adopted by the CCPA slug fallback.
+	 */
+	public function test_uninstall_keeps_slug_adopted_ccpa_page() {
+		$page_id = wp_insert_post(
+			array(
+				'post_title'  => 'Your Privacy Choices',
+				'post_name'   => 'your-privacy-choices',
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+			)
+		);
+
+		update_option( self::CCPA_PAGE_ID_OPTION, $page_id );
+		update_option( self::CCPA_PAGE_CREATED_OPTION, 1 );
+
+		$this->assertSame( '', get_post_meta( $page_id, self::CCPA_PAGE_CREATED_META, true ) );
+
+		Cookie_Consent::uninstall();
+
+		$this->assertNotNull( get_post( $page_id ) );
 		$this->assertFalse( get_option( self::CCPA_PAGE_ID_OPTION ) );
 		$this->assertFalse( get_option( self::CCPA_PAGE_CREATED_OPTION ) );
 	}
