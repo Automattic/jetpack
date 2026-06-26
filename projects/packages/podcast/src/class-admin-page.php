@@ -143,7 +143,9 @@ class Admin_Page {
 			$data = array();
 		}
 
-		if ( ! ( new Host() )->is_wpcom_platform() && empty( $data['site']['wpcom']['blog_id'] ) ) {
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
+
+		if ( ! $is_wpcom && empty( $data['site']['wpcom']['blog_id'] ) ) {
 			$blog_id = (int) Connection_Manager::get_site_id( true );
 			if ( $blog_id > 0 ) {
 				$data['site']['wpcom']['blog_id'] = $blog_id;
@@ -161,8 +163,6 @@ class Admin_Page {
 		// Self-hosted upsells the Growth plan; WordPress.com keeps Premium.
 		// `product_slug` is fed straight to the checkout URL; `plan_name` is a
 		// product name shown in the locked-preview copy (not translated).
-		$is_wpcom = ( new Host() )->is_wpcom_platform();
-
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
 			'is_connected'        => ( new Connection_Manager( 'jetpack' ) )->is_connected(),

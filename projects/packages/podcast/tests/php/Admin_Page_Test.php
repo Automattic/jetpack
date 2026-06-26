@@ -160,7 +160,7 @@ class Admin_Page_Test extends BaseTestCase {
 	 * stats proxy. Purchases are seeded empty to keep the gate's access check
 	 * hermetic.
 	 */
-	public function test_inject_script_data_sets_blog_id_when_connected_on_self_hosted() {
+	public function test_inject_script_data_sets_blog_id_from_option_on_self_hosted() {
 		Podcast_Gate::flush_purchases_cache();
 		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, array() );
 		Jetpack_Options::update_option( 'id', 456 );
