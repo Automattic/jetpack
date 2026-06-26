@@ -64,6 +64,14 @@ function DevicesInner( { max }: { max: number } ) {
 		return <WidgetLoadingOverlay />;
 	}
 
+	if ( data.length === 0 ) {
+		return (
+			<Stack align="center" justify="center" className={ styles.placeholder }>
+				<Text>{ __( 'No device data in this period.', 'jetpack-premium-analytics' ) }</Text>
+			</Stack>
+		);
+	}
+
 	const total = data.reduce( ( sum, item ) => sum + item.views, 0 );
 
 	const legendData: LegendItem[] = data.map( item => ( {
