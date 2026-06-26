@@ -142,6 +142,7 @@ export {
 	localTZDate,
 	hasProductFilters,
 	isSelectablePreset,
+	computeDateRangeFromPreset,
 } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';

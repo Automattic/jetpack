@@ -2,19 +2,18 @@
  * Internal dependencies
  */
 import { withChartTheme } from '../../../packages/widgets-toolkit/src/stories/with-chart-theme';
-import { TopPostsWidget } from '../top-posts-widget';
-import type { TopPostRow } from '../types';
+import { TopPostsLeaderboard, type TopPostRow } from '../render';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
 
-const meta: Meta< typeof TopPostsWidget > = {
+const meta: Meta< typeof TopPostsLeaderboard > = {
 	title: 'Packages/Premium Analytics/Widgets/TopPosts',
-	component: TopPostsWidget,
+	component: TopPostsLeaderboard,
 	tags: [ 'autodocs' ],
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Top posts & pages" widget. Renders the most-viewed posts and pages for the period as a leaderboard, with each row linking to the published content. This is a presentational component — it takes already-fetched rows via props and handles the loading, error, empty, and populated states.',
+					'The "Top posts & pages" widget. Renders the most-viewed posts and pages for the period as a leaderboard, with each row linking to the published content. This is the presentational layer — it takes already-fetched rows via props and handles the loading, error, empty, and populated states. The data-connected widget (render.tsx default export) wraps this in WidgetRoot and feeds it the designated useStatsTopPosts hook.',
 			},
 		},
 	},
@@ -23,7 +22,7 @@ const meta: Meta< typeof TopPostsWidget > = {
 
 export default meta;
 
-type Story = StoryObj< typeof TopPostsWidget >;
+type Story = StoryObj< typeof TopPostsLeaderboard >;
 
 const mockRows: TopPostRow[] = [
 	{
