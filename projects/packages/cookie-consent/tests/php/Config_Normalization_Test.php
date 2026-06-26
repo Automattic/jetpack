@@ -28,7 +28,10 @@ class Config_Normalization_Test extends TestCase {
 	private function call_cookie_consent_method( $method, ...$args ) {
 		$reflection = new ReflectionClass( Cookie_Consent::class );
 		$method     = $reflection->getMethod( $method );
-		$method->setAccessible( true );
+
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		return $method->invokeArgs( null, $args );
 	}

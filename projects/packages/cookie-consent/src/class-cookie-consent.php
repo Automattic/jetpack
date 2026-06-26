@@ -851,8 +851,8 @@ class Cookie_Consent {
 		$config['gdpr_countries']      = $geo['gdpr_countries'];
 		$config['ccpa_regions']        = $geo['ccpa_regions'];
 		$config['show_on_error']       = $geo['show_on_error'];
-		$config['cookie_policy_url']   = isset( $config['cookie_policy_url'] ) ? $config['cookie_policy_url'] : $default_config['cookie_policy_url'];
-		$config['event_prefix']        = isset( $config['event_prefix'] ) ? $config['event_prefix'] : $default_config['event_prefix'];
+		$config['cookie_policy_url']   = $config['cookie_policy_url'] ?? $default_config['cookie_policy_url'];
+		$config['event_prefix']        = $config['event_prefix'] ?? $default_config['event_prefix'];
 
 		return $config;
 	}
