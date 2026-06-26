@@ -102,9 +102,7 @@ class Cookie_Consent {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
 
 		// Keep the geolocation cookies out of Jetpack Boost's page-cache key when geo is enabled.
-		if ( self::is_geo_enabled() ) {
-			add_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ) );
-		}
+		add_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ) );
 
 		// Consent log REST controller: table, cron cleanup, routes.
 		Consent_Log_Controller::init();
@@ -786,8 +784,8 @@ class Cookie_Consent {
 		$features        = array_merge( $default_config['features'], $features );
 		$features['geo'] = (bool) $features['geo'];
 
-		$geo = isset( $config['geo'] ) && is_array( $config['geo'] ) ? $config['geo'] : array();
-		$geo = array_merge( $default_config['geo'], $geo );
+		$nested_geo = isset( $config['geo'] ) && is_array( $config['geo'] ) ? $config['geo'] : array();
+		$geo        = array_merge( $default_config['geo'], $nested_geo );
 
 		$legacy_geo_keys = array(
 			'geo_provider'        => 'provider',
@@ -801,7 +799,8 @@ class Cookie_Consent {
 		);
 
 		foreach ( $legacy_geo_keys as $legacy_key => $geo_key ) {
-			if ( array_key_exists( $legacy_key, $config ) && $config[ $legacy_key ] !== $default_config[ $legacy_key ] ) {
+			$has_nested_override = array_key_exists( $geo_key, $nested_geo ) && $nested_geo[ $geo_key ] !== $default_config['geo'][ $geo_key ];
+			if ( ! $has_nested_override && array_key_exists( $legacy_key, $config ) && $config[ $legacy_key ] !== $default_config[ $legacy_key ] ) {
 				$geo[ $geo_key ] = $config[ $legacy_key ];
 			}
 		}

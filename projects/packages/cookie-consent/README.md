@@ -50,7 +50,6 @@ Filter `jetpack_cookie_consent_config` to override defaults. The current schema 
 add_filter(
 	'jetpack_cookie_consent_config',
 	static function ( $config ) {
-		$config['features']['geo'] = true;
 		$config['geo']             = array_merge(
 			$config['geo'],
 			array(
@@ -74,7 +73,20 @@ add_filter(
 
 The default geo provider is `wpcom`, which resolves shoppers through `https://public-api.wordpress.com/geo/`. Set `geo.provider` to `custom` and provide `geo.api_url` to use a different source. The endpoint is fetched client-side with `cache: 'no-store'`, must be reachable from the browser, and must return JSON with `country_short` as a two-letter country code and `region` as a region/state name. The configured `geo.country_code_cookie` and `geo.region_cookie` values are written as host-only cookies and ignored by Jetpack Boost's page-cache key while geo is enabled.
 
-Set `features.geo` to `false` to skip geo resolution entirely. In that mode the package does not add the Boost cache-cookie filter, does not emit a geo API URL to the frontend, and does not run banner region-selection logic.
+Set `features.geo` to `false` to skip geo resolution entirely:
+
+```php
+add_filter(
+	'jetpack_cookie_consent_config',
+	static function ( $config ) {
+		$config['features']['geo'] = false;
+
+		return $config;
+	}
+);
+```
+
+In that mode the package does not add geo cookies to Boost's cache ignore list, does not emit a geo API URL to the frontend, and does not run banner region-selection logic.
 
 The Tracks event prefix defaults to `jetpack`; set it to `woocommerceanalytics` to keep continuity with the WooCommerce/Unified Analytics Tracks stream.
 
