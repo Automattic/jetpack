@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+WhatsApp Button block: fix icon and text overlapping in RTL languages
