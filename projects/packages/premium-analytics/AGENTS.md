@@ -310,7 +310,9 @@ controls, so there's no need to add custom size decorators per widget.
   lets the schema and the render props drift silently.
 - Writing `<button>` without an explicit `type` — the HTML default is `type="submit"`, which
   can fire accidental form submissions. Use `type="button"` for non-submit actions.
-- Using inline `style={{ … }}` props — all styles belong in the widget's CSS Module.
+- Do not use inline `style={{ … }}` props in production widget render files — all widget
+  styles belong in the widget's CSS Module. Story-only canvas wrappers may use inline
+  sizing when the style is not part of the shipped widget UI.
 - Reimplementing a utility that already exists in `widgets-toolkit` (e.g. `flagUrl`) — check
   `packages/widgets-toolkit/src/helpers/` before writing a new one.
 
@@ -349,9 +351,19 @@ to the chart component so an in-place spinner appears without hiding the rows.
 
 **Comparison data**
 
-Comparison-period fetching is not yet wired for most Stats endpoints. Use
-`previousValue: 0` and `delta: 0` as placeholders — but keep the `withComparison`
-prop plumbed through so enabling it later is a one-line change.
+Stats hooks built on `useStatsReport()` return `{ primary, comparison, hasComparison, ... }`.
+When `reportParams` includes `comp=1`, `compare_from`, and `compare_to`, the data layer fetches
+the comparison period automatically.
+
+Widgets still need to map comparison rows into chart data explicitly. For leaderboard/list
+widgets, build a lookup from `comparison.data?.[ 0 ]?.items` using the same stable key used for
+the primary row (post ID/URL, country code, search term, device key, etc.), then set
+`previousValue`, `previousShare`, and `delta` from the matched comparison row. Do not assume
+primary and comparison arrays have the same order or the same rows.
+
+Use `previousValue: 0` and `delta: 0` only as an intentional placeholder when the widget has
+not implemented comparison mapping yet, and keep comparison UI disabled until the mapped
+comparison data is ready to display.
 
 **Visual conventions**
 

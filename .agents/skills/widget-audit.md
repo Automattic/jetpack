@@ -57,7 +57,9 @@ assume: namespace, text domain, and the dependency versions the package resolves
 **Style + i18n**
 - Every `--wpds-*` token in the CSS exists in the resolved `@wordpress/theme`
   `design-tokens.css` (grep it; do not infer renamed names). Styles are CSS
-  Modules, never global CSS. No inline `style={{ … }}` props.
+  Modules, never global CSS. Production widget render files must not use inline
+  `style={{ … }}` props; story-only canvas wrappers may use inline sizing when
+  the style is not part of the shipped widget UI.
 - Every `<button>` element has an explicit `type` attribute (`type="button"` for non-submit
   actions; `type="submit"` only when the button is intentionally a form submit).
 - User-visible strings go through `__( …, '<text-domain>' )`. Check data-transform and
