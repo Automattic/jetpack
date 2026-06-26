@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { FC, useContext, useMemo } from 'react';
-import { Chart } from 'react-google-charts';
+import { Chart, type GoogleChartPackages } from 'react-google-charts';
 /**
  * Internal dependencies
  */
@@ -19,6 +19,7 @@ import { GeoChartProps } from './types';
 
 const DEFAULT_FEATURE_FILL_COLOR = '#ffffff';
 const DEFAULT_BACKGROUND_COLOR = '#ffffff';
+const GEO_CHART_PACKAGES: GoogleChartPackages[] = [ 'corechart', 'controls', 'geochart' ];
 
 type GoogleChartOptions = Record< string, unknown >;
 
@@ -154,6 +155,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		>
 			<Chart
 				chartType="GeoChart"
+				chartPackages={ GEO_CHART_PACKAGES }
 				width={ width }
 				height={ height }
 				data={ sanitizedData.data }

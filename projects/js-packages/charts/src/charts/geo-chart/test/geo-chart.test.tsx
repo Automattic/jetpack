@@ -4,9 +4,10 @@ import GeoChart, { GeoChartUnresponsive } from '../geo-chart';
 
 // Mock react-google-charts
 jest.mock( 'react-google-charts', () => ( {
-	Chart: jest.fn( ( { data, options, width, height } ) => {
+	Chart: jest.fn( ( { chartPackages, data, options, width, height } ) => {
 		return (
 			<div data-testid="google-chart-mock" data-width={ width } data-height={ height }>
+				<div data-testid="chart-packages">{ JSON.stringify( chartPackages ) }</div>
 				<div data-testid="chart-data">{ JSON.stringify( data ) }</div>
 				<div data-testid="chart-options">{ JSON.stringify( options ) }</div>
 			</div>
@@ -63,6 +64,15 @@ describe( 'GeoChart', () => {
 			const chart = screen.getByTestId( 'google-chart-mock' );
 			expect( chart ).toHaveAttribute( 'data-width', '1200' );
 			expect( chart ).toHaveAttribute( 'data-height', '600' );
+		} );
+
+		test( 'loads the GeoChart package explicitly', () => {
+			renderWithTheme();
+
+			const chartPackages = screen.getByTestId( 'chart-packages' );
+			const packages = JSON.parse( chartPackages.textContent || '[]' );
+
+			expect( packages ).toEqual( [ 'corechart', 'controls', 'geochart' ] );
 		} );
 	} );
 
