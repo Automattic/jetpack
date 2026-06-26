@@ -21,6 +21,7 @@ import {
 	extractScenarioMetrics,
 	isDirectInvocation,
 	postToCodeVitals,
+	redactToken,
 } from './post-to-codevitals.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
@@ -118,6 +119,20 @@ test( 'legacy prefix yields five untyped entries', () => {
 	);
 } );
 
+// --- redactToken (keeps the token out of logs and errors) ---
+
+test( 'redactToken strips the exact token and any token query param', () => {
+	assert.equal(
+		redactToken( 'prefix token=abc123 suffix', 'abc123' ),
+		'prefix token=REDACTED suffix'
+	);
+	assert.equal(
+		redactToken( 'https://h/api/log?token=zzz&n=1' ),
+		'https://h/api/log?token=REDACTED&n=1'
+	);
+	assert.equal( redactToken( 'no secret in here', 'abc123' ), 'no secret in here' );
+} );
+
 // --- postToCodeVitals (the accumulation loop + exit semantics) ---
 
 test( 'dry-run posts an in-range metric into the payload, nothing rejected', async () => {
@@ -145,6 +160,85 @@ test( 'a missing results file throws', async () => {
 	await assert.rejects(
 		() => silenced( () => postToCodeVitals( '/no/such/results.json', { dryRun: true } ) ),
 		/Results file not found/
+	);
+} );
+
+// --- live POST branch (fetch stubbed; never touches the network) ---
+
+test( 'a live post sends the payload as POST and returns posted:true', async () => {
+	const file = writeResults( 120 );
+	const origFetch = global.fetch;
+	let sentUrl, sentInit;
+	global.fetch = async ( u, init ) => {
+		sentUrl = u;
+		sentInit = init;
+		return { ok: true, status: 200, json: async () => ( { ok: true } ), text: async () => '' };
+	};
+	try {
+		const result = await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok-success',
+			} )
+		);
+		assert.equal( result.posted, true );
+		assert.equal( sentInit.method, 'POST' );
+		assert.match( String( sentUrl ), /\/api\/log\?token=tok-success$/ );
+		assert.equal( JSON.parse( sentInit.body ).metrics[ LCP_KEY ], 120 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'a non-OK CodeVitals response throws without leaking the token', async () => {
+	const file = writeResults( 120 );
+	const origFetch = global.fetch;
+	global.fetch = async () => ( { ok: false, status: 500, text: async () => 'upstream boom' } );
+	try {
+		await assert.rejects(
+			() =>
+				silenced( () =>
+					postToCodeVitals( file, {
+						dryRun: false,
+						codeVitalsUrl: 'https://codevitals.test',
+						codeVitalsToken: 'tok-secret-500',
+					} )
+				),
+			err => {
+				assert.match( err.message, /CodeVitals API error \(500\)/ );
+				assert.ok( ! err.message.includes( 'tok-secret-500' ) );
+				return true;
+			}
+		);
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'a malformed CODEVITALS_URL leaks the token into neither the error nor the logs', async () => {
+	const file = writeResults( 120 );
+	const captured = [];
+	const orig = { log: console.log, error: console.error, warn: console.warn };
+	console.log = () => {};
+	console.warn = () => {};
+	console.error = ( ...a ) => captured.push( a.join( ' ' ) );
+	let thrown = '';
+	try {
+		await postToCodeVitals( file, {
+			dryRun: false,
+			codeVitalsUrl: 'http://[::1', // malformed on purpose
+			codeVitalsToken: 'tok-must-not-leak',
+		} );
+	} catch ( e ) {
+		thrown = e.message;
+	} finally {
+		Object.assign( console, orig );
+	}
+	assert.ok( ! thrown.includes( 'tok-must-not-leak' ), 'token must not be in the thrown message' );
+	assert.ok(
+		! captured.join( '\n' ).includes( 'tok-must-not-leak' ),
+		'token must not be in console output'
 	);
 } );
 

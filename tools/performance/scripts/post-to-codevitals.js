@@ -65,6 +65,25 @@ function checkSanityRange( type, value ) {
 	return { ok: true };
 }
 
+/**
+ * Strip the CodeVitals token from a string so it can never reach a log or a
+ * re-thrown error. fetch and the URL parser echo the full request URL (token
+ * included) in their messages, and the token grants append access to an
+ * unrollback-able store, so scrub it before anything prints.
+ *
+ * @param {string} text    - Text that may contain the token or a `token=...` query param.
+ * @param {string} [token] - The exact token value to strip, when known.
+ * @return {string} The text with the token replaced by `REDACTED`.
+ */
+function redactToken( text, token ) {
+	let safe = String( text );
+	if ( token ) {
+		safe = safe.split( token ).join( 'REDACTED' );
+	}
+	// Catch the query-param form too, in case the exact value isn't in hand here.
+	return safe.replace( /token=[^&\s]+/g, 'token=REDACTED' );
+}
+
 /** Post metrics to CodeVitals. */
 async function postToCodeVitals( resultsPath, config ) {
 	// Read results file
@@ -132,10 +151,18 @@ async function postToCodeVitals( resultsPath, config ) {
 	console.log( 'Posting metrics to CodeVitals...' );
 	console.log( 'Metrics:', JSON.stringify( metrics, null, 2 ) );
 
-	// Token passed as query param per CodeVitals API spec (don't log URL)
-	const url = `${ config.codeVitalsUrl }/api/log?token=${ config.codeVitalsToken }`;
-	const TIMEOUT_MS = 30000; // 30 second timeout
+	// Build the URL before attaching the token, so a malformed base host can't
+	// throw a parse error that echoes the secret. The token lives only on the URL
+	// object (via searchParams), never in a string we build or log.
+	let url;
+	try {
+		url = new URL( '/api/log', config.codeVitalsUrl );
+	} catch {
+		throw new Error( 'Invalid CodeVitals URL; check the CODEVITALS_URL setting' );
+	}
+	url.searchParams.set( 'token', config.codeVitalsToken );
 
+	const TIMEOUT_MS = 30000; // 30 second timeout
 	const controller = new AbortController();
 	const timeoutId = setTimeout( () => controller.abort(), TIMEOUT_MS );
 
@@ -168,10 +195,13 @@ async function postToCodeVitals( resultsPath, config ) {
 		return { posted: true, data, validationFailed };
 	} catch ( error ) {
 		clearTimeout( timeoutId );
+		// Redact the token from any error before it reaches a log or a re-throw.
+		// Safe URL construction already keeps the secret out of parse errors; this
+		// is defense in depth so no upstream message carries it into a build log.
 		const message =
 			error.name === 'AbortError'
 				? `CodeVitals request timed out after ${ TIMEOUT_MS / 1000 }s`
-				: error.message;
+				: redactToken( error.message, config.codeVitalsToken );
 		console.error( '✗ Failed to post metrics to CodeVitals:', message );
 		throw new Error( message, { cause: error } );
 	}
@@ -256,4 +286,10 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 	main();
 }
 
-export { postToCodeVitals, checkSanityRange, extractScenarioMetrics, isDirectInvocation };
+export {
+	postToCodeVitals,
+	checkSanityRange,
+	extractScenarioMetrics,
+	isDirectInvocation,
+	redactToken,
+};
