@@ -1,5 +1,6 @@
 import type { StatsArchivesItem } from './archives';
 import type { StatsClicksItem } from './clicks';
+import type { StatsCommentFollowersItem } from './comment-followers';
 import type { StatsCommentsItem } from './comments';
 import type { StatsDevicesItem } from './devices';
 import type { StatsEmailBreakdownItem } from './email-breakdown';
@@ -39,6 +40,7 @@ export type StatsNormalizedItem =
 	| StatsEmailSummaryItem
 	| StatsEmailBreakdownItem
 	| StatsArchivesItem
+	| StatsCommentFollowersItem
 	| StatsFollowersItem
 	| StatsCommentsItem
 	| StatsTagsItem

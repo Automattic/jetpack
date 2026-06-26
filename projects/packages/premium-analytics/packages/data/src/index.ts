@@ -42,6 +42,10 @@ export type {
 	StatsAppPlanUsage,
 } from './hooks/use-stats-app-plan-usage';
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
+export {
+	useStatsCommentFollowers,
+	type StatsCommentFollowersResponse,
+} from './hooks/use-stats-comment-followers';
 export { useStatsFollowers } from './hooks/use-stats-followers';
 export type { StatsFollowersParams, StatsFollowersResponse } from './hooks/use-stats-followers';
 export { useStatsPublicize } from './hooks/use-stats-publicize';
@@ -130,6 +134,9 @@ export type {
 export type {
 	StatsArchivesItem,
 	StatsClicksItem,
+	StatsCommentFollowersItem,
+	StatsCommentFollowersRawPost,
+	StatsCommentFollowersRawResponse,
 	StatsCommentsAuthorItem,
 	StatsCommentsGroupItem,
 	StatsCommentsItem,
@@ -182,6 +189,7 @@ export type {
 	StatsUtmTopPostItem,
 	StatsVideoPlaysItem,
 } from './processing/stats';
+export type { StatsCommentFollowersParams } from './queries/stats-comment-followers-query';
 export type { StatsReportParams } from './queries/stats-query';
 export {
 	getStatsPeriodFromInterval,
