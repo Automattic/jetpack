@@ -26,6 +26,10 @@
 	min-height: 0;
 }
 
+.itemLabel {
+	padding: var(--wpds-dimension-padding-sm);
+}
+
 /* Constrain the picker preview tile to a 4:3 aspect ratio. */
 :global([inert]:not([inert="true"])) .root {
 	height: auto;

@@ -37,7 +37,11 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 
 		return data.map( term => ( {
 			id: term.label,
-			label: term.label,
+			label: (
+				<Stack align="center" className={ styles.itemLabel }>
+					<Text>{ term.label }</Text>
+				</Stack>
+			),
 			currentValue: term.views,
 			previousValue: 0,
 			currentShare: maxValue > 0 ? ( term.views / maxValue ) * 100 : 0,
@@ -97,9 +101,10 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 			<div className={ styles.content }>
 				<LeaderboardChart
 					data={ leaderboardData }
+					loading={ isLoading }
 					withOverlayLabel
-					withComparison={ false }
 					showLegend={ false }
+					emptyStateText={ __( 'No search terms in this period.', 'jetpack-premium-analytics' ) }
 					dataFormat={ {
 						type: 'number',
 						options: { useMultipliers: true, decimals: 0 },
