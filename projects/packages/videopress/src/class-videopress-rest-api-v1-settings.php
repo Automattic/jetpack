@@ -53,8 +53,8 @@ class VideoPress_Rest_Api_V1_Settings {
 							'description' => __( 'If the VideoPress videos should be private by default', 'jetpack-videopress-pkg' ),
 							'type'        => 'boolean',
 						),
-						'videopress_auto_generated_captions_disabled' => array(
-							'description' => __( 'If auto-generated captions should be skipped for new videos', 'jetpack-videopress-pkg' ),
+						'videopress_auto_subtitles_disabled' => array(
+							'description' => __( 'If auto-generated subtitles should be skipped for new videos', 'jetpack-videopress-pkg' ),
 							'type'        => 'boolean',
 						),
 					),
@@ -127,15 +127,15 @@ class VideoPress_Rest_Api_V1_Settings {
 			);
 		}
 
-		$private_for_site       = $request->get_param( 'videopress_videos_private_for_site' );
-		$auto_captions_disabled = $request->get_param( 'videopress_auto_generated_captions_disabled' );
+		$private_for_site        = $request->get_param( 'videopress_videos_private_for_site' );
+		$auto_subtitles_disabled = $request->get_param( 'videopress_auto_subtitles_disabled' );
 
 		if ( null !== $private_for_site ) {
 			update_option( 'videopress_private_enabled_for_site', $private_for_site );
 		}
 
-		if ( null !== $auto_captions_disabled ) {
-			update_option( 'videopress_auto_generated_captions_disabled', $auto_captions_disabled );
+		if ( null !== $auto_subtitles_disabled ) {
+			update_option( 'videopress_auto_subtitles_disabled', $auto_subtitles_disabled );
 		}
 
 		return rest_ensure_response(

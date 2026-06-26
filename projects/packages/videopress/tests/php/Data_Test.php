@@ -285,32 +285,32 @@ class Data_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that auto-generated captions are not disabled by default (captions on).
+	 * Test that auto-generated subtitles are not disabled by default (subtitles on).
 	 */
-	public function test_auto_generated_captions_disabled_defaults_to_false() {
-		delete_option( 'videopress_auto_generated_captions_disabled' );
+	public function test_auto_subtitles_disabled_defaults_to_false() {
+		delete_option( 'videopress_auto_subtitles_disabled' );
 
-		$this->assertFalse( Data::get_videopress_auto_generated_captions_disabled() );
+		$this->assertFalse( Data::get_videopress_auto_subtitles_disabled() );
 	}
 
 	/**
-	 * Test that the stored auto-generated captions opt-out option is honored.
+	 * Test that the stored auto-generated subtitles opt-out option is honored.
 	 */
-	public function test_auto_generated_captions_disabled_reflects_stored_option() {
-		update_option( 'videopress_auto_generated_captions_disabled', true );
+	public function test_auto_subtitles_disabled_reflects_stored_option() {
+		update_option( 'videopress_auto_subtitles_disabled', true );
 
-		$this->assertTrue( Data::get_videopress_auto_generated_captions_disabled() );
+		$this->assertTrue( Data::get_videopress_auto_subtitles_disabled() );
 	}
 
 	/**
-	 * Test that get_videopress_settings exposes the auto-generated captions opt-out value.
+	 * Test that get_videopress_settings exposes the auto-generated subtitles opt-out value.
 	 */
-	public function test_get_videopress_settings_includes_auto_generated_captions() {
-		update_option( 'videopress_auto_generated_captions_disabled', true );
+	public function test_get_videopress_settings_includes_auto_subtitles() {
+		update_option( 'videopress_auto_subtitles_disabled', true );
 
 		$settings = Data::get_videopress_settings();
 
-		$this->assertArrayHasKey( 'videopress_auto_generated_captions_disabled', $settings );
-		$this->assertTrue( $settings['videopress_auto_generated_captions_disabled'] );
+		$this->assertArrayHasKey( 'videopress_auto_subtitles_disabled', $settings );
+		$this->assertTrue( $settings['videopress_auto_subtitles_disabled'] );
 	}
 }
