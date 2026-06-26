@@ -76,6 +76,8 @@ class Lifecycle_Test extends TestCase {
 		Cookie_Consent::deactivate();
 
 		$this->assertFalse( wp_next_scheduled( self::CLEANUP_HOOK ) );
+
+		// Idempotent: a second call must not error or drop retained artifacts.
 		Cookie_Consent::deactivate();
 
 		$this->assertSame( 123, get_option( self::CCPA_PAGE_ID_OPTION ) );
@@ -97,6 +99,8 @@ class Lifecycle_Test extends TestCase {
 		Cookie_Consent::uninstall();
 
 		$this->assertNull( get_post( $page_id ) );
+
+		// Idempotent: a second call must not error after the page is already gone.
 		Cookie_Consent::uninstall();
 
 		$this->assertFalse( get_option( self::CCPA_PAGE_ID_OPTION ) );

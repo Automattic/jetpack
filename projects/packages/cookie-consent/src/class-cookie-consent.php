@@ -118,6 +118,12 @@ class Cookie_Consent {
 	 * @since $$next-version$$
 	 */
 	public static function deactivate() {
+		// These mirror init()'s front-end registrations and matter only when a
+		// consumer deactivates within the same request (e.g. a runtime toggle).
+		// The standard register_deactivation_hook path runs in a separate admin
+		// request where these hooks never fire, so the durable cleanup is the
+		// cron unschedule and setting unregister below. Keep this list in sync
+		// with init() whenever a hook is added there.
 		remove_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		remove_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
 		remove_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
