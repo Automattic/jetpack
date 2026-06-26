@@ -86,6 +86,13 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	private const RATE_LIMIT_MAX = 100;
 
 	/**
+	 * Object-cache group for the per-IP rate-limit counters.
+	 *
+	 * @var string
+	 */
+	private const RATE_LIMIT_GROUP = 'jetpack_cookie_consent_rate_limit';
+
+	/**
 	 * Maximum stored length for the consent URL.
 	 *
 	 * @var int
@@ -192,7 +199,11 @@ class Consent_Log_Controller extends WP_REST_Controller {
 					// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- `register_rest_route()` requires mixed key/no-key for `$args`, and then https://github.com/phan/phan/issues/4852 puts the error on the wrong line.
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_consent_log' ),
-					'permission_callback' => array( $this, 'check_create_permission' ),
+					// Public, unauthenticated route — anonymous visitors submit consent. Abuse is
+					// bounded by the per-IP rate limit reserved inside the handler (see
+					// create_consent_log()), which can count each request exactly once and carry
+					// 429 response headers, neither of which a permission_callback can do reliably.
+					'permission_callback' => '__return_true',
 					'args'                => array(
 						'consent_id'    => array(
 							'type'              => 'string',
@@ -288,44 +299,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Permission callback for the public create route.
-	 *
-	 * The route stays unauthenticated (anonymous visitors submit consent), so the abuse
-	 * protection is a per-IP rate limit that stops table-bloat / DoS. A nonce was considered
-	 * but gives no real protection for anonymous traffic: it would be handed out from an open
-	 * endpoint, and the WP REST API is cross-origin readable by default — so the rate limit is
-	 * the gate.
-	 *
-	 * @return bool|WP_Error True if allowed, WP_Error otherwise.
-	 */
-	public function check_create_permission() {
-		$ip = IP_Utils::get_ip();
-		if ( $this->is_rate_limited( $ip ) ) {
-			// A WP_Error from permission_callback can't carry response headers (core
-			// drops the `headers` data key), so attach Retry-After to the dispatched
-			// 429 response instead.
-			$retry_after = $this->get_rate_limit_window();
-			add_filter(
-				'rest_post_dispatch',
-				static function ( $response ) use ( $retry_after ) {
-					if ( $response instanceof WP_REST_Response && 429 === $response->get_status() ) {
-						$response->header( 'Retry-After', (string) $retry_after );
-					}
-					return $response;
-				}
-			);
-
-			return new WP_Error(
-				'rest_too_many_requests',
-				__( 'Too many requests.', 'jetpack-cookie-consent' ),
-				array( 'status' => 429 )
-			);
-		}
-
-		return true;
-	}
-
-	/**
 	 * Filterable rate-limit window in seconds.
 	 *
 	 * @return int
@@ -356,42 +329,123 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Transient key for the per-IP rate-limit counter.
+	 * Counter key for the per-IP rate-limit window.
 	 *
-	 * A missing IP is treated as a single shared bucket so it still can't be flooded.
+	 * The current fixed-window slot is folded into the key, so each window is a distinct,
+	 * self-expiring bucket and the counter never needs a separate reset step. A missing IP
+	 * collapses to a single shared "unknown" bucket so it still can't be flooded.
 	 *
 	 * @param string|false $ip Client IP address.
 	 * @return string
 	 */
 	private function rate_limit_key( $ip ) {
 		$bucket = is_string( $ip ) && '' !== $ip ? $ip : 'unknown';
-		return 'jp_cc_rl_' . md5( $bucket );
+		$window = $this->get_rate_limit_window();
+		$slot   = (int) floor( time() / $window );
+		return 'jp_cc_rl_' . md5( $bucket ) . '_' . $slot;
 	}
 
 	/**
-	 * Whether the given IP has reached the create-route rate limit.
+	 * Reserve one slot in the current per-IP rate-limit window.
 	 *
-	 * Read-only: WordPress can invoke a permission_callback more than once per
-	 * request, so the check must not mutate the counter. The counter is advanced
-	 * once per accepted write by record_request().
+	 * The check and increment happen as a single atomic operation so a burst of concurrent
+	 * requests from one IP can't all read an under-limit count and slip past together (the
+	 * read-then-write race a plain transient counter would have). Two backends:
+	 *
+	 * - Persistent object cache: wp_cache_add() seeds the counter + TTL and wp_cache_incr()
+	 *   counts, both atomic at the cache server (Redis/Memcached INCR).
+	 * - Plain DB (WordPress default): a single atomic UPDATE that only increments while under
+	 *   the cap. The row lock serializes concurrent writers, so the limit holds exactly.
 	 *
 	 * @param string|false $ip Client IP address.
-	 * @return bool True if the request should be rejected.
+	 * @return bool True if the request fits within the limit; false if the limit is reached.
 	 */
-	private function is_rate_limited( $ip ) {
-		$count = (int) get_transient( $this->rate_limit_key( $ip ) );
-		return $count >= $this->get_rate_limit_max();
+	private function reserve_rate_limit_slot( $ip ) {
+		$key    = $this->rate_limit_key( $ip );
+		$window = $this->get_rate_limit_window();
+		$max    = $this->get_rate_limit_max();
+
+		if ( wp_using_ext_object_cache() ) {
+			wp_cache_add( $key, 0, self::RATE_LIMIT_GROUP, $window );
+			$count = wp_cache_incr( $key, 1, self::RATE_LIMIT_GROUP );
+			return is_int( $count ) && $count <= $max;
+		}
+
+		return $this->reserve_rate_limit_slot_db( $key, $window, $max );
 	}
 
 	/**
-	 * Advance the per-IP rate-limit counter for an accepted write.
+	 * DB-backed atomic slot reservation for sites without a persistent object cache.
 	 *
-	 * @param string|false $ip Client IP address.
+	 * Stores the counter as a regular (non-autoloaded) transient row and increments it with a
+	 * single atomic statement that bumps the value only while it's below the cap. add_option()
+	 * is an atomic insert-if-absent, so concurrent first requests can't double-seed; the
+	 * UPDATE's row lock then serializes the increments. The companion timeout row lets WP core
+	 * (and purge_expired_rate_limit_transients()) reclaim the rows once the window passes.
+	 *
+	 * @param string $key    Rate-limit counter key (already window-scoped).
+	 * @param int    $window Window length in seconds.
+	 * @param int    $max    Maximum requests allowed in the window.
+	 * @return bool True if a slot was reserved; false if the limit is reached.
 	 */
-	private function record_request( $ip ) {
-		$key   = $this->rate_limit_key( $ip );
-		$count = (int) get_transient( $key );
-		set_transient( $key, $count + 1, $this->get_rate_limit_window() );
+	private function reserve_rate_limit_slot_db( $key, $window, $max ) {
+		global $wpdb;
+
+		$value_option   = '_transient_' . $key;
+		$timeout_option = '_transient_timeout_' . $key;
+
+		// Seed the window once. add_option() is a no-op (returns false) if the row already
+		// exists, so a concurrent seeder can't reset an in-progress count. Not autoloaded.
+		add_option( $timeout_option, (string) ( time() + $window ), '', false );
+		add_option( $value_option, '0', '', false );
+
+		$updated = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"UPDATE {$wpdb->options} SET option_value = option_value + 1 WHERE option_name = %s AND CAST( option_value AS UNSIGNED ) < %d",
+				$value_option,
+				$max
+			)
+		);
+
+		return 1 === (int) $updated;
+	}
+
+	/**
+	 * Seconds remaining until the current fixed-window slot resets.
+	 *
+	 * @return int
+	 */
+	private function seconds_until_window_reset() {
+		$window = $this->get_rate_limit_window();
+		return $window - ( time() % $window );
+	}
+
+	/**
+	 * Build the 429 response for a rate-limited request, with the conventional headers.
+	 *
+	 * Returned from the handler (not a permission_callback) so it can carry headers — a
+	 * WP_Error would have its `headers` data key dropped by core.
+	 *
+	 * @return WP_REST_Response
+	 */
+	private function rate_limited_response() {
+		$retry_after = $this->seconds_until_window_reset();
+
+		$response = new WP_REST_Response(
+			array(
+				'code'    => 'rest_too_many_requests',
+				'message' => __( 'Too many requests.', 'jetpack-cookie-consent' ),
+				'data'    => array( 'status' => 429 ),
+			),
+			429
+		);
+
+		$response->header( 'Retry-After', (string) $retry_after );
+		$response->header( 'RateLimit-Limit', (string) $this->get_rate_limit_max() );
+		$response->header( 'RateLimit-Remaining', '0' );
+		$response->header( 'RateLimit-Reset', (string) $retry_after );
+
+		return $response;
 	}
 
 	/**
@@ -508,6 +562,18 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	public function create_consent_log( WP_REST_Request $request ) {
 		global $wpdb;
 
+		// Resolve the client IP once, for both the rate-limit counter and storage.
+		$ip = $this->get_client_ip();
+
+		// Atomically reserve a per-IP rate-limit slot before doing any work. This lives in the
+		// handler (not a permission_callback, which WP can invoke more than once per request) so
+		// each request counts exactly once and the 429 can carry response headers. It counts
+		// attempts by design — an abuse/DoS guard should — and reserving up front (rather than
+		// after the insert) is what makes the check-and-increment atomic and race-free.
+		if ( ! $this->reserve_rate_limit_slot( $ip ) ) {
+			return $this->rate_limited_response();
+		}
+
 		// Generate UUID if consent_id is not provided.
 		$consent_id = $request->get_param( 'consent_id' );
 		if ( empty( $consent_id ) ) {
@@ -516,9 +582,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 
 		$current_time_gmt   = gmdate( 'Y-m-d H:i:s' );
 		$current_time_local = wp_date( 'Y-m-d H:i:s' );
-
-		// Resolve the client IP once, for both storage and the rate-limit counter.
-		$ip = $this->get_client_ip();
 
 		// Get consent types and encode as JSON.
 		$consent_types = $request->get_param( 'consent_types' );
@@ -548,11 +611,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 				array( 'status' => 500 )
 			);
 		}
-
-		// Advance the per-IP rate-limit counter only for an accepted write (here, not in
-		// the permission check, which can run more than once per request) so each stored
-		// row counts once — a failed insert doesn't consume a client's budget.
-		$this->record_request( $ip );
 
 		return rest_ensure_response( array( 'consent_id' => $consent_id ) );
 	}

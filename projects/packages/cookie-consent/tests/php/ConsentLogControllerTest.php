@@ -43,6 +43,10 @@ final class ConsentLogControllerTest extends PHPUnit\Framework\TestCase {
 			}
 		);
 
+		// Default to the DB-backed rate-limit path (no persistent object cache).
+		Functions\when( 'wp_using_ext_object_cache' )->justReturn( false );
+		Functions\when( 'add_option' )->justReturn( true );
+
 		$this->controller = new Consent_Log_Controller();
 
 		$_SERVER['REMOTE_ADDR'] = '203.0.113.5';
@@ -58,29 +62,112 @@ final class ConsentLogControllerTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * A request under the rate limit is allowed.
+	 * Build a global $wpdb double for the write path.
+	 *
+	 * @param int   $reserve_result Rows affected by the atomic reserve UPDATE (1 = slot taken, 0 = at cap).
+	 * @param mixed $insert_result  Return value for the row insert (1 = success, false = failure).
+	 * @return object
 	 */
-	public function test_create_permission_allows_under_limit() {
-		Functions\when( 'get_transient' )->justReturn( 0 );
-		// The permission check must be read-only — WP can call it more than once per request.
-		Functions\expect( 'set_transient' )->never();
+	private function make_wpdb( $reserve_result = 1, $insert_result = 1 ) {
+		$wpdb = new class() {
+			/**
+			 * Table prefix.
+			 *
+			 * @var string
+			 */
+			public $prefix = 'wp_';
 
-		$result = $this->controller->check_create_permission();
+			/**
+			 * Options table name.
+			 *
+			 * @var string
+			 */
+			public $options = 'wp_options';
 
-		$this->assertTrue( $result );
+			/**
+			 * Rows the reserve UPDATE reports as affected.
+			 *
+			 * @var int
+			 */
+			public $reserve_result = 1;
+
+			/**
+			 * Return value for insert().
+			 *
+			 * @var mixed
+			 */
+			public $insert_result = 1;
+
+			/**
+			 * Option name captured from the reserve UPDATE.
+			 *
+			 * @var string|null
+			 */
+			public $reserved_option = null;
+
+			/**
+			 * Number of insert() calls.
+			 *
+			 * @var int
+			 */
+			public $insert_calls = 0;
+
+			/**
+			 * Capture the bound option name and return the query unchanged.
+			 *
+			 * @param string $query The SQL with placeholders.
+			 * @param mixed  ...$args Bound arguments; the first is the option name.
+			 * @return string
+			 */
+			public function prepare( $query, ...$args ) {
+				$this->reserved_option = $args[0] ?? null;
+				return $query;
+			}
+
+			/**
+			 * Pretend the reserve UPDATE affected the configured number of rows.
+			 *
+			 * @return int
+			 */
+			public function query() {
+				return $this->reserve_result;
+			}
+
+			/**
+			 * Pretend insert with the configured result, counting calls.
+			 *
+			 * @return mixed
+			 */
+			public function insert() {
+				++$this->insert_calls;
+				return $this->insert_result;
+			}
+		};
+
+		$wpdb->reserve_result = $reserve_result;
+		$wpdb->insert_result  = $insert_result;
+
+		return $wpdb;
 	}
 
 	/**
-	 * A request that has hit the rate limit is rejected with a 429.
+	 * Stub the non-rate-limit functions the write handler calls.
 	 */
-	public function test_create_permission_rate_limited_returns_429() {
-		Functions\when( 'get_transient' )->justReturn( 100 ); // At RATE_LIMIT_MAX.
+	private function stub_write_path() {
+		Functions\when( 'wp_date' )->justReturn( '2026-01-01 00:00:00' );
+		Functions\when( 'get_current_user_id' )->justReturn( 0 );
+		Functions\when( 'rest_ensure_response' )->returnArg();
+	}
 
-		$result = $this->controller->check_create_permission();
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'rest_too_many_requests', $result->get_error_code() );
-		$this->assertSame( 429, $result->get_error_data()['status'] );
+	/**
+	 * Build a write request with a fixed consent id (avoids wp_generate_uuid4()).
+	 *
+	 * @return WP_REST_Request
+	 */
+	private function write_request() {
+		$request = new WP_REST_Request();
+		$request->set_param( 'consent_id', 'fixed-id' );
+		return $request;
 	}
 
 	/**
@@ -181,94 +268,61 @@ final class ConsentLogControllerTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * A count one below the limit is still allowed (pins the >= comparator boundary).
-	 */
-	public function test_create_permission_allows_one_below_limit() {
-		Functions\when( 'get_transient' )->justReturn( 99 ); // One below RATE_LIMIT_MAX.
-
-		$this->assertTrue( $this->controller->check_create_permission() );
-	}
-
-	/**
-	 * An accepted write advances the per-IP rate-limit counter exactly once.
+	 * An accepted write reserves a slot via the atomic DB UPDATE, then inserts the row.
 	 *
-	 * The record_request() call is the only place the counter is incremented, so without
-	 * this a regression dropping the call (or writing the wrong key/TTL) would leave every
-	 * rate-limit test green while the limiter does nothing in production.
+	 * The DB reserve returns 1 affected row (under the cap), so the request proceeds and the
+	 * handler returns the consent id.
 	 */
-	public function test_create_consent_log_records_request() {
+	public function test_create_consent_log_allows_under_limit() {
 		global $wpdb;
-		$wpdb = new class() {
-			/**
-			 * Table prefix.
-			 *
-			 * @var string
-			 */
-			public $prefix = 'wp_';
+		$wpdb = $this->make_wpdb( 1, 1 ); // Reserve succeeds, insert succeeds.
 
-			/**
-			 * Pretend insert that always succeeds.
-			 *
-			 * @return int
-			 */
-			public function insert() {
-				return 1;
-			}
-		};
+		$this->stub_write_path();
 
-		Functions\when( 'wp_date' )->justReturn( '2026-01-01 00:00:00' );
-		Functions\when( 'get_current_user_id' )->justReturn( 0 );
-		Functions\when( 'rest_ensure_response' )->returnArg();
-		Functions\when( 'get_transient' )->justReturn( 5 );
-		// The counter must advance once, keyed per IP, with the window TTL.
-		Functions\expect( 'set_transient' )
-			->once()
-			->with( \Mockery::pattern( '/^jp_cc_rl_/' ), 6, 60 );
-
-		$request = new WP_REST_Request();
-		$request->set_param( 'consent_id', 'fixed-id' ); // Avoid wp_generate_uuid4().
-
-		$result = $this->controller->create_consent_log( $request );
+		$result = $this->controller->create_consent_log( $this->write_request() );
 
 		$this->assertSame( array( 'consent_id' => 'fixed-id' ), $result );
+		$this->assertSame( 1, $wpdb->insert_calls );
 	}
 
 	/**
-	 * A failed insert returns a 500 and does NOT advance the rate-limit counter.
-	 *
-	 * The counter tracks stored rows, so a server-side DB failure must not consume a
-	 * legitimate client's budget.
+	 * When the atomic reserve finds the IP at the cap (0 rows updated), the request is rejected
+	 * with a 429 before any insert, and the response carries the rate-limit headers.
 	 */
-	public function test_create_consent_log_skips_record_on_failed_insert() {
+	public function test_create_consent_log_rate_limited_returns_429() {
 		global $wpdb;
-		$wpdb = new class() {
-			/**
-			 * Table prefix.
-			 *
-			 * @var string
-			 */
-			public $prefix = 'wp_';
+		$wpdb = $this->make_wpdb( 0 ); // Reserve fails: counter already at the cap.
 
-			/**
-			 * Pretend insert that always fails.
-			 *
-			 * @return false
-			 */
-			public function insert() {
-				return false;
-			}
-		};
+		$this->stub_write_path();
 
-		Functions\when( 'wp_date' )->justReturn( '2026-01-01 00:00:00' );
-		Functions\when( 'get_current_user_id' )->justReturn( 0 );
-		Functions\when( 'get_transient' )->justReturn( 5 );
-		// A failed write must not touch the counter.
-		Functions\expect( 'set_transient' )->never();
+		$result = $this->controller->create_consent_log( $this->write_request() );
 
-		$request = new WP_REST_Request();
-		$request->set_param( 'consent_id', 'fixed-id' );
+		$this->assertInstanceOf( WP_REST_Response::class, $result );
+		$this->assertSame( 429, $result->get_status() );
+		$this->assertSame( '100', $result->get_header( 'RateLimit-Limit' ) );
+		$this->assertSame( '0', $result->get_header( 'RateLimit-Remaining' ) );
 
-		$result = $this->controller->create_consent_log( $request );
+		// Retry-After is the seconds left in the current window (1..window); Reset mirrors it.
+		$retry_after = $result->get_header( 'Retry-After' );
+		$this->assertSame( 1, preg_match( '/^[0-9]+$/', $retry_after ) );
+		$this->assertGreaterThanOrEqual( 1, (int) $retry_after );
+		$this->assertLessThanOrEqual( 60, (int) $retry_after );
+		$this->assertSame( $retry_after, $result->get_header( 'RateLimit-Reset' ) );
+
+		// A rejected request must never reach the insert.
+		$this->assertSame( 0, $wpdb->insert_calls );
+	}
+
+	/**
+	 * A failed insert (after a successful reserve) returns a 500.
+	 */
+	public function test_create_consent_log_failed_insert_returns_500() {
+		global $wpdb;
+		$wpdb = $this->make_wpdb( 1, false ); // Reserve succeeds, insert fails.
+
+		$this->stub_write_path();
+
+		$result = $this->controller->create_consent_log( $this->write_request() );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'database_error', $result->get_error_code() );
@@ -276,53 +330,63 @@ final class ConsentLogControllerTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * A missing IP collapses to a single shared "unknown" bucket so it can't be flooded.
+	 * On sites with a persistent object cache the reserve uses the atomic wp_cache_incr path
+	 * instead of the DB, and a count within the cap is allowed.
 	 */
-	public function test_missing_ip_uses_shared_unknown_bucket() {
-		unset( $_SERVER['REMOTE_ADDR'] ); // jetpack-ip yields false -> 'unknown' bucket.
-		Functions\expect( 'get_transient' )
-			->once()
-			->with( 'jp_cc_rl_' . md5( 'unknown' ) )
-			->andReturn( 0 );
+	public function test_reserve_uses_object_cache_when_available() {
+		global $wpdb;
+		$wpdb = $this->make_wpdb();
 
-		$this->assertTrue( $this->controller->check_create_permission() );
+		Functions\when( 'wp_using_ext_object_cache' )->justReturn( true );
+		Functions\when( 'wp_cache_add' )->justReturn( true );
+		// Atomic increment returns the new count, one below the cap.
+		Functions\expect( 'wp_cache_incr' )->once()->andReturn( 50 );
+		$this->stub_write_path();
+
+		$result = $this->controller->create_consent_log( $this->write_request() );
+
+		$this->assertSame( array( 'consent_id' => 'fixed-id' ), $result );
+		$this->assertSame( 1, $wpdb->insert_calls );
 	}
 
 	/**
-	 * The 429 path attaches Retry-After to the dispatched response via rest_post_dispatch.
-	 *
-	 * A WP_Error from permission_callback can't carry headers, so the header is added by a
-	 * filter closure instead — this drives that closure to verify the header and its guards.
+	 * The object-cache path rejects once wp_cache_incr reports a count past the cap.
 	 */
-	public function test_rate_limited_attaches_retry_after_header() {
-		Functions\when( 'get_transient' )->justReturn( 100 ); // At RATE_LIMIT_MAX.
+	public function test_object_cache_over_limit_returns_429() {
+		global $wpdb;
+		$wpdb = $this->make_wpdb();
 
-		$captured = null;
-		Functions\expect( 'add_filter' )
-			->once()
-			->with(
-				'rest_post_dispatch',
-				\Mockery::on(
-					static function ( $callback ) use ( &$captured ) {
-						$captured = $callback;
-						return is_callable( $callback );
-					}
-				)
-			);
+		Functions\when( 'wp_using_ext_object_cache' )->justReturn( true );
+		Functions\when( 'wp_cache_add' )->justReturn( true );
+		Functions\when( 'wp_cache_incr' )->justReturn( 101 ); // One past RATE_LIMIT_MAX.
+		$this->stub_write_path();
 
-		$this->controller->check_create_permission();
+		$result = $this->controller->create_consent_log( $this->write_request() );
 
-		$this->assertIsCallable( $captured );
+		$this->assertInstanceOf( WP_REST_Response::class, $result );
+		$this->assertSame( 429, $result->get_status() );
+		$this->assertSame( 0, $wpdb->insert_calls );
+	}
 
-		// A 429 response gets the header stamped.
-		$response = new WP_REST_Response( null, 429 );
-		$captured( $response );
-		$this->assertSame( '60', $response->get_header( 'Retry-After' ) );
+	/**
+	 * A missing IP collapses to a single shared, window-scoped "unknown" bucket so it can't be
+	 * flooded, and the reserve key folds in the current fixed-window slot.
+	 */
+	public function test_missing_ip_uses_shared_window_scoped_unknown_bucket() {
+		unset( $_SERVER['REMOTE_ADDR'] ); // jetpack-ip yields false -> 'unknown' bucket.
 
-		// A non-429 response is left untouched (guard branch).
-		$other = new WP_REST_Response( null, 200 );
-		$captured( $other );
-		$this->assertNull( $other->get_header( 'Retry-After' ) );
+		global $wpdb;
+		$wpdb = $this->make_wpdb( 1, 1 );
+
+		$this->stub_write_path();
+
+		$this->controller->create_consent_log( $this->write_request() );
+
+		// Key is the shared 'unknown' bucket, scoped to the current fixed-window slot.
+		$this->assertSame(
+			1,
+			preg_match( '/^_transient_jp_cc_rl_' . md5( 'unknown' ) . '_[0-9]+$/', $wpdb->reserved_option )
+		);
 	}
 }
 
