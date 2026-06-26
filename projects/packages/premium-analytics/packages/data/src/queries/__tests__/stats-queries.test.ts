@@ -4,6 +4,7 @@
 import { statsAppProxyQuery } from '../stats-app-query';
 import { statsAppSiteHasNeverPublishedPostQuery } from '../stats-app-site-has-never-published-post-query';
 import { statsArchivesQuery } from '../stats-archives-query';
+import { statsCommentFollowersQuery } from '../stats-comment-followers-query';
 import { statsCommentsQuery } from '../stats-comments-query';
 import { statsDevicesQuery } from '../stats-devices-query';
 import { statsFollowersQuery } from '../stats-followers-query';
@@ -223,6 +224,29 @@ describe( 'Stats query factories', () => {
 		expect( query.queryKey ).toEqual(
 			expect.arrayContaining( [ 'stats/devices/screensize', 'devices' ] )
 		);
+	} );
+
+	it( 'builds comment followers query keys from pagination params without a date', () => {
+		const query = statsCommentFollowersQuery( {
+			max: 20,
+			page: 3,
+		} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'comment-followers',
+			'1.1',
+			'stats/comment-followers',
+			'GET',
+			expect.objectContaining( {
+				max: 20,
+				page: 3,
+			} ),
+			undefined,
+			'commentFollowers',
+		] );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'period' );
 	} );
 
 	it( 'preserves explicit summarize params', () => {

@@ -64,7 +64,11 @@ export type { StatsUtmItem, StatsUtmParam, StatsUtmTopPostItem } from './utm';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';
-export type { StatsCommentFollowersItem } from './comment-followers';
+export type {
+	StatsCommentFollowersItem,
+	StatsCommentFollowersRawPost,
+	StatsCommentFollowersRawResponse,
+} from './comment-followers';
 export type {
 	StatsPublicizeApiResponse,
 	StatsPublicizeItem,

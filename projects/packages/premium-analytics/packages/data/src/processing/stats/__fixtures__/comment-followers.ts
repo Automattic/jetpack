@@ -1,3 +1,5 @@
+import type { StatsCommentFollowersRawResponse } from '../comment-followers';
+
 export const commentFollowersFixture = {
 	page: 1,
 	pages: 1,
@@ -5,7 +7,6 @@ export const commentFollowersFixture = {
 	posts: [
 		{
 			id: 0,
-			title: 'All Posts',
 			followers: 20,
 		},
 		{
@@ -15,4 +16,4 @@ export const commentFollowersFixture = {
 			url: 'https://example.com/hello/',
 		},
 	],
-};
+} satisfies StatsCommentFollowersRawResponse;
