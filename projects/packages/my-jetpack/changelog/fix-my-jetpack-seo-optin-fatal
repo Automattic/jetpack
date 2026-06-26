@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix fatal error when an older bundled SEO package is loaded: guard the SEO opt-in card with method_exists instead of class_exists.
