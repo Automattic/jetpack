@@ -41,7 +41,6 @@ import type { ReportParams } from '../utils/search';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
 export type StatsReportParams = ReportParams & StatsQueryParams;
-export type StatsReportQueryParams = Partial< ReportParams > & StatsQueryParams;
 type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQueryParams ) => TData;
 
 const statsSanitizers = {
@@ -90,11 +89,6 @@ export type StatsQueryConfig< TSanitizer extends StatsSanitizerKey = StatsSaniti
 	sanitizer?: TSanitizer;
 	sanitizerParams?: StatsQueryParams;
 	enabled?: boolean;
-};
-
-type StatsReportQueryBehaviorOptions = {
-	enabled?: boolean;
-	includeDefaultPeriod?: boolean;
 };
 
 export function statsProxyQuery< TSanitizer extends StatsSanitizerKey >(
@@ -150,22 +144,14 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 	name: string,
 	endpoint: string,
-	params: StatsReportQueryParams,
+	params: StatsReportParams,
 	sanitizer: TSanitizer,
 	version: StatsProxyVersion = '1.1',
 	// Endpoint-specific params that should reach the API but are not in the
 	// reportParamsToStatsQueryParams allow-list (e.g. filter_by_country).
-	extraParams?: StatsProxyParams,
-	options?: StatsReportQueryBehaviorOptions
+	extraParams?: StatsProxyParams
 ): StatsReportQueryOptions< TSanitizer > {
 	const statsParams = reportParamsToStatsQueryParams( params );
-	if (
-		options?.includeDefaultPeriod === false &&
-		params.period === undefined &&
-		params.interval === undefined
-	) {
-		delete statsParams.period;
-	}
 	const reportParams = {
 		...statsParams,
 		...extraParams,
@@ -182,8 +168,6 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 		endpoint,
 		params: reportParams,
 		sanitizer,
-		enabled:
-			options?.enabled ??
-			!! ( reportParams.end_date || reportParams.date || reportParams.start_date ),
+		enabled: !! ( reportParams.end_date || reportParams.date || reportParams.start_date ),
 	} );
 }

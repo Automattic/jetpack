@@ -190,7 +190,7 @@ export type {
 	StatsVideoPlaysItem,
 } from './processing/stats';
 export type { StatsCommentFollowersParams } from './queries/stats-comment-followers-query';
-export type { StatsReportParams, StatsReportQueryParams } from './queries/stats-query';
+export type { StatsReportParams } from './queries/stats-query';
 export {
 	getStatsPeriodFromInterval,
 	reportParamsToStatsQueryParams,

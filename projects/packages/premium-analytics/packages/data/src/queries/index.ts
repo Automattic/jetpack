@@ -11,12 +11,7 @@ export { reportVisitorsByLocationQuery } from './report-visitors-by-location-que
 export { reportSessionsByDeviceQuery } from './report-sessions-by-device-query';
 export { reportBookingsQuery } from './report-bookings-query';
 export { statsProxyQuery, statsReportQuery } from './stats-query';
-export type {
-	StatsQueryConfig,
-	StatsReportParams,
-	StatsReportQueryParams,
-	StatsSanitizerKey,
-} from './stats-query';
+export type { StatsQueryConfig, StatsReportParams, StatsSanitizerKey } from './stats-query';
 export { statsSiteQuery } from './stats-site-query';
 export { statsPostQuery } from './stats-post-query';
 export { statsTopPostsQuery } from './stats-top-posts-query';
@@ -32,7 +27,10 @@ export { statsAppDashboardModuleSettingsQuery } from './stats-app-dashboard-modu
 export { statsAppPlanUsageQuery } from './stats-app-plan-usage-query';
 export { statsArchivesQuery } from './stats-archives-query';
 export { statsCommentFollowersQuery } from './stats-comment-followers-query';
-export type { StatsCommentFollowersParams } from './stats-comment-followers-query';
+export type {
+	StatsCommentFollowersParams,
+	StatsCommentFollowersResponse,
+} from './stats-comment-followers-query';
 export { statsFollowersQuery } from './stats-followers-query';
 export type { StatsFollowersParams, StatsFollowersResponse } from './stats-followers-query';
 export { statsPublicizeQuery } from './stats-publicize-query';
