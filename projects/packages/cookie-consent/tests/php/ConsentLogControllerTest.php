@@ -11,7 +11,7 @@ use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * Tests for the consent-log write-endpoint protections (nonce, rate limit, validation).
+ * Tests for the consent-log write-endpoint protections (rate limit, validation).
  *
  * @covers \Automattic\Jetpack\CookieConsent\Consent_Log_Controller
  */
@@ -58,64 +58,25 @@ final class ConsentLogControllerTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Build a request carrying the given nonce header.
-	 *
-	 * @param string|null $nonce Nonce value, or null to omit the header.
-	 * @return WP_REST_Request
+	 * A request under the rate limit is allowed.
 	 */
-	private function request_with_nonce( $nonce ) {
-		$request = new WP_REST_Request();
-		if ( null !== $nonce ) {
-			$request->set_header( 'x_wp_nonce', $nonce );
-		}
-		return $request;
-	}
-
-	/**
-	 * A missing nonce is rejected with a 403.
-	 */
-	public function test_create_permission_rejects_missing_nonce() {
-		$result = $this->controller->check_create_permission( $this->request_with_nonce( null ) );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'rest_cookie_invalid_nonce', $result->get_error_code() );
-		$this->assertSame( 403, $result->get_error_data()['status'] );
-	}
-
-	/**
-	 * An invalid nonce is rejected with a 403.
-	 */
-	public function test_create_permission_rejects_invalid_nonce() {
-		Functions\when( 'wp_verify_nonce' )->justReturn( false );
-
-		$result = $this->controller->check_create_permission( $this->request_with_nonce( 'bad-nonce' ) );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'rest_cookie_invalid_nonce', $result->get_error_code() );
-	}
-
-	/**
-	 * A valid nonce under the rate limit is allowed.
-	 */
-	public function test_create_permission_allows_valid_nonce_under_limit() {
-		Functions\when( 'wp_verify_nonce' )->justReturn( true );
+	public function test_create_permission_allows_under_limit() {
 		Functions\when( 'get_transient' )->justReturn( 0 );
 		// The permission check must be read-only — WP can call it more than once per request.
 		Functions\expect( 'set_transient' )->never();
 
-		$result = $this->controller->check_create_permission( $this->request_with_nonce( 'good-nonce' ) );
+		$result = $this->controller->check_create_permission();
 
 		$this->assertTrue( $result );
 	}
 
 	/**
-	 * A valid nonce that has hit the rate limit is rejected with a 429.
+	 * A request that has hit the rate limit is rejected with a 429.
 	 */
 	public function test_create_permission_rate_limited_returns_429() {
-		Functions\when( 'wp_verify_nonce' )->justReturn( true );
 		Functions\when( 'get_transient' )->justReturn( 100 ); // At RATE_LIMIT_MAX.
 
-		$result = $this->controller->check_create_permission( $this->request_with_nonce( 'good-nonce' ) );
+		$result = $this->controller->check_create_permission();
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'rest_too_many_requests', $result->get_error_code() );
@@ -223,12 +184,9 @@ final class ConsentLogControllerTest extends PHPUnit\Framework\TestCase {
 	 * A count one below the limit is still allowed (pins the >= comparator boundary).
 	 */
 	public function test_create_permission_allows_one_below_limit() {
-		Functions\when( 'wp_verify_nonce' )->justReturn( true );
 		Functions\when( 'get_transient' )->justReturn( 99 ); // One below RATE_LIMIT_MAX.
 
-		$this->assertTrue(
-			$this->controller->check_create_permission( $this->request_with_nonce( 'good-nonce' ) )
-		);
+		$this->assertTrue( $this->controller->check_create_permission() );
 	}
 
 	/**
@@ -322,15 +280,12 @@ final class ConsentLogControllerTest extends PHPUnit\Framework\TestCase {
 	 */
 	public function test_missing_ip_uses_shared_unknown_bucket() {
 		unset( $_SERVER['REMOTE_ADDR'] ); // jetpack-ip yields false -> 'unknown' bucket.
-		Functions\when( 'wp_verify_nonce' )->justReturn( true );
 		Functions\expect( 'get_transient' )
 			->once()
 			->with( 'jp_cc_rl_' . md5( 'unknown' ) )
 			->andReturn( 0 );
 
-		$this->assertTrue(
-			$this->controller->check_create_permission( $this->request_with_nonce( 'good-nonce' ) )
-		);
+		$this->assertTrue( $this->controller->check_create_permission() );
 	}
 
 	/**
@@ -340,7 +295,6 @@ final class ConsentLogControllerTest extends PHPUnit\Framework\TestCase {
 	 * filter closure instead — this drives that closure to verify the header and its guards.
 	 */
 	public function test_rate_limited_attaches_retry_after_header() {
-		Functions\when( 'wp_verify_nonce' )->justReturn( true );
 		Functions\when( 'get_transient' )->justReturn( 100 ); // At RATE_LIMIT_MAX.
 
 		$captured = null;
@@ -356,7 +310,7 @@ final class ConsentLogControllerTest extends PHPUnit\Framework\TestCase {
 				)
 			);
 
-		$this->controller->check_create_permission( $this->request_with_nonce( 'good-nonce' ) );
+		$this->controller->check_create_permission();
 
 		$this->assertIsCallable( $captured );
 

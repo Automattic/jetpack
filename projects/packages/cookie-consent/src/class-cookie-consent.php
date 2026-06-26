@@ -624,7 +624,6 @@ class Cookie_Consent {
 				wp_json_encode(
 					array(
 						'apiUrl'      => rest_url( 'jetpack/v4/cookie-consent/consent-log' ),
-						'nonceUrl'    => rest_url( 'jetpack/v4/cookie-consent/consent-log/nonce' ),
 						'eventPrefix' => $config['event_prefix'],
 					),
 					JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT

@@ -226,21 +226,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// Issue a fresh REST nonce for the create route. Kept on its own dynamic
-		// (non-page-cached) route so the nonce is never served stale from a
-		// full-page cache the way an inline-printed nonce would be.
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/nonce',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_create_nonce' ),
-					'permission_callback' => '__return_true',
-				),
-			)
-		);
-
 		// Get consent logs (admin only).
 		register_rest_route(
 			$this->namespace,
@@ -305,24 +290,15 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	/**
 	 * Permission callback for the public create route.
 	 *
-	 * The route stays unauthenticated (anonymous visitors submit consent), so the
-	 * abuse protection is layered here: a valid REST nonce for CSRF/origin hygiene
-	 * and a per-IP rate limit to stop table-bloat / DoS. The nonce alone is weak for
-	 * anonymous traffic, so the rate limit is the hard gate.
+	 * The route stays unauthenticated (anonymous visitors submit consent), so the abuse
+	 * protection is a per-IP rate limit that stops table-bloat / DoS. A nonce was considered
+	 * but gives no real protection for anonymous traffic: it would be handed out from an open
+	 * endpoint, and the WP REST API is cross-origin readable by default — so the rate limit is
+	 * the gate.
 	 *
-	 * @param WP_REST_Request $request Request object.
 	 * @return bool|WP_Error True if allowed, WP_Error otherwise.
 	 */
-	public function check_create_permission( WP_REST_Request $request ) {
-		$nonce = $request->get_header( 'x_wp_nonce' );
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
-			return new WP_Error(
-				'rest_cookie_invalid_nonce',
-				__( 'Invalid or missing nonce.', 'jetpack-cookie-consent' ),
-				array( 'status' => 403 )
-			);
-		}
-
+	public function check_create_permission() {
 		$ip = IP_Utils::get_ip();
 		if ( $this->is_rate_limited( $ip ) ) {
 			// A WP_Error from permission_callback can't carry response headers (core
@@ -416,15 +392,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$key   = $this->rate_limit_key( $ip );
 		$count = (int) get_transient( $key );
 		set_transient( $key, $count + 1, $this->get_rate_limit_window() );
-	}
-
-	/**
-	 * Return a fresh REST nonce for the create route.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function get_create_nonce() {
-		return rest_ensure_response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ) );
 	}
 
 	/**

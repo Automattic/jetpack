@@ -40,7 +40,6 @@ declare global {
 	interface Window {
 		jetpackCookieConsentConfig?: {
 			apiUrl: string;
-			nonceUrl: string;
 			eventPrefix?: string;
 		};
 		wp_set_consent?: ( category: string, value: 'allow' | 'deny' ) => void;
