@@ -26,6 +26,8 @@ export { statsVideoPlaysQuery } from './stats-video-plays-query';
 export { statsAppDashboardModuleSettingsQuery } from './stats-app-dashboard-module-settings-query';
 export { statsAppPlanUsageQuery } from './stats-app-plan-usage-query';
 export { statsArchivesQuery } from './stats-archives-query';
+export { statsFollowersQuery } from './stats-followers-query';
+export type { StatsFollowersParams, StatsFollowersResponse } from './stats-followers-query';
 export { statsCommentsQuery, type StatsCommentsParams } from './stats-comments-query';
 export {
 	statsSubscribersCountsQuery,

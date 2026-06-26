@@ -5,6 +5,7 @@ import type { StatsDevicesItem } from './devices';
 import type { StatsEmailBreakdownItem } from './email-breakdown';
 import type { StatsEmailSummaryItem } from './email-summary';
 import type { StatsFileDownloadsItem } from './file-downloads';
+import type { StatsFollowersItem } from './followers';
 import type { StatsLocationsItem } from './locations';
 import type { StatsReferrersItem } from './referrers';
 import type { StatsSearchTermsItem } from './search-terms';
@@ -37,6 +38,7 @@ export type StatsNormalizedItem =
 	| StatsEmailSummaryItem
 	| StatsEmailBreakdownItem
 	| StatsArchivesItem
+	| StatsFollowersItem
 	| StatsCommentsItem
 	| StatsTagsItem
 	| StatsDevicesItem;
