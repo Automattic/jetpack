@@ -143,16 +143,10 @@ class Analytics {
 	/**
 	 * Register the admin menu page.
 	 *
-	 * Uses the wp-build "wp-admin integrated" page variant (the `-wp-admin`
-	 * slug) so the dashboard renders inside the native wp-admin shell,
-	 * keeping the sidebar and header intact, rather than the full-page
-	 * variant (the bare slug) that intercepts admin_init and takes over the
-	 * whole screen.
-	 *
-	 * The render callback is provided by the generated build
-	 * (build/pages/jetpack-premium-analytics/page-wp-admin.php, loaded by
-	 * build.php at init), so it is referenced by name and falls back to a
-	 * no-op when the build is absent.
+	 * Uses the wp-build "wp-admin integrated" variant (`-wp-admin` slug) so the
+	 * dashboard renders inside the native wp-admin shell, not the full-page
+	 * variant that takes over the screen via admin_init. The render callback
+	 * comes from the generated build, with a no-op fallback when it is absent.
 	 *
 	 * @return void
 	 */
