@@ -8,16 +8,16 @@ import {
 	type StatsReportQueryOptions,
 } from './stats-query';
 import type { StatsProxyParams } from '../api';
-import type { StatsWordAdsEarningsResponse, StatsWordAdsStatsResponse } from '../processing/stats';
+import type { StatsWordAdsEarningsResponse, StatsWordAdsResponse } from '../processing/stats';
 
-export type StatsWordAdsStatsParams = StatsReportParams & {
+export type StatsWordAdsParams = StatsReportParams & {
 	quantity?: number;
 };
 
 export type StatsWordAdsEarningsParams = Record< string, never >;
 
 export const statsWordAdsStatsQuery = (
-	params: StatsWordAdsStatsParams
+	params: StatsWordAdsParams
 ): StatsReportQueryOptions< 'wordAdsStats' > => {
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const apiParams = statsQueryParamsToApiParams( statsParams );
@@ -54,4 +54,4 @@ export const statsWordAdsEarningsQuery = (
 		sanitizer: 'wordAdsEarnings',
 	} );
 
-export type { StatsWordAdsEarningsResponse, StatsWordAdsStatsResponse };
+export type { StatsWordAdsEarningsResponse, StatsWordAdsResponse };

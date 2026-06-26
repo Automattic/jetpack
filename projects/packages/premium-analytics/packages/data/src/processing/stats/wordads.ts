@@ -4,22 +4,22 @@ import { coerceStatsRecord } from './utils';
 import type { StatsNormalizedReport, StatsNormalizedSummary, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
-export type StatsWordAdsStatsRawField = 'period' | 'impressions' | 'revenue' | 'cpm';
+export type StatsWordAdsRawField = 'period' | 'impressions' | 'revenue' | 'cpm';
 
-export type StatsWordAdsStatsRawResponse = {
+export type StatsWordAdsRawResponse = {
 	unit?: string;
-	fields?: StatsWordAdsStatsRawField[];
+	fields?: StatsWordAdsRawField[];
 	data?: Array< Array< string | number | null > >;
 };
 
-export type StatsWordAdsStatsDataPoint = StatsTimeSeriesDataPoint & {
+export type StatsWordAdsDataPoint = StatsTimeSeriesDataPoint & {
 	impressions?: number;
 	revenue?: number;
 	cpm?: number;
 };
 
-export type StatsWordAdsStatsResponse = StatsNormalizedReport & {
-	data: StatsWordAdsStatsDataPoint[];
+export type StatsWordAdsResponse = StatsNormalizedReport & {
+	data: StatsWordAdsDataPoint[];
 };
 
 export type StatsWordAdsEarningsRawPeriod = {
@@ -63,7 +63,7 @@ export type StatsWordAdsEarningsResponse = StatsWordAdsEarnings;
 const earningsBreakdownKeys = [ 'wordads', 'sponsored', 'adjustment' ] as const;
 
 function summarizeWordAdsStats(
-	data: StatsWordAdsStatsDataPoint[],
+	data: StatsWordAdsDataPoint[],
 	baseSummary: StatsNormalizedSummary
 ): StatsNormalizedSummary {
 	if ( ! data.length ) {
@@ -104,14 +104,14 @@ function normalizeEarningsBreakdown( value: unknown ): StatsWordAdsEarningsBreak
 }
 
 export function sanitizeStatsWordAdsStatsResponse(
-	response: StatsWordAdsStatsRawResponse,
+	response: StatsWordAdsRawResponse,
 	query?: StatsQueryParams
-): StatsWordAdsStatsResponse;
+): StatsWordAdsResponse;
 export function sanitizeStatsWordAdsStatsResponse(
 	response: unknown,
 	query?: StatsQueryParams
-): StatsWordAdsStatsResponse {
-	const report = sanitizeStatsTimeSeriesResponse( response, query ) as StatsWordAdsStatsResponse;
+): StatsWordAdsResponse {
+	const report = sanitizeStatsTimeSeriesResponse( response, query ) as StatsWordAdsResponse;
 
 	return {
 		...report,

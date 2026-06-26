@@ -4,10 +4,10 @@
 import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../queries/stats-wordads-query';
 import { useStatsQuery } from './use-stats-query';
 import { useStatsReport, type UseStatsOptions } from './use-stats-report';
-import type { StatsWordAdsEarningsResponse, StatsWordAdsStatsResponse } from '../processing/stats';
+import type { StatsWordAdsEarningsResponse, StatsWordAdsResponse } from '../processing/stats';
 import type {
 	StatsWordAdsEarningsParams,
-	StatsWordAdsStatsParams,
+	StatsWordAdsParams,
 } from '../queries/stats-wordads-query';
 
 export type {
@@ -19,18 +19,18 @@ export type {
 	StatsWordAdsEarningsRawPeriod,
 	StatsWordAdsEarningsRawResponse,
 	StatsWordAdsEarningsResponse,
-	StatsWordAdsStatsDataPoint,
-	StatsWordAdsStatsRawField,
-	StatsWordAdsStatsRawResponse,
-	StatsWordAdsStatsResponse,
+	StatsWordAdsDataPoint,
+	StatsWordAdsRawField,
+	StatsWordAdsRawResponse,
+	StatsWordAdsResponse,
 } from '../processing/stats';
 export type {
 	StatsWordAdsEarningsParams,
-	StatsWordAdsStatsParams,
+	StatsWordAdsParams,
 } from '../queries/stats-wordads-query';
 
-export function useStatsWordAdsStats( params: StatsWordAdsStatsParams, options?: UseStatsOptions ) {
-	return useStatsReport< StatsWordAdsStatsParams, StatsWordAdsStatsResponse >(
+export function useStatsWordAdsStats( params: StatsWordAdsParams, options?: UseStatsOptions ) {
+	return useStatsReport< StatsWordAdsParams, StatsWordAdsResponse >(
 		statsWordAdsStatsQuery,
 		params,
 		[ 'stats', 'wordads-stats', '__comparison__', 'disabled' ],

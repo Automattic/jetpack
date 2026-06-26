@@ -57,5 +57,5 @@ export {
 	statsWordAdsStatsQuery,
 	statsWordAdsEarningsQuery,
 	type StatsWordAdsEarningsParams,
-	type StatsWordAdsStatsParams,
+	type StatsWordAdsParams,
 } from './stats-wordads-query';

@@ -105,11 +105,11 @@ export {
 	type StatsWordAdsEarningsRawPeriod,
 	type StatsWordAdsEarningsRawResponse,
 	type StatsWordAdsEarningsResponse,
-	type StatsWordAdsStatsDataPoint,
-	type StatsWordAdsStatsParams,
-	type StatsWordAdsStatsRawField,
-	type StatsWordAdsStatsRawResponse,
-	type StatsWordAdsStatsResponse,
+	type StatsWordAdsDataPoint,
+	type StatsWordAdsParams,
+	type StatsWordAdsRawField,
+	type StatsWordAdsRawResponse,
+	type StatsWordAdsResponse,
 } from './use-stats-wordads';
 export type { UseStatsOptions } from './use-stats-report';
 

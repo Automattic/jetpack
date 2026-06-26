@@ -123,10 +123,10 @@ export type {
 	StatsWordAdsEarningsRawPeriod,
 	StatsWordAdsEarningsRawResponse,
 	StatsWordAdsEarningsResponse,
-	StatsWordAdsStatsDataPoint,
-	StatsWordAdsStatsRawField,
-	StatsWordAdsStatsRawResponse,
-	StatsWordAdsStatsResponse,
+	StatsWordAdsDataPoint,
+	StatsWordAdsRawField,
+	StatsWordAdsRawResponse,
+	StatsWordAdsResponse,
 } from './wordads';
 export type {
 	StatsItemAction,

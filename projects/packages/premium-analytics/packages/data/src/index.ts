@@ -110,11 +110,11 @@ export {
 	type StatsWordAdsEarningsRawPeriod,
 	type StatsWordAdsEarningsRawResponse,
 	type StatsWordAdsEarningsResponse,
-	type StatsWordAdsStatsDataPoint,
-	type StatsWordAdsStatsParams,
-	type StatsWordAdsStatsRawField,
-	type StatsWordAdsStatsRawResponse,
-	type StatsWordAdsStatsResponse,
+	type StatsWordAdsDataPoint,
+	type StatsWordAdsParams,
+	type StatsWordAdsRawField,
+	type StatsWordAdsRawResponse,
+	type StatsWordAdsResponse,
 } from './hooks/use-stats-wordads';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';

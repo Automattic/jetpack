@@ -1,4 +1,4 @@
-import type { StatsWordAdsStatsRawResponse } from '../wordads';
+import type { StatsWordAdsRawResponse } from '../wordads';
 
 export const wordAdsStatsFixture = {
 	unit: 'month',
@@ -7,13 +7,13 @@ export const wordAdsStatsFixture = {
 		[ '2026-05', '1200', '6.50', '5.42' ],
 		[ '2026-06', 800, 3.25, 4.06 ],
 	],
-} satisfies StatsWordAdsStatsRawResponse;
+} satisfies StatsWordAdsRawResponse;
 
 export const wordAdsStatsEmptyFixture = {
 	unit: 'day',
 	fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
 	data: [],
-} satisfies StatsWordAdsStatsRawResponse;
+} satisfies StatsWordAdsRawResponse;
 
 export const wordAdsEarningsFixture = {
 	earnings: {
