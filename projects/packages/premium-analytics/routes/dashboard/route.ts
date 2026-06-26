@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { ensureCoreSettingsReady, getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import { isPrimaryPreset } from '@jetpack-premium-analytics/datetime';
+import { ensureCoreSettingsReady, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -52,39 +51,35 @@ export const route = {
 
 		const params = ( search ?? {} ) as DashboardSearch;
 		if ( ! params.from || ! params.to || ! params.interval ) {
-			// Seed dates in the site timezone, not the browser's (see above).
-			await ensureCoreSettingsReady();
-
 			/*
-			 * Derive the seeded range from a supplied preset (when it maps to a
-			 * concrete range) so a `?preset=…` deep-link gets a matching
-			 * `from`/`to`/`interval` instead of the generic last-30-days default.
-			 * `custom` has no computable range, so it falls back to the default.
+			 * Seed dates in the site timezone, not the browser's, by waiting for
+			 * core `site` settings. A rejection here (network/auth) shouldn't
+			 * error the whole page, so fall back to the default seed — matching
+			 * upstream's loader behavior. The only cost is the timezone briefly
+			 * falling back to the browser's until settings resolve.
 			 */
-			const preset =
-				isPrimaryPreset( params.preset ) && params.preset !== 'custom' ? params.preset : undefined;
+			try {
+				await ensureCoreSettingsReady();
+			} catch {
+				// Proceed with the default seed below.
+			}
 
 			/*
-			 * Fill only the missing params: defaults first, then the
-			 * user-supplied values override them, so a partial URL (e.g. a
-			 * custom `from`/`to` without `interval`) keeps its provided
-			 * values instead of being reset to the defaults.
+			 * Resolve the date params through `normalizeReportParams` — the same
+			 * resolver the widgets use — so the URL and the widgets agree on
+			 * dates, interval, preset, and comparison. A raw default spread would
+			 * force `comp: '1'` onto a custom `from`/`to` deep-link the user never
+			 * asked to compare; normalizeReportParams only applies the default
+			 * comparison on a genuinely fresh load (no `from`/`to`).
+			 *
+			 * Overlay the resolved report params onto the original search so
+			 * non-report params that may be deep-linked (e.g. `section`) survive
+			 * the seed redirect.
 			 */
 			const seeded: Record< string, unknown > = {
-				...getDefaultQueryParams( true, preset ),
 				...params,
+				...normalizeReportParams( params as Parameters< typeof normalizeReportParams >[ 0 ] ),
 			};
-
-			/*
-			 * When the URL already carries a custom `from`/`to` but no valid
-			 * preset, mark the seed as `custom` so `normalizeReportParams` keeps
-			 * the supplied dates instead of recomputing them from the default
-			 * preset (which would otherwise show the widgets a different range
-			 * than the picker).
-			 */
-			if ( params.from && params.to && ! preset ) {
-				seeded.preset = 'custom';
-			}
 
 			throw redirect( {
 				to: '/',
