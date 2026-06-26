@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Launchpad: add an ?all_tasks=1 testing query param that skips tailoring and renders the full task catalog, so every task can be exercised from a single site.

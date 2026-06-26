@@ -103,6 +103,15 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_data' ),
 					'permission_callback' => array( $this, 'can_read' ),
+					'args'                => array(
+						// Testing aid: render the full task catalog (visibility bypassed,
+						// no tailoring) so every task can be exercised from one site.
+						'all_tasks' => array(
+							'description' => 'Return the full task catalog instead of the tailored list (testing aid).',
+							'type'        => 'boolean',
+							'default'     => false,
+						),
+					),
 				),
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
@@ -241,17 +250,25 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	/**
 	 * Composite read: wizard payload, AI output, enriched tasks, statuses, and eligibility.
 	 *
+	 * @param WP_REST_Request|null $request Request object (for the `all_tasks` testing param).
 	 * @return array
 	 */
-	public function get_data() {
+	public function get_data( $request = null ) {
 		$wizard    = get_option( self::OPTION_WIZARD );
 		$ai_output = get_option( self::OPTION_AI_OUTPUT );
 
-		// Guard the nested payload: partial/legacy/failed writes may leave the
-		// option as an array without payload.tasks, which would warn and break.
-		$tasks = array();
-		if ( is_array( $ai_output ) && isset( $ai_output['payload']['tasks'] ) && is_array( $ai_output['payload']['tasks'] ) ) {
-			$tasks = $this->build_tasks( $ai_output['payload']['tasks'] );
+		// Testing aid: ?all_tasks=1 renders the whole catalog (visibility bypassed),
+		// independent of the persisted tailored output, so every task can be
+		// exercised from a single site.
+		if ( $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' ) ) {
+			$tasks = $this->build_all_catalog_tasks();
+		} else {
+			// Guard the nested payload: partial/legacy/failed writes may leave the
+			// option as an array without payload.tasks, which would warn and break.
+			$tasks = array();
+			if ( is_array( $ai_output ) && isset( $ai_output['payload']['tasks'] ) && is_array( $ai_output['payload']['tasks'] ) ) {
+				$tasks = $this->build_tasks( $ai_output['payload']['tasks'] );
+			}
 		}
 
 		// The membership tasks' completion is recomputed in build_tasks() (their
@@ -472,12 +489,44 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Enriches the persisted tasks with title, completion state, and CTA path from the catalog.
+	 * Builds the enriched task list for every task in the catalog, bypassing the
+	 * per-site visibility gate. Backs the `?all_tasks=1` testing aid; each task is
+	 * enriched in isolation so one that can't be built in this context is skipped
+	 * rather than breaking the whole view.
 	 *
-	 * @param array $tasks The persisted `payload.tasks` array.
 	 * @return array
 	 */
-	private function build_tasks( $tasks ) {
+	private function build_all_catalog_tasks() {
+		$built = array();
+		foreach ( array_keys( wpcom_launchpad_get_task_definitions() ) as $task_id ) {
+			try {
+				$one = $this->build_tasks(
+					array(
+						array(
+							'id'       => $task_id,
+							'subtitle' => $task_id,
+						),
+					),
+					true
+				);
+				if ( ! empty( $one ) ) {
+					$built[] = $one[0];
+				}
+			} catch ( \Throwable $e ) {
+				continue;
+			}
+		}
+		return $built;
+	}
+
+	/**
+	 * Enriches the persisted tasks with title, completion state, and CTA path from the catalog.
+	 *
+	 * @param array $tasks             The persisted `payload.tasks` array.
+	 * @param bool  $bypass_visibility Skip the catalog visibility gate (for the all-tasks testing view).
+	 * @return array
+	 */
+	private function build_tasks( $tasks, $bypass_visibility = false ) {
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$built       = array();
 
@@ -511,7 +560,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// per-goal lists also contain conditionally-visible tasks, so gating the
 			// write path could strand a goal with too few surviving tasks.
 			if (
-				! in_array( $task['id'], self::FORCE_VISIBLE_TASK_IDS, true )
+				! $bypass_visibility
+				&& ! in_array( $task['id'], self::FORCE_VISIBLE_TASK_IDS, true )
 				&& ! wpcom_launchpad_checklists()->is_visible( $definition )
 			) {
 				continue;

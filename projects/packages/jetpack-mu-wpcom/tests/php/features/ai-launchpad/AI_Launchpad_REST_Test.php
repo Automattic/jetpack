@@ -350,6 +350,26 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that GET with ?all_tasks=1 returns the full catalog (a testing aid),
+	 * bypassing per-site visibility and not depending on any persisted AI output.
+	 */
+	public function test_get_all_tasks_param_returns_full_catalog() {
+		wp_set_current_user( $this->admin_id );
+		// No ai_output seeded — all-tasks mode is independent of the tailored output.
+
+		$result = $this->call_api( Requests::GET, '', null, array( 'all_tasks' => '1' ) );
+
+		$this->assertSame( 200, $result->get_status() );
+		$ids = array_column( $result->get_data()['tasks'], 'id' );
+		// Far more than a tailored list (~6 tasks): the whole catalog.
+		$this->assertGreaterThan( 40, count( $ids ) );
+		// Includes a task normally hidden by the visibility gate (woo_products needs
+		// WooCommerce, absent in the test env) — proving the bypass.
+		$this->assertContains( 'woo_products', $ids );
+		$this->assertContains( 'first_post_published', $ids );
+	}
+
+	/**
 	 * Test that GET requires authentication.
 	 */
 	public function test_get_requires_authentication() {
