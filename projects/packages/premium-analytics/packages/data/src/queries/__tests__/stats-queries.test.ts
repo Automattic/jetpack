@@ -530,10 +530,15 @@ describe( 'Stats query factories', () => {
 		expect( statsStreakQuery( {} as StatsReportParams ).enabled ).toBe( false );
 	} );
 
-	it( 'builds the local site published state query key', () => {
+	it( 'builds the published state query against the WPCOM proxy endpoint', () => {
 		expect( statsAppSiteHasNeverPublishedPostQuery().queryKey ).toEqual( [
 			'stats-app',
 			'site-has-never-published-post',
+			'2',
+			'site-has-never-published-post',
+			'GET',
+			{},
+			{},
 		] );
 	} );
 } );

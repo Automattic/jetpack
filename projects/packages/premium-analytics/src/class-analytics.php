@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
-use Automattic\Jetpack\PremiumAnalytics\REST\Site_State_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -67,7 +66,6 @@ class Analytics {
 		Sync_Configuration::register();
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
-		Site_State_Controller::register();
 
 		// Hydrate the widget type registry from the build manifest at init.
 		require_once __DIR__ . '/widget-types.php';

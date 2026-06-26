@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Stats: Add app publish state hook backed by local site state.
+Stats: Add app publish state hook.
