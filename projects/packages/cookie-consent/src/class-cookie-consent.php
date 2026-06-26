@@ -651,7 +651,7 @@ class Cookie_Consent {
 	/**
 	 * Get configuration with filters.
 	 *
-	 * @internal
+	 * @internal For package use only.
 	 *
 	 * @return array Configuration array.
 	 */
