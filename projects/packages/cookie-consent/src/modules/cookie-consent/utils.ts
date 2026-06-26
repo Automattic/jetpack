@@ -10,6 +10,9 @@ export const UNKNOWN_COUNTRY_CODE = 'UNKNOWN';
 interface Config {
 	gdprCountries: string[];
 	ccpaRegions: string[];
+	// Whether a Global Privacy Control signal force-denies non-essential cookies in GDPR
+	// regions. Conservative default (honor GPC) applies when the flag is omitted.
+	gdprHonorsGpc?: boolean;
 }
 
 interface Context {
@@ -123,9 +126,26 @@ export function handleConsentByRegion(
 ): void {
 	if ( isGdprCountry( countryCode, config ) ) {
 		// GDPR: Opt-in model - show banner for explicit consent
-		context.showBanner = true;
 		setConsentType( 'optin' );
 
+		// A Global Privacy Control signal is a clear opt-out request, so honor it as a
+		// rejection: force-deny non-essential categories and skip the banner. The shopper
+		// can still grant consent later via the "Manage Privacy Preferences" footer link.
+		// Gated by a config flag so the legal decision is a value, not a code change;
+		// the conservative default (honor GPC) applies when the flag is omitted.
+		if ( config.gdprHonorsGpc !== false && hasOptedOutViaGlobalPrivacyControl() ) {
+			context.showBanner = false;
+			saveConsentChoices(
+				{
+					analytics: false,
+					advertising: false,
+				},
+				'opt-out'
+			);
+			return;
+		}
+
+		context.showBanner = true;
 		trackPrivacyBannerView();
 		return;
 	}

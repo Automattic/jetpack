@@ -52,6 +52,16 @@ assume: namespace, text domain, and the dependency versions the package resolves
   Modules, never global CSS.
 - User-visible strings go through `__( …, '<text-domain>' )`.
 
+**Docs (JSDoc)**
+- Props are a named `type`/`interface` with each field documented on the type,
+  not echoed in `@param`. A component takes one typed tag
+  (`@param {Props} props - The component props.`) — never `@param props.<field>`
+  blocks; plain functions keep positional `@param`s.
+- Descriptions track the code: referenced symbols still exist, terminology is
+  consistent (`widget.json` ↔ `widget.ts` ↔ rendered strings), `@return` is accurate.
+- Verify, don't guess: `jsdoc/require-param` is satisfied by that single typed
+  `props` tag — confirm with `eslint <widget>/render.tsx` instead of dropping it.
+
 ## How to verify tokens
 
 ```bash

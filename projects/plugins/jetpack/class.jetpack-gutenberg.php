@@ -880,7 +880,7 @@ class Jetpack_Gutenberg {
 	 * allow-list of extensions that genuinely have front-end side effects keeps loading
 	 * unconditionally (see self::$frontend_editor_extensions).
 	 *
-	 * @since $$next-version$$
+	 * @since 16.0
 	 *
 	 * @return bool False only for plain front-end web requests. Admin, REST, cron,
 	 *              WP-CLI and XML-RPC contexts all return true so editor extensions load.
@@ -950,7 +950,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * Keyed by directory ('plugins' / 'extended-blocks') for an exact, intentional match.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.0
 	 *
 	 * @var array
 	 */

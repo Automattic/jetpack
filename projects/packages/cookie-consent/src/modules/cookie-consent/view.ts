@@ -59,6 +59,7 @@ interface StoreConfig {
 	cookiePolicyUrl: string;
 	gdprCountries: string[];
 	ccpaRegions: string[];
+	gdprHonorsGpc: boolean;
 	showOnError: boolean;
 	forcePreview: boolean;
 }

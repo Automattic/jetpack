@@ -37,7 +37,7 @@ jobs:
       comment_id: ${{ steps.check-test-reminder-comment.outputs.result }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -118,7 +118,7 @@ jobs:
     timeout-minutes: 25  # 2026-04-07: Successful runs seem to take ~15 minutes.
 
     steps: &build_steps
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -232,7 +232,7 @@ jobs:
       ( needs.build_all.result == 'success' || needs.build_wpcom.result == 'success' || needs.build_nonwpcom.result == 'success' )
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           path: monorepo
 
@@ -423,7 +423,7 @@ jobs:
     timeout-minutes: 10  # 2026-05-21: Successful runs seem to take a few minutes
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           path: monorepo
 
@@ -464,7 +464,7 @@ jobs:
       needs.merge_artifacts.result == 'success'
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           path: monorepo
 

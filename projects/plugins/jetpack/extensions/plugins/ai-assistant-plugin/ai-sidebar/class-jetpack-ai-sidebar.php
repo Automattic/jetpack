@@ -17,13 +17,14 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
-const AM_ASSET_BASE_PATH         = 'widgets.wp.com/agents-manager/';
-const AI_SIDEBAR_ASSET_TRANSIENT = 'jetpack_ai_sidebar_asset';
-const AI_SIDEBAR_JS_URL          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
-const AI_SIDEBAR_CSS_URL         = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
-const AI_SIDEBAR_RTL_CSS_URL     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
-const AI_SIDEBAR_PROVIDER_URL    = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
-const AI_SIDEBAR_AGENT_ID        = 'wp-orchestrator';
+const AM_ASSET_BASE_PATH                  = 'widgets.wp.com/agents-manager/';
+const AI_SIDEBAR_ASSET_TRANSIENT          = 'jetpack_ai_sidebar_asset';
+const AI_SIDEBAR_JS_URL                   = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
+const AI_SIDEBAR_CSS_URL                  = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
+const AI_SIDEBAR_RTL_CSS_URL              = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
+const AI_SIDEBAR_PROVIDER_URL             = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
+const AI_SIDEBAR_AGENT_ID                 = 'wp-orchestrator';
+const AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION = 'ai-sidebar-toolbar-button';
 
 /**
  * Initializes the Agents Manager package and registers the Jetpack AI
@@ -71,6 +72,9 @@ class Jetpack_AI_Sidebar {
 		// never fired. Priority 250 runs after both jetpack-mu-wpcom and the
 		// Agents Manager package enqueue (priority 101).
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_patch_jetpack_ai_sidebar_preview_data' ), 250 );
+
+		// Let editor JS know when the Jetpack AI Sidebar toolbar button replaces the legacy AI toolbar.
+		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_toolbar_button_extension' ), 99 );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -361,6 +365,7 @@ class Jetpack_AI_Sidebar {
 			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
 			'generateFeedback'        => self::is_generate_feedback_enabled(),
 			'blockTransformations'    => true,
+			'blockToolbarButton'      => false,
 			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
 			'chatHistory'             => false,
 			'supportGuides'           => false,
@@ -383,6 +388,35 @@ class Jetpack_AI_Sidebar {
 			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),
 			'features' => $features,
 		);
+	}
+
+	/**
+	 * Whether the Jetpack AI Sidebar toolbar button replaces the legacy AI toolbar.
+	 *
+	 * @return bool
+	 */
+	public static function is_toolbar_button_enabled(): bool {
+		$preview_config = self::get_jetpack_ai_sidebar_preview_config();
+
+		return self::should_expose_sidebar()
+			&& true === ( $preview_config['features']['blockToolbarButton'] ?? false );
+	}
+
+	/**
+	 * Register the Jetpack AI Sidebar toolbar button feature.
+	 *
+	 * @return void
+	 */
+	public static function register_toolbar_button_extension(): void {
+		if ( ! self::is_toolbar_button_enabled() ) {
+			\Jetpack_Gutenberg::set_extension_unavailable(
+				AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION,
+				'jetpack_ai_sidebar_feature_disabled'
+			);
+			return;
+		}
+
+		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION );
 	}
 
 	/**
@@ -420,9 +454,8 @@ class Jetpack_AI_Sidebar {
 		$config = self::get_jetpack_ai_sidebar_preview_config();
 
 		return array(
-			'agentId'                  => AI_SIDEBAR_AGENT_ID,
-			'aiEditorialReviewEnabled' => self::is_ai_editorial_review_enabled(),
-			'jetpackAiSidebar'         => $config,
+			'agentId'          => AI_SIDEBAR_AGENT_ID,
+			'jetpackAiSidebar' => $config,
 		);
 	}
 

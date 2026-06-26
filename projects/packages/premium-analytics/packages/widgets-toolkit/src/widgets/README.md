@@ -15,7 +15,6 @@ Dashboard widget components for Jetpack Premium Analytics.
 | `SalesByDeviceWidget`          | `DonutChart`                                    | Sales breakdown by device type                    |
 | `SalesByUtmWidget`             | `LeaderboardChart`                              | Sales by UTM parameters (source/channel/campaign) |
 | `TotalReturnsWidget`           | `DonutChart`                                    | Returns/refunds for all product types             |
-| `VisitorMetricWidget`          | `ReportMetricWidget`                            | Visitor-based metrics                             |
 | `TopPerformingProductsWidget`  | `LeaderboardChart`                              | Top products by revenue                           |
 | `TopPerformingBookingsWidget`  | `LeaderboardChart`                              | Top bookings by revenue                           |
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a Top posts & pages stats widget, wiring the ported presentational widget to live Jetpack Stats data via the designated useStatsTopPosts traffic hook.

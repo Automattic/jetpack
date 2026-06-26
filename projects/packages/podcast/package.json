@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-podcast",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"private": true,
 	"description": "Jetpack Podcast functionality (Simple and Atomic only).",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/podcast/#readme",
@@ -80,7 +80,7 @@
 		"@types/react": "18.3.28",
 		"@wordpress/base-styles": "10.0.1",
 		"@wordpress/browserslist-config": "6.48.1",
-		"@wordpress/build": "0.14.0",
+		"@wordpress/build": "0.16.1",
 		"@wordpress/theme": "0.15.1",
 		"browserslist": "^4.24.0",
 		"concurrently": "10.0.3",

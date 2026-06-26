@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Button, Text } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
@@ -79,7 +80,7 @@ export const VideoLibraryWrapper = ( {
 		}
 	}, [ search ] );
 
-	const [ isLg ] = useBreakpointMatch( 'lg' );
+	const isLg = useViewportMatch( 'large' );
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
 

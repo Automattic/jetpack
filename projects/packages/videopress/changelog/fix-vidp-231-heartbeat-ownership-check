@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+VideoPress: Fix an issue where the media library Heartbeat handler exposed processing status for attachments the current user is not allowed to edit.

@@ -49,11 +49,22 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
  * package (`@jetpack-premium-analytics/data`).
  */
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
+const WP_SETTINGS_PATH = '/wp/v2/settings';
+
+const coreSettingsMock = {
+	timezone: 'UTC',
+	gmt_offset: 0,
+	date_format: 'F j, Y',
+	time_format: 'g:i a',
+	start_of_week: 1,
+	title: 'Storybook',
+};
 
 /**
  * Days of mock data to generate (covering past requests).
  */
 const SPECTRUM_DAYS = 90;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
  * Parameters for dynamic mock data generation.
@@ -163,6 +174,25 @@ function parseReportPath( path: string ): {
 	return { subPath, query };
 }
 
+function toDayStart( date: Date ) {
+	return new Date( Date.UTC( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() ) );
+}
+
+function toDayEnd( date: Date ) {
+	const end = toDayStart( date );
+	end.setUTCHours( 23, 59, 59, 999 );
+	return end;
+}
+
+function parseDateParam( value: string | null, fallback: Date ) {
+	if ( ! value ) {
+		return fallback;
+	}
+
+	const date = new Date( value );
+	return Number.isNaN( date.getTime() ) ? fallback : date;
+}
+
 /**
  * Builds the orders / orders-by-product-type response using the
  * "spectrum + filter" strategy from upstream.
@@ -261,6 +291,60 @@ function buildSessionsByDeviceResponse() {
 }
 
 /**
+ * Builds the sessions/by-date (visitors over time) response.
+ *
+ * @param query - Parsed query params.
+ * @return Visitors time-series report response.
+ */
+function buildVisitorsByDateResponse( query: URLSearchParams ) {
+	const params = getMockParams();
+	const isComparison = nextIsComparison( 'sessions/by-date' );
+	const fallbackTo = toDayEnd( new Date() );
+	const fallbackFrom = toDayStart( new Date( fallbackTo.getTime() - 29 * DAY_MS ) );
+	const from = toDayStart( parseDateParam( query.get( 'from' ), fallbackFrom ) );
+	const to = toDayStart( parseDateParam( query.get( 'to' ), fallbackTo ) );
+	const days = Math.max(
+		1,
+		Math.min( SPECTRUM_DAYS, Math.floor( ( to.getTime() - from.getTime() ) / DAY_MS ) + 1 )
+	);
+	const seed = params.seed + ( isComparison ? 10000 : 0 ) + from.getUTCDate();
+	const density = Math.max( 0.1, Math.min( 1, params.density ) );
+	const volume = Math.max( 1, params.volume * 100 );
+	let visitorsTotal = 0;
+	let sessionsTotal = 0;
+
+	const data = Array.from( { length: days }, ( _, index ) => {
+		const date = new Date( from.getTime() + index * DAY_MS );
+		const activeDay = ( ( index * 37 + seed ) % 100 ) / 100 <= density;
+		const trend = index * Math.max( 2, Math.round( volume / 120 ) );
+		const wave = Math.sin( ( index + seed ) / 2.6 ) * volume * 0.35;
+		const visitors = activeDay ? Math.max( 1, Math.round( volume + trend + wave ) ) : 0;
+		const activeSessions = Math.round( visitors * 0.78 );
+
+		visitorsTotal += visitors;
+		sessionsTotal += activeSessions;
+
+		return {
+			date_start: date.toISOString(),
+			date_end: toDayEnd( date ).toISOString(),
+			time_interval: date.toISOString(),
+			active_sessions: String( activeSessions ),
+			visitors: String( visitors ),
+		};
+	} );
+
+	return {
+		summary: {
+			active_sessions: String( sessionsTotal ),
+			visitors: String( visitorsTotal ),
+			date_start: from.toISOString(),
+			date_end: toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ).toISOString(),
+		},
+		data,
+	};
+}
+
+/**
  * Builds the sessions/by-location (visitors by location) response, detecting
  * comparison requests by tracking the distinct `from` values per request
  * signature (mirrors upstream).
@@ -338,6 +422,8 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 			return buildOrdersResponse( 'orders-by-product-type/by-date', query );
 		case '/bookings/by-date':
 			return buildBookingsResponse( query );
+		case '/sessions/by-date':
+			return buildVisitorsByDateResponse( query );
 		case '/sessions/by-device':
 			return buildSessionsByDeviceResponse();
 		case '/sessions/by-location':
@@ -360,6 +446,10 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
+
+	if ( requestPath.startsWith( WP_SETTINGS_PATH ) ) {
+		return coreSettingsMock;
+	}
 
 	if ( ! requestPath.startsWith( API_BASE ) ) {
 		return next( options );

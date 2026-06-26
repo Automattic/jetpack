@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Performance: load block render code only when a block is present, and skip editor-only extensions on front-end requests, to reduce per-request PHP/opcache footprint.

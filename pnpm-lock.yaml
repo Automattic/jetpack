@@ -63,9 +63,6 @@ importers:
       '@babel/core':
         specifier: ^7.29.0
         version: 7.29.7
-      '@babel/preset-typescript':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@octokit/webhooks-types':
         specifier: 7.6.1
         version: 7.6.1
@@ -611,9 +608,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@jest/globals':
         specifier: 30.4.1
         version: 30.4.1
@@ -741,9 +735,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -788,9 +779,6 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-typescript':
         specifier: 7.29.7
         version: 7.29.7(@babel/core@7.29.7)
       '@types/clean-css':
@@ -975,9 +963,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1081,9 +1066,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -1154,12 +1136,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -1203,9 +1179,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@jest/globals':
         specifier: 30.4.1
         version: 30.4.1
@@ -1258,9 +1231,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -1510,12 +1480,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -1746,9 +1710,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0
@@ -1948,9 +1909,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -2020,9 +1978,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -2178,9 +2133,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -2203,8 +2155,8 @@ importers:
         specifier: 6.48.1
         version: 6.48.1
       '@wordpress/build':
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.16.1
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.2
@@ -2284,9 +2236,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -2375,9 +2324,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -2531,12 +2477,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -2631,12 +2571,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -2864,8 +2798,8 @@ importers:
         specifier: 6.48.1
         version: 6.48.1
       '@wordpress/build':
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@types/react-dom@18.3.7(@types/react@18.3.28))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.16.1
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@types/react-dom@18.3.7(@types/react@18.3.28))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       '@wordpress/date':
         specifier: 5.48.1
         version: 5.48.1
@@ -3154,9 +3088,6 @@ importers:
       '@babel/plugin-transform-react-jsx':
         specifier: 7.29.7
         version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -3185,8 +3116,8 @@ importers:
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
       '@wordpress/build':
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@types/react-dom@18.3.7(@types/react@18.3.28))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.16.1
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@types/react-dom@18.3.7(@types/react@18.3.28))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       babel-plugin-transform-rename-properties:
         specifier: 0.1.0
         version: 0.1.0(@babel/core@7.29.7)
@@ -3402,9 +3333,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@storybook/addon-docs':
         specifier: 10.3.6
         version: 10.3.6(@types/react@18.3.28)(storybook@10.3.6(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.107.2)
@@ -3593,8 +3521,8 @@ importers:
         specifier: 6.48.1
         version: 6.48.1
       '@wordpress/build':
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.16.1
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.2
@@ -3714,9 +3642,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -3934,8 +3859,8 @@ importers:
         specifier: 6.48.1
         version: 6.48.1
       '@wordpress/build':
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.16.1
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       '@wordpress/theme':
         specifier: 0.15.1
         version: 0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4002,6 +3927,12 @@ importers:
       '@jetpack-premium-analytics/formatters':
         specifier: link:packages/formatters
         version: link:packages/formatters
+      '@jetpack-premium-analytics/icons':
+        specifier: link:packages/icons
+        version: link:packages/icons
+      '@jetpack-premium-analytics/init':
+        specifier: link:packages/init
+        version: link:packages/init
       '@jetpack-premium-analytics/routing':
         specifier: link:packages/routing
         version: link:packages/routing
@@ -4011,6 +3942,9 @@ importers:
       '@jetpack-premium-analytics/ui':
         specifier: link:packages/ui
         version: link:packages/ui
+      '@jetpack-premium-analytics/widgets-toolkit':
+        specifier: link:packages/widgets-toolkit
+        version: link:packages/widgets-toolkit
       '@tanstack/react-query':
         specifier: 5.90.8
         version: 5.90.8(react@18.3.1)
@@ -4069,10 +4003,10 @@ importers:
         specifier: 4.48.1
         version: 4.48.1
       '@wordpress/widget-dashboard':
-        specifier: next
+        specifier: 0.1.1-next.v.202606191442.0
         version: 0.1.1-next.v.202606191442.0(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/widget-primitives':
-        specifier: next
+        specifier: 0.1.1-next.v.202606191442.0
         version: 0.1.1-next.v.202606191442.0(@date-fns/tz@1.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx:
         specifier: 2.1.1
@@ -4121,8 +4055,8 @@ importers:
         specifier: 10.0.1
         version: 10.0.1
       '@wordpress/build':
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.16.1
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       browserslist:
         specifier: 4.28.2
         version: 4.28.2
@@ -4299,15 +4233,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -4339,8 +4264,8 @@ importers:
         specifier: 6.48.1
         version: 6.48.1
       '@wordpress/build':
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.16.1
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.14)
@@ -4444,9 +4369,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@jest/globals':
         specifier: 30.4.1
         version: 30.4.1
@@ -4562,9 +4484,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -4587,8 +4506,8 @@ importers:
         specifier: 6.48.1
         version: 6.48.1
       '@wordpress/build':
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@types/react-dom@18.3.7(@types/react@18.3.28))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.16.1
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@types/react-dom@18.3.7(@types/react@18.3.28))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.2
@@ -4737,18 +4656,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-typescript':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -4782,6 +4689,9 @@ importers:
       babel-jest:
         specifier: 30.4.1
         version: 30.4.1(@babel/core@7.29.7)
+      babel-plugin-polyfill-corejs3:
+        specifier: 0.14.0
+        version: 0.14.0(@babel/core@7.29.7)
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
@@ -4885,9 +4795,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@jest/globals':
         specifier: 30.4.1
         version: 30.4.1
@@ -4922,8 +4829,8 @@ importers:
         specifier: 6.48.1
         version: 6.48.1
       '@wordpress/build':
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.16.1
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       '@wordpress/theme':
         specifier: 0.15.1
         version: 0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5100,9 +5007,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@csstools/postcss-global-data':
         specifier: 4.0.0
         version: 4.0.0(postcss@8.5.14)
@@ -5143,8 +5047,8 @@ importers:
         specifier: 6.48.1
         version: 6.48.1
       '@wordpress/build':
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.16.1
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.14)
@@ -5216,8 +5120,8 @@ importers:
         specifier: 6.48.1
         version: 6.48.1
       '@wordpress/build':
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.7)(@wordpress/boot@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.2-next.v.202606191442.0)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.16.1
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.2-next.v.202606191442.0)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       '@wordpress/icons':
         specifier: ^13.0.0
         version: 13.1.0(react@18.3.1)
@@ -5228,7 +5132,7 @@ importers:
         specifier: ^5.40.0
         version: 5.48.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/private-apis':
-        specifier: next
+        specifier: 1.48.2-next.v.202606191442.0
         version: 1.48.2-next.v.202606191442.0
       '@wordpress/route':
         specifier: ^0.14.0
@@ -5312,9 +5216,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -5382,9 +5283,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -5515,12 +5413,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-react':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@storybook/react':
         specifier: 10.3.6
         version: 10.3.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.3.6(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
@@ -5654,9 +5546,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -5714,12 +5603,12 @@ importers:
 
   projects/plugins/inspect:
     devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@rollup/plugin-commonjs':
         specifier: 26.0.1
         version: 26.0.1(rollup@3.30.0)
@@ -6048,15 +5937,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/plugin-transform-runtime':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -6205,9 +6085,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -6283,6 +6160,9 @@ importers:
       '@wordpress/components':
         specifier: 35.0.1
         version: 35.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/compose':
+        specifier: 8.1.1
+        version: 8.1.1(react@18.3.1)
       '@wordpress/data':
         specifier: 10.48.1
         version: 10.48.1(react@18.3.1)
@@ -6332,9 +6212,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -6482,9 +6359,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -6576,9 +6450,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
@@ -6630,9 +6501,6 @@ importers:
       '@babel/core':
         specifier: ^7.5.5
         version: 7.29.7
-      '@babel/preset-env':
-        specifier: ^7.5.5
-        version: 7.29.7(@babel/core@7.29.7)
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -11188,8 +11056,8 @@ packages:
     resolution: {integrity: sha512-Rbh//p4Ugzw2xoKhBurtRXp/UxKxPAAPrtFAYDAXyByxIjEbEzvngHAYdFPn1VcwNxxB9qsEnzIaiZrgn2E2Qg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
-  '@wordpress/build@0.14.0':
-    resolution: {integrity: sha512-ZPXLAinvwNOkVqZ7UMDDpL6V0opHgv/0gsDO0YT5hS17vvdB6pyrHezHN6NeS6Q54Qx3V2iaTlaFwLwiMvybQQ==}
+  '@wordpress/build@0.16.1':
+    resolution: {integrity: sha512-hapzl0yZfyYdgaDnHuEF7a8c0/JURJUS5W4gPuIpU5eVprEh33a6bNv8uBUc99f0UDC70VvpJ2TwV8XXvKb55g==}
     engines: {node: '>=20.10.0', npm: '>=10.2.3'}
     hasBin: true
     peerDependencies:
@@ -24547,10 +24415,10 @@ snapshots:
 
   '@wordpress/browserslist-config@6.48.1': {}
 
-  '@wordpress/build@0.14.0(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
-      '@wordpress/style-runtime': 0.2.0
+      '@wordpress/style-runtime': 0.4.1
       autoprefixer: 10.5.0(postcss@8.5.14)
       browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
       change-case: 4.1.2
@@ -24575,10 +24443,10 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.14.0(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@types/react-dom@18.3.7(@types/react@18.3.28))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@types/react-dom@18.3.7(@types/react@18.3.28))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
-      '@wordpress/style-runtime': 0.2.0
+      '@wordpress/style-runtime': 0.4.1
       autoprefixer: 10.5.0(postcss@8.5.14)
       browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
       change-case: 4.1.2
@@ -24603,10 +24471,10 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.14.0(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@types/react-dom@18.3.7(@types/react@18.3.28))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@types/react-dom@18.3.7(@types/react@18.3.28))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
-      '@wordpress/style-runtime': 0.2.0
+      '@wordpress/style-runtime': 0.4.1
       autoprefixer: 10.5.0(postcss@8.5.14)
       browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
       change-case: 4.1.2
@@ -24630,10 +24498,10 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.14.0(@babel/core@7.29.7)(@wordpress/boot@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.2-next.v.202606191442.0)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.2-next.v.202606191442.0)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
-      '@wordpress/style-runtime': 0.2.0
+      '@wordpress/style-runtime': 0.4.1
       autoprefixer: 10.5.0(postcss@8.5.14)
       browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
       change-case: 4.1.2
@@ -24658,10 +24526,10 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.14.0(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
-      '@wordpress/style-runtime': 0.2.0
+      '@wordpress/style-runtime': 0.4.1
       autoprefixer: 10.5.0(postcss@8.5.14)
       browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
       change-case: 4.1.2

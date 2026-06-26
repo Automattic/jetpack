@@ -1,12 +1,20 @@
+import type { StatsArchivesItem } from './archives';
 import type { StatsClicksItem } from './clicks';
+import type { StatsCommentFollowersItem } from './comment-followers';
+import type { StatsCommentsItem } from './comments';
+import type { StatsDevicesItem } from './devices';
 import type { StatsEmailBreakdownItem } from './email-breakdown';
 import type { StatsEmailSummaryItem } from './email-summary';
 import type { StatsFileDownloadsItem } from './file-downloads';
+import type { StatsFollowersItem } from './followers';
 import type { StatsLocationsItem } from './locations';
+import type { StatsPublicizeItem } from './publicize';
 import type { StatsReferrersItem } from './referrers';
 import type { StatsSearchTermsItem } from './search-terms';
+import type { StatsTagsItem } from './tags';
 import type { StatsTopAuthorsItem } from './top-authors';
 import type { StatsTopPostsItem } from './top-posts';
+import type { StatsUtmItem } from './utm';
 import type { StatsVideoPlaysItem } from './video-plays';
 
 export type StatsNormalizedItemBase< TChild = unknown > = {
@@ -28,8 +36,16 @@ export type StatsNormalizedItem =
 	| StatsTopAuthorsItem
 	| StatsLocationsItem
 	| StatsVideoPlaysItem
+	| StatsUtmItem
 	| StatsEmailSummaryItem
-	| StatsEmailBreakdownItem;
+	| StatsEmailBreakdownItem
+	| StatsArchivesItem
+	| StatsCommentFollowersItem
+	| StatsFollowersItem
+	| StatsCommentsItem
+	| StatsTagsItem
+	| StatsDevicesItem
+	| StatsPublicizeItem;
 
 export type StatsNormalizedDataPoint< TItem extends StatsNormalizedItem = StatsNormalizedItem > = {
 	time_interval: string;
