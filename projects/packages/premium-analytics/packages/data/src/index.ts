@@ -35,7 +35,7 @@ export {
 export type { StatsAppDashboardModuleSettings } from './hooks/use-stats-app-dashboard-module-settings';
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
 export { useStatsFollowers } from './hooks/use-stats-followers';
-export type { StatsFollowersResponse } from './hooks/use-stats-followers';
+export type { StatsFollowersParams, StatsFollowersResponse } from './hooks/use-stats-followers';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -74,6 +74,8 @@ export type {
 	StatsClicksItem,
 	StatsFileDownloadsItem,
 	StatsFollowersItem,
+	StatsFollowersRawItem,
+	StatsFollowersRawResponse,
 	StatsItemAction,
 	StatsLocationsItem,
 	StatsNormalizedDataPoint,

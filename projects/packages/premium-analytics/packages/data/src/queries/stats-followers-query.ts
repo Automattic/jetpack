@@ -2,15 +2,30 @@
  * Internal dependencies
  */
 import {
-	statsReportQuery,
+	statsProxyQuery,
 	type StatsReportParams,
 	type StatsReportQueryOptions,
 } from './stats-query';
 import type { StatsFollowersItem, StatsNormalizedReport } from '../processing/stats';
 
 export type StatsFollowersResponse = StatsNormalizedReport< StatsFollowersItem >;
+export type StatsFollowersParams = Partial< StatsReportParams > & {
+	type?: 'all' | 'email' | 'wpcom';
+	filter_admin?: boolean;
+	max?: number;
+};
 
 export const statsFollowersQuery = (
-	params: StatsReportParams
+	params: StatsFollowersParams = {}
 ): StatsReportQueryOptions< 'followers' > =>
-	statsReportQuery( 'followers', 'stats/followers', params, 'followers' );
+	statsProxyQuery( {
+		name: 'followers',
+		version: '1.1',
+		endpoint: 'stats/followers',
+		params: {
+			type: params.type ?? 'all',
+			filter_admin: params.filter_admin ?? false,
+			max: params.max ?? 10,
+		},
+		sanitizer: 'followers',
+	} );

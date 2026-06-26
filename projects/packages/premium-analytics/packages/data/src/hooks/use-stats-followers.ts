@@ -2,17 +2,13 @@
  * Internal dependencies
  */
 import { statsFollowersQuery } from '../queries/stats-followers-query';
-import { useStatsReport } from './use-stats-report';
+import { useStatsQuery } from './use-stats-query';
 import type { UseStatsOptions } from './use-stats-report';
-import type { StatsReportParams } from '../queries/stats-query';
+import type { StatsFollowersParams } from '../queries/stats-followers-query';
 
 export type { StatsFollowersResponse } from '../queries/stats-followers-query';
+export type { StatsFollowersParams } from '../queries/stats-followers-query';
 
-export function useStatsFollowers( params: StatsReportParams, options?: UseStatsOptions ) {
-	return useStatsReport(
-		statsFollowersQuery,
-		params,
-		[ 'stats', 'followers', '__comparison__', 'disabled' ],
-		options
-	);
+export function useStatsFollowers( params: StatsFollowersParams = {}, options?: UseStatsOptions ) {
+	return useStatsQuery( statsFollowersQuery( params ), options );
 }

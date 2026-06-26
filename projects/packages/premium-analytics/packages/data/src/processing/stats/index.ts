@@ -28,7 +28,11 @@ export type { StatsVideoPlaysItem } from './video-plays';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';
-export type { StatsFollowersItem } from './followers';
+export type {
+	StatsFollowersItem,
+	StatsFollowersRawItem,
+	StatsFollowersRawResponse,
+} from './followers';
 export type {
 	StatsItemAction,
 	StatsNormalizedDataPoint,

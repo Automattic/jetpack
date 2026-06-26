@@ -3,6 +3,7 @@
  */
 import { statsAppProxyQuery } from '../stats-app-query';
 import { statsArchivesQuery } from '../stats-archives-query';
+import { statsFollowersQuery } from '../stats-followers-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import type { StatsReportParams } from '../stats-query';
@@ -120,6 +121,40 @@ describe( 'Stats query factories', () => {
 				} ),
 			] )
 		);
+	} );
+
+	it( 'builds followers query keys from Calypso endpoint defaults', () => {
+		const query = statsFollowersQuery();
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'followers',
+			'1.1',
+			'stats/followers',
+			'GET',
+			{ type: 'all', filter_admin: false, max: 10 },
+			undefined,
+			'followers',
+		] );
+	} );
+
+	it( 'includes followers endpoint-specific params in query keys', () => {
+		const query = statsFollowersQuery( {
+			type: 'wpcom',
+			filter_admin: true,
+			max: 20,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'followers',
+			'1.1',
+			'stats/followers',
+			'GET',
+			{ type: 'wpcom', filter_admin: true, max: 20 },
+			undefined,
+			'followers',
+		] );
 	} );
 
 	it( 'builds app query keys without report param coercion', () => {
