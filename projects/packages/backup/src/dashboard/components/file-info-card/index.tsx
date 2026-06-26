@@ -94,7 +94,7 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				{ contents !== null ? (
 					<pre>{ contents }</pre>
 				) : (
-					<Text size="small" variant="muted">
+					<Text variant="body-sm" className="jpb-text-muted">
 						{ __( 'Preview unavailable for this file.', 'jetpack-backup-pkg' ) }
 					</Text>
 				) }

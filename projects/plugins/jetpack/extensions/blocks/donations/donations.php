@@ -33,8 +33,9 @@ function register_block() {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
-				'render_callback' => __NAMESPACE__ . '\render_block',
-				'plan_check'      => true,
+				'render_callback'       => __NAMESPACE__ . '\render_block',
+				'render_email_callback' => __NAMESPACE__ . '\render_email',
+				'plan_check'            => true,
 			)
 		);
 	}
@@ -364,6 +365,143 @@ function render_block( $attr, $content ) {
 		$custom_styles ? '<style>' . $custom_styles . '</style>' : '',
 		esc_attr( $tab_content_class )
 	);
+}
+
+/**
+ * WooCommerce Email Editor render callback for the Donations block.
+ *
+ * Builds a dedicated email version of the block from its attributes (rather than
+ * post-processing the interactive frontend markup) so customizations — per
+ * interval heading, supporting text and button label — are preserved. Each
+ * interval is rendered as an email-safe table section with a CTA button drawn by
+ * the Button block's own email renderer.
+ *
+ * @param string $block_content     The rendered block content (unused; we rebuild from attributes).
+ * @param array  $parsed_block      The parsed block data.
+ * @param object $rendering_context The email rendering context.
+ *
+ * @return string
+ */
+function render_email( $block_content, array $parsed_block, $rendering_context ) {
+	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] )
+		|| ! function_exists( '\Automattic\Jetpack\Extensions\Button\render_email' )
+		|| ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
+		return '';
+	}
+
+	$attr          = $parsed_block['attrs'];
+	$default_texts = get_default_texts();
+
+	$url = get_permalink();
+	if ( ! is_string( $url ) || '' === $url ) {
+		$url = is_string( $attr['fallbackLinkUrl'] ?? null ) && '' !== $attr['fallbackLinkUrl'] ? $attr['fallbackLinkUrl'] : '#';
+	}
+
+	$alignment   = in_array( $attr['contentAlignment'] ?? '', array( 'left', 'center', 'right' ), true ) ? $attr['contentAlignment'] : 'left';
+	$table_style = sprintf( 'width:100%%;max-width:%dpx;border-collapse:collapse;', get_email_target_width( $rendering_context ) );
+
+	$sections = '';
+	foreach ( array(
+		'oneTimeDonation' => true,
+		'monthlyDonation' => false,
+		'annualDonation'  => false,
+	) as $key => $default_show ) {
+		$interval = is_array( $attr[ $key ] ?? null ) ? $attr[ $key ] : array();
+		if ( false === ( $interval['show'] ?? $default_show ) ) {
+			continue;
+		}
+
+		$heading = wp_kses_post( $interval['heading'] ?? $default_texts[ $key ]['heading'] );
+		$extra   = wp_kses_post( $interval['extraText'] ?? $default_texts['extraText'] );
+
+		$content = '';
+		if ( '' !== trim( wp_strip_all_tags( $heading ) ) ) {
+			$content .= sprintf(
+				'<p style="margin:0 0 4px;font-size:18px;font-weight:700;line-height:1.3;text-align:%s;">%s</p>',
+				esc_attr( $alignment ),
+				$heading
+			);
+		}
+		if ( '' !== trim( wp_strip_all_tags( $extra ) ) ) {
+			$content .= sprintf(
+				'<p style="margin:0 0 14px;font-size:15px;line-height:1.5;text-align:%s;">%s</p>',
+				esc_attr( $alignment ),
+				$extra
+			);
+		}
+		$content .= render_email_donate_button( $interval['buttonText'] ?? $default_texts[ $key ]['buttonText'], $url, $attr, $rendering_context );
+
+		$is_first   = '' === $sections;
+		$cell_style = sprintf(
+			'text-align:%1$s;padding:%2$s;%3$s',
+			esc_attr( $alignment ),
+			$is_first ? '0 0 24px' : '24px 0',
+			$is_first ? '' : 'border-top:1px solid #e0e0e0;'
+		);
+		$sections  .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			$content,
+			array( 'style' => $table_style ),
+			array( 'style' => $cell_style )
+		);
+	}
+
+	return $sections;
+}
+
+/**
+ * Render a single donation CTA as an email-safe button via the Button block's
+ * email renderer, carrying over the donation block's button styling.
+ *
+ * @param string $text              Button label.
+ * @param string $url               Button destination.
+ * @param array  $attr              Donations block attributes.
+ * @param object $rendering_context The email rendering context.
+ * @return string
+ */
+function render_email_donate_button( $text, $url, $attr, $rendering_context ) {
+	$text = trim( wp_strip_all_tags( (string) $text ) );
+
+	$button_attrs = array(
+		'text' => '' !== $text ? $text : __( 'Donate', 'jetpack' ),
+		'url'  => $url,
+	);
+
+	if ( ! empty( $attr['buttonFontSize'] ) && is_string( $attr['buttonFontSize'] ) ) {
+		$button_attrs['customFontSize'] = $attr['buttonFontSize'];
+	}
+	if ( isset( $attr['buttonBorderRadius'] ) && is_string( $attr['buttonBorderRadius'] ) ) {
+		$radius = (int) $attr['buttonBorderRadius'];
+		if ( $radius > 0 ) {
+			$button_attrs['borderRadius'] = $radius;
+		}
+	}
+
+	return \Automattic\Jetpack\Extensions\Button\render_email(
+		'',
+		array( 'attrs' => $button_attrs ),
+		$rendering_context
+	);
+}
+
+/**
+ * Resolve the target content width (in px) from the email rendering context,
+ * falling back to a sensible default.
+ *
+ * @param object $rendering_context The email rendering context.
+ * @return int Width in pixels.
+ */
+function get_email_target_width( $rendering_context ) {
+	$target_width = 600;
+	if ( is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
+		$width = $rendering_context->get_layout_width_without_padding();
+		if ( is_string( $width ) && preg_match( '/(\d+)px/', $width, $matches ) ) {
+			$parsed = (int) $matches[1];
+			if ( $parsed > 0 ) {
+				$target_width = $parsed;
+			}
+		}
+	}
+	return $target_width;
 }
 
 /**

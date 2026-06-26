@@ -197,6 +197,18 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 		);
 	}
 
+	if ( ! in_array( 'default-locations-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'      => 'default-locations-widget-instance',
+			'type'      => 'jpa/locations',
+			'placement' => array(
+				'width'  => 2,
+				'height' => 1,
+				'order'  => 1,
+			),
+		);
+	}
+
 	return $dashboard_layout;
 }
 add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\seed_default_dashboard_layout', 10, 2 );

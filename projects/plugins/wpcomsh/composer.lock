@@ -1707,9 +1707,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "7ece8afde05a2c7aee25181ce7c7a8045565039c"
+                "reference": "8a89ed121998919f66c87e58c084442525610de5"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-connection": "@dev",
@@ -1732,7 +1733,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-podcast",
                 "branch-alias": {
-                    "dev-trunk": "1.1.x-dev"
+                    "dev-trunk": "1.2.x-dev"
                 },
                 "textdomain": "jetpack-podcast",
                 "version-constants": {
@@ -2288,7 +2289,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "e4dea39ce815f1d6673b2600c917c5c82bd825b7"
+                "reference": "1ad37c018dad2c569fb1d99ef7717d218af56548"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2321,7 +2322,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.43.x-dev"
+                    "dev-trunk": "4.44.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

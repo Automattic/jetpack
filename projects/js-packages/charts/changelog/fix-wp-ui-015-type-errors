@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Charts: type `leaderboardChart.labelSpacing` as a WPDS `GapSize` token instead of `number` (the numeric value was silently ignored by `@wordpress/ui`'s Stack) to fix `@wordpress/ui` 0.15 type errors.
