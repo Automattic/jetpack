@@ -89,7 +89,7 @@ export function SubscribeModalSection( {
 			placeholder: __( 'Subscribe now to stay ahead and never miss a beat!', 'jetpack-newsletter' ),
 			description: createInterpolateElement(
 				__(
-					'Only affects Subscribe blocks using the <link>"Button only" style</link>. Leave blank to use the default heading.',
+					'Only affects Subscribe blocks using <link>the "Button only" style</link>. Leave blank to use the default heading.',
 					'jetpack-newsletter'
 				),
 				{
