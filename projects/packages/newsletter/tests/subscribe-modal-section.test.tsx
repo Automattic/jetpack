@@ -220,7 +220,7 @@ describe( 'SubscribeModalSection', () => {
 	it( 'links the Button only style hint to Jetpack support docs on self-hosted sites', () => {
 		renderSection();
 
-		const link = screen.getByRole( 'link', { name: '"Button only" style' } );
+		const link = screen.getByRole( 'link', { name: 'the "Button only" style' } );
 		expect( link ).toHaveAttribute(
 			'href',
 			'https://jetpack.com/support/jetpack-blocks/subscription-form-block/#use-the-button-only-style'
@@ -236,7 +236,7 @@ describe( 'SubscribeModalSection', () => {
 			'href',
 			'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/#change-the-subscription-box-appearance'
 		);
-		expect( link ).toHaveTextContent( '"Button only" style' );
+		expect( link ).toHaveTextContent( 'the "Button only" style' );
 	} );
 
 	it( 'renders the textarea with the default placeholder and the current heading value', () => {
