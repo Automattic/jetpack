@@ -24,6 +24,7 @@ use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Errors;
 use Automattic\Jetpack\Files;
+use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Import\Main as Import_Main;
 use Automattic\Jetpack\Licensing;
@@ -3415,7 +3416,8 @@ p {
 	 * @return array|string Stats data. Array if $encode is false. JSON-encoded string is $encode is true.
 	 */
 	public static function get_stat_data( $encode = true, $extended = true ) {
-		$data = Jetpack_Heartbeat::generate_stats_array();
+		// Site environment stats now live in the Connection package; merge them with the Jetpack-specific stats.
+		$data = array_merge( Jetpack_Heartbeat::generate_stats_array(), Heartbeat::get_environment_stats() );
 
 		if ( $extended ) {
 			$additional_data = self::get_additional_stat_data();
@@ -5923,7 +5925,8 @@ endif;
 	 * $return array $filtered_data
 	 */
 	public static function jetpack_check_heartbeat_data() {
-		$raw_data = Jetpack_Heartbeat::generate_stats_array();
+		// Site environment stats (incl. wp-version/php-version checked below) now live in the Connection package.
+		$raw_data = array_merge( Jetpack_Heartbeat::generate_stats_array(), Heartbeat::get_environment_stats() );
 
 		$good    = array();
 		$caution = array();

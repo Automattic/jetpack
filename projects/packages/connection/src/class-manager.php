@@ -2779,6 +2779,7 @@ class Manager {
 	 *
 	 * @since 6.11.0 Add the list of Jetpack package versions to the heartbeat.
 	 * @since 8.7.4 Add the missing connection owner and XML-RPC error stats to the heartbeat.
+	 * @since $$next-version$$ Add the site environment stats (WordPress/PHP versions, etc.) to the heartbeat.
 	 *
 	 * @param array $stats The Heartbeat stats array.
 	 * @return array $stats
@@ -2809,6 +2810,9 @@ class Manager {
 			$stats['xmlrpc-errors'] = implode( ',', array_keys( $xmlrpc_errors ) );
 			\Jetpack_Options::delete_option( 'xmlrpc_errors' );
 		}
+
+		// Site environment stats (WordPress/PHP versions, site configuration, etc.).
+		$stats = array_merge( $stats, Heartbeat::get_environment_stats() );
 
 		return $stats;
 	}
