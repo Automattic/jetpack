@@ -53,6 +53,14 @@ const DEFAULT_GEO_CONFIG: GeoConfig = {
 	showOnError: true,
 };
 
+function normalizeGdprCountries( countries: string[] ): string[] {
+	return countries.map( country => country.toUpperCase() );
+}
+
+function normalizeCcpaRegions( regions: string[] ): string[] {
+	return regions.map( region => region.toLowerCase() );
+}
+
 export function getCookie( name: string ): string | null {
 	const value = `; ${ document.cookie }`;
 	const parts = value.split( `; ${ name }=` );
@@ -155,9 +163,12 @@ export function getGeoConfig( config: Config ): GeoConfig {
 			config.geo?.regionCookie ?? config.regionCookie ?? DEFAULT_GEO_CONFIG.regionCookie,
 		cookieDuration:
 			config.geo?.cookieDuration ?? config.geoCookieDuration ?? DEFAULT_GEO_CONFIG.cookieDuration,
-		gdprCountries:
-			config.geo?.gdprCountries ?? config.gdprCountries ?? DEFAULT_GEO_CONFIG.gdprCountries,
-		ccpaRegions: config.geo?.ccpaRegions ?? config.ccpaRegions ?? DEFAULT_GEO_CONFIG.ccpaRegions,
+		gdprCountries: normalizeGdprCountries(
+			config.geo?.gdprCountries ?? config.gdprCountries ?? DEFAULT_GEO_CONFIG.gdprCountries
+		),
+		ccpaRegions: normalizeCcpaRegions(
+			config.geo?.ccpaRegions ?? config.ccpaRegions ?? DEFAULT_GEO_CONFIG.ccpaRegions
+		),
 		showOnError: config.geo?.showOnError ?? config.showOnError ?? DEFAULT_GEO_CONFIG.showOnError,
 	};
 }

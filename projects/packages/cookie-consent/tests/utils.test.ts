@@ -223,8 +223,8 @@ describe( 'geo configuration helpers', () => {
 				countryCodeCookie: 'shopper_country',
 				regionCookie: 'shopper_region',
 				cookieDuration: 120,
-				gdprCountries: [ 'GB' ],
-				ccpaRegions: [ 'california' ],
+				gdprCountries: [ 'gb' ],
+				ccpaRegions: [ 'California' ],
 				showOnError: false,
 			},
 		} );
@@ -244,7 +244,7 @@ describe( 'geo configuration helpers', () => {
 	it( 'uses configured GDPR country lists', () => {
 		const config = {
 			geo: {
-				gdprCountries: [ 'CA' ],
+				gdprCountries: [ 'ca' ],
 			},
 		};
 
@@ -256,12 +256,22 @@ describe( 'geo configuration helpers', () => {
 	it( 'uses configured CCPA regions case-insensitively', () => {
 		const config = {
 			geo: {
-				ccpaRegions: [ 'quebec' ],
+				ccpaRegions: [ 'Quebec' ],
 			},
 		};
 
 		expect( pertainsToCCPA( 'US', 'Quebec', config ) ).toBe( true );
 		expect( pertainsToCCPA( 'CA', 'Quebec', config ) ).toBe( false );
 		expect( pertainsToCCPA( 'US', 'California', config ) ).toBe( false );
+	} );
+
+	it( 'normalizes legacy geo list aliases', () => {
+		const config = getGeoConfig( {
+			gdprCountries: [ 'ca' ],
+			ccpaRegions: [ 'Quebec' ],
+		} );
+
+		expect( config.gdprCountries ).toEqual( [ 'CA' ] );
+		expect( config.ccpaRegions ).toEqual( [ 'quebec' ] );
 	} );
 } );

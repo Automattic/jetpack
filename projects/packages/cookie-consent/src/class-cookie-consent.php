@@ -769,6 +769,26 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Normalize GDPR country codes for case-insensitive matching.
+	 *
+	 * @param string[] $countries Country codes.
+	 * @return string[] Upper-case country codes.
+	 */
+	private static function normalize_gdpr_countries( $countries ) {
+		return array_map( 'strtoupper', array_values( $countries ) );
+	}
+
+	/**
+	 * Normalize CCPA region names for case-insensitive matching.
+	 *
+	 * @param string[] $regions Region names.
+	 * @return string[] Lower-case region names.
+	 */
+	private static function normalize_ccpa_regions( $regions ) {
+		return array_map( 'strtolower', array_values( $regions ) );
+	}
+
+	/**
 	 * Normalize filtered configuration into the current schema.
 	 *
 	 * @param array $config         Filtered configuration.
@@ -817,8 +837,8 @@ class Cookie_Consent {
 		$geo['country_code_cookie'] = is_string( $geo['country_code_cookie'] ) && '' !== $geo['country_code_cookie'] ? $geo['country_code_cookie'] : $default_config['geo']['country_code_cookie'];
 		$geo['region_cookie']       = is_string( $geo['region_cookie'] ) && '' !== $geo['region_cookie'] ? $geo['region_cookie'] : $default_config['geo']['region_cookie'];
 		$geo['cookie_duration']     = is_numeric( $geo['cookie_duration'] ) ? (int) $geo['cookie_duration'] : $default_config['geo']['cookie_duration'];
-		$geo['gdpr_countries']      = is_array( $geo['gdpr_countries'] ) ? array_values( $geo['gdpr_countries'] ) : $default_config['geo']['gdpr_countries'];
-		$geo['ccpa_regions']        = is_array( $geo['ccpa_regions'] ) ? array_values( $geo['ccpa_regions'] ) : $default_config['geo']['ccpa_regions'];
+		$geo['gdpr_countries']      = is_array( $geo['gdpr_countries'] ) ? self::normalize_gdpr_countries( $geo['gdpr_countries'] ) : $default_config['geo']['gdpr_countries'];
+		$geo['ccpa_regions']        = is_array( $geo['ccpa_regions'] ) ? self::normalize_ccpa_regions( $geo['ccpa_regions'] ) : $default_config['geo']['ccpa_regions'];
 		$geo['show_on_error']       = (bool) $geo['show_on_error'];
 
 		$config['features']            = $features;
