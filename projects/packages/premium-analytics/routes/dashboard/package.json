@@ -6,6 +6,7 @@
 		"page": "jetpack-premium-analytics"
 	},
 	"dependencies": {
+		"@automattic/jetpack-premium-analytics-data": "link:../../packages/data",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-premium-analytics/routing": "workspace:*",
 		"@wordpress/admin-ui": "2.1.0",
