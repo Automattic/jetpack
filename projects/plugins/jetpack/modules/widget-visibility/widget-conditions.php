@@ -117,7 +117,14 @@ class Jetpack_Widget_Conditions {
 		}
 
 		if ( $add_data_assets_to_page ) {
-			add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
+			// In the classic widget editor, sidebar_admin_setup fires and is the correct hook.
+			// In the Gutenberg block widget editor, sidebar_admin_setup may not fire, so we
+			// also register on enqueue_block_editor_assets to ensure assets are always loaded.
+			if ( $using_classic_experience ) {
+				add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
+			} else {
+				add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'widget_admin_setup' ) );
+			}
 		}
 
 		if ( $add_block_controls ) {
@@ -203,7 +210,10 @@ class Jetpack_Widget_Conditions {
 	 * Prepare the interface for editing widgets - loading css, javascript & data
 	 */
 	public static function widget_admin_setup() {
-		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ), array( 'widgets' ), JETPACK__VERSION );
+		// The 'widgets' style handle is only registered in the classic widget editor.
+		// In the Gutenberg block widget editor it is absent, so omit it as a dependency.
+		$style_deps = wp_use_widgets_block_editor() ? array() : array( 'widgets' );
+		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ), $style_deps, JETPACK__VERSION );
 		wp_style_add_data( 'widget-conditions', 'rtl', 'replace' );
 		wp_enqueue_script(
 			'widget-conditions',
