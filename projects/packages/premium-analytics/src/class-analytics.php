@@ -143,19 +143,30 @@ class Analytics {
 	/**
 	 * Register the admin menu page.
 	 *
-	 * The callback is __return_null because the wp-build interceptor
-	 * renders the full-page app on admin_init and calls exit() before
-	 * WordPress can invoke this callback.
+	 * Uses the wp-build "wp-admin integrated" page variant (the `-wp-admin`
+	 * slug) so the dashboard renders inside the native wp-admin shell,
+	 * keeping the sidebar and header intact, rather than the full-page
+	 * variant (the bare slug) that intercepts admin_init and takes over the
+	 * whole screen.
+	 *
+	 * The render callback is provided by the generated build
+	 * (build/pages/jetpack-premium-analytics/page-wp-admin.php, loaded by
+	 * build.php at init), so it is referenced by name and falls back to a
+	 * no-op when the build is absent.
 	 *
 	 * @return void
 	 */
 	public static function register_admin_menu() {
+		$render_callback = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' )
+			? 'jpa_jetpack_premium_analytics_wp_admin_render_page'
+			: '__return_null';
+
 		add_menu_page(
 			esc_html( self::$menu_title ),
 			esc_html( self::$menu_title ),
 			'manage_options',
-			'jetpack-premium-analytics',
-			'__return_null',
+			'jetpack-premium-analytics-wp-admin',
+			$render_callback,
 			'dashicons-chart-bar',
 			30
 		);
