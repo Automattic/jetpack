@@ -4423,6 +4423,19 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that get_current() still resolves a widget source from the widget attribute, which
+	 * Contact_Form::parse() sets from the server-resolved widget context (not from content).
+	 */
+	public function test_get_current_resolves_widget_source_from_attribute() {
+		unset( $GLOBALS['grunion_block_template_id'], $GLOBALS['grunion_block_template_part_id'] );
+
+		$source = Feedback_Source::get_current( array( 'widget' => 'sidebar-1' ) );
+
+		$this->assertSame( 'widget', $source->get_source_type() );
+		$this->assertSame( 'sidebar-1', (string) $source->get_id() );
+	}
+
+	/**
 	 * Test prepare_submit_button adds interactivity attributes to submit buttons.
 	 *
 	 * @dataProvider data_provider_prepare_submit_button
