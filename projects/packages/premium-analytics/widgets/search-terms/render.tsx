@@ -3,6 +3,7 @@
  */
 import {
 	LeaderboardChart,
+	WidgetLoadingOverlay,
 	WidgetRoot,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -50,18 +51,6 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 		} ) ) as LeaderboardChartData;
 	}, [ data ] );
 
-	if ( isLoading ) {
-		return (
-			<Stack
-				align="center"
-				justify="center"
-				className={ `${ styles.root } ${ styles.placeholder }` }
-			>
-				<Text>{ __( 'Loading search terms…', 'jetpack-premium-analytics' ) }</Text>
-			</Stack>
-		);
-	}
-
 	if ( isError ) {
 		return (
 			<Stack
@@ -74,21 +63,8 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 		);
 	}
 
-	if ( ! data.length ) {
-		return (
-			<Stack
-				align="center"
-				justify="center"
-				className={ `${ styles.root } ${ styles.placeholder }` }
-			>
-				<Text>
-					{ __(
-						'Search terms visitors use to find your site will appear here.',
-						'jetpack-premium-analytics'
-					) }
-				</Text>
-			</Stack>
-		);
+	if ( isLoading && data.length === 0 ) {
+		return <WidgetLoadingOverlay />;
 	}
 
 	return (
