@@ -2,12 +2,12 @@
 /**
  * Dashboard widget modules: REST exposure + import-map wiring.
  *
- * Reads the widget types from Widget_Type_Registry (hydrated from the build
- * manifest in widget-types.php) and exposes them to the client through the
- * `/jetpack/v4/widget-modules` REST endpoint, plus adds each widget's render
- * and metadata modules to the dashboard page's import map so the client can
- * dynamically `import()` them on demand. The host feeds the REST records to
- * `useWidgetTypes()` in @wordpress/widget-primitives.
+ * Reads the available widget types (the registry from widget-types.php, run
+ * through the availability filter in widget-availability.php) and exposes them
+ * to the client through the `/jetpack/v4/widget-modules` REST endpoint.
+ *
+ * Plus, it adds each widget's render and metadata modules to the dashboard page's
+ * import map so the client can dynamically `import()` them on demand.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -42,7 +42,7 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_rou
 function get_widget_modules_response() {
 	$records = array();
 
-	foreach ( get_registered_widget_types() as $widget_type ) {
+	foreach ( get_available_widget_types() as $widget_type ) {
 		$records[] = array(
 			'name'          => $widget_type->name,
 			'render_module' => $widget_type->render_module,
@@ -62,13 +62,14 @@ function get_widget_modules_response() {
  * @return array Updated boot dependencies.
  */
 function add_widget_modules_to_boot_deps( $boot_dependencies ) {
-	foreach ( get_registered_widget_types() as $widget_type ) {
+	foreach ( get_available_widget_types() as $widget_type ) {
 		if ( ! empty( $widget_type->render_module ) ) {
 			$boot_dependencies[] = array(
 				'import' => 'dynamic',
 				'id'     => $widget_type->render_module,
 			);
 		}
+
 		if ( ! empty( $widget_type->widget_module ) ) {
 			$boot_dependencies[] = array(
 				'import' => 'dynamic',
