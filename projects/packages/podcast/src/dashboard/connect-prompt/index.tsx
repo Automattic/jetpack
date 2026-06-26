@@ -41,7 +41,11 @@ const ConnectPrompt = ( { variant }: { variant: ConnectPromptVariant } ) => {
 							{ description }
 						</Text>
 					</Stack>
-					<Button variant="solid" render={ <a href={ getConnectUrl() } /> }>
+					<Button
+						variant="solid"
+						className="podcast-connect-prompt__cta"
+						render={ <a href={ getConnectUrl() } /> }
+					>
 						{ __( 'Connect Jetpack', 'jetpack-podcast' ) }
 					</Button>
 				</Stack>

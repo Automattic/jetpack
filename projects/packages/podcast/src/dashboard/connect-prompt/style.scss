@@ -19,4 +19,15 @@
 		max-width: 420px;
 		color: var(--jp-gray-50, #646970);
 	}
+
+	a#{&}__cta {
+
+		&,
+		&:hover,
+		&:focus,
+		&:active {
+			color: var(--wp-ui-button-foreground-color);
+			-webkit-text-fill-color: var(--wp-ui-button-foreground-color);
+		}
+	}
 }
