@@ -124,6 +124,8 @@
 		//
 		// @wordpress/build is still heavily developed; its dashboards share the same bundled
 		// packages and test surface, so exercising build alongside the rest is practical.
+		//
+		// Bundled @wordpress/grid is missing here as its updates with "Widgets Dashboard" grouping separately.
 		{
 			groupName: 'Bundled @wordpress/* monorepo',
 			matchPackageNames: [
@@ -131,7 +133,6 @@
 				'@wordpress/build',
 				'@wordpress/dataviews',
 				'@wordpress/fields',
-				'@wordpress/grid',
 				'@wordpress/icons',
 				'@wordpress/interface',
 				'@wordpress/style-runtime',
