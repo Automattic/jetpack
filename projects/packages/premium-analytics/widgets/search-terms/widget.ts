@@ -21,7 +21,6 @@ export default {
 	name: 'jpa/search-terms',
 	title: __( 'Search Terms', 'jetpack-premium-analytics' ),
 	icon: search,
-	presentation: 'full-bleed',
 	attributes: [
 		{
 			id: 'max',
