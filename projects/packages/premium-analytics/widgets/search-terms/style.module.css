@@ -8,6 +8,7 @@
 
 .placeholder {
 	min-height: 200px;
+	padding: var(--wpds-dimension-padding-lg);
 	color: var(--wpds-color-fg-content-neutral-weak);
 }
 
