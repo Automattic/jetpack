@@ -87,6 +87,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 						'__experimentalTextDecoration' => true,
 						'__experimentalLetterSpacing'  => true,
 					),
+					'visibility'           => false,
 				),
 			),
 			'jetpack/label'   => array(
