@@ -5,6 +5,15 @@ import path from 'path';
 import { SCENARIOS, SANITY_RANGES } from './scenarios.js';
 
 /**
+ * Exit code for a LOCAL data-integrity failure: a metric failed a sanity check or
+ * a scenario is misconfigured. This is distinct from exit 1 (a remote CodeVitals
+ * transport/API failure). run-performance-tests.js treats this code as always
+ * fatal and never suppresses it with `--allow-codevitals-failure`, which exists
+ * only to tolerate CodeVitals network outages, not bad local data.
+ */
+const VALIDATION_FAILED_EXIT_CODE = 2;
+
+/**
  * Extract metric entries for a single scenario.
  *
  * Each entry carries its CodeVitals key, value, and (optional) type. The type
@@ -100,22 +109,33 @@ function redactToken( text, token ) {
  * Redact the token from an error and every error in its `cause` chain, in place.
  *
  * A re-thrown error keeps its caught cause for debugging, but that cause (and any
- * nested cause) can carry the token in its `message` or `stack`. Walking the
- * whole chain scrubs each one so logging the full error never leaks the secret.
+ * nested cause) can carry the token in its `message`, `stack`, or a custom string
+ * field a client stashed a URL in (e.g. `requestUrl`). Walking the whole chain
+ * scrubs each one so logging the full error never leaks the secret. Native fetch
+ * never populates such fields, so the own-property pass is belt-and-suspenders for
+ * a non-native HTTP client; it stays at string fields rather than recursing into
+ * arbitrary nested objects.
  *
  * @param {*}      error - The caught error (or any thrown value).
- * @param {string} token - The token value to strip from messages and stacks.
+ * @param {string} token - The token value to strip from messages, stacks, and string fields.
  */
 function sanitizeErrorChain( error, token ) {
 	const seen = new Set();
 	let current = error;
 	while ( current && typeof current === 'object' && ! seen.has( current ) ) {
 		seen.add( current );
+		// message and stack are non-enumerable own props, so handle them explicitly.
 		if ( typeof current.message === 'string' ) {
 			current.message = redactToken( current.message, token );
 		}
 		if ( typeof current.stack === 'string' ) {
 			current.stack = redactToken( current.stack, token );
+		}
+		// Then scrub any enumerable string field (cause is an object, walked below).
+		for ( const key of Object.keys( current ) ) {
+			if ( typeof current[ key ] === 'string' ) {
+				current[ key ] = redactToken( current[ key ], token );
+			}
 		}
 		current = current.cause;
 	}
@@ -286,7 +306,9 @@ async function main() {
 			console.error(
 				'\n✗ One or more metrics failed sanity checks (see above). Any valid metrics were still processed.'
 			);
-			process.exit( 1 );
+			// Exit with the data-integrity code so the runner always fails the build
+			// here, even under --allow-codevitals-failure (that flag is for outages).
+			process.exit( VALIDATION_FAILED_EXIT_CODE );
 		}
 		console.log( dryRun ? '\n✓ Dry run complete!' : '\n✓ All done!' );
 		process.exit( 0 );
@@ -332,4 +354,5 @@ export {
 	extractScenarioMetrics,
 	isDirectInvocation,
 	redactToken,
+	VALIDATION_FAILED_EXIT_CODE,
 };

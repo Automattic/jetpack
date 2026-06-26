@@ -23,6 +23,7 @@ import {
 	isDirectInvocation,
 	postToCodeVitals,
 	redactToken,
+	VALIDATION_FAILED_EXIT_CODE,
 } from './post-to-codevitals.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
@@ -323,6 +324,39 @@ test( 'a token-bearing upstream error is redacted in the message, the cause, and
 	);
 } );
 
+test( 'a token on a custom error property (and nested cause) is scrubbed too', async () => {
+	const file = writeResults( 120 );
+	const origFetch = global.fetch;
+	// Native fetch never does this, but a non-native client might stash the
+	// token-bearing URL on a custom field instead of (or besides) the message.
+	global.fetch = async u => {
+		const inner = new Error( 'socket closed' );
+		inner.url = String( u ); // token-bearing, on a nested cause
+		const outer = new Error( 'request failed', { cause: inner } );
+		outer.requestUrl = String( u ); // token-bearing, on the top-level error
+		throw outer;
+	};
+	let err;
+	try {
+		await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok-on-prop',
+			} )
+		);
+	} catch ( e ) {
+		err = e;
+	} finally {
+		global.fetch = origFetch;
+	}
+	assert.ok( err, 'the live post should reject' );
+	assert.ok(
+		! inspect( err, { depth: 5 } ).includes( 'tok-on-prop' ),
+		'token must not survive on any custom property across the cause chain'
+	);
+} );
+
 // --- isDirectInvocation (the run-when-direct guard) ---
 
 test( 'isDirectInvocation: a file matches itself', () => {
@@ -363,4 +397,26 @@ test( 'the CLI runs main() when invoked directly from a path containing a space'
 	} finally {
 		fs.rmSync( dir, { recursive: true, force: true } );
 	}
+} );
+
+test( 'the CLI exits with the validation code on an out-of-range dry run', () => {
+	const results = writeResults( 70000 ); // LCP far outside [100, 60000]
+	const env = { ...process.env, RESULTS_PATH: results };
+	delete env.CODEVITALS_TOKEN; // a dry run needs no token; prove it still fails closed
+	let status, output;
+	try {
+		execFileSync( 'node', [ path.join( SCRIPTS_DIR, 'post-to-codevitals.js' ), '--dry-run' ], {
+			encoding: 'utf8',
+			env,
+			stdio: [ 'ignore', 'pipe', 'pipe' ],
+		} );
+		status = 0;
+	} catch ( err ) {
+		status = err.status;
+		output = `${ err.stdout ?? '' }${ err.stderr ?? '' }`;
+	}
+	// CI keys on the exit code; an out-of-range metric must use the data-integrity
+	// code (not a generic 1) so the runner can never suppress it.
+	assert.equal( status, VALIDATION_FAILED_EXIT_CODE );
+	assert.match( output, /Sanity check failed/ );
 } );

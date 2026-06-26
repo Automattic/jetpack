@@ -8,6 +8,7 @@ import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { config as dotenvConfig } from 'dotenv';
+import { VALIDATION_FAILED_EXIT_CODE } from './post-to-codevitals.js';
 import { SCENARIOS, getScenarioUrl } from './scenarios.js';
 
 // Load .env file from the performance directory if it exists
@@ -452,16 +453,23 @@ async function main() {
 
 		try {
 			execFile( 'node', [ path.join( __dirname, 'post-to-codevitals.js' ) ] );
-		} catch {
-			// When CODEVITALS_TOKEN is explicitly set, posting failures should fail the build
-			// to ensure CI doesn't silently drop metrics (unless --allow-codevitals-failure is set)
+		} catch ( err ) {
+			// A local data-integrity failure (the child exits VALIDATION_FAILED_EXIT_CODE
+			// when a metric is rejected or a scenario is misconfigured) must always fail
+			// the build. --allow-codevitals-failure is for tolerating CodeVitals network
+			// outages, not for shipping a build that silently skipped bad local data.
+			const isValidationFailure = err?.status === VALIDATION_FAILED_EXIT_CODE;
 			console.error( '\n✗ Failed to post to CodeVitals' );
-			if ( options.allowCodeVitalsFailure ) {
+			if ( options.allowCodeVitalsFailure && ! isValidationFailure ) {
 				console.warn( '  Continuing despite failure (--allow-codevitals-failure set)' );
 			} else {
-				console.error( '  Since CODEVITALS_TOKEN is set, this is treated as a build failure.' );
-				console.error( '  Use --skip-codevitals to run without posting metrics.' );
-				console.error( '  Use --allow-codevitals-failure to continue on posting failures.' );
+				if ( isValidationFailure ) {
+					console.error( '  A metric failed local validation; this always fails the build.' );
+				} else {
+					console.error( '  Since CODEVITALS_TOKEN is set, this is treated as a build failure.' );
+					console.error( '  Use --skip-codevitals to run without posting metrics.' );
+					console.error( '  Use --allow-codevitals-failure to continue on posting failures.' );
+				}
 				process.exit( 1 );
 			}
 		}
