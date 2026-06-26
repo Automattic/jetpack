@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { fetchStatsProxy } from '../api';
 import {
-	STATS_APP_REFERRERS_MARK_SPAM_ENDPOINT,
 	STATS_APP_REFERRERS_SPAM_NAME,
-	STATS_APP_REFERRERS_SPAM_VERSION,
-	STATS_APP_REFERRERS_UNMARK_SPAM_ENDPOINT,
+	statsAppReferrersMarkSpamMutation,
 	statsAppReferrersSpamQuery,
+	statsAppReferrersUnmarkSpamMutation,
 	type StatsAppReferrersSpamMutationParams,
 	type StatsAppReferrersSpamMutationResponse,
 	type StatsAppReferrersSpamResponse,
@@ -28,10 +27,7 @@ export function useStatsAppReferrersMarkSpamMutation() {
 	return useMutation( {
 		mutationFn: ( params: StatsAppReferrersSpamMutationParams ) =>
 			fetchStatsProxy< StatsAppReferrersSpamMutationResponse >( {
-				version: STATS_APP_REFERRERS_SPAM_VERSION,
-				endpoint: STATS_APP_REFERRERS_MARK_SPAM_ENDPOINT,
-				method: 'POST',
-				params,
+				...statsAppReferrersMarkSpamMutation( params ),
 			} ),
 		onSuccess: () => {
 			invalidateReferrersSpamQueries( queryClient );
@@ -45,10 +41,7 @@ export function useStatsAppReferrersUnmarkSpamMutation() {
 	return useMutation( {
 		mutationFn: ( params: StatsAppReferrersSpamMutationParams ) =>
 			fetchStatsProxy< StatsAppReferrersSpamMutationResponse >( {
-				version: STATS_APP_REFERRERS_SPAM_VERSION,
-				endpoint: STATS_APP_REFERRERS_UNMARK_SPAM_ENDPOINT,
-				method: 'POST',
-				params,
+				...statsAppReferrersUnmarkSpamMutation( params ),
 			} ),
 		onSuccess: () => {
 			invalidateReferrersSpamQueries( queryClient );
