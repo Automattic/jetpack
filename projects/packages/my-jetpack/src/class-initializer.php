@@ -194,8 +194,8 @@ class Initializer {
 		$should_redirect = false;
 		$redirect_args   = array( 'page' => 'my-jetpack' );
 
-		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
-			// Redirect to onboarding if not connected
+		if ( ! $connection->is_connected() && $step !== 'onboarding' && ! Products_Page::is_products_only_enabled() ) {
+			// Redirect to onboarding if not connected (products-only sites are never onboarded)
 			$redirect_args['step'] = 'onboarding';
 			$should_redirect       = true;
 		} elseif ( $connection->is_connected() && $step === 'onboarding' ) {
@@ -492,7 +492,6 @@ class Initializer {
 			'videoPressStats'          => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
 			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ),
 			'productsOnly'             => Products_Page::is_products_only_enabled(),
-			'canManageModules'         => Products_Page::can_manage_modules(),
 		);
 
 		return $flags;

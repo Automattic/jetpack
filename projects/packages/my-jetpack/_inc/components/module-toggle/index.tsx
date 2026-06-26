@@ -5,7 +5,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { MyJetpackModule } from '../../types';
-import { canManageModules } from '../../utils/can-manage-modules';
+import { isProductsOnlyMode } from '../../utils/is-products-only-mode';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
 import { getSharingBlockEditorUrl } from '../../utils/sharing-block';
 import SecondaryButton from '../action-button/secondary-button';
@@ -105,9 +105,9 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	);
 	const deactivateModule = useCallback( () => setModuleActive( false ), [ setModuleActive ] );
 
-	// Sites that can't manage modules (Simple, or Atomic without a business plan) get no module
-	// toggle at all. Placed after all hooks to respect the rules of hooks.
-	if ( ! canManageModules() ) {
+	// In products-only mode the site can't manage modules, so render no toggle at all.
+	// Placed after all hooks to respect the rules of hooks.
+	if ( isProductsOnlyMode() ) {
 		return null;
 	}
 

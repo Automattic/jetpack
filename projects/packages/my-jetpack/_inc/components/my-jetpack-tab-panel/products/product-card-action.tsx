@@ -10,7 +10,7 @@ import useProduct from '../../../data/products/use-product';
 import { ProductCamelCase } from '../../../data/types';
 import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
 import { MyJetpackModule } from '../../../types';
-import { canManageModules } from '../../../utils/can-manage-modules';
+import { isProductsOnlyMode } from '../../../utils/is-products-only-mode';
 import { PRODUCT_STATUSES } from '../../product-card';
 import { setPendingSuccessNotice } from './pending-notice';
 import { useProductFiltersContext } from './products-tracking-context';
@@ -105,10 +105,10 @@ function ActivationToggle( {
 		active ? deactivate( undefined, mutateOptions ) : activate( undefined, mutateOptions );
 	}, [ deactivate, activate, active, product, trackProductAction, reloadOnToggle ] );
 
-	// Sites that can't manage modules (Simple, or Atomic without a business plan) get no
-	// activate/deactivate toggle at all. Gating the leaf keeps every ProductCardAction branch
-	// covered. Placed after all hooks to respect the rules of hooks.
-	if ( ! canManageModules() ) {
+	// In products-only mode the site can't manage modules, so render no activate/deactivate
+	// toggle at all. Gating the leaf keeps every ProductCardAction branch covered. Placed after
+	// all hooks to respect the rules of hooks.
+	if ( isProductsOnlyMode() ) {
 		return null;
 	}
 
