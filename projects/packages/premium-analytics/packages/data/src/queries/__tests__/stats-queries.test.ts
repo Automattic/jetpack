@@ -19,6 +19,7 @@ import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
 import { statsVisitsQuery } from '../stats-visits-query';
+import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../stats-wordads-query';
 import type { StatsReportParams } from '../stats-query';
 
 describe( 'Stats query factories', () => {
@@ -438,6 +439,83 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'subscribersCounts',
+		] );
+	} );
+
+	it( 'builds WordAds stats query keys with Calypso endpoint params', () => {
+		const query = statsWordAdsStatsQuery( {
+			from: '2026-05-01',
+			to: '2026-06-30',
+			interval: 'month',
+		} );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'wordads-stats',
+			'1.1',
+			'wordads/stats',
+			'GET',
+			{
+				unit: 'month',
+				date: '2026-06-30',
+				quantity: 30,
+			},
+			undefined,
+			'wordAdsStats',
+			{
+				period: 'month',
+				date: '2026-06-30',
+			},
+		] );
+	} );
+
+	it( 'uses the WordAds yearly quantity default and preserves explicit quantity params', () => {
+		expect(
+			statsWordAdsStatsQuery( {
+				from: '2026-01-01',
+				to: '2026-12-31',
+				interval: 'year',
+			} ).queryKey
+		).toEqual(
+			expect.arrayContaining( [
+				expect.objectContaining( {
+					unit: 'year',
+					quantity: 10,
+				} ),
+			] )
+		);
+		expect(
+			statsWordAdsStatsQuery( {
+				from: '2026-06-01',
+				to: '2026-06-30',
+				interval: 'day',
+				quantity: 14,
+			} ).queryKey
+		).toEqual(
+			expect.arrayContaining( [
+				expect.objectContaining( {
+					unit: 'day',
+					quantity: 14,
+				} ),
+			] )
+		);
+	} );
+
+	it( 'disables WordAds stats queries until a date is available', () => {
+		expect( statsWordAdsStatsQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	} );
+
+	it( 'builds WordAds earnings query keys without request params', () => {
+		expect( statsWordAdsEarningsQuery().queryKey ).toEqual( [
+			'stats',
+			'wordads-earnings',
+			'1.1',
+			'wordads/earnings',
+			'GET',
+			{},
+			undefined,
+			'wordAdsEarnings',
 		] );
 	} );
 

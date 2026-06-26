@@ -31,6 +31,8 @@ import {
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsUtmResponse,
 	sanitizeStatsVideoPlaysResponse,
+	sanitizeStatsWordAdsEarningsResponse,
+	sanitizeStatsWordAdsStatsResponse,
 } from '../processing/stats';
 import {
 	reportParamsToStatsQueryParams,
@@ -70,6 +72,8 @@ const statsSanitizers = {
 	subscribers: sanitizeStatsSubscribersResponse,
 	subscribersCounts: sanitizeStatsSubscribersCountsResponse,
 	publicize: sanitizeStatsPublicizeResponse,
+	wordAdsStats: sanitizeStatsWordAdsStatsResponse,
+	wordAdsEarnings: sanitizeStatsWordAdsEarningsResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;

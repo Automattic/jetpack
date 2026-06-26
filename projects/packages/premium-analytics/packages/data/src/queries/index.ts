@@ -53,3 +53,9 @@ export {
 	type StatsAppSiteHasNeverPublishedPostParams,
 	type StatsAppSiteHasNeverPublishedPostResponse,
 } from './stats-app-site-has-never-published-post-query';
+export {
+	statsWordAdsStatsQuery,
+	statsWordAdsEarningsQuery,
+	type StatsWordAdsEarningsParams,
+	type StatsWordAdsParams,
+} from './stats-wordads-query';
