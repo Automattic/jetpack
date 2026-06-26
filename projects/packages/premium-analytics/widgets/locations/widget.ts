@@ -23,7 +23,6 @@ export default {
 	name: 'jpa/locations',
 	title: __( 'Locations', 'jetpack-premium-analytics' ),
 	icon: mapMarker,
-	presentation: 'full-bleed',
 	attributes: [
 		{
 			id: 'max',
