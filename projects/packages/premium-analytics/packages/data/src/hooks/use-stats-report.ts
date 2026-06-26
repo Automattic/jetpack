@@ -9,11 +9,11 @@ export type UseStatsOptions = {
 	enabled?: boolean;
 };
 
-type StatsReportQueryFactory< TParams extends StatsReportParams, TData > = (
+type StatsReportQueryFactory< TParams extends Partial< StatsReportParams >, TData > = (
 	params: TParams
 ) => UseQueryOptions< TData >;
 
-export function useStatsReport< TParams extends StatsReportParams, TData >(
+export function useStatsReport< TParams extends Partial< StatsReportParams >, TData >(
 	queryFactory: StatsReportQueryFactory< TParams, TData >,
 	params: TParams,
 	reportSlugOrDisabledComparisonKey: string | string[],

@@ -6,7 +6,6 @@ import type { StatsEmailBreakdownItem } from './email-breakdown';
 import type { StatsEmailSummaryItem } from './email-summary';
 import type { StatsFileDownloadsItem } from './file-downloads';
 import type { StatsFollowersItem } from './followers';
-import type { StatsGenericListItem } from './generic-list';
 import type { StatsLocationsItem } from './locations';
 import type { StatsPublicizeItem } from './publicize';
 import type { StatsReferrersItem } from './referrers';
@@ -44,7 +43,6 @@ export type StatsNormalizedItem =
 	| StatsCommentsItem
 	| StatsTagsItem
 	| StatsDevicesItem
-	| StatsGenericListItem
 	| StatsPublicizeItem;
 
 export type StatsNormalizedDataPoint< TItem extends StatsNormalizedItem = StatsNormalizedItem > = {

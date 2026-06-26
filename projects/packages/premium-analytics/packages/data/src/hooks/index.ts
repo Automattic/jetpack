@@ -40,7 +40,7 @@ export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archiv
 export { useStatsFollowers } from './use-stats-followers';
 export type { StatsFollowersParams, StatsFollowersResponse } from './use-stats-followers';
 export { useStatsPublicize } from './use-stats-publicize';
-export type { StatsPublicizeResponse } from './use-stats-publicize';
+export type { StatsPublicizeParams, StatsPublicizeResponse } from './use-stats-publicize';
 export {
 	useStatsComments,
 	type StatsCommentsParams,
