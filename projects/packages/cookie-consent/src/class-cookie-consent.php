@@ -552,9 +552,28 @@ class Cookie_Consent {
 		$log_config = isset( $config['log'] ) && is_array( $config['log'] ) ? $config['log'] : array();
 
 		return array(
-			'policy_version' => $log_config['policy_version'] ?? '1',
-			'banner_version' => $log_config['banner_version'] ?? '1',
+			'policy_version' => self::normalize_log_version( $log_config['policy_version'] ?? '1' ),
+			'banner_version' => self::normalize_log_version( $log_config['banner_version'] ?? '1' ),
 		);
+	}
+
+	/**
+	 * Normalize a configured log version value for callers.
+	 *
+	 * @param mixed $version Version value from config.
+	 * @return string Non-empty log version.
+	 */
+	private static function normalize_log_version( $version ) {
+		if ( ! is_scalar( $version ) ) {
+			return '1';
+		}
+
+		$version = sanitize_text_field( (string) $version );
+		if ( '' === $version ) {
+			return '1';
+		}
+
+		return $version;
 	}
 
 	/**
