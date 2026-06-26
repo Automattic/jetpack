@@ -763,6 +763,8 @@ EOT
 		$pc                                   = array( 'blockName' => 'core/post-content' );
 
 		Util::grunion_contact_form_suspend_block_template_id_in_post_content( null, $pc ); // outer
+		$this->assertArrayNotHasKey( 'grunion_block_template_id', $GLOBALS, 'Outer post-content suspends the global' );
+
 		Util::grunion_contact_form_suspend_block_template_id_in_post_content( null, $pc ); // inner (already absent)
 		Util::grunion_contact_form_restore_block_template_id_after_post_content( '', $pc ); // inner: was absent, stays absent
 		$this->assertArrayNotHasKey( 'grunion_block_template_id', $GLOBALS, 'Inner restore (value was absent) leaves the global absent' );
@@ -779,8 +781,8 @@ EOT
 	 */
 	public function test_set_block_template_attribute_marks_block_template_global() {
 		global $_wp_current_template_content, $_wp_current_template_id;
-		$prev_content = isset( $_wp_current_template_content ) ? $_wp_current_template_content : null;
-		$prev_id      = isset( $_wp_current_template_id ) ? $_wp_current_template_id : null;
+		$prev_content = $_wp_current_template_content ?? null;
+		$prev_id      = $_wp_current_template_id ?? null;
 
 		$_wp_current_template_content = '<!-- wp:paragraph --><p>hi</p><!-- /wp:paragraph -->';
 		$_wp_current_template_id      = 'twentytwentyfour//single';
