@@ -183,6 +183,19 @@ class Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
+	 * WPCOM platforms (Simple/Atomic) have no Jetpack site connection, so the
+	 * raw connection check is false. The flag must still report connected so the
+	 * dashboard skips the connect prompt that only makes sense for self-hosted.
+	 */
+	public function test_inject_script_data_reports_connected_on_wpcom_platform() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$data = Admin_Page::inject_podcast_script_data( array() );
+
+		$this->assertTrue( $data['podcast']['is_connected'] );
+	}
+
+	/**
 	 * WordPress.com platforms already get `site.wpcom.blog_id` from
 	 * jetpack-mu-wpcom, so the podcast injection must not overwrite it.
 	 */
