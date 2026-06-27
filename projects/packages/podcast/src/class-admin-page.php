@@ -165,7 +165,7 @@ class Admin_Page {
 		// product name shown in the locked-preview copy (not translated).
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
-			'is_connected'        => ( new Connection_Manager( 'jetpack' ) )->is_connected(),
+			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
 			// Settings only: categories rejects per_page=-1 server-side, stats is a live relay.
