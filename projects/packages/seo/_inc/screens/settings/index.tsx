@@ -4,7 +4,8 @@ import { Button, TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
-import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
+import { Badge, Card, CollapsibleCard, Link, Stack } from '@wordpress/ui';
+import LoadError from '../../components/load-error';
 import SocialPreviewsCard from './social-previews-card';
 import TitleStructureField from './title-structure-field';
 import VerificationCard from './verification-card';
@@ -93,11 +94,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	}, [ focus ] );
 
 	if ( ! local ) {
-		return (
-			<Notice.Root intent="error">
-				<Notice.Description>{ __( 'Unable to load settings.', 'jetpack-seo' ) }</Notice.Description>
-			</Notice.Root>
-		);
+		return <LoadError message={ __( 'Unable to load settings.', 'jetpack-seo' ) } />;
 	}
 
 	// A sitemap only works when search engines are allowed, so its effective

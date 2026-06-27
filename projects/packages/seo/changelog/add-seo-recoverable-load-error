@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Make the SEO dashboard's load-error state recoverable: the Overview, Settings, and AI tabs now offer a Reload action instead of dead-ending, so a transient miss of the bootstrap data no longer strands the page.

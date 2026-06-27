@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice } from '@wordpress/ui';
 import EnableSeoCard from '../../components/enable-seo-card';
+import LoadError from '../../components/load-error';
 import { coverageStore } from '../../data/coverage-store';
 import getOverview from '../../data/get-overview';
 import { settingsStore } from '../../data/settings-store';
@@ -42,11 +43,7 @@ const OverviewScreen: FC = () => {
 	const goToContent = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
 
 	if ( ! data ) {
-		return (
-			<Notice.Root intent="error">
-				<Notice.Description>{ __( 'Unable to load overview.', 'jetpack-seo' ) }</Notice.Description>
-			</Notice.Root>
-		);
+		return <LoadError message={ __( 'Unable to load overview.', 'jetpack-seo' ) } />;
 	}
 
 	// When the `seo-tools` module is off, the Overview shows only the enable

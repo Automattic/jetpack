@@ -1,6 +1,7 @@
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Card, CollapsibleCard, Notice } from '@wordpress/ui';
+import LoadError from '../../components/load-error';
 import type { AiForm } from '../../data/use-ai';
 import type { FC } from 'react';
 
@@ -25,13 +26,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 	const { enhancer, isSaving, setEnhancerEnabled } = form;
 
 	if ( ! enhancer ) {
-		return (
-			<Notice.Root intent="error">
-				<Notice.Description>
-					{ __( 'Unable to load AI settings.', 'jetpack-seo' ) }
-				</Notice.Description>
-			</Notice.Root>
-		);
+		return <LoadError message={ __( 'Unable to load AI settings.', 'jetpack-seo' ) } />;
 	}
 
 	// The Enhancer requires a supporting plan; when unavailable the card is
