@@ -71,24 +71,31 @@ export default class Mosaic extends Component {
 	 * @return {number} The layout width in px.
 	 */
 	getLayoutWidth() {
+		// Re-resolve each pass rather than caching at mount: in the editor the flex
+		// ancestors may not be laid out yet on the first frame, and a stale null
+		// cache would strand the gallery at its own (circular) width — the very
+		// non-determinism this avoids.
 		const container = this.getFlexContainer();
-		if ( container ) {
-			const count = container.children.length;
-			if ( count <= 1 ) {
-				return container.clientWidth;
-			}
-			// Several flex items share the row. Give each an equal, deterministic
-			// share of the container's available width (minus the flex gap) instead
-			// of measuring the gallery's own width: that width is circularly defined
-			// by our own layout and settles to a different value on each reload in
-			// Firefox. Dividing the container width is content-independent, so the
-			// result is stable across browsers/reloads. See JETPACK-1726.
-			const view = container.ownerDocument?.defaultView || window;
-			const styles = view.getComputedStyle( container );
-			const gap = parseFloat( styles.columnGap || styles.gap || '' ) || 0;
-			return ( container.clientWidth - gap * ( count - 1 ) ) / count;
+		if ( ! container ) {
+			return this.gallery.current ? this.gallery.current.clientWidth : 0;
 		}
-		return this.gallery.current ? this.gallery.current.clientWidth : 0;
+		// children.length is a deliberate, pragmatic proxy for "number of flex
+		// items", and the division below assumes those items are equal width — it
+		// does not honor per-item flex-grow/flex-basis. That's enough for the common
+		// Row/Stack of galleries; non-uniform rows are left as a follow-up.
+		const count = container.children.length;
+		if ( count <= 1 ) {
+			return container.clientWidth;
+		}
+		// Several flex items share the row. Give each an equal, deterministic share
+		// of the container's available width (minus the flex gap) instead of
+		// measuring the gallery's own width: that width is circularly defined by our
+		// own layout and settles to a different value on each reload in Firefox.
+		// Dividing the container width is content-independent, so the result is
+		// stable across browsers/reloads. See JETPACK-1726.
+		const view = container.ownerDocument?.defaultView || window;
+		const gap = parseFloat( view.getComputedStyle( container ).columnGap ) || 0;
+		return ( container.clientWidth - gap * ( count - 1 ) ) / count;
 	}
 
 	handleGalleryResize = () => {

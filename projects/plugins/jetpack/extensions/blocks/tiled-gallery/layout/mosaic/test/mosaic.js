@@ -101,6 +101,15 @@ describe( 'Mosaic layout-width anchoring', () => {
 		Object.defineProperty( el, 'clientWidth', { configurable: true, get: () => width } );
 	}
 
+	// Make `flexEl` report as a flex container (with an optional column gap) and
+	// every other element as a plain block.
+	function mockFlex( flexEl, columnGap = 'normal' ) {
+		computedStyleSpy = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( el => ( {
+			display: el === flexEl ? 'flex' : 'block',
+			columnGap: el === flexEl ? columnGap : 'normal',
+		} ) );
+	}
+
 	afterEach( () => {
 		if ( computedStyleSpy ) {
 			computedStyleSpy.mockRestore();
@@ -128,9 +137,7 @@ describe( 'Mosaic layout-width anchoring', () => {
 		defineClientWidth( container, 800 );
 		defineClientWidth( gallery, 300 );
 
-		computedStyleSpy = jest
-			.spyOn( window, 'getComputedStyle' )
-			.mockImplementation( el => ( { display: el === container ? 'flex' : 'block' } ) );
+		mockFlex( container );
 
 		const mosaic = instanceFor( gallery );
 		expect( mosaic.getFlexContainer() ).toBe( container );
@@ -153,11 +160,7 @@ describe( 'Mosaic layout-width anchoring', () => {
 		defineClientWidth( container, 800 );
 		defineClientWidth( galleryA, 999 ); // own (circular) width must be ignored
 
-		computedStyleSpy = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( el => ( {
-			display: el === container ? 'flex' : 'block',
-			columnGap: '20px',
-			gap: '20px',
-		} ) );
+		mockFlex( container, '20px' );
 
 		const mosaic = instanceFor( galleryA );
 		expect( mosaic.getFlexContainer() ).toBe( container );
@@ -172,9 +175,7 @@ describe( 'Mosaic layout-width anchoring', () => {
 
 		defineClientWidth( gallery, 620 );
 
-		computedStyleSpy = jest
-			.spyOn( window, 'getComputedStyle' )
-			.mockImplementation( () => ( { display: 'block' } ) );
+		mockFlex( null ); // no flex ancestor
 
 		const mosaic = instanceFor( gallery );
 		expect( mosaic.getFlexContainer() ).toBeNull();
