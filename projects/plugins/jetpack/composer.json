@@ -29,6 +29,7 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-cookie-consent": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-error": "@dev",
 		"automattic/jetpack-external-connections": "@dev",

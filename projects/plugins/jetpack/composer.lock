@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "caea7600eeca649122fb8ab7843df34b",
+    "content-hash": "22fb97cb2ae71bd4a81e7fbbd18dcafc",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -1319,6 +1319,61 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A wrapper for defining constants in a more testable way.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-cookie-consent",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/cookie-consent",
+                "reference": "d5a3c6a3661fd4437cf1817016e3e94778e878c1"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-cookie-consent",
+                "textdomain": "jetpack-cookie-consent",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-cookie-consent/compare/${old}...${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "GDPR cookie-consent banner, CCPA opt-out, and consent logging for WordPress.",
             "transport-options": {
                 "relative": true
             }
@@ -6057,6 +6112,7 @@
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-constants": 20,
+        "automattic/jetpack-cookie-consent": 20,
         "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-error": 20,
         "automattic/jetpack-external-connections": 20,
