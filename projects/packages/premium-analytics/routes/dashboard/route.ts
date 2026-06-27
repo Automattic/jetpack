@@ -29,12 +29,12 @@ export const route = {
 		const connectionStatus = getScriptData()?.connection?.connectionStatus;
 
 		if ( ! connectionStatus?.isRegistered ) {
-			throw redirect( { to: '/connect' } );
+			throw redirect( { to: '/connect', viewTransition: false } );
 		}
 
 		const syncFinished = getScriptData()?.premium_analytics?.initial_full_sync_finished ?? 0;
 		if ( ! syncFinished ) {
-			throw redirect( { to: '/syncing' } );
+			throw redirect( { to: '/syncing', viewTransition: false } );
 		}
 
 		const coreSelect = select( coreStore ) as unknown as {
