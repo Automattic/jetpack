@@ -1,0 +1,1 @@
+Enhancement: Add jetpack_social_image_generator_disable_text filter to disable SIG text overlay
