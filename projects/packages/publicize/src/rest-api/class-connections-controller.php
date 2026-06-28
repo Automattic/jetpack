@@ -225,13 +225,20 @@ class Connections_Controller extends Base_Controller {
 				'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
 			),
 			'status'          => array(
-				'type'        => array( 'string', 'null' ),
+				'type'        => 'string', // Keep this so 'class-connections-post-field.php' doesn't whine about undefined key
 				'description' => __( 'The connection status.', 'jetpack-publicize-pkg' ),
-				'enum'        => array(
-					'ok',
-					'broken',
-					'must_reauth',
-					null,
+				'oneOf'       => array(
+					array(
+						'type' => 'string',
+						'enum' => array(
+							'ok',
+							'broken',
+							'must_reauth',
+						),
+					),
+					array(
+						'type' => 'null',
+					),
 				),
 			),
 			'template'        => array(
