@@ -313,7 +313,7 @@ class Initializer {
 		// re-fetch if that preload is ever missing or stale. This replaces injecting the
 		// raw payloads, which the app read synchronously once and couldn't recover from
 		// when momentarily absent (the load-error dead-end). See register_rest_reads() and
-		// the client `preload.ts`.
+		// the client readers `_inc/data/get-preloaded.ts` + `_inc/data/use-ensure-tab-data.ts`.
 		$data[ self::SCRIPT_DATA_KEY ]['preload'] = array_reduce(
 			self::rest_read_paths(),
 			'rest_preload_api_request',
