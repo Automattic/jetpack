@@ -656,9 +656,7 @@ class Jetpack_AI_Sidebar {
 		}
 
 		// Build the assignments from the same field source as the data filter so the
-		// two emit paths cannot drift. agentProviders is left untouched so client-side
-		// gating can fall back to other providers (such as Big Sky) when Jetpack AI
-		// Sidebar is unavailable.
+		// two emit paths cannot drift.
 		$fields = self::get_agents_manager_data_fields();
 		if ( ! $fields ) {
 			return;
@@ -670,11 +668,27 @@ class Jetpack_AI_Sidebar {
 				. wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 		}
 
+		if ( self::get_ai_sidebar_asset_data() ) {
+			$assignments .= self::get_agent_provider_upsert_script();
+		}
+
 		wp_add_inline_script(
 			'agents-manager',
 			'if ( typeof agentsManagerData === "object" && agentsManagerData !== null ) {' . $assignments . ' }',
 			'before'
 		);
+	}
+
+	/**
+	 * Build the inline script that upserts Jetpack AI Sidebar into agentProviders.
+	 *
+	 * @return string Inline JavaScript.
+	 */
+	private static function get_agent_provider_upsert_script(): string {
+		$provider_url = wp_json_encode( AI_SIDEBAR_PROVIDER_URL, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+
+		return ' agentsManagerData.agentProviders = Array.isArray( agentsManagerData.agentProviders ) ? agentsManagerData.agentProviders : [];'
+			. ' if ( agentsManagerData.agentProviders.indexOf( ' . $provider_url . ' ) === -1 ) { agentsManagerData.agentProviders.push( ' . $provider_url . ' ); }';
 	}
 
 	/**

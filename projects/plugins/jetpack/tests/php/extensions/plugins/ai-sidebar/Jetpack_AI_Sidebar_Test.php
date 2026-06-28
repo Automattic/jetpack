@@ -278,6 +278,16 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Assert that a provider URL identifies Jetpack AI Sidebar.
+	 *
+	 * @param mixed $provider Provider URL to inspect.
+	 */
+	private function assert_jetpack_provider_url( $provider ) {
+		$this->assertIsString( $provider );
+		$this->assertStringContainsString( 'jetpack-ai-sidebar.provider.mjs', $provider );
+	}
+
+	/**
 	 * Mock a CDN asset manifest response for tests that run with SCRIPT_DEBUG.
 	 *
 	 * @param string $filename Asset manifest filename.
@@ -992,6 +1002,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_patch_jetpack_ai_sidebar_preview_data_sets_fields_when_am_enqueued_externally() {
 		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		// Simulate an external host having enqueued AM and declared upstream
 		// data with both Jetpack AI Sidebar and Big Sky providers.
@@ -1004,18 +1015,23 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
 
-		// agentProviders is left untouched so the Big Sky provider survives as a fallback.
-		$this->assertStringNotContainsString(
-			'agentsManagerData.agentProviders',
-			$this->get_agents_manager_inline_script()
-		);
+		$inline_script = $this->get_agents_manager_inline_script();
+
 		$this->assertStringContainsString(
 			'agentsManagerData.agentId = "wp-orchestrator"',
-			$this->get_agents_manager_inline_script()
+			$inline_script
 		);
 		$this->assertStringContainsString(
 			'agentsManagerData.jetpackAiSidebar = {"enabled":true',
-			$this->get_agents_manager_inline_script()
+			$inline_script
+		);
+		$this->assertStringContainsString(
+			'agentsManagerData.agentProviders = Array.isArray',
+			$inline_script
+		);
+		$this->assertStringContainsString(
+			'agentsManagerData.agentProviders.push( "https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs" )',
+			$inline_script
 		);
 	}
 
@@ -1037,27 +1053,68 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_patch_jetpack_ai_sidebar_preview_data_adds_proxied_provider_config_in_page_editor_without_overriding_agent() {
 		$this->set_page_block_editor_screen();
 		$this->simulate_wpcom_platform();
+		$this->cache_sidebar_asset_data();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
 		wp_add_inline_script( 'agents-manager', 'const agentsManagerData = { sectionName: "gutenberg" };', 'before' );
 
 		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
 
+		$inline_script = $this->get_agents_manager_inline_script();
+
 		$this->assertStringNotContainsString(
 			'agentsManagerData.agentId',
-			$this->get_agents_manager_inline_script()
+			$inline_script
 		);
 		$this->assertStringContainsString(
 			'agentsManagerData.jetpackAiSidebar = {"enabled":true',
-			$this->get_agents_manager_inline_script()
+			$inline_script
 		);
 		$this->assertStringContainsString(
 			'"generateFeedback":true',
-			$this->get_agents_manager_inline_script()
+			$inline_script
 		);
 		$this->assertStringContainsString(
 			'"optimizeTitleSuggestion":true',
-			$this->get_agents_manager_inline_script()
+			$inline_script
+		);
+		$this->assertStringContainsString(
+			'agentsManagerData.agentProviders.push( "https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs" )',
+			$inline_script
+		);
+	}
+
+	/**
+	 * The external AM payload patch still sets fields when the provider URL is unavailable.
+	 */
+	public function test_patch_jetpack_ai_sidebar_preview_data_skips_provider_url_when_asset_data_fails() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
+		wp_add_inline_script( 'agents-manager', 'const agentsManagerData = { sectionName: "gutenberg" };', 'before' );
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new WP_Error( 'blocked', 'No HTTP.' );
+			}
+		);
+		delete_transient( AiAssistantPlugin\AI_SIDEBAR_ASSET_TRANSIENT );
+
+		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
+
+		$inline_script = $this->get_agents_manager_inline_script();
+
+		$this->assertStringContainsString(
+			'agentsManagerData.agentId = "wp-orchestrator"',
+			$inline_script
+		);
+		$this->assertStringContainsString(
+			'agentsManagerData.jetpackAiSidebar = {"enabled":true',
+			$inline_script
+		);
+		$this->assertStringNotContainsString(
+			'agentsManagerData.agentProviders = Array.isArray',
+			$inline_script
 		);
 	}
 
@@ -1192,7 +1249,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$providers = Jetpack_AI_Sidebar::register_provider( array() );
 
 		$this->assertCount( 1, $providers );
-		$this->assertStringContainsString( 'jetpack-ai-sidebar.provider.mjs', $providers[0] );
+		$this->assert_jetpack_provider_url( $providers[0] );
 		// Asset enqueueing is handled by maybe_enqueue_abilities_script, not register_provider.
 		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
 		$this->assertFalse( wp_style_is( 'jetpack-ai-provider', 'enqueued' ) );
@@ -1236,7 +1293,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertCount( 3, $providers );
 		$this->assertSame( 'https://example.com/provider-a.mjs', $providers[0] );
 		$this->assertSame( 'https://example.com/provider-b.mjs', $providers[1] );
-		$this->assertStringContainsString( 'jetpack-ai-sidebar.provider.mjs', $providers[2] );
+		$this->assert_jetpack_provider_url( $providers[2] );
 	}
 
 	/**
@@ -1252,7 +1309,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertCount( 2, $providers );
 		$this->assertSame( 'https://example.com/provider-a.mjs', $providers[0] );
-		$this->assertStringContainsString( 'jetpack-ai-sidebar.provider.mjs', $providers[1] );
+		$this->assert_jetpack_provider_url( $providers[1] );
 	}
 
 	/**
@@ -1268,7 +1325,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertCount( 2, $providers );
 		$this->assertSame( 'https://example.com/provider-a.mjs', $providers[0] );
-		$this->assertStringContainsString( 'jetpack-ai-sidebar.provider.mjs', $providers[1] );
+		$this->assert_jetpack_provider_url( $providers[1] );
 	}
 
 	/**
@@ -1367,7 +1424,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$providers = apply_filters( 'agents_manager_agent_providers', array() );
 
 		$this->assertCount( 1, $providers );
-		$this->assertStringContainsString( 'jetpack-ai-sidebar.provider.mjs', $providers[0] );
+		$this->assert_jetpack_provider_url( $providers[0] );
 	}
 
 	/**
