@@ -91,7 +91,6 @@ export {
 	TotalReturnsWidget,
 	VisitorsByLocationWidget,
 	SalesByDeviceWidget,
-	BookingsByDeviceWidget,
 	SessionsByDeviceWidget,
 	TopPerformingProductLeaderboardWidget,
 	type TopPerformingProductLeaderboardWidgetProps,
