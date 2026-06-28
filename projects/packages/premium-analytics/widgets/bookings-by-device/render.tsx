@@ -1,11 +1,10 @@
-import {
-	BookingsByDeviceWidget,
-	WidgetRoot,
-	type ReportParamsFieldAttributes,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { BookingsByDeviceWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ComponentProps } from 'react';
 
-type BookingsByDeviceRenderProps = {
-	attributes?: Partial< ReportParamsFieldAttributes >;
+type WidgetRootProps = ComponentProps< typeof WidgetRoot >;
+
+type BookingsByDeviceRenderProps = Pick< WidgetRootProps, 'attributes' > & {
+	setError?: WidgetRootProps[ 'setError' ];
 };
 
 /**
@@ -15,9 +14,12 @@ type BookingsByDeviceRenderProps = {
  * client, chart theme, and resolved report params; BookingsByDeviceWidget
  * fetches the bookings attribution report and renders the device breakdown.
  */
-export default function BookingsByDeviceRender( { attributes }: BookingsByDeviceRenderProps ) {
+export default function BookingsByDeviceRender( {
+	attributes,
+	setError,
+}: BookingsByDeviceRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
+		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<BookingsByDeviceWidget />
 		</WidgetRoot>
 	);
