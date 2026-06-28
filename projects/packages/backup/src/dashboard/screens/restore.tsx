@@ -36,12 +36,12 @@ export default function RestoreScreen() {
 				<Card.Root className="jpb-restore__card">
 					<Stack direction="row" gap="sm" align="center">
 						<Icon icon={ backupIcon } />
-						<Stack direction="column" gap="2xs">
+						<Stack direction="column" gap="xs">
 							<Text variant="heading-md" render={ <h3 /> }>
 								{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
 							</Text>
 							{ restorePoint && (
-								<Text size="small" variant="muted">
+								<Text variant="body-sm" className="jpb-text-muted">
 									{ __( 'Restore point:', 'jetpack-backup-pkg' ) }{ ' ' }
 									{ dateI18n( 'M j, Y, g:i A', restorePoint, undefined ) }
 								</Text>
@@ -60,7 +60,7 @@ export default function RestoreScreen() {
 							<RestoreItemsChecklist value={ items } onChange={ setItems } />
 							<Button
 								className="jpb-restore__confirm"
-								variant="primary"
+								variant="solid"
 								disabled={ state.phase === 'submitting' }
 								onClick={ submit }
 							>
@@ -92,7 +92,7 @@ export default function RestoreScreen() {
 							<Notice status="error" isDismissible={ false }>
 								{ state.message }
 							</Notice>
-							<Button className="jpb-restore__confirm" variant="secondary" onClick={ reset }>
+							<Button className="jpb-restore__confirm" variant="outline" onClick={ reset }>
 								{ __( 'Try again', 'jetpack-backup-pkg' ) }
 							</Button>
 						</Stack>

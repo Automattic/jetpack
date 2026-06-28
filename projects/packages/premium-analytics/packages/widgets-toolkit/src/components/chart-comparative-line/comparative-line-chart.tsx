@@ -3,6 +3,7 @@
  */
 import { LineChart } from '@automattic/charts';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { type ComponentProps } from 'react';
@@ -317,35 +318,37 @@ export function ComparativeLineChart( {
 	] );
 
 	return (
-		<LineChart
-			className={ clsx( styles.chart, className ) }
-			data={ styledSeries }
-			options={ chartOptions }
-			margin={ percentageMargin ?? emptyChartProps.margin ?? DEFAULT_MARGIN }
-			maxWidth={ maxWidth }
-			resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
-			withLegendGlyph={ false }
-			showLegend={ false }
-			curveType="monotone"
-			withGradientFill
-			withTooltips={ !! renderTooltip && ! isEmptyData }
-			renderTooltip={ renderTooltip }
-		>
-			<LineChart.Legend
-				shape="line"
-				className={ styles.legend }
-				itemClassName={ styles.legendItem }
-				itemStyles={ {
-					margin: 0,
-				} }
-				labelClassName={ styles.legendLabel }
-				labelStyles={ {
-					maxWidth: '100%',
-					textOverflow: 'ellipsis',
-					margin: 0,
-				} }
-				shapeStyles={ { margin: 0 } }
-			/>
-		</LineChart>
+		<Stack direction="column" className={ clsx( styles.chart, className ) }>
+			<LineChart
+				className={ styles.chartContent }
+				data={ styledSeries }
+				options={ chartOptions }
+				margin={ percentageMargin ?? emptyChartProps.margin ?? DEFAULT_MARGIN }
+				maxWidth={ maxWidth }
+				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
+				withLegendGlyph={ false }
+				showLegend={ false }
+				curveType="monotone"
+				withGradientFill
+				withTooltips={ !! renderTooltip && ! isEmptyData }
+				renderTooltip={ renderTooltip }
+			>
+				<LineChart.Legend
+					shape="line"
+					className={ styles.legend }
+					itemClassName={ styles.legendItem }
+					itemStyles={ {
+						margin: 0,
+					} }
+					labelClassName={ styles.legendLabel }
+					labelStyles={ {
+						maxWidth: '100%',
+						textOverflow: 'ellipsis',
+						margin: 0,
+					} }
+					shapeStyles={ { margin: 0 } }
+				/>
+			</LineChart>
+		</Stack>
 	);
 }

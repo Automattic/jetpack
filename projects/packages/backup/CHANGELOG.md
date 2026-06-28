@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.5] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
+### Fixed
+- Dashboard: Align component props with the `@wordpress/ui` 0.15 API. [#49795]
+
+## [4.3.4] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
 ## [4.3.3] - 2026-06-15
 ### Changed
 - Update package dependencies. [#49273] [#49492]
@@ -1144,6 +1155,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.3.5]: https://github.com/Automattic/jetpack-backup/compare/v4.3.4...v4.3.5
+[4.3.4]: https://github.com/Automattic/jetpack-backup/compare/v4.3.3...v4.3.4
 [4.3.3]: https://github.com/Automattic/jetpack-backup/compare/v4.3.2...v4.3.3
 [4.3.2]: https://github.com/Automattic/jetpack-backup/compare/v4.3.1...v4.3.2
 [4.3.1]: https://github.com/Automattic/jetpack-backup/compare/v4.3.0...v4.3.1

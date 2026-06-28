@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-external-connections",
-	"version": "0.1.31",
+	"version": "0.1.33",
 	"private": true,
 	"description": "Connect your site to external services.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/external-connections/#readme",
@@ -34,11 +34,9 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@babel/plugin-transform-react-jsx": "7.29.7",
-		"@babel/preset-react": "7.29.7",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	}
 }

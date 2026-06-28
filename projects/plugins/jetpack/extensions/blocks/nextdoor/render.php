@@ -1,0 +1,59 @@
+<?php
+/**
+ * Nextdoor block render implementation.
+ *
+ * Loaded lazily from nextdoor.php only when the block is rendered, to keep the
+ * render body out of the eager front-end PHP/opcache footprint.
+ *
+ * @package automattic/jetpack
+ */
+
+namespace Automattic\Jetpack\Extensions\Nextdoor;
+
+use Automattic\Jetpack\Blocks;
+use Jetpack_Gutenberg;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
+/**
+ * Nextdoor block registration/dependency declaration.
+ *
+ * @param array $attr    Array containing the Nextdoor block attributes.
+ * @return string
+ */
+function load_assets_implementation( $attr ) {
+	if ( ! isset( $attr['url'] ) ) {
+		return;
+	}
+
+	$url = Jetpack_Gutenberg::validate_block_embed_url(
+		$attr['url'],
+		array( '/^http[s]?:\/\/((?:www\.)?nextdoor(?:.*)?\/(?:embed)\/\S*)/i' ),
+		true
+	);
+
+	if ( empty( $url ) ) {
+		return;
+	}
+
+	$url = preg_replace( '#/embed/#', '/p/', $url );
+
+	/*
+	 * Enqueue necessary scripts and styles.
+	 */
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
+
+	$block_id    = wp_unique_id( 'nextdoor-block-' );
+	$link_markup = '<a href="' . esc_url( $url ) . '" title="' . esc_html__( 'Nextdoor embed', 'jetpack' ) . '">' . esc_html( $url ) . '</a>';
+
+	$block_classes = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr );
+
+	$html =
+		'<figure id="' . esc_attr( $block_id ) . '" class="' . esc_attr( $block_classes ) . '">' .
+			$link_markup .
+		'</figure>';
+
+	return $html;
+}

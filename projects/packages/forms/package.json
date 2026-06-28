@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-forms",
-	"version": "7.22.3",
+	"version": "7.22.5",
 	"private": true,
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
@@ -92,7 +92,7 @@
 		"redux": "4.2.1",
 		"redux-thunk": "2.3.0",
 		"semver": "7.7.3",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	},
 	"devDependencies": {
@@ -113,7 +113,7 @@
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/api-fetch": "7.48.1",
 		"@wordpress/browserslist-config": "6.48.1",
-		"@wordpress/build": "0.14.0",
+		"@wordpress/build": "0.16.1",
 		"@wordpress/date": "5.48.1",
 		"autoprefixer": "10.4.20",
 		"browserslist": "^4.24.0",

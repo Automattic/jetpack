@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-SEO: persist Settings and AI tab values across tab navigation. A saved change now shows when you return to the tab without needing a page reload.

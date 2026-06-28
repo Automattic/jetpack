@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import { Button, Col, Container, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Button, Col, Container, Text } from '@automattic/jetpack-components';
 import { CheckboxControl } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
@@ -79,7 +80,7 @@ export const FilterSection = ( props: {
 	className?: string;
 	filter?: FilterObject;
 } ): JSX.Element => {
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 
 	const filterIsChecked = (
 		filterName: 'uploader' | 'privacy' | 'rating',

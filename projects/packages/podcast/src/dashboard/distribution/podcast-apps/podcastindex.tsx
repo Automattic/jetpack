@@ -22,5 +22,4 @@ export const podcastindex: PodcastApp = {
 	name: 'Podcast Index',
 	Logo: PodcastIndexLogo,
 	submitUrl: 'https://podcastindex.org/add',
-	showHosts: [ 'podcastindex.org' ],
 };

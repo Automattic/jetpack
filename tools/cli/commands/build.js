@@ -70,6 +70,11 @@ export function builder( yargs ) {
 		.option( 'timing', {
 			type: 'boolean',
 			description: 'Output timing information.',
+		} )
+		.option( 'use-uncommitted-composer-lock', { type: 'boolean', hidden: true } )
+		.option( 'no-use-uncommitted-composer-lock', {
+			type: 'boolean',
+			description: "Don't use uncommitted composer.lock files.",
 		} );
 }
 
@@ -87,6 +92,8 @@ export async function handler( argv ) {
 		console.error( e.message );
 		process.exit( 1 );
 	}
+
+	argv.useUncommittedComposerLock = argv.useUncommittedComposerLock !== false;
 
 	let dependencies = await getDependencies( process.cwd(), 'build' );
 	const listr = new Listr( [], {

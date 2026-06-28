@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-explat",
-	"version": "0.4.29",
+	"version": "0.4.33",
 	"private": true,
 	"description": "A package for running A/B tests on the Experimentation Platform (ExPlat) in the plugin.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/explat/#readme",
@@ -46,7 +46,7 @@
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"concurrently": "10.0.3",
 		"jest": "30.4.2",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	}
 }

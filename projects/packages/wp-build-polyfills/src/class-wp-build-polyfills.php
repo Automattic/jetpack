@@ -1,6 +1,6 @@
 <?php
 /**
- * Polyfill registration for Core packages not available in WordPress < 7.0.
+ * Polyfill registration for Core packages not available or incomplete in older WordPress versions.
  *
  * Conditionally registers wp-notices, wp-private-apis, wp-theme (classic scripts) and
  * `@wordpress/boot`, `@wordpress/route`, `@wordpress/a11y` (script modules)
@@ -25,6 +25,12 @@ class WP_Build_Polyfills {
 	 * Available polyfill module IDs.
 	 */
 	const MODULE_IDS = array( '@wordpress/boot', '@wordpress/route', '@wordpress/a11y' );
+
+	/**
+	 * Minimum Gutenberg plugin version known to ship a private-apis allowlist
+	 * that includes the dashboard packages used by this package's current build.
+	 */
+	const GUTENBERG_PRIVATE_APIS_MIN_VERSION = '23.5.0';
 
 	/**
 	 * Tracks which polyfills have been requested and by which consumers.
@@ -133,30 +139,27 @@ class WP_Build_Polyfills {
 	 * @param string      $wp_version_threshold  WP version below which force-replacements apply.
 	 */
 	private static function register_scripts( $scripts, $build_dir, $base_file, $wp_version_threshold ) {
-		// Force-replace only when Core's bundled scripts are incomplete (WP < 7.0)
-		// AND Gutenberg is not active. When Gutenberg is present, its script
-		// registrations (priority 10) are always self-consistent — replacing them
-		// with our polyfills can break packages that Gutenberg adds in the future while
-		// our polyfill's allowlist doesn't cover them yet.
-		$gutenberg_active = defined( 'GUTENBERG_VERSION' );
-		$force_replace    = ! $gutenberg_active
-			&& version_compare( $GLOBALS['wp_version'] ?? '0', $wp_version_threshold, '<' );
+		// Force-replace only when Core's bundled scripts are incomplete and
+		// Gutenberg cannot be trusted to provide a compatible implementation.
+		$gutenberg_version = defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null;
 
 		$polyfills = array(
 			'wp-notices'      => array(
-				'path'  => 'notices',
+				'path'            => 'notices',
+				'force_threshold' => '7.0',
 				// Only force-replace on older WP without Gutenberg: older Core
 				// versions ship notices without SnackbarNotices and InlineNotices
 				// component exports that @wordpress/boot depends on.
-				'force' => $force_replace,
 			),
 			'wp-private-apis' => array(
-				'path'  => 'private-apis',
-				// Only force-replace on older WP without Gutenberg: older Core
-				// versions ship private-apis with an incomplete allowlist that
-				// rejects @wordpress/theme and @wordpress/route.
-				// Our version is a strict superset (same API, larger allowlist).
-				'force' => $force_replace,
+				'path'                  => 'private-apis',
+				'force_threshold'       => '7.1',
+				'gutenberg_min_version' => self::GUTENBERG_PRIVATE_APIS_MIN_VERSION,
+				// WP 7.0 and older versions ship private-apis with an incomplete
+				// allowlist that rejects @wordpress/theme, @wordpress/route, and
+				// newer dashboard packages. Active Gutenberg is only a safe
+				// substitute once its private-apis allowlist includes those
+				// dashboard packages too.
 			),
 			'wp-theme'        => array(
 				'path' => 'theme',
@@ -177,7 +180,14 @@ class WP_Build_Polyfills {
 				continue;
 			}
 
-			$force = ! empty( $data['force'] );
+			$force_threshold = $data['force_threshold'] ?? null;
+			if ( null !== $force_threshold && version_compare( $wp_version_threshold, $force_threshold, '>' ) ) {
+				$force_threshold = $wp_version_threshold;
+			}
+
+			$force = null !== $force_threshold
+				&& ! self::is_gutenberg_version_safe( $data['gutenberg_min_version'] ?? null, $gutenberg_version )
+				&& version_compare( $GLOBALS['wp_version'] ?? '0', $force_threshold, '<' );
 
 			if ( ! $force && $scripts->query( $handle, 'registered' ) ) {
 				continue;
@@ -197,6 +207,25 @@ class WP_Build_Polyfills {
 				$asset['version']
 			);
 		}
+	}
+
+	/**
+	 * Check whether the active Gutenberg plugin can satisfy a forced script.
+	 *
+	 * @param string|null $minimum_version   Minimum Gutenberg version required for the script, or null when any active Gutenberg is sufficient.
+	 * @param string|null $gutenberg_version Active Gutenberg version, or null when Gutenberg is inactive.
+	 * @return bool True when Gutenberg is active and new enough.
+	 */
+	private static function is_gutenberg_version_safe( $minimum_version, $gutenberg_version ) {
+		if ( null === $gutenberg_version ) {
+			return false;
+		}
+
+		if ( null === $minimum_version ) {
+			return true;
+		}
+
+		return version_compare( $gutenberg_version, $minimum_version, '>=' );
 	}
 
 	/**

@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.2",
+		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-connection": "@dev",
@@ -58,7 +59,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-podcast",
 		"branch-alias": {
-			"dev-trunk": "1.1.x-dev"
+			"dev-trunk": "1.2.x-dev"
 		},
 		"textdomain": "jetpack-podcast",
 		"version-constants": {

@@ -5,34 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2026-06-18
+## [1.2.0] - 2026-06-25
 ### Added
-- Add a persistent "Create episode" button to the /podcast page header and a server-side prefill that assigns the configured category (and, on Premium, inserts the Podcast Episode block) when `post-new.php?podcast_episode=1` is opened.
-- Create AI Podcast: Limit the "from specific posts" selection to 25 posts and surface a hint indicating the cap.
-- Podcast: allow the package to load on self-hosted Jetpack sites behind the default-off `jetpack_podcast_for_the_world` filter.
-- Podcast: ignore a deleted podcast category and add a raw show image URL accessor
-- Podcast Episode block: add email renderer for the WooCommerce Email Editor.
+- Register the Podcast submenu under the Jetpack menu on self-hosted sites when the module is active. [#49918]
 
 ### Changed
-- Podcast: add a dedicated wpcom/v2 REST endpoint for site settings and load/save them through it from the dashboard, reachable on Simple, WoA, and self-hosted from a single definition.
-- Podcast: align the distribution readiness notices with their settings field labels so it's clear which field each one refers to.
-- Podcast: drop stale references to the removed jetpack_podcast_untangle gate and at-pressable-podcasting bridge from package docs.
-- Podcast: gate the Posts to Podcast sub-feature to WordPress.com Simple and WoA hosts so it does not load on self-hosted Jetpack once the rest of the package becomes available there.
-- Podcast: simplify REST endpoint and settings internals by dropping singleton init guards and single-use constants. No functional change.
+- Defer podcast REST endpoint instantiation so the endpoint classes only load on REST API requests. [#49803]
+- Update package dependencies. [#49831]
+
+## [1.1.1] - 2026-06-22
+### Changed
+- Update the Apple Podcasts category list to match the current taxonomy, validate topic input, and recommend a subcategory when a broad category is selected. [#49789]
+
+## [1.1.0] - 2026-06-18
+### Added
+- Add a persistent "Create episode" button to the `/podcast` page header and a server-side prefill that assigns the configured category (and, on Premium, inserts the Podcast Episode block) when `post-new.php?podcast_episode=1` is opened.
+- Create AI Podcast: Limit the "from specific posts" selection to 25 posts and surface a hint indicating the cap.
+- Allow the package to load on self-hosted Jetpack sites behind the default-off `jetpack_podcast_for_the_world` filter.
+- Ignore a deleted podcast category and add a raw show image URL accessor.
+- Episode block: Add email renderer for the WooCommerce Email Editor.
+
+### Changed
+- Add a dedicated wpcom/v2 REST endpoint for site settings and load/save them through it from the dashboard, reachable on Simple, WoA, and self-hosted from a single definition.
+- Align the distribution readiness notices with their settings field labels so it's clear which field each one refers to.
+- Drop stale references to the removed jetpack_podcast_untangle gate and at-pressable-podcasting bridge from package docs.
+- Gate the Posts to Podcast sub-feature to WordPress.com Simple and WoA hosts so it does not load on self-hosted Jetpack once the rest of the package becomes available there.
+- Simplify REST endpoint and settings internals by dropping singleton init guards and single-use constants. No functional change.
 - Posts to Podcast: Make the Create AI Podcast page available to connected users.
 - Update package dependencies.
 
 ### Removed
-- Podcast: remove the jetpack_podcast_untangle gate now that the legacy podcasting stack and at-pressable-podcasting bridge are gone; the package owns the experience unconditionally.
+- Remove the jetpack_podcast_untangle gate now that the legacy podcasting stack and at-pressable-podcasting bridge are gone; the package owns the experience unconditionally.
 
 ### Fixed
 - Add a TypeScript config so dashboard route files type-check correctly.
-- Create AI Podcast: Register the Media submenu without an is_admin() guard so it appears in the Calypso nav, not just wp-admin.
+- Create AI Podcast: Register the Media submenu without an `is_admin()` guard so it appears in the Calypso nav, not just wp-admin.
 - Create AI Podcast: Require a connected WordPress.com account.
 - Fix the "Create episode" button hover state to match standard Jetpack primary buttons.
-- Podcast: a podcast app visiting your feed only confirms a listing you already started, instead of creating one on its own.
-- Podcast: fix empty episode descriptions in the feed when no excerpt is set.
-- Podcast: resolve the blog ID via Connection_Manager::get_site_id() for feed enclosure URLs and tracks events so Atomic sites use the correct WPCOM site ID instead of 1.
+- Fix a podcast app creating a new listing when visiting your feed instead of just confirming the one you already started.
+- Fix empty episode descriptions in the feed when no excerpt is set.
+- Resolve the blog ID via `Connection_Manager::get_site_id()` for feed enclosure URLs and tracks events so Atomic sites use the correct WPCOM site ID instead of 1.
 
 ## [1.0.2] - 2026-05-20
 ### Changed
@@ -124,6 +136,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[1.2.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.1.1...v1.2.0
+[1.1.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/Automattic/jetpack-podcast/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.0.0...v1.0.1
