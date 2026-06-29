@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: never redirect WordPress.com Simple sites to the Jetpack onboarding flow, regardless of the products-only flag.

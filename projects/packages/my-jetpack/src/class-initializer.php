@@ -190,17 +190,27 @@ class Initializer {
 			exit( 0 );
 		}
 
-		// Handle onboarding redirects based on connection status
+		// Handle onboarding redirects based on connection status.
 		$should_redirect = false;
 		$redirect_args   = array( 'page' => 'my-jetpack' );
 
-		if ( ! $connection->is_connected() && $step !== 'onboarding' && ! Products_Page::is_products_only_enabled() ) {
-			// Redirect to onboarding if not connected (products-only sites are never onboarded)
+		// The onboarding flow establishes a Jetpack connection, which never applies to
+		// WordPress.com Simple sites. Keep this independent of the products-only feature flag so
+		// Simple sites are never onboarded, flag on or off.
+		$is_wpcom_simple = ( new Status_Host() )->is_wpcom_simple();
+
+		if ( $step === 'onboarding' && ( $connection->is_connected() || $is_wpcom_simple ) ) {
+			// Redirect away from onboarding when already connected, or on a Simple site.
+			$should_redirect = true;
+		} elseif (
+			! $connection->is_connected()
+			&& $step !== 'onboarding'
+			&& ! $is_wpcom_simple
+			&& ! Products_Page::is_products_only_enabled()
+		) {
+			// Redirect to onboarding only for sites that actually use the Jetpack connection flow.
 			$redirect_args['step'] = 'onboarding';
 			$should_redirect       = true;
-		} elseif ( $connection->is_connected() && $step === 'onboarding' ) {
-			// Redirect away from onboarding if already connected
-			$should_redirect = true;
 		}
 
 		if ( $should_redirect ) {
