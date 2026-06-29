@@ -107,18 +107,18 @@ export default defineConfig(
 		},
 	},
 	{
-		// Ported widget code keeps the upstream next-woocommerce-analytics
-		// JSDoc style, and imports internal `@jetpack-premium-analytics/*`
-		// link: packages whose deps are declared on the parent manifest.
-		files: [ 'widgets/**' ],
+		// Ported widget wrappers and stories keep the upstream JSDoc style, and
+		// import internal link packages whose deps are declared on the parent
+		// manifest.
+		files: [ 'widgets/**', 'projects/packages/premium-analytics/widgets/**' ],
 		rules: {
 			'import/order': 'off',
+			'jsdoc/require-jsdoc': 'off',
 			'jsdoc/require-description': 'off',
+			'jsdoc/require-param': 'off',
 			'jsdoc/require-param-description': 'off',
 			'jsdoc/require-returns': 'off',
 			'jsdoc/check-indentation': 'off',
-			'jsdoc/require-param': 'off',
-			'jsdoc/require-jsdoc': 'off',
 			'jsdoc/escape-inline-tags': 'off',
 			'import/no-extraneous-dependencies': 'off',
 		},

@@ -176,6 +176,7 @@ function LocationsInner( { attributes }: WidgetRenderProps< LocationsAttributes 
 					) }
 				</Stack>
 				<SelectControl
+					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 					label={ __( 'View by', 'jetpack-premium-analytics' ) }
 					hideLabelFromVision

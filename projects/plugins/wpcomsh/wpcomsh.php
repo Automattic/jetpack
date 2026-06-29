@@ -135,6 +135,7 @@ require_once __DIR__ . '/feature-plugins/additional-css.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
+require_once __DIR__ . '/feature-plugins/crowdsignal.php';
 require_once __DIR__ . '/feature-plugins/full-site-editing.php';
 require_once __DIR__ . '/feature-plugins/google-fonts.php';
 require_once __DIR__ . '/feature-plugins/gutenberg-mods.php';

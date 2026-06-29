@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Social modernized dashboard (behind rsm_jetpack_ui_modernization_social): keep the connections modal within the content column so it no longer renders behind the wp-admin sidebar at some viewport widths (works on both wp-admin and WP.com nav-unification).

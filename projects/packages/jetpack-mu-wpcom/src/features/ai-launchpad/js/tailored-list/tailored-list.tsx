@@ -7,6 +7,7 @@ import { trackTaskClicked } from '../lib/tracks.ts';
 import { Layout } from './layout.tsx';
 import {
 	firstIncompleteIndex,
+	isCompleteOnClickTask,
 	isTaskActionable,
 	resolveCtaUrl,
 	tasksFromFixture,
@@ -183,12 +184,47 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 				},
 				siteUrl
 			);
+			// Acknowledgment tasks have no completion signal in wp-admin (they
+			// complete only in Calypso), so clicking the CTA is the completion.
+			// Persist it before navigating away (same-tab nav unloads the page,
+			// cancelling an un-awaited request), best-effort so a failed write never
+			// blocks the navigation.
+			if ( isCompleteOnClickTask( task.id ) ) {
+				await apiFetch( {
+					path: '/wpcom/v2/ai-launchpad/complete-task',
+					method: 'POST',
+					data: { task_id: task.id },
+				} ).catch( () => {} );
+			}
 			if ( url ) {
 				navigate( url );
 			}
 		} catch {
 			// Swallow: the finally clears busy so a thrown CTA (e.g. a failed
 			// pattern fetch) can't leave the card permanently disabled.
+		} finally {
+			setBusyId( null );
+		}
+	};
+
+	// Complete-on-click tasks with no CTA destination (e.g. share_site) can't be
+	// "started", so the card offers "Mark as complete": persist the completion and
+	// flip the card to done in place (no navigation). Only flips on a successful
+	// write so a failed POST doesn't show a completion that reverts on reload.
+	const handleMarkComplete = async ( task: EnrichedTask ) => {
+		setBusyId( task.id );
+		try {
+			trackTaskClicked( { task_id: task.id } );
+			await apiFetch( {
+				path: '/wpcom/v2/ai-launchpad/complete-task',
+				method: 'POST',
+				data: { task_id: task.id },
+			} );
+			setTasks( prev =>
+				prev ? prev.map( t => ( t.id === task.id ? { ...t, completed: true } : t ) ) : prev
+			);
+		} catch {
+			// Leave the task incomplete on failure.
 		} finally {
 			setBusyId( null );
 		}
@@ -212,8 +248,12 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 						task={ task }
 						isBusy={ busyId === task.id }
 						canStart={ isTaskActionable( task, output, siteUrl ) }
+						canMarkComplete={
+							isCompleteOnClickTask( task.id ) && ! isTaskActionable( task, output, siteUrl )
+						}
 						defaultOpen={ index === firstOpenIndex }
 						onGetStarted={ () => handleGetStarted( task ) }
+						onMarkComplete={ () => handleMarkComplete( task ) }
 						onSkip={ () => handleSkip( task ) }
 					/>
 				) ) }

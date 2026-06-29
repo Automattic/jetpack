@@ -1,5 +1,5 @@
 /**
- * Shoppers Privacy Controls Interactivity
+ * Cookie Consent Controls Interactivity
  *
  * Single store handling both GDPR cookie banner and CCPA opt-out functionality.
  * Uses separate contexts for each UI component while sharing actions and initialization.
@@ -588,7 +588,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			if ( 'isGdprManageLink' in context ) {
 				gdprManageLinkContexts.add( context );
 
-				// Keep the footer link visibility in sync after the shopper saves consent.
+				// Keep the footer link visibility in sync after the visitor saves consent.
 				// Without this, the link stays hidden until a full page reload.
 				const config = getConfig() as unknown as StoreConfig;
 				if ( ! manageLinkConsentListenerRegistered ) {

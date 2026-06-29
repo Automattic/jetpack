@@ -104,6 +104,9 @@ prefixes; Woo `analytics/reports/*` → `proxy/v2/analytics/reports/*`. The dash
 - `v2` vs `v1.x` changes the WPCOM base — a wrong version silently hits a different endpoint.
 - Sync code under `src/Sync/` is interim (WOOA7S-1550); don't build on it.
 - Don't edit dashboard React in Calypso — it lives here now.
+- Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
+  never `@automattic/jetpack-premium-analytics-*`.
+- All source code comments must be in English.
 
 ## Widgets
 
@@ -120,6 +123,11 @@ lazy-loaded by the dashboard at runtime.
 > `sales-by-coupon`, `sales-by-utm`) predate this layout and are scheduled to be migrated.
 > Do not use them as templates for new work — follow the structure and story template below
 > instead.
+
+These rules apply to registered dashboard widgets: folders with `package.json`,
+`widget.json`, `widget.ts`, and `render.tsx` that the dashboard can lazy-load.
+Presentational-only component folders under `widgets/` are out of scope unless they
+are being converted into registered widgets.
 
 ### REQUIRED: widget folder structure
 
@@ -144,6 +152,53 @@ Notes:
 - Per-widget React/`@wordpress/*` dependencies go in the widget's own `package.json` using
   `link:` for internal packages (e.g.
   `"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit"`).
+
+### REQUIRED: render component contract
+
+The render component receives only widget host props. Type it with
+`WidgetRenderProps<T>` from `@wordpress/widget-primitives`, default `attributes`, and pass
+host-provided attributes into `<WidgetRoot>`. This is how Storybook and the dashboard inject
+`reportParams` for date range and comparison state.
+
+```tsx
+import {
+	WidgetRoot,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { MyWidgetAttributes } from './widget';
+
+type MyWidgetRenderAttributes =
+	MyWidgetAttributes & Partial< ReportParamsFieldAttributes >;
+
+export default function MyWidget( {
+	attributes = {},
+}: WidgetRenderProps< MyWidgetRenderAttributes > ) {
+	return (
+		<WidgetRoot attributes={ attributes }>
+			<MyWidgetInner max={ attributes.max } />
+		</WidgetRoot>
+	);
+}
+```
+
+The widget's own attribute shape is declared and exported once from `widget.ts`,
+alongside the `attributes`/`example` schema it describes. `render.tsx` imports that type;
+it may compose a render-only type with host fields like `Partial<ReportParamsFieldAttributes>`,
+but it must not re-declare the widget's own attributes.
+
+Dashboard state is read inside the component wrapped by `<WidgetRoot>`:
+
+```tsx
+function MyWidgetInner( { max }: { max?: number } ) {
+	const { reportParams } = useWidgetRootContext();
+	// Fetch data with hooks that accept reportParams.
+}
+```
+
+Do not call `useWidgetRootContext()` in the outer render component before `<WidgetRoot>`
+exists, and do not read the dashboard date range directly from `attributes` in the inner
+component.
 
 ### REQUIRED: Storybook story for every widget
 
@@ -294,9 +349,99 @@ selector) as extra fields on the controls interface plus matching `args` and `ar
 shared dashboard helper already provides container width / edit-mode / host-environment
 controls, so there's no need to add custom size decorators per widget.
 
+If a story exposes `withComparison`, both the close-up story and the dashboard story must pass
+`reportParams: getDefaultQueryParams( withComparison )` into the render component, and the render
+component must pass those attributes into `<WidgetRoot>`. A visible Storybook control that is not
+wired into the render/data flow gives reviewers a false comparison test.
+
 ### Widget pitfalls
 
 - Putting new widgets under `packages/widgets-toolkit/src/widgets/*` — that path is for the
   legacy widgets that haven't been migrated yet.
 - Using the legacy `withWidgetRoot()` decorator for new stories — new widgets render via the
   real `WidgetDashboard` through the shared story helper instead.
+- Declaring `presentation` in `widget.ts` — `widget.json` is the source of truth for that
+  field; omit it from `widget.ts` entirely.
+- Re-declaring the attribute type in `render.tsx` — the shape is declared once in `widget.ts`
+  and imported in `render.tsx`; render-only types may compose that imported shape with host
+  fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate the shape.
+- Dropping `attributes` at the `<WidgetRoot>` boundary — this discards host-provided
+  `reportParams` and makes date/comparison Storybook controls misleading.
+- Writing `<button>` without an explicit `type` — the HTML default is `type="submit"`, which
+  can fire accidental form submissions. Use `type="button"` for non-submit actions.
+- Do not use inline `style={{ … }}` props in production widget render files — all widget
+  styles belong in the widget's CSS Module. Story-only canvas wrappers may use inline
+  sizing when the style is not part of the shipped widget UI.
+- Reimplementing a utility that already exists in `widgets-toolkit` (e.g. `flagUrl`) — check
+  `packages/widgets-toolkit/src/helpers/` before writing a new one.
+
+### Stats widgets
+
+Ports of Jetpack Stats modules into the dashboard follow a fixed pattern. Read this
+before writing any Stats widget — many mistakes here are silent at build time.
+
+**Data layer**
+
+`packages/data/` already has a typed hook for every Stats module (`useStatsTopPosts`,
+`useStatsSearchTerms`, `useStatsLocations`, `useStatsDevices`, …). Look there first —
+do not call `fetchStatsProxy` or `apiFetch` directly from a widget.
+
+Each hook returns `{ primary, comparison, isLoading, isError, … }`. For the standard
+leaderboard/list widgets, reach data through:
+
+```ts
+const report = primary.data as StatsNormalizedReport< StatsXxxItem > | undefined;
+const items  = report?.data?.[ 0 ]?.items ?? [];
+```
+
+Date-range conversion (`from`/`to` → `period`/`end_date`/`days`) is handled inside
+the query factory — do not do it in the widget or the view hook.
+
+**`max` semantics**
+
+`max = 0` means "all rows". Use `slice( 0, max > 0 ? max : undefined )`, never
+`slice( 0, max )` (the latter returns an empty array when `max` is 0).
+
+**Loading and stale data**
+
+Show `<WidgetLoadingOverlay />` only when there is no data yet:
+`isLoading && data.length === 0`. When stale data exists, pass `loading={ isLoading }`
+to the chart component so an in-place spinner appears without hiding the rows.
+
+**Comparison data**
+
+Stats hooks built on `useStatsReport()` return `{ primary, comparison, hasComparison, ... }`.
+When `reportParams` includes `comp=1`, `compare_from`, and `compare_to`, the data layer fetches
+the comparison period automatically.
+
+Widgets still need to map comparison rows into chart data explicitly. For leaderboard/list
+widgets, build a lookup from `comparison.data?.[ 0 ]?.items` using the same stable key used for
+the primary row (post ID/URL, country code, search term, device key, etc.), then set
+`previousValue`, `previousShare`, and `delta` from the matched comparison row. Do not assume
+primary and comparison arrays have the same order or the same rows.
+
+Using `previousValue: 0` and `delta: 0` as placeholders is only acceptable when the chart
+comparison UI is disabled (`withComparison={ false }` or omitted). Do not expose a
+`withComparison` story/control as meaningful until the widget maps `comparison.data` into real
+previous-period values.
+
+**Visual conventions**
+
+- Widget title: `<Text variant="heading-md" render={ <h3 /> }>`
+- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`
+- Leaderboard row height: custom labels should produce a stable 36px row height. For the common
+  `<Text>` label case, `padding: var(--wpds-dimension-padding-sm)` is enough when the text
+  line-height plus vertical padding yields 36px. Use `min-height: 36px` when the label content
+  or typography does not naturally produce that height.
+- Empty state: pass `emptyStateText` to `LeaderboardChart` — do not add a separate
+  `data.length === 0` render branch in the widget.
+- Widget picker preview: add this to the CSS Module so the preview tile renders at a
+  sensible aspect ratio instead of collapsing:
+
+```css
+:global( [inert]:not( [inert='true'] ) ) .root {
+    height: auto;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+}
+```

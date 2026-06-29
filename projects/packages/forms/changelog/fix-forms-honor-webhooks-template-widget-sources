@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: restore webhook, Post to URL and Salesforce delivery for forms placed in block templates, template parts and widgets, which stopped firing in 15.9.

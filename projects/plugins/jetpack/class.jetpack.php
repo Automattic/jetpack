@@ -885,6 +885,7 @@ class Jetpack {
 		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
+		\Automattic\Jetpack\Podcast\Podcast::init();
 
 		/*
 		 * Initialize Boost Speed Score. It only does work on REST requests (the
