@@ -36,8 +36,8 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 	const leaderboardData = useMemo( () => {
 		const maxValue = Math.max( ...data.map( t => t.views ), 0 );
 
-		return data.map( term => ( {
-			id: term.label,
+		return data.map( ( term, index ) => ( {
+			id: `${ index }-${ term.label }`,
 			label: (
 				<Stack align="center" className={ styles.itemLabel }>
 					<Text>{ term.label }</Text>
