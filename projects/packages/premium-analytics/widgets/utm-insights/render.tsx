@@ -11,6 +11,7 @@ import {
 	WidgetRoot,
 	useWidgetRootContext,
 	type LeaderboardChartData,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
@@ -23,6 +24,8 @@ import type { UtmInsightsAttributes } from './widget';
  */
 import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
@@ -45,7 +48,7 @@ const UTM_PARAM_OPTIONS: { label: string; value: StatsUtmParam }[] = [
 type UtmInsightsInnerProps = {
 	utmParam: StatsUtmParam;
 	max: number;
-	setAttributes: WidgetRenderProps< UtmInsightsAttributes >[ 'setAttributes' ];
+	setAttributes: WidgetRenderProps< UtmInsightsRenderAttributes >[ 'setAttributes' ];
 };
 
 /**
@@ -144,11 +147,11 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
  * @return The rendered widget content.
  */
 export default function UtmInsightsWidget( {
-	attributes,
+	attributes = {},
 	setAttributes,
-}: WidgetRenderProps< UtmInsightsAttributes > ) {
-	const utmParam = attributes?.utmParam ?? DEFAULT_UTM_PARAM;
-	const max = attributes?.max ?? 10;
+}: WidgetRenderProps< UtmInsightsRenderAttributes > ) {
+	const utmParam = attributes.utmParam ?? DEFAULT_UTM_PARAM;
+	const max = attributes.max ?? 10;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
