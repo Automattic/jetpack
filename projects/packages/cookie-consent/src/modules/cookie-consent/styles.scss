@@ -637,7 +637,7 @@ input[type="checkbox"]:focus-visible + label
 /* Reduced Motion */
 @media ( prefers-reduced-motion: reduce ) {
 
-	.jetpack-cookie-consent-footer-links__toggle {
+	#jetpack-cookie-consent-footer-links-toggle {
 		transition: none;
 	}
 }
@@ -675,7 +675,7 @@ input[type="checkbox"]:focus-visible + label
 	position: fixed;
 	bottom: 20px;
 	left: 20px;
-	z-index: var(--jp-cookie-consent--z-index, 999999);
+	z-index: 999999;
 	max-width: calc(100% - 100px);
 }
 
