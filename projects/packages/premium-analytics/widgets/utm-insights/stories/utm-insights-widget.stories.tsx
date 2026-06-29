@@ -59,14 +59,7 @@ export const ByCampaign: StoryObj = {
 
 // Full dashboard story — mounts the real WidgetDashboard so the widget renders
 // exactly as it does in product (size / edit-mode / host-environment controls).
-interface UtmInsightsDashboardStoryProps extends WidgetDashboardWithWidgetControls {
-	withComparison: boolean;
-}
-
-function UtmInsightsDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: UtmInsightsDashboardStoryProps ) {
+function UtmInsightsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
@@ -76,23 +69,14 @@ function UtmInsightsDashboardStory( {
 			attributes={ {
 				utmParam: 'utm_source,utm_medium',
 				max: 10,
-				reportParams: getDefaultQueryParams( withComparison ),
+				reportParams: getDefaultQueryParams( false ),
 			} }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< UtmInsightsDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <UtmInsightsDashboardStory { ...args } />,
-	args: {
-		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: false,
-	},
-	argTypes: {
-		...widgetDashboardWithWidgetArgTypes,
-		withComparison: {
-			control: 'boolean',
-			description: 'Include previous-period comparison report params.',
-		},
-	},
+	args: DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	argTypes: widgetDashboardWithWidgetArgTypes,
 };
