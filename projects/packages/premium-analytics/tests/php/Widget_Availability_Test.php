@@ -15,34 +15,63 @@ require_once __DIR__ . '/../../src/widget-availability.php';
 
 /**
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_available_widget_types
- * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_widget_types_by_environment
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_environment
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_available_widget_types' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_widget_types_by_environment' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_environment' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types' )]
 class Widget_Availability_Test extends BaseTestCase {
 
 	/**
-	 * In production, developer-only widget types are dropped while the rest
-	 * pass through untouched.
+	 * Candidate set shaped like the build manifest entries.
+	 *
+	 * @return array[] List of widget candidates.
 	 */
-	public function test_filter_removes_dev_only_widget_in_production() {
-		// WorDBless reports the environment type as 'production' by default.
-		$this->assertSame( 'production', wp_get_environment_type() );
-
-		$widget_types = array(
-			'jpa/react-query-dev-tool' => new Widget_Type( 'jpa/react-query-dev-tool' ),
-			'jpa/hello-world'          => new Widget_Type( 'jpa/hello-world' ),
+	private function widget_candidates() {
+		return array(
+			array( 'name' => 'jpa/react-query-dev-tool' ),
+			array( 'name' => 'jpa/hello-world' ),
 		);
-
-		$filtered = filter_widget_types_by_environment( $widget_types );
-
-		$this->assertArrayNotHasKey( 'jpa/react-query-dev-tool', $filtered, 'Developer-only widgets must be hidden in production.' );
-		$this->assertArrayHasKey( 'jpa/hello-world', $filtered, 'Regular widgets remain available.' );
 	}
 
 	/**
-	 * Verifies get_available_widget_types() runs the registry through the
-	 * WIDGET_TYPES_FILTER so any callback can scope the visible set.
+	 * In production, developer-only candidates are dropped; the rest pass through.
+	 */
+	public function test_dev_only_widget_removed_in_production() {
+		$names = array_column( remove_dev_only_widget_types( $this->widget_candidates(), 'production' ), 'name' );
+
+		$this->assertNotContains( 'jpa/react-query-dev-tool', $names, 'Developer-only widgets must be hidden in production.' );
+		$this->assertContains( 'jpa/hello-world', $names, 'Regular widgets remain available.' );
+	}
+
+	/**
+	 * Outside production, candidates pass through (covers the non-production branch).
+	 */
+	public function test_dev_only_widget_kept_outside_production() {
+		foreach ( array( 'local', 'development', 'staging' ) as $environment ) {
+			$names = array_column( remove_dev_only_widget_types( $this->widget_candidates(), $environment ), 'name' );
+
+			$this->assertContains( 'jpa/react-query-dev-tool', $names, "Developer-only widgets must remain available in the {$environment} environment." );
+			$this->assertContains( 'jpa/hello-world', $names, 'Regular widgets remain available.' );
+		}
+	}
+
+	/**
+	 * The registry-time callback reads the env (production by default) and drops
+	 * the developer-only candidate.
+	 */
+	public function test_registry_filter_callback_drops_dev_widget_by_default() {
+		$this->assertSame( 'production', wp_get_environment_type() );
+
+		$names = array_column( filter_registrable_widget_types_by_environment( $this->widget_candidates() ), 'name' );
+
+		$this->assertNotContains( 'jpa/react-query-dev-tool', $names, 'The registry-time callback must drop the developer widget in production.' );
+		$this->assertContains( 'jpa/hello-world', $names, 'Regular widgets remain available.' );
+	}
+
+	/**
+	 * Reading the available set runs the registry through WIDGET_TYPES_FILTER.
 	 */
 	public function test_get_available_widget_types_applies_filter() {
 		$registry = Widget_Type_Registry::get_instance();

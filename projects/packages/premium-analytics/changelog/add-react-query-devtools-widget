@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Dashboard: add a React Query Devtools widget, gated to non-production environments through a new `jetpack_premium_analytics_widget_types` filter for scoping widget types server-side.
+Dashboard: add a React Query Devtools widget (non-production only), and expose two server-side widget-type filters (at registration and on read) so consumers can scope which widget types reach the dashboard.

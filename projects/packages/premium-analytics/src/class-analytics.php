@@ -70,8 +70,9 @@ class Analytics {
 		// Hydrate the widget type registry from the build manifest at init.
 		require_once __DIR__ . '/widget-types.php';
 
-		// Layer the availability filter over the registry (environment gating
-		// and any host overrides) before the modules below expose the types.
+		// Apply Premium Analytics' availability policy: it hooks the registry-time
+		// filter from widget-types.php to keep developer-only types out of
+		// production before the modules below expose the registry.
 		require_once __DIR__ . '/widget-availability.php';
 
 		// Expose dashboard widget modules over REST and wire them into the
