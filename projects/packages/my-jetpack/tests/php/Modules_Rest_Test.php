@@ -4,6 +4,8 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -17,6 +19,9 @@ use WP_REST_Server;
  * WITHOUT the full Jetpack plugin — the same situation as a standalone plugin (Boost, Backup, …)
  * or a WordPress.com Simple site. This locks the cross-plugin behavior: the routes register
  * wherever My Jetpack initializes, and resolve gracefully when no Jetpack module system exists.
+ *
+ * Each test runs in a separate process so its Initializer::init() bootstrap and the Modules
+ * class's process-level static cache can't leak into sibling tests.
  *
  * @package automattic/my-jetpack
  * @see \Automattic\Jetpack\My_Jetpack\REST_Modules
@@ -43,13 +48,6 @@ class Modules_Rest_Test extends TestCase {
 	 * @var int
 	 */
 	private static $secondary_user_id;
-
-	/**
-	 * Captured ( slug, active ) from the my_jetpack_set_module action.
-	 *
-	 * @var array|null
-	 */
-	private $set_module_called = null;
 
 	/**
 	 * Setting up the test.
@@ -92,10 +90,6 @@ class Modules_Rest_Test extends TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 
-		remove_filter( 'my_jetpack_site_modules', array( $this, 'return_fake_modules' ) );
-		remove_action( 'my_jetpack_set_module', array( $this, 'capture_set_module' ) );
-		$this->set_module_called = null;
-
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 
@@ -106,6 +100,8 @@ class Modules_Rest_Test extends TestCase {
 	/**
 	 * Test that the modules routes register wherever My Jetpack initializes (cross-plugin).
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_modules_routes_are_registered() {
 		$routes = rest_get_server()->get_routes();
 
@@ -116,6 +112,8 @@ class Modules_Rest_Test extends TestCase {
 	/**
 	 * Test GET modules resolves gracefully (200, array) without the Jetpack plugin's module system.
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_get_modules_returns_array() {
 		$request  = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/modules' );
 		$response = $this->server->dispatch( $request );
@@ -127,6 +125,8 @@ class Modules_Rest_Test extends TestCase {
 	/**
 	 * Test GET modules as an editor (edit_posts) is allowed.
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_get_modules_with_editor() {
 		wp_set_current_user( self::$secondary_user_id );
 
@@ -139,6 +139,8 @@ class Modules_Rest_Test extends TestCase {
 	/**
 	 * Test GET modules not logged in is rejected.
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_get_modules_not_logged() {
 		wp_set_current_user( 0 );
 
@@ -152,8 +154,24 @@ class Modules_Rest_Test extends TestCase {
 	 * Test that a platform can supply module state via the my_jetpack_site_modules filter
 	 * (this is how Simple sites fill the list with no Jetpack plugin present).
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_get_modules_applies_platform_filter() {
-		add_filter( 'my_jetpack_site_modules', array( $this, 'return_fake_modules' ) );
+		add_filter(
+			'my_jetpack_site_modules',
+			function ( $modules ) {
+				$modules['fake-module'] = array(
+					'module'           => 'fake-module',
+					'name'             => 'Fake Module',
+					'description'      => '',
+					'long_description' => '',
+					'search_terms'     => '',
+					'available'        => true,
+					'activated'        => false,
+				);
+				return $modules;
+			}
+		);
 
 		$request  = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/modules' );
 		$response = $this->server->dispatch( $request );
@@ -165,66 +183,64 @@ class Modules_Rest_Test extends TestCase {
 	}
 
 	/**
-	 * Test that toggling a slug with no Jetpack module delegates to the my_jetpack_set_module
-	 * action so the platform can handle it.
+	 * Test that toggling a module returns the new state ( { module, activated } ).
 	 */
-	public function test_set_module_delegates_to_action() {
-		add_action( 'my_jetpack_set_module', array( $this, 'capture_set_module' ), 10, 2 );
-
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_set_module_returns_state() {
 		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/modules/fake-module' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'active' => true ) ) );
+		$request->set_body( wp_json_encode( array( 'active' => true ), JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( array( 'fake-module', true ), $this->set_module_called );
 		$this->assertEquals( 'fake-module', $data['module'] );
 		$this->assertTrue( $data['activated'] );
 	}
 
 	/**
+	 * Test that a platform can handle toggling via the my_jetpack_set_module action.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_set_module_fires_platform_action() {
+		$called = array();
+		add_action(
+			'my_jetpack_set_module',
+			function ( $slug, $active ) use ( &$called ) {
+				$called = array( $slug, $active );
+			},
+			10,
+			2
+		);
+
+		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/modules/fake-module' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'active' => true ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		// 'fake-module' is not a real Jetpack module, so the platform action handles it.
+		$this->assertEquals( array( 'fake-module', true ), $called );
+	}
+
+	/**
 	 * Test POST modules not logged in is rejected.
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_set_module_not_logged() {
 		wp_set_current_user( 0 );
 
 		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/modules/fake-module' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'active' => true ) ) );
+		$request->set_body( wp_json_encode( array( 'active' => true ), JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 401, $response->get_status() );
-	}
-
-	/**
-	 * Filter callback: supply a fake module as a platform would.
-	 *
-	 * @param array $modules Module map.
-	 * @return array
-	 */
-	public function return_fake_modules( $modules ) {
-		$modules['fake-module'] = array(
-			'module'           => 'fake-module',
-			'name'             => 'Fake Module',
-			'description'      => '',
-			'long_description' => '',
-			'search_terms'     => '',
-			'available'        => true,
-			'activated'        => false,
-		);
-		return $modules;
-	}
-
-	/**
-	 * Action callback: capture the slug/active passed to my_jetpack_set_module.
-	 *
-	 * @param string $slug   Module slug.
-	 * @param bool   $active Whether the module should be active.
-	 */
-	public function capture_set_module( $slug, $active ) {
-		$this->set_module_called = array( $slug, $active );
 	}
 }
