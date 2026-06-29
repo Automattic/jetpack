@@ -62,7 +62,8 @@ nav[aria-label="Breadcrumbs"] {
 		font-size: var(--wpds-typography-font-size-lg, 15px);
 		font-weight: var(--wpds-typography-font-weight-medium, 499);
 		line-height: var(--wpds-typography-line-height-sm, 20px);
-		color: var(--jp-black, #1e1e1e);
+		// Match the page-title color used on the other dashboard headers.
+		color: var(--wpds-color-fg-content-neutral, #1e1e1e);
 	}
 }
 
