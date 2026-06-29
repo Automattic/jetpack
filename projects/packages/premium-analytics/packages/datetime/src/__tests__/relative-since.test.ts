@@ -3,9 +3,8 @@
  */
 import { formatRelativeSince } from '../relative-since';
 
-// Fixed reference point. Offsets are built by subtracting from this instant;
-// whole-day offsets keep the same local time-of-day so calendar-day boundaries
-// ("Yesterday", "Nd ago") are timezone-stable regardless of where the test runs.
+// Fixed reference point; offsets are subtracted from this instant so the
+// assertions don't depend on the wall clock or the runner's timezone.
 const NOW = new Date( '2026-06-29T12:00:00Z' );
 const ago = ( ms: number ) => new Date( NOW.getTime() - ms ).toISOString();
 
@@ -20,25 +19,16 @@ describe( 'formatRelativeSince', () => {
 		expect( formatRelativeSince( 'not-a-date', NOW ) ).toBe( '' );
 	} );
 
-	it( 'renders sub-minute as "Just now"', () => {
-		expect( formatRelativeSince( ago( 40 * 1000 ), NOW ) ).toBe( 'Just now' );
+	it( 'renders a past timestamp as a compact "ago" distance (no "less than")', () => {
+		// Strict drops "less than a minute" — sub-minute reads as seconds.
+		expect( formatRelativeSince( ago( 10 * 1000 ), NOW ) ).toMatch( /seconds? ago$/ );
+		expect( formatRelativeSince( ago( 12 * MINUTE ), NOW ) ).toBe( '12 minutes ago' );
+		expect( formatRelativeSince( ago( 5 * HOUR ), NOW ) ).toBe( '5 hours ago' );
+		expect( formatRelativeSince( ago( DAY ), NOW ) ).toBe( '1 day ago' );
+		expect( formatRelativeSince( ago( 3 * DAY ), NOW ) ).toBe( '3 days ago' );
 	} );
 
-	it( 'renders minutes and hours compactly', () => {
-		expect( formatRelativeSince( ago( 12 * MINUTE ), NOW ) ).toBe( '12m ago' );
-		expect( formatRelativeSince( ago( 90 * MINUTE ), NOW ) ).toBe( '1h ago' );
-		expect( formatRelativeSince( ago( 5 * HOUR ), NOW ) ).toBe( '5h ago' );
-	} );
-
-	it( 'renders one calendar day as "Yesterday" and multiple days compactly', () => {
-		expect( formatRelativeSince( ago( DAY ), NOW ) ).toBe( 'Yesterday' );
-		expect( formatRelativeSince( ago( 3 * DAY ), NOW ) ).toBe( '3d ago' );
-	} );
-
-	it( 'falls back to a formatted date older than a week', () => {
-		const label = formatRelativeSince( ago( 30 * DAY ), NOW );
-		expect( label ).not.toBe( '' );
-		expect( label ).not.toMatch( /ago|Just now|Yesterday/ );
-		expect( label ).toMatch( /2026/ );
+	it( 'rolls older timestamps up to coarser units', () => {
+		expect( formatRelativeSince( ago( 60 * DAY ), NOW ) ).toMatch( /months? ago$/ );
 	} );
 } );

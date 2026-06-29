@@ -1,25 +1,14 @@
 /**
  * External dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
-import {
-	differenceInCalendarDays,
-	differenceInHours,
-	differenceInMinutes,
-	format,
-	isValid,
-	parseISO,
-} from 'date-fns';
+import { formatDistanceStrict, isValid, parseISO } from 'date-fns';
 
 /**
- * Formats an ISO timestamp as a compact relative "since" label — "Just now",
- * "%dm ago", "%dh ago", "Yesterday", "%dd ago" — falling back to a short date
- * (via date-fns) for anything older than a week.
- *
- * Uses date-fns for all date math (parsing, diffing, formatting) so callers
- * never hand-roll `Date` arithmetic. The timezone of the instant is taken from
- * the ISO string itself; calendar-day boundaries ("Yesterday") are evaluated in
- * the local timezone.
+ * Formats an ISO timestamp as a compact relative "since" label using date-fns'
+ * `formatDistanceStrict` (e.g. "12 minutes ago", "5 hours ago", "1 day ago",
+ * "2 months ago"). The strict variant drops the looser "about"/"less than a
+ * minute" qualifiers for a shorter label; locale and pluralization are handled
+ * by date-fns, so callers never hand-roll `Date` arithmetic or wording.
  *
  * @param iso - ISO timestamp, or undefined.
  * @param now - Reference "now" (defaults to the current time); injectable for tests.
@@ -35,29 +24,5 @@ export function formatRelativeSince( iso?: string, now: Date = new Date() ): str
 		return '';
 	}
 
-	const minutes = differenceInMinutes( now, then );
-	if ( minutes < 1 ) {
-		return __( 'Just now', 'jetpack-premium-analytics' );
-	}
-	if ( minutes < 60 ) {
-		// translators: %d is a number of minutes.
-		return sprintf( __( '%dm ago', 'jetpack-premium-analytics' ), minutes );
-	}
-
-	const hours = differenceInHours( now, then );
-	if ( hours < 24 ) {
-		// translators: %d is a number of hours.
-		return sprintf( __( '%dh ago', 'jetpack-premium-analytics' ), hours );
-	}
-
-	const days = differenceInCalendarDays( now, then );
-	if ( days === 1 ) {
-		return __( 'Yesterday', 'jetpack-premium-analytics' );
-	}
-	if ( days < 7 ) {
-		// translators: %d is a number of days.
-		return sprintf( __( '%dd ago', 'jetpack-premium-analytics' ), days );
-	}
-
-	return format( then, 'PP' );
+	return formatDistanceStrict( then, now, { addSuffix: true } );
 }
