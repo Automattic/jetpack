@@ -180,11 +180,13 @@ function Stage(): React.JSX.Element {
 	}, [] );
 	const handleImageLoaded = useCallback( () => setIsImageLoading( false ), [] );
 
-	const renderMessagePage = ( title: string, child: React.ReactNode ) => (
+	// Keep the breadcrumb (with the "Forms" link) on the loading/not-found states
+	// so the user can always navigate back to the responses list and reorient.
+	const renderMessagePage = ( currentLabel: string, ariaLabel: string, child: React.ReactNode ) => (
 		<FormsPage
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
-			title={ title }
-			ariaLabel={ title }
+			breadcrumbs={ <SingleResponseBreadcrumbs currentLabel={ currentLabel } /> }
+			ariaLabel={ ariaLabel }
 			showFooter={ false }
 		>
 			<Stack direction="row" justify="center" style={ { padding: '40px' } }>
@@ -194,11 +196,16 @@ function Stage(): React.JSX.Element {
 	);
 
 	if ( isValidId && isLoading ) {
-		return renderMessagePage( __( 'Response', 'jetpack-forms' ), <Spinner /> );
+		return renderMessagePage(
+			isValidId ? `#${ id }` : __( 'Response', 'jetpack-forms' ),
+			__( 'Response', 'jetpack-forms' ),
+			<Spinner />
+		);
 	}
 
 	if ( ! response ) {
 		return renderMessagePage(
+			isValidId ? `#${ id }` : __( 'Not found', 'jetpack-forms' ),
 			__( 'Response not found', 'jetpack-forms' ),
 			<p>{ __( 'This response could not be found.', 'jetpack-forms' ) }</p>
 		);

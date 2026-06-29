@@ -22,19 +22,27 @@ import type { FormResponse } from '../../src/types/index.ts';
  * `jetpack_form` post (`form_id`), and links to that form's filtered responses
  * list (`/responses/inbox?sourceId=<form_id>`).
  *
- * @param props           - Component props.
- * @param props.response  - The response being viewed.
- * @param props.formTitle - The (decoded) title of the form/source.
+ * Also used by the loading and "not found" states (where there is no
+ * `response`): the "Forms" crumb still links back to the inbox so the user can
+ * reorient, with `currentLabel` as the trailing crumb.
+ *
+ * @param props              - Component props.
+ * @param props.response     - The response being viewed, if loaded.
+ * @param props.formTitle    - The (decoded) title of the form/source.
+ * @param props.currentLabel - Override for the trailing crumb (defaults to `#<id>`).
  * @return The breadcrumb trail.
  */
 export default function SingleResponseBreadcrumbs( {
 	response,
-	formTitle,
+	formTitle = '',
+	currentLabel,
 }: {
-	response: FormResponse;
-	formTitle: string;
+	response?: FormResponse | null;
+	formTitle?: string;
+	currentLabel?: string;
 } ): React.JSX.Element {
-	const showFormCrumb = Boolean( response.form_id ) && Boolean( formTitle );
+	const showFormCrumb = Boolean( response?.form_id ) && Boolean( formTitle );
+	const current = currentLabel ?? ( response ? `#${ response.id }` : '' );
 
 	return (
 		<nav
@@ -53,17 +61,21 @@ export default function SingleResponseBreadcrumbs( {
 						to="/responses/inbox"
 						// Router types aren't registered in this build, so `search` resolves to
 						// `never`; cast through `unknown` to pass the filter param at runtime.
-						search={ { sourceId: String( response.form_id ) } as unknown as never }
+						search={ { sourceId: String( response?.form_id ) } as unknown as never }
 						className="jp-forms__single-response-breadcrumbs__link"
 					>
 						{ formTitle }
 					</Link>
 				</>
 			) }
-			<span className="jp-forms__single-response-breadcrumbs__sep" aria-hidden="true">
-				/
-			</span>
-			<h1 className="jp-forms__single-response-breadcrumbs__current">{ `#${ response.id }` }</h1>
+			{ current && (
+				<>
+					<span className="jp-forms__single-response-breadcrumbs__sep" aria-hidden="true">
+						/
+					</span>
+					<h1 className="jp-forms__single-response-breadcrumbs__current">{ current }</h1>
+				</>
+			) }
 		</nav>
 	);
 }
