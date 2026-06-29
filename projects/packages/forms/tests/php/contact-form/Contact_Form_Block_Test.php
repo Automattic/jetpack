@@ -547,4 +547,50 @@ class Contact_Form_Block_Test extends BaseTestCase {
 		// Cleanup
 		wp_delete_post( $post_id, true );
 	}
+
+	/**
+	 * Test that ::disable_field_visibility_support turns off the visibility
+	 * support on every field, input, and choice/option block, and leaves the
+	 * label and non-forms blocks untouched. See FORMS-694.
+	 *
+	 * @dataProvider data_disable_field_visibility_support
+	 *
+	 * @param string $block_name     The block name being registered.
+	 * @param bool   $should_disable Whether visibility should be disabled for it.
+	 */
+	#[DataProvider( 'data_disable_field_visibility_support' )]
+	public function test_disable_field_visibility_support( $block_name, $should_disable ) {
+		$result = Contact_Form_Block::disable_field_visibility_support( array(), $block_name );
+
+		if ( $should_disable ) {
+			$this->assertArrayHasKey( 'supports', $result );
+			$this->assertFalse( $result['supports']['visibility'] );
+		} else {
+			$this->assertArrayNotHasKey( 'supports', $result );
+		}
+	}
+
+	/**
+	 * Data provider for test_disable_field_visibility_support.
+	 *
+	 * @return array
+	 */
+	public static function data_disable_field_visibility_support() {
+		return array(
+			'field'                  => array( 'jetpack/field-name', true ),
+			'field (file)'           => array( 'jetpack/field-file', true ),
+			'deprecated option'      => array( 'jetpack/field-option-radio', true ),
+			'standard input'         => array( 'jetpack/input', true ),
+			'range input'            => array( 'jetpack/input-range', true ),
+			'rating input'           => array( 'jetpack/input-rating', true ),
+			'image-option input'     => array( 'jetpack/input-image-option', true ),
+			'phone input'            => array( 'jetpack/phone-input', true ),
+			'dropzone'               => array( 'jetpack/dropzone', true ),
+			'option'                 => array( 'jetpack/option', true ),
+			'options'                => array( 'jetpack/options', true ),
+			'fieldset-image-options' => array( 'jetpack/fieldset-image-options', true ),
+			'label (kept)'           => array( 'jetpack/label', false ),
+			'non-forms block'        => array( 'core/paragraph', false ),
+		);
+	}
 }

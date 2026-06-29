@@ -874,6 +874,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_legend_as_label( $type, $id, $legend, $required, $required_field_text, $extra_attrs = array(), $required_indicator = true ) {
+		// Full-hide via blockVisibility, mirroring render_label(). Grouped fields
+		// (radio, checkbox-multiple, image-select, rating) render their label as a
+		// legend, so they need the same guard. Per-viewport hiding still works via
+		// the label_classes applied below.
+		if ( $this->attributes['labelhiddenbyblockvisibility'] ) {
+			return '';
+		}
 		if ( ! empty( $this->label_styles ) ) {
 			$extra_attrs['style'] = $this->label_styles;
 		}
