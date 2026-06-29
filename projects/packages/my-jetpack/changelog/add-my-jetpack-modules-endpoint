@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+My Jetpack: add portable my-jetpack/v1/site/modules REST endpoints so the products page module state works on Simple, Atomic and self-hosted Jetpack sites.

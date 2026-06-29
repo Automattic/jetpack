@@ -7,6 +7,7 @@ export const REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT = `${ REST_API_NAMESPACE
 export const REST_API_CHAT_AVAILABILITY_ENDPOINT = `${ REST_API_NAMESPACE }/chat/availability`;
 export const REST_API_CHAT_AUTHENTICATION_ENDPOINT = `${ REST_API_NAMESPACE }/chat/authentication`;
 export const REST_API_SITE_PRODUCTS_ENDPOINT = `${ REST_API_NAMESPACE }/site/products`;
+export const REST_API_SITE_MODULES_ENDPOINT = `${ REST_API_NAMESPACE }/site/modules`;
 export const REST_API_SITE_PRODUCTS_OWNERSHIP_ENDPOINT = `${ REST_API_NAMESPACE }/site/products-ownership`;
 export const REST_API_SITE_PRODUCTS_INTERSTITIALS_ENDPOINT = `${ REST_API_NAMESPACE }/site/products/interstitials`;
 export const REST_API_VIDEOPRESS_FEATURED_STATS = 'videopress/v1/stats/featured';
@@ -51,6 +52,8 @@ export const QUERY_GET_PROTECT_DATA_KEY = 'get protect data';
 export const QUERY_GET_VIDEOPRESS_DATA_KEY = 'get videopress data';
 export const QUERY_GET_OAUTH_AUTHORIZE_URL_KEY = 'get oauth authorize url';
 export const QUERY_SEO_OPT_IN_KEY = 'seo opt-in';
+export const QUERY_SITE_MODULES_KEY = 'site modules';
+export const QUERY_UPDATE_MODULE_KEY = 'update module';
 
 // Query key for stats visits (time series data)
 export const QUERY_STATS_VISITS_KEY = 'stats visits';
