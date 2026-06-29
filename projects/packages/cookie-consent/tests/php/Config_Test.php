@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\CookieConsent;
 
 use PHPUnit\Framework\Attributes\CoversMethod;
-use ReflectionMethod;
 
 /**
  * @covers \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_config
@@ -30,9 +29,15 @@ class Config_Test extends TestCase {
 	 * @return array Cookie consent configuration.
 	 */
 	private function get_config() {
-		$method = new ReflectionMethod( Cookie_Consent::class, 'get_config' );
-		$method->setAccessible( true );
-		return $method->invoke( null );
+		$get_config = \Closure::bind(
+			function () {
+				return Cookie_Consent::get_config();
+			},
+			null,
+			Cookie_Consent::class
+		);
+
+		return $get_config();
 	}
 
 	/**
@@ -79,5 +84,24 @@ class Config_Test extends TestCase {
 
 		$this->assertSame( 'https://example.com/legacy-cookies/', $config['links']['cookie_policy_url'] );
 		$this->assertSame( 'https://example.com/legacy-cookies/', $config['cookie_policy_url'] );
+	}
+
+	/**
+	 * Explicit empty links.cookie_policy_url values override legacy top-level values.
+	 */
+	public function test_empty_links_cookie_policy_url_overrides_legacy_cookie_policy_url() {
+		add_filter(
+			'jetpack_cookie_consent_config',
+			function ( $config ) {
+				$config['links']['cookie_policy_url'] = '';
+				$config['cookie_policy_url']          = 'https://example.com/legacy-cookies/';
+				return $config;
+			}
+		);
+
+		$config = $this->get_config();
+
+		$this->assertSame( '', $config['links']['cookie_policy_url'] );
+		$this->assertSame( '', $config['cookie_policy_url'] );
 	}
 }

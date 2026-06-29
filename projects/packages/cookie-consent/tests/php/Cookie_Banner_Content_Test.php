@@ -22,6 +22,8 @@ class Cookie_Banner_Content_Test extends TestCase {
 	 * @return string Rendered template HTML.
 	 */
 	private function render_template( $config ) {
+		$config = is_array( $config ) ? $config : array();
+
 		ob_start();
 		include dirname( __DIR__, 2 ) . '/src/cookie-banner-content.php';
 		return ob_get_clean();
@@ -101,5 +103,25 @@ class Cookie_Banner_Content_Test extends TestCase {
 
 		$this->assertStringContainsString( 'Cookie Policy', $html );
 		$this->assertStringContainsString( 'href="https://example.com/legacy-cookies/"', $html );
+	}
+
+	/**
+	 * Explicit empty links.cookie_policy_url values hide the Cookie Policy link.
+	 */
+	public function test_empty_links_cookie_policy_url_overrides_legacy_cookie_policy_url() {
+		$this->set_privacy_policy_page();
+
+		$html = $this->render_template(
+			array(
+				'links'             => array(
+					'cookie_policy_url' => '',
+				),
+				'cookie_policy_url' => 'https://example.com/legacy-cookies/',
+			)
+		);
+
+		$this->assertStringNotContainsString( 'Cookie Policy', $html );
+		$this->assertStringNotContainsString( 'href="https://example.com/legacy-cookies/"', $html );
+		$this->assertMatchesRegularExpression( '/Privacy Policy\\s*<\\/a>\\s*\\./', $html );
 	}
 }

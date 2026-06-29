@@ -10,13 +10,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // $config is supplied by Cookie_Consent::render_banner() when this template is included.
-$config = isset( $config ) && is_array( $config ) ? $config : array( 'cookie_policy_url' => '' );
-$copy              = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
-$links             = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
-$cookie_policy_url = isset( $links['cookie_policy_url'] ) && is_scalar( $links['cookie_policy_url'] )
+$config                = isset( $config ) && is_array( $config ) ? $config : array( 'cookie_policy_url' => '' );
+$copy                  = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
+$links                 = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
+$has_cookie_policy_url = array_key_exists( 'cookie_policy_url', $links ) && is_scalar( $links['cookie_policy_url'] );
+$cookie_policy_url     = $has_cookie_policy_url
 	? trim( (string) $links['cookie_policy_url'] )
 	: '';
-if ( '' === $cookie_policy_url && isset( $config['cookie_policy_url'] ) && is_scalar( $config['cookie_policy_url'] ) ) {
+if ( ! $has_cookie_policy_url && isset( $config['cookie_policy_url'] ) && is_scalar( $config['cookie_policy_url'] ) ) {
 	$cookie_policy_url = trim( (string) $config['cookie_policy_url'] );
 }
 ?>
@@ -117,7 +118,8 @@ if ( '' === $cookie_policy_url && isset( $config['cookie_policy_url'] ) && is_sc
 					<?php echo esc_html( $copy['modal_description'] ); ?>
 					<a href="<?php echo esc_url( get_privacy_policy_url() ); ?>" class="jetpack-cookie-consent__link">
 						<?php echo esc_html( $copy['privacy_policy_link'] ); ?>
-					</a><?php if ( '' !== $cookie_policy_url ) : ?> <?php echo esc_html( $copy['modal_links_conjunction'] ); ?>
+					</a><?php if ( '' !== $cookie_policy_url ) : ?>
+						<?php echo esc_html( $copy['modal_links_conjunction'] ); ?>
 						<a href="<?php echo esc_url( $cookie_policy_url ); ?>" class="jetpack-cookie-consent__link">
 							<?php echo esc_html( $copy['cookie_policy_link'] ); ?>
 						</a><?php endif; ?>.

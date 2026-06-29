@@ -773,6 +773,7 @@ class Cookie_Consent {
 		if ( ! is_array( $links ) ) {
 			$links = array();
 		}
+		$has_cookie_policy_url = array_key_exists( 'cookie_policy_url', $links ) && is_scalar( $links['cookie_policy_url'] );
 
 		foreach ( $links as $key => $value ) {
 			if ( ! is_string( $key ) ) {
@@ -784,9 +785,9 @@ class Cookie_Consent {
 			}
 		}
 
-		// Back-compat: keep honoring non-empty legacy top-level cookie_policy_url values.
+		// Back-compat: keep honoring legacy top-level cookie_policy_url values.
 		if (
-			'' === $defaults['cookie_policy_url']
+			! $has_cookie_policy_url
 			&& array_key_exists( 'cookie_policy_url', $config )
 			&& is_scalar( $config['cookie_policy_url'] )
 		) {
@@ -812,7 +813,6 @@ class Cookie_Consent {
 			'country_code_cookie' => 'country_code',
 			'region_cookie'       => 'region',
 			'cookie_policy_url'   => $default_links['cookie_policy_url'],
-			'links'               => $default_links,
 			'gdpr_countries'      => array(
 				// European Member countries.
 				'AT', // Austria.
@@ -881,9 +881,9 @@ class Cookie_Consent {
 			$config = $default_config;
 		}
 
-		$config['copy']                = self::normalize_copy( $config['copy'] ?? array(), $default_copy );
-		$config['links']               = self::normalize_links( $config, $default_links );
-		$config['cookie_policy_url']   = $config['links']['cookie_policy_url'];
+		$config['copy']              = self::normalize_copy( $config['copy'] ?? array(), $default_copy );
+		$config['links']             = self::normalize_links( $config, $default_links );
+		$config['cookie_policy_url'] = $config['links']['cookie_policy_url'];
 
 		return $config;
 	}
