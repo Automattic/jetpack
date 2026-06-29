@@ -38,11 +38,11 @@ function toSubscriberItems(
 	return items.map( ( item, index ) => ( {
 		// Subscription id is the stable key; fall back to the row index so two
 		// nameless subscribers can't collide on an empty-string key.
-		id: item.subscription_id ?? item.id ?? `row-${ index }`,
+		id: item.subscription_id ?? `row-${ index }`,
 		name: item.label,
 		avatarUrl: item.icon,
 		href: item.link,
-		secondaryText: formatRelativeSince( item.date_subscribed ?? item.value?.value ),
+		secondaryText: formatRelativeSince( item.date_subscribed ),
 	} ) );
 }
 

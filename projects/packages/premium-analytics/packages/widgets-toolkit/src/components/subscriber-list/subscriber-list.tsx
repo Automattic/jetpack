@@ -3,7 +3,6 @@
  */
 import { _n, sprintf } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
-import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -94,7 +93,7 @@ export function SubscriberList( {
 	}
 
 	return (
-		<Stack direction="column" className={ clsx( styles.list, className ) }>
+		<Stack direction="column" className={ className }>
 			{ items.map( item => (
 				<Stack
 					key={ item.id }
