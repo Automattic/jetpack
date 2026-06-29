@@ -2,8 +2,8 @@
 	padding-block: var(--wpds-dimension-padding-sm);
 }
 
+/* flex:1 + min-width:0 lets the name ellipsis, not push "since" off-row. */
 .person {
-	/* Allow the name to ellipsis instead of pushing the "since" text off-row. */
 	flex: 1;
 	min-width: 0;
 }
