@@ -2554,7 +2554,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		return '
 			<label
 				for="' . esc_attr( $id ) . '"
-				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
+				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . ( $this->label_classes ? ' ' . esc_attr( $this->label_classes ) : '' ) . '"
 			>'
 			. esc_html( $label )
 			. ( $required && $required_indicator ? '<span>' . $required_field_text . '</span>' : '' ) .

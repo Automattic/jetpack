@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Forms: Disable the block visibility control on form fields and inputs, where the per-viewport "Hide on…" option was not honored on the frontend. Labels keep their visibility support.
+Forms: Disable the block visibility control on form fields and inputs, where the per-viewport "Hide on…" option was not honored on the frontend. Labels keep their visibility support and now honor the per-viewport "Hide on…" option too.
