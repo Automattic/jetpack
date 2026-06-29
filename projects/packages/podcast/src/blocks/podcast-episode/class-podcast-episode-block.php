@@ -200,8 +200,15 @@ class Podcast_Episode_Block {
 	 */
 	public static function render_block( $attributes, $content, $block = null ) {
 		// Outside the frontend, fall back to the saved direct link so RSS / email / REST export stays
-		// simple and predictable.
-		if ( ! Request::is_frontend() ) {
+		// simple and predictable. The WPCOM Reader is the exception: it serves posts through the REST
+		// API but wants the full interactive player, so detect its render context and render normally.
+		$is_wpcom_reader = false;
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_once WP_CONTENT_DIR . '/lib/display-context.php';
+			$is_wpcom_reader = \A8C\Display_Context\READER === \A8C\Display_Context\get_current_context();
+		}
+
+		if ( ! Request::is_frontend() && ! $is_wpcom_reader ) {
 			return $content;
 		}
 
