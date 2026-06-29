@@ -1,5 +1,5 @@
 ---
-description: Pre-push local review gate — spawn an independent reviewer subagent (via the Agent tool) to review the working diff, triage and fix valid findings, re-verify, and loop with a fresh reviewer until a clean pass, only then push. Use before pushing any branch, or when the user says "local review before push", "loop till clean", "native review".
+description: Pre-push local review gate — spawn an independent reviewer (preferably a different model than the author — Codex/Cursor/Copilot for Claude-authored diffs, and vice versa) to review the working diff, triage and fix valid findings, re-verify, and loop with a fresh reviewer until a clean pass, only then push. Use before pushing any branch, or when the user says "local review before push", "loop till clean", "native review", "cross-model review".
 allowed-tools: Agent, Read, Glob, Grep, Edit, Write, Bash
 ---
 
@@ -24,6 +24,11 @@ never reach the remote or CI.
 - **Reviewer independence.** Spawn each reviewer with fresh context. Never seed it with your
   conclusions, suspected bugs, planned fixes, or the "right answer." Give it only the diff scope,
   the base ref, and the public task brief / contract files to evaluate against.
+- **Cross-model review (prefer a different model than the author).** Independence is strongest when
+  the reviewer is a *different* model/agent than the one that wrote the code — same-model
+  self-review shares blind spots. If the diff was authored by Claude, prefer a non-Claude reviewer
+  (Codex, Cursor, Copilot); if it was authored by Codex/another model, review with Claude. Fall back
+  to a same-model fresh-context reviewer only when no cross-model reviewer is available, and say so.
 - **Fresh reviewer each round.** After you fix findings, spawn a *new* reviewer rather than
   continuing the previous one — a clean pass only counts when an unprimed reviewer sees the fixed
   diff.
@@ -44,16 +49,22 @@ never reach the remote or CI.
      files, generated artifacts, unrelated refactors).
    - Identify the minimum verification set (tests, lint, typecheck, build) for the changed files.
 
-2. **Round N — run one independent review pass.** Two ways to source the reviewer:
-   - **`/ultrareview`** — if available in this environment (Claude for Enterprise), prefer it: it
-     fans out multiple independent reviewers and adversarially verifies findings, which is a
-     stronger gate than a single agent. Scope it to the working diff vs `<BASE_REF>`.
-   - **Agent tool** (always available) — use `subagent_type: Explore` (read-only, fresh context —
-     preferred) or `general-purpose` instructed not to modify files. Each Agent call starts fresh,
-     which is what preserves independence.
+2. **Round N — run one independent review pass.** Prefer a reviewer from a **different model than
+   the author** (see the cross-model principle). In rough order of preference:
+   - **Different-model CLI** — when the author was Claude and one is installed, drive it read-only
+     over the diff and capture its findings:
+     - Codex — `codex exec "<review prompt>"` (non-interactive; read-only). Verify with `codex --help`.
+     - Cursor — the Cursor agent CLI (e.g. `cursor-agent`), if present.
+     Confirm the tool exists before relying on it; if none is installed, note that and fall back.
+   - **`/ultrareview`** — if available (Claude for Enterprise): fans out multiple independent Claude
+     reviewers and adversarially verifies. Stronger than a single agent, but still same-model — pair
+     it with a cross-model pass when you can.
+   - **Agent tool** (always available; same-model fallback, or the cross-model reviewer when the
+     author was *not* Claude) — `subagent_type: Explore` (read-only, fresh context) or
+     `general-purpose` instructed not to modify files. Each Agent call starts fresh.
 
-   Either way, pass only the diff scope, base ref, and the contract/convention files the reviewer
-   should judge against — never your findings. Reviewer prompt (for the Agent-tool path):
+   Whichever you use, pass only the diff scope, base ref, and the contract/convention files the
+   reviewer should judge against — never your findings. Reviewer prompt (reuse for any path):
 
    ```text
    Independently review the uncommitted/unpushed changes in <REPO_PATH> on branch <HEAD> vs
@@ -92,6 +103,12 @@ never reach the remote or CI.
 8. **Push.** Only after a clean pass: stage only related files, commit with a clean professional
    message, and push (`--force-with-lease` only after an intentional rebase). Then proceed with
    any draft-PR / CI steps the calling workflow defines.
+
+9. **Post-push cross-model review (complement, not a substitute).** After the PR exists, also request
+   a review from a model *different* from the author so a second model sees it on the PR: a
+   Claude-authored PR → request Copilot and/or Codex; a Codex-authored PR → request Claude. In this
+   repo that hand-off is the `jetpack-pr-review-cycle` skill (it tags `@copilot` and `@claude`). The
+   pre-push gate above still has to pass first — this just adds a second-model pass on the open PR.
 
 ## Final response
 
