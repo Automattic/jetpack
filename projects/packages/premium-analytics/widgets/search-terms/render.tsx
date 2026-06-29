@@ -35,6 +35,7 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...data.map( t => t.views ), 0 );
+		const prevMaxValue = Math.max( ...data.map( t => t.previousViews ), 0 );
 
 		return data.map( ( term, index ) => ( {
 			id: `${ index }-${ term.label }`,
@@ -44,10 +45,10 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 				</Stack>
 			),
 			currentValue: term.views,
-			previousValue: 0,
+			previousValue: term.previousViews,
 			currentShare: maxValue > 0 ? ( term.views / maxValue ) * 100 : 0,
-			previousShare: 0,
-			delta: 0,
+			previousShare: prevMaxValue > 0 ? ( term.previousViews / prevMaxValue ) * 100 : 0,
+			delta: term.views - term.previousViews,
 		} ) );
 	}, [ data ] );
 
