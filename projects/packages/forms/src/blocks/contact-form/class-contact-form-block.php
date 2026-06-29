@@ -94,13 +94,16 @@ class Contact_Form_Block {
 	/**
 	 * Disable the block "visibility" support on form field and input blocks.
 	 *
-	 * Device/viewport visibility ("Hide on…") is not honored on the field
-	 * wrapper at render time — the field render pipeline bypasses core's
-	 * render_block visibility filter — so the control would do nothing. We
-	 * disable the support so it does not appear. This mirrors the JS
-	 * registration (shared/settings/index.js and input/index.js). Labels keep
-	 * visibility support (handled separately via labelhiddenbyblockvisibility),
-	 * and the internal field-option-* blocks are left untouched to match JS.
+	 * FORMS-694 (interim). The per-viewport "Hide on…" option is not honored in
+	 * the forms render pipeline — fields flatten to a shortcode and bypass core's
+	 * render_block class injection — and on a required field it cannot be made
+	 * safe (server- and client-side validation are both viewport-blind). "Hide
+	 * everywhere" does work for fields, but the control bundles both modes under
+	 * one boolean, so we disable it wholesale on fields and inputs as an interim.
+	 * This mirrors the JS registration (shared/settings/index.js and
+	 * input/index.js). Labels keep visibility support (full-hide wired via
+	 * labelhiddenbyblockvisibility), and the internal field-option-* blocks are
+	 * left untouched to match JS. Full field visibility is a separate decision.
 	 *
 	 * @param array  $args       Block type registration args.
 	 * @param string $block_name Block name being registered.

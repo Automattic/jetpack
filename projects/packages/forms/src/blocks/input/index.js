@@ -32,8 +32,9 @@ const settings = {
 	supports: {
 		reusable: false,
 		html: false,
-		// See FORMS-694: device/viewport visibility isn't honored on the field
-		// wrapper at render, so disable the control on the input too.
+		// FORMS-694 (interim): disabled on the input for the same reason as the
+		// field — see shared/settings/index.js. The input is inert in every
+		// visibility mode (its rendered output is discarded by the field renderer).
 		visibility: false,
 		color: {
 			text: true,
