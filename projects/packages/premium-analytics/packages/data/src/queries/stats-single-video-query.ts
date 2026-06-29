@@ -10,4 +10,6 @@ export const statsSingleVideoQuery = ( videoId: number, params: StatsQueryParams
 		version: '1.1',
 		endpoint: `stats/video/${ videoId }`,
 		params,
+		sanitizer: 'singleVideo',
+		enabled: Number.isInteger( videoId ) && videoId > 0,
 	} );

@@ -137,6 +137,7 @@ export {
 export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,
+	type StatsSingleVideoPage,
 	type StatsSingleVideoResponse,
 } from './use-stats-single-video';
 export type { UseStatsOptions } from './use-stats-report';
