@@ -248,9 +248,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Whether the preview gate is open, observed through a public surface.
 	 *
 	 * Uses enable_agents_manager_in_post_editor(), which returns the preview gate
-	 * ANDed with the post-editor, proxied-request, and AI-features checks — all
-	 * satisfied by the gate tests (set_up connects an owner; this sets the post
-	 * editor screen and proxied request) — so it reflects
+	 * ANDed with the post-editor, internal-testing-environment, and AI-features
+	 * checks — all satisfied by the gate tests (set_up connects an owner; this
+	 * sets the post editor screen and internal testing signal) — so it reflects
 	 * is_jetpack_ai_sidebar_preview_enabled() without reflection.
 	 *
 	 * @return bool
@@ -766,10 +766,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * An unproxied request does not emit sidebar data, even if the generic feature
-	 * filter tries to enable in-development suggestions.
+	 * A non-internal testing environment does not emit sidebar data, even if the
+	 * generic feature filter tries to enable in-development suggestions.
 	 */
-	public function test_add_agents_manager_data_preview_features_filter_cannot_bypass_unproxied_gate() {
+	public function test_add_agents_manager_data_preview_features_filter_cannot_bypass_internal_testing_gate() {
 		$this->set_block_editor_screen();
 		add_filter(
 			'jetpack_ai_sidebar_preview_features',
@@ -936,9 +936,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Platform-emitted provider data is exposed in the Simple proxied page editor without changing the agent.
+	 * Platform-emitted provider data is exposed in the Simple internal-testing
+	 * page editor without changing the agent.
 	 */
-	public function test_add_agents_manager_data_adds_simple_proxied_provider_config_in_page_editor_without_overriding_agent() {
+	public function test_add_agents_manager_data_adds_simple_internal_testing_provider_config_in_page_editor_without_overriding_agent() {
 		$this->set_page_block_editor_screen();
 		$this->simulate_wpcom_simple();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
@@ -952,9 +953,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Platform-emitted provider data is exposed in the Simple proxied site editor without changing the agent.
+	 * Platform-emitted provider data is exposed in the Simple internal-testing
+	 * site editor without changing the agent.
 	 */
-	public function test_add_agents_manager_data_adds_simple_proxied_provider_config_in_site_editor_without_overriding_agent() {
+	public function test_add_agents_manager_data_adds_simple_internal_testing_provider_config_in_site_editor_without_overriding_agent() {
 		$this->set_site_editor_screen();
 		$this->simulate_wpcom_simple();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
@@ -968,7 +970,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Page editor provider data is limited to proxied requests with Jetpack AI enabled.
+	 * Page editor provider data is limited to internal testing environments with
+	 * Jetpack AI enabled.
 	 */
 	public function test_add_agents_manager_data_gates_page_editor_provider_data() {
 		$this->set_page_block_editor_screen();
@@ -1048,9 +1051,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The external AM payload patch adds proxied provider config in the page editor without changing the agent.
+	 * The external AM payload patch adds internal-testing provider config in the page editor without changing the agent.
 	 */
-	public function test_patch_jetpack_ai_sidebar_preview_data_adds_proxied_provider_config_in_page_editor_without_overriding_agent() {
+	public function test_patch_jetpack_ai_sidebar_preview_data_adds_internal_testing_provider_config_in_page_editor_without_overriding_agent() {
 		$this->set_page_block_editor_screen();
 		$this->simulate_wpcom_platform();
 		$this->cache_sidebar_asset_data();
@@ -1196,9 +1199,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that abilities script is not enqueued for unproxied requests.
+	 * Test that abilities script is not enqueued outside internal testing environments.
 	 */
-	public function test_abilities_script_skips_when_unproxied() {
+	public function test_abilities_script_skips_outside_internal_testing_environment() {
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
 
@@ -1344,9 +1347,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that register_provider returns existing providers for unproxied requests.
+	 * Test that register_provider returns existing providers outside internal testing environments.
 	 */
-	public function test_register_provider_skips_when_unproxied() {
+	public function test_register_provider_skips_outside_internal_testing_environment() {
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
 

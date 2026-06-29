@@ -443,17 +443,16 @@ class Jetpack_AI_Sidebar {
 	 * This is intentionally broader than the sidebar data gate: page/site editor
 	 * can consume Jetpack AI tools through another host/agent, without Jetpack AI
 	 * setting the active Agents Manager agent ID. It still stays scoped to the same
-	 * internal rollout gate as Generate Feedback: preview enabled, proxied request,
-	 * Jetpack AI enabled, and AI features available.
+	 * internal rollout gate as Generate Feedback: preview enabled, internal
+	 * testing environment, and AI features available.
 	 *
 	 * @return bool
 	 */
 	private static function should_expose_provider(): bool {
 		return self::is_jetpack_ai_sidebar_preview_enabled()
 			&& self::is_supported_provider_surface()
-			&& self::is_proxied_request()
-			&& self::has_ai_features()
-			&& apply_filters( 'jetpack_ai_enabled', true );
+			&& jetpack_is_internal_testing_environment()
+			&& self::has_ai_features();
 	}
 
 	/**
@@ -579,18 +578,6 @@ class Jetpack_AI_Sidebar {
 		return array(
 			'jetpackAiSidebar' => self::get_jetpack_ai_sidebar_preview_config(),
 		);
-	}
-
-	/**
-	 * Whether the request is proxied through WordPress.com.
-	 *
-	 * @return bool
-	 */
-	private static function is_proxied_request(): bool {
-		$is_server_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
-			&& (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) );
-
-		return $is_server_proxied || ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST );
 	}
 
 	/**
@@ -748,12 +735,16 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Check whether AI features are available.
 	 *
-	 * - wpcom simple: always available.
+	 * - wpcom simple: available when Jetpack AI is enabled.
 	 * - Atomic/self-hosted: requires a connected owner with AI not disabled.
 	 *
 	 * @return bool
 	 */
 	private static function has_ai_features(): bool {
+		if ( ! apply_filters( 'jetpack_ai_enabled', true ) ) {
+			return false;
+		}
+
 		$host = new Host();
 
 		if ( $host->is_wpcom_simple() ) {
@@ -761,7 +752,6 @@ class Jetpack_AI_Sidebar {
 		}
 
 		return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
-			&& ! ( new Status() )->is_offline_mode()
-			&& apply_filters( 'jetpack_ai_enabled', true );
+			&& ! ( new Status() )->is_offline_mode();
 	}
 }
