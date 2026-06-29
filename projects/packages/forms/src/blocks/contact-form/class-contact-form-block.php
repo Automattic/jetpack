@@ -112,8 +112,11 @@ class Contact_Form_Block {
 	public static function disable_field_visibility_support( $args, $block_name ) {
 		// TODO: refactor into an array_merge'd shared supports array mirroring the JS defaultSettings, instead of this filter.
 		$is_field = strpos( $block_name, 'jetpack/field-' ) === 0 && strpos( $block_name, 'jetpack/field-option-' ) !== 0;
+		// All input variants: jetpack/input, input-range, input-rating,
+		// input-image-option, plus the differently-named phone-input and dropzone.
+		$is_input = strpos( $block_name, 'jetpack/input' ) === 0 || in_array( $block_name, array( 'jetpack/phone-input', 'jetpack/dropzone' ), true );
 
-		if ( 'jetpack/input' === $block_name || $is_field ) {
+		if ( $is_input || $is_field ) {
 			if ( ! isset( $args['supports'] ) || ! is_array( $args['supports'] ) ) {
 				$args['supports'] = array();
 			}
