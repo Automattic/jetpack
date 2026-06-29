@@ -10,7 +10,6 @@ import {
 	GlobalChartsProvider,
 	useChartId,
 	useGlobalChartsContext,
-	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
@@ -67,8 +66,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
-	const { getElementStyles } = useGlobalChartsContext();
-	const { heatmapChart: heatmapChartSettings } = useGlobalChartsTheme();
+	const { getElementStyles, theme } = useGlobalChartsContext();
+	const { heatmapChart: heatmapChartSettings } = theme;
 	const { nonLegendChildren } = useChartChildren( children, 'HeatmapChart' );
 
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
@@ -108,6 +107,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const {
 		cellGap: themeCellGap,
 		compactCellGap,
+		compactCellSize,
 		valueFontSize,
 		selectionStrokeWidth,
 		selectionStrokeColor,
@@ -275,14 +275,15 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 							0,
 							chartHeight - defaultMargin.top - defaultMargin.bottom
 						);
-						// Non-compact fills the area (rectangular cells). Compact uses square
-						// cells sized to fit both axes, matching the contribution-graph design.
+						// Non-compact fills the area (rectangular cells). Compact uses fixed
+						// square cells (theme `compactCellSize`), matching the contribution-graph
+						// design. visx subtracts `gap` from the bin, so add it back to the bin so
+						// the rendered square equals compactCellSize.
 						let binWidth = innerWidth / columns;
 						let binHeight = innerHeight / rows;
 						if ( compact ) {
-							const cellSize = Math.min( binWidth, binHeight );
-							binWidth = cellSize;
-							binHeight = cellSize;
+							binWidth = compactCellSize + effectiveGap;
+							binHeight = compactCellSize + effectiveGap;
 						}
 						const xScale = scaleLinear< number >( {
 							domain: [ 0, columns ],

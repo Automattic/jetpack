@@ -84,7 +84,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 
 ## Compact Mode
 
-Use `compact` for narrow widgets or dashboards where vertical space is limited. The chart tightens cell gaps, hides in-cell values, and thins axis labels.
+Use `compact` for narrow widgets or dashboards where vertical space is limited. The chart renders fixed-size square cells (the theme's `heatmapChart.compactCellSize`, default 11px), tightens cell gaps, hides in-cell values, and thins axis labels.
 
 <Canvas of={ HeatmapStories.Compact } />
 
@@ -200,7 +200,7 @@ const customTheme: ChartTheme = {
 </GlobalChartsProvider>` }
 />
 
-Cell spacing, sizing, and the empty-cell color come from the theme's `heatmapChart` section (`cellGap`, `compactCellGap`, `cellRadius`, `valueFontSize`, `selectionStrokeWidth`, `selectionStrokeColor`, `emptyCellColor`) and can be overridden per consumer:
+Cell spacing, sizing, and the empty-cell color come from the theme's `heatmapChart` section (`cellGap`, `compactCellGap`, `compactCellSize`, `cellRadius`, `valueFontSize`, `selectionStrokeWidth`, `selectionStrokeColor`, `emptyCellColor`) and can be overridden per consumer:
 
 <Source
 	language="tsx"

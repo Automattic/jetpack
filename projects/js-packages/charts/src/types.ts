@@ -421,6 +421,8 @@ export type ChartTheme = {
 		cellGap?: number;
 		/** Gap in px between cells in compact mode */
 		compactCellGap?: number;
+		/** Fixed square cell size in px for compact mode */
+		compactCellSize?: number;
 		/** Corner radius in px for cells */
 		cellRadius?: number;
 		/** Font size in px for in-cell values */

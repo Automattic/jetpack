@@ -88,6 +88,7 @@ const defaultTheme: CompleteChartTheme = {
 		emptyCellColor: 'var(--wpds-color-bg-track-neutral-weak, #f0f0f0)',
 		cellGap: 4,
 		compactCellGap: 2,
+		compactCellSize: 11,
 		cellRadius: 2,
 		valueFontSize: 13,
 		selectionStrokeWidth: 2,

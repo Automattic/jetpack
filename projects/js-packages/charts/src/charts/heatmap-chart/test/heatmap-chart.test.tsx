@@ -241,6 +241,17 @@ describe( 'HeatmapChart', () => {
 		expect( filled ).toBe( true );
 	} );
 
+	test( 'sizes compact cells to the theme compactCellSize', () => {
+		render(
+			<GlobalChartsProvider theme={ { heatmapChart: { compactCellSize: 20 } } }>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } compact />
+			</GlobalChartsProvider>
+		);
+		const cell = screen.getAllByTestId( 'heatmap-cell' )[ 0 ];
+		expect( cell ).toHaveAttribute( 'width', '20' );
+		expect( cell ).toHaveAttribute( 'height', '20' );
+	} );
+
 	test( 'an explicit cellRadius prop overrides the theme', () => {
 		render(
 			<GlobalChartsProvider theme={ { heatmapChart: { cellRadius: 7 } } }>
