@@ -63,6 +63,18 @@ class Cookie_Consent {
 	private static $initialized = false;
 
 	/**
+	 * Whether the required footer legal links were injected into a footer
+	 * navigation block (Block Hooks) for the current rendered response.
+	 *
+	 * Set true by the navigation-link render filter when one of our hooked
+	 * links renders; consulted by the wp_footer fallback to avoid duplicating
+	 * the links on block themes that already received them.
+	 *
+	 * @var bool
+	 */
+	private static $footer_links_injected = false;
+
+	/**
 	 * Initialize the package. Idempotent; safe to call multiple times.
 	 *
 	 * Public entry point a consumer calls to activate cookie consent. Registers
@@ -78,6 +90,11 @@ class Cookie_Consent {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
 
+		// Classic-theme (and footer-nav-less block theme) fallback for the required
+		// legal links. Runs late so any Block Hooks injection has already happened
+		// and flipped self::$footer_links_injected.
+		add_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );
+
 		// Create the CCPA opt-out page once (guarded), now that the Atomic
 		// garden_site_provisioning hook is no longer available in this context.
 		add_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
@@ -88,6 +105,10 @@ class Cookie_Consent {
 		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10, 2 );
 		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'maybe_suppress_privacy_policy_link' ), 10, 2 );
 		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10, 2 );
+		// Flag that the required links were injected into a footer nav (covers all
+		// three, including the Privacy Policy link which has no directive filter),
+		// so the wp_footer fallback does not duplicate them.
+		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'mark_footer_links_injected' ), 10, 2 );
 
 		// Add Interactivity API directive to CCPA opt-out button.
 		add_filter( 'render_block_core/button', array( __CLASS__, 'add_ccpa_button_directive' ), 10, 2 );
@@ -126,6 +147,7 @@ class Cookie_Consent {
 		// with init() whenever a hook is added there.
 		remove_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		remove_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
+		remove_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );
 		remove_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
 
 		remove_filter( 'hooked_block_types', array( __CLASS__, 'register_footer_navigation_links' ), 10 );
@@ -133,6 +155,7 @@ class Cookie_Consent {
 		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10 );
 		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'maybe_suppress_privacy_policy_link' ), 10 );
 		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10 );
+		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'mark_footer_links_injected' ), 10 );
 		remove_filter( 'render_block_core/button', array( __CLASS__, 'add_ccpa_button_directive' ), 10 );
 		remove_filter( 'render_block_core/group', array( __CLASS__, 'add_ccpa_group_directives' ), 10 );
 		remove_filter( 'get_pages', array( __CLASS__, 'exclude_ccpa_from_get_pages' ), 10 );
@@ -582,6 +605,141 @@ class Cookie_Consent {
 		}
 
 		return $tags->get_updated_html();
+	}
+
+	/**
+	 * Mark that one of our required footer legal links was injected into a
+	 * footer navigation block, so the wp_footer fallback does not duplicate it.
+	 *
+	 * Keyed on the metadata.name set by set_footer_navigation_link_attributes().
+	 * Covers the Privacy Policy link too, which has no directive filter of its own.
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The full block, including name and attributes.
+	 * @return string Unmodified block content.
+	 */
+	public static function mark_footer_links_injected( $block_content, $block ) {
+		if ( ! isset( $block['attrs']['metadata']['name'] ) ) {
+			return $block_content;
+		}
+
+		$names = array(
+			'jetpack-cookie-consent-privacy-policy-link',
+			'jetpack-cookie-consent-ccpa-privacy-link',
+			'jetpack-cookie-consent-gdpr-manage-preferences-link',
+		);
+
+		if ( in_array( $block['attrs']['metadata']['name'], $names, true ) ) {
+			self::$footer_links_injected = true;
+		}
+
+		return $block_content;
+	}
+
+	/**
+	 * Decide whether the floating footer-links fallback should render.
+	 *
+	 * Minimal gate modeled on Jetpack_Subscribe_Floating_Button::should_user_see_floating_button():
+	 * frontend only, never on 404, and never in customizer/theme/post previews.
+	 *
+	 * @return bool True when the fallback control should be rendered.
+	 */
+	private static function should_show_fallback() {
+		if ( is_admin() ) {
+			return false;
+		}
+
+		if ( is_404() ) {
+			return false;
+		}
+
+		// Don't show in customizer/theme/post previews.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['preview'] ) || isset( $_GET['theme_preview'] ) || isset( $_GET['customize_preview'] ) || isset( $_GET['hide_banners'] ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get the published Privacy Policy page URL, or '' when none exists.
+	 *
+	 * @return string Privacy Policy permalink or empty string.
+	 */
+	private static function get_privacy_policy_url() {
+		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
+		if ( ! $privacy_policy_page_id ) {
+			return '';
+		}
+
+		$page = get_post( $privacy_policy_page_id );
+		if ( ! $page || 'publish' !== $page->post_status ) {
+			return '';
+		}
+
+		return (string) get_permalink( $privacy_policy_page_id );
+	}
+
+	/**
+	 * Get the CCPA opt-out page URL and title, or empty strings when none exists.
+	 *
+	 * Mirrors the Block Hooks footer nav-link, which uses the CCPA page's own
+	 * title (e.g. "Your Privacy Choices") as the link label.
+	 *
+	 * @return array{url: string, label: string} CCPA page URL and label.
+	 */
+	private static function get_ccpa_page_link() {
+		if ( ! self::ccpa_page_is_published() ) {
+			return array(
+				'url'   => '',
+				'label' => '',
+			);
+		}
+
+		$ccpa_page_id = get_option( self::CCPA_PAGE_ID_OPTION );
+
+		return array(
+			'url'   => (string) get_permalink( $ccpa_page_id ),
+			'label' => (string) get_the_title( $ccpa_page_id ),
+		);
+	}
+
+	/**
+	 * Render the classic-theme fallback for the required legal links.
+	 *
+	 * Bails when the Block Hooks footer-nav injection already ran for this
+	 * response (self::$footer_links_injected) or when the visibility gate is
+	 * false. Otherwise builds a fixed-corner floating control, processes its
+	 * Interactivity directives, and echoes it — same pattern as render_banner().
+	 */
+	public static function maybe_render_footer_links_fallback() {
+		if ( self::$footer_links_injected ) {
+			return;
+		}
+
+		if ( ! self::should_show_fallback() ) {
+			return;
+		}
+
+		$template_path = plugin_dir_path( __FILE__ ) . 'footer-links-fallback.php';
+		if ( ! file_exists( $template_path ) ) {
+			return;
+		}
+
+		// Resolve which links to show (same checks the Block Hooks path uses).
+		// These are consumed by footer-links-fallback.php via the include scope.
+		$privacy_policy_url = self::get_privacy_policy_url(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$ccpa_link          = self::get_ccpa_page_link();
+		$ccpa_url           = $ccpa_link['url']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$ccpa_label         = $ccpa_link['label']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		ob_start();
+		include $template_path;
+		$html = ob_get_clean();
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo wp_interactivity_process_directives( $html );
 	}
 
 	/**
