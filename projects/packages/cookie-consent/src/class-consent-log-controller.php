@@ -55,7 +55,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	private const DB_VERSION = '0.0.1';
+	private const DB_VERSION = '0.0.2';
 
 	/**
 	 * Default retention period in days.
@@ -222,7 +222,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			consent_id varchar(36) DEFAULT NULL,
 			event_type varchar(50) NOT NULL,
 			customer_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
-			ip_address varchar(45) DEFAULT NULL,
+			ip_address varchar(64) DEFAULT NULL,
 			url text DEFAULT NULL,
 			consent_types longtext DEFAULT NULL,
 			date_created datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -713,6 +713,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 				return $ip_address;
 
 			case 'hash':
+				// 64-char hex digest; the ip_address column must stay at least varchar(64) to hold it.
 				return hash_hmac( 'sha256', $ip_address, wp_salt( 'auth' ) );
 
 			case 'truncate':
