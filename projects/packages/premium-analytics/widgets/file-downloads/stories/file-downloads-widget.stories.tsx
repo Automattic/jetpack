@@ -5,6 +5,7 @@ import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
+import { withChartTheme } from '../../../packages/widgets-toolkit/src/stories/with-chart-theme';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import {
@@ -156,12 +157,12 @@ export const ErrorState: PresentationalStory = {
 
 export const EmptyState: PresentationalStory = {
 	render: () => <FileDownloadsLeaderboard rows={ [] } />,
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withChartTheme, withWidgetCanvas ],
 };
 
 export const WithMockRows: PresentationalStory = {
 	render: () => <FileDownloadsLeaderboard rows={ mockRows } />,
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withChartTheme, withWidgetCanvas ],
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {
