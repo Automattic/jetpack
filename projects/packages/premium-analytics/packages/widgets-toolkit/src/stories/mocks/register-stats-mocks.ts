@@ -618,6 +618,16 @@ const MOCK_DEVICES_SCREENSIZE = {
 	},
 };
 
+const MOCK_DEVICES_SCREENSIZE_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	top_values: {
+		desktop: 4400,
+		mobile: 3500,
+		tablet: 510,
+	},
+};
+
 const MOCK_DEVICES_BROWSER = {
 	date: '2026-06-29',
 	period: 'day',
@@ -630,6 +640,18 @@ const MOCK_DEVICES_BROWSER = {
 	},
 };
 
+const MOCK_DEVICES_BROWSER_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	top_values: {
+		chrome: 3900,
+		safari: 2400,
+		firefox: 980,
+		edge: 500,
+		samsung: 380,
+	},
+};
+
 const MOCK_DEVICES_PLATFORM = {
 	date: '2026-06-29',
 	period: 'day',
@@ -639,6 +661,18 @@ const MOCK_DEVICES_PLATFORM = {
 		windows: 1500,
 		macos: 900,
 		linux: 250,
+	},
+};
+
+const MOCK_DEVICES_PLATFORM_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	top_values: {
+		ios: 3000,
+		android: 3050,
+		windows: 1350,
+		macos: 980,
+		linux: 210,
 	},
 };
 
@@ -751,13 +785,13 @@ function getStatsMock( path: string ): unknown | null {
 	}
 
 	if ( subPath.startsWith( '/devices/screensize' ) ) {
-		return MOCK_DEVICES_SCREENSIZE;
+		return isComparison ? MOCK_DEVICES_SCREENSIZE_COMPARISON : MOCK_DEVICES_SCREENSIZE;
 	}
 	if ( subPath.startsWith( '/devices/browser' ) ) {
-		return MOCK_DEVICES_BROWSER;
+		return isComparison ? MOCK_DEVICES_BROWSER_COMPARISON : MOCK_DEVICES_BROWSER;
 	}
 	if ( subPath.startsWith( '/devices/client_type' ) || subPath.startsWith( '/devices/platform' ) ) {
-		return MOCK_DEVICES_PLATFORM;
+		return isComparison ? MOCK_DEVICES_PLATFORM_COMPARISON : MOCK_DEVICES_PLATFORM;
 	}
 
 	return null;

@@ -11,7 +11,7 @@ import TopPlatformsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 registerStatsMocks();
@@ -38,8 +38,22 @@ const withWidgetCanvas: Decorator = Story => (
 	</div>
 );
 
-function renderTopPlatformsWidget() {
-	return <TopPlatformsRender attributes={ { max: 10 } } />;
+function renderTopPlatformsWidget( { withComparison }: TopPlatformsStoryControls ) {
+	return (
+		<TopPlatformsRender
+			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			showTitle={ false }
+		/>
+	);
+}
+
+function TopPlatformsDashboardRender( props: WidgetRenderProps< unknown > ) {
+	return (
+		<TopPlatformsRender
+			{ ...( props as ComponentProps< typeof TopPlatformsRender > ) }
+			showTitle={ false }
+		/>
+	);
 }
 
 function TopPlatformsDashboardStory( {
@@ -51,7 +65,9 @@ function TopPlatformsDashboardStory( {
 			{ ...dashboardArgs }
 			widgetType={ storyWidgetType }
 			renderModule={ TOP_PLATFORMS_RENDER_MODULE }
-			renderComponent={ TopPlatformsRender as ComponentType< WidgetRenderProps< unknown > > }
+			renderComponent={
+				TopPlatformsDashboardRender as ComponentType< WidgetRenderProps< unknown > >
+			}
 			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);

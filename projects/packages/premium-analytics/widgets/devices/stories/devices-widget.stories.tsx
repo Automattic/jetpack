@@ -11,7 +11,7 @@ import DevicesRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 registerStatsMocks();
@@ -40,8 +40,19 @@ const withWidgetCanvas: Decorator = Story => (
 	</div>
 );
 
-function renderDevicesWidget() {
-	return <DevicesRender attributes={ { max: 5 } } />;
+function renderDevicesWidget( { withComparison }: DevicesStoryControls ) {
+	return (
+		<DevicesRender
+			attributes={ { max: 5, reportParams: getDefaultQueryParams( withComparison ) } }
+			showTitle={ false }
+		/>
+	);
+}
+
+function DevicesDashboardRender( props: WidgetRenderProps< unknown > ) {
+	return (
+		<DevicesRender { ...( props as ComponentProps< typeof DevicesRender > ) } showTitle={ false } />
+	);
 }
 
 function DevicesDashboardStory( { withComparison, ...dashboardArgs }: DevicesDashboardStoryProps ) {
@@ -50,7 +61,7 @@ function DevicesDashboardStory( { withComparison, ...dashboardArgs }: DevicesDas
 			{ ...dashboardArgs }
 			widgetType={ storyWidgetType }
 			renderModule={ DEVICES_RENDER_MODULE }
-			renderComponent={ DevicesRender as ComponentType< WidgetRenderProps< unknown > > }
+			renderComponent={ DevicesDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { max: 5, reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
