@@ -6,50 +6,6 @@ import QueryClientWrapper from '../../src/dashboard/components/query-client-wrap
 import { useSettings, useUpdateSettings } from '../../src/dashboard/hooks/use-settings';
 import './style.scss';
 
-/**
- * Renders a settings card wrapping a single toggle control.
- *
- * @param {object}   props          - Component props.
- * @param {string}   props.title    - Card title.
- * @param {string}   props.label    - Toggle label.
- * @param {boolean}  props.checked  - Whether the toggle is on.
- * @param {boolean}  props.disabled - Whether the toggle is disabled.
- * @param {Function} props.onChange - Called with the next checked value.
- * @param {string}   [props.help]   - Optional help text shown below the toggle.
- * @return {JSX.Element} The settings card.
- */
-const SettingCard = ( {
-	title,
-	label,
-	checked,
-	disabled,
-	onChange,
-	help,
-}: {
-	title: string;
-	label: string;
-	checked: boolean;
-	disabled: boolean;
-	onChange: ( next: boolean ) => void;
-	help?: string;
-} ) => (
-	<Card.Root>
-		<Card.Header>
-			<Card.Title>{ title }</Card.Title>
-		</Card.Header>
-		<Card.Content>
-			<ToggleControl
-				__nextHasNoMarginBottom
-				label={ label }
-				help={ help }
-				checked={ checked }
-				disabled={ disabled }
-				onChange={ onChange }
-			/>
-		</Card.Content>
-	</Card.Root>
-);
-
 const SettingsForm = () => {
 	const settings = useSettings();
 	const update = useUpdateSettings();
@@ -59,24 +15,40 @@ const SettingsForm = () => {
 
 	return (
 		<>
-			<SettingCard
-				title={ __( 'Restrict video access', 'jetpack-videopress-pkg' ) }
-				label={ __( 'Only logged-in users can play your videos', 'jetpack-videopress-pkg' ) }
-				checked={ privateForSite }
-				disabled={ disabled }
-				onChange={ next => update.mutate( { videoPressVideosPrivateForSite: next } ) }
-			/>
-			<SettingCard
-				title={ __( 'Subtitles', 'jetpack-videopress-pkg' ) }
-				label={ __( 'Automatically generate subtitles for new videos', 'jetpack-videopress-pkg' ) }
-				help={ __(
-					'When enabled, subtitles are generated automatically for videos uploaded to this site. Existing subtitles are not affected.',
-					'jetpack-videopress-pkg'
-				) }
-				checked={ ! autoSubtitlesDisabled }
-				disabled={ disabled }
-				onChange={ next => update.mutate( { videoPressAutoSubtitlesDisabled: ! next } ) }
-			/>
+			<Card.Root>
+				<Card.Header>
+					<Card.Title>{ __( 'Restrict video access', 'jetpack-videopress-pkg' ) }</Card.Title>
+				</Card.Header>
+				<Card.Content>
+					<ToggleControl
+						label={ __( 'Only logged-in users can play your videos', 'jetpack-videopress-pkg' ) }
+						checked={ privateForSite }
+						disabled={ disabled }
+						onChange={ next => update.mutate( { videoPressVideosPrivateForSite: next } ) }
+					/>
+				</Card.Content>
+			</Card.Root>
+			<Card.Root>
+				<Card.Header>
+					<Card.Title>{ __( 'Subtitles', 'jetpack-videopress-pkg' ) }</Card.Title>
+				</Card.Header>
+				<Card.Content>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __(
+							'Automatically generate subtitles for new videos',
+							'jetpack-videopress-pkg'
+						) }
+						help={ __(
+							'When enabled, subtitles are generated automatically for videos uploaded to this site. Existing subtitles are not affected.',
+							'jetpack-videopress-pkg'
+						) }
+						checked={ ! autoSubtitlesDisabled }
+						disabled={ disabled }
+						onChange={ next => update.mutate( { videoPressAutoSubtitlesDisabled: ! next } ) }
+					/>
+				</Card.Content>
+			</Card.Root>
 		</>
 	);
 };
