@@ -38,8 +38,10 @@ never reach the remote or CI.
 - **Evidence over opinion.** Accept a finding only when grounded in the changed code, a repo
   convention/contract, a source of truth, or failing verification. Reject speculative or cosmetic
   churn.
-- **Bounded.** Cap at ~3 rounds. Each round must only re-loop on blocker/should-fix findings;
-  nice-to-haves are recorded as follow-ups, not loop fuel — otherwise reviewers nitpick forever.
+- **Bounded — at most 3 rounds, and stop the moment a round comes back clean.** Fewer is better;
+  do not keep spawning reviewers once a pass returns no blocker/should-fix. Each round only re-loops
+  on blocker/should-fix findings; nice-to-haves are recorded as follow-ups, not loop fuel —
+  otherwise reviewers nitpick forever.
 
 ## Workflow
 

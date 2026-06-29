@@ -75,8 +75,18 @@ widgets). Find it, **assign it to yourself and set it In Progress** so it's clea
 and note which page task(s) in **WOOA7S-1612** (the per-tab ownership parent) compose it — those
 are blocked by this work.
 
-Branch off **trunk**. One widget = one branch = one draft PR; name the branch after this issue's
-ID (check a recent merged Stats-widget PR for the branch-naming schema).
+Branch off **trunk** — and **verify the base is actually `origin/trunk`, not another feature
+branch**:
+
+```bash
+git fetch origin trunk
+git checkout -b add/<issue-id>-<slug> origin/trunk
+git diff origin/trunk...HEAD --stat   # MUST be empty before you start
+```
+
+(Dogfooding bit me here: a branch silently cut from another feature branch dragged that branch's
+commits into the PR. The three-dot diff is empty only when your base is clean trunk.) One widget =
+one branch = one draft PR; name the branch after this issue's ID.
 
 ### 2. Pick the data hook (do not reinvent)
 
@@ -86,11 +96,21 @@ ID (check a recent merged Stats-widget PR for the branch-naming schema).
 grep -rhoE 'export (function|const) (useStats[A-Za-z]+)' projects/packages/premium-analytics/packages/data/src | sort -u
 ```
 
-Each hook returns `{ primary, comparison, hasComparison, isLoading, isError }`. Reach list data via
-`const items = (primary.data as StatsNormalizedReport<StatsXxxItem>)?.data?.[0]?.items ?? []`.
-Date-range → `period`/`end_date`/`days` conversion is done inside the query factory — never in the
-widget. If the module needs local mode/filter state (geo mode, view type), wrap the data hook in a
-small `use-<slug>-view.ts` hook like `locations/use-location-views.ts`.
+**The return shape is NOT uniform — open the hook and confirm before destructuring.**
+
+- **Time-series report hooks** (built on `useStatsReport`, e.g. `useStatsTopPosts`,
+  `useStatsLocations`) return `{ primary, comparison, hasComparison, isLoading, isError }`. Reach
+  list data via `const items = (primary.data as StatsNormalizedReport<StatsXxxItem>)?.data?.[0]?.items ?? []`.
+- **Non-time-series hooks** (built on `useStatsQuery`, e.g. `useStatsFollowers`) return the raw
+  TanStack result `{ data, isLoading, isError }` — there is **no** `primary`/`comparison`. Reach data
+  via `const report = data as StatsNormalizedReport<StatsXxxItem> | undefined`. Do not force a
+  `{ primary }` shape onto these, and do not "fix" the hook to add one — followers/subscribers have
+  no comparison period by design (this was a real bug + wrong-fix during dogfooding).
+
+When unsure, read the hook source and `use-stats-report.ts` vs `use-stats-query.ts`. Date-range →
+`period`/`end_date`/`days` conversion is done inside the query factory — never in the widget. If the
+module needs local mode/filter state (geo mode, view type), wrap the data hook in a small
+`use-<slug>-view.ts` hook like `locations/use-location-views.ts`.
 
 ### 3. Pick the display component (do not reinvent)
 
@@ -114,10 +134,15 @@ as templates):
   (`framed` | `content-bleed` | `full-bleed`). This is the source of truth for `presentation`.
 - `widget.ts` — default export `{ name, title, icon, attributes?, example? }`; export the
   attribute TS type once. Do NOT declare `presentation` here.
-- `render.tsx` — two-component split. Outer is `WidgetRenderProps<T>` (default `attributes = {}`),
-  passes `<WidgetRoot attributes={attributes}>`; inner reads `useWidgetRootContext()` for
-  `reportParams` and fetches via the hook. Import the attribute type from `./widget`; never
-  redeclare it (compose with `Partial<ReportParamsFieldAttributes>` if host fields are needed).
+- `render.tsx` — two-component split. Outer is `WidgetRenderProps<T>` (default `attributes = {}`)
+  wrapping `<WidgetRoot>`; inner does the data work. Import the attribute type from `./widget`; never
+  redeclare it. Two patterns exist — match the reference closest to your data:
+  - WC / time-series widgets that consume the dashboard date range: pass
+    `<WidgetRoot attributes={attributes}>` and have the inner read `useWidgetRootContext()` for
+    `reportParams` (compose the render type with `Partial<ReportParamsFieldAttributes>`).
+  - Stats widgets with no date range (e.g. `top-posts`, followers/subscribers): wrap `<WidgetRoot>`
+    and **prop-drill** `attributes` to the inner component — the WC-shaped `reportParams` context
+    doesn't fit these queries. Mirror `top-posts` exactly.
 - `<slug>.module.css` — CSS Modules only; tokens from `@wordpress/theme` (`--wpds-*`). No inline
   `style={{}}` in shipped render code. Add the picker-preview aspect-ratio block from AGENTS.md.
 - `stories/<slug>-widget.stories.tsx` — copy the three-story template from AGENTS.md verbatim
@@ -134,9 +159,17 @@ as templates):
   matched row — do not assume primary/comparison share order. Only expose a meaningful
   `withComparison` control once real comparison values are mapped (no `previousValue: 0` placeholder
   behind an enabled comparison UI).
-- Visual: title `<Text variant="heading-md" render={<h3 />}>`; counts
-  `dataFormat={{ type: 'number', options: { useMultipliers: true, decimals: 0 } }}`; 36px rows;
-  pass `emptyStateText` to the chart instead of a `data.length === 0` branch.
+- **Title is host chrome — do NOT render your own heading.** The dashboard renders the widget's
+  `title` + `icon` (from `widget.json` / `widget.ts`) as the card header (an `<h3>` inside
+  `widgetChrome`). A body heading duplicates it — verified on the live dashboard during dogfooding.
+  The body renders content only. (If the card's visible title must differ from the gallery title,
+  raise it rather than adding a second heading.)
+- **Dates: use `date-fns`** for all date math/formatting — never hand-roll `new Date()` arithmetic.
+  Reusable date helpers (relative "since", ranges, tz) belong in
+  `projects/packages/premium-analytics/packages/datetime` (it already wraps date-fns: `date.ts`,
+  `tz.ts`, presets). Check there first and add to it rather than duplicating a formatter per widget.
+- Counts: `dataFormat={{ type: 'number', options: { useMultipliers: true, decimals: 0 } }}`; 36px
+  rows; pass `emptyStateText` to the chart instead of a `data.length === 0` branch.
 - Every user-visible string through `__( …, 'jetpack-premium-analytics' )`; comments in English;
   `<button type="button">` for non-submit actions.
 
@@ -207,9 +240,11 @@ not open a PR without it.
    (re-run the relevant part of step 1), and re-run this whole verification. Loop until every check
    passes. Escalate only if the fix needs a missing upstream piece (see "Missing components") or a
    meaningfully different approach.
-6. **Screenshot the working widget** on the dashboard once it passes (via `jetpack-screenshot-local`).
-   A widget port is a **new addition**, so capture an **"after" only** — there is no "before". Add a
-   before/after pair only when you changed an *existing* widget.
+6. **Screenshot the working widget** once it passes. Attach it to the PR with the
+   **`jetpack-screenshot-local`** skill, which uploads to GitHub's user-attachments CDN and posts it
+   on the PR so it renders inline forever. **Do NOT create `screenshots/*` git branches/refs** — use
+   the uploader. A widget port is a **new addition**, so capture an **"after" only** (before/after
+   pair only when you changed an *existing* widget).
 
 Do not proceed until the dashboard verification passes with a clean console.
 
@@ -218,15 +253,18 @@ Do not proceed until the dashboard verification passes with a clean console.
 Before anything reaches the remote, run the pre-push review gate (`/native-review-loop`) to catch
 widget-contract violations and scope creep locally — before CI burns a run and before review churn
 on the PR. Spawn an independent fresh-context reviewer on the local diff, triage + fix valid
-findings, re-verify, and re-review with a new reviewer until a **clean pass** (no blocker/should-fix),
-bounded at ~3 rounds. Point the reviewer at `AGENTS.md`, `.agents/rules/widgets.md`, and
+findings, re-verify, and re-review with a new reviewer until a **clean pass** (no blocker/should-fix).
+Run **at most 3 rounds, and stop as soon as a round comes back clean** — don't keep spawning
+reviewers once it's clean. Point the reviewer at `AGENTS.md`, `.agents/rules/widgets.md`, and
 `widget-audit.md` as the contract. Do not push while blockers remain.
 
 ### 11. Open the PR — with the dashboard screenshot
 
 - Add a changelog entry (`/jetpack-changelog`) and open the PR via `/jetpack-pr` (off trunk, full
-  template preserved). Include the **"after"** dashboard screenshot from step 9 (after-only for a new
-  widget; before/after only when changing an existing one). Assign it to the issue owner.
+  template preserved). Attach the **"after"** dashboard screenshot from step 9 via
+  **`jetpack-screenshot-local`** (uploads to PR user-attachments) — **not** a `screenshots/*` branch.
+  After-only for a new widget; before/after only when changing an existing one. Assign it to the
+  issue owner.
 - All CI workflows must pass — fix anything that's red before handing off.
 - Hand off to the `jetpack-pr-review-cycle` skill with the new PR number.
 
@@ -240,9 +278,10 @@ bounded at ~3 rounds. Point the reviewer at `AGENTS.md`, `.agents/rules/widgets.
   console errors or noisy warnings** (step 9 — the load-bearing check). Resize/move is not
   automatable (custom pointer-sensor); don't gate on it.
 - The data hook is from `packages/data` (no direct proxy/apiFetch); display is a toolkit component;
-  no reinvented helpers; no upstream package modified.
-- A PR is open off trunk with the "after" dashboard screenshot and passing CI, and the diff is
-  scoped to *just* this widget.
+  no reinvented helpers; no upstream package changed **except** a component/hook the user approved
+  via the Missing-components flow.
+- A PR is open off trunk (verified clean base — three-dot diff is just this widget, no stray
+  commits) with the "after" dashboard screenshot and passing CI.
 - Linear: the WOOA7S-1458 widget subtask is assigned to the owner, updated, and the blocked page
   task(s) in WOOA7S-1612 noted.
 
@@ -254,6 +293,27 @@ bounded at ~3 rounds. Point the reviewer at `AGENTS.md`, `.agents/rules/widgets.
   repo's CI/workflow runners aren't overloaded.
 - Keep diffs minimal and uniform: a clean widget port adds only `widgets/<slug>/**` (plus the
   one-time Storybook-root registration and a changelog entry). Anything beyond that is a smell.
+
+## Lessons from dogfooding (real ports)
+
+From porting a widget end-to-end (WOOA7S-1515, Subscribers list):
+
+- **The live dashboard (step 9) is the only check that catches integration bugs.** A wrong hook
+  destructure (`primary.data` on a hook that returns `{ data }`) and a duplicate heading both passed
+  lint, types, build, AND Storybook — they only surfaced when the registered widget mounted in the
+  real dashboard. Never skip step 9.
+- **Keep a prop-driven presentational component** (like `top-posts`' `TopPostsLeaderboard`) that
+  Storybook exercises with mock rows; the data hook lives only in the inner data component. That
+  split is exactly why Storybook can't catch a hook-shape bug — lean on step 9 for it.
+- **Attribute console errors before treating them as blockers.** Other widgets on the dashboard are
+  noise: WC-analytics `proxy/v2/analytics/reports/*` 500s show up when the store backend isn't wired
+  in the env. Confirm by checking *your* widget's own request (its `proxy/v1.1/stats/<name>` call
+  should be `200`) before assuming the error is yours.
+- **Map the data hook's already-normalized fields directly** — the sanitizer already parses avatars,
+  links, labels, dates (`item.icon`, `item.link`, `item.label`, `item.date_subscribed`). Don't
+  re-parse.
+- **Cross-model review pays for itself.** A Codex review of the Claude-authored diff caught the
+  branch-base mistake (another branch's commits riding along in the PR) that build/lint never would.
 
 ## Special attention / common failure modes
 
