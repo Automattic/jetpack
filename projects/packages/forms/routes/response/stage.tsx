@@ -5,7 +5,6 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 /**
  * WordPress dependencies
  */
-import { Breadcrumbs } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
 import { Modal, Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -26,6 +25,7 @@ import ResponseMeta from '../../src/dashboard/components/inspector/response-meta
 import ResponseNavigation from '../../src/dashboard/components/inspector/response-navigation/index.tsx';
 import { getDisplayName } from '../../src/dashboard/components/inspector/utils.ts';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
+import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
 import SingleResponseActions from './page-actions.tsx';
 import useResponsePageNavigation from './use-navigation.ts';
 import './style.scss';
@@ -89,6 +89,23 @@ function Stage(): React.JSX.Element {
 			};
 		},
 		[ id, isValidId ]
+	);
+
+	// For managed forms, resolve the actual jetpack_form post title so the
+	// breadcrumb matches the header of the list it links to (response.entry_title
+	// is the embedding page/post title, which can differ from the form's name).
+	const formName = useSelect(
+		select => {
+			const formId = response?.form_id;
+			if ( ! formId ) {
+				return '';
+			}
+			const record = select( coreStore ).getEntityRecord( 'postType', 'jetpack_form', formId ) as
+				| { title?: { rendered?: string } }
+				| undefined;
+			return record ? decodeEntities( record.title?.rendered || '' ) : '';
+		},
+		[ response?.form_id ]
 	);
 
 	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id );
@@ -168,14 +185,7 @@ function Stage(): React.JSX.Element {
 	const renderMessagePage = ( currentLabel: string, ariaLabel: string, child: React.ReactNode ) => (
 		<FormsPage
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Forms', 'jetpack-forms' ), to: '/responses/inbox' },
-						{ label: currentLabel },
-					] }
-				/>
-			}
+			breadcrumbs={ <SingleResponseBreadcrumbs currentLabel={ currentLabel } /> }
 			ariaLabel={ ariaLabel }
 			showFooter={ false }
 		>
@@ -201,18 +211,14 @@ function Stage(): React.JSX.Element {
 
 	const dateSettings = getDateSettings();
 	const displayName = getDisplayName( response );
+	const formTitle = decodeEntities( response.entry_title || '' );
 	const subTitle = `${ displayName } · ${ dateI18n( dateSettings.formats.date, response.date ) }`;
 
 	return (
 		<FormsPage
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Forms', 'jetpack-forms' ), to: '/responses/inbox' },
-						{ label: `#${ response.id }` },
-					] }
-				/>
+				<SingleResponseBreadcrumbs response={ response } formTitle={ formName || formTitle } />
 			}
 			subTitle={ subTitle }
 			ariaLabel={ displayName }
