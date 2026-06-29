@@ -315,17 +315,26 @@ export function searchAndRankItems(
 
 	const terms = searchTerms( search );
 
+	// One slug space governs de-duplication: a card claims both its product slug and the slug of
+	// the module it already carries, so the same product never surfaces as both a card and a
+	// standalone module (e.g. Forms's contact-form module, or VideoPress listed in two categories).
+	const seen = new Set< string >();
 	const cardsBySlug = new Map< string, CardItem >();
 	const modulesBySlug = new Map< string, MyJetpackModule >();
 
 	cards.forEach( card => {
-		if ( card?.product?.slug && ! cardsBySlug.has( card.product.slug ) ) {
+		if ( card?.product?.slug && ! seen.has( card.product.slug ) ) {
 			cardsBySlug.set( card.product.slug, card );
+			seen.add( card.product.slug );
+			if ( card.module?.module ) {
+				seen.add( card.module.module );
+			}
 		}
 	} );
 	modules.forEach( module => {
-		if ( module?.module && ! modulesBySlug.has( module.module ) ) {
+		if ( module?.module && ! seen.has( module.module ) ) {
 			modulesBySlug.set( module.module, module );
+			seen.add( module.module );
 		}
 	} );
 
