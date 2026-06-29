@@ -1,3 +1,4 @@
+import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -45,46 +46,48 @@ function Dashboard(): JSX.Element {
 	const [ editMode, setEditMode ] = useState( false );
 
 	return (
-		<WidgetDashboard
-			widgetTypes={ widgetTypes }
-			isResolvingWidgetTypes={ isResolvingWidgetTypes }
-			layout={ layout }
-			onLayoutChange={ setLayout }
-			onLayoutReset={ resetLayout }
-			gridSettings={ gridSettings }
-			onGridSettingsChange={ setGridSettings }
-			editMode={ editMode }
-			onEditChange={ setEditMode }
-		>
-			<Page
-				title={ __( 'Analytics', 'jetpack-premium-analytics' ) }
-				subTitle={ __(
-					'Track your site performance and visitor insights.',
-					'jetpack-premium-analytics'
-				) }
-				actions={ <WidgetDashboard.Actions /> }
-				className={ styles.dashboard }
+		<GlobalErrorProvider>
+			<WidgetDashboard
+				widgetTypes={ widgetTypes }
+				isResolvingWidgetTypes={ isResolvingWidgetTypes }
+				layout={ layout }
+				onLayoutChange={ setLayout }
+				onLayoutReset={ resetLayout }
+				gridSettings={ gridSettings }
+				onGridSettingsChange={ setGridSettings }
+				editMode={ editMode }
+				onEditChange={ setEditMode }
 			>
-				<DashboardSections
-					sections={ sections }
-					value={ activeSection }
-					onChange={ setActiveSection }
+				<Page
+					title={ __( 'Analytics', 'jetpack-premium-analytics' ) }
+					subTitle={ __(
+						'Track your site performance and visitor insights.',
+						'jetpack-premium-analytics'
+					) }
+					actions={ <WidgetDashboard.Actions /> }
+					className={ styles.dashboard }
 				>
-					{ sections.map( section => (
-						<Tabs.Panel key={ section.id } value={ section.id } className={ styles.content }>
-							{ activeSection === section.id ? (
-								<>
-									<WidgetDashboard.NoWidgetsState />
-									<WidgetDashboard.Widgets />
-								</>
-							) : null }
-						</Tabs.Panel>
-					) ) }
-				</DashboardSections>
+					<DashboardSections
+						sections={ sections }
+						value={ activeSection }
+						onChange={ setActiveSection }
+					>
+						{ sections.map( section => (
+							<Tabs.Panel key={ section.id } value={ section.id } className={ styles.content }>
+								{ activeSection === section.id ? (
+									<>
+										<WidgetDashboard.NoWidgetsState />
+										<WidgetDashboard.Widgets />
+									</>
+								) : null }
+							</Tabs.Panel>
+						) ) }
+					</DashboardSections>
 
-				<WidgetDashboard.Commands />
-			</Page>
-		</WidgetDashboard>
+					<WidgetDashboard.Commands />
+				</Page>
+			</WidgetDashboard>
+		</GlobalErrorProvider>
 	);
 }
 

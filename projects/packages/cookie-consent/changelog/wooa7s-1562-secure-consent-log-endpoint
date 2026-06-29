@@ -1,0 +1,4 @@
+Significance: minor
+Type: security
+
+Secure the public consent-log write endpoint with per-IP rate limiting, URL/consent-type validation, and spoof-resistant IP detection.
