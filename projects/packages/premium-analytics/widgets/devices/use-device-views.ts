@@ -5,7 +5,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { useStatsDevices } from '@jetpack-premium-analytics/data';
+import {
+	getApiErrorCode,
+	getApiErrorStatus,
+	useStatsDevices,
+} from '@jetpack-premium-analytics/data';
 import type {
 	ReportParams,
 	StatsDevicesItem,
@@ -27,8 +31,11 @@ interface UseDeviceViewsArgs {
 
 interface DeviceViewsState {
 	data: DeviceView[];
+	comparisonData: DeviceView[];
+	hasComparison: boolean;
 	isLoading: boolean;
 	isError: boolean;
+	errorReason: 'upgrade-required' | null;
 }
 
 /**
@@ -42,6 +49,8 @@ const DEVICE_LABELS: Record< string, string > = {
 	phone: __( 'Phone', 'jetpack-premium-analytics' ),
 	unknown: __( 'Unknown', 'jetpack-premium-analytics' ),
 };
+
+const NON_PLAN_FORBIDDEN_ERROR_CODES = new Set( [ 'no_connection' ] );
 
 /**
  * Maps a raw API device key to a human-readable label.
@@ -87,14 +96,30 @@ export default function useDeviceViews( {
 		deviceProperty,
 	} as Parameters< typeof useStatsDevices >[ 0 ];
 
-	const { primary } = useStatsDevices( statsParams );
-
-	const isLoading = primary.isLoading;
-	const isError = primary.isError;
+	const { primary, comparison, hasComparison, isLoading, isError, error } =
+		useStatsDevices( statsParams );
+	const errorCode = getApiErrorCode( error );
+	const errorReason =
+		getApiErrorStatus( error ) === 403 && ! NON_PLAN_FORBIDDEN_ERROR_CODES.has( errorCode ?? '' )
+			? 'upgrade-required'
+			: null;
 
 	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
 	const rawItems = report?.data?.[ 0 ]?.items ?? [];
 	const items = rawItems.map( toDeviceView ).slice( 0, max > 0 ? max : undefined );
 
-	return { data: items, isLoading, isError };
+	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
+	const comparisonRawItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
+	const comparisonItems = comparisonRawItems
+		.map( toDeviceView )
+		.slice( 0, max > 0 ? max : undefined );
+
+	return {
+		data: items,
+		comparisonData: comparisonItems,
+		hasComparison,
+		isLoading,
+		isError,
+		errorReason,
+	};
 }

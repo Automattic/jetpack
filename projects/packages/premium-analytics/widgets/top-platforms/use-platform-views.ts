@@ -1,7 +1,11 @@
 /**
  * Internal dependencies
  */
-import { useStatsDevices } from '@jetpack-premium-analytics/data';
+import {
+	getApiErrorCode,
+	getApiErrorStatus,
+	useStatsDevices,
+} from '@jetpack-premium-analytics/data';
 import type {
 	ReportParams,
 	StatsDevicesItem,
@@ -10,6 +14,7 @@ import type {
 } from '@jetpack-premium-analytics/data';
 
 export interface PlatformView {
+	key: string;
 	label: string;
 	views: number;
 }
@@ -22,9 +27,14 @@ interface UsePlatformViewsArgs {
 
 interface PlatformViewsState {
 	data: PlatformView[];
+	comparisonData: PlatformView[];
+	hasComparison: boolean;
 	isLoading: boolean;
 	isError: boolean;
+	errorReason: 'upgrade-required' | null;
 }
+
+const NON_PLAN_FORBIDDEN_ERROR_CODES = new Set( [ 'no_connection' ] );
 
 /**
  * Converts a raw device key to a display label, title-casing as needed.
@@ -65,19 +75,46 @@ export default function usePlatformViews( {
 		deviceProperty: deviceProperty as StatsDeviceProperty,
 	} as Parameters< typeof useStatsDevices >[ 0 ];
 
-	const { primary } = useStatsDevices( statsParams );
-
-	const isLoading = primary.isLoading;
-	const isError = primary.isError;
+	const { primary, comparison, hasComparison, isLoading, isError, error } =
+		useStatsDevices( statsParams );
+	const errorCode = getApiErrorCode( error );
+	const errorReason =
+		getApiErrorStatus( error ) === 403 && ! NON_PLAN_FORBIDDEN_ERROR_CODES.has( errorCode ?? '' )
+			? 'upgrade-required'
+			: null;
 
 	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
 	const rawItems = report?.data?.[ 0 ]?.items ?? [];
 	const items = rawItems
-		.map( item => ( {
-			label: toDisplayLabel( String( item.label ?? '' ) ),
-			views: item.views,
-		} ) )
+		.map( item => {
+			const key = String( item.label ?? '' );
+			return {
+				key,
+				label: toDisplayLabel( key ),
+				views: item.views,
+			};
+		} )
 		.slice( 0, max > 0 ? max : undefined );
 
-	return { data: items, isLoading, isError };
+	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
+	const comparisonRawItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
+	const comparisonItems = comparisonRawItems
+		.map( item => {
+			const key = String( item.label ?? '' );
+			return {
+				key,
+				label: toDisplayLabel( key ),
+				views: item.views,
+			};
+		} )
+		.slice( 0, max > 0 ? max : undefined );
+
+	return {
+		data: items,
+		comparisonData: comparisonItems,
+		hasComparison,
+		isLoading,
+		isError,
+		errorReason,
+	};
 }

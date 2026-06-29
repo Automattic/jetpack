@@ -82,7 +82,6 @@ export {
 	useSeriesStyles,
 	useWidgetError,
 } from './hooks';
-export { useSegmentStyles } from './widgets/common';
 
 /**
  * Widget components
