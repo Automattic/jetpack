@@ -6,6 +6,7 @@
  *
  */
 
+import { getCategoryPreferenceKey, getConsentCategories } from './utils';
 import type { ConsentEventType, ConsentTypes, ConsentEvent } from './types';
 
 interface ConsentLogResponse {
@@ -57,11 +58,11 @@ async function logConsentEvent(
 }
 
 function mapConsentTypes( choices: ConsentEvent[ 'choices' ] ): ConsentTypes {
-	return {
-		functional: true, // Always true
-		analytics: choices.analytics || false,
-		marketing: choices.advertising || false,
-	};
+	return getConsentCategories().reduce< ConsentTypes >( ( consentTypes, category ) => {
+		const preferenceKey = getCategoryPreferenceKey( category );
+		consentTypes[ category.key ] = category.required ? true : choices[ preferenceKey ] === true;
+		return consentTypes;
+	}, {} );
 }
 
 async function handleConsentSaved( event: CustomEvent< ConsentEvent > ): Promise< void > {

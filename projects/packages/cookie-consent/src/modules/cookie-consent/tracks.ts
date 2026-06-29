@@ -5,7 +5,48 @@
  */
 
 import { recordEvent, getCommonProperties } from './tracks-utils';
-import type { ConsentPreferences } from './types';
+import type { ConsentCategory, ConsentPreferences, TrackingProperties } from './types';
+
+const DEFAULT_TRACKS_PREFERENCE_KEYS = new Set( [ 'required', 'analytics', 'advertising' ] );
+
+function getCategoryPreferenceKey(
+	category: Pick< ConsentCategory, 'key' | 'preferenceKey' >
+): string {
+	if ( category.preferenceKey ) {
+		return category.preferenceKey;
+	}
+
+	if ( category.key === 'functional' ) {
+		return 'required';
+	}
+
+	if ( category.key === 'marketing' ) {
+		return 'advertising';
+	}
+
+	return category.key;
+}
+
+function getPreferenceProperties( preferences: ConsentPreferences ): TrackingProperties {
+	const properties: TrackingProperties = {
+		...getCommonProperties(),
+		preferences_required: preferences.required,
+		preferences_analytics: preferences.analytics,
+		preferences_advertising: preferences.advertising,
+	};
+
+	window.jetpackCookieConsentConfig?.categories?.forEach( category => {
+		const preferenceKey = getCategoryPreferenceKey( category );
+
+		if ( DEFAULT_TRACKS_PREFERENCE_KEYS.has( preferenceKey ) ) {
+			return;
+		}
+
+		properties[ `preferences_${ category.key }` ] = preferences[ preferenceKey ] === true;
+	} );
+
+	return properties;
+}
 
 /**
  * Track privacy banner view
@@ -22,12 +63,7 @@ export function trackPrivacyBannerView(): void {
  * @param preferences Object with consent preferences (required, analytics, advertising).
  */
 export function trackPrivacyBannerAccept( preferences: ConsentPreferences ): void {
-	recordEvent( 'privacy_banner_button_accept', {
-		...getCommonProperties(),
-		preferences_required: preferences.required,
-		preferences_analytics: preferences.analytics,
-		preferences_advertising: preferences.advertising,
-	} );
+	recordEvent( 'privacy_banner_button_accept', getPreferenceProperties( preferences ) );
 }
 
 /**

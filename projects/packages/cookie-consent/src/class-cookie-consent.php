@@ -708,6 +708,49 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Get the default consent category registry.
+	 *
+	 * Category keys are the internal/persistence names. The frontend keeps the
+	 * existing `required` and `advertising` aliases for the default `functional`
+	 * and `marketing` categories.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|null $copy Optional normalized copy array.
+	 * @return array Default consent categories.
+	 */
+	public static function get_default_consent_categories( $copy = null ) {
+		$copy = is_array( $copy ) ? self::normalize_copy( $copy, self::get_default_copy() ) : self::get_default_copy();
+
+		return array(
+			array(
+				'key'             => 'functional',
+				'label'           => $copy['required_category_label'],
+				'description'     => $copy['required_category_description'],
+				'required'        => true,
+				'default_checked' => true,
+				'wp_consent_map'  => array( 'functional' ),
+			),
+			array(
+				'key'             => 'analytics',
+				'label'           => $copy['analytics_category_label'],
+				'description'     => $copy['analytics_category_description'],
+				'required'        => false,
+				'default_checked' => true,
+				'wp_consent_map'  => array( 'statistics', 'statistics-anonymous' ),
+			),
+			array(
+				'key'             => 'marketing',
+				'label'           => $copy['advertising_category_label'],
+				'description'     => $copy['advertising_category_description'],
+				'required'        => false,
+				'default_checked' => false,
+				'wp_consent_map'  => array( 'marketing' ),
+			),
+		);
+	}
+
+	/**
 	 * Resolve UI copy for a template, backfilling any missing keys with defaults.
 	 *
 	 * Templates normally receive a fully normalized `copy` group from get_config(),
@@ -723,6 +766,97 @@ class Cookie_Consent {
 	public static function get_copy( $config = array() ) {
 		$copy = is_array( $config ) && isset( $config['copy'] ) ? $config['copy'] : array();
 		return self::normalize_copy( $copy, self::get_default_copy() );
+	}
+
+	/**
+	 * Get normalized consent categories from a configuration array.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $config Configuration array.
+	 * @return array Normalized consent categories.
+	 */
+	public static function get_consent_categories( $config = array() ) {
+		$copy       = self::get_copy( $config );
+		$defaults   = self::get_default_consent_categories( $copy );
+		$categories = $config['consent']['categories'] ?? $defaults;
+
+		return self::normalize_consent_categories( $categories, $defaults );
+	}
+
+	/**
+	 * Get the active configured consent category registry.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Normalized configured consent categories.
+	 */
+	public static function get_current_consent_categories() {
+		$config = self::get_config();
+		return $config['consent']['categories'];
+	}
+
+	/**
+	 * Get the frontend preference key for a registry category key.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $key Registry category key.
+	 * @return string Frontend preference key.
+	 */
+	public static function get_category_preference_key( $key ) {
+		if ( 'functional' === $key ) {
+			return 'required';
+		}
+
+		if ( 'marketing' === $key ) {
+			return 'advertising';
+		}
+
+		return $key;
+	}
+
+	/**
+	 * Get the Interactivity API category context object.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $categories Normalized category registry.
+	 * @return array Category choices keyed by frontend preference key.
+	 */
+	public static function get_category_context( $categories ) {
+		$context = array();
+
+		foreach ( $categories as $category ) {
+			$preference_key             = self::get_category_preference_key( $category['key'] );
+			$context[ $preference_key ] = (bool) ( $category['required'] || $category['default_checked'] );
+		}
+
+		return $context;
+	}
+
+	/**
+	 * Convert normalized categories to the frontend config shape.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $categories Normalized category registry.
+	 * @return array Frontend category registry.
+	 */
+	public static function get_frontend_consent_categories( $categories ) {
+		$frontend_categories = array();
+
+		foreach ( $categories as $category ) {
+			$frontend_categories[] = array(
+				'key'            => $category['key'],
+				'preferenceKey'  => self::get_category_preference_key( $category['key'] ),
+				'required'       => (bool) $category['required'],
+				'defaultChecked' => (bool) $category['default_checked'],
+				'wpConsentMap'   => array_values( $category['wp_consent_map'] ),
+			);
+		}
+
+		return $frontend_categories;
 	}
 
 	/**
@@ -759,6 +893,73 @@ class Cookie_Consent {
 		}
 
 		return $defaults;
+	}
+
+	/**
+	 * Normalize configured consent categories.
+	 *
+	 * @param array $categories Categories supplied by configuration.
+	 * @param array $defaults   Default categories.
+	 * @return array Normalized categories.
+	 */
+	private static function normalize_consent_categories( $categories, $defaults ) {
+		if ( ! is_array( $categories ) ) {
+			return $defaults;
+		}
+
+		$normalized = array();
+		$seen_keys  = array();
+
+		foreach ( $categories as $category ) {
+			if ( ! is_array( $category ) || empty( $category['key'] ) ) {
+				continue;
+			}
+
+			$key = self::normalize_consent_category_key( $category['key'] );
+			if ( '' === $key || isset( $seen_keys[ $key ] ) ) {
+				continue;
+			}
+
+			$wp_consent_map = array();
+			if ( isset( $category['wp_consent_map'] ) && is_array( $category['wp_consent_map'] ) ) {
+				foreach ( $category['wp_consent_map'] as $wp_consent_key ) {
+					$wp_consent_key = sanitize_key( $wp_consent_key );
+					if ( '' !== $wp_consent_key && ! in_array( $wp_consent_key, $wp_consent_map, true ) ) {
+						$wp_consent_map[] = $wp_consent_key;
+					}
+				}
+			}
+
+			if ( empty( $wp_consent_map ) ) {
+				$wp_consent_map = array( $key );
+			}
+
+			$required = ! empty( $category['required'] );
+
+			$normalized[] = array(
+				'key'             => $key,
+				'label'           => isset( $category['label'] ) && is_scalar( $category['label'] ) ? (string) $category['label'] : $key,
+				'description'     => isset( $category['description'] ) && is_scalar( $category['description'] ) ? (string) $category['description'] : '',
+				'required'        => $required,
+				'default_checked' => $required || ! empty( $category['default_checked'] ),
+				'wp_consent_map'  => $wp_consent_map,
+			);
+
+			$seen_keys[ $key ] = true;
+		}
+
+		return empty( $normalized ) ? $defaults : $normalized;
+	}
+
+	/**
+	 * Normalize a consent category key for PHP arrays and Interactivity paths.
+	 *
+	 * @param mixed $key Consent category key.
+	 * @return string Normalized key.
+	 */
+	private static function normalize_consent_category_key( $key ) {
+		$key = sanitize_key( (string) $key );
+		return preg_replace( '/[^a-z0-9_]/', '_', $key );
 	}
 
 	/**
@@ -830,6 +1031,9 @@ class Cookie_Consent {
 			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
 			'copy'                => $default_copy,
+			'consent'             => array(
+				'categories' => self::get_default_consent_categories( $default_copy ),
+			),
 		);
 
 		/**
@@ -842,7 +1046,16 @@ class Cookie_Consent {
 			$config = $default_config;
 		}
 
-		$config['copy'] = self::normalize_copy( $config['copy'] ?? array(), $default_copy );
+		$config['copy']     = self::normalize_copy( $config['copy'] ?? array(), $default_copy );
+		$config['consent']  = isset( $config['consent'] ) && is_array( $config['consent'] ) ? $config['consent'] : array();
+		$default_categories = self::get_default_consent_categories( $config['copy'] );
+		$categories         = $config['consent']['categories'] ?? $default_categories;
+
+		if ( $categories === $default_config['consent']['categories'] ) {
+			$categories = $default_categories;
+		}
+
+		$config['consent']['categories'] = self::normalize_consent_categories( $categories, $default_categories );
 
 		return $config;
 	}
@@ -898,7 +1111,8 @@ class Cookie_Consent {
 		);
 
 		// Resolve the configured Tracks event prefix once so it can be shared below.
-		$config = self::get_config();
+		$config              = self::get_config();
+		$frontend_categories = self::get_frontend_consent_categories( $config['consent']['categories'] );
 
 		// Pass REST API URL and Tracks event prefix to the module via global config.
 		wp_print_inline_script_tag(
@@ -908,6 +1122,7 @@ class Cookie_Consent {
 					array(
 						'apiUrl'      => rest_url( 'jetpack/v4/cookie-consent/consent-log' ),
 						'eventPrefix' => $config['event_prefix'],
+						'categories'  => $frontend_categories,
 					),
 					JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 				)
@@ -933,6 +1148,7 @@ class Cookie_Consent {
 				'gdprHonorsGpc'     => $config['gdpr_honors_gpc'] ?? true,
 				'showOnError'       => $config['show_on_error'],
 				'forcePreview'      => $force_preview,
+				'categories'        => $frontend_categories,
 			)
 		);
 	}

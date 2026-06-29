@@ -3,9 +3,33 @@
  */
 
 import { trackPrivacyBannerView } from './tracks';
-import type { ConsentType, ConsentEventType, ConsentEventChoices } from './types';
+import type { ConsentType, ConsentEventType, ConsentEventChoices, ConsentCategory } from './types';
 
 export const UNKNOWN_COUNTRY_CODE = 'UNKNOWN';
+
+export const DEFAULT_CONSENT_CATEGORIES: ConsentCategory[] = [
+	{
+		key: 'functional',
+		preferenceKey: 'required',
+		required: true,
+		defaultChecked: true,
+		wpConsentMap: [ 'functional' ],
+	},
+	{
+		key: 'analytics',
+		preferenceKey: 'analytics',
+		required: false,
+		defaultChecked: true,
+		wpConsentMap: [ 'statistics', 'statistics-anonymous' ],
+	},
+	{
+		key: 'marketing',
+		preferenceKey: 'advertising',
+		required: false,
+		defaultChecked: false,
+		wpConsentMap: [ 'marketing' ],
+	},
+];
 
 interface Config {
 	gdprCountries: string[];
@@ -20,6 +44,43 @@ interface Context {
 }
 
 type SameSiteValue = 'Lax' | 'Strict' | 'None';
+
+export function getCategoryPreferenceKey(
+	category: Pick< ConsentCategory, 'key' | 'preferenceKey' >
+): string {
+	if ( category.preferenceKey ) {
+		return category.preferenceKey;
+	}
+
+	if ( category.key === 'functional' ) {
+		return 'required';
+	}
+
+	if ( category.key === 'marketing' ) {
+		return 'advertising';
+	}
+
+	return category.key;
+}
+
+export function getConsentCategories(): ConsentCategory[] {
+	const configuredCategories = window.jetpackCookieConsentConfig?.categories;
+	if ( Array.isArray( configuredCategories ) && configuredCategories.length ) {
+		return configuredCategories;
+	}
+
+	return DEFAULT_CONSENT_CATEGORIES;
+}
+
+export function getConsentChoices( nonRequiredValue?: boolean ): ConsentEventChoices {
+	return getConsentCategories().reduce< ConsentEventChoices >( ( choices, category ) => {
+		const preferenceKey = getCategoryPreferenceKey( category );
+		choices[ preferenceKey ] = category.required
+			? true
+			: nonRequiredValue ?? category.defaultChecked;
+		return choices;
+	}, {} );
+}
 
 export function getCookie( name: string ): string | null {
 	const value = `; ${ document.cookie }`;
@@ -46,18 +107,27 @@ export function setCookie(
 }
 
 export function hasConsentSet(): boolean {
-	// If user has made a choice, the functional cookie should be set.
-	return getCookie( 'wp_consent_functional' ) !== null;
+	const requiredCategories = getConsentCategories().filter( category => category.required );
+	const categoriesToCheck = requiredCategories.length ? requiredCategories : getConsentCategories();
+
+	return categoriesToCheck.some( category =>
+		category.wpConsentMap.some( wpCategory => getCookie( `wp_consent_${ wpCategory }` ) !== null )
+	);
 }
 
-export function readConsentChoices(): {
-	analytics: boolean;
-	advertising: boolean;
-} {
-	return {
-		analytics: getCookie( 'wp_consent_statistics' ) === 'allow',
-		advertising: getCookie( 'wp_consent_marketing' ) === 'allow',
-	};
+export function readConsentChoices(): ConsentEventChoices {
+	return getConsentCategories().reduce< ConsentEventChoices >( ( choices, category ) => {
+		const preferenceKey = getCategoryPreferenceKey( category );
+		if ( category.required ) {
+			choices[ preferenceKey ] = true;
+			return choices;
+		}
+
+		choices[ preferenceKey ] = category.wpConsentMap.every(
+			wpCategory => getCookie( `wp_consent_${ wpCategory }` ) === 'allow'
+		);
+		return choices;
+	}, {} );
 }
 
 export function saveConsentChoices(
@@ -69,24 +139,17 @@ export function saveConsentChoices(
 		return;
 	}
 
-	// Define a flat mapping of categories to WP Consent API categories for flexibility
-	const categoryMap: Record< keyof ConsentEventChoices, string[] > = {
-		analytics: [ 'statistics', 'statistics-anonymous' ],
-		advertising: [ 'marketing' ],
-	};
-	// Always allow functional/required cookies
-	window.wp_set_consent( 'functional', 'allow' );
+	getConsentCategories().forEach( category => {
+		const preferenceKey = getCategoryPreferenceKey( category );
+		const value = category.required ? true : choices[ preferenceKey ];
 
-	// Set consent for each mapped WP category, merging and deduplicating where appropriate
-	const categories: Array< keyof ConsentEventChoices > = [ 'analytics', 'advertising' ];
-	categories.forEach( category => {
-		if ( category in choices && choices[ category ] !== undefined ) {
-			const value = choices[ category ];
-			const mappedCategories = categoryMap[ category ];
-			mappedCategories.forEach(
-				wpCategory => window.wp_set_consent?.( wpCategory, value ? 'allow' : 'deny' )
-			);
+		if ( value === undefined ) {
+			return;
 		}
+
+		category.wpConsentMap.forEach( wpCategory => {
+			window.wp_set_consent?.( wpCategory, value ? 'allow' : 'deny' );
+		} );
 	} );
 
 	// Trigger a custom event to notify other parts of the code that the consent has been set
@@ -135,13 +198,7 @@ export function handleConsentByRegion(
 		// the conservative default (honor GPC) applies when the flag is omitted.
 		if ( config.gdprHonorsGpc !== false && hasOptedOutViaGlobalPrivacyControl() ) {
 			context.showBanner = false;
-			saveConsentChoices(
-				{
-					analytics: false,
-					advertising: false,
-				},
-				'opt-out'
-			);
+			saveConsentChoices( getConsentChoices( false ), 'opt-out' );
 			return;
 		}
 
@@ -156,34 +213,16 @@ export function handleConsentByRegion(
 		setConsentType( 'optout' );
 
 		if ( hasOptedOutViaGlobalPrivacyControl() ) {
-			saveConsentChoices(
-				{
-					analytics: false,
-					advertising: false,
-				},
-				'opt-out'
-			);
+			saveConsentChoices( getConsentChoices( false ), 'opt-out' );
 			return;
 		}
 
 		// Automatically set consent for CCPA (opt-out model)
-		saveConsentChoices(
-			{
-				analytics: true,
-				advertising: true,
-			},
-			'auto_granted'
-		);
+		saveConsentChoices( getConsentChoices( true ), 'auto_granted' );
 		return;
 	}
 
 	// Non-regulated region: Set implied consent
 	setConsentType( undefined );
-	saveConsentChoices(
-		{
-			analytics: true,
-			advertising: true,
-		},
-		'auto_granted'
-	);
+	saveConsentChoices( getConsentChoices( true ), 'auto_granted' );
 }

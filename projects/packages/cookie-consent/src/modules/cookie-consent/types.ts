@@ -1,15 +1,16 @@
 export type ConsentType = 'optin' | 'optout' | undefined;
 
-export interface ConsentTypes {
-	functional: boolean;
-	analytics: boolean;
-	marketing: boolean;
+export interface ConsentCategory {
+	key: string;
+	preferenceKey?: string;
+	required: boolean;
+	defaultChecked: boolean;
+	wpConsentMap: string[];
 }
 
-export interface ConsentEventChoices {
-	analytics?: boolean;
-	advertising?: boolean;
-}
+export type ConsentTypes = Record< string, boolean >;
+
+export type ConsentEventChoices = Record< string, boolean | undefined >;
 
 export type ConsentEventType =
 	| 'accept_all'
@@ -30,9 +31,7 @@ export interface TrackingProperties {
 }
 
 export interface ConsentPreferences {
-	required: boolean;
-	analytics: boolean;
-	advertising: boolean;
+	[ key: string ]: boolean;
 }
 
 // Global window declarations
@@ -41,6 +40,7 @@ declare global {
 		jetpackCookieConsentConfig?: {
 			apiUrl: string;
 			eventPrefix?: string;
+			categories?: ConsentCategory[];
 		};
 		wp_set_consent?: ( category: string, value: 'allow' | 'deny' ) => void;
 		wp_consent_type?: ConsentType;
