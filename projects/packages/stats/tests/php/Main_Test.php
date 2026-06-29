@@ -50,6 +50,11 @@ class Main_Test extends StatsBaseTestCase {
 
 		unset( $_SERVER['HTTP_DNT'] );
 
+		// Reset the REST server so the lazy-registration test below does not leak its
+		// populated server (with the stats route registered) into later tests in the suite.
+		global $wp_rest_server;
+		$wp_rest_server = null;
+
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\Main' );
 		$reflected_property = $reflected_class->getProperty( 'instance' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
@@ -65,6 +70,14 @@ class Main_Test extends StatsBaseTestCase {
 			$reflected_property->setAccessible( true );
 		}
 		$reflected_property = $reflected_property->setValue( null, null );
+
+		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\REST_Provider' );
+		$reflected_property = $reflected_class->getProperty( 'instance' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflected_property->setAccessible( true );
+		}
+		$reflected_property->setValue( null, null );
 	}
 
 	/**
@@ -82,6 +95,41 @@ class Main_Test extends StatsBaseTestCase {
 	public function test_template_redirect_hook() {
 		$has_action = has_action( 'template_redirect', array( 'Automattic\Jetpack\Stats\Main', 'template_redirect' ) );
 		$this->assertSame( 1, $has_action );
+	}
+
+	/**
+	 * Main::init() no longer constructs REST_Provider up front; it defers the load to a
+	 * priority-0 `rest_api_init` callback. Guard that firing the hook still registers the
+	 * route — the priority-0 callback builds REST_Provider, whose constructor adds the
+	 * default-priority callback that registers the route within the same firing. A regression
+	 * to that re-entrancy (e.g. bumping the deferred priority) would silently drop the route.
+	 */
+	public function test_rest_provider_route_registers_lazily_on_rest_api_init() {
+		// Reset the REST_Provider singleton so the deferred callback rebuilds it and
+		// re-registers its own rest_api_init handler against this test's hook state.
+		$reflected_property = ( new \ReflectionClass( REST_Provider::class ) )->getProperty( 'instance' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflected_property->setAccessible( true );
+		}
+		$reflected_property->setValue( null, null );
+
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		$this->assertArrayNotHasKey(
+			'/jetpack/v4/stats/blog',
+			$wp_rest_server->get_routes(),
+			'Stats REST route should not be registered before rest_api_init fires.'
+		);
+
+		do_action( 'rest_api_init' );
+
+		$this->assertArrayHasKey(
+			'/jetpack/v4/stats/blog',
+			$wp_rest_server->get_routes(),
+			'Stats REST route should register on rest_api_init via the deferred REST_Provider load.'
+		);
 	}
 
 	/**

@@ -24,5 +24,4 @@ export const spotify: PodcastApp = {
 	submitUrl: 'https://creators.spotify.com/',
 	learnMoreUrl:
 		'https://support.spotify.com/creators/article/claiming-your-podcast-on-spotify-for-creators/',
-	showHosts: [ 'open.spotify.com' ],
 };

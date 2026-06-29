@@ -47,12 +47,15 @@ const DashboardPage = ( { active, showFooter = true, flush = false, children }: 
 			) }
 			showFooter={ showFooter }
 		>
-			<DashboardNav active={ active } />
-			<div
-				className={ `jetpack-seo-page-content${ flush ? ' jetpack-seo-page-content--flush' : '' }` }
-			>
-				{ children }
-			</div>
+			<DashboardNav active={ active }>
+				<div
+					className={ `jetpack-seo-page-content${
+						flush ? ' jetpack-seo-page-content--flush' : ''
+					}` }
+				>
+					{ children }
+				</div>
+			</DashboardNav>
 		</AdminPage>
 	</ThemeProvider>
 );

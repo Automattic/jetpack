@@ -22,7 +22,182 @@ let activeBlockquote = null;
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
 const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
+const ANON_DRAFT_STORAGE_KEY = 'wpcom-write-anon-draft';
 const DISCLAIMER_STORAGE_KEY = 'wpcom-write-disclaimer-dismissed';
+
+/**
+ * Whether the editor is running on a logged-out page that opts into the
+ * anonymous flow by setting `window.wpcomWriteIsAnon = true` before the module
+ * loads. All anon branches in this file are gated on this — when the flag is
+ * absent, every code path below behaves exactly as it did before.
+ *
+ * @return {boolean} True if the host page set the anon flag.
+ */
+function isAnon() {
+	return typeof window !== 'undefined' && window.wpcomWriteIsAnon === true;
+}
+
+/**
+ * Persist the current draft snapshot to localStorage under the anon key.
+ *
+ * Failures (quota, blocked storage, undefined `localStorage`) are caught and
+ * surfaced as a Tracks event so silent draft loss doesn't read as abandonment.
+ *
+ * @param {string} title   - Current post title.
+ * @param {string} content - Current post content (block-formatted markup).
+ */
+function saveDraftToLocalStorage( title, content ) {
+	try {
+		window.localStorage.setItem(
+			ANON_DRAFT_STORAGE_KEY,
+			JSON.stringify( { title, content, ts: Date.now() } )
+		);
+	} catch ( err ) {
+		const errorName = ( err && err.name ) || 'UnknownError';
+		try {
+			window._tkq = window._tkq || [];
+			window._tkq.push( [
+				'recordEvent',
+				'wpcom_write_editor_anon_draft_persist_failed',
+				{ error_name: errorName },
+			] );
+		} catch {
+			// Tracks failed too — nothing useful to do here; swallow.
+		}
+	}
+}
+
+/**
+ * Read the persisted anon draft snapshot, or `null` if missing/unreadable.
+ *
+ * @return {{title: string, content: string, ts: number} | null} Snapshot or null.
+ */
+function readAnonDraft() {
+	try {
+		const raw = window.localStorage.getItem( ANON_DRAFT_STORAGE_KEY );
+		if ( ! raw ) {
+			return null;
+		}
+		const parsed = JSON.parse( raw );
+		if ( ! parsed || typeof parsed !== 'object' ) {
+			return null;
+		}
+		return {
+			title: typeof parsed.title === 'string' ? parsed.title : '',
+			content: typeof parsed.content === 'string' ? parsed.content : '',
+			ts: typeof parsed.ts === 'number' ? parsed.ts : 0,
+		};
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Capture the current editor content as a block-formatted snapshot and persist
+ * it to localStorage. Reads from `.bw-content-inner` (the editable wrapper) so
+ * the outer `.bw-content` element's chrome attributes don't leak in, and runs
+ * the inner HTML through `convertToBlocks` so the signup-flow handoff lands a
+ * clean block draft instead of raw contenteditable markup.
+ */
+function captureAnonSnapshot() {
+	const contentEl = getContent();
+	const html = contentEl ? contentEl.innerHTML : '';
+	saveDraftToLocalStorage( state.title, html ? convertToBlocks( html ) : '' );
+}
+
+/**
+ * Discard the persisted anon draft snapshot. Safe to call when absent.
+ */
+function clearAnonDraft() {
+	try {
+		window.localStorage.removeItem( ANON_DRAFT_STORAGE_KEY );
+	} catch {
+		// No-op: if we can't clear it, the worst case is a stale recovery banner next visit.
+	}
+}
+
+/**
+ * Remove a stale `wpcom_user_id` left in localStorage by a previous Calypso
+ * session.
+ *
+ * The anon editor only renders for logged-out visitors, so any `wpcom_user_id`
+ * persisted under this origin is stale. Calypso bootstraps "is this visitor
+ * logged in?" from that key, and the `/setup/write-on` signup flow blocks entry
+ * and bails to My Home when it thinks the visitor is already authenticated — so
+ * a stale id (e.g. a logout that didn't clear it) silently drops the anon draft
+ * handed off on Publish. Clearing it keeps the persisted auth state in sync with
+ * the real, logged-out session. See READ-574.
+ *
+ * Scoped to the single key on purpose: clearing the whole store would also wipe
+ * the `wpcom-write-anon-draft` snapshot the editor just persisted.
+ *
+ * @return {boolean} True if a stale id was present and removed.
+ */
+function clearStaleWpcomUserId() {
+	try {
+		const hadStaleId = window.localStorage.getItem( 'wpcom_user_id' ) !== null;
+		window.localStorage.removeItem( 'wpcom_user_id' );
+		return hadStaleId;
+	} catch {
+		// localStorage unavailable/blocked — nothing to clear.
+		return false;
+	}
+}
+
+// Mark the page as anonymous so style.css can hide UI that has no anon
+// equivalent (back button, more-menu, the standalone Save-draft button,
+// unsupported-content "Open in editor" buttons). Set as early as the
+// module loads so the initial render doesn't flash the hidden surfaces.
+if ( isAnon() && typeof document !== 'undefined' && document.documentElement ) {
+	document.documentElement.classList.add( 'bw-anon' );
+}
+
+// Drop a stale `wpcom_user_id` from a prior Calypso session so the Publish
+// handoff to `/setup/write-on` doesn't mistake this logged-out visitor for an
+// authenticated one and discard their draft. See READ-574.
+if ( isAnon() ) {
+	const hadStaleId = clearStaleWpcomUserId();
+	if ( hadStaleId ) {
+		window._tkq = window._tkq || [];
+		window._tkq.push( [ 'recordEvent', 'wpcom_write_editor_anon_stale_user_cleared' ] );
+	}
+}
+
+/**
+ * Inject the brand label on the left of the top bar and the "Not signed in"
+ * indicator before the Publish button. Both are anon-only; the strings come
+ * from window.wpcomWriteStrings (with English fallbacks) so translations land
+ * via the same path as the rest of the editor UI.
+ */
+function injectAnonTopbarLabels() {
+	const topbar = document.querySelector( '.bw-topbar' );
+	if ( ! topbar || topbar.querySelector( '.bw-anon-brand' ) ) {
+		return;
+	}
+
+	const brand = document.createElement( 'span' );
+	brand.className = 'bw-anon-brand';
+	brand.textContent = i18n.anonBrand || 'WordPress.com · Write';
+	topbar.prepend( brand );
+
+	const status = document.createElement( 'span' );
+	status.className = 'bw-anon-status';
+	status.textContent = i18n.anonStatus || 'Not signed in';
+	const publishBtn = topbar.querySelector( '.bw-btn-publish' );
+	if ( publishBtn && publishBtn.parentNode ) {
+		publishBtn.parentNode.insertBefore( status, publishBtn );
+	} else {
+		topbar.appendChild( status );
+	}
+}
+
+if ( isAnon() && typeof document !== 'undefined' ) {
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', injectAnonTopbarLabels );
+	} else {
+		injectAnonTopbarLabels();
+	}
+}
 
 // Autosave state — tracked outside the store to avoid triggering reactivity.
 let lastSavedSnapshot = { title: '', content: '' };
@@ -2305,6 +2480,39 @@ function applyMarkdownListShortcut( paragraph, listTag ) {
 }
 
 /**
+ * Detect a markdown blockquote shortcut in a paragraph's text.
+ *
+ * Returns true for a lone `>` marker. Captured before the trigger space is
+ * inserted, so the marker should be the only content — trailing whitespace is
+ * allowed to tolerate a stray <br>-only text node that contentEditable can
+ * leave in an otherwise-empty block, matching parseMarkdownListShortcut.
+ *
+ * @param {string} text - The paragraph's text content.
+ * @return {boolean} Whether the text is a blockquote shortcut.
+ */
+function parseMarkdownQuoteShortcut( text ) {
+	return /^>\s*$/.test( text );
+}
+
+/**
+ * Replace a paragraph with an empty blockquote, and move the cursor into it.
+ *
+ * Mirrors the slash-menu quote insert (insertNewBlock( 'blockquote' )): the
+ * <cite> attribution placeholder is added by the citation lifecycle once the
+ * cursor lands inside the blockquote.
+ *
+ * @param {HTMLElement} paragraph - The paragraph to convert.
+ */
+function applyMarkdownQuoteShortcut( paragraph ) {
+	const blockquote = document.createElement( 'blockquote' );
+	blockquote.innerHTML = '<br>';
+	paragraph.after( blockquote );
+	paragraph.remove();
+	placeCursorAt( blockquote );
+	state.formatQuote = true;
+}
+
+/**
  * Find the blockquote element containing the current cursor, if any.
  *
  * @return {HTMLElement|null} The blockquote element or null.
@@ -3355,7 +3563,7 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 			allowLeave = true;
-			window.location.href = state.adminUrl;
+			window.location.href = state.backUrl;
 		},
 
 		async saveAndLeave() {
@@ -3381,7 +3589,7 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 			allowLeave = true;
-			window.location.href = state.adminUrl;
+			window.location.href = state.backUrl;
 		},
 
 		checkFormatting() {
@@ -3688,6 +3896,38 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
+			// Backspace in an empty blockquote: convert it back to a paragraph.
+			// Must run before the first-block Backspace guard below, otherwise the
+			// guard swallows Backspace when the quote is the editor's first block
+			// (e.g. just after the `>` markdown shortcut on a fresh post), leaving
+			// the user with no way to remove the quote.
+			if ( event.key === 'Backspace' ) {
+				const sel = window.getSelection();
+				if ( sel.rangeCount && sel.isCollapsed && ! getActiveCite() ) {
+					const bq = getActiveBlockquote();
+					if ( bq ) {
+						// Ignore the <cite> placeholder when checking for empty body.
+						const probe = bq.cloneNode( true );
+						const probeCite = probe.querySelector( 'cite' );
+						if ( probeCite ) {
+							probeCite.remove();
+						}
+						if ( probe.textContent.trim() === '' ) {
+							event.preventDefault();
+							flushUndoDebounce();
+							const p = document.createElement( 'p' );
+							p.innerHTML = '<br>';
+							bq.after( p );
+							bq.remove();
+							placeCursorAt( p );
+							state.formatQuote = false;
+							pushToUndoHistory();
+							return;
+						}
+					}
+				}
+			}
+
 			// Block Backspace at the very start of the first block. With nothing
 			// to merge into, some browsers respond by unwrapping the structure
 			// — including the .bw-content-inner wrapper that protects user
@@ -3759,9 +3999,10 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Markdown list shortcut: typing space after `-`, `*`, `+`, or `1.` at the
-			// start of an otherwise-empty paragraph converts it to a list. The space
-			// itself is swallowed so the user lands at column 0 of the new <li>.
+			// Markdown shortcuts: typing space after `-`, `*`, `+`, or `1.` at the
+			// start of an otherwise-empty paragraph converts it to a list, and `>`
+			// converts it to a blockquote. The space itself is swallowed so the user
+			// lands at column 0 of the new block.
 			if ( event.key === ' ' && ! state.showSlashMenu ) {
 				const sel = window.getSelection();
 				if ( sel.rangeCount && sel.isCollapsed ) {
@@ -3778,6 +4019,13 @@ const { state } = store( 'wpcom-write', {
 							event.preventDefault();
 							flushUndoDebounce();
 							applyMarkdownListShortcut( block, listTag );
+							pushToUndoHistory();
+							return;
+						}
+						if ( parseMarkdownQuoteShortcut( block.textContent ) ) {
+							event.preventDefault();
+							flushUndoDebounce();
+							applyMarkdownQuoteShortcut( block );
 							pushToUndoHistory();
 							return;
 						}
@@ -4509,6 +4757,12 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		openImageModal() {
+			// Image insertion needs an upload endpoint and a media library; neither
+			// is available without auth, and CSS hides the entry point. The guard
+			// here covers programmatic callers (slash menu, etc.).
+			if ( isAnon() ) {
+				return;
+			}
 			// If the edit panel is open for an existing image, end that
 			// session first so the user's changes land as a discrete undo
 			// entry before the insert overlay replaces the panel.
@@ -4535,6 +4789,9 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		toggleLibraryPicker() {
+			if ( isAnon() ) {
+				return;
+			}
 			state.showLibraryPicker = ! state.showLibraryPicker;
 			// Lazy-fetch the library on first expand, and refresh on every
 			// reopen so a just-uploaded image appears at the top.
@@ -4902,6 +5159,10 @@ const { state } = store( 'wpcom-write', {
 			event.preventDefault();
 			clearDropIndicator();
 
+			if ( isAnon() ) {
+				return;
+			}
+
 			const images = Array.from( event.dataTransfer.files || [] ).filter( f =>
 				f.type.startsWith( 'image/' )
 			);
@@ -5197,6 +5458,9 @@ const { state } = store( 'wpcom-write', {
 
 		async openInBlockEditor() {
 			state.showMoreMenu = false;
+			if ( isAnon() ) {
+				return;
+			}
 
 			// New posts need a save to create the underlying post before we
 			// have a URL to navigate to. Surface the same "Please write
@@ -5237,6 +5501,9 @@ const { state } = store( 'wpcom-write', {
 
 		async previewPost() {
 			state.showMoreMenu = false;
+			if ( isAnon() ) {
+				return;
+			}
 
 			if ( ! state.editPostId && ! hasWritableContent() ) {
 				state.message = i18n.pleaseWriteSomething || 'Please write something';
@@ -5268,6 +5535,9 @@ const { state } = store( 'wpcom-write', {
 
 		openPostPicker() {
 			state.showMoreMenu = false;
+			if ( isAnon() ) {
+				return;
+			}
 
 			if ( isDirty() ) {
 				state.pendingOpenPost = true;
@@ -5511,15 +5781,42 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		async publish() {
+			if ( isAnon() ) {
+				// Flush the latest draft snapshot before navigating — autosave is
+				// on a 30s tick, and a fast typer-then-clicker would otherwise
+				// hand off stale (or no) content to the signup flow.
+				captureAnonSnapshot();
+
+				// Suppress the dirty-state leave prompt the way every other
+				// internal navigation in this file does (cf. openInBlockEditor).
+				allowLeave = true;
+
+				// Anon visitors hand off to the signup flow, which reads the draft
+				// from localStorage and publishes after signup completes.
+				window.location.assign( 'https://wordpress.com/setup/write-on' );
+				return;
+			}
 			await savePost( 'publish' );
 		},
 
 		async saveDraft() {
+			if ( isAnon() ) {
+				// Anon persists to localStorage on every autosave tick; an
+				// explicit "save draft" maps to the same operation.
+				captureAnonSnapshot();
+				lastSavedSnapshot = getContentSnapshot();
+				return;
+			}
 			await savePost( 'draft' );
 		},
 
 		async saveDraftFromMenu() {
 			state.showMoreMenu = false;
+			if ( isAnon() ) {
+				captureAnonSnapshot();
+				lastSavedSnapshot = getContentSnapshot();
+				return;
+			}
 			await savePost( 'draft' );
 		},
 
@@ -5540,9 +5837,17 @@ const { state } = store( 'wpcom-write', {
 			}
 
 			// Require at least a title or content before autosaving.
-			const contentEl = document.querySelector( '.bw-content' );
+			const contentEl = getContent();
 			const hasContent = state.title.trim() || ( contentEl && contentEl.textContent.trim() );
 			if ( ! hasContent ) {
+				return;
+			}
+
+			if ( isAnon() ) {
+				// Anon visitors have no server post; snapshot the editable HTML
+				// to localStorage so a refresh can rehydrate via the recovery banner.
+				captureAnonSnapshot();
+				lastSavedSnapshot = getContentSnapshot();
 				return;
 			}
 
@@ -5553,6 +5858,36 @@ const { state } = store( 'wpcom-write', {
 		 * Resume editing an autosaved draft.
 		 */
 		resumeDraft() {
+			if ( isAnon() ) {
+				// Anon snapshot is a JSON blob, not a server post id — hydrate the
+				// editor in place rather than navigating.
+				const snapshot = readAnonDraft();
+				if ( snapshot ) {
+					state.title = snapshot.title;
+					// The title <textarea> binds input → state.title one-way; mutating
+					// state alone does not update the field, so set the DOM value too
+					// (matching applyUndoSnapshot's pattern).
+					const titleEl = document.querySelector( '.bw-title' );
+					if ( titleEl ) {
+						titleEl.value = snapshot.title;
+						titleEl.style.height = 'auto';
+						titleEl.style.height = titleEl.scrollHeight + 'px';
+					}
+					const contentEl = getContent();
+					if ( contentEl ) {
+						contentEl.innerHTML = snapshot.content;
+					}
+					// The CSS placeholder is driven by `bw-is-empty` on the outer
+					// `.bw-content`, normally removed by the first input event.
+					// Programmatic hydration fires no input, so clear it directly.
+					if ( snapshot.content ) {
+						document.querySelector( '.bw-content' )?.classList.remove( 'bw-is-empty' );
+					}
+					lastSavedSnapshot = getContentSnapshot();
+				}
+				state.showRecoveryBanner = false;
+				return;
+			}
 			const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
 			if ( draftId && /^\d+$/.test( draftId ) ) {
 				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
@@ -5564,7 +5899,11 @@ const { state } = store( 'wpcom-write', {
 		 * Dismiss the recovery banner and discard the autosaved draft reference.
 		 */
 		dismissRecovery() {
-			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+			if ( isAnon() ) {
+				clearAnonDraft();
+			} else {
+				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+			}
 			state.showRecoveryBanner = false;
 		},
 
@@ -5740,11 +6079,23 @@ async function savePost( postStatus, isAutosave = false ) {
 
 	// Extract #tags from lines that contain only hashtag tokens (e.g. "#travel #food").
 	// Those paragraphs are metadata, not body text — strip them from the saved content.
+	// Each # starts a new tag, and a tag may contain spaces ("#New York"). To keep prose
+	// that merely starts with a # ("#1 reason you should read this") out of the tag list,
+	// each tag is capped at three whitespace-separated words. The char right after # must
+	// be a non-# non-space, so "# Heading" and "## Heading" stay body text.
 	const tagNames = [];
 	clone.querySelectorAll( ':scope > p' ).forEach( p => {
 		const text = p.textContent.trim();
-		if ( /^(#[\w-]+\s*)+$/.test( text ) ) {
-			text.match( /#([\w-]+)/g ).forEach( t => tagNames.push( t.slice( 1 ) ) );
+		if ( /^(#[^#\s]+(?:\s+[^#\s]+){0,2}\s*)+$/.test( text ) ) {
+			text
+				.split( '#' )
+				.slice( 1 )
+				.forEach( name => {
+					const trimmed = name.trim();
+					if ( trimmed ) {
+						tagNames.push( trimmed );
+					}
+				} );
 			p.remove();
 		}
 	} );
@@ -5897,13 +6248,27 @@ const autosaveReady = setInterval( () => {
 		actions.autosave();
 	}, AUTOSAVE_INTERVAL_MS );
 
-	// Show the beta disclaimer unless previously dismissed.
-	if ( ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
+	// Show the beta disclaimer unless previously dismissed. Anon visitors
+	// skip this entirely — not just because the banner is irrelevant, but
+	// because the layout's sibling selectors (`.bw-disclaimer-banner:not(
+	// [hidden]) ~ .bw-toolbar`) push the toolbar down based on the `hidden`
+	// attribute, which the Interactivity API only sets when the state is
+	// false. Leaving state true would shift the toolbar down by 44px even
+	// though our anon CSS hides the banner itself.
+	if ( ! isAnon() && ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
 		state.showDisclaimer = true;
 	}
 
 	// Check for a recoverable autosaved draft (only for new posts).
-	if ( ! state.editPostId ) {
+	if ( isAnon() ) {
+		// Anon recovery reads a JSON snapshot rather than a post id. Show the
+		// banner only when the snapshot has any actual content to restore — an
+		// empty record is no better than starting fresh.
+		const snapshot = readAnonDraft();
+		if ( snapshot && ( snapshot.title || snapshot.content ) ) {
+			state.showRecoveryBanner = true;
+		}
+	} else if ( ! state.editPostId ) {
 		const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
 		if ( draftId ) {
 			state.showRecoveryBanner = true;
@@ -6019,6 +6384,12 @@ window.addEventListener( 'dragover', event => {
 
 window.addEventListener( 'drop', event => {
 	if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+	if ( isAnon() ) {
+		// No upload endpoint for anon — prevent the default file-open behavior
+		// (matching the rest of this handler) but skip the upload path.
+		event.preventDefault();
+		return;
+	}
 	// The editor (.bw-content) and the image-modal overlay each have
 	// their own data-wp-on--drop handlers; those fire on the inner
 	// target first and bubble up to here. Check via composedPath rather

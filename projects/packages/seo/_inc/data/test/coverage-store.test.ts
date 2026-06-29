@@ -17,27 +17,34 @@ describe( 'coverage-store', () => {
 
 	it( 'applies a positive description delta to the counts', () => {
 		const registry = makeRegistry();
-		registry.dispatch( coverageStore ).applyCoverageDelta( { description: 1, schema: 0 } );
+		registry
+			.dispatch( coverageStore )
+			.applyCoverageDelta( { schema: 0, title: 0, description: 1, search_visible: 0 } );
 		expect( registry.select( coverageStore ).getCoverage() ).toEqual( {
-			total: 10,
+			...SEEDED_COVERAGE,
 			with_description: 5,
-			with_schema: 3,
 		} );
 	} );
 
-	it( 'applies a negative description and positive schema delta', () => {
+	it( 'applies deltas across all four metrics at once', () => {
 		const registry = makeRegistry();
-		registry.dispatch( coverageStore ).applyCoverageDelta( { description: -1, schema: 1 } );
+		registry
+			.dispatch( coverageStore )
+			.applyCoverageDelta( { schema: 1, title: -1, description: -1, search_visible: 1 } );
 		expect( registry.select( coverageStore ).getCoverage() ).toEqual( {
 			total: 10,
-			with_description: 3,
 			with_schema: 4,
+			with_title: 5,
+			with_description: 3,
+			with_search_visible: 9,
 		} );
 	} );
 
-	it( 'ignores unrelated actions', () => {
+	it( 'ignores a zero delta', () => {
 		const registry = makeRegistry();
-		registry.dispatch( coverageStore ).applyCoverageDelta( { description: 0, schema: 0 } );
+		registry
+			.dispatch( coverageStore )
+			.applyCoverageDelta( { schema: 0, title: 0, description: 0, search_visible: 0 } );
 		expect( registry.select( coverageStore ).getCoverage() ).toEqual( SEEDED_COVERAGE );
 	} );
 } );

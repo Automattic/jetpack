@@ -1,0 +1,102 @@
+/**
+ * Internal dependencies
+ */
+import { useStatsLocations } from '@jetpack-premium-analytics/data';
+import type {
+	ReportParams,
+	StatsLocationsItem,
+	StatsNormalizedReport,
+} from '@jetpack-premium-analytics/data';
+
+export type GeoMode = 'country' | 'region' | 'city';
+
+/**
+ * A single normalized location-views row for the widget.
+ */
+export interface LocationView {
+	label: string;
+	countryCode: string;
+	countryFull: string;
+	value: number;
+	region: string;
+}
+
+interface UseLocationViewsArgs {
+	reportParams: ReportParams;
+	max: number;
+	geoMode?: GeoMode;
+	countryFilter?: string;
+}
+
+interface LocationViewsState {
+	data: LocationView[];
+	isLoading: boolean;
+	isError: boolean;
+}
+
+/**
+ * Map a `StatsLocationsItem` from the data layer to the widget's `LocationView` shape.
+ *
+ * @param item - Normalized location item from the data layer.
+ * @return A `LocationView` for the widget, or null if the item has no country code.
+ */
+function toLocationView( item: StatsLocationsItem ): LocationView | null {
+	if ( ! item.countryCode ) {
+		return null;
+	}
+	return {
+		label: typeof item.label === 'string' ? item.label : String( item.label ),
+		countryCode: item.countryCode,
+		countryFull: item.countryFull ?? item.countryCode,
+		value: item.views,
+		region: item.region ?? '',
+	};
+}
+
+/**
+ * Fetch location views for the Locations widget via the shared Stats data layer.
+ *
+ * Delegates fetching, caching, and normalization to `useStatsLocations` from
+ * `@jetpack-premium-analytics/data`.
+ *
+ * @param args               - Hook arguments.
+ * @param args.reportParams  - PA ReportParams from WidgetRoot context.
+ * @param args.max           - Maximum rows to display.
+ * @param args.geoMode       - 'country' (default), 'region', or 'city'.
+ * @param args.countryFilter - ISO country code to filter regions by (region mode).
+ * @return The current data/loading/error state.
+ */
+export default function useLocationViews( {
+	reportParams,
+	max,
+	geoMode = 'country',
+	countryFilter,
+}: UseLocationViewsArgs ): LocationViewsState {
+	const statsParams = {
+		...reportParams,
+		geoMode,
+		max,
+		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
+	} as Parameters< typeof useStatsLocations >[ 0 ];
+
+	const { primary } = useStatsLocations( statsParams );
+
+	// isLoading: true only on the initial fetch (no data yet) — used to show the
+	// full loading placeholder. isFetching covers background refetches where
+	// stale data is already available; those should not blank the widget.
+	const isLoading = primary.isLoading;
+	const isError = primary.isError;
+
+	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
+	const rawItems = report?.data?.[ 0 ]?.items ?? [];
+	const items = rawItems
+		.map( toLocationView )
+		.filter( ( v ): v is LocationView => v !== null )
+		.slice( 0, max > 0 ? max : undefined );
+
+	return {
+		data: items,
+		isLoading,
+		isError,
+	};
+}

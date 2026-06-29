@@ -86,10 +86,6 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@babel/plugin-transform-react-jsx": "7.29.7",
-		"@babel/preset-env": "7.29.7",
-		"@babel/preset-react": "7.29.7",
-		"@babel/preset-typescript": "7.29.7",
 		"@babel/runtime": "7.29.7",
 		"@csstools/postcss-global-data": "4.0.0",
 		"@size-limit/file": "^12.1.0",
@@ -101,6 +97,7 @@
 		"@wordpress/dependency-extraction-webpack-plugin": "6.48.1",
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.4.1",
+		"babel-plugin-polyfill-corejs3": "0.14.0",
 		"concurrently": "10.0.3",
 		"core-js": "3.38.1",
 		"jest": "30.4.2",
@@ -111,7 +108,7 @@
 		"sass-loader": "16.0.5",
 		"size-limit": "12.1.0",
 		"storybook": "10.3.6",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	}
 }

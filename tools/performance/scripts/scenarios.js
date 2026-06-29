@@ -23,11 +23,35 @@ export const SCENARIOS = [
 		defaultUrl: 'http://localhost:8083',
 		header: 'Jetpack Connected (Simulated + 200ms Latency)',
 		metricPrefix: 'wp_admin_lcp_jetpack_connected',
+		// CodeVitals key for the posted metric. When introducing a NEW metric, post
+		// it to a `-staging` key first (e.g. `…-timeToFirstByte-staging`) for 2-3
+		// builds, inspect it in the CodeVitals UI, then rename to the production key.
+		// See the "Safeguards" section of README.md for the full convention.
 		metricKey: 'wp-admin-dashboard-connection-sim-largestContentfulPaint',
+		// Metric type — drives the sanity-range check in post-to-codevitals.js.
+		metricType: 'lcp',
 		postToCodeVitals: true,
 		isBaseline: false,
 	},
 ];
+
+/**
+ * Sanity ranges for posted metrics, keyed by metric type.
+ *
+ * post-to-codevitals.js checks every typed metric against these bounds before
+ * posting. A value outside its range is logged and skipped (never posted),
+ * because CodeVitals is append-only and bad points cannot be rolled back.
+ * Add a row when a new metric type starts being posted.
+ *
+ * @type {Object<string, {min: number, max: number}>}
+ */
+export const SANITY_RANGES = {
+	lcp: { min: 100, max: 60000 }, // <100ms is suspicious; >60s means the page never loaded.
+	ttfb: { min: 10, max: 10000 }, // <10ms is unrealistic; >10s means server failure.
+	fcp: { min: 50, max: 30000 },
+	tbt: { min: 0, max: 10000 }, // Can legitimately be 0; >10s is catastrophic.
+	cls: { min: 0, max: 5 }, // >5 would mean the page is unusable.
+};
 
 /**
  * Get the URL for a scenario from environment or default

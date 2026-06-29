@@ -1,4 +1,5 @@
-import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Button } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { useCallback, useState, useMemo } from 'react';
@@ -29,7 +30,7 @@ const PaginationButton = ( { pageNumber, currentPage, onPageChange } ) => {
 };
 
 const Pagination = ( { list, itemPerPage = 10, children } ) => {
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 
 	const [ currentPage, setCurrentPage ] = useState( 1 );
 

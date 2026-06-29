@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/social-previews",
-	"version": "3.2.5",
+	"version": "3.3.3",
 	"description": "A suite of components to generate previews for a post for both social and search engines.",
 	"keywords": [
 		"wordpress",
@@ -26,15 +26,15 @@
 		".": {
 			"jetpack:src": "./src/index.ts",
 			"import": "./dist/index.mjs",
-			"require": "./dist/index.js"
+			"require": "./dist/index.cjs"
 		},
-		"./style.css": "./dist/index.css"
+		"./style.css": "./dist/style.css"
 	},
-	"main": "dist/index.js",
+	"main": "dist/index.cjs",
 	"module": "dist/index.mjs",
 	"scripts": {
 		"build": "pnpm run build:prod",
-		"build:prod": "tsup",
+		"build:prod": "tsdown",
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit"
@@ -47,22 +47,21 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.29.7",
+		"@babel/core": "^7.29.7",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/jest-dom": "6.9.1",
 		"@testing-library/react": "16.3.2",
+		"@tsdown/css": "0.22.2",
 		"@types/jest": "30.0.0",
 		"@types/react": "18.3.28",
 		"@types/react-dom": "18.3.7",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"babel-jest": "30.4.1",
-		"esbuild": "0.28.1",
-		"esbuild-sass-plugin": "3.3.1",
 		"jest": "30.4.2",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"sass": "npm:sass-embedded@^1.97.2",
-		"tsup": "8.5.1",
+		"sass-embedded": "^1.97.2",
+		"tsdown": "0.22.2",
 		"typescript": "5.9.3"
 	},
 	"peerDependencies": {

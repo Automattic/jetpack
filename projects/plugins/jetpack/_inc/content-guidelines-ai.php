@@ -41,7 +41,7 @@ function jetpack_content_guidelines_ai_is_automattician() {
 /**
  * Enqueue content-guidelines-ai script on the Content Guidelines admin page.
  *
- * @since $$next-version$$
+ * @since 16.0
  *
  * @param string $hook_suffix The current admin page hook suffix.
  */
@@ -80,6 +80,22 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 			'css_path'   => '_inc/build/content-guidelines-ai.css',
 			'enqueue'    => true,
 		)
+	);
+
+	// Preload the per-user "banner dismissed" flag so the empty-state banner
+	// doesn't flash before an async read. Persisted via the
+	// guidelines-banner-dismissed REST endpoint. Defaults to dismissed so a
+	// load error hides the banner rather than showing it on every visit.
+	$banner_dismissed = class_exists( 'WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed' )
+		? WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed::is_dismissed()
+		: true;
+	wp_add_inline_script(
+		'jetpack-content-guidelines-ai',
+		'window.jetpackContentGuidelinesAi = ' . wp_json_encode(
+			array( 'bannerDismissed' => $banner_dismissed ),
+			JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+		) . ';',
+		'before'
 	);
 }
 

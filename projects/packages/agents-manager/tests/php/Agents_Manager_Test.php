@@ -520,6 +520,79 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that Help Center is dequeued in the block editor when the unified experience
+	 * (Help Center takeover) is active — Agents Manager becomes the single help affordance.
+	 */
+	public function test_help_center_dequeued_in_block_editor_when_unified() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen     = get_current_screen();
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Reset registries for isolation.
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = null;
+		$wp_styles  = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Help Center enqueues before Agents Manager (priority 100 vs 101), so it is already queued.
+		wp_enqueue_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+		wp_enqueue_style( 'help-center-style', 'https://example.com/help-center.css', array(), '1.0' );
+
+		// Full unified experience: Agents Manager takes over the Help Center.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse( wp_script_is( 'help-center', 'enqueued' ), 'Help Center script should be dequeued in the unified experience.' );
+		$this->assertFalse( wp_style_is( 'help-center-style', 'enqueued' ), 'Help Center style should be dequeued in the unified experience.' );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that Help Center remains enqueued in block-editor-only mode, where Agents Manager
+	 * replaces Big Sky's native UI but does not take over the Help Center. Regression test for AI-1013.
+	 */
+	public function test_help_center_not_dequeued_in_block_editor_only_mode() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen     = get_current_screen();
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Reset registries for isolation.
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = null;
+		$wp_styles  = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		wp_enqueue_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+		wp_enqueue_style( 'help-center-style', 'https://example.com/help-center.css', array(), '1.0' );
+
+		// Block-editor-only enablement, without the unified (Help Center takeover) experience.
+		add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertTrue( wp_script_is( 'help-center', 'enqueued' ), 'Help Center script should remain enqueued in block-editor-only mode.' );
+		$this->assertTrue( wp_style_is( 'help-center-style', 'enqueued' ), 'Help Center style should remain enqueued in block-editor-only mode.' );
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
 	 * Tests that the standalone AI chat button is added to the admin bar when the
 	 * unified experience is enabled.
 	 */
@@ -563,6 +636,127 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		);
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+	}
+
+	/**
+	 * Puts the current request into a block-editor screen with Agents Manager enabled
+	 * (block-editor-only, no unified experience), so the editor omnibar branch is reachable.
+	 */
+	private function set_up_block_editor_request() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen     = get_current_screen();
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+		add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the Ask AI button is added to the editor admin bar when the omnibar experiment
+	 * is active in a dev/internal context (here, a proxied request).
+	 */
+	public function test_ai_chat_button_registered_in_editor_omnibar() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the Ask AI button is not added to the editor admin bar when the omnibar
+	 * experiment is inactive, even in a dev/internal context.
+	 */
+	public function test_ai_chat_button_not_registered_in_editor_without_omnibar() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( false );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the Ask AI button is not added to the editor admin bar outside dev/internal
+	 * contexts, even when the omnibar experiment is active.
+	 */
+	public function test_ai_chat_button_not_registered_in_editor_outside_dev_mode() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( false );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the Help "?" dropdown (its menu panel) is added to the editor admin bar when the
+	 * omnibar experiment is active in the unified experience.
+	 */
+	public function test_help_menu_registered_in_editor_omnibar_when_unified() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) )
+		);
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the Help "?" dropdown is not added to the editor admin bar when the omnibar
+	 * experiment is active but the unified experience is disabled (Ask AI only).
+	 */
+	public function test_help_menu_not_registered_in_editor_omnibar_without_unified() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
 	}
 
 	/**

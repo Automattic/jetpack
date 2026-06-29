@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
  * Publicize_Assets class.
@@ -58,6 +59,8 @@ class Publicize_Assets {
 
 		$script_to_load = class_exists( 'Jetpack' ) ? 'block-editor-jetpack' : 'block-editor-social';
 
+		self::register_wp_build_polyfills();
+
 		// Dequeue the old Social assets.
 		wp_dequeue_script( 'jetpack-social-editor' );
 		wp_dequeue_style( 'jetpack-social-editor' );
@@ -71,6 +74,24 @@ class Publicize_Assets {
 				'textdomain' => 'jetpack-publicize-pkg',
 				'enqueue'    => true,
 			)
+		);
+	}
+
+	/**
+	 * Register polyfills for the wp-theme / wp-private-apis handles the Social bundles
+	 * depend on but WP < 7.0 does not ship (or ships with an incomplete allowlist).
+	 *
+	 * Only the two handles Social actually uses are requested, to keep the polyfill's
+	 * `wp-private-apis` force-replacement off any handle we don't need.
+	 */
+	public static function register_wp_build_polyfills() {
+		if ( ! class_exists( WP_Build_Polyfills::class ) ) {
+			return;
+		}
+
+		WP_Build_Polyfills::register(
+			'jetpack-social',
+			array( 'wp-theme', 'wp-private-apis' )
 		);
 	}
 }

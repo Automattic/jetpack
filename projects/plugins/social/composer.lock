@@ -205,7 +205,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "a95c9103c938904a50375cf96ddd919bad379053"
+                "reference": "abe662cbc928ddf626c3aee788a132fd68ec4ba6"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -227,7 +227,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"
@@ -280,7 +280,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "34c28243fe1b82bec808b44208ca33bb69a7ab51"
+                "reference": "7214a03808294ae652164b2495dc4e8a09c54e89"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -305,7 +305,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.3.x-dev"
+                    "dev-trunk": "4.4.x-dev"
                 }
             },
             "autoload": {
@@ -1245,7 +1245,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "1efd5d854bbfcc500b9b4ac7af9903e73e156cdc"
+                "reference": "5d892112ea87492bd73daf094dab0fa937559935"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1284,7 +1284,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.38.x-dev"
+                    "dev-trunk": "5.40.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1790,7 +1790,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "dd5884e4d1b470ac3d257038a3215ed6042c4c5b"
+                "reference": "d410c56b142c703d6e6d6f6bdc1e28f55e28504b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1798,6 +1798,7 @@
                 "automattic/jetpack-autoloader": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-image-cdn": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-post-media": "@dev",
                 "automattic/jetpack-redirect": "@dev",
@@ -1822,7 +1823,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.81.x-dev"
+                    "dev-trunk": "0.83.x-dev"
                 }
             },
             "autoload": {
@@ -2052,7 +2053,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "e4dea39ce815f1d6673b2600c917c5c82bd825b7"
+                "reference": "1ad37c018dad2c569fb1d99ef7717d218af56548"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2085,7 +2086,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.43.x-dev"
+                    "dev-trunk": "4.44.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2124,7 +2125,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "3f3fcbaa85914479f57f85c64247b824101cf185"
+                "reference": "0c7f6a117e69a6359020ae1cfec19c3eb53e4a95"
             },
             "require": {
                 "php": ">=7.2"
@@ -2179,7 +2180,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Polyfills for WordPress Core packages not available in WP < 7.0",
+            "description": "Polyfills for WordPress Core packages not available or incomplete in older WP versions",
             "transport-options": {
                 "relative": true
             }

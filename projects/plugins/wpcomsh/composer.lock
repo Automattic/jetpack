@@ -253,7 +253,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "a95c9103c938904a50375cf96ddd919bad379053"
+                "reference": "abe662cbc928ddf626c3aee788a132fd68ec4ba6"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -275,7 +275,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"
@@ -328,7 +328,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "34c28243fe1b82bec808b44208ca33bb69a7ab51"
+                "reference": "7214a03808294ae652164b2495dc4e8a09c54e89"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -353,7 +353,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.3.x-dev"
+                    "dev-trunk": "4.4.x-dev"
                 }
             },
             "autoload": {
@@ -1707,9 +1707,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "7ece8afde05a2c7aee25181ce7c7a8045565039c"
+                "reference": "b8a52dce988b6970dd6e8012e6fa9642e0b1f60b"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-connection": "@dev",
@@ -1732,7 +1733,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-podcast",
                 "branch-alias": {
-                    "dev-trunk": "1.1.x-dev"
+                    "dev-trunk": "1.3.x-dev"
                 },
                 "textdomain": "jetpack-podcast",
                 "version-constants": {
@@ -2288,7 +2289,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "e4dea39ce815f1d6673b2600c917c5c82bd825b7"
+                "reference": "1ad37c018dad2c569fb1d99ef7717d218af56548"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2321,7 +2322,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.43.x-dev"
+                    "dev-trunk": "4.44.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2418,7 +2419,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "3f3fcbaa85914479f57f85c64247b824101cf185"
+                "reference": "0c7f6a117e69a6359020ae1cfec19c3eb53e4a95"
             },
             "require": {
                 "php": ">=7.2"
@@ -2473,7 +2474,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Polyfills for WordPress Core packages not available in WP < 7.0",
+            "description": "Polyfills for WordPress Core packages not available or incomplete in older WP versions",
             "transport-options": {
                 "relative": true
             }

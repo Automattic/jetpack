@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.9] - 2026-06-29
+### Changed
+- Internal updates.
+
+## [0.1.8] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
+## [0.1.7] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
 ## [0.1.6] - 2026-06-15
 ### Changed
 - Update package dependencies. [#49273] [#49492]
@@ -55,6 +67,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
+[0.1.9]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.8...v0.1.9
+[0.1.8]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.7...v0.1.8
+[0.1.7]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.3...v0.1.4

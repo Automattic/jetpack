@@ -125,7 +125,7 @@
 		"social-logos": "workspace:*",
 		"swiper": "12.1.2",
 		"tus-js-client": "4.2.3",
-		"webpack": "5.105.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	},
 	"devDependencies": {
@@ -134,9 +134,6 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@babel/plugin-transform-react-jsx": "7.29.7",
-		"@babel/plugin-transform-runtime": "7.29.7",
-		"@babel/preset-env": "7.29.7",
 		"@babel/runtime": "7.29.7",
 		"@csstools/postcss-global-data": "4.0.0",
 		"@testing-library/dom": "10.4.1",
