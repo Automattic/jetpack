@@ -16,7 +16,10 @@
 }
 
 // Breadcrumb trail in the page header. Hand-rolled (see breadcrumbs.tsx) so the
-// form crumb can carry a search param; styled to match admin-ui's breadcrumbs.
+// form crumb can carry a search param; typography mirrors admin-ui's
+// `<Breadcrumbs>` via the same WPDS tokens — links use the `body-lg` treatment
+// and the current item the `heading-lg` one (heading font family, medium
+// weight), so it doesn't render heavier/in the wrong font versus other pages.
 .jp-forms__single-response-breadcrumbs {
 	display: flex;
 	align-items: center;
@@ -24,8 +27,9 @@
 
 	&__link {
 		color: var(--jp-gray-50, #646970);
-		font-size: 15px;
-		line-height: 20px;
+		font-size: var(--wpds-typography-font-size-lg, 15px);
+		font-weight: var(--wpds-typography-font-weight-regular, 400);
+		line-height: var(--wpds-typography-line-height-md, 24px);
 		text-decoration: none;
 
 		&:hover {
@@ -42,9 +46,11 @@
 
 	&__current {
 		margin: 0;
-		font-size: 15px;
-		font-weight: 500;
-		line-height: 20px;
+		font-family:
+ var(--wpds-typography-font-family-heading, -apple-system, system-ui, "Segoe UI", "Roboto", sans-serif);
+		font-size: var(--wpds-typography-font-size-lg, 15px);
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		line-height: var(--wpds-typography-line-height-sm, 20px);
 		color: var(--jp-black, #1e1e1e);
 	}
 }
