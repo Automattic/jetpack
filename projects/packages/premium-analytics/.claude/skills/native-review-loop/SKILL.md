@@ -1,4 +1,5 @@
 ---
+name: native-review-loop
 description: Pre-push local review gate — spawn an independent reviewer (preferably a different model than the author — Codex/Cursor/Copilot for Claude-authored diffs, and vice versa) to review the working diff, triage and fix valid findings, re-verify, and loop with a fresh reviewer until a clean pass, only then push. Use before pushing any branch, or when the user says "local review before push", "loop till clean", "native review", "cross-model review".
 allowed-tools: Agent, Read, Glob, Grep, Edit, Write, Bash
 ---
