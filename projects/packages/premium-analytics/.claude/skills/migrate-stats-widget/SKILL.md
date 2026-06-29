@@ -1,4 +1,5 @@
 ---
+name: migrate-stats-widget
 description: Port a Jetpack Stats module/card from wp-calypso into a registered Premium Analytics widget, following the package widget contract, then audit it clean.
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(cat:*), Bash(pnpm:*), Bash(jetpack:*), Bash(npx:*)
 ---
@@ -37,12 +38,33 @@ Ask for any not provided, then echo them back before scaffolding:
 3. **Reference screenshot** — how the widget should look. Read it to confirm the visualization,
    the metric(s) shown, row labels, and whether a comparison/delta is expected.
 4. **Data hook** — which `packages/data` hook supplies the data (see step 2 below). If none fits,
-   STOP and flag it as a data-layer task — do not call `fetchStatsProxy`/`apiFetch` from a widget.
+   STOP and prompt the user (see "Missing components" below) — do not call
+   `fetchStatsProxy`/`apiFetch` from a widget, and do not invent a hook on your own.
 5. **Display component** — which `packages/widgets-toolkit` component renders it (`LeaderboardChart`,
-   `DonutChart`, `ComparativeLineChart`, `MetricValue`/`MetricWithComparison`, etc.).
+   `DonutChart`, `ComparativeLineChart`, `MetricValue`/`MetricWithComparison`, etc.). If none fits,
+   STOP and prompt the user (see "Missing components" below) before building anything new.
 6. **Attributes (settings)** — the user-configurable fields (date range comes from the dashboard
    via `reportParams`, NOT an attribute). Typical: `num`/`max` (row count), a view/post-type
    selector. Each declared attribute MUST be consumed in `render.tsx` — no ghost attributes.
+
+## Missing components — STOP and prompt the user
+
+If the port needs something that doesn't exist upstream yet — a missing `packages/data` hook or
+query, a missing `widgets-toolkit` display component, or missing functionality in either (or in
+`@automattic/charts`) — **do not build it inline and do not silently fold it into the port.** Pause
+and prompt the user with:
+
+- **What's missing** — the specific hook / component / capability, and where you looked to confirm
+  it doesn't already exist (the data-hooks list, the toolkit `index.ts`, `helpers/`).
+- **Why it's needed** — what the widget can't do without it, tied to the source module's behavior
+  and the reference screenshot.
+- **Proposed spec** — name; inputs/props or query params; return shape; and where it should live
+  (`packages/data` vs `widgets-toolkit` vs `@automattic/charts`). For a data hook, the proxy
+  endpoint/prefix it would use (see AGENTS.md data proxy).
+
+Wait for the user's decision before writing any upstream code — they may route it to a separate
+task/PR, refine the spec, or approve adding it. Adding upstream pieces unprompted — even small
+ones — is not allowed.
 
 ## Steps
 
@@ -53,11 +75,8 @@ widgets). Find it, **assign it to yourself and set it In Progress** so it's clea
 and note which page task(s) in **WOOA7S-1612** (the per-tab ownership parent) compose it — those
 are blocked by this work.
 
-Confirm the **base branch** before branching. Port branches are based on the current Premium
-Analytics integration branch, NOT trunk (the parallel Woo effort bases on
-`update/pa-introduce-customize-dashboard`). Ask the lead / check the most recent merged
-Stats-widget PR for the current base and branch-naming schema, then substitute this issue's ID.
-One widget = one branch = one draft PR.
+Branch off **trunk**. One widget = one branch = one draft PR; name the branch after this issue's
+ID (check a recent merged Stats-widget PR for the branch-naming schema).
 
 ### 2. Pick the data hook (do not reinvent)
 
@@ -85,8 +104,9 @@ ls projects/packages/premium-analytics/packages/widgets-toolkit/src/helpers/
 
 ### 4. Scaffold the folder
 
-Create `widgets/<slug>/` with exactly these files (copy the reference ports' structure, not a
-legacy `packages/widgets-toolkit/src/widgets/*` widget):
+Create `widgets/<slug>/` with exactly these files (copy the reference ports' structure — don't use
+the legacy `sales-by-coupon`/`sales-by-utm` widgets under `packages/widgets-toolkit/src/widgets/`
+as templates):
 
 - `package.json` — workspace pkg; internal deps via `link:` and the `@jetpack-premium-analytics/*`
   alias (NEVER `@automattic/jetpack-premium-analytics-*`). Dependencies must mirror imports exactly.
@@ -131,34 +151,93 @@ Ensure `projects/packages/premium-analytics/widgets` is in
 - `npx eslint projects/packages/premium-analytics/widgets/<slug>` (confirms the JSDoc `props` tag,
   CSS tokens, button types, etc.). Re-run until clean.
 
-### 8. Verify it renders
+### 8. Verify it renders in Storybook (preliminary)
 
-Build and check Storybook for all three stories (Default, WithComparison, dashboard) — the story is
-the primary initial-validation surface:
+Build the package and check Storybook for all three stories (Default, WithComparison, dashboard):
 
 ```bash
 jetpack build packages/premium-analytics
 ```
 
-Compare the close-up story against the reference screenshot — layout, metric, labels, empty state,
-and the comparison delta. Capture a screenshot for the PR/Linear update.
+Compare the Default story against the reference screenshot — layout, metric, labels, empty state,
+and comparison delta. This is necessary but **not sufficient**: a widget can render in Storybook and
+still be missing or broken in the real dashboard. Step 9 is the check that actually counts.
 
-### 9. Open the draft PR and get CI green
+### 9. Verify on the live dashboard — REQUIRED (the step that proves it works)
 
-- Add a changelog entry (`/jetpack-changelog`) and open a **draft PR** off the integration base
-  branch (step 1), following the PR template; assign it to the issue owner.
-- All CI workflows must pass. The **coverage-data** check is the one allowed failure (it fails on
-  feature branches not based on trunk). Fix anything else that's red before handing off.
+A widget is not done until it works in the real Premium Analytics dashboard. Do not skip this and do
+not open a PR without it.
+
+1. **Build the plugin** that hosts the dashboard:
+
+   ```bash
+   jp build plugins/premium-analytics --deps
+   ```
+
+   The dashboard lives in the standalone `plugins/premium-analytics` plugin, and `--deps` builds its
+   `packages/premium-analytics` dependency in the same pass — required here (this is the documented
+   exception to the usual "don't pass `--deps`" rule). On failure: read the error, fix what's
+   diagnosable, retry once, then escalate.
+2. **Bring up the env** via the `jetpack-dev-env` skill (auto-detects the agent from pwd). Require
+   HTTP 200 on `/` **and** on the dashboard URL below before continuing; on 5xx, tail
+   `wp-content/debug.log` and check active source-mounted plugins (see `jetpack-address-issue`
+   step 5) — the usual cause is another mounted plugin that needs a build.
+3. **Open the dashboard** with the chrome MCP browser tooling (against
+   `https://jp-<agent>.jurassic.tube/` or `localhost:<port>`), creds `wordpress` / `imyourdaddy`:
+
+   ```text
+   /wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin
+   ```
+
+4. **Add and exercise the widget** — the test procedure:
+   - Click **Customize** on the dashboard/section the widget is registered to (its `category`).
+   - Find the widget in the **gallery** (by its `title`).
+   - **Add it to the dashboard.**
+   - Confirm the **visual is correct** — matches the reference screenshot, data actually loads (not
+     stuck in loading / empty / error).
+   - **Resize and move it** across grid sizes — confirm it keeps working and stays legible.
+   - **Watch the browser console** the whole time — there must be **no errors and no noisy warnings**
+     (React key/act warnings, failed fetches, missing `--wpds-*` tokens, etc.).
+5. **Bug-fix loop (autonomous, no check-ins):** if the widget is absent from the gallery, renders
+   broken, throws on add/resize, or spams the console — examine and fix, rebuild the affected layer
+   (re-run the relevant part of step 1), and re-run this whole verification. Loop until every check
+   passes. Escalate only if the fix needs a missing upstream piece (see "Missing components") or a
+   meaningfully different approach.
+6. **Screenshot the working widget** on the dashboard once it passes (via `jetpack-screenshot-local`).
+   A widget port is a **new addition**, so capture an **"after" only** — there is no "before". Add a
+   before/after pair only when you changed an *existing* widget.
+
+Do not proceed until the dashboard verification passes with a clean console.
+
+### 10. Local review loop — gate the push
+
+Before anything reaches the remote, run the pre-push review gate (`/native-review-loop`) to catch
+widget-contract violations and scope creep locally — before CI burns a run and before review churn
+on the PR. Spawn an independent fresh-context reviewer on the local diff, triage + fix valid
+findings, re-verify, and re-review with a new reviewer until a **clean pass** (no blocker/should-fix),
+bounded at ~3 rounds. Point the reviewer at `AGENTS.md`, `.agents/rules/widgets.md`, and
+`widget-audit.md` as the contract. Do not push while blockers remain.
+
+### 11. Open the PR — with the dashboard screenshot
+
+- Add a changelog entry (`/jetpack-changelog`) and open the PR via `/jetpack-pr` (off trunk, full
+  template preserved). Include the **"after"** dashboard screenshot from step 9 (after-only for a new
+  widget; before/after only when changing an existing one). Assign it to the issue owner.
+- All CI workflows must pass — fix anything that's red before handing off.
+- Hand off to the `jetpack-pr-review-cycle` skill with the new PR number.
 
 ## Done criteria
 
 - `/widget-audit <slug>` and `eslint` both pass.
 - All three stories render; Default visually matches the screenshot; WithComparison shows real
   previous-period deltas.
+- **The widget was added to a live dashboard at
+  `/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin`, looks correct, survives resize/move,
+  and produces no console errors or noisy warnings** (step 9 — the load-bearing check).
 - The data hook is from `packages/data` (no direct proxy/apiFetch); display is a toolkit component;
   no reinvented helpers; no upstream package modified.
-- A draft PR is open off the integration base branch with passing CI (coverage-data excepted), and
-  the diff is scoped to *just* this widget.
+- A PR is open off trunk with the "after" dashboard screenshot and passing CI, and the diff is
+  scoped to *just* this widget.
 - Linear: the WOOA7S-1458 widget subtask is assigned to the owner, updated, and the blocked page
   task(s) in WOOA7S-1612 noted.
 
@@ -173,8 +252,11 @@ and the comparison delta. Capture a screenshot for the PR/Linear update.
 
 ## Special attention / common failure modes
 
-- Putting the widget under `packages/widgets-toolkit/src/widgets/*` (legacy path) — use top-level
-  `widgets/<slug>/`.
+- Putting the **registered** widget folder (`package.json` + `widget.json` + `widget.ts` +
+  `render.tsx`) anywhere but top-level `widgets/<slug>/`. (`packages/widgets-toolkit/src/widgets/*`
+  is a different thing — reusable composite widget *components* you compose from, like
+  `OrderMetricWidget` / `SalesByDeviceWidget`; only the older registered widgets there —
+  `sales-by-coupon`, `sales-by-utm` — are legacy, so just don't copy those as templates.)
 - Declaring `presentation` in `widget.ts`, or re-declaring the attribute type in `render.tsx`.
 - Dropping `attributes` at the `<WidgetRoot>` boundary (kills date/comparison controls).
 - A `withComparison` story control not wired into `reportParams: getDefaultQueryParams(withComparison)`
@@ -182,11 +264,14 @@ and the comparison delta. Capture a screenshot for the PR/Linear update.
 - Modules with internal tabs or drill-down (Locations, UTM, Devices, Post detail) are NOT single
   flat widgets — model local UI state in the inner component (see `locations/`), and per the page
   plan, third-level detail tabs are split into separate pages.
-- Summary/"view all" pages are being **redesigned** (Core DataViews + date-range/comparison picker +
-  Performance chart), not ported 1:1 — those belong to the report-page framework tasks
-  (WOOA7S-1614/1620/1621), not this per-widget skill.
-- Modifying an upstream package (`packages/data`, `packages/widgets-toolkit`, `@automattic/charts`)
-  to make a widget work — don't, unless absolutely necessary. A missing hook or component is a
-  separate flagged task, not part of the port diff.
+- Summary/"view all" pages are being **redesigned** and are **not** registered widgets. Each is a
+  page-level composition that *expands* the corresponding dashboard module — date-range/comparison
+  picker + Performance chart + a Core DataViews records table — reusing the module's **data hook**,
+  not the widget. They belong to the report-page framework tasks (WOOA7S-1614/1620/1621), not this
+  per-widget skill. Don't build a report/summary page as a `jpa/` widget.
+- Silently adding to or modifying an upstream package (`packages/data`, `packages/widgets-toolkit`,
+  `@automattic/charts`) to make a widget work. If you find a missing hook, component, or piece of
+  functionality, **STOP and prompt the user** — see "Missing components" below. Never fold new
+  upstream pieces into the port diff on your own.
 - Re-implementing error handling — the shared error-handling approach is owned separately; follow
   the loading/error states the contract prescribes and don't hand-roll beyond them.

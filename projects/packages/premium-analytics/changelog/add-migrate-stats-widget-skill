@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the migrate-stats-widget and native-review-loop developer skills for porting Jetpack Stats widgets into Premium Analytics.
