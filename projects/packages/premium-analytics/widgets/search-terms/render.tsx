@@ -24,8 +24,8 @@ type SearchTermsRenderAttributes = Partial< ReportParamsFieldAttributes > & Sear
 /**
  * Search Terms widget inner component. Reads report params from WidgetRoot context.
  *
- * @param root0     - Render props.
- * @param root0.max - Maximum number of rows to display.
+ * @param props     - Render props.
+ * @param props.max - Maximum number of rows to display.
  * @return The rendered widget content.
  */
 function SearchTermsInner( { max = 10 }: { max?: number } ) {
@@ -33,7 +33,7 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 
 	const { data, isLoading, isError } = useSearchTermViews( { reportParams, max } );
 
-	const leaderboardData = useMemo( () => {
+	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...data.map( t => t.views ), 0 );
 
 		return data.map( ( term, index ) => ( {
@@ -48,7 +48,7 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 			currentShare: maxValue > 0 ? ( term.views / maxValue ) * 100 : 0,
 			previousShare: 0,
 			delta: 0,
-		} ) ) as LeaderboardChartData;
+		} ) );
 	}, [ data ] );
 
 	if ( isError ) {
@@ -95,8 +95,8 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
  * Search Terms widget: the top search queries visitors used to reach the site,
  * ranked by view count. Ported from the Jetpack Stats "Search Terms" module.
  *
- * @param root0            - Render props.
- * @param root0.attributes - Widget attributes (max, reportParams).
+ * @param props            - Render props.
+ * @param props.attributes - Widget attributes (max, reportParams).
  * @return The rendered Search Terms widget.
  */
 export default function SearchTerms( {
