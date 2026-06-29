@@ -168,6 +168,33 @@ function getTimeSeriesIntervalFields( period: unknown, unit?: string ) {
 	return getStatsIntervalFields( periodString, unit );
 }
 
+function getHourIntervalFields( date: string, hour: unknown ) {
+	const datePart = date.split( 'T' )[ 0 ];
+	const hourPart = String( Math.trunc( Number( hour ) ) || 0 ).padStart( 2, '0' );
+
+	return {
+		time_interval: `${ datePart } ${ hourPart }:00`,
+		date_start: `${ datePart }T${ hourPart }:00:00+00:00`,
+		date_end: `${ datePart }T${ hourPart }:59:59+00:00`,
+	};
+}
+
+function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: string ) {
+	if ( unit === 'hour' && row.hour !== undefined && typeof rawPeriod === 'string' ) {
+		return getHourIntervalFields( rawPeriod, row.hour );
+	}
+
+	if ( typeof row.date_start === 'string' && typeof row.date_end === 'string' ) {
+		return {
+			time_interval: row.date_start,
+			date_start: row.date_start,
+			date_end: row.date_end,
+		};
+	}
+
+	return getTimeSeriesIntervalFields( rawPeriod, unit );
+}
+
 function getTimeSeriesSummarySidecars( response: StatsRecord ) {
 	return {
 		...normalizeStatsSummary( coerceStatsRecord( response.summary ) ),
@@ -212,14 +239,7 @@ export function sanitizeStatsTimeSeriesResponse(
 	}, {} );
 	const data = rows.map< StatsTimeSeriesDataPoint >( row => {
 		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
-		const range =
-			typeof row.date_start === 'string' && typeof row.date_end === 'string'
-				? {
-						time_interval: row.date_start,
-						date_start: row.date_start,
-						date_end: row.date_end,
-				  }
-				: getTimeSeriesIntervalFields( rawPeriod, unit );
+		const range = getRowIntervalFields( row, rawPeriod, unit );
 		const value = safeParseFloat( getPrimaryMetricValue( row ) );
 
 		return {
@@ -272,9 +292,9 @@ export function sanitizeStatsEmailTimeSeriesResponse(
 	const timeline = coerceStatsRecord( coerceStatsRecord( payload ).timeline );
 	const fields = coerceStatsArray< string >( timeline.fields );
 
-	// Hourly timelines carry an unlabeled trailing hour column per row; surface it as a field so
-	// the value is preserved rather than dropped (matching Calypso's parseEmailChartData). Bucket
-	// labels stay day-granular until the shared datetime interval helper gains hour resolution.
+	// Hourly timelines carry an unlabeled trailing hour column per row; surface it as a field
+	// (matching Calypso's parseEmailChartData) so the value is preserved and the normalizer can
+	// resolve each row into its own per-hour bucket.
 	const normalizedTimeline =
 		timeline.unit === 'hour' && fields.length && ! fields.includes( 'hour' )
 			? { ...timeline, fields: [ ...fields, 'hour' ] }

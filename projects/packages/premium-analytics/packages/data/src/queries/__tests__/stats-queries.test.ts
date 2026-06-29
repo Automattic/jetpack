@@ -117,8 +117,12 @@ describe( 'Stats query factories', () => {
 		expect( statsEmailClicksBreakdownQuery( -1, 'link' ).enabled ).toBe( false );
 	} );
 
-	it( 'builds email opens time series query keys with Calypso timeline defaults', () => {
-		const query = statsEmailOpensTimeSeriesQuery( 41 );
+	it( 'builds email opens time series query keys from the report date range', () => {
+		const query = statsEmailOpensTimeSeriesQuery( 41, {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+		} );
 
 		expect( query.enabled ).toBe( true );
 		expect( query.queryKey ).toEqual( [
@@ -127,31 +131,47 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/opens/emails/41',
 			'GET',
-			{ period: 'day', quantity: 30, stats_fields: 'timeline' },
+			{ period: 'day', quantity: 7, date: '2026-06-07', stats_fields: 'timeline' },
 			undefined,
 			'emailTimeSeries',
 		] );
 	} );
 
-	it( 'forwards email clicks period/date and defaults hourly quantity to 24', () => {
-		const query = statsEmailClicksTimeSeriesQuery( 41, { period: 'hour', date: '2026-06-25' } );
-
-		expect( query.queryKey ).toEqual( [
-			'stats',
-			'email-clicks-time-series',
-			'1.1',
-			'stats/clicks/emails/41',
-			'GET',
-			{ period: 'hour', quantity: 24, date: '2026-06-25', stats_fields: 'timeline' },
-			undefined,
-			'emailTimeSeries',
-		] );
+	it( 'clamps coarser intervals to daily over the full requested span', () => {
+		expect(
+			statsEmailClicksTimeSeriesQuery( 41, {
+				from: '2026-06-01',
+				to: '2026-06-30',
+				interval: 'month',
+			} ).queryKey[ 5 ]
+		).toEqual( { period: 'day', quantity: 30, date: '2026-06-30', stats_fields: 'timeline' } );
 	} );
 
-	it( 'disables email time series queries until a positive integer post ID is available', () => {
-		expect( statsEmailOpensTimeSeriesQuery( 0 ).enabled ).toBe( false );
-		expect( statsEmailClicksTimeSeriesQuery( -1 ).enabled ).toBe( false );
-		expect( statsEmailOpensTimeSeriesQuery( 1.5 ).enabled ).toBe( false );
+	it( 'requests 24 hourly buckets per day so multi-day hourly ranges are not truncated', () => {
+		expect(
+			statsEmailClicksTimeSeriesQuery( 41, {
+				from: '2026-06-15',
+				to: '2026-06-15',
+				interval: 'hour',
+			} ).queryKey[ 5 ]
+		).toEqual( { period: 'hour', quantity: 24, date: '2026-06-15', stats_fields: 'timeline' } );
+
+		expect(
+			statsEmailClicksTimeSeriesQuery( 41, {
+				from: '2026-06-14',
+				to: '2026-06-15',
+				interval: 'hour',
+			} ).queryKey[ 5 ]
+		).toEqual( { period: 'hour', quantity: 48, date: '2026-06-15', stats_fields: 'timeline' } );
+	} );
+
+	it( 'disables email time series queries without a positive integer post ID or a date', () => {
+		const range = { from: '2026-06-01', to: '2026-06-07', interval: 'day' } as const;
+
+		expect( statsEmailOpensTimeSeriesQuery( 0, range ).enabled ).toBe( false );
+		expect( statsEmailClicksTimeSeriesQuery( -1, range ).enabled ).toBe( false );
+		expect( statsEmailOpensTimeSeriesQuery( 1.5, range ).enabled ).toBe( false );
+		expect( statsEmailOpensTimeSeriesQuery( 41, {} as StatsReportParams ).enabled ).toBe( false );
 	} );
 
 	it( 'includes filter_by_country in query params when provided', () => {
