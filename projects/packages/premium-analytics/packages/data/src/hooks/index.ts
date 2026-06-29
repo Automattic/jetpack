@@ -128,6 +128,12 @@ export {
 	type StatsEmailClicksBreakdown,
 	type StatsEmailOpensBreakdown,
 } from './use-stats-email-breakdown';
+export {
+	useStatsEmailSummary,
+	type StatsEmailSummary,
+	type StatsEmailSummaryParams,
+	type StatsEmailSummarySortField,
+} from './use-stats-email-summary';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**

@@ -16,6 +16,7 @@ import {
 	statsEmailClicksBreakdownQuery,
 	statsEmailOpensBreakdownQuery,
 } from '../stats-email-breakdown-query';
+import { statsEmailSummaryQuery } from '../stats-email-summary-query';
 import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
@@ -346,6 +347,39 @@ describe( 'Stats query factories', () => {
 			undefined,
 			'followers',
 		] );
+	} );
+
+	it( 'requests the email summary with Calypso defaults', () => {
+		const query = statsEmailSummaryQuery();
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'email-summary',
+			'1.1',
+			'stats/emails/summary',
+			'GET',
+			{
+				quantity: 10,
+				sort_field: 'post_date',
+				sort_order: 'desc',
+			},
+			undefined,
+			'emailSummary',
+		] );
+	} );
+
+	it( 'forwards email summary row count and sort overrides', () => {
+		const query = statsEmailSummaryQuery( {
+			quantity: 5,
+			sort_field: 'opens',
+			sort_order: 'asc',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			quantity: 5,
+			sort_field: 'opens',
+			sort_order: 'asc',
+		} );
 	} );
 
 	it( 'builds app query keys without report param coercion', () => {

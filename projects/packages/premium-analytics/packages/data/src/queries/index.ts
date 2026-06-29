@@ -71,3 +71,4 @@ export {
 	type StatsEmailClicksBreakdown,
 	type StatsEmailOpensBreakdown,
 } from './stats-email-breakdown-query';
+export { statsEmailSummaryQuery } from './stats-email-summary-query';

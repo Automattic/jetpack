@@ -133,6 +133,12 @@ export {
 	type StatsEmailClicksBreakdown,
 	type StatsEmailOpensBreakdown,
 } from './hooks/use-stats-email-breakdown';
+export {
+	useStatsEmailSummary,
+	type StatsEmailSummary,
+	type StatsEmailSummaryParams,
+	type StatsEmailSummarySortField,
+} from './hooks/use-stats-email-summary';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
