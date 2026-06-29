@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Jetpack.FeatureFlags.FeatureFlagName sniff to validate feature flag names registered via the jetpack-feature-flags package.

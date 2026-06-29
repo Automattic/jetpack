@@ -1,5 +1,5 @@
 /**
- * Shoppers Privacy Controls Interactivity
+ * Cookie Consent Controls Interactivity
  *
  * Single store handling both GDPR cookie banner and CCPA opt-out functionality.
  * Uses separate contexts for each UI component while sharing actions and initialization.
@@ -59,6 +59,7 @@ interface StoreConfig {
 	cookiePolicyUrl: string;
 	gdprCountries: string[];
 	ccpaRegions: string[];
+	gdprHonorsGpc: boolean;
 	showOnError: boolean;
 	forcePreview: boolean;
 }
@@ -410,9 +411,10 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				return geoState;
 			}
 
-			// If there is not country_code or region cookie set, fetch geolocation
+			// If either the country_code or region cookie is missing, fetch geolocation.
+			// `no-store` avoids using the browser HTTP cache for this visitor-specific response.
 			try {
-				const response = ( yield fetch( config.geoApiUrl ) ) as Response;
+				const response = ( yield fetch( config.geoApiUrl, { cache: 'no-store' } ) ) as Response;
 				if ( ! response.ok ) {
 					throw new Error( 'Geolocation request failed' );
 				}
@@ -545,7 +547,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			if ( 'isGdprManageLink' in context ) {
 				gdprManageLinkContexts.add( context );
 
-				// Keep the footer link visibility in sync after the shopper saves consent.
+				// Keep the footer link visibility in sync after the visitor saves consent.
 				// Without this, the link stays hidden until a full page reload.
 				const config = getConfig() as unknown as StoreConfig;
 				if ( ! manageLinkConsentListenerRegistered ) {

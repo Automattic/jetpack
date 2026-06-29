@@ -1,13 +1,8 @@
 /**
  * External dependencies
  */
-import {
-	Text,
-	Button,
-	useBreakpointMatch,
-	ActionPopover,
-	getRedirectUrl,
-} from '@automattic/jetpack-components';
+import { Text, Button, ActionPopover, getRedirectUrl } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
@@ -29,7 +24,7 @@ export const VideoRowError = ( { id, className = '', title }: VideoRowProps ) =>
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
 
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 	const [ keyPressed, setKeyDown ] = useState( false );
 	const [ expanded, setExpanded ] = useState( false );
 	const [ anchor, setAnchor ] = useState( null );

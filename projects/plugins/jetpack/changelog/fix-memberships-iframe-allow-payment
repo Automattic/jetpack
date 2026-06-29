@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Memberships: delegate the Payment Request API to the checkout iframe so Apple Pay, Google Pay, and Stripe Link can load and complete payments.

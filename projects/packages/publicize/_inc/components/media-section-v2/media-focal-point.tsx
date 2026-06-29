@@ -10,23 +10,25 @@ import styles from './styles.module.scss';
 import { MediaFocalPointProps } from './types';
 import type { FocalPoint } from '../../utils/types';
 
+const roundPoint = ( point: FocalPoint ): FocalPoint => ( {
+	x: Math.round( point.x * 100 ) / 100,
+	y: Math.round( point.y * 100 ) / 100,
+} );
+
 /**
  * MediaFocalPoint component
  *
  * @param {MediaFocalPointProps} props - Component props
  * @return MediaFocalPoint component
  */
-export default function MediaFocalPoint( { url, value, onChange }: MediaFocalPointProps ) {
-	// Commit only on drag end (onChange); the picker tracks the marker during drag itself.
-	// Round to 2 decimals before handing the point up for persistence.
+export default function MediaFocalPoint( { url, value, onChange, onDrag }: MediaFocalPointProps ) {
 	const handleChange = useCallback(
-		( point: FocalPoint ) => {
-			onChange( {
-				x: Math.round( point.x * 100 ) / 100,
-				y: Math.round( point.y * 100 ) / 100,
-			} );
-		},
+		( point: FocalPoint ) => onChange( roundPoint( point ) ),
 		[ onChange ]
+	);
+	const handleDrag = useCallback(
+		( point: FocalPoint ) => onDrag?.( roundPoint( point ) ),
+		[ onDrag ]
 	);
 
 	return (
@@ -42,6 +44,8 @@ export default function MediaFocalPoint( { url, value, onChange }: MediaFocalPoi
 				url={ url }
 				value={ value }
 				onChange={ handleChange }
+				onDragStart={ handleDrag }
+				onDrag={ handleDrag }
 			/>
 		</div>
 	);

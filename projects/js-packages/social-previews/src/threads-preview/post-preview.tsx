@@ -14,6 +14,7 @@ export const ThreadsPostPreview: React.FC< ThreadsPreviewProps > = ( {
 	caption,
 	date,
 	image,
+	imageFocalPoint,
 	media,
 	name,
 	profileImage,
@@ -45,7 +46,14 @@ export const ThreadsPostPreview: React.FC< ThreadsPreviewProps > = ( {
 							</div>
 						) : null }
 						{ hasMedia ? <Media media={ media } /> : null }
-						{ displayAsCard ? <Card image={ image } title={ title || '' } url={ url } /> : null }
+						{ displayAsCard ? (
+							<Card
+								image={ image }
+								imageFocalPoint={ imageFocalPoint }
+								title={ title || '' }
+								url={ url }
+							/>
+						) : null }
 					</div>
 					<Footer />
 				</div>

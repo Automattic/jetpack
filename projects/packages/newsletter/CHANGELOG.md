@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-06-25
+### Changed
+- Introduce the modernized dashboard and WP Admin subscriber management behind the `rsm_jetpack_ui_modernization_newsletter` and `jetpack_wp_admin_subscriber_management_enabled` filters, off by default. [#49036]
+- Update package dependencies. [#49831]
+
+### Fixed
+- Align the settings DataForm field `Edit` controls, the import-subscribers notice `ActionLink`, and the dashboard tab panels with the `@wordpress/dataviews` 16 and `@wordpress/ui` 0.15 type APIs. [#49801]
+
+## [0.10.0] - 2026-06-22
+### Added
+- Add a transitional Subscribers announcement page (wp-build) shown in place of the legacy Subscribers menu link when the Newsletter modernization filter is enabled. [#49496]
+- Register the transitional Subscribers announcement page directly under the Jetpack menu on WordPress.com sites. [#49675]
+
+### Changed
+- Subscribers: Link the Substack importer button to the WordPress.com site-setup importer flow. [#49538]
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+### Fixed
+- Close the subscriber detail panel when its subscriber is removed instead of leaving it open with stale data. [#49598]
+
 ## [0.9.1] - 2026-06-15
 ### Added
 - Add a setting for the Subscribe modal heading shown by Subscribe blocks using the Button-only style. [#49171]
@@ -237,6 +257,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.11.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.10.0...v0.11.0
+[0.10.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.10...v0.9.0
 [0.8.10]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.9...v0.8.10

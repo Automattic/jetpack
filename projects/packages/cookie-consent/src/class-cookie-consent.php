@@ -28,6 +28,34 @@ class Cookie_Consent {
 	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
+	 * CCPA page ID option name.
+	 *
+	 * @var string
+	 */
+	private const CCPA_PAGE_ID_OPTION = 'jetpack_cookie_consent_ccpa_page_id';
+
+	/**
+	 * CCPA page created-once option name.
+	 *
+	 * @var string
+	 */
+	private const CCPA_PAGE_CREATED_OPTION = 'jetpack_cookie_consent_ccpa_page_created';
+
+	/**
+	 * CCPA opt-out page slug.
+	 *
+	 * @var string
+	 */
+	private const CCPA_PAGE_SLUG = 'your-privacy-choices';
+
+	/**
+	 * Post meta marker for CCPA pages created by this package.
+	 *
+	 * @var string
+	 */
+	private const CCPA_PAGE_CREATED_META = '_jetpack_cookie_consent_created_ccpa_page';
+
+	/**
 	 * Whether the class has been initialized.
 	 *
 	 * @var bool
@@ -54,13 +82,11 @@ class Cookie_Consent {
 		// garden_site_provisioning hook is no longer available in this context.
 		add_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
 
-		// Prevent CCPA and Privacy Policy page deletion.
-		add_filter( 'map_meta_cap', array( __CLASS__, 'prevent_privacy_pages_deletion' ), 10, 4 );
-
 		// Hook Privacy Policy and CCPA links into navigation blocks using Block Hooks API.
 		add_filter( 'hooked_block_types', array( __CLASS__, 'register_footer_navigation_links' ), 10, 4 );
 		add_filter( 'hooked_block_core/navigation-link', array( __CLASS__, 'set_footer_navigation_link_attributes' ), 10, 4 );
 		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10, 2 );
+		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'maybe_suppress_privacy_policy_link' ), 10, 2 );
 		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10, 2 );
 
 		// Add Interactivity API directive to CCPA opt-out button.
@@ -75,59 +101,150 @@ class Cookie_Consent {
 		// Register the CCPA page id setting for REST access.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
 
+		// Keep the geolocation cookies out of Jetpack Boost's page-cache key.
+		add_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ) );
+
 		// Consent log REST controller: table, cron cleanup, routes.
 		Consent_Log_Controller::init();
 	}
 
 	/**
-	 * Create CCPA opt-out page if it doesn't exist
+	 * Deactivate Cookie Consent runtime hooks and scheduled events.
+	 *
+	 * Consumers should call this from their plugin deactivation hook. This keeps
+	 * stored consent logs, CCPA page content, and options intact so a later
+	 * reactivation can resume without data loss.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function deactivate() {
+		// These mirror init()'s front-end registrations and matter only when a
+		// consumer deactivates within the same request (e.g. a runtime toggle).
+		// The standard register_deactivation_hook path runs in a separate admin
+		// request where these hooks never fire, so the durable cleanup is the
+		// cron unschedule and setting unregister below. Keep this list in sync
+		// with init() whenever a hook is added there.
+		remove_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		remove_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
+		remove_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
+
+		remove_filter( 'hooked_block_types', array( __CLASS__, 'register_footer_navigation_links' ), 10 );
+		remove_filter( 'hooked_block_core/navigation-link', array( __CLASS__, 'set_footer_navigation_link_attributes' ), 10 );
+		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10 );
+		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'maybe_suppress_privacy_policy_link' ), 10 );
+		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10 );
+		remove_filter( 'render_block_core/button', array( __CLASS__, 'add_ccpa_button_directive' ), 10 );
+		remove_filter( 'render_block_core/group', array( __CLASS__, 'add_ccpa_group_directives' ), 10 );
+		remove_filter( 'get_pages', array( __CLASS__, 'exclude_ccpa_from_get_pages' ), 10 );
+		remove_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
+		remove_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ), 10 );
+
+		if ( function_exists( 'unregister_setting' ) ) {
+			unregister_setting( 'general', self::CCPA_PAGE_ID_OPTION );
+		}
+
+		Consent_Log_Controller::deactivate();
+		self::$initialized = false;
+	}
+
+	/**
+	 * Delete Cookie Consent artifacts owned by this package.
+	 *
+	 * Consumers should call this from their plugin uninstall hook. Consent logs
+	 * are retained by default because they may be compliance records; pass true
+	 * only when the consuming plugin has decided uninstall should delete them.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $delete_consent_logs Whether to drop the consent-log table.
+	 */
+	public static function uninstall( $delete_consent_logs = false ) {
+		self::deactivate();
+		self::delete_ccpa_page();
+		Consent_Log_Controller::uninstall( $delete_consent_logs );
+	}
+
+	/**
+	 * Delete the configured CCPA page and clear the CCPA options.
+	 */
+	private static function delete_ccpa_page() {
+		$page_id = (int) get_option( self::CCPA_PAGE_ID_OPTION );
+
+		if ( $page_id ) {
+			$page = get_post( $page_id );
+			if (
+				$page
+				&& 'page' === $page->post_type
+				&& get_post_meta( $page_id, self::CCPA_PAGE_CREATED_META, true )
+			) {
+				wp_delete_post( $page_id, true );
+			}
+		}
+
+		delete_option( self::CCPA_PAGE_ID_OPTION );
+		delete_option( self::CCPA_PAGE_CREATED_OPTION );
+	}
+
+	/**
+	 * Create the CCPA opt-out page at most once per site.
+	 *
+	 * Once the created-once flag is set, the page is never recreated — even if
+	 * the site owner later deletes it.
 	 */
 	public static function maybe_create_ccpa_page() {
-		// Check if we've already created the page (by ID, since slug can be changed).
-		$page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
-		if ( $page_id && get_post( $page_id ) ) {
+		// Create the page at most once per site. Once we have created or adopted
+		// a page, never recreate it — even if the owner later deletes it.
+		if ( get_option( self::CCPA_PAGE_CREATED_OPTION ) ) {
 			return;
 		}
 
-		// If we have a stale page ID (option exists but post doesn't), clear it.
-		if ( $page_id && ! get_post( $page_id ) ) {
-			delete_option( 'jetpack_cookie_consent_ccpa_page_id' );
+		// A page already exists for the stored ID: record that and stop.
+		$page_id = get_option( self::CCPA_PAGE_ID_OPTION );
+		if ( $page_id && get_post( $page_id ) ) {
+			update_option( self::CCPA_PAGE_CREATED_OPTION, 1 );
+			return;
 		}
 
-		// Fallback: check if page exists by slug (for backwards compatibility).
-		$page_slug = 'your-privacy-choices';
-		$page      = get_page_by_path( $page_slug );
+		// Stale ID (option set but post gone): clear it before trying the slug.
+		if ( $page_id && ! get_post( $page_id ) ) {
+			delete_option( self::CCPA_PAGE_ID_OPTION );
+		}
 
-		// If page exists by slug, save its ID and we're done.
+		// Fallback: adopt an existing page by slug (backwards compatibility).
+		$page_slug = self::CCPA_PAGE_SLUG;
+		$page      = get_page_by_path( $page_slug );
 		if ( $page ) {
-			update_option( 'jetpack_cookie_consent_ccpa_page_id', $page->ID );
+			update_option( self::CCPA_PAGE_ID_OPTION, $page->ID );
+			update_option( self::CCPA_PAGE_CREATED_OPTION, 1 );
 			return;
 		}
 
 		// Build the page content with blocks.
 		$content = self::get_ccpa_page_content();
+		$config  = self::get_config();
+		$copy    = $config['copy'];
 
-		// Create the page without content first.
+		// Create the page in a single call so the created-once flag is only set
+		// once the full page (with content) has actually persisted. A two-step
+		// insert-then-update would latch the flag before the content write, and a
+		// failed update would leave a permanently published, empty page.
 		$page_id = wp_insert_post(
 			array(
-				'post_title'     => __( 'Your Privacy Choices', 'jetpack-cookie-consent' ),
+				'post_title'     => $copy['ccpa_page_title'],
 				'post_name'      => $page_slug,
 				'post_status'    => 'publish',
 				'post_type'      => 'page',
+				'post_content'   => $content,
 				'comment_status' => 'closed',
 				'ping_status'    => 'closed',
 			)
 		);
 
-		// Store the page ID and update with content to create a first revision.
+		// Store the page ID and mark as created.
 		if ( $page_id && ! is_wp_error( $page_id ) ) {
-			update_option( 'jetpack_cookie_consent_ccpa_page_id', $page_id );
-			wp_update_post(
-				array(
-					'ID'           => $page_id,
-					'post_content' => $content,
-				)
-			);
+			update_post_meta( $page_id, self::CCPA_PAGE_CREATED_META, 1 );
+			update_option( self::CCPA_PAGE_ID_OPTION, $page_id );
+			update_option( self::CCPA_PAGE_CREATED_OPTION, 1 );
 		}
 	}
 
@@ -137,13 +254,69 @@ class Cookie_Consent {
 	public static function register_ccpa_page_setting() {
 		register_setting(
 			'general',
-			'jetpack_cookie_consent_ccpa_page_id',
+			self::CCPA_PAGE_ID_OPTION,
 			array(
 				'show_in_rest' => true,
 				'type'         => 'integer',
 				'description'  => __( 'CCPA opt-out page ID', 'jetpack-cookie-consent' ),
 			)
 		);
+	}
+
+	/**
+	 * Exclude the geolocation cookies from Jetpack Boost's page-cache key.
+	 *
+	 * Geo is resolved client-side, so the server response is identical for every
+	 * visitor. Boost keys its cache on the full cookie set, so leaving the
+	 * `country_code`/`region` cookies in would spawn a separate cache file per
+	 * region and make returning visitors miss the cache. They never affect the
+	 * server-rendered HTML, so it is safe to ignore them.
+	 *
+	 * @param array $cookies Regex patterns Boost removes from the cache key.
+	 * @return array Patterns with the geolocation cookies appended.
+	 */
+	public static function ignore_geo_cookies_in_page_cache( $cookies ) {
+		$config       = self::get_config();
+		$country_code = $config['country_code_cookie'] ?? 'country_code';
+		$region       = $config['region_cookie'] ?? 'region';
+		$cookies[]    = preg_quote( $country_code, '/' );
+		$cookies[]    = preg_quote( $region, '/' );
+
+		return $cookies;
+	}
+
+	/**
+	 * Whether the auto-created CCPA page exists and is published.
+	 *
+	 * A trashed page still resolves via get_post(), so callers must check the
+	 * status too — otherwise links would point at a trashed page and 404.
+	 *
+	 * @return bool
+	 */
+	private static function ccpa_page_is_published() {
+		$ccpa_page_id = get_option( self::CCPA_PAGE_ID_OPTION );
+		if ( ! $ccpa_page_id ) {
+			return false;
+		}
+		$page = get_post( $ccpa_page_id );
+		return $page && 'publish' === $page->post_status;
+	}
+
+	/**
+	 * Whether the site's Privacy Policy page exists and is published.
+	 *
+	 * Mirrors ccpa_page_is_published(): a trashed page still resolves via
+	 * get_post(), so the status must be checked too.
+	 *
+	 * @return bool
+	 */
+	private static function privacy_policy_is_published() {
+		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
+		if ( ! $privacy_policy_page_id ) {
+			return false;
+		}
+		$page = get_post( $privacy_policy_page_id );
+		return $page && 'publish' === $page->post_status;
 	}
 
 	/**
@@ -159,6 +332,8 @@ class Cookie_Consent {
 		}
 
 		ob_start();
+		// Get config for template (consumed by ccpa-content.php via include scope).
+		$config = self::get_config(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		include $template_path;
 		return ob_get_clean();
 	}
@@ -175,7 +350,7 @@ class Cookie_Consent {
 			return $pages;
 		}
 
-		$ccpa_page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
+		$ccpa_page_id = get_option( self::CCPA_PAGE_ID_OPTION );
 
 		if ( ! $ccpa_page_id || empty( $pages ) ) {
 			return $pages;
@@ -188,38 +363,6 @@ class Cookie_Consent {
 				return (int) $page->ID !== (int) $ccpa_page_id;
 			}
 		);
-	}
-
-	/**
-	 * Prevent CCPA and Privacy Policy pages from being deleted
-	 *
-	 * @param array  $caps    Required capabilities.
-	 * @param string $cap     Capability being checked.
-	 * @param int    $user_id User ID.
-	 * @param array  $args    Additional arguments.
-	 * @return array Modified capabilities.
-	 */
-	public static function prevent_privacy_pages_deletion( $caps, $cap, $user_id, $args ) {
-		// Only intercept delete_post capability checks.
-		if ( 'delete_post' !== $cap ) {
-			return $caps;
-		}
-
-		$post_id = isset( $args[0] ) ? (int) $args[0] : 0;
-
-		// Prevent deletion of CCPA page.
-		$ccpa_page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
-		if ( $ccpa_page_id && $post_id === (int) $ccpa_page_id ) {
-			return array( 'do_not_allow' );
-		}
-
-		// Prevent deletion of Privacy Policy page.
-		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
-		if ( $privacy_policy_page_id && $post_id === $privacy_policy_page_id ) {
-			return array( 'do_not_allow' );
-		}
-
-		return $caps;
 	}
 
 	/**
@@ -251,18 +394,13 @@ class Cookie_Consent {
 		$privacy_policy_exists = false;
 		$ccpa_page_exists      = false;
 
-		// Check Privacy Policy page.
-		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
-		if ( $privacy_policy_page_id ) {
-			$page = get_post( $privacy_policy_page_id );
-			if ( $page && 'publish' === $page->post_status ) {
-				$privacy_policy_exists = true;
-			}
+		// Check Privacy Policy page (must be published — a trashed page still resolves).
+		if ( self::privacy_policy_is_published() ) {
+			$privacy_policy_exists = true;
 		}
 
-		// Check CCPA page.
-		$ccpa_page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
-		if ( $ccpa_page_id && get_post( $ccpa_page_id ) ) {
+		// Check CCPA page (must be published — a trashed page still resolves).
+		if ( self::ccpa_page_is_published() ) {
 			$ccpa_page_exists = true;
 		}
 
@@ -304,16 +442,10 @@ class Cookie_Consent {
 
 		// Check which pages exist (same logic as registration).
 		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
-		$privacy_policy_exists  = false;
-		if ( $privacy_policy_page_id ) {
-			$page = get_post( $privacy_policy_page_id );
-			if ( $page && 'publish' === $page->post_status ) {
-				$privacy_policy_exists = true;
-			}
-		}
+		$privacy_policy_exists  = self::privacy_policy_is_published();
 
-		$ccpa_page_id     = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
-		$ccpa_page_exists = $ccpa_page_id && get_post( $ccpa_page_id );
+		$ccpa_page_exists = self::ccpa_page_is_published();
+		$ccpa_page_id     = get_option( self::CCPA_PAGE_ID_OPTION );
 
 		// Process Privacy Policy first (if it exists and hasn't been processed).
 		if ( $privacy_policy_exists && ! $privacy_policy_processed ) {
@@ -341,8 +473,9 @@ class Cookie_Consent {
 
 		// Process GDPR "Manage Privacy Preferences" link last.
 		if ( ! $manage_preferences_processed ) {
+			$config                            = self::get_config();
 			$hooked_block['attrs']['url']      = '#manage-preferences';
-			$hooked_block['attrs']['label']    = __( 'Manage Privacy Preferences', 'jetpack-cookie-consent' );
+			$hooked_block['attrs']['label']    = $config['copy']['manage_preferences_link'];
 			$hooked_block['attrs']['kind']     = 'custom';
 			$hooked_block['attrs']['metadata'] = array(
 				'name' => 'jetpack-cookie-consent-gdpr-manage-preferences-link',
@@ -368,6 +501,13 @@ class Cookie_Consent {
 			return $block_content;
 		}
 
+		// If the CCPA page is gone or unpublished (e.g. the owner trashed or
+		// deleted it), suppress the link instead of rendering a dead 404. This
+		// covers persisted hooked links that bypass the injection-time gate.
+		if ( ! self::ccpa_page_is_published() ) {
+			return '';
+		}
+
 		// Use WP_HTML_Tag_Processor to safely add Interactivity API directives.
 		$tags = new WP_HTML_Tag_Processor( $block_content );
 
@@ -380,6 +520,31 @@ class Cookie_Consent {
 			$tags->set_attribute( 'data-wp-init', 'callbacks.init' );
 
 			return $tags->get_updated_html();
+		}
+
+		return $block_content;
+	}
+
+	/**
+	 * Suppress the hooked Privacy Policy link when its page is gone or unpublished.
+	 *
+	 * Making the Privacy Policy page deletable (the deletion lock was removed)
+	 * means a persisted, Site-Editor-materialized footer link can outlive the
+	 * page and 404. The injection-time gate only runs for non-persisted hooks, so
+	 * this render-time guard mirrors the CCPA one to avoid a dead link.
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The full block, including name and attributes.
+	 * @return string Modified block content.
+	 */
+	public static function maybe_suppress_privacy_policy_link( $block_content, $block ) {
+		// Only act on our hooked Privacy Policy link.
+		if ( ! isset( $block['attrs']['metadata']['name'] ) || 'jetpack-cookie-consent-privacy-policy-link' !== $block['attrs']['metadata']['name'] ) {
+			return $block_content;
+		}
+
+		if ( ! self::privacy_policy_is_published() ) {
+			return '';
 		}
 
 		return $block_content;
@@ -467,6 +632,9 @@ class Cookie_Consent {
 			$block_content = $tags->get_updated_html();
 		}
 
+		$config = self::get_config();
+		$copy   = $config['copy'];
+
 		// Build the snackbar HTML.
 		$snackbar_html = sprintf(
 			'<div class="jetpack-cookie-consent-ccpa-snackbar" data-wp-bind--hidden="!state.showSnackbar">
@@ -475,8 +643,8 @@ class Cookie_Consent {
 					<button type="button" class="jetpack-cookie-consent-ccpa-snackbar__dismiss" data-wp-on--click="actions.dismissSnackbar" aria-label="%s">×</button>
 				</div>
 			</div>',
-			esc_html__( 'Your browser has been successfully opted out from sharing personal data.', 'jetpack-cookie-consent' ),
-			esc_attr__( 'Dismiss', 'jetpack-cookie-consent' )
+			esc_html( $copy['ccpa_snackbar_success'] ),
+			esc_attr( $copy['ccpa_snackbar_dismiss_label'] )
 		);
 
 		// Insert the snackbar inside the group block (before the closing </div>).
@@ -489,11 +657,160 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Get configured log versions.
+	 *
+	 * @return array Log version configuration.
+	 */
+	public static function get_log_versions() {
+		$config     = self::get_config();
+		$log_config = isset( $config['log'] ) && is_array( $config['log'] ) ? $config['log'] : array();
+
+		return array(
+			'policy_version' => self::normalize_log_version( $log_config['policy_version'] ?? '1', 'policy_version' ),
+			'banner_version' => self::normalize_log_version( $log_config['banner_version'] ?? '1', 'banner_version' ),
+		);
+	}
+
+	/**
+	 * Get default UI copy.
+	 *
+	 * Defaults are translated in the package text domain. Consumers can override
+	 * any key through the `copy` config group and translate those overrides in
+	 * their own text domain before returning them from the config filter.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Default copy keyed by semantic UI location.
+	 */
+	public static function get_default_copy() {
+		return array(
+			'banner_title'                     => __( 'Use of your personal data', 'jetpack-cookie-consent' ),
+			'banner_description'               => __( 'We and our partners process your personal data, such as browsing data, IP addresses, cookie information, and other unique identifiers, based on your consent and/or our legitimate interest to improve our website, marketing activities, and your user experience.', 'jetpack-cookie-consent' ),
+			'banner_accept_button'             => __( 'Accept', 'jetpack-cookie-consent' ),
+			'banner_reject_button'             => __( 'Reject', 'jetpack-cookie-consent' ),
+			'banner_customize_button'          => __( 'Customize', 'jetpack-cookie-consent' ),
+			'modal_title'                      => __( 'Customize preferences', 'jetpack-cookie-consent' ),
+			'modal_close_label'                => __( 'Close modal', 'jetpack-cookie-consent' ),
+			'modal_description'                => __( 'Your privacy is important to us. We and our partners use, store, and process your personal data to improve our website, such as by improving security or conducting analytics, marketing activities to help deliver relevant marketing or content, and your user experience, such as by remembering your account name or language settings where applicable. You can customize your cookie settings below. Learn more in our', 'jetpack-cookie-consent' ),
+			'privacy_policy_link'              => __( 'Privacy Policy', 'jetpack-cookie-consent' ),
+			'modal_links_conjunction'          => __( 'and', 'jetpack-cookie-consent' ),
+			'cookie_policy_link'               => __( 'Cookie Policy', 'jetpack-cookie-consent' ),
+			'category_toggle_label'            => __( 'Toggle category description', 'jetpack-cookie-consent' ),
+			'required_category_label'          => __( 'Required', 'jetpack-cookie-consent' ),
+			'always_active_label'              => __( 'Always active', 'jetpack-cookie-consent' ),
+			'required_category_description'    => __( 'These cookies are essential for our websites and services to perform basic functions and are necessary for us to operate certain features. Examples include your IP address, browser type, requested URLs, response codes, and operating system data.', 'jetpack-cookie-consent' ),
+			'analytics_category_label'         => __( 'Analytics', 'jetpack-cookie-consent' ),
+			'analytics_category_description'   => __( 'These cookies allow us to improve performance by collecting information on how users interact with our websites.', 'jetpack-cookie-consent' ),
+			'advertising_category_label'       => __( 'Advertising', 'jetpack-cookie-consent' ),
+			'advertising_category_description' => __( 'These cookies are set by us and our advertising partners to provide you with relevant content and to understand that content\'s effectiveness.', 'jetpack-cookie-consent' ),
+			'save_preferences_button'          => __( 'Save preferences', 'jetpack-cookie-consent' ),
+			'accept_all_button'                => __( 'Accept all', 'jetpack-cookie-consent' ),
+			'reject_all_button'                => __( 'Reject all', 'jetpack-cookie-consent' ),
+			'manage_preferences_link'          => __( 'Manage Privacy Preferences', 'jetpack-cookie-consent' ),
+			'ccpa_page_title'                  => __( 'Your Privacy Choices', 'jetpack-cookie-consent' ),
+			'ccpa_intro'                       => __( 'We value your privacy and want you to feel in control of your personal information. Like most websites, we use cookies and similar tools to improve your website experience and show you relevant ads. Sometimes we share this information with trusted partners to do so.', 'jetpack-cookie-consent' ),
+			'ccpa_laws_notice'                 => __( 'Some U.S. state laws consider this kind of data sharing a sale or sharing of personal information. Depending on where you live, you may have the right to opt out.', 'jetpack-cookie-consent' ),
+			'ccpa_heading'                     => __( 'How to Opt Out', 'jetpack-cookie-consent' ),
+			'ccpa_browser_opt_out'             => __( 'Browser Opt-Out: Click the Opt Out button below to stop your browser from sharing this data.', 'jetpack-cookie-consent' ),
+			'ccpa_account_opt_out'             => __( 'Account Opt-Out: To apply this choice to your account, check the box and enter your email.', 'jetpack-cookie-consent' ),
+			'ccpa_gpc_opt_out'                 => __( 'Automatic Opt-Out: If you use a browser with Global Privacy Control (GPC) turned on, we will recognize it and respect your choice automatically.', 'jetpack-cookie-consent' ),
+			'ccpa_preferences_notice'          => __( 'Your preferences will only affect how we use your information for personalized ads and similar activities. It will not affect how we use your information for other purposes, like security or site functionality.', 'jetpack-cookie-consent' ),
+			'ccpa_button_instruction'          => __( 'Click the Opt Out button to stop this browser from sharing personal data.', 'jetpack-cookie-consent' ),
+			'ccpa_opt_out_button'              => __( 'Opt Out', 'jetpack-cookie-consent' ),
+			'ccpa_snackbar_success'            => __( 'Your browser has been successfully opted out from sharing personal data.', 'jetpack-cookie-consent' ),
+			'ccpa_snackbar_dismiss_label'      => __( 'Dismiss', 'jetpack-cookie-consent' ),
+		);
+	}
+
+	/**
+	 * Normalize a configured log version value for callers.
+	 *
+	 * @param mixed  $version Version value from config.
+	 * @param string $key     Config key being normalized, used for diagnostics.
+	 * @return string Non-empty log version.
+	 */
+	private static function normalize_log_version( $version, $key ) {
+		if ( is_scalar( $version ) ) {
+			$normalized = sanitize_text_field( (string) $version );
+			if ( '' !== $normalized ) {
+				return $normalized;
+			}
+		}
+
+		// A supplied value that isn't a usable version string would silently become the
+		// default '1' on a proof-of-consent record, masking a misconfiguration. Surface it
+		// so an integrating developer notices the configured value was dropped.
+		_doing_it_wrong(
+			__METHOD__,
+			/* translators: %s is the log version configuration key. */
+			esc_html( sprintf( __( 'Cookie consent log version for "%s" was ignored because it is not a non-empty scalar value.', 'jetpack-cookie-consent' ), $key ) ),
+			''
+		);
+
+		return '1';
+	}
+
+	/**
+	 * Resolve UI copy for a template, backfilling any missing keys with defaults.
+	 *
+	 * Templates normally receive a fully normalized `copy` group from get_config(),
+	 * but they can also be included directly (tests, Storybook). Routing through this
+	 * helper guarantees every key is present so a partial or absent `copy` array can't
+	 * cause undefined-index access.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $config Configuration array, which may lack a normalized `copy` group.
+	 * @return array Copy with every key present.
+	 */
+	public static function get_copy( $config = array() ) {
+		$copy = is_array( $config ) && isset( $config['copy'] ) ? $config['copy'] : array();
+		return self::normalize_copy( $copy, self::get_default_copy() );
+	}
+
+	/**
+	 * Normalize configured copy by merging consumer overrides with defaults.
+	 *
+	 * @param array $copy     Copy values supplied by configuration.
+	 * @param array $defaults Default copy values.
+	 * @return array Normalized copy.
+	 */
+	private static function normalize_copy( $copy, $defaults ) {
+		if ( ! is_array( $copy ) ) {
+			return $defaults;
+		}
+
+		foreach ( $copy as $key => $value ) {
+			if ( ! is_string( $key ) ) {
+				continue;
+			}
+
+			if ( is_scalar( $value ) ) {
+				$defaults[ $key ] = (string) $value;
+				continue;
+			}
+
+			// A non-scalar override can't render, so the default is kept. Surface it
+			// so an integrating developer notices the override was dropped instead of
+			// silently shipping the default copy.
+			_doing_it_wrong(
+				__METHOD__,
+				/* translators: %s is the copy configuration key. */
+				esc_html( sprintf( __( 'Cookie consent copy override for "%s" was ignored because it is not a scalar value.', 'jetpack-cookie-consent' ), $key ) ),
+				''
+			);
+		}
+
+		return $defaults;
+	}
+
+	/**
 	 * Get configuration with filters
 	 *
 	 * @return array Configuration array
 	 */
 	private static function get_config() {
+		$default_copy   = self::get_default_copy();
 		$default_config = array(
 			'geo_api_url'         => 'https://public-api.wordpress.com/geo/',
 			'geo_cookie_duration' => 6 * HOUR_IN_SECONDS, // 6 hours.
@@ -553,7 +870,13 @@ class Cookie_Consent {
 				'delaware',
 			),
 			'show_on_error'       => true, // Show banner if geolocation fails.
+			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
+			'log'                 => array(
+				'policy_version' => '1',
+				'banner_version' => '1',
+			),
+			'copy'                => $default_copy,
 		);
 
 		/**
@@ -561,7 +884,14 @@ class Cookie_Consent {
 		 *
 		 * @param array $config Configuration array
 		 */
-		return apply_filters( 'jetpack_cookie_consent_config', $default_config );
+		$config = apply_filters( 'jetpack_cookie_consent_config', $default_config );
+		if ( ! is_array( $config ) ) {
+			$config = $default_config;
+		}
+
+		$config['copy'] = self::normalize_copy( $config['copy'] ?? array(), $default_copy );
+
+		return $config;
 	}
 
 	/**
@@ -647,21 +977,11 @@ class Cookie_Consent {
 				'cookiePolicyUrl'   => $config['cookie_policy_url'],
 				'gdprCountries'     => $config['gdpr_countries'],
 				'ccpaRegions'       => $config['ccpa_regions'],
+				'gdprHonorsGpc'     => $config['gdpr_honors_gpc'] ?? true,
 				'showOnError'       => $config['show_on_error'],
 				'forcePreview'      => $force_preview,
 			)
 		);
-	}
-
-	/**
-	 * Check if consent has been set
-	 *
-	 * @return bool True if consent has been set
-	 */
-	private static function has_consent_set() {
-		// Check if any WP Consent API cookie exists.
-		// If user has made a choice, at least one of these should be set.
-		return isset( $_COOKIE['wp_consent_functional'] );
 	}
 
 	/**

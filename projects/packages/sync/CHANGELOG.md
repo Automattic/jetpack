@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.44.1] - 2026-06-25
+### Fixed
+- Refresh the synced `get_plugins` callable when a plugin is deleted, so removed plugins no longer linger in cached plugin lists. [#49913]
+
+## [4.44.0] - 2026-06-23
+### Added
+- Add the Jetpack Social image focal point to the post meta sync whitelist. [#49818]
+- Add WooCommerce order total (total, currency) to the synced woocommerce_new_order and woocommerce_order_status_changed actions when the order reaches a paid status, so WPcom can aggregate revenue. [#49689]
+
+## [4.43.1] - 2026-06-22
+### Added
+- Add WooCommerce countries, shipping, and tax calculation options to the sync whitelist. [#49324]
+
 ## [4.43.0] - 2026-06-15
 ### Added
 - Add options from assorted WooCommerce settings pages to sync whitelist, as part of activity log improvements. [#49520]
@@ -1790,6 +1803,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.44.1]: https://github.com/Automattic/jetpack-sync/compare/v4.44.0...v4.44.1
+[4.44.0]: https://github.com/Automattic/jetpack-sync/compare/v4.43.1...v4.44.0
+[4.43.1]: https://github.com/Automattic/jetpack-sync/compare/v4.43.0...v4.43.1
 [4.43.0]: https://github.com/Automattic/jetpack-sync/compare/v4.42.0...v4.43.0
 [4.42.0]: https://github.com/Automattic/jetpack-sync/compare/v4.41.1...v4.42.0
 [4.41.1]: https://github.com/Automattic/jetpack-sync/compare/v4.41.0...v4.41.1

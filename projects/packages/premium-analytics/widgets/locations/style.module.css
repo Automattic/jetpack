@@ -1,0 +1,130 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.placeholder {
+	min-height: 200px;
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+.widgetHeader {
+	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+}
+
+.breadcrumb {
+	min-height: 32px;
+	font-size: 13px;
+	font-weight: 500; /* design spec was 499; 500 is the nearest valid CSS value */
+	color: inherit;
+}
+
+.breadcrumb * {
+	font-weight: inherit;
+}
+
+.breadcrumbLink {
+	appearance: none;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	color: inherit;
+	font: inherit;
+	text-decoration: none;
+}
+
+.breadcrumbLink:hover,
+.breadcrumbLink:focus {
+	color: var(--wp-admin-theme-color);
+	text-decoration: none;
+}
+
+.breadcrumbSeparator {
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+.modeSelect {
+	flex-shrink: 0;
+}
+
+.content {
+	display: flex;
+	flex-direction: column;
+	padding: var(--wpds-dimension-padding-lg);
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+.chartArea {
+	display: grid;
+	grid-template-columns: 280fr 400fr;
+	grid-template-rows: minmax(0, 1fr);
+	column-gap: var(--wpds-dimension-gap-lg);
+	align-items: stretch;
+	min-width: 0;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+.leaderboard {
+	align-self: start;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.noMap {
+	grid-template-columns: 1fr;
+}
+
+.geoChart {
+	min-width: 0;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	overflow: hidden;
+}
+
+/* Narrow container (< 480px): hide the map and collapse to a
+ * single leaderboard column. */
+@container (max-width: 479px) {
+
+	.geoChart {
+		display: none;
+	}
+
+	.chartArea {
+		grid-template-columns: 1fr;
+	}
+}
+
+.leaderboardImage {
+	height: 20px;
+	border-radius: var(--wpds-border-radius-sm, 2px);
+}
+
+/* Constrain the picker preview tile to a 4:3 aspect ratio. The picker's
+ * .preview wrapper uses height: 125% of an auto-height parent, so height: 100%
+ * on .root also resolves to auto, leaving aspect-ratio with no anchor.
+ * Setting height: auto here lets aspect-ratio derive the height from the known
+ * inline size and overflow: hidden clips the chart content. Targets only the
+ * picker (inert="") — not the edit-mode wrapper (inert="true") where the grid
+ * tile supplies a real height. */
+:global([inert]:not([inert="true"])) .root {
+	height: auto;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+}
+
+/* The picker grid applies img { width: 100%; height: 100%; object-fit: cover }
+ * to all images inside the media cell, overriding our 20px flag height.
+ * Restore correct sizing for flag images in any inert context. */
+:global([inert]) .leaderboard .leaderboardImage {
+	width: auto;
+	height: 20px;
+	object-fit: initial;
+}

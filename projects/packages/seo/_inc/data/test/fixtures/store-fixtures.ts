@@ -11,8 +11,10 @@ import type { SettingsResponse } from '../../settings-types';
 
 export const SEEDED_COVERAGE: ContentCoverage = {
 	total: 10,
-	with_description: 4,
 	with_schema: 3,
+	with_title: 6,
+	with_description: 4,
+	with_search_visible: 8,
 };
 
 export const SEEDED_SETTINGS: SettingsResponse = {
@@ -21,6 +23,7 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	sitemap_active: false,
+	sitemap_url: '',
 	canonical_active: false,
 };
 

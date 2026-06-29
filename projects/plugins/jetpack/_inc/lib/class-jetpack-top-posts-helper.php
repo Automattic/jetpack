@@ -112,7 +112,8 @@ class Jetpack_Top_Posts_Helper {
 					'id'        => $post_id,
 					'author'    => get_the_author_meta( 'display_name', get_post_field( 'post_author', $post_id ) ),
 					'context'   => get_the_category( $post_id ) ? get_the_category( $post_id ) : get_the_tags( $post_id ),
-					'href'      => $post['href'],
+					// Use the local permalink to avoid stale values from the Stats API.
+					'href'      => get_permalink( $post_id ),
 					'date'      => get_the_date( '', $post_id ),
 					'title'     => $post['title'],
 					'type'      => $post['type'],

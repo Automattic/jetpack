@@ -1,0 +1,644 @@
+<?php
+/**
+ * AI Launchpad REST endpoints.
+ *
+ * @package automattic/jetpack-mu-wpcom
+ * @since $$next-version$$
+ */
+
+/**
+ * REST endpoints for the AI Launchpad wizard and AI output options.
+ */
+class AI_Launchpad_REST extends WP_REST_Controller {
+
+	const OPTION_WIZARD    = 'wpcom_ai_launchpad_wizard';
+	const OPTION_AI_OUTPUT = 'wpcom_ai_launchpad_ai_output';
+	const OPTION_DISMISSED = 'wpcom_ai_launchpad_dismissed';
+
+	const MIN_VALID_TASKS = 4;
+
+	const LAUNCH_TASK_IDS = array( 'site_launched', 'blog_launched', 'woo_launch_site', 'link_in_bio_launched', 'videopress_launched' );
+
+	/**
+	 * Tasks whose completion the AI Launchpad writes when the user clicks their CTA,
+	 * because the real signal is unreachable when the launchpad runs in wp-admin:
+	 *
+	 * - The acknowledgment tasks (complete_profile … site_monitoring_page) complete
+	 *   on click / page-visit in Calypso, which writes the status to Calypso's
+	 *   *selected* site — never from the wp-admin context.
+	 * - setup_ssh's real signal (an SSH user exists) is only readable through the
+	 *   wpcom hosting endpoint, which rejects the launchpad's Atomic context (blog
+	 *   token 401, Jetpack-user token 403). Calypso's own hosting form completes it
+	 *   optimistically when the user creates SFTP credentials; this reuses that
+	 *   strategy, ticking it when the user opens the same hosting page via the CTA.
+	 * - share_site has no real signal at all (sharing is a transient client action;
+	 *   even Calypso completes it optimistically when the user copies/shares the URL)
+	 *   and no CTA destination, so the tailored list offers a "Mark as complete"
+	 *   button that hits this route.
+	 *
+	 * The AI Launchpad runs in wp-admin (on both Simple and Atomic), so it marks
+	 * these complete locally on CTA click. Server-side allowlist so the complete-task
+	 * route can only tick these ids, never arbitrary catalog tasks. Mirrored
+	 * client-side in model.ts (COMPLETE_ON_CLICK_TASK_IDS).
+	 */
+	const COMPLETE_ON_CLICK_TASK_IDS = array(
+		'complete_profile',
+		'manage_subscribers',
+		'manage_paid_newsletter_plan',
+		'earn_money',
+		'start_building_your_audience',
+		'site_monitoring_page',
+		'setup_ssh',
+		'share_site',
+	);
+
+	/**
+	 * Tasks whose catalog `is_visible_callback` encodes an `IS_WPCOM`-only platform
+	 * assumption that the AI Launchpad overrides because it retrieves the same data
+	 * cross-platform. `add_10_email_subscribers` is gated by
+	 * `wpcom_launchpad_are_newsletter_subscriber_counts_available` (false off
+	 * WordPress.com), but AI_Launchpad_Subscribers_Listener reads the count on
+	 * Atomic via `/sites/{id}/subscribers/stats`, so the task must still render and
+	 * its visibility gate is skipped here.
+	 */
+	const FORCE_VISIBLE_TASK_IDS = array(
+		'add_10_email_subscribers',
+	);
+
+	/**
+	 * CTA destinations the AI Launchpad repoints to wp-admin, keyed by task id and
+	 * mapping to an `admin_url()` path. The catalog sends these to Calypso flows
+	 * that are a poor fit for the wp-admin AI Launchpad: connect_social_media goes
+	 * to Calypso `/marketing/connections` even though it completes on the wp-admin
+	 * Jetpack Social page (where this lands it, matching drive_traffic), and the
+	 * design "Select a design" tasks go to a Calypso setup step-flow rather than the
+	 * theme browser. Overridden on read so the shared catalog (used by the legacy
+	 * launchpad too) is left untouched.
+	 */
+	const CTA_OVERRIDES = array(
+		'connect_social_media' => 'admin.php?page=jetpack-social',
+		'design_completed'     => 'themes.php',
+		'design_selected'      => 'themes.php',
+	);
+
+	/**
+	 * Jetpack Social tasks, hidden on private sites. wpcom does not load Publicize
+	 * (and so the Jetpack Social admin page their CTA points to) on a private site,
+	 * mirroring Publicize_Setup::should_load(). The AI Launchpad runs only on the
+	 * wpcom platform, so the private-site flag (`blog_public = -1`) is the whole
+	 * condition — Publicize's additional `is_wpcom_platform()` check is always true
+	 * here.
+	 */
+	const SOCIAL_PAGE_TASK_IDS = array(
+		'connect_social_media',
+		'drive_traffic',
+		'post_sharing_enabled',
+	);
+
+	/**
+	 * Whether the site's visibility is set to private (`blog_public = -1`), the
+	 * core of Jetpack's Status::is_private_site(). Read directly to avoid a hard
+	 * dependency on the Status package in this read path; the launchpad is
+	 * wpcom-only, where this option is the private-site signal.
+	 *
+	 * @return bool
+	 */
+	private function is_private_site() {
+		return '-1' === (string) get_option( 'blog_public' );
+	}
+
+	/**
+	 * Class constructor.
+	 */
+	public function __construct() {
+		$this->namespace = 'wpcom/v2';
+		$this->rest_base = 'ai-launchpad';
+
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+	}
+
+	/**
+	 * Register our routes.
+	 */
+	public function register_routes() {
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base,
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_data' ),
+					'permission_callback' => array( $this, 'can_read' ),
+					'args'                => array(
+						// Testing aid: render the full task catalog (visibility bypassed,
+						// no tailoring) so every task can be exercised from one site.
+						'all_tasks' => array(
+							'description' => 'Return the full task catalog instead of the tailored list (testing aid).',
+							'type'        => 'boolean',
+							'default'     => false,
+						),
+					),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'dismiss' ),
+					'permission_callback' => array( $this, 'can_write' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/wizard',
+			array(
+				array(
+					'methods'             => 'PUT',
+					'callback'            => array( $this, 'update_wizard' ),
+					'permission_callback' => array( $this, 'can_write' ),
+					'args'                => array(
+						'goal'        => array(
+							'description' => 'The site goal picked in the wizard.',
+							'type'        => 'string',
+							'enum'        => array( 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' ),
+							'required'    => true,
+						),
+						'site_name'   => array(
+							'description'       => 'The site name entered in the wizard.',
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+						'description' => array(
+							'description'       => 'The free-text site description entered in the wizard.',
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_textarea_field',
+						),
+						'locale'      => array(
+							'description'       => 'The user locale.',
+							'type'              => 'string',
+							'default'           => 'en',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/complete-task',
+			array(
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $this, 'complete_task' ),
+					'permission_callback' => array( $this, 'can_write' ),
+					'args'                => array(
+						'task_id' => array(
+							'description'       => 'The acknowledgment task to mark complete.',
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_key',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/tailored',
+			array(
+				array(
+					'methods'             => 'PUT',
+					'callback'            => array( $this, 'update_tailored' ),
+					'permission_callback' => array( $this, 'can_write' ),
+					'args'                => array(
+						'source' => array(
+							'description' => 'Whether the payload came from the AI or the deterministic fallback. Query parameter; the JSON body must match the agent output schema exactly.',
+							'type'        => 'string',
+							'enum'        => array( 'ai', 'fallback' ),
+							'default'     => 'ai',
+						),
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Permission callback for reads.
+	 *
+	 * @return true|WP_Error|false
+	 */
+	public function can_read() {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return false;
+		}
+
+		return $this->check_eligibility();
+	}
+
+	/**
+	 * Permission callback for writes.
+	 *
+	 * @return true|WP_Error|false
+	 */
+	public function can_write() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		return $this->check_eligibility();
+	}
+
+	/**
+	 * Returns a 404 error for ineligible sites, true otherwise.
+	 *
+	 * The eligibility gate itself is owned by the AI Launchpad loader.
+	 *
+	 * @return true|WP_Error
+	 */
+	private function check_eligibility() {
+		// Fail closed: if the gate is unavailable for any reason, treat the site
+		// as not eligible rather than exposing the endpoint to every capable user.
+		if ( ! function_exists( 'wpcom_ai_launchpad_is_eligible' ) || ! wpcom_ai_launchpad_is_eligible() ) {
+			return new WP_Error(
+				'ai_launchpad_not_eligible',
+				__( 'This site is not eligible for the AI Launchpad.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Composite read: wizard payload, AI output, enriched tasks, statuses, and eligibility.
+	 *
+	 * @param WP_REST_Request|null $request Request object (for the `all_tasks` testing param).
+	 * @return array
+	 */
+	public function get_data( $request = null ) {
+		$wizard    = get_option( self::OPTION_WIZARD );
+		$ai_output = get_option( self::OPTION_AI_OUTPUT );
+
+		// Testing aid: ?all_tasks=1 renders the whole catalog (visibility bypassed),
+		// independent of the persisted tailored output, so every task can be
+		// exercised from a single site.
+		if ( $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' ) ) {
+			$tasks = $this->build_all_catalog_tasks();
+		} else {
+			// Guard the nested payload: partial/legacy/failed writes may leave the
+			// option as an array without payload.tasks, which would warn and break.
+			$tasks = array();
+			if ( is_array( $ai_output ) && isset( $ai_output['payload']['tasks'] ) && is_array( $ai_output['payload']['tasks'] ) ) {
+				$tasks = $this->build_tasks( $ai_output['payload']['tasks'] );
+			}
+		}
+
+		// The membership tasks' completion is recomputed in build_tasks() (their
+		// option is never written on Atomic), so overlay it here to keep
+		// checklist_statuses consistent with tasks[].completed for them.
+		$checklist_statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+		foreach ( $tasks as $task ) {
+			if ( AI_Launchpad_Memberships::has_override( $task['id'] ) ) {
+				$checklist_statuses[ $task['id'] ] = $task['completed'];
+			}
+		}
+
+		return array(
+			'wizard'             => is_array( $wizard ) ? $wizard : null,
+			'ai_output'          => is_array( $ai_output ) ? $ai_output : null,
+			'tasks'              => $tasks,
+			'checklist_statuses' => $checklist_statuses,
+			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
+			'is_eligible'        => true,
+			// Site context the client needs: the front-end URL drives the launch-task
+			// CTA (its host is the launch-flow site slug) and the tailored-list
+			// preview thumbnail; the title labels that preview. Title and
+			// description also pre-fill the wizard's Name and Brief description
+			// fields so they reflect the site's current identity.
+			'site'               => array(
+				'url'         => home_url(),
+				'title'       => get_bloginfo( 'name' ),
+				'description' => get_bloginfo( 'description' ),
+			),
+		);
+	}
+
+	/**
+	 * Persists the wizard input to the wizard option and, on completion, writes
+	 * the entered Name and Brief description back to the site's identity options
+	 * (blogname / blogdescription) so the wizard reflects and updates the real
+	 * site title and tagline. Empty values are skipped so the wizard never blanks
+	 * an existing title or tagline. Values are already sanitized by the route's
+	 * sanitize_callbacks; update_option re-runs core's option sanitizers too.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return array
+	 */
+	public function update_wizard( $request ) {
+		$wizard = array(
+			'version'      => 1,
+			'goal'         => $request['goal'],
+			'site_name'    => $request['site_name'],
+			'description'  => $request['description'],
+			'locale'       => $request['locale'],
+			'generated_at' => time(),
+		);
+
+		update_option( self::OPTION_WIZARD, $wizard, false );
+
+		if ( '' !== trim( (string) $request['site_name'] ) ) {
+			update_option( 'blogname', $request['site_name'] );
+		}
+		if ( '' !== trim( (string) $request['description'] ) ) {
+			// The tagline is rendered inline by themes, so collapse the textarea
+			// brief's newlines to keep blogdescription single-line.
+			update_option( 'blogdescription', sanitize_text_field( $request['description'] ) );
+		}
+
+		return array( 'wizard' => $wizard );
+	}
+
+	/**
+	 * Validates the AI output payload against the agent output schema, wraps it, and persists it.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return array|WP_Error
+	 */
+	public function update_tailored( $request ) {
+		$payload = $request->get_json_params();
+
+		$validation = rest_validate_value_from_schema( $payload, $this->get_output_schema(), 'payload' );
+		if ( is_wp_error( $validation ) ) {
+			return new WP_Error( 'ai_launchpad_invalid_payload', $validation->get_error_message(), array( 'status' => 422 ) );
+		}
+
+		$last_task = end( $payload['tasks'] );
+		if ( ! in_array( $last_task['id'], self::LAUNCH_TASK_IDS, true ) ) {
+			return new WP_Error(
+				'ai_launchpad_missing_launch_task',
+				__( 'The last task must be a launch task.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		$definitions = wpcom_launchpad_get_task_definitions();
+		$tasks       = array();
+
+		foreach ( $payload['tasks'] as $task ) {
+			if ( ! isset( $definitions[ $task['id'] ] ) ) {
+				continue;
+			}
+
+			$subtitle = $this->sanitize_subtitle( $task['subtitle'] );
+			if ( is_wp_error( $subtitle ) ) {
+				return $subtitle;
+			}
+
+			$tasks[] = array(
+				'id'       => $task['id'],
+				'subtitle' => $subtitle,
+			);
+		}
+
+		if ( count( $tasks ) < self::MIN_VALID_TASKS ) {
+			return new WP_Error(
+				'ai_launchpad_unknown_tasks',
+				__( 'Too few tasks matched the task catalog.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		$payload['tasks'] = $tasks;
+
+		$ai_output = array(
+			'version'      => 1,
+			'source'       => $request['source'],
+			'generated_at' => time(),
+			'payload'      => $payload,
+		);
+
+		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
+
+		return array( 'ai_output' => $ai_output );
+	}
+
+	/**
+	 * Marks an acknowledgment task complete. These tasks have no completion signal
+	 * in wp-admin — in Calypso they complete on click/page-visit, written to
+	 * Calypso's selected site — so the client calls this when the user clicks the
+	 * task's CTA. Restricted to the COMPLETE_ON_CLICK_TASK_IDS allowlist and to
+	 * tasks actually on the site's AI-selected list, so the route can't tick
+	 * arbitrary catalog tasks.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return array|WP_Error
+	 */
+	public function complete_task( $request ) {
+		$task_id = $request['task_id'];
+
+		if ( ! in_array( $task_id, self::COMPLETE_ON_CLICK_TASK_IDS, true ) ) {
+			return new WP_Error(
+				'ai_launchpad_task_not_completable',
+				__( 'This task cannot be completed this way.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Only tasks the AI actually put on this site's list may be completed, so a
+		// capable user can't tick a task that isn't on their launchpad.
+		if ( ! in_array( $task_id, wpcom_ai_launchpad_get_ai_task_ids(), true ) ) {
+			return new WP_Error(
+				'ai_launchpad_task_not_selected',
+				__( 'This task is not on the tailored list.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		wpcom_mark_launchpad_task_complete( $task_id );
+
+		return array(
+			'completed' => true,
+			'task_id'   => $task_id,
+		);
+	}
+
+	/**
+	 * Deletes the AI output and marks the AI Launchpad as dismissed.
+	 *
+	 * @return array
+	 */
+	public function dismiss() {
+		delete_option( self::OPTION_AI_OUTPUT );
+		update_option( self::OPTION_DISMISSED, true, true );
+
+		return array( 'dismissed' => true );
+	}
+
+	/**
+	 * Strips HTML from a subtitle and rejects URLs and template syntax.
+	 *
+	 * @param string $subtitle The raw subtitle.
+	 * @return string|WP_Error The sanitized subtitle, or an error.
+	 */
+	private function sanitize_subtitle( $subtitle ) {
+		$subtitle = trim( wp_strip_all_tags( $subtitle, true ) );
+
+		if ( '' === $subtitle ) {
+			return new WP_Error(
+				'ai_launchpad_invalid_subtitle',
+				__( 'Task subtitles must contain text.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		if ( preg_match( '#https?://#i', $subtitle ) ) {
+			return new WP_Error(
+				'ai_launchpad_subtitle_contains_url',
+				__( 'Task subtitles must not contain URLs.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		if ( str_contains( $subtitle, '{{' ) || str_contains( $subtitle, '[[' ) ) {
+			return new WP_Error(
+				'ai_launchpad_subtitle_contains_template',
+				__( 'Task subtitles must not contain template syntax.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		return mb_substr( $subtitle, 0, 200 );
+	}
+
+	/**
+	 * Builds the enriched task list for every task in the catalog, bypassing the
+	 * per-site visibility gate. Backs the `?all_tasks=1` testing aid; each task is
+	 * enriched in isolation so one that can't be built in this context is skipped
+	 * rather than breaking the whole view.
+	 *
+	 * @return array
+	 */
+	private function build_all_catalog_tasks() {
+		$built = array();
+		foreach ( array_keys( wpcom_launchpad_get_task_definitions() ) as $task_id ) {
+			try {
+				$one = $this->build_tasks(
+					array(
+						array(
+							'id'       => $task_id,
+							'subtitle' => $task_id,
+						),
+					),
+					true
+				);
+				if ( ! empty( $one ) ) {
+					$built[] = $one[0];
+				}
+			} catch ( \Throwable $e ) {
+				continue;
+			}
+		}
+		return $built;
+	}
+
+	/**
+	 * Enriches the persisted tasks with title, completion state, and CTA path from the catalog.
+	 *
+	 * @param array $tasks             The persisted `payload.tasks` array.
+	 * @param bool  $bypass_visibility Skip the catalog visibility gate (for the all-tasks testing view).
+	 * @return array
+	 */
+	private function build_tasks( $tasks, $bypass_visibility = false ) {
+		$definitions = wpcom_launchpad_get_task_definitions();
+		$built       = array();
+
+		// Some catalog visibility callbacks call is_plugin_active() (e.g. the
+		// WooCommerce tasks), which lives in wp-admin/includes/plugin.php and is not
+		// loaded during a REST request. Load it once so the is_visible() gate below
+		// can't fatal on those callbacks.
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$is_private_site = $this->is_private_site();
+
+		foreach ( $tasks as $task ) {
+			if ( ! is_array( $task ) || ! isset( $task['id'] ) || ! isset( $task['subtitle'] ) ) {
+				continue;
+			}
+
+			if ( ! isset( $definitions[ $task['id'] ] ) ) {
+				continue;
+			}
+
+			// The Jetpack Social tasks point at an admin page wpcom doesn't load on
+			// a private site, so hide them there — their CTA would 404.
+			if ( $is_private_site && in_array( $task['id'], self::SOCIAL_PAGE_TASK_IDS, true ) ) {
+				continue;
+			}
+
+			$definition       = $definitions[ $task['id'] ];
+			$definition['id'] = $task['id'];
+
+			// Honor the catalog's own visibility gate, mirroring the legacy
+			// Launchpad_Task_Lists::build(): drop any task the catalog would hide
+			// on this site (e.g. WooCommerce tasks with no WooCommerce, or
+			// goal-gated tasks). The AI can select from the full menu, but a task
+			// it picks that is not applicable here must not render — the CTA would
+			// 404 and the task could never complete. Filtering on read (rather than
+			// rejecting on write) keeps the deterministic fallback usable: its fixed
+			// per-goal lists also contain conditionally-visible tasks, so gating the
+			// write path could strand a goal with too few surviving tasks.
+			if (
+				! $bypass_visibility
+				&& ! in_array( $task['id'], self::FORCE_VISIBLE_TASK_IDS, true )
+				&& ! wpcom_launchpad_checklists()->is_visible( $definition )
+			) {
+				continue;
+			}
+
+			// The membership tasks' catalog callbacks recompute from membership
+			// settings that are null on Atomic (always false there); recompute them
+			// from Jetpack_Memberships' local signals instead.
+			$completed = AI_Launchpad_Memberships::has_override( $task['id'] )
+				? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
+				: wpcom_launchpad_checklists()->is_task_complete( $definition );
+
+			$calypso_path = isset( self::CTA_OVERRIDES[ $task['id'] ] )
+				? admin_url( self::CTA_OVERRIDES[ $task['id'] ] )
+				: wpcom_launchpad_checklists()->load_calypso_path( $definition );
+
+			$built[] = array(
+				'id'           => $task['id'],
+				'subtitle'     => $task['subtitle'],
+				'title'        => isset( $definition['get_title'] ) ? $definition['get_title']() : '',
+				'completed'    => $completed,
+				'calypso_path' => $calypso_path,
+			);
+		}
+
+		return $built;
+	}
+
+	/**
+	 * Loads the agent output schema used to validate `PUT /tailored` bodies.
+	 *
+	 * @return array
+	 */
+	private function get_output_schema() {
+		static $schema = null;
+
+		if ( null === $schema ) {
+			$schema = json_decode( file_get_contents( __DIR__ . '/contracts/agent-output-schema.json' ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local package file.
+		}
+
+		return $schema;
+	}
+}
+
+// @phan-suppress-next-line PhanNoopNew -- instantiated for the constructor's add_action side effect.
+new AI_Launchpad_REST();

@@ -19,7 +19,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.5.0';
+	const PACKAGE_VERSION = '0.5.3';
 
 	/**
 	 * Help Center URL for disconnected variants.
@@ -56,7 +56,7 @@ class Agents_Manager {
 	 * @return bool True if the menu panel should be displayed.
 	 */
 	public function should_display_menu_panel() {
-		return apply_filters( 'agents_manager_use_unified_experience', false );
+		return self::is_unified_experience();
 	}
 
 	/**
@@ -75,6 +75,42 @@ class Agents_Manager {
 		);
 
 		return $icons[ $icon_name ] ?? '';
+	}
+
+	/**
+	 * Add the Agents Manager Help "?" node (`agents-manager`) to the admin bar, replacing the
+	 * legacy Help Center node (`help-center`).
+	 *
+	 * @param \WP_Admin_Bar $wp_admin_bar     The WP_Admin_Bar instance.
+	 * @param bool          $use_disconnected Disconnected variants link straight to the Help Center instead of opening the dropdown.
+	 */
+	public function add_help_menu( $wp_admin_bar, $use_disconnected ) {
+		$wp_admin_bar->remove_node( 'help-center' );
+
+		$menu_args = array(
+			'id'     => 'agents-manager',
+			'title'  => '<span title="' . esc_attr__( 'Help Center', 'jetpack-agents-manager' ) . '"><svg id="agents-manager-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
+						</svg></span>',
+			'parent' => 'top-secondary',
+		);
+
+		if ( $use_disconnected ) {
+			$menu_args['href'] = self::HELP_CENTER_URL;
+			$menu_args['meta'] = array(
+				'target' => '_blank',
+				'rel'    => 'noopener noreferrer',
+			);
+		} else {
+			$menu_args['meta'] = array(
+				'html'   => '<div id="agents-manager-masterbar"></div>',
+				'class'  => 'menupop',
+				'target' => '_blank',
+				'rel'    => 'noopener noreferrer',
+			);
+		}
+
+		$wp_admin_bar->add_menu( $menu_args );
 	}
 
 	/**
@@ -198,51 +234,25 @@ class Agents_Manager {
 		$use_disconnected = str_contains( $variant, 'disconnected' );
 		$is_gutenberg     = $this->is_block_editor();
 
-		// In Gutenberg, dequeue Help Center so we don't end up with two buttons.
+		// In Gutenberg, dequeue Help Center so we don't end up with two buttons — but only
+		// in the full unified experience, where Agents Manager takes over the Help Center.
+		// In block-editor-only mode (e.g. ?flags=unified-big-sky) Agents Manager replaces
+		// Big Sky's native UI and Help Center should remain available.
 		// Agents Manager fires at priority 101, after Help Center at 100, so HC is already enqueued.
-		if ( $is_gutenberg ) {
+		if ( $is_gutenberg && self::is_unified_experience() ) {
 			wp_dequeue_script( 'help-center' );
 			wp_dequeue_style( 'help-center-style' );
 		}
 
-		// For non-Gutenberg, non-CIAB environments, add to admin bar.
-		// Gutenberg doesn't have an admin bar, so JS will handle UI insertion.
-		// CIAB hides the classic admin bar and uses its own Site Hub — the JS variant handles UI there.
+		// For non-Gutenberg, non-CIAB environments, add to the admin bar. The fullscreen Gutenberg
+		// editor has no admin bar, so JS handles UI insertion — except under the omnibar, which is
+		// handled below. CIAB hides the admin bar and uses its own Site Hub.
 		$is_ciab = $this->is_ciab_environment();
 		if ( ! $is_gutenberg && ! $is_ciab ) {
 			add_action(
 				'admin_bar_menu',
 				function ( $wp_admin_bar ) use ( $use_disconnected ) {
-					// Remove the help-center menu item
-					$wp_admin_bar->remove_node( 'help-center' );
-
-					$menu_args = array(
-						'id'     => 'agents-manager',
-						'title'  => '<span title="' . __( 'Help Center', 'jetpack-agents-manager' ) . '"><svg id="agents-manager-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-										<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
-									</svg></span>',
-						'parent' => 'top-secondary',
-					);
-
-					// For disconnected variants, link directly to help center instead of showing dropdown
-					if ( $use_disconnected ) {
-						$menu_args['href'] = self::HELP_CENTER_URL;
-						$menu_args['meta'] = array(
-							'target' => '_blank',
-							'rel'    => 'noopener noreferrer',
-						);
-					} else {
-						// For full variants, show the dropdown menu panel
-						$menu_args['meta'] = array(
-							'html'   => '<div id="agents-manager-masterbar" />',
-							'class'  => 'menupop',
-							'target' => '_blank',
-							'rel'    => 'noopener noreferrer',
-						);
-					}
-
-					// Add the main agents manager menu node
-					$wp_admin_bar->add_menu( $menu_args );
+					$this->add_help_menu( $wp_admin_bar, $use_disconnected );
 				},
 				// Add the agents manager icon to the admin bar after the help center is added, so we can remove it.
 				100
@@ -254,7 +264,31 @@ class Agents_Manager {
 			}
 
 			// Standalone AI chat button, shown only in the unified experience.
-			if ( ! $use_disconnected && apply_filters( 'agents_manager_use_unified_experience', false ) ) {
+			if ( ! $use_disconnected && self::is_unified_experience() ) {
+				add_action( 'admin_bar_menu', array( $this, 'add_ai_chat_button' ), 100 );
+			}
+		}
+
+		// When Gutenberg's "admin bar in editor" (omnibar) experiment is active, expose the entry
+		// points in that editor admin bar (CIAB is excluded — it has its own Site Hub UI). The Help
+		// "?" dropdown shows only in the full unified experience (mirroring wp-admin); the Ask AI
+		// button shows in any dev/internal context while the feature is in development. The
+		// wp-calypso admin-bar integration wires both, so no frontend change is needed.
+		if ( ! $is_ciab && ! $use_disconnected && self::is_admin_bar_in_editor() ) {
+			// Help "?" node + dropdown panel first, matching the wp-admin admin bar order.
+			if ( self::is_unified_experience() ) {
+				add_action(
+					'admin_bar_menu',
+					function ( $wp_admin_bar ) {
+						$this->add_help_menu( $wp_admin_bar, false );
+					},
+					100
+				);
+				add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
+			}
+
+			// Ask AI button — dev/internal contexts only while the feature is in development.
+			if ( self::is_dev_mode() ) {
 				add_action( 'admin_bar_menu', array( $this, 'add_ai_chat_button' ), 100 );
 			}
 		}
@@ -270,15 +304,7 @@ class Agents_Manager {
 		 */
 		$agent_providers = apply_filters( 'agents_manager_agent_providers', array() );
 
-		/**
-		 * Filter to determine if user should see the unified chat experience.
-		 *
-		 * When true, Help Center will render UnifiedAIAgent instead of traditional UI.
-		 * The filter is hooked by should_use_unified_experience() in this class.
-		 *
-		 * @param bool $use_unified_experience Whether to use unified experience. Default false.
-		 */
-		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
+		$use_unified_experience = self::is_unified_experience();
 
 		/**
 		 * Filter the default agent ID for the Agents Manager.
@@ -387,6 +413,28 @@ class Agents_Manager {
 	}
 
 	/**
+	 * Whether the unified experience — the Help Center takeover — is active.
+	 *
+	 * "Unified" here means Agents Manager takes over the Help Center, unifying Odie and
+	 * Dolly (the orchestrator) into a single chat experience. This is distinct from
+	 * block-editor-only enablement, which replaces Big Sky's native UI without taking
+	 * over the Help Center.
+	 *
+	 * @return bool
+	 */
+	public static function is_unified_experience() {
+		/**
+		 * Filter to determine if the user should see the unified chat experience.
+		 *
+		 * When true, Help Center will render UnifiedAIAgent instead of traditional UI.
+		 * The filter is hooked by should_use_unified_experience() in this class.
+		 *
+		 * @param bool $use_unified_experience Whether to use unified experience. Default false.
+		 */
+		return (bool) apply_filters( 'agents_manager_use_unified_experience', false );
+	}
+
+	/**
 	 * Returns true if the Agents Manager should be loaded in the current context.
 	 *
 	 * @return bool
@@ -404,7 +452,7 @@ class Agents_Manager {
 		}
 
 		// Full unified experience: Agents Manager with support guides, Help Center takeover, etc.
-		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
+		if ( self::is_unified_experience() ) {
 			return true;
 		}
 
@@ -834,6 +882,22 @@ class Agents_Manager {
 		$current_screen = get_current_screen();
 		// The widgets screen has the block editor but no Gutenberg top bar.
 		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+	}
+
+	/**
+	 * Returns true when Gutenberg's "admin bar in editor" (omnibar) experiment is active.
+	 *
+	 * Mirrors Gutenberg core's gate in `lib/experimental/admin-bar-in-editor/load.php`, and fails
+	 * safe when `gutenberg_is_experiment_enabled()` is unavailable.
+	 *
+	 * @return bool
+	 */
+	private static function is_admin_bar_in_editor() {
+		return self::is_block_editor()
+			&& is_admin_bar_showing()
+			&& function_exists( 'gutenberg_is_experiment_enabled' )
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
+			&& \gutenberg_is_experiment_enabled( 'gutenberg-admin-bar-in-editor' );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Podcast: show a "Connect Jetpack" prompt on Stats and Episodes when the site isn't connected, instead of an upsell or an error.

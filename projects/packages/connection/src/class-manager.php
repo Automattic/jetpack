@@ -143,7 +143,7 @@ class Manager {
 
 		if ( $manager->is_connected() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
-			add_filter( 'shutdown', array( new Package_Version_Tracker(), 'maybe_update_package_versions' ) );
+			add_filter( 'shutdown', array( Package_Version_Tracker::class, 'update_on_shutdown' ) );
 		}
 
 		// This runs on priority 11 - at least one api method in the connection package is set to override a previously
@@ -158,6 +158,7 @@ class Manager {
 
 		Heartbeat::init();
 		add_filter( 'jetpack_heartbeat_stats_array', array( $manager, 'add_stats_to_heartbeat' ) );
+		add_action( 'jetpack_verify_signature_error', array( $manager, 'track_xmlrpc_error' ) );
 
 		Webhooks::init( $manager );
 
@@ -2777,6 +2778,7 @@ class Manager {
 	 * If the site-level connection is active, add the list of plugins using connection to the heartbeat (except Jetpack itself)
 	 *
 	 * @since 6.11.0 Add the list of Jetpack package versions to the heartbeat.
+	 * @since 8.7.4 Add the missing connection owner and XML-RPC error stats to the heartbeat.
 	 *
 	 * @param array $stats The Heartbeat stats array.
 	 * @return array $stats
@@ -2799,7 +2801,44 @@ class Manager {
 
 		$stats['identitycrisis'] = Identity_Crisis::check_identity_crisis() ? 'yes' : 'no';
 
+		// Missing the connection owner?
+		$stats['missing-owner'] = $this->is_missing_connection_owner();
+
+		$xmlrpc_errors = \Jetpack_Options::get_option( 'xmlrpc_errors', array() );
+		if ( $xmlrpc_errors ) {
+			$stats['xmlrpc-errors'] = implode( ',', array_keys( $xmlrpc_errors ) );
+			\Jetpack_Options::delete_option( 'xmlrpc_errors' );
+		}
+
 		return $stats;
+	}
+
+	/**
+	 * Records a failed XML-RPC signature verification so it can be reported in the heartbeat.
+	 *
+	 * We don't want to expose a detailed error message about why a request failed
+	 * signature verification, as doing so could leak information. Instead, we track
+	 * that the error occurred via a Jetpack option and send that data back in the
+	 * heartbeat. All this does is record the error code, but it's enough to find trends.
+	 *
+	 * @since 8.7.4
+	 *
+	 * @param \WP_Error $xmlrpc_error The error produced during signature validation.
+	 * @return void
+	 */
+	public function track_xmlrpc_error( $xmlrpc_error ) {
+		$code = is_wp_error( $xmlrpc_error )
+			? $xmlrpc_error->get_error_code()
+			: 'should-not-happen';
+
+		$xmlrpc_errors = \Jetpack_Options::get_option( 'xmlrpc_errors', array() );
+		if ( isset( $xmlrpc_errors[ $code ] ) && $xmlrpc_errors[ $code ] ) {
+			// No need to update the option if we already have this code stored.
+			return;
+		}
+		$xmlrpc_errors[ $code ] = true;
+
+		\Jetpack_Options::update_option( 'xmlrpc_errors', $xmlrpc_errors, false );
 	}
 
 	/**

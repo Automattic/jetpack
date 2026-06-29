@@ -26,6 +26,44 @@ class Settings_Test extends BaseTestCase {
 		}
 	}
 
+	public function test_get_all_returns_every_option_key_with_padded_maps() {
+		update_option( 'podcasting_title', 'My Show' );
+		update_option( 'podcasting_show_urls', array( 'apple' => 'https://podcasts.apple.com/show/1' ) );
+
+		$all = Settings::get_all();
+
+		foreach ( Settings::OPTION_NAMES as $name ) {
+			$this->assertArrayHasKey( $name, $all, "$name should be present in get_all()" );
+		}
+
+		$this->assertSame( 'My Show', $all['podcasting_title'] );
+		$this->assertIsBool( $all['podcasting_explicit'] );
+
+		$expected_keys = array_keys( Settings::SHOW_URL_HOSTS );
+		$this->assertSame( $expected_keys, array_keys( $all['podcasting_show_urls'] ) );
+		$this->assertSame( $expected_keys, array_keys( $all['podcasting_show_states'] ) );
+		$this->assertSame( 'https://podcasts.apple.com/show/1', $all['podcasting_show_urls']['apple'] );
+		$this->assertSame( '', $all['podcasting_show_urls']['spotify'] );
+
+		delete_option( 'podcasting_title' );
+		delete_option( 'podcasting_show_urls' );
+	}
+
+	public function test_rest_schema_properties_types_every_option() {
+		$schema = Settings::rest_schema_properties();
+
+		foreach ( Settings::OPTION_NAMES as $name ) {
+			$this->assertArrayHasKey( $name, $schema, "$name should have an update arg schema" );
+			$this->assertArrayHasKey( 'type', $schema[ $name ], "$name schema should declare a type" );
+		}
+
+		$this->assertSame( 'integer', $schema['podcasting_category_id']['type'] );
+		$this->assertSame( 'integer', $schema['podcasting_image_id']['type'] );
+		$this->assertSame( 'object', $schema['podcasting_show_urls']['type'] );
+		$this->assertSame( 'object', $schema['podcasting_show_states']['type'] );
+		$this->assertSame( array( 'boolean', 'string' ), $schema['podcasting_explicit']['type'] );
+	}
+
 	public function test_register_adds_options_to_jetpack_sync_whitelist() {
 		Settings::register();
 

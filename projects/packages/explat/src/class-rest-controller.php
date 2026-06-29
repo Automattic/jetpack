@@ -41,6 +41,19 @@ class REST_Controller {
 	const WPCOM_API_BASE_URL = 'https://public-api.wordpress.com/wpcom/v2';
 
 	/**
+	 * Registers the REST routes on the `rest_api_init` hook.
+	 *
+	 * Instantiated here, rather than eagerly, so the controller class only loads
+	 * on requests that reach `rest_api_init`. Static so the callback can be
+	 * unregistered.
+	 *
+	 * @access public
+	 */
+	public static function register() {
+		( new self() )->register_rest_routes();
+	}
+
+	/**
 	 * Registers the REST routes.
 	 *
 	 * @access public
