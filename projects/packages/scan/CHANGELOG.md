@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#49271]
 
 ### Fixed
-- Scan dashboard: align Text, Notice and Tabs.Panel props with the `@wordpress/ui` 0.15 API (adopt the closest typographic Text variants for size/weight, express muted color via a CSS class, rename Notice `variant` to `intent`, drop the unsupported `focusable` prop). [#49796]
+- Admin: Align Text, Notice and Tabs.Panel props with the `@wordpress/ui` 0.15 API. [#49796]
 
 ## [0.1.7] - 2026-06-25
 ### Changed

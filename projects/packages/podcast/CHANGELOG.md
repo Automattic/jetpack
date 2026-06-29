@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.0] - 2026-06-29
 ### Changed
-- Centralize podcatcher host allowlist in PHP script data and preload mount-time REST responses to drop first-render round-trips [#49969]
-- Podcast: show a "Connect Jetpack" prompt on Stats and Episodes when the site isn't connected, instead of an upsell or an error. [#49989]
-- Resolve the podcast premium gate over the Jetpack connection so self-hosted Growth sites unlock the paid surfaces while free sites keep the feed plus settings, and point the upsell at the Growth plan on self-hosted. [#49942]
+- Centralize podcatcher host allowlist in PHP script data and preload mount-time REST responses to drop first-render round-trips. [#49969]
+- Show a "Connect Jetpack" prompt on Stats and Episodes when the site isn't connected, instead of an upsell or an error. [#49989]
+- Resolve the premium gate over the Jetpack connection so self-hosted Growth sites unlock paid surfaces, and point the upsell at the Growth plan. [#49942]
 - Update package dependencies. [#49271]
 
 ### Fixed
-- Podcast: don't show the "Connect Jetpack" prompt on Simple and Atomic sites, which have no Jetpack site connection. [#50022]
+- Don't show the "Connect Jetpack" prompt on Simple and Atomic sites, which have no Jetpack site connection. [#50022]
 
 ## [1.2.0] - 2026-06-25
 ### Added

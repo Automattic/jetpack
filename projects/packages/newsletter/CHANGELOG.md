@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.11.1] - 2026-06-29
 ### Changed
-- Newsletter settings: Link the "Button only" style hint to platform-appropriate support documentation. [#50009]
+- Settings: Link the "Button only" style hint to platform-appropriate support documentation. [#50009]
 - Update package dependencies. [#49271]
 
 ## [0.11.0] - 2026-06-25

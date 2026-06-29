@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.22.6] - 2026-06-29
 ### Security
-- Status counts: Restrict counts to a user's own forms when they cannot edit others' forms. [#49929]
+- Restrict status counts to a user's own forms when they cannot edit others' forms. [#49929]
 
 ### Changed
 - Update package dependencies. [#49271]
 
 ### Fixed
-- Forms: restore webhook, Post to URL and Salesforce delivery for forms placed in block templates, template parts and widgets, which stopped firing in 15.9. [#49861]
+- Restore webhook, Post to URL and Salesforce delivery for forms placed in block templates, template parts and widgets, which stopped firing in 15.9. [#49861]
 
 ## [7.22.5] - 2026-06-25
 ### Changed

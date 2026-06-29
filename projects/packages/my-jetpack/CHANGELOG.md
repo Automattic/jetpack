@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.40.3] - 2026-06-26
 ### Changed
-- Migrate ProductDetailCard typography from the in-house @automattic/jetpack-components Text to @wordpress/ui Text, adopting the closest design-system variants. [#49704]
+- Migrate ProductDetailCard typography from the in-house `@automattic/jetpack-components` Text to `@wordpress/ui` Text, adopting the closest design-system variants. [#49704]
 
 ### Fixed
 - Fix fatal error when an older bundled SEO package is loaded: guard the SEO opt-in card with method_exists instead of class_exists. [#49988]

@@ -4,23 +4,23 @@
 
 ## 16.0-a.7 - 2026-06-29
 ### Enhancements
-- Donations Block: add an email renderer that builds the block from its attributes with email-friendly CTA buttons, preserving per-interval customization. [#49963]
+- Donations Block: Render the block in emails with email-friendly CTA buttons. [#49963]
 
 ### Bug fixes
 - AI Agent Access: Correct module references in Shortlinks and Related Posts ability descriptions. [#49957]
-- Archives shortcode: Cap the unbounded postbypost type with a sane, filterable default limit to prevent memory exhaustion on large sites. [#49927]
+- Archives shortcode: Cap the `postbypost` type with a filterable default limit to prevent memory exhaustion on large sites. [#49927]
 - Fix fatal error on My Jetpack when the current stable Jetpack plugin is active along with other Jetpack standalone plugins. [#49994]
-- Forms: sign file download links with an expiring token instead of a per-user nonce, so they work for any logged-in editor. [#49868]
-- Memberships: delegate the Payment Request API to the checkout iframe so Apple Pay, Google Pay, and Stripe Link can load and complete payments. [#49622]
-- Podcast: load the package outside Jetpack's connection-gated module loader so the podcast feed and dashboard keep working when the site is disconnected. [#49989]
-- Tiled Gallery: fix an infinite resize loop when the block is placed inside a Row or Stack block. [#50016]
-- Tiled Gallery: keep the mosaic layout stable across browsers and reloads when the block is inside a Row or Stack, and split the row evenly between multiple galleries instead of letting them overflow. [#50016]
+- Forms: Sign file download links with an expiring token so they work for any logged-in editor. [#49868]
+- Memberships: Delegate the Payment Request API to the checkout iframe so Apple Pay, Google Pay, and Stripe Link can load and complete payments. [#49622]
+- Podcast: Load the package outside Jetpack's connection-gated module loader so the podcast feed and dashboard keep working when the site is disconnected. [#49989]
+- Tiled Gallery: Fix an infinite resize loop when the block is inside a Row or Stack block. [#50016]
+- Tiled Gallery: Keep the mosaic layout stable and split rows evenly between galleries when the block is inside a Row or Stack. [#50016]
 - WhatsApp Button block: Fix icon and text overlapping in RTL languages. [#49983]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- AI Sidebar: source the AI Editorial Review flag only from features.aiEditorialReview; drop the redundant top-level aiEditorialReviewEnabled field. [#49971]
-- Content Guidelines AI: persist the empty-state dismissal (banner and upgrade notice) per-user (cross-device) instead of in browser localStorage. Dismiss the upgrade notice from its close icon as well. [#49392]
-- Performance: Defer the wpcom/v2 Search and AI REST endpoint wrappers from loading their controller and helper classes until rest_api_init, so those classes are not loaded on front-end, cron, and login requests. [#49805]
+- AI Sidebar: Source the AI Editorial Review flag only from `features.aiEditorialReview`; drop the redundant top-level `aiEditorialReviewEnabled` field. [#49971]
+- Content Guidelines AI: Persist the empty-state dismissal (banner and upgrade notice) per-user across devices instead of in browser `localStorage`, and allow dismissing the upgrade notice from its close icon. [#49392]
+- Defer the `wpcom/v2` Search and AI REST endpoint wrappers from loading their controller and helper classes until `rest_api_init`, so those classes are not loaded on front-end, cron, and login requests. [#49805]
 
 ## 16.0-a.5 - 2026-06-25
 ### Enhancements
