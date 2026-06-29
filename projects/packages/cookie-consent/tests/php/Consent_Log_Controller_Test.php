@@ -60,6 +60,7 @@ class Consent_Log_Controller_Test extends TestCase {
 		// Reset state some tests flip on, so sibling suites see the defaults.
 		wp_using_ext_object_cache( false );
 		remove_all_filters( 'jetpack_cookie_consent_rate_limit_max' );
+		remove_all_filters( 'jetpack_cookie_consent_config' );
 		wp_cache_flush();
 		parent::tearDown();
 	}
@@ -268,5 +269,118 @@ class Consent_Log_Controller_Test extends TestCase {
 
 		$this->assertInstanceOf( WP_REST_Response::class, $response );
 		$this->assertSame( 429, $response->get_status() );
+	}
+
+	/**
+	 * A successful write sends the configured version columns to $wpdb->insert(), with the
+	 * positional format map kept 1:1 with the data columns it describes.
+	 *
+	 * The consent-log table is MySQL-backed and not queryable in this harness (see class
+	 * docblock), so the write is captured at the $wpdb->insert() boundary. This guards the
+	 * load-bearing coupling between $data and its $format array: a future column reorder or
+	 * addition that forgets the matching format entry would misformat values silently, and
+	 * no helper-level unit test would catch it.
+	 */
+	public function test_create_consent_log_persists_version_columns() {
+		// Admit the write past the rate limiter (object-cache backend is portable here).
+		$this->force_object_cache_limit( 10 );
+
+		add_filter(
+			'jetpack_cookie_consent_config',
+			static function ( $config ) {
+				$config['log']['policy_version'] = 'policy-2026-06';
+				$config['log']['banner_version'] = 'banner-2026-06';
+
+				return $config;
+			}
+		);
+
+		global $wpdb;
+		$real_wpdb = $wpdb;
+		// Intercept only the consent-log insert; delegate everything else (option reads, the
+		// table prefix) to the real handle so the rest of the request path behaves normally.
+		$wpdb = new class( $real_wpdb ) {
+			/**
+			 * Underlying database handle.
+			 *
+			 * @var \wpdb
+			 */
+			private $real;
+
+			/**
+			 * Arguments captured from the last insert() call.
+			 *
+			 * @var array<string, mixed>
+			 */
+			public $insert_args = array();
+
+			/**
+			 * Wrap the real database handle.
+			 *
+			 * @param \wpdb $real Real database handle.
+			 */
+			public function __construct( $real ) {
+				$this->real = $real;
+			}
+
+			/**
+			 * Delegate property reads (e.g. prefix) to the real handle.
+			 *
+			 * @param string $name Property name.
+			 * @return mixed
+			 */
+			public function __get( $name ) {
+				return $this->real->$name;
+			}
+
+			/**
+			 * Delegate method calls (e.g. get_results) to the real handle.
+			 *
+			 * @param string $name Method name.
+			 * @param array  $args Arguments.
+			 * @return mixed
+			 */
+			public function __call( $name, $args ) {
+				return $this->real->$name( ...$args );
+			}
+
+			/**
+			 * Stand in for wpdb::insert(), recording its arguments.
+			 *
+			 * @param string $table  Table name.
+			 * @param array  $data   Column => value pairs.
+			 * @param array  $format Positional placeholder formats.
+			 * @return int Rows "affected".
+			 */
+			public function insert( $table, $data, $format ) {
+				$this->insert_args = compact( 'table', 'data', 'format' );
+				return 1;
+			}
+		};
+
+		$response    = null;
+		$insert_args = array();
+		try {
+			$request = new WP_REST_Request();
+			$request->set_param( 'event_type', 'accept_all' );
+			$response    = $this->controller->create_consent_log( $request );
+			$insert_args = $wpdb->insert_args;
+		} finally {
+			$wpdb = $real_wpdb;
+		}
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertSame( 200, $response->get_status() );
+
+		$this->assertNotEmpty( $insert_args, 'create_consent_log() should reach $wpdb->insert().' );
+		$data   = $insert_args['data'];
+		$format = $insert_args['format'];
+
+		// The configured proof-of-consent versions are written to the record.
+		$this->assertSame( 'policy-2026-06', $data['policy_version'] );
+		$this->assertSame( 'banner-2026-06', $data['banner_version'] );
+
+		// The positional format map must stay 1:1 with the data columns.
+		$this->assertSameSize( $data, $format );
 	}
 }
