@@ -358,6 +358,8 @@ class Consent_Log_Controller_Test extends TestCase {
 			}
 		};
 
+		$response    = null;
+		$insert_args = array();
 		try {
 			$request = new WP_REST_Request();
 			$request->set_param( 'event_type', 'accept_all' );
