@@ -3,25 +3,11 @@ import {
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
+import { heatmapActivityMatrix, heatmapCalendarSeries } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { HeatmapChart } from '../index';
 import { buildCalendarHeatmapData } from '../private';
-import type { DataPointDate } from '../../../types';
-import type { HeatmapColumn } from '../types';
 import type { Meta, StoryObj } from '@storybook/react';
-
-const matrix: HeatmapColumn[] = Array.from( { length: 12 }, ( _col, col ) => ( {
-	label: col % 4 === 0 ? `Q${ Math.floor( col / 4 ) + 1 }` : '',
-	data: Array.from( { length: 7 }, ( _row, row ) => ( {
-		label: `Col ${ col + 1 }, Row ${ row + 1 }`,
-		value: ( col * 7 + row ) % 5 === 0 ? null : ( ( col + row ) % 5 ) + 1,
-	} ) ),
-} ) );
-
-const calendarSeries: DataPointDate[] = Array.from( { length: 120 }, ( _, index ) => {
-	const date = new Date( 2024, 0, 1 + index );
-	return { date, value: Math.round( Math.abs( Math.sin( index ) ) * 4 ) };
-} );
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof HeatmapChart > >;
 
@@ -52,11 +38,9 @@ type Story = StoryObj< StoryArgs >;
 export const Default: Story = {
 	args: {
 		...sharedThemeArgs,
-		data: matrix,
+		data: heatmapActivityMatrix,
 		rowLabels: [ 'Mon', '', 'Wed', '', 'Fri', '', '' ],
 		withTooltips: true,
-		containerWidth: '900px',
-		containerHeight: '260px',
 	},
 };
 
@@ -66,15 +50,10 @@ export const Compact: Story = {
 
 export const Calendar: Story = {
 	render: args => {
-		const { data, rowLabels } = buildCalendarHeatmapData( calendarSeries );
+		const { data, rowLabels } = buildCalendarHeatmapData( heatmapCalendarSeries );
 		return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
 	},
-	args: {
-		...sharedThemeArgs,
-		withTooltips: true,
-		containerWidth: '900px',
-		containerHeight: '220px',
-	},
+	args: { ...sharedThemeArgs, withTooltips: true },
 };
 
 export const WithCompositionLegend: Story = {
@@ -83,7 +62,7 @@ export const WithCompositionLegend: Story = {
 			<HeatmapChart.Legend />
 		</HeatmapChart>
 	),
-	args: { ...Default.args, containerHeight: '320px' },
+	args: { ...Default.args },
 };
 
 export const FixedDimensions: Story = {
@@ -91,12 +70,19 @@ export const FixedDimensions: Story = {
 		...Default.args,
 		width: 720,
 		height: 220,
-		containerWidth: '760px',
-		containerHeight: '260px',
+	},
+};
+
+export const AspectRatio: Story = {
+	args: {
+		...Default.args,
+		aspectRatio: 0.4,
 	},
 };
 
 export const ErrorStates: Story = {
-	render: () => <HeatmapChart height={ 200 } data={ [] } />,
-	args: { containerHeight: '240px' },
+	args: {
+		...Default.args,
+		data: [],
+	},
 };
