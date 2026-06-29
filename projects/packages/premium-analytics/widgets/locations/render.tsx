@@ -36,8 +36,8 @@ type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
 /**
  * Locations widget inner component. Reads report params from WidgetRoot context.
  *
- * @param props     - Component props.
- * @param props.max - Maximum rows to display.
+ * @param root0     - Component props.
+ * @param root0.max - Maximum rows to display.
  * @return The rendered widget content.
  */
 function LocationsInner( { max }: { max: number } ) {
@@ -192,6 +192,9 @@ function LocationsInner( { max }: { max: number } ) {
 		);
 	}
 
+	// Explicit empty branch (rather than emptyStateText on LeaderboardChart) keeps the
+	// header breadcrumb and "View by" selector visible so users can switch mode or drill
+	// back up — consistent with the pattern used when chart chrome must remain interactive.
 	if ( ! data.length ) {
 		return (
 			<>

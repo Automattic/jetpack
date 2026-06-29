@@ -176,6 +176,11 @@ const REGION_COMPARISON_ROWS_BY_COUNTRY: Record< string, StatsLocationItem[] > =
 	],
 };
 
+// Heuristic: a request whose `date` param is more than 1 day ago is treated as the
+// comparison-period request. This works for the default `last-30-days` preset (primary
+// date ≈ today, comparison date ≈ 30 days ago). It would misclassify a `today` preset
+// (comparison date = yesterday, daysFromToday === 1), but the stories only use the default
+// preset so this is fine in practice.
 function isComparisonRequest( path: string ): boolean {
 	const queryString = path.split( '?' )[ 1 ];
 	const requestDate = queryString ? new URLSearchParams( queryString ).get( 'date' ) : null;

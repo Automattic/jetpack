@@ -89,9 +89,6 @@ export default function useLocationViews( {
 	const { primary, comparison, hasComparison, isLoading, isError } =
 		useStatsLocations( statsParams );
 
-	// isLoading: true only on the initial fetch (no data yet) — used to show the
-	// full loading placeholder. isFetching covers background refetches where
-	// stale data is already available; those should not blank the widget.
 	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
 	const comparisonReport = comparison.data as
 		| StatsNormalizedReport< StatsLocationsItem >
