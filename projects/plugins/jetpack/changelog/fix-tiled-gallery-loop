@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tiled Gallery: fix an infinite resize loop when the block is placed inside a Row or Stack block.

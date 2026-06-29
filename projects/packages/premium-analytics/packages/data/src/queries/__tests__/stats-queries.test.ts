@@ -12,6 +12,10 @@ import { statsArchivesQuery } from '../stats-archives-query';
 import { statsCommentFollowersQuery } from '../stats-comment-followers-query';
 import { statsCommentsQuery } from '../stats-comments-query';
 import { statsDevicesQuery } from '../stats-devices-query';
+import {
+	statsEmailClicksBreakdownQuery,
+	statsEmailOpensBreakdownQuery,
+} from '../stats-email-breakdown-query';
 import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
@@ -69,6 +73,42 @@ describe( 'Stats query factories', () => {
 	it( 'disables post stats queries until a positive post ID is available', () => {
 		expect( statsPostQuery( { postId: -1 } ).enabled ).toBe( false );
 		expect( statsPostQuery( { postId: 0 } ).enabled ).toBe( false );
+	} );
+
+	it( 'builds all-time email opens breakdown query keys without query params', () => {
+		const query = statsEmailOpensBreakdownQuery( 41, 'country' );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'email-opens-country',
+			'1.1',
+			'stats/opens/emails/41/country',
+			'GET',
+			{},
+			undefined,
+			'emailBreakdown',
+		] );
+	} );
+
+	it( 'builds all-time email clicks breakdown query keys per breakdown dimension', () => {
+		const query = statsEmailClicksBreakdownQuery( 41, 'user-content-link' );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'email-clicks-user-content-link',
+			'1.1',
+			'stats/clicks/emails/41/user-content-link',
+			'GET',
+			{},
+			undefined,
+			'emailBreakdown',
+		] );
+	} );
+
+	it( 'disables email breakdown queries until a positive post ID is available', () => {
+		expect( statsEmailOpensBreakdownQuery( 0, 'client' ).enabled ).toBe( false );
+		expect( statsEmailClicksBreakdownQuery( -1, 'link' ).enabled ).toBe( false );
 	} );
 
 	it( 'includes filter_by_country in query params when provided', () => {

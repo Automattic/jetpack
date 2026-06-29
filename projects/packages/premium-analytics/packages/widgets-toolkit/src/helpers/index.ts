@@ -28,7 +28,6 @@ export {
 	type BookingsByAttendanceData,
 } from './build-bookings-by-attendance-data';
 export { buildTotalReturnsData, type TotalReturnsData } from './build-total-returns-data';
-export { buildSalesByUtmData } from './build-sales-by-utm-data';
 export { formatLegendLabels } from './format-legend-labels';
 export { calculateDelta } from './calculate-delta';
 export { buildCouponUseData, type CouponUseData } from './build-coupon-use-data';

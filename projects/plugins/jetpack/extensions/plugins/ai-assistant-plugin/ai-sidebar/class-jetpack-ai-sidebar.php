@@ -454,9 +454,8 @@ class Jetpack_AI_Sidebar {
 		$config = self::get_jetpack_ai_sidebar_preview_config();
 
 		return array(
-			'agentId'                  => AI_SIDEBAR_AGENT_ID,
-			'aiEditorialReviewEnabled' => self::is_ai_editorial_review_enabled(),
-			'jetpackAiSidebar'         => $config,
+			'agentId'          => AI_SIDEBAR_AGENT_ID,
+			'jetpackAiSidebar' => $config,
 		);
 	}
 

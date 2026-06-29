@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tiled Gallery: keep the mosaic layout stable across browsers and reloads when the block is inside a Row or Stack, and split the row evenly between multiple galleries instead of letting them overflow.

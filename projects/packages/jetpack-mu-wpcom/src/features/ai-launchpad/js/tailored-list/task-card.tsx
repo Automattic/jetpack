@@ -44,8 +44,10 @@ interface Props {
 	task: EnrichedTask;
 	isBusy: boolean;
 	canStart: boolean;
+	canMarkComplete: boolean;
 	defaultOpen: boolean;
 	onGetStarted: () => void;
+	onMarkComplete: () => void;
 	onSkip: () => void;
 }
 
@@ -102,17 +104,29 @@ function getCtaLabel( taskId: string ): string {
  * the always-visible header, which is the toggle trigger); expanding reveals the
  * AI subtitle and the action-specific CTA / "Skip" actions.
  *
- * @param props              - The component props.
- * @param props.task         - The enriched task to render.
- * @param props.isBusy       - Whether the primary action is in flight.
- * @param props.canStart     - Whether the task has an actionable CTA destination.
- * @param props.defaultOpen  - Whether the card starts expanded (uncontrolled, so
- *                           the user can then collapse it without it reopening).
- * @param props.onGetStarted - Called when the primary CTA is clicked.
- * @param props.onSkip       - Called when "Skip" is clicked.
+ * @param props                 - The component props.
+ * @param props.task            - The enriched task to render.
+ * @param props.isBusy          - Whether the primary action is in flight.
+ * @param props.canStart        - Whether the task has an actionable CTA destination.
+ * @param props.canMarkComplete - Whether the task offers a "Mark as complete" button
+ *                              (a complete-on-click task with no CTA destination).
+ * @param props.defaultOpen     - Whether the card starts expanded (uncontrolled, so
+ *                              the user can then collapse it without it reopening).
+ * @param props.onGetStarted    - Called when the primary CTA is clicked.
+ * @param props.onMarkComplete  - Called when "Mark as complete" is clicked.
+ * @param props.onSkip          - Called when "Skip" is clicked.
  * @return The task card element.
  */
-export function TaskCard( { task, isBusy, canStart, defaultOpen, onGetStarted, onSkip }: Props ) {
+export function TaskCard( {
+	task,
+	isBusy,
+	canStart,
+	canMarkComplete,
+	defaultOpen,
+	onGetStarted,
+	onMarkComplete,
+	onSkip,
+}: Props ) {
 	if ( task.completed ) {
 		return (
 			<Card.Root className="ai-launchpad-tailored-list__card is-completed">
@@ -140,6 +154,16 @@ export function TaskCard( { task, isBusy, canStart, defaultOpen, onGetStarted, o
 					{ canStart && (
 						<Button variant="solid" onClick={ onGetStarted } loading={ isBusy } disabled={ isBusy }>
 							{ getCtaLabel( task.id ) }
+						</Button>
+					) }
+					{ ! canStart && canMarkComplete && (
+						<Button
+							variant="solid"
+							onClick={ onMarkComplete }
+							loading={ isBusy }
+							disabled={ isBusy }
+						>
+							{ __( 'Mark as complete', 'jetpack-mu-wpcom' ) }
 						</Button>
 					) }
 					<Button variant="minimal" tone="neutral" onClick={ onSkip }>

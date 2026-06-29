@@ -1,0 +1,272 @@
+<?php
+/**
+ * Tests for the Consent_Log_Controller write-endpoint protections.
+ *
+ * @package automattic/jetpack-cookie-consent
+ */
+
+namespace Automattic\Jetpack\CookieConsent;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use ReflectionMethod;
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+
+/**
+ * Tests for the consent-log write endpoint: input validation, sanitization, and the
+ * per-IP rate limiter.
+ *
+ * The rate limiter is exercised through its object-cache backend (atomic wp_cache_incr),
+ * which is portable to the test environment. The DB backend's atomic UPDATE is MySQL-specific
+ * and is verified separately against a real database.
+ *
+ * @covers \Automattic\Jetpack\CookieConsent\Consent_Log_Controller
+ */
+#[CoversClass( Consent_Log_Controller::class )]
+class Consent_Log_Controller_Test extends TestCase {
+
+	/**
+	 * Controller under test.
+	 *
+	 * @var Consent_Log_Controller
+	 */
+	private $controller;
+
+	/**
+	 * A bare request object for validate_* callbacks (which ignore it).
+	 *
+	 * @var WP_REST_Request
+	 */
+	private $request;
+
+	/**
+	 * Set up.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		$this->controller       = new Consent_Log_Controller();
+		$this->request          = new WP_REST_Request();
+		$_SERVER['REMOTE_ADDR'] = '203.0.113.5';
+		// Rate-limit counters live in the object cache; start each test from a clean slate.
+		wp_cache_flush();
+	}
+
+	/**
+	 * Tear down.
+	 */
+	public function tearDown(): void {
+		unset( $_SERVER['REMOTE_ADDR'] );
+		// Reset state some tests flip on, so sibling suites see the defaults.
+		wp_using_ext_object_cache( false );
+		remove_all_filters( 'jetpack_cookie_consent_rate_limit_max' );
+		wp_cache_flush();
+		parent::tearDown();
+	}
+
+	/**
+	 * Invoke a private method on the controller.
+	 *
+	 * @param string $name    Method name.
+	 * @param mixed  ...$args Arguments to forward.
+	 * @return mixed
+	 */
+	private function invoke( $name, ...$args ) {
+		$method = new ReflectionMethod( $this->controller, $name );
+		// setAccessible() is required on PHP < 8.1 but a no-op since, and deprecated in 8.5.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( $this->controller, ...$args );
+	}
+
+	/**
+	 * Force the rate limiter onto its object-cache backend at the given cap.
+	 *
+	 * @param int $max Maximum requests allowed per IP within the window.
+	 */
+	private function force_object_cache_limit( $max ) {
+		wp_using_ext_object_cache( true );
+		add_filter(
+			'jetpack_cookie_consent_rate_limit_max',
+			static function () use ( $max ) {
+				return $max;
+			}
+		);
+	}
+
+	/**
+	 * A well-formed http(s) URL within the length cap validates.
+	 */
+	public function test_validate_url_accepts_valid_url() {
+		$this->assertTrue( $this->controller->validate_url( 'https://example.com/page', $this->request, 'url' ) );
+		$this->assertTrue( $this->controller->validate_url( 'http://example.com/page', $this->request, 'url' ) );
+	}
+
+	/**
+	 * An empty URL is allowed (the field is optional).
+	 */
+	public function test_validate_url_allows_empty() {
+		$this->assertTrue( $this->controller->validate_url( '', $this->request, 'url' ) );
+	}
+
+	/**
+	 * A URL exceeding the length cap is rejected.
+	 */
+	public function test_validate_url_rejects_overlong_url() {
+		$long = 'https://example.com/' . str_repeat( 'a', 2000 );
+
+		$result = $this->controller->validate_url( $long, $this->request, 'url' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'rest_invalid_param', $result->get_error_code() );
+	}
+
+	/**
+	 * A malformed URL (no http(s) scheme) is rejected.
+	 */
+	public function test_validate_url_rejects_invalid_url() {
+		$this->assertInstanceOf( WP_Error::class, $this->controller->validate_url( 'not a url', $this->request, 'url' ) );
+	}
+
+	/**
+	 * A non-http(s) scheme (e.g. javascript:) is rejected.
+	 */
+	public function test_validate_url_rejects_non_http_scheme() {
+		$this->assertInstanceOf( WP_Error::class, $this->controller->validate_url( 'javascript:alert(1)', $this->request, 'url' ) );
+	}
+
+	/**
+	 * An http(s) URL with no host is rejected.
+	 */
+	public function test_validate_url_rejects_hostless_url() {
+		$this->assertInstanceOf( WP_Error::class, $this->controller->validate_url( 'http://', $this->request, 'url' ) );
+	}
+
+	/**
+	 * A valid UUID and an empty value both validate (the field is optional).
+	 */
+	public function test_validate_uuid_accepts_valid_and_empty() {
+		$this->assertTrue( $this->controller->validate_uuid( '', $this->request, 'consent_id' ) );
+		$this->assertTrue( $this->controller->validate_uuid( wp_generate_uuid4(), $this->request, 'consent_id' ) );
+	}
+
+	/**
+	 * A malformed UUID is rejected.
+	 */
+	public function test_validate_uuid_rejects_malformed() {
+		$result = $this->controller->validate_uuid( 'not-a-uuid', $this->request, 'consent_id' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'rest_invalid_param', $result->get_error_code() );
+	}
+
+	/**
+	 * Consent types are bounded to the allow-list; unknown keys are dropped.
+	 */
+	public function test_sanitize_consent_types_filters_to_allowed_keys() {
+		$result = $this->controller->sanitize_consent_types(
+			array(
+				'functional' => true,
+				'analytics'  => false,
+				'marketing'  => true,
+				'evil'       => true,
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'functional' => true,
+				'analytics'  => false,
+				'marketing'  => true,
+			),
+			$result
+		);
+		$this->assertArrayNotHasKey( 'evil', $result );
+	}
+
+	/**
+	 * Non-array consent types sanitize to null.
+	 */
+	public function test_sanitize_consent_types_rejects_non_array() {
+		$this->assertNull( $this->controller->sanitize_consent_types( 'nope' ) );
+	}
+
+	/**
+	 * The limiter admits requests up to the cap and rejects the one past it.
+	 *
+	 * Because the reserve is a single atomic increment, repeated calls keep advancing the same
+	 * per-IP/per-window counter rather than racing on a stale read.
+	 */
+	public function test_rate_limiter_trips_at_max() {
+		$this->force_object_cache_limit( 3 );
+
+		// The first three requests fit within the cap.
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$this->assertTrue(
+				$this->invoke( 'reserve_rate_limit_slot', '198.51.100.7' ),
+				"request {$i} should be admitted"
+			);
+		}
+
+		// The fourth is over the cap.
+		$this->assertFalse( $this->invoke( 'reserve_rate_limit_slot', '198.51.100.7' ) );
+	}
+
+	/**
+	 * Each IP gets its own budget; one IP exhausting it doesn't block another.
+	 */
+	public function test_rate_limiter_buckets_are_per_ip() {
+		$this->force_object_cache_limit( 1 );
+
+		$this->assertTrue( $this->invoke( 'reserve_rate_limit_slot', '198.51.100.7' ) );
+		$this->assertFalse( $this->invoke( 'reserve_rate_limit_slot', '198.51.100.7' ) );
+		$this->assertTrue( $this->invoke( 'reserve_rate_limit_slot', '203.0.113.9' ) );
+	}
+
+	/**
+	 * A missing IP collapses to a single shared bucket so it still can't be flooded.
+	 */
+	public function test_rate_limiter_shares_one_bucket_for_missing_ip() {
+		$this->force_object_cache_limit( 1 );
+
+		$this->assertTrue( $this->invoke( 'reserve_rate_limit_slot', false ) );
+		$this->assertFalse( $this->invoke( 'reserve_rate_limit_slot', false ) );
+	}
+
+	/**
+	 * The 429 response carries the conventional rate-limit headers.
+	 */
+	public function test_rate_limited_response_carries_headers() {
+		$response = $this->invoke( 'rate_limited_response' );
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertSame( 429, $response->get_status() );
+
+		$headers = $response->get_headers();
+		$this->assertSame( '100', $headers['RateLimit-Limit'] );
+		$this->assertSame( '0', $headers['RateLimit-Remaining'] );
+
+		// Retry-After is the seconds left in the current window (1..window); Reset mirrors it.
+		$retry_after = $headers['Retry-After'];
+		$this->assertSame( 1, preg_match( '/^[0-9]+$/', (string) $retry_after ) );
+		$this->assertGreaterThanOrEqual( 1, (int) $retry_after );
+		$this->assertLessThanOrEqual( 60, (int) $retry_after );
+		$this->assertSame( $retry_after, $headers['RateLimit-Reset'] );
+	}
+
+	/**
+	 * Once an IP is at the cap, a real write request is rejected with a 429 before any insert.
+	 */
+	public function test_create_consent_log_returns_429_when_rate_limited() {
+		$this->force_object_cache_limit( 1 );
+
+		// Consume the only slot for this request's IP (REMOTE_ADDR set in setUp).
+		$this->assertTrue( $this->invoke( 'reserve_rate_limit_slot', '203.0.113.5' ) );
+
+		$response = $this->controller->create_consent_log( new WP_REST_Request() );
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertSame( 429, $response->get_status() );
+	}
+}
