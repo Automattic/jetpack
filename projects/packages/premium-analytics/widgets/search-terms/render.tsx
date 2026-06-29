@@ -31,7 +31,7 @@ type SearchTermsRenderAttributes = Partial< ReportParamsFieldAttributes > & Sear
 function SearchTermsInner( { max = 10 }: { max?: number } ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, isLoading, isError } = useSearchTermViews( { reportParams, max } );
+	const { data, isLoading, isError, hasComparison } = useSearchTermViews( { reportParams, max } );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...data.map( t => t.views ), 0 );
@@ -79,6 +79,7 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 				<LeaderboardChart
 					data={ leaderboardData }
 					loading={ isLoading }
+					withComparison={ hasComparison }
 					withOverlayLabel
 					showLegend={ false }
 					emptyStateText={ __( 'No search terms in this period.', 'jetpack-premium-analytics' ) }
