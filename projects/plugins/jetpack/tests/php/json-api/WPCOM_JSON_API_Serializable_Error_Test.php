@@ -15,11 +15,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
- * serializable_error() must always render a safe HTTP error status: never `1`,
- * never a non-integer, never `< 400`, and never a code status_header() can't
+ * Tests that serializable_error() always renders a safe HTTP error status: never
+ * `1`, never a non-integer, never `< 400`, and never a code status_header() can't
  * render. Regression coverage for the proxied-error incident (CONNECT-267).
  *
  * @covers \WPCOM_JSON_API::serializable_error
+ * @covers \WPCOM_JSON_API
  */
 #[CoversClass( WPCOM_JSON_API::class )]
 #[CoversMethod( WPCOM_JSON_API::class, 'serializable_error' )]
@@ -78,6 +79,7 @@ class WPCOM_JSON_API_Serializable_Error_Test extends WP_UnitTestCase {
 	 * (the crash: an app reads a 2xx as a successful, URL-less site).
 	 *
 	 * @param int $input Non-error status carried on the error.
+	 * @dataProvider provide_non_error_statuses
 	 */
 	#[DataProvider( 'provide_non_error_statuses' )]
 	public function test_non_error_status_coerced_to_400( $input ) {
@@ -103,6 +105,7 @@ class WPCOM_JSON_API_Serializable_Error_Test extends WP_UnitTestCase {
 	 * known to WP core's get_status_header_desc(), so it is deliberately not here.)
 	 *
 	 * @param int $input Unrenderable status carried on the error.
+	 * @dataProvider provide_unrenderable_statuses
 	 */
 	#[DataProvider( 'provide_unrenderable_statuses' )]
 	public function test_unrenderable_status_coerced_to_502( $input ) {
