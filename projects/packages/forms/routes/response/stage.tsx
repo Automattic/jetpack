@@ -28,6 +28,11 @@ import FormsPage from '../../src/dashboard/wp-build/components/page';
 import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
 import SingleResponseActions from './page-actions.tsx';
 import useResponsePageNavigation from './use-navigation.ts';
+// Shared wp-build dashboard chrome (page layout + breadcrumb link styling). The
+// other dashboard routes load this; the single-response route needs it too so
+// the breadcrumb matches the dashboard from first paint instead of flipping
+// once these styles arrive via navigation.
+import '../../src/dashboard/wp-build/style.scss';
 import './style.scss';
 /**
  * Types

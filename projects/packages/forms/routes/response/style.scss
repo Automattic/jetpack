@@ -24,30 +24,17 @@
 }
 
 // Breadcrumb trail in the page header. Hand-rolled (see breadcrumbs.tsx) so the
-// form crumb can carry a search param; typography mirrors admin-ui's
-// `<Breadcrumbs>` via the same WPDS tokens — links use the `body-lg` treatment
-// and the current item the `heading-lg` one (heading font family, medium
-// weight), so it doesn't render heavier/in the wrong font versus other pages.
-// Use a uniform medium (499) weight across the breadcrumb so the crumbs match.
-nav[aria-label="Breadcrumbs"] {
-	font-weight: var(--wpds-typography-font-weight-medium, 499);
-}
-
+// form crumb can carry a search param. Link color/weight + underline come from
+// the shared wp-build dashboard stylesheet (`nav[aria-label="Breadcrumbs"] a`),
+// so this only owns the trail layout, the separators, and the current crumb.
 .jp-forms__single-response-breadcrumbs {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
 
 	&__link {
-		color: var(--jp-gray-50, #646970);
 		font-size: var(--wpds-typography-font-size-lg, 15px);
 		line-height: var(--wpds-typography-line-height-md, 24px);
-		text-decoration: none;
-
-		&:hover {
-			color: var(--jp-black, #1e1e1e);
-			text-decoration: underline;
-		}
 	}
 
 	&__sep {
