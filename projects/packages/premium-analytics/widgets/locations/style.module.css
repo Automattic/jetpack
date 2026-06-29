@@ -7,12 +7,17 @@
 }
 
 .placeholder {
+	flex: 1 1 0;
+	min-block-size: 0;
+	inline-size: 100%;
 	min-height: 200px;
 	color: var(--wpds-color-fg-content-neutral-weak);
+	text-align: center;
 }
 
 .widgetHeader {
 	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+	min-height: 32px;
 }
 
 .breadcrumb {
@@ -52,6 +57,7 @@
 }
 
 .content {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	padding: var(--wpds-dimension-padding-lg);
