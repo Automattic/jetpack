@@ -555,9 +555,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/cookie-consent",
-                "reference": "d5a3c6a3661fd4437cf1817016e3e94778e878c1"
+                "reference": "92110df34cdb10905abd390cbd0d660853428783"
             },
             "require": {
+                "automattic/jetpack-ip": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
