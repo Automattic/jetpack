@@ -265,15 +265,18 @@ async function hashAlreadyPosted( hash, branch, config ) {
 	if ( ! hash || hash === 'unknown' ) {
 		return false; // can't dedup an unknown hash — let it post
 	}
-	const url =
-		`${ config.dedupBaseUrl }/api/repos/${ config.dedupRepo }` +
-		`/perf/evolution/${ config.dedupMetricId }` +
-		`?branch=${ encodeURIComponent( branch ) }&limit=200`;
 
 	const TIMEOUT_MS = 15000;
 	const controller = new AbortController();
 	const timeoutId = setTimeout( () => controller.abort(), TIMEOUT_MS );
 	try {
+		// Build the URL inside the try so even a pathological branch (a lone surrogate
+		// that makes encodeURIComponent throw) is caught and fails open — the "never
+		// block a post" contract stays total, not just total for the fetch itself.
+		const url =
+			`${ config.dedupBaseUrl }/api/repos/${ config.dedupRepo }` +
+			`/perf/evolution/${ config.dedupMetricId }` +
+			`?branch=${ encodeURIComponent( branch ) }&limit=200`;
 		const response = await fetch( url, {
 			headers: { Accept: 'application/json' },
 			signal: controller.signal,

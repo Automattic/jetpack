@@ -902,20 +902,23 @@ function dedupFetchStub( {
 	evolutionHashes = [],
 	evolutionStatus = 200,
 	throwOnEvolution = false,
+	evolutionBody, // when set, returned verbatim from the evolution json() (for bad-shape tests)
 } ) {
-	const calls = { evolution: 0, post: 0 };
+	const calls = { evolution: 0, post: 0, evolutionUrl: null };
 	const fetchImpl = async u => {
 		if ( String( u ).includes( '/perf/evolution/' ) ) {
 			calls.evolution++;
+			calls.evolutionUrl = String( u );
 			if ( throwOnEvolution ) {
 				throw new Error( 'network down' );
 			}
 			return {
 				ok: evolutionStatus >= 200 && evolutionStatus < 300,
 				status: evolutionStatus,
-				json: async () => ( {
-					data: evolutionHashes.map( h => ( { hash: h, measuredAt: '2026-01-01' } ) ),
-				} ),
+				json: async () =>
+					evolutionBody !== undefined
+						? evolutionBody
+						: { data: evolutionHashes.map( h => ( { hash: h, measuredAt: '2026-01-01' } ) ) },
 				text: async () => '',
 			};
 		}
@@ -1016,6 +1019,88 @@ test( 'dedup is skipped (no read) when dedupBaseUrl is unset, as in the other li
 		);
 		assert.equal( calls.evolution, 0 );
 		assert.equal( result.posted, true );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup queries the configured metric / repo / branch (endpoint identity)', async () => {
+	// A wrong metric id, repo, or branch would silently query the wrong series and
+	// never find a real duplicate. Pin the URL the read actually hits.
+	const file = writeResults( 120 ); // git.branch = 'trunk'
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'someoneelse' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		const u = calls.evolutionUrl;
+		assert.ok( u, 'the evolution endpoint should have been queried' );
+		assert.match(
+			u,
+			/^https:\/\/gitaudit\.test\/api\/repos\/Automattic\/jetpack\/perf\/evolution\/58\b/
+		);
+		assert.match( u, /[?&]branch=trunk\b/ );
+		assert.match( u, /[?&]limit=200\b/ );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup is bypassed for an unknown hash (still posts, no read)', async () => {
+	// A results file with hash:'unknown' can't be deduped; it must skip the read and
+	// still post (fail open), matching the pre-existing "post unknown" behaviour.
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-unknownhash-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'unknown', branch: 'trunk' },
+			measurements: { jetpackConnected: { summary: { median: 120 } } },
+		} )
+	);
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'unknown' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( calls.evolution, 0, 'no read for an unknown hash' );
+		assert.equal( result.posted, true );
+	} finally {
+		global.fetch = origFetch;
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+test( 'dedup fails open on an unexpected (non-{data:[]}) read body', async () => {
+	const file = writeResults( 120 );
+	// 200 OK but the body isn't the expected { data: [...] } shape (e.g. an HTML/SPA
+	// response or an API change). Must fail open and post, not throw.
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionBody: { unexpected: 'shape' } } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'a dry run makes no dedup read even when dedup is fully configured', async () => {
+	// Pins the ordering: the dry-run early return must precede the dedup block, so the
+	// token-free CI smoke test never touches the network even with dedupBaseUrl set.
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'testhash' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () =>
+			postToCodeVitals( file, { ...DEDUP_CONFIG, dryRun: true } )
+		);
+		assert.equal( calls.evolution, 0, 'a dry run must not hit the dedup endpoint' );
+		assert.equal( calls.post, 0 );
+		assert.equal( result.posted, false );
 	} finally {
 		global.fetch = origFetch;
 	}
