@@ -402,6 +402,9 @@ class Tus_File {
 			throw new File_Exception( 'Upload failed.' );
 		}
 
+		// Resume the rolling MD5 from cached state, if present.
+		$md5_context = $this->resume_md5_context( $key );
+
 		try {
 			$this->seek( $output, $this->offset );
 
@@ -412,6 +415,11 @@ class Tus_File {
 
 				$data  = $this->read( $input, self::CHUNK_SIZE );
 				$bytes = $this->write( $output, $data, self::CHUNK_SIZE );
+
+				if ( null !== $md5_context && $bytes > 0 ) {
+					// Hash only the bytes write() persisted (handles short writes).
+					hash_update( $md5_context, substr( $data, 0, $bytes ) );
+				}
 
 				$this->offset += $bytes;
 
@@ -427,14 +435,64 @@ class Tus_File {
 			$this->close( $input );
 			$this->close( $output );
 
+			$meta = array( 'offset' => $this->offset );
+
+			// Build the digest in its own guard so a hashing failure can never skip the offset write below.
+			if ( null !== $md5_context ) {
+				try {
+					if ( $this->offset === $total_bytes ) {
+						$meta['md5']       = hash_final( $md5_context );
+						$meta['md5_state'] = null;
+					} else {
+						// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize, WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+						$meta['md5_state'] = base64_encode( serialize( $md5_context ) );
+					}
+				} catch ( \Throwable $e ) {
+					Logger::log( 'error', $e );
+				}
+			}
+
 			try {
-				$this->cache->set( $key, array( 'offset' => $this->offset ) );
+				$this->cache->set( $key, $meta );
 			} catch ( \Throwable $e ) {
 				Logger::log( 'error', $e );
 			}
 		}
 
 		return $this->offset;
+	}
+
+	/**
+	 * Resume the rolling MD5 stored for this upload, or null to skip hashing.
+	 *
+	 * The context is read from the cached `md5_state` (a base64-encoded serialized HashContext) so
+	 * written bytes can be folded into it. Returns null when no usable state is present, leaving the
+	 * caller to hash the assembled file instead.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $key The upload key.
+	 *
+	 * @return \HashContext|null
+	 */
+	private function resume_md5_context( $key ) {
+		$meta = $this->cache->get( $key );
+
+		if ( ! is_array( $meta ) || ! isset( $meta['md5_state'] ) ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		$decoded = base64_decode( $meta['md5_state'], true );
+
+		if ( false === $decoded ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+		$context = unserialize( $decoded, array( 'allowed_classes' => array( 'HashContext' ) ) );
+
+		return $context instanceof \HashContext ? $context : null;
 	}
 
 	/**

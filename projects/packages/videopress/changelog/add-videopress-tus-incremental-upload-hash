@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+VideoPress: Tus_File now folds each chunk into a rolling MD5 as it is written, so a resumable upload's whole-file digest is available on completion without re-reading the assembled file.
