@@ -65,3 +65,9 @@ export type {
 	StatsAppReferrersSpamMutationResponse,
 	StatsAppReferrersSpamResponse,
 } from './stats-app-referrers-spam-query';
+export {
+	statsEmailOpensBreakdownQuery,
+	statsEmailClicksBreakdownQuery,
+	type StatsEmailClicksBreakdown,
+	type StatsEmailOpensBreakdown,
+} from './stats-email-breakdown-query';

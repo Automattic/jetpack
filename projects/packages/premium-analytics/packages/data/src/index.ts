@@ -126,6 +126,13 @@ export type {
 	StatsAppReferrersSpamMutationResponse,
 	StatsAppReferrersSpamResponse,
 } from './hooks/use-stats-app-referrers-spam';
+export {
+	useStatsEmailOpensBreakdown,
+	useStatsEmailClicksBreakdown,
+	type StatsEmailBreakdown,
+	type StatsEmailClicksBreakdown,
+	type StatsEmailOpensBreakdown,
+} from './hooks/use-stats-email-breakdown';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -174,6 +181,7 @@ export type {
 	StatsCommentsRawFollowData,
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
+	StatsEmailBreakdownItem,
 	StatsFileDownloadsItem,
 	StatsFollowersItem,
 	StatsFollowersRawItem,
