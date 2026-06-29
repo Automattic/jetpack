@@ -22,7 +22,7 @@ class Config_Normalization_Test extends TestCase {
 	 * Call a private static Cookie_Consent method.
 	 *
 	 * @param string $method Method name.
-	 * @param array  ...$args Method arguments.
+	 * @param mixed  ...$args Method arguments.
 	 * @return mixed Method return value.
 	 */
 	private function call_cookie_consent_method( $method, ...$args ) {
