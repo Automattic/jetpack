@@ -659,6 +659,11 @@ class Colors_Manager_Common {
 	 * @return mixed Empty string for COLOURLovers-hosted images, otherwise the original value.
 	 */
 	public static function remove_colourlovers_background( $url ) {
+		// Match on the bucket host as a substring rather than parsing the URL host or
+		// reusing COLOURLOVERS_HOST: this also catches imgpress/Photon-proxied and
+		// http/https variants where the bucket appears in a `url=` param or path, which
+		// host parsing would miss. Over-blanking is the safe direction here — a missed
+		// match means we keep requesting COLOURLovers.
 		if ( is_string( $url ) && (
 			false !== stripos( $url, 'colourlovers.com.s3.amazonaws.com' )
 			|| false !== stripos( $url, 'colourlovers-static-replica.s3.amazonaws.com' )
