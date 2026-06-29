@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { localTZDate, useStatsTopAuthors } from '@jetpack-premium-analytics/data';
+import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
 	WidgetLoadingOverlay,
@@ -14,7 +14,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { postAuthor } from '@wordpress/icons';
-import { format } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -38,22 +37,6 @@ const toPositiveInt = ( value: string | number | undefined, fallback: number ) =
 
 	return Number.isFinite( parsed ) && parsed > 0 ? parsed : fallback;
 };
-
-/**
- * Build a "very long" default report range (all time, through the end of
- * today) used when the host doesn't pass explicit report params. Explicit
- * from/to pass through `normalizeReportParams` untouched, so this wide range
- * survives WidgetRoot's normalization instead of the rolling default preset.
- *
- * TODO: Remove the default range once we have a way to pass the launched date to the widget.
- *
- * @return The default report params covering an all-time range.
- */
-const getDefaultReportParams = () => ( {
-	from: '2000-01-01T00:00:00',
-	to: `${ format( localTZDate(), 'yyyy-MM-dd' ) }T23:59:59`,
-	interval: 'day' as const,
-} );
 
 export type AuthorsLeaderboardProps = {
 	/**
@@ -186,8 +169,9 @@ function AuthorsReport( { max }: { max: number } ) {
 /**
  * Authors widget render entry point.
  *
- * WidgetRoot provides the analytics query client, chart theme, and the
- * resolved report params consumed by the inner leaderboard.
+ * WidgetRoot provides the analytics query client, chart theme, and the report
+ * params consumed by the inner leaderboard — resolved from the dashboard date
+ * range via context, the same way the other Stats widgets read them.
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes.
@@ -195,15 +179,8 @@ function AuthorsReport( { max }: { max: number } ) {
  * @return The rendered Authors widget.
  */
 export default function Authors( { attributes = {}, setError }: AuthorsRenderProps ) {
-	const attributesWithDefaults = useMemo( () => {
-		const hasReportParams =
-			!! attributes.reportParams && Object.keys( attributes.reportParams ).length > 0;
-
-		return hasReportParams ? attributes : { ...attributes, reportParams: getDefaultReportParams() };
-	}, [ attributes ] );
-
 	return (
-		<WidgetRoot attributes={ attributesWithDefaults } setError={ setError }>
+		<WidgetRoot attributes={ attributes } setError={ setError }>
 			<AuthorsReport max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
 		</WidgetRoot>
 	);
