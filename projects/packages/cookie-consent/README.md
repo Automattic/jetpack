@@ -12,6 +12,16 @@ Build the frontend module before use:
 
 `pnpm --filter @automattic/jetpack-cookie-consent build`
 
+For CDN-ready production output, run:
+
+`pnpm --filter @automattic/jetpack-cookie-consent build-production`
+
+Production builds write `build/asset-manifest.json` and content-hashed browser
+asset copies into the existing `build/` directory. The local build directory is
+still mixed runtime output, so CDN publication should upload only the manifest's
+`publishFiles` set. Generated PHP, `*.asset.php`, un-hashed JS/CSS entries, and
+source maps are not part of the CDN contract.
+
 ## Lifecycle
 
 Cookie Consent is a package, not a plugin, so consumers must wire lifecycle hooks

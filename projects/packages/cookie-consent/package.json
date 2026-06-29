@@ -17,7 +17,8 @@
 	"type": "module",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run module:build",
-		"build-production": "NODE_ENV=production pnpm run build",
+		"build:cdn-assets": "node ../../../tools/cdn-assets/build-asset-manifest.mjs --package-dir . --namespace cookie-consent --version v1 --mode cookie-consent",
+		"build-production": "NODE_ENV=production pnpm run build && pnpm run build:cdn-assets",
 		"clean": "rm -rf build/",
 		"module:build": "webpack --config ./tools/webpack.config.modules.js",
 		"module:watch": "webpack --watch --config ./tools/webpack.config.modules.js",

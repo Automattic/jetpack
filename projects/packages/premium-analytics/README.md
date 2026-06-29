@@ -36,9 +36,22 @@ discovered at build time from `package.json` metadata.
 
 ```bash
 pnpm run build             # one-off build
+pnpm run build-production  # production build + CDN asset manifest
 pnpm run watch             # rebuild on file changes
 jetpack build packages/premium-analytics   # via Jetpack CLI
 ```
+
+### CDN asset manifest
+
+Production builds write `build/asset-manifest.json` and content-hashed browser
+asset copies into the existing `build/` directory. The local build directory is
+still mixed runtime output because `@wordpress/build` generates PHP files for
+local/plugin loading.
+
+For CDN publication, upload only the manifest's `publishFiles` set to the
+`premium-analytics/v1/` destination. Do not rsync the whole `build/` directory:
+generated PHP, `*.asset.php`, un-hashed JS/CSS entries, and source maps are not
+part of the CDN contract.
 
 ### Adding a route
 
