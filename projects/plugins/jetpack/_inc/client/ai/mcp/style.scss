@@ -86,24 +86,73 @@
 		vertical-align: center;
 	}
 
-	&__category-header-row {
+	// Group header: [info (flex:1)] [toggle] [chevron] on desktop
+	// Mobile: [info (flex:1)] [chevron] on row 1, [toggle (full-width)] on row 2
+	&__group-header {
 		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
 		align-items: center;
+		flex-wrap: wrap;
+		gap: 8px 12px;
+	}
+
+	&__group-info {
+		flex: 1;
+		min-width: 0; // allow text truncation inside flex children
+		order: 1;
+	}
+
+	// On mobile: toggle wraps below the title row (full width, after chevron).
+	// On desktop: toggle sits between info and chevron.
+	&__group-toggle {
+		order: 3;
 		width: 100%;
 
-		// The ToggleControl label uses line-height equal to the toggle height for
-		// vertical alignment, but the FlexBlock wrapper defaults to align-items:
-		// stretch. Force center so the "Enable all" text sits mid-toggle.
+		@media (min-width: 600px) {
+			order: 2;
+			width: auto;
+			flex-shrink: 0;
+		}
+
+		// Force the ToggleControl label to center-align with the toggle handle.
 		.components-toggle-control__label {
 			display: flex;
 			align-items: center;
 		}
 	}
 
-	&__tool-group-divider {
-		margin: 0;
+	&__group-chevron {
+		order: 2; // Mobile: stays inline with title
+
+		@media (min-width: 600px) {
+			order: 3; // Desktop: after toggle
+		}
+	}
+
+	// First sub-group when a group row is expanded: full-bleed border separates
+	// from the group header, then inner padding for the tool list.
+	&__group-body {
+		border-top: 1px solid var(--color-border-subtle, #dcdcde);
+		margin-inline-start: -16px;
+		margin-inline-end: -16px;
+		padding: 16px;
+
+		@media (min-width: 600px) {
+			margin-inline-start: -24px;
+			margin-inline-end: -24px;
+			padding: 20px 24px;
+		}
+	}
+
+	// Subsequent sub-groups: same horizontal padding, no top border
+	// (sub-divider provides it).
+	&__sub-group-body {
+		padding: 0 0 16px;
+	}
+
+	// Divider between sub-groups within an expanded group card.
+	&__sub-divider {
+		border-top: 1px solid var(--color-border-subtle, #dcdcde);
+		margin: 16px 0 20px;
 	}
 
 	// Tool toggle descriptions hug their setting title; override WP's
