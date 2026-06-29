@@ -20,8 +20,8 @@ const VALIDATION_FAILED_EXIT_CODE = 2;
  * CodeVitals transport/API error, which exits 1 and that flag may tolerate.
  */
 class ValidationError extends Error {
-	constructor( message ) {
-		super( message );
+	constructor( message, options ) {
+		super( message, options ); // forward { cause } so a wrapped transport error is preserved
 		this.name = 'ValidationError';
 	}
 }
@@ -132,6 +132,28 @@ function redactToken( text, token ) {
 }
 
 /**
+ * Assign a value to an object property, swallowing a write failure.
+ *
+ * Some native errors expose `message`/`stack` as getter-only accessors — a fetch
+ * timeout rejects with a `DOMException` whose `message` has no setter — so a direct
+ * write throws a TypeError in strict mode. Redaction is best-effort defense in depth:
+ * skipping an unwritable field is always better than throwing out of the error
+ * handler, and those native fields (an abort's "operation was aborted" message)
+ * never carry the token anyway.
+ *
+ * @param {object} obj   - Target object.
+ * @param {string} key   - Property to set.
+ * @param {*}      value - Value to assign.
+ */
+function safeAssign( obj, key, value ) {
+	try {
+		obj[ key ] = value;
+	} catch {
+		// Getter-only / non-writable property; leave it as-is.
+	}
+}
+
+/**
  * Redact the token from an error and every error in its `cause` chain, in place.
  *
  * A re-thrown error keeps its caught cause for debugging, but that cause (and any
@@ -152,17 +174,19 @@ function sanitizeErrorChain( error, token ) {
 	while ( current && typeof current === 'object' && ! seen.has( current ) ) {
 		seen.add( current );
 		// message and stack are non-enumerable own props, so handle them explicitly.
+		// safeAssign because a native error (e.g. a DOMException abort) may expose them
+		// as getter-only — a direct write would throw a TypeError out of this handler.
 		if ( typeof current.message === 'string' ) {
-			current.message = redactToken( current.message, token );
+			safeAssign( current, 'message', redactToken( current.message, token ) );
 		}
 		if ( typeof current.stack === 'string' ) {
-			current.stack = redactToken( current.stack, token );
+			safeAssign( current, 'stack', redactToken( current.stack, token ) );
 		}
 		// Then scrub any enumerable string field (an object `cause` is non-enumerable
 		// and is walked on the next iteration; a string `cause` is handled just below).
 		for ( const key of Object.keys( current ) ) {
 			if ( typeof current[ key ] === 'string' ) {
-				current[ key ] = redactToken( current[ key ], token );
+				safeAssign( current, key, redactToken( current[ key ], token ) );
 			}
 		}
 		// `cause` is non-enumerable on Error, so the pass above can't reach a primitive
@@ -170,7 +194,7 @@ function sanitizeErrorChain( error, token ) {
 		// survive untouched and leak the token. Redact it in place before advancing; an
 		// object cause is scrubbed when the loop walks into it next.
 		if ( typeof current.cause === 'string' ) {
-			current.cause = redactToken( current.cause, token );
+			safeAssign( current, 'cause', redactToken( current.cause, token ) );
 		}
 		current = current.cause;
 	}
@@ -298,7 +322,12 @@ async function postToCodeVitals( resultsPath, config ) {
 				? `CodeVitals request timed out after ${ TIMEOUT_MS / 1000 }s`
 				: error.message;
 		console.error( '✗ Failed to post metrics to CodeVitals:', message );
-		throw new Error( message, { cause: error } );
+		// If a metric already failed local validation, the build must fail with the
+		// data-integrity code even though the transport ALSO failed here — bad local
+		// data is never suppressible by --allow-codevitals-failure. A pure transport
+		// failure (no prior validation failure) stays a plain Error (exit 1).
+		const ErrorClass = validationFailed ? ValidationError : Error;
+		throw new ErrorClass( message, { cause: error } );
 	}
 }
 

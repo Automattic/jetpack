@@ -27,6 +27,7 @@ import {
 	VALIDATION_FAILED_EXIT_CODE,
 } from './post-to-codevitals.js';
 import { shouldFailBuildOnPostError } from './run-performance-tests.js';
+import { SANITY_RANGES, SCENARIOS } from './scenarios.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
 const LCP_KEY = 'wp-admin-dashboard-connection-sim-largestContentfulPaint';
@@ -145,6 +146,22 @@ test( 'a scenario misconfiguration maps to the validation exit code, a transport
 	assert.equal( configError?.name, 'ValidationError' );
 	assert.equal( exitCodeForError( configError ), VALIDATION_FAILED_EXIT_CODE );
 	assert.equal( exitCodeForError( new Error( 'CodeVitals API error (500)' ) ), 1 );
+} );
+
+test( 'every posted exact-key scenario declares a metricType with a matching sanity range', () => {
+	// Config contract for the real SCENARIOS: any scenario that posts an exact metricKey
+	// must declare a metricType that has a SANITY_RANGES row, or it would post unchecked
+	// (or throw at extraction). Pins this as a 2nd posted metric is added (FORMS-707).
+	const posted = SCENARIOS.filter( s => s.postToCodeVitals && s.metricKey );
+	assert.ok( posted.length > 0, 'expected at least one posted exact-key scenario' );
+	for ( const scenario of posted ) {
+		const label = scenario.key ?? scenario.metricKey;
+		assert.ok( scenario.metricType, `scenario "${ label }" must declare a metricType` );
+		assert.ok(
+			SANITY_RANGES[ scenario.metricType ],
+			`scenario "${ label }" type "${ scenario.metricType }" needs a SANITY_RANGES row`
+		);
+	}
 } );
 
 // --- redactToken (keeps the token out of logs and errors) ---
@@ -403,6 +420,84 @@ test( 'a token-bearing primitive string cause is scrubbed too', async () => {
 		! inspect( err, { depth: 5 } ).includes( 'tok-string-cause' ),
 		'token must not survive in a primitive string cause'
 	);
+} );
+
+test( 'a native abort (DOMException with a getter-only message) does not crash redaction', async () => {
+	const file = writeResults( 120 );
+	const origFetch = global.fetch;
+	// A real fetch timeout rejects with a DOMException whose `message` is getter-only;
+	// scrubbing it must not throw a TypeError out of the catch (it carries no token).
+	global.fetch = async () => {
+		throw new DOMException( 'This operation was aborted', 'AbortError' );
+	};
+	let err;
+	try {
+		await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok-abort',
+			} )
+		);
+	} catch ( e ) {
+		err = e;
+	} finally {
+		global.fetch = origFetch;
+	}
+	assert.ok( err, 'the live post should reject' );
+	// The intended timeout message, not "Cannot set property message" from a failed write.
+	assert.match( err.message, /timed out/ );
+} );
+
+test( 'a validation failure is not downgraded to exit 1 when a later live POST also fails', async () => {
+	// Reachable only with 2+ posted metrics (FORMS-707 territory): one metric fails the
+	// sanity check (validationFailed=true) while a valid one remains and is POSTed. If
+	// that POST then fails, the build must STILL exit with the data-integrity code — bad
+	// local data is never suppressible by --allow-codevitals-failure.
+	const extra = {
+		key: 'extraMetric',
+		name: 'Extra Metric',
+		postToCodeVitals: true,
+		metricKey: 'extra-metric-key',
+		metricType: 'extratype',
+	};
+	SANITY_RANGES.extratype = { min: 0, max: 1000 };
+	SCENARIOS.push( extra );
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-mixed-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: {
+				jetpackConnected: { summary: { median: 120 } }, // valid LCP → gets POSTed
+				extraMetric: { summary: { median: 99999 } }, // outside [0,1000] → skipped, flags validationFailed
+			},
+		} )
+	);
+	const origFetch = global.fetch;
+	// A transport failure AFTER a metric already failed local validation.
+	global.fetch = async () => ( { ok: false, status: 500, text: async () => 'boom' } );
+	let err;
+	try {
+		await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok-mixed',
+			} )
+		);
+	} catch ( e ) {
+		err = e;
+	} finally {
+		global.fetch = origFetch;
+		SCENARIOS.pop();
+		delete SANITY_RANGES.extratype;
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+	assert.ok( err, 'the live post should reject' );
+	// Must map to the always-fatal data-integrity code, not a suppressible exit 1.
+	assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
 } );
 
 // --- isDirectInvocation (the run-when-direct guard) ---
