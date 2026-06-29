@@ -56,16 +56,48 @@ export type ClickRow = {
 	icon?: string | null;
 };
 
-function getItemLabel( item: StatsClicksItem ): string {
+function getItemLabel( item: StatsClicksItem, parentLabel?: string ): string {
 	if ( typeof item.label === 'string' && item.label ) {
+		if ( parentLabel && item.label.startsWith( '/' ) ) {
+			return `${ parentLabel }${ item.label }`;
+		}
+
 		return item.label;
 	}
 
-	return item.link ?? '';
+	return item.link ?? parentLabel ?? '';
 }
 
-function getItemKey( item: StatsClicksItem ): string {
-	return item.link ?? getItemLabel( item );
+type NormalizedClickItem = {
+	key: string;
+	label: string;
+	value: number;
+	href?: string;
+	icon?: string | null;
+};
+
+function flattenClickItems(
+	items: StatsClicksItem[],
+	parent?: { label: string; icon?: string | null }
+): NormalizedClickItem[] {
+	return items.flatMap( item => {
+		const label = getItemLabel( item, parent?.label );
+		const children = item.children ?? [];
+
+		if ( children.length ) {
+			return flattenClickItems( children, { label, icon: item.icon ?? parent?.icon } );
+		}
+
+		return [
+			{
+				key: item.link ?? label,
+				label,
+				value: item.views,
+				href: item.link ?? undefined,
+				icon: item.icon ?? parent?.icon,
+			},
+		];
+	} );
 }
 
 function getItems(
@@ -89,19 +121,17 @@ export function toClickRows(
 	max: number
 ): ClickRow[] {
 	const comparisonLookup = new Map(
-		getItems( comparisonReport ).map( item => [ getItemKey( item ), item.views ] )
+		flattenClickItems( getItems( comparisonReport ) ).map( item => [ item.key, item.value ] )
 	);
-	const items = getItems( report );
+	const items = flattenClickItems( getItems( report ) );
 	const sliced = max > 0 ? items.slice( 0, max ) : items;
 
 	return sliced.map( item => {
-		const label = getItemLabel( item );
-
 		return {
-			label,
-			value: item.views,
-			previousValue: comparisonLookup.get( getItemKey( item ) ) ?? 0,
-			href: item.link ?? undefined,
+			label: item.label,
+			value: item.value,
+			previousValue: comparisonLookup.get( item.key ) ?? 0,
+			href: item.href,
 			icon: item.icon,
 		};
 	} );

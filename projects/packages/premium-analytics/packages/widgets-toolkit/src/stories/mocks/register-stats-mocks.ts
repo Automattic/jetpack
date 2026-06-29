@@ -23,8 +23,19 @@ const MOCK_CLICKS = {
 			{
 				name: 'wordpress.org',
 				views: 3840,
-				url: 'https://wordpress.org/',
 				icon: 'https://www.google.com/s2/favicons?domain=wordpress.org&sz=32',
+				children: [
+					{
+						name: 'wordpress.org/plugins/jetpack-search',
+						views: 2410,
+						url: 'https://wordpress.org/plugins/jetpack-search',
+					},
+					{
+						name: 'wordpress.org/plugins/jetpack-boost/',
+						views: 1430,
+						url: 'https://wordpress.org/plugins/jetpack-boost/',
+					},
+				],
 			},
 			{
 				name: 'developer.wordpress.org/reference',
@@ -62,8 +73,19 @@ const MOCK_CLICKS_COMPARISON = {
 			{
 				name: 'wordpress.org',
 				views: 3100,
-				url: 'https://wordpress.org/',
 				icon: 'https://www.google.com/s2/favicons?domain=wordpress.org&sz=32',
+				children: [
+					{
+						name: 'wordpress.org/plugins/jetpack-search',
+						views: 1980,
+						url: 'https://wordpress.org/plugins/jetpack-search',
+					},
+					{
+						name: 'wordpress.org/plugins/jetpack-boost/',
+						views: 1120,
+						url: 'https://wordpress.org/plugins/jetpack-boost/',
+					},
+				],
 			},
 			{
 				name: 'developer.wordpress.org/reference',

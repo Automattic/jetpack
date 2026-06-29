@@ -64,11 +64,28 @@ describe( 'toClickRows', () => {
 					items: [
 						{
 							label: 'wordpress.org',
-							views: 42,
-							link: 'https://wordpress.org/',
-							icon: null,
+							views: 60,
+							link: null,
+							icon: 'https://example.com/blavatar.png',
 							labelIcon: 'external',
-							children: null,
+							children: [
+								{
+									label: '/plugins/jetpack-search',
+									views: 42,
+									link: 'https://wordpress.org/plugins/jetpack-search',
+									icon: null,
+									labelIcon: 'external',
+									children: null,
+								},
+								{
+									label: '/plugins/jetpack-boost/',
+									views: 18,
+									link: 'https://wordpress.org/plugins/jetpack-boost/',
+									icon: null,
+									labelIcon: 'external',
+									children: null,
+								},
+							],
 						},
 						{
 							label: 'jetpack.com',
@@ -93,11 +110,20 @@ describe( 'toClickRows', () => {
 					items: [
 						{
 							label: 'wordpress.org',
-							views: 30,
-							link: 'https://wordpress.org/',
-							icon: null,
+							views: 38,
+							link: null,
+							icon: 'https://example.com/blavatar.png',
 							labelIcon: 'external',
-							children: null,
+							children: [
+								{
+									label: '/plugins/jetpack-search',
+									views: 30,
+									link: 'https://wordpress.org/plugins/jetpack-search',
+									icon: null,
+									labelIcon: 'external',
+									children: null,
+								},
+							],
 						},
 					] satisfies StatsClicksItem[],
 				},
@@ -106,11 +132,11 @@ describe( 'toClickRows', () => {
 
 		expect( toClickRows( primary, comparison, 1 ) ).toEqual( [
 			{
-				label: 'wordpress.org',
+				label: 'wordpress.org/plugins/jetpack-search',
 				value: 42,
 				previousValue: 30,
-				href: 'https://wordpress.org/',
-				icon: null,
+				href: 'https://wordpress.org/plugins/jetpack-search',
+				icon: 'https://example.com/blavatar.png',
 			},
 		] );
 	} );
