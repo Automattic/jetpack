@@ -219,7 +219,7 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 			'placement'  => array(
 				'width'  => 1,
 				'height' => 2,
-				'order'  => 2,
+				'order'  => 4,
 			),
 		);
 	}
