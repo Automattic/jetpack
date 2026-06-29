@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\CookieConsent;
 
 use PHPUnit\Framework\Attributes\CoversMethod;
+use ReflectionMethod;
 
 /**
  * @covers \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_config
@@ -29,15 +30,14 @@ class Config_Test extends TestCase {
 	 * @return array Cookie consent configuration.
 	 */
 	private function get_config() {
-		$get_config = \Closure::bind(
-			function () {
-				return Cookie_Consent::get_config();
-			},
-			null,
-			Cookie_Consent::class
-		);
+		$method = new ReflectionMethod( Cookie_Consent::class, 'get_config' );
+		// setAccessible() is required to invoke a private method on PHP < 8.1, and a
+		// deprecated no-op from 8.1 on. Call it only where it's actually needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
-		return $get_config();
+		return $method->invoke( null );
 	}
 
 	/**

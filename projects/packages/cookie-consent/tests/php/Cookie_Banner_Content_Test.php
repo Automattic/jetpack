@@ -44,6 +44,16 @@ class Cookie_Banner_Content_Test extends TestCase {
 	}
 
 	/**
+	 * Assert that a string matches a regex pattern.
+	 *
+	 * @param string $pattern Regex pattern.
+	 * @param string $string  String to check.
+	 */
+	private function assert_string_matches_pattern( $pattern, $string ) {
+		$this->assertSame( 1, preg_match( $pattern, $string ) );
+	}
+
+	/**
 	 * Empty cookie policy URLs hide the Cookie Policy link.
 	 */
 	public function test_empty_cookie_policy_url_hides_cookie_policy_link() {
@@ -60,7 +70,7 @@ class Cookie_Banner_Content_Test extends TestCase {
 		$this->assertStringContainsString( 'Privacy Policy', $html );
 		$this->assertStringNotContainsString( 'Cookie Policy', $html );
 		$this->assertStringNotContainsString( 'automattic.com/cookies', $html );
-		$this->assertMatchesRegularExpression( '/Privacy Policy\\s*<\\/a>\\./', $html );
+		$this->assert_string_matches_pattern( '/Privacy Policy\\s*<\\/a>\\./', $html );
 	}
 
 	/**
@@ -83,7 +93,7 @@ class Cookie_Banner_Content_Test extends TestCase {
 		$links_pattern = '/Privacy Policy\\s*<\\/a>\\s+and\\s+'
 			. '<a href="https:\\/\\/example\\.com\\/cookies\\/"[^>]*>\\s*'
 			. 'Cookie Policy\\s*<\\/a>\\./';
-		$this->assertMatchesRegularExpression(
+		$this->assert_string_matches_pattern(
 			$links_pattern,
 			$html
 		);
@@ -122,6 +132,6 @@ class Cookie_Banner_Content_Test extends TestCase {
 
 		$this->assertStringNotContainsString( 'Cookie Policy', $html );
 		$this->assertStringNotContainsString( 'href="https://example.com/legacy-cookies/"', $html );
-		$this->assertMatchesRegularExpression( '/Privacy Policy\\s*<\\/a>\\s*\\./', $html );
+		$this->assert_string_matches_pattern( '/Privacy Policy\\s*<\\/a>\\s*\\./', $html );
 	}
 }
