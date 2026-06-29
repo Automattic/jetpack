@@ -8,9 +8,6 @@ import type { ConsentType, ConsentEventType, ConsentEventChoices } from './types
 export const UNKNOWN_COUNTRY_CODE = 'UNKNOWN';
 
 interface Config {
-	features?: {
-		geo?: boolean;
-	};
 	geo?: Partial< GeoConfig >;
 	geoProvider?: 'wpcom' | 'custom';
 	geoApiUrl?: string;
@@ -143,10 +140,6 @@ export function saveConsentChoices(
 export function setConsentType( consentType: ConsentType ): void {
 	window.wp_consent_type = consentType;
 	window.dispatchEvent( new CustomEvent( 'wp_consent_type_defined' ) );
-}
-
-export function isGeoEnabled( config: Config ): boolean {
-	return config.features?.geo !== false;
 }
 
 export function getGeoConfig( config: Config ): GeoConfig {

@@ -10,7 +10,6 @@ import {
 	getGeoConfig,
 	handleConsentByRegion,
 	isGdprCountry,
-	isGeoEnabled,
 	pertainsToCCPA,
 	setCookie,
 } from '../src/modules/cookie-consent/utils';
@@ -205,14 +204,6 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 } );
 
 describe( 'geo configuration helpers', () => {
-	it( 'treats geo as enabled by default', () => {
-		expect( isGeoEnabled( {} ) ).toBe( true );
-	} );
-
-	it( 'honours features.geo=false', () => {
-		expect( isGeoEnabled( { features: { geo: false } } ) ).toBe( false );
-	} );
-
 	it( 'prefers the nested geo schema over legacy top-level keys', () => {
 		const config = getGeoConfig( {
 			geoApiUrl: 'https://legacy.example.test/geo',

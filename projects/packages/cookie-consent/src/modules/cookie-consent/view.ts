@@ -21,7 +21,6 @@ import {
 	readConsentChoices,
 	saveConsentChoices,
 	isGdprCountry,
-	isGeoEnabled,
 	getGeoConfig,
 	pertainsToCCPA,
 	handleConsentByRegion,
@@ -54,9 +53,6 @@ interface GdprManageLinkContext {
 }
 
 interface StoreConfig {
-	features: {
-		geo: boolean;
-	};
 	geo?: {
 		provider: 'wpcom' | 'custom';
 		apiUrl: string;
@@ -99,7 +95,6 @@ const gdprManageLinkContexts = new Set< GdprManageLinkContext >();
 
 function shouldShowManagePreferencesLink( config: StoreConfig ): boolean {
 	return (
-		isGeoEnabled( config ) &&
 		geoState.countryCode !== null &&
 		isGdprCountry( geoState.countryCode, config ) &&
 		hasConsentSet()
@@ -410,14 +405,6 @@ const { actions } = store( 'jetpack/cookie-consent', {
 
 			// getConfig() is not typed, so we need to assert the type.
 			const config = getConfig() as unknown as StoreConfig;
-			if ( ! isGeoEnabled( config ) ) {
-				geoState = {
-					initialized: true,
-					countryCode: null,
-					region: null,
-				};
-				return geoState;
-			}
 			const geoConfig = getGeoConfig( config );
 
 			// Check if we already have country code from cookies
@@ -494,9 +481,6 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				| ( CookieBannerContext & CcpaContext );
 			// getConfig() is not typed, so we need to assert the type.
 			const config = getConfig() as unknown as StoreConfig;
-			if ( ! isGeoEnabled( config ) ) {
-				return;
-			}
 
 			// Initialize geolocation (will use cache if already done)
 			const geoData: GeoState = yield actions.initializeGeolocation();

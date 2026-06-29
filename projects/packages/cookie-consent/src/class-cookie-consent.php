@@ -101,7 +101,7 @@ class Cookie_Consent {
 		// Register the CCPA page id setting for REST access.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
 
-		// Keep the geolocation cookies out of Jetpack Boost's page-cache key when geo is enabled.
+		// Keep the geolocation cookies out of Jetpack Boost's page-cache key.
 		add_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ) );
 
 		// Consent log REST controller: table, cron cleanup, routes.
@@ -276,11 +276,7 @@ class Cookie_Consent {
 	 * @return array Patterns with the geolocation cookies appended.
 	 */
 	public static function ignore_geo_cookies_in_page_cache( $cookies ) {
-		$config = self::get_config();
-		if ( ! self::is_geo_enabled( $config ) ) {
-			return $cookies;
-		}
-
+		$config       = self::get_config();
 		$country_code = $config['geo']['country_code_cookie'];
 		$region       = $config['geo']['region_cookie'];
 		$cookies[]    = preg_quote( $country_code, '/' );
@@ -864,9 +860,6 @@ class Cookie_Consent {
 		$geo_config   = self::get_default_geo_config();
 
 		return array(
-			'features'            => array(
-				'geo' => true,
-			),
 			'geo'                 => $geo_config,
 			'geo_provider'        => $geo_config['provider'],
 			'geo_api_url'         => $geo_config['api_url'],
@@ -915,10 +908,6 @@ class Cookie_Consent {
 			$config = array();
 		}
 
-		$features        = isset( $config['features'] ) && is_array( $config['features'] ) ? $config['features'] : array();
-		$features        = array_merge( $default_config['features'], $features );
-		$features['geo'] = (bool) $features['geo'];
-
 		$nested_geo = isset( $config['geo'] ) && is_array( $config['geo'] ) ? $config['geo'] : array();
 		$geo        = array_merge( $default_config['geo'], $nested_geo );
 
@@ -956,7 +945,6 @@ class Cookie_Consent {
 		$geo['ccpa_regions']        = is_array( $geo['ccpa_regions'] ) ? self::normalize_ccpa_regions( $geo['ccpa_regions'] ) : $default_config['geo']['ccpa_regions'];
 		$geo['show_on_error']       = (bool) $geo['show_on_error'];
 
-		$config['features']            = $features;
 		$config['geo']                 = $geo;
 		$config['geo_provider']        = $geo['provider'];
 		$config['geo_api_url']         = $geo['api_url'];
@@ -987,20 +975,6 @@ class Cookie_Consent {
 		 * @param array $config Configuration array
 		 */
 		return self::normalize_config( apply_filters( 'jetpack_cookie_consent_config', $default_config ), $default_config );
-	}
-
-	/**
-	 * Whether geo resolution is enabled.
-	 *
-	 * @param array|null $config Optional normalized configuration.
-	 * @return bool True when the geo feature is enabled.
-	 */
-	private static function is_geo_enabled( $config = null ) {
-		if ( null === $config ) {
-			$config = self::get_config();
-		}
-
-		return ! empty( $config['features']['geo'] );
 	}
 
 	/**
@@ -1076,14 +1050,10 @@ class Cookie_Consent {
 		$force_preview = isset( $_GET['preview_cookie_consent'] ) && '1' === $_GET['preview_cookie_consent'];
 
 		$frontend_config = array(
-			'features'        => $config['features'],
 			'cookiePolicyUrl' => $config['cookie_policy_url'],
 			'gdprHonorsGpc'   => $config['gdpr_honors_gpc'] ?? true,
 			'forcePreview'    => $force_preview,
-		);
-
-		if ( self::is_geo_enabled( $config ) ) {
-			$frontend_config['geo'] = array(
+			'geo'             => array(
 				'provider'          => $config['geo']['provider'],
 				'apiUrl'            => $config['geo']['api_url'],
 				'countryCodeCookie' => $config['geo']['country_code_cookie'],
@@ -1092,8 +1062,8 @@ class Cookie_Consent {
 				'gdprCountries'     => $config['geo']['gdpr_countries'],
 				'ccpaRegions'       => $config['geo']['ccpa_regions'],
 				'showOnError'       => $config['geo']['show_on_error'],
-			);
-		}
+			),
+		);
 
 		// Pass configuration to frontend using wp_interactivity_config.
 		wp_interactivity_config( 'jetpack/cookie-consent', $frontend_config );
