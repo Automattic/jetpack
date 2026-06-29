@@ -36,7 +36,9 @@ class Consent_Log_Controller_Log_Versions_Test extends TestCase {
 	private function invoke( $method, ...$args ) {
 		$controller = new Consent_Log_Controller();
 		$reflection = new ReflectionMethod( Consent_Log_Controller::class, $method );
-		$reflection->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
 
 		return $reflection->invoke( $controller, ...$args );
 	}
