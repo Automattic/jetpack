@@ -6,12 +6,13 @@ import {
 	type StatsFollowersItem,
 	type StatsNormalizedReport,
 } from '@jetpack-premium-analytics/data';
+import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import {
 	SubscriberList,
 	WidgetRoot,
 	type SubscriberListItem,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
@@ -20,51 +21,6 @@ import { useMemo } from 'react';
 import styles from './subscribers-list.module.css';
 import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-
-/**
- * Formats a subscription timestamp as the compact relative "since" string the
- * card shows on the right of each row (e.g. "Just now", "12m ago", "1h ago",
- * "Yesterday", "3d ago"), falling back to a locale date for older dates.
- *
- * @param iso - ISO date the subscriber signed up, or undefined.
- * @return The relative-time label, or an empty string when there is no date.
- */
-function formatSubscribedSince( iso?: string ): string {
-	if ( ! iso ) {
-		return '';
-	}
-
-	const then = new Date( iso ).getTime();
-	if ( Number.isNaN( then ) ) {
-		return '';
-	}
-
-	const minutes = Math.floor( ( Date.now() - then ) / 60000 );
-	if ( minutes < 1 ) {
-		return __( 'Just now', 'jetpack-premium-analytics' );
-	}
-	if ( minutes < 60 ) {
-		// translators: %d is a number of minutes.
-		return sprintf( __( '%dm ago', 'jetpack-premium-analytics' ), minutes );
-	}
-
-	const hours = Math.floor( minutes / 60 );
-	if ( hours < 24 ) {
-		// translators: %d is a number of hours.
-		return sprintf( __( '%dh ago', 'jetpack-premium-analytics' ), hours );
-	}
-
-	const days = Math.floor( hours / 24 );
-	if ( days === 1 ) {
-		return __( 'Yesterday', 'jetpack-premium-analytics' );
-	}
-	if ( days < 7 ) {
-		// translators: %d is a number of days.
-		return sprintf( __( '%dd ago', 'jetpack-premium-analytics' ), days );
-	}
-
-	return new Date( iso ).toLocaleDateString();
-}
 
 /**
  * Flattens the designated `useStatsFollowers` report into the rows the roster
@@ -79,12 +35,14 @@ function toSubscriberItems(
 ): SubscriberListItem[] {
 	const items = report?.data.flatMap( point => point.items ) ?? [];
 
-	return items.map( item => ( {
-		id: item.subscription_id ?? item.id ?? item.label,
+	return items.map( ( item, index ) => ( {
+		// Subscription id is the stable key; fall back to the row index so two
+		// nameless subscribers can't collide on an empty-string key.
+		id: item.subscription_id ?? item.id ?? `row-${ index }`,
 		name: item.label,
 		avatarUrl: item.icon,
 		href: item.link,
-		secondaryText: formatSubscribedSince( item.date_subscribed ?? item.value?.value ),
+		secondaryText: formatRelativeSince( item.date_subscribed ?? item.value?.value ),
 	} ) );
 }
 
@@ -152,8 +110,8 @@ function SubscribersReport( { attributes }: { attributes?: SubscribersListAttrib
 	// Default to six rows, matching the card design.
 	const num = attributes?.num ?? 6;
 
-	// `num = 0` means "show all"; pass through undefined so the query uses its
-	// default cap rather than requesting zero rows.
+	// A non-positive `num` falls back to the query's default page size (the
+	// followers endpoint has no true "all" mode) rather than requesting zero rows.
 	const { data, isLoading, isError } = useStatsFollowers( {
 		type: 'all',
 		max: num > 0 ? num : undefined,
