@@ -72,3 +72,4 @@ export {
 	type StatsEmailOpensBreakdown,
 } from './stats-email-breakdown-query';
 export { statsEmailSummaryQuery } from './stats-email-summary-query';
+export { statsSingleVideoQuery } from './stats-single-video-query';

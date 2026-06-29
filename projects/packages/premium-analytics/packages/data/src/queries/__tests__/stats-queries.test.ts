@@ -23,6 +23,7 @@ import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostQuery } from '../stats-post-query';
 import { statsPublicizeQuery } from '../stats-publicize-query';
+import { statsSingleVideoQuery } from '../stats-single-video-query';
 import { statsStreakQuery } from '../stats-streak-query';
 import { statsSubscribersCountsQuery, statsSubscribersQuery } from '../stats-subscribers-query';
 import { statsTagsQuery } from '../stats-tags-query';
@@ -380,6 +381,41 @@ describe( 'Stats query factories', () => {
 			sort_field: 'opens',
 			sort_order: 'asc',
 		} );
+	} );
+
+	it( 'targets the single video endpoint by id with the single video sanitizer', () => {
+		const query = statsSingleVideoQuery( 31533 );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'single-video',
+			'1.1',
+			'stats/video/31533',
+			'GET',
+			{},
+			undefined,
+			'singleVideo',
+		] );
+	} );
+
+	it( 'passes single video params through to the request', () => {
+		const query = statsSingleVideoQuery( 31533, {
+			period: 'day',
+			end_date: '2026-06-14',
+			statType: 'watch_time',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'day',
+			date: '2026-06-14',
+			statType: 'watch_time',
+		} );
+	} );
+
+	it( 'disables the single video query until a valid video id is available', () => {
+		expect( statsSingleVideoQuery( 0 ).enabled ).toBe( false );
+		expect( statsSingleVideoQuery( NaN ).enabled ).toBe( false );
+		expect( statsSingleVideoQuery( 31533 ).enabled ).toBe( true );
 	} );
 
 	it( 'builds app query keys without report param coercion', () => {
