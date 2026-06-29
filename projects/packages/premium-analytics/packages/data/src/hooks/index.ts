@@ -140,6 +140,15 @@ export {
 	type StatsSingleVideoPage,
 	type StatsSingleVideoResponse,
 } from './use-stats-single-video';
+export {
+	useStatsEmailOpensTimeSeries,
+	useStatsEmailClicksTimeSeries,
+	type StatsEmailTimeSeriesParams,
+	type StatsEmailTimeSeriesPeriod,
+	type StatsEmailTimeSeriesReport,
+	type StatsEmailTimeSeriesDataPoint,
+	type StatsEmailTimeSeriesSummary,
+} from './use-stats-email-time-series';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**

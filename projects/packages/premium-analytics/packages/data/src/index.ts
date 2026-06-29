@@ -145,6 +145,15 @@ export {
 	type StatsSingleVideoPage,
 	type StatsSingleVideoResponse,
 } from './hooks/use-stats-single-video';
+export {
+	useStatsEmailOpensTimeSeries,
+	useStatsEmailClicksTimeSeries,
+	type StatsEmailTimeSeriesParams,
+	type StatsEmailTimeSeriesPeriod,
+	type StatsEmailTimeSeriesReport,
+	type StatsEmailTimeSeriesDataPoint,
+	type StatsEmailTimeSeriesSummary,
+} from './hooks/use-stats-email-time-series';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
