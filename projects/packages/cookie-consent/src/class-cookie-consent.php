@@ -332,6 +332,7 @@ class Cookie_Consent {
 		}
 
 		ob_start();
+		// Get config for template (consumed by ccpa-content.php via include scope).
 		$config = self::get_config(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		include $template_path;
 		return ob_get_clean();
@@ -707,6 +708,24 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Resolve UI copy for a template, backfilling any missing keys with defaults.
+	 *
+	 * Templates normally receive a fully normalized `copy` group from get_config(),
+	 * but they can also be included directly (tests, Storybook). Routing through this
+	 * helper guarantees every key is present so a partial or absent `copy` array can't
+	 * cause undefined-index access.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $config Configuration array, which may lack a normalized `copy` group.
+	 * @return array Copy with every key present.
+	 */
+	public static function get_copy( $config = array() ) {
+		$copy = is_array( $config ) && isset( $config['copy'] ) ? $config['copy'] : array();
+		return self::normalize_copy( $copy, self::get_default_copy() );
+	}
+
+	/**
 	 * Normalize configured copy by merging consumer overrides with defaults.
 	 *
 	 * @param array $copy     Copy values supplied by configuration.
@@ -719,9 +738,24 @@ class Cookie_Consent {
 		}
 
 		foreach ( $copy as $key => $value ) {
-			if ( is_string( $key ) && is_scalar( $value ) ) {
-				$defaults[ $key ] = (string) $value;
+			if ( ! is_string( $key ) ) {
+				continue;
 			}
+
+			if ( is_scalar( $value ) ) {
+				$defaults[ $key ] = (string) $value;
+				continue;
+			}
+
+			// A non-scalar override can't render, so the default is kept. Surface it
+			// so an integrating developer notices the override was dropped instead of
+			// silently shipping the default copy.
+			_doing_it_wrong(
+				__METHOD__,
+				/* translators: %s is the copy configuration key. */
+				esc_html( sprintf( __( 'Cookie consent copy override for "%s" was ignored because it is not a scalar value.', 'jetpack-cookie-consent' ), $key ) ),
+				''
+			);
 		}
 
 		return $defaults;

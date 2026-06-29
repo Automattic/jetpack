@@ -11,11 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // $config is supplied by Cookie_Consent::get_ccpa_page_content() when this template is included.
 $config = isset( $config ) && is_array( $config ) ? $config : array();
-if ( isset( $config['copy'] ) && is_array( $config['copy'] ) ) {
-	$copy = $config['copy'];
-} else {
-	$copy = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_default_copy();
-}
+$copy   = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
 ?>
 
 <!-- wp:paragraph -->
