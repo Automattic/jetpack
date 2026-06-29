@@ -8,6 +8,7 @@ import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { config as dotenvConfig } from 'dotenv';
+import { isDirectInvocation, VALIDATION_FAILED_EXIT_CODE } from './post-to-codevitals.js';
 import { SCENARIOS, getScenarioUrl } from './scenarios.js';
 
 // Load .env file from the performance directory if it exists
@@ -42,6 +43,23 @@ function execFile( cmd, args = [], options = {} ) {
 		}
 		return null;
 	}
+}
+
+/**
+ * Whether a failed CodeVitals post must fail the build.
+ *
+ * A local data-integrity failure — the poster exits VALIDATION_FAILED_EXIT_CODE when
+ * a metric is rejected or a scenario is misconfigured — is always fatal.
+ * `--allow-codevitals-failure` exists only to tolerate a CodeVitals network outage
+ * (any other non-zero exit), never to ship a build that skipped bad local data.
+ *
+ * @param {{status?: number}|undefined} err                    - The error the poster child threw (carries its exit code on `.status`).
+ * @param {boolean}                     allowCodeVitalsFailure - Whether `--allow-codevitals-failure` was passed.
+ * @return {boolean} True if the build must fail.
+ */
+function shouldFailBuildOnPostError( err, allowCodeVitalsFailure ) {
+	const isValidationFailure = err?.status === VALIDATION_FAILED_EXIT_CODE;
+	return isValidationFailure || ! allowCodeVitalsFailure;
 }
 
 /** Execute a docker compose command. */
@@ -452,16 +470,23 @@ async function main() {
 
 		try {
 			execFile( 'node', [ path.join( __dirname, 'post-to-codevitals.js' ) ] );
-		} catch {
-			// When CODEVITALS_TOKEN is explicitly set, posting failures should fail the build
-			// to ensure CI doesn't silently drop metrics (unless --allow-codevitals-failure is set)
+		} catch ( err ) {
+			// A local data-integrity failure (the child exits VALIDATION_FAILED_EXIT_CODE
+			// when a metric is rejected or a scenario is misconfigured) must always fail
+			// the build. --allow-codevitals-failure is for tolerating CodeVitals network
+			// outages, not for shipping a build that silently skipped bad local data.
+			const isValidationFailure = err?.status === VALIDATION_FAILED_EXIT_CODE;
 			console.error( '\n✗ Failed to post to CodeVitals' );
-			if ( options.allowCodeVitalsFailure ) {
+			if ( ! shouldFailBuildOnPostError( err, options.allowCodeVitalsFailure ) ) {
 				console.warn( '  Continuing despite failure (--allow-codevitals-failure set)' );
 			} else {
-				console.error( '  Since CODEVITALS_TOKEN is set, this is treated as a build failure.' );
-				console.error( '  Use --skip-codevitals to run without posting metrics.' );
-				console.error( '  Use --allow-codevitals-failure to continue on posting failures.' );
+				if ( isValidationFailure ) {
+					console.error( '  A metric failed local validation; this always fails the build.' );
+				} else {
+					console.error( '  Since CODEVITALS_TOKEN is set, this is treated as a build failure.' );
+					console.error( '  Use --skip-codevitals to run without posting metrics.' );
+					console.error( '  Use --allow-codevitals-failure to continue on posting failures.' );
+				}
 				process.exit( 1 );
 			}
 		}
@@ -482,15 +507,19 @@ async function main() {
 
 	if ( process.env.CODEVITALS_TOKEN ) {
 		console.log( 'View detailed results in CodeVitals:' );
-		console.log(
-			`  ${ process.env.CODEVITALS_URL || 'https://www.codevitals.run' }/project/jetpack`
-		);
+		console.log( `  ${ process.env.CODEVITALS_URL || 'https://codevitals.run' }/project/jetpack` );
 		console.log( '' );
 	}
 }
 
-// Run
-main().catch( error => {
-	console.error( 'Fatal error:', error );
-	process.exit( 1 );
-} );
+// Run only when invoked directly, not when imported (e.g. by the unit test that
+// exercises shouldFailBuildOnPostError), so importing this module never spins up
+// Docker or kicks off a full perf run.
+if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
+	main().catch( error => {
+		console.error( 'Fatal error:', error );
+		process.exit( 1 );
+	} );
+}
+
+export { shouldFailBuildOnPostError };

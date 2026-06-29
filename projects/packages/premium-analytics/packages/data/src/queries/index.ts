@@ -65,3 +65,15 @@ export type {
 	StatsAppReferrersSpamMutationResponse,
 	StatsAppReferrersSpamResponse,
 } from './stats-app-referrers-spam-query';
+export {
+	statsEmailOpensBreakdownQuery,
+	statsEmailClicksBreakdownQuery,
+	type StatsEmailClicksBreakdown,
+	type StatsEmailOpensBreakdown,
+} from './stats-email-breakdown-query';
+export { statsEmailSummaryQuery } from './stats-email-summary-query';
+export { statsSingleVideoQuery } from './stats-single-video-query';
+export {
+	statsEmailOpensTimeSeriesQuery,
+	statsEmailClicksTimeSeriesQuery,
+} from './stats-email-time-series-query';

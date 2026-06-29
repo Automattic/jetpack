@@ -1,6 +1,5 @@
 export { MetricComparisonWidget } from './metric-comparison';
 export { OrderMetricWidget, BookingOrderMetricWidget } from './order-metric';
-export { VisitorMetricWidget } from './visitor-metric';
 export { SalesByCouponWidget } from './sales-by-coupon';
 export { ConversionRateWidget, BookingConversionRateWidget } from './conversion-rate';
 export {
@@ -8,11 +7,10 @@ export {
 	BookingsRevenueByCustomerTypeWidget,
 } from './revenue-by-customer-type';
 export { NewVsReturningCustomerWidget } from './new-vs-returning-customer';
-export { SalesByDeviceWidget, BookingsByDeviceWidget } from './sales-by-device';
+export { SalesByDeviceWidget } from './sales-by-device';
 export { SessionsByDeviceWidget } from './sessions-by-device';
 export { BookingsByAttendanceWidget } from './bookings-by-attendance';
 export { TotalReturnsWidget } from './total-returns';
-export { SalesByUtmWidget } from './sales-by-utm';
 export {
 	TopPerformingProductLeaderboardWidget,
 	type TopPerformingProductLeaderboardWidgetProps,

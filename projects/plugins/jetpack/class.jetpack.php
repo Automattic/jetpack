@@ -784,13 +784,17 @@ class Jetpack {
 				'sync',
 				'account_protection',
 				'waf',
-				'videopress',
 				'import',
 			)
 			as $feature
 		) {
 			$config->ensure( $feature );
 		}
+
+		// Enable the VideoPress admin UI (the "Jetpack > VideoPress" dashboard) inside the
+		// Jetpack plugin, mirroring the standalone Jetpack VideoPress plugin. The page only
+		// renders when the VideoPress module is active (Status::is_active()).
+		$config->ensure( 'videopress', array( 'admin_ui' => true ) );
 
 		/*
 		 * The Stats and Stats Admin packages only do work when the Stats module
@@ -934,6 +938,7 @@ class Jetpack {
 		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
+		\Automattic\Jetpack\Podcast\Podcast::init();
 
 		/*
 		 * Initialize Boost Speed Score. It only does work on REST requests (the

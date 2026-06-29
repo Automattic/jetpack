@@ -1,7 +1,7 @@
 /**
- * Shoppers Privacy Controls Logger Integration
+ * Cookie Consent Controls Logger Integration
  *
- * Listens to consent events from the shoppers privacy controls and logs them via REST API.
+ * Listens to consent events from the cookie consent controls and logs them via REST API.
  * This file should only be loaded when consent logging is enabled.
  *
  */

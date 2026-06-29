@@ -129,7 +129,7 @@ export function handleConsentByRegion(
 		setConsentType( 'optin' );
 
 		// A Global Privacy Control signal is a clear opt-out request, so honor it as a
-		// rejection: force-deny non-essential categories and skip the banner. The shopper
+		// rejection: force-deny non-essential categories and skip the banner. The visitor
 		// can still grant consent later via the "Manage Privacy Preferences" footer link.
 		// Gated by a config flag so the legal decision is a value, not a code change;
 		// the conservative default (honor GPC) applies when the flag is omitted.

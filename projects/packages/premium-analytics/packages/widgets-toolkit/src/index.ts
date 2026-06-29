@@ -7,6 +7,7 @@ export {
 	ComparativeLineChart,
 	DonutChart,
 	Legend,
+	ReportMetricWidget,
 	WidgetRoot,
 	useWidgetRootContext,
 	type DonutChartData,
@@ -57,6 +58,7 @@ export {
 	PAYMENT_STATUS_FILTERS,
 	buildPaymentStatusData,
 	type PaymentStatusData,
+	formatLegendLabels,
 } from './helpers';
 
 /**
@@ -87,12 +89,9 @@ export {
 	OrdersFulfillmentWidget,
 	SalesByCouponWidget,
 	TotalReturnsWidget,
-	VisitorMetricWidget,
 	VisitorsByLocationWidget,
 	SalesByDeviceWidget,
-	BookingsByDeviceWidget,
 	SessionsByDeviceWidget,
-	SalesByUtmWidget,
 	TopPerformingProductLeaderboardWidget,
 	type TopPerformingProductLeaderboardWidgetProps,
 	TopPerformingProductsWidget,
