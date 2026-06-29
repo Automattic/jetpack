@@ -133,6 +133,27 @@ export {
 	type StatsEmailClicksBreakdown,
 	type StatsEmailOpensBreakdown,
 } from './hooks/use-stats-email-breakdown';
+export {
+	useStatsEmailSummary,
+	type StatsEmailSummary,
+	type StatsEmailSummaryParams,
+	type StatsEmailSummarySortField,
+} from './hooks/use-stats-email-summary';
+export {
+	useStatsSingleVideo,
+	type StatsSingleVideoDataPoint,
+	type StatsSingleVideoPage,
+	type StatsSingleVideoResponse,
+} from './hooks/use-stats-single-video';
+export {
+	useStatsEmailOpensTimeSeries,
+	useStatsEmailClicksTimeSeries,
+	type StatsEmailTimeSeriesParams,
+	type StatsEmailTimeSeriesPeriod,
+	type StatsEmailTimeSeriesReport,
+	type StatsEmailTimeSeriesDataPoint,
+	type StatsEmailTimeSeriesSummary,
+} from './hooks/use-stats-email-time-series';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {

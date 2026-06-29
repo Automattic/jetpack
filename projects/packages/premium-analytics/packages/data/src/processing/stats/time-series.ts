@@ -16,7 +16,12 @@ import {
 	getStatsIntervalFields,
 	normalizeStatsSummary,
 } from './utils';
-import type { StatsNormalizedDataPoint, StatsNormalizedReport, StatsRecord } from './types';
+import type {
+	StatsNormalizedDataPoint,
+	StatsNormalizedReport,
+	StatsNormalizedSummary,
+	StatsRecord,
+} from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
 export type StatsTimeSeriesDataPoint = StatsNormalizedDataPoint & {
@@ -28,7 +33,7 @@ export type StatsTimeSeriesReport = StatsNormalizedReport & {
 	data: StatsTimeSeriesDataPoint[];
 };
 
-const nonMetricFields = [ 'period', 'time_interval', 'date', 'date_start', 'date_end' ];
+const nonMetricFields = [ 'period', 'time_interval', 'date', 'date_start', 'date_end', 'hour' ];
 const dateFormat = 'yyyy-MM-dd';
 const referenceDate = new Date( 2001, 0, 1 );
 
@@ -237,4 +242,43 @@ export function sanitizeStatsTimeSeriesResponse(
 		},
 		data,
 	};
+}
+
+export type StatsEmailTimeSeriesDataPoint = StatsTimeSeriesDataPoint & {
+	opens_count?: number;
+	unique_opens_count?: number;
+	clicks_count?: number;
+	unique_clicks_count?: number;
+};
+
+export type StatsEmailTimeSeriesSummary = StatsNormalizedSummary & {
+	opens_count?: number;
+	unique_opens_count?: number;
+	clicks_count?: number;
+	unique_clicks_count?: number;
+};
+
+export type StatsEmailTimeSeriesReport = StatsNormalizedReport & {
+	summary: StatsEmailTimeSeriesSummary;
+	data: StatsEmailTimeSeriesDataPoint[];
+};
+
+export function sanitizeStatsEmailTimeSeriesResponse(
+	payload: unknown,
+	query?: StatsQueryParams
+): StatsEmailTimeSeriesReport {
+	// Email opens/clicks timelines nest their matrix under a `timeline` key (requested via
+	// stats_fields=timeline), unlike the generic time series endpoints that return it top-level.
+	const timeline = coerceStatsRecord( coerceStatsRecord( payload ).timeline );
+	const fields = coerceStatsArray< string >( timeline.fields );
+
+	// Hourly timelines carry an unlabeled trailing hour column per row; surface it as a field so
+	// the value is preserved rather than dropped (matching Calypso's parseEmailChartData). Bucket
+	// labels stay day-granular until the shared datetime interval helper gains hour resolution.
+	const normalizedTimeline =
+		timeline.unit === 'hour' && fields.length && ! fields.includes( 'hour' )
+			? { ...timeline, fields: [ ...fields, 'hour' ] }
+			: timeline;
+
+	return sanitizeStatsTimeSeriesResponse( normalizedTimeline, query );
 }

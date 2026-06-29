@@ -1,5 +1,12 @@
-import { isStatsTimeSeriesPayload, sanitizeStatsTimeSeriesResponse } from '..';
 import {
+	isStatsTimeSeriesPayload,
+	sanitizeStatsEmailTimeSeriesResponse,
+	sanitizeStatsTimeSeriesResponse,
+} from '..';
+import {
+	emailClicksTimeSeriesFixture,
+	emailOpensHourlyTimeSeriesFixture,
+	emailOpensTimeSeriesFixture,
 	invalidIsoWeekYearSubscribersFixture,
 	invalidWeekSubscribersFixture,
 	monthlySubscribersFixture,
@@ -129,6 +136,61 @@ describe( 'Stats time-series normalizer', () => {
 				value: 3,
 			} ),
 		] );
+	} );
+
+	it( 'normalizes email opens timelines nested under the timeline key', () => {
+		const result = sanitizeStatsEmailTimeSeriesResponse( emailOpensTimeSeriesFixture, {
+			period: 'day',
+		} );
+
+		expect( result.summary ).toEqual(
+			expect.objectContaining( {
+				opens_count: 21,
+				unique_opens_count: 15,
+				date_start: '2026-06-15T00:00:00+00:00',
+				date_end: '2026-06-16T23:59:59+00:00',
+			} )
+		);
+		expect( result.data[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				time_interval: '2026-06-15',
+				label: '2026-06-15',
+				value: 8,
+				opens_count: 8,
+				unique_opens_count: 6,
+				items: [],
+			} )
+		);
+	} );
+
+	it( 'uses the clicks metric as the headline value for click timelines', () => {
+		const result = sanitizeStatsEmailTimeSeriesResponse( emailClicksTimeSeriesFixture );
+
+		expect( result.summary ).toEqual( expect.objectContaining( { clicks_count: 11 } ) );
+		expect( result.data[ 1 ] ).toEqual(
+			expect.objectContaining( { time_interval: '2026-06-16', value: 7, clicks_count: 7 } )
+		);
+	} );
+
+	it( 'preserves the unlabeled hour column for hourly email timelines', () => {
+		const result = sanitizeStatsEmailTimeSeriesResponse( emailOpensHourlyTimeSeriesFixture, {
+			period: 'hour',
+		} );
+
+		expect( result.data ).toEqual( [
+			expect.objectContaining( { value: 3, opens_count: 3, hour: 9 } ),
+			expect.objectContaining( { value: 5, opens_count: 5, hour: 10 } ),
+		] );
+		// The hour dimension must not be summed into the metric summary.
+		expect( result.summary ).toEqual( expect.objectContaining( { opens_count: 8 } ) );
+		expect( result.summary ).not.toHaveProperty( 'hour' );
+	} );
+
+	it( 'returns an empty email time series report when the timeline key is missing', () => {
+		const result = sanitizeStatsEmailTimeSeriesResponse( {} );
+
+		expect( result.data ).toEqual( [] );
+		expect( result.summary ).toEqual( { date_start: '', date_end: '' } );
 	} );
 
 	it( 'detects supported time-series payload shapes', () => {
