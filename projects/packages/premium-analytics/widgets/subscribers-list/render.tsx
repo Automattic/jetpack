@@ -107,15 +107,12 @@ export const SubscribersRoster = ( {
  * @return The widget content.
  */
 function SubscribersReport( { attributes }: { attributes?: SubscribersListAttributes } ) {
-	// Default to six rows, matching the card design.
-	const num = attributes?.num ?? 6;
+	// Show six rows by default (matching the card design). A missing or
+	// non-positive setting falls back to that default — `?? 6` alone wouldn't,
+	// since an explicit `0` from the number field is not nullish.
+	const num = attributes?.num && attributes.num > 0 ? attributes.num : 6;
 
-	// A non-positive `num` falls back to the query's default page size (the
-	// followers endpoint has no true "all" mode) rather than requesting zero rows.
-	const { data, isLoading, isError } = useStatsFollowers( {
-		type: 'all',
-		max: num > 0 ? num : undefined,
-	} );
+	const { data, isLoading, isError } = useStatsFollowers( { type: 'all', max: num } );
 
 	const report = data as StatsNormalizedReport< StatsFollowersItem > | undefined;
 	const items = useMemo( () => toSubscriberItems( report ), [ report ] );
