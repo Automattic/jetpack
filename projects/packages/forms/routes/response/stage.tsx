@@ -189,9 +189,7 @@ function Stage(): React.JSX.Element {
 			ariaLabel={ ariaLabel }
 			showFooter={ false }
 		>
-			<Stack direction="row" justify="center" style={ { padding: '40px' } }>
-				{ child }
-			</Stack>
+			<div className="jp-forms__single-response-message">{ child }</div>
 		</FormsPage>
 	);
 

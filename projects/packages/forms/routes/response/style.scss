@@ -15,6 +15,14 @@
 	padding-inline: 16px;
 }
 
+// Centered wrapper for the loading / not-found message. Uses text-align rather
+// than the WPDS `Stack` so centering doesn't depend on that component's
+// stylesheet loading (which could briefly leave the message left-aligned).
+.jp-forms__single-response-message {
+	padding: 40px;
+	text-align: center;
+}
+
 // Breadcrumb trail in the page header. Hand-rolled (see breadcrumbs.tsx) so the
 // form crumb can carry a search param; typography mirrors admin-ui's
 // `<Breadcrumbs>` via the same WPDS tokens — links use the `body-lg` treatment
@@ -46,8 +54,7 @@
 
 	&__current {
 		margin: 0;
-		font-family:
- var(--wpds-typography-font-family-heading, -apple-system, system-ui, "Segoe UI", "Roboto", sans-serif);
+		font-family: var(--wpds-typography-font-family-heading, -apple-system, system-ui, "Segoe UI", "Roboto", sans-serif);
 		font-size: var(--wpds-typography-font-size-lg, 15px);
 		font-weight: var(--wpds-typography-font-weight-medium, 499);
 		line-height: var(--wpds-typography-line-height-sm, 20px);
