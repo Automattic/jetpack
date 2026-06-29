@@ -18,6 +18,8 @@ You are authorized to: push commits, comment on the PR, add/remove `[Status] *` 
 
 **Pre-authorized for the duration of the loop.** Once the user invokes this skill, treat it as standing consent for every commit / push / comment / thread-resolve action the loop's contract describes — don't pause to re-confirm before each one. The CLAUDE.md "ask before commit/push" rule is satisfied by the skill invocation itself; pausing inside the loop adds latency without adding safety. The "NOT authorized" list (merge, close, push to trunk) is the only thing that still requires an explicit confirmation.
 
+**Keep the PR in draft until the feedback is clean.** The PR must stay in **draft** for the entire loop — every round, and the `capped` and `failed` exits, leave it draft. Only the **`clean`** exit (no actionable review comments open and CI green) flips it to ready via `gh pr ready`. Never mark a PR ready for review while any actionable feedback or failing CI check remains.
+
 ## Inputs
 
 - **`<PR_NUMBER>`** — required. If omitted, auto-detect from the current branch:
