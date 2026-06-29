@@ -216,6 +216,29 @@ describe( 'searchAndRankItems', () => {
 		expect( result ).toEqual( [] );
 	} );
 
+	it( 'keeps a stable order whether a category word is partially or fully typed', () => {
+		// Two cards both in "Performance"; `multi` is also in "Recommended". Each category label is
+		// scored on its own, so completing the word "Performance" boosts both equally and does not
+		// reshuffle them — previously the joined "Performance Recommended" label could only ever
+		// prefix-match, so `multi` lost the exact-match bonus and got overtaken on the last keystroke.
+		const single = makeCard( { slug: 'single', name: 'Single' } );
+		const multi = makeCard( { slug: 'multi', name: 'Multi' } );
+		const cardCategories = new Map( [
+			[ single.product.slug, [ 'Performance' ] ],
+			[ multi.product.slug, [ 'Performance', 'Recommended' ] ],
+		] );
+
+		const order = ( result: ReturnType< typeof searchAndRankItems > ) =>
+			result.map( item => ( item.kind === 'card' ? item.card.product.slug : item.module.module ) );
+
+		// `multi` is listed first so the old behavior (it getting overtaken) is observable.
+		const partial = searchAndRankItems( [ multi, single ], [], 'Performanc', { cardCategories } );
+		const full = searchAndRankItems( [ multi, single ], [], 'Performance', { cardCategories } );
+
+		expect( order( full ) ).toHaveLength( 2 );
+		expect( order( partial ) ).toEqual( order( full ) );
+	} );
+
 	it( 'is case-insensitive', () => {
 		const lower = searchAndRankItems( [ akismet, forms ], [], 'forms' );
 		const upper = searchAndRankItems( [ akismet, forms ], [], 'FORMS' );
