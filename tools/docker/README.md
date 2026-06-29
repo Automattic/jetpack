@@ -38,7 +38,7 @@ Once you're all set with the above, spin up the containers:
 jetpack docker up
 ```
 
-If this fails with an error like `failed to bind host port 0.0.0.0:80/tcp: address already in use`, another service is using that port. Change `PORT_WORDPRESS` in `tools/docker/.env` to a free port (e.g. `8080`) and try again.
+If this fails with an error like `failed to bind host port 0.0.0.0:80/tcp: address already in use`, another service is using that port. Change `PORT_WORDPRESS` in `tools/docker/.env` to a free port (for example, `8888`) and try again. You can check whether a port is already in use with `lsof -i :<port>` (for example, `lsof -i :8888`).
 
 Non-installed WordPress is running at [http://localhost](http://localhost) now. To install WordPress and configure some useful defaults, run
 ```sh
