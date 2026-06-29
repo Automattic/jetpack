@@ -99,11 +99,12 @@ class Contact_Form_Block {
 	 * render_block class injection — and on a required field it cannot be made
 	 * safe (server- and client-side validation are both viewport-blind). "Hide
 	 * everywhere" does work for fields, but the control bundles both modes under
-	 * one boolean, so we disable it wholesale on fields and inputs as an interim.
-	 * This mirrors the JS registration (shared/settings/index.js and
-	 * input/index.js). Labels keep visibility support (full-hide wired via
-	 * labelhiddenbyblockvisibility), and the internal field-option-* blocks are
-	 * left untouched to match JS. Full field visibility is a separate decision.
+	 * one boolean, so we disable it wholesale on fields, inputs, and choice/option
+	 * blocks as an interim. This mirrors the JS registration. The label is the
+	 * only block that keeps visibility support — it honors hiding (full-hide via
+	 * labelhiddenbyblockvisibility, per-viewport via wp-block-hidden-* classes)
+	 * and never affects validation or submission. Full field visibility is a
+	 * separate decision.
 	 *
 	 * @param array  $args       Block type registration args.
 	 * @param string $block_name Block name being registered.
@@ -111,12 +112,15 @@ class Contact_Form_Block {
 	 */
 	public static function disable_field_visibility_support( $args, $block_name ) {
 		// TODO: refactor into an array_merge'd shared supports array mirroring the JS defaultSettings, instead of this filter.
-		$is_field = strpos( $block_name, 'jetpack/field-' ) === 0 && strpos( $block_name, 'jetpack/field-option-' ) !== 0;
+		// Fields, incl. the deprecated field-option-* choice blocks.
+		$is_field = strpos( $block_name, 'jetpack/field-' ) === 0;
 		// All input variants: jetpack/input, input-range, input-rating,
 		// input-image-option, plus the differently-named phone-input and dropzone.
 		$is_input = strpos( $block_name, 'jetpack/input' ) === 0 || in_array( $block_name, array( 'jetpack/phone-input', 'jetpack/dropzone' ), true );
+		// Choice/option containers.
+		$is_option = in_array( $block_name, array( 'jetpack/option', 'jetpack/options', 'jetpack/fieldset-image-options' ), true );
 
-		if ( $is_input || $is_field ) {
+		if ( $is_input || $is_field || $is_option ) {
 			if ( ! isset( $args['supports'] ) || ! is_array( $args['supports'] ) ) {
 				$args['supports'] = array();
 			}

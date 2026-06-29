@@ -127,6 +127,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 					'spacing'              => array(
 						'blockGap' => false,
 					),
+					'visibility'           => false,
 				),
 			),
 			'jetpack/option'  => array(
@@ -147,6 +148,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 						'__experimentalTextDecoration' => true,
 						'__experimentalLetterSpacing'  => true,
 					),
+					'visibility' => false,
 				),
 			),
 		);
