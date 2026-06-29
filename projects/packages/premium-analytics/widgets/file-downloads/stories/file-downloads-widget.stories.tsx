@@ -50,26 +50,31 @@ const mockRows: FileDownloadRow[] = [
 	{
 		label: 'annual-report-2025.pdf',
 		value: 3840,
+		previousValue: 3200,
 		href: 'https://example.com/annual-report-2025.pdf',
 	},
 	{
 		label: 'product-brochure.pdf',
 		value: 2610,
+		previousValue: 2900,
 		href: 'https://example.com/product-brochure.pdf',
 	},
 	{
 		label: 'getting-started-guide.pdf',
 		value: 1920,
+		previousValue: 1600,
 		href: 'https://example.com/getting-started-guide.pdf',
 	},
 	{
 		label: 'press-release-q1.docx',
 		value: 1305,
+		previousValue: 1500,
 		href: 'https://example.com/press-release-q1.docx',
 	},
 	{
 		label: 'logo-assets.zip',
 		value: 870,
+		previousValue: 700,
 		href: 'https://example.com/logo-assets.zip',
 	},
 	{
@@ -114,7 +119,7 @@ const meta = {
 	argTypes: {
 		withComparison: {
 			control: 'boolean',
-			description: 'Include previous-period comparison report params.',
+			description: 'Include previous-period comparison report params and deltas.',
 		},
 	},
 	parameters: {
@@ -147,7 +152,7 @@ export const WithComparison: Story = {
 		docs: {
 			description: {
 				story:
-					'File downloads intentionally has no period-over-period comparison view — the Calypso source does not expose deltas for this module. The widget renders the same list when comparison params are present; the comparison report is fetched but not mapped into the leaderboard.',
+					'File downloads renders previous-period deltas when comparison report params are present, matching the comparison behavior of the other Premium Analytics leaderboard widgets.',
 			},
 		},
 	},
@@ -173,6 +178,11 @@ export const WithMockRows: PresentationalStory = {
 	decorators: [ withChartTheme, withWidgetCanvas ],
 };
 
+export const WithMockComparisonRows: PresentationalStory = {
+	render: () => <FileDownloadsLeaderboard rows={ mockRows } withComparison={ true } />,
+	decorators: [ withChartTheme, withWidgetCanvas ],
+};
+
 export const WidgetDashboardWithWidget: DashboardStory = {
 	render: args => <FileDownloadsDashboardStory { ...args } />,
 	args: {
@@ -183,7 +193,7 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: {
 			control: 'boolean',
-			description: 'Include previous-period comparison report params.',
+			description: 'Include previous-period comparison report params and deltas.',
 		},
 	},
 };

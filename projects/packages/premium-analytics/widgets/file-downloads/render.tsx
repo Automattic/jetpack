@@ -13,6 +13,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
 import {
+	calculateDelta,
 	LeaderboardChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
@@ -44,6 +45,8 @@ export type FileDownloadRow = {
 	label: string;
 	/** Download count for the period. */
 	value: number;
+	/** Download count for the comparison period. */
+	previousValue?: number;
 	/** File URL. When present, the row label becomes a link. */
 	href?: string;
 };
@@ -51,53 +54,75 @@ export type FileDownloadRow = {
 /**
  * Maps normalized file-download rows onto the shape `LeaderboardChart` expects.
  *
- * @param rows - Normalized file-download rows.
+ * @param rows           - Normalized file-download rows.
+ * @param withComparison - Whether to derive previous-period shares and deltas.
  * @return Leaderboard chart data.
  */
-function buildLeaderboardData( rows: FileDownloadRow[] ): LeaderboardChartData {
+function buildLeaderboardData(
+	rows: FileDownloadRow[],
+	withComparison: boolean
+): LeaderboardChartData {
 	const maxValue = Math.max( ...rows.map( r => r.value ), 1 );
+	const maxPreviousValue = Math.max( ...rows.map( r => r.previousValue ?? 0 ), 1 );
 
-	return rows.map( ( row, index ) => ( {
-		id: `${ index }-${ row.label }`,
-		label: row.href ? (
-			<Link
-				className={ styles.labelLink }
-				href={ row.href }
-				variant="unstyled"
-				openInNewTab
-				title={ row.label }
-			>
-				{ row.label }
-			</Link>
-		) : (
-			<span className={ styles.labelText } title={ row.label }>
-				{ row.label }
-			</span>
-		),
-		currentValue: row.value,
-		currentShare: ( row.value / maxValue ) * 100,
-		previousValue: 0,
-		previousShare: 0,
-		delta: 0,
-	} ) );
+	return rows.map( ( row, index ) => {
+		const previousValue = row.previousValue ?? 0;
+
+		return {
+			id: `${ index }-${ row.href ?? row.label }`,
+			label: row.href ? (
+				<Link
+					className={ styles.labelLink }
+					href={ row.href }
+					variant="unstyled"
+					openInNewTab
+					title={ row.label }
+				>
+					{ row.label }
+				</Link>
+			) : (
+				<span className={ styles.labelText } title={ row.label }>
+					{ row.label }
+				</span>
+			),
+			currentValue: row.value,
+			currentShare: ( row.value / maxValue ) * 100,
+			previousValue,
+			previousShare:
+				withComparison && previousValue > 0 ? ( previousValue / maxPreviousValue ) * 100 : 0,
+			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+		};
+	} );
+}
+
+function getFileDownloadItemKey( item: StatsFileDownloadsItem ) {
+	return item.link ?? String( item.label ?? item.shortLabel ?? '' );
 }
 
 /**
  * Flattens a normalized file-downloads report into `FileDownloadRow[]`.
  *
- * @param report - Normalized report from the data layer, or undefined while loading.
- * @param max    - Maximum rows to keep (0 = all).
+ * @param report           - Normalized report from the data layer, or undefined while loading.
+ * @param max              - Maximum rows to keep (0 = all).
+ * @param comparisonReport - Optional normalized comparison report.
  * @return Normalized rows ready for the leaderboard.
  */
 function toFileDownloadRows(
 	report: StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
-	max: number
+	max: number,
+	comparisonReport?: StatsNormalizedReport< StatsFileDownloadsItem >
 ): FileDownloadRow[] {
 	const items = report?.data.flatMap( point => point.items ) ?? [];
 	const sliced = max > 0 ? items.slice( 0, max ) : items;
+	const comparisonItems = comparisonReport?.data.flatMap( point => point.items ) ?? [];
+	const comparisonByKey = new Map(
+		comparisonItems.map( item => [ getFileDownloadItemKey( item ), item.downloads ] )
+	);
+
 	return sliced.map( item => ( {
 		label: item.shortLabel ?? String( item.label ?? '' ),
 		value: item.downloads,
+		previousValue: comparisonByKey.get( getFileDownloadItemKey( item ) ),
 		href: item.link,
 	} ) );
 }
@@ -109,6 +134,7 @@ export type FileDownloadsLeaderboardProps = {
 	rows?: FileDownloadRow[];
 	isLoading?: boolean;
 	isError?: boolean;
+	withComparison?: boolean;
 };
 
 /**
@@ -118,16 +144,18 @@ export type FileDownloadsLeaderboardProps = {
  * populated states. Exported so Storybook can exercise those states with
  * fixture rows without needing a live WordPress backend.
  *
- * @param props           - Component props.
- * @param props.rows      - Normalized download rows to render.
- * @param props.isLoading - When true, show a loading overlay.
- * @param props.isError   - When true, show an error message.
+ * @param props                - Component props.
+ * @param props.rows           - Normalized download rows to render.
+ * @param props.isLoading      - When true, show a loading overlay.
+ * @param props.isError        - When true, show an error message.
+ * @param props.withComparison - When true, render previous-period deltas.
  * @return The rendered leaderboard.
  */
 export function FileDownloadsLeaderboard( {
 	rows = [],
 	isLoading = false,
 	isError = false,
+	withComparison = false,
 }: FileDownloadsLeaderboardProps ) {
 	if ( isError ) {
 		return (
@@ -143,8 +171,9 @@ export function FileDownloadsLeaderboard( {
 
 	return (
 		<LeaderboardChart
-			data={ buildLeaderboardData( rows ) }
+			data={ buildLeaderboardData( rows, withComparison ) }
 			loading={ isLoading }
+			withComparison={ withComparison }
 			withOverlayLabel
 			emptyStateText={ __( 'No file downloads in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ DATA_FORMAT }
@@ -161,16 +190,26 @@ export function FileDownloadsLeaderboard( {
  */
 function FileDownloadsInner( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
-	const { primary, isLoading, isError } = useStatsFileDownloads(
+	const { primary, comparison, hasComparison, isLoading, isError } = useStatsFileDownloads(
 		reportParams as StatsReportParams
 	);
 
 	const rows = toFileDownloadRows(
 		primary.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
-		max
+		max,
+		hasComparison
+			? ( comparison.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined )
+			: undefined
 	);
 
-	return <FileDownloadsLeaderboard rows={ rows } isLoading={ isLoading } isError={ isError } />;
+	return (
+		<FileDownloadsLeaderboard
+			rows={ rows }
+			isLoading={ isLoading }
+			isError={ isError }
+			withComparison={ hasComparison }
+		/>
+	);
 }
 
 /**
