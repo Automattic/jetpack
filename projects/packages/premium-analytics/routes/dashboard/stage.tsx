@@ -43,6 +43,32 @@ type ReportQuerySearchParams = Partial<
 >;
 
 /**
+ * Parse search-param dates into a picker range, dropping unparseable values to
+ * `undefined`. The picker reads these straight from the URL, so a malformed
+ * `from`/`to` (e.g. a hand-edited or under-encoded deep link where the `+`
+ * offset decoded to a space) must not become an invalid Date — `formatDate`
+ * throws "Invalid time value" on one and would white-screen the dashboard.
+ *
+ * @param {string} [from] - The `from` search param.
+ * @param {string} [to]   - The `to` search param.
+ * @return {object} The parsed range, with invalid endpoints as `undefined`.
+ */
+function toPickerRange( from?: string, to?: string ) {
+	const parse = ( value?: string ) => {
+		if ( ! value ) {
+			return undefined;
+		}
+		const date = localTZDate( value );
+		return isValid( date ) ? date : undefined;
+	};
+
+	return {
+		from: parse( from ),
+		to: parse( to ),
+	};
+}
+
+/**
  * Premium Analytics dashboard page stage component.
  *
  * @return {JSX.Element} The Premium Analytics dashboard.
@@ -75,37 +101,34 @@ function Dashboard(): JSX.Element {
 	 * locally and committed atomically on Apply (or immediately for
 	 * comparison changes), so widgets re-fetch only on commit.
 	 */
-	const { effective, stage, commit, revert, isDirty } = useStagedSearch<
+	const { committed, effective, stage, commit, revert, isDirty } = useStagedSearch<
 		ReportQuerySearchParams,
 		'/'
 	>( {
 		from: '/',
 	} );
 
+	/*
+	 * Staged preset/range are the in-progress draft: the open popover (calendar
+	 * + trigger) reflects them live as the user edits.
+	 */
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
+	const range = useMemo(
+		() => toPickerRange( effective.from, effective.to ),
+		[ effective.from, effective.to ]
+	);
 
-	const range = useMemo( () => {
-		/*
-		 * Parse a search-param date into a TZDate, returning `undefined` for an
-		 * unparseable value. The picker reads these straight from the URL, so a
-		 * malformed `from`/`to` (e.g. a hand-edited or under-encoded deep link
-		 * where the `+` offset decoded to a space) must not produce an invalid
-		 * Date — `formatDate` throws "Invalid time value" on one and would
-		 * white-screen the whole dashboard. `undefined` degrades gracefully.
-		 */
-		const parse = ( value?: string ) => {
-			if ( ! value ) {
-				return undefined;
-			}
-			const date = localTZDate( value );
-			return isValid( date ) ? date : undefined;
-		};
-
-		return {
-			from: parse( effective.from ),
-			to: parse( effective.to ),
-		};
-	}, [ effective.from, effective.to ] );
+	/*
+	 * Committed preset/range are what's actually applied. The picker uses them
+	 * to label its trigger while the popover is closed, so an accidental
+	 * outside-click reverts the display to the applied range — while the staged
+	 * draft above is kept and restored when the popover reopens.
+	 */
+	const appliedPresetId = useMemo( () => committed.preset ?? undefined, [ committed.preset ] );
+	const appliedRange = useMemo(
+		() => toPickerRange( committed.from, committed.to ),
+		[ committed.from, committed.to ]
+	);
 
 	const onChange = useCallback(
 		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
@@ -152,7 +175,10 @@ function Dashboard(): JSX.Element {
 	);
 
 	/**
-	 * Comparison changes commit immediately (no Apply step).
+	 * Comparison changes commit immediately — but only when the primary date
+	 * isn't mid-edit. If a primary edit is staged but not yet applied, the
+	 * comparison change rides along and commits together on Apply, so tweaking
+	 * the comparison never commits an un-applied primary draft.
 	 */
 	const onComparisonChange = useCallback(
 		( nextComparisonRange: DateRange | undefined, nextComparisonPresetId?: ComparisonPresetId ) => {
@@ -163,9 +189,16 @@ function Dashboard(): JSX.Element {
 				comp: nextComparisonRange ? '1' : undefined,
 			} );
 
-			commit();
+			const hasPrimaryDraft =
+				effective.from !== committed.from ||
+				effective.to !== committed.to ||
+				effective.preset !== committed.preset;
+
+			if ( ! hasPrimaryDraft ) {
+				commit();
+			}
 		},
-		[ stage, commit ]
+		[ stage, commit, effective, committed ]
 	);
 
 	const onApply = useCallback( () => {
@@ -219,6 +252,8 @@ function Dashboard(): JSX.Element {
 							<DateFiltersPanel
 								presetId={ presetId }
 								range={ range }
+								appliedPresetId={ appliedPresetId }
+								appliedRange={ appliedRange }
 								comparisonPresetId={ comparisonPresetId }
 								onChange={ onChange }
 								onComparisonChange={ onComparisonChange }
