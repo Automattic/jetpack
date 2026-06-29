@@ -360,6 +360,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Keep this in sync with the JS helper `isCollectingResponses()` in
 	 * blocks/contact-form/util/is-collecting-responses.ts.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param mixed $attributes Raw contact-form block attributes. Non-arrays are
 	 *                          treated as collecting (no warning).
 	 * @return bool True when the form has at least one response destination.
@@ -369,10 +371,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return true;
 		}
 
-		// Email destination: on by default, and needs a recipient to be a real sink.
-		$email_on      = self::attribute_is_truthy( $attributes, 'emailNotifications', true );
-		$has_recipient = ! array_key_exists( 'to', $attributes ) || '' !== trim( (string) $attributes['to'] );
-		$email_active  = $email_on && $has_recipient;
+		// Email destination: on by default. A blank or invalid recipient is not a
+		// dead end — submissions fall back to the site admin email at send time —
+		// so email being on always counts as a real destination.
+		$email_active = self::attribute_is_truthy( $attributes, 'emailNotifications', true );
 
 		// Saving to the responses dashboard: on by default.
 		$saving_active = self::attribute_is_truthy( $attributes, 'saveResponses', true );
@@ -380,6 +382,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Integrations that actually persist or route the submission. Akismet
 		// (spam filtering) and Google Drive (exports already-saved responses) are
 		// intentionally excluded — neither is an independent destination.
+		//
+		// Webhooks (`postToUrl`/`webhooks`) are also excluded: they only fire when
+		// the form author has `manage_options` (see
+		// Jetpack_Forms::should_honor_content_destinations()), so whether they're a
+		// real destination depends on author capability, not the attributes alone.
+		// This shared helper is intentionally context-free so PHP and JS agree, so
+		// counting them here would wrongly silence the warning for editor-authored
+		// forms whose webhook never runs.
 		$integration_active = self::attribute_is_truthy( $attributes, 'jetpackCRM', false )
 			|| ! empty( $attributes['mailpoet']['enabledForForm'] )
 			|| ! empty( $attributes['hostingerReach']['enabledForForm'] )
@@ -396,6 +406,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * Toggle attributes arrive as JS booleans from the editor but are persisted
 	 * as `'yes'`/`'no'` strings in some contexts, so both forms must be handled.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array  $attributes Block attributes.
 	 * @param string $key        Attribute name.
@@ -425,6 +437,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * Shown on the live front-end form and in form previews, but only to users
 	 * who can manage forms (`edit_pages`) — never to visitors.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $attributes Raw contact-form block attributes.
 	 * @return string Notice HTML, or an empty string.

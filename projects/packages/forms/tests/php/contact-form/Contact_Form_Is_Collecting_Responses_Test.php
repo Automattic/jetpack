@@ -57,13 +57,13 @@ class Contact_Form_Is_Collecting_Responses_Test extends BaseTestCase {
 				),
 				true,
 			),
-			'email on but empty recipient'             => array(
+			'email on with empty recipient still collects (admin email fallback)' => array(
 				array(
 					'emailNotifications' => true,
 					'to'                 => '  ',
 					'saveResponses'      => false,
 				),
-				false,
+				true,
 			),
 			'email on with recipient'                  => array(
 				array(

@@ -30,10 +30,10 @@ describe( 'isCollectingResponses', () => {
 		).toBe( true );
 	} );
 
-	it( 'is not collecting when email is on but the recipient is empty', () => {
+	it( 'is collecting when email is on even with an empty recipient (admin email fallback)', () => {
 		expect(
 			isCollectingResponses( { emailNotifications: true, to: '  ', saveResponses: false } )
-		).toBe( false );
+		).toBe( true );
 	} );
 
 	it( 'handles yes/no string toggles', () => {

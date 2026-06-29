@@ -43,16 +43,19 @@ function isTruthy( value: boolean | string | undefined | null, fallback: boolean
  * @return True when the form has at least one response destination.
  */
 export function isCollectingResponses( attributes: FormAttributes = {} ): boolean {
-	// Email destination: on by default, and needs a recipient to be a real sink.
-	const emailOn = isTruthy( attributes.emailNotifications, true );
-	const hasRecipient = attributes.to === undefined || String( attributes.to ).trim() !== '';
-	const emailActive = emailOn && hasRecipient;
+	// Email destination: on by default. A blank or invalid recipient is not a dead
+	// end — submissions fall back to the site admin email at send time — so email
+	// being on always counts as a real destination.
+	const emailActive = isTruthy( attributes.emailNotifications, true );
 
 	// Saving to the responses dashboard: on by default.
 	const savingActive = isTruthy( attributes.saveResponses, true );
 
 	// Integrations that actually persist or route the submission. Akismet (spam
 	// filtering) and Google Drive (exports already-saved responses) are excluded.
+	// Webhooks are excluded too: they only fire for forms whose author can
+	// manage_options, so counting them from attributes alone (with no author
+	// context here) would wrongly silence the warning for editor-authored forms.
 	const integrationActive =
 		isTruthy( attributes.jetpackCRM, false ) ||
 		!! attributes.mailpoet?.enabledForForm ||

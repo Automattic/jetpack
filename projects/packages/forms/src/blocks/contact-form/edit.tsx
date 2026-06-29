@@ -343,7 +343,7 @@ function JetpackContactFormEdit( {
 		},
 		[ isJetpackFormEditor ]
 	);
-	const { closePanel, openPanel } = useDispatch( PANEL_STATE_STORE );
+	const { closePanel } = useDispatch( PANEL_STATE_STORE );
 
 	// Track open state for each panel - panels open when activePanel matches, then stay open
 	const [ openPanels, setOpenPanels ] = useState< Record< string, boolean > >( {} );
@@ -356,24 +356,6 @@ function JetpackContactFormEdit( {
 			closePanel();
 		}
 	}, [ activePanel, closePanel ] );
-
-	// Open a specific settings panel when the editor is opened from a dashboard
-	// "email notifications" / "response storage" deep link (?jetpack-form-panel=…).
-	useEffect( () => {
-		if ( ! isJetpackFormEditor ) {
-			return;
-		}
-		const panel = new URLSearchParams( window.location.search ).get( 'jetpack-form-panel' );
-		if (
-			panel === 'form-notifications' ||
-			panel === 'responses-storage' ||
-			panel === 'action-after-submit'
-		) {
-			openPanel( panel );
-		}
-		// Only run once on mount, when arriving from a deep link.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
 
 	const { isSingleStep, isFirstStep, isLastStep, currentStepClientId } = useSelect(
 		select => {

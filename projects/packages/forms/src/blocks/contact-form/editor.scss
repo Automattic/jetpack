@@ -1254,6 +1254,13 @@
 	margin-bottom: 16px;
 }
 
+/* Inline warning shown in the form settings sidebar when the form isn't
+   collecting responses. It renders outside a panel body, so give it the same
+   16px spacing a panel body would have. */
+.jetpack-contact-form__not-collecting-notice {
+	margin: 16px;
+}
+
 /* "Other" option text input styles */
 .jetpack-other-text-input-wrapper {
 	margin-left: 1.5em;

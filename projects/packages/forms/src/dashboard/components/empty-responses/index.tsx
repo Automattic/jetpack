@@ -40,8 +40,8 @@ type EmptyResponsesProps = {
 	status: string;
 	/** Whether the form isn't collecting responses anywhere (email + saving off). */
 	isNotCollecting?: boolean;
-	/** Editor deep links used by the not-collecting empty state. */
-	notCollectingLinks?: { email: string; storage: string };
+	/** Editor URL the not-collecting empty state's "set up" button links to. */
+	notCollectingEditUrl?: string;
 };
 
 /**
@@ -165,7 +165,7 @@ const EmptyResponses = ( {
 	readStatusFilter,
 	status,
 	isNotCollecting = false,
-	notCollectingLinks,
+	notCollectingEditUrl,
 }: EmptyResponsesProps ) => {
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 	const {
@@ -243,12 +243,12 @@ const EmptyResponses = ( {
 	}
 
 	// A single form that isn't collecting responses anywhere: surface the warning
-	// front and center (large warning icon + action buttons) in place of the
-	// responses table, rather than the generic "no responses yet" message, so the
-	// problem is impossible to miss and the messaging doesn't contradict itself.
+	// front and center in place of the responses table, rather than the generic
+	// "no responses yet" message, so the problem is impossible to miss and the
+	// messaging doesn't contradict itself.
 	if ( isSingleFormView && isNotCollecting ) {
 		return (
-			<EmptyState.Root className="jetpack-forms__not-collecting-empty">
+			<EmptyState.Root>
 				<EmptyState.Icon icon={ caution } />
 				<EmptyState.Title>
 					{ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
@@ -259,14 +259,11 @@ const EmptyResponses = ( {
 						'jetpack-forms'
 					) }
 				</EmptyState.Description>
-				{ notCollectingLinks && (
+				{ notCollectingEditUrl && (
 					<EmptyState.Actions>
-						<Link href={ notCollectingLinks.email }>
-							{ __( 'Turn on email notifications', 'jetpack-forms' ) }
-						</Link>
-						<Link href={ notCollectingLinks.storage }>
-							{ __( 'Turn on response storage', 'jetpack-forms' ) }
-						</Link>
+						<Button variant="outline" render={ <a href={ notCollectingEditUrl } /> }>
+							{ __( 'Choose where responses go', 'jetpack-forms' ) }
+						</Button>
 					</EmptyState.Actions>
 				) }
 			</EmptyState.Root>

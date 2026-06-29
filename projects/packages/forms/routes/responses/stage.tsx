@@ -11,13 +11,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import {
-	useMemo,
-	useState,
-	useCallback,
-	useEffect,
-	createInterpolateElement,
-} from '@wordpress/element';
+import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { caution } from '@wordpress/icons';
@@ -695,25 +689,32 @@ function StageInner() {
 		[ isSingleFormView, sourceIdNumber ]
 	);
 
-	// Deep link to the form editor with a specific settings panel pre-opened, so the
-	// "email notifications" / "response storage" links lead users straight to the fix.
-	const buildPanelEditUrl = useCallback(
-		( panel: 'form-notifications' | 'responses-storage' ) =>
-			`${ getFormEditUrl( sourceIdNumber, adminUrl ) }&jetpack-form-panel=${ panel }`,
+	// Link to the form editor, where the author can set up a response destination.
+	const formEditUrl = useMemo(
+		() => getFormEditUrl( sourceIdNumber, adminUrl ),
 		[ adminUrl, sourceIdNumber ]
 	);
 
-	// Whether the form has any stored responses at all — across inbox, spam and
-	// trash, not just the current view — so a form with responses only in spam or
+	// Whether the form has any stored responses — summed across inbox, spam and
+	// trash, not just the current view, so a form with responses only in spam or
 	// trash still keeps the table (and its status tabs) and gets a banner above it.
-	// A form with no responses anywhere replaces the table entirely with a
-	// prominent, front-and-center warning so the problem is impossible to miss.
+	// These counts carry the active search / read-status filters, so they're only
+	// a reliable "has anything at all" signal when no search or filter is applied —
+	// otherwise a search that matches nothing would read as an empty form.
 	const totalResponseCount =
 		( totalItemsInbox ?? 0 ) + ( totalItemsSpam ?? 0 ) + ( totalItemsTrash ?? 0 );
+	const hasActiveSearchOrFilter = !! view.search || ( view.filters?.length ?? 0 ) > 0;
 	const countsReady = ! isLoadingData && ! isQueryStale;
 	const hasAnyResponses = countsReady && totalResponseCount > 0;
+	// Replace the table with the front-and-center warning only when the form truly
+	// has no responses anywhere — never while a search/filter is narrowing the list,
+	// so real data is never hidden behind the callout.
 	const showNotCollectingCallout =
-		isFormNotCollecting && isSingleFormView && countsReady && totalResponseCount === 0;
+		isFormNotCollecting &&
+		isSingleFormView &&
+		countsReady &&
+		! hasActiveSearchOrFilter &&
+		totalResponseCount === 0;
 
 	// Check if read_status filter is applied
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
@@ -747,36 +748,28 @@ function StageInner() {
 						{ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
 					</Notice.Title>
 					<Notice.Description>
-						{ createInterpolateElement(
-							__(
-								'New submissions are being dropped. Turn on <email>email notifications</email> or <storage>response storage</storage> in form settings.',
-								'jetpack-forms'
-							),
-							{
-								email: (
-									<Link href={ buildPanelEditUrl( 'form-notifications' ) } children={ null } />
-								),
-								storage: (
-									<Link href={ buildPanelEditUrl( 'responses-storage' ) } children={ null } />
-								),
-							}
+						{ __(
+							'New submissions are being dropped because this form has nowhere to send them.',
+							'jetpack-forms'
 						) }
 					</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionLink href={ formEditUrl }>
+							{ __( 'Choose where responses go', 'jetpack-forms' ) }
+						</Notice.ActionLink>
+					</Notice.Actions>
 				</Notice.Root>
 			) }
 			{ showNotCollectingCallout ? (
-				<div className="jetpack-forms__not-collecting-callout">
+				<Stack className="jetpack-forms__not-collecting-callout" align="center" justify="center">
 					<EmptyResponses
 						isSearch={ false }
 						isSingleFormView={ isSingleFormView }
 						status={ statusView }
 						isNotCollecting
-						notCollectingLinks={ {
-							email: buildPanelEditUrl( 'form-notifications' ),
-							storage: buildPanelEditUrl( 'responses-storage' ),
-						} }
+						notCollectingEditUrl={ formEditUrl }
 					/>
-				</div>
+				</Stack>
 			) : (
 				<DataViews
 					empty={
@@ -786,10 +779,7 @@ function StageInner() {
 							readStatusFilter={ readStatusFilter }
 							status={ statusView }
 							isNotCollecting={ isFormNotCollecting }
-							notCollectingLinks={ {
-								email: buildPanelEditUrl( 'form-notifications' ),
-								storage: buildPanelEditUrl( 'responses-storage' ),
-							} }
+							notCollectingEditUrl={ formEditUrl }
 						/>
 					}
 					data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }

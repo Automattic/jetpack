@@ -13,9 +13,8 @@ import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { caution } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Badge, EmptyState, Icon, Stack, Tooltip } from '@wordpress/ui';
+import { Badge, EmptyState, Stack, Tooltip } from '@wordpress/ui';
 import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
@@ -174,21 +173,18 @@ export default function FormsDashboardForms(): JSX.Element | null {
 						return title;
 					}
 					return (
-						<Stack direction="row" gap="xs" align="center" justify="flex-start">
+						<Stack direction="row" gap="sm" align="center" justify="flex-start">
 							<span>{ title }</span>
 							<Tooltip.Root>
 								<Tooltip.Trigger
 									className="jetpack-forms__not-collecting-badge"
 									aria-label={ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
 								>
-									<Badge intent="high">
-										<Icon icon={ caution } size={ 16 } />
-										{ __( 'Not collecting', 'jetpack-forms' ) }
-									</Badge>
+									<Badge intent="high">{ __( 'Not collecting', 'jetpack-forms' ) }</Badge>
 								</Tooltip.Trigger>
 								<Tooltip.Popup>
 									{ __(
-										'This form isn’t collecting responses. Turn on email notifications or response storage in form settings.',
+										'Turn on email notifications or response storage in form settings.',
 										'jetpack-forms'
 									) }
 								</Tooltip.Popup>

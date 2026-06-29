@@ -1,18 +1,11 @@
 @use "../shared";
 
-// Tooltip trigger (button) wrapping the "not collecting" badge in the list.
-// The Badge carries its own intent colour; the button only needs a reset so
-// it sits inline with the form title.
+// The "not collecting" badge is wrapped in a Tooltip trigger, which renders a
+// native <button>; strip its default chrome so only the Badge shows.
 .jetpack-forms__not-collecting-badge {
 	display: inline-flex;
-	align-items: center;
 	padding: 0;
 	border: 0;
 	background: none;
 	cursor: help;
-
-	svg {
-		fill: currentColor;
-		margin-inline-end: 2px;
-	}
 }
