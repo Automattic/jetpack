@@ -636,8 +636,6 @@ class Jetpack {
 		add_action( 'mu_plugin_loaded', array( $this, 'add_configure_hook' ), 90 );
 		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
-		add_action( 'jetpack_verify_signature_error', array( $this, 'track_xmlrpc_error' ) );
-
 		/**
 		 * Prepare Gutenberg Editor functionality
 		 *
@@ -977,9 +975,28 @@ class Jetpack {
 		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
+		\Automattic\Jetpack\Podcast\Podcast::init();
 
-		// Initialize Boost Speed Score
-		new Speed_Score( array(), 'jetpack-dashboard' );
+		/*
+		 * Initialize Boost Speed Score. It only does work on REST requests (the
+		 * dashboard speed-score endpoints) and on a few Jetpack Boost lifecycle
+		 * actions, so defer constructing it — and loading the boost-speed-score
+		 * package classes — until one of those hooks actually fires instead of on
+		 * every request. Priority 0 ensures the object's own callbacks (added in
+		 * its constructor at the default priority) still run for the firing hook.
+		 */
+		$initialize_speed_score = static function () {
+			static $initialized = false;
+			if ( $initialized ) {
+				return;
+			}
+			$initialized = true;
+			new Speed_Score( array(), 'jetpack-dashboard' );
+		};
+		add_action( 'rest_api_init', $initialize_speed_score, 0 );
+		add_action( 'jetpack_boost_deactivate', $initialize_speed_score, 0 );
+		add_action( 'jetpack_boost_environment_changed', $initialize_speed_score, 0 );
+		add_action( 'handle_environment_change', $initialize_speed_score, 0 );
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
@@ -4290,35 +4307,6 @@ p {
 </div>
 			<?php
 endif;
-	}
-
-	/**
-	 * We can't always respond to a signed XML-RPC request with a
-	 * helpful error message. In some circumstances, doing so could
-	 * leak information.
-	 *
-	 * Instead, track that the error occurred via a Jetpack_Option,
-	 * and send that data back in the heartbeat.
-	 * All this does is increment a number, but it's enough to find
-	 * trends.
-	 *
-	 * @param WP_Error $xmlrpc_error The error produced during
-	 *                               signature validation.
-	 */
-	public function track_xmlrpc_error( $xmlrpc_error ) {
-		$code = is_wp_error( $xmlrpc_error )
-			? $xmlrpc_error->get_error_code()
-			: 'should-not-happen';
-
-		$xmlrpc_errors = Jetpack_Options::get_option( 'xmlrpc_errors', array() );
-		if ( isset( $xmlrpc_errors[ $code ] ) && $xmlrpc_errors[ $code ] ) {
-			// No need to update the option if we already have
-			// this code stored.
-			return;
-		}
-		$xmlrpc_errors[ $code ] = true;
-
-		Jetpack_Options::update_option( 'xmlrpc_errors', $xmlrpc_errors, false );
 	}
 
 	/**

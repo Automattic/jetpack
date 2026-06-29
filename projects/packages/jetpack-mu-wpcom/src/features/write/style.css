@@ -131,7 +131,7 @@
 	padding-top: 12px;
 	border-top: 1px solid #f0f0f0;
 	font-size: 13px;
-	color: #2271b1;
+	color: var(--wp-components-color-accent, #3858e9);
 	text-decoration: none;
 }
 
@@ -203,12 +203,12 @@
 }
 
 .bw-btn-publish {
-	background: #2171b1;
+	background: var(--wp-components-color-accent, #3858e9);
 	color: #fff;
 }
 
 .bw-btn-publish:hover:not(:disabled) {
-	background: #1a5f99;
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
 }
 
 /* "More options" dropdown to the right of Publish/Update */
@@ -677,12 +677,12 @@
 }
 
 .bw-link-input:focus {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
 }
 
 .bw-link-apply {
 	border: none;
-	background: #2171b1;
+	background: var(--wp-components-color-accent, #3858e9);
 	color: #fff;
 	border-radius: 6px;
 	padding: 6px 12px;
@@ -1138,14 +1138,14 @@
 /* ===== Custom caret ===== */
 .bw-content,
 .bw-title {
-	caret-color: #2171b1;
+	caret-color: var(--wp-components-color-accent, #3858e9);
 }
 
 /* ===== Custom selection ===== */
 .bw-content ::selection,
 .bw-content::selection,
 .bw-title::selection {
-	background: rgba(33, 113, 177, 0.15);
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 15%, transparent);
 	color: inherit;
 }
 
@@ -1153,7 +1153,7 @@
    Slightly stronger than ::selection to visually distinguish it
    as a "target" indicator rather than an active text selection. */
 ::highlight(bw-link-highlight) {
-	background-color: rgba(33, 113, 177, 0.25);
+	background-color: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 25%, transparent);
 	color: inherit;
 }
 
@@ -1290,14 +1290,14 @@
 }
 
 .bw-content a {
-	color: #2171b1;
+	color: var(--wp-components-color-accent, #3858e9);
 	text-decoration: underline;
 	text-underline-offset: 2px;
 	transition: color 0.15s ease;
 }
 
 .bw-content a:hover {
-	color: #1a5f99;
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
 }
 
 .bw-content strong,
@@ -1520,7 +1520,7 @@
 }
 
 .bw-img-caption-btn:hover {
-	background: rgba(33, 113, 177, 0.85);
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 85%, transparent);
 }
 
 /* Edit (pencil) button — opens the image properties modal. Anchored to the
@@ -1562,7 +1562,7 @@
 }
 
 .bw-img-edit:hover {
-	background: rgba(33, 113, 177, 0.85);
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 85%, transparent);
 }
 
 /* Figcaption.
@@ -1721,8 +1721,8 @@ body.bw-modal-open {
 .bw-upload-zone:hover,
 .bw-upload-zone.bw-drag-over,
 .bw-upload-zone:focus-within {
-	border-color: #2171b1;
-	color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
+	color: var(--wp-components-color-accent, #3858e9);
 }
 
 /* Water fill animation */
@@ -1733,7 +1733,7 @@ body.bw-modal-open {
 	left: 0;
 	right: 0;
 	height: 0%;
-	background: linear-gradient(180deg, rgba(33, 113, 177, 0.08) 0%, rgba(33, 113, 177, 0.18) 100%);
+	background: linear-gradient(180deg, color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 8%, transparent) 0%, color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 18%, transparent) 100%);
 	z-index: 1;
 	transition: height 0.4s ease-out;
 	border-radius: 0 0 6px 6px;
@@ -1750,19 +1750,19 @@ body.bw-modal-open {
 	z-index: 1;
 	background: transparent;
 	border-radius: 50%;
-	box-shadow: 0 -4px 8px rgba(33, 113, 177, 0.12);
+	box-shadow: 0 -4px 8px color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 12%, transparent);
 	transition: bottom 0.4s ease-out;
 	opacity: 0;
 }
 
 .bw-upload-zone.bw-uploading {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
 	border-style: solid;
 	cursor: wait;
 }
 
 .bw-upload-zone.bw-uploading span {
-	color: #2171b1;
+	color: var(--wp-components-color-accent, #3858e9);
 	font-weight: 500;
 }
 
@@ -1872,11 +1872,11 @@ body.bw-modal-open {
 }
 
 .bw-source-trigger:hover {
-	color: #2171b1;
+	color: var(--wp-components-color-accent, #3858e9);
 }
 
 .bw-source-trigger:focus-visible {
-	outline: 2px solid #2171b1;
+	outline: 2px solid var(--wp-components-color-accent, #3858e9);
 	outline-offset: 2px;
 }
 
@@ -1914,7 +1914,7 @@ body.bw-modal-open {
 }
 
 .bw-library-search:focus {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
 }
 
 /* Single horizontally-scrolling row of thumbs. Browser-native scrollbar is
@@ -1954,8 +1954,8 @@ body.bw-modal-open {
 }
 
 .bw-library-thumb:focus-visible {
-	border-color: #2171b1;
-	outline: 2px solid #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
+	outline: 2px solid var(--wp-components-color-accent, #3858e9);
 	outline-offset: 1px;
 }
 
@@ -2018,7 +2018,7 @@ body.bw-modal-open {
 }
 
 .bw-image-url-input:focus {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
 }
 
 .bw-image-alt-input {
@@ -2041,7 +2041,7 @@ body.bw-modal-open {
 }
 
 .bw-featured-toggle input[type="checkbox"] {
-	accent-color: #2171b1;
+	accent-color: var(--wp-components-color-accent, #3858e9);
 	width: 16px;
 	height: 16px;
 	cursor: pointer;
@@ -2180,7 +2180,7 @@ body.bw-modal-open {
 
 .bw-edit-size-option:hover,
 .bw-edit-align-option:hover {
-	background: rgba(33, 113, 177, 0.08);
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 8%, transparent);
 }
 
 .bw-edit-size-option[aria-checked="true"],
@@ -2323,7 +2323,7 @@ body.bw-modal-open {
 	width: 52px;
 	height: 52px;
 	border-radius: 50%;
-	background: #2171b1;
+	background: var(--wp-components-color-accent, #3858e9);
 	color: #fff;
 	font-size: 22px;
 	display: flex;

@@ -1,3 +1,4 @@
+import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, closeSmall } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -11,7 +12,6 @@ import {
 	CSSProperties,
 } from 'react';
 import IconTooltip from '../icon-tooltip/index.tsx';
-import useBreakpointMatch from '../layout/use-breakpoint-match/index.ts';
 import TermsOfService from '../terms-of-service/index.tsx';
 import Text from '../text/index.tsx';
 import styles from './styles.module.scss';
@@ -59,7 +59,7 @@ export const PricingTableItem: FC< PricingTableItemProps > = ( {
 	tooltipTitle,
 	tooltipClassName = '',
 } ) => {
-	const [ isLg ] = useBreakpointMatch( 'lg' );
+	const isLg = useViewportMatch( 'large' );
 	const item = useContext( PricingTableContext )[ index ];
 	const isExplicitlyEmpty = label === '';
 	const showTick = isComingSoon || isIncluded;
@@ -158,7 +158,7 @@ const PricingTable: FC< PricingTableProps > = ( {
 	children,
 	showIntroOfferDisclaimer = false,
 } ) => {
-	const [ isLg ] = useBreakpointMatch( 'lg' );
+	const isLg = useViewportMatch( 'large' );
 
 	return (
 		<PricingTableContext.Provider value={ items }>

@@ -26,6 +26,31 @@ export function coerceStatsArray< T = StatsRecord >( value: unknown ): T[] {
 	return Array.isArray( value ) ? ( value as T[] ) : [];
 }
 
+export function emptyStatsReport<
+	TItem extends StatsNormalizedItem,
+>(): StatsNormalizedReport< TItem > {
+	return {
+		summary: {},
+		data: [],
+	};
+}
+
+export function getStatsLabel( value: unknown ): string {
+	if ( typeof value === 'string' ) {
+		try {
+			return decodeURIComponent( value );
+		} catch {
+			return value;
+		}
+	}
+
+	if ( typeof value === 'number' || typeof value === 'boolean' ) {
+		return String( value );
+	}
+
+	return '';
+}
+
 function isStatsNumericSummaryValue( value: unknown ): boolean {
 	return (
 		typeof value === 'number' ||
@@ -174,6 +199,26 @@ export function createStatsSummaryDataPoint< TItem extends StatsNormalizedItem >
 ): StatsNormalizedDataPoint< TItem > {
 	return {
 		...getStatsIntervalFields( date, getStatsTopLevelPeriod( response, query ) ),
+		...getStatsSummaryIntervalFields( query, response ),
+		items,
+	};
+}
+
+export function createStatsListDataPoint< TItem extends StatsNormalizedItem >(
+	response: unknown,
+	query: StatsQueryParams | undefined,
+	items: TItem[]
+): StatsNormalizedDataPoint< TItem > {
+	const date = getStatsTopLevelDataDate( response, query ) ?? '';
+
+	return {
+		...( date
+			? getStatsIntervalFields( date, getStatsTopLevelPeriod( response, query ) )
+			: {
+					time_interval: '',
+					date_start: '',
+					date_end: '',
+			  } ),
 		...getStatsSummaryIntervalFields( query, response ),
 		items,
 	};

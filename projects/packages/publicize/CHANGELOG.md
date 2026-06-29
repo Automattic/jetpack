@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.83.4] - 2026-06-29
+### Changed
+- Internal updates.
+
+## [0.83.3] - 2026-06-26
+### Changed
+- Update package dependencies. [#49271]
+
+## [0.83.2] - 2026-06-25
+### Changed
+- Internal updates.
+
+## [0.83.1] - 2026-06-24
+### Changed
+- Defer REST controller instantiation so the controller classes only load on REST API requests. [#49803]
+
+### Fixed
+- Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9. [#49859]
+
+## [0.83.0] - 2026-06-23
+### Added
+- Crop Open Graph images around the selected image focal point. [#49746]
+
+### Changed
+- Connection management: Mark the `inert` attribute on the wrapper for the upcoming React 19 migration. [#49231]
+- Update package dependencies. [#49831]
+
+### Fixed
+- Align share-button, service-row and dashboard tab-panel props with the `@wordpress/ui` 0.15 API: render the share `Button` as an anchor (it is a link), match the `Collapsible.Trigger` ref type, and drop the unsupported `focusable` prop on `Tabs.Panel`. [#49798]
+- Fix Jetpack Social admin page rendering blank on WordPress 6.9.x. [#49654]
+- Social: Contain errors in the post-publish sharing status panel so they no longer crash the editor. [#49823]
+
 ## [0.82.0] - 2026-06-22
 ### Added
 - Add focal point data model and picker in the media section. [#49580]
@@ -1509,6 +1541,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.83.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.3...v0.83.4
+[0.83.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.2...v0.83.3
+[0.83.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.1...v0.83.2
+[0.83.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.0...v0.83.1
+[0.83.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.82.0...v0.83.0
 [0.82.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.4...v0.82.0
 [0.81.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.3...v0.81.4
 [0.81.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.2...v0.81.3

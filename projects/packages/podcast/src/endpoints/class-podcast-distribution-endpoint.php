@@ -28,7 +28,18 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 	 * Wire up routes.
 	 */
 	public static function init() {
-		add_action( 'rest_api_init', array( new self(), 'register_routes' ) );
+		add_action( 'rest_api_init', array( self::class, 'register' ) );
+	}
+
+	/**
+	 * Registers the REST routes on the `rest_api_init` hook.
+	 *
+	 * Instantiated here, rather than eagerly, so the endpoint class only loads
+	 * on requests that reach `rest_api_init`. Static so the callback can be
+	 * unregistered.
+	 */
+	public static function register() {
+		( new self() )->register_routes();
 	}
 
 	/**

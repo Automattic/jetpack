@@ -76,7 +76,21 @@ class Main {
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10, 3 );
 
 		XMLRPC_Provider::init();
-		REST_Provider::init();
+
+		/*
+		 * REST_Provider only registers its routes on REST init, so defer
+		 * constructing it (and autoloading the class) until a REST request is
+		 * served. A closure is used because rest_api_init passes the REST server
+		 * to callbacks, which would otherwise be read as REST_Provider::init()'s
+		 * $new_instance argument.
+		 */
+		add_action(
+			'rest_api_init',
+			static function () {
+				REST_Provider::init();
+			},
+			0
+		);
 		Transient_Cleanup::init();
 
 		// Clean up transient cron on module deactivation.

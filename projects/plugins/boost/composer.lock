@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f192e420674625eaa5069489f56c80d7",
+    "content-hash": "290271cf45d484993b4fec793522e45f",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -142,7 +142,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "a95c9103c938904a50375cf96ddd919bad379053"
+                "reference": "abe662cbc928ddf626c3aee788a132fd68ec4ba6"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -164,7 +164,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"
@@ -1182,7 +1182,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "e3337df9407ffa81807076726a3de3e4a81f7a60"
+                "reference": "5d892112ea87492bd73daf094dab0fa937559935"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1221,7 +1221,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.39.x-dev"
+                    "dev-trunk": "5.40.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1900,7 +1900,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "e4dea39ce815f1d6673b2600c917c5c82bd825b7"
+                "reference": "1ad37c018dad2c569fb1d99ef7717d218af56548"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1933,7 +1933,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.43.x-dev"
+                    "dev-trunk": "4.44.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

@@ -185,6 +185,8 @@ class Social_Admin_Page {
 			return;
 		}
 
+		Publicize_Assets::register_wp_build_polyfills();
+
 		// Dequeue the old Social assets.
 		wp_dequeue_script( 'jetpack-social' );
 		wp_dequeue_style( 'jetpack-social' );
@@ -218,6 +220,8 @@ class Social_Admin_Page {
 
 		require_once $build_index;
 
+		// The wp-build dashboard (unlike the Social bundles) uses the full polyfill set:
+		// the @wordpress/boot|route|a11y modules, wp-notices, wp-views, etc.
 		if ( ! class_exists( '\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills' ) ) {
 			return;
 		}

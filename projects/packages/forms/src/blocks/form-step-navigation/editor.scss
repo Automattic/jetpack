@@ -17,20 +17,19 @@
 	}
 }
 
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation:has(.wp-block-jetpack-button[style*="width:"]),
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation:has(.wp-block-button[style*="width:"]) {
+// Legacy jetpack/button nav buttons only — see style.scss. The core/button
+// equivalents were removed (FORMS-576); these are kept so existing
+// jetpack/button forms render unchanged in the editor.
+.editor-styles-wrapper .wp-block-jetpack-form-step-navigation:has(.wp-block-jetpack-button[style*="width:"]) {
 	gap: var(--wp--style--block-gap, 1.5rem) 0;
 }
 
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .wp-block-button__link,
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-button[style*="width:"] .wp-block-button__link {
+.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .wp-block-button__link {
 	width: calc(100% - var(--wp--style--block-gap, 1.5rem) / 2);
 }
 
 .editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-next,
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-submit,
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-button[style*="width:"].is-next,
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-button[style*="width:"].is-submit {
+.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-submit {
 	float: right;
 }
 

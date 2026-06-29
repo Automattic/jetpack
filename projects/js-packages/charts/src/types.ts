@@ -228,6 +228,17 @@ export type LeaderboardEntry = {
 	 * never both, since interactive elements cannot be nested in HTML.
 	 */
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+
+	/**
+	 * Optional accessible name for the interactive row's `<button>`. Only applies
+	 * when `onClick` is set — without it the row renders as a Fragment with no
+	 * element to receive `aria-label`. By default the button derives its name from
+	 * its rendered content (label text plus the formatted value), which is the
+	 * right outcome for plain-text labels. Set this when the `label` is JSX whose
+	 * text content does not yield a clean name on its own — e.g. an image-only
+	 * label — to give assistive tech a deterministic, human-readable name.
+	 */
+	ariaLabel?: string;
 };
 
 export type GradientStop = {
@@ -255,6 +266,16 @@ export type SeriesData = {
 	label: string;
 	data: DataPointDate[] | DataPoint[];
 	options?: SeriesDataOptions;
+};
+
+/**
+ * Visual styling for a bar series of a given semantic type (e.g. 'comparison').
+ * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%);
+ * `opacity` sets the shadow translucency.
+ */
+export type BarStyles = {
+	widthFactor?: number;
+	opacity?: number;
 };
 
 export type MultipleDataPointsDate = {
@@ -377,6 +398,9 @@ export type ChartTheme = {
 	lineChart?: {
 		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
+	barChart?: {
+		barStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles > >;
+	};
 	/** Sparkline specific settings */
 	sparkline?: {
 		/** Margin around the sparkline chart */
@@ -408,6 +432,9 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 		Pick< NonNullable< ChartTheme[ 'conversionFunnelChart' ] >, 'primaryColor' >;
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
+	};
+	barChart: {
+		barStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles >;
 	};
 	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {

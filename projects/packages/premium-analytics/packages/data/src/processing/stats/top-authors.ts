@@ -34,6 +34,7 @@ export function sanitizeStatsTopAuthorsResponse(
 				views: safeParseFloat( post.views ),
 				link: typeof post.url === 'string' ? post.url : null,
 				page: post.id ? `/stats/post/${ post.id }` : null,
+				actions: typeof post.url === 'string' ? [ { type: 'link', data: post.url } ] : [],
 				children: null,
 			} ) ),
 		} ) ),

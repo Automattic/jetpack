@@ -108,12 +108,22 @@ describe( 'reportParamsToStatsQueryParams', () => {
 			to: '2026-06-01',
 			geoMode: 'city',
 			utmParams: 'utm_source,utm_campaign',
-			deviceProperty: 'browser',
+			deviceParam: 'browser',
 		} );
 
 		expect( params ).not.toHaveProperty( 'geoMode' );
 		expect( params ).not.toHaveProperty( 'utmParams' );
-		expect( params ).not.toHaveProperty( 'deviceProperty' );
+		expect( params ).not.toHaveProperty( 'deviceParam' );
+	} );
+
+	it( 'does not forward unknown params to Stats endpoints', () => {
+		const params = reportParamsToStatsQueryParams( {
+			from: '2026-06-01',
+			to: '2026-06-01',
+			unknown_param: 'leak',
+		} );
+
+		expect( params ).not.toHaveProperty( 'unknown_param' );
 	} );
 
 	it( 'omits empty date params when no dates are provided', () => {

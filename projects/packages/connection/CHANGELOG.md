@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.7.5] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [8.7.4] - 2026-06-25
+### Changed
+- Heartbeat: Report the missing connection owner and XML-RPC error stats for all connected sites. [#49922]
+
+## [8.7.3] - 2026-06-24
+### Changed
+- Reduce per-request memory footprint on connected sites by deferring package version tracking to request shutdown. [#49803]
+
+## [8.7.2] - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+### Fixed
+- Connection: Do not offer to reconnect when the site is blocking WordPress.com's connection test (e.g. firewall/WAF). [#49655]
+
 ## [8.7.1] - 2026-06-22
 ### Changed
 - Update package dependencies. [#49691] [#49757]
@@ -1912,6 +1931,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.7.5]: https://github.com/Automattic/jetpack-connection/compare/v8.7.4...v8.7.5
+[8.7.4]: https://github.com/Automattic/jetpack-connection/compare/v8.7.3...v8.7.4
+[8.7.3]: https://github.com/Automattic/jetpack-connection/compare/v8.7.2...v8.7.3
+[8.7.2]: https://github.com/Automattic/jetpack-connection/compare/v8.7.1...v8.7.2
 [8.7.1]: https://github.com/Automattic/jetpack-connection/compare/v8.7.0...v8.7.1
 [8.7.0]: https://github.com/Automattic/jetpack-connection/compare/v8.6.1...v8.7.0
 [8.6.1]: https://github.com/Automattic/jetpack-connection/compare/v8.6.0...v8.6.1
