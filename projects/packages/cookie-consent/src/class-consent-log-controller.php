@@ -475,25 +475,24 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$log_versions = Cookie_Consent::get_log_versions();
 
 		return array(
-			'policy_version' => $this->sanitize_log_version( $log_versions['policy_version'] ?? '1' ),
-			'banner_version' => $this->sanitize_log_version( $log_versions['banner_version'] ?? '1' ),
+			'policy_version' => $this->truncate_log_version( $log_versions['policy_version'] ),
+			'banner_version' => $this->truncate_log_version( $log_versions['banner_version'] ),
 		);
 	}
 
 	/**
-	 * Sanitize a configured log version value for storage.
+	 * Truncate a normalized log version to the storage column length.
 	 *
-	 * @param mixed $version Version value from config.
+	 * Values arrive already sanitized and non-empty from
+	 * Cookie_Consent::get_log_versions(); this only enforces the varchar(191)
+	 * column limit. Use multibyte-aware truncation when available.
+	 *
+	 * @param string $version Normalized version value.
 	 * @return string
 	 */
-	private function sanitize_log_version( $version ) {
-		if ( ! is_scalar( $version ) ) {
-			return '1';
-		}
-
-		$version = sanitize_text_field( (string) $version );
-		if ( '' === $version ) {
-			return '1';
+	private function truncate_log_version( $version ) {
+		if ( function_exists( 'mb_substr' ) ) {
+			return mb_substr( $version, 0, 191 );
 		}
 
 		return substr( $version, 0, 191 );
