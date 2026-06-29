@@ -52,7 +52,7 @@ describe( 'ZoomSchedulerEdit', () => {
 			} )
 		).toHaveAttribute(
 			'href',
-			'https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0083594'
+			'https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0058092'
 		);
 	} );
 

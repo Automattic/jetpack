@@ -15,7 +15,7 @@ import { Link } from '@wordpress/ui';
 import metadata from './block.json';
 import { getEmbedUrl, normalizeUrl } from './utils';
 
-const HELP_URL = 'https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0083594';
+const HELP_URL = 'https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0058092';
 // Keep in sync with the IFRAME_HEIGHT in render.php and min-block-size in view.scss.
 const IFRAME_HEIGHT = 900;
 // Mirror the sandbox applied to the front-end iframe in render.php.
