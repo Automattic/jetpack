@@ -205,9 +205,11 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 										) }
 									</Text>
 								</VStack>
-								<Button variant="secondary" onClick={ onEnable }>
-									{ __( 'Start your podcast', 'jetpack-podcast' ) }
-								</Button>
+								<HStack justify="flex-start" expanded={ false }>
+									<Button variant="secondary" onClick={ onEnable }>
+										{ __( 'Start your podcast', 'jetpack-podcast' ) }
+									</Button>
+								</HStack>
 								<ul className="podcast__welcome-plan-features">
 									{ freeFeatures.map( feature => (
 										<li key={ feature } className="podcast__welcome-plan-feature">
@@ -239,13 +241,15 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 									</HStack>
 									<Text variant="muted">{ paidDescription }</Text>
 								</VStack>
-								<Button variant="primary" href={ upgradeCheckoutUrl } onClick={ onUpgradeClick }>
-									{ sprintf(
-										/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
-										__( 'Start your %s podcast', 'jetpack-podcast' ),
-										planName
-									) }
-								</Button>
+								<HStack justify="flex-start" expanded={ false }>
+									<Button variant="primary" href={ upgradeCheckoutUrl } onClick={ onUpgradeClick }>
+										{ sprintf(
+											/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+											__( 'Start your %s podcast', 'jetpack-podcast' ),
+											planName
+										) }
+									</Button>
+								</HStack>
 								<ul className="podcast__welcome-plan-features">
 									{ paidFeatures.map( feature => (
 										<li key={ feature } className="podcast__welcome-plan-feature">
