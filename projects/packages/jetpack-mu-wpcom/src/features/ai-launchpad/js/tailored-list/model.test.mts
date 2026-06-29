@@ -7,6 +7,7 @@ import { validateAgainstSchema } from '../lib/schema-validator.ts';
 import {
 	ctaKind,
 	firstIncompleteIndex,
+	isCompleteOnClickTask,
 	isTaskActionable,
 	launchSiteUrl,
 	resolveCtaUrl,
@@ -153,6 +154,22 @@ describe( 'isTaskActionable', () => {
 		// actionable (stays in lockstep with resolveCtaUrl).
 		assert.equal( isTaskActionable( launch, null, '' ), false );
 		assert.equal( isTaskActionable( launch, null, 'not-a-url' ), false );
+	} );
+} );
+
+describe( 'isCompleteOnClickTask', () => {
+	it( 'is true for acknowledgment tasks with no Atomic completion signal', () => {
+		assert.equal( isCompleteOnClickTask( 'complete_profile' ), true );
+		assert.equal( isCompleteOnClickTask( 'earn_money' ), true );
+		assert.equal( isCompleteOnClickTask( 'site_monitoring_page' ), true );
+		assert.equal( isCompleteOnClickTask( 'setup_ssh' ), true );
+		assert.equal( isCompleteOnClickTask( 'share_site' ), true );
+	} );
+
+	it( 'is false for tasks that complete via a real signal or listener', () => {
+		assert.equal( isCompleteOnClickTask( 'first_post_published' ), false );
+		assert.equal( isCompleteOnClickTask( 'site_theme_selected' ), false );
+		assert.equal( isCompleteOnClickTask( 'woo_products' ), false );
 	} );
 } );
 

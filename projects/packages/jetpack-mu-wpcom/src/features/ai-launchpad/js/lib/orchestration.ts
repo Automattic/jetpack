@@ -26,3 +26,16 @@ export type View = 'wizard' | 'list';
 export function decideInitialView( data: OrchestrationData ): View {
 	return data.ai_output ? 'list' : 'wizard';
 }
+
+/**
+ * Whether the page was opened in the all-tasks testing mode (`?all_tasks=1` on
+ * the admin page URL). In this mode the app skips the wizard and renders the
+ * full task catalog (see the `all_tasks` param on `GET /ai-launchpad`), so every
+ * task can be exercised from a single site.
+ *
+ * @param search - The page's `location.search` string.
+ * @return True when the all-tasks param is enabled.
+ */
+export function isAllTasksMode( search: string ): boolean {
+	return new URLSearchParams( search ).get( 'all_tasks' ) === '1';
+}

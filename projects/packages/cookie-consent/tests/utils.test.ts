@@ -4,7 +4,7 @@
  * @jest-environment-options {"url": "https://shop.example.co.uk/"}
  */
 
-import { getCookie, setCookie } from '../src/modules/cookie-consent/utils';
+import { getCookie, setCookie, handleConsentByRegion } from '../src/modules/cookie-consent/utils';
 
 describe( 'setCookie', () => {
 	let writes: string[];
@@ -105,5 +105,92 @@ describe( 'getCookie', () => {
 		stubCookies( 'wp_consent_functional=; x=1' );
 
 		expect( getCookie( 'wp_consent_functional' ) ).toBeNull();
+	} );
+} );
+
+describe( 'handleConsentByRegion (GDPR + GPC)', () => {
+	const baseConfig = {
+		gdprCountries: [ 'FR' ],
+		ccpaRegions: [ 'california' ],
+		gdprHonorsGpc: true,
+	};
+
+	let consentCalls: Array< [ string, string ] >;
+	let originalGpc: PropertyDescriptor | undefined;
+
+	const setGpc = ( value: boolean | undefined ) => {
+		Object.defineProperty( window.navigator, 'globalPrivacyControl', {
+			configurable: true,
+			value,
+		} );
+	};
+
+	beforeEach( () => {
+		consentCalls = [];
+		window.wp_set_consent = ( category: string, state: string ) => {
+			consentCalls.push( [ category, state ] );
+		};
+		originalGpc = Object.getOwnPropertyDescriptor( window.navigator, 'globalPrivacyControl' );
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { wp_set_consent?: unknown } ).wp_set_consent;
+		if ( originalGpc ) {
+			Object.defineProperty( window.navigator, 'globalPrivacyControl', originalGpc );
+		} else {
+			delete ( window.navigator as unknown as { globalPrivacyControl?: unknown } )
+				.globalPrivacyControl;
+		}
+	} );
+
+	const wasDenied = ( category: string ) =>
+		consentCalls.some( ( [ cat, state ] ) => cat === category && state === 'deny' );
+
+	it( 'force-denies non-essential categories and hides the banner when GPC is present in a GDPR region', () => {
+		setGpc( true );
+		const context = { showBanner: false };
+
+		handleConsentByRegion( 'FR', '', baseConfig, context );
+
+		expect( context.showBanner ).toBe( false );
+		expect( wasDenied( 'statistics' ) ).toBe( true );
+		expect( wasDenied( 'marketing' ) ).toBe( true );
+		// Functional/required cookies are always allowed.
+		expect( consentCalls ).toContainEqual( [ 'functional', 'allow' ] );
+	} );
+
+	it( 'shows the opt-in banner when GPC is absent in a GDPR region', () => {
+		setGpc( undefined );
+		const context = { showBanner: false };
+
+		handleConsentByRegion( 'FR', '', baseConfig, context );
+
+		expect( context.showBanner ).toBe( true );
+		expect( wasDenied( 'statistics' ) ).toBe( false );
+	} );
+
+	it( 'ignores GPC in a GDPR region when honoring is disabled by config', () => {
+		setGpc( true );
+		const context = { showBanner: false };
+
+		handleConsentByRegion( 'FR', '', { ...baseConfig, gdprHonorsGpc: false }, context );
+
+		expect( context.showBanner ).toBe( true );
+		expect( wasDenied( 'statistics' ) ).toBe( false );
+	} );
+
+	it( 'honors GPC by default when the config flag is omitted', () => {
+		setGpc( true );
+		const context = { showBanner: false };
+
+		handleConsentByRegion(
+			'FR',
+			'',
+			{ gdprCountries: [ 'FR' ], ccpaRegions: [ 'california' ] },
+			context
+		);
+
+		expect( context.showBanner ).toBe( false );
+		expect( wasDenied( 'statistics' ) ).toBe( true );
 	} );
 } );

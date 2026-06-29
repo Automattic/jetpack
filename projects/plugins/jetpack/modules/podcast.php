@@ -20,5 +20,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // The package self-gates on the `jetpack_podcast_for_the_world` filter for
 // self-hosted sites, and the module itself is only listed when that filter is
-// true (see Jetpack::filter_available_modules_podcast()).
+// true (see Jetpack::filter_available_modules_podcast()). Jetpack::late_initialization()
+// also calls this on every request (idempotent) so it loads while disconnected.
 Podcast::init();
