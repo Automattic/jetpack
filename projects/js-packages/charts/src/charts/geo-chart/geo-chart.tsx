@@ -19,6 +19,9 @@ import { GeoChartProps } from './types';
 
 const DEFAULT_FEATURE_FILL_COLOR = '#ffffff';
 const DEFAULT_BACKGROUND_COLOR = '#ffffff';
+// `chartPackages` replaces (not extends) react-google-charts' default `[ 'corechart', 'controls' ]`,
+// so we restate the defaults and add `geochart`. Without it the loader backfills the geochart package
+// late, which can clash with another Google Charts version already loaded on the page.
 const GEO_CHART_PACKAGES: GoogleChartPackages[] = [ 'corechart', 'controls', 'geochart' ];
 
 type GoogleChartOptions = Record< string, unknown >;
