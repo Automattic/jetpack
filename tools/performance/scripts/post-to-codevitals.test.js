@@ -24,6 +24,7 @@ import {
 	isDirectInvocation,
 	postToCodeVitals,
 	redactToken,
+	resolvePostTimestamp,
 	VALIDATION_FAILED_EXIT_CODE,
 } from './post-to-codevitals.js';
 import { shouldFailBuildOnPostError } from './run-performance-tests.js';
@@ -832,4 +833,190 @@ test( 'shouldFailBuildOnPostError: a transport failure is suppressible only with
 	assert.equal( shouldFailBuildOnPostError( { status: 1 }, false ), true ); // fatal by default
 	assert.equal( shouldFailBuildOnPostError( undefined, true ), false ); // unknown exit, flag set
 	assert.equal( shouldFailBuildOnPostError( undefined, false ), true );
+} );
+
+// --- resolvePostTimestamp (stamp commit time, not build time) ---
+
+test( 'resolvePostTimestamp prefers the results commit time over env and build time', () => {
+	const ts = resolvePostTimestamp(
+		{ git: { timestamp: 1700000000000 } },
+		{ commitTimestampMs: '1600000000000' }
+	);
+	assert.equal( ts, 1700000000000 );
+} );
+
+test( 'resolvePostTimestamp falls back to the env commit time (numeric string ok)', () => {
+	const ts = resolvePostTimestamp( { git: {} }, { commitTimestampMs: '1600000000000' } );
+	assert.equal( ts, 1600000000000 );
+} );
+
+test( 'resolvePostTimestamp rejects non-positive / non-numeric values and uses build time', async () => {
+	const before = Date.now();
+	// git.timestamp 0 and a non-numeric env value are both invalid → build-time fallback.
+	const ts = await silenced( () =>
+		resolvePostTimestamp( { git: { timestamp: 0 } }, { commitTimestampMs: 'not-a-number' } )
+	);
+	assert.ok( ts >= before && ts <= Date.now() + 1000, 'falls back to the current time' );
+	// A negative epoch must never be posted, even if present.
+	const fromNegative = await silenced( () =>
+		resolvePostTimestamp( { git: { timestamp: -5 } }, {} )
+	);
+	assert.ok( fromNegative > 0, 'a negative timestamp is rejected in favour of build time' );
+} );
+
+test( 'a dry-run payload is stamped with the commit time from the results file', async () => {
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-ts-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk', timestamp: 1700000000000 },
+			measurements: { jetpackConnected: { summary: { median: 120 } } },
+		} )
+	);
+	try {
+		const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+		assert.equal( result.payload.timestamp, 1700000000000 );
+	} finally {
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+// --- cross-commit dedup (gitaudit evolution read; fetch stubbed, no network) ---
+
+const DEDUP_CONFIG = {
+	dryRun: false,
+	codeVitalsUrl: 'https://codevitals.test',
+	codeVitalsToken: 'tok-dedup',
+	dedupBaseUrl: 'https://gitaudit.test',
+	dedupRepo: 'Automattic/jetpack',
+	dedupMetricId: '58',
+};
+
+/**
+ * A fetch stub that answers the dedup evolution GET ({ data: [...] }) and records
+ * whether the live POST was reached. Branches on the URL: the evolution read
+ * contains `/perf/evolution/`, the post contains `/api/log`.
+ */
+function dedupFetchStub( {
+	evolutionHashes = [],
+	evolutionStatus = 200,
+	throwOnEvolution = false,
+} ) {
+	const calls = { evolution: 0, post: 0 };
+	const fetchImpl = async u => {
+		if ( String( u ).includes( '/perf/evolution/' ) ) {
+			calls.evolution++;
+			if ( throwOnEvolution ) {
+				throw new Error( 'network down' );
+			}
+			return {
+				ok: evolutionStatus >= 200 && evolutionStatus < 300,
+				status: evolutionStatus,
+				json: async () => ( {
+					data: evolutionHashes.map( h => ( { hash: h, measuredAt: '2026-01-01' } ) ),
+				} ),
+				text: async () => '',
+			};
+		}
+		calls.post++;
+		return { ok: true, status: 200, json: async () => ( { ok: true } ), text: async () => '' };
+	};
+	return { fetchImpl, calls };
+}
+
+test( 'dedup skips the post when the commit hash already has metrics', async () => {
+	const file = writeResults( 120 ); // git.hash = 'testhash'
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'testhash' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, false );
+		assert.equal( result.skipped, true );
+		assert.equal( calls.evolution, 1 );
+		assert.equal( calls.post, 0, 'must not POST when the hash is already present' );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup proceeds with the post when the hash is not yet present', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'someoneelse' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup fails open (still posts) when the read endpoint throws', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { throwOnEvolution: true } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true, 'a flaky dedup read must never block a post' );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup fails open on a non-OK read status', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionStatus: 500 } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup makes no read call when skipDedup is set', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'testhash' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () =>
+			postToCodeVitals( file, { ...DEDUP_CONFIG, skipDedup: true } )
+		);
+		assert.equal( calls.evolution, 0, 'no dedup read when skipDedup is set' );
+		assert.equal( result.posted, true );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup is skipped (no read) when dedupBaseUrl is unset, as in the other live-post tests', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'testhash' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		// No dedupBaseUrl → dedup is inert, so existing live-post tests keep making a
+		// single POST call and never hit the evolution endpoint.
+		const result = await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok-no-dedup-config',
+			} )
+		);
+		assert.equal( calls.evolution, 0 );
+		assert.equal( result.posted, true );
+	} finally {
+		global.fetch = origFetch;
+	}
 } );

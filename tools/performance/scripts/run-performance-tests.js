@@ -196,10 +196,31 @@ function getGitInfo() {
 	// Prefer upstream (monorepo) hash for CodeVitals tracking, fall back to mirror hash
 	const hash = process.env.GIT_COMMIT || upstreamHash || mirrorHash;
 
+	// Commit time of the checked-out plugin HEAD (the code under test), in epoch ms.
+	// CodeVitals orders its trend by the posted timestamp and the Scheduler reads the
+	// latest point to decide "last tested", so we stamp commit time, not build time.
+	// The mirror's commit date tracks when the monorepo commit landed, which is the
+	// value we want; if git metadata is unavailable the poster falls back to build
+	// time with a warning.
+	let committedAtMs = null;
+	try {
+		const committerEpoch = execFile(
+			'git',
+			[ 'show', '-s', '--format=%ct', 'HEAD' ],
+			gitOpts
+		)?.trim();
+		const seconds = Number( committerEpoch );
+		if ( Number.isFinite( seconds ) && seconds > 0 ) {
+			committedAtMs = seconds * 1000;
+		}
+	} catch {
+		// No git metadata (e.g. plugin extracted from a zip); leave null.
+	}
+
 	// Always use 'trunk' as the branch - we're tracking performance on the main branch
 	const branch = 'trunk';
 
-	return { hash, mirrorHash, branch };
+	return { hash, mirrorHash, branch, committedAtMs };
 }
 
 /** Ensure the Jetpack plugin is available (clone from jetpack-production if needed). */
@@ -442,6 +463,12 @@ async function main() {
 	// Set environment variables for the measurement script
 	process.env.GIT_COMMIT = gitInfo.hash;
 	process.env.GIT_BRANCH = gitInfo.branch;
+	// Carry the commit time to measure-lcp.js (writes it into results.git.timestamp)
+	// and to the post-to-codevitals.js child, so the posted point is ordered by when
+	// the code landed, not when this build ran.
+	if ( gitInfo.committedAtMs ) {
+		process.env.GIT_COMMIT_TIMESTAMP_MS = String( gitInfo.committedAtMs );
+	}
 	process.env.ITERATIONS = options.iterations.toString();
 	process.env.OUTPUT_PATH = path.join( __dirname, '../results/lcp-results.json' );
 

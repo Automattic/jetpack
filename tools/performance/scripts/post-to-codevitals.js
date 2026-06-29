@@ -202,6 +202,102 @@ function sanitizeErrorChain( error, token ) {
 	}
 }
 
+/**
+ * Resolve the timestamp to stamp on the CodeVitals point: the time the code under
+ * test was COMMITTED, not when this build happened to run.
+ *
+ * CodeVitals orders a trend by this value, and the Scheduler reads the most recent
+ * point by it to decide "last tested commit". A build-time stamp (Date.now()) would
+ * order a backfilled or re-run commit by when CI ran rather than when the code
+ * landed, scrambling both the trend graph and the scheduler's catch-up logic.
+ * Prefer the commit time carried in the results file, then the runner-provided env
+ * value, and only fall back to Date.now() (with a warning) when neither is a sane
+ * positive epoch-ms number.
+ *
+ * @param {object} results - Parsed results file (may carry git.timestamp in ms).
+ * @param {object} config  - Poster config (may carry commitTimestampMs from env).
+ * @return {number} Epoch milliseconds to post.
+ */
+function resolvePostTimestamp( results, config ) {
+	// A numeric string (env vars are always strings) is fine; a non-numeric one
+	// coerces to NaN and is rejected below.
+	for ( const candidate of [ results?.git?.timestamp, config?.commitTimestampMs ] ) {
+		const ms = Number( candidate );
+		// A real commit time is a positive, finite epoch-ms. Reject 0, NaN, negatives,
+		// and empty strings so a malformed field can't poison the trend ordering.
+		if ( Number.isFinite( ms ) && ms > 0 ) {
+			return ms;
+		}
+	}
+	console.warn(
+		'⚠ No commit timestamp available (results.git.timestamp / GIT_COMMIT_TIMESTAMP_MS); ' +
+			'falling back to the current time, which orders this point by build time, not commit time.'
+	);
+	return Date.now();
+}
+
+/**
+ * Whether a commit hash already has a data point in CodeVitals, so a re-run or
+ * retry doesn't append a duplicate to the append-only trend.
+ *
+ * Reads the same gitaudit repo-scoped evolution endpoint the Scheduler uses to
+ * compute "last tested commit", so dedup and scheduling agree on what counts as
+ * already tested. Needs no token (the read endpoint is unauthenticated, like the
+ * Scheduler's curl).
+ *
+ * Fails OPEN: any read error, timeout, non-OK status, or unexpected body shape
+ * returns false (the post proceeds). Missing a real data point is worse than a rare
+ * duplicate, and a flaky read must never block a legitimate post.
+ *
+ * NOTE (GATE-1): this reads gitaudit (metric `config.dedupMetricId`) while the POST
+ * targets `config.codeVitalsUrl` (codevitals.run today). Until the read and write
+ * backends are reconciled — the FORMS-705 host/metric work — a hash written to
+ * codevitals.run may not appear here, so dedup is effectively a no-op until then.
+ * That is safe: it can only fail to skip (a possible duplicate), never wrongly skip
+ * a commit that was not actually posted.
+ *
+ * @param {string} hash   - Monorepo commit hash about to be posted.
+ * @param {string} branch - Branch to scope the evolution query to.
+ * @param {object} config - Poster config (dedupBaseUrl, dedupRepo, dedupMetricId).
+ * @return {Promise<boolean>} True only on a confirmed existing point for this hash.
+ */
+async function hashAlreadyPosted( hash, branch, config ) {
+	if ( ! hash || hash === 'unknown' ) {
+		return false; // can't dedup an unknown hash — let it post
+	}
+	const url =
+		`${ config.dedupBaseUrl }/api/repos/${ config.dedupRepo }` +
+		`/perf/evolution/${ config.dedupMetricId }` +
+		`?branch=${ encodeURIComponent( branch ) }&limit=200`;
+
+	const TIMEOUT_MS = 15000;
+	const controller = new AbortController();
+	const timeoutId = setTimeout( () => controller.abort(), TIMEOUT_MS );
+	try {
+		const response = await fetch( url, {
+			headers: { Accept: 'application/json' },
+			signal: controller.signal,
+		} );
+		clearTimeout( timeoutId );
+		if ( ! response.ok ) {
+			console.warn(
+				`⚠ Dedup check skipped: evolution endpoint returned HTTP ${ response.status }. Proceeding with post.`
+			);
+			return false;
+		}
+		const body = await response.json();
+		// The gitaudit API returns { data: [ { hash, measuredAt, ... }, ... ] }.
+		const points = Array.isArray( body?.data ) ? body.data : [];
+		return points.some( point => point?.hash === hash );
+	} catch ( error ) {
+		clearTimeout( timeoutId );
+		const reason =
+			error?.name === 'AbortError' ? `timed out after ${ TIMEOUT_MS / 1000 }s` : error.message;
+		console.warn( `⚠ Dedup check skipped (${ reason }). Proceeding with post.` );
+		return false;
+	}
+}
+
 /** Post metrics to CodeVitals. */
 async function postToCodeVitals( resultsPath, config ) {
 	// Everything from here until the live POST is local data-integrity work: a missing
@@ -281,7 +377,8 @@ async function postToCodeVitals( resultsPath, config ) {
 		metrics,
 		baseMetrics: {}, // Empty object - we don't use baseline normalization
 		hash: results.git?.hash || config.gitHash || 'unknown',
-		timestamp: Date.now(),
+		// Commit time of the code under test, not build time — see resolvePostTimestamp.
+		timestamp: resolvePostTimestamp( results, config ),
 		branch: results.git?.branch || config.gitBranch || 'trunk',
 	};
 
@@ -290,6 +387,21 @@ async function postToCodeVitals( resultsPath, config ) {
 		console.log( '— DRY RUN — building payload only, not posting to CodeVitals —' );
 		console.log( JSON.stringify( payload, null, 2 ) );
 		return { posted: false, validationFailed, payload };
+	}
+
+	// Cross-commit dedup (live posts only — kept after the dry-run return so the
+	// token-free CI smoke test still makes zero network calls). CodeVitals is
+	// append-only, so re-testing a commit (a manual re-run, a TeamCity retryBuild,
+	// or the Scheduler double-triggering) would append a second point for the same
+	// hash. Skip the post if this hash already has metrics. Disable with --no-dedup
+	// / CODEVITALS_SKIP_DEDUP, or by leaving dedupBaseUrl unset (the unit tests do).
+	if ( ! config.skipDedup && config.dedupBaseUrl ) {
+		if ( await hashAlreadyPosted( payload.hash, payload.branch, config ) ) {
+			console.log(
+				`✓ Commit ${ payload.hash } already has metrics in CodeVitals (metric ${ config.dedupMetricId }); skipping post.`
+			);
+			return { posted: false, skipped: true, validationFailed, payload };
+		}
 	}
 
 	console.log( 'Posting metrics to CodeVitals...' );
@@ -374,6 +486,11 @@ async function main() {
 	console.log( '=====================\n' );
 
 	const dryRun = process.argv.includes( '--dry-run' );
+	// Opt out of the cross-commit dedup read (e.g. to force a re-post, or if the read
+	// backend is down). Either the flag or a truthy CODEVITALS_SKIP_DEDUP disables it.
+	const skipDedup =
+		process.argv.includes( '--no-dedup' ) ||
+		[ '1', 'true', 'yes' ].includes( ( process.env.CODEVITALS_SKIP_DEDUP || '' ).toLowerCase() );
 
 	// Configuration from environment
 	const config = {
@@ -383,9 +500,19 @@ async function main() {
 		codeVitalsToken: process.env.CODEVITALS_TOKEN,
 		gitHash: process.env.GIT_COMMIT,
 		gitBranch: process.env.GIT_BRANCH || 'trunk',
+		// Commit time of the code under test, in epoch ms, supplied by the runner. The
+		// poster prefers results.git.timestamp and only uses this as a fallback.
+		commitTimestampMs: process.env.GIT_COMMIT_TIMESTAMP_MS,
 		resultsPath:
 			process.env.RESULTS_PATH || path.join( import.meta.dirname, '../results/lcp-results.json' ),
 		dryRun,
+		skipDedup,
+		// Read backend for the dedup check — the same gitaudit endpoint, repo, and
+		// metric the Scheduler reads, so "already tested" means the same thing to both.
+		dedupBaseUrl:
+			process.env.CODEVITALS_DEDUP_URL || 'https://gitaudit-server-production.up.railway.app',
+		dedupRepo: process.env.CODEVITALS_REPO || 'Automattic/jetpack',
+		dedupMetricId: process.env.CODEVITALS_DEDUP_METRIC_ID || '58',
 	};
 
 	// A live post needs a token; a dry run does not, so CI can smoke-test it.
@@ -400,6 +527,13 @@ async function main() {
 	console.log( `  Results Path: ${ config.resultsPath }` );
 	console.log( `  Git Hash: ${ config.gitHash || 'unknown' }` );
 	console.log( `  Git Branch: ${ config.gitBranch }` );
+	console.log(
+		`  Dedup: ${
+			dryRun || config.skipDedup
+				? 'off'
+				: `on (metric ${ config.dedupMetricId } @ ${ config.dedupBaseUrl })`
+		}`
+	);
 	console.log( '' );
 
 	try {
@@ -460,6 +594,8 @@ export {
 	exitCodeForError,
 	isDirectInvocation,
 	redactToken,
+	resolvePostTimestamp,
+	hashAlreadyPosted,
 	ValidationError,
 	VALIDATION_FAILED_EXIT_CODE,
 };

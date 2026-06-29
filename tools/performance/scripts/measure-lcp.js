@@ -385,6 +385,10 @@ async function main() {
 		git: {
 			hash: process.env.GIT_COMMIT || 'unknown',
 			branch: process.env.GIT_BRANCH || 'unknown',
+			// Commit time of the code under test (epoch ms), for CodeVitals trend
+			// ordering. Omitted when the runner couldn't determine it (JSON.stringify
+			// drops undefined); the poster then warns and falls back to build time.
+			timestamp: Number( process.env.GIT_COMMIT_TIMESTAMP_MS ) || undefined,
 		},
 	};
 
