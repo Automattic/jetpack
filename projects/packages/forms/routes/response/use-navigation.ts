@@ -1,13 +1,15 @@
 /**
  * WordPress dependencies
  */
+import { useEntityRecords } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { useNavigate } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import { getItemId } from '../../src/dashboard/inbox/utils.js';
+import { store as dashboardStore } from '../../src/dashboard/store/index.js';
 /**
  * Types
  */
@@ -23,16 +25,28 @@ export type ResponsePageNavigation = {
 /**
  * Prev/next navigation for the standalone single response page.
  *
- * Reuses the inbox data loader so the ordering (and any active filters/search
- * carried in the dashboard store) matches the responses list. Navigation stays
- * within the currently loaded page of records, mirroring the inbox inspector.
+ * Reads the same ordered feedback list the inbox uses (via the dashboard store's
+ * current query, so filters/search/ordering carry over), but only needs the
+ * record IDs for ordering. It deliberately avoids `useInboxData`'s
+ * `getEditedEntityRecord` mapping: that resolves each record's *canonical*
+ * (query-less) entity, which refetches feedback without `fields_format=collection`
+ * and overwrites the shared record — stripping the open response from the rich
+ * field rendering to the plain one. Navigation stays within the currently loaded
+ * page of records, mirroring the inbox inspector.
  *
  * @param currentId - The ID of the response currently being viewed.
  * @return Navigation state and handlers.
  */
 export default function useResponsePageNavigation( currentId: number ): ResponsePageNavigation {
 	const navigate = useNavigate();
-	const { records } = useInboxData();
+	const currentQuery = useSelect(
+		select =>
+			(
+				select( dashboardStore ) as { getCurrentQuery: () => Record< string, unknown > }
+			 ).getCurrentQuery(),
+		[]
+	);
+	const { records } = useEntityRecords< FormResponse >( 'postType', 'feedback', currentQuery );
 
 	const currentIndex = useMemo(
 		() =>

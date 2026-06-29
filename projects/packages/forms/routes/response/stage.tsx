@@ -24,7 +24,6 @@ import ResponseFieldsIterator from '../../src/dashboard/components/inspector/res
 import ResponseMeta from '../../src/dashboard/components/inspector/response-meta';
 import ResponseNavigation from '../../src/dashboard/components/inspector/response-navigation/index.tsx';
 import { getDisplayName } from '../../src/dashboard/components/inspector/utils.ts';
-import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
 import SingleResponseActions from './page-actions.tsx';
@@ -45,16 +44,12 @@ type PreviewFileItem = FileItem | { url: string; name: string };
 /**
  * Standalone single response page (wp-build route).
  *
- * Renders one feedback response (meta + fields + response ID) as a full page at
+ * Renders one feedback response (meta + fields) as a full page at
  * `/response/$responseId`. Not linked from anywhere yet.
- *
- * Rendered inside `WpRouteDashboardSearchParamsProvider` (see `Stage` below) so
- * that `useResponsePageNavigation` -> `useInboxData` can read the dashboard
- * search params for prev/next navigation.
  *
  * @return The single response page.
  */
-function SingleResponse(): React.JSX.Element {
+function Stage(): React.JSX.Element {
 	const params = useParams( { from: '/response/$responseId' } );
 	const id = Number( params.responseId );
 	const isValidId = Number.isFinite( id ) && id > 0;
@@ -71,12 +66,20 @@ function SingleResponse(): React.JSX.Element {
 			}
 
 			const core = select( coreStore );
+			// Read the collection-format record directly and overlay any pending
+			// edits (e.g. the optimistic "mark as read"). We avoid
+			// `getEditedEntityRecord`, which resolves the canonical (query-less)
+			// record and refetches feedback without `fields_format=collection`,
+			// overwriting the shared record and stripping the rich field rendering.
 			const rawRecord = core.getEntityRecord( 'postType', 'feedback', id, RESPONSE_QUERY );
+			const edits = (
+				core as unknown as {
+					getEntityRecordEdits: ( k: string, n: string, i: number ) => object | undefined;
+				}
+			 ).getEntityRecordEdits( 'postType', 'feedback', id );
 
 			return {
-				response: rawRecord
-					? ( core.getEditedEntityRecord( 'postType', 'feedback', id ) as unknown as FormResponse )
-					: null,
+				response: rawRecord ? ( { ...rawRecord, ...edits } as unknown as FormResponse ) : null,
 				isLoading: ( core as unknown as SelectActions ).isResolving( 'getEntityRecord', [
 					'postType',
 					'feedback',
@@ -252,23 +255,6 @@ function SingleResponse(): React.JSX.Element {
 				</Modal>
 			) }
 		</FormsPage>
-	);
-}
-
-/**
- * Standalone single response route entry.
- *
- * Wraps the page in `WpRouteDashboardSearchParamsProvider` (bound to this route)
- * so shared dashboard hooks that read the URL search params — used here for
- * prev/next navigation — work the same way they do on the responses list.
- *
- * @return The single response page.
- */
-function Stage(): React.JSX.Element {
-	return (
-		<WpRouteDashboardSearchParamsProvider from="/response/$responseId">
-			<SingleResponse />
-		</WpRouteDashboardSearchParamsProvider>
 	);
 }
 
