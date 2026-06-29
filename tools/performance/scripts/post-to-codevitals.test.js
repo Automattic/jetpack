@@ -223,6 +223,87 @@ test( 'a non-finite metric is rejected through the posting path', async () => {
 	assert.equal( result.validationFailed, true );
 } );
 
+test( 'a mixed valid/invalid run keeps the valid metric and excludes the rejected key from the payload', async () => {
+	// The core contract, pinned on payload contents (not just the validationFailed flag):
+	// an out-of-range metric is never in what would be posted, while a valid metric in the
+	// same run still is. Reachable only with a 2nd posted metric (FORMS-707 territory).
+	const extra = {
+		key: 'extraMetric',
+		name: 'Extra Metric',
+		postToCodeVitals: true,
+		metricKey: 'extra-metric-key',
+		metricType: 'extratype',
+	};
+	SANITY_RANGES.extratype = { min: 0, max: 1000 };
+	SCENARIOS.push( extra );
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-mixed-dry-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: {
+				jetpackConnected: { summary: { median: 120 } }, // valid LCP → stays in payload
+				extraMetric: { summary: { median: 99999 } }, // outside [0,1000] → rejected, excluded
+			},
+		} )
+	);
+	let result;
+	try {
+		result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	} finally {
+		SCENARIOS.pop();
+		delete SANITY_RANGES.extratype;
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+	assert.equal( result.validationFailed, true );
+	assert.equal( result.payload.metrics[ LCP_KEY ], 120 ); // the valid metric is kept
+	assert.ok(
+		! Object.prototype.hasOwnProperty.call( result.payload.metrics, 'extra-metric-key' ),
+		'the rejected metric key must not appear in the payload'
+	);
+} );
+
+test( 'two scenarios posting the same CodeVitals key fail closed as a validation error', async () => {
+	// CodeVitals appends to a per-key trend, so two scenarios writing the same key would
+	// silently clobber one with the other and post a coin-flip survivor. That must fail
+	// closed (exit 2), not slip through with validationFailed:false. Reachable once a 2nd
+	// posted scenario exists (FORMS-707); guarded now so the foundation can't be misused.
+	const dup = {
+		key: 'dupMetric',
+		name: 'Dup Metric',
+		postToCodeVitals: true,
+		metricKey: LCP_KEY, // collides with the real lcp scenario's key
+		metricType: 'lcp',
+	};
+	SCENARIOS.push( dup );
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-dup-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: {
+				jetpackConnected: { summary: { median: 120 } },
+				dupMetric: { summary: { median: 130 } },
+			},
+		} )
+	);
+	let err;
+	try {
+		await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	} catch ( e ) {
+		err = e;
+	} finally {
+		SCENARIOS.pop();
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+	assert.ok( err, 'a duplicate key should reject' );
+	assert.equal( err.name, 'ValidationError' );
+	assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+	assert.match( err.message, /[Dd]uplicate/ );
+} );
+
 test( 'a missing results file is a validation failure (exit 2), not a suppressible exit 1', async () => {
 	await assert.rejects(
 		() => silenced( () => postToCodeVitals( '/no/such/results.json', { dryRun: true } ) ),
@@ -233,6 +314,25 @@ test( 'a missing results file is a validation failure (exit 2), not a suppressib
 			return true;
 		}
 	);
+} );
+
+test( 'a results file that is not valid JSON fails closed as a validation error (exit 2)', async () => {
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-badjson-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync( file, '{ this is not valid json,,,' );
+	try {
+		await assert.rejects(
+			() => silenced( () => postToCodeVitals( file, { dryRun: true } ) ),
+			err => {
+				assert.match( err.message, /not valid JSON/ );
+				assert.equal( err.name, 'ValidationError' ); // not a raw SyntaxError
+				assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+				return true;
+			}
+		);
+	} finally {
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
 } );
 
 test( 'a results file with no measurements object fails closed as a validation error', async () => {
@@ -343,6 +443,37 @@ test( 'an OK response with an unparseable body is a transport failure (exit 1) a
 	);
 } );
 
+test( 'a non-http(s) CODEVITALS_URL fails closed as a validation error (exit 2), never reaching fetch', async () => {
+	const file = writeResults( 120 );
+	const origFetch = global.fetch;
+	// A file:/ftp:/etc. base parses fine but must never reach fetch: a wrong scheme is a
+	// local CODEVITALS_URL misconfiguration, so it has to exit 2 (unsuppressible), not the
+	// generic exit 1 a fetch rejection would produce (which --allow-codevitals-failure hides).
+	global.fetch = async () => {
+		throw new Error( 'fetch must not be called for a non-http(s) URL' );
+	};
+	try {
+		await assert.rejects(
+			() =>
+				silenced( () =>
+					postToCodeVitals( file, {
+						dryRun: false,
+						codeVitalsUrl: 'file:///tmp/codevitals',
+						codeVitalsToken: 'tok-file',
+					} )
+				),
+			err => {
+				assert.equal( err.name, 'ValidationError' );
+				assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+				assert.match( err.message, /http\(s\)/ );
+				return true;
+			}
+		);
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
 test( 'a non-OK CodeVitals response throws without leaking the token, even from the body', async () => {
 	const file = writeResults( 120 );
 	const origFetch = global.fetch;
@@ -389,7 +520,7 @@ test( 'a malformed CODEVITALS_URL leaks the token into neither the error nor the
 	console.log = () => {};
 	console.warn = () => {};
 	console.error = ( ...a ) => captured.push( a.join( ' ' ) );
-	let thrown = '';
+	let thrownErr;
 	try {
 		await postToCodeVitals( file, {
 			dryRun: false,
@@ -397,15 +528,22 @@ test( 'a malformed CODEVITALS_URL leaks the token into neither the error nor the
 			codeVitalsToken: 'tok-must-not-leak',
 		} );
 	} catch ( e ) {
-		thrown = e.message;
+		thrownErr = e;
 	} finally {
 		Object.assign( console, orig );
 	}
-	assert.ok( ! thrown.includes( 'tok-must-not-leak' ), 'token must not be in the thrown message' );
+	assert.ok(
+		! thrownErr.message.includes( 'tok-must-not-leak' ),
+		'token must not be in the thrown message'
+	);
 	assert.ok(
 		! captured.join( '\n' ).includes( 'tok-must-not-leak' ),
 		'token must not be in console output'
 	);
+	// A malformed base is local config, not a network outage: it must use the always-fatal
+	// data-integrity code so --allow-codevitals-failure can never suppress it.
+	assert.equal( thrownErr.name, 'ValidationError' );
+	assert.equal( exitCodeForError( thrownErr ), VALIDATION_FAILED_EXIT_CODE );
 } );
 
 test( 'a token-bearing upstream error is redacted in the message, the cause, and util.inspect', async () => {

@@ -251,6 +251,16 @@ async function postToCodeVitals( resultsPath, config ) {
 				validationFailed = true;
 				continue;
 			}
+			// CodeVitals keys a trend by metric name and appends, so two scenarios writing
+			// the same key would silently clobber one with the other and post the survivor
+			// (validationFailed:false) as if it were the intended series. A duplicate key is
+			// a scenario-config bug, not bad runtime data, so fail closed (exit 2) before
+			// anything posts rather than coin-flip which value lands in the trend.
+			if ( Object.prototype.hasOwnProperty.call( metrics, entry.key ) ) {
+				throw new ValidationError(
+					`Duplicate CodeVitals metric key "${ entry.key }"; two scenarios must not post the same key`
+				);
+			}
 			metrics[ entry.key ] = entry.value;
 		}
 	}
@@ -293,6 +303,16 @@ async function postToCodeVitals( resultsPath, config ) {
 		url = new URL( '/api/log', config.codeVitalsUrl );
 	} catch {
 		throw new ValidationError( 'Invalid CodeVitals URL; check the CODEVITALS_URL setting' );
+	}
+	// Only http(s) can carry the POST. A file:/ftp:/etc. base parses cleanly but would
+	// fail (or worse, mis-target) at fetch as a generic exit-1 transport error that
+	// --allow-codevitals-failure could suppress. A wrong scheme is a local CODEVITALS_URL
+	// misconfiguration, not a network outage, so fail closed (exit 2) before the token is
+	// attached or fetch runs. Only the protocol is named, never the token-free URL.
+	if ( url.protocol !== 'http:' && url.protocol !== 'https:' ) {
+		throw new ValidationError(
+			`CodeVitals URL must use http(s); got "${ url.protocol }". Check the CODEVITALS_URL setting`
+		);
 	}
 	url.searchParams.set( 'token', config.codeVitalsToken );
 
