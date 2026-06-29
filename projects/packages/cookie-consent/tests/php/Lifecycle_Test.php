@@ -94,7 +94,7 @@ class Lifecycle_Test extends TestCase {
 
 		$this->assertGreaterThan( 0, $page_id );
 		$this->assertNotNull( get_post( $page_id ) );
-		$this->assertSame( 1, get_post_meta( $page_id, self::CCPA_PAGE_CREATED_META, true ) );
+		$this->assertSame( '1', get_post_meta( $page_id, self::CCPA_PAGE_CREATED_META, true ) );
 
 		Cookie_Consent::uninstall();
 
