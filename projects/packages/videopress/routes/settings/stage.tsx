@@ -1,6 +1,6 @@
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Card } from '@wordpress/ui';
+import { Card, Stack } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import { useSettings, useUpdateSettings } from '../../src/dashboard/hooks/use-settings';
@@ -14,26 +14,23 @@ const SettingsForm = () => {
 	const disabled = settings.isLoading || update.isPending;
 
 	return (
-		<>
-			<Card.Root>
-				<Card.Header>
-					<Card.Title>{ __( 'Restrict video access', 'jetpack-videopress-pkg' ) }</Card.Title>
-				</Card.Header>
-				<Card.Content>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Video settings', 'jetpack-videopress-pkg' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
+				<Stack direction="column" gap="lg">
 					<ToggleControl
 						__nextHasNoMarginBottom
 						label={ __( 'Only logged-in users can play your videos', 'jetpack-videopress-pkg' ) }
+						help={ __(
+							"Private videos won't play for signed-out visitors.",
+							'jetpack-videopress-pkg'
+						) }
 						checked={ privateForSite }
 						disabled={ disabled }
 						onChange={ next => update.mutate( { videoPressVideosPrivateForSite: next } ) }
 					/>
-				</Card.Content>
-			</Card.Root>
-			<Card.Root>
-				<Card.Header>
-					<Card.Title>{ __( 'Subtitles', 'jetpack-videopress-pkg' ) }</Card.Title>
-				</Card.Header>
-				<Card.Content>
 					<ToggleControl
 						__nextHasNoMarginBottom
 						label={ __(
@@ -48,9 +45,9 @@ const SettingsForm = () => {
 						disabled={ disabled }
 						onChange={ next => update.mutate( { videoPressAutoSubtitlesDisabled: ! next } ) }
 					/>
-				</Card.Content>
-			</Card.Root>
-		</>
+				</Stack>
+			</Card.Content>
+		</Card.Root>
 	);
 };
 
