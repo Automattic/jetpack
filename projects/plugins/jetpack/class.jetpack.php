@@ -7,7 +7,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log as Activity_Log_Init;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
@@ -886,7 +885,6 @@ class Jetpack {
 	public function late_initialization() {
 		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), -2 );
 		My_Jetpack_Initializer::init();
-		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
 		\Automattic\Jetpack\Podcast\Podcast::init();
