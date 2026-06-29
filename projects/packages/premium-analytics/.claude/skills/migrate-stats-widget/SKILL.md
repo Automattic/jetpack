@@ -294,27 +294,6 @@ reviewers once it's clean. Point the reviewer at `AGENTS.md`, `.agents/rules/wid
 - Keep diffs minimal and uniform: a clean widget port adds only `widgets/<slug>/**` (plus the
   one-time Storybook-root registration and a changelog entry). Anything beyond that is a smell.
 
-## Lessons from dogfooding (real ports)
-
-From porting a widget end-to-end (WOOA7S-1515, Subscribers list):
-
-- **The live dashboard (step 9) is the only check that catches integration bugs.** A wrong hook
-  destructure (`primary.data` on a hook that returns `{ data }`) and a duplicate heading both passed
-  lint, types, build, AND Storybook — they only surfaced when the registered widget mounted in the
-  real dashboard. Never skip step 9.
-- **Keep a prop-driven presentational component** (like `top-posts`' `TopPostsLeaderboard`) that
-  Storybook exercises with mock rows; the data hook lives only in the inner data component. That
-  split is exactly why Storybook can't catch a hook-shape bug — lean on step 9 for it.
-- **Attribute console errors before treating them as blockers.** Other widgets on the dashboard are
-  noise: WC-analytics `proxy/v2/analytics/reports/*` 500s show up when the store backend isn't wired
-  in the env. Confirm by checking *your* widget's own request (its `proxy/v1.1/stats/<name>` call
-  should be `200`) before assuming the error is yours.
-- **Map the data hook's already-normalized fields directly** — the sanitizer already parses avatars,
-  links, labels, dates (`item.icon`, `item.link`, `item.label`, `item.date_subscribed`). Don't
-  re-parse.
-- **Cross-model review pays for itself.** A Codex review of the Claude-authored diff caught the
-  branch-base mistake (another branch's commits riding along in the PR) that build/lint never would.
-
 ## Special attention / common failure modes
 
 - Putting the **registered** widget folder (`package.json` + `widget.json` + `widget.ts` +
