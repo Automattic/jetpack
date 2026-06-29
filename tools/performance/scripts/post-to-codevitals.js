@@ -253,10 +253,13 @@ function resolvePostTimestamp( results, config ) {
  * targets `config.codeVitalsUrl` (codevitals.run today). Until the read and write
  * backends are reconciled — the FORMS-705 host/metric work — a hash written to
  * codevitals.run may not appear here, so dedup is effectively a no-op until then.
- * That is safe: it can only fail to skip (a possible duplicate), never wrongly skip
- * a commit that was not actually posted. Because that safety rests on an unverified
- * cross-backend coupling, `main()` keeps dedup OPT-IN (off by default) until GATE-1
- * is mechanically resolved — see CODEVITALS_ENABLE_DEDUP.
+ * That "can only fail to skip, never wrongly skip" guarantee holds ONLY while dedup is
+ * off (the default): with no read, no skip can happen. If an operator enables it before
+ * GATE-1, metric 58 is a different, *populated* trunk series (not the codevitals.run
+ * write target), so a coincidental hash match there could WRONGLY skip a real post on
+ * the append-only, no-rollback store. So `main()` keeps dedup OPT-IN (off by default)
+ * until GATE-1 mechanically proves the read series IS the write series — see
+ * CODEVITALS_ENABLE_DEDUP. Do not enable it before then.
  *
  * @param {string} hash   - Monorepo commit hash about to be posted.
  * @param {string} branch - Branch to scope the evolution query to.
@@ -268,7 +271,7 @@ async function hashAlreadyPosted( hash, branch, config ) {
 		return false; // can't dedup an unknown hash — let it post
 	}
 
-	const TIMEOUT_MS = 15000;
+	const TIMEOUT_MS = config.dedupTimeoutMs ?? 15000;
 	const controller = new AbortController();
 	const timeoutId = setTimeout( () => controller.abort(), TIMEOUT_MS );
 	try {
@@ -299,8 +302,16 @@ async function hashAlreadyPosted( hash, branch, config ) {
 		const body = await response.json();
 		clearTimeout( timeoutId );
 		// The gitaudit API returns { data: [ { hash, measuredAt, ... }, ... ] }.
-		const points = Array.isArray( body?.data ) ? body.data : [];
-		return points.some( point => point?.hash === hash );
+		if ( ! Array.isArray( body?.data ) ) {
+			// Fail open (post proceeds), but warn — every other degraded dedup path warns,
+			// and a silent {data: undefined} would make API/schema drift look like a valid
+			// empty series ("dedup never skips") with no signal at go-live.
+			console.warn(
+				'⚠ Dedup check skipped: evolution response had no data array (unexpected shape). Proceeding with post.'
+			);
+			return false;
+		}
+		return body.data.some( point => point?.hash === hash );
 	} catch ( error ) {
 		clearTimeout( timeoutId );
 		const reason =
@@ -495,24 +506,35 @@ async function postToCodeVitals( resultsPath, config ) {
 	}
 }
 
+/**
+ * Decide whether cross-commit dedup runs, from CLI args and env. Dedup is OPT-IN (off
+ * by default) until GATE-1 is resolved — see hashAlreadyPosted's NOTE. An explicit
+ * opt-out always wins over an opt-in, so a wrapper that forces `--dedup` can still be
+ * disabled with `--no-dedup` / CODEVITALS_SKIP_DEDUP.
+ *
+ * NOTE: `--dedup`/`--no-dedup` only take effect when post-to-codevitals.js is invoked
+ * directly. The TeamCity runner (run-performance-tests.js) does not forward CLI flags to
+ * this child, so the pipeline must toggle dedup via the CODEVITALS_ENABLE_DEDUP env var.
+ *
+ * @param {string[]} argv - Process argv (or any arg list).
+ * @param {object}   env  - Environment object (process.env or a test double).
+ * @return {boolean} True when dedup should run.
+ */
+function resolveDedupEnabled( argv, env ) {
+	const truthy = value => [ '1', 'true', 'yes' ].includes( ( value || '' ).toLowerCase() );
+	const optedIn = argv.includes( '--dedup' ) || truthy( env.CODEVITALS_ENABLE_DEDUP );
+	const optedOut = argv.includes( '--no-dedup' ) || truthy( env.CODEVITALS_SKIP_DEDUP );
+	return optedIn && ! optedOut;
+}
+
 async function main() {
 	console.log( 'CodeVitals Integration' );
 	console.log( '=====================\n' );
 
 	const dryRun = process.argv.includes( '--dry-run' );
-	const truthy = value => [ '1', 'true', 'yes' ].includes( ( value || '' ).toLowerCase() );
-	// Cross-commit dedup is OPT-IN until GATE-1 is resolved. The dedup read series
-	// (gitaudit metric 58) is not yet proven to be the series the poster writes to
-	// (codevitals.run), so a default-on dedup could in principle wrongly skip a real
-	// post on the append-only, no-rollback store. Enable it explicitly once the read
-	// and write backends are confirmed coupled: `--dedup` or CODEVITALS_ENABLE_DEDUP=1.
-	// An explicit opt-out (`--no-dedup` / CODEVITALS_SKIP_DEDUP) always wins, so a
-	// wrapper that passes --dedup can still be forced off.
-	const dedupEnabled =
-		( process.argv.includes( '--dedup' ) || truthy( process.env.CODEVITALS_ENABLE_DEDUP ) ) &&
-		! process.argv.includes( '--no-dedup' ) &&
-		! truthy( process.env.CODEVITALS_SKIP_DEDUP );
-	const skipDedup = ! dedupEnabled;
+	// Cross-commit dedup is OPT-IN until GATE-1 is resolved — see resolveDedupEnabled
+	// (the argv/env truth table) and hashAlreadyPosted's NOTE for why default-off matters.
+	const skipDedup = ! resolveDedupEnabled( process.argv, process.env );
 
 	// Configuration from environment
 	const config = {
@@ -618,6 +640,7 @@ export {
 	redactToken,
 	resolvePostTimestamp,
 	hashAlreadyPosted,
+	resolveDedupEnabled,
 	ValidationError,
 	VALIDATION_FAILED_EXIT_CODE,
 };

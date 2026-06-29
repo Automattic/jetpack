@@ -24,6 +24,7 @@ import {
 	isDirectInvocation,
 	postToCodeVitals,
 	redactToken,
+	resolveDedupEnabled,
 	resolvePostTimestamp,
 	VALIDATION_FAILED_EXIT_CODE,
 } from './post-to-codevitals.js';
@@ -902,11 +903,12 @@ function dedupFetchStub( {
 	evolutionHashes = [],
 	evolutionStatus = 200,
 	throwOnEvolution = false,
-	rejectBody = false, // headers arrive OK but json() rejects (stalled/truncated body)
+	rejectBody = false, // headers arrive OK but json() rejects synchronously (truncated body)
+	stallBodyUntilAbort = false, // headers arrive OK but json() settles only when init.signal aborts
 	evolutionBody, // when set, returned verbatim from the evolution json() (for bad-shape tests)
 } ) {
 	const calls = { evolution: 0, post: 0, evolutionUrl: null };
-	const fetchImpl = async u => {
+	const fetchImpl = async ( u, init ) => {
 		if ( String( u ).includes( '/perf/evolution/' ) ) {
 			calls.evolution++;
 			calls.evolutionUrl = String( u );
@@ -920,6 +922,25 @@ function dedupFetchStub( {
 					if ( rejectBody ) {
 						throw new Error( 'body read failed' );
 					}
+					if ( stallBodyUntilAbort ) {
+						// Never settle on our own: only the abort signal rejects this, the way
+						// undici aborts an in-flight body read. This passes ONLY if the abort
+						// timer is still armed across json() — if the production code cleared it
+						// after the headers (the reverted-fix shape), abort never fires, this
+						// promise hangs, and the test times out (the regression we want to catch).
+						return new Promise( ( resolve, reject ) => {
+							const abort = () => {
+								const err = new Error( 'The operation was aborted' );
+								err.name = 'AbortError';
+								reject( err );
+							};
+							if ( init?.signal?.aborted ) {
+								abort();
+							} else {
+								init?.signal?.addEventListener( 'abort', abort, { once: true } );
+							}
+						} );
+					}
 					return evolutionBody !== undefined
 						? evolutionBody
 						: { data: evolutionHashes.map( h => ( { hash: h, measuredAt: '2026-01-01' } ) ) };
@@ -932,6 +953,26 @@ function dedupFetchStub( {
 	};
 	return { fetchImpl, calls };
 }
+
+test( 'resolveDedupEnabled: dedup is opt-in (off by default) and an explicit opt-out always wins', () => {
+	const noEnv = {};
+	// Default: OFF — the GATE-1 safety default.
+	assert.equal( resolveDedupEnabled( [], noEnv ), false );
+	// Opt in by flag or a truthy env value.
+	assert.equal( resolveDedupEnabled( [ '--dedup' ], noEnv ), true );
+	assert.equal( resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: '1' } ), true );
+	assert.equal( resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: 'true' } ), true );
+	// A non-truthy env value does not enable.
+	assert.equal( resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: '0' } ), false );
+	assert.equal( resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: 'no' } ), false );
+	// Opt-out wins over opt-in, whichever side it comes from.
+	assert.equal( resolveDedupEnabled( [ '--dedup', '--no-dedup' ], noEnv ), false );
+	assert.equal( resolveDedupEnabled( [ '--dedup' ], { CODEVITALS_SKIP_DEDUP: '1' } ), false );
+	assert.equal(
+		resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: '1', CODEVITALS_SKIP_DEDUP: 'yes' } ),
+		false
+	);
+} );
 
 test( 'dedup skips the post when the commit hash already has metrics', async () => {
 	const file = writeResults( 120 ); // git.hash = 'testhash'
@@ -1008,6 +1049,32 @@ test( 'dedup fails open (still posts) when the response body read fails', async 
 		global.fetch = origFetch;
 	}
 } );
+
+test(
+	'dedup body read stays bounded: a body that hangs until abort still fails open and posts',
+	{ timeout: 5000 },
+	async () => {
+		// The regression guard for the round-2 body-read fix: the abort timer must stay
+		// armed across response.json(). The stub's json() never settles on its own — only
+		// the AbortController signal rejects it — so this passes only if the timer is still
+		// live during the body read. dedupTimeoutMs=50 stands in for the 15s production
+		// timer; the per-test timeout turns a reverted fix (timer cleared after headers,
+		// abort never fires, json() hangs) into a clean failure instead of a hang.
+		const file = writeResults( 120 );
+		const { fetchImpl, calls } = dedupFetchStub( { stallBodyUntilAbort: true } );
+		const origFetch = global.fetch;
+		global.fetch = fetchImpl;
+		try {
+			const result = await silenced( () =>
+				postToCodeVitals( file, { ...DEDUP_CONFIG, dedupTimeoutMs: 50 } )
+			);
+			assert.equal( result.posted, true, 'a stalled body read must abort and fail open, not hang' );
+			assert.equal( calls.post, 1 );
+		} finally {
+			global.fetch = origFetch;
+		}
+	}
+);
 
 test( 'dedup makes no read call when skipDedup is set', async () => {
 	const file = writeResults( 120 );
