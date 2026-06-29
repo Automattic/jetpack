@@ -17,6 +17,10 @@ import {
 	statsEmailOpensBreakdownQuery,
 } from '../stats-email-breakdown-query';
 import { statsEmailSummaryQuery } from '../stats-email-summary-query';
+import {
+	statsEmailClicksTimeSeriesQuery,
+	statsEmailOpensTimeSeriesQuery,
+} from '../stats-email-time-series-query';
 import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
@@ -111,6 +115,43 @@ describe( 'Stats query factories', () => {
 	it( 'disables email breakdown queries until a positive post ID is available', () => {
 		expect( statsEmailOpensBreakdownQuery( 0, 'client' ).enabled ).toBe( false );
 		expect( statsEmailClicksBreakdownQuery( -1, 'link' ).enabled ).toBe( false );
+	} );
+
+	it( 'builds email opens time series query keys with Calypso timeline defaults', () => {
+		const query = statsEmailOpensTimeSeriesQuery( 41 );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'email-opens-time-series',
+			'1.1',
+			'stats/opens/emails/41',
+			'GET',
+			{ period: 'day', quantity: 30, stats_fields: 'timeline' },
+			undefined,
+			'emailTimeSeries',
+		] );
+	} );
+
+	it( 'forwards email clicks period/date and defaults hourly quantity to 24', () => {
+		const query = statsEmailClicksTimeSeriesQuery( 41, { period: 'hour', date: '2026-06-25' } );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'email-clicks-time-series',
+			'1.1',
+			'stats/clicks/emails/41',
+			'GET',
+			{ period: 'hour', quantity: 24, date: '2026-06-25', stats_fields: 'timeline' },
+			undefined,
+			'emailTimeSeries',
+		] );
+	} );
+
+	it( 'disables email time series queries until a positive integer post ID is available', () => {
+		expect( statsEmailOpensTimeSeriesQuery( 0 ).enabled ).toBe( false );
+		expect( statsEmailClicksTimeSeriesQuery( -1 ).enabled ).toBe( false );
+		expect( statsEmailOpensTimeSeriesQuery( 1.5 ).enabled ).toBe( false );
 	} );
 
 	it( 'includes filter_by_country in query params when provided', () => {

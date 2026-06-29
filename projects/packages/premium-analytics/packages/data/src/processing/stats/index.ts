@@ -13,7 +13,11 @@ export { sanitizeStatsTopAuthorsResponse } from './top-authors';
 export { sanitizeStatsHighlightsResponse } from './highlights';
 export { sanitizeStatsLocationsResponse } from './locations';
 export { sanitizeStatsVideoPlaysResponse } from './video-plays';
-export { isStatsTimeSeriesPayload, sanitizeStatsTimeSeriesResponse } from './time-series';
+export {
+	isStatsTimeSeriesPayload,
+	sanitizeStatsTimeSeriesResponse,
+	sanitizeStatsEmailTimeSeriesResponse,
+} from './time-series';
 export { sanitizeStatsVisitsResponse } from './visits';
 export { sanitizeStatsInsightsResponse } from './insights';
 export { sanitizeStatsUtmResponse } from './utm';
@@ -66,7 +70,13 @@ export type { StatsUtmItem, StatsUtmParam, StatsUtmTopPostItem } from './utm';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';
-export type { StatsTimeSeriesDataPoint, StatsTimeSeriesReport } from './time-series';
+export type {
+	StatsTimeSeriesDataPoint,
+	StatsTimeSeriesReport,
+	StatsEmailTimeSeriesDataPoint,
+	StatsEmailTimeSeriesSummary,
+	StatsEmailTimeSeriesReport,
+} from './time-series';
 export type {
 	StatsCommentFollowersItem,
 	StatsCommentFollowersRawPost,
