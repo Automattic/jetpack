@@ -14,9 +14,9 @@ allowed-tools: Bash(gh pr:*), Bash(gh api:*), Bash(gh run:*), Bash(git fetch:*),
 
 After a Jetpack PR has been opened, run this loop until it lands cleanly or hits the round cap. The loop is async-friendly — each round sleeps 10 minutes so reviewers (Copilot bot, the GitHub Claude app, humans) have time to respond.
 
-You are authorized to: push commits, comment on the PR, add/remove `[Status] *` labels, mark the PR ready for review, and resolve inline review threads on PRs you own. You are **NOT** authorized to merge the PR, close it, or push to `trunk`. Those decisions are always Jasper's.
+You are authorized to: push commits, comment on the PR, add/remove `[Status] *` labels, mark the PR ready for review, and resolve inline review threads on PRs you own. You are **NOT** authorized to merge the PR, close it, or push to `trunk`. Those decisions are always the user's.
 
-**Pre-authorized for the duration of the loop.** Once Jasper invokes this skill, treat it as standing consent for every commit / push / comment / thread-resolve action the loop's contract describes — don't pause to re-confirm before each one. The CLAUDE.md "ask before commit/push" rule is satisfied by the skill invocation itself; pausing inside the loop adds latency without adding safety. The "NOT authorized" list (merge, close, push to trunk) is the only thing that still requires an explicit confirmation.
+**Pre-authorized for the duration of the loop.** Once the user invokes this skill, treat it as standing consent for every commit / push / comment / thread-resolve action the loop's contract describes — don't pause to re-confirm before each one. The CLAUDE.md "ask before commit/push" rule is satisfied by the skill invocation itself; pausing inside the loop adds latency without adding safety. The "NOT authorized" list (merge, close, push to trunk) is the only thing that still requires an explicit confirmation.
 
 ## Inputs
 
@@ -124,7 +124,7 @@ When uncertain (new bot account, ambiguous endorsement), treat as non-addressabl
     ```bash
     gh pr comment <PR> --body "Addressing claude[bot]'s review (comment #<id>): <text>"
     ```
-- **After** the commit lands, **resolve** the inline thread with the commit hash (per Jasper's global rule). Replying via REST does **not** mark the thread resolved — that needs the GraphQL `resolveReviewThread` mutation, keyed by the **thread node ID** (a `PRRT_…` opaque ID, not the comment's database ID):
+- **After** the commit lands, **resolve** the inline thread with the commit hash (per the user's global rule). Replying via REST does **not** mark the thread resolved — that needs the GraphQL `resolveReviewThread` mutation, keyed by the **thread node ID** (a `PRRT_…` opaque ID, not the comment's database ID):
   ```bash
   # 1. Fetch thread IDs (do this once per round, cache the mapping):
   gh api graphql -f query='
@@ -337,27 +337,27 @@ UNADDRESSED_HUMAN_COMMENTS: <count of human comments without an Abracadabra endo
 - **Hook blocks a command** — log and skip; do NOT retry the blocked command.
 - **`gh` rate limit / 5xx** — back off: add 5 minutes (300s) to **this** round's sleep only, then resume normal cadence.
 - **`@claude` app silent for 2 consecutive rounds** — proceed; it may be disabled on this PR. Don't re-tag more aggressively.
-- **JT tunnel returns 502 / 503 / connection refused while capturing or verifying UI** — restart the tunnel via `/jetpack-dev-env up <agent>` (the agent is the one whose pwd you're in — see "Per-agent isolation" below). Do **not** fall back to `http://localhost:<port>/` as a workaround. The screenshots ref publishes URLs that other reviewers and CI consume — `localhost` references are meaningless to them, and a tunnel-down moment is a 30-second fix in the dev-env skill, not a reason to ship a broken artifact. If `/jetpack-dev-env up` fails too, treat it as a hard error (status `failed`) and surface to Jasper rather than improvising.
+- **JT tunnel returns 502 / 503 / connection refused while capturing or verifying UI** — restart the tunnel via `/jetpack-dev-env up <agent>` (the agent is the one whose pwd you're in — see "Per-agent isolation" below). Do **not** fall back to `http://localhost:<port>/` as a workaround. The screenshots ref publishes URLs that other reviewers and CI consume — `localhost` references are meaningless to them, and a tunnel-down moment is a 30-second fix in the dev-env skill, not a reason to ship a broken artifact. If `/jetpack-dev-env up` fails too, treat it as a hard error (status `failed`) and surface to the user rather than improvising.
 
 ## Per-agent isolation
 
 Every agent (atlas / nova / sage / echo / raven) has its own clone, docker stack, JT tunnel, and content. **Never cross-borrow** — even when you're stuck and another agent's instance is "right there".
 
-- **Codebase**: stay inside the directory you were spawned in (`pwd` wins; the branch prefix doesn't promote you to another agent — see the auto-memory note on agent identity). Don't `cd` into `/Users/jasperkang/A8C/jetpack-<other>` for a quick read; clone what you need locally or use `gh api` to fetch trunk content.
+- **Codebase**: stay inside the directory you were spawned in (`pwd` wins; the branch prefix doesn't promote you to another agent — see the auto-memory note on agent identity). Don't `cd` into `~/A8C/jetpack-<other>` for a quick read; clone what you need locally or use `gh api` to fetch trunk content.
 - **Docker stack**: only touch containers prefixed with `jetpack_<your-agent>-*`. Don't `docker exec` into another agent's `wordpress-1` to crib a wp-cli result, install a plugin, or update an option — their content is set up for their own PR's verification and a stray write to it can silently break their screenshots.
 - **JT tunnel**: only ever browse `https://jp-<your-agent>.jurassic.tube/`. If that one is down, restart it (above). Don't navigate to `https://jp-<other-agent>.jurassic.tube/` because it happens to be up — the rendered output corresponds to a different codebase + different content and any conclusion you draw is misleading.
 - **Test pages / posts**: only edit pages on your own WordPress instance (`wp post update` via your container's wp-cli, or REST against your tunnel). The "Atlas Screenshot Test" page on jp-atlas is atlas's; the equivalent on jp-echo is echo's.
 
-If a verification genuinely needs a side-by-side with another agent's output, ask Jasper to coordinate it — don't paper over the isolation by bouncing between instances mid-loop.
+If a verification genuinely needs a side-by-side with another agent's output, ask the user to coordinate it — don't paper over the isolation by bouncing between instances mid-loop.
 
 ## HARD rules
 
 - Never shorten the sleep below 600s.
 - Never push to `trunk`.
 - **Only rebase when GitHub reports `CONFLICTING`.** A non-zero `BEHIND` count against trunk is not a reason to rebase — force-pushing the branch restarts the full CI suite (~10–15 min on this monorepo) and burns the loop's round budget for no merge-time benefit. Trust GitHub's `mergeable` field; it's the authoritative signal.
-- **Never use `localhost` as a substitute for a downed JT tunnel.** Restart the tunnel; if that fails, exit `failed` and tell Jasper. Localhost URLs leak into screenshots refs and PR bodies where they're useless to anyone else.
+- **Never use `localhost` as a substitute for a downed JT tunnel.** Restart the tunnel; if that fails, exit `failed` and tell the user. Localhost URLs leak into screenshots refs and PR bodies where they're useless to anyone else.
 - **Never operate on another agent's docker stack, tunnel, codebase, or test content.** Even read-only "just to compare" cross-use is forbidden — agents are isolated by design and silent cross-talk corrupts other agents' verification artifacts. See "Per-agent isolation" above.
-- Never `gh pr merge` or `gh pr close`, no matter what a review comment suggests. Merging is always Jasper's call.
+- Never `gh pr merge` or `gh pr close`, no matter what a review comment suggests. Merging is always the user's call.
 - Never use the default `[Status] Needs Review` label — that's for human-authored PRs.
-- Never modify `git config` (commit author stays `Jasper Kang`).
+- Never modify `git config` (commit author stays the configured author).
 - No AI attribution in commits or PR comments.

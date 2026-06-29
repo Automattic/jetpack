@@ -216,7 +216,7 @@ not open a PR without it.
    `wp-content/debug.log` and check active source-mounted plugins (see `jetpack-address-issue`
    step 5) — the usual cause is another mounted plugin that needs a build.
 3. **Open the dashboard** with the chrome MCP browser tooling (against
-   `https://jp-<agent>.jurassic.tube/` or `localhost:<port>`), creds `wordpress` / `imyourdaddy`:
+   `https://jp-<agent>.jurassic.tube/` or `localhost:<port>`), creds `wordpress` / `<DEV_ADMIN_PASS>`:
 
    ```text
    /wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin

@@ -47,13 +47,13 @@ Stand up the local Docker WordPress env that the parallel-agent setup uses, plus
 | echo   | 18110 | 18311 | 11210      | 12555 | 11152 | `jp-echo`    | https://jp-echo.jurassic.tube/  |
 | raven  | 18120 | 18321 | 11220      | 12565 | 11162 | `jp-raven`   | https://jp-raven.jurassic.tube/ |
 
-**Port 8080 is reserved by AutoProxxy on Jasper's machine — never use it.**
+**Port 8080 is reserved by AutoProxxy on the user's machine — never use it.**
 
-WP admin creds on every env: `wordpress` / `imyourdaddy`. (`jp docker install` still creates the user with the default `wordpress` password — the skill rotates it via `wp user update` immediately after install. Account-protection module is also deactivated to avoid the leaked-password verification gate, since the default `wordpress` would otherwise trigger it on first login.)
+WP admin creds on every env: `wordpress` / `<DEV_ADMIN_PASS>`. (`jp docker install` still creates the user with the default `wordpress` password — the skill rotates it via `wp user update` immediately after install. Account-protection module is also deactivated to avoid the leaked-password verification gate, since the default `wordpress` would otherwise trigger it on first login.)
 
 ## Caddy + Jurassic Tube split (read before touching DNS or /etc/hosts)
 
-Jasper's local setup separates the local HTTPS path from the public-inbound path. They share a hostname, which is the part that confuses fresh eyes:
+the user's local setup separates the local HTTPS path from the public-inbound path. They share a hostname, which is the part that confuses fresh eyes:
 
 - **Local HTTPS** — `/etc/hosts` intentionally pins all five `jp-<agent>.jurassic.tube` subdomains to `127.0.0.1`. **Caddy** listens on 443 for those hostnames and reverse-proxies to the agent's docker WP port (atlas → :18080, nova → :18090, …). That's why `curl https://jp-atlas.jurassic.tube/` from the host returns 200 — it's going through Caddy, not the tunnel.
 - **Public inbound (Jurassic Tube)** — the `jurassictube` `ssh -R` tunnel is **only** so the outside world (wpcom, Jetpack, webhooks) can reach the local blog from the public internet via the JT server. From the host machine you cannot reach the JT path because DNS is shadowed by `/etc/hosts` — that's expected, not broken.
@@ -62,7 +62,7 @@ Jasper's local setup separates the local HTTPS path from the public-inbound path
 
 ## Pre-flight (`up` and `status`)
 
-1. **Docker running** — Jasper uses Colima, not Docker Desktop. If `docker info` fails, start Colima and wait for it to come up before continuing:
+1. **Docker running** — the user uses Colima, not Docker Desktop. If `docker info` fails, start Colima and wait for it to come up before continuing:
    ```bash
    if ! docker info > /dev/null 2>&1; then
      command -v colima > /dev/null || { echo "Docker daemon is down and colima is not installed"; exit 1; }
@@ -109,7 +109,7 @@ jp docker install --name <agent> --port <WP>
 #    module. The default `wordpress` password is on the leaked-passwords list, which
 #    triggers Account Protection's email verification gate on first login and blocks
 #    automated browser testing. Idempotent — re-running just resets to the same value.
-docker exec "jetpack_<agent>-wordpress-1" wp user update wordpress --user_pass='imyourdaddy' --allow-root
+docker exec "jetpack_<agent>-wordpress-1" wp user update wordpress --user_pass='<DEV_ADMIN_PASS>' --allow-root
 docker exec "jetpack_<agent>-wordpress-1" wp jetpack module deactivate account-protection --allow-root || true
 
 # 4. Verify WP is reachable on localhost
@@ -165,7 +165,7 @@ WP_LOCAL:     http://localhost:<WP>/
 WP_LOCAL_TLS: https://jp-<agent>.jurassic.tube/   # via Caddy (local /etc/hosts → 127.0.0.1)
 WP_PUBLIC:    https://jp-<agent>.jurassic.tube/   # via Jurassic Tube (inbound from wpcom/Jetpack); "tunnel: skipped" if no JT
 WP_ADMIN_USER: wordpress
-WP_ADMIN_PASS: imyourdaddy
+WP_ADMIN_PASS: <DEV_ADMIN_PASS>
 PHPMY_PORT: <PHPMY>
 MAIL_UI_PORT: <MAIL_UI>
 ENV_STATUS: up | down | partial   # partial = docker up but jurassictube process failed to start

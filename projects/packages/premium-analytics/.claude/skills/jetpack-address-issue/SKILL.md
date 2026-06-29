@@ -45,7 +45,7 @@ If no issue ID/URL was provided as args, ask the user once for the issue ID/URL,
 
 5. **Bring up the local dev env.**
    - Invoke the `jetpack-dev-env` skill (auto-detects the agent from pwd) to start docker + the Jurassic Tube tunnel.
-   - Admin creds: `wordpress` / `imyourdaddy` (set by the dev-env skill).
+   - Admin creds: `wordpress` / `<DEV_ADMIN_PASS>` (set by the dev-env skill).
    - **Reachability check is HTTP 200 on `/` AND `/wp-admin/`** — a live tunnel that returns 5xx does not count as "up." Don't proceed to step 6 until both URLs return 200.
    - **If WP returns 5xx**: tail the debug log and list active plugins to find the offender:
      ```bash
