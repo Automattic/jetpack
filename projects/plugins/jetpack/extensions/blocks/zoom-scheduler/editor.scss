@@ -1,0 +1,41 @@
+/**
+ * Editor styles for Zoom Scheduler
+ */
+@use "view";
+
+.wp-block-jetpack-zoom-scheduler {
+	position: relative;
+
+	&-embed-form {
+		align-items: stretch;
+		display: flex;
+		gap: 8px;
+		inline-size: 100%;
+		margin: 0;
+	}
+
+	&-embed-form input.components-placeholder__input {
+		flex: 1;
+		margin-inline-end: 1px;
+		min-inline-size: 0;
+	}
+
+	&-embed-form button {
+		flex-shrink: 0;
+	}
+
+	&-help {
+		margin-block-start: 1em;
+	}
+
+	&-preview {
+		position: relative;
+	}
+
+	.components-placeholder {
+
+		p {
+			margin-block-end: 16px;
+		}
+	}
+}

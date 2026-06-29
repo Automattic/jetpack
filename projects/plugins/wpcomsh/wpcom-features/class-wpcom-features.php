@@ -534,6 +534,7 @@ class WPCOM_Features {
 	public const WOOP                              = 'woop';
 	public const WORDADS                           = 'wordads';
 	public const WORDADS_JETPACK                   = 'wordads-jetpack';
+	public const ZOOM_SCHEDULER                    = 'zoom-scheduler';
 
 	/*
 	 * Private const array of features with sub-array of purchases that include that feature. Sorted alphabetically.
@@ -1742,6 +1743,10 @@ class WPCOM_Features {
 		self::WORDADS_JETPACK                   => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
+		),
+		self::ZOOM_SCHEDULER                    => array(
+			self::JETPACK_ALL_SITES,
+			self::WPCOM_ALL_SITES,
 		),
 	);
 	/**
