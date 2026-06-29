@@ -35,6 +35,11 @@ type DashboardSearch = Record< string, string | undefined >;
  * `useWidgetTypes`. Premium Analytics serves the records from its own namespace
  * (see `src/widget-modules.php`), independent of core's `wp/v2` endpoint.
  * Guarded for idempotency: beforeLoad re-runs on every navigation and preload.
+ *
+ * That registration is one-time bootstrap setup that could move to the page's
+ * `init` module (`packages/init`) now that `@wordpress/build` supports it —
+ * registering once at boot instead of on every beforeLoad run. Left here for
+ * now (idempotency-guarded); tracked as a follow-up.
  */
 export const route = {
 	beforeLoad: async ( { search }: { search?: DashboardSearch } = {} ) => {
