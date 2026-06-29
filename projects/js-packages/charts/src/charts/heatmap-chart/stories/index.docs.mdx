@@ -166,7 +166,7 @@ When `data` is empty the chart renders a "No data available" placeholder:
 
 ## Tooltips
 
-Enable `withTooltips` for hover tooltips. The default tooltip shows the cell label and value. Supply `renderTooltip` to customize:
+Enable `withTooltips` to show a tooltip on cell hover **and** during keyboard navigation (the arrow-selected cell shows its tooltip, like bar and line charts). The default tooltip shows the cell label and the value, formatted with `@automattic/number-formatters`. Supply `renderTooltip` to customize:
 
 <Source
 	language="jsx"
@@ -200,9 +200,18 @@ const customTheme: ChartTheme = {
 </GlobalChartsProvider>` }
 />
 
+Cell spacing, sizing, and the empty-cell color come from the theme's `heatmapChart` section (`cellGap`, `compactCellGap`, `cellRadius`, `valueFontSize`, `selectionStrokeWidth`, `selectionStrokeColor`, `emptyCellColor`) and can be overridden per consumer:
+
+<Source
+	language="tsx"
+	code={ `<GlobalChartsProvider theme={ { heatmapChart: { cellRadius: 4, emptyCellColor: '#f0f0f0' } } }>
+	<HeatmapChart data={ columns } rowLabels={ rowLabels } />
+</GlobalChartsProvider>` }
+/>
+
 ## Responsive Behavior
 
-By default the chart fills its parent container's dimensions. The parent must have an explicit height:
+By default the chart fills its parent container's dimensions. The parent must have an explicit height, or you can set `aspectRatio` to derive the height from the available width:
 
 <Source
 	language="jsx"
@@ -211,9 +220,14 @@ By default the chart fills its parent container's dimensions. The parent must ha
 	<HeatmapChart data={ columns } rowLabels={ rowLabels } />
 </div>
 
+// Derive height from width via aspectRatio (height = width × 0.4)
+<HeatmapChart data={ columns } rowLabels={ rowLabels } aspectRatio={ 0.4 } />
+
 // Fixed dimensions
 <HeatmapChart data={ columns } rowLabels={ rowLabels } width={ 720 } height={ 200 } />` }
 />
+
+<Canvas of={ HeatmapStories.AspectRatio } />
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
@@ -222,7 +236,7 @@ For more details on responsive behavior, see the [Responsive Design section](./?
 The heatmap chart is designed for full keyboard and screen reader access:
 
 - The SVG container has `role="grid"` and a localised `aria-label`.
-- Each cell group has `role="gridcell"` and a `<title>` element containing the cell name and value (or "No data").
-- **Keyboard navigation**: Tab focuses the chart; arrow keys navigate between cells; the focused cell receives a visible highlight ring.
-- Color alone is never the sole indicator of value — every cell exposes its value via its accessible title, and `showValues` can render numeric labels inside cells.
+- Each cell group has `role="gridcell"` and an `aria-label` containing the cell name and value (or "No data"). An `aria-label` is used rather than an SVG `<title>` so no duplicate native browser tooltip appears.
+- **Keyboard navigation**: Tab focuses the chart; arrow keys navigate between cells; the focused cell receives a visible highlight ring, and (when `withTooltips` is set) its tooltip. Escape clears the selection.
+- Color alone is never the sole indicator of value — every cell exposes its value via its accessible label, and `showValues` can render numeric labels inside cells.
 - The component does not use animations by default, and no `prefers-reduced-motion` opt-out is required.

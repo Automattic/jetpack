@@ -16,12 +16,13 @@ Main component for rendering a two-dimensional heatmap.
 | `rowLabels` | `string[]` | `[]` | y-axis labels by row index. Empty entries render blank. |
 | `compact` | `boolean` | `false` | Compact mode: tighten cell gaps, suppress in-cell values, and thin axis labels. |
 | `showValues` | `boolean` | `!compact` | Render the numeric value inside each cell. |
-| `cellGap` | `number` | `4` (`2` when compact) | Pixel gap between cells. |
-| `cellRadius` | `number` | `2` | Corner radius for cells in px. |
-| `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover. |
-| `renderTooltip` | `(data: HeatmapTooltipData) => ReactNode` | - | Custom tooltip render function. Receives `HeatmapTooltipData`. |
+| `cellGap` | `number` | chart theme (`4`, `2` when compact) | Pixel gap between cells. Defaults to the theme's `heatmapChart.cellGap`. |
+| `cellRadius` | `number` | chart theme (`2`) | Corner radius for cells in px. Defaults to the theme's `heatmapChart.cellRadius`. |
+| `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover or keyboard navigation. |
+| `renderTooltip` | `(data: HeatmapTooltipData) => ReactNode` | - | Custom tooltip render function. Receives `HeatmapTooltipData`. The default tooltip formats numeric values with `@automattic/number-formatters`. |
 | `width` | `number` | - | Fixed width in pixels. When omitted, the chart fills its parent's width. |
 | `height` | `number` | - | Fixed height in pixels. When omitted, the chart fills its parent's height. |
+| `aspectRatio` | `number` | - | Height as a ratio of width in responsive mode (e.g. `0.4`). Used when `width`/`height` are omitted. |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | - | Override the default inner margins. |
 | `chartId` | `string` | - | Custom chart identifier used in accessibility attributes. |
 | `className` | `string` | - | Additional CSS class for the outermost element. |
@@ -74,7 +75,7 @@ type HeatmapCell = {
 
 ## HeatmapTooltipData Type
 
-Data passed to `renderTooltip` when a cell is hovered.
+Data passed to `renderTooltip` when a cell is hovered or selected via keyboard.
 
 ```typescript
 type HeatmapTooltipData = {
