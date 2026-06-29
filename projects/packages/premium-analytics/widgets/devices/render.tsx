@@ -32,8 +32,8 @@ const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, 
 /**
  * Inner component — rendered inside WidgetRoot.
  *
- * @param root0     - Props.
- * @param root0.max - Max rows to display.
+ * @param props     - Props.
+ * @param props.max - Max rows to display.
  * @return The rendered semi-circle chart or state placeholder.
  */
 function DevicesInner( { max }: { max: number } ) {
@@ -112,8 +112,8 @@ function DevicesInner( { max }: { max: number } ) {
  *
  * Shows screen size breakdown (Desktop / Mobile / Tablet) as a semi-circle chart.
  *
- * @param root0            - Render props.
- * @param root0.attributes - Widget attributes (max).
+ * @param props            - Render props.
+ * @param props.attributes - Widget attributes (max).
  * @return The rendered widget content.
  */
 export default function DevicesWidget( { attributes }: WidgetRenderProps< DevicesAttributes > ) {

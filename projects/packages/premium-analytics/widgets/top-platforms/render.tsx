@@ -35,8 +35,8 @@ type PlatformMode = 'browser' | 'platform';
 /**
  * Inner component — rendered inside WidgetRoot.
  *
- * @param root0     - Props.
- * @param root0.max - Max rows to display.
+ * @param props     - Props.
+ * @param props.max - Max rows to display.
  * @return The rendered leaderboard or state placeholder.
  */
 function TopPlatformsInner( { max }: { max: number } ) {
@@ -121,8 +121,8 @@ function TopPlatformsInner( { max }: { max: number } ) {
  * Shows browser or OS breakdown as a ranked leaderboard. The active
  * dimension is switched via a runtime dropdown in the header.
  *
- * @param root0            - Render props.
- * @param root0.attributes - Widget attributes (max).
+ * @param props            - Render props.
+ * @param props.attributes - Widget attributes (max).
  * @return The rendered widget content.
  */
 export default function TopPlatformsWidget( {

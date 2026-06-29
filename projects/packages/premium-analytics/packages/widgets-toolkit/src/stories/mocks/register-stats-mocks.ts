@@ -608,6 +608,40 @@ const REGION_COMPARISON_ROWS_BY_COUNTRY: Record< string, StatsLocationItem[] > =
 	],
 };
 
+const MOCK_DEVICES_SCREENSIZE = {
+	date: '2026-06-29',
+	period: 'day',
+	top_values: {
+		desktop: 5000,
+		mobile: 3200,
+		tablet: 450,
+	},
+};
+
+const MOCK_DEVICES_BROWSER = {
+	date: '2026-06-29',
+	period: 'day',
+	top_values: {
+		chrome: 4500,
+		safari: 2100,
+		firefox: 890,
+		edge: 650,
+		samsung: 420,
+	},
+};
+
+const MOCK_DEVICES_PLATFORM = {
+	date: '2026-06-29',
+	period: 'day',
+	top_values: {
+		ios: 3200,
+		android: 2800,
+		windows: 1500,
+		macos: 900,
+		linux: 250,
+	},
+};
+
 // Heuristic: a request whose `date` param is more than 1 day ago is treated as the
 // comparison-period request. This works for the default `last-30-days` preset (primary
 // date ~= today, comparison date ~= 30 days ago). It would misclassify a `today` preset
@@ -714,6 +748,16 @@ function getStatsMock( path: string ): unknown | null {
 		}
 
 		return { top_utm_values: {}, top_posts: {} };
+	}
+
+	if ( subPath.startsWith( '/devices/screensize' ) ) {
+		return MOCK_DEVICES_SCREENSIZE;
+	}
+	if ( subPath.startsWith( '/devices/browser' ) ) {
+		return MOCK_DEVICES_BROWSER;
+	}
+	if ( subPath.startsWith( '/devices/client_type' ) || subPath.startsWith( '/devices/platform' ) ) {
+		return MOCK_DEVICES_PLATFORM;
 	}
 
 	return null;
