@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Fix global error handling for widgets.

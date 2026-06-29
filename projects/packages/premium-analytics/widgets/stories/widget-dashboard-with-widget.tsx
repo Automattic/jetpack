@@ -1,3 +1,4 @@
+import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { Page } from '@wordpress/admin-ui';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react';
@@ -168,23 +169,25 @@ export function WidgetDashboardWithWidget( {
 	}, [ editMode ] );
 
 	return (
-		<HostRootFontSize hostEnvironment={ hostEnvironment }>
-			<div style={ { width: dashboardWidth, maxWidth: '100%' } }>
-				<WidgetDashboard
-					layout={ layout }
-					onLayoutChange={ setLayout }
-					widgetTypes={ [ storyWidgetType ] }
-					resolveWidgetModule={ resolveWidgetModule }
-					gridSettings={ { model: 'grid', rowHeight } }
-					editMode={ currentEditMode }
-					onEditChange={ setCurrentEditMode }
-				>
-					<Page title={ pageTitle } actions={ <WidgetDashboard.Actions /> } hasPadding>
-						<WidgetDashboard.NoWidgetsState />
-						<WidgetDashboard.Widgets />
-					</Page>
-				</WidgetDashboard>
-			</div>
-		</HostRootFontSize>
+		<GlobalErrorProvider>
+			<HostRootFontSize hostEnvironment={ hostEnvironment }>
+				<div style={ { width: dashboardWidth, maxWidth: '100%' } }>
+					<WidgetDashboard
+						layout={ layout }
+						onLayoutChange={ setLayout }
+						widgetTypes={ [ storyWidgetType ] }
+						resolveWidgetModule={ resolveWidgetModule }
+						gridSettings={ { model: 'grid', rowHeight } }
+						editMode={ currentEditMode }
+						onEditChange={ setCurrentEditMode }
+					>
+						<Page title={ pageTitle } actions={ <WidgetDashboard.Actions /> } hasPadding>
+							<WidgetDashboard.NoWidgetsState />
+							<WidgetDashboard.Widgets />
+						</Page>
+					</WidgetDashboard>
+				</div>
+			</HostRootFontSize>
+		</GlobalErrorProvider>
 	);
 }
