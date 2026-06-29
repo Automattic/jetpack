@@ -552,18 +552,15 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Fields Jetpack contributes to `agentsManagerData`. Single source shared by the
-	 * data filter and the external-AM inline fallback so the two cannot drift.
+	 * Fields Jetpack contributes when Jetpack AI Sidebar owns the post editor.
 	 *
 	 * @return array
 	 */
 	private static function get_sidebar_am_fields(): array {
-		$config = self::get_jetpack_ai_sidebar_preview_config();
+		$fields            = self::get_provider_am_fields();
+		$fields['agentId'] = AI_SIDEBAR_AGENT_ID;
 
-		return array(
-			'agentId'          => AI_SIDEBAR_AGENT_ID,
-			'jetpackAiSidebar' => $config,
-		);
+		return $fields;
 	}
 
 	/**
@@ -586,15 +583,15 @@ class Jetpack_AI_Sidebar {
 	 * @return array
 	 */
 	private static function get_agents_manager_data_fields(): array {
+		if ( ! self::should_expose_provider() ) {
+			return array();
+		}
+
 		if ( self::should_expose_sidebar() ) {
 			return self::get_sidebar_am_fields();
 		}
 
-		if ( self::should_expose_provider() ) {
-			return self::get_provider_am_fields();
-		}
-
-		return array();
+		return self::get_provider_am_fields();
 	}
 
 	/**
@@ -651,8 +648,9 @@ class Jetpack_AI_Sidebar {
 
 		$assignments = '';
 		foreach ( $fields as $key => $value ) {
-			$assignments .= ' agentsManagerData.' . $key . ' = '
-				. wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
+			$assignment_value = wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+
+			$assignments .= ' agentsManagerData.' . $key . ' = ' . $assignment_value . ';';
 		}
 
 		if ( self::get_ai_sidebar_asset_data() ) {

@@ -936,6 +936,24 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Jetpack AI Sidebar owns the post editor agent.
+	 */
+	public function test_add_agents_manager_data_overrides_existing_post_editor_agent_id() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data(
+			array(
+				'sectionName' => 'gutenberg',
+				'agentId'     => 'dolly',
+			)
+		);
+
+		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
+	}
+
+	/**
 	 * Platform-emitted provider data is exposed in the Simple internal-testing
 	 * page editor without changing the agent.
 	 */
@@ -1020,6 +1038,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$inline_script = $this->get_agents_manager_inline_script();
 
+		$this->assertStringNotContainsString(
+			'if ( ! agentsManagerData.agentId )',
+			$inline_script
+		);
 		$this->assertStringContainsString(
 			'agentsManagerData.agentId = "wp-orchestrator"',
 			$inline_script
@@ -1107,6 +1129,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$inline_script = $this->get_agents_manager_inline_script();
 
+		$this->assertStringNotContainsString(
+			'if ( ! agentsManagerData.agentId )',
+			$inline_script
+		);
 		$this->assertStringContainsString(
 			'agentsManagerData.agentId = "wp-orchestrator"',
 			$inline_script
