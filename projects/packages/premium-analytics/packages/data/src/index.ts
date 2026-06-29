@@ -199,6 +199,9 @@ export {
 	hasProductFilters,
 	isSelectablePreset,
 	computeDateRangeFromPreset,
+	getApiErrorCode,
+	getApiErrorStatus,
+	shouldRetryApiError,
 } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';
