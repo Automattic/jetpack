@@ -1,9 +1,14 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
-import { store as modulesStore } from '@automattic/jetpack-shared-stores';
+import { useQueryClient } from '@tanstack/react-query';
 import { FormToggle } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import {
+	REST_API_SITE_MODULES_ENDPOINT,
+	QUERY_SITE_MODULES_KEY,
+	QUERY_UPDATE_MODULE_KEY,
+} from '../../data/constants';
+import useSimpleMutation from '../../data/use-simple-mutation';
 import { MyJetpackModule } from '../../types';
 import { isProductsOnlyMode } from '../../utils/is-products-only-mode';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
@@ -25,56 +30,26 @@ export type ModuleToggleProps = {
  * @return The rendered component.
  */
 export function ModuleToggle( { module: $module, describedby }: ModuleToggleProps ) {
-	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { createSuccessNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
 	const sharingBlockEditorUrl = getSharingBlockEditorUrl( $module );
+	const queryClient = useQueryClient();
 
-	const isUpdating = useSelect(
-		select => select( modulesStore ).isModuleUpdating( $module.module ),
-		[ $module.module ]
-	);
-
-	const showToggleNotice = useCallback(
-		async ( {
-			noticeType,
-			action,
-		}: {
-			noticeType: 'success' | 'error';
-			action: 'activation' | 'deactivation';
-		} ) => {
-			if ( noticeType === 'success' ) {
-				const message =
-					action === 'activation'
-						? getModuleActivationMessage( $module.module, $module.name )
-						: sprintf(
-								/* translators: %s is the module name */
-								__( '%s has been deactivated.', 'jetpack-my-jetpack' ),
-								$module.name
-						  );
-				createSuccessNotice( message );
-			} else {
-				const message =
-					action === 'activation'
-						? sprintf(
-								/* translators: %s is the module name */
-								__( 'Failed to activate %s.', 'jetpack-my-jetpack' ),
-								$module.name
-						  )
-						: sprintf(
-								/* translators: %s is the module name */
-								__( 'Failed to deactivate %s.', 'jetpack-my-jetpack' ),
-								$module.name
-						  );
-
-				createErrorNotice( message );
-			}
+	const { mutate: toggleModule, isPending: isUpdating } = useSimpleMutation( {
+		name: QUERY_UPDATE_MODULE_KEY,
+		query: {
+			path: `${ REST_API_SITE_MODULES_ENDPOINT }/${ $module.module }`,
+			method: 'POST',
 		},
-		[ $module.module, $module.name, createErrorNotice, createSuccessNotice ]
-	);
+		errorMessage: sprintf(
+			/* translators: %s is the module name */
+			__( 'There was a problem updating the %s module.', 'jetpack-my-jetpack' ),
+			$module.name
+		),
+	} );
 
 	const setModuleActive = useCallback(
-		async ( active: boolean ) => {
+		( active: boolean ) => {
 			// Track module activation/deactivation if we're in the Products tab context
 			if ( trackProductAction ) {
 				trackProductAction( {
@@ -86,17 +61,26 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 				} );
 			}
 
-			const success = await toggleModule( {
-				name: $module.module,
-				active,
-			} );
-
-			await showToggleNotice( {
-				noticeType: success ? 'success' : 'error',
-				action: active ? 'activation' : 'deactivation',
-			} );
+			toggleModule(
+				{ data: { active } },
+				{
+					onSuccess: () => {
+						// Refresh the module list so the new state is reflected.
+						queryClient.invalidateQueries( { queryKey: [ QUERY_SITE_MODULES_KEY ] } );
+						createSuccessNotice(
+							active
+								? getModuleActivationMessage( $module.module, $module.name )
+								: sprintf(
+										/* translators: %s is the module name */
+										__( '%s has been deactivated.', 'jetpack-my-jetpack' ),
+										$module.name
+								  )
+						);
+					},
+				}
+			);
 		},
-		[ toggleModule, $module, showToggleNotice, trackProductAction ]
+		[ toggleModule, $module, trackProductAction, queryClient, createSuccessNotice ]
 	);
 
 	const onChange = useCallback(
