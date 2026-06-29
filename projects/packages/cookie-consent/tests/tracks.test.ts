@@ -61,4 +61,20 @@ describe( 'trackPrivacyBannerAccept', () => {
 			} ),
 		] );
 	} );
+
+	it( 'keeps default preference props as booleans for partial preferences', () => {
+		trackPrivacyBannerAccept( {
+			required: true,
+		} );
+
+		expect( window._tkq?.[ 0 ] ).toEqual( [
+			'recordEvent',
+			'jetpack_privacy_banner_button_accept',
+			expect.objectContaining( {
+				preferences_required: true,
+				preferences_analytics: false,
+				preferences_advertising: false,
+			} ),
+		] );
+	} );
 } );

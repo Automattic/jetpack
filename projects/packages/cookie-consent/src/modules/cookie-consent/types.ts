@@ -31,7 +31,7 @@ export interface TrackingProperties {
 }
 
 export interface ConsentPreferences {
-	[ key: string ]: boolean;
+	[ key: string ]: boolean | undefined;
 }
 
 // Global window declarations

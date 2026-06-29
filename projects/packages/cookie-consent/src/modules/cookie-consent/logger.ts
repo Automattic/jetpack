@@ -6,7 +6,8 @@
  *
  */
 
-import { getCategoryPreferenceKey, getConsentCategories } from './utils';
+import { getCategoryPreferenceKey } from './category-preferences';
+import { getConsentCategories } from './utils';
 import type { ConsentEventType, ConsentTypes, ConsentEvent } from './types';
 
 interface ConsentLogResponse {

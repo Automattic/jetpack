@@ -163,17 +163,9 @@ class Consent_Log_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Consent types are bounded to the allow-list; unknown keys are dropped.
+	 * Consent types are bounded to the configured category registry; unknown keys are dropped.
 	 */
 	public function test_sanitize_consent_types_filters_to_allowed_keys() {
-		add_filter(
-			'jetpack_cookie_consent_allowed_consent_types',
-			static function ( $allowed_types ) {
-				$allowed_types[] = 'evil';
-				return $allowed_types;
-			}
-		);
-
 		$result = $this->controller->sanitize_consent_types(
 			array(
 				'functional' => true,

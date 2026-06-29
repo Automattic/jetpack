@@ -2,6 +2,7 @@
  * Shared utility functions for cookie consent
  */
 
+import { getCategoryPreferenceKey } from './category-preferences';
 import { trackPrivacyBannerView } from './tracks';
 import type { ConsentType, ConsentEventType, ConsentEventChoices, ConsentCategory } from './types';
 
@@ -44,24 +45,6 @@ interface Context {
 }
 
 type SameSiteValue = 'Lax' | 'Strict' | 'None';
-
-export function getCategoryPreferenceKey(
-	category: Pick< ConsentCategory, 'key' | 'preferenceKey' >
-): string {
-	if ( category.preferenceKey ) {
-		return category.preferenceKey;
-	}
-
-	if ( category.key === 'functional' ) {
-		return 'required';
-	}
-
-	if ( category.key === 'marketing' ) {
-		return 'advertising';
-	}
-
-	return category.key;
-}
 
 export function getConsentCategories(): ConsentCategory[] {
 	const configuredCategories = window.jetpackCookieConsentConfig?.categories;

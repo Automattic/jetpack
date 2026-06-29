@@ -4,35 +4,18 @@
  * Privacy-specific tracking wrappers for Tracks.
  */
 
+import { getCategoryPreferenceKey } from './category-preferences';
 import { recordEvent, getCommonProperties } from './tracks-utils';
-import type { ConsentCategory, ConsentPreferences, TrackingProperties } from './types';
+import type { ConsentPreferences, TrackingProperties } from './types';
 
 const DEFAULT_TRACKS_PREFERENCE_KEYS = new Set( [ 'required', 'analytics', 'advertising' ] );
-
-function getCategoryPreferenceKey(
-	category: Pick< ConsentCategory, 'key' | 'preferenceKey' >
-): string {
-	if ( category.preferenceKey ) {
-		return category.preferenceKey;
-	}
-
-	if ( category.key === 'functional' ) {
-		return 'required';
-	}
-
-	if ( category.key === 'marketing' ) {
-		return 'advertising';
-	}
-
-	return category.key;
-}
 
 function getPreferenceProperties( preferences: ConsentPreferences ): TrackingProperties {
 	const properties: TrackingProperties = {
 		...getCommonProperties(),
-		preferences_required: preferences.required,
-		preferences_analytics: preferences.analytics,
-		preferences_advertising: preferences.advertising,
+		preferences_required: preferences.required ?? false,
+		preferences_analytics: preferences.analytics ?? false,
+		preferences_advertising: preferences.advertising ?? false,
 	};
 
 	window.jetpackCookieConsentConfig?.categories?.forEach( category => {
