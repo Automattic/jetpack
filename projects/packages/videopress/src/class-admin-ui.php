@@ -519,10 +519,14 @@ class Admin_UI {
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
+	 * The modernized dashboard is enabled by default. A site can opt back into
+	 * the legacy dashboard with:
+	 * add_filter( 'rsm_jetpack_ui_modernization_videopress', '__return_false' ).
+	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
 	}
 
 	/**
