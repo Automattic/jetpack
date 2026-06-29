@@ -54,7 +54,6 @@ export {
 	type TimeSeriesData,
 	calculateDelta,
 	flagUrl,
-	formatLegendLabels,
 	BOOKINGS_FILTER,
 	PHYSICAL_PRODUCTS_FILTER,
 	FULFILLED_ORDERS_FILTER,
