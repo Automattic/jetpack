@@ -931,6 +931,7 @@ class Cookie_Consent {
 
 		if ( ! in_array( $geo['provider'], array( 'wpcom', 'custom' ), true ) ) {
 			$geo['provider'] = 'wpcom';
+			$geo['api_url']  = $default_config['geo']['api_url'];
 		}
 		if ( ! is_string( $geo['api_url'] ) ) {
 			$geo['api_url'] = '';

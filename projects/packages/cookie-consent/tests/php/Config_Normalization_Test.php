@@ -81,7 +81,12 @@ class Config_Normalization_Test extends TestCase {
 		$default_config = $this->call_cookie_consent_method( 'get_default_config' );
 		$config         = $this->call_cookie_consent_method(
 			'normalize_config',
-			array( 'geo' => array( 'provider' => 'bogus' ) ),
+			array(
+				'geo' => array(
+					'provider' => 'bogus',
+					'api_url'  => 'https://example.test/geo',
+				),
+			),
 			$default_config
 		);
 
