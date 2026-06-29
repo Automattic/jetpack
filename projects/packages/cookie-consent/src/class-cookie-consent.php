@@ -762,18 +762,57 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Normalize configured links by merging consumer overrides with defaults.
+	 *
+	 * @param array $config   Configuration array supplied through filters.
+	 * @param array $defaults Default link values.
+	 * @return array Normalized links.
+	 */
+	private static function normalize_links( $config, $defaults ) {
+		$links = $config['links'] ?? array();
+		if ( ! is_array( $links ) ) {
+			$links = array();
+		}
+
+		foreach ( $links as $key => $value ) {
+			if ( ! is_string( $key ) ) {
+				continue;
+			}
+
+			if ( is_scalar( $value ) ) {
+				$defaults[ $key ] = trim( (string) $value );
+			}
+		}
+
+		// Back-compat: keep honoring non-empty legacy top-level cookie_policy_url values.
+		if (
+			'' === $defaults['cookie_policy_url']
+			&& array_key_exists( 'cookie_policy_url', $config )
+			&& is_scalar( $config['cookie_policy_url'] )
+		) {
+			$defaults['cookie_policy_url'] = trim( (string) $config['cookie_policy_url'] );
+		}
+
+		return $defaults;
+	}
+
+	/**
 	 * Get configuration with filters
 	 *
 	 * @return array Configuration array
 	 */
 	private static function get_config() {
 		$default_copy   = self::get_default_copy();
+		$default_links  = array(
+			'cookie_policy_url' => '',
+		);
 		$default_config = array(
 			'geo_api_url'         => 'https://public-api.wordpress.com/geo/',
 			'geo_cookie_duration' => 6 * HOUR_IN_SECONDS, // 6 hours.
 			'country_code_cookie' => 'country_code',
 			'region_cookie'       => 'region',
-			'cookie_policy_url'   => 'https://automattic.com/cookies/',
+			'cookie_policy_url'   => $default_links['cookie_policy_url'],
+			'links'               => $default_links,
 			'gdpr_countries'      => array(
 				// European Member countries.
 				'AT', // Austria.
@@ -842,7 +881,9 @@ class Cookie_Consent {
 			$config = $default_config;
 		}
 
-		$config['copy'] = self::normalize_copy( $config['copy'] ?? array(), $default_copy );
+		$config['copy']                = self::normalize_copy( $config['copy'] ?? array(), $default_copy );
+		$config['links']               = self::normalize_links( $config, $default_links );
+		$config['cookie_policy_url']   = $config['links']['cookie_policy_url'];
 
 		return $config;
 	}
