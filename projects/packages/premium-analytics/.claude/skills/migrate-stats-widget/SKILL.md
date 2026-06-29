@@ -195,11 +195,15 @@ not open a PR without it.
    - **Add it to the dashboard.**
    - Confirm the **visual is correct** — matches the reference screenshot, data actually loads (not
      stuck in loading / empty / error).
-   - **Resize and move it** across grid sizes — confirm it keeps working and stays legible.
    - **Watch the browser console** the whole time — there must be **no errors and no noisy warnings**
      (React key/act warnings, failed fetches, missing `--wpds-*` tokens, etc.).
+   - **Resize / move (cannot be automated):** the dashboard grid uses a custom pointer-sensor that
+     only responds to *trusted* native input, and the chrome MCP exposes no native coordinate-drag
+     (HTML5 element-drag, keyboard DnD, and synthetic pointer events all fail to trigger it). Do not
+     burn time trying — note in the PR that resize/move was not automatable and either skip it or ask
+     the user to drag once manually. Everything else above IS automatable and required.
 5. **Bug-fix loop (autonomous, no check-ins):** if the widget is absent from the gallery, renders
-   broken, throws on add/resize, or spams the console — examine and fix, rebuild the affected layer
+   broken, throws on add, or spams the console — examine and fix, rebuild the affected layer
    (re-run the relevant part of step 1), and re-run this whole verification. Loop until every check
    passes. Escalate only if the fix needs a missing upstream piece (see "Missing components") or a
    meaningfully different approach.
@@ -232,8 +236,9 @@ bounded at ~3 rounds. Point the reviewer at `AGENTS.md`, `.agents/rules/widgets.
 - All three stories render; Default visually matches the screenshot; WithComparison shows real
   previous-period deltas.
 - **The widget was added to a live dashboard at
-  `/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin`, looks correct, survives resize/move,
-  and produces no console errors or noisy warnings** (step 9 — the load-bearing check).
+  `/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin`, looks correct, and produces no
+  console errors or noisy warnings** (step 9 — the load-bearing check). Resize/move is not
+  automatable (custom pointer-sensor); don't gate on it.
 - The data hook is from `packages/data` (no direct proxy/apiFetch); display is a toolkit component;
   no reinvented helpers; no upstream package modified.
 - A PR is open off trunk with the "after" dashboard screenshot and passing CI, and the diff is
