@@ -29,6 +29,14 @@
 
 .itemLabel {
 	padding: var(--wpds-dimension-padding-sm);
+	min-width: 0;
+	overflow: hidden;
+}
+
+.itemLabelText {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 /* Constrain the picker preview tile to a 4:3 aspect ratio. */

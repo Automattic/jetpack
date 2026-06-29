@@ -41,7 +41,7 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 			id: `${ index }-${ term.label }`,
 			label: (
 				<Stack align="center" className={ styles.itemLabel }>
-					<Text>{ term.label }</Text>
+					<Text className={ styles.itemLabelText }>{ term.label }</Text>
 				</Stack>
 			),
 			currentValue: term.views,
