@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { HeatmapRect } from '@visx/heatmap';
 import { scaleLinear } from '@visx/scale';
 import { Text } from '@visx/text';
@@ -186,7 +187,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					{ info.cellLabel || `${ info.columnLabel ?? '' } ${ info.rowLabel ?? '' }`.trim() }
 				</strong>
 				<div>
-					{ info.value === null ? __( 'No data', 'jetpack-charts' ) : String( info.value ) }
+					{ info.value === null ? __( 'No data', 'jetpack-charts' ) : formatNumber( info.value ) }
 				</div>
 			</div>
 		),
@@ -292,6 +293,29 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 							range: [ 0, binHeight * rows ],
 						} );
 
+						// Keyboard navigation drives the tooltip too: when a cell is selected via
+						// the arrow keys, show its tooltip at the cell (mirrors mouse hover and how
+						// bar/line charts surface the tooltip on keyboard focus).
+						const keyboardTooltip =
+							selectedIndex !== undefined
+								? {
+										top: defaultMargin.top + yScale( selectedIndex % rows ),
+										left:
+											defaultMargin.left +
+											xScale( Math.floor( selectedIndex / rows ) ) +
+											binWidth / 2,
+										data: buildTooltipData(
+											Math.floor( selectedIndex / rows ),
+											selectedIndex % rows
+										),
+								  }
+								: null;
+						const activeTooltip =
+							keyboardTooltip ??
+							( tooltipOpen && tooltipData
+								? { top: tooltipTop, left: tooltipLeft, data: tooltipData }
+								: null );
+
 						return (
 							<div
 								role="grid"
@@ -379,7 +403,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 																const titleText = `${ accessibleName }: ${
 																	info.value === null
 																		? __( 'No data', 'jetpack-charts' )
-																		: info.value
+																		: formatNumber( info.value )
 																}`;
 
 																return (
@@ -422,7 +446,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 																				}
 																				fontSize={ valueFontSize }
 																			>
-																				{ String( value ) }
+																				{ formatNumber( value ) }
 																			</Text>
 																		) }
 																	</g>
@@ -435,10 +459,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 										</g>
 									</svg>
 								) }
-								{ withTooltips && tooltipOpen && tooltipData && (
-									<TooltipInPortal top={ tooltipTop } left={ tooltipLeft }>
+								{ withTooltips && activeTooltip && (
+									<TooltipInPortal top={ activeTooltip.top } left={ activeTooltip.left }>
 										<div role="tooltip" tabIndex={ -1 }>
-											{ ( renderTooltip ?? defaultRenderTooltip )( tooltipData ) }
+											{ ( renderTooltip ?? defaultRenderTooltip )( activeTooltip.data ) }
 										</div>
 									</TooltipInPortal>
 								) }

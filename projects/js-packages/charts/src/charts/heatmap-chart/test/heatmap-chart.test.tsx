@@ -78,6 +78,25 @@ describe( 'HeatmapChart', () => {
 	} );
 	/* eslint-enable testing-library/no-node-access */
 
+	test( 'shows a tooltip on keyboard navigation when withTooltips is set', async () => {
+		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		grid.focus();
+		await userEvent.setup().keyboard( '{ArrowDown}' );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+	} );
+
+	test( 'hides the keyboard tooltip on Escape', async () => {
+		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+		grid.focus();
+		await user.keyboard( '{ArrowDown}' );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+		await user.keyboard( '{Escape}' );
+		expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+	} );
+
 	test( 'renders a composition legend with Less/More labels', () => {
 		render(
 			<GlobalChartsProvider>
