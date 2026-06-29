@@ -132,9 +132,6 @@
 				// @wordpress/theme is grouped here because many bundled packages (notably @wordpress/ui)
 				// rely on its design tokens (--wpds-*).
 				'@wordpress/theme',
-				// @wordpress/stylelint-config is grouped with theme because its WPDS rules lint against
-				// the token set shipped in @wordpress/theme — the two should be updated in lockstep.
-				'@wordpress/stylelint-config',
 				// @wordpress/build is still heavily developed; its dashboards share the same bundled
 				// packages and test surface, so exercising build alongside the rest is practical.
 				'@wordpress/build',
