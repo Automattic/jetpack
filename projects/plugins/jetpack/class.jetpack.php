@@ -782,8 +782,13 @@ class Jetpack {
 	 * apart yet (this runs before `rest_api_init`), so callers defer the REST
 	 * case by initializing the package on `rest_api_init` instead, while a plain
 	 * page view never fires that hook and so loads nothing. This keeps
-	 * admin/REST-only PHP out of opcache on the front-end GET hot path with no
-	 * change in behavior.
+	 * admin/REST-only PHP out of opcache on the front-end GET hot path.
+	 *
+	 * No in-repo code depends on the deferral. The one externally observable
+	 * change is timing: the packages' documented init hooks
+	 * (`jetpack_import_initialized`, `jetpack_feature_import_enabled`, and
+	 * `my_jetpack_init`) no longer fire on a plain front-end GET — they fire on
+	 * the admin, cron, POST, WP-CLI, and REST requests where the packages load.
 	 *
 	 * @return bool
 	 */
@@ -801,6 +806,8 @@ class Jetpack {
 	 * runs after Config::on_plugins_loaded() has already processed its feature
 	 * flags, so it needs a hookable bootstrap callback. Preserve Config's
 	 * feature-enabled action for hook consumers.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return void
 	 */

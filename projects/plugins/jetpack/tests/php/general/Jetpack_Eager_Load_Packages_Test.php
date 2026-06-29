@@ -40,6 +40,13 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	private $original_my_jetpack_rest_priority;
 
 	/**
+	 * Action-count globals stashed by force_unfire_action(), restored in tear_down.
+	 *
+	 * @var array<string, int>
+	 */
+	private $stashed_action_counts = array();
+
+	/**
 	 * Stash request state that the gate reads from $_SERVER.
 	 */
 	public function set_up() {
@@ -72,8 +79,50 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		if ( false !== $this->original_my_jetpack_rest_priority ) {
 			add_action( 'rest_api_init', array( \Automattic\Jetpack\My_Jetpack\Initializer::class, 'init' ), $this->original_my_jetpack_rest_priority );
 		}
+
+		foreach ( $this->stashed_action_counts as $action => $count ) {
+			$GLOBALS['wp_actions'][ $action ] = $count;
+		}
+		$this->stashed_action_counts = array();
+
+		// The end-to-end route tests swap in a throwaway REST server; drop it so it
+		// does not leak into other suites, and clear the connection-owner memo.
+		$GLOBALS['wp_rest_server'] = null;
+		Jetpack::connection()->reset_connection_status();
+
 		set_current_screen( 'front' );
 		parent::tear_down();
+	}
+
+	/**
+	 * Force `did_action( $action )` back to 0 for the rest of the test, stashing the
+	 * real count so tear_down can restore it.
+	 *
+	 * The package bootstraps guard on `did_action()` (Import_Main::configure() and
+	 * My_Jetpack_Initializer::init() both no-op once their init action has fired),
+	 * so the deferred-route tests must start from an un-fired baseline to exercise
+	 * the real registration path rather than the early return.
+	 *
+	 * @param string $action Action hook name.
+	 */
+	private function force_unfire_action( $action ) {
+		$this->stashed_action_counts[ $action ] = did_action( $action );
+		unset( $GLOBALS['wp_actions'][ $action ] );
+	}
+
+	/**
+	 * Whether any registered REST route lives under the given namespace prefix.
+	 *
+	 * @param string $prefix Route prefix, e.g. '/jetpack/v4/import'.
+	 * @return bool
+	 */
+	private function has_route_under( $prefix ) {
+		foreach ( array_keys( rest_get_server()->get_routes() ) as $route ) {
+			if ( str_starts_with( $route, $prefix ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -246,6 +295,63 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 
 		$this->assertFalse(
 			has_action( 'rest_api_init', array( \Automattic\Jetpack\My_Jetpack\Initializer::class, 'init' ) )
+		);
+	}
+
+	/**
+	 * End-to-end: the deferred Import bootstrap runs at rest_api_init priority 0 and
+	 * adds the route-registration callback at the default priority, which must still
+	 * fire later in the *same* rest_api_init pass so the routes actually register.
+	 *
+	 * The other Import tests only assert the priority-0 callback is attached; this one
+	 * fires rest_api_init and checks the routes land in the server, so a future
+	 * priority tweak that broke the pri-0 -> pri-10 re-add (404-ing the importer) can't
+	 * pass with the unit tests still green.
+	 */
+	public function test_deferred_import_routes_register_when_rest_api_init_fires() {
+		// The importer only registers its REST routes for a connected owner.
+		$owner = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'master_user', $owner );
+		Jetpack_Options::update_option( 'user_tokens', array( $owner => "dummy.usertoken.$owner" ) );
+		Jetpack::connection()->reset_connection_status();
+
+		// Start from a clean slate so registration can only happen via the re-add below.
+		$this->force_unfire_action( 'jetpack_import_initialized' );
+		remove_action( 'rest_api_init', array( \Automattic\Jetpack\Import\Main::class, 'initialize_rest_api' ) );
+
+		// Mirror the gate's deferred front-end-GET wiring.
+		add_action( 'rest_api_init', array( Jetpack::class, 'configure_import_package' ), 0 );
+
+		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
+		do_action( 'rest_api_init' );
+
+		$this->assertTrue(
+			$this->has_route_under( '/jetpack/v4/import' ),
+			'Deferred Import bootstrap did not register its REST routes when rest_api_init fired.'
+		);
+	}
+
+	/**
+	 * End-to-end counterpart for My Jetpack: the deferred Initializer::init runs at
+	 * rest_api_init priority 0 and its default-priority route registration must still
+	 * fire in the same pass, so the my-jetpack/v1 routes actually register.
+	 */
+	public function test_deferred_my_jetpack_routes_register_when_rest_api_init_fires() {
+		// Clean slate so registration can only happen via the re-add below.
+		$this->force_unfire_action( 'my_jetpack_init' );
+		remove_action( 'rest_api_init', array( \Automattic\Jetpack\My_Jetpack\Initializer::class, 'register_rest_endpoints' ) );
+
+		// Mirror the gate's deferred front-end-GET wiring.
+		add_action( 'rest_api_init', array( \Automattic\Jetpack\My_Jetpack\Initializer::class, 'init' ), 0 );
+
+		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
+		do_action( 'rest_api_init' );
+
+		$this->assertTrue(
+			$this->has_route_under( '/my-jetpack/v1' ),
+			'Deferred My Jetpack bootstrap did not register its REST routes when rest_api_init fired.'
 		);
 	}
 }
