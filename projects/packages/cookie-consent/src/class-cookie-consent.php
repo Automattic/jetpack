@@ -666,8 +666,8 @@ class Cookie_Consent {
 		$log_config = isset( $config['log'] ) && is_array( $config['log'] ) ? $config['log'] : array();
 
 		return array(
-			'policy_version' => self::normalize_log_version( $log_config['policy_version'] ?? '1' ),
-			'banner_version' => self::normalize_log_version( $log_config['banner_version'] ?? '1' ),
+			'policy_version' => self::normalize_log_version( $log_config['policy_version'] ?? '1', 'policy_version' ),
+			'banner_version' => self::normalize_log_version( $log_config['banner_version'] ?? '1', 'banner_version' ),
 		);
 	}
 
@@ -725,20 +725,29 @@ class Cookie_Consent {
 	/**
 	 * Normalize a configured log version value for callers.
 	 *
-	 * @param mixed $version Version value from config.
+	 * @param mixed  $version Version value from config.
+	 * @param string $key     Config key being normalized, used for diagnostics.
 	 * @return string Non-empty log version.
 	 */
-	private static function normalize_log_version( $version ) {
-		if ( ! is_scalar( $version ) ) {
-			return '1';
+	private static function normalize_log_version( $version, $key ) {
+		if ( is_scalar( $version ) ) {
+			$normalized = sanitize_text_field( (string) $version );
+			if ( '' !== $normalized ) {
+				return $normalized;
+			}
 		}
 
-		$version = sanitize_text_field( (string) $version );
-		if ( '' === $version ) {
-			return '1';
-		}
+		// A supplied value that isn't a usable version string would silently become the
+		// default '1' on a proof-of-consent record, masking a misconfiguration. Surface it
+		// so an integrating developer notices the configured value was dropped.
+		_doing_it_wrong(
+			__METHOD__,
+			/* translators: %s is the log version configuration key. */
+			esc_html( sprintf( __( 'Cookie consent log version for "%s" was ignored because it is not a non-empty scalar value.', 'jetpack-cookie-consent' ), $key ) ),
+			''
+		);
 
-		return $version;
+		return '1';
 	}
 
 	/**

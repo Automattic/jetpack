@@ -16,11 +16,37 @@ use PHPUnit\Framework\Attributes\CoversMethod;
 class Cookie_Consent_Log_Versions_Test extends TestCase {
 
 	/**
-	 * Tear down: clear cookie-consent config filters.
+	 * _doing_it_wrong() function names captured during a test.
+	 *
+	 * @var string[]
+	 */
+	private $doing_it_wrong = array();
+
+	/**
+	 * Tear down: clear cookie-consent config filters and doing-it-wrong capture.
 	 */
 	public function tearDown(): void {
 		remove_all_filters( 'jetpack_cookie_consent_config' );
+		remove_all_filters( 'doing_it_wrong_trigger_error' );
+		remove_all_actions( 'doing_it_wrong_run' );
 		parent::tearDown();
+	}
+
+	/**
+	 * Capture _doing_it_wrong() calls without tripping the suite's failOnWarning gate.
+	 *
+	 * Records each triggering function name in $this->doing_it_wrong and suppresses the
+	 * underlying PHP warning, so a test can assert the diagnostic fired.
+	 */
+	private function capture_doing_it_wrong() {
+		$this->doing_it_wrong = array();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) {
+				$this->doing_it_wrong[] = $function_name;
+			}
+		);
 	}
 
 	/**
@@ -83,9 +109,10 @@ class Cookie_Consent_Log_Versions_Test extends TestCase {
 	}
 
 	/**
-	 * Invalid log version values fall back to the default version.
+	 * Invalid log version values fall back to the default version and surface a diagnostic.
 	 */
 	public function test_get_log_versions_defaults_invalid_values() {
+		$this->capture_doing_it_wrong();
 		add_filter(
 			'jetpack_cookie_consent_config',
 			static function ( $config ) {
@@ -103,12 +130,16 @@ class Cookie_Consent_Log_Versions_Test extends TestCase {
 			),
 			Cookie_Consent::get_log_versions()
 		);
+
+		// Both dropped values are surfaced rather than silently defaulted.
+		$this->assertCount( 2, $this->doing_it_wrong );
 	}
 
 	/**
-	 * Empty log version values fall back to the default version.
+	 * Empty log version values fall back to the default version and surface a diagnostic.
 	 */
 	public function test_get_log_versions_defaults_empty_values() {
+		$this->capture_doing_it_wrong();
 		add_filter(
 			'jetpack_cookie_consent_config',
 			static function ( $config ) {
@@ -126,5 +157,8 @@ class Cookie_Consent_Log_Versions_Test extends TestCase {
 			),
 			Cookie_Consent::get_log_versions()
 		);
+
+		// Both dropped values are surfaced rather than silently defaulted.
+		$this->assertCount( 2, $this->doing_it_wrong );
 	}
 }
