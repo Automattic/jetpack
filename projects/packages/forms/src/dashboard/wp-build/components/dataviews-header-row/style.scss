@@ -9,12 +9,6 @@
 	container-type: inline-size;
 	flex-shrink: 0;
 
-	@container (width < 500px) {
-		--wp-ui-stack-justify: flex-start;
-		flex-direction: column;
-		align-items: flex-start;
-	}
-
 	> div:not(:empty) {
 		min-height: 48px;
 	}
@@ -35,4 +29,3 @@
 	margin-inline-start: 4px;
 	vertical-align: middle;
 }
-

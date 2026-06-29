@@ -75,9 +75,8 @@ export const Likes = withModuleSettingsFormHelpers(
 						</p>
 						<ModuleToggle
 							slug="likes"
-							disabled={ unavailableInOfflineMode }
+							disabled={ unavailableInOfflineMode || this.props.isSavingAnyOption( 'likes' ) }
 							activated={ isActive }
-							toggling={ this.props.isSavingAnyOption( 'likes' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">

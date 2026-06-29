@@ -9,8 +9,10 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
+use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Visitor;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
 
@@ -275,11 +277,13 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 	$domain          = wp_parse_url( home_url(), PHP_URL_HOST );
 	$ordered_submenu = array();
 
-	// Re-add submenu items in the desired order.
+	// Re-add submenu items in the desired order. Dedupe because a slug in
+	// $desired_order can be a substring of another item's URL, which would
+	// otherwise match the same item twice.
 	foreach ( $desired_order as $submenu_slug ) {
 		foreach ( $submenu[ $menu_slug ] as $item ) {
 			$clean_url = str_replace( $domain, '', $item[2] );
-			if ( str_contains( $clean_url, $submenu_slug ) ) {
+			if ( str_contains( $clean_url, $submenu_slug ) && ! in_array( $item, $ordered_submenu, true ) ) {
 				$ordered_submenu[] = $item;
 			}
 		}
@@ -385,9 +389,55 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Jetpack > Subscribers.
-	if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
-		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
+	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
+
+	// When the Newsletter modernization filter is on, the unified Newsletter page
+	// owns the Subscribers tab and the legacy Calypso "Subscribers" submenu is
+	// retired, replaced by a transitional announcement page that points there;
+	// otherwise we keep the legacy Calypso submenu. (The wp-admin
+	// subscriber-management variant was removed with the subscribers-dashboard
+	// package and isn't restored.)
+	//
+	// The filter default is the staged-rollout cohort: on for Automatticians (so
+	// a12s can dogfood and test fixes) and for the percentage cohort, bucketed by
+	// the site's stable wpcom blog ID. This mirrors the canonical
+	// Newsletter\Settings::is_modernization_rollout_enabled(); the newsletter
+	// package isn't a dependency of jetpack-mu-wpcom and this runs unconditionally —
+	// ahead of the class_exists-guarded Subscribers_Announcement use below — so the
+	// a11n check and the bucket math are inlined rather than referenced from the
+	// class. The rollout percentage — the one value that moves to widen the rollout —
+	// is read from the canonical MODERNIZATION_ROLLOUT_PERCENTAGE constant when the
+	// newsletter package is loaded (always so on WordPress.com), falling back to 0
+	// otherwise, so there is no second copy of the number to keep in sync. The
+	// percentage is currently 0 — the Simple-site rollout is driven from the
+	// WordPress.com backend instead.
+	//
+	// The cohort keys on the wpcom blog ID (current blog ID on Simple, stored wpcom
+	// ID on WoA) rather than the transient `IS_WPCOM` constant, so a site keeps its
+	// cohort decision when it is upgraded from Simple to Atomic and doesn't lose the
+	// modernized experience on transfer. The a12s check mirrors the canonical helper:
+	// `is_automattician()` is a WordPress.com global that only exists on Simple sites,
+	// so WoA falls back to the proxied-request check. (This mu-plugin only loads on
+	// WordPress.com, so the canonical helper's all-sites percentage gate reduces to
+	// the wpcom-blog-ID bucket here.)
+	//
+	// On WordPress.com (Simple and WoA) this menu is the canonical owner of the
+	// Subscribers entry, so the announcement page is registered here for both
+	// platforms; the standalone plugin's subscriptions module defers to it on
+	// wpcom to avoid a duplicate.
+	$rollout_percentage            = defined( '\Automattic\Jetpack\Newsletter\Settings::MODERNIZATION_ROLLOUT_PERCENTAGE' )
+		? (int) constant( '\Automattic\Jetpack\Newsletter\Settings::MODERNIZATION_ROLLOUT_PERCENTAGE' )
+		: 0;
+	$host                          = new Host();
+	$is_automattician              = ( function_exists( 'is_automattician' ) && is_automattician() )
+		|| ( new Visitor() )->is_automattician_feature_flags_only();
+	$rollout_blog_id               = $host->is_wpcom_simple()
+		? (int) get_current_blog_id()
+		: (int) \Jetpack_Options::get_option( 'id' );
+	$modernization_rollout_default = $is_automattician
+		|| ( $rollout_blog_id > 0 && ( $rollout_blog_id % 100 ) < $rollout_percentage );
+	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', $modernization_rollout_default ) ) {
 		add_submenu_page(
 			'jetpack',
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),
@@ -396,28 +446,24 @@ function wpcom_add_jetpack_submenu() {
 			'https://wordpress.com/subscribers/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
-	} else {
-		$subscribers_dashboard = new Subscribers_Dashboard();
-		$subscribers_dashboard->add_wp_admin_submenu();
+	} elseif ( class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by the sibling autoloader (bundled Jetpack on Simple, standalone plugin on Atomic).
+		\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_wp_admin_submenu();
 	}
 
-	// Jetpack > Podcasting
-	add_submenu_page(
-		'jetpack',
-		__( 'Podcasting', 'jetpack-mu-wpcom' ),
-		__( 'Podcasting', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		'https://wordpress.com/settings/podcasting/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	Podcast_Admin_Page::add_wp_admin_submenu();
 
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
 		// Register the in-admin Newsletter settings page (with its own render callback
 		// and admin hooks). This must be done here (at priority 999999) because the
 		// Jetpack menu is created by this function and doesn't exist at earlier priorities.
-		$newsletter_settings = new Newsletter_Settings();
-		$newsletter_settings->add_wp_admin_submenu();
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Settings' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			$newsletter_settings = new Newsletter_Settings();
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			$newsletter_settings->add_wp_admin_submenu();
+		}
 
 		// Jetpack > Traffic
 		add_submenu_page(
@@ -430,8 +476,9 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	// Jetpack > Activity Log.
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
+	// Jetpack > Activity Log. On WPCOM hosts we prefer the direct wordpress.com/activity-log link
+	// below; hide the native Jetpack Activity Log page added by the `jetpack-activity-log` package.
+	wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
 	add_submenu_page(
 		'jetpack',
 		/** "Activity Log" is a product name, do not translate. */
@@ -458,7 +505,7 @@ function wpcom_add_jetpack_submenu() {
 			'search',
 			'subscribers',
 			'newsletter',
-			'podcasting',
+			'podcast',
 			'traffic',
 			'jetpack#/settings',
 		)
@@ -760,7 +807,6 @@ function wpcom_add_settings_menu() {
 			'crowdsignal',
 			'rating',
 			'newsletter',
-			'podcasting',
 		)
 	);
 }

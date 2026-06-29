@@ -9,8 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginMixedKeyNoKey : 8 occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 7 occurrences
+    // PhanPluginMixedKeyNoKey : 7 occurrences
     // PhanPluginUnreachableCode : 4 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
@@ -19,8 +18,6 @@ return [
     // PhanTypeMissingReturn : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanParamSignatureMismatch : 1 occurrence
-    // PhanPluginDuplicateExpressionAssignmentOperation : 1 occurrence
-    // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanSuspiciousMagicConstant : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
@@ -33,19 +30,15 @@ return [
     'file_suppressions' => [
         'src/class-connections.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredMethod'],
         'src/class-keyring-helper.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
-        'src/class-publicize-base.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch'],
-        'src/class-publicize-ui.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-publicize-base.php' => ['PhanDeprecatedFunction', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch'],
+        'src/class-publicize-ui.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-publicize.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
-        'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-rest-controller.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/rest-api/class-connections-controller.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeSuspiciousNonTraversableForeach'],
-        'src/rest-api/class-connections-post-field.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/rest-api/class-scheduled-actions-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-services-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-share-status-controller.php' => ['PhanPluginMixedKeyNoKey'],
-        'src/rest-api/class-x-usage-controller.php' => ['PhanPluginMixedKeyNoKey'],
-        'src/social-image-generator/class-post-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey'],
-        'src/social-image-generator/class-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-setup.php' => ['PhanTypeMismatchArgumentNullable'],
         'tests/php/Connections_Post_Field_Test.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],
     ],

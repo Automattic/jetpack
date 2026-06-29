@@ -2,10 +2,11 @@ import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
-import { Placeholder, SandBox, Button, ExternalLink, withNotices } from '@wordpress/components';
+import { Placeholder, SandBox, Button, withNotices } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { withViewportMatch } from '@wordpress/viewport';
 import metadata from './block.json';
 import GoogleCalendarInspectorControls from './controls';
@@ -97,9 +98,9 @@ export function GoogleCalendarEdit( props ) {
 	const html = `<iframe src="${ url }" style="border:0" scrolling="no" frameborder="0" height="${ iframeHeight }"></iframe>`;
 
 	const permissionsLink = (
-		<ExternalLink href="https://en.support.wordpress.com/google-calendar/">
+		<Link openInNewTab href="https://en.support.wordpress.com/google-calendar/">
 			{ __( 'Enable Permissions for the calendar you want to share', 'jetpack' ) }
-		</ExternalLink>
+		</Link>
 	);
 
 	const controls = (
@@ -136,7 +137,9 @@ export function GoogleCalendarEdit( props ) {
 					</ol>
 					{ getEditForm( `${ defaultClassName }-embed-form-editor` ) }
 					<div className={ `${ defaultClassName }-placeholder-links` }>
-						<ExternalLink href={ supportLink }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
+						<Link openInNewTab href={ supportLink }>
+							{ __( 'Learn more', 'jetpack' ) }
+						</Link>
 					</div>
 				</Placeholder>
 			</>

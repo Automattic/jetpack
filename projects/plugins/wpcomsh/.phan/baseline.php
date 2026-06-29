@@ -12,12 +12,12 @@ return [
     // PhanPluginMixedKeyNoKey : 50+ occurrences
     // PhanUndeclaredStaticMethod : 15+ occurrences
     // PhanTypeMismatchArgument : 6 occurrences
+    // PhanUndeclaredClassMethod : 6 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
     // PhanTypeVoidArgument : 5 occurrences
     // PhanTypeVoidAssignment : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
-    // PhanUndeclaredClassMethod : 6 occurrences
     // PhanContextNotObject : 1 occurrence
     // PhanDeprecatedFunction : 1 occurrence
     // PhanDeprecatedProperty : 1 occurrence

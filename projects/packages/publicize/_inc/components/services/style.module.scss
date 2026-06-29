@@ -39,12 +39,6 @@
 		align-items: center;
 	}
 
-	.badges {
-		display: flex;
-		gap: 0.5rem;
-	}
-
-
 	.title {
 		font-size: 16px;
 		line-height: 24px;
@@ -141,6 +135,12 @@
 			margin-inline-end: auto;
 		}
 	}
+}
+
+.service-connection-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
 }
 
 .service-connection {

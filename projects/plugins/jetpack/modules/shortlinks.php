@@ -37,9 +37,9 @@ if ( ! function_exists( 'wpme_dec2sixtwo' ) ) {
 		}
 
 		for ( $t = floor( log10( $num ) / log10( 62 ) ); $t >= 0; $t-- ) {
-			$a   = (int) floor( $num / pow( 62, $t ) );
-			$out = $out . substr( $index, $a, 1 );
-			$num = $num - ( $a * pow( 62, $t ) );
+			$a    = (int) floor( $num / pow( 62, $t ) );
+			$out .= substr( $index, $a, 1 );
+			$num -= $a * pow( 62, $t );
 		}
 
 		return $out;
@@ -190,3 +190,6 @@ function wpme_set_extension_available() {
 }
 
 add_action( 'init', 'wpme_set_extension_available' );
+
+require_once __DIR__ . '/shortlinks/abilities/class-shortlinks-abilities.php';
+\Automattic\Jetpack\Plugin\Abilities\Shortlinks_Abilities::init();

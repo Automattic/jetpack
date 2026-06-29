@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Recovery-mode sync: include per-extension error info so wpcom-side consumers can surface what fataled.

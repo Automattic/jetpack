@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Drop the A8C_PROXIED_REQUEST gate from the ?reprint-api export handler so Playground clients can reach it. Authentication still relies on HMAC + the 60-minute activation window.

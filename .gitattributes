@@ -17,12 +17,47 @@
 .gitkeep      production-exclude
 
 # We don't need these files in any production mirror.
-eslint.config.mjs   production-exclude
-.eslintignore       production-exclude
-jsconfig.json       production-exclude
-tsconfig.json       production-exclude
-**/.phan/**         production-exclude
-**/.w.org-assets/** production-exclude
-phpunit.xml.dist    production-exclude
-phpunit.*.xml.dist  production-exclude
-**/CLAUDE.md         production-exclude
+AGENTS.md              production-exclude
+babel.config.js        production-exclude
+babel.config.[cm]js    production-exclude
+.babelrc               production-exclude
+.c8rc.json             production-exclude
+CLAUDE.md              production-exclude
+composer.lock          production-exclude
+eslint.config.mjs      production-exclude
+.eslintignore          production-exclude
+.gitignore             production-exclude
+jest.config.js         production-exclude
+jest.config.[cm]js     production-exclude
+jsconfig.json          production-exclude
+.phpcs.dir.xml         production-exclude
+.phpcs.dir.phpcompatibility.xml  production-exclude
+.phpcsignore           production-exclude
+phpunit.*.xml.dist     production-exclude
+phpunit.xml.dist       production-exclude
+tsconfig.json          production-exclude
+webpack.config.js      production-exclude
+webpack.config.[cm]js  production-exclude
+**/changelog/**        production-exclude
+**/.phan/**            production-exclude
+**/.w.org-assets/**    production-exclude
+projects/*/*/tests/**  production-exclude
+
+# We only need package.json in js-packages.
+projects/*/*/package.json            production-exclude
+projects/js-packages/*/package.json  !production-exclude
+
+# Plugins bundle vendor packages. There are some files we can trim from there.
+projects/plugins/*/vendor/composer/installed.json                 production-exclude
+projects/plugins/*/vendor/automattic/jetpack-autoloader/**        production-exclude
+projects/plugins/*/vendor/automattic/jetpack-composer-plugin/**   production-exclude
+
+# For our own packages, we can safely trim even more.
+projects/plugins/*/vendor/automattic/*/composer.json              production-exclude
+projects/plugins/*/vendor/automattic/*/LICENSE.txt                production-exclude
+projects/plugins/*/vendor/automattic/*/SECURITY.md                production-exclude
+projects/plugins/*/vendor/automattic/*/**/README.md               production-exclude
+projects/plugins/*/jetpack_vendor/automattic/*/composer.json      production-exclude
+projects/plugins/*/jetpack_vendor/automattic/*/LICENSE.txt        production-exclude
+projects/plugins/*/jetpack_vendor/automattic/*/SECURITY.md        production-exclude
+projects/plugins/*/jetpack_vendor/automattic/*/**/README.md       production-exclude

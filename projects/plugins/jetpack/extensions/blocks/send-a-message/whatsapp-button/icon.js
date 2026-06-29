@@ -1,4 +1,4 @@
-import { SVG, Path } from '@wordpress/components';
+import { Path, SVG } from '@wordpress/primitives';
 
 export default (
 	<SVG width="24" height="24" viewBox="0 0 24 24" version="1.1">

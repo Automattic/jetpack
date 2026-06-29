@@ -1,0 +1,42 @@
+.jpb-download {
+	max-width: 700px;
+	margin-inline: auto;
+	padding: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+
+	&__back {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		text-decoration: none;
+		width: max-content;
+	}
+
+	&__card {
+		padding: 24px;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	// Card.Root lays its children out as a flex column, so a `<Button>`
+	// child stretches to fill the cross-axis (the full card width) by
+	// default. Pin the Generate action to its content width.
+	&__confirm {
+		align-self: flex-start;
+
+		// wp-admin's global `svg { fill: … }` is unlayered and beats
+		// `@wordpress/ui` Button's layered icon color. Force the SVG
+		// to inherit the button's text color so the icon stays white
+		// on the blue primary background.
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	&__link {
+		font-weight: 600;
+	}
+}

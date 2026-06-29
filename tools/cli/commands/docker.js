@@ -1,4 +1,4 @@
-import { spawnSync } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import fs from 'fs';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
@@ -8,6 +8,49 @@ import { dockerFolder, setConfig } from '../helpers/docker-config.js';
  * How to run Docker compose.
  */
 let dockerComposeCmd = null;
+
+/**
+ * Normalize and validate a short project name to match Docker Compose rules.
+ *
+ * Compose requires project names to consist of lowercase alphanumeric characters, hyphens,
+ * and underscores, starting with a letter or digit. Uppercase input is auto-lowercased so
+ * `--name Feature` "just works"; anything else throws a clear error early, before compose.
+ *
+ * @param {string} name - User-supplied short name (e.g. from --name or --clone-from).
+ * @return {string} Normalized (lowercased) short name.
+ */
+export const normalizeProjectShortName = name => {
+	const original = String( name );
+	const normalized = original.toLowerCase();
+	if ( ! /^[a-z0-9][a-z0-9_-]*$/.test( normalized ) ) {
+		throw new Error(
+			`Invalid project name '${ original }'. Use only lowercase letters, digits, '-' and '_' (must start with a letter or digit).`
+		);
+	}
+	return normalized;
+};
+
+/**
+ * Build a yargs `coerce` handler that normalizes a project short-name option and prints
+ * a friendly note when it had to lowercase the input.
+ *
+ * @param {string} flag - The user-facing flag label (e.g. '--name').
+ * @return {Function} yargs coerce function.
+ */
+const coerceProjectShortName = flag => value => {
+	if ( value === undefined || value === null || value === '' ) {
+		return value;
+	}
+	const normalized = normalizeProjectShortName( value );
+	if ( normalized !== String( value ) ) {
+		console.warn(
+			chalk.yellow(
+				`Note: ${ flag } '${ value }' was normalized to '${ normalized }' (compose project names must be lowercase).`
+			)
+		);
+	}
+	return normalized;
+};
 
 /**
  * Sets default options that are common for most of the commands
@@ -25,10 +68,41 @@ const defaultOpts = yargs =>
 		.option( 'name', {
 			alias: 'n',
 			describe: 'Project name',
+			coerce: coerceProjectShortName( '--name' ),
 		} )
 		.option( 'port', {
 			alias: 'p',
 			describe: 'WP port',
+		} )
+		.option( 'port-phpmy', {
+			describe: 'phpMyAdmin port',
+		} )
+		.option( 'port-inbox', {
+			describe: 'Mailpit web UI port',
+		} )
+		.option( 'port-smtp', {
+			describe: 'Mailpit SMTP port',
+		} )
+		.option( 'port-sftp', {
+			describe: 'SFTP port',
+		} )
+		.option( 'clone-from', {
+			type: 'string',
+			describe:
+				'Clone the database from an existing running instance (short name, e.g. --clone-from dev). When omitted but --name is set, the default jetpack_dev instance is used automatically if running.',
+			coerce: coerceProjectShortName( '--clone-from' ),
+		} )
+		.option( 'clone', {
+			type: 'boolean',
+			default: true,
+			describe:
+				'Auto-clone the database from jetpack_dev when spinning up a parallel instance with --name. Use --no-clone to opt out and get a fresh install instead.',
+		} )
+		.option( 'update-env', {
+			type: 'boolean',
+			default: false,
+			describe:
+				"When `up` flag values conflict with the worktree's tools/docker/.env, rewrite the conflicting keys in .env to match the flags. Without this, the flag wins for the current run and a warning is printed; .env is left untouched.",
 		} )
 		.option( 'ngrok', {
 			type: 'boolean',
@@ -41,10 +115,10 @@ const defaultOpts = yargs =>
  * @param {object} argv - Yargs
  * @return {string} Project name
  */
-const getProjectName = argv => {
-	let project = 'dev';
-	if ( argv.type === 'e2e' ) {
-		project = argv.name ? argv.name : 'e2e';
+export const getProjectName = argv => {
+	let project = argv.type === 'e2e' ? 'e2e' : 'dev';
+	if ( argv.name ) {
+		project = argv.name;
 	}
 
 	return 'jetpack_' + project;
@@ -56,10 +130,25 @@ const getProjectName = argv => {
  * @param {object} argv - Yargs
  * @return {object} key-value pairs of ENV variables
  */
-const buildEnv = argv => {
+export const buildEnv = argv => {
 	const envOpts = {};
-	if ( argv.type === 'e2e' ) {
-		envOpts.PORT_WORDPRESS = argv.port ? argv.port : 8889;
+	if ( argv.port ) {
+		envOpts.PORT_WORDPRESS = argv.port;
+	} else if ( argv.type === 'e2e' ) {
+		envOpts.PORT_WORDPRESS = 8889;
+	}
+
+	if ( argv.portPhpmy ) {
+		envOpts.PORT_PHPMY = argv.portPhpmy;
+	}
+	if ( argv.portInbox ) {
+		envOpts.PORT_INBOX = argv.portInbox;
+	}
+	if ( argv.portSmtp ) {
+		envOpts.PORT_SMTP = argv.portSmtp;
+	}
+	if ( argv.portSftp ) {
+		envOpts.PORT_SFTP = argv.portSftp;
 	}
 
 	envOpts.COMPOSE_PROJECT_NAME = getProjectName( argv );
@@ -78,6 +167,404 @@ const buildEnv = argv => {
  */
 const setEnv = () => {
 	fs.closeSync( fs.openSync( `${ dockerFolder }/.env`, 'a' ) );
+};
+
+/**
+ * Keys the CLI manages in tools/docker/.env when spinning up a parallel instance.
+ * The CLI reads them as a base layer (flags still override) and may append the missing
+ * ones on `up --name <slug>`. Lines outside this set are never modified.
+ */
+export const PARALLEL_ENV_KEYS = [
+	'COMPOSE_PROJECT_NAME',
+	'PORT_WORDPRESS',
+	'PORT_PHPMY',
+	'PORT_INBOX',
+	'PORT_SMTP',
+	'PORT_SFTP',
+];
+
+const parallelEnvPath = () => `${ dockerFolder }/.env`;
+
+/**
+ * Read and parse the worktree's tools/docker/.env file.
+ *
+ * @param {string} [filePath] - Override path (mostly for tests).
+ * @return {object} Parsed key→value map. Empty object when the file is missing.
+ */
+export const readEnvFile = ( filePath = parallelEnvPath() ) => {
+	if ( ! fs.existsSync( filePath ) ) {
+		return {};
+	}
+	return envfile.parse( fs.readFileSync( filePath, 'utf8' ) );
+};
+
+/**
+ * Snapshot the parallel-instance argv values that came from CLI flags, so a later
+ * conflict check can distinguish flag-given values from .env-fill-in values.
+ *
+ * @param {object} argv - Yargs argv (post coerce, pre-augment).
+ * @return {object} Plain snapshot of parallel-relevant flag values.
+ */
+export const snapshotFlagArgv = argv => ( {
+	name: argv.name,
+	port: argv.port,
+	portPhpmy: argv.portPhpmy,
+	portInbox: argv.portInbox,
+	portSmtp: argv.portSmtp,
+	portSftp: argv.portSftp,
+} );
+
+/**
+ * Fill in argv defaults from the parsed .env file, but only for fields the user
+ * did not pass via flags. This lets a worktree configured by a previous
+ * `up --name foo --port 8080` "just work" with bare `jp docker up` afterwards.
+ *
+ * COMPOSE_PROJECT_NAME → argv.name only when it parses as `jetpack_<x>` and
+ * <x> is neither 'dev' nor 'e2e' — guards against the main checkout's .env
+ * silently redirecting the dev container.
+ *
+ * @param {object} argv    - Yargs argv (mutated in place).
+ * @param {object} fileEnv - Parsed .env contents (use readEnvFile()).
+ */
+export const augmentArgvFromEnvFile = ( argv, fileEnv ) => {
+	if ( ! argv.name && typeof fileEnv.COMPOSE_PROJECT_NAME === 'string' ) {
+		const match = fileEnv.COMPOSE_PROJECT_NAME.match( /^jetpack_(.+)$/ );
+		if ( match && match[ 1 ] !== 'dev' && match[ 1 ] !== 'e2e' ) {
+			argv.name = match[ 1 ];
+		}
+	}
+	if ( argv.port === undefined && fileEnv.PORT_WORDPRESS ) {
+		argv.port = Number( fileEnv.PORT_WORDPRESS );
+	}
+	if ( argv.portPhpmy === undefined && fileEnv.PORT_PHPMY ) {
+		argv.portPhpmy = Number( fileEnv.PORT_PHPMY );
+	}
+	if ( argv.portInbox === undefined && fileEnv.PORT_INBOX ) {
+		argv.portInbox = Number( fileEnv.PORT_INBOX );
+	}
+	if ( argv.portSmtp === undefined && fileEnv.PORT_SMTP ) {
+		argv.portSmtp = Number( fileEnv.PORT_SMTP );
+	}
+	if ( argv.portSftp === undefined && fileEnv.PORT_SFTP ) {
+		argv.portSftp = Number( fileEnv.PORT_SFTP );
+	}
+};
+
+/**
+ * Identify keys where the user passed a flag value that contradicts an existing
+ * .env entry. The flag wins for the current invocation; .env is left untouched
+ * unless --update-env was passed.
+ *
+ * @param {object} flagArgv - Snapshot of pre-augment flag values (from snapshotFlagArgv).
+ * @param {object} fileEnv  - Parsed .env contents.
+ * @return {Array<{key: string, fileValue: string, flagValue: string}>} Conflicting keys.
+ */
+export const detectEnvConflicts = ( flagArgv, fileEnv ) => {
+	const conflicts = [];
+	const check = ( key, flagValue ) => {
+		if ( flagValue === undefined || flagValue === null || flagValue === '' ) return;
+		const fileValue = fileEnv[ key ];
+		if ( fileValue === undefined ) return;
+		if ( String( fileValue ) !== String( flagValue ) ) {
+			conflicts.push( {
+				key,
+				fileValue: String( fileValue ),
+				flagValue: String( flagValue ),
+			} );
+		}
+	};
+	if ( flagArgv.name !== undefined ) {
+		check( 'COMPOSE_PROJECT_NAME', `jetpack_${ flagArgv.name }` );
+	}
+	check( 'PORT_WORDPRESS', flagArgv.port );
+	check( 'PORT_PHPMY', flagArgv.portPhpmy );
+	check( 'PORT_INBOX', flagArgv.portInbox );
+	check( 'PORT_SMTP', flagArgv.portSmtp );
+	check( 'PORT_SFTP', flagArgv.portSftp );
+	return conflicts;
+};
+
+/**
+ * Append the parallel-instance keys to .env when they are not already there.
+ * Strategy B: never modify lines that already exist; only append the keys we own
+ * that are missing. Idempotent — safe to run on every `up`.
+ *
+ * @param {object} envOpts    - Built env (from buildEnv) — provides the values to write.
+ * @param {string} [filePath] - Target .env path (mostly for tests).
+ * @return {string[]} Keys that were written. Empty when no-op.
+ */
+export const persistParallelEnv = ( envOpts, filePath = parallelEnvPath() ) => {
+	const existing = fs.existsSync( filePath )
+		? envfile.parse( fs.readFileSync( filePath, 'utf8' ) )
+		: {};
+	const toWrite = [];
+	for ( const key of PARALLEL_ENV_KEYS ) {
+		if ( envOpts[ key ] === undefined || envOpts[ key ] === '' ) continue;
+		if ( existing[ key ] !== undefined ) continue;
+		toWrite.push( key );
+	}
+	if ( toWrite.length === 0 ) return [];
+	const header =
+		"\n# Parallel-instance config (managed by `jp docker up --name`). Edit by hand at any\n# time; the CLI only appends keys that don't already exist.\n";
+	const block = toWrite.map( key => `${ key }=${ envOpts[ key ] }` ).join( '\n' ) + '\n';
+	fs.appendFileSync( filePath, header + block );
+	return toWrite;
+};
+
+/**
+ * Replace specific keys in .env in place, preserving every other line verbatim.
+ * Used by --update-env to reconcile flags with the persisted file.
+ *
+ * @param {string}                                  filePath  - Target .env path.
+ * @param {Array<{key: string, flagValue: string}>} conflicts - Conflicts from detectEnvConflicts.
+ * @return {string[]} Keys that were updated.
+ */
+export const applyUpdateEnv = ( filePath, conflicts ) => {
+	if ( conflicts.length === 0 ) return [];
+	const text = fs.existsSync( filePath ) ? fs.readFileSync( filePath, 'utf8' ) : '';
+	const lines = text.split( /\r?\n/ );
+	const updated = [];
+	for ( const { key, flagValue } of conflicts ) {
+		let replaced = false;
+		for ( let i = 0; i < lines.length; i++ ) {
+			const m = lines[ i ].match( /^(\s*)([A-Za-z_][A-Za-z0-9_]*)\s*=/ );
+			if ( m && m[ 2 ] === key ) {
+				lines[ i ] = `${ m[ 1 ] }${ key }=${ flagValue }`;
+				replaced = true;
+				break;
+			}
+		}
+		if ( ! replaced ) {
+			lines.push( `${ key }=${ flagValue }` );
+		}
+		updated.push( key );
+	}
+	fs.writeFileSync( filePath, lines.join( '\n' ) );
+	return updated;
+};
+
+/**
+ * Whether the hybrid tools/docker/.env parallel-instance machinery (reading keys as a base
+ * layer, conflict warnings, append-on-`up --name` persistence) applies to this invocation.
+ *
+ * Scoped to `up` on `type === 'dev'`. The e2e flow runs `docker --type e2e --name t1 up`,
+ * which sets argv.name but manages its own fixed ports and project name — it must neither
+ * read parallel keys from nor write them to the shared .env. Keeping the gate here (rather
+ * than only inline at the call sites) mirrors resolveDevCloneSource being "correct on its
+ * own terms" and makes the e2e exclusion unit-testable.
+ *
+ * @param {object} argv - Yargs argv.
+ * @return {boolean} true when parallel-env reads/writes should run.
+ */
+export const shouldManageParallelEnv = argv => argv.type === 'dev' && argv._[ 1 ] === 'up';
+
+/**
+ * Decides which source instance to clone the DB from when bringing up a dev container, if any.
+ *
+ * Purely argv-driven; whether the chosen source is actually running is checked by the caller.
+ * Always returns null for non-dev container types — the e2e framework manages its own DB.
+ *
+ * @param {object} argv - Yargs
+ * @return {{source: string, explicit: boolean} | null} Source compose project name and whether the user asked for it by name, or null to skip cloning.
+ */
+export const resolveDevCloneSource = argv => {
+	if ( argv.type !== 'dev' ) {
+		return null;
+	}
+	if ( argv.cloneFrom ) {
+		return { source: 'jetpack_' + argv.cloneFrom, explicit: true };
+	}
+	if ( argv.clone === false ) {
+		return null;
+	}
+	// Auto-clone only makes sense when the user is spinning up a parallel instance.
+	if ( ! argv.name ) {
+		return null;
+	}
+	const source = 'jetpack_dev';
+	if ( getProjectName( argv ) === source ) {
+		return null;
+	}
+	return { source, explicit: false };
+};
+
+/**
+ * Check whether a given compose project has at least one running container.
+ *
+ * @param {string} project - Compose project name (e.g. 'jetpack_dev').
+ * @return {boolean} true when any container for the project is currently running.
+ */
+const isProjectRunning = project => {
+	const res = spawnSync(
+		'docker',
+		[ 'ps', '-q', '--filter', `label=com.docker.compose.project=${ project }` ],
+		{ encoding: 'utf8' }
+	);
+	return res.status === 0 && res.stdout.trim().length > 0;
+};
+
+/**
+ * Pipe `wp db export` from a source container into `wp db import` on a target container,
+ * surfacing failures from either side independently.
+ *
+ * Replaces an earlier `bash -c '… | …'` invocation that masked source-side failures: with
+ * default bash, the pipe's exit status is the importer's only, so a broken `wp db export`
+ * could go unnoticed while the importer happily consumed partial/empty bytes and exited 0.
+ * Going node-native gives each side its own exit code.
+ *
+ * @param {string} sourceContainer - Source WP container name (e.g. 'jetpack_dev-wordpress-1').
+ * @param {string} targetContainer - Target WP container name (e.g. 'jetpack_foo-wordpress-1').
+ * @param {string} wpPath          - WP install path inside both containers (e.g. '/var/www/html').
+ * @return {Promise<void>} Resolves only when both processes exit 0; rejects with attribution otherwise.
+ */
+export const pipeDbDump = async ( sourceContainer, targetContainer, wpPath ) => {
+	const source = spawn(
+		'docker',
+		[ 'exec', sourceContainer, 'wp', 'db', 'export', '-', `--path=${ wpPath }` ],
+		{ stdio: [ 'ignore', 'pipe', 'inherit' ] }
+	);
+	const target = spawn(
+		'docker',
+		[ 'exec', '-i', targetContainer, 'wp', 'db', 'import', '-', `--path=${ wpPath }` ],
+		{ stdio: [ 'pipe', 'inherit', 'inherit' ] }
+	);
+	source.stdout.pipe( target.stdin );
+
+	const exitOf = proc =>
+		new Promise( ( resolve, reject ) => {
+			proc.on( 'exit', code => resolve( code ) );
+			proc.on( 'error', err => reject( err ) );
+		} );
+
+	const [ sourceCode, targetCode ] = await Promise.all( [ exitOf( source ), exitOf( target ) ] );
+
+	if ( sourceCode !== 0 && targetCode !== 0 ) {
+		throw new Error(
+			`db dump pipeline failed: source 'wp db export' exit ${ sourceCode }; target 'wp db import' exit ${ targetCode }.`
+		);
+	}
+	if ( sourceCode !== 0 ) {
+		throw new Error(
+			`source 'wp db export' failed (exit ${ sourceCode }). Target import is unreliable; aborting clone.`
+		);
+	}
+	if ( targetCode !== 0 ) {
+		throw new Error( `target 'wp db import' failed (exit ${ targetCode }).` );
+	}
+};
+
+/**
+ * Clone the database of a running source instance into a freshly-started target instance.
+ *
+ * Waits for the target's WordPress container to be ready, then skips if the target is already
+ * installed, resets the target DB, pipes `wp db export` from source → `wp db import` into
+ * target, and runs `wp search-replace` to rewrite the source siteurl to the target URL.
+ *
+ * @param {object} argv      - Yargs
+ * @param {string} source    - Source compose project name (e.g. 'jetpack_dev').
+ * @param {string} target    - Target compose project name (e.g. 'jetpack_feature').
+ * @param {object} targetEnv - ENV map for the target (used to compute target port).
+ */
+const cloneDatabase = async ( argv, source, target, targetEnv ) => {
+	const sourceWp = `${ source }-wordpress-1`;
+	const targetWp = `${ target }-wordpress-1`;
+	const wpPath = '/var/www/html';
+
+	console.log( chalk.cyan( `Cloning database: ${ source } → ${ target }` ) );
+
+	// Wait for the target's WP container + DB to be reachable via wp-cli.
+	try {
+		await retry(
+			async () => {
+				const res = spawnSync(
+					'docker',
+					[ 'exec', targetWp, 'wp', 'db', 'check', `--path=${ wpPath }` ],
+					{
+						stdio: 'ignore',
+					}
+				);
+				if ( res.status !== 0 ) {
+					throw new Error( 'target not ready' );
+				}
+			},
+			{ times: 24, delay: 5000 }
+		);
+	} catch {
+		console.error(
+			chalk.red( `Target ${ target } did not become ready in time. Aborting clone.` )
+		);
+		process.exit( 1 );
+	}
+
+	// If the target is already installed (e.g. the user re-ran `up` on a working instance), do nothing.
+	const installedCheck = spawnSync(
+		'docker',
+		[ 'exec', targetWp, 'wp', 'core', 'is-installed', `--path=${ wpPath }` ],
+		{ stdio: 'ignore' }
+	);
+	if ( installedCheck.status === 0 ) {
+		console.log(
+			chalk.yellow( `Target ${ target } already has an installed WordPress — skipping clone.` )
+		);
+		return;
+	}
+
+	// Read the source siteurl so search-replace can rewrite it afterwards.
+	const siteurlRes = spawnSync(
+		'docker',
+		[ 'exec', sourceWp, 'wp', 'option', 'get', 'siteurl', `--path=${ wpPath }` ],
+		{ encoding: 'utf8' }
+	);
+	if ( siteurlRes.status !== 0 ) {
+		console.error(
+			chalk.red(
+				`Could not read siteurl from source ${ source }. Is it installed? (try \`jetpack docker install\` there first)`
+			)
+		);
+		process.exit( 1 );
+	}
+	const sourceSiteUrl = siteurlRes.stdout.trim();
+
+	const targetPort = String( targetEnv.PORT_WORDPRESS || 80 );
+	const targetSiteUrl =
+		targetPort === '80' ? 'http://localhost' : `http://localhost:${ targetPort }`;
+
+	// Reset the target DB so import doesn't collide with the minimal tables compose may have created.
+	checkProcessResult(
+		spawnSync( 'docker', [ 'exec', targetWp, 'wp', 'db', 'reset', '--yes', `--path=${ wpPath }` ], {
+			stdio: 'inherit',
+		} )
+	);
+
+	console.log( chalk.cyan( 'Dumping source DB and importing into target…' ) );
+	try {
+		await pipeDbDump( sourceWp, targetWp, wpPath );
+	} catch ( err ) {
+		console.error( chalk.red( err.message ) );
+		process.exit( 1 );
+	}
+
+	if ( sourceSiteUrl !== targetSiteUrl ) {
+		console.log( chalk.cyan( `Rewriting URLs: ${ sourceSiteUrl } → ${ targetSiteUrl }` ) );
+		const sr = spawnSync(
+			'docker',
+			[
+				'exec',
+				targetWp,
+				'wp',
+				'search-replace',
+				sourceSiteUrl,
+				targetSiteUrl,
+				'--all-tables',
+				'--skip-columns=guid',
+				`--path=${ wpPath }`,
+			],
+			{ stdio: 'inherit' }
+		);
+		checkProcessResult( sr );
+	}
+
+	console.log( chalk.green( `Clone complete. Target site ready at ${ targetSiteUrl }/` ) );
 };
 
 /**
@@ -109,7 +596,7 @@ const printPostCmdMsg = argv => {
 		return;
 	}
 	if ( argv._[ 1 ] === 'up' ) {
-		const port = argv.port ? argv.port : '';
+		const port = argv.port ? `:${ argv.port }` : '';
 		const msg = chalk.green( `Open http://localhost${ port }/ to see your site!` );
 		console.log( msg );
 	}
@@ -334,6 +821,36 @@ async function retry( action, { times, delay = 5000 } ) {
 const defaultDockerCmdHandler = async argv => {
 	printPreCmdMsg( argv );
 
+	// Hybrid .env handling for `up`: read .env as a base layer (flags still win),
+	// surface conflicts as warnings (or rewrite when --update-env is set), and persist
+	// parallel-instance keys after a successful `up --name`. See tools/docker/README.md
+	// § "Parallel development environments" for the full precedence + semantics.
+	// Scoped via shouldManageParallelEnv (`up` + `type === 'dev'`): the e2e flow runs with a
+	// fixed `--name t1` and manages its own ports, so it must neither read parallel keys from
+	// nor write them to the shared tools/docker/.env.
+	if ( shouldManageParallelEnv( argv ) ) {
+		const flagSnapshot = snapshotFlagArgv( argv );
+		const fileEnv = readEnvFile();
+		augmentArgvFromEnvFile( argv, fileEnv );
+		const conflicts = detectEnvConflicts( flagSnapshot, fileEnv );
+		if ( conflicts.length ) {
+			if ( argv.updateEnv ) {
+				const updated = applyUpdateEnv( parallelEnvPath(), conflicts );
+				console.log(
+					chalk.cyan( `Updated tools/docker/.env keys to match flags: ${ updated.join( ', ' ) }.` )
+				);
+			} else {
+				for ( const c of conflicts ) {
+					console.warn(
+						chalk.yellow(
+							`⚠ ${ c.key }: flag value '${ c.flagValue }' differs from .env value '${ c.fileValue }'. Using flag for this run; pass --update-env to persist, or drop the flag to use .env.`
+						)
+					);
+				}
+			}
+		}
+	}
+
 	executor( argv, setEnv );
 	executor( argv, setConfig );
 
@@ -370,6 +887,53 @@ const defaultDockerCmdHandler = async argv => {
 
 		await retry( getContent, { times: 24 } ); // 24 * 5000 = 120 sec
 	}
+
+	// Auto-clone DB from a running source instance when spinning up a parallel one.
+	// Gate on the target actually being up rather than on `--detached`: in foreground
+	// mode `composeExecutor` blocks until the user exits compose, at which point the
+	// target is stopped and there's nothing to clone into. Skipping silently in that
+	// case is friendlier than hard-requiring `-d`. The `type === 'dev'` gate lives
+	// inside resolveDevCloneSource so the function is correct on its own terms.
+	if ( argv._[ 1 ] === 'up' ) {
+		const cloneReq = resolveDevCloneSource( argv );
+		if ( cloneReq ) {
+			const target = getProjectName( argv );
+			if ( ! isProjectRunning( target ) ) {
+				// Target never came up, or compose was foregrounded and already exited.
+			} else if ( ! isProjectRunning( cloneReq.source ) ) {
+				if ( cloneReq.explicit ) {
+					console.error(
+						chalk.red(
+							`--clone-from source '${ cloneReq.source }' is not running. Start it first, or omit --clone-from.`
+						)
+					);
+					process.exit( 1 );
+				}
+				// Auto-clone: silent skip — user gets the normal fresh-install flow.
+			} else {
+				await cloneDatabase( argv, cloneReq.source, target, envOpts );
+			}
+		}
+	}
+
+	// Persist parallel-instance config to .env on `up --name`. Idempotent: only appends
+	// keys that aren't already in the file (Strategy B). Skipped for the primary
+	// `jetpack_dev` flow (no --name) so the main checkout's .env is never written to.
+	// Also skipped for non-dev types: the e2e flow always passes `--name t1`, but it
+	// must not write COMPOSE_PROJECT_NAME/PORT_* into the shared tools/docker/.env.
+	if ( shouldManageParallelEnv( argv ) && argv.name ) {
+		const written = persistParallelEnv( envOpts );
+		if ( written.length ) {
+			console.log(
+				chalk.cyan(
+					`Persisted to tools/docker/.env: ${ written.join(
+						', '
+					) }. Subsequent \`jp docker up\` from this worktree will use these values.`
+				)
+			);
+		}
+	}
+
 	printPostCmdMsg( argv );
 };
 
@@ -410,11 +974,6 @@ const buildExecCmd = argv => {
 				unitTestArgs.plugin = 'jetpack';
 				unitTestArgs.envVars = [ 'JETPACK_TEST_WPCOMSH=1' ];
 				break;
-			case 'crm':
-				unitTestArgs.plugin = 'zero-bs-crm';
-				// @todo: Remove this when we drop support for PHP <8.0 and we can bump `thecodingmachine/safe` to v2.
-				unitTestArgs.prependFile = 'tests/suppress_php84_deprecations.php';
-				break;
 			case 'wpcomsh':
 				unitTestArgs.plugin = 'wpcomsh';
 				unitTestArgs.envVars = [
@@ -428,7 +987,6 @@ const buildExecCmd = argv => {
 	} else if (
 		cmd === 'phpunit-jp-multisite' ||
 		cmd === 'phpunit-jp-wpcomsh' ||
-		cmd === 'phpunit-crm' ||
 		cmd === 'phpunit-wpcomsh'
 	) {
 		console.error(
@@ -734,7 +1292,7 @@ export function dockerDefine( yargs ) {
 							} )
 							.positional( 'target', {
 								describe:
-									'Which PHPUnit tests to run:\n- jetpack: Jetpack plugin tests\n- jp-multisite: Jetpack plugin multisite tests.\n- jp-wpcomsh: Jetpack plugin tests with wpcomsh installed.\n- crm: Jetpack CRM plugin tests.\n- wpcomsh: Wpcomsh plugin tests.',
+									'Which PHPUnit tests to run:\n- jetpack: Jetpack plugin tests\n- jp-multisite: Jetpack plugin multisite tests.\n- jp-wpcomsh: Jetpack plugin tests with wpcomsh installed.\n- wpcomsh: Wpcomsh plugin tests.',
 								type: 'string',
 							} ),
 					handler: argv => execDockerCmdHandler( argv ),
@@ -764,11 +1322,6 @@ export function dockerDefine( yargs ) {
 				} )
 				.command( {
 					command: 'phpunit-jp-wpcomsh',
-					deprecated: true,
-					handler: argv => execDockerCmdHandler( argv ),
-				} )
-				.command( {
-					command: 'phpunit-crm',
 					deprecated: true,
 					handler: argv => execDockerCmdHandler( argv ),
 				} )

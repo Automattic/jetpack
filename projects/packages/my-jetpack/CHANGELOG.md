@@ -5,6 +5,143 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.40.4] - 2026-06-29
+### Changed
+- Update dependencies. [#46951]
+
+## [5.40.3] - 2026-06-26
+### Changed
+- Migrate ProductDetailCard typography from the in-house `@automattic/jetpack-components` Text to `@wordpress/ui` Text, adopting the closest design-system variants. [#49704]
+
+### Fixed
+- Fix fatal error when an older bundled SEO package is loaded: guard the SEO opt-in card with method_exists instead of class_exists. [#49988]
+
+## [5.40.2] - 2026-06-25
+### Changed
+- Internal updates.
+
+## [5.40.1] - 2026-06-24
+### Changed
+- Update dependencies. [#46951]
+
+## [5.40.0] - 2026-06-23
+### Changed
+- Rank product search results by relevance so direct title matches appear first. [#49804]
+- Update package dependencies. [#49831]
+
+### Fixed
+- Fix `@wordpress/ui` 0.15 type error: accept anchor click events on the secondary action button's `onClick` handler so it works when rendered as a Link. [#49800]
+
+## [5.39.0] - 2026-06-22
+### Added
+- List Jetpack Forms as a product card in the Growth section instead of a plain module list item. [#49665]
+- Add a card inviting existing self-hosted installs to try the new Jetpack SEO dashboard. [#49672]
+- Podcast: List the Podcast module under the Growth section. [#49790]
+
+### Changed
+- Import the Jetpack modules data store from the new `jetpack-shared-stores` package. [#49494]
+- Update package dependencies. [#49631] [#49638] [#49691] [#49732] [#49757]
+
+### Fixed
+- Modules list: Fix rounded corners so row dividers no longer poke past the border. [#49763]
+
+## [5.38.4] - 2026-06-15
+### Changed
+- Update dependencies. [#46951]
+
+## [5.38.3] - 2026-06-10
+### Changed
+- Only show the Help section's Useful links when the Jetpack plugin is active and the user can manage options. [#49277]
+- Update package dependencies. [#49273] [#49492]
+
+## [5.38.2] - 2026-06-08
+### Changed
+- Update dependencies. [#46951]
+
+## [5.38.1] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [5.38.0] - 2026-06-05
+### Added
+- My Jetpack: Move the jetpack-ai-jwt REST endpoint to the Agents Manager package. [#49415]
+
+### Changed
+- Update package dependencies. [#49379]
+
+## [5.37.6] - 2026-06-01
+### Changed
+- My Jetpack: migrate the product card main CTA to @wordpress/ui Button and surface a spinner while an action is in progress. [#49239]
+
+## [5.37.5] - 2026-06-01
+### Changed
+- My Jetpack: Migrate link-variant Buttons in Plans section and product interstitial modal to @wordpress/ui Link. [#49109]
+- Update package dependencies. [#48404]
+
+### Fixed
+- Connection: Allow admins to access the disconnect dialog without connecting their account first. [#49162]
+- My Jetpack: Render the Overview and Help footers full-width and remove the gray gap below them. [#49278]
+- My Jetpack: Use @wordpress/ui Link and Text components in the Help tab footer for consistent typography. [#49238]
+
+## [5.37.4] - 2026-05-25
+### Changed
+- Internal updates.
+
+## [5.37.3] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
+## [5.37.2] - 2026-05-19
+### Changed
+- Update package dependencies. [#48910]
+
+## [5.37.1] - 2026-05-14
+### Changed
+- Update package dependencies. [#48696]
+
+### Fixed
+- Prevent PHP deprecated notice when retrieving tier-based descriptions. [#48524]
+
+## [5.37.0] - 2026-05-11
+### Changed
+- Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- My Jetpack: Adopt the shared `jetpack-admin-page-layout` mixin on the main dashboard page so its layout matches the rest of the Jetpack admin pages. [#48503]
+- My Jetpack: Migrate interstitial Buttons from `@automattic/jetpack-components` and `@wordpress/components` to `@wordpress/ui`. [#48489]
+
+### Fixed
+- My Jetpack: Drop `overflow-x: hidden` on the `<AdminPage>` root so the page no longer becomes its own scroll container. [#48578]
+- My Jetpack: Fix `.jetpack-admin-full-screen` interstitial pages being constrained by the shared admin-page-layout mixin. [#48536]
+
+## [5.36.0] - 2026-05-04
+### Added
+- My Jetpack: Add Modules link to the footer for admins on connected sites running the main Jetpack plugin. [#48304]
+
+### Changed
+- Components: Migrate Tier 1 `jetpack-components` to `@wordpress/components` and `@wordpress/icons` (no user-facing change). [#48378]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- My Jetpack: Render product-interstitial back-link in the unified header's breadcrumbs slot, and move the "Use license key" CTA into the header actions slot. No new dependency or behavior change. [#48414]
+- Remove New badge style from the Jetpack AI product interstitial. [#48174]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+
+### Removed
+- Drop the legacy Activity Log menu registration; the new activity-log package now owns that menu item. [#48244]
+
+## [5.35.0] - 2026-04-27
+### Changed
+- My Jetpack: Hide the Google Fonts module toggle unless the module is already active. [#48216]
+- Replace Badge from `@automattic/ui` with Badge from `@wordpress/ui`, and CheckmarkIcon with Icon from `@wordpress/icons`. [#48167]
+
+### Removed
+- Remove orphaned new-badge styles from Jetpack AI product interstitial. [#48162]
+
+### Fixed
+- Restore background on the "Supercharge my site" onboarding button by using the core Button's primary variant. [#48240]
+
 ## [5.34.4] - 2026-04-20
 ### Changed
 - Remove Jetpack color overrides on core WordPress components. [#47317]
@@ -2617,6 +2754,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.40.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.3...5.40.4
+[5.40.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.2...5.40.3
+[5.40.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.1...5.40.2
+[5.40.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.0...5.40.1
+[5.40.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.39.0...5.40.0
+[5.39.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.38.4...5.39.0
+[5.38.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.38.3...5.38.4
+[5.38.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.38.2...5.38.3
+[5.38.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.38.1...5.38.2
+[5.38.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.38.0...5.38.1
+[5.38.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.6...5.38.0
+[5.37.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.5...5.37.6
+[5.37.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.4...5.37.5
+[5.37.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.3...5.37.4
+[5.37.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.2...5.37.3
+[5.37.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.1...5.37.2
+[5.37.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.0...5.37.1
+[5.37.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.36.0...5.37.0
+[5.36.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.35.0...5.36.0
+[5.35.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.4...5.35.0
 [5.34.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.3...5.34.4
 [5.34.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.2...5.34.3
 [5.34.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.1...5.34.2

@@ -29,8 +29,6 @@ export type QuoteTweetProps = {
 
 export type TextProps = {
 	text: string;
-	url: string;
-	retainUrl?: boolean;
 };
 
 export type TwitterPreviewProps = SidebarProps &

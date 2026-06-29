@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.27] - 2026-06-29
+### Changed
+- Update dependencies. [#50004]
+
+## [0.34.26] - 2026-06-26
+### Changed
+- Update dependencies. [#49821]
+
+## [0.34.25] - 2026-06-25
+### Changed
+- Update dependencies. [#49821]
+
+## [0.34.24] - 2026-06-24
+### Changed
+- Update dependencies. [#49821]
+
+## [0.34.23] - 2026-06-23
+### Changed
+- Update dependencies. [#49821]
+
+## [0.34.22] - 2026-06-22
+### Changed
+- Update dependencies. [#49641]
+- Update package dependencies. [#49639] [#49691]
+
+## [0.34.21] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273]
+
+## [0.34.20] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+
+## [0.34.19] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404]
+
+## [0.34.18] - 2026-05-25
+### Changed
+- Update package dependencies. [#48405] [#49012]
+
+## [0.34.17] - 2026-05-19
+### Changed
+- Update package dependencies. [#48696]
+
+## [0.34.16] - 2026-05-11
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+
+## [0.34.15] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.34.14] - 2026-04-27
+### Changed
+- Internal updates.
+
 ## [0.34.13] - 2026-04-20
 ### Changed
 - Update dependencies. [#48138]
@@ -860,6 +917,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.34.27]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.26...v0.34.27
+[0.34.26]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.25...v0.34.26
+[0.34.25]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.24...v0.34.25
+[0.34.24]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.23...v0.34.24
+[0.34.23]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.22...v0.34.23
+[0.34.22]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.21...v0.34.22
+[0.34.21]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.20...v0.34.21
+[0.34.20]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.19...v0.34.20
+[0.34.19]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.18...v0.34.19
+[0.34.18]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.17...v0.34.18
+[0.34.17]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.16...v0.34.17
+[0.34.16]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.15...v0.34.16
+[0.34.15]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.14...v0.34.15
+[0.34.14]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.13...v0.34.14
 [0.34.13]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.12...v0.34.13
 [0.34.12]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.11...v0.34.12
 [0.34.11]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.10...v0.34.11

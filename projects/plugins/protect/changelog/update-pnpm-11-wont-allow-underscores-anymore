@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Rename internal JS packages to no longer prefix with underscore, pnpm 11 won't allow it. Sigh.
+
+

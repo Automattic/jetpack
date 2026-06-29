@@ -1,4 +1,4 @@
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
+import { expect, test } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
 
 test.describe( 'Classic Theme Helper plugin!', () => {
 	test( 'Visit Jetpack page', async ( { page, admin } ) => {

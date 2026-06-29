@@ -80,6 +80,10 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 		foreach ( static::$themes as $theme ) {
 			$dest_dir = WP_CONTENT_DIR . '/themes/' . $theme;
 
+			if ( ! is_dir( $dest_dir ) ) {
+				continue;
+			}
+
 			foreach ( glob( $dest_dir . '/*.*' ) as $theme_file ) {
 				unlink( $theme_file );
 			}
@@ -147,6 +151,7 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 		set_theme_mod( 'foo', 'bar' );
 		$this->sender->do_sync();
 
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- See above todo.
 		$this->sender->do_sync();
 		$theme_supports = $this->server_replica_storage->get_callable( 'theme_support' );
 
@@ -255,11 +260,8 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_install_edit_delete_theme_sync() {
-		// This requires a theme that isn't directly available on WordPress.com:
-		// https://public-api.wordpress.com/rest/v1.2/themes/astra?http_envelope=1
-		// Any theme with the "Community" badge in the WordPress.com theme search would work here.
-		$theme_slug = 'astra';
-		$theme_name = 'Astra';
+		$theme_slug = 'sync-install-theme';
+		$theme_name = 'Parent Sync Theme';
 
 		delete_theme( $theme_slug ); // Ensure theme is not lingering on file system
 		$this->server_event_storage->reset();
@@ -479,13 +481,25 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		require_once __DIR__ . '/class.silent-upgrader-skin.php';
 
-		$api       = themes_api(
+		$download_link = 'https://downloads.wordpress.org/theme/' . $slug . '.1.0.zip';
+
+		// Mock themes_api() to avoid a real HTTP call to api.wordpress.org.
+		$mock_api = static function ( $result ) use ( $slug, $download_link ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			return (object) array(
+				'slug'          => $slug,
+				'download_link' => $download_link,
+			);
+		};
+		add_filter( 'themes_api', $mock_api );
+
+		$api = themes_api(
 			'theme_information',
 			array(
 				'slug' => $slug,
 			)
 		);
-		$overwrite = '';
+
+		remove_filter( 'themes_api', $mock_api );
 
 		if ( is_wp_error( $api ) ) {
 			wp_die( $api );
@@ -493,7 +507,7 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 
 		$upgrader = new Theme_Upgrader( new Silent_Upgrader_Skin() );
 		add_filter( 'pre_http_request', array( 'Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
-		$upgrader->install( $api->download_link, array( 'overwrite_package' => $overwrite ) );
+		$upgrader->install( $api->download_link, array( 'overwrite_package' => '' ) );
 		remove_filter( 'pre_http_request', array( 'Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ) );
 	}
 

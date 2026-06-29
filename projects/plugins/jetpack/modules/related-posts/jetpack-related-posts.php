@@ -258,8 +258,8 @@ class Jetpack_RelatedPosts {
 			'showHeadline'      => $rp_settings['show_headline'],
 			'displayDate'       => isset( $rp_settings['show_date'] ) ? (bool) $rp_settings['show_date'] : true,
 			'displayContext'    => isset( $rp_settings['show_context'] ) && $rp_settings['show_context'],
-			'postLayout'        => isset( $rp_settings['layout'] ) ? $rp_settings['layout'] : 'grid',
-			'postsToShow'       => isset( $rp_settings['size'] ) ? $rp_settings['size'] : 3,
+			'postLayout'        => $rp_settings['layout'] ?? 'grid',
+			'postsToShow'       => $rp_settings['size'] ?? 3,
 			/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
 			'headline'          => apply_filters( 'jetpack_relatedposts_filter_headline', $this->get_headline() ),
 			'isServerRendered'  => true,
@@ -463,7 +463,7 @@ EOT;
 		$wrapper_attributes = array();
 		$post_id            = get_the_ID();
 		$block_attributes   = array(
-			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
+			'headline'        => $attributes['headline'] ?? null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
 			'show_author'     => isset( $attributes['displayAuthor'] ) ? (bool) $attributes['displayAuthor'] : false,
 			'show_headline'   => isset( $attributes['displayHeadline'] ) ? (bool) $attributes['displayHeadline'] : false,
@@ -506,7 +506,7 @@ EOT;
 			}
 		}
 
-		if ( empty( $headline_markup ) && $block_attributes['show_headline'] === true ) {
+		if ( empty( $headline_markup ) && $block_attributes['show_headline'] ) {
 			$headline = $block_attributes['headline'];
 			if ( strlen( trim( $headline ) ) !== 0 ) {
 				$headline_markup = sprintf(
@@ -672,7 +672,7 @@ EOT;
 			$current['show_date']       = ( isset( $input['show_date'] ) && '1' == $input['show_date'] ); // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			$current['show_context']    = ( isset( $input['show_context'] ) && '1' == $input['show_context'] ); // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			$current['layout']          = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true ) ? $input['layout'] : 'grid';
-			$current['headline']        = isset( $input['headline'] ) ? $input['headline'] : esc_html__( 'Related', 'jetpack' );
+			$current['headline']        = $input['headline'] ?? esc_html__( 'Related', 'jetpack' );
 		} else {
 			$current['enabled'] = false;
 		}

@@ -112,10 +112,13 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</button>
 	),
-	ExternalLink: ( { children, href }: { children: React.ReactNode; href: string } ) => (
+	Notice: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+} ) );
+
+jest.mock( '@wordpress/ui', () => ( {
+	Link: ( { children, href }: { children: React.ReactNode; href: string } ) => (
 		<a href={ href }>{ children }</a>
 	),
-	Notice: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 } ) );
 
 jest.mock( '@wordpress/core-data', () => {

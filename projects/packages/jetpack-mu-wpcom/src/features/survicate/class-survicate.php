@@ -55,12 +55,44 @@ class Survicate {
 			return false;
 		}
 
+		// Network and user admin pages are internal tools surfaces; surveys must never reach them.
+		if ( is_network_admin() || is_user_admin() ) {
+			return false;
+		}
+
 		// Only load for English locale users.
 		if ( strpos( strtolower( get_user_locale() ), 'en' ) !== 0 ) {
 			return false;
 		}
 
+		// Atomic powers Automattic's internal P2s; surveys must never reach them.
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_p2_site() ) {
+			return false;
+		}
+
 		return true;
+	}
+
+	/**
+	 * Detect whether the current site is a Big Sky site.
+	 *
+	 * Used as a visitor trait so Survicate's targeting UI can include or exclude
+	 * Big Sky users without a code change.
+	 *
+	 * @return bool
+	 */
+	private function is_big_sky_site() {
+		if ( ! function_exists( 'wpcom_has_blog_sticker' ) ) {
+			return false;
+		}
+
+		$blog_id = get_wpcom_blog_id();
+		if ( ! $blog_id ) {
+			return false;
+		}
+
+		return wpcom_has_blog_sticker( 'big-sky-enabled', $blog_id )
+			|| wpcom_has_blog_sticker( 'big-sky-free-trial', $blog_id );
 	}
 
 	/**
@@ -97,10 +129,12 @@ class Survicate {
 		$site_type = ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) ? 'atomic' : 'simple';
 
 		return array(
-			'email'          => $email,
-			'site_id'        => $site_id ? (string) $site_id : '',
-			'site_type'      => $site_type,
-			'editor_context' => $this->get_editor_context(),
+			'email'           => $email,
+			'site_id'         => $site_id ? (string) $site_id : '',
+			'site_type'       => $site_type,
+			'editor_context'  => $this->get_editor_context(),
+			// Stringified for Survicate's trait targeting UI, which matches on string equality.
+			'is_big_sky_site' => $this->is_big_sky_site() ? 'true' : 'false',
 		);
 	}
 
@@ -115,11 +149,10 @@ class Survicate {
 		$traits_json   = wp_json_encode( $this->get_visitor_traits(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 		$workspace_key = self::WORKSPACE_KEY;
 
-		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
 		wp_register_script(
 			'wpcom-survicate',
 			false,
-			array(),
+			array( 'wp-data' ),
 			'1.0',
 			false
 		);
@@ -128,6 +161,10 @@ class Survicate {
 			'wpcom-survicate',
 			<<<JS
 ( function () {
+	if ( window.__wpcomSurvicateInit ) {
+		return;
+	}
+	window.__wpcomSurvicateInit = true;
 	if ( window.innerWidth < 480 ) {
 		return;
 	}
@@ -136,8 +173,54 @@ class Survicate {
 	script.async = true;
 	document.head.appendChild( script );
 	var traits = {$traits_json};
+
+	// The Help Center registers this @wordpress/data store from a separate bundle
+	// loaded from widgets.wp.com; reads are guarded in case it is not yet registered.
+	function isHelpCenterShown() {
+		try {
+			var store = window.wp && window.wp.data && window.wp.data.select( 'automattic/help-center' );
+			return !! ( store && typeof store.isHelpCenterShown === 'function' && store.isHelpCenterShown() );
+		} catch ( e ) {
+			return false;
+		}
+	}
+	function closeAnySurvey() {
+		if ( window._sva && typeof window._sva.closeSurvey === 'function' ) {
+			window._sva.closeSurvey();
+		}
+	}
+
+	if ( window.wp && window.wp.data && typeof window.wp.data.subscribe === 'function' ) {
+		var wasShown = isHelpCenterShown();
+		// Scope the subscription to the Help Center store so the callback does not
+		// fire on every dispatch across all registered stores (e.g. block editor).
+		window.wp.data.subscribe( function () {
+			var shown = isHelpCenterShown();
+			if ( shown && ! wasShown ) {
+				closeAnySurvey();
+			}
+			wasShown = shown;
+		}, 'automattic/help-center' );
+	}
+
 	window.addEventListener( 'SurvicateReady', function () {
 		window._sva.setVisitorTraits( traits );
+
+		// Covers the race where the Help Center opened before the SDK finished loading.
+		if ( isHelpCenterShown() ) {
+			closeAnySurvey();
+		}
+
+		if ( typeof window._sva.addEventListener === 'function' ) {
+			// The SDK does not expose a pre-display hook, so we close on the
+			// post-display event. This causes a brief flash but is the best the
+			// public API allows.
+			window._sva.addEventListener( 'survey_displayed', function () {
+				if ( isHelpCenterShown() ) {
+					closeAnySurvey();
+				}
+			} );
+		}
 	} );
 } )();
 JS

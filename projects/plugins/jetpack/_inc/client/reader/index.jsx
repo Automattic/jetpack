@@ -109,9 +109,8 @@ function Reader( props ) {
 			<ModuleToggle
 				slug={ moduleName }
 				activated={ isReaderModuleActive }
-				toggling={ isSavingAnyOption( moduleName ) }
 				toggleModule={ toggleModule }
-				disabled={ cannotBeToggled }
+				disabled={ cannotBeToggled || isSavingAnyOption( moduleName ) }
 			>
 				<span className="jp-form-toggle-explanation">
 					{ __( 'Add a link to the Reader in the top navigation bar', 'jetpack' ) }

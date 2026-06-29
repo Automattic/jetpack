@@ -1,9 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import styles from './tips.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { ExternalLink } from '@wordpress/components';
 
 const Tips = () => {
 	const pingdomLink = getRedirectUrl( 'jetpack-boost-pingdom' );
@@ -25,7 +25,8 @@ const Tips = () => {
 									),
 									{
 										link: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												onClick={ () => recordBoostEvent( 'pingdom_link_clicked', {} ) }
 												href={ pingdomLink }
 											/>
@@ -44,7 +45,8 @@ const Tips = () => {
 									),
 									{
 										link: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												onClick={ () => recordBoostEvent( 'why_speed_link_clicked', {} ) }
 												href={ whySpeedLink }
 											/>

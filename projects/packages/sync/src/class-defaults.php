@@ -88,6 +88,7 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
+		'jetpack_social_message_template',
 		'jetpack_social_notes_config',
 		'jetpack_social_settings',
 		'jetpack_social_utm_settings',
@@ -780,6 +781,7 @@ class Defaults {
 		'_wpas_customize_per_network',
 		'_wpas_mess',
 		'_wpas_options',
+		'_jetpack_social_image_focal_point', // Publicize_Base::ATTACHMENT_IMAGE_FOCAL_POINT.
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
 		'content_width',
 		'custom_css_add',

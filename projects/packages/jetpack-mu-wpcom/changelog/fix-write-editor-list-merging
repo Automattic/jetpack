@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Switching between bulleted and numbered keeps the whole list as one block instead of splitting off the current item.

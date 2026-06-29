@@ -81,6 +81,10 @@ export const useChartMargin = (
 			);
 		}
 
+		if ( options.axis?.y?.tickValues?.length ) {
+			return options.axis.y.tickValues;
+		}
+
 		const minY = Math.min( ...allDataPoints.map( d => d.value ) );
 		const maxY = Math.max( ...allDataPoints.map( d => d.value ) );
 		const yScale = createScale( {

@@ -17,7 +17,6 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	public function tear_down() {
 		delete_option( 'reprint_exporter_secret' );
 		delete_option( 'reprint_exporter_enabled' );
-		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 
 		global $wp_rest_server;
 		$wp_rest_server = null;
@@ -33,10 +32,8 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	private function set_available( bool $available ) {
 		if ( $available ) {
 			update_option( 'reprint_exporter_enabled', time() );
-			$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		} else {
 			delete_option( 'reprint_exporter_enabled' );
-			unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		}
 	}
 

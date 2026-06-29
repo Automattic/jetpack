@@ -13,13 +13,11 @@
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-plans": "@dev",
-		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-subscribers-dashboard": "@dev"
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"brain/monkey": "^2.6.2",
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
@@ -39,13 +37,13 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"pnpm run build-production",
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-		],
 		"test-php": [
 			"pnpm run build-production",
 			"@composer phpunit"
+		],
+		"test-php-coverage": [
+			"pnpm run build-production",
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",

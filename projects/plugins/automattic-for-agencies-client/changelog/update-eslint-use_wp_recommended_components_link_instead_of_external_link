@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Components: Use Link from `@wordpress/ui` instead of ExternalLink.

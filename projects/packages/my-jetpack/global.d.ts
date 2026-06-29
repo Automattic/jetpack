@@ -42,6 +42,8 @@ type JetpackModule =
 	| 'site-accelerator'
 	| 'newsletter'
 	| 'related-posts'
+	| 'jetpack-forms'
+	| 'podcast'
 	| 'brute-force';
 
 type JetpackModuleWithCard =
@@ -642,10 +644,15 @@ interface Window {
 		};
 		topJetpackMenuItemUrl: string;
 		isAtomic: boolean;
+		isJetpackPluginActive: boolean;
 		sandboxedDomain: string;
 		isDevVersion: boolean;
 		userIsAdmin: string;
 		isWelcomeTourActive: boolean;
+		seoOptIn: {
+			showCard: boolean;
+			redirect: string;
+		};
 	};
 	myJetpackRest?: {
 		apiRoot: string;

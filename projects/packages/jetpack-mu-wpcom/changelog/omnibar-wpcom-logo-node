@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin bar: keep the id of the top-left node to be `wp-logo`, instead of `wpcom-logo`

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent Crowdsignal Forms from redirecting to its settings page on WoA sites after the Atomic transfer or a managed plugin version bump.

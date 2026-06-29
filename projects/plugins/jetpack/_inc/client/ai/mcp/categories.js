@@ -30,15 +30,26 @@ export const CATEGORY_ORDER = [
 ];
 
 const SUB_CATEGORIES = {
+	// Posts sub-categories
 	POSTS: __( 'Posts', 'jetpack' ),
 	COMMENTS: __( 'Comments', 'jetpack' ),
 	CATEGORIES_TAGS: __( 'Categories & tags', 'jetpack' ),
+	// Sites sub-categories
 	SITES: __( 'Sites', 'jetpack' ),
+	PLUGINS: __( 'Plugins', 'jetpack' ),
 	MEDIA: __( 'Media', 'jetpack' ),
 	SITE_SETTINGS: __( 'Site settings', 'jetpack' ),
 	ANALYTICS: __( 'Analytics', 'jetpack' ),
+	// Account sub-categories
 	ACCOUNT: __( 'Account', 'jetpack' ),
 	NOTIFICATIONS: __( 'Notifications', 'jetpack' ),
+	// Design sub-categories
+	THEMES: __( 'Themes', 'jetpack' ),
+	PATTERNS: __( 'Patterns', 'jetpack' ),
+	TEMPLATES: __( 'Templates', 'jetpack' ),
+	GLOBAL_STYLES: __( 'Global styles', 'jetpack' ),
+	NAVIGATION: __( 'Navigation', 'jetpack' ),
+	BLOCKS: __( 'Blocks', 'jetpack' ),
 };
 
 export const SUB_CATEGORY_ORDER = {
@@ -49,11 +60,20 @@ export const SUB_CATEGORY_ORDER = {
 	],
 	[ DISPLAY_CATEGORIES.SITES ]: [
 		SUB_CATEGORIES.SITES,
+		SUB_CATEGORIES.PLUGINS,
 		SUB_CATEGORIES.SITE_SETTINGS,
 		SUB_CATEGORIES.MEDIA,
 		SUB_CATEGORIES.ANALYTICS,
 	],
 	[ DISPLAY_CATEGORIES.ACCOUNT ]: [ SUB_CATEGORIES.ACCOUNT, SUB_CATEGORIES.NOTIFICATIONS ],
+	[ DISPLAY_CATEGORIES.DESIGN ]: [
+		SUB_CATEGORIES.THEMES,
+		SUB_CATEGORIES.PATTERNS,
+		SUB_CATEGORIES.TEMPLATES,
+		SUB_CATEGORIES.GLOBAL_STYLES,
+		SUB_CATEGORIES.NAVIGATION,
+		SUB_CATEGORIES.BLOCKS,
+	],
 };
 
 const API_CATEGORY_TO_DISPLAY = {
@@ -72,23 +92,51 @@ const API_CATEGORY_TO_DISPLAY = {
 	notifications: DISPLAY_CATEGORIES.ACCOUNT,
 	billing: DISPLAY_CATEGORIES.ACCOUNT,
 	domains: DISPLAY_CATEGORIES.DOMAINS,
+	'wpcom-mcp': DISPLAY_CATEGORIES.DEVELOPER_TESTING,
 	'developer-testing': DISPLAY_CATEGORIES.DEVELOPER_TESTING,
 };
 
 const API_CATEGORY_TO_SUB_CATEGORY = {
+	// Posts card sub-categories
 	posts: SUB_CATEGORIES.POSTS,
 	comments: SUB_CATEGORIES.COMMENTS,
 	'categories-tags': SUB_CATEGORIES.CATEGORIES_TAGS,
+	// Sites card sub-categories
 	sites: SUB_CATEGORIES.SITES,
 	media: SUB_CATEGORIES.MEDIA,
 	users: SUB_CATEGORIES.SITE_SETTINGS,
-	plugins: SUB_CATEGORIES.SITE_SETTINGS,
+	plugins: SUB_CATEGORIES.PLUGINS,
 	'site-settings': SUB_CATEGORIES.SITE_SETTINGS,
 	analytics: SUB_CATEGORIES.ANALYTICS,
+	// Account card sub-categories
 	account: SUB_CATEGORIES.ACCOUNT,
 	notifications: SUB_CATEGORIES.NOTIFICATIONS,
 	billing: SUB_CATEGORIES.ACCOUNT,
 };
+
+// Design-card tools all share `design` as their API category, so sub-groups within the
+// Design card are derived from tool ID prefixes. This also covers `sites`-category tools
+// that are routed to the Design card (navigation, menus, themes).
+const TOOL_ID_PREFIX_TO_DESIGN_SUB_CATEGORY = {
+	'wpcom-mcp/theme-': SUB_CATEGORIES.THEMES,
+	'wpcom-mcp/themes-': SUB_CATEGORIES.THEMES,
+	'wpcom-mcp/patterns-': SUB_CATEGORIES.PATTERNS,
+	'wpcom-mcp/synced-patterns-': SUB_CATEGORIES.PATTERNS,
+	'wpcom-mcp/templates-': SUB_CATEGORIES.TEMPLATES,
+	'wpcom-mcp/template-parts-': SUB_CATEGORIES.TEMPLATES,
+	'wpcom-mcp/global-styles-': SUB_CATEGORIES.GLOBAL_STYLES,
+	'wpcom-mcp/navigation-': SUB_CATEGORIES.NAVIGATION,
+	'wpcom-mcp/menus-': SUB_CATEGORIES.NAVIGATION,
+	'wpcom-mcp/menu-items-': SUB_CATEGORIES.NAVIGATION,
+	'wpcom-mcp/blocks-': SUB_CATEGORIES.BLOCKS,
+};
+
+const DEVELOPER_TESTING_TOOL_IDS = new Set( [
+	'jetpack/search-voice',
+	'jetpack-search-voice',
+	'wpcom-mcp/jetpack-search-voice',
+	'wpcom-mcp-jetpack-search-voice',
+] );
 
 /**
  * Get the display sub-category name for a tool.
@@ -99,6 +147,24 @@ const API_CATEGORY_TO_SUB_CATEGORY = {
  */
 export function getSubCategory( toolId, ability ) {
 	const apiCategory = ability?.category;
+
+	// Design-card tools use tool ID prefix for sub-grouping. This covers both
+	// 'design'-category tools and 'sites'-category tools that are routed to the
+	// Design card by getDisplayCategory (e.g. navigation, menus, themes).
+	if ( apiCategory === 'design' || apiCategory === 'sites' ) {
+		for ( const [ prefix, subCategory ] of Object.entries(
+			TOOL_ID_PREFIX_TO_DESIGN_SUB_CATEGORY
+		) ) {
+			if ( toolId.startsWith( prefix ) ) {
+				return subCategory;
+			}
+		}
+		// Tools in these API categories should still be rendered even when their
+		// IDs do not match a known Design prefix, so fall back to the category's
+		// default sub-category instead of returning undefined.
+		return API_CATEGORY_TO_SUB_CATEGORY[ apiCategory ];
+	}
+
 	if ( apiCategory ) {
 		return API_CATEGORY_TO_SUB_CATEGORY[ apiCategory ];
 	}
@@ -119,12 +185,31 @@ export function isWriteTool( toolId, ability ) {
 /**
  * Get the display category name for a tool.
  *
+ * For 'design' and 'sites' category tools, check if the tool ID prefix indicates
+ * it belongs in the Design card (navigation, menus, themes mirror calypso's approach).
+ *
  * @param {string} toolId  - Tool identifier.
  * @param {object} ability - Tool descriptor from the API.
  * @return {string} Display category name, falling back to Uncategorized.
  */
 export function getDisplayCategory( toolId, ability ) {
+	if (
+		DEVELOPER_TESTING_TOOL_IDS.has( toolId ) ||
+		DEVELOPER_TESTING_TOOL_IDS.has( ability?.name )
+	) {
+		return DISPLAY_CATEGORIES.DEVELOPER_TESTING;
+	}
+
 	const apiCategory = ability?.category;
+
+	if ( apiCategory === 'design' || apiCategory === 'sites' ) {
+		for ( const prefix of Object.keys( TOOL_ID_PREFIX_TO_DESIGN_SUB_CATEGORY ) ) {
+			if ( toolId.startsWith( prefix ) ) {
+				return DISPLAY_CATEGORIES.DESIGN;
+			}
+		}
+	}
+
 	if ( apiCategory && API_CATEGORY_TO_DISPLAY[ apiCategory ] ) {
 		return API_CATEGORY_TO_DISPLAY[ apiCategory ];
 	}

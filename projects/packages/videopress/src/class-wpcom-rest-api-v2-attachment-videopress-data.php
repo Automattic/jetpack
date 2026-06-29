@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Extend the REST API functionality for VideoPress users.
  *
@@ -106,6 +106,19 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 		if ( isset( $request['no_videopress'] ) ) {
 			$args['meta_query'][] = array(
 				'key'     => 'videopress_guid',
+				'compare' => 'NOT EXISTS',
+			);
+		}
+
+		/*
+		 * Hide local attachments that have already been uploaded to VideoPress.
+		 * Such "zombie" locals carry a `_videopress_uploaded_id` meta pointing
+		 * at their VideoPress sibling attachment; the sibling is the row the
+		 * dashboard should surface.
+		 */
+		if ( isset( $request['videopress_hide_already_uploaded'] ) ) {
+			$args['meta_query'][] = array(
+				'key'     => Uploader::UPLOADED_KEY,
 				'compare' => 'NOT EXISTS',
 			);
 		}

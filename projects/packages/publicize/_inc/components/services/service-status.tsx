@@ -1,4 +1,4 @@
-import { Alert } from '@automattic/jetpack-components';
+import { Notice } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
@@ -59,13 +59,13 @@ export function ServiceStatus( {
 				  );
 		}
 		return (
-			<Alert
-				level={ canFix ? 'error' : 'warning' }
-				showIcon={ false }
+			<Notice
+				status={ canFix ? 'error' : 'warning' }
+				isDismissible={ false }
 				className={ styles[ 'broken-connection-alert' ] }
 			>
 				{ message }
-			</Alert>
+			</Notice>
 		);
 	}
 

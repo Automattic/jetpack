@@ -1,15 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	Card,
-	CardHeader,
-	CardBody,
-	Notice,
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
-import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { DataForm, type Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
+import { Card, Fieldset, Notice } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -66,19 +60,21 @@ export function EmailContentSection( {
 	];
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Email content', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
-				<fieldset disabled={ ! isNewsletterEnabled }>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Email content', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
+				<Fieldset.Root disabled={ ! isNewsletterEnabled }>
 					{ ! isSitePublic && (
-						<Notice status="warning" isDismissible={ false }>
-							{ __(
-								'Featured images will not be used in your emails until the site is public, because access to the images is restricted to your site only.',
-								'jetpack-newsletter'
-							) }
-						</Notice>
+						<Notice.Root intent="warning">
+							<Notice.Description>
+								{ __(
+									'Featured images will not be used in your emails until the site is public, because access to the images is restricted to your site only.',
+									'jetpack-newsletter'
+								) }
+							</Notice.Description>
+						</Notice.Root>
 					) }
 
 					<DataForm
@@ -93,8 +89,8 @@ export function EmailContentSection( {
 						} }
 						onChange={ onChange }
 					/>
-				</fieldset>
-			</CardBody>
-		</Card>
+				</Fieldset.Root>
+			</Card.Content>
+		</Card.Root>
 	);
 }

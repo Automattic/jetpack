@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Extensions\ImageStudio;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Visitor;
 use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,6 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once __DIR__ . '/../../shared/cdn-locale.php';
 
 const FEATURE_NAME           = 'image-studio';
+const FEATURE_CLIP_META_KEY  = '_jetpack_feature_clip_id';
 const ASSET_BASE_PATH        = 'widgets.wp.com/agents-manager/';
 const ASSET_JS_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.min.js';
 const ASSET_CSS_URL          = 'https://' . ASSET_BASE_PATH . 'image-studio.css';
@@ -106,6 +108,44 @@ function has_jetpack_ai_features() {
 }
 
 /**
+ * Check whether the video clip generation flow can run on the current site.
+ *
+ * Image Studio enablement is always required — video clip generation is only
+ * offered on the same plans/environments that surface Image Studio itself,
+ * on WPCOM and off. On WPCOM the helper also mirrors the server-side
+ * `wpcom_site_can_upload_videos()` capability check so the client and server
+ * agree. Off-WPCOM (self-hosted Jetpack, standalone VideoPress, dev
+ * environments) that helper isn't loaded, so only the Image Studio gate
+ * applies; the server is the source of truth if generation is unsupported.
+ *
+ * @return bool
+ */
+function image_studio_can_generate_video_clips() {
+	if ( ! is_image_studio_enabled() ) {
+		return false;
+	}
+
+	if ( function_exists( 'wpcom_site_can_upload_videos' ) && ! wpcom_site_can_upload_videos() ) {
+		return false;
+	}
+
+	/**
+	 * Filter the video clip generation capability. Consulted only after the
+	 * Image Studio and `wpcom_site_can_upload_videos()` hard gates pass.
+	 *
+	 * @since 15.9
+	 *
+	 * @param bool|null $override Override value, or null to use default detection.
+	 */
+	$override = apply_filters( 'jetpack_image_studio_can_generate_video_clips', null );
+	if ( null !== $override ) {
+		return (bool) $override;
+	}
+
+	return true;
+}
+
+/**
  * Check if the current screen is a block editor (Post Editor or Site Editor).
  *
  * @return bool
@@ -149,6 +189,51 @@ function register_plugin() {
 	\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );
 }
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugin' );
+
+/**
+ * Permission check for reading or writing the feature clip meta on a given
+ * post. WordPress runs `auth_callback` for both REST GET and POST against the
+ * meta key, so this gate determines visibility as well as mutability.
+ *
+ * @param bool   $allowed   Whether the user is allowed (unused — recomputed here).
+ * @param string $meta_key  Meta key being checked.
+ * @param int    $object_id Post ID.
+ * @return bool
+ */
+function feature_clip_meta_auth_callback( $allowed, $meta_key, $object_id ) {
+	unset( $allowed, $meta_key );
+	return current_user_can( 'edit_post', (int) $object_id );
+}
+
+/**
+ * Register the post meta that links a generated video clip to a post.
+ *
+ * Stored as the attachment ID; the URL is resolved client-side via the
+ * Media Library so deletes/replacements stay consistent. Registered for
+ * `post` only — pages can be added later if there's a use case.
+ *
+ * @return void
+ */
+function register_feature_clip_post_meta() {
+	if ( ! is_image_studio_enabled() ) {
+		return;
+	}
+
+	register_post_meta(
+		'post',
+		FEATURE_CLIP_META_KEY,
+		array(
+			'type'              => 'integer',
+			'description'       => 'Attachment ID of the generated video clip designated as this post\'s feature clip.',
+			'single'            => true,
+			'default'           => 0,
+			'show_in_rest'      => true,
+			'sanitize_callback' => 'absint',
+			'auth_callback'     => __NAMESPACE__ . '\feature_clip_meta_auth_callback',
+		)
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_feature_clip_post_meta' );
 
 /**
  * Fetch and cache the remote asset manifest.
@@ -235,6 +320,52 @@ function get_asset_data_from_remote() {
 }
 
 /**
+ * Get the current site's WordPress.com blog ID for tracking.
+ *
+ * @return int The WordPress.com blog ID, or 0 when unavailable.
+ */
+function get_tracking_blog_id() {
+	$blog_id = ( new Host() )->get_wpcom_site_id();
+
+	return $blog_id ? absint( $blog_id ) : 0;
+}
+
+/**
+ * Get the current site type for Image Studio tracking.
+ *
+ * @return string The site type: simple, atomic, or jetpack.
+ */
+function get_tracking_site_type() {
+	$host = new Host();
+
+	if ( $host->is_wpcom_simple() ) {
+		return 'simple';
+	}
+
+	if ( $host->is_woa_site() ) {
+		return 'atomic';
+	}
+
+	return 'jetpack';
+}
+
+/**
+ * Check whether the current visitor should be treated as an Automattician.
+ *
+ * @return bool True when the current visitor is an Automattician.
+ */
+function is_tracking_automattician() {
+	if ( function_exists( 'wpcom_is_proxied_request' )
+		&& \wpcom_is_proxied_request()
+		&& function_exists( 'is_automattician' )
+	) {
+		return (bool) \is_automattician();
+	}
+
+	return ( new Visitor() )->is_automattician_feature_flags_only();
+}
+
+/**
  * Enqueue Image Studio script and style assets.
  *
  * @return void
@@ -275,9 +406,13 @@ function do_enqueue_assets() {
 	);
 
 	$image_studio_data = array(
-		'enabled'   => true,
-		'version'   => '1.0',
-		'isDevMode' => jetpack_is_internal_testing_environment(),
+		'enabled'               => true,
+		'version'               => '1.0',
+		'blogId'                => get_tracking_blog_id(),
+		'siteType'              => get_tracking_site_type(),
+		'isA11n'                => is_tracking_automattician(),
+		'isDevMode'             => jetpack_is_internal_testing_environment(),
+		'canGenerateVideoClips' => image_studio_can_generate_video_clips(),
 	);
 
 	wp_add_inline_script(

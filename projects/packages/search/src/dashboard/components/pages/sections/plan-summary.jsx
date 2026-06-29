@@ -8,6 +8,9 @@ const getPlanName = isFreePlan => {
 };
 
 const displayPeriodFromAPIData = apiData => {
+	if ( ! apiData?.latestMonthRequests?.start_date || ! apiData?.latestMonthRequests?.end_date ) {
+		return null;
+	}
 	const startDate = new Date( apiData.latestMonthRequests.start_date );
 	const endDate = new Date( apiData.latestMonthRequests.end_date );
 
@@ -26,6 +29,7 @@ const displayPeriodFromAPIData = apiData => {
 };
 
 const PlanSummary = ( { isFreePlan, planInfo } ) => {
+	const period = displayPeriodFromAPIData( planInfo );
 	return (
 		<h2>
 			{
@@ -33,7 +37,7 @@ const PlanSummary = ( { isFreePlan, planInfo } ) => {
 				__( 'Your usage', 'jetpack-search-pkg' )
 			}{ ' ' }
 			<span>
-				{ displayPeriodFromAPIData( planInfo ) } ({ getPlanName( isFreePlan ) })
+				{ period && `${ period } ` }({ getPlanName( isFreePlan ) })
 			</span>
 		</h2>
 	);

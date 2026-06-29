@@ -9,7 +9,8 @@ import { optimisticallyUpdateUnreadCount } from '../../../../src/dashboard/inbox
 
 describe( 'optimisticallyUpdateUnreadCount', () => {
 	beforeEach( () => {
-		document.body.innerHTML = '<span class="jp-feedback-unread-counter count-5">5</span>';
+		document.body.innerHTML =
+			'<span class="menu-counter jp-feedback-unread-counter count-5"><span class="count">5</span></span>';
 	} );
 
 	it( 'does not change counter for read items', () => {

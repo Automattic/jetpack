@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Remove unneeded `regenerator-runtime` package. We've long since upgraded past versions of Babel that needed it.
-
-

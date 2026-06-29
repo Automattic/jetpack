@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Port formatters package (number/currency/percentage metric formatter and date helpers) as an internal package from next-woocommerce-analytics.

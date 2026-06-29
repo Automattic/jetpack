@@ -39,7 +39,7 @@ import './style.scss';
  */
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 import type { PosterDataProps, PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
-import type { MutableRefObject, ReactElement } from 'react';
+import type { ReactElement, RefObject } from 'react';
 
 const MIN_LOOP_DURATION = 3 * 1000;
 const MAX_LOOP_DURATION = 10 * 1000;
@@ -206,12 +206,10 @@ export function PosterDropdown( {
  * Return the (content) Window object of the iframe,
  * given the iframe's ref.
  *
- * @param {MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
+ * @param {RefObject< HTMLDivElement >} iFrameRef - iframe ref
  * @return {Window | null} Window object of the iframe
  */
-export const getIframeWindowFromRef = (
-	iFrameRef: MutableRefObject< HTMLDivElement >
-): Window | null => {
+export const getIframeWindowFromRef = ( iFrameRef: RefObject< HTMLDivElement > ): Window | null => {
 	const iFrame: HTMLIFrameElement = iFrameRef?.current?.querySelector(
 		'iframe.components-sandbox'
 	);

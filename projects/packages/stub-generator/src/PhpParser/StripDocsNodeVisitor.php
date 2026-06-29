@@ -66,8 +66,9 @@ class StripDocsNodeVisitor extends NodeVisitorAbstract {
 	 * Constructor.
 	 *
 	 * @param OutputInterface $output OutputInterface.
+	 * @param bool            $keepTags Whether to keep unrecognized tags.
 	 */
-	public function __construct( OutputInterface $output ) {
+	public function __construct( OutputInterface $output, bool $keepTags ) {
 		$this->output    = $output;
 		$config          = new ParserConfig(
 			array(
@@ -79,7 +80,7 @@ class StripDocsNodeVisitor extends NodeVisitorAbstract {
 		$constExprParser = new ConstExprParser( $config );
 		$typeParser      = new TypeParser( $config, $constExprParser );
 		$this->parser    = new PhpDocParser( $config, $typeParser, $constExprParser );
-		$this->traverser = new NodeTraverser( array( new CloningVisitor(), new PhpDocParser_StripDocsNodeVisitor( $output ) ) );
+		$this->traverser = new NodeTraverser( array( new CloningVisitor(), new PhpDocParser_StripDocsNodeVisitor( $output, $keepTags ) ) );
 		$this->printer   = new Printer();
 	}
 
@@ -95,7 +96,9 @@ class StripDocsNodeVisitor extends NodeVisitorAbstract {
 			list( $newDoc ) = $this->traverser->traverse( array( $oldDoc ) );
 			'@phan-var \PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode $newDoc';
 			if ( $newDoc->children ) {
-				$node->setDocComment( new Doc( $this->printer->printFormatPreserving( $newDoc, $oldDoc, $tokens ) ) );
+				$text = $this->printer->printFormatPreserving( $newDoc, $oldDoc, $tokens );
+				$text = preg_replace( '/[ \t]+\n/', "\n", $text );
+				$node->setDocComment( new Doc( $text ) );
 			}
 		}
 	}

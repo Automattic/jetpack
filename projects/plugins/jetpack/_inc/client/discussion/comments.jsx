@@ -84,9 +84,10 @@ class CommentsComponent extends Component {
 						<ModuleToggle
 							slug="comments"
 							compact
-							disabled={ commentsUnavailableInOfflineMode }
+							disabled={
+								commentsUnavailableInOfflineMode || this.props.isSavingAnyOption( 'comments' )
+							}
 							activated={ this.props.getOptionValue( 'comments' ) }
-							toggling={ this.props.isSavingAnyOption( 'comments' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">{ comments.description }</span>
@@ -140,8 +141,8 @@ class CommentsComponent extends Component {
 									<ModuleToggle
 										slug="gravatar-hovercards"
 										compact
+										disabled={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
 										activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
-										toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
 										toggleModule={ this.props.toggleModuleNow }
 									>
 										<span className="jp-form-toggle-explanation">{ gravatar.description }</span>
@@ -190,9 +191,10 @@ class CommentsComponent extends Component {
 									<ModuleToggle
 										slug="comment-likes"
 										compact
-										disabled={ commentLikesUnavailable }
+										disabled={
+											commentLikesUnavailable || this.props.isSavingAnyOption( 'comment-likes' )
+										}
 										activated={ commentLikesActive }
-										toggling={ this.props.isSavingAnyOption( 'comment-likes' ) }
 										toggleModule={ this.props.toggleModuleNow }
 									>
 										<span className="jp-form-toggle-explanation">

@@ -2,10 +2,10 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, lsarsfield, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon, dlocc
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 6.8
+Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 4.5.9
+Stable tag: 4.6.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -185,13 +185,12 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.5.9 - 2026-04-13
-
+### 4.6.3 - 2026-06-26
 #### Changed
-- Update package dependencies.
+- Update dependencies.
 
 #### Fixed
-- Image Guide: Fix script errors when JavaScript concatenation is enabled under certain conditions.
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
 
 --------
 

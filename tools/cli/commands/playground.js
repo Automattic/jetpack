@@ -38,7 +38,7 @@ export function builder( yargs ) {
 			description: 'Enable WP_DEBUG and SCRIPT_DEBUG (errors logged to /wp-content/debug.log)',
 		} )
 		.example( 'jetpack playground jetpack', 'Start Playground with the Jetpack plugin' )
-		.example( 'jetpack playground crm', 'Start Playground with the CRM plugin' );
+		.example( 'jetpack playground boost', 'Start Playground with the Boost plugin' );
 }
 
 /**
@@ -60,7 +60,7 @@ export async function handler( argv ) {
 	const pluginPath = projectDir( `plugins/${ argv.plugin }` );
 
 	// Read the plugin slug from composer.json so the mount path inside
-	// Playground uses the correct wp-plugin-slug (e.g. zero-bs-crm for crm).
+	// Playground uses the correct wp-plugin-slug.
 	const composerJson = readComposerJson( `plugins/${ argv.plugin }`, false );
 	const wpPluginSlug =
 		composerJson?.extra?.[ 'wp-plugin-slug' ] ??
@@ -197,7 +197,7 @@ function buildBlueprint( pluginPath, tmpDir, options, wpPluginSlug, pluginName )
 		try {
 			custom = JSON.parse( fs.readFileSync( sourceBlueprint, 'utf8' ) );
 		} catch ( err ) {
-			throw new Error( `Failed to parse blueprint: ${ err.message }` );
+			throw new Error( `Failed to parse blueprint: ${ err.message }`, { cause: err } );
 		}
 		blueprint = {
 			...blueprint,

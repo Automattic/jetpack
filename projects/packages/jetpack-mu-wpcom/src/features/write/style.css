@@ -1,0 +1,2496 @@
+/* Write — Distraction-free writing */
+
+/* Visually hidden but accessible to screen readers */
+.bw-visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* ===== Reset for the writing page ===== */
+.bw-app {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+	color: #1a1a1a;
+	background: #fff;
+	min-height: 100vh;
+}
+
+/* ===== Top bar ===== */
+.bw-topbar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 100002;
+	height: 56px;
+	background: #fff;
+	border-bottom: 1px solid #f0f0f0;
+	display: flex;
+	align-items: center;
+	padding: 0 24px;
+}
+
+
+/* Help toggle */
+.bw-help-toggle {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	border: 1px solid #e0e0e0;
+	background: transparent;
+	color: #bbb;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-left: 8px;
+	transition: all 0.15s ease;
+	font-family: inherit;
+}
+
+.bw-help-i {
+	font-style: italic;
+	font-size: 15px;
+	font-family: Georgia, serif;
+	line-height: 1;
+}
+
+.bw-help-toggle:hover {
+	border-color: #999;
+	color: #666;
+}
+
+.bw-help-popover {
+	position: absolute;
+	top: 48px;
+	left: 60px;
+	z-index: 100002;
+	background: #fff;
+	border-radius: 10px;
+	padding: 16px 20px;
+	min-width: 260px;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+	animation: bw-fade-in 0.12s ease;
+}
+
+.bw-help-popover[hidden] {
+	display: none;
+}
+
+.bw-help-title {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: #999;
+	margin-bottom: 12px;
+}
+
+.bw-help-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 5px 0;
+	font-size: 13px;
+	color: #555;
+}
+
+.bw-help-row kbd {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 24px;
+	height: 22px;
+	padding: 0 6px;
+	background: #f5f5f5;
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+	font-size: 12px;
+	font-family: inherit;
+	color: #333;
+}
+
+.bw-help-row .bw-help-icon {
+	font-size: 16px;
+	width: 24px;
+	text-align: center;
+	color: #888;
+}
+
+.bw-help-link {
+	display: block;
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid #f0f0f0;
+	font-size: 13px;
+	color: var(--wp-components-color-accent, #3858e9);
+	text-decoration: none;
+}
+
+.bw-help-link:hover,
+.bw-help-link:focus {
+	text-decoration: underline;
+}
+
+.bw-back {
+	font-size: 22px;
+	color: #999;
+	text-decoration: none;
+	width: 36px;
+	height: 36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: all 0.15s ease;
+}
+
+.bw-back:hover {
+	background: #f5f5f5;
+	color: #333;
+}
+
+.bw-status {
+	flex: 1;
+	text-align: center;
+	font-size: 14px;
+	color: #999;
+	font-weight: 400;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding: 0 12px;
+}
+
+.bw-topbar-actions {
+	display: flex;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+.bw-btn {
+	border: none;
+	border-radius: 20px;
+	padding: 8px 20px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.bw-btn:disabled {
+	opacity: 0.5;
+	cursor: progress;
+}
+
+.bw-btn-draft {
+	background: transparent;
+	color: #666;
+	border: 1px solid #ddd;
+}
+
+.bw-btn-draft:hover:not(:disabled) {
+	border-color: #999;
+	color: #333;
+}
+
+.bw-btn-publish {
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
+}
+
+.bw-btn-publish:hover:not(:disabled) {
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+/* "More options" dropdown to the right of Publish/Update */
+.bw-more-wrap {
+	position: relative;
+}
+
+.bw-more-toggle {
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	border: 1px solid transparent;
+	background: transparent;
+	color: #666;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	transition: all 0.15s ease;
+	font-family: inherit;
+}
+
+.bw-more-toggle:hover,
+.bw-more-toggle[aria-expanded="true"] {
+	background: #f5f5f5;
+	color: #333;
+}
+
+.bw-more-dots {
+	font-size: 22px;
+	line-height: 1;
+}
+
+.bw-more-menu {
+	position: absolute;
+	top: calc(100% + 6px);
+	right: 0;
+	z-index: 100002;
+	background: #fff;
+	border-radius: 8px;
+	min-width: 200px;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+	padding: 4px;
+	animation: bw-fade-in 0.12s ease;
+}
+
+.bw-more-menu[hidden] {
+	display: none;
+}
+
+.bw-more-menu-item {
+	display: block;
+	width: 100%;
+	text-align: left;
+	background: transparent;
+	border: none;
+	padding: 8px 12px;
+	border-radius: 4px;
+	font-size: 14px;
+	color: #1a1a1a;
+	cursor: pointer;
+	font-family: inherit;
+}
+
+.bw-more-menu-item:hover,
+.bw-more-menu-item:focus {
+	background: #f5f5f5;
+	outline: none;
+}
+
+/* "Save draft" only appears in the kebab menu on narrow screens
+   where the standalone toolbar button is hidden. */
+.bw-more-save-draft {
+	display: none;
+}
+
+/* ===== Recovery banner ===== */
+.bw-recovery-banner {
+	position: fixed;
+	top: 56px;
+	left: 0;
+	right: 0;
+	z-index: 100001;
+	box-sizing: border-box;
+	height: 44px;
+	background: #fef8ee;
+	border-bottom: 1px solid #f0e0c0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	animation: bw-fade-in 0.2s ease;
+}
+
+.bw-recovery-banner[hidden] {
+	display: none;
+}
+
+.bw-recovery-text {
+	font-size: 14px;
+	color: #1a1a1a;
+}
+
+.bw-recovery-btn {
+	height: 32px;
+	padding: 4px 12px;
+	border: none;
+	border-radius: 4px;
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background 0.1s ease;
+}
+
+.bw-recovery-btn:hover {
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-recovery-dismiss {
+	border: none;
+	background: transparent;
+	color: #999;
+	font-size: 20px;
+	cursor: pointer;
+	padding: 4px 8px;
+	line-height: 1;
+}
+
+.bw-recovery-dismiss:hover {
+	color: #333;
+}
+
+/* Push toolbar, link popover, and content down
+   when recovery banner is visible */
+.bw-recovery-banner:not([hidden]) ~ .bw-toolbar {
+	top: 100px;
+}
+
+.bw-recovery-banner:not([hidden]) ~ .bw-link-popover {
+	top: 144px;
+}
+
+.bw-recovery-banner:not([hidden]) ~ .bw-main {
+	padding-top: 164px;
+}
+
+/* ===== Beta disclaimer banner ===== */
+.bw-disclaimer-banner {
+	position: fixed;
+	top: 56px;
+	left: 0;
+	right: 0;
+	z-index: 100001;
+	box-sizing: border-box;
+	height: 44px;
+	background: #fff8e6;
+	border-bottom: 1px solid #e8c84a;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	animation: bw-fade-in 0.2s ease;
+}
+
+.bw-disclaimer-banner[hidden] {
+	display: none;
+}
+
+.bw-disclaimer-text {
+	font-size: 14px;
+	color: #1a1a1a;
+}
+
+.bw-disclaimer-dismiss {
+	border: none;
+	background: transparent;
+	color: #999;
+	font-size: 20px;
+	cursor: pointer;
+	padding: 4px 8px;
+	line-height: 1;
+}
+
+.bw-disclaimer-dismiss:hover {
+	color: #333;
+}
+
+/* Push toolbar, link popover, and content down
+   when disclaimer banner is visible */
+.bw-disclaimer-banner:not([hidden]) ~ .bw-toolbar {
+	top: 100px;
+}
+
+.bw-disclaimer-banner:not([hidden]) ~ .bw-link-popover {
+	top: 144px;
+}
+
+.bw-disclaimer-banner:not([hidden]) ~ .bw-main {
+	padding-top: 164px;
+}
+
+/* Both disclaimer and recovery visible — stack recovery below disclaimer */
+.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) {
+	top: 100px;
+}
+
+.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-toolbar {
+	top: 144px;
+}
+
+.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-link-popover {
+	top: 188px;
+}
+
+.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-main {
+	padding-top: 208px;
+}
+
+/* ===== Persistent formatting toolbar ===== */
+.bw-toolbar {
+	position: fixed;
+	top: 56px;
+	left: 0;
+	right: 0;
+	z-index: 99999;
+	background: #fff;
+	border-bottom: 1px solid #f0f0f0;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+
+.bw-toolbar-scroll {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 0 16px;
+	max-width: 720px;
+}
+
+@keyframes bw-fade-in {
+
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes bw-fade-in-centered {
+
+	from {
+		opacity: 0;
+		transform: translateX(-50%) translateY(4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateX(-50%) translateY(0);
+	}
+}
+
+.bw-tool {
+	width: 34px;
+	height: 34px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	color: #555;
+	font-size: 15px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.1s ease;
+	flex-shrink: 0;
+}
+
+.bw-tool .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	line-height: 18px;
+}
+
+.bw-tool:hover {
+	background: #f0f0f0;
+	color: #1a1a1a;
+}
+
+.bw-tool-active {
+	background: #e8e8e8;
+	color: #1a1a1a;
+}
+
+.bw-tool:disabled {
+	opacity: 0.3;
+	pointer-events: none;
+}
+
+.bw-tool-divider {
+	width: 1px;
+	height: 20px;
+	background: #e0e0e0;
+	margin: 0 4px;
+	flex-shrink: 0;
+}
+
+/* Heading dropdown toggle */
+.bw-tool-heading-toggle {
+	width: auto;
+	padding: 0 8px;
+	gap: 4px;
+	font-size: 13px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.bw-tool-label {
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.bw-tool-caret {
+	font-size: 12px;
+	color: #999;
+}
+
+/* Dropdown wrapper (for heading and color menus) */
+.bw-tool-dropdown-wrap {
+	position: relative;
+	flex-shrink: 0;
+}
+
+/* Heading menu dropdown */
+.bw-heading-menu {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	margin-top: 4px;
+	z-index: 210;
+	background: #fff;
+	border-radius: 8px;
+	padding: 4px;
+	min-width: 160px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	border: 1px solid #f0f0f0;
+}
+
+.bw-heading-menu:not([hidden]) {
+	animation: bw-fade-in 0.12s ease;
+}
+
+.bw-heading-menu[hidden] {
+	display: none;
+}
+
+.bw-heading-option {
+	display: block;
+	width: 100%;
+	padding: 8px 12px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	text-align: start;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 14px;
+	color: #333;
+	transition: background 0.1s ease;
+}
+
+.bw-heading-option:hover {
+	background: #f5f5f5;
+}
+
+.bw-heading-option-h2 span {
+	font-size: 18px;
+	font-weight: 700;
+}
+
+.bw-heading-option-h3 span {
+	font-size: 15px;
+	font-weight: 700;
+}
+
+/* Text color menu */
+.bw-color-menu {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	margin-top: 4px;
+	z-index: 210;
+	background: #fff;
+	border-radius: 8px;
+	padding: 8px;
+	display: flex;
+	gap: 6px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	border: 1px solid #f0f0f0;
+}
+
+.bw-color-menu:not([hidden]) {
+	animation: bw-fade-in-centered 0.12s ease;
+}
+
+.bw-color-menu[hidden] {
+	display: none;
+}
+
+.bw-color-swatch {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	border: 2px solid #fff;
+	cursor: pointer;
+	transition: transform 0.1s ease, box-shadow 0.1s ease;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.bw-color-swatch:hover {
+	transform: scale(1.15);
+	box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== Link popover (below toolbar) ===== */
+.bw-link-popover {
+	position: fixed;
+	top: 100px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 201;
+	background: #fff;
+	border-radius: 8px;
+	padding: 8px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	animation: bw-fade-in-centered 0.12s ease;
+}
+
+.bw-link-popover[hidden] {
+	display: none;
+}
+
+.bw-link-input {
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	padding: 6px 10px;
+	font-size: 14px;
+	outline: none;
+	width: 280px;
+	font-family: inherit;
+}
+
+.bw-link-input:focus {
+	border-color: var(--wp-components-color-accent, #3858e9);
+}
+
+.bw-link-apply {
+	border: none;
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
+	border-radius: 6px;
+	padding: 6px 12px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.bw-link-remove {
+	border: none;
+	background: transparent;
+	color: #999;
+	font-size: 18px;
+	cursor: pointer;
+	padding: 4px 8px;
+}
+
+.bw-link-remove:hover {
+	color: #d63638;
+}
+
+/* ===== Main writing area ===== */
+.bw-main {
+	padding-top: 120px;
+	padding-bottom: 40vh;
+	display: flex;
+	justify-content: center;
+}
+
+
+.bw-editor {
+	width: 100%;
+	max-width: 720px;
+	padding: 0 24px;
+}
+
+/* Title */
+.bw-title {
+	display: block;
+	width: 100%;
+	border: none;
+	outline: none;
+	font-size: 2.5rem;
+	font-weight: 700;
+	line-height: 1.2;
+	color: #1a1a1a;
+	padding: 0;
+	margin-bottom: 16px;
+	font-family: inherit;
+	background: transparent;
+	resize: none;
+	overflow: hidden;
+	box-sizing: border-box;
+	field-sizing: content;
+	text-wrap: stable;
+}
+
+.bw-title::placeholder {
+	color: #ccc;
+}
+
+/* "Writing in X" category selector above the title */
+.bw-meta {
+	margin-bottom: 16px;
+	position: relative;
+}
+
+.bw-meta-cat-btn {
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-family: inherit;
+}
+
+.bw-meta-cat-label {
+	font-size: 13px;
+	color: #888;
+}
+
+.bw-meta-cat-label:empty::before {
+	content: attr(data-placeholder);
+	color: #bbb;
+}
+
+.bw-meta-cat-caret {
+	font-size: 12px;
+	color: #999;
+}
+
+.bw-meta-cat-btn:hover .bw-meta-cat-label,
+.bw-meta-cat-btn:hover .bw-meta-cat-caret {
+	color: #444;
+}
+
+.bw-meta-dropdown {
+	position: absolute;
+	top: calc(100% + 4px);
+	left: 0;
+	z-index: 100;
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	min-width: 160px;
+	max-height: 240px;
+	overflow-y: auto;
+	padding: 4px 0;
+	animation: bw-fade-in 0.1s ease;
+}
+
+.bw-meta-dropdown[hidden] {
+	display: none;
+}
+
+.bw-meta-dropdown-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	text-align: left;
+	background: none;
+	border: none;
+	padding: 7px 14px;
+	font-size: 13px;
+	font-family: inherit;
+	color: #333;
+	cursor: pointer;
+}
+
+.bw-meta-dropdown-item::before {
+	content: "";
+	display: inline-block;
+	width: 14px;
+	flex-shrink: 0;
+}
+
+.bw-meta-dropdown-item--selected::before {
+	content: "✓";
+	color: #1a1a1a;
+	font-size: 12px;
+}
+
+.bw-meta-dropdown-item:hover {
+	background: #f5f5f5;
+}
+
+/* Leave confirmation modal — matches @wordpress/components ConfirmDialog */
+.bw-leave-overlay {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1000001;
+	background-color: rgba(0, 0, 0, 0.35);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: bw-fade-in 0.1s ease-out;
+}
+
+.bw-leave-overlay[hidden] {
+	display: none;
+}
+
+.bw-leave-modal {
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 0.7px 1px rgba(0, 0, 0, 0.1), 0 1.2px 1.7px -0.2px rgba(0, 0, 0, 0.1), 0 2.3px 3.3px -0.5px rgba(0, 0, 0, 0.1);
+	width: 400px;
+	max-width: calc(100% - 32px);
+	max-height: calc(100% - 32px);
+	padding: 24px;
+	color: #1e1e1e;
+	animation: bw-modal-appear 0.1s ease-out;
+	box-sizing: border-box;
+}
+
+@keyframes bw-modal-appear {
+
+	from {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.bw-leave-modal p {
+	font-size: 13px;
+	line-height: 1.4;
+	margin: 0 0 24px;
+	color: #1e1e1e;
+}
+
+.bw-leave-actions {
+	display: flex;
+	gap: 12px;
+	justify-content: flex-end;
+}
+
+.bw-leave-cancel {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 40px;
+	padding: 6px 12px;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--wp-components-color-accent, #3858e9);
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	text-decoration: none;
+	transition: color 0.1s ease;
+}
+
+.bw-leave-cancel:hover {
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-leave-confirm {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 40px;
+	padding: 6px 12px;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--wp-components-color-accent, #3858e9);
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	text-decoration: none;
+	transition: color 0.1s ease;
+}
+
+.bw-leave-confirm:hover {
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-leave-save {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 40px;
+	padding: 6px 12px;
+	box-sizing: border-box;
+	border: none;
+	border-radius: 4px;
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	text-decoration: none;
+	transition: background 0.1s ease;
+}
+
+.bw-leave-save:hover {
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
+	color: #fff;
+}
+
+/* Unsupported content warning */
+.bw-unsupported-overlay {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1000001;
+	background-color: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: bw-fade-in 0.1s ease-out;
+}
+
+.bw-unsupported-overlay[hidden] {
+	display: none;
+}
+
+.bw-unsupported-modal {
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 0.7px 1px rgba(0, 0, 0, 0.1), 0 1.2px 1.7px -0.2px rgba(0, 0, 0, 0.1), 0 2.3px 3.3px -0.5px rgba(0, 0, 0, 0.1);
+	width: 420px;
+	max-width: calc(100% - 32px);
+	padding: 24px;
+	color: #1e1e1e;
+	animation: bw-modal-appear 0.1s ease-out;
+	box-sizing: border-box;
+}
+
+.bw-unsupported-title {
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0 0 8px;
+	color: #1e1e1e;
+}
+
+.bw-unsupported-desc {
+	font-size: 13px;
+	line-height: 1.5;
+	margin: 0 0 24px;
+	color: #757575;
+}
+
+.bw-unsupported-desc[hidden] {
+	display: none;
+}
+
+.bw-unsupported-actions {
+	display: flex;
+	gap: 12px;
+	justify-content: flex-end;
+}
+
+.bw-unsupported-back {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 40px;
+	padding: 6px 12px;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--wp-components-color-accent, #3858e9);
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	transition: color 0.1s ease;
+}
+
+.bw-unsupported-back:hover {
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-unsupported-open-editor {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 40px;
+	padding: 6px 12px;
+	box-sizing: border-box;
+	border: none;
+	border-radius: 4px;
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background 0.1s ease;
+}
+
+.bw-unsupported-open-editor:hover {
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
+	color: #fff;
+}
+
+.bw-unsupported-open-editor[hidden] {
+	display: none;
+}
+
+/* Slash command menu */
+.bw-slash-menu {
+	position: absolute;
+	z-index: 202;
+	background: #fff;
+	border-radius: 12px;
+	padding: 6px;
+	min-width: 240px;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+	border: 1px solid #f0f0f0;
+	animation: bw-fade-in 0.1s ease;
+}
+
+.bw-slash-menu[hidden] {
+	display: none;
+}
+
+.bw-slash-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 12px;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: background 0.1s ease;
+}
+
+.bw-slash-item:hover,
+.bw-slash-item-active {
+	background: #f5f5f5;
+}
+
+/* Suppress hover highlight during keyboard navigation. */
+.bw-slash-menu--keyboard .bw-slash-item:not(.bw-slash-item-active):hover {
+	background: #fff;
+}
+
+.bw-slash-item strong {
+	display: block;
+	font-size: 14px;
+	font-weight: 500;
+	color: #1a1a1a;
+}
+
+.bw-slash-desc {
+	display: block;
+	font-size: 12px;
+	color: #999;
+	margin-top: 1px;
+}
+
+.bw-slash-icon {
+	width: 36px;
+	height: 36px;
+	border-radius: 8px;
+	background: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 16px;
+	font-weight: 600;
+	color: #555;
+	flex-shrink: 0;
+}
+
+
+/* Separator between title and content */
+.bw-separator {
+	width: 48px;
+	height: 1px;
+	background: #e0e0e0;
+	margin-bottom: 24px;
+}
+
+/* ===== Custom caret ===== */
+.bw-content,
+.bw-title {
+	caret-color: var(--wp-components-color-accent, #3858e9);
+}
+
+/* ===== Custom selection ===== */
+.bw-content ::selection,
+.bw-content::selection,
+.bw-title::selection {
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 15%, transparent);
+	color: inherit;
+}
+
+/* Persistent highlight shown while the link popover is open.
+   Slightly stronger than ::selection to visually distinguish it
+   as a "target" indicator rather than an active text selection. */
+::highlight(bw-link-highlight) {
+	background-color: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 25%, transparent);
+	color: inherit;
+}
+
+/* Content area */
+.bw-content,
+.bw-content-inner {
+	outline: none;
+}
+
+.bw-content {
+	min-height: 60vh;
+	font-size: 1.125rem;
+	line-height: 1.8;
+	color: #333;
+	overflow-wrap: break-word;
+	word-break: normal;
+	text-wrap: stable;
+}
+
+.bw-content * {
+	text-wrap: stable;
+}
+
+.bw-content mark.has-inline-color {
+	background-color: transparent;
+}
+
+.bw-content.bw-is-empty {
+	position: relative;
+}
+
+.bw-content.bw-is-empty::before {
+	content: attr(data-placeholder);
+	position: absolute;
+	top: 0;
+	left: 0;
+	color: #ccc;
+	pointer-events: none;
+}
+
+/* Horizontal drop indicator on the block where a dragged image will land.
+   `--before` draws above the block; `--after` draws below. */
+.bw-content .bw-drop-target--before,
+.bw-content .bw-drop-target--after {
+	position: relative;
+}
+
+.bw-content .bw-drop-target--before::before,
+.bw-content .bw-drop-target--after::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: var(--studio-blue-50, #1d4fc4);
+	border-radius: 2px;
+	pointer-events: none;
+}
+
+.bw-content .bw-drop-target--before::before {
+	top: -2px;
+}
+
+.bw-content .bw-drop-target--after::after {
+	bottom: -2px;
+}
+
+/* Pre-upload placeholder figure: dim the locally-previewed image while
+   the upload is in flight, then snap back once the real URL is in place. */
+.bw-content .bw-image-figure.bw-image-uploading img {
+	opacity: 0.5;
+}
+
+.bw-content p {
+	font-size: inherit;
+	line-height: inherit;
+	margin: 0 0 1.25em;
+}
+
+/* Editor-preview only: native browser hyphenation for justified paragraphs.
+   Reader-facing rendering of .has-text-align-justify comes from core
+   block-library CSS; reader-facing hyphenation is upstream/theme work. */
+.bw-content p[style*="text-align: justify"],
+.bw-content p[style*="text-align:justify"] {
+	hyphens: auto;
+	-webkit-hyphens: auto;
+}
+
+.bw-content h1,
+.bw-content h2,
+.bw-content h3 {
+	font-weight: 700;
+	line-height: 1.3;
+	margin: 1.5em 0 0.5em;
+	color: #1a1a1a;
+}
+
+.bw-content h2 {
+	font-size: 1.625rem;
+}
+
+.bw-content h3 {
+	font-size: 1.25rem;
+}
+
+.bw-content blockquote {
+	border-left: 3px solid #e0e0e0;
+	padding-left: 1.25em;
+	margin: 1.5em 0;
+	color: #555;
+	font-style: italic;
+}
+
+.bw-content blockquote cite {
+	display: block;
+	font-style: normal;
+	font-size: 0.9em;
+	color: #777;
+	margin-top: 0.5em;
+	outline: none;
+}
+
+.bw-content blockquote cite:empty::before {
+	content: attr(data-placeholder);
+	color: #aaa;
+	pointer-events: none;
+}
+
+.bw-content hr {
+	border: none;
+	height: 1px;
+	background: #e0e0e0;
+	margin: 2em 0;
+}
+
+.bw-content a {
+	color: var(--wp-components-color-accent, #3858e9);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	transition: color 0.15s ease;
+}
+
+.bw-content a:hover {
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-content strong,
+.bw-content b {
+	font-weight: 700;
+}
+
+.bw-content em,
+.bw-content i {
+	font-style: italic;
+}
+
+.bw-content s,
+.bw-content strike {
+	text-decoration: line-through;
+}
+
+.bw-content u {
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+/* Lists in content */
+.bw-content ul,
+.bw-content ol {
+	margin: 0 0 1.25em;
+	padding-inline-start: 1.5em;
+}
+
+.bw-content ul {
+	list-style-type: disc;
+}
+
+.bw-content ol {
+	list-style-type: decimal;
+}
+
+.bw-content li {
+	margin-bottom: 0.25em;
+	line-height: inherit;
+}
+
+.bw-content li ul,
+.bw-content li ol {
+	margin-bottom: 0;
+}
+
+/* Images in content */
+.bw-content figure,
+.bw-content .bw-image-figure {
+	margin: 2em auto;
+	padding: 0;
+	position: relative;
+	text-align: center;
+
+	/* Each figure clears any prior float so floated figures stack vertically
+	 * in the editor and a later figure's bounding box can't overlap a
+	 * floated image above it (which would otherwise break hover targeting
+	 * for the Edit pencil and other controls). */
+	clear: both;
+}
+
+/* Image size presets.
+ * Map to core wp:image sizeSlug values; Full is the default (no constraint).
+ * `width` (not max-width) is applied at the figure level so the figure
+ * renders at the same visual width across alignments: a floated figure
+ * with only max-width shrink-to-fits to the img's natural size, while a
+ * block-level figure expands to the cap, producing different widths for
+ * left/right vs. center.  width forces a consistent box. */
+.bw-content figure.size-thumbnail {
+	width: 150px;
+	max-width: 100%;
+}
+
+.bw-content figure.size-medium {
+	width: 50%;
+}
+
+.bw-content figure.size-large {
+	width: 75%;
+}
+
+.bw-content figure.size-full {
+	width: 100%;
+}
+
+.bw-content figure.size-thumbnail img,
+.bw-content figure.size-medium img,
+.bw-content figure.size-large img,
+.bw-content figure.size-full img {
+	max-width: 100%;
+	height: auto;
+}
+
+/* Image alignment.  Every image gets an explicit aligncenter / alignleft /
+ * alignright class — themes (and the published post) key off these for
+ * positioning, and we want predictable round-trip with the block editor.
+ *
+ * Float-based wrap on alignleft / alignright comes from wp-admin's core
+ * editor stylesheet which is inherited here.  We let it apply: text wraps
+ * around aligned images in the editor preview just as it will in the
+ * published post.  The rules below add fallback margin/text-align so the
+ * positioning is still correct on contexts where the core editor.css is
+ * not loaded. */
+.bw-content figure.aligncenter,
+.bw-content .bw-image-figure.aligncenter {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.bw-content figure.alignleft,
+.bw-content .bw-image-figure.alignleft {
+	margin-left: 0;
+	margin-right: auto;
+	text-align: left;
+}
+
+.bw-content figure.alignleft img,
+.bw-content .bw-image-figure.alignleft img {
+	margin-left: 0;
+}
+
+.bw-content figure.alignright,
+.bw-content .bw-image-figure.alignright {
+	margin-left: auto;
+	margin-right: 0;
+	text-align: right;
+}
+
+.bw-content figure.alignright img,
+.bw-content .bw-image-figure.alignright img {
+	margin-right: 0;
+}
+
+/* Center images horizontally inside the figure.  For sized figures the
+ * img already fills the figure box, so this is a no-op visually; for
+ * URL-pasted (non-sized) figures it centers a smaller-than-parent img. */
+.bw-content figure img {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* The controls wrapper hugs the image, not the figure, so the floating
+ * buttons anchor to the visible image edges.  Without this, sizes where the
+ * image's natural width is smaller than the figure's CSS width (notably
+ * Medium, where a 300px image sits inside a 50%-of-content-area figure) push
+ * the bottom-left and bottom-right buttons past the image bounds. */
+.bw-content figure .bw-img-controls,
+.bw-content .bw-image-figure .bw-img-controls {
+	position: relative;
+	display: inline-block;
+	max-width: 100%;
+	vertical-align: top;
+}
+
+.bw-content figure .bw-img-delete,
+.bw-content .bw-image-figure .bw-img-delete {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(4px);
+	color: #fff;
+	border: none;
+	font-size: 16px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transform: scale(0.8);
+	transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+	z-index: 5;
+}
+
+.bw-img-controls:hover .bw-img-delete,
+.bw-img-controls:focus-within .bw-img-delete {
+	opacity: 1;
+	transform: scale(1);
+}
+
+.bw-video-figure:hover .bw-img-delete,
+.bw-video-figure:focus-within .bw-img-delete {
+	opacity: 1;
+	transform: scale(1);
+}
+
+.bw-img-controls .bw-img-delete:hover {
+	background: rgba(214, 54, 56, 0.85);
+}
+
+/* Caption button — leftmost bottom control. */
+.bw-img-caption-btn {
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+	padding: 4px 10px;
+	border-radius: 4px;
+	background: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(4px);
+	color: #fff;
+	border: none;
+	font-size: 11px;
+	font-weight: 600;
+	cursor: pointer;
+	opacity: 0;
+	transform: scale(0.8);
+	transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+	z-index: 5;
+}
+
+.bw-img-controls:hover .bw-img-caption-btn,
+.bw-img-controls:focus-within .bw-img-caption-btn {
+	opacity: 1;
+	transform: scale(1);
+}
+
+.bw-img-caption-btn:hover {
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 85%, transparent);
+}
+
+/* Edit (pencil) button — opens the image properties modal. Anchored to the
+ * bottom-right so it doesn't stack horizontally with Caption on narrow
+ * images (RSM-3980). */
+.bw-img-edit {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	width: 28px;
+	height: 24px;
+	padding: 0;
+	border-radius: 4px;
+	background: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(4px);
+	color: #fff;
+	border: none;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transform: scale(0.8);
+	transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+	z-index: 5;
+}
+
+.bw-img-edit .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+}
+
+.bw-img-controls:hover .bw-img-edit,
+.bw-img-controls:focus-within .bw-img-edit {
+	opacity: 1;
+	transform: scale(1);
+}
+
+.bw-img-edit:hover {
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 85%, transparent);
+}
+
+/* Figcaption.
+ * `.wp-element-caption` is the class on saved markup served by the server
+ * before JS upgrades it to `.bw-figcaption` — match both so reloaded
+ * captions don't flash left-aligned before init runs. */
+.bw-figcaption,
+.bw-content .wp-element-caption {
+	text-align: center;
+	font-size: 0.875rem;
+	color: #999;
+	padding: 8px 0 0;
+	outline: none;
+}
+
+.bw-figcaption:empty::before {
+	content: attr(data-placeholder);
+	color: #ccc;
+	pointer-events: none;
+}
+
+.bw-content img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 4px;
+	display: block;
+}
+
+/* Video embeds */
+.bw-video-figure {
+	margin: 2em 0;
+	padding: 0;
+}
+
+.bw-video-wrap {
+	position: relative;
+	padding-bottom: 56.25%; /* 16:9 */
+	height: 0;
+	overflow: hidden;
+	border-radius: 6px;
+}
+
+.bw-video-wrap iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: none;
+}
+
+/* Two-step Backspace/Delete highlight: shown after the first press
+ * to confirm which figure the next press will delete. */
+.bw-figure-selected {
+	outline: 3px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: 4px;
+	border-radius: 4px;
+}
+
+/* Edit panel target: shows which figure the floating edit panel is currently
+ * pointed at, so switching panels between images is visually clear. */
+.bw-figure-editing {
+	outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: 6px;
+	border-radius: 4px;
+}
+
+/* Gap paragraphs between non-editable blocks */
+.bw-block-gap {
+	height: 4px;
+	margin: 0;
+	padding: 0;
+	cursor: text;
+	outline: none;
+}
+
+/* ===== Image modal ===== */
+
+/* Lock page scroll while the Add image modal is open so the editor doesn't
+ * slide under the dimmed backdrop. The non-modal Edit image panel doesn't
+ * set this class — the editor stays scrollable while editing an image. */
+body.bw-modal-open {
+	overflow: hidden;
+}
+
+.bw-image-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 300;
+	background: rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(4px);
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+
+	/* Anchor the modal below the disclaimer banner (~56px) + toolbar (~88px
+	 * incl. its shifted top), with a small breathing gap. Pairs with the
+	 * modal's max-height: calc(100vh - 200px) so the modal can't grow
+	 * behind the toolbar even when both expanders + a preview are open. */
+	padding: 168px 0 32px;
+	box-sizing: border-box;
+	animation: bw-fade-in 0.15s ease;
+}
+
+.bw-image-overlay[hidden] {
+	display: none;
+}
+
+.bw-image-modal {
+	background: #fff;
+	border-radius: 12px;
+	padding: 32px;
+	width: 420px;
+	max-width: 90vw;
+
+	/* Hard cap below "banner + toolbar height + bottom breathing room" so the
+	 * modal never grows behind the toolbar. With the disclaimer banner
+	 * visible the toolbar's bottom sits at ~144px; we leave ~24px of air
+	 * above and below the modal — anything taller scrolls internally.
+	 * border-box so max-height includes the padding. */
+	box-sizing: border-box;
+	max-height: calc(100vh - 200px);
+	overflow-y: auto;
+	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+}
+
+.bw-image-modal h3 {
+	margin: 0 0 20px;
+	font-size: 18px;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+
+.bw-upload-zone {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 120px;
+	border: 2px dashed #ddd;
+	border-radius: 8px;
+	color: #999;
+	font-size: 14px;
+	cursor: pointer;
+	transition: all 0.15s ease;
+	position: relative;
+	overflow: hidden;
+	z-index: 0;
+}
+
+.bw-upload-zone span {
+	position: relative;
+	z-index: 2;
+	transition: color 0.3s ease;
+}
+
+.bw-upload-zone:hover,
+.bw-upload-zone.bw-drag-over,
+.bw-upload-zone:focus-within {
+	border-color: var(--wp-components-color-accent, #3858e9);
+	color: var(--wp-components-color-accent, #3858e9);
+}
+
+/* Water fill animation */
+.bw-upload-zone::before {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 0%;
+	background: linear-gradient(180deg, color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 8%, transparent) 0%, color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 18%, transparent) 100%);
+	z-index: 1;
+	transition: height 0.4s ease-out;
+	border-radius: 0 0 6px 6px;
+}
+
+/* Wave effect on top of the water */
+.bw-upload-zone::after {
+	content: "";
+	position: absolute;
+	left: -10%;
+	right: -10%;
+	height: 12px;
+	bottom: 0%;
+	z-index: 1;
+	background: transparent;
+	border-radius: 50%;
+	box-shadow: 0 -4px 8px color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 12%, transparent);
+	transition: bottom 0.4s ease-out;
+	opacity: 0;
+}
+
+.bw-upload-zone.bw-uploading {
+	border-color: var(--wp-components-color-accent, #3858e9);
+	border-style: solid;
+	cursor: wait;
+}
+
+.bw-upload-zone.bw-uploading span {
+	color: var(--wp-components-color-accent, #3858e9);
+	font-weight: 500;
+}
+
+.bw-upload-zone.bw-uploading::before {
+	animation: bw-water-fill 2.5s ease-in-out infinite;
+}
+
+.bw-upload-zone.bw-uploading::after {
+	opacity: 1;
+	animation: bw-wave-rise 2.5s ease-in-out infinite, bw-wave-wobble 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes bw-water-fill {
+
+	0% {
+		height: 5%;
+	}
+
+	50% {
+		height: 75%;
+	}
+
+	100% {
+		height: 95%;
+	}
+}
+
+@keyframes bw-wave-rise {
+
+	0% {
+		bottom: 5%;
+	}
+
+	50% {
+		bottom: 75%;
+	}
+
+	100% {
+		bottom: 95%;
+	}
+}
+
+@keyframes bw-wave-wobble {
+
+	0% {
+		transform: translateX(-2%) scaleY(1);
+	}
+
+	100% {
+		transform: translateX(2%) scaleY(0.6);
+	}
+}
+
+/* RSM-3983: when a preview is set, the upload zone grows to fit the image's
+ * natural aspect ratio (capped) and switches to contain so portrait/wide
+ * images aren't centre-cropped. The image is a normal flow child so its
+ * intrinsic height drives the zone height. */
+.bw-upload-preview {
+	display: none;
+	max-width: 100%;
+	max-height: 320px;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+	border-radius: 6px;
+	animation: bw-fade-in 0.2s ease;
+	background: #f3f4f6;
+}
+
+.bw-upload-has-preview {
+	border: none;
+	padding: 0;
+	overflow: hidden;
+	height: auto;
+	min-height: 160px;
+}
+
+.bw-library-section[hidden],
+.bw-url-section[hidden] {
+	display: none;
+}
+
+.bw-source-expanders {
+	margin-top: 20px;
+	border-top: 1px solid #f0f0f0;
+	padding-top: 8px;
+}
+
+.bw-source-expander + .bw-source-expander {
+	margin-top: 2px;
+}
+
+.bw-source-trigger {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 10px 0;
+	background: transparent;
+	border: none;
+	font-size: 14px;
+	color: #444;
+	cursor: pointer;
+	font-family: inherit;
+	text-align: left;
+	border-radius: 4px;
+}
+
+.bw-source-trigger:hover {
+	color: var(--wp-components-color-accent, #3858e9);
+}
+
+.bw-source-trigger:focus-visible {
+	outline: 2px solid var(--wp-components-color-accent, #3858e9);
+	outline-offset: 2px;
+}
+
+.bw-source-chevron {
+	display: inline-block;
+	width: 0;
+	height: 0;
+	border-left: 5px solid currentColor;
+	border-top: 4px solid transparent;
+	border-bottom: 4px solid transparent;
+	transition: transform 0.15s ease;
+	flex-shrink: 0;
+}
+
+.bw-source-trigger[aria-expanded="true"] .bw-source-chevron {
+	transform: rotate(90deg);
+}
+
+.bw-library-section,
+.bw-url-section {
+	padding: 6px 0 10px;
+	animation: bw-fade-in 0.18s ease;
+}
+
+.bw-library-search {
+	width: 100%;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 10px 14px;
+	font-size: 14px;
+	outline: none;
+	font-family: inherit;
+	box-sizing: border-box;
+	margin-bottom: 10px;
+}
+
+.bw-library-search:focus {
+	border-color: var(--wp-components-color-accent, #3858e9);
+}
+
+/* Single horizontally-scrolling row of thumbs. Browser-native scrollbar is
+ * thin and only appears on hover/scroll on macOS; keyboard users get
+ * scroll-into-view when a focused thumb reaches the edge.
+ */
+.bw-library-strip {
+	display: flex;
+	gap: 6px;
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding: 2px;
+	scrollbar-width: thin;
+	scroll-snap-type: x proximity;
+}
+
+.bw-library-strip:empty {
+	display: none;
+}
+
+.bw-library-thumb {
+	flex: 0 0 auto;
+	width: 64px;
+	height: 64px;
+	padding: 0;
+	border: 2px solid transparent;
+	border-radius: 6px;
+	background: #f3f4f6;
+	cursor: pointer;
+	overflow: hidden;
+	transition: border-color 0.15s ease, transform 0.1s ease;
+	scroll-snap-align: start;
+}
+
+.bw-library-thumb:hover {
+	border-color: #c7d7e8;
+}
+
+.bw-library-thumb:focus-visible {
+	border-color: var(--wp-components-color-accent, #3858e9);
+	outline: 2px solid var(--wp-components-color-accent, #3858e9);
+	outline-offset: 1px;
+}
+
+.bw-library-thumb:active {
+	transform: scale(0.97);
+}
+
+.bw-library-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.bw-library-status {
+	color: #777;
+	font-size: 13px;
+	margin-top: 8px;
+	min-height: 18px;
+}
+
+.bw-library-status:empty {
+	display: none;
+}
+
+@media (max-width: 480px) {
+
+	.bw-library-thumb {
+		width: 56px;
+		height: 56px;
+	}
+}
+
+.bw-image-divider {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 16px 0;
+	color: #ccc;
+	font-size: 13px;
+}
+
+.bw-image-divider::before,
+.bw-image-divider::after {
+	content: "";
+	flex: 1;
+	height: 1px;
+	background: #eee;
+}
+
+.bw-image-url-input {
+	width: 100%;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 10px 14px;
+	font-size: 14px;
+	outline: none;
+	font-family: inherit;
+	box-sizing: border-box;
+}
+
+.bw-image-url-input:focus {
+	border-color: var(--wp-components-color-accent, #3858e9);
+}
+
+.bw-image-alt-input {
+	margin-top: 12px;
+}
+
+.bw-insert-image-btn {
+	width: 100%;
+	margin-top: 12px;
+}
+
+.bw-featured-toggle {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 14px;
+	font-size: 14px;
+	color: #555;
+	cursor: pointer;
+}
+
+.bw-featured-toggle input[type="checkbox"] {
+	accent-color: var(--wp-components-color-accent, #3858e9);
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+}
+
+/* ===== Image edit panel =====
+ * Non-modal floating panel docked to the bottom-right on desktop, sliding up
+ * as a full-width bottom sheet on mobile. Lets the user keep seeing the
+ * image change as size/alignment are picked. */
+.bw-image-edit-panel {
+	position: fixed;
+	bottom: 24px;
+	right: 24px;
+	z-index: 300;
+	width: 320px;
+	max-width: calc(100vw - 48px);
+	background: #fff;
+	border-radius: 12px;
+	padding: 20px 24px 24px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
+	animation: bw-fade-in 0.15s ease;
+}
+
+.bw-image-edit-panel[hidden] {
+	display: none;
+}
+
+@media (max-width: 640px) {
+
+	.bw-image-edit-panel {
+		right: 0;
+		bottom: 0;
+		left: 0;
+		width: auto;
+		max-width: none;
+		border-radius: 12px 12px 0 0;
+		padding: 16px 16px max(20px, env(safe-area-inset-bottom));
+		box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
+		animation: bw-slide-up 0.2s ease;
+	}
+}
+
+@keyframes bw-slide-up {
+
+	from {
+		transform: translateY(100%);
+	}
+
+	to {
+		transform: translateY(0);
+	}
+}
+
+.bw-edit-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: 0 0 16px;
+	gap: 8px;
+}
+
+.bw-edit-panel-title {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+
+.bw-edit-panel-close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: #555;
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+
+.bw-edit-panel-close:hover,
+.bw-edit-panel-close:focus {
+	background: rgba(0, 0, 0, 0.06);
+	color: #1a1a1a;
+}
+
+.bw-edit-panel-done {
+	width: 100%;
+	margin-top: 16px;
+}
+
+/* Per-section label + radio-button row inside the edit panel. */
+.bw-edit-section {
+	margin-top: 16px;
+}
+
+.bw-edit-section[hidden] {
+	display: none;
+}
+
+.bw-edit-label {
+	display: block;
+	font-size: 12px;
+	font-weight: 600;
+	color: #555;
+	margin-bottom: 6px;
+	letter-spacing: 0.02em;
+}
+
+.bw-edit-radios {
+	display: flex;
+	gap: 4px;
+	background: #f3f4f6;
+	border-radius: 8px;
+	padding: 4px;
+}
+
+.bw-edit-size-option,
+.bw-edit-align-option {
+	flex: 1;
+	padding: 6px 10px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 13px;
+	color: #555;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+
+.bw-edit-size-option:hover,
+.bw-edit-align-option:hover {
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 8%, transparent);
+}
+
+.bw-edit-size-option[aria-checked="true"],
+.bw-edit-align-option[aria-checked="true"] {
+	background: #fff;
+	color: #1a1a1a;
+	font-weight: 600;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== Post picker modal ===== */
+.bw-postpicker-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 1000001;
+	background: rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(4px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: bw-fade-in 0.15s ease;
+}
+
+.bw-postpicker-overlay[hidden] {
+	display: none;
+}
+
+.bw-postpicker-modal {
+	background: #fff;
+	border-radius: 12px;
+	padding: 32px;
+	width: 420px;
+	max-width: 90vw;
+	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+	animation: bw-modal-appear 0.1s ease-out;
+}
+
+.bw-postpicker-title {
+	margin: 0 0 20px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #f0f0f0;
+	font-size: 18px;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+
+.bw-postpicker-error {
+	font-size: 13px;
+	color: #d63638;
+	margin: 0 0 16px;
+}
+
+.bw-postpicker-error[hidden] {
+	display: none;
+}
+
+.bw-postpicker-label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: #999;
+	margin: 0 0 8px;
+	padding: 0 12px;
+	text-align: end;
+}
+
+.bw-postpicker-list {
+	margin-bottom: 0;
+}
+
+.bw-postpicker-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	padding: 10px 12px;
+	border: none;
+	border-radius: 8px;
+	background: transparent;
+	cursor: pointer;
+	font-family: inherit;
+	text-align: start;
+	transition: background 0.1s ease;
+}
+
+.bw-postpicker-item:hover {
+	background: #f5f5f5;
+}
+
+.bw-postpicker-item-title {
+	font-size: 14px;
+	font-weight: 500;
+	color: #1a1a1a;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	flex: 1;
+}
+
+.bw-postpicker-item-untitled {
+	color: #999;
+	font-style: italic;
+}
+
+.bw-postpicker-item-date {
+	font-size: 12px;
+	color: #999;
+	flex-shrink: 0;
+	margin-inline-start: 12px;
+}
+
+.bw-postpicker-empty {
+	padding: 20px 0;
+	text-align: center;
+	color: #999;
+	font-size: 14px;
+	margin: 0 0 16px;
+}
+
+.bw-postpicker-input-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.bw-postpicker-go {
+	flex-shrink: 0;
+	border-radius: 8px;
+	padding: 10px 16px;
+	white-space: nowrap;
+}
+
+/* ===== Floating "Write" FAB (shown on other pages) ===== */
+.bw-write-fab {
+	position: fixed;
+	bottom: 24px;
+	right: 24px;
+	z-index: 9999;
+	width: 52px;
+	height: 52px;
+	border-radius: 50%;
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
+	font-size: 22px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	box-shadow: 0 4px 16px rgba(26, 137, 23, 0.35);
+	transition: all 0.2s ease;
+}
+
+.bw-write-fab:hover {
+	transform: scale(1.08);
+	box-shadow: 0 6px 24px rgba(26, 137, 23, 0.45);
+	color: #fff;
+}
+
+/* Edit FAB on single posts */
+.bw-edit-fab {
+	position: fixed;
+	bottom: 88px;
+	right: 24px;
+	z-index: 9999;
+	background: #1e1e1e;
+	color: #fff;
+	font-size: 14px;
+	font-weight: 500;
+	padding: 10px 18px;
+	border-radius: 24px;
+	text-decoration: none;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+	transition: all 0.15s ease;
+}
+
+.bw-edit-fab:hover {
+	background: #333;
+	color: #fff;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+
+	.bw-title {
+		font-size: 1.75rem;
+	}
+
+	.bw-content {
+		font-size: 1rem;
+		line-height: 1.8;
+	}
+
+	.bw-topbar {
+		padding: 0 16px;
+	}
+
+	.bw-editor {
+		padding: 0 16px;
+	}
+
+	.bw-recovery-banner,
+	.bw-disclaimer-banner {
+		padding: 0 16px;
+	}
+
+	.bw-recovery-btn {
+		height: auto;
+		padding: 8px 12px;
+	}
+
+	.bw-btn-draft {
+		display: none;
+	}
+
+	.bw-more-save-draft:not([hidden]) {
+		display: block;
+	}
+
+	/* Toolbar scrolls horizontally on mobile. Avoid -webkit-overflow-scrolling:
+	   touch — it's deprecated and historically traps position:fixed descendants
+	   (like .bw-heading-menu / .bw-color-menu) inside this scroll container on
+	   iOS Safari, so the dropdowns can't paint outside the toolbar's bounds. */
+	.bw-toolbar-scroll {
+		justify-content: flex-start;
+		padding: 0 12px;
+		overflow-x: auto;
+		scrollbar-width: none;
+	}
+
+	.bw-toolbar-scroll::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Escape the overflow scroll container on mobile. Switching to position:
+	   fixed leaves the toolbar's stacking context, so the base z-index of 210
+	   no longer beats .bw-toolbar (99999) — re-declare a value above it. */
+	.bw-heading-menu {
+		position: fixed;
+		top: 104px;
+		left: 16px;
+		transform: none;
+		margin-top: 0;
+		z-index: 100000;
+	}
+
+	.bw-color-menu {
+		position: fixed;
+		top: 104px;
+		right: 16px;
+		left: auto;
+		transform: none;
+		margin-top: 0;
+		z-index: 100000;
+	}
+
+	.bw-color-menu:not([hidden]) {
+		animation: bw-fade-in 0.12s ease;
+	}
+
+	/* Link popover adapts to mobile width */
+	.bw-link-popover {
+		left: 16px;
+		right: 16px;
+		transform: none;
+		width: auto;
+		animation: bw-fade-in 0.12s ease;
+	}
+
+	.bw-link-input {
+		width: 100%;
+		flex: 1;
+	}
+}
+
+/*
+ * Anonymous (logged-out) Write editor: hide UI surfaces that have no working
+ * counterpart for a visitor without an authenticated session. The `bw-anon`
+ * class is added to <html> by view.js when window.wpcomWriteIsAnon is true.
+ * Hides pair with early-returns in view.js actions — CSS hides the affordance,
+ * JS guards programmatic call paths (e.g. slash menu) and any URL-bar reach.
+ */
+html.bw-anon .bw-back,
+html.bw-anon .bw-help-wrap,
+html.bw-anon .bw-more-wrap,
+html.bw-anon .bw-btn-draft,
+html.bw-anon .bw-disclaimer-banner,
+html.bw-anon .bw-toolbar [data-wp-on--click="actions.openImageModal"],
+html.bw-anon #bw-slash-opt-image,
+html.bw-anon .bw-unsupported-open-editor {
+	display: none !important;
+}
+
+/*
+ * Brand text on the left, "Not signed in" indicator before Publish. Both are
+ * injected by view.js when window.wpcomWriteIsAnon is true so they participate
+ * in the same i18n string table the editor already uses.
+ */
+.bw-anon-brand {
+	font-size: 13px;
+	font-weight: 500;
+	color: #1d2327;
+	white-space: nowrap;
+	margin-right: 8px;
+}
+
+.bw-anon-status {
+	font-size: 13px;
+	color: #757575;
+	white-space: nowrap;
+	align-self: center;
+	margin-right: 4px;
+}

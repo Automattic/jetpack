@@ -87,7 +87,7 @@ class Themes extends Module {
 		$widget = array(
 			'name'  => $widget_object->name,
 			'id'    => $widget_object->id,
-			'title' => isset( $new_instance['title'] ) ? $new_instance['title'] : '',
+			'title' => $new_instance['title'] ?? '',
 		);
 		/**
 		 * Trigger action to alert $callable sync listener that a widget was edited.
@@ -187,7 +187,7 @@ class Themes extends Module {
 		$url              = wp_parse_url( admin_url( $redirect_url ) );
 		$theme_editor_url = wp_parse_url( admin_url( 'theme-editor.php' ) );
 
-		if ( $theme_editor_url['path'] !== $url['path'] ) {
+		if ( ! isset( $url['query'] ) || $theme_editor_url['path'] !== $url['path'] ) {
 			return $redirect_url;
 		}
 
@@ -751,9 +751,7 @@ class Themes extends Module {
 			if ( in_array( $sidebar, array( 'array_version', 'wp_inactive_widgets' ), true ) ) {
 				continue;
 			}
-			$old_widgets = isset( $old_value[ $sidebar ] )
-				? $old_value[ $sidebar ]
-				: array();
+			$old_widgets = $old_value[ $sidebar ] ?? array();
 
 			if ( ! is_array( $new_widgets ) ) {
 				$new_widgets = array();

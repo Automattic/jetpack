@@ -2,20 +2,13 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
-import {
-	Card,
-	CardHeader,
-	CardBody,
-	CardFooter,
-	ExternalLink,
-	ToggleControl,
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
-import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { ToggleControl } from '@wordpress/components';
+import { DataForm, type Field } from '@wordpress/dataviews';
 import { useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Card, Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -28,17 +21,26 @@ interface NewsletterSectionProps {
 }
 
 /**
- * Newsletter Section Component
+ * Newsletter Section Component — legacy (flag-OFF) surface only.
  *
- * @param {NewsletterSectionProps} props - Component props
- * @return {JSX.Element} The newsletter section
+ * Hosts the always-editable `subscriptions` master toggle plus the
+ * `wpcom_newsletter_send_default` toggle, with the Privacy / Manage
+ * subscribers footer links. The modernized chassis splits this card up
+ * (master toggle moves to the global Newsletter module activation,
+ * `wpcom_newsletter_send_default` becomes its own `EmailDefaultsSection`,
+ * privacy/manage links are dropped) — this file is preserved verbatim so
+ * the legacy `wp-admin/admin.php?page=jetpack-newsletter` experience does
+ * not change while the modernization flag is off. Both the file and the
+ * legacy variant of `SubscriptionsSection` retire together in #48613.
+ *
+ * @param {NewsletterSectionProps} props - Component props.
+ * @return {JSX.Element} The newsletter section.
  */
 export function NewsletterSection( { data, onChange }: NewsletterSectionProps ): JSX.Element {
 	const newsletterScriptData = getNewsletterScriptData();
 	const siteType = getSiteType();
 	const previousSubscriptionsValue = useRef( data.subscriptions );
 
-	// Wrap onChange to track module toggle
 	const handleChange = useCallback(
 		( updates: Partial< NewsletterSettings > ) => {
 			if (
@@ -56,7 +58,6 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 		[ onChange, siteType ]
 	);
 
-	// Track manage subscribers click
 	const handleManageSubscribersClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_manage_subscribers_click', {
 			site_type: siteType,
@@ -113,11 +114,11 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 	];
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Newsletter', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Newsletter', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
 				<DataForm
 					data={ data }
 					fields={ fields }
@@ -130,22 +131,24 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 					} }
 					onChange={ handleChange }
 				/>
-			</CardBody>
-			<CardFooter className="newsletter-card-footer">
-				<ExternalLink
-					href={ getRedirectUrl( 'jetpack-support-subscriptions', { anchor: 'privacy' } ) }
-				>
-					{ __( 'Privacy information', 'jetpack-newsletter' ) }
-				</ExternalLink>
-				{ data.subscriptions && newsletterScriptData && (
-					<ExternalLink
-						href={ newsletterScriptData.subscriberManagementUrl }
-						onClick={ handleManageSubscribersClick }
+				<div className="newsletter-card-footer">
+					<Link
+						openInNewTab
+						href={ getRedirectUrl( 'jetpack-support-subscriptions', { anchor: 'privacy' } ) }
 					>
-						{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
-					</ExternalLink>
-				) }
-			</CardFooter>
-		</Card>
+						{ __( 'Privacy information', 'jetpack-newsletter' ) }
+					</Link>
+					{ data.subscriptions && newsletterScriptData && (
+						<Link
+							openInNewTab
+							href={ newsletterScriptData.subscriberManagementUrl }
+							onClick={ handleManageSubscribersClick }
+						>
+							{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
+						</Link>
+					) }
+				</div>
+			</Card.Content>
+		</Card.Root>
 	);
 }

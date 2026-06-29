@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugin Conflicts Guardian: include `blog_id` in logstash events so multisite / Atomic / Simple rows carry site attribution, matching the verbum-comments and wpcom-blocks precedent.

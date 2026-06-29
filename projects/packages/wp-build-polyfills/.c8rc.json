@@ -1,0 +1,5 @@
+{
+	"reporter": [ "json" ],
+	"all": true,
+	"include": [ "bin", "src", "*.js" ]
+}

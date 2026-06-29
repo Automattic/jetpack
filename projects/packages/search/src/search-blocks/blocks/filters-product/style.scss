@@ -1,0 +1,25 @@
+/**
+ * Product Filters parent block.
+ *
+ * Layout-only: lets each child filter take its natural width and stack
+ * vertically with the block-gap configured on the wrapper. Spacing controls
+ * are exposed via block.json `supports.spacing` so authors can tune padding
+ * and gap from the editor without theme overrides.
+ */
+.jetpack-search-filters-product {
+	gap: var(--wp--style--block-gap, 1.5rem);
+}
+
+.jetpack-search-filters-product__empty {
+	margin: 0;
+	// Size + line-height match `results-list` no-results/error so every
+	// muted-message region in the overlay shares one visual scale. See
+	// the sibling `filters/style.scss` for the same pattern.
+	font-size: 0.875rem;
+	line-height: 1.5;
+	opacity: 0.6;
+
+	&[hidden] {
+		display: none;
+	}
+}

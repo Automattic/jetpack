@@ -264,9 +264,11 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 									{ foundPhoton && (
 										<ModuleToggle
 											slug="photon"
-											disabled={ this.props.isUnavailableInOfflineMode( 'photon' ) }
+											disabled={
+												this.props.isUnavailableInOfflineMode( 'photon' ) ||
+												this.props.isSavingAnyOption( 'photon' )
+											}
 											activated={ this.props.getOptionValue( 'photon' ) }
-											toggling={ this.props.isSavingAnyOption( 'photon' ) }
 											toggleModule={ this.toggleModule }
 										>
 											<span className="jp-form-toggle-explanation">
@@ -277,8 +279,8 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 									{ foundAssetCdn && (
 										<ModuleToggle
 											slug="photon-cdn"
+											disabled={ this.props.isSavingAnyOption( 'photon-cdn' ) }
 											activated={ this.props.getOptionValue( 'photon-cdn' ) }
-											toggling={ this.props.isSavingAnyOption( 'photon-cdn' ) }
 											toggleModule={ this.toggleModule }
 										>
 											<span className="jp-form-toggle-explanation">

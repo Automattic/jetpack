@@ -46,6 +46,19 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
+	 * Registers the REST routes on the `rest_api_init` hook.
+	 *
+	 * Instantiated here, rather than eagerly, so the controller class only loads
+	 * on requests that reach `rest_api_init`. Static so the callback can be
+	 * unregistered.
+	 *
+	 * @access public
+	 */
+	public static function register() {
+		( new self() )->register_rest_routes();
+	}
+
+	/**
 	 * Registers the REST routes for Blaze Dashboard.
 	 *
 	 * Blaze Dashboard is built from `wp-calypso`, which leverages the `public-api.wordpress.com` API.
@@ -778,7 +791,7 @@ class Dashboard_REST_Controller {
 			return array( 'error' => 'File is missed' );
 		}
 		$file      = $_FILES['image']; // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$temp_name = $file['tmp_name'] ?? ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$temp_name = $file['tmp_name'] ?? '';
 		if ( ! $temp_name || ! is_uploaded_file( $temp_name ) ) {
 			return array( 'error' => 'Specified file was not uploaded' );
 		}

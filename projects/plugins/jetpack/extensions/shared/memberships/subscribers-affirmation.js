@@ -49,7 +49,7 @@ export const getFormattedCategories = (
 	const formattedCategoriesArray = categoryNames.map(
 		categoryName => `<strong>${ categoryName }</strong>`
 	);
-	let formattedCategories = '';
+	let formattedCategories;
 
 	if ( formattedCategoriesArray.length === 1 ) {
 		formattedCategories = formattedCategoriesArray[ 0 ];

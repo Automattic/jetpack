@@ -226,7 +226,7 @@ class Sender {
 			&& $verified_user
 		) {
 			$old_user       = wp_get_current_user();
-			$this->old_user = isset( $old_user->ID ) ? $old_user->ID : 0;
+			$this->old_user = $old_user->ID ?? 0;
 			wp_set_current_user( $verified_user['user_id'] );
 		}
 	}

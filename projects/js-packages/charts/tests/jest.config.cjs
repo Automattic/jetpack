@@ -15,7 +15,7 @@ module.exports = {
 		),
 	},
 	// Transform d3-* ESM packages (pattern accounts for pnpm .pnpm directory structure)
-	transformIgnorePatterns: [ '/node_modules/(?!(\\.pnpm/(d3-|internmap)|d3-|internmap))' ],
+	transformIgnorePatterns: [ '/node_modules/(?!\\.pnpm/|d3-|internmap/|uuid/)' ],
 	setupFilesAfterEnv: [
 		...( baseConfig.setupFilesAfterEnv || [] ),
 		path.join( __dirname, 'setup-element-size-mock.js' ),

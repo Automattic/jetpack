@@ -4,7 +4,6 @@ import {
 	AdminSection,
 	Container,
 	Col,
-	JetpackLogo,
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import {
@@ -227,7 +226,6 @@ const EditVideoDetails = () => {
 			>
 				<li>
 					<a href={ backUrl } className={ styles[ 'breadcrumb-link' ] }>
-						<JetpackLogo showText={ false } height={ 20 } />
 						{ 'VideoPress' /** "VideoPress" is a product name, do not translate. */ }
 					</a>
 				</li>

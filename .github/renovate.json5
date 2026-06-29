@@ -58,6 +58,10 @@
 		{
 			extends: [ 'packages:eslint' ],
 			groupName: 'Eslint packages',
+			matchPackageNames: [
+				// Let this go to the Storybook monorepo group instead. It has a tightly tied peer dep.
+				'!eslint-plugin-storybook',
+			],
 		},
 		{
 			extends: [ 'packages:jsUnitTest' ],
@@ -93,6 +97,20 @@
 			matchPackageNames: [ 'docker/**' ],
 		},
 
+		// QualityOps decided they want all these pinned to digests.
+		// They were going to have Dependabot create PRs automatically, but as we use Renovate, do it here instead.
+		// We'll leave major updates ungrouped though, as those likely need more individualized attention.
+		{
+			extends: [ 'helpers:pinGitHubActionDigests' ],
+		},
+		{
+			groupName: 'GitHub Actions minor version bumps',
+			matchDepTypes: [ 'action' ],
+			matchUpdateTypes: [ 'minor', 'patch', 'pin', 'digest', 'pinDigest' ],
+			schedule: [ '* 0-3 * * 1' ],
+			additionalReviewers: [ 'team:qualityops' ],
+		},
+
 		// Bundled, WordPress dependencies are separated from 'monorepo:wordpress' while
 		// they're still considered unstable and can have significant breaking changes.
 		// Since they're not externalized to WP, they have higher chance of impacting functionality.
@@ -115,6 +133,8 @@
 				'team:triforce', // Monorepo overall, Publicize, My Jetpack
 				'team:loop', // Newsletter dashboard & subscriber management
 				'team:zap', // Forms, much of the recent componentry work.
+				'team:red', // Premium Analytics
+				'team:ventures', // Premium Analytics
 			],
 		},
 
@@ -126,6 +146,23 @@
 			// Teams using Build in their projects
 			additionalReviewers: [
 				'team:zap', // Forms
+				'team:red', // Premium Analytics
+				'team:ventures', // Premium Analytics
+			],
+		},
+
+		// Widgets Dashboard packages are still experimental/development-focused, so group them for targeted review.
+		{
+			groupName: 'Widgets Dashboard',
+			matchPackageNames: [
+				'@wordpress/widget-dashboard',
+				'@wordpress/widget-primitives',
+				'@wordpress/grid',
+			],
+			separateMajorMinor: false,
+			additionalReviewers: [
+				'team:red', // Premium Analytics
+				'team:ventures', // Premium Analytics
 			],
 		},
 

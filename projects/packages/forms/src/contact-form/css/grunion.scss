@@ -225,7 +225,6 @@
 	font-size: 85%;
 	margin-left: 0.25em;
 	font-weight: 400;
-	opacity: 0.6;
 }
 
 .contact-form-submission {
@@ -711,6 +710,13 @@
 }
 
 @media only screen and ( max-width: 480px ) {
+
+	// Horizontal flex-layout forms need to wrap on small screens so that the
+	// field and button each get their own row. Non-flex-layout forms already
+	// have flex-wrap: wrap from the rule above.
+	.wp-block-jetpack-contact-form.is-layout-flex {
+		flex-wrap: wrap;
+	}
 
 	.wp-block-jetpack-contact-form .grunion-field-wrap {
 		flex-basis: 100%;

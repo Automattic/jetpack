@@ -7,6 +7,7 @@ const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plug
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
+	cache: jetpackWebpackConfig.cache( __filename ),
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '../_inc/build' ),

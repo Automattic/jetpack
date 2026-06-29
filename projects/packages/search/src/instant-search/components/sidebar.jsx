@@ -8,6 +8,32 @@ import './sidebar.scss';
 const Sidebar = props => {
 	return (
 		<div className="jetpack-instant-search__sidebar">
+			{ props.citations?.length > 0 && (
+				<div className="jetpack-instant-search__sidebar-citations">
+					{ props.citations.map( ( citation, i ) => (
+						<a
+							key={ i }
+							href={ /^https?:\/\//i.test( citation.url ) ? citation.url : '#' }
+							className="jetpack-instant-search__sidebar-citation-card"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<span className="jetpack-instant-search__sidebar-citation-title">
+								{ citation.title }
+							</span>
+							<span className="jetpack-instant-search__sidebar-citation-url">
+								{ ( () => {
+									try {
+										return new URL( citation.url ).hostname;
+									} catch {
+										return '';
+									}
+								} )() }
+							</span>
+						</a>
+					) ) }
+				</div>
+			) }
 			{ /* If widgetOutsideOverlay doesn't contain any filters,
 			     this component will just show the title and clear filters button. */ }
 			<SearchFilters

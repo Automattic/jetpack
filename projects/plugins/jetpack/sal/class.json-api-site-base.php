@@ -1696,6 +1696,18 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Returns whether APM (Application Performance Monitoring) is enabled for the site.
+	 *
+	 * APM is an Atomic-only hosting feature. Non-Atomic site types (Simple wpcom, real
+	 * Jetpack) return false; Jetpack_Shadow_Site overrides with the actual read.
+	 *
+	 * @return bool
+	 **/
+	public function get_apm_enabled() {
+		return false;
+	}
+
+	/**
 	 * Get Zendesk site meta.
 	 *
 	 * @return array|null

@@ -112,10 +112,10 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	 * @param array $instance The settings for the particular instance of the widget.
 	 */
 	public function widget( $args, $instance ) {
-		$before_widget = isset( $args['before_widget'] ) ? $args['before_widget'] : '';
-		$before_title  = isset( $args['before_title'] ) ? $args['before_title'] : '';
-		$after_title   = isset( $args['after_title'] ) ? $args['after_title'] : '';
-		$after_widget  = isset( $args['after_widget'] ) ? $args['after_widget'] : '';
+		$before_widget = $args['before_widget'] ?? '';
+		$before_title  = $args['before_title'] ?? '';
+		$after_title   = $args['after_title'] ?? '';
+		$after_widget  = $args['after_widget'] ?? '';
 		$like_args     = $this->get_default_args();
 
 		if ( isset( $instance['like_args'] ) ) {

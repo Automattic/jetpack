@@ -4,13 +4,17 @@ packages:
   - projects/plugins/*/tests/e2e
   - tools/cli
   - tools/e2e-commons
+  - tools/e2e-commons/no-lighthouse
   - tools/js-tools
   - tools/performance
   - .github/files/coverage-munger
 
 engineStrict: true
-managePackageManagerVersions: false
+pmOnFail: ignore
 preferWorkspacePackages: true
+
+# Feature is buggy in pnpm 11.5, e.g. https://github.com/pnpm/pnpm/issues/12100.
+optimisticRepeatInstall: false
 
 # Be strict about peer deps
 autoInstallPeers: false
@@ -30,17 +34,10 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
-  # Renovate security update: dompurify@3.4.0
-  - dompurify@3.4.0
-  # Need to unblock @wordpress/* package updates
-  - '@types/wordpress__block-editor@15.0.6'
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
   - chokidar@4.0.3
-
-  # https://github.com/reduxjs/reselect/issues/752
-  - reselect@5.1.1
 
   # Packages where newer majors have provenance but we're still on an older one.
   - rollup@3.30.0

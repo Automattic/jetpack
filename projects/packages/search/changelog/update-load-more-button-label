@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search 3.0: load-more block now exposes a buttonLabel attribute (editor inspector text input, translated default fallback) and adopts the active theme's button styles via the wp-element-button class.

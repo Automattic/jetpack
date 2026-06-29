@@ -1,7 +1,7 @@
 === Jetpack inspect ===
 Contributors: automattic,
 Tags: jetpack, stuff
-Requires at least: 6.8
+Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
 Stable tag: 2.0.0-a.11

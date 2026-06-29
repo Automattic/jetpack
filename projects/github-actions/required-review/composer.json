@@ -4,15 +4,12 @@
 	"type": "project",
 	"license": "GPL-2.0-or-later",
 	"require": {},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
-	},
 	"scripts": {
 		"build-development": [
 			"pnpm run build"
 		],
-		"test-coverage": "pnpm run test-coverage",
-		"test-js": "pnpm run test"
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage"
 	},
 	"repositories": [
 		{

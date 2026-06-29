@@ -17,7 +17,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.8.1';
+	const PACKAGE_VERSION = '0.9.6';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -36,6 +36,17 @@ class Admin_Menu {
 	const UPGRADE_MENU_FALLBACK_URL = 'https://jetpack.com/upgrade/';
 
 	/**
+	 * Handle for the shared, token-only WPDS design-tokens stylesheet.
+	 *
+	 * Registered once and enqueued on every Jetpack admin page so that
+	 * `var(--wpds-*)` values resolve at runtime instead of falling back to
+	 * their hand-written hex defaults.
+	 *
+	 * @var string
+	 */
+	const DESIGN_TOKENS_HANDLE = 'jetpack-admin-ui-design-tokens';
+
+	/**
 	 * Whether this class has been initialized
 	 *
 	 * @var boolean
@@ -48,6 +59,15 @@ class Admin_Menu {
 	 * @var array
 	 */
 	private static $menu_items = array();
+
+	/**
+	 * Hook suffixes of the pages registered through this class.
+	 *
+	 * Used to scope the design-tokens stylesheet to Jetpack admin pages.
+	 *
+	 * @var array
+	 */
+	private static $page_hooks = array();
 
 	/**
 	 * Optional connection manager dependency.
@@ -68,6 +88,7 @@ class Admin_Menu {
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'add_upgrade_menu_item_styles' ) );
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_design_tokens' ) );
 		}
 	}
 
@@ -200,7 +221,51 @@ class Admin_Menu {
 		 * We know all pages will be under Jetpack top level menu page, so we can hardcode the first part of the string.
 		 * Using get_plugin_page_hookname here won't work because the top level page is not registered yet.
 		 */
-		return 'jetpack_page_' . $menu_slug;
+		$hook = 'jetpack_page_' . $menu_slug;
+
+		// Track the page hook so the design-tokens stylesheet can be scoped to it.
+		self::$page_hooks[] = $hook;
+
+		// Hide WordPress core admin notices on this Jetpack page. The load-<hook>
+		// action only fires when the matching screen is being rendered, so this
+		// stays scoped to Jetpack pages and reaches every page registered here.
+		add_action( 'load-' . $hook, array( __CLASS__, 'hide_core_admin_notices' ) );
+		add_action( 'load-' . $hook . '-network', array( __CLASS__, 'hide_core_admin_notices' ) );
+
+		return $hook;
+	}
+
+	/**
+	 * Queues an inline style that hides WordPress core admin notices on the current Jetpack page.
+	 *
+	 * Hooked from the page's load-<hook> action so it only runs on Jetpack screens.
+	 *
+	 * @return void
+	 */
+	public static function hide_core_admin_notices() {
+		add_action( 'admin_print_styles', array( __CLASS__, 'print_hide_core_admin_notices_style' ) );
+	}
+
+	/**
+	 * Prints the inline style that hides WordPress core admin notices.
+	 *
+	 * We only target direct children of #wpbody-content (where core renders notices via the
+	 * admin_notices / all_admin_notices hooks). This intentionally leaves JITMs untouched —
+	 * they output `.jetpack-jitm-message`, not `.notice` — and leaves in-app/React notices
+	 * untouched, since those render deeper inside `.wrap`. An inline style is used (rather than
+	 * an enqueued build asset) so it also works on older Jetpack pages that ship no stylesheet.
+	 *
+	 * @return void
+	 */
+	public static function print_hide_core_admin_notices_style() {
+		?>
+		<style id="jetpack-admin-ui-hide-core-notices">
+			#wpbody-content > .notice,
+			#wpbody-content > .update-nag,
+			#wpbody-content > .updated,
+			#wpbody-content > .error { display: none !important; }
+		</style>
+		<?php
 	}
 
 	/**
@@ -428,6 +493,69 @@ class Admin_Menu {
 		);
 
 		self::enqueue_upgrade_menu_tracks_script( $asset );
+	}
+
+	/**
+	 * Enqueues the shared, token-only WPDS design-tokens stylesheet.
+	 *
+	 * Single entry point for any consumer that needs WPDS `var(--wpds-*)` values
+	 * to resolve at runtime on a Jetpack admin page. Registers the handle on
+	 * first use (idempotent) and enqueues it; the caller is responsible for
+	 * scoping the call to the right page(s). Since admin-ui is a dependency of
+	 * the Jetpack plugin and the modernized packages, both the plugin's
+	 * legacy/wrap_ui gate and this package's own dashboards call through here,
+	 * so the handle has a single owner and there is no duplicated enqueue logic.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_design_tokens() {
+		self::register_design_tokens_style();
+		wp_enqueue_style( self::DESIGN_TOKENS_HANDLE );
+	}
+
+	/**
+	 * Registers the shared, token-only WPDS design-tokens stylesheet.
+	 *
+	 * The stylesheet only defines `:root{--wpds-*}` custom properties (no
+	 * component or class styles), giving every Jetpack admin page a single
+	 * runtime source for design tokens. It is safe to call repeatedly:
+	 * wp_register_style() is a no-op once the handle is registered.
+	 *
+	 * @return void
+	 */
+	private static function register_design_tokens_style() {
+		if ( wp_style_is( self::DESIGN_TOKENS_HANDLE, 'registered' ) ) {
+			return;
+		}
+
+		$asset_file = dirname( __DIR__ ) . '/build/design-tokens.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array();
+
+		wp_register_style(
+			self::DESIGN_TOKENS_HANDLE,
+			plugins_url( '../build/design-tokens.css', __FILE__ ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? self::PACKAGE_VERSION
+		);
+	}
+
+	/**
+	 * Enqueues the design tokens on the pages registered through this class.
+	 *
+	 * This is the admin_enqueue_scripts callback for the modernized Jetpack
+	 * dashboards. Scoped to self::$page_hooks so the tokens load wherever a
+	 * modernized dashboard renders, regardless of plan or connection state; the
+	 * actual enqueue is delegated to the reusable enqueue_design_tokens() API.
+	 *
+	 * @param string $hook_suffix The current admin page's hook suffix.
+	 * @return void
+	 */
+	public static function maybe_enqueue_design_tokens( $hook_suffix ) {
+		if ( ! in_array( $hook_suffix, self::$page_hooks, true ) ) {
+			return;
+		}
+
+		self::enqueue_design_tokens();
 	}
 
 	/**

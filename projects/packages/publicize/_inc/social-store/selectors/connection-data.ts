@@ -3,7 +3,6 @@ import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector, createSelector } from '@wordpress/data';
 import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
 import { EMPTY_ARRAY } from '../constants';
-import { canShareToX } from './x-usage';
 import type { Connection, ConnectionData, SocialStoreState } from '../types';
 
 /**
@@ -72,21 +71,6 @@ export function hasConnections( state: SocialStoreState ) {
 }
 
 /**
- * Returns the failed Publicize connections.
- *
- * @param state - State object.
- * @return List of connections.
- */
-export const getFailedConnections = createSelector(
-	( state: SocialStoreState ) => {
-		const connections = getConnections( state );
-
-		return connections.filter( connection => 'broken' === connection.status );
-	},
-	( state: SocialStoreState ) => [ state.connectionData?.connections ]
-);
-
-/**
  * Returns a list of Publicize connection service names that require reauthentication from users.
  * For example, when LinkedIn switched its API from v1 to v2.
  *
@@ -116,28 +100,6 @@ export const getEnabledConnections = createSelector(
 	},
 	( state: SocialStoreState ) => [ state.connectionData?.connections ]
 );
-
-/**
- * Returns the connections that are both enabled and allowed to be shared to.
- *
- * This excludes connections that the user has toggled on but cannot actually
- * be used for sharing — currently, X connections when the sharing quota is
- * exceeded. Use this for "will be shared" UI surfaces; use
- * `getEnabledConnections` for user-intent state (e.g. post meta sync).
- *
- * @param state - State object.
- *
- * @return List of connections ready to share.
- */
-export function getConnectionsReadyToShare( state: SocialStoreState ): Array< Connection > {
-	const enabled = getEnabledConnections( state );
-
-	if ( canShareToX( state ) ) {
-		return enabled;
-	}
-
-	return enabled.filter( connection => connection.service_name !== 'x' );
-}
 
 /**
  * Returns the Publicize connections that are disabled.
@@ -242,6 +204,17 @@ export function getKeyringResult( state: SocialStoreState ) {
 }
 
 /**
+ * Whether the keyring result for a completed connect request is being fetched.
+ *
+ * @param state - State object.
+ *
+ * @return Whether the keyring result is being fetched.
+ */
+export function isFetchingKeyringResult( state: SocialStoreState ) {
+	return Boolean( state.connectionData?.fetchingKeyringResult );
+}
+
+/**
  * Whether the connections modal is open.
  * @param state - State object.
  *
@@ -249,20 +222,6 @@ export function getKeyringResult( state: SocialStoreState ) {
  */
 export function isConnectionsModalOpen( state: SocialStoreState ) {
 	return state.connectionData?.isConnectionsModalOpen ?? false;
-}
-
-/**
- * Whether the single-X-per-post info notice should be shown in the sidebar.
- *
- * Set to true by `toggleConnectionById` when the user turns on an X
- * connection and the thunk auto-disables another enabled X connection.
- *
- * @param state - State object.
- *
- * @return Whether the single-X notice should be shown.
- */
-export function shouldShowSingleXNotice( state: SocialStoreState ) {
-	return state.connectionData?.shouldShowSingleXNotice ?? false;
 }
 
 /**

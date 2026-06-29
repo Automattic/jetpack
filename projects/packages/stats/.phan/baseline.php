@@ -10,12 +10,10 @@
 return [
     // # Issue statistics:
     // PhanTypeVoidAssignment : 4 occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanTypeMismatchReturn : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-tracking-pixel.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-wpcom-stats.php' => ['PhanTypeMismatchReturn'],
         'tests/php/Main_Test.php' => ['PhanTypeVoidAssignment'],
         'tests/php/Options_Test.php' => ['PhanTypeVoidAssignment'],

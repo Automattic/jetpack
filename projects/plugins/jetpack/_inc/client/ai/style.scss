@@ -1,14 +1,8 @@
-// phpcs:ignore -- SCSS selector, not a PHP file
-.jetpack_page_ai .admin-ui-page {
-	// Fill the viewport height minus the fixed 32px WP admin bar,
-	// so the footer sits at the bottom of the visible screen area.
-	min-height: calc(100vh - 32px);
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 
-	// The fluid container (2nd direct child, between header and footer) should
-	// grow to fill available space, pushing the footer to the bottom.
-	> div:nth-child(2) {
-		flex: 1;
-	}
+body.jetpack_page_jetpack-ai {
+
+	@include jetpack-admin-page-layout;
 }
 
 .jetpack-ai-admin {
@@ -38,7 +32,30 @@
 			display: flex;
 			align-items: center;
 			margin-bottom: 0;
+
 		}
+
+		// Render a "/" separator between adjacent breadcrumb items.
+		// Mirrors @wordpress/admin-ui's Breadcrumbs component, which we
+		// can't drop in directly because it requires @wordpress/route
+		// for navigation — we use hash-based routing here.
+		li + li::before {
+			content: "/";
+			margin: 0 8px;
+			color: var(--wpds-color-stroke-surface-neutral, #c3c4c7);
+		}
+	}
+
+	// Both pieces of the breadcrumb match the wpds `heading-lg` type token
+	// (the same one admin-ui's Page uses for the hub's "AI" h1 title), so
+	// the header on sub-views reads as "AI / Read" with the same size and
+	// weight as the hub heading.
+	&__breadcrumb-link,
+	&__breadcrumb-current {
+		font-family: var(--wpds-typography-font-family-heading, inherit);
+		font-size: var(--wpds-typography-font-size-lg, 15px);
+		font-weight: var(--wpds-typography-font-weight-medium, 500);
+		line-height: var(--wpds-typography-line-height-sm, 20px);
 	}
 
 	&__breadcrumb-link {
@@ -50,9 +67,6 @@
 		padding: 0;
 		cursor: pointer;
 		color: inherit;
-		font-size: inherit;
-		font-weight: inherit;
-		line-height: inherit;
 		text-decoration: none;
 
 		&:hover {
@@ -61,9 +75,6 @@
 	}
 
 	&__breadcrumb-current {
-		font-size: inherit;
-		font-weight: inherit;
-		line-height: inherit;
 		margin: 0;
 	}
 

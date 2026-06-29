@@ -1,4 +1,3 @@
-import { Badge } from '@automattic/ui';
 import {
 	Card,
 	CardBody,
@@ -8,6 +7,7 @@ import {
 	FlexBlock,
 	FlexItem,
 } from '@wordpress/components';
+import { Badge } from '@wordpress/ui';
 import { ProductCamelCase } from '../../../data/types';
 import { MyJetpackModule } from '../../../types';
 import { PRODUCT_ICONS } from './mappings';
@@ -61,7 +61,7 @@ export function ProductCard( { product, headingLevel = 3, module: $module }: Pro
 			</CardBody>
 			{ ! isAvailable ? (
 				<CardFooter>
-					<Badge intent="warning">{ reason }</Badge>
+					<Badge intent="medium">{ reason }</Badge>
 				</CardFooter>
 			) : null }
 		</Card>

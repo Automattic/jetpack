@@ -5,15 +5,15 @@ on:
   push:
     branches:
       - trunk # Every time a PR is merged to trunk.
+
+# On the workflow level, cancel any concurrent runs with the same type (e.g. "opened", "labeled") and branch.
+# Don't cancel any for other events, accomplished by grouping on the unique run_id.
+# Later, on the job level, we queue the job runs by branch to keep them from interfering with each other.
 concurrency:
-  # For pull_request_target, cancel any concurrent jobs with the same type (e.g. "opened", "labeled") and branch.
-  # Don't cancel any for other events, accomplished by grouping on the unique run_id.
   group: gardening-${{ github.event_name }}-${{ github.event.action }}-${{ case( github.event_name == 'pull_request_target', github.event.pull_request.head.ref, github.run_id ) }}
   cancel-in-progress: true
 
 permissions:
-  # ./.github/actions/turnstile
-  actions: read
   # actions/checkout
   contents: read
   # ./projects/github-actions/repo-gardening
@@ -30,10 +30,16 @@ jobs:
     name: "Manage labels and assignees"
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-    timeout-minutes: 10  # 2025-11-06: Successful runs seem to take a minute or two, primarily since we wait for previous runs to complete.
+    timeout-minutes: 5  # 2026-05-21: Successful runs take 1–2 minutes.
+
+    # See above.
+    concurrency:
+      group: gardening-xjobqueue-${{ github.ref }}
+      queue: max
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -49,15 +55,13 @@ jobs:
 
       - name: Check out the PR
         if: github.event_name == 'pull_request_target' && github.event.pull_request.state != 'closed'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
+          allow-unsafe-pr-checkout: true
           # DO NOT run any code in this checkout. Not even an `npm install`.
           path: ./pr-checkout
-
-      - name: Wait for prior instances of the workflow to finish
-        uses: ./.github/actions/turnstile
 
       - name: "Run the action (assign, manage milestones, for PRs)"
         uses: ./projects/github-actions/repo-gardening

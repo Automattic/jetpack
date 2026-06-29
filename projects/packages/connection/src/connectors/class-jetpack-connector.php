@@ -11,7 +11,9 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -113,6 +115,7 @@ class Jetpack_Connector {
 			(string) @filemtime( $css_path ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- fallback to empty string if file is missing.
 		);
 
+		$js_path = __DIR__ . '/js/connectors-card.js';
 		wp_register_script_module(
 			static::MODULE_ID,
 			plugins_url( 'js/connectors-card.js', __FILE__ ),
@@ -121,7 +124,8 @@ class Jetpack_Connector {
 					'id'     => '@wordpress/connectors',
 					'import' => 'static',
 				),
-			)
+			),
+			(string) @filemtime( $js_path ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- fallback to empty string if file is missing.
 		);
 		wp_enqueue_script_module( static::MODULE_ID );
 
@@ -146,6 +150,8 @@ class Jetpack_Connector {
 
 		$data['isConnected']          = $is_connected;
 		$data['isRegistered']         = $is_registered;
+		$data['isOfflineMode']        = ( new Status() )->is_offline_mode();
+		$data['isFirstConnection']    = ! $is_registered && ! (bool) \Jetpack_Options::get_option( 'id' );
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']          = static::get_connectors_page_path();
@@ -153,9 +159,10 @@ class Jetpack_Connector {
 		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = static::get_connector_logo_url();
 
+		$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
+
 		if ( $is_registered ) {
-			$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
-			$data['siteDetails']      = array(
+			$data['siteDetails'] = array(
 				'blogId'  => (int) \Jetpack_Options::get_option( 'id' ),
 				'siteUrl' => site_url(),
 				'homeUrl' => home_url(),
@@ -164,6 +171,8 @@ class Jetpack_Connector {
 			if ( in_array( 'jetpack', array_column( $data['connectedPlugins'], 'slug' ), true ) ) {
 				$data['ssoStatus'] = ( new Modules() )->is_active( 'sso', false );
 			}
+
+			static::add_identity_crisis_data( $data );
 		}
 
 		if ( $is_connected ) {
@@ -181,6 +190,42 @@ class Jetpack_Connector {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Add Jetpack Identity Crisis (Safe Mode) data to the script module data.
+	 *
+	 * The connector card uses this to swap the status badge to "Safe Mode" and
+	 * to render IDC resolution options (migrate / start fresh / stay in safe
+	 * mode) in the expanded details. Mirrors the data assembled by
+	 * \Automattic\Jetpack\IdentityCrisis\UI::get_initial_state_data().
+	 *
+	 * @since 8.7.0
+	 *
+	 * @param array $data Script module data passed by reference.
+	 */
+	private static function add_identity_crisis_data( &$data ) {
+		if ( ! class_exists( Identity_Crisis::class ) ) {
+			return;
+		}
+
+		$in_safe_mode = ( new Status() )->in_safe_mode();
+
+		$data['isInSafeMode'] = $in_safe_mode;
+
+		if ( ! $in_safe_mode ) {
+			return;
+		}
+
+		$idc_urls = Identity_Crisis::get_mismatched_urls();
+
+		$data['isSafeModeConfirmed'] = (bool) Identity_Crisis::$is_safe_mode_confirmed;
+		$data['idc']                 = array(
+			'currentUrl'                     => ( is_array( $idc_urls ) && array_key_exists( 'current_url', $idc_urls ) ) ? $idc_urls['current_url'] : home_url(),
+			'wpcomHomeUrl'                   => ( is_array( $idc_urls ) && array_key_exists( 'wpcom_url', $idc_urls ) ) ? $idc_urls['wpcom_url'] : '',
+			'isDevelopmentSite'              => (bool) Status::is_development_site(),
+			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
+		);
 	}
 
 	/**
@@ -409,19 +454,13 @@ class Jetpack_Connector {
 	}
 
 	/**
-	 * Determine the connector card logo based on which plugin families are connected.
+	 * Detect which plugin families are using the connection.
 	 *
-	 * Priority:
-	 * 1. Both Woo-family and A4A plugins → jetpack-connect-all.svg
-	 * 2. Woo-family only                 → jetpack-connect-woo.svg
-	 * 3. A4A only                        → jetpack-connect-a8c.svg
-	 * 4. Default (Jetpack only or other) → jetpack-connect.svg
+	 * @since 8.5.0
 	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string Logo URL.
+	 * @return array{has_woo: bool, has_a4a: bool}
 	 */
-	private static function get_connector_logo_url() {
+	public static function get_connected_plugin_families() {
 		$plugins = Plugin_Storage::get_all();
 
 		$has_woo = false;
@@ -438,16 +477,66 @@ class Jetpack_Connector {
 			}
 		}
 
-		if ( $has_woo && $has_a4a ) {
+		return array(
+			'has_woo' => $has_woo,
+			'has_a4a' => $has_a4a,
+		);
+	}
+
+	/**
+	 * Determine the connector card logo based on which plugin families are connected.
+	 *
+	 * Priority:
+	 * 1. Both Woo-family and A4A plugins → jetpack-connect-all.svg
+	 * 2. Woo-family only                 → jetpack-connect-woo.svg
+	 * 3. A4A only                        → jetpack-connect-a8c.svg
+	 * 4. Default (Jetpack only or other) → jetpack-connect.svg
+	 *
+	 * @since 8.3.2
+	 *
+	 * @return string Logo URL.
+	 */
+	public static function get_connector_logo_url() {
+		$families = self::get_connected_plugin_families();
+
+		if ( $families['has_woo'] && $families['has_a4a'] ) {
 			return plugins_url( 'images/jetpack-connect-all.svg', __FILE__ );
 		}
 
-		if ( $has_woo ) {
+		if ( $families['has_woo'] ) {
 			return plugins_url( 'images/jetpack-connect-woo.svg', __FILE__ );
 		}
 
-		if ( $has_a4a ) {
+		if ( $families['has_a4a'] ) {
 			return plugins_url( 'images/jetpack-connect-a8c.svg', __FILE__ );
+		}
+
+		return plugins_url( 'images/jetpack-connect.svg', __FILE__ );
+	}
+
+	/**
+	 * Get the inline (single-row) connector logo for use in compact contexts like table cells.
+	 *
+	 * All circles are arranged horizontally in a single row, unlike the card
+	 * logos which stack circles vertically for 3+ plugins.
+	 *
+	 * @since 8.5.0
+	 *
+	 * @return string Logo URL.
+	 */
+	public static function get_inline_connector_logo_url() {
+		$families = self::get_connected_plugin_families();
+
+		if ( $families['has_woo'] && $families['has_a4a'] ) {
+			return plugins_url( 'images/jetpack-connect-all-inline.svg', __FILE__ );
+		}
+
+		if ( $families['has_woo'] ) {
+			return plugins_url( 'images/jetpack-connect-woo-inline.svg', __FILE__ );
+		}
+
+		if ( $families['has_a4a'] ) {
+			return plugins_url( 'images/jetpack-connect-a8c-inline.svg', __FILE__ );
 		}
 
 		return plugins_url( 'images/jetpack-connect.svg', __FILE__ );
@@ -463,7 +552,7 @@ class Jetpack_Connector {
 	 * plugins can register their own logo. Only SVG URLs are accepted
 	 * to keep the icons sharp at every display density.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.3.2
 	 *
 	 * @param string $slug Plugin slug.
 	 * @return string|null Logo URL or null.
@@ -496,7 +585,7 @@ class Jetpack_Connector {
 		 *         return $logos;
 		 *     } );
 		 *
-		 * @since $$next-version$$
+		 * @since 8.3.2
 		 *
 		 * @param array<string,string> $logos Map of plugin slug to SVG URL.
 		 */

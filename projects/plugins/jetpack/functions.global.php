@@ -33,7 +33,7 @@ require_once __DIR__ . '/functions.is-mobile.php';
  * @param string $replacement Optional. The function that should have been called. Default null.
  * @param string $version     The version of Jetpack that deprecated the function.
  */
-function jetpack_deprecated_function( $function, $replacement, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+function jetpack_deprecated_function( $function, $replacement, $version ) {
 	// Bail early for non-Jetpack deprecations.
 	if ( ! str_starts_with( $version, 'jetpack-' ) ) {
 		return;
@@ -511,7 +511,7 @@ if ( ! function_exists( 'jetpack_is_internal_testing_environment' ) ) {
 	 * WordPress.com.
 	 *
 	 * Note: This intentionally duplicates the logic from
-	 * Agents_Manager::is_dev_mode() in jetpack-mu-wpcom rather than calling
+	 * Agents_Manager::is_dev_mode() in jetpack-agents-manager rather than calling
 	 * it directly, because that package is only available on WordPress.com
 	 * hosted sites, while Jetpack also runs on self-hosted sites.
 	 *
@@ -537,7 +537,6 @@ if ( ! function_exists( 'jetpack_is_internal_testing_environment' ) ) {
 
 		// Proxied A8C request via server variable or constant.
 		if (
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- boolean check only.
 			( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
 			( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
 		) {

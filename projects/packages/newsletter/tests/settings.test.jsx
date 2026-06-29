@@ -39,22 +39,34 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 	} ),
 } ) );
 
+// Capture the parent's wired props for `SubscribeModalSection` so the
+// describe block below can drive `handleSubscribeModalChange`,
+// `saveSubscribeModal`, and `hasSubscribeModalChanges` without going through
+// the real card UI.
+const subscribeModalProps = { current: null };
+
 jest.mock( '../src/settings/sections', () => ( {
-	NewsletterSection: () => <div data-testid="newsletter-section" />,
-	SubscriptionsSection: () => <div data-testid="subscriptions-section" />,
-	PaidNewsletterSection: () => <div data-testid="paid-newsletter-section" />,
-	NewsletterCategoriesSection: () => <div data-testid="newsletter-categories-section" />,
-	EmailContentSection: () => <div data-testid="email-content-section" />,
 	EmailBylineSection: () => <div data-testid="email-byline-section" />,
-	EmailSenderSettingsSection: () => <div data-testid="email-sender-settings-section" />,
+	EmailContentSection: () => <div data-testid="email-content-section" />,
+	EmailDefaultsSection: () => <div data-testid="email-defaults-section" />,
 	EmailReplyToSettingsSection: () => <div data-testid="email-reply-to-settings-section" />,
+	EmailSenderSettingsSection: () => <div data-testid="email-sender-settings-section" />,
+	LegacySubscriptionsSection: () => <div data-testid="legacy-subscriptions-section" />,
+	NewsletterCategoriesSection: () => <div data-testid="newsletter-categories-section" />,
+	NewsletterSection: () => <div data-testid="newsletter-section" />,
+	PaidNewsletterSection: () => <div data-testid="paid-newsletter-section" />,
+	SubscribeModalSection: props => {
+		subscribeModalProps.current = props;
+		return <div data-testid="subscribe-modal-section" />;
+	},
+	SubscriptionsSection: () => <div data-testid="subscriptions-section" />,
 	WelcomeEmailSection: () => <div data-testid="welcome-email-section" />,
 } ) );
 
 import { useConnection } from '@automattic/jetpack-connection';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { NewsletterSettingsApp } from '../src/settings';
-import { fetchSettings } from '../src/settings/api';
+import { fetchSettings, updateSettings } from '../src/settings/api';
 
 const defaultSettings = {
 	subscriptions: true,
@@ -142,6 +154,109 @@ describe( 'NewsletterSettingsApp', () => {
 				// The Disabled component wrapping settings should add inert when not connected
 				expect( screen.getByTestId( 'newsletter-section' ) ).toBeInTheDocument();
 			} );
+		} );
+	} );
+
+	describe( 'SubscribeModalSection wiring', () => {
+		beforeEach( () => {
+			useConnection.mockReturnValue( {
+				hasConnectedOwner: true,
+				isRegistered: true,
+				isUserConnected: true,
+			} );
+			subscribeModalProps.current = null;
+		} );
+
+		const renderAndWait = async () => {
+			render( <NewsletterSettingsApp /> );
+			await waitFor( () => {
+				expect( subscribeModalProps.current ).not.toBeNull();
+			} );
+		};
+
+		it( 'starts with hasChanges=false, isSaving=false, and empty changedKeys', async () => {
+			await renderAndWait();
+
+			expect( subscribeModalProps.current.hasChanges ).toBe( false );
+			expect( subscribeModalProps.current.isSaving ).toBe( false );
+			expect( subscribeModalProps.current.changedKeys ).toEqual( [] );
+		} );
+
+		it( 'flips hasChanges to true after onChange stages a subscription_options update', async () => {
+			await renderAndWait();
+
+			act( () => {
+				subscribeModalProps.current.onChange( {
+					subscription_options: {
+						invitation: 'I',
+						welcome: 'W',
+						comment_follow: 'CF',
+						subscribe_modal_heading: 'New heading',
+					},
+				} );
+			} );
+
+			await waitFor( () => {
+				expect( subscribeModalProps.current.hasChanges ).toBe( true );
+			} );
+			expect( subscribeModalProps.current.changedKeys ).toEqual( [ 'subscription_options' ] );
+		} );
+
+		it( 'calls updateSettings with the staged subscription_options payload on onSave', async () => {
+			updateSettings.mockResolvedValue( {} );
+			await renderAndWait();
+
+			const payload = {
+				subscription_options: {
+					invitation: 'I',
+					welcome: 'W',
+					comment_follow: 'CF',
+					subscribe_modal_heading: 'Submitted heading',
+				},
+			};
+
+			act( () => {
+				subscribeModalProps.current.onChange( payload );
+			} );
+
+			await waitFor( () => {
+				expect( subscribeModalProps.current.hasChanges ).toBe( true );
+			} );
+
+			await act( async () => {
+				subscribeModalProps.current.onSave();
+			} );
+
+			expect( updateSettings ).toHaveBeenCalledWith( payload );
+		} );
+
+		it( 'clears hasChanges back to false after updateSettings resolves', async () => {
+			updateSettings.mockResolvedValue( {} );
+			await renderAndWait();
+
+			act( () => {
+				subscribeModalProps.current.onChange( {
+					subscription_options: {
+						invitation: 'I',
+						welcome: 'W',
+						comment_follow: 'CF',
+						subscribe_modal_heading: 'Another heading',
+					},
+				} );
+			} );
+
+			await waitFor( () => {
+				expect( subscribeModalProps.current.hasChanges ).toBe( true );
+			} );
+
+			await act( async () => {
+				subscribeModalProps.current.onSave();
+			} );
+
+			await waitFor( () => {
+				expect( subscribeModalProps.current.hasChanges ).toBe( false );
+			} );
+			expect( subscribeModalProps.current.isSaving ).toBe( false );
 		} );
 	} );
 } );

@@ -10,15 +10,28 @@ import styles from './style.module.scss';
 export type DisconnectProps = {
 	connection: Connection;
 	variant?: 'outline' | 'minimal' | 'link';
+	/** Button size. Defaults to "small"; the modernized chassis passes "compact". */
+	size?: 'small' | 'compact';
+	/** Button tone. Defaults to the WPDS default; the modernized chassis passes "neutral". */
+	tone?: 'neutral';
 };
 /**
  * Disconnect component
  *
- * @param {DisconnectProps} props - component props
+ * @param {DisconnectProps} props            - component props
+ * @param {Connection}      props.connection - the connection to disconnect
+ * @param {string}          props.variant    - button variant
+ * @param {string}          props.size       - button size
+ * @param {string}          props.tone       - button tone
  *
  * @return {import('react').ReactNode} - React element
  */
-export function Disconnect( { connection, variant = 'outline' }: DisconnectProps ) {
+export function Disconnect( {
+	connection,
+	variant = 'outline',
+	size = 'small',
+	tone,
+}: DisconnectProps ) {
 	const [ isConfirmOpen, toggleConfirm ] = useReducer( state => ! state, false );
 
 	const { deleteConnectionById } = useDispatch( socialStore );
@@ -94,7 +107,8 @@ export function Disconnect( { connection, variant = 'outline' }: DisconnectProps
 				</Link>
 			) : (
 				<Button
-					size="small"
+					size={ size }
+					tone={ tone }
 					variant={ variant }
 					onClick={ toggleConfirm }
 					disabled={ isDisconnecting }

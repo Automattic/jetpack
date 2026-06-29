@@ -1,5 +1,6 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
-import { Notice } from '@wordpress/ui';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
+import clsx from 'clsx';
 import { useEffect } from 'react';
 import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
@@ -8,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { isWoaHosting } from '$lib/utils/hosting';
 import { useNotices } from '$features/notice/context';
 import { createInterpolateElement } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
+import { Notice, Link } from '@wordpress/ui';
 import Pill from '$features/ui/pill/pill';
 import type { ReactNode } from 'react';
 
@@ -108,11 +109,11 @@ const Module = ( {
 			<div className={ styles.toggle }>
 				{ toggle && (
 					<ToggleControl
-						className={ `jb-feature-toggle-${ slug }` }
-						size="small"
+						className={ clsx( `jb-feature-toggle-${ slug }`, styles.small ) }
 						checked={ isModuleActive || isFakeActive }
 						disabled={ ! isModuleAvailable }
 						onChange={ handleToggle }
+						__nextHasNoMarginBottom={ true }
 					/>
 				) }
 			</div>
@@ -153,7 +154,8 @@ export default ( props: ModuleProps ) => {
 											),
 											{
 												link: (
-													<ExternalLink
+													<Link
+														openInNewTab
 														href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
 													/>
 												),

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: normalize inline formatting tags (b, i, u, strike) so posts opened in the block editor don't show unknown-formatting warnings

@@ -20,18 +20,11 @@ import tanstackEslintPluginQuery from '@tanstack/eslint-plugin-query';
 import wordpressEslintPlugin from '@wordpress/eslint-plugin';
 import makeDebug from 'debug';
 import { defineConfig, globalIgnores } from 'eslint/config';
-import {
-	defaultConditionNames,
-	defaultExtensions,
-	defaultExtensionAlias,
-	defaultMainFields,
-} from 'eslint-import-resolver-typescript';
-// @todo Remove use of eslint-json-compat-utils (and jsonc-eslint-parser) once https://github.com/JoshuaKGoldberg/eslint-plugin-package-json/issues/655 is fixed.
-import { toCompatPlugin as jsonToCompatPlugin } from 'eslint-json-compat-utils';
+import { defaultConditionNames } from 'eslint-import-resolver-typescript';
 import eslintPluginImport from 'eslint-plugin-import';
 import eslintPluginLodash from 'eslint-plugin-lodash';
 import eslintPluginN from 'eslint-plugin-n';
-import eslintPluginPackageJson from 'eslint-plugin-package-json';
+import eslintPluginPackageJson from 'eslint-plugin-package-json/experimental';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import eslintPluginStorybook from 'eslint-plugin-storybook';
@@ -127,8 +120,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 		}
 	}
 
-	const envConditionNames =
-		process.env.npm_config_jetpack_webpack_config_resolve_conditions?.split( ',' ) ?? [];
+	const envConditionNames = [ 'jetpack:src' ];
 
 	const jsPackageJsons = glob
 		.sync( path.join( rootdir, 'projects/js-packages/*/package.json' ) )
@@ -228,7 +220,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			name: 'Monorepo base config',
 			files: javascriptFiles,
 			plugins: {
-				import: eslintPluginImport,
+				import: fixupPluginRules( eslintPluginImport ), // https://github.com/import-js/eslint-plugin-import/issues/3227
 				lodash: eslintPluginLodash,
 				n: eslintPluginN,
 				'@typescript-eslint': typescriptEslint.plugin,
@@ -391,41 +383,6 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			},
 		},
 
-		// React Native files need adjustments to the import plugin configuration.
-		{
-			name: 'React native overrides',
-			files: [ '**/*.native.[jt]s' ],
-			settings: {
-				'import/resolver': {
-					typescript: {
-						extensions: [ '.native.ts', '.native.js', ...defaultExtensions ],
-						extensionAlias: {
-							'.scss': [ '.native.scss', '.scss' ],
-							...Object.fromEntries(
-								Object.entries( defaultExtensionAlias ).map( ( [ k, v ] ) => [
-									k,
-									[ ...v, ...v.map( vv => '.native' + vv ) ],
-								] )
-							),
-						},
-						conditionNames: [ ...envConditionNames, 'react-native', ...defaultConditionNames ],
-						mainFields: [ 'react-native', ...defaultMainFields ],
-					},
-				},
-			},
-			rules: {
-				'import/no-unresolved': [
-					'error',
-					{
-						ignore: [
-							// Since we don't build React Native, we don't include these deps.
-							'^(react-native|@react-navigation/native|@wordpress/react-native-bridge)$',
-						],
-					},
-				],
-			},
-		},
-
 		// Allow commonjs globals in .js and .cjs files.
 		// (unfortunately we can't easily determine if any particular nested directory has `"type":"module"` or not)
 		{
@@ -505,7 +462,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			name: 'Package.json - base',
 			files: [ '**/package.json' ],
 			plugins: {
-				'package-json': jsonToCompatPlugin( eslintPluginPackageJson ),
+				'package-json': eslintPluginPackageJson,
 			},
 			rules: {
 				...eslintPluginPackageJson.configs.recommended.rules,

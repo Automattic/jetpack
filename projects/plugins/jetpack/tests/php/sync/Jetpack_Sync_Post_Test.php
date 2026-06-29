@@ -1434,7 +1434,7 @@ That was a cool video.';
 		return array(
 			array( null, $post ),
 			array( 'alpha', $post ),
-			array( isset( $post->ID ) ? $post->ID : null, null ),
+			array( $post->ID ?? null, null ),
 			array( -1111, $post ),
 		);
 	}

@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.0.30] - 2026-06-22
+### Changed
+- Update package dependencies. [#49691]
+
+## [1.0.29] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## [1.0.28] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.0.27] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [1.0.26] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## [1.0.25] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [1.0.24] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
 ## [1.0.23] - 2026-04-20
 ### Changed
 - Update package dependencies. [#48106]
@@ -514,6 +543,13 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[1.0.30]: https://github.com/Automattic/jetpack-api/compare/v1.0.29...v1.0.30
+[1.0.29]: https://github.com/Automattic/jetpack-api/compare/v1.0.28...v1.0.29
+[1.0.28]: https://github.com/Automattic/jetpack-api/compare/v1.0.27...v1.0.28
+[1.0.27]: https://github.com/Automattic/jetpack-api/compare/v1.0.26...v1.0.27
+[1.0.26]: https://github.com/Automattic/jetpack-api/compare/v1.0.25...v1.0.26
+[1.0.25]: https://github.com/Automattic/jetpack-api/compare/v1.0.24...v1.0.25
+[1.0.24]: https://github.com/Automattic/jetpack-api/compare/v1.0.23...v1.0.24
 [1.0.23]: https://github.com/Automattic/jetpack-api/compare/v1.0.22...v1.0.23
 [1.0.22]: https://github.com/Automattic/jetpack-api/compare/v1.0.21...v1.0.22
 [1.0.21]: https://github.com/Automattic/jetpack-api/compare/v1.0.20...v1.0.21

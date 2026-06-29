@@ -277,9 +277,7 @@ export const FormPrePublishPanel = () => {
 	return (
 		<PluginPrePublishPanel className="jetpack-form-pre-publish-panel" initialOpen>
 			<div className="jetpack-form-pre-publish__form-card">
-				<span className="jetpack-form-pre-publish__form-icon">
-					{ formBlockSettings.icon.src() }
-				</span>
+				<span className="jetpack-form-pre-publish__form-icon">{ formBlockSettings.icon.src }</span>
 				<span className="jetpack-form-pre-publish__form-title">
 					{ decodeEntities( postTitle ) || __( 'Untitled Form', 'jetpack-forms' ) }
 				</span>

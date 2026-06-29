@@ -12,7 +12,7 @@ const baseConfig = {
 			{
 				ignore: 'non-comments',
 				ignorePattern: [
-					'/(https?://[0-9,a-z]*.*)|(^description\\:.+)|(^tags\\:.+)/i',
+					'/(https?://[0-9,a-z]*.*)|(^description:.+)|(^tags:.+)/i',
 					'/stylelint-disable/',
 				],
 			},
@@ -23,7 +23,6 @@ const baseConfig = {
 			{
 				ignoreFontFamilies: [
 					'dashicons', // https://github.com/WordPress/dashicons
-					'FontAwesome', // https://fontawesome.com/icons, used by CRM
 					'Genericons', // https://github.com/Automattic/genericons
 					'Noticons', // WordPress.com internal font
 					'social-logos', // see js-packages/social-logos
@@ -52,7 +51,6 @@ const baseConfig = {
 			true,
 			{
 				ignoreSelectors: [ ':export' ], // Ignore selector used by CSS Modules.
-				ignoreProperties: [ 'shadow-color' ], // Ignore property used by React Native.
 			},
 		],
 

@@ -44,13 +44,34 @@ import PosterPanel from './components/poster-panel';
 import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import ReplaceControl from './components/replace-control';
 import TracksControl from './components/tracks-control';
-import VideoPressUploader from './components/videopress-uploader';
+import VideoPressUploaderRaw from './components/videopress-uploader';
 import { description, title } from '.';
 /**
  * Types
  */
 import type { VideoBlockAttributes } from './types';
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
+
+type PlaceholderWrapperProps = {
+	children?: ReactNode;
+	className?: string;
+	disableInstructions?: boolean;
+	errorMessage?: string;
+	instructions?: ReactNode;
+	onNoticeRemove?: ( ...args: unknown[] ) => unknown;
+};
+
+type VideoPressUploaderProps = {
+	attributes: VideoBlockAttributes;
+	setAttributes: ( attrs: Partial< VideoBlockAttributes > ) => void;
+	handleDoneUpload: ( newVideoData: VideoBlockAttributes ) => void;
+	fileToUpload: File | null;
+	isReplacing?: boolean;
+	onReplaceCancel: () => void;
+	isActive: boolean;
+};
+
+const VideoPressUploader = VideoPressUploaderRaw as ComponentType< VideoPressUploaderProps >;
 
 import './editor.scss';
 
@@ -96,7 +117,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 			{ children }
 		</Placeholder>
 	);
-} );
+} ) as ComponentType< PlaceholderWrapperProps >;
 
 /**
  * VideoPress block Edit react components

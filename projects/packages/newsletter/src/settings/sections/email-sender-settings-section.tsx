@@ -3,18 +3,10 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteData, getSiteType } from '@automattic/jetpack-script-data';
-import {
-	Button,
-	Card,
-	CardHeader,
-	CardBody,
-	CardFooter,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
-import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { DataForm, type Field } from '@wordpress/dataviews';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Button, Card, Fieldset, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -26,6 +18,8 @@ interface EmailSenderSettingsSectionProps {
 	onSave: () => void;
 	isSaving: boolean;
 	hasChanges: boolean;
+	/** Setting keys staged in this section's changeset, fed into section_save analytics. */
+	changedKeys?: string[];
 	isNewsletterEnabled: boolean;
 }
 
@@ -43,6 +37,7 @@ export function EmailSenderSettingsSection( {
 	onSave,
 	isSaving,
 	hasChanges,
+	changedKeys,
 	isNewsletterEnabled,
 }: EmailSenderSettingsSectionProps ): JSX.Element {
 	const siteType = getSiteType();
@@ -51,14 +46,16 @@ export function EmailSenderSettingsSection( {
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
 	const saveText = __( 'Save', 'jetpack-newsletter' );
 
-	// Track section save
+	// Track section save with the keys that changed since the last save.
 	const handleSave = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
 			site_type: siteType,
 			section: 'sender_settings',
+			changed_keys: ( changedKeys ?? [] ).join( ',' ),
+			change_count: ( changedKeys ?? [] ).length,
 		} );
 		onSave();
-	}, [ onSave, siteType ] );
+	}, [ changedKeys, onSave, siteType ] );
 
 	const siteName = getSiteData()?.title;
 
@@ -79,12 +76,12 @@ export function EmailSenderSettingsSection( {
 	const senderName = data.jetpack_subscriptions_from_name || '';
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Sender settings', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
-				<fieldset disabled={ ! isNewsletterEnabled }>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Sender settings', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
+				<Fieldset.Root disabled={ ! isNewsletterEnabled }>
 					<DataForm
 						data={ data }
 						fields={ fields }
@@ -114,18 +111,18 @@ export function EmailSenderSettingsSection( {
 							) }
 						</Text>
 					</p>
-				</fieldset>
-			</CardBody>
-			<CardFooter>
-				<Button
-					variant="primary"
-					onClick={ handleSave }
-					disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
-					isBusy={ isSaving }
-				>
-					{ isSaving ? savingText : saveText }
-				</Button>
-			</CardFooter>
-		</Card>
+				</Fieldset.Root>
+				<div className="newsletter-card-footer">
+					<Button
+						onClick={ handleSave }
+						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
+						loading={ isSaving }
+						loadingAnnouncement={ savingText }
+					>
+						{ saveText }
+					</Button>
+				</div>
+			</Card.Content>
+		</Card.Root>
 	);
 }

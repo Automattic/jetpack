@@ -134,7 +134,7 @@ async function fixDeps( pkg ) {
 	}
 
 	// Unnecessarily explicit deps. I don't think we really even need @wordpress/babel-preset-default at all.
-	if ( pkg.name === '@wordpress/babel-preset-default' || pkg.name === '@wordpress/eslint-plugin' ) {
+	if ( pkg.name === '@wordpress/babel-preset-default' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@babel/' ) && ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
 				pkg.dependencies[ dep ] = '^' + ver;
@@ -202,15 +202,6 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Unnecessary strict deps.
-	if ( pkg.name === 'estimo' ) {
-		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
-				pkg.dependencies[ dep ] = '^' + ver;
-			}
-		}
-	}
-
 	// Outdated dependency.
 	// https://github.com/jestjs/jest/issues/15236
 	if (
@@ -261,14 +252,13 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
 	}
 
-	// Dependency on "latest" makes for many spurious updates. Leave it for the lockfile maintenance PRs.
-	// No upstream evident to report bugs to.
-	if ( pkg.name === '@paulirish/trace_engine' ) {
-		for ( const k of Object.keys( pkg.dependencies ) ) {
-			if ( pkg.dependencies[ k ] === 'latest' ) {
-				pkg.dependencies[ k ] = '*';
-			}
-		}
+	// Outdated, vulnerable dep. Seems to work with the updated version.
+	// https://github.com/istanbuljs/load-nyc-config/issues/26
+	if (
+		pkg.name === '@istanbuljs/load-nyc-config' &&
+		pkg.dependencies?.[ 'js-yaml' ] === '^3.13.1'
+	) {
+		pkg.dependencies[ 'js-yaml' ] = '^4.2.0';
 	}
 
 	// Glob decided to deprecate everything <12, even though tons of stuff still depends on older versions.
@@ -280,14 +270,18 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
-	// `@base-ui/react` added a peer dependency on `date-fns`, but `@wordpress/ui` doesn't satisfy it.
-	// https://github.com/WordPress/gutenberg/issues/77395
+	// Temporarily outdated deps. Storybook is already updated upstream.
 	if (
-		( pkg.name === '@wordpress/ui' || pkg.name === '@wordpress/dataviews' ) &&
-		( ! pkg.dependencies?.[ 'date-fns' ] || ! pkg.dependencies?.[ '@date-fns/tz' ] )
+		pkg.dependencies?.esbuild?.match( /\^0\.27/ ) &&
+		! pkg.dependencies?.esbuild?.match( /\^0\.28/ )
 	) {
-		pkg.dependencies[ 'date-fns' ] ??= '^4.0.0';
-		pkg.dependencies[ '@date-fns/tz' ] ??= '^1.2.0';
+		pkg.dependencies.esbuild += ' || ^0.28';
+	}
+
+	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
+	// (if you bring this back, do it by reverting the pnpmfile changes in commit e90548654eacfa7493388331dd644a6f927d16c5, don't just delete this bit).
+	if ( pkg.name === '@wordpress/e2e-test-utils-playwright' ) {
+		pkg.dependencies.lighthouse = 'workspace:@automattic/_jetpack-no-lighthouse@*';
 	}
 
 	return pkg;
@@ -302,6 +296,13 @@ async function fixDeps( pkg ) {
  * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
+	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
+	// @see https://github.com/mjeanroy/rollup-plugin-license/issues/2110
+	if ( pkg.name === 'rollup-plugin-license' ) {
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta.rollup = { optional: true };
+	}
+
 	// Indirect deps that still depend on React <18.
 	const reactOldPkgs = new Set( [
 		// Still on 16.
@@ -328,22 +329,52 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
+	// Outdated eslint deps.
+	const eslintOldPkgs = new Set( [
+		'eslint-plugin-import', // https://github.com/import-js/eslint-plugin-import/issues/3227
+		'eslint-plugin-jsx-a11y', // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1075
+		'eslint-plugin-react', // https://github.com/jsx-eslint/eslint-plugin-react/issues/3977
+		'@babel/eslint-parser', // https://github.com/babel/babel/issues/17951
+		'eslint-plugin-jest-dom', // https://github.com/testing-library/eslint-plugin-jest-dom/issues/418
+	] );
+	if ( eslintOldPkgs.has( pkg.name ) ) {
+		for ( const p of [ 'eslint' ] ) {
+			if ( ! pkg.peerDependencies?.[ p ] ) {
+				continue;
+			}
+
+			if (
+				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^9|9\.x)/ ) &&
+				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^10|10\.x)/ )
+			) {
+				pkg.peerDependencies[ p ] += ' || ^10';
+			}
+		}
+	}
+
 	// It assumes hoisting to find its plugins. Sigh. Add peer deps for the plugins we use.
 	// https://github.com/ai/size-limit/issues/366
 	if ( pkg.name === 'size-limit' ) {
 		pkg.peerDependencies ??= {};
-		pkg.peerDependencies[ '@size-limit/preset-app' ] = '*';
+		pkg.peerDependencies[ '@size-limit/file' ] = '*';
 		pkg.peerDependenciesMeta ??= {};
-		pkg.peerDependenciesMeta[ '@size-limit/preset-app' ] = { optional: true };
+		pkg.peerDependenciesMeta[ '@size-limit/file' ] = { optional: true };
 	}
 
-	// Override @automattic/launchpad peer dependency to use @wordpress/i18n v6 if it's on v5.
-	if (
-		pkg.name === '@automattic/launchpad' &&
-		pkg.peerDependencies?.[ '@wordpress/i18n' ] &&
-		pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
-	) {
-		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
+	// Override @automattic/launchpad outdated peer dependencies.
+	if ( pkg.name === '@automattic/launchpad' ) {
+		if (
+			pkg.peerDependencies?.[ '@wordpress/element' ] &&
+			pkg.peerDependencies?.[ '@wordpress/element' ].startsWith( '^6.' )
+		) {
+			pkg.peerDependencies[ '@wordpress/element' ] = '^8';
+		}
+		if (
+			pkg.peerDependencies?.[ '@wordpress/i18n' ] &&
+			pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
+		) {
+			pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
+		}
 	}
 
 	// Outdated peer dependency because Gutenberg is still on node 20.
@@ -379,15 +410,6 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies?.stylelint?.startsWith( '^16.' )
 	) {
 		pkg.peerDependencies.stylelint = '^17';
-	}
-
-	// 0.x versions treat `^` like `~`. Replace with `>=`.
-	if ( pkg.name === '@wordpress/build' && pkg.peerDependencies ) {
-		for ( const [ dep, ver ] of Object.entries( pkg.peerDependencies ) ) {
-			if ( ver.startsWith( '^0.' ) ) {
-				pkg.peerDependencies[ dep ] = '>=' + ver.substring( 1 );
-			}
-		}
 	}
 
 	return pkg;

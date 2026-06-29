@@ -11,7 +11,7 @@ const __dirname = import.meta.dirname;
 
 const moduleSrcDir = path.join( __dirname, '../src/modules' );
 
-let moduleWebpackConfig = {};
+let moduleWebpackConfig;
 
 // Check if modules directory exists
 if ( ! fs.existsSync( moduleSrcDir ) ) {

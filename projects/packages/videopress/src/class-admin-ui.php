@@ -28,6 +28,14 @@ class Admin_UI {
 	const ADMIN_PAGE_SLUG = 'jetpack-videopress';
 
 	/**
+	 * Filter name that gates the wp-build–based dashboard.
+	 *
+	 * When this filter returns true, "Jetpack > VideoPress" renders the new
+	 * wp-build dashboard instead of the legacy React app.
+	 */
+	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_videopress';
+
+	/**
 	 * Initializes the Admin UI of VideoPress
 	 *
 	 * This method is called only once by the Initializer class
@@ -44,6 +52,11 @@ class Admin_UI {
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
 
 		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
+
+		if ( self::is_modernized() && self::is_videopress_admin_request() ) {
+			self::load_wp_build();
+			add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		}
 	}
 
 	/**
@@ -52,12 +65,17 @@ class Admin_UI {
 	 * @return void
 	 */
 	public static function enable_menu() {
+		$callback = self::is_modernized() && function_exists( 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page' )
+			? 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page'
+			: array( __CLASS__, 'plugin_settings_page' );
+
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ),
-			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress-pkg' ),
+			// "VideoPress" is a product name, do not translate.
+			'Jetpack VideoPress',
+			'VideoPress',
 			'manage_options',
 			self::ADMIN_PAGE_SLUG,
-			array( __CLASS__, 'plugin_settings_page' ),
+			$callback,
 			3
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
@@ -140,6 +158,39 @@ class Admin_UI {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
+		// This callback is registered via `load-{$page_suffix}` in `enable_menu()`,
+		// so it only fires on the VideoPress admin page — no need to re-check the page here.
+		if ( self::is_modernized() ) {
+			// Page-level shell stylesheet: scopes the shared `jetpack-admin-page-layout`
+			// mixin to the dashboard body so every route inherits the proper
+			// scrollable chrome (fixed `#wpbody-content`, scrollable middle, pinned
+			// footer) regardless of whether it uses DashboardLayout. Without this,
+			// non-tabbed routes (e.g. Video details) would only get the layout
+			// after a sibling route's chunk happened to inject the same CSS.
+			$shell_css = dirname( __DIR__ ) . '/build/dashboard-shell/index.css';
+			if ( file_exists( $shell_css ) ) {
+				wp_register_style(
+					'jetpack-videopress-dashboard-shell',
+					plugins_url( 'build/dashboard-shell/index.css', __DIR__ ),
+					array(),
+					(string) filemtime( $shell_css )
+				);
+				wp_style_add_data( 'jetpack-videopress-dashboard-shell', 'rtl', 'replace' );
+				wp_enqueue_style( 'jetpack-videopress-dashboard-shell' );
+			}
+
+			// The Video details screen's thumbnail editor opens the WordPress
+			// media library (via window.wp.media) for the "Upload image"
+			// action, so the media scripts must be present here too.
+			wp_enqueue_media();
+
+			// Beyond the shell stylesheet and the media library, wp-build
+			// manages its own enqueue pipeline. The legacy script, initial
+			// state, and tracking are all intentionally skipped for the
+			// wp-build dashboard.
+			return;
+		}
+
 		Assets::register_script(
 			self::JETPACK_VIDEOPRESS_PKG_NAMESPACE,
 			'../build/admin/index.js',
@@ -416,4 +467,78 @@ class Admin_UI {
 	}
 	// phpcs:enable WordPress.Security.EscapeOutput.UnsafePrintingFunction
 	// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+
+	/**
+	 * Load the wp-build entry file and register its polyfills.
+	 *
+	 * Only called on `?page=jetpack-videopress` admin requests when the
+	 * modernization filter is enabled. Keeps wp-build off every other request.
+	 *
+	 * @return void
+	 */
+	private static function load_wp_build() {
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+
+		require_once $build_index;
+
+		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
+			'jetpack-videopress',
+			array_merge(
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			)
+		);
+	}
+
+	/**
+	 * Alias the current screen ID to satisfy wp-build's auto-generated enqueue check.
+	 *
+	 * Wp-build's `<page>-wp-admin` enqueue callback enqueues only when the screen ID
+	 * matches the wp-build page slug (`jetpack-videopress-dashboard`). Our WP-admin
+	 * menu slug stays `jetpack-videopress`, so we mutate the screen object in place
+	 * to make the check pass without changing the user-facing URL.
+	 *
+	 * Hooked only when modernization is on AND we're on the VideoPress admin page,
+	 * so this never affects any other request.
+	 *
+	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @return void
+	 */
+	public static function alias_screen_id_for_wp_build( $screen ) {
+		if ( ! is_object( $screen ) ) {
+			return;
+		}
+
+		$screen->id = 'jetpack-videopress-dashboard';
+	}
+
+	/**
+	 * Returns true when the wp-build modernization filter is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function is_modernized() {
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+	}
+
+	/**
+	 * Returns true when the current request targets the VideoPress admin page.
+	 *
+	 * Used to scope wp-build loading to the one page that needs it. The
+	 * `$_GET['page']` value is populated by wp-admin/admin.php before any of
+	 * our hooks fire, so this check is reliable from `init()` onwards.
+	 *
+	 * @return bool
+	 */
+	private static function is_videopress_admin_request() {
+		if ( ! is_admin() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		return sanitize_text_field( wp_unslash( $_GET['page'] ) ) === self::ADMIN_PAGE_SLUG; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
 }

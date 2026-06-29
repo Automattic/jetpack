@@ -8,9 +8,11 @@
 declare( strict_types = 1 );
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
-// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/gutenberg-rtc/gutenberg-rtc.php';
 
 /**
@@ -43,6 +45,7 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function set_up(): void {
 		parent::set_up();
+		\Brain\Monkey\setUp();
 		$this->original_user_agent = $_SERVER['HTTP_USER_AGENT'] ?? null;
 	}
 
@@ -59,6 +62,8 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 
 		remove_all_filters( 'jetpack_rtc_enabled' );
 		remove_all_filters( 'jetpack_rtc_providers' );
+
+		\Brain\Monkey\tearDown();
 
 		parent::tear_down();
 	}
@@ -124,6 +129,46 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	public function test_enable_rtc_returns_false_without_rtc_feature() {
 		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 Chrome/120.0.0.0';
 		$this->assertFalse( wpcom_enable_rtc() );
+	}
+
+	/**
+	 * Tests that RTC is disabled on WordPress 7.0+ when Gutenberg is not available.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enable_rtc_returns_false_on_wp_7_without_gutenberg() {
+		define( 'IS_WPCOM', true );
+
+		global $wp_version;
+		$wp_version = '7.0';
+
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 Chrome/120.0.0.0';
+
+		Functions\expect( 'wpcom_site_has_feature' )->andReturn( true );
+
+		$this->assertFalse( wpcom_enable_rtc() );
+	}
+
+	/**
+	 * Tests that RTC can be enabled when the site has the RTC feature and Gutenberg is available.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enable_rtc_returns_true_with_rtc_feature_and_gutenberg() {
+		define( 'IS_WPCOM', true );
+		define( 'GUTENBERG_VERSION', '22.7.0' );
+
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 Chrome/120.0.0.0';
+
+		Functions\expect( 'wpcom_site_has_feature' )->andReturn( true );
+
+		$this->assertTrue( wpcom_enable_rtc() );
 	}
 
 	// ─── wpcom_is_rtc_http_polling_rollout ───────────────────────────

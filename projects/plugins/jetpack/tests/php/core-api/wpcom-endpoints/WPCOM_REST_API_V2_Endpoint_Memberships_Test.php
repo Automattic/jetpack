@@ -343,6 +343,86 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 	}
 
 	/**
+	 * Tests get_payload_for_product includes description when provided.
+	 */
+	public function test_get_payload_for_product_includes_description_when_provided() {
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_Memberships();
+		$request  = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
+		$request->set_body_params(
+			array(
+				'title'       => 'Premium Tier',
+				'price'       => 10,
+				'currency'    => 'USD',
+				'interval'    => '1 month',
+				'type'        => 'tier',
+				'description' => 'Full archive access and community Q&A',
+			)
+		);
+
+		$reflection = new ReflectionClass( $endpoint );
+		$method     = $reflection->getMethod( 'get_payload_for_product' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$payload = $method->invoke( $endpoint, $request );
+
+		$this->assertSame( 'Full archive access and community Q&A', $payload['description'] );
+	}
+
+	/**
+	 * Tests get_payload_for_product omits description when not provided.
+	 */
+	public function test_get_payload_for_product_omits_description_when_not_provided() {
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_Memberships();
+		$request  = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
+		$request->set_body_params(
+			array(
+				'title'    => 'Premium Tier',
+				'price'    => 10,
+				'currency' => 'USD',
+				'interval' => '1 month',
+				'type'     => 'tier',
+			)
+		);
+
+		$reflection = new ReflectionClass( $endpoint );
+		$method     = $reflection->getMethod( 'get_payload_for_product' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$payload = $method->invoke( $endpoint, $request );
+
+		$this->assertArrayNotHasKey( 'description', $payload );
+	}
+
+	/**
+	 * Tests POST 'memberships/product' forwards description in the proxied WPCOM request.
+	 */
+	public function test_create_product_forwards_description_in_wpcom_request() {
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_create_product_with_description' ), 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/product' );
+		$request->set_header( 'content_type', 'application/json' );
+		$body = array(
+			'title'       => 'Premium Tier',
+			'price'       => 10,
+			'currency'    => 'USD',
+			'interval'    => '1 month',
+			'type'        => 'tier',
+			'description' => 'Full archive access and community Q&A',
+		);
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'Full archive access and community Q&A', $response->get_data()['description'] );
+	}
+
+	/**
 	 * Tests POST 'memberships/product' endpoint with error response from WPCOM.
 	 */
 	public function test_create_product_with_remote_error() {
@@ -539,6 +619,29 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		$this->assertErrorResponse( 'rest_missing_callback_param', $response, 400 );
 		$this->assertSame( 'Missing parameter(s): title, price, currency, interval', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Tests PUT 'memberships/product/[product_id]' forwards description in the proxied WPCOM request.
+	 */
+	public function test_update_product_forwards_description_in_wpcom_request() {
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_update_product_with_description' ), 10, 3 );
+
+		$request = new WP_REST_Request( Requests::PUT, '/wpcom/v2/memberships/product/123' );
+		$request->set_header( 'content_type', 'application/json' );
+		$body = array(
+			'title'       => 'Premium Tier',
+			'price'       => 10,
+			'currency'    => 'USD',
+			'interval'    => '1 month',
+			'type'        => 'tier',
+			'description' => 'Updated tier description for subscribers',
+		);
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'Updated tier description for subscribers', $response->get_data()['product']['description'] );
 	}
 
 	/**
@@ -815,6 +918,24 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 	 * @param string $url      The request URL.
 	 * @return array
 	 */
+	public function mock_wpcom_api_response_create_product_with_description( $response, $args, $url ) {
+		$this->assertEquals( Requests::POST, $args['method'] );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/product', $url );
+
+		$this->assertStringContainsString( '"description":"Full archive access and community Q&A"', $args['body'] );
+
+		return array(
+			'headers'     => array(
+				'Allow' => 'POST',
+			),
+			'body'        => '{"id":123,"title":"Premium Tier","price":10,"currency":"USD","interval":"1 month","type":"tier","description":"Full archive access and community Q&A"}',
+			'status_code' => 200,
+			'response'    => array(
+				'code' => 200,
+			),
+		);
+	}
+
 	public function mock_wpcom_api_response_create_product_remote_error( $response, $args, $url ) {
 		$this->assertEquals( Requests::POST, $args['method'] );
 		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/product', $url );
@@ -840,6 +961,24 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 	 * @param string $url      The request URL.
 	 * @return array
 	 */
+	public function mock_wpcom_api_response_update_product_with_description( $response, $args, $url ) {
+		$this->assertEquals( Requests::PUT, $args['method'] );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/product/123', $url );
+
+		$this->assertStringContainsString( '"description":"Updated tier description for subscribers"', $args['body'] );
+
+		return array(
+			'headers'     => array(
+				'Allow' => 'PUT',
+			),
+			'body'        => '{"product":{"id":123,"title":"Premium Tier","price":10,"currency":"USD","interval":"1 month","type":"tier","description":"Updated tier description for subscribers"}}',
+			'status_code' => 200,
+			'response'    => array(
+				'code' => 200,
+			),
+		);
+	}
+
 	public function mock_wpcom_api_response_update_product_remote_error( $response, $args, $url ) {
 		$this->assertEquals( Requests::PUT, $args['method'] );
 		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/product/1', $url );

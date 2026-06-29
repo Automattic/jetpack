@@ -3,7 +3,9 @@ module.exports = {
 		'\\.[jt]sx?$': [
 			require.resolve( 'babel-jest' ),
 			{
-				presets: [ require.resolve( '@babel/preset-typescript' ) ],
+				presets: [
+					[ require.resolve( '@babel/preset-typescript' ), { allowDeclareFields: true } ],
+				],
 			},
 		],
 	},

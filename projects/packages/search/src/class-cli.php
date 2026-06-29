@@ -56,6 +56,59 @@ class CLI extends WP_CLI_Command {
 	}
 
 	/**
+	 * Backfill the reserved-slot taxonomy projection for any user-facing
+	 * taxonomies declared in `jetpack_search_custom_taxonomy_map`.
+	 *
+	 * Wraps `Custom_Taxonomy_Slot_Mapping::backfill()` so operators don't have
+	 * to reach for `wp eval` and a fully-qualified static call. The auto-mirror
+	 * on `set_object_terms` / `deleted_term_relationships` / `delete_term`
+	 * keeps the slot in sync from the moment the mapping is declared — this
+	 * subcommand only needs to run once after the mapping is first turned on,
+	 * or after a gap during which the auto-mirror was inactive.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--mode=<mode>]
+	 * : Backfill mode.
+	 * ---
+	 * default: mirror
+	 * options:
+	 *   - mirror
+	 *   - rebuild
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Per-post mirror — cheap, idempotent, safe to re-run.
+	 *     wp jetpack-search backfill_taxonomy_slot_mapping
+	 *
+	 *     # Full sweep — wipes the slot taxonomy first, then re-projects.
+	 *     wp jetpack-search backfill_taxonomy_slot_mapping --mode=rebuild
+	 *
+	 * @param array $args       Positional args (unused).
+	 * @param array $assoc_args Associative args. Supports `mode`.
+	 */
+	public function backfill_taxonomy_slot_mapping( $args, $assoc_args ) {
+		$mode = isset( $assoc_args['mode'] ) ? (string) $assoc_args['mode'] : 'mirror';
+		if ( ! in_array( $mode, Custom_Taxonomy_Slot_Mapping::BACKFILL_MODES, true ) ) {
+			WP_CLI::error( sprintf( 'Unknown mode "%s"; expected one of: %s.', $mode, implode( ', ', Custom_Taxonomy_Slot_Mapping::BACKFILL_MODES ) ) );
+		}
+
+		if ( empty( Custom_Taxonomy_Slot_Mapping::get_map() ) ) {
+			WP_CLI::warning( 'jetpack_search_custom_taxonomy_map is empty; nothing to backfill.' );
+			return;
+		}
+
+		WP_CLI::line( sprintf( 'Running backfill in %s mode…', $mode ) );
+		try {
+			$count = Custom_Taxonomy_Slot_Mapping::backfill( $mode );
+			WP_CLI::success( sprintf( 'Backfilled %d (post, taxonomy) pair(s).', $count ) );
+		} catch ( \Exception $e ) {
+			WP_CLI::error( $e->getMessage() );
+		}
+	}
+
+	/**
 	 * Set current user by ID or login
 	 *
 	 * @param string|int $user User ID or login.

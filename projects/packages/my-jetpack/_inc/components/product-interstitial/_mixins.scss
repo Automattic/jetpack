@@ -7,22 +7,6 @@
  */
 
 /**
- * Product header with logo and product name
- */
-@mixin product-header {
-	display: flex;
-	flex-wrap: nowrap;
-	padding-top: calc(var(--spacing-base) * 3);
-	padding-bottom: calc(var(--spacing-base) * 3);
-	align-items: center;
-	font-size: 22px;
-
-	.product-interstitial__product-header-name {
-		padding-inline-start: var(--spacing-base);
-	}
-}
-
-/**
  * Hero section - main layout container
  */
 @mixin hero-section {

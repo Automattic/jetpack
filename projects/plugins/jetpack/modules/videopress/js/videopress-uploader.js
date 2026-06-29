@@ -138,21 +138,17 @@ window.wp = window.wp || {};
 						} );
 						cb( false );
 					} );
+			} else if ( typeof file.size !== 'undefined' && maxSize && file.size > maxSize ) {
+				// Invalid file size
+				this.trigger( 'Error', {
+					code: plupload.FILE_SIZE_ERROR,
+					message: plupload.translate( 'File size error.' ),
+					file: file,
+				} );
+				cb( false );
 			} else {
 				// Handles the normal max_file_size functionality.
-				var undef;
-
-				// Invalid file size
-				if ( file.size !== undef && maxSize && file.size > maxSize ) {
-					this.trigger( 'Error', {
-						code: plupload.FILE_SIZE_ERROR,
-						message: plupload.translate( 'File size error.' ),
-						file: file,
-					} );
-					cb( false );
-				} else {
-					cb( true );
-				}
+				cb( true );
 			}
 		} );
 	}

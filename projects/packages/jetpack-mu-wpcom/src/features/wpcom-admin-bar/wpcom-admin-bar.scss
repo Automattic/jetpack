@@ -12,10 +12,14 @@
 }
 
 /**
- * Always shows WP logo (All Sites)
+ * Always shows WordPress.com logo
  */
-#wpadminbar li#wp-admin-bar-wpcom-logo {
+#wpadminbar li#wp-admin-bar-wp-logo {
 	display: block !important;
+
+	> .ab-item .ab-icon {
+		width: revert;
+	}
 }
 
 /**
@@ -49,7 +53,7 @@
 /**
  * WP logo menu
  */
-#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item {
+#wpadminbar #wp-admin-bar-wp-logo > .ab-item {
 	padding: 0 10px;
 
 	@media (max-width: 782px) {
@@ -57,7 +61,7 @@
 	}
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item .ab-icon {
+#wpadminbar #wp-admin-bar-wp-logo > .ab-item .ab-icon {
 	margin-right: 0 !important;
 
 	@media (max-width: 480px) {
@@ -65,7 +69,7 @@
 	}
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item .ab-icon::before {
+#wpadminbar #wp-admin-bar-wp-logo > .ab-item .ab-icon::before {
 	display: flex;
 	content: "";
 	width: 20px;
@@ -87,7 +91,7 @@
 
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo:not(:first-child) {
+#wpadminbar #wp-admin-bar-wp-logo:not(:first-child) {
 	// Site admin on mobile viewport (the first child is the hamburger menu)
 	@media (max-width: 480px) {
 
@@ -119,6 +123,18 @@
 /**
  * Site badge and plan info in the dropdown
  */
+
+// Match core's spacing for added submenu nodes instead of zeroing padding.
+// https://github.com/WordPress/WordPress/blob/c06456a36202fdb76787228f007b28e5028216fe/wp-includes/css/admin-bar.css#L546
+#wpadminbar #wp-admin-bar-site-plan {
+	margin-top: -12px;
+}
+
+// Pad the wrapper top instead, pushing Visit Site down to match Calypso.
+#wpadminbar #wp-admin-bar-site-name .ab-sub-wrapper {
+	padding-top: 6px;
+}
+
 #wp-admin-bar-site-plan,
 #wp-admin-bar-site-status {
 	display: flex;
@@ -132,8 +148,9 @@
 	height: auto !important;
 }
 
+// `.quicklinks` beats core's `.quicklinks a { display: block }`.
 #wpadminbar .wp-admin-bar__site-info,
-#wpadminbar a.wp-admin-bar__site-info {
+#wpadminbar .quicklinks a.wp-admin-bar__site-info {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
@@ -159,7 +176,7 @@
 	align-items: center;
 }
 
-#wpadminbar a.wp-admin-bar__site-info {
+#wpadminbar .quicklinks a.wp-admin-bar__site-info {
 	display: flex;
 	padding: 0;
 
@@ -374,7 +391,8 @@
 					}
 				}
 
-				#wpnt-notes-panel2 {
+				#wpnt-notes-panel2,
+				#wpnt-notes-panel3 {
 					top: 46px;
 				}
 			}

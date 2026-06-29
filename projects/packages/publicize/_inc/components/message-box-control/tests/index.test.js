@@ -1,6 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import MessageBoxControl, { getDefaultLabel, getPlaceholderText } from '../';
+import MessageBoxControl, {
+	getDefaultLabel,
+	getPlaceholderText,
+	getTemplatesPlaceholderText,
+} from '../';
 
 const mockRecordEvent = jest.fn();
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
@@ -8,6 +13,17 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 		recordEvent: mockRecordEvent,
 	} ),
 } ) );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	siteHasFeature: jest.fn().mockReturnValue( false ),
+	getScriptData: jest.fn().mockReturnValue( {} ),
+} ) );
+
+const mockPlaceholders = [
+	{ id: '{title}', label: 'Post title' },
+	{ id: '{url}', label: 'Permalink to the post' },
+	{ id: '{tags}', label: 'Post tags as hashtags' },
+];
 
 describe( 'MessageBoxControl', () => {
 	const mockOnChange = jest.fn();
@@ -17,6 +33,10 @@ describe( 'MessageBoxControl', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		siteHasFeature.mockReturnValue( false );
+		getScriptData.mockReturnValue( {
+			social: { message_templates: { placeholders: mockPlaceholders } },
+		} );
 	} );
 
 	it( 'renders with the provided message', () => {
@@ -122,12 +142,128 @@ describe( 'MessageBoxControl', () => {
 		expect( textArea ).toHaveAttribute( 'maxLength', shortMaxLength.toString() );
 	} );
 
-	it( 'shows correct placeholder text', () => {
+	it( 'shows the default placeholder text when templates feature is off', () => {
 		render(
 			<MessageBoxControl message="" onChange={ mockOnChange } maxLength={ mockMaxLength } />
 		);
 
 		const textArea = screen.getByPlaceholderText( getPlaceholderText() );
 		expect( textArea ).toBeInTheDocument();
+	} );
+
+	it( 'does not show the placeholders help when templates feature is off', () => {
+		render(
+			<MessageBoxControl message="" onChange={ mockOnChange } maxLength={ mockMaxLength } />
+		);
+
+		expect(
+			screen.queryByRole( 'button', { name: 'Available placeholders' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'uses explicit help text when provided', () => {
+		render(
+			<MessageBoxControl
+				message={ mockMessage }
+				onChange={ mockOnChange }
+				maxLength={ mockMaxLength }
+				help="Custom help text"
+			/>
+		);
+
+		expect( screen.getByText( 'Custom help text' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /characters remaining/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /character remaining/ ) ).not.toBeInTheDocument();
+	} );
+
+	describe( 'when templates feature is on', () => {
+		beforeEach( () => {
+			siteHasFeature.mockReturnValue( true );
+		} );
+
+		it( 'shows the templates-aware placeholder text', () => {
+			render(
+				<MessageBoxControl message="" onChange={ mockOnChange } maxLength={ mockMaxLength } />
+			);
+
+			const textArea = screen.getByPlaceholderText( getTemplatesPlaceholderText() );
+			expect( textArea ).toBeInTheDocument();
+		} );
+
+		it( 'shows the placeholders help toggle', () => {
+			render(
+				<MessageBoxControl message="" onChange={ mockOnChange } maxLength={ mockMaxLength } />
+			);
+
+			expect(
+				screen.getByRole( 'button', { name: 'Available placeholders' } )
+			).toBeInTheDocument();
+		} );
+
+		it( 'reveals the placeholder list when toggle is clicked', async () => {
+			render(
+				<MessageBoxControl message="" onChange={ mockOnChange } maxLength={ mockMaxLength } />
+			);
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'Available placeholders' } ) );
+
+			// Scope queries to the popover-rendered list — `{title}` and `{url}`
+			// also appear in the textarea help text via createInterpolateElement.
+			const list = screen.getByRole( 'list' );
+			expect( within( list ).getByText( '{title}' ) ).toBeInTheDocument();
+			expect( within( list ).getByText( '{url}' ) ).toBeInTheDocument();
+			expect( within( list ).getByText( '{tags}' ) ).toBeInTheDocument();
+		} );
+
+		it( 'still respects an explicit placeholder prop', () => {
+			render(
+				<MessageBoxControl
+					message=""
+					onChange={ mockOnChange }
+					maxLength={ mockMaxLength }
+					placeholder="Custom placeholder"
+				/>
+			);
+
+			expect( screen.getByPlaceholderText( 'Custom placeholder' ) ).toBeInTheDocument();
+		} );
+
+		it( 'does not enforce a maxLength on the textarea', () => {
+			render(
+				<MessageBoxControl
+					message={ mockMessage }
+					onChange={ mockOnChange }
+					maxLength={ mockMaxLength }
+				/>
+			);
+
+			expect( screen.getByLabelText( getDefaultLabel() ) ).not.toHaveAttribute( 'maxLength' );
+		} );
+
+		it( 'does not show the characters-remaining counter', () => {
+			render(
+				<MessageBoxControl
+					message={ mockMessage }
+					onChange={ mockOnChange }
+					maxLength={ mockMaxLength }
+				/>
+			);
+
+			expect( screen.queryByText( /characters remaining/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( /character remaining/ ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'uses explicit help text when provided', () => {
+			render(
+				<MessageBoxControl
+					message={ mockMessage }
+					onChange={ mockOnChange }
+					maxLength={ mockMaxLength }
+					help="Custom help text"
+				/>
+			);
+
+			expect( screen.getByText( 'Custom help text' ) ).toBeInTheDocument();
+		} );
 	} );
 } );

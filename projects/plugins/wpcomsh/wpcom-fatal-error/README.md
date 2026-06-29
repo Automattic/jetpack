@@ -31,6 +31,7 @@ path to deactivate the offending plugin.
 | `fatal-error-helpers.php` | Pure helpers: viewer detection, plugin identification, signed-form/recovery URL builders. Testable in isolation. |
 | `fatal-error-screen.css` | Styles, inlined into the page at render time. |
 | `fatal-plugin-deactivator.php` | Early-running endpoint that validates the signed deactivation POST, persists the change, and redirects. |
+| `fatal-recovery-redirect.php` | Early-running endpoint behind the screen's "Enter recovery mode" link: logs `wpcomsh_fatal_recovery` and 302s to a fresh core recovery URL. |
 
 ## Architecture notes
 

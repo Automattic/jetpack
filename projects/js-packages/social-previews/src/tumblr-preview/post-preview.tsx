@@ -1,6 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { AvatarWithFallback } from '../avatar-with-fallback';
 import { preparePreviewText } from '../helpers';
+import { ExpandableText } from '../shared/expandable-text';
+import { MediaImage } from '../shared/media-image';
 import { tumblrTitle, tumblrDescription } from './helpers';
 import TumblrPostActions from './post/actions';
 import TumblrPostHeader from './post/header';
@@ -14,6 +16,8 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 	user,
 	url,
 	media,
+	hyperlinks,
+	imageFocalPoint,
 } ) => {
 	const avatarUrl = user?.avatarUrl;
 
@@ -28,9 +32,14 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 					{ title ? <div className="tumblr-preview__title">{ tumblrTitle( title ) }</div> : null }
 					{ description && (
 						<div className="tumblr-preview__description">
-							{ preparePreviewText( tumblrDescription( description ), {
-								platform: 'tumblr',
-							} ) }
+							<ExpandableText text={ description }>
+								{ visibleText =>
+									preparePreviewText( tumblrDescription( visibleText ), {
+										platform: 'tumblr',
+										hyperlinks,
+									} )
+								}
+							</ExpandableText>
 						</div>
 					) }
 					{ mediaItem ? (
@@ -45,10 +54,11 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 						</div>
 					) : (
 						image && (
-							<img
+							<MediaImage
 								className="tumblr-preview__image"
 								src={ image }
 								alt={ __( 'Tumblr preview thumbnail', 'social-previews' ) }
+								focalPoint={ imageFocalPoint }
 							/>
 						)
 					) }

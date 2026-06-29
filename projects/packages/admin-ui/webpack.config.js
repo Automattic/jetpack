@@ -18,6 +18,9 @@ module.exports = {
 	entry: {
 		'admin-ui-upgrade-menu-tracking': [ './src/admin-ui-upgrade-menu-tracking.js' ],
 		'admin-ui-upgrade-menu': [ './src/admin-ui-upgrade-menu.scss' ],
+		// Token-only stylesheet (`:root{--wpds-*}`) shipped from @wordpress/theme so every
+		// Jetpack admin page has a runtime source for WPDS design tokens. See class-admin-menu.php.
+		'design-tokens': [ './src/design-tokens.css' ],
 	},
 	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 	module: {

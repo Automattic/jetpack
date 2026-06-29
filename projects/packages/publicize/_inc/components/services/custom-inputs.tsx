@@ -1,8 +1,8 @@
-import { Alert } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { Notice } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useId, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { store } from '../../social-store';
 import styles from './style.module.scss';
@@ -159,18 +159,22 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 							),
 							{
 								link: (
-									<ExternalLink href="https://bsky.app/settings/app-passwords" children={ null } />
+									<Link
+										openInNewTab
+										href="https://bsky.app/settings/app-passwords"
+										children={ null }
+									/>
 								),
 							}
 						) }
 					</p>
 					{ reconnectingAccount?.service_name === 'bluesky' && (
-						<Alert level="error" showIcon={ false }>
+						<Notice status="error" isDismissible={ false }>
 							{ __(
 								'Please provide an app password to fix the connection.',
 								'jetpack-publicize-pkg'
 							) }
-						</Alert>
+						</Notice>
 					) }
 				</div>
 			</>

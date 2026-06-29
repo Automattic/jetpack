@@ -15,11 +15,11 @@ export default BoostDashItem = () =>
 		pluginLink={ this.props.siteAdminUrl + 'admin.php?page=jetpack-boost' }
 		installOrActivatePrompt={ createInterpolateElement(
 			__(
-				'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><ExternalLink>Learn more</ExternalLink>',
+				'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><Link>Learn more</Link>',
 				'jetpack'
 			),
 			{
-				ExternalLink: <ExternalLink href={ getRedirectUrl( 'stats-nudges-boost-learn' ) } />,
+				Link: <Link openInNewTab href={ getRedirectUrl( 'stats-nudges-boost-learn' ) } />,
 				br: <br />,
 			}
 		) }

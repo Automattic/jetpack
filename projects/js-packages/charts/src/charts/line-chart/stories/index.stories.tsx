@@ -107,6 +107,7 @@ const Template: StoryFn< typeof LineChart > = args => {
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
 Default.args = {
 	...lineChartStoryArgs,
+	zoomable: true,
 };
 
 export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );

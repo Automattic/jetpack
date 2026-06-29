@@ -54,7 +54,7 @@ runs:
 
     - name: Setup PHP
       if: steps.versions.outputs.php-version != 'false'
-      uses: shivammathur/setup-php@v2
+      uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
       with:
         php-version: ${{ steps.versions.outputs.php-version }}
         ini-values: error_reporting=E_ALL, display_errors=On, zend.assertions=1
@@ -69,25 +69,14 @@ runs:
         composer config --global github-protocols https
         composer config --global use-github-api false
 
-    - name: Get Composer cache directory
-      if: steps.versions.outputs.php-version != 'false'
-      id: composer-cache
-      shell: bash
-      run: |
-        # Get Composer cache directory
-        echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-    - name: Use composer cache
-      if: steps.versions.outputs.php-version != 'false'
-      uses: actions/cache@v5
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-
+    # We used to set up caching of Composer's cache-files-dir here,
+    # but removed that in April 2026 (#48301) after some testing revealed that
+    # the time needed to save/restore the cache was about the same as the time
+    # needed for Composer to just download the packages fresh.
 
     - name: Setup pnpm
       if: steps.versions.outputs.node-version != 'false'
-      uses: pnpm/action-setup@v5.0.0
+      uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
     - name: Setup Node

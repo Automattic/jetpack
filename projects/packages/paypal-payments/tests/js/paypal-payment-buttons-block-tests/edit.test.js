@@ -27,11 +27,6 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</span>
 	),
-	ExternalLink: ( { href, children } ) => (
-		<a href={ href } data-testid="external-link">
-			{ children }
-		</a>
-	),
 	Placeholder: ( { icon, label, instructions, notices, children } ) => (
 		<div data-testid="placeholder">
 			{ icon && <span data-testid="placeholder-icon"></span> }
@@ -72,6 +67,15 @@ jest.mock( '@wordpress/components', () => ( {
 	Path: props => <path { ...props } />,
 } ) );
 
+// Mock @wordpress/ui
+jest.mock( '@wordpress/ui', () => ( {
+	Link: ( { href, children } ) => (
+		<a href={ href } data-testid="link">
+			{ children }
+		</a>
+	),
+} ) );
+
 // Mock i18n
 jest.mock( '@wordpress/i18n', () => ( {
 	__: text => text,
@@ -95,7 +99,7 @@ jest.mock( '@wordpress/element', () => {
 			// Replace the text with actual React elements
 			let result = text;
 
-			// Replace SignupLink and LoginLink with actual ExternalLink components
+			// Replace SignupLink and LoginLink with actual Link components
 			if ( elements.SignupLink ) {
 				result = React.createElement(
 					React.Fragment,
@@ -103,13 +107,13 @@ jest.mock( '@wordpress/element', () => {
 					'1. ',
 					React.cloneElement(
 						elements.SignupLink,
-						{ 'data-testid': 'external-link' },
+						{ 'data-testid': 'link' },
 						React.createElement( 'strong', null, 'Sign up' )
 					),
 					' or ',
 					React.cloneElement(
 						elements.LoginLink,
-						{ 'data-testid': 'external-link' },
+						{ 'data-testid': 'link' },
 						React.createElement( 'strong', null, 'log in' )
 					),
 					' to PayPal to get your Payment Button code.'
@@ -772,7 +776,7 @@ describe( 'Edit', () => {
 
 	it( 'renders external links to PayPal signup and login pages for WordPress.org', () => {
 		render( <Edit { ...defaultProps } /> );
-		const links = screen.getAllByTestId( 'external-link' );
+		const links = screen.getAllByTestId( 'link' );
 		expect( links ).toHaveLength( 2 );
 
 		// Check signup link
@@ -796,7 +800,7 @@ describe( 'Edit', () => {
 		isWpcomPlatformSite.mockReturnValue( true );
 
 		render( <Edit { ...defaultProps } /> );
-		const links = screen.getAllByTestId( 'external-link' );
+		const links = screen.getAllByTestId( 'link' );
 		expect( links ).toHaveLength( 2 );
 
 		// Check signup link

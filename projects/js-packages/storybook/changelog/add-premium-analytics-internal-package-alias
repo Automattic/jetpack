@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add a Vite alias resolving `@jetpack-premium-analytics/*` internal package imports so Premium Analytics ui package stories build.

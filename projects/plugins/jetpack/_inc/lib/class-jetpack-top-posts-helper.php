@@ -110,14 +110,15 @@ class Jetpack_Top_Posts_Helper {
 			if ( $post['public'] ) {
 				$top_post = array(
 					'id'        => $post_id,
-					'author'    => get_the_author_meta( 'display_name', get_post_field( 'post_author', $post_id ) ), // @phan-suppress-current-line PhanTypeMismatchArgument @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
+					'author'    => get_the_author_meta( 'display_name', get_post_field( 'post_author', $post_id ) ),
 					'context'   => get_the_category( $post_id ) ? get_the_category( $post_id ) : get_the_tags( $post_id ),
-					'href'      => $post['href'],
+					// Use the local permalink to avoid stale values from the Stats API.
+					'href'      => get_permalink( $post_id ),
 					'date'      => get_the_date( '', $post_id ),
 					'title'     => $post['title'],
 					'type'      => $post['type'],
 					'public'    => $post['public'],
-					'views'     => isset( $post['views'] ) ? $post['views'] : 0,
+					'views'     => $post['views'] ?? 0,
 					'thumbnail' => $thumbnail,
 				);
 
@@ -129,7 +130,7 @@ class Jetpack_Top_Posts_Helper {
 				 *
 				 * @module stats
 				 *
-				 * @since $$next-version$$
+				 * @since 15.8
 				 *
 				 * @param string $post_title Post title.
 				 * @param array  $top_post   Information about the post.

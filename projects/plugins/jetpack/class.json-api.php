@@ -399,7 +399,7 @@ class WPCOM_JSON_API {
 	 * @return string|null Content type (assuming it didn't exit), or null in certain error cases.
 	 */
 	public function serve( $exit = true ) {
-		ini_set( 'display_errors', false ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Blacklisted
+		ini_set( 'display_errors', false ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Disallowed
 
 		$this->exit = (bool) $exit;
 
@@ -858,7 +858,6 @@ class WPCOM_JSON_API {
 				foreach ( $response[ $key_to_filter ] as $key => $values ) {
 					if ( is_object( $values ) ) {
 						if ( is_object( $response[ $key_to_filter ] ) ) {
-							// phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found -- False positive.
 							$response[ $key_to_filter ]->$key = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
 						} elseif ( is_array( $response[ $key_to_filter ] ) ) {
 							$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
@@ -1026,7 +1025,7 @@ class WPCOM_JSON_API {
 		 * @param array $array Array of Blog IDs.
 		 */
 		$restricted_blog_ids = apply_filters( 'wpcom_json_api_restricted_blog_ids', array() );
-		return true === in_array( $blog_id, $restricted_blog_ids ); // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- I don't trust filters to return the right types.
+		return in_array( $blog_id, $restricted_blog_ids ); // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- I don't trust filters to return the right types.
 	}
 
 	/**

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Include blog_id automatically in all Tracks events via the jpTracksContext global.

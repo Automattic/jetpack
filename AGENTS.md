@@ -43,6 +43,8 @@ jp install plugins/jetpack        # Install project dependencies
 jp clean plugins/jetpack          # Clean build artifacts
 jp docker up -d                   # Start Docker environment
 jp docker install                 # Install WordPress in Docker
+# Parallel instances on a second worktree: `jp docker up -d --name <slug> --port <n> [--port-phpmy/-inbox/-smtp/-sftp <n>]`.
+# See tools/docker/README.md § "Parallel development environments", or use the `/work-on` skill end-to-end.
 jp phan                           # Run PHP static analysis
 ```
 
@@ -102,18 +104,19 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 ## Testing
 
 ```bash
-jp test php <project> -v    # PHPUnit tests (verbose)
-jp test js <project>        # Jest tests
-jp test coverage <project>  # Generate coverage report
+jp test php <project> -v          # PHPUnit tests (verbose)
+jp test js <project>              # Jest tests
+jp test php-coverage <project>    # Generate PHP coverage report
+jp test js-coverage <project>     # Generate JS coverage report
 ```
 
 ### Testing Prerequisites
 
 - **Packages** (`jp test php packages/...`, `jp test js packages/...`): Work immediately with no extra setup. The monorepo Docker container handles everything.
-- **Plugins**: Some plugins use mocked WordPress environments (WorDBless/Brain Monkey) and their tests work immediately via `jp test php`. Others (notably `plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh`) require a full WordPress test environment:
+- **Plugins**: Some plugins use mocked WordPress environments (WorDBless/Brain Monkey) and their tests work immediately via `jp test php`. Others (notably `plugins/jetpack` and `plugins/wpcomsh`) require a full WordPress test environment:
   1. `jp docker up -d` — Start Docker WordPress containers
   2. `jp docker install` — Install WordPress in Docker
-  Then run: `jp docker phpunit <target>` where `<target>` can be `jetpack`, `jp-multisite`, `crm`, `wpcomsh`, or `jp-wpcomsh` (see `jp docker phpunit --help` for the full list).
+  Then run: `jp docker phpunit <target>` where `<target>` can be `jetpack`, `jp-multisite`, `wpcomsh`, or `jp-wpcomsh` (see `jp docker phpunit --help` for the full list).
 - If you've modified package versions or dependencies between monorepo packages, run `tools/fixup-project-versions.sh` to update lock files before testing.
 - If a project's `composer.json` doesn't define `test-js`, the JS test step is skipped automatically — this is normal, not an error.
 
@@ -125,12 +128,11 @@ After modifying a project, run its tests and static analysis:
 jp test php <project>           # PHP tests
 jp test js <project>            # JS tests (skipped if not defined)
 jp phan <project>               # Static analysis
-jp test coverage <project>      # Generate coverage report (optional)
 ```
 
 ### PHP Testing
 
-- `jp test php` works for most projects. A few plugins that require a full WordPress copy (`plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh`) use `jp docker phpunit` instead.
+- `jp test php` works for most projects. A few plugins that require a full WordPress copy (`plugins/jetpack` and `plugins/wpcomsh`) use `jp docker phpunit` instead.
 - **PHP version matrix**: CI runs PHP tests against every supported version from 7.2 to 8.5 (see `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in PHP 7.2 unless the project's `composer.json` requires a higher minimum.
 - `jp test php` does not support passthrough options like `--filter`. To filter tests in Docker-based projects, use: `jp docker phpunit jetpack -- --filter=Jetpack_Sync_Post_Test` or `jp docker phpunit jetpack -- --group jetpack-sync`
 - PHP testing approaches vary by project:

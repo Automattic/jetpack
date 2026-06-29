@@ -621,10 +621,6 @@ class Contact_Form_Plugin {
 						unset( $atts['default'] );
 					}
 
-					if ( ! isset( $atts['showCountrySelector'] ) || ! $atts['showCountrySelector'] ) {
-						unset( $atts['default'] );
-					}
-
 					$input_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses']  = 'wp-block-jetpack-input';
 					$atts['inputclasses'] .= isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
@@ -952,6 +948,7 @@ class Contact_Form_Plugin {
 		$processor = new \WP_HTML_Tag_Processor( $button_blocks_html );
 
 		$processor->next_tag();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally bumping cursor to next tag.
 		$processor->next_tag();
 
 		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
@@ -1052,7 +1049,7 @@ class Contact_Form_Plugin {
 			$version
 		);
 
-		$variant       = isset( $attributes['variant'] ) ? $attributes['variant'] : 'line';
+		$variant       = $attributes['variant'] ?? 'line';
 		$is_dots_style = $variant === 'dots';
 
 		// Build custom CSS variables for progress indicator colors
@@ -1169,7 +1166,7 @@ class Contact_Form_Plugin {
 		return array(
 			'stylevariationattributes' => isset( $picked_attributes['style'] ) ? \wp_json_encode( $picked_attributes['style'], JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) : '',
 			'stylevariationclasses'    => isset( $block_support_styles['class'] ) ? ' ' . $block_support_styles['class'] : '',
-			'stylevariationstyles'     => isset( $block_support_styles['style'] ) ? $block_support_styles['style'] : '',
+			'stylevariationstyles'     => $block_support_styles['style'] ?? '',
 		);
 	}
 
@@ -1539,7 +1536,7 @@ class Contact_Form_Plugin {
 			$unread = self::get_unread_count();
 
 			if ( isset( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) && ! empty( $submenu['jetpack'] ) ) {
-				$forms_unread_count_tag = " <span class='jp-feedback-unread-counter count-{$unread} awaiting-mod'><span class='feedback-unread-counter'>" . number_format_i18n( $unread ) . '</span></span>';
+				$forms_unread_count_tag = $this->get_unread_count_badge_markup( $unread );
 				$jetpack_badge_count    = $unread;
 
 				// Main menu entries
@@ -1556,25 +1553,54 @@ class Contact_Form_Plugin {
 							$jetpack_badge_count += intval( $jetpack_menu_item['count'] );
 						}
 
-						$jetpack_unread_tag = " <span data-unread-diff='" . ( $jetpack_badge_count - $unread ) . "' class='jp-feedback-unread-counter count-{$jetpack_badge_count} awaiting-mod'><span class='feedback-unread-counter'>" . number_format_i18n( $jetpack_badge_count ) . '</span></span>';
+						if ( $unread > 0 ) {
+							$jetpack_unread_tag = $this->get_unread_count_badge_markup(
+								$jetpack_badge_count,
+								$jetpack_badge_count - $unread
+							);
 
-						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-						$menu[ $index ][0] = $jetpack_menu_item['title'] . ' ' . $jetpack_unread_tag;
+							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+							$menu[ $index ][0] = $jetpack_menu_item['title'] . ' ' . $jetpack_unread_tag;
+						}
 					}
 				}
 
 				// Jetpack submenu entries
-				foreach ( $submenu['jetpack'] as $index => $menu_item ) {
-					/** This filter is documented in class-dashboard.php::init */
-					$admin_slug = apply_filters( 'jetpack_forms_alpha', true ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
-					if ( $admin_slug === $menu_item[2] ) {
-						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-						$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
+				if ( $unread > 0 ) {
+					foreach ( $submenu['jetpack'] as $index => $menu_item ) {
+						/** This filter is documented in class-dashboard.php::init */
+						$admin_slug = apply_filters( 'jetpack_forms_alpha', true ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
+						if ( $admin_slug === $menu_item[2] ) {
+							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+							$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
+						}
 					}
 				}
 			}
 			return;
 		}
+	}
+
+	/**
+	 * Build the admin menu unread count badge markup.
+	 *
+	 * Uses the `menu-counter` markup expected by admin color schemes so bubble
+	 * colors render correctly in the sidebar.
+	 *
+	 * @since 7.21.3
+	 *
+	 * @param int      $count         Badge count to display.
+	 * @param int|null $unread_diff   Optional diff for combined Jetpack menu badges.
+	 * @return string Badge HTML.
+	 */
+	private function get_unread_count_badge_markup( $count, $unread_diff = null ) {
+		$attributes = "class='menu-counter jp-feedback-unread-counter count-" . (int) $count . "'";
+
+		if ( null !== $unread_diff ) {
+			$attributes = "data-unread-diff='" . (int) $unread_diff . "' " . $attributes;
+		}
+
+		return " <span {$attributes}><span class='count'>" . number_format_i18n( $count ) . '</span></span>';
 	}
 
 	/**
@@ -1610,11 +1636,9 @@ class Contact_Form_Plugin {
 		// Add a filter to replace tokens in the subject field with sanitized field values.
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Checked below for logged-in users only, see https://plugins.trac.wordpress.org/ticket/1859
 		$id   = isset( $_POST['contact-form-id'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) : null;
 		$hash = isset( $_POST['contact-form-hash'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-hash'] ) ) : null;
 		$hash = is_string( $hash ) ? preg_replace( '/[^\da-f]/i', '', $hash ) : $hash;
-		// phpcs:enable
 
 		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
 			return Form_Submission_Error::system_error( 'invalid_form_id_or_hash', __( 'Invalid form ID or hash.', 'jetpack-forms' ) );
@@ -1657,15 +1681,10 @@ class Contact_Form_Plugin {
 				Post_To_Url::init();
 			}
 
-			// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
-			if ( ! empty( $form->attributes['postToUrl'] ) ) {
-				// webhooks should be a collection.
-				// Turn postToUrl into a collection and merge with existing webhooks.
-				$form->attributes['webhooks'] = array_merge(
-					$form->attributes['webhooks'] ?? array(),
-					array( $form->attributes['postToUrl'] )
-				);
-			}
+			// Outbound destinations declared in the form content are only honored when the
+			// source post author is allowed to configure them. Filter-supplied webhooks
+			// (applied below) are exempt, so this runs before the filter.
+			$this->reconcile_content_destinations( $form );
 
 			/**
 			 * Filters the list of extra webhooks to be called when a form is submitted.
@@ -1739,7 +1758,7 @@ class Contact_Form_Plugin {
 			$sidebar = is_active_widget( false, $this->current_widget_id, $widget_type );
 
 			// This is lame - no core API for getting a widget by ID
-			$widget = isset( $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] ) ? $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] : false;
+			$widget = $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] ?? false;
 
 			if ( $sidebar && $widget && isset( $widget['callback'] ) ) {
 				// prevent PHP notices by populating widget args
@@ -1839,8 +1858,8 @@ class Contact_Form_Plugin {
 				if ( str_contains( $post->post_content, '<!--nextpage-->' ) ) {
 					$postdata = generate_postdata( $post );
 					$page     = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
-					$paged    = isset( $page ) ? $page : 1;
-					$content  = isset( $postdata['pages'][ $paged - 1 ] ) ? $postdata['pages'][ $paged - 1 ] : $post->post_content;
+					$paged    = $page ?? 1;
+					$content  = $postdata['pages'][ $paged - 1 ] ?? $post->post_content;
 				} else {
 					$content = $post->post_content;
 				}
@@ -1850,7 +1869,7 @@ class Contact_Form_Plugin {
 		}
 
 		// In future version we will be able to skip this step.
-		$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
+		$form = Contact_Form::$forms[ $hash ] ?? null;
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
 		if ( ! $form && is_numeric( $id ) && $hash ) {
@@ -1898,17 +1917,11 @@ class Contact_Form_Plugin {
 			Post_To_Url::init();
 		}
 
-		// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
-		if ( ! empty( $form->attributes['postToUrl'] ) ) {
-			// webhooks should be a collection.
-			// Turn postToUrl into a collection and merge with existing webhooks.
-			$form->attributes['webhooks'] = array_merge(
-				$form->attributes['webhooks'] ?? array(),
-				array( $form->attributes['postToUrl'] )
-			);
-		}
+		// Outbound destinations declared in the form content are only honored when the
+		// source post author is allowed to configure them.
+		$this->reconcile_content_destinations( $form );
 
-		if ( ! empty( $form->attributes['webhooks'] ) ) {
+		if ( Jetpack_Forms::is_webhooks_enabled() && ! empty( $form->attributes['webhooks'] ) ) {
 			Form_Webhooks::init();
 		}
 
@@ -1992,6 +2005,54 @@ class Contact_Form_Plugin {
 			)
 		);
 		die();
+	}
+
+	/**
+	 * Enforcement point for outbound-destination authorization on a submitted form.
+	 *
+	 * Destinations declared in the form content — webhooks, the legacy postToUrl attribute and
+	 * the Salesforce integration — are kept only when whoever placed the form had an
+	 * administrator-level capability (an admin author for post/page forms, or the
+	 * `edit_theme_options` required to author block templates, template parts and widgets);
+	 * otherwise they are removed from the form attributes in place, before the submission
+	 * is processed and the Form_Webhooks / Post_To_Url services read those attributes. The
+	 * mutation is safe because nothing re-reads the original attribute values within the request
+	 * and the form attributes are not persisted after this point.
+	 *
+	 * Webhooks supplied via the jetpack_forms_extra_webhooks filter (JWT submissions only) are
+	 * applied by the caller afterwards and are never affected here.
+	 *
+	 * @param Contact_Form $form The form whose attributes may be modified in place.
+	 */
+	private function reconcile_content_destinations( Contact_Form $form ) {
+		if ( empty( $form->attributes['webhooks'] )
+			&& empty( $form->attributes['postToUrl'] )
+			&& empty( $form->attributes['salesforceData'] ) ) {
+			return;
+		}
+
+		$source = $form->get_source();
+		if ( ! Jetpack_Forms::should_honor_content_destinations( $source->get_id(), $source->get_source_type() ) ) {
+			// Drop every content-configured destination before the services read them.
+			// postToUrl and salesforceData are read directly by Post_To_Url.
+			$form->attributes['webhooks']       = array();
+			$form->attributes['postToUrl']      = array();
+			$form->attributes['salesforceData'] = null;
+
+			/** This action is documented already in this file. */
+			do_action( 'jetpack_forms_log', 'content_destinations_dropped', 'author_unauthorized' );
+			return;
+		}
+
+		// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
+		if ( ! empty( $form->attributes['postToUrl'] ) ) {
+			// webhooks should be a collection.
+			// Turn postToUrl into a collection and merge with existing webhooks.
+			$form->attributes['webhooks'] = array_merge(
+				$form->attributes['webhooks'] ?? array(),
+				array( $form->attributes['postToUrl'] )
+			);
+		}
 	}
 
 	/**
@@ -2145,7 +2206,7 @@ class Contact_Form_Plugin {
 	 * @param array $widget The widget data.
 	 */
 	public function track_current_widget( $widget ) {
-		$this->current_widget_id = isset( $widget['id'] ) ? $widget['id'] : '';
+		$this->current_widget_id = $widget['id'] ?? '';
 	}
 
 	/**
@@ -2442,13 +2503,13 @@ class Contact_Form_Plugin {
 	 */
 	public function get_post_meta_for_csv_export( $post_id, $has_json_data = false ) {
 		$content_fields = self::parse_fields_from_content( $post_id );
-		$all_fields     = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
+		$all_fields     = $content_fields['_feedback_all_fields'] ?? array();
 		$md             = $has_json_data
 			? array_diff_key( $all_fields, array_flip( array_keys( self::NON_PRINTABLE_FIELDS ) ) )
 			: (array) get_post_meta( $post_id, '_feedback_extra_fields', true );
 
 		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );
-		$md['93_ip_address']    = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
+		$md['93_ip_address']    = $content_fields['_feedback_ip'] ?? 0;
 
 		// add the email_marketing_consent to the post meta.
 		$md['90_consent'] = 0;
@@ -2987,7 +3048,7 @@ class Contact_Form_Plugin {
 					$results[ $trimmed_field_name ] = array();
 				}
 				// Use the compiled fields directly (which already have incremented labels)
-				$results[ $trimmed_field_name ][] = isset( $compiled_fields[ $trimmed_field_name ] ) ? $compiled_fields[ $trimmed_field_name ] : '';
+				$results[ $trimmed_field_name ][] = $compiled_fields[ $trimmed_field_name ] ?? '';
 			}
 
 			$results[ $prefix_meta_fields . __( 'Consent', 'jetpack-forms' ) ][] = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
@@ -3685,9 +3746,8 @@ class Contact_Form_Plugin {
 				}
 			}
 
-			array_shift( $lines ); // Array
-			array_shift( $lines ); // (
-			array_pop( $lines ); // )
+			array_splice( $lines, 0, 2 ); // Remove first two items: 'Array' and '('.
+			array_pop( $lines ); // Remove last item: ')'.
 			$print_r_output = implode( "\n", $lines );
 
 			// make sure we only match stuff with 4 preceding spaces (stuff for this array and not a nested one
@@ -3963,12 +4023,12 @@ class Contact_Form_Plugin {
 	public static function gutenblock_render_field_slider( $atts, $content, $block ) {
 		// Get min, max, and default from the parent block's attributes.
 		$parent_attrs     = $block->parsed_block['attrs'] ?? array();
-		$atts['min']      = isset( $parent_attrs['min'] ) ? $parent_attrs['min'] : 0;
-		$atts['max']      = isset( $parent_attrs['max'] ) ? $parent_attrs['max'] : 100;
-		$atts['default']  = isset( $parent_attrs['default'] ) ? $parent_attrs['default'] : 0;
-		$atts['step']     = isset( $parent_attrs['step'] ) ? $parent_attrs['step'] : 1;
-		$atts['minLabel'] = isset( $parent_attrs['minLabel'] ) ? $parent_attrs['minLabel'] : '';
-		$atts['maxLabel'] = isset( $parent_attrs['maxLabel'] ) ? $parent_attrs['maxLabel'] : '';
+		$atts['min']      = $parent_attrs['min'] ?? 0;
+		$atts['max']      = $parent_attrs['max'] ?? 100;
+		$atts['default']  = $parent_attrs['default'] ?? 0;
+		$atts['step']     = $parent_attrs['step'] ?? 1;
+		$atts['minLabel'] = $parent_attrs['minLabel'] ?? '';
+		$atts['maxLabel'] = $parent_attrs['maxLabel'] ?? '';
 
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'slider', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );

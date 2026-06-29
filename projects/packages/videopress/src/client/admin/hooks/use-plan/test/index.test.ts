@@ -144,6 +144,20 @@ describe( 'usePlan hasVideoPressPurchase logic', () => {
 		expect( result.hasVideoPressPurchase ).toBe( true );
 	} );
 
+	it( 'returns true when only isVideoPressUnlimitedSupported is true (legacy Security Daily)', () => {
+		mockFeaturesData = {
+			features: {
+				isVideoPressSupported: true,
+				isVideoPress1TBSupported: false,
+				isVideoPressUnlimitedSupported: true,
+			},
+			isFetchingFeatures: false,
+		};
+
+		const result = importUsePlan();
+		expect( result.hasVideoPressPurchase ).toBe( true );
+	} );
+
 	it( 'returns isFetchingFeatures state from store', () => {
 		mockFeaturesData = {
 			features: undefined,

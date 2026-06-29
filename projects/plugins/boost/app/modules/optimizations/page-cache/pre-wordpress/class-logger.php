@@ -107,7 +107,7 @@ class Logger {
 	 */
 	public function log( $message ) {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		$request_uri = htmlspecialchars( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '<unknown request uri>', ENT_QUOTES, 'UTF-8' );
+		$request_uri = htmlspecialchars( $_SERVER['REQUEST_URI'] ?? '<unknown request uri>', ENT_QUOTES, 'UTF-8' );
 
 		// don't log the ABSPATH constant. Logs may be copied to a public forum.
 		$message = str_replace( ABSPATH, '[...]/', $message );

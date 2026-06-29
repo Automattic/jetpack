@@ -104,9 +104,11 @@ class Media extends Component {
 					<>
 						<ModuleToggle
 							slug="videopress"
-							disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
+							disabled={
+								this.props.isUnavailableInOfflineMode( 'videopress' ) ||
+								this.props.isSavingAnyOption( 'videopress' )
+							}
 							activated={ this.props.getOptionValue( 'videopress' ) }
-							toggling={ this.props.isSavingAnyOption( 'videopress' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">

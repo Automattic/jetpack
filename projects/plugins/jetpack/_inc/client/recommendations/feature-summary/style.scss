@@ -59,6 +59,7 @@
 	align-items: center;
 	justify-content: flex-start;
 	flex-grow: 1;
+	gap: 1rem;
 	background: none;
 	font-size: typography.$font-body;
 
@@ -75,10 +76,6 @@
 				box-shadow: 0 3px 0 0 currentColor;
 			}
 		}
-	}
-
-	.jp-recommendations__new-badge {
-		margin-left: 1rem;
 	}
 }
 

@@ -223,7 +223,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		if ( $form ) {
 			// make a unique field ID based on the label, with an incrementing number if needed to avoid clashes
 			$form_id = $form->get_attribute( 'id' );
-			$id      = isset( $attributes['id'] ) ? $attributes['id'] : false;
+			$id      = $attributes['id'] ?? false;
 
 			$unescaped_label = $this->unesc_attr( $attributes['label'] );
 			$unescaped_label = str_replace( '%', '-', $unescaped_label ); // jQuery doesn't like % in IDs?
@@ -1809,7 +1809,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
+			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
 		} else {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
 		}
@@ -1817,7 +1817,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
 		if ( ! $is_outlined_style ) {
-			$field .= "<div class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . '>';
+			$field .= "<div class='grunion-checkbox-multiple-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' " . '>';
 		}
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
@@ -2205,7 +2205,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 			// To be able to apply the backdrop-filter for the hover effect, we need to separate the background into an outer div.
 			// This outer div needs the color styles separately, and also the border radius to match the inner div without sticking out.
-			$option_outer_classes = 'jetpack-input-image-option__outer ' . ( isset( $option['classcolor'] ) ? $option['classcolor'] : '' );
+			$option_outer_classes = 'jetpack-input-image-option__outer ' . ( $option['classcolor'] ?? '' );
 
 			if ( $is_supersized ) {
 				$option_outer_classes .= ' is-supersized';
@@ -2253,7 +2253,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 			$default_classes = 'jetpack-field jetpack-input-image-option';
 			$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
-			$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'] ) . "'";
+			$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] ) ) . "'";
 
 			$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick' data-wp-init='callbacks.setImageOptionOutlineColor'>";
 
@@ -2965,7 +2965,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			</fieldset>',
 			$style_attr,
 			$options,
-			$this->field_classes,
+			esc_attr( $this->field_classes ),
 			esc_attr( $id ),
 			$label_html
 		) . $this->get_error_div( $id, 'rating' );
@@ -2999,13 +2999,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// translators: %d is the maximum value.
 			$this->set_invalid_message( 'max_slider', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
 		}
-		$min            = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : 0;
-		$max            = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : 100;
-		$starting_value = isset( $extra_attrs['default'] ) ? $extra_attrs['default'] : 0;
-		$step           = isset( $extra_attrs['step'] ) ? $extra_attrs['step'] : 1;
+		$min            = $extra_attrs['min'] ?? 0;
+		$max            = $extra_attrs['max'] ?? 100;
+		$starting_value = $extra_attrs['default'] ?? 0;
+		$step           = $extra_attrs['step'] ?? 1;
 		$current_value  = ( $value !== '' && $value !== null ) ? $value : $starting_value;
-		$min_text_label = isset( $extra_attrs['minLabel'] ) ? $extra_attrs['minLabel'] : '';
-		$max_text_label = isset( $extra_attrs['maxLabel'] ) ? $extra_attrs['maxLabel'] : '';
+		$min_text_label = $extra_attrs['minLabel'] ?? '';
+		$max_text_label = $extra_attrs['maxLabel'] ?? '';
 
 		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 

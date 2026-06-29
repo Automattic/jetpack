@@ -212,8 +212,10 @@ EXPECTED;
 		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
 
 		Jetpack::update_active_modules( array( 'stats' ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Later it makes sure the module only shows once.
 		Jetpack::update_active_modules( array( 'stats' ) );
 		Jetpack::update_active_modules( array( 'json-api' ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Later it makes sure the module only shows once.
 		Jetpack::update_active_modules( array( 'json-api' ) );
 
 		$this->assertEquals( self::$activated_modules, array( 'stats', 'json-api' ) );
@@ -229,8 +231,10 @@ EXPECTED;
 		add_action( 'jetpack_deactivate_module_stats', array( __CLASS__, 'track_deactivated_modules' ) );
 
 		Jetpack::update_active_modules( array( 'stats' ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Later it makes sure the module only shows once.
 		Jetpack::update_active_modules( array( 'stats' ) );
 		Jetpack::update_active_modules( array( 'json-api' ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Later it makes sure the module only shows once.
 		Jetpack::update_active_modules( array( 'json-api' ) );
 
 		$this->assertEquals( self::$activated_modules, array( 'stats' ) );
@@ -252,6 +256,7 @@ EXPECTED;
 		add_filter( 'pre_update_option_jetpack_active_modules', array( __CLASS__, 'filter_pre_update_option_jetpack_active_modules' ), 10, 2 );
 
 		Jetpack::update_active_modules( array( 'json-api' ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Later it makes sure the module only shows once.
 		Jetpack::update_active_modules( array( 'json-api' ) );
 
 		$this->assertEquals( self::$activated_modules, array( 'json-api', 'stats' ) );

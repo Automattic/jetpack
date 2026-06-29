@@ -1,4 +1,0 @@
-Significance: major
-Type: security
-
-Rsync: Make it harder for a host-system attacker to attack the rsync proxy.

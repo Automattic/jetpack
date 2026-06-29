@@ -5,23 +5,28 @@
 
 import { GeneralPurposeImage } from '@automattic/jetpack-ai-client';
 import { getRedirectUrl, ThemeProvider } from '@automattic/jetpack-components';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
-import { BaseControl, Button, ExternalLink } from '@wordpress/components';
+import { BaseControl, Button } from '@wordpress/components';
 import { useCallback, useMemo, useReducer, useRef } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import useSigPreview from '../../hooks/use-sig-preview';
+import { features } from '../../utils';
 import CustomMediaToggle from './custom-media-toggle';
+import MediaFocalPoint from './media-focal-point';
 import MediaPreview from './media-preview';
 import MediaSourceMenu from './media-source-menu';
 import styles from './styles.module.scss';
 import { MediaPreviewData, MediaSectionV2Props, MediaSourceType, WPMediaObject } from './types';
+import { useMediaFocalPoint } from './use-media-focal-point';
 import { detectMediaSource } from './utils/detect-media-source';
 import { getMediaSourceDescription } from './utils/media-source-options';
 
@@ -39,8 +44,9 @@ export default function MediaSectionV2( {
 	imageGeneratorSettings: imageGeneratorSettingsProp,
 	mediaSource: mediaSourceProp,
 	onMediaChange,
-	forceAsAttachment,
+	attachmentToggleMode = 'visible',
 }: MediaSectionV2Props ) {
+	const isAttachmentToggleHidden = attachmentToggleMode === 'hidden';
 	const { recordEvent } = useAnalytics();
 	const featuredImageId = useFeaturedImage();
 	const { isEnabled: sigEnabled } = useImageGeneratorConfig();
@@ -89,20 +95,32 @@ export default function MediaSectionV2( {
 	// State for AI image generation modal
 	const [ showAiImageModal, toggleShowAiImageModal ] = useReducer( state => ! state, false );
 
-	// Determine current media source
-	// Priority 1: Explicit user choice (if media_source is set)
-	// Priority 2: Detect from existing data (backward compatibility)
+	/*
+	 * Determine current media source.
+	 * Priority 1: Explicit user choice (if media_source is set).
+	 * Priority 2 (global mode only): detect from existing data (backward compatibility).
+	 * In per-network mode (toggle hidden), no explicit source means Default (null) — we
+	 * skip auto-detection so the dropdown doesn't show e.g. "Featured image" for a
+	 * connection whose attached_media is empty (which would mislead the user into
+	 * thinking the image is attached when it isn't).
+	 */
 	const currentSource = useMemo( () => {
 		if ( mediaSource !== undefined ) {
 			return mediaSource === 'none' ? null : ( mediaSource as MediaSourceType );
 		}
+		if ( isAttachmentToggleHidden ) {
+			return null;
+		}
 		return detectMediaSource( attachedMedia, featuredImageId, sigEnabled );
-	}, [ mediaSource, attachedMedia, featuredImageId, sigEnabled ] );
+	}, [ mediaSource, isAttachmentToggleHidden, attachedMedia, featuredImageId, sigEnabled ] );
 
-	// Attachment mode:
-	// - When attachedMedia has items, this reflects the backend behavior (attached_media is set).
-	// - When forceAsAttachment is true, attachment mode is forced on at the UI level, even if attachedMedia is empty.
-	const isShareAsAttachment = forceAsAttachment || attachedMedia?.length > 0;
+	/*
+	 * Attachment mode:
+	 * - When attachedMedia has items, this reflects the backend behavior (attached_media is set).
+	 * - When the attachment toggle is hidden (per-network mode), attachment mode is implicit:
+	 *   the dropdown alone decides — non-Default sources always attach.
+	 */
+	const isShareAsAttachment = isAttachmentToggleHidden || attachedMedia?.length > 0;
 
 	// Get media ID for preview
 	const mediaId = useMemo( () => {
@@ -145,9 +163,18 @@ export default function MediaSectionV2( {
 		}
 
 		if ( ! mediaId || ! mediaDetails?.mediaData ) {
-			// Fallback to featured image when no explicit media and source is undefined/null
-			if ( ! currentSource && featuredImageData ) {
-				return featuredImageData;
+			/*
+			 * Default mode (no explicit source) — mirror the post-level OG resolution
+			 * priority so the preview matches what the destination network will actually
+			 * serve: SIG (if globally enabled) → featured image → nothing.
+			 */
+			if ( ! currentSource ) {
+				if ( sigEnabled ) {
+					return { id: 0, url: sigPreviewUrl || '', type: 'image' };
+				}
+				if ( featuredImageData ) {
+					return featuredImageData;
+				}
 			}
 			return null;
 		}
@@ -160,7 +187,31 @@ export default function MediaSectionV2( {
 			url: sourceUrl,
 			type: mime?.startsWith( 'video/' ) ? 'video' : 'image',
 		};
-	}, [ currentSource, mediaId, mediaDetails, sigPreviewUrl, featuredImageData ] );
+	}, [ currentSource, mediaId, mediaDetails, sigEnabled, sigPreviewUrl, featuredImageData ] );
+
+	// Preview will render the SIG image whenever SIG is the explicit source or the OG fallback in Default mode.
+	const isPreviewingSig = currentSource === 'sig' || ( ! currentSource && sigEnabled );
+
+	// The focal point lives on the image (attachment meta), so it's the same point in
+	// every mode and every post that uses the image.
+	const {
+		value: focalPointValue,
+		canEdit: canEditImage,
+		setPreviewFocalPoint,
+		setFocalPoint,
+	} = useMediaFocalPoint( previewData?.id ?? 0 );
+
+	/*
+	 * The focal point can only be set against a real image attachment the user can edit:
+	 * hidden for SIG (attachment id 0), video, and images the user can't edit (v1: no
+	 * fallback — the static preview shows instead). Gated on the wpcom-controlled rollout
+	 * flag until the cropping consumers ship.
+	 */
+	const showFocalPointPicker =
+		siteHasFeature( features.IMAGE_FOCAL_POINT ) &&
+		previewData?.type === 'image' &&
+		previewData.id > 0 &&
+		canEditImage === true;
 
 	// Handle media source selection from dropdown
 	const handleSourceSelect = useCallback(
@@ -169,6 +220,25 @@ export default function MediaSectionV2( {
 				...analyticsData,
 				source,
 			} );
+
+			/*
+			 * Default (source === null) means "no per-connection override" — unset both fields
+			 * so the saved override entry doesn't carry a media_source. The REST layer drops
+			 * fields whose value is undefined (isset() check), and wpcom's Extractor treats a
+			 * missing media_source as 'none' anyway, so this cleans up the persisted shape
+			 * without changing runtime behavior.
+			 */
+			if ( source === null ) {
+				updateMediaOptions( {
+					media_source: undefined,
+					attached_media: undefined,
+					image_generator_settings: {
+						...imageGeneratorSettings,
+						enabled: false,
+					},
+				} );
+				return;
+			}
 
 			// Determine attached_media based on source and current attachment state
 			let attachedMediaUpdate: Array< { id: number; url: string; type: string } > = [];
@@ -187,7 +257,7 @@ export default function MediaSectionV2( {
 
 			// Single batch update with explicit media_source and all related fields
 			updateMediaOptions( {
-				media_source: source || 'none',
+				media_source: source,
 				attached_media: attachedMediaUpdate,
 				image_generator_settings: {
 					...imageGeneratorSettings,
@@ -293,23 +363,6 @@ export default function MediaSectionV2( {
 		return null;
 	}, [] );
 
-	// Handle remove - reset to automatic detection (allows featured image fallback)
-	const handleRemove = useCallback( () => {
-		// Reset to allow automatic detection and inheritance:
-		// - media_source: undefined allows fallback detection in global mode
-		// - attached_media: [] clears explicit attachment, triggering forced attachment logic in per-network mode
-		updateMediaOptions( {
-			media_source: undefined,
-			attached_media: [],
-			image_generator_settings: { ...imageGeneratorSettings, enabled: false },
-		} );
-
-		recordEvent( 'jetpack_social_media_removed', {
-			...analyticsData,
-			source: currentSource,
-		} );
-	}, [ updateMediaOptions, imageGeneratorSettings, recordEvent, analyticsData, currentSource ] );
-
 	// Determine the effective source - for featured image fallback (currentSource is null),
 	// treat it as 'featured-image' when there's preview data from featured image
 	const effectiveSource = useMemo( () => {
@@ -383,7 +436,10 @@ export default function MediaSectionV2( {
 						{ __( 'Media', 'jetpack-publicize-pkg' ) }
 					</BaseControl.VisualLabel>
 					<p className={ styles.description }>
-						{ getMediaSourceDescription( currentSource, { featuredImageId } ) }
+						{ getMediaSourceDescription( currentSource, {
+							featuredImageId,
+							sigEnabled,
+						} ) }
 					</p>
 
 					{ /* MediaUpload component - rendered once, open function stored in ref */ }
@@ -397,10 +453,16 @@ export default function MediaSectionV2( {
 					{ /* Show preview + dropdown when there's media */ }
 					{ previewData && (
 						<>
-							<MediaPreview
-								media={ previewData }
-								isLoading={ currentSource === 'sig' && sigIsLoading }
-							/>
+							{ showFocalPointPicker ? (
+								<MediaFocalPoint
+									url={ previewData.url }
+									value={ focalPointValue }
+									onChange={ setFocalPoint }
+									onDrag={ setPreviewFocalPoint }
+								/>
+							) : (
+								<MediaPreview media={ previewData } isLoading={ isPreviewingSig && sigIsLoading } />
+							) }
 							<div className={ styles.actions }>
 								<MediaSourceMenu
 									currentSource={ currentSource }
@@ -409,7 +471,7 @@ export default function MediaSectionV2( {
 									onAiImageClick={ handleAiImageClick }
 									disabled={ disabled }
 									featuredImageId={ featuredImageId }
-									onRemove={ handleRemove }
+									includeDefaultOption={ isAttachmentToggleHidden }
 								/>
 								{ currentSource === 'sig' && (
 									<div className={ styles.action }>
@@ -425,12 +487,14 @@ export default function MediaSectionV2( {
 									</div>
 								) }
 							</div>
-							<CustomMediaToggle
-								source={ effectiveSource }
-								checked={ isShareAsAttachment }
-								onChange={ handleAttachmentToggle }
-								disabled={ forceAsAttachment || disabled }
-							/>
+							{ ! isAttachmentToggleHidden && (
+								<CustomMediaToggle
+									source={ effectiveSource }
+									checked={ isShareAsAttachment }
+									onChange={ handleAttachmentToggle }
+									disabled={ disabled }
+								/>
+							) }
 						</>
 					) }
 
@@ -443,16 +507,17 @@ export default function MediaSectionV2( {
 							onAiImageClick={ handleAiImageClick }
 							disabled={ disabled }
 							featuredImageId={ featuredImageId }
-							onRemove={ handleRemove }
+							includeDefaultOption={ isAttachmentToggleHidden }
 						/>
 					) }
 					{ currentSource === 'media-library' && (
-						<ExternalLink
+						<Link
+							openInNewTab
 							href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }
 							className={ styles[ 'learn-more' ] }
 						>
 							{ __( 'Learn photo and video best practices', 'jetpack-publicize-pkg' ) }
-						</ExternalLink>
+						</Link>
 					) }
 				</BaseControl>
 			</div>

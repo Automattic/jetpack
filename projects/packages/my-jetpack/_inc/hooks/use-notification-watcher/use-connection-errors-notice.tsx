@@ -54,7 +54,7 @@ const useConnectionErrorsNotice = ( actionHandlers = {} ) => {
 		}
 
 		// Build actions based on error data
-		let noticeActions: NoticeButtonAction[] = [];
+		let noticeActions: NoticeButtonAction[];
 
 		// Get action info from error data
 		const errorData = connectionError?.error_data || {};

@@ -5,7 +5,7 @@ if [[ ! -t 0 ]]; then
 	INTERACTIVE=false
 fi
 
-. "$(dirname "$BASH_SOURCE[0]")/chalk-lite.sh"
+. "$(dirname "${BASH_SOURCE[0]}")/chalk-lite.sh"
 
 # Ask whether to proceed.
 #

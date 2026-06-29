@@ -59,6 +59,14 @@
 	margin-bottom: 1rem;
 }
 
+.connection-template-wrap {
+	margin-bottom: 1.5rem;
+
+	&:empty {
+		margin-bottom: 0;
+	}
+}
+
 .connection-panel.connection-panel {
 	border: 0;
 	margin-left: 3rem;

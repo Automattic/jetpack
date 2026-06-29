@@ -137,6 +137,72 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
+	 * Verify deleting all post meta matching a key and value is synced.
+	 */
+	public function test_delete_all_post_meta_by_key_value_is_synced() {
+		$second_post_id = self::factory()->post->create();
+
+		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'stale' );
+		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'current' );
+		add_post_meta( $second_post_id, $this->whitelisted_post_meta, 'stale' );
+		add_post_meta( $second_post_id, $this->whitelisted_post_meta, 'other' );
+
+		$this->sender->do_sync();
+		$this->server_event_storage->reset();
+
+		delete_metadata( 'post', 0, $this->whitelisted_post_meta, 'stale', true );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'deleted_post_meta' );
+		$this->assertNotFalse( $event );
+		$this->assertSame( 0, $event->args[1] );
+		$this->assertEquals( $this->whitelisted_post_meta, $event->args[2] );
+		$this->assertEquals( 'stale', $event->args[3] );
+
+		$this->assertEquals(
+			get_post_meta( $this->post_id, $this->whitelisted_post_meta, false ),
+			$this->server_replica_storage->get_metadata( 'post', $this->post_id, $this->whitelisted_post_meta )
+		);
+		$this->assertEquals(
+			get_post_meta( $second_post_id, $this->whitelisted_post_meta, false ),
+			$this->server_replica_storage->get_metadata( 'post', $second_post_id, $this->whitelisted_post_meta )
+		);
+	}
+
+	/**
+	 * Verify deleting all post meta without a value constraint is not synced.
+	 */
+	public function test_delete_all_post_meta_by_key_without_value_is_not_synced() {
+		$second_post_id = self::factory()->post->create();
+
+		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'current' );
+		add_post_meta( $second_post_id, $this->whitelisted_post_meta, 'other' );
+
+		$this->sender->do_sync();
+		$this->server_event_storage->reset();
+
+		delete_metadata( 'post', 0, $this->whitelisted_post_meta, '', true );
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'deleted_post_meta' ) );
+	}
+
+	/**
+	 * Verify delete-by-key post meta sync still respects the whitelist.
+	 */
+	public function test_delete_all_post_meta_by_key_ignores_non_whitelisted_meta() {
+		add_post_meta( $this->post_id, '_private_meta', 'private' );
+
+		$this->sender->do_sync();
+		$this->server_event_storage->reset();
+
+		delete_metadata( 'post', 0, '_private_meta', 'private', true );
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'deleted_post_meta' ) );
+	}
+
+	/**
 	 * Verify private meta is not synced.
 	 */
 	public function test_doesn_t_sync_private_meta() {
@@ -199,7 +265,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		Settings::update_settings( array( 'post_meta_whitelist' => array() ) );
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
-		$white_listed_post_meta = Defaults::$post_meta_whitelist;
+		$white_listed_post_meta = Defaults::get_post_meta_whitelist();
 
 		// update all the options.
 		foreach ( $white_listed_post_meta as $meta_key ) {
@@ -306,6 +372,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 	 */
 	public function test_get_object_by_id_will_return_null_for_non_existing_meta() {
 		$module = Modules::get_module( 'meta' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Meta $module';
 		$this->assertNull( $module->get_object_by_id( 'post', $this->post_id, 'does_not_exist' ) );
 	}
 
@@ -316,6 +383,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		$meta_id = add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'bar' );
 		$module  = Modules::get_module( 'meta' );
 
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Meta $module';
 		$metas    = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
 		$expected = array(
 			array(

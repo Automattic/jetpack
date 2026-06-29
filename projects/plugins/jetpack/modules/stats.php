@@ -496,7 +496,7 @@ function stats_reports_page( $main_chart_only = false ) {
 				?>
 				<a
 					style="font-size:13px;"
-					href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ) ) ); ?>"
+					href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ?? '' ) ) ); ?>"
 				>
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>

@@ -301,7 +301,7 @@ const initJetpack = async () => {
 
 		console.log( '3. jp docker install' );
 	} catch ( error ) {
-		throw new Error( `Failed to initialize Jetpack: ${ error.message }` );
+		throw new Error( `Failed to initialize Jetpack: ${ error.message }`, { cause: error } );
 	}
 };
 

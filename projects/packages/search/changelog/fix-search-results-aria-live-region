@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search 3.0: Keep the search results list in the DOM so screen readers announce updates from the ARIA live region.

@@ -1,9 +1,9 @@
 import { getRedirectUrl, useGlobalNotices } from '@automattic/jetpack-components';
-import { CheckboxControl, ExternalLink, Notice, Button } from '@wordpress/components';
+import { CheckboxControl, Notice, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Notice as UiNotice } from '@wordpress/ui';
+import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
 import { useSupportedServices } from '../../services/use-supported-services';
@@ -70,10 +70,6 @@ export function ConfirmationForm( {
 	const service = supportedServices.find(
 		supportedService => supportedService.id === keyringResult.service
 	);
-	const hasExistingXConnection =
-		service?.id === 'x' &&
-		existingConnections.some( connection => connection.service_name === 'x' );
-
 	const isAlreadyConnected = useCallback(
 		( externalID: string ) => {
 			return existingConnections.some(
@@ -212,27 +208,15 @@ export function ConfirmationForm( {
 									'jetpack-publicize-pkg'
 								) }
 								&nbsp;
-								<ExternalLink
+								<Link
+									openInNewTab
 									key="linkedin-api-documentaion"
 									href={ getRedirectUrl( 'jetpack-linkedin-permissions-warning' ) }
 								>
 									{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-								</ExternalLink>
+								</Link>
 							</p>
 						</Notice>
-					) }
-					{ hasExistingXConnection && (
-						<UiNotice.Root intent="info" className={ styles[ 'x-policy-notice' ] }>
-							<UiNotice.Title>
-								{ __( 'Only one X account can be shared to per post', 'jetpack-publicize-pkg' ) }
-							</UiNotice.Title>
-							<UiNotice.Description>
-								{ __(
-									"As per X's developer policy, you can share a unique post to only one X account. You can pick which X account to share to in the editor.",
-									'jetpack-publicize-pkg'
-								) }
-							</UiNotice.Description>
-						</UiNotice.Root>
 					) }
 					<form className={ styles.form } onSubmit={ onConfirm } id="connection-confirmation-form">
 						{
@@ -302,7 +286,6 @@ export function ConfirmationForm( {
 					</form>
 				</div>
 			) }
-
 			{ accounts.connected.length ? (
 				<section>
 					<h3>{ __( 'Already connected', 'jetpack-publicize-pkg' ) }</h3>
@@ -318,7 +301,6 @@ export function ConfirmationForm( {
 					</ul>
 				</section>
 			) : null }
-
 			<div className={ styles[ 'submit-wrap' ] }>
 				<Button variant="secondary" onClick={ onComplete }>
 					{ __( 'Cancel', 'jetpack-publicize-pkg' ) }

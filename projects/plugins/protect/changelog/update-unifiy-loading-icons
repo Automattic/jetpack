@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace deprecated jetpack-components Spinner with WordPress Core Spinner.

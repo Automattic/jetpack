@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search 3.0: hide the load-more wrapper while a first-page search is in flight, and swap the button for a spinner while paginating.

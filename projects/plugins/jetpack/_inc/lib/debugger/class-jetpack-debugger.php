@@ -45,7 +45,7 @@ class Jetpack_Debugger {
 			? Redirect::get_url( 'jetpack-contact-support-beta-group' )
 			: Redirect::get_url( 'jetpack-contact-support' );
 
-		$cxntests = new Jetpack_Cxn_Tests();
+		$cxntests = new Automattic\Jetpack\Connection\Connection_Health_Tests();
 		?>
 		<div class="wrap">
 			<div class="jp-static-block">
@@ -263,6 +263,11 @@ class Jetpack_Debugger {
 	 */
 	public static function jetpack_debug_admin_head() {
 
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons', 'jetpack-connection' ), JETPACK__VERSION . '-20121016' );
+		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
+		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
+
 		Jetpack_Admin_Page::load_wrapper_styles();
 		?>
 		<style type="text/css">
@@ -292,18 +297,17 @@ class Jetpack_Debugger {
 			}
 
 			.formbox input[type="text"], .formbox input[type="email"], .formbox input[type="url"], .formbox textarea, #debug_info_div {
-				border: 1px solid #dcdcde;
-				border-radius: 11px;
-				box-shadow: inset 0 1px 1px rgba(0,0,0,0.1);
+				border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
+				border-radius: var(--wpds-border-radius-md, 4px);
 				color: #646970;
 				font-size: 14px;
 				padding: 10px;
 				width: 97%;
 			}
 			#debug_info_div {
-				border-radius: 0;
+				border-radius: var(--wpds-border-radius-lg, 8px);
 				margin-top: 16px;
-				background: #FFF;
+				background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 				padding: 16px;
 			}
 			.formbox .contact-support input[type="submit"] {

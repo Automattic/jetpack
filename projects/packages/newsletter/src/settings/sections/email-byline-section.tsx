@@ -2,15 +2,9 @@
  * External dependencies
  */
 import { getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
-import {
-	Card,
-	CardHeader,
-	CardBody,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
-import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { DataForm, type Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
+import { Card, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -47,8 +41,8 @@ export function EmailBylineSection( {
 			Edit: newsletterScriptData?.email
 				? ( { data: fieldData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithLink
-							data={ fieldData as Record< string, unknown > }
-							field={ field as Field< Record< string, unknown > > }
+							data={ fieldData }
+							field={ field }
 							onChange={ fieldOnChange }
 							url="https://gravatar.com/profile/avatars"
 							linkText={ __( 'Update your Gravatar', 'jetpack-newsletter' ) }
@@ -72,8 +66,8 @@ export function EmailBylineSection( {
 			type: 'boolean' as const,
 			Edit: ( { data: fieldData, field, onChange: fieldOnChange } ) => (
 				<ToggleWithLink
-					data={ fieldData as Record< string, unknown > }
-					field={ field as Field< Record< string, unknown > > }
+					data={ fieldData }
+					field={ field }
 					onChange={ fieldOnChange }
 					url={ getAdminUrl( 'options-general.php' ) }
 					linkText={ __( 'Customize date format', 'jetpack-newsletter' ) }
@@ -84,11 +78,11 @@ export function EmailBylineSection( {
 	];
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Email byline', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Email byline', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
 				<p>
 					<Text>
 						{ __(
@@ -126,7 +120,7 @@ export function EmailBylineSection( {
 						/>
 					) }
 				</fieldset>
-			</CardBody>
-		</Card>
+			</Card.Content>
+		</Card.Root>
 	);
 }

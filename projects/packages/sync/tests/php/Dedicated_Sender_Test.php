@@ -391,7 +391,7 @@ class Dedicated_Sender_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function pre_http_request_success( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function pre_http_request_success( $preempt, $args, $url ) {
 		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
 
 		return array(
@@ -413,7 +413,7 @@ class Dedicated_Sender_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
-	public function pre_http_request_failure( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function pre_http_request_failure( $preempt, $args, $url ) {
 		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
 
 		return array(

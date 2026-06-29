@@ -362,7 +362,7 @@ class Jetpack_Debug_Data {
 		);
 
 		// @todo -- Add testing results?
-		$cxn_tests               = new Jetpack_Cxn_Tests();
+		$cxn_tests               = new Automattic\Jetpack\Connection\Connection_Health_Tests();
 		$debug_info['cxn_tests'] = array(
 			'label'   => 'Connection Tests',
 			'value'   => '',

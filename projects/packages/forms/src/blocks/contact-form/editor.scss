@@ -255,7 +255,7 @@
 
 	.block-editor-block-variation-picker__variation {
 
-		svg path:not(.icon-filler) {
+		svg path:not([fill="none"]) {
 			fill: currentColor;
 		}
 	}
@@ -381,7 +381,6 @@
 	.required {
 		word-break: normal;
 		color: unset;
-		opacity: 0.6;
 		font-size: 72%;
 		margin-inline-start: 0.25em;
 		font-weight: 400;

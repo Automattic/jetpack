@@ -41,6 +41,17 @@
 	}
 }
 
+// VIDP-242: prevent <AdminSectionHero> from being shrunk to 0 by the
+// jetpack-admin-page-layout flex chain. The shared .section-hero has
+// overflow: hidden, which lets its min-height: auto resolve to 0 in a
+// flex column, so the hero absorbs all shrink pressure from the populated
+// library and clips the "Add new video" button. This wrapper keeps the
+// hero at content height. Safe to remove when the legacy dashboard is
+// retired at the Phase 9 cutover of issue #48506.
+.hero-shrink-guard {
+	flex-shrink: 0;
+}
+
 .first-video-wrapper {
 	display: flex;
 	flex-direction: column;

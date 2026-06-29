@@ -74,14 +74,14 @@ function jetpack_mark_if_post_answers_blogging_prompt( $post_id, $post, $update,
 		return;
 	}
 
-	$post_type    = isset( $post->post_type ) ? $post->post_type : null;
-	$post_content = isset( $post->post_content ) ? $post->post_content : null;
+	$post_type    = $post->post_type ?? null;
+	$post_content = $post->post_content ?? null;
 
 	if ( 'post' !== $post_type || ! $post_content ) {
 		return;
 	}
 
-	$new_status = isset( $post->post_status ) ? $post->post_status : null;
+	$new_status = $post->post_status ?? null;
 	$old_status = $post_before && isset( $post_before->post_status ) ? $post_before->post_status : null;
 
 	// Make sure we are publishing a post, and it's not already published.
@@ -140,7 +140,7 @@ add_action( 'wp_after_insert_post', 'jetpack_mark_if_post_answers_blogging_promp
  * Retrieve a blogging prompt by prompt ID.
  *
  * @param int $prompt_id ID of the prompt fetch.
- * @return stdClass|null Prompt object or null.
+ * @return array|null Prompt object or null.
  */
 function jetpack_get_blogging_prompt_by_id( $prompt_id ) {
 	// Ensure the REST API endpoint we need is loaded.

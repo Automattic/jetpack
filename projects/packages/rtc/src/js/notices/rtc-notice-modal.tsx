@@ -2,7 +2,7 @@
  * RTC Notice Modal
  *
  * A generalized modal component for real-time collaboration notices.
- * Used across different RTC notice scenarios (welcome, upgrade, blocked, etc.).
+ * Used across different RTC notice scenarios (upgrade, blocked, etc.).
  */
 
 import { Button, Modal } from '@wordpress/components';

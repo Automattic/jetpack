@@ -520,7 +520,7 @@ function maybe_print_robots_txt() {
  *
  * @return WP_Error|null  WP_Error on disallowed, null on ok
  */
-function rest_dispatch_request( $dispatch_result, $request, $route ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+function rest_dispatch_request( $dispatch_result, $request, $route ) {
 	// Don't clobber other plugins.
 	if ( $dispatch_result !== null ) {
 		return $dispatch_result;
@@ -920,7 +920,7 @@ function use_classic_editor_if_requested() {
 	 */
 	add_filter(
 		'get_user_metadata',
-		function ( $value, $object_id, $meta_key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		function ( $value, $object_id, $meta_key ) {
 			if ( $meta_key === 'calypsoify' ) {
 				return 0;
 			}

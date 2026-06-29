@@ -9,6 +9,3 @@
 !.github/
 !.prettierrc.js
 !.pnpmfile.cjs
-
-# Gutenberg stopped publishing the `.native.js` files in their packages, so we can't effectively lint them anymore.
-**/*.native.[jt]s

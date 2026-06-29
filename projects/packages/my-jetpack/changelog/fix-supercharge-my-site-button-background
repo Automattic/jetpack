@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-My Jetpack: Restore background on the "Supercharge my site" onboarding button by using the core Button's primary variant.

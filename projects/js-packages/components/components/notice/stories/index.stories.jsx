@@ -1,5 +1,5 @@
 /* eslint-disable no-alert -- ok for demo */
-import { ExternalLink } from '@wordpress/components';
+import { Link } from '@wordpress/ui';
 import Button from '../../button/index.tsx';
 import Notice from '../index.tsx';
 
@@ -34,9 +34,9 @@ _default.args = {
 		<Button key="install" isPrimary>
 			Install now
 		</Button>,
-		<ExternalLink key="learn-more" href="https://en.wikipedia.org/wiki/Hovercraft">
+		<Link openInNewTab key="learn-more" href="https://en.wikipedia.org/wiki/Hovercraft">
 			Learn more
-		</ExternalLink>,
+		</Link>,
 	],
 	hideCloseButton: false,
 };
@@ -54,9 +54,9 @@ Warning.args = {
 		<Button key="bail" isPrimary>
 			Start Bailing
 		</Button>,
-		<ExternalLink key="learn-more" href="https://en.wikipedia.org/wiki/Hovercraft">
+		<Link openInNewTab key="learn-more" href="https://en.wikipedia.org/wiki/Hovercraft">
 			Learn more
-		</ExternalLink>,
+		</Link>,
 	],
 	hideCloseButton: false,
 };
@@ -83,9 +83,9 @@ Error.args = {
 		'We were unable to remove the eels from your hovercraft. Please contact the authorities, as the eels are armed and dangerous.',
 	onClose: () => alert( 'Close clicked' ),
 	actions: [
-		<ExternalLink key="learn-more" href="https://en.wikipedia.org/wiki/Eel">
+		<Link openInNewTab key="learn-more" href="https://en.wikipedia.org/wiki/Eel">
 			Learn more
-		</ExternalLink>,
+		</Link>,
 	],
 	hideCloseButton: false,
 };

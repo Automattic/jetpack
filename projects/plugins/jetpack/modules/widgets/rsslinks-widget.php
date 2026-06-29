@@ -49,10 +49,10 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults() );
 
-		$before_widget = isset( $args['before_widget'] ) ? $args['before_widget'] : '';
-		$before_title  = isset( $args['before_title'] ) ? $args['before_title'] : '';
-		$after_title   = isset( $args['after_title'] ) ? $args['after_title'] : '';
-		$after_widget  = isset( $args['after_widget'] ) ? $args['after_widget'] : '';
+		$before_widget = $args['before_widget'] ?? '';
+		$before_title  = $args['before_title'] ?? '';
+		$after_title   = $args['after_title'] ?? '';
+		$after_widget  = $args['after_widget'] ?? '';
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
@@ -109,7 +109,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 	 *
 	 * @return array Updated safe values to be saved.
 	 */
-	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
 
 		$instance['title']      = wp_filter_nohtml_kses( $new_instance['title'] );
@@ -136,8 +136,8 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		$title       = stripslashes( $instance['title'] );
 		$display     = $instance['display'];
 		$format      = $instance['format'];
-		$image_size  = isset( $instance['imagesize'] ) ? $instance['imagesize'] : 0;
-		$image_color = isset( $instance['imagecolor'] ) ? $instance['imagecolor'] : 'red';
+		$image_size  = $instance['imagesize'] ?? 0;
+		$image_color = $instance['imagecolor'] ?? 'red';
 
 		echo '<p><label for="' . esc_attr( $this->get_field_id( 'title' ) ) . '">' . esc_html__( 'Title:', 'jetpack' ) . '
 		<input class="widefat" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" type="text" value="' . esc_attr( $title ) . '" />
@@ -270,8 +270,8 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 
 		printf(
 			'%1$s<a target="%3$s" href="%4$s" title="%5$s">%6$s</a>%2$s',
-			'text' === $format ? '<li>' : '<p>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			'text' === $format ? '</li>' : '</p>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			'text' === $format ? '<li>' : '<p>',
+			'text' === $format ? '</li>' : '</p>',
 			esc_attr( $link_target ),
 			esc_url( get_bloginfo( $rss_type ) ),
 			esc_attr( $subscribe_to ),

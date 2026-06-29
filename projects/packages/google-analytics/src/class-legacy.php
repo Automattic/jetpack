@@ -33,8 +33,7 @@ class Legacy {
 	 * @return string - Tracking URL
 	 */
 	private function get_url( $track ) {
-		// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing
-		$site_url = ( is_ssl() ? 'https://' : 'http://' ) . sanitize_text_field( wp_unslash( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) );
+		$site_url = ( is_ssl() ? 'https://' : 'http://' ) . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ?? '' ) );
 		foreach ( $track as $k => $value ) {
 			if ( strpos( strtolower( $value ), strtolower( $site_url ) ) === 0 ) {
 				$track[ $k ] = substr( $track[ $k ], strlen( $site_url ) );
@@ -256,8 +255,7 @@ class Legacy {
 		$minimum_woocommerce_active = class_exists( 'WooCommerce' ) && version_compare( \WC_VERSION, '3.0', '>=' );
 		// @phan-suppress-next-line PhanUndeclaredFunction
 		if ( $minimum_woocommerce_active && \is_order_received_page() ) {
-			// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing
-			$order_id = isset( $wp->query_vars['order-received'] ) ? $wp->query_vars['order-received'] : 0;
+			$order_id = $wp->query_vars['order-received'] ?? 0;
 			if ( 0 < $order_id && 1 !== (int) get_post_meta( $order_id, '_ga_tracked', true ) ) {
 				$order = new \WC_Order( $order_id );
 

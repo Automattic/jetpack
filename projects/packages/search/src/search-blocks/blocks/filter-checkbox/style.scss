@@ -1,8 +1,14 @@
-.wp-block-jetpack-filter-checkbox {
+@use "../skeleton" as skeleton;
+@use "../chip" as chip;
+
+.wp-block-jetpack-search-filter-checkbox {
 
 	&[hidden] {
 		display: none;
 	}
+
+	@include skeleton.shimmer;
+	@include skeleton.filter-rows;
 
 	.jetpack-search-filter__title {
 		font-size: 0.85rem;
@@ -10,7 +16,9 @@
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		margin: 0 0 0.5rem;
-		color: #444;
+		// Inherit the theme's text color so the heading adapts to dark
+		// themes and the site palette.
+		color: inherit;
 	}
 
 	.jetpack-search-filter__list {
@@ -36,8 +44,12 @@
 
 	.jetpack-search-filter__count {
 		font-size: 0.8rem;
-		color: #888;
-		background: #f0f0f0;
+		// Inherit the theme's text color for the count number, and derive
+		// the pill background from `currentColor` so it stays legible on
+		// any theme / dark background. `color-mix` is supported across all
+		// evergreen browsers we target.
+		color: inherit;
+		background: color-mix(in sRGB, currentColor 12%, transparent);
 		border-radius: 10px;
 		padding: 0 0.4rem;
 
@@ -46,14 +58,8 @@
 		}
 	}
 
-	.jetpack-search-filter__all-selected {
-		margin: 0;
-		font-size: 0.75rem;
-		color: #888;
-		font-style: italic;
+	&[data-display-style="chips"] {
 
-		&[hidden] {
-			display: none;
-		}
+		@include chip.checkbox-filter-chips;
 	}
 }

@@ -204,7 +204,7 @@ class Reader_Link_Test extends BaseTestCase {
 		// Create a temporary CSS file if it doesn't exist.
 		$created_file = ! file_exists( $css_file );
 		if ( $created_file ) {
-			file_put_contents( $css_file, '/* test */' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			file_put_contents( $css_file, '/* test */' );
 		}
 
 		try {

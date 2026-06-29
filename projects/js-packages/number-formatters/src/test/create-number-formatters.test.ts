@@ -119,6 +119,50 @@ describe( 'createNumberFormatters()', () => {
 				expect( money ).toBe( '$9,800,900.32' );
 			} );
 		} );
+
+		describe( 'setCurrencyOverrides()', () => {
+			it( 'falls back to the hard-coded smallest-unit exponent when the setter is not called', () => {
+				const formatters = createNumberFormatters();
+				formatters.setLocale( 'in-ID' );
+				// IDR's hard-coded fallback exponent is 2, so 107280000 → 1,072,800.
+				const money = formatters.formatCurrency( 107280000, 'IDR', { isSmallestUnit: true } );
+				expect( money ).toBe( 'Rp 1.072.800' );
+			} );
+
+			it( 'uses the dynamic decimal override when provided', () => {
+				const formatters = createNumberFormatters();
+				formatters.setLocale( 'in-ID' );
+				formatters.setCurrencyOverrides( { IDR: { decimal: 0 } } );
+				// With decimal:0 the divisor becomes 10^0=1, so 107280000 stays at 107,280,000.
+				const money = formatters.formatCurrency( 107280000, 'IDR', { isSmallestUnit: true } );
+				expect( money ).toBe( 'Rp 107.280.000' );
+			} );
+
+			it( 'preserves the default symbol when a partial override (decimal only) is supplied', () => {
+				const formatters = createNumberFormatters();
+				formatters.setLocale( 'en-US' );
+				formatters.setCurrencyOverrides( { IDR: { decimal: 0 } } );
+				const obj = formatters.getCurrencyObject( 12345, 'IDR' );
+				expect( obj.symbol ).toBe( 'Rp' );
+			} );
+
+			it( 'allows overriding the symbol via the setter', () => {
+				const formatters = createNumberFormatters();
+				formatters.setLocale( 'en-US' );
+				formatters.setCurrencyOverrides( { EUR: { symbol: 'EURO' } } );
+				const money = formatters.formatCurrency( 10, 'EUR' );
+				expect( money ).toBe( 'EURO10.00' );
+			} );
+
+			it( 'leaves currencies not listed in the dynamic map alone', () => {
+				const formatters = createNumberFormatters();
+				formatters.setLocale( 'hu-HU' );
+				// Only override IDR; HUF should still hit its hard-coded exponent of 2.
+				formatters.setCurrencyOverrides( { IDR: { decimal: 0 } } );
+				const money = formatters.formatCurrency( 99900, 'HUF', { isSmallestUnit: true } );
+				expect( money ).toBe( '999 Ft' );
+			} );
+		} );
 	} );
 
 	describe( 'getCurrencyObject()', () => {

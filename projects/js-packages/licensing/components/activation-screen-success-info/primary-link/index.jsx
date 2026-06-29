@@ -1,5 +1,5 @@
-import { Spinner, getRedirectUrl } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Button, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import useActivePlugins from '../../../hooks/use-active-plugins';

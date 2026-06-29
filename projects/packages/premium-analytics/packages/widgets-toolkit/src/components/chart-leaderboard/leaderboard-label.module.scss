@@ -1,0 +1,15 @@
+.container {
+	padding: var(--wpds-dimension-padding-sm);
+}
+
+.label {
+	font-size: var(--wpds-typography-font-size-sm);
+}
+
+.labelImage {
+	width: 28px;
+	height: 28px;
+	vertical-align: middle;
+	border-radius: var(--wpds-border-radius-md);
+	object-fit: cover;
+}

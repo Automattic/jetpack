@@ -22,7 +22,7 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 	deactivate_plugins( 'vaultpress/vaultpress.php' );
 
 	// Remove WP core notice that says that the plugin was activated.
-	unset( $_GET['activate'] ); // phpcs:ignore WordPress.Security.NonceVerification
+	unset( $_GET['activate'] );
 	$message = sprintf(
 		wp_kses(
 			/* Translators: variable is the full URL to the new dashboard */

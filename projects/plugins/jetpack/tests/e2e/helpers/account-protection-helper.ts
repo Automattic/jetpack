@@ -1,7 +1,7 @@
+import logger from '@automattic/_jetpack-e2e-commons/logger';
+import { executeWpCommand } from '@automattic/_jetpack-e2e-commons/utils/cli';
+import { createUser, deleteUser } from '@automattic/_jetpack-e2e-commons/utils/user';
 import { type Page, expect } from '@playwright/test';
-import logger from '_jetpack-e2e-commons/logger';
-import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli';
-import { createUser, deleteUser } from '_jetpack-e2e-commons/utils/user';
 
 const PRIVILEGED_ROLES = [ 'administrator', 'editor', 'author' ];
 const NON_PRIVILEGED_ROLES = [ 'contributor', 'subscriber' ];

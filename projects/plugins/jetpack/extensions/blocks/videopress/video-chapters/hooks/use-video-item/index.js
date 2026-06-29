@@ -19,7 +19,7 @@ export default function useVideoItem( id ) {
 				setLoading( false );
 			} catch ( error ) {
 				setLoading( false );
-				throw new Error( error );
+				throw new Error( error, { cause: error } );
 			}
 		}
 

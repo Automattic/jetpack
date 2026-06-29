@@ -106,12 +106,14 @@ class RTC {
 
 		$allowed_providers = array( 'http-polling', 'pinghub' );
 
+		$default_providers = array( 'pinghub' );
+
 		/**
 		 * Filter the list of RTC providers.
 		 *
 		 * @param string[] $providers List of provider identifiers.
 		 */
-		$providers = apply_filters( 'jetpack_rtc_providers', array( 'pinghub' ) );
+		$providers = apply_filters( 'jetpack_rtc_providers', $default_providers );
 		if ( ! is_array( $providers ) ) {
 			return array();
 		}
@@ -243,12 +245,6 @@ class RTC {
 		if ( ! self::is_allowed() ) {
 			return '0';
 		}
-
-		// Temporarily disable RTC while an issue with CRDT documents is investigated/fixed.
-		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-			return '0';
-		}
-
 		// RTC allowed and option is not stored yet
 		if ( $option === self::OPTION_NEW ) {
 			// If the old option is set, use that.
@@ -377,14 +373,6 @@ class RTC {
 			return;
 		}
 
-		$editors = new \WP_User_Query(
-			array(
-				'capability' => 'edit_posts',
-				'number'     => 2,
-				'fields'     => 'ID',
-			)
-		);
-
 		$handle = 'jetpack-rtc-notices';
 
 		Assets::register_script(
@@ -400,21 +388,22 @@ class RTC {
 
 		$is_admin_user = current_user_can( 'manage_options' );
 		$is_plan_owner = self::is_plan_owner();
+		$post_type     = get_post_type();
 
 		$data = wp_json_encode(
 			array(
-				'assetsUrl'           => plugins_url( '../build/', __FILE__ ),
-				'isAdmin'             => $is_admin_user,
-				'isPlanOwner'         => $is_plan_owner,
-				'welcomeDismissed'    => REST_RTC_Notices::is_dismissed(),
-				'postId'              => get_the_ID(),
-				'postTitle'           => get_the_title(),
-				'postEditUrl'         => get_edit_post_link( get_the_ID(), 'raw' ),
-				'postsListUrl'        => admin_url( 'edit.php' ),
-				'siteSlug'            => self::get_site_slug(),
-				'maxPeersPerRoom'     => self::get_max_peers_per_room(),
-				'enableWelcomeNotice' => apply_filters( 'jetpack_rtc_enable_welcome_notice', $editors->get_total() >= 2 ),
-				'enableLimitNotices'  => apply_filters( 'jetpack_rtc_enable_limit_notices', false ),
+				'assetsUrl'          => plugins_url( '../build/', __FILE__ ),
+				'isAdmin'            => $is_admin_user,
+				'isPlanOwner'        => $is_plan_owner,
+				'postId'             => get_the_ID(),
+				'postType'           => $post_type ? $post_type : null,
+				'userId'             => get_current_user_id(),
+				'postTitle'          => get_the_title(),
+				'postEditUrl'        => get_edit_post_link( get_the_ID(), 'raw' ),
+				'postsListUrl'       => admin_url( 'edit.php' ),
+				'siteSlug'           => self::get_site_slug(),
+				'maxPeersPerRoom'    => self::get_max_peers_per_room(),
+				'enableLimitNotices' => apply_filters( 'jetpack_rtc_enable_limit_notices', false ),
 			),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);

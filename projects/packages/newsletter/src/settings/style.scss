@@ -1,21 +1,22 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "sass:meta";
 
 // Import dataviews styles for DataForm component
 @import "@wordpress/theme/design-tokens.css";
 @import "@wordpress/dataviews/build-style/style.css";
+@include meta.load-css("./sections/placement-card");
 
 body.jetpack_page_jetpack-newsletter {
 
-	@include jetpack-admin-page-layout;
+	// `-wp-build` variant: the modernized dashboard mounts `@wordpress/admin-ui`
+	// 2.x components, so we layer that variant's defensive resets on top of the
+	// shared layout. Reduces to the base layout on the legacy settings page,
+	// which renders no breadcrumbs.
+	@include jetpack-admin-page-layout-wp-build;
 }
 
 #newsletter-settings-root * {
 	box-sizing: border-box;
-}
-
-.jetpack_page_jetpack-newsletter #dolly {
-	width: 100%;
-	text-align: right;
 }
 
 .newsletter-jitm-card {
@@ -55,19 +56,23 @@ body.jetpack_page_jetpack-newsletter {
 .newsletter-settings {
 	max-width: 660px; /* MSD and future JP settings pages are 660px wide */
 	margin-inline: auto;
+	padding-block-end: var(--wpds-dimension-padding-3xl, 32px);
 
 	.components-notice {
 		margin-block-end: var(--wpds-dimension-gap-lg, 24px);
 	}
 
-	.components-card__body > p:first-child {
-		margin-top: 0;
-	}
-
 	.newsletter-card-footer {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: space-between;
 		gap: 8px;
+		justify-content: flex-end;
+		margin-block-start: var(--wpds-dimension-gap-lg, 16px);
+
+		// Two-element footer (NewsletterSection's privacy + manage links)
+		// brackets each child to opposite ends instead of stacking right.
+		&:has(> :nth-child(2)) {
+			justify-content: space-between;
+		}
 	}
 }

@@ -24,3 +24,36 @@
 .connection-error-col {
 	margin-top: calc(var(--spacing-base) * 3 + 1px); // 25px
 }
+
+.status {
+	align-items: center;
+	display: inline-flex;
+	font-weight: 600;
+	line-height: 1.666;
+	white-space: nowrap;
+
+	&.is-active {
+		color: var(--wpds-color-fg-content-success-weak, #008030);
+
+		.indicator {
+			background-color: var(--wpds-color-fg-content-success-weak, #008030);
+		}
+	}
+
+	&.is-inactive {
+		color: var(--wpds-color-fg-content-neutral-weak, #707070);
+
+		.indicator {
+			background-color: var(--wpds-color-fg-content-neutral-weak, #707070);
+		}
+	}
+}
+
+.indicator {
+	background-color: var(--wpds-color-fg-content-neutral-weak, #707070);
+	border-radius: 50%;
+	flex-shrink: 0;
+	height: 0.666em;
+	margin-right: 4px;
+	width: 0.666em;
+}

@@ -1,8 +1,3 @@
-# Files not needed to be distributed in the package.
-.gitattributes    export-ignore
-.github/          export-ignore
-package.json      export-ignore
-
 # Files to include in the mirror repo, but excluded via gitignore
 # Remember to end all directories with `/**` to properly tag every file.
 # /src/js/example.min.js  production-include
@@ -35,35 +30,49 @@ package.json      export-ignore
 /jetpack_vendor/**                            production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
+# (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
 .dockerignore                                 production-exclude
-.editorconfig                                 production-exclude
-composer.lock                                 production-exclude
-/.circleci/**                                 production-exclude
-/.gitignore                                   production-exclude
-/.phpcsignore                                 production-exclude
-/.phpcs.dir.xml                               production-exclude
-/.phpcs.dir.phpcompatibility.xml              production-exclude
-/changelog/**                                 production-exclude
-/jetpack_vendor/automattic/**/README.md       production-exclude
-/jetpack_vendor/automattic/**/src/css/*.scss  production-exclude
-/jetpack_vendor/automattic/**/composer.json   production-exclude
-/node_modules/**                              production-exclude
 /README.md                                    production-exclude
-**/*/*.md                                     production-exclude
-/vendor/automattic/**/src/css/*.scss          production-exclude
-/vendor/automattic/**/composer.json           production-exclude
-/vendor/automattic/jetpack-autoloader/**      production-exclude
-/vendor/automattic/jetpack-changelogger/**    production-exclude
-/vendor/automattic/jetpack-composer-plugin/** production-exclude
-/vendor/**/.git*                              production-exclude
-/vendor/**/.git*/**                           production-exclude
-/vendor/**/*.md                               production-exclude
 /bin/**                                       production-exclude
 /build/**                                     production-exclude
-/tests/**                                     production-exclude
-/.circleci/**                                 production-exclude
-.*ntrc                                        production-exclude
-Makefile                                      production-exclude
-*.mdown                                       production-exclude
-error_log                                     production-exclude
+/Makefile                                     production-exclude
+/*/README.md                                  production-exclude
+
+# Cruft from git repos imported as packages
+# @todo Fix these upstream.
+/vendor/automattic/custom-fonts-typekit/.*               production-exclude
+/vendor/automattic/custom-fonts-typekit/google.json      production-exclude
+/vendor/automattic/custom-fonts-typekit/package.json     production-exclude
+/vendor/automattic/custom-fonts-typekit/CONTRIBUTING.md  production-exclude
+/vendor/automattic/custom-fonts-typekit/tests/**         production-exclude
+/vendor/automattic/custom-fonts/Providers.md             production-exclude
+/vendor/automattic/custom-fonts/.*                       production-exclude
+/vendor/automattic/custom-fonts/dummy.json               production-exclude
+/vendor/automattic/custom-fonts/package-lock.json        production-exclude
+/vendor/automattic/custom-fonts/package.json             production-exclude
+/vendor/automattic/custom-fonts/annotations.md           production-exclude
+/vendor/automattic/custom-fonts/tests/**                 production-exclude
+/vendor/automattic/wc-calypso-bridge/.*                  production-exclude
+/vendor/automattic/wc-calypso-bridge/.*/**               production-exclude
+/vendor/automattic/wc-calypso-bridge/bin/**              production-exclude
+/vendor/automattic/wc-calypso-bridge/**/*.ts             production-exclude
+/vendor/automattic/wc-calypso-bridge/**/*.tsx            production-exclude
+/vendor/automattic/wc-calypso-bridge/**/*.jsx            production-exclude
+/vendor/automattic/wc-calypso-bridge/**/*.scss           production-exclude
+/vendor/automattic/wc-calypso-bridge/phpcs.xml.dist      production-exclude
+/vendor/automattic/wc-calypso-bridge/package-lock.json   production-exclude
+/vendor/automattic/wc-calypso-bridge/**/package.json     production-exclude
+/vendor/automattic/wc-calypso-bridge/**/phpunit.xml      production-exclude
+/vendor/automattic/wc-calypso-bridge/**/test/**          production-exclude
+/vendor/automattic/wc-calypso-bridge/**/tests/**         production-exclude
+
+# Cruft from poorly-cleaned vendor packages.
+# @todo File bugs for these upstream.
+/vendor/wp-php-toolkit/*/Tests/**                        production-exclude
+/vendor/wp-php-toolkit/*/*.sh                            production-exclude
+/vendor/wp-php-toolkit/*/bin/**                          production-exclude
+/vendor/wp-php-toolkit/*/**/phpstan.neon                 production-exclude
+/vendor/wp-php-toolkit/*/**/phpunit.xml                  production-exclude
+/vendor/wp-php-toolkit/*/**/tests/**                     production-exclude
+/vendor/tubalmartin/cssmin/tests/**                      production-exclude

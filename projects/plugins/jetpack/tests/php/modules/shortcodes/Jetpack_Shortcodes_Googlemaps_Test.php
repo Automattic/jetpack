@@ -73,4 +73,110 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected, $actual );
 	}
+
+	/**
+	 * A URL-encoded ampersand (`%26`) inside a query value — e.g. a place
+	 * name like "Hotel & Spa" — must survive the shortcode round-trip
+	 * intact, otherwise Google's API treats the decoded `&` as a query
+	 * separator and the embed 400s.
+	 */
+	public function test_shortcodes_googlemaps_preserves_encoded_ampersand_in_value() {
+		$shortcode = '[googlemaps https://maps.google.com/maps?q=The%20Westin%20Doha%20Hotel%20%26%20Spa]';
+		$rendered  = do_shortcode( $shortcode );
+
+		$this->assertStringContainsString(
+			'src="https://maps.google.com/maps?q=The%20Westin%20Doha%20Hotel%20%26%20Spa"',
+			$rendered
+		);
+		$this->assertStringNotContainsString( 'Hotel%20&amp;%20Spa', $rendered );
+		$this->assertStringNotContainsString( 'Hotel & Spa', $rendered );
+	}
+
+	/**
+	 * An HTML-entity-encoded ampersand (`&amp;`) inside a query value should
+	 * survive too. The lines that normalize `&amp;` separators must not split
+	 * the value, and the rebuilt URL must encode the `&` as `%26`.
+	 *
+	 * @return void
+	 */
+	public function test_shortcodes_googlemaps_preserves_entity_encoded_ampersand_in_value() {
+		$shortcode = '[googlemaps https://maps.google.com/maps?q=Hotel%20&amp;%20Spa]';
+		$rendered  = do_shortcode( $shortcode );
+
+		$this->assertStringContainsString(
+			'src="https://maps.google.com/maps?q=Hotel%20%26%20Spa"',
+			$rendered
+		);
+		$this->assertStringNotContainsString( 'Hotel%20&amp;%20Spa', $rendered );
+	}
+
+	/**
+	 * A URL-encoded `#` (`%23`) in a value must stay encoded, otherwise the
+	 * browser treats it as a fragment marker and drops the rest of the query.
+	 *
+	 * @return void
+	 */
+	public function test_shortcodes_googlemaps_preserves_encoded_hash_in_value() {
+		$shortcode = '[googlemaps https://maps.google.com/maps?q=Schmidt%27s%20%231%20Pizza]';
+		$rendered  = do_shortcode( $shortcode );
+
+		$this->assertStringContainsString(
+			'src="https://maps.google.com/maps?q=Schmidt%27s%20%231%20Pizza"',
+			$rendered
+		);
+		$this->assertStringNotContainsString( '#1', $rendered );
+	}
+
+	/**
+	 * A URL-encoded literal `%` (`%25`) must stay encoded so a value like
+	 * "50% off" doesn't decay into an invalid percent escape.
+	 *
+	 * @return void
+	 */
+	public function test_shortcodes_googlemaps_preserves_encoded_percent_in_value() {
+		$shortcode = '[googlemaps https://maps.google.com/maps?q=50%25%20off%20deals]';
+		$rendered  = do_shortcode( $shortcode );
+
+		$this->assertStringContainsString(
+			'src="https://maps.google.com/maps?q=50%25%20off%20deals"',
+			$rendered
+		);
+	}
+
+	/**
+	 * A `+` in a query value (form-urlencoded shorthand for a space) and a
+	 * URL-encoded literal `+` (`%2B`) must round-trip to a URL Google's API
+	 * still understands — i.e. spaces and pluses must be preserved as
+	 * distinct characters.
+	 *
+	 * @return void
+	 */
+	public function test_shortcodes_googlemaps_distinguishes_plus_and_encoded_plus() {
+		$shortcode = '[googlemaps https://maps.google.com/maps?q=C%2B%2B+Conference]';
+		$rendered  = do_shortcode( $shortcode );
+
+		// The two literal `+` chars must remain encoded as `%2B`, and the
+		// space (`+` in form-urlencoded) must be encoded as `%20` or stay `+`.
+		$this->assertMatchesRegularExpression(
+			'@src="https://maps\.google\.com/maps\?q=C%2B%2B(\+|%20)Conference"@',
+			$rendered
+		);
+	}
+
+	/**
+	 * The existing `mid` value contains a literal `.` — verify the dot in a
+	 * value is not corrupted by parse_str() key mangling or by any rebuild
+	 * encoding step.
+	 *
+	 * @return void
+	 */
+	public function test_shortcodes_googlemaps_preserves_dot_in_value() {
+		$shortcode = '[googlemaps https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA]';
+		$rendered  = do_shortcode( $shortcode );
+
+		$this->assertStringContainsString(
+			'src="https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA"',
+			$rendered
+		);
+	}
 }

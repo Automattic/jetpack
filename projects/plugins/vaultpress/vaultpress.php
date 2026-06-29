@@ -1508,7 +1508,7 @@ class VaultPress {
 		$protocol = 'https';
 		do {
 			--$retry;
-			$args['sslverify'] = 'https' == $protocol ? true : false;
+			$args['sslverify'] = 'https' === $protocol;
 			$r = wp_remote_get( $url=sprintf( "%s://%s/%s?cidr_ranges=1", $protocol, $hostname, $path ), $args );
 			if ( 200 == wp_remote_retrieve_response_code( $r ) ) {
 				if ( 99 == $this->get_option( 'connection_error_code' ) )
@@ -2086,7 +2086,7 @@ JS;
 					$where = null;
 
 				if ( isset( $_POST['table'] ) ) {
-					$parse_create_table = isset( $_POST['use_new_hash'] ) && $_POST['use_new_hash'] ? true : false;
+					$parse_create_table = isset( $_POST['use_new_hash'] ) && $_POST['use_new_hash']; //phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 					$bdb->attach( base64_decode( $_POST['table'] ), $parse_create_table );
 				}
 
@@ -2292,9 +2292,9 @@ JS;
 			$args['cause_user_id'] = -1;
 			$args['cause_user_login'] = '';
 		}
-		$args['cause_ip'] = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null ;
-		$args['cause_uri'] = isset( $_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null;
-		$args['cause_method'] = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : null;
+		$args['cause_ip']     = $_SERVER['REMOTE_ADDR'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$args['cause_uri']    = $_SERVER['REQUEST_URI'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$args['cause_method'] = $_SERVER['REQUEST_METHOD'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		// End audit trail breadcrumbs
 
 		$args['version']   = $this->plugin_version;

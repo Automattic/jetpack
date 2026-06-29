@@ -12,6 +12,28 @@ const mockUpdateJetpackSocialOptions = jest.fn();
 const mockRecordEvent = jest.fn();
 const mockOpenUnifiedModal = jest.fn();
 const mockApplyFilters = jest.fn();
+const mockSiteHasFeature = jest.fn< boolean, [ string ] >( () => true );
+const mockSetFocalPoint = jest.fn();
+const mockSetPreviewFocalPoint = jest.fn();
+const getMockMediaFocalPoint = ( canEdit: boolean | undefined = true ) => ( {
+	value: { x: 0.5, y: 0.5 },
+	canEdit,
+	setPreviewFocalPoint: mockSetPreviewFocalPoint,
+	setFocalPoint: mockSetFocalPoint,
+} );
+const mockUseMediaFocalPoint = jest.fn( () => getMockMediaFocalPoint() );
+
+jest.mock( '@automattic/jetpack-script-data', () => {
+	const actual = jest.requireActual( '@automattic/jetpack-script-data' );
+	return {
+		...actual,
+		siteHasFeature: ( feature: string ) => mockSiteHasFeature( feature ),
+	};
+} );
+
+jest.mock( '../use-media-focal-point', () => ( {
+	useMediaFocalPoint: () => mockUseMediaFocalPoint(),
+} ) );
 
 // Mock the social store to prevent importing @wordpress/editor
 jest.mock( '../../../social-store', () => ( {
@@ -85,6 +107,7 @@ jest.mock( '../../../utils', () => ( {
 			jetpack: { version: '15.5' },
 		},
 	} ) ),
+	features: jest.requireActual( '../../../utils/constants' ).features,
 } ) );
 
 jest.mock(
@@ -163,7 +186,7 @@ describe( 'MediaSectionV2', () => {
 			] );
 		} );
 
-		it( 'should show "no image" description when no media source is selected', () => {
+		it( 'should show no-image warning when no fallback image is available', () => {
 			render( <MediaSectionV2 /> );
 
 			expect( screen.getByText( "Your post won't show an image." ) ).toBeInTheDocument();
@@ -266,7 +289,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Select SIG
-			await user.click( screen.getByRole( 'menuitem', { name: 'Social image template' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Social image template' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: 'sig',
@@ -290,7 +313,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Select Use featured image
-			await user.click( screen.getByRole( 'menuitem', { name: 'Featured image' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Featured image' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: 'featured-image',
@@ -314,7 +337,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Select SIG
-			await user.click( screen.getByRole( 'menuitem', { name: 'Social image template' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Social image template' } ) );
 
 			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_source_changed', {
 				test: 'data',
@@ -323,10 +346,8 @@ describe( 'MediaSectionV2', () => {
 		} );
 	} );
 
-	describe( 'Remove media via No media option', () => {
+	describe( 'Switch to Default option', () => {
 		beforeEach( () => {
-			// Set up state with no featured image so "No media" option appears
-			( useFeaturedImage as jest.Mock ).mockReturnValue( null );
 			( usePostMeta as jest.Mock ).mockReturnValue( {
 				attachedMedia: [],
 				imageGeneratorSettings: { enabled: true },
@@ -336,7 +357,6 @@ describe( 'MediaSectionV2', () => {
 		} );
 
 		afterEach( () => {
-			( useFeaturedImage as jest.Mock ).mockReturnValue( 123 );
 			( usePostMeta as jest.Mock ).mockReturnValue( {
 				attachedMedia: [],
 				imageGeneratorSettings: { enabled: false },
@@ -345,25 +365,33 @@ describe( 'MediaSectionV2', () => {
 			} );
 		} );
 
-		it( 'should clear media and record event when No media is selected', async () => {
+		it( 'should unset media_source and attached_media when Default is selected', async () => {
 			const user = userEvent.setup();
 
-			render( <MediaSectionV2 analyticsData={ { test: 'data' } } /> );
+			render(
+				<MediaSectionV2
+					analyticsData={ { test: 'data' } }
+					attachmentToggleMode="hidden"
+					mediaSource="sig"
+					imageGeneratorSettings={ { enabled: true } }
+					onMediaChange={ mockUpdateJetpackSocialOptions }
+				/>
+			);
 
 			// Open dropdown
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
-			// Click No media
-			await user.click( screen.getByRole( 'menuitem', { name: 'No media' } ) );
+			// Click Default
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Default' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: undefined,
-				attached_media: [],
+				attached_media: undefined,
 				image_generator_settings: { enabled: false },
 			} );
-			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_removed', {
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_source_changed', {
 				test: 'data',
-				source: 'sig',
+				source: null,
 			} );
 		} );
 	} );
@@ -391,6 +419,141 @@ describe( 'MediaSectionV2', () => {
 			render( <MediaSectionV2 disabled={ true } /> );
 
 			expect( screen.getByRole( 'button', { name: 'Select' } ) ).toBeDisabled();
+		} );
+	} );
+
+	describe( 'Focal point picker', () => {
+		const attachedImageState = {
+			attachedMedia: [ { id: 789, url: 'https://example.com/attached.jpg', type: 'image/jpeg' } ],
+			imageGeneratorSettings: { enabled: false },
+			mediaSource: 'media-library',
+			updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
+		};
+
+		afterEach( () => {
+			mockSiteHasFeature.mockReturnValue( true );
+			mockUseMediaFocalPoint.mockReturnValue( getMockMediaFocalPoint() );
+			( usePostMeta as jest.Mock ).mockReturnValue( {
+				attachedMedia: [],
+				imageGeneratorSettings: { enabled: false },
+				mediaSource: undefined,
+				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
+			} );
+			( useMediaDetails as jest.Mock ).mockReturnValue( [
+				{
+					mediaData: { sourceUrl: 'https://example.com/featured.jpg' },
+					metaData: { mime: 'image/jpeg' },
+				},
+				false,
+			] );
+		} );
+
+		it( 'should hide the picker when the feature flag is off', () => {
+			mockSiteHasFeature.mockReturnValue( false );
+			( useMediaDetails as jest.Mock ).mockReturnValue( [
+				{
+					mediaData: { sourceUrl: 'https://example.com/featured.jpg' },
+					metaData: { mime: 'image/jpeg' },
+				},
+				false,
+			] );
+
+			render( <MediaSectionV2 /> );
+
+			expect( mockSiteHasFeature ).toHaveBeenCalledWith( 'social-image-focal-point' );
+			expect( screen.queryByText( 'Focal point' ) ).not.toBeInTheDocument();
+			// The plain preview is shown instead.
+			expect( screen.getByRole( 'img' ) ).toHaveAttribute(
+				'src',
+				'https://example.com/featured.jpg'
+			);
+		} );
+
+		it( 'should hide the picker when the user cannot edit the image', () => {
+			mockUseMediaFocalPoint.mockReturnValue( getMockMediaFocalPoint( false ) );
+
+			render( <MediaSectionV2 /> );
+
+			expect( screen.queryByText( 'Focal point' ) ).not.toBeInTheDocument();
+			// The plain preview is shown instead.
+			expect( screen.getByRole( 'img' ) ).toHaveAttribute(
+				'src',
+				'https://example.com/featured.jpg'
+			);
+		} );
+
+		it( 'should show the picker for an attached image', () => {
+			( usePostMeta as jest.Mock ).mockReturnValue( attachedImageState );
+			( useMediaDetails as jest.Mock ).mockReturnValue( [
+				{
+					mediaData: { sourceUrl: 'https://example.com/attached.jpg' },
+					metaData: { mime: 'image/jpeg' },
+				},
+				false,
+			] );
+
+			render( <MediaSectionV2 /> );
+
+			expect( screen.getByText( 'Focal point' ) ).toBeInTheDocument();
+		} );
+
+		it( 'should show the picker for the featured image', () => {
+			render( <MediaSectionV2 /> );
+
+			expect( screen.getByText( 'Focal point' ) ).toBeInTheDocument();
+		} );
+
+		it( 'should hide the picker when SIG is the media source', () => {
+			( usePostMeta as jest.Mock ).mockReturnValue( {
+				attachedMedia: [],
+				imageGeneratorSettings: { enabled: true },
+				mediaSource: 'sig',
+				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
+			} );
+
+			render( <MediaSectionV2 /> );
+
+			expect( screen.queryByText( 'Focal point' ) ).not.toBeInTheDocument();
+			// The plain preview is shown instead.
+			expect( screen.getByRole( 'img' ) ).toHaveAttribute(
+				'src',
+				'https://example.com/sig-preview.jpg'
+			);
+		} );
+
+		it( 'should hide the picker for videos', () => {
+			( usePostMeta as jest.Mock ).mockReturnValue( {
+				...attachedImageState,
+				attachedMedia: [ { id: 789, url: 'https://example.com/video.mp4', type: 'video/mp4' } ],
+			} );
+			( useMediaDetails as jest.Mock ).mockReturnValue( [
+				{
+					mediaData: { sourceUrl: 'https://example.com/video.mp4' },
+					metaData: { mime: 'video/mp4' },
+				},
+				false,
+			] );
+
+			render( <MediaSectionV2 /> );
+
+			expect( screen.queryByText( 'Focal point' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'should show the picker in per-network/controlled mode', () => {
+			render(
+				<MediaSectionV2
+					attachmentToggleMode="hidden"
+					mediaSource="media-library"
+					attachedMedia={ [
+						{ id: 789, url: 'https://example.com/attached.jpg', type: 'image/jpeg' },
+					] }
+					onMediaChange={ mockUpdateJetpackSocialOptions }
+				/>
+			);
+
+			// The point is per image, not per connection, so the picker renders in
+			// controlled mode too and writes the image's attachment meta directly.
+			expect( screen.getByText( 'Focal point' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -423,7 +586,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Click Generate image option
-			await user.click( screen.getByRole( 'menuitem', { name: 'Generate image' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Generate image' } ) );
 
 			// The GeneralPurposeImage modal should now be rendered
 			expect( screen.getByTestId( 'ai-image-modal' ) ).toBeInTheDocument();
@@ -440,7 +603,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Click Generate image option
-			await user.click( screen.getByRole( 'menuitem', { name: 'Generate image' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Generate image' } ) );
 
 			expect( mockCustomHandler ).toHaveBeenCalled();
 		} );

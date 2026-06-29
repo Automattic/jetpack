@@ -3,17 +3,18 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import { getSocialScriptData } from '../../utils/script-data';
 import { CUSTOMIZE_PER_NETWORK_KEY } from '../constants';
-import { Connection, EditorConnection, KeyringResult } from '../types';
+import { Connection, EditorConnection, KeyringResponse, KeyringResult } from '../types';
 import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
+	FETCHING_KEYRING_RESULT,
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
-	SET_SHOW_SINGLE_X_NOTICE,
 	TOGGLE_CONNECTION,
 	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
@@ -23,6 +24,14 @@ import {
 	REMOVE_ABORT_CONTROLLERS,
 	CUSTOMIZE_CONNECTION,
 } from './constants';
+
+type UpdateConnectionOptions = {
+	/**
+	 * Skip transient UI side effects for background saves. This suppresses the
+	 * row-level updating state and generic success notice; errors are still shown.
+	 */
+	silent?: boolean;
+};
 
 /**
  * Set connections list
@@ -47,6 +56,52 @@ export function setKeyringResult( keyringResult?: KeyringResult ) {
 	return {
 		type: SET_KEYRING_RESULT,
 		keyringResult,
+	};
+}
+
+/**
+ * Set whether the keyring result is being fetched.
+ *
+ * @param fetching - Whether the request is in progress.
+ *
+ * @return An action object.
+ */
+export function setFetchingKeyringResult( fetching: boolean ) {
+	return {
+		type: FETCHING_KEYRING_RESULT,
+		fetching,
+	};
+}
+
+/**
+ * Fetch the keyring result for a completed connect request (auth_flow=v2).
+ *
+ * In the v2 flow the connect popup returns no data through window.opener; instead the
+ * same-origin completion page broadcasts the request_id and we fetch the verified keyring
+ * connection item once from the server. The shape matches what the popup used to post, so
+ * the confirmation UI is unchanged.
+ *
+ * @param requestId - The connect request ID.
+ *
+ * @return A thunk resolving to the keyring result, if any.
+ */
+export function fetchKeyringResult( requestId: string ) {
+	return async function ( { dispatch } ) {
+		dispatch( setFetchingKeyringResult( true ) );
+
+		try {
+			const response = await apiFetch< KeyringResponse >( {
+				path: addQueryArgs( '/wpcom/v2/publicize/keyring-result', { request_id: requestId } ),
+			} );
+
+			if ( response?.code === 'success' && response.data ) {
+				return response.data;
+			}
+		} catch {
+			// Swallow the error: an absent result is surfaced to the user as "no accounts found".
+		} finally {
+			dispatch( setFetchingKeyringResult( false ) );
+		}
 	};
 }
 
@@ -228,48 +283,13 @@ export function syncConnectionsToPostMeta() {
 }
 
 /**
- * Sets whether the sidebar single-X info notice should surface.
- *
- * @param show - Whether the notice should be visible.
- * @return An action object.
- */
-export function setShouldShowSingleXNotice( show: boolean ) {
-	return {
-		type: SET_SHOW_SINGLE_X_NOTICE,
-		show,
-	};
-}
-
-/**
  * Toggles the connection enable-status.
  *
  * @param connectionId - Connection ID to switch.
  * @return A thunk to switch connection enable-status.
  */
 export function toggleConnectionById( connectionId: string ) {
-	return function ( { registry, dispatch, select } ) {
-		const target = select.getConnectionById( connectionId );
-
-		// X Developer Policy forbids posting the same content to more than one
-		// X account. When the user turns ON an X connection, turn OFF any other
-		// X connection that is currently enabled so only one remains selected.
-		if ( target && target.service_name === 'x' && ! target.enabled ) {
-			let autoDisabledAny = false;
-			for ( const connection of select.getConnections() ) {
-				if (
-					connection.service_name === 'x' &&
-					connection.enabled &&
-					connection.connection_id !== connectionId
-				) {
-					dispatch( toggleConnection( connection.connection_id ) );
-					autoDisabledAny = true;
-				}
-			}
-			if ( autoDisabledAny ) {
-				dispatch( setShouldShowSingleXNotice( true ) );
-			}
-		}
-
+	return function ( { registry, dispatch } ) {
 		dispatch( toggleConnection( connectionId ) );
 
 		const customizingPerNetwork = Boolean(
@@ -508,15 +528,77 @@ export function setReconnectingAccount( reconnectingAccount: Connection ) {
 }
 
 /**
+ * Completes an in-place reconnect when the connect result matches the account being reconnected.
+ *
+ * @param keyringResult - The keyring result from the completed connect request.
+ *
+ * @return A thunk resolving to true if it handled an in-place reconnect, false otherwise.
+ */
+export function completeReconnect( keyringResult?: KeyringResult ) {
+	return async function ( { dispatch, select } ) {
+		const reconnectingAccount = select.getReconnectingAccount();
+
+		if ( ! reconnectingAccount || ! keyringResult?.ID ) {
+			return false;
+		}
+
+		const reconnectedIds = [
+			keyringResult.external_ID,
+			...( keyringResult.additional_external_users?.map( user => user.external_ID ) ?? [] ),
+		]
+			.filter( Boolean )
+			.map( String );
+
+		if ( ! reconnectedIds.includes( reconnectingAccount.external_id ) ) {
+			return false;
+		}
+
+		await dispatch( refreshConnectionTestResults() );
+
+		// The account matched, but confirm the refreshed connection actually recovered before
+		// reporting success — re-authing doesn't guarantee the token now passes the test.
+		const recovered =
+			select.getConnectionById( reconnectingAccount.connection_id )?.status === 'ok';
+
+		// Clear the reconnecting account only after the refresh, so the busy state stays until
+		// the connection list reflects the reconnection.
+		dispatch( setReconnectingAccount( undefined ) );
+
+		const { createSuccessNotice, createErrorNotice } = coreDispatch( globalNoticesStore );
+
+		if ( recovered ) {
+			createSuccessNotice( __( 'Account reconnected successfully.', 'jetpack-publicize-pkg' ), {
+				type: 'snackbar',
+				isDismissible: true,
+			} );
+		} else {
+			createErrorNotice(
+				__( 'The account could not be reconnected. Please try again.', 'jetpack-publicize-pkg' ),
+				{ type: 'snackbar', isDismissible: true }
+			);
+		}
+
+		return true;
+	};
+}
+
+/**
  * Updates a connection.
  *
- * @param connectionId - Connection ID to update.
- * @param data         - The data for API call.
+ * @param connectionId   - Connection ID to update.
+ * @param data           - The data for API call.
+ * @param options        - Options for update UI side-effects.
+ * @param options.silent - Whether to skip row-level updating state and the generic success notice.
  * @return A thunk to update a connection.
  */
-export function updateConnectionById( connectionId: string, data: Partial< Connection > ) {
+export function updateConnectionById(
+	connectionId: string,
+	data: Partial< Connection >,
+	options: UpdateConnectionOptions = {}
+) {
 	return async function ( { dispatch, select } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+		const { silent = false } = options;
 
 		const prevConnection = select.getConnectionById( connectionId );
 
@@ -529,11 +611,13 @@ export function updateConnectionById( connectionId: string, data: Partial< Conne
 			// Optimistically update the connection.
 			dispatch( updateConnection( connectionId, data ) );
 
-			dispatch( updatingConnection( connectionId ) );
+			if ( ! silent ) {
+				dispatch( updatingConnection( connectionId ) );
+			}
 
 			const connection = await apiFetch( { method: 'POST', path, data } );
 
-			if ( connection ) {
+			if ( connection && ! silent ) {
 				createSuccessNotice( __( 'Account updated successfully.', 'jetpack-publicize-pkg' ), {
 					type: 'snackbar',
 					isDismissible: true,
@@ -551,7 +635,9 @@ export function updateConnectionById( connectionId: string, data: Partial< Conne
 
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
-			dispatch( updatingConnection( connectionId, false ) );
+			if ( ! silent ) {
+				dispatch( updatingConnection( connectionId, false ) );
+			}
 		}
 	};
 }

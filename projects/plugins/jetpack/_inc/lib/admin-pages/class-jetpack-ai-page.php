@@ -10,6 +10,9 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -37,10 +40,11 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	 */
 	public function get_page_hook() {
 		return Admin_Menu::add_menu(
-			__( 'Jetpack AI', 'jetpack' ),
-			__( 'AI', 'jetpack' ),
+			// "Jetpack AI" is a product name and should not be translated.
+			'Jetpack AI',
+			'AI',
 			'manage_options',
-			'ai',
+			'jetpack-ai',
 			array( $this, 'render' ),
 			4
 		);
@@ -77,7 +81,17 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			$script_version = $asset_manifest['version'];
 		}
 
-		$blog_id = Connection_Manager::get_site_id( true );
+		$blog_id     = Connection_Manager::get_site_id( true );
+		$site_suffix = ( new Status() )->get_site_suffix();
+		// Use the plain hostname for the Atomic activity log URL — get_site_suffix() can
+		// include '::' for subdirectory installs, which would break the URL. This matches
+		// the approach used by jetpack-mu-wpcom for the sidebar Activity Log link.
+		$site_host         = wp_parse_url( home_url(), PHP_URL_HOST );
+		$activity_log_site = ( is_string( $site_host ) && '' !== $site_host ) ? $site_host : $site_suffix;
+		// On Atomic link to WPCOM activity log; on self-hosted link to the local wp-admin page.
+		$activity_log_url = ( new Host() )->is_woa_site()
+			? 'https://wordpress.com/activity-log/' . $activity_log_site
+			: admin_url( 'admin.php?page=jetpack-activity-log' );
 
 		wp_enqueue_script(
 			'jetpack-ai-admin',
@@ -93,12 +107,16 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			'jetpack-ai-admin',
 			'var jetpackAiSettings = ' . wp_json_encode(
 				array(
-					'blogId'       => $blog_id ? (int) $blog_id : 0,
-					'siteAdminUrl' => admin_url(),
-					'apiRoot'      => esc_url_raw( rest_url() ),
-					'apiNonce'     => wp_create_nonce( 'wp_rest' ),
-					'pluginUrl'    => plugins_url( '', JETPACK__PLUGIN_FILE ),
-					'upgradeUrl'   => 'https://wordpress.com/plans/' . rawurlencode( wp_parse_url( home_url(), PHP_URL_HOST ) ?? '' ),
+					'blogId'         => $blog_id ? (int) $blog_id : 0,
+					'activityLogUrl' => $activity_log_url,
+					'siteAdminUrl'   => admin_url(),
+					'apiRoot'        => esc_url_raw( rest_url() ),
+					'apiNonce'       => wp_create_nonce( 'wp_rest' ),
+					'pluginUrl'      => plugins_url( '', JETPACK__PLUGIN_FILE ),
+					// Route through the Jetpack redirect service so the upgrade
+					// destination for the MCP upsell can be retargeted without
+					// shipping a code change.
+					'upgradeUrl'     => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' ),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',

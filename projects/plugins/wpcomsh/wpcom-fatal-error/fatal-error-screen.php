@@ -24,12 +24,35 @@
  * @param array  $error   Error details (type, message, file, line) when available.
  * @return string
  */
-function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+function wpcomsh_customize_fatal_error_message( $message, $error = array() ) {
 	unset( $message );
 
 	wpcomsh_fatal_load_textdomain();
 
-	$context = wpcomsh_fatal_build_render_context( $error );
+	$user_id  = wpcomsh_fatal_current_user_id();
+	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
+
+	// Identify only when used: admins need $plugin for the rendered
+	// notice; anonymous viewers don't render plugin info but still emit
+	// a signature event for telemetry. The anonymous path gates on
+	// (error file, request_kind) before paying the plugin-header read so
+	// a fatal storm doesn't compound filesystem work on a sick site —
+	// kind is in the key so wp-admin / home / rest variance still reaches
+	// the downstream (message, signature, request_kind) dedup.
+	$plugin = null;
+
+	if ( $is_admin ) {
+		$plugin = wpcomsh_fatal_identify_plugin( $error );
+		wpcomsh_fatal_log_event( $plugin, 'wpcomsh_fatal_signature' );
+	} elseif ( ! empty( $error['file'] ) ) {
+		$req_kind   = wpcomsh_fatal_request_context()['kind'];
+		$coarse_key = 'wpcomsh_fatal_file_kind:' . hash( 'sha256', (string) $error['file'] . '|' . $req_kind );
+		if ( wpcomsh_fatal_dedup_acquire( $coarse_key, HOUR_IN_SECONDS ) ) {
+			wpcomsh_fatal_log_event( wpcomsh_fatal_identify_plugin( $error ), 'wpcomsh_fatal_signature' );
+		}
+	}
+
+	$context = wpcomsh_fatal_build_render_context( $error, $plugin, $user_id, $is_admin );
 
 	ob_start();
 	wpcomsh_fatal_render_screen( $context );
@@ -56,15 +79,20 @@ function wpcomsh_fatal_load_textdomain() {
  * Helpers return empty strings / nulls when data is unavailable, so the
  * template only has to check truthiness.
  *
- * @param array $error Error details from WP_Fatal_Error_Handler.
+ * Viewer state is resolved upstream in
+ * wpcomsh_customize_fatal_error_message(); this function drops plugin
+ * info and the error message for non-admin viewers.
+ *
+ * @param array      $error    Error details from WP_Fatal_Error_Handler.
+ * @param array|null $plugin   Identified extension metadata, or null.
+ * @param int        $user_id  Resolved logged-in user id, or 0.
+ * @param bool       $is_admin Whether the resolved user can manage_options.
  * @return array Associative array with keys: is_admin (bool),
  *     plugin (array|null), error_message (string), deactivate_form (array|null),
- *     recovery_url (string), support_url (string).
+ *     recovery_url (string), support_url (string), environment (string[]).
  */
-function wpcomsh_fatal_build_render_context( $error ) {
-	$user_id  = wpcomsh_fatal_current_user_id();
-	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
-	$plugin   = $is_admin ? wpcomsh_fatal_identify_plugin( $error ) : null;
+function wpcomsh_fatal_build_render_context( $error, $plugin = null, $user_id = 0, $is_admin = false ) {
+	$plugin = $is_admin ? $plugin : null;
 
 	$can_deactivate = $user_id
 		&& $plugin
@@ -72,15 +100,26 @@ function wpcomsh_fatal_build_render_context( $error ) {
 		&& ! empty( $plugin['basename'] )
 		&& user_can( $user_id, 'deactivate_plugin', $plugin['basename'] );
 
-	$can_recover = $user_id && user_can( $user_id, 'resume_plugins' );
+	// Recovery-mode capability depends on the kind of extension that
+	// fataled: a theme-origin fatal needs `resume_themes`, everything
+	// else (plugins, mu-plugins, unknown) needs `resume_plugins`.
+	$recover_cap = ( $plugin && 'themes' === $plugin['kind'] )
+		? 'resume_themes'
+		: 'resume_plugins';
+	$can_recover = $user_id && user_can( $user_id, $recover_cap );
 
 	return array(
 		'is_admin'        => $is_admin,
 		'plugin'          => $plugin,
 		'error_message'   => $is_admin ? (string) ( $error['message'] ?? '' ) : '',
 		'deactivate_form' => $can_deactivate ? wpcomsh_fatal_build_deactivate_form( $plugin['basename'] ) : null,
-		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_url() : '',
+		// Endpoint-mediated link so the recovery key is minted on click
+		// (one row in the `recovery_keys` option per click, not per
+		// render) and we can log the click. Helper gates multisite. See
+		// fatal-recovery-redirect.php for the auth model.
+		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_redirect_url( $user_id ) : '',
 		'support_url'     => 'https://wordpress.com/help/contact',
+		'environment'     => $is_admin ? wpcomsh_fatal_get_environment_lines() : array(),
 	);
 }
 
@@ -141,7 +180,18 @@ function wpcomsh_fatal_render_admin_view( $ctx ) {
 	<p><?php esc_html_e( 'There has been a critical error on this website. Here is what we know and what you can do next.', 'wpcomsh' ); ?></p>
 
 	<?php if ( $ctx['plugin'] ) : ?>
-		<h3 class="wpcomsh-fatal-subhead"><?php esc_html_e( 'Likely cause', 'wpcomsh' ); ?></h3>
+		<h3 class="wpcomsh-fatal-subhead wpcomsh-fatal-subhead-alert">
+			<span class="wpcomsh-fatal-subhead-icon" aria-hidden="true">
+				<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+			</span>
+			<?php
+			if ( 'themes' === $ctx['plugin']['kind'] ) {
+				esc_html_e( 'Suspected theme', 'wpcomsh' );
+			} else {
+				esc_html_e( 'Suspected plugin', 'wpcomsh' );
+			}
+			?>
+		</h3>
 		<?php wpcomsh_fatal_render_cause_notice( $ctx['plugin'], $ctx['deactivate_form'] ); ?>
 	<?php endif; ?>
 
@@ -149,51 +199,62 @@ function wpcomsh_fatal_render_admin_view( $ctx ) {
 	<?php wpcomsh_fatal_render_next_steps( $ctx['recovery_url'], $ctx['support_url'] ); ?>
 
 	<?php if ( '' !== $ctx['error_message'] ) : ?>
-		<details class="wpcomsh-fatal-details">
-			<summary><?php esc_html_e( 'Error details', 'wpcomsh' ); ?></summary>
+		<div class="wpcomsh-fatal-details">
+			<h3 class="wpcomsh-fatal-details-heading"><?php esc_html_e( 'Error details', 'wpcomsh' ); ?></h3>
 			<pre><?php echo esc_html( $ctx['error_message'] ); ?></pre>
-		</details>
+		</div>
+	<?php endif; ?>
+
+	<?php if ( ! empty( $ctx['environment'] ) ) : ?>
+		<div class="wpcomsh-fatal-details">
+			<h3 class="wpcomsh-fatal-details-heading"><?php esc_html_e( 'Environment', 'wpcomsh' ); ?></h3>
+			<pre><?php echo esc_html( implode( "\n", $ctx['environment'] ) ); ?></pre>
+		</div>
 		<?php
 	endif;
 }
 
 /**
- * Render the red "likely cause" notice card: plugin name, description,
- * and the Deactivate action when a signed form is available.
+ * Render the "suspected extension" notice card: name + version +
+ * description, plus a Deactivate action when the viewer can act on it.
  *
- * @param array      $plugin          Plugin info from wpcomsh_fatal_identify_plugin().
- * @param array|null $deactivate_form Signed form data from wpcomsh_fatal_build_deactivate_form(), or null to hide the action.
+ * Themes don't get an in-card action. Navigating to themes.php while the
+ * broken theme is still active would re-hit the same fatal, so we route
+ * the user through core recovery mode via the link in "What you can try
+ * next" instead. A future follow-up could build a signed "switch to
+ * default theme" endpoint mirroring the plugin deactivator.
+ *
+ * The alert icon lives in the sibling `<h3>` heading (see
+ * `wpcomsh_fatal_render_admin_view`); this card renders only the content.
+ *
+ * @param array      $plugin          Extension info from wpcomsh_fatal_identify_plugin().
+ * @param array|null $deactivate_form Signed form data from wpcomsh_fatal_build_deactivate_form(), or null.
  * @return void
  */
 function wpcomsh_fatal_render_cause_notice( $plugin, $deactivate_form ) {
 	?>
 	<div class="wpcomsh-fatal-notice wpcomsh-fatal-notice-error">
-		<div class="wpcomsh-fatal-notice-icon" aria-hidden="true">
-			<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-		</div>
-		<div class="wpcomsh-fatal-notice-body">
-			<div class="wpcomsh-fatal-notice-title">
-				<strong><?php echo esc_html( $plugin['name'] ); ?></strong>
-				<?php if ( ! empty( $plugin['version'] ) ) : ?>
-					<span class="wpcomsh-fatal-notice-ver">v<?php echo esc_html( $plugin['version'] ); ?></span>
-				<?php endif; ?>
-			</div>
-			<?php if ( ! empty( $plugin['description'] ) ) : ?>
-				<div class="wpcomsh-fatal-notice-desc"><?php echo esc_html( $plugin['description'] ); ?></div>
-			<?php endif; ?>
-			<?php if ( $deactivate_form ) : ?>
-				<form method="post"
-					action="<?php echo esc_url( $deactivate_form['action'] ); ?>"
-					onsubmit="return confirm('<?php echo esc_js( __( 'Deactivate this plugin? Your site should load again immediately.', 'wpcomsh' ) ); // phpcs:ignore Jetpack.Functions.EscJs.Found -- esc_attr(json_encode(...)) would double-escape quotes inside onsubmit="..." and break the string. ?>');">
-					<?php foreach ( $deactivate_form['fields'] as $field_name => $field_value ) : ?>
-						<input type="hidden" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( $field_value ); ?>" />
-					<?php endforeach; ?>
-					<button type="submit" class="wpcomsh-fatal-btn wpcomsh-fatal-btn-destructive">
-						<?php esc_html_e( 'Deactivate', 'wpcomsh' ); ?>
-					</button>
-				</form>
+		<div class="wpcomsh-fatal-notice-title">
+			<strong><?php echo esc_html( $plugin['name'] ); ?></strong>
+			<?php if ( ! empty( $plugin['version'] ) ) : ?>
+				<span class="wpcomsh-fatal-notice-ver">v<?php echo esc_html( $plugin['version'] ); ?></span>
 			<?php endif; ?>
 		</div>
+		<?php if ( ! empty( $plugin['description'] ) ) : ?>
+			<div class="wpcomsh-fatal-notice-desc"><?php echo esc_html( $plugin['description'] ); ?></div>
+		<?php endif; ?>
+		<?php if ( $deactivate_form ) : ?>
+			<form method="post"
+				action="<?php echo esc_url( $deactivate_form['action'] ); ?>"
+				onsubmit="return confirm('<?php echo esc_js( __( 'Deactivate this plugin? Your site should load again immediately.', 'wpcomsh' ) ); // phpcs:ignore Jetpack.Functions.EscJs.Found -- esc_attr(json_encode(...)) would double-escape quotes inside onsubmit="..." and break the string. ?>');">
+				<?php foreach ( $deactivate_form['fields'] as $field_name => $field_value ) : ?>
+					<input type="hidden" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( $field_value ); ?>" />
+				<?php endforeach; ?>
+				<button type="submit" class="wpcomsh-fatal-btn wpcomsh-fatal-btn-destructive">
+					<?php esc_html_e( 'Deactivate', 'wpcomsh' ); ?>
+				</button>
+			</form>
+		<?php endif; ?>
 	</div>
 	<?php
 }

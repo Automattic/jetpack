@@ -83,14 +83,11 @@ const sbconfig = {
 					name: 'search-dashboard-modules',
 					async resolveId( id, importer ) {
 						if (
-							id.startsWith( 'components/' ) &&
+							( id.startsWith( 'components/' ) || id === 'store' || id.startsWith( 'store/' ) ) &&
 							importer?.includes( '/search/src/dashboard/' )
 						) {
-							const dummyFile = path.join(
-								__dirname,
-								'../../../packages/search/src/dashboard/dummy.js'
-							);
-							return this.resolve( './' + id, dummyFile, {
+							const dashboardDir = path.join( __dirname, '../../../packages/search/src/dashboard' );
+							return this.resolve( path.join( dashboardDir, id ), importer, {
 								skipSelf: true,
 							} );
 						}
@@ -145,6 +142,14 @@ const sbconfig = {
 				dedupe: [ 'react', 'react-dom' ],
 				alias: {
 					...config.resolve?.alias,
+
+					// Premium Analytics internal packages. At build time wp-build maps
+					// `@jetpack-premium-analytics/<dir>` to `packages/<dir>`; mirror that here
+					// (each package's `main` points at its TS source).
+					'@jetpack-premium-analytics': path.join(
+						__dirname,
+						'../../../packages/premium-analytics/packages'
+					),
 
 					// Boost-specific aliases
 					$lib: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/lib' ),

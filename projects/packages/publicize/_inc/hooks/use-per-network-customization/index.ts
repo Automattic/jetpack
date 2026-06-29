@@ -1,10 +1,11 @@
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
 import { CUSTOMIZE_PER_NETWORK_KEY } from '../../social-store/constants';
-import { hasSocialPaidFeatures } from '../../utils';
+import { features, hasSocialPaidFeatures } from '../../utils';
 import useFeaturedImage from '../use-featured-image';
 import useMediaDetails from '../use-media-details';
 import { usePostMeta } from '../use-post-meta';
@@ -36,6 +37,13 @@ export function usePerNetworkCustomization() {
 	}, [] );
 
 	const syncConnections = useCallback( () => {
+		/*
+		 * Don't sync when the message-templates feature is on. Server-side defaults
+		 */
+		if ( siteHasFeature( features.MESSAGE_TEMPLATES ) ) {
+			return;
+		}
+
 		// Copy global settings to each connection.
 		// Per-network mode forces attachment, so we need to populate attached_media for all sources.
 		connections.forEach( connection => {

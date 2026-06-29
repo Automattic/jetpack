@@ -6,7 +6,6 @@
  * @package automattic/jetpack-wp-abilities
  */
 
-// @phan-file-suppress PhanUndeclaredFunction @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9. We guard with function_exists() checks so the package is safe on older WP. @todo Remove this line when the minimum supported WordPress version is 6.9.
 // @phan-file-suppress PhanAbstractStaticMethodCallInStatic -- static:: dispatches to the concrete subclass for the three abstract getters; callers must not instantiate Registrar itself.
 
 namespace Automattic\Jetpack\WP_Abilities;
@@ -23,7 +22,7 @@ namespace Automattic\Jetpack\WP_Abilities;
  */
 abstract class Registrar {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.5';
 
 	/**
 	 * Action fired by the Abilities API when ability categories should register.
@@ -85,7 +84,7 @@ abstract class Registrar {
 		 * request, typically gated on a site option, user capability, or
 		 * feature flag to support staged rollout.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param bool $enabled Whether to register abilities. Default false.
 		 */
@@ -173,7 +172,7 @@ abstract class Registrar {
 		 * individual ability, so callbacks can allow-list or deny-list by
 		 * `$slug`.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param bool   $enabled Whether to register. Default true.
 		 * @param string $type    Either 'category' or 'ability'.

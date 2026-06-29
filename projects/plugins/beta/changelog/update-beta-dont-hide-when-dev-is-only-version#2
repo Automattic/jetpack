@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+When the non-dev version of a plugin is deleted via the plugin page, the -dev version will be deleted as well.

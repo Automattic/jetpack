@@ -1,11 +1,10 @@
-import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
 import FoldingElement from '../folding-element/folding-element';
 import { ErrorSet, getPrimaryErrorSet } from '../lib/critical-css-errors';
 import { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import { describeErrorSet, suggestion } from '../lib/describe-critical-css-recommendations';
 import { createInterpolateElement } from '@wordpress/element';
+import { Notice, Link } from '@wordpress/ui';
 import getSupportLinkCriticalCss from '$lib/utils/get-support-link-critical-css';
 import NumberedList from '../numbered-list/numbered-list';
 import getCriticalCssErrorSetInterpolateVars from '$lib/utils/get-critical-css-error-set-interpolate-vars';
@@ -119,7 +118,8 @@ const DocumentationSection = ( {
 		<p>
 			{ createInterpolateElement( message, {
 				link: (
-					<ExternalLink
+					<Link
+						openInNewTab
 						href={ getSupportLinkCriticalCss( errorType ) }
 						onClick={ () => {
 							recordBoostEvent( 'critical_css_learn_more', {} );
@@ -203,7 +203,8 @@ const OtherErrors = ( { cssState, supportLink }: ShowStopperErrorTypes ) => {
 							{ __( 'Refresh', 'jetpack-boost' ) }
 						</button>
 					) : (
-						<ExternalLink
+						<Link
+							openInNewTab
 							className="button button-secondary"
 							href={ supportLink }
 							onClick={ () => {
@@ -211,7 +212,7 @@ const OtherErrors = ( { cssState, supportLink }: ShowStopperErrorTypes ) => {
 							} }
 						>
 							{ __( 'Contact Support', 'jetpack-boost' ) }
-						</ExternalLink>
+						</Link>
 					) }
 				</>
 			) }

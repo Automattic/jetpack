@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Newsletter: stop requiring the jetpack-newsletter package as a composer dependency. The Newsletter classes are now resolved through the Jetpack autoloader from the standalone Jetpack plugin (Atomic) or the wpcom platform's bundled Jetpack source (Simple), guarded with class_exists() at every call site. This removes the duplicate ship of the package's build artifacts from the mu-wpcom-plugin deploy.

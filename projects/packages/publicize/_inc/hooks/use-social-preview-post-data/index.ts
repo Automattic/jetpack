@@ -1,3 +1,4 @@
+import { parseHyperlinks } from '@automattic/social-previews';
 import { Attachment, store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -84,11 +85,20 @@ export function useSocialPreviewPostData(): PostPreviewData {
 		);
 	}, [] );
 
+	const content = useSelect( select => select( editorStore ).getEditedPostContent(), [] );
+
+	// Editor hyperlinks are read from the full serialized content (which keeps
+	// the `<a>` tags) rather than the excerpt/content attribute, which is already
+	// HTML-stripped. The DOM parser decodes entities, so the anchor text matches
+	// the decoded body text the previews render.
+	const hyperlinks = useMemo( () => parseHyperlinks( content ), [ content ] );
+
 	return useMemo( () => {
 		return {
 			...linkPreviewData,
 			excerpt,
+			hyperlinks,
 			media,
 		};
-	}, [ excerpt, linkPreviewData, media ] );
+	}, [ hyperlinks, excerpt, linkPreviewData, media ] );
 }

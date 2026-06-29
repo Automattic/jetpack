@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Connectors: Add `jetpack_connection_plugin_logos` filter to allow third-party plugins to register a custom SVG logo on the Connectors card.

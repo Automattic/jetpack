@@ -6,13 +6,16 @@ jest.mock( '@wordpress/components', () => {
 	const actualModule = jest.requireActual( '@wordpress/components' );
 	const mockModule = {
 		Icon: jest.fn( () => null ),
-		ExternalLink: jest.fn( ( { href, children } ) => <a href={ href }>{ children }</a> ),
 	};
 
 	return new Proxy( actualModule, {
 		get: ( target, property ) => mockModule[ property ] ?? target[ property ],
 	} );
 } );
+
+jest.mock( '@wordpress/ui', () => ( {
+	Link: jest.fn( ( { href, children } ) => <a href={ href }>{ children }</a> ),
+} ) );
 
 jest.mock( '@wordpress/icons', () => ( {
 	envelope: 'envelope-icon-mock',

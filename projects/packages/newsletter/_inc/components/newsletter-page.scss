@@ -1,0 +1,87 @@
+// Layout — the modernized Newsletter page mounts `AdminPage` from
+// `@automattic/jetpack-components`, so the shared
+// `jetpack-admin-page-layout-wp-build` mixin (included on
+// `body.jetpack_page_jetpack-newsletter` from `src/settings/style.scss`) owns
+// the viewport-pinned chrome: fixed-position content column, scrolling middle,
+// pinned `JetpackFooter`, and the sticky `.jp-admin-page-tabs` strip. This file
+// only adds the page-specific pieces: the off-white canvas, the tab content
+// padding, and the flex chain that lets the Subscribers DataViews surface fill
+// the viewport so its pagination footer pins to the bottom.
+
+$jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl, 24px);
+
+body.jetpack_page_jetpack-newsletter {
+
+	// Off-white page surface so the white settings cards stand out against the
+	// background. `AdminPage` paints `.jp-admin-page` (its outer wrapper) and
+	// `.jp-admin-page__page` (the admin-ui `Page` shell) white by default via
+	// `showBackground`, so both need overriding for every tab to share the canvas.
+	&,
+	.jp-admin-page,
+	.jp-admin-page__page {
+		background-color: #fcfcfc;
+	}
+
+	.jetpack-newsletter-page__content--padded {
+		padding: $jetpack-newsletter-inset;
+	}
+
+	// `AdminPage` wraps its children in `<Container><Col>`; the layout mixin
+	// flexes that pair but stops at `Col`. Continue the flex column through our
+	// `Tabs.Root`. The tab strip (`.jp-admin-page-tabs`) is `position: sticky`
+	// inside this element, and a sticky child only stays pinned while its
+	// containing block is in view. So by default — the Settings tab, a long
+	// scrolling document — let `Tabs.Root` size to its full content height
+	// (`flex: 0 0 auto`) so the strip stays stuck the whole way down. Capping
+	// it to the viewport here (as the Subscribers branch below does, so its
+	// DataViews surface can fill the middle and pin its pagination footer)
+	// shrinks the containing block to ~one screen and drops the tab strip
+	// after the first viewport of scrolling.
+	.jetpack-newsletter-tabs {
+		display: flex;
+		flex: 0 0 auto;
+		flex-direction: column;
+	}
+
+	// On the Subscribers tab, let the DataViews surface fill the tab panel
+	// instead of collapsing to its content height — that is what pins the
+	// pagination footer to the visible bottom. Walk the inner flex chain from
+	// `.jetpack-newsletter-page__content` down to `.dataviews-wrapper`: every
+	// link needs `display: flex` + `flex-grow: 1` + a zeroed min-block-size so
+	// the leaf absorbs the leftover space. Anchor the panel on the stable
+	// `role="tabpanel"` rather than a hashed CSS-module class — `@wordpress/ui`
+	// renames the panel's generated class across versions (the old
+	// `[class*="__tabpanel"]` hook silently broke on the 0.13.0 bump).
+	.jp-admin-page:has(.dataviews-wrapper) {
+
+		// Cap `Tabs.Root` to the bounded middle so the DataViews surface below
+		// can fill it (and pin its pagination footer) instead of growing to its
+		// natural height. Only the Subscribers tab wants this — see the base
+		// `.jetpack-newsletter-tabs` rule above for why Settings must not.
+		.jetpack-newsletter-tabs {
+			flex: 1 1 auto;
+			min-block-size: 0;
+		}
+
+		.jetpack-newsletter-page__content,
+		.jetpack-newsletter-page__content > [role="tabpanel"] {
+			display: flex;
+			flex: 1 1 auto;
+			flex-direction: column;
+			min-block-size: 0;
+		}
+
+		.dataviews-wrapper {
+			flex: 1 1 auto;
+			min-block-size: 0;
+		}
+
+		// The dataviews "no results" message centres within the area below the
+		// search / filters / view-options chrome. That chrome adds visual weight
+		// pulling the optical centre down — pad the bottom to rebalance. 4× the
+		// page inset keeps it tied to the 24px rhythm.
+		.dataviews-no-results {
+			padding-block-end: calc(#{$jetpack-newsletter-inset} * 4);
+		}
+	}
+}

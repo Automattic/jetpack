@@ -1,0 +1,59 @@
+// Overview tab body — spaces the connection-error notice, JITM mount,
+// and the connected-accounts Card vertically with the WPDS gap token.
+// `Card.Root` from `@wordpress/ui` already paints the surface; this
+// rule only owns the inter-section spacing and the column max-width
+// the design caps the body at.
+
+.jetpack-social-overview {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	margin-inline: auto;
+	max-inline-size: 720px;
+	inline-size: 100%;
+}
+
+// Center the empty-state body inside the connected-accounts card so
+// the icon, title, description, and CTA stack on the card's centerline
+// instead of left-aligning against the card padding. We can't reliably
+// target `EmptyState.Root`'s hashed class, so the host wrapper carries
+// the layout rules and the WPDS internals just live inside it.
+.jetpack-social-overview__empty {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	padding-block: var(--wpds-dimension-padding-2xl, 24px);
+	text-align: center;
+}
+
+// The JITM mount-point only takes up vertical space when the JITM
+// service injects a card. Hide it from the flex layout when empty so
+// the gap above the accounts card collapses cleanly.
+.jetpack-social-jitm-card:empty {
+	display: none;
+}
+
+// Tighten just the Card.Header's bottom padding so the divider sits
+// visually equidistant from the title text and the first row's content.
+// The 20px lands the divider symmetrically once the title's line-height
+// padding is accounted for — pure 16px reads as tighter above than below.
+// The top padding stays at Card.Header's default 24px so the title still
+// has comfortable headroom from the card edge.
+.jetpack-social-overview__accounts-card-header {
+	padding-block-end: var(--wpds-dimension-padding-xl, 20px);
+}
+
+// Strip the Card.Content padding when the body is the flat connections
+// list — the list rows own their own paddings and need to extend edge to
+// edge of the outer Card, with thin separators between them.
+.jetpack-social-overview__accounts-card-content {
+	padding: 0;
+}
+
+// ConnectionManagement's own `.wrapper` ships a `padding-top: 16px` that
+// makes sense for the standalone admin context but is double-padding
+// inside the chassis Card. Zero it here (doubled-class selector for a
+// safe specificity bump over the package-internal `.wrapper` rule).
+.jetpack-social-overview__connections-wrapper.jetpack-social-overview__connections-wrapper {
+	padding-top: 0;
+}

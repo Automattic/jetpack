@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write editor: caption is editable after reload (RSM-3359)

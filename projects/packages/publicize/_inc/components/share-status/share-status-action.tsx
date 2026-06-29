@@ -1,6 +1,6 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { Retry, RetryProps } from './retry';
 
@@ -25,9 +25,9 @@ export function ShareStatusAction( { shareItem }: ShareStatusActionProps ) {
 
 	if ( 'success' === shareItem.status ) {
 		return (
-			<ExternalLink href={ shareItem.message } onClick={ recordViewEvent }>
+			<Link openInNewTab href={ shareItem.message } onClick={ recordViewEvent }>
 				{ __( 'View', 'jetpack-publicize-pkg' ) }
-			</ExternalLink>
+			</Link>
 		);
 	}
 

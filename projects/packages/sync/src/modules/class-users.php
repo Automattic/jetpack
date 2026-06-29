@@ -553,7 +553,7 @@ class Users extends Module {
 					continue;
 				}
 
-				$flag = isset( $this->user_fields_to_flags_mapping[ $user_field ] ) ? $this->user_fields_to_flags_mapping[ $user_field ] : 'unknown_field_changed';
+				$flag = $this->user_fields_to_flags_mapping[ $user_field ] ?? 'unknown_field_changed';
 
 				$this->flags[ $user_id ][ $flag ] = true;
 			}
@@ -851,7 +851,7 @@ class Users extends Module {
 	 * @param int $blog_id  ID of the blog.
 	 * @param int $reassign ID of the user to whom to reassign posts.
 	 */
-	public function remove_user_from_blog_handler( $user_id, $blog_id, $reassign = 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function remove_user_from_blog_handler( $user_id, $blog_id, $reassign = 0 ) {
 		// User is removed on add, see https://github.com/WordPress/WordPress/blob/0401cee8b36df3def8e807dd766adc02b359dfaf/wp-includes/ms-functions.php#L2114.
 		if ( $this->is_add_new_user_to_blog() ) {
 			return;

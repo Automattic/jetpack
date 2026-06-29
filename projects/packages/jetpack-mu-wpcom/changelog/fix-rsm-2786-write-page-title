@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write editor: fix missing browser tab title caused by hidden submenu page not being found by get_admin_page_title().

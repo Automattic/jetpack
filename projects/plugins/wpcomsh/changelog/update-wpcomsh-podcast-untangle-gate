@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcasting: stand down the legacy at-pressable-podcasting plugin when the new Jetpack podcast package owns the feature.

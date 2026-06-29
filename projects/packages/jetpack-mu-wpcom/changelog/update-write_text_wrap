@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Fix jarring line reflow while typing caused by theme's text-wrap

@@ -45,6 +45,19 @@ class REST_Controller {
 	}
 
 	/**
+	 * Registers the REST routes on the `rest_api_init` hook.
+	 *
+	 * Instantiated here, rather than eagerly, so the controller class only loads
+	 * on requests that reach `rest_api_init`. Static so the callback can be
+	 * unregistered.
+	 *
+	 * @access public
+	 */
+	public static function register() {
+		( new self() )->register_rest_routes();
+	}
+
+	/**
 	 * Registers the REST routes for Odyssey Stats.
 	 *
 	 * Odyssey Stats is built from `wp-calypso`, which leverages the `public-api.wordpress.com` API.
@@ -584,7 +597,7 @@ class REST_Controller {
 		if ( 200 !== $response_code ) {
 			return new WP_Error(
 				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				$response_body['message'] ?? 'unknown remote error',
 				array( 'status' => $response_code )
 			);
 		}
@@ -685,7 +698,7 @@ class REST_Controller {
 		if ( 200 !== $response_code ) {
 			return new WP_Error(
 				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				$response_body['message'] ?? 'unknown remote error',
 				array( 'status' => $response_code )
 			);
 		}

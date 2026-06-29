@@ -1,36 +1,62 @@
-import { store } from '@wordpress/interactivity';
-import '../../store';
+import { store, getElement } from '@wordpress/interactivity';
+import 'jetpack-search/store';
+import {
+	clearSuggestionsContext,
+	handleInputForSuggestions,
+	handleKeydownForSuggestions,
+} from './suggestions';
 import './style.scss';
 
 const NAMESPACE = 'jetpack-search';
-const DEBOUNCE_MS = 300;
+const SEARCH_DEBOUNCE_MS = 300;
 
-// Per-input debounce state. Keyed by the input element itself so two
-// search-input blocks on the same page (e.g. header + sidebar) don't
-// reset each other's typing timer. WeakMap lets GC reclaim entries
-// when an input is removed from the DOM.
+// Per-input debounce keyed on the element so two inputs (header + sidebar)
+// don't reset each other; WeakMap lets GC reclaim when the input goes away.
 const debounceTimers = new WeakMap();
 
 /**
- * Start (or restart) the debounced search for a single input.
+ * Focus an input and place the cursor at the end of its current value, so
+ * a visitor opening Search with a query already in flight can keep typing
+ * to refine it without manually re-positioning the caret. The overlay
+ * bundle (`overlay-bootstrap/index.js`'s `openOverlay()`) carries an
+ * inlined duplicate of these three lines — when changing one, change both.
  *
- * @param {HTMLInputElement} input - The input whose timer should be reset.
+ * @param {HTMLInputElement|null} input - The input to focus.
+ */
+function focusInputWithCursorAtEnd( input ) {
+	if ( ! input ) {
+		return;
+	}
+	input.focus();
+	const len = input.value.length;
+	// `setSelectionRange` throws on input types that don't support text
+	// selection. `type="search"` does, but the guard keeps things safe
+	// if the input shape ever changes.
+	try {
+		input.setSelectionRange( len, len );
+	} catch {
+		/* noop */
+	}
+}
+
+/**
+ * Start/restart the debounced search.
+ *
+ * @param {HTMLInputElement} input - The input.
  */
 function scheduleSearch( input ) {
 	clearTimeout( debounceTimers.get( input ) );
 	const timer = setTimeout( () => {
 		debounceTimers.delete( input );
-		const { actions } = store( NAMESPACE );
-		actions.search();
-	}, DEBOUNCE_MS );
+		store( NAMESPACE ).actions.search();
+	}, SEARCH_DEBOUNCE_MS );
 	debounceTimers.set( input, timer );
 }
 
 /**
- * Cancel any in-flight debounce for a single input — used when a keystroke
- * should fire a search immediately (e.g. Enter).
+ * Cancel any pending debounce — used when Enter should fire immediately.
  *
- * @param {HTMLInputElement} input - The input whose timer should be cleared.
+ * @param {HTMLInputElement} input - The input.
  */
 function cancelPendingSearch( input ) {
 	clearTimeout( debounceTimers.get( input ) );
@@ -42,14 +68,24 @@ store( NAMESPACE, {
 		onSearchInput( event ) {
 			const { state } = store( NAMESPACE );
 			state.searchQuery = event.target.value;
-			scheduleSearch( event.target );
+			// `submitOnly` keeps state in sync but defers the API call until Enter.
+			if ( event.target.dataset.submitOnly === 'true' ) {
+				cancelPendingSearch( event.target );
+			} else {
+				scheduleSearch( event.target );
+			}
+			// Short-circuits on non-suggestions inputs.
+			handleInputForSuggestions( event.target );
 		},
 
 		onSearchKeydown( event ) {
+			// Suggestions claim Arrow/Escape, and Enter only when a row is highlighted.
+			if ( handleKeydownForSuggestions( event, event.target ) ) {
+				return;
+			}
 			if ( event.key === 'Enter' ) {
 				cancelPendingSearch( event.target );
-				const { actions } = store( NAMESPACE );
-				actions.search();
+				store( NAMESPACE ).actions.search();
 			}
 		},
 
@@ -61,7 +97,37 @@ store( NAMESPACE, {
 		*clearSearch() {
 			const { state, actions } = store( NAMESPACE );
 			state.searchQuery = '';
+			clearSuggestionsContext();
 			yield actions.search();
+		},
+	},
+	callbacks: {
+		/**
+		 * `data-wp-init` lifecycle hook on the search input. On mount,
+		 * place focus into the input with the cursor at the end of any
+		 * pre-existing query so a visitor landing on a search page (or
+		 * reopening the overlay) can keep typing without re-positioning
+		 * the caret.
+		 *
+		 * Skips when the input sits inside a `[hidden]` subtree — the
+		 * overlay-template's clone fires this during hydration while the
+		 * overlay shell still has the `hidden` attribute; `openOverlay()`
+		 * stays authoritative for the overlay's focus moment.
+		 *
+		 * Skips when no query has been entered — auto-focusing an empty
+		 * search page would steal focus from screen-reader / keyboard
+		 * users who'd prefer to land on the page heading first.
+		 */
+		initFocusInputIfHasQuery() {
+			const input = getElement()?.ref;
+			if ( ! input || input.closest( '[hidden]' ) !== null ) {
+				return;
+			}
+			const { state } = store( NAMESPACE );
+			if ( ! state.searchQuery ) {
+				return;
+			}
+			focusInputWithCursorAtEnd( input );
 		},
 	},
 } );

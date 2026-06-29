@@ -301,7 +301,7 @@ class VaultPress_Filesystem {
 	function scan_dir( $path ) {
 		$files = array();
 
-		if ( false === is_readable( $path ) ) {
+		if ( ! is_readable( $path ) ) {
 			return array();
 		}
 

@@ -31,7 +31,6 @@ dev:
       ## https://mailpit.axllent.org/
       mailpit:
         image: axllent/mailpit
-        container_name: mailpit
         ports:
           - '${PORT_INBOX:-1080}:8025'
           - '${PORT_SMTP:-25}:1025'

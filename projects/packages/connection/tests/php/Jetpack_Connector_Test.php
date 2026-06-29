@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -95,6 +96,10 @@ class Jetpack_Connector_Test extends TestCase {
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 		wp_set_current_user( 0 );
+
+		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_is_in_safe_mode' );
+		StatusCache::clear();
 	}
 
 	/* ── init() ────────────────────────────────────────────────── */
@@ -170,11 +175,38 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertNotEmpty( $data['apiRoot'] );
 		$this->assertNotEmpty( $data['apiNonce'] );
 		$this->assertNotEmpty( $data['redirectUri'] );
-		$this->assertArrayNotHasKey( 'connectedPlugins', $data );
+		$this->assertArrayHasKey( 'connectedPlugins', $data );
+		$this->assertIsArray( $data['connectedPlugins'] );
 		$this->assertArrayNotHasKey( 'siteDetails', $data );
 		$this->assertArrayNotHasKey( 'currentUser', $data );
 		$this->assertArrayNotHasKey( 'connectionOwner', $data );
 		$this->assertArrayNotHasKey( 'ssoStatus', $data );
+	}
+
+	/* ── get_connector_data() — offline mode ───────────────────── */
+
+	/**
+	 * Test that isOfflineMode is false when the site is not in offline mode.
+	 */
+	public function test_get_connector_data_offline_mode_false_by_default() {
+		StatusCache::clear();
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertArrayHasKey( 'isOfflineMode', $data );
+		$this->assertFalse( $data['isOfflineMode'] );
+	}
+
+	/**
+	 * Test that isOfflineMode is true when the site is in offline mode.
+	 */
+	public function test_get_connector_data_offline_mode_true_when_offline() {
+		StatusCache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertTrue( $data['isOfflineMode'] );
 	}
 
 	/**
@@ -229,6 +261,57 @@ class Jetpack_Connector_Test extends TestCase {
 		$data = Jetpack_Connector::get_connector_data( array() );
 
 		$this->assertTrue( $data['ssoStatus'] );
+	}
+
+	/* ── get_connector_data() — identity crisis (Safe Mode) ─────── */
+
+	/**
+	 * Test that isInSafeMode is false and no idc data is exposed when the site is not in Safe Mode.
+	 */
+	public function test_idc_data_absent_when_not_in_safe_mode() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		StatusCache::clear();
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertArrayHasKey( 'isInSafeMode', $data );
+		$this->assertFalse( $data['isInSafeMode'] );
+		$this->assertArrayNotHasKey( 'idc', $data );
+	}
+
+	/**
+	 * Test that Safe Mode data is exposed when the site is in Safe Mode.
+	 */
+	public function test_idc_data_present_when_in_safe_mode() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		StatusCache::clear();
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertTrue( $data['isInSafeMode'] );
+		$this->assertArrayHasKey( 'isSafeModeConfirmed', $data );
+		$this->assertArrayHasKey( 'idc', $data );
+		$this->assertArrayHasKey( 'currentUrl', $data['idc'] );
+		$this->assertArrayHasKey( 'wpcomHomeUrl', $data['idc'] );
+		$this->assertArrayHasKey( 'isDevelopmentSite', $data['idc'] );
+		$this->assertArrayHasKey( 'possibleDynamicSiteUrlDetected', $data['idc'] );
+		$this->assertNotEmpty( $data['idc']['currentUrl'] );
+	}
+
+	/**
+	 * Test that Safe Mode data is not exposed for an unregistered site.
+	 */
+	public function test_idc_data_absent_when_unregistered() {
+		StatusCache::clear();
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertArrayNotHasKey( 'isInSafeMode', $data );
+		$this->assertArrayNotHasKey( 'idc', $data );
 	}
 
 	/* ── is_connectors_screen() ────────────────────────────────── */
@@ -376,6 +459,66 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$url = $this->call_get_connector_logo_url();
 		$this->assertStringContainsString( 'jetpack-connect-all.svg', $url );
+	}
+
+	/* ── get_connected_plugin_families() ─────────────────────────── */
+
+	/**
+	 * Test that no families are detected when no plugins are connected.
+	 */
+	public function test_plugin_families_default() {
+		$families = Jetpack_Connector::get_connected_plugin_families();
+		$this->assertFalse( $families['has_woo'] );
+		$this->assertFalse( $families['has_a4a'] );
+	}
+
+	/**
+	 * Test that only Jetpack-family plugins don't trigger woo or a4a flags.
+	 */
+	public function test_plugin_families_jetpack_only() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+
+		$families = Jetpack_Connector::get_connected_plugin_families();
+		$this->assertFalse( $families['has_woo'] );
+		$this->assertFalse( $families['has_a4a'] );
+	}
+
+	/**
+	 * Test that woocommerce-prefixed slugs set has_woo.
+	 */
+	public function test_plugin_families_woo() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'woocommerce', array( 'name' => 'WooCommerce' ) );
+
+		$families = Jetpack_Connector::get_connected_plugin_families();
+		$this->assertTrue( $families['has_woo'] );
+		$this->assertFalse( $families['has_a4a'] );
+	}
+
+	/**
+	 * Test that automattic-prefixed slugs set has_a4a.
+	 */
+	public function test_plugin_families_a4a() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'automattic-for-agencies-client', array( 'name' => 'Automattic for Agencies' ) );
+
+		$families = Jetpack_Connector::get_connected_plugin_families();
+		$this->assertFalse( $families['has_woo'] );
+		$this->assertTrue( $families['has_a4a'] );
+	}
+
+	/**
+	 * Test that both flags are set when both families are present.
+	 */
+	public function test_plugin_families_woo_and_a4a() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'woocommerce', array( 'name' => 'WooCommerce' ) );
+		Plugin_Storage::upsert( 'automattic-for-agencies-client', array( 'name' => 'Automattic for Agencies' ) );
+
+		$families = Jetpack_Connector::get_connected_plugin_families();
+		$this->assertTrue( $families['has_woo'] );
+		$this->assertTrue( $families['has_a4a'] );
 	}
 
 	/* ── resolve_user_fields() ─────────────────────────────────── */
@@ -761,17 +904,12 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Call the private get_connector_logo_url() method via reflection.
+	 * Call get_connector_logo_url().
 	 *
 	 * @return string Logo URL.
 	 */
 	private function call_get_connector_logo_url() {
-		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connector_logo_url' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		return $method->invoke( null );
+		return Jetpack_Connector::get_connector_logo_url();
 	}
 
 	/**

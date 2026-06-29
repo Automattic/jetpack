@@ -203,7 +203,7 @@ class Waf_Runtime {
 				} else {
 					// otherwise just mark single props to ignore.
 					$targets[ $name ]['except'] = array_merge(
-						isset( $targets[ $name ]['except'] ) ? $targets[ $name ]['except'] : array(),
+						$targets[ $name ]['except'] ?? array(),
 						$props
 					);
 				}
@@ -397,9 +397,7 @@ class Waf_Runtime {
 	 * @param string $key Key.
 	 */
 	public function get_var( $key ) {
-		return isset( $this->state[ $key ] )
-			? $this->state[ $key ]
-			: '';
+		return $this->state[ $key ] ?? '';
 	}
 
 	/**
@@ -620,8 +618,8 @@ class Waf_Runtime {
 		$return = array();
 		foreach ( $targets as $k => $v ) {
 			$count_only = isset( $v['count'] ) ? self::NORMALIZE_ARRAY_COUNT : 0;
-			$only       = isset( $v['only'] ) ? $v['only'] : array();
-			$except     = isset( $v['except'] ) ? $v['except'] : array();
+			$only       = $v['only'] ?? array();
+			$except     = $v['except'] ?? array();
 			$_k         = strtolower( $k );
 			switch ( $_k ) {
 				case 'request_headers':

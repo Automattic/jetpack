@@ -88,7 +88,7 @@ function jetpack_vr_viewer_get_html( $url_params ) {
 
 	// set some defaults.
 	$maxwidth = ( is_numeric( $content_width ) && $content_width > 0 ) ? $content_width : 720;
-	$view     = ( isset( $url_params['view'] ) ) ? $url_params['view'] : 'cinema';
+	$view     = $url_params['view'] ?? 'cinema';
 
 	// If the shortcode is displayed in a WPCOM notification, display a simple link only.
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

@@ -102,7 +102,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	}
 
 	public function get_post( $id ) {
-		return isset( $this->posts[ get_current_blog_id() ][ $id ] ) ? $this->posts[ get_current_blog_id() ][ $id ] : null;
+		return $this->posts[ get_current_blog_id() ][ $id ] ?? null;
 	}
 
 	public function upsert_post( $post, $silent = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -206,7 +206,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	}
 
 	public function get_option( $option, $default = false ) {
-		return isset( $this->options[ get_current_blog_id() ][ $option ] ) ? $this->options[ get_current_blog_id() ][ $option ] : $default;
+		return $this->options[ get_current_blog_id() ][ $option ] ?? $default;
 	}
 
 	public function update_option( $option, $value ) {
@@ -360,6 +360,29 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		}
 	}
 
+	public function delete_metadata_by_key_value( $type, $meta_key, $meta_value ) {
+		$blog_id = get_current_blog_id();
+		if ( ! isset( $this->meta[ $blog_id ][ $type ] ) ) {
+			return;
+		}
+
+		if ( '' === $meta_value || null === $meta_value || false === $meta_value ) {
+			return;
+		}
+
+		foreach ( $this->meta[ $blog_id ][ $type ] as $meta_id => $meta_data ) {
+			if ( $meta_data->meta_key !== $meta_key ) {
+				continue;
+			}
+
+			if ( $meta_data->meta_value !== $meta_value ) {
+				continue;
+			}
+
+			unset( $this->meta[ $blog_id ][ $type ][ $meta_id ] );
+		}
+	}
+
 	/** Constants **/
 	public function get_constant( $constant ) {
 		if ( ! isset( $this->constants[ get_current_blog_id() ][ $constant ] ) ) {
@@ -403,7 +426,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 
 	/** Network options **/
 	public function get_site_option( $option ) {
-		return isset( $this->network_options[ get_current_blog_id() ][ $option ] ) ? $this->network_options[ get_current_blog_id() ][ $option ] : false;
+		return $this->network_options[ get_current_blog_id() ][ $option ] ?? false;
 	}
 
 	public function update_site_option( $option, $value ) {
@@ -416,7 +439,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 
 	/** Terms **/
 	public function get_terms( $taxonomy ) {
-		return isset( $this->terms[ get_current_blog_id() ][ $taxonomy ] ) ? $this->terms[ get_current_blog_id() ][ $taxonomy ] : array();
+		return $this->terms[ get_current_blog_id() ][ $taxonomy ] ?? array();
 	}
 
 	public function get_term( $taxonomy, $term_id, $term_key = 'term_id' ) {
@@ -574,7 +597,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	}
 
 	public function get_user( $user_id ) {
-		return isset( $this->users[ get_current_blog_id() ][ $user_id ] ) ? $this->users[ get_current_blog_id() ][ $user_id ] : null;
+		return $this->users[ get_current_blog_id() ][ $user_id ] ?? null;
 	}
 
 	public function upsert_user_locale( $user_id, $user_locale ) {
@@ -586,11 +609,11 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	}
 
 	public function get_user_locale( $user_id ) {
-		return isset( $this->users_locale[ get_current_blog_id() ][ $user_id ] ) ? $this->users_locale[ get_current_blog_id() ][ $user_id ] : '';
+		return $this->users_locale[ get_current_blog_id() ][ $user_id ] ?? '';
 	}
 
 	public function get_allowed_mime_types( $user_id ) {
-		return isset( $this->allowed_mime_types[ get_current_blog_id() ][ $user_id ] ) ? $this->allowed_mime_types[ get_current_blog_id() ][ $user_id ] : null;
+		return $this->allowed_mime_types[ get_current_blog_id() ][ $user_id ] ?? null;
 	}
 
 	public function upsert_user( $user ) {

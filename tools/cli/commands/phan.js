@@ -456,6 +456,7 @@ export async function handler( argv ) {
 									if ( argv.v ) {
 										sstderr.write( 'Output is JSON but not an array\n' );
 									}
+									// eslint-disable-next-line preserve-caught-error -- The "cause" is something like "process exited with a non-zero exit code", which isn't relevant.
 									throw new Error( 'Output is JSON but not an array' );
 								}
 							} catch {

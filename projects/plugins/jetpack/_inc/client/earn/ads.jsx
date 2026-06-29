@@ -1,8 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { Component } from 'react';
 import Card from 'components/card';
 import { FormFieldset, FormLegend } from 'components/forms';
@@ -181,7 +182,8 @@ export const Ads = withModuleSettingsFormHelpers(
 									),
 									{
 										link: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
 												target="_blank"
 												rel="noopener noreferrer"
@@ -195,9 +197,8 @@ export const Ads = withModuleSettingsFormHelpers(
 
 						<ModuleToggle
 							slug="wordads"
-							disabled={ unavailableInOfflineMode }
+							disabled={ unavailableInOfflineMode || this.props.isSavingAnyOption( 'wordads' ) }
 							activated={ isAdsActive }
-							toggling={ this.props.isSavingAnyOption( 'wordads' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">

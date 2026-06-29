@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import useVideoPlayer, { getIframeWindowFromRef } from '../index';
-import type { MutableRefObject } from 'react';
+import type { RefObject } from 'react';
 
 jest.mock( 'debug', () => () => jest.fn() );
 jest.mock( '@wordpress/compose', () => ( {
@@ -12,9 +12,9 @@ jest.mock( '@wordpress/compose', () => ( {
  * is the real jsdom `window`, so event listeners added by the hook fire when
  * we dispatch on `window`.
  *
- * @return {MutableRefObject<HTMLDivElement>} The constructed ref.
+ * @return {RefObject< HTMLDivElement >} The constructed ref.
  */
-function createIframeRef(): MutableRefObject< HTMLDivElement > {
+function createIframeRef(): RefObject< HTMLDivElement > {
 	const wrapper = document.createElement( 'div' );
 	const iframe = document.createElement( 'iframe' );
 	iframe.className = 'components-sandbox';
@@ -24,13 +24,13 @@ function createIframeRef(): MutableRefObject< HTMLDivElement > {
 	} );
 	wrapper.appendChild( iframe );
 	document.body.appendChild( wrapper );
-	return { current: wrapper } as MutableRefObject< HTMLDivElement >;
+	return { current: wrapper } as RefObject< HTMLDivElement >;
 }
 
 describe( 'getIframeWindowFromRef', () => {
 	it( 'returns undefined when the wrapper contains no sandbox iframe', () => {
 		const wrapper = document.createElement( 'div' );
-		const ref = { current: wrapper } as MutableRefObject< HTMLDivElement >;
+		const ref = { current: wrapper } as RefObject< HTMLDivElement >;
 		expect( getIframeWindowFromRef( ref ) ).toBeUndefined();
 	} );
 
@@ -44,7 +44,7 @@ describe( 'getIframeWindowFromRef', () => {
 			configurable: true,
 		} );
 		wrapper.appendChild( iframe );
-		const ref = { current: wrapper } as MutableRefObject< HTMLDivElement >;
+		const ref = { current: wrapper } as RefObject< HTMLDivElement >;
 		expect( getIframeWindowFromRef( ref ) ).toBe( mockContentWindow );
 	} );
 } );
@@ -70,7 +70,7 @@ function dispatchPlayerMessage( {
 }
 
 describe( 'useVideoPlayer — listenEventsHandler guards', () => {
-	let iFrameRef: MutableRefObject< HTMLDivElement >;
+	let iFrameRef: RefObject< HTMLDivElement >;
 
 	beforeEach( () => {
 		iFrameRef = createIframeRef();

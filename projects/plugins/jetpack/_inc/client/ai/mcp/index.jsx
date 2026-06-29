@@ -1,5 +1,5 @@
 /**
- * MCP Settings hub — main view shown at wp-admin/admin.php?page=ai.
+ * MCP Settings hub — main view shown at wp-admin/admin.php?page=jetpack-ai.
  * Shows the enable/disable toggle and navigation to Read, Write, and Setup sub-views.
  */
 
@@ -13,8 +13,18 @@ import {
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { seen, pencil, connection, chevronRight, info, published, caution } from '@wordpress/icons';
+import {
+	seen,
+	pencil,
+	connection,
+	chevronRight,
+	info,
+	published,
+	caution,
+	list,
+} from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
+import analytics from 'lib/analytics';
 import { isWriteTool } from './categories';
 import {
 	getAccountMcpAbilities,
@@ -152,15 +162,23 @@ function ConnectRow( { title, description, onClick } ) {
 /**
  * MCP hub component.
  *
- * @param {object}   props               - Component props.
- * @param {object}   props.mcpAbilities  - Full mcp_abilities object from API.
- * @param {number}   props.blogId        - Current site's blog ID.
- * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
- * @param {Function} props.onNavigate    - Called with 'read' | 'write' | 'setup'.
- * @param {Function} props.onUpdate      - Called with partial mcp_abilities update.
+ * @param {object}   props                - Component props.
+ * @param {object}   props.mcpAbilities   - Full mcp_abilities object from API.
+ * @param {number}   props.blogId         - Current site's blog ID.
+ * @param {string}   props.activityLogUrl - URL for the activity log link.
+ * @param {Set}      props.savingToolIds  - Set of toolIds currently being saved.
+ * @param {Function} props.onNavigate     - Called with 'read' | 'write' | 'setup'.
+ * @param {Function} props.onUpdate       - Called with partial mcp_abilities update.
  * @return {object} Component markup.
  */
-export default function McpHub( { mcpAbilities, blogId, savingToolIds, onNavigate, onUpdate } ) {
+export default function McpHub( {
+	mcpAbilities,
+	blogId,
+	activityLogUrl,
+	savingToolIds,
+	onNavigate,
+	onUpdate,
+} ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
 	const siteAbilities = getSiteMcpAbilities( mcpAbilities ?? {}, blogId );
@@ -191,6 +209,7 @@ export default function McpHub( { mcpAbilities, blogId, savingToolIds, onNavigat
 
 	const handleMcpToggle = useCallback(
 		enabled => {
+			analytics.tracks.recordEvent( 'jetpack_mcp_enabled_toggled', { enabled } );
 			const abilities = {};
 			if ( enabled ) {
 				readTools.forEach( ( [ toolId ] ) => {
@@ -258,7 +277,7 @@ export default function McpHub( { mcpAbilities, blogId, savingToolIds, onNavigat
 			</Card>
 
 			{ isMcpEnabled && (
-				<Card>
+				<Card className="jetpack-ai-mcp__action-card">
 					<ConnectRow
 						title={ __( 'Connect external AI agent', 'jetpack' ) }
 						description={ __(
@@ -267,6 +286,27 @@ export default function McpHub( { mcpAbilities, blogId, savingToolIds, onNavigat
 						) }
 						onClick={ navigateToSetup }
 					/>
+				</Card>
+			) }
+
+			{ isMcpEnabled && activityLogUrl && (
+				<Card className="jetpack-ai-mcp__action-card">
+					<a className="jetpack-ai-mcp__connect-row" href={ activityLogUrl }>
+						<span className="jetpack-ai-mcp__connect-row-icon">
+							<Icon icon={ list } size={ 24 } />
+						</span>
+						<span className="jetpack-ai-mcp__connect-row-text">
+							<Text as="p" className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
+								{ __( 'Activity log', 'jetpack' ) }
+							</Text>
+							<Text as="p" className="jetpack-ai-mcp__connect-row-description" variant="muted">
+								{ __( 'Review recent actions taken by AI agents on your site.', 'jetpack' ) }
+							</Text>
+						</span>
+						<span className="jetpack-ai-mcp__connect-row-chevron">
+							<Icon icon={ chevronRight } size={ 24 } />
+						</span>
+					</a>
 				</Card>
 			) }
 		</>

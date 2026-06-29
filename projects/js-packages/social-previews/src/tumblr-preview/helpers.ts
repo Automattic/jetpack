@@ -1,7 +1,13 @@
 import { firstValid, hardTruncation, shortEnough, stripHtmlTags, Formatter } from '../helpers';
 
 const TITLE_LENGTH = 1000;
-const DESCRIPTION_LENGTH = 400;
+const DESCRIPTION_LENGTH = 4096;
+
+/**
+ * Visible body-text cap used by the preview component. Mirrors the
+ * `DESCRIPTION_LENGTH` hard-truncation applied inside {@link tumblrDescription}.
+ */
+export const BODY_CHAR_LIMIT = DESCRIPTION_LENGTH;
 
 export const tumblrTitle: Formatter = text =>
 	firstValid(

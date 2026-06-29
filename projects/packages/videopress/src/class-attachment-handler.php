@@ -285,12 +285,12 @@ class Attachment_Handler {
 	public static function disable_delete_if_disconnected( $allcaps, $cap, $args ) {
 
 		// Only apply this filter to `delete_post` checks
-		if ( 'delete_post' !== $args[0] ) {
+		if ( ! isset( $args[0] ) || 'delete_post' !== $args[0] ) {
 			return $allcaps;
 		}
 
 		// Only apply this filter to VideoPress attachments
-		if ( ! is_videopress_attachment( $args[2] ) ) {
+		if ( ! isset( $args[2] ) || ! is_videopress_attachment( $args[2] ) ) {
 			return $allcaps;
 		}
 
@@ -368,7 +368,12 @@ class Attachment_Handler {
 
 		$statuses = array();
 		foreach ( $data['videopress_processing_ids'] as $id ) {
-			$id     = (int) $id;
+			$id = (int) $id;
+
+			if ( ! current_user_can( 'edit_post', $id ) ) {
+				continue;
+			}
+
 			$status = get_post_meta( $id, 'videopress_status', true );
 			if ( $status ) {
 				$statuses[ $id ] = $status;

@@ -50,6 +50,10 @@ export default function SidebarOptions() {
 		setPostDate,
 		productPrice = true,
 		setProductPrice,
+		aiAnswersEnabled = false,
+		setAiAnswersEnabled,
+		searchSuggestionsEnabled = false,
+		setSearchSuggestionsEnabled,
 	} = useSearchOptions();
 
 	const { isSaving } = useEntityRecordState();
@@ -189,6 +193,32 @@ export default function SidebarOptions() {
 						disabled={ isDisabled }
 						label={ __( 'Show "Powered by Jetpack"', 'jetpack-search-pkg' ) }
 						onChange={ setShowLogo }
+						__nextHasNoMarginBottom={ true }
+					/>
+				) }
+				<ToggleControl
+					className="jp-search-configure-search-suggestions-toggle"
+					checked={ searchSuggestionsEnabled }
+					disabled={ isDisabled }
+					label={ __( 'Enable search suggestions', 'jetpack-search-pkg' ) }
+					help={ __(
+						'Show autocomplete query suggestions as visitors type, instead of updating search results on every keystroke.',
+						'jetpack-search-pkg'
+					) }
+					onChange={ setSearchSuggestionsEnabled }
+					__nextHasNoMarginBottom={ true }
+				/>
+				{ ! isFreePlan && (
+					<ToggleControl
+						className="jp-search-configure-ai-answers-toggle"
+						checked={ aiAnswersEnabled }
+						disabled={ isDisabled }
+						label={ __( 'Enable AI Answers', 'jetpack-search-pkg' ) }
+						help={ __(
+							'Generate AI-powered answers to visitor queries using your site’s content.',
+							'jetpack-search-pkg'
+						) }
+						onChange={ setAiAnswersEnabled }
 						__nextHasNoMarginBottom={ true }
 					/>
 				) }
