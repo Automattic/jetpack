@@ -94,7 +94,7 @@ export default function useDeviceViews( {
 	const statsParams = {
 		...reportParams,
 		deviceProperty,
-	} as Parameters< typeof useStatsDevices >[ 0 ];
+	};
 
 	const { primary, comparison, hasComparison, isLoading, isError, error } =
 		useStatsDevices( statsParams );

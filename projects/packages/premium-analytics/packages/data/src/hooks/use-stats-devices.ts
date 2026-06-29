@@ -5,10 +5,15 @@ import { statsDevicesQuery, type StatsDeviceProperty } from '../queries/stats-de
 import { useStatsReport } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type { StatsReportParams } from '../queries/stats-query';
+import type { ReportParams } from '../utils/search';
 
-export function useStatsDevices(
-	params: StatsReportParams & { deviceProperty?: StatsDeviceProperty },
-	options?: UseStatsOptions
-) {
-	return useStatsReport( statsDevicesQuery, params, 'devices', options );
+type StatsDevicesParams = ReportParams & { deviceProperty?: StatsDeviceProperty };
+
+export function useStatsDevices( params: StatsDevicesParams, options?: UseStatsOptions ) {
+	return useStatsReport(
+		statsDevicesQuery,
+		params as StatsReportParams & { deviceProperty?: StatsDeviceProperty },
+		'devices',
+		options
+	);
 }

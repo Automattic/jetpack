@@ -9,7 +9,6 @@ import {
 import type {
 	ReportParams,
 	StatsDevicesItem,
-	StatsDeviceProperty,
 	StatsNormalizedReport,
 } from '@jetpack-premium-analytics/data';
 
@@ -72,8 +71,8 @@ export default function usePlatformViews( {
 }: UsePlatformViewsArgs ): PlatformViewsState {
 	const statsParams = {
 		...reportParams,
-		deviceProperty: deviceProperty as StatsDeviceProperty,
-	} as Parameters< typeof useStatsDevices >[ 0 ];
+		deviceProperty,
+	};
 
 	const { primary, comparison, hasComparison, isLoading, isError, error } =
 		useStatsDevices( statsParams );
