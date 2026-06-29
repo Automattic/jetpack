@@ -657,6 +657,21 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Get configured log versions.
+	 *
+	 * @return array Log version configuration.
+	 */
+	public static function get_log_versions() {
+		$config     = self::get_config();
+		$log_config = isset( $config['log'] ) && is_array( $config['log'] ) ? $config['log'] : array();
+
+		return array(
+			'policy_version' => self::normalize_log_version( $log_config['policy_version'] ?? '1', 'policy_version' ),
+			'banner_version' => self::normalize_log_version( $log_config['banner_version'] ?? '1', 'banner_version' ),
+		);
+	}
+
+	/**
 	 * Get default UI copy.
 	 *
 	 * Defaults are translated in the package text domain. Consumers can override
@@ -705,6 +720,34 @@ class Cookie_Consent {
 			'ccpa_snackbar_success'            => __( 'Your browser has been successfully opted out from sharing personal data.', 'jetpack-cookie-consent' ),
 			'ccpa_snackbar_dismiss_label'      => __( 'Dismiss', 'jetpack-cookie-consent' ),
 		);
+	}
+
+	/**
+	 * Normalize a configured log version value for callers.
+	 *
+	 * @param mixed  $version Version value from config.
+	 * @param string $key     Config key being normalized, used for diagnostics.
+	 * @return string Non-empty log version.
+	 */
+	private static function normalize_log_version( $version, $key ) {
+		if ( is_scalar( $version ) ) {
+			$normalized = sanitize_text_field( (string) $version );
+			if ( '' !== $normalized ) {
+				return $normalized;
+			}
+		}
+
+		// A supplied value that isn't a usable version string would silently become the
+		// default '1' on a proof-of-consent record, masking a misconfiguration. Surface it
+		// so an integrating developer notices the configured value was dropped.
+		_doing_it_wrong(
+			__METHOD__,
+			/* translators: %s is the log version configuration key. */
+			esc_html( sprintf( __( 'Cookie consent log version for "%s" was ignored because it is not a non-empty scalar value.', 'jetpack-cookie-consent' ), $key ) ),
+			''
+		);
+
+		return '1';
 	}
 
 	/**
@@ -829,6 +872,10 @@ class Cookie_Consent {
 			'show_on_error'       => true, // Show banner if geolocation fails.
 			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
+			'log'                 => array(
+				'policy_version' => '1',
+				'banner_version' => '1',
+			),
 			'copy'                => $default_copy,
 		);
 
