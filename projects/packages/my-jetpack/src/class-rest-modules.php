@@ -110,10 +110,10 @@ class REST_Modules {
 
 			$modules[ $slug ] = array(
 				'module'           => $slug,
-				'name'             => isset( $info['name'] ) ? $info['name'] : $slug,
-				'description'      => isset( $info['description'] ) ? $info['description'] : '',
-				'long_description' => isset( $info['long_description'] ) ? $info['long_description'] : '',
-				'search_terms'     => isset( $info['search_terms'] ) ? $info['search_terms'] : '',
+				'name'             => $info['name'] ?? $slug,
+				'description'      => $info['description'] ?? '',
+				'long_description' => $info['long_description'] ?? '',
+				'search_terms'     => $info['search_terms'] ?? '',
 				'available'        => true,
 				'activated'        => $modules_instance->is_active( $slug ),
 			);
@@ -149,7 +149,11 @@ class REST_Modules {
 
 		$modules_instance = new Modules();
 
-		if ( $modules_instance->is_module( $slug ) ) {
+		// Only route through the Modules class for a real, available Jetpack module. Note we
+		// can't use Modules::is_module() here: it relies on validate_file(), which treats any
+		// slug as valid when the available-modules list is empty (e.g. on a site without the
+		// Jetpack plugin), so it would wrongly claim every slug is a module.
+		if ( in_array( $slug, $modules_instance->get_available(), true ) ) {
 			$result = $active
 				? $modules_instance->activate( $slug, false, false )
 				: $modules_instance->deactivate( $slug );
