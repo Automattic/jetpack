@@ -223,11 +223,59 @@ test( 'a non-finite metric is rejected through the posting path', async () => {
 	assert.equal( result.validationFailed, true );
 } );
 
-test( 'a missing results file throws', async () => {
+test( 'a missing results file is a validation failure (exit 2), not a suppressible exit 1', async () => {
 	await assert.rejects(
 		() => silenced( () => postToCodeVitals( '/no/such/results.json', { dryRun: true } ) ),
-		/Results file not found/
+		err => {
+			assert.match( err.message, /Results file not found/ );
+			// Pre-POST data failures must use the always-fatal data-integrity code.
+			assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+			return true;
+		}
 	);
+} );
+
+test( 'a results file with no measurements object fails closed as a validation error', async () => {
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-noshape-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync( file, JSON.stringify( { git: { hash: 'h', branch: 'trunk' } } ) ); // no measurements
+	try {
+		await assert.rejects(
+			() => silenced( () => postToCodeVitals( file, { dryRun: true } ) ),
+			err => {
+				assert.equal( err.name, 'ValidationError' ); // not a raw TypeError crash
+				assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+				return true;
+			}
+		);
+	} finally {
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+test( 'a measurement with no summary is skipped, not a TypeError crash, and fails closed', async () => {
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-nosummary-' ) );
+	const file = path.join( dir, 'results.json' );
+	// Measurement present, no error, but no summary object — must not crash on summary.median.
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: { jetpackConnected: {} },
+		} )
+	);
+	try {
+		await assert.rejects(
+			() => silenced( () => postToCodeVitals( file, { dryRun: true } ) ),
+			err => {
+				assert.match( err.message, /No metrics to post/ );
+				assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+				return true;
+			}
+		);
+	} finally {
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
 } );
 
 // --- live POST branch (fetch stubbed; never touches the network) ---
@@ -256,6 +304,43 @@ test( 'a live post sends the payload as POST and returns posted:true', async () 
 	} finally {
 		global.fetch = origFetch;
 	}
+} );
+
+test( 'an OK response with an unparseable body is a transport failure (exit 1) and leaks no token', async () => {
+	const file = writeResults( 120 );
+	const origFetch = global.fetch;
+	// HTTP 200 but the body is not JSON; response.json() rejects with a token-bearing
+	// error. This must surface as a transport/API failure (exit 1, suppressible), with
+	// the token scrubbed from the message, the cause chain, and util.inspect.
+	global.fetch = async () => ( {
+		ok: true,
+		status: 200,
+		json: async () => {
+			throw new Error( 'Unexpected token < for token=tok-json-500' );
+		},
+		text: async () => '<html>',
+	} );
+	let err;
+	try {
+		await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok-json-500',
+			} )
+		);
+	} catch ( e ) {
+		err = e;
+	} finally {
+		global.fetch = origFetch;
+	}
+	assert.ok( err, 'an unparseable OK body should reject' );
+	assert.match( err.message, /invalid JSON/ );
+	assert.equal( exitCodeForError( err ), 1 ); // post reached transport; not a local-data failure
+	assert.ok(
+		! inspect( err, { depth: 5 } ).includes( 'tok-json-500' ),
+		'token must not survive anywhere in the error'
+	);
 } );
 
 test( 'a non-OK CodeVitals response throws without leaking the token, even from the body', async () => {
@@ -562,6 +647,35 @@ test( 'the CLI exits with the validation code on an out-of-range dry run', () =>
 	// code (not a generic 1) so the runner can never suppress it.
 	assert.equal( status, VALIDATION_FAILED_EXIT_CODE );
 	assert.match( output, /Sanity check failed/ );
+} );
+
+test( 'the CLI exits with the validation code when there are no metrics to post', () => {
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-empty-' ) );
+	const file = path.join( dir, 'results.json' );
+	// A well-formed results file with no usable measurements: nothing posts. This is a
+	// local data-integrity failure, so it must exit 2 (unsuppressible), not a generic 1.
+	fs.writeFileSync(
+		file,
+		JSON.stringify( { git: { hash: 'h', branch: 'trunk' }, measurements: {} } )
+	);
+	const env = { ...process.env, RESULTS_PATH: file };
+	delete env.CODEVITALS_TOKEN;
+	let status, output;
+	try {
+		execFileSync( 'node', [ path.join( SCRIPTS_DIR, 'post-to-codevitals.js' ), '--dry-run' ], {
+			encoding: 'utf8',
+			env,
+			stdio: [ 'ignore', 'pipe', 'pipe' ],
+		} );
+		status = 0;
+	} catch ( err ) {
+		status = err.status;
+		output = `${ err.stdout ?? '' }${ err.stderr ?? '' }`;
+	} finally {
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+	assert.equal( status, VALIDATION_FAILED_EXIT_CODE );
+	assert.match( output, /No metrics to post/ );
 } );
 
 // --- run-performance-tests.js: the build-fail decision (cross-file contract) ---

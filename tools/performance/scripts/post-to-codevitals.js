@@ -5,11 +5,13 @@ import path from 'path';
 import { SCENARIOS, SANITY_RANGES } from './scenarios.js';
 
 /**
- * Exit code for a LOCAL data-integrity failure: a metric failed a sanity check or
- * a scenario is misconfigured. This is distinct from exit 1 (a remote CodeVitals
- * transport/API failure). run-performance-tests.js treats this code as always
- * fatal and never suppresses it with `--allow-codevitals-failure`, which exists
- * only to tolerate CodeVitals network outages, not bad local data.
+ * Exit code for a LOCAL data-integrity failure: a metric failed a sanity check, a
+ * scenario is misconfigured, or the results file is missing/unusable. In short,
+ * anything that goes wrong BEFORE the live POST. This is distinct from exit 1 (a
+ * remote CodeVitals transport/API failure during or after the POST).
+ * run-performance-tests.js treats this code as always fatal and never suppresses it
+ * with `--allow-codevitals-failure`, which exists only to tolerate CodeVitals
+ * network outages, not bad local data.
  */
 const VALIDATION_FAILED_EXIT_CODE = 2;
 
@@ -202,12 +204,23 @@ function sanitizeErrorChain( error, token ) {
 
 /** Post metrics to CodeVitals. */
 async function postToCodeVitals( resultsPath, config ) {
-	// Read results file
+	// Everything from here until the live POST is local data-integrity work: a missing
+	// or malformed results file, no usable measurements, or a bad config all fail as a
+	// ValidationError (exit 2, never suppressible by --allow-codevitals-failure). Only a
+	// failure during the live POST below is a transport error (exit 1, suppressible).
 	if ( ! fs.existsSync( resultsPath ) ) {
-		throw new Error( `Results file not found: ${ resultsPath }` );
+		throw new ValidationError( `Results file not found: ${ resultsPath }` );
 	}
 
-	const results = JSON.parse( fs.readFileSync( resultsPath, 'utf8' ) );
+	let results;
+	try {
+		results = JSON.parse( fs.readFileSync( resultsPath, 'utf8' ) );
+	} catch {
+		throw new ValidationError( `Results file is not valid JSON: ${ resultsPath }` );
+	}
+	if ( ! results.measurements || typeof results.measurements !== 'object' ) {
+		throw new ValidationError( 'Results file has no measurements object' );
+	}
 
 	// Extract and sanity-check metrics from results
 	const metrics = {};
@@ -221,7 +234,10 @@ async function postToCodeVitals( resultsPath, config ) {
 		}
 
 		const measurement = results.measurements[ scenario.key ];
-		if ( ! measurement || measurement.error ) {
+		// A missing/errored measurement, or one with no summary object, has no usable
+		// data — skip it (rather than crash on summary.median). If skipping leaves
+		// nothing to post, the no-metrics guard below fails closed.
+		if ( ! measurement || measurement.error || ! measurement.summary ) {
 			console.warn( `Warning: No measurement data for ${ scenario.name }` );
 			continue;
 		}
@@ -245,7 +261,9 @@ async function postToCodeVitals( resultsPath, config ) {
 			// Every metric was skipped by a sanity check (failures already logged).
 			return { posted: false, validationFailed };
 		}
-		throw new Error( 'No metrics to post - check scenario configuration and measurement results' );
+		throw new ValidationError(
+			'No metrics to post - check scenario configuration and measurement results'
+		);
 	}
 
 	// Prepare CodeVitals payload
@@ -274,7 +292,7 @@ async function postToCodeVitals( resultsPath, config ) {
 	try {
 		url = new URL( '/api/log', config.codeVitalsUrl );
 	} catch {
-		throw new Error( 'Invalid CodeVitals URL; check the CODEVITALS_URL setting' );
+		throw new ValidationError( 'Invalid CodeVitals URL; check the CODEVITALS_URL setting' );
 	}
 	url.searchParams.set( 'token', config.codeVitalsToken );
 
