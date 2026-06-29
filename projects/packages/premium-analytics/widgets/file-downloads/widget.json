@@ -2,6 +2,6 @@
 	"name": "jpa/file-downloads",
 	"title": "File downloads",
 	"description": "Most downloaded files on your site.",
-	"category": "traffic",
+	"category": "stats",
 	"presentation": "framed"
 }

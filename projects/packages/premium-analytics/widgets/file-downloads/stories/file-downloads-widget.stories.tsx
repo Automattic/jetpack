@@ -143,6 +143,14 @@ export const WithComparison: Story = {
 	render: renderFileDownloadsWidget,
 	args: { withComparison: true },
 	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'File downloads intentionally has no period-over-period comparison view — the Calypso source does not expose deltas for this module. The widget renders the same list when comparison params are present; the comparison report is fetched but not mapped into the leaderboard.',
+			},
+		},
+	},
 };
 
 export const LoadingState: PresentationalStory = {
