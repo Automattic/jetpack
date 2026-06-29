@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats: Add explicit return types to the data hooks and their shared helpers.

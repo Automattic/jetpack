@@ -3,12 +3,16 @@
  */
 import { statsUtmQuery } from '../queries/stats-utm-query';
 import { useStatsReport } from './use-stats-report';
+import type { UseReportResult } from './use-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type { StatsUtmParams, StatsUtmResponse } from '../queries/stats-utm-query';
 
 export type { StatsUtmParams, StatsUtmResponse } from '../queries/stats-utm-query';
 
-export function useStatsUtm( params: StatsUtmParams, options?: UseStatsOptions ) {
+export function useStatsUtm(
+	params: StatsUtmParams,
+	options?: UseStatsOptions
+): UseReportResult< StatsUtmResponse > {
 	return useStatsReport< StatsUtmParams, StatsUtmResponse >(
 		statsUtmQuery,
 		params,

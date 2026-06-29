@@ -4,11 +4,13 @@
 import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../queries/stats-wordads-query';
 import { useStatsQuery } from './use-stats-query';
 import { useStatsReport, type UseStatsOptions } from './use-stats-report';
+import type { UseReportResult } from './use-report';
 import type { StatsWordAdsEarningsResponse, StatsWordAdsResponse } from '../processing/stats';
 import type {
 	StatsWordAdsEarningsParams,
 	StatsWordAdsParams,
 } from '../queries/stats-wordads-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 
 export type {
 	StatsWordAdsEarnings,
@@ -29,7 +31,10 @@ export type {
 	StatsWordAdsParams,
 } from '../queries/stats-wordads-query';
 
-export function useStatsWordAdsStats( params: StatsWordAdsParams, options?: UseStatsOptions ) {
+export function useStatsWordAdsStats(
+	params: StatsWordAdsParams,
+	options?: UseStatsOptions
+): UseReportResult< StatsWordAdsResponse > {
 	return useStatsReport< StatsWordAdsParams, StatsWordAdsResponse >(
 		statsWordAdsStatsQuery,
 		params,
@@ -41,7 +46,7 @@ export function useStatsWordAdsStats( params: StatsWordAdsParams, options?: UseS
 export function useStatsWordAdsEarnings(
 	params?: StatsWordAdsEarningsParams,
 	options?: UseStatsOptions
-) {
+): UseQueryResult< StatsWordAdsEarningsResponse > {
 	return useStatsQuery< StatsWordAdsEarningsResponse >(
 		statsWordAdsEarningsQuery( params ),
 		options

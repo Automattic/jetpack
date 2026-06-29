@@ -7,6 +7,7 @@ import {
 	statsAppDashboardModuleSettingsQuery,
 } from '../queries/stats-app-dashboard-module-settings-query';
 import { useStatsAppQuery, type UseStatsAppOptions } from './use-stats-app-query';
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
 export type StatsAppDashboardModuleSettings = {
 	traffic?: {
@@ -25,14 +26,21 @@ export type StatsAppDashboardModuleSettings = {
 	};
 };
 
-export function useStatsAppDashboardModuleSettings( options?: UseStatsAppOptions ) {
+export function useStatsAppDashboardModuleSettings(
+	options?: UseStatsAppOptions
+): UseQueryResult< StatsAppDashboardModuleSettings > {
 	return useStatsAppQuery< StatsAppDashboardModuleSettings >(
 		statsAppDashboardModuleSettingsQuery< StatsAppDashboardModuleSettings >(),
 		options
 	);
 }
 
-export function useStatsAppDashboardModuleSettingsMutation() {
+export function useStatsAppDashboardModuleSettingsMutation(): UseMutationResult<
+	StatsAppDashboardModuleSettings,
+	Error,
+	StatsAppDashboardModuleSettings,
+	unknown
+> {
 	const queryClient = useQueryClient();
 
 	return useMutation( {

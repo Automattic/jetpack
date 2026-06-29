@@ -8,12 +8,16 @@ import type {
 	StatsPublicizeParams,
 	StatsPublicizeResponse,
 } from '../queries/stats-publicize-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 
 export type {
 	StatsPublicizeParams,
 	StatsPublicizeResponse,
 } from '../queries/stats-publicize-query';
 
-export function useStatsPublicize( params: StatsPublicizeParams = {}, options?: UseStatsOptions ) {
+export function useStatsPublicize(
+	params: StatsPublicizeParams = {},
+	options?: UseStatsOptions
+): UseQueryResult< StatsPublicizeResponse > {
 	return useStatsQuery< StatsPublicizeResponse >( statsPublicizeQuery( params ), options );
 }

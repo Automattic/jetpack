@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, type UseQueryOptions, type UseQueryResult } from '@tanstack/react-query';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
@@ -12,6 +12,18 @@ type UseReportOptions = {
 	enabled?: boolean;
 	disabledComparisonKey?: string[];
 };
+
+export interface UseReportResult< TData > {
+	primary: UseQueryResult< TData >;
+	comparison: UseQueryResult< TData >;
+	hasComparison: boolean;
+	isLoading: boolean;
+	isFetching: boolean;
+	hasData: boolean;
+	isError: boolean;
+	error: Error | null;
+	refetch: () => Promise< void >;
+}
 
 type QueryFactory< TData > = (
 	params: any,
@@ -51,7 +63,7 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 	queryFactory: QueryFactory< TData >,
 	params: TParams,
 	options?: UseReportOptions
-) {
+): UseReportResult< TData > {
 	const queryEnabled = options?.enabled ?? true;
 	const comparisonEnabled = hasComparisonEnabled( params );
 	const primaryParams = { ...params };

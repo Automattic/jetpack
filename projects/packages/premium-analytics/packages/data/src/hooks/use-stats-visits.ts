@@ -3,6 +3,7 @@
  */
 import { statsVisitsQuery } from '../queries/stats-visits-query';
 import { useStatsReport } from './use-stats-report';
+import type { UseReportResult } from './use-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type { StatsVisitsParams, StatsVisitsResponse } from '../queries/stats-visits-query';
 
@@ -13,7 +14,10 @@ export type {
 	StatsVisitsStatFields,
 } from '../queries/stats-visits-query';
 
-export function useStatsVisits( params: StatsVisitsParams, options?: UseStatsOptions ) {
+export function useStatsVisits(
+	params: StatsVisitsParams,
+	options?: UseStatsOptions
+): UseReportResult< StatsVisitsResponse > {
 	return useStatsReport< StatsVisitsParams, StatsVisitsResponse >(
 		statsVisitsQuery,
 		params,

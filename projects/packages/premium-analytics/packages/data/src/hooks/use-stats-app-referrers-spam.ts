@@ -1,4 +1,10 @@
-import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
+import {
+	useMutation,
+	useQueryClient,
+	type QueryClient,
+	type UseMutationResult,
+	type UseQueryResult,
+} from '@tanstack/react-query';
 import { fetchStatsProxy } from '../api';
 import {
 	STATS_APP_REFERRERS_SPAM_NAME,
@@ -17,11 +23,18 @@ function invalidateReferrersSpamQueries( queryClient: QueryClient ) {
 	queryClient.invalidateQueries( { queryKey: [ 'stats-app', STATS_APP_REFERRERS_SPAM_NAME ] } );
 }
 
-export function useStatsAppReferrersSpam( options?: UseStatsAppOptions ) {
+export function useStatsAppReferrersSpam(
+	options?: UseStatsAppOptions
+): UseQueryResult< StatsAppReferrersSpamResponse > {
 	return useStatsAppQuery< StatsAppReferrersSpamResponse >( statsAppReferrersSpamQuery(), options );
 }
 
-export function useStatsAppReferrersMarkSpamMutation() {
+export function useStatsAppReferrersMarkSpamMutation(): UseMutationResult<
+	StatsAppReferrersSpamMutationResponse,
+	Error,
+	StatsAppReferrersSpamMutationParams,
+	unknown
+> {
 	const queryClient = useQueryClient();
 
 	return useMutation( {
@@ -35,7 +48,12 @@ export function useStatsAppReferrersMarkSpamMutation() {
 	} );
 }
 
-export function useStatsAppReferrersUnmarkSpamMutation() {
+export function useStatsAppReferrersUnmarkSpamMutation(): UseMutationResult<
+	StatsAppReferrersSpamMutationResponse,
+	Error,
+	StatsAppReferrersSpamMutationParams,
+	unknown
+> {
 	const queryClient = useQueryClient();
 
 	return useMutation( {

@@ -1,9 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchStatsProxy } from '../api';
+import type { UseMutationResult } from '@tanstack/react-query';
 
 export type StatsAppCommercialClassificationParams = Record< string, never >;
 
-export function useStatsAppCommercialClassificationMutation() {
+export function useStatsAppCommercialClassificationMutation(): UseMutationResult<
+	unknown,
+	Error,
+	StatsAppCommercialClassificationParams | undefined,
+	unknown
+> {
 	const queryClient = useQueryClient();
 
 	return useMutation( {

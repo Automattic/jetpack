@@ -5,6 +5,7 @@ import { statsPostQuery } from '../queries/stats-post-query';
 import { useStatsQuery } from './use-stats-query';
 import type { UseStatsOptions } from './use-stats-report';
 import type { StatsPostParams, StatsPostResponse } from '../queries/stats-post-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 
 export type {
 	StatsPostField,
@@ -12,6 +13,9 @@ export type {
 	StatsPostResponse,
 } from '../queries/stats-post-query';
 
-export function useStatsPost( params: StatsPostParams, options?: UseStatsOptions ) {
+export function useStatsPost(
+	params: StatsPostParams,
+	options?: UseStatsOptions
+): UseQueryResult< StatsPostResponse > {
 	return useStatsQuery< StatsPostResponse >( statsPostQuery( params ), options );
 }

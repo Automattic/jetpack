@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { useReport } from './use-report';
+import { useReport, type UseReportResult } from './use-report';
 import type { StatsReportParams } from '../queries/stats-query';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
@@ -18,7 +18,7 @@ export function useStatsReport< TParams extends StatsReportParams, TData >(
 	params: TParams,
 	reportSlugOrDisabledComparisonKey: string | string[],
 	options?: UseStatsOptions
-) {
+): UseReportResult< TData > {
 	const disabledComparisonKey = Array.isArray( reportSlugOrDisabledComparisonKey )
 		? reportSlugOrDisabledComparisonKey
 		: [ 'stats', reportSlugOrDisabledComparisonKey, '__comparison__', 'disabled' ];

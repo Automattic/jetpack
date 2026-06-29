@@ -3,6 +3,7 @@
  */
 import { statsDevicesQuery } from '../queries/stats-devices-query';
 import { useStatsReport } from './use-stats-report';
+import type { UseReportResult } from './use-report';
 import type { UseStatsOptions } from './use-stats-report';
 import type {
 	StatsDevices,
@@ -10,7 +11,10 @@ import type {
 	StatsDevicesParams,
 } from '../queries/stats-devices-query';
 
-export function useStatsDevices( params: StatsDevicesParams, options?: UseStatsOptions ) {
+export function useStatsDevices(
+	params: StatsDevicesParams,
+	options?: UseStatsOptions
+): UseReportResult< StatsDevices > {
 	return useStatsReport(
 		statsDevicesQuery,
 		params,

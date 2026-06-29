@@ -3,6 +3,7 @@
  */
 import { statsAppPlanUsageQuery } from '../queries/stats-app-plan-usage-query';
 import { useStatsAppQuery, type UseStatsAppOptions } from './use-stats-app-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 
 export type StatsAppPlanPeriodUsage = {
 	current_start: string | null;
@@ -38,7 +39,9 @@ export type StatsAppPlanUsage = {
 	upgrade_deadline_date: string | null;
 };
 
-export function useStatsAppPlanUsage( options?: UseStatsAppOptions ) {
+export function useStatsAppPlanUsage(
+	options?: UseStatsAppOptions
+): UseQueryResult< StatsAppPlanUsage > {
 	return useStatsAppQuery< StatsAppPlanUsage >(
 		statsAppPlanUsageQuery< StatsAppPlanUsage >(),
 		options
