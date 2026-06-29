@@ -46,6 +46,20 @@ clear `jetpack_cookie_consent_consent_log_db_version`, call:
 
 Filter `jetpack_cookie_consent_config` to override defaults (geo API URL, GDPR/CCPA region lists, cookie policy URL, and the Tracks `event_prefix`). The Tracks event prefix defaults to `jetpack`; set it to `woocommerceanalytics` to keep continuity with the WooCommerce/Unified Analytics Tracks stream.
 
+User-facing banner, preferences modal, footer link, CCPA page, and CCPA snackbar strings are configured through the `copy` group. Package defaults are translated with the `jetpack-cookie-consent` text domain. Consumers that override strings should translate those overrides before returning them from the filter, using their own text domain:
+
+```php
+add_filter(
+	'jetpack_cookie_consent_config',
+	function ( $config ) {
+		$config['copy']['banner_title'] = __( 'Your privacy settings', 'my-plugin' );
+		$config['copy']['ccpa_opt_out_button'] = __( 'Do Not Sell or Share My Personal Information', 'my-plugin' );
+
+		return $config;
+	}
+);
+```
+
 ## Requirements
 
 - PHP >= 7.2

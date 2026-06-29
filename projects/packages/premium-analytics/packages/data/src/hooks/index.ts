@@ -121,6 +121,13 @@ export type {
 	StatsAppReferrersSpamMutationResponse,
 	StatsAppReferrersSpamResponse,
 } from './use-stats-app-referrers-spam';
+export {
+	useStatsEmailOpensBreakdown,
+	useStatsEmailClicksBreakdown,
+	type StatsEmailBreakdown,
+	type StatsEmailClicksBreakdown,
+	type StatsEmailOpensBreakdown,
+} from './use-stats-email-breakdown';
 export type { UseStatsOptions } from './use-stats-report';
 
 /**
