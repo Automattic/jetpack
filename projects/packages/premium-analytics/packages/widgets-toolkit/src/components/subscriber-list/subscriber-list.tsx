@@ -18,7 +18,7 @@ import styles from './subscriber-list.module.scss';
  */
 export type SubscriberListItem = {
 	/**
-	 * Stable key for the row (subscription id, or the name as a fallback).
+	 * Stable key for the row (e.g. a subscription id, or a caller-provided fallback).
 	 */
 	id: string | number;
 	/**
