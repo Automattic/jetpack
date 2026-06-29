@@ -28,7 +28,7 @@ import {
 	resolvePostTimestamp,
 	VALIDATION_FAILED_EXIT_CODE,
 } from './post-to-codevitals.js';
-import { shouldFailBuildOnPostError } from './run-performance-tests.js';
+import { getGitInfo, shouldFailBuildOnPostError } from './run-performance-tests.js';
 import { SANITY_RANGES, SCENARIOS } from './scenarios.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
@@ -883,6 +883,99 @@ test( 'a dry-run payload is stamped with the commit time from the results file',
 	}
 } );
 
+// --- commit-time plumbing: getGitInfo reads the producer side (real temp git repo) ---
+
+/**
+ * Make a throwaway git repo with one commit and return its dir. `body` becomes the
+ * commit message body (used to exercise Upstream-Ref parsing). Caller removes the dir.
+ */
+function initTempGitRepo( body = '' ) {
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-git-' ) );
+	const git = args => execFileSync( 'git', args, { cwd: dir, stdio: 'pipe' } );
+	git( [ 'init', '-q', '-b', 'trunk' ] );
+	git( [ 'config', 'user.email', 't@example.com' ] );
+	git( [ 'config', 'user.name', 'Test' ] );
+	git( [ 'config', 'commit.gpgsign', 'false' ] );
+	fs.writeFileSync( path.join( dir, 'file.txt' ), 'x' );
+	git( [ 'add', '-A' ] );
+	git( [ 'commit', '-q', '-m', 'subject', ...( body ? [ '-m', body ] : [] ) ] );
+	return dir;
+}
+
+test( 'getGitInfo: plain commit → hash is mirror HEAD and committedAtMs is %ct × 1000', () => {
+	const savedCommit = process.env.GIT_COMMIT;
+	delete process.env.GIT_COMMIT; // don't let the host env override hash selection
+	const dir = initTempGitRepo();
+	try {
+		const head = execFileSync( 'git', [ 'rev-parse', 'HEAD' ], { cwd: dir, stdio: 'pipe' } )
+			.toString()
+			.trim();
+		const ct = Number(
+			execFileSync( 'git', [ 'show', '-s', '--format=%ct', 'HEAD' ], { cwd: dir, stdio: 'pipe' } )
+				.toString()
+				.trim()
+		);
+		const info = getGitInfo( dir );
+		assert.equal( info.hash, head );
+		assert.equal( info.mirrorHash, head );
+		assert.equal( info.branch, 'trunk' );
+		assert.equal( info.committedAtMs, ct * 1000, 'commit time is epoch seconds × 1000' );
+	} finally {
+		if ( savedCommit === undefined ) {
+			delete process.env.GIT_COMMIT;
+		} else {
+			process.env.GIT_COMMIT = savedCommit;
+		}
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+test( 'getGitInfo: an Upstream-Ref footer wins over the mirror hash (monorepo SHA is posted)', () => {
+	const savedCommit = process.env.GIT_COMMIT;
+	delete process.env.GIT_COMMIT;
+	const upstream = 'a'.repeat( 40 );
+	const dir = initTempGitRepo( `Upstream-Ref: Automattic/jetpack@${ upstream }` );
+	try {
+		const head = execFileSync( 'git', [ 'rev-parse', 'HEAD' ], { cwd: dir, stdio: 'pipe' } )
+			.toString()
+			.trim();
+		const info = getGitInfo( dir );
+		assert.equal( info.hash, upstream, 'hash comes from the Upstream-Ref, not mirror HEAD' );
+		assert.equal( info.mirrorHash, head, 'mirrorHash still tracks the real checkout' );
+		assert.ok( info.committedAtMs > 0 );
+	} finally {
+		if ( savedCommit === undefined ) {
+			delete process.env.GIT_COMMIT;
+		} else {
+			process.env.GIT_COMMIT = savedCommit;
+		}
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+test( 'getGitInfo: a non-git directory degrades to unknown hash and null commit time', () => {
+	const savedCommit = process.env.GIT_COMMIT;
+	delete process.env.GIT_COMMIT;
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-nogit-' ) );
+	try {
+		const info = getGitInfo( dir );
+		assert.equal( info.hash, 'unknown' );
+		assert.equal( info.mirrorHash, 'unknown' );
+		assert.equal(
+			info.committedAtMs,
+			null,
+			'no git metadata → null, so the poster build-time falls back'
+		);
+	} finally {
+		if ( savedCommit === undefined ) {
+			delete process.env.GIT_COMMIT;
+		} else {
+			process.env.GIT_COMMIT = savedCommit;
+		}
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
 // --- cross-commit dedup (gitaudit evolution read; fetch stubbed, no network) ---
 
 const DEDUP_CONFIG = {
@@ -1052,14 +1145,16 @@ test( 'dedup fails open (still posts) when the response body read fails', async 
 
 test(
 	'dedup body read stays bounded: a body that hangs until abort still fails open and posts',
-	{ timeout: 5000 },
+	{ timeout: 20000 },
 	async () => {
 		// The regression guard for the round-2 body-read fix: the abort timer must stay
 		// armed across response.json(). The stub's json() never settles on its own — only
 		// the AbortController signal rejects it — so this passes only if the timer is still
 		// live during the body read. dedupTimeoutMs=50 stands in for the 15s production
 		// timer; the per-test timeout turns a reverted fix (timer cleared after headers,
-		// abort never fires, json() hangs) into a clean failure instead of a hang.
+		// abort never fires, json() hangs) into a clean failure instead of a hang. The
+		// budget is deliberately wide (~400x the 50ms abort) so a cold `node --test`
+		// warmup can't false-fail correct code; only a genuine hang reaches 20s.
 		const file = writeResults( 120 );
 		const { fetchImpl, calls } = dedupFetchStub( { stallBodyUntilAbort: true } );
 		const origFetch = global.fetch;

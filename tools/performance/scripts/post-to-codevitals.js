@@ -305,7 +305,7 @@ async function hashAlreadyPosted( hash, branch, config ) {
 		if ( ! Array.isArray( body?.data ) ) {
 			// Fail open (post proceeds), but warn — every other degraded dedup path warns,
 			// and a silent {data: undefined} would make API/schema drift look like a valid
-			// empty series ("dedup never skips") with no signal at go-live.
+			// empty series ("dedup never skips") with no signal once dedup is enabled.
 			console.warn(
 				'⚠ Dedup check skipped: evolution response had no data array (unexpected shape). Proceeding with post.'
 			);
@@ -521,7 +521,9 @@ async function postToCodeVitals( resultsPath, config ) {
  * @return {boolean} True when dedup should run.
  */
 function resolveDedupEnabled( argv, env ) {
-	const truthy = value => [ '1', 'true', 'yes' ].includes( ( value || '' ).toLowerCase() );
+	// String()-coerce: process.env values are always strings, but this helper is exported,
+	// so a future caller passing a non-string env double must not TypeError on toLowerCase.
+	const truthy = value => [ '1', 'true', 'yes' ].includes( String( value ?? '' ).toLowerCase() );
 	const optedIn = argv.includes( '--dedup' ) || truthy( env.CODEVITALS_ENABLE_DEDUP );
 	const optedOut = argv.includes( '--no-dedup' ) || truthy( env.CODEVITALS_SKIP_DEDUP );
 	return optedIn && ! optedOut;

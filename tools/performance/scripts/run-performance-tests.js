@@ -169,10 +169,15 @@ function checkDocker() {
 	}
 }
 
-/** Get git hash and branch from jetpack-production mirror. */
-function getGitInfo() {
+/**
+ * Get git hash, branch, and commit time from the jetpack-production mirror.
+ *
+ * @param {string} pluginDir - Directory to read git metadata from; defaults to PLUGIN_DIR (parameterized for tests).
+ * @return {{hash: string, mirrorHash: string, branch: string, committedAtMs: number|null}} Resolved git info for the posted point.
+ */
+function getGitInfo( pluginDir = PLUGIN_DIR ) {
 	// Git commands must run from the plugin directory (where jetpack-production is checked out)
-	const gitOpts = { cwd: PLUGIN_DIR, silent: true };
+	const gitOpts = { cwd: pluginDir, silent: true };
 
 	// Get the mirror commit hash
 	let mirrorHash = 'unknown';
@@ -465,8 +470,10 @@ async function main() {
 	process.env.GIT_BRANCH = gitInfo.branch;
 	// Carry the commit time to measure-lcp.js (writes it into results.git.timestamp)
 	// and to the post-to-codevitals.js child, so the posted point is ordered by when
-	// the code landed, not when this build ran.
-	if ( gitInfo.committedAtMs ) {
+	// the code landed, not when this build ran. Don't clobber a caller-supplied value:
+	// GIT_COMMIT + GIT_COMMIT_TIMESTAMP_MS are a paired override, so if someone set the
+	// timestamp explicitly (to pair it with a GIT_COMMIT hash), keep theirs over HEAD's.
+	if ( gitInfo.committedAtMs && ! process.env.GIT_COMMIT_TIMESTAMP_MS ) {
 		process.env.GIT_COMMIT_TIMESTAMP_MS = String( gitInfo.committedAtMs );
 	}
 	process.env.ITERATIONS = options.iterations.toString();
@@ -549,4 +556,4 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 	} );
 }
 
-export { shouldFailBuildOnPostError };
+export { shouldFailBuildOnPostError, getGitInfo };
