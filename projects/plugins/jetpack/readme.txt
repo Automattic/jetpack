@@ -326,18 +326,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.0-a.5 - 2026-06-25
+### 16.0-a.7 - 2026-06-29
 #### Enhancements
-- SEO: Hide the legacy Traffic-page SEO and Sitemaps sections once a site is on the new SEO dashboard (fresh install, opted-in, or WordPress.com); existing self-hosted installs that haven't opted in keep the legacy sections.
+- Donations Block: Render the block in emails with email-friendly CTA buttons.
 
 #### Bug fixes
-- AI Assistant: Hide legacy block toolbar controls when Jetpack AI Sidebar content editing is enabled.
-- AI Chat block: Stop prompting to enable Jetpack Search when the Search module is active in a non-Instant Search experience (Theme, Inline, or Embedded).
-- Akismet: Show the Akismet logo (instead of the Jetpack logo) in the unified admin header.
-- Newsletter: Fix "Sorry, you are not allowed to do this" error for Contributors on the first Submit for Review when the Subscriptions module is active.
-- Paid Content: Ensure paid subscribers on Atomic-hosted sites retain access to gated content.
-- SEO: Default the Schema, Meta description, and Search post-list columns to hidden in Screen Options.
-- Social: Prevent errors in the post-publish sharing status panel from crashing the editor.
+- AI Agent Access: Correct module references in Shortlinks and Related Posts ability descriptions.
+- Archives shortcode: Cap the `postbypost` type with a filterable default limit to prevent memory exhaustion on large sites.
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active along with other Jetpack standalone plugins.
+- Forms: Sign file download links with an expiring token so they work for any logged-in editor.
+- Memberships: Delegate the Payment Request API to the checkout iframe so Apple Pay, Google Pay, and Stripe Link can load and complete payments.
+- Podcast: Load the package outside Jetpack's connection-gated module loader so the podcast feed and dashboard keep working when the site is disconnected.
+- Tiled Gallery: Fix an infinite resize loop when the block is inside a Row or Stack block.
+- Tiled Gallery: Keep the mosaic layout stable and split rows evenly between galleries when the block is inside a Row or Stack.
+- WhatsApp Button block: Fix icon and text overlapping in RTL languages.
 
 --------
 
