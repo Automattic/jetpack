@@ -254,7 +254,7 @@ function LocationsInner( { max }: { max: number } ) {
  * @param root0.attributes - Widget attributes (max).
  * @return The rendered Locations widget.
  */
-export default function Locations( { attributes }: LocationsWidgetProps ) {
+export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	const max = attributes?.max ?? 10;
 
 	return (
