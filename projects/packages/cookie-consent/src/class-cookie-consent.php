@@ -147,6 +147,7 @@ class Cookie_Consent {
 		// with init() whenever a hook is added there.
 		remove_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		remove_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
+		remove_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );
 		remove_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
 
 		remove_filter( 'hooked_block_types', array( __CLASS__, 'register_footer_navigation_links' ), 10 );
@@ -154,6 +155,7 @@ class Cookie_Consent {
 		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10 );
 		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'maybe_suppress_privacy_policy_link' ), 10 );
 		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10 );
+		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'mark_footer_links_injected' ), 10 );
 		remove_filter( 'render_block_core/button', array( __CLASS__, 'add_ccpa_button_directive' ), 10 );
 		remove_filter( 'render_block_core/group', array( __CLASS__, 'add_ccpa_group_directives' ), 10 );
 		remove_filter( 'get_pages', array( __CLASS__, 'exclude_ccpa_from_get_pages' ), 10 );
@@ -688,13 +690,14 @@ class Cookie_Consent {
 	 * @return array{url: string, label: string} CCPA page URL and label.
 	 */
 	private static function get_ccpa_page_link() {
-		$ccpa_page_id = get_option( 'jetpack_cookie_consent_ccpa_page_id' );
-		if ( ! $ccpa_page_id || ! get_post( $ccpa_page_id ) ) {
+		if ( ! self::ccpa_page_is_published() ) {
 			return array(
 				'url'   => '',
 				'label' => '',
 			);
 		}
+
+		$ccpa_page_id = get_option( self::CCPA_PAGE_ID_OPTION );
 
 		return array(
 			'url'   => (string) get_permalink( $ccpa_page_id ),
