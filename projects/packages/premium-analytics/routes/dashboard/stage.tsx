@@ -212,6 +212,21 @@ function Dashboard(): JSX.Element {
 	// Container element for the date filters panel responsive layout.
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
+	/*
+	 * Read the site timezone reactively. A fully-specified deep link skips the
+	 * seed's `ensureCoreSettingsReady()` await, so core `site` settings may not
+	 * be loaded on first paint; subscribing here re-renders with the real site
+	 * timezone once they resolve, instead of sticking with the browser fallback.
+	 */
+	const timeZone = useSelect( select => {
+		void (
+			select( coreStore ) as unknown as {
+				getEntityRecord: ( kind: string, name: string ) => unknown;
+			}
+		 ).getEntityRecord( 'root', 'site' );
+		return getSiteTimezone();
+	}, [] );
+
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
@@ -260,7 +275,7 @@ function Dashboard(): JSX.Element {
 								onApply={ onApply }
 								onCancel={ onCancel }
 								canApply={ isDirty }
-								timeZone={ getSiteTimezone() }
+								timeZone={ timeZone }
 								containerElement={ containerElement }
 							/>
 						</div>
