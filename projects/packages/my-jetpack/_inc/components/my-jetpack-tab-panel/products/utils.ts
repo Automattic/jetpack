@@ -317,7 +317,7 @@ export function searchAndRankItems(
 
 	// One slug space governs de-duplication: a card claims both its product slug and the slug of
 	// the module it already carries, so the same product never surfaces as both a card and a
-	// standalone module (e.g. Forms's contact-form module, or VideoPress listed in two categories).
+	// standalone module (e.g. Forms' contact-form module, or VideoPress listed in two categories).
 	const seen = new Set< string >();
 	const cardsBySlug = new Map< string, CardItem >();
 	const modulesBySlug = new Map< string, MyJetpackModule >();
