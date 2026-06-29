@@ -12,6 +12,72 @@ import apiFetch from '@wordpress/api-fetch';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
 const STATS_BASE = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
+
+// top_utm_values keys for multi-param endpoints are JSON-stringified arrays,
+// matching the format the server returns and that sanitizeStatsUtmResponse parses.
+const MOCK_UTM_SOURCE_MEDIUM = {
+	top_utm_values: {
+		'["google","organic"]': 5200,
+		'["twitter","social"]': 1800,
+		'["newsletter","email"]': 950,
+		'["facebook","paid"]': 720,
+		'["bing","cpc"]': 380,
+	},
+	top_posts: {},
+};
+
+const MOCK_UTM_CAMPAIGN_SOURCE_MEDIUM = {
+	top_utm_values: {
+		'["spring_sale","google","organic"]': 5200,
+		'["newsletter_q2","newsletter","email"]': 1800,
+		'["brand_awareness","twitter","social"]': 950,
+		'["retargeting","facebook","paid"]': 720,
+		'["product_launch","bing","cpc"]': 380,
+	},
+	top_posts: {},
+};
+
+const MOCK_UTM_SOURCE = {
+	top_utm_values: {
+		google: 5200,
+		twitter: 1800,
+		newsletter: 950,
+		facebook: 720,
+		bing: 380,
+	},
+	top_posts: {},
+};
+
+const MOCK_UTM_MEDIUM = {
+	top_utm_values: {
+		organic: 5200,
+		social: 1800,
+		email: 950,
+		paid: 720,
+		cpc: 380,
+	},
+	top_posts: {},
+};
+
+const MOCK_UTM_CAMPAIGN = {
+	top_utm_values: {
+		spring_sale: 5200,
+		newsletter_q2: 1800,
+		brand_awareness: 950,
+		retargeting: 720,
+		product_launch: 380,
+	},
+	top_posts: {},
+};
+
+const UTM_MOCKS: Record< string, unknown > = {
+	'utm_source,utm_medium': MOCK_UTM_SOURCE_MEDIUM,
+	'utm_campaign,utm_source,utm_medium': MOCK_UTM_CAMPAIGN_SOURCE_MEDIUM,
+	utm_source: MOCK_UTM_SOURCE,
+	utm_medium: MOCK_UTM_MEDIUM,
+	utm_campaign: MOCK_UTM_CAMPAIGN,
+};
+
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 type GeoMode = 'country' | 'region' | 'city';
@@ -261,6 +327,12 @@ function getStatsMock( path: string ): unknown | null {
 			query,
 			isComparisonRequest( path )
 		);
+	}
+
+	// /stats/utm/{utmParam} — strip leading slash and match against known params.
+	if ( subPath.startsWith( '/utm/' ) ) {
+		const utmParam = subPath.slice( '/utm/'.length );
+		return UTM_MOCKS[ utmParam ] ?? { top_utm_values: {}, top_posts: {} };
 	}
 
 	return null;
