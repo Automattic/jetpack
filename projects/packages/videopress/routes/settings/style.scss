@@ -27,3 +27,9 @@
 .jp-videopress-settings > * {
 	width: 100%;
 }
+
+// Space the stacked setting cards apart. Applied as a sibling margin so the
+// container keeps its block display and the width rules above are untouched.
+.jp-videopress-settings > * + * {
+	margin-block-start: var(--wpds-dimension-gap-lg, 24px);
+}

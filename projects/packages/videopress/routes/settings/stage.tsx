@@ -21,6 +21,7 @@ const SettingsForm = () => {
 				</Card.Header>
 				<Card.Content>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Only logged-in users can play your videos', 'jetpack-videopress-pkg' ) }
 						checked={ privateForSite }
 						disabled={ disabled }
