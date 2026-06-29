@@ -413,6 +413,23 @@ export type ChartTheme = {
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
 	};
+	/** HeatmapChart specific settings */
+	heatmapChart?: {
+		/** Fill color for empty (no-data) cells */
+		emptyCellColor?: string;
+		/** Gap in px between cells */
+		cellGap?: number;
+		/** Gap in px between cells in compact mode */
+		compactCellGap?: number;
+		/** Corner radius in px for cells */
+		cellRadius?: number;
+		/** Font size in px for in-cell values */
+		valueFontSize?: number;
+		/** Stroke width in px for the keyboard-selection ring */
+		selectionStrokeWidth?: number;
+		/** Stroke color for the keyboard-selection ring */
+		selectionStrokeColor?: string;
+	};
 };
 
 /**
@@ -440,6 +457,7 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
+	heatmapChart: Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >;
 };
 
 export type AxisOptions = {

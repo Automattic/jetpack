@@ -5,10 +5,16 @@
 
 .heatmap-chart__empty {
 	padding: var(--wpds-dimension-padding-lg, 16px);
-	color: var(--jp-gray-80, #2c3338);
+	color: var(--wpds-color-fg-content-neutral-weak, #707070);
 }
 
 .heatmap-chart__axis-label {
-	fill: var(--jp-gray-80, #2c3338);
-	font-size: var(--wpds-typography-font-size-sm, 12px);
+	fill: var(--wpds-color-fg-content-neutral-weak, #707070);
+	font-size: var(--wpds-typography-font-size-xs, 11px);
+}
+
+.heatmap-chart__legend-swatch {
+	width: var(--wpds-dimension-size-3xs, 12px);
+	height: var(--wpds-dimension-size-3xs, 12px);
+	border-radius: var(--wpds-border-radius-sm, 2px);
 }

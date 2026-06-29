@@ -199,4 +199,55 @@ describe( 'HeatmapChart', () => {
 		} );
 	} );
 	/* eslint-enable testing-library/no-node-access */
+
+	test( 'applies cellRadius from the chart theme', () => {
+		render(
+			<GlobalChartsProvider theme={ { heatmapChart: { cellRadius: 7 } } }>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } />
+			</GlobalChartsProvider>
+		);
+		expect( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] ).toHaveAttribute( 'rx', '7' );
+	} );
+
+	test( 'applies emptyCellColor from the chart theme to empty cells', () => {
+		render(
+			<GlobalChartsProvider theme={ { heatmapChart: { emptyCellColor: '#123456' } } }>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } />
+			</GlobalChartsProvider>
+		);
+		// `data` has one null cell, which should render with the themed empty color.
+		const filled = screen
+			.getAllByTestId( 'heatmap-cell' )
+			.some( cell => cell.getAttribute( 'fill' ) === '#123456' );
+		expect( filled ).toBe( true );
+	} );
+
+	test( 'an explicit cellRadius prop overrides the theme', () => {
+		render(
+			<GlobalChartsProvider theme={ { heatmapChart: { cellRadius: 7 } } }>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } cellRadius={ 1 } />
+			</GlobalChartsProvider>
+		);
+		expect( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] ).toHaveAttribute( 'rx', '1' );
+	} );
+
+	test( 'uses the selection stroke color from the chart theme on the focused cell', async () => {
+		render(
+			<GlobalChartsProvider theme={ { heatmapChart: { selectionStrokeColor: '#abcdef' } } }>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					data={ data }
+					rowLabels={ [ 'Mon', 'Tue', 'Wed' ] }
+				/>
+			</GlobalChartsProvider>
+		);
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		grid.focus();
+		await userEvent.setup().keyboard( '{ArrowDown}' );
+		const focused = screen
+			.getAllByTestId( 'heatmap-cell' )
+			.some( cell => cell.getAttribute( 'stroke' ) === '#abcdef' );
+		expect( focused ).toBe( true );
+	} );
 } );

@@ -32,9 +32,9 @@ export interface HeatmapChartProps
 	compact?: boolean;
 	/** Render the numeric value inside each cell. Default `! compact`. */
 	showValues?: boolean;
-	/** Pixel gap between cells. Defaults to 4 (2 when compact). */
+	/** Pixel gap between cells. Defaults to the chart theme's `heatmapChart.cellGap` (4px; 2px when compact). */
 	cellGap?: number;
-	/** Corner radius for cells in px. Default 2. */
+	/** Corner radius for cells in px. Defaults to the chart theme's `heatmapChart.cellRadius` (2px). */
 	cellRadius?: number;
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
 	children?: ReactNode;

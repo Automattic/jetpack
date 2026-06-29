@@ -1,8 +1,6 @@
 import { scaleLinear } from '@visx/scale';
+import { normalizeColorToHex } from '../../../utils/color-utils';
 import type { HeatmapColumn } from '../types';
-
-/** Grey used for empty cells. Mirrors geo-chart's `featureFillColor`. */
-export const EMPTY_CELL_COLOR = 'var(--jp-gray-0, #f6f7f7)';
 
 export const isPresent = ( value: number | null | undefined ): value is number =>
 	value !== null && value !== undefined && ! isNaN( value );
@@ -35,22 +33,6 @@ export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] => {
 };
 
 /**
- * Convert rgb(r, g, b) string to hex format, or return as-is if already hex.
- * @param rgb - The color string
- * @return Hex color string
- */
-const rgbToHex = ( rgb: string ): string => {
-	const match = rgb.match( /rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/ );
-	if ( match ) {
-		const r = parseInt( match[ 1 ], 10 );
-		const g = parseInt( match[ 2 ], 10 );
-		const b = parseInt( match[ 3 ], 10 );
-		return `#${ [ r, g, b ].map( x => x.toString( 16 ).padStart( 2, '0' ) ).join( '' ) }`;
-	}
-	return rgb;
-};
-
-/**
  * Build a value→color scale from the lightened theme color (low) to the full theme
  * color (high), interpolating like geo-chart's `colorAxis: { colors: [light, full] }`.
  * @param extent        - Tuple of [min, max] values for the scale domain
@@ -72,7 +54,7 @@ export const createColorScale = (
 		range: [ lightColorHex, fullColorHex ],
 		clamp: true,
 	} );
-	return ( value: number ) => rgbToHex( scale( value ) );
+	return ( value: number ) => normalizeColorToHex( scale( value ) );
 };
 
 /**

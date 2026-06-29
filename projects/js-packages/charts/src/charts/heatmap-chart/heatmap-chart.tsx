@@ -9,10 +9,11 @@ import {
 	GlobalChartsProvider,
 	useChartId,
 	useGlobalChartsContext,
+	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
-import { lightenHexColor, normalizeColorToHex, isValidHexColor } from '../../utils/color-utils';
+import { lightenHexColor, normalizeColorToHex } from '../../utils/color-utils';
 import { resolveCssVariable } from '../../utils/resolve-css-var';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
@@ -24,7 +25,6 @@ import {
 	getValueExtent,
 	createColorScale,
 	getNormalizedValue,
-	EMPTY_CELL_COLOR,
 	HeatmapLegend,
 	isPresent,
 } from './private';
@@ -32,8 +32,7 @@ import type { HeatmapChartProps, HeatmapColumn, HeatmapCell, HeatmapTooltipData 
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { FC } from 'react';
 
-const DEFAULT_PRIMARY_HEX = '#006dab';
-const DEFAULT_EMPTY_HEX = '#f6f7f7';
+const DEFAULT_EMPTY_HEX = '#f0f0f0';
 
 export type HeatmapContextValue = {
 	extent: [ number, number ];
@@ -44,9 +43,6 @@ export type HeatmapContextValue = {
 };
 
 export const HeatmapContext = createContext< HeatmapContextValue | null >( null );
-
-const DEFAULT_GAP = 4;
-const COMPACT_GAP = 2;
 
 const getBins = ( column: HeatmapColumn ): HeatmapCell[] => column.data;
 const getCount = ( cell: HeatmapCell ): number =>
@@ -63,7 +59,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	showValues,
 	rowLabels = [],
 	cellGap,
-	cellRadius = 2,
+	cellRadius,
 	gap = 'md',
 	withTooltips = false,
 	renderTooltip,
@@ -71,6 +67,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { getElementStyles } = useGlobalChartsContext();
+	const { heatmapChart: heatmapChartSettings } = useGlobalChartsTheme();
 	const { nonLegendChildren } = useChartChildren( children, 'HeatmapChart' );
 
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
@@ -81,15 +78,16 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		scroll: true,
 	} );
 
-	const rawPrimary = normalizeColorToHex(
+	// The theme guarantees a defined primary (colors[0]); resolve any CSS-var token to hex.
+	const fullColorHex = normalizeColorToHex(
 		getElementStyles( { index: 0 } ).color,
 		null,
 		resolveCssVariable
 	);
-	const fullColorHex = isValidHexColor( rawPrimary ) ? rawPrimary : DEFAULT_PRIMARY_HEX;
 	const lightColorHex = lightenHexColor( fullColorHex, 0.8 );
 	const emptyColorHex =
-		normalizeColorToHex( EMPTY_CELL_COLOR, null, resolveCssVariable ) || DEFAULT_EMPTY_HEX;
+		normalizeColorToHex( heatmapChartSettings.emptyCellColor, null, resolveCssVariable ) ||
+		DEFAULT_EMPTY_HEX;
 
 	const extent = useMemo( () => getValueExtent( data ), [ data ] );
 	const colorFor = useMemo(
@@ -104,7 +102,17 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const columns = data.length;
 	const rows = Math.max( 0, ...data.map( column => column.data.length ) );
-	const effectiveGap = cellGap ?? ( compact ? COMPACT_GAP : DEFAULT_GAP );
+	// Cell spacing/sizing come from the chart theme's heatmapChart section, so they
+	// track the design system and stay overridable via GlobalChartsProvider.
+	const {
+		cellGap: themeCellGap,
+		compactCellGap,
+		valueFontSize,
+		selectionStrokeWidth,
+		selectionStrokeColor,
+	} = heatmapChartSettings;
+	const effectiveGap = cellGap ?? ( compact ? compactCellGap : themeCellGap );
+	const effectiveRadius = cellRadius ?? heatmapChartSettings.cellRadius;
 	const drawValues = showValues ?? ! compact;
 
 	const onChartBlur = useCallback( () => {
@@ -392,12 +400,14 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 																			y={ cell.y }
 																			width={ cell.width }
 																			height={ cell.height }
-																			rx={ cellRadius }
+																			rx={ effectiveRadius }
 																			fill={ present ? colorFor( value as number ) : emptyColorHex }
 																			stroke={
-																				selectedIndex === cellFlatIndex ? '#005fcc' : 'none'
+																				selectedIndex === cellFlatIndex
+																					? selectionStrokeColor
+																					: 'none'
 																			}
-																			strokeWidth={ 2 }
+																			strokeWidth={ selectionStrokeWidth }
 																		/>
 																		{ drawValues && present && (
 																			<Text
@@ -408,9 +418,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 																				fill={
 																					getNormalizedValue( value as number, extent ) > 0.5
 																						? '#ffffff'
-																						: 'var(--jp-gray-80, #2c3338)'
+																						: 'var(--wpds-color-fg-content-neutral, #1e1e1e)'
 																				}
-																				fontSize={ 11 }
+																				fontSize={ valueFontSize }
 																			>
 																				{ String( value ) }
 																			</Text>

@@ -81,6 +81,18 @@ const defaultTheme: CompleteChartTheme = {
 		margin: { top: 2, right: 2, bottom: 2, left: 2 },
 		strokeWidth: 1.5,
 	},
+	// Spec values for the WPDS tokens these mirror (bg-track-neutral-weak, gap-xs,
+	// border-radius-sm, font-size-md, border-width-sm, stroke-focus-brand). Consumers
+	// can override via the GlobalChartsProvider `theme` prop.
+	heatmapChart: {
+		emptyCellColor: 'var(--wpds-color-bg-track-neutral-weak, #f0f0f0)',
+		cellGap: 4,
+		compactCellGap: 2,
+		cellRadius: 2,
+		valueFontSize: 13,
+		selectionStrokeWidth: 2,
+		selectionStrokeColor: 'var(--wpds-color-stroke-focus-brand, #3858e9)',
+	},
 };
 
 export { defaultTheme };
