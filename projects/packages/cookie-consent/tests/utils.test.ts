@@ -232,6 +232,37 @@ describe( 'geo configuration helpers', () => {
 		} );
 	} );
 
+	it( 'returns defaults for an empty config', () => {
+		expect( getGeoConfig( {} ) ).toEqual( {
+			provider: 'wpcom',
+			apiUrl: 'https://public-api.wordpress.com/geo/',
+			countryCodeCookie: 'country_code',
+			regionCookie: 'region',
+			cookieDuration: 6 * 60 * 60,
+			gdprCountries: [],
+			ccpaRegions: [],
+			showOnError: true,
+		} );
+	} );
+
+	it( 'falls back to the remaining legacy top-level keys', () => {
+		const config = getGeoConfig( {
+			geoProvider: 'custom',
+			geoApiUrl: 'https://legacy.example.test/geo',
+			geoCookieDuration: 999,
+			regionCookie: 'legacy_region',
+			showOnError: false,
+		} );
+
+		expect( config ).toMatchObject( {
+			provider: 'custom',
+			apiUrl: 'https://legacy.example.test/geo',
+			cookieDuration: 999,
+			regionCookie: 'legacy_region',
+			showOnError: false,
+		} );
+	} );
+
 	it( 'uses configured GDPR country lists', () => {
 		const config = {
 			geo: {

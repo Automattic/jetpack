@@ -45,6 +45,9 @@ const DEFAULT_GEO_CONFIG: GeoConfig = {
 	countryCodeCookie: 'country_code',
 	regionCookie: 'region',
 	cookieDuration: 6 * 60 * 60,
+	// PHP (class-cookie-consent.php) owns these lists and always sends them in the frontend geo
+	// config, so these empty fallbacks only apply to a config passed without lists; an empty GDPR
+	// list then reads as "not GDPR". Keep the server authoritative rather than duplicating it here.
 	gdprCountries: [],
 	ccpaRegions: [],
 	showOnError: true,
@@ -145,7 +148,6 @@ export function setConsentType( consentType: ConsentType ): void {
 export function getGeoConfig( config: Config ): GeoConfig {
 	return {
 		...DEFAULT_GEO_CONFIG,
-		...config.geo,
 		provider: config.geo?.provider ?? config.geoProvider ?? DEFAULT_GEO_CONFIG.provider,
 		apiUrl: config.geo?.apiUrl ?? config.geoApiUrl ?? DEFAULT_GEO_CONFIG.apiUrl,
 		countryCodeCookie:

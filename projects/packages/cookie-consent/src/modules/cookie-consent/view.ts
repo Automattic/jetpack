@@ -24,6 +24,7 @@ import {
 	getGeoConfig,
 	pertainsToCCPA,
 	handleConsentByRegion,
+	type GeoConfig,
 } from './utils';
 
 interface GeoState {
@@ -53,16 +54,7 @@ interface GdprManageLinkContext {
 }
 
 interface StoreConfig {
-	geo?: {
-		provider: 'wpcom' | 'custom';
-		apiUrl: string;
-		countryCodeCookie: string;
-		regionCookie: string;
-		cookieDuration: number;
-		gdprCountries: string[];
-		ccpaRegions: string[];
-		showOnError: boolean;
-	};
+	geo: GeoConfig;
 	cookiePolicyUrl: string;
 	gdprHonorsGpc: boolean;
 	forcePreview: boolean;
@@ -446,8 +438,10 @@ const { actions } = store( 'jetpack/cookie-consent', {
 					region,
 				};
 			} catch ( error: unknown ) {
+				// A custom geo provider URL can fail independently (typo, CORS, 5xx, non-JSON), so
+				// surface it at warn level to make a misconfigured endpoint diagnosable in production.
 				// eslint-disable-next-line no-console
-				console.debug( error );
+				console.warn( error );
 				if ( ! geoConfig.showOnError ) {
 					geoState = {
 						initialized: true,

@@ -945,18 +945,10 @@ class Cookie_Consent {
 		$geo['ccpa_regions']        = is_array( $geo['ccpa_regions'] ) ? self::normalize_ccpa_regions( $geo['ccpa_regions'] ) : $default_config['geo']['ccpa_regions'];
 		$geo['show_on_error']       = (bool) $geo['show_on_error'];
 
-		$config['geo']                 = $geo;
-		$config['geo_provider']        = $geo['provider'];
-		$config['geo_api_url']         = $geo['api_url'];
-		$config['geo_cookie_duration'] = $geo['cookie_duration'];
-		$config['country_code_cookie'] = $geo['country_code_cookie'];
-		$config['region_cookie']       = $geo['region_cookie'];
-		$config['gdpr_countries']      = $geo['gdpr_countries'];
-		$config['ccpa_regions']        = $geo['ccpa_regions'];
-		$config['show_on_error']       = $geo['show_on_error'];
-		$config['cookie_policy_url']   = $config['cookie_policy_url'] ?? $default_config['cookie_policy_url'];
-		$config['event_prefix']        = $config['event_prefix'] ?? $default_config['event_prefix'];
-		$config['copy']                = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
+		$config['geo']               = $geo;
+		$config['cookie_policy_url'] = $config['cookie_policy_url'] ?? $default_config['cookie_policy_url'];
+		$config['event_prefix']      = $config['event_prefix'] ?? $default_config['event_prefix'];
+		$config['copy']              = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
 
 		return $config;
 	}
