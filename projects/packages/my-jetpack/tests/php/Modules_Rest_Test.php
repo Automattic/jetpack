@@ -99,6 +99,9 @@ class Modules_Rest_Test extends TestCase {
 
 	/**
 	 * Test that the modules routes register wherever My Jetpack initializes (cross-plugin).
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
@@ -111,6 +114,9 @@ class Modules_Rest_Test extends TestCase {
 
 	/**
 	 * Test GET modules resolves gracefully (200, array) without the Jetpack plugin's module system.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
@@ -124,6 +130,9 @@ class Modules_Rest_Test extends TestCase {
 
 	/**
 	 * Test GET modules as an editor (edit_posts) is allowed.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
@@ -138,6 +147,9 @@ class Modules_Rest_Test extends TestCase {
 
 	/**
 	 * Test GET modules not logged in is rejected.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
@@ -153,6 +165,9 @@ class Modules_Rest_Test extends TestCase {
 	/**
 	 * Test that a platform can supply module state via the my_jetpack_site_modules filter
 	 * (this is how Simple sites fill the list with no Jetpack plugin present).
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
@@ -184,6 +199,9 @@ class Modules_Rest_Test extends TestCase {
 
 	/**
 	 * Test that toggling a module returns the new state ( { module, activated } ).
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
@@ -202,6 +220,9 @@ class Modules_Rest_Test extends TestCase {
 
 	/**
 	 * Test that a platform can handle toggling via the my_jetpack_set_module action.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
@@ -229,6 +250,9 @@ class Modules_Rest_Test extends TestCase {
 
 	/**
 	 * Test POST modules not logged in is rejected.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
