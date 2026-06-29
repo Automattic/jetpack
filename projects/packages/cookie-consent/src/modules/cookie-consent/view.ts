@@ -21,7 +21,6 @@ import {
 	readConsentChoices,
 	saveConsentChoices,
 	isGdprCountry,
-	getGeoConfig,
 	pertainsToCCPA,
 	handleConsentByRegion,
 	type GeoConfig,
@@ -397,7 +396,9 @@ const { actions } = store( 'jetpack/cookie-consent', {
 
 			// getConfig() is not typed, so we need to assert the type.
 			const config = getConfig() as unknown as StoreConfig;
-			const geoConfig = getGeoConfig( config );
+			// PHP (class-cookie-consent.php) always emits a fully-normalized nested `geo`, so the
+			// store config is already the resolved GeoConfig; no client-side reconciliation needed.
+			const geoConfig = config.geo;
 
 			// Check if we already have country code from cookies
 			const cachedCountryCode = getCookie( geoConfig.countryCodeCookie );
