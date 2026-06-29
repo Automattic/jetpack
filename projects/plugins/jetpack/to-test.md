@@ -28,6 +28,8 @@ Example guids: `O19sZueC`, `dfvYSdG3`.
 
 ### Jetpack Social: message templates
 
+_Requires: A paid Social plan._
+
 - Go to Jetpack → Social and confirm the Default share message section is visible.
 - Enter a template such as `New post: {title}\n\n{excerpt}\n\n{url}`. Confirm it autosaves, survives reload, and the Available placeholders popover lists supported tokens.
 - Expand a connected account row and confirm "Custom message for this connection" is available. Save a connection-specific template, reload, and confirm it persists. The row should stay interactive while autosaving.
