@@ -254,7 +254,9 @@ function resolvePostTimestamp( results, config ) {
  * backends are reconciled — the FORMS-705 host/metric work — a hash written to
  * codevitals.run may not appear here, so dedup is effectively a no-op until then.
  * That is safe: it can only fail to skip (a possible duplicate), never wrongly skip
- * a commit that was not actually posted.
+ * a commit that was not actually posted. Because that safety rests on an unverified
+ * cross-backend coupling, `main()` keeps dedup OPT-IN (off by default) until GATE-1
+ * is mechanically resolved — see CODEVITALS_ENABLE_DEDUP.
  *
  * @param {string} hash   - Monorepo commit hash about to be posted.
  * @param {string} branch - Branch to scope the evolution query to.
@@ -281,21 +283,28 @@ async function hashAlreadyPosted( hash, branch, config ) {
 			headers: { Accept: 'application/json' },
 			signal: controller.signal,
 		} );
-		clearTimeout( timeoutId );
 		if ( ! response.ok ) {
+			clearTimeout( timeoutId );
 			console.warn(
 				`⚠ Dedup check skipped: evolution endpoint returned HTTP ${ response.status }. Proceeding with post.`
 			);
 			return false;
 		}
+		// Read the body with the abort timer still armed — only clear it once json()
+		// settles. Clearing right after fetch (as the live-POST path does) leaves the
+		// body read unbounded, so a server that sends headers then stalls the body
+		// could hang here (undici's ~300s default at best) and block the post,
+		// violating "a flaky read must never block a post". With the timer live,
+		// controller.abort() makes json() reject with AbortError → caught → fail open.
 		const body = await response.json();
+		clearTimeout( timeoutId );
 		// The gitaudit API returns { data: [ { hash, measuredAt, ... }, ... ] }.
 		const points = Array.isArray( body?.data ) ? body.data : [];
 		return points.some( point => point?.hash === hash );
 	} catch ( error ) {
 		clearTimeout( timeoutId );
 		const reason =
-			error?.name === 'AbortError' ? `timed out after ${ TIMEOUT_MS / 1000 }s` : error.message;
+			error?.name === 'AbortError' ? `timed out after ${ TIMEOUT_MS / 1000 }s` : error?.message;
 		console.warn( `⚠ Dedup check skipped (${ reason }). Proceeding with post.` );
 		return false;
 	}
@@ -396,8 +405,10 @@ async function postToCodeVitals( resultsPath, config ) {
 	// token-free CI smoke test still makes zero network calls). CodeVitals is
 	// append-only, so re-testing a commit (a manual re-run, a TeamCity retryBuild,
 	// or the Scheduler double-triggering) would append a second point for the same
-	// hash. Skip the post if this hash already has metrics. Disable with --no-dedup
-	// / CODEVITALS_SKIP_DEDUP, or by leaving dedupBaseUrl unset (the unit tests do).
+	// hash. Skip the post if this hash already has metrics. This is gated OFF by
+	// default in main() until GATE-1 (read/write backend coupling) is resolved, so it
+	// runs here only when a caller opts in (config.skipDedup false + dedupBaseUrl set);
+	// the unit tests opt in by passing dedupBaseUrl, live runs via CODEVITALS_ENABLE_DEDUP.
 	if ( ! config.skipDedup && config.dedupBaseUrl ) {
 		if ( await hashAlreadyPosted( payload.hash, payload.branch, config ) ) {
 			console.log(
@@ -489,11 +500,19 @@ async function main() {
 	console.log( '=====================\n' );
 
 	const dryRun = process.argv.includes( '--dry-run' );
-	// Opt out of the cross-commit dedup read (e.g. to force a re-post, or if the read
-	// backend is down). Either the flag or a truthy CODEVITALS_SKIP_DEDUP disables it.
-	const skipDedup =
-		process.argv.includes( '--no-dedup' ) ||
-		[ '1', 'true', 'yes' ].includes( ( process.env.CODEVITALS_SKIP_DEDUP || '' ).toLowerCase() );
+	const truthy = value => [ '1', 'true', 'yes' ].includes( ( value || '' ).toLowerCase() );
+	// Cross-commit dedup is OPT-IN until GATE-1 is resolved. The dedup read series
+	// (gitaudit metric 58) is not yet proven to be the series the poster writes to
+	// (codevitals.run), so a default-on dedup could in principle wrongly skip a real
+	// post on the append-only, no-rollback store. Enable it explicitly once the read
+	// and write backends are confirmed coupled: `--dedup` or CODEVITALS_ENABLE_DEDUP=1.
+	// An explicit opt-out (`--no-dedup` / CODEVITALS_SKIP_DEDUP) always wins, so a
+	// wrapper that passes --dedup can still be forced off.
+	const dedupEnabled =
+		( process.argv.includes( '--dedup' ) || truthy( process.env.CODEVITALS_ENABLE_DEDUP ) ) &&
+		! process.argv.includes( '--no-dedup' ) &&
+		! truthy( process.env.CODEVITALS_SKIP_DEDUP );
+	const skipDedup = ! dedupEnabled;
 
 	// Configuration from environment
 	const config = {
@@ -533,7 +552,7 @@ async function main() {
 	console.log(
 		`  Dedup: ${
 			dryRun || config.skipDedup
-				? 'off'
+				? 'off (opt in with CODEVITALS_ENABLE_DEDUP=1 once GATE-1 is resolved)'
 				: `on (metric ${ config.dedupMetricId } @ ${ config.dedupBaseUrl })`
 		}`
 	);

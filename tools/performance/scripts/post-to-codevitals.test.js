@@ -902,6 +902,7 @@ function dedupFetchStub( {
 	evolutionHashes = [],
 	evolutionStatus = 200,
 	throwOnEvolution = false,
+	rejectBody = false, // headers arrive OK but json() rejects (stalled/truncated body)
 	evolutionBody, // when set, returned verbatim from the evolution json() (for bad-shape tests)
 } ) {
 	const calls = { evolution: 0, post: 0, evolutionUrl: null };
@@ -915,10 +916,14 @@ function dedupFetchStub( {
 			return {
 				ok: evolutionStatus >= 200 && evolutionStatus < 300,
 				status: evolutionStatus,
-				json: async () =>
-					evolutionBody !== undefined
+				json: async () => {
+					if ( rejectBody ) {
+						throw new Error( 'body read failed' );
+					}
+					return evolutionBody !== undefined
 						? evolutionBody
-						: { data: evolutionHashes.map( h => ( { hash: h, measuredAt: '2026-01-01' } ) ) },
+						: { data: evolutionHashes.map( h => ( { hash: h, measuredAt: '2026-01-01' } ) ) };
+				},
 				text: async () => '',
 			};
 		}
@@ -980,6 +985,24 @@ test( 'dedup fails open on a non-OK read status', async () => {
 	try {
 		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
 		assert.equal( result.posted, true );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup fails open (still posts) when the response body read fails', async () => {
+	// Headers arrive OK but json() rejects — a truncated/stalled body, or a server that
+	// answers headers then dies. The abort timer stays armed across the body read (so a
+	// real stall is bounded by the 15s abort, not undici's ~300s default), and the
+	// rejection is caught and turned into a fail-open. The post must still happen.
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { rejectBody: true } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true, 'a failed body read must never block a post' );
 		assert.equal( calls.post, 1 );
 	} finally {
 		global.fetch = origFetch;
