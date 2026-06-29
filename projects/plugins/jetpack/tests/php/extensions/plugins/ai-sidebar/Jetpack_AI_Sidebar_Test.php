@@ -693,9 +693,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
-		// generateFeedback and optimizeTitleSuggestion are in development: off outside testing environments.
+		// generateFeedback, optimizeTitleSuggestion and seoSuggestions are in development: off outside testing environments.
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['chatHistory'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['supportGuides'] );
 	}
@@ -712,6 +713,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 	}
 
 	/**
@@ -725,6 +727,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			function ( $features ) {
 				$features['generateFeedback']        = true;
 				$features['optimizeTitleSuggestion'] = true;
+				$features['seoSuggestions']          = true;
 				return $features;
 			}
 		);
@@ -733,6 +736,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 	}
 
 	/**

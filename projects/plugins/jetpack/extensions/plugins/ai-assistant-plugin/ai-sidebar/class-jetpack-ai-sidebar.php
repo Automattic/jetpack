@@ -313,6 +313,19 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * UI feature flag for the SEO Enhancer suggestions (SEO title and meta description).
+	 *
+	 * Exposed only in internal testing environments while the feature is in development.
+	 * Kept independent of the Optimize Title flag: SEO suggestions target the SEO meta
+	 * fields, not the visible post title.
+	 *
+	 * @return bool
+	 */
+	private static function is_seo_suggestions_enabled(): bool {
+		return jetpack_is_internal_testing_environment();
+	}
+
+	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
 	 * Defaults to enabled only on WordPress.com platform sites (Simple or WoA)
@@ -367,6 +380,7 @@ class Jetpack_AI_Sidebar {
 			'blockTransformations'    => true,
 			'blockToolbarButton'      => false,
 			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
+			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
@@ -383,6 +397,7 @@ class Jetpack_AI_Sidebar {
 		// expose in-development suggestions outside internal testing environments.
 		$features['generateFeedback']        = self::is_generate_feedback_enabled();
 		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && self::is_optimize_title_suggestion_enabled();
+		$features['seoSuggestions']          = (bool) $features['seoSuggestions'] && self::is_seo_suggestions_enabled();
 
 		return array(
 			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),
