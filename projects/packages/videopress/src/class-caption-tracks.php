@@ -86,7 +86,7 @@ class Caption_Tracks {
 	}
 
 	/**
-	 * Register caption track metadata for REST reads and writes.
+	 * Register caption track metadata so values are sanitized when saved.
 	 *
 	 * @return void
 	 */
@@ -108,29 +108,10 @@ class Caption_Tracks {
 				array(
 					'type'              => 'string',
 					'single'            => true,
-					'show_in_rest'      => true,
 					'sanitize_callback' => $sanitize_callback,
-					'auth_callback'     => array( __CLASS__, 'can_manage_caption_tracks' ),
 				)
 			);
 		}
-	}
-
-	/**
-	 * Authorize REST meta access for a caption track.
-	 *
-	 * Used as the `auth_callback` when registering caption track meta. Access is
-	 * tied to the video the track belongs to, so the GUID is resolved from the
-	 * track post being read or written.
-	 *
-	 * @param bool   $allowed   Whether the user can access the meta. Unused.
-	 * @param string $meta_key  Meta key being accessed. Unused.
-	 * @param int    $object_id Caption track post ID.
-	 * @return bool
-	 */
-	public static function can_manage_caption_tracks( $allowed = false, $meta_key = '', $object_id = 0 ) {
-		$guid = $object_id ? (string) get_post_meta( $object_id, self::META_GUID, true ) : '';
-		return self::current_user_can_edit_video( $guid );
 	}
 
 	/**
@@ -161,9 +142,10 @@ class Caption_Tracks {
 	/**
 	 * Whether the current user may manage caption tracks for a VideoPress GUID.
 	 *
-	 * Editing a video's captions requires the ability to edit that video. When
-	 * the GUID can't be resolved to a local attachment (e.g. on WordPress.com or
-	 * before the attachment exists) fall back to the VideoPress upload capability.
+	 * Editing a video's captions requires the ability to edit that video. The
+	 * upload-capability fallback is reserved for environments without a local
+	 * attachment store (e.g. WordPress.com); where the resolver is available a
+	 * GUID that has no local attachment is denied rather than broadly allowed.
 	 *
 	 * @param string $guid VideoPress GUID.
 	 * @return bool
@@ -171,11 +153,14 @@ class Caption_Tracks {
 	private static function current_user_can_edit_video( $guid ) {
 		$guid = self::sanitize_guid( $guid );
 
-		if ( '' !== $guid && function_exists( 'videopress_get_post_by_guid' ) ) {
+		if ( '' === $guid ) {
+			return false;
+		}
+
+		if ( function_exists( 'videopress_get_post_by_guid' ) ) {
 			$attachment = videopress_get_post_by_guid( $guid );
-			if ( $attachment instanceof WP_Post ) {
-				return current_user_can( 'edit_post', $attachment->ID );
-			}
+
+			return $attachment instanceof WP_Post && current_user_can( 'edit_post', $attachment->ID );
 		}
 
 		return current_user_can( 'upload_files' );
@@ -282,8 +267,22 @@ class Caption_Tracks {
 	 */
 	public static function rest_save_track( WP_REST_Request $request ) {
 		$track_id = absint( $request->get_param( 'id' ) );
-		$meta     = (array) $request->get_param( 'meta' );
-		$guid     = self::sanitize_guid( $meta[ self::META_GUID ] ?? $request->get_param( 'guid' ) );
+		$existing = $track_id ? get_post( $track_id ) : null;
+
+		if ( $track_id && ( ! $existing || self::POST_TYPE !== $existing->post_type ) ) {
+			return new WP_Error(
+				'videopress_caption_track_not_found',
+				esc_html__( 'Caption track not found.', 'jetpack-videopress-pkg' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$meta = (array) $request->get_param( 'meta' );
+
+		$existing_guid = $existing ? (string) get_post_meta( $track_id, self::META_GUID, true ) : '';
+		$guid          = self::sanitize_guid(
+			'' !== $existing_guid ? $existing_guid : ( $meta[ self::META_GUID ] ?? $request->get_param( 'guid' ) )
+		);
 
 		if ( empty( $guid ) ) {
 			return new WP_Error(
@@ -310,14 +309,6 @@ class Caption_Tracks {
 		);
 
 		if ( $track_id ) {
-			$existing = get_post( $track_id );
-			if ( ! $existing || self::POST_TYPE !== $existing->post_type ) {
-				return new WP_Error(
-					'videopress_caption_track_not_found',
-					esc_html__( 'Caption track not found.', 'jetpack-videopress-pkg' ),
-					array( 'status' => 404 )
-				);
-			}
 			$postarr['ID'] = $track_id;
 			$result        = wp_update_post( wp_slash( $postarr ), true );
 		} else {
