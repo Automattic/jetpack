@@ -288,6 +288,7 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 						</Text>
 					) }
 					<Button
+						className="podcast__submit-visit-button"
 						variant="secondary"
 						__next40pxDefaultSize
 						icon={ external }

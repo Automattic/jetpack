@@ -105,6 +105,12 @@
 	justify-content: flex-start;
 }
 
+.podcast__submit-visit-button {
+	inline-size: fit-content;
+	max-inline-size: 100%;
+	align-self: flex-start;
+}
+
 .podcast__submit-step-notice {
 	margin-block: 8px 0;
 	margin-inline: 0;
