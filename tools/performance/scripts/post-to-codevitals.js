@@ -258,17 +258,17 @@ function resolvePostTimestamp( results, config ) {
  * returns false (the post proceeds). Missing a real data point is worse than a rare
  * duplicate, and a flaky read must never block a legitimate post.
  *
- * NOTE (GATE-1): this reads gitaudit (metric `config.dedupMetricId`) while the POST
- * targets `config.codeVitalsUrl` (codevitals.run today). Until the read and write
- * backends are reconciled — the FORMS-705 host/metric work — a hash written to
- * codevitals.run may not appear here, so dedup is effectively a no-op until then.
- * That "can only fail to skip, never wrongly skip" guarantee holds ONLY while dedup is
- * off (the default): with no read, no skip can happen. If an operator enables it before
- * GATE-1, metric 58 is a different, *populated* trunk series (not the codevitals.run
- * write target), so a coincidental hash match there could WRONGLY skip a real post on
- * the append-only, no-rollback store. So `main()` keeps dedup OPT-IN (off by default)
- * until GATE-1 mechanically proves the read series IS the write series — see
- * CODEVITALS_ENABLE_DEDUP. Do not enable it before then.
+ * IMPORTANT: the read and write backends must match before dedup can be trusted. This
+ * reads gitaudit (metric `config.dedupMetricId`) while the POST targets
+ * `config.codeVitalsUrl` (codevitals.run today). Until the two are reconciled (the
+ * FORMS-705 host/metric work), a hash written to codevitals.run may not appear here, so
+ * dedup is effectively a no-op. The "can only fail to skip, never wrongly skip" guarantee
+ * holds ONLY while dedup is off (the default): with no read, no skip can happen. If an
+ * operator enables dedup before the backends match, metric 58 is a different, *populated*
+ * trunk series (not the codevitals.run write target), so a coincidental hash match there
+ * could WRONGLY skip a real post on the append-only, no-rollback store. So `main()` keeps
+ * dedup OPT-IN (off by default) until the read series is proven to be the write series.
+ * See CODEVITALS_ENABLE_DEDUP. Do not enable it before then.
  *
  * @param {string} hash   - Monorepo commit hash about to be posted.
  * @param {string} branch - Branch to scope the evolution query to.
@@ -426,8 +426,9 @@ async function postToCodeVitals( resultsPath, config ) {
 	// append-only, so re-testing a commit (a manual re-run, a TeamCity retryBuild,
 	// or the Scheduler double-triggering) would append a second point for the same
 	// hash. Skip the post if this hash already has metrics. This is gated OFF by
-	// default in main() until GATE-1 (read/write backend coupling) is resolved, so it
-	// runs here only when a caller opts in (config.skipDedup false + dedupBaseUrl set);
+	// default in main() until the dedup read and write backends are reconciled (see the
+	// IMPORTANT note above), so it runs here only when a caller opts in (config.skipDedup
+	// false + dedupBaseUrl set);
 	// the unit tests opt in by passing dedupBaseUrl, live runs via CODEVITALS_ENABLE_DEDUP.
 	if ( ! config.skipDedup && config.dedupBaseUrl ) {
 		if ( await hashAlreadyPosted( payload.hash, payload.branch, config ) ) {
@@ -536,7 +537,8 @@ async function postToCodeVitals( resultsPath, config ) {
 
 /**
  * Decide whether cross-commit dedup runs, from CLI args and env. Dedup is OPT-IN (off
- * by default) until GATE-1 is resolved — see hashAlreadyPosted's NOTE. An explicit
+ * by default) until the dedup read and write backends are reconciled (see
+ * hashAlreadyPosted's note). An explicit
  * opt-out always wins over an opt-in, so a wrapper that forces `--dedup` can still be
  * disabled with `--no-dedup` / CODEVITALS_SKIP_DEDUP.
  *
@@ -581,8 +583,9 @@ async function main() {
 	console.log( '=====================\n' );
 
 	const dryRun = process.argv.includes( '--dry-run' );
-	// Cross-commit dedup is OPT-IN until GATE-1 is resolved — see resolveDedupEnabled
-	// (the argv/env truth table) and hashAlreadyPosted's NOTE for why default-off matters.
+	// Cross-commit dedup is OPT-IN until the dedup read and write backends are reconciled.
+	// See resolveDedupEnabled (the argv/env truth table) and hashAlreadyPosted's note for
+	// why default-off matters.
 	const skipDedup = ! resolveDedupEnabled( process.argv, process.env );
 
 	// Configuration from environment
@@ -625,7 +628,7 @@ async function main() {
 	console.log(
 		`  Dedup: ${
 			dryRun || config.skipDedup
-				? 'off (opt in with CODEVITALS_ENABLE_DEDUP=1 once GATE-1 is resolved)'
+				? 'off (opt in with CODEVITALS_ENABLE_DEDUP=1 once the dedup read and write backends are reconciled)'
 				: `on (metric ${ config.dedupMetricId } @ ${ config.dedupBaseUrl })`
 		}`
 	);

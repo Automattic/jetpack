@@ -1264,7 +1264,7 @@ function dedupFetchStub( {
 
 test( 'resolveDedupEnabled: dedup is opt-in (off by default) and an explicit opt-out always wins', () => {
 	const noEnv = {};
-	// Default: OFF — the GATE-1 safety default.
+	// Default: OFF, the safe default until the dedup read and write backends match.
 	assert.equal( resolveDedupEnabled( [], noEnv ), false );
 	// Opt in by flag or a truthy env value.
 	assert.equal( resolveDedupEnabled( [ '--dedup' ], noEnv ), true );
