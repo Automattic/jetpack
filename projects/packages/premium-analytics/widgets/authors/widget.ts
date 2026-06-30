@@ -5,6 +5,18 @@ import { __ } from '@wordpress/i18n';
 import { postAuthor } from '@wordpress/icons';
 
 /**
+ * Configurable attributes for the Authors widget. Mirrors the `attributes`
+ * declared on the widget definition below; the host passes the selected values
+ * through to `render.tsx`.
+ */
+export type AuthorsAttributes = {
+	/**
+	 * Maximum number of authors to display.
+	 */
+	max?: number;
+};
+
+/**
  * Widget type definition.
  */
 export default {
@@ -20,7 +32,7 @@ export default {
 	],
 	example: {
 		attributes: {
-			max: '7',
+			max: 7,
 		},
 	},
 };

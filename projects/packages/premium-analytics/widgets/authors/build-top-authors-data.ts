@@ -8,17 +8,26 @@ import {
 import { __ } from '@wordpress/i18n';
 import type { StatsNormalizedReport, StatsTopAuthorsItem } from '@jetpack-premium-analytics/data';
 
+// The Stats sanitizer substitutes this untranslated sentinel for authors with
+// no name (see `sanitizeStatsTopAuthorsResponse`), so match it here to surface a
+// localized label.
+const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
+
 /**
- * Resolve a display label for an author, falling back to a translated
- * "Untracked authors" label when the API provides none.
+ * Resolve a display label for an author, translating the untracked-authors
+ * sentinel (and any empty label) into a localized string.
  *
  * @param author - The top-authors item.
  * @return The author's display label.
  */
 function getAuthorLabel( author: StatsTopAuthorsItem ) {
-	return typeof author.label === 'string' && author.label
-		? author.label
-		: __( 'Untracked authors', 'jetpack-premium-analytics' );
+	const label = typeof author.label === 'string' ? author.label : '';
+
+	if ( ! label || label === UNTRACKED_AUTHORS_SENTINEL ) {
+		return __( 'Untracked authors', 'jetpack-premium-analytics' );
+	}
+
+	return label;
 }
 
 /**

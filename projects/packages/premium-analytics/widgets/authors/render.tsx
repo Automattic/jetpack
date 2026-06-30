@@ -11,6 +11,7 @@ import {
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LegendLabels,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { postAuthor } from '@wordpress/icons';
@@ -19,16 +20,17 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { buildTopAuthorsData } from './build-top-authors-data';
+import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
 const DEFAULT_MAX = 7;
 
-type AuthorsAttributes = NonNullable< ComponentProps< typeof WidgetRoot >[ 'attributes' ] > & {
-	max?: string | number;
-};
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type AuthorsRenderAttributes = AuthorsAttributes & Partial< ReportParamsFieldAttributes >;
 
-type AuthorsRenderProps = WidgetRenderProps< AuthorsAttributes > & {
+type AuthorsRenderProps = WidgetRenderProps< AuthorsRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -169,9 +171,11 @@ function AuthorsReport( { max }: { max: number } ) {
 /**
  * Authors widget render entry point.
  *
- * WidgetRoot provides the analytics query client, chart theme, and the report
- * params consumed by the inner leaderboard — resolved from the dashboard date
- * range via context, the same way the other Stats widgets read them.
+ * Passes host `attributes` into `WidgetRoot`, which resolves the report params:
+ * the dashboard leaves `reportParams` out of `attributes`, so it falls back to
+ * the date-range URL search params the picker writes to; Storybook injects
+ * `attributes.reportParams` directly. The widget's own `max` is forwarded to
+ * the inner component.
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes.
