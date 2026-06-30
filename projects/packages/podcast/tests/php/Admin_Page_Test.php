@@ -54,7 +54,12 @@ class Admin_Page_Test extends BaseTestCase {
 	private function reset_admin_menu_state(): void {
 		$reflection = new \ReflectionClass( Admin_Menu::class );
 
-		foreach ( array( 'initialized' => false, 'menu_items' => array() ) as $property_name => $value ) {
+		foreach (
+			array(
+				'initialized' => false,
+				'menu_items'  => array(),
+			) as $property_name => $value
+		) {
 			if ( ! $reflection->hasProperty( $property_name ) ) {
 				continue;
 			}
