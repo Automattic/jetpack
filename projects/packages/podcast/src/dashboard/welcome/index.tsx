@@ -187,12 +187,7 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 				<VStack spacing={ 4 } className="podcast__welcome-hero-copy">
 					{ hasAccess ? (
 						<VStack spacing={ 2 }>
-							<HStack
-								justify="flex-start"
-								alignment="center"
-								spacing={ 2 }
-								expanded={ false }
-							>
+							<HStack justify="flex-start" alignment="center" spacing={ 2 } expanded={ false }>
 								<span className="podcast__welcome-plan-check" aria-hidden="true">
 									<Icon icon={ check } size={ 24 } />
 								</span>
