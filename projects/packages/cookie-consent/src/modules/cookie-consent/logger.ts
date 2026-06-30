@@ -24,12 +24,20 @@ async function logConsentEvent(
 		return;
 	}
 
+	const headers: Record< string, string > = {
+		'Content-Type': 'application/json',
+	};
+	// Send the REST nonce when present (logged-in visitors only) so the request
+	// authenticates and the consent row records the real user_id instead of 0.
+	const nonce = window.jetpackCookieConsentConfig?.nonce;
+	if ( nonce ) {
+		headers[ 'X-WP-Nonce' ] = nonce;
+	}
+
 	try {
 		const response = await fetch( apiUrl, {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
+			headers,
 			body: JSON.stringify( {
 				event_type: eventType,
 				url: window.location.href,
