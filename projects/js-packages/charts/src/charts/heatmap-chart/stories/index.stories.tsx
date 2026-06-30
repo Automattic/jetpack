@@ -48,12 +48,21 @@ export const Compact: Story = {
 	args: { ...Default.args, compact: true, containerHeight: '160px' },
 };
 
-export const Calendar: Story = {
-	render: args => {
-		const { data, rowLabels } = buildCalendarHeatmapData( heatmapCalendarSeries );
+export const Calendar: StoryObj< StoryArgs & { weekStartsOn: 0 | 1 } > = {
+	render: ( { weekStartsOn, ...args } ) => {
+		const { data, rowLabels } = buildCalendarHeatmapData( heatmapCalendarSeries, {
+			weekStartsOn,
+		} );
 		return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
 	},
-	args: { ...sharedThemeArgs, withTooltips: true },
+	args: { ...sharedThemeArgs, withTooltips: true, weekStartsOn: 1 },
+	argTypes: {
+		weekStartsOn: {
+			control: { type: 'inline-radio', labels: { 0: 'Sunday', 1: 'Monday' } },
+			options: [ 1, 0 ],
+			table: { category: 'Calendar' },
+		},
+	},
 };
 
 export const WithCompositionLegend: Story = {
