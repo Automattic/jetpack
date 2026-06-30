@@ -57,8 +57,12 @@
 	display: flex;
 	flex-direction: column;
 
-	/* Fill the viewport below the admin bar so the footer pins to the bottom. */
-	min-height: calc(100vh - 32px);
+	/* Fill the area below the admin bar and let only the inner content scroll
+	   (see .jetpack-beta-scroll). This keeps the header/footer in place without
+	   position: sticky, which misbehaves on small screens where the admin bar
+	   scrolls away rather than staying fixed. */
+	height: calc(100vh - 32px);
+	overflow: hidden;
 	box-sizing: border-box;
 	background: #fcfcfc;
 	color: var(--jpbeta-color-text);
@@ -69,11 +73,7 @@
 @media screen and (max-width: 782px) {
 
 	.jetpack-beta-app {
-		min-height: calc(100vh - 46px);
-	}
-
-	.jetpack-beta-header {
-		top: 46px; /* Taller admin bar on small screens. */
+		height: calc(100vh - 46px); /* Taller admin bar on small screens. */
 	}
 }
 
@@ -81,9 +81,7 @@
    Header
    ========================================================================== */
 .jetpack-beta-header {
-	position: sticky;
-	top: 32px; /* Sit below the fixed wp-admin bar. */
-	z-index: 10;
+	flex-shrink: 0;
 	background: var(--jpbeta-color-surface);
 	border-bottom: 1px solid var(--jpbeta-color-border);
 	padding: 20px var(--jpbeta-pad);
@@ -143,15 +141,12 @@
    Footer — tiny Jetpack logo on the left, Automattic byline on the right.
    ========================================================================== */
 .jetpack-beta-footer {
-	position: sticky;
-	bottom: 0;
-	z-index: 10;
+	flex-shrink: 0;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	flex-wrap: wrap;
 	gap: 16px;
-	margin-top: auto;
 	padding: 16px var(--jpbeta-pad);
 	background: var(--jpbeta-color-surface);
 	border-top: 1px solid var(--jpbeta-color-border);
@@ -191,6 +186,14 @@
 /* ==========================================================================
    Content column
    ========================================================================== */
+
+/* The only scrollable region — fills the space between header and footer so
+   the page itself doesn't scroll (keeps the admin bar put on small screens). */
+.jetpack-beta-scroll {
+	flex: 1 1 auto;
+	overflow-y: auto;
+}
+
 .jetpack-beta-container {
 	box-sizing: border-box;
 	width: 100%;
@@ -380,14 +383,20 @@
    Toggles (Autoupdates / Email Notifications)
    ========================================================================== */
 
-/* Keep the two settings toggles on a single compact row beside the label
-   rather than a tall stacked card. */
+/* Keep the two settings toggles on a single light-weight row beside the label
+   rather than a tall stacked card — just a hairline separates it from the
+   content below, so it reads as a header strip instead of a boxed card. */
 .jetpack-beta-settings {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
 	gap: 10px 24px;
-	padding: 14px var(--jpbeta-pad);
+	margin-bottom: 16px;
+	padding: 0 0 16px;
+	border: 0;
+	border-bottom: 1px solid var(--jpbeta-color-border);
+	border-radius: 0;
+	background: none;
 }
 
 .jetpack-beta-settings .jetpack-beta-section-label {

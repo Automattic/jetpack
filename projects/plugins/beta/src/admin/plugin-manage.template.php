@@ -69,6 +69,7 @@ if ( $plugin->is_active( 'stable' ) ) {
 ?>
 <div class="jetpack-beta-app">
 <?php require __DIR__ . '/header.template.php'; ?>
+<div class="jetpack-beta-scroll">
 <div class="jetpack-beta-container" >
 	<?php
 	if ( ! Utils::has_been_used() ) {
@@ -322,6 +323,7 @@ if ( $plugin->is_active( 'stable' ) ) {
 			</div>
 		</div>
 	<?php } ?>
+</div>
 </div>
 <?php require __DIR__ . '/footer.template.php'; ?>
 </div>
