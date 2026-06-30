@@ -204,6 +204,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 	 * Tests saving a caption track through REST.
 	 */
 	public function test_caption_track_can_be_saved_as_draft() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
@@ -223,6 +224,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 	 * Tests saving a published caption track through REST.
 	 */
 	public function test_caption_track_can_be_saved_as_publish() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
@@ -247,6 +249,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 	 * Tests updating an existing caption track from draft to published.
 	 */
 	public function test_caption_track_can_be_updated_from_draft_to_publish() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
 		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
@@ -270,6 +273,46 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 'publish', get_post_status( $created['id'] ) );
 		$this->assertStringContainsString( 'Updated', $data['content'] );
+	}
+
+	/**
+	 * Tests that `upload_files` alone cannot save captions for a GUID with no local video.
+	 *
+	 * Where the resolver is available, a GUID that has no local attachment is
+	 * denied rather than falling back to the broad upload capability.
+	 */
+	public function test_caption_track_save_denied_for_unresolvable_guid() {
+		wp_set_current_user( $this->author_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $this->track_payload_for_guid( 'novideo1' ) );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * Tests that updating a track cannot reassign it to a different video.
+	 *
+	 * The GUID is pinned to the video the track already belongs to, so a GUID
+	 * supplied on update is ignored.
+	 */
+	public function test_caption_track_update_cannot_reassign_guid() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request->set_body_params( $this->track_payload() );
+		$created = $this->server->dispatch( $create_request )->get_data();
+
+		$update_request = new WP_REST_Request( 'PUT', '/jetpack/v4/videopress/caption-tracks/' . $created['id'] );
+		$update_request->set_body_params( $this->track_payload_for_guid( 'zzzz9999' ) );
+
+		$response = $this->server->dispatch( $update_request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'abcd1234', get_post_meta( $created['id'], Caption_Tracks::META_GUID, true ) );
 	}
 
 	/**
