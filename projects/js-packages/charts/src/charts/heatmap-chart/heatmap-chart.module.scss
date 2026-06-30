@@ -87,7 +87,7 @@
 // Light text on fills dark enough to out-contrast dark text (decided in JS from
 // the blended fill luminance).
 .heatmap-chart__cell--strong .heatmap-chart__cell-value {
-	color: #fff;
+	color: var(--wpds-color-fg-interactive-neutral-strong, #f0f0f0);
 }
 
 .heatmap-chart__legend-swatch {
