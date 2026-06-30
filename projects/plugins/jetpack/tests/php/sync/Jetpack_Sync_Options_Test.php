@@ -253,6 +253,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'ce4wp_referred_by'                            => array(),
 			'wpcom_is_fse_activated'                       => '1',
 			'videopress_private_enabled_for_site'          => false,
+			'videopress_auto_subtitles_disabled'           => true,
 			'wpcom_featured_image_in_email'                => false,
 			'jetpack_gravatar_in_email'                    => false,
 			'jetpack_author_in_email'                      => false,

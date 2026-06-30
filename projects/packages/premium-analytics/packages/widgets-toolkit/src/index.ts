@@ -24,6 +24,9 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	SubscriberList,
+	type SubscriberListItem,
+	type SubscriberListProps,
 } from './components';
 
 /**
