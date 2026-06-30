@@ -7,12 +7,21 @@ import type {
 	StatsNormalizedReport,
 	StatsUtmItem,
 	StatsUtmParam,
+	StatsUtmTopPostItem,
 } from '@jetpack-premium-analytics/data';
+
+export interface UtmInsightsChildRow {
+	label: string;
+	value: number;
+	previousValue: number;
+	href?: string | null;
+}
 
 export interface UtmInsightsRow {
 	label: string;
 	value: number;
 	previousValue: number;
+	children?: UtmInsightsChildRow[];
 }
 
 interface UseUtmInsightsArgs {
@@ -28,6 +37,14 @@ interface UtmInsightsState {
 	isFetching: boolean;
 	hasData: boolean;
 	isError: boolean;
+}
+
+function getLabel( item: { label: unknown } ): string {
+	return typeof item.label === 'string' ? item.label : String( item.label );
+}
+
+function getChildKey( item: StatsUtmTopPostItem ): string {
+	return item.href ?? getLabel( item );
 }
 
 /**
@@ -53,19 +70,32 @@ export default function useUtmInsights( {
 	const rawItems = primaryReport?.data?.[ 0 ]?.items ?? [];
 	const comparisonItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
 	const comparisonByLabel = new Map(
-		comparisonItems.map( item => [
-			typeof item.label === 'string' ? item.label : String( item.label ),
-			item.value,
-		] )
+		comparisonItems.map( item => [ getLabel( item ), item ] )
 	);
 	const items = rawItems
 		.map( item => {
-			const label = typeof item.label === 'string' ? item.label : String( item.label );
+			const label = getLabel( item );
+			const comparisonItem = comparisonByLabel.get( label );
+			const comparisonChildren = comparisonItem?.children ?? [];
+			const comparisonChildrenByKey = new Map(
+				comparisonChildren.map( child => [ getChildKey( child ), child.value ] )
+			);
+			const children = ( item.children ?? [] ).map( child => {
+				const childKey = getChildKey( child );
+
+				return {
+					label: getLabel( child ),
+					value: child.value,
+					previousValue: hasComparison ? comparisonChildrenByKey.get( childKey ) ?? 0 : 0,
+					href: child.href,
+				};
+			} );
 
 			return {
 				label,
 				value: item.value,
-				previousValue: hasComparison ? comparisonByLabel.get( label ) ?? 0 : 0,
+				previousValue: hasComparison ? comparisonItem?.value ?? 0 : 0,
+				children,
 			};
 		} )
 		.slice( 0, max > 0 ? max : undefined );

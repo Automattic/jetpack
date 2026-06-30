@@ -2,9 +2,9 @@
  * WordPress dependencies
  */
 import { SelectControl } from '@wordpress/components';
-import { useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { useCallback, useMemo, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { Button, Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
@@ -63,13 +63,17 @@ type UtmInsightsInnerProps = {
  */
 function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
+	const [ selectedUtmLabel, setSelectedUtmLabel ] = useState< string | null >( null );
 
 	const handleParamChange = useCallback(
 		( value: string ) => {
+			setSelectedUtmLabel( null );
 			setAttributes( { utmParam: value as StatsUtmParam } );
 		},
 		[ setAttributes ]
 	);
+
+	const clearSelectedUtm = useCallback( () => setSelectedUtmLabel( null ), [] );
 
 	const { data, hasComparison, isLoading, isFetching, hasData, isError } = useUtmInsights( {
 		reportParams,
@@ -77,12 +81,18 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 		max,
 	} );
 	const showLoading = isLoading || ( isFetching && hasData );
+	const selectedUtm = useMemo(
+		() => data.find( item => item.label === selectedUtmLabel ) ?? null,
+		[ data, selectedUtmLabel ]
+	);
+	const isDrillDown = !! selectedUtm?.children?.length;
+	const activeData = isDrillDown ? selectedUtm.children ?? [] : data;
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...data.map( d => d.value ), 1 );
-		const maxPreviousValue = Math.max( ...data.map( d => d.previousValue ), 1 );
+		const maxValue = Math.max( ...activeData.map( d => d.value ), 1 );
+		const maxPreviousValue = Math.max( ...activeData.map( d => d.previousValue ), 1 );
 
-		return data.map( ( item, index ) => ( {
+		return activeData.map( ( item, index ) => ( {
 			id: `${ index }-${ item.label }`,
 			label: (
 				<Stack align="center" className={ styles.itemLabel }>
@@ -97,8 +107,18 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 					? ( item.previousValue / maxPreviousValue ) * 100
 					: 0,
 			delta: hasComparison ? calculateDelta( item.value, item.previousValue ) : 0,
+			...( ! isDrillDown &&
+				'children' in item &&
+				item.children?.length && {
+					onClick: () => setSelectedUtmLabel( item.label ),
+					ariaLabel: sprintf(
+						/* translators: %s is the UTM value label. */
+						__( 'View posts for %s', 'jetpack-premium-analytics' ),
+						item.label
+					),
+				} ),
 		} ) );
-	}, [ data, hasComparison ] );
+	}, [ activeData, hasComparison, isDrillDown ] );
 
 	if ( isError ) {
 		return (
@@ -114,7 +134,25 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 
 	return (
 		<>
-			<Stack direction="row" justify="flex-end" align="center" className={ styles.widgetHeader }>
+			<Stack
+				direction="row"
+				justify={ isDrillDown ? 'space-between' : 'flex-end' }
+				align="center"
+				className={ styles.widgetHeader }
+			>
+				{ isDrillDown && (
+					<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
+						<Button
+							variant="unstyled"
+							onClick={ clearSelectedUtm }
+							className={ styles.breadcrumbLink }
+						>
+							{ __( 'UTM Insights', 'jetpack-premium-analytics' ) }
+						</Button>
+						<Text className={ styles.breadcrumbSeparator }>/</Text>
+						<Text className={ styles.breadcrumbCurrent }>{ selectedUtm?.label }</Text>
+					</Stack>
+				) }
 				<SelectControl
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom

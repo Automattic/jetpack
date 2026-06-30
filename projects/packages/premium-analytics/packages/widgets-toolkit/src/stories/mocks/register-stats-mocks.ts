@@ -22,7 +22,29 @@ type UtmMock = {
 function createUtmMock( topUtmValues: Record< string, number > ): UtmMock {
 	return {
 		top_utm_values: topUtmValues,
-		top_posts: {},
+		top_posts: Object.fromEntries(
+			Object.entries( topUtmValues ).map( ( [ key, value ], index ) => {
+				const baseSlug = `utm-${ index + 1 }`;
+
+				return [
+					key,
+					[
+						{
+							id: index * 2 + 1,
+							title: `Landing page ${ index + 1 }`,
+							views: Math.round( value * 0.6 ),
+							href: `https://example.com/${ baseSlug }`,
+						},
+						{
+							id: index * 2 + 2,
+							title: `Signup page ${ index + 1 }`,
+							views: Math.round( value * 0.3 ),
+							href: `https://example.com/${ baseSlug }/signup`,
+						},
+					],
+				];
+			} )
+		),
 	};
 }
 
