@@ -133,7 +133,6 @@ function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } )
 					styles={ segmentStyles }
 					legendData={ legendData }
 					showLegend
-					maxWidth={ 200 }
 					dataFormat={ DATA_FORMAT }
 				/>
 			</div>
@@ -151,7 +150,7 @@ function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } )
  * @param props.showTitle  - Whether to render the widget title inside the render module.
  * @return The rendered widget content.
  */
-export default function DevicesWidget( { attributes, showTitle = true }: DevicesWidgetProps ) {
+export default function DevicesWidget( { attributes = {}, showTitle = true }: DevicesWidgetProps ) {
 	const max = attributes?.max ?? 5;
 
 	return (

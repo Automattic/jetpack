@@ -94,9 +94,8 @@ class Analytics {
 		// injection and the REST route the "reset to default" action reads.
 		require_once __DIR__ . '/dashboard-layout.php';
 
-		// Load wp-build output (interceptor, modules, routes, page render).
-		// Must stay above the is_admin() gate: build/widgets.php defines the
-		// manifest the widget registry reads, and the registry serves REST
+		// Load wp-build output (interceptor, modules, widget manifest, routes, page render).
+		// Must stay above the is_admin() gate so the registry can serve REST
 		// requests (e.g. /jetpack/v4/widget-modules) where is_admin() is false. The render
 		// pieces here self-gate on admin_init, so loading them globally is inert
 		// off the dashboard. Only the polyfill registration below is admin-scoped.
