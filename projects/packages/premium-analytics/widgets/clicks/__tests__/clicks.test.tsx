@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -26,8 +26,14 @@ const CLICKS_RESPONSE = {
 			{
 				name: 'wordpress.org',
 				views: 42,
-				url: 'https://wordpress.org/',
 				icon: 'https://www.google.com/s2/favicons?domain=wordpress.org&sz=32',
+				children: [
+					{
+						name: 'wordpress.org/plugins/jetpack-search',
+						views: 42,
+						url: 'https://wordpress.org/plugins/jetpack-search',
+					},
+				],
 			},
 		],
 	},
@@ -40,15 +46,24 @@ describe( 'ClicksWidget', () => {
 		mockApiFetch.mockResolvedValue( CLICKS_RESPONSE );
 	} );
 
-	it( 'renders fetched clicked links', async () => {
+	it( 'drills down from top-level domains to clicked links', async () => {
 		render(
 			<ClicksWidget
 				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
-		const link = await screen.findByRole( 'link', { name: /wordpress\.org/ } );
-		expect( link ).toHaveAttribute( 'href', 'https://wordpress.org/' );
+		const drillDownButton = await screen.findByRole( 'button', {
+			name: /view clicked links for wordpress\.org/i,
+		} );
+		expect( screen.queryByRole( 'link', { name: /wordpress\.org/i } ) ).not.toBeInTheDocument();
+
+		fireEvent.click( drillDownButton );
+
+		const link = await screen.findByRole( 'link', {
+			name: /\/plugins\/jetpack-search/i,
+		} );
+		expect( link ).toHaveAttribute( 'href', 'https://wordpress.org/plugins/jetpack-search' );
 	} );
 } );
 
@@ -132,11 +147,28 @@ describe( 'toClickRows', () => {
 
 		expect( toClickRows( primary, comparison, 1 ) ).toEqual( [
 			{
-				label: 'wordpress.org/plugins/jetpack-search',
-				value: 42,
-				previousValue: 30,
-				href: 'https://wordpress.org/plugins/jetpack-search',
+				label: 'wordpress.org',
+				value: 60,
+				previousValue: 38,
 				icon: 'https://example.com/blavatar.png',
+				children: [
+					{
+						label: '/plugins/jetpack-search',
+						value: 42,
+						previousValue: 30,
+						href: 'https://wordpress.org/plugins/jetpack-search',
+						icon: 'https://example.com/blavatar.png',
+						children: undefined,
+					},
+					{
+						label: '/plugins/jetpack-boost/',
+						value: 18,
+						previousValue: 0,
+						href: 'https://wordpress.org/plugins/jetpack-boost/',
+						icon: 'https://example.com/blavatar.png',
+						children: undefined,
+					},
+				],
 			},
 		] );
 	} );

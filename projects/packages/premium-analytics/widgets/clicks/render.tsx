@@ -16,9 +16,9 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { useCallback, useMemo, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { Button, Link, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -54,14 +54,14 @@ export type ClickRow = {
 	 * Optional favicon URL.
 	 */
 	icon?: string | null;
+	/**
+	 * Child clicked links for drill-down.
+	 */
+	children?: ClickRow[];
 };
 
 function getItemLabel( item: StatsClicksItem, parentLabel?: string ): string {
 	if ( typeof item.label === 'string' && item.label ) {
-		if ( parentLabel && item.label.startsWith( '/' ) ) {
-			return `${ parentLabel }${ item.label }`;
-		}
-
 		return item.label;
 	}
 
@@ -72,32 +72,80 @@ type NormalizedClickItem = {
 	key: string;
 	label: string;
 	value: number;
+	previousValue: number;
 	href?: string;
 	icon?: string | null;
+	children?: NormalizedClickItem[];
 };
 
-function flattenClickItems(
+function getItemKey( item: StatsClicksItem, parentLabel?: string ): string {
+	const label = getItemLabel( item, parentLabel );
+	return item.link ?? label;
+}
+
+function buildClickItemLookup(
 	items: StatsClicksItem[],
-	parent?: { label: string; icon?: string | null }
-): NormalizedClickItem[] {
-	return items.flatMap( item => {
+	parent?: { label: string }
+): Map< string, StatsClicksItem > {
+	const lookup = new Map< string, StatsClicksItem >();
+
+	items.forEach( item => {
 		const label = getItemLabel( item, parent?.label );
-		const children = item.children ?? [];
-
-		if ( children.length ) {
-			return flattenClickItems( children, { label, icon: item.icon ?? parent?.icon } );
-		}
-
-		return [
-			{
-				key: item.link ?? label,
-				label,
-				value: item.views,
-				href: item.link ?? undefined,
-				icon: item.icon ?? parent?.icon,
-			},
-		];
+		lookup.set( getItemKey( item, parent?.label ), item );
+		( item.children ?? [] ).forEach( child => {
+			buildClickItemLookup( [ child ], { label } ).forEach( ( value, key ) => {
+				lookup.set( key, value );
+			} );
+		} );
 	} );
+
+	return lookup;
+}
+
+function normalizeClickItem(
+	item: StatsClicksItem,
+	comparisonLookup: Map< string, StatsClicksItem >,
+	parent?: { label: string; icon?: string | null }
+): NormalizedClickItem {
+	const label = getItemLabel( item, parent?.label );
+	const key = getItemKey( item, parent?.label );
+	const children = ( item.children ?? [] ).map( child =>
+		normalizeClickItem( child, comparisonLookup, { label, icon: item.icon ?? parent?.icon } )
+	);
+
+	return {
+		key,
+		label,
+		value: item.views,
+		previousValue: comparisonLookup.get( key )?.views ?? 0,
+		href: item.link ?? undefined,
+		icon: item.icon ?? parent?.icon,
+		children: children.length ? sortClickItems( children ) : undefined,
+	};
+}
+
+function sortClickItems( items: NormalizedClickItem[] ): NormalizedClickItem[] {
+	return [ ...items ].sort( ( a, b ) => b.value - a.value );
+}
+
+function toClickRow( item: NormalizedClickItem ): ClickRow {
+	return {
+		label: item.label,
+		value: item.value,
+		previousValue: item.previousValue,
+		href: item.href,
+		icon: item.icon,
+		children: item.children?.map( toClickRow ),
+	};
+}
+
+function normalizeClickItems(
+	items: StatsClicksItem[],
+	comparisonLookup: Map< string, StatsClicksItem >
+): NormalizedClickItem[] {
+	return sortClickItems(
+		items.map( item => normalizeClickItem( item, comparisonLookup ) )
+	);
 }
 
 function getItems(
@@ -120,22 +168,11 @@ export function toClickRows(
 	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
 	max: number
 ): ClickRow[] {
-	const comparisonLookup = new Map(
-		flattenClickItems( getItems( comparisonReport ) ).map( item => [ item.key, item.value ] )
-	);
-	const items = flattenClickItems( getItems( report ) );
-	const sorted = [ ...items ].sort( ( a, b ) => b.value - a.value );
+	const comparisonLookup = buildClickItemLookup( getItems( comparisonReport ) );
+	const sorted = normalizeClickItems( getItems( report ), comparisonLookup );
 	const sliced = max > 0 ? sorted.slice( 0, max ) : sorted;
 
-	return sliced.map( item => {
-		return {
-			label: item.label,
-			value: item.value,
-			previousValue: comparisonLookup.get( item.key ) ?? 0,
-			href: item.href,
-			icon: item.icon,
-		};
-	} );
+	return sliced.map( toClickRow );
 }
 
 function ClickLabel( { row }: { row: ClickRow } ) {
@@ -154,16 +191,22 @@ function ClickLabel( { row }: { row: ClickRow } ) {
  * @param withComparison - Whether to include comparison values and deltas.
  * @return Leaderboard chart data.
  */
-function buildLeaderboardData( rows: ClickRow[], withComparison: boolean ): LeaderboardChartData {
+function buildLeaderboardData(
+	rows: ClickRow[],
+	withComparison: boolean,
+	onDrillDown?: ( row: ClickRow ) => void
+): LeaderboardChartData {
 	const maxCurrentClicks = Math.max( ...rows.map( row => row.value ), 1 );
 	const maxPreviousClicks = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue ?? 0;
+		const hasChildren = !! row.children?.length;
+		const shouldRenderLink = !! row.href && ! onDrillDown;
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: row.href ? (
+			label: shouldRenderLink ? (
 				<Link
 					className={ styles.labelLink }
 					href={ row.href }
@@ -184,6 +227,15 @@ function buildLeaderboardData( rows: ClickRow[], withComparison: boolean ): Lead
 			previousShare:
 				withComparison && previousValue > 0 ? ( previousValue / maxPreviousClicks ) * 100 : 0,
 			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+			...( hasChildren &&
+				onDrillDown && {
+					onClick: () => onDrillDown( row ),
+					ariaLabel: sprintf(
+						/* translators: %s is the clicked link or domain label. */
+						__( 'View clicked links for %s', 'jetpack-premium-analytics' ),
+						row.label
+					),
+				} ),
 		};
 	} );
 }
@@ -193,6 +245,7 @@ export type ClicksLeaderboardProps = {
 	isLoading?: boolean;
 	isError?: boolean;
 	withComparison?: boolean;
+	onDrillDown?: ( row: ClickRow ) => void;
 };
 
 /**
@@ -210,6 +263,7 @@ export function ClicksLeaderboard( {
 	isLoading = false,
 	isError = false,
 	withComparison = false,
+	onDrillDown,
 }: ClicksLeaderboardProps ) {
 	if ( isError ) {
 		return (
@@ -225,10 +279,11 @@ export function ClicksLeaderboard( {
 
 	return (
 		<LeaderboardChart
-			data={ buildLeaderboardData( rows, withComparison ) }
+			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
 			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
+			showLegend={ false }
 			emptyStateText={ __( 'No clicks in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ DATA_FORMAT }
 		/>
@@ -237,6 +292,8 @@ export function ClicksLeaderboard( {
 
 function ClicksInner( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
+	const [ selectedClickLabel, setSelectedClickLabel ] = useState< string | null >( null );
+	const clearSelectedClick = useCallback( () => setSelectedClickLabel( null ), [] );
 	const statsParams = {
 		...reportParams,
 		max,
@@ -254,14 +311,45 @@ function ClicksInner( { max }: { max: number } ) {
 			),
 		[ primary.data, comparison.data, max ]
 	);
+	const selectedClick = useMemo(
+		() => rows.find( row => row.label === selectedClickLabel ) ?? null,
+		[ rows, selectedClickLabel ]
+	);
+	const isDrillDown = !! selectedClick?.children?.length;
+	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
 
 	return (
-		<ClicksLeaderboard
-			rows={ rows }
-			isLoading={ showLoading }
-			isError={ isError }
-			withComparison={ hasComparison }
-		/>
+		<>
+			{ isDrillDown && (
+				<Stack
+					direction="row"
+					justify="space-between"
+					align="center"
+					className={ styles.widgetHeader }
+				>
+					<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
+						<Button
+							variant="unstyled"
+							onClick={ clearSelectedClick }
+							className={ styles.breadcrumbLink }
+						>
+							{ __( 'Clicks', 'jetpack-premium-analytics' ) }
+						</Button>
+						<Text className={ styles.breadcrumbSeparator }>/</Text>
+						<Text>{ selectedClick?.label }</Text>
+					</Stack>
+				</Stack>
+			) }
+			<div className={ styles.content }>
+				<ClicksLeaderboard
+					rows={ activeRows }
+					isLoading={ showLoading }
+					isError={ isError }
+					withComparison={ hasComparison }
+					onDrillDown={ isDrillDown ? undefined : row => setSelectedClickLabel( row.label ) }
+				/>
+			</div>
+		</>
 	);
 }
 

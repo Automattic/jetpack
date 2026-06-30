@@ -38,27 +38,86 @@ const MOCK_CLICKS = {
 				],
 			},
 			{
-				name: 'developer.wordpress.org/reference',
+				name: 'developer.wordpress.org',
 				views: 2610,
-				url: 'https://developer.wordpress.org/reference/',
 				icon: 'https://www.google.com/s2/favicons?domain=developer.wordpress.org&sz=32',
+				children: [
+					{
+						name: 'developer.wordpress.org/reference/functions/wp_remote_get',
+						views: 1180,
+						url: 'https://developer.wordpress.org/reference/functions/wp_remote_get/',
+					},
+					{
+						name: 'developer.wordpress.org/rest-api/reference',
+						views: 840,
+						url: 'https://developer.wordpress.org/rest-api/reference/',
+					},
+					{
+						name: 'developer.wordpress.org/block-editor/reference-guides',
+						views: 590,
+						url: 'https://developer.wordpress.org/block-editor/reference-guides/',
+					},
+				],
 			},
 			{
-				name: 'jetpack.com/support',
+				name: 'jetpack.com',
 				views: 1920,
-				url: 'https://jetpack.com/support/',
 				icon: 'https://www.google.com/s2/favicons?domain=jetpack.com&sz=32',
+				children: [
+					{
+						name: 'jetpack.com/support',
+						views: 910,
+						url: 'https://jetpack.com/support/',
+					},
+					{
+						name: 'jetpack.com/blog',
+						views: 640,
+						url: 'https://jetpack.com/blog/',
+					},
+					{
+						name: 'jetpack.com/pricing',
+						views: 370,
+						url: 'https://jetpack.com/pricing/',
+					},
+				],
 			},
 			{
 				name: 'woocommerce.com',
 				views: 1305,
-				url: 'https://woocommerce.com/',
 				icon: 'https://www.google.com/s2/favicons?domain=woocommerce.com&sz=32',
+				children: [
+					{
+						name: 'woocommerce.com/documentation/plugins',
+						views: 610,
+						url: 'https://woocommerce.com/documentation/plugins/',
+					},
+					{
+						name: 'woocommerce.com/products',
+						views: 460,
+						url: 'https://woocommerce.com/products/',
+					},
+					{
+						name: 'woocommerce.com/posts',
+						views: 235,
+						url: 'https://woocommerce.com/posts/',
+					},
+				],
 			},
 			{
-				name: 'example.com/downloads/whitepaper.pdf',
+				name: 'example.com',
 				views: 870,
-				url: 'https://example.com/downloads/whitepaper.pdf',
+				children: [
+					{
+						name: 'example.com/downloads/whitepaper.pdf',
+						views: 530,
+						url: 'https://example.com/downloads/whitepaper.pdf',
+					},
+					{
+						name: 'example.com/demo',
+						views: 340,
+						url: 'https://example.com/demo/',
+					},
+				],
 			},
 		],
 	},
@@ -88,22 +147,70 @@ const MOCK_CLICKS_COMPARISON = {
 				],
 			},
 			{
-				name: 'developer.wordpress.org/reference',
+				name: 'developer.wordpress.org',
 				views: 2940,
-				url: 'https://developer.wordpress.org/reference/',
 				icon: 'https://www.google.com/s2/favicons?domain=developer.wordpress.org&sz=32',
+				children: [
+					{
+						name: 'developer.wordpress.org/reference/functions/wp_remote_get',
+						views: 1410,
+						url: 'https://developer.wordpress.org/reference/functions/wp_remote_get/',
+					},
+					{
+						name: 'developer.wordpress.org/rest-api/reference',
+						views: 870,
+						url: 'https://developer.wordpress.org/rest-api/reference/',
+					},
+					{
+						name: 'developer.wordpress.org/block-editor/reference-guides',
+						views: 660,
+						url: 'https://developer.wordpress.org/block-editor/reference-guides/',
+					},
+				],
 			},
 			{
-				name: 'jetpack.com/support',
+				name: 'jetpack.com',
 				views: 1270,
-				url: 'https://jetpack.com/support/',
 				icon: 'https://www.google.com/s2/favicons?domain=jetpack.com&sz=32',
+				children: [
+					{
+						name: 'jetpack.com/support',
+						views: 620,
+						url: 'https://jetpack.com/support/',
+					},
+					{
+						name: 'jetpack.com/blog',
+						views: 410,
+						url: 'https://jetpack.com/blog/',
+					},
+					{
+						name: 'jetpack.com/pricing',
+						views: 240,
+						url: 'https://jetpack.com/pricing/',
+					},
+				],
 			},
 			{
 				name: 'woocommerce.com',
 				views: 980,
-				url: 'https://woocommerce.com/',
 				icon: 'https://www.google.com/s2/favicons?domain=woocommerce.com&sz=32',
+				children: [
+					{
+						name: 'woocommerce.com/documentation/plugins',
+						views: 460,
+						url: 'https://woocommerce.com/documentation/plugins/',
+					},
+					{
+						name: 'woocommerce.com/products',
+						views: 330,
+						url: 'https://woocommerce.com/products/',
+					},
+					{
+						name: 'woocommerce.com/posts',
+						views: 190,
+						url: 'https://woocommerce.com/posts/',
+					},
+				],
 			},
 		],
 	},
