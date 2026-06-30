@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -137,6 +138,45 @@ class Initial_State_Test extends Search_TestCase {
 		$state = ( new Initial_State() )->get_initial_state();
 
 		$this->assertFalse( $state['siteData']['aiAgentAccessAvailable'] );
+	}
+
+	/**
+	 * Test that the AI Agent Access toggle is unavailable on P2 sites.
+	 */
+	public function test_ai_agent_access_available_is_false_for_p2_sites() {
+		$original_blog_id       = \Jetpack_Options::get_option( 'id' );
+		$had_is_wpcom           = Constants::is_defined( 'IS_WPCOM' );
+		$original_is_wpcom      = Constants::get_constant( 'IS_WPCOM' );
+		$p2_stylesheet_filter   = function () {
+			return 'pub/p2v2';
+		};
+
+		\Jetpack_Options::update_option( 'id', 12345 );
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		try {
+			$state = ( new Initial_State() )->get_initial_state();
+
+			$this->assertTrue( $state['siteData']['aiAgentAccessAvailable'] );
+
+			add_filter( 'stylesheet', $p2_stylesheet_filter );
+
+			$state = ( new Initial_State() )->get_initial_state();
+
+			$this->assertFalse( $state['siteData']['aiAgentAccessAvailable'] );
+		} finally {
+			remove_filter( 'stylesheet', $p2_stylesheet_filter );
+			if ( false === $original_blog_id ) {
+				\Jetpack_Options::delete_option( 'id' );
+			} else {
+				\Jetpack_Options::update_option( 'id', $original_blog_id );
+			}
+			if ( $had_is_wpcom ) {
+				Constants::set_constant( 'IS_WPCOM', $original_is_wpcom );
+			} else {
+				Constants::clear_single_constant( 'IS_WPCOM' );
+			}
+		}
 	}
 
 	/**

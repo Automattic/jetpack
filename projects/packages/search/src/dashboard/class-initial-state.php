@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
@@ -220,13 +221,12 @@ class Initial_State {
 	/**
 	 * Check whether the AI Agent Access toggle should be available.
 	 *
-	 * Private sites are not eligible because external AI agents cannot read
-	 * their public content.
+	 * Private and P2 sites are not eligible for external AI agent access.
 	 *
 	 * @return bool
 	 */
 	protected function is_ai_agent_access_available() {
-		return ! $this->is_private_site();
+		return ! $this->is_private_site() && ! ( new Host() )->is_p2_site();
 	}
 
 	/**
