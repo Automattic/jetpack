@@ -74,6 +74,33 @@ class WPCOM_JSON_API_Serializable_Error_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A non-numeric scalar (e.g. a string) error data value must never `(int)`-cast
+	 * to `0`/`1`; it falls to the safe `400` default.
+	 *
+	 * @param mixed $input Non-numeric scalar carried as the error data.
+	 * @dataProvider provide_non_numeric_scalars
+	 */
+	#[DataProvider( 'provide_non_numeric_scalars' )]
+	public function test_non_numeric_scalar_is_safe_not_0_or_1( $input ) {
+		$status = $this->status_for( new WP_Error( 'scalar', 'Scalar', $input ) );
+		$this->assertIsInt( $status );
+		$this->assertSame( 400, $status );
+	}
+
+	/**
+	 * Data provider: non-numeric scalar error data values.
+	 *
+	 * @return array<string, array{mixed}>
+	 */
+	public static function provide_non_numeric_scalars(): array {
+		return array(
+			'plain string'   => array( 'not a number' ),
+			'mixed string'   => array( 'error-42' ),
+			'bool true'      => array( true ),
+		);
+	}
+
+	/**
 	 * A success/redirect status paired with an error must never render as `< 400`
 	 * (the crash: an app reads a 2xx as a successful, URL-less site).
 	 *
