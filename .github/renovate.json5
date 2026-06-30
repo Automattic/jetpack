@@ -135,6 +135,10 @@
 				// @wordpress/build is still heavily developed; its dashboards share the same bundled
 				// packages and test surface, so exercising build alongside the rest is practical.
 				'@wordpress/build',
+				// Widgets Dashboard packages used by Premium Analytics
+				'@wordpress/grid',
+				'@wordpress/widget-dashboard',
+				'@wordpress/widget-primitives',
 			],
 			separateMajorMinor: false,
 			// Teams that can help test the update
@@ -142,21 +146,6 @@
 				'team:triforce', // Monorepo overall, Publicize, My Jetpack
 				'team:loop', // Newsletter dashboard & subscriber management
 				'team:zap', // Forms, much of the recent componentry work.
-				'team:red', // Premium Analytics
-				'team:ventures', // Premium Analytics
-			],
-		},
-
-		// Widgets Dashboard packages are still experimental/development-focused, so group them for targeted review.
-		{
-			groupName: 'Widgets Dashboard',
-			matchPackageNames: [
-				'@wordpress/widget-dashboard',
-				'@wordpress/widget-primitives',
-				'@wordpress/grid',
-			],
-			separateMajorMinor: false,
-			additionalReviewers: [
 				'team:red', // Premium Analytics
 				'team:ventures', // Premium Analytics
 			],
