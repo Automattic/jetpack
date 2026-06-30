@@ -5,6 +5,7 @@ import { store as blockEditorStore, useBlockProps } from '@wordpress/block-edito
 import { createBlock, registerBlockType, getBlockType } from '@wordpress/blocks';
 import { Button, TextControl, TextareaControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { arrowDown, arrowUp, copy, plus, trash } from '@wordpress/icons';
 /**
@@ -35,6 +36,45 @@ type CaptionCueEditProps = {
 
 const DEFAULT_CUE_DURATION_SECONDS = 2;
 
+// Client ID of a freshly inserted cue whose text field should grab focus once it
+// mounts, so adding a cue lands the caret in the caption text rather than on the
+// first toolbar button.
+let cueClientIdToFocus: string | null = null;
+
+/**
+ * Mark a newly created cue so its text field receives focus when it mounts.
+ *
+ * @param clientId - Client ID of the new cue block.
+ */
+export function focusCueOnMount( clientId: string ): void {
+	cueClientIdToFocus = clientId;
+}
+
+// Latest video playback time (seconds), kept current by the modal so a cue added
+// from within the editor starts at the moment the viewer is watching.
+let currentVideoTimeSeconds = 0;
+
+/**
+ * Update the playback time used to seed newly inserted cues.
+ *
+ * @param seconds - Current video time in seconds.
+ */
+export function setCurrentCueVideoTime( seconds: number ): void {
+	currentVideoTimeSeconds = Number.isFinite( seconds ) ? Math.max( 0, seconds ) : 0;
+}
+
+/**
+ * Create a cue that starts at the current video playback time.
+ *
+ * @return The new caption cue block.
+ */
+function createCueAtPlayhead() {
+	return createBlock( CAPTION_CUE_BLOCK_NAME, {
+		startTime: formatSecondsAsTimestamp( currentVideoTimeSeconds ),
+		endTime: formatSecondsAsTimestamp( currentVideoTimeSeconds + DEFAULT_CUE_DURATION_SECONDS ),
+	} );
+}
+
 const CaptionCueEdit = ( {
 	attributes,
 	clientId,
@@ -63,6 +103,15 @@ const CaptionCueEdit = ( {
 	// the fields, not the cue wrapper.
 	const blockProps = useBlockProps( { className: 'videopress-caption-cue', tabIndex: -1 } );
 
+	const textRef = useRef< HTMLDivElement >( null );
+
+	useEffect( () => {
+		if ( cueClientIdToFocus === clientId ) {
+			cueClientIdToFocus = null;
+			textRef.current?.querySelector( 'textarea' )?.focus();
+		}
+	}, [ clientId ] );
+
 	/**
 	 * Build a cue that follows this one, reusing its duration when available.
 	 *
@@ -87,52 +136,8 @@ const CaptionCueEdit = ( {
 
 	return (
 		<div { ...blockProps }>
-			<div className="videopress-caption-cue__toolbar">
-				<span className="videopress-caption-cue__handle">
-					{ sprintf(
-						/* translators: %d: subtitle cue number. */
-						__( 'Subtitle %d', 'jetpack-videopress-pkg' ),
-						index + 1
-					) }
-				</span>
-				<div className="videopress-caption-cue__actions">
-					<Button
-						size="small"
-						icon={ arrowUp }
-						label={ __( 'Move up', 'jetpack-videopress-pkg' ) }
-						showTooltip
-						disabled={ isFirst }
-						onClick={ () => moveBlocksUp( [ clientId ], rootClientId ) }
-					/>
-					<Button
-						size="small"
-						icon={ arrowDown }
-						label={ __( 'Move down', 'jetpack-videopress-pkg' ) }
-						showTooltip
-						disabled={ isLast }
-						onClick={ () => moveBlocksDown( [ clientId ], rootClientId ) }
-					/>
-					<Button
-						size="small"
-						icon={ copy }
-						label={ __( 'Duplicate', 'jetpack-videopress-pkg' ) }
-						showTooltip
-						onClick={ () =>
-							insertBlock( createAdjacentCue( attributes.text ), index + 1, rootClientId )
-						}
-					/>
-					<Button
-						size="small"
-						icon={ trash }
-						label={ __( 'Delete subtitle', 'jetpack-videopress-pkg' ) }
-						showTooltip
-						isDestructive
-						onClick={ () => removeBlock( clientId ) }
-					/>
-				</div>
-			</div>
 			<div className="videopress-caption-cue__body">
-				<div className="videopress-caption-cue__text">
+				<div className="videopress-caption-cue__text" ref={ textRef }>
 					<TextareaControl
 						label={ __( 'Subtitle', 'jetpack-videopress-pkg' ) }
 						value={ attributes.text }
@@ -167,12 +172,62 @@ const CaptionCueEdit = ( {
 					/>
 				</div>
 			</div>
+			<div className="videopress-caption-cue__toolbar">
+				<span className="videopress-caption-cue__handle">
+					{ sprintf(
+						/* translators: %d: subtitle cue number. */
+						__( 'Subtitle %d', 'jetpack-videopress-pkg' ),
+						index + 1
+					) }
+				</span>
+				<div className="videopress-caption-cue__actions">
+					<Button
+						size="small"
+						icon={ arrowUp }
+						label={ __( 'Move up', 'jetpack-videopress-pkg' ) }
+						showTooltip
+						disabled={ isFirst }
+						onClick={ () => moveBlocksUp( [ clientId ], rootClientId ) }
+					/>
+					<Button
+						size="small"
+						icon={ arrowDown }
+						label={ __( 'Move down', 'jetpack-videopress-pkg' ) }
+						showTooltip
+						disabled={ isLast }
+						onClick={ () => moveBlocksDown( [ clientId ], rootClientId ) }
+					/>
+					<Button
+						size="small"
+						icon={ copy }
+						label={ __( 'Duplicate', 'jetpack-videopress-pkg' ) }
+						showTooltip
+						onClick={ () => {
+							const block = createAdjacentCue( attributes.text );
+							focusCueOnMount( block.clientId );
+							insertBlock( block, index + 1, rootClientId, false );
+						} }
+					/>
+					<Button
+						size="small"
+						icon={ trash }
+						label={ __( 'Delete subtitle', 'jetpack-videopress-pkg' ) }
+						showTooltip
+						isDestructive
+						onClick={ () => removeBlock( clientId ) }
+					/>
+				</div>
+			</div>
 			<Button
 				className="videopress-caption-cue__insert"
 				icon={ plus }
 				label={ __( 'Add subtitle below', 'jetpack-videopress-pkg' ) }
 				showTooltip
-				onClick={ () => insertBlock( createAdjacentCue(), index + 1, rootClientId ) }
+				onClick={ () => {
+					const block = createCueAtPlayhead();
+					focusCueOnMount( block.clientId );
+					insertBlock( block, index + 1, rootClientId, false );
+				} }
 			/>
 		</div>
 	);

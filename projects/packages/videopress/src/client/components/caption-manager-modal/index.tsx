@@ -58,7 +58,11 @@ import {
 	isGeneratedLanguageKey,
 } from '../../lib/video-tracks/language';
 import { isAllowedOrigin } from '../../lib/videopress-allowed-origins';
-import { registerCaptionCueBlock } from './caption-cue-block';
+import {
+	focusCueOnMount,
+	registerCaptionCueBlock,
+	setCurrentCueVideoTime,
+} from './caption-cue-block';
 import LanguageControl from './language-control';
 import './style.scss';
 /**
@@ -125,24 +129,18 @@ const PREVIEW_RESUME_DELAY_MS = 1200;
 const PREVIEW_SEEK_STEP_SECONDS = 5;
 const DIRECT_VIDEO_SOURCE_REGEX = /\.(m4v|mov|mp4|ogv|webm)(?:[?#].*)?$/i;
 
-const emptyUploadForm = (): UploadFormTrack => {
-	const srcLang = getSiteLanguageTag();
-	return {
-		kind: DEFAULT_KIND,
-		srcLang,
-		label: getLanguageDisplayName( srcLang ),
-		tmpFile: null,
-	};
-};
+const emptyUploadForm = ( srcLang = '' ): UploadFormTrack => ( {
+	kind: DEFAULT_KIND,
+	srcLang,
+	label: srcLang ? getLanguageDisplayName( srcLang ) : '',
+	tmpFile: null,
+} );
 
-const emptyManualTrack = (): ManualTrack => {
-	const srcLang = getSiteLanguageTag();
-	return {
-		kind: DEFAULT_KIND,
-		srcLang,
-		label: getLanguageDisplayName( srcLang ),
-	};
-};
+const emptyManualTrack = ( srcLang = '' ): ManualTrack => ( {
+	kind: DEFAULT_KIND,
+	srcLang,
+	label: srcLang ? getLanguageDisplayName( srcLang ) : '',
+} );
 
 const getTrackLanguageKey = ( track: Pick< VideoTextTrack, 'kind' | 'srcLang' > ) =>
 	`${ track.kind }:${ track.srcLang }`;
@@ -265,10 +263,10 @@ const getTrackStatusLabel = ( track: VideoTextTrack ) => {
 	}
 };
 
-const getLocalCaptionTrackStatusLabel = ( captionTrack: SavedCaptionTrack ) =>
-	captionTrack.status === 'publish'
-		? __( 'Published', 'jetpack-videopress-pkg' )
-		: __( 'Draft', 'jetpack-videopress-pkg' );
+// Human-readable language name for a track, resolving generated keys such as
+// `auto_en` to their underlying language ("English") rather than the raw code.
+const getTrackLanguageName = ( srcLang: string ) =>
+	getLanguageDisplayName( getManualLanguageTagFromTrackKey( srcLang ) || srcLang );
 
 const getDownloadFileName = ( track: VideoTextTrack ) =>
 	`${ isSubtitleTrackKind( track.kind ) ? DEFAULT_KIND : track.kind }-${
@@ -418,6 +416,8 @@ export default function CaptionManagerModal( {
 	const videoRef = useRef< HTMLVideoElement >( null );
 	const playerIframeRef = useRef< HTMLIFrameElement >( null );
 	const cueEditorRef = useRef< HTMLDivElement >( null );
+	const addTrackButtonRef = useRef< HTMLButtonElement >( null );
+	const editorWorkspaceRef = useRef< HTMLDivElement >( null );
 	const shouldScrollCueEditorToEndRef = useRef( false );
 	const previewResumeTimerRef = useRef< ReturnType< typeof setTimeout > | null >( null );
 	const shouldResumePreviewAfterTypingRef = useRef( false );
@@ -553,6 +553,18 @@ export default function CaptionManagerModal( {
 		resetEditorToTrackList();
 	}, [ isOpen, resetEditorToTrackList ] );
 
+	// Place initial focus deliberately: the "Add track" button in the list, and
+	// the editor workspace container (not a header button or the language field)
+	// when editing, so opening a view never grabs the close button or the picker.
+	useEffect( () => {
+		if ( ! isOpen ) {
+			return;
+		}
+
+		const target = modalView === 'editor' ? editorWorkspaceRef.current : addTrackButtonRef.current;
+		target?.focus();
+	}, [ isOpen, modalView, workspaceMode ] );
+
 	useEffect( () => {
 		if ( ! isOpen || ! guid ) {
 			return;
@@ -622,6 +634,46 @@ export default function CaptionManagerModal( {
 		() => managedTracks.filter( track => isSubtitleTrackKind( track.kind ) ),
 		[ managedTracks ]
 	);
+
+	// Local caption-track drafts that aren't yet published to VideoPress. These
+	// join the same track list as the managed tracks, marked with a Draft badge.
+	const draftCaptionTracks = useMemo(
+		() =>
+			visibleCaptionTracks.filter(
+				captionTrack =>
+					captionTrack.status === 'draft' &&
+					! visibleManagedTracks.some( track =>
+						isMatchingSubtitleTrackLanguage(
+							track,
+							captionTrack.meta[ CAPTION_TRACK_META.srcLang ]
+						)
+					)
+			),
+		[ visibleCaptionTracks, visibleManagedTracks ]
+	);
+
+	// Default language for a new track: the site language, unless a track already
+	// exists for it — then leave the picker empty so the user chooses a free one.
+	const defaultLanguageTag = useMemo( () => {
+		const usedTags = new Set< string >();
+		visibleManagedTracks.forEach( track => {
+			const tag =
+				getManualLanguageTagFromTrackKey( track.srcLang ) ||
+				canonicalizeLanguageTag( track.srcLang );
+			if ( tag ) {
+				usedTags.add( tag );
+			}
+		} );
+		visibleCaptionTracks.forEach( captionTrack => {
+			const tag = captionTrack.meta[ CAPTION_TRACK_META.srcLang ];
+			if ( tag ) {
+				usedTags.add( tag );
+			}
+		} );
+
+		const siteLanguage = getSiteLanguageTag();
+		return usedTags.has( siteLanguage ) ? '' : siteLanguage;
+	}, [ visibleManagedTracks, visibleCaptionTracks ] );
 
 	const editorCues = useMemo( () => captionBlocksToCues( cueBlocks ), [ cueBlocks ] );
 
@@ -747,7 +799,7 @@ export default function CaptionManagerModal( {
 						srcLang: getManualLanguageTagFromTrackKey( sourceTrack.srcLang ),
 						label: sourceTrack.label || formatLanguageTagForDisplay( sourceTrack.srcLang ),
 				  }
-				: emptyManualTrack();
+				: emptyManualTrack( defaultLanguageTag );
 			const matchingCaptionTrack = findCaptionTrackForManualTrack( nextManualTrack, sourceTrack );
 
 			setModalView( 'editor' );
@@ -787,29 +839,32 @@ export default function CaptionManagerModal( {
 				setIsLoadingTrackText( false );
 			}
 		},
-		[ findCaptionTrackForManualTrack, loadTrackText ]
+		[ defaultLanguageTag, findCaptionTrackForManualTrack, loadTrackText ]
 	);
 
-	const startUploadTrack = useCallback( ( sourceTrack: VideoTextTrack | null = null ) => {
-		setModalView( 'editor' );
-		setWorkspaceMode( 'upload' );
-		setIsLoadingTrackText( false );
-		setIsTextImportOpen( false );
-		setCaptionTextInput( '' );
-		setUploadFormMode( sourceTrack ? 'replace' : 'add' );
-		setReplacingTrack( sourceTrack );
-		setUploadForm(
-			sourceTrack
-				? {
-						kind: sourceTrack.kind,
-						srcLang: formatLanguageTagForDisplay( sourceTrack.srcLang ),
-						label: sourceTrack.label,
-						tmpFile: null,
-				  }
-				: emptyUploadForm()
-		);
-		setNotice( null );
-	}, [] );
+	const startUploadTrack = useCallback(
+		( sourceTrack: VideoTextTrack | null = null ) => {
+			setModalView( 'editor' );
+			setWorkspaceMode( 'upload' );
+			setIsLoadingTrackText( false );
+			setIsTextImportOpen( false );
+			setCaptionTextInput( '' );
+			setUploadFormMode( sourceTrack ? 'replace' : 'add' );
+			setReplacingTrack( sourceTrack );
+			setUploadForm(
+				sourceTrack
+					? {
+							kind: sourceTrack.kind,
+							srcLang: formatLanguageTagForDisplay( sourceTrack.srcLang ),
+							label: sourceTrack.label,
+							tmpFile: null,
+					  }
+					: emptyUploadForm( defaultLanguageTag )
+			);
+			setNotice( null );
+		},
+		[ defaultLanguageTag ]
+	);
 
 	const handleCaptionFileDrop = useCallback(
 		( files: File[] ) => {
@@ -841,7 +896,7 @@ export default function CaptionManagerModal( {
 		shouldResumePreviewAfterTypingRef.current = false;
 		setModalView( 'editor' );
 		setWorkspaceMode( 'manual' );
-		setManualTrack( emptyManualTrack() );
+		setManualTrack( emptyManualTrack( defaultLanguageTag ) );
 		setManualSourceTrack( null );
 		setCaptionTrackId( undefined );
 		setCueBlocks( createEmptyCueBlocks() );
@@ -849,7 +904,7 @@ export default function CaptionManagerModal( {
 		setIsTextImportOpen( true );
 		setCaptionTextInput( '' );
 		setNotice( null );
-	}, [ clearPreviewResumeTimer ] );
+	}, [ clearPreviewResumeTimer, defaultLanguageTag ] );
 
 	const deleteTrack = useCallback(
 		async ( track: VideoTextTrack ) => {
@@ -977,7 +1032,7 @@ export default function CaptionManagerModal( {
 		if ( ! srcLang ) {
 			setNotice( {
 				status: 'error',
-				message: __( 'Enter a valid BCP-47 language tag.', 'jetpack-videopress-pkg' ),
+				message: __( 'Choose a subtitle language.', 'jetpack-videopress-pkg' ),
 			} );
 			return;
 		}
@@ -1096,7 +1151,7 @@ export default function CaptionManagerModal( {
 			if ( ! canonicalSrcLang ) {
 				setNotice( {
 					status: 'error',
-					message: __( 'Enter a valid BCP-47 language tag.', 'jetpack-videopress-pkg' ),
+					message: __( 'Choose a subtitle language.', 'jetpack-videopress-pkg' ),
 				} );
 				return null;
 			}
@@ -1173,7 +1228,7 @@ export default function CaptionManagerModal( {
 		if ( ! canonicalSrcLang ) {
 			setNotice( {
 				status: 'error',
-				message: __( 'Enter a valid BCP-47 language tag.', 'jetpack-videopress-pkg' ),
+				message: __( 'Choose a subtitle language.', 'jetpack-videopress-pkg' ),
 			} );
 			return;
 		}
@@ -1302,36 +1357,50 @@ export default function CaptionManagerModal( {
 		saveManualCaptionTrack,
 	] );
 
-	const addCue = useCallback( () => {
-		shouldScrollCueEditorToEndRef.current = true;
-		setCueBlocks( current => [
-			...current,
-			createCueBlock( {
-				startTime: getDefaultCueStartTime( currentTime ),
-				endTime: getDefaultCueEndTime( currentTime ),
-			} ),
-		] );
+	useEffect( () => {
+		setCurrentCueVideoTime( currentTime );
 	}, [ currentTime ] );
 
-	const importCaptionText = useCallback( () => {
-		const cues = parseCaptionTextInput( captionTextInput );
-		if ( ! cues.length ) {
-			setNotice( {
-				status: 'error',
-				message: __( 'Paste subtitle text before importing.', 'jetpack-videopress-pkg' ),
-			} );
-			return;
-		}
-
-		shouldScrollCueEditorToEndRef.current = false;
-		setCueBlocks( cues.map( createCueBlock ) );
-		setCaptionTextInput( '' );
-		setIsTextImportOpen( false );
-		setNotice( {
-			status: 'success',
-			message: __( 'Subtitle text imported.', 'jetpack-videopress-pkg' ),
+	const addCue = useCallback( () => {
+		shouldScrollCueEditorToEndRef.current = true;
+		const block = createCueBlock( {
+			startTime: getDefaultCueStartTime( currentTime ),
+			endTime: getDefaultCueEndTime( currentTime ),
 		} );
-	}, [ captionTextInput ] );
+		focusCueOnMount( block.clientId );
+		setCueBlocks( current => [ ...current, block ] );
+	}, [ currentTime ] );
+
+	const importCaptionText = useCallback(
+		( mode: 'append' | 'replace' = 'replace' ) => {
+			const cues = parseCaptionTextInput( captionTextInput );
+			if ( ! cues.length ) {
+				setNotice( {
+					status: 'error',
+					message: __( 'Paste subtitle text before importing.', 'jetpack-videopress-pkg' ),
+				} );
+				return;
+			}
+
+			shouldScrollCueEditorToEndRef.current = mode === 'append';
+			const newBlocks = cues.map( createCueBlock );
+			setCueBlocks( current =>
+				mode === 'append'
+					? [
+							...current.filter( block => String( block.attributes?.text ?? '' ).trim() ),
+							...newBlocks,
+					  ]
+					: newBlocks
+			);
+			setCaptionTextInput( '' );
+			setIsTextImportOpen( false );
+			setNotice( {
+				status: 'success',
+				message: __( 'Subtitle text imported.', 'jetpack-videopress-pkg' ),
+			} );
+		},
+		[ captionTextInput ]
+	);
 
 	const seekPreviewTo = useCallback(
 		( nextTime: number ) => {
@@ -1480,6 +1549,17 @@ export default function CaptionManagerModal( {
 
 	const uploadFormTitle = UPLOAD_FORM_TITLE_LABELS[ uploadFormMode ];
 	const fileName = uploadForm.tmpFile?.name;
+	const getEditorHeading = () => {
+		if ( workspaceMode === 'upload' ) {
+			return uploadFormMode === 'replace'
+				? __( 'Replace subtitle file', 'jetpack-videopress-pkg' )
+				: __( 'Upload subtitle file', 'jetpack-videopress-pkg' );
+		}
+
+		return manualSourceTrack || captionTrackId
+			? __( 'Edit subtitle track', 'jetpack-videopress-pkg' )
+			: __( 'New subtitle track', 'jetpack-videopress-pkg' );
+	};
 	const emptyMessage = __(
 		'No subtitle tracks have been added to this video yet.',
 		'jetpack-videopress-pkg'
@@ -1561,6 +1641,7 @@ export default function CaptionManagerModal( {
 				title={ modalHeaderTitle }
 				onRequestClose={ onClose }
 				className="videopress-caption-manager"
+				focusOnMount={ false }
 			>
 				<DropZone
 					label={ __( 'Drop a subtitle file to upload', 'jetpack-videopress-pkg' ) }
@@ -1569,11 +1650,11 @@ export default function CaptionManagerModal( {
 
 				<div className="videopress-caption-manager__action-bar">
 					<div className="videopress-caption-manager__action-bar-start">
-						{ ! isEditorView && (
-							<h3 className="videopress-caption-manager__action-bar-title">
-								{ __( 'Subtitle tracks', 'jetpack-videopress-pkg' ) }
-							</h3>
-						) }
+						<h3 className="videopress-caption-manager__action-bar-title">
+							{ isEditorView
+								? getEditorHeading()
+								: __( 'Subtitle tracks', 'jetpack-videopress-pkg' ) }
+						</h3>
 						{ isLoadingTrackText && (
 							<span className="videopress-caption-manager__status">
 								{ __( 'Loading subtitle content…', 'jetpack-videopress-pkg' ) }
@@ -1592,6 +1673,17 @@ export default function CaptionManagerModal( {
 								</Button>
 								{ workspaceMode === 'manual' && (
 									<>
+										{ ! isTextImportOpen && (
+											<Button
+												variant="secondary"
+												onClick={ () => {
+													setIsTextImportOpen( true );
+													setNotice( null );
+												} }
+											>
+												{ __( 'Paste text', 'jetpack-videopress-pkg' ) }
+											</Button>
+										) }
 										<Button
 											variant="secondary"
 											onClick={ () => void saveManualCaptionTrack( 'draft' ) }
@@ -1613,7 +1705,12 @@ export default function CaptionManagerModal( {
 							</>
 						) : (
 							<>
-								<Button variant="secondary" icon={ plus } onClick={ () => void startManualTrack() }>
+								<Button
+									ref={ addTrackButtonRef }
+									variant="secondary"
+									icon={ plus }
+									onClick={ () => void startManualTrack() }
+								>
 									{ __( 'Add track', 'jetpack-videopress-pkg' ) }
 								</Button>
 								<Button variant="secondary" onClick={ startTextImportTrack }>
@@ -1640,34 +1737,16 @@ export default function CaptionManagerModal( {
 				>
 					{ ! isEditorView && (
 						<section className="videopress-caption-manager__tracks">
-							{ visibleManagedTracks.length ? (
+							{ visibleManagedTracks.length || draftCaptionTracks.length ? (
 								<div className="videopress-caption-manager__track-list">
 									{ visibleManagedTracks.map( track => {
 										const key = getTrackKey( track );
-										const language = formatLanguageTagForDisplay( track.srcLang );
 										const isDeleting = deletingTrackKey === key;
 										const isDownloading = downloadingTrackKey === key;
-										const sourceLabel = getTrackSourceLabel( track );
-										const statusLabel = getTrackStatusLabel( track );
-										const matchingCaptionTrack = findCaptionTrackForManualTrack(
-											{
-												kind: track.kind,
-												srcLang: getManualLanguageTagFromTrackKey( track.srcLang ),
-												label: track.label,
-											},
-											track
-										);
-										const localStatusLabel = matchingCaptionTrack
-											? getLocalCaptionTrackStatusLabel( matchingCaptionTrack )
-											: '';
-										const trackLocalStateLabel = track.isDraft
-											? __( 'Draft', 'jetpack-videopress-pkg' )
-											: localStatusLabel;
 										const metaLabels = [
-											language,
-											sourceLabel,
-											statusLabel,
-											trackLocalStateLabel,
+											getTrackSourceLabel( track ),
+											getTrackStatusLabel( track ),
+											track.isDraft ? __( 'Draft', 'jetpack-videopress-pkg' ) : '',
 										].filter( Boolean );
 										const isGenerated = isAutoGeneratedTrack( track );
 										const isReady = isTrackReady( track );
@@ -1675,8 +1754,8 @@ export default function CaptionManagerModal( {
 										return (
 											<div className="videopress-caption-manager__track" key={ key }>
 												<div className="videopress-caption-manager__track-meta">
-													<strong>{ track.label || language }</strong>
-													<span>{ metaLabels.join( ' · ' ) }</span>
+													<strong>{ track.label || getTrackLanguageName( track.srcLang ) }</strong>
+													{ metaLabels.length ? <span>{ metaLabels.join( ' · ' ) }</span> : null }
 												</div>
 												<div className="videopress-caption-manager__track-actions">
 													<Button
@@ -1732,55 +1811,43 @@ export default function CaptionManagerModal( {
 											</div>
 										);
 									} ) }
-								</div>
-							) : null }
+									{ draftCaptionTracks.map( captionTrack => {
+										const localTrack = getManualTrackFromCaptionTrack( captionTrack );
 
-							{ visibleCaptionTracks.length ? (
-								<div className="videopress-caption-manager__local-tracks">
-									<h4>{ __( 'Local subtitle tracks', 'jetpack-videopress-pkg' ) }</h4>
-									<div className="videopress-caption-manager__track-list">
-										{ visibleCaptionTracks.map( captionTrack => {
-											const localTrack = getManualTrackFromCaptionTrack( captionTrack );
-											const language = formatLanguageTagForDisplay( localTrack.srcLang );
-											const trackLabel = localTrack.label || language;
-											const metaLabels = [
-												language,
-												getLocalCaptionTrackStatusLabel( captionTrack ),
-											].filter( Boolean );
-
-											return (
-												<div
-													className="videopress-caption-manager__track"
-													key={ `caption-track-${ captionTrack.id }-${ getStoredCaptionTrackKey(
-														captionTrack
-													) }` }
-												>
-													<div className="videopress-caption-manager__track-meta">
-														<strong>{ trackLabel }</strong>
-														<span>{ metaLabels.join( ' · ' ) }</span>
-													</div>
-													<div className="videopress-caption-manager__track-actions">
-														<Button
-															variant="secondary"
-															onClick={ () => startStoredCaptionTrack( captionTrack ) }
-															disabled={
-																isSavingUpload ||
-																isPublishing ||
-																isLoadingTrackText ||
-																!! deletingTrackKey
-															}
-														>
-															{ __( 'Edit saved track', 'jetpack-videopress-pkg' ) }
-														</Button>
-													</div>
+										return (
+											<div
+												className="videopress-caption-manager__track"
+												key={ `caption-track-${ captionTrack.id }-${ getStoredCaptionTrackKey(
+													captionTrack
+												) }` }
+											>
+												<div className="videopress-caption-manager__track-meta">
+													<strong>
+														{ localTrack.label || getTrackLanguageName( localTrack.srcLang ) }
+													</strong>
+													<span>{ __( 'Draft', 'jetpack-videopress-pkg' ) }</span>
 												</div>
-											);
-										} ) }
-									</div>
+												<div className="videopress-caption-manager__track-actions">
+													<Button
+														variant="secondary"
+														onClick={ () => startStoredCaptionTrack( captionTrack ) }
+														disabled={
+															isSavingUpload ||
+															isPublishing ||
+															isLoadingTrackText ||
+															!! deletingTrackKey
+														}
+													>
+														{ __( 'Edit saved track', 'jetpack-videopress-pkg' ) }
+													</Button>
+												</div>
+											</div>
+										);
+									} ) }
 								</div>
 							) : null }
 
-							{ ! visibleManagedTracks.length && ! visibleCaptionTracks.length ? (
+							{ ! visibleManagedTracks.length && ! draftCaptionTracks.length ? (
 								<div className="videopress-caption-manager__empty">
 									{ isLoadingCaptionTracks
 										? __( 'Loading subtitle tracks…', 'jetpack-videopress-pkg' )
@@ -1793,7 +1860,11 @@ export default function CaptionManagerModal( {
 					{ isEditorView && (
 						<section className="videopress-caption-manager__editor">
 							{ workspaceMode === 'upload' ? (
-								<div className="videopress-caption-manager__editor-body videopress-caption-manager__editor-body--upload">
+								<div
+									className="videopress-caption-manager__editor-body videopress-caption-manager__editor-body--upload"
+									ref={ editorWorkspaceRef }
+									tabIndex={ -1 }
+								>
 									<div
 										className="videopress-caption-manager__upload-panel"
 										aria-label={ uploadFormTitle }
@@ -1877,6 +1948,7 @@ export default function CaptionManagerModal( {
 									aria-label={ __( 'Subtitle editing workspace', 'jetpack-videopress-pkg' ) }
 									tabIndex={ 0 }
 									onKeyDown={ handleManualEditorKeyDown }
+									ref={ editorWorkspaceRef }
 								>
 									<div
 										className="videopress-caption-manager__manual-main"
@@ -1897,29 +1969,20 @@ export default function CaptionManagerModal( {
 											/>
 										</div>
 
-										<div className="videopress-caption-manager__cue-toolbar">
-											<Button
-												variant="secondary"
-												onClick={ () => {
-													setIsTextImportOpen( current => ! current );
-													setNotice( null );
-												} }
-												aria-expanded={ isTextImportOpen }
-											>
-												{ __( 'Paste text', 'jetpack-videopress-pkg' ) }
-											</Button>
-										</div>
-
-										{ isTextImportOpen && (
+										{ isTextImportOpen ? (
 											<div className="videopress-caption-manager__text-import">
 												<TextareaControl
 													label={ __( 'Subtitle text', 'jetpack-videopress-pkg' ) }
+													help={ __(
+														'Paste timed captions to keep their timings, or plain text to create evenly spaced cues.',
+														'jetpack-videopress-pkg'
+													) }
 													value={ captionTextInput }
 													onChange={ value => {
 														setCaptionTextInput( value );
 														setNotice( null );
 													} }
-													rows={ 6 }
+													rows={ 10 }
 													__nextHasNoMarginBottom={ true }
 												/>
 												<div className="videopress-caption-manager__text-import-actions">
@@ -1933,27 +1996,54 @@ export default function CaptionManagerModal( {
 													>
 														{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
 													</Button>
+													{ editorCues.length > 0 && (
+														<Button
+															variant="secondary"
+															onClick={ () => importCaptionText( 'append' ) }
+															disabled={ ! captionTextInput.trim() }
+														>
+															{ __( 'Append', 'jetpack-videopress-pkg' ) }
+														</Button>
+													) }
 													<Button
 														variant="primary"
-														onClick={ importCaptionText }
+														onClick={ () => importCaptionText( 'replace' ) }
 														disabled={ ! captionTextInput.trim() }
 													>
-														{ __( 'Replace cues', 'jetpack-videopress-pkg' ) }
+														{ editorCues.length > 0
+															? __( 'Replace', 'jetpack-videopress-pkg' )
+															: __( 'Create cues', 'jetpack-videopress-pkg' ) }
 													</Button>
 												</div>
 											</div>
+										) : (
+											<div className="videopress-caption-manager__cue-editor" ref={ cueEditorRef }>
+												<BlockEditorProvider
+													value={ cueBlocks }
+													onInput={ blocks => setCueBlocks( blocks as CaptionCueBlock[] ) }
+													onChange={ blocks => setCueBlocks( blocks as CaptionCueBlock[] ) }
+													settings={ cueEditorSettings }
+												>
+													<BlockList />
+												</BlockEditorProvider>
+												{ ! cueBlocks.length && (
+													<div className="videopress-caption-manager__cue-empty">
+														<Button variant="secondary" icon={ plus } onClick={ addCue }>
+															{ __( 'Add subtitle', 'jetpack-videopress-pkg' ) }
+														</Button>
+														<Button
+															variant="secondary"
+															onClick={ () => {
+																setIsTextImportOpen( true );
+																setNotice( null );
+															} }
+														>
+															{ __( 'Paste text', 'jetpack-videopress-pkg' ) }
+														</Button>
+													</div>
+												) }
+											</div>
 										) }
-
-										<div className="videopress-caption-manager__cue-editor" ref={ cueEditorRef }>
-											<BlockEditorProvider
-												value={ cueBlocks }
-												onInput={ blocks => setCueBlocks( blocks as CaptionCueBlock[] ) }
-												onChange={ blocks => setCueBlocks( blocks as CaptionCueBlock[] ) }
-												settings={ cueEditorSettings }
-											>
-												<BlockList />
-											</BlockEditorProvider>
-										</div>
 									</div>
 
 									{ previewPanel }

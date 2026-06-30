@@ -109,11 +109,13 @@ jest.mock( '@wordpress/blocks', () => {
 } );
 
 jest.mock( '@wordpress/components', () => ( {
-	Button: ( { children, onClick, disabled, label } ) => (
-		<button aria-label={ label } onClick={ onClick } disabled={ disabled }>
-			{ children ?? label }
-		</button>
-	),
+	Button: jest
+		.requireActual( '@wordpress/element' )
+		.forwardRef( ( { children, onClick, disabled, label }, ref ) => (
+			<button ref={ ref } aria-label={ label } onClick={ onClick } disabled={ disabled }>
+				{ children ?? label }
+			</button>
+		) ),
 	DropZone: () => null,
 	ComboboxControl: ( { label, onChange, onFilterValueChange, value, help } ) => (
 		<div>
@@ -364,7 +366,7 @@ describe( 'CaptionManagerModal', () => {
 		).toBeInTheDocument();
 		expect( screen.getByText( 'English' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'English auto-generated' ) ).toBeInTheDocument();
-		expect( screen.getByText( /auto_en/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /Auto-generated/ ) ).toBeInTheDocument();
 		await waitFor( () => expect( fetchCaptionTracks ).toHaveBeenCalledWith( 'abc123' ) );
 	} );
 
@@ -491,9 +493,8 @@ describe( 'CaptionManagerModal', () => {
 
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
-		await expect( screen.findByText( 'Local subtitle tracks' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Portuguese' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'pt-BR · Draft' ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'Portuguese' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Draft' ) ).toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Edit saved track' } ) );
 
@@ -674,7 +675,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Add track' ) );
 		await user.click( screen.getByText( 'Paste text' ) );
 		await user.type( screen.getByLabelText( 'Subtitle text' ), 'Trail closed.\nTrail open.' );
-		await user.click( screen.getByText( 'Replace cues' ) );
+		await user.click( screen.getByText( 'Create cues' ) );
 
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Subtitle text imported.' );
 		expect( screen.getAllByLabelText( 'Cue text' ) ).toHaveLength( 2 );
@@ -698,7 +699,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( 'en' );
 
 		await user.type( screen.getByLabelText( 'Subtitle text' ), 'Trail closed.\nTrail open.' );
-		await user.click( screen.getByText( 'Replace cues' ) );
+		await user.click( screen.getByText( 'Create cues' ) );
 
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Subtitle text imported.' );
 		expect( screen.getAllByLabelText( 'Cue text' ) ).toHaveLength( 2 );
@@ -883,7 +884,7 @@ describe( 'CaptionManagerModal', () => {
 		);
 		await user.click( screen.getByText( 'Upload track' ) );
 
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Enter a valid BCP-47 language tag.' );
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Choose a subtitle language.' );
 		expect( uploadTrackForGuid ).not.toHaveBeenCalled();
 	} );
 
