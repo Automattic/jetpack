@@ -145,8 +145,8 @@ const STEPS: ReadonlyArray< { number: string; title: string; body: string } > = 
 ];
 
 const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
-	const upgradeCheckoutUrl = getUpgradeCheckoutUrl();
-	const planName = getUpgradePlanName();
+	const upgradeCheckoutUrl = ! hasAccess ? getUpgradeCheckoutUrl() : '';
+	const planName = ! hasAccess ? getUpgradePlanName() : '';
 	const isWpcom = isWpcomPlatformSite();
 
 	const freeFeatures = isWpcom ? FREE_FEATURES_WPCOM : FREE_FEATURES_SELF_HOSTED;

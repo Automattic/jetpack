@@ -1,7 +1,7 @@
 .podcast__welcome-hero {
 	padding: 40px;
 	border-radius: 8px;
-	background: linear-gradient( 135deg, #f0f6fc 0%, #fdf3fc 100% );
+	background: linear-gradient(135deg, #f0f6fc 0%, #fdf3fc 100%);
 }
 
 .podcast__welcome-title {
@@ -17,7 +17,7 @@
 }
 
 .podcast__welcome-hero-eyebrow {
-	// Green to echo the removed "included" card and read as a success state.
+	// Green to signal the included/success state (podcasting is already in the plan).
 	color: #008a20;
 }
 
@@ -38,7 +38,7 @@
 	margin: 0;
 	padding: 0;
 	display: grid;
-	grid-template-columns: repeat( auto-fit, minmax( min( 240px, 100% ), 1fr ) );
+	grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
 	gap: 24px;
 }
 
@@ -61,7 +61,7 @@
 }
 
 .podcast__welcome-plans {
-	padding-inline: clamp( 0px, 2vw, 16px );
+	padding-inline: clamp(0px, 2vw, 16px);
 }
 
 // `outline` instead of `border` so the highlight doesn't add 1px to the
