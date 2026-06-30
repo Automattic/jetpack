@@ -11,6 +11,7 @@ import {
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LegendLabels,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { postAuthor } from '@wordpress/icons';
@@ -19,16 +20,17 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { buildTopAuthorsData } from './build-top-authors-data';
+import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
 const DEFAULT_MAX = 7;
 
-type AuthorsAttributes = NonNullable< ComponentProps< typeof WidgetRoot >[ 'attributes' ] > & {
-	max?: string | number;
-};
+// The host injects report params (date range / comparison) through `attributes`
+// alongside the widget's own `max`, so compose the render-only shape from both.
+type AuthorsRenderAttributes = AuthorsAttributes & Partial< ReportParamsFieldAttributes >;
 
-type AuthorsRenderProps = WidgetRenderProps< AuthorsAttributes > & {
+type AuthorsRenderProps = WidgetRenderProps< AuthorsRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -169,9 +171,12 @@ function AuthorsReport( { max }: { max: number } ) {
 /**
  * Authors widget render entry point.
  *
- * WidgetRoot provides the analytics query client, chart theme, and the report
- * params consumed by the inner leaderboard — resolved from the dashboard date
- * range via context, the same way the other Stats widgets read them.
+ * WidgetRoot resolves the report params from the dashboard date range (the URL
+ * search params the date picker writes to), the same way the other Stats
+ * widgets read them. We intentionally don't pass `attributes` here: the host
+ * injects a `reportParams` into them, and `WidgetRoot` would prefer that shadow
+ * copy over the live URL — so the date picker would never reach the query. The
+ * widget's own `max` attribute is forwarded to the inner component instead.
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes.
@@ -180,7 +185,7 @@ function AuthorsReport( { max }: { max: number } ) {
  */
 export default function Authors( { attributes = {}, setError }: AuthorsRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError }>
+		<WidgetRoot setError={ setError }>
 			<AuthorsReport max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
 		</WidgetRoot>
 	);
