@@ -8,15 +8,9 @@
 	color: var(--wpds-color-fg-content-neutral-weak, #707070);
 }
 
-// A single CSS grid holds the cell matrix and its axis labels: track 1 of
-// each axis is the label gutter (`auto`), the rest are the data cells. The
-// track template is set inline (CSS `repeat()` won't take a `var()` count);
-// sizes, gap and colors stay here. Non-compact cells flex to fill; compact
-// cells are fixed squares and the grid shrinks to content. ARIA rows use
-// `display: contents` so their cells join this grid.
+// Track template is set inline because CSS `repeat()` won't take a `var()`
+// count. ARIA rows are `display: contents` so their cells join this grid.
 .heatmap-chart__grid {
-	// `--heatmap-cell-gap` is only set inline for compact mode's tighter
-	// rhythm; otherwise the gap is the WPDS extra-small gap token.
 	display: grid;
 	gap: var(--heatmap-cell-gap, var(--wpds-dimension-gap-xs, 4px));
 	width: 100%;
@@ -68,14 +62,12 @@
 	min-width: 0;
 	min-height: 0;
 	border-radius: var(--wpds-border-radius-sm, 2px);
-	// Default is the empty (no-data) color; cells with a value override it below.
+	// Empty (no-data) default; cells with a value override it below.
 	background: var(--wpds-color-bg-track-neutral-weak, #f0f0f0);
 }
 
-// CSS-first shading for cells with a value: --intensity (0–1) maps to the
-// color-mix percentage, floored at 15% so the lowest value stays visibly
-// tinted (distinct from empty). Mixing toward `transparent` lets the tint
-// adapt to the chart background.
+// Floor the mix at 15% so the lowest value stays visibly tinted, distinct from
+// an empty cell.
 .heatmap-chart__cell--filled {
 	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), transparent);
 }
@@ -92,8 +84,7 @@
 	font-size: var(--wpds-typography-font-size-md, 13px);
 }
 
-// Strong (high-value) cells get a dark fill, so flip the in-cell value
-// to light for contrast.
+// Light text for contrast on the darker high-value fill.
 .heatmap-chart__cell--strong .heatmap-chart__cell-value {
 	color: #fff;
 }

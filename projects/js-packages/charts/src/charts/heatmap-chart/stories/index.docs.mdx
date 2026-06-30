@@ -183,7 +183,7 @@ Enable `withTooltips` to show a tooltip on cell hover **and** during keyboard na
 
 ## Theming
 
-The heatmap resolves its full-intensity color the same way the other HTML charts do: the `primaryColor` prop wins, then `heatmapChart.primaryColor` from the active theme, then the first palette color (`colors[0]`). The resolved color is fed to CSS `color-mix`, which derives the lighter shades for lower values.
+The heatmap resolves its full-intensity color in this order: the `primaryColor` prop wins, then `heatmapChart.primaryColor` from the active theme, then the first palette color (`colors[0]`). The resolved color is fed to CSS `color-mix`, which derives the lighter shades for lower values.
 
 <Source
 	language="tsx"

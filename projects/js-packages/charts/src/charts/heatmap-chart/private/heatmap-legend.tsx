@@ -29,8 +29,6 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 			</Text>
 			<Stack direction="row" gap="xs">
 				{ Array.from( { length: steps }, ( _, index ) => {
-					// Swatches share the cell fill rule: --intensity drives the same color-mix
-					// percentage in CSS, so the legend matches the rendered cells exactly.
 					const intensity = steps <= 1 ? 1 : index / ( steps - 1 );
 					return (
 						<span

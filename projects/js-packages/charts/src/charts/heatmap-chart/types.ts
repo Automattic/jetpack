@@ -33,8 +33,8 @@ export interface HeatmapChartProps
 	/** Render the numeric value inside each cell. Default `! compact`. */
 	showValues?: boolean;
 	/**
-	 * Color the cell scale interpolates toward at the highest value. Resolved like the
-	 * other HTML charts (this prop > theme `heatmapChart.primaryColor` > palette `colors[0]`).
+	 * Color the cell scale interpolates toward at the highest value
+	 * (this prop > theme `heatmapChart.primaryColor` > palette `colors[0]`).
 	 */
 	primaryColor?: string;
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;

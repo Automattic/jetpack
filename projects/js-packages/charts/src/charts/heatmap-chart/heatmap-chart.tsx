@@ -64,14 +64,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		detectBounds: true,
 		scroll: true,
 	} );
-	// `containerBounds` is a fresh object every render, so the keyboard-tooltip effect reads
-	// it from a ref instead of depending on it — depending on it would loop (showTooltip →
-	// render → new bounds → effect → showTooltip → …).
+	// Read from a ref so the keyboard-tooltip effect doesn't depend on containerBounds, which
+	// is a new object each render and would loop the effect via showTooltip.
 	const containerBoundsRef = useRef( containerBounds );
 	containerBoundsRef.current = containerBounds;
 
-	// Same theme integration as the other HTML charts: prop > theme > palette colors[0].
-	// The resolved color feeds CSS `color-mix` via the `--heatmap-primary` custom property.
 	const { color: primaryColorHex } = getElementStyles( {
 		index: 0,
 		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
@@ -87,8 +84,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const rows = Math.max( 0, ...data.map( column => column.data.length ) );
 
 	const { compactCellGap, compactCellSize } = heatmapChartSettings;
-	// Cell gap and radius come from WPDS tokens in CSS. The only inline gap override is the
-	// compact mode's tighter contribution-graph rhythm (not a WPDS dimension).
 	const drawValues = showValues ?? ! compact;
 
 	const buildTooltipData = useCallback(
@@ -177,10 +172,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		}
 	}, [ withTooltips, selectedIndex, hideTooltip ] );
 
-	// Keyboard navigation drives the tooltip too: anchor it at the selected cell's center
-	// (mirrors how bar/line charts surface the tooltip on keyboard focus). Cleared on
-	// blur/Escape rather than here, so a mouse hover (selectedIndex === undefined) is left
-	// alone.
+	// Anchor the tooltip at the selected cell's center on keyboard nav. Cleared on blur/Escape,
+	// not here, so a mouse hover (no selection) isn't affected.
 	useEffect( () => {
 		if ( ! withTooltips || selectedIndex === undefined ) {
 			return;
@@ -249,7 +242,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			<SingleChartContext.Provider value={ { chartId } }>
 				<ChartLayout
 					legendPosition="bottom"
-					// HeatmapLegend renders via trailingContent (useChartChildren doesn't classify it as a slot legend).
+					// Legend renders via trailingContent, not the legend slot.
 					legendChildren={ [] }
 					trailingContent={ nonLegendChildren }
 					gap={ gap }
@@ -273,8 +266,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>
-						{ /* Header band: corner gutter + column labels. Decorative — each cell's
-						     aria-label already carries the column/row text for screen readers. */ }
+						{ /* Corner gutter + column labels; aria-hidden, since each cell's label carries the text. */ }
 						<span aria-hidden="true" />
 						{ data.map( ( column, columnIndex ) => (
 							<span
@@ -320,9 +312,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												id={ `${ chartId }-cell-${ columnIndex }-${ rowIndex }` }
 												data-testid="heatmap-cell"
 												role="gridcell"
-												// Focus stays on the grid container, which points here via
-												// aria-activedescendant; cells are programmatically focusable but
-												// out of the tab sequence.
+												// Focus stays on the grid (aria-activedescendant); cells are
+												// focusable but out of the tab order.
 												tabIndex={ -1 }
 												aria-colindex={ columnIndex + 1 }
 												aria-label={ accessibleLabel }

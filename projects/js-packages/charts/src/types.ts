@@ -414,15 +414,13 @@ export type ChartTheme = {
 		strokeWidth?: number;
 	};
 	/**
-	 * HeatmapChart specific settings. Cell gap, radius, value font size and the selection
-	 * ring come straight from WPDS tokens in CSS, so the only values here are the scale color
-	 * (for parity with the other HTML charts) and the compact sizing.
+	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
+	 * WPDS tokens in CSS, so only the scale color and the compact sizing live here.
 	 */
 	heatmapChart?: {
 		/**
-		 * Color the cell scale interpolates toward at the highest value. Resolved like the
-		 * other HTML charts (prop > this > palette `colors[0]`) and fed to CSS `color-mix`
-		 * as `--heatmap-primary`. Omit to use the palette color.
+		 * Color the cell scale interpolates toward at the highest value (prop > this >
+		 * palette `colors[0]`), fed to CSS `color-mix`. Omit to use the palette color.
 		 */
 		primaryColor?: string;
 		/** Gap in px between cells in compact mode */

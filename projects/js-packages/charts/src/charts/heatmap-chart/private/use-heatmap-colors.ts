@@ -31,9 +31,7 @@ export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] => {
 };
 
 /**
- * Normalize a value to 0–1 within the extent. Drives each cell's `--intensity` custom
- * property; CSS turns that into the cell's `color-mix` percentage (the value→shade scale
- * lives in CSS, not here). A flat extent (min === max) maps everything to the full color.
+ * Normalize a value to 0–1 within the extent. A flat extent (min === max) maps to 1.
  * @param value  - The value to normalize
  * @param extent - Tuple of [min, max] values for the normalization range
  * @return Normalized value between 0 and 1
