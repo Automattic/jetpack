@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-JSON API: harden serializable_error() so an error always serializes a valid HTTP status (>= 400) -- never 1, a non-integer, or a 2xx an app could read as success.
+JSON API: Ensure error responses always serialize an HTTP error status (>= 400), never a non-integer or a 2xx that clients could interpret as success.
