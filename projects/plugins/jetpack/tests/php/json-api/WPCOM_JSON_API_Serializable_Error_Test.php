@@ -15,9 +15,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
- * Tests that serializable_error() always renders a safe HTTP error status: never
- * `1`, never a non-integer, never `< 400`, and never a code status_header() can't
- * render. Regression coverage for the proxied-error incident (CONNECT-267).
+ * Tests that serializable_error() always serializes a valid HTTP error status: never
+ * `1`, never a non-integer, and never a `< 400` status a client could read as success.
  *
  * @covers \WPCOM_JSON_API::serializable_error
  * @covers \WPCOM_JSON_API
@@ -102,8 +101,8 @@ class WPCOM_JSON_API_Serializable_Error_Test extends WP_UnitTestCase {
 	/**
 	 * Codes status_header() cannot render (Cloudflare 52x, other non-standard) are a valid
 	 * integer >= 400, so they pass through unchanged. Coercing them to a renderable status is
-	 * deliberately NOT this function's job -- that belongs at the status_header() call site
-	 * (CONNECT-267 problem 2); here we only guarantee a sane integer.
+	 * deliberately NOT this function's job -- that belongs at the status_header() call site;
+	 * here we only guarantee a sane integer.
 	 *
 	 * @param int $input Unknown-to-WP status carried on the error.
 	 * @dataProvider provide_unknown_statuses
