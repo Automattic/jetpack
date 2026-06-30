@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-SEO: emit a site-level Organization JSON-LD node and convert schema output to a multi-node @graph; the Article node now references the Organization as its publisher.
+Add a site-level Organization node and output schema as a multi-node @graph.
