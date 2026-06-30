@@ -45,6 +45,8 @@ export interface SubscribersChartState {
 	previous: SubscribersChartPoint[];
 	hasPaid: boolean;
 	isLoading: boolean;
+	/** True while either window is fetching, including granularity-switch refetches. */
+	isFetching: boolean;
 	isError: boolean;
 }
 
@@ -90,20 +92,15 @@ export default function useSubscribersChart(
 	const currentQuery = useStatsSubscribers( { unit: period, quantity, date: currentDate } );
 	const previousQuery = useStatsSubscribers( { unit: period, quantity, date: previousDate } );
 
-	const current = useMemo(
-		() => toPoints( currentQuery.data as StatsSubscribersResponse | undefined ),
-		[ currentQuery.data ]
-	);
-	const previous = useMemo(
-		() => toPoints( previousQuery.data as StatsSubscribersResponse | undefined ),
-		[ previousQuery.data ]
-	);
+	const current = useMemo( () => toPoints( currentQuery.data ), [ currentQuery.data ] );
+	const previous = useMemo( () => toPoints( previousQuery.data ), [ previousQuery.data ] );
 
 	return {
 		current,
 		previous,
 		hasPaid: current.some( point => point.paid > 0 ),
 		isLoading: currentQuery.isLoading || previousQuery.isLoading,
+		isFetching: currentQuery.isFetching || previousQuery.isFetching,
 		isError: currentQuery.isError || previousQuery.isError,
 	};
 }

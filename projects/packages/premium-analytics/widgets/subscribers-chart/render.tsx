@@ -117,7 +117,7 @@ function SubscribersChartInner() {
 			<MetricTabsChart
 				metrics={ metrics }
 				dataFormat={ DATA_FORMAT }
-				loading={ state.isLoading && state.current.length === 0 }
+				loading={ state.isFetching }
 				groupLabel={ __( 'Subscriber metric', 'jetpack-premium-analytics' ) }
 				controls={
 					<SelectControl
