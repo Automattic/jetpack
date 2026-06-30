@@ -13,7 +13,7 @@
 
 .widgetHeader {
 	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
-	min-height: 32px;
+	min-height: var(--wpds-dimension-size-md);
 }
 
 .paramSelect {
@@ -22,6 +22,13 @@
 
 .itemLabel {
 	min-width: 0;
+	padding-inline-end: var(--wpds-dimension-padding-sm);
+}
+
+.itemLabelText {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 .content {

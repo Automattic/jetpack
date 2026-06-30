@@ -12,6 +12,7 @@ import type {
 export interface UtmInsightsRow {
 	label: string;
 	value: number;
+	previousValue: number;
 }
 
 interface UseUtmInsightsArgs {
@@ -22,7 +23,10 @@ interface UseUtmInsightsArgs {
 
 interface UtmInsightsState {
 	data: UtmInsightsRow[];
+	hasComparison: boolean;
 	isLoading: boolean;
+	isFetching: boolean;
+	hasData: boolean;
 	isError: boolean;
 }
 
@@ -41,19 +45,30 @@ export default function useUtmInsights( {
 	max,
 }: UseUtmInsightsArgs ): UtmInsightsState {
 	const params = { ...reportParams, utmParam, max } as Parameters< typeof useStatsUtm >[ 0 ];
-	const { primary } = useStatsUtm( params );
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
+		useStatsUtm( params );
 
-	const isLoading = primary.isLoading;
-	const isError = primary.isError;
-
-	const report = primary.data as StatsNormalizedReport< StatsUtmItem > | undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
+	const primaryReport = primary.data as StatsNormalizedReport< StatsUtmItem > | undefined;
+	const comparisonReport = comparison.data as StatsNormalizedReport< StatsUtmItem > | undefined;
+	const rawItems = primaryReport?.data?.[ 0 ]?.items ?? [];
+	const comparisonItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
+	const comparisonByLabel = new Map(
+		comparisonItems.map( item => [
+			typeof item.label === 'string' ? item.label : String( item.label ),
+			item.value,
+		] )
+	);
 	const items = rawItems
-		.map( item => ( {
-			label: typeof item.label === 'string' ? item.label : String( item.label ),
-			value: item.value,
-		} ) )
+		.map( item => {
+			const label = typeof item.label === 'string' ? item.label : String( item.label );
+
+			return {
+				label,
+				value: item.value,
+				previousValue: hasComparison ? comparisonByLabel.get( label ) ?? 0 : 0,
+			};
+		} )
 		.slice( 0, max > 0 ? max : undefined );
 
-	return { data: items, isLoading, isError };
+	return { data: items, hasComparison, isLoading, isFetching, hasData, isError };
 }

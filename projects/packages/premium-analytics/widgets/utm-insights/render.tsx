@@ -2,10 +2,11 @@
  * WordPress dependencies
  */
 import { SelectControl } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import {
+	calculateDelta,
 	LeaderboardChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
@@ -70,7 +71,34 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 		[ setAttributes ]
 	);
 
-	const { data, isLoading, isError } = useUtmInsights( { reportParams, utmParam, max } );
+	const { data, hasComparison, isLoading, isFetching, hasData, isError } = useUtmInsights( {
+		reportParams,
+		utmParam,
+		max,
+	} );
+	const showLoading = isLoading || ( isFetching && hasData );
+
+	const leaderboardData = useMemo< LeaderboardChartData >( () => {
+		const maxValue = Math.max( ...data.map( d => d.value ), 1 );
+		const maxPreviousValue = Math.max( ...data.map( d => d.previousValue ), 1 );
+
+		return data.map( ( item, index ) => ( {
+			id: `${ index }-${ item.label }`,
+			label: (
+				<Stack align="center" className={ styles.itemLabel }>
+					<Text className={ styles.itemLabelText }>{ item.label }</Text>
+				</Stack>
+			),
+			currentValue: item.value,
+			currentShare: ( item.value / maxValue ) * 100,
+			previousValue: item.previousValue,
+			previousShare:
+				hasComparison && item.previousValue > 0
+					? ( item.previousValue / maxPreviousValue ) * 100
+					: 0,
+			delta: hasComparison ? calculateDelta( item.value, item.previousValue ) : 0,
+		} ) );
+	}, [ data, hasComparison ] );
 
 	if ( isError ) {
 		return (
@@ -84,33 +112,11 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 		return <WidgetLoadingOverlay />;
 	}
 
-	const maxValue = Math.max( ...data.map( d => d.value ), 1 );
-	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => ( {
-		id: `${ index }-${ item.label }`,
-		label: (
-			<Stack align="center" className={ styles.itemLabel }>
-				<Text>{ item.label }</Text>
-			</Stack>
-		),
-		currentValue: item.value,
-		currentShare: ( item.value / maxValue ) * 100,
-		previousValue: 0,
-		previousShare: 0,
-		delta: 0,
-	} ) );
-
 	return (
 		<>
-			<Stack
-				direction="row"
-				justify="space-between"
-				align="center"
-				className={ styles.widgetHeader }
-			>
-				<Text variant="heading-md" render={ <h3 /> }>
-					{ __( 'UTM Insights', 'jetpack-premium-analytics' ) }
-				</Text>
+			<Stack direction="row" justify="flex-end" align="center" className={ styles.widgetHeader }>
 				<SelectControl
+					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 					label={ __( 'UTM parameter', 'jetpack-premium-analytics' ) }
 					hideLabelFromVision
@@ -123,7 +129,8 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 			<div className={ styles.content }>
 				<LeaderboardChart
 					data={ leaderboardData }
-					loading={ isLoading }
+					loading={ showLoading }
+					withComparison={ hasComparison }
 					withOverlayLabel
 					showLegend={ false }
 					emptyStateText={ __( 'No UTM data in this period.', 'jetpack-premium-analytics' ) }
