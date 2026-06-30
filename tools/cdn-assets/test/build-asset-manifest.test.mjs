@@ -82,6 +82,17 @@ async function readManifest( packageDir, buildDir = 'build' ) {
 	);
 }
 
+// Resolve an asset's interned dependency index back to its array.
+function assetDependencies( manifest, file ) {
+	const asset = manifest.assets[ file ];
+	return manifest.dependencySets[ asset.dependencies ];
+}
+
+function assetModuleDependencies( manifest, file ) {
+	const asset = manifest.assets[ file ];
+	return manifest.moduleDependencySets[ asset.moduleDependencies ];
+}
+
 function assertNoPhpPublishFiles( publishFiles ) {
 	assert.equal(
 		publishFiles.filter( file => file.endsWith( '.php' ) ).length,
@@ -116,7 +127,7 @@ async function assertManifestFilesExist( packageDir, manifest, buildDir = 'build
 }
 
 test(
-	'webpack manifest discovers stable assets, content versions, and parsed metadata',
+	'webpack manifest discovers stable assets, content versions, and interned dependencies',
 	{ skip: hasPhp ? false : 'PHP CLI is required to parse asset.php fixtures.' },
 	async t => {
 		const packageDir = await createFixturePackage( t, {
@@ -147,11 +158,13 @@ test(
 
 		const manifest = await buildManifest( {
 			packageDir,
+			mode: 'webpack',
+			namespace: 'privacy-banner',
 			version: 'v1',
 		} );
 
 		assert.deepEqual( manifest, await readManifest( packageDir ) );
-		assert.equal( manifest.schemaVersion, 1 );
+		assert.equal( manifest.schemaVersion, 2 );
 		assert.equal( manifest.namespace, 'privacy-banner' );
 		assert.equal( manifest.version, 'v1' );
 		assert.equal( manifest.packageName, '@example/privacy-banner' );
@@ -170,11 +183,17 @@ test(
 			manifest.assets[ 'modules/banner/index.css' ].rtlFileVersion,
 			contentHash( rtlStyle )
 		);
-		assert.deepEqual( manifest.assets[ 'modules/banner/index.js' ].dependencies, [ 'wp-i18n' ] );
-		assert.deepEqual( manifest.assets[ 'modules/banner/index.js' ].moduleDependencies, [
+
+		// Dependencies are interned: the asset stores an index, the array lives in the table.
+		assert.equal( typeof manifest.assets[ 'modules/banner/index.js' ].dependencies, 'number' );
+		assert.deepEqual( assetDependencies( manifest, 'modules/banner/index.js' ), [ 'wp-i18n' ] );
+		assert.deepEqual( assetModuleDependencies( manifest, 'modules/banner/index.js' ), [
 			'@wordpress/interactivity',
 		] );
-		assert.equal( manifest.assets[ 'modules/banner/index.js' ].assetPhpVersion, 'asset-version' );
+
+		// assetPhpVersion is no longer emitted (redundant with the content version).
+		assert.equal( manifest.assets[ 'modules/banner/index.js' ].assetPhpVersion, undefined );
+
 		assert.deepEqual( manifest.webpack.scripts, [
 			{
 				file: 'modules/banner/index.js',
@@ -379,10 +398,13 @@ test(
 
 		const manifest = await buildManifest( {
 			packageDir,
+			mode: 'wp-build',
+			namespace: 'example-dashboard',
 			version: 'v1',
 		} );
 
 		assert.deepEqual( manifest, await readManifest( packageDir ) );
+		assert.equal( manifest.schemaVersion, 2 );
 		assert.equal( manifest.namespace, 'example-dashboard' );
 		assert.equal( manifest.version, 'v1' );
 		assert.equal( manifest.builder, 'wp-build' );
@@ -398,28 +420,29 @@ test(
 			manifest.assets[ 'pages/example-dashboard/loader.js' ].version,
 			contentHash( files[ 'build/pages/example-dashboard/loader.js' ] )
 		);
+
+		// Dependencies are interned and assetPhpVersion is dropped.
+		assert.equal( manifest.assets[ 'modules/init/index.min.js' ].assetPhpVersion, undefined );
+		assert.deepEqual( assetDependencies( manifest, 'modules/init/index.min.js' ), [ 'wp-data' ] );
+		assert.deepEqual( assetModuleDependencies( manifest, 'modules/init/index.min.js' ), [
+			'@wordpress/boot',
+		] );
+		assert.deepEqual( assetDependencies( manifest, 'routes/main/route.min.js' ), [] );
+		assert.deepEqual( assetDependencies( manifest, 'scripts/admin/index.min.js' ), [
+			'wp-api-fetch',
+		] );
+
+		// Routes 'route' and 'content' have identical dependency sets — they should
+		// share interned indices.
 		assert.equal(
-			manifest.assets[ 'modules/init/index.min.js' ].assetPhpVersion,
-			'module-version'
-		);
-		assert.deepEqual( manifest.assets[ 'modules/init/index.min.js' ].dependencies, [ 'wp-data' ] );
-		assert.equal( manifest.assets[ 'routes/main/route.min.js' ].assetPhpVersion, 'route-version' );
-		assert.equal(
-			manifest.assets[ 'routes/main/content.min.js' ].assetPhpVersion,
-			'content-version'
+			manifest.assets[ 'routes/main/route.min.js' ].dependencies,
+			manifest.assets[ 'routes/main/content.min.js' ].dependencies
 		);
 		assert.equal(
-			manifest.assets[ 'widgets/summary/render.min.js' ].assetPhpVersion,
-			'render-version'
+			manifest.assets[ 'routes/main/route.min.js' ].moduleDependencies,
+			manifest.assets[ 'routes/main/content.min.js' ].moduleDependencies
 		);
-		assert.equal(
-			manifest.assets[ 'widgets/summary/widget.min.js' ].assetPhpVersion,
-			'widget-version'
-		);
-		assert.equal(
-			manifest.assets[ 'scripts/admin/index.min.js' ].assetPhpVersion,
-			'script-version'
-		);
+
 		assert.equal(
 			manifest.assets[ 'styles/admin/index.min.css' ].rtlFile,
 			'styles/admin/index-rtl.min.css'
@@ -447,37 +470,106 @@ test(
 	}
 );
 
-test( 'manifest honors package-local config for build directory', async t => {
+test(
+	'dependency arrays dedupe and module dependency key order is canonicalized',
+	{ skip: hasPhp ? false : 'PHP CLI is required to parse asset.php fixtures.' },
+	async t => {
+		const packageDir = await createFixturePackage( t, {
+			name: '@example/dedup',
+			version: '0.1.0-alpha',
+		} );
+
+		await writeFixtureFile( packageDir, 'build/a/index.js', 'export const a = 1;\n' );
+		await writeFixtureFile( packageDir, 'build/b/index.js', 'export const b = 2;\n' );
+
+		// Same logical dependencies, but serialized with different array order and
+		// different object key order. They must collapse to one interned entry each.
+		await writeFixtureFile(
+			packageDir,
+			'build/a/index.asset.php',
+			phpReturn( {
+				dependencies: [ 'wp-i18n', 'wp-element' ],
+				module_dependencies: [
+					{ id: '@wordpress/x', import: 'static' },
+					{ id: '@wordpress/y', import: 'dynamic' },
+				],
+				version: 'a-version',
+			} )
+		);
+		await writeFixtureFile(
+			packageDir,
+			'build/b/index.asset.php',
+			phpReturn( {
+				dependencies: [ 'wp-element', 'wp-i18n' ],
+				module_dependencies: [
+					{ import: 'dynamic', id: '@wordpress/y' },
+					{ import: 'static', id: '@wordpress/x' },
+				],
+				version: 'b-version',
+			} )
+		);
+
+		const manifest = await buildManifest( {
+			packageDir,
+			mode: 'webpack',
+			namespace: 'dedup',
+			version: 'v1',
+		} );
+
+		assert.deepEqual( manifest, await readManifest( packageDir ) );
+
+		// Both assets resolve to the same interned index for each table.
+		assert.equal(
+			manifest.assets[ 'a/index.js' ].dependencies,
+			manifest.assets[ 'b/index.js' ].dependencies
+		);
+		assert.equal(
+			manifest.assets[ 'a/index.js' ].moduleDependencies,
+			manifest.assets[ 'b/index.js' ].moduleDependencies
+		);
+
+		// Exactly one distinct entry in each table (no duplicates survive).
+		assert.equal( manifest.dependencySets.length, 1 );
+		assert.equal( manifest.moduleDependencySets.length, 1 );
+
+		// Dependencies are stored sorted.
+		assert.deepEqual( manifest.dependencySets[ 0 ], [ 'wp-element', 'wp-i18n' ] );
+
+		// Module dependency objects use a canonical key order (id before import)
+		// and are sorted by id.
+		assert.deepEqual( manifest.moduleDependencySets[ 0 ], [
+			{ id: '@wordpress/x', import: 'static' },
+			{ id: '@wordpress/y', import: 'dynamic' },
+		] );
+		assert.deepEqual( Object.keys( manifest.moduleDependencySets[ 0 ][ 0 ] ), [ 'id', 'import' ] );
+
+		await assertManifestFilesExist( packageDir, manifest );
+	}
+);
+
+test( 'a supported --mode is required', async t => {
 	const packageDir = await createFixturePackage( t, {
-		name: '@example/configured-assets',
+		name: '@example/needs-mode',
 		version: '0.1.0-alpha',
 	} );
-	const script = 'console.log( "configured output" );\n';
+	await writeFixtureFile( packageDir, 'build/index.js', 'export const x = 1;\n' );
 
-	await writeFixtureFile(
-		packageDir,
-		'.build-asset.json',
-		`${ JSON.stringify(
-			{
-				buildDir: 'dist',
-				builder: 'webpack',
-				namespace: 'configured-output',
-				version: 'v9',
-			},
-			null,
-			'\t'
-		) }\n`
+	await assert.rejects(
+		buildManifest( { packageDir, namespace: 'needs-mode', mode: 'not-a-builder' } ),
+		/supported --mode is required/
 	);
-	await writeFixtureFile( packageDir, 'dist/index.js', script );
+	await assert.rejects(
+		buildManifest( { packageDir, namespace: 'needs-mode' } ),
+		/supported --mode is required/
+	);
+} );
 
-	const manifest = await buildManifest( { packageDir } );
+test( 'a namespace is required', async t => {
+	const packageDir = await createFixturePackage( t, {
+		name: '@example/needs-namespace',
+		version: '0.1.0-alpha',
+	} );
+	await writeFixtureFile( packageDir, 'build/index.js', 'export const x = 1;\n' );
 
-	assert.deepEqual( manifest, await readManifest( packageDir, 'dist' ) );
-	assert.equal( manifest.namespace, 'configured-output' );
-	assert.equal( manifest.version, 'v9' );
-	assert.equal( manifest.builder, 'webpack' );
-	assert.equal( manifest.assets[ 'index.js' ].version, contentHash( script ) );
-	assert.ok( manifest.publishFiles.includes( 'build_meta.json' ) );
-	assert.ok( manifest.publishFiles.includes( 'index.js' ) );
-	await assertManifestFilesExist( packageDir, manifest, 'dist' );
+	await assert.rejects( buildManifest( { packageDir, mode: 'webpack' } ), /namespace is required/ );
 } );

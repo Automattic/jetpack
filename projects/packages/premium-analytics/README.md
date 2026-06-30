@@ -43,15 +43,15 @@ jetpack build packages/premium-analytics   # via Jetpack CLI
 
 ### CDN asset manifest
 
-Production builds write `build/asset-manifest.json` and content-hashed browser
-asset copies into the existing `build/` directory. The local build directory is
-still mixed runtime output because `@wordpress/build` generates PHP files for
-local/plugin loading.
+Production builds write `build/build_meta.json` into the existing `build/`
+directory. Browser asset filenames stay stable, and the manifest records content
+hashes as asset versions for WordPress' `?ver=` cache-busting parameter. The
+local build directory is still mixed runtime output because `@wordpress/build`
+generates PHP files for local/plugin loading.
 
 For CDN publication, upload only the manifest's `publishFiles` set to the
 `premium-analytics/v1/` destination. Do not rsync the whole `build/` directory:
-generated PHP, `*.asset.php`, un-hashed JS/CSS entries, and source maps are not
-part of the CDN contract.
+generated PHP, `*.asset.php`, and source maps are not part of the CDN contract.
 
 ### Adding a route
 

@@ -10,23 +10,26 @@
  * records content hashes for stable static assets in a JSON manifest that CDN
  * loaders can use without requiring generated PHP files to be present remotely.
  *
+ * WordPress dependency arrays are deduplicated into top-level `dependencySets`
+ * and `moduleDependencySets` tables; each asset references its dependencies by
+ * index into those tables. See tools/cdn-assets/README.md for the schema.
+ *
  * @package
  */
 
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { constants as fsConstants } from 'node:fs';
-import { access, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
+import { access, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { promisify } from 'node:util';
+import { parseArgs, promisify } from 'node:util';
 
 const execFileAsync = promisify( execFile );
 
-const CONFIG_FILENAME = '.build-asset.json';
 const MANIFEST_FILENAME = 'build_meta.json';
-const LEGACY_MANIFEST_FILENAMES = [ 'asset-manifest.json' ];
-const SUPPORTED_BUILDERS = new Set( [ 'webpack', 'wp-build', 'wp-scripts' ] );
+const SCHEMA_VERSION = 2;
+const SUPPORTED_BUILDERS = new Set( [ 'webpack', 'wp-build' ] );
 const STATIC_EXTENSIONS = new Set( [
 	'.avif',
 	'.gif',
@@ -54,20 +57,6 @@ async function exists( filePath ) {
 }
 
 async function readRequiredJsonFile( filePath ) {
-	try {
-		return JSON.parse( await readFile( filePath, 'utf8' ) );
-	} catch ( error ) {
-		throw new Error( `Could not read JSON from ${ filePath }: ${ error.message }`, {
-			cause: error,
-		} );
-	}
-}
-
-async function readOptionalJsonFile( filePath ) {
-	if ( ! ( await exists( filePath ) ) ) {
-		return {};
-	}
-
 	try {
 		return JSON.parse( await readFile( filePath, 'utf8' ) );
 	} catch ( error ) {
@@ -112,13 +101,6 @@ function normalizeList( value ) {
 	return Array.isArray( value ) ? value : [];
 }
 
-function normalizeConfigList( value ) {
-	if ( Array.isArray( value ) ) {
-		return value;
-	}
-	return value ? [ value ] : [];
-}
-
 function makeHash( contents ) {
 	return createHash( 'sha256' ).update( contents ).digest( 'hex' ).slice( 0, HASH_LENGTH );
 }
@@ -128,7 +110,7 @@ function hasGeneratedHash( relativePath ) {
 }
 
 function isManifestFile( relativePath ) {
-	return [ MANIFEST_FILENAME, ...LEGACY_MANIFEST_FILENAMES ].includes( relativePath );
+	return relativePath === MANIFEST_FILENAME;
 }
 
 function trimExtension( relativePath ) {
@@ -148,69 +130,34 @@ function toAssetPhpPath( logicalPath ) {
 	return `${ trimExtension( logicalPath ) }.asset.php`;
 }
 
-function slugFromPackageName( packageName = 'package' ) {
-	const unscopedName = packageName.includes( '/' ) ? packageName.split( '/' ).pop() : packageName;
-	return (
-		unscopedName
-			.replace( /^jetpack-/, '' )
-			.replace( /[^a-zA-Z0-9._-]+/g, '-' )
-			.replace( /^-+|-+$/g, '' ) || 'package'
-	);
-}
-
-function mergeBuildConfig( packageJson, fileConfig ) {
-	const packageConfig = packageJson.cdnAssets || {};
-
-	return {
-		...packageConfig,
-		...fileConfig,
-		webpack: {
-			...( packageConfig.webpack || {} ),
-			...( fileConfig.webpack || {} ),
-		},
-		wpBuild: {
-			...( packageConfig.wpBuild || {} ),
-			...( fileConfig.wpBuild || {} ),
-		},
-	};
-}
-
-async function removePreviousGeneratedFiles( buildDir ) {
-	const previousFiles = new Set( [ MANIFEST_FILENAME, ...LEGACY_MANIFEST_FILENAMES ] );
-
-	for ( const manifestFilename of [ MANIFEST_FILENAME, ...LEGACY_MANIFEST_FILENAMES ] ) {
-		const previousManifest = await readOptionalJsonFile( path.join( buildDir, manifestFilename ) );
-		for ( const relativePath of normalizeList( previousManifest.publishFiles ) ) {
-			previousFiles.add( relativePath );
-		}
-		for ( const asset of Object.values( previousManifest.assets || {} ) ) {
-			if ( asset?.file ) {
-				previousFiles.add( asset.file );
-			}
-			if ( asset?.rtlFile ) {
-				previousFiles.add( asset.rtlFile );
-			}
-			if ( asset?.style ) {
-				previousFiles.add( asset.style );
-			}
-		}
+async function listBuildFiles( buildDir ) {
+	if ( ! ( await exists( buildDir ) ) ) {
+		return [];
 	}
 
-	await Promise.all(
-		[ ...previousFiles ]
-			.filter( relativePath => isManifestFile( relativePath ) || hasGeneratedHash( relativePath ) )
-			.map( relativePath => rm( path.join( buildDir, relativePath ), { force: true } ) )
-	);
+	const entries = await readdir( buildDir, { recursive: true, withFileTypes: true } );
+	return entries
+		.filter( entry => entry.isFile() )
+		.map( entry =>
+			normalizeRelativePath( path.relative( buildDir, path.join( entry.parentPath, entry.name ) ) )
+		)
+		.sort();
 }
 
-async function getEntryHash( buildDir, logicalPath ) {
-	const sourcePath = path.join( buildDir, logicalPath );
-	if ( ! ( await exists( sourcePath ) ) ) {
-		throw new Error( `Expected CDN asset source file at ${ sourcePath }.` );
+async function hashFile( context, relativePath ) {
+	const normalizedPath = normalizeRelativePath( relativePath );
+	if ( context.hashCache.has( normalizedPath ) ) {
+		return context.hashCache.get( normalizedPath );
 	}
 
-	const contents = await readFile( sourcePath );
-	return makeHash( contents );
+	const filePath = path.join( context.buildDir, normalizedPath );
+	if ( ! ( await exists( filePath ) ) ) {
+		throw new Error( `Expected CDN asset source file at ${ filePath }.` );
+	}
+
+	const hash = makeHash( await readFile( filePath ) );
+	context.hashCache.set( normalizedPath, hash );
+	return hash;
 }
 
 function addPublishFile( context, logicalPath ) {
@@ -226,7 +173,7 @@ async function addManifestAsset( context, logicalPath, details ) {
 		);
 	}
 
-	const version = await getEntryHash( context.buildDir, normalizedPath );
+	const version = await hashFile( context, normalizedPath );
 	context.manifest.assets[ normalizedPath ] = {
 		file: normalizedPath,
 		type: details.type,
@@ -237,7 +184,6 @@ async function addManifestAsset( context, logicalPath, details ) {
 			? { moduleDependencies: normalizeList( details.moduleDependencies ) }
 			: {} ),
 		version,
-		...( details.assetPhpVersion ? { assetPhpVersion: details.assetPhpVersion } : {} ),
 		...( details.meta ? { meta: details.meta } : {} ),
 	};
 	addPublishFile( context, normalizedPath );
@@ -254,7 +200,6 @@ async function addAssetWithPhpMetadata( context, logicalPath, assetPath, details
 		...details,
 		dependencies: normalizeList( asset.dependencies ),
 		moduleDependencies: normalizeList( asset.module_dependencies ),
-		assetPhpVersion: asset.version ?? undefined,
 		meta: {
 			...( details.meta || {} ),
 			...( normalizedAssetPath ? { asset: normalizedAssetPath } : {} ),
@@ -269,34 +214,12 @@ async function addOptionalStyleVariant( context, entry, logicalPath, propertyNam
 	}
 
 	entry[ propertyName ] = normalizedPath;
-	entry[ `${ propertyName }Version` ] = await getEntryHash( context.buildDir, normalizedPath );
+	entry[ `${ propertyName }Version` ] = await hashFile( context, normalizedPath );
 	addPublishFile( context, normalizedPath );
 }
 
-async function walkFiles( dir, baseDir = dir ) {
-	const entries = await readdir( dir, { withFileTypes: true } );
-	const files = [];
-
-	for ( const entry of entries ) {
-		const fullPath = path.join( dir, entry.name );
-		if ( entry.isDirectory() ) {
-			files.push( ...( await walkFiles( fullPath, baseDir ) ) );
-			continue;
-		}
-		if ( entry.isFile() ) {
-			files.push( normalizeRelativePath( path.relative( baseDir, fullPath ) ) );
-		}
-	}
-
-	return files;
-}
-
 async function collectStaticPublishFiles( context ) {
-	if ( ! ( await exists( context.buildDir ) ) ) {
-		return;
-	}
-
-	for ( const relativePath of await walkFiles( context.buildDir ) ) {
+	for ( const relativePath of context.buildFiles ) {
 		const extension = path.extname( relativePath );
 		if ( isManifestFile( relativePath ) || hasGeneratedHash( relativePath ) ) {
 			continue;
@@ -571,7 +494,6 @@ async function addWebpackScript( context, logicalPath, details = {} ) {
 		handle: details.handle,
 		dependencies: normalizeList( details.dependencies || asset.dependencies ),
 		moduleDependencies,
-		assetPhpVersion: asset.version ?? undefined,
 		meta: {
 			...( details.meta || {} ),
 			...( assetPath ? { asset: normalizeRelativePath( assetPath ) } : {} ),
@@ -612,18 +534,6 @@ async function addWebpackStyle( context, logicalPath, details = {} ) {
 	return entry;
 }
 
-async function addConfiguredWebpackEntries( context, entries ) {
-	for ( const entry of entries ) {
-		const logicalPath = normalizeRelativePath( entry.file || entry.path );
-		await addWebpackScript( context, logicalPath, entry );
-		for ( const stylePath of normalizeConfigList( entry.styles || entry.style ) ) {
-			await addWebpackStyle( context, normalizeRelativePath( stylePath ), {
-				handle: entry.styleHandle,
-			} );
-		}
-	}
-}
-
 function shouldDiscoverWebpackEntry( relativePath, seenEntries ) {
 	return (
 		ENTRY_EXTENSIONS.has( path.extname( relativePath ) ) &&
@@ -635,8 +545,13 @@ function shouldDiscoverWebpackEntry( relativePath, seenEntries ) {
 	);
 }
 
-async function addDiscoveredWebpackEntries( context ) {
-	const files = ( await walkFiles( context.buildDir ) ).sort();
+async function addWebpackAssets( context ) {
+	context.manifest.webpack = {
+		scripts: [],
+		styles: [],
+	};
+
+	const files = context.buildFiles;
 	const seenEntries = new Set();
 	const seenStyles = new Set();
 
@@ -680,86 +595,105 @@ async function addDiscoveredWebpackEntries( context ) {
 	}
 }
 
-async function addWebpackAssets( context ) {
-	context.manifest.webpack = {
-		scripts: [],
-		styles: [],
-	};
-
-	const configuredEntries = normalizeList(
-		context.config.webpack?.entries || context.config.entries
-	);
-	if ( configuredEntries.length ) {
-		await addConfiguredWebpackEntries( context, configuredEntries );
-		return;
-	}
-
-	await addDiscoveredWebpackEntries( context );
-}
-
-async function detectBuilder( packageJson, buildDir, config ) {
-	if ( config.builder && config.builder !== 'auto' ) {
-		return config.builder;
-	}
-
-	const scripts = Object.values( packageJson.scripts || {} ).join( ' ' );
-	const devDependencies = packageJson.devDependencies || {};
-	const hasWpBuildRegistry = await Promise.any(
-		[
-			'modules/registry.php',
-			'routes/registry.php',
-			'widgets/registry.php',
-			'scripts/registry.php',
-			'styles/registry.php',
-		].map( async registryPath => {
-			if ( await exists( path.join( buildDir, registryPath ) ) ) {
-				return true;
-			}
-			throw new Error( 'Registry not found.' );
-		} )
-	).catch( () => false );
-
-	if (
-		hasWpBuildRegistry ||
-		scripts.includes( 'wp-build' ) ||
-		devDependencies[ '@wordpress/build' ]
-	) {
-		return 'wp-build';
-	}
-
-	return 'webpack';
-}
-
 async function resolveBuildContext( options ) {
 	const packageDir = path.resolve( options.packageDir || '.' );
 	const packageJson = await readRequiredJsonFile( path.join( packageDir, 'package.json' ) );
-	const fileConfig = await readOptionalJsonFile(
-		path.resolve( packageDir, options.config || CONFIG_FILENAME )
-	);
-	const config = mergeBuildConfig( packageJson, fileConfig );
-	const buildDir = path.resolve( packageDir, options.buildDir || config.buildDir || 'build' );
+	const buildDir = path.resolve( packageDir, options.buildDir || 'build' );
 
 	if ( ! ( await exists( buildDir ) ) || ! ( await stat( buildDir ) ).isDirectory() ) {
 		throw new Error( `Build directory does not exist at ${ buildDir }.` );
 	}
 
-	const requestedBuilder = normalizeBuilder( options.builder || options.mode );
-	const builder = requestedBuilder || ( await detectBuilder( packageJson, buildDir, config ) );
-	const namespace =
-		options.namespace ||
-		config.namespace ||
-		packageJson.wpPlugin?.cdnNamespace ||
-		slugFromPackageName( packageJson.wpPlugin?.packageNamespace || packageJson.name );
+	const builder = normalizeBuilder( options.builder || options.mode );
+	if ( ! builder ) {
+		throw new Error(
+			`A supported --mode is required, one of: ${ [ ...SUPPORTED_BUILDERS ].join( ', ' ) }.`
+		);
+	}
+
+	const namespace = options.namespace;
+	if ( ! namespace ) {
+		throw new Error( 'A --namespace is required to build the CDN manifest.' );
+	}
 
 	return {
 		builder,
 		buildDir,
-		config,
 		namespace,
 		packageDir,
 		packageJson,
-		version: options.version || config.version || 'v1',
+		version: options.version || 'v1',
 	};
+}
+
+function canonicalizeDependencies( dependencies ) {
+	return [ ...dependencies ].map( String ).sort( ( a, b ) => a.localeCompare( b ) );
+}
+
+function canonicalizeModuleDependency( dependency ) {
+	if ( ! dependency || typeof dependency !== 'object' ) {
+		return dependency;
+	}
+	// Rebuild with a deterministic key order so equivalent dependencies intern to
+	// the same table entry regardless of how the source serialized them.
+	const canonical = {};
+	for ( const key of Object.keys( dependency ).sort() ) {
+		canonical[ key ] = dependency[ key ];
+	}
+	return canonical;
+}
+
+function moduleDependencySortKey( dependency ) {
+	if ( dependency && typeof dependency === 'object' ) {
+		return `${ dependency.id ?? '' } ${ dependency.import ?? '' }`;
+	}
+	return String( dependency );
+}
+
+function canonicalizeModuleDependencies( dependencies ) {
+	return [ ...dependencies ]
+		.map( canonicalizeModuleDependency )
+		.sort( ( a, b ) => moduleDependencySortKey( a ).localeCompare( moduleDependencySortKey( b ) ) );
+}
+
+// Intern each asset's dependency arrays into shared tables, replacing the inline
+// arrays with an integer index. Identical (canonicalized) arrays collapse to a
+// single table entry; empty arrays share one entry as well.
+function internDependencyTables( assets ) {
+	const dependencySets = [];
+	const dependencyIndex = new Map();
+	const moduleDependencySets = [];
+	const moduleDependencyIndex = new Map();
+
+	const intern = ( table, index, value ) => {
+		const key = JSON.stringify( value );
+		if ( index.has( key ) ) {
+			return index.get( key );
+		}
+		const position = table.length;
+		table.push( value );
+		index.set( key, position );
+		return position;
+	};
+
+	for ( const asset of Object.values( assets ) ) {
+		if ( 'dependencies' in asset ) {
+			asset.dependencies = intern(
+				dependencySets,
+				dependencyIndex,
+				canonicalizeDependencies( asset.dependencies )
+			);
+		}
+		if ( 'moduleDependencies' in asset ) {
+			asset.moduleDependencies = intern(
+				moduleDependencySets,
+				moduleDependencyIndex,
+				canonicalizeModuleDependencies( asset.moduleDependencies )
+			);
+		}
+	}
+
+	return { dependencySets, moduleDependencySets };
 }
 
 async function getPublishFileHashes( context, publishFiles ) {
@@ -768,9 +702,8 @@ async function getPublishFileHashes( context, publishFiles ) {
 		if ( isManifestFile( relativePath ) ) {
 			continue;
 		}
-		const filePath = path.join( context.buildDir, relativePath );
-		if ( await exists( filePath ) ) {
-			hashes[ relativePath ] = makeHash( await readFile( filePath ) );
+		if ( await exists( path.join( context.buildDir, relativePath ) ) ) {
+			hashes[ relativePath ] = await hashFile( context, relativePath );
 		}
 	}
 	return sortObjectByKey( hashes );
@@ -782,6 +715,8 @@ async function addCacheBuster( context, manifest ) {
 		JSON.stringify( {
 			assets: manifest.assets,
 			builder: manifest.builder,
+			dependencySets: manifest.dependencySets,
+			moduleDependencySets: manifest.moduleDependencySets,
 			namespace: manifest.namespace,
 			packageName: manifest.packageName,
 			packageVersion: manifest.packageVersion,
@@ -795,13 +730,13 @@ async function buildManifest( options = {} ) {
 	const resolved = await resolveBuildContext( options );
 	const { buildDir, packageJson } = resolved;
 
-	await removePreviousGeneratedFiles( buildDir );
-
 	const context = {
 		...resolved,
+		buildFiles: await listBuildFiles( buildDir ),
+		hashCache: new Map(),
 		publishFiles: new Set(),
 		manifest: {
-			schemaVersion: 1,
+			schemaVersion: SCHEMA_VERSION,
 			namespace: resolved.namespace,
 			version: resolved.version,
 			packageName: packageJson.name,
@@ -813,18 +748,21 @@ async function buildManifest( options = {} ) {
 
 	if ( resolved.builder === 'wp-build' ) {
 		await addWpBuildAssets( context );
-	} else if ( resolved.builder === 'webpack' || resolved.builder === 'wp-scripts' ) {
-		await addWebpackAssets( context );
 	} else {
-		throw new Error( `Unsupported manifest builder: ${ resolved.builder }.` );
+		await addWebpackAssets( context );
 	}
 
 	await collectStaticPublishFiles( context );
 	addPublishFile( context, MANIFEST_FILENAME );
 
+	const assets = sortObjectByKey( context.manifest.assets );
+	const { dependencySets, moduleDependencySets } = internDependencyTables( assets );
+
 	const manifest = {
 		...context.manifest,
-		assets: sortObjectByKey( context.manifest.assets ),
+		dependencySets,
+		moduleDependencySets,
+		assets,
 		publishFiles: [ ...context.publishFiles ].sort(),
 	};
 	await addCacheBuster( context, manifest );
@@ -835,46 +773,26 @@ async function buildManifest( options = {} ) {
 }
 
 function parseCliArgs( argv ) {
-	const options = {
-		builder: null,
-		buildDir: null,
-		config: null,
-		mode: null,
-		namespace: null,
-		packageDir: '.',
-		version: null,
+	const { values } = parseArgs( {
+		args: argv,
+		options: {
+			'build-dir': { type: 'string' },
+			mode: { type: 'string' },
+			namespace: { type: 'string' },
+			'package-dir': { type: 'string' },
+			version: { type: 'string' },
+		},
+		strict: true,
+		allowPositionals: false,
+	} );
+
+	return {
+		buildDir: values[ 'build-dir' ] ?? null,
+		mode: values.mode ?? null,
+		namespace: values.namespace ?? null,
+		packageDir: values[ 'package-dir' ] ?? '.',
+		version: values.version ?? null,
 	};
-
-	for ( let index = 0; index < argv.length; index += 1 ) {
-		const arg = argv[ index ];
-		const next = () => {
-			index += 1;
-			if ( index >= argv.length ) {
-				throw new Error( `Missing value for ${ arg }.` );
-			}
-			return argv[ index ];
-		};
-
-		if ( arg === '--build-dir' ) {
-			options.buildDir = next();
-		} else if ( arg === '--builder' ) {
-			options.builder = next();
-		} else if ( arg === '--config' ) {
-			options.config = next();
-		} else if ( arg === '--mode' ) {
-			options.mode = next();
-		} else if ( arg === '--namespace' ) {
-			options.namespace = next();
-		} else if ( arg === '--package-dir' ) {
-			options.packageDir = next();
-		} else if ( arg === '--version' ) {
-			options.version = next();
-		} else {
-			throw new Error( `Unknown argument: ${ arg }.` );
-		}
-	}
-
-	return options;
 }
 
 async function main() {
