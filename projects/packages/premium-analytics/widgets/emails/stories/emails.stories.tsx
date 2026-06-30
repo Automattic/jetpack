@@ -88,7 +88,7 @@ const mockLongLabelRows: EmailRow[] = [
 ];
 
 /**
- * Default populated state — latest emails ranked by open rate.
+ * Default populated state — latest emails (newest first) with their open rate.
  */
 export const Default: Story = {
 	args: {

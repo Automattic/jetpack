@@ -20,7 +20,8 @@ import type { EmailsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 /**
- * Which rate the leaderboard ranks and displays.
+ * Which rate the leaderboard displays. Rows stay in newest-first order
+ * regardless; this only changes the value shown and the overlay bar width.
  */
 export type EmailMetric = 'opens' | 'clicks';
 
