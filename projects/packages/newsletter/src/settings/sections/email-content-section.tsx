@@ -86,7 +86,10 @@ export function EmailContentSection( {
 									type: 'regular',
 									labelPosition: 'top',
 								},
-								fields: [ 'wpcom_featured_image_in_email', 'wpcom_subscription_emails_use_excerpt' ],
+								fields: [
+									'wpcom_featured_image_in_email',
+									'wpcom_subscription_emails_use_excerpt',
+								],
 							} }
 							onChange={ onChange }
 						/>
