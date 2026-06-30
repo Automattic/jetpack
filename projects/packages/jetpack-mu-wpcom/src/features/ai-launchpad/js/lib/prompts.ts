@@ -3,13 +3,11 @@ import type { WizardInput } from './types.ts';
 /**
  * Allowed task IDs the model may pick from. Snake_case catalog IDs drawn from
  * launchpad-task-definitions.php (verified 2026-06-02). A PHP test
- * (AI_Launchpad_Task_Menu_Test) guards this list against catalog drift; making
- * the catalog the single source is tracked in DOTOBRD-472.
+ * (AI_Launchpad_Task_Menu_Test) guards this list against catalog drift.
  */
 export const TASK_MENU: readonly string[] = [
 	'first_post_published',
 	'first_post_published_newsletter',
-	'write_3_posts',
 	'site_theme_selected',
 	'add_about_page',
 	'add_new_page',
