@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .customize {
 	max-width: 920px;
@@ -14,7 +14,7 @@
 
 .group-grid {
 	display: grid;
-	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 16px;
 
 	@media ( max-width: gb.$break-medium ) {
@@ -31,7 +31,7 @@
 
 .item-row {
 	display: grid;
-	grid-template-columns: minmax( 160px, 1fr ) minmax( 140px, 220px ) auto;
+	grid-template-columns: 32px minmax(160px, 1fr) minmax(140px, 220px) auto;
 	align-items: center;
 	gap: 16px;
 	min-height: 56px;
@@ -39,14 +39,43 @@
 	padding-inline: 12px;
 	background: #fff;
 
-	:global( .components-base-control ) {
+	:global(.components-base-control) {
 		margin-block-end: 0;
 	}
 
 	@media ( max-width: gb.$break-medium ) {
-		grid-template-columns: 1fr;
+		grid-template-columns: 32px 1fr;
 		align-items: stretch;
+
+		:global(.components-base-control) {
+			grid-column: 2;
+		}
 	}
+}
+
+.drag-handle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #757575;
+	opacity: 0.4;
+	cursor: default;
+}
+
+.drag-handle-active {
+	opacity: 1;
+	cursor: grab;
+}
+
+.item-list :global(.ui-sortable-helper) {
+	cursor: grabbing;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.item-row-placeholder {
+	min-height: 56px;
+	background: #f0f6fc;
+	border: 1px dashed #3858e9;
 }
 
 .item-actions {
@@ -55,6 +84,7 @@
 	justify-content: flex-end;
 
 	@media ( max-width: gb.$break-medium ) {
+		grid-column: 2;
 		justify-content: flex-start;
 	}
 }

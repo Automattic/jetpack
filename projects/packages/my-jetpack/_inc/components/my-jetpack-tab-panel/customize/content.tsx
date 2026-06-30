@@ -10,8 +10,8 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { arrowDown, arrowUp } from '@wordpress/icons';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { arrowDown, arrowUp, dragHandle, Icon } from '@wordpress/icons';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { REST_API_ADMIN_MENU_CUSTOMIZATION } from '../../../data/constants';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import styles from './styles.module.scss';
@@ -53,6 +53,30 @@ type NoticeState = {
 	status: 'success' | 'error';
 	message: string;
 };
+
+type SortableOptions = {
+	cancel: string;
+	containment: HTMLElement;
+	cursor: string;
+	forcePlaceholderSize: boolean;
+	handle: string;
+	items: string;
+	placeholder: string;
+	tolerance: string;
+	update: () => void;
+};
+
+type SortableCollection = {
+	sortable: ( options: SortableOptions | 'destroy' ) => SortableCollection;
+};
+
+type SortableJQuery = ( element: HTMLElement ) => SortableCollection;
+
+declare global {
+	interface Window {
+		jQuery?: SortableJQuery;
+	}
+}
 
 type GroupLabelControlProps = {
 	group: AdminMenuGroup;
@@ -119,6 +143,33 @@ const getOrderedItems = ( items: AdminMenuItem[] ) =>
 		return a.order - b.order;
 	} );
 
+export const reorderAdminMenuItems = ( items: AdminMenuItem[], orderedIds: string[] ) => {
+	const sortedItems = getOrderedItems( items );
+	const itemById = new Map( sortedItems.map( item => [ item.id, item ] ) );
+	const reorderedIds = new Set< string >();
+	const reorderedItems = orderedIds.reduce< AdminMenuItem[] >( ( result, id ) => {
+		const item = itemById.get( id );
+
+		if ( item && ! reorderedIds.has( id ) ) {
+			result.push( item );
+			reorderedIds.add( id );
+		}
+
+		return result;
+	}, [] );
+
+	sortedItems.forEach( item => {
+		if ( ! reorderedIds.has( item.id ) ) {
+			reorderedItems.push( item );
+		}
+	} );
+
+	return reorderedItems.map( ( item, index ) => ( {
+		...item,
+		order: index * 10,
+	} ) );
+};
+
 const GroupLabelControl = ( { group, onChange }: GroupLabelControlProps ) => {
 	const handleChange = useCallback(
 		( label: string ) => {
@@ -163,9 +214,15 @@ const MenuItemRow = ( {
 	const handleMoveDown = useCallback( () => {
 		onMove( item.id, 1 );
 	}, [ item.id, onMove ] );
+	const dragHandleClassName = item.customizable
+		? `${ styles[ 'drag-handle' ] } ${ styles[ 'drag-handle-active' ] }`
+		: styles[ 'drag-handle' ];
 
 	return (
-		<div className={ styles[ 'item-row' ] }>
+		<div className={ styles[ 'item-row' ] } data-menu-item-id={ item.id }>
+			<span className={ dragHandleClassName } aria-hidden="true">
+				<Icon icon={ dragHandle } />
+			</span>
 			<ToggleControl
 				label={ item.label }
 				checked={ ! item.hidden }
@@ -207,6 +264,7 @@ const MenuItemRow = ( {
  */
 export function CustomizeContent() {
 	const initialModel = useMemo( () => getInitialModel(), [] );
+	const itemListRef = useRef< HTMLDivElement | null >( null );
 	const [ model, setModel ] = useState< AdminMenuModel >( initialModel );
 	const [ items, setItems ] = useState< AdminMenuItem[] >( () =>
 		getOrderedItems( initialModel.items )
@@ -264,6 +322,10 @@ export function CustomizeContent() {
 	);
 	const orderedItems = useMemo( () => getOrderedItems( items ), [ items ] );
 
+	const reorderItems = useCallback( ( orderedIds: string[] ) => {
+		setItems( currentItems => reorderAdminMenuItems( currentItems, orderedIds ) );
+	}, [] );
+
 	const updateItem = useCallback( ( id: string, updates: Partial< AdminMenuItem > ) => {
 		setItems( currentItems =>
 			currentItems.map( item => ( item.id === id ? { ...item, ...updates } : item ) )
@@ -294,12 +356,51 @@ export function CustomizeContent() {
 			nextItems[ index ] = nextItems[ nextIndex ];
 			nextItems[ nextIndex ] = item;
 
-			return nextItems.map( ( menuItem, itemIndex ) => ( {
-				...menuItem,
-				order: itemIndex * 10,
-			} ) );
+			return reorderAdminMenuItems(
+				currentItems,
+				nextItems.map( menuItem => menuItem.id )
+			);
 		} );
 	}, [] );
+
+	useEffect( () => {
+		const listElement = itemListRef.current;
+		const sortable = window.jQuery;
+
+		if ( ! listElement || ! sortable ) {
+			return;
+		}
+
+		const sortableList = sortable( listElement );
+
+		if ( typeof sortableList.sortable !== 'function' ) {
+			return;
+		}
+
+		sortableList.sortable( {
+			cancel: 'input, select, textarea, button',
+			containment: listElement,
+			cursor: 'move',
+			forcePlaceholderSize: true,
+			handle: `.${ styles[ 'drag-handle-active' ] }`,
+			items: `> .${ styles[ 'item-row' ] }`,
+			placeholder: styles[ 'item-row-placeholder' ],
+			tolerance: 'pointer',
+			update: () => {
+				const orderedIds = Array.from(
+					listElement.querySelectorAll< HTMLElement >( '[data-menu-item-id]' )
+				)
+					.map( row => row.dataset.menuItemId )
+					.filter( Boolean ) as string[];
+
+				reorderItems( orderedIds );
+			},
+		} );
+
+		return () => {
+			sortableList.sortable( 'destroy' );
+		};
+	}, [ orderedItems, reorderItems ] );
 
 	const buildItemsLayout = useCallback(
 		() =>
@@ -410,7 +511,7 @@ export function CustomizeContent() {
 				) }
 
 				<PanelBody title={ __( 'Menu', 'jetpack-my-jetpack' ) } initialOpen>
-					<div className={ styles[ 'item-list' ] }>
+					<div className={ styles[ 'item-list' ] } ref={ itemListRef }>
 						{ orderedItems.map( ( item, index ) => (
 							<MenuItemRow
 								key={ item.id }

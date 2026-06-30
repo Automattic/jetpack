@@ -261,9 +261,10 @@ class Initializer {
 			'../build/index.js',
 			__FILE__,
 			array(
-				'enqueue'    => true,
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-my-jetpack',
+				'dependencies' => array( 'jquery-ui-sortable' ),
+				'enqueue'      => true,
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-my-jetpack',
 			)
 		);
 		$modules             = new Modules();
