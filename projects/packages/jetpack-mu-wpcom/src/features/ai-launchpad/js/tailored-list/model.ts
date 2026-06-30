@@ -244,15 +244,29 @@ export function isTaskActionable(
 }
 
 /**
- * The id of the first incomplete task, driving which card the accordion
- * auto-expands. Returns null when every task is complete.
+ * The id of the next incomplete task to auto-expand, driving the accordion's
+ * single-open behavior. With no `afterId`, returns the first incomplete task
+ * (the card that opens on mount). With `afterId` (the task just skipped or
+ * completed), returns the first incomplete task *after* it so focus moves down
+ * the list; if nothing follows, falls back to any remaining incomplete task so
+ * the user is always pointed at outstanding work. Returns null when every task
+ * is complete.
  *
- * @param tasks - The enriched tasks (skipped tasks already coerced to completed).
- * @return The first incomplete task id, or null.
+ * @param tasks   - The enriched tasks (skipped tasks already coerced to completed).
+ * @param afterId - The id to advance past, or undefined to take the first.
+ * @return The next incomplete task id, or null.
  */
-export function nextIncompleteId( tasks: EnrichedTask[] ): string | null {
-	const next = tasks.find( task => ! task.completed );
-	return next ? next.id : null;
+export function nextIncompleteId( tasks: EnrichedTask[], afterId?: string ): string | null {
+	const incomplete = tasks.filter( task => ! task.completed );
+	if ( incomplete.length === 0 ) {
+		return null;
+	}
+	if ( afterId === undefined ) {
+		return incomplete[ 0 ].id;
+	}
+	const fromIndex = tasks.findIndex( task => task.id === afterId );
+	const next = incomplete.find( task => tasks.indexOf( task ) > fromIndex );
+	return ( next ?? incomplete[ 0 ] ).id;
 }
 
 /**

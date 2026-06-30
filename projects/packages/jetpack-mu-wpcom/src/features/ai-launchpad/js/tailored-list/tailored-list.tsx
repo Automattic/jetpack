@@ -244,6 +244,13 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 			setTasks( prev =>
 				prev ? prev.map( t => ( t.id === task.id ? { ...t, completed: true } : t ) ) : prev
 			);
+			// Advance the accordion to the next task, mirroring Skip — otherwise the
+			// just-completed card (now a non-collapsible done card) keeps openId, so
+			// no remaining CollapsibleCard matches and the whole list collapses.
+			const afterComplete = ( tasks ?? [] ).map( t =>
+				t.id === task.id || skippedIds.has( t.id ) ? { ...t, completed: true } : t
+			);
+			setOpenId( nextIncompleteId( afterComplete, task.id ) );
 		} catch {
 			// Leave the task incomplete on failure.
 		} finally {
@@ -251,8 +258,16 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 		}
 	};
 
+	// Skipping a task marks it complete (in memory) and expands the next
+	// incomplete task, as the design asks. Compute the next id from the list the
+	// skip produces so a just-skipped task is never re-opened.
 	const handleSkip = ( task: EnrichedTask ) => {
-		setSkippedIds( prev => new Set( prev ).add( task.id ) );
+		const nextSkipped = new Set( skippedIds ).add( task.id );
+		setSkippedIds( nextSkipped );
+		const afterSkip = ( tasks ?? [] ).map( t =>
+			nextSkipped.has( t.id ) ? { ...t, completed: true } : t
+		);
+		setOpenId( nextIncompleteId( afterSkip, task.id ) );
 	};
 
 	return (

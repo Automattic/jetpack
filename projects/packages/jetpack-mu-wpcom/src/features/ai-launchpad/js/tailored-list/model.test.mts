@@ -292,6 +292,30 @@ describe( 'nextIncompleteId', () => {
 		const tasks = [ task( { id: 'a', completed: true } ), task( { id: 'b', completed: true } ) ];
 		assert.equal( nextIncompleteId( tasks ), null );
 	} );
+
+	it( 'advances to the next incomplete task after the given id', () => {
+		const tasks = [
+			task( { id: 'a', completed: true } ),
+			task( { id: 'b', completed: false } ),
+			task( { id: 'c', completed: false } ),
+		];
+		assert.equal( nextIncompleteId( tasks, 'b' ), 'c' );
+	} );
+
+	it( 'wraps back to a remaining incomplete task when none follow the given id', () => {
+		const tasks = [
+			task( { id: 'a', completed: false } ),
+			task( { id: 'b', completed: false } ),
+			task( { id: 'c', completed: true } ),
+		];
+		// Skipping the last incomplete task (b) leaves only a earlier in the list.
+		assert.equal( nextIncompleteId( tasks, 'b' ), 'a' );
+	} );
+
+	it( 'returns null when the given id was the only incomplete task', () => {
+		const tasks = [ task( { id: 'a', completed: true } ), task( { id: 'b', completed: true } ) ];
+		assert.equal( nextIncompleteId( tasks, 'b' ), null );
+	} );
 } );
 
 describe( 'tasksFromFixture', () => {
