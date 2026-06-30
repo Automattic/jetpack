@@ -69,8 +69,7 @@
 }
 
 .videopress-caption-manager__action-buttons,
-.videopress-caption-manager__track-actions,
-.videopress-caption-manager__cue-toolbar {
+.videopress-caption-manager__track-actions {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -144,19 +143,6 @@
 	align-items: center;
 	flex-wrap: wrap;
 	justify-content: flex-end;
-}
-
-.videopress-caption-manager__local-tracks {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	min-block-size: 0;
-
-	h4 {
-		margin: 4px 0 0;
-		font-size: 13px;
-		line-height: 1.4;
-	}
 }
 
 .videopress-caption-manager__empty {
@@ -245,32 +231,45 @@
 	flex-shrink: 0;
 }
 
-.videopress-caption-manager__cue-toolbar {
-	justify-content: space-between;
-	flex-shrink: 0;
-}
-
 .videopress-caption-manager__text-import {
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
-	flex-shrink: 0;
-	padding: 12px;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
-	background: #fff;
+	flex: 1;
+	min-block-size: 0;
+}
+
+// Let the paste textarea grow to fill the workspace step.
+.videopress-caption-manager__text-import .components-base-control,
+.videopress-caption-manager__text-import .components-base-control__field {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+}
+
+.videopress-caption-manager__text-import textarea {
+	flex: 1;
+	resize: none;
 }
 
 .videopress-caption-manager__text-import-actions {
 	display: flex;
 	justify-content: flex-end;
 	gap: 8px;
+	flex-shrink: 0;
 }
 
 .videopress-caption-manager__cue-editor {
 	flex: 1;
 	min-block-size: 0;
 	overflow-y: auto;
+}
+
+.videopress-caption-manager__cue-empty {
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+	padding: 24px 16px;
 }
 
 .videopress-caption-manager__cue-editor .block-editor-block-list__layout {
@@ -301,6 +300,9 @@
 }
 
 .videopress-caption-cue__toolbar {
+	// Rendered after the body in the DOM so Tab reaches the text/time fields
+	// first; ordered back to the top visually.
+	order: -1;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;

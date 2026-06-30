@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getBlockType, unregisterBlockType } from '@wordpress/blocks';
 import { CAPTION_CUE_BLOCK_NAME } from '../../../lib/video-tracks/cues';
-import { registerCaptionCueBlock } from '../caption-cue-block';
+import { registerCaptionCueBlock, setCurrentCueVideoTime } from '../caption-cue-block';
 
 const mockInsertBlock = jest.fn();
 const mockMoveBlocksUp = jest.fn();
@@ -219,11 +219,13 @@ describe( 'CaptionCueEdit', () => {
 				attributes: { startTime: '00:00:02.000', endTime: '00:00:04.000', text: 'Hello' },
 			},
 			1,
-			undefined
+			undefined,
+			false
 		);
 	} );
 
-	it( 'inserts an empty cue below with shifted times', async () => {
+	it( 'inserts a cue below at the current playback time', async () => {
+		setCurrentCueVideoTime( 5 );
 		setup();
 
 		await userEvent.click( screen.getByLabelText( 'Add subtitle below' ) );
@@ -231,10 +233,11 @@ describe( 'CaptionCueEdit', () => {
 		expect( mockInsertBlock ).toHaveBeenCalledWith(
 			{
 				name: CAPTION_CUE_BLOCK_NAME,
-				attributes: { startTime: '00:00:02.000', endTime: '00:00:04.000', text: '' },
+				attributes: { startTime: '00:00:05.000', endTime: '00:00:07.000' },
 			},
 			1,
-			undefined
+			undefined,
+			false
 		);
 	} );
 
