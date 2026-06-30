@@ -111,8 +111,15 @@
 	color: #50575e;
 	line-height: 1.4;
 	// Balance the short two-line copy so a single word never orphans onto its
-	// own last line (e.g. "expertise.", "goods.").
+	// own last line (e.g. "expertise.", "goods.") in the narrow two-column grid.
 	text-wrap: balance;
+
+	// On mobile the cards stack full-width, where `balance` keeps the lines short
+	// instead of letting longer copy (Educate, Portfolio) span the container.
+	// `pretty` still avoids orphans but fills the available width first.
+	@media (max-width: 600px) {
+		text-wrap: pretty;
+	}
 }
 
 .ai-launchpad-wizard__footer {
