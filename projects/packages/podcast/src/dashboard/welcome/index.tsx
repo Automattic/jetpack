@@ -185,33 +185,36 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 		<VStack spacing={ 8 }>
 			<section className="podcast__welcome-hero">
 				<VStack spacing={ 4 } className="podcast__welcome-hero-copy">
-					{ hasAccess && (
-						<HStack
-							className="podcast__welcome-hero-eyebrow"
-							justify="flex-start"
-							alignment="center"
-							spacing={ 2 }
-							expanded={ false }
-						>
-							<span className="podcast__welcome-plan-check" aria-hidden="true">
-								<Icon icon={ check } size={ 24 } />
-							</span>
-							<Text weight={ 500 }>
-								{ __( 'Podcasting is included in your plan', 'jetpack-podcast' ) }
-							</Text>
-						</HStack>
-					) }
-					<h2 className="podcast__welcome-title">
-						{ __( 'Your podcast belongs with your blog', 'jetpack-podcast' ) }
-					</h2>
-					<Text variant="muted">
-						{ hasAccess
-							? includedDescription
-							: __(
+					{ hasAccess ? (
+						<VStack spacing={ 2 }>
+							<HStack
+								justify="flex-start"
+								alignment="center"
+								spacing={ 2 }
+								expanded={ false }
+							>
+								<span className="podcast__welcome-plan-check" aria-hidden="true">
+									<Icon icon={ check } size={ 24 } />
+								</span>
+								<Text as="h2" size="title" weight={ 500 }>
+									{ __( 'Podcast is included with your plan', 'jetpack-podcast' ) }
+								</Text>
+							</HStack>
+							<Text variant="muted">{ includedDescription }</Text>
+						</VStack>
+					) : (
+						<>
+							<h2 className="podcast__welcome-title">
+								{ __( 'Your podcast belongs with your blog', 'jetpack-podcast' ) }
+							</h2>
+							<Text variant="muted">
+								{ __(
 									'Publish your show on the same site as your blog and newsletter. Reach fans on Apple, Spotify, Pocket Casts, and every major podcast app.',
 									'jetpack-podcast'
-							  ) }
-					</Text>
+								) }
+							</Text>
+						</>
+					) }
 					<HStack justify="flex-start" expanded={ false }>
 						<Button variant="primary" onClick={ onEnable }>
 							{ __( 'Enable podcasting', 'jetpack-podcast' ) }
