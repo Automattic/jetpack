@@ -413,6 +413,23 @@ export type ChartTheme = {
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
 	};
+	/**
+	 * HeatmapChart specific settings. Cell gap, radius, value font size and the selection
+	 * ring come straight from WPDS tokens in CSS, so the only values here are the scale color
+	 * (for parity with the other HTML charts) and the compact sizing.
+	 */
+	heatmapChart?: {
+		/**
+		 * Color the cell scale interpolates toward at the highest value. Resolved like the
+		 * other HTML charts (prop > this > palette `colors[0]`) and fed to CSS `color-mix`
+		 * as `--heatmap-primary`. Omit to use the palette color.
+		 */
+		primaryColor?: string;
+		/** Gap in px between cells in compact mode */
+		compactCellGap?: number;
+		/** Fixed square cell size in px for compact mode */
+		compactCellSize?: number;
+	};
 };
 
 /**
@@ -440,6 +457,8 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
+	heatmapChart: Omit< Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >, 'primaryColor' > &
+		Pick< NonNullable< ChartTheme[ 'heatmapChart' ] >, 'primaryColor' >;
 };
 
 export type AxisOptions = {

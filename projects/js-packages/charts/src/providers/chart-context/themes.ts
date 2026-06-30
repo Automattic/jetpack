@@ -81,6 +81,15 @@ const defaultTheme: CompleteChartTheme = {
 		margin: { top: 2, right: 2, bottom: 2, left: 2 },
 		strokeWidth: 1.5,
 	},
+	// Cell gap/radius/value-size and the selection ring come from WPDS tokens in CSS.
+	// `primaryColor` is intentionally unset so it falls back to the palette's `colors[0]`,
+	// matching how leaderboardChart resolves its primary (the prop and a theme override still
+	// win). The compact 11px square / 2px gap is the contribution-graph rhythm, which doesn't
+	// map to a WPDS dimension. Override via GlobalChartsProvider.
+	heatmapChart: {
+		compactCellGap: 2,
+		compactCellSize: 11,
+	},
 };
 
 export { defaultTheme };
