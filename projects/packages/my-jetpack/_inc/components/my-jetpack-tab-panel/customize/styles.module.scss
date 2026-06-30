@@ -2,14 +2,40 @@
 
 .customize {
 	max-width: 920px;
+	padding-block-end: 4rem;
 }
 
 .header {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: space-between;
 	gap: 16px;
 	margin-block-end: 24px;
+}
+
+.intro {
+
+	@include gb.body-medium;
+	max-width: 640px;
+	margin: 0;
+	color: #{gb.$gray-700};
+}
+
+.settings-card {
+
+	&:global(.components-card) {
+		box-shadow: none;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: var(--jp-border-radius-rna);
+	}
+
+	div[data-wp-component="CardBody"] {
+		padding: 24px;
+
+		@media ( max-width: gb.$break-medium ) {
+			padding: 16px;
+		}
+	}
 }
 
 .fieldset-stack {

@@ -1,6 +1,8 @@
 import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
+	Card,
+	CardBody,
 	Notice,
 	SelectControl,
 	Spinner,
@@ -482,7 +484,15 @@ export function CustomizeContent() {
 	return (
 		<div className={ styles.customize }>
 			<div className={ styles.header }>
-				<h2>{ __( 'Customize', 'jetpack-my-jetpack' ) }</h2>
+				<div>
+					<h2>{ __( 'Customize', 'jetpack-my-jetpack' ) }</h2>
+					<p className={ styles.intro }>
+						{ __(
+							'Choose how Jetpack appears in your WordPress admin menu.',
+							'jetpack-my-jetpack'
+						) }
+					</p>
+				</div>
 				{ isLoading && <Spinner /> }
 			</div>
 
@@ -492,75 +502,88 @@ export function CustomizeContent() {
 				</Notice>
 			) }
 
-			<div className={ styles[ 'fieldset-stack' ] }>
-				{ userIsAdmin && (
-					<fieldset className={ styles.fieldset }>
-						<legend className={ styles.legend }>{ __( 'Defaults', 'jetpack-my-jetpack' ) }</legend>
-						<p className={ styles.description }>
-							{ __( 'Set the shared Jetpack menu defaults for this site.', 'jetpack-my-jetpack' ) }
-						</p>
-						<ToggleControl
-							label={ __( 'Recommended menu', 'jetpack-my-jetpack' ) }
-							checked={ enabled }
-							onChange={ setEnabled }
-						/>
-						<div className={ styles[ 'group-grid' ] }>
-							{ visibleGroups.map( group => (
-								<GroupLabelControl key={ group.id } group={ group } onChange={ updateGroupLabel } />
-							) ) }
-						</div>
-					</fieldset>
-				) }
-
-				<fieldset className={ styles.fieldset }>
-					<legend className={ styles.legend }>{ __( 'Menu', 'jetpack-my-jetpack' ) }</legend>
-					<p className={ styles.description }>
-						{ __(
-							'Choose which Jetpack items appear, where they belong, and their order.',
-							'jetpack-my-jetpack'
+			<Card className={ styles[ 'settings-card' ] }>
+				<CardBody>
+					<div className={ styles[ 'fieldset-stack' ] }>
+						{ userIsAdmin && (
+							<fieldset className={ styles.fieldset }>
+								<legend className={ styles.legend }>
+									{ __( 'Defaults', 'jetpack-my-jetpack' ) }
+								</legend>
+								<p className={ styles.description }>
+									{ __(
+										'Set the shared Jetpack menu defaults for this site.',
+										'jetpack-my-jetpack'
+									) }
+								</p>
+								<ToggleControl
+									label={ __( 'Recommended menu', 'jetpack-my-jetpack' ) }
+									checked={ enabled }
+									onChange={ setEnabled }
+								/>
+								<div className={ styles[ 'group-grid' ] }>
+									{ visibleGroups.map( group => (
+										<GroupLabelControl
+											key={ group.id }
+											group={ group }
+											onChange={ updateGroupLabel }
+										/>
+									) ) }
+								</div>
+							</fieldset>
 						) }
-					</p>
-					<div className={ styles[ 'item-list' ] } ref={ itemListRef }>
-						{ orderedItems.map( ( item, index ) => (
-							<MenuItemRow
-								key={ item.id }
-								groupOptions={ groupOptions }
-								index={ index }
-								isLast={ index === orderedItems.length - 1 }
-								item={ item }
-								onMove={ moveItem }
-								onUpdate={ updateItem }
-							/>
-						) ) }
-					</div>
-				</fieldset>
-			</div>
 
-			<div className={ styles.actions }>
-				<Button
-					variant="primary"
-					isBusy={ isSaving }
-					disabled={ isSaving }
-					onClick={ savePersonalLayout }
-				>
-					{ __( 'Save my menu', 'jetpack-my-jetpack' ) }
-				</Button>
-				{ userIsAdmin && (
-					<>
+						<fieldset className={ styles.fieldset }>
+							<legend className={ styles.legend }>{ __( 'Menu', 'jetpack-my-jetpack' ) }</legend>
+							<p className={ styles.description }>
+								{ __(
+									'Choose which Jetpack items appear, where they belong, and their order.',
+									'jetpack-my-jetpack'
+								) }
+							</p>
+							<div className={ styles[ 'item-list' ] } ref={ itemListRef }>
+								{ orderedItems.map( ( item, index ) => (
+									<MenuItemRow
+										key={ item.id }
+										groupOptions={ groupOptions }
+										index={ index }
+										isLast={ index === orderedItems.length - 1 }
+										item={ item }
+										onMove={ moveItem }
+										onUpdate={ updateItem }
+									/>
+								) ) }
+							</div>
+						</fieldset>
+					</div>
+
+					<div className={ styles.actions }>
 						<Button
-							variant="secondary"
+							variant="primary"
 							isBusy={ isSaving }
 							disabled={ isSaving }
-							onClick={ saveSiteLayout }
+							onClick={ savePersonalLayout }
 						>
-							{ __( 'Save defaults', 'jetpack-my-jetpack' ) }
+							{ __( 'Save my menu', 'jetpack-my-jetpack' ) }
 						</Button>
-						<Button variant="tertiary" disabled={ isSaving } onClick={ useLegacyMenu }>
-							{ __( 'Use legacy menu', 'jetpack-my-jetpack' ) }
-						</Button>
-					</>
-				) }
-			</div>
+						{ userIsAdmin && (
+							<>
+								<Button
+									variant="secondary"
+									isBusy={ isSaving }
+									disabled={ isSaving }
+									onClick={ saveSiteLayout }
+								>
+									{ __( 'Save defaults', 'jetpack-my-jetpack' ) }
+								</Button>
+								<Button variant="tertiary" disabled={ isSaving } onClick={ useLegacyMenu }>
+									{ __( 'Use legacy menu', 'jetpack-my-jetpack' ) }
+								</Button>
+							</>
+						) }
+					</div>
+				</CardBody>
+			</Card>
 		</div>
 	);
 }
