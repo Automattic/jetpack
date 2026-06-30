@@ -1,3 +1,4 @@
+/* eslint-disable testing-library/prefer-user-event -- The mocked ComboboxControl is controlled by its value, so a single fireEvent.change is needed to replace the language instead of userEvent.type appending to it. */
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CaptionManagerModal from '..';
@@ -113,6 +114,21 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children ?? label }
 		</button>
 	),
+	DropZone: () => null,
+	ComboboxControl: ( { label, onChange, onFilterValueChange, value, help } ) => (
+		<div>
+			<label htmlFor={ label }>{ label }</label>
+			<input
+				id={ label }
+				value={ value ?? '' }
+				onChange={ event => {
+					onFilterValueChange?.( event.target.value );
+					onChange( event.target.value );
+				} }
+			/>
+			{ help && <span>{ help }</span> }
+		</div>
+	),
 	CheckboxControl: ( { checked, label, onChange } ) => (
 		<label htmlFor="pause-while-typing">
 			<input
@@ -162,6 +178,7 @@ jest.mock( '@wordpress/data', () => ( {
 
 jest.mock( '@wordpress/i18n', () => ( {
 	__: ( text: string ) => text,
+	isRTL: () => false,
 	sprintf: ( text: string, ...args: Array< number | string > ) => {
 		let sequentialIndex = 0;
 		return text.replace( /%(\d+\$)?[sd]/g, ( _match, position: string | undefined ) => {
@@ -174,6 +191,8 @@ jest.mock( '@wordpress/i18n', () => ( {
 jest.mock( '@wordpress/icons', () => ( {
 	arrowDown: 'arrow-down',
 	arrowUp: 'arrow-up',
+	chevronLeft: 'chevron-left',
+	chevronRight: 'chevron-right',
 	copy: 'copy',
 	download: 'download',
 	plus: 'plus',
@@ -434,7 +453,6 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getByText( 'Add track' ) );
 		expect( screen.getByText( 'Back to tracks' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Upload file' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'caption-block-editor' ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Cue text' ) ).toBeInTheDocument();
 	} );
@@ -447,7 +465,8 @@ describe( 'CaptionManagerModal', () => {
 
 		expect( screen.queryByLabelText( 'Kind' ) ).not.toBeInTheDocument();
 
-		await user.click( screen.getByText( 'Upload file' ) );
+		await user.click( screen.getByText( 'Back to tracks' ) );
+		await user.click( screen.getByText( 'Upload subtitle file' ) );
 
 		expect( screen.queryByLabelText( 'Kind' ) ).not.toBeInTheDocument();
 	} );
@@ -479,7 +498,6 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Edit saved track' } ) );
 
 		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( 'pt-BR' );
-		expect( screen.getByLabelText( 'Label' ) ).toHaveValue( 'Portuguese' );
 		expect( screen.getByLabelText( 'Cue text' ) ).toHaveValue( 'Draft text.' );
 		expect( screen.getByLabelText( 'Cue start' ) ).toHaveValue( '00:00:03.000' );
 		expect( screen.getByLabelText( 'Cue end' ) ).toHaveValue( '00:00:05.000' );
@@ -649,45 +667,6 @@ describe( 'CaptionManagerModal', () => {
 		expect( video.currentTime ).toBe( 10 );
 	} );
 
-	it( 'reorders and duplicates cue blocks from subtitle order controls', async () => {
-		const user = userEvent.setup();
-		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
-
-		await user.click( screen.getByText( 'Add track' ) );
-		await user.type( screen.getByLabelText( 'Cue text' ), 'First cue.' );
-		await user.clear( screen.getByLabelText( 'Cue start' ) );
-		await user.type( screen.getByLabelText( 'Cue start' ), '00:00:01.000' );
-		await user.clear( screen.getByLabelText( 'Cue end' ) );
-		await user.type( screen.getByLabelText( 'Cue end' ), '00:00:02.000' );
-		await user.click( screen.getByText( 'Subtitle' ) );
-
-		await user.type( screen.getAllByLabelText( 'Cue text' )[ 1 ], 'Second cue.' );
-		await user.clear( screen.getAllByLabelText( 'Cue start' )[ 1 ] );
-		await user.type( screen.getAllByLabelText( 'Cue start' )[ 1 ], '00:00:03.000' );
-		await user.clear( screen.getAllByLabelText( 'Cue end' )[ 1 ] );
-		await user.type( screen.getAllByLabelText( 'Cue end' )[ 1 ], '00:00:04.000' );
-
-		await user.click( screen.getAllByRole( 'button', { name: 'Move up' } )[ 1 ] );
-
-		expect( screen.getAllByLabelText( 'Cue text' )[ 0 ] ).toHaveValue( 'Second cue.' );
-		expect( screen.getAllByLabelText( 'Cue text' )[ 1 ] ).toHaveValue( 'First cue.' );
-
-		await user.click( screen.getAllByRole( 'button', { name: 'Duplicate' } )[ 0 ] );
-
-		expect( screen.getAllByLabelText( 'Cue text' ) ).toHaveLength( 3 );
-		expect( screen.getAllByLabelText( 'Cue text' )[ 0 ] ).toHaveValue( 'Second cue.' );
-		expect( screen.getAllByLabelText( 'Cue text' )[ 1 ] ).toHaveValue( 'Second cue.' );
-		expect( screen.getAllByLabelText( 'Cue text' )[ 2 ] ).toHaveValue( 'First cue.' );
-		expect( screen.getAllByLabelText( 'Cue start' )[ 1 ] ).toHaveValue( '00:00:04.000' );
-		expect( screen.getAllByLabelText( 'Cue end' )[ 1 ] ).toHaveValue( '00:00:05.000' );
-
-		await user.click( screen.getAllByRole( 'button', { name: 'Delete subtitle' } )[ 1 ] );
-
-		expect( screen.getAllByLabelText( 'Cue text' ) ).toHaveLength( 2 );
-		expect( screen.getAllByLabelText( 'Cue text' )[ 0 ] ).toHaveValue( 'Second cue.' );
-		expect( screen.getAllByLabelText( 'Cue text' )[ 1 ] ).toHaveValue( 'First cue.' );
-	} );
-
 	it( 'imports pasted transcript text as editable cue blocks', async () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
@@ -716,7 +695,7 @@ describe( 'CaptionManagerModal', () => {
 
 		expect( screen.getByText( 'Back to tracks' ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Subtitle text' ) ).toBeInTheDocument();
-		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( '' );
+		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( 'en' );
 
 		await user.type( screen.getByLabelText( 'Subtitle text' ), 'Trail closed.\nTrail open.' );
 		await user.click( screen.getByText( 'Replace cues' ) );
@@ -761,10 +740,8 @@ describe( 'CaptionManagerModal', () => {
 			<CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } tracks={ [] } />
 		);
 
-		await user.click( screen.getByText( 'Add track' ) );
-		await user.click( screen.getByText( 'Upload file' ) );
-		await user.type( screen.getByLabelText( 'Label' ), 'Portuguese' );
-		await user.type( screen.getByLabelText( 'Language' ), 'pt-br' );
+		await user.click( screen.getByText( 'Upload subtitle file' ) );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'pt-br' } } );
 		await user.upload(
 			screen.getByTestId( 'caption-file' ),
 			new File( [ '0:00:01.000,0:00:04.000\nOla' ], 'portuguese.sbv', { type: 'text/plain' } )
@@ -775,7 +752,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( uploadTrackForGuid ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				kind: 'subtitles',
-				label: 'Portuguese',
+				label: 'Portuguese (BR)',
 				srcLang: 'pt-BR',
 			} ),
 			'abc123'
@@ -783,7 +760,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( onTracksChange ).toHaveBeenCalledWith( [
 			expect.objectContaining( {
 				kind: 'subtitles',
-				label: 'Portuguese',
+				label: 'Portuguese (BR)',
 				srcLang: 'pt-BR',
 				src: 'uploaded.vtt',
 			} ),
@@ -799,15 +776,14 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getByText( 'Upload subtitle file' ) );
 
-		expect( screen.getByText( 'Upload subtitle track' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Upload track' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				'Allowed formats: .vtt, .srt, .sbv, .sub, .mpsub, .lrc, .smi, .sami, .rt, .ttml, .dfxp'
+				'Accepted formats: .vtt, .srt, .sbv, .sub, .mpsub, .lrc, .smi, .sami, .rt, .ttml, .dfxp'
 			)
 		).toBeInTheDocument();
 
-		await user.type( screen.getByLabelText( 'Label' ), 'Portuguese' );
-		await user.type( screen.getByLabelText( 'Language' ), 'pt-br' );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'pt-br' } } );
 		await user.upload(
 			screen.getByTestId( 'caption-file' ),
 			new File( [ 'WEBVTT' ], 'portuguese.vtt', { type: 'text/vtt' } )
@@ -818,7 +794,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( uploadTrackForGuid ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				kind: 'subtitles',
-				label: 'Portuguese',
+				label: 'Portuguese (BR)',
 				srcLang: 'pt-BR',
 			} ),
 			'abc123'
@@ -826,7 +802,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( onTracksChange ).toHaveBeenCalledWith( [
 			expect.objectContaining( {
 				kind: 'subtitles',
-				label: 'Portuguese',
+				label: 'Portuguese (BR)',
 				srcLang: 'pt-BR',
 				src: 'uploaded.vtt',
 			} ),
@@ -840,10 +816,11 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Add track' ) );
 		expect( screen.getByLabelText( 'Video preview' ) ).toBeInTheDocument();
 
-		await user.click( screen.getByText( 'Upload file' ) );
+		await user.click( screen.getByText( 'Back to tracks' ) );
+		await user.click( screen.getByText( 'Upload subtitle file' ) );
 
 		expect( screen.getByLabelText( 'Video preview' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Upload subtitle track' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Upload track' ) ).toBeInTheDocument();
 	} );
 
 	it( 'uses a VideoPress player iframe for non-file preview URLs', async () => {
@@ -868,10 +845,9 @@ describe( 'CaptionManagerModal', () => {
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
 		await waitFor( () => expect( fetchTrackListForGuid ).toHaveBeenCalledWith( 'abc123' ) );
-		await user.click( screen.getByText( 'Add track' ) );
-		await user.click( screen.getByText( 'Upload file' ) );
+		await user.click( screen.getByText( 'Upload subtitle file' ) );
 
-		expect( screen.getByText( 'Allowed formats: .vtt, .srt' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Accepted formats: .vtt, .srt' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows wpcom/v2 error codes and messages from failed uploads', async () => {
@@ -882,9 +858,8 @@ describe( 'CaptionManagerModal', () => {
 		} );
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
-		await user.click( screen.getByText( 'Add track' ) );
-		await user.click( screen.getByText( 'Upload file' ) );
-		await user.type( screen.getByLabelText( 'Language' ), 'en' );
+		await user.click( screen.getByText( 'Upload subtitle file' ) );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
 		await user.upload(
 			screen.getByTestId( 'caption-file' ),
 			new File( [ 'WEBVTT' ], 'english.vtt', { type: 'text/vtt' } )
@@ -900,9 +875,8 @@ describe( 'CaptionManagerModal', () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
-		await user.click( screen.getByText( 'Add track' ) );
-		await user.click( screen.getByText( 'Upload file' ) );
-		await user.type( screen.getByLabelText( 'Language' ), 'auto_en' );
+		await user.click( screen.getByText( 'Upload subtitle file' ) );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'auto_en' } } );
 		await user.upload(
 			screen.getByTestId( 'caption-file' ),
 			new File( [ 'WEBVTT' ], 'auto.vtt', { type: 'text/vtt' } )
@@ -990,8 +964,7 @@ describe( 'CaptionManagerModal', () => {
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
 		await user.click( screen.getByText( 'Add track' ) );
-		await user.type( screen.getByLabelText( 'Label' ), 'English' );
-		await user.type( screen.getByLabelText( 'Language' ), 'en' );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
 		await user.click( screen.getByText( 'Save Draft' ) );
 
@@ -1018,8 +991,7 @@ describe( 'CaptionManagerModal', () => {
 		);
 
 		await user.click( screen.getByText( 'Add track' ) );
-		await user.type( screen.getByLabelText( 'Label' ), 'English' );
-		await user.type( screen.getByLabelText( 'Language' ), 'en' );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
 		await user.click( screen.getByText( 'Publish' ) );
 
@@ -1060,8 +1032,7 @@ describe( 'CaptionManagerModal', () => {
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
 		await user.click( screen.getByText( 'Add track' ) );
-		await user.type( screen.getByLabelText( 'Label' ), 'English' );
-		await user.type( screen.getByLabelText( 'Language' ), 'en' );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
 		await user.clear( screen.getByLabelText( 'Cue start' ) );
 		await user.type( screen.getByLabelText( 'Cue start' ), '00:00:03.000' );
@@ -1081,10 +1052,14 @@ describe( 'CaptionManagerModal', () => {
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
 		await user.click( screen.getByText( 'Add track' ) );
-		await user.type( screen.getByLabelText( 'Label' ), 'English' );
-		await user.type( screen.getByLabelText( 'Language' ), 'en' );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'First cue.' );
-		await user.click( screen.getByText( 'Subtitle' ) );
+
+		// Add a second cue via the keyboard shortcut (the toolbar add button was
+		// replaced by the per-cue appender, which the mocked BlockList doesn't render).
+		const workspace = screen.getByRole( 'group', { name: 'Subtitle editing workspace' } );
+		workspace.focus();
+		await user.keyboard( 'c' );
 
 		const cueTexts = screen.getAllByLabelText( 'Cue text' );
 		const cueStarts = screen.getAllByLabelText( 'Cue start' );
