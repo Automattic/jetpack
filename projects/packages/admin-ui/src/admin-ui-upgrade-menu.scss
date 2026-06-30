@@ -1,33 +1,34 @@
-@use '@automattic/jetpack-base-styles/root-variables';
+@use "@automattic/jetpack-base-styles/root-variables";
 
 // Keep the slug in sync with `UPGRADE_MENU_SLUG` at class-admin-menu.php
 #adminmenu li.jetpack-wpadmin-sidebar-free-plan-upsell-menu-item > a {
+
 	&,
 	&:hover {
-		background: var( --jp-green-40 ) !important;
-		border-radius: var( --jp-border-radius ) !important;
+		background: var(--jp-green-40) !important;
+		border-radius: var(--jp-border-radius) !important;
 		box-shadow: none !important;
-		color: var( --jp-white ) !important;
+		color: var(--jp-white) !important;
 		margin: 2px 4px;
 		text-align: center;
 		text-wrap: balance;
 	}
 
 	&:hover {
-		background: var( --jp-green-30 ) !important;
+		background: var(--jp-green-30) !important;
 	}
 }
 
 #adminmenu .wp-submenu li.jetpack-admin-menu-group-start > a {
 	margin-block-start: 8px;
 	padding-block-start: 8px;
-	border-block-start: 1px solid rgba( 240, 246, 252, 0.16 );
+	border-block-start: 1px solid rgba(240, 246, 252, 0.16);
 }
 
 #adminmenu .wp-submenu li.jetpack-admin-menu-group-start .jetpack-admin-menu-group-label {
 	display: block;
-	margin-block-end: 2px;
-	color: rgba( 240, 246, 252, 0.72 );
+	margin-block-end: 6px;
+	color: rgba(240, 246, 252, 0.72);
 	font-size: 10px;
 	font-weight: 600;
 	line-height: 1.2;
