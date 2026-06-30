@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add WooCommerce Analytics CSV report export (test port, gated on WooCommerce active and Jetpack connected)

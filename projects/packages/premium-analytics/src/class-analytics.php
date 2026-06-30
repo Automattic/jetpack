@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -113,6 +114,10 @@ class Analytics {
 				)
 			);
 		}
+
+		// Local-only test port (WOOA7S-1581): bring over the WooCommerce Analytics CSV report
+		// export pipeline, registered only when WooCommerce is active and Jetpack is connected.
+		Export::configure();
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
