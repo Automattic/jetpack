@@ -116,4 +116,13 @@ describe( 'buildTopAuthorsData', () => {
 		const bob = result.find( author => author.label === 'Bob' );
 		expect( bob ).toMatchObject( { previousValue: 0, delta: 100 } );
 	} );
+
+	it( 'localizes the untracked-authors sentinel produced by the sanitizer', () => {
+		const result = buildTopAuthorsData(
+			makeReport( [ { label: 'Untracked Authors', views: 5 } ] ),
+			undefined
+		);
+
+		expect( result[ 0 ].label ).toBe( 'Untracked authors' );
+	} );
 } );
