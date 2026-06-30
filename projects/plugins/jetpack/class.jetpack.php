@@ -784,8 +784,6 @@ class Jetpack {
 				'sync',
 				'account_protection',
 				'waf',
-				'stats',
-				'stats_admin',
 				'import',
 			)
 			as $feature
@@ -797,6 +795,57 @@ class Jetpack {
 		// Jetpack plugin, mirroring the standalone Jetpack VideoPress plugin. The page only
 		// renders when the VideoPress module is active (Status::is_active()).
 		$config->ensure( 'videopress', array( 'admin_ui' => true ) );
+
+		/*
+		 * The Stats and Stats Admin packages only do work when the Stats module
+		 * is active (the front-end tracking pixel) or on wp-admin, REST, cron,
+		 * POST, and WP-CLI requests: the Stats dashboard page, the stats /
+		 * stats-app REST endpoints (which the block editor also calls for
+		 * email-open rates), the transient-cleanup cron, the connection
+		 * package's package-version tracker (which runs on POSTs and reads the
+		 * `jetpack_package_versions` filter that Stats registers), and CLI
+		 * introspection such as the heartbeat inspector. On a plain front-end
+		 * GET page view with the module off they are inert: the pixel
+		 * short-circuits on `Stats\Main::should_track()` and every other entry
+		 * point only hooks rest_api_init, admin, cron, the POST-only tracker, or
+		 * is reached through WP-CLI.
+		 * Skip loading them — and eagerly constructing the Stats Admin REST
+		 * controller — on that hot path to keep their PHP out of opcache, but
+		 * keep loading them everywhere else exactly as before so the stats REST
+		 * permission mapping (view_stats, registered by Stats\Main), the
+		 * editor's stats-app calls, the cleanup cron, and the package-version
+		 * tracker are all unchanged.
+		 *
+		 * REST requests are not yet identifiable here (REST_REQUEST is defined
+		 * after plugins_loaded), so defer those to rest_api_init. Call the
+		 * package initializers directly rather than `$config->ensure()`: ensure()
+		 * only flags a feature for `Config::on_plugins_loaded()` (plugins_loaded
+		 * priority 2), which has already run by the time rest_api_init fires.
+		 * Priority 0 runs before each package's own priority-10 route
+		 * registration, so their routes still register within the same dispatch.
+		 * A plain page view never fires rest_api_init, so the packages stay
+		 * unloaded there. See JETPACK-1747.
+		 */
+		$is_post_request = isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'];
+		$is_wp_cli       = defined( 'WP_CLI' ) && WP_CLI;
+
+		if ( self::is_module_active( 'stats' ) || is_admin() || wp_doing_cron() || $is_post_request || $is_wp_cli ) {
+			$config->ensure( 'stats' );
+			$config->ensure( 'stats_admin' );
+		} else {
+			add_action(
+				'rest_api_init',
+				static function () {
+					if ( class_exists( 'Automattic\Jetpack\Stats\Main' ) ) {
+						\Automattic\Jetpack\Stats\Main::init();
+					}
+					if ( class_exists( 'Automattic\Jetpack\Stats_Admin\Main' ) ) {
+						\Automattic\Jetpack\Stats_Admin\Main::init();
+					}
+				},
+				0
+			);
+		}
 
 		$config->ensure(
 			'connection',
