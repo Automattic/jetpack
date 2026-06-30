@@ -17,16 +17,12 @@ interface Props {
 }
 
 /**
- * Resolve the action-specific label for a task's primary CTA. A static,
- * translatable map keyed first by task id (the most specific) then by
- * {@link ctaKind} (the behavioral class), falling back to a generic
- * "Get started" so a task with no entry still gets a sensible button.
+ * Resolve the action-specific label for a task's primary CTA, keyed first by task
+ * id then by {@link ctaKind}, falling back to a generic "Get started".
  *
- * The map lives here rather than in `model.ts` because the labels must be
- * `__()` literals (so they're extracted for translation) and `model.ts` is
- * intentionally free of `@wordpress/*` imports so its node:test suite runs.
- * Labels are AI-independent on purpose — AI output is English-only today
- * (DOTOBRD-474), so deriving labels from it would regress i18n.
+ * The map lives here rather than in `model.ts` because the labels must be `__()`
+ * literals for translation extraction, and `model.ts` is kept free of
+ * `@wordpress/*` imports so its node:test suite runs.
  *
  * @param taskId - The catalog task id.
  * @return The translated CTA label.
@@ -43,8 +39,8 @@ function getCtaLabel( taskId: string ): string {
 			return __( 'Set up payments', 'jetpack-mu-wpcom' );
 		case 'connect_social_media':
 			return __( 'Connect socials', 'jetpack-mu-wpcom' );
-		// Both the AI-selectable catalog id and the deterministic fallback id for
-		// growing a subscriber list, so the label holds on the fallback path too.
+		// Both the AI-selectable id and the deterministic fallback id, so the label
+		// holds on the fallback path too.
 		case 'subscribers_added':
 		case 'add_10_email_subscribers':
 			return __( 'Add subscribers', 'jetpack-mu-wpcom' );
@@ -63,14 +59,10 @@ function getCtaLabel( taskId: string ): string {
 }
 
 /**
- * A single task in the tailored list. Completed tasks render as a plain card
- * with a struck-through title and a check-in-circle icon, and aren't expandable.
- * Incomplete tasks render as a `CollapsibleCard` (dashed-circle icon + title in
- * the always-visible header, which is the toggle trigger); expanding reveals the
- * AI subtitle and the action-specific CTA / "Skip" actions.
- *
- * Open state is controlled by the parent so the list behaves as an accordion:
- * only one card is open at a time.
+ * A single task in the tailored list. Completed tasks render as a plain card with
+ * a struck-through title and aren't expandable. Incomplete tasks render as a
+ * `CollapsibleCard` that expands to reveal the subtitle and the CTA / "Skip"
+ * actions. Open state is controlled by the parent so the list acts as an accordion.
  *
  * @param props                 - The component props.
  * @param props.task            - The enriched task to render.

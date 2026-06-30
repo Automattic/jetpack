@@ -4,29 +4,19 @@ import { Button } from '@wordpress/ui';
 import type { ReactNode } from 'react';
 
 interface Props {
-	// The site's front-end URL, from the composite read. When absent (older
-	// reads, dev fixtures) the preview is omitted entirely.
+	// The site's front-end URL. When absent the preview is omitted entirely.
 	siteUrl: string | null;
 	// The site name; falls back to the domain when absent.
 	siteTitle?: string | null;
-	// The site's appearance-editor URL (Site Editor on block themes, Customizer on
-	// classic ones). When present the thumbnail becomes a quick link; when absent
-	// it renders as a plain thumbnail.
+	// The appearance-editor URL. When present the thumbnail becomes a quick link.
 	siteEditUrl?: string | null;
 }
 
 /**
- * The site-preview card shown to the right of the tailored list: a live,
- * scaled-down preview of the site's front end, the site name, and a link to the
- * site. The preview is a non-interactive iframe of the front end with the
- * banners/overlay hidden, mirroring the wp-admin dashboard's site-management
- * widget — it renders immediately rather than waiting on an mShots screenshot.
- * When an editor URL is known the thumbnail doubles as a quick link into the
- * site's appearance editor — the Site Editor on block themes, the Customizer on
- * classic ones — with a hover "Edit site" overlay, matching the PoC affordance.
- * Rendered in both the loading and loaded states so the layout is stable across
- * the wizard→tailoring→list transition. Returns nothing when the site URL is
- * unknown (e.g. dev fixtures), so the list still renders without it.
+ * The site-preview card shown to the right of the tailored list: a scaled-down
+ * iframe of the site's front end, the site name, and a link to the site. When an
+ * editor URL is known the thumbnail doubles as a quick link with a hover "Edit
+ * site" overlay. Returns null when the site URL is unknown.
  *
  * @param props             - Component props.
  * @param props.siteUrl     - The site's front-end URL.
@@ -56,9 +46,8 @@ export function SitePreview( { siteUrl, siteTitle, siteEditUrl }: Props ) {
 		/>
 	);
 
-	// With a known editor URL the thumbnail reveals a centered "Edit site" button
-	// (a WPDS Button rendered as a link) on hover/focus; otherwise it stays a
-	// plain, non-interactive thumbnail.
+	// With a known editor URL the thumbnail reveals an "Edit site" button on
+	// hover/focus; otherwise it stays a plain thumbnail.
 	let frame: ReactNode;
 	if ( siteEditUrl ) {
 		frame = (

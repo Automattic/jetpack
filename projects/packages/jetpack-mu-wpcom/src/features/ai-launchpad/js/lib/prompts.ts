@@ -1,9 +1,8 @@
 import type { WizardInput } from './types.ts';
 
 /**
- * Allowed task IDs the model may pick from. Snake_case catalog IDs drawn from
- * launchpad-task-definitions.php (verified 2026-06-02). A PHP test
- * (AI_Launchpad_Task_Menu_Test) guards this list against catalog drift.
+ * Allowed task IDs the model may pick from, drawn from the catalog. A PHP test
+ * guards this list against catalog drift.
  */
 export const TASK_MENU: readonly string[] = [
 	'first_post_published',
@@ -61,17 +60,9 @@ export const TASK_MENU: readonly string[] = [
 ];
 
 /**
- * Build the single combined prompt sent to jetpack-ai-query. Produces three
- * parts in one JSON response, in inference-first order: an inferred-context
- * blob, a relevance-ranked task list, and a starter blog post draft.
- *
- * The model infers the site's niche/audience FIRST, then selects the 6 most
- * relevant tasks from the menu (ranked against the user's own words rather than
- * a fixed per-goal template) and writes a specific subtitle for each. Emitting
- * `inferred` before `tasks` grounds selection in the niche without a second
- * call. English only (v1; i18n tracked in DOTOBRD-474). Hard rules mirror the
- * server-side validation in class-ai-launchpad-rest.php (launch task last,
- * woo/newsletter gating, subtitle sanitization) so valid output is not rejected.
+ * Build the single combined prompt sent to jetpack-ai-query, producing the
+ * inferred blob, task list, and first-post draft in one JSON response. Hard rules
+ * mirror the server-side validation so valid output is not rejected.
  *
  * @param input - The collected wizard input.
  * @return The prompt string.

@@ -9,9 +9,6 @@ if ( ! function_exists( 'wpcom_ai_launchpad_get_ai_task_ids' ) ) {
 	/**
 	 * The AI-selected task IDs from the `wpcom_ai_launchpad_ai_output` option.
 	 *
-	 * The single reader of the option's task list, shared by the completion
-	 * listeners and the theme listener.
-	 *
 	 * @return string[] Task IDs, empty when the option is unset or malformed.
 	 */
 	function wpcom_ai_launchpad_get_ai_task_ids() {

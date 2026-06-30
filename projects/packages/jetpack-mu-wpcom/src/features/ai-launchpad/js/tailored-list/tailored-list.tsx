@@ -31,38 +31,26 @@ function navigate( url: string ): void {
 }
 
 interface Props {
-	// When the host transitions here straight from the wizard, the AI tailoring
-	// is still in flight and its PUT /tailored has not necessarily landed. The
-	// host passes the tailor promise so the list waits for it to settle before
-	// reading GET /ai-launchpad — otherwise the GET races the PUT and returns an
-	// empty task list. While awaiting, the skeleton shows. Its resolved result is
-	// also used as a local fallback when the read yields nothing (e.g. the
-	// fallback PUT failed). Omitted for returning users, where output is persisted.
+	// In-flight tailor promise on the wizard→list path. The list waits for it to
+	// settle before reading GET /ai-launchpad, otherwise the GET races the PUT and
+	// returns an empty list. Its resolved result is a local fallback when the read
+	// yields nothing. Omitted for returning users.
 	pendingTailor?: Promise< TailorResult >;
 
-	// Returning users: the host already fetched the composite read to decide the
-	// view, so it hands the data down here to avoid fetching the same expensive
-	// endpoint a second time. Omitted on the wizard→list path.
+	// The composite read the host already fetched, to avoid refetching the same
+	// endpoint. Omitted on the wizard→list path.
 	initialData?: LaunchpadData;
 
-	// Site context (URL + title) for the preview card. The host always has this
-	// from its initial composite read, so it's passed on the wizard→list path too
-	// — that lets the loading skeleton show the preview before the tailored read
-	// lands. The fetched/initialData site (when present) takes precedence.
+	// Site context for the preview card, passed on the wizard→list path too so the
+	// skeleton can show the preview. The fetched site takes precedence.
 	site?: SiteData;
 }
 
 /**
  * The tailored launchpad list: task cards rendered from the AI output inside a
- * centered layout with a heading, "X of N completed" progress, and a site
- * preview. The first incomplete task auto-expands; each task offers an
- * action-specific CTA and "Skip". While the AI output is loading, the same
- * layout is shown with a shimmering skeleton and "Tailoring your checklist…".
- *
- * Titles, completion state, and deeplink paths come from Stream B's
- * `GET /ai-launchpad/`; subtitles come from the AI. In dev mode the list
- * renders from a committed fixture so it can be worked on before the AI call
- * exists.
+ * layout with a heading, "X of N completed" progress, and a site preview. The
+ * first incomplete task auto-expands; each task offers an action-specific CTA and
+ * "Skip". While loading, a skeleton is shown in the same layout.
  *
  * @param props               - Component props.
  * @param props.pendingTailor - In-flight tailor call to await before fetching.
@@ -71,29 +59,24 @@ interface Props {
  * @return The tailored-list element.
  */
 export function TailoredList( { pendingTailor, initialData, site }: Props = {} ) {
-	// Returning users arrive with the composite read already done, so seed straight
-	// from it — otherwise the first frame shows the "Tailoring…" loading copy before
-	// the effect runs. The wizard→list path has no initialData and starts as loading.
+	// Returning users seed straight from initialData so the first frame isn't the
+	// loading copy. The wizard→list path has no initialData and starts as loading.
 	const [ tasks, setTasks ] = useState< EnrichedTask[] | null >( () => initialData?.tasks ?? null );
 	const [ output, setOutput ] = useState< TailoredOutput | null >(
 		() => initialData?.ai_output?.payload ?? null
 	);
 	const [ skippedIds, setSkippedIds ] = useState< Set< string > >( () => new Set() );
 	const [ busyId, setBusyId ] = useState< string | null >( null );
-	// The single expanded card (accordion: only one open at a time). Seeded to the
-	// first incomplete task for returning users (initialData present on first
-	// render); the wizard→list path has no tasks yet, so the load effect opens it
-	// once the read lands. `null` means every card is collapsed — a state the user
-	// can reach by toggling the open card shut, which must not auto-reopen.
+	// The single expanded card (accordion: only one open at a time). `null` means
+	// every card is collapsed — a state the user can reach by toggling the open card
+	// shut, which must not auto-reopen.
 	const [ openId, setOpenId ] = useState< string | null >( () =>
 		initialData?.tasks ? nextIncompleteId( initialData.tasks ) : null
 	);
 	// Guards the one-time auto-open so the load effect doesn't fight a user who has
-	// collapsed every card. True already when seeded from initialData above.
+	// collapsed every card.
 	const didAutoOpen = useRef( !! initialData?.tasks );
-	// The site's front-end URL, used to build the launch CTA and the preview
-	// thumbnail; the title labels the preview. Seeded from the read (returning users)
-	// or the host's `site` prop (wizard path, so the skeleton shows the preview),
+	// Seeded from the read (returning users) or the host's `site` prop (wizard path),
 	// then overridden once the read lands.
 	const [ siteUrl, setSiteUrl ] = useState< string | null >(
 		() => initialData?.site?.url ?? site?.url ?? null
@@ -101,15 +84,13 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 	const [ siteTitle, setSiteTitle ] = useState< string | null >(
 		() => initialData?.site?.title ?? site?.title ?? null
 	);
-	// The wp-admin Site Editor URL: the preview thumbnail's quick link. Same
-	// seeding story as siteUrl/siteTitle; null on classic themes.
+	// The Site Editor URL: the preview thumbnail's quick link; null on classic themes.
 	const [ siteEditUrl, setSiteEditUrl ] = useState< string | null >(
 		() => initialData?.site?.edit_url ?? site?.edit_url ?? null
 	);
 
 	useEffect( () => {
-		// Returning users: render from the data the host already fetched, so the
-		// expensive composite read isn't run a second time.
+		// Returning users: render from the data the host already fetched.
 		if ( initialData ) {
 			setTasks( initialData.tasks );
 			setOutput( initialData.ai_output?.payload ?? null );
@@ -123,9 +104,8 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 
 		let cancelled = false;
 		( async () => {
-			// When arriving from the wizard, wait for the tailor call to settle so
-			// the PUT /tailored has persisted before we read it back. A rejected
-			// tailor still gives us its in-memory output as a local fallback.
+			// Wait for the tailor call to settle so the PUT has persisted before we
+			// read it back. A rejected tailor still gives its in-memory output as a fallback.
 			const result = await Promise.resolve( pendingTailor ).catch( () => undefined );
 
 			let data: LaunchpadData | null = null;
@@ -148,8 +128,7 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 				setTasks( data.tasks );
 				setOutput( data.ai_output?.payload ?? null );
 			} else if ( result?.output ) {
-				// Read returned nothing (e.g. the fallback PUT failed): render the
-				// in-memory result so the user still gets the deterministic list.
+				// Read returned nothing: render the in-memory result instead.
 				setOutput( result.output );
 				setTasks( tasksFromFixture( result.output ) );
 			} else {
@@ -161,9 +140,8 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 		};
 	}, [ pendingTailor, initialData ] );
 
-	// Open the first incomplete card once the tasks first arrive on the
-	// wizard→list path (returning users are seeded synchronously above). Guarded
-	// so it runs only once and never reopens a list the user has collapsed.
+	// Open the first incomplete card once the tasks first arrive on the wizard→list
+	// path. Guarded so it runs only once and never reopens a collapsed list.
 	useEffect( () => {
 		if ( ! didAutoOpen.current && tasks && tasks.length > 0 ) {
 			setOpenId( nextIncompleteId( tasks ) );
@@ -213,11 +191,9 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 				},
 				siteUrl
 			);
-			// Acknowledgment tasks have no completion signal in wp-admin (they
-			// complete only in Calypso), so clicking the CTA is the completion.
-			// Persist it before navigating away (same-tab nav unloads the page,
-			// cancelling an un-awaited request), best-effort so a failed write never
-			// blocks the navigation.
+			// These tasks have no completion signal in wp-admin, so clicking the CTA
+			// is the completion. Persist it before navigating (same-tab nav cancels an
+			// un-awaited request); best-effort so a failed write never blocks navigation.
 			if ( isCompleteOnClickTask( task.id ) ) {
 				await apiFetch( {
 					path: '/wpcom/v2/ai-launchpad/complete-task',
@@ -229,17 +205,15 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 				navigate( url );
 			}
 		} catch {
-			// Swallow: the finally clears busy so a thrown CTA (e.g. a failed
-			// pattern fetch) can't leave the card permanently disabled.
+			// The finally clears busy so a thrown CTA can't leave the card disabled.
 		} finally {
 			setBusyId( null );
 		}
 	};
 
-	// Complete-on-click tasks with no CTA destination (e.g. share_site) can't be
-	// "started", so the card offers "Mark as complete": persist the completion and
-	// flip the card to done in place (no navigation). Only flips on a successful
-	// write so a failed POST doesn't show a completion that reverts on reload.
+	// Complete-on-click tasks with no CTA destination offer "Mark as complete":
+	// persist the completion and flip the card to done in place. Only flips on a
+	// successful write so a failed POST doesn't show a completion that reverts on reload.
 	const handleMarkComplete = async ( task: EnrichedTask ) => {
 		setBusyId( task.id );
 		try {
@@ -253,8 +227,7 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 				prev ? prev.map( t => ( t.id === task.id ? { ...t, completed: true } : t ) ) : prev
 			);
 			// Advance the accordion to the next task, mirroring Skip — otherwise the
-			// just-completed card (now a non-collapsible done card) keeps openId, so
-			// no remaining CollapsibleCard matches and the whole list collapses.
+			// just-completed (now non-collapsible) card keeps openId and the list collapses.
 			const afterComplete = ( tasks ?? [] ).map( t =>
 				t.id === task.id || skippedIds.has( t.id ) ? { ...t, completed: true } : t
 			);
@@ -266,9 +239,8 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 		}
 	};
 
-	// Skipping a task marks it complete (in memory) and expands the next
-	// incomplete task, as the design asks. Compute the next id from the list the
-	// skip produces so a just-skipped task is never re-opened.
+	// Skipping marks a task complete (in memory) and expands the next incomplete
+	// task. Compute the next id from the post-skip list so it's never re-opened.
 	const handleSkip = ( task: EnrichedTask ) => {
 		const nextSkipped = new Set( skippedIds ).add( task.id );
 		setSkippedIds( nextSkipped );

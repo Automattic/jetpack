@@ -20,26 +20,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	const LAUNCH_TASK_IDS = array( 'site_launched', 'blog_launched', 'woo_launch_site', 'link_in_bio_launched', 'videopress_launched' );
 
 	/**
-	 * Tasks whose completion the AI Launchpad writes when the user clicks their CTA,
-	 * because the real signal is unreachable when the launchpad runs in wp-admin:
+	 * Tasks the AI Launchpad marks complete on CTA click, because their real signal is unreachable from wp-admin.
 	 *
-	 * - The acknowledgment tasks (complete_profile … site_monitoring_page) complete
-	 *   on click / page-visit in Calypso, which writes the status to Calypso's
-	 *   *selected* site — never from the wp-admin context.
-	 * - setup_ssh's real signal (an SSH user exists) is only readable through the
-	 *   wpcom hosting endpoint, which rejects the launchpad's Atomic context (blog
-	 *   token 401, Jetpack-user token 403). Calypso's own hosting form completes it
-	 *   optimistically when the user creates SFTP credentials; this reuses that
-	 *   strategy, ticking it when the user opens the same hosting page via the CTA.
-	 * - share_site has no real signal at all (sharing is a transient client action;
-	 *   even Calypso completes it optimistically when the user copies/shares the URL)
-	 *   and no CTA destination, so the tailored list offers a "Mark as complete"
-	 *   button that hits this route.
-	 *
-	 * The AI Launchpad runs in wp-admin (on both Simple and Atomic), so it marks
-	 * these complete locally on CTA click. Server-side allowlist so the complete-task
-	 * route can only tick these ids, never arbitrary catalog tasks. Mirrored
-	 * client-side in model.ts (COMPLETE_ON_CLICK_TASK_IDS).
+	 * Server-side allowlist so the complete-task route can only tick these ids. Mirrored client-side in model.ts.
 	 */
 	const COMPLETE_ON_CLICK_TASK_IDS = array(
 		'complete_profile',
@@ -53,27 +36,20 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
-	 * Tasks whose catalog `is_visible_callback` encodes an `IS_WPCOM`-only platform
-	 * assumption that the AI Launchpad overrides because it retrieves the same data
-	 * cross-platform. `add_10_email_subscribers` is gated by
-	 * `wpcom_launchpad_are_newsletter_subscriber_counts_available` (false off
-	 * WordPress.com), but AI_Launchpad_Subscribers_Listener reads the count on
-	 * Atomic via `/sites/{id}/subscribers/stats`, so the task must still render and
-	 * its visibility gate is skipped here.
+	 * Tasks whose catalog visibility gate encodes an `IS_WPCOM`-only assumption the AI Launchpad overrides.
+	 *
+	 * `add_10_email_subscribers` is gated off WordPress.com, but AI_Launchpad_Subscribers_Listener reads the count on
+	 * Atomic, so the task must still render and its visibility gate is skipped here.
 	 */
 	const FORCE_VISIBLE_TASK_IDS = array(
 		'add_10_email_subscribers',
 	);
 
 	/**
-	 * CTA destinations the AI Launchpad repoints to wp-admin, keyed by task id and
-	 * mapping to an `admin_url()` path. The catalog sends these to Calypso flows
-	 * that are a poor fit for the wp-admin AI Launchpad: connect_social_media goes
-	 * to Calypso `/marketing/connections` even though it completes on the wp-admin
-	 * Jetpack Social page (where this lands it, matching drive_traffic), and the
-	 * design "Select a design" tasks go to a Calypso setup step-flow rather than the
-	 * theme browser. Overridden on read so the shared catalog (used by the legacy
-	 * launchpad too) is left untouched.
+	 * CTA destinations the AI Launchpad repoints to wp-admin, keyed by task id, each mapping to an `admin_url()` path.
+	 *
+	 * The catalog sends these to Calypso flows that are a poor fit for wp-admin. Overridden on read so the shared
+	 * catalog (used by the legacy launchpad too) is left untouched.
 	 */
 	const CTA_OVERRIDES = array(
 		'connect_social_media' => 'admin.php?page=jetpack-social',
@@ -82,12 +58,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
-	 * Jetpack Social tasks, hidden on private sites. wpcom does not load Publicize
-	 * (and so the Jetpack Social admin page their CTA points to) on a private site,
-	 * mirroring Publicize_Setup::should_load(). The AI Launchpad runs only on the
-	 * wpcom platform, so the private-site flag (`blog_public = -1`) is the whole
-	 * condition — Publicize's additional `is_wpcom_platform()` check is always true
-	 * here.
+	 * Jetpack Social tasks, hidden on private sites where wpcom does not load Publicize (so their CTA page would 404).
 	 */
 	const SOCIAL_PAGE_TASK_IDS = array(
 		'connect_social_media',
@@ -96,10 +67,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
-	 * Whether the site's visibility is set to private (`blog_public = -1`), the
-	 * core of Jetpack's Status::is_private_site(). Read directly to avoid a hard
-	 * dependency on the Status package in this read path; the launchpad is
-	 * wpcom-only, where this option is the private-site signal.
+	 * Whether the site's visibility is set to private (`blog_public = -1`).
+	 *
+	 * Read directly to avoid a hard dependency on the Status package in this read path.
 	 *
 	 * @return bool
 	 */
@@ -130,8 +100,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_data' ),
 					'permission_callback' => array( $this, 'can_read' ),
 					'args'                => array(
-						// Testing aid: render the full task catalog (visibility bypassed,
-						// no tailoring) so every task can be exercised from one site.
+						// Testing aid: render the full task catalog so every task can be exercised from one site.
 						'all_tasks' => array(
 							'description' => 'Return the full task catalog instead of the tailored list (testing aid).',
 							'type'        => 'boolean',
@@ -255,13 +224,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	/**
 	 * Returns a 404 error for ineligible sites, true otherwise.
 	 *
-	 * The eligibility gate itself is owned by the AI Launchpad loader.
-	 *
 	 * @return true|WP_Error
 	 */
 	private function check_eligibility() {
-		// Fail closed: if the gate is unavailable for any reason, treat the site
-		// as not eligible rather than exposing the endpoint to every capable user.
+		// Fail closed: if the gate is unavailable, treat the site as not eligible.
 		if ( ! function_exists( 'wpcom_ai_launchpad_is_eligible' ) || ! wpcom_ai_launchpad_is_eligible() ) {
 			return new WP_Error(
 				'ai_launchpad_not_eligible',
@@ -283,22 +249,18 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$wizard    = get_option( self::OPTION_WIZARD );
 		$ai_output = get_option( self::OPTION_AI_OUTPUT );
 
-		// Testing aid: ?all_tasks=1 renders the whole catalog (visibility bypassed),
-		// independent of the persisted tailored output, so every task can be
-		// exercised from a single site.
+		// Testing aid: ?all_tasks=1 renders the whole catalog, independent of the persisted tailored output.
 		if ( $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' ) ) {
 			$tasks = $this->build_all_catalog_tasks();
 		} else {
-			// Guard the nested payload: partial/legacy/failed writes may leave the
-			// option as an array without payload.tasks, which would warn and break.
+			// Guard the nested payload: partial/failed writes may leave the option without payload.tasks.
 			$tasks = array();
 			if ( is_array( $ai_output ) && isset( $ai_output['payload']['tasks'] ) && is_array( $ai_output['payload']['tasks'] ) ) {
 				$tasks = $this->build_tasks( $ai_output['payload']['tasks'] );
 			}
 		}
 
-		// The membership tasks' completion is recomputed in build_tasks() (their
-		// option is never written on Atomic), so overlay it here to keep
+		// The membership tasks' completion is recomputed in build_tasks(), so overlay it to keep
 		// checklist_statuses consistent with tasks[].completed for them.
 		$checklist_statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
 		foreach ( $tasks as $task ) {
@@ -314,30 +276,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'checklist_statuses' => $checklist_statuses,
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
 			'is_eligible'        => true,
-			// Site context the client needs: the front-end URL drives the launch-task
-			// CTA (its host is the launch-flow site slug) and the tailored-list
-			// preview thumbnail; the title labels that preview; the editor URL is the
-			// preview's quick link into the Site Editor. Title and description also
-			// pre-fill the wizard's Name and Brief description fields so they reflect
-			// the site's current identity.
+			// Site context the client needs for the launch-task CTA, the preview thumbnail/title, and wizard prefill.
 			'site'               => array(
 				'url'         => home_url(),
 				'title'       => get_bloginfo( 'name' ),
 				'description' => get_bloginfo( 'description' ),
-				// Block themes open the Site Editor; classic themes (which can't use it)
-				// fall back to the Customizer, their equivalent appearance editor.
+				// Block themes open the Site Editor; classic themes fall back to the Customizer.
 				'edit_url'    => wp_is_block_theme() ? admin_url( 'site-editor.php' ) : admin_url( 'customize.php' ),
 			),
 		);
 	}
 
 	/**
-	 * Persists the wizard input to the wizard option and, on completion, writes
-	 * the entered Name and Brief description back to the site's identity options
-	 * (blogname / blogdescription) so the wizard reflects and updates the real
-	 * site title and tagline. Empty values are skipped so the wizard never blanks
-	 * an existing title or tagline. Values are already sanitized by the route's
-	 * sanitize_callbacks; update_option re-runs core's option sanitizers too.
+	 * Persists the wizard input and writes the entered Name and Brief description back to blogname / blogdescription.
+	 *
+	 * Empty values are skipped so the wizard never blanks an existing title or tagline.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return array
@@ -358,8 +311,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			update_option( 'blogname', $request['site_name'] );
 		}
 		if ( '' !== trim( (string) $request['description'] ) ) {
-			// The tagline is rendered inline by themes, so collapse the textarea
-			// brief's newlines to keep blogdescription single-line.
+			// Collapse the textarea brief's newlines to keep the inline-rendered tagline single-line.
 			update_option( 'blogdescription', sanitize_text_field( $request['description'] ) );
 		}
 
@@ -431,12 +383,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Marks an acknowledgment task complete. These tasks have no completion signal
-	 * in wp-admin — in Calypso they complete on click/page-visit, written to
-	 * Calypso's selected site — so the client calls this when the user clicks the
-	 * task's CTA. Restricted to the COMPLETE_ON_CLICK_TASK_IDS allowlist and to
-	 * tasks actually on the site's AI-selected list, so the route can't tick
-	 * arbitrary catalog tasks.
+	 * Marks an acknowledgment task complete when the user clicks its CTA, since these tasks have no wp-admin signal.
+	 *
+	 * Restricted to the COMPLETE_ON_CLICK_TASK_IDS allowlist and to tasks on the site's AI-selected list.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return array|WP_Error
@@ -452,8 +401,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			);
 		}
 
-		// Only tasks the AI actually put on this site's list may be completed, so a
-		// capable user can't tick a task that isn't on their launchpad.
+		// Only tasks the AI put on this site's list may be completed.
 		if ( ! in_array( $task_id, wpcom_ai_launchpad_get_ai_task_ids(), true ) ) {
 			return new WP_Error(
 				'ai_launchpad_task_not_selected',
@@ -519,10 +467,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Builds the enriched task list for every task in the catalog, bypassing the
-	 * per-site visibility gate. Backs the `?all_tasks=1` testing aid; each task is
-	 * enriched in isolation so one that can't be built in this context is skipped
-	 * rather than breaking the whole view.
+	 * Builds the enriched task list for every catalog task, bypassing the visibility gate (backs `?all_tasks=1`).
+	 *
+	 * Each task is enriched in isolation so one that can't be built is skipped rather than breaking the whole view.
 	 *
 	 * @return array
 	 */
@@ -560,10 +507,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$built       = array();
 
-		// Some catalog visibility callbacks call is_plugin_active() (e.g. the
-		// WooCommerce tasks), which lives in wp-admin/includes/plugin.php and is not
-		// loaded during a REST request. Load it once so the is_visible() gate below
-		// can't fatal on those callbacks.
+		// Some catalog visibility callbacks call is_plugin_active(), which is not loaded during a REST request.
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
@@ -579,8 +523,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				continue;
 			}
 
-			// The Jetpack Social tasks point at an admin page wpcom doesn't load on
-			// a private site, so hide them there — their CTA would 404.
+			// The Jetpack Social tasks point at an admin page wpcom doesn't load on a private site, so hide them there.
 			if ( $is_private_site && in_array( $task['id'], self::SOCIAL_PAGE_TASK_IDS, true ) ) {
 				continue;
 			}
@@ -588,15 +531,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			$definition       = $definitions[ $task['id'] ];
 			$definition['id'] = $task['id'];
 
-			// Honor the catalog's own visibility gate, mirroring the legacy
-			// Launchpad_Task_Lists::build(): drop any task the catalog would hide
-			// on this site (e.g. WooCommerce tasks with no WooCommerce, or
-			// goal-gated tasks). The AI can select from the full menu, but a task
-			// it picks that is not applicable here must not render — the CTA would
-			// 404 and the task could never complete. Filtering on read (rather than
-			// rejecting on write) keeps the deterministic fallback usable: its fixed
-			// per-goal lists also contain conditionally-visible tasks, so gating the
-			// write path could strand a goal with too few surviving tasks.
+			// Honor the catalog's own visibility gate: a task the catalog would hide here must not render, since its
+			// CTA would 404 and it could never complete. Filtered on read so the deterministic fallback stays usable.
 			if (
 				! $bypass_visibility
 				&& ! in_array( $task['id'], self::FORCE_VISIBLE_TASK_IDS, true )
@@ -605,9 +541,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				continue;
 			}
 
-			// The membership tasks' catalog callbacks recompute from membership
-			// settings that are null on Atomic (always false there); recompute them
-			// from Jetpack_Memberships' local signals instead.
+			// The membership tasks' catalog callbacks are always false on Atomic; recompute from local signals instead.
 			$completed = AI_Launchpad_Memberships::has_override( $task['id'] )
 				? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
 				: wpcom_launchpad_checklists()->is_task_complete( $definition );
