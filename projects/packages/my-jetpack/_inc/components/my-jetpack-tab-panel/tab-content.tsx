@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { CustomizeContent } from './customize/content';
 import { HelpContent } from './help/content';
 import { OverviewContent } from './overview/content';
 import { ProductsContent } from './products/content';
@@ -13,6 +14,7 @@ export type TabContentProps = {
 const componentMap: Record< MyJetpackSection, ComponentType > = {
 	overview: OverviewContent,
 	products: ProductsContent,
+	customize: CustomizeContent,
 	help: HelpContent,
 };
 

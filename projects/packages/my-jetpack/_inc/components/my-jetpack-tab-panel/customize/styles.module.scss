@@ -1,0 +1,67 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+
+.customize {
+	max-width: 920px;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-block-end: 24px;
+}
+
+.group-grid {
+	display: grid;
+	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
+	gap: 16px;
+
+	@media ( max-width: gb.$break-medium ) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.item-list {
+	display: grid;
+	gap: 1px;
+	background: #dcdcde;
+	border: 1px solid #dcdcde;
+}
+
+.item-row {
+	display: grid;
+	grid-template-columns: minmax( 160px, 1fr ) minmax( 140px, 220px ) auto;
+	align-items: center;
+	gap: 16px;
+	min-height: 56px;
+	padding-block: 8px;
+	padding-inline: 12px;
+	background: #fff;
+
+	:global( .components-base-control ) {
+		margin-block-end: 0;
+	}
+
+	@media ( max-width: gb.$break-medium ) {
+		grid-template-columns: 1fr;
+		align-items: stretch;
+	}
+}
+
+.item-actions {
+	display: flex;
+	gap: 4px;
+	justify-content: flex-end;
+
+	@media ( max-width: gb.$break-medium ) {
+		justify-content: flex-start;
+	}
+}
+
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-block-start: 24px;
+}

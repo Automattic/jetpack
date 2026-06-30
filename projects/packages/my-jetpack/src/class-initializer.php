@@ -300,6 +300,7 @@ class Initializer {
 				'blogID'                 => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'       => self::PACKAGE_VERSION,
 				'myJetpackFlags'         => self::get_my_jetpack_flags(),
+				'adminMenuCustomization' => Admin_Menu::get_customization_model(),
 				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
 				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
 				'adminUrl'               => esc_url( admin_url() ),
@@ -492,6 +493,38 @@ class Initializer {
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'site/admin-menu',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_admin_menu_customization',
+					'permission_callback' => __CLASS__ . '::admin_menu_customization_permissions_callback',
+				),
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_admin_menu_customization',
+					'permission_callback' => __CLASS__ . '::admin_menu_customization_permissions_callback',
+					'args'                => array(
+						'scope'  => array(
+							'description'       => __( 'Customization scope to update.', 'jetpack-my-jetpack' ),
+							'type'              => 'string',
+							'enum'              => array( 'site', 'user' ),
+							'default'           => 'user',
+							'validate_callback' => 'rest_validate_request_arg',
+						),
+						'layout' => array(
+							'description'       => __( 'Admin menu layout preferences.', 'jetpack-my-jetpack' ),
+							'type'              => 'object',
+							'required'          => true,
+							'validate_callback' => 'rest_validate_request_arg',
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -504,6 +537,70 @@ class Initializer {
 	 */
 	public static function permissions_callback() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Check user capability to access the admin menu customization endpoint.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function admin_menu_customization_permissions_callback() {
+		if ( current_user_can( 'edit_posts' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'rest_forbidden',
+			__( 'Sorry, you are not allowed to customize the Jetpack admin menu.', 'jetpack-my-jetpack' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Gets the Jetpack admin menu customization model.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function get_admin_menu_customization() {
+		return rest_ensure_response( Admin_Menu::get_customization_model() );
+	}
+
+	/**
+	 * Updates Jetpack admin menu customization preferences.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function update_admin_menu_customization( $request ) {
+		$scope  = $request->get_param( 'scope' );
+		$layout = $request->get_param( 'layout' );
+
+		if ( ! is_array( $layout ) ) {
+			return new WP_Error(
+				'invalid_layout',
+				__( 'The admin menu layout must be an object.', 'jetpack-my-jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( 'site' === $scope ) {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return new WP_Error(
+					'rest_forbidden',
+					__( 'Sorry, you are not allowed to update site admin menu defaults.', 'jetpack-my-jetpack' ),
+					array( 'status' => rest_authorization_required_code() )
+				);
+			}
+
+			Admin_Menu::update_site_menu_layout( $layout );
+		} else {
+			Admin_Menu::update_user_menu_layout( $layout );
+		}
+
+		return rest_ensure_response( Admin_Menu::get_customization_model() );
 	}
 
 	/**

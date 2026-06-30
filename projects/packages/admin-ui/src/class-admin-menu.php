@@ -36,6 +36,41 @@ class Admin_Menu {
 	const UPGRADE_MENU_FALLBACK_URL = 'https://jetpack.com/upgrade/';
 
 	/**
+	 * Site option storing the admin menu layout.
+	 *
+	 * @var string
+	 */
+	const CUSTOMIZATION_SITE_OPTION = 'jetpack_admin_menu_layout';
+
+	/**
+	 * User meta key storing personal admin menu preferences.
+	 *
+	 * @var string
+	 */
+	const CUSTOMIZATION_USER_META = 'jetpack_admin_menu_layout';
+
+	/**
+	 * Filter that enables the customization feature for rollout testing.
+	 *
+	 * @var string
+	 */
+	const CUSTOMIZATION_FEATURE_FILTER = 'jetpack_admin_menu_customization_enabled';
+
+	/**
+	 * Filter that lets new installs or rollout cohorts default to the recommended menu.
+	 *
+	 * @var string
+	 */
+	const CUSTOMIZATION_DEFAULT_ENABLED_FILTER = 'jetpack_admin_menu_customization_default_enabled';
+
+	/**
+	 * Filter that lets hosts/cohorts override whether customization is currently active.
+	 *
+	 * @var string
+	 */
+	const CUSTOMIZATION_ACTIVE_FILTER = 'jetpack_admin_menu_customization_active';
+
+	/**
 	 * Whether this class has been initialized
 	 *
 	 * @var boolean
@@ -128,22 +163,9 @@ class Admin_Menu {
 		 * Let's order the items before registering them.
 		 * Since this all happens after the Jetpack plugin menu items were added, all items will be added after Jetpack plugin items - unless position is very low number (smaller than the number of menu items present in Jetpack plugin).
 		 */
-		usort(
-			self::$menu_items,
-			function ( $a, $b ) {
-				$position_a = empty( $a['position'] ) ? 0 : $a['position'];
-				$position_b = empty( $b['position'] ) ? 0 : $b['position'];
-				$result     = $position_a <=> $position_b;
+		$menu_items = self::get_menu_items_for_registration();
 
-				if ( 0 === $result ) {
-					$result = strcmp( $a['menu_title'], $b['menu_title'] );
-				}
-
-				return $result;
-			}
-		);
-
-		foreach ( self::$menu_items as $menu_item ) {
+		foreach ( $menu_items as $menu_item ) {
 			if ( ! current_user_can( $menu_item['capability'] ) ) {
 				continue;
 			}
@@ -159,6 +181,10 @@ class Admin_Menu {
 				$menu_item['function'],
 				$menu_item['position']
 			);
+
+			if ( ! empty( $menu_item['classes'] ) ) {
+				self::add_submenu_item_classes( $menu_item['menu_slug'], $menu_item['classes'] );
+			}
 		}
 
 		if ( ! $jetpack_plugin_present ) {
@@ -188,12 +214,15 @@ class Admin_Menu {
 	 *                                   to be compatible with sanitize_key().
 	 * @param callable|null $function    The function to be called to output the content for this page.
 	 * @param int           $position    The position in the menu order this item should appear. Leave empty typically.
+	 * @param array         $metadata    Optional menu customization metadata.
 	 *
 	 * @return string The resulting page's hook_suffix
 	 */
-	public static function add_menu( $page_title, $menu_title, $capability, $menu_slug, $function, $position = null ) {
+	public static function add_menu( $page_title, $menu_title, $capability, $menu_slug, $function, $position = null, $metadata = array() ) {
 		self::init();
-		self::$menu_items[] = compact( 'page_title', 'menu_title', 'capability', 'menu_slug', 'function', 'position' );
+		$menu_item             = compact( 'page_title', 'menu_title', 'capability', 'menu_slug', 'function', 'position' );
+		$menu_item['metadata'] = self::normalize_menu_metadata( $menu_item, $metadata );
+		self::$menu_items[]    = $menu_item;
 
 		/**
 		 * Let's return the page hook so consumers can use.
@@ -201,6 +230,801 @@ class Admin_Menu {
 		 * Using get_plugin_page_hookname here won't work because the top level page is not registered yet.
 		 */
 		return 'jetpack_page_' . $menu_slug;
+	}
+
+	/**
+	 * Gets registered menu items with normalized metadata.
+	 *
+	 * @return array
+	 */
+	public static function get_registered_menu_items() {
+		return array_values( self::$menu_items );
+	}
+
+	/**
+	 * Returns whether the menu customization feature is available.
+	 *
+	 * @return bool
+	 */
+	public static function is_customization_feature_enabled() {
+		return (bool) apply_filters( self::CUSTOMIZATION_FEATURE_FILTER, false );
+	}
+
+	/**
+	 * Returns whether the customized menu layout is active for this request.
+	 *
+	 * @return bool
+	 */
+	public static function is_customization_active() {
+		if ( ! self::is_customization_feature_enabled() ) {
+			return false;
+		}
+
+		$layout = self::get_site_menu_layout();
+		$active = ! empty( $layout['enabled'] );
+
+		return (bool) apply_filters( self::CUSTOMIZATION_ACTIVE_FILTER, $active, $layout );
+	}
+
+	/**
+	 * Gets the site-level admin menu layout.
+	 *
+	 * @return array
+	 */
+	public static function get_site_menu_layout() {
+		$layout = get_option( self::CUSTOMIZATION_SITE_OPTION, array() );
+		if ( ! is_array( $layout ) ) {
+			$layout = array();
+		}
+		$sanitized_layout = self::sanitize_menu_layout( $layout );
+		if ( ! array_key_exists( 'enabled', $layout ) ) {
+			unset( $sanitized_layout['enabled'] );
+		}
+
+		return self::merge_menu_layouts( self::get_default_site_menu_layout(), $sanitized_layout );
+	}
+
+	/**
+	 * Updates the site-level admin menu layout.
+	 *
+	 * @param array $layout Layout data.
+	 * @return bool
+	 */
+	public static function update_site_menu_layout( $layout ) {
+		return update_option( self::CUSTOMIZATION_SITE_OPTION, self::sanitize_menu_layout( $layout ) );
+	}
+
+	/**
+	 * Gets personal admin menu preferences.
+	 *
+	 * @param int $user_id User ID. Defaults to the current user.
+	 * @return array
+	 */
+	public static function get_user_menu_layout( $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		if ( ! $user_id ) {
+			return self::get_default_user_menu_layout();
+		}
+
+		$layout = get_user_meta( $user_id, self::CUSTOMIZATION_USER_META, true );
+		if ( ! is_array( $layout ) ) {
+			$layout = array();
+		}
+		$sanitized_layout = self::sanitize_menu_layout( $layout );
+		if ( ! array_key_exists( 'enabled', $layout ) ) {
+			unset( $sanitized_layout['enabled'] );
+		}
+
+		return self::merge_menu_layouts( self::get_default_user_menu_layout(), $sanitized_layout );
+	}
+
+	/**
+	 * Updates personal admin menu preferences.
+	 *
+	 * @param array $layout  Layout data.
+	 * @param int   $user_id User ID. Defaults to the current user.
+	 * @return int|bool
+	 */
+	public static function update_user_menu_layout( $layout, $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		return update_user_meta( $user_id, self::CUSTOMIZATION_USER_META, self::sanitize_menu_layout( $layout ) );
+	}
+
+	/**
+	 * Deletes the site-level admin menu layout.
+	 *
+	 * @return bool
+	 */
+	public static function reset_site_menu_layout() {
+		return delete_option( self::CUSTOMIZATION_SITE_OPTION );
+	}
+
+	/**
+	 * Deletes personal admin menu preferences.
+	 *
+	 * @param int $user_id User ID. Defaults to the current user.
+	 * @return bool
+	 */
+	public static function reset_user_menu_layout( $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		return delete_user_meta( $user_id, self::CUSTOMIZATION_USER_META );
+	}
+
+	/**
+	 * Gets the customization model for UI consumers.
+	 *
+	 * @param int $user_id User ID. Defaults to the current user.
+	 * @return array
+	 */
+	public static function get_customization_model( $user_id = 0 ) {
+		$site_layout = self::get_site_menu_layout();
+		$user_layout = self::get_user_menu_layout( $user_id );
+		$items       = self::get_registered_menu_items();
+
+		if ( empty( $items ) ) {
+			$items = self::get_recommended_menu_catalog_items();
+		}
+
+		return array(
+			'featureEnabled' => self::is_customization_feature_enabled(),
+			'active'         => self::is_customization_active(),
+			'siteLayout'     => $site_layout,
+			'userLayout'     => $user_layout,
+			'groups'         => array_values( $site_layout['groups'] ),
+			'items'          => self::get_customization_model_items( $items, $site_layout, $user_layout ),
+		);
+	}
+
+	/**
+	 * Sanitizes persisted menu layout data.
+	 *
+	 * @param array $layout Raw layout data.
+	 * @return array
+	 */
+	public static function sanitize_menu_layout( $layout ) {
+		$sanitized = array(
+			'enabled' => false,
+			'groups'  => array(),
+			'items'   => array(),
+		);
+
+		if ( ! is_array( $layout ) ) {
+			return $sanitized;
+		}
+
+		if ( array_key_exists( 'enabled', $layout ) ) {
+			$sanitized['enabled'] = (bool) $layout['enabled'];
+		}
+
+		if ( ! empty( $layout['groups'] ) && is_array( $layout['groups'] ) ) {
+			foreach ( $layout['groups'] as $group_id => $group ) {
+				if ( ! is_array( $group ) ) {
+					continue;
+				}
+
+				$group_id = sanitize_key( $group_id );
+				if ( empty( $group_id ) ) {
+					continue;
+				}
+
+				$sanitized['groups'][ $group_id ] = array(
+					'id'    => $group_id,
+					'label' => isset( $group['label'] ) ? sanitize_text_field( $group['label'] ) : '',
+					'order' => isset( $group['order'] ) && is_numeric( $group['order'] ) ? (int) $group['order'] : 100,
+				);
+			}
+		}
+
+		if ( ! empty( $layout['items'] ) && is_array( $layout['items'] ) ) {
+			foreach ( $layout['items'] as $item_id => $item ) {
+				if ( ! is_array( $item ) ) {
+					continue;
+				}
+
+				$item_id = sanitize_key( $item_id );
+				if ( empty( $item_id ) ) {
+					continue;
+				}
+
+				$sanitized['items'][ $item_id ] = array();
+
+				if ( array_key_exists( 'hidden', $item ) ) {
+					$sanitized['items'][ $item_id ]['hidden'] = (bool) $item['hidden'];
+				}
+
+				if ( isset( $item['group'] ) ) {
+					$sanitized['items'][ $item_id ]['group'] = sanitize_key( $item['group'] );
+				}
+
+				if ( isset( $item['order'] ) && is_numeric( $item['order'] ) ) {
+					$sanitized['items'][ $item_id ]['order'] = (int) $item['order'];
+				}
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Gets menu items in the order they should be registered.
+	 *
+	 * @return array
+	 */
+	private static function get_menu_items_for_registration() {
+		$menu_items = self::$menu_items;
+
+		if ( self::is_customization_active() ) {
+			return self::resolve_customized_menu_items( $menu_items );
+		}
+
+		self::sort_legacy_menu_items( $menu_items );
+		self::$menu_items = $menu_items;
+
+		return $menu_items;
+	}
+
+	/**
+	 * Sorts menu items with the legacy position/title behavior.
+	 *
+	 * @param array $menu_items Menu items.
+	 * @return void
+	 */
+	private static function sort_legacy_menu_items( &$menu_items ) {
+		usort(
+			$menu_items,
+			function ( $a, $b ) {
+				$position_a = empty( $a['position'] ) ? 0 : $a['position'];
+				$position_b = empty( $b['position'] ) ? 0 : $b['position'];
+				$result     = $position_a <=> $position_b;
+
+				if ( 0 === $result ) {
+					$result = strcmp( $a['menu_title'], $b['menu_title'] );
+				}
+
+				return $result;
+			}
+		);
+	}
+
+	/**
+	 * Resolves menu items against the saved site and user layouts.
+	 *
+	 * @param array $menu_items Menu items.
+	 * @return array
+	 */
+	private static function resolve_customized_menu_items( $menu_items ) {
+		$site_layout    = self::get_site_menu_layout();
+		$user_layout    = self::get_user_menu_layout();
+		$resolved_items = array();
+
+		foreach ( $menu_items as $menu_item ) {
+			if ( ! current_user_can( $menu_item['capability'] ) ) {
+				continue;
+			}
+
+			$metadata  = $menu_item['metadata'];
+			$item_id   = $metadata['id'];
+			$item_prefs = self::get_resolved_item_preferences( $item_id, $metadata, $site_layout, $user_layout );
+
+			if ( ! empty( $item_prefs['hidden'] ) && ! empty( $metadata['customizable'] ) ) {
+				continue;
+			}
+
+			$group_id    = $item_prefs['group'];
+			$group       = self::get_group_for_layout( $group_id, $site_layout );
+			$menu_item['metadata']['group']       = $group_id;
+			$menu_item['metadata']['group_label'] = $group['label'];
+			$menu_item['metadata']['order']       = $item_prefs['order'];
+			$menu_item['resolved_group_order']    = $group['order'];
+			$menu_item['resolved_order']          = $item_prefs['order'];
+			$resolved_items[]                     = $menu_item;
+		}
+
+		usort(
+			$resolved_items,
+			function ( $a, $b ) {
+				$result = $a['resolved_group_order'] <=> $b['resolved_group_order'];
+				if ( 0 === $result ) {
+					$result = $a['resolved_order'] <=> $b['resolved_order'];
+				}
+				if ( 0 === $result ) {
+					$result = strcmp( $a['menu_title'], $b['menu_title'] );
+				}
+
+				return $result;
+			}
+		);
+
+		$seen_groups = array();
+		foreach ( $resolved_items as $index => $menu_item ) {
+			$group_id    = $menu_item['metadata']['group'];
+			$group_label = $menu_item['metadata']['group_label'];
+			$classes     = array( 'jetpack-admin-menu-item' );
+
+			if ( ! isset( $seen_groups[ $group_id ] ) ) {
+				$seen_groups[ $group_id ] = true;
+				if ( ! empty( $group_label ) ) {
+					$classes[]                          = 'jetpack-admin-menu-group-start';
+					$classes[]                          = 'jetpack-admin-menu-group-' . sanitize_html_class( $group_id );
+					$resolved_items[ $index ]['menu_title'] = self::add_group_label_to_menu_title( $menu_item['menu_title'], $group_label );
+				}
+			}
+
+			$resolved_items[ $index ]['classes']  = $classes;
+			$resolved_items[ $index ]['position'] = $index + 1;
+		}
+
+		return $resolved_items;
+	}
+
+	/**
+	 * Gets item preferences after applying defaults, site layout, and user layout.
+	 *
+	 * @param string $item_id     Item ID.
+	 * @param array  $metadata    Normalized metadata.
+	 * @param array  $site_layout Site layout.
+	 * @param array  $user_layout User layout.
+	 * @return array
+	 */
+	private static function get_resolved_item_preferences( $item_id, $metadata, $site_layout, $user_layout ) {
+		$prefs = array(
+			'hidden' => false,
+			'group'  => $metadata['group'],
+			'order'  => $metadata['order'],
+		);
+
+		if ( isset( $site_layout['items'][ $item_id ] ) ) {
+			$prefs = array_merge( $prefs, $site_layout['items'][ $item_id ] );
+		}
+
+		if ( isset( $user_layout['items'][ $item_id ] ) ) {
+			$prefs = array_merge( $prefs, $user_layout['items'][ $item_id ] );
+		}
+
+		$prefs['group'] = ! empty( $prefs['group'] ) ? sanitize_key( $prefs['group'] ) : $metadata['group'];
+		$prefs['order'] = isset( $prefs['order'] ) && is_numeric( $prefs['order'] ) ? (int) $prefs['order'] : $metadata['order'];
+
+		return $prefs;
+	}
+
+	/**
+	 * Gets a group definition for a layout.
+	 *
+	 * @param string $group_id    Group ID.
+	 * @param array  $site_layout Site layout.
+	 * @return array
+	 */
+	private static function get_group_for_layout( $group_id, $site_layout ) {
+		if ( isset( $site_layout['groups'][ $group_id ] ) ) {
+			return $site_layout['groups'][ $group_id ];
+		}
+
+		$groups = self::get_recommended_groups();
+		if ( isset( $groups[ $group_id ] ) ) {
+			return $groups[ $group_id ];
+		}
+
+		return array(
+			'id'    => $group_id,
+			'label' => '',
+			'order' => 500,
+		);
+	}
+
+	/**
+	 * Adds a non-interactive group label inside the normal submenu title.
+	 *
+	 * @param string $menu_title  Menu title.
+	 * @param string $group_label Group label.
+	 * @return string
+	 */
+	private static function add_group_label_to_menu_title( $menu_title, $group_label ) {
+		return '<span class="jetpack-admin-menu-group-label" aria-hidden="true">' . esc_html( $group_label ) . '</span><span class="jetpack-admin-menu-item-label">' . wp_kses_post( $menu_title ) . '</span>';
+	}
+
+	/**
+	 * Adds CSS classes to a registered submenu item.
+	 *
+	 * @param string $menu_slug Menu slug.
+	 * @param array  $classes   Classes to add.
+	 * @return void
+	 */
+	private static function add_submenu_item_classes( $menu_slug, $classes ) {
+		global $submenu;
+
+		if ( empty( $submenu['jetpack'] ) ) {
+			return;
+		}
+
+		foreach ( $submenu['jetpack'] as $index => $item ) {
+			if ( isset( $item[2] ) && $item[2] === $menu_slug ) {
+				$existing = ! empty( $item[4] ) ? $item[4] . ' ' : '';
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$submenu['jetpack'][ $index ][4] = trim( $existing . implode( ' ', array_map( 'sanitize_html_class', $classes ) ) );
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Normalizes menu customization metadata.
+	 *
+	 * @param array $menu_item Menu item.
+	 * @param array $metadata  Raw metadata.
+	 * @return array
+	 */
+	private static function normalize_menu_metadata( $menu_item, $metadata = array() ) {
+		if ( ! is_array( $metadata ) ) {
+			$metadata = array();
+		}
+
+		$item_id              = ! empty( $metadata['id'] ) ? self::normalize_menu_item_id( $metadata['id'] ) : self::infer_menu_item_id( $menu_item );
+		$recommended_defaults = self::get_recommended_menu_item_defaults();
+		$defaults             = isset( $recommended_defaults[ $item_id ] ) ? $recommended_defaults[ $item_id ] : array();
+		$metadata             = array_merge( $defaults, $metadata );
+		$group                = ! empty( $metadata['group'] ) ? sanitize_key( $metadata['group'] ) : 'manage';
+		$groups               = self::get_recommended_groups();
+		$group_label          = isset( $metadata['group_label'] ) ? sanitize_text_field( $metadata['group_label'] ) : ( $groups[ $group ]['label'] ?? '' );
+
+		return array(
+			'id'           => $item_id,
+			'group'        => $group,
+			'group_label'  => $group_label,
+			'order'        => isset( $metadata['order'] ) && is_numeric( $metadata['order'] ) ? (int) $metadata['order'] : self::get_position_order( $menu_item ),
+			'customizable' => array_key_exists( 'customizable', $metadata ) ? (bool) $metadata['customizable'] : true,
+			'external'     => array_key_exists( 'external', $metadata ) ? (bool) $metadata['external'] : self::is_external_menu_slug( $menu_item['menu_slug'] ),
+		);
+	}
+
+	/**
+	 * Infers a stable item ID from the menu slug/title.
+	 *
+	 * @param array $menu_item Menu item.
+	 * @return string
+	 */
+	private static function infer_menu_item_id( $menu_item ) {
+		$slug     = (string) $menu_item['menu_slug'];
+		$slug_map = array(
+			'my-jetpack'                         => 'my-jetpack',
+			'stats'                              => 'stats',
+			'jetpack-forms-admin'                => 'forms',
+			'jetpack-forms-responses-wp-admin'   => 'forms',
+			'jetpack-newsletter'                 => 'newsletter',
+			'jetpack-social'                     => 'social',
+			'jetpack-ai'                         => 'ai',
+			'jetpack-videopress'                 => 'videopress',
+			'jetpack-backup'                     => 'backup',
+			'jetpack-scan'                       => 'scan',
+			'akismet-key-config'                 => 'akismet-anti-spam',
+			'jetpack-activity-log'               => 'activity-log',
+			'jetpack-search'                     => 'search',
+		);
+
+		if ( isset( $slug_map[ $slug ] ) ) {
+			return $slug_map[ $slug ];
+		}
+
+		if ( false !== strpos( $slug, '#/settings' ) ) {
+			return 'settings';
+		}
+
+		$normalized_title = self::normalize_menu_item_id( wp_strip_all_tags( $menu_item['menu_title'] ) );
+		$title_map        = array(
+			'akismet-anti-spam' => 'akismet-anti-spam',
+			'jetpack-manage'   => 'jetpack-manage',
+			'subscribers'      => 'subscribers',
+			'vaultpress-backup' => 'backup',
+		);
+
+		if ( isset( $title_map[ $normalized_title ] ) ) {
+			return $title_map[ $normalized_title ];
+		}
+
+		if ( self::is_external_menu_slug( $slug ) && ! empty( $normalized_title ) ) {
+			return $normalized_title;
+		}
+
+		return self::normalize_menu_item_id( $slug );
+	}
+
+	/**
+	 * Normalizes a menu item ID.
+	 *
+	 * @param string $value Raw value.
+	 * @return string
+	 */
+	private static function normalize_menu_item_id( $value ) {
+		$value = strtolower( wp_strip_all_tags( (string) $value ) );
+		$value = preg_replace( '/[^a-z0-9_-]+/', '-', $value );
+		$value = trim( $value, '-' );
+
+		return sanitize_key( $value );
+	}
+
+	/**
+	 * Determines whether a menu slug points away from local wp-admin.
+	 *
+	 * @param string $menu_slug Menu slug.
+	 * @return bool
+	 */
+	private static function is_external_menu_slug( $menu_slug ) {
+		return 1 === preg_match( '#^https?://#i', (string) $menu_slug );
+	}
+
+	/**
+	 * Gets an integer ordering fallback from position.
+	 *
+	 * @param array $menu_item Menu item.
+	 * @return int
+	 */
+	private static function get_position_order( $menu_item ) {
+		return isset( $menu_item['position'] ) && is_numeric( $menu_item['position'] ) ? (int) $menu_item['position'] : 100;
+	}
+
+	/**
+	 * Gets recommended metadata for known Jetpack menu items.
+	 *
+	 * @return array
+	 */
+	private static function get_recommended_menu_item_defaults() {
+		return array(
+			'my-jetpack'         => array(
+				'group'        => 'top',
+				'order'        => 0,
+				'customizable' => false,
+			),
+			'stats'              => array(
+				'group' => 'top',
+				'order' => 10,
+			),
+			'forms'              => array(
+				'group' => 'create',
+				'order' => 20,
+			),
+			'newsletter'         => array(
+				'group' => 'create',
+				'order' => 30,
+			),
+			'subscribers'        => array(
+				'group'    => 'create',
+				'order'    => 35,
+				'external' => true,
+			),
+			'social'             => array(
+				'group' => 'create',
+				'order' => 40,
+			),
+			'ai'                 => array(
+				'group' => 'create',
+				'order' => 50,
+			),
+			'videopress'         => array(
+				'group' => 'create',
+				'order' => 55,
+			),
+			'backup'             => array(
+				'group' => 'protect',
+				'order' => 60,
+			),
+			'scan'               => array(
+				'group' => 'protect',
+				'order' => 70,
+			),
+			'akismet-anti-spam'  => array(
+				'group' => 'protect',
+				'order' => 80,
+			),
+			'activity-log'       => array(
+				'group' => 'manage',
+				'order' => 90,
+			),
+			'search'             => array(
+				'group' => 'manage',
+				'order' => 95,
+			),
+			'jetpack-manage'     => array(
+				'group'    => 'manage',
+				'order'    => 100,
+				'external' => true,
+			),
+			'settings'           => array(
+				'group'        => 'utility',
+				'order'        => 900,
+				'customizable' => false,
+			),
+		);
+	}
+
+	/**
+	 * Gets recommended menu groups.
+	 *
+	 * @return array
+	 */
+	private static function get_recommended_groups() {
+		return array(
+			'top'     => array(
+				'id'    => 'top',
+				'label' => '',
+				'order' => 0,
+			),
+			'create'  => array(
+				'id'    => 'create',
+				'label' => __( 'Create', 'jetpack-admin-ui' ),
+				'order' => 20,
+			),
+			'protect' => array(
+				'id'    => 'protect',
+				'label' => __( 'Protect', 'jetpack-admin-ui' ),
+				'order' => 30,
+			),
+			'manage'  => array(
+				'id'    => 'manage',
+				'label' => __( 'Manage', 'jetpack-admin-ui' ),
+				'order' => 40,
+			),
+			'utility' => array(
+				'id'    => 'utility',
+				'label' => '',
+				'order' => 90,
+			),
+		);
+	}
+
+	/**
+	 * Gets the default site layout.
+	 *
+	 * @return array
+	 */
+	private static function get_default_site_menu_layout() {
+		return array(
+			'enabled' => (bool) apply_filters( self::CUSTOMIZATION_DEFAULT_ENABLED_FILTER, false ),
+			'groups'  => self::get_recommended_groups(),
+			'items'   => array(),
+		);
+	}
+
+	/**
+	 * Gets the default user layout.
+	 *
+	 * @return array
+	 */
+	private static function get_default_user_menu_layout() {
+		return array(
+			'enabled' => false,
+			'groups'  => array(),
+			'items'   => array(),
+		);
+	}
+
+	/**
+	 * Merges two menu layout arrays.
+	 *
+	 * @param array $base     Base layout.
+	 * @param array $override Override layout.
+	 * @return array
+	 */
+	private static function merge_menu_layouts( $base, $override ) {
+		if ( array_key_exists( 'enabled', $override ) ) {
+			$base['enabled'] = (bool) $override['enabled'];
+		}
+
+		if ( ! empty( $override['groups'] ) ) {
+			foreach ( $override['groups'] as $group_id => $group ) {
+				$base['groups'][ $group_id ] = array_merge( $base['groups'][ $group_id ] ?? array(), $group );
+			}
+		}
+
+		if ( ! empty( $override['items'] ) ) {
+			foreach ( $override['items'] as $item_id => $item ) {
+				$base['items'][ $item_id ] = array_merge( $base['items'][ $item_id ] ?? array(), $item );
+			}
+		}
+
+		return $base;
+	}
+
+	/**
+	 * Gets customization items for the UI model.
+	 *
+	 * @param array $items       Registered or catalog menu items.
+	 * @param array $site_layout Site layout.
+	 * @param array $user_layout User layout.
+	 * @return array
+	 */
+	private static function get_customization_model_items( $items, $site_layout, $user_layout ) {
+		$model_items = array();
+
+		foreach ( $items as $menu_item ) {
+			$metadata   = $menu_item['metadata'];
+			$item_id    = $metadata['id'];
+			$item_prefs = self::get_resolved_item_preferences( $item_id, $metadata, $site_layout, $user_layout );
+			$group      = self::get_group_for_layout( $item_prefs['group'], $site_layout );
+
+			$model_items[] = array(
+				'id'           => $item_id,
+				'label'        => html_entity_decode( wp_strip_all_tags( $menu_item['menu_title'] ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
+				'menuSlug'     => $menu_item['menu_slug'],
+				'group'        => $item_prefs['group'],
+				'groupLabel'   => $group['label'],
+				'order'        => $item_prefs['order'],
+				'customizable' => (bool) $metadata['customizable'],
+				'hidden'       => ! empty( $item_prefs['hidden'] ),
+				'external'     => (bool) $metadata['external'],
+			);
+		}
+
+		usort(
+			$model_items,
+			function ( $a, $b ) use ( $site_layout ) {
+				$group_a = self::get_group_for_layout( $a['group'], $site_layout );
+				$group_b = self::get_group_for_layout( $b['group'], $site_layout );
+				$result  = $group_a['order'] <=> $group_b['order'];
+				if ( 0 === $result ) {
+					$result = $a['order'] <=> $b['order'];
+				}
+				if ( 0 === $result ) {
+					$result = strcmp( $a['label'], $b['label'] );
+				}
+
+				return $result;
+			}
+		);
+
+		return $model_items;
+	}
+
+	/**
+	 * Gets a fallback catalog for REST requests where wp-admin menu hooks did not run.
+	 *
+	 * @return array
+	 */
+	private static function get_recommended_menu_catalog_items() {
+		$labels = array(
+			'my-jetpack'        => __( 'My Jetpack', 'jetpack-admin-ui' ),
+			'stats'             => __( 'Stats', 'jetpack-admin-ui' ),
+			'forms'             => __( 'Forms', 'jetpack-admin-ui' ),
+			'newsletter'        => __( 'Newsletter', 'jetpack-admin-ui' ),
+			'subscribers'       => __( 'Subscribers', 'jetpack-admin-ui' ),
+			'social'            => __( 'Social', 'jetpack-admin-ui' ),
+			'ai'                => __( 'AI', 'jetpack-admin-ui' ),
+			'videopress'        => __( 'VideoPress', 'jetpack-admin-ui' ),
+			'backup'            => __( 'Backup', 'jetpack-admin-ui' ),
+			'scan'              => __( 'Scan', 'jetpack-admin-ui' ),
+			'akismet-anti-spam' => __( 'Akismet Anti-spam', 'jetpack-admin-ui' ),
+			'activity-log'      => __( 'Activity Log', 'jetpack-admin-ui' ),
+			'search'            => __( 'Search', 'jetpack-admin-ui' ),
+			'jetpack-manage'    => __( 'Jetpack Manage', 'jetpack-admin-ui' ),
+			'settings'          => __( 'Settings', 'jetpack-admin-ui' ),
+		);
+		$items  = array();
+
+		foreach ( $labels as $id => $label ) {
+			$menu_item = array(
+				'page_title' => $label,
+				'menu_title' => $label,
+				'capability' => 'manage_options',
+				'menu_slug'  => $id,
+				'function'   => null,
+				'position'   => null,
+			);
+
+			if ( 'my-jetpack' === $id ) {
+				$menu_item['capability'] = 'edit_posts';
+			}
+
+			$menu_item['metadata'] = self::normalize_menu_metadata( $menu_item, array( 'id' => $id ) );
+			$items[]               = $menu_item;
+		}
+
+		return $items;
 	}
 
 	/**
@@ -413,7 +1237,7 @@ class Admin_Menu {
 	 * @return void
 	 */
 	public static function add_upgrade_menu_item_styles() {
-		if ( ! self::should_show_upgrade_menu() ) {
+		if ( ! self::should_show_upgrade_menu() && ! self::is_customization_active() ) {
 			return;
 		}
 
