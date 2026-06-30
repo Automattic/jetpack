@@ -22,6 +22,7 @@ import { useMemo } from 'react';
 import { buildVideoPlaysData } from './build-video-plays-data';
 import type { VideosAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps } from 'react';
 
 const DEFAULT_MAX = 7;
 
@@ -29,10 +30,17 @@ const DEFAULT_MAX = 7;
 // `reportParams`; the widget's own settings come from `VideosAttributes`.
 type VideosRenderAttributes = VideosAttributes & Partial< ReportParamsFieldAttributes >;
 
-const toPositiveInt = ( value: string | number | undefined, fallback: number ) => {
+type VideosRenderProps = WidgetRenderProps< VideosRenderAttributes > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+};
+
+// Resolve the `max` attribute to the row count requested from Stats. Per the
+// Stats widget contract `max = 0` means "all rows", so it passes through; only
+// negative or non-numeric values fall back to the default.
+const toMaxRows = ( value: string | number | undefined, fallback: number ) => {
 	const parsed = typeof value === 'number' ? value : Number.parseInt( value ?? '', 10 );
 
-	return Number.isFinite( parsed ) && parsed > 0 ? parsed : fallback;
+	return Number.isFinite( parsed ) && parsed >= 0 ? parsed : fallback;
 };
 
 type VideosLeaderboardProps = {
@@ -168,12 +176,13 @@ function VideosReport( { max }: { max: number } ) {
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes.
+ * @param props.setError   - Dashboard error handler.
  * @return The rendered Videos widget.
  */
-export default function Videos( { attributes = {} }: WidgetRenderProps< VideosRenderAttributes > ) {
+export default function Videos( { attributes = {}, setError }: VideosRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes }>
-			<VideosReport max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
+		<WidgetRoot attributes={ attributes } setError={ setError }>
+			<VideosReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
 		</WidgetRoot>
 	);
 }
