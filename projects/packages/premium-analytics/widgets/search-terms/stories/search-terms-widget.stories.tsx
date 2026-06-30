@@ -22,7 +22,9 @@ interface SearchTermsStoryControls {
 
 function renderSearchTerms( { withComparison }: SearchTermsStoryControls ) {
 	return (
-		<SearchTermsRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
+		<SearchTermsRender
+			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+		/>
 	);
 }
 
@@ -79,7 +81,7 @@ function SearchTermsDashboardStory( {
 			widgetType={ widgetDefinition }
 			renderModule={ SEARCH_TERMS_RENDER_MODULE }
 			renderComponent={ SearchTermsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }
