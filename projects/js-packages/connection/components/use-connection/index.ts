@@ -2,7 +2,7 @@ import restApi from '@automattic/jetpack-api';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from 'react';
-import { STORE_ID } from '../../state/store.jsx';
+import { STORE_ID, initConnectionStore } from '../../state/store.jsx';
 import type {
 	RegistrationError,
 	UserConnectionData,
@@ -33,6 +33,9 @@ export default function useConnection( {
 	skipUserConnection,
 	skipPricingPage,
 }: UseConnectionProps = {} ): UseConnectionReturn {
+	// Register the connection store lazily; idempotent across consumers.
+	initConnectionStore();
+
 	const { registerSite, connectUser, refreshConnectedPlugins } = useDispatch( STORE_ID );
 
 	const registrationError = useSelect(

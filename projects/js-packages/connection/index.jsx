@@ -42,7 +42,7 @@ export * from './helpers/get-user-connection-url.ts';
 /**
  * Store
  */
-export { STORE_ID as CONNECTION_STORE_ID } from './state/store';
+export { STORE_ID as CONNECTION_STORE_ID, initConnectionStore } from './state/store';
 
 /**
  * Hooks

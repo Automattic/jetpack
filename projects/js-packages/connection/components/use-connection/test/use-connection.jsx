@@ -3,7 +3,7 @@ import { jest } from '@jest/globals';
 import { renderHook } from '@testing-library/react';
 import { useSelect, useDispatch } from '@wordpress/data';
 import useConnection from '../';
-import { STORE_ID } from '../../../state/store';
+import { STORE_ID, initConnectionStore } from '../../../state/store';
 
 let spySetApiRoot;
 let spySetApiNonce;
@@ -16,6 +16,9 @@ let stubGetConnectionStatus;
 
 describe( 'useConnection', () => {
 	const setupStubs = () => {
+		// The store registers lazily now; register it before stubbing it.
+		initConnectionStore();
+
 		const { result: dispatch } = renderHook( () => useDispatch( STORE_ID ) );
 		let storeSelect;
 		renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );

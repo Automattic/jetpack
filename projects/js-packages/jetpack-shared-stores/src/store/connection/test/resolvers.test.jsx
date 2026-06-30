@@ -1,8 +1,11 @@
 import { jest } from '@jest/globals';
 import { select, dispatch } from '@wordpress/data';
 import { FETCH_AUTHORIZATION_URL, SET_AUTHORIZATION_URL } from '../actions';
+import { CONNECTION_STORE_ID as STORE_ID, initConnectionStore } from '../index';
 import resolvers from '../resolvers';
-import { STORE_ID } from '../store';
+
+// The store registers lazily now, so register it before selecting/dispatching.
+initConnectionStore();
 
 const selectors = select( STORE_ID );
 const dispatchers = dispatch( STORE_ID );

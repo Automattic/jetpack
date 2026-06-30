@@ -5,7 +5,7 @@ import debugFactory from 'debug';
 import { useEffect, useState, useMemo } from 'react';
 import useConnection from '../../components/use-connection';
 import getCalypsoOrigin from '../../helpers/get-calypso-origin';
-import { STORE_ID } from '../../state/store.jsx';
+import { STORE_ID, initConnectionStore } from '../../state/store.jsx';
 import type { UseProductCheckoutWorkflowProps } from './types';
 
 const debug = debugFactory( 'jetpack:connection:useProductCheckoutWorkflow' );
@@ -46,6 +46,10 @@ export default function useProductCheckoutWorkflow(
 	debug( 'redirectUrl is %s', redirectUrl );
 	debug( 'siteSuffix is %s', siteSuffix );
 	debug( 'from is %s', from );
+
+	// Register the connection store lazily; idempotent across consumers.
+	initConnectionStore();
+
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
 

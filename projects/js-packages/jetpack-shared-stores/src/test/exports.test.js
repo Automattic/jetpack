@@ -9,7 +9,7 @@
  * (a string contract used across 25+ consumers).
  */
 import * as barrel from '../../index.js';
-import { CONNECTION_STORE_ID } from '../store/connection';
+import { CONNECTION_STORE_ID, initConnectionStore } from '../store/connection';
 
 describe( 'package exports', () => {
 	it( 'exposes the jetpack-modules store and its id from the barrel', () => {
@@ -25,14 +25,20 @@ describe( 'package exports', () => {
 		expect( typeof barrel.selectors.getAiAssistantFeature ).toBe( 'function' );
 	} );
 
-	it( 'exposes the connection store id from the /connection subpath', () => {
+	it( 'exposes the connection store id and lazy initializer from the /connection subpath', () => {
 		expect( CONNECTION_STORE_ID ).toBe( 'jetpack-connection' );
+		expect( typeof initConnectionStore ).toBe( 'function' );
+		const connectionStore = initConnectionStore();
+		expect( connectionStore.name ).toBe( 'jetpack-connection' );
 	} );
 
 	it( 'does not export the connection store from the main barrel (isolation invariant)', () => {
-		// The whole point of the /connection subpath is that barrel consumers do
-		// not eagerly load the connection store. If someone adds it back to the
-		// barrel's `export *`, this assertion fails before the regression ships.
+		/*
+		 * The connection store lives on the /connection subpath, not the main
+		 * barrel, so consumers of the other stores neither bundle nor evaluate it.
+		 * If someone adds it back to the barrel's `export *`, this fails first.
+		 */
 		expect( barrel.CONNECTION_STORE_ID ).toBeUndefined();
+		expect( barrel.initConnectionStore ).toBeUndefined();
 	} );
 } );

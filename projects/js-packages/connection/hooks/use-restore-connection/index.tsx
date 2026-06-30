@@ -3,7 +3,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useState } from 'react';
 import { getUserConnectionUrl } from '../../helpers/get-user-connection-url';
-import { STORE_ID } from '../../state/store';
+import { STORE_ID, initConnectionStore } from '../../state/store';
 
 const { apiRoot, apiNonce } =
 	window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
@@ -20,6 +20,9 @@ interface ConnectionStoreDispatch {
  * @return {object} - The hook data.
  */
 export default function useRestoreConnection() {
+	// Register the connection store lazily; idempotent across consumers.
+	initConnectionStore();
+
 	const [ isRestoringConnection, setIsRestoringConnection ] = useState( false );
 	const [ restoreConnectionError, setRestoreConnectionError ] = useState< string | null >( null );
 
