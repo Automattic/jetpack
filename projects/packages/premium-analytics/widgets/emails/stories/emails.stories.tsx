@@ -1,4 +1,12 @@
 /**
+ * Like `top-posts` (the canonical non-time-series Stats widget), this story
+ * exercises the presentational `EmailsLeaderboard` with fixtures rather than the
+ * data-connected widget through `WidgetDashboardWithWidget`. `registerReportMocks`
+ * only mocks the WC `analytics/reports` endpoints, not the Stats proxy that
+ * `useStatsEmailSummary` hits, so a dashboard story would render only the empty
+ * state. Fixtures let the populated states render without a backend.
+ */
+/**
  * Internal dependencies
  */
 import { withChartTheme } from '../../../packages/widgets-toolkit/src/stories/with-chart-theme';

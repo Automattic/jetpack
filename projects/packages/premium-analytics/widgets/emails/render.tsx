@@ -12,7 +12,6 @@ import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -32,7 +31,7 @@ export type EmailMetric = 'opens' | 'clicks';
  */
 export type EmailRow = {
 	/**
-	 * Stable identifier for the email (post ID or, as a fallback, the title).
+	 * Stable identifier for the email (post ID or, as a fallback, the array index).
 	 */
 	id: string | number;
 	/**
@@ -144,7 +143,7 @@ export const EmailsLeaderboard = ( {
 	} else {
 		body = (
 			<LeaderboardChart
-				className={ clsx( styles.leaderboard ) }
+				className={ styles.leaderboard }
 				data={ data }
 				loading={ isLoading }
 				withComparison={ false }
@@ -224,10 +223,7 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 
 	const { data, isLoading, isError } = useStatsEmailSummary( { quantity } );
 
-	const rows = useMemo(
-		() => toEmailRows( data as StatsEmailSummary | undefined, max ),
-		[ data, max ]
-	);
+	const rows = useMemo( () => toEmailRows( data, max ), [ data, max ] );
 
 	return <EmailsLeaderboard rows={ rows } isLoading={ isLoading } isError={ isError } />;
 }
