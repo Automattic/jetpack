@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-AI Sidebar: source the AI Editorial Review flag only from features.aiEditorialReview; drop the redundant top-level aiEditorialReviewEnabled field.

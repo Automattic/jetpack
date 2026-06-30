@@ -63,6 +63,18 @@ class Cookie_Consent {
 	private static $initialized = false;
 
 	/**
+	 * Whether the required footer legal links were injected into a footer
+	 * navigation block (Block Hooks) for the current rendered response.
+	 *
+	 * Set true by the navigation-link render filter when one of our hooked
+	 * links renders; consulted by the wp_footer fallback to avoid duplicating
+	 * the links on block themes that already received them.
+	 *
+	 * @var bool
+	 */
+	private static $footer_links_injected = false;
+
+	/**
 	 * Initialize the package. Idempotent; safe to call multiple times.
 	 *
 	 * Public entry point a consumer calls to activate cookie consent. Registers
@@ -78,6 +90,11 @@ class Cookie_Consent {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
 
+		// Classic-theme (and footer-nav-less block theme) fallback for the required
+		// legal links. Runs late so any Block Hooks injection has already happened
+		// and flipped self::$footer_links_injected.
+		add_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );
+
 		// Create the CCPA opt-out page once (guarded), now that the Atomic
 		// garden_site_provisioning hook is no longer available in this context.
 		add_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
@@ -88,6 +105,10 @@ class Cookie_Consent {
 		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10, 2 );
 		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'maybe_suppress_privacy_policy_link' ), 10, 2 );
 		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10, 2 );
+		// Flag that the required links were injected into a footer nav (covers all
+		// three, including the Privacy Policy link which has no directive filter),
+		// so the wp_footer fallback does not duplicate them.
+		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'mark_footer_links_injected' ), 10, 2 );
 
 		// Add Interactivity API directive to CCPA opt-out button.
 		add_filter( 'render_block_core/button', array( __CLASS__, 'add_ccpa_button_directive' ), 10, 2 );
@@ -126,6 +147,7 @@ class Cookie_Consent {
 		// with init() whenever a hook is added there.
 		remove_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		remove_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
+		remove_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );
 		remove_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
 
 		remove_filter( 'hooked_block_types', array( __CLASS__, 'register_footer_navigation_links' ), 10 );
@@ -133,6 +155,7 @@ class Cookie_Consent {
 		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10 );
 		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'maybe_suppress_privacy_policy_link' ), 10 );
 		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10 );
+		remove_filter( 'render_block_core/navigation-link', array( __CLASS__, 'mark_footer_links_injected' ), 10 );
 		remove_filter( 'render_block_core/button', array( __CLASS__, 'add_ccpa_button_directive' ), 10 );
 		remove_filter( 'render_block_core/group', array( __CLASS__, 'add_ccpa_group_directives' ), 10 );
 		remove_filter( 'get_pages', array( __CLASS__, 'exclude_ccpa_from_get_pages' ), 10 );
@@ -277,8 +300,8 @@ class Cookie_Consent {
 	 */
 	public static function ignore_geo_cookies_in_page_cache( $cookies ) {
 		$config       = self::get_config();
-		$country_code = $config['country_code_cookie'] ?? 'country_code';
-		$region       = $config['region_cookie'] ?? 'region';
+		$country_code = $config['geo']['country_code_cookie'];
+		$region       = $config['geo']['region_cookie'];
 		$cookies[]    = preg_quote( $country_code, '/' );
 		$cookies[]    = preg_quote( $region, '/' );
 
@@ -585,6 +608,141 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Mark that one of our required footer legal links was injected into a
+	 * footer navigation block, so the wp_footer fallback does not duplicate it.
+	 *
+	 * Keyed on the metadata.name set by set_footer_navigation_link_attributes().
+	 * Covers the Privacy Policy link too, which has no directive filter of its own.
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The full block, including name and attributes.
+	 * @return string Unmodified block content.
+	 */
+	public static function mark_footer_links_injected( $block_content, $block ) {
+		if ( ! isset( $block['attrs']['metadata']['name'] ) ) {
+			return $block_content;
+		}
+
+		$names = array(
+			'jetpack-cookie-consent-privacy-policy-link',
+			'jetpack-cookie-consent-ccpa-privacy-link',
+			'jetpack-cookie-consent-gdpr-manage-preferences-link',
+		);
+
+		if ( in_array( $block['attrs']['metadata']['name'], $names, true ) ) {
+			self::$footer_links_injected = true;
+		}
+
+		return $block_content;
+	}
+
+	/**
+	 * Decide whether the floating footer-links fallback should render.
+	 *
+	 * Minimal gate modeled on Jetpack_Subscribe_Floating_Button::should_user_see_floating_button():
+	 * frontend only, never on 404, and never in customizer/theme/post previews.
+	 *
+	 * @return bool True when the fallback control should be rendered.
+	 */
+	private static function should_show_fallback() {
+		if ( is_admin() ) {
+			return false;
+		}
+
+		if ( is_404() ) {
+			return false;
+		}
+
+		// Don't show in customizer/theme/post previews.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['preview'] ) || isset( $_GET['theme_preview'] ) || isset( $_GET['customize_preview'] ) || isset( $_GET['hide_banners'] ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get the published Privacy Policy page URL, or '' when none exists.
+	 *
+	 * @return string Privacy Policy permalink or empty string.
+	 */
+	private static function get_privacy_policy_url() {
+		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
+		if ( ! $privacy_policy_page_id ) {
+			return '';
+		}
+
+		$page = get_post( $privacy_policy_page_id );
+		if ( ! $page || 'publish' !== $page->post_status ) {
+			return '';
+		}
+
+		return (string) get_permalink( $privacy_policy_page_id );
+	}
+
+	/**
+	 * Get the CCPA opt-out page URL and title, or empty strings when none exists.
+	 *
+	 * Mirrors the Block Hooks footer nav-link, which uses the CCPA page's own
+	 * title (e.g. "Your Privacy Choices") as the link label.
+	 *
+	 * @return array{url: string, label: string} CCPA page URL and label.
+	 */
+	private static function get_ccpa_page_link() {
+		if ( ! self::ccpa_page_is_published() ) {
+			return array(
+				'url'   => '',
+				'label' => '',
+			);
+		}
+
+		$ccpa_page_id = get_option( self::CCPA_PAGE_ID_OPTION );
+
+		return array(
+			'url'   => (string) get_permalink( $ccpa_page_id ),
+			'label' => (string) get_the_title( $ccpa_page_id ),
+		);
+	}
+
+	/**
+	 * Render the classic-theme fallback for the required legal links.
+	 *
+	 * Bails when the Block Hooks footer-nav injection already ran for this
+	 * response (self::$footer_links_injected) or when the visibility gate is
+	 * false. Otherwise builds a fixed-corner floating control, processes its
+	 * Interactivity directives, and echoes it — same pattern as render_banner().
+	 */
+	public static function maybe_render_footer_links_fallback() {
+		if ( self::$footer_links_injected ) {
+			return;
+		}
+
+		if ( ! self::should_show_fallback() ) {
+			return;
+		}
+
+		$template_path = plugin_dir_path( __FILE__ ) . 'footer-links-fallback.php';
+		if ( ! file_exists( $template_path ) ) {
+			return;
+		}
+
+		// Resolve which links to show (same checks the Block Hooks path uses).
+		// These are consumed by footer-links-fallback.php via the include scope.
+		$privacy_policy_url = self::get_privacy_policy_url(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$ccpa_link          = self::get_ccpa_page_link();
+		$ccpa_url           = $ccpa_link['url']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$ccpa_label         = $ccpa_link['label']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		ob_start();
+		include $template_path;
+		$html = ob_get_clean();
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo wp_interactivity_process_directives( $html );
+	}
+
+	/**
 	 * Add Interactivity API directive to CCPA opt-out button
 	 *
 	 * @param string $block_content The block content.
@@ -657,6 +815,21 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Get configured log versions.
+	 *
+	 * @return array Log version configuration.
+	 */
+	public static function get_log_versions() {
+		$config     = self::get_config();
+		$log_config = isset( $config['log'] ) && is_array( $config['log'] ) ? $config['log'] : array();
+
+		return array(
+			'policy_version' => self::normalize_log_version( $log_config['policy_version'] ?? '1', 'policy_version' ),
+			'banner_version' => self::normalize_log_version( $log_config['banner_version'] ?? '1', 'banner_version' ),
+		);
+	}
+
+	/**
 	 * Get default UI copy.
 	 *
 	 * Defaults are translated in the package text domain. Consumers can override
@@ -705,6 +878,34 @@ class Cookie_Consent {
 			'ccpa_snackbar_success'            => __( 'Your browser has been successfully opted out from sharing personal data.', 'jetpack-cookie-consent' ),
 			'ccpa_snackbar_dismiss_label'      => __( 'Dismiss', 'jetpack-cookie-consent' ),
 		);
+	}
+
+	/**
+	 * Normalize a configured log version value for callers.
+	 *
+	 * @param mixed  $version Version value from config.
+	 * @param string $key     Config key being normalized, used for diagnostics.
+	 * @return string Non-empty log version.
+	 */
+	private static function normalize_log_version( $version, $key ) {
+		if ( is_scalar( $version ) ) {
+			$normalized = sanitize_text_field( (string) $version );
+			if ( '' !== $normalized ) {
+				return $normalized;
+			}
+		}
+
+		// A supplied value that isn't a usable version string would silently become the
+		// default '1' on a proof-of-consent record, masking a misconfiguration. Surface it
+		// so an integrating developer notices the configured value was dropped.
+		_doing_it_wrong(
+			__METHOD__,
+			/* translators: %s is the log version configuration key. */
+			esc_html( sprintf( __( 'Cookie consent log version for "%s" was ignored because it is not a non-empty scalar value.', 'jetpack-cookie-consent' ), $key ) ),
+			''
+		);
+
+		return '1';
 	}
 
 	/**
@@ -769,11 +970,12 @@ class Cookie_Consent {
 	 * @return array Normalized links.
 	 */
 	private static function normalize_links( $config, $defaults ) {
-		$links = $config['links'] ?? array();
-		if ( ! is_array( $links ) ) {
-			$links = array();
-		}
-		$has_cookie_policy_url = array_key_exists( 'cookie_policy_url', $links ) && is_scalar( $links['cookie_policy_url'] );
+		$links = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
+
+		$has_cookie_policy_url = (
+			array_key_exists( 'cookie_policy_url', $links )
+			&& is_scalar( $links['cookie_policy_url'] )
+		);
 
 		foreach ( $links as $key => $value ) {
 			if ( ! is_string( $key ) ) {
@@ -798,94 +1000,224 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Get configuration with filters
+	 * Get default GDPR country list.
 	 *
-	 * @return array Configuration array
+	 * @return string[] Country codes where opt-in consent applies.
 	 */
-	private static function get_config() {
-		$default_copy   = self::get_default_copy();
-		$default_links  = array(
-			'cookie_policy_url' => '',
+	private static function get_default_gdpr_countries() {
+		return array(
+			// European Member countries.
+			'AT', // Austria.
+			'BE', // Belgium.
+			'BG', // Bulgaria.
+			'CY', // Cyprus.
+			'CZ', // Czech Republic.
+			'DE', // Germany.
+			'DK', // Denmark.
+			'EE', // Estonia.
+			'ES', // Spain.
+			'FI', // Finland.
+			'FR', // France.
+			'GR', // Greece.
+			'HR', // Croatia.
+			'HU', // Hungary.
+			'IE', // Ireland.
+			'IT', // Italy.
+			'LT', // Lithuania.
+			'LU', // Luxembourg.
+			'LV', // Latvia.
+			'MT', // Malta.
+			'NL', // Netherlands.
+			'PL', // Poland.
+			'PT', // Portugal.
+			'RO', // Romania.
+			'SE', // Sweden.
+			'SI', // Slovenia.
+			'SK', // Slovakia.
+			'GB', // United Kingdom.
+			// Single Market Countries that GDPR applies to.
+			'CH', // Switzerland.
+			'IS', // Iceland.
+			'LI', // Liechtenstein.
+			'NO', // Norway.
 		);
-		$default_config = array(
-			'geo_api_url'         => 'https://public-api.wordpress.com/geo/',
-			'geo_cookie_duration' => 6 * HOUR_IN_SECONDS, // 6 hours.
+	}
+
+	/**
+	 * Get default CCPA-style region list.
+	 *
+	 * @return string[] Lower-case region names where opt-out consent applies.
+	 */
+	private static function get_default_ccpa_regions() {
+		return array(
+			/* US regions/states that are treated like California for Do Not Sell requests. */
+			'california',
+			'utah',
+			'virginia',
+			'colorado',
+			'connecticut',
+			'texas',
+			'tennessee',
+			'oregon',
+			'new jersey',
+			'montana',
+			'iowa',
+			'indiana',
+			'delaware',
+		);
+	}
+
+	/**
+	 * Get default geo provider configuration.
+	 *
+	 * @return array Geo configuration.
+	 */
+	private static function get_default_geo_config() {
+		return array(
+			'provider'            => 'wpcom',
+			'api_url'             => 'https://public-api.wordpress.com/geo/',
 			'country_code_cookie' => 'country_code',
 			'region_cookie'       => 'region',
-			'cookie_policy_url'   => $default_links['cookie_policy_url'],
-			'gdpr_countries'      => array(
-				// European Member countries.
-				'AT', // Austria.
-				'BE', // Belgium.
-				'BG', // Bulgaria.
-				'CY', // Cyprus.
-				'CZ', // Czech Republic.
-				'DE', // Germany.
-				'DK', // Denmark.
-				'EE', // Estonia.
-				'ES', // Spain.
-				'FI', // Finland.
-				'FR', // France.
-				'GR', // Greece.
-				'HR', // Croatia.
-				'HU', // Hungary.
-				'IE', // Ireland.
-				'IT', // Italy.
-				'LT', // Lithuania.
-				'LU', // Luxembourg.
-				'LV', // Latvia.
-				'MT', // Malta.
-				'NL', // Netherlands.
-				'PL', // Poland.
-				'PT', // Portugal.
-				'RO', // Romania.
-				'SE', // Sweden.
-				'SI', // Slovenia.
-				'SK', // Slovakia.
-				'GB', // United Kingdom.
-				// Single Market Countries that GDPR applies to.
-				'CH', // Switzerland.
-				'IS', // Iceland.
-				'LI', // Liechtenstein.
-				'NO', // Norway.
-			),
-			'ccpa_regions'        => array(
-				/* US regions/states that are treated like California for Do Not Sell requests. */
-				'california',
-				'utah',
-				'virginia',
-				'colorado',
-				'connecticut',
-				'texas',
-				'tennessee',
-				'oregon',
-				'new jersey',
-				'montana',
-				'iowa',
-				'indiana',
-				'delaware',
-			),
+			'cookie_duration'     => 6 * HOUR_IN_SECONDS, // 6 hours.
+			'gdpr_countries'      => self::get_default_gdpr_countries(),
+			'ccpa_regions'        => self::get_default_ccpa_regions(),
 			'show_on_error'       => true, // Show banner if geolocation fails.
+		);
+	}
+
+	/**
+	 * Get default configuration.
+	 *
+	 * Legacy top-level geo keys are included so existing filters that append to the
+	 * defaults keep working. normalize_config() folds them into the nested geo schema.
+	 *
+	 * @return array Configuration array.
+	 */
+	private static function get_default_config() {
+		$default_copy = self::get_default_copy();
+		$geo_config   = self::get_default_geo_config();
+
+		return array(
+			'geo'                 => $geo_config,
+			'geo_provider'        => $geo_config['provider'],
+			'geo_api_url'         => $geo_config['api_url'],
+			'geo_cookie_duration' => $geo_config['cookie_duration'],
+			'country_code_cookie' => $geo_config['country_code_cookie'],
+			'region_cookie'       => $geo_config['region_cookie'],
+			'gdpr_countries'      => $geo_config['gdpr_countries'],
+			'ccpa_regions'        => $geo_config['ccpa_regions'],
+			'show_on_error'       => $geo_config['show_on_error'],
 			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
+			'cookie_policy_url'   => '',
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
+			'log'                 => array(
+				'policy_version' => '1',
+				'banner_version' => '1',
+			),
 			'copy'                => $default_copy,
 		);
+	}
+
+	/**
+	 * Normalize GDPR country codes for case-insensitive matching.
+	 *
+	 * @param string[] $countries Country codes.
+	 * @return string[] Upper-case country codes.
+	 */
+	private static function normalize_gdpr_countries( $countries ) {
+		return array_map( 'strtoupper', array_values( $countries ) );
+	}
+
+	/**
+	 * Normalize CCPA region names for case-insensitive matching.
+	 *
+	 * @param string[] $regions Region names.
+	 * @return string[] Lower-case region names.
+	 */
+	private static function normalize_ccpa_regions( $regions ) {
+		return array_map( 'strtolower', array_values( $regions ) );
+	}
+
+	/**
+	 * Normalize filtered configuration into the current schema.
+	 *
+	 * @param array $config         Filtered configuration.
+	 * @param array $default_config Default configuration.
+	 * @return array Normalized configuration.
+	 */
+	private static function normalize_config( $config, $default_config ) {
+		if ( ! is_array( $config ) ) {
+			$config = array();
+		}
+
+		$nested_geo = isset( $config['geo'] ) && is_array( $config['geo'] ) ? $config['geo'] : array();
+		$geo        = array_merge( $default_config['geo'], $nested_geo );
+
+		$legacy_geo_keys = array(
+			'geo_provider'        => 'provider',
+			'geo_api_url'         => 'api_url',
+			'geo_cookie_duration' => 'cookie_duration',
+			'country_code_cookie' => 'country_code_cookie',
+			'region_cookie'       => 'region_cookie',
+			'gdpr_countries'      => 'gdpr_countries',
+			'ccpa_regions'        => 'ccpa_regions',
+			'show_on_error'       => 'show_on_error',
+		);
+
+		foreach ( $legacy_geo_keys as $legacy_key => $geo_key ) {
+			$has_nested_override = array_key_exists( $geo_key, $nested_geo );
+			if ( ! $has_nested_override && array_key_exists( $legacy_key, $config ) && $config[ $legacy_key ] !== $default_config[ $legacy_key ] ) {
+				$geo[ $geo_key ] = $config[ $legacy_key ];
+			}
+		}
+
+		if ( ! in_array( $geo['provider'], array( 'wpcom', 'custom' ), true ) ) {
+			$geo['provider'] = 'wpcom';
+			$geo['api_url']  = $default_config['geo']['api_url'];
+		}
+		if ( ! is_string( $geo['api_url'] ) ) {
+			$geo['api_url'] = '';
+		}
+		if ( 'wpcom' === $geo['provider'] && '' === $geo['api_url'] ) {
+			$geo['api_url'] = $default_config['geo']['api_url'];
+		}
+		$geo['country_code_cookie'] = is_string( $geo['country_code_cookie'] ) && '' !== $geo['country_code_cookie'] ? $geo['country_code_cookie'] : $default_config['geo']['country_code_cookie'];
+		$geo['region_cookie']       = is_string( $geo['region_cookie'] ) && '' !== $geo['region_cookie'] ? $geo['region_cookie'] : $default_config['geo']['region_cookie'];
+		$geo['cookie_duration']     = is_numeric( $geo['cookie_duration'] ) ? (int) $geo['cookie_duration'] : $default_config['geo']['cookie_duration'];
+		$geo['gdpr_countries']      = is_array( $geo['gdpr_countries'] ) ? self::normalize_gdpr_countries( $geo['gdpr_countries'] ) : $default_config['geo']['gdpr_countries'];
+		$geo['ccpa_regions']        = is_array( $geo['ccpa_regions'] ) ? self::normalize_ccpa_regions( $geo['ccpa_regions'] ) : $default_config['geo']['ccpa_regions'];
+		$geo['show_on_error']       = (bool) $geo['show_on_error'];
+
+		$links = self::normalize_links(
+			$config,
+			array(
+				'cookie_policy_url' => $default_config['cookie_policy_url'],
+			)
+		);
+
+		$config['geo']               = $geo;
+		$config['links']             = $links;
+		$config['cookie_policy_url'] = $links['cookie_policy_url'];
+		$config['event_prefix']      = $config['event_prefix'] ?? $default_config['event_prefix'];
+		$config['copy']              = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
+
+		return $config;
+	}
+
+	/**
+	 * Get configuration with filters.
+	 *
+	 * @return array Configuration array.
+	 */
+	private static function get_config() {
+		$default_config = self::get_default_config();
 
 		/**
 		 * Filter cookie consent configuration
 		 *
 		 * @param array $config Configuration array
 		 */
-		$config = apply_filters( 'jetpack_cookie_consent_config', $default_config );
-		if ( ! is_array( $config ) ) {
-			$config = $default_config;
-		}
-
-		$config['copy']              = self::normalize_copy( $config['copy'] ?? array(), $default_copy );
-		$config['links']             = self::normalize_links( $config, $default_links );
-		$config['cookie_policy_url'] = $config['links']['cookie_policy_url'];
-
-		return $config;
+		return self::normalize_config( apply_filters( 'jetpack_cookie_consent_config', $default_config ), $default_config );
 	}
 
 	/**
@@ -960,22 +1292,24 @@ class Cookie_Consent {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$force_preview = isset( $_GET['preview_cookie_consent'] ) && '1' === $_GET['preview_cookie_consent'];
 
-		// Pass configuration to frontend using wp_interactivity_config.
-		wp_interactivity_config(
-			'jetpack/cookie-consent',
-			array(
-				'geoApiUrl'         => $config['geo_api_url'],
-				'geoCookieDuration' => $config['geo_cookie_duration'],
-				'countryCodeCookie' => $config['country_code_cookie'],
-				'regionCookie'      => $config['region_cookie'],
-				'cookiePolicyUrl'   => $config['cookie_policy_url'],
-				'gdprCountries'     => $config['gdpr_countries'],
-				'ccpaRegions'       => $config['ccpa_regions'],
-				'gdprHonorsGpc'     => $config['gdpr_honors_gpc'] ?? true,
-				'showOnError'       => $config['show_on_error'],
-				'forcePreview'      => $force_preview,
-			)
+		$frontend_config = array(
+			'cookiePolicyUrl' => $config['cookie_policy_url'],
+			'gdprHonorsGpc'   => $config['gdpr_honors_gpc'] ?? true,
+			'forcePreview'    => $force_preview,
+			'geo'             => array(
+				'provider'          => $config['geo']['provider'],
+				'apiUrl'            => $config['geo']['api_url'],
+				'countryCodeCookie' => $config['geo']['country_code_cookie'],
+				'regionCookie'      => $config['geo']['region_cookie'],
+				'cookieDuration'    => $config['geo']['cookie_duration'],
+				'gdprCountries'     => $config['geo']['gdpr_countries'],
+				'ccpaRegions'       => $config['geo']['ccpa_regions'],
+				'showOnError'       => $config['geo']['show_on_error'],
+			),
 		);
+
+		// Pass configuration to frontend using wp_interactivity_config.
+		wp_interactivity_config( 'jetpack/cookie-consent', $frontend_config );
 	}
 
 	/**

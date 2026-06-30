@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Podcast: load the package outside Jetpack's connection-gated module loader so the podcast feed and dashboard keep working when the site is disconnected.

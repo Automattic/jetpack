@@ -41,6 +41,10 @@ const statsHookNames = [
 	'useStatsAppReferrersUnmarkSpamMutation',
 	'useStatsEmailOpensBreakdown',
 	'useStatsEmailClicksBreakdown',
+	'useStatsEmailSummary',
+	'useStatsSingleVideo',
+	'useStatsEmailOpensTimeSeries',
+	'useStatsEmailClicksTimeSeries',
 ] as const satisfies ReadonlyArray< keyof typeof dataPackage >;
 
 describe( 'Stats public hook names', () => {
