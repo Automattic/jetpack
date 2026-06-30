@@ -72,13 +72,15 @@ function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersCh
  * (a non-time-series TanStack query result — no `primary`/`comparison` shape).
  *
  * @param period        - Selected granularity (day/week/month).
- * @param referenceDate - The window's end date; defaults to now. Injectable for
- *                      deterministic tests/stories.
+ * @param referenceDate - The window's end date; defaults to "today" in the
+ *                      site timezone (like other Stats widgets) so the terminal
+ *                      bucket is correct regardless of the viewer's timezone.
+ *                      Injectable for deterministic tests/stories.
  * @return The current/previous series, totals, and load state.
  */
 export default function useSubscribersChart(
 	period: SubscribersPeriod,
-	referenceDate: Date = new Date()
+	referenceDate: Date = localTZDate()
 ): SubscribersChartState {
 	const { quantity, unit } = PERIOD_CONFIG[ period ];
 
