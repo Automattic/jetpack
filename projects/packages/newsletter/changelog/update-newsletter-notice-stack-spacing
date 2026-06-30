@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Newsletter settings: space the Email content private-site notice from the form with a Stack gap instead of a custom CSS margin rule.

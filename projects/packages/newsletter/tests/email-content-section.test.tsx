@@ -2,9 +2,9 @@
  * Tests for the Email content section's "site is private" warning notice.
  *
  * `@wordpress/ui` and `@wordpress/dataviews` are stubbed to plain HTML so we can
- * assert on the rendered output directly. The `Notice.Root` stub forwards the
- * `className` it receives, which lets us guard the spacing class that separates
- * the notice from the toggle below it (NL-717).
+ * assert on the rendered output directly. The `Stack` stub forwards its `gap`
+ * prop as a data attribute, which lets us guard the spacing that separates the
+ * notice from the toggle below it (NL-717).
  */
 
 jest.mock( '@wordpress/ui', () => ( {
@@ -18,12 +18,13 @@ jest.mock( '@wordpress/ui', () => ( {
 	Fieldset: {
 		Root: ( { children }: { children: React.ReactNode } ) => <fieldset>{ children }</fieldset>,
 	},
+	Stack: ( { children, gap }: { children: React.ReactNode; gap?: string } ) => (
+		<div data-testid="stack" data-gap={ gap }>
+			{ children }
+		</div>
+	),
 	Notice: {
-		Root: ( { children, className }: { children: React.ReactNode; className?: string } ) => (
-			<div role="alert" className={ className }>
-				{ children }
-			</div>
-		),
+		Root: ( { children }: { children: React.ReactNode } ) => <div role="alert">{ children }</div>,
 		Description: ( { children }: { children: React.ReactNode } ) => <p>{ children }</p>,
 	},
 } ) );
@@ -77,7 +78,7 @@ describe( 'EmailContentSection private-site notice', () => {
 		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders the warning notice with the spacing class when the site is private', () => {
+	it( 'renders the warning notice spaced from the form via a Stack when the site is private', () => {
 		mockedGetScriptData.mockReturnValue( { isSitePublic: false } as ReturnType<
 			typeof getNewsletterScriptData
 		> );
@@ -86,8 +87,11 @@ describe( 'EmailContentSection private-site notice', () => {
 
 		const notice = screen.getByRole( 'alert' );
 		expect( notice ).toBeInTheDocument();
-		// The spacing class is what keeps the notice from colliding with the
-		// toggle rendered below it (NL-717). Guard it against regressions.
-		expect( notice ).toHaveClass( 'newsletter-email-content-notice' );
+		// The Stack gap is what keeps the notice from colliding with the toggle
+		// rendered below it (NL-717). Guard it against regressions.
+		const stack = screen.getByTestId( 'stack' );
+		expect( stack ).toHaveAttribute( 'data-gap', 'lg' );
+		expect( stack ).toContainElement( notice );
+		expect( stack ).toContainElement( screen.getByTestId( 'data-form' ) );
 	} );
 } );
