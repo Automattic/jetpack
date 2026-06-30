@@ -12,6 +12,32 @@
 	margin-block-end: 24px;
 }
 
+.fieldset-stack {
+	display: grid;
+	gap: 24px;
+}
+
+.fieldset {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.legend {
+	padding: 0;
+	margin-block-end: 4px;
+	color: #1d2327;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+.description {
+	max-width: 640px;
+	margin-block: 0 16px;
+	color: #646970;
+}
+
 .group-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));

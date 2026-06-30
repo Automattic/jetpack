@@ -2,8 +2,6 @@ import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
 	Notice,
-	Panel,
-	PanelBody,
 	SelectControl,
 	Spinner,
 	TextControl,
@@ -494,9 +492,13 @@ export function CustomizeContent() {
 				</Notice>
 			) }
 
-			<Panel>
+			<div className={ styles[ 'fieldset-stack' ] }>
 				{ userIsAdmin && (
-					<PanelBody title={ __( 'Defaults', 'jetpack-my-jetpack' ) } initialOpen>
+					<fieldset className={ styles.fieldset }>
+						<legend className={ styles.legend }>{ __( 'Defaults', 'jetpack-my-jetpack' ) }</legend>
+						<p className={ styles.description }>
+							{ __( 'Set the shared Jetpack menu defaults for this site.', 'jetpack-my-jetpack' ) }
+						</p>
 						<ToggleControl
 							label={ __( 'Recommended menu', 'jetpack-my-jetpack' ) }
 							checked={ enabled }
@@ -507,10 +509,17 @@ export function CustomizeContent() {
 								<GroupLabelControl key={ group.id } group={ group } onChange={ updateGroupLabel } />
 							) ) }
 						</div>
-					</PanelBody>
+					</fieldset>
 				) }
 
-				<PanelBody title={ __( 'Menu', 'jetpack-my-jetpack' ) } initialOpen>
+				<fieldset className={ styles.fieldset }>
+					<legend className={ styles.legend }>{ __( 'Menu', 'jetpack-my-jetpack' ) }</legend>
+					<p className={ styles.description }>
+						{ __(
+							'Choose which Jetpack items appear, where they belong, and their order.',
+							'jetpack-my-jetpack'
+						) }
+					</p>
 					<div className={ styles[ 'item-list' ] } ref={ itemListRef }>
 						{ orderedItems.map( ( item, index ) => (
 							<MenuItemRow
@@ -524,8 +533,8 @@ export function CustomizeContent() {
 							/>
 						) ) }
 					</div>
-				</PanelBody>
-			</Panel>
+				</fieldset>
+			</div>
 
 			<div className={ styles.actions }>
 				<Button
