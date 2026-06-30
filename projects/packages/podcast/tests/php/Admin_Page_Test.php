@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Podcast\Tests;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Admin_Page;
@@ -29,6 +30,7 @@ class Admin_Page_Test extends BaseTestCase {
 		// WorDBless does not reset the admin menu globals between tests.
 		$GLOBALS['menu']    = array();
 		$GLOBALS['submenu'] = array();
+		$this->reset_admin_menu_state();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
 	}
 
@@ -47,6 +49,26 @@ class Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Reset the shared Admin_Menu queue between tests.
+	 */
+	private function reset_admin_menu_state(): void {
+		$reflection = new \ReflectionClass( Admin_Menu::class );
+
+		foreach ( array( 'initialized' => false, 'menu_items' => array() ) as $property_name => $value ) {
+			if ( ! $reflection->hasProperty( $property_name ) ) {
+				continue;
+			}
+
+			$property = $reflection->getProperty( $property_name );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$property->setValue( null, $value );
+		}
+	}
+
+	/**
 	 * Self-hosted: the page registers through the shared Admin_Menu, which sorts
 	 * items by position. We assert the page-load callback Admin_Menu wires for us.
 	 */
@@ -59,6 +81,42 @@ class Admin_Page_Test extends BaseTestCase {
 				array( Admin_Page::class, 'admin_init' )
 			),
 			'Self-hosted should register the page through Admin_Menu'
+		);
+	}
+
+	/**
+	 * The Podcast submenu should remain above Jetpack Settings.
+	 */
+	public function test_registers_before_settings_on_self_hosted() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'podcast_menu_admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		Admin_Menu::add_menu(
+			__( 'Settings', 'jetpack-podcast' ),
+			__( 'Settings', 'jetpack-podcast' ),
+			'manage_options',
+			'jetpack#/settings',
+			null,
+			13
+		);
+		Admin_Page::add_wp_admin_submenu();
+
+		Admin_Menu::admin_menu_hook_callback();
+
+		$slugs = wp_list_pluck( (array) ( $GLOBALS['submenu']['jetpack'] ?? array() ), 2 );
+
+		$this->assertContains( Admin_Page::ADMIN_PAGE_SLUG, $slugs );
+		$this->assertContains( 'jetpack#/settings', $slugs );
+		$this->assertLessThan(
+			array_search( 'jetpack#/settings', $slugs, true ),
+			array_search( Admin_Page::ADMIN_PAGE_SLUG, $slugs, true ),
+			'The Podcast submenu should appear before Jetpack Settings.'
 		);
 	}
 
