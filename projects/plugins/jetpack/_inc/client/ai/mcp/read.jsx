@@ -101,7 +101,9 @@ function GroupCard( { descriptor, label, groupTools, savingToolIds, onToolChange
 					<Button
 						className="jetpack-ai-mcp__group-chevron"
 						icon={ isOpen ? chevronUp : chevronDown }
-						label={ __( 'Show operations', 'jetpack' ) }
+						label={
+							isOpen ? __( 'Hide operations', 'jetpack' ) : __( 'Show operations', 'jetpack' )
+						}
 						aria-expanded={ isOpen }
 						onClick={ handleChevron }
 					/>
