@@ -93,6 +93,10 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 		const effectiveHeight = measuredHeight || height || 0;
 
 		const defaultHeight = hasAspectRatio ? 'auto' : '100%';
+		// Express the aspect ratio in CSS so the container height tracks its width
+		// fluidly, rather than snapping to a debounced measured height.
+		const aspectRatioStyle =
+			hasAspectRatio && aspectRatio ? { aspectRatio: `${ 1 / aspectRatio }` } : null;
 
 		return (
 			<div
@@ -102,6 +106,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 				style={ {
 					width: width ?? '100%',
 					height: height ?? defaultHeight,
+					...aspectRatioStyle,
 				} }
 			>
 				<WrappedComponent

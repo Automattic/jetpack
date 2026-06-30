@@ -50,8 +50,6 @@ const CELL_MIX_FLOOR = 0.15;
 const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	data,
 	chartId: providedChartId,
-	width = 0,
-	height = 0,
 	className,
 	compact = false,
 	showValues,
@@ -231,7 +229,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		return (
 			<Center
 				className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }
-				style={ { width: width || undefined, height: height || undefined } }
 				data-testid="heatmap-chart"
 			>
 				<span className={ styles[ 'heatmap-chart__empty' ] }>
@@ -267,7 +264,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					trailingContent={ nonLegendChildren }
 					gap={ gap }
 					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }
-					style={ { width: width || undefined, height: height || undefined } }
 					data-testid="heatmap-chart"
 					data-chart-id={ `heatmap-chart-${ chartId }` }
 				>
