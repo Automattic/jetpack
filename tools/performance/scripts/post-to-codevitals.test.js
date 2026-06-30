@@ -17,6 +17,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { inspect } from 'node:util';
+import { resolveResultsGit } from './measure-lcp.js';
 import {
 	checkSanityRange,
 	exitCodeForError,
@@ -1052,6 +1053,33 @@ test( 'resolveCommitTimestampEnv: paired override honored, lone timestamp droppe
 		resolveCommitTimestampEnv( { committedAtMs: null }, { GIT_COMMIT_TIMESTAMP_MS: '999' } ).value,
 		null,
 		'a lone timestamp is dropped even when there is no HEAD time to fall back to'
+	);
+} );
+
+test( 'resolveResultsGit: the dominant channel pairs the commit time with GIT_COMMIT', () => {
+	// Paired (hash + time): both are written, as a coherent pair.
+	assert.deepEqual(
+		resolveResultsGit( {
+			GIT_COMMIT: 'deadbeef',
+			GIT_BRANCH: 'trunk',
+			GIT_COMMIT_TIMESTAMP_MS: '1600000000000',
+		} ),
+		{ hash: 'deadbeef', branch: 'trunk', timestamp: 1600000000000 }
+	);
+	// Lone GIT_COMMIT_TIMESTAMP_MS (no hash): the stale time is DROPPED so it can't be
+	// written into results.git.timestamp and backdate the trend (the poster prefers this
+	// value over its own guarded env fallback). This is R6-IMPORTANT-1, the dominant channel.
+	assert.deepEqual( resolveResultsGit( { GIT_COMMIT_TIMESTAMP_MS: '1600000000000' } ), {
+		hash: 'unknown',
+		branch: 'unknown',
+		timestamp: undefined,
+	} );
+	// Hash override with no paired time: hash written, time omitted (poster build-time falls back).
+	assert.equal( resolveResultsGit( { GIT_COMMIT: 'deadbeef' } ).timestamp, undefined );
+	// Paired but non-numeric time → dropped, not NaN.
+	assert.equal(
+		resolveResultsGit( { GIT_COMMIT: 'deadbeef', GIT_COMMIT_TIMESTAMP_MS: 'nope' } ).timestamp,
+		undefined
 	);
 } );
 

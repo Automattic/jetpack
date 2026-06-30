@@ -545,9 +545,10 @@ function resolveDedupEnabled( argv, env ) {
  * GIT_COMMIT_TIMESTAMP_MS is honored ONLY as a pair with a GIT_COMMIT hash override. A
  * lone GIT_COMMIT_TIMESTAMP_MS (no GIT_COMMIT) is orphaned: trusting it would stamp the
  * results-file hash with an unrelated inherited time, so we drop it and let
- * resolvePostTimestamp fall back to results.git.timestamp (the runner-produced, provenance
- * -matched value) or build time. The runner always sets GIT_COMMIT before spawning this
- * child, so its env handoff is unaffected; this only closes the direct `pnpm report` path.
+ * resolvePostTimestamp fall back to results.git.timestamp (itself paired with GIT_COMMIT at
+ * the measure-lcp write site, so it is provenance-matched) or build time. The runner always
+ * sets GIT_COMMIT before spawning this child, so its env handoff is unaffected; this gate
+ * closes the direct `pnpm report` config channel (measure-lcp closes the dominant one).
  *
  * @param {object} env - Environment object (process.env or a test double).
  * @return {string|undefined} The paired env timestamp, or undefined when unpaired.
