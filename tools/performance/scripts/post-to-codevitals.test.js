@@ -680,6 +680,98 @@ test( 'a native abort (DOMException with a getter-only message) does not crash r
 	assert.match( err.message, /timed out/ );
 } );
 
+// A response-body reader (json()/text()) that never settles on its own — only the fetch
+// abort signal rejects it, the way undici aborts an in-flight body read. Proves the live-POST
+// timer stays armed ACROSS the body read: if the production code cleared it after headers (the
+// old shape), abort never fires, this hangs, and the per-test timeout fails instead of hanging
+// forever. Mirrors dedupFetchStub's stallBodyUntilAbort for the live-POST path.
+function bodyStallsUntilAbort( init ) {
+	return new Promise( ( resolve, reject ) => {
+		const abort = () => {
+			const err = new Error( 'The operation was aborted' );
+			err.name = 'AbortError';
+			reject( err );
+		};
+		if ( init?.signal?.aborted ) {
+			abort();
+		} else {
+			init?.signal?.addEventListener( 'abort', abort, { once: true } );
+		}
+	} );
+}
+
+test(
+	'live POST body read stays bounded: a stalled OK json() body aborts to a timeout, not a hang',
+	{ timeout: 20000 },
+	async () => {
+		// The live POST used to clear its abort timer right after fetch() resolved, leaving
+		// response.json() unbounded — a server that sends 200 headers then stalls the body would
+		// hang past the 30s timeout (undici's ~300s default at best). The timer now stays armed
+		// through the body read, so the stalled json() aborts. postTimeoutMs=50 stands in for the
+		// 30s production timer; the per-test timeout turns a reverted fix into a clean failure.
+		const file = writeResults( 120 );
+		const origFetch = global.fetch;
+		global.fetch = async ( url, init ) => ( {
+			ok: true,
+			status: 200,
+			text: async () => '',
+			json: () => bodyStallsUntilAbort( init ),
+		} );
+		let err;
+		try {
+			await silenced( () =>
+				postToCodeVitals( file, {
+					dryRun: false,
+					codeVitalsUrl: 'https://codevitals.test',
+					codeVitalsToken: 'tok-stall-ok',
+					postTimeoutMs: 50,
+				} )
+			);
+		} catch ( e ) {
+			err = e;
+		} finally {
+			global.fetch = origFetch;
+		}
+		assert.ok( err, 'a stalled OK body must abort, not hang' );
+		assert.match( err.message, /timed out/, 'a body-read abort is a timeout, not "invalid JSON"' );
+	}
+);
+
+test(
+	'live POST body read stays bounded: a stalled non-OK text() body aborts to a timeout, not a hang',
+	{ timeout: 20000 },
+	async () => {
+		// Same regression guard on the error branch: a non-OK response reads response.text() for
+		// the error message, and that read must be bounded by the same armed timer. A 500 whose
+		// body stalls aborts cleanly instead of hanging.
+		const file = writeResults( 120 );
+		const origFetch = global.fetch;
+		global.fetch = async ( url, init ) => ( {
+			ok: false,
+			status: 500,
+			json: async () => ( {} ),
+			text: () => bodyStallsUntilAbort( init ),
+		} );
+		let err;
+		try {
+			await silenced( () =>
+				postToCodeVitals( file, {
+					dryRun: false,
+					codeVitalsUrl: 'https://codevitals.test',
+					codeVitalsToken: 'tok-stall-err',
+					postTimeoutMs: 50,
+				} )
+			);
+		} catch ( e ) {
+			err = e;
+		} finally {
+			global.fetch = origFetch;
+		}
+		assert.ok( err, 'a stalled error body must abort, not hang' );
+		assert.match( err.message, /timed out/ );
+	}
+);
+
 test( 'a validation failure is not downgraded to exit 1 when a later live POST also fails', async () => {
 	// Reachable only with 2+ posted metrics (FORMS-707 territory): one metric fails the
 	// sanity check (validationFailed=true) while a valid one remains and is POSTed. If

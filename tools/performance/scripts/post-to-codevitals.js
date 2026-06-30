@@ -462,8 +462,21 @@ async function postToCodeVitals( resultsPath, config ) {
 	}
 	url.searchParams.set( 'token', config.codeVitalsToken );
 
-	const TIMEOUT_MS = 30000; // 30 second timeout
+	// Keep ONE abort timer armed across the whole response — fetch() headers AND the
+	// response.text()/response.json() body read — and clear it in a single finally. Clearing
+	// right after fetch (the old shape) left the body read unbounded, so a server that sent
+	// headers then stalled the body could hang past this timeout (undici's ~300s default at
+	// best). With the timer live through the body, controller.abort() makes that read reject
+	// with AbortError → caught → reported as a clean timeout. This mirrors the bounded dedup
+	// read in hashAlreadyPosted. Timeout is configurable (default 30s) so the body-stall
+	// regression tests can use a short bound instead of waiting the full 30s.
+	const TIMEOUT_MS = config.postTimeoutMs ?? 30000;
 	const controller = new AbortController();
+	// The finally below always clears this timer, so it is never left unused by an early
+	// return/throw; the lint rule only fires because the first textual reference now lives in
+	// that finally — which is the whole point of the fix (the timer must stay armed across the
+	// body read, so it cannot be cleared early).
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- cleared in finally
 	const timeoutId = setTimeout( () => controller.abort(), TIMEOUT_MS );
 
 	try {
@@ -475,7 +488,6 @@ async function postToCodeVitals( resultsPath, config ) {
 			body: JSON.stringify( payload ),
 			signal: controller.signal,
 		} );
-		clearTimeout( timeoutId );
 
 		if ( ! response.ok ) {
 			const errorText = await response.text();
@@ -487,6 +499,12 @@ async function postToCodeVitals( resultsPath, config ) {
 		try {
 			data = await response.json();
 		} catch ( jsonError ) {
+			// A stalled OK body aborts as AbortError — let it through so the outer catch
+			// reports the timeout, not a misleading "invalid JSON". A genuinely unparseable
+			// body (any other error) keeps the invalid-JSON message.
+			if ( jsonError.name === 'AbortError' ) {
+				throw jsonError;
+			}
 			throw new Error( `CodeVitals returned invalid JSON: ${ jsonError.message }`, {
 				cause: jsonError,
 			} );
@@ -494,7 +512,6 @@ async function postToCodeVitals( resultsPath, config ) {
 		console.log( '✓ Metrics posted successfully to CodeVitals' );
 		return { posted: true, data, validationFailed };
 	} catch ( error ) {
-		clearTimeout( timeoutId );
 		// Scrub the token from the caught error and its whole cause chain before we
 		// log it or re-use it as `cause`. fetch/undici can echo the token-bearing
 		// URL in a message or stack, so a caller that logs err.cause or
@@ -512,6 +529,8 @@ async function postToCodeVitals( resultsPath, config ) {
 		// failure (no prior validation failure) stays a plain Error (exit 1).
 		const ErrorClass = validationFailed ? ValidationError : Error;
 		throw new ErrorClass( message, { cause: error } );
+	} finally {
+		clearTimeout( timeoutId );
 	}
 }
 
