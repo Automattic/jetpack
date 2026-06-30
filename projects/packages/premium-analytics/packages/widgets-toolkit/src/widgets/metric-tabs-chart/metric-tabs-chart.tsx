@@ -8,6 +8,7 @@ import { useCallback, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { ComparativeLineChart, MetricWithComparison, WidgetLoadingOverlay } from '../../components';
+import { useSeriesStyles } from '../../hooks';
 import styles from './metric-tabs-chart.module.scss';
 import type { ComparativeLineChartSeries } from '../../components/chart-comparative-line/types';
 import type { DataFormat } from '../../types';
@@ -140,6 +141,11 @@ export function MetricTabsChart( {
 		[ activeMetric ]
 	);
 
+	// Resolve each series' colour + line style from the chart theme so the chart
+	// lines and the tooltip glyphs share the same styling — including the dashed
+	// pattern on the previous-period series.
+	const seriesStyles = useSeriesStyles( series );
+
 	return (
 		<Tabs.Root
 			value={ activeMetric?.key }
@@ -174,6 +180,7 @@ export function MetricTabsChart( {
 				{ activeMetric && (
 					<ComparativeLineChart
 						series={ series }
+						styles={ seriesStyles }
 						dataFormat={ activeMetric.dataFormat ?? dataFormat }
 					/>
 				) }

@@ -25,10 +25,23 @@
 
 .tab {
 	height: auto;
+	padding:
+		var(--wpds-dimension-padding-sm, 8px)
+		var(--wpds-dimension-padding-md, 12px);
+	border-radius: var(--wpds-border-radius-md, 4px);
+}
+
+/* Hide the component's underline indicator; the card fill shows selection. */
+.tab > svg {
+	display: none;
+}
+
+.tab:hover {
+	background-color: var(--wpds-color-bg-interactive-neutral-weak);
 }
 
 .tab[aria-selected="true"] {
-	background-color: var(--wpds-color-bg-surface-neutral-strong);
+	background-color: var(--wpds-color-bg-interactive-neutral-weak-active);
 }
 
 /* Each tab's content: label stacked over the value + delta, left-aligned. */
