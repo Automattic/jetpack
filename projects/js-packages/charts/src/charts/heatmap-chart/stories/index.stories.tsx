@@ -48,8 +48,6 @@ export const LargeValues: Story = {
 	args: {
 		...Default.args,
 		data: heatmapLargeValueMatrix,
-		containerWidth: '900px',
-		containerHeight: '320px',
 	},
 };
 

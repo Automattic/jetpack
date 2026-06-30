@@ -18,6 +18,12 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
+import {
+	isValidHexColor,
+	lightenHexColor,
+	normalizeColorToHex,
+	prefersLightText,
+} from '../../utils/color-utils';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
@@ -36,6 +42,10 @@ export type HeatmapContextValue = {
 };
 
 export const HeatmapContext = createContext< HeatmapContextValue | null >( null );
+
+// Mirrors the color-mix floor in heatmap-chart.module.scss (.heatmap-chart__cell--filled):
+// the rendered fill is the primary mixed over the chart background at 0.15 + 0.85 * intensity.
+const CELL_MIX_FLOOR = 0.15;
 
 const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	data,
@@ -73,6 +83,16 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		index: 0,
 		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
 	} );
+
+	// Pick the in-cell text color from the cell's actual blended fill luminance (not the data
+	// value), so light text is only used where it out-contrasts dark text. Falls back to dark
+	// text when the primary isn't a resolvable hex (e.g. a bare CSS token).
+	const primaryHex = normalizeColorToHex( primaryColorHex );
+	const cellHasLightText = ( intensity: number ): boolean =>
+		isValidHexColor( primaryHex ) &&
+		prefersLightText(
+			lightenHexColor( primaryHex, 1 - ( CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity ) )
+		);
 
 	const extent = useMemo( () => getValueExtent( data ), [ data ] );
 	const heatmapContext = useMemo< HeatmapContextValue >(
@@ -321,7 +341,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												data-row={ rowIndex }
 												className={ clsx( styles[ 'heatmap-chart__cell' ], {
 													[ styles[ 'heatmap-chart__cell--filled' ] ]: present,
-													[ styles[ 'heatmap-chart__cell--strong' ] ]: present && normalized > 0.5,
+													[ styles[ 'heatmap-chart__cell--strong' ] ]:
+														present && cellHasLightText( normalized ),
 													[ styles[ 'heatmap-chart__cell--selected' ] ]:
 														selectedIndex === flatIndex,
 												} ) }

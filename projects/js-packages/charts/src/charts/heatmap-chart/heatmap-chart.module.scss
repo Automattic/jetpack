@@ -84,7 +84,8 @@
 	font-size: var(--wpds-typography-font-size-md, 13px);
 }
 
-// Light text for contrast on the darker high-value fill.
+// Light text on fills dark enough to out-contrast dark text (decided in JS from
+// the blended fill luminance).
 .heatmap-chart__cell--strong .heatmap-chart__cell-value {
 	color: #fff;
 }
