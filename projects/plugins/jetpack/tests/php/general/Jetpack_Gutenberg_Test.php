@@ -986,12 +986,18 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		$lazy_filter             = static function () use ( $feature ) {
 			return array( $feature );
 		};
+		$active_modules_filter   = static function ( $active_modules ) use ( $feature ) {
+			$active_modules[] = $feature;
+			return $active_modules;
+		};
 		$activate_modules_filter = static function ( $allcaps ) {
 			$allcaps['jetpack_activate_modules'] = true;
 			return $allcaps;
 		};
 
 		wp_set_current_user( $this->master_user_id );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		add_filter( 'jetpack_active_modules', $active_modules_filter );
 		add_filter( 'user_has_cap', $activate_modules_filter );
 		add_filter( 'jetpack_offline_mode', '__return_false', 1000 );
 		add_filter( 'jetpack_gutenberg', '__return_true' );
@@ -1013,6 +1019,8 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			remove_filter( 'jetpack_offline_mode', '__return_false', 1000 );
 			remove_filter( 'jetpack_gutenberg', '__return_true' );
 			remove_filter( 'user_has_cap', $activate_modules_filter );
+			remove_filter( 'jetpack_active_modules', $active_modules_filter );
+			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
 			if ( Blocks::is_registered( 'jetpack/related-posts' ) ) {
 				unregister_block_type( 'jetpack/related-posts' );
 			}
