@@ -19,6 +19,7 @@ import { chevronDown, chevronUp } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 import analytics from 'lib/analytics';
 import { isWriteTool } from './categories';
+import { getOverridesToMatch } from './group-intents';
 import { groupToolsByGroup, groupToolsBySubCategory } from './groups';
 import {
 	getAccountMcpAbilities,
@@ -194,14 +195,14 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 
 	const handlePageToggle = useCallback(
 		enabled => {
+			const overrides = getOverridesToMatch( readTools, enabled );
+			if ( ! overrides ) {
+				return;
+			}
 			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
 				enabled,
 				view: 'read',
 				scope: 'page',
-			} );
-			const overrides = {};
-			readTools.forEach( ( [ toolId ] ) => {
-				overrides[ toolId ] = enabled;
 			} );
 			onUpdate( {
 				sites: [
@@ -217,15 +218,15 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 
 	const handleGroupEnableAll = useCallback(
 		( groupName, groupTools, enabled ) => {
+			const overrides = getOverridesToMatch( groupTools, enabled );
+			if ( ! overrides ) {
+				return;
+			}
 			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
 				enabled,
 				view: 'read',
 				scope: 'group',
 				group: groupName ?? 'other',
-			} );
-			const overrides = {};
-			groupTools.forEach( ( [ toolId ] ) => {
-				overrides[ toolId ] = enabled;
 			} );
 			onUpdate( {
 				sites: [
