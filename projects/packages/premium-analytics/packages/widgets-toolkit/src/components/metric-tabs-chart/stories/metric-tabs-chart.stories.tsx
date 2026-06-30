@@ -4,7 +4,7 @@ import type { Decorator, Meta, StoryObj } from '@storybook/react';
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
-const DATES = [
+const CURRENT_DATES = [
 	new Date( '2026-06-01' ),
 	new Date( '2026-06-06' ),
 	new Date( '2026-06-11' ),
@@ -14,14 +14,26 @@ const DATES = [
 	new Date( '2026-06-29' ),
 ];
 
+// The immediately preceding window, so current/previous read as distinct ranges.
+const PREVIOUS_DATES = [
+	new Date( '2026-05-02' ),
+	new Date( '2026-05-07' ),
+	new Date( '2026-05-12' ),
+	new Date( '2026-05-17' ),
+	new Date( '2026-05-22' ),
+	new Date( '2026-05-27' ),
+	new Date( '2026-05-31' ),
+];
+
 /**
- * Pair a value series with the chart dates.
+ * Pair a value series with a set of dates.
  *
- * @param values - One value per date.
+ * @param dates  - One date per value.
+ * @param values - The series values.
  * @return The metric points.
  */
-const points = ( values: number[] ) =>
-	DATES.map( ( date, index ) => ( { date, value: values[ index ] } ) );
+const points = ( dates: Date[], values: number[] ) =>
+	dates.map( ( date, index ) => ( { date, value: values[ index ] } ) );
 
 const METRICS: MetricTab[] = [
 	{
@@ -29,16 +41,16 @@ const METRICS: MetricTab[] = [
 		label: 'Subscribers',
 		value: 2700,
 		previousValue: 2030,
-		current: points( [ 2100, 2200, 2300, 2450, 2520, 2640, 2700 ] ),
-		previous: points( [ 1500, 1620, 1740, 1810, 1900, 1980, 2030 ] ),
+		current: points( CURRENT_DATES, [ 2100, 2200, 2300, 2450, 2520, 2640, 2700 ] ),
+		previous: points( PREVIOUS_DATES, [ 1500, 1620, 1740, 1810, 1900, 1980, 2030 ] ),
 	},
 	{
 		key: 'paid',
 		label: 'Paid subscribers',
 		value: 820,
 		previousValue: 540,
-		current: points( [ 520, 560, 610, 660, 710, 780, 820 ] ),
-		previous: points( [ 300, 340, 380, 430, 470, 510, 540 ] ),
+		current: points( CURRENT_DATES, [ 520, 560, 610, 660, 710, 780, 820 ] ),
+		previous: points( PREVIOUS_DATES, [ 300, 340, 380, 430, 470, 510, 540 ] ),
 	},
 ];
 
