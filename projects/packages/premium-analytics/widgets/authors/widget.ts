@@ -1,0 +1,38 @@
+/**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+import { postAuthor } from '@wordpress/icons';
+
+/**
+ * Configurable attributes for the Authors widget. Mirrors the `attributes`
+ * declared on the widget definition below; the host passes the selected values
+ * through to `render.tsx`.
+ */
+export type AuthorsAttributes = {
+	/**
+	 * Maximum number of authors to display.
+	 */
+	max?: number;
+};
+
+/**
+ * Widget type definition.
+ */
+export default {
+	name: 'jpa/authors',
+	title: __( 'Authors', 'jetpack-premium-analytics' ),
+	icon: postAuthor,
+	attributes: [
+		{
+			id: 'max',
+			label: __( 'Maximum authors', 'jetpack-premium-analytics' ),
+			type: 'integer',
+		},
+	],
+	example: {
+		attributes: {
+			max: 7,
+		},
+	},
+};

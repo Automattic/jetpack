@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Authors widget: localize the untracked-authors label; center the chart empty state.

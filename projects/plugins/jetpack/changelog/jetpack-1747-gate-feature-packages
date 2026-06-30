@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Performance: Reduce front-end PHP loaded for My Jetpack and Import on page views where they are not used.
