@@ -37,13 +37,12 @@ export interface SubscribersChartPoint {
 }
 
 /**
- * Current and previous period subscriber series plus the headline totals.
+ * Current and previous period subscriber series. Per-metric headline totals are
+ * derived in the widget from the last point of each window.
  */
 export interface SubscribersChartState {
 	current: SubscribersChartPoint[];
 	previous: SubscribersChartPoint[];
-	currentTotal: number;
-	previousTotal: number;
 	hasPaid: boolean;
 	isLoading: boolean;
 	isError: boolean;
@@ -61,18 +60,6 @@ function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersCh
 		subscribers: Number( point.subscribers ?? point.value ?? 0 ),
 		paid: Number( point.subscribers_paid ?? 0 ),
 	} ) );
-}
-
-/**
- * The latest subscriber total in a window is its final point — each point is
- * the cumulative count as of that period, so the headline value is the last
- * one rather than a sum across points.
- *
- * @param points - Chart points, oldest first.
- * @return The latest subscriber total, or 0 when there is no data.
- */
-function latestTotal( points: SubscribersChartPoint[] ): number {
-	return points.length ? points[ points.length - 1 ].subscribers : 0;
 }
 
 /**
@@ -113,8 +100,6 @@ export default function useSubscribersChart(
 	return {
 		current,
 		previous,
-		currentTotal: latestTotal( current ),
-		previousTotal: latestTotal( previous ),
 		hasPaid: current.some( point => point.paid > 0 ),
 		isLoading: currentQuery.isLoading || previousQuery.isLoading,
 		isError: currentQuery.isError || previousQuery.isError,

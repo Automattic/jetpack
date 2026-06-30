@@ -2,27 +2,13 @@
 	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-md);
 	height: 100%;
 	padding: var(--wpds-dimension-padding-lg);
 	overflow: hidden;
 }
 
-.header {
-	flex-shrink: 0;
-}
-
 .periodSelect {
 	flex-shrink: 0;
-}
-
-/* Anchors the absolutely positioned loading overlay and gives the responsive
- * chart a height to fill. */
-.chart {
-	position: relative;
-	flex: 1 1 0;
-	min-width: 0;
-	min-height: 260px;
 }
 
 /* Constrain the picker preview tile to a 4:3 aspect ratio. The picker's
