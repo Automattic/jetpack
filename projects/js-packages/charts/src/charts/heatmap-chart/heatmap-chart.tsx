@@ -1,4 +1,4 @@
-import { formatNumber } from '@automattic/number-formatters';
+import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -333,7 +333,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 											>
 												{ drawValues && present && (
 													<span className={ styles[ 'heatmap-chart__cell-value' ] }>
-														{ formatNumber( value ) }
+														{ /* Compact so large values fit the cell; tooltip + aria-label keep full precision. */ }
+														{ formatNumberCompact( value ) }
 													</span>
 												) }
 											</div>

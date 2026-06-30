@@ -72,7 +72,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`rowLabels`**: y-axis labels by row index. Empty entries render blank.
 - **`withTooltips`** (default: `false`): show a tooltip on cell hover
 - **`compact`** (default: `false`): tighten spacing and suppress in-cell values for compact widgets
-- **`showValues`** (default: `!compact`): render the numeric value inside each cell
+- **`showValues`** (default: `!compact`): render the numeric value inside each cell (compact notation for large numbers; the tooltip keeps full precision)
 - **`primaryColor`**: color the scale interpolates toward at the highest value (prop > `heatmapChart.primaryColor` > palette `colors[0]`)
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`gap`** (default: `'md'`): gap between chart layout regions (chart area, legend, children)
@@ -94,6 +94,12 @@ Use `compact` for narrow widgets or dashboards where vertical space is limited. 
 	compact={ true }
 />` }
 />
+
+## Large Values
+
+In-cell values use compact notation (e.g. `748.5K`, `1.2M`) so large numbers fit the cell. The tooltip and each cell's accessible label keep the full, precise value.
+
+<Canvas of={ HeatmapStories.LargeValues } />
 
 ## Calendar Layout
 

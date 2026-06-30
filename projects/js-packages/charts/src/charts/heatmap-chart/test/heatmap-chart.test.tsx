@@ -58,6 +58,19 @@ describe( 'HeatmapChart', () => {
 		expect( screen.queryByText( '3' ) ).not.toBeInTheDocument();
 	} );
 
+	test( 'formats large in-cell values compactly', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					data={ [ { label: 'W1', data: [ { value: 748500 } ] } ] }
+				/>
+			</GlobalChartsProvider>
+		);
+		expect( screen.getByText( /748\.5\s?K/i ) ).toBeInTheDocument();
+	} );
+
 	test( 'gives each cell an accessible name for screen readers', () => {
 		renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
 		// The gridcell's accessible name is its aria-label (column + row + value).

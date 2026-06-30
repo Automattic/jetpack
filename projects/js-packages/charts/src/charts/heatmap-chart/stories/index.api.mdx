@@ -16,7 +16,7 @@ and shaded with CSS `color-mix`, so the scale adapts to the chart background.
 | `data` | `HeatmapColumn[]` | - | **Required.** Array of columns; each column contains an optional label and an array of cells. |
 | `rowLabels` | `string[]` | `[]` | y-axis labels by row index. Empty entries render blank. |
 | `compact` | `boolean` | `false` | Compact mode: tighten cell gaps, suppress in-cell values, and thin axis labels. |
-| `showValues` | `boolean` | `!compact` | Render the numeric value inside each cell. |
+| `showValues` | `boolean` | `!compact` | Render the numeric value inside each cell (compact notation for large numbers; the tooltip and aria-label keep full precision). |
 | `primaryColor` | `string` | theme / palette | Color the scale interpolates toward at the highest value. Resolution order: this prop > `heatmapChart.primaryColor` > palette `colors[0]`. |
 | `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover or keyboard navigation. |
 | `renderTooltip` | `(data: HeatmapTooltipData) => ReactNode` | - | Custom tooltip render function. Receives `HeatmapTooltipData`. The default tooltip formats numeric values with `@automattic/number-formatters`. |

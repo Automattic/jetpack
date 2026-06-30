@@ -1036,6 +1036,30 @@ export const heatmapActivityMatrix: HeatmapColumn[] = Array.from(
 );
 
 /**
+ * Large-value matrix for the heatmap chart (12 columns × 7 rows)
+ *
+ * Same shape as the activity matrix but with values up to ~1,000,000, to exercise
+ * compact in-cell number formatting (e.g. `748.5K`).
+ * - Category: matrix
+ * - Data points: 84
+ * - Suitable for: HeatmapChart
+ */
+export const heatmapLargeValueMatrix: HeatmapColumn[] = Array.from(
+	{ length: 12 },
+	( _col, col ) => ( {
+		label: col % 4 === 0 ? `Q${ Math.floor( col / 4 ) + 1 }` : '',
+		data: Array.from( { length: 7 }, ( _row, row ) => {
+			const index = col * 7 + row;
+			return {
+				label: `Col ${ col + 1 }, Row ${ row + 1 }`,
+				value:
+					index % 9 === 0 ? null : Math.round( Math.abs( Math.sin( index ) ) * 990_000 ) + 1_000,
+			};
+		} ),
+	} )
+);
+
+/**
  * Daily activity series for the calendar heatmap (120 days from 2024-01-01)
  *
  * Date/value pairs for building a GitHub-style contribution calendar via

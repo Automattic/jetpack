@@ -3,7 +3,11 @@ import {
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
-import { heatmapActivityMatrix, heatmapCalendarSeries } from '../../../stories/sample-data';
+import {
+	heatmapActivityMatrix,
+	heatmapCalendarSeries,
+	heatmapLargeValueMatrix,
+} from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { HeatmapChart } from '../index';
 import { buildCalendarHeatmapData } from '../private';
@@ -38,6 +42,15 @@ export const Default: Story = {
 
 export const Compact: Story = {
 	args: { ...Default.args, compact: true, containerHeight: '160px' },
+};
+
+export const LargeValues: Story = {
+	args: {
+		...Default.args,
+		data: heatmapLargeValueMatrix,
+		containerWidth: '900px',
+		containerHeight: '320px',
+	},
 };
 
 export const Calendar: StoryObj< StoryArgs & { weekStartsOn: 0 | 1 } > = {
