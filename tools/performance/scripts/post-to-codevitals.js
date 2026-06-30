@@ -538,6 +538,24 @@ function resolveDedupEnabled( argv, env ) {
 	return optedIn && ! optedOut;
 }
 
+/**
+ * The env commit timestamp to trust at this (poster) entrypoint, mirroring the runner's
+ * paired-override rule in resolveCommitTimestampEnv.
+ *
+ * GIT_COMMIT_TIMESTAMP_MS is honored ONLY as a pair with a GIT_COMMIT hash override. A
+ * lone GIT_COMMIT_TIMESTAMP_MS (no GIT_COMMIT) is orphaned: trusting it would stamp the
+ * results-file hash with an unrelated inherited time, so we drop it and let
+ * resolvePostTimestamp fall back to results.git.timestamp (the runner-produced, provenance
+ * -matched value) or build time. The runner always sets GIT_COMMIT before spawning this
+ * child, so its env handoff is unaffected; this only closes the direct `pnpm report` path.
+ *
+ * @param {object} env - Environment object (process.env or a test double).
+ * @return {string|undefined} The paired env timestamp, or undefined when unpaired.
+ */
+function pairedCommitTimestampMs( env ) {
+	return env.GIT_COMMIT ? env.GIT_COMMIT_TIMESTAMP_MS : undefined;
+}
+
 async function main() {
 	console.log( 'CodeVitals Integration' );
 	console.log( '=====================\n' );
@@ -556,8 +574,10 @@ async function main() {
 		gitHash: process.env.GIT_COMMIT,
 		gitBranch: process.env.GIT_BRANCH || 'trunk',
 		// Commit time of the code under test, in epoch ms, supplied by the runner. The
-		// poster prefers results.git.timestamp and only uses this as a fallback.
-		commitTimestampMs: process.env.GIT_COMMIT_TIMESTAMP_MS,
+		// poster prefers results.git.timestamp and only uses this as a fallback. Honored
+		// only when paired with a GIT_COMMIT hash override (see pairedCommitTimestampMs),
+		// so a lone inherited timestamp can't backdate a direct `pnpm report` run.
+		commitTimestampMs: pairedCommitTimestampMs( process.env ),
 		resultsPath:
 			process.env.RESULTS_PATH || path.join( import.meta.dirname, '../results/lcp-results.json' ),
 		dryRun,
@@ -652,6 +672,7 @@ export {
 	resolvePostTimestamp,
 	hashAlreadyPosted,
 	resolveDedupEnabled,
+	pairedCommitTimestampMs,
 	ValidationError,
 	VALIDATION_FAILED_EXIT_CODE,
 };

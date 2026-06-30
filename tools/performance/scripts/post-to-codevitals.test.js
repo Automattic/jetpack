@@ -22,6 +22,7 @@ import {
 	exitCodeForError,
 	extractScenarioMetrics,
 	isDirectInvocation,
+	pairedCommitTimestampMs,
 	postToCodeVitals,
 	redactToken,
 	resolveDedupEnabled,
@@ -1052,6 +1053,22 @@ test( 'resolveCommitTimestampEnv: paired override honored, lone timestamp droppe
 		null,
 		'a lone timestamp is dropped even when there is no HEAD time to fall back to'
 	);
+} );
+
+test( 'pairedCommitTimestampMs: the env timestamp is trusted only when paired with GIT_COMMIT', () => {
+	// Paired override (both set): the env timestamp is carried into config.
+	assert.equal(
+		pairedCommitTimestampMs( { GIT_COMMIT: 'deadbeef', GIT_COMMIT_TIMESTAMP_MS: '1600000000000' } ),
+		'1600000000000'
+	);
+	// Lone GIT_COMMIT_TIMESTAMP_MS (no hash override) is dropped — it can't backdate a
+	// direct `pnpm report` run by stamping the results-file hash with an inherited time.
+	assert.equal(
+		pairedCommitTimestampMs( { GIT_COMMIT_TIMESTAMP_MS: '1600000000000' } ),
+		undefined
+	);
+	// Nothing set: undefined (resolvePostTimestamp uses results.git.timestamp / build time).
+	assert.equal( pairedCommitTimestampMs( {} ), undefined );
 } );
 
 // --- cross-commit dedup (gitaudit evolution read; fetch stubbed, no network) ---
