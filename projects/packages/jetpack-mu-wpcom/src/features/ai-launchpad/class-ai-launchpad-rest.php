@@ -316,13 +316,17 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'is_eligible'        => true,
 			// Site context the client needs: the front-end URL drives the launch-task
 			// CTA (its host is the launch-flow site slug) and the tailored-list
-			// preview thumbnail; the title labels that preview. Title and
-			// description also pre-fill the wizard's Name and Brief description
-			// fields so they reflect the site's current identity.
+			// preview thumbnail; the title labels that preview; the editor URL is the
+			// preview's quick link into the Site Editor. Title and description also
+			// pre-fill the wizard's Name and Brief description fields so they reflect
+			// the site's current identity.
 			'site'               => array(
 				'url'         => home_url(),
 				'title'       => get_bloginfo( 'name' ),
 				'description' => get_bloginfo( 'description' ),
+				// Block themes open the Site Editor; classic themes (which can't use it)
+				// fall back to the Customizer, their equivalent appearance editor.
+				'edit_url'    => wp_is_block_theme() ? admin_url( 'site-editor.php' ) : admin_url( 'customize.php' ),
 			),
 		);
 	}

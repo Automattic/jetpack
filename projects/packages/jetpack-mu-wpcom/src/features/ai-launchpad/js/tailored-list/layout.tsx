@@ -10,6 +10,8 @@ interface Props {
 	// Site context for the preview card; omitted when unknown (dev fixtures).
 	siteUrl: string | null;
 	siteTitle?: string | null;
+	// The wp-admin Site Editor URL: the preview thumbnail's quick link.
+	siteEditUrl?: string | null;
 	// The left column: the task cards, or the loading skeleton.
 	children: ReactNode;
 }
@@ -26,10 +28,11 @@ interface Props {
  * @param props.progressLabel - The status line under the heading.
  * @param props.siteUrl       - The site's front-end URL (for the preview).
  * @param props.siteTitle     - The site name (for the preview).
+ * @param props.siteEditUrl   - The Site Editor URL (preview quick link).
  * @param props.children      - The left column content.
  * @return The layout element.
  */
-export function Layout( { progressLabel, siteUrl, siteTitle, children }: Props ) {
+export function Layout( { progressLabel, siteUrl, siteTitle, siteEditUrl, children }: Props ) {
 	// Without a site URL there's no preview, so collapse to a single column —
 	// otherwise the grid reserves an empty preview track and squeezes the tasks.
 	const hasPreview = !! siteUrl;
@@ -48,7 +51,7 @@ export function Layout( { progressLabel, siteUrl, siteTitle, children }: Props )
 				} ) }
 			>
 				{ children }
-				<SitePreview siteUrl={ siteUrl } siteTitle={ siteTitle } />
+				<SitePreview siteUrl={ siteUrl } siteTitle={ siteTitle } siteEditUrl={ siteEditUrl } />
 			</div>
 		</div>
 	);

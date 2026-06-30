@@ -1,4 +1,7 @@
 import { ExternalLink } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
+import type { ReactNode } from 'react';
 
 interface Props {
 	// The site's front-end URL, from the composite read. When absent (older
@@ -6,6 +9,10 @@ interface Props {
 	siteUrl: string | null;
 	// The site name; falls back to the domain when absent.
 	siteTitle?: string | null;
+	// The site's appearance-editor URL (Site Editor on block themes, Customizer on
+	// classic ones). When present the thumbnail becomes a quick link; when absent
+	// it renders as a plain thumbnail.
+	siteEditUrl?: string | null;
 }
 
 /**
@@ -14,16 +21,20 @@ interface Props {
  * site. The preview is a non-interactive iframe of the front end with the
  * banners/overlay hidden, mirroring the wp-admin dashboard's site-management
  * widget — it renders immediately rather than waiting on an mShots screenshot.
+ * When an editor URL is known the thumbnail doubles as a quick link into the
+ * site's appearance editor — the Site Editor on block themes, the Customizer on
+ * classic ones — with a hover "Edit site" overlay, matching the PoC affordance.
  * Rendered in both the loading and loaded states so the layout is stable across
  * the wizard→tailoring→list transition. Returns nothing when the site URL is
  * unknown (e.g. dev fixtures), so the list still renders without it.
  *
- * @param props           - Component props.
- * @param props.siteUrl   - The site's front-end URL.
- * @param props.siteTitle - The site name (falls back to the domain).
+ * @param props             - Component props.
+ * @param props.siteUrl     - The site's front-end URL.
+ * @param props.siteTitle   - The site name (falls back to the domain).
+ * @param props.siteEditUrl - The Site Editor URL (makes the thumbnail a quick link).
  * @return The preview element, or null when there's no site URL.
  */
-export function SitePreview( { siteUrl, siteTitle }: Props ) {
+export function SitePreview( { siteUrl, siteTitle, siteEditUrl }: Props ) {
 	if ( ! siteUrl ) {
 		return null;
 	}
@@ -35,17 +46,38 @@ export function SitePreview( { siteUrl, siteTitle }: Props ) {
 		// A malformed home URL still renders: fall back to the raw string.
 	}
 
+	const thumbnail = (
+		<iframe
+			className="ai-launchpad-tailored-list__preview-iframe"
+			title={ siteTitle || domain }
+			src={ `${ siteUrl }/?hide_banners=true&preview_overlay=true&preview=true` }
+			inert="true"
+			tabIndex={ -1 }
+		/>
+	);
+
+	// With a known editor URL the thumbnail reveals a centered "Edit site" button
+	// (a WPDS Button rendered as a link) on hover/focus; otherwise it stays a
+	// plain, non-interactive thumbnail.
+	let frame: ReactNode;
+	if ( siteEditUrl ) {
+		frame = (
+			<div className="ai-launchpad-tailored-list__preview-frame is-editable">
+				{ thumbnail }
+				<span className="ai-launchpad-tailored-list__preview-edit">
+					<Button variant="solid" size="compact" render={ <a href={ siteEditUrl } /> }>
+						{ __( 'Edit site', 'jetpack-mu-wpcom' ) }
+					</Button>
+				</span>
+			</div>
+		);
+	} else {
+		frame = <div className="ai-launchpad-tailored-list__preview-frame">{ thumbnail }</div>;
+	}
+
 	return (
 		<aside className="ai-launchpad-tailored-list__preview">
-			<div className="ai-launchpad-tailored-list__preview-frame">
-				<iframe
-					className="ai-launchpad-tailored-list__preview-iframe"
-					title={ siteTitle || domain }
-					src={ `${ siteUrl }/?hide_banners=true&preview_overlay=true&preview=true` }
-					inert="true"
-					tabIndex={ -1 }
-				/>
-			</div>
+			{ frame }
 			<p className="ai-launchpad-tailored-list__preview-title">{ siteTitle || domain }</p>
 			<ExternalLink className="ai-launchpad-tailored-list__preview-link" href={ siteUrl }>
 				{ domain }

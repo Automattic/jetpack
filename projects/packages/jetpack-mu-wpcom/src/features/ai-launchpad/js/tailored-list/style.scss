@@ -141,6 +141,7 @@
 	// shows a ~1200px-wide front-end view regardless of the frame's actual size.
 	&__preview-frame {
 		position: relative;
+		display: block;
 		width: 100%;
 		max-width: 300px;
 		aspect-ratio: 4 / 3;
@@ -148,6 +149,46 @@
 		border: 1px solid #e0e0e0;
 		border-radius: 8px;
 		background: #f6f7f7;
+
+		// When the thumbnail links into the site editor, reveal the centered
+		// "Edit site" button overlay on hover, or when the button itself is focused.
+		&.is-editable {
+
+			&:hover,
+			&:focus-within {
+				border-color: var(--wp-admin-theme-color, #3858e9);
+
+				.ai-launchpad-tailored-list__preview-edit {
+					opacity: 1;
+				}
+			}
+		}
+	}
+
+	// The dimmed overlay that centers the "Edit site" button over the thumbnail.
+	&__preview-edit {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(0, 0, 0, 0.55);
+		opacity: 0;
+		transition: opacity 120ms ease;
+
+		// The WPDS Button renders as a link here, and wp-admin's unlayered
+		// `a { color }` would otherwise win over the Button's layered foreground
+		// color and tint the label admin-blue. Re-assert the Button's own
+		// foreground color (white on the solid variant) with an unlayered rule.
+		a {
+
+			&,
+			&:hover,
+			&:focus,
+			&:active {
+				color: var(--wp-ui-button-foreground-color, #fff);
+			}
+		}
 	}
 
 	&__preview-iframe {

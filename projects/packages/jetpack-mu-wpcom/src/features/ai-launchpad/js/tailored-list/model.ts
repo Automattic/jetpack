@@ -22,6 +22,9 @@ export interface SiteData {
 	title?: string;
 	// The site tagline (blogdescription), used to pre-fill the wizard description.
 	description?: string;
+	// The site's appearance-editor URL, used as the preview thumbnail's quick link:
+	// the Site Editor on block themes, the Customizer on classic ones.
+	edit_url?: string | null;
 }
 
 /**

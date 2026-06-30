@@ -101,6 +101,11 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 	const [ siteTitle, setSiteTitle ] = useState< string | null >(
 		() => initialData?.site?.title ?? site?.title ?? null
 	);
+	// The wp-admin Site Editor URL: the preview thumbnail's quick link. Same
+	// seeding story as siteUrl/siteTitle; null on classic themes.
+	const [ siteEditUrl, setSiteEditUrl ] = useState< string | null >(
+		() => initialData?.site?.edit_url ?? site?.edit_url ?? null
+	);
 
 	useEffect( () => {
 		// Returning users: render from the data the host already fetched, so the
@@ -111,6 +116,7 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 			if ( initialData.site ) {
 				setSiteUrl( initialData.site.url ?? null );
 				setSiteTitle( initialData.site.title ?? null );
+				setSiteEditUrl( initialData.site.edit_url ?? null );
 			}
 			return;
 		}
@@ -135,6 +141,7 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 			if ( data?.site ) {
 				setSiteUrl( data.site.url ?? null );
 				setSiteTitle( data.site.title ?? null );
+				setSiteEditUrl( data.site.edit_url ?? null );
 			}
 
 			if ( data && data.tasks.length > 0 ) {
@@ -178,6 +185,7 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 				progressLabel={ __( 'Tailoring your checklist…', 'jetpack-mu-wpcom' ) }
 				siteUrl={ siteUrl }
 				siteTitle={ siteTitle }
+				siteEditUrl={ siteEditUrl }
 			>
 				<TailoredListSkeleton />
 			</Layout>
@@ -271,7 +279,12 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 	};
 
 	return (
-		<Layout progressLabel={ progressLabel } siteUrl={ siteUrl } siteTitle={ siteTitle }>
+		<Layout
+			progressLabel={ progressLabel }
+			siteUrl={ siteUrl }
+			siteTitle={ siteTitle }
+			siteEditUrl={ siteEditUrl }
+		>
 			<div className="ai-launchpad-tailored-list">
 				{ visibleTasks.map( task => (
 					<TaskCard
