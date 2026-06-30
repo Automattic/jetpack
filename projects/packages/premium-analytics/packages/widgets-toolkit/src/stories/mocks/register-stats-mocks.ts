@@ -12,6 +12,7 @@ import apiFetch from '@wordpress/api-fetch';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
 const STATS_BASE = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 const MOCK_FILE_DOWNLOADS_FILES = [
 	{
@@ -135,7 +136,14 @@ function isComparisonRequest( path: string ) {
 	const query = path.split( '?' )[ 1 ];
 	const date = query ? new URLSearchParams( query ).get( 'date' ) : null;
 
-	return !! date && date < getLocalDatePart( new Date() );
+	if ( ! date ) {
+		return false;
+	}
+
+	const today = getLocalDatePart( new Date() );
+	const daysFromToday = Math.floor( ( Date.parse( today ) - Date.parse( date ) ) / DAY_IN_MS );
+
+	return daysFromToday > 1;
 }
 
 const statsMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {

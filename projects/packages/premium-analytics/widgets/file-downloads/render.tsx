@@ -10,6 +10,7 @@ import {
 /**
  * WordPress dependencies
  */
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
 import {
@@ -190,22 +191,26 @@ export function FileDownloadsLeaderboard( {
  */
 function FileDownloadsInner( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
-	const { primary, comparison, hasComparison, isLoading, isError } = useStatsFileDownloads(
-		reportParams as StatsReportParams
-	);
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
+		useStatsFileDownloads( reportParams as StatsReportParams );
+	const showLoading = isLoading || ( isFetching && hasData );
 
-	const rows = toFileDownloadRows(
-		primary.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
-		max,
-		hasComparison
-			? ( comparison.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined )
-			: undefined
+	const rows = useMemo(
+		() =>
+			toFileDownloadRows(
+				primary.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
+				max,
+				hasComparison
+					? ( comparison.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined )
+					: undefined
+			),
+		[ primary.data, max, hasComparison, comparison.data ]
 	);
 
 	return (
 		<FileDownloadsLeaderboard
 			rows={ rows }
-			isLoading={ isLoading }
+			isLoading={ showLoading }
 			isError={ isError }
 			withComparison={ hasComparison }
 		/>
