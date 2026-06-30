@@ -43,6 +43,12 @@ class OrganizationSchemaNodeTest extends TestCase {
 				return $home;
 			}
 		);
+		add_filter(
+			'pre_option_home',
+			static function () use ( $home ) {
+				return $home;
+			}
+		);
 	}
 
 	/**
@@ -55,6 +61,7 @@ class OrganizationSchemaNodeTest extends TestCase {
 			array(
 				'pre_option_blogname',
 				'pre_option_blogdescription',
+				'pre_option_home',
 				'home_url',
 				'get_site_icon_url',
 				'wp_get_attachment_image_src',
@@ -157,16 +164,20 @@ class OrganizationSchemaNodeTest extends TestCase {
 		$node = Organization_Schema_Node::build(
 			array(
 				'sameAs' => array(
-					'https://twitter.com/acme',
+					'https://example.test/twitter',
 					'',
-					'https://twitter.com/acme',
-					'https://facebook.com/acme',
+					'/relative-profile',
+					'not a url',
+					'javascript:alert(1)',
+					'mailto:hello@acme.test',
+					'https://example.test/twitter',
+					'https://example.test/facebook',
 				),
 			)
 		);
 
 		$this->assertSame(
-			array( 'https://twitter.com/acme', 'https://facebook.com/acme' ),
+			array( 'https://example.test/twitter', 'https://example.test/facebook' ),
 			$node['sameAs']
 		);
 	}
