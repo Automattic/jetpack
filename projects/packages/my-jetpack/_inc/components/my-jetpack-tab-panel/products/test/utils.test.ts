@@ -163,6 +163,27 @@ describe( 'searchAndRankItems', () => {
 		expect( result ).toHaveLength( 1 );
 	} );
 
+	it( 'drops a standalone module already attached to a matching card (Forms regression)', () => {
+		// buildCards attaches the contact-form module to the Forms card, while contact-form is
+		// ALSO listed as a standalone module. The card already represents it, so it appears once.
+		const formsWithModule: CardItem = { ...forms, module: formsModule };
+		const result = searchAndRankItems( [ formsWithModule ], [ formsModule ], 'forms' );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ] ).toMatchObject( { kind: 'card' } );
+	} );
+
+	it( 'drops a standalone module whose slug matches a card product slug (VideoPress regression)', () => {
+		// VideoPress is a card (slug "videopress") and is also listed as a "videopress" module.
+		const videopressCard = makeCard( { slug: 'videopress', name: 'VideoPress' } );
+		const videopressModule = makeModule( { module: 'videopress', name: 'VideoPress' } );
+		const cardWithModule: CardItem = { ...videopressCard, module: videopressModule };
+		const result = searchAndRankItems( [ cardWithModule ], [ videopressModule ], 'videopress' );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ] ).toMatchObject( { kind: 'card' } );
+	} );
+
 	it( 'returns an empty array when nothing matches', () => {
 		expect( searchAndRankItems( [ forms ], [ formsModule ], 'zzzznotathing' ) ).toEqual( [] );
 	} );

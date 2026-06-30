@@ -5,11 +5,15 @@
  */
 
 import {
+	UNKNOWN_COUNTRY_CODE,
 	getCookie,
-	setCookie,
+	getGeoConfig,
 	handleConsentByRegion,
+	isGdprCountry,
+	pertainsToCCPA,
 	readConsentChoices,
 	saveConsentChoices,
+	setCookie,
 } from '../src/modules/cookie-consent/utils';
 
 describe( 'setCookie', () => {
@@ -286,5 +290,100 @@ describe( 'registry-driven consent choices', () => {
 			advertising: false,
 			personalization: true,
 		} );
+	} );
+} );
+
+describe( 'geo configuration helpers', () => {
+	it( 'prefers the nested geo schema over legacy top-level keys', () => {
+		const config = getGeoConfig( {
+			geoApiUrl: 'https://legacy.example.test/geo',
+			countryCodeCookie: 'legacy_country',
+			geo: {
+				provider: 'custom',
+				apiUrl: 'https://geo.example.test/lookup',
+				countryCodeCookie: 'shopper_country',
+				regionCookie: 'shopper_region',
+				cookieDuration: 120,
+				gdprCountries: [ 'gb' ],
+				ccpaRegions: [ 'California' ],
+				showOnError: false,
+			},
+		} );
+
+		expect( config ).toMatchObject( {
+			provider: 'custom',
+			apiUrl: 'https://geo.example.test/lookup',
+			countryCodeCookie: 'shopper_country',
+			regionCookie: 'shopper_region',
+			cookieDuration: 120,
+			gdprCountries: [ 'GB' ],
+			ccpaRegions: [ 'california' ],
+			showOnError: false,
+		} );
+	} );
+
+	it( 'returns defaults for an empty config', () => {
+		expect( getGeoConfig( {} ) ).toEqual( {
+			provider: 'wpcom',
+			apiUrl: 'https://public-api.wordpress.com/geo/',
+			countryCodeCookie: 'country_code',
+			regionCookie: 'region',
+			cookieDuration: 6 * 60 * 60,
+			gdprCountries: [],
+			ccpaRegions: [],
+			showOnError: true,
+		} );
+	} );
+
+	it( 'falls back to the remaining legacy top-level keys', () => {
+		const config = getGeoConfig( {
+			geoProvider: 'custom',
+			geoApiUrl: 'https://legacy.example.test/geo',
+			geoCookieDuration: 999,
+			regionCookie: 'legacy_region',
+			showOnError: false,
+		} );
+
+		expect( config ).toMatchObject( {
+			provider: 'custom',
+			apiUrl: 'https://legacy.example.test/geo',
+			cookieDuration: 999,
+			regionCookie: 'legacy_region',
+			showOnError: false,
+		} );
+	} );
+
+	it( 'uses configured GDPR country lists', () => {
+		const config = {
+			geo: {
+				gdprCountries: [ 'ca' ],
+			},
+		};
+
+		expect( isGdprCountry( 'CA', config ) ).toBe( true );
+		expect( isGdprCountry( 'GB', config ) ).toBe( false );
+		expect( isGdprCountry( UNKNOWN_COUNTRY_CODE, config ) ).toBe( true );
+	} );
+
+	it( 'uses configured CCPA regions case-insensitively', () => {
+		const config = {
+			geo: {
+				ccpaRegions: [ 'Quebec' ],
+			},
+		};
+
+		expect( pertainsToCCPA( 'US', 'Quebec', config ) ).toBe( true );
+		expect( pertainsToCCPA( 'CA', 'Quebec', config ) ).toBe( false );
+		expect( pertainsToCCPA( 'US', 'California', config ) ).toBe( false );
+	} );
+
+	it( 'normalizes legacy geo list aliases', () => {
+		const config = getGeoConfig( {
+			gdprCountries: [ 'ca' ],
+			ccpaRegions: [ 'Quebec' ],
+		} );
+
+		expect( config.gdprCountries ).toEqual( [ 'CA' ] );
+		expect( config.ccpaRegions ).toEqual( [ 'quebec' ] );
 	} );
 } );

@@ -24,8 +24,9 @@ import {
 	pertainsToCCPA,
 	handleConsentByRegion,
 	getConsentChoices,
+	type GeoConfig,
 } from './utils';
-import type { ConsentCategory, ConsentEventChoices } from './types';
+import type { ConsentEventChoices } from './types';
 
 interface GeoState {
 	initialized: boolean;
@@ -50,18 +51,17 @@ interface GdprManageLinkContext {
 	isGdprManageLink: boolean;
 }
 
+interface FooterLinksFallbackContext {
+	fallbackExpanded: boolean;
+	isCcpaRegion: boolean;
+	isGdprManageLink: boolean;
+}
+
 interface StoreConfig {
-	geoApiUrl: string;
-	geoCookieDuration: number;
-	countryCodeCookie: string;
-	regionCookie: string;
+	geo: GeoConfig;
 	cookiePolicyUrl: string;
-	gdprCountries: string[];
-	ccpaRegions: string[];
 	gdprHonorsGpc: boolean;
-	showOnError: boolean;
 	forcePreview: boolean;
-	categories: ConsentCategory[];
 }
 
 interface GeoApiResponse {
@@ -90,7 +90,11 @@ let manageLinkConsentListenerRegistered = false;
 const gdprManageLinkContexts = new Set< GdprManageLinkContext >();
 
 function shouldShowManagePreferencesLink( config: StoreConfig ): boolean {
-	return isGdprCountry( geoState.countryCode || UNKNOWN_COUNTRY_CODE, config ) && hasConsentSet();
+	return (
+		geoState.countryCode !== null &&
+		isGdprCountry( geoState.countryCode, config ) &&
+		hasConsentSet()
+	);
 }
 
 function focusModal(): void {
@@ -155,6 +159,13 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		get showSnackbar() {
 			const context = getContext< CcpaContext >();
 			return context.showSnackbar;
+		},
+		// Classic-theme fallback control: only surface it when there's a
+		// region-specific required link to show (CCPA opt-out or GDPR manage
+		// preferences). The Privacy Policy link just rides along when shown.
+		get showFallbackControl() {
+			const context = getContext< FooterLinksFallbackContext >();
+			return context.isCcpaRegion || context.isGdprManageLink;
 		},
 	},
 	actions: {
@@ -374,6 +385,35 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		},
 
 		/**
+		 * Toggle the classic-theme footer-links fallback panel.
+		 */
+		toggleFallbackPanel() {
+			const context = getContext< FooterLinksFallbackContext >();
+			context.fallbackExpanded = ! context.fallbackExpanded;
+		},
+
+		/**
+		 * Handle keyboard events on the footer-links fallback control.
+		 * Escape closes the panel and returns focus to the toggle button.
+		 */
+		onFallbackKeyDown: withSyncEvent( ( event: KeyboardEvent ) => {
+			if ( event.key !== 'Escape' ) {
+				return;
+			}
+
+			const context = getContext< FooterLinksFallbackContext >();
+			if ( ! context.fallbackExpanded ) {
+				return;
+			}
+
+			event.preventDefault();
+			context.fallbackExpanded = false;
+
+			// Return focus to the toggle button.
+			document.getElementById( 'jetpack-cookie-consent-footer-links-toggle' )?.focus();
+		} ),
+
+		/**
 		 * Initialize geolocation (singleton pattern - runs once)
 		 */
 		*initializeGeolocation() {
@@ -384,10 +424,13 @@ const { actions } = store( 'jetpack/cookie-consent', {
 
 			// getConfig() is not typed, so we need to assert the type.
 			const config = getConfig() as unknown as StoreConfig;
+			// PHP (class-cookie-consent.php) always emits a fully-normalized nested `geo`, so the
+			// store config is already the resolved GeoConfig; no client-side reconciliation needed.
+			const geoConfig = config.geo;
 
 			// Check if we already have country code from cookies
-			const cachedCountryCode = getCookie( config.countryCodeCookie );
-			const cachedRegion = getCookie( config.regionCookie );
+			const cachedCountryCode = getCookie( geoConfig.countryCodeCookie );
+			const cachedRegion = getCookie( geoConfig.regionCookie );
 
 			if ( cachedCountryCode !== null && cachedRegion !== null ) {
 				geoState = {
@@ -401,7 +444,11 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// If either the country_code or region cookie is missing, fetch geolocation.
 			// `no-store` avoids using the browser HTTP cache for this visitor-specific response.
 			try {
-				const response = ( yield fetch( config.geoApiUrl, { cache: 'no-store' } ) ) as Response;
+				if ( ! geoConfig.apiUrl ) {
+					throw new Error( 'Geolocation provider URL is not configured' );
+				}
+
+				const response = ( yield fetch( geoConfig.apiUrl, { cache: 'no-store' } ) ) as Response;
 				if ( ! response.ok ) {
 					throw new Error( 'Geolocation request failed' );
 				}
@@ -411,8 +458,8 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				const region = data.region || '';
 
 				// Store country code and region in cookies
-				setCookie( config.countryCodeCookie, countryCode, config.geoCookieDuration );
-				setCookie( config.regionCookie, region, config.geoCookieDuration );
+				setCookie( geoConfig.countryCodeCookie, countryCode, geoConfig.cookieDuration );
+				setCookie( geoConfig.regionCookie, region, geoConfig.cookieDuration );
 
 				geoState = {
 					initialized: true,
@@ -420,15 +467,26 @@ const { actions } = store( 'jetpack/cookie-consent', {
 					region,
 				};
 			} catch ( error: unknown ) {
+				// A custom geo provider URL can fail independently (typo, CORS, 5xx, non-JSON), so
+				// surface it at warn level to make a misconfigured endpoint diagnosable in production.
 				// eslint-disable-next-line no-console
-				console.debug( error );
-				// On error, set to unknown
+				console.warn( error );
+				if ( ! geoConfig.showOnError ) {
+					geoState = {
+						initialized: true,
+						countryCode: null,
+						region: null,
+					};
+					return geoState;
+				}
+
+				// On error, set to unknown so the default path shows the banner.
 				geoState = {
 					initialized: true,
 					countryCode: UNKNOWN_COUNTRY_CODE,
 					region: '',
 				};
-				setCookie( config.countryCodeCookie, UNKNOWN_COUNTRY_CODE, config.geoCookieDuration );
+				setCookie( geoConfig.countryCodeCookie, UNKNOWN_COUNTRY_CODE, geoConfig.cookieDuration );
 			}
 
 			return geoState;
@@ -443,12 +501,16 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				| CookieBannerContext
 				| CcpaContext
 				| GdprManageLinkContext
+				| FooterLinksFallbackContext
 				| ( CookieBannerContext & CcpaContext );
 			// getConfig() is not typed, so we need to assert the type.
 			const config = getConfig() as unknown as StoreConfig;
 
 			// Initialize geolocation (will use cache if already done)
 			const geoData: GeoState = yield actions.initializeGeolocation();
+			if ( null === geoData.countryCode ) {
+				return;
+			}
 
 			// Update cookie banner context if present
 			if ( 'showBanner' in context ) {
@@ -486,14 +548,20 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				| CookieBannerContext
 				| CcpaContext
 				| GdprManageLinkContext
+				| FooterLinksFallbackContext
 				| ( CookieBannerContext & CcpaContext );
 
-			// Initialize CCPA-specific context if present
+			// Initialize CCPA-specific context if present.
+			// The footer-links fallback context also exposes isCcpaRegion (to gate
+			// the "Do Not Sell" link) but has no snackbar; only touch those keys
+			// when this is the full CCPA context.
 			if ( 'isCcpaRegion' in context ) {
-				const ccpaCtx = context as CcpaContext;
-				ccpaCtx.isCcpaRegion = false;
-				ccpaCtx.showSnackbar = false;
-				ccpaCtx.snackbarTimeout = null;
+				context.isCcpaRegion = false;
+				if ( 'showSnackbar' in context ) {
+					const ccpaCtx = context as CcpaContext;
+					ccpaCtx.showSnackbar = false;
+					ccpaCtx.snackbarTimeout = null;
+				}
 			}
 
 			// Initialize cookie banner context if present
