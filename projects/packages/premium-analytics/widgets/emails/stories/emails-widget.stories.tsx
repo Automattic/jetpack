@@ -216,6 +216,10 @@ function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
 				name: widgetDefinition.name,
 				title: widgetDefinition.title,
 				icon: widgetDefinition.icon,
+				// Matches widget.json so the host hides its card title (full-bleed),
+				// exactly as it does on the real dashboard — only the widget's own
+				// "Latest emails sent" header shows, no duplicate title.
+				presentation: 'full-bleed',
 			} }
 			renderModule={ EMAILS_RENDER_MODULE }
 			renderComponent={ EmailsRender as ComponentType< WidgetRenderProps< unknown > > }
