@@ -100,16 +100,17 @@ class WPCOM_JSON_API_Serializable_Error_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Codes status_header() cannot render coerce to 502, so they never silently
-	 * leave the default 200. (Cloudflare 52x / non-standard codes; note 508 IS
-	 * known to WP core's get_status_header_desc(), so it is deliberately not here.)
+	 * Codes status_header() cannot render (Cloudflare 52x, other non-standard) are a valid
+	 * integer >= 400, so they pass through unchanged. Coercing them to a renderable status is
+	 * deliberately NOT this function's job -- that belongs at the status_header() call site
+	 * (CONNECT-267 problem 2); here we only guarantee a sane integer.
 	 *
-	 * @param int $input Unrenderable status carried on the error.
-	 * @dataProvider provide_unrenderable_statuses
+	 * @param int $input Unknown-to-WP status carried on the error.
+	 * @dataProvider provide_unknown_statuses
 	 */
-	#[DataProvider( 'provide_unrenderable_statuses' )]
-	public function test_unrenderable_status_coerced_to_502( $input ) {
-		$this->assertSame( 502, $this->status_for( new WP_Error( 'upstream', 'Upstream', array( 'status_code' => $input ) ) ) );
+	#[DataProvider( 'provide_unknown_statuses' )]
+	public function test_unknown_status_passes_through_unchanged( $input ) {
+		$this->assertSame( $input, $this->status_for( new WP_Error( 'upstream', 'Upstream', array( 'status_code' => $input ) ) ) );
 	}
 
 	/**
@@ -117,7 +118,7 @@ class WPCOM_JSON_API_Serializable_Error_Test extends WP_UnitTestCase {
 	 *
 	 * @return array<string, array{int}>
 	 */
-	public static function provide_unrenderable_statuses(): array {
+	public static function provide_unknown_statuses(): array {
 		return array(
 			'520 Cloudflare' => array( 520 ),
 			'521 Cloudflare' => array( 521 ),
