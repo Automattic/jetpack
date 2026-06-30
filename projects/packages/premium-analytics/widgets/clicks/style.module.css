@@ -1,7 +1,8 @@
 .labelContent {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	min-inline-size: 0;
+	max-inline-size: 100%;
 	gap: var(--wpds-dimension-gap-xs, 4px);
 }
 
@@ -9,12 +10,11 @@
 	flex: 0 0 auto;
 	inline-size: 16px;
 	block-size: 16px;
-	border-radius: 2px;
+	border-radius: var(--wpds-border-radius-sm);
 }
 
 .labelLink,
 .labelText {
-	display: block;
 	padding-block: var(--wpds-dimension-padding-md, 12px);
 	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
 	overflow: hidden;
@@ -24,12 +24,23 @@
 	white-space: nowrap;
 }
 
+.labelLink {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.labelText {
+	display: block;
+}
+
 .labelLink:hover,
 .labelLink:focus {
 	text-decoration: underline;
 }
 
 .labelTitle {
+	min-inline-size: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

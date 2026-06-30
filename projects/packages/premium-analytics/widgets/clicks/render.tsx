@@ -124,7 +124,8 @@ export function toClickRows(
 		flattenClickItems( getItems( comparisonReport ) ).map( item => [ item.key, item.value ] )
 	);
 	const items = flattenClickItems( getItems( report ) );
-	const sliced = max > 0 ? items.slice( 0, max ) : items;
+	const sorted = [ ...items ].sort( ( a, b ) => b.value - a.value );
+	const sliced = max > 0 ? sorted.slice( 0, max ) : sorted;
 
 	return sliced.map( item => {
 		return {
@@ -240,7 +241,9 @@ function ClicksInner( { max }: { max: number } ) {
 		...reportParams,
 		max,
 	} as StatsReportParams;
-	const { primary, comparison, hasComparison, isLoading, isError } = useStatsClicks( statsParams );
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
+		useStatsClicks( statsParams );
+	const showLoading = isLoading || ( isFetching && hasData );
 
 	const rows = useMemo(
 		() =>
@@ -255,7 +258,7 @@ function ClicksInner( { max }: { max: number } ) {
 	return (
 		<ClicksLeaderboard
 			rows={ rows }
-			isLoading={ isLoading }
+			isLoading={ showLoading }
 			isError={ isError }
 			withComparison={ hasComparison }
 		/>
