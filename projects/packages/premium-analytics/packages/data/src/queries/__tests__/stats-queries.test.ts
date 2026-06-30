@@ -421,6 +421,7 @@ describe( 'Stats query factories', () => {
 			'stats/emails/summary',
 			'GET',
 			{
+				period: 'alltime',
 				quantity: 10,
 				sort_field: 'post_date',
 				sort_order: 'desc',
@@ -438,9 +439,23 @@ describe( 'Stats query factories', () => {
 		} );
 
 		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'alltime',
 			quantity: 5,
 			sort_field: 'opens',
 			sort_order: 'asc',
+		} );
+	} );
+
+	it( 'keeps email summary at period=alltime even when an untyped caller tries to override it', () => {
+		const query = statsEmailSummaryQuery( {
+			period: 'day',
+		} as unknown as Parameters< typeof statsEmailSummaryQuery >[ 0 ] );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'alltime',
+			quantity: 10,
+			sort_field: 'post_date',
+			sort_order: 'desc',
 		} );
 	} );
 

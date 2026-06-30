@@ -266,16 +266,12 @@ export function sanitizeStatsTimeSeriesResponse(
 
 export type StatsEmailTimeSeriesDataPoint = StatsTimeSeriesDataPoint & {
 	opens_count?: number;
-	unique_opens_count?: number;
 	clicks_count?: number;
-	unique_clicks_count?: number;
 };
 
 export type StatsEmailTimeSeriesSummary = StatsNormalizedSummary & {
 	opens_count?: number;
-	unique_opens_count?: number;
 	clicks_count?: number;
-	unique_clicks_count?: number;
 };
 
 export type StatsEmailTimeSeriesReport = StatsNormalizedReport & {
@@ -292,9 +288,10 @@ export function sanitizeStatsEmailTimeSeriesResponse(
 	const timeline = coerceStatsRecord( coerceStatsRecord( payload ).timeline );
 	const fields = coerceStatsArray< string >( timeline.fields );
 
-	// Hourly timelines carry an unlabeled trailing hour column per row; surface it as a field
-	// (matching Calypso's parseEmailChartData) so the value is preserved and the normalizer can
-	// resolve each row into its own per-hour bucket.
+	// The real hourly timeline labels its hour column ([ 'date', 'hour', '<metric>_count' ]), which
+	// the normalizer resolves into per-hour buckets. As a fallback, an unlabeled trailing hour
+	// column is named here so older/alternate payloads still resolve (matching Calypso's
+	// parseEmailChartData).
 	const normalizedTimeline =
 		timeline.unit === 'hour' && fields.length && ! fields.includes( 'hour' )
 			? { ...timeline, fields: [ ...fields, 'hour' ] }

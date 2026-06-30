@@ -17,9 +17,10 @@ export interface StatsEmailSummaryParams {
 	sort_order?: 'asc' | 'desc';
 }
 
-// The emails summary always reports across the whole lifetime of the site — the endpoint has no
-// period parameter — so only the row count and sort are caller-controlled. sort_field defaults to
-// post_date (newest first) to mirror the Calypso Emails screen; the server's own default is post_id.
+// The emails summary always reports across the whole lifetime of the site, so it is always
+// requested with period=alltime (matching the Calypso Emails screen); only the row count and sort
+// are caller-controlled. sort_field defaults to post_date (newest first) to mirror Calypso; the
+// server's own default is post_id.
 export const statsEmailSummaryQuery = (
 	params: StatsEmailSummaryParams = {}
 ): StatsReportQueryOptions< 'emailSummary' > =>
@@ -32,6 +33,9 @@ export const statsEmailSummaryQuery = (
 			sort_field: 'post_date',
 			sort_order: 'desc',
 			...params,
+			// period is fixed after the spread: the endpoint is always all-time and callers
+			// (including untyped ones) must not be able to narrow it.
+			period: 'alltime',
 		},
 		sanitizer: 'emailSummary',
 	} );
