@@ -55,7 +55,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	private const DB_VERSION = '0.0.2';
+	private const DB_VERSION = '0.0.3';
 
 	/**
 	 * Default retention period in days.
