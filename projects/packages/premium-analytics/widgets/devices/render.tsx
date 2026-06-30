@@ -8,6 +8,7 @@ import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import {
+	Legend,
 	SemiCircleChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
@@ -121,20 +122,26 @@ function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } )
 		displayValue: formatMetricValue( item.views, DATA_FORMAT.type, DATA_FORMAT.options ),
 		comparison: hasComparison ? comparisonMap.get( item.label ) ?? 0 : undefined,
 	} ) );
+	const styledLegendData = legendData.map( ( item, index ) => ( {
+		...item,
+		color: segmentStyles[ index ]?.color,
+	} ) );
 
 	return (
 		<>
 			{ header }
 			<div className={ styles.content }>
-				<SemiCircleChart
-					chartData={ chartData }
-					value={ total }
-					comparisonValue={ hasComparison ? comparisonTotal : null }
-					styles={ segmentStyles }
-					legendData={ legendData }
-					showLegend
-					dataFormat={ DATA_FORMAT }
-				/>
+				<div className={ styles.chartShell }>
+					<SemiCircleChart
+						chartData={ chartData }
+						value={ total }
+						comparisonValue={ hasComparison ? comparisonTotal : null }
+						styles={ segmentStyles }
+						showLegend={ false }
+						dataFormat={ DATA_FORMAT }
+					/>
+					<Legend items={ styledLegendData } withComparison={ hasComparison } />
+				</div>
 			</div>
 		</>
 	);

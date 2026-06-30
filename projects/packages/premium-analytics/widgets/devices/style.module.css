@@ -34,3 +34,10 @@
 	align-items: center;
 	justify-content: center;
 }
+
+.chartShell {
+	inline-size: min(100%, 400px);
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xl, 24px);
+}
