@@ -172,8 +172,8 @@ export const EmailsLeaderboard = ( {
 					hideLabelFromVision
 					value={ metric }
 					options={ [
-						{ label: __( 'By open rate', 'jetpack-premium-analytics' ), value: 'opens' },
-						{ label: __( 'By click rate', 'jetpack-premium-analytics' ), value: 'clicks' },
+						{ label: __( 'Open rate', 'jetpack-premium-analytics' ), value: 'opens' },
+						{ label: __( 'Click rate', 'jetpack-premium-analytics' ), value: 'clicks' },
 					] }
 					onChange={ handleMetricChange }
 					className={ styles.metricSelect }
