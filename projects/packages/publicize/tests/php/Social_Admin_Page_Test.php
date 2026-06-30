@@ -140,18 +140,22 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * When modernization is OFF, the legacy admin script is enqueued.
+	 * Modernization now defaults ON, so with the wp-build chassis available and no
+	 * filter overriding the default, the legacy admin script is NOT enqueued — the
+	 * wp-build dashboard owns the page.
 	 */
-	public function test_enqueue_loads_legacy_script_when_not_modernized() {
+	public function test_enqueue_skips_legacy_script_by_default() {
+		// Define the wp-build render fn in the GLOBAL namespace (via fixture) so
+		// is_wp_build_dashboard_active()'s function_exists() check passes. No
+		// modernization filter is set, so this exercises the new default-on behavior.
+		require_once __DIR__ . '/fixtures/wp-build-render-fn.php';
+
 		Social_Admin_Page::init()->enqueue_admin_scripts();
 
-		$this->assertTrue(
+		$this->assertFalse(
 			wp_script_is( 'social-admin-page', 'enqueued' ),
-			'Legacy Social admin script should be enqueued when modernization is off.'
+			'Legacy script should not be enqueued by default now that modernization is on.'
 		);
-
-		wp_dequeue_script( 'social-admin-page' );
-		wp_deregister_script( 'social-admin-page' );
 	}
 
 	/**
