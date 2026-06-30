@@ -38,6 +38,10 @@
 	}
 }
 
+.customize > :global(.components-notice) {
+	margin-block-end: 16px;
+}
+
 .fieldset-stack {
 	display: grid;
 	gap: 24px;
