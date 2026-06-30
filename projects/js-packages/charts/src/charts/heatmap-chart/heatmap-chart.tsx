@@ -295,12 +295,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						} );
 
 						// Keyboard navigation drives the tooltip too: when a cell is selected via
-						// the arrow keys, show its tooltip at the cell (mirrors mouse hover and how
-						// bar/line charts surface the tooltip on keyboard focus).
+						// the arrow keys, show its tooltip centered on the cell (mirrors mouse hover
+						// and how bar/line charts surface the tooltip on keyboard focus).
 						const keyboardTooltip =
 							selectedIndex !== undefined
 								? {
-										top: defaultMargin.top + yScale( selectedIndex % rows ),
+										top: defaultMargin.top + yScale( selectedIndex % rows ) + binHeight / 2,
 										left:
 											defaultMargin.left +
 											xScale( Math.floor( selectedIndex / rows ) ) +
