@@ -70,7 +70,8 @@ class Cookie_Banner_Content_Test extends TestCase {
 		$this->assertStringContainsString( 'Privacy Policy', $html );
 		$this->assertStringNotContainsString( 'Cookie Policy', $html );
 		$this->assertStringNotContainsString( 'automattic.com/cookies', $html );
-		$this->assert_string_matches_pattern( '/Privacy Policy\\s*<\\/a>\\./', $html );
+		// The lead-in introduces the single Privacy Policy link.
+		$this->assert_string_matches_pattern( '/Learn more in our\\s*<a [^>]*>\\s*Privacy Policy\\s*<\\/a>\\./', $html );
 	}
 
 	/**
@@ -150,6 +151,9 @@ class Cookie_Banner_Content_Test extends TestCase {
 
 		$this->assertStringNotContainsString( '<a href=""', $html );
 		$this->assertStringNotContainsString( 'jetpack-cookie-consent__link', $html );
+		// With no links to introduce, the "Learn more in our" lead-in must not render either.
+		$this->assertStringNotContainsString( 'Learn more in our', $html );
+		$this->assert_string_matches_pattern( '/settings below\\.\\s*<\\/p>/', $html );
 	}
 
 	/**

@@ -112,8 +112,9 @@ $privacy_policy_url = (string) get_privacy_policy_url();
 		<div class="jetpack-cookie-consent__modal-content">
 			<div class="jetpack-cookie-consent__modal-body">
 				<p class="jetpack-cookie-consent__modal-description">
-					<?php echo esc_html( $copy['modal_description'] ); ?>
 					<?php
+					echo esc_html( $copy['modal_description'] );
+
 					// Only link policies that are actually configured, so we never render a
 					// dead href="" link (e.g. when the site has no Privacy Policy page set).
 					$policy_links = array();
@@ -131,10 +132,14 @@ $privacy_policy_url = (string) get_privacy_policy_url();
 							esc_html( $copy['cookie_policy_link'] )
 						);
 					}
-					// Each link is already escaped above; join them with the conjunction. The
-					// trailing period is concatenated here so it stays attached to the last
-					// link rather than being pushed onto its own line.
-					echo wp_kses_post( implode( ' ' . esc_html( $copy['modal_links_conjunction'] ) . ' ', $policy_links ) ) . '.';
+					// Append the "Learn more in our <links>." clause only when at least one
+					// policy link exists, so the description never ends with a dangling lead-in.
+					if ( $policy_links ) {
+						// Each link is already escaped above; join them with the conjunction.
+						echo ' ' . esc_html( $copy['modal_links_lead'] ) . ' '
+							. wp_kses_post( implode( ' ' . esc_html( $copy['modal_links_conjunction'] ) . ' ', $policy_links ) )
+							. '.';
+					}
 					?>
 				</p>
 
