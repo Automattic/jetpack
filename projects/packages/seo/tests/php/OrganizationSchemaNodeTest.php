@@ -208,4 +208,23 @@ class OrganizationSchemaNodeTest extends TestCase {
 		$this->assertSame( 'Acme Corporation', $node['name'] );
 		$this->assertSame( 'Custom description', $node['description'] );
 	}
+
+	/**
+	 * A malformed `sameAs` (not an array) is ignored rather than emitted.
+	 */
+	public function test_non_array_same_as_is_ignored() {
+		$this->set_site_identity( 'Acme Co' );
+		$node = Organization_Schema_Node::build( array( 'sameAs' => 'https://twitter.com/acme' ) );
+		$this->assertArrayNotHasKey( 'sameAs', $node );
+	}
+
+	/**
+	 * A malformed (non-string) `name` setting falls back to the site title rather
+	 * than producing an invalid node.
+	 */
+	public function test_non_string_name_falls_back_to_site_title() {
+		$this->set_site_identity( 'Acme Co' );
+		$node = Organization_Schema_Node::build( array( 'name' => array( 'unexpected' ) ) );
+		$this->assertSame( 'Acme Co', $node['name'] );
+	}
 }
