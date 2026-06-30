@@ -34,6 +34,8 @@ interface LocationViewsState {
 	comparisonData: LocationView[];
 	hasComparison: boolean;
 	isLoading: boolean;
+	isFetching: boolean;
+	hasData: boolean;
 	isError: boolean;
 }
 
@@ -86,7 +88,7 @@ export default function useLocationViews( {
 		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
 	} as Parameters< typeof useStatsLocations >[ 0 ];
 
-	const { primary, comparison, hasComparison, isLoading, isError } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
 		useStatsLocations( statsParams );
 
 	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
@@ -109,6 +111,8 @@ export default function useLocationViews( {
 		comparisonData: comparisonItems,
 		hasComparison,
 		isLoading,
+		isFetching,
+		hasData,
 		isError,
 	};
 }

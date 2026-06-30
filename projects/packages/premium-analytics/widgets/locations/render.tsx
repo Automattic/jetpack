@@ -58,12 +58,14 @@ function LocationsInner( { max }: { max: number } ) {
 	// Drill-down (region) takes priority over topMode; city mode disables drill-down.
 	const geoMode: GeoMode = selectedCountry ? 'region' : topMode;
 
-	const { data, comparisonData, hasComparison, isLoading, isError } = useLocationViews( {
-		reportParams,
-		max,
-		geoMode,
-		countryFilter: selectedCountry?.code,
-	} );
+	const { data, comparisonData, hasComparison, isLoading, isFetching, hasData, isError } =
+		useLocationViews( {
+			reportParams,
+			max,
+			geoMode,
+			countryFilter: selectedCountry?.code,
+		} );
+	const showLoading = isLoading || ( isFetching && hasData );
 
 	const geoData = useMemo( (): GeoData => {
 		const header: GoogleDataTableColumn[] = [
@@ -130,28 +132,27 @@ function LocationsInner( { max }: { max: number } ) {
 	}, [ comparisonData, data, geoMode, hasComparison ] );
 
 	const header = (
-		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
-			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
-				{ selectedCountry ? (
+		<Stack
+			direction="row"
+			justify={ selectedCountry ? 'space-between' : 'flex-end' }
+			align="center"
+			className={ styles.widgetHeader }
+		>
+			{ selectedCountry && (
+				<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
 					<Button
 						variant="unstyled"
 						onClick={ clearSelectedCountry }
 						className={ styles.breadcrumbLink }
 					>
-						{ __( 'Top Locations', 'jetpack-premium-analytics' ) }
+						{ __( 'Locations', 'jetpack-premium-analytics' ) }
 					</Button>
-				) : (
-					<Text variant="heading-md" render={ <h3 /> }>
-						{ __( 'Top Locations', 'jetpack-premium-analytics' ) }
-					</Text>
-				) }
-				{ selectedCountry && (
 					<>
 						<Text className={ styles.breadcrumbSeparator }>/</Text>
 						<Text>{ selectedCountry.name }</Text>
 					</>
-				) }
-			</Stack>
+				</Stack>
+			) }
 			<SelectControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
@@ -217,6 +218,7 @@ function LocationsInner( { max }: { max: number } ) {
 		<>
 			{ header }
 			<div className={ styles.content }>
+				{ showLoading && <WidgetLoadingOverlay /> }
 				<div className={ clsx( styles.chartArea, geoMode === 'city' && styles.noMap ) }>
 					<LeaderboardChart
 						data={ leaderboardData }
