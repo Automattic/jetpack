@@ -7,11 +7,13 @@ import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { ComparativeLineChart, MetricWithComparison, WidgetLoadingOverlay } from '../../components';
 import { useSeriesStyles } from '../../hooks';
+import { ComparativeLineChart } from '../chart-comparative-line';
+import { MetricWithComparison } from '../metric-with-comparison';
+import { WidgetLoadingOverlay } from '../widget-loading-overlay';
 import styles from './metric-tabs-chart.module.scss';
-import type { ComparativeLineChartSeries } from '../../components/chart-comparative-line/types';
 import type { DataFormat } from '../../types';
+import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
 import type { ReactNode } from 'react';
 
 /**

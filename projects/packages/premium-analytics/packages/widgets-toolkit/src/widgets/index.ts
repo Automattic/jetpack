@@ -1,10 +1,4 @@
 export { MetricComparisonWidget } from './metric-comparison';
-export {
-	MetricTabsChart,
-	type MetricTab,
-	type MetricTabDatum,
-	type MetricTabsChartProps,
-} from './metric-tabs-chart';
 export { OrderMetricWidget, BookingOrderMetricWidget } from './order-metric';
 export { SalesByCouponWidget } from './sales-by-coupon';
 export { ConversionRateWidget, BookingConversionRateWidget } from './conversion-rate';
