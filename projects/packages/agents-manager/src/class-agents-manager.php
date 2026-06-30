@@ -519,6 +519,25 @@ class Agents_Manager {
 
 		$script_dependencies = $asset_file['dependencies'] ?? array();
 
+		// Load translations for connected variants from widgets.wp.com. Disconnected
+		// variants ship a minimal bundle with no translatable in-app UI, so they are
+		// skipped — mirroring Help Center. English needs no translation file.
+		if ( ! str_contains( $variant, 'disconnected' ) ) {
+			$locale = self::determine_iso_639_locale();
+
+			if ( 'en' !== $locale ) {
+				wp_enqueue_script(
+					'agents-manager-translations',
+					'https://widgets.wp.com/agents-manager/languages/' . $locale . '-v1.js',
+					array( 'wp-i18n' ),
+					$version,
+					true
+				);
+
+				$script_dependencies[] = 'agents-manager-translations';
+			}
+		}
+
 		wp_enqueue_script(
 			'agents-manager',
 			'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . '.min.js',
@@ -541,6 +560,33 @@ class Agents_Manager {
 				$version
 			);
 		}
+	}
+
+	/**
+	 * Returns the ISO 639 conforming locale string for the current user.
+	 *
+	 * Normalizes the WordPress user locale to match the widgets.wp.com translation
+	 * file naming at languages/{code}-v1.js. Preserves the region for the few locales
+	 * where it is meaningful (pt-br, zh-tw, zh-cn); strips the region for all others;
+	 * falls back to 'en' when the locale is empty.
+	 *
+	 * @return string The ISO 639 locale string, e.g. "en".
+	 */
+	private static function determine_iso_639_locale() {
+		$language = get_user_locale();
+		$language = strtolower( $language );
+
+		if ( in_array( $language, array( 'pt_br', 'pt-br', 'zh_tw', 'zh-tw', 'zh_cn', 'zh-cn' ), true ) ) {
+			$language = str_replace( '_', '-', $language );
+		} else {
+			$language = preg_replace( '/([-_].*)$/i', '', $language );
+		}
+
+		if ( empty( $language ) ) {
+			return 'en';
+		}
+
+		return $language;
 	}
 
 	/**
