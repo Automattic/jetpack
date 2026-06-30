@@ -272,8 +272,8 @@ class Agents_Manager {
 		// When Gutenberg's "admin bar in editor" (omnibar) experiment is active, expose the entry
 		// points in that editor admin bar (CIAB is excluded — it has its own Site Hub UI). The Help
 		// "?" dropdown shows only in the full unified experience (mirroring wp-admin); the Ask AI
-		// button shows in any dev/internal context while the feature is in development. The
-		// wp-calypso admin-bar integration wires both, so no frontend change is needed.
+		// button shows whenever Agents Manager is enabled in this editor. The wp-calypso admin-bar
+		// integration wires both, so no frontend change is needed.
 		if ( ! $is_ciab && ! $use_disconnected && self::is_admin_bar_in_editor() ) {
 			// Help "?" node + dropdown panel first, matching the wp-admin admin bar order.
 			if ( self::is_unified_experience() ) {
@@ -287,8 +287,8 @@ class Agents_Manager {
 				add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
 			}
 
-			// Ask AI button — dev/internal contexts only while the feature is in development.
-			if ( self::is_dev_mode() ) {
+			// Ask AI button — shown whenever Agents Manager is enabled in this editor context.
+			if ( self::is_enabled() ) {
 				add_action( 'admin_bar_menu', array( $this, 'add_ai_chat_button' ), 100 );
 			}
 		}
