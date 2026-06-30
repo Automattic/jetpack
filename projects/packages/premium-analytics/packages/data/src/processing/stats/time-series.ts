@@ -1,3 +1,4 @@
+import { formatDatePartWithTime, getDatePart } from '@jetpack-premium-analytics/datetime';
 import {
 	endOfISOWeek,
 	endOfMonth,
@@ -169,13 +170,17 @@ function getTimeSeriesIntervalFields( period: unknown, unit?: string ) {
 }
 
 function getHourIntervalFields( date: string, hour: unknown ) {
-	const datePart = date.split( 'T' )[ 0 ];
+	const datePart = getDatePart( date ) ?? date;
 	const hourPart = String( Math.trunc( Number( hour ) ) || 0 ).padStart( 2, '0' );
 
+	// Like getStatsIntervalFields, these are calendar bucket labels stamped with a nominal +00:00
+	// (formatDatePartWithTime's default), not real UTC instants — the API's hour is already
+	// site-local, so a consumer must render the bucket as wall-clock rather than convert it across
+	// the site offset.
 	return {
 		time_interval: `${ datePart } ${ hourPart }:00`,
-		date_start: `${ datePart }T${ hourPart }:00:00+00:00`,
-		date_end: `${ datePart }T${ hourPart }:59:59+00:00`,
+		date_start: formatDatePartWithTime( datePart, `${ hourPart }:00:00` ),
+		date_end: formatDatePartWithTime( datePart, `${ hourPart }:59:59` ),
 	};
 }
 
