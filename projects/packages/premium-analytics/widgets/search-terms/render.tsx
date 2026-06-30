@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	calculateDelta,
 	LeaderboardChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
@@ -18,6 +19,7 @@ import { Stack, Text } from '@wordpress/ui';
 import styles from './style.module.css';
 import useSearchTermViews from './use-search-term-views';
 import type { SearchTermsAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type SearchTermsRenderAttributes = Partial< ReportParamsFieldAttributes > & SearchTermsAttributes;
 
@@ -48,9 +50,9 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 			previousValue: term.previousViews,
 			currentShare: maxValue > 0 ? ( term.views / maxValue ) * 100 : 0,
 			previousShare: prevMaxValue > 0 ? ( term.previousViews / prevMaxValue ) * 100 : 0,
-			delta: term.views - term.previousViews,
+			delta: hasComparison ? calculateDelta( term.views, term.previousViews ) : 0,
 		} ) );
-	}, [ data ] );
+	}, [ data, hasComparison ] );
 
 	if ( isError ) {
 		return (
@@ -103,9 +105,7 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
  */
 export default function SearchTerms( {
 	attributes = {},
-}: {
-	attributes?: SearchTermsRenderAttributes;
-} ) {
+}: WidgetRenderProps< SearchTermsRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<SearchTermsInner max={ attributes.max } />
