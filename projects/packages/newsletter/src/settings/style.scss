@@ -37,13 +37,6 @@ body.jetpack_page_jetpack-newsletter {
 	}
 }
 
-// The `@wordpress/ui` Notice is a CSS-module component, so the
-// `.components-notice` rule below can't reach it. Separate the warning
-// notice in the Email content section from the toggle that follows it.
-.newsletter-email-content-notice {
-	margin-block-end: var(--wpds-dimension-gap-lg, 24px);
-}
-
 .newsletter-settings-disabled {
 	position: relative;
 
