@@ -29,7 +29,10 @@ function remove_dev_only_widget_types( $widget_candidates, $environment ) {
 		return $widget_candidates;
 	}
 
-	// Types that must never reach a production dashboard.
+	// Types that must never reach a production dashboard. Matched by name, not
+	// by `category: developer`: wp-build does not copy `category` into the PHP
+	// manifest yet, so it is not queryable here. Switch to a category check
+	// once the manifest carries it.
 	$dev_only = array( 'jpa/react-query-dev-tool' );
 
 	return array_values(
