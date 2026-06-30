@@ -26,8 +26,8 @@ import type { ComponentProps } from 'react';
 
 const DEFAULT_MAX = 7;
 
-// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
-// also pass them via `attributes`. Compose the render-only shape to cover both.
+// The host injects report params (date range / comparison) through `attributes`
+// alongside the widget's own `max`, so compose the render-only shape from both.
 type AuthorsRenderAttributes = AuthorsAttributes & Partial< ReportParamsFieldAttributes >;
 
 type AuthorsRenderProps = WidgetRenderProps< AuthorsRenderAttributes > & {
@@ -171,11 +171,12 @@ function AuthorsReport( { max }: { max: number } ) {
 /**
  * Authors widget render entry point.
  *
- * Passes host `attributes` into `WidgetRoot`, which resolves the report params:
- * the dashboard leaves `reportParams` out of `attributes`, so it falls back to
- * the date-range URL search params the picker writes to; Storybook injects
- * `attributes.reportParams` directly. The widget's own `max` is forwarded to
- * the inner component.
+ * WidgetRoot resolves the report params from the dashboard date range (the URL
+ * search params the date picker writes to), the same way the other Stats
+ * widgets read them. We intentionally don't pass `attributes` here: the host
+ * injects a `reportParams` into them, and `WidgetRoot` would prefer that shadow
+ * copy over the live URL — so the date picker would never reach the query. The
+ * widget's own `max` attribute is forwarded to the inner component instead.
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes.
@@ -184,7 +185,7 @@ function AuthorsReport( { max }: { max: number } ) {
  */
 export default function Authors( { attributes = {}, setError }: AuthorsRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError }>
+		<WidgetRoot setError={ setError }>
 			<AuthorsReport max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
 		</WidgetRoot>
 	);
