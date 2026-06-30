@@ -52,21 +52,21 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 	 *
 	 * @var string
 	 */
-	private string $report_label = '';
+	private $report_label = '';
 
 	/**
 	 * Export parameters.
 	 *
 	 * @var array
 	 */
-	private array $params = array();
+	private $params = array();
 
 	/**
 	 * File URL for download.
 	 *
 	 * @var string
 	 */
-	private string $file_url = '';
+	private $file_url = '';
 
 	/**
 	 * Constructor.

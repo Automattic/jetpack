@@ -33,7 +33,7 @@ class ReportRegistry {
 	 *
 	 * @var array<string, CSVReportControllerInterface>
 	 */
-	private array $controllers = array();
+	private $controllers = array();
 
 	/**
 	 * Private constructor for singleton.
