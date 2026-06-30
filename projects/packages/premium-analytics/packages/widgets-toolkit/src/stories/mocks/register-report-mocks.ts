@@ -52,6 +52,7 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
  */
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';
+const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/subscribers';
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -500,6 +501,66 @@ function buildFollowersResponse() {
 	return { subscribers, total: 30, total_email: 18, total_wpcom: 12, page: 1, pages: 5 };
 }
 
+/**
+ * Builds the stats/subscribers time-series response.
+ *
+ * Honours the `unit`, `quantity`, and `date` query params so the subscribers
+ * chart's two requests (current window and the immediately preceding window)
+ * return continuous data: values are anchored to each bucket's absolute date,
+ * so the current window trends above the previous one and the headline shows a
+ * positive period-over-period delta. The series is wavy (not flat) so the
+ * dashed previous-period overlay reads clearly against the solid current line.
+ * Paid subscribers are always present so both chart lines are exercised.
+ *
+ * @param query - Parsed query params (`unit`, `quantity`, `date`).
+ * @return Raw subscribers response in the WPCOM matrix shape.
+ */
+function buildSubscribersResponse( query: URLSearchParams ) {
+	const unit = query.get( 'unit' ) || 'day';
+	const quantity = Math.max( 1, Math.min( 60, parseInt( query.get( 'quantity' ) || '30', 10 ) ) );
+	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+
+	// Anchor growth to a fixed day so totals stay in a realistic range and stay
+	// continuous across the current/previous windows.
+	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
+	const stepDays = unit === 'week' ? 7 : 1;
+
+	const rows = Array.from( { length: quantity }, ( _, index ) => {
+		const i = quantity - 1 - index;
+		const bucket = new Date( endDate );
+		let period: string;
+
+		if ( unit === 'month' ) {
+			bucket.setUTCMonth( bucket.getUTCMonth() - i );
+			period = `${ bucket.getUTCFullYear() }-${ String( bucket.getUTCMonth() + 1 ).padStart(
+				2,
+				'0'
+			) }`;
+		} else {
+			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
+			period = bucket.toISOString().slice( 0, 10 );
+		}
+
+		const absDay = Math.floor( bucket.getTime() / DAY_MS );
+		// Upward trend plus a wave whose period (~44 days) does not align with a
+		// 30-day window, so the index-aligned previous-period series stays out of
+		// phase and its dashed line diverges visibly from the current solid line.
+		const trend = ( absDay - anchorDay ) * 9;
+		const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
+		const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
+		const paid = Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) );
+
+		return [ period, subscribers, paid ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		unit,
+		fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+		data: rows,
+	};
+}
+
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
 
@@ -509,6 +570,13 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {
 		return buildFollowersResponse();
+	}
+
+	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {
+		const queryIndex = requestPath.indexOf( '?' );
+		return buildSubscribersResponse(
+			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
+		);
 	}
 
 	if ( ! requestPath.startsWith( API_BASE ) ) {
