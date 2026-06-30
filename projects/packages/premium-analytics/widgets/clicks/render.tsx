@@ -143,9 +143,7 @@ function normalizeClickItems(
 	items: StatsClicksItem[],
 	comparisonLookup: Map< string, StatsClicksItem >
 ): NormalizedClickItem[] {
-	return sortClickItems(
-		items.map( item => normalizeClickItem( item, comparisonLookup ) )
-	);
+	return sortClickItems( items.map( item => normalizeClickItem( item, comparisonLookup ) ) );
 }
 
 function getItems(
@@ -189,6 +187,7 @@ function ClickLabel( { row }: { row: ClickRow } ) {
  *
  * @param rows           - Normalized click rows.
  * @param withComparison - Whether to include comparison values and deltas.
+ * @param onDrillDown    - Callback fired when a row with child links is selected.
  * @return Leaderboard chart data.
  */
 function buildLeaderboardData(
@@ -256,6 +255,7 @@ export type ClicksLeaderboardProps = {
  * @param props.isLoading      - When true, show a loading overlay.
  * @param props.isError        - When true, show an error message.
  * @param props.withComparison - When true, render comparison deltas.
+ * @param props.onDrillDown    - Callback fired when a row with child links is selected.
  * @return The rendered leaderboard.
  */
 export function ClicksLeaderboard( {
@@ -294,6 +294,9 @@ function ClicksInner( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ selectedClickLabel, setSelectedClickLabel ] = useState< string | null >( null );
 	const clearSelectedClick = useCallback( () => setSelectedClickLabel( null ), [] );
+	const handleDrillDown = useCallback( ( row: ClickRow ) => {
+		setSelectedClickLabel( row.label );
+	}, [] );
 	const statsParams = {
 		...reportParams,
 		max,
@@ -346,7 +349,7 @@ function ClicksInner( { max }: { max: number } ) {
 					isLoading={ showLoading }
 					isError={ isError }
 					withComparison={ hasComparison }
-					onDrillDown={ isDrillDown ? undefined : row => setSelectedClickLabel( row.label ) }
+					onDrillDown={ isDrillDown ? undefined : handleDrillDown }
 				/>
 			</div>
 		</>

@@ -58,7 +58,7 @@ describe( 'ClicksWidget', () => {
 		} );
 		expect( screen.queryByRole( 'link', { name: /wordpress\.org/i } ) ).not.toBeInTheDocument();
 
-		fireEvent.click( drillDownButton );
+		fireEvent.click( drillDownButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 
 		const link = await screen.findByRole( 'link', {
 			name: /\/plugins\/jetpack-search/i,
