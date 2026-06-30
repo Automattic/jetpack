@@ -36,8 +36,13 @@ export default function useConnectionErrorNotice( {
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
 
-	// connectionErrors is typed as Array<string|object> but is actually a nested object at runtime.
-	const errorMap = connectionErrors as unknown as ConnectionErrorMap;
+	// connectionErrors is typed as Array<string|object> but is actually a nested
+	// object at runtime; the store selector can also fall back to `[]`. Normalize
+	// to a map so the returned value is honest to the ConnectionErrorMap contract.
+	const errorMap: ConnectionErrorMap =
+		connectionErrors && typeof connectionErrors === 'object' && ! Array.isArray( connectionErrors )
+			? ( connectionErrors as unknown as ConnectionErrorMap )
+			: {};
 	const connectionErrorList = Object.values( errorMap ).shift();
 	const firstError: ConnectionErrorObject | undefined =
 		connectionErrorList && Object.values( connectionErrorList ).length

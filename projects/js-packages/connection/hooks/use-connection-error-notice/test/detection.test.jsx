@@ -79,6 +79,17 @@ describe( 'useConnectionErrorNotice — error detection', () => {
 		expect( result.current.connectionError ).toBeUndefined();
 	} );
 
+	// The store selector falls back to `[]` (an array) in edge cases. The hook
+	// normalizes that to an empty map so `connectionErrors` stays honest to its
+	// ConnectionErrorMap contract, and no notice is surfaced.
+	it( 'normalizes a non-map store value to an empty map', () => {
+		mockConnection( { connectionErrors: [] } );
+
+		const { result } = renderHook( () => useConnectionErrorNotice() );
+		expect( result.current.hasConnectionError ).toBe( false );
+		expect( result.current.connectionErrors ).toEqual( {} );
+	} );
+
 	// Connection presence flags alone do not produce a notice — only
 	// store-reported errors do. Presence is a valid state, not an error.
 	it( 'does not surface a notice from connection presence alone', () => {
