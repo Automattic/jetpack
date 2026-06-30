@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { validateAgainstSchema } from '../lib/schema-validator.ts';
 import {
 	ctaKind,
-	firstIncompleteIndex,
+	nextIncompleteId,
 	isCompleteOnClickTask,
 	isTaskActionable,
 	launchSiteUrl,
@@ -273,24 +273,24 @@ describe( 'resolveCtaUrl', () => {
 	} );
 } );
 
-describe( 'firstIncompleteIndex', () => {
-	it( 'returns the first incomplete task index', () => {
+describe( 'nextIncompleteId', () => {
+	it( 'returns the first incomplete task id', () => {
 		const tasks = [
 			task( { id: 'a', completed: true } ),
 			task( { id: 'b', completed: false } ),
 			task( { id: 'c', completed: false } ),
 		];
-		assert.equal( firstIncompleteIndex( tasks ), 1 );
+		assert.equal( nextIncompleteId( tasks ), 'b' );
 	} );
 
-	it( 'returns 0 when nothing is complete', () => {
+	it( 'returns the first id when nothing is complete', () => {
 		const tasks = [ task( { id: 'a' } ), task( { id: 'b' } ) ];
-		assert.equal( firstIncompleteIndex( tasks ), 0 );
+		assert.equal( nextIncompleteId( tasks ), 'a' );
 	} );
 
-	it( 'returns -1 when everything is complete', () => {
+	it( 'returns null when everything is complete', () => {
 		const tasks = [ task( { id: 'a', completed: true } ), task( { id: 'b', completed: true } ) ];
-		assert.equal( firstIncompleteIndex( tasks ), -1 );
+		assert.equal( nextIncompleteId( tasks ), null );
 	} );
 } );
 

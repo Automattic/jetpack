@@ -244,14 +244,15 @@ export function isTaskActionable(
 }
 
 /**
- * The index of the first incomplete task, or -1 when every task is complete.
- * Drives which card auto-expands on first render.
+ * The id of the first incomplete task, driving which card the accordion
+ * auto-expands. Returns null when every task is complete.
  *
- * @param tasks - The enriched tasks.
- * @return The index of the first incomplete task, or -1.
+ * @param tasks - The enriched tasks (skipped tasks already coerced to completed).
+ * @return The first incomplete task id, or null.
  */
-export function firstIncompleteIndex( tasks: EnrichedTask[] ): number {
-	return tasks.findIndex( task => ! task.completed );
+export function nextIncompleteId( tasks: EnrichedTask[] ): string | null {
+	const next = tasks.find( task => ! task.completed );
+	return next ? next.id : null;
 }
 
 /**

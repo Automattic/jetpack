@@ -1,12 +1,12 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { createFirstPostDraft } from '../lib/first-post.ts';
 import { createPatternPage } from '../lib/pattern-page.ts';
 import { trackTaskClicked } from '../lib/tracks.ts';
 import { Layout } from './layout.tsx';
 import {
-	firstIncompleteIndex,
+	nextIncompleteId,
 	isCompleteOnClickTask,
 	isTaskActionable,
 	resolveCtaUrl,
@@ -80,6 +80,17 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 	);
 	const [ skippedIds, setSkippedIds ] = useState< Set< string > >( () => new Set() );
 	const [ busyId, setBusyId ] = useState< string | null >( null );
+	// The single expanded card (accordion: only one open at a time). Seeded to the
+	// first incomplete task for returning users (initialData present on first
+	// render); the wizard→list path has no tasks yet, so the load effect opens it
+	// once the read lands. `null` means every card is collapsed — a state the user
+	// can reach by toggling the open card shut, which must not auto-reopen.
+	const [ openId, setOpenId ] = useState< string | null >( () =>
+		initialData?.tasks ? nextIncompleteId( initialData.tasks ) : null
+	);
+	// Guards the one-time auto-open so the load effect doesn't fight a user who has
+	// collapsed every card. True already when seeded from initialData above.
+	const didAutoOpen = useRef( !! initialData?.tasks );
 	// The site's front-end URL, used to build the launch CTA and the preview
 	// thumbnail; the title labels the preview. Seeded from the read (returning users)
 	// or the host's `site` prop (wizard path, so the skeleton shows the preview),
@@ -142,6 +153,16 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 			cancelled = true;
 		};
 	}, [ pendingTailor, initialData ] );
+
+	// Open the first incomplete card once the tasks first arrive on the
+	// wizard→list path (returning users are seeded synchronously above). Guarded
+	// so it runs only once and never reopens a list the user has collapsed.
+	useEffect( () => {
+		if ( ! didAutoOpen.current && tasks && tasks.length > 0 ) {
+			setOpenId( nextIncompleteId( tasks ) );
+			didAutoOpen.current = true;
+		}
+	}, [ tasks ] );
 
 	const visibleTasks = useMemo(
 		() =>
@@ -234,15 +255,10 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 		setSkippedIds( prev => new Set( prev ).add( task.id ) );
 	};
 
-	// The first incomplete task opens on mount; because the cards are uncontrolled
-	// (defaultOpen), the user can then collapse it — or all of them — without it
-	// reopening. Computed from the initial render (skippedIds is empty then).
-	const firstOpenIndex = firstIncompleteIndex( visibleTasks );
-
 	return (
 		<Layout progressLabel={ progressLabel } siteUrl={ siteUrl } siteTitle={ siteTitle }>
 			<div className="ai-launchpad-tailored-list">
-				{ visibleTasks.map( ( task, index ) => (
+				{ visibleTasks.map( task => (
 					<TaskCard
 						key={ task.id }
 						task={ task }
@@ -251,7 +267,8 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 						canMarkComplete={
 							isCompleteOnClickTask( task.id ) && ! isTaskActionable( task, output, siteUrl )
 						}
-						defaultOpen={ index === firstOpenIndex }
+						isOpen={ openId === task.id }
+						onOpenChange={ open => setOpenId( open ? task.id : null ) }
 						onGetStarted={ () => handleGetStarted( task ) }
 						onMarkComplete={ () => handleMarkComplete( task ) }
 						onSkip={ () => handleSkip( task ) }

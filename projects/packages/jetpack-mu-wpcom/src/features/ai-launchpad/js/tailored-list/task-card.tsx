@@ -9,7 +9,8 @@ interface Props {
 	isBusy: boolean;
 	canStart: boolean;
 	canMarkComplete: boolean;
-	defaultOpen: boolean;
+	isOpen: boolean;
+	onOpenChange: ( open: boolean ) => void;
 	onGetStarted: () => void;
 	onMarkComplete: () => void;
 	onSkip: () => void;
@@ -68,14 +69,18 @@ function getCtaLabel( taskId: string ): string {
  * the always-visible header, which is the toggle trigger); expanding reveals the
  * AI subtitle and the action-specific CTA / "Skip" actions.
  *
+ * Open state is controlled by the parent so the list behaves as an accordion:
+ * only one card is open at a time.
+ *
  * @param props                 - The component props.
  * @param props.task            - The enriched task to render.
  * @param props.isBusy          - Whether the primary action is in flight.
  * @param props.canStart        - Whether the task has an actionable CTA destination.
  * @param props.canMarkComplete - Whether the task offers a "Mark as complete" button
  *                              (a complete-on-click task with no CTA destination).
- * @param props.defaultOpen     - Whether the card starts expanded (uncontrolled, so
- *                              the user can then collapse it without it reopening).
+ * @param props.isOpen          - Whether the card is expanded (controlled by the parent).
+ * @param props.onOpenChange    - Called with the requested open state when the header
+ *                              is toggled, so the parent can enforce single-open.
  * @param props.onGetStarted    - Called when the primary CTA is clicked.
  * @param props.onMarkComplete  - Called when "Mark as complete" is clicked.
  * @param props.onSkip          - Called when "Skip" is clicked.
@@ -86,7 +91,8 @@ export function TaskCard( {
 	isBusy,
 	canStart,
 	canMarkComplete,
-	defaultOpen,
+	isOpen,
+	onOpenChange,
 	onGetStarted,
 	onMarkComplete,
 	onSkip,
@@ -107,7 +113,11 @@ export function TaskCard( {
 	}
 
 	return (
-		<CollapsibleCard.Root className="ai-launchpad-tailored-list__card" defaultOpen={ defaultOpen }>
+		<CollapsibleCard.Root
+			className="ai-launchpad-tailored-list__card"
+			open={ isOpen }
+			onOpenChange={ onOpenChange }
+		>
 			<CollapsibleCard.Header>
 				<span className="ai-launchpad-tailored-list__header-inner">
 					<span className="ai-launchpad-tailored-list__icon is-todo">
