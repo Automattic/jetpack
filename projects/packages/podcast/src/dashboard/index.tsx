@@ -179,7 +179,7 @@ const App = () => {
 				<div className="podcast__tab-content podcast__tab-content--wide">
 					<ErrorBoundary>
 						<Suspense fallback={ <TabFallback /> }>
-							<Welcome onEnable={ handleEnable } />
+							<Welcome onEnable={ handleEnable } hasAccess={ hasAccess } />
 						</Suspense>
 					</ErrorBoundary>
 				</div>

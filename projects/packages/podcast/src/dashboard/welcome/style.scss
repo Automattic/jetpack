@@ -66,6 +66,21 @@
 	outline-offset: -2px;
 }
 
+.podcast__welcome-plan--included {
+	outline: 2px solid #008a20;
+	outline-offset: -2px;
+}
+
+.podcast__welcome-plan-check {
+	display: inline-flex;
+	align-items: center;
+	color: #008a20;
+
+	svg {
+		fill: currentColor;
+	}
+}
+
 .podcast__welcome-plan-badge {
 	display: inline-block;
 	padding: 2px 10px;
