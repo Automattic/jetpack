@@ -92,3 +92,18 @@ export const SingleMetric: Story = {
 export const Loading: Story = {
 	args: { metrics: METRICS, dataFormat: DATA_FORMAT, loading: true },
 };
+
+/**
+ * On a short tile the chart is dropped and only the metric cards remain, so it
+ * never collapses into an unreadable sliver.
+ */
+export const Compact: Story = {
+	args: { metrics: METRICS, dataFormat: DATA_FORMAT },
+	decorators: [
+		Story => (
+			<div style={ { width: '320px', height: '170px' } }>
+				<Story />
+			</div>
+		),
+	],
+};

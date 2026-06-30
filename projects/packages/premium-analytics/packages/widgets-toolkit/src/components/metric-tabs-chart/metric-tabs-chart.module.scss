@@ -57,11 +57,12 @@
 	color: var(--wpds-color-fg-content-neutral-weak);
 }
 
-/* Anchors the absolutely positioned loading overlay and gives the responsive
- * chart a height to fill. */
+/* Anchors the absolutely positioned loading overlay. The chart fills the room
+ * left under the cards and shrinks with the tile (the component hides it once
+ * the tile is too short), so it never overflows or clips. */
 .chart {
 	position: relative;
 	flex: 1 1 0;
 	min-width: 0;
-	min-height: 260px;
+	min-height: 0;
 }

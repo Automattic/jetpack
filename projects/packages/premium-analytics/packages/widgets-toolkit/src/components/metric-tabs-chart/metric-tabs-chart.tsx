@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useResizeObserver } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { Tabs, Text } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
@@ -15,6 +16,12 @@ import styles from './metric-tabs-chart.module.scss';
 import type { DataFormat } from '../../types';
 import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
 import type { ReactNode } from 'react';
+
+/**
+ * Minimum widget height (px) before the chart is worth showing; below this only
+ * the metric cards render, so the chart never collapses into a sliver.
+ */
+const MIN_HEIGHT_FOR_CHART = 260;
 
 /**
  * A single time-series point for a metric.
@@ -127,6 +134,16 @@ export function MetricTabsChart( {
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
+	// Hide the chart on short tiles and show only the metric cards, rather than
+	// squashing the chart into an unreadable sliver. Mirrors analytics-at-a-glance.
+	const [ hasRoomForChart, setHasRoomForChart ] = useState( true );
+	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
+		const rect = entries[ 0 ]?.contentRect;
+		if ( rect ) {
+			setHasRoomForChart( rect.height >= MIN_HEIGHT_FOR_CHART );
+		}
+	} );
+
 	// Fall back to the first metric if the selected one is no longer present.
 	const activeMetric = metrics.find( metric => metric.key === selectedKey ) ?? metrics[ 0 ];
 
@@ -150,6 +167,7 @@ export function MetricTabsChart( {
 
 	return (
 		<Tabs.Root
+			ref={ measureRef }
 			value={ activeMetric?.key }
 			onValueChange={ handleValueChange }
 			className={ styles.root }
@@ -178,16 +196,18 @@ export function MetricTabsChart( {
 				</Tabs.List>
 				{ controls }
 			</div>
-			<div className={ styles.chart }>
-				{ activeMetric && (
-					<ComparativeLineChart
-						series={ series }
-						styles={ seriesStyles }
-						dataFormat={ activeMetric.dataFormat ?? dataFormat }
-					/>
-				) }
-				{ loading && <WidgetLoadingOverlay /> }
-			</div>
+			{ hasRoomForChart && (
+				<div className={ styles.chart }>
+					{ activeMetric && (
+						<ComparativeLineChart
+							series={ series }
+							styles={ seriesStyles }
+							dataFormat={ activeMetric.dataFormat ?? dataFormat }
+						/>
+					) }
+					{ loading && <WidgetLoadingOverlay /> }
+				</div>
+			) }
 		</Tabs.Root>
 	);
 }
