@@ -115,6 +115,45 @@ function buildSeries( metric: MetricTab ): ComparativeLineChartSeries[] {
 }
 
 /**
+ * The chart for a single metric — the current line with its dashed
+ * previous-period overlay. Rendered inside the metric's tab panel, so the chart
+ * (and its `useSeriesStyles` work) only mounts for the selected metric.
+ *
+ * @param {object}     props            - The component props.
+ * @param {MetricTab}  props.metric     - The metric to chart.
+ * @param {DataFormat} props.dataFormat - Fallback value/axis format.
+ * @param {boolean}    props.loading    - Whether to overlay the loading state.
+ * @return The chart for the metric.
+ */
+function MetricChart( {
+	metric,
+	dataFormat,
+	loading,
+}: {
+	metric: MetricTab;
+	dataFormat: DataFormat;
+	loading: boolean;
+} ) {
+	const series = useMemo( () => buildSeries( metric ), [ metric ] );
+
+	// Resolve each series' colour + line style from the chart theme so the chart
+	// lines and the tooltip glyphs share the same styling — including the dashed
+	// pattern on the previous-period series.
+	const seriesStyles = useSeriesStyles( series );
+
+	return (
+		<>
+			<ComparativeLineChart
+				series={ series }
+				styles={ seriesStyles }
+				dataFormat={ metric.dataFormat ?? dataFormat }
+			/>
+			{ loading && <WidgetLoadingOverlay /> }
+		</>
+	);
+}
+
+/**
  * A metric switcher over a comparative line chart: a row of selectable cards
  * (each a headline value + period-over-period delta) built on `@wordpress/ui`
  * `Tabs`, and below them the selected metric's current line with its
@@ -157,16 +196,6 @@ export function MetricTabsChart( {
 		[ onMetricChange ]
 	);
 
-	const series = useMemo(
-		() => ( activeMetric ? buildSeries( activeMetric ) : [] ),
-		[ activeMetric ]
-	);
-
-	// Resolve each series' colour + line style from the chart theme so the chart
-	// lines and the tooltip glyphs share the same styling — including the dashed
-	// pattern on the previous-period series.
-	const seriesStyles = useSeriesStyles( series );
-
 	return (
 		<Tabs.Root
 			ref={ measureRef }
@@ -198,18 +227,15 @@ export function MetricTabsChart( {
 				</Tabs.List>
 				{ controls }
 			</div>
-			{ hasRoomForChart && (
-				<div className={ styles.chart }>
-					{ activeMetric && (
-						<ComparativeLineChart
-							series={ series }
-							styles={ seriesStyles }
-							dataFormat={ activeMetric.dataFormat ?? dataFormat }
-						/>
+			{ /* One panel per tab (WAI-ARIA + @wordpress/ui parity). Only the active
+			     metric's panel renders its chart; the rest stay empty. */ }
+			{ metrics.map( metric => (
+				<Tabs.Panel key={ metric.key } value={ metric.key } className={ styles.chart }>
+					{ hasRoomForChart && (
+						<MetricChart metric={ metric } dataFormat={ dataFormat } loading={ loading } />
 					) }
-					{ loading && <WidgetLoadingOverlay /> }
-				</div>
-			) }
+				</Tabs.Panel>
+			) ) }
 		</Tabs.Root>
 	);
 }
