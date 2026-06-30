@@ -36,6 +36,13 @@ export type {
 	StatsAppPlanPriceTier,
 	StatsAppPlanUsage,
 } from './use-stats-app-plan-usage';
+export {
+	useStatsAppPurchases,
+	type StatsAppPurchase,
+	type StatsAppPurchaseExpiryStatus,
+	type StatsAppPurchasesParams,
+	type StatsAppPurchasesResponse,
+} from './use-stats-app-purchases';
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
 export {
 	useStatsCommentFollowers,

@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { statsAppPurchasesQuery } from '../stats-app-purchases-query';
 import { statsAppProxyQuery } from '../stats-app-query';
 import {
 	statsAppReferrersMarkSpamMutation,
@@ -575,6 +576,30 @@ describe( 'Stats query factories', () => {
 				params: {},
 			} ).queryKey
 		);
+	} );
+
+	it( 'builds app purchases query keys for the upgrades endpoint', () => {
+		expect( statsAppPurchasesQuery( { site: 41 } ).queryKey ).toEqual( [
+			'stats-app',
+			'purchases',
+			'1.2',
+			'upgrades',
+			'GET',
+			{ site: 41 },
+			{},
+		] );
+	} );
+
+	it( 'passes purchases endpoint filters without report param coercion', () => {
+		expect( statsAppPurchasesQuery( { type: 'transferred' } ).queryKey ).toEqual( [
+			'stats-app',
+			'purchases',
+			'1.2',
+			'upgrades',
+			'GET',
+			{ type: 'transferred' },
+			{},
+		] );
 	} );
 
 	it( 'builds subscribers query keys with Calypso endpoint params and default stat fields', () => {
