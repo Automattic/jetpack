@@ -10,7 +10,7 @@ import SearchTermsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -24,6 +24,16 @@ function renderSearchTerms( { withComparison }: SearchTermsStoryControls ) {
 	return (
 		<SearchTermsRender
 			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			showTitle={ false }
+		/>
+	);
+}
+
+function SearchTermsDashboardRender( props: WidgetRenderProps< unknown > ) {
+	return (
+		<SearchTermsRender
+			{ ...( props as ComponentProps< typeof SearchTermsRender > ) }
+			showTitle={ false }
 		/>
 	);
 }
@@ -80,7 +90,7 @@ function SearchTermsDashboardStory( {
 			{ ...dashboardArgs }
 			widgetType={ widgetDefinition }
 			renderModule={ SEARCH_TERMS_RENDER_MODULE }
-			renderComponent={ SearchTermsRender as ComponentType< WidgetRenderProps< unknown > > }
+			renderComponent={ SearchTermsDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);

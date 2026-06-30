@@ -22,15 +22,19 @@ import type { SearchTermsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type SearchTermsRenderAttributes = Partial< ReportParamsFieldAttributes > & SearchTermsAttributes;
+type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes > & {
+	showTitle?: boolean;
+};
 
 /**
  * Search Terms widget inner component. Reads report params from WidgetRoot context.
  *
- * @param props     - Render props.
- * @param props.max - Maximum number of rows to display.
+ * @param props           - Render props.
+ * @param props.max       - Maximum number of rows to display.
+ * @param props.showTitle - Whether to render the widget title inside the render module.
  * @return The rendered widget content.
  */
-function SearchTermsInner( { max = 10 }: { max?: number } ) {
+function SearchTermsInner( { max = 10, showTitle }: { max?: number; showTitle: boolean } ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const { data, isLoading, isError, hasComparison } = useSearchTermViews( { reportParams, max } );
@@ -72,11 +76,13 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 
 	return (
 		<Stack className={ styles.root }>
-			<Stack direction="row" align="center" className={ styles.widgetHeader }>
-				<Text variant="heading-md" render={ <h3 /> }>
-					{ __( 'Top Search Terms', 'jetpack-premium-analytics' ) }
-				</Text>
-			</Stack>
+			{ showTitle && (
+				<Stack direction="row" align="center" className={ styles.widgetHeader }>
+					<Text variant="heading-md" render={ <h3 /> }>
+						{ __( 'Top Search Terms', 'jetpack-premium-analytics' ) }
+					</Text>
+				</Stack>
+			) }
 			<div className={ styles.content }>
 				<LeaderboardChart
 					data={ leaderboardData }
@@ -101,14 +107,16 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes (max, reportParams).
+ * @param props.showTitle  - Whether to render the widget title inside the render module.
  * @return The rendered Search Terms widget.
  */
 export default function SearchTerms( {
 	attributes = {},
-}: WidgetRenderProps< SearchTermsRenderAttributes > ) {
+	showTitle = true,
+}: SearchTermsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SearchTermsInner max={ attributes.max } />
+			<SearchTermsInner max={ attributes.max } showTitle={ showTitle } />
 		</WidgetRoot>
 	);
 }
