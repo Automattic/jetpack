@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
+import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Tabs, Text } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 /**
@@ -71,35 +72,36 @@ export interface MetricTabsChartProps {
 }
 
 /**
- * Label a previous-period series, e.g. "Subscribers (previous period)".
+ * Format a series' legend label as its date range (first to last point), so the
+ * legend reads as date ranges — consistent with the other comparative charts
+ * (see `buildTimeSeriesChartData`). The selected card names the metric.
  *
- * @param metricLabel - The current-period metric label.
- * @return The previous-period label.
+ * @param points - The series points, oldest first.
+ * @return The formatted date range, or '' when empty.
  */
-function previousPeriodLabel( metricLabel: string ): string {
-	return sprintf(
-		/* translators: %s is a metric name, e.g. "Subscribers". */
-		__( '%s (previous period)', 'jetpack-premium-analytics' ),
-		metricLabel
-	);
+function rangeLabel( points: MetricTabDatum[] ): string {
+	const first = points[ 0 ];
+	const last = points[ points.length - 1 ];
+	return first && last ? formatDateRange( { from: first.date, to: last.date } ) : '';
 }
 
 /**
  * Build the chart series for a metric: the current period as a solid line plus,
  * when present, the previous period as a same-`group` (same colour) `comparison`
  * (dashed) line with a transparent fill, so only the current line is filled.
+ * Series are labelled by date range for the legend.
  *
  * @param metric - The metric to draw.
  * @return The chart series.
  */
 function buildSeries( metric: MetricTab ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
-		{ label: metric.label, group: metric.key, data: metric.current },
+		{ label: rangeLabel( metric.current ), group: metric.key, data: metric.current },
 	];
 
 	if ( metric.previous?.length ) {
 		series.push( {
-			label: previousPeriodLabel( metric.label ),
+			label: rangeLabel( metric.previous ),
 			group: metric.key,
 			data: metric.previous,
 			options: {
