@@ -56,7 +56,7 @@ const METRICS: MetricTab[] = [
 
 // Close-up canvas so the chart fills the frame.
 const withCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '360px' } }>
+	<div style={ { width: '100%', height: '300px' } }>
 		<Story />
 	</div>
 );
