@@ -90,7 +90,9 @@ function SearchTermsDashboardStory( {
 			{ ...dashboardArgs }
 			widgetType={ widgetDefinition }
 			renderModule={ SEARCH_TERMS_RENDER_MODULE }
-			renderComponent={ SearchTermsDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
+			renderComponent={
+				SearchTermsDashboardRender as ComponentType< WidgetRenderProps< unknown > >
+			}
 			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
