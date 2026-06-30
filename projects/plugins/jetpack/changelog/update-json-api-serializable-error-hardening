@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+JSON API: harden serializable_error() so a proxied error always renders a real HTTP error status (>= 400), never 1, a 2xx, or a code status_header() can't render.
