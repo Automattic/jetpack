@@ -212,7 +212,11 @@ function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...props }
-			widgetType={ widgetDefinition }
+			widgetType={ {
+				name: widgetDefinition.name,
+				title: widgetDefinition.title,
+				icon: widgetDefinition.icon,
+			} }
 			renderModule={ EMAILS_RENDER_MODULE }
 			renderComponent={ EmailsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { max: 6 } }
