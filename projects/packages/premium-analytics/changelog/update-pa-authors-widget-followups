@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Authors widget reads the dashboard date range from the URL instead of a shadowed copy, localizes the untracked-authors label, and declares its attribute type in widget.ts; chart empty state is centered horizontally.
