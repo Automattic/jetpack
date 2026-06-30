@@ -185,14 +185,32 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 		<VStack spacing={ 8 }>
 			<section className="podcast__welcome-hero">
 				<VStack spacing={ 4 } className="podcast__welcome-hero-copy">
+					{ hasAccess && (
+						<HStack
+							className="podcast__welcome-hero-eyebrow"
+							justify="flex-start"
+							alignment="center"
+							spacing={ 2 }
+							expanded={ false }
+						>
+							<span className="podcast__welcome-plan-check" aria-hidden="true">
+								<Icon icon={ check } size={ 24 } />
+							</span>
+							<Text weight={ 500 }>
+								{ __( 'Podcasting is included in your plan', 'jetpack-podcast' ) }
+							</Text>
+						</HStack>
+					) }
 					<h2 className="podcast__welcome-title">
 						{ __( 'Your podcast belongs with your blog', 'jetpack-podcast' ) }
 					</h2>
 					<Text variant="muted">
-						{ __(
-							'Publish your show on the same site as your blog and newsletter. Reach fans on Apple, Spotify, Pocket Casts, and every major podcast app.',
-							'jetpack-podcast'
-						) }
+						{ hasAccess
+							? includedDescription
+							: __(
+									'Publish your show on the same site as your blog and newsletter. Reach fans on Apple, Spotify, Pocket Casts, and every major podcast app.',
+									'jetpack-podcast'
+							  ) }
 					</Text>
 					<HStack justify="flex-start" expanded={ false }>
 						<Button variant="primary" onClick={ onEnable }>
@@ -202,31 +220,8 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 				</VStack>
 			</section>
 
-			<section className="podcast__welcome-plans">
-				{ hasAccess ? (
-					<Card className="podcast__welcome-plan podcast__welcome-plan--included">
-						<CardBody>
-							<VStack spacing={ 4 }>
-								<VStack spacing={ 2 }>
-									<HStack justify="flex-start" alignment="center" spacing={ 2 } expanded={ false }>
-										<span className="podcast__welcome-plan-check" aria-hidden="true">
-											<Icon icon={ check } size={ 24 } />
-										</span>
-										<Text size="title" weight={ 500 }>
-											{ __( 'Podcasting is included in your plan', 'jetpack-podcast' ) }
-										</Text>
-									</HStack>
-									<Text variant="muted">{ includedDescription }</Text>
-								</VStack>
-								<HStack justify="flex-start" expanded={ false }>
-									<Button variant="primary" onClick={ onEnable }>
-										{ __( 'Enable podcasting', 'jetpack-podcast' ) }
-									</Button>
-								</HStack>
-							</VStack>
-						</CardBody>
-					</Card>
-				) : (
+			{ ! hasAccess && (
+				<section className="podcast__welcome-plans">
 					<HStack alignment="stretch" spacing={ 4 } wrap>
 						<Card className="podcast__welcome-plan" style={ { flex: '1 1 320px' } }>
 							<CardBody>
@@ -297,8 +292,8 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 							</CardBody>
 						</Card>
 					</HStack>
-				) }
-			</section>
+				</section>
+			) }
 
 			<HStack alignment="stretch" spacing={ 4 } wrap>
 				{ BENEFITS.map( b => (
