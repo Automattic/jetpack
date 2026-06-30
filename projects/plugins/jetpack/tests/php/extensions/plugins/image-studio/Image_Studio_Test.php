@@ -59,6 +59,13 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	private $saved_siteurl;
 
 	/**
+	 * Local user ID of the simulated connection owner, also the default current user.
+	 *
+	 * @var int
+	 */
+	private $connection_owner_id;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
@@ -110,14 +117,19 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	/**
 	 * Simulate a connected Jetpack owner so has_jetpack_ai_features() returns true.
 	 *
-	 * Called in set_up() so every test starts with AI features available.
-	 * Tests that need AI features off should use disable_ai_features() instead.
+	 * Called in set_up() so every test starts with AI features available and the
+	 * current user connected (Image Studio gates on the current user's own
+	 * connection). Tests that need AI features off should use disable_ai_features(),
+	 * and tests that need a non-connected or different current user should override
+	 * with wp_set_current_user().
 	 */
 	private function simulate_connected_owner() {
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+		$this->connection_owner_id = $user_id;
+		wp_set_current_user( $user_id );
 	}
 
 	/**
@@ -314,6 +326,33 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function test_is_not_enabled_when_ai_features_disabled() {
 		$this->disable_ai_features();
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Not enabled when the current user has not connected their own
+	 * WordPress.com account, even though the site has a connected owner.
+	 *
+	 * Image Studio's image generation and video clip tools load from a single
+	 * asset, so gating enablement on the current user's connection keeps both
+	 * out of the editor for admins who have not connected.
+	 */
+	public function test_is_not_enabled_when_current_user_not_connected() {
+		// set_up() simulates a connected owner at the site level. Act as a
+		// separate administrator who has not connected their own account.
+		$non_connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $non_connected_admin );
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Enabled when the current user has connected their own WordPress.com account.
+	 */
+	public function test_is_enabled_when_current_user_connected() {
+		// set_up() connects an owner and acts as them.
+		wp_set_current_user( $this->connection_owner_id );
+
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
 	}
 
 	// -------------------------------------------------------------------------

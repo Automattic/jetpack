@@ -31,14 +31,21 @@ const ASSET_TRANSLATIONS_URL = 'https://' . ASSET_BASE_PATH . 'languages/';
 const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
 
 /**
- * Check if Image Studio is enabled.
+ * Check if Image Studio is enabled for the current request.
  *
- * Enabled when AI features are available and either the request is from an
- * Automattician or the Big Sky plugin is active and enabled.
+ * Requires the current user to be connected to WordPress.com (always true on
+ * WordPress.com Simple and WoA). Beyond that, it's enabled in CIAB and Big Sky
+ * contexts, or when the site has Jetpack AI features available.
  *
  * @return bool
  */
 function is_image_studio_enabled() {
+	// Gate on the current user's own connection, not just the site's: a
+	// non-connected user can't use the AI features and would only hit errors.
+	if ( ! is_current_user_connected() ) {
+		return false;
+	}
+
 	if ( is_ciab_environment() || is_big_sky_enabled() ) {
 		return true;
 	}
@@ -48,6 +55,24 @@ function is_image_studio_enabled() {
 	}
 
 	return true;
+}
+
+/**
+ * Whether the current user can use Jetpack AI on this site.
+ *
+ * Mirrors the editor's per-user connection gate: always true on WordPress.com
+ * Simple and WoA, otherwise the current user must have connected their own
+ * WordPress.com account. A site-level connection owner is not enough.
+ *
+ * @return bool
+ */
+function is_current_user_connected() {
+	$host = new Host();
+	if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
+		return true;
+	}
+
+	return ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 }
 
 /**
