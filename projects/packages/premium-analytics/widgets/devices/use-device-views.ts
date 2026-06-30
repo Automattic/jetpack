@@ -5,11 +5,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import {
-	getApiErrorCode,
-	getApiErrorStatus,
-	useStatsDevices,
-} from '@jetpack-premium-analytics/data';
+import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
 import type {
 	ReportParams,
 	StatsDevicesItem,
@@ -49,8 +45,6 @@ const DEVICE_LABELS: Record< string, string > = {
 	phone: __( 'Phone', 'jetpack-premium-analytics' ),
 	unknown: __( 'Unknown', 'jetpack-premium-analytics' ),
 };
-
-const NON_PLAN_FORBIDDEN_ERROR_CODES = new Set( [ 'no_connection' ] );
 
 /**
  * Maps a raw API device key to a human-readable label.
@@ -98,11 +92,7 @@ export default function useDeviceViews( {
 
 	const { primary, comparison, hasComparison, isLoading, isError, error } =
 		useStatsDevices( statsParams );
-	const errorCode = getApiErrorCode( error );
-	const errorReason =
-		getApiErrorStatus( error ) === 403 && ! NON_PLAN_FORBIDDEN_ERROR_CODES.has( errorCode ?? '' )
-			? 'upgrade-required'
-			: null;
+	const errorReason = getStatsPlanErrorReason( error );
 
 	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
 	const rawItems = report?.data?.[ 0 ]?.items ?? [];

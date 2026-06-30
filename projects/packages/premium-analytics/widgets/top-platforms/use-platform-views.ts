@@ -1,11 +1,7 @@
 /**
  * Internal dependencies
  */
-import {
-	getApiErrorCode,
-	getApiErrorStatus,
-	useStatsDevices,
-} from '@jetpack-premium-analytics/data';
+import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
 import type {
 	ReportParams,
 	StatsDevicesItem,
@@ -32,8 +28,6 @@ interface PlatformViewsState {
 	isError: boolean;
 	errorReason: 'upgrade-required' | null;
 }
-
-const NON_PLAN_FORBIDDEN_ERROR_CODES = new Set( [ 'no_connection' ] );
 
 /**
  * Converts a raw device key to a display label, title-casing as needed.
@@ -76,11 +70,7 @@ export default function usePlatformViews( {
 
 	const { primary, comparison, hasComparison, isLoading, isError, error } =
 		useStatsDevices( statsParams );
-	const errorCode = getApiErrorCode( error );
-	const errorReason =
-		getApiErrorStatus( error ) === 403 && ! NON_PLAN_FORBIDDEN_ERROR_CODES.has( errorCode ?? '' )
-			? 'upgrade-required'
-			: null;
+	const errorReason = getStatsPlanErrorReason( error );
 
 	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
 	const rawItems = report?.data?.[ 0 ]?.items ?? [];

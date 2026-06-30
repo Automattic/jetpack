@@ -1,4 +1,9 @@
-import { getApiErrorCode, getApiErrorStatus, shouldRetryApiError } from '../api-error';
+import {
+	getApiErrorCode,
+	getApiErrorStatus,
+	getStatsPlanErrorReason,
+	shouldRetryApiError,
+} from '../api-error';
 
 describe( 'getApiErrorStatus', () => {
 	it( 'returns status from a top-level status property', () => {
@@ -44,5 +49,21 @@ describe( 'shouldRetryApiError', () => {
 		expect( shouldRetryApiError( 0, { status: 500 } ) ).toBe( true );
 		expect( shouldRetryApiError( 2, { status: 500 } ) ).toBe( true );
 		expect( shouldRetryApiError( 3, { status: 500 } ) ).toBe( false );
+	} );
+} );
+
+describe( 'getStatsPlanErrorReason', () => {
+	it( 'returns upgrade-required for plan-gated authorization errors', () => {
+		expect( getStatsPlanErrorReason( { data: { status: 403, code: 'rest_forbidden' } } ) ).toBe(
+			'upgrade-required'
+		);
+	} );
+
+	it( 'returns null for non-plan authorization errors', () => {
+		expect( getStatsPlanErrorReason( { status: 403, code: 'no_connection' } ) ).toBeNull();
+	} );
+
+	it( 'returns null for non-authorization errors', () => {
+		expect( getStatsPlanErrorReason( { status: 500 } ) ).toBeNull();
 	} );
 } );

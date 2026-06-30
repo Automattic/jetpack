@@ -62,6 +62,25 @@ export function getApiErrorCode( error: unknown ): string | null {
 	return null;
 }
 
+export type StatsPlanErrorReason = 'upgrade-required' | null;
+
+const NON_PLAN_FORBIDDEN_ERROR_CODES = new Set( [ 'no_connection' ] );
+
+/**
+ * Maps Stats API errors to widget-level plan error reasons.
+ *
+ * @param error - Unknown thrown error.
+ * @return The plan error reason when the response is plan-gated.
+ */
+export function getStatsPlanErrorReason( error: unknown ): StatsPlanErrorReason {
+	const errorCode = getApiErrorCode( error );
+
+	return getApiErrorStatus( error ) === 403 &&
+		! NON_PLAN_FORBIDDEN_ERROR_CODES.has( errorCode ?? '' )
+		? 'upgrade-required'
+		: null;
+}
+
 /**
  * Determine whether a failed API query should be retried.
  *
