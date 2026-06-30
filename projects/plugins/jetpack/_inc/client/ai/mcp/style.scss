@@ -128,10 +128,9 @@
 		}
 	}
 
-	// First sub-group when a group row is expanded: full-bleed border separates
-	// from the group header, then inner padding for the tool list.
+	// First sub-group when a group row is expanded: full-bleed, inner padding
+	// for the tool list.
 	&__group-body {
-		border-top: 1px solid var(--color-border-subtle, #dcdcde);
 		margin-inline-start: -16px;
 		margin-inline-end: -16px;
 		padding: 16px;
@@ -143,16 +142,20 @@
 		}
 	}
 
-	// Subsequent sub-groups: same horizontal padding, no top border
-	// (sub-divider provides it).
+	// Subsequent sub-groups: same horizontal padding as group-body.
 	&__sub-group-body {
-		padding: 0 0 16px;
+		padding: 16px 0;
+
+		@media (min-width: 600px) {
+			padding: 20px 0;
+		}
 	}
 
 	// Divider between sub-groups within an expanded group card.
+	// Containers on both sides provide equal padding so spacing is symmetric.
 	&__sub-divider {
 		border-top: 1px solid var(--color-border-subtle, #dcdcde);
-		margin: 16px 0 20px;
+		margin: 0;
 	}
 
 	// Tool toggle descriptions hug their setting title; override WP's
