@@ -54,6 +54,20 @@ type NoticeState = {
 	message: string;
 };
 
+type GroupLabelControlProps = {
+	group: AdminMenuGroup;
+	onChange: ( id: string, label: string ) => void;
+};
+
+type MenuItemRowProps = {
+	groupOptions: { label: string; value: string }[];
+	index: number;
+	isLast: boolean;
+	item: AdminMenuItem;
+	onMove: ( id: string, direction: -1 | 1 ) => void;
+	onUpdate: ( id: string, updates: Partial< AdminMenuItem > ) => void;
+};
+
 const emptyLayout: AdminMenuLayout = {
 	enabled: false,
 	groups: {},
@@ -105,6 +119,87 @@ const getOrderedItems = ( items: AdminMenuItem[] ) =>
 		return a.order - b.order;
 	} );
 
+const GroupLabelControl = ( { group, onChange }: GroupLabelControlProps ) => {
+	const handleChange = useCallback(
+		( label: string ) => {
+			onChange( group.id, label );
+		},
+		[ group.id, onChange ]
+	);
+
+	return (
+		<TextControl
+			key={ group.id }
+			label={ group.id }
+			value={ group.label }
+			onChange={ handleChange }
+		/>
+	);
+};
+
+const MenuItemRow = ( {
+	groupOptions,
+	index,
+	isLast,
+	item,
+	onMove,
+	onUpdate,
+}: MenuItemRowProps ) => {
+	const handleVisibilityChange = useCallback(
+		( checked: boolean ) => {
+			onUpdate( item.id, { hidden: ! checked } );
+		},
+		[ item.id, onUpdate ]
+	);
+	const handleGroupChange = useCallback(
+		( group: string | string[] ) => {
+			onUpdate( item.id, { group: String( group ) } );
+		},
+		[ item.id, onUpdate ]
+	);
+	const handleMoveUp = useCallback( () => {
+		onMove( item.id, -1 );
+	}, [ item.id, onMove ] );
+	const handleMoveDown = useCallback( () => {
+		onMove( item.id, 1 );
+	}, [ item.id, onMove ] );
+
+	return (
+		<div className={ styles[ 'item-row' ] }>
+			<ToggleControl
+				label={ item.label }
+				checked={ ! item.hidden }
+				disabled={ ! item.customizable }
+				onChange={ handleVisibilityChange }
+			/>
+			<SelectControl
+				label={ __( 'Group', 'jetpack-my-jetpack' ) }
+				hideLabelFromVision
+				value={ item.group }
+				options={ groupOptions }
+				disabled={ ! item.customizable }
+				onChange={ handleGroupChange }
+			/>
+			<div className={ styles[ 'item-actions' ] }>
+				<Button
+					icon={ arrowUp }
+					label={ __( 'Move up', 'jetpack-my-jetpack' ) }
+					showTooltip
+					disabled={ index === 0 || ! item.customizable }
+					onClick={ handleMoveUp }
+				/>
+				<Button
+					icon={ arrowDown }
+					label={ __( 'Move down', 'jetpack-my-jetpack' ) }
+					showTooltip
+					disabled={ isLast || ! item.customizable }
+					onClick={ handleMoveDown }
+				/>
+			</div>
+		</div>
+	);
+};
+
 /**
  * My Jetpack Customize tab content.
  *
@@ -123,7 +218,8 @@ export function CustomizeContent() {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ notice, setNotice ] = useState< NoticeState | null >( null );
-	const userIsAdmin = getMyJetpackWindowInitialState( 'userIsAdmin' ) === true;
+	const userIsAdminValue = getMyJetpackWindowInitialState( 'userIsAdmin' ) as unknown;
+	const userIsAdmin = userIsAdminValue === true || userIsAdminValue === '1';
 
 	const applyModel = useCallback( ( nextModel: AdminMenuModel ) => {
 		setModel( nextModel );
@@ -159,24 +255,41 @@ export function CustomizeContent() {
 				} ) ),
 		[ groups ]
 	);
+	const visibleGroups = useMemo(
+		() =>
+			Object.values( groups )
+				.filter( group => group.label )
+				.sort( ( a, b ) => a.order - b.order ),
+		[ groups ]
+	);
+	const orderedItems = useMemo( () => getOrderedItems( items ), [ items ] );
 
 	const updateItem = useCallback( ( id: string, updates: Partial< AdminMenuItem > ) => {
 		setItems( currentItems =>
 			currentItems.map( item => ( item.id === id ? { ...item, ...updates } : item ) )
 		);
 	}, [] );
+	const updateGroupLabel = useCallback( ( id: string, label: string ) => {
+		setGroups( currentGroups => ( {
+			...currentGroups,
+			[ id ]: {
+				...currentGroups[ id ],
+				label,
+			},
+		} ) );
+	}, [] );
 
 	const moveItem = useCallback( ( id: string, direction: -1 | 1 ) => {
 		setItems( currentItems => {
-			const orderedItems = getOrderedItems( currentItems );
-			const index = orderedItems.findIndex( item => item.id === id );
+			const sortedItems = getOrderedItems( currentItems );
+			const index = sortedItems.findIndex( item => item.id === id );
 			const nextIndex = index + direction;
 
-			if ( index < 0 || nextIndex < 0 || nextIndex >= orderedItems.length ) {
+			if ( index < 0 || nextIndex < 0 || nextIndex >= sortedItems.length ) {
 				return currentItems;
 			}
 
-			const nextItems = [ ...orderedItems ];
+			const nextItems = [ ...sortedItems ];
 			const item = nextItems[ index ];
 			nextItems[ index ] = nextItems[ nextIndex ];
 			nextItems[ nextIndex ] = item;
@@ -248,6 +361,16 @@ export function CustomizeContent() {
 			items: buildItemsLayout(),
 		} );
 	}, [ buildItemsLayout, saveLayout ] );
+	const useLegacyMenu = useCallback( () => {
+		saveLayout( 'site', {
+			enabled: false,
+			groups: {},
+			items: {},
+		} );
+	}, [ saveLayout ] );
+	const dismissNotice = useCallback( () => {
+		setNotice( null );
+	}, [] );
 
 	if ( ! model.featureEnabled ) {
 		return (
@@ -265,7 +388,7 @@ export function CustomizeContent() {
 			</div>
 
 			{ notice && (
-				<Notice status={ notice.status } onRemove={ () => setNotice( null ) }>
+				<Notice status={ notice.status } onRemove={ dismissNotice }>
 					{ notice.message }
 				</Notice>
 			) }
@@ -279,64 +402,25 @@ export function CustomizeContent() {
 							onChange={ setEnabled }
 						/>
 						<div className={ styles[ 'group-grid' ] }>
-							{ Object.values( groups )
-								.filter( group => group.label )
-								.sort( ( a, b ) => a.order - b.order )
-								.map( group => (
-									<TextControl
-										key={ group.id }
-										label={ group.id }
-										value={ group.label }
-										onChange={ label =>
-											setGroups( currentGroups => ( {
-												...currentGroups,
-												[ group.id ]: {
-													...group,
-													label,
-												},
-											} ) )
-										}
-									/>
-								) ) }
+							{ visibleGroups.map( group => (
+								<GroupLabelControl key={ group.id } group={ group } onChange={ updateGroupLabel } />
+							) ) }
 						</div>
 					</PanelBody>
 				) }
 
 				<PanelBody title={ __( 'Menu', 'jetpack-my-jetpack' ) } initialOpen>
 					<div className={ styles[ 'item-list' ] }>
-						{ getOrderedItems( items ).map( ( item, index ) => (
-							<div key={ item.id } className={ styles[ 'item-row' ] }>
-								<ToggleControl
-									label={ item.label }
-									checked={ ! item.hidden }
-									disabled={ ! item.customizable }
-									onChange={ checked => updateItem( item.id, { hidden: ! checked } ) }
-								/>
-								<SelectControl
-									label={ __( 'Group', 'jetpack-my-jetpack' ) }
-									hideLabelFromVision
-									value={ item.group }
-									options={ groupOptions }
-									disabled={ ! item.customizable }
-									onChange={ group => updateItem( item.id, { group: String( group ) } ) }
-								/>
-								<div className={ styles[ 'item-actions' ] }>
-									<Button
-										icon={ arrowUp }
-										label={ __( 'Move up', 'jetpack-my-jetpack' ) }
-										showTooltip
-										disabled={ index === 0 || ! item.customizable }
-										onClick={ () => moveItem( item.id, -1 ) }
-									/>
-									<Button
-										icon={ arrowDown }
-										label={ __( 'Move down', 'jetpack-my-jetpack' ) }
-										showTooltip
-										disabled={ index === items.length - 1 || ! item.customizable }
-										onClick={ () => moveItem( item.id, 1 ) }
-									/>
-								</div>
-							</div>
+						{ orderedItems.map( ( item, index ) => (
+							<MenuItemRow
+								key={ item.id }
+								groupOptions={ groupOptions }
+								index={ index }
+								isLast={ index === orderedItems.length - 1 }
+								item={ item }
+								onMove={ moveItem }
+								onUpdate={ updateItem }
+							/>
 						) ) }
 					</div>
 				</PanelBody>
@@ -361,17 +445,7 @@ export function CustomizeContent() {
 						>
 							{ __( 'Save defaults', 'jetpack-my-jetpack' ) }
 						</Button>
-						<Button
-							variant="tertiary"
-							disabled={ isSaving }
-							onClick={ () =>
-								saveLayout( 'site', {
-									enabled: false,
-									groups: {},
-									items: {},
-								} )
-							}
-						>
+						<Button variant="tertiary" disabled={ isSaving } onClick={ useLegacyMenu }>
 							{ __( 'Use legacy menu', 'jetpack-my-jetpack' ) }
 						</Button>
 					</>
