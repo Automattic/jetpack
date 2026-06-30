@@ -82,4 +82,21 @@ class Config_Test extends TestCase {
 
 		$this->assertSame( 'https://example.com/cookies/', $config['links']['cookie_policy_url'] );
 	}
+
+	/**
+	 * A whitespace-only links.cookie_policy_url is trimmed to an empty string.
+	 */
+	public function test_whitespace_only_links_cookie_policy_url_is_trimmed_to_empty() {
+		add_filter(
+			'jetpack_cookie_consent_config',
+			function ( $config ) {
+				$config['links']['cookie_policy_url'] = "   \t\n";
+				return $config;
+			}
+		);
+
+		$config = $this->get_config();
+
+		$this->assertSame( '', $config['links']['cookie_policy_url'] );
+	}
 }

@@ -77,9 +77,10 @@ The Tracks event prefix defaults to `jetpack`; set it to `woocommerceanalytics` 
 
 Link URLs are configured through the `links` group. `links.cookie_policy_url`
 defaults to an empty string, which hides the Cookie Policy link in the
-preferences modal. The Privacy Policy link still uses the site's own WordPress
-Privacy Policy URL from `get_privacy_policy_url()`. Set
-`links.cookie_policy_url` only when the consuming site has a separate cookie
+preferences modal. The Privacy Policy link uses the site's own WordPress
+Privacy Policy URL from `get_privacy_policy_url()`, and is likewise hidden when
+no Privacy Policy page is configured, so the modal never renders an empty link.
+Set `links.cookie_policy_url` only when the consuming site has a separate cookie
 policy page:
 
 ```php

@@ -115,4 +115,59 @@ class Cookie_Banner_Content_Test extends TestCase {
 		$this->assertStringNotContainsString( 'href="https://example.com/top-level-cookies/"', $html );
 		$this->assert_string_matches_pattern( '/Privacy Policy\\s*<\\/a>\\s*\\./', $html );
 	}
+
+	/**
+	 * Whitespace-only cookie policy URLs are trimmed away and hide the Cookie Policy link.
+	 */
+	public function test_whitespace_only_cookie_policy_url_hides_cookie_policy_link() {
+		$this->set_privacy_policy_page();
+
+		$html = $this->render_template(
+			array(
+				'links' => array(
+					'cookie_policy_url' => "   \t\n",
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'Privacy Policy', $html );
+		$this->assertStringNotContainsString( 'Cookie Policy', $html );
+		$this->assert_string_matches_pattern( '/Privacy Policy\\s*<\\/a>\\./', $html );
+	}
+
+	/**
+	 * With no Privacy Policy page and no cookie policy URL, no policy link is rendered
+	 * and the modal never emits a dead href="" link.
+	 */
+	public function test_missing_privacy_policy_page_renders_no_dead_link() {
+		$html = $this->render_template(
+			array(
+				'links' => array(
+					'cookie_policy_url' => '',
+				),
+			)
+		);
+
+		$this->assertStringNotContainsString( '<a href=""', $html );
+		$this->assertStringNotContainsString( 'jetpack-cookie-consent__link', $html );
+	}
+
+	/**
+	 * With no Privacy Policy page set, a configured cookie policy URL renders as the only
+	 * link, without a dead Privacy Policy link or a leading conjunction.
+	 */
+	public function test_missing_privacy_policy_page_renders_only_cookie_link() {
+		$html = $this->render_template(
+			array(
+				'links' => array(
+					'cookie_policy_url' => 'https://example.com/cookies/',
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'Cookie Policy', $html );
+		$this->assertStringContainsString( 'href="https://example.com/cookies/"', $html );
+		$this->assertStringNotContainsString( '<a href=""', $html );
+		$this->assertStringNotContainsString( 'Privacy Policy', $html );
+	}
 }
