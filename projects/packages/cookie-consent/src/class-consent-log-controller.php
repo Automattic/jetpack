@@ -177,6 +177,10 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	public static function deactivate() {
 		self::unschedule_cleanup();
 
+		// Privacy filters are registered statically in init() regardless of the
+		// singleton, so unhook them unconditionally (before the instance guard).
+		Consent_Log_Privacy::deactivate();
+
 		if ( null === self::$instance ) {
 			return;
 		}

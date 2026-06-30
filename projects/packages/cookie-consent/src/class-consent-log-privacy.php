@@ -38,6 +38,18 @@ class Consent_Log_Privacy {
 	}
 
 	/**
+	 * Remove the exporter and eraser filters.
+	 *
+	 * Mirrors init(); booted from Consent_Log_Controller::deactivate() so a
+	 * consumer that deactivates within the request stops exposing the consent
+	 * log to core's privacy tools.
+	 */
+	public static function deactivate() {
+		remove_filter( 'wp_privacy_personal_data_exporters', array( __CLASS__, 'register_exporter' ) );
+		remove_filter( 'wp_privacy_personal_data_erasers', array( __CLASS__, 'register_eraser' ) );
+	}
+
+	/**
 	 * Register the exporter.
 	 *
 	 * @param array $exporters Registered exporters.

@@ -14,9 +14,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
  *
  * @covers \Automattic\Jetpack\CookieConsent\Cookie_Consent
  * @covers \Automattic\Jetpack\CookieConsent\Consent_Log_Controller
+ * @covers \Automattic\Jetpack\CookieConsent\Consent_Log_Privacy
  */
 #[CoversClass( Cookie_Consent::class )]
 #[CoversClass( Consent_Log_Controller::class )]
+#[CoversClass( Consent_Log_Privacy::class )]
 class Lifecycle_Test extends TestCase {
 
 	/**
@@ -83,6 +85,21 @@ class Lifecycle_Test extends TestCase {
 		$this->assertSame( 123, get_option( self::CCPA_PAGE_ID_OPTION ) );
 		$this->assertSame( 1, get_option( self::CCPA_PAGE_CREATED_OPTION ) );
 		$this->assertSame( '0.0.1', get_option( self::DB_VERSION_OPTION ) );
+	}
+
+	/**
+	 * Deactivation unhooks the privacy exporter/eraser filters it registered.
+	 */
+	public function test_deactivate_removes_privacy_filters() {
+		Consent_Log_Privacy::init();
+
+		$this->assertNotFalse( has_filter( 'wp_privacy_personal_data_exporters', array( Consent_Log_Privacy::class, 'register_exporter' ) ) );
+		$this->assertNotFalse( has_filter( 'wp_privacy_personal_data_erasers', array( Consent_Log_Privacy::class, 'register_eraser' ) ) );
+
+		Consent_Log_Controller::deactivate();
+
+		$this->assertFalse( has_filter( 'wp_privacy_personal_data_exporters', array( Consent_Log_Privacy::class, 'register_exporter' ) ) );
+		$this->assertFalse( has_filter( 'wp_privacy_personal_data_erasers', array( Consent_Log_Privacy::class, 'register_eraser' ) ) );
 	}
 
 	/**
