@@ -10,7 +10,7 @@ import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildSalesByDeviceData, BOOKINGS_FILTER } from '../../helpers';
+import { buildSalesByDeviceData } from '../../helpers';
 import { useWidgetError } from '../../hooks';
 import { useBarStyles } from '../common';
 
@@ -99,24 +99,4 @@ export function SalesByDeviceWidget( { filter }: SalesByDeviceWidgetProps ) {
 			{ isRefetching && <WidgetLoadingOverlay /> }
 		</>
 	);
-}
-
-/**
- * Bookings by Device Widget Component
- *
- * Displays device breakdown data for booking products only.
- * This component automatically filters data to show only booking product types
- * (booking, bookable-event, bookable-service).
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <BookingsByDeviceWidget />
- * </WidgetRoot>
- * ```
- */
-export function BookingsByDeviceWidget() {
-	return <SalesByDeviceWidget filter={ BOOKINGS_FILTER } />;
 }

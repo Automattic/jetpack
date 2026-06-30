@@ -22,6 +22,8 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import {
 	mockOrderAttributionDeviceData,
+	mockOrderAttributionByProductDeviceData,
+	mockOrderAttributionByProductDeviceComparisonData,
 	mockOrderAttributionChannelData,
 	mockOrderAttributionSourceData,
 	mockOrderAttributionCampaignData,
@@ -49,6 +51,7 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
  * package (`@jetpack-premium-analytics/data`).
  */
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
+const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -408,6 +411,26 @@ function buildVisitorsByLocation( query: URLSearchParams ) {
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeReport( subPath: string, query: URLSearchParams ): unknown {
+	// Product-filtered order attribution: /order-attribution-by-product/{view}/summary
+	const attributionByProductMatch = subPath.match(
+		/^\/order-attribution-by-product\/([^/]+)\/summary$/
+	);
+	if ( attributionByProductMatch ) {
+		const view = attributionByProductMatch[ 1 ];
+
+		if ( view === 'device' ) {
+			return nextIsComparison( 'order-attribution-by-product/device' )
+				? mockOrderAttributionByProductDeviceComparisonData
+				: mockOrderAttributionByProductDeviceData;
+		}
+
+		return {
+			view,
+			order_by: 'net_sales',
+			data: [],
+		};
+	}
+
 	// Order attribution: /order-attribution/{view}/summary
 	const attributionMatch = subPath.match( /^\/order-attribution\/([^/]+)\/summary$/ );
 	if ( attributionMatch ) {
@@ -444,11 +467,48 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 	}
 }
 
+/**
+ * Builds a mock Stats "followers" (subscribers) response with a realistic spread
+ * of recent subscription times so the Latest Subscribers widget renders
+ * populated in Storybook. The shape matches what `sanitizeStatsFollowersResponse`
+ * expects (`{ subscribers, total, … }`); `total` exceeds the shown rows so the
+ * "N more" footer appears.
+ *
+ * @return Raw followers response.
+ */
+function buildFollowersResponse() {
+	const now = Date.now();
+	const MINUTE = 60 * 1000;
+	const HOUR = 60 * MINUTE;
+	const DAY = 24 * HOUR;
+	const people = [
+		{ name: 'Diego Morales', offset: 20 * 1000 },
+		{ name: 'Olivia Park', offset: 12 * MINUTE },
+		{ name: 'Hiroshi Tanaka', offset: HOUR },
+		{ name: 'Emma Rossi', offset: 3 * HOUR },
+		{ name: 'Aarav Patel', offset: 5 * HOUR },
+		{ name: 'Sofia Nguyen', offset: DAY },
+	];
+	const subscribers = people.map( ( person, index ) => ( {
+		ID: 1000 + index,
+		subscription_id: 1000 + index,
+		display_name: person.name,
+		avatar: `https://i.pravatar.cc/64?img=${ 10 + index }`,
+		url: 'https://example.com',
+		date_subscribed: new Date( now - person.offset ).toISOString(),
+	} ) );
+	return { subscribers, total: 30, total_email: 18, total_wpcom: 12, page: 1, pages: 5 };
+}
+
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
 
 	if ( requestPath.startsWith( WP_SETTINGS_PATH ) ) {
 		return coreSettingsMock;
+	}
+
+	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {
+		return buildFollowersResponse();
 	}
 
 	if ( ! requestPath.startsWith( API_BASE ) ) {

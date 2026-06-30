@@ -24,6 +24,9 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	SubscriberList,
+	type SubscriberListItem,
+	type SubscriberListProps,
 } from './components';
 
 /**
@@ -91,7 +94,6 @@ export {
 	TotalReturnsWidget,
 	VisitorsByLocationWidget,
 	SalesByDeviceWidget,
-	BookingsByDeviceWidget,
 	SessionsByDeviceWidget,
 	TopPerformingProductLeaderboardWidget,
 	type TopPerformingProductLeaderboardWidgetProps,

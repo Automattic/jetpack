@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: add a React Query Devtools widget (non-production only), and expose two server-side widget-type filters (at registration and on read) so consumers can scope which widget types reach the dashboard.

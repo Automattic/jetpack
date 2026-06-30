@@ -12,12 +12,22 @@ import { statsArchivesQuery } from '../stats-archives-query';
 import { statsCommentFollowersQuery } from '../stats-comment-followers-query';
 import { statsCommentsQuery } from '../stats-comments-query';
 import { statsDevicesQuery } from '../stats-devices-query';
+import {
+	statsEmailClicksBreakdownQuery,
+	statsEmailOpensBreakdownQuery,
+} from '../stats-email-breakdown-query';
+import { statsEmailSummaryQuery } from '../stats-email-summary-query';
+import {
+	statsEmailClicksTimeSeriesQuery,
+	statsEmailOpensTimeSeriesQuery,
+} from '../stats-email-time-series-query';
 import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostQuery } from '../stats-post-query';
 import { statsPublicizeQuery } from '../stats-publicize-query';
+import { statsSingleVideoQuery } from '../stats-single-video-query';
 import { statsStreakQuery } from '../stats-streak-query';
 import { statsSubscribersCountsQuery, statsSubscribersQuery } from '../stats-subscribers-query';
 import { statsTagsQuery } from '../stats-tags-query';
@@ -69,6 +79,79 @@ describe( 'Stats query factories', () => {
 	it( 'disables post stats queries until a positive post ID is available', () => {
 		expect( statsPostQuery( { postId: -1 } ).enabled ).toBe( false );
 		expect( statsPostQuery( { postId: 0 } ).enabled ).toBe( false );
+	} );
+
+	it( 'builds all-time email opens breakdown query keys without query params', () => {
+		const query = statsEmailOpensBreakdownQuery( 41, 'country' );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'email-opens-country',
+			'1.1',
+			'stats/opens/emails/41/country',
+			'GET',
+			{},
+			undefined,
+			'emailBreakdown',
+		] );
+	} );
+
+	it( 'builds all-time email clicks breakdown query keys per breakdown dimension', () => {
+		const query = statsEmailClicksBreakdownQuery( 41, 'user-content-link' );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'email-clicks-user-content-link',
+			'1.1',
+			'stats/clicks/emails/41/user-content-link',
+			'GET',
+			{},
+			undefined,
+			'emailBreakdown',
+		] );
+	} );
+
+	it( 'disables email breakdown queries until a positive post ID is available', () => {
+		expect( statsEmailOpensBreakdownQuery( 0, 'client' ).enabled ).toBe( false );
+		expect( statsEmailClicksBreakdownQuery( -1, 'link' ).enabled ).toBe( false );
+	} );
+
+	it( 'builds email opens time series query keys with Calypso timeline defaults', () => {
+		const query = statsEmailOpensTimeSeriesQuery( 41 );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'email-opens-time-series',
+			'1.1',
+			'stats/opens/emails/41',
+			'GET',
+			{ period: 'day', quantity: 30, stats_fields: 'timeline' },
+			undefined,
+			'emailTimeSeries',
+		] );
+	} );
+
+	it( 'forwards email clicks period/date and defaults hourly quantity to 24', () => {
+		const query = statsEmailClicksTimeSeriesQuery( 41, { period: 'hour', date: '2026-06-25' } );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'email-clicks-time-series',
+			'1.1',
+			'stats/clicks/emails/41',
+			'GET',
+			{ period: 'hour', quantity: 24, date: '2026-06-25', stats_fields: 'timeline' },
+			undefined,
+			'emailTimeSeries',
+		] );
+	} );
+
+	it( 'disables email time series queries until a positive integer post ID is available', () => {
+		expect( statsEmailOpensTimeSeriesQuery( 0 ).enabled ).toBe( false );
+		expect( statsEmailClicksTimeSeriesQuery( -1 ).enabled ).toBe( false );
+		expect( statsEmailOpensTimeSeriesQuery( 1.5 ).enabled ).toBe( false );
 	} );
 
 	it( 'includes filter_by_country in query params when provided', () => {
@@ -306,6 +389,74 @@ describe( 'Stats query factories', () => {
 			undefined,
 			'followers',
 		] );
+	} );
+
+	it( 'requests the email summary with Calypso defaults', () => {
+		const query = statsEmailSummaryQuery();
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'email-summary',
+			'1.1',
+			'stats/emails/summary',
+			'GET',
+			{
+				quantity: 10,
+				sort_field: 'post_date',
+				sort_order: 'desc',
+			},
+			undefined,
+			'emailSummary',
+		] );
+	} );
+
+	it( 'forwards email summary row count and sort overrides', () => {
+		const query = statsEmailSummaryQuery( {
+			quantity: 5,
+			sort_field: 'opens',
+			sort_order: 'asc',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			quantity: 5,
+			sort_field: 'opens',
+			sort_order: 'asc',
+		} );
+	} );
+
+	it( 'targets the single video endpoint by id with the single video sanitizer', () => {
+		const query = statsSingleVideoQuery( 31533 );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'single-video',
+			'1.1',
+			'stats/video/31533',
+			'GET',
+			{},
+			undefined,
+			'singleVideo',
+		] );
+	} );
+
+	it( 'passes single video params through to the request', () => {
+		const query = statsSingleVideoQuery( 31533, {
+			period: 'day',
+			end_date: '2026-06-14',
+			statType: 'watch_time',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'day',
+			date: '2026-06-14',
+			statType: 'watch_time',
+		} );
+	} );
+
+	it( 'disables the single video query until a valid video id is available', () => {
+		expect( statsSingleVideoQuery( 0 ).enabled ).toBe( false );
+		expect( statsSingleVideoQuery( NaN ).enabled ).toBe( false );
+		expect( statsSingleVideoQuery( 31533 ).enabled ).toBe( true );
 	} );
 
 	it( 'builds app query keys without report param coercion', () => {

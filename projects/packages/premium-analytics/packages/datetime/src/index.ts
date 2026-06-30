@@ -14,6 +14,8 @@ export {
 	endOfDayTZ,
 } from './tz';
 
+export { formatRelativeSince } from './relative-since';
+
 export {
 	formatDatePartWithTime,
 	getDateIntervalDateParts,

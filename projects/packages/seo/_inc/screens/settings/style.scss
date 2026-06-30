@@ -106,6 +106,14 @@
 	gap: var(--wpds-dimension-gap-md, 12px);
 }
 
+// Placeholder copy for the Schema section while its controls (primary schema
+// type, breadcrumbs) are delivered by the per-schema issues. Muted, no margin
+// so the section reads as an intentionally empty shell.
+.jetpack-seo-settings__schema-placeholder {
+	margin: 0;
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+}
+
 // Intro copy above the preview list.
 .jetpack-seo-settings__preview-intro {
 	margin: 0 0 var(--wpds-dimension-gap-xl, 24px);
