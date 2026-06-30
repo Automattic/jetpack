@@ -26,6 +26,29 @@ describe( 'resolveConnectionErrorActions', () => {
 		expect( restoreConnection ).toHaveBeenCalled();
 	} );
 
+	it( 'always resolves at least one action for an error when no customActions is given', () => {
+		// Invariant the ConnectionError component relies on: for any error without
+		// customActions it renders unconditionally, so the resolver must never
+		// return an empty list. These shapes exercise every branch, including
+		// partial data that falls through to the default Restore Connection action.
+		const errors = [
+			{ error_message: 'No data' },
+			{ error_message: 'Empty data', error_data: {} },
+			{ error_message: 'URL without label', error_data: { action_url: 'https://example.com' } },
+			{ error_message: 'Named without handler', error_data: { action: 'missing_handler' } },
+			{
+				error_message: 'Full URL',
+				error_data: { action_url: 'https://example.com', action_label: 'Go' },
+			},
+		];
+
+		errors.forEach( error => {
+			expect( resolveConnectionErrorActions( error, baseOptions ).length ).toBeGreaterThanOrEqual(
+				1
+			);
+		} );
+	} );
+
 	it( 'fires the default reconnect tracking event on the fallback action', () => {
 		const trackingCallback = jest.fn();
 		const actions = resolveConnectionErrorActions(
@@ -122,6 +145,28 @@ describe( 'resolveConnectionErrorActions', () => {
 		expect( actions[ 1 ].variant ).toBe( 'secondary' );
 		actions[ 1 ].onClick();
 		expect( secondary ).toHaveBeenCalled();
+	} );
+
+	it( 'adds a secondary URL action and navigates via the supplied navigate handler', () => {
+		const navigate = jest.fn();
+		const actions = resolveConnectionErrorActions(
+			{
+				error_message: 'Custom',
+				error_data: {
+					action_url: 'https://example.com/primary',
+					action_label: 'Primary',
+					secondary_action_url: 'https://example.com/secondary',
+					secondary_action_label: 'Secondary',
+				},
+			},
+			{ ...baseOptions, navigate }
+		);
+
+		expect( actions ).toHaveLength( 2 );
+		expect( actions[ 1 ].label ).toBe( 'Secondary' );
+		expect( actions[ 1 ].variant ).toBe( 'secondary' );
+		actions[ 1 ].onClick();
+		expect( navigate ).toHaveBeenCalledWith( 'https://example.com/secondary' );
 	} );
 
 	it( 'does not add a secondary action without a label', () => {

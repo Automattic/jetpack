@@ -23,7 +23,7 @@ export type { ConnectionErrorData, ConnectionErrorMap, ConnectionErrorObject } f
  * navigation.
  *
  * @param {ConnectionErrorProps} options - Action resolution options.
- * @return {object} - The hook data, including resolved `actions`.
+ * @return {UseConnectionErrorNoticeResult} - The hook data, including resolved `actions`.
  */
 export default function useConnectionErrorNotice( {
 	actionHandlers = {},
@@ -47,15 +47,17 @@ export default function useConnectionErrorNotice( {
 	const connectionErrorMessage = firstError?.error_message;
 	const hasConnectionError = Boolean( connectionErrorMessage );
 
-	const actions = resolveConnectionErrorActions( firstError, {
-		actionHandlers,
-		trackingCallback,
-		customActions,
-		restoreConnection,
-		isRestoringConnection,
-		reconnectTrackingEvent,
-		navigate,
-	} );
+	const actions = firstError
+		? resolveConnectionErrorActions( firstError, {
+				actionHandlers,
+				trackingCallback,
+				customActions,
+				restoreConnection,
+				isRestoringConnection,
+				reconnectTrackingEvent,
+				navigate,
+		  } )
+		: [];
 
 	return {
 		hasConnectionError,
@@ -80,11 +82,6 @@ export const ConnectionError = ( props: ConnectionErrorProps = {} ): ReactElemen
 	} = useConnectionErrorNotice( props );
 
 	if ( ! hasConnectionError ) {
-		return null;
-	}
-
-	// If no actions resolved and no custom handler was provided, don't render.
-	if ( actions.length === 0 && ! props.customActions ) {
 		return null;
 	}
 

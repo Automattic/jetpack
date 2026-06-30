@@ -59,6 +59,26 @@ describe( 'useConnectionErrorNotice — error detection', () => {
 		expect( result.current.hasConnectionError ).toBe( false );
 	} );
 
+	it( 'returns the first error when multiple error codes are present', () => {
+		mockConnection( {
+			connectionErrors: {
+				first_code: { 'https://a.example': { error_message: 'First error', error_type: 'a' } },
+				second_code: { 'https://b.example': { error_message: 'Second error', error_type: 'b' } },
+			},
+		} );
+
+		const { result } = renderHook( () => useConnectionErrorNotice() );
+		expect( result.current.connectionErrorMessage ).toBe( 'First error' );
+	} );
+
+	it( 'shows nothing when an error code group is empty', () => {
+		mockConnection( { connectionErrors: { some_code: {} } } );
+
+		const { result } = renderHook( () => useConnectionErrorNotice() );
+		expect( result.current.hasConnectionError ).toBe( false );
+		expect( result.current.connectionError ).toBeUndefined();
+	} );
+
 	// Connection presence flags alone do not produce a notice — only
 	// store-reported errors do. Presence is a valid state, not an error.
 	it( 'does not surface a notice from connection presence alone', () => {

@@ -1,5 +1,10 @@
 import { __ } from '@wordpress/i18n';
-import type { Action, ConnectionErrorData, ConnectionErrorObject } from './types';
+import type {
+	Action,
+	ConnectionErrorData,
+	ConnectionErrorObject,
+	RestoreConnection,
+} from './types';
 
 /**
  * Default tracking event fired when the fallback "Restore Connection" CTA is clicked.
@@ -16,12 +21,12 @@ export interface ResolveActionsOptions {
 	/** Escape hatch: fully replace the resolved actions for a given error. */
 	customActions?:
 		| ( (
-				error: ConnectionErrorObject | undefined,
-				helpers: { restoreConnection: () => void; isRestoringConnection: boolean }
+				error: ConnectionErrorObject,
+				helpers: { restoreConnection: RestoreConnection; isRestoringConnection: boolean }
 		  ) => Action[] )
 		| null;
 	/** Initiates a connection restore (the default fallback action). */
-	restoreConnection: () => void;
+	restoreConnection: RestoreConnection;
 	/** Whether a connection restore is currently in progress. */
 	isRestoringConnection: boolean;
 	/** Tracking event fired when the fallback "Restore Connection" CTA is clicked. */
@@ -38,12 +43,12 @@ export interface ResolveActionsOptions {
  * actions. Both the package's `<ConnectionError />` component and external
  * consumers (My Jetpack) call this so the copy/CTA logic lives in one place.
  *
- * @param {ConnectionErrorObject|undefined} connectionError - The effective connection error.
- * @param {ResolveActionsOptions}           options         - Resolution options/helpers.
+ * @param {ConnectionErrorObject} connectionError - The effective connection error.
+ * @param {ResolveActionsOptions} options         - Resolution options/helpers.
  * @return {Action[]} The resolved actions (may be empty).
  */
 export function resolveConnectionErrorActions(
-	connectionError: ConnectionErrorObject | undefined,
+	connectionError: ConnectionErrorObject,
 	{
 		actionHandlers = {},
 		trackingCallback = null,
@@ -74,22 +79,21 @@ export function resolveConnectionErrorActions(
 		}
 	};
 
-	const errorData: ConnectionErrorData = connectionError?.error_data ?? {};
+	const errorData: ConnectionErrorData = connectionError.error_data ?? {};
 	const suggestedAction = errorData.action;
 	const actionHandler = suggestedAction ? actionHandlers[ suggestedAction ] : undefined;
 
 	let actions: Action[];
 
-	if ( connectionError && suggestedAction && actionHandler ) {
+	if ( suggestedAction && actionHandler ) {
 		// Named handler from the error data.
-		const error = connectionError;
 		actions = [
 			{
 				label: errorData.action_label || __( 'Take Action', 'jetpack-connection-js' ),
 				onClick: () => {
 					try {
 						track( errorData.tracking_event );
-						actionHandler( error );
+						actionHandler( connectionError );
 					} catch {
 						// Silently fail if the action handler throws.
 					}
@@ -134,8 +138,7 @@ export function resolveConnectionErrorActions(
 	}
 
 	// Add secondary action if available (only for custom errors, not the default restore).
-	if ( connectionError && actions.length > 0 && ( suggestedAction || errorData.action_url ) ) {
-		const error = connectionError;
+	if ( actions.length > 0 && ( suggestedAction || errorData.action_url ) ) {
 		const secondaryAction = errorData.secondary_action;
 		const secondaryActionHandler = secondaryAction ? actionHandlers[ secondaryAction ] : undefined;
 		const secondaryActionUrl = errorData.secondary_action_url;
@@ -149,7 +152,7 @@ export function resolveConnectionErrorActions(
 				onClick: () => {
 					try {
 						track( errorData.secondary_tracking_event );
-						secondaryActionHandler( error );
+						secondaryActionHandler( connectionError );
 					} catch {
 						// Silently fail if the secondary action handler throws.
 					}

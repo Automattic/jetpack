@@ -34,14 +34,20 @@ export interface Action {
 	variant?: 'primary' | 'secondary';
 }
 
+/**
+ * Initiates a connection restore (or reconnect when restore is not possible).
+ * Returns the underlying API request promise.
+ */
+export type RestoreConnection = ( autoReconnectUser?: boolean ) => Promise< unknown >;
+
 export interface ConnectionErrorProps {
 	actionHandlers?: Record< string, ( error: ConnectionErrorObject ) => void >;
 	trackingCallback?: ( ( event: string, data: object ) => void ) | null;
 	customActions?:
 		| ( (
-				error: ConnectionErrorObject | undefined,
+				error: ConnectionErrorObject,
 				helpers: {
-					restoreConnection: () => void;
+					restoreConnection: RestoreConnection;
 					isRestoringConnection: boolean;
 				}
 		  ) => Action[] )
@@ -68,7 +74,7 @@ export interface UseConnectionErrorNoticeResult {
 	/** Resolved, ready-to-render CTA actions for the effective error. */
 	actions: Action[];
 	/** Initiates a connection restore (or reconnect when restore is not possible). */
-	restoreConnection: ( autoReconnectUser?: boolean ) => void;
+	restoreConnection: RestoreConnection;
 	/** Whether a connection restore is currently in progress. */
 	isRestoringConnection: boolean;
 	/** The restore error message, if the last restore attempt failed. */
