@@ -26,8 +26,8 @@ import type { ComponentProps } from 'react';
 
 const DEFAULT_MAX = 7;
 
-// The host injects report params (date range / comparison) through `attributes`
-// alongside the widget's own `max`, so compose the render-only shape from both.
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
 type AuthorsRenderAttributes = AuthorsAttributes & Partial< ReportParamsFieldAttributes >;
 
 type AuthorsRenderProps = WidgetRenderProps< AuthorsRenderAttributes > & {
