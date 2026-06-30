@@ -67,7 +67,7 @@ export function EmailContentSection( {
 			<Card.Content>
 				<Fieldset.Root disabled={ ! isNewsletterEnabled }>
 					{ ! isSitePublic && (
-						<Notice.Root intent="warning">
+						<Notice.Root intent="warning" className="newsletter-email-content-notice">
 							<Notice.Description>
 								{ __(
 									'Featured images will not be used in your emails until the site is public, because access to the images is restricted to your site only.',
