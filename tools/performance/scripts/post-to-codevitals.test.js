@@ -28,7 +28,11 @@ import {
 	resolvePostTimestamp,
 	VALIDATION_FAILED_EXIT_CODE,
 } from './post-to-codevitals.js';
-import { getGitInfo, shouldFailBuildOnPostError } from './run-performance-tests.js';
+import {
+	getGitInfo,
+	resolveCommitTimestampEnv,
+	shouldFailBuildOnPostError,
+} from './run-performance-tests.js';
 import { SANITY_RANGES, SCENARIOS } from './scenarios.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
@@ -865,6 +869,34 @@ test( 'resolvePostTimestamp rejects non-positive / non-numeric values and uses b
 	assert.ok( fromNegative > 0, 'a negative timestamp is rejected in favour of build time' );
 } );
 
+test( 'resolvePostTimestamp rejects unit errors (epoch seconds, micro/nanoseconds) as implausible', async () => {
+	const before = Date.now();
+	// A 10-digit epoch-*seconds* value (e.g. 1700000000) would post as 1970-01-20 if taken
+	// as ms. It must be rejected, not silently backdated into the append-only trend.
+	const fromSeconds = await silenced( () =>
+		resolvePostTimestamp( { git: { timestamp: 1700000000 } }, {} )
+	);
+	assert.notEqual( fromSeconds, 1700000000, 'epoch-seconds value is not posted verbatim' );
+	assert.ok(
+		fromSeconds >= before && fromSeconds <= Date.now() + 1000,
+		'an epoch-seconds value falls back to build time'
+	);
+	// Micro/nanosecond magnitudes are far in the future and equally implausible as ms.
+	const fromMicros = await silenced( () =>
+		resolvePostTimestamp( { git: {} }, { commitTimestampMs: '1700000000000000' } )
+	);
+	assert.ok(
+		fromMicros >= before && fromMicros <= Date.now() + 1000,
+		'a microsecond-magnitude value falls back to build time'
+	);
+	// A real epoch-ms value at the window edges is still accepted unchanged.
+	assert.equal(
+		resolvePostTimestamp( { git: { timestamp: 1_000_000_000_000 } }, {} ),
+		1_000_000_000_000,
+		'a plausible epoch-ms value passes through'
+	);
+} );
+
 test( 'a dry-run payload is stamped with the commit time from the results file', async () => {
 	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-ts-' ) );
 	const file = path.join( dir, 'results.json' );
@@ -974,6 +1006,52 @@ test( 'getGitInfo: a non-git directory degrades to unknown hash and null commit 
 		}
 		fs.rmSync( dir, { recursive: true, force: true } );
 	}
+} );
+
+// --- resolveCommitTimestampEnv (GIT_COMMIT + GIT_COMMIT_TIMESTAMP_MS are a paired override) ---
+
+test( 'resolveCommitTimestampEnv: paired override honored, lone timestamp dropped, source surfaced', () => {
+	const headInfo = { committedAtMs: 1700000000000 };
+
+	// Paired override (both env vars set): the caller-supplied timestamp wins, no warning.
+	const paired = resolveCommitTimestampEnv( headInfo, {
+		GIT_COMMIT: 'deadbeef',
+		GIT_COMMIT_TIMESTAMP_MS: '1600000000000',
+	} );
+	assert.equal( paired.value, '1600000000000' );
+	assert.equal( paired.warn, false );
+
+	// Lone GIT_COMMIT_TIMESTAMP_MS (no hash override) is orphaned → dropped for HEAD time,
+	// so it can't stamp HEAD's hash with an unrelated time. This is R4-IMPORTANT-1.
+	const lone = resolveCommitTimestampEnv( headInfo, { GIT_COMMIT_TIMESTAMP_MS: '999' } );
+	assert.equal( lone.value, '1700000000000', 'a lone timestamp does not win over HEAD time' );
+	assert.equal( lone.warn, false );
+
+	// Empty-string timestamp counts as absent, not a paired override.
+	const empty = resolveCommitTimestampEnv( headInfo, {
+		GIT_COMMIT: 'deadbeef',
+		GIT_COMMIT_TIMESTAMP_MS: '',
+	} );
+	assert.equal( empty.value, '1700000000000' );
+
+	// Hash override with no paired timestamp gets HEAD time but flags the provenance split.
+	const hashOnly = resolveCommitTimestampEnv( headInfo, { GIT_COMMIT: 'deadbeef' } );
+	assert.equal( hashOnly.value, '1700000000000' );
+	assert.equal( hashOnly.warn, true, 'an unpaired hash override warns about the split' );
+
+	// No env at all: plain HEAD time, no warning.
+	const plain = resolveCommitTimestampEnv( headInfo, {} );
+	assert.equal( plain.value, '1700000000000' );
+	assert.equal( plain.warn, false );
+
+	// No HEAD metadata and no paired override → null (caller unsets so the poster falls
+	// back to build time); a lone orphaned timestamp is still not trusted here.
+	assert.equal( resolveCommitTimestampEnv( { committedAtMs: null }, {} ).value, null );
+	assert.equal(
+		resolveCommitTimestampEnv( { committedAtMs: null }, { GIT_COMMIT_TIMESTAMP_MS: '999' } ).value,
+		null,
+		'a lone timestamp is dropped even when there is no HEAD time to fall back to'
+	);
 } );
 
 // --- cross-commit dedup (gitaudit evolution read; fetch stubbed, no network) ---

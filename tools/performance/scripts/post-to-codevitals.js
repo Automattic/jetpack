@@ -211,21 +211,30 @@ function sanitizeErrorChain( error, token ) {
  * order a backfilled or re-run commit by when CI ran rather than when the code
  * landed, scrambling both the trend graph and the scheduler's catch-up logic.
  * Prefer the commit time carried in the results file, then the runner-provided env
- * value, and only fall back to Date.now() (with a warning) when neither is a sane
- * positive epoch-ms number.
+ * value, and only fall back to Date.now() (with a warning) when neither is a plausible
+ * epoch-ms value — a gross unit error (e.g. epoch seconds, which would post as 1970) is
+ * rejected the same as a non-numeric one.
  *
  * @param {object} results - Parsed results file (may carry git.timestamp in ms).
  * @param {object} config  - Poster config (may carry commitTimestampMs from env).
  * @return {number} Epoch milliseconds to post.
  */
 function resolvePostTimestamp( results, config ) {
+	// A posted timestamp is epoch *milliseconds*. Bound it to a wide plausible window so a
+	// gross unit mistake can't silently corrupt the append-only trend: a 10-digit
+	// epoch-*seconds* value (e.g. 1700000000) is below MIN and would post as 1970, and a
+	// micro/nanosecond value is far above MAX. The window only catches unit errors, never
+	// a normal commit time.
+	const MIN_PLAUSIBLE_MS = 1_000_000_000_000; // ≈ 2001-09-09
+	const MAX_PLAUSIBLE_MS = 4_102_444_800_000; // ≈ 2100-01-01
 	// A numeric string (env vars are always strings) is fine; a non-numeric one
 	// coerces to NaN and is rejected below.
 	for ( const candidate of [ results?.git?.timestamp, config?.commitTimestampMs ] ) {
 		const ms = Number( candidate );
-		// A real commit time is a positive, finite epoch-ms. Reject 0, NaN, negatives,
-		// and empty strings so a malformed field can't poison the trend ordering.
-		if ( Number.isFinite( ms ) && ms > 0 ) {
+		// A real commit time is a finite epoch-ms inside the plausible window. Reject 0,
+		// NaN, negatives, empty strings, and out-of-window unit errors so a malformed
+		// field can't poison the trend ordering.
+		if ( Number.isFinite( ms ) && ms >= MIN_PLAUSIBLE_MS && ms <= MAX_PLAUSIBLE_MS ) {
 			return ms;
 		}
 	}

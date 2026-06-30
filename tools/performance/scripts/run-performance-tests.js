@@ -228,6 +228,51 @@ function getGitInfo( pluginDir = PLUGIN_DIR ) {
 	return { hash, mirrorHash, branch, committedAtMs };
 }
 
+/**
+ * Resolve the GIT_COMMIT_TIMESTAMP_MS to carry to the measurement/poster children.
+ *
+ * GIT_COMMIT and GIT_COMMIT_TIMESTAMP_MS form a *paired* override: setting both posts an
+ * arbitrary commit hash at its own committer time. The env timestamp is honored ONLY when
+ * paired with a GIT_COMMIT hash override. A lone GIT_COMMIT_TIMESTAMP_MS (no GIT_COMMIT)
+ * is orphaned and dropped in favour of HEAD's own commit time, so it can't stamp HEAD's
+ * hash with an unrelated time. A GIT_COMMIT hash override with no paired timestamp falls
+ * back to HEAD time but flags the provenance split (warn) rather than pairing it silently.
+ *
+ * Must be called BEFORE GIT_COMMIT is overwritten with the resolved hash, so it sees the
+ * caller's original override intent.
+ *
+ * @param {object} gitInfo - Result of getGitInfo (uses committedAtMs).
+ * @param {object} env     - Environment carrying GIT_COMMIT / GIT_COMMIT_TIMESTAMP_MS.
+ * @return {{value: (string|null), source: (string|null), warn: boolean}} The string to set (null → unset/drop), the source for logging, and whether to warn.
+ */
+function resolveCommitTimestampEnv( gitInfo, env ) {
+	const hasHashOverride = Boolean( env.GIT_COMMIT );
+	const hasTimestamp =
+		env.GIT_COMMIT_TIMESTAMP_MS !== undefined && env.GIT_COMMIT_TIMESTAMP_MS !== '';
+
+	if ( hasHashOverride && hasTimestamp ) {
+		return {
+			value: env.GIT_COMMIT_TIMESTAMP_MS,
+			source: 'paired GIT_COMMIT override',
+			warn: false,
+		};
+	}
+	if ( gitInfo.committedAtMs ) {
+		// A lone GIT_COMMIT_TIMESTAMP_MS is dropped here. A hash override without a paired
+		// timestamp gets HEAD's time — surface that split instead of pairing it silently.
+		return {
+			value: String( gitInfo.committedAtMs ),
+			source: hasHashOverride
+				? 'HEAD commit time (GIT_COMMIT hash override has no paired GIT_COMMIT_TIMESTAMP_MS)'
+				: 'HEAD commit time',
+			warn: hasHashOverride,
+		};
+	}
+	// No HEAD git metadata and no paired override: the poster falls back to build time
+	// (with its own warning). Drop any orphaned timestamp so it isn't trusted.
+	return { value: null, source: null, warn: false };
+}
+
 /** Ensure the Jetpack plugin is available (clone from jetpack-production if needed). */
 function ensurePlugin() {
 	// Check if plugin directory exists and has jetpack.php
@@ -465,16 +510,24 @@ async function main() {
 		console.log( '✓ Setup complete\n' );
 	}
 
+	// Resolve the commit timestamp to carry forward BEFORE we overwrite GIT_COMMIT with
+	// the resolved hash below, so the paired-override check sees the caller's original env.
+	const commitTs = resolveCommitTimestampEnv( gitInfo, process.env );
+
 	// Set environment variables for the measurement script
 	process.env.GIT_COMMIT = gitInfo.hash;
 	process.env.GIT_BRANCH = gitInfo.branch;
-	// Carry the commit time to measure-lcp.js (writes it into results.git.timestamp)
-	// and to the post-to-codevitals.js child, so the posted point is ordered by when
-	// the code landed, not when this build ran. Don't clobber a caller-supplied value:
-	// GIT_COMMIT + GIT_COMMIT_TIMESTAMP_MS are a paired override, so if someone set the
-	// timestamp explicitly (to pair it with a GIT_COMMIT hash), keep theirs over HEAD's.
-	if ( gitInfo.committedAtMs && ! process.env.GIT_COMMIT_TIMESTAMP_MS ) {
-		process.env.GIT_COMMIT_TIMESTAMP_MS = String( gitInfo.committedAtMs );
+	// Carry the commit time to measure-lcp.js (writes it into results.git.timestamp) and
+	// on to the post-to-codevitals.js child, so the posted point is ordered by when the
+	// code landed, not when this build ran. A lone GIT_COMMIT_TIMESTAMP_MS is not trusted
+	// (see resolveCommitTimestampEnv); we log the winning source so the choice isn't silent.
+	if ( commitTs.value ) {
+		process.env.GIT_COMMIT_TIMESTAMP_MS = commitTs.value;
+		( commitTs.warn ? console.warn : console.log )(
+			`  Commit timestamp: ${ commitTs.value }ms (${ commitTs.source })`
+		);
+	} else {
+		delete process.env.GIT_COMMIT_TIMESTAMP_MS;
 	}
 	process.env.ITERATIONS = options.iterations.toString();
 	process.env.OUTPUT_PATH = path.join( __dirname, '../results/lcp-results.json' );
@@ -556,4 +609,4 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 	} );
 }
 
-export { shouldFailBuildOnPostError, getGitInfo };
+export { shouldFailBuildOnPostError, getGitInfo, resolveCommitTimestampEnv };
