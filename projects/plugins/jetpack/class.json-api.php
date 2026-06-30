@@ -775,17 +775,15 @@ class WPCOM_JSON_API {
 	 */
 	public static function serializable_error( $error ) {
 
-		// Always render a real HTTP error status, never 1 / a 2xx / a status_header() can't emit.
-		$data        = $error->get_error_data();
-		$status_code = ( is_array( $data ) && isset( $data['status_code'] ) ) ? $data['status_code'] : $data;
-		$status_code = is_numeric( $status_code ) ? (int) $status_code : 0;
+		$status_code = $error->get_error_data();
 
-		if ( $status_code < 400 ) {
-			$status_code = 400;
-		} elseif ( '' === get_status_header_desc( $status_code ) ) {
-			$status_code = 502;
+		if ( is_array( $status_code ) && isset( $status_code['status_code'] ) ) {
+			$status_code = $status_code['status_code'];
 		}
 
+		if ( ! $status_code ) {
+			$status_code = 400;
+		}
 		$response = array(
 			'error'   => $error->get_error_code(),
 			'message' => $error->get_error_message(),
