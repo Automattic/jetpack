@@ -53,6 +53,7 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';
 const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/subscribers';
+const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -561,6 +562,47 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 	};
 }
 
+/**
+ * Builds a mock Stats "email summary" response so the Emails widget renders
+ * populated in Storybook. The shape matches what `sanitizeStatsEmailSummaryResponse`
+ * expects (`{ posts: [ { title, opens_rate, clicks_rate, … } ] }`); rates are
+ * 0–100 percentages and the rows are newest-first to mirror the live endpoint.
+ *
+ * @return Raw email-summary response.
+ */
+function buildEmailSummaryResponse() {
+	const emails = [
+		{ title: '4 Ways to Make Your Website Stand Out', opens_rate: 38.1, clicks_rate: 3.81 },
+		{ title: 'Develop Locally on Linux with WordPress.com', opens_rate: 41.2, clicks_rate: 5.98 },
+		{ title: '10 Brand-New WordPress.com Themes for 2026', opens_rate: 35.7, clicks_rate: 7.12 },
+		{
+			title: 'WordPress.com Is Now Available in More Languages',
+			opens_rate: 52.4,
+			clicks_rate: 8.93,
+		},
+		{ title: 'WordCamp Europe 2026: What to Expect', opens_rate: 47.9, clicks_rate: 10.25 },
+		{
+			title: 'Click, Comment, Done: A Better Way to Collaborate',
+			opens_rate: 44.3,
+			clicks_rate: 10.38,
+		},
+	];
+	const posts = emails.map( ( email, index ) => ( {
+		id: 2000 + index,
+		title: email.title,
+		href: 'https://example.com',
+		type: 'post',
+		opens_rate: email.opens_rate,
+		clicks_rate: email.clicks_rate,
+		opens: 400 - index * 20,
+		clicks: 40 - index * 3,
+		unique_opens: 380 - index * 20,
+		unique_clicks: 38 - index * 3,
+		total_sends: 1000,
+	} ) );
+	return { posts };
+}
+
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
 
@@ -577,6 +619,10 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		return buildSubscribersResponse(
 			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
 		);
+	}
+
+	if ( requestPath.startsWith( STATS_EMAIL_SUMMARY_PATH ) ) {
+		return buildEmailSummaryResponse();
 	}
 
 	if ( ! requestPath.startsWith( API_BASE ) ) {
