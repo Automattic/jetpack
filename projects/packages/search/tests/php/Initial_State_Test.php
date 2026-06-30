@@ -144,10 +144,10 @@ class Initial_State_Test extends Search_TestCase {
 	 * Test that the AI Agent Access toggle is unavailable on P2 sites.
 	 */
 	public function test_ai_agent_access_available_is_false_for_p2_sites() {
-		$original_blog_id       = \Jetpack_Options::get_option( 'id' );
-		$had_is_wpcom           = Constants::is_defined( 'IS_WPCOM' );
-		$original_is_wpcom      = Constants::get_constant( 'IS_WPCOM' );
-		$p2_stylesheet_filter   = function () {
+		$original_blog_id     = \Jetpack_Options::get_option( 'id' );
+		$had_is_wpcom         = Constants::is_defined( 'IS_WPCOM' );
+		$original_is_wpcom    = Constants::get_constant( 'IS_WPCOM' );
+		$p2_stylesheet_filter = function () {
 			return 'pub/p2v2';
 		};
 
