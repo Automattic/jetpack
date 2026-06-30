@@ -18,8 +18,5 @@
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/url": "4.48.1",
 		"date-fns": "4.1.0"
-	},
-	"devDependencies": {
-		"@tanstack/react-query-devtools": "5.90.2"
 	}
 }

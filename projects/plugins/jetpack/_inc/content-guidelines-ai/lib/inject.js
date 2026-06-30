@@ -223,15 +223,26 @@ function runAll() {
 			continue;
 		}
 
-		// Badge in the accordion header (the section's heading element).
+		// Badge in the accordion header, to the left of the chevron.
+		//
+		// CollapsibleCard.Header renders the heading wrapping a flex trigger row
+		// whose children are the title/description block and, last, the chevron's
+		// positioner. Appending to the row puts the badge to the right of the
+		// chevron, which pushes the chevron leftward only on sections that have a
+		// badge — so chevrons no longer line up across sections. Insert the badge
+		// before the chevron instead: the chevron stays the last child (flush to
+		// the right and aligned across every section) and the badge sits just to
+		// its left.
 		inject(
 			`badge-${ slug }`,
 			() => {
 				const heading = item.querySelector( 'h1, h2, h3, h4, h5, h6' );
-				const titleStack = heading?.firstElementChild ?? heading;
-				return titleStack
+				const trigger = heading?.firstElementChild ?? heading;
+				const chevron = trigger?.lastElementChild;
+				return trigger
 					? {
-							parent: titleStack,
+							parent: trigger,
+							before: chevron,
 							className: 'jetpack-content-guidelines-ai__badge-container',
 							tag: 'span',
 					  }

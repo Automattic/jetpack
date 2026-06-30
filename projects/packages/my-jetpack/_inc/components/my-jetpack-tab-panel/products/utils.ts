@@ -315,24 +315,27 @@ export function searchAndRankItems(
 
 	const terms = searchTerms( search );
 
-	const cardsBySlug = new Map< string, CardItem >();
-	const modulesBySlug = new Map< string, MyJetpackModule >();
+	// One slug space governs de-duplication: a card claims both its product slug and the slug of
+	// the module it already carries, so the same product never surfaces as both a card and a
+	// standalone module (e.g. Forms' contact-form module, or VideoPress listed in two categories).
+	const seen = new Set< string >();
+	const items: Array< SearchResultItem > = [];
 
 	cards.forEach( card => {
-		if ( card?.product?.slug && ! cardsBySlug.has( card.product.slug ) ) {
-			cardsBySlug.set( card.product.slug, card );
+		if ( card?.product?.slug && ! seen.has( card.product.slug ) ) {
+			seen.add( card.product.slug );
+			if ( card.module?.module ) {
+				seen.add( card.module.module );
+			}
+			items.push( { kind: 'card', card } );
 		}
 	} );
 	modules.forEach( module => {
-		if ( module?.module && ! modulesBySlug.has( module.module ) ) {
-			modulesBySlug.set( module.module, module );
+		if ( module?.module && ! seen.has( module.module ) ) {
+			seen.add( module.module );
+			items.push( { kind: 'module', module } );
 		}
 	} );
-
-	const items: Array< SearchResultItem > = [
-		...[ ...cardsBySlug.values() ].map( card => ( { kind: 'card' as const, card } ) ),
-		...[ ...modulesBySlug.values() ].map( module => ( { kind: 'module' as const, module } ) ),
-	];
 
 	return rankBy( items, terms, item =>
 		item.kind === 'card'

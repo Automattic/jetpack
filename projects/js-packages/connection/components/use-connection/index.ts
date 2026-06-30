@@ -9,6 +9,7 @@ import type {
 	UseConnectionProps,
 	UseConnectionReturn,
 } from './types.ts';
+import type { SyntheticEvent } from 'react';
 
 type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
 
@@ -96,7 +97,7 @@ export default function useConnection( {
 	 * @param {Event} [e] - Event that dispatched handleRegisterSite
 	 * @return Promise when running the site connection process. Otherwise, nothing.
 	 */
-	const handleRegisterSite = ( e?: Event ): Promise< unknown > => {
+	const handleRegisterSite = ( e?: Event | SyntheticEvent ): Promise< unknown > => {
 		e && e.preventDefault();
 
 		if ( isRegistered ) {

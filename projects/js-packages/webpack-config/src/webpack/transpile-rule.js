@@ -29,6 +29,7 @@ const TranspileRule = ( options = {} ) => {
 	if ( fs.existsSync( configFile ) ) {
 		babelDefaults.configFile = configFile;
 	} else {
+		babelDefaults.targets = require( '../targets.js' );
 		babelDefaults.presets = [ require.resolve( '../babel-preset.js' ) ];
 	}
 

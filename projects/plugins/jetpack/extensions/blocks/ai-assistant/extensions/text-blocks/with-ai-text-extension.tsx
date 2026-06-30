@@ -22,6 +22,7 @@ import debugFactory from 'debug';
 import useAutoScroll from '../../hooks/use-auto-scroll';
 import useBlockModuleStatus from '../../hooks/use-block-module-status';
 import { mapInternalPromptTypeToBackendPromptType } from '../../lib/prompt/backend-prompt';
+import { isAiSidebarToolbarButtonEnabled } from '../lib/can-ai-assistant-be-enabled';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
 import { getBlockHandler, InlineExtensionsContext } from './get-block-handler';
@@ -561,14 +562,16 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					/>
 				) }
 
-				<BlockControls { ...blockControlsProps }>
-					<AiAssistantExtensionToolbarDropdown
-						blockType={ blockName }
-						onAskAiAssistant={ handleAskAiAssistant }
-						onRequestSuggestion={ handleRequestSuggestion }
-						behavior={ behavior }
-					/>
-				</BlockControls>
+				{ ! isAiSidebarToolbarButtonEnabled && (
+					<BlockControls { ...blockControlsProps }>
+						<AiAssistantExtensionToolbarDropdown
+							blockType={ blockName }
+							onAskAiAssistant={ handleAskAiAssistant }
+							onRequestSuggestion={ handleRequestSuggestion }
+							behavior={ behavior }
+						/>
+					</BlockControls>
+				) }
 			</>
 		);
 

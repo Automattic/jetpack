@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "1.12.10",
+	"version": "1.12.13",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -113,7 +113,6 @@
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@babel/preset-react": "7.29.7",
 		"@jest/globals": "30.4.1",
 		"@storybook/addon-docs": "10.3.6",
 		"@storybook/react": "10.3.6",

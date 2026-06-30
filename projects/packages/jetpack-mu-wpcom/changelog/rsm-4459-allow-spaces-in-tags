@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write editor: allow spaces inside #tags (e.g. "#New York") by treating # as the tag delimiter instead of whitespace.

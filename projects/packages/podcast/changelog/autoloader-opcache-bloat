@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Defer podcast REST endpoint instantiation so the endpoint classes only load on REST API requests.

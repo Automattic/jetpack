@@ -998,7 +998,7 @@ class Jetpack_Gutenberg {
 	 * Inner-block invocations (non-null $parent_block) are ignored because the top-level
 	 * walk has already handled the whole tree. Returns $pre_render untouched.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.0
 	 *
 	 * @param string|null    $pre_render   The pre-rendered content. Default null.
 	 * @param array          $parsed_block The parsed block being rendered.
@@ -1248,7 +1248,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * Keyed by directory ('plugins' / 'extended-blocks') for an exact, intentional match.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.0
 	 *
 	 * @var array
 	 */

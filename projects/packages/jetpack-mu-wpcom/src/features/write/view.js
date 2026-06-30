@@ -116,12 +116,51 @@ function clearAnonDraft() {
 	}
 }
 
+/**
+ * Remove a stale `wpcom_user_id` left in localStorage by a previous Calypso
+ * session.
+ *
+ * The anon editor only renders for logged-out visitors, so any `wpcom_user_id`
+ * persisted under this origin is stale. Calypso bootstraps "is this visitor
+ * logged in?" from that key, and the `/setup/write-on` signup flow blocks entry
+ * and bails to My Home when it thinks the visitor is already authenticated — so
+ * a stale id (e.g. a logout that didn't clear it) silently drops the anon draft
+ * handed off on Publish. Clearing it keeps the persisted auth state in sync with
+ * the real, logged-out session. See READ-574.
+ *
+ * Scoped to the single key on purpose: clearing the whole store would also wipe
+ * the `wpcom-write-anon-draft` snapshot the editor just persisted.
+ *
+ * @return {boolean} True if a stale id was present and removed.
+ */
+function clearStaleWpcomUserId() {
+	try {
+		const hadStaleId = window.localStorage.getItem( 'wpcom_user_id' ) !== null;
+		window.localStorage.removeItem( 'wpcom_user_id' );
+		return hadStaleId;
+	} catch {
+		// localStorage unavailable/blocked — nothing to clear.
+		return false;
+	}
+}
+
 // Mark the page as anonymous so style.css can hide UI that has no anon
 // equivalent (back button, more-menu, the standalone Save-draft button,
 // unsupported-content "Open in editor" buttons). Set as early as the
 // module loads so the initial render doesn't flash the hidden surfaces.
 if ( isAnon() && typeof document !== 'undefined' && document.documentElement ) {
 	document.documentElement.classList.add( 'bw-anon' );
+}
+
+// Drop a stale `wpcom_user_id` from a prior Calypso session so the Publish
+// handoff to `/setup/write-on` doesn't mistake this logged-out visitor for an
+// authenticated one and discard their draft. See READ-574.
+if ( isAnon() ) {
+	const hadStaleId = clearStaleWpcomUserId();
+	if ( hadStaleId ) {
+		window._tkq = window._tkq || [];
+		window._tkq.push( [ 'recordEvent', 'wpcom_write_editor_anon_stale_user_cleared' ] );
+	}
 }
 
 /**
@@ -2441,6 +2480,39 @@ function applyMarkdownListShortcut( paragraph, listTag ) {
 }
 
 /**
+ * Detect a markdown blockquote shortcut in a paragraph's text.
+ *
+ * Returns true for a lone `>` marker. Captured before the trigger space is
+ * inserted, so the marker should be the only content — trailing whitespace is
+ * allowed to tolerate a stray <br>-only text node that contentEditable can
+ * leave in an otherwise-empty block, matching parseMarkdownListShortcut.
+ *
+ * @param {string} text - The paragraph's text content.
+ * @return {boolean} Whether the text is a blockquote shortcut.
+ */
+function parseMarkdownQuoteShortcut( text ) {
+	return /^>\s*$/.test( text );
+}
+
+/**
+ * Replace a paragraph with an empty blockquote, and move the cursor into it.
+ *
+ * Mirrors the slash-menu quote insert (insertNewBlock( 'blockquote' )): the
+ * <cite> attribution placeholder is added by the citation lifecycle once the
+ * cursor lands inside the blockquote.
+ *
+ * @param {HTMLElement} paragraph - The paragraph to convert.
+ */
+function applyMarkdownQuoteShortcut( paragraph ) {
+	const blockquote = document.createElement( 'blockquote' );
+	blockquote.innerHTML = '<br>';
+	paragraph.after( blockquote );
+	paragraph.remove();
+	placeCursorAt( blockquote );
+	state.formatQuote = true;
+}
+
+/**
  * Find the blockquote element containing the current cursor, if any.
  *
  * @return {HTMLElement|null} The blockquote element or null.
@@ -3491,7 +3563,7 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 			allowLeave = true;
-			window.location.href = state.adminUrl;
+			window.location.href = state.backUrl;
 		},
 
 		async saveAndLeave() {
@@ -3517,7 +3589,7 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 			allowLeave = true;
-			window.location.href = state.adminUrl;
+			window.location.href = state.backUrl;
 		},
 
 		checkFormatting() {
@@ -3824,6 +3896,38 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
+			// Backspace in an empty blockquote: convert it back to a paragraph.
+			// Must run before the first-block Backspace guard below, otherwise the
+			// guard swallows Backspace when the quote is the editor's first block
+			// (e.g. just after the `>` markdown shortcut on a fresh post), leaving
+			// the user with no way to remove the quote.
+			if ( event.key === 'Backspace' ) {
+				const sel = window.getSelection();
+				if ( sel.rangeCount && sel.isCollapsed && ! getActiveCite() ) {
+					const bq = getActiveBlockquote();
+					if ( bq ) {
+						// Ignore the <cite> placeholder when checking for empty body.
+						const probe = bq.cloneNode( true );
+						const probeCite = probe.querySelector( 'cite' );
+						if ( probeCite ) {
+							probeCite.remove();
+						}
+						if ( probe.textContent.trim() === '' ) {
+							event.preventDefault();
+							flushUndoDebounce();
+							const p = document.createElement( 'p' );
+							p.innerHTML = '<br>';
+							bq.after( p );
+							bq.remove();
+							placeCursorAt( p );
+							state.formatQuote = false;
+							pushToUndoHistory();
+							return;
+						}
+					}
+				}
+			}
+
 			// Block Backspace at the very start of the first block. With nothing
 			// to merge into, some browsers respond by unwrapping the structure
 			// — including the .bw-content-inner wrapper that protects user
@@ -3895,9 +3999,10 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Markdown list shortcut: typing space after `-`, `*`, `+`, or `1.` at the
-			// start of an otherwise-empty paragraph converts it to a list. The space
-			// itself is swallowed so the user lands at column 0 of the new <li>.
+			// Markdown shortcuts: typing space after `-`, `*`, `+`, or `1.` at the
+			// start of an otherwise-empty paragraph converts it to a list, and `>`
+			// converts it to a blockquote. The space itself is swallowed so the user
+			// lands at column 0 of the new block.
 			if ( event.key === ' ' && ! state.showSlashMenu ) {
 				const sel = window.getSelection();
 				if ( sel.rangeCount && sel.isCollapsed ) {
@@ -3914,6 +4019,13 @@ const { state } = store( 'wpcom-write', {
 							event.preventDefault();
 							flushUndoDebounce();
 							applyMarkdownListShortcut( block, listTag );
+							pushToUndoHistory();
+							return;
+						}
+						if ( parseMarkdownQuoteShortcut( block.textContent ) ) {
+							event.preventDefault();
+							flushUndoDebounce();
+							applyMarkdownQuoteShortcut( block );
 							pushToUndoHistory();
 							return;
 						}
@@ -5967,11 +6079,23 @@ async function savePost( postStatus, isAutosave = false ) {
 
 	// Extract #tags from lines that contain only hashtag tokens (e.g. "#travel #food").
 	// Those paragraphs are metadata, not body text — strip them from the saved content.
+	// Each # starts a new tag, and a tag may contain spaces ("#New York"). To keep prose
+	// that merely starts with a # ("#1 reason you should read this") out of the tag list,
+	// each tag is capped at three whitespace-separated words. The char right after # must
+	// be a non-# non-space, so "# Heading" and "## Heading" stay body text.
 	const tagNames = [];
 	clone.querySelectorAll( ':scope > p' ).forEach( p => {
 		const text = p.textContent.trim();
-		if ( /^(#[\w-]+\s*)+$/.test( text ) ) {
-			text.match( /#([\w-]+)/g ).forEach( t => tagNames.push( t.slice( 1 ) ) );
+		if ( /^(#[^#\s]+(?:\s+[^#\s]+){0,2}\s*)+$/.test( text ) ) {
+			text
+				.split( '#' )
+				.slice( 1 )
+				.forEach( name => {
+					const trimmed = name.trim();
+					if ( trimmed ) {
+						tagNames.push( trimmed );
+					}
+				} );
 			p.remove();
 		}
 	} );
