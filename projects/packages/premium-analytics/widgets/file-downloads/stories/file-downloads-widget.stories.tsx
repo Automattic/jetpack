@@ -5,7 +5,6 @@ import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
-import { withChartTheme } from '../../../packages/widgets-toolkit/src/stories/with-chart-theme';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import {
@@ -14,7 +13,6 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { FileDownloadsLeaderboard, type FileDownloadRow } from '../render';
 import FileDownloadsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
@@ -45,49 +43,6 @@ const withWidgetCanvas: Decorator = Story => (
 		<Story />
 	</div>
 );
-
-const mockRows: FileDownloadRow[] = [
-	{
-		label: 'annual-report-2025.pdf',
-		value: 3840,
-		previousValue: 3200,
-		href: 'https://example.com/annual-report-2025.pdf',
-	},
-	{
-		label: 'product-brochure.pdf',
-		value: 2610,
-		previousValue: 2900,
-		href: 'https://example.com/product-brochure.pdf',
-	},
-	{
-		label: 'getting-started-guide.pdf',
-		value: 1920,
-		previousValue: 1600,
-		href: 'https://example.com/getting-started-guide.pdf',
-	},
-	{
-		label: 'press-release-q1.docx',
-		value: 1305,
-		previousValue: 1500,
-		href: 'https://example.com/press-release-q1.docx',
-	},
-	{
-		label: 'logo-assets.zip',
-		value: 870,
-		previousValue: 700,
-		href: 'https://example.com/logo-assets.zip',
-	},
-	{
-		label: 'terms-of-service.pdf',
-		value: 540,
-		href: 'https://example.com/terms-of-service.pdf',
-	},
-	{
-		label: 'changelog.txt',
-		value: 290,
-		href: 'https://example.com/changelog.txt',
-	},
-];
 
 function renderFileDownloadsWidget( { withComparison }: FileDownloadsStoryControls ) {
 	return (
@@ -135,7 +90,6 @@ const meta = {
 export default meta;
 
 type Story = StoryObj< FileDownloadsStoryControls >;
-type PresentationalStory = StoryObj< typeof FileDownloadsLeaderboard >;
 type DashboardStory = StoryObj< FileDownloadsDashboardStoryProps >;
 
 export const Default: Story = {
@@ -148,39 +102,6 @@ export const WithComparison: Story = {
 	render: renderFileDownloadsWidget,
 	args: { withComparison: true },
 	decorators: [ withWidgetCanvas ],
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'File downloads renders previous-period deltas when comparison report params are present, matching the comparison behavior of the other Premium Analytics leaderboard widgets.',
-			},
-		},
-	},
-};
-
-export const LoadingState: PresentationalStory = {
-	render: () => <FileDownloadsLeaderboard isLoading={ true } />,
-	decorators: [ withWidgetCanvas ],
-};
-
-export const ErrorState: PresentationalStory = {
-	render: () => <FileDownloadsLeaderboard isError={ true } />,
-	decorators: [ withWidgetCanvas ],
-};
-
-export const EmptyState: PresentationalStory = {
-	render: () => <FileDownloadsLeaderboard rows={ [] } />,
-	decorators: [ withChartTheme, withWidgetCanvas ],
-};
-
-export const WithMockRows: PresentationalStory = {
-	render: () => <FileDownloadsLeaderboard rows={ mockRows } />,
-	decorators: [ withChartTheme, withWidgetCanvas ],
-};
-
-export const WithMockComparisonRows: PresentationalStory = {
-	render: () => <FileDownloadsLeaderboard rows={ mockRows } withComparison={ true } />,
-	decorators: [ withChartTheme, withWidgetCanvas ],
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {

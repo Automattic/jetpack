@@ -176,6 +176,7 @@ export function FileDownloadsLeaderboard( {
 			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
+			showLegend={ false }
 			emptyStateText={ __( 'No file downloads in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ DATA_FORMAT }
 		/>
