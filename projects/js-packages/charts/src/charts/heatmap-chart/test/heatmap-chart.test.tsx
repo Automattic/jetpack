@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import HeatmapChart from '../heatmap-chart';
@@ -58,14 +58,10 @@ describe( 'HeatmapChart', () => {
 		expect( screen.queryByText( '3' ) ).not.toBeInTheDocument();
 	} );
 
-	/* eslint-disable testing-library/no-node-access */
 	test( 'gives each cell an accessible name for screen readers', () => {
 		renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
-		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		const labels = Array.from( grid.querySelectorAll( '[role="gridcell"]' ) ).map( c =>
-			c.getAttribute( 'aria-label' )
-		);
-		expect( labels.some( l => l?.includes( 'W1' ) && l?.includes( 'Mon' ) ) ).toBe( true );
+		// The gridcell's accessible name is its aria-label (column + row + value).
+		expect( screen.getByRole( 'gridcell', { name: 'W1 Mon: 1' } ) ).toBeInTheDocument();
 	} );
 
 	test( 'shows a tooltip on cell hover when withTooltips is set', async () => {
@@ -74,7 +70,6 @@ describe( 'HeatmapChart', () => {
 		await userEvent.setup().hover( cell );
 		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
 	} );
-	/* eslint-enable testing-library/no-node-access */
 
 	test( 'shows a tooltip on keyboard navigation when withTooltips is set', async () => {
 		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
@@ -205,17 +200,14 @@ describe( 'HeatmapChart', () => {
 		expect( grid ).not.toHaveAttribute( 'aria-activedescendant' );
 	} );
 
-	/* eslint-disable testing-library/no-node-access */
 	test( 'rows contain gridcell children in the ARIA hierarchy', () => {
 		renderChart();
 		const rows = screen.getAllByRole( 'row' );
 		expect( rows.length ).toBeGreaterThan( 0 );
 		rows.forEach( row => {
-			const cells = Array.from( row.querySelectorAll( '[role="gridcell"]' ) );
-			expect( cells.length ).toBeGreaterThan( 0 );
+			expect( within( row ).getAllByRole( 'gridcell' ).length ).toBeGreaterThan( 0 );
 		} );
 	} );
-	/* eslint-enable testing-library/no-node-access */
 
 	test( 'leaves cell gap and radius to WPDS tokens (no inline overrides)', () => {
 		renderChart();
