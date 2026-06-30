@@ -30,10 +30,10 @@ class Admin_Page {
 	/**
 	 * Where the Podcast item sits in the Jetpack submenu on self-hosted.
 	 *
-	 * Placed after Subscribers (15) and Newsletter (10) to mirror the order
-	 * `wpcom-admin-menu.php` uses on Simple/Atomic.
+	 * Placed after content/product items like Newsletter and Search (10), but
+	 * before Settings (13).
 	 */
-	const MENU_POSITION = 16;
+	const MENU_POSITION = 12;
 
 	/**
 	 * Slug emitted by `@wordpress/build`. wp-build's auto-generated enqueue
