@@ -2,40 +2,229 @@
 
 import fs from 'fs';
 import path from 'path';
-import { SCENARIOS } from './scenarios.js';
+import { SCENARIOS, SANITY_RANGES } from './scenarios.js';
 
-/** Extract metrics for a single scenario. */
+/**
+ * Exit code for a LOCAL data-integrity failure: a metric failed a sanity check, a
+ * scenario is misconfigured, or the results file is missing/unusable. In short,
+ * anything that goes wrong BEFORE the live POST. This is distinct from exit 1 (a
+ * remote CodeVitals transport/API failure during or after the POST).
+ * run-performance-tests.js treats this code as always fatal and never suppresses it
+ * with `--allow-codevitals-failure`, which exists only to tolerate CodeVitals
+ * network outages, not bad local data.
+ */
+const VALIDATION_FAILED_EXIT_CODE = 2;
+
+/**
+ * A local data-integrity or scenario-configuration failure. A thrown error of this
+ * type must always fail the build (exit VALIDATION_FAILED_EXIT_CODE), so the runner
+ * can never suppress it under `--allow-codevitals-failure`. It is distinct from a
+ * CodeVitals transport/API error, which exits 1 and that flag may tolerate.
+ */
+class ValidationError extends Error {
+	constructor( message, options ) {
+		super( message, options ); // forward { cause } so a wrapped transport error is preserved
+		this.name = 'ValidationError';
+	}
+}
+
+/**
+ * Map a thrown error to a process exit code. A local data-integrity failure
+ * (ValidationError, e.g. a misconfigured scenario) exits VALIDATION_FAILED_EXIT_CODE
+ * so the runner always fails the build on it; any other error (a CodeVitals
+ * transport/API failure) exits 1, which `--allow-codevitals-failure` may tolerate.
+ *
+ * @param {*} error - The caught error.
+ * @return {number} The exit code to use.
+ */
+function exitCodeForError( error ) {
+	return error instanceof ValidationError ? VALIDATION_FAILED_EXIT_CODE : 1;
+}
+
+/**
+ * Extract metric entries for a single scenario.
+ *
+ * Each entry carries its CodeVitals key, value, and (optional) type. The type
+ * drives the sanity-range check; untyped legacy entries are posted unchecked.
+ */
 function extractScenarioMetrics( scenario, summary ) {
-	const metrics = {};
-
 	// Use explicit metricKey if defined, otherwise fall back to prefix-based keys
 	if ( scenario.metricKey ) {
+		// A posted exact-key metric must declare a metricType so checkSanityRange can
+		// range-check it. Without one it would fall through as an untyped "legacy"
+		// entry and post any finite value unchecked — the exact hole this fail-closed
+		// guard exists to close. A missing type is a scenario misconfiguration, so
+		// fail loud here (the dry-run CI smoke test catches it before any post).
+		if ( ! scenario.metricType ) {
+			throw new ValidationError(
+				`Scenario "${
+					scenario.key ?? scenario.metricKey
+				}" sets metricKey but no metricType; refusing to post an unchecked keyed metric`
+			);
+		}
 		// Single metric with exact key
-		metrics[ scenario.metricKey ] = summary.median;
-	} else {
-		// Legacy: prefix-based keys with suffixes
-		const prefix = scenario.metricPrefix;
-		metrics[ `${ prefix }_ms` ] = summary.median;
-		metrics[ `${ prefix }_mean_ms` ] = summary.mean;
-		metrics[ `${ prefix }_min_ms` ] = summary.min;
-		metrics[ `${ prefix }_max_ms` ] = summary.max;
-		metrics[ `${ prefix }_stddev_ms` ] = summary.stdDev;
+		return [ { key: scenario.metricKey, value: summary.median, type: scenario.metricType } ];
 	}
 
-	return metrics;
+	// Legacy: prefix-based keys with suffixes (untyped — not range-checked)
+	const prefix = scenario.metricPrefix;
+	return [
+		{ key: `${ prefix }_ms`, value: summary.median },
+		{ key: `${ prefix }_mean_ms`, value: summary.mean },
+		{ key: `${ prefix }_min_ms`, value: summary.min },
+		{ key: `${ prefix }_max_ms`, value: summary.max },
+		{ key: `${ prefix }_stddev_ms`, value: summary.stdDev },
+	];
+}
+
+/**
+ * Check whether a metric value is safe to post to CodeVitals.
+ *
+ * CodeVitals is append-only, so anything uncertain fails closed. A typed metric
+ * whose type has no range row (a typo, or a forgotten SANITY_RANGES entry) and a
+ * non-finite value (null, NaN, Infinity, a numeric string) are both rejected
+ * rather than posted. Only a genuinely untyped legacy entry passes unchecked.
+ *
+ * @param {string|undefined} type  - Metric type, or falsy for an untyped legacy entry.
+ * @param {*}                value - Candidate metric value.
+ * @return {{ ok: boolean, reason?: string }} Whether the value may be posted, and why not.
+ */
+function checkSanityRange( type, value ) {
+	// Never post a non-finite value, regardless of type. null, NaN, Infinity, and
+	// numeric strings are always wrong for an append-only store, so this check
+	// comes before the untyped early return below.
+	if ( typeof value !== 'number' || ! Number.isFinite( value ) ) {
+		return { ok: false, reason: `value ${ JSON.stringify( value ) } is not a finite number` };
+	}
+
+	// Genuinely untyped legacy entry: no declared type, so no range to enforce.
+	if ( ! type ) {
+		return { ok: true };
+	}
+
+	const range = SANITY_RANGES[ type ];
+	if ( ! range ) {
+		return { ok: false, reason: `no sanity range is defined for type "${ type }"` };
+	}
+
+	if ( value < range.min || value > range.max ) {
+		return { ok: false, reason: `${ value } is outside [${ range.min }, ${ range.max }]` };
+	}
+
+	return { ok: true };
+}
+
+/**
+ * Strip the CodeVitals token from a string so it can never reach a log or a
+ * re-thrown error. fetch and the URL parser echo the full request URL (token
+ * included) in their messages, and the token grants append access to an
+ * unrollback-able store, so scrub it before anything prints.
+ *
+ * @param {string} text    - Text that may contain the token or a `token=...` query param.
+ * @param {string} [token] - The exact token value to strip, when known.
+ * @return {string} The text with the token replaced by `REDACTED`.
+ */
+function redactToken( text, token ) {
+	let safe = String( text );
+	if ( token ) {
+		safe = safe.split( token ).join( 'REDACTED' );
+	}
+	// Catch the query-param form too, in case the exact value isn't in hand here.
+	return safe.replace( /token=[^&\s]+/g, 'token=REDACTED' );
+}
+
+/**
+ * Assign a value to an object property, swallowing a write failure.
+ *
+ * Some native errors expose `message`/`stack` as getter-only accessors — a fetch
+ * timeout rejects with a `DOMException` whose `message` has no setter — so a direct
+ * write throws a TypeError in strict mode. Redaction is best-effort defense in depth:
+ * skipping an unwritable field is always better than throwing out of the error
+ * handler, and those native fields (an abort's "operation was aborted" message)
+ * never carry the token anyway.
+ *
+ * @param {object} obj   - Target object.
+ * @param {string} key   - Property to set.
+ * @param {*}      value - Value to assign.
+ */
+function safeAssign( obj, key, value ) {
+	try {
+		obj[ key ] = value;
+	} catch {
+		// Getter-only / non-writable property; leave it as-is.
+	}
+}
+
+/**
+ * Redact the token from an error and every error in its `cause` chain, in place.
+ *
+ * A re-thrown error keeps its caught cause for debugging, but that cause (and any
+ * nested cause) can carry the token in its `message`, `stack`, or a custom string
+ * field a client stashed a URL in (e.g. `requestUrl`), or a primitive string
+ * `cause`. Walking the whole chain
+ * scrubs each one so logging the full error never leaks the secret. Native fetch
+ * never populates such fields, so the own-property pass is belt-and-suspenders for
+ * a non-native HTTP client; it stays at string fields rather than recursing into
+ * arbitrary nested objects.
+ *
+ * @param {*}      error - The caught error (or any thrown value).
+ * @param {string} token - The token value to strip from messages, stacks, and string fields.
+ */
+function sanitizeErrorChain( error, token ) {
+	const seen = new Set();
+	let current = error;
+	while ( current && typeof current === 'object' && ! seen.has( current ) ) {
+		seen.add( current );
+		// message and stack are non-enumerable own props, so handle them explicitly.
+		// safeAssign because a native error (e.g. a DOMException abort) may expose them
+		// as getter-only — a direct write would throw a TypeError out of this handler.
+		if ( typeof current.message === 'string' ) {
+			safeAssign( current, 'message', redactToken( current.message, token ) );
+		}
+		if ( typeof current.stack === 'string' ) {
+			safeAssign( current, 'stack', redactToken( current.stack, token ) );
+		}
+		// Then scrub any enumerable string field (an object `cause` is non-enumerable
+		// and is walked on the next iteration; a string `cause` is handled just below).
+		for ( const key of Object.keys( current ) ) {
+			if ( typeof current[ key ] === 'string' ) {
+				safeAssign( current, key, redactToken( current[ key ], token ) );
+			}
+		}
+		// `cause` is non-enumerable on Error, so the pass above can't reach a primitive
+		// string cause (e.g. `new Error( m, { cause: someUrl } )`); it would otherwise
+		// survive untouched and leak the token. Redact it in place before advancing; an
+		// object cause is scrubbed when the loop walks into it next.
+		if ( typeof current.cause === 'string' ) {
+			safeAssign( current, 'cause', redactToken( current.cause, token ) );
+		}
+		current = current.cause;
+	}
 }
 
 /** Post metrics to CodeVitals. */
 async function postToCodeVitals( resultsPath, config ) {
-	// Read results file
+	// Everything from here until the live POST is local data-integrity work: a missing
+	// or malformed results file, no usable measurements, or a bad config all fail as a
+	// ValidationError (exit 2, never suppressible by --allow-codevitals-failure). Only a
+	// failure during the live POST below is a transport error (exit 1, suppressible).
 	if ( ! fs.existsSync( resultsPath ) ) {
-		throw new Error( `Results file not found: ${ resultsPath }` );
+		throw new ValidationError( `Results file not found: ${ resultsPath }` );
 	}
 
-	const results = JSON.parse( fs.readFileSync( resultsPath, 'utf8' ) );
+	let results;
+	try {
+		results = JSON.parse( fs.readFileSync( resultsPath, 'utf8' ) );
+	} catch {
+		throw new ValidationError( `Results file is not valid JSON: ${ resultsPath }` );
+	}
+	if ( ! results.measurements || typeof results.measurements !== 'object' ) {
+		throw new ValidationError( 'Results file has no measurements object' );
+	}
 
-	// Extract metrics from results
+	// Extract and sanity-check metrics from results
 	const metrics = {};
+	let validationFailed = false;
 
 	// Process only scenarios marked for CodeVitals posting
 	for ( const scenario of SCENARIOS ) {
@@ -45,19 +234,46 @@ async function postToCodeVitals( resultsPath, config ) {
 		}
 
 		const measurement = results.measurements[ scenario.key ];
-		if ( ! measurement || measurement.error ) {
+		// A missing/errored measurement, or one with no summary object, has no usable
+		// data — skip it (rather than crash on summary.median). If skipping leaves
+		// nothing to post, the no-metrics guard below fails closed.
+		if ( ! measurement || measurement.error || ! measurement.summary ) {
 			console.warn( `Warning: No measurement data for ${ scenario.name }` );
 			continue;
 		}
 
-		const scenarioMetrics = extractScenarioMetrics( scenario, measurement.summary );
-
-		Object.assign( metrics, scenarioMetrics );
+		for ( const entry of extractScenarioMetrics( scenario, measurement.summary ) ) {
+			const check = checkSanityRange( entry.type, entry.value );
+			if ( ! check.ok ) {
+				console.error(
+					`✗ Sanity check failed for "${ entry.key }" (${ entry.type }): ${ check.reason }. Skipping this metric.`
+				);
+				validationFailed = true;
+				continue;
+			}
+			// CodeVitals keys a trend by metric name and appends, so two scenarios writing
+			// the same key would silently clobber one with the other and post the survivor
+			// (validationFailed:false) as if it were the intended series. A duplicate key is
+			// a scenario-config bug, not bad runtime data, so fail closed (exit 2) before
+			// anything posts rather than coin-flip which value lands in the trend.
+			if ( Object.prototype.hasOwnProperty.call( metrics, entry.key ) ) {
+				throw new ValidationError(
+					`Duplicate CodeVitals metric key "${ entry.key }"; two scenarios must not post the same key`
+				);
+			}
+			metrics[ entry.key ] = entry.value;
+		}
 	}
 
-	// Validate we have metrics to post
+	// Nothing valid left to post.
 	if ( Object.keys( metrics ).length === 0 ) {
-		throw new Error( 'No metrics to post - check scenario configuration and measurement results' );
+		if ( validationFailed ) {
+			// Every metric was skipped by a sanity check (failures already logged).
+			return { posted: false, validationFailed };
+		}
+		throw new ValidationError(
+			'No metrics to post - check scenario configuration and measurement results'
+		);
 	}
 
 	// Prepare CodeVitals payload
@@ -69,13 +285,38 @@ async function postToCodeVitals( resultsPath, config ) {
 		branch: results.git?.branch || config.gitBranch || 'trunk',
 	};
 
+	// Dry run: show exactly what would be posted, then stop short of the POST.
+	if ( config.dryRun ) {
+		console.log( '— DRY RUN — building payload only, not posting to CodeVitals —' );
+		console.log( JSON.stringify( payload, null, 2 ) );
+		return { posted: false, validationFailed, payload };
+	}
+
 	console.log( 'Posting metrics to CodeVitals...' );
 	console.log( 'Metrics:', JSON.stringify( metrics, null, 2 ) );
 
-	// Token passed as query param per CodeVitals API spec (don't log URL)
-	const url = `${ config.codeVitalsUrl }/api/log?token=${ config.codeVitalsToken }`;
-	const TIMEOUT_MS = 30000; // 30 second timeout
+	// Build the URL before attaching the token, so a malformed base host can't
+	// throw a parse error that echoes the secret. The token lives only on the URL
+	// object (via searchParams), never in a string we build or log.
+	let url;
+	try {
+		url = new URL( '/api/log', config.codeVitalsUrl );
+	} catch {
+		throw new ValidationError( 'Invalid CodeVitals URL; check the CODEVITALS_URL setting' );
+	}
+	// Only http(s) can carry the POST. A file:/ftp:/etc. base parses cleanly but would
+	// fail (or worse, mis-target) at fetch as a generic exit-1 transport error that
+	// --allow-codevitals-failure could suppress. A wrong scheme is a local CODEVITALS_URL
+	// misconfiguration, not a network outage, so fail closed (exit 2) before the token is
+	// attached or fetch runs. Only the protocol is named, never the token-free URL.
+	if ( url.protocol !== 'http:' && url.protocol !== 'https:' ) {
+		throw new ValidationError(
+			`CodeVitals URL must use http(s); got "${ url.protocol }". Check the CODEVITALS_URL setting`
+		);
+	}
+	url.searchParams.set( 'token', config.codeVitalsToken );
 
+	const TIMEOUT_MS = 30000; // 30 second timeout
 	const controller = new AbortController();
 	const timeoutId = setTimeout( () => controller.abort(), TIMEOUT_MS );
 
@@ -105,15 +346,26 @@ async function postToCodeVitals( resultsPath, config ) {
 			} );
 		}
 		console.log( '✓ Metrics posted successfully to CodeVitals' );
-		return data;
+		return { posted: true, data, validationFailed };
 	} catch ( error ) {
 		clearTimeout( timeoutId );
+		// Scrub the token from the caught error and its whole cause chain before we
+		// log it or re-use it as `cause`. fetch/undici can echo the token-bearing
+		// URL in a message or stack, so a caller that logs err.cause or
+		// util.inspect( err ) would otherwise re-expose the secret. This is defense
+		// in depth: safe URL construction already keeps it out of parse errors.
+		sanitizeErrorChain( error, config.codeVitalsToken );
 		const message =
 			error.name === 'AbortError'
 				? `CodeVitals request timed out after ${ TIMEOUT_MS / 1000 }s`
 				: error.message;
 		console.error( '✗ Failed to post metrics to CodeVitals:', message );
-		throw new Error( message, { cause: error } );
+		// If a metric already failed local validation, the build must fail with the
+		// data-integrity code even though the transport ALSO failed here — bad local
+		// data is never suppressible by --allow-codevitals-failure. A pure transport
+		// failure (no prior validation failure) stays a plain Error (exit 1).
+		const ErrorClass = validationFailed ? ValidationError : Error;
+		throw new ErrorClass( message, { cause: error } );
 	}
 }
 
@@ -121,23 +373,29 @@ async function main() {
 	console.log( 'CodeVitals Integration' );
 	console.log( '=====================\n' );
 
+	const dryRun = process.argv.includes( '--dry-run' );
+
 	// Configuration from environment
 	const config = {
-		codeVitalsUrl: process.env.CODEVITALS_URL || 'https://www.codevitals.run',
+		// Default to the apex host. www.codevitals.run 301-redirects the API, and on a
+		// 301 fetch retries a POST as a GET with no body, so the metric never lands.
+		codeVitalsUrl: process.env.CODEVITALS_URL || 'https://codevitals.run',
 		codeVitalsToken: process.env.CODEVITALS_TOKEN,
 		gitHash: process.env.GIT_COMMIT,
 		gitBranch: process.env.GIT_BRANCH || 'trunk',
 		resultsPath:
 			process.env.RESULTS_PATH || path.join( import.meta.dirname, '../results/lcp-results.json' ),
+		dryRun,
 	};
 
-	// Validate required config
-	if ( ! config.codeVitalsToken ) {
+	// A live post needs a token; a dry run does not, so CI can smoke-test it.
+	if ( ! dryRun && ! config.codeVitalsToken ) {
 		console.error( 'ERROR: CODEVITALS_TOKEN environment variable is required' );
 		process.exit( 1 );
 	}
 
 	console.log( 'Configuration:' );
+	console.log( `  Mode: ${ dryRun ? 'DRY RUN (no POST)' : 'live post' }` );
 	console.log( `  CodeVitals URL: ${ config.codeVitalsUrl }` );
 	console.log( `  Results Path: ${ config.resultsPath }` );
 	console.log( `  Git Hash: ${ config.gitHash || 'unknown' }` );
@@ -145,16 +403,63 @@ async function main() {
 	console.log( '' );
 
 	try {
-		await postToCodeVitals( config.resultsPath, config );
-		console.log( '\n✓ All done!' );
+		const result = await postToCodeVitals( config.resultsPath, config );
+		if ( result.validationFailed ) {
+			console.error(
+				'\n✗ One or more metrics failed sanity checks (see above). Any valid metrics were still processed.'
+			);
+			// Exit with the data-integrity code so the runner always fails the build
+			// here, even under --allow-codevitals-failure (that flag is for outages).
+			process.exit( VALIDATION_FAILED_EXIT_CODE );
+		}
+		console.log( dryRun ? '\n✓ Dry run complete!' : '\n✓ All done!' );
 		process.exit( 0 );
 	} catch ( error ) {
 		console.error( '\n✗ Failed:', error.message );
-		process.exit( 1 );
+		// A scenario misconfiguration (ValidationError) is local bad data and must
+		// always fail the build, exactly like an out-of-range metric — not a
+		// suppressible exit 1. exitCodeForError encodes that split.
+		process.exit( exitCodeForError( error ) );
 	}
 }
 
-// Run if called directly
-main();
+/**
+ * Whether this module was run directly (`node post-to-codevitals.js`) rather than imported.
+ *
+ * Compares real filesystem paths so spaces, non-ASCII characters, and symlinks
+ * (e.g. /tmp → /private/tmp) cannot make the match fail and silently skip main().
+ * A raw ``file://${ process.argv[1] }`` comparison breaks on all three: Node
+ * percent-encodes and symlink-resolves import.meta.url but argv[1] stays raw.
+ *
+ * @param {string|undefined} moduleFilename - Absolute path of this module (import.meta.filename).
+ * @param {string|undefined} invokedPath    - The path Node was invoked with (process.argv[1]).
+ * @return {boolean} True when both resolve to the same file.
+ */
+function isDirectInvocation( moduleFilename, invokedPath ) {
+	if ( ! moduleFilename || ! invokedPath ) {
+		return false;
+	}
+	try {
+		return fs.realpathSync( moduleFilename ) === fs.realpathSync( invokedPath );
+	} catch {
+		// realpathSync throws when invokedPath does not exist (e.g. `node --test`).
+		return false;
+	}
+}
 
-export { postToCodeVitals };
+// Run only when executed directly, not when imported (e.g. by the unit tests),
+// so importing the pure helpers does not trigger main()'s env checks or exits.
+if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
+	main();
+}
+
+export {
+	postToCodeVitals,
+	checkSanityRange,
+	extractScenarioMetrics,
+	exitCodeForError,
+	isDirectInvocation,
+	redactToken,
+	ValidationError,
+	VALIDATION_FAILED_EXIT_CODE,
+};

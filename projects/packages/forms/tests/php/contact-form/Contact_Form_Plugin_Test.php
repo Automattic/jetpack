@@ -264,6 +264,38 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that gutenblock_render_field_file does not wrap its output in an extra element.
+	 *
+	 * The file field must render like every other gutenblock_render_field_* method - the
+	 * bare shortcode, with no extra wrapper. An extra wrapper demotes the field's own
+	 * `.grunion-field-wrap` shell from being the contact form's direct flex child, which
+	 * makes the field collapse to its content width on the front end instead of filling
+	 * the form.
+	 */
+	public function test_gutenblock_render_field_file_has_no_extra_wrapper() {
+		$block = array(
+			'blockName'   => 'jetpack/field-file',
+			'attrs'       => array(),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/label',
+					'attrs'     => array( 'label' => 'Upload a file' ),
+				),
+				array(
+					'blockName' => 'jetpack/dropzone',
+					'attrs'     => array(),
+				),
+			),
+		);
+
+		$output = Contact_Form_Plugin::gutenblock_render_field_file( array(), '', new WP_Block( $block ) );
+
+		$this->assertStringNotContainsString( '<div class="jetpack-form-file-field">', $output );
+		$this->assertStringStartsWith( '[contact-field', trim( $output ) );
+		$this->assertStringContainsString( 'type="file"', $output );
+	}
+
+	/**
 	 * Tests the render output of gutenblock_render_field_radio.
 	 */
 	public function test_gutenblock_gutenblock_render_field_radio() {

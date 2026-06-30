@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+GeoChart: Load the required Google Charts package explicitly.
