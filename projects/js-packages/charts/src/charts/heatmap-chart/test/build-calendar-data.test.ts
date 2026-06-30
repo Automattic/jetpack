@@ -43,4 +43,46 @@ describe( 'buildCalendarHeatmapData', () => {
 		const labels = data.map( c => c.label ).filter( Boolean );
 		expect( labels ).toContain( 'Feb' );
 	} );
+
+	test( 'filters out entries with unparseable or missing dates', () => {
+		const mixed: DataPointDate[] = [
+			{ dateString: '2024-01-01', value: 3 },
+			{ dateString: 'not-a-date', value: 9 },
+			{ date: new Date( NaN ), value: 7 },
+			{ value: 1 }, // neither date nor dateString
+		];
+		const { data } = buildCalendarHeatmapData( mixed );
+		expect( data ).toHaveLength( 1 ); // only Jan 1 survives -> one week column
+		const values = data.flatMap( column => column.data.map( cell => cell.value ) );
+		expect( values ).toContain( 3 );
+		expect( values ).not.toContain( 9 );
+		expect( values ).not.toContain( 7 );
+	} );
+
+	test( 'returns empty result when every entry has an invalid date', () => {
+		const allInvalid: DataPointDate[] = [
+			{ dateString: 'nope', value: 1 },
+			{ date: new Date( NaN ), value: 2 },
+		];
+		expect( buildCalendarHeatmapData( allInvalid ) ).toEqual( { data: [], rowLabels: [] } );
+	} );
+
+	test( 'duplicate days keep the last value (no aggregation)', () => {
+		const dupes: DataPointDate[] = [
+			{ dateString: '2024-01-01', value: 3 },
+			{ dateString: '2024-01-01', value: 8 },
+		];
+		const { data } = buildCalendarHeatmapData( dupes, { weekStartsOn: 1 } );
+		expect( data[ 0 ].data[ 0 ].value ).toBe( 8 ); // last write wins, not summed to 11
+	} );
+
+	test( 'Sunday week start shifts rows and labels (Sun/Tue/Thu)', () => {
+		// gridStart snaps to Sun Dec 31 2023, so Mon Jan 1 lands in row 1.
+		const { data, rowLabels } = buildCalendarHeatmapData( series, { weekStartsOn: 0 } );
+		expect( data[ 0 ].data[ 1 ].value ).toBe( 3 ); // Mon Jan 1
+		expect( data[ 0 ].data[ 3 ].value ).toBe( 5 ); // Wed Jan 3
+		expect( rowLabels[ 0 ] ).toBe( 'Sun' );
+		expect( rowLabels[ 2 ] ).toBe( 'Tue' );
+		expect( rowLabels[ 4 ] ).toBe( 'Thu' );
+	} );
 } );
