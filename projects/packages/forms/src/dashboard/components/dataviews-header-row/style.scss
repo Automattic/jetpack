@@ -25,7 +25,7 @@
 	// Jetpack Forms specific additions (match Inbox).
 	position: sticky;
 	left: 0;
-	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+	background: var(--wpds-color-background-surface-neutral-strong, var(--wpds-color-bg-surface-neutral-strong, #fff));
 	justify-content: space-between;
 	gap: 8px;
 	flex-direction: column;
@@ -52,14 +52,14 @@
 	button[role="tab"] {
 		margin: 0;
 		padding: 12px 0;
-		color: var(--wpds-color-fg-interactive-neutral);
+		color: var(--wpds-color-foreground-interactive-neutral, var(--wpds-color-fg-interactive-neutral));
 
 		&[data-active="true"] {
-			color: var(--wpds-color-fg-interactive-neutral-active);
+			color: var(--wpds-color-foreground-interactive-neutral-active, var(--wpds-color-fg-interactive-neutral-active));
 		}
 
 		&:hover:not([data-active="true"]) {
-			color: var(--wpds-color-fg-interactive-neutral-active);
+			color: var(--wpds-color-foreground-interactive-neutral-active, var(--wpds-color-fg-interactive-neutral-active));
 		}
 	}
 }

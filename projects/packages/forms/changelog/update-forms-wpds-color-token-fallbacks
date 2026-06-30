@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms dashboard: reference the new WPDS color token names (--wpds-color-background-*/--wpds-color-foreground-*) with a fallback to the current names, so theming keeps working both before and after the @wordpress/theme 0.16 token rename.
