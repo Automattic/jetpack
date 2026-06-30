@@ -3,6 +3,7 @@ import type {
 	Action,
 	ConnectionErrorData,
 	ConnectionErrorObject,
+	ConnectionErrorProps,
 	RestoreConnection,
 } from './types';
 
@@ -13,26 +14,15 @@ import type {
 export const DEFAULT_RECONNECT_TRACKING_EVENT =
 	'jetpack_connection_error_notice_reconnect_cta_click';
 
-export interface ResolveActionsOptions {
-	/** Named action handlers, keyed by the `error_data.action` / `secondary_action` value. */
-	actionHandlers?: Record< string, ( error: ConnectionErrorObject ) => void >;
-	/** Optional analytics callback fired when an action is clicked. */
-	trackingCallback?: ( ( event: string, data: object ) => void ) | null;
-	/** Escape hatch: fully replace the resolved actions for a given error. */
-	customActions?:
-		| ( (
-				error: ConnectionErrorObject,
-				helpers: { restoreConnection: RestoreConnection; isRestoringConnection: boolean }
-		  ) => Action[] )
-		| null;
+/**
+ * The resolver's options: the public `ConnectionErrorProps` plus the two fields
+ * the hook supplies internally (`restoreConnection` / `isRestoringConnection`).
+ */
+export interface ResolveActionsOptions extends ConnectionErrorProps {
 	/** Initiates a connection restore (the default fallback action). */
 	restoreConnection: RestoreConnection;
 	/** Whether a connection restore is currently in progress. */
 	isRestoringConnection: boolean;
-	/** Tracking event fired when the fallback "Restore Connection" CTA is clicked. */
-	reconnectTrackingEvent?: string;
-	/** Navigation handler for URL-based actions. Defaults to setting `window.location.href`. */
-	navigate?: ( url: string ) => void;
 }
 
 /**
