@@ -131,13 +131,18 @@ class PostSchemaNodeTest extends TestCase {
 	}
 
 	/**
-	 * FAQPage answers are built from a `core/details` block's inner blocks only,
-	 * so the question (the `<summary>`) is not duplicated into the answer text.
+	 * The FAQ question is read from the saved `<summary>` markup, and the answer
+	 * from the inner blocks only — so the question is not duplicated into the
+	 * answer text. The fixture uses realistic, editor-saved markup: the summary
+	 * lives only in `<summary>` (a `source: "rich-text"` attribute), never in the
+	 * `<!-- wp:details -->` comment, which is what `parse_blocks()` actually
+	 * returns. Baking the summary into the comment instead would mask the bug
+	 * this builder has to handle (see JETPACK-1793).
 	 */
-	public function test_faq_answer_excludes_the_question() {
+	public function test_faq_question_from_summary_and_answer_excludes_it() {
 		\Jetpack_SEO_Posts::$schema_type = 'faq';
 
-		$content  = '<!-- wp:details {"summary":"What is SEO?"} -->';
+		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
 		$content .= '<!-- wp:paragraph --><p>Search engine optimization.</p><!-- /wp:paragraph -->';
 		$content .= '</details><!-- /wp:details -->';
@@ -153,6 +158,46 @@ class PostSchemaNodeTest extends TestCase {
 		$this->assertSame( 'What is SEO?', $item['name'] );
 		$this->assertSame( 'Search engine optimization.', $item['acceptedAnswer']['text'] );
 		$this->assertStringNotContainsString( 'What is SEO?', $item['acceptedAnswer']['text'] );
+	}
+
+	/**
+	 * The summary is rich text, so it may carry inline formatting and HTML
+	 * entities. The question must be reduced to decoded plain text, and multiple
+	 * Details blocks each become their own Question entity in document order.
+	 */
+	public function test_faq_summary_is_decoded_plain_text_across_multiple_blocks() {
+		\Jetpack_SEO_Posts::$schema_type = 'faq';
+
+		$content  = '<!-- wp:details -->';
+		$content .= '<details class="wp-block-details"><summary>What is <strong>SEO</strong> &amp; AEO?</summary>';
+		$content .= '<!-- wp:paragraph --><p>Optimization for search and answer engines.</p><!-- /wp:paragraph -->';
+		$content .= '</details><!-- /wp:details -->';
+		$content .= '<!-- wp:details -->';
+		$content .= '<details class="wp-block-details"><summary>Is it free?</summary>';
+		$content .= '<!-- wp:paragraph --><p>Yes.</p><!-- /wp:paragraph -->';
+		$content .= '</details><!-- /wp:details -->';
+
+		$node = Post_Schema_Node::build( $this->make_post( array( 'post_content' => $content ) ) );
+
+		$this->assertIsArray( $node );
+		$this->assertCount( 2, $node['mainEntity'] );
+		$this->assertSame( 'What is SEO & AEO?', $node['mainEntity'][0]['name'] );
+		$this->assertSame( 'Is it free?', $node['mainEntity'][1]['name'] );
+	}
+
+	/**
+	 * A Details block whose `<summary>` is empty produces no question, so it is
+	 * skipped rather than emitting a Question with a blank name.
+	 */
+	public function test_faq_skips_details_block_with_empty_summary() {
+		\Jetpack_SEO_Posts::$schema_type = 'faq';
+
+		$content  = '<!-- wp:details -->';
+		$content .= '<details class="wp-block-details"><summary></summary>';
+		$content .= '<!-- wp:paragraph --><p>An answer with no question.</p><!-- /wp:paragraph -->';
+		$content .= '</details><!-- /wp:details -->';
+
+		$this->assertNull( Post_Schema_Node::build( $this->make_post( array( 'post_content' => $content ) ) ) );
 	}
 
 	/**

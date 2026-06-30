@@ -128,7 +128,7 @@ class Post_Schema_Node {
 			if ( 'core/details' !== ( $block['blockName'] ?? '' ) ) {
 				continue;
 			}
-			$question = trim( (string) ( $block['attrs']['summary'] ?? '' ) );
+			$question = self::question_from_details_block( $block );
 
 			// Render only the inner blocks for the answer. Rendering the whole
 			// core/details block would re-include the <summary> (the question).
@@ -136,7 +136,7 @@ class Post_Schema_Node {
 			foreach ( $block['innerBlocks'] ?? array() as $inner_block ) {
 				$answer_html .= render_block( $inner_block );
 			}
-			$answer = trim( wp_strip_all_tags( $answer_html ) );
+			$answer = self::to_plain_text( $answer_html );
 			if ( '' === $question || '' === $answer ) {
 				continue;
 			}
@@ -158,5 +158,38 @@ class Post_Schema_Node {
 			'@type'      => 'FAQPage',
 			'mainEntity' => $items,
 		);
+	}
+
+	/**
+	 * Extract the question text from a `core/details` block's `<summary>`.
+	 *
+	 * The Details block declares `summary` as a `source: "rich-text"` attribute,
+	 * so the value is saved in the `<summary>…</summary>` markup, not in the
+	 * `<!-- wp:details … -->` comment. `parse_blocks()` does not resolve
+	 * source-based attributes (it only returns what's written into the comment),
+	 * so `$block['attrs']['summary']` is always empty for real, editor-saved
+	 * blocks. The summary text does survive in the block's inner HTML, so we read
+	 * it from there instead.
+	 *
+	 * @param array $block A parsed `core/details` block.
+	 * @return string The plain-text question, or '' when the block has no summary.
+	 */
+	private static function question_from_details_block( array $block ) {
+		$inner_html = (string) ( $block['innerHTML'] ?? '' );
+		if ( ! preg_match( '#<summary\b[^>]*>(.*?)</summary>#is', $inner_html, $matches ) ) {
+			return '';
+		}
+		return self::to_plain_text( $matches[1] );
+	}
+
+	/**
+	 * Reduce a fragment of post HTML to the plain text used for a schema value:
+	 * tags stripped, entities decoded, surrounding whitespace trimmed.
+	 *
+	 * @param string $html HTML fragment.
+	 * @return string
+	 */
+	private static function to_plain_text( $html ) {
+		return trim( html_entity_decode( wp_strip_all_tags( (string) $html ), ENT_QUOTES, 'UTF-8' ) );
 	}
 }

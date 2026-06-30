@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+FAQ schema: read the question from the saved `<summary>` markup so FAQPage JSON-LD emits from real editor-saved Details blocks.
