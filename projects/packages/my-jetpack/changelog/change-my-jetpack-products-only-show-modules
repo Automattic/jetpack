@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack: show the modules list (read-only, no activate/deactivate toggle) in the products-only interface instead of hiding it.
