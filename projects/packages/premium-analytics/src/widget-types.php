@@ -3,8 +3,8 @@
  * Widget Types: registry hydration plus the availability filter hooks.
  *
  * Copies the wp-build manifest (`jpa_get_registered_widget_modules()`) into the
- * in-memory Widget_Type_Registry at `init`, so the plugin queries the registry
- * instead of re-parsing the manifest.
+ * in-memory Widget_Type_Registry, so the plugin queries the registry instead
+ * of re-parsing the manifest.
  *
  * This is the problem-agnostic "core" layer (a PA-namespaced copy of the
  * experimental Gutenberg API): it exposes the hooks a consumer uses to scope
@@ -79,10 +79,20 @@ function register_widget_types() {
 	}
 }
 
-if ( did_action( 'init' ) ) {
-	register_widget_types();
-} else {
-	add_action( 'init', __NAMESPACE__ . '\\register_widget_types' );
+/**
+ * Hydrates the registry now if init has run, otherwise on init.
+ *
+ * Call after the availability filters are hooked, so the registry-time
+ * filter applies during hydration.
+ *
+ * @return void
+ */
+function bootstrap_widget_types() {
+	if ( did_action( 'init' ) ) {
+		register_widget_types();
+	} else {
+		add_action( 'init', __NAMESPACE__ . '\\register_widget_types' );
+	}
 }
 
 /**
