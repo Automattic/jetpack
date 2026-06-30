@@ -1,17 +1,30 @@
 /**
- * Like `top-posts` (the canonical non-time-series Stats widget), this story
- * exercises the presentational `EmailsLeaderboard` with fixtures rather than the
- * data-connected widget through `WidgetDashboardWithWidget`. `registerReportMocks`
- * only mocks the WC `analytics/reports` endpoints, not the Stats proxy that
- * `useStatsEmailSummary` hits, so a dashboard story would render only the empty
- * state. Fixtures let the populated states render without a backend.
+ * The close-up stories exercise the presentational `EmailsLeaderboard` with
+ * fixtures so each state (populated, loading, empty, error) renders without a
+ * backend. `WidgetDashboardWithWidget` mounts the real dashboard with the
+ * data-connected widget; `registerReportMocks` supplies a mock
+ * `stats/emails/summary` response so it renders populated in product context.
  */
 /**
  * Internal dependencies
  */
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { withChartTheme } from '../../../packages/widgets-toolkit/src/stories/with-chart-theme';
-import { EmailsLeaderboard, type EmailRow } from '../render';
+import {
+	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
+	widgetDashboardWithWidgetArgTypes,
+	type WidgetDashboardWithWidgetControls,
+} from '../../stories/widget-dashboard-with-widget';
+import EmailsRender, { EmailsLeaderboard, type EmailRow } from '../render';
+import widgetDefinition from '../widget';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentType } from 'react';
+
+registerReportMocks();
+
+const EMAILS_RENDER_MODULE = 'storybook/emails';
 
 const meta: Meta< typeof EmailsLeaderboard > = {
 	title: 'Packages/Premium Analytics/Widgets/Emails',
@@ -21,7 +34,7 @@ const meta: Meta< typeof EmailsLeaderboard > = {
 		docs: {
 			description: {
 				component:
-					'The "Emails" widget. Lists the most recently sent emails with a selector to switch between open rate and click rate, rendered as a leaderboard. This is the presentational layer — it takes already-fetched rows via props and handles the loading, error, empty, and populated states. The data-connected widget (render.tsx default export) wraps this in WidgetRoot and feeds it the useStatsEmailSummary hook.',
+					'The "Emails" widget. Lists the most recently sent emails with a selector to switch between open rate and click rate, rendered as a leaderboard. The close-up stories drive the presentational `EmailsLeaderboard` with fixtures; `WidgetDashboardWithWidget` mounts the real dashboard with the data-connected widget (fed by a mocked `stats/emails/summary` response).',
 			},
 		},
 	},
@@ -186,4 +199,33 @@ export const SizeLarge: Story = {
 		rows: mockRows,
 	},
 	decorators: [ createSizeDecorator( '576px' ) ],
+};
+
+/**
+ * Renders the data-connected widget through the shared dashboard harness, so it
+ * appears exactly as it does in product (full-bleed framing, sizing, edit mode).
+ *
+ * @param props - The dashboard story controls.
+ * @return The widget mounted inside the real `WidgetDashboard`.
+ */
+function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
+	return (
+		<WidgetDashboardWithWidgetStory
+			{ ...props }
+			widgetType={ widgetDefinition }
+			renderModule={ EMAILS_RENDER_MODULE }
+			renderComponent={ EmailsRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { max: 6 } }
+		/>
+	);
+}
+
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => <EmailsDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+	},
 };

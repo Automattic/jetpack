@@ -61,8 +61,9 @@ export type EmailRow = {
  */
 function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): LeaderboardChartData {
 	const rateOf = ( row: EmailRow ) => ( metric === 'opens' ? row.opensRate : row.clicksRate );
-	// `1` guards against division by zero when every rate is 0.
-	const maxRate = Math.max( ...rows.map( rateOf ), 1 );
+	// Shares are relative to the real maximum so the top row always fills, even
+	// when every rate is below 1%. The `> 0` check guards the divide-by-zero.
+	const maxRate = Math.max( ...rows.map( rateOf ), 0 );
 
 	return rows.map( row => {
 		const rate = rateOf( row );
@@ -77,7 +78,7 @@ function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): Leaderbo
 			// `LeaderboardChart` formats the value as a percentage, so the rate
 			// is expressed as a fraction here.
 			currentValue: rate / 100,
-			currentShare: ( rate / maxRate ) * 100,
+			currentShare: maxRate > 0 ? ( rate / maxRate ) * 100 : 0,
 			previousValue: 0,
 			previousShare: 0,
 			delta: 0,
@@ -92,9 +93,15 @@ type EmailsLeaderboardProps = {
 	 */
 	rows?: EmailRow[];
 	/**
-	 * When `true`, a loading overlay is rendered instead of data.
+	 * When `true` and there are no rows yet, the full loading overlay is shown.
 	 */
 	isLoading?: boolean;
+	/**
+	 * When `true`, an in-place chart spinner is shown over existing rows during a
+	 * background refetch. Unlike `isLoading`, this stays `true` while stale data
+	 * is on screen.
+	 */
+	isFetching?: boolean;
 	/**
 	 * When `true`, an error message is rendered in place of the chart.
 	 */
@@ -120,6 +127,7 @@ type EmailsLeaderboardProps = {
 export const EmailsLeaderboard = ( {
 	rows = [],
 	isLoading = false,
+	isFetching = false,
 	isError = false,
 	initialMetric = 'opens',
 }: EmailsLeaderboardProps ) => {
@@ -146,7 +154,7 @@ export const EmailsLeaderboard = ( {
 			<LeaderboardChart
 				className={ styles.leaderboard }
 				data={ data }
-				loading={ isLoading }
+				loading={ isFetching }
 				withComparison={ false }
 				withOverlayLabel
 				showLegend={ false }
@@ -197,6 +205,8 @@ export const EmailsLeaderboard = ( {
 function toEmailRows( report: StatsEmailSummary | undefined, max: number ): EmailRow[] {
 	const items = report?.data?.[ 0 ]?.items ?? [];
 
+	// `quantity` already bounds the request; this slice is the Stats-widget
+	// `max = 0 → all rows` convention and a guard against an over-long response.
 	return items.slice( 0, max > 0 ? max : undefined ).map( ( item, index ) => ( {
 		id: item.id ?? index,
 		label: String( item.label ?? '' ),
@@ -222,11 +232,18 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 	// range to 10, so request its maximum when the widget wants "all rows".
 	const quantity = max > 0 ? Math.min( max, 30 ) : 30;
 
-	const { data, isLoading, isError } = useStatsEmailSummary( { quantity } );
+	const { data, isLoading, isFetching, isError } = useStatsEmailSummary( { quantity } );
 
 	const rows = useMemo( () => toEmailRows( data, max ), [ data, max ] );
 
-	return <EmailsLeaderboard rows={ rows } isLoading={ isLoading } isError={ isError } />;
+	return (
+		<EmailsLeaderboard
+			rows={ rows }
+			isLoading={ isLoading }
+			isFetching={ isFetching }
+			isError={ isError }
+		/>
+	);
 }
 
 /**
