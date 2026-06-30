@@ -100,38 +100,19 @@ class Cookie_Banner_Content_Test extends TestCase {
 	}
 
 	/**
-	 * Legacy top-level cookie_policy_url values still render the Cookie Policy link.
+	 * A top-level cookie_policy_url is ignored; only links.cookie_policy_url is read.
 	 */
-	public function test_legacy_cookie_policy_url_renders_cookie_policy_link() {
+	public function test_top_level_cookie_policy_url_is_ignored() {
 		$this->set_privacy_policy_page();
 
 		$html = $this->render_template(
 			array(
-				'cookie_policy_url' => 'https://example.com/legacy-cookies/',
-			)
-		);
-
-		$this->assertStringContainsString( 'Cookie Policy', $html );
-		$this->assertStringContainsString( 'href="https://example.com/legacy-cookies/"', $html );
-	}
-
-	/**
-	 * Explicit empty links.cookie_policy_url values hide the Cookie Policy link.
-	 */
-	public function test_empty_links_cookie_policy_url_overrides_legacy_cookie_policy_url() {
-		$this->set_privacy_policy_page();
-
-		$html = $this->render_template(
-			array(
-				'links'             => array(
-					'cookie_policy_url' => '',
-				),
-				'cookie_policy_url' => 'https://example.com/legacy-cookies/',
+				'cookie_policy_url' => 'https://example.com/top-level-cookies/',
 			)
 		);
 
 		$this->assertStringNotContainsString( 'Cookie Policy', $html );
-		$this->assertStringNotContainsString( 'href="https://example.com/legacy-cookies/"', $html );
+		$this->assertStringNotContainsString( 'href="https://example.com/top-level-cookies/"', $html );
 		$this->assert_string_matches_pattern( '/Privacy Policy\\s*<\\/a>\\s*\\./', $html );
 	}
 }

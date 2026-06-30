@@ -972,11 +972,6 @@ class Cookie_Consent {
 	private static function normalize_links( $config, $defaults ) {
 		$links = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
 
-		$has_cookie_policy_url = (
-			array_key_exists( 'cookie_policy_url', $links )
-			&& is_scalar( $links['cookie_policy_url'] )
-		);
-
 		foreach ( $links as $key => $value ) {
 			if ( ! is_string( $key ) ) {
 				continue;
@@ -985,15 +980,6 @@ class Cookie_Consent {
 			if ( is_scalar( $value ) ) {
 				$defaults[ $key ] = trim( (string) $value );
 			}
-		}
-
-		// Back-compat: keep honoring legacy top-level cookie_policy_url values.
-		if (
-			! $has_cookie_policy_url
-			&& array_key_exists( 'cookie_policy_url', $config )
-			&& is_scalar( $config['cookie_policy_url'] )
-		) {
-			$defaults['cookie_policy_url'] = trim( (string) $config['cookie_policy_url'] );
 		}
 
 		return $defaults;
@@ -1108,7 +1094,9 @@ class Cookie_Consent {
 			'ccpa_regions'        => $geo_config['ccpa_regions'],
 			'show_on_error'       => $geo_config['show_on_error'],
 			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
-			'cookie_policy_url'   => '',
+			'links'               => array(
+				'cookie_policy_url' => '', // Empty hides the Cookie Policy link; set it to link a consumer's own cookie policy page.
+			),
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
 			'log'                 => array(
 				'policy_version' => '1',
@@ -1188,18 +1176,10 @@ class Cookie_Consent {
 		$geo['ccpa_regions']        = is_array( $geo['ccpa_regions'] ) ? self::normalize_ccpa_regions( $geo['ccpa_regions'] ) : $default_config['geo']['ccpa_regions'];
 		$geo['show_on_error']       = (bool) $geo['show_on_error'];
 
-		$links = self::normalize_links(
-			$config,
-			array(
-				'cookie_policy_url' => $default_config['cookie_policy_url'],
-			)
-		);
-
-		$config['geo']               = $geo;
-		$config['links']             = $links;
-		$config['cookie_policy_url'] = $links['cookie_policy_url'];
-		$config['event_prefix']      = $config['event_prefix'] ?? $default_config['event_prefix'];
-		$config['copy']              = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
+		$config['geo']          = $geo;
+		$config['links']        = self::normalize_links( $config, $default_config['links'] );
+		$config['event_prefix'] = $config['event_prefix'] ?? $default_config['event_prefix'];
+		$config['copy']         = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
 
 		return $config;
 	}
@@ -1293,7 +1273,7 @@ class Cookie_Consent {
 		$force_preview = isset( $_GET['preview_cookie_consent'] ) && '1' === $_GET['preview_cookie_consent'];
 
 		$frontend_config = array(
-			'cookiePolicyUrl' => $config['cookie_policy_url'],
+			'cookiePolicyUrl' => $config['links']['cookie_policy_url'],
 			'gdprHonorsGpc'   => $config['gdpr_honors_gpc'] ?? true,
 			'forcePreview'    => $force_preview,
 			'geo'             => array(

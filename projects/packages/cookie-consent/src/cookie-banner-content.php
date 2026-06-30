@@ -10,16 +10,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // $config is supplied by Cookie_Consent::render_banner() when this template is included.
-$config                = isset( $config ) && is_array( $config ) ? $config : array( 'cookie_policy_url' => '' );
-$copy                  = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
-$links                 = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
-$has_cookie_policy_url = array_key_exists( 'cookie_policy_url', $links ) && is_scalar( $links['cookie_policy_url'] );
-$cookie_policy_url     = $has_cookie_policy_url
+$config            = isset( $config ) && is_array( $config ) ? $config : array();
+$copy              = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
+$links             = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
+$cookie_policy_url = array_key_exists( 'cookie_policy_url', $links ) && is_scalar( $links['cookie_policy_url'] )
 	? trim( (string) $links['cookie_policy_url'] )
 	: '';
-if ( ! $has_cookie_policy_url && isset( $config['cookie_policy_url'] ) && is_scalar( $config['cookie_policy_url'] ) ) {
-	$cookie_policy_url = trim( (string) $config['cookie_policy_url'] );
-}
 ?>
 
 <div

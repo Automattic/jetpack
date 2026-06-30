@@ -93,9 +93,6 @@ add_filter(
 );
 ```
 
-The legacy top-level `cookie_policy_url` config key is still honored and mapped
-to `links.cookie_policy_url` for backwards compatibility.
-
 User-facing banner, preferences modal, footer link, CCPA page, and CCPA snackbar strings are configured through the `copy` group. Package defaults are translated with the `jetpack-cookie-consent` text domain. Consumers that override strings should translate those overrides before returning them from the filter, using their own text domain:
 
 ```php

@@ -47,7 +47,6 @@ class Config_Test extends TestCase {
 		$config = $this->get_config();
 
 		$this->assertSame( '', $config['links']['cookie_policy_url'] );
-		$this->assertSame( '', $config['cookie_policy_url'] );
 	}
 
 	/**
@@ -65,43 +64,22 @@ class Config_Test extends TestCase {
 		$config = $this->get_config();
 
 		$this->assertSame( 'https://example.com/cookies/', $config['links']['cookie_policy_url'] );
-		$this->assertSame( 'https://example.com/cookies/', $config['cookie_policy_url'] );
 	}
 
 	/**
-	 * Legacy top-level cookie_policy_url values map to links.cookie_policy_url.
+	 * Whitespace around configured links.cookie_policy_url values is trimmed.
 	 */
-	public function test_legacy_cookie_policy_url_maps_to_links_cookie_policy_url() {
+	public function test_links_cookie_policy_url_is_trimmed() {
 		add_filter(
 			'jetpack_cookie_consent_config',
 			function ( $config ) {
-				$config['cookie_policy_url'] = 'https://example.com/legacy-cookies/';
+				$config['links']['cookie_policy_url'] = '  https://example.com/cookies/  ';
 				return $config;
 			}
 		);
 
 		$config = $this->get_config();
 
-		$this->assertSame( 'https://example.com/legacy-cookies/', $config['links']['cookie_policy_url'] );
-		$this->assertSame( 'https://example.com/legacy-cookies/', $config['cookie_policy_url'] );
-	}
-
-	/**
-	 * Explicit empty links.cookie_policy_url values override legacy top-level values.
-	 */
-	public function test_empty_links_cookie_policy_url_overrides_legacy_cookie_policy_url() {
-		add_filter(
-			'jetpack_cookie_consent_config',
-			function ( $config ) {
-				$config['links']['cookie_policy_url'] = '';
-				$config['cookie_policy_url']          = 'https://example.com/legacy-cookies/';
-				return $config;
-			}
-		);
-
-		$config = $this->get_config();
-
-		$this->assertSame( '', $config['links']['cookie_policy_url'] );
-		$this->assertSame( '', $config['cookie_policy_url'] );
+		$this->assertSame( 'https://example.com/cookies/', $config['links']['cookie_policy_url'] );
 	}
 }
