@@ -94,9 +94,9 @@ class WPCOM_JSON_API_Serializable_Error_Test extends WP_UnitTestCase {
 	 */
 	public static function provide_non_numeric_scalars(): array {
 		return array(
-			'plain string'   => array( 'not a number' ),
-			'mixed string'   => array( 'error-42' ),
-			'bool true'      => array( true ),
+			'plain string' => array( 'not a number' ),
+			'mixed string' => array( 'error-42' ),
+			'bool true'    => array( true ),
 		);
 	}
 
