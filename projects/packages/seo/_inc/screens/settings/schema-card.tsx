@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Card, CollapsibleCard } from '@wordpress/ui';
 import './style.scss';
-import type { FC } from 'react';
 
 /**
  * Site-level Schema settings section.
@@ -18,17 +17,19 @@ import type { FC } from 'react';
  *
  * @return The Schema settings card.
  */
-const SchemaCard: FC = () => (
-	<CollapsibleCard.Root defaultOpen={ false }>
-		<CollapsibleCard.Header>
-			<Card.Title>{ __( 'Schema', 'jetpack-seo' ) }</Card.Title>
-		</CollapsibleCard.Header>
-		<CollapsibleCard.Content>
-			<p className="jetpack-seo-settings__schema-placeholder">
-				{ __( 'Site-level schema controls will appear here.', 'jetpack-seo' ) }
-			</p>
-		</CollapsibleCard.Content>
-	</CollapsibleCard.Root>
-);
+function SchemaCard() {
+	return (
+		<CollapsibleCard.Root defaultOpen={ false }>
+			<CollapsibleCard.Header>
+				<Card.Title>{ __( 'Schema', 'jetpack-seo' ) }</Card.Title>
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>
+				<p className="jetpack-seo-settings__schema-placeholder">
+					{ __( 'Site-level schema controls will appear here.', 'jetpack-seo' ) }
+				</p>
+			</CollapsibleCard.Content>
+		</CollapsibleCard.Root>
+	);
+}
 
 export default SchemaCard;
