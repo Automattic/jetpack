@@ -1,44 +1,8 @@
+import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { border, published } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard } from '@wordpress/ui';
 import { ctaKind, type EnrichedTask } from './model.ts';
-
-// WPDS doesn't ship a "todo / dashed-circle" or "check-in-circle" icon yet (only
-// `check`), so we inline both. Sized at 24px to line up with each other;
-// `currentColor` lets us tone them via CSS.
-const taskActiveIcon = (
-	<svg
-		className="ai-launchpad-tailored-list__icon is-todo"
-		width={ 24 }
-		height={ 24 }
-		viewBox="0 0 24 24"
-		fill="none"
-		xmlns="http://www.w3.org/2000/svg"
-		aria-hidden="true"
-	>
-		<circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2.5" />
-	</svg>
-);
-
-const taskDoneIcon = (
-	<svg
-		className="ai-launchpad-tailored-list__icon is-done"
-		width={ 24 }
-		height={ 24 }
-		viewBox="0 0 24 24"
-		fill="none"
-		xmlns="http://www.w3.org/2000/svg"
-		aria-hidden="true"
-	>
-		<circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
-		<path
-			d="M8 12.5L11 15.5L16 9.5"
-			stroke="currentColor"
-			strokeWidth="1.5"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-		/>
-	</svg>
-);
 
 interface Props {
 	task: EnrichedTask;
@@ -132,7 +96,9 @@ export function TaskCard( {
 			<Card.Root className="ai-launchpad-tailored-list__card is-completed">
 				<Card.Header>
 					<span className="ai-launchpad-tailored-list__header-inner">
-						{ taskDoneIcon }
+						<span className="ai-launchpad-tailored-list__icon is-done">
+							<Icon icon={ published } size={ 24 } />
+						</span>
 						<span className="ai-launchpad-tailored-list__title is-done">{ task.title }</span>
 					</span>
 				</Card.Header>
@@ -144,7 +110,9 @@ export function TaskCard( {
 		<CollapsibleCard.Root className="ai-launchpad-tailored-list__card" defaultOpen={ defaultOpen }>
 			<CollapsibleCard.Header>
 				<span className="ai-launchpad-tailored-list__header-inner">
-					{ taskActiveIcon }
+					<span className="ai-launchpad-tailored-list__icon is-todo">
+						<Icon icon={ border } size={ 24 } />
+					</span>
 					<span className="ai-launchpad-tailored-list__title">{ task.title }</span>
 				</span>
 			</CollapsibleCard.Header>

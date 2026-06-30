@@ -94,17 +94,22 @@
 		}
 	}
 
-	// The inline SVG task icons use `currentColor`, so tone them via `color`.
+	// The WPDS task icons fill from `currentColor`, so tone them via `color`.
 	&__icon {
 		flex-shrink: 0;
+		display: inline-flex;
 
-		// Incomplete tasks: a light dashed ring.
+		svg {
+			fill: currentColor;
+		}
+
+		// Incomplete tasks: a light dashed ring (the `border` icon).
 		&.is-todo {
 			color: #c3c4c7;
 		}
 
-		// Completed tasks: a check-in-circle, greyed to sit alongside the
-		// struck-through title.
+		// Completed tasks: a check-in-circle (the `published` icon), greyed to sit
+		// alongside the struck-through title.
 		&.is-done {
 			color: #757575;
 		}
