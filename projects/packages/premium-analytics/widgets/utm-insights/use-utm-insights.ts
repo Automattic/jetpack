@@ -69,9 +69,7 @@ export default function useUtmInsights( {
 	const comparisonReport = comparison.data as StatsNormalizedReport< StatsUtmItem > | undefined;
 	const rawItems = primaryReport?.data?.[ 0 ]?.items ?? [];
 	const comparisonItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const comparisonByLabel = new Map(
-		comparisonItems.map( item => [ getLabel( item ), item ] )
-	);
+	const comparisonByLabel = new Map( comparisonItems.map( item => [ getLabel( item ), item ] ) );
 	const items = rawItems
 		.map( item => {
 			const label = getLabel( item );

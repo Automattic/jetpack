@@ -86,7 +86,10 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 		[ data, selectedUtmLabel ]
 	);
 	const isDrillDown = !! selectedUtm?.children?.length;
-	const activeData = isDrillDown ? selectedUtm.children ?? [] : data;
+	const activeData = useMemo(
+		() => ( isDrillDown ? selectedUtm?.children ?? [] : data ),
+		[ data, isDrillDown, selectedUtm ]
+	);
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...activeData.map( d => d.value ), 1 );
