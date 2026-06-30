@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
-import clsx from 'clsx';
+import { Tabs, Text } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -12,7 +11,7 @@ import { ComparativeLineChart, MetricWithComparison, WidgetLoadingOverlay } from
 import styles from './metric-tabs-chart.module.scss';
 import type { ComparativeLineChartSeries } from '../../components/chart-comparative-line/types';
 import type { DataFormat } from '../../types';
-import type { MouseEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * A single time-series point for a metric.
@@ -40,6 +39,8 @@ export interface MetricTab {
 	previous?: MetricTabDatum[];
 	/** Per-metric format override (e.g. percentage); falls back to the chart-level `dataFormat`. */
 	dataFormat?: DataFormat;
+	/** Optional explanatory text, surfaced as the card's tooltip. */
+	description?: string;
 }
 
 export interface MetricTabsChartProps {
@@ -55,7 +56,7 @@ export interface MetricTabsChartProps {
 	controls?: ReactNode;
 	/** Show the loading overlay over the chart. */
 	loading?: boolean;
-	/** Accessible label for the metric card group. */
+	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
 }
 
@@ -103,11 +104,11 @@ function buildSeries( metric: MetricTab ): ComparativeLineChartSeries[] {
 
 /**
  * A metric switcher over a comparative line chart: a row of selectable cards
- * (each a headline value + period-over-period delta), and below them the
- * selected metric's current line with its previous-period overlay. Reused by
- * Stats time-series widgets (subscribers chart, traffic chart) — the consumer
- * supplies the per-metric data and headline values; this owns selection, series
- * building, and layout.
+ * (each a headline value + period-over-period delta) built on `@wordpress/ui`
+ * `Tabs`, and below them the selected metric's current line with its
+ * previous-period overlay. Reused by Stats time-series widgets (subscribers
+ * chart, traffic chart) — the consumer supplies the per-metric data and headline
+ * values; this owns selection, series building, and layout.
  *
  * @param {MetricTabsChartProps} props - The component props.
  * @return The metric tabs + chart.
@@ -126,9 +127,8 @@ export function MetricTabsChart( {
 	// Fall back to the first metric if the selected one is no longer present.
 	const activeMetric = metrics.find( metric => metric.key === selectedKey ) ?? metrics[ 0 ];
 
-	const handleSelect = useCallback(
-		( event: MouseEvent< HTMLButtonElement > ) => {
-			const key = event.currentTarget.dataset.metricKey as string;
+	const handleValueChange = useCallback(
+		( key: string ) => {
 			setSelectedKey( key );
 			onMetricChange?.( key );
 		},
@@ -141,21 +141,21 @@ export function MetricTabsChart( {
 	);
 
 	return (
-		<Stack direction="column" className={ styles.root }>
-			<Stack direction="row" justify="space-between" align="flex-start" className={ styles.header }>
-				<div className={ styles.tabs } role="group" aria-label={ groupLabel }>
-					{ metrics.map( metric => {
-						const isSelected = metric.key === activeMetric?.key;
-
-						return (
-							<button
-								type="button"
-								key={ metric.key }
-								data-metric-key={ metric.key }
-								aria-pressed={ isSelected }
-								onClick={ handleSelect }
-								className={ clsx( styles.tab, isSelected && styles.tabSelected ) }
-							>
+		<Tabs.Root
+			value={ activeMetric?.key }
+			onValueChange={ handleValueChange }
+			className={ styles.root }
+		>
+			<div className={ styles.header }>
+				<Tabs.List variant="minimal" className={ styles.tabs } aria-label={ groupLabel }>
+					{ metrics.map( metric => (
+						<Tabs.Tab
+							key={ metric.key }
+							value={ metric.key }
+							className={ styles.tab }
+							title={ metric.description }
+						>
+							<span className={ styles.tabContent }>
 								<Text className={ styles.tabLabel }>{ metric.label }</Text>
 								<MetricWithComparison
 									value={ metric.value }
@@ -164,12 +164,12 @@ export function MetricTabsChart( {
 									direction="row"
 									align="flex-end"
 								/>
-							</button>
-						);
-					} ) }
-				</div>
+							</span>
+						</Tabs.Tab>
+					) ) }
+				</Tabs.List>
 				{ controls }
-			</Stack>
+			</div>
 			<div className={ styles.chart }>
 				{ activeMetric && (
 					<ComparativeLineChart
@@ -179,6 +179,6 @@ export function MetricTabsChart( {
 				) }
 				{ loading && <WidgetLoadingOverlay /> }
 			</div>
-		</Stack>
+		</Tabs.Root>
 	);
 }

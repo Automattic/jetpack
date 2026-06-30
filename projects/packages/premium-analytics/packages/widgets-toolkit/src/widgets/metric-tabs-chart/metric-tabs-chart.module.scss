@@ -7,11 +7,15 @@
 }
 
 .header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-start;
 	flex-shrink: 0;
 	gap: var(--wpds-dimension-gap-md, 16px);
 }
 
-/* One selectable card per metric. */
+/* The metric tab list: a row of cards that wrap (not a text tab bar). */
 .tabs {
 	display: flex;
 	flex-wrap: wrap;
@@ -20,25 +24,20 @@
 }
 
 .tab {
+	height: auto;
+}
+
+.tab[aria-selected="true"] {
+	background-color: var(--wpds-color-bg-surface-neutral-strong);
+}
+
+/* Each tab's content: label stacked over the value + delta, left-aligned. */
+.tabContent {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-xs, 4px);
 	align-items: flex-start;
-	padding: var(--wpds-dimension-padding-sm, 8px) var(--wpds-dimension-padding-md, 12px);
-	border: 1px solid transparent;
-	border-radius: var(--wpds-border-radius-md, 4px);
-	background: none;
-	cursor: pointer;
 	text-align: left;
-}
-
-.tab:hover {
-	background: var(--wpds-color-bg-surface-neutral-strong);
-}
-
-.tabSelected {
-	border-color: var(--wp-admin-theme-color);
-	background: var(--wpds-color-bg-surface-neutral-strong);
 }
 
 .tabLabel {
