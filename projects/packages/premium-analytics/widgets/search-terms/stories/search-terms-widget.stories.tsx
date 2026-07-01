@@ -16,6 +16,15 @@ registerReportMocks();
 
 const SEARCH_TERMS_RENDER_MODULE = 'storybook/search-terms';
 
+// Pick only the fields that StoryWidgetMetadata accepts; the attribute schema
+// and example arrays are typed differently in WidgetType and cause a type error.
+const storyWidgetType = {
+	name: widgetDefinition.name,
+	title: widgetDefinition.title,
+	icon: widgetDefinition.icon,
+	presentation: 'full-bleed' as const,
+};
+
 interface SearchTermsStoryControls {
 	withComparison: boolean;
 }
@@ -30,12 +39,7 @@ function renderSearchTerms( { withComparison }: SearchTermsStoryControls ) {
 }
 
 function SearchTermsDashboardRender( props: WidgetRenderProps< unknown > ) {
-	return (
-		<SearchTermsRender
-			{ ...( props as ComponentProps< typeof SearchTermsRender > ) }
-			showTitle={ false }
-		/>
-	);
+	return <SearchTermsRender { ...( props as ComponentProps< typeof SearchTermsRender > ) } />;
 }
 
 const withWidgetCanvas: Decorator = Story => (
@@ -88,7 +92,7 @@ function SearchTermsDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ storyWidgetType }
 			renderModule={ SEARCH_TERMS_RENDER_MODULE }
 			renderComponent={
 				SearchTermsDashboardRender as ComponentType< WidgetRenderProps< unknown > >
