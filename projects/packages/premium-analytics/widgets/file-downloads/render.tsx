@@ -12,7 +12,7 @@ import {
  */
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { Icon, Link, Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
@@ -26,7 +26,7 @@ import {
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { FileDownloadsAttributes } from './widget';
+import widgetDefinition, { type FileDownloadsAttributes } from './widget';
 /**
  * Types
  */
@@ -40,6 +40,15 @@ type FileDownloadsWidgetProps = WidgetRenderProps< FileDownloadsRenderAttributes
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 const FILE_DOWNLOADS_UNAVAILABLE_STATUS = 404;
+
+function FileDownloadsHeaderTitle() {
+	return (
+		<span className={ styles.headerTitle }>
+			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
+			<span>{ __( 'File downloads', 'jetpack-premium-analytics' ) }</span>
+		</span>
+	);
+}
 
 function toStatusNumber( value: unknown ): number | null {
 	if ( typeof value === 'number' ) {
@@ -309,7 +318,7 @@ function FileDownloadsInner( { max, showTitle }: { max: number; showTitle: boole
 	const header = showTitle ? (
 		<Stack direction="row" align="center" className={ styles.widgetHeader }>
 			<Text variant="heading-md" render={ <h3 /> }>
-				{ __( 'File downloads', 'jetpack-premium-analytics' ) }
+				<FileDownloadsHeaderTitle />
 			</Text>
 		</Stack>
 	) : null;
