@@ -392,11 +392,11 @@ $jp-breakpoint-mobile: 782px;
 	// `@wordpress/boot` seeds its outer shell from the active wp-admin color
 	// scheme. In dark admin schemes, that makes the canvas behind the white,
 	// rounded stage dark and visibly flashes during route/page transitions.
-	// Jetpack wp-admin pages use a white full-page shell, so keep boot's
-	// canvas aligned with the page surface and opt the stage out of boot's
+	// Keep boot's canvas aligned with Jetpack's light page surface so the
+	// rounded white stage remains visible, and opt the stage out of boot's
 	// cross-route View Transition snapshots.
 	.boot-layout {
-		background: var(--jp-white, #fff);
+		background: var(--jp-gray-0, #f6f7f7);
 	}
 
 	.boot-layout__stage,
