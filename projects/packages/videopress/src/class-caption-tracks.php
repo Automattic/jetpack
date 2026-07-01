@@ -333,6 +333,40 @@ class Caption_Tracks {
 	}
 
 	/**
+	 * Delete a caption track.
+	 *
+	 * @param WP_REST_Request $request Incoming request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function rest_delete_track( WP_REST_Request $request ) {
+		$track_id = absint( $request->get_param( 'id' ) );
+		$existing = $track_id ? get_post( $track_id ) : null;
+
+		if ( ! $existing || self::POST_TYPE !== $existing->post_type ) {
+			return new WP_Error(
+				'videopress_caption_track_not_found',
+				esc_html__( 'Caption track not found.', 'jetpack-videopress-pkg' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( ! wp_delete_post( $track_id, true ) ) {
+			return new WP_Error(
+				'videopress_caption_track_delete_failed',
+				esc_html__( 'Unable to delete the caption track.', 'jetpack-videopress-pkg' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'deleted' => true,
+				'id'      => $track_id,
+			)
+		);
+	}
+
+	/**
 	 * Prepare a caption track REST response.
 	 *
 	 * @param WP_Post $post Caption track post.

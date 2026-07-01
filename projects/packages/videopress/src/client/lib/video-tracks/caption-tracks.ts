@@ -70,6 +70,19 @@ export function saveCaptionTrack( track: CaptionTrack ): Promise< SavedCaptionTr
 }
 
 /**
+ * Delete a caption track.
+ *
+ * @param id - Caption track ID.
+ * @return Deletion result.
+ */
+export function deleteCaptionTrack( id: number ): Promise< { deleted: boolean; id: number } > {
+	return apiFetch( {
+		method: 'DELETE',
+		path: `${ REST_PATH }/${ id }`,
+	} );
+}
+
+/**
  * Convert a source text track to caption track source metadata.
  *
  * @param track - Source track.

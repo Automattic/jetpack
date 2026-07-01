@@ -85,10 +85,17 @@ class Rest_Controller {
 			self::REST_NAMESPACE,
 			'/caption-tracks/(?P<id>\d+)',
 			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => array( Caption_Tracks::class, 'rest_save_track' ),
-				'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),
-				'args'                => array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( Caption_Tracks::class, 'rest_save_track' ),
+					'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( Caption_Tracks::class, 'rest_delete_track' ),
+					'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),
+				),
+				'args' => array(
 					'id' => array(
 						'description' => __( 'Caption track ID.', 'jetpack-videopress-pkg' ),
 						'type'        => 'integer',
