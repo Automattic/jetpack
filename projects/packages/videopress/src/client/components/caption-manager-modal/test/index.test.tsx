@@ -518,8 +518,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getAllByText( 'Edit' )[ 0 ] );
 
 		expect( screen.getByText( /Loading subtitle content/ ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Save Draft' } ) ).toBeDisabled();
-		expect( screen.getByRole( 'button', { name: 'Publish' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Update' } ) ).toBeDisabled();
 
 		await act( async () => {
 			resolveContent( 'WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nLoaded text' );
@@ -529,8 +528,7 @@ describe( 'CaptionManagerModal', () => {
 		await waitFor( () =>
 			expect( screen.queryByText( /Loading subtitle content/ ) ).not.toBeInTheDocument()
 		);
-		expect( screen.getByRole( 'button', { name: 'Save Draft' } ) ).toBeEnabled();
-		expect( screen.getByRole( 'button', { name: 'Publish' } ) ).toBeEnabled();
+		expect( screen.getByRole( 'button', { name: 'Update' } ) ).toBeEnabled();
 		expect( screen.getByLabelText( 'Cue text' ) ).toHaveValue( 'Loaded text' );
 	} );
 
@@ -1148,7 +1146,7 @@ describe( 'CaptionManagerModal', () => {
 			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracks[ 1 ], 'abc123' )
 		);
 		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( 'en' );
-		await user.click( screen.getByText( 'Publish' ) );
+		await user.click( screen.getByText( 'Update' ) );
 
 		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
 		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
@@ -1224,7 +1222,7 @@ describe( 'CaptionManagerModal', () => {
 		);
 		await user.clear( screen.getByLabelText( 'Cue text' ) );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Updated cue.' );
-		await user.click( screen.getByText( 'Publish' ) );
+		await user.click( screen.getByText( 'Update' ) );
 
 		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
 		expect( uploadTrackForGuid ).toHaveBeenCalledWith(
