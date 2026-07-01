@@ -23,7 +23,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './top-posts.module.css';
+import styles from './style.module.css';
 import type { TopPostsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 

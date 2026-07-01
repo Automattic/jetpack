@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: normalize CSS-module file naming, convert the lone SCSS to CSS, and align hello-world imports and dependencies.
