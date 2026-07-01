@@ -405,8 +405,14 @@
 
 .videopress-caption-manager__video {
 	position: relative;
-	inline-size: 100%;
-	aspect-ratio: 16 / 9;
+
+	// Size to the video's own aspect ratio (set via --preview-ar from the video
+	// dimensions), bounded so portrait videos are height-capped and landscape
+	// videos are width-capped — neither overflows or gets pillarboxed.
+	aspect-ratio: var(--preview-ar, 16 / 9);
+	inline-size: min(100%, calc(60vh * (var(--preview-ar, 16 / 9))));
+	max-block-size: 60vh;
+	margin-inline: auto;
 	background: #1d2327;
 	border-radius: 4px;
 	overflow: hidden;

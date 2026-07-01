@@ -20,6 +20,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import { fetchVideoItem } from '../../lib/fetch-video-item';
 import {
 	CAPTION_FORMAT_MIME_TYPES,
 	deleteTrackForGuid,
@@ -72,7 +73,7 @@ import type {
 	UploadTrackDataProps,
 	VideoTextTrack,
 } from '../../lib/video-tracks/types';
-import type { ChangeEvent, KeyboardEvent, ReactElement } from 'react';
+import type { ChangeEvent, CSSProperties, KeyboardEvent, ReactElement } from 'react';
 
 registerCaptionCueBlock();
 
@@ -438,6 +439,7 @@ export default function CaptionManagerModal( {
 	const [ deletingTrackKey, setDeletingTrackKey ] = useState< string | null >( null );
 	const [ downloadingTrackKey, setDownloadingTrackKey ] = useState< string | null >( null );
 	const [ currentTime, setCurrentTime ] = useState( 0 );
+	const [ previewAspectRatio, setPreviewAspectRatio ] = useState< string | undefined >();
 	const [ isPreviewPlaying, setIsPreviewPlaying ] = useState( false );
 	const [ pauseWhileTyping, setPauseWhileTyping ] = useState( true );
 	const [ isTextImportOpen, setIsTextImportOpen ] = useState( false );
@@ -568,6 +570,29 @@ export default function CaptionManagerModal( {
 			setManagedTracks( tracks );
 		}
 	}, [ isOpen ] );
+
+	// Size the preview to the video's own aspect ratio so portrait videos aren't
+	// pillarboxed in a landscape frame. Falls back to 16:9 until it resolves.
+	useEffect( () => {
+		if ( ! isOpen || ! guid ) {
+			return;
+		}
+
+		let isMounted = true;
+		fetchVideoItem( { guid, isPrivate: false } )
+			.then( info => {
+				const width = Number( info?.width );
+				const height = Number( info?.height );
+				if ( isMounted && width > 0 && height > 0 ) {
+					setPreviewAspectRatio( `${ width } / ${ height }` );
+				}
+			} )
+			.catch( error => debug( 'fetch video dimensions error', error ) );
+
+		return () => {
+			isMounted = false;
+		};
+	}, [ guid, isOpen ] );
 
 	useEffect( () => {
 		if ( ! isOpen || ! guid ) {
@@ -1610,7 +1635,14 @@ export default function CaptionManagerModal( {
 
 	const previewPanel = (
 		<aside className="videopress-caption-manager__preview">
-			<div className="videopress-caption-manager__video">
+			<div
+				className="videopress-caption-manager__video"
+				style={
+					previewAspectRatio
+						? ( { '--preview-ar': previewAspectRatio } as CSSProperties )
+						: undefined
+				}
+			>
 				{ previewElement }
 				{ activeCue && (
 					<div className="videopress-caption-manager__caption-overlay">{ activeCue.text }</div>

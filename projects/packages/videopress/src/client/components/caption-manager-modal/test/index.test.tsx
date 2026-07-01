@@ -201,6 +201,10 @@ jest.mock( '@wordpress/icons', () => ( {
 
 jest.mock( 'debug', () => () => jest.fn() );
 
+jest.mock( '../../../lib/fetch-video-item', () => ( {
+	fetchVideoItem: jest.fn( () => Promise.resolve( { width: 1920, height: 1080 } ) ),
+} ) );
+
 jest.mock( '../../../lib/video-tracks', () => ( {
 	TRACK_KIND_OPTIONS: [ 'subtitles', 'captions', 'descriptions', 'chapters', 'metadata' ],
 	CAPTION_FORMAT_MIME_TYPES: {
