@@ -4,10 +4,10 @@ import type { CompleteChartTheme } from '../../types';
  * Default theme configuration
  */
 const defaultTheme: CompleteChartTheme = {
-	// Read raw as an SVG presentation attribute in several components (chart
-	// background, glyph outline, gradient stops), where CSS var() cannot resolve.
-	// Kept literal; it already equals the WPDS `bg-surface-neutral-strong` value.
-	backgroundColor: '#FFFFFF',
+	// Applied as an SVG presentation attribute in several components (chart
+	// background, glyph outline, gradient stops), where CSS var() cannot resolve —
+	// consumers resolve it to a concrete value before use.
+	backgroundColor: 'var(--wpds-color-bg-surface-neutral-strong, #fff)',
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
 	// White label text sits on top of arbitrary series colors, so it has no WPDS
 	// content-foreground equivalent and stays hardcoded (tokenization outlier).

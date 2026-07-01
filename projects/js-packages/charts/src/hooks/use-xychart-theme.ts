@@ -21,6 +21,7 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 		return buildChartTheme( {
 			...theme,
 			colors: [ ...seriesColors, ...( theme.colors ?? [] ) ],
+			backgroundColor: resolveColor( theme.backgroundColor ),
 			gridStyles: theme.gridStyles && {
 				...theme.gridStyles,
 				stroke: resolveColor( theme.gridStyles.stroke ),
