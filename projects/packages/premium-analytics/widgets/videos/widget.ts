@@ -11,9 +11,11 @@ import { video } from '@wordpress/icons';
  */
 export type VideosAttributes = {
 	/**
-	 * Maximum number of videos to show. Maps to the WPCOM stats `max` param.
+	 * Maximum number of videos to show; `0` means all. Maps to the WPCOM stats
+	 * `max` param. Integer form controls can serialize the value to a string, so
+	 * the render entry accepts either.
 	 */
-	max?: number;
+	max?: string | number;
 };
 
 /**

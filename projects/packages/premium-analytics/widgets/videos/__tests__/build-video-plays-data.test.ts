@@ -8,18 +8,20 @@ type VideoSeed = {
 	id?: string | number;
 	label?: string;
 	plays: number;
+	link?: string | null;
 };
 
 /**
  * Builds a single normalized video-plays item from a compact seed.
  *
  * @param seed       - The video seed.
- * @param seed.id    - Stable post ID (omitted when testing label fallback).
+ * @param seed.id    - Stable post ID (omitted when testing the link/label fallback).
  * @param seed.label - Display label (defaults to `Video`).
  * @param seed.plays - Play count for the period.
+ * @param seed.link  - Video URL (used as the alignment key when `id` is absent).
  * @return A normalized video-plays item.
  */
-function makeVideo( { id, label = 'Video', plays }: VideoSeed ): StatsVideoPlaysItem {
+function makeVideo( { id, label = 'Video', plays, link = null }: VideoSeed ): StatsVideoPlaysItem {
 	return {
 		id,
 		label,
@@ -27,7 +29,7 @@ function makeVideo( { id, label = 'Video', plays }: VideoSeed ): StatsVideoPlays
 		impressions: 0,
 		watch_time: 0,
 		retention_rate: 0,
-		link: null,
+		link,
 		actions: [],
 		children: null,
 	};
@@ -142,5 +144,23 @@ describe( 'buildVideoPlaysData', () => {
 			previousValue: 100,
 			delta: 50,
 		} );
+	} );
+
+	it( 'keys untitled, id-less videos by link so they do not collapse', () => {
+		const result = buildVideoPlaysData(
+			makeReport( [
+				{ label: '', plays: 20, link: 'https://example.com/a/' },
+				{ label: '', plays: 12, link: 'https://example.com/b/' },
+			] ),
+			undefined
+		);
+
+		expect( result ).toHaveLength( 2 );
+		expect( result.map( video => video.id ) ).toEqual( [
+			'https://example.com/a/',
+			'https://example.com/b/',
+		] );
+		// Both share the "Untitled video" label but remain distinct rows.
+		expect( result.every( video => video.label === 'Untitled video' ) ).toBe( true );
 	} );
 } );

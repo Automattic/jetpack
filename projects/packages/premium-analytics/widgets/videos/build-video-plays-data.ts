@@ -23,14 +23,19 @@ function getVideoLabel( video: StatsVideoPlaysItem ) {
 
 /**
  * Resolve the key used to align a video across the primary and comparison
- * periods. Prefers the stable post ID and falls back to the display label when
- * the API omits one.
+ * periods, and to identify its leaderboard row. Prefers the stable post ID,
+ * then the video URL, and only falls back to the display label when the API
+ * omits both — so multiple untitled videos don't collapse onto one key.
  *
  * @param video - The video-plays item.
  * @return The alignment key.
  */
 function getVideoKey( video: StatsVideoPlaysItem ) {
-	return video.id != null ? String( video.id ) : getVideoLabel( video );
+	if ( video.id != null ) {
+		return String( video.id );
+	}
+
+	return video.link || getVideoLabel( video );
 }
 
 /**

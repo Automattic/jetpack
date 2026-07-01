@@ -632,7 +632,9 @@ function playsFactorForWindow( endDate: string | undefined ): number {
 		return 1;
 	}
 
-	const end = new Date( `${ endDate }T00:00:00` ).getTime();
+	// Parse as UTC so the scaling (and therefore the mocked counts) stay stable
+	// regardless of the machine's timezone.
+	const end = new Date( `${ endDate }T00:00:00Z` ).getTime();
 
 	if ( Number.isNaN( end ) ) {
 		return 1;
