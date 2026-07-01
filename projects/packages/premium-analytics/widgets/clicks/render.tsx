@@ -321,16 +321,11 @@ function ClicksInner( { max }: { max: number } ) {
 	const isDrillDown = !! selectedClick?.children?.length;
 	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
 
-	return (
-		<>
-			{ isDrillDown && (
-				<Stack
-					direction="row"
-					justify="space-between"
-					align="center"
-					className={ styles.widgetHeader }
-				>
-					<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
+	const header = (
+		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
+			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
+				{ isDrillDown ? (
+					<>
 						<Button
 							variant="unstyled"
 							onClick={ clearSelectedClick }
@@ -339,10 +334,18 @@ function ClicksInner( { max }: { max: number } ) {
 							{ __( 'Clicks', 'jetpack-premium-analytics' ) }
 						</Button>
 						<Text className={ styles.breadcrumbSeparator }>/</Text>
-						<Text>{ selectedClick?.label }</Text>
-					</Stack>
-				</Stack>
-			) }
+						<Text className={ styles.breadcrumbCurrent }>{ selectedClick?.label }</Text>
+					</>
+				) : (
+					<Text>{ __( 'Clicks', 'jetpack-premium-analytics' ) }</Text>
+				) }
+			</Stack>
+		</Stack>
+	);
+
+	return (
+		<>
+			{ header }
 			<div className={ styles.content }>
 				<ClicksLeaderboard
 					rows={ activeRows }
