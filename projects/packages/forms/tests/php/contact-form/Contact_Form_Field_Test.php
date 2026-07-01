@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -242,5 +243,84 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		// Should default to implicit (hidden field)
 		$this->assertStringContainsString( 'type=\'hidden\'', $html );
 		$this->assertStringContainsString( 'consent-implicit', $html );
+	}
+
+	/**
+	 * A grouped field whose legend label is fully hidden via block visibility
+	 * must render no <legend>, but must move the label onto the <fieldset> as an
+	 * aria-label so the group keeps an accessible name. Covers both fieldset code
+	 * paths — radio/checkbox-multiple/image-select (via $fieldset_id) and rating
+	 * (via sprintf). See FORMS-694.
+	 *
+	 * @dataProvider data_grouped_field_types
+	 *
+	 * @param string $type       The grouped field type.
+	 * @param array  $extra_atts Extra attributes needed to make the field renderable.
+	 */
+	#[DataProvider( 'data_grouped_field_types' )]
+	public function test_render_grouped_field_hidden_legend_keeps_accessible_name( $type, $extra_atts ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'type'                         => $type,
+					'id'                           => 'test_group',
+					'label'                        => 'Pick one',
+					'labelhiddenbyblockvisibility' => true,
+				),
+				$extra_atts
+			)
+		);
+
+		$html = $field->render();
+
+		// The legend is dropped (no visible group label)...
+		$this->assertStringNotContainsString( '<legend', $html );
+		// ...but the accessible name is preserved on the fieldset.
+		$this->assertStringContainsString( "aria-label='Pick one'", $html );
+	}
+
+	/**
+	 * When the legend label is NOT hidden, the grouped field renders a normal
+	 * <legend> and does not add the aria-label fallback to the fieldset. Guards
+	 * the render-level behavior above against regressions. See FORMS-694.
+	 *
+	 * @dataProvider data_grouped_field_types
+	 *
+	 * @param string $type       The grouped field type.
+	 * @param array  $extra_atts Extra attributes needed to make the field renderable.
+	 */
+	#[DataProvider( 'data_grouped_field_types' )]
+	public function test_render_grouped_field_visible_legend_has_no_aria_label( $type, $extra_atts ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'type'  => $type,
+					'id'    => 'test_group',
+					'label' => 'Pick one',
+				),
+				$extra_atts
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( '<legend', $html );
+		$this->assertStringContainsString( 'Pick one', $html );
+		$this->assertStringNotContainsString( "aria-label='Pick one'", $html );
+	}
+
+	/**
+	 * Grouped field types keyed by the two distinct <fieldset> code paths.
+	 *
+	 * @return array
+	 */
+	public static function data_grouped_field_types() {
+		return array(
+			// $fieldset_id path (shared by radio, checkbox-multiple, image-select).
+			'radio'             => array( 'radio', array( 'options' => array( 'A', 'B' ) ) ),
+			'checkbox-multiple' => array( 'checkbox-multiple', array( 'options' => array( 'A', 'B' ) ) ),
+			// sprintf path.
+			'rating'            => array( 'rating', array() ),
+		);
 	}
 } // end class

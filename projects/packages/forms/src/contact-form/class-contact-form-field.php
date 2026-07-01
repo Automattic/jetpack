@@ -861,6 +861,27 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Return an aria-label attribute string for a grouped field's <fieldset>
+	 * when its legend label is fully hidden by block visibility.
+	 *
+	 * The render_legend_as_label() method returns '' on full-hide, which strips
+	 * the group's accessible name (a display:none/removed <legend> is dropped from
+	 * the a11y tree). This mirrors the single-input aria-label fallback in render_field()
+	 * so radio / checkbox-multiple / image-select / rating groups keep a name.
+	 * Returns '' (no attribute) when the legend is visible. See FORMS-694.
+	 *
+	 * @param string $label The field label.
+	 * @return string An ` aria-label='…' ` attribute, or '' when not hidden.
+	 */
+	private function get_hidden_legend_aria_label_attr( $label ) {
+		if ( ! $this->get_attribute( 'labelhiddenbyblockvisibility' ) ) {
+			return '';
+		}
+
+		return " aria-label='" . esc_attr( Contact_Form_Plugin::strip_tags( $label ) ) . "'";
+	}
+
+	/**
 	 * Return the HTML for a legend that shares the same style as a label.
 	 *
 	 * @param string $type - the field type.
@@ -1295,7 +1316,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$options_styles    = $this->get_attribute( 'optionsstyles' );
 		$form_style        = $this->get_form_style();
 		$is_outlined_style = 'outlined' === $form_style;
-		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'";
+		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'" . $this->get_hidden_legend_aria_label_attr( $label );
 
 		if ( $is_outlined_style ) {
 			$style_variation_attributes = $this->get_attribute( 'stylevariationattributes' );
@@ -1784,7 +1805,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * any of the radio buttons in the group is selected, adding a required attribute directly to
 		 * a checkbox means that this specific checkbox must be checked.
 		 */
-		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
+		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'" . $this->get_hidden_legend_aria_label_attr( $label );
 
 		if ( $is_outlined_style ) {
 			$style_variation_attributes = $this->get_attribute( 'stylevariationattributes' );
@@ -2119,7 +2140,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field = "<div class='jetpack-field jetpack-field-image-select'>";
 
-		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
+		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'" . $this->get_hidden_legend_aria_label_attr( $label );
 
 		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
 
@@ -2966,7 +2987,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
 
 		return sprintf(
-			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating" %1$s>
+			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating" %1$s%6$s>
 				%5$s
 				<div class="jetpack-field-rating__options %3$s">%2$s</div>
 			</fieldset>',
@@ -2974,7 +2995,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$options,
 			esc_attr( $this->field_classes ),
 			esc_attr( $id ),
-			$label_html
+			$label_html,
+			$this->get_hidden_legend_aria_label_attr( $label )
 		) . $this->get_error_div( $id, 'rating' );
 	}
 
