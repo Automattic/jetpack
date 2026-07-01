@@ -36,6 +36,46 @@ type FileDownloadsRenderAttributes = FileDownloadsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
+const FILE_DOWNLOADS_UNAVAILABLE_STATUS = 404;
+
+function getErrorStatus( error: unknown ): number | null {
+	if ( ! error || typeof error !== 'object' ) {
+		return null;
+	}
+
+	const err = error as Record< string, unknown >;
+
+	if ( typeof err.status === 'number' ) {
+		return err.status;
+	}
+
+	if ( err.data && typeof err.data === 'object' ) {
+		const data = err.data as Record< string, unknown >;
+		if ( typeof data.status === 'number' ) {
+			return data.status;
+		}
+	}
+
+	if ( err.response && typeof err.response === 'object' ) {
+		const response = err.response as Record< string, unknown >;
+		if ( typeof response.status === 'number' ) {
+			return response.status;
+		}
+	}
+
+	return null;
+}
+
+function getFileDownloadsErrorMessage( error: unknown ) {
+	if ( getErrorStatus( error ) === FILE_DOWNLOADS_UNAVAILABLE_STATUS ) {
+		return __(
+			'File download stats are not available for Jetpack sites.',
+			'jetpack-premium-analytics'
+		);
+	}
+
+	return undefined;
+}
 
 /**
  * A single normalized file-downloads row, ready for the leaderboard.
@@ -136,6 +176,7 @@ export type FileDownloadsLeaderboardProps = {
 	isLoading?: boolean;
 	isError?: boolean;
 	withComparison?: boolean;
+	errorMessage?: string;
 };
 
 /**
@@ -150,6 +191,7 @@ export type FileDownloadsLeaderboardProps = {
  * @param props.isLoading      - When true, show a loading overlay.
  * @param props.isError        - When true, show an error message.
  * @param props.withComparison - When true, render previous-period deltas.
+ * @param props.errorMessage   - Custom error message to show when `isError` is true.
  * @return The rendered leaderboard.
  */
 export function FileDownloadsLeaderboard( {
@@ -157,11 +199,15 @@ export function FileDownloadsLeaderboard( {
 	isLoading = false,
 	isError = false,
 	withComparison = false,
+	errorMessage,
 }: FileDownloadsLeaderboardProps ) {
 	if ( isError ) {
 		return (
 			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ __( 'Could not load file download data.', 'jetpack-premium-analytics' ) }</Text>
+				<Text>
+					{ errorMessage ??
+						__( 'Could not load file download data.', 'jetpack-premium-analytics' ) }
+				</Text>
 			</Stack>
 		);
 	}
@@ -171,15 +217,17 @@ export function FileDownloadsLeaderboard( {
 	}
 
 	return (
-		<LeaderboardChart
-			data={ buildLeaderboardData( rows, withComparison ) }
-			loading={ isLoading }
-			withComparison={ withComparison }
-			withOverlayLabel
-			showLegend={ false }
-			emptyStateText={ __( 'No file downloads in this period.', 'jetpack-premium-analytics' ) }
-			dataFormat={ DATA_FORMAT }
-		/>
+		<div className={ styles.content }>
+			<LeaderboardChart
+				data={ buildLeaderboardData( rows, withComparison ) }
+				loading={ isLoading }
+				withComparison={ withComparison }
+				withOverlayLabel
+				showLegend={ false }
+				emptyStateText={ __( 'No file downloads in this period.', 'jetpack-premium-analytics' ) }
+				dataFormat={ DATA_FORMAT }
+			/>
+		</div>
 	);
 }
 
@@ -192,9 +240,10 @@ export function FileDownloadsLeaderboard( {
  */
 function FileDownloadsInner( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error } =
 		useStatsFileDownloads( reportParams as StatsReportParams );
 	const showLoading = isLoading || ( isFetching && hasData );
+	const errorMessage = getFileDownloadsErrorMessage( error );
 
 	const rows = useMemo(
 		() =>
@@ -214,6 +263,7 @@ function FileDownloadsInner( { max }: { max: number } ) {
 			isLoading={ showLoading }
 			isError={ isError }
 			withComparison={ hasComparison }
+			errorMessage={ errorMessage }
 		/>
 	);
 }
