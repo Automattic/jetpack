@@ -134,11 +134,19 @@ class Caption_Tracks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Tests manual language canonicalization.
+	 * Tests that well-formed language tags are accepted and kept verbatim.
 	 */
-	public function test_manual_language_is_canonicalized() {
-		$this->assertSame( 'pt-BR', Caption_Tracks::sanitize_manual_language( 'pt-br' ) );
-		$this->assertSame( 'zh-Hant-TW', Caption_Tracks::sanitize_manual_language( 'zh-hant-tw' ) );
+	public function test_manual_language_accepts_well_formed_tags() {
+		$this->assertSame( 'pt-BR', Caption_Tracks::sanitize_manual_language( 'pt-BR' ) );
+		$this->assertSame( 'zh-Hant-TW', Caption_Tracks::sanitize_manual_language( 'zh-Hant-TW' ) );
+	}
+
+	/**
+	 * Tests that malformed language tags are rejected.
+	 */
+	public function test_manual_language_rejects_malformed_tags() {
+		$this->assertSame( '', Caption_Tracks::sanitize_manual_language( 'not a tag' ) );
+		$this->assertSame( '', Caption_Tracks::sanitize_manual_language( 'e' ) );
 	}
 
 	/**
@@ -458,7 +466,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 			'meta'    => array(
 				Caption_Tracks::META_GUID                  => 'abcd1234',
 				Caption_Tracks::META_KIND                  => 'captions',
-				Caption_Tracks::META_SRC_LANG              => 'pt-br',
+				Caption_Tracks::META_SRC_LANG              => 'pt-BR',
 				Caption_Tracks::META_LABEL                 => 'Portuguese',
 				Caption_Tracks::META_SOURCE_TRACK_KIND     => 'captions',
 				Caption_Tracks::META_SOURCE_TRACK_SRC_LANG => 'auto_en',
