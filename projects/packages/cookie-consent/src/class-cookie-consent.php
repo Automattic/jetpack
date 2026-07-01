@@ -99,7 +99,7 @@ class Cookie_Consent {
 			return;
 		}
 		self::$initialized = true;
-		$resolved          = Config_Schema::resolve( $config );
+		$resolved          = self::resolve_config( $config );
 		self::$config      = $resolved;
 		if ( empty( $resolved['enabled'] ) ) {
 			return;
@@ -1023,10 +1023,39 @@ class Cookie_Consent {
 	 */
 	public static function get_config() {
 		if ( null === self::$config ) {
-			self::$config = Config_Schema::resolve();
+			self::$config = self::resolve_config();
 		}
 
 		return self::$config;
+	}
+
+	/**
+	 * Resolve a partial config against the schema, let consumers filter the
+	 * result, then re-resolve so any filtered value is re-validated.
+	 *
+	 * The consuming plugin injects its config through init(); this filter is the
+	 * override point for other code on the site that does not own that init()
+	 * call. Because the filtered array is resolved a second time, unknown or
+	 * malformed values a filter returns are sanitized back to schema defaults
+	 * rather than trusted verbatim. resolve() is idempotent, so re-resolving an
+	 * unfiltered config is a no-op.
+	 *
+	 * @param array $config Partial consumer config.
+	 * @return array Fully resolved, filtered, and re-validated config.
+	 */
+	private static function resolve_config( array $config = array() ) {
+		$resolved = Config_Schema::resolve( $config );
+
+		/**
+		 * Filters the resolved Cookie Consent configuration.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $resolved The fully resolved configuration array.
+		 */
+		$filtered = apply_filters( 'jetpack_cookie_consent_config', $resolved );
+
+		return Config_Schema::resolve( is_array( $filtered ) ? $filtered : $resolved );
 	}
 
 	/**

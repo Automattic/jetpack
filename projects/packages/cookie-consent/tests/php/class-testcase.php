@@ -45,9 +45,9 @@ abstract class TestCase extends PHPUnit_TestCase {
 	/**
 	 * Stash a resolved config on Cookie_Consent for the rest of the test.
 	 *
-	 * Cookie_Consent::get_config() resolves once and stashes the result rather than
-	 * going through a filter, so tests inject configuration by writing the private
-	 * static stash directly via reflection instead of hooking a filter.
+	 * Cookie_Consent::get_config() resolves once and stashes the result, so writing
+	 * the private static stash directly via reflection injects config without going
+	 * through the `jetpack_cookie_consent_config` filter or a full init() boot.
 	 *
 	 * @param array $config Partial config to resolve and stash.
 	 */

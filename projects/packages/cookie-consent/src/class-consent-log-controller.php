@@ -981,9 +981,20 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	public function cleanup_expired_logs() {
 		global $wpdb;
 
-		// The retention period comes from the log config injected via init(); guard
-		// against a missing or malformed value the same way a filtered value used to be.
-		$retention_days = filter_var( $this->log_config['retention_days'] ?? self::DEFAULT_RETENTION_DAYS, FILTER_VALIDATE_INT );
+		// The retention period comes from the log config injected via init(). The
+		// dedicated filter stays as a back-compat override point for sites that do
+		// not own that init() call; filter_var + the guard below sanitize whatever
+		// it returns.
+		$retention_days = $this->log_config['retention_days'] ?? self::DEFAULT_RETENTION_DAYS;
+
+		/**
+		 * Filters the consent-log retention period, in days.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int $retention_days Retention period in days from the injected log config.
+		 */
+		$retention_days = filter_var( apply_filters( 'jetpack_cookie_consent_log_retention_days', $retention_days ), FILTER_VALIDATE_INT );
 
 		if ( false === $retention_days || $retention_days <= 0 ) {
 			$retention_days = self::DEFAULT_RETENTION_DAYS;

@@ -51,8 +51,11 @@ clear `jetpack_cookie_consent_consent_log_db_version`, call:
 as a single argument. `$config` is partial — every key is optional and falls
 back to a package default — and is resolved once, on the first `init()` call,
 via `Config_Schema` (see `src/schema/class-config-schema.php` for the full
-shape). There is no filter to hook into after that: pass everything the
-consuming plugin needs up front.
+shape). The consuming plugin should pass everything it needs up front here.
+
+Other code on the site that does not own the `init()` call can still layer
+overrides through the `jetpack_cookie_consent_config` filter (see
+[Overriding config from another plugin](#overriding-config-from-another-plugin)).
 
 ### Master switch
 
@@ -208,6 +211,29 @@ should still appear alongside a custom one:
 	)
 );
 ```
+
+### Overriding config from another plugin
+
+`init()` is the primary configuration path, meant for the plugin that owns the
+boot call. Code that does not own that call — another plugin or a theme — can
+layer overrides through the `jetpack_cookie_consent_config` filter. The filter
+receives the fully resolved config and its return value is resolved again, so
+unknown or malformed keys are sanitized back to package defaults rather than
+trusted verbatim:
+
+```php
+add_filter(
+	'jetpack_cookie_consent_config',
+	function ( $config ) {
+		$config['links']['cookie_policy_url'] = 'https://example.com/cookie-policy/';
+		return $config;
+	}
+);
+```
+
+The consent-log retention period can also be overridden through the dedicated
+`jetpack_cookie_consent_log_retention_days` filter, which takes precedence over
+the injected `log.retention_days` when the daily cleanup cron runs.
 
 ## Public APIs
 

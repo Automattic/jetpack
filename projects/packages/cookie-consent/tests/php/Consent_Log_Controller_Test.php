@@ -72,6 +72,7 @@ class Consent_Log_Controller_Test extends TestCase {
 		// Reset state some tests flip on, so sibling suites see the defaults.
 		wp_using_ext_object_cache( false );
 		remove_all_filters( 'jetpack_cookie_consent_rate_limit_max' );
+		remove_all_filters( 'jetpack_cookie_consent_log_retention_days' );
 		unset( $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_exists'] );
 		unset( $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_calls'] );
 		wp_cache_flush();
@@ -264,6 +265,19 @@ class Consent_Log_Controller_Test extends TestCase {
 				"Malformed retention_days ($bad) should fall back to DEFAULT_RETENTION_DAYS."
 			);
 		}
+	}
+
+	/**
+	 * The `jetpack_cookie_consent_log_retention_days` filter stays as a back-compat
+	 * override for sites that don't own the init() call, taking precedence over the
+	 * injected retention_days.
+	 */
+	public function test_cleanup_retention_days_filter_overrides_injected_value() {
+		add_filter( 'jetpack_cookie_consent_log_retention_days', static fn () => 3 );
+
+		$cutoff_ts = $this->capture_cleanup_cutoff( array( 'retention_days' => 1 ) );
+
+		$this->assertEqualsWithDelta( time() - ( 3 * DAY_IN_SECONDS ), $cutoff_ts, 600, 'Filter value should override the injected retention_days.' );
 	}
 
 	/**
