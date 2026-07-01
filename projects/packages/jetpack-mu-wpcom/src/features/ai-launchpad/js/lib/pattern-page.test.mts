@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { pickPattern, type PtkPattern } from './pattern-page.ts';
+import { pickPattern, selectPatternPage, type PtkPattern } from './pattern-page.ts';
 import type { TailoredInferred } from './types.ts';
 
 const inferred: TailoredInferred = {
@@ -46,5 +46,37 @@ describe( 'pickPattern', () => {
 
 	it( 'returns null when no pattern has HTML', () => {
 		assert.equal( pickPattern( [ { title: 'x' }, { title: 'y' } ], inferred ), null );
+	} );
+} );
+
+describe( 'selectPatternPage', () => {
+	const galleryPattern: PtkPattern = {
+		title: 'Gallery Page 1',
+		html: '<!-- wp:gallery --><figure></figure><!-- /wp:gallery -->',
+		categories: { c1: { slug: 'gallery', title: 'Gallery' } },
+	};
+	const aboutPattern: PtkPattern = {
+		title: 'About Hero',
+		html: '<p>about</p>',
+		categories: { c2: { slug: 'about', title: 'About' } },
+	};
+
+	it( 'gallery variant filters to the gallery category and sets the gallery marker', () => {
+		const result = selectPatternPage( [ aboutPattern, galleryPattern ], inferred, 'gallery' );
+		assert.equal( result.content, galleryPattern.html );
+		assert.equal( result.markerMeta, '_wpcom_ai_launchpad_gallery_page' );
+	} );
+
+	it( 'gallery variant falls back to a bare gallery block when no gallery pattern exists', () => {
+		const result = selectPatternPage( [ aboutPattern ], inferred, 'gallery' );
+		assert.match( result.content, /wp:gallery/ );
+		assert.equal( result.markerMeta, '_wpcom_ai_launchpad_gallery_page' );
+		assert.equal( result.title, 'Gallery' );
+	} );
+
+	it( 'about variant is unfiltered and sets the about marker', () => {
+		const result = selectPatternPage( [ aboutPattern, galleryPattern ], inferred, 'about' );
+		assert.equal( result.markerMeta, '_wpcom_ai_launchpad_about_page' );
+		assert.equal( result.content, aboutPattern.html );
 	} );
 } );

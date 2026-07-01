@@ -22,6 +22,17 @@ interface CreatedPage {
 	id: number;
 }
 
+export type PatternVariant = 'about' | 'gallery';
+
+const VARIANT_CONFIG: Record< PatternVariant, { category: string | null; markerMeta: string } > = {
+	about: { category: null, markerMeta: '_wpcom_ai_launchpad_about_page' },
+	gallery: { category: 'gallery', markerMeta: '_wpcom_ai_launchpad_gallery_page' },
+};
+
+// An empty core/gallery block, used when the pattern library yields no gallery pattern.
+const GALLERY_FALLBACK_HTML =
+	'<!-- wp:gallery {"linkTo":"none"} --><figure class="wp-block-gallery has-nested-images columns-default is-cropped"></figure><!-- /wp:gallery -->';
+
 /**
  * Tokenize the inferred niche/vibe/audience into lowercase match words. Goal is
  * excluded: it describes intent, not topic, so it adds noise.
@@ -99,6 +110,41 @@ export function pickPattern(
 	return best;
 }
 
+/**
+ * Choose the page title, block content, and marker meta for a pattern-page variant.
+ *
+ * The gallery variant filters the library to the `gallery` category before niche scoring and falls back to a bare
+ * gallery block so the page always contains a gallery. The about variant is unfiltered (current behaviour).
+ *
+ * @param patterns - The fetched patterns.
+ * @param inferred - The AI-inferred site details.
+ * @param variant  - The pattern-page variant.
+ * @return The title, content HTML, and marker meta key.
+ */
+export function selectPatternPage(
+	patterns: PtkPattern[],
+	inferred: TailoredInferred,
+	variant: PatternVariant
+): { title: string; content: string; markerMeta: string } {
+	const config = VARIANT_CONFIG[ variant ];
+	const pool =
+		config.category === null
+			? patterns
+			: patterns.filter( pattern =>
+					termTitles( pattern.categories ).some( title =>
+						title.toLowerCase().includes( config.category as string )
+					)
+			  );
+	const pattern = pickPattern( pool, inferred );
+	const fallback = variant === 'gallery' ? GALLERY_FALLBACK_HTML : '';
+	return {
+		title:
+			pattern?.title ?? inferred.brand_name ?? ( variant === 'gallery' ? 'Gallery' : 'New page' ),
+		content: pattern?.html ?? fallback,
+		markerMeta: config.markerMeta,
+	};
+}
+
 // Cache the parsed PTK library in module scope; stays null on a failed fetch so a later click can retry.
 let cachedPatterns: PtkPattern[] | null = null;
 
@@ -107,10 +153,12 @@ let cachedPatterns: PtkPattern[] | null = null;
  * and create a draft page from it.
  *
  * @param inferred - The AI-inferred site details.
+ * @param variant  - The pattern-page variant.
  * @return The created page id and its editor URL.
  */
 export async function createPatternPage(
-	inferred: TailoredInferred
+	inferred: TailoredInferred,
+	variant: PatternVariant = 'about'
 ): Promise< { page_id: number; edit_url: string } > {
 	if ( cachedPatterns === null ) {
 		try {
@@ -122,20 +170,25 @@ export async function createPatternPage(
 				}
 			}
 		} catch {
-			// Network/parse failure: leave the cache unset so a later click retries; the page is still created below with empty content.
+			// Network/parse failure: leave the cache unset so a later click retries; the page is still created below.
 		}
 	}
-	const pattern = pickPattern( cachedPatterns ?? [], inferred );
+
+	const { title, content, markerMeta } = selectPatternPage(
+		cachedPatterns ?? [],
+		inferred,
+		variant
+	);
 
 	const page = ( await apiFetch( {
 		path: '/wp/v2/pages',
 		method: 'POST',
 		data: {
-			title: pattern?.title ?? inferred.brand_name ?? 'New page',
-			content: pattern?.html ?? '',
+			title,
+			content,
 			status: 'draft',
-			// Tag as the AI Launchpad About page so the server-side listener can complete add_about_page/update_about_page on publish or edit.
-			meta: { _wpcom_ai_launchpad_about_page: true },
+			// Tag as the AI Launchpad page so the server-side listener can complete the task on publish.
+			meta: { [ markerMeta ]: true },
 		},
 	} ) ) as CreatedPage;
 
