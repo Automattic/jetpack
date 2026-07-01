@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add an Organization schema settings form that persists social profiles and overrides into the site's JSON-LD.

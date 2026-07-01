@@ -41,6 +41,7 @@ class SchemaBuilderTest extends TestCase {
 	protected function tearDown(): void {
 		remove_all_filters( 'pre_option_blogname' );
 		remove_all_filters( 'home_url' );
+		delete_option( Schema_Settings::OPTION_NAME );
 		parent::tearDown();
 	}
 
@@ -225,6 +226,52 @@ class SchemaBuilderTest extends TestCase {
 
 		$article = $this->node_of_type( $doc, 'Article' );
 		$this->assertSame( $organization['@id'], $article['publisher']['@id'] );
+	}
+
+	/**
+	 * Saved schema settings reach the emitted JSON-LD: a configured `sameAs` (and a
+	 * `name` override) flows through Schema_Settings → the `$settings` seam on
+	 * Organization_Schema_Node → the emitted Organization node. This is the end-to-end
+	 * proof that the settings store is wired into the front-end output.
+	 */
+	public function test_emitted_organization_reflects_saved_schema_settings() {
+		$this->set_site_name( 'Acme Co' );
+		Schema_Settings::update(
+			array(
+				'organization' => array(
+					'name'   => 'Acme Corporation',
+					'sameAs' => array( 'https://twitter.com/acme', 'https://facebook.com/acme' ),
+					'email'  => 'hello@acme.test',
+				),
+			)
+		);
+
+		$doc = $this->emit_document( $this->make_post() );
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$this->assertIsArray( $organization, 'Expected an Organization node in the graph.' );
+		// The stored name override wins over the Site Title.
+		$this->assertSame( 'Acme Corporation', $organization['name'] );
+		$this->assertSame(
+			array( 'https://twitter.com/acme', 'https://facebook.com/acme' ),
+			$organization['sameAs']
+		);
+		$this->assertSame( 'hello@acme.test', $organization['email'] );
+	}
+
+	/**
+	 * With no saved settings, the emitted Organization node still comes purely from
+	 * site identity and omits `sameAs` (PR A behavior is preserved by the wiring).
+	 */
+	public function test_emitted_organization_unconfigured_preserves_site_identity_only() {
+		$this->set_site_name( 'Acme Co' );
+
+		$doc = $this->emit_document( $this->make_post() );
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$this->assertSame( 'Acme Co', $organization['name'] );
+		$this->assertArrayNotHasKey( 'sameAs', $organization );
+		$this->assertArrayNotHasKey( 'email', $organization );
 	}
 
 	/**

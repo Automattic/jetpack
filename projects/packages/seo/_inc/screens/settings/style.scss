@@ -106,12 +106,20 @@
 	gap: var(--wpds-dimension-gap-md, 12px);
 }
 
-// Placeholder copy for the Schema section while its controls (primary schema
-// type, breadcrumbs) are delivered by the per-schema issues. Muted, no margin
-// so the section reads as an intentionally empty shell.
-.jetpack-seo-settings__schema-placeholder {
-	margin: 0;
-	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+// Group label for the Organization "Social profiles" (sameAs) repeater, so it
+// matches a control label's weight (the rows below hide their own labels).
+.jetpack-seo-settings__schema-field-label {
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+}
+
+// The URL input in a Social profiles row takes the remaining width so the
+// Remove button keeps to the right.
+.jetpack-seo-settings__schema-profile-input {
+	flex: 1 1 auto;
+	min-inline-size: 0;
 }
 
 // Intro copy above the preview list.
