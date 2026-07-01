@@ -55,7 +55,7 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 			<CollapsibleCard.Header>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
 					<Card.Title>{ __( 'Schema', 'jetpack-seo' ) }</Card.Title>
-					<Badge intent={ setCount > 0 ? 'stable' : 'draft' }>
+					<Badge intent={ setCount === fieldsSet.length ? 'stable' : 'draft' }>
 						{ setCount > 0
 							? sprintf(
 									/* translators: %1$d: number of configured Organization fields. %2$d: total number of fields. */
