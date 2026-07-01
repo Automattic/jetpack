@@ -204,13 +204,13 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 	 * @return bool|WP_Error True if valid, WP_Error otherwise.
 	 */
 	public function validate_report_type( $value, WP_REST_Request $request, string $param ) {
-		if ( ! $this->registry->is_registered( $value ) ) {
+		if ( ! is_string( $value ) || ! $this->registry->is_registered( $value ) ) {
 			return new WP_Error(
 				'invalid_report_type',
 				sprintf(
 					/* translators: %s: Report type */
 					__( 'Invalid report type: %s', 'woocommerce-analytics' ),
-					$value
+					is_string( $value ) ? $value : wp_json_encode( $value )
 				),
 				array( 'status' => 400 )
 			);

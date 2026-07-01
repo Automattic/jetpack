@@ -236,25 +236,18 @@ class ReportDataFetcher {
 	 * @return array|\WP_Error The response data or error.
 	 */
 	private function make_proxy_request( string $endpoint, array $params ) {
-		// Build the proxy endpoint URL. Re-pointed from WooCommerce Analytics' own
-		// /wc/v3/<slug>/proxy route to Premium Analytics' existing data proxy, which
-		// forwards the `analytics` prefix to the WPCOM analytics API (v2 base).
+		// Re-pointed from WooCommerce Analytics' own /wc/v3/<slug>/proxy route to Premium
+		// Analytics' existing data proxy, which forwards the `analytics` prefix to the WPCOM
+		// analytics API (v2 base). The endpoint lives in the route path.
 		$proxy_route = sprintf( '/jetpack-premium-analytics/v1/proxy/v2/analytics/%s', $endpoint );
 
-		// Add query parameters to the route.
-		if ( ! empty( $params ) ) {
-			// Remove the endpoint param as it's in the route.
-			unset( $params['endpoint'] );
-			$proxy_route .= '?' . http_build_query( $params );
-		}
+		// Remaining params are forwarded as query args. They must be set as query params (the
+		// proxy reads get_query_params()), not appended to the route string, or they would
+		// pollute the captured `endpoint` path segment and fail its validation.
+		unset( $params['endpoint'] );
 
-		// Create REST request.
 		$request = new WP_REST_Request( 'GET', $proxy_route );
-
-		// Set query parameters on the request object.
-		foreach ( $params as $key => $value ) {
-			$request->set_param( $key, $value );
-		}
+		$request->set_query_params( $params );
 
 		// Make internal REST API call.
 		$response = rest_do_request( $request );
