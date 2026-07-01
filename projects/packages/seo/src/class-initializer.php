@@ -798,11 +798,11 @@ class Initializer {
 	/**
 	 * Build the editable Settings state the Settings tab hydrates from.
 	 *
-	 * Read-only bootstrap only. Writes go through the existing
+	 * Read-only bootstrap only. Most writes go through the existing
 	 * `/jetpack/v4/settings` REST endpoint, which already validates and
-	 * sanitizes each of these fields — this package registers no settings
-	 * endpoint of its own. The reads here mirror the options/helpers that
-	 * endpoint round-trips so the form hydrates without a request.
+	 * sanitizes those flat fields. Nested Schema writes use the package's
+	 * schema-settings route; bootstrapping them here keeps the Settings UI
+	 * hydrated without a second request.
 	 *
 	 * @return array
 	 */
@@ -842,6 +842,7 @@ class Initializer {
 				'yandex'    => isset( $codes['yandex'] ) ? (string) $codes['yandex'] : '',
 				'facebook'  => isset( $codes['facebook'] ) ? (string) $codes['facebook'] : '',
 			),
+			'schema'                 => Schema_Settings::get_editable(),
 		);
 	}
 

@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import { useSchemaSettings } from '../../data/use-schema-settings';
 import OrganizationBusinessSection from './schema-settings/organization-business-section';
+import type { SchemaSettings } from '../../data/schema-settings-types';
 import './style.scss';
 
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
@@ -14,8 +15,8 @@ const notSetLabel = __( 'Not set', 'jetpack-seo' );
  * email); the BreadcrumbList toggle and other primary schema types
  * (LocalBusiness, Person / ProfilePage) ship in their own issues and land here.
  *
- * Owns the schema-settings fetch so the collapsed header can show a configured
- * count badge, and passes the form down to the Organization section.
+ * Uses the settings bootstrap for the collapsed header badge and falls back to a
+ * schema-settings fetch when the bootstrap is absent.
  *
  * Collapsed by default and built from the shared `CollapsibleCard` compound,
  * matching the other Settings modules (Canonical URLs, Title structure, Site
@@ -23,8 +24,21 @@ const notSetLabel = __( 'Not set', 'jetpack-seo' );
  *
  * @return The Schema settings card.
  */
-function SchemaCard() {
-	const form = useSchemaSettings();
+interface Props {
+	initialSettings?: SchemaSettings;
+	onSave?: ( settings: SchemaSettings ) => void;
+}
+
+/**
+ * Render the collapsible Schema settings card.
+ *
+ * @param root0                 - Component props.
+ * @param root0.initialSettings - Optional settings bootstrap from the Settings screen.
+ * @param root0.onSave          - Called with the saved schema payload after a successful save.
+ * @return The Schema settings card.
+ */
+function SchemaCard( { initialSettings, onSave }: Props ) {
+	const form = useSchemaSettings( initialSettings, onSave );
 	const { organization, defaults } = form;
 
 	// Whether each Organization field counts as "set" for the header badge: `name` /

@@ -31,33 +31,44 @@ export interface SchemaSettingsForm {
 }
 
 /**
- * Owns the site-level Schema settings form. Fetches the effective settings once
- * on mount from the package's own REST route, edits them in local state, and
- * persists through the same route on an explicit Save — mirroring
- * {@link useGoogleVerify}'s fetch-on-mount + mutate shape and the Settings form's
- * snackbar UX. Saving deliberately goes through `/jetpack/v4/seo/schema-settings`
- * (never `/jetpack/v4/settings`, which rejects the nested schema container).
+ * Owns the site-level Schema settings form. Seeds from the Settings bootstrap
+ * when available, falls back to the package's own REST route, edits locally, and
+ * persists through that same schema route on explicit Save. Saving deliberately
+ * avoids `/jetpack/v4/settings`, which rejects the nested schema container.
  *
+ * @param initialSettings - Optional settings bootstrap from the Settings screen.
+ * @param onSave          - Called with the saved schema payload after a successful save.
  * @return The schema-settings form controller.
  */
-export function useSchemaSettings(): SchemaSettingsForm {
-	const [ organization, setOrganization ] = useState< OrganizationSettings | null >( null );
+export function useSchemaSettings(
+	initialSettings?: SchemaSettings,
+	onSave?: ( settings: SchemaSettings ) => void
+): SchemaSettingsForm {
+	const [ organization, setOrganization ] = useState< OrganizationSettings | null >(
+		initialSettings?.organization ?? null
+	);
 	// Placeholder defaults (Site Title / Tagline); empty until the initial fetch lands.
 	const [ defaults, setDefaults ] = useState< OrganizationDefaults >( {
-		name: '',
-		description: '',
+		name: initialSettings?.defaults.organization.name ?? '',
+		description: initialSettings?.defaults.organization.description ?? '',
 	} );
-	const [ isLoading, setIsLoading ] = useState( true );
+	const [ isLoading, setIsLoading ] = useState( ! initialSettings );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ isDirty, setIsDirty ] = useState( false );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	// The last-saved baseline, kept in a ref so save() compares against the freshest
 	// value without re-creating its callback.
-	const baselineRef = useRef< OrganizationSettings | null >( null );
+	const baselineRef = useRef< OrganizationSettings | null >(
+		initialSettings ? cleanOrganization( initialSettings.organization ) : null
+	);
 
-	// Fetch the effective settings once on mount.
+	// Fetch the effective settings once on mount when the settings bootstrap did
+	// not include them.
 	useEffect( () => {
+		if ( initialSettings ) {
+			return;
+		}
 		let cancelled = false;
 		apiFetch< SchemaSettings >( { path: ENDPOINT } )
 			.then( settings => {
@@ -79,7 +90,7 @@ export function useSchemaSettings(): SchemaSettingsForm {
 		return () => {
 			cancelled = true;
 		};
-	}, [] );
+	}, [ initialSettings ] );
 
 	const setOrganizationField = useCallback( ( patch: Partial< OrganizationSettings > ) => {
 		setOrganization( current => {
@@ -115,6 +126,7 @@ export function useSchemaSettings(): SchemaSettingsForm {
 				// empty, so it shows the placeholder again rather than re-freezing.
 				baselineRef.current = cleanOrganization( settings.organization );
 				setOrganization( settings.organization );
+				onSave?.( settings );
 				setIsDirty( false );
 				createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
 					id: NOTICE_ID,
@@ -129,7 +141,7 @@ export function useSchemaSettings(): SchemaSettingsForm {
 				);
 			} )
 			.finally( () => setIsSaving( false ) );
-	}, [ organization, isSaving, createInfoNotice, createSuccessNotice, createErrorNotice ] );
+	}, [ organization, isSaving, createInfoNotice, createSuccessNotice, createErrorNotice, onSave ] );
 
 	return { organization, defaults, isLoading, isSaving, isDirty, setOrganizationField, save };
 }

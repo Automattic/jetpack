@@ -4,8 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 
 // True-ESM Jest (`--experimental-vm-modules`): stub the data/REST edge with
-// `jest.unstable_mockModule`, then import the card dynamically. The card mounts
-// the Organization section, which fetches on mount through this hook — mocking it
+// `jest.unstable_mockModule`, then import the card dynamically. Mocking the hook
 // keeps the card test off the network while exercising the real section + card UI.
 const setOrganizationField = jest.fn();
 const save = jest.fn();

@@ -42,9 +42,18 @@ describe( 'useSchemaSettings', () => {
 		expect( result.current.isDirty ).toBe( false );
 	} );
 
+	it( 'uses bootstrapped settings without fetching on mount', () => {
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
+
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( result.current.isLoading ).toBe( false );
+		expect( result.current.organization ).toEqual( RESPONSE.organization );
+		expect( result.current.defaults ).toEqual( RESPONSE.defaults.organization );
+	} );
+
 	it( 'tracks dirty state and saves through the schema-settings route only', async () => {
-		const { result } = renderHook( () => useSchemaSettings() );
-		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		const onSave = jest.fn();
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE, onSave ) );
 
 		act( () => result.current.setOrganizationField( { sameAs: [ 'https://twitter.com/acme' ] } ) );
 		expect( result.current.isDirty ).toBe( true );
@@ -66,6 +75,10 @@ describe( 'useSchemaSettings', () => {
 		const options = post![ 0 ] as { path: string; data: { organization: { sameAs: string[] } } };
 		expect( options.path ).toBe( '/jetpack/v4/seo/schema-settings' );
 		expect( options.data.organization.sameAs ).toEqual( [ 'https://twitter.com/acme' ] );
+		expect( onSave ).toHaveBeenCalledWith( {
+			organization: { ...RESPONSE.organization, sameAs: [ 'https://twitter.com/acme' ] },
+			defaults: RESPONSE.defaults,
+		} );
 		expect( createSuccessNotice ).toHaveBeenCalled();
 	} );
 
