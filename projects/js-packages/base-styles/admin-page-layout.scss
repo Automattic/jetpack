@@ -389,6 +389,21 @@ $jp-breakpoint-mobile: 782px;
 
 	@include jetpack-admin-page-layout;
 
+	// `@wordpress/boot` seeds its outer shell from the active wp-admin color
+	// scheme. In dark admin schemes, that makes the canvas behind the white,
+	// rounded stage dark and visibly flashes during route/page transitions.
+	// Jetpack wp-admin pages use a white full-page shell, so keep boot's
+	// canvas aligned with the page surface and opt the stage out of boot's
+	// cross-route View Transition snapshots.
+	.boot-layout {
+		background: var(--jp-white, #fff);
+	}
+
+	.boot-layout__stage,
+	.boot-layout__inspector {
+		view-transition-name: none;
+	}
+
 	// admin-ui's `<Breadcrumbs>` renders semantic `<ul>/<li>/<a>` so it
 	// inherits two wp-admin globals that misbehave inside the header:
 	//   `ul li { margin-bottom: 6px }` inflates the breadcrumb `<ul>`'s
