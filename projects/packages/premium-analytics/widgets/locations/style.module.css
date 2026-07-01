@@ -114,9 +114,11 @@
 	overflow: hidden;
 }
 
-/* Narrow container (< 480px): hide the map and collapse to a
- * single leaderboard column. */
-@container (max-width: 479px) {
+/* Very narrow containers: hide the map and collapse to a single leaderboard
+ * column. Keep the threshold below a dashboard width-2 tile at the minimum
+ * four-column dashboard width, so the default Locations widget still shows
+ * the map. */
+@container (max-width: 431px) {
 
 	.widgetHeader {
 		align-items: stretch;
