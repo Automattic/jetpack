@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update @wordpress/build to 0.17.0 so the generated wp-admin page passes init modules to the boot single-page entry point.

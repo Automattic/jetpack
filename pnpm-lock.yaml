@@ -4055,8 +4055,8 @@ importers:
         specifier: 10.0.1
         version: 10.0.1
       '@wordpress/build':
-        specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.17.0
+        version: 0.17.0(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       browserslist:
         specifier: 4.28.2
         version: 4.28.2
@@ -11075,6 +11075,25 @@ packages:
       '@wordpress/theme':
         optional: true
 
+  '@wordpress/build@0.17.0':
+    resolution: {integrity: sha512-K3cqtyW9W2dtnewsWuVHmQSnesJinqSbLwv7qDmJkYCVnoLjAeZWafjXCWGgrMtP/+gi6C2+nTTmbDBfZ8a3lQ==}
+    engines: {node: '>=20.10.0', npm: '>=10.2.3'}
+    hasBin: true
+    peerDependencies:
+      '@wordpress/boot': '>=0.3.0 <1.0.0'
+      '@wordpress/private-apis': ^1.0.0
+      '@wordpress/route': '>=0.2.0 <1.0.0'
+      '@wordpress/theme': '>=0.8.0 <1.0.0'
+    peerDependenciesMeta:
+      '@wordpress/boot':
+        optional: true
+      '@wordpress/private-apis':
+        optional: true
+      '@wordpress/route':
+        optional: true
+      '@wordpress/theme':
+        optional: true
+
   '@wordpress/commands@1.48.1':
     resolution: {integrity: sha512-yFmQ2yB4tOWPqhO+tE8uYyFqcGwxtOJ9uc1yHYfH40oMls3p+TswktsdbBM2gEmoYxfD+d3Nhp/mXGS38pdTdw==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -11640,6 +11659,10 @@ packages:
 
   '@wordpress/style-runtime@0.4.2-next.v.202606191442.0':
     resolution: {integrity: sha512-I0L4HUqssfncYjUgeot8dcNWONJ1PZvp7iCCW+s2OvUkTeijCY6jEsPgH5n2rEg8FIpAhTZNacqj3h1Pqy/QMQ==}
+    engines: {node: '>=20.10.0', npm: '>=10.2.3'}
+
+  '@wordpress/style-runtime@0.5.0':
+    resolution: {integrity: sha512-hrXvdDUJpOzT1KIomgtysysgbc5bkkwAuJyEUAXiOCgVBXBeMkZlgfN19W0PuNY51j53K7VQ42txfayxgVmfgA==}
     engines: {node: '>=20.10.0', npm: '>=10.2.3'}
 
   '@wordpress/stylelint-config@23.40.1':
@@ -24415,34 +24438,6 @@ snapshots:
 
   '@wordpress/browserslist-config@6.48.1': {}
 
-  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
-    dependencies:
-      '@emotion/babel-plugin': 11.13.5
-      '@wordpress/style-runtime': 0.4.1
-      autoprefixer: 10.5.0(postcss@8.5.14)
-      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
-      change-case: 4.1.2
-      chokidar: 4.0.3
-      cssnano: 7.1.9(postcss@8.5.14)
-      esbuild: 0.28.1
-      esbuild-plugin-babel: 0.2.3(@babel/core@7.29.7)
-      esbuild-sass-plugin: 3.3.1(esbuild@0.28.1)(sass-embedded@1.97.3)
-      fast-glob: 3.3.3
-      moment-timezone: 0.5.48
-      postcss: 8.5.14
-      postcss-modules: 6.0.1(postcss@8.5.14)
-      rtlcss: 4.3.0
-      sass-embedded: 1.97.3
-    optionalDependencies:
-      '@wordpress/boot': 0.15.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/private-apis': 1.48.1
-      '@wordpress/route': 0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/theme': 0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - browserslist
-      - supports-color
-
   '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@types/react-dom@18.3.7(@types/react@18.3.28))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
@@ -24545,6 +24540,34 @@ snapshots:
       rtlcss: 4.3.0
       sass-embedded: 1.97.3
     optionalDependencies:
+      '@wordpress/route': 0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme': 0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - browserslist
+      - supports-color
+
+  '@wordpress/build@0.17.0(@babel/core@7.29.7)(@wordpress/boot@0.15.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.48.1)(@wordpress/route@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+    dependencies:
+      '@emotion/babel-plugin': 11.13.5
+      '@wordpress/style-runtime': 0.5.0
+      autoprefixer: 10.5.0(postcss@8.5.14)
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
+      change-case: 4.1.2
+      chokidar: 4.0.3
+      cssnano: 7.1.9(postcss@8.5.14)
+      esbuild: 0.28.1
+      esbuild-plugin-babel: 0.2.3(@babel/core@7.29.7)
+      esbuild-sass-plugin: 3.3.1(esbuild@0.28.1)(sass-embedded@1.97.3)
+      fast-glob: 3.3.3
+      moment-timezone: 0.5.48
+      postcss: 8.5.14
+      postcss-modules: 6.0.1(postcss@8.5.14)
+      rtlcss: 4.3.0
+      sass-embedded: 1.97.3
+    optionalDependencies:
+      '@wordpress/boot': 0.15.1(@date-fns/tz@1.4.1)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/private-apis': 1.48.1
       '@wordpress/route': 0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/theme': 0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
@@ -27390,6 +27413,8 @@ snapshots:
   '@wordpress/style-runtime@0.4.1': {}
 
   '@wordpress/style-runtime@0.4.2-next.v.202606191442.0': {}
+
+  '@wordpress/style-runtime@0.5.0': {}
 
   '@wordpress/stylelint-config@23.40.1(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint-scss@7.0.0(stylelint@17.7.0(typescript@5.9.3)))(stylelint@17.7.0(typescript@5.9.3))':
     dependencies:
