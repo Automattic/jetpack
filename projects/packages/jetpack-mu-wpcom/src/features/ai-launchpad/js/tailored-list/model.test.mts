@@ -65,6 +65,7 @@ function task( overrides: Partial< EnrichedTask > = {} ): EnrichedTask {
 		subtitle: 'Pick a theme.',
 		title: 'Choose a design',
 		completed: false,
+		in_progress: false,
 		calypso_path: '/themes/example.com',
 		...overrides,
 	};
@@ -155,6 +156,30 @@ describe( 'isTaskActionable', () => {
 		assert.equal( isTaskActionable( launch, null, '' ), false );
 		assert.equal( isTaskActionable( launch, null, 'not-a-url' ), false );
 	} );
+
+	it( 'treats an in-progress task as actionable when it has a draft to reopen', () => {
+		// No AI output: a not-in-progress create-content task would be non-actionable,
+		// so this proves the in-progress reopen path is what makes it actionable.
+		assert.equal(
+			isTaskActionable(
+				task( {
+					id: 'add_about_page',
+					in_progress: true,
+					calypso_path: '/wp-admin/post.php?post=9',
+				} ),
+				null
+			),
+			true
+		);
+		// Flagged in progress but with no draft path there is nothing to reopen.
+		assert.equal(
+			isTaskActionable(
+				task( { id: 'add_about_page', in_progress: true, calypso_path: null } ),
+				null
+			),
+			false
+		);
+	} );
 } );
 
 describe( 'isCompleteOnClickTask', () => {
@@ -244,6 +269,34 @@ describe( 'resolveCtaUrl', () => {
 		);
 		assert.equal( url, '/wp-admin/post.php?post=2' );
 		assert.deepEqual( clicked, [ 'add_about_page' ] );
+	} );
+
+	it( 'reopens the existing draft for an in-progress task instead of creating a new one', async () => {
+		const { clicked, handlers } = stubHandlers();
+		// The create-page handler would return .../post=2; reopening the draft returns .../post=9.
+		const aboutPage = await resolveCtaUrl(
+			task( {
+				id: 'add_about_page',
+				in_progress: true,
+				calypso_path: 'https://example.com/wp-admin/post.php?post=9&action=edit',
+			} ),
+			fixture,
+			handlers
+		);
+		assert.equal( aboutPage, 'https://example.com/wp-admin/post.php?post=9&action=edit' );
+
+		// The first-post task reopens its draft too, rather than drafting a fresh post (.../post=1).
+		const firstPost = await resolveCtaUrl(
+			task( {
+				id: 'first_post_published',
+				in_progress: true,
+				calypso_path: 'https://example.com/wp-admin/post.php?post=7&action=edit',
+			} ),
+			fixture,
+			handlers
+		);
+		assert.equal( firstPost, 'https://example.com/wp-admin/post.php?post=7&action=edit' );
+		assert.deepEqual( clicked, [ 'add_about_page', 'first_post_published' ] );
 	} );
 
 	it( 'sends launch tasks to the wordpress.com launch flow built from the site URL', async () => {

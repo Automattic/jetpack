@@ -78,29 +78,28 @@
 	&__title {
 		font-weight: 500;
 		font-size: 14px;
+		color: var(--wpds-color-fg-interactive-neutral, #1e1e1e);
 
 		&.is-done {
 			text-decoration: line-through;
-			color: #757575;
+			color: var(--wpds-color-fg-interactive-neutral-disabled, #8d8d8d);
 		}
 	}
 
 	// The WPDS task icons fill from `currentColor`, so tone them via `color`.
+	// To-do and in-progress share the neutral foreground; only done is dimmed,
+	// keeping each icon the same color as its title.
 	&__icon {
 		flex-shrink: 0;
 		display: inline-flex;
+		color: var(--wpds-color-fg-interactive-neutral, #1e1e1e);
 
 		svg {
 			fill: currentColor;
 		}
 
-		&.is-todo {
-			color: #c3c4c7;
-		}
-
-		// Greyed to sit alongside the struck-through title.
 		&.is-done {
-			color: #757575;
+			color: var(--wpds-color-fg-interactive-neutral-disabled, #8d8d8d);
 		}
 	}
 
