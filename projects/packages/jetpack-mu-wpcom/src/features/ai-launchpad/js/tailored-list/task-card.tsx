@@ -1,6 +1,6 @@
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { border, published } from '@wordpress/icons';
+import { border, drafts, published } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard } from '@wordpress/ui';
 import { ctaKind, type EnrichedTask } from './model.ts';
 
@@ -24,10 +24,16 @@ interface Props {
  * literals for translation extraction, and `model.ts` is kept free of
  * `@wordpress/*` imports so its node:test suite runs.
  *
- * @param taskId - The catalog task id.
+ * @param taskId     - The catalog task id.
+ * @param inProgress - Whether the task has a saved-but-unpublished draft.
  * @return The translated CTA label.
  */
-function getCtaLabel( taskId: string ): string {
+function getCtaLabel( taskId: string, inProgress: boolean ): string {
+	// An in-progress task reopens its existing draft, so the CTA invites the user to pick up where they left off.
+	if ( inProgress ) {
+		return __( 'Continue', 'jetpack-mu-wpcom' );
+	}
+
 	switch ( taskId ) {
 		case 'site_theme_selected':
 			return __( 'Browse themes', 'jetpack-mu-wpcom' );
@@ -112,8 +118,9 @@ export function TaskCard( {
 		>
 			<CollapsibleCard.Header>
 				<span className="ai-launchpad-tailored-list__header-inner">
-					<span className="ai-launchpad-tailored-list__icon is-todo">
-						<Icon icon={ border } size={ 24 } />
+					<span className="ai-launchpad-tailored-list__icon">
+						{ /* To-do vs in-progress is conveyed by the glyph alone; both share the neutral color. */ }
+						<Icon icon={ task.in_progress ? drafts : border } size={ 24 } />
 					</span>
 					<span className="ai-launchpad-tailored-list__title">{ task.title }</span>
 				</span>
@@ -123,7 +130,7 @@ export function TaskCard( {
 				<div className="ai-launchpad-tailored-list__actions">
 					{ canStart && (
 						<Button variant="solid" onClick={ onGetStarted } loading={ isBusy } disabled={ isBusy }>
-							{ getCtaLabel( task.id ) }
+							{ getCtaLabel( task.id, task.in_progress ) }
 						</Button>
 					) }
 					{ ! canStart && canMarkComplete && (

@@ -82,6 +82,32 @@ class AI_Launchpad_About_Page_Listener {
 			wpcom_mark_launchpad_task_complete( 'update_about_page' );
 		}
 	}
+
+	/**
+	 * Returns the ID of the newest unpublished AI-created About page (a `draft` page carrying the marker meta), or null.
+	 *
+	 * Backs the "in progress" treatment: an About page saved but not yet published, so the task can reopen that draft
+	 * instead of creating a duplicate.
+	 *
+	 * @return int|null
+	 */
+	public static function get_draft_id() {
+		$ids = get_posts(
+			array(
+				'post_type'        => 'page',
+				'post_status'      => 'draft',
+				'posts_per_page'   => 1,
+				'orderby'          => 'date',
+				'order'            => 'DESC',
+				'fields'           => 'ids',
+				'no_found_rows'    => true,
+				'suppress_filters' => false,
+				'meta_key'         => self::META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one-off read behind the AI Launchpad eligibility gate.
+			)
+		);
+
+		return empty( $ids ) ? null : (int) $ids[0];
+	}
 }
 
 AI_Launchpad_About_Page_Listener::register();
