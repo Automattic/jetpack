@@ -58,31 +58,41 @@ function SearchTermsInner( { max = 10, showTitle }: { max?: number; showTitle: b
 		} ) );
 	}, [ data, hasComparison ] );
 
+	const header = showTitle ? (
+		<Stack direction="row" align="center" className={ styles.widgetHeader }>
+			<Text variant="heading-md" render={ <h3 /> }>
+				{ __( 'Top Search Terms', 'jetpack-premium-analytics' ) }
+			</Text>
+		</Stack>
+	) : null;
+
 	if ( isError ) {
 		return (
-			<Stack
-				align="center"
-				justify="center"
-				className={ `${ styles.root } ${ styles.placeholder }` }
-			>
-				<Text>{ __( 'Could not load search terms data.', 'jetpack-premium-analytics' ) }</Text>
+			<Stack className={ styles.root }>
+				{ header }
+				<div className={ styles.content }>
+					<Stack align="center" justify="center" className={ styles.placeholder }>
+						<Text>{ __( 'Could not load search terms data.', 'jetpack-premium-analytics' ) }</Text>
+					</Stack>
+				</div>
 			</Stack>
 		);
 	}
 
 	if ( isLoading && data.length === 0 ) {
-		return <WidgetLoadingOverlay />;
+		return (
+			<Stack className={ styles.root }>
+				{ header }
+				<div className={ styles.content }>
+					<WidgetLoadingOverlay />
+				</div>
+			</Stack>
+		);
 	}
 
 	return (
 		<Stack className={ styles.root }>
-			{ showTitle && (
-				<Stack direction="row" align="center" className={ styles.widgetHeader }>
-					<Text variant="heading-md" render={ <h3 /> }>
-						{ __( 'Top Search Terms', 'jetpack-premium-analytics' ) }
-					</Text>
-				</Stack>
-			) }
+			{ header }
 			<div className={ styles.content }>
 				<LeaderboardChart
 					data={ leaderboardData }
