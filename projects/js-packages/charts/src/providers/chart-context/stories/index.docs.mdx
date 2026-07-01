@@ -112,22 +112,23 @@ The Global Charts Context uses a comprehensive theme system that controls all vi
 		// Core colors used for data visualization
 		colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 
-		// Chart background and labels
-		backgroundColor: '#FFFFFF',
+		// Chart background and labels. Colors resolve to WPDS tokens by default,
+		// with a spec-value fallback for hosts that don't load @wordpress/boot.
+		backgroundColor: 'var(--wpds-color-bg-surface-neutral-strong, #fff)',
 		labelBackgroundColor: 'transparent',
 		labelTextColor: '#FFFFFF',
 
 		// Grid and axis styling
 		gridStyles: {
-			stroke: '#DCDCDE',
+			stroke: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)',
 			strokeWidth: 1,
 		},
-		xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
+		xAxisLineStyles: { stroke: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)', strokeWidth: 1 },
 
 		// Legend appearance
 		legend: {
 			labelStyles: {
-				color: 'var(--jp-gray-80, #2c3338)',
+				color: 'var(--wpds-color-fg-content-neutral, #1e1e1e)',
 			},
 		},
 
@@ -135,12 +136,17 @@ The Global Charts Context uses a comprehensive theme system that controls all vi
 		leaderboardChart: {
 			primaryColor: '#006DAB',
 			secondaryColor: '#98C8DF',
-			deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
+			// [negative, neutral, positive]
+			deltaColors: [
+				'var(--wpds-color-fg-content-error-weak, #cc1818)',
+				'var(--wpds-color-fg-content-neutral-weak, #707070)',
+				'var(--wpds-color-fg-content-success-weak, #008030)',
+			],
 		},
 
 		conversionFunnelChart: {
 			primaryColor: '#006DAB',
-			backgroundColor: '#F3F4F6',
+			backgroundColor: 'var(--wpds-color-bg-surface-neutral-weak, #f4f4f4)',
 		}
 	};
 
