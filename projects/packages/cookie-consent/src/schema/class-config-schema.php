@@ -179,7 +179,7 @@ final class Config_Schema {
 
 		$resolved = array(
 			'enabled'         => self::resolve_scalar( $config, 'enabled', $defaults['enabled'], self::schema()['properties']['enabled'] ),
-			'schema_version'  => $defaults['schema_version'],
+			'schema_version'  => self::resolve_scalar( $config, 'schema_version', $defaults['schema_version'], self::schema()['properties']['schema_version'] ),
 			'features'        => $features,
 			'geo'             => $geo,
 			'gdpr_honors_gpc' => self::resolve_scalar( $config, 'gdpr_honors_gpc', $defaults['gdpr_honors_gpc'], self::schema()['properties']['gdpr_honors_gpc'] ),
@@ -189,8 +189,10 @@ final class Config_Schema {
 			'copy'            => self::normalize_copy( $config['copy'] ?? array(), $defaults['copy'] ),
 		);
 
-		$default_categories  = self::default_consent_categories( $resolved['copy'] );
-		$categories          = $config['consent']['categories'] ?? $default_categories;
+		$default_categories = self::default_consent_categories( $resolved['copy'] );
+		$consent            = isset( $config['consent'] ) && is_array( $config['consent'] ) ? $config['consent'] : array();
+		$categories         = $consent['categories'] ?? $default_categories;
+
 		$resolved['consent'] = array( 'categories' => self::normalize_consent_categories( $categories, $default_categories ) );
 
 		return $resolved;
@@ -542,21 +544,33 @@ final class Config_Schema {
 	/**
 	 * Normalize GDPR country codes for case-insensitive matching.
 	 *
-	 * @param string[] $countries Country codes.
+	 * @param array $countries Country codes; non-scalar entries are dropped.
 	 * @return string[] Upper-case country codes.
 	 */
 	private static function normalize_gdpr_countries( $countries ) {
-		return array_map( 'strtoupper', array_values( $countries ) );
+		$countries = array_values( array_filter( $countries, 'is_scalar' ) );
+		return array_map(
+			static function ( $country ) {
+				return strtoupper( (string) $country );
+			},
+			$countries
+		);
 	}
 
 	/**
 	 * Normalize CCPA region names for case-insensitive matching.
 	 *
-	 * @param string[] $regions Region names.
+	 * @param array $regions Region names; non-scalar entries are dropped.
 	 * @return string[] Lower-case region names.
 	 */
 	private static function normalize_ccpa_regions( $regions ) {
-		return array_map( 'strtolower', array_values( $regions ) );
+		$regions = array_values( array_filter( $regions, 'is_scalar' ) );
+		return array_map(
+			static function ( $region ) {
+				return strtolower( (string) $region );
+			},
+			$regions
+		);
 	}
 
 	/**

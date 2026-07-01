@@ -132,8 +132,10 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 * Initialize the controller: create the table, schedule cleanup,
 	 * register REST routes, and wire the cleanup cron callback.
 	 *
-	 * @param array $log_config Resolved `log` config (retention_days, policy_version,
-	 *                          banner_version, ip_mode) from Config_Schema::resolve().
+	 * @param array $log_config Resolved `log` config from Config_Schema::resolve(); only
+	 *                          `ip_mode` and `retention_days` are read here. The
+	 *                          `policy_version`/`banner_version` entries are sourced
+	 *                          separately via Cookie_Consent::get_log_versions().
 	 * @return Consent_Log_Controller
 	 */
 	public static function init( array $log_config = array() ) {

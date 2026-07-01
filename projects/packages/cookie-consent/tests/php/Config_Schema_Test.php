@@ -9,6 +9,9 @@ namespace Automattic\Jetpack\CookieConsent;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 
+/**
+ * @covers \Automattic\Jetpack\CookieConsent\Config_Schema
+ */
 #[CoversClass( Config_Schema::class )]
 class Config_Schema_Test extends TestCase {
 
@@ -41,20 +44,71 @@ class Config_Schema_Test extends TestCase {
 		$this->assertTrue( $config['features']['banner'] );
 		$this->assertFalse( $config['features']['page_deletion_lock'] );
 		$this->assertSame( 'drop', $config['log']['ip_mode'] );
+		$this->assertSame( 1, $config['schema_version'] );
+	}
+
+	public function test_resolve_honors_schema_version_override() {
+		$config = Config_Schema::resolve( array( 'schema_version' => 2 ) );
+
+		$this->assertSame( 2, $config['schema_version'] );
+	}
+
+	public function test_resolve_rejects_invalid_schema_version() {
+		$config = Config_Schema::resolve( array( 'schema_version' => 'not-a-number' ) );
+
+		$this->assertSame( 1, $config['schema_version'] );
 	}
 
 	public function test_resolve_normalizes_geo_list_casing() {
 		$config = Config_Schema::resolve(
-			array( 'geo' => array( 'gdpr_countries' => array( 'ca', 'gB' ), 'ccpa_regions' => array( 'California', 'NEW JERSEY' ) ) )
+			array(
+				'geo' => array(
+					'gdpr_countries' => array( 'ca', 'gB' ),
+					'ccpa_regions'   => array( 'California', 'NEW JERSEY' ),
+				),
+			)
 		);
 
 		$this->assertSame( array( 'CA', 'GB' ), $config['geo']['gdpr_countries'] );
 		$this->assertSame( array( 'california', 'new jersey' ), $config['geo']['ccpa_regions'] );
 	}
 
+	public function test_resolve_drops_non_scalar_geo_list_entries() {
+		$config = Config_Schema::resolve(
+			array(
+				'geo' => array(
+					'gdpr_countries' => array( 'ca', array( 'nested' ) ),
+					'ccpa_regions'   => array( 'california', array( 'x' ) ),
+				),
+			)
+		);
+
+		$this->assertSame( array( 'CA' ), $config['geo']['gdpr_countries'] );
+		$this->assertSame( array( 'california' ), $config['geo']['ccpa_regions'] );
+	}
+
+	public function test_resolve_ignores_non_array_consent() {
+		$defaults = Config_Schema::resolve()['consent']['categories'];
+
+		// A plain scalar: relies on `??`'s offset-access suppression already masking the
+		// hazard on PHP 8, but must still resolve to the defaults rather than 'x' itself.
+		$config = Config_Schema::resolve( array( 'consent' => 'x' ) );
+		$this->assertSame( $defaults, $config['consent']['categories'] );
+
+		// An object: `??` does not suppress "Cannot use object of type X as array", so an
+		// unguarded `$config['consent']['categories']` genuinely fatals here on PHP 8.
+		$config = Config_Schema::resolve( array( 'consent' => new \stdClass() ) );
+		$this->assertSame( $defaults, $config['consent']['categories'] );
+	}
+
 	public function test_resolve_rejects_unknown_provider() {
 		$config = Config_Schema::resolve(
-			array( 'geo' => array( 'provider' => 'bogus', 'api_url' => 'https://example.test/geo' ) )
+			array(
+				'geo' => array(
+					'provider' => 'bogus',
+					'api_url'  => 'https://example.test/geo',
+				),
+			)
 		);
 
 		$this->assertSame( 'wpcom', $config['geo']['provider'] );
@@ -62,14 +116,28 @@ class Config_Schema_Test extends TestCase {
 	}
 
 	public function test_resolve_keeps_blank_custom_api_url() {
-		$config = Config_Schema::resolve( array( 'geo' => array( 'provider' => 'custom', 'api_url' => '' ) ) );
+		$config = Config_Schema::resolve(
+			array(
+				'geo' => array(
+					'provider' => 'custom',
+					'api_url'  => '',
+				),
+			)
+		);
 
 		$this->assertSame( 'custom', $config['geo']['provider'] );
 		$this->assertSame( '', $config['geo']['api_url'] );
 	}
 
 	public function test_resolve_coerces_geo_scalars_with_fallback() {
-		$config = Config_Schema::resolve( array( 'geo' => array( 'cookie_duration' => '7200', 'show_on_error' => 0 ) ) );
+		$config = Config_Schema::resolve(
+			array(
+				'geo' => array(
+					'cookie_duration' => '7200',
+					'show_on_error'   => 0,
+				),
+			)
+		);
 		$this->assertSame( 7200, $config['geo']['cookie_duration'] );
 		$this->assertFalse( $config['geo']['show_on_error'] );
 
@@ -78,7 +146,14 @@ class Config_Schema_Test extends TestCase {
 	}
 
 	public function test_resolve_applies_feature_overrides() {
-		$config = Config_Schema::resolve( array( 'features' => array( 'ccpa_page' => false, 'tracks' => false ) ) );
+		$config = Config_Schema::resolve(
+			array(
+				'features' => array(
+					'ccpa_page' => false,
+					'tracks'    => false,
+				),
+			)
+		);
 
 		$this->assertFalse( $config['features']['ccpa_page'] );
 		$this->assertFalse( $config['features']['tracks'] );

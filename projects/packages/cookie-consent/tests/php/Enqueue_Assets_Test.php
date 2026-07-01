@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\CookieConsent;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use ReflectionProperty;
 
 /**
  * @covers \Automattic\Jetpack\CookieConsent\Cookie_Consent
@@ -41,9 +40,7 @@ class Enqueue_Assets_Test extends TestCase {
 
 	private function reset_init() {
 		Cookie_Consent::deactivate();
-		$prop = new ReflectionProperty( Cookie_Consent::class, 'config' );
-		$prop->setAccessible( true );
-		$prop->setValue( null, null );
+		$this->reset_cookie_consent_config();
 	}
 
 	private function init_and_enqueue( array $config ) {

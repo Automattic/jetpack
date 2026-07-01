@@ -8,8 +8,10 @@
 namespace Automattic\Jetpack\CookieConsent;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use ReflectionProperty;
 
+/**
+ * @covers \Automattic\Jetpack\CookieConsent\Cookie_Consent
+ */
 #[CoversClass( Cookie_Consent::class )]
 class Init_Feature_Toggles_Test extends TestCase {
 
@@ -20,9 +22,7 @@ class Init_Feature_Toggles_Test extends TestCase {
 
 	private function reset_init() {
 		Cookie_Consent::deactivate();
-		$prop = new ReflectionProperty( Cookie_Consent::class, 'config' );
-		$prop->setAccessible( true );
-		$prop->setValue( null, null );
+		$this->reset_cookie_consent_config();
 	}
 
 	public function test_enabled_false_registers_nothing() {
