@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef } from '@wordpress/element';
  * Internal dependencies
  */
 import { fetchCaptionTracks } from '../../lib/video-tracks/caption-tracks';
+import { cancelQueryThenSetData } from './query-client';
 /**
  * Types
  */
@@ -23,7 +24,6 @@ type UseCaptionTracksResult = {
 	captionTracks: SavedCaptionTrack[];
 	setCaptionTracks: Dispatch< SetStateAction< SavedCaptionTrack[] > >;
 	isLoadingCaptionTracks: boolean;
-	invalidateCaptionTracks: () => void;
 };
 
 const EMPTY_CAPTION_TRACKS: SavedCaptionTrack[] = [];
@@ -35,16 +35,14 @@ const getCaptionTracksQueryKey = ( guid: string ) => [ 'videopress', 'caption-tr
  *
  * Backed by a react-query cache keyed by GUID. Mutations write the cache
  * optimistically via `setCaptionTracks`, which cancels any in-flight fetch so
- * a stale response can't overwrite the optimistic list; after a mutation
- * settles, `invalidateCaptionTracks` refetches the authoritative list (the
- * caption-tracks REST store is strongly consistent).
+ * a stale response can't overwrite the optimistic list.
  *
  * @param args         - Hook arguments.
  * @param args.guid    - VideoPress GUID.
  * @param args.isOpen  - Whether the modal is open.
  * @param args.onError - Called when the caption tracks can't be loaded, so a
  *                     stale-empty list doesn't silently invite duplicates.
- * @return Caption-track state, a loading flag, and cache controls.
+ * @return Caption-track state and a loading flag.
  */
 export function useCaptionTracks( {
 	guid,
@@ -71,30 +69,21 @@ export function useCaptionTracks( {
 
 	const setCaptionTracks = useCallback< Dispatch< SetStateAction< SavedCaptionTrack[] > > >(
 		value => {
-			const queryKey = getCaptionTracksQueryKey( guid );
-			/*
-			 * Cancel the in-flight open-fetch first so its now-stale response can't
-			 * land, and write only after the cancellation's state revert has settled
-			 * — a synchronous write here would itself be reverted.
-			 */
-			void queryClient.cancelQueries( { queryKey } ).then( () => {
-				queryClient.setQueryData< SavedCaptionTrack[] >( queryKey, current => {
+			cancelQueryThenSetData< SavedCaptionTrack[] >(
+				queryClient,
+				getCaptionTracksQueryKey( guid ),
+				current => {
 					const currentTracks = current ?? EMPTY_CAPTION_TRACKS;
 					return typeof value === 'function' ? value( currentTracks ) : value;
-				} );
-			} );
+				}
+			);
 		},
 		[ guid, queryClient ]
 	);
-
-	const invalidateCaptionTracks = useCallback( () => {
-		void queryClient.invalidateQueries( { queryKey: getCaptionTracksQueryKey( guid ) } );
-	}, [ guid, queryClient ] );
 
 	return {
 		captionTracks: query.data ?? EMPTY_CAPTION_TRACKS,
 		setCaptionTracks,
 		isLoadingCaptionTracks: query.isLoading,
-		invalidateCaptionTracks,
 	};
 }

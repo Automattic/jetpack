@@ -22,3 +22,23 @@ export const createCaptionManagerQueryClient = (): QueryClient =>
 			},
 		},
 	} );
+
+/**
+ * Write query data after cancelling any in-flight fetch for the key, so a
+ * now-stale response can't overwrite the write. Cancellation asynchronously
+ * reverts the query to its pre-fetch state — a synchronous write here would
+ * itself be reverted — so the write lands once the revert has settled.
+ *
+ * @param {QueryClient} queryClient - Query client to write to.
+ * @param {unknown[]}   queryKey    - Key of the query to cancel and write.
+ * @param {Function}    update      - Maps the current cached value to the next one.
+ */
+export const cancelQueryThenSetData = < T >(
+	queryClient: QueryClient,
+	queryKey: unknown[],
+	update: ( current: T | undefined ) => T
+): void => {
+	void queryClient.cancelQueries( { queryKey } ).then( () => {
+		queryClient.setQueryData< T >( queryKey, update );
+	} );
+};

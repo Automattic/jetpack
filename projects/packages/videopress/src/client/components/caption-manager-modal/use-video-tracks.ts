@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
  */
 import { fetchVideoItem } from '../../lib/fetch-video-item';
 import { flattenVideoTracks } from '../../lib/video-tracks';
+import { cancelQueryThenSetData } from './query-client';
 /**
  * Types
  */
@@ -103,21 +104,17 @@ export function useVideoTracks( {
 
 	const setManagedTracks = useCallback< Dispatch< SetStateAction< VideoTextTrack[] > > >(
 		value => {
-			const queryKey = getVideoTracksQueryKey( guid );
-			/*
-			 * Cancel the in-flight open-fetch first so its now-stale response can't
-			 * land, and write only after the cancellation's state revert has settled
-			 * — a synchronous write here would itself be reverted.
-			 */
-			void queryClient.cancelQueries( { queryKey } ).then( () => {
-				queryClient.setQueryData< VideoTracksQueryData >( queryKey, current => {
+			cancelQueryThenSetData< VideoTracksQueryData >(
+				queryClient,
+				getVideoTracksQueryKey( guid ),
+				current => {
 					const currentTracks = current?.tracks ?? seedTracksRef.current;
 					return {
 						tracks: typeof value === 'function' ? value( currentTracks ) : value,
 						aspectRatio: current?.aspectRatio,
 					};
-				} );
-			} );
+				}
+			);
 		},
 		[ guid, queryClient ]
 	);

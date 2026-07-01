@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Button, FormFileUpload } from '@wordpress/components';
-import { useEffect, useRef } from '@wordpress/element';
+import { useFocusOnMount } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
 /**
@@ -61,7 +61,6 @@ export default function UploadWorkspace( {
 	onSubmit,
 }: UploadWorkspaceProps ): ReactElement {
 	const { form, mode, replacingTrack } = workspace;
-	const containerRef = useRef< HTMLDivElement >( null );
 	const uploadFormTitle = UPLOAD_FORM_TITLE_LABELS[ mode ];
 	const fileName = form.tmpFile?.name;
 
@@ -69,14 +68,12 @@ export default function UploadWorkspace( {
 	 * Focus the workspace container (not the language field) on mount, so
 	 * entering the view never grabs the close button or the picker.
 	 */
-	useEffect( () => {
-		containerRef.current?.focus();
-	}, [] );
+	const focusOnMountRef = useFocusOnMount( true );
 
 	return (
 		<div
 			className="videopress-caption-manager__editor-body videopress-caption-manager__editor-body--upload"
-			ref={ containerRef }
+			ref={ focusOnMountRef }
 			tabIndex={ -1 }
 		>
 			<div className="videopress-caption-manager__upload-panel" aria-label={ uploadFormTitle }>

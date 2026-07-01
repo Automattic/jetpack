@@ -36,7 +36,6 @@ type UseTrackMutationsArgs = {
 	managedTracks: VideoTextTrack[];
 	setManagedTracks: Dispatch< SetStateAction< VideoTextTrack[] > >;
 	setCaptionTracks: Dispatch< SetStateAction< SavedCaptionTrack[] > >;
-	invalidateCaptionTracks: () => void;
 	onTracksChange: ( tracks: VideoTextTrack[] ) => void;
 	setNotice: ( notice: NoticeState ) => void;
 };
@@ -61,14 +60,13 @@ export type UploadOutcome = 'uploaded' | 'cleanup-failed' | 'failed';
  * success notices belong to the calling flow, which also decides when to
  * leave the editor.
  *
- * @param args                         - Hook arguments.
- * @param args.guid                    - VideoPress GUID.
- * @param args.managedTracks           - Current managed track list.
- * @param args.setManagedTracks        - Managed track list setter.
- * @param args.setCaptionTracks        - Caption track (draft) list setter.
- * @param args.invalidateCaptionTracks - Refetch the caption track list.
- * @param args.onTracksChange          - Host callback for managed track changes.
- * @param args.setNotice               - Modal notice setter.
+ * @param args                  - Hook arguments.
+ * @param args.guid             - VideoPress GUID.
+ * @param args.managedTracks    - Current managed track list.
+ * @param args.setManagedTracks - Managed track list setter.
+ * @param args.setCaptionTracks - Caption track (draft) list setter.
+ * @param args.onTracksChange   - Host callback for managed track changes.
+ * @param args.setNotice        - Modal notice setter.
  * @return Mutation callbacks and busy state.
  */
 export function useTrackMutations( {
@@ -76,7 +74,6 @@ export function useTrackMutations( {
 	managedTracks,
 	setManagedTracks,
 	setCaptionTracks,
-	invalidateCaptionTracks,
 	onTracksChange,
 	setNotice,
 }: UseTrackMutationsArgs ) {
@@ -202,8 +199,6 @@ export function useTrackMutations( {
 					next[ existingIndex ] = savedCaptionTrack;
 					return next;
 				} );
-				// The caption-track store is strongly consistent; refetch the full list.
-				invalidateCaptionTracks();
 				if ( announce ) {
 					setNotice( {
 						status: 'success',
@@ -227,7 +222,7 @@ export function useTrackMutations( {
 				setIsSavingCaptionTrack( false );
 			}
 		},
-		[ invalidateCaptionTracks, setCaptionTracks, setNotice ]
+		[ setCaptionTracks, setNotice ]
 	);
 
 	/**
@@ -349,37 +344,31 @@ export function useTrackMutations( {
 			setDeletingTrackKey( key );
 			setNotice( null );
 
-			try {
-				const response = await deleteTrackForGuid( track, guid );
-				if ( hasTrackApiError( response ) ) {
-					setNotice( {
-						status: 'error',
-						message: sprintf(
-							/* translators: %s: VideoPress API error. */
-							__( 'Track error: %s', 'jetpack-videopress-pkg' ),
-							getTrackApiErrorMessage(
-								response,
-								__( 'Unable to delete track.', 'jetpack-videopress-pkg' )
-							)
-						),
-					} );
-					return;
-				}
-
-				applyTracksChange( managedTracks.filter( current => getTrackKey( current ) !== key ) );
-			} catch ( deleteError ) {
-				debug( 'delete track error', deleteError );
+			// API error envelopes and thrown transport errors get the same notice.
+			const notifyDeleteError = ( source: unknown ) =>
 				setNotice( {
 					status: 'error',
 					message: sprintf(
 						/* translators: %s: VideoPress API error. */
 						__( 'Track error: %s', 'jetpack-videopress-pkg' ),
 						getTrackApiErrorMessage(
-							deleteError,
+							source,
 							__( 'Unable to delete track.', 'jetpack-videopress-pkg' )
 						)
 					),
 				} );
+
+			try {
+				const response = await deleteTrackForGuid( track, guid );
+				if ( hasTrackApiError( response ) ) {
+					notifyDeleteError( response );
+					return;
+				}
+
+				applyTracksChange( managedTracks.filter( current => getTrackKey( current ) !== key ) );
+			} catch ( deleteError ) {
+				debug( 'delete track error', deleteError );
+				notifyDeleteError( deleteError );
 			} finally {
 				setDeletingTrackKey( null );
 			}
@@ -400,7 +389,6 @@ export function useTrackMutations( {
 			try {
 				await deleteCaptionTrack( captionTrack.id );
 				setCaptionTracks( current => current.filter( item => item.id !== captionTrack.id ) );
-				invalidateCaptionTracks();
 			} catch ( deleteError ) {
 				debug( 'delete caption draft error', deleteError );
 				setNotice( {
@@ -411,7 +399,7 @@ export function useTrackMutations( {
 				setDeletingTrackKey( null );
 			}
 		},
-		[ invalidateCaptionTracks, setCaptionTracks, setNotice ]
+		[ setCaptionTracks, setNotice ]
 	);
 
 	/**

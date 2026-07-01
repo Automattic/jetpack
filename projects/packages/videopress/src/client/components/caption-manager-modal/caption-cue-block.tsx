@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
-import { createBlock, registerBlockType, getBlockType } from '@wordpress/blocks';
+import { registerBlockType, getBlockType } from '@wordpress/blocks';
 import { Button, TextControl, TextareaControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
@@ -18,6 +18,7 @@ import {
 	parseTimestampToSeconds,
 } from '../../lib/video-tracks/cues';
 import { useCaptionEditorContext } from './caption-editor-context';
+import { createCueAtPlayhead, createCueBlock, DEFAULT_CUE_DURATION_SECONDS } from './track-helpers';
 /**
  * Types
  */
@@ -34,22 +35,6 @@ type CaptionCueEditProps = {
 	clientId: string;
 	setAttributes: ( attributes: Partial< CaptionCueBlockAttributes > ) => void;
 };
-
-const DEFAULT_CUE_DURATION_SECONDS = 2;
-
-/**
- * Create a cue that starts at the given video playback time.
- *
- * @param currentTime - Current video time in seconds.
- * @return The new caption cue block.
- */
-function createCueAtPlayhead( currentTime: number ) {
-	const seconds = Number.isFinite( currentTime ) ? Math.max( 0, currentTime ) : 0;
-	return createBlock( CAPTION_CUE_BLOCK_NAME, {
-		startTime: formatSecondsAsTimestamp( seconds ),
-		endTime: formatSecondsAsTimestamp( seconds + DEFAULT_CUE_DURATION_SECONDS ),
-	} );
-}
 
 /**
  * Block editor edit view for a single subtitle cue: text, start/end time
@@ -113,14 +98,14 @@ const CaptionCueEdit = ( {
 
 		if ( end !== null ) {
 			const duration = start !== null && end > start ? end - start : DEFAULT_CUE_DURATION_SECONDS;
-			return createBlock( CAPTION_CUE_BLOCK_NAME, {
+			return createCueBlock( {
 				startTime: formatSecondsAsTimestamp( end ),
 				endTime: formatSecondsAsTimestamp( end + duration ),
 				text,
 			} );
 		}
 
-		return createBlock( CAPTION_CUE_BLOCK_NAME, { text } );
+		return createCueBlock( { text } );
 	};
 
 	return (
