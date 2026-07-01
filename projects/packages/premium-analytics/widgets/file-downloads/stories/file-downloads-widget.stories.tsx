@@ -49,6 +49,7 @@ function renderFileDownloadsWidget( { withComparison }: FileDownloadsStoryContro
 	return (
 		<FileDownloadsRender
 			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			showTitle={ false }
 		/>
 	);
 }

@@ -34,6 +34,9 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type FileDownloadsRenderAttributes = FileDownloadsAttributes &
 	Partial< ReportParamsFieldAttributes >;
+type FileDownloadsWidgetProps = WidgetRenderProps< FileDownloadsRenderAttributes > & {
+	showTitle?: boolean;
+};
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 const FILE_DOWNLOADS_UNAVAILABLE_STATUS = 404;
@@ -279,11 +282,12 @@ export function FileDownloadsLeaderboard( {
 /**
  * Inner component — rendered inside WidgetRoot, reads dashboard context.
  *
- * @param props     - Props.
- * @param props.max - Max rows to display.
+ * @param props           - Props.
+ * @param props.max       - Max rows to display.
+ * @param props.showTitle - Whether to render the widget title inside the render module.
  * @return The rendered leaderboard or state placeholder.
  */
-function FileDownloadsInner( { max }: { max: number } ) {
+function FileDownloadsInner( { max, showTitle }: { max: number; showTitle: boolean } ) {
 	const { reportParams } = useWidgetRootContext();
 	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error } =
 		useStatsFileDownloads( reportParams as StatsReportParams );
@@ -302,13 +306,13 @@ function FileDownloadsInner( { max }: { max: number } ) {
 		[ primary.data, max, hasComparison, comparison.data ]
 	);
 
-	const header = (
+	const header = showTitle ? (
 		<Stack direction="row" align="center" className={ styles.widgetHeader }>
 			<Text variant="heading-md" render={ <h3 /> }>
 				{ __( 'File downloads', 'jetpack-premium-analytics' ) }
 			</Text>
 		</Stack>
-	);
+	) : null;
 
 	return (
 		<>
@@ -334,17 +338,19 @@ function FileDownloadsInner( { max }: { max: number } ) {
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes (max).
+ * @param props.showTitle  - Whether to render the widget title inside the render module.
  * @return The rendered widget content.
  */
 export default function FileDownloadsWidget( {
 	attributes = {},
-}: WidgetRenderProps< FileDownloadsRenderAttributes > ) {
+	showTitle = true,
+}: FileDownloadsWidgetProps ) {
 	const max = attributes?.max ?? 10;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<FileDownloadsInner max={ max } />
+				<FileDownloadsInner max={ max } showTitle={ showTitle } />
 			</div>
 		</WidgetRoot>
 	);
