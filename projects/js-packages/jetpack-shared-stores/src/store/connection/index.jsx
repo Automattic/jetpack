@@ -21,6 +21,7 @@ import STORE_ID from './store-id';
  */
 export const CONNECTION_STORE_ID = STORE_ID;
 
+/** @type {import('@wordpress/data').StoreDescriptor | undefined} */
 let store;
 
 /**
@@ -33,38 +34,40 @@ let store;
  * consumers should `select()`/`dispatch()` against the returned value rather
  * than assume the store id is already registered.
  *
- * @return {object} The registered connection store descriptor.
+ * @return {import('@wordpress/data').StoreDescriptor} The registered connection store descriptor.
  */
 export function initConnectionStore() {
-	if ( ! store ) {
-		const initialState = window.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
-
-		/*
-		 * Configure this bundle's `@automattic/jetpack-api` instance from the
-		 * initial state. The store's controls (registerSite, fetchAuthorizationUrl,
-		 * ...) call `restApi`, but since this store lives in the externalized
-		 * shared-stores bundle it has its own copy of the api singleton, separate
-		 * from the consuming app's copy. Without this the store's REST calls would
-		 * hit the default root with no nonce and fail.
-		 */
-		if ( initialState.apiRoot ) {
-			restApi.setApiRoot( initialState.apiRoot );
-		}
-		if ( initialState.apiNonce ) {
-			restApi.setApiNonce( initialState.apiNonce );
-		}
-
-		store = createReduxStore( STORE_ID, {
-			__experimentalUseThunks: true,
-			reducer,
-			actions,
-			selectors,
-			resolvers,
-			controls,
-			initialState,
-		} );
-		register( store );
+	if ( store ) {
+		return store;
 	}
+
+	const initialState = window.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
+
+	/*
+	 * Configure this bundle's `@automattic/jetpack-api` instance from the
+	 * initial state. The store's controls (registerSite, fetchAuthorizationUrl,
+	 * ...) call `restApi`, but since this store lives in the externalized
+	 * shared-stores bundle it has its own copy of the api singleton, separate
+	 * from the consuming app's copy. Without this the store's REST calls would
+	 * hit the default root with no nonce and fail.
+	 */
+	if ( initialState.apiRoot ) {
+		restApi.setApiRoot( initialState.apiRoot );
+	}
+	if ( initialState.apiNonce ) {
+		restApi.setApiNonce( initialState.apiNonce );
+	}
+
+	store = createReduxStore( STORE_ID, {
+		__experimentalUseThunks: true,
+		reducer,
+		actions,
+		selectors,
+		resolvers,
+		controls,
+		initialState,
+	} );
+	register( store );
 
 	return store;
 }
