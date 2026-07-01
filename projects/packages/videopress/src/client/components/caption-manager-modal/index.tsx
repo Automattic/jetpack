@@ -34,6 +34,7 @@ import {
 	CAPTION_FORMAT_MIME_TYPES,
 	deleteTrackForGuid,
 	fetchTrackContentForGuid,
+	flattenVideoTracks,
 	normalizeVideoTextTrackResponse,
 	SUPPORTED_CAPTION_FORMATS,
 	TRACK_KIND_OPTIONS,
@@ -581,8 +582,9 @@ export default function CaptionManagerModal( {
 		}
 	}, [ isOpen ] );
 
-	// Size the preview to the video's own aspect ratio so portrait videos aren't
-	// pillarboxed in a landscape frame. Falls back to 16:9 until it resolves.
+	// Fetch the video info on open for the authoritative live track list and the
+	// preview aspect ratio. The video-info tracks are the source of truth; the
+	// tracks prop isn't always populated (e.g. the dashboard media REST omits it).
 	useEffect( () => {
 		if ( ! isOpen || ! guid ) {
 			return;
@@ -591,9 +593,17 @@ export default function CaptionManagerModal( {
 		let isMounted = true;
 		fetchVideoItem( { guid, isPrivate: false } )
 			.then( info => {
+				if ( ! isMounted ) {
+					return;
+				}
+
+				if ( info?.tracks ) {
+					setManagedTracks( flattenVideoTracks( info.tracks ) );
+				}
+
 				const width = Number( info?.width );
 				const height = Number( info?.height );
-				if ( isMounted && width > 0 && height > 0 ) {
+				if ( width > 0 && height > 0 ) {
 					setPreviewAspectRatio( `${ width } / ${ height }` );
 				}
 			} )
@@ -1214,9 +1224,16 @@ export default function CaptionManagerModal( {
 				return null;
 			}
 
+			// Reuse the existing caption track for this language so a second save
+			// updates it instead of creating a duplicate: there is one track per
+			// language, so language uniquely resolves the record to write.
+			const existingForLanguage = captionTracks.find( captionTrack =>
+				isMatchingCaptionTrackLanguage( captionTrack, canonicalSrcLang )
+			);
+
 			const cueContent = serialize( cueBlocks );
 			return {
-				id: captionTrackId,
+				id: captionTrackId ?? existingForLanguage?.id,
 				title:
 					manualTrack.label.trim() ||
 					sprintf(
@@ -1235,7 +1252,7 @@ export default function CaptionManagerModal( {
 				},
 			};
 		},
-		[ cueBlocks, captionTrackId, guid, manualSourceTrack, manualTrack ]
+		[ captionTracks, cueBlocks, captionTrackId, guid, manualSourceTrack, manualTrack ]
 	);
 
 	const saveManualCaptionTrack = useCallback(
