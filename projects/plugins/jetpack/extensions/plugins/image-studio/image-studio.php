@@ -57,16 +57,19 @@ function is_image_studio_enabled() {
 /**
  * Whether the current user may load Image Studio's editor assets.
  *
- * Mirrors the editor's per-user connection gate: always true on WordPress.com
- * Simple and WoA, otherwise the current user must have connected their own
- * WordPress.com account. A site-level connection owner is not enough. Gates the
- * asset enqueue and the media-library entry point so non-connected users aren't
- * shown tools that would only error out.
+ * True on WordPress.com Simple, which has no per-user Jetpack connection so every
+ * admin counts as connected. Atomic (WoA), self-hosted and VIP all have per-user
+ * connections, so there the current user must have connected their own
+ * WordPress.com account — a user who has disconnected is correctly treated as not
+ * connected. Gates the asset enqueue and the media-library entry point so
+ * non-connected users aren't shown tools that would only error out.
  *
  * @return bool
  */
 function is_current_user_connected() {
-	if ( ( new Host() )->is_wpcom_platform() ) {
+	// Simple has no per-user connection; Atomic/WoA does, so it uses the real
+	// per-user check like self-hosted and VIP rather than short-circuiting.
+	if ( ( new Host() )->is_wpcom_simple() ) {
 		return true;
 	}
 
