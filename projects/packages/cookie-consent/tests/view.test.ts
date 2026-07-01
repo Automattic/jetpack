@@ -30,6 +30,7 @@ interface StoreConfig {
 	cookiePolicyUrl: string;
 	gdprHonorsGpc: boolean;
 	forcePreview: boolean;
+	geoEnabled?: boolean;
 }
 
 type Action = ( ...args: unknown[] ) => Generator< unknown, unknown, unknown >;
@@ -163,6 +164,17 @@ describe( 'initializeGeolocation geo-provider error handling', () => {
 		expect( result ).toMatchObject( { initialized: true, countryCode: 'FR', region: 'Brittany' } );
 		expect( cookieWrites.some( write => write.includes( 'country_code=FR' ) ) ).toBe( true );
 		expect( cookieWrites.some( write => write.includes( 'region=Brittany' ) ) ).toBe( true );
+	} );
+} );
+
+describe( 'initializeGeolocation geoEnabled flag', () => {
+	it( 'skips geolocation fetch and treats visitor as unknown when geoEnabled is false', async () => {
+		mockGetConfig.mockReturnValue( { ...makeConfig(), geoEnabled: false } );
+
+		const result = await runAction( storeActions.initializeGeolocation() );
+
+		expect( fetchMock ).not.toHaveBeenCalled();
+		expect( result ).toMatchObject( { initialized: true, countryCode: UNKNOWN_COUNTRY_CODE } );
 	} );
 } );
 
