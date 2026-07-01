@@ -276,6 +276,46 @@ class Caption_Tracks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests deleting a caption track through REST.
+	 */
+	public function test_caption_track_can_be_deleted() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request->set_body_params( $this->track_payload() );
+		$created = $this->server->dispatch( $create_request )->get_data();
+
+		$delete_request = new WP_REST_Request( 'DELETE', '/jetpack/v4/videopress/caption-tracks/' . $created['id'] );
+		$response       = $this->server->dispatch( $delete_request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( $response->get_data()['deleted'] );
+		$this->assertNull( get_post( $created['id'] ) );
+	}
+
+	/**
+	 * Tests that deleting a caption track is denied without video edit access.
+	 */
+	public function test_caption_track_delete_denied_without_video_access() {
+		$guid = 'vid05678';
+		$this->create_videopress_attachment( $guid, $this->author_id );
+		wp_set_current_user( $this->author_id );
+
+		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request->set_body_params( $this->track_payload_for_guid( $guid ) );
+		$created = $this->server->dispatch( $create_request )->get_data();
+
+		wp_set_current_user( $this->other_author_id );
+
+		$delete_request = new WP_REST_Request( 'DELETE', '/jetpack/v4/videopress/caption-tracks/' . $created['id'] );
+		$response       = $this->server->dispatch( $delete_request );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertInstanceOf( \WP_Post::class, get_post( $created['id'] ) );
+	}
+
+	/**
 	 * Tests that `upload_files` alone cannot save captions for a GUID with no local video.
 	 *
 	 * Where the resolver is available, a GUID that has no local attachment is

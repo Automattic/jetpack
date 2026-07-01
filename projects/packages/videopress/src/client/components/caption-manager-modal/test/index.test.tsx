@@ -7,7 +7,11 @@ import {
 	fetchTrackContentForGuid,
 	uploadTrackForGuid,
 } from '../../../lib/video-tracks';
-import { fetchCaptionTracks, saveCaptionTrack } from '../../../lib/video-tracks/caption-tracks';
+import {
+	deleteCaptionTrack,
+	fetchCaptionTracks,
+	saveCaptionTrack,
+} from '../../../lib/video-tracks/caption-tracks';
 
 let mockBlockEditorState: {
 	blocks: Array< { name: string; attributes: Record< string, string >; clientId: string } >;
@@ -194,8 +198,10 @@ jest.mock( '@wordpress/icons', () => ( {
 	chevronRight: 'chevron-right',
 	copy: 'copy',
 	download: 'download',
+	pencil: 'pencil',
 	plus: 'plus',
 	trash: 'trash',
+	replace: 'replace',
 	upload: 'upload',
 } ) );
 
@@ -253,6 +259,7 @@ jest.mock( '../../../lib/video-tracks/caption-tracks', () => ( {
 		sourceTrackSrcLang: '_videopress_source_track_src_lang',
 		sourceTrackSrc: '_videopress_source_track_src',
 	},
+	deleteCaptionTrack: jest.fn().mockResolvedValue( { deleted: true } ),
 	fetchCaptionTracks: jest.fn().mockResolvedValue( [] ),
 	getSourceTrackMeta: track =>
 		track
@@ -424,7 +431,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getByText( /Manual.*Processing/ ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Audio descriptions' ) ).not.toBeInTheDocument();
 
-		const editButtons = screen.getAllByRole( 'button', { name: 'Edit manually' } );
+		const editButtons = screen.getAllByRole( 'button', { name: 'Edit' } );
 		const replaceButtons = screen.getAllByRole( 'button', { name: 'Replace file' } );
 		const downloadButtons = screen.getAllByRole( 'button', { name: 'Download' } );
 
@@ -489,7 +496,7 @@ describe( 'CaptionManagerModal', () => {
 		await expect( screen.findByText( 'Portuguese' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Draft' ) ).toBeInTheDocument();
 
-		await user.click( screen.getByRole( 'button', { name: 'Edit saved track' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
 
 		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( 'pt-BR' );
 		expect( screen.getByLabelText( 'Cue text' ) ).toHaveValue( 'Draft text.' );
@@ -507,7 +514,7 @@ describe( 'CaptionManagerModal', () => {
 		);
 		render( <CaptionManagerModal { ...defaultProps } /> );
 
-		await user.click( screen.getAllByText( 'Edit manually' )[ 0 ] );
+		await user.click( screen.getAllByText( 'Edit' )[ 0 ] );
 
 		expect( screen.getByText( /Loading subtitle content/ ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Save Draft' } ) ).toBeDisabled();
@@ -531,7 +538,7 @@ describe( 'CaptionManagerModal', () => {
 		( fetchTrackContentForGuid as jest.Mock ).mockRejectedValueOnce( new Error( 'Network error' ) );
 		render( <CaptionManagerModal { ...defaultProps } /> );
 
-		await user.click( screen.getAllByText( 'Edit manually' )[ 0 ] );
+		await user.click( screen.getAllByText( 'Edit' )[ 0 ] );
 
 		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
 			'Unable to load subtitle content. You can try again from the track list or start from an empty subtitle track.'
@@ -926,6 +933,32 @@ describe( 'CaptionManagerModal', () => {
 		expect( deleteTrackForGuid ).not.toHaveBeenCalled();
 	} );
 
+	it( 'deletes a draft caption track', async () => {
+		const user = userEvent.setup();
+		( fetchCaptionTracks as jest.Mock ).mockResolvedValueOnce( [
+			{
+				id: 202,
+				title: 'Portuguese captions',
+				content: '',
+				status: 'draft',
+				meta: {
+					_videopress_guid: 'abc123',
+					_videopress_caption_kind: 'captions',
+					_videopress_caption_src_lang: 'pt-BR',
+					_videopress_caption_label: 'Portuguese',
+				},
+			},
+		] );
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await expect( screen.findByText( 'Portuguese' ) ).resolves.toBeInTheDocument();
+		await user.click( screen.getByRole( 'button', { name: 'Delete' } ) );
+
+		expect( window.confirm ).toHaveBeenCalled();
+		await waitFor( () => expect( deleteCaptionTrack ).toHaveBeenCalledWith( 202 ) );
+		await waitFor( () => expect( screen.queryByText( 'Portuguese' ) ).not.toBeInTheDocument() );
+	} );
+
 	it( 'downloads existing track content', async () => {
 		const user = userEvent.setup();
 		const clickSpy = jest
@@ -1094,7 +1127,7 @@ describe( 'CaptionManagerModal', () => {
 
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
-		await user.click( await screen.findByRole( 'button', { name: 'Edit saved track' } ) );
+		await user.click( await screen.findByRole( 'button', { name: 'Edit' } ) );
 		await user.click( screen.getByText( 'Publish' ) );
 
 		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
@@ -1109,7 +1142,7 @@ describe( 'CaptionManagerModal', () => {
 		const onTracksChange = jest.fn();
 		render( <CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } /> );
 
-		await user.click( screen.getAllByText( 'Edit manually' )[ 1 ] );
+		await user.click( screen.getAllByText( 'Edit' )[ 1 ] );
 		await waitFor( () =>
 			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracks[ 1 ], 'abc123' )
 		);
@@ -1184,7 +1217,7 @@ describe( 'CaptionManagerModal', () => {
 			/>
 		);
 
-		await user.click( screen.getByText( 'Edit manually' ) );
+		await user.click( screen.getByText( 'Edit' ) );
 		await waitFor( () =>
 			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracksWithId[ 0 ], 'abc123' )
 		);

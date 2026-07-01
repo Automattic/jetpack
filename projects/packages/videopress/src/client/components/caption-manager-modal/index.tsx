@@ -14,7 +14,16 @@ import {
 } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { chevronLeft, chevronRight, download, plus, upload, trash } from '@wordpress/icons';
+import {
+	chevronLeft,
+	chevronRight,
+	download,
+	pencil,
+	plus,
+	replace,
+	upload,
+	trash,
+} from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import debugFactory from 'debug';
 /**
@@ -32,6 +41,7 @@ import {
 } from '../../lib/video-tracks';
 import {
 	CAPTION_TRACK_META,
+	deleteCaptionTrack,
 	fetchCaptionTracks,
 	getSourceTrackMeta,
 	saveCaptionTrack,
@@ -972,6 +982,40 @@ export default function CaptionManagerModal( {
 		[ applyTracksChange, guid, managedTracks ]
 	);
 
+	const deleteDraft = useCallback( async ( captionTrack: SavedCaptionTrack ) => {
+		const draft = getManualTrackFromCaptionTrack( captionTrack );
+		const shouldDelete =
+			// eslint-disable-next-line no-alert -- Needs a blocking confirmation before deleting a subtitle draft.
+			window.confirm(
+				sprintf(
+					/* translators: %s: subtitle track language or label. */
+					__( 'Delete the %s subtitle draft? This cannot be undone.', 'jetpack-videopress-pkg' ),
+					draft.label || getTrackLanguageName( draft.srcLang )
+				)
+			);
+
+		if ( ! shouldDelete ) {
+			return;
+		}
+
+		const key = getStoredCaptionTrackKey( captionTrack );
+		setDeletingTrackKey( key );
+		setNotice( null );
+
+		try {
+			await deleteCaptionTrack( captionTrack.id );
+			setCaptionTracks( current => current.filter( item => item.id !== captionTrack.id ) );
+		} catch ( deleteError ) {
+			debug( 'delete caption draft error', deleteError );
+			setNotice( {
+				status: 'error',
+				message: __( 'Unable to delete the subtitle draft.', 'jetpack-videopress-pkg' ),
+			} );
+		} finally {
+			setDeletingTrackKey( null );
+		}
+	}, [] );
+
 	const downloadTrack = useCallback(
 		async ( track: VideoTextTrack ) => {
 			const key = getTrackKey( track );
@@ -1781,16 +1825,18 @@ export default function CaptionManagerModal( {
 												</div>
 												<div className="videopress-caption-manager__track-actions">
 													<Button
-														variant="secondary"
+														variant="link"
+														icon={ pencil }
 														onClick={ () => void startManualTrack( track ) }
 														disabled={
 															isSavingUpload || isPublishing || !! deletingTrackKey || ! isReady
 														}
 													>
-														{ __( 'Edit manually', 'jetpack-videopress-pkg' ) }
+														{ __( 'Edit', 'jetpack-videopress-pkg' ) }
 													</Button>
 													<Button
-														variant="secondary"
+														variant="link"
+														icon={ replace }
 														onClick={ () => startUploadTrack( track ) }
 														disabled={
 															isSavingUpload ||
@@ -1803,7 +1849,7 @@ export default function CaptionManagerModal( {
 														{ __( 'Replace file', 'jetpack-videopress-pkg' ) }
 													</Button>
 													<Button
-														variant="secondary"
+														variant="link"
 														icon={ download }
 														isBusy={ isDownloading }
 														onClick={ () => void downloadTrack( track ) }
@@ -1835,6 +1881,8 @@ export default function CaptionManagerModal( {
 									} ) }
 									{ draftCaptionTracks.map( captionTrack => {
 										const localTrack = getManualTrackFromCaptionTrack( captionTrack );
+										const draftKey = getStoredCaptionTrackKey( captionTrack );
+										const isDeletingDraft = deletingTrackKey === draftKey;
 
 										return (
 											<div
@@ -1851,7 +1899,8 @@ export default function CaptionManagerModal( {
 												</div>
 												<div className="videopress-caption-manager__track-actions">
 													<Button
-														variant="secondary"
+														variant="link"
+														icon={ pencil }
 														onClick={ () => startStoredCaptionTrack( captionTrack ) }
 														disabled={
 															isSavingUpload ||
@@ -1860,7 +1909,17 @@ export default function CaptionManagerModal( {
 															!! deletingTrackKey
 														}
 													>
-														{ __( 'Edit saved track', 'jetpack-videopress-pkg' ) }
+														{ __( 'Edit', 'jetpack-videopress-pkg' ) }
+													</Button>
+													<Button
+														variant="link"
+														icon={ trash }
+														isDestructive
+														isBusy={ isDeletingDraft }
+														disabled={ isSavingUpload || isPublishing || !! deletingTrackKey }
+														onClick={ () => void deleteDraft( captionTrack ) }
+													>
+														{ __( 'Delete', 'jetpack-videopress-pkg' ) }
 													</Button>
 												</div>
 											</div>
