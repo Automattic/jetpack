@@ -456,11 +456,12 @@ function getStatsMock( path: string ): unknown | null {
 	const subPath = queryIndex === -1 ? withoutBase : withoutBase.slice( 0, queryIndex );
 	const query = new URLSearchParams( queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 ) );
 	const isComparison = isComparisonRequest( path );
-	const locationViewsMatch = subPath.match( /^\/location-views\/(country|region|city)$/ );
 
 	if ( subPath.startsWith( '/clicks' ) ) {
 		return isComparison ? MOCK_CLICKS_COMPARISON : MOCK_CLICKS;
 	}
+
+	const locationViewsMatch = subPath.match( /^\/location-views\/(country|region|city)$/ );
 
 	if ( locationViewsMatch ) {
 		return buildStatsLocationViewsResponse(
