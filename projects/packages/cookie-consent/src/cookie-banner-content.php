@@ -21,11 +21,11 @@ $banner_context      = array(
 	'textExpanded' => false,
 );
 $banner_context_json = wp_json_encode( $banner_context, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
-$links              = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
-$cookie_policy_url  = array_key_exists( 'cookie_policy_url', $links ) && is_scalar( $links['cookie_policy_url'] )
+$links               = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
+$cookie_policy_url   = array_key_exists( 'cookie_policy_url', $links ) && is_scalar( $links['cookie_policy_url'] )
 	? trim( (string) $links['cookie_policy_url'] )
 	: '';
-$privacy_policy_url = (string) get_privacy_policy_url();
+$privacy_policy_url  = (string) get_privacy_policy_url();
 ?>
 
 <div
