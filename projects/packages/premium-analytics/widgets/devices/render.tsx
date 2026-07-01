@@ -119,11 +119,6 @@ function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } )
 		);
 	}
 
-	const total = data.reduce( ( sum, item ) => sum + toRatio( item.percentage ), 0 );
-	const comparisonTotal = comparisonData.reduce(
-		( sum, item ) => sum + toRatio( item.percentage ),
-		0
-	);
 	const comparisonMap = new Map(
 		comparisonData.map( item => [ item.label, toRatio( item.percentage ) ] )
 	);
@@ -150,10 +145,9 @@ function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } )
 				<div className={ styles.chartShell }>
 					<SemiCircleChart
 						chartData={ chartData }
-						value={ total }
-						comparisonValue={ hasComparison ? comparisonTotal : null }
 						styles={ segmentStyles }
 						showLegend={ false }
+						showMetric={ false }
 						dataFormat={ PERCENTAGE_DATA_FORMAT }
 					/>
 					<Legend items={ styledLegendData } withComparison={ hasComparison } />
