@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Register the Jetpack connection data store via initConnectionStore().
