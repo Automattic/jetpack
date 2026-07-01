@@ -232,3 +232,39 @@ export const lightenHexColor = ( hex: string, blend: number ): string => {
 		.toString( 16 )
 		.padStart( 2, '0' ) }${ newB.toString( 16 ).padStart( 2, '0' ) }`;
 };
+
+/**
+ * WCAG relative luminance of a hex color (0 = black, 1 = white).
+ *
+ * @param  hex - Hex color string (e.g., '#98C8DF')
+ * @return Relative luminance in the range [0, 1]
+ * @throws {Error} if hex string is malformed
+ */
+export const relativeLuminance = ( hex: string ): number => {
+	validateHexColor( hex );
+
+	const toLinear = ( value: number ): number => {
+		const channel = value / 255;
+		return channel <= 0.03928 ? channel / 12.92 : Math.pow( ( channel + 0.055 ) / 1.055, 2.4 );
+	};
+
+	const r = toLinear( parseInt( hex.slice( 1, 3 ), 16 ) );
+	const g = toLinear( parseInt( hex.slice( 3, 5 ), 16 ) );
+	const b = toLinear( parseInt( hex.slice( 5, 7 ), 16 ) );
+
+	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+/**
+ * Whether light text reads better than dark text on the given background, using the W3C
+ * luminance threshold (0.179) that maximizes contrast against black vs white.
+ *
+ * @param backgroundHex - Hex background color
+ * @return true if light text should be used; false (dark text) for malformed colors
+ */
+export const prefersLightText = ( backgroundHex: string ): boolean => {
+	if ( ! isValidHexColor( backgroundHex ) ) {
+		return false;
+	}
+	return relativeLuminance( backgroundHex ) <= 0.179;
+};
