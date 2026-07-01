@@ -54,6 +54,9 @@ function ToolToggle( { toolId, tool, savingToolIds, onToggle } ) {
 	);
 }
 
+const LABEL_SHOW_OPERATIONS = __( 'Show operations', 'jetpack' );
+const LABEL_HIDE_OPERATIONS = __( 'Hide operations', 'jetpack' );
+
 /**
  * Collapsible card for one display group.
  *
@@ -102,9 +105,7 @@ function GroupCard( { descriptor, label, groupTools, savingToolIds, onToolChange
 					<Button
 						className="jetpack-ai-mcp__group-chevron"
 						icon={ isOpen ? chevronUp : chevronDown }
-						label={
-							isOpen ? __( 'Hide operations', 'jetpack' ) : __( 'Show operations', 'jetpack' )
-						}
+						label={ isOpen ? LABEL_HIDE_OPERATIONS : LABEL_SHOW_OPERATIONS }
 						aria-expanded={ isOpen }
 						onClick={ handleChevron }
 					/>
