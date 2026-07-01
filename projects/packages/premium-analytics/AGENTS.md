@@ -146,6 +146,9 @@ Notes:
 
 - `name` in both `widget.json` and `widget.ts` MUST use the `jpa/` prefix
   (e.g. `jpa/<widget-name>`).
+- Stats chart and leaderboard widgets should use `"presentation": "full-bleed"` in
+  `widget.json`. Use a framed widget only when product/design specifically asks for a
+  contained card surface.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
   `OrderMetricWidget`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
@@ -224,7 +227,10 @@ not be merged.
 ### Story template
 
 Every widget ships three stories: a **Default** close-up, a **WithComparison** close-up, and a
-**WidgetDashboardWithWidget** story that mounts the real dashboard. This template is
+**WidgetDashboardWithWidget** story that mounts the real dashboard. Treat these as the canonical
+review surface: prefer Storybook controls for widget-specific selectors instead of adding a
+separate story per selector value. Add an extra story only when the state cannot be reached through
+controls and needs direct review. This template is
 self-contained — copy it as the base rather than an existing widget's story file, which may
 have drifted. `meta.component` is the widget's render component; widget-specific args
 (comparison toggles, view selectors, …) are wired as Storybook controls.
@@ -322,6 +328,8 @@ export const WithComparison: Story = {
 
 **3. `WidgetDashboardWithWidget`** — mounts the real `WidgetDashboard` so the widget renders
 exactly as it does in product, inheriting the size / edit-mode / host-environment controls:
+default `withComparison` to `true` so this story exercises dashboard comparison plumbing and
+graceful fallback behavior.
 
 ```tsx
 interface MyWidgetDashboardStoryProps
@@ -403,6 +411,10 @@ before writing any Stats widget — many mistakes here are silent at build time.
 `useStatsSearchTerms`, `useStatsLocations`, `useStatsDevices`, …). Look there first —
 do not call `fetchStatsProxy` or `apiFetch` directly from a widget.
 
+If a port needs data-layer processing, fixtures, or proxy behavior that is broader than the
+widget UI itself, prefer a small prep PR before the widget PR. This keeps review focused and
+makes it clearer whether a discussion is about endpoint correctness or widget presentation.
+
 Each hook returns `{ primary, comparison, isLoading, isError, … }`. For the standard
 leaderboard/list widgets, reach data through:
 
@@ -432,6 +444,11 @@ the content area with the state message. Composite widgets may use a custom plac
 of `LeaderboardChart`'s `emptyStateText`, but the state should still be centered inside the
 content area.
 
+Known unsupported endpoint states should use product-specific copy rather than the generic
+"Could not load" fallback (for example unsupported Jetpack-site responses). Map the relevant
+status code or normalized error code in the widget/view helper, and render that message through
+the same content wrapper as every other state.
+
 **Comparison data**
 
 Stats hooks built on `useStatsReport()` return `{ primary, comparison, hasComparison, ... }`.
@@ -452,18 +469,27 @@ render a visible delta/sparkline from placeholder values.
 
 **Drill-down leaderboards**
 
-Rows with children may be interactive and drill into a second-level leaderboard. Rows without
-children must not look like drill-down rows. If a row has an external `href` and no children,
-render it as a normal external link even when sibling rows drill down.
+Rows with children may be interactive and drill into a second-level leaderboard; render those
+rows as button-like drill-down actions, not as external links. Rows without children must not
+look like drill-down rows. If a row has an external `href` and no children, render it as a normal
+external link even when sibling rows drill down.
 
 When a leaderboard drills down, use a breadcrumb in the widget body header to navigate back to
 the parent list. The child list should show child labels only; do not repeat the selected parent
 label in every row if the breadcrumb already identifies that parent. Header controls such as
 dropdowns should wrap cleanly on narrow widget widths instead of colliding with the breadcrumb.
+Keep drill-down state local to the widget until a shared toolkit primitive exists, but match this
+behavior across Stats widgets.
 
 **Visual conventions**
 
 - Widget title: `<Text variant="heading-md" render={ <h3 /> }>`
+- Dashboard render: avoid duplicating the dashboard-provided widget title. If the close-up
+  component can show its own title, pass `showTitle={ false }` from dashboard stories and
+  dashboard render paths.
+- Header controls: `SelectControl` in widget headers should use `__next40pxDefaultSize` and
+  `__nextHasNoMarginBottom`, with the visible label hidden from sighted users when the header
+  context already names the control.
 - View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`
 - Leaderboard row height: custom labels should produce a stable 36px row height. For the common
   `<Text>` label case, `padding: var(--wpds-dimension-padding-sm)` is enough when the text
@@ -472,6 +498,9 @@ dropdowns should wrap cleanly on narrow widget widths instead of colliding with 
 - Empty state: pass `emptyStateText` to `LeaderboardChart` — do not add a separate
   `data.length === 0` render branch in the widget, unless the widget has a composite layout
   that needs to preserve body chrome or replace a non-leaderboard chart area.
+- Default dashboard: when the ported module is expected in the Premium Analytics default
+  dashboard, add its widget type to the default layout seed and update the matching test in the
+  same PR. Otherwise call out why it is picker-only or gated.
 - Widget picker preview: add this to the CSS Module so the preview tile renders at a
   sensible aspect ratio instead of collapsing:
 
