@@ -5,7 +5,9 @@ import {
 } from '../resolve-actions';
 
 describe( 'resolveConnectionErrorActions', () => {
-	const restoreConnection = jest.fn();
+	// restoreConnection is typed () => Promise<unknown>; the mock must return a
+	// promise so the fallback action's `.catch()` handling is exercised faithfully.
+	const restoreConnection = jest.fn( () => Promise.resolve() );
 	const baseOptions = {
 		restoreConnection,
 		isRestoringConnection: false,
@@ -24,6 +26,27 @@ describe( 'resolveConnectionErrorActions', () => {
 
 		actions[ 0 ].onClick();
 		expect( restoreConnection ).toHaveBeenCalled();
+	} );
+
+	it( 'consumes a failed restore so it does not leak as an unhandled rejection', async () => {
+		// restoreConnection rejects asynchronously (its hook re-throws on failure);
+		// the fallback action must attach a catch handler to that promise so the
+		// failure is surfaced via restoreConnectionError, not as an unhandled rejection.
+		const rejection = Promise.reject( new Error( 'restore failed' ) );
+		const catchSpy = jest.spyOn( rejection, 'catch' );
+		const failingRestore = jest.fn( () => rejection );
+
+		const actions = resolveConnectionErrorActions(
+			{ error_message: 'Broken' },
+			{ ...baseOptions, restoreConnection: failingRestore }
+		);
+
+		expect( () => actions[ 0 ].onClick() ).not.toThrow();
+		expect( failingRestore ).toHaveBeenCalled();
+		expect( catchSpy ).toHaveBeenCalled();
+
+		// Settle the rejection so it doesn't surface as a leak in the test itself.
+		await rejection.catch( () => {} );
 	} );
 
 	it( 'always resolves at least one action for an error when no customActions is given', () => {

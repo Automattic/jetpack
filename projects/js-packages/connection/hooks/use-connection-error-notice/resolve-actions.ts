@@ -116,9 +116,12 @@ export function resolveConnectionErrorActions(
 				onClick: () => {
 					try {
 						track( reconnectTrackingEvent );
-						restoreConnection();
+						// restoreConnection() rejects asynchronously; its failure is surfaced to
+						// the user via restoreConnectionError → getReconnectErrorMessage, so we
+						// acknowledge the rejection here to avoid an unhandled promise rejection.
+						restoreConnection().catch( () => {} );
 					} catch {
-						// Silently fail if restore connection throws.
+						// Silently fail if restore connection throws synchronously.
 					}
 				},
 				isLoading: isRestoringConnection,
