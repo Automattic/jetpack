@@ -43,7 +43,7 @@ export function trackPrivacyBannerView(): void {
 /**
  * Track privacy banner accept button click
  *
- * @param preferences Object with consent preferences (required, analytics, advertising).
+ * @param preferences Object with consent preferences, keyed by category preference key (e.g. required, analytics, advertising, plus any custom registered categories).
  */
 export function trackPrivacyBannerAccept( preferences: ConsentPreferences ): void {
 	recordEvent( 'privacy_banner_button_accept', getPreferenceProperties( preferences ) );

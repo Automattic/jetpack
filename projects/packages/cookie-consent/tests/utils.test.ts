@@ -6,9 +6,11 @@
 
 import {
 	UNKNOWN_COUNTRY_CODE,
+	getConsentChoices,
 	getCookie,
 	getGeoConfig,
 	handleConsentByRegion,
+	hasConsentSet,
 	isGdprCountry,
 	pertainsToCCPA,
 	readConsentChoices,
@@ -275,6 +277,66 @@ describe( 'registry-driven consent choices', () => {
 			[ 'marketing', 'allow' ],
 			[ 'personalization', 'allow' ],
 		] );
+	} );
+
+	it( 'derives choices from the registry, forcing required on and honoring defaultChecked', () => {
+		expect( getConsentChoices() ).toEqual( {
+			required: true,
+			analytics: true,
+			advertising: false,
+			personalization: false,
+		} );
+		expect( getConsentChoices( false ) ).toEqual( {
+			required: true,
+			analytics: false,
+			advertising: false,
+			personalization: false,
+		} );
+		expect( getConsentChoices( true ) ).toEqual( {
+			required: true,
+			analytics: true,
+			advertising: true,
+			personalization: true,
+		} );
+	} );
+
+	it( 'reports consent as set when a required-category cookie is present', () => {
+		Object.defineProperty( document, 'cookie', {
+			configurable: true,
+			get: () => 'wp_consent_functional=allow',
+		} );
+
+		expect( hasConsentSet() ).toBe( true );
+	} );
+
+	it( 'ignores non-required category cookies when a required category exists', () => {
+		Object.defineProperty( document, 'cookie', {
+			configurable: true,
+			get: () => 'wp_consent_statistics=allow',
+		} );
+
+		expect( hasConsentSet() ).toBe( false );
+	} );
+
+	it( 'falls back to checking all categories when none are required', () => {
+		window.jetpackCookieConsentConfig = {
+			apiUrl: 'https://example.com/wp-json/jetpack/v4/cookie-consent/consent-log',
+			categories: [
+				{
+					key: 'analytics',
+					preferenceKey: 'analytics',
+					required: false,
+					defaultChecked: true,
+					wpConsentMap: [ 'statistics' ],
+				},
+			],
+		};
+		Object.defineProperty( document, 'cookie', {
+			configurable: true,
+			get: () => 'wp_consent_statistics=deny',
+		} );
+
+		expect( hasConsentSet() ).toBe( true );
 	} );
 
 	it( 'reads configured consent choices from mapped WP Consent API cookies', () => {

@@ -1109,8 +1109,15 @@ class Cookie_Consent {
 			return $defaults;
 		}
 
-		$normalized = array();
-		$seen_keys  = array();
+		$normalized           = array();
+		$seen_keys            = array();
+		$seen_preference_keys = array();
+
+		// The frontend aliases the default `functional`/`marketing` categories to the
+		// `required`/`advertising` preference keys, so those alias strings are reserved.
+		// A consumer category whose key (or derived preference key) collides with one
+		// would otherwise silently overwrite a built-in category's consent state.
+		$reserved_keys = array( 'required', 'advertising' );
 
 		foreach ( $categories as $category ) {
 			if ( ! is_array( $category ) || empty( $category['key'] ) ) {
@@ -1119,6 +1126,17 @@ class Cookie_Consent {
 
 			$key = self::normalize_consent_category_key( $category['key'] );
 			if ( '' === $key || isset( $seen_keys[ $key ] ) ) {
+				continue;
+			}
+
+			$preference_key = self::get_category_preference_key( $key );
+			if ( in_array( $key, $reserved_keys, true ) || isset( $seen_preference_keys[ $preference_key ] ) ) {
+				_doing_it_wrong(
+					__METHOD__,
+					/* translators: %s is the consent category key. */
+					esc_html( sprintf( __( 'Cookie consent category "%s" was ignored because it collides with a reserved preference key.', 'jetpack-cookie-consent' ), $key ) ),
+					''
+				);
 				continue;
 			}
 
@@ -1147,7 +1165,8 @@ class Cookie_Consent {
 				'wp_consent_map'  => $wp_consent_map,
 			);
 
-			$seen_keys[ $key ] = true;
+			$seen_keys[ $key ]                       = true;
+			$seen_preference_keys[ $preference_key ] = true;
 		}
 
 		return empty( $normalized ) ? $defaults : $normalized;
