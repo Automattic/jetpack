@@ -18,13 +18,13 @@ describe( 'video track language utilities', () => {
 			expect( canonicalizeLanguageTag( 'sl-rozaj-biske-1994' ) ).toBe( 'sl-1994-biske-rozaj' );
 		} );
 
-		it( 'rejects invalid manual language tags', () => {
+		it( 'rejects invalid language tags', () => {
 			expect( canonicalizeLanguageTag( '' ) ).toBeNull();
 			expect( canonicalizeLanguageTag( 'en_US' ) ).toBeNull();
 			expect( canonicalizeLanguageTag( 'not a language' ) ).toBeNull();
 		} );
 
-		it( 'rejects generated language keys for manual input', () => {
+		it( 'rejects generated language keys', () => {
 			expect( canonicalizeLanguageTag( 'auto_en' ) ).toBeNull();
 			expect( canonicalizeLanguageTag( 'auto-en' ) ).toBeNull();
 		} );
@@ -49,7 +49,7 @@ describe( 'video track language utilities', () => {
 	} );
 
 	describe( 'getManualLanguageTagFromTrackKey', () => {
-		it( 'extracts manual language tags from generated keys', () => {
+		it( 'extracts editable language tags from generated keys', () => {
 			expect( getManualLanguageTagFromTrackKey( 'auto_en' ) ).toBe( 'en' );
 			expect( getManualLanguageTagFromTrackKey( 'auto_pt_br' ) ).toBe( 'pt-BR' );
 		} );

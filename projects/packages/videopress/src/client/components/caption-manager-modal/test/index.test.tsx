@@ -866,7 +866,7 @@ describe( 'CaptionManagerModal', () => {
 		);
 	} );
 
-	it( 'rejects generated language keys for manual upload input', async () => {
+	it( 'rejects generated language keys for the upload language', async () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 

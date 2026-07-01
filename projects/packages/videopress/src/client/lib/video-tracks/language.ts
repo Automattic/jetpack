@@ -225,7 +225,7 @@ export function getSiteLanguageTag(): string {
 /**
  * Returns whether a language key is one of VideoPress' generated or legacy
  * values. These keys can be displayed for existing tracks, but they are not
- * valid manual BCP-47 language tags.
+ * valid BCP-47 language tags for a caption track.
  *
  * @param value - Language key.
  * @return Whether the key is generated or legacy.
@@ -235,9 +235,9 @@ export function isGeneratedLanguageKey( value: string ): boolean {
 }
 
 /**
- * Canonicalize a manually-entered BCP-47 language tag.
+ * Canonicalize a BCP-47 language tag.
  *
- * @param value - User-entered language tag.
+ * @param value - BCP-47 language tag.
  * @return Canonical BCP-47 tag, or null when invalid.
  */
 export function canonicalizeLanguageTag( value: string ): string | null {
@@ -267,12 +267,12 @@ export function formatLanguageTagForDisplay( value: string ): string {
 }
 
 /**
- * Convert an existing VideoPress language key into a manually editable BCP-47
- * language tag. Generated keys such as `auto_en` are source identifiers, but
- * their suffix often still contains the real language code.
+ * Convert an existing VideoPress language key into an editable BCP-47 language
+ * tag for the caption editor. Generated keys such as `auto_en` are source
+ * identifiers, but their suffix often still contains the real language code.
  *
  * @param value - Existing track language key.
- * @return Canonical manual language tag, or empty string when it cannot be inferred.
+ * @return Canonical language tag, or empty string when it cannot be inferred.
  */
 export function getManualLanguageTagFromTrackKey( value: string ): string {
 	if ( ! isGeneratedLanguageKey( value ) ) {
