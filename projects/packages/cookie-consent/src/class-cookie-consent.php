@@ -849,8 +849,9 @@ class Cookie_Consent {
 			'banner_customize_button'          => __( 'Customize', 'jetpack-cookie-consent' ),
 			'modal_title'                      => __( 'Customize preferences', 'jetpack-cookie-consent' ),
 			'modal_close_label'                => __( 'Close modal', 'jetpack-cookie-consent' ),
-			'modal_description'                => __( 'Your privacy is important to us. We and our partners use, store, and process your personal data to improve our website, such as by improving security or conducting analytics, marketing activities to help deliver relevant marketing or content, and your user experience, such as by remembering your account name or language settings where applicable. You can customize your cookie settings below. Learn more in our', 'jetpack-cookie-consent' ),
+			'modal_description'                => __( 'Your privacy is important to us. We and our partners use, store, and process your personal data to improve our website, such as by improving security or conducting analytics, marketing activities to help deliver relevant marketing or content, and your user experience, such as by remembering your account name or language settings where applicable. You can customize your cookie settings below.', 'jetpack-cookie-consent' ),
 			'privacy_policy_link'              => __( 'Privacy Policy', 'jetpack-cookie-consent' ),
+			'modal_links_lead'                 => __( 'Learn more in our', 'jetpack-cookie-consent' ),
 			'modal_links_conjunction'          => __( 'and', 'jetpack-cookie-consent' ),
 			'cookie_policy_link'               => __( 'Cookie Policy', 'jetpack-cookie-consent' ),
 			'category_toggle_label'            => __( 'Toggle category description', 'jetpack-cookie-consent' ),
@@ -957,6 +958,29 @@ class Cookie_Consent {
 				esc_html( sprintf( __( 'Cookie consent copy override for "%s" was ignored because it is not a scalar value.', 'jetpack-cookie-consent' ), $key ) ),
 				''
 			);
+		}
+
+		return $defaults;
+	}
+
+	/**
+	 * Normalize configured links by merging consumer overrides with defaults.
+	 *
+	 * @param array $config   Configuration array supplied through filters.
+	 * @param array $defaults Default link values.
+	 * @return array Normalized links.
+	 */
+	private static function normalize_links( $config, $defaults ) {
+		$links = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
+
+		foreach ( $links as $key => $value ) {
+			if ( ! is_string( $key ) ) {
+				continue;
+			}
+
+			if ( is_scalar( $value ) ) {
+				$defaults[ $key ] = trim( (string) $value );
+			}
 		}
 
 		return $defaults;
@@ -1071,7 +1095,9 @@ class Cookie_Consent {
 			'ccpa_regions'        => $geo_config['ccpa_regions'],
 			'show_on_error'       => $geo_config['show_on_error'],
 			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
-			'cookie_policy_url'   => 'https://automattic.com/cookies/',
+			'links'               => array(
+				'cookie_policy_url' => '', // Empty hides the Cookie Policy link; set it to link a consumer's own cookie policy page.
+			),
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
 			'log'                 => array(
 				'policy_version' => '1',
@@ -1152,10 +1178,10 @@ class Cookie_Consent {
 		$geo['ccpa_regions']        = is_array( $geo['ccpa_regions'] ) ? self::normalize_ccpa_regions( $geo['ccpa_regions'] ) : $default_config['geo']['ccpa_regions'];
 		$geo['show_on_error']       = (bool) $geo['show_on_error'];
 
-		$config['geo']               = $geo;
-		$config['cookie_policy_url'] = $config['cookie_policy_url'] ?? $default_config['cookie_policy_url'];
-		$config['event_prefix']      = $config['event_prefix'] ?? $default_config['event_prefix'];
-		$config['copy']              = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
+		$config['geo']          = $geo;
+		$config['links']        = self::normalize_links( $config, $default_config['links'] );
+		$config['event_prefix'] = $config['event_prefix'] ?? $default_config['event_prefix'];
+		$config['copy']         = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
 
 		return $config;
 	}
@@ -1262,7 +1288,7 @@ class Cookie_Consent {
 		$force_preview = isset( $_GET['preview_cookie_consent'] ) && '1' === $_GET['preview_cookie_consent'];
 
 		$frontend_config = array(
-			'cookiePolicyUrl' => $config['cookie_policy_url'],
+			'cookiePolicyUrl' => $config['links']['cookie_policy_url'],
 			'gdprHonorsGpc'   => $config['gdpr_honors_gpc'] ?? true,
 			'forcePreview'    => $force_preview,
 			'geo'             => array(

@@ -75,6 +75,25 @@ The default geo provider is `wpcom`, which resolves shoppers through `https://pu
 
 The Tracks event prefix defaults to `jetpack`; set it to `woocommerceanalytics` to keep continuity with the WooCommerce/Unified Analytics Tracks stream.
 
+Link URLs are configured through the `links` group. `links.cookie_policy_url`
+defaults to an empty string, which hides the Cookie Policy link in the
+preferences modal. The Privacy Policy link uses the site's own WordPress
+Privacy Policy URL from `get_privacy_policy_url()`, and is likewise hidden when
+no Privacy Policy page is configured, so the modal never renders an empty link.
+Set `links.cookie_policy_url` only when the consuming site has a separate cookie
+policy page:
+
+```php
+add_filter(
+	'jetpack_cookie_consent_config',
+	function ( $config ) {
+		$config['links']['cookie_policy_url'] = 'https://example.com/cookie-policy/';
+
+		return $config;
+	}
+);
+```
+
 User-facing banner, preferences modal, footer link, CCPA page, and CCPA snackbar strings are configured through the `copy` group. Package defaults are translated with the `jetpack-cookie-consent` text domain. Consumers that override strings should translate those overrides before returning them from the filter, using their own text domain:
 
 ```php
