@@ -141,7 +141,18 @@ class Organization_Schema_Node {
 			if ( ! is_string( $url ) ) {
 				continue;
 			}
-			$clean = esc_url_raw( trim( $url ) );
+
+			$url = trim( $url );
+			if ( '' === $url ) {
+				continue;
+			}
+
+			$validated = wp_http_validate_url( $url );
+			if ( false === $validated ) {
+				continue;
+			}
+
+			$clean = esc_url_raw( $validated, array( 'http', 'https' ) );
 			if ( '' !== $clean ) {
 				$urls[] = $clean;
 			}
