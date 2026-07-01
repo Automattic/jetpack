@@ -46,6 +46,7 @@ let cookieWrites: string[];
 let cookieJar: string;
 let fetchMock: jest.Mock< typeof fetch >;
 let imageSources: string[];
+let originalImage: typeof Image;
 
 const TRACKS_SCRIPT_ID = 'jetpack-cookie-consent-tracks-js';
 
@@ -118,6 +119,7 @@ beforeEach( async () => {
 	cookieWrites = [];
 	cookieJar = '';
 	imageSources = [];
+	originalImage = global.Image;
 	global.Image = MockImage as unknown as typeof Image;
 	Object.defineProperty( document, 'cookie', {
 		configurable: true,
@@ -139,6 +141,10 @@ beforeEach( async () => {
 	} );
 
 	await import( '../src/modules/cookie-consent/view' );
+} );
+
+afterEach( () => {
+	global.Image = originalImage;
 } );
 
 describe( 'initializeGeolocation geo-provider error handling', () => {
