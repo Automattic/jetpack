@@ -72,7 +72,6 @@ export const Default: Story = {
 				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
-			showTitle={ false }
 		/>
 	),
 	args: { withComparison: false },
@@ -87,7 +86,6 @@ export const WithComparison: Story = {
 				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
-			showTitle={ false }
 		/>
 	),
 	args: { withComparison: true },
@@ -103,7 +101,6 @@ export const ByCampaign: Story = {
 				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
-			showTitle={ false }
 		/>
 	),
 	args: { withComparison: false },
