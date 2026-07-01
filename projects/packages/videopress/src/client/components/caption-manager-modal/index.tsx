@@ -24,13 +24,9 @@ import {
 	CAPTION_FORMAT_MIME_TYPES,
 	deleteTrackForGuid,
 	fetchTrackContentForGuid,
-	fetchTrackListForGuid,
-	hasTrackId,
 	normalizeVideoTextTrackResponse,
 	SUPPORTED_CAPTION_FORMATS,
 	TRACK_KIND_OPTIONS,
-	updateTrackContentForGuid,
-	updateTrackForGuid,
 	uploadTrackForGuid,
 } from '../../lib/video-tracks';
 import {
@@ -429,8 +425,7 @@ export default function CaptionManagerModal( {
 	const [ manualTrack, setManualTrack ] = useState< ManualTrack >( emptyManualTrack );
 	const [ manualSourceTrack, setManualSourceTrack ] = useState< VideoTextTrack | null >( null );
 	const [ managedTracks, setManagedTracks ] = useState< VideoTextTrack[] >( tracks );
-	const [ supportedCaptionFormats, setSupportedCaptionFormats ] =
-		useState< string[] >( SUPPORTED_CAPTION_FORMATS );
+	const supportedCaptionFormats = SUPPORTED_CAPTION_FORMATS;
 	const [ cueBlocks, setCueBlocks ] = useState< CaptionCueBlock[] >( createEmptyCueBlocks );
 	const [ captionTracks, setCaptionTracks ] = useState< SavedCaptionTrack[] >( [] );
 	const [ captionTrackId, setCaptionTrackId ] = useState< number | undefined >();
@@ -565,27 +560,14 @@ export default function CaptionManagerModal( {
 		target?.focus();
 	}, [ isOpen, modalView, workspaceMode ] );
 
+	// The video's managed tracks come from the video info via the tracks prop.
+	// Re-sync from it when the modal opens so the list reflects the video, but not
+	// on every parent re-render, so an interim empty tracks prop can't blank it.
 	useEffect( () => {
-		if ( ! isOpen || ! guid ) {
-			return;
+		if ( isOpen ) {
+			setManagedTracks( tracks );
 		}
-
-		let isMounted = true;
-		fetchTrackListForGuid( guid )
-			.then( ( { tracks: loadedTracks, supportedFormats } ) => {
-				if ( isMounted ) {
-					setManagedTracks( loadedTracks );
-					setSupportedCaptionFormats( supportedFormats );
-				}
-			} )
-			.catch( error => {
-				debug( 'fetch caption tracks error', error );
-			} );
-
-		return () => {
-			isMounted = false;
-		};
-	}, [ guid, isOpen ] );
+	}, [ isOpen ] );
 
 	useEffect( () => {
 		if ( ! isOpen || ! guid ) {
@@ -1063,22 +1045,16 @@ export default function CaptionManagerModal( {
 		setNotice( null );
 
 		try {
-			const shouldUpdateExistingTrack =
-				uploadFormMode === 'replace' && hasTrackId( replacingTrack?.id );
 			const trackUpdatePayload = {
 				...replacingTrack,
 				kind: trackToUpload.kind,
 				srcLang: trackToUpload.srcLang,
 				label: trackToUpload.label,
 			};
-			let src;
 
-			if ( shouldUpdateExistingTrack ) {
-				await updateTrackForGuid( trackUpdatePayload, guid );
-				src = await updateTrackContentForGuid( trackUpdatePayload, guid, trackToUpload.tmpFile );
-			} else {
-				src = await uploadTrackForGuid( trackToUpload, guid );
-			}
+			// Uploading replaces any existing track for the same kind and language,
+			// so both add and replace go through the same upload call.
+			const src = await uploadTrackForGuid( trackToUpload, guid );
 
 			if ( hasTrackApiError( src ) ) {
 				setNotice( {
@@ -1093,6 +1069,19 @@ export default function CaptionManagerModal( {
 					),
 				} );
 				return;
+			}
+
+			// A replace that also changed the language stores the new track under a
+			// new key; remove the original so it isn't left behind.
+			if (
+				uploadFormMode === 'replace' &&
+				replacingTrack &&
+				! isMatchingSubtitleTrackLanguage( replacingTrack, srcLang )
+			) {
+				await deleteTrackForGuid(
+					{ kind: replacingTrack.kind, srcLang: replacingTrack.srcLang },
+					guid
+				).catch( deleteError => debug( 'remove replaced track error', deleteError ) );
 			}
 
 			const uploadedTrack = normalizeVideoTextTrackResponse( src, trackUpdatePayload );
@@ -1281,26 +1270,15 @@ export default function CaptionManagerModal( {
 			const trackToUpdate =
 				( sourceTrackIndex > -1 ? managedTracks[ sourceTrackIndex ] : null ) ||
 				( manualTrackIndex > -1 ? managedTracks[ manualTrackIndex ] : null );
-			const shouldUpdateExistingTrack = hasTrackId( trackToUpdate?.id );
 			const trackUpdatePayload = {
 				...trackToUpdate,
 				kind: trackToUpload.kind,
 				srcLang: trackToUpload.srcLang,
 				label: trackToUpload.label,
 			};
-			let src;
 
-			if ( shouldUpdateExistingTrack ) {
-				const metadataResponse = await updateTrackForGuid( trackUpdatePayload, guid );
-
-				if ( hasTrackApiError( metadataResponse ) ) {
-					src = metadataResponse;
-				} else {
-					src = await updateTrackContentForGuid( trackUpdatePayload, guid, vtt );
-				}
-			} else {
-				src = await uploadTrackForGuid( trackToUpload, guid );
-			}
+			// Uploading replaces any existing track for the same kind and language.
+			const src = await uploadTrackForGuid( trackToUpload, guid );
 
 			if ( hasTrackApiError( src ) ) {
 				setNotice( {
@@ -1315,6 +1293,18 @@ export default function CaptionManagerModal( {
 					),
 				} );
 				return;
+			}
+
+			// Publishing over an existing track under a new language stores the new
+			// track under a new key; remove the original so it isn't left behind.
+			if (
+				trackToUpdate &&
+				! isMatchingSubtitleTrackLanguage( trackToUpdate, trackToUpload.srcLang )
+			) {
+				await deleteTrackForGuid(
+					{ kind: trackToUpdate.kind, srcLang: trackToUpdate.srcLang },
+					guid
+				).catch( deleteError => debug( 'remove replaced track error', deleteError ) );
 			}
 
 			const savedCaptionTrack = await saveManualCaptionTrack( 'publish' );
