@@ -17,7 +17,6 @@ type LanguageControlProps = {
 	value: string;
 	onChange: ( tag: string, displayName: string ) => void;
 	disabled?: boolean;
-	help?: string;
 };
 
 type LanguageOption = { value: string; label: string };
@@ -38,7 +37,6 @@ const toOption = ( tag: string ): LanguageOption => ( {
  * @param props.value    - Current BCP-47 tag.
  * @param props.onChange - Called with the selected tag and its display name.
  * @param props.disabled - Whether the control is disabled.
- * @param props.help     - Help text shown beneath the control.
  * @return Language combobox control.
  */
 export default function LanguageControl( {
@@ -46,7 +44,6 @@ export default function LanguageControl( {
 	value,
 	onChange,
 	disabled,
-	help,
 }: LanguageControlProps ): ReactElement {
 	const options = useMemo( () => {
 		const tags = [ ...LANGUAGE_TAGS ];
@@ -72,7 +69,6 @@ export default function LanguageControl( {
 					onChange( tag, getLanguageDisplayName( tag ) );
 				}
 			} }
-			help={ help }
 			disabled={ disabled }
 			allowReset={ false }
 			__next40pxDefaultSize={ true }
