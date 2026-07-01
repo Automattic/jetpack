@@ -677,13 +677,14 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 * @return string|null
 	 */
 	private function get_consent_log_ip_address( $ip_address = null ) {
-		$ip_mode = $this->get_ip_mode();
-
-		if ( 'drop' === $ip_mode || null === $ip_address ) {
+		// Guard against a null IP: format_ip_address_for_log() would otherwise hash the empty
+		// string or hand null to wp_privacy_anonymize_ip() (which returns 0.0.0.0). The 'drop'
+		// mode itself is already handled by that method's default branch.
+		if ( null === $ip_address ) {
 			return null;
 		}
 
-		return $this->format_ip_address_for_log( $ip_address, $ip_mode );
+		return $this->format_ip_address_for_log( $ip_address, $this->get_ip_mode() );
 	}
 
 	/**
