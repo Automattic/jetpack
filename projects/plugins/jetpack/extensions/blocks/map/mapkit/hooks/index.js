@@ -28,7 +28,8 @@ const useMapkitSetup = mapRef => {
 	const [ _currentDoc, setCurrentDoc ] = useState( null );
 
 	useEffect( () => {
-		const blog_id = select( initConnectionStore() ).getBlogId();
+		const connectionStore = initConnectionStore();
+		const blog_id = select( connectionStore ).getBlogId();
 		const { currentDoc, currentWindow } = getLoadContext( mapRef.current );
 
 		if ( mapRef.current ) {

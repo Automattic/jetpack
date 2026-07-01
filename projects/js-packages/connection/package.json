@@ -13,7 +13,6 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"sideEffects": [
-		"./state/store.jsx",
 		"*.css",
 		"*.scss"
 	],

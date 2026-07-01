@@ -263,8 +263,12 @@ So, we'll use the [`withSelect`](https://developer.wordpress.org/block-editor/re
 // Import the `withSelect` HOC.
 import { withSelect } from '@wordpress/data';
 
-// Import the Jetpack Connection store ID.
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+// Import the Jetpack Connection store initializer.
+import { initConnectionStore } from '@automattic/jetpack-connection';
+
+// Register the connection store (idempotent) and get its descriptor. The store
+// is no longer registered on import, so call this before selecting from it.
+const connectionStore = initConnectionStore();
 
 // The component requires the `connectionStatus` parameter.
 const SampleComponent = props => {
@@ -278,7 +282,7 @@ const SampleComponent = props => {
 // it's pulled from the API using WP Data controls and resolvers.
 export default withSelect( select => {
 	return {
-		connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
+		connectionStatus: select( connectionStore ).getConnectionStatus(),
 	}
 } )( SampleComponent );
 ```
