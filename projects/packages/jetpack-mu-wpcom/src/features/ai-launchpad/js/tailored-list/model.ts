@@ -1,3 +1,4 @@
+import type { PatternVariant } from '../lib/pattern-page.ts';
 import type { TailoredInferred, TailoredOutput, FirstPostDraft } from '../lib/types.ts';
 
 /**
@@ -41,7 +42,7 @@ export interface LaunchpadData {
 export type CtaKind = 'first_post' | 'pattern_page' | 'launch' | 'deeplink';
 
 const FIRST_POST_TASK_IDS = [ 'first_post_published', 'first_post_published_newsletter' ];
-const PATTERN_PAGE_TASK_IDS = [ 'add_about_page' ];
+const PATTERN_PAGE_TASK_IDS = [ 'add_about_page', 'add_gallery_page' ];
 // Launch tasks with no catalog deeplink: they open the wordpress.com launch
 // flow. woo_launch_site is excluded — it has its own deeplink.
 const LAUNCH_TASK_IDS = [
@@ -130,7 +131,8 @@ export interface CtaHandlers {
 		draft: FirstPostDraft
 	) => Promise< { post_id: number; edit_url: string } >;
 	createPatternPage: (
-		inferred: TailoredInferred
+		inferred: TailoredInferred,
+		variant?: PatternVariant
 	) => Promise< { page_id: number; edit_url: string } >;
 }
 
@@ -182,7 +184,8 @@ export async function resolveCtaUrl(
 	} else if ( kind === 'first_post' && output ) {
 		url = ( await handlers.createFirstPostDraft( output.first_post_draft ) ).edit_url;
 	} else if ( kind === 'pattern_page' && output ) {
-		url = ( await handlers.createPatternPage( output.inferred ) ).edit_url;
+		const variant: PatternVariant = task.id === 'add_gallery_page' ? 'gallery' : 'about';
+		url = ( await handlers.createPatternPage( output.inferred, variant ) ).edit_url;
 	} else if ( kind === 'launch' ) {
 		url = siteUrl ? launchSiteUrl( siteUrl ) : null;
 	} else {
