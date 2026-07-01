@@ -25,51 +25,128 @@ final class Config_Schema {
 		return array(
 			'type'       => 'object',
 			'properties' => array(
-				'enabled'         => array( 'type' => 'boolean', 'default' => true ),
-				'schema_version'  => array( 'type' => 'integer', 'default' => 1 ),
+				'enabled'         => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+				'schema_version'  => array(
+					'type'    => 'integer',
+					'default' => 1,
+				),
 				'features'        => array(
 					'type'       => 'object',
 					'properties' => array(
-						'banner'             => array( 'type' => 'boolean', 'default' => true ),
-						'ccpa_page'          => array( 'type' => 'boolean', 'default' => true ),
-						'footer_links'       => array( 'type' => 'boolean', 'default' => true ),
-						'consent_log'        => array( 'type' => 'boolean', 'default' => true ),
-						'tracks'             => array( 'type' => 'boolean', 'default' => true ),
-						'geo'                => array( 'type' => 'boolean', 'default' => true ),
-						'page_deletion_lock' => array( 'type' => 'boolean', 'default' => false ),
+						'banner'             => array(
+							'type'    => 'boolean',
+							'default' => true,
+						),
+						'ccpa_page'          => array(
+							'type'    => 'boolean',
+							'default' => true,
+						),
+						'footer_links'       => array(
+							'type'    => 'boolean',
+							'default' => true,
+						),
+						'consent_log'        => array(
+							'type'    => 'boolean',
+							'default' => true,
+						),
+						'tracks'             => array(
+							'type'    => 'boolean',
+							'default' => true,
+						),
+						'geo'                => array(
+							'type'    => 'boolean',
+							'default' => true,
+						),
+						'page_deletion_lock' => array(
+							'type'    => 'boolean',
+							'default' => false,
+						),
 					),
 				),
 				'geo'             => array(
 					'type'       => 'object',
 					'properties' => array(
-						'provider'            => array( 'type' => 'string', 'enum' => array( 'wpcom', 'custom' ), 'default' => 'wpcom' ),
-						'api_url'             => array( 'type' => 'string', 'default' => 'https://public-api.wordpress.com/geo/' ),
-						'country_code_cookie' => array( 'type' => 'string', 'default' => 'country_code' ),
-						'region_cookie'       => array( 'type' => 'string', 'default' => 'region' ),
-						'cookie_duration'     => array( 'type' => 'integer', 'default' => 6 * HOUR_IN_SECONDS ),
-						'gdpr_countries'      => array( 'type' => 'array', 'default' => self::default_gdpr_countries() ),
-						'ccpa_regions'        => array( 'type' => 'array', 'default' => self::default_ccpa_regions() ),
-						'show_on_error'       => array( 'type' => 'boolean', 'default' => true ),
+						'provider'            => array(
+							'type'    => 'string',
+							'enum'    => array( 'wpcom', 'custom' ),
+							'default' => 'wpcom',
+						),
+						'api_url'             => array(
+							'type'    => 'string',
+							'default' => 'https://public-api.wordpress.com/geo/',
+						),
+						'country_code_cookie' => array(
+							'type'    => 'string',
+							'default' => 'country_code',
+						),
+						'region_cookie'       => array(
+							'type'    => 'string',
+							'default' => 'region',
+						),
+						'cookie_duration'     => array(
+							'type'    => 'integer',
+							'default' => 6 * HOUR_IN_SECONDS,
+						),
+						'gdpr_countries'      => array(
+							'type'    => 'array',
+							'default' => self::default_gdpr_countries(),
+						),
+						'ccpa_regions'        => array(
+							'type'    => 'array',
+							'default' => self::default_ccpa_regions(),
+						),
+						'show_on_error'       => array(
+							'type'    => 'boolean',
+							'default' => true,
+						),
 					),
 				),
-				'gdpr_honors_gpc' => array( 'type' => 'boolean', 'default' => true ),
+				'gdpr_honors_gpc' => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
 				'links'           => array(
 					'type'       => 'object',
 					'properties' => array(
-						'cookie_policy_url' => array( 'type' => 'string', 'default' => '' ),
+						'cookie_policy_url' => array(
+							'type'    => 'string',
+							'default' => '',
+						),
 					),
 				),
-				'event_prefix'    => array( 'type' => 'string', 'default' => 'jetpack' ),
+				'event_prefix'    => array(
+					'type'    => 'string',
+					'default' => 'jetpack',
+				),
 				'log'             => array(
 					'type'       => 'object',
 					'properties' => array(
-						'retention_days' => array( 'type' => 'integer', 'default' => 30 ),
-						'policy_version' => array( 'type' => 'string', 'default' => '1' ),
-						'banner_version' => array( 'type' => 'string', 'default' => '1' ),
-						'ip_mode'        => array( 'type' => 'string', 'enum' => array( 'drop', 'hash', 'truncate', 'raw' ), 'default' => 'drop' ),
+						'retention_days' => array(
+							'type'    => 'integer',
+							'default' => 30,
+						),
+						'policy_version' => array(
+							'type'    => 'string',
+							'default' => '1',
+						),
+						'banner_version' => array(
+							'type'    => 'string',
+							'default' => '1',
+						),
+						'ip_mode'        => array(
+							'type'    => 'string',
+							'enum'    => array( 'drop', 'hash', 'truncate', 'raw' ),
+							'default' => 'drop',
+						),
 					),
 				),
-				'copy'            => array( 'type' => 'object', 'default' => self::defaults_copy() ),
+				'copy'            => array(
+					'type'    => 'object',
+					'default' => self::defaults_copy(),
+				),
 				'consent'         => array(
 					'type'    => 'object',
 					'default' => array( 'categories' => self::default_consent_categories() ),
@@ -81,7 +158,7 @@ final class Config_Schema {
 	/**
 	 * Resolve a partial consumer config into a fully-defaulted, validated config.
 	 *
-	 * @param array $config Partial consumer config.
+	 * @param mixed $config Partial consumer config; anything other than an array falls back to defaults.
 	 * @return array
 	 */
 	public static function resolve( $config = array() ) {

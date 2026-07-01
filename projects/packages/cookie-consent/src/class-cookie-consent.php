@@ -94,13 +94,14 @@ class Cookie_Consent {
 		if ( self::$initialized ) {
 			return;
 		}
-		self::$config = Config_Schema::resolve( $config );
-		if ( empty( self::$config['enabled'] ) ) {
+		$resolved     = Config_Schema::resolve( $config );
+		self::$config = $resolved;
+		if ( empty( $resolved['enabled'] ) ) {
 			return;
 		}
 		self::$initialized = true;
 
-		$features = self::$config['features'];
+		$features = $resolved['features'];
 
 		if ( $features['banner'] ) {
 			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
@@ -153,7 +154,7 @@ class Cookie_Consent {
 
 		if ( $features['consent_log'] ) {
 			// Consent log REST controller: table, cron cleanup, routes.
-			Consent_Log_Controller::init( self::$config['log'] );
+			Consent_Log_Controller::init( $resolved['log'] );
 		}
 	}
 

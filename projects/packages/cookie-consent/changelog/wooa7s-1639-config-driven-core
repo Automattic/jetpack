@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Config-driven core: init( $config ) with per-feature toggles and a declarative Config_Schema.
