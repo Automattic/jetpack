@@ -6,6 +6,7 @@ import {
 	type RenderPostIntent,
 	type RenderResult,
 } from '../utils/render-messages';
+import { getSocialScriptData } from '../utils/script-data';
 import { normalizeShareStatus } from '../utils/share-status';
 import { setConnections } from './actions/connection-data';
 import {
@@ -20,6 +21,7 @@ import {
 	receiveTrafficReferrersError,
 } from './actions/traffic-stats';
 import {
+	Connection,
 	PostShareStatus,
 	RenderedMessageBatch,
 	TrafficInterval,
@@ -32,11 +34,27 @@ import {
  * @return {Function} Resolver
  */
 export function getConnections() {
-	return function ( { dispatch, registry } ) {
+	return async function ( { dispatch, registry } ) {
 		const editor = registry.select( editorStore );
+
+		/*
+		 * The standalone admin page has no post to read connections from, so
+		 * fetch them from the server. Resolving here — rather than in a component
+		 * mount effect — lets the store dedupe the request across mounts (and
+		 * StrictMode's dev-only double mount).
+		 */
 		if ( ! editor.getCurrentPostId() ) {
+			try {
+				const freshConnections = await apiFetch< Array< Connection > >( {
+					path: getSocialScriptData().api_paths.refreshConnections,
+				} );
+				dispatch( setConnections( freshConnections ) );
+			} catch {
+				// Leave connections empty; the UI falls back to its empty state.
+			}
 			return;
 		}
+
 		// Get the initial connections from the post meta
 		const connections = editor.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
