@@ -1,8 +1,8 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { applyFilters } from '@wordpress/hooks';
-import { isCurrentUserConnected } from '../../../../../shared/is-current-user-connected';
 import AiAssistantPluginSidebar from '..';
+import { isCurrentUserConnected } from '../../../../../shared/is-current-user-connected';
 
 const mockEditPost = jest.fn();
 const mockRecordEvent = jest.fn();

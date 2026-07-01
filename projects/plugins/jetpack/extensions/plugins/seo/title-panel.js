@@ -6,7 +6,8 @@ import { CountedTextArea } from './counted-textarea';
 import { withSeoHelper } from './with-seo-helper';
 
 const isSeoEnhancerEnabled =
-	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true && isCurrentUserConnected();
+	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
+	isCurrentUserConnected();
 
 class SeoTitlePanel extends Component {
 	onTitleChange = value => {
