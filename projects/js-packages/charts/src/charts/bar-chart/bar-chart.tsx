@@ -193,13 +193,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
 
-	// Comparison series have no .visx-bar elements; count only primary series so
-	// keyboard navigation doesn't cycle phantom indices into comparison-only slots.
-	const primarySeriesForNav = dataWithVisibleZeros.filter( s => s.options?.type !== 'comparison' );
-	const totalPoints =
-		Math.max( 0, ...primarySeriesForNav.map( s => s.data?.length || 0 ) ) *
-		primarySeriesForNav.length;
-
 	// Add visibility information from the shared legend state.
 	const seriesWithVisibility = useMemo(
 		() =>
@@ -224,6 +217,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			),
 		[ seriesWithVisibility ]
 	);
+
+	const totalPoints =
+		Math.max( 0, ...primaryEntries.map( e => e.series.data.length || 0 ) ) * primaryEntries.length;
 
 	const primaryKeys = useMemo(
 		() => primaryEntries.map( ( { series } ) => series.label ),

@@ -2404,4 +2404,107 @@ describe( 'BarChart', () => {
 			expect( screen.getAllByRole( 'button' )[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
 		} );
 	} );
+
+	describe( 'Keyboard navigation with a hidden primary series', () => {
+		it( 'stops at the last visible slot on a standard chart', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				withTooltips: true,
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'test-hide-primary-standard',
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ label: 'Jan', value: 10 },
+							{ label: 'Feb', value: 20 },
+							{ label: 'Mar', value: 30 },
+						],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ label: 'Jan', value: 15 },
+							{ label: 'Feb', value: 25 },
+							{ label: 'Mar', value: 35 },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			await user.click( screen.getByRole( 'button', { name: /Series B: visible/i } ) );
+
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			chart.focus();
+
+			for ( let i = 0; i < 5; i++ ) {
+				await user.keyboard( '{ArrowRight}' );
+			}
+
+			const tooltips = screen.queryAllByTestId( /^chart-tooltip-/ );
+			expect( tooltips ).toHaveLength( 1 );
+			expect( screen.getByTestId( 'chart-tooltip-2' ) ).toBeInTheDocument();
+			expect( tooltips[ 0 ] ).toHaveTextContent( 'Series A' );
+			expect( tooltips[ 0 ] ).not.toHaveTextContent( 'Series B' );
+			expect( screen.queryByTestId( 'chart-tooltip-3' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'stops at the last visible slot on a comparison chart', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				withTooltips: true,
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'test-hide-primary-comparison',
+				data: [
+					{
+						label: 'Series A',
+						group: 'views',
+						data: [
+							{ label: 'Jan', value: 10 },
+							{ label: 'Feb', value: 20 },
+						],
+					},
+					{
+						label: 'Series B',
+						group: 'clicks',
+						data: [
+							{ label: 'Jan', value: 15 },
+							{ label: 'Feb', value: 25 },
+						],
+					},
+					{
+						label: 'Previous A',
+						group: 'views',
+						options: { type: 'comparison' as const },
+						data: [
+							{ label: 'Jan', value: 8 },
+							{ label: 'Feb', value: 18 },
+						],
+					},
+				],
+			} );
+
+			await user.click( screen.getByRole( 'button', { name: /Series B: visible/i } ) );
+
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			chart.focus();
+
+			for ( let i = 0; i < 4; i++ ) {
+				await user.keyboard( '{ArrowRight}' );
+			}
+
+			const tooltips = screen.queryAllByTestId( /^chart-tooltip-/ );
+			expect( tooltips ).toHaveLength( 1 );
+			expect( screen.getByTestId( 'chart-tooltip-1' ) ).toBeInTheDocument();
+			expect( tooltips[ 0 ] ).toHaveTextContent( 'Series A' );
+			expect( tooltips[ 0 ] ).not.toHaveTextContent( 'Series B' );
+			expect( screen.queryByTestId( 'chart-tooltip-2' ) ).not.toBeInTheDocument();
+		} );
+	} );
 } );

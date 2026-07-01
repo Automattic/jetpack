@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: keep keyboard focus on the first/last data point at the ends (ARIA grid convention) and align keyboard navigation with hidden series when an interactive legend is used.
