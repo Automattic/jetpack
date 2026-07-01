@@ -50,6 +50,8 @@ const CELL_MIX_FLOOR = 0.15;
 const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	data,
 	chartId: providedChartId,
+	width = 0,
+	height = 0,
 	className,
 	compact = false,
 	showValues,
@@ -229,6 +231,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		return (
 			<Center
 				className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }
+				style={ { width: width || undefined, height: height || undefined } }
 				data-testid="heatmap-chart"
 			>
 				<span className={ styles[ 'heatmap-chart__empty' ] }>
@@ -264,6 +267,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					trailingContent={ nonLegendChildren }
 					gap={ gap }
 					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }
+					// Explicit dimensions (the unresponsive export) pin the size; otherwise
+					// width/height are unset and the grid fills its container via CSS. The
+					// responsive export drops the measured pixels so reflow stays fluid.
+					style={ { width: width || undefined, height: height || undefined } }
 					data-testid="heatmap-chart"
 					data-chart-id={ `heatmap-chart-${ chartId }` }
 				>
@@ -396,8 +403,16 @@ const HeatmapChart = attachSubComponents( HeatmapChartWithProvider, {
 	Legend: HeatmapLegend,
 } ) as FC< HeatmapChartProps > & HeatmapChartSubComponents;
 
+// The responsive wrapper already sizes the container; drop its measured pixel
+// width/height so the grid fills that container via CSS and reflows fluidly,
+// instead of pinning to a debounced measurement.
+const HeatmapChartResponsiveInner: FC< HeatmapChartProps > = props => (
+	<HeatmapChartWithProvider { ...props } width={ undefined } height={ undefined } />
+);
+HeatmapChartResponsiveInner.displayName = 'HeatmapChart';
+
 const HeatmapChartResponsive = attachSubComponents(
-	withResponsive< HeatmapChartProps >( HeatmapChartWithProvider ),
+	withResponsive< HeatmapChartProps >( HeatmapChartResponsiveInner ),
 	{ Legend: HeatmapLegend }
 ) as FC< HeatmapChartProps & ResponsiveConfig > & HeatmapChartSubComponents;
 

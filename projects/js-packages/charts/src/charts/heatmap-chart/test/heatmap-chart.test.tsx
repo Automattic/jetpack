@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
-import HeatmapChart from '../heatmap-chart';
+import HeatmapChart, { HeatmapChartUnresponsive } from '../heatmap-chart';
 import type { HeatmapColumn } from '../types';
 
 const mockRefCallback = jest.fn();
@@ -276,5 +276,26 @@ describe( 'HeatmapChart', () => {
 		);
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 		expect( grid.style.getPropertyValue( '--heatmap-primary' ) ).toBe( '#0a0b0c' );
+	} );
+
+	test( 'the unresponsive export pins explicit width and height', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChartUnresponsive width={ 480 } height={ 240 } data={ data } />
+			</GlobalChartsProvider>
+		);
+		const chart = screen.getByTestId( 'heatmap-chart' );
+		expect( chart ).toHaveStyle( { width: '480px', height: '240px' } );
+	} );
+
+	test( 'the responsive export leaves the chart unpinned so it fills its container', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } />
+			</GlobalChartsProvider>
+		);
+		const chart = screen.getByTestId( 'heatmap-chart' );
+		expect( chart ).not.toHaveStyle( { width: '500px' } );
+		expect( chart ).not.toHaveStyle( { height: '300px' } );
 	} );
 } );
