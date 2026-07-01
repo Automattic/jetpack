@@ -207,6 +207,31 @@ test( 'a metrics-array entry missing its type fails closed (never posted uncheck
 	);
 } );
 
+test( 'a metrics-array entry missing its codevitalsKey fails closed (never posts under "undefined")', () => {
+	// Same fail-closed invariant as the type guard: an entry with no key would post its value
+	// under the literal key "undefined" — a permanent garbage point checkSanityRange can't
+	// catch (it only inspects the value). Extraction must throw before any post.
+	assert.throws(
+		() =>
+			extractScenarioMetrics(
+				{
+					key: 'multi',
+					metrics: [
+						{ field: 'lcp', codevitalsKey: 'k-lcp', type: 'lcp' },
+						{ field: 'ttfb', type: 'ttfb' }, // no codevitalsKey
+					],
+				},
+				{ lcp: { median: 120 }, ttfb: { median: 150 } }
+			),
+		err => {
+			assert.equal( err.name, 'ValidationError' );
+			assert.match( err.message, /no codevitalsKey/ );
+			assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+			return true;
+		}
+	);
+} );
+
 test( 'a metrics array that repeats a CodeVitals key fails closed at extraction', () => {
 	// A within-scenario duplicate key would post one value then clobber it. It is a config
 	// bug (value-independent), so it must fail closed at extraction — before any value is
@@ -289,6 +314,10 @@ test( 'every posted keyed metric declares a type with a matching sanity range', 
 			: [ { key: scenario.metricKey, type: scenario.metricType } ];
 		for ( const { key, type } of keyed ) {
 			const label = `${ scenario.key ?? key } → ${ key }`;
+			assert.ok(
+				typeof key === 'string' && key.trim(),
+				`metric on scenario "${ scenario.key }" must declare a non-empty codevitalsKey`
+			);
 			assert.ok( type, `metric "${ label }" must declare a type` );
 			assert.ok(
 				SANITY_RANGES[ type ],

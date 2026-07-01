@@ -58,6 +58,18 @@ function extractScenarioMetrics( scenario, summary ) {
 	if ( Array.isArray( scenario.metrics ) ) {
 		const seen = new Set();
 		return scenario.metrics.map( metric => {
+			// Every entry MUST name a CodeVitals key. Without one, `key` is undefined and the
+			// value lands under the literal key "undefined" in the append-only store — a
+			// permanent garbage point checkSanityRange (which only inspects the value) can't
+			// catch. A missing or blank key is a scenario misconfiguration, so fail closed
+			// here, mirroring the type and duplicate-key guards below.
+			if ( typeof metric.codevitalsKey !== 'string' || ! metric.codevitalsKey.trim() ) {
+				throw new ValidationError(
+					`Scenario "${ scenario.key ?? 'unknown' }" has a metric (field "${
+						metric.field ?? 'unknown'
+					}") with no codevitalsKey; refusing to post to the append-only store`
+				);
+			}
 			// Every keyed metric MUST declare a type so checkSanityRange can range-check it —
 			// the same fail-closed invariant the single-metricKey path enforces below. A
 			// missing type is a scenario misconfiguration, so fail loud here (the dry-run CI
