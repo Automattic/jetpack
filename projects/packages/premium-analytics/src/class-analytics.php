@@ -52,6 +52,14 @@ class Analytics {
 
 		self::$initialized = true;
 
+		// Define the Premium Analytics version constant so Sync can whitelist and sync it.
+		// Syncing this constant is what triggers WPCom to provision the WooCommerce Analytics
+		// custom tables for the site (even when empty), once the connected-plugin gate is
+		// satisfied. See Sync\Configuration. (WOOA7S-1643)
+		if ( ! defined( 'PREMIUM_ANALYTICS_VERSION' ) ) {
+			define( 'PREMIUM_ANALYTICS_VERSION', self::PACKAGE_VERSION );
+		}
+
 		if ( ! empty( $options['menu_title'] ) ) {
 			self::$menu_title = $options['menu_title'];
 		}

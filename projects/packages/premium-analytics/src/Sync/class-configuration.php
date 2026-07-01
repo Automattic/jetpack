@@ -124,9 +124,9 @@ class Configuration {
 
 		// Register Premium Analytics as a connected plugin so its slug lands in the
 		// jetpack_connection_active_plugins option. WPCom's WC Analytics table-provisioning
-		// gate (WCExtendedDataSyncHelper::any_active) only creates/ingests the analytics custom
-		// tables when that option lists a recognized analytics plugin. Without this, a PA-only
-		// store full-syncs woocommerce_analytics but WPCom drops the rows. (WOOA7S-1643)
+		// gate only creates/ingests the analytics custom tables when that option lists a
+		// recognized analytics plugin. Without this, a PA-only store full-syncs
+		// woocommerce_analytics but WPCom drops the rows. (WOOA7S-1643)
 		$config->ensure( 'connection', $this->get_jetpack_connection_config() );
 	}
 
@@ -177,8 +177,9 @@ class Configuration {
 					'WC_ANALYTICS_VERSION',
 					// Syncing this constant is what triggers WPCom to provision the WC Analytics
 					// custom tables up-front (even for an empty store) via its constants-sync
-					// path, once the connected-plugin gate above is satisfied. (WOOA7S-1643)
-					'JETPACK_PREMIUM_ANALYTICS__VERSION',
+					// path, once the connected-plugin gate above is satisfied. Defined in
+					// Analytics::init(). (WOOA7S-1643)
+					'PREMIUM_ANALYTICS_VERSION',
 				),
 			)
 		);
@@ -189,16 +190,18 @@ class Configuration {
 	 *
 	 * Registers Premium Analytics as a connected plugin. The slug landing in
 	 * jetpack_connection_active_plugins is what makes WPCom eligible to provision the WC
-	 * Analytics custom tables for this site (see {@see configure_sync()}). Falls back to the
-	 * literal slug/name when the plugin-defined constants are unavailable (e.g. the package is
-	 * consumed outside the Premium Analytics plugin).
+	 * Analytics custom tables for this site (see {@see configure_sync()}).
+	 *
+	 * The slug must be exactly 'premium-analytics' to match the WPCom provisioning gate. It is
+	 * intentionally a literal, not derived from JETPACK_PREMIUM_ANALYTICS_SLUG (which is
+	 * 'jetpack-premium-analytics' and would not match the gate).
 	 *
 	 * @return array Jetpack Connection config array.
 	 */
 	private function get_jetpack_connection_config(): array {
 		return array(
-			'slug' => defined( 'JETPACK_PREMIUM_ANALYTICS_SLUG' ) ? JETPACK_PREMIUM_ANALYTICS_SLUG : 'jetpack-premium-analytics',
-			'name' => defined( 'JETPACK_PREMIUM_ANALYTICS_NAME' ) ? JETPACK_PREMIUM_ANALYTICS_NAME : 'Jetpack Premium Analytics',
+			'slug' => 'premium-analytics',
+			'name' => defined( 'JETPACK_PREMIUM_ANALYTICS_NAME' ) ? JETPACK_PREMIUM_ANALYTICS_NAME : 'Premium Analytics',
 		);
 	}
 
