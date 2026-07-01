@@ -89,8 +89,9 @@ class SchemaSettingsTest extends TestCase {
 
 	/**
 	 * Sanitization trims/strips text, keeps only valid absolute http(s) `sameAs`
-	 * URLs (dropping empty/relative/`mailto:`/`javascript:` and duplicates — mirroring
-	 * Organization_Schema_Node so what's stored is exactly what's emitted), and
+	 * URLs (dropping empty/relative/scheme-less/single-word
+	 * junk/`mailto:`/`javascript:` and duplicates — mirroring Organization_Schema_Node
+	 * so what's stored is exactly what's emitted), and
 	 * sanitizes `email`.
 	 */
 	public function test_sanitize_normalizes_each_field() {
@@ -101,9 +102,12 @@ class SchemaSettingsTest extends TestCase {
 					'description' => '  We make things  ',
 					'sameAs'      => array(
 						'https://twitter.com/acme',
+						'https://bsky.app/profile/acme.example',
 						'',
 						'/relative-profile',
+						'bsky.app/profile/acme.example',
 						'not a url',
+						'sasada',
 						'javascript:alert(1)',
 						'mailto:hello@acme.test',
 						'https://twitter.com/acme',
@@ -117,7 +121,11 @@ class SchemaSettingsTest extends TestCase {
 		$this->assertSame( 'Acme Co', $clean['organization']['name'] );
 		$this->assertSame( 'We make things', $clean['organization']['description'] );
 		$this->assertSame(
-			array( 'https://twitter.com/acme', 'https://facebook.com/acme' ),
+			array(
+				'https://twitter.com/acme',
+				'https://bsky.app/profile/acme.example',
+				'https://facebook.com/acme',
+			),
 			$clean['organization']['sameAs']
 		);
 		$this->assertSame( 'hello@acme.test', $clean['organization']['email'] );

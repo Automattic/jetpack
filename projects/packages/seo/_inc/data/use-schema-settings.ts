@@ -3,6 +3,7 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { cleanOrganization } from './schema-settings-utils';
 import type {
 	OrganizationDefaults,
 	OrganizationSettings,
@@ -63,7 +64,7 @@ export function useSchemaSettings(): SchemaSettingsForm {
 				if ( cancelled ) {
 					return;
 				}
-				baselineRef.current = settings.organization;
+				baselineRef.current = cleanOrganization( settings.organization );
 				setOrganization( settings.organization );
 				setDefaults( settings.defaults.organization );
 			} )
@@ -86,7 +87,9 @@ export function useSchemaSettings(): SchemaSettingsForm {
 				return current;
 			}
 			const next = { ...current, ...patch };
-			setIsDirty( JSON.stringify( next ) !== JSON.stringify( baselineRef.current ) );
+			setIsDirty(
+				JSON.stringify( cleanOrganization( next ) ) !== JSON.stringify( baselineRef.current )
+			);
 			return next;
 		} );
 	}, [] );
@@ -104,13 +107,13 @@ export function useSchemaSettings(): SchemaSettingsForm {
 		apiFetch< SchemaSettings >( {
 			path: ENDPOINT,
 			method: 'POST',
-			data: { organization },
+			data: { organization: cleanOrganization( organization ) },
 		} )
 			.then( settings => {
 				// Re-seed from the server's response so the form reflects any
 				// sanitization (e.g. dropped/deduped URLs); a cleared field comes back
 				// empty, so it shows the placeholder again rather than re-freezing.
-				baselineRef.current = settings.organization;
+				baselineRef.current = cleanOrganization( settings.organization );
 				setOrganization( settings.organization );
 				setIsDirty( false );
 				createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {

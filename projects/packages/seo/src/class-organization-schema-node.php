@@ -126,7 +126,7 @@ class Organization_Schema_Node {
 	}
 
 	/**
-	 * Normalize a list of profile URLs (`sameAs`): keep only non-empty, valid URLs.
+	 * Normalize a list of profile URLs (`sameAs`): keep valid http(s) URLs.
 	 *
 	 * @param mixed $value Raw value (expected to be an array of URLs).
 	 * @return array<int, string>

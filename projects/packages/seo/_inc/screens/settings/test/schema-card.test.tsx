@@ -90,6 +90,86 @@ describe( 'SchemaCard', () => {
 		expect( setOrganizationField ).toHaveBeenCalledWith( { sameAs: [ '' ] } );
 	} );
 
+	it( 'disables saving when a social profile URL is invalid', () => {
+		mockForm = makeForm( {
+			isDirty: true,
+			organization: { name: '', description: '', sameAs: [ 'not a url' ], email: '' },
+		} );
+		render( <SchemaCard /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'button', { name: /Schema/ } ) );
+
+		expect(
+			screen.getByText( 'Enter a valid URL that starts with http:// or https://.' )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).toBeDisabled();
+	} );
+
+	it( 'requires social profile URLs to include a scheme', () => {
+		mockForm = makeForm( {
+			isDirty: true,
+			organization: {
+				name: '',
+				description: '',
+				sameAs: [ 'bsky.app/profile/gmjuhasz-social.bsky.social' ],
+				email: '',
+			},
+		} );
+		render( <SchemaCard /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'button', { name: /Schema/ } ) );
+
+		expect(
+			screen.getByText( 'Enter a valid URL that starts with http:// or https://.' )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).toBeDisabled();
+	} );
+
+	it( 'allows full social profile URLs', () => {
+		mockForm = makeForm( {
+			isDirty: true,
+			organization: {
+				name: '',
+				description: '',
+				sameAs: [ 'https://bsky.app/profile/gmjuhasz-social.bsky.social' ],
+				email: '',
+			},
+		} );
+		render( <SchemaCard /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'button', { name: /Schema/ } ) );
+
+		expect(
+			screen.queryByText( 'Enter a valid URL that starts with http:// or https://.' )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).toBeEnabled();
+	} );
+
+	it( 'disables saving when social profile URLs are duplicated', () => {
+		mockForm = makeForm( {
+			isDirty: true,
+			organization: {
+				name: '',
+				description: '',
+				sameAs: [
+					'https://bsky.app/profile/acme.example',
+					' https://bsky.app/profile/acme.example ',
+				],
+				email: '',
+			},
+		} );
+		render( <SchemaCard /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'button', { name: /Schema/ } ) );
+
+		expect( screen.getAllByText( 'This profile URL is already listed.' ) ).toHaveLength( 1 );
+		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).toBeDisabled();
+	} );
+
 	it( 'shows the configured-field count in the header', () => {
 		render( <SchemaCard /> );
 

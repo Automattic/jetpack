@@ -184,7 +184,8 @@ class Schema_Settings {
 
 	/**
 	 * Normalize a list of profile URLs (`sameAs`): keep only valid absolute http(s)
-	 * URLs and drop duplicates. Mirrors {@see Organization_Schema_Node}'s handling so
+	 * URLs and drop duplicates.
+	 * Mirrors {@see Organization_Schema_Node}'s handling so
 	 * what the form stores is exactly what the node emits — a URL the store keeps but
 	 * the node would drop (e.g. `mailto:`, relative) would otherwise silently vanish
 	 * from the output.

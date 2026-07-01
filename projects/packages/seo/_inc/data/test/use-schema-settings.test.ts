@@ -68,4 +68,53 @@ describe( 'useSchemaSettings', () => {
 		expect( options.data.organization.sameAs ).toEqual( [ 'https://twitter.com/acme' ] );
 		expect( createSuccessNotice ).toHaveBeenCalled();
 	} );
+
+	it( 'ignores empty and invalid social profile rows when tracking dirtiness and saving', async () => {
+		const { result } = renderHook( () => useSchemaSettings() );
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+		act( () =>
+			result.current.setOrganizationField( {
+				sameAs: [ '', '   ', 'not a url', 'sasada', 'bsky.app/profile/acme.example' ],
+			} )
+		);
+		expect( result.current.isDirty ).toBe( false );
+
+		act( () =>
+			result.current.setOrganizationField( {
+				name: 'Acme Corporation',
+				sameAs: [
+					'',
+					'not a url',
+					'sasada',
+					' https://twitter.com/acme ',
+					'https://twitter.com/acme',
+					'https://bsky.app/profile/acme.example',
+				],
+			} )
+		);
+		expect( result.current.isDirty ).toBe( true );
+
+		mockApiFetch.mockResolvedValueOnce( {
+			organization: {
+				...RESPONSE.organization,
+				name: 'Acme Corporation',
+				sameAs: [ 'https://twitter.com/acme', 'https://bsky.app/profile/acme.example' ],
+			},
+			defaults: RESPONSE.defaults,
+		} );
+
+		act( () => result.current.save() );
+
+		await waitFor( () => expect( createSuccessNotice ).toHaveBeenCalled() );
+
+		const post = mockApiFetch.mock.calls.find(
+			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
+		);
+		const options = post![ 0 ] as { data: { organization: { sameAs: string[] } } };
+		expect( options.data.organization.sameAs ).toEqual( [
+			'https://twitter.com/acme',
+			'https://bsky.app/profile/acme.example',
+		] );
+	} );
 } );

@@ -122,6 +122,10 @@
 	min-inline-size: 0;
 }
 
+.jetpack-seo-settings__schema-profile-input--error .components-base-control__help {
+	color: var(--wpds-color-fg-content-error, #d63638);
+}
+
 // Intro copy above the preview list.
 .jetpack-seo-settings__preview-intro {
 	margin: 0 0 var(--wpds-dimension-gap-xl, 24px);

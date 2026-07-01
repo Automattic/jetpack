@@ -3,6 +3,7 @@
 import { Button, Spinner, TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Notice, Stack } from '@wordpress/ui';
+import { normalizeProfileUrl } from '../../../data/schema-settings-utils';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
 
@@ -45,6 +46,21 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 	}
 
 	const { name, description, sameAs, email } = organization;
+	const normalizedProfiles = sameAs.map( normalizeProfileUrl );
+	const profileErrors = sameAs.map( ( profile, index ) => {
+		const normalizedProfile = normalizedProfiles[ index ];
+		if ( ! profile.trim() ) {
+			return '';
+		}
+		if ( ! normalizedProfile ) {
+			return __( 'Enter a valid URL that starts with http:// or https://.', 'jetpack-seo' );
+		}
+		if ( normalizedProfiles.indexOf( normalizedProfile ) !== index ) {
+			return __( 'This profile URL is already listed.', 'jetpack-seo' );
+		}
+		return '';
+	} );
+	const hasProfileErrors = profileErrors.some( Boolean );
 
 	const setSameAs = ( index: number, value: string ) => {
 		const next = sameAs.slice();
@@ -97,33 +113,49 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 						'jetpack-seo'
 					) }
 				</span>
-				{ sameAs.map( ( profile, index ) => (
-					<Stack key={ index } direction="row" gap="sm" align="flex-end">
-						<div className="jetpack-seo-settings__schema-profile-input">
-							<TextControl
-								label={ __( 'Profile URL', 'jetpack-seo' ) }
-								hideLabelFromVision
-								type="url"
-								placeholder="https://"
-								value={ profile }
-								onChange={ next => setSameAs( index, next ) }
+				{ sameAs.map( ( profile, index ) => {
+					const profileError = profileErrors[ index ];
+					return (
+						<Stack key={ index } direction="row" gap="sm" align="flex-start" wrap="wrap">
+							<div
+								className={
+									'jetpack-seo-settings__schema-profile-input' +
+									( profileError ? ' jetpack-seo-settings__schema-profile-input--error' : '' )
+								}
+							>
+								<TextControl
+									label={ __( 'Profile URL', 'jetpack-seo' ) }
+									hideLabelFromVision
+									type="url"
+									placeholder="https://"
+									value={ profile }
+									onChange={ next => setSameAs( index, next ) }
+									disabled={ isSaving }
+									help={ profileError || undefined }
+									aria-invalid={ Boolean( profileError ) }
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+								/>
+							</div>
+							<Button
+								variant="tertiary"
+								isDestructive
+								onClick={ () => removeProfile( index ) }
 								disabled={ isSaving }
 								__next40pxDefaultSize
-								__nextHasNoMarginBottom
-							/>
-						</div>
-						<Button
-							variant="tertiary"
-							isDestructive
-							onClick={ () => removeProfile( index ) }
-							disabled={ isSaving }
-						>
-							{ __( 'Remove', 'jetpack-seo' ) }
-						</Button>
-					</Stack>
-				) ) }
+							>
+								{ __( 'Remove profile', 'jetpack-seo' ) }
+							</Button>
+						</Stack>
+					);
+				} ) }
 				<div>
-					<Button variant="secondary" onClick={ addProfile } disabled={ isSaving }>
+					<Button
+						variant="secondary"
+						onClick={ addProfile }
+						disabled={ isSaving }
+						__next40pxDefaultSize
+					>
 						{ __( 'Add profile', 'jetpack-seo' ) }
 					</Button>
 				</div>
@@ -141,7 +173,11 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 			/>
 
 			<div className="jetpack-seo-settings__save">
-				<Button variant="primary" onClick={ save } disabled={ isSaving || ! isDirty }>
+				<Button
+					variant="primary"
+					onClick={ save }
+					disabled={ isSaving || ! isDirty || hasProfileErrors }
+				>
 					{ saveLabel }
 				</Button>
 			</div>

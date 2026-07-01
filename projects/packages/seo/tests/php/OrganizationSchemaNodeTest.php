@@ -156,7 +156,8 @@ class OrganizationSchemaNodeTest extends TestCase {
 
 	/**
 	 * `sameAs` comes only from settings (WordPress has no site-level source). Empty
-	 * and invalid entries are dropped and duplicates removed.
+	 * and invalid entries are dropped, scheme-less domains are ignored,
+	 * and duplicates removed.
 	 */
 	public function test_same_as_from_settings_is_sanitized() {
 		$this->set_site_identity( 'Acme Co' );
@@ -165,9 +166,12 @@ class OrganizationSchemaNodeTest extends TestCase {
 			array(
 				'sameAs' => array(
 					'https://example.test/twitter',
+					'https://bsky.app/profile/acme.example',
 					'',
 					'/relative-profile',
+					'bsky.app/profile/acme.example',
 					'not a url',
+					'sasada',
 					'javascript:alert(1)',
 					'mailto:hello@acme.test',
 					'https://example.test/twitter',
@@ -177,7 +181,11 @@ class OrganizationSchemaNodeTest extends TestCase {
 		);
 
 		$this->assertSame(
-			array( 'https://example.test/twitter', 'https://example.test/facebook' ),
+			array(
+				'https://example.test/twitter',
+				'https://bsky.app/profile/acme.example',
+				'https://example.test/facebook',
+			),
 			$node['sameAs']
 		);
 	}
