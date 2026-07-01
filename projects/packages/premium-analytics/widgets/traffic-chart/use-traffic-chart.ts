@@ -83,10 +83,8 @@ function toMetric(
 }
 
 /**
- * Compose the visits query params for one field pair. `StatsVisitsParams` folds
- * in `StatsQueryParams`' string index signature, which a plain `ReportParams`
- * spread (no index signature) can't satisfy structurally; the object is correct
- * at runtime, so the cast bridges that purely type-level gap.
+ * Compose the visits query params for one field pair: the dashboard report
+ * params plus the `stat_fields` this request should fetch.
  *
  * @param reportParams - The dashboard report params.
  * @param statFields   - The field pair to request.
@@ -96,7 +94,7 @@ function toVisitsParams(
 	reportParams: ReportParams,
 	statFields: StatsVisitsStatFields
 ): StatsVisitsParams {
-	return { ...reportParams, stat_fields: statFields } as StatsVisitsParams;
+	return { ...reportParams, stat_fields: statFields };
 }
 
 /**
