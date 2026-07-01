@@ -15,9 +15,8 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { Icon } from '@wordpress/icons';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, Icon, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -33,6 +32,15 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type LocationsRenderAttributes = LocationsAttributes & Partial< ReportParamsFieldAttributes >;
 type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
+
+function LocationsHeaderTitle() {
+	return (
+		<span className={ styles.headerTitle }>
+			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
+			<span>{ __( 'Locations', 'jetpack-premium-analytics' ) }</span>
+		</span>
+	);
+}
 
 /**
  * Locations widget inner component. Reads report params from WidgetRoot context.
@@ -137,9 +145,6 @@ function LocationsInner( { max }: { max: number } ) {
 	const header = (
 		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
 			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
-				<span className={ styles.titleIcon } aria-hidden="true">
-					<Icon icon={ widgetDefinition.icon } size={ 16 } />
-				</span>
 				{ selectedCountry ? (
 					<>
 						<Button
@@ -147,13 +152,15 @@ function LocationsInner( { max }: { max: number } ) {
 							onClick={ clearSelectedCountry }
 							className={ styles.breadcrumbLink }
 						>
-							{ __( 'Locations', 'jetpack-premium-analytics' ) }
+							<LocationsHeaderTitle />
 						</Button>
 						<Text className={ styles.breadcrumbSeparator }>/</Text>
 						<Text className={ styles.breadcrumbCurrent }>{ selectedCountry.name }</Text>
 					</>
 				) : (
-					<Text>{ __( 'Locations', 'jetpack-premium-analytics' ) }</Text>
+					<Text>
+						<LocationsHeaderTitle />
+					</Text>
 				) }
 			</Stack>
 			<SelectControl
