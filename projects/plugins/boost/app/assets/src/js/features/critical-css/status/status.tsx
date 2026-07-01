@@ -7,7 +7,12 @@ import RefreshIcon from '$svg/refresh';
 import { createInterpolateElement } from '@wordpress/element';
 import { Link } from 'react-router';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
-import { getProvidersWithErrors } from '../lib/critical-css-errors';
+import {
+	getProvidersWithRealErrors,
+	getInlinedProviders,
+	isAllInlined,
+} from '../lib/critical-css-errors';
+import InlinedCssNotice from '../inlined-css-notice/inlined-css-notice';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import { Button } from '@automattic/jetpack-components';
 import styles from './status.module.scss';
@@ -34,7 +39,9 @@ const Status: FC< StatusTypes > = ( {
 	const regenerateAction = useRegenerateCriticalCssAction();
 	const successCount =
 		cssState.providers.filter( provider => provider.status === 'success' ).length || 0;
-	const providersWithErrors = getProvidersWithErrors( cssState );
+	const realErrorProviders = getProvidersWithRealErrors( cssState );
+	const inlinedProviders = getInlinedProviders( cssState );
+	const allInlined = isAllInlined( cssState );
 
 	const handleClickRegenerate = () => {
 		recordBoostEvent( 'critical_css_regenerate_clicked', {} );
@@ -58,49 +65,77 @@ const Status: FC< StatusTypes > = ( {
 	return (
 		<div className={ styles.status } data-testid="critical-css-meta">
 			<div className={ styles.summary }>
-				{ overrideText || (
-					<div className={ styles.successes }>
-						{ sprintf(
-							/* translators: %d is a number of CSS Files which were successfully generated */
-							_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
-							successCount
+				{ allInlined ? (
+					<InlinedCssNotice />
+				) : (
+					<>
+						{ overrideText || (
+							<div className={ styles.successes }>
+								{ sprintf(
+									/* translators: %d is a number of CSS Files which were successfully generated */
+									_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
+									successCount
+								) }
+
+								{ !! cssState.updated && (
+									<>
+										{ ' ' }
+										<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
+									</>
+								) }
+
+								{ '. ' }
+
+								{ extraText }
+							</div>
 						) }
 
-						{ !! cssState.updated && (
-							<>
-								{ ' ' }
-								<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
-							</>
+						{ cssState.status !== 'pending' && realErrorProviders.length > 0 && (
+							<div className={ clsx( 'failures', styles.failures ) }>
+								<InfoIcon />
+
+								<>
+									{ createInterpolateElement(
+										sprintf(
+											// translators: %d is a number of CSS Files which failed to generate
+											_n(
+												'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
+												'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
+												realErrorProviders.length,
+												'jetpack-boost'
+											),
+											realErrorProviders.length
+										),
+										{
+											advanced: (
+												<Link to="/critical-css-advanced" onClick={ handleAdvancedClick } />
+											),
+										}
+									) }
+								</>
+							</div>
 						) }
 
-						{ '. ' }
+						{ cssState.status !== 'pending' && inlinedProviders.length > 0 && (
+							<div className={ clsx( 'failures', styles.failures ) }>
+								<InfoIcon />
 
-						{ extraText }
-					</div>
-				) }
-
-				{ cssState.status !== 'pending' && providersWithErrors.length > 0 && (
-					<div className={ clsx( 'failures', styles.failures ) }>
-						<InfoIcon />
-
-						<>
-							{ createInterpolateElement(
-								sprintf(
-									// translators: %d is a number of CSS Files which failed to generate
-									_n(
-										'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
-										'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
-										providersWithErrors.length,
-										'jetpack-boost'
-									),
-									providersWithErrors.length
-								),
-								{
-									advanced: <Link to="/critical-css-advanced" onClick={ handleAdvancedClick } />,
-								}
-							) }
-						</>
-					</div>
+								<>
+									{ createInterpolateElement(
+										__(
+											'Some pages inline their CSS and do not need Critical CSS. See the <advanced>advanced recommendations page</advanced> for details.',
+											'jetpack-boost'
+										),
+										{
+											advanced: (
+												<Link to="/critical-css-advanced" onClick={ handleAdvancedClick } />
+											),
+										}
+									) }
+								</>
+							</div>
+						) }
+					</>
 				) }
 			</div>
 
