@@ -329,30 +329,62 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Not enabled when the current user has not connected their own
-	 * WordPress.com account, even though the site has a connected owner.
-	 *
-	 * Image Studio's image generation and video clip tools load from a single
-	 * asset, so gating enablement on the current user's connection keeps both
-	 * out of the editor for admins who have not connected.
+	 * Site-level enablement stays true even when the current user is not
+	 * connected. It drives the Big Sky stand-down signal and the suppression of
+	 * the legacy AI image extensions, so it must not depend on the visitor;
+	 * per-user gating happens at asset-load time instead.
 	 */
-	public function test_is_not_enabled_when_current_user_not_connected() {
-		// set_up() simulates a connected owner at the site level. Act as a
-		// separate administrator who has not connected their own account.
+	public function test_is_enabled_at_site_level_regardless_of_user_connection() {
 		$non_connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $non_connected_admin );
 
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\is_current_user_connected() );
 	}
 
 	/**
-	 * Enabled when the current user has connected their own WordPress.com account.
+	 * Editor assets are not enqueued for a user who has not connected their own
+	 * WordPress.com account, even though the site offers Image Studio.
 	 */
-	public function test_is_enabled_when_current_user_connected() {
-		// set_up() connects an owner and acts as them.
-		wp_set_current_user( $this->connection_owner_id );
+	public function test_assets_not_enqueued_when_current_user_not_connected() {
+		$this->enable_big_sky();
+		$this->set_block_editor_screen();
+		set_transient(
+			ImageStudio\ASSET_TRANSIENT,
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
 
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+		$non_connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $non_connected_admin );
+
+		ImageStudio\enqueue_image_studio();
+
+		$this->assertFalse( wp_script_is( ImageStudio\FEATURE_NAME, 'enqueued' ) );
+	}
+
+	/**
+	 * Editor assets are enqueued when the current user is connected.
+	 */
+	public function test_assets_enqueued_when_current_user_connected() {
+		// set_up() connects an owner and acts as them.
+		$this->enable_big_sky();
+		$this->set_block_editor_screen();
+		set_transient(
+			ImageStudio\ASSET_TRANSIENT,
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		ImageStudio\enqueue_image_studio();
+
+		$this->assertTrue( wp_script_is( ImageStudio\FEATURE_NAME, 'enqueued' ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -1821,6 +1853,23 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		$this->assertSame( $original_actions, $actions );
 		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * The "Edit with AI" row action is not registered for a user who has not
+	 * connected their own WordPress.com account.
+	 */
+	public function test_row_action_not_registered_when_current_user_not_connected() {
+		$callback = 'Automattic\\Jetpack\\Extensions\\ImageStudio\\add_image_studio_row_action';
+
+		$non_connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $non_connected_admin );
+		$this->set_media_library_screen();
+		remove_filter( 'media_row_actions', $callback, 10 );
+
+		ImageStudio\register_row_action();
+
+		$this->assertFalse( has_filter( 'media_row_actions', $callback ) );
 	}
 
 	// -------------------------------------------------------------------------
