@@ -356,6 +356,53 @@ class Caption_Tracks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that listing a video's caption tracks requires edit access to that video.
+	 *
+	 * Pins the read route to the per-video permission check so one user can't
+	 * enumerate another user's captions.
+	 *
+	 * The per-GUID content isolation (the `meta_key` filter in the query itself)
+	 * can't be exercised here: WorDBless stores posts in memory and does not
+	 * support meta-filtered WP_Query, so the query returns no rows regardless.
+	 * This test therefore covers the authorization boundary, which is the actual
+	 * cross-user risk.
+	 */
+	public function test_list_tracks_denied_without_video_access() {
+		$guid = 'vid05678';
+		$this->create_videopress_attachment( $guid, $this->author_id );
+
+		wp_set_current_user( $this->other_author_id );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_query_params( array( 'guid' => $guid ) );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * Tests that saving a caption track with an invalid kind is rejected.
+	 *
+	 * An unrecognized kind sanitizes to an empty string, which must fail with a
+	 * 400 rather than silently storing a track with no kind.
+	 */
+	public function test_caption_track_save_denied_for_invalid_kind() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$payload                                      = $this->track_payload();
+		$payload['meta'][ Caption_Tracks::META_KIND ] = 'not-a-kind';
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $payload );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+	}
+
+	/**
 	 * Create a VideoPress attachment for a GUID, owned by a given user.
 	 *
 	 * @param string $guid      VideoPress GUID.

@@ -51,8 +51,10 @@ export default function LanguageControl( {
 	const options = useMemo( () => {
 		const tags = [ ...LANGUAGE_TAGS ];
 
-		// Keep the current value selectable even if it isn't in the curated list
-		// (e.g. an existing track in an uncommon language).
+		/*
+		 * Keep the current value selectable even if it isn't in the curated list
+		 * (e.g. an existing track in an uncommon language).
+		 */
 		if ( value && ! tags.includes( value ) ) {
 			tags.push( value );
 		}

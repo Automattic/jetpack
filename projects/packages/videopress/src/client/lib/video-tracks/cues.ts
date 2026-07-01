@@ -13,11 +13,16 @@ export type CaptionCueValidationErrorCode =
 	| 'end_before_start'
 	| 'overlap';
 
-export type CaptionCueValidationError = {
-	code: CaptionCueValidationErrorCode;
-	cueNumber: number;
-	previousCueNumber?: number;
-};
+export type CaptionCueValidationError =
+	| {
+			code: Exclude< CaptionCueValidationErrorCode, 'overlap' >;
+			cueNumber: number;
+	  }
+	| {
+			code: 'overlap';
+			cueNumber: number;
+			previousCueNumber: number;
+	  };
 
 type CaptionCueBlock = {
 	name: string;

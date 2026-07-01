@@ -301,6 +301,15 @@ class Caption_Tracks {
 			);
 		}
 
+		$kind = self::sanitize_kind( $meta[ self::META_KIND ] ?? '' );
+		if ( empty( $kind ) ) {
+			return new WP_Error(
+				'videopress_caption_track_invalid_kind',
+				esc_html__( 'A valid caption track kind is required.', 'jetpack-videopress-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		$postarr = array(
 			'post_type'    => self::POST_TYPE,
 			'post_title'   => sanitize_text_field( $request->get_param( 'title' ) ),
@@ -322,6 +331,7 @@ class Caption_Tracks {
 		$post_id                     = (int) $result;
 		$meta[ self::META_GUID ]     = $guid;
 		$meta[ self::META_SRC_LANG ] = $src_lang;
+		$meta[ self::META_KIND ]     = $kind;
 
 		foreach ( self::$meta_keys as $key ) {
 			if ( array_key_exists( $key, $meta ) ) {
