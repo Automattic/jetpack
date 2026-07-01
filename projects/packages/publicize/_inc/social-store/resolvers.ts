@@ -6,9 +6,8 @@ import {
 	type RenderPostIntent,
 	type RenderResult,
 } from '../utils/render-messages';
-import { getSocialScriptData } from '../utils/script-data';
 import { normalizeShareStatus } from '../utils/share-status';
-import { setConnections } from './actions/connection-data';
+import { fetchConnections, setConnections } from './actions/connection-data';
 import {
 	finishRenderingMessages,
 	receiveRenderedMessages,
@@ -21,7 +20,6 @@ import {
 	receiveTrafficReferrersError,
 } from './actions/traffic-stats';
 import {
-	Connection,
 	PostShareStatus,
 	RenderedMessageBatch,
 	TrafficInterval,
@@ -38,20 +36,10 @@ export function getConnections() {
 		const editor = registry.select( editorStore );
 
 		/*
-		 * The standalone admin page has no post to read connections from, so
-		 * fetch them from the server. Resolving here — rather than in a component
-		 * mount effect — lets the store dedupe the request across mounts (and
-		 * StrictMode's dev-only double mount).
+		 * If we are not in the editor
 		 */
 		if ( ! editor.getCurrentPostId() ) {
-			try {
-				const freshConnections = await apiFetch< Array< Connection > >( {
-					path: getSocialScriptData().api_paths.refreshConnections,
-				} );
-				dispatch( setConnections( freshConnections ) );
-			} catch {
-				// Leave connections empty; the UI falls back to its empty state.
-			}
+			await dispatch( fetchConnections( { test_connections: 1 } ) );
 			return;
 		}
 
