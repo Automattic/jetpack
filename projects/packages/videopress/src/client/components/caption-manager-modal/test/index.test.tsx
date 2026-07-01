@@ -1241,6 +1241,33 @@ describe( 'CaptionManagerModal', () => {
 		] );
 	} );
 
+	it( 'removes the previous-language track when a published track is re-published under a new language', async () => {
+		const user = userEvent.setup();
+		const tracksWithId = [ { ...tracks[ 0 ], id: 'track-1' } ];
+		render( <CaptionManagerModal { ...defaultProps } tracks={ tracksWithId } /> );
+
+		await user.click( screen.getByText( 'Edit' ) );
+		await waitFor( () =>
+			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracksWithId[ 0 ], 'abc123' )
+		);
+
+		// Change the language of the English track to French and publish.
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'fr' } } );
+		await user.click( screen.getByText( 'Publish' ) );
+
+		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
+		expect( uploadTrackForGuid ).toHaveBeenCalledWith(
+			expect.objectContaining( { kind: 'captions', srcLang: 'fr' } ),
+			'abc123'
+		);
+
+		// The English track it replaced must be deleted so it isn't left orphaned.
+		expect( deleteTrackForGuid ).toHaveBeenCalledWith(
+			{ kind: 'captions', srcLang: 'en' },
+			'abc123'
+		);
+	} );
+
 	it( 'reuses the existing caption track for a language instead of creating a duplicate', async () => {
 		const user = userEvent.setup();
 		( fetchCaptionTracks as jest.Mock ).mockResolvedValueOnce( [

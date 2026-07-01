@@ -36,9 +36,11 @@ type CaptionCueEditProps = {
 
 const DEFAULT_CUE_DURATION_SECONDS = 2;
 
-// Client ID of a freshly inserted cue whose text field should grab focus once it
-// mounts, so adding a cue lands the caret in the caption text rather than on the
-// first toolbar button.
+/*
+ * Client ID of a freshly inserted cue whose text field should grab focus once it
+ * mounts, so adding a cue lands the caret in the caption text rather than on the
+ * first toolbar button.
+ */
 let cueClientIdToFocus: string | null = null;
 
 /**
@@ -50,8 +52,10 @@ export function focusCueOnMount( clientId: string ): void {
 	cueClientIdToFocus = clientId;
 }
 
-// Latest video playback time (seconds), kept current by the modal so a cue added
-// from within the editor starts at the moment the viewer is watching.
+/*
+ * Latest video playback time (seconds), kept current by the modal so a cue added
+ * from within the editor starts at the moment the viewer is watching.
+ */
 let currentVideoTimeSeconds = 0;
 
 /**
@@ -97,10 +101,12 @@ const CaptionCueEdit = ( {
 	const isFirst = index <= 0;
 	const isLast = index === count - 1;
 
-	// apiVersion 3 blocks must apply useBlockProps to their root, otherwise the
-	// block has no `data-block` wrapper and WritingFlow ejects focus from every
-	// field. tabIndex -1 keeps the container out of the tab order so Tab lands on
-	// the fields, not the cue wrapper.
+	/*
+	 * apiVersion 3 blocks must apply useBlockProps to their root, otherwise the
+	 * block has no `data-block` wrapper and WritingFlow ejects focus from every
+	 * field. tabIndex -1 keeps the container out of the tab order so Tab lands on
+	 * the fields, not the cue wrapper.
+	 */
 	const blockProps = useBlockProps( { className: 'videopress-caption-cue', tabIndex: -1 } );
 
 	const textRef = useRef< HTMLDivElement >( null );

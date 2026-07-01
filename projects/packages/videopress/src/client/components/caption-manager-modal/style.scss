@@ -395,7 +395,7 @@
 	min-width: 0;
 	min-height: 0;
 	padding: 18px;
-	border-left: 1px solid #dcdcde;
+	border-inline-start: 1px solid #dcdcde;
 	background: #f6f7f7;
 	overflow-y: auto;
 }
@@ -485,7 +485,7 @@
 	}
 
 	.videopress-caption-manager__preview {
-		border-left: 0;
-		border-top: 1px solid #dcdcde;
+		border-inline-start: 0;
+		border-block-start: 1px solid #dcdcde;
 	}
 }
