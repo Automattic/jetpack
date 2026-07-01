@@ -48,17 +48,6 @@ Then load a **front-end** URL (not wp-admin) and confirm a cache **MISS**
 (response header `cache;desc=MISS`) before trusting the HTML or a screenshot —
 JN/Atomic front-end pages are page-cached and a stale HIT shows pre-edit output.
 
-## Public vs internal surface
-
-The README defines the supported **Public API surface** and an explicit
-**Internal — not public API** list. Treat that as the contract: the ~20
-`public static function` block-hook / Interactivity callbacks in
-`class-cookie-consent.php` (`register_footer_navigation_links`, `add_ccpa_*`,
-`mark_footer_links_injected`, the `get_*` config accessors, etc.) and the
-`wp_consent_type_defined` JS event are `public` only because WordPress hooks
-require it — they are internal, not API. The package is pre-1.0/unreleased, so
-there is no back-compat burden yet.
-
 ## Pitfalls
 
 - No admin page — there is no `?page=jetpack-cookie-consent`.
