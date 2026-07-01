@@ -660,7 +660,9 @@ class Connections_Post_Field {
 			return new WP_Error( '__wrong-context__' );
 		}
 
-		switch ( $schema['type'] ) {
+		$schema_type = isset( $schema['type'] ) ? $schema['type'] : ( isset( $schema['oneOf'] ) ? 'oneOf' : null );
+
+		switch ( $schema_type ) {
 			case 'array':
 				if ( ! isset( $schema['items'] ) ) {
 					return $value;

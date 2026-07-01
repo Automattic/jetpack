@@ -225,7 +225,6 @@ class Connections_Controller extends Base_Controller {
 				'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
 			),
 			'status'          => array(
-				'type'        => 'string', // Keep this so 'class-connections-post-field.php' doesn't whine about undefined key
 				'description' => __( 'The connection status.', 'jetpack-publicize-pkg' ),
 				'oneOf'       => array(
 					array(
