@@ -150,23 +150,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
 
-	// Comparison series have no .visx-bar elements; count only primary series so
-	// keyboard navigation doesn't cycle phantom indices into comparison-only slots.
-	const primarySeriesForNav = dataWithVisibleZeros.filter( s => s.options?.type !== 'comparison' );
-	const totalPoints =
-		Math.max( 0, ...primarySeriesForNav.map( s => s.data?.length || 0 ) ) *
-		primarySeriesForNav.length;
-
-	// Use the keyboard navigation hook
-	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
-		selectedIndex,
-		setSelectedIndex,
-		isNavigating,
-		setIsNavigating,
-		chartRef,
-		totalPoints,
-	} );
-
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
 	// Add visibility information to series when using interactive legends
@@ -191,6 +174,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	}, [ seriesWithVisibility ] );
 
 	// Derive primary vs comparison entries for comparison mode support.
+	// Filtered by both comparison-type AND visibility, so hidden primary series drop out.
 	const primaryEntries = useMemo(
 		() =>
 			seriesWithVisibility.filter(
@@ -198,6 +182,24 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			),
 		[ seriesWithVisibility ]
 	);
+
+	// Keyboard nav, the accessible tooltip, and the highlight CSS each turn selectedIndex back
+	// into a bar, so all three must stride over the SAME series list. Derive totalPoints from
+	// primaryEntries (visibility- and comparison-filtered) so nav stays aligned with the
+	// tooltip/highlight even when an interactive legend hides a primary series — otherwise nav
+	// would keep counting the hidden series and land on blank slots with nothing highlighted.
+	const totalPoints =
+		Math.max( 0, ...primaryEntries.map( e => e.series.data.length || 0 ) ) * primaryEntries.length;
+
+	// Use the keyboard navigation hook
+	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
+		selectedIndex,
+		setSelectedIndex,
+		isNavigating,
+		setIsNavigating,
+		chartRef,
+		totalPoints,
+	} );
 
 	const primaryKeys = useMemo(
 		() => primaryEntries.map( ( { series } ) => series.label ),
