@@ -31,8 +31,14 @@
 	border-radius: var(--wpds-border-radius-md, 4px);
 }
 
-/* Hide the component's underline indicator; the card fill shows selection. */
+/* Hide the selection underline; the card fill shows selection instead. Older
+ * `@wordpress/ui` rendered the indicator as a per-tab `<svg>`; newer versions
+ * render it as a tablist-level presentation span. Hide whichever is present. */
 .tab > svg {
+	display: none;
+}
+
+.root [role="tablist"] [role="presentation"] {
 	display: none;
 }
 
