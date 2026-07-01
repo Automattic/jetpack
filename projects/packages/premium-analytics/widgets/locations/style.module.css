@@ -35,6 +35,11 @@
 	font-weight: inherit;
 }
 
+.titleIcon {
+	display: inline-flex;
+	flex: 0 0 auto;
+}
+
 .breadcrumbLink {
 	appearance: none;
 	background: none;

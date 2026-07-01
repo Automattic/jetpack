@@ -15,6 +15,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
+import { Icon, mapMarker } from '@wordpress/icons';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -134,6 +135,9 @@ function LocationsInner( { max }: { max: number } ) {
 	const header = (
 		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
 			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
+				<span className={ styles.titleIcon } aria-hidden="true">
+					<Icon icon={ mapMarker } size={ 16 } />
+				</span>
 				{ selectedCountry ? (
 					<>
 						<Button
