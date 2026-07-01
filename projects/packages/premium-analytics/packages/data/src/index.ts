@@ -73,7 +73,6 @@ export {
 	type StatsCommentsResponse,
 } from './hooks/use-stats-comments';
 export {
-	useStatsSubscribers,
 	useStatsSubscribersCounts,
 	useStatsSubscribersReport,
 	type StatsSubscribersCounts,

@@ -44,7 +44,8 @@ export const statsSubscribersQuery = (
 		params: {
 			unit: params.unit,
 			quantity: params.quantity,
-			date: params.date,
+			// Omit an empty date so a range-less (disabled) query never sends `date=`.
+			...( params.date ? { date: params.date } : {} ),
 			stat_fields: params.stat_fields ?? statsSubscribersDefaultStatFields,
 		},
 		sanitizer: 'subscribers',
@@ -75,19 +76,11 @@ export const statsSubscribersReportQuery = (
 	const quantity =
 		startDate && endDate ? getPeriodsBetweenInclusive( unit, startDate, endDate ) : 1;
 
-	return statsProxyQuery( {
-		name: 'subscribers',
-		version: '1.1',
-		endpoint: 'stats/subscribers',
-		params: {
-			unit,
-			quantity,
-			...( endDate ? { date: endDate } : {} ),
-			stat_fields: statsSubscribersDefaultStatFields,
-		},
-		sanitizer: 'subscribers',
+	// Reuse the endpoint config; only gate on a resolved range end.
+	return {
+		...statsSubscribersQuery( { unit, quantity, date: endDate ?? '' } ),
 		enabled: !! endDate,
-	} );
+	};
 };
 
 export const statsSubscribersCountsQuery = (

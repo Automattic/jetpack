@@ -69,7 +69,6 @@ export {
 	type StatsCommentsResponse,
 } from './use-stats-comments';
 export {
-	useStatsSubscribers,
 	useStatsSubscribersCounts,
 	useStatsSubscribersReport,
 	type StatsSubscribersCounts,

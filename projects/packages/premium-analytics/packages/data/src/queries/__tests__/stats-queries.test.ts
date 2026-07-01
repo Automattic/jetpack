@@ -732,8 +732,11 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
-	it( 'disables the subscribers report query until a date range is available', () => {
-		expect( statsSubscribersReportQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	it( 'disables the subscribers report query and omits date until a range is available', () => {
+		const query = statsSubscribersReportQuery( {} as StatsReportParams );
+
+		expect( query.enabled ).toBe( false );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'date' );
 	} );
 
 	it( 'builds WordAds stats query keys with Calypso endpoint params', () => {
