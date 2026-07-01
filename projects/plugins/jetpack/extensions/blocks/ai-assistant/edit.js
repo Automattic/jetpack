@@ -17,7 +17,6 @@ import {
 	PLAN_TYPE_FREE,
 	PLAN_TYPE_UNLIMITED,
 	usePlanType,
-	isUserConnected,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
@@ -34,6 +33,7 @@ import clsx from 'clsx';
 import UsagePanel from '../../plugins/ai-assistant-plugin/components/usage-panel';
 import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-assistant-plugin/components/usage-panel/types';
 import ConnectBanner from '../../shared/components/connect-banner';
+import { isCurrentUserConnected } from '../../shared/is-current-user-connected';
 import FeedbackControl from './components/feedback-control';
 import ToolbarControls from './components/toolbar-controls';
 import useAIAssistant from './hooks/use-ai-assistant';
@@ -130,7 +130,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const isWaitingResponse = requestingState === 'requesting';
 	const isLoadingCompletion = [ 'requesting', 'suggesting' ].includes( requestingState );
 
-	const connected = isUserConnected();
+	const connected = isCurrentUserConnected();
 
 	const { productPageUrl } = useAiProductPage();
 

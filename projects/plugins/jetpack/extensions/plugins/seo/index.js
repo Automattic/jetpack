@@ -7,7 +7,6 @@ import {
 	useModuleStatus,
 	getJetpackExtensionAvailability,
 	getRequiredPlan,
-	isUserConnected,
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelBody, PanelRow } from '@wordpress/components';
@@ -25,6 +24,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { isCurrentUserConnected } from '../../shared/is-current-user-connected';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import { SeoEnhancer } from '../ai-assistant-plugin/components/seo-enhancer';
 import { SeoSummary } from '../ai-assistant-plugin/components/seo-enhancer/seo-summary';
@@ -48,7 +48,7 @@ const supportsPublishSidebar =
 
 const isSeoEnhancerEnabled =
 	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
-	isUserConnected() &&
+	isCurrentUserConnected() &&
 	supportsPublishSidebar;
 
 const canHaveAutoEnhance = ! isSimpleSite();

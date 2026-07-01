@@ -9,7 +9,6 @@ import {
 } from '@automattic/jetpack-ai-client';
 import {
 	useAnalytics,
-	isUserConnected,
 	PLAN_TYPE_FREE,
 	PLAN_TYPE_UNLIMITED,
 	usePlanType,
@@ -33,6 +32,7 @@ import { ComponentType, useCallback, useMemo } from 'react';
  */
 import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
+import { isCurrentUserConnected } from '../../../../shared/is-current-user-connected';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
 import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
@@ -256,7 +256,7 @@ export default function AiAssistantPluginSidebar() {
 
 	// A user who hasn't connected their WordPress.com account can't use the AI
 	// features, so don't show the panel. It would only error out.
-	if ( ! isUserConnected() ) {
+	if ( ! isCurrentUserConnected() ) {
 		return null;
 	}
 

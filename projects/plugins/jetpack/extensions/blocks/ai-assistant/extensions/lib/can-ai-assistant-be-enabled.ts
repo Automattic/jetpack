@@ -1,12 +1,12 @@
 /*
  * External dependencies
  */
-import { isUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { getBlockType } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 /*
  * Internal dependencies
  */
+import { isCurrentUserConnected } from '../../../../shared/is-current-user-connected';
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 
 export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
@@ -33,8 +33,8 @@ export function canAIAssistantBeEnabled(): boolean {
 		return false;
 	}
 
-	// Do not enable AI Assistant if the site is not connected.
-	const connected = isUserConnected();
+	// Do not enable AI Assistant if the current user is not connected.
+	const connected = isCurrentUserConnected();
 	if ( ! connected ) {
 		return false;
 	}

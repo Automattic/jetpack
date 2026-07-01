@@ -4,7 +4,6 @@
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	getJetpackExtensionAvailability,
-	isUserConnected,
 	useModuleStatus,
 } from '@automattic/jetpack-shared-extension-utils';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -14,6 +13,7 @@ import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
  */
+import { isCurrentUserConnected } from '../../../../shared/is-current-user-connected';
 import { store } from './store';
 import { useSeoModuleSettings } from './use-seo-module-settings';
 import { useSeoRequests } from './use-seo-requests';
@@ -24,7 +24,7 @@ import type { Block } from '@automattic/jetpack-ai-client';
 
 const isSeoEnhancerEnabled =
 	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
-	isUserConnected() &&
+	isCurrentUserConnected() &&
 	! isSimpleSite();
 
 function isPossibleToExtendImageBlock( blockName: string ): boolean {

@@ -1,7 +1,7 @@
-import { isUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { applyFilters } from '@wordpress/hooks';
+import { isCurrentUserConnected } from '../../../../../shared/is-current-user-connected';
 import AiAssistantPluginSidebar from '..';
 
 const mockEditPost = jest.fn();
@@ -46,10 +46,13 @@ jest.mock( '@automattic/jetpack-ai-client', () => ( {
 
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	useAnalytics: () => ( { tracks: { recordEvent: mockRecordEvent } } ),
-	isUserConnected: jest.fn(),
 	PLAN_TYPE_FREE: 'free',
 	PLAN_TYPE_UNLIMITED: 'unlimited',
 	usePlanType: () => 'free',
+} ) );
+
+jest.mock( '../../../../../shared/is-current-user-connected', () => ( {
+	isCurrentUserConnected: jest.fn(),
 } ) );
 
 jest.mock( '@automattic/jetpack-shared-extension-utils/components', () => ( {
@@ -176,12 +179,12 @@ describe( 'AiAssistantPluginSidebar', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		jest.mocked( applyFilters ).mockReturnValue( null );
-		jest.mocked( isUserConnected ).mockReturnValue( true );
+		jest.mocked( isCurrentUserConnected ).mockReturnValue( true );
 	} );
 
 	describe( 'connection gating', () => {
 		it( 'renders nothing when the current user is not connected', () => {
-			jest.mocked( isUserConnected ).mockReturnValue( false );
+			jest.mocked( isCurrentUserConnected ).mockReturnValue( false );
 
 			render( <AiAssistantPluginSidebar /> );
 
