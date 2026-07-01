@@ -38,6 +38,19 @@ type FileDownloadsRenderAttributes = FileDownloadsAttributes &
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 const FILE_DOWNLOADS_UNAVAILABLE_STATUS = 404;
 
+function toStatusNumber( value: unknown ): number | null {
+	if ( typeof value === 'number' ) {
+		return value;
+	}
+
+	if ( typeof value === 'string' ) {
+		const status = Number.parseInt( value, 10 );
+		return Number.isNaN( status ) ? null : status;
+	}
+
+	return null;
+}
+
 function getErrorStatus( error: unknown ): number | null {
 	if ( ! error || typeof error !== 'object' ) {
 		return null;
@@ -45,29 +58,63 @@ function getErrorStatus( error: unknown ): number | null {
 
 	const err = error as Record< string, unknown >;
 
-	if ( typeof err.status === 'number' ) {
-		return err.status;
+	const status = toStatusNumber( err.status );
+	if ( status !== null ) {
+		return status;
 	}
 
 	if ( err.data && typeof err.data === 'object' ) {
 		const data = err.data as Record< string, unknown >;
-		if ( typeof data.status === 'number' ) {
-			return data.status;
+		const dataStatus = toStatusNumber( data.status );
+		if ( dataStatus !== null ) {
+			return dataStatus;
 		}
 	}
 
 	if ( err.response && typeof err.response === 'object' ) {
 		const response = err.response as Record< string, unknown >;
-		if ( typeof response.status === 'number' ) {
-			return response.status;
+		const responseStatus = toStatusNumber( response.status );
+		if ( responseStatus !== null ) {
+			return responseStatus;
 		}
 	}
 
 	return null;
 }
 
+function getErrorText( error: unknown ): string {
+	if ( ! error || typeof error !== 'object' ) {
+		return '';
+	}
+
+	const err = error as Record< string, unknown >;
+	const candidates = [
+		err.message,
+		err.error,
+		err.code,
+		err.data && typeof err.data === 'object'
+			? ( err.data as Record< string, unknown > ).message
+			: undefined,
+		err.data && typeof err.data === 'object'
+			? ( err.data as Record< string, unknown > ).error
+			: undefined,
+		err.response && typeof err.response === 'object'
+			? ( err.response as Record< string, unknown > ).message
+			: undefined,
+	];
+
+	return candidates
+		.filter( ( candidate ): candidate is string => typeof candidate === 'string' )
+		.join( ' ' );
+}
+
 function getFileDownloadsErrorMessage( error: unknown ) {
-	if ( getErrorStatus( error ) === FILE_DOWNLOADS_UNAVAILABLE_STATUS ) {
+	const errorText = getErrorText( error ).toLowerCase();
+	const isUnavailableMessage =
+		errorText.includes( 'file download' ) &&
+		( errorText.includes( 'not available' ) || errorText.includes( 'jetpack site' ) );
+
+	if ( getErrorStatus( error ) === FILE_DOWNLOADS_UNAVAILABLE_STATUS || isUnavailableMessage ) {
 		return __(
 			'File download stats are not available for Jetpack sites.',
 			'jetpack-premium-analytics'
