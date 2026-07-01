@@ -7,7 +7,7 @@ import type { StatsProxyParams } from '../api/stats-proxy-fetch';
 
 export type StatsPeriod = 'hour' | 'day' | 'week' | 'month' | 'year';
 
-type StatsQueryParamFields = {
+export type StatsQueryParamFields = {
 	period?: StatsPeriod | string;
 	end_date?: string;
 	date?: string;
