@@ -440,10 +440,11 @@ to the chart component so an in-place spinner appears without hiding the rows.
 Loading, empty, and error states should live in the same body/content wrapper as the normal
 widget content so padding and sizing stay consistent. If the current widget state has interactive
 body chrome such as a breadcrumb, dropdown, or view selector, keep that chrome available and
-replace only the content area with the state message. Do not add a static widget title to the
-body just to balance a top-level header layout; the dashboard/widget chrome owns the widget
-title. Composite widgets may use a custom placeholder instead of `LeaderboardChart`'s
-`emptyStateText`, but the state should still be centered inside the content area.
+replace only the content area with the state message. Full-bleed widgets do not get a visible
+host card title in the product dashboard, so if the widget needs a title-like body header it must
+render that header itself and keep it visible across these states. Composite widgets may use a
+custom placeholder instead of `LeaderboardChart`'s `emptyStateText`, but the state should still be
+centered inside the content area.
 
 Known unsupported endpoint states should use product-specific copy rather than the generic
 "Could not load" fallback (for example unsupported Jetpack-site responses). Map the relevant
@@ -488,9 +489,13 @@ behavior across Stats widgets.
 - Dashboard render: avoid duplicating the dashboard-provided widget title. If the close-up
   component can show its own title, pass `showTitle={ false }` from dashboard stories and
   dashboard render paths.
-- Top-level body header: do not repeat the widget title inside the body when the dashboard
-  already renders it. Body headers are for body-level controls or drill-down breadcrumbs, not
-  duplicate titles.
+- Storybook dashboard metadata: pass the same `presentation` used by `widget.json` into the
+  `WidgetDashboardWithWidget` story helper. This is especially important for `full-bleed`
+  widgets because the product host hides its card title; if Storybook omits `presentation`, it
+  may show a fake host title and make a correct body header look duplicated.
+- Top-level body header: for `full-bleed` widgets, render any required title/body controls inside
+  the widget body because the host title is hidden. For framed widgets, avoid repeating the host
+  title inside the body unless design explicitly calls for a separate body heading.
 - Header controls: `SelectControl` in widget headers should use `__next40pxDefaultSize` and
   `__nextHasNoMarginBottom`, with the visible label hidden from sighted users when the header
   context already names the control.
