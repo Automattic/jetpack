@@ -49,7 +49,9 @@ const UTM_PARAM_OPTIONS: { label: string; value: StatsUtmParam }[] = [
 type UtmInsightsInnerProps = {
 	utmParam: StatsUtmParam;
 	max: number;
-	setAttributes?: NonNullable< WidgetRenderProps< UtmInsightsRenderAttributes >[ 'setAttributes' ] >;
+	setAttributes?: NonNullable<
+		WidgetRenderProps< UtmInsightsRenderAttributes >[ 'setAttributes' ]
+	>;
 };
 
 /**
