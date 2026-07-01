@@ -5,8 +5,9 @@ import { __ } from '@wordpress/i18n';
 import { seen } from '@wordpress/icons';
 
 /**
- * The widget exposes no configurable attributes: report params come from the
- * dashboard's global date-range state, not host-provided attributes.
+ * The widget has no user-configurable attributes. Report params still reach it
+ * through WidgetRoot: the dashboard date range, or `attributes.reportParams`
+ * when a host injects them (e.g. Storybook and dashboard previews).
  */
 export type VisitorsOverTimeAttributes = Record< string, never >;
 
