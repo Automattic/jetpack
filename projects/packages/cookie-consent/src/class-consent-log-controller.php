@@ -640,7 +640,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			'consent_id'       => $consent_id,
 			'event_type'       => $request->get_param( 'event_type' ),
 			'user_id'          => get_current_user_id(),
-				'ip_address'       => $this->get_consent_log_ip_address( $ip ),
+			'ip_address'       => $this->get_consent_log_ip_address( $ip ),
 			'url'              => $request->get_param( 'url' ),
 			'consent_types'    => $consent_json,
 			'policy_version'   => $log_versions['policy_version'],
