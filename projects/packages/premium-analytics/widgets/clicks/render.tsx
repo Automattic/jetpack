@@ -27,6 +27,9 @@ import type { ClicksAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type ClicksRenderAttributes = ClicksAttributes & Partial< ReportParamsFieldAttributes >;
+type ClicksWidgetProps = WidgetRenderProps< ClicksRenderAttributes > & {
+	showTitle?: boolean;
+};
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
@@ -290,7 +293,7 @@ export function ClicksLeaderboard( {
 	);
 }
 
-function ClicksInner( { max }: { max: number } ) {
+function ClicksInner( { max, showTitle }: { max: number; showTitle: boolean } ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ selectedClickLabel, setSelectedClickLabel ] = useState< string | null >( null );
 	const clearSelectedClick = useCallback( () => setSelectedClickLabel( null ), [] );
@@ -321,7 +324,8 @@ function ClicksInner( { max }: { max: number } ) {
 	const isDrillDown = !! selectedClick?.children?.length;
 	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
 
-	const header = (
+	const showBreadcrumb = showTitle || isDrillDown;
+	const header = showBreadcrumb ? (
 		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
 			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
 				{ isDrillDown ? (
@@ -341,7 +345,7 @@ function ClicksInner( { max }: { max: number } ) {
 				) }
 			</Stack>
 		</Stack>
-	);
+	) : null;
 
 	return (
 		<>
@@ -367,17 +371,16 @@ function ClicksInner( { max }: { max: number } ) {
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes.
+ * @param props.showTitle  - Whether to render the widget title/breadcrumb.
  * @return The rendered widget content.
  */
-export default function ClicksWidget( {
-	attributes = {},
-}: WidgetRenderProps< ClicksRenderAttributes > ) {
+export default function ClicksWidget( { attributes = {}, showTitle = true }: ClicksWidgetProps ) {
 	const max = attributes?.max ?? 10;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ClicksInner max={ max } />
+				<ClicksInner max={ max } showTitle={ showTitle } />
 			</div>
 		</WidgetRoot>
 	);
