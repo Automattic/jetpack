@@ -5,6 +5,12 @@ import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
+ * The widget exposes no configurable attributes: report params come from the
+ * dashboard's global date-range state, not host-provided attributes.
+ */
+export type AverageItemsPerOrderAttributes = Record< string, never >;
+
+/**
  * Widget type definition.
  *
  * Ported from `woocommerce-analytics/average-items-per-order` in

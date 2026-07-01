@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: conform woocommerce-analytics-ported widgets to the WidgetRenderProps<T> render contract.

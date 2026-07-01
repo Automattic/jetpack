@@ -1,15 +1,26 @@
 /**
  * External dependencies
  */
-import { WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
-import type { ComponentProps } from 'react';
-
+import {
+	WidgetRoot,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
  */
 import { VisitorMetricWidget } from './components/visitor-metric-widget';
+import type { VisitorsOverTimeAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps } from 'react';
 
-type RenderProps = Pick< ComponentProps< typeof WidgetRoot >, 'attributes' | 'setError' >;
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type VisitorsOverTimeRenderAttributes = VisitorsOverTimeAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type VisitorsOverTimeRenderProps = WidgetRenderProps< VisitorsOverTimeRenderAttributes > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+};
 
 /**
  * Visitors over time widget.
@@ -17,8 +28,16 @@ type RenderProps = Pick< ComponentProps< typeof WidgetRoot >, 'attributes' | 'se
  * Thin composition over WidgetRoot: WidgetRoot provides the query client,
  * chart theme, and resolved report params; VisitorMetricWidget fetches the
  * visitors report and renders visitor trends over time.
+ *
+ * @param props            - Render props.
+ * @param props.attributes - Widget attributes.
+ * @param props.setError   - Dashboard error-state setter.
+ * @return The rendered widget.
  */
-export default function VisitorsOverTimeRender( { attributes, setError }: RenderProps ) {
+export default function VisitorsOverTimeRender( {
+	attributes = {},
+	setError,
+}: VisitorsOverTimeRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<VisitorMetricWidget />
