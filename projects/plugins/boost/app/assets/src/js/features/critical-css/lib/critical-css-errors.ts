@@ -22,6 +22,78 @@ export type ErrorSet = {
 };
 
 /**
+ * Error types that are benign: the page has no external CSS to optimize, so
+ * Critical CSS simply is not applicable. These are not generation failures.
+ */
+const BENIGN_ERROR_TYPES: Critical_CSS_Error_Type[] = [ 'EmptyCSSError' ];
+
+/**
+ * Whether an error type is benign (the page has no external CSS to optimize).
+ *
+ * @param {Critical_CSS_Error_Type} type - The error type to check.
+ */
+export function isBenignErrorType( type: Critical_CSS_Error_Type ): boolean {
+	return BENIGN_ERROR_TYPES.includes( type );
+}
+
+/**
+ * Whether a single error is benign.
+ *
+ * @param {CriticalCssErrorDetails} error - The error to check.
+ */
+export function isBenignError( error: CriticalCssErrorDetails ): boolean {
+	return isBenignErrorType( error.type );
+}
+
+/**
+ * Providers that have at least one real (non-benign) error.
+ *
+ * @param {CriticalCssState} cssState - The CSS State object.
+ */
+export function getProvidersWithRealErrors( cssState: CriticalCssState ): Provider[] {
+	return cssState.providers.filter( provider =>
+		( provider.errors || [] ).some( error => ! isBenignError( error ) )
+	);
+}
+
+/**
+ * Providers whose errors are all benign - their CSS is inlined, so there is
+ * nothing for Critical CSS to optimize.
+ *
+ * @param {CriticalCssState} cssState - The CSS State object.
+ */
+export function getInlinedProviders( cssState: CriticalCssState ): Provider[] {
+	return cssState.providers.filter( provider => {
+		const errors = provider.errors || [];
+		return errors.length > 0 && errors.every( isBenignError );
+	} );
+}
+
+/**
+ * Whether generation finished with no usable output solely because every page
+ * inlines its CSS. True when: status is 'generated', there is at least one
+ * provider, none succeeded, there are no real errors, and at least one provider
+ * is inlined-only.
+ *
+ * @param {CriticalCssState} cssState - The CSS State object.
+ */
+export function isAllInlined( cssState: CriticalCssState ): boolean {
+	if ( cssState.status !== 'generated' ) {
+		return false;
+	}
+	if ( cssState.providers.length === 0 ) {
+		return false;
+	}
+	if ( cssState.providers.some( provider => provider.status === 'success' ) ) {
+		return false;
+	}
+	if ( getProvidersWithRealErrors( cssState ).length > 0 ) {
+		return false;
+	}
+	return getInlinedProviders( cssState ).length > 0;
+}
+
+/**
  * Given a Critical CSS State, returns whether or not this represents a fatal error.
  *
  * @param {CriticalCssState} cssState - The CSS State object.
@@ -44,7 +116,13 @@ export function isFatalError( cssState: CriticalCssState ): boolean {
 		provider => provider.status === 'success' || provider.status === 'pending'
 	);
 
-	return ! hasActiveProvider;
+	if ( hasActiveProvider ) {
+		return false;
+	}
+
+	// No active provider. Only a real (non-benign) error is a show-stopper; if every
+	// failed provider is inlined-only (EmptyCSSError), generation is not fatal.
+	return getProvidersWithRealErrors( cssState ).length > 0;
 }
 
 /**
