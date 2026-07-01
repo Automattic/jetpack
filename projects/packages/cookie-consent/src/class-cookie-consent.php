@@ -1209,69 +1209,25 @@ class Cookie_Consent {
 	/**
 	 * Get default GDPR country list.
 	 *
+	 * Thin delegate: the list now lives on Config_Schema (which keeps it private to
+	 * its own default-building), since this method has other in-class callers.
+	 *
 	 * @return string[] Country codes where opt-in consent applies.
 	 */
 	private static function get_default_gdpr_countries() {
-		return array(
-			// European Member countries.
-			'AT', // Austria.
-			'BE', // Belgium.
-			'BG', // Bulgaria.
-			'CY', // Cyprus.
-			'CZ', // Czech Republic.
-			'DE', // Germany.
-			'DK', // Denmark.
-			'EE', // Estonia.
-			'ES', // Spain.
-			'FI', // Finland.
-			'FR', // France.
-			'GR', // Greece.
-			'HR', // Croatia.
-			'HU', // Hungary.
-			'IE', // Ireland.
-			'IT', // Italy.
-			'LT', // Lithuania.
-			'LU', // Luxembourg.
-			'LV', // Latvia.
-			'MT', // Malta.
-			'NL', // Netherlands.
-			'PL', // Poland.
-			'PT', // Portugal.
-			'RO', // Romania.
-			'SE', // Sweden.
-			'SI', // Slovenia.
-			'SK', // Slovakia.
-			'GB', // United Kingdom.
-			// Single Market Countries that GDPR applies to.
-			'CH', // Switzerland.
-			'IS', // Iceland.
-			'LI', // Liechtenstein.
-			'NO', // Norway.
-		);
+		return Config_Schema::schema()['properties']['geo']['properties']['gdpr_countries']['default'];
 	}
 
 	/**
 	 * Get default CCPA-style region list.
 	 *
+	 * Thin delegate: the list now lives on Config_Schema (which keeps it private to
+	 * its own default-building), since this method has other in-class callers.
+	 *
 	 * @return string[] Lower-case region names where opt-out consent applies.
 	 */
 	private static function get_default_ccpa_regions() {
-		return array(
-			/* US regions/states that are treated like California for Do Not Sell requests. */
-			'california',
-			'utah',
-			'virginia',
-			'colorado',
-			'connecticut',
-			'texas',
-			'tennessee',
-			'oregon',
-			'new jersey',
-			'montana',
-			'iowa',
-			'indiana',
-			'delaware',
-		);
+		return Config_Schema::schema()['properties']['geo']['properties']['ccpa_regions']['default'];
 	}
 
 	/**
