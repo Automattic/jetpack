@@ -133,28 +133,11 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 		} ) );
 	}, [ activeData, hasComparison, isDrillDown ] );
 
-	if ( isError ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ __( 'Could not load UTM data.', 'jetpack-premium-analytics' ) }</Text>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && data.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
-
-	return (
-		<>
-			<Stack
-				direction="row"
-				justify={ isDrillDown ? 'space-between' : 'flex-end' }
-				align="center"
-				className={ styles.widgetHeader }
-			>
-				{ isDrillDown && (
-					<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
+	const header = (
+		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
+			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
+				{ isDrillDown ? (
+					<>
 						<Button
 							variant="unstyled"
 							onClick={ clearSelectedUtm }
@@ -164,19 +147,51 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 						</Button>
 						<Text className={ styles.breadcrumbSeparator }>/</Text>
 						<Text className={ styles.breadcrumbCurrent }>{ selectedUtm?.label }</Text>
-					</Stack>
+					</>
+				) : (
+					<Text>{ __( 'UTM Insights', 'jetpack-premium-analytics' ) }</Text>
 				) }
-				<SelectControl
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-					label={ __( 'UTM parameter', 'jetpack-premium-analytics' ) }
-					hideLabelFromVision
-					value={ activeUtmParam }
-					options={ UTM_PARAM_OPTIONS }
-					onChange={ handleParamChange }
-					className={ styles.paramSelect }
-				/>
 			</Stack>
+			<SelectControl
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+				label={ __( 'UTM parameter', 'jetpack-premium-analytics' ) }
+				hideLabelFromVision
+				value={ activeUtmParam }
+				options={ UTM_PARAM_OPTIONS }
+				onChange={ handleParamChange }
+				className={ styles.paramSelect }
+			/>
+		</Stack>
+	);
+
+	if ( isError ) {
+		return (
+			<>
+				{ header }
+				<div className={ styles.content }>
+					<Stack align="center" justify="center" className={ styles.placeholder }>
+						<Text>{ __( 'Could not load UTM data.', 'jetpack-premium-analytics' ) }</Text>
+					</Stack>
+				</div>
+			</>
+		);
+	}
+
+	if ( isLoading && data.length === 0 ) {
+		return (
+			<>
+				{ header }
+				<div className={ styles.content }>
+					<WidgetLoadingOverlay />
+				</div>
+			</>
+		);
+	}
+
+	return (
+		<>
+			{ header }
 			<div className={ styles.content }>
 				<LeaderboardChart
 					data={ leaderboardData }
