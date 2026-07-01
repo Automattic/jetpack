@@ -41,6 +41,23 @@ export type {
 	StatsAppPlanPriceTier,
 	StatsAppPlanUsage,
 } from './hooks/use-stats-app-plan-usage';
+export {
+	useStatsAppNotices,
+	useStatsAppNoticeMutation,
+	type StatsAppNoticeId,
+	type StatsAppNoticeMutationParams,
+	type StatsAppNoticeMutationResponse,
+	type StatsAppNotices,
+	type StatsAppNoticesParams,
+	type StatsAppNoticeStatus,
+} from './hooks/use-stats-app-notices';
+export {
+	useStatsAppPurchases,
+	type StatsAppPurchase,
+	type StatsAppPurchaseExpiryStatus,
+	type StatsAppPurchasesParams,
+	type StatsAppPurchasesResponse,
+} from './hooks/use-stats-app-purchases';
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
 export {
 	useStatsCommentFollowers,
@@ -126,6 +143,48 @@ export type {
 	StatsAppReferrersSpamMutationResponse,
 	StatsAppReferrersSpamResponse,
 } from './hooks/use-stats-app-referrers-spam';
+export {
+	useStatsEmailOpensBreakdown,
+	useStatsEmailClicksBreakdown,
+	type StatsEmailBreakdown,
+	type StatsEmailClicksBreakdown,
+	type StatsEmailOpensBreakdown,
+} from './hooks/use-stats-email-breakdown';
+export {
+	useStatsEmailSummary,
+	type StatsEmailSummary,
+	type StatsEmailSummaryParams,
+	type StatsEmailSummarySortField,
+} from './hooks/use-stats-email-summary';
+export {
+	useStatsSingleVideo,
+	type StatsSingleVideoDataPoint,
+	type StatsSingleVideoPage,
+	type StatsSingleVideoResponse,
+} from './hooks/use-stats-single-video';
+export {
+	useStatsEmailOpensTimeSeries,
+	useStatsEmailClicksTimeSeries,
+	type StatsEmailTimeSeriesParams,
+	type StatsEmailTimeSeriesPeriod,
+	type StatsEmailTimeSeriesReport,
+	type StatsEmailTimeSeriesDataPoint,
+	type StatsEmailTimeSeriesSummary,
+} from './hooks/use-stats-email-time-series';
+export {
+	useStatsAppDashboardModules,
+	useStatsAppDashboardModulesMutation,
+} from './hooks/use-stats-app-dashboard-modules';
+export type {
+	StatsAppDashboardModules,
+	StatsAppDashboardModulesMutationResponse,
+	StatsAppDashboardModuleValue,
+	StatsAppDashboardTrafficModule,
+	StatsAppDashboardInsightsModule,
+	StatsAppDashboardSubscribersModule,
+	StatsAppDashboardWordAdsModule,
+	StatsAppDashboardStoreModule,
+} from './hooks/use-stats-app-dashboard-modules';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -174,6 +233,7 @@ export type {
 	StatsCommentsRawFollowData,
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
+	StatsEmailBreakdownItem,
 	StatsFileDownloadsItem,
 	StatsFollowersItem,
 	StatsFollowersRawItem,

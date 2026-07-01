@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Latest Subscribers Stats widget, plus a reusable SubscriberList toolkit component (avatar + name + relative "since" time roster).

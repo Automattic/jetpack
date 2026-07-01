@@ -4,7 +4,19 @@
  * @jest-environment-options {"url": "https://shop.example.co.uk/"}
  */
 
-import { getCookie, setCookie, handleConsentByRegion } from '../src/modules/cookie-consent/utils';
+import {
+	UNKNOWN_COUNTRY_CODE,
+	getConsentChoices,
+	getCookie,
+	getGeoConfig,
+	handleConsentByRegion,
+	hasConsentSet,
+	isGdprCountry,
+	pertainsToCCPA,
+	readConsentChoices,
+	saveConsentChoices,
+	setCookie,
+} from '../src/modules/cookie-consent/utils';
 
 describe( 'setCookie', () => {
 	let writes: string[];
@@ -192,5 +204,281 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 
 		expect( context.showBanner ).toBe( false );
 		expect( wasDenied( 'statistics' ) ).toBe( true );
+	} );
+} );
+
+describe( 'registry-driven consent choices', () => {
+	let consentCalls: Array< [ string, string ] >;
+	let originalCookie: PropertyDescriptor | undefined;
+
+	beforeEach( () => {
+		consentCalls = [];
+		window.wp_set_consent = ( category: string, state: string ) => {
+			consentCalls.push( [ category, state ] );
+		};
+		window.jetpackCookieConsentConfig = {
+			apiUrl: 'https://example.com/wp-json/jetpack/v4/cookie-consent/consent-log',
+			categories: [
+				{
+					key: 'functional',
+					preferenceKey: 'required',
+					required: true,
+					defaultChecked: true,
+					wpConsentMap: [ 'functional', 'preferences' ],
+				},
+				{
+					key: 'analytics',
+					preferenceKey: 'analytics',
+					required: false,
+					defaultChecked: true,
+					wpConsentMap: [ 'statistics', 'statistics-anonymous' ],
+				},
+				{
+					key: 'marketing',
+					preferenceKey: 'advertising',
+					required: false,
+					defaultChecked: false,
+					wpConsentMap: [ 'marketing' ],
+				},
+				{
+					key: 'personalization',
+					preferenceKey: 'personalization',
+					required: false,
+					defaultChecked: false,
+					wpConsentMap: [ 'personalization' ],
+				},
+			],
+		};
+		originalCookie = Object.getOwnPropertyDescriptor( Document.prototype, 'cookie' );
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { wp_set_consent?: unknown } ).wp_set_consent;
+		delete ( window as unknown as { jetpackCookieConsentConfig?: unknown } )
+			.jetpackCookieConsentConfig;
+		delete ( document as unknown as { cookie?: string } ).cookie;
+		if ( originalCookie ) {
+			Object.defineProperty( Document.prototype, 'cookie', originalCookie );
+		}
+	} );
+
+	it( 'writes required and configured category maps through WP Consent API', () => {
+		saveConsentChoices( {
+			analytics: false,
+			advertising: true,
+			personalization: true,
+		} );
+
+		expect( consentCalls ).toEqual( [
+			[ 'functional', 'allow' ],
+			[ 'preferences', 'allow' ],
+			[ 'statistics', 'deny' ],
+			[ 'statistics-anonymous', 'deny' ],
+			[ 'marketing', 'allow' ],
+			[ 'personalization', 'allow' ],
+		] );
+	} );
+
+	it( 'derives choices from the registry, forcing required on and honoring defaultChecked', () => {
+		expect( getConsentChoices() ).toEqual( {
+			required: true,
+			analytics: true,
+			advertising: false,
+			personalization: false,
+		} );
+		expect( getConsentChoices( false ) ).toEqual( {
+			required: true,
+			analytics: false,
+			advertising: false,
+			personalization: false,
+		} );
+		expect( getConsentChoices( true ) ).toEqual( {
+			required: true,
+			analytics: true,
+			advertising: true,
+			personalization: true,
+		} );
+	} );
+
+	it( 'reports consent as set when a required-category cookie is present', () => {
+		Object.defineProperty( document, 'cookie', {
+			configurable: true,
+			get: () => 'wp_consent_functional=allow',
+		} );
+
+		expect( hasConsentSet() ).toBe( true );
+	} );
+
+	it( 'ignores non-required category cookies when a required category exists', () => {
+		Object.defineProperty( document, 'cookie', {
+			configurable: true,
+			get: () => 'wp_consent_statistics=allow',
+		} );
+
+		expect( hasConsentSet() ).toBe( false );
+	} );
+
+	it( 'falls back to checking all categories when none are required', () => {
+		window.jetpackCookieConsentConfig = {
+			apiUrl: 'https://example.com/wp-json/jetpack/v4/cookie-consent/consent-log',
+			categories: [
+				{
+					key: 'analytics',
+					preferenceKey: 'analytics',
+					required: false,
+					defaultChecked: true,
+					wpConsentMap: [ 'statistics' ],
+				},
+			],
+		};
+		Object.defineProperty( document, 'cookie', {
+			configurable: true,
+			get: () => 'wp_consent_statistics=deny',
+		} );
+
+		expect( hasConsentSet() ).toBe( true );
+	} );
+
+	it( 'reads configured consent choices from mapped WP Consent API cookies', () => {
+		Object.defineProperty( document, 'cookie', {
+			configurable: true,
+			get: () =>
+				'wp_consent_functional=allow; wp_consent_statistics=allow; wp_consent_statistics-anonymous=allow; wp_consent_marketing=deny; wp_consent_personalization=allow',
+		} );
+
+		expect( readConsentChoices() ).toEqual( {
+			required: true,
+			analytics: true,
+			advertising: false,
+			personalization: true,
+		} );
+	} );
+
+	it( 'dispatches the public wp_consent_saved event with event type and category choices', () => {
+		let savedEvent: CustomEvent | undefined;
+		const listener = ( event: Event ) => {
+			savedEvent = event as CustomEvent;
+		};
+		window.addEventListener( 'wp_consent_saved', listener );
+
+		saveConsentChoices(
+			{
+				analytics: true,
+				advertising: false,
+			},
+			'accept_selected'
+		);
+
+		window.removeEventListener( 'wp_consent_saved', listener );
+
+		expect( consentCalls ).toEqual( [
+			[ 'functional', 'allow' ],
+			[ 'preferences', 'allow' ],
+			[ 'statistics', 'allow' ],
+			[ 'statistics-anonymous', 'allow' ],
+			[ 'marketing', 'deny' ],
+		] );
+		expect( savedEvent?.detail ).toEqual( {
+			eventType: 'accept_selected',
+			choices: {
+				analytics: true,
+				advertising: false,
+			},
+		} );
+	} );
+} );
+
+describe( 'geo configuration helpers', () => {
+	it( 'prefers the nested geo schema over legacy top-level keys', () => {
+		const config = getGeoConfig( {
+			geoApiUrl: 'https://legacy.example.test/geo',
+			countryCodeCookie: 'legacy_country',
+			geo: {
+				provider: 'custom',
+				apiUrl: 'https://geo.example.test/lookup',
+				countryCodeCookie: 'shopper_country',
+				regionCookie: 'shopper_region',
+				cookieDuration: 120,
+				gdprCountries: [ 'gb' ],
+				ccpaRegions: [ 'California' ],
+				showOnError: false,
+			},
+		} );
+
+		expect( config ).toMatchObject( {
+			provider: 'custom',
+			apiUrl: 'https://geo.example.test/lookup',
+			countryCodeCookie: 'shopper_country',
+			regionCookie: 'shopper_region',
+			cookieDuration: 120,
+			gdprCountries: [ 'GB' ],
+			ccpaRegions: [ 'california' ],
+			showOnError: false,
+		} );
+	} );
+
+	it( 'returns defaults for an empty config', () => {
+		expect( getGeoConfig( {} ) ).toEqual( {
+			provider: 'wpcom',
+			apiUrl: 'https://public-api.wordpress.com/geo/',
+			countryCodeCookie: 'country_code',
+			regionCookie: 'region',
+			cookieDuration: 6 * 60 * 60,
+			gdprCountries: [],
+			ccpaRegions: [],
+			showOnError: true,
+		} );
+	} );
+
+	it( 'falls back to the remaining legacy top-level keys', () => {
+		const config = getGeoConfig( {
+			geoProvider: 'custom',
+			geoApiUrl: 'https://legacy.example.test/geo',
+			geoCookieDuration: 999,
+			regionCookie: 'legacy_region',
+			showOnError: false,
+		} );
+
+		expect( config ).toMatchObject( {
+			provider: 'custom',
+			apiUrl: 'https://legacy.example.test/geo',
+			cookieDuration: 999,
+			regionCookie: 'legacy_region',
+			showOnError: false,
+		} );
+	} );
+
+	it( 'uses configured GDPR country lists', () => {
+		const config = {
+			geo: {
+				gdprCountries: [ 'ca' ],
+			},
+		};
+
+		expect( isGdprCountry( 'CA', config ) ).toBe( true );
+		expect( isGdprCountry( 'GB', config ) ).toBe( false );
+		expect( isGdprCountry( UNKNOWN_COUNTRY_CODE, config ) ).toBe( true );
+	} );
+
+	it( 'uses configured CCPA regions case-insensitively', () => {
+		const config = {
+			geo: {
+				ccpaRegions: [ 'Quebec' ],
+			},
+		};
+
+		expect( pertainsToCCPA( 'US', 'Quebec', config ) ).toBe( true );
+		expect( pertainsToCCPA( 'CA', 'Quebec', config ) ).toBe( false );
+		expect( pertainsToCCPA( 'US', 'California', config ) ).toBe( false );
+	} );
+
+	it( 'normalizes legacy geo list aliases', () => {
+		const config = getGeoConfig( {
+			gdprCountries: [ 'ca' ],
+			ccpaRegions: [ 'Quebec' ],
+		} );
+
+		expect( config.gdprCountries ).toEqual( [ 'CA' ] );
+		expect( config.ccpaRegions ).toEqual( [ 'quebec' ] );
 	} );
 } );

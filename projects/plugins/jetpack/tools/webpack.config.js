@@ -120,10 +120,7 @@ module.exports = [
 	// Build all the modules.
 	{
 		...sharedWebpackConfig,
-		entry: {
-			...moduleEntries,
-			'newsletter-widget': './modules/subscriptions/newsletter-widget/src/index.tsx',
-		},
+		entry: moduleEntries,
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin(),
@@ -133,7 +130,11 @@ module.exports = [
 			filename: '[name].min.js', // @todo: Fix this.
 		},
 	},
-	// Build the newsletter widget separately to support translatable strings.
+	/*
+	 * Build the newsletter widget on its own so it gets an unminified `newsletter-widget.js`
+	 * (the legacy module config above forces `[name].min.js`). This is the only build for it;
+	 * the unminified file is what supports extracting translatable strings.
+	 */
 	{
 		...sharedWebpackConfig,
 		entry: {

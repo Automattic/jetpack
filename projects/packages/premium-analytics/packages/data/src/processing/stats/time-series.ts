@@ -1,3 +1,4 @@
+import { formatDatePartWithTime, getDatePart } from '@jetpack-premium-analytics/datetime';
 import {
 	endOfISOWeek,
 	endOfMonth,
@@ -16,7 +17,12 @@ import {
 	getStatsIntervalFields,
 	normalizeStatsSummary,
 } from './utils';
-import type { StatsNormalizedDataPoint, StatsNormalizedReport, StatsRecord } from './types';
+import type {
+	StatsNormalizedDataPoint,
+	StatsNormalizedReport,
+	StatsNormalizedSummary,
+	StatsRecord,
+} from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
 export type StatsTimeSeriesDataPoint = StatsNormalizedDataPoint & {
@@ -28,7 +34,7 @@ export type StatsTimeSeriesReport = StatsNormalizedReport & {
 	data: StatsTimeSeriesDataPoint[];
 };
 
-const nonMetricFields = [ 'period', 'time_interval', 'date', 'date_start', 'date_end' ];
+const nonMetricFields = [ 'period', 'time_interval', 'date', 'date_start', 'date_end', 'hour' ];
 const dateFormat = 'yyyy-MM-dd';
 const referenceDate = new Date( 2001, 0, 1 );
 
@@ -163,6 +169,37 @@ function getTimeSeriesIntervalFields( period: unknown, unit?: string ) {
 	return getStatsIntervalFields( periodString, unit );
 }
 
+function getHourIntervalFields( date: string, hour: unknown ) {
+	const datePart = getDatePart( date ) ?? date;
+	const hourPart = String( Math.trunc( Number( hour ) ) || 0 ).padStart( 2, '0' );
+
+	// Like getStatsIntervalFields, these are calendar bucket labels stamped with a nominal +00:00
+	// (formatDatePartWithTime's default), not real UTC instants — the API's hour is already
+	// site-local, so a consumer must render the bucket as wall-clock rather than convert it across
+	// the site offset.
+	return {
+		time_interval: `${ datePart } ${ hourPart }:00`,
+		date_start: formatDatePartWithTime( datePart, `${ hourPart }:00:00` ),
+		date_end: formatDatePartWithTime( datePart, `${ hourPart }:59:59` ),
+	};
+}
+
+function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: string ) {
+	if ( unit === 'hour' && row.hour !== undefined && typeof rawPeriod === 'string' ) {
+		return getHourIntervalFields( rawPeriod, row.hour );
+	}
+
+	if ( typeof row.date_start === 'string' && typeof row.date_end === 'string' ) {
+		return {
+			time_interval: row.date_start,
+			date_start: row.date_start,
+			date_end: row.date_end,
+		};
+	}
+
+	return getTimeSeriesIntervalFields( rawPeriod, unit );
+}
+
 function getTimeSeriesSummarySidecars( response: StatsRecord ) {
 	return {
 		...normalizeStatsSummary( coerceStatsRecord( response.summary ) ),
@@ -207,14 +244,7 @@ export function sanitizeStatsTimeSeriesResponse(
 	}, {} );
 	const data = rows.map< StatsTimeSeriesDataPoint >( row => {
 		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
-		const range =
-			typeof row.date_start === 'string' && typeof row.date_end === 'string'
-				? {
-						time_interval: row.date_start,
-						date_start: row.date_start,
-						date_end: row.date_end,
-				  }
-				: getTimeSeriesIntervalFields( rawPeriod, unit );
+		const range = getRowIntervalFields( row, rawPeriod, unit );
 		const value = safeParseFloat( getPrimaryMetricValue( row ) );
 
 		return {
@@ -237,4 +267,40 @@ export function sanitizeStatsTimeSeriesResponse(
 		},
 		data,
 	};
+}
+
+export type StatsEmailTimeSeriesDataPoint = StatsTimeSeriesDataPoint & {
+	opens_count?: number;
+	clicks_count?: number;
+};
+
+export type StatsEmailTimeSeriesSummary = StatsNormalizedSummary & {
+	opens_count?: number;
+	clicks_count?: number;
+};
+
+export type StatsEmailTimeSeriesReport = StatsNormalizedReport & {
+	summary: StatsEmailTimeSeriesSummary;
+	data: StatsEmailTimeSeriesDataPoint[];
+};
+
+export function sanitizeStatsEmailTimeSeriesResponse(
+	payload: unknown,
+	query?: StatsQueryParams
+): StatsEmailTimeSeriesReport {
+	// Email opens/clicks timelines nest their matrix under a `timeline` key (requested via
+	// stats_fields=timeline), unlike the generic time series endpoints that return it top-level.
+	const timeline = coerceStatsRecord( coerceStatsRecord( payload ).timeline );
+	const fields = coerceStatsArray< string >( timeline.fields );
+
+	// The real hourly timeline labels its hour column ([ 'date', 'hour', '<metric>_count' ]), which
+	// the normalizer resolves into per-hour buckets. As a fallback, an unlabeled trailing hour
+	// column is named here so older/alternate payloads still resolve (matching Calypso's
+	// parseEmailChartData).
+	const normalizedTimeline =
+		timeline.unit === 'hour' && fields.length && ! fields.includes( 'hour' )
+			? { ...timeline, fields: [ ...fields, 'hour' ] }
+			: timeline;
+
+	return sanitizeStatsTimeSeriesResponse( normalizedTimeline, query );
 }

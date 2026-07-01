@@ -2,12 +2,10 @@
 /**
  * Dashboard widget modules: REST exposure + import-map wiring.
  *
- * Reads the widget types from Widget_Type_Registry (hydrated from the build
- * manifest in widget-types.php) and exposes them to the client through the
- * `/jetpack/v4/widget-modules` REST endpoint, plus adds each widget's render
- * and metadata modules to the dashboard page's import map so the client can
- * dynamically `import()` them on demand. The host feeds the REST records to
- * `useWidgetTypes()` in @wordpress/widget-primitives.
+ * Reads get_available_widget_types() (the registry filtered by
+ * widget-availability.php) and exposes it two ways: the
+ * `/jetpack/v4/widget-modules` REST list, and the page import map, where each
+ * widget's render and metadata modules are registered for dynamic `import()`.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -35,14 +33,14 @@ function register_widget_modules_rest_route() {
 add_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_route' );
 
 /**
- * Build the REST response: one record per registered widget.
+ * Build the REST response: one record per available widget type.
  *
  * @return \WP_REST_Response
  */
 function get_widget_modules_response() {
 	$records = array();
 
-	foreach ( get_registered_widget_types() as $widget_type ) {
+	foreach ( get_available_widget_types() as $widget_type ) {
 		$records[] = array(
 			'name'          => $widget_type->name,
 			'render_module' => $widget_type->render_module,
@@ -55,20 +53,21 @@ function get_widget_modules_response() {
 }
 
 /**
- * Add registered widget modules to the dashboard page import map as dynamic
- * dependencies, so the client can `import()` them on demand.
+ * Add available widget modules to the page import map as dynamic dependencies,
+ * so the client can `import()` them on demand.
  *
  * @param array $boot_dependencies Boot dependencies for the page.
  * @return array Updated boot dependencies.
  */
 function add_widget_modules_to_boot_deps( $boot_dependencies ) {
-	foreach ( get_registered_widget_types() as $widget_type ) {
+	foreach ( get_available_widget_types() as $widget_type ) {
 		if ( ! empty( $widget_type->render_module ) ) {
 			$boot_dependencies[] = array(
 				'import' => 'dynamic',
 				'id'     => $widget_type->render_module,
 			);
 		}
+
 		if ( ! empty( $widget_type->widget_module ) ) {
 			$boot_dependencies[] = array(
 				'import' => 'dynamic',

@@ -171,21 +171,33 @@ export function WidgetDashboardWithWidget( {
 	return (
 		<GlobalErrorProvider>
 			<HostRootFontSize hostEnvironment={ hostEnvironment }>
-				<div style={ { width: dashboardWidth, maxWidth: '100%' } }>
-					<WidgetDashboard
-						layout={ layout }
-						onLayoutChange={ setLayout }
-						widgetTypes={ [ storyWidgetType ] }
-						resolveWidgetModule={ resolveWidgetModule }
-						gridSettings={ { model: 'grid', rowHeight } }
-						editMode={ currentEditMode }
-						onEditChange={ setCurrentEditMode }
-					>
-						<Page title={ pageTitle } actions={ <WidgetDashboard.Actions /> } hasPadding>
-							<WidgetDashboard.NoWidgetsState />
-							<WidgetDashboard.Widgets />
-						</Page>
-					</WidgetDashboard>
+				{ /*
+				 * Outer box fills the canvas and owns horizontal overflow; the inner
+				 * box holds the simulated `dashboardWidth`. The host widget-settings
+				 * drawer is portaled to <body> and positioned `fixed; right: 0`, so a
+				 * body wider than the visible canvas (which a fixed `dashboardWidth`
+				 * wider than the Storybook preview would cause) pushes the drawer
+				 * off-screen. Containing the overflow here keeps the document at canvas
+				 * width so the drawer stays anchored to the visible viewport edge; the
+				 * wide layout remains inspectable by scrolling the box.
+				 */ }
+				<div style={ { width: '100%', overflowX: 'auto' } }>
+					<div style={ { width: dashboardWidth } }>
+						<WidgetDashboard
+							layout={ layout }
+							onLayoutChange={ setLayout }
+							widgetTypes={ [ storyWidgetType ] }
+							resolveWidgetModule={ resolveWidgetModule }
+							gridSettings={ { model: 'grid', rowHeight } }
+							editMode={ currentEditMode }
+							onEditChange={ setCurrentEditMode }
+						>
+							<Page title={ pageTitle } actions={ <WidgetDashboard.Actions /> } hasPadding>
+								<WidgetDashboard.NoWidgetsState />
+								<WidgetDashboard.Widgets />
+							</Page>
+						</WidgetDashboard>
+					</div>
 				</div>
 			</HostRootFontSize>
 		</GlobalErrorProvider>

@@ -8,6 +8,10 @@ export {
 	DonutChart,
 	Legend,
 	ReportMetricWidget,
+	MetricTabsChart,
+	type MetricTab,
+	type MetricTabDatum,
+	type MetricTabsChartProps,
 	WidgetRoot,
 	useWidgetRootContext,
 	type DonutChartData,
@@ -24,6 +28,9 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	SubscriberList,
+	type SubscriberListItem,
+	type SubscriberListProps,
 } from './components';
 
 /**
