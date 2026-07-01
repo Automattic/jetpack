@@ -7,15 +7,16 @@ import type { StatsNormalizedItemBase, StatsNormalizedReport } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
 /**
- * A single normalized device percentage row.
+ * A single normalized devices row.
  *
  * `label` is the raw device key returned by the API (e.g. 'desktop',
  * 'mobile', 'tablet', or a browser/OS name); callers are responsible
- * for mapping to display strings.
+ * for mapping to display strings and formatting the value for the
+ * requested property.
  */
 export interface StatsDevicesItem extends StatsNormalizedItemBase {
 	label: string;
-	percentage: number;
+	value: number;
 	children: null;
 }
 
@@ -23,12 +24,13 @@ export interface StatsDevicesItem extends StatsNormalizedItemBase {
  * Parse the `top_values` object returned by `stats/devices/{property}`.
  *
  * The API returns a plain object where each key is a device type and
- * the value is that type's percentage share, e.g.:
+ * the value depends on the requested property. For example, `screensize`
+ * returns percentage shares while `browser` and `platform` return counts:
  * ```json
  * { "desktop": 85.9, "mobile": 13.5, "tablet": 0.5 }
  * ```
  *
- * Items are sorted descending by percentage share.
+ * Items are sorted descending by value.
  *
  * @param topValues - Raw top_values object from the API.
  * @return Normalized device items.
@@ -37,11 +39,11 @@ function parseTopValues( topValues: Record< string, unknown > ): StatsDevicesIte
 	return Object.entries( topValues )
 		.map( ( [ key, value ] ) => ( {
 			label: key,
-			percentage: safeParseFloat( value ),
+			value: safeParseFloat( value ),
 			children: null as null,
 		} ) )
 		.filter( item => item.label )
-		.sort( ( a, b ) => b.percentage - a.percentage );
+		.sort( ( a, b ) => b.value - a.value );
 }
 
 /**

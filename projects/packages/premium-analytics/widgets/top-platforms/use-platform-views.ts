@@ -12,7 +12,7 @@ import type {
 export interface PlatformView {
 	key: string;
 	label: string;
-	percentage: number;
+	views: number;
 }
 
 interface UsePlatformViewsArgs {
@@ -32,11 +32,14 @@ interface PlatformViewsState {
 
 const PLATFORM_LABELS: Record< string, string > = {
 	ios: 'iOS',
+	mac: 'macOS',
 	ipad: 'iPad',
 	iphone: 'iPhone',
 	ipados: 'iPadOS',
 	macos: 'macOS',
 	ie: 'IE',
+	chrome: 'Chrome OS',
+	android_tablet: 'Android Tablet',
 };
 
 function toPlatformView( item: StatsDevicesItem ): PlatformView {
@@ -45,12 +48,12 @@ function toPlatformView( item: StatsDevicesItem ): PlatformView {
 	return {
 		key,
 		label: formatDisplayLabel( key, PLATFORM_LABELS ),
-		percentage: item.percentage,
+		views: item.value,
 	};
 }
 
 /**
- * Fetch platform percentages (browser or OS) via the shared Stats data layer.
+ * Fetch platform views (browser or OS) via the shared Stats data layer.
  *
  * @param args                - Hook arguments.
  * @param args.reportParams   - PA ReportParams from WidgetRoot context.

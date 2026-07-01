@@ -58,7 +58,7 @@ function toDeviceView( item: StatsDevicesItem ): DeviceView {
 	return {
 		label: key,
 		displayLabel: formatDisplayLabel( key, DEVICE_LABELS ),
-		percentage: item.percentage,
+		percentage: item.value,
 	};
 }
 

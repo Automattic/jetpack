@@ -30,14 +30,7 @@ type TopPlatformsWidgetProps = WidgetRenderProps< TopPlatformsRenderAttributes >
 	showTitle?: boolean;
 };
 
-const PERCENTAGE_DATA_FORMAT = {
-	type: 'percentage' as const,
-	options: { decimals: 1, signDisplay: 'auto' as const },
-};
-
-function toRatio( percentage: number ) {
-	return percentage / 100;
-}
+const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 const MODE_OPTIONS = [
 	{ label: __( 'Browser', 'jetpack-premium-analytics' ), value: 'browser' },
@@ -125,9 +118,9 @@ function TopPlatformsInner( { max, showTitle }: { max: number; showTitle: boolea
 		);
 	}
 
-	const maxPercentage = Math.max( ...data.map( d => d.percentage ), 0 );
-	const maxComparisonPercentage = Math.max( ...comparisonData.map( d => d.percentage ), 0 );
-	const comparisonMap = new Map( comparisonData.map( item => [ item.key, item.percentage ] ) );
+	const maxViews = Math.max( ...data.map( d => d.views ), 0 );
+	const maxComparisonViews = Math.max( ...comparisonData.map( d => d.views ), 0 );
+	const comparisonMap = new Map( comparisonData.map( item => [ item.key, item.views ] ) );
 	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => ( {
 		id: `${ index }-${ item.key }`,
 		label: (
@@ -135,14 +128,14 @@ function TopPlatformsInner( { max, showTitle }: { max: number; showTitle: boolea
 				<Text>{ item.label }</Text>
 			</Stack>
 		),
-		currentValue: toRatio( item.percentage ),
-		currentShare: maxPercentage > 0 ? ( item.percentage / maxPercentage ) * 100 : 0,
-		previousValue: toRatio( comparisonMap.get( item.key ) ?? 0 ),
+		currentValue: item.views,
+		currentShare: maxViews > 0 ? ( item.views / maxViews ) * 100 : 0,
+		previousValue: comparisonMap.get( item.key ) ?? 0,
 		previousShare:
-			maxComparisonPercentage > 0
-				? ( ( comparisonMap.get( item.key ) ?? 0 ) / maxComparisonPercentage ) * 100
+			maxComparisonViews > 0
+				? ( ( comparisonMap.get( item.key ) ?? 0 ) / maxComparisonViews ) * 100
 				: 0,
-		delta: calculateDelta( item.percentage, comparisonMap.get( item.key ) ?? 0 ),
+		delta: calculateDelta( item.views, comparisonMap.get( item.key ) ?? 0 ),
 	} ) );
 
 	return (
@@ -156,7 +149,7 @@ function TopPlatformsInner( { max, showTitle }: { max: number; showTitle: boolea
 					withOverlayLabel
 					showLegend={ false }
 					emptyStateText={ __( 'No platform data in this period.', 'jetpack-premium-analytics' ) }
-					dataFormat={ PERCENTAGE_DATA_FORMAT }
+					dataFormat={ DATA_FORMAT }
 				/>
 			</div>
 		</>
