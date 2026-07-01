@@ -1,9 +1,8 @@
 import type { GoalSlug, TailoredOutput, TailoredTask, WizardInput } from './types.ts';
 
 /**
- * Deterministic English subtitles for the catalog task IDs the fallback can
- * emit. Unmapped IDs get a generic subtitle so the schema's minLength:1 on
- * subtitle is always satisfied.
+ * English subtitles for catalog task IDs. Unmapped IDs get a generic subtitle so
+ * subtitle's minLength:1 is always satisfied.
  */
 const TASK_SUBTITLES: Record< string, string > = {
 	first_post_published: 'Write and publish your first post.',
@@ -28,10 +27,7 @@ const TASK_SUBTITLES: Record< string, string > = {
 const GENERIC_SUBTITLE = 'Get this set up.';
 
 /**
- * Per-goal task ID lists. Exactly six IDs each; the last is always a launch
- * task. Drawn from the snake_case catalog menu. These mirror the deterministic
- * intent of the PoC's select-tasks.ts: a first-creation task, niche/foundation
- * tasks, then a launch task.
+ * Per-goal task ID lists. Exactly six IDs each; the last is always a launch task.
  */
 const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 	write: [
@@ -110,10 +106,6 @@ function clamp( value: string, max: number ): string {
 
 /**
  * Deterministic fallback when the AI call fails or returns invalid output.
- * Produces schema-valid output for every goal: exactly six tasks with a launch
- * task last, an `inferred` blob seeded from the wizard input, and a generic
- * two-paragraph first-post draft. Stream B's PUT /tailored validates this
- * against the same schema, so it must always validate.
  *
  * @param input - The collected wizard input.
  * @return A schema-valid tailored output.

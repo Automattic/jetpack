@@ -6,15 +6,11 @@
  */
 
 /**
- * Completes the About-page tasks from wp-admin when the AI Launchpad selected
- * them: `add_about_page` (the AI-created About page is first published) and
- * `update_about_page` (it is edited again afterwards).
+ * Completes the AI-selected About-page tasks from wp-admin: `add_about_page` (first published) and
+ * `update_about_page` (edited again afterwards).
  *
- * The catalog's own completion for these depends on the `_wpcom_template_layout_category`
- * meta, which is provided by the dotcom editor toolkit and is not registered on
- * Atomic, and on the AI's `createPatternPage` only ever creating a draft. So this
- * tags the AI-created About page with its own marker meta and watches that page's
- * publish/update transitions instead — independent of the layout-category meta.
+ * The catalog's own completion depends on the `_wpcom_template_layout_category` meta, which is not registered on
+ * Atomic, so this tags the AI-created About page with its own marker meta and watches that page's transitions instead.
  */
 class AI_Launchpad_About_Page_Listener {
 
@@ -34,9 +30,9 @@ class AI_Launchpad_About_Page_Listener {
 	}
 
 	/**
-	 * Registers the marker meta so the block editor preserves it and the create
-	 * request can set it. Protected (underscore-prefixed), so the auth callback
-	 * limits writes to users who can edit pages.
+	 * Registers the marker meta so the block editor preserves it and the create request can set it.
+	 *
+	 * The auth callback limits writes to users who can edit pages.
 	 *
 	 * @return void
 	 */
@@ -56,9 +52,8 @@ class AI_Launchpad_About_Page_Listener {
 	}
 
 	/**
-	 * Completes the About-page tasks on the AI About page's status transitions:
-	 * first publish -> add_about_page, a later edit of the published page ->
-	 * update_about_page. Only fires for the marked page and AI-selected tasks.
+	 * Completes the About-page tasks on the marked page's status transitions: first publish -> add_about_page,
+	 * a later edit of the published page -> update_about_page.
 	 *
 	 * @param string   $new_status The new post status.
 	 * @param string   $old_status The previous post status.
@@ -80,12 +75,10 @@ class AI_Launchpad_About_Page_Listener {
 		}
 
 		if ( 'publish' !== $old_status ) {
-			// First publish of the AI About page.
 			if ( in_array( 'add_about_page', $ai_task_ids, true ) ) {
 				wpcom_mark_launchpad_task_complete( 'add_about_page' );
 			}
 		} elseif ( in_array( 'update_about_page', $ai_task_ids, true ) ) {
-			// A later edit of the already-published AI About page.
 			wpcom_mark_launchpad_task_complete( 'update_about_page' );
 		}
 	}

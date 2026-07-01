@@ -8,25 +8,19 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad;
 
 /**
- * Completes the subscriber-count tasks from wp-admin when the AI Launchpad
- * selected them: `subscribers_added` / `import_subscribers` (the site has at
- * least one email subscriber) and `add_10_email_subscribers` (at least ten).
+ * Completes the AI-selected subscriber-count tasks from wp-admin: `subscribers_added` /
+ * `import_subscribers` (at least one email subscriber) and `add_10_email_subscribers` (at least ten).
  *
- * The catalog completes these in Calypso only (an option write on import-start)
- * or via `wpcom_launchpad_get_newsletter_subscriber_count`, which hard-requires
- * `IS_WPCOM` and so returns 0 on Atomic. But the real count is retrievable on
- * Atomic through `fetch_subscriber_counts()` — the same `jetpack.fetchSubscriberCounts`
- * call Jetpack's Subscribe block already makes there. This reconciles when the
- * AI Launchpad page loads: the page gate keeps the lookup off every other admin
- * page, and the per-task completion check short-circuits once a task is done, so
- * the lookup only runs while a selected subscriber task is still incomplete.
+ * The catalog completes these in Calypso only, or via a helper that returns 0 on Atomic, so this reconciles the real
+ * count via `fetch_subscriber_counts()` when the AI Launchpad page loads. The page gate keeps the lookup off every
+ * other admin page, and it only runs while a selected subscriber task is still incomplete.
  */
 class AI_Launchpad_Subscribers_Listener {
 
 	/**
 	 * Tasks that complete once the site has at least one email subscriber.
-	 * `import_subscribers` id-maps to `subscribers_added`, so completing either
-	 * writes the same status; we mark whichever the AI selected.
+	 *
+	 * `import_subscribers` id-maps to `subscribers_added`, so we mark whichever the AI selected.
 	 */
 	const SUBSCRIBERS_ADDED_TASKS = array( 'subscribers_added', 'import_subscribers' );
 
@@ -51,9 +45,7 @@ class AI_Launchpad_Subscribers_Listener {
 	 * @return void
 	 */
 	public static function maybe_complete_subscriber_tasks() {
-		// Only reconcile on the AI Launchpad page itself — that is where completion
-		// must show, and it keeps the remote subscribers/stats call off every other
-		// admin page.
+		// Only reconcile on the AI Launchpad page, keeping the remote call off every other admin page.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['page'] ) || AI_Launchpad::MENU_SLUG !== sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
 			return;
@@ -76,7 +68,7 @@ class AI_Launchpad_Subscribers_Listener {
 		$first_ten_pending = in_array( 'add_10_email_subscribers', $ai_task_ids, true )
 			&& ! $task_lists->is_task_id_complete( 'add_10_email_subscribers' );
 
-		// Nothing selected-and-incomplete: skip the remote call entirely.
+		// Nothing selected-and-incomplete: skip the remote call.
 		if ( empty( $added_tasks ) && ! $first_ten_pending ) {
 			return;
 		}
@@ -98,10 +90,7 @@ class AI_Launchpad_Subscribers_Listener {
 	}
 
 	/**
-	 * The site's email subscriber count, retrieved on Atomic via Jetpack's
-	 * `fetch_subscriber_counts()` (the Subscribe block's `jetpack.fetchSubscriberCounts`
-	 * path, transient-cached). The blog-token `subscribers/stats` REST endpoint is
-	 * not reliably reachable here, so this uses the proven counts path instead.
+	 * The site's email subscriber count, retrieved on Atomic via Jetpack's `fetch_subscriber_counts()`.
 	 *
 	 * @return int|null The email subscriber count, or null when it cannot be retrieved.
 	 */
@@ -112,8 +101,7 @@ class AI_Launchpad_Subscribers_Listener {
 
 		$counts = \Automattic\Jetpack\Extensions\Subscriptions\fetch_subscriber_counts();
 
-		// On Atomic the helper reports a 'failed' status when the wpcom call errored;
-		// treat that as unknown rather than zero so a transient failure never sticks.
+		// Treat a 'failed' status as unknown rather than zero, so a transient failure never sticks.
 		if ( isset( $counts['status'] ) && 'failed' === $counts['status'] ) {
 			return null;
 		}
