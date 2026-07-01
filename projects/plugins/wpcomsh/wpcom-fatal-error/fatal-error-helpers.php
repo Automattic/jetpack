@@ -46,6 +46,24 @@ function wpcomsh_fatal_current_user_id() {
 }
 
 /**
+ * Ensure there's memory headroom to render the screen without OOMing.
+ *
+ * Returns false when the headroom can't be secured, so the caller falls back
+ * to core's lighter screen.
+ *
+ * @return bool
+ */
+function wpcomsh_fatal_ensure_render_memory() {
+	$needed = MB_IN_BYTES;
+	$usage  = memory_get_usage( true );
+	$limit  = wp_convert_hr_to_bytes( (string) ini_get( 'memory_limit' ) );
+	if ( $limit <= 0 || $limit - $usage >= $needed ) {
+		return true; // Unlimited, or already enough headroom.
+	}
+	return false !== @ini_set( 'memory_limit', (string) ( $usage + $needed ) ); // phpcs:ignore WordPress.PHP.IniSet.memory_limit_Disallowed,WordPress.PHP.NoSilencedErrors.Discouraged -- bounded bump in the fatal handler; a refused raise is handled by the return value.
+}
+
+/**
  * Identify the extension (plugin, mu-plugin, or theme) associated with a
  * fatal, using the error's absolute file path. Looks up the Name / Version
  * / Description headers so the screen can name the likely cause.
