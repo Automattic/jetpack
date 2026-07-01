@@ -92,45 +92,41 @@ export function useSchemaSettings(): SchemaSettingsForm {
 	}, [] );
 
 	const save = useCallback( () => {
-		setOrganization( current => {
-			if ( ! current || isSaving ) {
-				return current;
-			}
-			setIsSaving( true );
-			createInfoNotice( __( 'Saving schema settings…', 'jetpack-seo' ), {
-				id: NOTICE_ID,
-				type: 'snackbar',
-				isDismissible: false,
-			} );
-			apiFetch< SchemaSettings >( {
-				path: ENDPOINT,
-				method: 'POST',
-				data: { organization: current },
-			} )
-				.then( settings => {
-					// Re-seed from the server's response so the form reflects any
-					// sanitization (e.g. dropped/deduped URLs); a cleared field comes back
-					// empty, so it shows the placeholder again rather than re-freezing.
-					baselineRef.current = settings.organization;
-					setOrganization( settings.organization );
-					setDefaults( settings.defaults.organization );
-					setIsDirty( false );
-					createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
-						id: NOTICE_ID,
-						type: 'snackbar',
-					} );
-				} )
-				.catch( ( error: { message?: string } ) => {
-					createErrorNotice(
-						error?.message ??
-							__( 'Could not save schema settings. Please try again.', 'jetpack-seo' ),
-						{ id: NOTICE_ID, type: 'snackbar' }
-					);
-				} )
-				.finally( () => setIsSaving( false ) );
-			return current;
+		if ( ! organization || isSaving ) {
+			return;
+		}
+		setIsSaving( true );
+		createInfoNotice( __( 'Saving schema settings…', 'jetpack-seo' ), {
+			id: NOTICE_ID,
+			type: 'snackbar',
+			isDismissible: false,
 		} );
-	}, [ isSaving, createInfoNotice, createSuccessNotice, createErrorNotice ] );
+		apiFetch< SchemaSettings >( {
+			path: ENDPOINT,
+			method: 'POST',
+			data: { organization },
+		} )
+			.then( settings => {
+				// Re-seed from the server's response so the form reflects any
+				// sanitization (e.g. dropped/deduped URLs); a cleared field comes back
+				// empty, so it shows the placeholder again rather than re-freezing.
+				baselineRef.current = settings.organization;
+				setOrganization( settings.organization );
+				setIsDirty( false );
+				createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
+					id: NOTICE_ID,
+					type: 'snackbar',
+				} );
+			} )
+			.catch( ( error: { message?: string } ) => {
+				createErrorNotice(
+					error?.message ??
+						__( 'Could not save schema settings. Please try again.', 'jetpack-seo' ),
+					{ id: NOTICE_ID, type: 'snackbar' }
+				);
+			} )
+			.finally( () => setIsSaving( false ) );
+	}, [ organization, isSaving, createInfoNotice, createSuccessNotice, createErrorNotice ] );
 
 	return { organization, defaults, isLoading, isSaving, isDirty, setOrganizationField, save };
 }

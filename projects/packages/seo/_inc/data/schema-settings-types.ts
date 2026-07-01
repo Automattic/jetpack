@@ -22,13 +22,9 @@ export interface OrganizationSettings {
 }
 
 // Site-identity values shown as field placeholders (what an empty override falls
-// back to). Only the fields WordPress has a native source for.
-export interface OrganizationDefaults {
-	/** The Site Title, shown as the `name` placeholder. */
-	name: string;
-	/** The site Tagline, shown as the `description` placeholder. */
-	description: string;
-}
+// back to). Only the fields WordPress has a native source for: the Site Title
+// (`name`) and Tagline (`description`).
+export type OrganizationDefaults = Pick< OrganizationSettings, 'name' | 'description' >;
 
 export interface SchemaSettings {
 	/** The stored overrides; empty fields fall back to the matching default. */

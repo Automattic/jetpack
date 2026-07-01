@@ -62,8 +62,7 @@ class SchemaSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Defaults seed Organization `name` / `description` from site identity, with
-	 * empty `sameAs` / `email` (no WordPress source).
+	 * Defaults seed Organization `name` / `description` from site identity.
 	 */
 	public function test_defaults_seed_from_site_identity() {
 		$this->set_site_identity( 'Acme Co', 'We make things' );
@@ -72,8 +71,6 @@ class SchemaSettingsTest extends TestCase {
 
 		$this->assertSame( 'Acme Co', $defaults['organization']['name'] );
 		$this->assertSame( 'We make things', $defaults['organization']['description'] );
-		$this->assertSame( array(), $defaults['organization']['sameAs'] );
-		$this->assertSame( '', $defaults['organization']['email'] );
 	}
 
 	/**
@@ -82,12 +79,12 @@ class SchemaSettingsTest extends TestCase {
 	public function test_effective_settings_fall_back_to_defaults_when_unstored() {
 		$this->set_site_identity( 'Acme Co', 'We make things' );
 
-		$effective = Schema_Settings::get();
+		$effective = Schema_Settings::get_organization();
 
-		$this->assertSame( 'Acme Co', $effective['organization']['name'] );
-		$this->assertSame( 'We make things', $effective['organization']['description'] );
-		$this->assertSame( array(), $effective['organization']['sameAs'] );
-		$this->assertSame( '', $effective['organization']['email'] );
+		$this->assertSame( 'Acme Co', $effective['name'] );
+		$this->assertSame( 'We make things', $effective['description'] );
+		$this->assertSame( array(), $effective['sameAs'] );
+		$this->assertSame( '', $effective['email'] );
 	}
 
 	/**

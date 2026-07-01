@@ -41,19 +41,6 @@ class Schema_Settings {
 	const OPTION_NAME = 'jetpack_seo_schema_settings_v1';
 
 	/**
-	 * The effective settings (stored overrides merged over site-identity defaults),
-	 * in the option's container shape. This is what the Settings form hydrates from
-	 * and the REST route returns.
-	 *
-	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}}
-	 */
-	public static function get() {
-		return array(
-			'organization' => self::get_organization(),
-		);
-	}
-
-	/**
 	 * The editing payload for the Settings form / REST route: the raw stored
 	 * overrides (empty where the admin hasn't set a value) plus the site-identity
 	 * defaults the form shows as field placeholders.
@@ -79,20 +66,18 @@ class Schema_Settings {
 	}
 
 	/**
-	 * Site-identity-seeded defaults, in the option's container shape. `name` and
-	 * `description` are seeded from the Site Title and Tagline so the form is
-	 * pre-populated and editable; `sameAs` / `email` have no WordPress source and
-	 * default empty.
+	 * Site-identity-seeded defaults for the fields WordPress has a native source
+	 * for: `name` / `description` from the Site Title and Tagline, shown as the
+	 * form's placeholders and used as the effective fallback. `sameAs` / `email`
+	 * have no WordPress source, so they aren't defaulted.
 	 *
-	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}}
+	 * @return array{organization: array{name: string, description: string}}
 	 */
 	public static function get_defaults() {
 		return array(
 			'organization' => array(
 				'name'        => self::text( get_bloginfo( 'name' ) ),
 				'description' => self::text( get_bloginfo( 'description' ) ),
-				'sameAs'      => array(),
-				'email'       => '',
 			),
 		);
 	}
