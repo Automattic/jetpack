@@ -7,6 +7,7 @@ import {
 	useModuleStatus,
 	getJetpackExtensionAvailability,
 	getRequiredPlan,
+	isUserConnected,
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelBody, PanelRow } from '@wordpress/components';
@@ -47,6 +48,7 @@ const supportsPublishSidebar =
 
 const isSeoEnhancerEnabled =
 	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
+	isUserConnected() &&
 	supportsPublishSidebar;
 
 const canHaveAutoEnhance = ! isSimpleSite();

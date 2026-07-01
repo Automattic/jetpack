@@ -9,6 +9,7 @@ import {
 } from '@automattic/jetpack-ai-client';
 import {
 	useAnalytics,
+	isUserConnected,
 	PLAN_TYPE_FREE,
 	PLAN_TYPE_UNLIMITED,
 	usePlanType,
@@ -250,6 +251,12 @@ export default function AiAssistantPluginSidebar() {
 
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
+		return null;
+	}
+
+	// A user who hasn't connected their WordPress.com account can't use the AI
+	// features, so don't show the panel. It would only error out.
+	if ( ! isUserConnected() ) {
 		return null;
 	}
 
