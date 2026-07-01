@@ -4,7 +4,7 @@
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, Icon, Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
@@ -19,7 +19,7 @@ import {
  */
 import styles from './style.module.css';
 import useUtmInsights from './use-utm-insights';
-import type { UtmInsightsAttributes } from './widget';
+import widgetDefinition, { type UtmInsightsAttributes } from './widget';
 /**
  * Types
  */
@@ -53,6 +53,15 @@ type UtmInsightsInnerProps = {
 		WidgetRenderProps< UtmInsightsRenderAttributes >[ 'setAttributes' ]
 	>;
 };
+
+function UtmInsightsHeaderTitle() {
+	return (
+		<span className={ styles.headerTitle }>
+			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
+			<span>{ __( 'UTM Insights', 'jetpack-premium-analytics' ) }</span>
+		</span>
+	);
+}
 
 /**
  * Inner component — rendered inside WidgetRoot.
@@ -143,13 +152,15 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 							onClick={ clearSelectedUtm }
 							className={ styles.breadcrumbLink }
 						>
-							{ __( 'UTM Insights', 'jetpack-premium-analytics' ) }
+							<UtmInsightsHeaderTitle />
 						</Button>
 						<Text className={ styles.breadcrumbSeparator }>/</Text>
 						<Text className={ styles.breadcrumbCurrent }>{ selectedUtm?.label }</Text>
 					</>
 				) : (
-					<Text>{ __( 'UTM Insights', 'jetpack-premium-analytics' ) }</Text>
+					<Text>
+						<UtmInsightsHeaderTitle />
+					</Text>
 				) }
 			</Stack>
 			<SelectControl

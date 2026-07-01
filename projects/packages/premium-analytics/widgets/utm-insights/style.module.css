@@ -35,6 +35,17 @@
 	font-weight: inherit;
 }
 
+.headerTitle {
+	display: inline-flex;
+	align-items: center;
+	min-inline-size: 0;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.headerIcon {
+	flex: 0 0 auto;
+}
+
 .breadcrumbLink {
 	appearance: none;
 	background: none;
