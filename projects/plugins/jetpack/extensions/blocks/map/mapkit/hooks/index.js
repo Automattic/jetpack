@@ -1,4 +1,4 @@
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { initConnectionStore } from '@automattic/jetpack-connection';
 import { select } from '@wordpress/data';
 import { useContext, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -28,7 +28,7 @@ const useMapkitSetup = mapRef => {
 	const [ _currentDoc, setCurrentDoc ] = useState( null );
 
 	useEffect( () => {
-		const blog_id = select( CONNECTION_STORE_ID ).getBlogId();
+		const blog_id = select( initConnectionStore() ).getBlogId();
 		const { currentDoc, currentWindow } = getLoadContext( mapRef.current );
 
 		if ( mapRef.current ) {

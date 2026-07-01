@@ -1,7 +1,7 @@
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { useConnection, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { useConnection, initConnectionStore } from '@automattic/jetpack-connection';
 import { useDispatch, select as syncSelect } from '@wordpress/data';
 import { useEffect, useState } from 'react';
 import { STORE_ID } from 'store';
@@ -37,7 +37,8 @@ export default function useProductCheckoutWorkflow( {
 	isWpcom = false,
 } = {} ) {
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
-	const { registerSite } = useDispatch( CONNECTION_STORE_ID );
+	const connectionStore = initConnectionStore();
+	const { registerSite } = useDispatch( connectionStore );
 
 	const { isUserConnected, isRegistered, handleConnectUser } = useConnection( {
 		redirectUri,
