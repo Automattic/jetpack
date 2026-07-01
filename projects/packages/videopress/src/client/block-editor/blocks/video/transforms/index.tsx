@@ -81,7 +81,9 @@ const transformFromFile = {
 			// Find a matching transform for non-video files.
 			const transformation = findTransform(
 				fromTransforms,
-				transform => transform.type === 'files' && transform.isMatch( [ file ] )
+				transform =>
+					transform.type === 'files' &&
+					transform.isMatch( [ file ] as unknown as Record< string, unknown >, undefined )
 			);
 
 			// If a transform exists, apply it; otherwise, return an empty array.

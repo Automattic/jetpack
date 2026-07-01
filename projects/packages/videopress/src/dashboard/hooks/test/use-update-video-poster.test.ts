@@ -180,7 +180,6 @@ describe( 'useUpdateVideoPoster — polling until generated', () => {
 
 		// Let the meta POST and onSuccess run.
 		await act( async () => {
-			// @ts-expect-error — mutationPromise is assigned inside act above
 			await mutationPromise;
 		} );
 
@@ -305,7 +304,6 @@ describe( 'useUpdateVideoPoster — poll exhaustion (max attempts reached)', () 
 
 		// Let the mutation finish.
 		await act( async () => {
-			// @ts-expect-error — mutationPromise is assigned inside act above
 			await mutationPromise;
 		} );
 

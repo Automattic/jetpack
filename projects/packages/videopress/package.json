@@ -24,7 +24,7 @@
 		"clean": "rm -rf build/",
 		"test": "jest",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "echo \"pending implementation\"",
+		"typecheck": "tsgo --noEmit",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "concurrently 'pnpm:build-client --watch' 'pnpm:watch:wp-build'",
 		"watch:wp-build": "wp-build --watch"
