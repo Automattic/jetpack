@@ -4,9 +4,6 @@ import type { CompleteChartTheme } from '../../types';
  * Default theme configuration
  */
 const defaultTheme: CompleteChartTheme = {
-	// Applied as an SVG presentation attribute in several components (chart
-	// background, glyph outline, gradient stops), where CSS var() cannot resolve —
-	// consumers resolve it to a concrete value before use.
 	backgroundColor: 'var(--wpds-color-bg-surface-neutral-strong, #fff)',
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
 	// White label text sits on top of arbitrary series colors, so it has no WPDS
@@ -59,8 +56,7 @@ const defaultTheme: CompleteChartTheme = {
 		rowGap: 12,
 		columnGap: 4,
 		labelSpacing: 'xs',
-		// [negative, neutral, positive] — accessible WPDS trend tokens (the original
-		// chart red/grey/green did not meet contrast requirements).
+		// [negative, neutral, positive]
 		deltaColors: [
 			'var(--wpds-color-fg-content-error-weak, #cc1818)',
 			'var(--wpds-color-fg-content-neutral-weak, #707070)',
