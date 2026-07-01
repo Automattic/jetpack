@@ -34,7 +34,14 @@ type DevicesWidgetProps = WidgetRenderProps< DevicesRenderAttributes > & {
 	showTitle?: boolean;
 };
 
-const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
+const PERCENTAGE_DATA_FORMAT = {
+	type: 'percentage' as const,
+	options: { decimals: 1, signDisplay: 'auto' as const },
+};
+
+function toRatio( percentage: number ) {
+	return percentage / 100;
+}
 
 /**
  * Inner component — rendered inside WidgetRoot.
@@ -54,7 +61,7 @@ function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } )
 
 	const chartData: SemiCircleChartData = data.map( item => ( {
 		label: item.displayLabel,
-		value: item.views,
+		value: toRatio( item.percentage ),
 	} ) );
 
 	// Must be called unconditionally before any early return.
@@ -112,14 +119,23 @@ function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } )
 		);
 	}
 
-	const total = data.reduce( ( sum, item ) => sum + item.views, 0 );
-	const comparisonTotal = comparisonData.reduce( ( sum, item ) => sum + item.views, 0 );
-	const comparisonMap = new Map( comparisonData.map( item => [ item.label, item.views ] ) );
+	const total = data.reduce( ( sum, item ) => sum + toRatio( item.percentage ), 0 );
+	const comparisonTotal = comparisonData.reduce(
+		( sum, item ) => sum + toRatio( item.percentage ),
+		0
+	);
+	const comparisonMap = new Map(
+		comparisonData.map( item => [ item.label, toRatio( item.percentage ) ] )
+	);
 
 	const legendData: LegendItem[] = data.map( item => ( {
 		label: item.displayLabel,
-		value: item.views,
-		displayValue: formatMetricValue( item.views, DATA_FORMAT.type, DATA_FORMAT.options ),
+		value: toRatio( item.percentage ),
+		displayValue: formatMetricValue(
+			toRatio( item.percentage ),
+			PERCENTAGE_DATA_FORMAT.type,
+			PERCENTAGE_DATA_FORMAT.options
+		),
 		comparison: hasComparison ? comparisonMap.get( item.label ) ?? 0 : undefined,
 	} ) );
 	const styledLegendData = legendData.map( ( item, index ) => ( {
@@ -138,7 +154,7 @@ function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } )
 						comparisonValue={ hasComparison ? comparisonTotal : null }
 						styles={ segmentStyles }
 						showLegend={ false }
-						dataFormat={ DATA_FORMAT }
+						dataFormat={ PERCENTAGE_DATA_FORMAT }
 					/>
 					<Legend items={ styledLegendData } withComparison={ hasComparison } />
 				</div>

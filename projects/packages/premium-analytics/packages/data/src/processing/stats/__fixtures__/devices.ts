@@ -1,14 +1,14 @@
 /**
  * Actual API shape returned by stats/devices/{property}.
- * top_values is a plain object (dict), not an array.
+ * top_values is a plain object (dict), not an array. Values are percentage shares.
  */
 export const devicesFixture = {
 	date: '2026-06-25',
 	period: 'day',
 	top_values: {
-		desktop: 1000,
-		mobile: 800,
-		tablet: 90,
+		desktop: 85.9,
+		mobile: 13.5,
+		tablet: 0.5,
 	},
 };
 
@@ -22,8 +22,8 @@ export const devicesBrowserFixture = {
 	date: '2026-06-25',
 	period: 'day',
 	top_values: {
-		chrome: 500,
-		safari: 300,
-		firefox: 100,
+		chrome: 54.7,
+		safari: 27.2,
+		firefox: 9.8,
 	},
 };

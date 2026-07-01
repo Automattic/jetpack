@@ -612,9 +612,9 @@ const MOCK_DEVICES_SCREENSIZE = {
 	date: '2026-06-29',
 	period: 'day',
 	top_values: {
-		desktop: 5000,
-		mobile: 3200,
-		tablet: 450,
+		desktop: 57.8,
+		mobile: 37,
+		tablet: 5.2,
 	},
 };
 
@@ -622,9 +622,9 @@ const MOCK_DEVICES_SCREENSIZE_COMPARISON = {
 	date: '2026-05-30',
 	period: 'day',
 	top_values: {
-		desktop: 4400,
-		mobile: 3500,
-		tablet: 510,
+		desktop: 52.3,
+		mobile: 41.6,
+		tablet: 6.1,
 	},
 };
 
@@ -632,11 +632,11 @@ const MOCK_DEVICES_BROWSER = {
 	date: '2026-06-29',
 	period: 'day',
 	top_values: {
-		chrome: 4500,
-		safari: 2100,
-		firefox: 890,
-		edge: 650,
-		samsung: 420,
+		chrome: 52.6,
+		safari: 24.5,
+		firefox: 10.4,
+		edge: 7.6,
+		samsung: 4.9,
 	},
 };
 
@@ -644,11 +644,11 @@ const MOCK_DEVICES_BROWSER_COMPARISON = {
 	date: '2026-05-30',
 	period: 'day',
 	top_values: {
-		chrome: 3900,
-		safari: 2400,
-		firefox: 980,
-		edge: 500,
-		samsung: 380,
+		chrome: 47.8,
+		safari: 29.4,
+		firefox: 12,
+		edge: 6.1,
+		samsung: 4.7,
 	},
 };
 
@@ -656,11 +656,11 @@ const MOCK_DEVICES_PLATFORM = {
 	date: '2026-06-29',
 	period: 'day',
 	top_values: {
-		ios: 3200,
-		android: 2800,
-		windows: 1500,
-		macos: 900,
-		linux: 250,
+		ios: 37,
+		android: 32.4,
+		windows: 17.3,
+		macos: 10.4,
+		linux: 2.9,
 	},
 };
 
@@ -668,11 +668,11 @@ const MOCK_DEVICES_PLATFORM_COMPARISON = {
 	date: '2026-05-30',
 	period: 'day',
 	top_values: {
-		ios: 3000,
-		android: 3050,
-		windows: 1350,
-		macos: 980,
-		linux: 210,
+		ios: 34.9,
+		android: 35.5,
+		windows: 15.7,
+		macos: 11.4,
+		linux: 2.5,
 	},
 };
 

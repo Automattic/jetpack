@@ -11,16 +11,16 @@ describe( 'Stats devices normalizer', () => {
 
 		expect( result.data ).toHaveLength( 1 );
 		expect( result.data[ 0 ].items ).toEqual( [
-			{ label: 'desktop', views: 1000, children: null },
-			{ label: 'mobile', views: 800, children: null },
-			{ label: 'tablet', views: 90, children: null },
+			{ label: 'desktop', percentage: 85.9, children: null },
+			{ label: 'mobile', percentage: 13.5, children: null },
+			{ label: 'tablet', percentage: 0.5, children: null },
 		] );
 	} );
 
-	it( 'sorts items descending by view count', () => {
+	it( 'sorts items descending by percentage share', () => {
 		const result = sanitizeStatsDevicesResponse( devicesFixture, { end_date: '2026-06-25' } );
-		const views = result.data[ 0 ].items.map( i => i.views );
-		expect( views ).toEqual( [ ...views ].sort( ( a, b ) => b - a ) );
+		const percentages = result.data[ 0 ].items.map( i => i.percentage );
+		expect( percentages ).toEqual( [ ...percentages ].sort( ( a, b ) => b - a ) );
 	} );
 
 	it( 'normalizes browser breakdown', () => {
@@ -28,7 +28,7 @@ describe( 'Stats devices normalizer', () => {
 			end_date: '2026-06-25',
 		} );
 
-		expect( result.data[ 0 ].items[ 0 ] ).toMatchObject( { label: 'chrome', views: 500 } );
+		expect( result.data[ 0 ].items[ 0 ] ).toMatchObject( { label: 'chrome', percentage: 54.7 } );
 	} );
 
 	it( 'returns empty data when top_values is empty', () => {

@@ -12,7 +12,7 @@ import type {
 export interface PlatformView {
 	key: string;
 	label: string;
-	views: number;
+	percentage: number;
 }
 
 interface UsePlatformViewsArgs {
@@ -45,12 +45,12 @@ function toPlatformView( item: StatsDevicesItem ): PlatformView {
 	return {
 		key,
 		label: formatDisplayLabel( key, PLATFORM_LABELS ),
-		views: item.views,
+		percentage: item.percentage,
 	};
 }
 
 /**
- * Fetch platform views (browser or OS) via the shared Stats data layer.
+ * Fetch platform percentages (browser or OS) via the shared Stats data layer.
  *
  * @param args                - Hook arguments.
  * @param args.reportParams   - PA ReportParams from WidgetRoot context.

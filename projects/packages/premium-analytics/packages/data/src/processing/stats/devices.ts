@@ -7,7 +7,7 @@ import type { StatsNormalizedItemBase, StatsNormalizedReport } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
 /**
- * A single normalized device-views row.
+ * A single normalized device percentage row.
  *
  * `label` is the raw device key returned by the API (e.g. 'desktop',
  * 'mobile', 'tablet', or a browser/OS name); callers are responsible
@@ -15,7 +15,7 @@ import type { StatsQueryParams } from '../../utils/stats-params';
  */
 export interface StatsDevicesItem extends StatsNormalizedItemBase {
 	label: string;
-	views: number;
+	percentage: number;
 	children: null;
 }
 
@@ -23,12 +23,12 @@ export interface StatsDevicesItem extends StatsNormalizedItemBase {
  * Parse the `top_values` object returned by `stats/devices/{property}`.
  *
  * The API returns a plain object where each key is a device type and
- * the value is the view count, e.g.:
+ * the value is that type's percentage share, e.g.:
  * ```json
- * { "desktop": 1000, "mobile": 800, "tablet": 90 }
+ * { "desktop": 85.9, "mobile": 13.5, "tablet": 0.5 }
  * ```
  *
- * Items are sorted descending by view count.
+ * Items are sorted descending by percentage share.
  *
  * @param topValues - Raw top_values object from the API.
  * @return Normalized device items.
@@ -37,11 +37,11 @@ function parseTopValues( topValues: Record< string, unknown > ): StatsDevicesIte
 	return Object.entries( topValues )
 		.map( ( [ key, value ] ) => ( {
 			label: key,
-			views: safeParseFloat( value ),
+			percentage: safeParseFloat( value ),
 			children: null as null,
 		} ) )
 		.filter( item => item.label )
-		.sort( ( a, b ) => b.views - a.views );
+		.sort( ( a, b ) => b.percentage - a.percentage );
 }
 
 /**
@@ -50,7 +50,7 @@ function parseTopValues( topValues: Record< string, unknown > ): StatsDevicesIte
  *
  * Actual API shape:
  * ```json
- * { "top_values": { "desktop": 1000, "mobile": 800, "tablet": 90 } }
+ * { "top_values": { "desktop": 85.9, "mobile": 13.5, "tablet": 0.5 } }
  * ```
  *
  * `top_values` is a plain object (dict), not an array.

@@ -17,7 +17,7 @@ import type {
 export interface DeviceView {
 	label: string;
 	displayLabel: string;
-	views: number;
+	percentage: number;
 }
 
 interface UseDeviceViewsArgs {
@@ -58,12 +58,12 @@ function toDeviceView( item: StatsDevicesItem ): DeviceView {
 	return {
 		label: key,
 		displayLabel: formatDisplayLabel( key, DEVICE_LABELS ),
-		views: item.views,
+		percentage: item.percentage,
 	};
 }
 
 /**
- * Fetch device views for the Devices widget via the shared Stats data layer.
+ * Fetch device percentages for the Devices widget via the shared Stats data layer.
  *
  * @param args                - Hook arguments.
  * @param args.reportParams   - PA ReportParams injected by the host via attributes.
