@@ -1076,6 +1076,7 @@ class Cookie_Consent {
 			'log'                 => array(
 				'policy_version' => '1',
 				'banner_version' => '1',
+				'ip_mode'        => 'drop',
 			),
 			'copy'                => $default_copy,
 		);
@@ -1160,11 +1161,13 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Get configuration with filters.
+	 * Get package configuration with filters.
+	 *
+	 * @internal This accessor is for package classes only and is not part of the public API.
 	 *
 	 * @return array Configuration array.
 	 */
-	private static function get_config() {
+	public static function get_config() {
 		$default_config = self::get_default_config();
 
 		/**
