@@ -172,8 +172,13 @@ export {
 } from './use-stats-app-dashboard-modules';
 export type {
 	StatsAppDashboardModules,
+	StatsAppDashboardModulesMutationResponse,
 	StatsAppDashboardModuleValue,
 	StatsAppDashboardTrafficModule,
+	StatsAppDashboardInsightsModule,
+	StatsAppDashboardSubscribersModule,
+	StatsAppDashboardWordAdsModule,
+	StatsAppDashboardStoreModule,
 } from './use-stats-app-dashboard-modules';
 export type { UseStatsOptions } from './use-stats-report';
 

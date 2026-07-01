@@ -177,8 +177,13 @@ export {
 } from './hooks/use-stats-app-dashboard-modules';
 export type {
 	StatsAppDashboardModules,
+	StatsAppDashboardModulesMutationResponse,
 	StatsAppDashboardModuleValue,
 	StatsAppDashboardTrafficModule,
+	StatsAppDashboardInsightsModule,
+	StatsAppDashboardSubscribersModule,
+	StatsAppDashboardWordAdsModule,
+	StatsAppDashboardStoreModule,
 } from './hooks/use-stats-app-dashboard-modules';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
