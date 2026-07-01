@@ -1,4 +1,5 @@
 .root {
+	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-md, 16px);
@@ -21,6 +22,26 @@
 	flex-wrap: wrap;
 	gap: var(--wpds-dimension-gap-sm, 8px);
 	min-width: 0;
+}
+
+/* On a narrow tile the metric cards squeeze into one cramped row. Stack the
+ * header so the tabs get the full width, and lay the cards out in an even
+ * two-column grid (a balanced 2 x 2 for the four-metric traffic chart). */
+@container (max-width: 420px) {
+
+	.header {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.tabs {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+
+		/* The toolkit tab list is `fit-content`, which `align-items: stretch`
+		 * can't widen; force it to fill so the two columns split the row. */
+		width: 100%;
+	}
 }
 
 .tab {
