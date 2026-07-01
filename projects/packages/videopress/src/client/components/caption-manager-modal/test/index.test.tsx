@@ -2,6 +2,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CaptionManagerModal from '..';
+import getMediaToken from '../../../lib/get-media-token';
 import {
 	deleteTrackForGuid,
 	fetchTrackContentForGuid,
@@ -19,6 +20,8 @@ let mockBlockEditorState: {
 	blocks: Array< { name: string; attributes: Record< string, string >; clientId: string } >;
 	onChange?: ( blocks: unknown[] ) => void;
 } = { blocks: [] };
+
+let mockDropZoneProps: { onFilesDrop?: ( files: File[] ) => void } = {};
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	store: {},
@@ -119,7 +122,10 @@ jest.mock( '@wordpress/components', () => ( {
 				{ children ?? label }
 			</button>
 		) ),
-	DropZone: () => null,
+	DropZone: props => {
+		mockDropZoneProps = props;
+		return null;
+	},
 	ComboboxControl: ( { label, onChange, onFilterValueChange, value, help } ) => (
 		<div>
 			<label htmlFor={ label }>{ label }</label>
@@ -217,6 +223,11 @@ jest.mock( '../../../lib/fetch-video-item', () => ( {
 	fetchVideoItem: jest.fn( () => Promise.resolve( { width: 1920, height: 1080 } ) ),
 } ) );
 
+jest.mock( '../../../lib/get-media-token', () => ( {
+	__esModule: true,
+	default: jest.fn(),
+} ) );
+
 jest.mock( '../../../lib/video-tracks', () => ( {
 	TRACK_KIND_OPTIONS: [ 'subtitles', 'captions', 'descriptions', 'chapters', 'metadata' ],
 	CAPTION_FORMAT_MIME_TYPES: {
@@ -310,7 +321,9 @@ describe( 'CaptionManagerModal', () => {
 		jest.clearAllMocks();
 		jest.requireMock( '@wordpress/blocks' ).__resetBlockMocks();
 		mockBlockEditorState = { blocks: [] };
+		mockDropZoneProps = {};
 		( uploadTrackForGuid as jest.Mock ).mockResolvedValue( 'uploaded.vtt' );
+		( getMediaToken as jest.Mock ).mockResolvedValue( { token: 'playback-token-123' } );
 		( deleteTrackForGuid as jest.Mock ).mockResolvedValue( {} );
 		( fetchTrackContentForGuid as jest.Mock ).mockResolvedValue(
 			'WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nGenerated text'
@@ -1086,7 +1099,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Add track' ) );
 		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
-		await user.click( screen.getByText( 'Save Draft' ) );
+		await user.click( screen.getByText( 'Save draft' ) );
 
 		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
 		expect( saveCaptionTrack ).toHaveBeenCalledWith(
@@ -1165,8 +1178,11 @@ describe( 'CaptionManagerModal', () => {
 
 	it( 'reports a published track whose editable copy failed to save, without the generic save error', async () => {
 		const user = userEvent.setup();
+		const onTracksChange = jest.fn();
 		( saveCaptionTrack as jest.Mock ).mockRejectedValueOnce( new Error( 'save failed' ) );
-		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+		render(
+			<CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } tracks={ [] } />
+		);
 
 		await user.click( screen.getByText( 'Add track' ) );
 		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
@@ -1178,6 +1194,14 @@ describe( 'CaptionManagerModal', () => {
 			'Subtitles were published to the video, but saving the editable copy failed. Reopen the track to keep editing.'
 		);
 		expect( screen.queryByText( 'Unable to save subtitle track.' ) ).not.toBeInTheDocument();
+		// The VTT is live despite the failed save, so the track list must reflect it.
+		expect( onTracksChange ).toHaveBeenCalledWith( [
+			expect.objectContaining( {
+				kind: 'subtitles',
+				srcLang: 'en',
+				src: 'uploaded.vtt',
+			} ),
+		] );
 	} );
 
 	it( 'blocks publishing when a cue end time is before its start time', async () => {
@@ -1421,9 +1445,260 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getByText( 'Add track' ) );
 		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
-		await user.click( screen.getByRole( 'button', { name: 'Save Draft' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Save draft' } ) );
 
 		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
 		expect( saveCaptionTrack ).toHaveBeenCalledWith( expect.objectContaining( { id: 55 } ) );
+	} );
+
+	it( 'rejects unsupported subtitle files dropped on the modal', async () => {
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+		await waitFor( () =>
+			expect( screen.queryByText( /Loading subtitle tracks/ ) ).not.toBeInTheDocument()
+		);
+
+		act( () => {
+			mockDropZoneProps.onFilesDrop?.( [
+				new File( [ 'notes' ], 'notes.txt', { type: 'text/plain' } ),
+			] );
+		} );
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /Accepted formats: \.vtt, \.srt/ );
+		expect( screen.queryByText( 'Upload track' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'guards a file drop behind the discard prompt while cue edits are unsaved', async () => {
+		const user = userEvent.setup();
+		( window.confirm as jest.Mock ).mockReturnValue( false );
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Unsaved cue.' );
+
+		act( () => {
+			mockDropZoneProps.onFilesDrop?.( [
+				new File( [ 'WEBVTT' ], 'subs.vtt', { type: 'text/vtt' } ),
+			] );
+		} );
+
+		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+		expect( screen.queryByText( 'Upload track' ) ).not.toBeInTheDocument();
+		expect( screen.getByLabelText( 'Cue text' ) ).toHaveValue( 'Unsaved cue.' );
+	} );
+
+	it( 'reports a failed draft save and keeps the editor dirty', async () => {
+		const user = userEvent.setup();
+		( saveCaptionTrack as jest.Mock ).mockRejectedValueOnce( new Error( 'save failed' ) );
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
+		await user.click( screen.getByText( 'Save draft' ) );
+
+		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
+			'Unable to save subtitle track.'
+		);
+
+		// The save failed, so leaving the editor must still prompt about unsaved edits.
+		( window.confirm as jest.Mock ).mockReturnValue( false );
+		await user.click( screen.getByText( 'Back to tracks' ) );
+		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+	} );
+
+	it( 'surfaces a failed draft delete and keeps the draft listed', async () => {
+		const user = userEvent.setup();
+		( deleteCaptionTrack as jest.Mock ).mockRejectedValueOnce( new Error( 'delete failed' ) );
+		( fetchCaptionTracks as jest.Mock ).mockResolvedValueOnce( [
+			{
+				id: 202,
+				title: 'Portuguese captions',
+				content: '',
+				status: 'draft',
+				meta: {
+					_videopress_guid: 'abc123',
+					_videopress_caption_kind: 'captions',
+					_videopress_caption_src_lang: 'pt-BR',
+					_videopress_caption_label: 'Portuguese',
+				},
+			},
+		] );
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await expect( screen.findByText( 'Portuguese' ) ).resolves.toBeInTheDocument();
+		await user.click( screen.getByRole( 'button', { name: 'Delete' } ) );
+
+		await waitFor( () => expect( deleteCaptionTrack ).toHaveBeenCalledWith( 202 ) );
+		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
+			'Unable to delete the subtitle draft.'
+		);
+		expect( screen.getByText( 'Portuguese' ) ).toBeInTheDocument();
+	} );
+
+	it( 'warns when the previous language’s track can’t be removed after republishing', async () => {
+		const user = userEvent.setup();
+		( deleteTrackForGuid as jest.Mock ).mockRejectedValueOnce( new Error( 'delete failed' ) );
+		const tracksWithId = [ { ...tracks[ 0 ], id: 'track-1' } ];
+		render( <CaptionManagerModal { ...defaultProps } tracks={ tracksWithId } /> );
+
+		await user.click( screen.getByText( 'Edit' ) );
+		await waitFor( () =>
+			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracksWithId[ 0 ], 'abc123' )
+		);
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'fr' } } );
+		await user.click( screen.getByText( 'Publish' ) );
+
+		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
+		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
+			'Subtitles published, but the previous language’s track couldn’t be removed and may still appear.'
+		);
+	} );
+
+	it( 'ignores a stale track-content fetch after switching to another track', async () => {
+		const user = userEvent.setup();
+		let resolveFirstTrack: ( value: string ) => void = () => undefined;
+		( fetchTrackContentForGuid as jest.Mock )
+			.mockReturnValueOnce(
+				new Promise< string >( resolve => {
+					resolveFirstTrack = resolve;
+				} )
+			)
+			.mockResolvedValueOnce( 'WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nSecond track text' );
+		render( <CaptionManagerModal { ...defaultProps } /> );
+
+		// Open the first track (its fetch stays pending), go back, open the second.
+		await user.click( screen.getAllByText( 'Edit' )[ 0 ] );
+		await user.click( screen.getByText( 'Back to tracks' ) );
+		await user.click( screen.getAllByText( 'Edit' )[ 1 ] );
+
+		await waitFor( () =>
+			expect( screen.getByLabelText( 'Cue text' ) ).toHaveValue( 'Second track text' )
+		);
+
+		// The first track's fetch resolving late must not clobber the second track's cues.
+		await act( async () => {
+			resolveFirstTrack( 'WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nFirst track text' );
+			await Promise.resolve();
+		} );
+
+		expect( screen.getByLabelText( 'Cue text' ) ).toHaveValue( 'Second track text' );
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'treats a language-only change as an unsaved edit', async () => {
+		const user = userEvent.setup();
+		( window.confirm as jest.Mock ).mockReturnValue( false );
+		const onClose = jest.fn();
+		( fetchCaptionTracks as jest.Mock ).mockResolvedValueOnce( [
+			{
+				id: 101,
+				title: 'Portuguese captions',
+				content:
+					'<!-- wp:videopress/caption-cue {"startTime":"00:00:03.000","endTime":"00:00:05.000","text":"Draft text."} /-->',
+				status: 'draft',
+				meta: {
+					_videopress_guid: 'abc123',
+					_videopress_caption_kind: 'captions',
+					_videopress_caption_src_lang: 'pt-BR',
+					_videopress_caption_label: 'Portuguese',
+				},
+			},
+		] );
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } onClose={ onClose } /> );
+
+		await user.click( await screen.findByRole( 'button', { name: 'Edit' } ) );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'fr' } } );
+		await user.click( screen.getByRole( 'button', { name: 'Close dialog' } ) );
+
+		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+		expect( onClose ).not.toHaveBeenCalled();
+	} );
+
+	it( 'removes a published track whose kind differs from the republished track', async () => {
+		const user = userEvent.setup();
+		render(
+			<CaptionManagerModal
+				{ ...defaultProps }
+				tracks={ [ { ...tracks[ 0 ], id: 'track-1' }, tracks[ 1 ] ] }
+			/>
+		);
+
+		// Editing the generated track coerces its kind to subtitles on publish.
+		await user.click( screen.getAllByText( 'Edit' )[ 1 ] );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Update' } ) ).toBeEnabled() );
+		await user.click( screen.getByRole( 'button', { name: 'Update' } ) );
+
+		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
+		expect( uploadTrackForGuid ).toHaveBeenCalledWith(
+			expect.objectContaining( { kind: 'subtitles', srcLang: 'en' } ),
+			'abc123'
+		);
+		// The server only replaces same-kind tracks, so the captions/en track must be deleted.
+		await waitFor( () =>
+			expect( deleteTrackForGuid ).toHaveBeenCalledWith(
+				{ kind: 'captions', srcLang: 'en' },
+				'abc123'
+			)
+		);
+	} );
+
+	it( 'disables Back to tracks while a publish is in flight', async () => {
+		const user = userEvent.setup();
+		let resolveUpload: ( value: string ) => void = () => undefined;
+		( uploadTrackForGuid as jest.Mock ).mockReturnValueOnce(
+			new Promise< string >( resolve => {
+				resolveUpload = resolve;
+			} )
+		);
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
+		await user.click( screen.getByText( 'Publish' ) );
+
+		expect( screen.getByRole( 'button', { name: 'Back to tracks' } ) ).toBeDisabled();
+
+		await act( async () => {
+			resolveUpload( 'uploaded.vtt' );
+			await Promise.resolve();
+		} );
+		await expect( screen.findByText( 'Add track' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'appends a playback token to the embed URL for private videos', async () => {
+		const user = userEvent.setup();
+		render(
+			<CaptionManagerModal
+				{ ...defaultProps }
+				videoSrc="https://videopress.com/v/abc123"
+				isPrivate
+			/>
+		);
+
+		await user.click( screen.getByText( 'Add track' ) );
+
+		const preview = ( await screen.findByTitle( 'Video preview' ) ) as HTMLIFrameElement;
+		expect( getMediaToken ).toHaveBeenCalledWith( 'playback', { guid: 'abc123' } );
+		expect( preview.src ).toContain( 'https://video.wordpress.com/embed/abc123' );
+		expect( preview.src ).toContain( 'metadata_token=playback-token-123' );
+	} );
+
+	it( 'falls back to a tokenless embed when the playback token fetch fails', async () => {
+		const user = userEvent.setup();
+		( getMediaToken as jest.Mock ).mockRejectedValueOnce( new Error( 'no token' ) );
+		render(
+			<CaptionManagerModal
+				{ ...defaultProps }
+				videoSrc="https://videopress.com/v/abc123"
+				isPrivate
+			/>
+		);
+
+		await user.click( screen.getByText( 'Add track' ) );
+
+		const preview = ( await screen.findByTitle( 'Video preview' ) ) as HTMLIFrameElement;
+		expect( preview.src ).toContain( 'https://video.wordpress.com/embed/abc123' );
+		expect( preview.src ).not.toContain( 'metadata_token' );
 	} );
 } );

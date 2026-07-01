@@ -16,10 +16,12 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import getMediaToken from '../../lib/get-media-token';
 import { isAllowedOrigin } from '../../lib/videopress-allowed-origins';
 /**
  * Types
  */
+import type { VideoPressOrigin } from '../../lib/videopress-allowed-origins';
 import type { CSSProperties, ForwardedRef, ReactElement } from 'react';
 
 const debug = debugFactory( 'videopress:caption-manager-modal:preview-player' );
@@ -30,10 +32,18 @@ const DIRECT_VIDEO_SOURCE_REGEX = /\.(m4v|mov|mp4|ogv|webm)(?:[?#].*)?$/i;
 const isDirectVideoSource = ( source?: string ) =>
 	!! source && DIRECT_VIDEO_SOURCE_REGEX.test( source );
 
-const getVideoPressPreviewUrl = ( guid: string ) =>
-	addQueryArgs( `https://videopress.com/embed/${ guid }`, {
+/*
+ * Private videos are embedded from video.wordpress.com; both the iframe src
+ * and the postMessage target origin derive from here so they always match.
+ */
+const getVideoPressEmbedOrigin = ( isPrivate?: boolean ): VideoPressOrigin =>
+	isPrivate ? 'https://video.wordpress.com' : 'https://videopress.com';
+
+const getVideoPressPreviewUrl = ( guid: string, isPrivate?: boolean, playbackToken?: string ) =>
+	addQueryArgs( `${ getVideoPressEmbedOrigin( isPrivate ) }/embed/${ guid }`, {
 		controls: true,
 		resizeToParent: true,
+		...( playbackToken ? { metadata_token: playbackToken } : {} ),
 	} );
 
 /**
@@ -52,6 +62,7 @@ type CaptionPreviewPlayerProps = {
 	guid: string;
 	videoSrc?: string;
 	poster?: string;
+	isPrivate?: boolean;
 	previewAspectRatio?: string;
 	activeCueText?: string;
 	onCurrentTimeChange: ( seconds: number ) => void;
@@ -68,6 +79,7 @@ type CaptionPreviewPlayerProps = {
  * @param props.guid                - VideoPress GUID, used for the embed player.
  * @param props.videoSrc            - Optional direct video source.
  * @param props.poster              - Optional poster image for the native player.
+ * @param props.isPrivate           - Whether the video is private, so the embed needs a playback token.
  * @param props.previewAspectRatio  - Aspect ratio (`W / H`) to size the frame.
  * @param props.activeCueText       - Text of the cue currently under the playhead.
  * @param props.onCurrentTimeChange - Called with the playback time in seconds.
@@ -79,6 +91,7 @@ function CaptionPreviewPlayer(
 		guid,
 		videoSrc,
 		poster,
+		isPrivate,
 		previewAspectRatio,
 		activeCueText,
 		onCurrentTimeChange,
@@ -94,6 +107,8 @@ function CaptionPreviewPlayer(
 	onCurrentTimeChangeRef.current = onCurrentTimeChange;
 	const [ isPreviewPlaying, setIsPreviewPlaying ] = useState( false );
 	const [ pauseWhileTyping, setPauseWhileTyping ] = useState( true );
+	// null = token fetch pending, '' = failed or not needed, string = minted token.
+	const [ playbackToken, setPlaybackToken ] = useState< string | null >( null );
 
 	const updateCurrentTime = useCallback( ( seconds: number ) => {
 		currentTimeRef.current = seconds;
@@ -107,9 +122,43 @@ function CaptionPreviewPlayer(
 		}
 	}, [] );
 
-	const postPreviewPlayerMessage = useCallback( ( message: Record< string, unknown > ) => {
-		playerIframeRef.current?.contentWindow?.postMessage( message, '*' );
-	}, [] );
+	const postPreviewPlayerMessage = useCallback(
+		( message: Record< string, unknown > ) => {
+			playerIframeRef.current?.contentWindow?.postMessage(
+				message,
+				getVideoPressEmbedOrigin( isPrivate )
+			);
+		},
+		[ isPrivate ]
+	);
+
+	/*
+	 * Private videos require a playback token on the embed URL. Mint one when
+	 * needed; if minting fails, fall back to the tokenless embed.
+	 */
+	useEffect( () => {
+		if ( ! isPrivate ) {
+			return;
+		}
+
+		let isCurrent = true;
+		getMediaToken( 'playback', { guid } )
+			.then( tokenData => {
+				if ( isCurrent ) {
+					setPlaybackToken( tokenData?.token || '' );
+				}
+			} )
+			.catch( error => {
+				debug( 'playback token error', error );
+				if ( isCurrent ) {
+					setPlaybackToken( '' );
+				}
+			} );
+
+		return () => {
+			isCurrent = false;
+		};
+	}, [ guid, isPrivate ] );
 
 	/*
 	 * Resume playback that was paused while the author was typing, for whichever
@@ -135,6 +184,11 @@ function CaptionPreviewPlayer(
 	useEffect( () => {
 		const onPreviewPlayerMessage = ( event: MessageEvent ) => {
 			if ( ! isAllowedOrigin( event.origin ) || ! event.data || typeof event.data !== 'object' ) {
+				return;
+			}
+
+			// Ignore messages from other VideoPress embeds on the page.
+			if ( event.source !== playerIframeRef.current?.contentWindow ) {
 				return;
 			}
 
@@ -265,7 +319,16 @@ function CaptionPreviewPlayer(
 	);
 
 	const nativePreviewSrc = isDirectVideoSource( videoSrc ) ? videoSrc : '';
-	const videoPressPreviewUrl = nativePreviewSrc ? '' : getVideoPressPreviewUrl( guid );
+	// Hold the embed back until the playback-token fetch for a private video settles.
+	const isAwaitingPlaybackToken = !! isPrivate && playbackToken === null;
+	const videoPressPreviewUrl =
+		nativePreviewSrc || isAwaitingPlaybackToken
+			? ''
+			: getVideoPressPreviewUrl(
+					guid,
+					isPrivate,
+					isPrivate ? playbackToken || undefined : undefined
+			  );
 	let previewElement: ReactElement;
 
 	if ( nativePreviewSrc ) {

@@ -157,6 +157,25 @@ describe( 'useSyncMedia auto-generated chapter upload', () => {
 		} );
 	} );
 
+	it( 'short-circuits and surfaces an error when the upload resolves to a non-string error envelope', async () => {
+		mockUploadTrackForGuid.mockResolvedValue( { error: 'upload_failed', message: 'nope' } );
+
+		const { setAttributes, result } = renderThroughSave();
+
+		await waitFor( () => expect( mockUploadTrackForGuid ).toHaveBeenCalled() );
+
+		/*
+		 * The failed upload must not be stored as a track src, and the embed
+		 * resolution must not be invalidated.
+		 */
+		expect( findTracksCall( setAttributes ) ).toBeUndefined();
+		expect( invalidateResolution ).not.toHaveBeenCalled();
+
+		// The failure is surfaced to the consumer rather than silently dropped.
+		await waitFor( () => expect( result.current.error ).toBeInstanceOf( Error ) );
+		expect( result.current.error?.message ).toBe( 'nope' );
+	} );
+
 	it( 'surfaces an error when the upload rejects', async () => {
 		mockUploadTrackForGuid.mockRejectedValue( new Error( 'network down' ) );
 

@@ -41,7 +41,20 @@ export default function TracksControl( {
 			}
 
 			const videoPressUrl = getVideoPressUrl( guid, attributes );
-			setAttributes( { tracks: updatedTracks } );
+
+			/*
+			 * The block attribute serializes into post markup, so persist only the
+			 * historical `{ src, kind, srcLang, label }` shape rather than the
+			 * modal's full track objects with processing state.
+			 */
+			setAttributes( {
+				tracks: updatedTracks.map( ( { src, kind, srcLang, label } ) => ( {
+					src,
+					kind,
+					srcLang,
+					label,
+				} ) ),
+			} );
 			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 		},
 		[ attributes, guid, invalidateResolution, setAttributes ]

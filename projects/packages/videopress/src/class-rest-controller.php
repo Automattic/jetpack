@@ -86,6 +86,7 @@ class Rest_Controller {
 			'/caption-tracks/(?P<id>\d+)',
 			array(
 				array(
+					// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- register_rest_route() supports a shared `args` key alongside endpoint arrays.
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( Caption_Tracks::class, 'rest_save_track' ),
 					'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),

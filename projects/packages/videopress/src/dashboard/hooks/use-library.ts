@@ -191,6 +191,8 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
 		isProcessing,
+		// The media REST field omits `tracks` today, so this is seed-only:
+		// the caption manager modal fetches the authoritative list itself.
 		tracks: flattenVideoTracks( vp?.tracks ),
 	};
 }

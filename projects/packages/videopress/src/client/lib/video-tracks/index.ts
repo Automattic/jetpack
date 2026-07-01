@@ -46,6 +46,12 @@ export const CAPTION_FORMAT_MIME_TYPES: Record< string, string > = {
 
 export const SUPPORTED_CAPTION_FORMATS = Object.keys( CAPTION_FORMAT_MIME_TYPES );
 
+/**
+ * Type guard for a valid track kind option.
+ *
+ * @param {string} kind - Value to check.
+ * @return {boolean} Whether the value is one of the supported track kinds.
+ */
 const isTrackKindOption = ( kind: string ): kind is trackKindOptionProps =>
 	TRACK_KIND_OPTIONS.includes( kind as trackKindOptionProps );
 
@@ -62,6 +68,13 @@ const TRACK_SOURCES: readonly TrackSource[] = [ 'asr', 'manual' ];
 type TrackFallback = Pick< VideoTextTrack, 'kind' | 'srcLang' | 'label' > &
 	Partial< VideoTextTrack >;
 
+/**
+ * Coerce an API response value to a string, tolerating numeric values sent by
+ * some endpoints in place of strings.
+ *
+ * @param {unknown} value - Raw value from an API response.
+ * @return {string|undefined} The value as a string, or undefined when it can't be coerced.
+ */
 const maybeString = ( value: unknown ): string | undefined => {
 	if ( typeof value === 'string' ) {
 		return value;
@@ -74,6 +87,13 @@ const maybeString = ( value: unknown ): string | undefined => {
 	return undefined;
 };
 
+/**
+ * Coerce an API response value to a boolean, tolerating the `"true"`/`"false"`
+ * strings some endpoints send in place of real booleans.
+ *
+ * @param {unknown} value - Raw value from an API response.
+ * @return {boolean|undefined} The value as a boolean, or undefined when it can't be coerced.
+ */
 const maybeBoolean = ( value: unknown ): boolean | undefined => {
 	if ( typeof value === 'boolean' ) {
 		return value;
@@ -92,6 +112,12 @@ const maybeBoolean = ( value: unknown ): boolean | undefined => {
 	return undefined;
 };
 
+/**
+ * Coerce an API response value to a known track processing status.
+ *
+ * @param {unknown} value - Raw value from an API response.
+ * @return {TrackProcessingStatus|undefined} The status, or undefined when it isn't a recognized value.
+ */
 const maybeTrackStatus = ( value: unknown ): TrackProcessingStatus | undefined => {
 	const status = maybeString( value );
 	return status && TRACK_PROCESSING_STATUSES.includes( status as TrackProcessingStatus )
@@ -99,6 +125,12 @@ const maybeTrackStatus = ( value: unknown ): TrackProcessingStatus | undefined =
 		: undefined;
 };
 
+/**
+ * Coerce an API response value to a known track source.
+ *
+ * @param {unknown} value - Raw value from an API response.
+ * @return {TrackSource|undefined} The source, or undefined when it isn't a recognized value.
+ */
 const maybeTrackSource = ( value: unknown ): TrackSource | undefined => {
 	const source = maybeString( value );
 	return source && TRACK_SOURCES.includes( source as TrackSource )
@@ -106,6 +138,13 @@ const maybeTrackSource = ( value: unknown ): TrackSource | undefined => {
 		: undefined;
 };
 
+/**
+ * Remove keys whose value is undefined from an object, so spreading a
+ * normalized track over a fallback doesn't clobber good fallback values.
+ *
+ * @param {T} value - Object to strip undefined values from.
+ * @return {T} The object without its undefined-valued keys.
+ */
 const withoutUndefinedValues = < T extends object >( value: T ): T => {
 	const output = {} as T;
 	( Object.keys( value ) as Array< keyof T > ).forEach( key => {
@@ -117,9 +156,24 @@ const withoutUndefinedValues = < T extends object >( value: T ): T => {
 	return output;
 };
 
+/**
+ * Read a track's ID, tolerating the `track_id` key some API responses use
+ * instead of `id`.
+ *
+ * @param {object} track - Track-like object from a track list or API response.
+ * @return {string|number|undefined} The track ID, or undefined when absent.
+ */
 const getTrackId = ( track?: Partial< VideoTextTrack | VideoTrackResponseBodyProps > ) =>
 	track?.id ?? ( track as VideoTrackResponseBodyProps | undefined )?.track_id;
 
+/**
+ * Read a track's source language, trying every key name used across API
+ * responses before falling back to a caller-supplied value.
+ *
+ * @param {VideoTrackResponseBodyProps} track           - Track from an API response.
+ * @param {string}                      fallbackSrcLang - Value to use when the track has none.
+ * @return {string|undefined} The source language, or undefined when it can't be determined.
+ */
 const getTrackSrcLang = (
 	track: VideoTrackResponseBodyProps,
 	fallbackSrcLang?: string
@@ -130,6 +184,14 @@ const getTrackSrcLang = (
 	maybeString( track.language ) ||
 	fallbackSrcLang;
 
+/**
+ * Read a track's file URL, trying every key name used across API responses
+ * before falling back to a caller-supplied value.
+ *
+ * @param {VideoTrackResponseBodyProps} track       - Track from an API response.
+ * @param {string}                      fallbackSrc - Value to use when the track has none.
+ * @return {string} The track's file URL, or an empty string when it can't be determined.
+ */
 const getTrackSrc = ( track: VideoTrackResponseBodyProps, fallbackSrc?: string ) =>
 	maybeString( track.src ) ||
 	maybeString( track.url ) ||
@@ -138,6 +200,15 @@ const getTrackSrc = ( track: VideoTrackResponseBodyProps, fallbackSrc?: string )
 	fallbackSrc ||
 	'';
 
+/**
+ * Normalize a single track from an API response into the flat
+ * `VideoTextTrack` shape, filling gaps from a fallback when the response
+ * omits fields the caller already knows (e.g. kind/language from the request).
+ *
+ * @param {VideoTrackResponseBodyProps} track    - Track from an API response.
+ * @param {Partial<TrackFallback>}      fallback - Known values to fall back to.
+ * @return {VideoTextTrack|null} The normalized track, or null when it lacks a valid kind or language.
+ */
 const normalizeVideoTextTrack = (
 	track: VideoTrackResponseBodyProps,
 	fallback?: Partial< TrackFallback >
@@ -180,9 +251,34 @@ const normalizeVideoTextTrack = (
 	} );
 };
 
+/**
+ * Type guard for a non-null object, used to safely inspect API responses
+ * whose shape isn't guaranteed.
+ *
+ * @param {unknown} value - Value to check.
+ * @return {boolean} Whether the value is a non-null object.
+ */
 const isObject = ( value: unknown ): value is Record< string, unknown > =>
 	typeof value === 'object' && value !== null;
 
+/**
+ * Whether a response object carries track-identifying data (a file URL or an
+ * ID). Guards against error envelopes that would otherwise "normalize" into a
+ * track built purely from fallback values.
+ *
+ * @param {VideoTrackResponseBodyProps} track - Track-like object from an API response.
+ * @return {boolean} Whether the object identifies an actual stored track.
+ */
+const hasTrackIdentifyingData = ( track: VideoTrackResponseBodyProps ): boolean =>
+	getTrackId( track ) !== undefined || !! getTrackSrc( track );
+
+/**
+ * Unwrap a track (or tracks list) nested under a `tracks`, `data`, or `track`
+ * key, the shapes the VideoPress API's endpoints wrap responses in.
+ *
+ * @param {object} response - API response object to unwrap.
+ * @return {unknown} The nested value, or null when the response doesn't nest one.
+ */
 const getTracksFromResponseObject = ( response: Record< string, unknown > ): unknown | null => {
 	if ( 'tracks' in response ) {
 		return response.tracks;
@@ -199,6 +295,14 @@ const getTracksFromResponseObject = ( response: Record< string, unknown > ): unk
 	return null;
 };
 
+/**
+ * Merge a normalized track over a fallback, preferring the track's own
+ * values but keeping the fallback's wherever the track is missing them.
+ *
+ * @param {Partial<VideoTextTrack>} track    - Normalized track values.
+ * @param {TrackFallback}           fallback - Known values to fall back to.
+ * @return {VideoTextTrack} The merged track.
+ */
 const mergeTrackWithFallback = (
 	track: Partial< VideoTextTrack >,
 	fallback: TrackFallback
@@ -218,13 +322,26 @@ const mergeTrackWithFallback = (
 		downloadUrl: track.downloadUrl || fallback.downloadUrl,
 	} );
 
+/**
+ * Normalize a track API response of any shape (a single track, a nested
+ * track/tracks wrapper, an array, or the grouped-by-kind-and-language shape)
+ * into a single `VideoTextTrack`, filling gaps from caller-known values.
+ *
+ * @param {unknown}       response - Raw API response.
+ * @param {TrackFallback} fallback - Known values to fall back to.
+ * @return {VideoTextTrack|null} The normalized track, or null when the response contains nothing track-like.
+ */
 export const normalizeVideoTextTrackResponse = (
 	response: unknown,
 	fallback: TrackFallback
-): VideoTextTrack => {
-	if ( isObject( response ) ) {
+): VideoTextTrack | null => {
+	if ( isObject( response ) && ! Array.isArray( response ) ) {
 		const nestedTrack = getTracksFromResponseObject( response );
-		if ( isObject( nestedTrack ) && ! Array.isArray( nestedTrack ) ) {
+		if (
+			isObject( nestedTrack ) &&
+			! Array.isArray( nestedTrack ) &&
+			hasTrackIdentifyingData( nestedTrack as VideoTrackResponseBodyProps )
+		) {
 			const normalizedNestedTrack = normalizeVideoTextTrack(
 				nestedTrack as VideoTrackResponseBodyProps,
 				fallback
@@ -234,12 +351,14 @@ export const normalizeVideoTextTrackResponse = (
 			}
 		}
 
-		const normalizedResponseTrack = normalizeVideoTextTrack(
-			response as VideoTrackResponseBodyProps,
-			fallback
-		);
-		if ( normalizedResponseTrack ) {
-			return normalizedResponseTrack;
+		if ( hasTrackIdentifyingData( response as VideoTrackResponseBodyProps ) ) {
+			const normalizedResponseTrack = normalizeVideoTextTrack(
+				response as VideoTrackResponseBodyProps,
+				fallback
+			);
+			if ( normalizedResponseTrack ) {
+				return normalizedResponseTrack;
+			}
 		}
 	}
 
@@ -253,10 +372,11 @@ export const normalizeVideoTextTrackResponse = (
 		return mergeTrackWithFallback( normalizedTrack, fallback );
 	}
 
-	return mergeTrackWithFallback(
-		{ src: typeof response === 'string' ? response : undefined },
-		fallback
-	);
+	if ( typeof response === 'string' && response ) {
+		return mergeTrackWithFallback( { src: response }, fallback );
+	}
+
+	return null;
 };
 
 /**
@@ -406,7 +526,25 @@ export const uploadTrackForGuid = ( track: UploadTrackDataProps, guid: string ) 
 							Authorization: `X_UPLOAD_TOKEN token="${ token }" blog_id="${ blogId }"`,
 						},
 						body,
-					} ).then( response => resolve( response.json() ) );
+					} ).then( response => {
+						if ( ! response.ok ) {
+							// Reject on HTTP errors so a JSON error body can't masquerade as a stored track.
+							return response
+								.json()
+								.catch( () => null )
+								.then( ( errorBody: { message?: string; error?: string } | null ) => {
+									reject(
+										new Error(
+											errorBody?.message ||
+												errorBody?.error ||
+												`Track upload failed with status ${ response.status }`
+										)
+									);
+								} );
+						}
+
+						return resolve( response.json() );
+					} );
 				} )
 				// Reject on a token-mint failure too, not just a fetch failure, so the
 				// caller's promise always settles instead of hanging.
@@ -478,6 +616,13 @@ export const deleteTrackForGuid = ( track: DeleteTrackDataProps, guid: string ) 
 	} ).then( ( response: Response ) => response.json() );
 };
 
+/**
+ * Whether a track `src` is already an absolute URL, as opposed to the
+ * filename-only form returned for tracks read from the video info endpoint.
+ *
+ * @param {string} value - Track `src` value to check.
+ * @return {boolean} Whether the value is an absolute URL.
+ */
 const isAbsoluteUrl = ( value: string ): boolean => /^https?:\/\//i.test( value );
 
 /**

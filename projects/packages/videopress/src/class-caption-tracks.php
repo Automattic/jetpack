@@ -20,6 +20,27 @@ class Caption_Tracks {
 
 	const CUE_BLOCK_NAME = 'videopress/caption-cue';
 
+	/**
+	 * Upper bound on caption-cue blocks accepted in a single save.
+	 *
+	 * @var int
+	 */
+	const MAX_CUE_BLOCKS = 5000;
+
+	/**
+	 * Upper bound, in bytes, on submitted caption track content.
+	 *
+	 * @var int
+	 */
+	const MAX_CONTENT_BYTES = 1048576;
+
+	/**
+	 * Upper bound on tracks returned when listing a video's caption tracks.
+	 *
+	 * @var int
+	 */
+	const TRACK_LIST_LIMIT = 500;
+
 	const META_GUID                  = '_videopress_guid';
 	const META_KIND                  = '_videopress_caption_kind';
 	const META_SRC_LANG              = '_videopress_caption_src_lang';
@@ -127,7 +148,7 @@ class Caption_Tracks {
 	 * @return bool
 	 */
 	public static function rest_permission_check( WP_REST_Request $request ) {
-		$track_id = absint( $request->get_param( 'id' ) );
+		$track_id = (int) $request->get_param( 'id' );
 		if ( $track_id ) {
 			$existing = get_post( $track_id );
 			if ( $existing instanceof WP_Post && self::POST_TYPE === $existing->post_type ) {
@@ -237,15 +258,20 @@ class Caption_Tracks {
 	 * could embed a WebVTT/comment terminator (`-->`) in a cue's text and corrupt
 	 * block parsing or the WebVTT the track is later serialized to. Re-parse the
 	 * blocks, keep only caption-cue blocks, neutralize the terminator in each
-	 * cue's text, and re-serialize so the stored content is always well-formed.
+	 * cue's text, and rebuild each cue as a void block from its name and
+	 * attributes only, so no submitted inner HTML survives into stored content.
 	 *
 	 * @param string $content Raw serialized block content.
-	 * @return string Sanitized block content.
+	 * @return string|WP_Error Sanitized block content, or an error when the payload exceeds the size caps.
 	 */
 	private static function sanitize_track_content( $content ) {
 		$content = (string) $content;
 		if ( '' === trim( $content ) ) {
 			return '';
+		}
+
+		if ( strlen( $content ) > self::MAX_CONTENT_BYTES ) {
+			return self::track_too_large_error();
 		}
 
 		$sanitized = array();
@@ -254,18 +280,42 @@ class Caption_Tracks {
 				continue;
 			}
 
-			if ( isset( $block['attrs']['text'] ) ) {
-				$block['attrs']['text'] = str_replace(
+			$attrs = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+			if ( isset( $attrs['text'] ) ) {
+				$attrs['text'] = str_replace(
 					array( '--!>', '-->' ),
 					'->',
-					(string) $block['attrs']['text']
+					(string) $attrs['text']
 				);
 			}
 
-			$sanitized[] = $block;
+			$sanitized[] = array(
+				'blockName'    => self::CUE_BLOCK_NAME,
+				'attrs'        => $attrs,
+				'innerBlocks'  => array(),
+				'innerHTML'    => '',
+				'innerContent' => array(),
+			);
+		}
+
+		if ( count( $sanitized ) > self::MAX_CUE_BLOCKS ) {
+			return self::track_too_large_error();
 		}
 
 		return serialize_blocks( $sanitized );
+	}
+
+	/**
+	 * Error returned when submitted track content exceeds the size caps.
+	 *
+	 * @return WP_Error
+	 */
+	private static function track_too_large_error() {
+		return new WP_Error(
+			'videopress_caption_track_too_large',
+			esc_html__( 'The caption track content is too large.', 'jetpack-videopress-pkg' ),
+			array( 'status' => 400 )
+		);
 	}
 
 	/**
@@ -288,7 +338,8 @@ class Caption_Tracks {
 			array(
 				'post_type'              => self::POST_TYPE,
 				'post_status'            => 'any',
-				'posts_per_page'         => 100,
+				// Safety cap against unbounded queries, not pagination; no video should approach this many tracks.
+				'posts_per_page'         => self::TRACK_LIST_LIMIT,
 				'orderby'                => 'modified',
 				'order'                  => 'DESC',
 				'meta_key'               => self::META_GUID, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
@@ -309,7 +360,7 @@ class Caption_Tracks {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function rest_save_track( WP_REST_Request $request ) {
-		$track_id = absint( $request->get_param( 'id' ) );
+		$track_id = (int) $request->get_param( 'id' );
 		$existing = $track_id ? get_post( $track_id ) : null;
 
 		if ( $track_id && ( ! $existing || self::POST_TYPE !== $existing->post_type ) ) {
@@ -365,10 +416,15 @@ class Caption_Tracks {
 			$post_status = $existing ? $existing->post_status : 'draft';
 		}
 
+		$post_content = self::sanitize_track_content( $request->get_param( 'content' ) );
+		if ( is_wp_error( $post_content ) ) {
+			return $post_content;
+		}
+
 		$postarr = array(
 			'post_type'    => self::POST_TYPE,
 			'post_title'   => sanitize_text_field( $request->get_param( 'title' ) ),
-			'post_content' => self::sanitize_track_content( $request->get_param( 'content' ) ),
+			'post_content' => $post_content,
 			'post_status'  => $post_status,
 		);
 
@@ -388,9 +444,13 @@ class Caption_Tracks {
 		$meta[ self::META_SRC_LANG ] = $src_lang;
 		$meta[ self::META_KIND ]     = $kind;
 
+		/*
+		 * REST params arrive unslashed while the metadata layer unslashes on
+		 * write, so slash the values to keep literal backslashes intact.
+		 */
 		foreach ( self::$meta_keys as $key ) {
 			if ( array_key_exists( $key, $meta ) ) {
-				update_post_meta( $post_id, $key, $meta[ $key ] );
+				update_post_meta( $post_id, $key, wp_slash( $meta[ $key ] ) );
 			}
 		}
 
@@ -404,7 +464,7 @@ class Caption_Tracks {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function rest_delete_track( WP_REST_Request $request ) {
-		$track_id = absint( $request->get_param( 'id' ) );
+		$track_id = (int) $request->get_param( 'id' );
 		$existing = $track_id ? get_post( $track_id ) : null;
 
 		if ( ! $existing || self::POST_TYPE !== $existing->post_type ) {

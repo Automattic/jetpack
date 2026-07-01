@@ -279,6 +279,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 					guid={ video.guid }
 					title={ video.title }
 					poster={ video.thumbnailUrl }
+					isPrivate={ video.isPrivate }
 					tracks={ video.tracks }
 					onClose={ () => setCaptionsOpen( false ) }
 					onTracksChange={ () => void invalidateVideo( video.id ) }

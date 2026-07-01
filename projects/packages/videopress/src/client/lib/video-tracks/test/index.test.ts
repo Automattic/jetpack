@@ -5,10 +5,10 @@ jest.mock( 'debug', () => () => jest.fn() );
 
 declare const global: typeof globalThis & { fetch: jest.MockedFunction< typeof fetch > };
 
-const getVideoTracksModule = async () => {
+const getVideoTracksModule = async ( siteType = 'simple' ) => {
 	Object.defineProperty( window, 'videoPressEditorState', {
 		configurable: true,
-		value: { siteType: 'simple' },
+		value: { siteType },
 	} );
 
 	return import( '..' );
@@ -125,6 +125,54 @@ describe( 'video-tracks', () => {
 		);
 	} );
 
+	it( 'rejects a token-transport upload when the HTTP response is not ok', async () => {
+		const getMediaToken = await getMediaTokenMock();
+		getMediaToken.mockResolvedValue( { token: 'tok', blogId: 1 } );
+		const fetchMock = jest.fn().mockResolvedValue( {
+			ok: false,
+			status: 400,
+			json: () => Promise.resolve( { error: 'invalid_file', message: 'Invalid track file.' } ),
+		} );
+		global.fetch = fetchMock;
+		const { uploadTrackForGuid } = await getVideoTracksModule( 'jetpack' );
+
+		await expect(
+			uploadTrackForGuid(
+				{
+					kind: 'captions',
+					srcLang: 'en',
+					label: 'English',
+					tmpFile: new File( [ 'WEBVTT' ], 'english.vtt', { type: 'text/vtt' } ),
+				},
+				'abc123'
+			)
+		).rejects.toThrow( 'Invalid track file.' );
+	} );
+
+	it( 'rejects a token-transport upload with the status when the error body is unreadable', async () => {
+		const getMediaToken = await getMediaTokenMock();
+		getMediaToken.mockResolvedValue( { token: 'tok', blogId: 1 } );
+		const fetchMock = jest.fn().mockResolvedValue( {
+			ok: false,
+			status: 500,
+			json: () => Promise.reject( new Error( 'not json' ) ),
+		} );
+		global.fetch = fetchMock;
+		const { uploadTrackForGuid } = await getVideoTracksModule( 'jetpack' );
+
+		await expect(
+			uploadTrackForGuid(
+				{
+					kind: 'captions',
+					srcLang: 'en',
+					label: 'English',
+					tmpFile: new File( [ 'WEBVTT' ], 'english.vtt', { type: 'text/vtt' } ),
+				},
+				'abc123'
+			)
+		).rejects.toThrow( 'Track upload failed with status 500' );
+	} );
+
 	it( 'normalizes an uploaded track response with fallback metadata', async () => {
 		const { normalizeVideoTextTrackResponse } = await getVideoTracksModule();
 
@@ -149,6 +197,48 @@ describe( 'video-tracks', () => {
 			src: 'uploaded.vtt',
 			srcLang: 'en',
 		} );
+	} );
+
+	it( 'returns null for an error-envelope response instead of a fallback-only track', async () => {
+		const { normalizeVideoTextTrackResponse } = await getVideoTracksModule();
+
+		expect(
+			normalizeVideoTextTrackResponse(
+				{ error: 'upload_failed', message: 'nope' },
+				{ kind: 'chapters', srcLang: 'en', label: 'English (auto-generated)' }
+			)
+		).toBeNull();
+	} );
+
+	it( 'routes array responses through the track list flattener', async () => {
+		const { normalizeVideoTextTrackResponse } = await getVideoTracksModule();
+
+		expect(
+			normalizeVideoTextTrackResponse(
+				[
+					{ kind: 'captions', srclang: 'es', label: 'Spanish', src: 'spanish.vtt' },
+					{ kind: 'captions', srclang: 'en', label: 'English', src: 'english.vtt' },
+				],
+				{ kind: 'captions', srcLang: 'en', label: 'English' }
+			)
+		).toEqual( {
+			kind: 'captions',
+			label: 'English',
+			src: 'english.vtt',
+			srcLang: 'en',
+		} );
+	} );
+
+	it( 'returns null for an array response with nothing track-like', async () => {
+		const { normalizeVideoTextTrackResponse } = await getVideoTracksModule();
+
+		expect(
+			normalizeVideoTextTrackResponse( [ { error: 'upload_failed', message: 'nope' } ], {
+				kind: 'captions',
+				srcLang: 'en',
+				label: 'English',
+			} )
+		).toBeNull();
 	} );
 
 	it( 'deletes v1 tracks by kind and language', async () => {

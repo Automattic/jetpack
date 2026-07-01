@@ -37,9 +37,17 @@ type CaptionCueBlock = {
 };
 
 const TIME_LINE_PATTERN =
-	/^\s*(?:(?:\d+\s*)?\n)?(?<start>\d{1,2}:\d{2}(?::\d{2})?[.,]\d{3}|\d{1,2}:\d{2}:\d{2})\s+-->\s+(?<end>\d{1,2}:\d{2}(?::\d{2})?[.,]\d{3}|\d{1,2}:\d{2}:\d{2})/m;
+	/^\s*(?:(?:\d+\s*)?\n)?(?<start>\d+:\d{2}(?::\d{2})?[.,]\d{3}|\d+:\d{2}:\d{2})\s+-->\s+(?<end>\d+:\d{2}(?::\d{2})?[.,]\d{3}|\d+:\d{2}:\d{2})/m;
 const TRANSCRIPT_CUE_DURATION_SECONDS = 4;
 
+/**
+ * Clean up cue text before serializing it to WebVTT, collapsing blank lines
+ * (which WebVTT reads as the end of a cue) and escaping arrow sequences that
+ * would otherwise be parsed as a timing line.
+ *
+ * @param {string} text - Raw cue text.
+ * @return {string} WebVTT-safe cue text.
+ */
 const sanitizeCueText = ( text: string ): string =>
 	text
 		.trim()
@@ -233,6 +241,8 @@ export function parseCaptionTextTrack( content: string ): CaptionCue[] {
 	let droppedCues = 0;
 	const cues = content
 		.replace( /^\uFEFF/, '' )
+		// Normalize CRLF/CR line endings so multi-line cue text carries no stray `\r`.
+		.replace( /\r\n?/g, '\n' )
 		.split( /\n\s*\n/g )
 		.map( block => {
 			const match = block.match( TIME_LINE_PATTERN );
@@ -285,19 +295,25 @@ export function parseCaptionTranscript(
 ): CaptionCue[] {
 	const safeDuration = Math.max( 1, cueDurationSeconds );
 
-	return content
-		.replace( /^\uFEFF/, '' )
-		.split( /\n+/ )
-		.map( line => line.trim() )
-		.filter( line => line && ! /^WEBVTT$/i.test( line ) && ! /^\d+$/.test( line ) )
-		.map( ( text, index ) => {
-			const start = startAtSeconds + index * safeDuration;
-			return {
-				startTime: formatSecondsAsTimestamp( start ),
-				endTime: formatSecondsAsTimestamp( start + safeDuration ),
-				text,
-			};
-		} );
+	return (
+		content
+			.replace( /^\uFEFF/, '' )
+			.split( /\n+/ )
+			.map( line => line.trim() )
+			// Skip headers, bare cue numbers, and timing lines from malformed timed tracks.
+			.filter(
+				line =>
+					line && ! /^WEBVTT$/i.test( line ) && ! /^\d+$/.test( line ) && ! line.includes( '-->' )
+			)
+			.map( ( text, index ) => {
+				const start = startAtSeconds + index * safeDuration;
+				return {
+					startTime: formatSecondsAsTimestamp( start ),
+					endTime: formatSecondsAsTimestamp( start + safeDuration ),
+					text,
+				};
+			} )
+	);
 }
 
 /**
