@@ -102,6 +102,23 @@
 	overflow: hidden;
 }
 
+.leaderboardLabel {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.leaderboardLabel > * {
+	min-width: 0;
+	max-width: 100%;
+}
+
+.leaderboardLabel span {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .noMap {
 	grid-template-columns: 1fr;
 }

@@ -93,16 +93,18 @@ function LocationsInner( { max }: { max: number } ) {
 			return {
 				id: location.key,
 				label: (
-					<LeaderboardLabel
-						label={ location.label }
-						imageUrl={ imageUrl ?? undefined }
-						imageAlt={ sprintf(
-							/* translators: %s is the country name */
-							__( 'Flag of %s', 'jetpack-premium-analytics' ),
-							location.countryFull
-						) }
-						imageClassName={ styles.leaderboardImage }
-					/>
+					<div className={ styles.leaderboardLabel }>
+						<LeaderboardLabel
+							label={ location.label }
+							imageUrl={ imageUrl ?? undefined }
+							imageAlt={ sprintf(
+								/* translators: %s is the country name */
+								__( 'Flag of %s', 'jetpack-premium-analytics' ),
+								location.countryFull
+							) }
+							imageClassName={ styles.leaderboardImage }
+						/>
+					</div>
 				),
 				currentValue: location.value,
 				previousValue,
