@@ -186,13 +186,13 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies.stylelint = pkg.peerDependencies.stylelint.replace( /^(?:\^|>=)?/, '>=' );
 	}
 
-	// Make sure @wordpress/stylelint-config gets whatever @wordpress/theme is installed.
+	// Make sure @wordpress/eslint-plugin and @wordpress/stylelint-config gets whatever @wordpress/theme is installed.
 	if (
-		pkg.name === '@wordpress/stylelint-config' &&
-		pkg.dependencies[ '@wordpress/theme' ]?.startsWith( '^' )
+		( pkg.name === '@wordpress/stylelint-config' || pkg.name === '@wordpress/eslint-plugin' ) &&
+		pkg.dependencies?.[ '@wordpress/theme' ]
 	) {
-		pkg.dependencies[ '@wordpress/theme' ] =
-			'>=' + pkg.dependencies[ '@wordpress/theme' ].substring( 1 );
+		delete pkg.dependencies[ '@wordpress/theme' ];
+		pkg.peerDependencies[ '@wordpress/theme' ] = '*';
 	}
 
 	// Update localtunnel axios dep to avoid CVE
