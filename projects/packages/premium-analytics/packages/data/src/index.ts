@@ -75,11 +75,13 @@ export {
 export {
 	useStatsSubscribers,
 	useStatsSubscribersCounts,
+	useStatsSubscribersReport,
 	type StatsSubscribersCounts,
 	type StatsSubscribersCountsParams,
 	type StatsSubscribersCountsResponse,
 	type StatsSubscribersParams,
 	type StatsSubscribersResponse,
+	type StatsSubscribersUnit,
 } from './hooks/use-stats-subscribers';
 export {
 	useStatsStreak,

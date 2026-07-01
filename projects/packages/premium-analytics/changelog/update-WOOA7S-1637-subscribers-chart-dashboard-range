@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Subscribers chart: honor the dashboard date-range and comparison picker. The chart window and previous-period overlay now follow the dashboard controls; the in-body "Group by" dropdown only chooses the bucket size within that range.

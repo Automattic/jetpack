@@ -4,7 +4,9 @@
 import {
 	MetricTabsChart,
 	WidgetRoot,
+	useWidgetRootContext,
 	type MetricTab,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -19,13 +21,36 @@ import useSubscribersChart, {
 	type SubscribersChartState,
 	type SubscribersPeriod,
 } from './use-subscribers-chart';
-import type { SubscribersChartAttributes } from './widget';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+type SubscribersChartRenderProps = {
+	attributes?: Partial< ReportParamsFieldAttributes >;
+};
 
 const DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
 };
+
+/**
+ * Seed the granularity dropdown from the dashboard interval so it opens at the
+ * granularity the range implies; the subscribers endpoint only buckets by
+ * day/week/month, so finer/coarser dashboard intervals collapse onto those.
+ *
+ * @param interval - The dashboard-derived interval.
+ * @return The matching selectable granularity.
+ */
+function defaultPeriodForInterval( interval?: string ): SubscribersPeriod {
+	switch ( interval ) {
+		case 'week':
+			return 'week';
+		case 'month':
+		case 'quarter':
+		case 'year':
+			return 'month';
+		default:
+			return 'day';
+	}
+}
 
 /**
  * The latest value of a metric in a window — each point is the cumulative count
@@ -83,13 +108,18 @@ function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 }
 
 /**
- * Subscribers chart inner component. Owns the granularity dropdown and hands the
- * metric tabs (Subscribers, Paid subscribers) to the shared `MetricTabsChart`.
+ * Subscribers chart inner component. Reads the dashboard date range + comparison
+ * state from `useWidgetRootContext()`, owns the granularity dropdown (which only
+ * chooses the bucket size within that range), and hands the metric tabs
+ * (Subscribers, Paid subscribers) to the shared `MetricTabsChart`.
  *
  * @return The widget body.
  */
 function SubscribersChartInner() {
-	const [ period, setPeriod ] = useState< SubscribersPeriod >( 'day' );
+	const { reportParams } = useWidgetRootContext();
+	const [ period, setPeriod ] = useState< SubscribersPeriod >( () =>
+		defaultPeriodForInterval( reportParams.interval )
+	);
 	const handlePeriodChange = useCallback(
 		( value: string ) => setPeriod( value as SubscribersPeriod ),
 		[]
@@ -101,7 +131,7 @@ function SubscribersChartInner() {
 		{ label: __( 'By months', 'jetpack-premium-analytics' ), value: 'month' },
 	];
 
-	const state = useSubscribersChart( period );
+	const state = useSubscribersChart( reportParams, period );
 	const metrics = useMemo( () => buildMetrics( state ), [ state ] );
 
 	if ( state.isError ) {
@@ -139,20 +169,17 @@ function SubscribersChartInner() {
 /**
  * Widget render entry point.
  *
- * Mirrors the other Stats widgets: `WidgetRoot` provides the analytics query
- * client, and the inner component owns the granularity state. The subscribers
- * query is granularity-driven rather than date-range-driven, so it does not
- * read the dashboard's `reportParams`.
+ * `WidgetRoot` provides the analytics query client and resolves the dashboard's
+ * `reportParams`; the inner component reads that range/comparison state and
+ * layers its own granularity control on top.
  *
  * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes (none configurable yet).
+ * @param props.attributes - Widget attributes, carrying host-provided report params.
  * @return The rendered widget.
  */
-export default function SubscribersChart( {
-	attributes = {},
-}: WidgetRenderProps< SubscribersChartAttributes > ) {
+export default function SubscribersChart( { attributes }: SubscribersChartRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes }>
+		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
 			<SubscribersChartInner />
 		</WidgetRoot>
 	);
