@@ -1371,15 +1371,7 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_file( $atts, $content, $block ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file', $block );
-		// Create wrapper div for the file field
-		$output = '<div class="jetpack-form-file-field">';
-
-		// Render the file field
-		$output .= Contact_Form::parse_contact_field( $atts, $content );
-
-		$output .= '</div>';
-
-		return $output;
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 	/**
 	 * Render the dropzone field.
@@ -2011,8 +2003,10 @@ class Contact_Form_Plugin {
 	 * Enforcement point for outbound-destination authorization on a submitted form.
 	 *
 	 * Destinations declared in the form content — webhooks, the legacy postToUrl attribute and
-	 * the Salesforce integration — are kept only when the source post's author may configure
-	 * them; otherwise they are removed from the form attributes in place, before the submission
+	 * the Salesforce integration — are kept only when whoever placed the form had an
+	 * administrator-level capability (an admin author for post/page forms, or the
+	 * `edit_theme_options` required to author block templates, template parts and widgets);
+	 * otherwise they are removed from the form attributes in place, before the submission
 	 * is processed and the Form_Webhooks / Post_To_Url services read those attributes. The
 	 * mutation is safe because nothing re-reads the original attribute values within the request
 	 * and the form attributes are not persisted after this point.
@@ -2029,7 +2023,8 @@ class Contact_Form_Plugin {
 			return;
 		}
 
-		if ( ! Jetpack_Forms::should_honor_content_destinations( $form->get_source()->get_id() ) ) {
+		$source = $form->get_source();
+		if ( ! Jetpack_Forms::should_honor_content_destinations( $source->get_id(), $source->get_source_type() ) ) {
 			// Drop every content-configured destination before the services read them.
 			// postToUrl and salesforceData are read directly by Post_To_Url.
 			$form->attributes['webhooks']       = array();

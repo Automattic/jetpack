@@ -1,6 +1,6 @@
 import { combineStatsNormalizedReports, sanitizeStatsTopPostsResponse } from '..';
 import { topPostsFixture, topPostsSummaryFixture } from '../__fixtures__/top-posts';
-import { getStatsSummaryIntervalFields, normalizeStatsSummary } from '../utils';
+import { getStatsLabel, getStatsSummaryIntervalFields, normalizeStatsSummary } from '../utils';
 
 describe( 'Stats report utilities', () => {
 	it( 'combines separately requested summary and by-date data', () => {
@@ -59,5 +59,12 @@ describe( 'Stats report utilities', () => {
 			date_start: '2026-06-16T00:00:00+00:00',
 			date_end: '2026-06-22T23:59:59+00:00',
 		} );
+	} );
+
+	it( 'decodes labels and falls back to malformed strings', () => {
+		expect( getStatsLabel( 'News%20%26%20Updates' ) ).toBe( 'News & Updates' );
+		expect( getStatsLabel( 'broken%label' ) ).toBe( 'broken%label' );
+		expect( getStatsLabel( 42 ) ).toBe( '42' );
+		expect( getStatsLabel( { label: 'Example' } ) ).toBe( '' );
 	} );
 } );

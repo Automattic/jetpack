@@ -106,6 +106,14 @@
 	gap: var(--wpds-dimension-gap-md, 12px);
 }
 
+// Placeholder copy for the Schema section while its controls (primary schema
+// type, breadcrumbs) are delivered by the per-schema issues. Muted, no margin
+// so the section reads as an intentionally empty shell.
+.jetpack-seo-settings__schema-placeholder {
+	margin: 0;
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+}
+
 // Intro copy above the preview list.
 .jetpack-seo-settings__preview-intro {
 	margin: 0 0 var(--wpds-dimension-gap-xl, 24px);
@@ -203,7 +211,12 @@
 
 	.jetpack-seo-preview__card-body {
 		padding: var(--wpds-dimension-padding-md, 12px);
-		background: var(--wpds-color-bg-surface-neutral, #f2f3f5);
+		// Recessed surface so the link-preview body stands apart from both the
+		// white card and the page canvas. The canvas already uses
+		// `bg-surface-neutral`, so reusing that token here would read as the same
+		// surface — step down to the weaker surface instead. The preview image
+		// above keeps `bg-surface-neutral`.
+		background: var(--wpds-color-bg-surface-neutral-weak, #f4f4f4);
 	}
 
 	.jetpack-seo-preview__card-domain {

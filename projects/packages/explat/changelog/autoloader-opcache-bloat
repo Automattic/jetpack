@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Defer ExPlat REST controller instantiation so the controller class only loads on REST API requests.

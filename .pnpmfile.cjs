@@ -186,6 +186,15 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies.stylelint = pkg.peerDependencies.stylelint.replace( /^(?:\^|>=)?/, '>=' );
 	}
 
+	// Make sure @wordpress/stylelint-config gets whatever @wordpress/theme is installed.
+	if (
+		pkg.name === '@wordpress/stylelint-config' &&
+		pkg.dependencies[ '@wordpress/theme' ]?.startsWith( '^' )
+	) {
+		pkg.dependencies[ '@wordpress/theme' ] =
+			'>=' + pkg.dependencies[ '@wordpress/theme' ].substring( 1 );
+	}
+
 	// Update localtunnel axios dep to avoid CVE
 	// https://github.com/localtunnel/localtunnel/issues/632
 	if ( pkg.name === 'localtunnel' && pkg.dependencies.axios === '0.21.4' ) {

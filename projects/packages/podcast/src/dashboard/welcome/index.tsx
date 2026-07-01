@@ -1,6 +1,5 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { getAdminUrl, getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -13,8 +12,14 @@ import {
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, globe, layout, megaphone } from '@wordpress/icons';
+import {
+	buildUpgradeCheckoutUrl,
+	getUpgradeProductSlug,
+	getUpgradePlanName,
+	withPurchaseReturnMarker,
+} from '../upgrade';
 import './style.scss';
 
 interface WelcomeProps {
@@ -23,7 +28,7 @@ interface WelcomeProps {
 
 const CHECKOUT_SOURCE = 'jetpack-podcast-welcome';
 
-const getPremiumCheckoutUrl = (): string => {
+const getUpgradeCheckoutUrl = (): string => {
 	const data = getSiteData();
 	const adminUrl = data?.admin_url ?? '';
 
@@ -39,19 +44,21 @@ const getPremiumCheckoutUrl = (): string => {
 		}
 	}
 
-	if ( ! slug ) {
-		return 'https://wordpress.com/checkout/premium';
-	}
-
 	// `tab=settings` bypasses the welcome gate so buyers continue configuring
-	// the podcast instead of re-seeing this same pricing card after checkout.
+	// the podcast instead of re-seeing this same pricing card after checkout;
+	// the purchase marker busts the server's cached plan so access flips on
+	// arrival.
 	const returnTo = adminUrl
-		? `${ adminUrl.replace( /\/$/, '' ) }/admin.php?page=jetpack-podcast&tab=settings`
+		? withPurchaseReturnMarker( getAdminUrl( 'admin.php?page=jetpack-podcast&tab=settings' ) )
 		: '';
-	const url = new URL( getProductCheckoutUrl( 'premium', slug, returnTo, true ) );
-	// Calypso threads `source` through its downstream Tracks events.
-	url.searchParams.set( 'source', CHECKOUT_SOURCE );
-	return url.toString();
+
+	return buildUpgradeCheckoutUrl( {
+		siteSlug: slug,
+		returnUrl: returnTo,
+		// Calypso threads `source` through its downstream Tracks events.
+		params: { source: CHECKOUT_SOURCE },
+		noSiteSlugUrl: `https://wordpress.com/checkout/${ getUpgradeProductSlug() }`,
+	} );
 };
 
 const BENEFITS: ReadonlyArray< { icon: JSX.Element; title: string; body: string } > = [
@@ -81,18 +88,33 @@ const BENEFITS: ReadonlyArray< { icon: JSX.Element; title: string; body: string 
 	},
 ];
 
-const FREE_FEATURES: ReadonlyArray< string > = [
+// WordPress.com hosts the audio (and sells storage); self-hosted Jetpack sites
+// serve audio from their own media library, so the plan copy differs by host.
+const FREE_FEATURES_WPCOM: ReadonlyArray< string > = [
 	__( 'Publish a podcast with audio hosted on another site', 'jetpack-podcast' ),
 	__( 'Distribute to Apple, Spotify, and every major app', 'jetpack-podcast' ),
 	__( 'Submission-ready RSS feed for every directory', 'jetpack-podcast' ),
 ];
 
-const PREMIUM_FEATURES: ReadonlyArray< string > = [
+const FREE_FEATURES_SELF_HOSTED: ReadonlyArray< string > = [
+	__( 'Publish a podcast with audio from your own media library', 'jetpack-podcast' ),
+	__( 'Distribute to Apple, Spotify, and every major app', 'jetpack-podcast' ),
+	__( 'Submission-ready RSS feed for every directory', 'jetpack-podcast' ),
+];
+
+const PAID_FEATURES_WPCOM: ReadonlyArray< string > = [
 	__( 'Host your podcast on WordPress.com with 13 GB of storage', 'jetpack-podcast' ),
 	__( 'Distribute to Apple, Spotify, and every major app', 'jetpack-podcast' ),
 	__( 'Submission-ready RSS feed for every directory', 'jetpack-podcast' ),
 	__( 'Podcast stats including downloads by app and country', 'jetpack-podcast' ),
 	__( 'Episode dashboard', 'jetpack-podcast' ),
+	__( 'Episode player block for your posts', 'jetpack-podcast' ),
+];
+
+const PAID_FEATURES_SELF_HOSTED: ReadonlyArray< string > = [
+	__( 'Everything in the free plan', 'jetpack-podcast' ),
+	__( 'Podcast stats including downloads by app and country', 'jetpack-podcast' ),
+	__( 'Episode dashboard to manage your catalog', 'jetpack-podcast' ),
 	__( 'Episode player block for your posts', 'jetpack-podcast' ),
 ];
 
@@ -121,11 +143,25 @@ const STEPS: ReadonlyArray< { number: string; title: string; body: string } > = 
 ];
 
 const Welcome = ( { onEnable }: WelcomeProps ) => {
-	const premiumCheckoutUrl = getPremiumCheckoutUrl();
+	const upgradeCheckoutUrl = getUpgradeCheckoutUrl();
+	const planName = getUpgradePlanName();
+	const isWpcom = isWpcomPlatformSite();
+
+	const freeFeatures = isWpcom ? FREE_FEATURES_WPCOM : FREE_FEATURES_SELF_HOSTED;
+	const paidFeatures = isWpcom ? PAID_FEATURES_WPCOM : PAID_FEATURES_SELF_HOSTED;
+	const paidDescription = isWpcom
+		? __(
+				'Host your podcast at WordPress.com and get all the advanced features.',
+				'jetpack-podcast'
+		  )
+		: __(
+				'Unlock podcast stats, the episode dashboard, and the episode block.',
+				'jetpack-podcast'
+		  );
 
 	// Fire-and-forget Tracks; the anchor handles navigation so middle/cmd-click
 	// still opens checkout in a new tab and "copy link address" shows the URL.
-	const onPremiumClick = useCallback( () => {
+	const onUpgradeClick = useCallback( () => {
 		const currentPlan = getSiteData()?.plan?.product_slug;
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_premium_upgrade_clicked', {
 			current_plan: currentPlan ?? '',
@@ -169,11 +205,13 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 										) }
 									</Text>
 								</VStack>
-								<Button variant="secondary" onClick={ onEnable }>
-									{ __( 'Start your podcast', 'jetpack-podcast' ) }
-								</Button>
+								<HStack justify="flex-start" expanded={ false }>
+									<Button variant="secondary" onClick={ onEnable }>
+										{ __( 'Start your podcast', 'jetpack-podcast' ) }
+									</Button>
+								</HStack>
 								<ul className="podcast__welcome-plan-features">
-									{ FREE_FEATURES.map( feature => (
+									{ freeFeatures.map( feature => (
 										<li key={ feature } className="podcast__welcome-plan-feature">
 											<span aria-hidden="true">
 												<Icon icon={ check } size={ 20 } />
@@ -195,24 +233,25 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 								<VStack spacing={ 2 }>
 									<HStack justify="space-between" alignment="center">
 										<Text size="title" weight={ 500 }>
-											{ __( 'Premium', 'jetpack-podcast' ) }
+											{ planName }
 										</Text>
 										<span className="podcast__welcome-plan-badge">
 											{ __( 'Popular', 'jetpack-podcast' ) }
 										</span>
 									</HStack>
-									<Text variant="muted">
-										{ __(
-											'Host your podcast at WordPress.com and get all the advanced features.',
-											'jetpack-podcast'
-										) }
-									</Text>
+									<Text variant="muted">{ paidDescription }</Text>
 								</VStack>
-								<Button variant="primary" href={ premiumCheckoutUrl } onClick={ onPremiumClick }>
-									{ __( 'Start your premium podcast', 'jetpack-podcast' ) }
-								</Button>
+								<HStack justify="flex-start" expanded={ false }>
+									<Button variant="primary" href={ upgradeCheckoutUrl } onClick={ onUpgradeClick }>
+										{ sprintf(
+											/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
+											__( 'Start your %s podcast', 'jetpack-podcast' ),
+											planName
+										) }
+									</Button>
+								</HStack>
 								<ul className="podcast__welcome-plan-features">
-									{ PREMIUM_FEATURES.map( feature => (
+									{ paidFeatures.map( feature => (
 										<li key={ feature } className="podcast__welcome-plan-feature">
 											<span aria-hidden="true">
 												<Icon icon={ check } size={ 20 } />

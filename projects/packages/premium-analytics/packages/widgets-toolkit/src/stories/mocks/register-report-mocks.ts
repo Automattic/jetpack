@@ -22,6 +22,8 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import {
 	mockOrderAttributionDeviceData,
+	mockOrderAttributionByProductDeviceData,
+	mockOrderAttributionByProductDeviceComparisonData,
 	mockOrderAttributionChannelData,
 	mockOrderAttributionSourceData,
 	mockOrderAttributionCampaignData,
@@ -49,11 +51,25 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
  * package (`@jetpack-premium-analytics/data`).
  */
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
+const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';
+const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/subscribers';
+const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
+const WP_SETTINGS_PATH = '/wp/v2/settings';
+
+const coreSettingsMock = {
+	timezone: 'UTC',
+	gmt_offset: 0,
+	date_format: 'F j, Y',
+	time_format: 'g:i a',
+	start_of_week: 1,
+	title: 'Storybook',
+};
 
 /**
  * Days of mock data to generate (covering past requests).
  */
 const SPECTRUM_DAYS = 90;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
  * Parameters for dynamic mock data generation.
@@ -163,6 +179,25 @@ function parseReportPath( path: string ): {
 	return { subPath, query };
 }
 
+function toDayStart( date: Date ) {
+	return new Date( Date.UTC( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() ) );
+}
+
+function toDayEnd( date: Date ) {
+	const end = toDayStart( date );
+	end.setUTCHours( 23, 59, 59, 999 );
+	return end;
+}
+
+function parseDateParam( value: string | null, fallback: Date ) {
+	if ( ! value ) {
+		return fallback;
+	}
+
+	const date = new Date( value );
+	return Number.isNaN( date.getTime() ) ? fallback : date;
+}
+
 /**
  * Builds the orders / orders-by-product-type response using the
  * "spectrum + filter" strategy from upstream.
@@ -261,6 +296,60 @@ function buildSessionsByDeviceResponse() {
 }
 
 /**
+ * Builds the sessions/by-date (visitors over time) response.
+ *
+ * @param query - Parsed query params.
+ * @return Visitors time-series report response.
+ */
+function buildVisitorsByDateResponse( query: URLSearchParams ) {
+	const params = getMockParams();
+	const isComparison = nextIsComparison( 'sessions/by-date' );
+	const fallbackTo = toDayEnd( new Date() );
+	const fallbackFrom = toDayStart( new Date( fallbackTo.getTime() - 29 * DAY_MS ) );
+	const from = toDayStart( parseDateParam( query.get( 'from' ), fallbackFrom ) );
+	const to = toDayStart( parseDateParam( query.get( 'to' ), fallbackTo ) );
+	const days = Math.max(
+		1,
+		Math.min( SPECTRUM_DAYS, Math.floor( ( to.getTime() - from.getTime() ) / DAY_MS ) + 1 )
+	);
+	const seed = params.seed + ( isComparison ? 10000 : 0 ) + from.getUTCDate();
+	const density = Math.max( 0.1, Math.min( 1, params.density ) );
+	const volume = Math.max( 1, params.volume * 100 );
+	let visitorsTotal = 0;
+	let sessionsTotal = 0;
+
+	const data = Array.from( { length: days }, ( _, index ) => {
+		const date = new Date( from.getTime() + index * DAY_MS );
+		const activeDay = ( ( index * 37 + seed ) % 100 ) / 100 <= density;
+		const trend = index * Math.max( 2, Math.round( volume / 120 ) );
+		const wave = Math.sin( ( index + seed ) / 2.6 ) * volume * 0.35;
+		const visitors = activeDay ? Math.max( 1, Math.round( volume + trend + wave ) ) : 0;
+		const activeSessions = Math.round( visitors * 0.78 );
+
+		visitorsTotal += visitors;
+		sessionsTotal += activeSessions;
+
+		return {
+			date_start: date.toISOString(),
+			date_end: toDayEnd( date ).toISOString(),
+			time_interval: date.toISOString(),
+			active_sessions: String( activeSessions ),
+			visitors: String( visitors ),
+		};
+	} );
+
+	return {
+		summary: {
+			active_sessions: String( sessionsTotal ),
+			visitors: String( visitorsTotal ),
+			date_start: from.toISOString(),
+			date_end: toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ).toISOString(),
+		},
+		data,
+	};
+}
+
+/**
  * Builds the sessions/by-location (visitors by location) response, detecting
  * comparison requests by tracking the distinct `from` values per request
  * signature (mirrors upstream).
@@ -324,6 +413,26 @@ function buildVisitorsByLocation( query: URLSearchParams ) {
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeReport( subPath: string, query: URLSearchParams ): unknown {
+	// Product-filtered order attribution: /order-attribution-by-product/{view}/summary
+	const attributionByProductMatch = subPath.match(
+		/^\/order-attribution-by-product\/([^/]+)\/summary$/
+	);
+	if ( attributionByProductMatch ) {
+		const view = attributionByProductMatch[ 1 ];
+
+		if ( view === 'device' ) {
+			return nextIsComparison( 'order-attribution-by-product/device' )
+				? mockOrderAttributionByProductDeviceComparisonData
+				: mockOrderAttributionByProductDeviceData;
+		}
+
+		return {
+			view,
+			order_by: 'net_sales',
+			data: [],
+		};
+	}
+
 	// Order attribution: /order-attribution/{view}/summary
 	const attributionMatch = subPath.match( /^\/order-attribution\/([^/]+)\/summary$/ );
 	if ( attributionMatch ) {
@@ -338,6 +447,8 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 			return buildOrdersResponse( 'orders-by-product-type/by-date', query );
 		case '/bookings/by-date':
 			return buildBookingsResponse( query );
+		case '/sessions/by-date':
+			return buildVisitorsByDateResponse( query );
 		case '/sessions/by-device':
 			return buildSessionsByDeviceResponse();
 		case '/sessions/by-location':
@@ -358,8 +469,161 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 	}
 }
 
+/**
+ * Builds a mock Stats "followers" (subscribers) response with a realistic spread
+ * of recent subscription times so the Latest Subscribers widget renders
+ * populated in Storybook. The shape matches what `sanitizeStatsFollowersResponse`
+ * expects (`{ subscribers, total, … }`); `total` exceeds the shown rows so the
+ * "N more" footer appears.
+ *
+ * @return Raw followers response.
+ */
+function buildFollowersResponse() {
+	const now = Date.now();
+	const MINUTE = 60 * 1000;
+	const HOUR = 60 * MINUTE;
+	const DAY = 24 * HOUR;
+	const people = [
+		{ name: 'Diego Morales', offset: 20 * 1000 },
+		{ name: 'Olivia Park', offset: 12 * MINUTE },
+		{ name: 'Hiroshi Tanaka', offset: HOUR },
+		{ name: 'Emma Rossi', offset: 3 * HOUR },
+		{ name: 'Aarav Patel', offset: 5 * HOUR },
+		{ name: 'Sofia Nguyen', offset: DAY },
+	];
+	const subscribers = people.map( ( person, index ) => ( {
+		ID: 1000 + index,
+		subscription_id: 1000 + index,
+		display_name: person.name,
+		avatar: `https://i.pravatar.cc/64?img=${ 10 + index }`,
+		url: 'https://example.com',
+		date_subscribed: new Date( now - person.offset ).toISOString(),
+	} ) );
+	return { subscribers, total: 30, total_email: 18, total_wpcom: 12, page: 1, pages: 5 };
+}
+
+/**
+ * Builds the stats/subscribers time-series response.
+ *
+ * Honours the `unit`, `quantity`, and `date` query params so the subscribers
+ * chart's two requests (current window and the immediately preceding window)
+ * return continuous data: values are anchored to each bucket's absolute date,
+ * so the current window trends above the previous one and the headline shows a
+ * positive period-over-period delta. The series is wavy (not flat) so the
+ * dashed previous-period overlay reads clearly against the solid current line.
+ * Paid subscribers are always present so both chart lines are exercised.
+ *
+ * @param query - Parsed query params (`unit`, `quantity`, `date`).
+ * @return Raw subscribers response in the WPCOM matrix shape.
+ */
+function buildSubscribersResponse( query: URLSearchParams ) {
+	const unit = query.get( 'unit' ) || 'day';
+	const quantity = Math.max( 1, Math.min( 60, parseInt( query.get( 'quantity' ) || '30', 10 ) ) );
+	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+
+	// Anchor growth to a fixed day so totals stay in a realistic range and stay
+	// continuous across the current/previous windows.
+	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
+	const stepDays = unit === 'week' ? 7 : 1;
+
+	const rows = Array.from( { length: quantity }, ( _, index ) => {
+		const i = quantity - 1 - index;
+		const bucket = new Date( endDate );
+		let period: string;
+
+		if ( unit === 'month' ) {
+			bucket.setUTCMonth( bucket.getUTCMonth() - i );
+			period = `${ bucket.getUTCFullYear() }-${ String( bucket.getUTCMonth() + 1 ).padStart(
+				2,
+				'0'
+			) }`;
+		} else {
+			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
+			period = bucket.toISOString().slice( 0, 10 );
+		}
+
+		const absDay = Math.floor( bucket.getTime() / DAY_MS );
+		// Upward trend plus a wave whose period (~44 days) does not align with a
+		// 30-day window, so the index-aligned previous-period series stays out of
+		// phase and its dashed line diverges visibly from the current solid line.
+		const trend = ( absDay - anchorDay ) * 9;
+		const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
+		const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
+		const paid = Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) );
+
+		return [ period, subscribers, paid ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		unit,
+		fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+		data: rows,
+	};
+}
+
+/**
+ * Builds a mock Stats "email summary" response so the Emails widget renders
+ * populated in Storybook. The shape matches what `sanitizeStatsEmailSummaryResponse`
+ * expects (`{ posts: [ { title, opens_rate, clicks_rate, … } ] }`); rates are
+ * 0–100 percentages and the rows are newest-first to mirror the live endpoint.
+ *
+ * @return Raw email-summary response.
+ */
+function buildEmailSummaryResponse() {
+	const emails = [
+		{ title: '4 Ways to Make Your Website Stand Out', opens_rate: 38.1, clicks_rate: 3.81 },
+		{ title: 'Develop Locally on Linux with WordPress.com', opens_rate: 41.2, clicks_rate: 5.98 },
+		{ title: '10 Brand-New WordPress.com Themes for 2026', opens_rate: 35.7, clicks_rate: 7.12 },
+		{
+			title: 'WordPress.com Is Now Available in More Languages',
+			opens_rate: 52.4,
+			clicks_rate: 8.93,
+		},
+		{ title: 'WordCamp Europe 2026: What to Expect', opens_rate: 47.9, clicks_rate: 10.25 },
+		{
+			title: 'Click, Comment, Done: A Better Way to Collaborate',
+			opens_rate: 44.3,
+			clicks_rate: 10.38,
+		},
+	];
+	const posts = emails.map( ( email, index ) => ( {
+		id: 2000 + index,
+		title: email.title,
+		href: 'https://example.com',
+		type: 'post',
+		opens_rate: email.opens_rate,
+		clicks_rate: email.clicks_rate,
+		opens: 400 - index * 20,
+		clicks: 40 - index * 3,
+		unique_opens: 380 - index * 20,
+		unique_clicks: 38 - index * 3,
+		total_sends: 1000,
+	} ) );
+	return { posts };
+}
+
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
+
+	if ( requestPath.startsWith( WP_SETTINGS_PATH ) ) {
+		return coreSettingsMock;
+	}
+
+	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {
+		return buildFollowersResponse();
+	}
+
+	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {
+		const queryIndex = requestPath.indexOf( '?' );
+		return buildSubscribersResponse(
+			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
+		);
+	}
+
+	if ( requestPath.startsWith( STATS_EMAIL_SUMMARY_PATH ) ) {
+		return buildEmailSummaryResponse();
+	}
 
 	if ( ! requestPath.startsWith( API_BASE ) ) {
 		return next( options );

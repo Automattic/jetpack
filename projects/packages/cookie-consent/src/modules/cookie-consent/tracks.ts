@@ -1,16 +1,40 @@
 /**
- * Shoppers Privacy Tracking
+ * Cookie Consent Tracking
  *
  * Privacy-specific tracking wrappers for Tracks.
  */
 
+import { getCategoryPreferenceKey } from './category-preferences';
 import { recordEvent, getCommonProperties } from './tracks-utils';
-import type { ConsentPreferences } from './types';
+import type { ConsentPreferences, TrackingProperties } from './types';
+
+const DEFAULT_TRACKS_PREFERENCE_KEYS = new Set( [ 'required', 'analytics', 'advertising' ] );
+
+function getPreferenceProperties( preferences: ConsentPreferences ): TrackingProperties {
+	const properties: TrackingProperties = {
+		...getCommonProperties(),
+		preferences_required: preferences.required ?? false,
+		preferences_analytics: preferences.analytics ?? false,
+		preferences_advertising: preferences.advertising ?? false,
+	};
+
+	window.jetpackCookieConsentConfig?.categories?.forEach( category => {
+		const preferenceKey = getCategoryPreferenceKey( category );
+
+		if ( DEFAULT_TRACKS_PREFERENCE_KEYS.has( preferenceKey ) ) {
+			return;
+		}
+
+		properties[ `preferences_${ category.key }` ] = preferences[ preferenceKey ] === true;
+	} );
+
+	return properties;
+}
 
 /**
  * Track privacy banner view
  *
- * Fired when the cookie consent banner is displayed to the shopper.
+ * Fired when the cookie consent banner is displayed to the visitor.
  */
 export function trackPrivacyBannerView(): void {
 	recordEvent( 'privacy_banner_view', getCommonProperties() );
@@ -19,21 +43,16 @@ export function trackPrivacyBannerView(): void {
 /**
  * Track privacy banner accept button click
  *
- * @param preferences Object with consent preferences (required, analytics, advertising).
+ * @param preferences Object with consent preferences, keyed by category preference key (e.g. required, analytics, advertising, plus any custom registered categories).
  */
 export function trackPrivacyBannerAccept( preferences: ConsentPreferences ): void {
-	recordEvent( 'privacy_banner_button_accept', {
-		...getCommonProperties(),
-		preferences_required: preferences.required,
-		preferences_analytics: preferences.analytics,
-		preferences_advertising: preferences.advertising,
-	} );
+	recordEvent( 'privacy_banner_button_accept', getPreferenceProperties( preferences ) );
 }
 
 /**
  * Track privacy banner reject button click
  *
- * Fired when shopper clicks "Reject All" in customize modal.
+ * Fired when the visitor clicks "Reject All" in customize modal.
  */
 export function trackPrivacyBannerReject(): void {
 	recordEvent( 'privacy_banner_button_reject', getCommonProperties() );
@@ -42,7 +61,7 @@ export function trackPrivacyBannerReject(): void {
 /**
  * Track privacy banner customize button click
  *
- * Fired when shopper clicks "Customize" to open the preferences modal.
+ * Fired when the visitor clicks "Customize" to open the preferences modal.
  */
 export function trackPrivacyBannerCustomize(): void {
 	recordEvent( 'privacy_banner_button_customize', getCommonProperties() );
@@ -51,7 +70,7 @@ export function trackPrivacyBannerCustomize(): void {
 /**
  * Track "Manage Privacy Preferences" link click
  *
- * Fired when shopper opens preferences modal from the footer link.
+ * Fired when the visitor opens preferences modal from the footer link.
  */
 export function trackPrivacyManageOpen(): void {
 	recordEvent( 'privacy_manage_open', getCommonProperties() );
@@ -60,7 +79,7 @@ export function trackPrivacyManageOpen(): void {
 /**
  * Track CCPA opt-out button click
  *
- * Fired when shopper submits the CCPA "Do Not Sell/Share" opt-out.
+ * Fired when the visitor submits the CCPA "Do Not Sell/Share" opt-out.
  */
 export function trackPrivacyPolicyOptOut(): void {
 	recordEvent( 'privacy_policy_page_button_opt_out', getCommonProperties() );

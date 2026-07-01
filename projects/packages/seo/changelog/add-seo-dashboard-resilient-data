@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load the SEO dashboard's Overview, Settings, and AI tabs resiliently: their data is preloaded into the page for an instant first paint, and when that snapshot is missing or stale the tab now fetches it (showing a loading state and retrying) instead of dead-ending on an "Unable to load" error.

@@ -17,7 +17,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Podcast {
 
-	const PACKAGE_VERSION = '1.1.1';
+	const PACKAGE_VERSION = '1.3.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -67,9 +67,6 @@ class Podcast {
 
 		Tracks::init();
 
-		// Wire the wp-admin entry point. Admin_Page::init() stages the wp-build
-		// dashboard; menu registration itself runs from wpcom-admin-menu.php
-		// via Admin_Page::add_wp_admin_submenu() at admin_menu priority 999999.
 		if ( is_admin() ) {
 			Admin_Page::init();
 			New_Episode_Prefill::init();

@@ -2,6 +2,53 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.0-a.7 - 2026-06-29
+### Enhancements
+- Donations Block: Render the block in emails with email-friendly CTA buttons. [#49963]
+
+### Bug fixes
+- AI Agent Access: Correct module references in Shortlinks and Related Posts ability descriptions. [#49957]
+- Archives shortcode: Cap the `postbypost` type with a filterable default limit to prevent memory exhaustion on large sites. [#49927]
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active along with other Jetpack standalone plugins. [#49994]
+- Forms: Sign file download links with an expiring token so they work for any logged-in editor. [#49868]
+- Memberships: Delegate the Payment Request API to the checkout iframe so Apple Pay, Google Pay, and Stripe Link can load and complete payments. [#49622]
+- Podcast: Load the package outside Jetpack's connection-gated module loader so the podcast feed and dashboard keep working when the site is disconnected. [#49989]
+- Tiled Gallery: Fix an infinite resize loop when the block is inside a Row or Stack block. [#50016]
+- Tiled Gallery: Keep the mosaic layout stable and split rows evenly between galleries when the block is inside a Row or Stack. [#50016]
+- WhatsApp Button block: Fix icon and text overlapping in RTL languages. [#49983]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Sidebar: Source the AI Editorial Review flag only from `features.aiEditorialReview`; drop the redundant top-level `aiEditorialReviewEnabled` field. [#49971]
+- Content Guidelines AI: Persist the empty-state dismissal (banner and upgrade notice) per-user across devices instead of in browser `localStorage`, and allow dismissing the upgrade notice from its close icon. [#49392]
+- Defer the `wpcom/v2` Search and AI REST endpoint wrappers from loading their controller and helper classes until `rest_api_init`, so those classes are not loaded on front-end, cron, and login requests. [#49805]
+
+## 16.0-a.5 - 2026-06-25
+### Enhancements
+- SEO: Hide the legacy Traffic-page SEO and Sitemaps sections once a site is on the new SEO dashboard (fresh install, opted-in, or WordPress.com); existing self-hosted installs that haven't opted in keep the legacy sections. [#49697]
+
+### Bug fixes
+- AI Assistant: Hide legacy block toolbar controls when Jetpack AI Sidebar content editing is enabled. [#49219]
+- AI Chat block: Stop prompting to enable Jetpack Search when the Search module is active in a non-Instant Search experience (Theme, Inline, or Embedded). [#49870]
+- Akismet: Show the Akismet logo (instead of the Jetpack logo) in the unified admin header. [#49837]
+- Newsletter: Fix "Sorry, you are not allowed to do this" error for Contributors on the first Submit for Review when the Subscriptions module is active. [#49813]
+- Paid Content: Ensure paid subscribers on Atomic-hosted sites retain access to gated content. [#48857]
+- SEO: Default the Schema, Meta description, and Search post-list columns to hidden in Screen Options. [#49862]
+- Social: Prevent errors in the post-publish sharing status panel from crashing the editor. [#49823]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Sidebar: Load the Agents Manager through the `jetpack-agents-manager` Composer package instead of a self-contained CDN loader. [#49603]
+- Content Guidelines: Align the empty-state banner orbs on the same axis and reduce their size. [#49760]
+- Defer loading Boost Speed Score classes until a REST request or Boost lifecycle action fires, reducing the per-request PHP/opcache footprint. [#49806]
+- Fix `@wordpress/ui` 0.15 type errors in the mobile-app recommendation and the AI Assistant message icon. [#49800]
+- Heartbeat: Provide connection owner and XML-RPC error stats from the Connection package. [#49922]
+- JSON API: Require Jetpack 15.9 or later to dispatch the posts, users, site, and plugins endpoints over REST. [#49819]
+- Load block render code only when a block is present, and skip editor-only extensions on front-end requests, to reduce per-request PHP/opcache footprint. [#49807]
+- Newsletter: Begin a staged rollout of the modernized Newsletter dashboard and WP Admin subscriber management, off by default. Opt in or out with the `rsm_jetpack_ui_modernization_newsletter` and `jetpack_wp_admin_subscriber_management_enabled` filters. [#49036]
+- Sync: Add test coverage for refreshing the plugin list callable when a plugin is deleted. [#49913]
+- Sync: Append an order's total (total, currency) to the synced `woocommerce_new_order` and `woocommerce_order_status_changed` actions when the order reaches a paid status, so WordPress.com can aggregate revenue. [#49689]
+- Update composer.lock for the Podcast package's new `jetpack-admin-ui` dependency. [#49918]
+- Update package dependencies. [#49793] [#49831]
+
 ## 16.0-a.3 - 2026-06-22
 ### Enhancements
 - Add AI-powered "Generate/Improve with Jetpack" buttons to the Content Guidelines admin page. [#47959]
@@ -48,6 +95,10 @@
 - Newsletter: Register the `description` field for the memberships endpoint to support paid tier descriptions. [#49413]
 - Notifications: Let users opt into the v3 notifications panel via the `notifications=v3` query parameter. [#49514]
 - Update package dependencies. [#49273] [#49448] [#49492]
+
+## 15.9.1 - 2026-06-24
+### Bug fixes
+- Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9. [#49859]
 
 ## 15.9 - 2026-06-09
 ### Enhancements

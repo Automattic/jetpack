@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { decideInitialView, type View } from './lib/orchestration.ts';
+import { decideInitialView, isAllTasksMode, type View } from './lib/orchestration.ts';
 import { TailoredList } from './tailored-list/tailored-list.tsx';
 import { Wizard } from './wizard/wizard.tsx';
 import type { TailorResult } from './lib/types.ts';
@@ -31,12 +31,16 @@ export function App() {
 
 	useEffect( () => {
 		let cancelled = false;
-		apiFetch< LaunchpadData >( { path: '/wpcom/v2/ai-launchpad' } ).then( data => {
+		// Testing aid: ?all_tasks=1 skips the wizard and renders the full task
+		// catalog (the endpoint returns every task, visibility bypassed).
+		const allTasks = isAllTasksMode( window.location.search );
+		const path = allTasks ? '/wpcom/v2/ai-launchpad?all_tasks=1' : '/wpcom/v2/ai-launchpad';
+		apiFetch< LaunchpadData >( { path } ).then( data => {
 			if ( cancelled ) {
 				return;
 			}
 			setInitialData( data );
-			setView( decideInitialView( data ) );
+			setView( allTasks ? 'list' : decideInitialView( data ) );
 		} );
 		return () => {
 			cancelled = true;

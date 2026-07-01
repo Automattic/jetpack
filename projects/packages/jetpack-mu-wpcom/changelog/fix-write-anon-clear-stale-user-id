@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: clear a stale wpcom_user_id from localStorage on the logged-out editor so the Publish handoff to signup no longer mistakes the visitor for a logged-in user and drops the anonymous draft.

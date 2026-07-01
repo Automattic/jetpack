@@ -38,7 +38,6 @@ export { default as DecorativeCard } from './components/decorative-card/index.ts
 export { default as Col } from './components/layout/col/index.tsx';
 export { default as Testimonials } from './components/testimonials/index.tsx';
 export { default as Container } from './components/layout/container/index.tsx';
-export { default as useBreakpointMatch } from './components/layout/use-breakpoint-match/index.ts';
 export { default as CopyToClipboard } from './components/copy-to-clipboard/index.tsx';
 export * from './components/icons/index.tsx';
 export { default as SplitButton } from './components/split-button/index.tsx';
