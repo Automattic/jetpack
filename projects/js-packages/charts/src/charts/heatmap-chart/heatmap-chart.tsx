@@ -175,14 +175,17 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			const target = event.currentTarget;
 			const columnIndex = Number( target.dataset.column );
 			const rowIndex = Number( target.dataset.row );
+			// Read bounds from the ref (like the keyboard-tooltip effect) so this
+			// callback stays stable across renders.
+			const bounds = containerBoundsRef.current;
 			// TooltipInPortal re-adds containerBounds, so subtract it to land at the cursor.
 			showTooltip( {
-				tooltipLeft: event.clientX - containerBounds.left,
-				tooltipTop: event.clientY - containerBounds.top,
+				tooltipLeft: event.clientX - bounds.left,
+				tooltipTop: event.clientY - bounds.top,
 				tooltipData: buildTooltipData( columnIndex, rowIndex ),
 			} );
 		},
-		[ withTooltips, showTooltip, buildTooltipData, containerBounds ]
+		[ withTooltips, showTooltip, buildTooltipData ]
 	);
 
 	const handleCellMouseLeave = useCallback( () => {
