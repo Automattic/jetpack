@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Refactor: Use store objects instead of string IDs

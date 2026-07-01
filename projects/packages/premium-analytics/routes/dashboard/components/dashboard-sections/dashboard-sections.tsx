@@ -53,7 +53,7 @@ export function DashboardSections( {
 	);
 
 	return (
-		<Tabs.Root value={ value } onValueChange={ handleValueChange }>
+		<Tabs.Root value={ value } onValueChange={ handleValueChange } className={ styles.root }>
 			<div className={ styles.tabList }>
 				<Tabs.List variant="minimal">
 					{ sections.map( section => (

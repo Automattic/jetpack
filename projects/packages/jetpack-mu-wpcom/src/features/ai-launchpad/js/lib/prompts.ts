@@ -1,15 +1,12 @@
 import type { WizardInput } from './types.ts';
 
 /**
- * Allowed task IDs the model may pick from. Snake_case catalog IDs drawn from
- * launchpad-task-definitions.php (verified 2026-06-02). A PHP test
- * (AI_Launchpad_Task_Menu_Test) guards this list against catalog drift; making
- * the catalog the single source is tracked in DOTOBRD-472.
+ * Allowed task IDs the model may pick from, drawn from the catalog. A PHP test
+ * guards this list against catalog drift.
  */
 export const TASK_MENU: readonly string[] = [
 	'first_post_published',
 	'first_post_published_newsletter',
-	'write_3_posts',
 	'site_theme_selected',
 	'add_about_page',
 	'add_new_page',
@@ -63,17 +60,9 @@ export const TASK_MENU: readonly string[] = [
 ];
 
 /**
- * Build the single combined prompt sent to jetpack-ai-query. Produces three
- * parts in one JSON response, in inference-first order: an inferred-context
- * blob, a relevance-ranked task list, and a starter blog post draft.
- *
- * The model infers the site's niche/audience FIRST, then selects the 6 most
- * relevant tasks from the menu (ranked against the user's own words rather than
- * a fixed per-goal template) and writes a specific subtitle for each. Emitting
- * `inferred` before `tasks` grounds selection in the niche without a second
- * call. English only (v1; i18n tracked in DOTOBRD-474). Hard rules mirror the
- * server-side validation in class-ai-launchpad-rest.php (launch task last,
- * woo/newsletter gating, subtitle sanitization) so valid output is not rejected.
+ * Build the single combined prompt sent to jetpack-ai-query, producing the
+ * inferred blob, task list, and first-post draft in one JSON response. Hard rules
+ * mirror the server-side validation so valid output is not rejected.
  *
  * @param input - The collected wizard input.
  * @return The prompt string.
@@ -115,6 +104,7 @@ HARD RULES (do not break - the server rejects output that violates these):
 - The 6th and final task MUST be a launch task: one of "site_launched" (canonical), "blog_launched", "woo_launch_site", or "link_in_bio_launched".
 - Only include "woo_products", "woo_customize_store", "set_up_payments", "stripe_connected", or "woo_woocommerce_payments" if the goal is sell OR the user explicitly mentions selling, products, store, shop, or commerce.
 - Only include "add_10_email_subscribers", "subscribers_added", "newsletter_plan_created", or "import_subscribers" if the goal is newsletter OR the user explicitly mentions email subscribers or a newsletter.
+- For the social tasks "connect_social_media", "drive_traffic", and "post_sharing_enabled", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
 - Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].
 
 ============ STEP 3 - first_post_draft ============

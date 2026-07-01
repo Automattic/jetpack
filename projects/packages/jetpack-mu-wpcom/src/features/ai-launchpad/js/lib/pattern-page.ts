@@ -8,8 +8,7 @@ interface PtkTaxonomyTerm {
 	slug?: string;
 }
 
-// PTK returns categories/tags as a slug-keyed map of terms; an empty taxonomy
-// can come back as `[]` rather than `{}`, so both shapes must be handled.
+// PTK returns taxonomies as a slug-keyed map, or `[]` when empty, so both shapes must be handled.
 type PtkTaxonomy = Record< string, PtkTaxonomyTerm > | PtkTaxonomyTerm[];
 
 export interface PtkPattern {
@@ -24,9 +23,8 @@ interface CreatedPage {
 }
 
 /**
- * Tokenize the inferred niche/vibe/audience into lowercase match words. The
- * goal is intentionally excluded: it describes intent (e.g. "sell", "publish")
- * rather than topic, so it adds noise to a topical pattern match.
+ * Tokenize the inferred niche/vibe/audience into lowercase match words. Goal is
+ * excluded: it describes intent, not topic, so it adds noise.
  *
  * @param inferred - The AI-inferred site details.
  * @return The match words.
@@ -41,8 +39,7 @@ function nicheWords( inferred: TailoredInferred ): string[] {
 }
 
 /**
- * Extract the human-readable term titles from a PTK taxonomy, which may arrive
- * as a slug-keyed map or (when empty) as an array.
+ * Extract the human-readable term titles from a PTK taxonomy.
  *
  * @param taxonomy - The categories or tags collection.
  * @return The term titles.
@@ -56,8 +53,7 @@ function termTitles( taxonomy: PtkTaxonomy | undefined ): string[] {
 
 /**
  * Count how many match words appear in a pattern's title, category titles, or
- * tag titles. Categories/tags are keyed by slug, so the matchable text is the
- * term titles, not the keys.
+ * tag titles.
  *
  * @param pattern - The candidate pattern.
  * @param words   - The niche match words.
@@ -103,15 +99,12 @@ export function pickPattern(
 	return best;
 }
 
-// The full PTK library is stable within a session, so cache the parsed list in
-// module scope: repeated "Get started" clicks reuse it instead of re-downloading
-// and re-scoring it. Stays null on a failed fetch so a later click can retry.
+// Cache the parsed PTK library in module scope; stays null on a failed fetch so a later click can retry.
 let cachedPatterns: PtkPattern[] | null = null;
 
 /**
- * Fetch the English pattern library, pick a pattern matching the inferred
- * niche, and create a draft page from it. Returns the new page id and its
- * block-editor URL. The pattern HTML is used as-is (no AI rewrite for v1).
+ * Fetch the English pattern library, pick a pattern matching the inferred niche,
+ * and create a draft page from it.
  *
  * @param inferred - The AI-inferred site details.
  * @return The created page id and its editor URL.
@@ -129,9 +122,7 @@ export async function createPatternPage(
 				}
 			}
 		} catch {
-			// Network/parse failure: leave the cache unset so a later click retries.
-			// The page is still created below (with empty content) rather than
-			// throwing and stranding the CTA.
+			// Network/parse failure: leave the cache unset so a later click retries; the page is still created below with empty content.
 		}
 	}
 	const pattern = pickPattern( cachedPatterns ?? [], inferred );
@@ -143,9 +134,7 @@ export async function createPatternPage(
 			title: pattern?.title ?? inferred.brand_name ?? 'New page',
 			content: pattern?.html ?? '',
 			status: 'draft',
-			// Tag this as the AI Launchpad About page so the server-side listener
-			// can complete add_about_page / update_about_page when it is published
-			// or edited, independent of the catalog's layout-category meta.
+			// Tag as the AI Launchpad About page so the server-side listener can complete add_about_page/update_about_page on publish or edit.
 			meta: { _wpcom_ai_launchpad_about_page: true },
 		},
 	} ) ) as CreatedPage;

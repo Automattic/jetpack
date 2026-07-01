@@ -6,11 +6,15 @@
 
 import {
 	UNKNOWN_COUNTRY_CODE,
+	getConsentChoices,
 	getCookie,
 	getGeoConfig,
 	handleConsentByRegion,
+	hasConsentSet,
 	isGdprCountry,
 	pertainsToCCPA,
+	readConsentChoices,
+	saveConsentChoices,
 	setCookie,
 } from '../src/modules/cookie-consent/utils';
 
@@ -200,6 +204,187 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 
 		expect( context.showBanner ).toBe( false );
 		expect( wasDenied( 'statistics' ) ).toBe( true );
+	} );
+} );
+
+describe( 'registry-driven consent choices', () => {
+	let consentCalls: Array< [ string, string ] >;
+	let originalCookie: PropertyDescriptor | undefined;
+
+	beforeEach( () => {
+		consentCalls = [];
+		window.wp_set_consent = ( category: string, state: string ) => {
+			consentCalls.push( [ category, state ] );
+		};
+		window.jetpackCookieConsentConfig = {
+			apiUrl: 'https://example.com/wp-json/jetpack/v4/cookie-consent/consent-log',
+			categories: [
+				{
+					key: 'functional',
+					preferenceKey: 'required',
+					required: true,
+					defaultChecked: true,
+					wpConsentMap: [ 'functional', 'preferences' ],
+				},
+				{
+					key: 'analytics',
+					preferenceKey: 'analytics',
+					required: false,
+					defaultChecked: true,
+					wpConsentMap: [ 'statistics', 'statistics-anonymous' ],
+				},
+				{
+					key: 'marketing',
+					preferenceKey: 'advertising',
+					required: false,
+					defaultChecked: false,
+					wpConsentMap: [ 'marketing' ],
+				},
+				{
+					key: 'personalization',
+					preferenceKey: 'personalization',
+					required: false,
+					defaultChecked: false,
+					wpConsentMap: [ 'personalization' ],
+				},
+			],
+		};
+		originalCookie = Object.getOwnPropertyDescriptor( Document.prototype, 'cookie' );
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { wp_set_consent?: unknown } ).wp_set_consent;
+		delete ( window as unknown as { jetpackCookieConsentConfig?: unknown } )
+			.jetpackCookieConsentConfig;
+		delete ( document as unknown as { cookie?: string } ).cookie;
+		if ( originalCookie ) {
+			Object.defineProperty( Document.prototype, 'cookie', originalCookie );
+		}
+	} );
+
+	it( 'writes required and configured category maps through WP Consent API', () => {
+		saveConsentChoices( {
+			analytics: false,
+			advertising: true,
+			personalization: true,
+		} );
+
+		expect( consentCalls ).toEqual( [
+			[ 'functional', 'allow' ],
+			[ 'preferences', 'allow' ],
+			[ 'statistics', 'deny' ],
+			[ 'statistics-anonymous', 'deny' ],
+			[ 'marketing', 'allow' ],
+			[ 'personalization', 'allow' ],
+		] );
+	} );
+
+	it( 'derives choices from the registry, forcing required on and honoring defaultChecked', () => {
+		expect( getConsentChoices() ).toEqual( {
+			required: true,
+			analytics: true,
+			advertising: false,
+			personalization: false,
+		} );
+		expect( getConsentChoices( false ) ).toEqual( {
+			required: true,
+			analytics: false,
+			advertising: false,
+			personalization: false,
+		} );
+		expect( getConsentChoices( true ) ).toEqual( {
+			required: true,
+			analytics: true,
+			advertising: true,
+			personalization: true,
+		} );
+	} );
+
+	it( 'reports consent as set when a required-category cookie is present', () => {
+		Object.defineProperty( document, 'cookie', {
+			configurable: true,
+			get: () => 'wp_consent_functional=allow',
+		} );
+
+		expect( hasConsentSet() ).toBe( true );
+	} );
+
+	it( 'ignores non-required category cookies when a required category exists', () => {
+		Object.defineProperty( document, 'cookie', {
+			configurable: true,
+			get: () => 'wp_consent_statistics=allow',
+		} );
+
+		expect( hasConsentSet() ).toBe( false );
+	} );
+
+	it( 'falls back to checking all categories when none are required', () => {
+		window.jetpackCookieConsentConfig = {
+			apiUrl: 'https://example.com/wp-json/jetpack/v4/cookie-consent/consent-log',
+			categories: [
+				{
+					key: 'analytics',
+					preferenceKey: 'analytics',
+					required: false,
+					defaultChecked: true,
+					wpConsentMap: [ 'statistics' ],
+				},
+			],
+		};
+		Object.defineProperty( document, 'cookie', {
+			configurable: true,
+			get: () => 'wp_consent_statistics=deny',
+		} );
+
+		expect( hasConsentSet() ).toBe( true );
+	} );
+
+	it( 'reads configured consent choices from mapped WP Consent API cookies', () => {
+		Object.defineProperty( document, 'cookie', {
+			configurable: true,
+			get: () =>
+				'wp_consent_functional=allow; wp_consent_statistics=allow; wp_consent_statistics-anonymous=allow; wp_consent_marketing=deny; wp_consent_personalization=allow',
+		} );
+
+		expect( readConsentChoices() ).toEqual( {
+			required: true,
+			analytics: true,
+			advertising: false,
+			personalization: true,
+		} );
+	} );
+
+	it( 'dispatches the public wp_consent_saved event with event type and category choices', () => {
+		let savedEvent: CustomEvent | undefined;
+		const listener = ( event: Event ) => {
+			savedEvent = event as CustomEvent;
+		};
+		window.addEventListener( 'wp_consent_saved', listener );
+
+		saveConsentChoices(
+			{
+				analytics: true,
+				advertising: false,
+			},
+			'accept_selected'
+		);
+
+		window.removeEventListener( 'wp_consent_saved', listener );
+
+		expect( consentCalls ).toEqual( [
+			[ 'functional', 'allow' ],
+			[ 'preferences', 'allow' ],
+			[ 'statistics', 'allow' ],
+			[ 'statistics-anonymous', 'allow' ],
+			[ 'marketing', 'deny' ],
+		] );
+		expect( savedEvent?.detail ).toEqual( {
+			eventType: 'accept_selected',
+			choices: {
+				analytics: true,
+				advertising: false,
+			},
+		} );
 	} );
 } );
 

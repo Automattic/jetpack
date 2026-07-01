@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-DkELBMMoq2PwHOAUtmqQ7Kzgrjhkrww1drUmcqHQ8sE=
+pnpmfileChecksum: sha256-PzkdBGEN7/Zz4Qb42N9B8uXzkny4nJaMly/Hokov//Y=
 
 patchedDependencies:
   react-autosize-textarea: 5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464
@@ -4205,9 +4205,6 @@ importers:
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
-      react-page-visibility:
-        specifier: 7.0.0
-        version: 7.0.0(react@18.3.1)
       social-logos:
         specifier: workspace:*
         version: link:../../js-packages/social-logos
@@ -16413,12 +16410,6 @@ packages:
     peerDependencies:
       react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18 || ^19
       react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18 || ^19
-
-  react-page-visibility@7.0.0:
-    resolution: {integrity: sha512-d4Kq/8TtJSr8dQc8EJeAZcSKTrGzC5OPTm6UrMur9BnwP0fgTawI9+Nd+ZGB7vwCfn2yZS0qDF9DR3/QYTGazw==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      react: ^16.13.1 || ^17.0.0 || ^18.0.0
 
   react-property@2.0.2:
     resolution: {integrity: sha512-+PbtI3VuDV0l6CleQMsx2gtK0JZbZKbpdu5ynr+lbsuvtmgbNcS3VM0tuY2QjFNOcWxvXeHjDpy42RO+4U2rug==}
@@ -33232,11 +33223,6 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-lifecycles-compat: 3.0.4
       warning: 4.0.3
-
-  react-page-visibility@7.0.0(react@18.3.1):
-    dependencies:
-      prop-types: 15.8.1
-      react: 18.3.1
 
   react-property@2.0.2: {}
 

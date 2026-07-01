@@ -25,6 +25,7 @@ use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Errors;
 use Automattic\Jetpack\Files;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\Import\Main as Import_Main;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
@@ -772,6 +773,55 @@ class Jetpack {
 	}
 
 	/**
+	 * Whether the current request should eagerly initialize the admin/REST-only
+	 * packages (the Import package and My Jetpack) now, at `plugins_loaded` time.
+	 *
+	 * Returns true for admin, cron, POST, and WP-CLI requests — the contexts,
+	 * knowable this early, where those packages have work to do. Returns false
+	 * for a plain front-end GET *and* for a REST request: the two can't be told
+	 * apart yet (this runs before `rest_api_init`), so callers defer the REST
+	 * case by initializing the package on `rest_api_init` instead, while a plain
+	 * page view never fires that hook and so loads nothing. This keeps
+	 * admin/REST-only PHP out of opcache on the front-end GET hot path.
+	 *
+	 * No in-repo code depends on the deferral. The one externally observable
+	 * change is timing: the packages' documented init hooks
+	 * (`jetpack_import_initialized`, `jetpack_feature_import_enabled`, and
+	 * `my_jetpack_init`) no longer fire on a plain front-end GET — they fire on
+	 * the admin, cron, POST, WP-CLI, and REST requests where the packages load.
+	 *
+	 * @return bool
+	 */
+	private static function should_eager_load_packages() {
+		$is_post_request = isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) );
+		$is_wp_cli       = Constants::is_true( 'WP_CLI' );
+
+		return is_admin() || wp_doing_cron() || $is_post_request || $is_wp_cli;
+	}
+
+	/**
+	 * Configure the Import package from a deferred hook.
+	 *
+	 * The eager path uses Config::ensure( 'import' ), but the deferred REST path
+	 * runs after Config::on_plugins_loaded() has already processed its feature
+	 * flags, so it needs a hookable bootstrap callback. Preserve Config's
+	 * feature-enabled action for hook consumers.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function configure_import_package() {
+		if ( class_exists( Import_Main::class ) ) {
+			Import_Main::configure();
+
+			if ( ! did_action( 'jetpack_feature_import_enabled' ) ) {
+				do_action( 'jetpack_feature_import_enabled' );
+			}
+		}
+	}
+
+	/**
 	 * Before everything else starts getting initalized, we need to initialize Jetpack using the
 	 * Config object.
 	 */
@@ -784,9 +834,6 @@ class Jetpack {
 				'sync',
 				'account_protection',
 				'waf',
-				'stats',
-				'stats_admin',
-				'import',
 			)
 			as $feature
 		) {
@@ -797,6 +844,85 @@ class Jetpack {
 		// Jetpack plugin, mirroring the standalone Jetpack VideoPress plugin. The page only
 		// renders when the VideoPress module is active (Status::is_active()).
 		$config->ensure( 'videopress', array( 'admin_ui' => true ) );
+
+		/*
+		 * The Import package only registers `jetpack/v4/import` REST routes — it
+		 * does nothing when rendering a front-end page — so gate its `ensure()`
+		 * to keep its PHP out of opcache on the front-end GET hot path. It still
+		 * loads on admin, cron, POST, and WP-CLI requests, and on `rest_api_init`
+		 * for REST: a REST request can't be identified yet at `plugins_loaded`
+		 * (this runs before `Config::on_plugins_loaded`, and `rest_api_init`
+		 * fires later), so it is initialized directly when that hook fires, while
+		 * a plain page view never fires it and so loads nothing.
+		 *
+		 * JITM stays eager (above): unlike Import, its `register()` adds a
+		 * `jetpack_sync_before_send_updated_option` filter that records the
+		 * `jetpack_last_plugin_sync` transient, and a Jetpack Sync send can fire
+		 * on a plain front-end GET — including the dedicated-sync `spawn-sync`
+		 * GET, which runs on `init` and exits before `rest_api_init`. Deferring
+		 * JITM would skip that bookkeeping and leave its message cache stale after
+		 * a plugin change, so it loads on every request as before.
+		 */
+		if ( self::should_eager_load_packages() ) {
+			$config->ensure( 'import' );
+		} else {
+			add_action(
+				'rest_api_init',
+				array( __CLASS__, 'configure_import_package' ),
+				0
+			);
+		}
+
+		/*
+		 * The Stats and Stats Admin packages only do work when the Stats module
+		 * is active (the front-end tracking pixel) or on wp-admin, REST, cron,
+		 * POST, and WP-CLI requests: the Stats dashboard page, the stats /
+		 * stats-app REST endpoints (which the block editor also calls for
+		 * email-open rates), the transient-cleanup cron, the connection
+		 * package's package-version tracker (which runs on POSTs and reads the
+		 * `jetpack_package_versions` filter that Stats registers), and CLI
+		 * introspection such as the heartbeat inspector. On a plain front-end
+		 * GET page view with the module off they are inert: the pixel
+		 * short-circuits on `Stats\Main::should_track()` and every other entry
+		 * point only hooks rest_api_init, admin, cron, the POST-only tracker, or
+		 * is reached through WP-CLI.
+		 * Skip loading them — and eagerly constructing the Stats Admin REST
+		 * controller — on that hot path to keep their PHP out of opcache, but
+		 * keep loading them everywhere else exactly as before so the stats REST
+		 * permission mapping (view_stats, registered by Stats\Main), the
+		 * editor's stats-app calls, the cleanup cron, and the package-version
+		 * tracker are all unchanged.
+		 *
+		 * REST requests are not yet identifiable here (REST_REQUEST is defined
+		 * after plugins_loaded), so defer those to rest_api_init. Call the
+		 * package initializers directly rather than `$config->ensure()`: ensure()
+		 * only flags a feature for `Config::on_plugins_loaded()` (plugins_loaded
+		 * priority 2), which has already run by the time rest_api_init fires.
+		 * Priority 0 runs before each package's own priority-10 route
+		 * registration, so their routes still register within the same dispatch.
+		 * A plain page view never fires rest_api_init, so the packages stay
+		 * unloaded there. See JETPACK-1747.
+		 */
+		$is_post_request = isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'];
+		$is_wp_cli       = defined( 'WP_CLI' ) && WP_CLI;
+
+		if ( self::is_module_active( 'stats' ) || is_admin() || wp_doing_cron() || $is_post_request || $is_wp_cli ) {
+			$config->ensure( 'stats' );
+			$config->ensure( 'stats_admin' );
+		} else {
+			add_action(
+				'rest_api_init',
+				static function () {
+					if ( class_exists( 'Automattic\Jetpack\Stats\Main' ) ) {
+						\Automattic\Jetpack\Stats\Main::init();
+					}
+					if ( class_exists( 'Automattic\Jetpack\Stats_Admin\Main' ) ) {
+						\Automattic\Jetpack\Stats_Admin\Main::init();
+					}
+				},
+				0
+			);
+		}
 
 		$config->ensure(
 			'connection',
@@ -885,7 +1011,27 @@ class Jetpack {
 	 */
 	public function late_initialization() {
 		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), -2 );
-		My_Jetpack_Initializer::init();
+
+		/*
+		 * My Jetpack is a wp-admin dashboard. Its Initializer::init() only wires
+		 * up admin-menu, admin_init, and rest_api_init surfaces — and eagerly
+		 * loads every product class (backup, boost, protect, …) just to register
+		 * admin plugin-action links — so none of it is needed on a plain
+		 * front-end GET page view. (The pieces that do immediate work, e.g.
+		 * Connection REST authentication and Licensing, are already initialized
+		 * unconditionally in Jetpack's constructor, so they are unaffected here.)
+		 *
+		 * Gate the call to the request types where My Jetpack actually does work.
+		 * REST can't be detected yet at plugins_loaded, so initialize on
+		 * rest_api_init for that branch; a plain page view never fires it, so My
+		 * Jetpack stays unloaded there.
+		 */
+		if ( self::should_eager_load_packages() ) {
+			My_Jetpack_Initializer::init();
+		} else {
+			add_action( 'rest_api_init', array( My_Jetpack_Initializer::class, 'init' ), 0 );
+		}
+
 		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();

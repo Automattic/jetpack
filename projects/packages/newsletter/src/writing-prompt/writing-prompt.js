@@ -7,7 +7,13 @@ import {
 	isWpcomPlatformSite,
 } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Link, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
@@ -15,6 +21,7 @@ import { addQueryArgs } from '@wordpress/url';
 export default () => {
 	const [ prompts, setPrompts ] = useState( [] );
 	const [ index, setIndex ] = useState( 0 );
+	const [ loaded, setLoaded ] = useState( false );
 
 	// Get site type for analytics.
 	const siteType = useMemo( () => getSiteType(), [] );
@@ -38,7 +45,10 @@ export default () => {
 			order: 'desc',
 			force_year: new Date().getFullYear(),
 		} );
-		apiFetch( { path } ).then( setPrompts );
+		apiFetch( { path } )
+			.then( data => setPrompts( Array.isArray( data ) ? data : [] ) )
+			.catch( () => {} )
+			.finally( () => setLoaded( true ) );
 	}, [] );
 
 	const goToPrevious = useCallback( () => setIndex( current => current - 1 ), [] );
@@ -62,10 +72,15 @@ export default () => {
 		} );
 	}, [ siteType ] );
 
-	if ( prompts.length === 0 ) {
+	// Render nothing while the prompts are still loading so the widget stays
+	// empty until we know whether we have a prompt to show. Once the fetch has
+	// settled we always render the branding footer, even when no prompt came
+	// back, so the widget never collapses to a blank box.
+	if ( ! loaded ) {
 		return null;
 	}
 
+	const hasPrompt = prompts.length > 0;
 	const prompt = prompts[ index ];
 
 	const blogId = getSiteData()?.wpcom?.blog_id;
@@ -77,72 +92,102 @@ export default () => {
 
 	return (
 		<Stack direction="column" gap="md">
-			<Stack className="wpcom-daily-writing-prompt--prompt" direction="column" gap="md">
-				<Text variant="body-md" render={ <p /> }>
-					{ prompt.text }
-				</Text>
-				<Stack direction="row" justify="flex-end">
-					<Button variant="minimal" size="small" onClick={ goToPrevious } disabled={ index === 0 }>
-						{ __( '← Previous', 'jetpack-newsletter' ) }
-					</Button>
-					<Button
-						variant="minimal"
-						size="small"
-						onClick={ goToNext }
-						disabled={ index === prompts.length - 1 }
-					>
-						{ __( 'Next →', 'jetpack-newsletter' ) }
-					</Button>
-				</Stack>
-			</Stack>
-			<Stack direction="row" justify="space-between" align="center" gap="sm" wrap="wrap">
-				{ /* Replace with LinkButton once available: https://github.com/WordPress/gutenberg/issues/77098 */ }
-				<Button variant="outline" size="compact" onClick={ postAnswer }>
-					{ __( 'Post Answer', 'jetpack-newsletter' ) }
-				</Button>
-				{ prompt.answered_users_sample.length > 0 && (
-					<Stack
-						className="wpcom-daily-writing-prompt--answered-users"
-						direction="row"
-						align="center"
-						gap="xs"
-					>
-						{ prompt.answered_users_count > 0 && (
+			{ hasPrompt ? (
+				<>
+					<Stack className="wpcom-daily-writing-prompt--prompt" direction="column" gap="md">
+						<Text variant="body-md" render={ <p /> }>
+							{ prompt.text }
+						</Text>
+						<Stack direction="row" justify="flex-end">
 							<Button
-								variant="outline"
-								size="compact"
-								tone="neutral"
-								nativeButton={ false }
-								onClick={ recordViewResponsesClick }
-								render={
-									<a
-										href={ new URL( prompt.answered_link ).toString() }
-										target="_blank"
-										rel="noreferrer noopener"
-									/>
-								}
+								variant="minimal"
+								size="small"
+								onClick={ goToPrevious }
+								disabled={ index === 0 }
 							>
-								{ __( 'View responses', 'jetpack-newsletter' ) }
+								{ __( '← Previous', 'jetpack-newsletter' ) }
 							</Button>
-						) }
-						<span>
-							{ prompt.answered_users_sample.map( sample => {
-								return (
-									<img
-										alt={ __( 'User avatar', 'jetpack-newsletter' ) }
-										src={ addQueryArgs( sample.avatar, {
-											s: 22 * 2,
-										} ) }
-										width={ 22 }
-										height={ 22 }
-										key={ sample.avatar }
-									/>
-								);
-							} ) }
-						</span>
+							<Button
+								variant="minimal"
+								size="small"
+								onClick={ goToNext }
+								disabled={ index === prompts.length - 1 }
+							>
+								{ __( 'Next →', 'jetpack-newsletter' ) }
+							</Button>
+						</Stack>
 					</Stack>
-				) }
-			</Stack>
+					<Stack direction="row" justify="space-between" align="center" gap="sm" wrap="wrap">
+						{ /* Replace with LinkButton once available: https://github.com/WordPress/gutenberg/issues/77098 */ }
+						<Button variant="outline" size="compact" onClick={ postAnswer }>
+							{ __( 'Post Answer', 'jetpack-newsletter' ) }
+						</Button>
+						{ prompt.answered_users_sample.length > 0 && (
+							<Stack
+								className="wpcom-daily-writing-prompt--answered-users"
+								direction="row"
+								align="center"
+								gap="xs"
+							>
+								{ prompt.answered_users_count > 0 && (
+									<Button
+										variant="outline"
+										size="compact"
+										tone="neutral"
+										nativeButton={ false }
+										onClick={ recordViewResponsesClick }
+										render={
+											<a
+												href={ new URL( prompt.answered_link ).toString() }
+												target="_blank"
+												rel="noreferrer noopener"
+											/>
+										}
+									>
+										{ __( 'View responses', 'jetpack-newsletter' ) }
+									</Button>
+								) }
+								<span>
+									{ prompt.answered_users_sample.map( sample => {
+										return (
+											<img
+												alt={ __( 'User avatar', 'jetpack-newsletter' ) }
+												src={ addQueryArgs( sample.avatar, {
+													s: 22 * 2,
+												} ) }
+												width={ 22 }
+												height={ 22 }
+												key={ sample.avatar }
+											/>
+										);
+									} ) }
+								</span>
+							</Stack>
+						) }
+					</Stack>
+				</>
+			) : (
+				<Text variant="body-md" render={ <p /> }>
+					{ createInterpolateElement(
+						/* translators: the text inside the <a></a> tags is a link to the WordPress.com Reader. */
+						__(
+							'No writing prompt to show right now. Find more in <a>the Reader</a>.',
+							'jetpack-newsletter'
+						),
+						{
+							a: (
+								<Link
+									tone="neutral"
+									href={ readerUrl }
+									openInNewTab={ openReaderInNewTab }
+									rel={ openReaderInNewTab ? 'noreferrer noopener' : undefined }
+									onClick={ recordReaderClick }
+								/>
+							),
+						}
+					) }
+				</Text>
+			) }
 			<Stack
 				className="wpcom-daily-writing-prompt--branding"
 				direction="row"

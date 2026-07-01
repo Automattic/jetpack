@@ -26,10 +26,8 @@ interface Props {
 	initialIntent?: string;
 	// User locale, forwarded to the wizard payload and the AI call.
 	locale?: string;
-	// Fired once Finish completes, so the host can swap the wizard for the
-	// tailored list. Receives the persisted wizard input and the in-flight
-	// tailor promise, so the host can hand the promise to the tailored list and
-	// have it wait for PUT /tailored to land before reading the output back.
+	// Fired once Finish completes, with the persisted input and the in-flight
+	// tailor promise, so the host can swap to the tailored list.
 	onComplete?: ( input: WizardInput, tailoring: Promise< TailorResult > ) => void;
 }
 
@@ -74,9 +72,7 @@ export function Wizard( {
 			return;
 		}
 		const payload = buildWizardPayload( goal, state );
-		// Persist in the background; the flow advances on the tailoring promise
-		// below, so a failed best-effort save must not surface as an unhandled
-		// rejection.
+		// Persist in the background, best-effort so a failed save isn't an unhandled rejection.
 		apiFetch( {
 			path: '/wpcom/v2/ai-launchpad/wizard',
 			method: 'PUT',
