@@ -96,6 +96,7 @@
 		"@types/react": "18.3.28",
 		"@wordpress/browserslist-config": "6.50.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.50.0",
+		"@wordpress/theme": "0.15.1",
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.4.1",
 		"babel-plugin-polyfill-corejs3": "0.14.0",
