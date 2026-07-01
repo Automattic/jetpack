@@ -12,19 +12,28 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import useSearchTermViews from './use-search-term-views';
-import type { SearchTermsAttributes } from './widget';
+import widgetDefinition, { type SearchTermsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type SearchTermsRenderAttributes = Partial< ReportParamsFieldAttributes > & SearchTermsAttributes;
 type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes > & {
 	showTitle?: boolean;
 };
+
+function SearchTermsHeaderTitle() {
+	return (
+		<span className={ styles.headerTitle }>
+			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
+			<span>{ __( 'Top Search Terms', 'jetpack-premium-analytics' ) }</span>
+		</span>
+	);
+}
 
 /**
  * Search Terms widget inner component. Reads report params from WidgetRoot context.
@@ -61,7 +70,7 @@ function SearchTermsInner( { max = 10, showTitle }: { max?: number; showTitle: b
 	const header = showTitle ? (
 		<Stack direction="row" align="center" className={ styles.widgetHeader }>
 			<Text variant="heading-md" render={ <h3 /> }>
-				{ __( 'Top Search Terms', 'jetpack-premium-analytics' ) }
+				<SearchTermsHeaderTitle />
 			</Text>
 		</Stack>
 	) : null;
