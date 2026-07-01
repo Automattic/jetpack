@@ -84,7 +84,6 @@
 		"clsx": "2.1.1",
 		"jquery": "3.7.1",
 		"prop-types": "15.8.1",
-		"react-page-visibility": "7.0.0",
 		"social-logos": "workspace:*"
 	},
 	"devDependencies": {
