@@ -57,5 +57,9 @@ describe( 'video track language utilities', () => {
 		it( 'canonicalizes regular language tags', () => {
 			expect( getManualLanguageTagFromTrackKey( 'EN-us' ) ).toBe( 'en-US' );
 		} );
+
+		it( 'returns an empty string for generated keys with no resolvable language', () => {
+			expect( getManualLanguageTagFromTrackKey( 'auto_transcribed' ) ).toBe( '' );
+		} );
 	} );
 } );

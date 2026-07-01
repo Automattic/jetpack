@@ -3,6 +3,18 @@ import userEvent from '@testing-library/user-event';
 import { getBlockType, unregisterBlockType } from '@wordpress/blocks';
 import { CAPTION_CUE_BLOCK_NAME } from '../../../lib/video-tracks/cues';
 import { registerCaptionCueBlock, setCurrentCueVideoTime } from '../caption-cue-block';
+import type { ComponentType } from 'react';
+
+/**
+ * `registerBlockType` widens `edit` to `ComponentType< BlockEditProps >`, but the
+ * cue block's edit component only reads these props. Cast to the real shape so the
+ * test can render it without supplying block-editor props it never uses.
+ */
+type CueEditProps = {
+	attributes: Record< string, string >;
+	clientId: string;
+	setAttributes: jest.Mock;
+};
 
 const mockInsertBlock = jest.fn();
 const mockMoveBlocksUp = jest.fn();
@@ -121,14 +133,15 @@ describe( 'registerCaptionCueBlock', () => {
 	} );
 
 	it( 'saves no markup for the cue block', () => {
-		expect( registerCaptionCueBlock().save() ).toBeNull();
+		const save = registerCaptionCueBlock()?.save as unknown as () => null;
+		expect( save() ).toBeNull();
 	} );
 } );
 
 describe( 'CaptionCueEdit', () => {
 	const setup = ( attributes = {} ) => {
 		const setAttributes = jest.fn();
-		const Edit = registerCaptionCueBlock().edit;
+		const Edit = registerCaptionCueBlock()?.edit as unknown as ComponentType< CueEditProps >;
 		render(
 			<Edit
 				attributes={ {

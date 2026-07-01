@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ComboboxControl } from '@wordpress/components';
+import { ComboboxControl, Disabled } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
@@ -60,19 +60,20 @@ export default function LanguageControl( {
 	}, [ value ] );
 
 	return (
-		<ComboboxControl
-			label={ label }
-			value={ value }
-			options={ options }
-			onChange={ tag => {
-				if ( tag ) {
-					onChange( tag, getLanguageDisplayName( tag ) );
-				}
-			} }
-			disabled={ disabled }
-			allowReset={ false }
-			__next40pxDefaultSize={ true }
-			__nextHasNoMarginBottom={ true }
-		/>
+		<Disabled isDisabled={ disabled }>
+			<ComboboxControl
+				label={ label }
+				value={ value }
+				options={ options }
+				onChange={ tag => {
+					if ( tag ) {
+						onChange( tag, getLanguageDisplayName( tag ) );
+					}
+				} }
+				allowReset={ false }
+				__next40pxDefaultSize={ true }
+				__nextHasNoMarginBottom={ true }
+			/>
+		</Disabled>
 	);
 }

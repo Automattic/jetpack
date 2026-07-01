@@ -411,6 +411,166 @@ class Caption_Tracks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that an update omitting `status` keeps a published track published.
+	 *
+	 * A partial edit (e.g. renaming the label) must not silently unpublish the
+	 * track by defaulting the missing status to `draft`.
+	 */
+	public function test_caption_track_update_without_status_preserves_published_state() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request->set_body_params(
+			array_merge( $this->track_payload(), array( 'status' => 'publish' ) )
+		);
+		$created = $this->server->dispatch( $create_request )->get_data();
+		$this->assertSame( 'publish', get_post_status( $created['id'] ) );
+
+		$payload = $this->track_payload();
+		unset( $payload['status'] );
+		$payload['meta'][ Caption_Tracks::META_LABEL ] = 'Renamed';
+
+		$update_request = new WP_REST_Request( 'PUT', '/jetpack/v4/videopress/caption-tracks/' . $created['id'] );
+		$update_request->set_body_params( $payload );
+		$response = $this->server->dispatch( $update_request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'publish', get_post_status( $created['id'] ) );
+		$this->assertSame( 'Renamed', get_post_meta( $created['id'], Caption_Tracks::META_LABEL, true ) );
+	}
+
+	/**
+	 * Tests that stored cue content neutralizes comment/WebVTT terminators and
+	 * drops non-cue blocks.
+	 *
+	 * A direct API call could embed `-->` in cue text to corrupt block parsing or
+	 * the WebVTT the track is later serialized to; the terminator must be
+	 * neutralized and any block that isn't a caption cue removed.
+	 */
+	public function test_caption_track_content_is_sanitized() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		/*
+		 * The block serializer escapes the `-->` in cue text so the transmitted
+		 * markup is well-formed; the terminator only reappears once the JSON is
+		 * decoded, which is what the sanitizer neutralizes.
+		 */
+		$payload            = $this->track_payload();
+		$payload['content'] =
+			'<!-- wp:videopress/caption-cue {"startTime":"00:00:00.000","endTime":"00:00:02.000","text":"Bad \u002d\u002d\u003e cue"} /-->' .
+			'<!-- wp:paragraph --><p>Injected</p><!-- /wp:paragraph -->';
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $payload );
+
+		// WorDBless doesn't unslash on insert the way core does, so the stored
+		// content comes back slashed; unslash it to read what core would serve.
+		$content = wp_unslash( $this->server->dispatch( $request )->get_data()['content'] );
+
+		$blocks = array_values(
+			array_filter(
+				parse_blocks( $content ),
+				static function ( $block ) {
+					return Caption_Tracks::CUE_BLOCK_NAME === $block['blockName'];
+				}
+			)
+		);
+
+		// Only the cue block survives, and its decoded text no longer carries the
+		// `-->` terminator that would corrupt downstream WebVTT serialization.
+		$this->assertCount( 1, $blocks );
+		$this->assertSame( 'Bad -> cue', $blocks[0]['attrs']['text'] );
+		$this->assertStringNotContainsString( 'wp:paragraph', $content );
+		$this->assertStringNotContainsString( 'Injected', $content );
+	}
+
+	/**
+	 * Tests that the `--!>` comment-terminator variant is neutralized too.
+	 *
+	 * Block comments can be closed with `--!>` as well as `-->`, so both must be
+	 * defused to keep stored cue text from corrupting block parsing.
+	 */
+	public function test_caption_track_content_neutralizes_bang_terminator() {
+		$blocks = $this->stored_cue_blocks(
+			'<!-- wp:videopress/caption-cue {"startTime":"00:00:00.000","endTime":"00:00:02.000","text":"Bad --!> cue"} /-->'
+		);
+
+		$this->assertCount( 1, $blocks );
+		$this->assertSame( 'Bad -> cue', $blocks[0]['attrs']['text'] );
+	}
+
+	/**
+	 * Tests that content sanitizing to nothing is stored as an empty string.
+	 */
+	public function test_caption_track_blank_content_is_stored_empty() {
+		$this->assertSame( '', $this->stored_track_content( '   ' ) );
+	}
+
+	/**
+	 * Tests that a cue block with no `text` attribute survives untouched.
+	 *
+	 * The terminator neutralization is guarded by an `isset` check, so a cue
+	 * missing its text must be kept rather than dropped or error.
+	 */
+	public function test_caption_track_content_preserves_cue_without_text() {
+		$blocks = $this->stored_cue_blocks(
+			'<!-- wp:videopress/caption-cue {"startTime":"00:00:00.000","endTime":"00:00:02.000"} /-->'
+		);
+
+		$this->assertCount( 1, $blocks );
+		$this->assertArrayNotHasKey( 'text', $blocks[0]['attrs'] );
+		$this->assertSame( '00:00:00.000', $blocks[0]['attrs']['startTime'] );
+	}
+
+	/**
+	 * Tests that multiple cue blocks are preserved in their original order.
+	 */
+	public function test_caption_track_content_preserves_cue_order() {
+		$blocks = $this->stored_cue_blocks(
+			'<!-- wp:videopress/caption-cue {"startTime":"00:00:00.000","endTime":"00:00:01.000","text":"First"} /-->' .
+			'<!-- wp:videopress/caption-cue {"startTime":"00:00:01.000","endTime":"00:00:02.000","text":"Second"} /-->' .
+			'<!-- wp:videopress/caption-cue {"startTime":"00:00:02.000","endTime":"00:00:03.000","text":"Third"} /-->'
+		);
+
+		$texts = array_map(
+			static function ( $block ) {
+				return $block['attrs']['text'];
+			},
+			$blocks
+		);
+
+		$this->assertSame( array( 'First', 'Second', 'Third' ), $texts );
+	}
+
+	/**
+	 * Tests that updating a track whose stored GUID is empty is denied.
+	 *
+	 * A malformed track with no GUID can't be authorized against any video, so it
+	 * must be denied rather than falling back to the request body's GUID.
+	 */
+	public function test_caption_track_update_denied_for_empty_guid_track() {
+		$track_id = wp_insert_post(
+			array(
+				'post_type'   => Caption_Tracks::POST_TYPE,
+				'post_status' => 'draft',
+				'post_title'  => 'Orphan track',
+			)
+		);
+
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$update_request = new WP_REST_Request( 'PUT', '/jetpack/v4/videopress/caption-tracks/' . $track_id );
+		$update_request->set_body_params( $this->track_payload_for_guid( 'abcd1234' ) );
+
+		$response = $this->server->dispatch( $update_request );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
 	 * Create a VideoPress attachment for a GUID, owned by a given user.
 	 *
 	 * @param string $guid      VideoPress GUID.
@@ -451,6 +611,44 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$payload['meta'][ Caption_Tracks::META_GUID ] = $guid;
 
 		return $payload;
+	}
+
+	/**
+	 * Save a track with the given content and return the stored, unslashed content.
+	 *
+	 * @param string $content Raw serialized block content.
+	 * @return string Stored content as core would serve it.
+	 */
+	private function stored_track_content( $content ) {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$payload            = $this->track_payload();
+		$payload['content'] = $content;
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $payload );
+
+		// WorDBless doesn't unslash on insert the way core does, so unslash the
+		// stored content to read what core would serve.
+		return wp_unslash( $this->server->dispatch( $request )->get_data()['content'] );
+	}
+
+	/**
+	 * Save a track with the given content and return its stored caption-cue blocks.
+	 *
+	 * @param string $content Raw serialized block content.
+	 * @return array Parsed caption-cue blocks, re-indexed.
+	 */
+	private function stored_cue_blocks( $content ) {
+		return array_values(
+			array_filter(
+				parse_blocks( $this->stored_track_content( $content ) ),
+				static function ( $block ) {
+					return Caption_Tracks::CUE_BLOCK_NAME === $block['blockName'];
+				}
+			)
+		);
 	}
 
 	/**

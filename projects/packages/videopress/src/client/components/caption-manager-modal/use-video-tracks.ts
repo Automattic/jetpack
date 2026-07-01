@@ -8,11 +8,12 @@ import debugFactory from 'debug';
  */
 import { fetchVideoItem } from '../../lib/fetch-video-item';
 import { flattenVideoTracks } from '../../lib/video-tracks';
+import { useLocalEditGuard } from './use-local-edit-guard';
 /**
  * Types
  */
+import type { LocalEditSetter } from './use-local-edit-guard';
 import type { VideoTextTrack } from '../../lib/video-tracks/types';
-import type { Dispatch, SetStateAction } from 'react';
 
 const debug = debugFactory( 'videopress:caption-manager-modal:use-video-tracks' );
 
@@ -25,7 +26,7 @@ type UseVideoTracksArgs = {
 
 type UseVideoTracksResult = {
 	managedTracks: VideoTextTrack[];
-	setManagedTracks: Dispatch< SetStateAction< VideoTextTrack[] > >;
+	setManagedTracks: LocalEditSetter< VideoTextTrack[] >;
 	previewAspectRatio: string | undefined;
 };
 
@@ -53,22 +54,17 @@ export function useVideoTracks( {
 	const [ previewAspectRatio, setPreviewAspectRatio ] = useState< string | undefined >();
 	const onErrorRef = useRef( onError );
 	onErrorRef.current = onError;
+	const { hasLocalEditsRef, setWithGuard, resetLocalEdits } = useLocalEditGuard( setManagedTracks );
 
-	/*
-	 * Re-sync from the tracks prop when the modal opens so the list reflects the
-	 * video, but not on every parent re-render, so an interim empty tracks prop
-	 * can't blank it.
-	 */
+	// Re-sync from the tracks prop only on open, so an interim empty prop can't blank the list.
 	useEffect( () => {
 		if ( isOpen ) {
+			resetLocalEdits();
 			setManagedTracks( tracks );
 		}
-	}, [ isOpen ] );
+	}, [ isOpen, resetLocalEdits ] );
 
-	/*
-	 * Fetch the video info on open for the authoritative live track list and the
-	 * preview aspect ratio.
-	 */
+	// Fetch the video info on open for the authoritative track list and aspect ratio.
 	useEffect( () => {
 		if ( ! isOpen || ! guid ) {
 			return;
@@ -81,7 +77,8 @@ export function useVideoTracks( {
 					return;
 				}
 
-				if ( info?.tracks ) {
+				// Keep an optimistic mutation that raced ahead of this fetch rather than reverting to it.
+				if ( info?.tracks && ! hasLocalEditsRef.current ) {
 					setManagedTracks( flattenVideoTracks( info.tracks ) );
 				}
 
@@ -101,7 +98,7 @@ export function useVideoTracks( {
 		return () => {
 			isMounted = false;
 		};
-	}, [ guid, isOpen ] );
+	}, [ guid, isOpen, hasLocalEditsRef ] );
 
-	return { managedTracks, setManagedTracks, previewAspectRatio };
+	return { managedTracks, setManagedTracks: setWithGuard, previewAspectRatio };
 }

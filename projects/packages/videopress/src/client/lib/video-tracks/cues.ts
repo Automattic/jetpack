@@ -1,3 +1,10 @@
+/**
+ * External dependencies
+ */
+import debugFactory from 'debug';
+
+const debug = debugFactory( 'videopress:video-tracks:cues' );
+
 export const CAPTION_CUE_BLOCK_NAME = 'videopress/caption-cue';
 
 export type CaptionCue = {
@@ -34,7 +41,15 @@ const TIME_LINE_PATTERN =
 const TRANSCRIPT_CUE_DURATION_SECONDS = 4;
 
 const sanitizeCueText = ( text: string ): string =>
-	text.trim().replace( /\r\n?/g, '\n' ).split( '--!>' ).join( '->' ).split( '-->' ).join( '->' );
+	text
+		.trim()
+		.replace( /\r\n?/g, '\n' )
+		// Collapse blank lines: WebVTT ends a cue at a blank line, which would split it and drop the rest.
+		.replace( /\n\s*\n/g, '\n' )
+		.split( '--!>' )
+		.join( '->' )
+		.split( '-->' )
+		.join( '->' );
 
 /**
  * Convert a timestamp into seconds.
@@ -52,18 +67,18 @@ export function parseTimestampToSeconds( value: string ): number | null {
 		return Number( trimmed );
 	}
 
-	const parts = trimmed.split( ':' );
-	if ( parts.length < 2 || parts.length > 3 ) {
+	/*
+	 * `HH:MM:SS.mmm` or `MM:SS.mmm`, rejecting out-of-range or partial input like `:30`,
+	 * `00:99:99`, or `-1:30` rather than parsing it into a nonsensical time.
+	 */
+	const match = trimmed.match( /^(?:(\d+):)?([0-5]?\d):([0-5]?\d(?:\.\d+)?)$/ );
+	if ( ! match ) {
 		return null;
 	}
 
-	const seconds = Number( parts.pop() );
-	const minutes = Number( parts.pop() );
-	const hours = parts.length ? Number( parts.pop() ) : 0;
-
-	if ( [ hours, minutes, seconds ].some( part => Number.isNaN( part ) ) ) {
-		return null;
-	}
+	const hours = match[ 1 ] ? Number( match[ 1 ] ) : 0;
+	const minutes = Number( match[ 2 ] );
+	const seconds = Number( match[ 3 ] );
 
 	return hours * 3600 + minutes * 60 + seconds;
 }
@@ -196,8 +211,13 @@ export function serializeCuesToWebVtt( cues: CaptionCue[] ): string {
 			const startTime = normalizeCueTimestamp( cue.startTime );
 			const endTime = normalizeCueTimestamp( cue.endTime );
 			const text = sanitizeCueText( cue.text );
+			// Skip invalid cues rather than emit a malformed ` --> ` line that corrupts the document.
+			if ( ! startTime || ! endTime || ! text ) {
+				return null;
+			}
 			return `${ startTime } --> ${ endTime }\n${ text }`;
 		} )
+		.filter( ( entry ): entry is string => entry !== null )
 		.join( '\n\n' );
 
 	return body ? `WEBVTT\n\n${ body }\n` : 'WEBVTT\n\n';
@@ -210,7 +230,8 @@ export function serializeCuesToWebVtt( cues: CaptionCue[] ): string {
  * @return Caption cues.
  */
 export function parseCaptionTextTrack( content: string ): CaptionCue[] {
-	return content
+	let droppedCues = 0;
+	const cues = content
 		.replace( /^\uFEFF/, '' )
 		.split( /\n\s*\n/g )
 		.map( block => {
@@ -226,13 +247,27 @@ export function parseCaptionTextTrack( content: string ): CaptionCue[] {
 				.join( '\n' )
 				.trim();
 
-			return {
+			const cue: CaptionCue = {
 				startTime: normalizeCueTimestamp( match.groups.start ),
 				endTime: normalizeCueTimestamp( match.groups.end ),
 				text,
 			};
+
+			// Block looked like a cue but timing or text was invalid; count the silent drop.
+			if ( ! cue.startTime || ! cue.endTime || ! cue.text ) {
+				droppedCues += 1;
+				return null;
+			}
+
+			return cue;
 		} )
-		.filter( ( cue ): cue is CaptionCue => !! cue?.startTime && !! cue.endTime && !! cue.text );
+		.filter( ( cue ): cue is CaptionCue => cue !== null );
+
+	if ( droppedCues ) {
+		debug( '%d cue(s) skipped for invalid timing or empty text', droppedCues );
+	}
+
+	return cues;
 }
 
 /**

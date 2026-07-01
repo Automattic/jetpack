@@ -27,7 +27,9 @@ describe( 'buildLibraryActions', () => {
 		expect( action?.isEligible?.( videoItem ) ).toBe( true );
 		expect( action?.isEligible?.( item( { type: 'local' } ) ) ).toBe( false );
 
-		action?.callback?.( [ videoItem ] );
+		if ( action && 'callback' in action ) {
+			action.callback( [ videoItem ], { registry: {} } );
+		}
 		expect( api.manageCaptions ).toHaveBeenCalledWith( videoItem );
 	} );
 

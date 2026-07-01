@@ -7,6 +7,7 @@ import {
 	parseCaptionTextInput,
 	parseCaptionTextTrack,
 	parseCaptionTranscript,
+	parseTimestampToSeconds,
 	serializeCuesToWebVtt,
 } from '../cues';
 
@@ -133,6 +134,50 @@ describe( 'caption cue utilities', () => {
 				},
 			] )
 		).toBe( 'WEBVTT\n\n00:00:00.000 --> 00:00:02.500\nDo not emit -> or -> inside cue text.\n' );
+	} );
+
+	it( 'collapses blank lines inside cue text so a round-trip keeps the whole cue', () => {
+		const vtt = serializeCuesToWebVtt( [
+			{
+				startTime: '0',
+				endTime: '2.5',
+				text: 'First line.\n\nSecond line.',
+			},
+		] );
+
+		expect( vtt ).toBe( 'WEBVTT\n\n00:00:00.000 --> 00:00:02.500\nFirst line.\nSecond line.\n' );
+		// Without the collapse the blank line would split the cue and the second
+		// line would be dropped on parse; assert it survives the round-trip.
+		expect( parseCaptionTextTrack( vtt ) ).toEqual( [
+			{ startTime: '00:00:00.000', endTime: '00:00:02.500', text: 'First line.\nSecond line.' },
+		] );
+	} );
+
+	it( 'skips cues with an invalid time range instead of emitting a malformed line', () => {
+		expect(
+			serializeCuesToWebVtt( [
+				{ startTime: 'not-time', endTime: '2', text: 'Dropped.' },
+				{ startTime: '3', endTime: '5', text: 'Kept.' },
+			] )
+		).toBe( 'WEBVTT\n\n00:00:03.000 --> 00:00:05.000\nKept.\n' );
+	} );
+
+	it( 'rejects malformed and out-of-range timestamps', () => {
+		expect( parseTimestampToSeconds( '00:01:02.500' ) ).toBe( 62.5 );
+		expect( parseTimestampToSeconds( '90' ) ).toBe( 90 );
+		expect( parseTimestampToSeconds( '01:30' ) ).toBe( 90 );
+		expect( parseTimestampToSeconds( ':30' ) ).toBeNull();
+		expect( parseTimestampToSeconds( '60:00' ) ).toBeNull();
+		expect( parseTimestampToSeconds( '00:99:99.000' ) ).toBeNull();
+		expect( parseTimestampToSeconds( '-1:30' ) ).toBeNull();
+	} );
+
+	it( 'silently drops cues with unparseable timestamps but keeps the valid ones', () => {
+		expect(
+			parseCaptionTextTrack(
+				'WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nGood\n\n99:99:99.999 --> 99:99:99.999\nBad'
+			)
+		).toEqual( [ { startTime: '00:00:01.000', endTime: '00:00:02.000', text: 'Good' } ] );
 	} );
 
 	it( 'parses WebVTT and SRT cues', () => {
