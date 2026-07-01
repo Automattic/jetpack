@@ -11,6 +11,7 @@ import {
 	handleConsentByRegion,
 	isGdprCountry,
 	pertainsToCCPA,
+	saveConsentChoices,
 	setCookie,
 } from '../src/modules/cookie-consent/utils';
 
@@ -200,6 +201,53 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 
 		expect( context.showBanner ).toBe( false );
 		expect( wasDenied( 'statistics' ) ).toBe( true );
+	} );
+} );
+
+describe( 'saveConsentChoices', () => {
+	let consentCalls: Array< [ string, string ] >;
+
+	beforeEach( () => {
+		consentCalls = [];
+		window.wp_set_consent = ( category: string, state: string ) => {
+			consentCalls.push( [ category, state ] );
+		};
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { wp_set_consent?: unknown } ).wp_set_consent;
+	} );
+
+	it( 'dispatches the public wp_consent_saved event with event type and category choices', () => {
+		let savedEvent: CustomEvent | undefined;
+		const listener = ( event: Event ) => {
+			savedEvent = event as CustomEvent;
+		};
+		window.addEventListener( 'wp_consent_saved', listener );
+
+		saveConsentChoices(
+			{
+				analytics: true,
+				advertising: false,
+			},
+			'accept_selected'
+		);
+
+		window.removeEventListener( 'wp_consent_saved', listener );
+
+		expect( consentCalls ).toEqual( [
+			[ 'functional', 'allow' ],
+			[ 'statistics', 'allow' ],
+			[ 'statistics-anonymous', 'allow' ],
+			[ 'marketing', 'deny' ],
+		] );
+		expect( savedEvent?.detail ).toEqual( {
+			eventType: 'accept_selected',
+			choices: {
+				analytics: true,
+				advertising: false,
+			},
+		} );
 	} );
 } );
 

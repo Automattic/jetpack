@@ -108,6 +108,57 @@ add_filter(
 );
 ```
 
+## Public APIs
+
+### Gating scripts on consent
+
+Consumers that need to gate their own scripts on visitor consent should use the
+WP Consent API directly, not a Cookie Consent lifecycle event:
+
+- JavaScript: call `window.wp_has_consent( category )` for the initial state and
+  listen for the `wp_listen_for_consent_change` DOM event for changes.
+- PHP: call `wp_has_consent( category )` before rendering or enqueueing gated
+  server-side output.
+
+The canonical integration pattern is `woocommerce-analytics`: it gates tracking
+with the WP Consent API state and change event because those APIs model consent
+categories across providers.
+
+### `wp_consent_saved`
+
+Cookie Consent dispatches `wp_consent_saved` on `window` after it writes a
+visitor choice through the WP Consent API. This event is public API and follows
+the package's backward-compatibility policy for documented APIs.
+
+```js
+window.addEventListener( 'wp_consent_saved', event => {
+	const { eventType, choices } = event.detail;
+} );
+```
+
+The event detail has this stable shape:
+
+```ts
+type CookieConsentSavedDetail = {
+	eventType:
+		| 'accept_all'
+		| 'accept_selected'
+		| 'reject_all'
+		| 'auto_granted'
+		| 'opt-out';
+	choices: Partial< Record< string, boolean > >;
+};
+```
+
+`choices` is keyed by Cookie Consent category keys (`consent.categories`;
+currently `analytics` and `advertising`), not raw WP Consent API category names,
+and each present value indicates whether that category was allowed. Use
+`eventType` when you need to distinguish the user action behind the saved choice.
+Use the WP Consent API for category-state gating.
+
+`wp_consent_type_defined` remains an internal implementation event and is not
+part of the public API surface.
+
 ## Theming and customization
 
 The banner, modal, category toggles, and footer-links fallback control are styled from namespaced CSS custom properties (design tokens) with self-contained defaults, so they render consistently regardless of the active theme. The tokens are deliberately **not** derived from theme presets (`--wp--preset--*`): a theme that defines those presets for its own layout (a small spacing scale, an inverted palette, etc.) cannot break or recolor the consent UI.
