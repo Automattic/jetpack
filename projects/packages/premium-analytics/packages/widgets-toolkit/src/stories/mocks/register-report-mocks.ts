@@ -17,6 +17,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { differenceInCalendarDays, isValid, parseISO } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -632,15 +633,16 @@ function playsFactorForWindow( endDate: string | undefined ): number {
 		return 1;
 	}
 
-	// Parse as UTC so the scaling (and therefore the mocked counts) stay stable
-	// regardless of the machine's timezone.
-	const end = new Date( `${ endDate }T00:00:00Z` ).getTime();
+	const end = parseISO( endDate );
 
-	if ( Number.isNaN( end ) ) {
+	if ( ! isValid( end ) ) {
 		return 1;
 	}
 
-	const daysAgo = Math.max( 0, ( Date.now() - end ) / ( 24 * 60 * 60 * 1000 ) );
+	// `differenceInCalendarDays` counts whole calendar days between the two
+	// dates, so the scaling (and the mocked counts) stay stable regardless of
+	// the machine's timezone.
+	const daysAgo = Math.max( 0, differenceInCalendarDays( new Date(), end ) );
 
 	return 1 - Math.min( daysAgo / 30, 1 ) * 0.3;
 }
