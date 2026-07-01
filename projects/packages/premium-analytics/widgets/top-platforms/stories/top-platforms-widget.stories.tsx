@@ -22,6 +22,7 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
+	presentation: 'full-bleed' as const,
 };
 
 interface TopPlatformsStoryControls {
@@ -48,12 +49,7 @@ function renderTopPlatformsWidget( { withComparison }: TopPlatformsStoryControls
 }
 
 function TopPlatformsDashboardRender( props: WidgetRenderProps< unknown > ) {
-	return (
-		<TopPlatformsRender
-			{ ...( props as ComponentProps< typeof TopPlatformsRender > ) }
-			showTitle={ false }
-		/>
-	);
+	return <TopPlatformsRender { ...( props as ComponentProps< typeof TopPlatformsRender > ) } />;
 }
 
 function TopPlatformsDashboardStory( {

@@ -24,6 +24,7 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
+	presentation: 'full-bleed' as const,
 };
 
 interface DevicesStoryControls {
@@ -50,9 +51,7 @@ function renderDevicesWidget( { withComparison }: DevicesStoryControls ) {
 }
 
 function DevicesDashboardRender( props: WidgetRenderProps< unknown > ) {
-	return (
-		<DevicesRender { ...( props as ComponentProps< typeof DevicesRender > ) } showTitle={ false } />
-	);
+	return <DevicesRender { ...( props as ComponentProps< typeof DevicesRender > ) } />;
 }
 
 function DevicesDashboardStory( { withComparison, ...dashboardArgs }: DevicesDashboardStoryProps ) {
