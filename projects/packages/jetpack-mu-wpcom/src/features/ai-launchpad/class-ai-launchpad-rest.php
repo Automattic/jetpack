@@ -276,12 +276,16 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			$tasks = $this->build_all_catalog_tasks();
 		} else {
 			// Guard the nested payload: partial/failed writes may leave the option without payload.tasks.
+			$payload = is_array( $ai_output ) && isset( $ai_output['payload'] ) && is_array( $ai_output['payload'] )
+				? $ai_output['payload']
+				: array();
+			$niche   = isset( $payload['inferred']['niche'] ) && is_string( $payload['inferred']['niche'] )
+				? trim( $payload['inferred']['niche'] )
+				: '';
+
 			$tasks = array();
-			if ( is_array( $ai_output ) && isset( $ai_output['payload']['tasks'] ) && is_array( $ai_output['payload']['tasks'] ) ) {
-				$niche = isset( $ai_output['payload']['inferred']['niche'] ) && is_string( $ai_output['payload']['inferred']['niche'] )
-					? trim( $ai_output['payload']['inferred']['niche'] )
-					: '';
-				$tasks = $this->build_tasks( $ai_output['payload']['tasks'], false, $niche );
+			if ( isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ) {
+				$tasks = $this->build_tasks( $payload['tasks'], false, $niche );
 			}
 		}
 
