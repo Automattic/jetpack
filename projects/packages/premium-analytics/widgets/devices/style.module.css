@@ -36,7 +36,7 @@
 }
 
 .chartShell {
-	inline-size: min(100%, 400px);
+	inline-size: min(100%, 320px);
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-xl, 24px);
