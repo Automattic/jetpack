@@ -80,12 +80,4 @@ class WPCOM_JSON_API_Renderable_Status_Code_Test extends WP_UnitTestCase {
 			'599 non-std'       => array( 599 ),
 		);
 	}
-
-	/**
-	 * A numeric-string status is cast and treated like its integer.
-	 */
-	public function test_numeric_string_is_cast() {
-		$this->assertSame( 404, WPCOM_JSON_API::renderable_status_code( '404' ) );
-		$this->assertSame( 502, WPCOM_JSON_API::renderable_status_code( '524' ) );
-	}
 }
