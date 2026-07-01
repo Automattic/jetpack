@@ -190,7 +190,7 @@ class Caption_Tracks {
 	}
 
 	/**
-	 * Validate a manually entered BCP-47 language tag.
+	 * Validate a caption track's BCP-47 language tag.
 	 *
 	 * The client canonicalizes tags with `Intl.getCanonicalLocales` before
 	 * saving, and the "one track per language" lookup matches stored tags by
