@@ -399,6 +399,13 @@ $jp-breakpoint-mobile: 782px;
 		background: var(--jp-gray-0, #f6f7f7);
 	}
 
+	// The admin-ui page surface fills the boot stage and paints white. Clip
+	// horizontal overflow so that child surface cannot square off the rounded
+	// stage corners, while preserving the stage's vertical scrolling.
+	.boot-layout__stage {
+		overflow: hidden auto;
+	}
+
 	.boot-layout__stage,
 	.boot-layout__inspector {
 		view-transition-name: none;
