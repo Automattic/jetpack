@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+/**
  * Internal dependencies
  */
 import {
@@ -18,6 +22,18 @@ registerReportMocks();
 
 const SUBSCRIBERS_CHART_RENDER_MODULE = 'storybook/subscribers-chart';
 
+interface SubscribersChartStoryControls {
+	withComparison: boolean;
+}
+
+function renderSubscribersChart( { withComparison }: SubscribersChartStoryControls ) {
+	return (
+		<SubscribersChartRender
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+		/>
+	);
+}
+
 // Close-up canvas so the chart fills the frame outside the dashboard grid.
 const withWidgetCanvas: Decorator = Story => (
 	<div style={ { width: '100%', height: '360px' } }>
@@ -29,47 +45,72 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SubscribersChart',
 	component: SubscribersChartRender,
 	tags: [ 'autodocs' ],
+	argTypes: {
+		withComparison: { control: 'boolean' },
+	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'Subscriber growth over time. The in-body "Group by" dropdown switches granularity (day/week/month); the previous period is overlaid as a same-colour dashed line and the headline shows the period-over-period delta. Paid subscribers render as a second line when present. Data comes from the designated `useStatsSubscribers` hook; in Storybook it is served by `registerReportMocks`.',
+					'Subscriber growth over time. The date range and previous-period comparison follow the dashboard picker; the in-body "Group by" dropdown chooses the bucket size (day/week/month) within that range. When comparison is on, the previous period is overlaid as a same-colour dashed line and the headline shows the period-over-period delta. Paid subscribers render as a second line when present. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.',
 			},
 		},
 	},
-} satisfies Meta< typeof SubscribersChartRender >;
+} satisfies Meta< SubscribersChartStoryControls >;
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
-type DashboardStory = StoryObj< WidgetDashboardWithWidgetControls >;
+type Story = StoryObj< SubscribersChartStoryControls >;
 
 /**
- * The widget on its own, populated from mocked subscribers data. Shows both the
- * subscribers and paid-subscribers lines with their previous-period overlays.
+ * The widget on its own, current period only.
  */
 export const Default: Story = {
-	render: () => <SubscribersChartRender attributes={ {} } />,
+	render: renderSubscribersChart,
+	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
 };
 
 /**
- * Renders the real registered widget through the shared dashboard harness.
+ * Same close-up with the dashboard comparison range applied, so the previous
+ * period is overlaid as a dashed line and the headline shows the delta.
  */
-export const WidgetDashboardWithWidget: DashboardStory = {
-	render: args => (
+export const WithComparison: Story = {
+	render: renderSubscribersChart,
+	args: { withComparison: true },
+	decorators: [ withWidgetCanvas ],
+};
+
+interface SubscribersChartDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		SubscribersChartStoryControls {}
+
+function SubscribersChartDashboardStory( {
+	withComparison,
+	...dashboardArgs
+}: SubscribersChartDashboardStoryProps ) {
+	return (
 		<WidgetDashboardWithWidgetStory
-			{ ...args }
+			{ ...dashboardArgs }
 			widgetType={ widgetDefinition }
 			renderModule={ SUBSCRIBERS_CHART_RENDER_MODULE }
 			renderComponent={ SubscribersChartRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ {} }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
-	),
+	);
+}
+
+/**
+ * Renders the real registered widget through the shared dashboard harness.
+ */
+export const WidgetDashboardWithWidget: StoryObj< SubscribersChartDashboardStoryProps > = {
+	render: args => <SubscribersChartDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		withComparison: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
+		withComparison: { control: 'boolean' },
 	},
 };

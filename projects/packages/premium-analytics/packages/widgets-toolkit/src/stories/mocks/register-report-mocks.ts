@@ -539,6 +539,13 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 				2,
 				'0'
 			) }`;
+		} else if ( unit === 'week' ) {
+			// Mirror WPCOM's weekly label shape: YYYY'W'MM'W'DD (week-start date).
+			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
+			period = `${ bucket.getUTCFullYear() }W${ String( bucket.getUTCMonth() + 1 ).padStart(
+				2,
+				'0'
+			) }W${ String( bucket.getUTCDate() ).padStart( 2, '0' ) }`;
 		} else {
 			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
 			period = bucket.toISOString().slice( 0, 10 );

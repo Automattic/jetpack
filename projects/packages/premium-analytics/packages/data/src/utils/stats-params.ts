@@ -1,4 +1,12 @@
 /**
+ * External dependencies
+ */
+import {
+	differenceInCalendarISOWeeks,
+	differenceInCalendarMonths,
+	differenceInCalendarYears,
+} from 'date-fns';
+/**
  * Internal dependencies
  */
 import { getDaysBetweenInclusive } from './interval';
@@ -56,6 +64,44 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
 		default:
 			return 'day';
 	}
+}
+
+/**
+ * Count the number of `period` buckets spanning a date range, inclusive of both
+ * ends. Used to translate a dashboard date range into the `quantity` param that
+ * quantity-based Stats endpoints (e.g. `stats/subscribers`) expect for the given
+ * `unit`, mirroring how `days` is derived for day-based requests.
+ *
+ * @param period - The bucket granularity.
+ * @param from   - Range start (`yyyy-MM-dd`).
+ * @param to     - Range end (`yyyy-MM-dd`).
+ * @return The bucket count, at least 1.
+ */
+export function getPeriodsBetweenInclusive(
+	period: StatsPeriod,
+	from: string,
+	to: string
+): number {
+	if ( period === 'hour' || period === 'day' ) {
+		return getDaysBetweenInclusive( from, to );
+	}
+
+	const fromDate = new Date( `${ datePart( from ) }T00:00:00Z` );
+	const toDate = new Date( `${ datePart( to ) }T00:00:00Z` );
+
+	const differenceForPeriod = {
+		week: differenceInCalendarISOWeeks,
+		month: differenceInCalendarMonths,
+		year: differenceInCalendarYears,
+	}[ period ];
+
+	const diff = differenceForPeriod( toDate, fromDate );
+
+	if ( Number.isNaN( diff ) || diff < 0 ) {
+		return 1;
+	}
+
+	return diff + 1;
 }
 
 export function reportParamsToStatsQueryParams(
