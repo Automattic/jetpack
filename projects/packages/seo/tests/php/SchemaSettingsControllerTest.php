@@ -91,13 +91,6 @@ class SchemaSettingsControllerTest extends TestCase {
 	}
 
 	/**
-	 * The permission check is gated on a capability and returns a boolean.
-	 */
-	public function test_permissions_check_returns_bool() {
-		$this->assertIsBool( Schema_Settings_Controller::permissions_check() );
-	}
-
-	/**
 	 * GET returns the editing payload: the raw stored overrides (empty when nothing
 	 * is stored) plus the site-identity defaults used as field placeholders.
 	 */

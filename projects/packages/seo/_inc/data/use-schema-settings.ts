@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { cleanOrganization } from './schema-settings-utils';
@@ -11,16 +11,14 @@ import type {
 } from './schema-settings-types';
 
 const ENDPOINT = '/jetpack/v4/seo/schema-settings';
-// Single snackbar id reused across a save so "Saving…" is replaced in place by
-// the result — mirrors the Settings form's two-stage toast.
+// Single snackbar id reused across a save so "Saving…" is replaced in place by the result.
 const NOTICE_ID = 'jetpack-seo-schema-settings-save';
 
 export interface SchemaSettingsForm {
-	/** The editable Organization overrides, or `null` while the initial fetch is in flight. */
-	organization: OrganizationSettings | null;
+	/** The editable Organization overrides. */
+	organization: OrganizationSettings;
 	/** Site-identity values shown as field placeholders (what an empty override falls back to). */
 	defaults: OrganizationDefaults;
-	isLoading: boolean;
 	isSaving: boolean;
 	/** Whether the local Organization values differ from the last-saved baseline. */
 	isDirty: boolean;
@@ -31,72 +29,32 @@ export interface SchemaSettingsForm {
 }
 
 /**
- * Owns the site-level Schema settings form. Seeds from the Settings bootstrap
- * when available, falls back to the package's own REST route, edits locally, and
- * persists through that same schema route on explicit Save. Saving deliberately
- * avoids `/jetpack/v4/settings`, which rejects the nested schema container.
+ * Owns the site-level Schema settings form: seeds from the Settings bootstrap,
+ * edits locally, and persists through the package's schema-settings route on Save.
  *
- * @param initialSettings - Optional settings bootstrap from the Settings screen.
+ * @param initialSettings - Settings bootstrap from the Settings screen.
  * @param onSave          - Called with the saved schema payload after a successful save.
  * @return The schema-settings form controller.
  */
 export function useSchemaSettings(
-	initialSettings?: SchemaSettings,
+	initialSettings: SchemaSettings,
 	onSave?: ( settings: SchemaSettings ) => void
 ): SchemaSettingsForm {
-	const [ organization, setOrganization ] = useState< OrganizationSettings | null >(
-		initialSettings?.organization ?? null
+	const [ organization, setOrganization ] = useState< OrganizationSettings >(
+		initialSettings.organization
 	);
-	// Placeholder defaults (Site Title / Tagline); empty until the initial fetch lands.
-	const [ defaults, setDefaults ] = useState< OrganizationDefaults >( {
-		name: initialSettings?.defaults.organization.name ?? '',
-		description: initialSettings?.defaults.organization.description ?? '',
-	} );
-	const [ isLoading, setIsLoading ] = useState( ! initialSettings );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ isDirty, setIsDirty ] = useState( false );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	// The last-saved baseline, kept in a ref so save() compares against the freshest
 	// value without re-creating its callback.
-	const baselineRef = useRef< OrganizationSettings | null >(
-		initialSettings ? cleanOrganization( initialSettings.organization ) : null
+	const baselineRef = useRef< OrganizationSettings >(
+		cleanOrganization( initialSettings.organization )
 	);
-
-	// Fetch the effective settings once on mount when the settings bootstrap did
-	// not include them.
-	useEffect( () => {
-		if ( initialSettings ) {
-			return;
-		}
-		let cancelled = false;
-		apiFetch< SchemaSettings >( { path: ENDPOINT } )
-			.then( settings => {
-				if ( cancelled ) {
-					return;
-				}
-				baselineRef.current = cleanOrganization( settings.organization );
-				setOrganization( settings.organization );
-				setDefaults( settings.defaults.organization );
-			} )
-			.catch( () => {
-				// Leave `organization` null so the section can show a load error.
-			} )
-			.finally( () => {
-				if ( ! cancelled ) {
-					setIsLoading( false );
-				}
-			} );
-		return () => {
-			cancelled = true;
-		};
-	}, [ initialSettings ] );
 
 	const setOrganizationField = useCallback( ( patch: Partial< OrganizationSettings > ) => {
 		setOrganization( current => {
-			if ( ! current ) {
-				return current;
-			}
 			const next = { ...current, ...patch };
 			setIsDirty(
 				JSON.stringify( cleanOrganization( next ) ) !== JSON.stringify( baselineRef.current )
@@ -106,7 +64,7 @@ export function useSchemaSettings(
 	}, [] );
 
 	const save = useCallback( () => {
-		if ( ! organization || isSaving ) {
+		if ( isSaving ) {
 			return;
 		}
 		setIsSaving( true );
@@ -121,9 +79,9 @@ export function useSchemaSettings(
 			data: { organization: cleanOrganization( organization ) },
 		} )
 			.then( settings => {
-				// Re-seed from the server's response so the form reflects any
-				// sanitization (e.g. dropped/deduped URLs); a cleared field comes back
-				// empty, so it shows the placeholder again rather than re-freezing.
+				// Re-seed from the server's response so the form reflects any sanitization
+				// (e.g. dropped/deduped URLs); a cleared field comes back empty and shows
+				// the placeholder again rather than re-freezing.
 				baselineRef.current = cleanOrganization( settings.organization );
 				setOrganization( settings.organization );
 				onSave?.( settings );
@@ -143,5 +101,12 @@ export function useSchemaSettings(
 			.finally( () => setIsSaving( false ) );
 	}, [ organization, isSaving, createInfoNotice, createSuccessNotice, createErrorNotice, onSave ] );
 
-	return { organization, defaults, isLoading, isSaving, isDirty, setOrganizationField, save };
+	return {
+		organization,
+		defaults: initialSettings.defaults.organization,
+		isSaving,
+		isDirty,
+		setOrganizationField,
+		save,
+	};
 }

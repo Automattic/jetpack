@@ -197,9 +197,7 @@ class Initializer {
 			// emits on front-end requests.
 			Schema_Builder::init();
 			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
-			// Package-owned route for the site-level Schema settings (the Organization
-			// form). Kept off `/jetpack/v4/settings`, which rejects the nested schema
-			// container, so the package owns its own route.
+			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
 		}
 

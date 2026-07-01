@@ -90,11 +90,8 @@ class Schema_Builder {
 		$graph = new Schema_Graph();
 
 		// Site-level entities come first, then the page node references them by @id.
-		// The persisted schema settings — social profiles (`sameAs`), a contact
-		// `email`, and any `name` / `description` overrides — are injected here via
-		// the `$settings` seam on the node builder. Effective values (stored
-		// overrides merged over site identity) come from Schema_Settings, so an
-		// unconfigured site still emits a valid node built from site identity alone.
+		// Effective Organization settings (stored overrides merged over site identity);
+		// an unconfigured site still emits a valid node from site identity alone.
 		$organization = Organization_Schema_Node::build( Schema_Settings::get_organization() );
 		if ( null !== $organization ) {
 			$graph->add( $organization );

@@ -1,14 +1,8 @@
-// Site-level Schema.org settings.
-//
-// Read and written through the package's own REST route
-// (`/jetpack/v4/seo/schema-settings`) — see `Schema_Settings_Controller`. The
-// route returns the *stored overrides* (empty where the admin hasn't set a value)
-// plus the site-identity *defaults* the form shows as field placeholders, so an
-// empty field tracks the Site Title / Tagline instead of freezing its value.
-//
-// The response is a container keyed by schema type so later types (LocalBusiness,
-// Breadcrumb) can be added without changing the contract; only `organization` is
-// implemented today.
+// Site-level Schema.org settings: the *stored overrides* (empty where unset) plus
+// the site-identity *defaults* shown as field placeholders, so an empty field
+// tracks the Site Title / Tagline instead of freezing its value. A container keyed
+// by schema type for future types; only `organization` is implemented today.
+// Written through the package's own route (`Schema_Settings_Controller`).
 
 export interface OrganizationSettings {
 	/** Display name override. Empty means "use the Site Title" (the placeholder default). */

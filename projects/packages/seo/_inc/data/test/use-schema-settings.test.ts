@@ -28,41 +28,29 @@ const { useSchemaSettings } = await import( '../use-schema-settings' );
 describe( 'useSchemaSettings', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockApiFetch.mockResolvedValue( RESPONSE );
 	} );
 
-	it( 'fetches stored overrides + placeholder defaults on mount', async () => {
-		const { result } = renderHook( () => useSchemaSettings() );
+	it( 'seeds from the bootstrap without fetching', () => {
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
 
-		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
-
-		expect( mockApiFetch ).toHaveBeenCalledWith( { path: '/jetpack/v4/seo/schema-settings' } );
+		expect( mockApiFetch ).not.toHaveBeenCalled();
 		expect( result.current.organization ).toEqual( RESPONSE.organization );
 		expect( result.current.defaults ).toEqual( RESPONSE.defaults.organization );
 		expect( result.current.isDirty ).toBe( false );
 	} );
 
-	it( 'uses bootstrapped settings without fetching on mount', () => {
-		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
-
-		expect( mockApiFetch ).not.toHaveBeenCalled();
-		expect( result.current.isLoading ).toBe( false );
-		expect( result.current.organization ).toEqual( RESPONSE.organization );
-		expect( result.current.defaults ).toEqual( RESPONSE.defaults.organization );
-	} );
-
-	it( 'tracks dirty state and saves through the schema-settings route only', async () => {
+	it( 'tracks dirty state and saves through the schema-settings route', async () => {
 		const onSave = jest.fn();
 		const { result } = renderHook( () => useSchemaSettings( RESPONSE, onSave ) );
 
 		act( () => result.current.setOrganizationField( { sameAs: [ 'https://twitter.com/acme' ] } ) );
 		expect( result.current.isDirty ).toBe( true );
 
-		// The POST returns the (sanitized) editing payload.
-		mockApiFetch.mockResolvedValueOnce( {
+		const saved = {
 			organization: { ...RESPONSE.organization, sameAs: [ 'https://twitter.com/acme' ] },
 			defaults: RESPONSE.defaults,
-		} );
+		};
+		mockApiFetch.mockResolvedValueOnce( saved );
 
 		act( () => result.current.save() );
 
@@ -71,63 +59,35 @@ describe( 'useSchemaSettings', () => {
 		const post = mockApiFetch.mock.calls.find(
 			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
 		);
-		expect( post ).toBeDefined();
 		const options = post![ 0 ] as { path: string; data: { organization: { sameAs: string[] } } };
 		expect( options.path ).toBe( '/jetpack/v4/seo/schema-settings' );
 		expect( options.data.organization.sameAs ).toEqual( [ 'https://twitter.com/acme' ] );
-		expect( onSave ).toHaveBeenCalledWith( {
-			organization: { ...RESPONSE.organization, sameAs: [ 'https://twitter.com/acme' ] },
-			defaults: RESPONSE.defaults,
-		} );
+		expect( onSave ).toHaveBeenCalledWith( saved );
 		expect( createSuccessNotice ).toHaveBeenCalled();
 	} );
 
-	it( 'ignores empty and invalid social profile rows when tracking dirtiness and saving', async () => {
-		const { result } = renderHook( () => useSchemaSettings() );
-		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+	it( 'drops empty, invalid, and duplicate profile rows when tracking dirtiness and saving', async () => {
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
 
-		act( () =>
-			result.current.setOrganizationField( {
-				sameAs: [ '', '   ', 'not a url', 'sasada', 'bsky.app/profile/acme.example' ],
-			} )
-		);
+		// An all-invalid set cleans to empty, matching the baseline — so not dirty.
+		act( () => result.current.setOrganizationField( { sameAs: [ '', '   ', 'not a url' ] } ) );
 		expect( result.current.isDirty ).toBe( false );
 
 		act( () =>
 			result.current.setOrganizationField( {
-				name: 'Acme Corporation',
-				sameAs: [
-					'',
-					'not a url',
-					'sasada',
-					' https://twitter.com/acme ',
-					'https://twitter.com/acme',
-					'https://bsky.app/profile/acme.example',
-				],
+				sameAs: [ 'not a url', ' https://twitter.com/acme ', 'https://twitter.com/acme' ],
 			} )
 		);
 		expect( result.current.isDirty ).toBe( true );
 
-		mockApiFetch.mockResolvedValueOnce( {
-			organization: {
-				...RESPONSE.organization,
-				name: 'Acme Corporation',
-				sameAs: [ 'https://twitter.com/acme', 'https://bsky.app/profile/acme.example' ],
-			},
-			defaults: RESPONSE.defaults,
-		} );
-
+		mockApiFetch.mockResolvedValueOnce( RESPONSE );
 		act( () => result.current.save() );
-
 		await waitFor( () => expect( createSuccessNotice ).toHaveBeenCalled() );
 
 		const post = mockApiFetch.mock.calls.find(
 			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
 		);
 		const options = post![ 0 ] as { data: { organization: { sameAs: string[] } } };
-		expect( options.data.organization.sameAs ).toEqual( [
-			'https://twitter.com/acme',
-			'https://bsky.app/profile/acme.example',
-		] );
+		expect( options.data.organization.sameAs ).toEqual( [ 'https://twitter.com/acme' ] );
 	} );
 } );

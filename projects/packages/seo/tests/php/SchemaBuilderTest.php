@@ -261,7 +261,7 @@ class SchemaBuilderTest extends TestCase {
 
 	/**
 	 * With no saved settings, the emitted Organization node still comes purely from
-	 * site identity and omits `sameAs` (PR A behavior is preserved by the wiring).
+	 * site identity and omits `sameAs` / `email`.
 	 */
 	public function test_emitted_organization_unconfigured_preserves_site_identity_only() {
 		$this->set_site_name( 'Acme Co' );

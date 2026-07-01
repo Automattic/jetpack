@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, Spinner, TextControl, TextareaControl } from '@wordpress/components';
+import { Button, TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Notice, Stack } from '@wordpress/ui';
+import { Stack } from '@wordpress/ui';
 import { normalizeProfileUrl } from '../../../data/schema-settings-utils';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
@@ -22,29 +22,14 @@ interface Props {
  * `/jetpack/v4/settings`).
  *
  * Presentational: the Schema card owns the {@link useSchemaSettings} controller
- * (so the header badge and this form share one fetch) and passes it in via `form`.
+ * (so the header badge and this form share one state) and passes it in via `form`.
  *
  * @param props      - Component props.
  * @param props.form - The schema-settings form controller from the card.
  * @return The Organization settings form.
  */
 const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
-	const { organization, defaults, isLoading, isSaving, isDirty, setOrganizationField, save } = form;
-
-	if ( isLoading ) {
-		return <Spinner />;
-	}
-
-	if ( ! organization ) {
-		return (
-			<Notice.Root intent="error">
-				<Notice.Description>
-					{ __( 'Unable to load schema settings.', 'jetpack-seo' ) }
-				</Notice.Description>
-			</Notice.Root>
-		);
-	}
-
+	const { organization, defaults, isSaving, isDirty, setOrganizationField, save } = form;
 	const { name, description, sameAs, email } = organization;
 	const normalizedProfiles = sameAs.map( normalizeProfileUrl );
 	const profileErrors = sameAs.map( ( profile, index ) => {

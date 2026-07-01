@@ -15,9 +15,6 @@ const notSetLabel = __( 'Not set', 'jetpack-seo' );
  * email); the BreadcrumbList toggle and other primary schema types
  * (LocalBusiness, Person / ProfilePage) ship in their own issues and land here.
  *
- * Uses the settings bootstrap for the collapsed header badge and falls back to a
- * schema-settings fetch when the bootstrap is absent.
- *
  * Collapsed by default and built from the shared `CollapsibleCard` compound,
  * matching the other Settings modules (Canonical URLs, Title structure, Site
  * verification).
@@ -25,7 +22,7 @@ const notSetLabel = __( 'Not set', 'jetpack-seo' );
  * @return The Schema settings card.
  */
 interface Props {
-	initialSettings?: SchemaSettings;
+	initialSettings: SchemaSettings;
 	onSave?: ( settings: SchemaSettings ) => void;
 }
 
@@ -33,7 +30,7 @@ interface Props {
  * Render the collapsible Schema settings card.
  *
  * @param root0                 - Component props.
- * @param root0.initialSettings - Optional settings bootstrap from the Settings screen.
+ * @param root0.initialSettings - Settings bootstrap from the Settings screen.
  * @param root0.onSave          - Called with the saved schema payload after a successful save.
  * @return The Schema settings card.
  */
@@ -42,18 +39,15 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 	const { organization, defaults } = form;
 
 	// Whether each Organization field counts as "set" for the header badge: `name` /
-	// `description` are set when overridden here OR already present in site identity
-	// (Site Title / Tagline); `sameAs` when it has at least one profile; `email` when
-	// filled. So a typical site (Title + Tagline) reads "2 of 4 set" before the admin
-	// adds anything. The total is just the number of checks.
-	const fieldsSet = organization
-		? [
-				organization.name || defaults.name,
-				organization.description || defaults.description,
-				organization.sameAs.length > 0,
-				organization.email,
-		  ]
-		: [];
+	// `description` count when overridden here OR present in site identity (Site Title /
+	// Tagline); `sameAs` when it has a profile; `email` when filled. So a typical site
+	// reads "2 of 4 set" before the admin adds anything.
+	const fieldsSet = [
+		organization.name || defaults.name,
+		organization.description || defaults.description,
+		organization.sameAs.length > 0,
+		organization.email,
+	];
 	const setCount = fieldsSet.filter( Boolean ).length;
 
 	return (
@@ -61,18 +55,16 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 			<CollapsibleCard.Header>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
 					<Card.Title>{ __( 'Schema', 'jetpack-seo' ) }</Card.Title>
-					{ organization && (
-						<Badge intent={ setCount > 0 ? 'stable' : 'draft' }>
-							{ setCount > 0
-								? sprintf(
-										/* translators: %1$d: number of configured Organization fields. %2$d: total number of fields. */
-										__( '%1$d of %2$d set', 'jetpack-seo' ),
-										setCount,
-										fieldsSet.length
-								  )
-								: notSetLabel }
-						</Badge>
-					) }
+					<Badge intent={ setCount > 0 ? 'stable' : 'draft' }>
+						{ setCount > 0
+							? sprintf(
+									/* translators: %1$d: number of configured Organization fields. %2$d: total number of fields. */
+									__( '%1$d of %2$d set', 'jetpack-seo' ),
+									setCount,
+									fieldsSet.length
+							  )
+							: notSetLabel }
+					</Badge>
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>

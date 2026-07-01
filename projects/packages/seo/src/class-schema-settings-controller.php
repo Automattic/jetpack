@@ -2,15 +2,10 @@
 /**
  * REST controller for the site-level Schema settings.
  *
- * Exposes the package-owned {@see Schema_Settings} store over a dedicated
- * `jetpack/v4/seo/schema-settings` route rather than the shared
- * `/jetpack/v4/settings` endpoint: the schema option is a nested container, and
- * that endpoint rejects nested / unknown flat keys, so the package owns its own
- * route. GET returns the editing payload — the stored overrides plus the
- * site-identity defaults the form shows as placeholders; the write method
- * sanitizes the submission, persists it, and returns the new payload.
- *
- * Capability-gated on `manage_options`, mirroring the package's opt-in route.
+ * Exposes {@see Schema_Settings} over a dedicated `jetpack/v4/seo/schema-settings`
+ * route rather than `/jetpack/v4/settings`, which rejects the nested schema
+ * container. GET returns the editing payload; the write method sanitizes,
+ * persists, and returns the new payload. Gated on `manage_options`.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -40,8 +35,7 @@ class Schema_Settings_Controller {
 	const REST_BASE = '/seo/schema-settings';
 
 	/**
-	 * Register the GET (read effective settings) and write (sanitize + persist)
-	 * route. Hooked on `rest_api_init` by the Initializer.
+	 * Register the GET (read) and write (sanitize + persist) route.
 	 *
 	 * @return void
 	 */
@@ -74,8 +68,7 @@ class Schema_Settings_Controller {
 	}
 
 	/**
-	 * GET: the editing payload — the raw stored overrides plus the site-identity
-	 * defaults the form shows as field placeholders.
+	 * GET: the editing payload (stored overrides plus placeholder defaults).
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -84,10 +77,8 @@ class Schema_Settings_Controller {
 	}
 
 	/**
-	 * POST/PUT: sanitize and persist the submission, then return the new editing
-	 * payload. The whole request body is forwarded to the store, which only reads
-	 * the keys it knows (`organization` today), keeping the route extensible for
-	 * later schema types.
+	 * POST/PUT: sanitize and persist the submission, then return the new payload.
+	 * The store only reads the keys it knows (`organization` today).
 	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return \WP_REST_Response

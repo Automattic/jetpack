@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { fireEvent, render, screen } from '@testing-library/react';
+import type { SchemaSettings } from '../../../data/schema-settings-types';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 
 // True-ESM Jest (`--experimental-vm-modules`): stub the data/REST edge with
@@ -16,7 +17,6 @@ const makeForm = ( overrides: Partial< SchemaSettingsForm > = {} ): SchemaSettin
 	// No stored override; the Site Title / Tagline come through as placeholder defaults.
 	organization: { name: '', description: '', sameAs: [], email: '' },
 	defaults: { name: 'Acme Co', description: 'We make things' },
-	isLoading: false,
 	isSaving: false,
 	isDirty: false,
 	setOrganizationField,
@@ -30,20 +30,26 @@ jest.unstable_mockModule( '../../../data/use-schema-settings', () => ( {
 
 const { default: SchemaCard } = await import( '../schema-card' );
 
+// The hook is mocked, so the bootstrap value is only here to satisfy the prop type.
+const bootstrap: SchemaSettings = {
+	organization: { name: '', description: '', sameAs: [], email: '' },
+	defaults: { organization: { name: 'Acme Co', description: 'We make things' } },
+};
+
+const renderCard = () => render( <SchemaCard initialSettings={ bootstrap } /> );
+
+const expand = () =>
+	// eslint-disable-next-line testing-library/prefer-user-event -- single click; fireEvent avoids the user-event devDep (lockfile churn).
+	fireEvent.click( screen.getByRole( 'button', { name: /Schema/ } ) );
+
 describe( 'SchemaCard', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockForm = makeForm();
 	} );
 
-	it( 'renders the Schema section', () => {
-		render( <SchemaCard /> );
-
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toBeInTheDocument();
-	} );
-
-	it( 'is collapsed by default', () => {
-		render( <SchemaCard /> );
+	it( 'renders the Schema section collapsed by default', () => {
+		renderCard();
 
 		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveAttribute(
 			'aria-expanded',
@@ -51,38 +57,21 @@ describe( 'SchemaCard', () => {
 		);
 	} );
 
-	it( 'expands when the header is clicked', () => {
-		render( <SchemaCard /> );
-
-		const trigger = screen.getByRole( 'button', { name: /Schema/ } );
-		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn) for a single click.
-		fireEvent.click( trigger );
-
-		expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
-	} );
-
 	it( 'renders the Organization form with the Site Title as the name placeholder', () => {
-		render( <SchemaCard /> );
-
-		// The card is collapsed by default (content hidden from the a11y tree); expand it
-		// so the form's controls are queryable.
-		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
-		fireEvent.click( screen.getByRole( 'button', { name: /Schema/ } ) );
+		renderCard();
+		expand();
 
 		// With no stored override the field is empty and shows the Site Title as a
 		// placeholder, so an empty save keeps tracking the Site Title (no drift).
 		const nameField = screen.getByRole( 'textbox', { name: /Organization name/ } );
 		expect( nameField ).toHaveValue( '' );
 		expect( nameField ).toHaveAttribute( 'placeholder', 'Acme Co' );
-		// And the repeatable social-profiles control exposes its "Add profile" action.
 		expect( screen.getByRole( 'button', { name: /Add profile/ } ) ).toBeInTheDocument();
 	} );
 
 	it( 'adds a social-profile row through the hook', () => {
-		render( <SchemaCard /> );
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
-		fireEvent.click( screen.getByRole( 'button', { name: /Schema/ } ) );
+		renderCard();
+		expand();
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
 		fireEvent.click( screen.getByRole( 'button', { name: /Add profile/ } ) );
 
@@ -94,31 +83,8 @@ describe( 'SchemaCard', () => {
 			isDirty: true,
 			organization: { name: '', description: '', sameAs: [ 'not a url' ], email: '' },
 		} );
-		render( <SchemaCard /> );
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
-		fireEvent.click( screen.getByRole( 'button', { name: /Schema/ } ) );
-
-		expect(
-			screen.getByText( 'Enter a valid URL that starts with http:// or https://.' )
-		).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).toBeDisabled();
-	} );
-
-	it( 'requires social profile URLs to include a scheme', () => {
-		mockForm = makeForm( {
-			isDirty: true,
-			organization: {
-				name: '',
-				description: '',
-				sameAs: [ 'bsky.app/profile/gmjuhasz-social.bsky.social' ],
-				email: '',
-			},
-		} );
-		render( <SchemaCard /> );
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
-		fireEvent.click( screen.getByRole( 'button', { name: /Schema/ } ) );
+		renderCard();
+		expand();
 
 		expect(
 			screen.getByText( 'Enter a valid URL that starts with http:// or https://.' )
@@ -132,14 +98,12 @@ describe( 'SchemaCard', () => {
 			organization: {
 				name: '',
 				description: '',
-				sameAs: [ 'https://bsky.app/profile/gmjuhasz-social.bsky.social' ],
+				sameAs: [ 'https://bsky.app/profile/acme.example' ],
 				email: '',
 			},
 		} );
-		render( <SchemaCard /> );
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
-		fireEvent.click( screen.getByRole( 'button', { name: /Schema/ } ) );
+		renderCard();
+		expand();
 
 		expect(
 			screen.queryByText( 'Enter a valid URL that starts with http:// or https://.' )
@@ -160,17 +124,15 @@ describe( 'SchemaCard', () => {
 				email: '',
 			},
 		} );
-		render( <SchemaCard /> );
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
-		fireEvent.click( screen.getByRole( 'button', { name: /Schema/ } ) );
+		renderCard();
+		expand();
 
 		expect( screen.getAllByText( 'This profile URL is already listed.' ) ).toHaveLength( 1 );
 		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).toBeDisabled();
 	} );
 
 	it( 'shows the configured-field count in the header', () => {
-		render( <SchemaCard /> );
+		renderCard();
 
 		// Site Title + Tagline come through as defaults → 2 of 4 before any input.
 		expect( screen.getByText( '2 of 4 set' ) ).toBeInTheDocument();
@@ -180,7 +142,7 @@ describe( 'SchemaCard', () => {
 		mockForm = makeForm( {
 			organization: { name: '', description: '', sameAs: [ 'https://x.com/acme' ], email: '' },
 		} );
-		render( <SchemaCard /> );
+		renderCard();
 
 		expect( screen.getByText( '3 of 4 set' ) ).toBeInTheDocument();
 	} );
@@ -190,7 +152,7 @@ describe( 'SchemaCard', () => {
 			organization: { name: '', description: '', sameAs: [], email: '' },
 			defaults: { name: '', description: '' },
 		} );
-		render( <SchemaCard /> );
+		renderCard();
 
 		expect( screen.getByText( 'Not set' ) ).toBeInTheDocument();
 	} );

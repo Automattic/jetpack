@@ -2,25 +2,16 @@
 /**
  * Package-owned store for the site-level Schema.org settings.
  *
- * Persists the admin-configurable schema values WordPress has no native source
- * for — social profiles (`sameAs`), a contact `email`, and optional `name` /
- * `description` overrides — in a single normalized, versioned option. The
- * Organization node ({@see Organization_Schema_Node}) reads the effective values
- * through {@see self::get_organization()} (wired in {@see Schema_Builder}), and
- * the Settings UI reads/writes them through the package's own REST route
- * ({@see Schema_Settings_Controller}).
+ * Persists the admin-configurable values WordPress has no native source for —
+ * social profiles (`sameAs`), a contact `email`, and optional `name` /
+ * `description` overrides. The Organization node reads the effective values via
+ * {@see self::get_organization()}; the Settings UI round-trips them through
+ * {@see Schema_Settings_Controller}.
  *
- * The option is shaped as a container keyed by schema type so later schema types
- * (LocalBusiness, Breadcrumb) slot in without breaking the contract; only the
- * `organization` slice is implemented today.
- *
- * Defaults follow JETPACK-1779's "Option 3": editable fields pre-populated from
- * site identity (Site Title, Tagline). Only what the admin submits is persisted;
- * any field left empty falls back to site identity at read time, so an
- * unconfigured site still emits a valid Organization node and a later Site Title
- * change is reflected automatically. A future refinement (logged on JETPACK-1779)
- * would store a derived-vs-override marker so an explicit override can also track
- * site identity until changed — out of scope here.
+ * The option is a container keyed by schema type so later types (LocalBusiness,
+ * Breadcrumb) slot in without breaking the contract; only `organization` exists
+ * today. Empty overrides fall back to site identity at read time, so an
+ * unconfigured site still emits a valid node and later Site Title changes track.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -42,12 +33,9 @@ class Schema_Settings {
 
 	/**
 	 * The editing payload for the Settings form / REST route: the raw stored
-	 * overrides (empty where the admin hasn't set a value) plus the site-identity
-	 * defaults the form shows as field placeholders.
-	 *
-	 * Keeping the stored values separate from the defaults is what lets the form
-	 * treat an empty field as "use my Site Title" rather than freezing the current
-	 * value — clearing a field and saving resets it to tracking site identity.
+	 * overrides (empty where unset) plus the site-identity defaults the form shows
+	 * as field placeholders. Keeping the two separate lets an empty field track the
+	 * Site Title instead of freezing its value.
 	 *
 	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, defaults: array{organization: array{name: string, description: string}}}
 	 */
@@ -66,10 +54,9 @@ class Schema_Settings {
 	}
 
 	/**
-	 * Site-identity-seeded defaults for the fields WordPress has a native source
-	 * for: `name` / `description` from the Site Title and Tagline, shown as the
-	 * form's placeholders and used as the effective fallback. `sameAs` / `email`
-	 * have no WordPress source, so they aren't defaulted.
+	 * Site-identity defaults for the fields WordPress has a source for: `name` /
+	 * `description` from the Site Title and Tagline. Shown as placeholders and used
+	 * as the fallback. `sameAs` / `email` have no source, so they aren't defaulted.
 	 *
 	 * @return array{organization: array{name: string, description: string}}
 	 */
@@ -83,14 +70,9 @@ class Schema_Settings {
 	}
 
 	/**
-	 * The effective Organization settings the node/glue consumes: stored overrides
-	 * where present, site-identity defaults otherwise. `sameAs` / `email` are
-	 * stored-only (never auto-filled).
-	 *
-	 * Computed live on every read rather than snapshotted, so an unconfigured
-	 * `name` / `description` tracks the Site Title / Tagline without drifting. (A
-	 * future "derived vs. override" marker — JETPACK-1779 — would extend this to
-	 * keep explicit overrides in sync too; out of scope here.)
+	 * The effective Organization settings the node consumes: stored overrides where
+	 * present, site-identity defaults otherwise. `sameAs` / `email` are stored-only.
+	 * Computed live so an unconfigured `name` / `description` tracks site identity.
 	 *
 	 * @return array{name: string, description: string, sameAs: array<int, string>, email: string}
 	 */
@@ -122,10 +104,9 @@ class Schema_Settings {
 	}
 
 	/**
-	 * Normalize and sanitize raw input into the stored option shape. Mirrors
-	 * {@see Organization_Schema_Node}'s field handling: trimmed plain text for
-	 * `name` / `description`, validated + deduped URLs for `sameAs`, a sanitized
-	 * `email`. Defensive against non-array / non-string input.
+	 * Normalize and sanitize raw input into the stored option shape: trimmed plain
+	 * text for `name` / `description`, validated + deduped URLs for `sameAs`, a
+	 * sanitized `email`. Defensive against non-array / non-string input.
 	 *
 	 * @param mixed $raw Raw input.
 	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}}
@@ -140,10 +121,48 @@ class Schema_Settings {
 			'organization' => array(
 				'name'        => self::text( $organization['name'] ?? '' ),
 				'description' => self::text( $organization['description'] ?? '' ),
-				'sameAs'      => self::url_list( $organization['sameAs'] ?? array() ),
+				'sameAs'      => self::sanitize_url_list( $organization['sameAs'] ?? array() ),
 				'email'       => self::email( $organization['email'] ?? '' ),
 			),
 		);
+	}
+
+	/**
+	 * Normalize a list of profile URLs (`sameAs`): keep only valid absolute http(s)
+	 * URLs and drop duplicates. Shared by the settings store and the Organization
+	 * node so what the form stores is exactly what the schema graph emits.
+	 *
+	 * @param mixed $value Raw value (expected to be an array of URLs).
+	 * @return array<int, string>
+	 */
+	public static function sanitize_url_list( $value ) {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$urls = array();
+		foreach ( $value as $url ) {
+			if ( ! is_string( $url ) ) {
+				continue;
+			}
+
+			$url = trim( $url );
+			if ( '' === $url ) {
+				continue;
+			}
+
+			$validated = wp_http_validate_url( $url );
+			if ( false === $validated ) {
+				continue;
+			}
+
+			$clean = esc_url_raw( $validated, array( 'http', 'https' ) );
+			if ( '' !== $clean ) {
+				$urls[] = $clean;
+			}
+		}
+
+		return array_values( array_unique( $urls ) );
 	}
 
 	/**
@@ -180,46 +199,5 @@ class Schema_Settings {
 			return '';
 		}
 		return sanitize_email( $value );
-	}
-
-	/**
-	 * Normalize a list of profile URLs (`sameAs`): keep only valid absolute http(s)
-	 * URLs and drop duplicates.
-	 * Mirrors {@see Organization_Schema_Node}'s handling so
-	 * what the form stores is exactly what the node emits — a URL the store keeps but
-	 * the node would drop (e.g. `mailto:`, relative) would otherwise silently vanish
-	 * from the output.
-	 *
-	 * @param mixed $value Raw value (expected to be an array of URLs).
-	 * @return array<int, string>
-	 */
-	private static function url_list( $value ) {
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-
-		$urls = array();
-		foreach ( $value as $url ) {
-			if ( ! is_string( $url ) ) {
-				continue;
-			}
-
-			$url = trim( $url );
-			if ( '' === $url ) {
-				continue;
-			}
-
-			$validated = wp_http_validate_url( $url );
-			if ( false === $validated ) {
-				continue;
-			}
-
-			$clean = esc_url_raw( $validated, array( 'http', 'https' ) );
-			if ( '' !== $clean ) {
-				$urls[] = $clean;
-			}
-		}
-
-		return array_values( array_unique( $urls ) );
 	}
 }
