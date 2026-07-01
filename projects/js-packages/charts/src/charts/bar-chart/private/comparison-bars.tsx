@@ -10,6 +10,12 @@ import type { ElementStyles, GetElementStylesParams } from '../../../providers';
 import type { DataPointDate, SeriesData } from '../../../types';
 import type { FC, ReactNode } from 'react';
 
+/*
+ * `process.env.NODE_ENV` is replaced by the bundler at build time. Declare a
+ * minimal `process` locally so this file type-checks as source under `jetpack:src`.
+ */
+declare const process: { env: Record< string, string | undefined > };
+
 export type ComparisonSeriesEntry = {
 	series: SeriesData;
 	index: number;

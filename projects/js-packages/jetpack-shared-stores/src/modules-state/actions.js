@@ -4,7 +4,7 @@ import {
 	fetchJetpackModules,
 	updateJetpackModuleStatus as updateJetpackModuleStatusControl,
 } from './controls';
-import { JETPACK_MODULES_STORE_ID } from '.';
+import { store } from '.';
 
 export const SET_JETPACK_MODULES = 'SET_JETPACK_MODULES';
 export const SET_MODULE_UPDATING = 'SET_MODULE_UPDATING';
@@ -26,7 +26,7 @@ export function* updateJetpackModuleStatus( settings ) {
 		yield setJetpackModules( { data } );
 		return true;
 	} catch {
-		const oldSettings = select( JETPACK_MODULES_STORE_ID ).getJetpackModules();
+		const oldSettings = select( store ).getJetpackModules();
 		yield setJetpackModules( oldSettings );
 		return false;
 	} finally {
@@ -50,7 +50,7 @@ export function* fetchModules() {
 		yield setJetpackModules( { data } );
 		return true;
 	} catch {
-		const oldSettings = select( JETPACK_MODULES_STORE_ID ).getJetpackModules();
+		const oldSettings = select( store ).getJetpackModules();
 		yield setJetpackModules( oldSettings );
 		return false;
 	} finally {

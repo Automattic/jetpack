@@ -13,6 +13,8 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
+require_once __DIR__ . '/consent-log-controller-test-functions.php';
+
 /**
  * Tests for the consent-log write endpoint: input validation, sanitization, and the
  * per-IP rate limiter.
@@ -41,13 +43,23 @@ class Consent_Log_Controller_Test extends TestCase {
 	private $request;
 
 	/**
+	 * Previous server state.
+	 *
+	 * @var array
+	 */
+	private $server;
+
+	/**
 	 * Set up.
 	 */
 	public function setUp(): void {
 		parent::setUp();
 		$this->controller       = new Consent_Log_Controller();
 		$this->request          = new WP_REST_Request();
+		$this->server           = $_SERVER;
 		$_SERVER['REMOTE_ADDR'] = '203.0.113.5';
+		$GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_exists'] = true;
+		$GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_calls']  = array();
 		// Rate-limit counters live in the object cache; start each test from a clean slate.
 		wp_cache_flush();
 	}
@@ -56,11 +68,13 @@ class Consent_Log_Controller_Test extends TestCase {
 	 * Tear down.
 	 */
 	public function tearDown(): void {
-		unset( $_SERVER['REMOTE_ADDR'] );
+		$_SERVER = $this->server;
 		// Reset state some tests flip on, so sibling suites see the defaults.
 		wp_using_ext_object_cache( false );
-		remove_all_filters( 'jetpack_cookie_consent_rate_limit_max' );
 		remove_all_filters( 'jetpack_cookie_consent_config' );
+		remove_all_filters( 'jetpack_cookie_consent_rate_limit_max' );
+		unset( $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_exists'] );
+		unset( $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_calls'] );
 		wp_cache_flush();
 		parent::tearDown();
 	}
@@ -94,6 +108,159 @@ class Consent_Log_Controller_Test extends TestCase {
 				return $max;
 			}
 		);
+	}
+
+	/**
+	 * Test that IP handling defaults to dropping the IP address.
+	 */
+	public function test_ip_mode_defaults_to_drop() {
+		$this->set_server_ip( '203.0.113.42' );
+
+		$this->assertNull( $this->get_consent_log_ip_address() );
+	}
+
+	/**
+	 * Test configured IP handling modes.
+	 */
+	public function test_ip_mode_formats_logged_ip_address() {
+		foreach ( $this->get_ip_mode_cases() as $case => $args ) {
+			list( $mode, $ip_address, $expected ) = $args;
+
+			remove_all_filters( 'jetpack_cookie_consent_config' );
+			$this->set_config_ip_mode( $mode );
+			$this->set_server_ip( $ip_address );
+
+			$this->assertSame( $expected, $this->get_consent_log_ip_address(), $case );
+		}
+	}
+
+	/**
+	 * Test that unknown IP modes fall back to the conservative default.
+	 */
+	public function test_invalid_ip_mode_defaults_to_drop() {
+		$this->set_config_ip_mode( 'unknown' );
+		$this->set_server_ip( '203.0.113.42' );
+
+		$this->assertNull( $this->get_consent_log_ip_address() );
+	}
+
+	/**
+	 * Test that raw mode stores the resolved IP address.
+	 */
+	public function test_raw_ip_mode_stores_resolved_ip_address() {
+		$this->set_config_ip_mode( 'raw' );
+		$this->set_server_ip( '203.0.113.42' );
+
+		$this->assertSame( '203.0.113.42', $this->get_consent_log_ip_address() );
+	}
+
+	/**
+	 * Test that hashed IP addresses are deterministic and do not persist the raw IP.
+	 */
+	public function test_hash_mode_stores_hashed_ip_address() {
+		$ip_address = '203.0.113.42';
+
+		$this->set_config_ip_mode( 'hash' );
+		$this->set_server_ip( $ip_address );
+
+		$stored_ip = $this->get_consent_log_ip_address();
+
+		$this->assertNotSame( $ip_address, $stored_ip );
+		$this->assertSame( 64, strlen( $stored_ip ) );
+		$this->assertSame( hash_hmac( 'sha256', $ip_address, wp_salt( 'auth' ) ), $stored_ip );
+	}
+
+	/**
+	 * Test that truncate mode uses WordPress's anonymizer when available.
+	 */
+	public function test_truncate_ip_mode_uses_wp_privacy_anonymize_ip() {
+		$this->set_config_ip_mode( 'truncate' );
+
+		$this->set_server_ip( '203.0.113.42' );
+		$this->assertSame( '203.0.113.0', $this->get_consent_log_ip_address() );
+
+		$this->set_server_ip( '2001:db8:abcd:1234:5678:90ab:cdef:1234' );
+		$this->assertSame( '2001:db8:abcd:1234::', $this->get_consent_log_ip_address() );
+
+		$this->assertSame(
+			array(
+				'203.0.113.42',
+				'2001:db8:abcd:1234:5678:90ab:cdef:1234',
+			),
+			$GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_calls']
+		);
+	}
+
+	/**
+	 * Test that truncate mode falls back when WordPress's anonymizer is unavailable.
+	 */
+	public function test_truncate_ip_mode_uses_fallback_without_wp_privacy_anonymize_ip() {
+		$GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_exists'] = false;
+		$this->set_config_ip_mode( 'truncate' );
+
+		$this->set_server_ip( '203.0.113.42' );
+		$this->assertSame( '203.0.113.0', $this->get_consent_log_ip_address() );
+
+		$this->set_server_ip( '2001:db8:abcd:1234:5678:90ab:cdef:1234' );
+		$this->assertSame( '2001:db8:abcd:1234::', $this->get_consent_log_ip_address() );
+
+		$this->assertSame( array(), $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_calls'] );
+	}
+
+	/**
+	 * Test that the read schema allows dropped IP addresses.
+	 */
+	public function test_consent_logs_schema_allows_null_ip_address() {
+		$schema = $this->controller->get_consent_logs_schema();
+
+		$this->assertSame( array( 'string', 'null' ), $schema['items']['properties']['ip_address']['type'] );
+	}
+
+	/**
+	 * Get IP mode test cases.
+	 *
+	 * @return array
+	 */
+	private function get_ip_mode_cases() {
+		return array(
+			'raw'  => array( 'raw', '203.0.113.42', '203.0.113.42' ),
+			'drop' => array( 'drop', '203.0.113.42', null ),
+		);
+	}
+
+	/**
+	 * Set the configured IP handling mode.
+	 *
+	 * @param string $mode IP handling mode.
+	 */
+	private function set_config_ip_mode( $mode ) {
+		add_filter(
+			'jetpack_cookie_consent_config',
+			function ( $config ) use ( $mode ) {
+				$config['log']['ip_mode'] = $mode;
+				return $config;
+			}
+		);
+	}
+
+	/**
+	 * Set the server IP address.
+	 *
+	 * @param string $ip_address IP address.
+	 */
+	private function set_server_ip( $ip_address ) {
+		$_SERVER = array(
+			'REMOTE_ADDR' => $ip_address,
+		);
+	}
+
+	/**
+	 * Invoke the private consent log IP resolver.
+	 *
+	 * @return string|null
+	 */
+	private function get_consent_log_ip_address() {
+		return $this->invoke( 'get_consent_log_ip_address', $this->invoke( 'get_client_ip' ) );
 	}
 
 	/**
@@ -163,7 +330,7 @@ class Consent_Log_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Consent types are bounded to the allow-list; unknown keys are dropped.
+	 * Consent types are bounded to the configured category registry; unknown keys are dropped.
 	 */
 	public function test_sanitize_consent_types_filters_to_allowed_keys() {
 		$result = $this->controller->sanitize_consent_types(
@@ -180,6 +347,48 @@ class Consent_Log_Controller_Test extends TestCase {
 				'functional' => true,
 				'analytics'  => false,
 				'marketing'  => true,
+			),
+			$result
+		);
+		$this->assertArrayNotHasKey( 'evil', $result );
+	}
+
+	/**
+	 * Consent types are allowed from the configured category registry.
+	 */
+	public function test_sanitize_consent_types_allows_configured_category_keys() {
+		add_filter(
+			'jetpack_cookie_consent_config',
+			static function ( $config ) {
+				$config['consent']['categories'][] = array(
+					'key'             => 'personalization',
+					'label'           => 'Personalization',
+					'description'     => 'Personalized site features.',
+					'required'        => false,
+					'default_checked' => false,
+					'wp_consent_map'  => array( 'personalization' ),
+				);
+
+				return $config;
+			}
+		);
+
+		$result = $this->controller->sanitize_consent_types(
+			array(
+				'functional'      => true,
+				'analytics'       => false,
+				'marketing'       => false,
+				'personalization' => true,
+				'evil'            => true,
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'functional'      => true,
+				'analytics'       => false,
+				'marketing'       => false,
+				'personalization' => true,
 			),
 			$result
 		);

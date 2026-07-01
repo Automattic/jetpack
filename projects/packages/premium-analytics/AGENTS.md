@@ -234,6 +234,13 @@ self-contained — copy it as the base rather than an existing widget's story fi
 have drifted. `meta.component` is the widget's render component; widget-specific args
 (comparison toggles, view selectors, …) are wired as Storybook controls.
 
+`WithComparison` tests the date range picker's comparison parameters, not only visible delta
+UI. Some Stats endpoints accept `compare_*` params but return no comparison rows. Those widgets
+must still render gracefully when `reportParams` contains comparison dates; in that case keep
+the chart's comparison UI disabled or empty rather than inventing `previousValue`/`delta`
+values, and add a short story docs note explaining that the module has no comparison data to
+display.
+
 The shared imports, helpers, and `meta`:
 
 ```tsx
@@ -306,7 +313,9 @@ export const Default: Story = {
 };
 ```
 
-**2. `WithComparison`** — same close-up with the period-over-period delta + sparkline:
+**2. `WithComparison`** — same close-up with comparison `reportParams` from the date range
+picker. Widgets with comparison data should show period-over-period values; widgets without
+comparison data should still render normally without fake deltas:
 
 ```tsx
 export const WithComparison: Story = {
@@ -358,6 +367,14 @@ If a story exposes `withComparison`, both the close-up story and the dashboard s
 `reportParams: getDefaultQueryParams( withComparison )` into the render component, and the render
 component must pass those attributes into `<WidgetRoot>`. A visible Storybook control that is not
 wired into the render/data flow gives reviewers a false comparison test.
+
+Report mocks should exercise the shapes reviewers need to validate, not only the happy path:
+populated primary data for every widget; comparison data when the widget maps comparison rows;
+parent rows plus child rows for drill-down widgets; leaf rows with external links when a
+leaderboard can render non-drill-down links; and known unsupported/error responses when the
+module has a special failure mode. Prefer adding those shapes to the existing Default,
+WithComparison, or WidgetDashboardWithWidget stories over creating one-off state stories unless
+the state needs direct review.
 
 ### Widget pitfalls
 
@@ -416,6 +433,13 @@ Show `<WidgetLoadingOverlay />` only when there is no data yet:
 `isLoading && data.length === 0`. When stale data exists, pass `loading={ isLoading }`
 to the chart component so an in-place spinner appears without hiding the rows.
 
+Loading, empty, and error states should live in the same body/content wrapper as the normal
+widget content so padding and sizing stay consistent. If the widget has interactive body chrome
+such as a breadcrumb, dropdown, or view selector, keep that chrome available and replace only
+the content area with the state message. Composite widgets may use a custom placeholder instead
+of `LeaderboardChart`'s `emptyStateText`, but the state should still be centered inside the
+content area.
+
 **Comparison data**
 
 Stats hooks built on `useStatsReport()` return `{ primary, comparison, hasComparison, ... }`.
@@ -428,10 +452,22 @@ the primary row (post ID/URL, country code, search term, device key, etc.), then
 `previousValue`, `previousShare`, and `delta` from the matched comparison row. Do not assume
 primary and comparison arrays have the same order or the same rows.
 
-Using `previousValue: 0` and `delta: 0` as placeholders is only acceptable when the chart
-comparison UI is disabled (`withComparison={ false }` or omitted). Do not expose a
-`withComparison` story/control as meaningful until the widget maps `comparison.data` into real
-previous-period values.
+If comparison params are present but the endpoint returns no comparable rows, the widget should
+fall back to a non-comparison view. Using `previousValue: 0` and `delta: 0` as placeholders is
+only acceptable when the chart comparison UI is disabled (`withComparison={ false }` or omitted)
+or when the story explicitly documents that the module has no comparison data to display. Do not
+render a visible delta/sparkline from placeholder values.
+
+**Drill-down leaderboards**
+
+Rows with children may be interactive and drill into a second-level leaderboard. Rows without
+children must not look like drill-down rows. If a row has an external `href` and no children,
+render it as a normal external link even when sibling rows drill down.
+
+When a leaderboard drills down, use a breadcrumb in the widget body header to navigate back to
+the parent list. The child list should show child labels only; do not repeat the selected parent
+label in every row if the breadcrumb already identifies that parent. Header controls such as
+dropdowns should wrap cleanly on narrow widget widths instead of colliding with the breadcrumb.
 
 **Storybook mocks for Stats endpoints**
 
@@ -450,7 +486,8 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   line-height plus vertical padding yields 36px. Use `min-height: 36px` when the label content
   or typography does not naturally produce that height.
 - Empty state: pass `emptyStateText` to `LeaderboardChart` — do not add a separate
-  `data.length === 0` render branch in the widget.
+  `data.length === 0` render branch in the widget, unless the widget has a composite layout
+  that needs to preserve body chrome or replace a non-leaderboard chart area.
 - Widget picker preview: add this to the CSS Module so the preview tile renders at a
   sensible aspect ratio instead of collapsing:
 
