@@ -81,14 +81,6 @@ describe( 'useLibrary', () => {
 					display_embed: 1,
 					allow_download: 0,
 					privacy_setting: 0,
-					tracks: {
-						captions: {
-							en: {
-								src: 'english.vtt',
-								label: 'English',
-							},
-						},
-					},
 				},
 			},
 		] );
@@ -108,9 +100,8 @@ describe( 'useLibrary', () => {
 
 		await waitFor( () => expect( result.current.items.length ).toBeGreaterThan( 0 ) );
 		expect( result.current.items[ 0 ].title ).toBe( 'Test video' );
-		expect( result.current.items[ 0 ].tracks ).toEqual( [
-			{ kind: 'captions', srcLang: 'en', src: 'english.vtt', label: 'English' },
-		] );
+		// The media REST field doesn't return `tracks`; items default to [].
+		expect( result.current.items[ 0 ].tracks ).toEqual( [] );
 		expect( result.current.paginationInfo.totalItems ).toBe( 1 );
 		expect( result.current.paginationInfo.totalPages ).toBe( 1 );
 	} );

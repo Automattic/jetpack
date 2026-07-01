@@ -465,8 +465,10 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
 
-		// WorDBless doesn't unslash on insert the way core does, so the stored
-		// content comes back slashed; unslash it to read what core would serve.
+		/*
+		 * WorDBless doesn't unslash on insert the way core does, so the stored
+		 * content comes back slashed; unslash it to read what core would serve.
+		 */
 		$content = wp_unslash( $this->server->dispatch( $request )->get_data()['content'] );
 
 		$blocks = array_values(
@@ -478,8 +480,10 @@ class Caption_Tracks_Test extends BaseTestCase {
 			)
 		);
 
-		// Only the cue block survives, and its decoded text no longer carries the
-		// `-->` terminator that would corrupt downstream WebVTT serialization.
+		/*
+		 * Only the cue block survives, and its decoded text no longer carries the
+		 * `-->` terminator that would corrupt downstream WebVTT serialization.
+		 */
 		$this->assertCount( 1, $blocks );
 		$this->assertSame( 'Bad -> cue', $blocks[0]['attrs']['text'] );
 		$this->assertStringNotContainsString( 'wp:paragraph', $content );
@@ -571,6 +575,146 @@ class Caption_Tracks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that a backslash in the label survives a REST save round-trip.
+	 *
+	 * REST params arrive unslashed while the metadata layer unslashes on write,
+	 * so an unslashed value would silently lose its literal backslashes.
+	 */
+	public function test_caption_track_label_preserves_backslashes() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request->set_body_params( $this->track_payload() );
+		$created = $this->server->dispatch( $create_request )->get_data();
+
+		/*
+		 * Exercised via an update: WorDBless's metadata shim unslashes a second
+		 * time when first adding a key, which core does not, so only the
+		 * existing-key update path mirrors core's single-unslash behavior.
+		 */
+		$payload                                       = $this->track_payload();
+		$payload['meta'][ Caption_Tracks::META_LABEL ] = 'C:\captions\pt';
+
+		$update_request = new WP_REST_Request( 'PUT', '/jetpack/v4/videopress/caption-tracks/' . $created['id'] );
+		$update_request->set_body_params( $payload );
+
+		$response = $this->server->dispatch( $update_request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'C:\captions\pt', get_post_meta( $created['id'], Caption_Tracks::META_LABEL, true ) );
+	}
+
+	/**
+	 * Tests that a cue block's inner HTML is stripped from stored content.
+	 *
+	 * Cue blocks are rebuilt from their name and attributes only, so markup
+	 * smuggled inside a block wrapper must not survive into post_content.
+	 */
+	public function test_caption_track_content_drops_cue_inner_html() {
+		$content = $this->stored_track_content(
+			'<!-- wp:videopress/caption-cue {"startTime":"00:00:00.000","endTime":"00:00:02.000","text":"Hello"} --><script>alert(1)</script><!-- /wp:videopress/caption-cue -->'
+		);
+
+		$this->assertStringNotContainsString( '<script', $content );
+		$this->assertStringNotContainsString( 'alert(1)', $content );
+
+		$blocks = parse_blocks( $content );
+		$this->assertCount( 1, $blocks );
+		$this->assertSame( Caption_Tracks::CUE_BLOCK_NAME, $blocks[0]['blockName'] );
+		$this->assertSame( 'Hello', $blocks[0]['attrs']['text'] );
+		$this->assertSame( '', $blocks[0]['innerHTML'] );
+	}
+
+	/**
+	 * Tests that content over the byte cap is rejected with a 400.
+	 */
+	public function test_caption_track_save_denied_for_oversized_content() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$payload            = $this->track_payload();
+		$payload['content'] = str_repeat( 'a', Caption_Tracks::MAX_CONTENT_BYTES + 1 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $payload );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'videopress_caption_track_too_large', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Tests that content over the cue-count cap is rejected with a 400.
+	 */
+	public function test_caption_track_save_denied_for_too_many_cues() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$payload            = $this->track_payload();
+		$payload['content'] = str_repeat( '<!-- wp:videopress/caption-cue /-->', Caption_Tracks::MAX_CUE_BLOCKS + 1 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $payload );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'videopress_caption_track_too_large', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Tests that a POST to the collection route with a body ID updates that track.
+	 *
+	 * The `id` param follows core REST param resolution, so a body-supplied ID
+	 * turns a collection POST into an update of that track. Authorization
+	 * resolves the same param, so the permission check covers the same track.
+	 */
+	public function test_collection_post_with_body_id_updates_existing_track() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request->set_body_params( $this->track_payload() );
+		$created = $this->server->dispatch( $create_request )->get_data();
+
+		$payload          = $this->track_payload();
+		$payload['id']    = $created['id'];
+		$payload['title'] = 'Renamed track';
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $payload );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( $created['id'], $response->get_data()['id'] );
+		$this->assertSame( 'Renamed track', get_post( $created['id'] )->post_title );
+	}
+
+	/**
+	 * Tests that invalid and generated language tags are rejected with a 400.
+	 */
+	public function test_caption_track_save_denied_for_invalid_language() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		foreach ( array( 'not a tag!', 'auto_en' ) as $language ) {
+			$payload = $this->track_payload();
+			$payload['meta'][ Caption_Tracks::META_SRC_LANG ] = $language;
+
+			$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+			$request->set_body_params( $payload );
+
+			$response = $this->server->dispatch( $request );
+
+			$this->assertSame( 400, $response->get_status() );
+			$this->assertSame( 'videopress_caption_track_invalid_language', $response->get_data()['code'] );
+		}
+	}
+
+	/**
 	 * Create a VideoPress attachment for a GUID, owned by a given user.
 	 *
 	 * @param string $guid      VideoPress GUID.
@@ -629,8 +773,10 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
 
-		// WorDBless doesn't unslash on insert the way core does, so unslash the
-		// stored content to read what core would serve.
+		/*
+		 * WorDBless doesn't unslash on insert the way core does, so unslash the
+		 * stored content to read what core would serve.
+		 */
 		return wp_unslash( $this->server->dispatch( $request )->get_data()['content'] );
 	}
 

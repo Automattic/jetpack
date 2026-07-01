@@ -191,6 +191,42 @@ describe( 'caption cue utilities', () => {
 		] );
 	} );
 
+	it( 'normalizes CRLF input so multi-line cue text carries no stray carriage returns', () => {
+		expect(
+			parseCaptionTextTrack(
+				'1\r\n00:00:01,000 --> 00:00:02,000\r\nFirst line.\r\nSecond line.\r\n\r\n2\r\n00:00:03,000 --> 00:00:04,000\r\nWorld'
+			)
+		).toEqual( [
+			{ startTime: '00:00:01.000', endTime: '00:00:02.000', text: 'First line.\nSecond line.' },
+			{ startTime: '00:00:03.000', endTime: '00:00:04.000', text: 'World' },
+		] );
+	} );
+
+	it( 'parses cues with a non-numeric identifier line', () => {
+		expect( parseCaptionTextTrack( 'intro\n00:00:01.000 --> 00:00:02.000\ntext' ) ).toEqual( [
+			{ startTime: '00:00:01.000', endTime: '00:00:02.000', text: 'text' },
+		] );
+	} );
+
+	it( 'round-trips timestamps at 100 hours or more', () => {
+		const timestamp = formatSecondsAsTimestamp( 100 * 3600 + 62.5 );
+		expect( timestamp ).toBe( '100:01:02.500' );
+
+		expect(
+			parseCaptionTextTrack( `WEBVTT\n\n${ timestamp } --> 101:00:00.000\nLong stream.` )
+		).toEqual( [ { startTime: timestamp, endTime: '101:00:00.000', text: 'Long stream.' } ] );
+	} );
+
+	it( 'round-trips multiple cues through serialize and parse unchanged', () => {
+		const cues = [
+			{ startTime: '00:00:01.000', endTime: '00:00:02.500', text: 'First cue.' },
+			{ startTime: '00:00:03.000', endTime: '00:00:04.000', text: 'Second cue.\nWith two lines.' },
+			{ startTime: '100:00:00.000', endTime: '100:00:05.000', text: 'Third cue.' },
+		];
+
+		expect( parseCaptionTextTrack( serializeCuesToWebVtt( cues ) ) ).toEqual( cues );
+	} );
+
 	it( 'converts transcript-like text into editable cue placeholders', () => {
 		expect( parseCaptionTranscript( 'Trail closed.\nTrail open.' ) ).toEqual( [
 			{ startTime: '00:00:00.000', endTime: '00:00:04.000', text: 'Trail closed.' },
@@ -202,5 +238,14 @@ describe( 'caption cue utilities', () => {
 		expect( parseCaptionTextInput( '00:00:01.000 --> 00:00:02.000\nTimed cue.' ) ).toEqual( [
 			{ startTime: '00:00:01.000', endTime: '00:00:02.000', text: 'Timed cue.' },
 		] );
+	} );
+
+	it( 'keeps timing lines out of the transcript fallback when every timed cue is invalid', () => {
+		const cues = parseCaptionTextInput(
+			'WEBVTT\n\n99:99:99.999 --> 99:99:99.999\nFirst line.\n\n99:99:99.999 --> 99:99:99.999\nSecond line.'
+		);
+
+		expect( cues.map( cue => cue.text ) ).toEqual( [ 'First line.', 'Second line.' ] );
+		expect( cues.some( cue => cue.text.includes( '-->' ) ) ).toBe( false );
 	} );
 } );

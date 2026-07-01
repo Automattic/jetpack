@@ -477,6 +477,7 @@ const StageInner = () => {
 					guid={ captionVideo.guid }
 					title={ captionVideo.title }
 					poster={ captionVideo.thumbnailUrl }
+					isPrivate={ captionVideo.isPrivate }
 					tracks={ captionVideo.tracks }
 					onClose={ () => setCaptionVideo( null ) }
 					onTracksChange={ onCaptionTracksChange }

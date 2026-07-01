@@ -1,7 +1,9 @@
 import {
 	canonicalizeLanguageTag,
 	formatLanguageTagForDisplay,
+	getLanguageDisplayName,
 	getManualLanguageTagFromTrackKey,
+	getSiteLanguageTag,
 	isGeneratedLanguageKey,
 } from '../language';
 
@@ -45,6 +47,50 @@ describe( 'video track language utilities', () => {
 
 		it( 'canonicalizes valid existing tags for display', () => {
 			expect( formatLanguageTagForDisplay( 'EN-us' ) ).toBe( 'en-US' );
+		} );
+	} );
+
+	describe( 'getLanguageDisplayName', () => {
+		it( 'localizes plain language tags', () => {
+			expect( getLanguageDisplayName( 'en' ) ).toBe( 'English' );
+			expect( getLanguageDisplayName( 'fr' ) ).toBe( 'French' );
+			expect( getLanguageDisplayName( 'zh-Hans' ) ).toBe( 'Simplified Chinese' );
+		} );
+
+		it( 'renders regional variants as Language (REGION) rather than dialect names', () => {
+			expect( getLanguageDisplayName( 'en-US' ) ).toBe( 'English (US)' );
+			expect( getLanguageDisplayName( 'pt-BR' ) ).toBe( 'Portuguese (BR)' );
+		} );
+
+		it( 'labels the GB region as UK', () => {
+			expect( getLanguageDisplayName( 'en-GB' ) ).toBe( 'English (UK)' );
+		} );
+
+		it( 'expands numeric UN M49 regions to their localized name', () => {
+			expect( getLanguageDisplayName( 'es-419' ) ).toBe( 'Spanish (Latin America)' );
+		} );
+
+		it( 'returns unresolvable values unchanged', () => {
+			expect( getLanguageDisplayName( 'not a language' ) ).toBe( 'not a language' );
+		} );
+	} );
+
+	describe( 'getSiteLanguageTag', () => {
+		afterEach( () => {
+			document.documentElement.lang = '';
+		} );
+
+		it( 'canonicalizes the document language', () => {
+			document.documentElement.lang = 'en-us';
+			expect( getSiteLanguageTag() ).toBe( 'en-US' );
+		} );
+
+		it( 'falls back to English when the document language is empty or invalid', () => {
+			document.documentElement.lang = '';
+			expect( getSiteLanguageTag() ).toBe( 'en' );
+
+			document.documentElement.lang = 'not a language';
+			expect( getSiteLanguageTag() ).toBe( 'en' );
 		} );
 	} );
 

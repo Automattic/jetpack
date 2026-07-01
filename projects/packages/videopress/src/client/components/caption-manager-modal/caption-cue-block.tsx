@@ -79,6 +79,16 @@ function createCueAtPlayhead() {
 	} );
 }
 
+/**
+ * Block editor edit view for a single subtitle cue: text, start/end time
+ * fields, and reordering/duplicate/delete/insert controls.
+ *
+ * @param props               - Component props.
+ * @param props.attributes    - Cue block attributes.
+ * @param props.clientId      - Block editor client ID for this cue.
+ * @param props.setAttributes - Updates this cue's attributes.
+ * @return The cue block edit view.
+ */
 const CaptionCueEdit = ( {
 	attributes,
 	clientId,

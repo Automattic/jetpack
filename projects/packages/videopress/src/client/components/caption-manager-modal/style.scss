@@ -356,7 +356,8 @@
 .videopress-caption-cue__insert.components-button.has-icon {
 	position: absolute;
 	inset-block-end: -20px;
-	inset-inline-start: 50%;
+	// Physical left: with translateX(-50%), centering is direction-neutral.
+	left: 50%;
 	z-index: 1;
 	min-width: 0;
 	width: 28px;
@@ -368,7 +369,9 @@
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 	transform: translateX(-50%) scale(0.8);
 	opacity: 0;
-	transition: opacity 0.1s ease, transform 0.1s ease;
+	transition:
+		opacity 0.1s ease,
+		transform 0.1s ease;
 	pointer-events: none;
 }
 
@@ -386,6 +389,19 @@
 
 .videopress-caption-cue__insert.components-button.has-icon svg {
 	fill: currentColor;
+}
+
+// Visually hidden but exposed to assistive technology (keyboard shortcut hint).
+.videopress-caption-manager__visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
 }
 
 .videopress-caption-manager__preview {
@@ -407,7 +423,7 @@
 	// dimensions), bounded so portrait videos are height-capped and landscape
 	// videos are width-capped — neither overflows or gets pillarboxed.
 	aspect-ratio: var(--preview-ar, 16 / 9);
-	inline-size: min(100%, calc(60vh * (var(--preview-ar, 16 / 9))));
+	inline-size: min(100%, calc(60vh * ( var(--preview-ar, 16 / 9) )));
 	max-block-size: 60vh;
 	margin-inline: auto;
 	background: #1d2327;
