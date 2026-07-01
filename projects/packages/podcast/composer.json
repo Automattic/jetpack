@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.2",
+		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-connection": "@dev",
@@ -37,6 +38,9 @@
 		],
 		"test-php": [
 			"@composer phpunit"
+		],
+		"test-php-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		]
 	},
 	"repositories": [
@@ -55,7 +59,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-podcast",
 		"branch-alias": {
-			"dev-trunk": "1.0.x-dev"
+			"dev-trunk": "1.3.x-dev"
 		},
 		"textdomain": "jetpack-podcast",
 		"version-constants": {

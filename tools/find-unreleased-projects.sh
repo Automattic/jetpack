@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-cd $(dirname "${BASH_SOURCE[0]}")/..
+cd "$(dirname "${BASH_SOURCE[0]}")"/..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 

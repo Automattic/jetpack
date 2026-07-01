@@ -1,6 +1,5 @@
-import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import { Path, SVG } from '@wordpress/primitives';
 import edit from './edit.js';
 import save from './save.js';
 
@@ -11,8 +10,10 @@ const settings = {
 	description: __( 'A label for a form field', 'jetpack-forms' ),
 	category: 'contact-form',
 	icon: {
-		src: renderMaterialIcon(
-			<Path d="M12.9 6H10.9L6.90002 17H8.80002L9.90002 14H14.1L15.2 17H17.1L12.9 6ZM10.4 12.5L11.9 7.6L13.6 12.5H10.4Z" />
+		src: (
+			<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<Path d="M12.9 6H10.9L6.90002 17H8.80002L9.90002 14H14.1L15.2 17H17.1L12.9 6ZM10.4 12.5L11.9 7.6L13.6 12.5H10.4Z" />
+			</SVG>
 		),
 	},
 	parent: [

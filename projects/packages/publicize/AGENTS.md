@@ -129,7 +129,7 @@ Components are organized by feature area:
 - **Post publishing**: `pre-publish-preview/`, `post-publish-manual-sharing/`, `post-publish-share-status/`
 - **Media & Images**: `media-picker/`, `media-section/`, `generated-image-preview/`, `social-image-generator/`
 - **Previews & Modals**: `social-previews/`, `social-post-modal/`, `unified-modal/`, `global-modals/`
-- **Admin**: `admin-page/`, `block-editor/`, `schedule-button/`, `scheduled-posts/`, `share-status/`
+- **Admin**: `admin-page/`, `block-editor/`, `schedule-button/`, `share-status/`
 
 ### Hooks (`_inc/hooks/`)
 

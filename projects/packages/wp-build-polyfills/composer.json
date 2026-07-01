@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-wp-build-polyfills",
-	"description": "Polyfills for WordPress Core packages not available in WP < 7.0",
+	"description": "Polyfills for WordPress Core packages not available or incomplete in older WP versions",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
@@ -35,15 +35,15 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		],
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"test-js": [
 			"pnpm run build",
 			"pnpm run test"
+		],
+		"test-js-coverage": [
+			"pnpm run build",
+			"pnpm run test-coverage"
 		]
 	},
 	"config": {

@@ -2008,4 +2008,110 @@ class REST_Endpoints_Test extends TestCase {
 
 		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
 	}
+
+	// ---- Connection test endpoints ----
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test` endpoint without authentication.
+	 */
+	public function test_connection_test_unauthenticated() {
+		wp_set_current_user( 0 );
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test` endpoint with an editor (no manage_options).
+	 */
+	public function test_connection_test_insufficient_permissions() {
+		wp_set_current_user( self::$non_admin_user_id );
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'invalid_user_permission_manage_options', $data['code'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test` callback includes tests_run in the response.
+	 * Called directly to avoid auth dispatch and to deterministically control the test outcome.
+	 */
+	public function test_connection_test_returns_tests_run() {
+		// Remove all default health tests so pass() returns true deterministically.
+		add_action(
+			'jetpack_connection_tests_loaded',
+			function ( $cxntests ) {
+				$reflection = new \ReflectionClass( $cxntests );
+				$prop       = $reflection->getProperty( 'tests' );
+				// @todo Remove this call once we no longer need to support PHP <8.1.
+				if ( PHP_VERSION_ID < 80100 ) {
+					$prop->setAccessible( true );
+				}
+				$prop->setValue( $cxntests, array() );
+			},
+			PHP_INT_MAX
+		);
+
+		$connector = new REST_Connector( new Manager() );
+		$response  = $connector->connection_test();
+		$data      = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'success', $data['code'] );
+		$this->assertArrayHasKey( 'tests_run', $data );
+		$this->assertIsArray( $data['tests_run'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test-wpcom` endpoint without signature params.
+	 */
+	public function test_connection_test_wpcom_missing_signature() {
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test-wpcom' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test-wpcom` callback directly.
+	 * We call the method on the REST_Connector instance rather than dispatching through
+	 * the REST server, because the permission check requires a real keypair signature
+	 * that can't be easily mocked (the public key is a class constant).
+	 */
+	public function test_connection_test_for_external_returns_response() {
+		$connector = new REST_Connector( new Manager() );
+		$response  = $connector->connection_test_for_external();
+		$data      = $response->get_data();
+
+		$this->assertArrayHasKey( 'code', $data );
+		// Without OpenSSL seal support the endpoint returns 'action_required';
+		// with it, the encrypted result is returned as 'response'.
+		$this->assertContains( $data['code'], array( 'response', 'action_required' ) );
+
+		if ( 'response' === $data['code'] ) {
+			$this->assertArrayHasKey( 'debug', $data );
+			$this->assertIsArray( $data['debug'] );
+		}
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test-wpcom` endpoint with an expired timestamp.
+	 */
+	public function test_connection_test_wpcom_expired_signature() {
+		$expired_timestamp  = time() - 600; // 10 minutes ago, limit is 5.
+		$_GET['signature']  = base64_encode( 'fake-signature' );
+		$_GET['timestamp']  = (string) $expired_timestamp;
+		$_GET['url']        = 'https://example.org';
+		$_GET['rest_route'] = '/jetpack/v4/connection/test-wpcom';
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test-wpcom' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+	}
 }

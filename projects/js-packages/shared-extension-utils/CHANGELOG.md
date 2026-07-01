@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.5] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [2.0.4] - 2026-06-25
+### Changed
+- Update dependencies. [#49431]
+
+## [2.0.3] - 2026-06-24
+### Changed
+- Update dependencies. [#49431]
+
+## [2.0.2] - 2026-06-23
+### Changed
+- Update dependencies. [#49431]
+
+## [2.0.1] - 2026-06-22
+### Changed
+- Move the WordPress.com plans and Jetpack modules data stores to the new `jetpack-shared-stores` package. [#49494]
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+## [2.0.0] - 2026-06-15
+### Removed
+- Remove `react-native` export condition. [#49526]
+
+## [1.5.22] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## [1.5.21] - 2026-06-08
+### Changed
+- Update dependencies. [#49431]
+
+## [1.5.20] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.5.19] - 2026-06-05
+### Changed
+- Update dependencies. [#49354]
+
+## [1.5.18] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404]
+
 ## [1.5.17] - 2026-05-25
 ### Changed
 - Update dependencies. [#46951]
@@ -950,6 +995,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[2.0.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.4...2.0.5
+[2.0.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.3...2.0.4
+[2.0.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.2...2.0.3
+[2.0.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.1...2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.22...2.0.0
+[1.5.22]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.21...1.5.22
+[1.5.21]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.20...1.5.21
+[1.5.20]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.19...1.5.20
+[1.5.19]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.18...1.5.19
+[1.5.18]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.17...1.5.18
 [1.5.17]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.16...1.5.17
 [1.5.16]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.15...1.5.16
 [1.5.15]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.14...1.5.15

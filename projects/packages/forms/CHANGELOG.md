@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.22.6] - 2026-06-29
+### Security
+- Restrict status counts to a user's own forms when they cannot edit others' forms. [#49929]
+
+### Changed
+- Update package dependencies. [#49271]
+
+### Fixed
+- Restore webhook, Post to URL and Salesforce delivery for forms placed in block templates, template parts and widgets, which stopped firing in 15.9. [#49861]
+
+## [7.22.5] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
+### Fixed
+- Fix a `@wordpress/ui` 0.15 type error in the responses dashboard. [#49800]
+
+## [7.22.4] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49638] [#49691] [#49757]
+
+## [7.22.3] - 2026-06-15
+### Changed
+- Update package dependencies. [#49492]
+
+### Fixed
+- Post to URL: Prevent a fatal TypeError when a form's legacy `hiddenFields` attribute is stored as a name => value map or JSON string. [#49539]
+
+## [7.22.2] - 2026-06-09
+### Changed
+- Hide the Jetpack footer across on the Forms list and Responses views wp-build Forms dashboard. [#49432]
+- Update package dependencies. [#49273]
+
+### Fixed
+- Fix preg_match TypeError when a URL field value is an array instead of a string. [#49323]
+- Ensure the feedback REST collection endpoint never returns posts of unrelated types when the invalid_ids filter is in use.
+- Harden the legacy Salesforce post-to-URL path and route the request through the WordPress safe HTTP API.
+- Improve sanitization of class and style attribute values, and submitted values across the package.
+- Restrict webhook and integration configuration to users with the manage_options capability.
+- Tighten the permission check on the bulk-delete-by-status feedback endpoint.
+
+## [7.22.1] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+- Update package dependencies. [#49379]
+
+### Fixed
+- Include the routes directory in the TypeScript config and fix type errors in the dashboard route files. [#49368]
+
+## [7.22.0] - 2026-06-01
+### Changed
+- Update empty state to use component from @wordpress/ui. [#47908]
+- Update package dependencies. [#48404] [#49152] [#49154]
+
+### Fixed
+- Dashboard: Align the header logo with the page title, pin the footer to the bottom of the viewport, and keep the tabs and search controls on a single row on desktop. [#49246]
+
 ## [7.21.3] - 2026-05-25
 ### Added
 - Abilities: Opt all 8 Forms abilities into the MCP tool surface (meta.mcp public tool). [#49113]
@@ -16,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove dead legacy grunion assets: `grunion-admin.js`, `grunion-frontend.js`, `grunion-admin.css`, and 13 unused images. [#47609]
 
 ### Fixed
-- Fix a JavaScript error in the editor. [#48979]
+- Address `Uncaught TypeError` message in the editor. [#48979]
 - Fix unread submissions counter badge colors in the admin sidebar. [#48921]
 - Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
 
@@ -2504,6 +2561,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.22.6]: https://github.com/automattic/jetpack-forms/compare/v7.22.5...v7.22.6
+[7.22.5]: https://github.com/automattic/jetpack-forms/compare/v7.22.4...v7.22.5
+[7.22.4]: https://github.com/automattic/jetpack-forms/compare/v7.22.3...v7.22.4
+[7.22.3]: https://github.com/automattic/jetpack-forms/compare/v7.22.2...v7.22.3
+[7.22.2]: https://github.com/automattic/jetpack-forms/compare/v7.22.1...v7.22.2
+[7.22.1]: https://github.com/automattic/jetpack-forms/compare/v7.22.0...v7.22.1
+[7.22.0]: https://github.com/automattic/jetpack-forms/compare/v7.21.3...v7.22.0
 [7.21.3]: https://github.com/automattic/jetpack-forms/compare/v7.21.2...v7.21.3
 [7.21.2]: https://github.com/automattic/jetpack-forms/compare/v7.21.1...v7.21.2
 [7.21.1]: https://github.com/automattic/jetpack-forms/compare/v7.21.0...v7.21.1

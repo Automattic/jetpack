@@ -53,6 +53,9 @@ $default_matrix_vars = array(
 
 	// {bool} Whether to install WooCommerce.
 	'with-woocommerce'    => false,
+
+	// {string} For coverage jobs, which group is being run: 'php' or 'js'.
+	'coverage-group'      => '',
 );
 
 // Matrix definitions. Each will be combined with `$default_matrix_vars` later in processing.
@@ -61,11 +64,12 @@ $matrix = array();
 // Add PHP tests.
 foreach ( array( '7.2', '7.3' ) as $php ) {
 	$matrix[] = array(
-		'name'    => "PHP tests: PHP $php WP previous",
-		'script'  => 'test-php',
-		'php'     => $php,
-		'wp'      => 'previous',
-		'timeout' => 20, // 2025-11-06: Successful runs seem to take ~7 minutes.
+		'name'                => "PHP tests: PHP $php WP previous",
+		'script'              => 'test-php',
+		'php'                 => $php,
+		'wp'                  => 'previous',
+		'force-package-tests' => true,
+		'timeout'             => 20, // 2025-11-06: Successful runs seem to take ~7 minutes.
 	);
 }
 foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
@@ -116,13 +120,17 @@ $matrix[] = array(
 	'timeout' => 15, // 2025-11-06: Successful runs seem to take ~5 minutes.
 );
 
-// Add Coverage tests.
-$matrix[] = array(
-	'name'    => 'Code coverage',
-	'script'  => 'test-coverage',
-	'wp'      => 'latest',
-	'timeout' => 40, // 2025-11-06: Successful runs seem to take ~15 minutes.
-);
+// Add Coverage tests. Split into PHP and JS groups so they run in parallel.
+foreach ( array( 'php', 'js' ) as $cov_group ) {
+	$matrix[] = array(
+		'name'           => 'Code coverage (' . strtoupper( $cov_group ) . ')',
+		'script'         => "test-$cov_group-coverage",
+		// JS coverage doesn't need a WordPress environment, like the regular JS tests job.
+		'wp'             => 'php' === $cov_group ? 'latest' : 'none',
+		'timeout'        => 30, // 2025-11-06: Successful runs took ~15 minutes combined; we'll want to update this when we have new numbers.
+		'coverage-group' => $cov_group,
+	);
+}
 
 // END matrix definitions.
 // Now, validation.
@@ -246,6 +254,27 @@ foreach ( $matrix as &$m ) {
 			)
 		);
 		error( "Key `wp` must be %s\n%s", $valid_wp, $orig );
+	}
+
+	// Coverage runs must set a proper `coverage-group` to match the script; other runs must leave it empty.
+	if ( preg_match( '/^test-(\w+)-coverage$/', $m['script'], $match ) ) {
+		if ( $m['coverage-group'] !== $match[1] ) {
+			error( "Key `coverage-group` must be '%s' for script `%s`!\n%s", $match[1], $m['script'], $orig );
+		}
+		$valid_groups = array( 'php', 'js' );
+		if ( ! in_array( $m['coverage-group'], $valid_groups, true ) ) {
+			$valid_groups = join_or(
+				array_map(
+					function ( $v ) {
+						return "'$v'";
+					},
+					$valid_groups
+				)
+			);
+			error( "For coverage runs, key `coverage_group` must be %s!\n%s", $valid_groups, $orig );
+		}
+	} elseif ( $m['coverage-group'] !== '' ) {
+		error( "Key `coverage-group` must be empty for a non-coverage run!\n%s", $orig );
 	}
 }
 unset( $m );

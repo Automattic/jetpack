@@ -142,7 +142,7 @@ async function replyToCustomersReminder(
 	debug( `reply-to-customers-reminder: Sending in Slack message about #${ number }.` );
 	const message = `This high priority issue was recently closed. It is now time to send follow-up replies to all impacted customers.
 ${
-	full_name.match( /^Automattic\/(jetpack|zero-bs-crm|themes)$/i )
+	full_name.match( /^Automattic\/(jetpack|themes)$/i )
 		? `
 
 Before you send follow-up replies, you'll want to make sure the fix has been deployed to all customers. Check the Pull Request that closed the issue to see when the fix will be deployed to customers.`

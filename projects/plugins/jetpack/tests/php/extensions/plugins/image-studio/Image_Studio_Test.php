@@ -88,6 +88,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		delete_option( 'big_sky_enable' );
 		update_option( 'siteurl', $this->saved_siteurl );
 		$GLOBALS['current_screen'] = $this->saved_screen;
@@ -135,7 +136,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	private function simulate_big_sky_class() {
 		if ( ! class_exists( 'Big_Sky' ) ) {
-			// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.DuplicateClassName.Found
 			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
 		}
 	}
@@ -208,6 +208,33 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		ImageStudio\register_plugin();
 		set_transient( ImageStudio\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
 		ImageStudio\enqueue_image_studio_admin();
+	}
+
+	/**
+	 * Get Image Studio inline script data.
+	 *
+	 * @return array|null The decoded imageStudioData array, or null if missing.
+	 */
+	private function get_image_studio_inline_data() {
+		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+
+		if ( ! is_array( $inline ) ) {
+			return null;
+		}
+
+		foreach ( $inline as $line ) {
+			if ( ! is_string( $line ) || false === strpos( $line, 'imageStudioData' ) ) {
+				continue;
+			}
+
+			$matches = array();
+			if ( preg_match( '/window\.imageStudioData = (\{.*\}); \}$/', $line, $matches ) ) {
+				$data = json_decode( $matches[1], true );
+				return is_array( $data ) ? $data : null;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -517,22 +544,22 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test inline script includes isDevMode property.
+	 * Test inline script sets tracking context data.
 	 */
-	public function test_inline_script_includes_is_dev_mode() {
+	public function test_inline_script_sets_tracking_context_data() {
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+
 		$this->enable_and_enqueue_block_editor();
 
-		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+		$data = $this->get_image_studio_inline_data();
 
-		$this->assertIsArray( $inline );
-		$found = false;
-		foreach ( $inline as $line ) {
-			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
-				$found = true;
-				$this->assertStringContainsString( '"isDevMode":', $line );
-			}
-		}
-		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
+		$this->assertIsArray( $data );
+		$this->assertSame( 1234, $data['blogId'] );
+		$this->assertSame( 'jetpack', $data['siteType'] );
+		$this->assertFalse( $data['isA11n'] );
+		$this->assertArrayHasKey( 'isDevMode', $data );
 	}
 
 	/**
@@ -574,7 +601,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
 		}
 
-		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
 		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
 
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
@@ -611,7 +637,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
 		}
 
-		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
 		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
 
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
@@ -650,7 +675,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
 		}
 
-		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
 		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
 
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
@@ -677,7 +701,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
 		}
 
-		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
 		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
 
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
@@ -729,7 +752,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
 		}
 
-		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
 		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
 
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
@@ -756,7 +778,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
 		}
 
-		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
 		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
 
 		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
@@ -777,7 +798,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
 		}
 
-		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
 		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
 
 		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
@@ -1294,13 +1314,11 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		// Create directory and file.
 		wp_mkdir_p( $dir );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $local_path, wp_json_encode( $asset_data, JSON_UNESCAPED_SLASHES ) );
 
 		$result = ImageStudio\get_asset_data_from_file();
 
 		// Clean up.
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		unlink( $local_path );
 
 		$this->assertEquals( $asset_data, $result );
@@ -1314,12 +1332,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$dir        = dirname( $local_path );
 
 		wp_mkdir_p( $dir );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $local_path, 'not valid json{{{' );
 
 		$result = ImageStudio\get_asset_data_from_file();
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		unlink( $local_path );
 
 		$this->assertFalse( $result );
@@ -1333,12 +1349,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$dir        = dirname( $local_path );
 
 		wp_mkdir_p( $dir );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $local_path, '"just a string"' );
 
 		$result = ImageStudio\get_asset_data_from_file();
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		unlink( $local_path );
 
 		$this->assertFalse( $result );
@@ -1361,14 +1375,12 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$dir        = dirname( $local_path );
 
 		wp_mkdir_p( $dir );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $local_path, wp_json_encode( $local_data, JSON_UNESCAPED_SLASHES ) );
 
 		$this->mock_remote_asset( $remote_data );
 
 		$result = ImageStudio\get_asset_data();
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		unlink( $local_path );
 
 		$this->assertEquals( $local_data, $result );

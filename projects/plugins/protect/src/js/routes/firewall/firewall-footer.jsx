@@ -1,4 +1,5 @@
-import { Title, Text, Button, ToggleControl, Container, Col } from '@automattic/jetpack-components';
+import { Title, Text, Button, Container, Col } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useModal from '../../hooks/use-modal';
@@ -73,24 +74,24 @@ const ShareData = () => {
 				checked={ !! jetpackWafShareData }
 				onChange={ handleShareDataChange }
 				disabled={ isUpdating }
-				size="small"
 				label={ __( 'Share basic data', 'jetpack-protect' ) }
 				help={ __(
 					'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy.',
 					'jetpack-protect'
 				) }
+				__nextHasNoMarginBottom={ true }
 			/>
 			<ToggleControl
 				className={ styles[ 'share-data-toggle' ] }
 				checked={ !! jetpackWafShareDebugData }
 				onChange={ handleShareDebugDataChange }
 				disabled={ isUpdating }
-				size="small"
 				label={ __( 'Share detailed data', 'jetpack-protect' ) }
 				help={ __(
 					'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy.',
 					'jetpack-protect'
 				) }
+				__nextHasNoMarginBottom={ true }
 			/>
 		</div>
 	);

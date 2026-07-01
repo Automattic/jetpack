@@ -11,6 +11,4 @@ vendor/jetpack-autoloader/**                    production-include
 # Files to exclude from the mirror repo, but included in the monorepo.
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
-README.md                                       production-exclude
-/vendor/automattic/jetpack-autoloader/**        production-exclude
-/vendor/automattic/jetpack-composer-plugin/**   production-exclude
+/README.md                                      production-exclude

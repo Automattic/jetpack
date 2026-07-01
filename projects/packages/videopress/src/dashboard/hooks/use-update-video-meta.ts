@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { privacyStringToInt, LIBRARY_QUERY_KEY } from './use-library';
+import { privacyStringToInt, LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY } from './use-library';
 import type { VideoDetailsPatch } from '../types/library';
 
 type ApiPatch = {
@@ -61,7 +61,7 @@ export function useUpdateVideoMeta() {
 		onSuccess: ( _data, { id } ) => {
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 			client.invalidateQueries( {
-				queryKey: [ LIBRARY_QUERY_KEY, 'item', String( id ) ],
+				queryKey: [ LIBRARY_QUERY_KEY, LIBRARY_ITEM_QUERY_SEGMENT, String( id ) ],
 			} );
 		},
 	} );

@@ -12,7 +12,6 @@ function emptySearchedState( overrides = {} ) {
 	return {
 		searchQuery: 'test',
 		hasSearchParam: true,
-		skeletonHidden: true,
 		isLoading: false,
 		hasError: false,
 		aggregations: {},
@@ -38,12 +37,6 @@ describe( 'filtersHaveNothingToShow', () => {
 
 	it( 'is false while the search is loading', () => {
 		expect( filtersHaveNothingToShow( emptySearchedState( { isLoading: true } ) ) ).toBe( false );
-	} );
-
-	it( 'is false while the pre-hydration skeleton is up', () => {
-		expect( filtersHaveNothingToShow( emptySearchedState( { skeletonHidden: false } ) ) ).toBe(
-			false
-		);
 	} );
 
 	it( 'is false when the fetch errored', () => {

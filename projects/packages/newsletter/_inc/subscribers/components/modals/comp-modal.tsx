@@ -4,8 +4,10 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Button, Dialog, Notice, Stack, Text } from '@wordpress/ui';
 import { useCompMutation } from '../../data/use-comp-mutation';
 import { useMembershipsProducts } from '../../data/use-memberships-products';
+import { useSubscriberDetails } from '../../data/use-subscriber-details';
 import { getSubscriberLabel } from '../../lib/subscriber-helpers';
 import { recordTracksEvent } from '../../lib/tracks';
+import type { MembershipsProduct } from '../../data/api';
 import type { Subscriber, SubscriptionPlan } from '../../data/types';
 
 type Props = {
@@ -14,25 +16,60 @@ type Props = {
 };
 
 /**
- * Format a plan label for the picker — `Plan name (currency price)`. Mirrors how Calypso renders
- * its `<ProductsSelector />` rows.
+ * Translate a membership billing interval (e.g. `1 year`) into a short, localized cadence word
+ * shown after the price. Falls back to the raw interval for anything we don't recognize.
+ *
+ * @param interval - Raw interval string from the wpcom proxy (e.g. `1 month`, `1 year`).
+ * @return Localized cadence (e.g. `year`), or an empty string when no interval is set.
+ */
+function formatInterval( interval?: string ): string {
+	switch ( interval ) {
+		case '1 day':
+			return __( 'day', 'jetpack-newsletter' );
+		case '1 week':
+			return __( 'week', 'jetpack-newsletter' );
+		case '1 month':
+			return __( 'month', 'jetpack-newsletter' );
+		case '1 year':
+			return __( 'year', 'jetpack-newsletter' );
+		default:
+			return interval ?? '';
+	}
+}
+
+/**
+ * Format a plan label for the picker — `Plan name (currency price / interval)`. Mirrors how Calypso
+ * renders its `<ProductsSelector />` rows. The interval disambiguates plans that share a name and
+ * currency but bill on different cadences (e.g. a $1/month vs $12/year tier).
  *
  * @param product          - Membership product entry returned by the wpcom proxy.
  * @param product.title    - Plan name.
- * @param product.price    - Plan price (numeric).
+ * @param product.price    - Plan price (preformatted string, e.g. `12.00`).
  * @param product.currency - ISO currency code.
+ * @param product.interval - Billing interval (e.g. `1 year`).
  * @return Display string.
  */
-function formatPlanLabel( product: { title: string; price?: number; currency?: string } ): string {
+function formatPlanLabel( product: MembershipsProduct ): string {
 	if ( ! product.price || ! product.currency ) {
 		return product.title;
 	}
+	const cadence = formatInterval( product.interval );
+	if ( ! cadence ) {
+		return sprintf(
+			// translators: %1$s: plan title. %2$s: currency code. %3$s: price.
+			__( '%1$s (%2$s %3$s)', 'jetpack-newsletter' ),
+			product.title,
+			product.currency,
+			product.price
+		);
+	}
 	return sprintf(
-		// translators: %1$s: plan title. %2$s: currency code. %3$s: numeric price.
-		__( '%1$s (%2$s %3$s)', 'jetpack-newsletter' ),
+		// translators: %1$s: plan title. %2$s: currency code. %3$s: price. %4$s: billing cadence, e.g. "year".
+		__( '%1$s (%2$s %3$s / %4$s)', 'jetpack-newsletter' ),
 		product.title,
 		product.currency,
-		String( product.price )
+		product.price,
+		cadence
 	);
 }
 
@@ -51,6 +88,14 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 	const productsQuery = useMembershipsProducts( isOpen );
 	const mutation = useCompMutation();
 
+	// The subscriber list payload omits plans, so pull the reader's existing comps from the
+	// individual-subscriber endpoint (shared React Query cache with the detail panel) to filter
+	// out plans they're already comped on.
+	const detailsQuery = useSubscriberDetails( {
+		subscription_id: subscriber?.email_subscription_id || subscriber?.wpcom_subscription_id,
+		user_id: subscriber?.user_id,
+	} );
+
 	const [ planId, setPlanId ] = useState< string >( '' );
 	const [ noExpiration, setNoExpiration ] = useState( false );
 
@@ -63,42 +108,49 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 		recordTracksEvent( 'jetpack_subscribers_comp_modal_open' );
 	}, [ isOpen ] );
 
+	// A comp's `subscription_id` is the membership product id, so the ids collected here line up
+	// with `product.id` in the picker below — letting us flag plans the reader already has.
 	const compedPlanIds = useMemo( () => {
-		if ( ! subscriber ) {
-			return new Set< number >();
-		}
 		const ids = new Set< number >();
-		( subscriber.plans ?? [] ).forEach( ( plan: SubscriptionPlan ) => {
-			if ( plan.is_comp && plan.subscription_id ) {
-				ids.add( plan.subscription_id );
+		( detailsQuery.data?.plans ?? [] ).forEach( ( plan: SubscriptionPlan ) => {
+			// The wpcom payload is loosely typed (it sends `price` as a string), so coerce the id —
+			// a string would never match the numeric `product.id` in the Set's strict `has()`.
+			const subscriptionId = Number( plan.subscription_id );
+			if ( plan.is_comp && subscriptionId > 0 ) {
+				ids.add( subscriptionId );
 			}
 		} );
 		return ids;
-	}, [ subscriber ] );
+	}, [ detailsQuery.data ] );
 
 	const products = useMemo( () => productsQuery.data ?? [], [ productsQuery.data ] );
-	const availableProducts = useMemo(
-		() => products.filter( product => ! compedPlanIds.has( product.ID ) ),
-		[ products, compedPlanIds ]
-	);
 
-	const options = useMemo(
-		() => [
+	// Keep every plan in the picker but disable the ones the reader is already comped on — that
+	// surfaces "this plan exists and they already have it" rather than silently hiding it. The
+	// disabled rows carry a `title` so the browser explains the why on hover (a native tooltip —
+	// a styled one can't attach to a native `<option>`).
+	const options = useMemo( () => {
+		const compedHint = __( 'This reader already has this plan.', 'jetpack-newsletter' );
+		return [
 			{
 				value: '',
 				label: __( 'Select a plan…', 'jetpack-newsletter' ),
 			},
-			...availableProducts.map( product => ( {
-				value: String( product.ID ),
-				label: formatPlanLabel( product ),
-			} ) ),
-		],
-		[ availableProducts ]
-	);
+			...products.map( product => {
+				const isComped = compedPlanIds.has( Number( product.id ) );
+				return {
+					value: String( product.id ),
+					label: formatPlanLabel( product ),
+					disabled: isComped,
+					title: isComped ? compedHint : undefined,
+				};
+			} ),
+		];
+	}, [ products, compedPlanIds ] );
 
 	const selectedProduct = useMemo(
-		() => availableProducts.find( product => String( product.ID ) === planId ),
-		[ availableProducts, planId ]
+		() => products.find( product => String( product.id ) === planId ),
+		[ products, planId ]
 	);
 
 	const handleSubmit = useCallback( () => {
@@ -120,7 +172,9 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 				planTitle: selectedProduct?.title,
 				subscriberName: getSubscriberLabel( subscriber as Subscriber ),
 			},
-			{ onSuccess: onClose }
+			// Close on settle (success or error), mirroring Calypso: the snackbar carries the
+			// outcome — including the upstream reason like "User has already been comped this plan".
+			{ onSettled: onClose }
 		);
 	}, [ mutation, onClose, planId, noExpiration, subscriber, selectedProduct ] );
 
@@ -138,7 +192,9 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 	}
 
 	const allComped =
-		! productsQuery.isLoading && products.length > 0 && availableProducts.length === 0;
+		! productsQuery.isLoading &&
+		products.length > 0 &&
+		products.every( product => compedPlanIds.has( product.id ) );
 
 	return (
 		<Dialog.Root open onOpenChange={ handleOpenChange }>
@@ -153,57 +209,49 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 					</Dialog.Title>
 					<Dialog.CloseIcon />
 				</Dialog.Header>
-				<Stack direction="column" gap="md">
-					<Text variant="body-md">
-						{ __(
-							'Pick a paid plan and we’ll add a complimentary subscription for this reader.',
-							'jetpack-newsletter'
-						) }
-					</Text>
-					{ productsQuery.isError ? (
-						<Notice.Root intent="error">
-							<Notice.Description>
-								{ productsQuery.error?.message ||
-									__( 'Could not load your paid plans.', 'jetpack-newsletter' ) }
-							</Notice.Description>
-						</Notice.Root>
-					) : null }
-					{ ! productsQuery.isLoading && products.length === 0 && ! productsQuery.isError ? (
-						<Notice.Root intent="info">
-							<Notice.Description>
-								{ __(
-									'You don’t have any paid newsletter plans configured on this site yet.',
-									'jetpack-newsletter'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-					) : null }
-					{ allComped ? (
-						<Notice.Root intent="info">
-							<Notice.Description>
-								{ __(
-									'This subscriber already has a comp on every available plan.',
-									'jetpack-newsletter'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-					) : null }
-					<SelectControl
-						__nextHasNoMarginBottom
-						label={ __( 'Plan', 'jetpack-newsletter' ) }
-						value={ planId }
-						onChange={ setPlanId }
-						options={ options }
-						disabled={ productsQuery.isLoading || mutation.isPending || allComped }
-					/>
-					<CheckboxControl
-						__nextHasNoMarginBottom
-						label={ __( 'Doesn’t expire', 'jetpack-newsletter' ) }
-						checked={ noExpiration }
-						onChange={ setNoExpiration }
-						disabled={ mutation.isPending }
-					/>
-				</Stack>
+				<Dialog.Content>
+					<Stack direction="column" gap="md" className="jetpack-newsletter__comp-modal-body">
+						<Text variant="body-md">
+							{ __(
+								'Pick a paid plan and we’ll add a complimentary subscription for this reader.',
+								'jetpack-newsletter'
+							) }
+						</Text>
+						{ productsQuery.isError ? (
+							<Notice.Root intent="error">
+								<Notice.Description>
+									{ productsQuery.error?.message ||
+										__( 'Could not load your paid plans.', 'jetpack-newsletter' ) }
+								</Notice.Description>
+							</Notice.Root>
+						) : null }
+						{ allComped ? (
+							<Notice.Root intent="info">
+								<Notice.Description>
+									{ __(
+										'This subscriber already has a comp on every available plan.',
+										'jetpack-newsletter'
+									) }
+								</Notice.Description>
+							</Notice.Root>
+						) : null }
+						<SelectControl
+							__nextHasNoMarginBottom
+							label={ __( 'Plan', 'jetpack-newsletter' ) }
+							value={ planId }
+							onChange={ setPlanId }
+							options={ options }
+							disabled={ productsQuery.isLoading || mutation.isPending || allComped }
+						/>
+						<CheckboxControl
+							__nextHasNoMarginBottom
+							label={ __( 'Doesn’t expire', 'jetpack-newsletter' ) }
+							checked={ noExpiration }
+							onChange={ setNoExpiration }
+							disabled={ mutation.isPending }
+						/>
+					</Stack>
+				</Dialog.Content>
 				<Dialog.Footer>
 					<Dialog.Action
 						render={ <Button variant="outline" tone="neutral" /> }

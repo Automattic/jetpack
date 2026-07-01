@@ -69,6 +69,19 @@ class REST_Controller {
 	}
 
 	/**
+	 * Registers the REST routes on the `rest_api_init` hook.
+	 *
+	 * Instantiated here, rather than eagerly, so the controller class only loads
+	 * on requests that reach `rest_api_init`. Static so the callback can be
+	 * unregistered.
+	 *
+	 * @access public
+	 */
+	public static function register() {
+		( new self() )->register_rest_routes();
+	}
+
+	/**
 	 * Registers the REST routes for Search.
 	 *
 	 * @access public
@@ -636,9 +649,10 @@ class REST_Controller {
 	 */
 	protected function resolve_singleton_template_class( $post_type ) {
 		$map = array(
-			Overlay_Template::POST_TYPE        => Overlay_Template::class,
-			Search_Template::POST_TYPE         => Search_Template::class,
-			Product_Search_Template::POST_TYPE => Product_Search_Template::class,
+			Overlay_Template::POST_TYPE         => Overlay_Template::class,
+			Product_Overlay_Template::POST_TYPE => Product_Overlay_Template::class,
+			Search_Template::POST_TYPE          => Search_Template::class,
+			Product_Search_Template::POST_TYPE  => Product_Search_Template::class,
 		);
 		return $map[ $post_type ] ?? null;
 	}

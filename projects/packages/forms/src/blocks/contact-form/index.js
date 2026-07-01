@@ -1,16 +1,15 @@
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
-import { Path } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { select } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
-import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import { FORM_POST_TYPE } from '../shared/util/constants.js';
 import defaultAttributes from './attributes.ts';
 import blockMetadata from './block.json';
 import deprecated from './deprecated.js';
 import edit from './edit.tsx';
+import { icon } from './icon.jsx';
 import transforms from './transforms.js';
 import { DEFAULT_FORM_LABEL, extractTitleText, formatFormLabel } from './util/form-label.js';
 import variations from './variations.js';
@@ -47,28 +46,6 @@ export const getFormLabel = ( { ref } ) => {
 		defaultLabel: DEFAULT_FORM_LABEL,
 	} );
 };
-
-const icon = renderMaterialIcon(
-	<>
-		<Path fillRule="evenodd" clipRule="evenodd" d="M18 9H13V7.5H18V9Z" />
-		<Path fillRule="evenodd" clipRule="evenodd" d="M18 16.5H13V15H18V16.5Z" />
-		<Path
-			fillRule="evenodd"
-			clipRule="evenodd"
-			d="M9.5 7.5H7.5V9.5H9.5V7.5ZM7.5 6H9.5C10.3284 6 11 6.67157 11 7.5V9.5C11 10.3284 10.3284 11 9.5 11H7.5C6.67157 11 6 10.3284 6 9.5V7.5C6 6.67157 6.67157 6 7.5 6Z"
-		/>
-		<Path
-			fillRule="evenodd"
-			clipRule="evenodd"
-			d="M9.5 14.5H7.5V16.5H9.5V14.5ZM7.5 13H9.5C10.3284 13 11 13.6716 11 14.5V16.5C11 17.3284 10.3284 18 9.5 18H7.5C6.67157 18 6 17.3284 6 16.5V14.5C6 13.6716 6.67157 13 7.5 13Z"
-		/>
-		<Path
-			fillRule="evenodd"
-			clipRule="evenodd"
-			d="M19 4.5H5C4.72386 4.5 4.5 4.72386 4.5 5V19C4.5 19.2761 4.72386 19.5 5 19.5H19C19.2761 19.5 19.5 19.2761 19.5 19V5C19.5 4.72386 19.2761 4.5 19 4.5ZM5 3C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3H5Z"
-		/>
-	</>
-);
 
 // Extract only valid block registration properties from block.json
 // Exclude file-based properties like editorScript, style, etc.

@@ -1,0 +1,10 @@
+/**
+ * Shared styles for DonutChart-based widgets.
+ * Used by: CouponUseWidget, BookingsByAttendanceWidget
+ */
+.container {
+	min-width: 120px;
+	max-width: 240px;
+	height: 100%;
+	margin: 0 auto;
+}

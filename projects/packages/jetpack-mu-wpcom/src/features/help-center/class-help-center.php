@@ -68,7 +68,6 @@ class Help_Center {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
-		add_action( 'next_admin_init', array( $this, 'enqueue_wp_admin_scripts' ), 1000 );
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
 	}
 
@@ -414,7 +413,7 @@ class Help_Center {
 	 *
 	 * @param string $variant   Bundle variant driving the default sectionName.
 	 *                          One of 'wp-admin', 'logged-out', 'customizer',
-	 *                          'gutenberg', 'ciab-admin'.
+	 *                          'gutenberg'.
 	 * @param array  $overrides Shallow-merged onto the result via array_replace
 	 *                          (e.g. array( 'sectionName' => 'landpack' )).
 	 *                          Replacing a sub-array (e.g. 'currentUser')
@@ -661,7 +660,6 @@ class Help_Center {
 		if ( $this->is_wc_admin_home_page() ) {
 			return;
 		}
-		$is_next_admin = (bool) did_action( 'next_admin_init' );
 
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
@@ -684,9 +682,7 @@ class Help_Center {
 
 		$suffix = $this->is_jetpack_disconnected() ? '-disconnected' : '';
 
-		if ( $is_next_admin ) {
-			$variant = 'ciab-admin' . $suffix;
-		} elseif ( $this->is_support_site ) {
+		if ( $this->is_support_site ) {
 			if ( ! is_user_logged_in() ) {
 				$variant = 'logged-out';
 			} else {

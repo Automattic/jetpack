@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: drop nested same-namespace `data-wp-interactive` on active-filters and filter-checkbox when rendered inside the collapsible filters popover, fixing duplicate Active Filters pills and missing checkbox labels/counts on some hosts.

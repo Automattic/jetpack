@@ -27,6 +27,5 @@ vendor/jetpack-autoloader/**                    production-include
 # Remember to end all directories with `/**` to properly tag every file.
 build/**/*.js.map                               production-exclude
 jest.setup.js                                   production-exclude
-README.md                                       production-exclude
+/README.md                                      production-exclude
 src/js/**                                       production-exclude
-/vendor/automattic/jetpack-composer-plugin/**  production-exclude

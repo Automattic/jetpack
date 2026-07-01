@@ -62,7 +62,7 @@ const RedeemPartnerCouponPostConnection = props => {
 		return null;
 	}
 
-	let logoComponent = null;
+	let logoComponent;
 
 	if ( partnerCoupon.partner.logo ) {
 		logoComponent = (

@@ -32,6 +32,18 @@
 		}
 	},
 	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"postTypeMode": {
+			"type": "string",
+			"enum": [ "include", "exclude" ],
+			"default": "exclude"
+		},
+		"postTypes": {
+			"type": "array",
+			"default": [],
+			"items": { "type": "string" }
+		}
+	},
 	"render": "file:./render.php",
 	"viewScriptModule": "file:../../../../build/search-blocks/search-results.js",
 	"style": "file:../../../../build/search-blocks/search-results.css"

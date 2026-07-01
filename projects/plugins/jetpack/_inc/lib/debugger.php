@@ -43,15 +43,5 @@ add_filter(
 	}
 );
 
-/*
- * Register Jetpack-specific tests with the connection package's Site Health integration.
- * This adds Jetpack tests (sync health) alongside the connection package's own tests
- * when Site Health runs.
- */
-add_action(
-	'jetpack_connection_tests_loaded',
-	function ( $connection_tests ) {
-		$jetpack_tests = new Jetpack_Cxn_Tests();
-		$jetpack_tests->register_tests_on( $connection_tests );
-	}
-);
+// Note: Jetpack-specific test registration via jetpack_connection_tests_loaded
+// has moved to class.jetpack.php so it runs on all requests (not just admin).

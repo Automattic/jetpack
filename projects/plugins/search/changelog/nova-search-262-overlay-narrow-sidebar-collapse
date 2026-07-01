@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Search Blocks Overlay: collapse the filter sidebar below 992px and dock a `filters-popover` trigger next to Sort By, matching the legacy Instant Search overlay UX.

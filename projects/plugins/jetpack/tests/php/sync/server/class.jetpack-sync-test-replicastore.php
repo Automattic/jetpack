@@ -360,6 +360,29 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		}
 	}
 
+	public function delete_metadata_by_key_value( $type, $meta_key, $meta_value ) {
+		$blog_id = get_current_blog_id();
+		if ( ! isset( $this->meta[ $blog_id ][ $type ] ) ) {
+			return;
+		}
+
+		if ( '' === $meta_value || null === $meta_value || false === $meta_value ) {
+			return;
+		}
+
+		foreach ( $this->meta[ $blog_id ][ $type ] as $meta_id => $meta_data ) {
+			if ( $meta_data->meta_key !== $meta_key ) {
+				continue;
+			}
+
+			if ( $meta_data->meta_value !== $meta_value ) {
+				continue;
+			}
+
+			unset( $this->meta[ $blog_id ][ $type ][ $meta_id ] );
+		}
+	}
+
 	/** Constants **/
 	public function get_constant( $constant ) {
 		if ( ! isset( $this->constants[ get_current_blog_id() ][ $constant ] ) ) {

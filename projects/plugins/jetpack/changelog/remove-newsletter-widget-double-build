@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Newsletter widget: stop building the bundle twice. It was emitted by both the legacy module config (as newsletter-widget.min.js) and its own config (as newsletter-widget.js); only the latter is loaded, so the duplicate min build is removed.

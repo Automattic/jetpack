@@ -9,9 +9,6 @@ jest.mock( '../connect-form', () => ( {
 jest.mock( '../service-item-details', () => ( {
 	ServiceItemDetails: () => <div>Service Details</div>,
 } ) );
-jest.mock( '../service-item-notice', () => ( {
-	ServiceItemNotice: () => <div>Service Notice</div>,
-} ) );
 jest.mock( '../service-status', () => ( {
 	ServiceStatus: () => <div>Service Status</div>,
 } ) );

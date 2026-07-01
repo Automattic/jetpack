@@ -21,6 +21,7 @@ AGENTS.md              production-exclude
 babel.config.js        production-exclude
 babel.config.[cm]js    production-exclude
 .babelrc               production-exclude
+.c8rc.json             production-exclude
 CLAUDE.md              production-exclude
 composer.lock          production-exclude
 eslint.config.mjs      production-exclude
@@ -45,3 +46,18 @@ projects/*/*/tests/**  production-exclude
 # We only need package.json in js-packages.
 projects/*/*/package.json            production-exclude
 projects/js-packages/*/package.json  !production-exclude
+
+# Plugins bundle vendor packages. There are some files we can trim from there.
+projects/plugins/*/vendor/composer/installed.json                 production-exclude
+projects/plugins/*/vendor/automattic/jetpack-autoloader/**        production-exclude
+projects/plugins/*/vendor/automattic/jetpack-composer-plugin/**   production-exclude
+
+# For our own packages, we can safely trim even more.
+projects/plugins/*/vendor/automattic/*/composer.json              production-exclude
+projects/plugins/*/vendor/automattic/*/LICENSE.txt                production-exclude
+projects/plugins/*/vendor/automattic/*/SECURITY.md                production-exclude
+projects/plugins/*/vendor/automattic/*/**/README.md               production-exclude
+projects/plugins/*/jetpack_vendor/automattic/*/composer.json      production-exclude
+projects/plugins/*/jetpack_vendor/automattic/*/LICENSE.txt        production-exclude
+projects/plugins/*/jetpack_vendor/automattic/*/SECURITY.md        production-exclude
+projects/plugins/*/jetpack_vendor/automattic/*/**/README.md       production-exclude

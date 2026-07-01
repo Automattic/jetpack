@@ -28,10 +28,6 @@ class Results_List_Render_Test extends TestCase {
 						'type'    => 'string',
 						'default' => 'expanded',
 					),
-					'autoProductView'  => array(
-						'type'    => 'boolean',
-						'default' => true,
-					),
 					'noResultsMessage' => array(
 						'type'    => 'string',
 						'default' => '',
@@ -53,7 +49,7 @@ class Results_List_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Unregister the block so other test classes start from a clean slate.
+	 * Unregister the blocks so other test classes start from a clean slate.
 	 */
 	public static function tearDownAfterClass(): void {
 		\unregister_block_type( 'jetpack-search/results-list' );
@@ -220,6 +216,17 @@ class Results_List_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'jetpack-search-results__content', $markup );
 		$this->assertStringContainsString( 'context.result.hasContentPieces', $markup );
 		$this->assertStringContainsString( 'context.result.contentPieces', $markup );
+	}
+
+	public function test_each_templates_use_interactivity_each_keys() {
+		$markup = $this->render( array( 'layout' => 'expanded' ) );
+
+		$this->assertStringContainsString( 'data-wp-each--result="state.results"', $markup );
+		$this->assertStringContainsString( 'data-wp-each-key="context.result.id"', $markup );
+		$this->assertStringContainsString( 'data-wp-each--piece="context.result.titlePieces"', $markup );
+		$this->assertStringContainsString( 'data-wp-each--piece="context.result.contentPieces"', $markup );
+		$this->assertStringContainsString( 'data-wp-each-key="context.piece.index"', $markup );
+		$this->assertStringNotContainsString( 'data-wp-key=', $markup );
 	}
 
 	/**
@@ -449,177 +456,20 @@ class Results_List_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Render the block with the given post-type request params seeded into
-	 * `$_GET`. Resets the `is_initial_loading()` memo around the render and
-	 * clears the params after so the auto-product-view cases stay isolated
-	 * from one another (the PHPUnit harness reuses one process).
-	 *
-	 * @param array $get        Params to merge into `$_GET` for the render.
-	 * @param array $attributes Block attributes.
-	 * @return string Rendered markup.
+	 * Without an initial-loading signal the skeleton items still render — the
+	 * IA runtime re-shows them on a client-side search from a bare page — but
+	 * each carries a static `hidden` attribute so they stay out of the
+	 * pre-hydration paint.
 	 */
-	private function render_with_request( array $get, array $attributes = array() ): string {
-		Search_Blocks::reset_initial_loading_cache();
-		foreach ( $get as $key => $value ) {
-			$_GET[ $key ] = $value;
-		}
-		$markup = $this->render( $attributes );
-		foreach ( array_keys( $get ) as $key ) {
-			unset( $_GET[ $key ] );
-		}
-		Search_Blocks::reset_initial_loading_cache();
-		return $markup;
-	}
+	public function test_skeleton_items_present_but_hidden_when_not_initial_loading() {
+		$markup = $this->render();
 
-	/**
-	 * `request_is_product_only()` is true only when the combined post-type
-	 * request resolves to exactly `product` — across the scalar
-	 * `?post_type=` shape, the array `?post_types[]=` shape, or both.
-	 */
-	public function test_request_is_product_only_recognizes_exact_product_scope() {
-		$cases = array(
-			array(
-				'get'      => array( 'post_type' => 'product' ),
-				'expected' => true,
-			),
-			array(
-				'get'      => array( 'post_types' => array( 'product' ) ),
-				'expected' => true,
-			),
-			array(
-				'get'      => array(
-					'post_type'  => 'product',
-					'post_types' => array( 'product' ),
-				),
-				'expected' => true,
-			),
-			array(
-				'get'      => array( 'post_types' => array( 'product', 'post' ) ),
-				'expected' => false,
-			),
-			array(
-				'get'      => array(
-					'post_type'  => 'product',
-					'post_types' => array( 'post' ),
-				),
-				'expected' => false,
-			),
-			array(
-				'get'      => array( 'post_type' => 'post' ),
-				'expected' => false,
-			),
-			array(
-				'get'      => array( 'post_type' => '' ),
-				'expected' => false,
-			),
-			array(
-				'get'      => array( 'post_types' => 'product' ),
-				'expected' => true,
-			),
-			array(
-				'get'      => array(),
-				'expected' => false,
-			),
-		);
-		foreach ( $cases as $case ) {
-			$get = $case['get'];
-			foreach ( $get as $k => $v ) {
-				$_GET[ $k ] = $v;
-			}
-			$this->assertSame(
-				$case['expected'],
-				Search_Blocks::request_is_product_only(),
-				'Unexpected result for ' . wp_json_encode( $get, JSON_UNESCAPED_SLASHES )
-			);
-			foreach ( array_keys( $get ) as $k ) {
-				unset( $_GET[ $k ] );
-			}
-		}
-	}
-
-	/**
-	 * A `?post_type=product` request auto-switches the Results List to the
-	 * product layout on a Woo site even though the saved layout is the
-	 * default `expanded` and the author never picked `product`.
-	 */
-	public function test_scalar_post_type_product_auto_switches_to_product_layout() {
-		$markup = $this->render_with_request( array( 'post_type' => 'product' ) );
-		$this->assertStringContainsString( 'jetpack-search-results--product', $markup );
-		$this->assertStringContainsString( 'jetpack-search-results__price', $markup );
-		$this->assertStringContainsString( 'jetpack-search-results__rating', $markup );
-	}
-
-	/**
-	 * The array `?post_types[]=product` shape behaves identically to the
-	 * scalar shape.
-	 */
-	public function test_array_post_types_product_auto_switches_to_product_layout() {
-		$markup = $this->render_with_request( array( 'post_types' => array( 'product' ) ) );
-		$this->assertStringContainsString( 'jetpack-search-results--product', $markup );
-	}
-
-	/**
-	 * The auto-switch overrides the saved layout — a block saved as
-	 * `compact` still renders as a product grid for a product search.
-	 */
-	public function test_auto_switch_overrides_saved_layout() {
-		$markup = $this->render_with_request(
-			array( 'post_type' => 'product' ),
-			array( 'layout' => 'compact' )
-		);
-		$this->assertStringContainsString( 'jetpack-search-results--product', $markup );
-		$this->assertStringNotContainsString( 'jetpack-search-results--compact', $markup );
-	}
-
-	/**
-	 * A mixed post-type request keeps the saved layout — product cards must
-	 * not render for non-product results.
-	 */
-	public function test_mixed_post_types_keep_saved_layout() {
-		$markup = $this->render_with_request(
-			array( 'post_types' => array( 'product', 'post' ) ),
-			array( 'layout' => 'expanded' )
-		);
-		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
-		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
-	}
-
-	/**
-	 * With no post-type request param the saved layout is respected.
-	 */
-	public function test_no_post_type_param_keeps_saved_layout() {
-		$markup = $this->render( array( 'layout' => 'compact' ) );
-		$this->assertStringContainsString( 'jetpack-search-results--compact', $markup );
-		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
-	}
-
-	/**
-	 * `autoProductView` off pins the saved layout even for an exact
-	 * `?post_type=product` request.
-	 */
-	public function test_auto_product_view_off_pins_saved_layout() {
-		$markup = $this->render_with_request(
-			array( 'post_type' => 'product' ),
-			array(
-				'layout'          => 'compact',
-				'autoProductView' => false,
-			)
-		);
-		$this->assertStringContainsString( 'jetpack-search-results--compact', $markup );
-		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
-	}
-
-	/**
-	 * On a non-Woo site a `?post_type=product` request must never produce
-	 * the product layout — the existing non-Woo collapse stays the final
-	 * gate, so the auto-switch can't force WC-shaped markup onto a site
-	 * whose index has no price/rating fields.
-	 */
-	public function test_non_woo_site_never_auto_switches_to_product() {
-		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
-		$markup = $this->render_with_request( array( 'post_type' => 'product' ) );
-		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
-		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
-		$this->assertStringNotContainsString( 'jetpack-search-results__price', $markup );
+		$total_skeletons = preg_match_all( '/jetpack-search-results__item--skeleton/', $markup );
+		$this->assertGreaterThan( 0, $total_skeletons );
+		// *Every* skeleton `<li>` carries a static `hidden` attribute, not just
+		// one. Match `hidden` only as a standalone attribute so
+		// `data-wp-bind--hidden` and `aria-hidden` don't false-positive.
+		$hidden_skeletons = preg_match_all( '/<li[^>]*--skeleton[^>]*\s+hidden(?=\s|\/|>|=)/', $markup );
+		$this->assertSame( $total_skeletons, $hidden_skeletons );
 	}
 }

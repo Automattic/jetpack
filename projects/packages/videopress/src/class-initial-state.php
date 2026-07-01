@@ -100,19 +100,19 @@ class Initial_State {
 		$home_host       = wp_parse_url( get_site_url(), PHP_URL_HOST );
 
 		return array(
-			'API'           => array(
+			'API'                    => array(
 				'WP_API_root'  => esc_url_raw( rest_url() ),
 				'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
 				'contentNonce' => wp_create_nonce( 'videopress-content-nonce' ),
 			),
-			'jetpackStatus' => array(
+			'jetpackStatus'          => array(
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
 			),
-			'product'       => array(
+			'product'                => array(
 				// Fed to `useProductCheckoutWorkflow` as the product to purchase.
 				'slug' => self::VIDEOPRESS_PRODUCT_SLUG,
 			),
-			'siteData'      => array(
+			'siteData'               => array(
 				'id'                    => Jetpack_Options::get_option( 'id' ),
 				'title'                 => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
 				'adminUrl'              => esc_url_raw( admin_url() ),
@@ -130,15 +130,19 @@ class Initial_State {
 				'isVideoPress1TB'       => self::has_videopress_feature( 'videopress-1tb-storage' ),
 				'isVideoPressUnlimited' => self::has_videopress_feature( 'videopress-unlimited-storage' ),
 			),
-			'assets'        => array(
+			'assets'                 => array(
 				'buildUrl' => plugins_url( '../build/', __FILE__ ),
 			),
+			// Authoritative map of accepted upload types (extension => mimetype),
+			// so the dashboard's drag-and-drop filter accepts exactly what the
+			// VideoPress backend supports rather than guessing client-side.
+			'allowedVideoExtensions' => Admin_UI::get_allowed_video_extensions(),
 			// Product/pricing payload for the pre-connection upsell. Only
 			// populated when the site isn't connected — the only time the
 			// connection gate renders the upsell — so connected dashboards never
 			// incur the synchronous WPCOM pricing request `get_pricing_data()`
 			// makes.
-			'pricing'       => ( new Connection_Manager() )->is_connected() ? null : $this->get_pricing_data(),
+			'pricing'                => ( new Connection_Manager() )->is_connected() ? null : $this->get_pricing_data(),
 		);
 	}
 

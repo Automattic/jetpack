@@ -1,14 +1,18 @@
+// Side-effect import: registers the apiFetch preload middleware.
+import './preload';
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { getScriptData, getSiteData } from '@automattic/jetpack-script-data';
+import { getAdminUrl, getScriptData, getSiteData } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Tabs } from '@wordpress/ui';
+import { Button, Tabs } from '@wordpress/ui';
+import { isSiteConnected } from './connection';
 import ErrorBoundary from './error-boundary';
 import { usePodcastSettings } from './hooks/use-podcast-settings';
 import './style.scss';
 import type { TabName } from './types';
+import type { ReactNode } from 'react';
 
 const Welcome = lazy( () => import( './welcome' ) );
 const CategorySetupModal = lazy( () => import( './welcome/category-setup-modal' ) );
@@ -17,6 +21,7 @@ const EpisodesTab = lazy( () => import( './episodes' ) );
 const DistributionTab = lazy( () => import( './distribution' ) );
 const StatsTab = lazy( () => import( './stats' ) );
 const LockedPreview = lazy( () => import( './locked-preview' ) );
+const ConnectPrompt = lazy( () => import( './connect-prompt' ) );
 
 // Fail-open: a missing flag means access-granted, so a deploy race never locks
 // grandfathered users out of the Episodes tab.
@@ -27,6 +32,26 @@ const TabFallback = () => (
 		<Spinner />
 	</div>
 );
+
+const GatedTab = ( {
+	connected,
+	hasAccess,
+	variant,
+	children,
+}: {
+	connected: boolean;
+	hasAccess: boolean;
+	variant: 'stats' | 'episodes';
+	children: ReactNode;
+} ) => {
+	if ( ! connected ) {
+		return <ConnectPrompt variant={ variant } />;
+	}
+	if ( ! hasAccess ) {
+		return <LockedPreview variant={ variant } />;
+	}
+	return <>{ children }</>;
+};
 
 const VALID_TABS: readonly TabName[] = [ 'settings', 'episodes', 'distribution', 'stats' ];
 
@@ -45,6 +70,7 @@ const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 	const hasAccess = hasProductAccess();
+	const connected = isSiteConnected();
 
 	// `?tab=` owns the active tab; absent `?tab=` falls back to `defaultTab`.
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
@@ -171,8 +197,24 @@ const App = () => {
 		);
 	}
 
+	// Same destination + label for every plan; `New_Episode_Prefill` keys off `?podcast_episode=1`.
+	const headerActions = isSetUp ? (
+		<Button
+			size="compact"
+			variant="solid"
+			render={
+				<a
+					className="podcast__header-cta"
+					href={ getAdminUrl( 'post-new.php?podcast_episode=1' ) }
+				/>
+			}
+		>
+			{ __( 'Create episode', 'jetpack-podcast' ) }
+		</Button>
+	) : undefined;
+
 	return (
-		<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
+		<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE } actions={ headerActions }>
 			<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
 				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal" ref={ tablistRef }>
 					<Tabs.List variant="minimal">
@@ -192,7 +234,9 @@ const App = () => {
 					<div className="podcast__tab-content podcast__tab-content--xwide">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								{ hasAccess ? <StatsTab /> : <LockedPreview variant="stats" /> }
+								<GatedTab connected={ connected } hasAccess={ hasAccess } variant="stats">
+									<StatsTab />
+								</GatedTab>
 							</Suspense>
 						</ErrorBoundary>
 					</div>
@@ -201,7 +245,9 @@ const App = () => {
 					<div className="podcast__tab-content">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								{ hasAccess ? <EpisodesTab /> : <LockedPreview variant="episodes" /> }
+								<GatedTab connected={ connected } hasAccess={ hasAccess } variant="episodes">
+									<EpisodesTab />
+								</GatedTab>
 							</Suspense>
 						</ErrorBoundary>
 					</div>

@@ -68,6 +68,8 @@ if ( is_admin() ) {
 	// Initialize Newsletter Settings (always-loaded so the settings page URL works even when module is inactive).
 	\Automattic\Jetpack\Newsletter\Settings::init();
 
+	\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
+
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 
@@ -78,9 +80,17 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/blogging-prompts.php';
+if ( is_admin() ) {
+	require_once JETPACK__PLUGIN_DIR . '_inc/content-guidelines-ai.php';
+}
 
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'activate_subscriptions_module_for_existing_sites' ), 10, 2 );
+// Seed + keep in sync the durable Jetpack SEO module-state options while the legacy
+// Sitemaps / Canonical URLs modules still exist. Removed in the deferred post-convergence
+// follow-up that absorbs those modules into Jetpack SEO.
+Jetpack::register_seo_module_migration_hooks();
+add_action( 'updating_jetpack_version', array( 'Jetpack', 'seed_seo_visibility_cohort' ), 10, 2 );
 add_filter( 'is_jetpack_site', '__return_true' );
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';

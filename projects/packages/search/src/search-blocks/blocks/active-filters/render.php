@@ -67,7 +67,7 @@ $in_interactive_scope = isset( $block ) && $block instanceof \WP_Block
 			<li>
 				<button
 					type="button"
-					class="wp-element-button jetpack-search-active-filters__pill"
+					class="jetpack-search-active-filters__pill"
 					data-wp-on--click="actions.onRemovePill"
 					data-wp-bind--aria-label="context.pill.ariaLabel"
 				>

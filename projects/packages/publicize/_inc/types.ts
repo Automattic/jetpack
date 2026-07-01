@@ -18,8 +18,7 @@ export type ConnectionService = {
 		| 'mastodon'
 		| 'nextdoor'
 		| 'threads'
-		| 'tumblr'
-		| 'x';
+		| 'tumblr';
 	label: string;
 	description: string;
 	url: string;

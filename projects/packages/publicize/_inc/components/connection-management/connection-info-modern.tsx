@@ -1,24 +1,21 @@
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown, info } from '@wordpress/icons';
 import { Collapsible, Icon, IconButton, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
-import { XNotice } from '../services/x-notice';
+import { useServiceLabel } from '../services/use-service-label';
 import { ConnectionName } from './connection-name';
 import { ConnectionStatus, ConnectionStatusProps } from './connection-status';
 import { ConnectionTemplateEditor } from './connection-template';
 import { Disconnect } from './disconnect';
 import { MarkAsShared } from './mark-as-shared';
 import styles from './style-modern.module.scss';
-import type { SyntheticEvent } from 'react';
 
 type ConnectionInfoProps = ConnectionStatusProps & {
 	canMarkAsShared: boolean;
 };
-
-const stopPropagation = ( event: SyntheticEvent ) => event.stopPropagation();
 
 /**
  * Connection info component
@@ -33,6 +30,8 @@ export function ModernConnectionInfo( {
 	canMarkAsShared,
 }: ConnectionInfoProps ) {
 	const [ isPanelOpen, setIsPanelOpen ] = useState( false );
+
+	const getServiceLabel = useServiceLabel();
 
 	const { canManageConnection, isUnsupported } = useSelect(
 		select => {
@@ -56,13 +55,22 @@ export function ModernConnectionInfo( {
 		'jetpack-publicize-pkg'
 	);
 
+	const toggleLabel = sprintf(
+		/* translators: %1$s: name of the connected social media account. %2$s: name of the social network, e.g. Facebook. */
+		__( 'Toggle details for %1$s on %2$s', 'jetpack-publicize-pkg' ),
+		connection.display_name,
+		getServiceLabel( connection.service_name )
+	);
+
 	return (
 		<Collapsible.Root open={ isPanelOpen } onOpenChange={ setIsPanelOpen }>
-			<Collapsible.Trigger
-				className={ styles[ 'connection-row' ] }
-				nativeButton={ false }
-				render={ <div /> }
-			>
+			{ /*
+			 * The row is a plain container, not the trigger: it holds the profile
+			 * name link (and, when broken, the Reconnect link), and an interactive
+			 * <a> may not be nested inside a role="button". Only the chevron is the
+			 * disclosure trigger, so the links stay siblings of the button.
+			 */ }
+			<div className={ styles[ 'connection-row' ] }>
 				<ConnectionIcon
 					serviceName={ connection.service_name }
 					label={ connection.display_name }
@@ -70,41 +78,21 @@ export function ModernConnectionInfo( {
 					size="medium"
 				/>
 				<Stack direction="column" gap="xs" className={ styles[ 'connection-name-wrapper' ] }>
-					{ /*
-					 * The profile-name link lives inside the row, which doubles as
-					 * the Collapsible.Trigger. Without stopping propagation a click
-					 * on the link would also toggle the disclosure (and an anchor
-					 * inside role="button" is invalid nesting). Mirror the
-					 * connection-status-wrap below so the link opens the profile
-					 * without toggling the panel.
-					 */ }
-					<Text
-						variant="body-lg"
-						className={ styles[ 'connection-item-name' ] }
-						onClick={ stopPropagation }
-						onKeyDown={ stopPropagation }
-						role="presentation"
-					>
+					<Text variant="body-lg" className={ styles[ 'connection-item-name' ] }>
 						<ConnectionName connection={ connection } tone="neutral" />
 					</Text>
 					{ hasStatus ? (
-						<Stack
-							direction="column"
-							gap="xs"
-							onClick={ stopPropagation }
-							onKeyDown={ stopPropagation }
-							role="presentation"
-						>
-							<ConnectionStatus connection={ connection } service={ service } />
-						</Stack>
+						<ConnectionStatus connection={ connection } service={ service } />
 					) : (
 						<Text variant="body-md" className={ styles[ 'connection-network' ] }>
 							{ service?.label }
 						</Text>
 					) }
 				</Stack>
-				<Icon className={ styles.chevron } icon={ chevronDown } />
-			</Collapsible.Trigger>
+				<Collapsible.Trigger className={ styles[ 'panel-toggle' ] } aria-label={ toggleLabel }>
+					<Icon className={ styles.chevron } icon={ chevronDown } />
+				</Collapsible.Trigger>
+			</div>
 			<Collapsible.Panel className={ styles[ 'connection-panel' ] }>
 				<div className={ styles[ 'connection-panel-inner' ] }>
 					{ canMarkAsShared && (
@@ -134,7 +122,6 @@ export function ModernConnectionInfo( {
 							{ __( 'This connection is added by a site administrator.', 'jetpack-publicize-pkg' ) }
 						</Text>
 					) }
-					{ service?.id === 'x' && <XNotice /> }
 				</div>
 			</Collapsible.Panel>
 		</Collapsible.Root>

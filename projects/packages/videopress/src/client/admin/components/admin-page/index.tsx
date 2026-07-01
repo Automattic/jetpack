@@ -9,7 +9,6 @@ import {
 	Container,
 	Button,
 	Col,
-	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
@@ -17,6 +16,7 @@ import {
 	ConnectionError,
 } from '@automattic/jetpack-connection';
 import { FormFileUpload } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -58,7 +58,7 @@ const Admin = () => {
 
 	const [ showPricingSection, setShowPricingSection ] = useState( ! isRegistered );
 
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 
 	const canUpload = ( hasVideoPressPurchase || ! hasVideos ) && canPerformAction;
 
@@ -211,6 +211,23 @@ const Admin = () => {
 
 export default Admin;
 
+// VIDP-245: keep these `__()` calls at module scope as separate statements.
+// If they live as the two arms of an inline ternary, terser folds them into a
+// single `__( cond ? 'a' : 'b', domain )`, which breaks string-literal POT
+// extraction (the i18n-check-webpack-plugin fails the production build).
+const UPGRADE_TRIGGER_USED_VIDEO_TEXT = __(
+	'You have used your free video upload',
+	'jetpack-videopress-pkg'
+);
+const UPGRADE_TRIGGER_FREE_PLAN_TEXT = __(
+	'The free plan includes one video upload.',
+	'jetpack-videopress-pkg'
+);
+const UPGRADE_TRIGGER_UNLOCK_TEXT = __(
+	'Unlock unlimited videos, 1TB of storage, and more!',
+	'jetpack-videopress-pkg'
+);
+
 const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) => {
 	const { adminUri, siteSuffix } = window.jetpackVideoPressInitialState;
 
@@ -236,18 +253,23 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 		run
 	);
 
-	const description = hasUsedVideo
-		? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
-		: '';
-
-	const cta = __(
-		'Upgrade now to unlock unlimited videos, 1TB of storage, and more!',
-		'jetpack-videopress-pkg'
-	);
+	// VIDP-245: keep the `Notice.Root` children shape invariant across the
+	// `hasUsedVideo` flip. base-ui@1.4.1's `useRenderElement` swaps between two
+	// different ref-merge hooks depending on subtree shape, so conditionally
+	// mounting/unmounting a `Notice` subcomponent across the flip misaligns its
+	// stored fork-ref and crashes on the next upload/delete. Therefore always
+	// render `Notice.Title`, `Notice.Description` and `Notice.Actions` — never
+	// wrap any of them in a `hasUsedVideo && (...)` conditional. Vary only the
+	// TEXT: the `title` line carries the contextual heads-up (non-empty in both
+	// states) while the Description holds the constant upsell pitch. The strings
+	// are hoisted to module scope (above) to avoid the terser i18n ternary-fold.
+	const title = hasUsedVideo ? UPGRADE_TRIGGER_USED_VIDEO_TEXT : UPGRADE_TRIGGER_FREE_PLAN_TEXT;
+	const cta = __( 'Upgrade', 'jetpack-videopress-pkg' );
 
 	return (
 		<Notice.Root intent="info" className={ styles[ 'upgrade-trigger' ] }>
-			{ description && <Notice.Description>{ description }</Notice.Description> }
+			<Notice.Title>{ title }</Notice.Title>
+			<Notice.Description>{ UPGRADE_TRIGGER_UNLOCK_TEXT }</Notice.Description>
 			<Notice.Actions>
 				<Notice.ActionButton onClick={ onButtonClickHandler }>{ cta }</Notice.ActionButton>
 			</Notice.Actions>

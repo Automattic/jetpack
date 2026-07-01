@@ -65,6 +65,16 @@ class Search_Blocks {
 	private static $is_initial_loading_cache = null;
 
 	/**
+	 * Per-request memo for `get_overlay_template_content()`, keyed `default` /
+	 * `product`. Lifted out of a method-local `static` so tests can clear it via
+	 * `reset_overlay_template_content_cache()` — otherwise a CPT-customized
+	 * overlay saved mid-test would be pinned by an earlier bundled-file read.
+	 *
+	 * @var array<string,string>
+	 */
+	private static $overlay_template_content_cache = array();
+
+	/**
 	 * Per-request memo for `is_free_plan()`. Avoids the cold-cache hazard where
 	 * `Plan::get_plan_info()` falls back to a synchronous WPCOM HTTP call —
 	 * render callbacks hit the plan gate on every inner render.
@@ -125,6 +135,7 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+		add_action( 'wp_body_open', array( static::class, 'print_theme_token_sampler' ) );
 		// Relativize `jetpack-search/*` Script Module URLs whose host matches
 		// the site canonical so the rendered `<script type="module">` is
 		// same-origin with the page. ES modules go through CORS even without
@@ -171,6 +182,21 @@ class Search_Blocks {
 			}
 		}
 
+		// Inline on a classic theme: the theme renders regular searches, but a
+		// WooCommerce product search can still be routed to the Jetpack product
+		// shim. `route_classic_theme_search_template()` is product-only for
+		// Inline (it bails on regular searches unless Embedded); the block-theme
+		// Inline path is covered by the `search_template_hierarchy` route below.
+		// Init the product CPT regardless of the override so admins can
+		// pre-customize it (expose-before-activation, as in the Embedded branch).
+		if (
+			Module_Control::EXPERIENCE_INLINE === $experience
+			&& ! static::block_templates_active()
+		) {
+			add_filter( 'template_include', array( static::class, 'route_classic_theme_search_template' ), 20 );
+			Product_Search_Template::init();
+		}
+
 		// Blocks render results client-side, so the server-side search is wasted work.
 		// (Classic/Instant init is also suppressed in `Initializer::init_search_blocks()`.)
 		if ( ! is_admin() && static::owns_search_results() ) {
@@ -205,6 +231,14 @@ class Search_Blocks {
 		// has actually committed to it.
 		if ( static::is_block_template_overlay_filter_on() ) {
 			Overlay_Template::init();
+			// The product overlay only renders on a Woo store, so its editable
+			// CPT is pointless off Woo. Init regardless of the override option
+			// (parity with `Product_Search_Template`) so admins can pre-customize
+			// before flipping it on; the front-end render path stays gated by
+			// the override option in `should_use_product_overlay()`.
+			if ( static::woocommerce_blocks_enabled() ) {
+				Product_Overlay_Template::init();
+			}
 		}
 		if ( static::is_block_template_overlay_enabled() ) {
 			add_action( 'wp_enqueue_scripts', array( static::class, 'enqueue_block_template_overlay_assets' ) );
@@ -230,6 +264,20 @@ class Search_Blocks {
 	public static function owns_search_results(): bool {
 		return Module_Control::EXPERIENCE_EMBEDDED === ( new Module_Control() )->get_experience()
 			|| static::is_block_template_overlay_enabled();
+	}
+
+	/**
+	 * Whether TrainTracks analytics are suppressed for this request. Mirrors
+	 * instant search (Helper::get_search_options): the `?disable_tracking=1`
+	 * crawler/QA param plus the `jetpack_instant_search_disable_tracking`
+	 * operator filter. Gates both the `_tkq` pushes (seeded into
+	 * `state.disableTracking`) and whether the Tracks consumer script loads.
+	 *
+	 * @return bool
+	 */
+	public static function is_tracking_disabled(): bool {
+		return ( class_exists( Helper::class ) && Helper::is_tracking_disabled() )
+			|| apply_filters( 'jetpack_instant_search_disable_tracking', false );
 	}
 
 	/**
@@ -935,6 +983,25 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Derive a block-pattern's content from a chrome-free layout template (the
+	 * overlay templates, which already ship without header/footer/main page
+	 * chrome), so patterns stay in sync with the template they mirror instead of
+	 * carrying a hand-copied second copy of the layout.
+	 *
+	 * @param string $template_file Template basename under `templates/`.
+	 * @return string Block markup ready for `register_block_pattern()`, or '' when unreadable.
+	 */
+	public static function pattern_content_from_template( string $template_file ): string {
+		$template_path = __DIR__ . '/templates/' . basename( $template_file );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
+		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		if ( '' === $raw ) {
+			return '';
+		}
+		return trim( static::substitute_template_placeholders( $raw ) );
+	}
+
+	/**
 	 * Build the full search page template content.
 	 *
 	 * Markup lives in `templates/jetpack-search.html` with a `{{FILTER_HEADING}}`
@@ -977,32 +1044,65 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Read the dedicated overlay-template markup (`jetpack-search-overlay.html`).
+	 * Whether the overlay should paint the WooCommerce product variant for the
+	 * current request. True only when the override option is on and the request
+	 * is a product search — mirrors the embedded/inline interception
+	 * (`is_woocommerce_product_search()` already folds in the WC probe). The
+	 * overlay opens client-side from any search box, so this only flips on the
+	 * server-rendered product-search request (deep link or product-archive
+	 * search), not on a live form intercept from a non-product page.
+	 *
+	 * @return bool
+	 */
+	protected static function should_use_product_overlay(): bool {
+		return static::woocommerce_search_template_override_enabled()
+			&& static::is_woocommerce_product_search();
+	}
+
+	/**
+	 * Read the dedicated overlay-template markup.
 	 *
 	 * Distinct from `get_search_template_content()`: a modal isn't a page, so
 	 * the overlay markup ships without `header`/`main`/`footer` template-parts
 	 * rather than runtime-stripping them.
 	 *
-	 * Source of truth, in order:
-	 *   1. Customized singleton CPT (`Overlay_Template`) if an admin saved one.
-	 *   2. The bundled `templates/jetpack-search-overlay.html`.
+	 * Picks the product variant on a WooCommerce product search (see
+	 * `should_use_product_overlay()`). Source of truth, in order:
+	 *   1. Customized singleton CPT (`Overlay_Template` / `Product_Overlay_Template`).
+	 *   2. The bundled `jetpack-search-overlay{-product}.html`.
 	 *
 	 * @return string Block markup for the overlay body.
 	 */
 	protected static function get_overlay_template_content(): string {
-		static $content = null;
-		if ( null !== $content ) {
-			return $content;
+		$is_product = static::should_use_product_overlay();
+		$key        = $is_product ? 'product' : 'default';
+		if ( isset( self::$overlay_template_content_cache[ $key ] ) ) {
+			return self::$overlay_template_content_cache[ $key ];
 		}
-		$customized = Overlay_Template::get_customized_content();
+		$cpt_class  = $is_product ? Product_Overlay_Template::class : Overlay_Template::class;
+		$customized = $cpt_class::get_customized_content();
 		if ( null !== $customized ) {
-			$content = $customized;
-			return $content;
+			self::$overlay_template_content_cache[ $key ] = $customized;
+			return self::$overlay_template_content_cache[ $key ];
 		}
-		$template_path = __DIR__ . '/templates/jetpack-search-overlay.html';
+		$file          = $is_product ? 'jetpack-search-overlay-product.html' : 'jetpack-search-overlay.html';
+		$template_path = __DIR__ . '/templates/' . $file;
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
-		$content = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		return $content;
+		self::$overlay_template_content_cache[ $key ] = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		return self::$overlay_template_content_cache[ $key ];
+	}
+
+	/**
+	 * Reset the `get_overlay_template_content()` memo. Tests only — PHPUnit
+	 * reuses a single process, so a CPT-customized overlay saved in one test
+	 * would otherwise be pinned (or a bundled read would mask it) in the next.
+	 * Guarded against accidental production use.
+	 */
+	public static function reset_overlay_template_content_cache(): void {
+		if ( defined( 'ABSPATH' ) && ! defined( 'PHPUNIT_COMPOSER_INSTALL' ) ) {
+			return;
+		}
+		self::$overlay_template_content_cache = array();
 	}
 
 	/**
@@ -1098,17 +1198,30 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Print the body-sampler `<script>` that sets `--jp-search-page-ink` /
+	 * `--jp-search-page-surface` on `:root` from the body's resolved `color` /
+	 * `backgroundColor`. Skips writing surface when bg is transparent (the
+	 * theme paints on the browser canvas) or when bg equals ink (vintage
+	 * frame-themes like Twenty Sixteen use body as a colored border around a
+	 * lighter `.site` content wrapper). See AGENTS.md § Theme tokens.
+	 */
+	public static function print_theme_token_sampler(): void {
+		if ( is_admin() ) {
+			return;
+		}
+		echo "<script id='jetpack-search-theme-token-sampler'>(function(){try{var c=getComputedStyle(document.body),r=document.documentElement,ink=c.color,bg=c.backgroundColor;if(ink){r.style.setProperty('--jp-search-page-ink',ink);}if(bg&&bg!==ink&&bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent'){r.style.setProperty('--jp-search-page-surface',bg);}}catch(e){}})();</script>";
+	}
+
+	/**
 	 * Inline CSS for the overlay modal chrome. Block content brings its own
 	 * theme styling; this is just the scrim, centered card, 60px header strip,
 	 * close button, mobile padding tweaks, and scroll lock. The responsive
 	 * sidebar-collapse + in-header popover rules shared with the page
 	 * templates live in `search_layout_inline_css()`.
 	 *
-	 * Surface/ink follow a two-step token fallback: newer `base`/`contrast`
-	 * (TT2/TT3/TT5-family) first, then legacy `background`/`foreground` (TT1,
-	 * Kaze, many WPCOM themes). #49125's hardcoded `#fff` resurrected the
-	 * white-on-white bug on legacy themes; the chain fixes it. Hoisted onto
-	 * two custom props so in-card surfaces (suggestions panel) share one source.
+	 * Surface/ink hoist `--jp-search-page-*` (with the legacy
+	 * `--wp--preset--color--*` chain as fallback — see AGENTS.md § Theme
+	 * tokens) onto two custom props so in-card surfaces share one source.
 	 * Hairlines use `color-mix(--jp-search-overlay-ink, --jp-search-overlay-surface)`.
 	 *
 	 * @return string
@@ -1139,8 +1252,16 @@ class Search_Blocks {
 	position: relative;
 	width: 100%;
 	max-width: 1080px;
-	--jp-search-overlay-surface: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
-	--jp-search-overlay-ink: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327));
+	--jp-search-overlay-surface: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+	--jp-search-overlay-ink: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327)));
+	/* Single source for the content group's inset. The corner-join in
+	 * search_layout_inline_css() zeroes the block-start/block-end of this
+	 * padding on the group and re-adds the same tokens on the columns, so the
+	 * sidebar hairline reaches both card edges — keep them as var()s so the
+	 * two sites can't drift. */
+	--jp-search-overlay-content-pad-block-start: 0.5em;
+	--jp-search-overlay-content-pad-inline: 2em;
+	--jp-search-overlay-content-pad-block-end: 2em;
 	background: var(--jp-search-overlay-surface);
 	color: var(--jp-search-overlay-ink);
 	border: 1px solid rgba(128, 128, 128, 0.25);
@@ -1156,8 +1277,12 @@ class Search_Blocks {
  * un-tinted token chain stay as the fallback for browsers without `color-mix`. */
 @supports (background: color-mix(in sRGB, black 50%, white)) {
 	.jetpack-search-block-overlay__card {
-		--jp-search-overlay-surface: color-mix(in sRGB, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327)) 5%, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		--jp-search-overlay-surface: color-mix(in sRGB, var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327))) 5%, var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff))));
 		border-color: color-mix(in sRGB, var(--jp-search-overlay-ink) 20%, var(--jp-search-overlay-surface));
+		/* Ink-derived shadow inverts polarity per theme (SEARCH-289): a dark drop
+		 * shadow on light cards, a soft light halo on dark — a flat black shadow is
+		 * invisible against the dark scrim. Static black above is the fallback. */
+		box-shadow: 0 8px 32px color-mix(in sRGB, var(--jp-search-overlay-ink) 22%, transparent);
 	}
 }
 /* Single hairline over the full 60px header strip — siblings paint with a seam (SEARCH-260). */
@@ -1215,6 +1340,23 @@ class Search_Blocks {
 .jetpack-search-block-overlay__card button[aria-expanded="true"] {
 	color: var(--jp-search-overlay-ink);
 }
+/* Load More is a solid theme `core/button` on the search page, which is right
+ * there. Inside the overlay card it sits on the resolved card surface, where the
+ * theme's solid button background (and its accent `:hover`, e.g. Twenty Sixteen's
+ * #007acc) reads as a heavy slab that clashes with the card's otherwise
+ * `currentColor`-ghost controls (close, sort/filter triggers, active-filter
+ * pills). Card-scoped (0,2,0 / 0,2,1) so it only restyles the in-overlay button
+ * to the same ghost affordance — the page button is untouched. */
+.jetpack-search-block-overlay__card .jetpack-search-load-more__button {
+	background: transparent;
+	border: 1px solid;
+	border-color: color-mix(in sRGB, currentColor 20%, transparent);
+	color: var(--jp-search-overlay-ink);
+}
+.jetpack-search-block-overlay__card .jetpack-search-load-more__button:hover:not(:disabled),
+.jetpack-search-block-overlay__card .jetpack-search-load-more__button:focus-visible {
+	background: color-mix(in sRGB, currentColor 8%, transparent);
+}
 /* Promote the first child (search-input) to a 60px header strip flush with
  * the close button, matching the legacy `__box` header. Suppress the input
  * block's own border-bottom — the card's `::before` hairline handles the
@@ -1250,6 +1392,7 @@ class Search_Blocks {
 	height: 100%;
 	font-size: 18px;
 	line-height: 1;
+	margin: 0;
 	padding: 0;
 	background: transparent;
 }
@@ -1274,7 +1417,7 @@ class Search_Blocks {
 }
 /* Top padding clears the absolutely-positioned 60px header strip (SEARCH-243). */
 .jetpack-search-block-overlay__content > .wp-block-group:first-child {
-	padding: .5em 2em 2em;
+	padding: var(--jp-search-overlay-content-pad-block-start) var(--jp-search-overlay-content-pad-inline) var(--jp-search-overlay-content-pad-block-end);
 }
 @media (max-width: 781px) {
 	.jetpack-search-block-overlay {
@@ -1285,9 +1428,8 @@ class Search_Blocks {
 		border: 0;
 		border-radius: 0;
 		box-shadow: none;
-	}
-	.jetpack-search-block-overlay__content > .wp-block-group:first-child {
-		padding: .5em 1em 1em;
+		--jp-search-overlay-content-pad-inline: 1em;
+		--jp-search-overlay-content-pad-block-end: 1em;
 	}
 }
 /* Mirror legacy `$break-lg: 992px → $modal-max-width-lg: 95%` from `instant-search/components/search-results.scss`. */
@@ -1386,6 +1528,23 @@ CSS;
 	align-items: center;
 	gap: 0.75rem;
 }
+/* Name the columns row as the layout container so the sidebar/popover flip
+ * tracks its inline-size. The `@media` rules below are the universal base —
+ * they fire in every browser (including legacy ones without container-query
+ * support) and they drive standalone usage outside the named container (no
+ * container ancestor → only `@media` applies). The `@container` rule further
+ * down overrides `@media` via source-order cascade at equal specificity when
+ * the named container is in scope AND narrower than 992px. The override has
+ * to undo `@media (min-width: 992px)`'s `popover { display: none }`
+ * explicitly: in the "wide viewport, narrow container" case `@media
+ * (min-width: 992px)` keeps firing on the viewport width and would otherwise
+ * leave the visitor with no filter UI at all. `@container (min-width: 992px)`
+ * isn't defined — container width is bounded by viewport width in practice,
+ * so the matching `@media (min-width: 992px)` already covers the wide case. */
+.wp-block-columns:has(> .jetpack-search-layout__filters-column) {
+	container-type: inline-size;
+	container-name: jetpack-search-layout;
+}
 /* Below 992px the right-column filter sidebar collapses to a popover trigger
  * docked next to results-sort. The trigger comes from the
  * `jetpack-search/filters-popover` block that ships in each template. The
@@ -1418,47 +1577,74 @@ CSS;
 		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
 	}
 }
-/* Sidebar-showing rules (>= 992px). The corner-join is structural, not
- * decorative: the columns row is pulled flush against the search-input
- * hairline, and visual breathing room is re-added as internal column
- * padding. Three sources of vertical gap have to be neutralised for the
- * column's `border-left` to start *at* the hairline:
+/* Sidebar-showing rules (>= 992px). The corner-join is structural: the
+ * columns row is pulled flush to the search-input hairline and breathing
+ * room re-added as internal column padding, so the filters column's
+ * `border-left` runs the row's full height — hairline (top) to end-of-div
+ * (bottom). Three vertical gaps are neutralised:
  *
- *   a) The outer `wp:group`'s declared `spacing.blockGap` (1.5rem in the
- *      templates) or the theme's default block-gap (e.g. TT5 falls back
- *      to 1.2rem when the block-layout system doesn't emit the
- *      per-container override for templates rendered into a `<template>`
- *      element). Both manifest as `margin-block-start` on the columns row.
+ *   a) `margin-block-start` on the row (outer group's `spacing.blockGap` or
+ *      the theme's default block-gap) — zeroed.
  *
- *   b) `.is-layout-flex { align-items: center }` (theme default, also in
- *      WordPress core), which vertically centres the shorter filters
- *      column inside the taller results column, dropping the sidebar's
- *      top edge below the row's top.
+ *   b) `.is-layout-flex { align-items: center }` (theme/core default), which
+ *      centres the shorter filters column and drops its top edge. Overridden
+ *      to `stretch` (not `flex-start`) so the column also grows to full row
+ *      height; it's flow layout, so its content stays top-aligned regardless.
  *
- *   c) Overlay-only: the `__content > .wp-block-group:first-child` rule
- *      (SEARCH-243) gives the alignwide group a `padding: .5em 2em 2em`
- *      to "clear the 60px header strip." But the search-input is
- *      `position: absolute` in the overlay — it doesn't take flow space —
- *      so the 0.5em top-pad just pushes the columns row 8px below the
- *      card's `::before` hairline at `top: 60px`.
+ *   c) Overlay-only: SEARCH-243's content-group inset sits outside the
+ *      columns, so the stretched column stops short of the card edges (below
+ *      the `::before` hairline at the top, and short of the bottom). Zeroed
+ *      on the group's block axis and re-added on the columns, both sides
+ *      reading the same `--jp-search-overlay-content-pad-*` tokens the group
+ *      itself uses — so the divider reaches both edges while content keeps
+ *      its breathing room, and the two sites can't drift.
  *
- * The `.is-layout-flex` class match bumps the columns selector to
- * specificity (0,3,0), enough to outrank any per-container `blockGap`
- * CSS WP might emit (typically (0,1,0)). The `:has(> filters-column)`
- * scope keeps these overrides off any unrelated `wp:columns` block. */
+ * `.is-layout-flex` bumps the columns selector to (0,3,0) to outrank
+ * per-container `blockGap` CSS; `:has(> filters-column)` scopes it to our
+ * rows. These target the row/group, which `@container` can't reach from
+ * inside the named container, so they stay viewport-driven — harmless when
+ * the sidebar collapses below 992px. (b) is also a no-op wherever WP core's
+ * `.wp-block-columns { align-items: normal !important }` is present; see
+ * AGENTS.md. */
 @media (min-width: 992px) {
+	/* Sidebar shown, popover-in-results-header hidden. The `@container
+	 * (max-width: 991.98px)` block below re-shows the popover when the
+	 * named container is narrower than the viewport. */
 	.jetpack-search-layout__results-header .jetpack-search-filters-popover {
 		display: none;
 	}
 	.wp-block-columns.is-layout-flex:has(> .jetpack-search-layout__filters-column) {
-		align-items: flex-start;
+		align-items: stretch;
 		margin-block-start: 0;
 	}
 	.jetpack-search-block-overlay__content > .wp-block-group:first-child:has(.jetpack-search-layout__filters-column) {
 		padding-top: 0;
+		padding-bottom: 0;
 	}
 	.wp-block-columns:has(> .jetpack-search-layout__filters-column) > .wp-block-column {
-		padding-top: 0.5em;
+		padding-top: var(--jp-search-overlay-content-pad-block-start, 0.5em);
+	}
+	.jetpack-search-block-overlay__content .wp-block-columns:has(> .jetpack-search-layout__filters-column) > .wp-block-column {
+		padding-bottom: var(--jp-search-overlay-content-pad-block-end, 2em);
+	}
+}
+/* @container override: applies when the named container exists. Placed AFTER
+ * the `@media` rules so source-order cascade lets it win over them at equal
+ * specificity. In "wide viewport, narrow container" (the case the change is
+ * meant to fix), `@media (max-width: 991.98px)` doesn't fire but `@media
+ * (min-width: 992px)` does — this block undoes the latter's `popover {
+ * display: none }` via `display: inline-block` and hides the sidebar that
+ * the `@media (max-width)` rule wouldn't have hidden at this viewport. Same
+ * `!important` reasoning on `flex-basis: 100%` as the @media block. */
+@container jetpack-search-layout (max-width: 991.98px) {
+	.jetpack-search-layout__filters-column {
+		display: none;
+	}
+	.jetpack-search-layout__results-column {
+		flex-basis: 100% !important;
+	}
+	.jetpack-search-layout__results-header .jetpack-search-filters-popover {
+		display: inline-block;
 	}
 }
 CSS;
@@ -1632,8 +1818,14 @@ CSS;
 			}
 			return __DIR__ . '/templates/classic-theme-product-search.php';
 		}
-		// Non-product search: same empty-body bail-out for the generic shim.
-		// A saved empty customization ('' vs null) is honored as intentional.
+		// Regular (non-product) search: only Embedded takes over the whole search
+		// page. Inline registers this router too (for the product shim above) but
+		// leaves regular searches to the theme, so bail here unless Embedded.
+		if ( Module_Control::EXPERIENCE_EMBEDDED !== ( new Module_Control() )->get_experience() ) {
+			return $template;
+		}
+		// Same empty-body bail-out for the generic shim. A saved empty
+		// customization ('' vs null) is honored as intentional.
 		if ( null === Search_Template::get_customized_content() && '' === static::get_classic_theme_search_body() ) {
 			return $template;
 		}
@@ -1916,6 +2108,10 @@ HTML;
 			'nonce'                      => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
 			'isPrivateSite'              => $is_private,
 			'isWpcom'                    => $is_wpcom,
+			// TrainTracks gate, mirroring instant search's `disableTracking`
+			// (Helper::get_search_options): suppresses `_tkq` pushes for
+			// `?disable_tracking=1` crawlers/QA and the filter override.
+			'disableTracking'            => static::is_tracking_disabled(),
 			// Threaded through url-state so `?orderby=price_asc` round-trips on Woo only.
 			'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
 			'homeUrl'                    => function_exists( 'home_url' ) ? home_url() : '',
@@ -1947,10 +2143,6 @@ HTML;
 			// `{ [key]: { filterKey, filterType, taxonomy, effectiveSlug, label, showCount, maxItems } }`.
 			'filterConfigs'              => array(),
 
-			// `staticPostTypes` deliberately NOT seeded — FSE templates render
-			// before this seed, so pre-seeding `{include:[],exclude:[]}` would
-			// clobber the block contribution. JS treats undefined as no-constraint.
-
 			// JS hydration fills these. `aggregations` is stdClass so JS sees `{}`.
 			'results'                    => array(),
 			'aggregations'               => (object) array(),
@@ -1964,9 +2156,6 @@ HTML;
 			'isLoading'                  => $is_initial_loading,
 			'isLoadingMore'              => false,
 			'hasError'                   => false,
-
-			// One-shot pre-hydration skeleton gate; never re-flashed on re-search.
-			'skeletonHidden'             => false,
 
 			// Seeded so SSR resolves `data-wp-text` on first paint.
 			'resultsCountText'           => $is_initial_loading ? $searching_text : '',
@@ -2046,46 +2235,6 @@ HTML;
 			return;
 		}
 		self::$is_initial_loading_cache = null;
-	}
-
-	/**
-	 * Whether the URL scopes the request to exactly `product` — via the
-	 * Jetpack Search array shape `?post_types[]=product` or the scalar
-	 * `?post_type=product`. Used by results-list to auto-switch to the
-	 * product layout. "Exactly product" is deliberate: a mixed request keeps
-	 * the saved layout so non-product results don't render as product cards.
-	 *
-	 * Reads `$_GET` directly — post-type scope isn't a visitor-facing filter,
-	 * so it never lands in `activeFilters`. Not memoized: one caller, one
-	 * call per request.
-	 *
-	 * @return bool
-	 */
-	public static function request_is_product_only(): bool {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only URL state; sanitized per-value below.
-		$raw = wp_unslash( $_GET );
-		if ( ! is_array( $raw ) ) {
-			return false;
-		}
-
-		$requested = array();
-		foreach ( array( 'post_type', 'post_types' ) as $param ) {
-			if ( ! isset( $raw[ $param ] ) ) {
-				continue;
-			}
-			$values = is_array( $raw[ $param ] ) ? $raw[ $param ] : array( $raw[ $param ] );
-			foreach ( $values as $value ) {
-				if ( ! is_scalar( $value ) ) {
-					continue;
-				}
-				$slug = sanitize_key( (string) $value );
-				if ( '' !== $slug ) {
-					$requested[ $slug ] = true;
-				}
-			}
-		}
-
-		return array( 'product' ) === array_keys( $requested );
 	}
 
 	/**
@@ -2377,6 +2526,12 @@ HTML;
 	 * No registered-key filtering here — `filterConfigs` aren't available until
 	 * blocks render. The JS layer gates on hydration.
 	 *
+	 * Scalar `?post_type=<slug>` is also accepted as a shortcut for
+	 * `?post_types[]=<slug>` — matches WP/WC's own URL convention. Merged into
+	 * any existing array selections so `?post_type=foo&post_types[]=bar` reads
+	 * as `[foo, bar]`. Singular-form-on-an-array-key keeps its existing
+	 * "ignored noise" behaviour for every other filter.
+	 *
 	 * @return array<string, string[]>
 	 */
 	protected static function parse_url_filters(): array {
@@ -2392,6 +2547,26 @@ HTML;
 			if ( '' === $filter_key || in_array( $filter_key, self::RESERVED_QUERY_PARAMS, true ) ) {
 				continue;
 			}
+			if ( 'post_type' === $filter_key ) {
+				// `is_string` (not `is_scalar`) keeps the gate consistent with
+				// `parse_url_filter_logic`'s value check — `$_GET` only ever
+				// carries strings or arrays, and the array case takes the
+				// `is_array( $values )` branch immediately below.
+				if ( ! is_string( $values ) ) {
+					continue;
+				}
+				// `sanitize_key`, not `sanitize_text_field` — post-type slugs are
+				// always lowercase + `[a-z0-9_-]`; the lowercase pass keeps a
+				// `?post_type=Product` URL from reaching ES with the wrong case
+				// and silently returning zero results.
+				$slug = sanitize_key( $values );
+				if ( '' === $slug ) {
+					continue;
+				}
+				$existing          = $out['post_types'] ?? array();
+				$out['post_types'] = array_values( array_unique( array_merge( $existing, array( $slug ) ) ) );
+				continue;
+			}
 			if ( ! is_array( $values ) ) {
 				continue;
 			}
@@ -2404,7 +2579,8 @@ HTML;
 				)
 			);
 			if ( $clean ) {
-				$out[ $filter_key ] = $clean;
+				$existing           = $out[ $filter_key ] ?? array();
+				$out[ $filter_key ] = array_values( array_unique( array_merge( $existing, $clean ) ) );
 			}
 		}
 		return $out;

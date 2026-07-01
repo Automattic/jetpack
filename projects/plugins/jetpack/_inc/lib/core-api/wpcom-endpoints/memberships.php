@@ -118,6 +118,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							'type'     => 'integer',
 							'required' => false,
 						),
+						'description'             => array(
+							'type'     => 'string',
+							'required' => false,
+						),
 					),
 				),
 			)
@@ -186,6 +190,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 						),
 						'tier'                    => array(
 							'type'     => 'integer',
+							'required' => false,
+						),
+						'description'             => array(
+							'type'     => 'string',
 							'required' => false,
 						),
 					),
@@ -548,6 +556,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		// If we pass directly the value "null", it will break the argument validation.
 		if ( null !== $is_editable ) {
 			$payload['is_editable'] = $is_editable;
+		}
+
+		if ( isset( $request['description'] ) ) {
+			$payload['description'] = $request['description'];
 		}
 
 		return $payload;

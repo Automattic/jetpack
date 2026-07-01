@@ -53,5 +53,4 @@ export const apple: PodcastApp = {
 	Logo: AppleLogo,
 	submitUrl: 'https://podcastsconnect.apple.com/',
 	learnMoreUrl: 'https://podcasters.apple.com/support/897-submit-a-show',
-	showHosts: [ 'podcasts.apple.com' ],
 };

@@ -18,6 +18,11 @@
 		flex: 1;
 		min-height: 0;
 
+		// Positioning context for the `@wordpress/components` DropZone, which
+		// overlays its nearest positioned ancestor while a file is dragged
+		// over the library so a video can be dropped anywhere on the listing.
+		position: relative;
+
 		// Flex-grow the single DataViews child inside this viewport so its
 		// pagination footer lands at the bottom. Targets `> *` rather than
 		// `.dataviews-wrapper` to avoid coupling to DataViews' internal class
@@ -106,6 +111,48 @@
 		}
 	}
 
+	// Full-cover, transparent button that turns the whole idle-VideoPress
+	// thumbnail into a single keyboard-reachable target that opens Details
+	// (mirroring Core, where clicking the media opens it). It carries the
+	// shared `&__hover-action` overlay as a non-interactive child, so the
+	// "Edit details" label reveals on hover/focus without adding a second
+	// tab stop.
+	&__open-details {
+		position: absolute;
+		inset: 0;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+		appearance: none;
+
+		// The hover-action child is purely a visual label here; let clicks
+		// fall through to this button so the entire thumbnail is clickable.
+		.vp-library__hover-action {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			pointer-events: none;
+		}
+
+		&-label {
+			padding: 4px 12px;
+			border-radius: 2px;
+			background: #fff;
+			color: #1e1e1e;
+			font-size: 13px;
+			font-weight: 500;
+			box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+		}
+
+		// Keep the keyboard focus ring visible above the overlay.
+		&:focus-visible {
+			outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+			outline-offset: -2px;
+		}
+	}
+
 	&__progress {
 		position: absolute;
 		inset: 0;
@@ -137,6 +184,59 @@
 		white-space: nowrap;
 	}
 
+	// Link-styled button used by the title cell for idle VideoPress videos so
+	// the title opens Details (mirroring Core). Rendered as a <button> rather
+	// than an <a> because navigation is handled by the in-app router, not an
+	// href; styled to read as a link and inherit the cell's typography.
+	&__title-link {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		text-align: inherit;
+		cursor: pointer;
+
+		&:hover,
+		&:focus-visible {
+			color: var(--wp-admin-theme-color, #3858e9);
+			text-decoration: underline;
+		}
+	}
+
+	// Truncate long titles with an ellipsis instead of letting them spill
+	// across neighbouring cards (grid) or into the next column (table).
+	// DataViews' own .dataviews-title-field truncation only targets its
+	// internal anchor/button markup, so custom renderers bring their own.
+	// `width: fit-content` keeps the button's hit area at text size while
+	// `max-width` provides the bound that makes text-overflow engage;
+	// `min-width: 0` lets the element shrink when it shares a flex row
+	// with a status pill. The full text stays reachable via the elements'
+	// `title` attribute (set in fields.tsx).
+	&__title-link,
+	&__title-text {
+		display: block;
+		width: fit-content;
+		min-width: 0;
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	// Title + status pill row: cap the row at the cell width so the title
+	// (min-width: 0 above) shrinks and ellipsizes, and keep the pill from
+	// being crushed by a long title.
+	&__title-cell {
+		min-width: 0;
+		max-width: 100%;
+
+		> :last-child {
+			flex-shrink: 0;
+		}
+	}
+
 	// Table view: DataViews gives a 32x32 cell slot but doesn't force the img,
 	// and its cell wrapper uses `align-items: center` — so an img with a non-
 	// square intrinsic ratio collapses the wrapper to its content height (e.g.
@@ -159,6 +259,20 @@
 		&__progress,
 		&__failed {
 			display: none;
+		}
+
+		// Cap the two free-text columns so a pathological title + filename
+		// can't bloat their columns (DataViews caps cells at 80ch, which
+		// lets long text shove every other column out of the viewport).
+		// 36ch keeps the default column set within a ~1440px admin screen;
+		// narrower viewports fall back to the table's horizontal scroll.
+		&__title-link,
+		&__title-text {
+			max-width: 36ch;
+		}
+
+		&__filename {
+			max-width: 30ch;
 		}
 	}
 

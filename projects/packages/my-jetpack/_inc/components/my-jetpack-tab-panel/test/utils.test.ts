@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import { MY_JETPACK_SECTION_CUSTOMIZE, MY_JETPACK_SECTION_PRODUCTS } from '../constants';
 import { getMyJetpackSections, isValidMyJetpackSection } from '../utils';
 

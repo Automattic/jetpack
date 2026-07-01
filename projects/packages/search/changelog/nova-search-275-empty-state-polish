@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Search Blocks: polish the no-results, error, and filters-empty messages with a consistent muted-scale typography across the overlay; the no-results copy now adapts when filters are active.

@@ -1,8 +1,11 @@
-import { useEffect } from '@wordpress/element';
+import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { envelope, search as searchIcon } from '@wordpress/icons';
 import { Button, EmptyState } from '@wordpress/ui';
 import { recordTracksEvent } from '../lib/tracks';
+
+const SUBSCRIPTION_FORM_SUPPORT_URL =
+	'https://jetpack.com/support/jetpack-blocks/subscription-form-block/';
 
 type Props = {
 	hasFiltersOrSearch: boolean;
@@ -55,9 +58,14 @@ export default function SubscribersEmptyState( {
 			</EmptyState.Visual>
 			<EmptyState.Title>{ __( 'No subscribers yet', 'jetpack-newsletter' ) }</EmptyState.Title>
 			<EmptyState.Description>
-				{ __(
-					'Bring readers in by inviting them by email. They’ll get a confirmation message and start receiving your posts.',
-					'jetpack-newsletter'
+				{ createInterpolateElement(
+					__(
+						'<link>Turn your site visitors into subscribers</link> or bring readers in by adding their emails. They’ll start receiving your posts right away.',
+						'jetpack-newsletter'
+					),
+					{
+						link: <a href={ SUBSCRIPTION_FORM_SUPPORT_URL } target="_blank" rel="noreferrer" />,
+					}
 				) }
 			</EmptyState.Description>
 			<EmptyState.Actions>

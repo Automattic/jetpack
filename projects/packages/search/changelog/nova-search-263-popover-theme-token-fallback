@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: filters-popover panel and results-sort menu now render a solid background on themes that don't define `--wp--preset--color--base`, instead of going transparent and letting result-card content bleed through.

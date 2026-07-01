@@ -2,8 +2,8 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
+import { useViewportMatch } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
@@ -32,7 +32,7 @@ type ExportHookReturn = {
  * @return {ExportHookReturn} The export modal state and actions.
  */
 export default function useExportResponses(): ExportHookReturn {
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const closeModal = useCallback( () => setShowExportModal( false ), [ setShowExportModal ] );
 	const [ autoConnectGdrive, setAutoConnectGdrive ] = useState( false );

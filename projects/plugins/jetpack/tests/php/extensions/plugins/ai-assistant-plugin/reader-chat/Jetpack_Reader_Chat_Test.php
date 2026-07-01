@@ -781,7 +781,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 			$saved_post     = $post;
 			$saved_wp_query = clone $wp_query;
 
-			$post                        = get_post( $post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$post                        = get_post( $post_id );
 			$wp_query->post              = $post;
 			$wp_query->posts             = array( $post );
 			$wp_query->queried_object    = $post;
@@ -792,8 +792,8 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 
 			$context = $this->call_private_static( 'get_current_post_context' );
 
-			$post     = $saved_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$wp_query = $saved_wp_query; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$post     = $saved_post;
+			$wp_query = $saved_wp_query;
 
 			$this->assertNull(
 				$context,
@@ -817,12 +817,12 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		// In the 404 case the WP environment has no current post in $post global.
 		global $post;
 		$saved = $post;
-		$post  = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$post  = null;
 
 		$config = $this->get_enqueued_config();
 
 		// Restore.
-		$post = $saved; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$post = $saved;
 
 		$this->assertArrayNotHasKey(
 			'currentPost',
@@ -1108,6 +1108,10 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	 * page loads do not retry the remote manifest on every request.
 	 */
 	public function test_enqueue_scripts_caches_asset_fetch_failure() {
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+			$this->markTestSkipped( 'Asset manifest transients are bypassed when SCRIPT_DEBUG is enabled.' );
+		}
+
 		$this->override_ai_features( true );
 		delete_transient( AiAssistantPlugin\READER_CHAT_ASSET_TRANSIENT );
 
@@ -1136,6 +1140,10 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	 * version string matches what was cached.
 	 */
 	public function test_enqueue_scripts_uses_cached_asset_version() {
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+			$this->markTestSkipped( 'Asset manifest transients are bypassed when SCRIPT_DEBUG is enabled.' );
+		}
+
 		$this->override_ai_features( true );
 		$this->cache_asset_data( array( 'version' => 'cached-1.2.3' ) );
 

@@ -24,7 +24,7 @@ for FILE in $(git -c core.quotepath=off ls-files 'composer.lock' '**/composer.lo
 done
 
 for FILE in $(git -c core.quotepath=off ls-files 'pnpm-lock.yaml' '**/pnpm-lock.yaml'); do
-	cd $(dirname "$FILE")
+	cd "$(dirname "$FILE")"
 	echo "::group::$FILE - pnpm install"
 	pnpm install --no-frozen-lockfile --resolution-only
 	echo "::endgroup::"
@@ -37,4 +37,8 @@ for FILE in $(git -c core.quotepath=off ls-files 'pnpm-lock.yaml' '**/pnpm-lock.
 	cd "$BASE"
 done
 
+# Provide a clue to next steps as to whether the check ran to completion (i.e. whether a failure due to outdated lock files vs. a composer/pnpm failure that terminates the script early).
+if [[ -n "$GITHUB_OUTPUT" ]]; then
+	echo "finished=true" >> "$GITHUB_OUTPUT"
+fi
 exit $EXIT

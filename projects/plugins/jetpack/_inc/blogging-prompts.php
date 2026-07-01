@@ -140,7 +140,7 @@ add_action( 'wp_after_insert_post', 'jetpack_mark_if_post_answers_blogging_promp
  * Retrieve a blogging prompt by prompt ID.
  *
  * @param int $prompt_id ID of the prompt fetch.
- * @return stdClass|null Prompt object or null.
+ * @return array|null Prompt object or null.
  */
 function jetpack_get_blogging_prompt_by_id( $prompt_id ) {
 	// Ensure the REST API endpoint we need is loaded.

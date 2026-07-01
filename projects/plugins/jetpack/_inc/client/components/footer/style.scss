@@ -18,6 +18,8 @@
 	--jp-black: #000;
 	--font-body-extra-small: 12px;
 
+	border-top: 1px solid #e0e0e0;
+
 	&,
 	*,
 	*::before,
@@ -32,6 +34,8 @@
 		flex-wrap: wrap;
 		font-size: var(--font-body-extra-small);
 		line-height: 1.333;
+		max-width: none;
+		padding: 0 24px;
 		width: 100%;
 
 		@include breakpoints.breakpoint( "<960px" ) {

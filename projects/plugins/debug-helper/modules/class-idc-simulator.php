@@ -1,4 +1,4 @@
-<?php // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
+<?php
 /**
  * Plugin Name: IDC Simulator
  * Description: Cause an IDC on your site without having to clone it.

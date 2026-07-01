@@ -5,39 +5,124 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.2.6] - 2026-06-29
+### Changed
+- Internal updates.
+
+## [7.2.5] - 2026-06-25
+### Changed
+- Defer Search REST controller instantiation so it is only built when its REST routes are requested. [#49803]
+- Update package dependencies. [#49831]
+
+### Fixed
+- Search Blocks: Fix deep-link searches (?s=) rendering no results or filter buckets. [#49944]
+- Search Blocks: Fix result and filter lists rendering after results load. [#49876]
+
+## [7.2.4] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+### Fixed
+- Search blocks: Use the default editor color for block icons. [#49756]
+
+## [7.2.3] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [7.2.2] - 2026-06-10
+### Changed
+- Update package dependencies. [#49273] [#49492]
+
+## [7.2.1] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+
+## [7.2.0] - 2026-06-01
+### Added
+- Search Blocks: Add a Width control (px / %) to the Search Input Block inspector. [#49210]
+- Search Blocks: Add a WooCommerce Product Search Page pattern. [#49270]
+- Search Blocks: Fire the TrainTracks render/interact analytics events from the blocks search path (embedded and overlay). [#49253]
+- Search Blocks: Render product results and filters from a dedicated product overlay template on WooCommerce product searches. [#49262]
+
+### Changed
+- AI Agent Access: Show the opt-in toggle on public sites. [#49103]
+- General: Exclude the search-blocks AGENTS.md and CLAUDE.md contributor docs from the production build. [#49269]
+- Search Blocks: Collapse the filter sidebar at narrow widths on the `jetpack-search` and `jetpack-search-product-results` page templates. [#49181]
+- Search Blocks: Default the checkbox-filter Custom Taxonomy label to the taxonomy's display name. [#49187]
+- Search Blocks: Derive the Blog Search Page pattern from the shared search layout template. [#49270]
+- Search Blocks: Drive the sidebar/popover responsive flip from a container query against the columns row. [#49227]
+- Search Blocks: Drop the dedicated Search Layout wrapper block. [#49261]
+- Search Blocks: Drop the filters-popover responsive display mode. [#49252]
+- Search Blocks: Drop the stale embedded→inline fallback for non-block themes. [#49142]
+- Search Blocks: Drop the `jetpack-search/clear-filters` block from the default content of the `filters`, `filters-popover`, and `filters-product` containers, the two bundled patterns (`blog-search`, `compact-search`), and the three page templates (`jetpack-search.html`, `jetpack-search-overlay.html`, `jetpack-search-product-results.html`). [#49182]
+- Search Blocks: Hide the image column in the expanded Results List layout for results that have no image. [#49225]
+- Search Blocks: Polish the no-results, error, and filters-empty messages with a consistent muted-scale typography across the overlay. [#49213]
+- Search Blocks: Sample the active theme's body color and background at page load and feed them to the overlay card, filters popover, sort menu, and search-input suggestions surfaces. [#49212]
+- Search Blocks: Stretch the filters sidebar to the full row height. [#49254]
+- Search Blocks: Unify rating-star color contract and align suggestions / price-slider surfaces with the 3-tier theme-token fallback chain. [#49208]
+- Search Blocks: Use the price slider variation of filter-wc-price in the product-results template. [#49217]
+- Search Blocks: Focus the search input and place the caret at the end on search page render with existing query. [#49215]
+- Search Blocks: Collapse the Overlay filter sidebar below 992px and dock a filters-popover trigger next to Sort By. [#49177]
+- Search Blocks: Derive the Overlay card elevation shadow from the theme ink so it lifts off the scrim on dark themes. [#49265]
+- Search Blocks: Separate the Overlay modal card from the dim scrim on dark themes. [#49207]
+- Update package dependencies. [#48404]
+
+### Removed
+- Search Blocks: Remove the standalone "Post Type Scope" (filter-post-type) block. [#49209]
+- Search Blocks: Remove the automatic switch to the Product layout for product-scoped searches, along with the per-block "Auto-switch to Product view" toggle. [#49257]
+
+### Fixed
+- Search Blocks: Make blocks-powered Overlay card wide on viewports ≥992px. [#49143]
+- Search Blocks: Honor the legacy --background / --foreground theme color tokens in blocks-powered Overlay shell. [#49138]
+- Search Blocks: Do not dismiss the blocks-powered Overlay on clicking a search suggestion. [#49137]
+- Search Blocks: Strip the search/filter params from the URL and reload when closing the blocks-powered Overlay. [#49145]
+- Search Blocks: Run the initial search when deep-linking to `/?s=` (empty value) on the blocks-powered Overlay instead of latching the "Searching…" skeleton on forever. [#49151]
+- Search Blocks: Drop nested same-namespace `data-wp-interactive` on active-filters and filter-checkbox when rendered inside the collapsible filters popover. [#49185]
+- Search Blocks: Render a solid background in filters-popover panel and results-sort menu on themes that don't define `--wp--preset--color--base`. [#49180]
+- Search Blocks: Fix results-header text collapsing into vertical columns when the filters popover is open. [#49287]
+- Search Blocks: Fix the visible seam in the blocks-powered Overlay's header underline at the close-button boundary, and bind the close button's hover surface to the resolved theme tokens. [#49179]
+- Search Blocks: Give active-filter pills a theme-tracking keyboard focus ring. [#49259]
+- Search Blocks: Keep view-module URLs same-origin so blocks load on Multisite mapped domains, www-vs-non-www mismatches, and CDN setups without CORS headers. [#49141]
+- Search Blocks: Register singleton template CPTs synchronously when init() is invoked from inside an init action. [#49144]
+- Search Blocks: Render active-filter pills as theme-tracking outline chips (matching the filter chips) instead of solid buttons. [#49255]
+- Search Blocks: Render the product-results body (filters-product, results-list layout=product, WC-only filters) on classic themes when "Use Jetpack Search for product search results" is enabled. [#49176]
+- Search Blocks: Route the Restore Default action through jetpack/v4. [#49150]
+- Search Blocks: Show the loading skeleton during the initial client-side search. [#49264]
+- Search Blocks: Strip the scalar `post_type` alias when closing the blocks Overlay. [#49275]
+- Search Blocks: Surface the "No filters available" empty state in the embedded and overlay templates. [#49146]
+- Search Blocks: Restore header hairline + button-hover affordances on themes without --wp--preset--color--base / --contrast tokens in Overlay. [#49184]
+
 ## [7.1.0] - 2026-05-25
 ### Added
 - Experience Selector: Add a new "Overlay search" card backed by the experimental blocks-powered overlay; the legacy preact Overlay is renamed to "Overlay search (legacy)" when the new card is visible. [#48994]
 - Experience Selector: Release the blocks-powered Overlay as an experimental option, surfaced as an "Overlay search (blocks)" card with a Beta badge alongside the preact Overlay. [#49118]
-- Search: Internal — add a `Filter_Static` helper class and a `staticFilterSelections` seed slot on the shared Interactivity state. Foundation for the upcoming `jetpack-search/filter-static` block. [#49039]
 - Search Blocks: Add a "Post types" setting to the Search Input block so authors can scope a search to specific post types directly on the input. [#49078]
 - Search Blocks: Add an opt-in "Load on scroll" mode to the Load More block. [#49046]
-- Search Blocks: Embedded search experience now works on classic themes, with an "Edit search template" link that opens the bundled template in the block editor. [#49117]
-- Search Blocks: The Filters and Product Filters containers now show a "No filters available" empty state when a search resolves with no facets to show. [#49089]
+- Search Blocks: Add classic-theme support to the Embedded search experience, with an "Edit search template" link that opens the bundled template in the block editor. [#49117]
+- Search Blocks: Show a "No filters available" empty state in the Filters and Product Filters containers when a search returns no facets. [#49089]
 - Search Blocks overlay: Add an "Edit the Search overlay" entry point in the Jetpack Search dashboard that opens the experimental overlay template in the block editor. A "Restore default" link reverts to the bundled template. [#49028]
 
 ### Changed
-- Search: Internal — store now recognizes a `kind: 'static'` flag on `filterConfigs` entries to round-trip single-select selections through scalar `?filter_id=value` URL params. Foundation for the upcoming `jetpack-search/filter-static` block. [#49038]
+- Internal: Recognize `kind: 'static'` flag in `filterConfig` entries to improve selections via `?filter_id=value` URL params. [#49038]
 - Search Blocks: Add a small top gap between the Search Input header and the first row of results inside the blocks-powered Overlay. [#49120]
 - Search Blocks: Add horizontal gutters and a content-width cap to the Embedded search page on classic themes. Honors `--wp--style--global--wide-size` when a classic theme ships `theme.json`. [#49127]
-- Search Blocks: Add a test-only helper for the paid-search gate. No runtime behavior change. [#49035]
-- Search Blocks: Default the Clear Filters button to the Compact style in the Filters and Product Filters compositions. [#49087]
+- Search Blocks: Default the "Clear Filters" button to the Compact style in the Filters and Product Filters compositions. [#49087]
 - Search Blocks: Enable the Interactivity-API Search blocks by default. The `jetpack_search_blocks_enabled` filter is retained as a kill-switch. [#49037]
 - Search Blocks: Add an opt-in responsive `displayMode` to the Filters popover — inline filters on wider screens that collapse to the popover trigger on narrow ones. [#49045]
 - Search Blocks: Gate the AI Answer block behind a paid Search plan. [#49033]
-- Search blocks: Skip the server-side search query in the Embedded and blocks Overlay experiences, where results are fetched client-side. [#49074]
+- Search Blocks: Skip the server-side search query in the Embedded and blocks Overlay experiences, where results are fetched client-side. [#49074]
 - Search Blocks: Require WooCommerce 6.5 or newer for the WooCommerce-only filter blocks to register. [#49091]
-- Search Blocks: The WooCommerce filter blocks (product attribute, price, rating, and stock-status filters) now follow WooCommerce's active state instead of being force-disabled. The `jetpack_search_woocommerce_blocks_enabled` filter remains available to force the gate either way. [#49085]
-- Search dashboard: Rename the "Plan & Usage" tab to "Overview". [#49041]
-- Search dashboard: Route tabs via the URL hash (`#/<slug>`) instead of the `?tab=<slug>` query parameter. Existing `?tab=<slug>` URLs are normalized on mount. [#49042]
+- Search Blocks: Register the WooCommerce filter blocks (product attribute, price, rating, and stock-status) based on WooCommerce's active state instead of force-disabling them; the `jetpack_search_woocommerce_blocks_enabled` filter still overrides the gate. [#49085]
+- Search Dashboard: Rename the "Plan & Usage" tab to "Overview". [#49041]
+- Search Dashboard: Route tabs via the URL hash (`#/<slug>`) instead of the `?tab=<slug>` query parameter. Existing `?tab=<slug>` URLs are normalized on mount. [#49042]
 
 ### Fixed
 - Instant Search: Scope the search suggestions dropdown to the overlay box input, stopping it from leaking onto the WP Admin bar search. [#49090]
 - Search Blocks: Hide the Load More button while the "Loading…" indicator is showing. [#49044]
 - Search Blocks: Overlay shell honors theme color tokens, so the modal stays readable on dark block themes. [#49125]
-- Search blocks: Render the active theme's header/footer template parts on the search page instead of the hardcoded `header` / `footer` slugs. [#49026]
-- Search Blocks: The Search Input suggestions panel inside the blocks-powered Overlay now renders cleanly on top of the results and filters area. [#49124]
-- Search Blocks overlay: Auto-open on initial page load when the URL contains `?s=` or `?q=`. [#49073]
+- Search Blocks: Render the active theme's header/footer template parts on the search page instead of the hardcoded `header` / `footer` slugs. [#49026]
+- Search Blocks: Render the Search Input suggestions panel cleanly on top of the results and filters area in the blocks-powered Overlay. [#49124]
+- Search Blocks: Auto-open on initial page load when the URL contains `?s=` or `?q=`. [#49073]
 - Search Dashboard: Gate Reader Chat controls by Search plan support and usage status, and show a Preview badge beside the Reader Chat toggle. [#48890]
 - Search Dashboard: Improve Overview tab responsiveness at tablet widths. [#49128]
 - Search dashboard: Mirror the `jetpack_search_blocks_enabled` server default in the React initial state so the Experience Selector renders on stock sites. [#49116]
@@ -1732,6 +1817,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[7.2.6]: https://github.com/Automattic/jetpack-search/compare/v7.2.5...v7.2.6
+[7.2.5]: https://github.com/Automattic/jetpack-search/compare/v7.2.4...v7.2.5
+[7.2.4]: https://github.com/Automattic/jetpack-search/compare/v7.2.3...v7.2.4
+[7.2.3]: https://github.com/Automattic/jetpack-search/compare/v7.2.2...v7.2.3
+[7.2.2]: https://github.com/Automattic/jetpack-search/compare/v7.2.1...v7.2.2
+[7.2.1]: https://github.com/Automattic/jetpack-search/compare/v7.2.0...v7.2.1
+[7.2.0]: https://github.com/Automattic/jetpack-search/compare/v7.1.0...v7.2.0
 [7.1.0]: https://github.com/Automattic/jetpack-search/compare/v7.0.0...v7.1.0
 [7.0.0]: https://github.com/Automattic/jetpack-search/compare/v0.60.0...v7.0.0
 [0.60.0]: https://github.com/Automattic/jetpack-search/compare/v0.59.0...v0.60.0

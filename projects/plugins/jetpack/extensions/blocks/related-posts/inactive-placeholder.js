@@ -18,18 +18,15 @@ export const InactiveRelatedPostsPlaceholder = ( {
 	const { tracks } = useAnalytics();
 
 	const enableFeature = () => {
-		let featureEnabled = false;
 		tracks.recordEvent( 'jetpack_editor_related_posts_enable' );
 
 		if ( ! isSimpleSite() ) {
 			// enable module.
-			featureEnabled = changeStatus( true );
+			changeStatus( true );
 		}
 
 		// enable option.
-		featureEnabled = enable();
-
-		return featureEnabled;
+		return enable();
 	};
 
 	// Track when the placeholder is viewed.

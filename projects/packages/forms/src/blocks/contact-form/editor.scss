@@ -255,7 +255,7 @@
 
 	.block-editor-block-variation-picker__variation {
 
-		svg path:not(.icon-filler) {
+		svg path:not([fill="none"]) {
 			fill: currentColor;
 		}
 	}

@@ -31,6 +31,7 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/layout-grid-usage-trackin
  * @covers ::wpcom_layout_grid_usage_should_log_in_context
  * @covers ::wpcom_layout_grid_usage_mark_context_seen
  * @covers ::wpcom_layout_grid_usage_context_transient_key
+ * @covers ::wpcom_layout_grid_usage_classify_origin
  * @covers ::wpcom_layout_grid_usage_log_observation
  */
 #[CoversFunction( 'wpcom_layout_grid_usage_widget_value_contains_block' )]
@@ -44,6 +45,7 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/layout-grid-usage-trackin
 #[CoversFunction( 'wpcom_layout_grid_usage_should_log_in_context' )]
 #[CoversFunction( 'wpcom_layout_grid_usage_mark_context_seen' )]
 #[CoversFunction( 'wpcom_layout_grid_usage_context_transient_key' )]
+#[CoversFunction( 'wpcom_layout_grid_usage_classify_origin' )]
 #[CoversFunction( 'wpcom_layout_grid_usage_log_observation' )]
 class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 
@@ -67,6 +69,10 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 		delete_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION );
 		delete_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT );
 		delete_transient( WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT );
+		// No user, no import/cron/cli constants in the test process → the insert
+		// surfaces classify as `programmatic`. Pinned here so origin assertions
+		// don't depend on a user another test may have left set.
+		wp_set_current_user( 0 );
 		$this->observations = array();
 		add_filter( 'wpcom_layout_grid_usage_log_enabled', array( $this, 'spy_observation' ), 11, 2 );
 	}
@@ -254,6 +260,7 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 				array(
 					'surface'   => 'post_insert',
 					'post_type' => 'page',
+					'origin'    => 'programmatic',
 				),
 			),
 			$this->observations
@@ -267,6 +274,7 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 				array(
 					'surface'   => 'post_insert',
 					'post_type' => 'post',
+					'origin'    => 'programmatic',
 				),
 			),
 			$this->observations
@@ -307,7 +315,12 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 		// Add: initial value has the block.
 		wpcom_layout_grid_usage_react_to_widget_block_added( 'widget_block', $this->widget_with( self::LAYOUT_GRID ) );
 		$this->assertSame(
-			array( array( 'surface' => 'widget_add' ) ),
+			array(
+				array(
+					'surface' => 'widget_add',
+					'origin'  => 'programmatic',
+				),
+			),
 			$this->observations
 		);
 
@@ -315,7 +328,12 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 		$this->observations = array();
 		wpcom_layout_grid_usage_react_to_widget_block_updated( $this->widget_with( self::PARAGRAPH ), $this->widget_with( self::LAYOUT_GRID ) );
 		$this->assertSame(
-			array( array( 'surface' => 'widget_update' ) ),
+			array(
+				array(
+					'surface' => 'widget_update',
+					'origin'  => 'programmatic',
+				),
+			),
 			$this->observations
 		);
 
@@ -345,7 +363,12 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( get_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION ) );
 		$this->assertSame( $content, wpcom_layout_grid_usage_react_to_block_render( $content, array() ) );
 		$this->assertSame(
-			array( array( 'surface' => 'render' ) ),
+			array(
+				array(
+					'surface' => 'render',
+					'origin'  => 'render',
+				),
+			),
 			$this->observations
 		);
 		$this->assertFalse( get_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION ) );
@@ -403,5 +426,32 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 				"cron transient for: {$label}"
 			);
 		}
+	}
+
+	/**
+	 * Origin classification: a request with a logged-in user and none of the
+	 * batch / transport contexts reads as `editor`; with no user it falls
+	 * through to `programmatic`. The context-driven branches (migration, import,
+	 * xmlrpc, cli, cron, rest, ajax) aren't exercised here — they hinge on
+	 * request constants or the wpcomsh migration helper, neither of which can be
+	 * toggled without leaking into the rest of the phpunit process.
+	 */
+	public function test_classify_origin_separates_editor_from_programmatic() {
+		wp_set_current_user( 0 );
+		$this->assertSame( 'programmatic', wpcom_layout_grid_usage_classify_origin() );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'grid-editor',
+				'user_pass'  => 'x',
+				'role'       => 'editor',
+			)
+		);
+		$this->assertIsInt( $user_id );
+		wp_set_current_user( $user_id );
+		$this->assertSame( 'editor', wpcom_layout_grid_usage_classify_origin() );
+
+		// Restore the no-user default for any later test in this instance.
+		wp_set_current_user( 0 );
 	}
 }

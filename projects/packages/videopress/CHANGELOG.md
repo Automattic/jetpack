@@ -5,16 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.38.2] - 2026-06-29
+### Security
+- Fix an issue where the media library Heartbeat handler exposed processing status for attachments the current user is not allowed to edit. [#49931]
+
+### Changed
+- Update package dependencies. [#49271]
+
+## [0.38.1] - 2026-06-25
+### Changed
+- Defer loading the VideoPress REST API endpoint classes until a REST request is served, reducing the per-request PHP/opcache footprint. [#49806]
+- Improve performance when receiving resumable video uploads. [#49666]
+- Update package dependencies. [#49831]
+
+## [0.38.0] - 2026-06-22
+### Added
+- Add a native Divi 5 module alongside the existing Divi 4 module, with configurable player settings and support for migrating legacy layouts. [#49669]
+- Allow changing privacy (public, private, site default) for multiple videos at once from the new Library. [#49474]
+- Show a "Deleting" progress state on library rows and the video details page during deletion. [#49558]
+
+### Changed
+- Update package dependencies. [#49631] [#49638] [#49691] [#49757]
+- Persist Library view settings (layout, columns, sort, per-page) per-user across reloads. [#49475]
+
+### Fixed
+- Fix a WP Admin fatal error when using the VideoPress Divi extension with Divi Builder on PHP 8+. [#49668]
+- Prevent PHP warnings for videos with incomplete metadata. [#49621]
+- Add padding to the "Processing" badge in the video details view. [#49693]
+- Truncate long video titles and filenames in the library grid and table, and clamp them in the video details breadcrumb. [#49561]
+
+## [0.37.0] - 2026-06-15
+### Added
+- Add drag-and-drop video upload to the new library, with upload progress and a notice when the single-video plan limit is reached. [#49358]
+- Open a video's details from the library grid by clicking the thumbnail or title, with a hover "Edit details" affordance and full keyboard support. [#49472]
+
+### Changed
+- Update package dependencies. [#49273] [#49492]
+
+## [0.36.13] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+- Update package dependencies. [#49379]
+
+### Fixed
+- Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown. [#49340]
+- Fix a TypeScript error in the library route's DataViews default layouts. [#49368]
+- Restructure the free-plan upgrade notice into a balanced heads-up line, an upsell pitch, and a concise "Upgrade" button. [#49400]
+
+## [0.36.12] - 2026-06-01
+### Changed
+- Exclude additional unneeded files from the Composer package. [#49014]
+- Internal: Prepare types for React 19. [#49204]
+- Update package dependencies. [#48404] [#49152]
+
+### Fixed
+- Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404. [#49168]
+
 ## [0.36.11] - 2026-05-25
 ### Changed
-- Modernized dashboard (gated behind `rsm_jetpack_ui_modernization_videopress`): Gate the dashboard behind a WordPress.com connection so the uploader is no longer exposed pre-connection. [#49063]
-- Modernized dashboard (gated behind `rsm_jetpack_ui_modernization_videopress`) now wires Overview, Library, Video Details, and Settings to real REST endpoints. Also corrects the stats proxy's watch-time unit conversion. [#48919]
-- Modernized dashboard: Add a thumbnail editor to the Video details screen. [#49013]
-- Modernized dashboard: Pre-release polish across empty states, date-range button, breadcrumbs, ribbons, chart curve, Library grid, and row actions. Also fixes a free-tier counting bug where local video attachments were gating a free user's first VideoPress upload. [#48988]
-- Modernized dashboard: Update the dashboard tests and storage meter. [#49022]
-- Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
+- Migrate dashboard tabs from default to minimal variant and align via the shared `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]
 - Update package dependencies. [#48405] [#49012]
-- Migrate dashboard tabs from default to minimal variant; align via the shared `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]
+- Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
 
 ### Fixed
 - Fix duplicate Jetpack logo rendering in the Edit Video page header. [#48962]
@@ -1993,6 +2044,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.38.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.38.1...v0.38.2
+[0.38.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.38.0...v0.38.1
+[0.38.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.37.0...v0.38.0
+[0.37.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.13...v0.37.0
+[0.36.13]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.12...v0.36.13
+[0.36.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.11...v0.36.12
 [0.36.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.10...v0.36.11
 [0.36.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.9...v0.36.10
 [0.36.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.8...v0.36.9

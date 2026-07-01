@@ -69,7 +69,8 @@ async function sendRequest(
 					'boost-score-api'
 				),
 				JSON.stringify( errorInfo )
-			)
+			),
+			{ cause: error }
 		);
 	}
 

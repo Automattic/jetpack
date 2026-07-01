@@ -1,7 +1,30 @@
-import { Circle, Rect } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import { Circle, Rect, SVG } from '@wordpress/primitives';
 import edit from './edit.js';
+
+const lineIcon = (
+	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+		<Rect
+			x="3.75"
+			y="9.75"
+			width="16.5"
+			height="4.5"
+			rx="2.25"
+			stroke="currentColor"
+			fill="none"
+			strokeWidth="1.5"
+		/>
+		<Rect x="2" y="9" width="8" height="6" rx="3" />
+	</SVG>
+);
+
+const dotsIcon = (
+	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+		<Circle cx="6" cy="12" r="2" fill="currentColor" />
+		<Circle cx="12" cy="12" r="2" fill="currentColor" />
+		<Circle cx="18" cy="12" r="2" fill="currentColor" />
+	</SVG>
+);
 
 export const name = 'form-progress-indicator';
 
@@ -34,21 +57,7 @@ export const settings = {
 		'jetpack-forms'
 	),
 	icon: {
-		src: renderMaterialIcon(
-			<>
-				<Rect
-					x="3.75"
-					y="9.75"
-					width="16.5"
-					height="4.5"
-					rx="2.25"
-					stroke="currentColor"
-					fill="none"
-					strokeWidth="1.5"
-				/>
-				<Rect x="2" y="9" width="8" height="6" rx="3" />
-			</>
-		),
+		src: lineIcon,
 	},
 	edit: edit,
 	save: () => null,
@@ -76,21 +85,7 @@ export const settings = {
 				variant: 'line',
 			},
 			isActive: [ 'variant' ],
-			icon: renderMaterialIcon(
-				<>
-					<Rect
-						x="3.75"
-						y="9.75"
-						width="16.5"
-						height="4.5"
-						rx="2.25"
-						stroke="currentColor"
-						fill="none"
-						strokeWidth="1.5"
-					/>
-					<Rect x="2" y="9" width="8" height="6" rx="3" />
-				</>
-			),
+			icon: lineIcon,
 		},
 		{
 			name: 'dots',
@@ -101,13 +96,7 @@ export const settings = {
 				variant: 'dots',
 			},
 			isActive: [ 'variant' ],
-			icon: renderMaterialIcon(
-				<>
-					<Circle cx="6" cy="12" r="2" fill="currentColor" />
-					<Circle cx="12" cy="12" r="2" fill="currentColor" />
-					<Circle cx="18" cy="12" r="2" fill="currentColor" />
-				</>
-			),
+			icon: dotsIcon,
 		},
 	],
 	transforms: {},

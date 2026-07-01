@@ -37,6 +37,9 @@ export declare global {
 				assets: {
 					buildUrl: string;
 				};
+				// Authoritative accepted-upload map (extension => mimetype) from the
+				// server's `Admin_UI::get_allowed_video_extensions()`.
+				allowedVideoExtensions: Record< string, string >;
 				pricing: null | {
 					title: string;
 					features: string[];

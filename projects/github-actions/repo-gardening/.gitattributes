@@ -1,1 +1,2 @@
-/dist/**         production-include
+/dist/**           production-include
+/tsdown.config.ts  production-exclude

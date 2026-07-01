@@ -155,7 +155,7 @@ class Instant_Search extends Classic_Search {
 	 * Loads scripts for Tracks analytics library
 	 */
 	public function load_and_initialize_tracks() {
-		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		Helper::enqueue_tracks_script();
 	}
 
 	/**

@@ -2,6 +2,59 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [1.4.66] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [1.4.65] - 2026-06-25
+### Fixed
+- Connect screen: Accept React synthetic events on the connect button click handler to satisfy the `@wordpress/ui` 0.15 Button `onClick` type. [#49795]
+
+## [1.4.64] - 2026-06-24
+### Changed
+- Internal updates.
+
+## [1.4.63] - 2026-06-23
+### Changed
+- Update dependencies.
+
+## [1.4.62] - 2026-06-22
+### Changed
+- Update package dependencies. [#49691] [#49757]
+
+## [1.4.61] - 2026-06-15
+### Changed
+- Update package dependencies. [#49631]
+
+## [1.4.60] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [1.4.59] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## [1.4.58] - 2026-06-08
+### Changed
+- Update dependencies.
+
+## [1.4.57] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.4.56] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [1.4.55] - 2026-06-02
+### Changed
+- Update dependencies.
+
+## [1.4.54] - 2026-06-01
+### Changed
+- Connection: Migrate ActionButton, Button, and Text consumers off @automattic/jetpack-components to @wordpress/ui equivalents. [#49099]
+- Update package dependencies. [#48404]
+
 ## [1.4.53] - 2026-05-25
 ### Added
 - Add direct `useProductCheckoutWorkflow` hook export. [#49032]
@@ -1352,6 +1405,19 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[1.4.66]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.65...v1.4.66
+[1.4.65]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.64...v1.4.65
+[1.4.64]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.63...v1.4.64
+[1.4.63]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.62...v1.4.63
+[1.4.62]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.61...v1.4.62
+[1.4.61]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.60...v1.4.61
+[1.4.60]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.59...v1.4.60
+[1.4.59]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.58...v1.4.59
+[1.4.58]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.57...v1.4.58
+[1.4.57]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.56...v1.4.57
+[1.4.56]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.55...v1.4.56
+[1.4.55]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.54...v1.4.55
+[1.4.54]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.53...v1.4.54
 [1.4.53]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.52...v1.4.53
 [1.4.52]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.51...v1.4.52
 [1.4.51]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.50...v1.4.51

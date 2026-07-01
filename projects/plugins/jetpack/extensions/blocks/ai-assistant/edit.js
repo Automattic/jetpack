@@ -236,8 +236,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	};
 
 	const replaceContent = async () => {
-		let newGeneratedBlocks = [];
-
 		let HTML = renderHTMLFromMarkdown( { content: attributes.content || '' } );
 
 		const seemsToIncludeTitle =
@@ -253,7 +251,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			// set the title as post title
 			editPost( { title: title.replace( /<[^>]*>/g, '' ) } );
 		}
-		newGeneratedBlocks = rawHandler( { HTML: HTML } );
+		const newGeneratedBlocks = rawHandler( { HTML: HTML } );
 
 		// Replace the block with the new generated blocks
 		await replaceBlocks( clientId, newGeneratedBlocks );

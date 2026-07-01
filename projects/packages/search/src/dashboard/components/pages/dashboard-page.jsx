@@ -31,6 +31,15 @@ const VALID_TABS = [ DEFAULT_TAB, 'settings', 'ai-answers' ];
 const LEGACY_TAB_QUERY_PARAM = 'tab';
 // Maps removed slugs to their current equivalents so existing bookmarks/links keep working.
 const LEGACY_TAB_ALIASES = { 'plan-usage': 'overview' };
+// Experiences whose product search reads `override_woocommerce_search_template`:
+// Embedded/Inline swap WooCommerce's product-search page for the Jetpack
+// product-results template; overlay_blocks paints the product overlay. The
+// legacy preact Overlay has no blocks template, so it's absent.
+const PRODUCT_SEARCH_OVERRIDE_EXPERIENCES = [
+	EXPERIENCE.EMBEDDED,
+	EXPERIENCE.INLINE,
+	EXPERIENCE.OVERLAY_BLOCKS,
+];
 
 const resolveTabFromLocation = () => {
 	if ( typeof window === 'undefined' ) {
@@ -197,30 +206,67 @@ export default function DashboardPage( { isLoading = false } ) {
 	const activeThemeStylesheet = useSelect( select =>
 		select( STORE_ID ).getActiveThemeStylesheet()
 	);
-	// Only meaningful for server-rendered templates; Overlay intercepts
-	// client-side so the override would be a no-op there.
 	const showWooCommerceProductSearchControl =
-		isWooCommerceActive &&
-		( activeExperience === EXPERIENCE.EMBEDDED || activeExperience === EXPERIENCE.INLINE );
-	// Block themes get the Site Editor entry (templates resolve as
-	// `<stylesheet>//<slug>`); classic themes don't have a Site Editor at
-	// all, so route to the `Product_Search_Template` singleton-CPT editor
-	// instead. The CPT URL is nonce'd by PHP and is `null` for any visitor
-	// without `manage_options` — keep the WC control's existing
-	// `editTemplateUrl && …` guard so the link hides cleanly in that case.
+		isWooCommerceActive && PRODUCT_SEARCH_OVERRIDE_EXPERIENCES.includes( activeExperience );
 	const isBlockTheme = useSelect( select => select( STORE_ID ).isBlockTheme() );
 	const productSearchTemplate = useSelect( select =>
 		select( STORE_ID ).getProductSearchTemplateConfig()
 	);
-	let wooProductSearchEditUrl;
-	if ( isBlockTheme ) {
-		wooProductSearchEditUrl = activeThemeStylesheet
-			? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
-					activeThemeStylesheet
-			  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
-			: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`;
+	const productOverlayTemplate = useSelect( select =>
+		select( STORE_ID ).getProductOverlayTemplateConfig()
+	);
+	// The edit affordance follows the active experience. Overlay (blocks) edits its
+	// product template via the singleton CPT (post.php, any theme) and gets a
+	// "Restore default". Embedded/Inline edit the product-results page template —
+	// the Site Editor on block themes (which owns its own revert, so no restore
+	// link there), the Product_Search_Template singleton CPT on classic themes.
+	// Singleton editor URLs are null for non-admins, so `SingletonTemplateActions`
+	// disables the link in that state.
+	const isProductOverlayExperience = activeExperience === EXPERIENCE.OVERLAY_BLOCKS;
+	let wooProductTemplate;
+	if ( isProductOverlayExperience ) {
+		wooProductTemplate = {
+			templateConfig: productOverlayTemplate,
+			editTemplateUrl: null,
+			editLabel: __( 'Edit the product Search overlay', 'jetpack-search-pkg' ),
+			restoreConfirmMessage: __(
+				'Restore the bundled product Search overlay template? Your customizations will be deleted.',
+				'jetpack-search-pkg'
+			),
+			successMessage: __(
+				'The product Search overlay template has been restored to the bundled default.',
+				'jetpack-search-pkg'
+			),
+			errorMessage: __(
+				'Could not restore the product Search overlay template.',
+				'jetpack-search-pkg'
+			),
+		};
+	} else if ( isBlockTheme ) {
+		wooProductTemplate = {
+			templateConfig: null,
+			editTemplateUrl: activeThemeStylesheet
+				? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
+						activeThemeStylesheet
+				  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
+				: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`,
+			editLabel: __( 'Edit the product search template', 'jetpack-search-pkg' ),
+		};
 	} else {
-		wooProductSearchEditUrl = productSearchTemplate.editorUrl;
+		wooProductTemplate = {
+			templateConfig: productSearchTemplate,
+			editTemplateUrl: null,
+			editLabel: __( 'Edit the product search template', 'jetpack-search-pkg' ),
+			restoreConfirmMessage: __(
+				'Restore the bundled product search template? Your customizations will be deleted.',
+				'jetpack-search-pkg'
+			),
+			successMessage: __(
+				'The product search template has been restored to the bundled default.',
+				'jetpack-search-pkg'
+			),
+			errorMessage: __( 'Could not restore the product search template.', 'jetpack-search-pkg' ),
+		};
 	}
 	const showAIAgentAccessGuidelinesLink =
 		! isReaderChatAvailable ||
@@ -386,7 +432,12 @@ export default function DashboardPage( { isLoading = false } ) {
 																isEnabled={ isWooCommerceSearchTemplateOverrideEnabled }
 																isSaving={ isSavingEitherOption }
 																updateOptions={ updateOptions }
-																editTemplateUrl={ wooProductSearchEditUrl }
+																templateConfig={ wooProductTemplate.templateConfig }
+																editTemplateUrl={ wooProductTemplate.editTemplateUrl }
+																editLabel={ wooProductTemplate.editLabel }
+																restoreConfirmMessage={ wooProductTemplate.restoreConfirmMessage }
+																successMessage={ wooProductTemplate.successMessage }
+																errorMessage={ wooProductTemplate.errorMessage }
 															/>
 														</div>
 													) }

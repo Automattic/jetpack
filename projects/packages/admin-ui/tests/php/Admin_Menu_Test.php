@@ -197,6 +197,57 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * Adding a menu registers the load hooks that hide core admin notices.
+	 *
+	 * @return void
+	 */
+	public function test_add_menu_registers_hide_core_admin_notices_hooks() {
+		$hook = Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'notices_menu', '__return_null' );
+
+		$this->assertSame( 'jetpack_page_notices_menu', $hook );
+		$this->assertNotFalse(
+			has_action( 'load-' . $hook, array( Admin_Menu::class, 'hide_core_admin_notices' ) ),
+			'Expected the load hook to hide core admin notices to be registered.'
+		);
+		$this->assertNotFalse(
+			has_action( 'load-' . $hook . '-network', array( Admin_Menu::class, 'hide_core_admin_notices' ) ),
+			'Expected the network-admin load hook to hide core admin notices to be registered.'
+		);
+	}
+
+	/**
+	 * Calling hide_core_admin_notices queues the inline style printer.
+	 *
+	 * @return void
+	 */
+	public function test_hide_core_admin_notices_queues_inline_style() {
+		Admin_Menu::hide_core_admin_notices();
+
+		$this->assertNotFalse(
+			has_action( 'admin_print_styles', array( Admin_Menu::class, 'print_hide_core_admin_notices_style' ) ),
+			'Expected the inline style printer to be hooked to admin_print_styles.'
+		);
+
+		remove_action( 'admin_print_styles', array( Admin_Menu::class, 'print_hide_core_admin_notices_style' ) );
+	}
+
+	/**
+	 * The printed style targets only direct-child core notices, leaving JITMs untouched.
+	 *
+	 * @return void
+	 */
+	public function test_print_hide_core_admin_notices_style_output() {
+		ob_start();
+		Admin_Menu::print_hide_core_admin_notices_style();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'id="jetpack-admin-ui-hide-core-notices"', $output );
+		$this->assertStringContainsString( '#wpbody-content > .notice', $output );
+		// JITMs render as `.jetpack-jitm-message`; the selector must not match them.
+		$this->assertStringNotContainsString( 'jetpack-jitm-message', $output );
+	}
+
+	/**
 	 * Tests that the first registered menu item is returned correctly.
 	 *
 	 * @return void

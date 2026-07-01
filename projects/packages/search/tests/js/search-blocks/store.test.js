@@ -36,7 +36,6 @@ import {
 	gateActiveFilters,
 	gateStaticFilterSelections,
 	remapAggregationsToFilterKeys,
-	resetActivePostTypeScopeForTesting,
 	state,
 } from '../../../src/search-blocks/store';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
@@ -135,9 +134,6 @@ describe( 'store helpers round-trip', () => {
 describe( 'store actions', () => {
 	beforeEach( () => {
 		Object.assign( actions, originalActions );
-		// The active per-instance scope lives in a module variable the state
-		// reset below can't reach, so clear it explicitly to keep cases isolated.
-		resetActivePostTypeScopeForTesting();
 		Object.assign( state, {
 			siteId: 123,
 			searchQuery: 'old query',
@@ -151,7 +147,7 @@ describe( 'store actions', () => {
 			filterConfigs: {},
 			priceRange: null,
 			staticFilterSelections: {},
-			staticPostTypes: undefined,
+			staticPostTypes: null,
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
 			isLoading: false,
@@ -183,12 +179,11 @@ describe( 'store actions', () => {
 		jest.restoreAllMocks();
 	} );
 
-	it( 'flips skeletonHidden once the first search resolves (success or error)', async () => {
-		// `skeletonHidden` gates the pre-hydration placeholders. Once the
-		// first fetch completes, JS owns the DOM and the skeleton must
-		// disappear for the rest of the session — both the success path
-		// and the error path of `search()` need to flip the flag.
-		state.skeletonHidden = false;
+	it( 'hides the skeleton once a search resolves (success or error)', async () => {
+		// `skeletonHidden` derives from an in-flight fetch with no results yet.
+		// Once `search()` settles — success or error — `isLoading` is false so
+		// the skeleton is hidden again. The error path clears `results`, so the
+		// derived flag must still resolve to hidden and not strand placeholders.
 		global.fetch.mockResolvedValueOnce(
 			createResponse( {
 				results: [ createResult( 'Fresh hit' ) ],
@@ -201,10 +196,6 @@ describe( 'store actions', () => {
 		expect( state.skeletonHidden ).toBe( true );
 		expect( state.isLoading ).toBe( false );
 
-		// Reset and confirm the error path also closes the skeleton —
-		// otherwise a connection failure would leave placeholders on screen
-		// indefinitely with no visible loading indicator.
-		state.skeletonHidden = false;
 		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
 		await runGenerator( actions.search( { syncUrl: false } ) );
 		expect( state.skeletonHidden ).toBe( true );
@@ -212,50 +203,49 @@ describe( 'store actions', () => {
 		expect( state.isLoading ).toBe( false );
 	} );
 
-	it( 'applies a per-instance post-type scope, reuses it across re-runs, and falls back to the global seed for an unscoped input', async () => {
+	it( 'applies the page-level post-type scope from state on every fetch', async () => {
+		// `search-results/render.php` seeds `state.staticPostTypes` once at
+		// template render; the store reads it on every fetch — initial search,
+		// typed search, filter/sort, load-more — without any per-instance
+		// override or fall-through ladder.
 		const ok = () =>
 			createResponse( { results: [], total: 0, page_handle: null, aggregations: {} } );
 
-		// 1. A scoped Search Input dispatches — its include list constrains the
-		//    ES filter clause for the search it initiates.
+		state.staticPostTypes = { include: [ 'product' ], exclude: [] };
+
 		global.fetch.mockResolvedValueOnce( ok() );
-		await runGenerator(
-			actions.search( { syncUrl: false, staticPostTypes: { include: [ 'post' ], exclude: [] } } )
-		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
 		expect( decodeURIComponent( global.fetch.mock.calls[ 0 ][ 0 ] ) ).toContain(
-			'filter[bool][must][0][term][post_type]=post'
+			'filter[bool][must][0][term][post_type]=product'
 		);
 
-		// 2. A filter / sort re-run omits the scope key, so the session keeps the
-		//    active scope rather than dropping the constraint.
+		// A filter/sort re-run uses the same seeded scope — no separate session
+		// state, the slot is the single source of truth.
 		global.fetch.mockResolvedValueOnce( ok() );
 		await runGenerator( actions.search( { syncUrl: false } ) );
 		expect( decodeURIComponent( global.fetch.mock.calls[ 1 ][ 0 ] ) ).toContain(
-			'filter[bool][must][0][term][post_type]=post'
+			'filter[bool][must][0][term][post_type]=product'
 		);
 
-		// 3. An unscoped input passes null, clearing the active scope and falling
-		//    back to the page-global seed a filter-post-type block contributed.
-		state.staticPostTypes = { include: [ 'page' ], exclude: [] };
+		// Clearing `state.staticPostTypes` (no `search-results` scope set)
+		// produces an unconstrained query.
+		state.staticPostTypes = null;
 		global.fetch.mockResolvedValueOnce( ok() );
-		await runGenerator( actions.search( { syncUrl: false, staticPostTypes: null } ) );
-		const decoded = decodeURIComponent( global.fetch.mock.calls[ 2 ][ 0 ] );
-		expect( decoded ).toContain( 'filter[bool][must][0][term][post_type]=page' );
-		expect( decoded ).not.toContain( '[post_type]=post&' );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 2 ][ 0 ] ) ).not.toContain(
+			'[term][post_type]'
+		);
 	} );
 
-	it( 'reuses the active per-instance scope on popstate (omits the scope key)', async () => {
-		// A back/forward restore re-runs search without a `staticPostTypes` key
-		// so the session-local scope from the last input survives — the scope is
-		// never serialized to the URL, so passing one here would be wrong.
+	it( 'popstate re-runs search with only the syncUrl option (scope stays seeded)', async () => {
+		// Page-level scope is set by render.php and doesn't move; popstate
+		// only restores URL-driven state slices (query, filters, sort, etc).
 		state.searchParamName = 's';
 		state.isWooCommerceBlocksEnabled = false;
 		const searchSpy = jest.spyOn( actions, 'search' ).mockImplementation( function* () {} );
 		await runGenerator( actions.handlePopState() );
 		expect( searchSpy ).toHaveBeenCalledTimes( 1 );
-		const arg = searchSpy.mock.calls[ 0 ][ 0 ];
-		expect( arg ).toEqual( { syncUrl: false } );
-		expect( 'staticPostTypes' in arg ).toBe( false );
+		expect( searchSpy.mock.calls[ 0 ][ 0 ] ).toEqual( { syncUrl: false } );
 		searchSpy.mockRestore();
 	} );
 
@@ -291,14 +281,18 @@ describe( 'store actions', () => {
 		state.pageHandle = 'old-page';
 		state.aggregations = { category: { buckets: [ { key: 'news', doc_count: 3 } ] } };
 		state.hasError = false;
+		const resultsRef = state.results;
+		const aggregationsRef = state.aggregations;
 
 		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
 		await runGenerator( actions.search( { syncUrl: false } ) );
 
 		expect( state.hasError ).toBe( true );
+		expect( state.results ).toBe( resultsRef );
 		expect( state.results ).toEqual( [] );
 		expect( state.totalResults ).toBe( 0 );
 		expect( state.pageHandle ).toBeNull();
+		expect( state.aggregations ).toBe( aggregationsRef );
 		expect( state.aggregations ).toEqual( {} );
 		// `resultsCountText` reads from `totalResults` via `computeResultsCountText`,
 		// so an empty count string falls out for free — no extra wiring.
@@ -354,6 +348,154 @@ describe( 'store actions', () => {
 		// Slot key must not leak into state — downstream readers key off
 		// `filterKey`, never `effectiveSlug`.
 		expect( state.aggregations[ 'jetpack-search-tag1' ] ).toBeUndefined();
+	} );
+
+	it( 'keeps each-bound result and aggregation containers stable when search() resolves', async () => {
+		state.results = [];
+		state.aggregations = {};
+		state.retainedFilterOptions = {};
+		state.filterConfigs = {
+			category: {
+				filterKey: 'category',
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+				maxItems: 10,
+			},
+		};
+		const resultsRef = state.results;
+		const aggregationsRef = state.aggregations;
+		const retainedRef = state.retainedFilterOptions;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh result' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: {
+					category: {
+						buckets: [ { key: 'news/News', doc_count: 4 } ],
+					},
+				},
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.results ).toBe( resultsRef );
+		expect( state.results ).toHaveLength( 1 );
+		expect( state.results[ 0 ].title ).toBe( 'Fresh result' );
+		expect( state.aggregations ).toBe( aggregationsRef );
+		expect( state.aggregations.category.buckets[ 0 ].key ).toBe( 'news/News' );
+		expect( state.retainedFilterOptions ).toBe( retainedRef );
+		expect( state.retainedFilterOptions.category ).toEqual( [ { value: 'news', label: 'News' } ] );
+	} );
+
+	it( 'overwrites a kept aggregation key in place when a re-search returns the same key', async () => {
+		// The happy-path stability test starts from `{}`, so it only exercises
+		// replaceStateObject's add branch. Here `category` is present in BOTH
+		// the prior and the next aggregations — proving the keep-branch
+		// overwrites the bucket contents while holding the same object
+		// reference (the load-bearing property for `data-wp-each`).
+		state.results = [];
+		state.aggregations = { category: { buckets: [ { key: 'old/Old', doc_count: 1 } ] } };
+		state.retainedFilterOptions = {};
+		state.filterConfigs = {
+			category: {
+				filterKey: 'category',
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+				maxItems: 10,
+			},
+		};
+		const aggregationsRef = state.aggregations;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh result' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: { category: { buckets: [ { key: 'news/News', doc_count: 4 } ] } },
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.aggregations ).toBe( aggregationsRef );
+		expect( state.aggregations.category.buckets ).toEqual( [ { key: 'news/News', doc_count: 4 } ] );
+	} );
+
+	it( 'drops an aggregation key absent from the next response while keeping the container reference', async () => {
+		// replaceStateObject's delete-stale branch: a prior response had both
+		// `category` and `tag`; the next response only returns `category`. The
+		// stale `tag` key must be deleted from the SAME object (not a fresh
+		// one), or a `data-wp-each` bound to it would render a ghost facet.
+		state.results = [];
+		state.aggregations = {
+			category: { buckets: [ { key: 'news/News', doc_count: 4 } ] },
+			tag: { buckets: [ { key: 'react/React', doc_count: 2 } ] },
+		};
+		state.retainedFilterOptions = {};
+		state.filterConfigs = {
+			category: {
+				filterKey: 'category',
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+				maxItems: 10,
+			},
+			tag: {
+				filterKey: 'tag',
+				filterType: 'taxonomy',
+				taxonomy: 'tag',
+				effectiveSlug: 'tag',
+				maxItems: 10,
+			},
+		};
+		const aggregationsRef = state.aggregations;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh result' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: { category: { buckets: [ { key: 'updates/Updates', doc_count: 7 } ] } },
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.aggregations ).toBe( aggregationsRef );
+		expect( state.aggregations.category.buckets ).toEqual( [
+			{ key: 'updates/Updates', doc_count: 7 },
+		] );
+		expect( Object.hasOwn( state.aggregations, 'tag' ) ).toBe( false );
+	} );
+
+	it( 'appends loadMore() results in place, keeping the results array reference', async () => {
+		// loadMore does `state.results.push( ...appended )` rather than
+		// reassigning, so the each-bound array keeps its reference and the
+		// runtime keeps re-rendering. Without this the second page would
+		// silently never paint.
+		state.results = [ { id: 'page1-1', title: 'Page 1 result', index: 0 } ];
+		state.pageHandle = 'next-page';
+		const resultsRef = state.results;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Page 2 result' ) ],
+				page_handle: 'page-3',
+			} )
+		);
+
+		await runGenerator( actions.loadMore() );
+
+		expect( state.results ).toBe( resultsRef );
+		expect( state.results ).toHaveLength( 2 );
+		expect( state.results[ 0 ].title ).toBe( 'Page 1 result' );
+		expect( state.results[ 1 ].title ).toBe( 'Page 2 result' );
+		expect( state.pageHandle ).toBe( 'page-3' );
 	} );
 
 	it( 'leaves the existing results in place when loadMore() errors out', async () => {
@@ -741,6 +883,23 @@ describe( 'store getters', () => {
 		state.activeFilters = { category: [ 'news', 'updates' ] };
 		expect( state.hasActiveFilters ).toBe( true );
 		expect( state.activeFilterCount ).toBe( 2 );
+	} );
+
+	it( 'shows the skeleton only while a fetch is in flight with no results yet', () => {
+		// The initial client-side search must surface the skeleton; a reload
+		// that already has results keeps them visible (no flash).
+		state.isLoading = false;
+		state.results = [];
+		expect( state.skeletonHidden ).toBe( true );
+
+		state.isLoading = true;
+		expect( state.skeletonHidden ).toBe( false );
+
+		state.results = [ { title: 'Fresh hit' } ];
+		expect( state.skeletonHidden ).toBe( true );
+
+		state.isLoading = false;
+		expect( state.skeletonHidden ).toBe( true );
 	} );
 
 	it( 'surfaces showNoResults for an explicit-but-empty `?s=` deep link (SEARCH-183)', () => {
@@ -1135,14 +1294,13 @@ describe( 'store callbacks', () => {
 			fresh.state.filterConfigs = { category: { filterKey: 'category' } };
 			fresh.state.activeFilters = { foo: [ 'bar' ] };
 			fresh.state.isLoading = true;
-			fresh.state.skeletonHidden = false;
 
 			captured.callbacks.initialize();
 
 			expect( fresh.state.activeFilters ).toEqual( {} );
 			expect( search ).not.toHaveBeenCalled();
 			expect( fresh.state.isLoading ).toBe( false );
-			// Skeleton flips closed even though no fetch fires — otherwise the
+			// Skeleton derives closed once `isLoading` clears — otherwise the
 			// pre-hydration placeholders would linger forever on a deep link
 			// whose only filter keys are stale and get gated out.
 			expect( fresh.state.skeletonHidden ).toBe( true );
@@ -1436,5 +1594,217 @@ describe( 'handlePopState gating', () => {
 		await runGenerator( actions.handlePopState() );
 
 		expect( state.hasSearchParam ).toBe( true );
+	} );
+} );
+
+describe( 'TrainTracks relevance events', () => {
+	/**
+	 * Raw API result carrying a railcar, as the search API returns it.
+	 *
+	 * @param {string} title - Result title.
+	 * @param {number} pos   - Server fetch_position.
+	 * @return {object} Raw search result with railcar.
+	 */
+	function railcarResult( title, pos ) {
+		return {
+			...createResult( title ),
+			railcar: {
+				railcar: `rc-${ pos }`,
+				fetch_algo: 'jetpack:search/1-score_default',
+				fetch_position: pos,
+				fetch_query: 'boots',
+				rec_blog_id: 1,
+				rec_post_id: 100 + pos,
+				session_id: 'sess-1',
+			},
+		};
+	}
+
+	beforeEach( () => {
+		Object.assign( actions, originalActions );
+		Object.assign( state, {
+			siteId: 123,
+			searchQuery: 'boots',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: 'https://example.com/wp-json/',
+			homeUrl: 'https://example.com',
+			nonce: '',
+			activeFilters: {},
+			filterConfigs: {},
+			priceRange: null,
+			staticFilterSelections: {},
+			staticPostTypes: null,
+			retainedFilterOptions: {},
+			results: [],
+			resultsLayout: 'expanded',
+			disableTracking: false,
+			locale: 'en-US',
+			isLoading: false,
+			isLoadingMore: false,
+			hasError: false,
+			totalResults: 0,
+			aggregations: {},
+			strings: {},
+		} );
+		Object.defineProperty( global, 'fetch', {
+			configurable: true,
+			writable: true,
+			value: jest.fn(),
+		} );
+		window._tkq = [];
+		captured.context = {};
+	} );
+
+	afterEach( () => {
+		if ( originalFetch ) {
+			Object.defineProperty( global, 'fetch', {
+				configurable: true,
+				writable: true,
+				value: originalFetch,
+			} );
+		} else {
+			delete global.fetch;
+		}
+		jest.restoreAllMocks();
+	} );
+
+	it( 'fires one render event per result with absolute ui_position and the instant-search ui_algo', async () => {
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ railcarResult( 'First', 0 ), railcarResult( 'Second', 1 ) ],
+				total: 2,
+				page_handle: null,
+				aggregations: {},
+			} )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		const renders = window._tkq.filter(
+			e => e[ 1 ] === 'jetpack_instant_search_traintracks_render'
+		);
+		expect( renders ).toHaveLength( 2 );
+		expect( renders[ 0 ][ 2 ] ).toMatchObject( {
+			fetch_algo: 'jetpack:search/1-score_default',
+			fetch_position: 0,
+			fetch_query: 'boots',
+			railcar: 'rc-0',
+			rec_blog_id: 1,
+			rec_post_id: 100,
+			session_id: 'sess-1',
+			ui_algo: 'jetpack-instant-search-ui/v1-expanded',
+			ui_position: 0,
+		} );
+		expect( renders[ 1 ][ 2 ] ).toMatchObject( { railcar: 'rc-1', ui_position: 1 } );
+	} );
+
+	it( 'maps the compact layout to the minimal ui_algo', async () => {
+		state.resultsLayout = 'compact';
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ railcarResult( 'Only', 0 ) ], total: 1, page_handle: null } )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		const render = window._tkq.find( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' );
+		expect( render[ 2 ].ui_algo ).toBe( 'jetpack-instant-search-ui/v1-minimal' );
+	} );
+
+	it( 'maps the product layout to the product ui_algo', async () => {
+		state.resultsLayout = 'product';
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ railcarResult( 'Only', 0 ) ], total: 1, page_handle: null } )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		const render = window._tkq.find( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' );
+		expect( render[ 2 ].ui_algo ).toBe( 'jetpack-instant-search-ui/v1-product' );
+	} );
+
+	it( 'fires no render events when tracking is disabled', async () => {
+		state.disableTracking = true;
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ railcarResult( 'First', 0 ), railcarResult( 'Second', 1 ) ],
+				total: 2,
+				page_handle: null,
+			} )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' )
+		).toHaveLength( 0 );
+	} );
+
+	it( 'fires no interact event when tracking is disabled', () => {
+		state.disableTracking = true;
+		captured.context = { result: { index: 0, railcar: { railcar: 'rc-x' } } };
+		actions.recordResultInteract();
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_interact' )
+		).toHaveLength( 0 );
+	} );
+
+	it( 'fires no event for results lacking a railcar', async () => {
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ createResult( 'No railcar' ) ], total: 1, page_handle: null } )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' )
+		).toHaveLength( 0 );
+	} );
+
+	it( 'offsets ui_position by the existing list length on loadMore', async () => {
+		// One result already on the page (ui_position 0); the next page's
+		// result must report ui_position 1, not 0.
+		state.results = [ { id: 'a', title: 'Already here', index: 0, railcar: null } ];
+		state.pageHandle = 'page-2';
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ railcarResult( 'Page two', 1 ) ], page_handle: null } )
+		);
+		await runGenerator( actions.loadMore() );
+
+		const render = window._tkq.find( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' );
+		expect( render[ 2 ].ui_position ).toBe( 1 );
+	} );
+
+	it( 'fires an interact event with action:click reading the clicked result context', () => {
+		captured.context = {
+			result: {
+				index: 3,
+				railcar: {
+					railcar: 'rc-click',
+					fetch_algo: 'jetpack:search/1-score_default',
+					fetch_position: 3,
+					fetch_query: 'boots',
+					rec_blog_id: 1,
+					rec_post_id: 103,
+					session_id: 'sess-1',
+				},
+			},
+		};
+		actions.recordResultInteract();
+
+		const interact = window._tkq.find(
+			e => e[ 1 ] === 'jetpack_instant_search_traintracks_interact'
+		);
+		expect( interact[ 2 ] ).toMatchObject( {
+			railcar: 'rc-click',
+			ui_position: 3,
+			ui_algo: 'jetpack-instant-search-ui/v1-expanded',
+			action: 'click',
+		} );
+	} );
+
+	it( 'fires no interact event when the clicked result has no railcar', () => {
+		captured.context = { result: { index: 0, railcar: null } };
+		actions.recordResultInteract();
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_interact' )
+		).toHaveLength( 0 );
 	} );
 } );

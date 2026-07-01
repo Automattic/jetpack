@@ -1310,7 +1310,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		&& isset( $_GET['contact-form-sent'] )
 		&& isset( $_GET['contact-form-hash'] )
 		&& is_string( $_GET['contact-form-hash'] )
-		&& hash_equals( $form->hash, wp_unslash( $_GET['contact-form-hash'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		&& hash_equals( $form->hash, wp_unslash( $_GET['contact-form-hash'] ) );
 
 		$feedback_id           = 0;
 		$is_reload_nonce_valid = false;
@@ -1366,7 +1366,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( $is_multistep ) {
 			$multistep_context = array(
-				'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1,
 				'maxSteps'    => $max_steps,
 				'direction'   => 'forward', // Default direction for animations
 				'transition'  => $form->get_attribute( 'stepTransition' ) ? $form->get_attribute( 'stepTransition' ) : 'fade-slide', // Transition style for step animations

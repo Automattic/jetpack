@@ -47,7 +47,6 @@ trait WooCommerceTestTrait {
 		// test cases
 		require_once $woo_tests_dir . '/legacy/includes/wp-http-testcase.php';
 		require_once $woo_tests_dir . '/legacy/framework/class-wc-unit-test-case.php';
-		require_once $woo_tests_dir . '/legacy/framework/class-wc-api-unit-test-case.php';
 		require_once $woo_tests_dir . '/legacy/framework/class-wc-rest-unit-test-case.php';
 
 		// Helpers

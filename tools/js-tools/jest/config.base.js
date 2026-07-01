@@ -6,12 +6,7 @@ module.exports = {
 	testEnvironment: path.join( __dirname, 'fix-environment-jsdom.mjs' ),
 	testEnvironmentOptions: {
 		// Note we need to repeat the environment's default conditions here too, sigh.
-		customExportConditions: [
-			'browser',
-			...( process.env.npm_config_jetpack_webpack_config_resolve_conditions
-				? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
-				: [] ),
-		],
+		customExportConditions: [ 'browser', 'jetpack:src' ],
 	},
 	transform: {
 		'\\.(gif|jpg|jpeg|png|webp|svg|scss|sass|css|ttf|woff|woff2)$': path.join(
@@ -23,7 +18,7 @@ module.exports = {
 			{
 				presets: [
 					[ require.resolve( '@babel/preset-react' ), { runtime: 'automatic' } ],
-					require.resolve( '@babel/preset-typescript' ),
+					[ require.resolve( '@babel/preset-typescript' ), { allowDeclareFields: true } ],
 				],
 			},
 		],

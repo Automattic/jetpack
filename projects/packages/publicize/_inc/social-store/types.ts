@@ -29,20 +29,23 @@ export type Connection = Partial< EditorConnection > & {
 	wpcom_user_id: number;
 };
 
+export type KeyringResponse = {
+	code: 'success' | ( string & {} );
+	data: KeyringResult | null;
+};
+
 export type ConnectionData = {
 	connections: Connection[];
 	deletingConnections?: Array< number | string >;
 	updatingConnections?: Array< number | string >;
 	reconnectingAccount?: Connection;
 	keyringResult?: KeyringResult;
+	/**
+	 * Whether the keyring result for an auth_flow=v2 connect request is being fetched.
+	 */
+	fetchingKeyringResult?: boolean;
 	abortControllers?: Record< string, Array< AbortController > >;
 	isConnectionsModalOpen?: boolean;
-	/**
-	 * Transient flag set when the user toggles a second X connection on,
-	 * which causes another X connection to auto-disable. Surfaces the
-	 * single-X-per-post info notice in the sidebar.
-	 */
-	shouldShowSingleXNotice?: boolean;
 };
 
 export type JetpackSettings = {

@@ -29,7 +29,11 @@ const ConnectionManagement = ( {
 	const listStyles = isModernized ? modernStyles : styles;
 	const { refresh } = useSocialMediaConnections();
 
-	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
+	const {
+		connections: rawConnections,
+		deletingConnections,
+		updatingConnections,
+	} = useSelect( select => {
 		const { getConnections, getDeletingConnections, getUpdatingConnections } = select( store );
 
 		return {
@@ -39,7 +43,9 @@ const ConnectionManagement = ( {
 		};
 	}, [] );
 
-	connections.sort( ( a, b ) => {
+	// Copy before sorting — `getConnections()` returns the store's array and
+	// `Array.prototype.sort` mutates in place.
+	const connections = [ ...rawConnections ].sort( ( a, b ) => {
 		if ( a.service_name === b.service_name ) {
 			return a.connection_id.localeCompare( b.connection_id );
 		}
@@ -59,7 +65,13 @@ const ConnectionManagement = ( {
 	return (
 		<div
 			className={ clsx( listStyles.wrapper, className ) }
-			// @ts-expect-error inert propery is not yet in react types
+			// TODO(react-19): React 18 strips boolean `inert` and warns; the
+			// string form below is the only one that renders in React 18.
+			// When Gutenberg bumps to React 19, switch this to
+			// `inert={ disabled || undefined }` and remove the
+			// `@ts-expect-error` (which `inert` will satisfy once it lands in
+			// the stable `@types/react` HTMLAttributes interface).
+			// @ts-expect-error inert property is not yet in react types
 			inert={ disabled ? 'true' : undefined }
 		>
 			{ connections.length ? (

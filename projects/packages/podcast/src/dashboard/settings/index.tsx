@@ -40,10 +40,14 @@ const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 const TOPIC_SUGGESTIONS: string[] = [];
 const TOPIC_STORAGE_BY_DISPLAY = new Map< string, string >();
 const TOPIC_DISPLAY_BY_STORAGE = new Map< string, string >();
+const PARENTS_WITH_SUBTOPICS = new Set< string >();
 for ( const topic of TOPICS ) {
 	TOPIC_SUGGESTIONS.push( topic.label );
 	TOPIC_STORAGE_BY_DISPLAY.set( topic.label, topic.key );
 	TOPIC_DISPLAY_BY_STORAGE.set( topic.key, topic.label );
+	if ( topic.subtopics.length > 0 ) {
+		PARENTS_WITH_SUBTOPICS.add( topic.label );
+	}
 	for ( const sub of topic.subtopics ) {
 		const display = `${ topic.label } » ${ sub.label }`;
 		const storage = `${ topic.key },${ sub.key }`;
@@ -52,6 +56,17 @@ for ( const topic of TOPICS ) {
 		TOPIC_DISPLAY_BY_STORAGE.set( storage, display );
 	}
 }
+
+const isKnownTopic = ( input: string ): boolean => TOPIC_SUGGESTIONS.includes( input );
+
+const dropRedundantParents = ( displays: string[] ): string[] => {
+	const hasSelectedChild = ( parent: string ): boolean =>
+		displays.some( other => other.startsWith( `${ parent } » ` ) );
+	return displays.filter( d => d.includes( ' » ' ) || ! hasSelectedChild( d ) );
+};
+
+const parentsMissingSubtopic = ( displays: string[] ): string[] =>
+	displays.filter( d => ! d.includes( ' » ' ) && PARENTS_WITH_SUBTOPICS.has( d ) );
 
 // String-valued setting keys (the ones used by text/textarea/email controls).
 type StringFieldKey =
@@ -186,9 +201,11 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		setDraftTopics( topicValue );
 	}, [ topicValue ] );
 
+	const subtopicHints = useMemo( () => parentsMissingSubtopic( draftTopics ), [ draftTopics ] );
+
 	const handleTopicsChange = useCallback( ( values: ( string | { value: string } )[] ) => {
-		const next = values.slice( 0, 3 ).map( v => ( typeof v === 'string' ? v : v.value ) );
-		setDraftTopics( next );
+		const displays = values.map( v => ( typeof v === 'string' ? v : v.value ) );
+		setDraftTopics( dropRedundantParents( displays ).slice( 0, 3 ) );
 	}, [] );
 
 	const handleTopicsBlur = useCallback(
@@ -216,7 +233,10 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		[ draftTopics, draft, commit ]
 	);
 
-	const issues = useMemo( () => getValidationIssues( draft ?? settings ), [ draft, settings ] );
+	const issues = useMemo(
+		() => getValidationIssues( settings ?? draft ?? undefined ),
+		[ settings, draft ]
+	);
 
 	const openConfirmDisable = useCallback( () => setConfirmDisable( true ), [] );
 	const closeConfirmDisable = useCallback( () => setConfirmDisable( false ), [] );
@@ -326,6 +346,8 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 									__next40pxDefaultSize
 									__nextHasNoMarginBottom
 									__experimentalExpandOnFocus
+									__experimentalValidateInput={ isKnownTopic }
+									__experimentalShowHowTo={ false }
 									label={ __( 'Podcast topics', 'jetpack-podcast' ) }
 									value={ draftTopics }
 									suggestions={ TOPIC_SUGGESTIONS }
@@ -339,6 +361,19 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 									'jetpack-podcast'
 								) }
 							</Text>
+							{ subtopicHints.length > 0 && (
+								<Notice status="warning" isDismissible={ false }>
+									{ __(
+										'These categories have subcategories. Picking one helps Apple Podcasts and other directories place your show accurately:',
+										'jetpack-podcast'
+									) }
+									<ul className="podcast__settings-issues">
+										{ subtopicHints.map( name => (
+											<li key={ name }>{ name }</li>
+										) ) }
+									</ul>
+								</Notice>
+							) }
 						</VStack>
 						<SelectControl
 							__next40pxDefaultSize
@@ -352,7 +387,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							type="email"
-							label={ __( 'Email address', 'jetpack-podcast' ) }
+							label={ __( 'Owner email address', 'jetpack-podcast' ) }
 							help={ __(
 								'Included in your feed so podcast directories can verify ownership. Most require it for submission.',
 								'jetpack-podcast'

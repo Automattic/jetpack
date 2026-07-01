@@ -1,12 +1,10 @@
-module.exports = {
+const config = {
 	presets: [
 		[
-			'@babel/preset-env',
-			{
-				targets: {
-					node: 'current',
-				},
-			},
+			'@automattic/jetpack-webpack-config/babel/preset',
+			{ pluginReplaceTextdomain: { textdomain: 'jetpack-inspect' } },
 		],
 	],
 };
+
+module.exports = config;

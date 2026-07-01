@@ -22,7 +22,182 @@ let activeBlockquote = null;
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
 const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
+const ANON_DRAFT_STORAGE_KEY = 'wpcom-write-anon-draft';
 const DISCLAIMER_STORAGE_KEY = 'wpcom-write-disclaimer-dismissed';
+
+/**
+ * Whether the editor is running on a logged-out page that opts into the
+ * anonymous flow by setting `window.wpcomWriteIsAnon = true` before the module
+ * loads. All anon branches in this file are gated on this — when the flag is
+ * absent, every code path below behaves exactly as it did before.
+ *
+ * @return {boolean} True if the host page set the anon flag.
+ */
+function isAnon() {
+	return typeof window !== 'undefined' && window.wpcomWriteIsAnon === true;
+}
+
+/**
+ * Persist the current draft snapshot to localStorage under the anon key.
+ *
+ * Failures (quota, blocked storage, undefined `localStorage`) are caught and
+ * surfaced as a Tracks event so silent draft loss doesn't read as abandonment.
+ *
+ * @param {string} title   - Current post title.
+ * @param {string} content - Current post content (block-formatted markup).
+ */
+function saveDraftToLocalStorage( title, content ) {
+	try {
+		window.localStorage.setItem(
+			ANON_DRAFT_STORAGE_KEY,
+			JSON.stringify( { title, content, ts: Date.now() } )
+		);
+	} catch ( err ) {
+		const errorName = ( err && err.name ) || 'UnknownError';
+		try {
+			window._tkq = window._tkq || [];
+			window._tkq.push( [
+				'recordEvent',
+				'wpcom_write_editor_anon_draft_persist_failed',
+				{ error_name: errorName },
+			] );
+		} catch {
+			// Tracks failed too — nothing useful to do here; swallow.
+		}
+	}
+}
+
+/**
+ * Read the persisted anon draft snapshot, or `null` if missing/unreadable.
+ *
+ * @return {{title: string, content: string, ts: number} | null} Snapshot or null.
+ */
+function readAnonDraft() {
+	try {
+		const raw = window.localStorage.getItem( ANON_DRAFT_STORAGE_KEY );
+		if ( ! raw ) {
+			return null;
+		}
+		const parsed = JSON.parse( raw );
+		if ( ! parsed || typeof parsed !== 'object' ) {
+			return null;
+		}
+		return {
+			title: typeof parsed.title === 'string' ? parsed.title : '',
+			content: typeof parsed.content === 'string' ? parsed.content : '',
+			ts: typeof parsed.ts === 'number' ? parsed.ts : 0,
+		};
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Capture the current editor content as a block-formatted snapshot and persist
+ * it to localStorage. Reads from `.bw-content-inner` (the editable wrapper) so
+ * the outer `.bw-content` element's chrome attributes don't leak in, and runs
+ * the inner HTML through `convertToBlocks` so the signup-flow handoff lands a
+ * clean block draft instead of raw contenteditable markup.
+ */
+function captureAnonSnapshot() {
+	const contentEl = getContent();
+	const html = contentEl ? contentEl.innerHTML : '';
+	saveDraftToLocalStorage( state.title, html ? convertToBlocks( html ) : '' );
+}
+
+/**
+ * Discard the persisted anon draft snapshot. Safe to call when absent.
+ */
+function clearAnonDraft() {
+	try {
+		window.localStorage.removeItem( ANON_DRAFT_STORAGE_KEY );
+	} catch {
+		// No-op: if we can't clear it, the worst case is a stale recovery banner next visit.
+	}
+}
+
+/**
+ * Remove a stale `wpcom_user_id` left in localStorage by a previous Calypso
+ * session.
+ *
+ * The anon editor only renders for logged-out visitors, so any `wpcom_user_id`
+ * persisted under this origin is stale. Calypso bootstraps "is this visitor
+ * logged in?" from that key, and the `/setup/write-on` signup flow blocks entry
+ * and bails to My Home when it thinks the visitor is already authenticated — so
+ * a stale id (e.g. a logout that didn't clear it) silently drops the anon draft
+ * handed off on Publish. Clearing it keeps the persisted auth state in sync with
+ * the real, logged-out session. See READ-574.
+ *
+ * Scoped to the single key on purpose: clearing the whole store would also wipe
+ * the `wpcom-write-anon-draft` snapshot the editor just persisted.
+ *
+ * @return {boolean} True if a stale id was present and removed.
+ */
+function clearStaleWpcomUserId() {
+	try {
+		const hadStaleId = window.localStorage.getItem( 'wpcom_user_id' ) !== null;
+		window.localStorage.removeItem( 'wpcom_user_id' );
+		return hadStaleId;
+	} catch {
+		// localStorage unavailable/blocked — nothing to clear.
+		return false;
+	}
+}
+
+// Mark the page as anonymous so style.css can hide UI that has no anon
+// equivalent (back button, more-menu, the standalone Save-draft button,
+// unsupported-content "Open in editor" buttons). Set as early as the
+// module loads so the initial render doesn't flash the hidden surfaces.
+if ( isAnon() && typeof document !== 'undefined' && document.documentElement ) {
+	document.documentElement.classList.add( 'bw-anon' );
+}
+
+// Drop a stale `wpcom_user_id` from a prior Calypso session so the Publish
+// handoff to `/setup/write-on` doesn't mistake this logged-out visitor for an
+// authenticated one and discard their draft. See READ-574.
+if ( isAnon() ) {
+	const hadStaleId = clearStaleWpcomUserId();
+	if ( hadStaleId ) {
+		window._tkq = window._tkq || [];
+		window._tkq.push( [ 'recordEvent', 'wpcom_write_editor_anon_stale_user_cleared' ] );
+	}
+}
+
+/**
+ * Inject the brand label on the left of the top bar and the "Not signed in"
+ * indicator before the Publish button. Both are anon-only; the strings come
+ * from window.wpcomWriteStrings (with English fallbacks) so translations land
+ * via the same path as the rest of the editor UI.
+ */
+function injectAnonTopbarLabels() {
+	const topbar = document.querySelector( '.bw-topbar' );
+	if ( ! topbar || topbar.querySelector( '.bw-anon-brand' ) ) {
+		return;
+	}
+
+	const brand = document.createElement( 'span' );
+	brand.className = 'bw-anon-brand';
+	brand.textContent = i18n.anonBrand || 'WordPress.com · Write';
+	topbar.prepend( brand );
+
+	const status = document.createElement( 'span' );
+	status.className = 'bw-anon-status';
+	status.textContent = i18n.anonStatus || 'Not signed in';
+	const publishBtn = topbar.querySelector( '.bw-btn-publish' );
+	if ( publishBtn && publishBtn.parentNode ) {
+		publishBtn.parentNode.insertBefore( status, publishBtn );
+	} else {
+		topbar.appendChild( status );
+	}
+}
+
+if ( isAnon() && typeof document !== 'undefined' ) {
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', injectAnonTopbarLabels );
+	} else {
+		injectAnonTopbarLabels();
+	}
+}
 
 // Autosave state — tracked outside the store to avoid triggering reactivity.
 let lastSavedSnapshot = { title: '', content: '' };
@@ -136,6 +311,15 @@ let selectedFigure = null;
 // The cursor range saved before a figure is selected so it can be restored
 // if the user cancels the selection (Escape, click, or typing a letter).
 let preFigureSelectionRange = null;
+
+// The figure currently open in the image properties panel. Set by editImage()
+// and cleared by closeImageModal(); changes made in the panel apply to this
+// figure live.
+let editingFigure = null;
+
+// The element that triggered the edit panel (typically the per-image Edit
+// pencil button) — focus returns here when the panel closes for a11y.
+let editTriggerEl = null;
 
 let cachedContent = null;
 
@@ -253,9 +437,7 @@ function stripRuntimeFigureControls( root ) {
 		wrapper.remove();
 	} );
 	root
-		.querySelectorAll(
-			'.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn, .bw-img-size, .bw-img-size-menu'
-		)
+		.querySelectorAll( '.bw-img-delete, .bw-img-caption-btn, .bw-img-edit' )
 		.forEach( el => el.remove() );
 }
 
@@ -367,9 +549,16 @@ function getContent() {
 	return cachedContent;
 }
 
-// Image size presets we ship. Alignment, wide/full layouts, and custom
-// widths stay in the block editor (see RSM-3472).
+// Image size presets we ship. Wide/full layouts and custom widths stay in the
+// block editor (see RSM-3472).
 const IMAGE_SIZE_SLUGS = [ 'thumbnail', 'medium', 'large', 'full' ];
+
+// Image alignment values we ship. All three are made explicit on save —
+// every image gets an `align*` class on the figure and an `align`
+// attribute in the block JSON, including center, so themes can rely on
+// the class to position the figure (many don't center unaligned figures
+// by default).
+const IMAGE_ALIGNS = [ 'left', 'center', 'right' ];
 
 // Cache of media library size lookups keyed by attachment ID.  Populated
 // at upload time from the API response, then again lazily when the user
@@ -462,6 +651,62 @@ function setFigureSize( fig, slug ) {
 }
 
 /**
+ * Infer a size slug for a figure by matching the img's current src against
+ * the media library's registered sizes. Used when a figure loaded from
+ * outside Write (e.g. block-editor default insert) has no `size-X` class
+ * but the img URL matches a known preset — Write's panel should show that
+ * preset as the active selection instead of a blank state.
+ *
+ * Asynchronous because the registered sizes come from a REST request that's
+ * cached in memory after the first call.
+ *
+ * @param {Element} fig - The figure element.
+ * @return {Promise<string>} Slug ('thumbnail'/'medium'/'large'/'full') or '' when no match (custom size, external URL, etc).
+ */
+async function inferSizeFromImgSrc( fig ) {
+	const img = fig.querySelector( 'img' );
+	if ( ! img ) return '';
+	const id = getMediaIdFromImg( img );
+	if ( ! id ) return '';
+	const sizes = await fetchMediaSizes( id );
+	if ( ! sizes ) return '';
+	const src = img.src;
+	for ( const slug of IMAGE_SIZE_SLUGS ) {
+		if ( sizes[ slug ]?.source_url === src ) return slug;
+	}
+	return '';
+}
+
+/**
+ * Toggle an alignment class on a figure, replacing any existing one.  Always
+ * adds one of alignleft/aligncenter/alignright so the published view centers
+ * reliably (themes key off these classes; unaligned figures don't center
+ * consistently across themes).
+ *
+ * @param {Element} fig   - The figure element.
+ * @param {string}  align - 'left', 'center', or 'right'.
+ */
+function setFigureAlignment( fig, align ) {
+	fig.classList.remove( 'alignleft', 'alignright', 'aligncenter' );
+	if ( align === 'left' ) fig.classList.add( 'alignleft' );
+	else if ( align === 'right' ) fig.classList.add( 'alignright' );
+	else fig.classList.add( 'aligncenter' );
+}
+
+/**
+ * Read the current alignment from a figure's class list. Returns 'center'
+ * when no align class is set.
+ *
+ * @param {Element} fig - The figure element.
+ * @return {string} 'left', 'center', or 'right'.
+ */
+function getFigureAlignment( fig ) {
+	if ( fig.classList.contains( 'alignleft' ) ) return 'left';
+	if ( fig.classList.contains( 'alignright' ) ) return 'right';
+	return 'center';
+}
+
+/**
  * Deselect the currently-selected figure, if any, and optionally
  * restore the cursor position saved before the figure was selected.
  *
@@ -484,22 +729,6 @@ function clearFigureSelection( restoreCursor = true ) {
 // Deselect figure on any click — don't restore the saved cursor
 // because the click itself places the caret where the user wants it.
 document.addEventListener( 'click', () => clearFigureSelection( false ) );
-
-// Close any open per-image Size dropdown on outside click.  One listener
-// total — avoids the per-figure listener accumulation that would otherwise
-// pile up as users insert / undo / redo images over a session.
-// The menu's own trigger button is its previousElementSibling; only clicks
-// on *that* button are exempt, so clicking a different image's Size button
-// still closes the menu (and lets that image's button open its own menu).
-document.addEventListener( 'click', ev => {
-	const openMenu = document.querySelector( '.bw-img-size-menu:not([hidden])' );
-	if ( ! openMenu ) return;
-	if ( openMenu.contains( ev.target ) ) return;
-	const trigger = openMenu.previousElementSibling;
-	if ( trigger && trigger.contains( ev.target ) ) return;
-	openMenu.hidden = true;
-	trigger?.setAttribute( 'aria-expanded', 'false' );
-} );
 
 /**
  * Whether the editor has anything worth saving — non-empty title, any
@@ -659,15 +888,41 @@ function createLinkFromUrl( url ) {
 }
 
 /**
- * Focus the first visible input inside a modal after it becomes visible.
- * Uses requestAnimationFrame so the element is no longer hidden.
+ * End an in-progress edit-panel session: commit changes as a discrete undo
+ * entry and reset edit-only state. Returns the trigger element that opened
+ * the panel so the caller can decide whether to return focus there.
+ *
+ * No-op when no edit session is in progress.
+ *
+ * @return {Element|null} The Edit pencil that opened the panel, or null.
+ */
+function endEditSession() {
+	if ( ! state.isEditMode ) return null;
+	const trigger = editTriggerEl;
+	if ( editingFigure ) {
+		editingFigure.classList.remove( 'bw-figure-editing' );
+	}
+	editingFigure = null;
+	editTriggerEl = null;
+	state.isEditMode = false;
+	state.editingImageAlign = 'center';
+	state.editingImageSize = '';
+	state.editingImageHasMediaId = false;
+	pushToUndoHistory();
+	return trigger;
+}
+
+/**
+ * Focus the first visible input inside the image insert overlay or the edit
+ * panel after it becomes visible. Uses requestAnimationFrame so the element
+ * is no longer hidden.
  */
 function focusModalInput() {
 	requestAnimationFrame( () => {
-		const overlay = document.querySelector( '.bw-image-overlay:not([hidden])' );
-		if ( ! overlay ) return;
-		const input = overlay.querySelector( 'input:not([hidden])' );
-		if ( input ) input.focus();
+		const target = document.querySelector(
+			'.bw-image-edit-panel:not([hidden]) input:not([hidden]), .bw-image-overlay:not([hidden]) input:not([hidden])'
+		);
+		if ( target ) target.focus();
 	} );
 }
 
@@ -1064,32 +1319,54 @@ function convertToBlocks( html ) {
 				? `<figcaption class="wp-element-caption">${ figcaption.innerHTML }</figcaption>`
 				: '';
 
-			// Read figure size class + the `wp-image-<id>` class for the
-			// media library attachment ID.  These map to core wp:image
-			// attributes so the published markup matches what the block
-			// editor would emit, and the block editor can re-open these
-			// images without surprises.
-			const imageSizeSlug = [ 'thumbnail', 'medium', 'large', 'full' ].find( s =>
-				node.classList.contains( 'size-' + s )
-			);
+			// Read figure size + alignment classes plus the `wp-image-<id>`
+			// class for the media-library attachment ID.  These map to core
+			// wp:image attributes so the published markup matches what the
+			// block editor would emit, and the block editor can re-open
+			// these images without surprises.
+			const imageSizeSlug = IMAGE_SIZE_SLUGS.find( s => node.classList.contains( 'size-' + s ) );
+			// Always emit an explicit align attr + class.  Without aligncenter
+			// many themes don't center the figure in the published view, and
+			// the block editor reads "no align" as "default" (which renders
+			// differently from explicit center).  Match the block editor's
+			// convention so the published post centers reliably.
+			let imageAlign = 'center';
+			if ( node.classList.contains( 'alignleft' ) ) {
+				imageAlign = 'left';
+			} else if ( node.classList.contains( 'alignright' ) ) {
+				imageAlign = 'right';
+			}
 			const mediaId = getMediaIdFromImg( img );
 
 			const imageAttrs = [];
 			if ( mediaId ) imageAttrs.push( `"id":${ mediaId }` );
 			if ( imageSizeSlug ) imageAttrs.push( `"sizeSlug":"${ imageSizeSlug }"` );
+			imageAttrs.push( `"align":"${ imageAlign }"` );
 			const imageAttrsJson = imageAttrs.length ? ` {${ imageAttrs.join( ',' ) }}` : '';
 
 			const figureClasses = [ 'wp-block-image' ];
 			if ( imageSizeSlug ) figureClasses.push( 'size-' + imageSizeSlug );
+			figureClasses.push( 'align' + imageAlign );
 
 			const imgClassAttr = mediaId ? ` class="wp-image-${ mediaId }"` : '';
+
+			// Preserve the img's width/height attrs so the browser knows the
+			// intrinsic size in the published view.  Without them, themes
+			// that don't constrain `.size-thumbnail` etc. let the img stretch
+			// to fill its container — even when the URL points at a
+			// 150x150 resized file.  applyMediaSizeToFigure sets these on
+			// every media-library size swap; we just need to keep them.
+			const imgWidth = img.getAttribute( 'width' );
+			const imgHeight = img.getAttribute( 'height' );
+			const imgWidthAttr = imgWidth ? ` width="${ escapeAttr( imgWidth ) }"` : '';
+			const imgHeightAttr = imgHeight ? ` height="${ escapeAttr( imgHeight ) }"` : '';
 
 			blocks.push(
 				`<!-- wp:image${ imageAttrsJson } -->\n<figure class="${ figureClasses.join(
 					' '
 				) }"><img src="${ escapeAttr( src ) }" alt="${ escapeAttr(
 					alt
-				) }"${ imgClassAttr }/>${ captionHtml }</figure>\n<!-- /wp:image -->`
+				) }"${ imgClassAttr }${ imgWidthAttr }${ imgHeightAttr }/>${ captionHtml }</figure>\n<!-- /wp:image -->`
 			);
 		} else if ( tag === 'blockquote' ) {
 			// Extract citation from <cite> if present.
@@ -1405,6 +1682,59 @@ function exitBlockAndApplyList( listTag ) {
 }
 
 /**
+ * If the cursor is inside a list whose tag differs from `listTag`, replace
+ * the parent <ul>/<ol> with the requested tag while keeping every <li> in
+ * place. Avoids the browser's `execCommand('insert*List')` behavior, which
+ * pulls only the current <li> out into a new list and leaves siblings behind.
+ *
+ * @param {string} listTag - 'ul' or 'ol'.
+ * @return {boolean} Whether the parent list's tag was changed.
+ */
+function changeListTagAtCursor( listTag ) {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return false;
+
+	const content = getContent();
+	let node = sel.anchorNode;
+	let li = null;
+	while ( node && node !== content && ! node.classList?.contains( 'bw-content' ) ) {
+		if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'LI' ) {
+			li = node;
+			break;
+		}
+		node = node.parentNode;
+	}
+	if ( ! li ) return false;
+
+	const list = li.parentNode;
+	if ( ! list || ! /^(UL|OL)$/i.test( list.tagName ) ) return false;
+	if ( list.tagName.toLowerCase() === listTag.toLowerCase() ) return false;
+
+	const range = sel.getRangeAt( 0 );
+	const startContainer = range.startContainer;
+	const startOffset = range.startOffset;
+	const endContainer = range.endContainer;
+	const endOffset = range.endOffset;
+
+	const newList = document.createElement( listTag );
+	while ( list.firstChild ) {
+		newList.appendChild( list.firstChild );
+	}
+	list.replaceWith( newList );
+
+	try {
+		const newRange = document.createRange();
+		newRange.setStart( startContainer, startOffset );
+		newRange.setEnd( endContainer, endOffset );
+		sel.removeAllRanges();
+		sel.addRange( newRange );
+	} catch {
+		placeCursorAt( li );
+	}
+	return true;
+}
+
+/**
  * Indent or outdent a list item by nesting/unnesting it in a sub-list.
  *
  * Indent: moves the <li> into a new sub-list appended to the previous sibling <li>.
@@ -1483,6 +1813,12 @@ function placeCursorAtEnd( el ) {
  * @param {Element} fig - The figure element to delete.
  */
 function animateAndDeleteFigure( fig ) {
+	// If the edit panel is open for this figure, close it first — the
+	// figure is about to disappear and the panel's target is gone.
+	if ( editingFigure === fig ) {
+		const { actions } = store( 'wpcom-write' );
+		actions.closeImageModal();
+	}
 	// Mark as deleting so getFigureAdjacentToCursor skips it during
 	// the animation delay (prevents rapid Backspace from re-selecting).
 	fig.dataset.bwDeleting = '';
@@ -1602,49 +1938,10 @@ function addDeleteButtons() {
 		} );
 		controls.appendChild( btn );
 
-		// Alt text button (only for images, not videos).
+		// Skip the rest (caption, edit) for non-image figures — videos use
+		// only the delete control.
 		const imgEl = controls.querySelector( 'img' );
 		if ( ! imgEl ) return;
-
-		const altBtn = document.createElement( 'button' );
-		altBtn.className = 'bw-img-alt';
-		altBtn.textContent = i18n.alt || 'ALT';
-		altBtn.contentEditable = 'false';
-		altBtn.addEventListener( 'click', e => {
-			e.preventDefault();
-			e.stopPropagation();
-
-			const existing = controls.querySelector( '.bw-img-alt-input' );
-			if ( existing ) {
-				existing.remove();
-				return;
-			}
-
-			const input = document.createElement( 'input' );
-			input.type = 'text';
-			input.className = 'bw-img-alt-input';
-			input.placeholder = i18n.describeImage || 'Describe this image...';
-			input.value = imgEl.alt || '';
-			input.contentEditable = 'false';
-			input.addEventListener( 'click', ev => ev.stopPropagation() );
-			input.addEventListener( 'keydown', ev => {
-				ev.stopPropagation();
-				if ( ev.key === 'Enter' ) {
-					imgEl.alt = input.value;
-					input.remove();
-				}
-				if ( ev.key === 'Escape' ) {
-					input.remove();
-				}
-			} );
-			input.addEventListener( 'blur', () => {
-				imgEl.alt = input.value;
-				setTimeout( () => input.remove(), 150 );
-			} );
-			controls.appendChild( input );
-			input.focus();
-		} );
-		controls.appendChild( altBtn );
 
 		// Captions saved by the editor come back from the server with class
 		// `wp-element-caption` and no `contentEditable`, so without this any
@@ -1686,113 +1983,23 @@ function addDeleteButtons() {
 		} );
 		controls.appendChild( capBtn );
 
-		// Size button + dropdown (only for media-library images: external
-		// URLs have no registered sizes to swap between).
-		const isMediaLibrary = !! getMediaIdFromImg( imgEl );
-		if ( isMediaLibrary ) {
-			const sizeBtn = document.createElement( 'button' );
-			sizeBtn.className = 'bw-img-size';
-			sizeBtn.textContent = i18n.size || 'Size';
-			sizeBtn.contentEditable = 'false';
-			sizeBtn.setAttribute( 'aria-haspopup', 'menu' );
-			sizeBtn.setAttribute( 'aria-expanded', 'false' );
-
-			const menu = document.createElement( 'div' );
-			menu.className = 'bw-img-size-menu';
-			menu.contentEditable = 'false';
-			menu.hidden = true;
-			menu.setAttribute( 'role', 'menu' );
-			const sizeOptions = [
-				[ 'thumbnail', i18n.sizeThumbnail || 'Thumbnail' ],
-				[ 'medium', i18n.sizeMedium || 'Medium' ],
-				[ 'large', i18n.sizeLarge || 'Large' ],
-				[ 'full', i18n.sizeFull || 'Full' ],
-			];
-			sizeOptions.forEach( ( [ slug, label ] ) => {
-				const opt = document.createElement( 'button' );
-				opt.className = 'bw-img-size-option';
-				opt.textContent = label;
-				opt.contentEditable = 'false';
-				opt.setAttribute( 'role', 'menuitemradio' );
-				opt.dataset.size = slug;
-				opt.tabIndex = -1;
-				opt.addEventListener( 'click', ev => {
-					ev.preventDefault();
-					ev.stopPropagation();
-					setFigureSize( fig, slug );
-					trackMediaSizeSwap( applyMediaSizeToFigure( fig, slug ) ).then( pushToUndoHistory );
-					closeSizeMenu( true );
-				} );
-				menu.appendChild( opt );
-			} );
-
-			const openSizeMenu = () => {
-				// Close any other image's open Size menu first.  sizeBtn's click
-				// handler stops propagation so the document-level outside-click
-				// listener can't do this for us.
-				document.querySelectorAll( '.bw-img-size-menu:not([hidden])' ).forEach( other => {
-					if ( other === menu ) return;
-					other.hidden = true;
-					other.previousElementSibling?.setAttribute( 'aria-expanded', 'false' );
-				} );
-				// Mark the option that matches the figure's current size class
-				// (none on figures loaded without an explicit sizeSlug).
-				const current = IMAGE_SIZE_SLUGS.find( s => fig.classList.contains( 'size-' + s ) );
-				const options = [ ...menu.querySelectorAll( '.bw-img-size-option' ) ];
-				options.forEach( opt => {
-					opt.setAttribute( 'aria-checked', opt.dataset.size === current ? 'true' : 'false' );
-				} );
-				menu.hidden = false;
-				sizeBtn.setAttribute( 'aria-expanded', 'true' );
-				// Focus the current option so arrow keys move from there.
-				const focusTarget = options.find( o => o.dataset.size === current ) || options[ 0 ];
-				focusTarget?.focus();
-			};
-			const closeSizeMenu = ( returnFocus = false ) => {
-				menu.hidden = true;
-				sizeBtn.setAttribute( 'aria-expanded', 'false' );
-				if ( returnFocus ) sizeBtn.focus();
-			};
-
-			sizeBtn.addEventListener( 'click', ev => {
-				ev.preventDefault();
-				ev.stopPropagation();
-				if ( menu.hidden ) {
-					openSizeMenu();
-				} else {
-					closeSizeMenu();
-				}
-			} );
-
-			// Arrow / Home / End / Escape navigation within the open menu.
-			menu.addEventListener( 'keydown', ev => {
-				const options = [ ...menu.querySelectorAll( '.bw-img-size-option' ) ];
-				const idx = options.indexOf( menu.ownerDocument.activeElement );
-				if ( ev.key === 'ArrowDown' ) {
-					ev.preventDefault();
-					options[ ( idx + 1 ) % options.length ]?.focus();
-				} else if ( ev.key === 'ArrowUp' ) {
-					ev.preventDefault();
-					options[ ( idx - 1 + options.length ) % options.length ]?.focus();
-				} else if ( ev.key === 'Home' ) {
-					ev.preventDefault();
-					options[ 0 ]?.focus();
-				} else if ( ev.key === 'End' ) {
-					ev.preventDefault();
-					options[ options.length - 1 ]?.focus();
-				} else if ( ev.key === 'Escape' ) {
-					ev.preventDefault();
-					closeSizeMenu( true );
-				} else if ( ev.key === 'Tab' ) {
-					// Tab out of the menu closes it.  The browser handles the
-					// focus move; we just clean up state.
-					closeSizeMenu();
-				}
-			} );
-
-			controls.appendChild( sizeBtn );
-			controls.appendChild( menu );
-		}
+		// Edit button — opens the image properties modal (alt, size, align,
+		// featured). Anchored to the bottom-right so it doesn't stack
+		// horizontally with the Caption button on narrow (Thumbnail / Medium)
+		// images (RSM-3980).
+		const editBtn = document.createElement( 'button' );
+		editBtn.className = 'bw-img-edit';
+		editBtn.innerHTML = '<span class="dashicons dashicons-edit" aria-hidden="true"></span>';
+		editBtn.contentEditable = 'false';
+		editBtn.setAttribute( 'aria-label', i18n.editImage || 'Edit image' );
+		editBtn.setAttribute( 'title', i18n.editImage || 'Edit image' );
+		editBtn.addEventListener( 'click', e => {
+			e.preventDefault();
+			e.stopPropagation();
+			const { actions } = store( 'wpcom-write' );
+			actions.editImage( fig, e.currentTarget );
+		} );
+		controls.appendChild( editBtn );
 
 		// Enter inside the figcaption exits to the next block. Attached on every
 		// figure init (not just on first caption-button click) so it survives an
@@ -1972,6 +2179,23 @@ function resetUploadZone() {
 }
 
 /**
+ * POST a file to the media REST endpoint. Returns the media response.
+ * No side effects on state or DOM — callers handle the result.
+ *
+ * @param {File} file - The file to upload.
+ * @return {Promise<Object>} The media library response.
+ */
+async function uploadMedia( file ) {
+	const formData = new FormData();
+	formData.append( 'file', file );
+	return await window.wp.apiFetch( {
+		path: state.mediaPath,
+		method: 'POST',
+		body: formData,
+	} );
+}
+
+/**
  * Upload a file to the media library and update state with the result.
  *
  * @param {File} file - The file to upload.
@@ -1988,15 +2212,8 @@ async function uploadFileToMedia( file ) {
 		if ( saving ) saving.style.display = '';
 	}
 
-	const formData = new FormData();
-	formData.append( 'file', file );
-
 	try {
-		const media = await window.wp.apiFetch( {
-			path: state.mediaPath,
-			method: 'POST',
-			body: formData,
-		} );
+		const media = await uploadMedia( file );
 		state.isUploading = false;
 		if ( zone ) zone.classList.remove( 'bw-uploading' );
 
@@ -2023,6 +2240,96 @@ async function uploadFileToMedia( file ) {
 		setTimeout( () => {
 			state.message = '';
 		}, 3000 );
+	}
+}
+
+// Media library browser state. Kept in module scope so list rendering can
+// look up the chosen media item by id when a thumbnail is clicked, without
+// re-fetching. Refreshed on every modal open so newly-uploaded images appear.
+// The strip is a single horizontally-scrolling row; we fetch one page and
+// rely on search for older items rather than offering Load more.
+let libraryItems = [];
+let librarySearchTimer = 0;
+let libraryFetchToken = 0;
+const LIBRARY_PER_PAGE = 24;
+
+/**
+ * Pick the smallest reasonable thumbnail URL for the grid. Falls back to the
+ * full-size source_url for images without registered sizes (e.g. uploads that
+ * pre-date a media setting change).
+ *
+ * @param {object} media - Media item from /wp/v2/media.
+ * @return {string} The thumbnail URL to render.
+ */
+function libraryThumbUrl( media ) {
+	const sizes = media.media_details?.sizes;
+	return sizes?.thumbnail?.source_url || sizes?.medium?.source_url || media.source_url || '';
+}
+
+/**
+ * Render the library strip into #bw-library-grid. Always replaces — the strip
+ * holds the most recent items (or current search results) only.  Thumbnails
+ * are <button>s; the container has aria-label, so individual items use plain
+ * `aria-label` with the media's alt or filename.
+ */
+function renderLibraryGrid() {
+	const grid = document.getElementById( 'bw-library-grid' );
+	if ( ! grid ) return;
+	grid.textContent = '';
+
+	for ( const item of libraryItems ) {
+		const btn = document.createElement( 'button' );
+		btn.type = 'button';
+		btn.className = 'bw-library-thumb';
+		btn.dataset.mediaId = String( item.id );
+		const label = item.alt_text || item.title?.rendered || '';
+		if ( label ) btn.setAttribute( 'aria-label', label );
+		const img = document.createElement( 'img' );
+		img.src = libraryThumbUrl( item );
+		img.alt = '';
+		img.loading = 'lazy';
+		btn.appendChild( img );
+		grid.appendChild( btn );
+	}
+}
+
+/**
+ * Fetch the most recent (or search-filtered) page of the user's media library
+ * and render it as a single-row strip.
+ *
+ * Concurrent requests are coalesced via a monotonically increasing token —
+ * only the most recent fetch's result is applied to state.
+ */
+async function fetchLibrary() {
+	const strings = window.wpcomWriteStrings || {};
+	const myToken = ++libraryFetchToken;
+	const search = state.librarySearch.trim();
+
+	state.libraryStatus = strings.libraryLoading || 'Loading…';
+
+	try {
+		const path =
+			`${ state.mediaPath }?media_type=image&per_page=${ LIBRARY_PER_PAGE }` +
+			`&orderby=date&order=desc` +
+			( search ? `&search=${ encodeURIComponent( search ) }` : '' );
+		const items = await window.wp.apiFetch( { path } );
+		// A newer fetch superseded this one — drop the result silently.
+		if ( myToken !== libraryFetchToken ) return;
+
+		libraryItems = items;
+
+		if ( libraryItems.length === 0 ) {
+			state.libraryStatus = search
+				? strings.libraryNoResults || 'No matching images.'
+				: strings.libraryEmpty || 'No images in your library yet.';
+		} else {
+			state.libraryStatus = '';
+		}
+
+		renderLibraryGrid();
+	} catch {
+		if ( myToken !== libraryFetchToken ) return;
+		state.libraryStatus = strings.libraryLoadFailed || "Couldn't load your library.";
 	}
 }
 
@@ -2173,6 +2480,39 @@ function applyMarkdownListShortcut( paragraph, listTag ) {
 }
 
 /**
+ * Detect a markdown blockquote shortcut in a paragraph's text.
+ *
+ * Returns true for a lone `>` marker. Captured before the trigger space is
+ * inserted, so the marker should be the only content — trailing whitespace is
+ * allowed to tolerate a stray <br>-only text node that contentEditable can
+ * leave in an otherwise-empty block, matching parseMarkdownListShortcut.
+ *
+ * @param {string} text - The paragraph's text content.
+ * @return {boolean} Whether the text is a blockquote shortcut.
+ */
+function parseMarkdownQuoteShortcut( text ) {
+	return /^>\s*$/.test( text );
+}
+
+/**
+ * Replace a paragraph with an empty blockquote, and move the cursor into it.
+ *
+ * Mirrors the slash-menu quote insert (insertNewBlock( 'blockquote' )): the
+ * <cite> attribution placeholder is added by the citation lifecycle once the
+ * cursor lands inside the blockquote.
+ *
+ * @param {HTMLElement} paragraph - The paragraph to convert.
+ */
+function applyMarkdownQuoteShortcut( paragraph ) {
+	const blockquote = document.createElement( 'blockquote' );
+	blockquote.innerHTML = '<br>';
+	paragraph.after( blockquote );
+	paragraph.remove();
+	placeCursorAt( blockquote );
+	state.formatQuote = true;
+}
+
+/**
  * Find the blockquote element containing the current cursor, if any.
  *
  * @return {HTMLElement|null} The blockquote element or null.
@@ -2251,7 +2591,7 @@ function updateFormattingState() {
 	state.formatHeading = false;
 	state.formatQuote = false;
 	state.headingLabel = i18n.normal || 'Normal';
-	state.formatAlignLeft = true;
+	state.formatAlignLeft = false;
 	state.formatAlignCenter = false;
 	state.formatAlignRight = false;
 	state.formatAlignJustify = false;
@@ -2272,10 +2612,14 @@ function updateFormattingState() {
 				if ( node.tagName === 'BLOCKQUOTE' ) {
 					state.formatQuote = true;
 				}
-				// Detect alignment from the nearest block element.
+				// Detect alignment from the nearest block element. Only highlight
+				// a button when alignment is explicitly set — empty textAlign
+				// means "default", which is left in browsers but shouldn't show
+				// any align button as active (matches block-editor behavior and
+				// avoids misleading users when nearby figures render centered).
 				if ( /^(P|H[1-6]|DIV|BLOCKQUOTE)$/.test( node.tagName ) && node.style.textAlign ) {
 					const align = node.style.textAlign;
-					state.formatAlignLeft = align === 'left' || align === 'start' || align === '';
+					state.formatAlignLeft = align === 'left' || align === 'start';
 					state.formatAlignCenter = align === 'center';
 					state.formatAlignRight = align === 'right';
 					state.formatAlignJustify = align === 'justify';
@@ -2751,6 +3095,240 @@ function insertMediaBlock( mediaEl ) {
 	return p;
 }
 
+/**
+ * Place the caret at the (x, y) viewport coordinates inside the editor.
+ * Uses the standard `caretPositionFromPoint`, falling back to the
+ * WebKit/Chromium-prefixed `caretRangeFromPoint`. Returns true if the
+ * caret was placed inside the editor; false otherwise.
+ *
+ * @param {number} x - Viewport X coordinate.
+ * @param {number} y - Viewport Y coordinate.
+ * @return {boolean} Whether the caret was placed inside the editor.
+ */
+function placeCaretAtPoint( x, y ) {
+	const content = getContent();
+	if ( ! content ) return false;
+
+	let range = null;
+	if ( document.caretPositionFromPoint ) {
+		const pos = document.caretPositionFromPoint( x, y );
+		if ( pos && pos.offsetNode ) {
+			range = document.createRange();
+			range.setStart( pos.offsetNode, pos.offset );
+			range.collapse( true );
+		}
+	} else if ( document.caretRangeFromPoint ) {
+		range = document.caretRangeFromPoint( x, y );
+		range?.collapse( true );
+	}
+
+	if ( ! range || ! content.contains( range.startContainer ) ) {
+		return false;
+	}
+
+	const sel = window.getSelection();
+	sel.removeAllRanges();
+	sel.addRange( range );
+	return true;
+}
+
+// Currently highlighted drop-target block, so dragover can move the
+// indicator between blocks without re-querying every frame.
+let currentDropTarget = null;
+
+// Position the indicator was rendered at on currentDropTarget. Lets the
+// drop handler pick before/after without re-running getBoundingClientRect
+// (the dragover that placed the indicator already settled it).
+let currentDropPosition = 'after';
+
+// The figure currently being dragged within the editor (set in
+// dragstart, cleared in dragend). Used to switch the dragover/drop
+// handlers from their default "insert a file from disk" branch into a
+// "move this existing figure" branch — the bug RSM-3981 was the absence
+// of this branch, which left the browser to fall back to its native
+// contentEditable=false copy-on-drop.
+let draggingFigure = null;
+
+/**
+ * Show a visual indicator on the block where a dragged image will land.
+ * The indicator is a class on the block element itself (a top-level
+ * child of .bw-content-inner) so the CSS can position a horizontal line
+ * at the insertion point — under the target block, or above the first
+ * block if the drag is near the top edge.
+ *
+ * @param {number} x - Viewport X coordinate.
+ * @param {number} y - Viewport Y coordinate.
+ */
+function updateDropIndicator( x, y ) {
+	const content = getContent();
+	if ( ! content ) return;
+
+	let target = null;
+	let position = 'after';
+
+	if ( document.caretPositionFromPoint || document.caretRangeFromPoint ) {
+		let node;
+		if ( document.caretPositionFromPoint ) {
+			const pos = document.caretPositionFromPoint( x, y );
+			node = pos?.offsetNode || null;
+		} else {
+			const range = document.caretRangeFromPoint( x, y );
+			node = range?.startContainer || null;
+		}
+		// Walk up to the direct child of .bw-content-inner.
+		while ( node && node !== content && node.parentNode !== content ) {
+			node = node.parentNode;
+		}
+		if ( node && node.parentNode === content ) {
+			target = node;
+		}
+	}
+
+	// Fallback: pick the block closest to the y-coordinate, or the
+	// last block if the drag is below all content. Lets the indicator
+	// stay visible when hovering over the empty area below the post.
+	if ( ! target ) {
+		const blocks = Array.from( content.children );
+		for ( const block of blocks ) {
+			const rect = block.getBoundingClientRect();
+			if ( y < rect.top ) {
+				target = block;
+				position = 'before';
+				break;
+			}
+			target = block;
+		}
+	}
+
+	if ( ! target ) return;
+	if ( currentDropTarget === target ) {
+		// Position may have flipped on the same block — keep both states
+		// consistent by clearing the other one.
+		target.classList.toggle( 'bw-drop-target--before', position === 'before' );
+		target.classList.toggle( 'bw-drop-target--after', position === 'after' );
+		currentDropPosition = position;
+		return;
+	}
+
+	clearDropIndicator();
+	target.classList.add(
+		position === 'before' ? 'bw-drop-target--before' : 'bw-drop-target--after'
+	);
+	currentDropTarget = target;
+	currentDropPosition = position;
+}
+
+/**
+ * Remove the drop-target indicator from whichever block currently has it.
+ */
+function clearDropIndicator() {
+	if ( currentDropTarget ) {
+		currentDropTarget.classList.remove( 'bw-drop-target--before', 'bw-drop-target--after' );
+		currentDropTarget = null;
+	}
+	currentDropPosition = 'after';
+}
+
+/**
+ * Move a figure to a new position relative to a target block. No-ops
+ * when the move would not change the DOM (figure dropped onto itself,
+ * or onto its current neighbour on the same side).
+ *
+ * @param {Element}          figure   - The figure being dragged.
+ * @param {Element}          target   - The block to land next to.
+ * @param {'before'|'after'} position - Where to drop relative to target.
+ * @return {boolean} Whether the DOM actually changed.
+ */
+function moveFigureToBlock( figure, target, position ) {
+	if ( ! figure || ! target || figure === target ) return false;
+	if ( position === 'before' ) {
+		if ( target.previousSibling === figure ) return false;
+		target.before( figure );
+	} else {
+		if ( target.nextSibling === figure ) return false;
+		target.after( figure );
+	}
+	return true;
+}
+
+/**
+ * Upload an image file and insert it at the current caret position.
+ * Inserts a placeholder figure immediately (using a local object URL)
+ * so the user gets feedback while the upload is in flight, then
+ * replaces the placeholder with the media-library URL and ID once
+ * uploaded.
+ *
+ * The whole upload+swap is registered via trackMediaSizeSwap so
+ * savePost waits for it before serializing the editor.
+ *
+ * @param {File} file - The image file to upload.
+ */
+function uploadAndInsertImage( file ) {
+	const content = getContent();
+	if ( ! content ) return;
+
+	const figure = document.createElement( 'figure' );
+	// Apply size-large up-front so the placeholder renders at the same
+	// 75% width the figure will land at after upload. Without it the
+	// locally-previewed image renders at its natural pixel size and
+	// snaps narrower the moment the swap runs.
+	figure.className = 'bw-image-figure bw-image-uploading size-large';
+	const img = document.createElement( 'img' );
+	const localUrl = URL.createObjectURL( file );
+	img.src = localUrl;
+	img.alt = '';
+	figure.appendChild( img );
+
+	const p = insertMediaBlock( figure );
+	if ( p ) {
+		placeCursorAt( p );
+	}
+	// Deliberately do NOT push undo history here: the placeholder figure's
+	// img.src is a blob: URL that gets revoked when the upload completes.
+	// Capturing the placeholder in an undo snapshot would let Cmd+Z restore
+	// a dead blob URL, which would then serialize into the saved post. The
+	// undo snapshot is pushed inside the swap below, after the real URL
+	// and wp-image-{id} class are in place.
+
+	const swap = ( async () => {
+		try {
+			const media = await uploadMedia( file );
+			// If the figure was removed during the upload (e.g. by undo or
+			// manual delete), skip the DOM swap. The upload still lives in
+			// the media library, which is harmless.
+			if ( ! content.contains( figure ) ) {
+				return;
+			}
+			// Tag the figure with the media-library id+size so the
+			// save-time serializer produces a real <!-- wp:image --> block.
+			img.src = media.source_url;
+			img.alt = media.alt_text || '';
+			img.className = 'wp-image-' + media.id;
+			figure.className = 'bw-image-figure size-large';
+			mediaSizesCache.set( media.id, media.media_details?.sizes || null );
+			// The figure was decorated by addDeleteButtons() before upload,
+			// so it's missing the Size button (that branch is gated on
+			// getMediaIdFromImg). Strip and re-decorate now that the
+			// wp-image-{id} class is in place.
+			stripRuntimeFigureControls( figure );
+			addDeleteButtons();
+			await applyMediaSizeToFigure( figure, 'large' );
+			pushToUndoHistory();
+		} catch ( err ) {
+			if ( content.contains( figure ) ) {
+				figure.remove();
+			}
+			state.message = ( i18n.uploadFailed || 'Upload failed: %s' ).replace( '%s', err.message );
+			setTimeout( () => {
+				state.message = '';
+			}, 3000 );
+		} finally {
+			URL.revokeObjectURL( localUrl );
+		}
+	} )();
+	trackMediaSizeSwap( swap );
+}
+
 // --- Inline category meta helpers ---
 
 /**
@@ -2794,6 +3372,39 @@ const { state } = store( 'wpcom-write', {
 			inner.setAttribute( 'aria-expanded', state.showSlashMenu ? 'true' : 'false' );
 			inner.setAttribute( 'aria-activedescendant', state.slashActiveId || '' );
 		},
+
+		/**
+		 * Mirror edit-modal radio state onto aria-checked + tabindex so the
+		 * active option is visually marked AND owns the roving tab stop per
+		 * the WAI-ARIA radio pattern (only one radio per group in tab order;
+		 * arrow keys move within the group). Reading state.editingImageAlign
+		 * / state.editingImageSize here subscribes the watcher to those
+		 * signals; the panel's data-wp-watch wires this up.
+		 */
+		syncEditImageModalRadios() {
+			const align = state.editingImageAlign;
+			const size = state.editingImageSize;
+			if ( ! state.showImageModal || ! state.isEditMode ) return;
+			const sync = ( selector, activeValue ) => {
+				const options = document.querySelectorAll( selector );
+				let activeFound = false;
+				options.forEach( btn => {
+					const isActive = btn.value === activeValue;
+					btn.setAttribute( 'aria-checked', isActive ? 'true' : 'false' );
+					btn.tabIndex = isActive ? 0 : -1;
+					if ( isActive ) activeFound = true;
+				} );
+				// Keep one option tabbable even when nothing matches the
+				// current state (e.g. size: '' for non-media-library images
+				// where the section is hidden anyway, but the rule still
+				// holds — no group should be entirely untabbable).
+				if ( ! activeFound && options.length ) {
+					options[ 0 ].tabIndex = 0;
+				}
+			};
+			sync( '.bw-edit-align-option', align );
+			sync( '.bw-edit-size-option', size );
+		},
 	},
 	state: {
 		formatBold: false,
@@ -2815,6 +3426,18 @@ const { state } = store( 'wpcom-write', {
 		},
 		get isBlockEditorWarning() {
 			return state.unsupportedWarning === 'block-editor';
+		},
+		// True when a "true modal" overlay is open (insert image, video,
+		// post picker). Used to gate keystroke handlers — the edit panel is
+		// non-modal and intentionally not included here.
+		get hasBlockingModal() {
+			return state.showImageInsertOverlay || state.showVideoModal || state.showPostPicker;
+		},
+		// True when the centered insert overlay should be visible. The
+		// underlying state.showImageModal flag is shared between insert and
+		// edit; this getter separates them in markup bindings.
+		get showImageInsertOverlay() {
+			return state.showImageModal && ! state.isEditMode;
 		},
 		get unsupportedDescId() {
 			if ( state.unsupportedWarning === 'classic-editor' ) {
@@ -2843,11 +3466,12 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleTitleKeyDown( event ) {
-			// Block keystrokes while a modal overlay is open.
-			if ( state.showImageModal || state.showVideoModal || state.showPostPicker ) {
+			// Block keystrokes while a blocking overlay is open. The image
+			// edit panel is non-modal and doesn't block title editing.
+			if ( state.hasBlockingModal ) {
 				if ( event.key === 'Escape' ) {
 					const { actions: a } = store( 'wpcom-write' );
-					if ( state.showImageModal ) {
+					if ( state.showImageInsertOverlay ) {
 						a.closeImageModal();
 					} else {
 						a.closeVideoModal();
@@ -2939,7 +3563,7 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 			allowLeave = true;
-			window.location.href = state.adminUrl;
+			window.location.href = state.backUrl;
 		},
 
 		async saveAndLeave() {
@@ -2965,7 +3589,7 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 			allowLeave = true;
-			window.location.href = state.adminUrl;
+			window.location.href = state.backUrl;
 		},
 
 		checkFormatting() {
@@ -3061,15 +3685,16 @@ const { state } = store( 'wpcom-write', {
 
 		handleKeyDown( event ) {
 			// Keep savedRange current before any key changes the selection.
-			if ( ! state.showImageModal && ! state.showVideoModal && ! state.showPostPicker ) {
+			if ( ! state.hasBlockingModal ) {
 				saveSelection();
 			}
 
-			// Block all keystrokes while a modal overlay is open.
-			if ( state.showImageModal || state.showVideoModal || state.showPostPicker ) {
+			// Block all keystrokes while a blocking overlay is open. The
+			// image edit panel is non-modal and doesn't block editor input.
+			if ( state.hasBlockingModal ) {
 				if ( event.key === 'Escape' ) {
 					const { actions: a } = store( 'wpcom-write' );
-					if ( state.showImageModal ) {
+					if ( state.showImageInsertOverlay ) {
 						a.closeImageModal();
 					} else {
 						a.closeVideoModal();
@@ -3271,6 +3896,38 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
+			// Backspace in an empty blockquote: convert it back to a paragraph.
+			// Must run before the first-block Backspace guard below, otherwise the
+			// guard swallows Backspace when the quote is the editor's first block
+			// (e.g. just after the `>` markdown shortcut on a fresh post), leaving
+			// the user with no way to remove the quote.
+			if ( event.key === 'Backspace' ) {
+				const sel = window.getSelection();
+				if ( sel.rangeCount && sel.isCollapsed && ! getActiveCite() ) {
+					const bq = getActiveBlockquote();
+					if ( bq ) {
+						// Ignore the <cite> placeholder when checking for empty body.
+						const probe = bq.cloneNode( true );
+						const probeCite = probe.querySelector( 'cite' );
+						if ( probeCite ) {
+							probeCite.remove();
+						}
+						if ( probe.textContent.trim() === '' ) {
+							event.preventDefault();
+							flushUndoDebounce();
+							const p = document.createElement( 'p' );
+							p.innerHTML = '<br>';
+							bq.after( p );
+							bq.remove();
+							placeCursorAt( p );
+							state.formatQuote = false;
+							pushToUndoHistory();
+							return;
+						}
+					}
+				}
+			}
+
 			// Block Backspace at the very start of the first block. With nothing
 			// to merge into, some browsers respond by unwrapping the structure
 			// — including the .bw-content-inner wrapper that protects user
@@ -3342,9 +3999,10 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Markdown list shortcut: typing space after `-`, `*`, `+`, or `1.` at the
-			// start of an otherwise-empty paragraph converts it to a list. The space
-			// itself is swallowed so the user lands at column 0 of the new <li>.
+			// Markdown shortcuts: typing space after `-`, `*`, `+`, or `1.` at the
+			// start of an otherwise-empty paragraph converts it to a list, and `>`
+			// converts it to a blockquote. The space itself is swallowed so the user
+			// lands at column 0 of the new block.
 			if ( event.key === ' ' && ! state.showSlashMenu ) {
 				const sel = window.getSelection();
 				if ( sel.rangeCount && sel.isCollapsed ) {
@@ -3361,6 +4019,13 @@ const { state } = store( 'wpcom-write', {
 							event.preventDefault();
 							flushUndoDebounce();
 							applyMarkdownListShortcut( block, listTag );
+							pushToUndoHistory();
+							return;
+						}
+						if ( parseMarkdownQuoteShortcut( block.textContent ) ) {
+							event.preventDefault();
+							flushUndoDebounce();
+							applyMarkdownQuoteShortcut( block );
 							pushToUndoHistory();
 							return;
 						}
@@ -3833,7 +4498,10 @@ const { state } = store( 'wpcom-write', {
 		// --- Lists ---
 
 		formatUList() {
-			if ( exitBlockAndApplyList( 'ul' ) ) {
+			if ( changeListTagAtCursor( 'ul' ) ) {
+				state.formatUList = true;
+				state.formatOList = false;
+			} else if ( exitBlockAndApplyList( 'ul' ) ) {
 				state.formatUList = true;
 				state.formatOList = false;
 			} else {
@@ -3844,7 +4512,10 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		formatOList() {
-			if ( exitBlockAndApplyList( 'ol' ) ) {
+			if ( changeListTagAtCursor( 'ol' ) ) {
+				state.formatOList = true;
+				state.formatUList = false;
+			} else if ( exitBlockAndApplyList( 'ol' ) ) {
 				state.formatOList = true;
 				state.formatUList = false;
 			} else {
@@ -4004,14 +4675,98 @@ const { state } = store( 'wpcom-write', {
 
 		toggleFeaturedImage() {
 			state.setAsFeatured = ! state.setAsFeatured;
+			// In edit mode the toggle applies to the post immediately.  The
+			// post-level featuredMediaId is the source of truth on save; we
+			// set / clear it here so the change survives modal close.
+			if ( state.isEditMode && editingFigure ) {
+				const mediaId = getMediaIdFromImg( editingFigure.querySelector( 'img' ) );
+				if ( ! mediaId ) return;
+				state.featuredMediaId = state.setAsFeatured ? mediaId : 0;
+			}
 		},
 
 		updateImageAlt() {
 			const el = getElement();
 			state.imageAlt = el.ref.value;
+			// In edit mode, apply to the figure live.  Undo coalesces all
+			// modal edits into a single history entry pushed on close.
+			if ( state.isEditMode && editingFigure ) {
+				const img = editingFigure.querySelector( 'img' );
+				if ( img ) img.alt = state.imageAlt;
+			}
+		},
+
+		setEditImageSize() {
+			const el = getElement();
+			const slug = el.ref.value;
+			if ( ! editingFigure || ! IMAGE_SIZE_SLUGS.includes( slug ) ) return;
+			state.editingImageSize = slug;
+			setFigureSize( editingFigure, slug );
+			trackMediaSizeSwap( applyMediaSizeToFigure( editingFigure, slug ) );
+		},
+
+		setEditImageAlign() {
+			const el = getElement();
+			const align = el.ref.value;
+			if ( ! editingFigure || ! IMAGE_ALIGNS.includes( align ) ) return;
+			state.editingImageAlign = align;
+			setFigureAlignment( editingFigure, align );
+		},
+
+		/**
+		 * Arrow / Home / End navigation within the Size and Alignment
+		 * radiogroups in the edit panel. Implements the WAI-ARIA radio
+		 * pattern: arrow keys move focus to the next/previous option AND
+		 * activate it; Home / End jump to first / last; only the active
+		 * option carries tabindex=0 so Tab moves out of the group.
+		 *
+		 * @param {KeyboardEvent} event - The keydown event.
+		 */
+		handleEditRadiogroupKeyDown( event ) {
+			const nav = [ 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End' ];
+			if ( ! nav.includes( event.key ) ) return;
+			const group = event.currentTarget;
+			const options = [ ...group.querySelectorAll( '[role="radio"]' ) ];
+			if ( ! options.length ) return;
+			event.preventDefault();
+			const current = group.ownerDocument.activeElement;
+			const idx = Math.max( 0, options.indexOf( current ) );
+			let next;
+			switch ( event.key ) {
+				case 'ArrowLeft':
+				case 'ArrowUp':
+					next = options[ ( idx - 1 + options.length ) % options.length ];
+					break;
+				case 'ArrowRight':
+				case 'ArrowDown':
+					next = options[ ( idx + 1 ) % options.length ];
+					break;
+				case 'Home':
+					next = options[ 0 ];
+					break;
+				case 'End':
+					next = options[ options.length - 1 ];
+					break;
+			}
+			if ( next ) {
+				next.focus();
+				// Activate the new option — the radio pattern selects on
+				// move (vs. menu, which moves focus without selecting).
+				next.click();
+			}
 		},
 
 		openImageModal() {
+			// Image insertion needs an upload endpoint and a media library; neither
+			// is available without auth, and CSS hides the entry point. The guard
+			// here covers programmatic callers (slash menu, etc.).
+			if ( isAnon() ) {
+				return;
+			}
+			// If the edit panel is open for an existing image, end that
+			// session first so the user's changes land as a discrete undo
+			// entry before the insert overlay replaces the panel.
+			endEditSession();
 			saveSelection();
 			state.imageUrl = '';
 			state.imageAlt = '';
@@ -4020,18 +4775,158 @@ const { state } = store( 'wpcom-write', {
 			state.uploadedMediaId = 0;
 			resetUploadZone();
 			state.showImageModal = true;
+			// Every open starts from the upload-default state; library/URL
+			// expanders collapse and search resets so the next open looks
+			// identical to the first.
+			state.showLibraryPicker = false;
+			state.showUrlInput = false;
+			state.librarySearch = '';
+			// Lock the page behind the modal so the editor can't scroll under
+			// the dimmed backdrop. The non-modal edit panel (editImage) does
+			// not lock — it docks bottom-right and the editor stays usable.
+			document.body.classList.add( 'bw-modal-open' );
 			focusModalInput();
 		},
 
+		toggleLibraryPicker() {
+			if ( isAnon() ) {
+				return;
+			}
+			state.showLibraryPicker = ! state.showLibraryPicker;
+			// Lazy-fetch the library on first expand, and refresh on every
+			// reopen so a just-uploaded image appears at the top.
+			if ( state.showLibraryPicker ) {
+				state.librarySearch = '';
+				fetchLibrary();
+			}
+		},
+
+		toggleUrlInput() {
+			state.showUrlInput = ! state.showUrlInput;
+			// When opening, focus the URL field for immediate typing.
+			if ( state.showUrlInput ) {
+				requestAnimationFrame( () => {
+					document.querySelector( '.bw-url-section input[type="url"]' )?.focus();
+				} );
+			}
+		},
+
+		searchLibrary() {
+			const el = getElement();
+			state.librarySearch = el.ref.value;
+			clearTimeout( librarySearchTimer );
+			// 250ms debounce keeps us under the WP REST rate even while typing
+			// quickly without feeling laggy on a fast network.
+			librarySearchTimer = setTimeout( fetchLibrary, 250 );
+		},
+
+		selectLibraryImage( event ) {
+			// Delegated handler on the grid container — find the actual
+			// thumbnail button regardless of whether the click landed on the
+			// button, its inner <img>, or some descendant.
+			const btn = event.target.closest( '.bw-library-thumb' );
+			if ( ! btn ) return;
+			const id = parseInt( btn.dataset.mediaId, 10 );
+			if ( ! id ) return;
+			const item = libraryItems.find( m => m.id === id );
+			if ( ! item ) return;
+
+			// Match the upload-success path: populate the URL/alt fields and
+			// stamp the media id so insertImageFromUrl tags the figure with
+			// wp-image-<id> and applies the Large size preset.  Alt only
+			// overwrites a blank field so a user who already typed alt for a
+			// different image they were considering doesn't lose their work.
+			state.imageUrl = item.source_url;
+			if ( ! state.imageAlt && item.alt_text ) {
+				state.imageAlt = item.alt_text;
+			}
+			state.uploadedMediaId = item.id;
+			mediaSizesCache.set( item.id, item.media_details?.sizes || null );
+			showUploadPreview( item.source_url );
+
+			// Announce the selection through the modal's aria-live region so
+			// screen-reader users get audible confirmation that the click
+			// registered (the preview itself is purely visual).
+			const label = item.alt_text || item.title?.rendered || '';
+			const template = window.wpcomWriteStrings?.librarySelected || 'Selected %s';
+			state.libraryStatus = template.replace( '%s', label );
+		},
+
+		editImage( figure, triggerEl ) {
+			// `figure` and `triggerEl` are passed by the per-image Edit pencil
+			// handler — not by Interactivity bindings — so we accept them as
+			// arguments rather than reading from getElement().
+			if ( ! figure ) return;
+			const img = figure.querySelector( 'img' );
+			if ( ! img ) return;
+
+			// Switching mid-edit from one image's panel to another: commit
+			// the previous session as a discrete undo entry and clear the
+			// outline on the old figure before retargeting.
+			if ( state.isEditMode && editingFigure && editingFigure !== figure ) {
+				editingFigure.classList.remove( 'bw-figure-editing' );
+				pushToUndoHistory();
+			}
+
+			editingFigure = figure;
+			editTriggerEl = triggerEl || null;
+			figure.classList.add( 'bw-figure-editing' );
+			state.isEditMode = true;
+			state.imageAlt = img.alt || '';
+			state.editingImageAlign = getFigureAlignment( figure );
+			state.editingImageSize =
+				IMAGE_SIZE_SLUGS.find( s => figure.classList.contains( 'size-' + s ) ) || '';
+
+			const mediaId = getMediaIdFromImg( img );
+			state.editingImageHasMediaId = !! mediaId;
+			state.setAsFeatured = !! ( mediaId && state.featuredMediaId === mediaId );
+
+			// Block-editor inserts often omit `sizeSlug` even though the img
+			// src matches a registered size — so the figure has no `size-X`
+			// class and the panel would show no size as selected.  When that
+			// happens, fall back to matching the img URL against the media
+			// library's registered sizes so the panel reflects what the user
+			// actually sees.  Stamp the matched class onto the figure so the
+			// figure is self-describing and round-trips through save.
+			if ( ! state.editingImageSize && mediaId ) {
+				inferSizeFromImgSrc( figure ).then( slug => {
+					if ( slug && figure === editingFigure ) {
+						state.editingImageSize = slug;
+						setFigureSize( figure, slug );
+					}
+				} );
+			}
+
+			state.showImageModal = true;
+			focusModalInput();
+
+			// On mobile the panel slides up as a bottom sheet that covers
+			// roughly the lower half of the viewport. Scroll the figure
+			// near the top so it stays visible while the user edits.
+			if ( window.matchMedia( '(max-width: 640px)' ).matches ) {
+				requestAnimationFrame( () => {
+					figure.scrollIntoView( { block: 'start', behavior: 'smooth' } );
+				} );
+			}
+		},
+
 		closeImageModal() {
+			// endEditSession returns the Edit pencil that opened the panel
+			// (when we were in edit mode) so we can return focus there.
+			const triggerToRefocus = endEditSession();
 			state.showImageModal = false;
 			state.imageUrl = '';
 			state.imageAlt = '';
 			state.setAsFeatured = false;
 			state.uploadedMediaId = 0;
+			document.body.classList.remove( 'bw-modal-open' );
 			resetUploadZone();
 			restoreSelection();
-			getContent()?.focus();
+			if ( triggerToRefocus && document.contains( triggerToRefocus ) ) {
+				triggerToRefocus.focus();
+			} else {
+				getContent()?.focus();
+			}
 		},
 
 		handleImageModalKeyDown( event ) {
@@ -4043,9 +4938,16 @@ const { state } = store( 'wpcom-write', {
 			if ( event.key === 'Tab' ) {
 				const modal = event.currentTarget.querySelector( '.bw-image-modal' );
 				if ( ! modal ) return;
-				const focusable = modal.querySelectorAll(
-					'input:not([hidden]), button, [tabindex]:not([tabindex="-1"])'
-				);
+				// Filter to currently-rendered elements only. The collapsible
+				// library/URL sections live inside the modal but use the
+				// `hidden` attribute on their wrapper — `:not([hidden])` on
+				// the input itself doesn't catch that, so without the
+				// offsetParent check those inputs would land in the trap's
+				// boundaries even though Tab can't actually reach them, and
+				// focus would fall out of the modal.
+				const focusable = Array.from(
+					modal.querySelectorAll( 'input:not([hidden]), button, [tabindex]:not([tabindex="-1"])' )
+				).filter( el => el.offsetParent !== null && ! el.disabled );
 				if ( ! focusable.length ) return;
 				const first = focusable[ 0 ];
 				const last = focusable[ focusable.length - 1 ];
@@ -4107,14 +5009,14 @@ const { state } = store( 'wpcom-write', {
 				// editor and swap src to the Large-sized URL so the natural
 				// img dimensions match the default preset.
 				img.className = 'wp-image-' + state.uploadedMediaId;
-				figure.className = 'bw-image-figure size-large';
+				figure.className = 'bw-image-figure size-large aligncenter';
 				figure.appendChild( img );
 				trackMediaSizeSwap( applyMediaSizeToFigure( figure, 'large' ) );
 			} else {
 				// External URL (no media library entry, no resized files):
 				// no size preset — the per-image Size button is hidden, matching
 				// block editor behavior.
-				figure.className = 'bw-image-figure';
+				figure.className = 'bw-image-figure aligncenter';
 				figure.appendChild( img );
 			}
 
@@ -4124,6 +5026,7 @@ const { state } = store( 'wpcom-write', {
 			}
 
 			state.showImageModal = false;
+			document.body.classList.remove( 'bw-modal-open' );
 			resetUploadZone();
 			pushToUndoHistory();
 		},
@@ -4175,6 +5078,119 @@ const { state } = store( 'wpcom-write', {
 			await uploadFileToMedia( file );
 		},
 
+		handleEditorDragStart( event ) {
+			// Image figures are contentEditable=false atoms inside an
+			// editable parent. Without an explicit handler the browser
+			// drags them as opaque HTML and the editor's drop branch
+			// (which only handles File drags) lets the native
+			// copy-on-drop behaviour insert a duplicate. Tag the drag as
+			// a move and remember the source so the dragover/drop
+			// branches below relocate it instead of falling through.
+			const figure = event.target?.closest?.( 'figure, .bw-image-figure, .bw-video-figure' );
+			const content = getContent();
+			if ( ! figure || ! content?.contains( figure ) ) return;
+
+			draggingFigure = figure;
+			if ( event.dataTransfer ) {
+				event.dataTransfer.effectAllowed = 'move';
+				// Overwrite the default HTML/text payload the browser
+				// stages when dragging an <img>. If we ever fail to
+				// preventDefault on drop, an empty payload means no
+				// stray content is inserted.
+				try {
+					event.dataTransfer.setData( 'text/plain', '' );
+				} catch {
+					// Some browsers throw if setData is called outside a
+					// real dragstart. Safe to ignore — preventDefault on
+					// drop is the primary guard.
+				}
+			}
+		},
+
+		handleEditorDragOver( event ) {
+			// File drags from disk: keep the original "insert at drop
+			// point" behaviour.
+			if ( event.dataTransfer?.types?.includes( 'Files' ) ) {
+				event.preventDefault();
+				event.dataTransfer.dropEffect = 'copy';
+				updateDropIndicator( event.clientX, event.clientY );
+				return;
+			}
+			// Internal figure drag: opt in to drop and show the move
+			// cursor. Without preventDefault here the drop event never
+			// fires inside the editor.
+			if ( draggingFigure ) {
+				event.preventDefault();
+				if ( event.dataTransfer ) event.dataTransfer.dropEffect = 'move';
+				updateDropIndicator( event.clientX, event.clientY );
+			}
+			// Text/selection drags inside the editor: leave to the
+			// browser's contentEditable default.
+		},
+
+		handleEditorDragLeave( event ) {
+			// dragleave fires when the pointer crosses any child element
+			// boundary; only clear the visual state when the drag truly
+			// leaves the editor wrapper.
+			if ( event.relatedTarget && event.currentTarget.contains( event.relatedTarget ) ) {
+				return;
+			}
+			clearDropIndicator();
+		},
+
+		handleEditorDrop( event ) {
+			// Internal figure move.
+			if ( draggingFigure ) {
+				event.preventDefault();
+				const figure = draggingFigure;
+				const target = currentDropTarget;
+				const position = currentDropPosition;
+				clearDropIndicator();
+				draggingFigure = null;
+
+				if ( target && moveFigureToBlock( figure, target, position ) ) {
+					ensureBlockStructure();
+					pushToUndoHistory();
+				}
+				return;
+			}
+
+			if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+			event.preventDefault();
+			clearDropIndicator();
+
+			if ( isAnon() ) {
+				return;
+			}
+
+			const images = Array.from( event.dataTransfer.files || [] ).filter( f =>
+				f.type.startsWith( 'image/' )
+			);
+			if ( ! images.length ) return;
+
+			// Place the caret at the drop point once before inserting.
+			// Each insertMediaBlock leaves the caret in the trailing
+			// paragraph, so subsequent figures naturally stack below.
+			// If the drop lands outside the editable area, fall back to
+			// the end of the content.
+			const content = getContent();
+			if ( content && ! placeCaretAtPoint( event.clientX, event.clientY ) ) {
+				placeCursorAtEnd( content );
+			}
+
+			for ( const file of images ) {
+				uploadAndInsertImage( file );
+			}
+		},
+
+		handleEditorDragEnd() {
+			// Safety net: dragend always fires (even on cancelled or
+			// out-of-editor drops), so this is the canonical place to
+			// drop the drag state and any stale drop indicator.
+			draggingFigure = null;
+			clearDropIndicator();
+		},
+
 		// --- Slash commands ---
 
 		insertHeading() {
@@ -4184,17 +5200,14 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		insertImage() {
+			// Slash-menu image insert: clean up the slash UI, then delegate
+			// to openImageModal so the modal opens in the same reset state as
+			// the toolbar entry (collapsed expanders + scroll lock).
 			flushUndoDebounce();
 			clearSlashText();
 			clearSlashActive();
 			state.showSlashMenu = false;
-			saveSelection();
-			state.imageUrl = '';
-			state.imageAlt = '';
-			resetImageModalInputs();
-			resetUploadZone();
-			state.showImageModal = true;
-			focusModalInput();
+			store( 'wpcom-write' ).actions.openImageModal();
 		},
 
 		insertBulletedList() {
@@ -4445,6 +5458,9 @@ const { state } = store( 'wpcom-write', {
 
 		async openInBlockEditor() {
 			state.showMoreMenu = false;
+			if ( isAnon() ) {
+				return;
+			}
 
 			// New posts need a save to create the underlying post before we
 			// have a URL to navigate to. Surface the same "Please write
@@ -4485,6 +5501,9 @@ const { state } = store( 'wpcom-write', {
 
 		async previewPost() {
 			state.showMoreMenu = false;
+			if ( isAnon() ) {
+				return;
+			}
 
 			if ( ! state.editPostId && ! hasWritableContent() ) {
 				state.message = i18n.pleaseWriteSomething || 'Please write something';
@@ -4516,6 +5535,9 @@ const { state } = store( 'wpcom-write', {
 
 		openPostPicker() {
 			state.showMoreMenu = false;
+			if ( isAnon() ) {
+				return;
+			}
 
 			if ( isDirty() ) {
 				state.pendingOpenPost = true;
@@ -4759,15 +5781,42 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		async publish() {
+			if ( isAnon() ) {
+				// Flush the latest draft snapshot before navigating — autosave is
+				// on a 30s tick, and a fast typer-then-clicker would otherwise
+				// hand off stale (or no) content to the signup flow.
+				captureAnonSnapshot();
+
+				// Suppress the dirty-state leave prompt the way every other
+				// internal navigation in this file does (cf. openInBlockEditor).
+				allowLeave = true;
+
+				// Anon visitors hand off to the signup flow, which reads the draft
+				// from localStorage and publishes after signup completes.
+				window.location.assign( 'https://wordpress.com/setup/write-on' );
+				return;
+			}
 			await savePost( 'publish' );
 		},
 
 		async saveDraft() {
+			if ( isAnon() ) {
+				// Anon persists to localStorage on every autosave tick; an
+				// explicit "save draft" maps to the same operation.
+				captureAnonSnapshot();
+				lastSavedSnapshot = getContentSnapshot();
+				return;
+			}
 			await savePost( 'draft' );
 		},
 
 		async saveDraftFromMenu() {
 			state.showMoreMenu = false;
+			if ( isAnon() ) {
+				captureAnonSnapshot();
+				lastSavedSnapshot = getContentSnapshot();
+				return;
+			}
 			await savePost( 'draft' );
 		},
 
@@ -4788,9 +5837,17 @@ const { state } = store( 'wpcom-write', {
 			}
 
 			// Require at least a title or content before autosaving.
-			const contentEl = document.querySelector( '.bw-content' );
+			const contentEl = getContent();
 			const hasContent = state.title.trim() || ( contentEl && contentEl.textContent.trim() );
 			if ( ! hasContent ) {
+				return;
+			}
+
+			if ( isAnon() ) {
+				// Anon visitors have no server post; snapshot the editable HTML
+				// to localStorage so a refresh can rehydrate via the recovery banner.
+				captureAnonSnapshot();
+				lastSavedSnapshot = getContentSnapshot();
 				return;
 			}
 
@@ -4801,6 +5858,36 @@ const { state } = store( 'wpcom-write', {
 		 * Resume editing an autosaved draft.
 		 */
 		resumeDraft() {
+			if ( isAnon() ) {
+				// Anon snapshot is a JSON blob, not a server post id — hydrate the
+				// editor in place rather than navigating.
+				const snapshot = readAnonDraft();
+				if ( snapshot ) {
+					state.title = snapshot.title;
+					// The title <textarea> binds input → state.title one-way; mutating
+					// state alone does not update the field, so set the DOM value too
+					// (matching applyUndoSnapshot's pattern).
+					const titleEl = document.querySelector( '.bw-title' );
+					if ( titleEl ) {
+						titleEl.value = snapshot.title;
+						titleEl.style.height = 'auto';
+						titleEl.style.height = titleEl.scrollHeight + 'px';
+					}
+					const contentEl = getContent();
+					if ( contentEl ) {
+						contentEl.innerHTML = snapshot.content;
+					}
+					// The CSS placeholder is driven by `bw-is-empty` on the outer
+					// `.bw-content`, normally removed by the first input event.
+					// Programmatic hydration fires no input, so clear it directly.
+					if ( snapshot.content ) {
+						document.querySelector( '.bw-content' )?.classList.remove( 'bw-is-empty' );
+					}
+					lastSavedSnapshot = getContentSnapshot();
+				}
+				state.showRecoveryBanner = false;
+				return;
+			}
 			const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
 			if ( draftId && /^\d+$/.test( draftId ) ) {
 				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
@@ -4812,7 +5899,11 @@ const { state } = store( 'wpcom-write', {
 		 * Dismiss the recovery banner and discard the autosaved draft reference.
 		 */
 		dismissRecovery() {
-			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+			if ( isAnon() ) {
+				clearAnonDraft();
+			} else {
+				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+			}
 			state.showRecoveryBanner = false;
 		},
 
@@ -4957,8 +6048,8 @@ async function savePost( postStatus, isAutosave = false ) {
 			p.remove();
 		}
 	} );
-	clone.querySelectorAll( '.bw-figure-selected' ).forEach( el => {
-		el.classList.remove( 'bw-figure-selected' );
+	clone.querySelectorAll( '.bw-figure-selected, .bw-figure-editing' ).forEach( el => {
+		el.classList.remove( 'bw-figure-selected', 'bw-figure-editing' );
 	} );
 	// Also strip the contenteditable attribute from figures — it's a
 	// runtime attribute that shouldn't be persisted.
@@ -4988,11 +6079,23 @@ async function savePost( postStatus, isAutosave = false ) {
 
 	// Extract #tags from lines that contain only hashtag tokens (e.g. "#travel #food").
 	// Those paragraphs are metadata, not body text — strip them from the saved content.
+	// Each # starts a new tag, and a tag may contain spaces ("#New York"). To keep prose
+	// that merely starts with a # ("#1 reason you should read this") out of the tag list,
+	// each tag is capped at three whitespace-separated words. The char right after # must
+	// be a non-# non-space, so "# Heading" and "## Heading" stay body text.
 	const tagNames = [];
 	clone.querySelectorAll( ':scope > p' ).forEach( p => {
 		const text = p.textContent.trim();
-		if ( /^(#[\w-]+\s*)+$/.test( text ) ) {
-			text.match( /#([\w-]+)/g ).forEach( t => tagNames.push( t.slice( 1 ) ) );
+		if ( /^(#[^#\s]+(?:\s+[^#\s]+){0,2}\s*)+$/.test( text ) ) {
+			text
+				.split( '#' )
+				.slice( 1 )
+				.forEach( name => {
+					const trimmed = name.trim();
+					if ( trimmed ) {
+						tagNames.push( trimmed );
+					}
+				} );
 			p.remove();
 		}
 	} );
@@ -5145,13 +6248,27 @@ const autosaveReady = setInterval( () => {
 		actions.autosave();
 	}, AUTOSAVE_INTERVAL_MS );
 
-	// Show the beta disclaimer unless previously dismissed.
-	if ( ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
+	// Show the beta disclaimer unless previously dismissed. Anon visitors
+	// skip this entirely — not just because the banner is irrelevant, but
+	// because the layout's sibling selectors (`.bw-disclaimer-banner:not(
+	// [hidden]) ~ .bw-toolbar`) push the toolbar down based on the `hidden`
+	// attribute, which the Interactivity API only sets when the state is
+	// false. Leaving state true would shift the toolbar down by 44px even
+	// though our anon CSS hides the banner itself.
+	if ( ! isAnon() && ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
 		state.showDisclaimer = true;
 	}
 
 	// Check for a recoverable autosaved draft (only for new posts).
-	if ( ! state.editPostId ) {
+	if ( isAnon() ) {
+		// Anon recovery reads a JSON snapshot rather than a post id. Show the
+		// banner only when the snapshot has any actual content to restore — an
+		// empty record is no better than starting fresh.
+		const snapshot = readAnonDraft();
+		if ( snapshot && ( snapshot.title || snapshot.content ) ) {
+			state.showRecoveryBanner = true;
+		}
+	} else if ( ! state.editPostId ) {
 		const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
 		if ( draftId ) {
 			state.showRecoveryBanner = true;
@@ -5213,5 +6330,93 @@ window.addEventListener( 'pageshow', event => {
 window.addEventListener( 'pagehide', () => {
 	if ( autosaveTimer ) {
 		clearInterval( autosaveTimer );
+	}
+} );
+
+// Cmd+S (Mac) / Ctrl+S (Windows/Linux) — trigger the primary save action,
+// matching whichever button is visible (Save draft on a draft, Update on a
+// published post). Attached at the document level so the shortcut works
+// regardless of which field has focus.
+document.addEventListener( 'keydown', event => {
+	if ( event.key?.toLowerCase() !== 's' ) return;
+	if ( ! ( event.ctrlKey || event.metaKey ) ) return;
+	if ( event.shiftKey || event.altKey ) return;
+	if ( state.isSaving || state.unsupportedWarning || state.hasBlockingModal ) {
+		return;
+	}
+
+	event.preventDefault();
+	const { actions } = store( 'wpcom-write' );
+	if ( state.isPublishedPost ) {
+		actions.publish();
+	} else {
+		actions.saveDraft();
+	}
+} );
+
+// Escape closes the image edit panel from anywhere on the page. The panel
+// is non-modal — focus may live in the editor, the title, or anywhere
+// outside the panel itself — so it needs a global Escape handler instead
+// of relying on the panel's own keydown.  Skipped when a blocking overlay
+// is open (those handle Escape themselves) and when an active text-editing
+// surface might want Escape for its own purposes (the alt-text input
+// inside the panel uses default behavior — losing focus on Escape is OK).
+document.addEventListener( 'keydown', event => {
+	if ( event.key !== 'Escape' ) return;
+	if ( ! state.isEditMode ) return;
+	if ( state.hasBlockingModal ) return;
+	event.preventDefault();
+	const { actions } = store( 'wpcom-write' );
+	actions.closeImageModal();
+} );
+
+// File-drop safety net: .bw-content has min-height:60vh but doesn't
+// fill the rest of the viewport, and a long post can extend below the
+// viewport entirely. A file dropped outside .bw-content would otherwise
+// be opened by the browser. Catch file drags at the window level so
+// dropping anywhere on the Write page inserts at the end of the post
+// instead of navigating away from the editor.
+window.addEventListener( 'dragover', event => {
+	if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+	event.preventDefault();
+	event.dataTransfer.dropEffect = 'copy';
+} );
+
+window.addEventListener( 'drop', event => {
+	if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+	if ( isAnon() ) {
+		// No upload endpoint for anon — prevent the default file-open behavior
+		// (matching the rest of this handler) but skip the upload path.
+		event.preventDefault();
+		return;
+	}
+	// The editor (.bw-content) and the image-modal overlay each have
+	// their own data-wp-on--drop handlers; those fire on the inner
+	// target first and bubble up to here. Check via composedPath rather
+	// than target.closest because the editor handler removes the empty
+	// <p> that was the drop target (insertMediaBlock collapses an empty
+	// trailing paragraph into the figure), leaving event.target detached
+	// and breaking ancestor lookups. composedPath is snapshotted at
+	// dispatch time and stays valid through the mutation.
+	const path = event.composedPath();
+	if (
+		path.some(
+			el => el instanceof Element && el.matches?.( '.bw-content, .bw-image-overlay:not([hidden])' )
+		)
+	) {
+		return;
+	}
+	event.preventDefault();
+
+	const images = Array.from( event.dataTransfer.files || [] ).filter( f =>
+		f.type.startsWith( 'image/' )
+	);
+	if ( ! images.length ) return;
+
+	const content = getContent();
+	if ( ! content ) return;
+	placeCursorAtEnd( content );
+	for ( const file of images ) {
+		uploadAndInsertImage( file );
 	}
 } );

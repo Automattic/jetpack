@@ -228,6 +228,7 @@ function load_assets( $attr, $content ) {
 	if ( ! Request::is_frontend() ) {
 		return $content;
 	}
+	$attr['url'] = $attr['url'] ?? '';
 	if ( Blocks::is_amp_request() ) {
 		return render_amp_pin( $attr );
 	} else {

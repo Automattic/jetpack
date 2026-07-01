@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Simplify Atomic storage provider tests by removing redundant and no-op cases.
+
+

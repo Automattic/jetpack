@@ -101,17 +101,16 @@ const ProtectApp = () => {
 						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-protect' ) }</Tabs.Tab>
 					</Tabs.List>
 				</div>
-				{ /* @wordpress/ui Tabs.Panel unmounts inactive panels by default, so only the
-				     active panel's <Outlet /> mounts and the matched route renders once. */ }
-				<Tabs.Panel value="scan">
-					<Outlet />
-				</Tabs.Panel>
-				<Tabs.Panel value="firewall">
-					<Outlet />
-				</Tabs.Panel>
-				<Tabs.Panel value="settings">
-					<Outlet />
-				</Tabs.Panel>
+				{ /* Every tab panel shares the same react-router <Outlet />, which always
+				     renders the active route. Tabs.Panel (via @base-ui/react) keeps the
+				     outgoing panel mounted until its close transition completes, so
+				     rendering the Outlet unconditionally would duplicate the active route's
+				     content into any panel still mounted during a tab transition (a
+				     transient, hidden + inert copy — including duplicate element ids). Gate
+				     each Outlet on the active tab so the matched route renders exactly once. */ }
+				<Tabs.Panel value="scan">{ activeTab === 'scan' && <Outlet /> }</Tabs.Panel>
+				<Tabs.Panel value="firewall">{ activeTab === 'firewall' && <Outlet /> }</Tabs.Panel>
+				<Tabs.Panel value="settings">{ activeTab === 'settings' && <Outlet /> }</Tabs.Panel>
 			</Tabs.Root>
 		</JetpackAdminPage>
 	);

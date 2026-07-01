@@ -1475,8 +1475,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$first_name = $user->first_name ?? '';
 					$last_name  = $user->last_name ?? '';
 					$nice       = $user->user_nicename ?? '';
-				} else {
-					trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				}
 			}
 
@@ -1523,8 +1521,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( ! isset( $id ) ) {
 			$user = get_user_by( 'id', $author );
 			if ( ! $user || is_wp_error( $user ) ) {
-				trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-
 				return null;
 			}
 			$id         = $user->ID;
@@ -1735,7 +1731,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$sizes = apply_filters( 'rest_api_thumbnail_sizes', $metadata['sizes'], $media_item->ID );
 				if ( is_array( $sizes ) ) {
 					foreach ( $sizes as $size => $size_details ) {
-						$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+						if ( isset( $size_details['file'] ) ) {
+							$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+						}
 					}
 					/**
 					 * Filter the thumbnail URLs for attachment files.
@@ -1756,9 +1754,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ), true ) && isset( $media_item->ID ) ) {
-			$metadata           = wp_get_attachment_metadata( $media_item->ID );
-			$response['length'] = $metadata['length'];
-			$response['exif']   = $metadata;
+			$metadata = wp_get_attachment_metadata( $media_item->ID );
+
+			if ( isset( $metadata['length'] ) ) {
+				$response['length'] = $metadata['length'];
+			}
+			$response['exif'] = is_array( $metadata ) ? $metadata : false;
 		}
 
 		$is_video = false;
@@ -2788,6 +2789,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( ! $response && ! is_array( $response ) ) {
 			// Dealing with empty non-array response.
 			$response = new WP_Error( 'empty_response', 'Endpoint response is empty', 500 );
+		}
+
+		// Mirror the XML-RPC path, which runs filter_fields() in WPCOM_JSON_API::output() before
+		// returning, so a `fields` request yields the same keys on both transports. Endpoints may
+		// force-add keys past `fields` for internal processors (e.g. the post type/status/password);
+		// without this they would leak on the REST transport only.
+		if ( ! is_wp_error( $response ) ) {
+			$response = $this->api->filter_fields( $response );
 		}
 
 		$status_code = 200;

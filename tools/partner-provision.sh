@@ -136,7 +136,7 @@ for i in "$@"; do
 			exit
 			;;
 		* )
-			echo $(usage) >&2
+			echo "$(usage)" >&2
 			exit 1
 	esac
 done
@@ -153,7 +153,7 @@ if [ "$WP_CLI_EXISTS" -eq "1" ]; then
 fi
 
 if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$WP_USER" = "" ]; then
-	echo $(usage) >&2
+	echo "$(usage)" >&2
 	exit 1
 fi
 
@@ -176,7 +176,7 @@ jetpack_is_wp_cli_error() {
 		exit 1
 	fi
 
-	if [ ! -z $( echo "$1" | grep Error:) ] || [ -z "$1" ]; then
+	if [ ! -z "$( echo "$1" | grep Error:)" ] || [ -z "$1" ]; then
 		return 0
 	fi
 

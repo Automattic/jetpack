@@ -37,13 +37,13 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"pnpm run build-production",
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-		],
 		"test-php": [
 			"pnpm run build-production",
 			"@composer phpunit"
+		],
+		"test-php-coverage": [
+			"pnpm run build-production",
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",

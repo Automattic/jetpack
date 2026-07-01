@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import type {
 	AddSubscribersResponse,
+	ImportJob,
 	RemoveSubscriberPayload,
 	RemoveSubscriberResponse,
 	SubscriberDetails,
@@ -66,17 +67,46 @@ export function removeSubscriber(
 }
 
 /**
- * Send "follower" invitations to a list of email addresses, mirroring Calypso's
- * `addSubscribers` action. The proxy forwards to `/sites/{id}/invites/new`.
+ * Import a list of email addresses as subscribers, mirroring Calypso's Add Subscribers modal
+ * (`importCsvSubscribers`). The proxy forwards to `/sites/{id}/subscribers/import`, which starts
+ * an async job — no invitation email is sent; WP.com emails a "Subscriber import completed"
+ * summary when the job finishes.
  *
- * @param emails - Email addresses to invite.
- * @return WP.com response.
+ * @param emails - Email addresses to import.
+ * @return WP.com response carrying the import job id.
  */
 export function addSubscribers( emails: string[] ): Promise< AddSubscribersResponse > {
 	return apiFetch< AddSubscribersResponse >( {
 		path: '/wpcom/v2/subscribers/add',
 		method: 'POST',
 		data: { emails },
+	} );
+}
+
+/**
+ * Fetch the site's subscriber import jobs, newest first. Used by the Add Subscribers modal to
+ * detect an in-flight or stale import — WP.com runs one import per site at a time.
+ *
+ * @return Import jobs.
+ */
+export function fetchImportJobs(): Promise< ImportJob[] > {
+	return apiFetch< ImportJob[] >( {
+		path: '/wpcom/v2/subscribers/import',
+		method: 'GET',
+	} );
+}
+
+/**
+ * Cancel stuck (pending / importing) subscriber import jobs, mirroring Calypso's stale-import
+ * "Cancel import" action (`useSubscriberImportStatusReset`). The proxy forwards to
+ * `/sites/{id}/subscribers/import/reset_state`.
+ *
+ * @return WP.com response with the number of jobs reset.
+ */
+export function resetImportState(): Promise< { reset_count?: number } > {
+	return apiFetch( {
+		path: '/wpcom/v2/subscribers/import/reset-state',
+		method: 'POST',
 	} );
 }
 
@@ -119,11 +149,13 @@ export function fetchSubscriberStats( params: IndividualParams ): Promise< Subsc
 }
 
 export type MembershipsProduct = {
-	ID: number;
+	id: number;
 	title: string;
 	currency?: string;
-	price?: number;
-	renewal_schedule?: string;
+	// The wpcom proxy sends the price as a preformatted string (e.g. `12.00`), not a number.
+	price?: string;
+	// Billing cadence, e.g. `1 month` or `1 year`.
+	interval?: string;
 };
 
 /**

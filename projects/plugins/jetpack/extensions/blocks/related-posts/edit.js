@@ -144,7 +144,7 @@ function RelatedPostsEditItem( props ) {
 function RelatedPostsPreviewRows( props ) {
 	const className = 'jp-related-posts-i2__row';
 
-	let topRowEnd = 0;
+	let topRowEnd;
 	const displayLowerRow = props.posts.length > 3;
 
 	switch ( props.posts.length ) {

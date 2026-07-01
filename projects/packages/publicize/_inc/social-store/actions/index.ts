@@ -11,7 +11,6 @@ import * as socialSettings from './social-settings';
 import * as trafficStatsActions from './traffic-stats';
 import * as unifiedModal from './unified-modal';
 import * as utmActions from './utm-settings';
-import * as xUsageActions from './x-usage';
 
 const actions = {
 	...shareStatus,
@@ -26,7 +25,6 @@ const actions = {
 	...scheduledSharesActions,
 	...trafficStatsActions,
 	...unifiedModal,
-	...xUsageActions,
 	...renderedMessagesActions,
 };
 

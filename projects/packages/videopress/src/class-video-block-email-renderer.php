@@ -21,7 +21,7 @@ class Video_Block_Email_Renderer {
 	 *
 	 * @return string
 	 */
-	public static function render( $block_content, $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function render( $block_content, $parsed_block, $rendering_context ) {
 		// Validate input parameters and required dependencies.
 		if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
 			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Embed' ) ) {

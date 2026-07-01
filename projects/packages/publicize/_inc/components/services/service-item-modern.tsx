@@ -7,7 +7,6 @@ import { Collapsible, Icon, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
-import { ServiceItemNotice } from './service-item-notice';
 import { ServiceStatus } from './service-status';
 import styles from './style-modern.module.scss';
 import type { SyntheticEvent } from 'react';
@@ -38,7 +37,9 @@ export function ModernServiceItem( {
 
 	const [ isPanelOpen, setIsPanelOpen ] = useState( Boolean( isPanelDefaultOpen ) );
 	const togglePanel = useCallback( () => setIsPanelOpen( open => ! open ), [] );
-	const rowRef = useRef< HTMLDivElement >( null );
+	// `Collapsible.Trigger` types its ref as `HTMLButtonElement` even when
+	// rendered as a `<div>` (via `render`), so match that to satisfy the ref type.
+	const rowRef = useRef< HTMLButtonElement >( null );
 
 	useEffect( () => {
 		if ( isPanelDefaultOpen ) {
@@ -59,6 +60,13 @@ export function ModernServiceItem( {
 			return brokenConnections.some( canUserManageConnection );
 		},
 		[ brokenConnections ]
+	);
+
+	// While reconnecting a credential-based service (e.g. Bluesky), show its input form even
+	// though it has a broken connection, so the user can re-enter credentials in place.
+	const isReconnectingThisService = useSelect(
+		select => select( socialStore ).getReconnectingAccount()?.service_name === service.id,
+		[ service.id ]
 	);
 
 	const hideInitialConnectForm =
@@ -124,11 +132,12 @@ export function ModernServiceItem( {
 			<Collapsible.Panel className={ styles[ 'service-panel' ] }>
 				<div className={ styles[ 'service-panel-inner' ] }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
-					<ServiceItemNotice service={ service } serviceConnections={ serviceConnections } />
 					{
-						// Connect form for services that need custom inputs
-						// should be shown only if there are no broken connections
-						service.needsCustomInputs && ! hasOwnBrokenConnections ? (
+						// Connect form for services that need custom inputs. Normally hidden when a
+						// connection is broken (the "Fix connection" flow handles those), but shown
+						// while reconnecting this service so its credentials can be re-entered.
+						service.needsCustomInputs &&
+						( ! hasOwnBrokenConnections || isReconnectingThisService ) ? (
 							<div className={ styles[ 'connect-form-wrapper' ] }>
 								<ConnectForm
 									service={ service }

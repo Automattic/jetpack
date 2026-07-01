@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove unneeded development files from the distributed version of the package.

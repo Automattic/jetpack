@@ -563,6 +563,7 @@ describe( 'normalizeResult', () => {
 		const r = normalizeResult( {} );
 		expect( r ).toEqual( {
 			id: '',
+			railcar: null,
 			title: '',
 			titlePieces: [],
 			hasTitlePieces: false,
@@ -823,6 +824,24 @@ describe( 'normalizeResult', () => {
 		} );
 		expect( r.matchHint ).toBe( '' );
 		expect( r.matchHintIsComments ).toBe( false );
+	} );
+
+	it( 'carries the server railcar through for TrainTracks', () => {
+		const railcar = {
+			railcar: 'axtafgiOICSM',
+			fetch_algo: 'jetpack:search/1-score_default',
+			fetch_position: 0,
+			fetch_query: 'hello',
+			rec_blog_id: 1,
+			rec_post_id: 12,
+			session_id: 'p5G3vV',
+		};
+		const r = normalizeResult( { railcar, fields: { post_id: 12 } } );
+		expect( r.railcar ).toEqual( railcar );
+	} );
+
+	it( 'railcar is null when the API result omits it', () => {
+		expect( normalizeResult( { fields: { post_id: 12 } } ).railcar ).toBeNull();
 	} );
 } );
 

@@ -14,14 +14,27 @@
 		opacity: 0.8;
 	}
 
-	// Leave the <select>'s colors / border / background to the browser:
-	// native controls render correctly on any background and stay
-	// accessible on every platform without per-OS workarounds (e.g.
-	// transparent backgrounds breaking the dropdown list on Windows).
-	// Padding is safe to nudge — it doesn't affect the dropdown chrome —
-	// and matching the clear-all button keeps the toolbar row balanced.
+	// A native <select> ignores a transparent background (the OS paints its
+	// own field chrome), so this can't use the pills' transparent treatment.
+	// Match the popover menu / suggestions surfaces instead: opaque theme
+	// tokens with a currentColor hairline. `appearance: auto` re-asserts the
+	// native control — and its theme-tracking chevron — if a theme forced it
+	// off.
 	select {
+		appearance: auto;
+		background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
+		border: 1px solid color-mix(in sRGB, currentColor 20%, transparent);
+		border-radius: 4px;
 		padding: 0.2rem 0.5rem;
+		cursor: pointer;
+
+		// The open option list is OS-painted; without explicit tokens it can
+		// fall back to system colors and go unreadable on Linux / Windows.
+		option {
+			background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+			color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
+		}
 	}
 
 	// Reset browser defaults on the radio-variant fieldset. Without this the
@@ -151,12 +164,10 @@
 		display: flex;
 		flex-direction: column;
 		padding: 4px;
-		// See the matching note in filters-popover/style.scss: the shorthand
-		// drops to `transparent` on themes that don't define
-		// `--wp--preset--color--base`, so use the longhand with the same
-		// fallback chain the overlay card and suggestions panel use.
-		background-color: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
-		color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit));
+		// `background-color` longhand (not shorthand) — `background:` collapses
+		// to `transparent` when the var resolves to nothing.
+		background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
 		// Reset the inherited theme base size so menu items track the
 		// search-results title (also 1rem) instead of the host theme's
 		// oversized default. `font: inherit` on menu items picks this up.

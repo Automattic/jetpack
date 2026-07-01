@@ -1,11 +1,10 @@
 <?php
 /**
- * Pre-hydration skeleton list shared by filter-checkbox and filter-date
- * render.php. Included with `require __DIR__ . '/../filter-skeleton.partial.php';`
- * inside the wrapper element when `Search_Blocks::is_initial_loading()` is true.
- *
- * Visibility flips off via `state.skeletonHidden` once the first fetch
- * resolves on the client (see `actions.search()` in `store/index.js`).
+ * Skeleton list shared by the filter blocks' render.php, included inside the
+ * wrapper element. The literal `hidden` keeps it out of the pre-hydration
+ * paint unless the URL already carries a query/filter (`is_initial_loading()`);
+ * afterwards `state.skeletonHidden` drives visibility reactively, so a
+ * client-side search from a bare /search/ page re-shows it.
  *
  * @package automattic/jetpack-search
  */
@@ -14,12 +13,14 @@ namespace Automattic\Jetpack\Search;
 
 defined( 'ABSPATH' ) || exit;
 
-$rows = 4;
+$rows               = 4;
+$is_initial_loading = Search_Blocks::is_initial_loading();
 ?>
 <ul
 	class="jetpack-search-filter__list jetpack-search-filter__list--skeleton"
 	data-wp-bind--hidden="state.skeletonHidden"
 	aria-hidden="true"
+	<?php echo $is_initial_loading ? '' : 'hidden'; ?>
 >
 	<?php for ( $i = 0; $i < $rows; $i++ ) : ?>
 		<li class="jetpack-search-filter__item jetpack-search-filter__item--skeleton">

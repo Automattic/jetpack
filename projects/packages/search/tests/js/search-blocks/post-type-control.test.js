@@ -1,10 +1,9 @@
 /**
- * Shared post-type scope control helpers.
+ * Post-type scope control helpers.
  *
  * The control's algorithmic surface (slug normalization, label
- * disambiguation, token→slug resolution) is unit-tested here; it's consumed by
- * both the `jetpack-search/filter-post-type` block and the
- * `jetpack-search/search-input` block's post-type setting.
+ * disambiguation, token→slug resolution) is unit-tested here; it's consumed
+ * by the `jetpack-search/search-input` block's post-type setting.
  */
 import {
 	sanitizeKey,

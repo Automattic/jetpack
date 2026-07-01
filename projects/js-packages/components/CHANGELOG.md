@@ -2,6 +2,64 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.12.13] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [1.12.12] - 2026-06-25
+### Fixed
+- Icon tooltip: Type `iconCode` as `ReactElement` so it matches the `@wordpress/icons` Icon and `@wordpress/ui` 0.15 type definitions. [#49795]
+
+## [1.12.11] - 2026-06-24
+### Removed
+- Remove deprecated Spinner component. Use Spinner from @wordpress/components instead. [#49856]
+
+## [1.12.10] - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+## [1.12.9] - 2026-06-22
+### Changed
+- Update package dependencies. [#49691] [#49757]
+
+## [1.12.8] - 2026-06-15
+### Changed
+- Update package dependencies. [#49631]
+
+## [1.12.7] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [1.12.6] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## [1.12.5] - 2026-06-08
+### Fixed
+- NavigatorModal: Keep the modal open when the control inside opens an external WP Modal. [#49389]
+
+## [1.12.4] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.12.3] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [1.12.2] - 2026-06-02
+### Changed
+- AdminPage: Ensure Hello Dolly doesn't require per-page overrides. [#48472]
+
+### Fixed
+- Pricing table: Render feature tooltips as a portal so they are no longer hidden behind the admin sidebar. [#49318]
+
+## [1.12.1] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404]
+
+### Fixed
+- PricingCard: Render the CTA with the @wordpress/ui Button (solid variant) so it shows correct button styling instead of unstyled text. [#49197]
+
 ## [1.12.0] - 2026-05-25
 ### Added
 - Add subpath exports for `Button`, `PricingTable`, and `ProductPrice` so they can be imported directly from bundles that cannot import the package barrel. [#49063]
@@ -1806,6 +1864,19 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.12.13]: https://github.com/Automattic/jetpack-components/compare/1.12.12...1.12.13
+[1.12.12]: https://github.com/Automattic/jetpack-components/compare/1.12.11...1.12.12
+[1.12.11]: https://github.com/Automattic/jetpack-components/compare/1.12.10...1.12.11
+[1.12.10]: https://github.com/Automattic/jetpack-components/compare/1.12.9...1.12.10
+[1.12.9]: https://github.com/Automattic/jetpack-components/compare/1.12.8...1.12.9
+[1.12.8]: https://github.com/Automattic/jetpack-components/compare/1.12.7...1.12.8
+[1.12.7]: https://github.com/Automattic/jetpack-components/compare/1.12.6...1.12.7
+[1.12.6]: https://github.com/Automattic/jetpack-components/compare/1.12.5...1.12.6
+[1.12.5]: https://github.com/Automattic/jetpack-components/compare/1.12.4...1.12.5
+[1.12.4]: https://github.com/Automattic/jetpack-components/compare/1.12.3...1.12.4
+[1.12.3]: https://github.com/Automattic/jetpack-components/compare/1.12.2...1.12.3
+[1.12.2]: https://github.com/Automattic/jetpack-components/compare/1.12.1...1.12.2
+[1.12.1]: https://github.com/Automattic/jetpack-components/compare/1.12.0...1.12.1
 [1.12.0]: https://github.com/Automattic/jetpack-components/compare/1.11.3...1.12.0
 [1.11.3]: https://github.com/Automattic/jetpack-components/compare/1.11.2...1.11.3
 [1.11.2]: https://github.com/Automattic/jetpack-components/compare/1.11.1...1.11.2

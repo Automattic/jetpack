@@ -198,7 +198,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 			$width   = ! empty( $instance['width'] ) ? $instance['width'] : 600;
 			$height  = ! empty( $instance['height'] ) ? $instance['height'] : 480;
-			$output .= '<amp-twitter' . $data_attrs . ' layout="responsive" data-timeline-source-type="profile" data-timeline-screen-name="' . esc_attr( $widget_id ) . '" width="' . absint( $width ) . '" height="' . absint( $height ) . '">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$output .= '<amp-twitter' . $data_attrs . ' layout="responsive" data-timeline-source-type="profile" data-timeline-screen-name="' . esc_attr( $widget_id ) . '" width="' . absint( $width ) . '" height="' . absint( $height ) . '">';
 			$output .= esc_html( $timeline_placeholder ) . '</amp-twitter>';
 
 			echo $output . $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -208,7 +208,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		// Start tag output
 		// This tag is transformed into the widget markup by Twitter's
 		// widgets.js code.
-		$output .= '<a class="twitter-timeline"' . $data_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		$output .= '<a class="twitter-timeline"' . $data_attrs;
 		switch ( $type ) {
 			case 'profile':
 				$output .= ' href="https://twitter.com/' . esc_attr( $widget_id ) . '"';

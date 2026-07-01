@@ -62,7 +62,7 @@ export default function ContentCreationCard(): JSX.Element {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title>{ __( 'Content creation', 'jetpack-publicize-pkg' ) }</Card.Title>
+				<Card.Title>{ __( 'Social Notes', 'jetpack-publicize-pkg' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="lg">

@@ -71,3 +71,11 @@
 .jetpack-newsletter__detail-link {
 	word-break: break-all;
 }
+
+// Comp modal body. The dialog content is a scroll area (`overflow: auto`),
+// which clips the focus ring of the last control — the "Doesn't expire"
+// checkbox — as it sits flush against the bottom edge. Reserve a little space
+// so the ring renders in full.
+.jetpack-newsletter__comp-modal-body {
+	padding-bottom: var(--wpds-dimension-padding-xs, 4px);
+}

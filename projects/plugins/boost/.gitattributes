@@ -22,11 +22,9 @@ vendor/wikimedia/aho-corasick/**                production-include
 /app/assets/src/**                              production-exclude
 /app/assets/dist/**/*.js.map                    production-exclude
 /docs/**                                        production-exclude
-/vendor/automattic/jetpack-autoloader/**        production-exclude
-/vendor/automattic/jetpack-composer-plugin/**   production-exclude
-/vendor/automattic/jetpack-test-environment/**  production-exclude
 /.editorconfig                                  production-exclude
 /.prettierrc.js                                 production-exclude
 /README.md                                      production-exclude
 /rollup.config.js                               production-exclude
 /rollup-tsconfig.json                           production-exclude
+/tsconfig.eslint.json                           production-exclude

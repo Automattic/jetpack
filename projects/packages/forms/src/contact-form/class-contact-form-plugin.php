@@ -621,10 +621,6 @@ class Contact_Form_Plugin {
 						unset( $atts['default'] );
 					}
 
-					if ( ! isset( $atts['showCountrySelector'] ) || ! $atts['showCountrySelector'] ) {
-						unset( $atts['default'] );
-					}
-
 					$input_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses']  = 'wp-block-jetpack-input';
 					$atts['inputclasses'] .= isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
@@ -952,6 +948,7 @@ class Contact_Form_Plugin {
 		$processor = new \WP_HTML_Tag_Processor( $button_blocks_html );
 
 		$processor->next_tag();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally bumping cursor to next tag.
 		$processor->next_tag();
 
 		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
@@ -1374,15 +1371,7 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_file( $atts, $content, $block ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file', $block );
-		// Create wrapper div for the file field
-		$output = '<div class="jetpack-form-file-field">';
-
-		// Render the file field
-		$output .= Contact_Form::parse_contact_field( $atts, $content );
-
-		$output .= '</div>';
-
-		return $output;
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 	/**
 	 * Render the dropzone field.
@@ -1639,11 +1628,9 @@ class Contact_Form_Plugin {
 		// Add a filter to replace tokens in the subject field with sanitized field values.
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Checked below for logged-in users only, see https://plugins.trac.wordpress.org/ticket/1859
 		$id   = isset( $_POST['contact-form-id'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) : null;
 		$hash = isset( $_POST['contact-form-hash'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-hash'] ) ) : null;
 		$hash = is_string( $hash ) ? preg_replace( '/[^\da-f]/i', '', $hash ) : $hash;
-		// phpcs:enable
 
 		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
 			return Form_Submission_Error::system_error( 'invalid_form_id_or_hash', __( 'Invalid form ID or hash.', 'jetpack-forms' ) );
@@ -1686,15 +1673,10 @@ class Contact_Form_Plugin {
 				Post_To_Url::init();
 			}
 
-			// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
-			if ( ! empty( $form->attributes['postToUrl'] ) ) {
-				// webhooks should be a collection.
-				// Turn postToUrl into a collection and merge with existing webhooks.
-				$form->attributes['webhooks'] = array_merge(
-					$form->attributes['webhooks'] ?? array(),
-					array( $form->attributes['postToUrl'] )
-				);
-			}
+			// Outbound destinations declared in the form content are only honored when the
+			// source post author is allowed to configure them. Filter-supplied webhooks
+			// (applied below) are exempt, so this runs before the filter.
+			$this->reconcile_content_destinations( $form );
 
 			/**
 			 * Filters the list of extra webhooks to be called when a form is submitted.
@@ -1927,17 +1909,11 @@ class Contact_Form_Plugin {
 			Post_To_Url::init();
 		}
 
-		// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
-		if ( ! empty( $form->attributes['postToUrl'] ) ) {
-			// webhooks should be a collection.
-			// Turn postToUrl into a collection and merge with existing webhooks.
-			$form->attributes['webhooks'] = array_merge(
-				$form->attributes['webhooks'] ?? array(),
-				array( $form->attributes['postToUrl'] )
-			);
-		}
+		// Outbound destinations declared in the form content are only honored when the
+		// source post author is allowed to configure them.
+		$this->reconcile_content_destinations( $form );
 
-		if ( ! empty( $form->attributes['webhooks'] ) ) {
+		if ( Jetpack_Forms::is_webhooks_enabled() && ! empty( $form->attributes['webhooks'] ) ) {
 			Form_Webhooks::init();
 		}
 
@@ -2021,6 +1997,54 @@ class Contact_Form_Plugin {
 			)
 		);
 		die();
+	}
+
+	/**
+	 * Enforcement point for outbound-destination authorization on a submitted form.
+	 *
+	 * Destinations declared in the form content — webhooks, the legacy postToUrl attribute and
+	 * the Salesforce integration — are kept only when whoever placed the form had an
+	 * administrator-level capability (an admin author for post/page forms, or the
+	 * `edit_theme_options` required to author block templates, template parts and widgets);
+	 * otherwise they are removed from the form attributes in place, before the submission
+	 * is processed and the Form_Webhooks / Post_To_Url services read those attributes. The
+	 * mutation is safe because nothing re-reads the original attribute values within the request
+	 * and the form attributes are not persisted after this point.
+	 *
+	 * Webhooks supplied via the jetpack_forms_extra_webhooks filter (JWT submissions only) are
+	 * applied by the caller afterwards and are never affected here.
+	 *
+	 * @param Contact_Form $form The form whose attributes may be modified in place.
+	 */
+	private function reconcile_content_destinations( Contact_Form $form ) {
+		if ( empty( $form->attributes['webhooks'] )
+			&& empty( $form->attributes['postToUrl'] )
+			&& empty( $form->attributes['salesforceData'] ) ) {
+			return;
+		}
+
+		$source = $form->get_source();
+		if ( ! Jetpack_Forms::should_honor_content_destinations( $source->get_id(), $source->get_source_type() ) ) {
+			// Drop every content-configured destination before the services read them.
+			// postToUrl and salesforceData are read directly by Post_To_Url.
+			$form->attributes['webhooks']       = array();
+			$form->attributes['postToUrl']      = array();
+			$form->attributes['salesforceData'] = null;
+
+			/** This action is documented already in this file. */
+			do_action( 'jetpack_forms_log', 'content_destinations_dropped', 'author_unauthorized' );
+			return;
+		}
+
+		// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
+		if ( ! empty( $form->attributes['postToUrl'] ) ) {
+			// webhooks should be a collection.
+			// Turn postToUrl into a collection and merge with existing webhooks.
+			$form->attributes['webhooks'] = array_merge(
+				$form->attributes['webhooks'] ?? array(),
+				array( $form->attributes['postToUrl'] )
+			);
+		}
 	}
 
 	/**
@@ -3714,9 +3738,8 @@ class Contact_Form_Plugin {
 				}
 			}
 
-			array_shift( $lines ); // Array
-			array_shift( $lines ); // (
-			array_pop( $lines ); // )
+			array_splice( $lines, 0, 2 ); // Remove first two items: 'Array' and '('.
+			array_pop( $lines ); // Remove last item: ')'.
 			$print_r_output = implode( "\n", $lines );
 
 			// make sure we only match stuff with 4 preceding spaces (stuff for this array and not a nested one

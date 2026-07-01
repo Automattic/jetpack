@@ -11,12 +11,6 @@ function filterOptions( options = [], maxResults = 10 ) {
 	for ( let i = 0; i < options.length; i++ ) {
 		const option = options[ i ];
 
-		// Merge label into keywords
-		let { keywords = [] } = option;
-		if ( 'string' === typeof option.label ) {
-			keywords = [ ...keywords, option.label ];
-		}
-
 		filtered.push( option );
 
 		// Abort early if max reached

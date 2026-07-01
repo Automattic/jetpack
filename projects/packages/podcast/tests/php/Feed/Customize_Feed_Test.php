@@ -38,8 +38,27 @@ class Customize_Feed_Test extends BaseTestCase {
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
 		Jetpack_Options::delete_option( 'id' );
+		wp_cache_flush();
 		unset( $GLOBALS['post'] );
 		parent::tearDown();
+	}
+
+	/**
+	 * WorDBless lacks term-taxonomy plumbing, so seed the `terms` object cache
+	 * with a fully-formed `WP_Term` directly — `get_category()` short-circuits
+	 * to that before falling through to its DB query.
+	 */
+	private function seed_category_term( int $id ): void {
+		$term = new WP_Term(
+			(object) array(
+				'term_id'          => $id,
+				'name'             => 'Podcast',
+				'slug'             => 'podcast-' . $id,
+				'taxonomy'         => 'category',
+				'term_taxonomy_id' => $id,
+			)
+		);
+		wp_cache_set( $id, $term, 'terms' );
 	}
 
 	/**
@@ -119,6 +138,16 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( '<itunes:category text="Technology">', $xml );
 		$this->assertStringContainsString( '<itunes:category text="Tech News" />', $xml );
+	}
+
+	public function test_category_tag_translates_renamed_sports_subcategories() {
+		$football = Customize_Feed::category_tag( 'Sports,Football' );
+		$this->assertStringContainsString( '<itunes:category text="Sports">', $football );
+		$this->assertStringContainsString( '<itunes:category text="American Football" />', $football );
+
+		$soccer = Customize_Feed::category_tag( 'Sports,Soccer' );
+		$this->assertStringContainsString( '<itunes:category text="Sports">', $soccer );
+		$this->assertStringContainsString( '<itunes:category text="Football (Soccer)" />', $soccer );
 	}
 
 	public function test_resolve_category_id_returns_zero_when_nothing_configured() {
@@ -314,6 +343,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	public function test_resolve_category_id_prefers_numeric_id_over_archive_slug() {
+		$this->seed_category_term( 17 );
 		update_option( 'podcasting_category_id', 17 );
 		update_option( 'podcasting_archive', 'unrelated-slug' );
 
@@ -321,6 +351,39 @@ class Customize_Feed_Test extends BaseTestCase {
 		// find no term, and return 0 — so the assertion below covers both
 		// "right answer" and "took the right code path".
 		$this->assertSame( 17, Customize_Feed::resolve_category_id() );
+	}
+
+	/**
+	 * A numeric ID whose term no longer exists means "not configured" — the
+	 * `podcasting_archive` slug must NOT be consulted as a fallback, even
+	 * when it would resolve.
+	 */
+	public function test_resolve_category_id_returns_zero_when_stored_category_deleted() {
+		update_option( 'podcasting_category_id', 12345 ); // No such term seeded.
+
+		// A resolvable slug that must be ignored on the deleted-ID path.
+		$callback = static function ( $terms, $query ) {
+			if ( isset( $query->query_vars['slug'] ) && 'resolvable-slug' === $query->query_vars['slug'][0] ) {
+				return array(
+					new WP_Term(
+						(object) array(
+							'term_id'  => 777,
+							'slug'     => 'resolvable-slug',
+							'name'     => 'Podcast',
+							'taxonomy' => 'category',
+						)
+					),
+				);
+			}
+			return $terms;
+		};
+		add_filter( 'terms_pre_query', $callback, 10, 2 );
+
+		update_option( 'podcasting_archive', 'resolvable-slug' );
+
+		$this->assertSame( 0, Customize_Feed::resolve_category_id() );
+
+		remove_filter( 'terms_pre_query', $callback, 10 );
 	}
 
 	public function test_output_namespaces_declares_itunes_and_podcast() {
@@ -349,6 +412,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	public function test_filter_posts_with_enclosure_passes_through_when_queried_term_does_not_match() {
+		$this->seed_category_term( 17 );
 		update_option( 'podcasting_category_id', 17 );
 
 		$posts = array( new WP_Post( (object) array( 'ID' => 1 ) ) );
@@ -358,6 +422,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	public function test_filter_posts_with_enclosure_drops_posts_without_enclosure_meta() {
+		$this->seed_category_term( 17 );
 		update_option( 'podcasting_category_id', 17 );
 
 		$with_enclosure    = new WP_Post( (object) array( 'ID' => 100 ) );
@@ -493,57 +558,25 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'type="application/json+chapters"', $output );
 	}
 
-	public function test_filter_excerpt_to_manual_only_returns_manual_excerpt() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 101,
-				'post_excerpt' => 'A manually written episode summary.',
-				'post_content' => '<p>Body content that should be ignored.</p>',
-			)
-		);
-
-		$this->assertSame(
-			'A manually written episode summary.',
-			Customize_Feed::filter_excerpt_to_manual_only()
-		);
-	}
-
-	public function test_filter_excerpt_to_manual_only_returns_empty_when_no_manual_excerpt() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 102,
-				'post_excerpt' => '',
-				'post_content' => '<p>Body paragraph that should NOT leak into description.</p><h2>A heading</h2>',
-			)
-		);
-
-		$this->assertSame( '', Customize_Feed::filter_excerpt_to_manual_only() );
-	}
-
-	public function test_filter_excerpt_to_manual_only_handles_missing_post() {
-		global $post;
-		$post = null;
-
-		$this->assertSame( '', Customize_Feed::filter_excerpt_to_manual_only() );
-	}
-
 	public function test_output_item_tags_uses_manual_excerpt_for_itunes_summary() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 103,
-				'post_type'    => 'post',
+		$post_id = wp_insert_post(
+			array(
 				'post_title'   => 'Episode with Excerpt',
+				'post_status'  => 'publish',
 				'post_excerpt' => 'Authored summary for this episode.',
 				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /-->',
 			)
 		);
 
+		global $post;
+		$post = get_post( $post_id );
+		setup_postdata( $post );
+
 		ob_start();
 		Customize_Feed::output_item_tags();
 		$output = (string) ob_get_clean();
+
+		wp_reset_postdata();
 
 		$this->assertStringContainsString(
 			'<itunes:summary>Authored summary for this episode.</itunes:summary>',
@@ -551,23 +584,32 @@ class Customize_Feed_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_output_item_tags_omits_itunes_summary_when_no_manual_excerpt() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 104,
-				'post_type'    => 'post',
-				'post_title'   => 'Episode without Excerpt',
+	/**
+	 * No manual excerpt → `<itunes:summary>` mirrors WP's auto excerpt, which drops the player block and keeps only prose.
+	 */
+	public function test_output_item_tags_uses_auto_excerpt_when_no_manual_excerpt() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Episode without Show notes',
+				'post_status'  => 'publish',
 				'post_excerpt' => '',
-				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /--><p>Body content.</p>',
+				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /--><p>Body prose that listeners should see.</p>',
 			)
 		);
+
+		global $post;
+		$post = get_post( $post_id );
+		setup_postdata( $post );
 
 		ob_start();
 		Customize_Feed::output_item_tags();
 		$output = (string) ob_get_clean();
 
-		$this->assertStringNotContainsString( '<itunes:summary>', $output );
-		$this->assertStringNotContainsString( 'Body content', $output );
+		wp_reset_postdata();
+
+		$this->assertStringContainsString( '<itunes:summary>', $output );
+		$this->assertStringContainsString( 'Body prose that listeners should see.', $output );
+		$this->assertStringNotContainsString( 'mediaUrl', $output );
+		$this->assertStringNotContainsString( 'example.com/ep.mp3', $output );
 	}
 }

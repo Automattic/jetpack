@@ -125,6 +125,21 @@
 	color: #888;
 }
 
+.bw-help-link {
+	display: block;
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid #f0f0f0;
+	font-size: 13px;
+	color: var(--wp-components-color-accent, #3858e9);
+	text-decoration: none;
+}
+
+.bw-help-link:hover,
+.bw-help-link:focus {
+	text-decoration: underline;
+}
+
 .bw-back {
 	font-size: 22px;
 	color: #999;
@@ -173,7 +188,7 @@
 
 .bw-btn:disabled {
 	opacity: 0.5;
-	cursor: not-allowed;
+	cursor: progress;
 }
 
 .bw-btn-draft {
@@ -188,12 +203,12 @@
 }
 
 .bw-btn-publish {
-	background: #2171b1;
+	background: var(--wp-components-color-accent, #3858e9);
 	color: #fff;
 }
 
 .bw-btn-publish:hover:not(:disabled) {
-	background: #1a5f99;
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
 }
 
 /* "More options" dropdown to the right of Publish/Update */
@@ -662,12 +677,12 @@
 }
 
 .bw-link-input:focus {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
 }
 
 .bw-link-apply {
 	border: none;
-	background: #2171b1;
+	background: var(--wp-components-color-accent, #3858e9);
 	color: #fff;
 	border-radius: 6px;
 	padding: 6px 12px;
@@ -1123,14 +1138,14 @@
 /* ===== Custom caret ===== */
 .bw-content,
 .bw-title {
-	caret-color: #2171b1;
+	caret-color: var(--wp-components-color-accent, #3858e9);
 }
 
 /* ===== Custom selection ===== */
 .bw-content ::selection,
 .bw-content::selection,
 .bw-title::selection {
-	background: rgba(33, 113, 177, 0.15);
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 15%, transparent);
 	color: inherit;
 }
 
@@ -1138,17 +1153,21 @@
    Slightly stronger than ::selection to visually distinguish it
    as a "target" indicator rather than an active text selection. */
 ::highlight(bw-link-highlight) {
-	background-color: rgba(33, 113, 177, 0.25);
+	background-color: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 25%, transparent);
 	color: inherit;
 }
 
 /* Content area */
+.bw-content,
+.bw-content-inner {
+	outline: none;
+}
+
 .bw-content {
 	min-height: 60vh;
 	font-size: 1.125rem;
 	line-height: 1.8;
 	color: #333;
-	outline: none;
 	overflow-wrap: break-word;
 	word-break: normal;
 	text-wrap: stable;
@@ -1173,6 +1192,39 @@
 	left: 0;
 	color: #ccc;
 	pointer-events: none;
+}
+
+/* Horizontal drop indicator on the block where a dragged image will land.
+   `--before` draws above the block; `--after` draws below. */
+.bw-content .bw-drop-target--before,
+.bw-content .bw-drop-target--after {
+	position: relative;
+}
+
+.bw-content .bw-drop-target--before::before,
+.bw-content .bw-drop-target--after::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: var(--studio-blue-50, #1d4fc4);
+	border-radius: 2px;
+	pointer-events: none;
+}
+
+.bw-content .bw-drop-target--before::before {
+	top: -2px;
+}
+
+.bw-content .bw-drop-target--after::after {
+	bottom: -2px;
+}
+
+/* Pre-upload placeholder figure: dim the locally-previewed image while
+   the upload is in flight, then snap back once the real URL is in place. */
+.bw-content .bw-image-figure.bw-image-uploading img {
+	opacity: 0.5;
 }
 
 .bw-content p {
@@ -1238,14 +1290,14 @@
 }
 
 .bw-content a {
-	color: #2171b1;
+	color: var(--wp-components-color-accent, #3858e9);
 	text-decoration: underline;
 	text-underline-offset: 2px;
 	transition: color 0.15s ease;
 }
 
 .bw-content a:hover {
-	color: #1a5f99;
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
 }
 
 .bw-content strong,
@@ -1300,6 +1352,12 @@
 	padding: 0;
 	position: relative;
 	text-align: center;
+
+	/* Each figure clears any prior float so floated figures stack vertically
+	 * in the editor and a later figure's bounding box can't overlap a
+	 * floated image above it (which would otherwise break hover targeting
+	 * for the Edit pencil and other controls). */
+	clear: both;
 }
 
 /* Image size presets.
@@ -1334,6 +1392,47 @@
 	height: auto;
 }
 
+/* Image alignment.  Every image gets an explicit aligncenter / alignleft /
+ * alignright class — themes (and the published post) key off these for
+ * positioning, and we want predictable round-trip with the block editor.
+ *
+ * Float-based wrap on alignleft / alignright comes from wp-admin's core
+ * editor stylesheet which is inherited here.  We let it apply: text wraps
+ * around aligned images in the editor preview just as it will in the
+ * published post.  The rules below add fallback margin/text-align so the
+ * positioning is still correct on contexts where the core editor.css is
+ * not loaded. */
+.bw-content figure.aligncenter,
+.bw-content .bw-image-figure.aligncenter {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.bw-content figure.alignleft,
+.bw-content .bw-image-figure.alignleft {
+	margin-left: 0;
+	margin-right: auto;
+	text-align: left;
+}
+
+.bw-content figure.alignleft img,
+.bw-content .bw-image-figure.alignleft img {
+	margin-left: 0;
+}
+
+.bw-content figure.alignright,
+.bw-content .bw-image-figure.alignright {
+	margin-left: auto;
+	margin-right: 0;
+	text-align: right;
+}
+
+.bw-content figure.alignright img,
+.bw-content .bw-image-figure.alignright img {
+	margin-right: 0;
+}
+
 /* Center images horizontally inside the figure.  For sized figures the
  * img already fills the figure box, so this is a no-op visually; for
  * URL-pasted (non-sized) figures it centers a smaller-than-parent img. */
@@ -1342,10 +1441,17 @@
 	margin-right: auto;
 }
 
+/* The controls wrapper hugs the image, not the figure, so the floating
+ * buttons anchor to the visible image edges.  Without this, sizes where the
+ * image's natural width is smaller than the figure's CSS width (notably
+ * Medium, where a 300px image sits inside a 50%-of-content-area figure) push
+ * the bottom-left and bottom-right buttons past the image bounds. */
 .bw-content figure .bw-img-controls,
 .bw-content .bw-image-figure .bw-img-controls {
 	position: relative;
-	display: block;
+	display: inline-block;
+	max-width: 100%;
+	vertical-align: top;
 }
 
 .bw-content figure .bw-img-delete,
@@ -1387,66 +1493,11 @@
 	background: rgba(214, 54, 56, 0.85);
 }
 
-/* Alt text button */
-.bw-img-alt {
-	position: absolute;
-	bottom: 10px;
-	left: 10px;
-	padding: 4px 10px;
-	border-radius: 4px;
-	background: rgba(0, 0, 0, 0.6);
-	backdrop-filter: blur(4px);
-	color: #fff;
-	border: none;
-	font-size: 11px;
-	font-weight: 700;
-	letter-spacing: 0.05em;
-	cursor: pointer;
-	opacity: 0;
-	transform: scale(0.8);
-	transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
-	z-index: 5;
-}
-
-.bw-img-controls:hover .bw-img-alt,
-.bw-img-controls:focus-within .bw-img-alt {
-	opacity: 1;
-	transform: scale(1);
-}
-
-.bw-img-alt:hover {
-	background: rgba(33, 113, 177, 0.85);
-}
-
-/* Alt text inline input */
-.bw-img-alt-input {
-	position: absolute;
-	bottom: 10px;
-	left: 10px;
-	right: 10px;
-	z-index: 6;
-	padding: 8px 12px;
-	border: none;
-	border-radius: 6px;
-	background: rgba(0, 0, 0, 0.7);
-	backdrop-filter: blur(8px);
-	color: #fff;
-	font-size: 13px;
-	font-family: inherit;
-	outline: none;
-	box-sizing: border-box;
-	animation: bw-fade-in 0.12s ease;
-}
-
-.bw-img-alt-input::placeholder {
-	color: rgba(255, 255, 255, 0.5);
-}
-
-/* Caption button */
+/* Caption button — leftmost bottom control. */
 .bw-img-caption-btn {
 	position: absolute;
 	bottom: 10px;
-	left: 60px;
+	left: 10px;
 	padding: 4px 10px;
 	border-radius: 4px;
 	background: rgba(0, 0, 0, 0.6);
@@ -1469,86 +1520,49 @@
 }
 
 .bw-img-caption-btn:hover {
-	background: rgba(33, 113, 177, 0.85);
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 85%, transparent);
 }
 
-/* Size button — mirrors .bw-img-caption-btn styling, sits to its right. */
-.bw-img-size {
+/* Edit (pencil) button — opens the image properties modal. Anchored to the
+ * bottom-right so it doesn't stack horizontally with Caption on narrow
+ * images (RSM-3980). */
+.bw-img-edit {
 	position: absolute;
 	bottom: 10px;
-	left: 130px;
-	padding: 4px 10px;
+	right: 10px;
+	width: 28px;
+	height: 24px;
+	padding: 0;
 	border-radius: 4px;
 	background: rgba(0, 0, 0, 0.6);
 	backdrop-filter: blur(4px);
 	color: #fff;
 	border: none;
-	font-size: 11px;
-	font-weight: 600;
 	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	opacity: 0;
 	transform: scale(0.8);
 	transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
 	z-index: 5;
 }
 
-.bw-img-controls:hover .bw-img-size,
-.bw-img-controls:focus-within .bw-img-size {
+.bw-img-edit .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+}
+
+.bw-img-controls:hover .bw-img-edit,
+.bw-img-controls:focus-within .bw-img-edit {
 	opacity: 1;
 	transform: scale(1);
 }
 
-.bw-img-size:hover {
-	background: rgba(33, 113, 177, 0.85);
-}
-
-.bw-img-size-menu {
-	position: absolute;
-	bottom: 40px;
-	left: 130px;
-	z-index: 6;
-	background: rgba(0, 0, 0, 0.8);
-	backdrop-filter: blur(8px);
-	border-radius: 6px;
-	padding: 4px;
-	min-width: 110px;
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-	animation: bw-fade-in 0.12s ease;
-}
-
-.bw-img-size-menu[hidden] {
-	display: none;
-}
-
-.bw-img-size-option {
-	display: block;
-	width: 100%;
-	padding: 6px 10px 6px 24px;
-	border: none;
-	border-radius: 4px;
-	background: transparent;
-	text-align: start;
-	cursor: pointer;
-	font-family: inherit;
-	font-size: 12px;
-	color: #fff;
-	position: relative;
-	transition: background 0.1s ease;
-}
-
-.bw-img-size-option:hover {
-	background: rgba(255, 255, 255, 0.15);
-}
-
-.bw-img-size-option[aria-checked="true"] {
-	font-weight: 700;
-}
-
-.bw-img-size-option[aria-checked="true"]::before {
-	content: "✓";
-	position: absolute;
-	left: 8px;
-	font-weight: 700;
+.bw-img-edit:hover {
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 85%, transparent);
 }
 
 /* Figcaption.
@@ -1608,6 +1622,14 @@
 	border-radius: 4px;
 }
 
+/* Edit panel target: shows which figure the floating edit panel is currently
+ * pointed at, so switching panels between images is visually clear. */
+.bw-figure-editing {
+	outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: 6px;
+	border-radius: 4px;
+}
+
 /* Gap paragraphs between non-editable blocks */
 .bw-block-gap {
 	height: 4px;
@@ -1618,6 +1640,14 @@
 }
 
 /* ===== Image modal ===== */
+
+/* Lock page scroll while the Add image modal is open so the editor doesn't
+ * slide under the dimmed backdrop. The non-modal Edit image panel doesn't
+ * set this class — the editor stays scrollable while editing an image. */
+body.bw-modal-open {
+	overflow: hidden;
+}
+
 .bw-image-overlay {
 	position: fixed;
 	inset: 0;
@@ -1625,8 +1655,15 @@
 	background: rgba(0, 0, 0, 0.4);
 	backdrop-filter: blur(4px);
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: center;
+
+	/* Anchor the modal below the disclaimer banner (~56px) + toolbar (~88px
+	 * incl. its shifted top), with a small breathing gap. Pairs with the
+	 * modal's max-height: calc(100vh - 200px) so the modal can't grow
+	 * behind the toolbar even when both expanders + a preview are open. */
+	padding: 168px 0 32px;
+	box-sizing: border-box;
 	animation: bw-fade-in 0.15s ease;
 }
 
@@ -1640,6 +1677,15 @@
 	padding: 32px;
 	width: 420px;
 	max-width: 90vw;
+
+	/* Hard cap below "banner + toolbar height + bottom breathing room" so the
+	 * modal never grows behind the toolbar. With the disclaimer banner
+	 * visible the toolbar's bottom sits at ~144px; we leave ~24px of air
+	 * above and below the modal — anything taller scrolls internally.
+	 * border-box so max-height includes the padding. */
+	box-sizing: border-box;
+	max-height: calc(100vh - 200px);
+	overflow-y: auto;
 	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
 }
 
@@ -1675,8 +1721,8 @@
 .bw-upload-zone:hover,
 .bw-upload-zone.bw-drag-over,
 .bw-upload-zone:focus-within {
-	border-color: #2171b1;
-	color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
+	color: var(--wp-components-color-accent, #3858e9);
 }
 
 /* Water fill animation */
@@ -1687,7 +1733,7 @@
 	left: 0;
 	right: 0;
 	height: 0%;
-	background: linear-gradient(180deg, rgba(33, 113, 177, 0.08) 0%, rgba(33, 113, 177, 0.18) 100%);
+	background: linear-gradient(180deg, color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 8%, transparent) 0%, color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 18%, transparent) 100%);
 	z-index: 1;
 	transition: height 0.4s ease-out;
 	border-radius: 0 0 6px 6px;
@@ -1704,19 +1750,19 @@
 	z-index: 1;
 	background: transparent;
 	border-radius: 50%;
-	box-shadow: 0 -4px 8px rgba(33, 113, 177, 0.12);
+	box-shadow: 0 -4px 8px color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 12%, transparent);
 	transition: bottom 0.4s ease-out;
 	opacity: 0;
 }
 
 .bw-upload-zone.bw-uploading {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
 	border-style: solid;
 	cursor: wait;
 }
 
 .bw-upload-zone.bw-uploading span {
-	color: #2171b1;
+	color: var(--wp-components-color-accent, #3858e9);
 	font-weight: 500;
 }
 
@@ -1770,22 +1816,177 @@
 	}
 }
 
+/* RSM-3983: when a preview is set, the upload zone grows to fit the image's
+ * natural aspect ratio (capped) and switches to contain so portrait/wide
+ * images aren't centre-cropped. The image is a normal flow child so its
+ * intrinsic height drives the zone height. */
 .bw-upload-preview {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
+	display: none;
+	max-width: 100%;
+	max-height: 320px;
+	width: auto;
+	height: auto;
+	object-fit: contain;
 	border-radius: 6px;
 	animation: bw-fade-in 0.2s ease;
-	position: absolute;
-	top: 0;
-	left: 0;
-	display: none;
+	background: #f3f4f6;
 }
 
 .bw-upload-has-preview {
 	border: none;
 	padding: 0;
 	overflow: hidden;
+	height: auto;
+	min-height: 160px;
+}
+
+.bw-library-section[hidden],
+.bw-url-section[hidden] {
+	display: none;
+}
+
+.bw-source-expanders {
+	margin-top: 20px;
+	border-top: 1px solid #f0f0f0;
+	padding-top: 8px;
+}
+
+.bw-source-expander + .bw-source-expander {
+	margin-top: 2px;
+}
+
+.bw-source-trigger {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 10px 0;
+	background: transparent;
+	border: none;
+	font-size: 14px;
+	color: #444;
+	cursor: pointer;
+	font-family: inherit;
+	text-align: left;
+	border-radius: 4px;
+}
+
+.bw-source-trigger:hover {
+	color: var(--wp-components-color-accent, #3858e9);
+}
+
+.bw-source-trigger:focus-visible {
+	outline: 2px solid var(--wp-components-color-accent, #3858e9);
+	outline-offset: 2px;
+}
+
+.bw-source-chevron {
+	display: inline-block;
+	width: 0;
+	height: 0;
+	border-left: 5px solid currentColor;
+	border-top: 4px solid transparent;
+	border-bottom: 4px solid transparent;
+	transition: transform 0.15s ease;
+	flex-shrink: 0;
+}
+
+.bw-source-trigger[aria-expanded="true"] .bw-source-chevron {
+	transform: rotate(90deg);
+}
+
+.bw-library-section,
+.bw-url-section {
+	padding: 6px 0 10px;
+	animation: bw-fade-in 0.18s ease;
+}
+
+.bw-library-search {
+	width: 100%;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 10px 14px;
+	font-size: 14px;
+	outline: none;
+	font-family: inherit;
+	box-sizing: border-box;
+	margin-bottom: 10px;
+}
+
+.bw-library-search:focus {
+	border-color: var(--wp-components-color-accent, #3858e9);
+}
+
+/* Single horizontally-scrolling row of thumbs. Browser-native scrollbar is
+ * thin and only appears on hover/scroll on macOS; keyboard users get
+ * scroll-into-view when a focused thumb reaches the edge.
+ */
+.bw-library-strip {
+	display: flex;
+	gap: 6px;
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding: 2px;
+	scrollbar-width: thin;
+	scroll-snap-type: x proximity;
+}
+
+.bw-library-strip:empty {
+	display: none;
+}
+
+.bw-library-thumb {
+	flex: 0 0 auto;
+	width: 64px;
+	height: 64px;
+	padding: 0;
+	border: 2px solid transparent;
+	border-radius: 6px;
+	background: #f3f4f6;
+	cursor: pointer;
+	overflow: hidden;
+	transition: border-color 0.15s ease, transform 0.1s ease;
+	scroll-snap-align: start;
+}
+
+.bw-library-thumb:hover {
+	border-color: #c7d7e8;
+}
+
+.bw-library-thumb:focus-visible {
+	border-color: var(--wp-components-color-accent, #3858e9);
+	outline: 2px solid var(--wp-components-color-accent, #3858e9);
+	outline-offset: 1px;
+}
+
+.bw-library-thumb:active {
+	transform: scale(0.97);
+}
+
+.bw-library-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.bw-library-status {
+	color: #777;
+	font-size: 13px;
+	margin-top: 8px;
+	min-height: 18px;
+}
+
+.bw-library-status:empty {
+	display: none;
+}
+
+@media (max-width: 480px) {
+
+	.bw-library-thumb {
+		width: 56px;
+		height: 56px;
+	}
 }
 
 .bw-image-divider {
@@ -1817,7 +2018,16 @@
 }
 
 .bw-image-url-input:focus {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
+}
+
+.bw-image-alt-input {
+	margin-top: 12px;
+}
+
+.bw-insert-image-btn {
+	width: 100%;
+	margin-top: 12px;
 }
 
 .bw-featured-toggle {
@@ -1831,10 +2041,154 @@
 }
 
 .bw-featured-toggle input[type="checkbox"] {
-	accent-color: #2171b1;
+	accent-color: var(--wp-components-color-accent, #3858e9);
 	width: 16px;
 	height: 16px;
 	cursor: pointer;
+}
+
+/* ===== Image edit panel =====
+ * Non-modal floating panel docked to the bottom-right on desktop, sliding up
+ * as a full-width bottom sheet on mobile. Lets the user keep seeing the
+ * image change as size/alignment are picked. */
+.bw-image-edit-panel {
+	position: fixed;
+	bottom: 24px;
+	right: 24px;
+	z-index: 300;
+	width: 320px;
+	max-width: calc(100vw - 48px);
+	background: #fff;
+	border-radius: 12px;
+	padding: 20px 24px 24px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
+	animation: bw-fade-in 0.15s ease;
+}
+
+.bw-image-edit-panel[hidden] {
+	display: none;
+}
+
+@media (max-width: 640px) {
+
+	.bw-image-edit-panel {
+		right: 0;
+		bottom: 0;
+		left: 0;
+		width: auto;
+		max-width: none;
+		border-radius: 12px 12px 0 0;
+		padding: 16px 16px max(20px, env(safe-area-inset-bottom));
+		box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
+		animation: bw-slide-up 0.2s ease;
+	}
+}
+
+@keyframes bw-slide-up {
+
+	from {
+		transform: translateY(100%);
+	}
+
+	to {
+		transform: translateY(0);
+	}
+}
+
+.bw-edit-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: 0 0 16px;
+	gap: 8px;
+}
+
+.bw-edit-panel-title {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+
+.bw-edit-panel-close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: #555;
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+
+.bw-edit-panel-close:hover,
+.bw-edit-panel-close:focus {
+	background: rgba(0, 0, 0, 0.06);
+	color: #1a1a1a;
+}
+
+.bw-edit-panel-done {
+	width: 100%;
+	margin-top: 16px;
+}
+
+/* Per-section label + radio-button row inside the edit panel. */
+.bw-edit-section {
+	margin-top: 16px;
+}
+
+.bw-edit-section[hidden] {
+	display: none;
+}
+
+.bw-edit-label {
+	display: block;
+	font-size: 12px;
+	font-weight: 600;
+	color: #555;
+	margin-bottom: 6px;
+	letter-spacing: 0.02em;
+}
+
+.bw-edit-radios {
+	display: flex;
+	gap: 4px;
+	background: #f3f4f6;
+	border-radius: 8px;
+	padding: 4px;
+}
+
+.bw-edit-size-option,
+.bw-edit-align-option {
+	flex: 1;
+	padding: 6px 10px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 13px;
+	color: #555;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+
+.bw-edit-size-option:hover,
+.bw-edit-align-option:hover {
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 8%, transparent);
+}
+
+.bw-edit-size-option[aria-checked="true"],
+.bw-edit-align-option[aria-checked="true"] {
+	background: #fff;
+	color: #1a1a1a;
+	font-weight: 600;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 /* ===== Post picker modal ===== */
@@ -1969,7 +2323,7 @@
 	width: 52px;
 	height: 52px;
 	border-radius: 50%;
-	background: #2171b1;
+	background: var(--wp-components-color-accent, #3858e9);
 	color: #fff;
 	font-size: 22px;
 	display: flex;
@@ -2100,4 +2454,43 @@
 		width: 100%;
 		flex: 1;
 	}
+}
+
+/*
+ * Anonymous (logged-out) Write editor: hide UI surfaces that have no working
+ * counterpart for a visitor without an authenticated session. The `bw-anon`
+ * class is added to <html> by view.js when window.wpcomWriteIsAnon is true.
+ * Hides pair with early-returns in view.js actions — CSS hides the affordance,
+ * JS guards programmatic call paths (e.g. slash menu) and any URL-bar reach.
+ */
+html.bw-anon .bw-back,
+html.bw-anon .bw-help-wrap,
+html.bw-anon .bw-more-wrap,
+html.bw-anon .bw-btn-draft,
+html.bw-anon .bw-disclaimer-banner,
+html.bw-anon .bw-toolbar [data-wp-on--click="actions.openImageModal"],
+html.bw-anon #bw-slash-opt-image,
+html.bw-anon .bw-unsupported-open-editor {
+	display: none !important;
+}
+
+/*
+ * Brand text on the left, "Not signed in" indicator before Publish. Both are
+ * injected by view.js when window.wpcomWriteIsAnon is true so they participate
+ * in the same i18n string table the editor already uses.
+ */
+.bw-anon-brand {
+	font-size: 13px;
+	font-weight: 500;
+	color: #1d2327;
+	white-space: nowrap;
+	margin-right: 8px;
+}
+
+.bw-anon-status {
+	font-size: 13px;
+	color: #757575;
+	white-space: nowrap;
+	align-self: center;
+	margin-right: 4px;
 }

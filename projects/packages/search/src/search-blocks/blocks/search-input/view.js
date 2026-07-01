@@ -1,4 +1,4 @@
-import { store, getContext, getElement } from '@wordpress/interactivity';
+import { store, getElement } from '@wordpress/interactivity';
 import 'jetpack-search/store';
 import {
 	clearSuggestionsContext,
@@ -40,30 +40,17 @@ function focusInputWithCursorAtEnd( input ) {
 }
 
 /**
- * Start/restart the debounced search. `staticPostTypes` is captured
- * synchronously by the caller — `getContext()` isn't available once the
- * debounce fires outside the element context.
+ * Start/restart the debounced search.
  *
- * @param {HTMLInputElement}                            input           - The input.
- * @param {{include: string[], exclude: string[]}|null} staticPostTypes - Input scope, or null.
+ * @param {HTMLInputElement} input - The input.
  */
-function scheduleSearch( input, staticPostTypes ) {
+function scheduleSearch( input ) {
 	clearTimeout( debounceTimers.get( input ) );
 	const timer = setTimeout( () => {
 		debounceTimers.delete( input );
-		store( NAMESPACE ).actions.search( { staticPostTypes } );
+		store( NAMESPACE ).actions.search();
 	}, SEARCH_DEBOUNCE_MS );
 	debounceTimers.set( input, timer );
-}
-
-/**
- * Per-input scope from `data-wp-context`. Null clears any prior scope and
- * falls back to the page-global seed.
- *
- * @return {{include: string[], exclude: string[]}|null} Scope or null.
- */
-function readPostTypeScope() {
-	return getContext()?.staticPostTypes ?? null;
 }
 
 /**
@@ -81,13 +68,11 @@ store( NAMESPACE, {
 		onSearchInput( event ) {
 			const { state } = store( NAMESPACE );
 			state.searchQuery = event.target.value;
-			// Capture scope synchronously (debounce fires outside element context).
-			const staticPostTypes = readPostTypeScope();
 			// `submitOnly` keeps state in sync but defers the API call until Enter.
 			if ( event.target.dataset.submitOnly === 'true' ) {
 				cancelPendingSearch( event.target );
 			} else {
-				scheduleSearch( event.target, staticPostTypes );
+				scheduleSearch( event.target );
 			}
 			// Short-circuits on non-suggestions inputs.
 			handleInputForSuggestions( event.target );
@@ -100,7 +85,7 @@ store( NAMESPACE, {
 			}
 			if ( event.key === 'Enter' ) {
 				cancelPendingSearch( event.target );
-				store( NAMESPACE ).actions.search( { staticPostTypes: readPostTypeScope() } );
+				store( NAMESPACE ).actions.search();
 			}
 		},
 
@@ -113,9 +98,7 @@ store( NAMESPACE, {
 			const { state, actions } = store( NAMESPACE );
 			state.searchQuery = '';
 			clearSuggestionsContext();
-			// Read scope before yield — `getContext()` needs the element context.
-			const staticPostTypes = readPostTypeScope();
-			yield actions.search( { staticPostTypes } );
+			yield actions.search();
 		},
 	},
 	callbacks: {

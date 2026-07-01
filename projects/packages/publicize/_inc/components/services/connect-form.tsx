@@ -1,11 +1,10 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useIsModernized } from '../../hooks/use-is-modernized';
 import { store } from '../../social-store';
-import { KeyringResult } from '../../social-store/types';
 import { CustomInputs } from './custom-inputs';
 import { ModernCustomInputs } from './custom-inputs-modern';
 import styles from './style.module.scss';
@@ -41,7 +40,7 @@ export function ConnectForm( {
 	compact,
 }: ConnectFormProps ) {
 	const isModernized = useIsModernized();
-	const { setKeyringResult } = useDispatch( store );
+	const { fetchKeyringResult, setKeyringResult, completeReconnect } = useDispatch( store );
 
 	// In the modernized chassis the submit button sits flush in a compact
 	// disclosure row unless it accompanies the custom-input fields. Legacy
@@ -53,6 +52,8 @@ export function ConnectForm( {
 
 	const { isConnectionsModalOpen } = useSelect( select => select( store ), [] );
 
+	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
+
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
 	const isFetchingServicesList = useSelect(
@@ -60,14 +61,29 @@ export function ConnectForm( {
 		[]
 	);
 
+	const isFetchingKeyringResult = useSelect(
+		select => select( store ).isFetchingKeyringResult(),
+		[]
+	);
+
 	const onConfirm = useCallback(
-		( result: KeyringResult ) => {
-			// Set the keyring result only if the modal is open
-			if ( isConnectionsModalOpen() ) {
+		async ( requestId: string ) => {
+			// Fetch the keyring result only if the modal is open.
+			if ( ! isConnectionsModalOpen() ) {
+				return;
+			}
+
+			const result = await fetchKeyringResult( requestId );
+
+			// If this completed an in-place reconnect (same account), it's already handled;
+			// otherwise surface the result so it drives the regular confirmation view.
+			const handled = await completeReconnect( result );
+
+			if ( ! handled && result?.ID ) {
 				setKeyringResult( result );
 			}
 		},
-		[ setKeyringResult, isConnectionsModalOpen ]
+		[ completeReconnect, fetchKeyringResult, isConnectionsModalOpen, setKeyringResult ]
 	);
 
 	const requestAccess = useRequestAccess( {
@@ -89,9 +105,10 @@ export function ConnectForm( {
 
 			const formData = new FormData( event.target as HTMLFormElement );
 
-			await requestAccess( formData );
+			// Reconnecting re-auths the existing account, so refresh its token in place.
+			await requestAccess( formData, { refresh: Boolean( reconnectingAccount ) } );
 		},
-		[ onSubmit, requestAccess ]
+		[ onSubmit, reconnectingAccount, requestAccess ]
 	);
 
 	return (
@@ -114,20 +131,25 @@ export function ConnectForm( {
 					variant={ hasConnections ? 'outline' : 'solid' }
 					size={ buttonSize }
 					type="submit"
-					disabled={ isFetchingServicesList }
+					disabled={ isFetchingServicesList || isFetchingKeyringResult }
 				>
 					{ ( label => {
 						if ( label ) {
 							return label;
 						}
 
-						if ( isFetchingServicesList && isConnecting ) {
+						if ( ( isFetchingServicesList || isFetchingKeyringResult ) && isConnecting ) {
 							return __( 'Connecting…', 'jetpack-publicize-pkg' );
 						}
 
-						return hasConnections
-							? _x( 'Connect more', '', 'jetpack-publicize-pkg' )
-							: __( 'Connect', 'jetpack-publicize-pkg' );
+						// Hold each label in its own variable and select with the
+						// ternary afterwards. Picking inline (`cond ? __( 'A' ) :
+						// __( 'B' )`) lets the minifier fold both branches into one
+						// `__( cond ? 'A' : 'B' )` call, which the i18n string
+						// extraction can no longer read.
+						const connectMoreLabel = __( 'Connect more', 'jetpack-publicize-pkg' );
+						const connectLabel = __( 'Connect', 'jetpack-publicize-pkg' );
+						return hasConnections ? connectMoreLabel : connectLabel;
 					} )( buttonLabel ) }
 				</Button>
 			</div>

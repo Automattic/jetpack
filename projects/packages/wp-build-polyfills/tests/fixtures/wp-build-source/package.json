@@ -1,5 +1,5 @@
 {
-	"name": "_strip-unminified-prod-fixture",
+	"name": "@automattic/_strip-unminified-prod-fixture",
 	"version": "0.0.0",
 	"private": true,
 	"description": "Minimal wp-build source tree used by strip-unminified-prod tests to exercise the bin against real wp-build output. Not a workspace member.",

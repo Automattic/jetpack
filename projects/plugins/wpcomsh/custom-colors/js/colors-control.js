@@ -131,11 +131,10 @@
 		},
 
 		resetHeaderTextColor: function () {
-			let color;
 			const picker = $( '#customize-control-header_textcolor' ).find( 'input.wp-color-picker' );
 
 			if ( picker.wpColorPicker ) {
-				picker.wpColorPicker( 'defaultColor' );
+				const color = picker.wpColorPicker( 'defaultColor' );
 
 				if ( api( 'header_textcolor' ).get() !== 'blank' ) {
 					picker.wpColorPicker( 'color', color );

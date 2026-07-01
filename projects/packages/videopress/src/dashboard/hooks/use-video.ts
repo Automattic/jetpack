@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { buildShortcode } from '../utils/format';
-import { privacyIntToString } from './use-library';
+import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY, privacyIntToString } from './use-library';
 import type { LibraryItem } from '../types/library';
 
 type ApiMediaItem = {
@@ -73,7 +73,7 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
  */
 export function useVideo( id: number | string ) {
 	const query = useQuery< LibraryItem >( {
-		queryKey: [ 'jetpack-videopress-library', 'item', String( id ) ],
+		queryKey: [ LIBRARY_QUERY_KEY, LIBRARY_ITEM_QUERY_SEGMENT, String( id ) ],
 		queryFn: async () => {
 			const raw = await apiFetch< ApiMediaItem >( { path: `/wp/v2/media/${ id }` } );
 			return toLibraryItem( raw );

@@ -1,4 +1,4 @@
-import { SVG, Path } from '@wordpress/components';
+import { Path, SVG } from '@wordpress/primitives';
 import { RATING_ICONS } from './rating-icons.js';
 
 /**

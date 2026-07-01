@@ -32,6 +32,10 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
 
+		// PCG confirmation probe wires its `pre_option_active_plugins`
+		// filter at mu-plugin time, before WP loads active plugins.
+		require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
 
@@ -100,6 +104,10 @@ class Jetpack_Mu_Wpcom {
 		// Both filters are needed: `default_option_` fires when the option doesn't exist in the DB, `option_` fires when it does.
 		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
 		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
+
+		// Enable the `gutenberg-react-19` Gutenberg experiment for sites with the `gutenberg-react-19` blog sticker.
+		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
+		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -283,6 +291,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
 		require_once __DIR__ . '/features/admin-color-schemes/admin-color-schemes.php';
+		require_once __DIR__ . '/features/ai-launchpad/ai-launchpad.php';
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
@@ -299,15 +308,14 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
+		require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
 		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
-		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-attachment-pages/wpcom-attachment-pages.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
 		require_once __DIR__ . '/features/wpcom-dashboard/class-wpcom-dashboard.php';
-		require_once __DIR__ . '/features/wpcom-hotfixes/wpcom-hotfixes.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
@@ -340,6 +348,7 @@ class Jetpack_Mu_Wpcom {
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad::init();
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Holiday_Snow::init();
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Dashboard::init();
 
@@ -362,9 +371,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
 			return;
 		}
-		if ( ! class_exists( 'A8C\FSE\Agents_Manager' ) ) {
-			require_once __DIR__ . '/features/agents-manager/class-agents-manager.php';
-		}
 		if ( ! class_exists( 'A8C\FSE\Survicate' ) ) {
 			require_once __DIR__ . '/features/survicate/class-survicate.php';
 		}
@@ -377,7 +383,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
-		require_once __DIR__ . '/features/wpcom-colourlovers-deprecate/wpcom-colourlovers-deprecate.php';
 		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';
@@ -406,10 +411,22 @@ class Jetpack_Mu_Wpcom {
 			\Automattic\Jetpack\Newsletter\Settings::init();
 		}
 
+		// Register the Daily Writing Prompt dashboard widget, which now lives in
+		// the jetpack-newsletter package. Guarded with class_exists for the same
+		// reason as Settings above: mu-wpcom doesn't composer-require the package.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
+		}
+
 		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
 			\Automattic\Jetpack\Masterbar\Main::init();
+		}
+
+		if ( class_exists( 'Automattic\Jetpack\Agents_Manager\Agents_Manager' ) ) {
+			\Automattic\Jetpack\Agents_Manager\Agents_Manager::init();
 		}
 	}
 
@@ -427,9 +444,7 @@ class Jetpack_Mu_Wpcom {
 		// Initialize the Podcast package here (rather than in
 		// load_wpcom_user_features) so feed-customization hooks register
 		// for anonymous requests too — Apple Podcasts / Spotify crawlers
-		// aren't logged in. Podcast::init() gates itself on host
-		// (Simple/WoA) and `jetpack_podcast_untangle`, so the legacy
-		// podcasting code keeps running until the flag flips.
+		// aren't logged in. Podcast::init() gates itself on host (Simple/WoA).
 		\Automattic\Jetpack\Podcast\Podcast::init();
 	}
 
@@ -810,6 +825,26 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Add `gutenberg-react-19` to the list of enabled Gutenberg experiments.
+	 * Only sites with the `gutenberg-react-19` blog sticker are opted in.
+	 *
+	 * @param mixed $experiments The current value of the gutenberg-experiments option.
+	 * @return mixed Original option value or the filtered experiments.
+	 */
+	public static function enable_gutenberg_react_19_experiment( $experiments ) {
+		if ( ! wpcom_has_blog_sticker( 'gutenberg-react-19', get_wpcom_blog_id() ) ) {
+			return $experiments;
+		}
+
+		if ( ! is_array( $experiments ) ) {
+			$experiments = array();
+		}
+
+		$experiments['gutenberg-react-19'] = true;
+		return $experiments;
+	}
+
+	/**
 	 * Add Jetpack script data with host information on P2
 	 *
 	 * @param array $data - The Jetpack script data.
@@ -858,7 +893,7 @@ class Jetpack_Mu_Wpcom {
 						require_once $log2logstash_path;
 					}
 				}
-			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- require_once can still throw (parse error / top-level fatal in the included file); fall through to the HTTP dispatch.
+			} catch ( \Throwable $e ) { // require_once can still throw (parse error / top-level fatal in the included file); fall through to the HTTP dispatch.
 				unset( $e );
 			}
 			$dispatch = function_exists( 'log2logstash' ) ? 'native' : 'http';
@@ -885,7 +920,7 @@ class Jetpack_Mu_Wpcom {
 			// POST guarantees delivery without adding latency to the
 			// user-visible response.
 			self::queue_logstash_http( $payload );
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal for the caller.
+		} catch ( \Throwable $e ) { // best-effort: a logging failure must never escalate into a fatal for the caller.
 			unset( $e );
 		}
 	}
@@ -939,7 +974,7 @@ class Jetpack_Mu_Wpcom {
 									'timeout' => 5,
 								)
 							);
-						} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal at shutdown.
+						} catch ( \Throwable $e ) { // best-effort: a logging failure must never escalate into a fatal at shutdown.
 							unset( $e );
 						}
 					}

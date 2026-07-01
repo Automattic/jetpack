@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.9-a.5
+Stable tag: 16.0-a.7
 Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
@@ -326,24 +326,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.9-a.5 - 2026-05-25
+### 16.0-a.7 - 2026-06-29
 #### Enhancements
-- Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded.
-- Donations Block: Add a "Tips" variation with coffee-themed defaults for creatives.
-- Donations block: Add modal display mode with trigger button, configurable icon, and animated overlay.
-- Donations Block: Record Tracks events for admin-side block adoption.
-- Jetpack AI Sidebar: Allow AI Editorial Review through the sidebar preview.
-- Newsletter: Enable the subscriptions module by default for all sites.
-- Reader Chat: Use Jetpack Search plan eligibility for the public opt-in loader.
-
-#### Improved compatibility
-- ActivityPub: Allow Jetpack-signed admin requests to reach the inbox, proxy, and outbox client-to-server endpoints used by the connected site's WordPress.com Reader, without an OAuth bearer.
+- Donations Block: Render the block in emails with email-friendly CTA buttons.
 
 #### Bug fixes
-- Forms: Fix a JavaScript error in the editor.
-- Jetpack AI Sidebar: Fix block editing when another agent provider is present.
-- Newsletter Categories: Stop returning a 400 response when saving the same category selection that's already stored.
-- Reader Chat: Prevent the frontend widget from loading on Coming Soon or unlaunched sites.
+- AI Agent Access: Correct module references in Shortlinks and Related Posts ability descriptions.
+- Archives shortcode: Cap the `postbypost` type with a filterable default limit to prevent memory exhaustion on large sites.
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active along with other Jetpack standalone plugins.
+- Forms: Sign file download links with an expiring token so they work for any logged-in editor.
+- Memberships: Delegate the Payment Request API to the checkout iframe so Apple Pay, Google Pay, and Stripe Link can load and complete payments.
+- Podcast: Load the package outside Jetpack's connection-gated module loader so the podcast feed and dashboard keep working when the site is disconnected.
+- Tiled Gallery: Fix an infinite resize loop when the block is inside a Row or Stack block.
+- Tiled Gallery: Keep the mosaic layout stable and split rows evenly between galleries when the block is inside a Row or Stack.
+- WhatsApp Button block: Fix icon and text overlapping in RTL languages.
 
 --------
 

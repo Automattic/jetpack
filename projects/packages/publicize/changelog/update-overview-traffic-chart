@@ -1,3 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Social modernization (flag-gated behind rsm_jetpack_ui_modernization_social): adds a Traffic-from-social-media chart to the modernized Overview tab. No user-facing change until the flag flips.

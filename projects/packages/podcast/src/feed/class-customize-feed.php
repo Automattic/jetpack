@@ -73,7 +73,6 @@ class Customize_Feed {
 		add_action( 'rss2_head', array( __CLASS__, 'output_channel_tags' ) );
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
-		add_filter( 'the_excerpt_rss', array( __CLASS__, 'filter_excerpt_to_manual_only' ) );
 
 		// Prune RSS chrome that podcatchers don't read. Cuts payload size and
 		// keeps incidental post data (body content, gravatar URLs, image EXIF,
@@ -92,23 +91,6 @@ class Customize_Feed {
 		remove_action( 'rss2_item', 'mrss_news_item' );
 
 		Feed_Detection::detect_and_record();
-	}
-
-	/**
-	 * Restrict per-item `<description>` (and the `<itunes:summary>` we mirror
-	 * from it) to the post's manual excerpt — never the auto-generated one.
-	 *
-	 * Default WP behavior pipes the post body through `wp_trim_excerpt()` when
-	 * the post has no manual excerpt, which leaks paragraph + heading text from
-	 * below the Podcast Episode block into the description that Apple Podcasts
-	 * and Spotify present to listeners. Authors with no excerpt set should see
-	 * an empty description, not a flattened body.
-	 *
-	 * @return string Manual excerpt, or empty string when none is set.
-	 */
-	public static function filter_excerpt_to_manual_only(): string {
-		global $post;
-		return $post instanceof WP_Post ? (string) $post->post_excerpt : '';
 	}
 
 	/**
@@ -214,9 +196,10 @@ class Customize_Feed {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
 		}
 
-		// Mirror what the `<description>` emits (manual excerpt, never the
-		// auto-generated body trim — see `filter_excerpt_to_manual_only()`).
-		$excerpt = self::filter_excerpt_to_manual_only();
+		// Re-applying `the_excerpt_rss` so `<itunes:summary>` matches whatever
+		// the item's `<description>` ends up emitting — `get_the_excerpt()`
+		// doesn't run the filter chain itself.
+		$excerpt = (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
 		if ( '' !== $excerpt ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
 		}
@@ -363,22 +346,13 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Show-level cover image URL. Prefers `podcasting_image_id` (resolves to
-	 * an attachment URL) when it points at an actual image attachment, falls
-	 * back to the raw `podcasting_image` URL. Routes through Photon at
-	 * 3000×3000 when available.
+	 * Show-level cover image URL — `Settings::raw_show_image_url()` routed
+	 * through Photon at 3000×3000 when available.
 	 *
 	 * @return string
 	 */
 	private static function show_image_url(): string {
-		$image_id = (int) get_option( 'podcasting_image_id', 0 );
-		if ( $image_id > 0 && wp_attachment_is_image( $image_id ) ) {
-			$url = wp_get_attachment_url( $image_id );
-			if ( false !== $url ) {
-				return self::maybe_photon( $url );
-			}
-		}
-		$url = (string) get_option( 'podcasting_image', '' );
+		$url = Settings::raw_show_image_url();
 		return '' === $url ? '' : self::maybe_photon( $url );
 	}
 
@@ -415,15 +389,16 @@ class Customize_Feed {
 	 * legacy `podcasting_archive` option — older sites pre-date numeric
 	 * storage and only have the slug. Returns 0 when neither resolves.
 	 *
-	 * Mirrors `Automattic_Podcasting::podcasting_get_podcasting_category_id`
-	 * in the wpcom mu-plugin.
+	 * A numeric ID whose term was deleted means "not configured" — the slug
+	 * is not consulted in that case.
 	 *
 	 * @return int
 	 */
 	public static function resolve_category_id(): int {
 		$category_id = (int) get_option( 'podcasting_category_id', 0 );
 		if ( $category_id > 0 ) {
-			return $category_id;
+			$category = get_category( $category_id );
+			return ( $category && ! is_wp_error( $category ) && isset( $category->term_id ) ) ? (int) $category->term_id : 0;
 		}
 
 		$slug = (string) get_option( 'podcasting_archive', '' );
@@ -491,6 +466,8 @@ class Customize_Feed {
 			'Tech News'                          => 'Technology,Tech News',
 			'Sports &amp; Recreation,Technology' => 'Technology',
 			'Sports &amp; Recreation,Gadgets'    => 'Technology,Gadgets',
+			'Sports,Football'                    => 'Sports,American Football',
+			'Sports,Soccer'                      => 'Sports,Football (Soccer)',
 		);
 		$category              = $legacy_aliases[ $stored ] ?? $stored;
 

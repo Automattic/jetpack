@@ -1,0 +1,6 @@
+{
+	"name": "jpa/sales-by-utm-channel",
+	"title": "Sales by UTM channel",
+	"description": "Shows the top UTM channels by order revenue over the selected time period.",
+	"category": "store"
+}

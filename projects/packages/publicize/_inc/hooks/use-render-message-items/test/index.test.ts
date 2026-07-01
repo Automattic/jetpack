@@ -86,8 +86,8 @@ const conn = ( overrides: Partial< Connection > = {} ): Connection =>
 		external_id: 'ext1',
 		profile_link: 'https://example.com',
 		profile_picture: 'https://example.com/pic.jpg',
-		service_label: 'X',
-		service_name: 'x',
+		service_label: 'Bluesky',
+		service_name: 'bluesky',
 		shared: false,
 		status: 'ok',
 		wpcom_user_id: 1,
@@ -195,7 +195,7 @@ describe( 'useRenderMessageItems', () => {
 
 	it( 'builds one item per connection in global mode, keyed by connection_id', () => {
 		mockSelect( [
-			conn( { connection_id: 'a', service_name: 'x' } ),
+			conn( { connection_id: 'a', service_name: 'bluesky' } ),
 			conn( { connection_id: 'b', service_name: 'facebook' } ),
 		] );
 
@@ -219,7 +219,7 @@ describe( 'useRenderMessageItems', () => {
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
 		mockSelect(
 			[
-				conn( { connection_id: 'a', service_name: 'x', message: 'A' } ),
+				conn( { connection_id: 'a', service_name: 'bluesky', message: 'A' } ),
 				conn( { connection_id: 'b', service_name: 'facebook' } ),
 			],
 			'Site template'

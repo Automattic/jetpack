@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Extensions\ImageStudio;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Visitor;
 use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -319,6 +320,52 @@ function get_asset_data_from_remote() {
 }
 
 /**
+ * Get the current site's WordPress.com blog ID for tracking.
+ *
+ * @return int The WordPress.com blog ID, or 0 when unavailable.
+ */
+function get_tracking_blog_id() {
+	$blog_id = ( new Host() )->get_wpcom_site_id();
+
+	return $blog_id ? absint( $blog_id ) : 0;
+}
+
+/**
+ * Get the current site type for Image Studio tracking.
+ *
+ * @return string The site type: simple, atomic, or jetpack.
+ */
+function get_tracking_site_type() {
+	$host = new Host();
+
+	if ( $host->is_wpcom_simple() ) {
+		return 'simple';
+	}
+
+	if ( $host->is_woa_site() ) {
+		return 'atomic';
+	}
+
+	return 'jetpack';
+}
+
+/**
+ * Check whether the current visitor should be treated as an Automattician.
+ *
+ * @return bool True when the current visitor is an Automattician.
+ */
+function is_tracking_automattician() {
+	if ( function_exists( 'wpcom_is_proxied_request' )
+		&& \wpcom_is_proxied_request()
+		&& function_exists( 'is_automattician' )
+	) {
+		return (bool) \is_automattician();
+	}
+
+	return ( new Visitor() )->is_automattician_feature_flags_only();
+}
+
+/**
  * Enqueue Image Studio script and style assets.
  *
  * @return void
@@ -361,6 +408,9 @@ function do_enqueue_assets() {
 	$image_studio_data = array(
 		'enabled'               => true,
 		'version'               => '1.0',
+		'blogId'                => get_tracking_blog_id(),
+		'siteType'              => get_tracking_site_type(),
+		'isA11n'                => is_tracking_automattician(),
 		'isDevMode'             => jetpack_is_internal_testing_environment(),
 		'canGenerateVideoClips' => image_studio_can_generate_video_clips(),
 	);

@@ -35,6 +35,7 @@ import { SingleChartContext, type SingleChartRef } from '../private/single-chart
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
+import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import styles from './area-chart.module.scss';
 import { AreaChartScalesRef, HoverGlyphs, validateData } from './private';
 import type { AreaChartProps } from './types';
@@ -68,6 +69,8 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 			onPointerUp,
 			onPointerMove,
 			onPointerOut,
+			zoomable = false,
+			rescaleYOnLegendToggle = true,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -85,6 +88,12 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
 		const internalChartRef = useRef< SingleChartRef >( null );
+
+		const zoom = useXZoom< Date >( {
+			enabled: zoomable,
+			chartRef: internalChartRef,
+			userHandlers: { onPointerDown, onPointerMove, onPointerUp },
+		} );
 
 		const { legendChildren, nonLegendChildren } = useChartChildren( children, 'AreaChart' );
 		const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
@@ -136,12 +145,14 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		} );
 
 		// Computed from the full data set (ignoring legend visibility) so the y-axis stays
-		// fixed when series are toggled off — otherwise visx auto-fits to the remaining data
-		// and the chart appears to rescale. Skipped for non-default stack offsets, which
-		// reshape the y-extent (`expand` → [0,1], `wiggle`/`silhouette` → centred around
-		// zero) — letting visx derive the domain is correct there.
+		// fixed when series are toggled off - otherwise visx auto-fits to the remaining
+		// data and the chart's baseline appears to move. Opt-in via
+		// `rescaleYOnLegendToggle={ false }`. Skipped for non-default stack offsets,
+		// which reshape the y-extent (`expand` -> [0,1], `wiggle`/`silhouette` -> centred
+		// around zero); letting visx derive the domain is correct there.
 		const fixedYDomain = useMemo< [ number, number ] | undefined >( () => {
 			if (
+				rescaleYOnLegendToggle ||
 				! legendInteractive ||
 				! dataSorted.length ||
 				! dataSorted[ 0 ].data.length ||
@@ -184,7 +195,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 			}
 			if ( max === -Infinity ) return undefined;
 			return [ Math.min( 0, min ), max ];
-		}, [ dataSorted, stacked, stackOffset, legendInteractive ] );
+		}, [ dataSorted, stacked, stackOffset, legendInteractive, rescaleYOnLegendToggle ] );
 
 		const chartOptions = useMemo( () => {
 			const formatter = options?.axis?.x?.tickFormat || getFormatter( dataSorted );
@@ -209,6 +220,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 				xScale: {
 					type: 'time' as const,
 					...options?.xScale,
+					...( zoom.domain ? { domain: zoom.domain } : {} ),
 				},
 				yScale: {
 					type: 'linear' as const,
@@ -219,7 +231,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, stacked, fixedYDomain ] );
+		}, [ options, dataSorted, width, stacked, fixedYDomain, zoom.domain ] );
 
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
@@ -378,7 +390,8 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 								onBlur={ onChartBlur }
 							>
 								{ chartHeight > 0 && (
-									<div ref={ chartRef }>
+									<div ref={ chartRef } style={ { position: 'relative' } }>
+										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
 											theme={ theme }
 											width={ width }
@@ -386,9 +399,9 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 											margin={ { ...defaultMargin, ...margin } }
 											xScale={ chartOptions.xScale }
 											yScale={ chartOptions.yScale }
-											onPointerDown={ onPointerDown }
-											onPointerUp={ onPointerUp }
-											onPointerMove={ onPointerMove }
+											onPointerDown={ zoom.handlers.onPointerDown }
+											onPointerUp={ zoom.handlers.onPointerUp }
+											onPointerMove={ zoom.handlers.onPointerMove }
 											onPointerOut={ onPointerOut }
 											pointerEventsDataKey="nearest"
 										>
@@ -410,17 +423,21 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 												</SvgEmptyState>
 											) : null }
 
-											{ ! allSeriesHidden && stacked && (
-												<AnimatedAreaStack
-													curve={ curve }
-													offset={ stackOffset }
-													renderLine={ resolvedWithStroke }
-												>
-													{ seriesWithVisibility.map( renderSeries ) }
-												</AnimatedAreaStack>
-											) }
-
-											{ ! allSeriesHidden && ! stacked && seriesWithVisibility.map( renderSeries ) }
+											{ /* Area is animated, so clip the whole time it is zoomable to keep the zoom-out animation in bounds. */ }
+											<ZoomClip active={ zoomable } chartId={ chartId }>
+												{ ! allSeriesHidden && stacked && (
+													<AnimatedAreaStack
+														curve={ curve }
+														offset={ stackOffset }
+														renderLine={ resolvedWithStroke }
+													>
+														{ seriesWithVisibility.map( renderSeries ) }
+													</AnimatedAreaStack>
+												) }
+												{ ! allSeriesHidden &&
+													! stacked &&
+													seriesWithVisibility.map( renderSeries ) }
+											</ZoomClip>
 
 											{ withTooltips && (
 												<>
@@ -456,6 +473,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 												height={ height || chartHeight }
 												margin={ margin }
 											/>
+											{ zoomable && <ZoomSelectionRect drag={ zoom.drag } /> }
 										</XYChart>
 									</div>
 								) }

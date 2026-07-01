@@ -1,5 +1,5 @@
-import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { MenuItem, NavigableMenu, SearchControl, SelectControl } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
@@ -30,7 +30,7 @@ export function Filters( { onChangeFilter, onSearch, search, selectedFilter }: F
 		[ onChangeFilter, selectedFilter ]
 	);
 
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	return (
 		<div className={ styles.filters }>

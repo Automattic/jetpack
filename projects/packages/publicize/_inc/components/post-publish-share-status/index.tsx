@@ -1,10 +1,13 @@
+import { Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore, PluginPostPublishPanel } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
 import { useIsSharingPossible } from '../../hooks/use-is-sharing-possible';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import { usePostPrePublishValue } from '../../hooks/use-post-pre-publish-value';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import { store as socialStore } from '../../social-store';
+import ErrorBoundary from '../error-boundary';
 import { ShareStatus } from './share-status';
 
 /**
@@ -26,12 +29,11 @@ export function PostPublishShareStatus() {
 
 	const isSharingPossible = usePostPrePublishValue( useIsSharingPossible() );
 
-	const connectionsReadyToShare = usePostPrePublishValue(
-		useSelect( select => select( socialStore ).getConnectionsReadyToShare(), [] )
+	const enabledConnections = usePostPrePublishValue(
+		useSelect( select => select( socialStore ).getEnabledConnections(), [] )
 	);
 
-	const willPostBeShared =
-		isPublicizeEnabled && connectionsReadyToShare.length > 0 && isSharingPossible;
+	const willPostBeShared = isPublicizeEnabled && enabledConnections.length > 0 && isSharingPossible;
 
 	const showStatus = willPostBeShared && isPostPublished;
 
@@ -51,7 +53,15 @@ export function PostPublishShareStatus() {
 
 	return (
 		<PluginPostPublishPanel>
-			<ShareStatus />
+			<ErrorBoundary
+				fallback={
+					<Notice status="error" isDismissible={ false }>
+						{ __( 'Unable to load the sharing status.', 'jetpack-publicize-pkg' ) }
+					</Notice>
+				}
+			>
+				<ShareStatus />
+			</ErrorBoundary>
 		</PluginPostPublishPanel>
 	);
 }

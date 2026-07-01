@@ -4,13 +4,17 @@ packages:
   - projects/plugins/*/tests/e2e
   - tools/cli
   - tools/e2e-commons
+  - tools/e2e-commons/no-lighthouse
   - tools/js-tools
   - tools/performance
   - .github/files/coverage-munger
 
 engineStrict: true
-managePackageManagerVersions: false
+pmOnFail: ignore
 preferWorkspacePackages: true
+
+# Feature is buggy in pnpm 11.5, e.g. https://github.com/pnpm/pnpm/issues/12100.
+optimisticRepeatInstall: false
 
 # Be strict about peer deps
 autoInstallPeers: false
@@ -30,19 +34,10 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
-  # Renovate security update: webpack-dev-server@5.2.4
-  - webpack-dev-server@5.2.4
-  # Renovate security update: js-cookie@3.0.7
-  - js-cookie@3.0.7
-  # Renovate security update: tmp@0.2.6
-  - tmp@0.2.6
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
   - chokidar@4.0.3
-
-  # https://github.com/reduxjs/reselect/issues/752
-  - reselect@5.1.1
 
   # Packages where newer majors have provenance but we're still on an older one.
   - rollup@3.30.0

@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.2.5] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [1.2.4] - 2026-06-22
+### Changed
+- Update package dependencies. [#49757]
+
+## [1.2.3] - 2026-06-15
+### Changed
+- Update package dependencies. [#49631]
+
+## [1.2.2] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.2.1] - 2026-06-03
+### Changed
+- Internal updates.
+
 ## [1.2.0] - 2026-05-25
 ### Added
 - Currency formatting: Add `setCurrencyOverrides` for installing a dynamic per-currency override map (e.g. from the WordPress.com currencies endpoint). Falls back to the hard-coded smallest-unit exponent overrides when not called. [#49016]
@@ -156,6 +176,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release
 - Basic number formatting functionality
 
+[1.2.5]: https://github.com/Automattic/number-formatters/compare/1.2.4...1.2.5
+[1.2.4]: https://github.com/Automattic/number-formatters/compare/1.2.3...1.2.4
+[1.2.3]: https://github.com/Automattic/number-formatters/compare/1.2.2...1.2.3
+[1.2.2]: https://github.com/Automattic/number-formatters/compare/1.2.1...1.2.2
+[1.2.1]: https://github.com/Automattic/number-formatters/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/Automattic/number-formatters/compare/1.1.10...1.2.0
 [1.1.10]: https://github.com/Automattic/number-formatters/compare/1.1.9...1.1.10
 [1.1.9]: https://github.com/Automattic/number-formatters/compare/1.1.8...1.1.9

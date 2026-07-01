@@ -273,7 +273,6 @@ abstract class Singleton_Template_Cpt {
 	 * from the bundled template, then redirect to the block editor on it.
 	 */
 	public static function maybe_handle_editor_request() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce checked below.
 		if ( empty( $_GET[ static::EDITOR_REQUEST_KEY ] ) ) {
 			return;
 		}

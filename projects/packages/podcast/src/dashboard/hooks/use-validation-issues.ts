@@ -35,11 +35,11 @@ export const getValidationIssues = ( settings: PodcastSettings | undefined ): st
 		);
 	}
 	if ( ! settings.podcasting_talent_name ) {
-		issues.push( __( 'Set the host or talent name.', 'jetpack-podcast' ) );
+		issues.push( __( 'Set the host, artist, or producer name.', 'jetpack-podcast' ) );
 	}
 	if ( ! settings.podcasting_email ) {
 		issues.push(
-			__( 'Add an owner email so podcast directories can reach you.', 'jetpack-podcast' )
+			__( 'Add an owner email address so podcast directories can reach you.', 'jetpack-podcast' )
 		);
 	}
 	if ( ! settings.podcasting_category_1 ) {

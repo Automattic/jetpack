@@ -10,4 +10,3 @@ vendor/jetpack-autoloader/**                production-include
 
 # Files not needed in the production build.
 # (see also entries in the monorepo root .gitattributes)
-/vendor/automattic/jetpack-autoloader/**    production-exclude

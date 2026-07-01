@@ -13,6 +13,11 @@ use WorDBless\BaseTestCase;
 use WP_Block;
 use WP_Block_Supports;
 
+// Stand in for the optional WooCommerce Email Editor helpers the email
+// renderer leans on, so render_email() can run in the package test env.
+require_once __DIR__ . '/../mocks/class-mock-podcast-table-wrapper-helper.php';
+require_once __DIR__ . '/../mocks/class-mock-podcast-styles-helper.php';
+
 /**
  * Render-path coverage for Podcast_Episode_Block.
  *
@@ -306,5 +311,72 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 	public function test_filter_editor_script_src_leaves_other_handles_unchanged() {
 		$src = 'http://example.com/some-other-script.js';
 		$this->assertSame( $src, Podcast_Episode_Block::filter_editor_script_src( $src, 'some-other-handle' ) );
+	}
+
+	/**
+	 * Minimal email rendering context exposing the layout-width method
+	 * render_email() probes via method_exists().
+	 */
+	private function email_context() {
+		return new class() {
+			public function get_layout_width_without_padding() {
+				return '600px';
+			}
+		};
+	}
+
+	/**
+	 * Render the email card for a freshly created episode post. Sets the global
+	 * post because render_email() resolves the episode via get_post().
+	 *
+	 * @param array  $attrs Attributes to merge over default_attrs.
+	 * @param string $title Episode post title.
+	 * @return string
+	 */
+	private function render_email( array $attrs, $title = 'Test Episode' ) {
+		$post_id         = $this->create_episode_post( $title );
+		$GLOBALS['post'] = get_post( $post_id );
+
+		$result = Podcast_Episode_Block::render_email(
+			'',
+			array( 'attrs' => array_merge( $this->default_attrs, $attrs ) ),
+			$this->email_context()
+		);
+
+		$GLOBALS['post'] = null;
+		wp_delete_post( $post_id, true );
+		return $result;
+	}
+
+	public function test_render_email_builds_card_with_episode_details() {
+		$result = $this->render_email(
+			array(
+				'seasonNumber'  => 1,
+				'episodeNumber' => 9,
+			),
+			'Episode 9: Email Edition'
+		);
+
+		$this->assertStringContainsString( 'Episode 9: Email Edition', $result );
+		$this->assertStringContainsString( 'Season 1', $result );
+		$this->assertStringContainsString( 'Listen to the episode', $result );
+		// Body content sits inside a (mocked) nested table, not loose in the cell.
+		$this->assertStringContainsString( '<table', $result );
+	}
+
+	public function test_render_email_uses_watch_label_for_video() {
+		$result = $this->render_email(
+			array(
+				'mediaUrl'  => 'https://example.com/episode.mp4',
+				'mediaType' => 'video',
+			)
+		);
+
+		$this->assertStringContainsString( 'Watch the episode', $result );
+		$this->assertStringNotContainsString( 'Listen to the episode', $result );
+	}
+
+	public function test_render_email_returns_empty_for_invalid_media_url() {
+		$this->assertSame( '', $this->render_email( array( 'mediaUrl' => 'not-a-url' ) ) );
 	}
 }

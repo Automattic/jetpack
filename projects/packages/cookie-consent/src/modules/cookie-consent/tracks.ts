@@ -1,0 +1,67 @@
+/**
+ * Cookie Consent Tracking
+ *
+ * Privacy-specific tracking wrappers for Tracks.
+ */
+
+import { recordEvent, getCommonProperties } from './tracks-utils';
+import type { ConsentPreferences } from './types';
+
+/**
+ * Track privacy banner view
+ *
+ * Fired when the cookie consent banner is displayed to the visitor.
+ */
+export function trackPrivacyBannerView(): void {
+	recordEvent( 'privacy_banner_view', getCommonProperties() );
+}
+
+/**
+ * Track privacy banner accept button click
+ *
+ * @param preferences Object with consent preferences (required, analytics, advertising).
+ */
+export function trackPrivacyBannerAccept( preferences: ConsentPreferences ): void {
+	recordEvent( 'privacy_banner_button_accept', {
+		...getCommonProperties(),
+		preferences_required: preferences.required,
+		preferences_analytics: preferences.analytics,
+		preferences_advertising: preferences.advertising,
+	} );
+}
+
+/**
+ * Track privacy banner reject button click
+ *
+ * Fired when the visitor clicks "Reject All" in customize modal.
+ */
+export function trackPrivacyBannerReject(): void {
+	recordEvent( 'privacy_banner_button_reject', getCommonProperties() );
+}
+
+/**
+ * Track privacy banner customize button click
+ *
+ * Fired when the visitor clicks "Customize" to open the preferences modal.
+ */
+export function trackPrivacyBannerCustomize(): void {
+	recordEvent( 'privacy_banner_button_customize', getCommonProperties() );
+}
+
+/**
+ * Track "Manage Privacy Preferences" link click
+ *
+ * Fired when the visitor opens preferences modal from the footer link.
+ */
+export function trackPrivacyManageOpen(): void {
+	recordEvent( 'privacy_manage_open', getCommonProperties() );
+}
+
+/**
+ * Track CCPA opt-out button click
+ *
+ * Fired when the visitor submits the CCPA "Do Not Sell/Share" opt-out.
+ */
+export function trackPrivacyPolicyOptOut(): void {
+	recordEvent( 'privacy_policy_page_button_opt_out', getCommonProperties() );
+}

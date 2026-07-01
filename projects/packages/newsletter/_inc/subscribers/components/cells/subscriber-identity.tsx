@@ -23,13 +23,17 @@ export default function SubscriberIdentity( { subscriber }: Props ): JSX.Element
 	return (
 		<Stack direction="row" align="center" gap="sm" className="jetpack-newsletter__identity">
 			{ /* The display name + email are rendered as visible text right next to the avatar,
-			     so the avatar is decorative for assistive tech — wrap with aria-hidden + omit
-			     `displayName` (the shared component otherwise uses it as alt text) to avoid the
-			     screen reader announcing the name twice. */ }
+			     so the avatar is decorative for assistive tech — the `aria-hidden` wrapper
+			     removes it (and its `alt`) from the accessibility tree so the name isn't
+			     announced twice. `displayName` is still passed because the shared component
+			     forwards it as `&name=`, which the `d=initials` fallback needs to derive the
+			     initials — without it a subscriber with no Gravatar gets a generic placeholder
+			     that doesn't match the detail view's initials tile. */ }
 			{ email_address ? (
 				<span aria-hidden="true">
 					<Gravatar
 						email={ email_address }
+						displayName={ display_name }
 						size={ 32 }
 						useHovercard={ false }
 						className="jetpack-newsletter__identity-avatar"

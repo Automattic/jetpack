@@ -127,6 +127,8 @@ Note: `AGENTS.md` is already loaded in your context via the CLAUDE.md `@AGENTS.m
 | Security patterns | yes | yes | yes |
 | Security threat model | no | if security files | yes |
 | Backward compat | yes | yes | yes |
+| Cross-package version skew (optional-sibling calls) | yes | yes | yes |
+| Phan suppressions / baseline growth (from diff) | yes | yes | yes |
 | Error handling | no | yes | yes |
 | Feature gating | no | yes | yes |
 | HTML / a11y / RTL | no | if has_html/has_css | yes |
@@ -169,6 +171,47 @@ Note: `AGENTS.md` is already loaded in your context via the CLAUDE.md `@AGENTS.m
 - **Removed REST endpoints**: Must version or deprecate
 - **Removed public constants/properties**: Fatal errors in consumers
 - Scan diff for removed lines with `public function`, `function jetpack_`, `do_action(`, `apply_filters(`, `register_rest_route`
+
+*Cross-package version skew — calls into optional sibling packages* (all depths — this catches fatal errors):
+
+A monorepo package may call into another package it does NOT list in its own `composer.json` `require` (e.g. my-jetpack → `SEO\Initializer`, `Search\*`, `VideoPress\*`). On trunk every package is at the same version, so the call resolves and CI passes. But standalone plugins (Social, Boost, VideoPress, Protect, …) each bundle their own `jetpack_vendor/` copies, and jetpack-autoloader loads ONE copy of each shared package across all active plugins — frequently an OLDER version than trunk. The symbol you call may not exist at runtime.
+
+- **`class_exists()` is NOT a sufficient guard** when you then call a method, read a constant, or access a property on that class. The class can load from an older bundled copy that predates the member → `Call to undefined method` fatal. Guard the EXACT symbol you use:
+  - method → `method_exists( $class, 'method' )` or `is_callable()`
+  - constant → `defined( "$class::CONST" )`
+  - function → `function_exists()`
+  - property → `property_exists()`
+- `[blocker]`: a newly-added call into a non-`require`d sibling package guarded only by `class_exists()` (or unguarded). The same PR often adds both the new symbol (in package A) and its caller (in package B), so the diff looks self-consistent — the skew only appears across release trains. Check the guard, not the definition; an internally-consistent diff does not prove the symbol ships together everywhere.
+- Detection:
+  ```bash
+  # Cross-package class references added in this diff:
+  gh pr diff <PR> | grep -nE '^\+.*\\Automattic\\Jetpack\\[A-Z][A-Za-z]+\\'
+  # For each referenced package, confirm it is in THIS project's composer.json "require":
+  grep '"automattic/jetpack-<pkg>"' projects/<type>/<name>/composer.json \
+    || echo "OPTIONAL sibling — any method/constant/property access needs a symbol-level guard"
+  ```
+- Precedent: SOCIAL-515 (`SEO\Initializer::is_optin_available()` fatal on Social 9.0.2 standalone), MYJP-308 (Search product fatal on plugins not bundling jetpack-search). Both: `class_exists()` passed, the method was absent from the bundled copy.
+
+*Static analysis suppressions — don't silence Phan instead of fixing it* (all depths — diff-visible, can hide fatals):
+
+`jp phan` (the monorepo's PHP static analyzer) runs in CI and must stay green. The shortcut to a green run is to *silence* an error rather than fix it — and a silenced `PhanUndeclared*`, undefined-variable, deprecated-call, or type-mismatch is frequently a real runtime bug (often the same version skew as above) hidden from CI. A PR should make Phan pass by fixing code, not by suppressing it. **Treat a newly-added suppression as a finding in its own right — report it even when you cannot independently confirm the underlying bug, and ask for a fix or a written justification.**
+
+Scan the diff for both silencing mechanisms:
+- **New inline suppressions**: `@phan-suppress-next-line`, `@phan-suppress-current-line`, `@phan-suppress` (docblock), `@phan-file-suppress` (whole file).
+- **Baseline growth**: added entries, or raised "N occurrences" counts, in any `.phan/baseline.php`. The baseline exists only to grandfather *pre-existing* debt for incremental fixing — a PR should shrink or hold it, never grow it. A new baseline entry means the PR is hiding an error it just introduced.
+
+Severity:
+- `[blocker]`: the suppressed issue is a real defect — `PhanUndeclared{Method,ClassMethod,Function,StaticMethod}` (symbol may be absent at runtime — see Cross-package version skew above), `PhanPossiblyUndeclaredVariable`/`PhanUndeclaredVariable` (use-before-init), `PhanDeprecated*` (removed in a future PHP or dependency version), or a `PhanTypeMismatch*` on a security/data path. Fix the code and drop the suppression.
+- `[suggestion]`: a plausible false positive whose inline suppression carries no `-- <reason>` justification. Jetpack convention is that every legitimate suppression states why it is safe, e.g. `// @phan-suppress-current-line PhanUndeclaredFunction -- Guarded by function_exists().` An unexplained suppression can't be reviewed.
+- Discard only when it is a documented false positive WITH a justification comment and the code is provably safe.
+
+Detection:
+```bash
+# Inline suppressions added by this PR:
+gh pr diff <PR> | grep -nE '^\+.*@phan-(suppress|file-suppress)'
+# If the file list includes any .phan/baseline.php, inspect its hunk: every added
+# 'Phan...' entry or raised "N occurrences" count is a newly-hidden error.
+```
 
 *Feature gating* (standard + thorough):
 - New user-facing features (admin pages, blocks, endpoints) should be gated behind feature flags for staged rollout. Flag if ungated.
@@ -254,10 +297,12 @@ grep -r "@automattic/jetpack-<package-name>" projects/*/*/package.json
 
 Flag changes that could break consumers (changed signatures, removed methods, altered return types). List affected downstream projects.
 
+**Upstream direction too:** if the diff *adds* a call into a monorepo package this project does NOT `require`, that call is subject to version skew on standalone installs — apply the *Cross-package version skew* check from step 4.
+
 ### 6. Test and static analysis (thorough only)
 
 Identify the test runner for each project and **always report it**, even when skipped:
-- `plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh` → `jp docker phpunit <target>`
+- `plugins/jetpack`, `plugins/wpcomsh` → `jp docker phpunit <target>`
 - Everything else → `jp test php <project>` / `jp test js <project>`
 
 Run in the worktree with 5-minute timeouts:
@@ -274,6 +319,8 @@ After each test command, check the exit code:
 - Other non-zero: Tests failed — include the last 50 lines of output
 
 If deps are missing, `jp install <project>` and retry once.
+
+If `jp phan` passes only because the diff added `@phan-suppress` annotations or grew `.phan/baseline.php`, that is itself a finding — apply *Static analysis suppressions* from step 4. A green Phan run earned by suppression is not a passing Phan run.
 
 **Test quality review** (read new/modified test files):
 - Coverage: are new public functions/endpoints tested?
@@ -366,6 +413,8 @@ Review depth: **<depth>** (<lines> lines, <N> projects)
 ### Feature Gating
 ### Data / Privacy
 ### Backward Compatibility / Removed Public API
+### Cross-Package Version Skew
+### Phan Suppressions
 ### Cross-Project Impact
 ### Test Results
 ### Test Coverage Gaps

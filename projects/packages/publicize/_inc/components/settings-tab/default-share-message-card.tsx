@@ -2,7 +2,7 @@ import { useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card } from '@wordpress/ui';
+import { Card, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { MessageTemplateEditor } from '../message-template-editor';
 
@@ -68,7 +68,15 @@ export default function DefaultShareMessageCard(): JSX.Element {
 				<Card.Title>{ __( 'Default share message', 'jetpack-publicize-pkg' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<MessageTemplateEditor value={ draft } onChange={ onChange } />
+				<Stack direction="column" gap="md">
+					<Text variant="body-sm">
+						{ __(
+							'Set a default message format used when sharing posts to social networks. Use placeholders to insert post details automatically.',
+							'jetpack-publicize-pkg'
+						) }
+					</Text>
+					<MessageTemplateEditor value={ draft } onChange={ onChange } />
+				</Stack>
 			</Card.Content>
 		</Card.Root>
 	);

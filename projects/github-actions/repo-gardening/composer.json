@@ -7,6 +7,12 @@
 	"scripts": {
 		"build-development": [
 			"pnpm run build"
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-js-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [

@@ -2,10 +2,13 @@
 /**
  * Layout-grid usage tracking — emit a logstash event when a `jetpack/layout-grid`
  * block is inserted or first rendered on a WoA site. The payload carries the
- * active theme, active plugins, request-context flags, and a sanitized
- * backtrace so the source can be attributed to a responsible plugin or theme
- * rather than just the candidate set. Events ship to the
- * `atomic_layout_grid_block` logstash bucket.
+ * active theme, active plugins, request-context flags, an `origin` label that
+ * separates an explicit editor insert (the expected, noisy case) from the
+ * arrivals we actually want to surface — migration, import, XML-RPC, WP-CLI,
+ * cron, a headless REST or AJAX write, a programmatic write with no user behind
+ * it, or a theme/template render — and a sanitized backtrace so the source can
+ * be attributed to a responsible plugin or theme rather than just the candidate
+ * set. Events ship to the `atomic_layout_grid_block` logstash bucket.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -75,6 +78,7 @@ function wpcom_layout_grid_usage_react_to_post_insert( $post_id, $post, $update,
 		array(
 			'surface'   => 'post_insert',
 			'post_type' => (string) $post->post_type,
+			'origin'    => wpcom_layout_grid_usage_classify_origin(),
 		)
 	);
 	// Burn the 24h budget only after a successful dispatch — otherwise a
@@ -135,6 +139,69 @@ function wpcom_layout_grid_usage_context_transient_key( $is_importing, $is_cron 
 }
 
 /**
+ * Classify how an inserted block arrived, so the expected and noisy case — a
+ * logged-in user adding the block in the editor — can be told apart from the
+ * arrivals worth investigating. Checked in priority order:
+ *
+ *  - `migration`:    the WoA transfer is mid-flight — the block came over with
+ *                    the site. Checked before `import` because migration runs
+ *                    also set `WP_IMPORTING`, and "arrived during transfer" is
+ *                    the more specific (and, post-conditional-activation, the
+ *                    more interesting) answer.
+ *  - `import`:       a `WP_IMPORTING` run (an importer plugin, a WXR import).
+ *  - `xmlrpc`:       a remote publishing client (legacy apps, some migration
+ *                    tools) writing over XML-RPC.
+ *  - `cli`:          a WP-CLI invocation.
+ *  - `cron`:         a scheduled / background job.
+ *  - `editor`:       a logged-in user on an ordinary request — the expected case.
+ *  - `rest`:         a REST write with no user behind it — a headless client or
+ *                    server-to-server integration rather than the block editor.
+ *  - `ajax`:         an admin-ajax write with no user — a front-end handler.
+ *  - `programmatic`: none of the above — internal PHP wrote the post on a normal
+ *                    request with no HTTP API surface and no user.
+ *
+ * The batch / transport contexts win over the user check on purpose: an import,
+ * cron, or CLI run isn't a person at the editor even when a user happens to be
+ * set. The `editor` check sits above `rest`/`ajax` so a normal block-editor save
+ * (REST + a logged-in user) reads as `editor`, leaving those two buckets for the
+ * no-user writes they're meant to catch. The remaining false negative — a plugin
+ * calling `wp_insert_post()` on a normal admin request with a user logged in —
+ * reads as `editor`; the `trace` field is the backstop for naming that source.
+ * Used for the insert surfaces; the render backstop sets its own `origin` since
+ * by render time the context is gone.
+ *
+ * @return string One of: migration, import, xmlrpc, cli, cron, editor, rest, ajax, programmatic.
+ */
+function wpcom_layout_grid_usage_classify_origin() {
+	// @phan-suppress-next-line PhanUndeclaredFunction -- wpcomsh-provided; present on WoA, guarded by function_exists.
+	if ( function_exists( 'wpcomsh_is_migration_in_progress' ) && wpcomsh_is_migration_in_progress() ) {
+		return 'migration';
+	}
+	if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
+		return 'import';
+	}
+	if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
+		return 'xmlrpc';
+	}
+	if ( defined( 'WP_CLI' ) && WP_CLI ) {
+		return 'cli';
+	}
+	if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+		return 'cron';
+	}
+	if ( function_exists( 'get_current_user_id' ) && get_current_user_id() > 0 ) {
+		return 'editor';
+	}
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+		return 'rest';
+	}
+	if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+		return 'ajax';
+	}
+	return 'programmatic';
+}
+
+/**
  * `add_option_widget_block` handler. Logs when the initial value carries the block.
  *
  * @param string $option Unused — pinned by hook name.
@@ -146,7 +213,12 @@ function wpcom_layout_grid_usage_react_to_widget_block_added( $option, $value ) 
 	if ( ! wpcom_layout_grid_usage_widget_value_contains_block( $value ) ) {
 		return;
 	}
-	wpcom_layout_grid_usage_log_observation( array( 'surface' => 'widget_add' ) );
+	wpcom_layout_grid_usage_log_observation(
+		array(
+			'surface' => 'widget_add',
+			'origin'  => wpcom_layout_grid_usage_classify_origin(),
+		)
+	);
 }
 
 /**
@@ -163,7 +235,12 @@ function wpcom_layout_grid_usage_react_to_widget_block_updated( $old_value, $val
 	if ( wpcom_layout_grid_usage_widget_value_contains_block( $old_value ) ) {
 		return;
 	}
-	wpcom_layout_grid_usage_log_observation( array( 'surface' => 'widget_update' ) );
+	wpcom_layout_grid_usage_log_observation(
+		array(
+			'surface' => 'widget_update',
+			'origin'  => wpcom_layout_grid_usage_classify_origin(),
+		)
+	);
 }
 
 /**
@@ -185,7 +262,15 @@ function wpcom_layout_grid_usage_react_to_block_render( $block_content, $parsed_
 	// Persist the sentinel only after a successful dispatch. The option has no
 	// TTL, so a filter-blocked observation that wrote it first would
 	// permanently disable the backstop for this blog.
-	if ( wpcom_layout_grid_usage_log_observation( array( 'surface' => 'render' ) ) ) {
+	if ( wpcom_layout_grid_usage_log_observation(
+		array(
+			'surface' => 'render',
+			// The block was only ever seen at render, never at insert — it came
+			// from a theme template, a pattern, or a direct write, not a user
+			// adding it in the editor.
+			'origin'  => 'render',
+		)
+	) ) {
 		update_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION, 1, false );
 	}
 	return $block_content;
@@ -277,7 +362,7 @@ function wpcom_layout_grid_usage_log_observation( array $extra ) {
 			wpcom_layout_grid_usage_redact_paths( $payload )
 		);
 		return true;
-	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: telemetry never escalates a failure into a fatal on the caller's action chain.
+	} catch ( \Throwable $e ) {
 		unset( $e );
 		return false;
 	}

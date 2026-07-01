@@ -6,7 +6,6 @@ import { formatNumber } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
  */
-import { Page } from '@wordpress/admin-ui';
 import {
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
@@ -28,6 +27,7 @@ import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.ts
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
+import FormsPage from '../../src/dashboard/wp-build/components/page';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
@@ -207,8 +207,7 @@ function StageInner() {
 				if ( folderValue !== statusView ) {
 					// Clear selection when changing folder to avoid mismatched inspector state.
 					navigate( {
-						to: '/responses/$view',
-						params: { view: folderValue },
+						to: `/responses/${ folderValue }`,
 						search: {
 							...searchParams,
 							responseIds: undefined,
@@ -248,8 +247,7 @@ function StageInner() {
 	const onStatusChange = useCallback(
 		( nextStatus: 'inbox' | 'spam' | 'trash' ) => {
 			navigate( {
-				to: '/responses/$view',
-				params: { view: nextStatus },
+				to: `/responses/${ nextStatus }`,
 				search: {
 					...searchParams,
 					responseIds: undefined,
@@ -492,7 +490,7 @@ function StageInner() {
 								useHovercard={ false }
 							/>
 							{ styleUnreadValue(
-								<Stack direction="column" gap="2xs">
+								<Stack direction="column" gap="xs">
 									<Stack direction="row" align="center" gap="xs">
 										<Text ellipsizeMode="tail" limit={ 50 } truncate>
 											{ displayName }
@@ -682,7 +680,7 @@ function StageInner() {
 	);
 
 	return (
-		<Page
+		<FormsPage
 			visual={ visual }
 			breadcrumbs={ breadcrumbs }
 			badges={ badges }
@@ -691,6 +689,7 @@ function StageInner() {
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
+			showFooter={ false }
 		>
 			<DataViews
 				empty={
@@ -737,7 +736,7 @@ function StageInner() {
 				refreshIntegrations={ refreshIntegrations }
 				context="dashboard"
 			/>
-		</Page>
+		</FormsPage>
 	);
 }
 

@@ -14,7 +14,5 @@ vendor/wikimedia/aho-corasick/**                production-include
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
 build/**/*.js.map                               production-exclude
-README.md                                       production-exclude
+/README.md                                      production-exclude
 src/js/**                                       production-exclude
-/vendor/automattic/jetpack-autoloader/**        production-exclude
-/vendor/automattic/jetpack-composer-plugin/**   production-exclude

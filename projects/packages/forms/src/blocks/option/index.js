@@ -1,6 +1,5 @@
-import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import { Path, SVG } from '@wordpress/primitives';
 import edit from './edit.js';
 import save from './save.js';
 
@@ -11,7 +10,11 @@ const settings = {
 	description: __( 'An option for a form choice field', 'jetpack-forms' ),
 	category: 'contact-form',
 	icon: {
-		src: renderMaterialIcon( <Path d="M5 11.25H19V12.75H5V11.25Z" /> ),
+		src: (
+			<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<Path d="M5 11.25H19V12.75H5V11.25Z" />
+			</SVG>
+		),
 	},
 	parent: [ 'jetpack/field-checkbox', 'jetpack/field-consent', 'jetpack/options' ],
 	supports: {

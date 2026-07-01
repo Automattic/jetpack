@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.1] - 2026-06-29
+### Changed
+- Settings: Link the "Button only" style hint to platform-appropriate support documentation. [#50009]
+- Update package dependencies. [#49271]
+
+## [0.11.0] - 2026-06-25
+### Changed
+- Introduce the modernized dashboard and WP Admin subscriber management behind the `rsm_jetpack_ui_modernization_newsletter` and `jetpack_wp_admin_subscriber_management_enabled` filters, off by default. [#49036]
+- Update package dependencies. [#49831]
+
+### Fixed
+- Align the settings DataForm field `Edit` controls, the import-subscribers notice `ActionLink`, and the dashboard tab panels with the `@wordpress/dataviews` 16 and `@wordpress/ui` 0.15 type APIs. [#49801]
+
+## [0.10.0] - 2026-06-22
+### Added
+- Add a transitional Subscribers announcement page (wp-build) shown in place of the legacy Subscribers menu link when the Newsletter modernization filter is enabled. [#49496]
+- Register the transitional Subscribers announcement page directly under the Jetpack menu on WordPress.com sites. [#49675]
+
+### Changed
+- Subscribers: Link the Substack importer button to the WordPress.com site-setup importer flow. [#49538]
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+### Fixed
+- Close the subscriber detail panel when its subscriber is removed instead of leaving it open with stale data. [#49598]
+
+## [0.9.1] - 2026-06-15
+### Added
+- Add a setting for the Subscribe modal heading shown by Subscribe blocks using the Button-only style. [#49171]
+- Daily Writing Prompt: Record Tracks events when interacting with the widget's actions. [#49534]
+
+### Changed
+- Daily Writing Prompt: Link to the WordPress.com Reader and move the responses button next to the Post Answer button. [#49462]
+- Label the subscription placement options with a "Homepage and posts" section header. [#49466]
+- Update package dependencies. [#49273] [#49492]
+
+### Fixed
+- Daily Writing Prompt: Defer the connection-readiness check to Dashboard setup to avoid a fatal error on Atomic sites. [#49525]
+- Fix the "Add plans" link for WordPress installs in a subdirectory. [#49553]
+- Keep the Subscribers/Settings tab bar pinned while scrolling the modernized Settings tab. [#49460]
+- Only show the subscription placement "Preview and edit" link once the placement is enabled and saved. [#49532]
+- Render the same initials avatar in the subscriber row and detail panel when a subscriber has no Gravatar. [#49581]
+- Stop the modernized Settings tab from flashing a full-page loading spinner on every visit. [#49530]
+- Subscribers: Hide the "Comp a subscription" action when the site has no paid newsletter plans. [#49531]
+
+## [0.9.0] - 2026-06-08
+### Added
+- Add Jetpack branding to the Daily Writing Prompt dashboard widget. [#49438]
+- Add the Daily Writing Prompt dashboard widget, moved here from the jetpack-mu-wpcom package. [#49425]
+
+### Changed
+- Remove the per-page Hello Dolly rule, as it is now handled by `@automattic/jetpack-components`'s AdminPage component. [#48472]
+
+### Fixed
+- Include the routes directory in the TypeScript config so dashboard route files type-check correctly. [#49368]
+- Hide the WordPress.com connection prompt on Simple sites, which are already connected. [#49365]
+- Restore body padding by wrapping content in Dialog.Content in Add subscribers and Comp modals. [#49327]
+- Subscribers Dashboard: Fix several Comp modal issues. [#49441]
+- Subscribers Dashboard: Show the empty state when the site owner is the only subscriber, and point the empty-state copy at the subscription form documentation. [#49410]
+
+## [0.8.10] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404] [#49152]
+
+### Fixed
+- Record a `jetpack_newsletter_tab_view` Tracks event on initial page load in Newsletter dashboard (matching its tab-switch behavior). [#49243]
+
 ## [0.8.9] - 2026-05-25
 ### Changed
 - Normalize page tabs onto the shared minimal variant and `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]
@@ -196,6 +262,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.11.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.10.0...v0.11.0
+[0.10.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.9.1...v0.10.0
+[0.9.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.10...v0.9.0
+[0.8.10]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.9...v0.8.10
 [0.8.9]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.7...v0.8.8
 [0.8.7]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.6...v0.8.7

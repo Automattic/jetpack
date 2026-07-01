@@ -1,10 +1,12 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { currentUserCan, getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs, Tooltip } from '@wordpress/ui';
 import { ModernizationProvider } from '../hooks/use-is-modernized';
+import SocialGate from './social-gate';
+import useSocialGate from './social-gate/use-social-gate';
 // Define the `--color-facebook`, `--color-twitter`, ... custom properties
 // that `SocialServiceIcon` (and friends) consume to paint per-service
 // brand colours. The legacy `social-admin-page` webpack bundle inlines
@@ -51,6 +53,15 @@ const SUBTITLES: Record< SocialTab, () => string > = {
 export default function SocialPage( { activeTab, actions, children }: Props ): JSX.Element {
 	const navigate = useNavigate();
 
+	const { gate, dismissPricing } = useSocialGate();
+	const headerActions = gate === null ? actions : null;
+
+	// Both the Settings tab and the Overview stats chart require admin-only
+	// capabilities (`manage_options` / stats reads), so non-admins have nothing
+	// to switch between — drop the tab chrome entirely and show the lone
+	// connection-management surface the Overview route hands us.
+	const canManageOptions = currentUserCan( 'manage_options' );
+
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.
 	const onTabChange = useCallback(
@@ -75,23 +86,35 @@ export default function SocialPage( { activeTab, actions, children }: Props ): J
 					apiNonce={ getSiteData()?.rest_nonce }
 					title={ PRODUCT_NAME }
 					subTitle={ SUBTITLES[ activeTab ]() }
-					actions={ actions }
+					actions={ headerActions }
 				>
-					<Tabs.Root
-						className="jetpack-social-tabs"
-						value={ activeTab }
-						onValueChange={ onTabChange }
-					>
-						<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
-							<Tabs.List variant="minimal">
-								<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-publicize-pkg' ) }</Tabs.Tab>
-								<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-publicize-pkg' ) }</Tabs.Tab>
-							</Tabs.List>
-						</div>
-						<div className="jetpack-social-page__content jetpack-social-page__content--padded">
-							{ children }
-						</div>
-					</Tabs.Root>
+					<SocialGate gate={ gate } onDismissPricing={ dismissPricing }>
+						{ canManageOptions ? (
+							<Tabs.Root
+								className="jetpack-social-tabs"
+								value={ activeTab }
+								onValueChange={ onTabChange }
+							>
+								<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
+									<Tabs.List variant="minimal">
+										<Tabs.Tab value="overview">
+											{ __( 'Overview', 'jetpack-publicize-pkg' ) }
+										</Tabs.Tab>
+										<Tabs.Tab value="settings">
+											{ __( 'Settings', 'jetpack-publicize-pkg' ) }
+										</Tabs.Tab>
+									</Tabs.List>
+								</div>
+								<div className="jetpack-social-page__content jetpack-social-page__content--padded">
+									{ children }
+								</div>
+							</Tabs.Root>
+						) : (
+							<div className="jetpack-social-page__content jetpack-social-page__content--padded">
+								{ children }
+							</div>
+						) }
+					</SocialGate>
 				</AdminPage>
 			</Tooltip.Provider>
 		</ModernizationProvider>

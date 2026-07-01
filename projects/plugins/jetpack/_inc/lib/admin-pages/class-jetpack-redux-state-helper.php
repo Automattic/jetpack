@@ -246,8 +246,19 @@ class Jetpack_Redux_State_Helper {
 			'isSubscriptionSiteEnabled'            => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'newsletterDateExample'                => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),
-			/* This filter is already documented in jetpack/modules/subscriptions.php */
-			'isWpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ),
+
+			/*
+			 * This filter is already documented in jetpack/modules/subscriptions.php.
+			 * Default is the staged rollout (Automatticians plus the percentage cohort,
+			 * currently 0%, bucketed by the stable wpcom blog ID), delegated to the
+			 * canonical Newsletter\Settings helper and guarded so an older packaged copy
+			 * can't fatal.
+			 */
+			'isWpAdminSubscriberManagementEnabled' => apply_filters(
+				'jetpack_wp_admin_subscriber_management_enabled',
+				method_exists( '\Automattic\Jetpack\Newsletter\Settings', 'is_modernization_rollout_enabled' )
+					&& \Automattic\Jetpack\Newsletter\Settings::is_modernization_rollout_enabled()
+			),
 		);
 	}
 
@@ -392,9 +403,7 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_external_services_connect_urls() {
 		$connect_urls = array();
-		// phpcs:disable
 		foreach ( Keyring_Helper::SERVICES as $service_name => $service_info ) {
-			// phpcs:enable
 			$connect_urls[ $service_name ] = Keyring_Helper::connect_url( $service_name, $service_info['for'] );
 		}
 		return $connect_urls;

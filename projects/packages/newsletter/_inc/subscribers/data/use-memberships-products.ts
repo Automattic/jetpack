@@ -4,9 +4,10 @@ import type { MembershipsProduct } from './api';
 
 /**
  * Fetch the paid newsletter / membership products configured on this site. Lazy — only runs
- * when the consumer asks for it (the Comp modal needs it; nothing else does).
+ * when the consumer asks for it. The Subscribers table fetches it to decide whether to offer the
+ * "Comp a subscription" action; the Comp modal reuses the same cached result.
  *
- * @param enabled - Whether the request should run (typically `true` once the modal is open).
+ * @param enabled - Whether the request should run.
  * @return React Query handle.
  */
 export function useMembershipsProducts( enabled: boolean ) {

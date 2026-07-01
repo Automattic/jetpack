@@ -14,8 +14,9 @@ vendor/jetpack-autoloader/**                    production-include
 # Remember to end all directories with `/**` to properly tag every file.
 /app-ui/build/**/*.map                          production-exclude
 /app-ui/src/**                                  production-exclude
+/app-ui/css/**                                  production-exclude
+/packages/Async_Option/scripts/**               production-exclude
+/packages/Async_Option/README.md                production-exclude
 /README.md                                      production-exclude
 /rollup.config.js                               production-exclude
 /testbed/**                                     production-exclude
-/vendor/automattic/jetpack-autoloader/**        production-exclude
-/vendor/automattic/jetpack-composer-plugin/**   production-exclude

@@ -2079,7 +2079,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 				// Try to get input from inside label (new markup)
 				// @phan-suppress-next-line PhanUndeclaredMethod -- getElementsByTagName is available on DOMElement, which label elements are.
-				$input = $real_label->getElementsByTagName( 'input' )->item( 0 ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$input = $real_label->getElementsByTagName( 'input' )->item( 0 );
 
 				// If input is not inside label, get it from parent (old markup)
 				// In old markup, each <p> has one input and one label, so always use item(0)
@@ -4054,6 +4054,385 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
 
 		remove_filter( 'jetpack_forms_webhooks_enabled', '__return_false' );
+	}
+
+	/**
+	 * Create a user with the given role and a published post authored by them.
+	 *
+	 * @param string $role Role to assign to the post author.
+	 * @return int The created post ID.
+	 */
+	private function create_post_for_role( $role ) {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => $role . '-webhook-author@example.com',
+				'user_login' => 'webhook_' . $role . '_author',
+				'user_pass'  => 'abc123',
+				'role'       => $role,
+			)
+		);
+
+		return wp_insert_post(
+			array(
+				'post_title'  => ucfirst( $role ) . ' authored form',
+				'post_status' => 'publish',
+				'post_author' => $author_id,
+			),
+			true
+		);
+	}
+
+	/**
+	 * Build a Contact_Form whose source resolves to the given post id.
+	 *
+	 * @param array      $attributes  Form attributes.
+	 * @param int|string $source_id   Source id the form should report: a numeric post id, or a
+	 *                                non-numeric widget/block-template id.
+	 * @param string     $source_type Source type (single, widget, block_template, block_template_part).
+	 * @return Contact_Form
+	 */
+	private function make_form_with_source( $attributes, $source_id, $source_type = 'single' ) {
+		$source = Feedback_Source::from_serialized(
+			array(
+				'source_id'   => $source_id,
+				'title'       => 'Test Post',
+				'source_type' => $source_type,
+			)
+		);
+
+		return $this->make_form_with_source_object( $attributes, $source );
+	}
+
+	/**
+	 * Build a Contact_Form that reports the given (already constructed) source.
+	 *
+	 * @param array           $attributes Form attributes.
+	 * @param Feedback_Source $source     Source to report from get_source().
+	 * @return Contact_Form
+	 */
+	private function make_form_with_source_object( $attributes, $source ) {
+		return new class( $attributes, $source ) extends Contact_Form {
+			/**
+			 * Source to report from get_source().
+			 *
+			 * @var Feedback_Source
+			 */
+			private $test_source;
+
+			/**
+			 * Constructor that sets attributes and source directly, skipping parsing.
+			 *
+			 * @param array           $attributes Form attributes.
+			 * @param Feedback_Source $source     Source to report from get_source().
+			 */
+			public function __construct( $attributes, $source ) {
+				$this->attributes  = $attributes;
+				$this->fields      = array();
+				$this->test_source = $source;
+			}
+
+			/**
+			 * Return the test source instead of resolving it from the request.
+			 *
+			 * @return Feedback_Source
+			 */
+			public function get_source() {
+				return $this->test_source;
+			}
+		};
+	}
+
+	/**
+	 * Resolve a Feedback_Source through get_current() with a render-scoped global set, then clear
+	 * the global. Mirrors how a real template/template-part render establishes the source type.
+	 *
+	 * @param string $global_key The render-scoped global to set (e.g. grunion_block_template_id).
+	 * @param string $value      The value to set it to (the template/part id).
+	 * @param array  $attributes Attributes to pass to get_current().
+	 * @return Feedback_Source
+	 */
+	private function source_from_render_global( $global_key, $value, $attributes = array() ) {
+		$GLOBALS[ $global_key ] = $value;
+		$source                 = Feedback_Source::get_current( $attributes );
+		unset( $GLOBALS[ $global_key ] );
+		return $source;
+	}
+
+	/**
+	 * Invoke the private reconcile_content_destinations() method on the plugin singleton.
+	 *
+	 * @param Contact_Form $form Form to reconcile.
+	 */
+	private function invoke_reconcile_content_destinations( $form ) {
+		$method = new \ReflectionMethod( Contact_Form_Plugin::class, 'reconcile_content_destinations' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$method->invoke( Contact_Form_Plugin::init(), $form );
+	}
+
+	/**
+	 * Test should_honor_content_destinations returns true when the source author can manage options.
+	 */
+	public function test_should_honor_content_destinations_for_capable_author() {
+		$post_id = $this->create_post_for_role( 'administrator' );
+
+		// WorDBless can clear role/option state between tests, so grant the
+		// capability via the user_has_cap filter rather than relying on the role.
+		$grant = function ( $allcaps ) {
+			$allcaps['manage_options'] = true;
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $grant );
+
+		$this->assertTrue( \Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $post_id ) );
+
+		remove_filter( 'user_has_cap', $grant );
+	}
+
+	/**
+	 * Test should_honor_content_destinations denies an author-role author.
+	 */
+	public function test_should_not_honor_content_destinations_for_author_role() {
+		$this->assertFalse(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $this->create_post_for_role( 'author' ) )
+		);
+	}
+
+	/**
+	 * Test should_honor_content_destinations denies a contributor-role author.
+	 */
+	public function test_should_not_honor_content_destinations_for_contributor_role() {
+		$this->assertFalse(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $this->create_post_for_role( 'contributor' ) )
+		);
+	}
+
+	/**
+	 * Test should_honor_content_destinations returns false when the source cannot be resolved.
+	 */
+	public function test_should_honor_content_destinations_returns_false_for_missing_post() {
+		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 0 ) );
+		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 999999 ) );
+	}
+
+	/**
+	 * Test should_honor_content_destinations honors block-template, template-part and widget
+	 * sources, whose (non-numeric) ids have no post author but require an administrator-tier
+	 * `edit_theme_options` capability to author.
+	 */
+	public function test_should_honor_content_destinations_for_admin_tier_sources() {
+		foreach ( Feedback_Source::ADMIN_TIER_SOURCE_TYPES as $source_type ) {
+			$this->assertTrue(
+				\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 'mytheme//page', $source_type ),
+				"Destinations should be honored for $source_type sources."
+			);
+		}
+	}
+
+	/**
+	 * Test should_honor_content_destinations still denies an unresolved non-numeric source whose
+	 * type is not an admin-tier authoring surface (the conservative catch-all).
+	 */
+	public function test_should_not_honor_content_destinations_for_unknown_non_numeric_source() {
+		$this->assertFalse(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 'mytheme//page', 'single' )
+		);
+	}
+
+	/**
+	 * Test reconcile_content_destinations drops every content-configured destination
+	 * when the source post author may not configure them.
+	 */
+	public function test_reconcile_content_destinations_drops_destinations_for_unauthorized_author() {
+		$form = $this->make_form_with_source(
+			array(
+				'webhooks'       => array(
+					array(
+						'webhook_id' => 'w',
+						'url'        => 'https://example.com/hook',
+						'enabled'    => true,
+						'format'     => 'json',
+						'method'     => 'POST',
+					),
+				),
+				'postToUrl'      => array(
+					'url'     => 'https://example.com/post',
+					'enabled' => true,
+				),
+				'salesforceData' => array( 'organizationId' => '12345' ),
+			),
+			$this->create_post_for_role( 'author' )
+		);
+
+		$this->invoke_reconcile_content_destinations( $form );
+
+		$this->assertSame( array(), $form->attributes['webhooks'], 'Webhooks should be dropped.' );
+		$this->assertSame( array(), $form->attributes['postToUrl'], 'postToUrl should be dropped.' );
+		$this->assertNull( $form->attributes['salesforceData'], 'salesforceData should be dropped.' );
+	}
+
+	/**
+	 * Test reconcile_content_destinations drops a Salesforce-only configuration for an
+	 * unauthorized author, confirming the early return does not skip salesforce-only forms.
+	 */
+	public function test_reconcile_content_destinations_drops_salesforce_only_for_unauthorized_author() {
+		$form = $this->make_form_with_source(
+			array( 'salesforceData' => array( 'organizationId' => '12345' ) ),
+			$this->create_post_for_role( 'author' )
+		);
+
+		$this->invoke_reconcile_content_destinations( $form );
+
+		$this->assertNull( $form->attributes['salesforceData'], 'salesforceData should be dropped for a Salesforce-only form.' );
+	}
+
+	/**
+	 * Test reconcile_content_destinations keeps destinations and migrates postToUrl
+	 * when the source post author may configure them.
+	 */
+	public function test_reconcile_content_destinations_keeps_destinations_for_capable_author() {
+		$form = $this->make_form_with_source(
+			array(
+				'webhooks'       => array(
+					array(
+						'webhook_id' => 'w',
+						'url'        => 'https://example.com/hook',
+						'enabled'    => true,
+						'format'     => 'json',
+						'method'     => 'POST',
+					),
+				),
+				'postToUrl'      => array(
+					'url'     => 'https://example.com/post',
+					'enabled' => true,
+				),
+				'salesforceData' => array( 'organizationId' => '12345' ),
+			),
+			$this->create_post_for_role( 'administrator' )
+		);
+
+		$grant = function ( $allcaps ) {
+			$allcaps['manage_options'] = true;
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $grant );
+
+		$this->invoke_reconcile_content_destinations( $form );
+
+		remove_filter( 'user_has_cap', $grant );
+
+		// postToUrl is migrated into the webhooks collection, so both entries survive.
+		$this->assertCount( 2, $form->attributes['webhooks'], 'Configured webhook and migrated postToUrl should remain.' );
+		$this->assertSame( array( 'organizationId' => '12345' ), $form->attributes['salesforceData'], 'salesforceData should be preserved.' );
+	}
+
+	/**
+	 * Test reconcile_content_destinations keeps destinations for a block-template source built
+	 * through the real render path: the source type comes from the render-scoped global, not from
+	 * a content attribute, so this exercises a reachable state.
+	 *
+	 * Regression test for forms placed in FSE block templates, template parts and widgets whose
+	 * webhooks/postToUrl/Salesforce destinations were silently dropped from Jetpack 15.9.
+	 */
+	public function test_reconcile_content_destinations_keeps_destinations_for_block_template_source() {
+		$source = $this->source_from_render_global( 'grunion_block_template_id', 'mytheme//single' );
+
+		$this->assertSame( 'block_template', $source->get_source_type(), 'Render-scoped global should yield a block_template source.' );
+
+		$form = $this->make_form_with_source_object(
+			array(
+				'webhooks'       => array(
+					array(
+						'webhook_id' => 'w',
+						'url'        => 'https://example.com/hook',
+						'enabled'    => true,
+						'format'     => 'json',
+						'method'     => 'POST',
+					),
+				),
+				'postToUrl'      => array(
+					'url'     => 'https://example.com/post',
+					'enabled' => true,
+				),
+				'salesforceData' => array( 'organizationId' => '12345' ),
+			),
+			$source
+		);
+
+		$this->invoke_reconcile_content_destinations( $form );
+
+		// postToUrl is migrated into the webhooks collection, so both entries survive.
+		$this->assertCount( 2, $form->attributes['webhooks'], 'Configured webhook and migrated postToUrl should remain for a block-template form.' );
+		$this->assertSame( array( 'organizationId' => '12345' ), $form->attributes['salesforceData'], 'salesforceData should be preserved for a block-template form.' );
+	}
+
+	/**
+	 * Test that Feedback_Source::get_current() anchors the block_template / block_template_part
+	 * source types to render-scoped globals, NOT to content attributes.
+	 *
+	 * A content attribute can be supplied by a post author who lacks edit_theme_options, so
+	 * trusting it would let a post-content form masquerade as an admin-authored template source
+	 * and have its content-declared destinations honored. This guards that hole.
+	 */
+	public function test_content_supplied_template_markers_are_not_trusted() {
+		unset( $GLOBALS['grunion_block_template_id'], $GLOBALS['grunion_block_template_part_id'] );
+
+		foreach ( array( 'block_template', 'block_template_part' ) as $marker ) {
+			$source = Feedback_Source::get_current(
+				array(
+					$marker    => 'mytheme//evil',
+					'webhooks' => array(
+						array(
+							'webhook_id' => 'w',
+							'url'        => 'https://example.com/x',
+							'enabled'    => true,
+							'format'     => 'json',
+							'method'     => 'POST',
+						),
+					),
+				)
+			);
+
+			$this->assertNotContains(
+				$source->get_source_type(),
+				Feedback_Source::ADMIN_TIER_SOURCE_TYPES,
+				"A content-supplied $marker attribute must not yield an admin-tier source type."
+			);
+		}
+	}
+
+	/**
+	 * Test that a block_template / block_template_part source built from the render-scoped global
+	 * (the legitimate path) is honored.
+	 */
+	public function test_render_anchored_template_sources_are_trusted() {
+		$template_source = $this->source_from_render_global( 'grunion_block_template_id', 'mytheme//single' );
+
+		$this->assertSame( 'block_template', $template_source->get_source_type() );
+		$this->assertTrue(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $template_source->get_id(), $template_source->get_source_type() )
+		);
+
+		$part_source = $this->source_from_render_global( 'grunion_block_template_part_id', 'mytheme//footer' );
+
+		$this->assertSame( 'block_template_part', $part_source->get_source_type() );
+		$this->assertTrue(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $part_source->get_id(), $part_source->get_source_type() )
+		);
+	}
+
+	/**
+	 * Test that get_current() still resolves a widget source from the widget attribute, which
+	 * Contact_Form::parse() sets from the server-resolved widget context (not from content).
+	 */
+	public function test_get_current_resolves_widget_source_from_attribute() {
+		unset( $GLOBALS['grunion_block_template_id'], $GLOBALS['grunion_block_template_part_id'] );
+
+		$source = Feedback_Source::get_current( array( 'widget' => 'sidebar-1' ) );
+
+		$this->assertSame( 'widget', $source->get_source_type() );
+		$this->assertSame( 'sidebar-1', (string) $source->get_id() );
 	}
 
 	/**

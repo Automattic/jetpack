@@ -3,7 +3,6 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { formatNumber } from '@automattic/number-formatters';
-import { Page } from '@wordpress/admin-ui';
 import {
 	Button,
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -15,14 +14,14 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useSearch, useNavigate } from '@wordpress/route';
-import { Badge } from '@wordpress/ui';
-import * as React from 'react';
+import { Badge, EmptyState } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
+import { icon as formBlockIcon } from '../../src/blocks/contact-form/icon.jsx';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
-import { EmptyWrapper, NoResults } from '../../src/dashboard/components/empty-responses/index.tsx';
+import { NoResults } from '../../src/dashboard/components/empty-responses/index.tsx';
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
 import {
 	FORM_STATUSES,
@@ -36,6 +35,7 @@ import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-
 import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
+import FormsPage from '../../src/dashboard/wp-build/components/page';
 import useFormItemActions from '../../src/dashboard/wp-build/hooks/use-form-item-actions';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import { useRenameForm } from '../../src/dashboard/wp-build/hooks/use-rename-form';
@@ -47,7 +47,7 @@ import './style.scss';
  * Types
  */
 import type { FormListItem } from '../../src/dashboard/hooks/use-forms-data.ts';
-import type { Action, Operator, View } from '@wordpress/dataviews';
+import type { Action, Field, Operator, View } from '@wordpress/dataviews';
 
 /**
  * Default DataViews config for the Forms list.
@@ -199,7 +199,7 @@ function StageInner() {
 		}
 	}, [ confirmPermanentDelete ] );
 
-	const fields = useMemo(
+	const fields = useMemo< Field< FormListItem >[] >(
 		() => [
 			{
 				id: 'title',
@@ -594,13 +594,14 @@ function StageInner() {
 	);
 
 	return (
-		<Page
+		<FormsPage
 			visual={ visual }
 			breadcrumbs={ breadcrumbs }
 			title={ title }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
+			showFooter={ false }
 		>
 			<DataViews
 				paginationInfo={ paginationInfo }
@@ -612,13 +613,15 @@ function StageInner() {
 					hasActiveFilters ? (
 						<NoResults />
 					) : (
-						<EmptyWrapper
-							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
-							body={ __(
-								'Create a form to manage and reuse it across your site.',
-								'jetpack-forms'
-							) }
-							actions={
+						<EmptyState.Root>
+							<EmptyState.Icon icon={ formBlockIcon } />
+							<EmptyState.Title>
+								{ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
+							</EmptyState.Title>
+							<EmptyState.Description>
+								{ __( 'Create a form to manage and reuse it across your site.', 'jetpack-forms' ) }
+							</EmptyState.Description>
+							<EmptyState.Actions>
 								<HStack justify="center" spacing="2">
 									<CreateFormButton
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
@@ -631,8 +634,8 @@ function StageInner() {
 										</Button>
 									) }
 								</HStack>
-							}
-						/>
+							</EmptyState.Actions>
+						</EmptyState.Root>
 					)
 				}
 				view={ view }
@@ -689,7 +692,7 @@ function StageInner() {
 				context="dashboard"
 			/>
 			<FormsHelpModal isOpen={ isFormsHelpModalOpen } onClose={ closeFormsHelpModal } />
-		</Page>
+		</FormsPage>
 	);
 }
 

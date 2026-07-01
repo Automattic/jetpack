@@ -52,7 +52,8 @@ export_e2e_config() {
 		echo "Decrypted config file not found! Have you run 'pnpm config:decrypt' yet?";
 		exit 1
 	else
-		local e2e_config=$(node -e 'const config = require( "./config/local.cjs" ); console.log( JSON.stringify(config.testSites.default) );' 2>/dev/null) || { echo "Failed to read config file!" && exit 1; }
+		local e2e_config
+		e2e_config=$(node -e 'const config = require( "./config/local.cjs" ); console.log( JSON.stringify(config.testSites.default) );' 2>/dev/null) || { echo "Failed to read config file!" && exit 1; }
 
 		WP_FORCE_ADMIN_USER=$( jq -r '.username' <<< "$e2e_config" )
 		WP_FORCE_ADMIN_PASS=$( jq -r '.password' <<< "$e2e_config" )

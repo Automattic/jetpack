@@ -24,14 +24,12 @@ describe( 'FiltersEdit', () => {
 			[ 'jetpack-search/filter-checkbox', { filterType: 'author' } ],
 			[ 'jetpack-search/filter-checkbox', { filterType: 'post_type' } ],
 			[ 'jetpack-search/filter-date', { interval: 'year' } ],
-			[ 'jetpack-search/filter-post-type' ],
 		] );
 		expect( props.allowedBlocks ).toEqual( [
 			'jetpack-search/active-filters',
 			'jetpack-search/clear-filters',
 			'jetpack-search/filter-checkbox',
 			'jetpack-search/filter-date',
-			'jetpack-search/filter-post-type',
 		] );
 	} );
 } );

@@ -14,6 +14,31 @@ jest.mock( '../../../hooks/use-element-size', () => ( {
 	useElementSize: () => [ mockRefCallback, 500, 300 ],
 } ) );
 
+// Drive the zoom state directly so we can assert the clip-path behaviour without
+// simulating a pointer drag (svgPoint geometry is unavailable in jsdom). The rest
+// of the x-zoom module (ZoomClipPath, getZoomClipPathId, etc.) stays real.
+const mockUseXZoom = jest.fn();
+jest.mock( '../../private/x-zoom', () => {
+	const actual = jest.requireActual( '../../private/x-zoom' );
+	return {
+		__esModule: true,
+		...actual,
+		useXZoom: ( ...args: unknown[] ) => mockUseXZoom( ...args ),
+	};
+} );
+
+const passthroughZoom = () => ( {
+	domain: null,
+	drag: null,
+	reset: jest.fn(),
+	handlers: { onPointerDown: jest.fn(), onPointerMove: jest.fn(), onPointerUp: jest.fn() },
+} );
+
+beforeEach( () => {
+	mockUseXZoom.mockReset();
+	mockUseXZoom.mockImplementation( passthroughZoom );
+} );
+
 const customTheme = {
 	...defaultTheme,
 	glyphs: [
@@ -1252,5 +1277,21 @@ describe( 'LineChart', () => {
 				expect( item ).toHaveAttribute( 'aria-pressed', 'true' );
 			} );
 		} );
+	} );
+
+	// The line is not animated, so it clips only while actually zoomed.
+	test( 'clips the series to the plot when zoomed', () => {
+		mockUseXZoom.mockImplementation( () => ( {
+			domain: [ new Date( '2024-01-01' ), new Date( '2024-01-02' ) ],
+			drag: null,
+			reset: jest.fn(),
+			handlers: { onPointerDown: jest.fn(), onPointerMove: jest.fn(), onPointerUp: jest.fn() },
+		} ) );
+		renderUnwrappedWithTheme( { zoomable: true, chartId: 'zoomtest' } );
+
+		expect( screen.getByTestId( 'chart-series-clip-group' ) ).toHaveAttribute(
+			'clip-path',
+			'url(#chart-zoom-clip-zoomtest)'
+		);
 	} );
 } );

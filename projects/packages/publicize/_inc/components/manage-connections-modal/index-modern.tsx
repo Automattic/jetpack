@@ -2,19 +2,13 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Dialog, Link, Text, Tooltip } from '@wordpress/ui';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
 import { ModernServicesList } from '../services/services-list-modern';
 import { ConfirmationForm } from './confirmation-form';
 import styles from './style-modern.module.scss';
-
-// Split the two titles into constants rather than picking them inline with a
-// ternary: interpolating translatable strings inside JSX expressions can break
-// the way our build extracts/bundles them for translation.
-const CONFIRMATION_TITLE = () => __( 'Connection confirmation', 'jetpack-publicize-pkg' );
-const MANAGE_TITLE = () => _x( 'Manage Jetpack Social connections', '', 'jetpack-publicize-pkg' );
 
 export const ModernManageConnectionsModal = () => {
 	const { keyringResult } = useSelect( select => {
@@ -48,7 +42,13 @@ export const ModernManageConnectionsModal = () => {
 
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 
-	const title = hasKeyringResult ? CONFIRMATION_TITLE() : MANAGE_TITLE();
+	// Hold each title in its own variable and select with the ternary afterwards.
+	// Picking inline (`cond ? __( 'A' ) : __( 'B' )`) lets the minifier fold both
+	// branches into a single `__( cond ? 'A' : 'B' )` call, which the i18n string
+	// extraction can no longer read.
+	const confirmationTitle = __( 'Connection confirmation', 'jetpack-publicize-pkg' );
+	const manageTitle = __( 'Manage Jetpack Social connections', 'jetpack-publicize-pkg' );
+	const title = hasKeyringResult ? confirmationTitle : manageTitle;
 
 	const canMarkAsShared = useUserCanShareConnection();
 
@@ -64,21 +64,36 @@ export const ModernManageConnectionsModal = () => {
 				 * disclosure row expands — pinning it makes the row scroll inside
 				 * the popup instead. The short confirmation view keeps its natural
 				 * height, and `full` already fills the viewport on mobile.
+				 *
+				 * Both non-`full` views also carry the admin-menu workaround so they
+				 * don't tuck under the wp-admin sidebar: `services-list` (its
+				 * horizontal half) and `menu-aware` (the confirmation view). See the
+				 * workaround section in style-modern.module.scss.
 				 */ }
 				<Dialog.Popup
 					size={ isSmall ? 'full' : 'large' }
-					className={ ! hasKeyringResult && ! isSmall ? styles[ 'services-list' ] : undefined }
+					className={
+						isSmall ? undefined : styles[ hasKeyringResult ? 'menu-aware' : 'services-list' ]
+					}
 				>
 					<Dialog.Header className={ styles[ 'modal-header' ] }>
 						<Dialog.Title>{ title }</Dialog.Title>
 						<Dialog.CloseIcon />
 					</Dialog.Header>
 					{ hasKeyringResult ? (
-						<ConfirmationForm
-							keyringResult={ keyringResult }
-							onComplete={ closeModal }
-							canMarkAsShared={ canMarkAsShared }
-						/>
+						/*
+						 * Wrap the confirmation form in `Dialog.Content` too, so it
+						 * picks up the same body inset the services list gets
+						 * (`0 24px 24px`). Rendered bare, the form ran edge-to-edge
+						 * and the footer buttons sat flush against the popup bottom.
+						 */
+						<Dialog.Content>
+							<ConfirmationForm
+								keyringResult={ keyringResult }
+								onComplete={ closeModal }
+								canMarkAsShared={ canMarkAsShared }
+							/>
+						</Dialog.Content>
 					) : (
 						/*
 						 * `Dialog.Content` is the library's scroll region (flex:1;

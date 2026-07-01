@@ -870,7 +870,9 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
 
 		$this->assertTrue( isset( $this->full_sync_end_checksum ) );
@@ -884,7 +886,9 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
 
 		$this->assertTrue( isset( $this->full_sync_end_range ) );
@@ -1153,7 +1157,9 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 		$this->full_sync->start( array( 'users' => true ) );
 
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
 
 		$full_sync_status = $this->full_sync->get_status();

@@ -28,7 +28,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
  * - get-speed-score    — latest mobile/desktop scores from history.
  * - clear-page-cache   — flush the Boost page cache for the home URL.
  *
- * @since $$next-version$$
+ * @since 4.6.0
  */
 class Boost_Abilities extends Registrar {
 
@@ -229,7 +229,7 @@ class Boost_Abilities extends Registrar {
 	 * gates on `manage_options`. We mirror that here so abilities are no more
 	 * (or less) permissive than the REST and admin surfaces.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.6.0
 	 */
 	public static function can_view_modules(): bool {
 		return is_user_logged_in() && current_user_can( 'manage_options' );
@@ -238,7 +238,7 @@ class Boost_Abilities extends Registrar {
 	/**
 	 * Permission check for write abilities.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.6.0
 	 */
 	public static function can_manage_modules(): bool {
 		return is_user_logged_in() && current_user_can( 'manage_options' );
@@ -285,7 +285,7 @@ class Boost_Abilities extends Registrar {
 	/**
 	 * Execute: filtered read of Boost modules.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.6.0
 	 *
 	 * @param array|null $input Input matching the ability's input_schema.
 	 * @return array|\WP_Error
@@ -365,7 +365,7 @@ class Boost_Abilities extends Registrar {
 	/**
 	 * Execute: declarative module toggle. Idempotent.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.6.0
 	 *
 	 * @param array|null $input Input matching the ability's input_schema.
 	 * @return array|\WP_Error
@@ -466,7 +466,7 @@ class Boost_Abilities extends Registrar {
 	/**
 	 * Execute: latest speed score for the home URL.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.6.0
 	 *
 	 * @param array|null $input Unused; ability has no inputs.
 	 * @return array
@@ -505,7 +505,7 @@ class Boost_Abilities extends Registrar {
 	/**
 	 * Execute: clear the Boost page cache for the home URL.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.6.0
 	 *
 	 * @param array|null $input Unused; ability has no inputs.
 	 * @return array|\WP_Error

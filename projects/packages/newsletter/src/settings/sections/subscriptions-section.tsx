@@ -38,6 +38,12 @@ const PLACEMENT_SLUG_BY_KEY: Record< string, string > = {
 
 interface SubscriptionsSectionProps {
 	data: NewsletterSettings;
+	/**
+	 * Last *persisted* settings. A placement's "Preview and edit" link only
+	 * shows when the placement is enabled here (saved), not merely toggled on
+	 * in the optimistic `data` — otherwise the link opens an empty preview.
+	 */
+	savedData: NewsletterSettings | null;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
 	onSave: () => void;
 	isSaving: boolean;
@@ -60,6 +66,7 @@ interface SubscriptionsSectionProps {
  */
 export function SubscriptionsSection( {
 	data,
+	savedData,
 	onChange,
 	onSave,
 	isSaving,
@@ -225,22 +232,39 @@ export function SubscriptionsSection( {
 					</Text>
 					<Fieldset.Root disabled={ ! isNewsletterEnabled }>
 						<Stack gap="lg" direction="column">
-							<div className="jetpack-newsletter-placements-grid">
-								{ placements.map( placement => (
-									<PlacementCard
-										key={ placement.key }
-										id={ `placement-${ placement.key }` }
-										name={ String( placement.key ) }
-										title={ placement.title }
-										illustration={ placement.illustration }
-										previewUrl={ placement.previewUrl }
-										checked={ Boolean( data[ placement.key ] ) }
-										onChange={ handlePlacementChange }
-										onPreviewClick={ handlePlacementPreviewClick }
-										disabled={ ! isNewsletterEnabled }
-									/>
-								) ) }
-							</div>
+							<Stack gap="sm" direction="column">
+								<Text variant="heading-sm" render={ <h3 /> }>
+									{ __( 'Homepage and posts', 'jetpack-newsletter' ) }
+								</Text>
+								<div className="jetpack-newsletter-placements-grid">
+									{ placements.map( placement => {
+										// Surface "Preview and edit" only when the placement is
+										// enabled in the SAVED state AND still shown as checked —
+										// otherwise the link opens an empty Site Editor preview.
+										// Gating on `savedData` (the persisted baseline) rather than
+										// "untouched since save" keeps the link reversible: toggle a
+										// saved-on placement off then back on and it returns, while a
+										// freshly enabled-but-unsaved placement stays linkless until
+										// the save lands.
+										const isEnabledAndSaved =
+											Boolean( data[ placement.key ] ) && Boolean( savedData?.[ placement.key ] );
+										return (
+											<PlacementCard
+												key={ placement.key }
+												id={ `placement-${ placement.key }` }
+												name={ String( placement.key ) }
+												title={ placement.title }
+												illustration={ placement.illustration }
+												previewUrl={ isEnabledAndSaved ? placement.previewUrl : undefined }
+												checked={ Boolean( data[ placement.key ] ) }
+												onChange={ handlePlacementChange }
+												onPreviewClick={ handlePlacementPreviewClick }
+												disabled={ ! isNewsletterEnabled }
+											/>
+										);
+									} ) }
+								</div>
+							</Stack>
 
 							<Stack gap="sm" direction="column">
 								<Text variant="heading-sm" render={ <h3 /> }>

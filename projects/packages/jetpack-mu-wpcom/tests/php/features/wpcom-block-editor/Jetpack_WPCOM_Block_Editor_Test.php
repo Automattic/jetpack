@@ -37,6 +37,29 @@ class Jetpack_WPCOM_Block_Editor_Test extends \WorDBless\BaseTestCase {
 		);
 		Constants::set_constant( 'JETPACK__API_VERSION', '1' );
 	}
+
+	/**
+	 * Runs the routine after each test is executed.
+	 */
+	public function tear_down() {
+		parent::tear_down();
+
+		foreach (
+			array(
+				'wpcom-block-editor-default-editor-script',
+				'wpcom-block-editor-wpcom-editor-script',
+				'wpcom-block-editor-wpcom-editor-styles',
+				'wpcom-block-editor-calypso-editor-script',
+				'wpcom-block-editor-calypso-editor-styles',
+			) as $handle
+		) {
+			wp_dequeue_script( $handle );
+			wp_deregister_script( $handle );
+			wp_dequeue_style( $handle );
+			wp_deregister_style( $handle );
+		}
+	}
+
 	/**
 	 * Test_verify_frame_nonce.
 	 */
@@ -66,6 +89,63 @@ class Jetpack_WPCOM_Block_Editor_Test extends \WorDBless\BaseTestCase {
 
 		// Cleanup.
 		Jetpack_Options::delete_option( array( 'user_tokens', 'master_user' ) );
+	}
+
+	/**
+	 * Tests that remote block editor scripts declare their WordPress package dependencies.
+	 */
+	public function test_enqueue_block_editor_assets_declares_remote_script_dependencies() {
+		$wpcom_block_editor = Jetpack_WPCOM_Block_Editor::init();
+		$wpcom_block_editor->enqueue_block_editor_assets();
+
+		$this->assertScriptDependencies(
+			'wpcom-block-editor-default-editor-script',
+			array(
+				'react',
+				'wp-block-editor',
+				'wp-blocks',
+				'wp-compose',
+				'wp-data',
+				'wp-rich-text',
+			)
+		);
+
+		$this->assertScriptDependencies(
+			'wpcom-block-editor-wpcom-editor-script',
+			array(
+				'lodash',
+				'react',
+				'wp-block-editor',
+				'wp-blocks',
+				'wp-components',
+				'wp-compose',
+				'wp-data',
+				'wp-dom-ready',
+				'wp-element',
+				'wp-hooks',
+				'wp-i18n',
+				'wp-plugins',
+				'wp-primitives',
+				'wp-url',
+			)
+		);
+	}
+
+	/**
+	 * Asserts that a script declares the exact generated asset metadata dependencies.
+	 *
+	 * @param string $handle                Script handle.
+	 * @param array  $expected_dependencies Expected dependencies.
+	 */
+	private function assertScriptDependencies( $handle, $expected_dependencies ) {
+		$registered_script = wp_scripts()->registered[ $handle ] ?? null;
+
+		$this->assertNotNull( $registered_script, "Expected $handle to be registered." );
+		$this->assertSame(
+			$expected_dependencies,
+			$registered_script->deps,
+			"Expected $handle dependencies to match generated Calypso asset metadata."
+		);
 	}
 
 	/**

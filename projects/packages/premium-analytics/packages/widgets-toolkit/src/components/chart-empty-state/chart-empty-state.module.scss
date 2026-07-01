@@ -1,0 +1,13 @@
+.container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 100%;
+	margin-inline: auto;
+	gap: var(--wpds-dimension-gap-lg);
+}
+
+.icon {
+	color: var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+}

@@ -59,4 +59,31 @@ describe( 'siteDataSelectors', () => {
 			fallback
 		);
 	} );
+
+	test( 'returns the product overlay template config from siteData', () => {
+		const config = {
+			enabled: true,
+			editorUrl: 'https://example.com/wp-admin/post.php?post=43&action=edit',
+			postType: 'jp_search_prod_ovl',
+			isCustomized: false,
+		};
+		expect(
+			siteDataSelectors.getProductOverlayTemplateConfig( {
+				siteData: { productOverlayTemplate: config },
+			} )
+		).toEqual( config );
+	} );
+
+	test( 'falls back to the singleton-template default when productOverlayTemplate is missing', () => {
+		const fallback = {
+			enabled: false,
+			editorUrl: null,
+			postType: null,
+			isCustomized: false,
+		};
+		expect( siteDataSelectors.getProductOverlayTemplateConfig( {} ) ).toEqual( fallback );
+		expect( siteDataSelectors.getProductOverlayTemplateConfig( { siteData: {} } ) ).toEqual(
+			fallback
+		);
+	} );
 } );

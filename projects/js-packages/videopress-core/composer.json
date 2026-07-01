@@ -16,12 +16,8 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
 		],
-		"test-coverage": [
-			"pnpm run test-coverage"
-		],
-		"test-js": [
-			"pnpm run test"
-		]
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage"
 	},
 	"repositories": [
 		{

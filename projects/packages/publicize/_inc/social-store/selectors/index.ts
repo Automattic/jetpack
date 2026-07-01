@@ -9,7 +9,6 @@ import * as socialModuleSelectors from './social-module-settings';
 import * as socialSettingsSelectors from './social-settings';
 import * as trafficStatsSelectors from './traffic-stats';
 import * as unifiedModalSelectors from './unified-modal';
-import * as xUsageSelectors from './x-usage';
 
 const selectors = {
 	...connectionDataSelectors,
@@ -23,7 +22,6 @@ const selectors = {
 	...scheduledSharesSelectors,
 	...trafficStatsSelectors,
 	...unifiedModalSelectors,
-	...xUsageSelectors,
 };
 
 export default selectors;

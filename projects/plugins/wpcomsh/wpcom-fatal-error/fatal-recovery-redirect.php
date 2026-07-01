@@ -42,7 +42,6 @@
  * @return void
  */
 function wpcomsh_fatal_maybe_handle_recovery_click() {
-	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- nonce verified by wp_verify_nonce() below.
 	if ( empty( $_GET['wpcomsh_recover'] ) ) {
 		return; // Not our request — let WP serve normally.
 	}
@@ -96,7 +95,6 @@ function wpcomsh_fatal_maybe_handle_recovery_click() {
 		$bail_clean();
 	}
 	$nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
-	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	// The screen never emits this URL on multisite, so any matching request
 	// here is bogus.

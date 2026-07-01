@@ -1,6 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import * as WPElement from '@wordpress/element';
 import { useEffect } from 'react';
 import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router';
@@ -89,7 +88,6 @@ function render() {
 					</ModalProvider>
 				</NoticeProvider>
 			</ThemeProvider>
-			<ReactQueryDevtools initialIsOpen={ false } />
 		</QueryClientProvider>
 	);
 	WPElement.createRoot( container ).render( component );

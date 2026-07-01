@@ -88,6 +88,31 @@ class Jetpack_Memberships {
 	private static $tags_allowed_in_the_button = array( 'br' => array() );
 
 	/**
+	 * Allowed HTML tags for a rendered tier description. Mirrors the wp.com
+	 * subscribe modal's allowlist so the rendered markdown stays consistent
+	 * across surfaces.
+	 *
+	 * @var array
+	 */
+	const TIER_DESCRIPTION_ALLOWED_HTML = array(
+		'p'          => array(),
+		'br'         => array(),
+		'ul'         => array(),
+		'ol'         => array(),
+		'li'         => array(),
+		'strong'     => array(),
+		'em'         => array(),
+		'del'        => array(),
+		'code'       => array(),
+		'blockquote' => array(),
+		'a'          => array(
+			'href'   => true,
+			'rel'    => true,
+			'target' => true,
+		),
+	);
+
+	/**
 	 * The minimum required plan for this Gutenberg block.
 	 *
 	 * @var string Plan slug
@@ -717,7 +742,6 @@ class Jetpack_Memberships {
 	 */
 	public static function user_can_edit() {
 		$user = wp_get_current_user();
-		// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 		return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
 	}
 
@@ -1051,6 +1075,44 @@ class Jetpack_Memberships {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 		return $subscription_service->is_current_user_subscribed();
+	}
+
+	/**
+	 * Render a tier description (stored as markdown text) to safe HTML.
+	 *
+	 * Uses Jetpack's markdown parser, restores paragraph structure (the parser
+	 * strips <p> tags expecting wpautop to run later), forces links to open in a
+	 * new tab (descriptions are shown inside the subscribe modal's iframe), and
+	 * finally sanitizes the output to a small tag allowlist.
+	 *
+	 * @param mixed $description Raw tier description (markdown text). Non-scalar
+	 *                          values are treated as empty.
+	 * @return string Sanitized HTML, or an empty string for an empty description.
+	 */
+	public static function render_tier_description_html( $description ) {
+		if ( ! is_scalar( $description ) ) {
+			return '';
+		}
+		$description = (string) $description;
+		if ( '' === trim( $description ) ) {
+			return '';
+		}
+
+		if ( ! class_exists( 'WPCom_Markdown' ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'modules/markdown/easy-markdown.php';
+		}
+
+		$html = WPCom_Markdown::get_instance()->transform(
+			$description,
+			array(
+				'unslash' => false,
+				'id'      => false,
+			)
+		);
+		$html = wpautop( $html );
+		$html = links_add_target( $html, '_blank' );
+
+		return wp_kses( $html, self::TIER_DESCRIPTION_ALLOWED_HTML );
 	}
 }
 Jetpack_Memberships::get_instance();

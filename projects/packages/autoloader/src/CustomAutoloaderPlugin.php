@@ -41,7 +41,7 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	 * @param Composer    $composer Composer object.
 	 * @param IOInterface $io IO object.
 	 */
-	public function activate( Composer $composer, IOInterface $io ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function activate( Composer $composer, IOInterface $io ) {
 		$this->composer = $composer;
 		$this->io       = $io;
 	}

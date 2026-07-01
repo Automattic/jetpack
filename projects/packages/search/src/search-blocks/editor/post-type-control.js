@@ -1,11 +1,10 @@
 /**
- * Shared post-type scope control for the editor.
+ * Post-type scope control for the editor.
  *
  * Renders the mode toggle (include / exclude) plus a slug picker, and owns the
  * slug normalization, label disambiguation, and per-mode draft cache. Consumed
- * by both the standalone `jetpack-search/filter-post-type` block and the
- * `jetpack-search/search-input` block's "Post types" inspector panel so the two
- * surfaces stay byte-for-byte consistent on what they store.
+ * by the `jetpack-search/search-results` block's "Search scope" inspector
+ * panel.
  */
 import { FormTokenField, RadioControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';

@@ -58,7 +58,7 @@ export const ConnectionError = ( {
 	}
 
 	// Build actions array based on error data
-	let actions: Action[] = [];
+	let actions: Action[];
 
 	if ( customActions ) {
 		// Use provided custom actions function

@@ -9,10 +9,9 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginMixedKeyNoKey : 8 occurrences
+    // PhanPluginMixedKeyNoKey : 7 occurrences
     // PhanPluginUnreachableCode : 4 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
-    // PhanTypeMismatchDimFetch : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
@@ -23,6 +22,7 @@ return [
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
+    // PhanTypeMismatchDimFetch : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
 
@@ -38,7 +38,6 @@ return [
         'src/rest-api/class-scheduled-actions-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-services-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-share-status-controller.php' => ['PhanPluginMixedKeyNoKey'],
-        'src/rest-api/class-x-usage-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/social-image-generator/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/social-image-generator/class-setup.php' => ['PhanTypeMismatchArgumentNullable'],
         'tests/php/Connections_Post_Field_Test.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],

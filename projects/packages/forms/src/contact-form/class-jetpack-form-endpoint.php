@@ -74,19 +74,28 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
 	 * Retrieves per-status counts for the jetpack_form post type.
 	 *
-	 * Uses wp_count_posts() which returns all status counts in a single query.
+	 * Users who can edit others' forms (e.g. admins and editors) receive
+	 * site-wide counts via wp_count_posts(). Users who cannot (e.g. authors)
+	 * receive counts scoped to the forms they authored, so aggregate counts of
+	 * other users' forms are not leaked.
 	 *
 	 * @return \WP_REST_Response Response object with status counts.
 	 */
 	public function get_status_counts() {
-		$counts = wp_count_posts( Contact_Form::POST_TYPE );
+		$post_type_object = get_post_type_object( $this->post_type );
 
-		$publish = (int) ( $counts->publish ?? 0 );
-		$draft   = (int) ( $counts->draft ?? 0 );
-		$pending = (int) ( $counts->pending ?? 0 );
-		$future  = (int) ( $counts->future ?? 0 );
-		$private = (int) ( $counts->{'private'} ?? 0 );
-		$trash   = (int) ( $counts->trash ?? 0 );
+		if ( $post_type_object && current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+			$counts = (array) wp_count_posts( Contact_Form::POST_TYPE );
+		} else {
+			$counts = $this->get_status_counts_for_author( get_current_user_id() );
+		}
+
+		$publish = (int) ( $counts['publish'] ?? 0 );
+		$draft   = (int) ( $counts['draft'] ?? 0 );
+		$pending = (int) ( $counts['pending'] ?? 0 );
+		$future  = (int) ( $counts['future'] ?? 0 );
+		$private = (int) ( $counts['private'] ?? 0 );
+		$trash   = (int) ( $counts['trash'] ?? 0 );
 
 		return rest_ensure_response(
 			array(
@@ -99,6 +108,45 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'trash'   => $trash,
 			)
 		);
+	}
+
+	/**
+	 * Count forms authored by a specific user, grouped by post status.
+	 *
+	 * The wp_count_posts() function cannot be scoped by author (its second argument is a
+	 * permission level, not query args), so a direct query is used to mirror its
+	 * shape while restricting results to a single author. The result is
+	 * user-scoped and computed by a single grouped aggregate run once per request
+	 * (the dashboard preloads this endpoint), so it is intentionally not cached --
+	 * unlike get_entries_count_by_form_id(), whose lookup is shared across forms
+	 * and benefits from a short-lived cache.
+	 *
+	 * @param int $author_id User ID to scope the counts to.
+	 * @return array<string,int> Map of post_status => count.
+	 */
+	private function get_status_counts_for_author( int $author_id ): array {
+		global $wpdb;
+
+		// Intentionally uncached: the result is user-scoped and computed once per request.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT post_status, COUNT(1) AS num_posts
+				FROM {$wpdb->posts}
+				WHERE post_type = %s
+				  AND post_author = %d
+				GROUP BY post_status",
+				Contact_Form::POST_TYPE,
+				$author_id
+			)
+		);
+
+		$counts = array();
+		foreach ( (array) $rows as $row ) {
+			$counts[ $row->post_status ] = (int) $row->num_posts;
+		}
+
+		return $counts;
 	}
 
 	/**
@@ -276,7 +324,6 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$feedback_type = Feedback::POST_TYPE;
 		$operator      = $this->has_responses_filter ? 'EXISTS' : 'NOT EXISTS';
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$subquery = $wpdb->prepare(
 			"SELECT 1 FROM {$wpdb->posts} AS feedback
 			WHERE feedback.post_parent = {$wpdb->posts}.ID

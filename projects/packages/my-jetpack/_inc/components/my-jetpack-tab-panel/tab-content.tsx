@@ -1,7 +1,10 @@
 import clsx from 'clsx';
 import { CustomizeContent } from './customize/content';
+import { FullWidthSeparator } from './full-width-separator';
 import { HelpContent } from './help/content';
+import { HelpFooter } from './help/footer';
 import { OverviewContent } from './overview/content';
+import { OverviewFooter } from './overview/footer';
 import { ProductsContent } from './products/content';
 import styles from './styles.module.scss';
 import { MyJetpackSection } from './types';
@@ -18,6 +21,15 @@ const componentMap: Record< MyJetpackSection, ComponentType > = {
 	help: HelpContent,
 };
 
+// Footers are full-width white bands: `TabContent` renders them as direct
+// children of the full-width tab content (outside the centered
+// `.my-jetpack-tab-panel-inner`) so their background can span edge-to-edge,
+// while each footer's `.footer-inner` re-centers its content.
+const footerMap: Partial< Record< MyJetpackSection, ComponentType > > = {
+	overview: OverviewFooter,
+	help: HelpFooter,
+};
+
 /**
  * The tab content component.
  *
@@ -27,16 +39,25 @@ const componentMap: Record< MyJetpackSection, ComponentType > = {
  */
 export function TabContent( { name }: TabContentProps ) {
 	const ContentComponent = componentMap[ name ];
+	const FooterComponent = footerMap[ name ];
 
 	if ( ! ContentComponent ) {
 		return null;
 	}
 
 	return (
-		<div className={ styles[ 'my-jetpack-tab-panel-inner' ] }>
-			<div className={ clsx( styles[ 'tab-content-wrapper' ] ) }>
-				<ContentComponent />
+		<>
+			<div className={ styles[ 'my-jetpack-tab-panel-inner' ] }>
+				<div className={ clsx( styles[ 'tab-content-wrapper' ] ) }>
+					<ContentComponent />
+				</div>
 			</div>
-		</div>
+			{ FooterComponent && (
+				<>
+					<FullWidthSeparator />
+					<FooterComponent />
+				</>
+			) }
+		</>
 	);
 }

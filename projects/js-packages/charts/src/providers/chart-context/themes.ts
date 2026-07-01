@@ -53,7 +53,7 @@ const defaultTheme: CompleteChartTheme = {
 	leaderboardChart: {
 		rowGap: 12,
 		columnGap: 4,
-		labelSpacing: 1.5,
+		labelSpacing: 'xs',
 		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
 	},
 	conversionFunnelChart: {
@@ -66,6 +66,14 @@ const defaultTheme: CompleteChartTheme = {
 			comparison: {
 				strokeDasharray: '4 4',
 				strokeLinecap: 'square',
+			},
+		},
+	},
+	barChart: {
+		barStyles: {
+			comparison: {
+				widthFactor: 1.5,
+				opacity: 0.5,
 			},
 		},
 	},

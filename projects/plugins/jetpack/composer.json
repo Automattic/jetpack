@@ -16,6 +16,7 @@
 		"automattic/jetpack-account-protection": "@dev",
 		"automattic/jetpack-activity-log": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-agents-manager": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-backup": "@dev",
@@ -44,6 +45,7 @@
 		"automattic/jetpack-newsletter": "@dev",
 		"automattic/jetpack-paypal-payments": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
+		"automattic/jetpack-podcast": "@dev",
 		"automattic/jetpack-post-list": "@dev",
 		"automattic/jetpack-post-media": "@dev",
 		"automattic/jetpack-publicize": "@dev",
@@ -51,6 +53,7 @@
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-scan-page": "@dev",
 		"automattic/jetpack-search": "@dev",
+		"automattic/jetpack-seo": "@dev",
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
@@ -76,16 +79,15 @@
 		"phpunit": [
 			"tests/action-phpunit.sh"
 		],
-		"test-coverage": [
-			"@php tools/build-module-headings-translations.php",
-			"tests/action-test-coverage.sh"
-		],
-		"test-js": [
-			"pnpm concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'"
-		],
+		"test-js": "pnpm concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'",
+		"test-js-coverage": "tests/action-test-js-coverage.sh",
 		"test-php": [
 			"@php tools/build-module-headings-translations.php",
 			"tests/action-test-php.sh"
+		],
+		"test-php-coverage": [
+			"@php tools/build-module-headings-translations.php",
+			"tests/action-test-php-coverage.sh"
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
@@ -113,7 +115,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ15_9_a_5",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_0_a_7",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

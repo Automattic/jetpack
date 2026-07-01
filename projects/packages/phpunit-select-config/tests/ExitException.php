@@ -45,7 +45,6 @@ class ExitException extends RuntimeException {
 		} elseif ( $arg === null ) {
 			$message = ucfirst( $func ) . ' called with no argument';
 		} else {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 			$message = ucfirst( $func ) . ' called with argument ' . var_export( $arg, true );
 		}
 

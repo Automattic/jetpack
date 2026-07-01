@@ -31,7 +31,7 @@ jobs:
       matrix: ${{ steps.evaluate.outputs.matrix }}
       build-matrix: ${{ steps.evaluate.outputs.build-matrix }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       - name: Deepen to merge base
@@ -84,7 +84,7 @@ jobs:
         include: ${{ fromJson( needs.create-test-matrix.outputs.build-matrix ) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -162,7 +162,7 @@ jobs:
       matrix:
         include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Restore ${{ matrix.buildGroup }} build cache
         uses: actions/download-artifact@v8
@@ -192,14 +192,14 @@ jobs:
 
       - name: Checkout jetpack-production
         if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           repository: Automattic/jetpack-production
           path: build-output/build/Automattic/jetpack-production
 
       - name: Checkout mirror repo
         if: github.event_name == 'repository_dispatch'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           repository: ${{ github.event.client_payload.repository }}
           ref: ${{ github.event.client_payload.ref_name }}
@@ -321,7 +321,7 @@ jobs:
           echo "CLIENT_PAYLOAD=$( jq -nrc --arg repository "$REPOSITORY" --arg branch "$BRANCH" --arg pr_title "$PR_TITLE" --arg pr_number "$PR_NUMBER" --arg run_id "$GITHUB_RUN_ID" '{ repository: $repository, branch: $branch, pr_title: $pr_title, pr_number: $pr_number, run_id: $run_id }' )" >> "$GITHUB_OUTPUT"
 
       - name: Trigger test report workflow
-        uses: peter-evans/repository-dispatch@v4
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           repository: automattic/jetpack-e2e-reports
@@ -350,11 +350,12 @@ jobs:
       actions: read
       # actions/checkout, actions/download-artifact
       contents: read
-    if: ${{ always() && needs.e2e-tests.result != 'cancelled' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+    # Skip on pull_request: PR feedback is already in the GitHub Checks UI. Mirror-repo dispatches still notify.
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' && github.event_name != 'pull_request' }}
     needs: [e2e-tests]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Set up tools
         uses: ./.github/actions/tool-setup

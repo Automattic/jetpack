@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.30] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [0.3.29] - 2026-06-24
+### Changed
+- Update dependencies. [#49641]
+- Update package dependencies. [#49831]
+
+## [0.3.28] - 2026-06-10
+### Changed
+- Update dependencies. [#49488]
+
+## [0.3.27] - 2026-06-08
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Update dependencies. [#48210]
+
 ## [0.3.26] - 2026-04-11
 ### Changed
 - Update dependencies. [#47600]
@@ -172,6 +190,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added package to intercept plugin deactivation [#27081]
 
+[0.3.30]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.29...v0.3.30
+[0.3.29]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.28...v0.3.29
+[0.3.28]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.27...v0.3.28
+[0.3.27]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.26...v0.3.27
 [0.3.26]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.25...v0.3.26
 [0.3.25]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.24...v0.3.25
 [0.3.24]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.23...v0.3.24

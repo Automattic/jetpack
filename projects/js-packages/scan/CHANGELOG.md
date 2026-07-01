@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.8] - 2026-06-29
+### Changed
+- Update dependencies. [#50001]
+
+## [1.4.7] - 2026-06-25
+### Changed
+- Update dependencies. [#49857]
+
+## [1.4.6] - 2026-06-22
+### Changed
+- Update dependencies. [#49641]
+- Update package dependencies. [#49691]
+
+## [1.4.5] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273]
+
+## [1.4.4] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+
+## [1.4.3] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404]
+
 ## [1.4.2] - 2026-05-25
 ### Changed
 - Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
@@ -200,6 +225,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Updated dependencies. [#39754]
 
+[1.4.8]: https://github.com/Automattic/jetpack-scan/compare/v1.4.7...v1.4.8
+[1.4.7]: https://github.com/Automattic/jetpack-scan/compare/v1.4.6...v1.4.7
+[1.4.6]: https://github.com/Automattic/jetpack-scan/compare/v1.4.5...v1.4.6
+[1.4.5]: https://github.com/Automattic/jetpack-scan/compare/v1.4.4...v1.4.5
+[1.4.4]: https://github.com/Automattic/jetpack-scan/compare/v1.4.3...v1.4.4
+[1.4.3]: https://github.com/Automattic/jetpack-scan/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/Automattic/jetpack-scan/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/Automattic/jetpack-scan/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/Automattic/jetpack-scan/compare/v1.3.0...v1.4.0

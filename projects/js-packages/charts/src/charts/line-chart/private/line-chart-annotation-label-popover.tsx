@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { Icon, close } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useEffect, useId, useRef, useState } from 'react';
@@ -9,6 +8,23 @@ import type { ButtonWithPopover, PopoverElement, ToggleEvent } from '../../../ty
 import type { FC } from 'react';
 
 export const POPOVER_BUTTON_SIZE = 44;
+
+const CloseIcon = () => (
+	<svg
+		width="16"
+		height="16"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth="2"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		aria-hidden="true"
+		focusable="false"
+	>
+		<path d="M6 6l12 12M18 6L6 18" />
+	</svg>
+);
 
 interface LineChartAnnotationLabelWithPopoverProps {
 	title: string;
@@ -101,7 +117,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 						className={ styles[ 'line-chart__annotation-label-popover-close-button' ] }
 						aria-label={ __( 'Close', 'jetpack-charts' ) }
 					>
-						<Icon icon={ close } size={ 16 } />
+						<CloseIcon />
 					</button>
 				</Stack>
 			</div>

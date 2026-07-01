@@ -20,16 +20,6 @@
 			"default": [ "query", "taxonomy", "post" ],
 			"items": { "type": "string", "enum": [ "query", "taxonomy", "post" ] }
 		},
-		"postTypeMode": {
-			"type": "string",
-			"enum": [ "include", "exclude" ],
-			"default": "exclude"
-		},
-		"postTypes": {
-			"type": "array",
-			"default": [],
-			"items": { "type": "string" }
-		},
 		"width": { "type": "number" },
 		"widthUnit": { "type": "string" }
 	},

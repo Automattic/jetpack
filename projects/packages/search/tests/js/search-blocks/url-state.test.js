@@ -472,6 +472,52 @@ describe( 'filterLogic round-trip (RSM-2815)', () => {
 	} );
 } );
 
+describe( '?post_type=<slug> singular alias for ?post_types[]=<slug>', () => {
+	// WP/WC's product-search URL uses `?post_type=product` (scalar). The store
+	// reads that as if it were `?post_types[]=product` so deep links from those
+	// flows populate the `filter-checkbox{filterType:"post_type"}` facet when
+	// it's registered. Multi-value selections still use the array form.
+	const postTypeConfig = { filterType: 'post_type' };
+
+	it( 'reads ?post_type=foo into activeFilters.post_types when the facet is registered', () => {
+		const state = urlParamsToState( new URLSearchParams( 'post_type=product' ), {
+			post_types: postTypeConfig,
+		} );
+		expect( state.activeFilters ).toEqual( { post_types: [ 'product' ] } );
+	} );
+
+	it( 'drops ?post_type=foo when filter-checkbox{post_type} is not registered (filterConfigs gate)', () => {
+		// Without the facet on the page the scalar is ignored — same gate the
+		// array form already obeys. Keeps stray WC URLs from leaking into ES.
+		const state = urlParamsToState( new URLSearchParams( 'post_type=product' ), {
+			category: { filterType: 'taxonomy', taxonomy: 'category' },
+		} );
+		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'merges ?post_type=foo with existing ?post_types[]=bar, deduping', () => {
+		const params = new URLSearchParams();
+		params.append( 'post_types[]', 'post' );
+		params.append( 'post_type', 'product' );
+		params.append( 'post_type', 'post' ); // dup — should not double up.
+		const state = urlParamsToState( params, { post_types: postTypeConfig } );
+		expect( state.activeFilters ).toEqual( { post_types: [ 'post', 'product' ] } );
+	} );
+
+	it( 'drops empty / whitespace-only ?post_type values', () => {
+		const state = urlParamsToState( new URLSearchParams( 'post_type=&post_type=%20%20' ), {
+			post_types: postTypeConfig,
+		} );
+		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'admits ?post_type when no filterConfigs gate is supplied', () => {
+		// Mirrors the "accepts all keys when no gate" behaviour of the array form.
+		const state = urlParamsToState( new URLSearchParams( 'post_type=product' ) );
+		expect( state.activeFilters ).toEqual( { post_types: [ 'product' ] } );
+	} );
+} );
+
 describe( 'urlParamsToState: priceRange', () => {
 	// All priceRange-parsing tests opt into `isWooCommerceBlocksEnabled=true` to
 	// exercise the parsing logic; the WC-off behaviour (price params are

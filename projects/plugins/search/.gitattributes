@@ -11,6 +11,4 @@ vendor/wikimedia/aho-corasick/**                production-include
 # Files to exclude from mirror repo: Automattic/jetpack-search-plugin
 # (see also entries in the monorepo root .gitattributes)
 build/**/*.js.map                               production-exclude
-README.md                                       production-exclude
-/vendor/automattic/jetpack-autoloader/**        production-exclude
-/vendor/automattic/jetpack-composer-plugin/**   production-exclude
+/README.md                                      production-exclude

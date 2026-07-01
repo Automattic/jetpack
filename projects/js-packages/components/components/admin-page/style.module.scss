@@ -84,7 +84,33 @@
 	}
 }
 
-// Make Hello Dolly background white for Jetpack admin pages.
+// Normalize Hello Dolly across Jetpack admin pages. The plugin renders
+// `<p id="dolly">` early inside `#wpbody-content`, OUTSIDE our React
+// mount — so we anchor on the `jetpack-admin-page` body class added
+// server-side by Jetpack's admin menu registration, not on the React
+// wrapper's `.jp-admin-page` class. Any Jetpack admin page gets the
+// normalized look for free. Per-page overrides can still layer on top
+// via higher-specificity selectors (see e.g. My Jetpack).
+
+// We deliberately do NOT set `position`/`top`/`left`/`right` here:
+// those would become active on any per-page rule that flips Dolly to
+// `position: absolute` (e.g. My Jetpack), causing it to stretch to its
+// container's full width and pin to top — which covers the page title.
+// `float: none` alone is enough to break out of Hello Dolly's default
+// `float: right`; pages that need different positioning add their own
+// position rule on top.
 :global(.jetpack-admin-page #dolly) {
-	background-color: #fff;
+	// Hello Dolly already ships `padding: 5px 10px; margin: 0; font-size: 12px;
+	// line-height: 1.6666;` — see https://github.com/WordPress/WordPress/blob/trunk/wp-content/plugins/hello.php
+	// We override only the bits that need to differ from those defaults.
+	float: none;
+	text-align: right;
+	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+	font-style: italic;
+	color: var(--wpds-color-fg-content-neutral-weak, #87a6bc);
+	border-bottom: none;
+
+	@media (max-width: 659px) {
+		display: none;
+	}
 }

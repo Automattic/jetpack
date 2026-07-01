@@ -76,9 +76,6 @@ class Current_Plan {
 				'personal-bundle-2y',
 				'personal-bundle-3y',
 				'starter-plan',
-				'wp_bundle_choose_low_yearly',
-				'wp_bundle_choose_mid_yearly',
-				'wp_bundle_choose_high_yearly',
 			),
 			'supports' => array(
 				'akismet',

@@ -12,9 +12,7 @@ import sveltePreprocess from 'svelte-preprocess';
 
 const production = process.env.NODE_ENV === 'production';
 
-const exportConditions = process.env.npm_config_jetpack_webpack_config_resolve_conditions
-	? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
-	: [];
+const exportConditions = [ 'jetpack:src' ];
 
 /**
  *

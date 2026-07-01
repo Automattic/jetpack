@@ -92,6 +92,7 @@ export function WelcomeEmailSection( {
 						invitation: data.subscription_options?.invitation || '',
 						welcome: updates.welcome_message,
 						comment_follow: data.subscription_options?.comment_follow || '',
+						subscribe_modal_heading: data.subscription_options?.subscribe_modal_heading || '',
 					},
 				} );
 			}

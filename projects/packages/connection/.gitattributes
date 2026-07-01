@@ -1,5 +1,6 @@
 # Files not needed to be distributed in the package.
 docs/            export-ignore
+/TRACKING.md     export-ignore
 
 # Files to include in the mirror repo
 /dist/**         production-include
@@ -9,4 +10,4 @@ docs/            export-ignore
 src/js/**         production-exclude
 /dist/*.css.map   production-exclude
 /dist/*.js.map    production-exclude
-src/identity-crisis/_inc/*.scss production-exclude
+src/identity-crisis/_inc/** production-exclude

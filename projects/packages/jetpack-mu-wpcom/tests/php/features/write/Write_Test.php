@@ -82,6 +82,50 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that a known source token resolves to its mapped back destination.
+	 */
+	public function test_resolve_back_url_maps_known_source() {
+		$this->assertSame(
+			'https://wordpress.com/reader',
+			wpcom_write_resolve_back_url( 'reader' )
+		);
+	}
+
+	/**
+	 * Test that an unknown or empty source falls back to the dashboard (default behavior).
+	 */
+	public function test_resolve_back_url_falls_back_to_dashboard() {
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( '' ) );
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'something_unknown' ) );
+		// Inferred analytics sources should not change the back destination.
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'dashboard' ) );
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'direct' ) );
+	}
+
+	/**
+	 * Test that the back button href reflects the resolved destination, defaulting to the dashboard.
+	 */
+	public function test_template_back_button_defaults_to_dashboard() {
+		ob_start();
+		wpcom_write_template();
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'class="bw-back"', $html );
+		$this->assertStringContainsString( 'href="' . esc_url( admin_url() ) . '"', $html );
+	}
+
+	/**
+	 * Test that a resolved back URL is rendered into the back button href.
+	 */
+	public function test_template_back_button_uses_resolved_url() {
+		ob_start();
+		wpcom_write_template( '', '', 0, array(), 'new', array(), false, '', array(), '', 'https://wordpress.com/reader' );
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'href="' . esc_url( 'https://wordpress.com/reader' ) . '"', $html );
+	}
+
+	/**
 	 * Test that the wpcom-write script module is registered after init.
 	 */
 	public function test_script_module_is_registered() {
@@ -163,6 +207,79 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$output = $this->render_template( 'My Great Post' );
 
 		$this->assertStringContainsString( 'My Great Post', $output );
+	}
+
+	/**
+	 * Test that the admin_enqueue_scripts callback emits the JS i18n strings
+	 * Write relies on, including the media-library strings added in RSM-594.
+	 * Other tests render the template directly, which bypasses this callback —
+	 * covering it here keeps the strings in lockstep with the JS.
+	 *
+	 * Invokes the registered closure directly instead of do_action() so
+	 * unrelated WordPress callbacks (site-health, etc.) don't pollute the
+	 * test with their own warnings.
+	 */
+	public function test_admin_enqueue_emits_library_strings() {
+		global $wp_filter;
+
+		wp_set_current_user( $this->admin_id );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$_GET['page'] = 'write';
+
+		$output = '';
+		$hooks  = $wp_filter['admin_enqueue_scripts']->callbacks ?? array();
+		foreach ( $hooks as $callbacks ) {
+			foreach ( $callbacks as $cb ) {
+				if ( ! ( $cb['function'] instanceof \Closure ) ) {
+					continue;
+				}
+				$ref = new \ReflectionFunction( $cb['function'] );
+				if ( false === strpos( $ref->getFileName(), 'features/write/write.php' ) ) {
+					continue;
+				}
+				ob_start();
+				( $cb['function'] )();
+				$output .= ob_get_clean();
+			}
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		unset( $_GET['page'] );
+
+		// The four media-library strings added in RSM-594 must be in the
+		// inline script tag so view.js can reach them via window.wpcomWriteStrings.
+		$this->assertStringContainsString( 'libraryLoading', $output );
+		$this->assertStringContainsString( 'libraryEmpty', $output );
+		$this->assertStringContainsString( 'libraryNoResults', $output );
+		$this->assertStringContainsString( 'libraryLoadFailed', $output );
+		$this->assertStringContainsString( 'window.wpcomWriteStrings', $output );
+	}
+
+	/**
+	 * Test that the image modal renders the media library section alongside
+	 * the existing upload zone and URL paste — the three sources Write supports
+	 * after RSM-594.
+	 */
+	public function test_template_includes_media_library_section() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		// Search input + horizontal strip container.
+		$this->assertStringContainsString( 'id="bw-library-search"', $output );
+		$this->assertStringContainsString( 'id="bw-library-grid"', $output );
+		$this->assertStringContainsString( 'actions.searchLibrary', $output );
+		$this->assertStringContainsString( 'actions.selectLibraryImage', $output );
+		// Collapsed-by-default expanders for library + URL.
+		$this->assertStringContainsString( 'actions.toggleLibraryPicker', $output );
+		$this->assertStringContainsString( 'actions.toggleUrlInput', $output );
+		// Existing upload + URL paste paths still present.
+		$this->assertStringContainsString( 'id="bw-upload-zone"', $output );
+		$this->assertStringContainsString( 'actions.insertImageFromUrl', $output );
+		// Grid is keyboard- and screen-reader-labelled.
+		$this->assertStringContainsString( 'aria-label="Your media library"', $output );
+		$this->assertStringContainsString( 'aria-live="polite"', $output );
 	}
 
 	/**
@@ -698,7 +815,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		// then pass placeholders to the template for post-kses replacement.
 		$post         = get_post( $post_id );
 		$video_result = wpcom_write_convert_video_embeds( $post->post_content );
-		$rendered     = apply_filters( 'the_content', $video_result['content'] ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$rendered     = apply_filters( 'the_content', $video_result['content'] );
 		$output       = $this->render_template( 'Video Post', $rendered, $post_id, array(), 'draft', $video_result['placeholders'] );
 
 		$this->assertStringContainsString( '<iframe', $output );
@@ -801,21 +918,20 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	public function test_detect_unsupported_image_with_align() {
 		foreach ( array( 'left', 'center', 'right' ) as $align ) {
 			$content = '<!-- wp:image {"align":"' . $align . '"} --><figure class="wp-block-image align' . $align . '"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
-			$this->assertSame(
-				'block-editor',
+			$this->assertFalse(
 				wpcom_write_detect_unsupported_content( $content ),
-				"align={$align} should bounce to block editor"
+				"align={$align} should round-trip through Write"
 			);
 		}
 	}
 
 	/**
-	 * Test that an image with align + sizeSlug returns 'block-editor'.
-	 * sizeSlug round-trips, but align triggers the unsupported modal.
+	 * Test that an image with align + sizeSlug round-trips. Both are now
+	 * supported via the image properties modal.
 	 */
 	public function test_detect_unsupported_image_with_align_and_size_slug() {
 		$content = '<!-- wp:image {"align":"center","sizeSlug":"medium","id":42} --><figure class="wp-block-image aligncenter size-medium"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
-		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
 	}
 
 	/**
@@ -1270,7 +1386,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$js_attrs = array(
 			'embed'     => array( 'providerNameSlug', 'responsive', 'type', 'url' ),
 			'heading'   => array( 'align', 'level' ),
-			'image'     => array( 'id', 'sizeSlug' ),
+			'image'     => array( 'align', 'id', 'sizeSlug' ),
 			'list'      => array( 'ordered' ),
 			'list-item' => array(),
 			'paragraph' => array( 'align' ),
@@ -1548,6 +1664,62 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 		// In dbless mode the result is empty, confirming no cross-user leakage.
 		$this->assertIsArray( $drafts );
+	}
+
+	/**
+	 * Logged-out callers must never receive drafts. The early-return guards
+	 * against a query running with author=0 (which would otherwise match every
+	 * orphaned draft on a multisite blog).
+	 */
+	public function test_recent_drafts_returns_empty_for_logged_out_user() {
+		wp_set_current_user( 0 );
+
+		$drafts = wpcom_write_get_recent_drafts();
+
+		$this->assertSame( array(), $drafts );
+	}
+
+	/**
+	 * Logged-out callers must also get an empty result when passing an exclude
+	 * id — verifies the guard sits in front of the exclude branch.
+	 */
+	public function test_recent_drafts_returns_empty_for_logged_out_user_with_exclude() {
+		wp_set_current_user( 0 );
+
+		$drafts = wpcom_write_get_recent_drafts( 123 );
+
+		$this->assertSame( array(), $drafts );
+	}
+
+	/**
+	 * The editor-strings helper is the contract the inline script tag
+	 * (and any other caller rendering the editor outside the wp-admin page
+	 * lifecycle) relies on. Validate the returned shape so a silently-dropped
+	 * key in a future edit is caught here rather than at runtime in view.js.
+	 */
+	public function test_editor_strings_returns_expected_keys() {
+		$strings = wpcom_write_get_editor_strings();
+
+		$this->assertIsArray( $strings );
+
+		// Spot-check the keys view.js reads as `i18n.<key>`. Not exhaustive —
+		// adding a new string should not require updating this test — but a
+		// removal of any of these keys would break the JS at runtime.
+		$expected = array(
+			'pleaseAddTitle',
+			'pleaseWriteSomething',
+			'savingDraft',
+			'publishing',
+			'draftAutosaved',
+			'error',
+			'untitled',
+			'anonBrand',
+			'anonStatus',
+		);
+		foreach ( $expected as $key ) {
+			$this->assertArrayHasKey( $key, $strings, "Missing editor string: $key" );
+			$this->assertNotEmpty( $strings[ $key ], "Editor string $key should not be empty" );
+		}
 	}
 
 	/**

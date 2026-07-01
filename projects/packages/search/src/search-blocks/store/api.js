@@ -457,10 +457,10 @@ function getMonthLabelFormatter( locale ) {
 }
 
 /**
- * `bool.must` clauses for the hidden `filter-post-type` block. Includes →
- * `bool.should`, excludes → `bool.must_not`. Single-slug include emits a
- * bare `term` (shorter URL); excludes always wrap because ES has no
- * bare-term negation.
+ * `bool.must` clauses for the page-level post-type scope set on the
+ * `search-results` block. Includes → `bool.should`, excludes →
+ * `bool.must_not`. Single-slug include emits a bare `term` (shorter URL);
+ * excludes always wrap because ES has no bare-term negation.
  *
  * @param {object|null} staticPostTypes - `{ include, exclude }` slug lists.
  * @return {Array<object>} ES filter clauses, possibly empty.
@@ -503,7 +503,7 @@ export function buildStaticPostTypeClauses( staticPostTypes ) {
  * @param {object}      [opts.filterConfigs]          - { [filterKey]: FilterConfig }.
  * @param {string}      [opts.homeUrl]                - Required for private WPcom sites.
  * @param {object|null} [opts.priceRange]             - `{ min, max }` against `wc.price`.
- * @param {object|null} [opts.staticPostTypes]        - Hidden `{include,exclude}` from `filter-post-type`.
+ * @param {object|null} [opts.staticPostTypes]        - `{include, exclude}` page-level scope from search-results.
  * @param {object}      [opts.staticFilterSelections] - { [filterKey]: string } static-filter values.
  * @return {string} Full URL.
  */

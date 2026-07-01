@@ -57,7 +57,11 @@ export function useFreeTier(): FreeTierState {
 	const isAtomic = isWoASite();
 	const isUnlimited = useIsVideoPressUnlimited();
 
-	const isAtLimit = isFree && videoCount >= FREE_TIER_UPLOAD_LIMIT;
+	// Only the free, non-unlimited tier is capped. `isUnlimited` (grandfathered
+	// 2TB plans) and paid access come from signals independent of `isFree`, so
+	// guard against an "unlimited yet free-flagged" combination wrongly gating
+	// uploads.
+	const isAtLimit = isFree && ! isUnlimited && videoCount >= FREE_TIER_UPLOAD_LIMIT;
 
 	return {
 		isFree,

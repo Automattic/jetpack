@@ -10,6 +10,7 @@
 	* [JavaScript unit tests and e2e tests](#javascript-e2e-tests)
 	* [Linting Jetpack Boost's PHP code](#linting-jetpack-boost-php-code)
 	* [Linting Jetpack Boost's JavaScript code](#linting-jetpack-boost-javascript-code)
+* [Debugging Concatenate JS/CSS exclusions](#debugging-concatenate-jscss-exclusions)
 
 # Prerequisite
 
@@ -93,3 +94,19 @@ To automatically fix some JavaScript related issues, you can run:
   pnpm lint:fix
   ``` 
 
+
+# Debugging Concatenate JS/CSS exclusions
+
+When concatenation breaks a page, you can test whether excluding a specific script or style handle fixes it — without editing the saved exclude lists — by appending one of these GET parameters to the page URL:
+
+* `jb-minify-js-excludes` — comma-separated script handles to additionally exclude from JS concatenation for that request.
+* `jb-minify-css-excludes` — comma-separated style handles to additionally exclude from CSS concatenation for that request.
+
+For example: `https://example.com/some-page/?jb-minify-js-excludes=jquery-core,my-plugin-script`.
+
+Notes:
+
+* The parameters only work for logged-in users with the `manage_options` capability (administrators); for everyone else they are ignored.
+* Handles may only contain alphanumerics, dashes, underscores and dots; anything else is discarded. Case is preserved, so enter the handle exactly as registered (handles are matched case-sensitively).
+* Nothing is persisted — the merged exclude list only applies to the current request. To make an exclusion permanent, add it in Boost's Advanced Settings.
+* This does not interact with Boost's Page Cache: logged-in users are never served cached pages, nor are their page views written to the cache.

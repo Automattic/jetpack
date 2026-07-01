@@ -22,7 +22,7 @@ if ( ! preg_match( '/^(\d+\.\d+\.\d+)$/', $version ) ) {
 }
 
 $config = array(
-	'header'  => <<<HEAD
+	'header'               => <<<HEAD
 	/**
 	 * Stubs automatically generated from PHPUnit $version
 	 * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
@@ -30,8 +30,9 @@ $config = array(
 	 * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
 	 */
 	HEAD,
-	'basedir' => "$work_dir/phpunit/",
-	'files'   => array(),
+	'basedir'              => "$work_dir/phpunit/",
+	'strip-docs-keep-tags' => true,
+	'files'                => array(),
 );
 
 $iter = new AppendIterator();

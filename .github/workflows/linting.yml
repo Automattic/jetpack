@@ -83,10 +83,10 @@ jobs:
 
     steps:
       - if: github.event_name == 'pull_request'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - if: github.event_name == 'pull_request'
-        uses: dorny/paths-filter@v4
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         id: filter
         with:
           list-files: json
@@ -262,7 +262,7 @@ jobs:
         experimental: [ false ]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         if: &php_lint_cond github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
 
       - name: Setup tools
@@ -300,7 +300,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-06: Successful runs seem to take ~2 minutes. Leaving some extra for future expansion.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -328,7 +328,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-06: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -359,7 +359,7 @@ jobs:
 
     steps:
       # We don't need full git history, but phpcs-changed does need everything up to the merge-base.
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
@@ -396,7 +396,7 @@ jobs:
     timeout-minutes: 10  # 2025-11-06: Runs now take ~5 minutes due to now installing all JS deps to ensure valid linting.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -422,7 +422,7 @@ jobs:
 
     steps:
       # We don't need full git history, but eslint-changed does need everything up to the merge-base.
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
@@ -453,7 +453,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-06: Takes a bit more than a minute, so give a little wiggle room.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -476,7 +476,7 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.ghactionsfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 5  # 2025-11-06: Takes less than a minute.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -495,7 +495,7 @@ jobs:
     timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - run: ./tools/check-copied-files.sh
 
   ### Runs tools/cleanup-excludelists.sh and checks for any changes
@@ -509,7 +509,7 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.excludelist == 'true'
     timeout-minutes: 10  # 2025-11-06: The check itself takes 2 minutes.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -532,7 +532,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-06: Takes a few seconds.
     steps:
       # We don't need full git history, but tools/check-changelogger-use.php does need everything up to the merge-base.
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
@@ -556,7 +556,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2025-11-06: Takes less than a minute.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -569,7 +569,7 @@ jobs:
   ### Checks that lock files are up to date.
   # Local equivalent: .github/files/check-lock-files.sh
   # Note that may modify lock files in your working tree!
-  # On trunk: always runs
+  # On trunk: always runs, and creates a PR to fix lock files on failure
   # On PRs: runs only if lock files or relevant config changed
   lock_files:
     name: "Lock files are up to date"
@@ -578,12 +578,28 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 7  # 2025-11-06: Successful runs seem to take about 2 minutes.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          # Keep github.token fallback so this runs on forked PRs.
+          token: ${{ case( github.event_name == 'push', secrets.API_TOKEN_GITHUB, github.token ) }}
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
-      - run: .github/files/check-lock-files.sh
+      - name: Check lock files
+        id: check_lock_files
+        run: .github/files/check-lock-files.sh
+
+      - name: Create lock file fix PR
+        if: github.event_name == 'push' && failure() && steps.check_lock_files.outputs.finished == 'true'
+        env:
+          # Use the matticbot token so CI runs on the created PR.
+          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+          GIT_AUTHOR_NAME: matticbot
+          GIT_AUTHOR_EMAIL: matticbot@users.noreply.github.com
+          GIT_COMMITTER_NAME: matticbot
+          GIT_COMMITTER_EMAIL: matticbot@users.noreply.github.com
+        run: .github/files/create-lock-file-fix-pr.sh
 
   ### Check that monorepo packages are correctly referenced.
   # Local equivalent: tools/check-intra-monorepo-deps.sh -v && .github/files/check-monorepo-package-repos.sh
@@ -596,7 +612,7 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 7  # 2025-11-06: Takes a minute or two.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - run: pnpm install
@@ -610,7 +626,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2025-11-06: Takes a minute or two.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -631,7 +647,7 @@ jobs:
       # step "Warn about stubs"
       pull-requests: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - uses: ./.github/actions/deepen-to-merge-base
         id: deepen
       - name: Warn about stubs
@@ -641,18 +657,23 @@ jobs:
           BASE: ${{ steps.deepen.outputs.merge-base }}
           HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
-          COMMENTS='[]'
+          EXIT=0
           while IFS= read -r FILE; do
-            # TODO: If they add a way to do file-level comments in this API, switch to that.
-            COMMENTS=$( jq --arg file "$FILE" '. += [ { path: $file, body: "This file is automatically generated and should not be edited directly. See the comment at the top of the file for details.\n\nIf you have any questions, ping `@Automattic/jetpack-monorepo`.", position: 1 } ]' <<<"$COMMENTS" )
+            EXIT=1
+            echo "::group::Comment on $FILE"
+            if gh api -X POST "/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/comments" \
+                -f body=$'This file is automatically generated and should not be edited directly. See the comment at the top of the file for details.\n\nIf you have any questions, ping `@Automattic/jetpack-monorepo`.' \
+                -f commit_id="$HEAD" \
+                -f path="$FILE" \
+                -f subject_type=file
+            then
+              echo "::endgroup::"
+            else
+              echo "::endgroup::"
+              echo "::error::Failed to leave comment on $FILE"
+            fi
           done < <( git -c core.quotepath=off diff --name-only "$BASE"...HEAD -- .phan/stubs/ ':!.phan/stubs/photon-opencv-stubs.php' ':!.phan/stubs/wordpress-constants.php' ':!.phan/stubs/wordpress-globals.jsonc' )
-          if [[ "$COMMENTS" != "[]" ]]; then
-            REQ=$( jq -n --arg commit_id "$HEAD" --argjson comments "$COMMENTS" '{ commit_id: $commit_id, body: "", event: "COMMENT", comments: $comments }' )
-            echo "POST /repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews"
-            echo "REQUEST=$REQ"
-            gh api "/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews" -X POST --input - <<<"$REQ"
-            exit 1
-          fi
+          exit "$EXIT"
 
   typecheck:
     name: Type checking
@@ -661,7 +682,7 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
     timeout-minutes: 10 # 2025-11-20: Takes around 3 minutes.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: Setup tools
         uses: ./.github/actions/tool-setup
         with:
@@ -688,7 +709,7 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_phan == 'true'
     timeout-minutes: 25 # 2025-11-20: Up to about 10 minutes now that we're running against the old WP and Woo stubs too.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - name: Pnpm install
@@ -768,7 +789,7 @@ jobs:
     timeout-minutes: 5  # 2026-04-16: Should just be a minute or two.
     steps:
       # We don't need full git history, but we do need everything up to the merge-base.
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
