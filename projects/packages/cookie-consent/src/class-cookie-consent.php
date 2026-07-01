@@ -84,56 +84,77 @@ class Cookie_Consent {
 	/**
 	 * Initialize the package. Idempotent; safe to call multiple times.
 	 *
-	 * Public entry point a consumer calls to activate cookie consent. Registers
-	 * the front-end controls (banner, CCPA flow, enqueue) and boots the consent
-	 * log REST controller (table creation, cron scheduling, route registration).
+	 * Public entry point a consumer calls to activate cookie consent. Resolves
+	 * and stashes the configuration, bails entirely when `enabled` is false, and
+	 * otherwise registers each hook slice only when its `features.*` toggle is on.
+	 *
+	 * @param array $config Partial consumer config, resolved via Config_Schema.
 	 */
-	public static function init() {
+	public static function init( array $config = array() ) {
 		if ( self::$initialized ) {
+			return;
+		}
+		self::$config = Config_Schema::resolve( $config );
+		if ( empty( self::$config['enabled'] ) ) {
 			return;
 		}
 		self::$initialized = true;
 
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
-		add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
+		$features = self::$config['features'];
 
-		// Classic-theme (and footer-nav-less block theme) fallback for the required
-		// legal links. Runs late so any Block Hooks injection has already happened
-		// and flipped self::$footer_links_injected.
-		add_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );
+		if ( $features['banner'] ) {
+			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+			add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
+		} elseif ( $features['tracks'] || $features['geo'] ) {
+			// enqueue_assets also carries Tracks + geo emission; still enqueue when those are on.
+			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		}
 
-		// Create the CCPA opt-out page once (guarded), now that the Atomic
-		// garden_site_provisioning hook is no longer available in this context.
-		add_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
+		if ( $features['footer_links'] ) {
+			// Classic-theme (and footer-nav-less block theme) fallback for the required
+			// legal links. Runs late so any Block Hooks injection has already happened
+			// and flipped self::$footer_links_injected.
+			add_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );
 
-		// Hook Privacy Policy and CCPA links into navigation blocks using Block Hooks API.
-		add_filter( 'hooked_block_types', array( __CLASS__, 'register_footer_navigation_links' ), 10, 4 );
-		add_filter( 'hooked_block_core/navigation-link', array( __CLASS__, 'set_footer_navigation_link_attributes' ), 10, 4 );
-		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10, 2 );
-		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'maybe_suppress_privacy_policy_link' ), 10, 2 );
-		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10, 2 );
-		// Flag that the required links were injected into a footer nav (covers all
-		// three, including the Privacy Policy link which has no directive filter),
-		// so the wp_footer fallback does not duplicate them.
-		add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'mark_footer_links_injected' ), 10, 2 );
+			// Hook Privacy Policy and CCPA links into navigation blocks using Block Hooks API.
+			add_filter( 'hooked_block_types', array( __CLASS__, 'register_footer_navigation_links' ), 10, 4 );
+			add_filter( 'hooked_block_core/navigation-link', array( __CLASS__, 'set_footer_navigation_link_attributes' ), 10, 4 );
+			add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'maybe_suppress_privacy_policy_link' ), 10, 2 );
+			add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_gdpr_manage_preferences_directives' ), 10, 2 );
+			// Flag that the required links were injected into a footer nav (covers all
+			// three, including the Privacy Policy link which has no directive filter),
+			// so the wp_footer fallback does not duplicate them.
+			add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'mark_footer_links_injected' ), 10, 2 );
+		}
 
-		// Add Interactivity API directive to CCPA opt-out button.
-		add_filter( 'render_block_core/button', array( __CLASS__, 'add_ccpa_button_directive' ), 10, 2 );
+		if ( $features['ccpa_page'] ) {
+			// Create the CCPA opt-out page once (guarded), now that the Atomic
+			// garden_site_provisioning hook is no longer available in this context.
+			add_action( 'init', array( __CLASS__, 'maybe_create_ccpa_page' ) );
+			add_filter( 'render_block_core/navigation-link', array( __CLASS__, 'add_ccpa_interactivity_directives' ), 10, 2 );
 
-		// Add Interactivity API directives to CCPA group block and inject snackbar.
-		add_filter( 'render_block_core/group', array( __CLASS__, 'add_ccpa_group_directives' ), 10, 2 );
+			// Add Interactivity API directive to CCPA opt-out button.
+			add_filter( 'render_block_core/button', array( __CLASS__, 'add_ccpa_button_directive' ), 10, 2 );
 
-		// Exclude CCPA page from page-list block using get_pages filter.
-		add_filter( 'get_pages', array( __CLASS__, 'exclude_ccpa_from_get_pages' ), 10, 2 );
+			// Add Interactivity API directives to CCPA group block and inject snackbar.
+			add_filter( 'render_block_core/group', array( __CLASS__, 'add_ccpa_group_directives' ), 10, 2 );
 
-		// Register the CCPA page id setting for REST access.
-		add_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
+			// Exclude CCPA page from page-list block using get_pages filter.
+			add_filter( 'get_pages', array( __CLASS__, 'exclude_ccpa_from_get_pages' ), 10, 2 );
 
-		// Keep the geolocation cookies out of Jetpack Boost's page-cache key.
-		add_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ) );
+			// Register the CCPA page id setting for REST access.
+			add_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
+		}
 
-		// Consent log REST controller: table, cron cleanup, routes.
-		Consent_Log_Controller::init();
+		if ( $features['geo'] ) {
+			// Keep the geolocation cookies out of Jetpack Boost's page-cache key.
+			add_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ) );
+		}
+
+		if ( $features['consent_log'] ) {
+			// Consent log REST controller: table, cron cleanup, routes.
+			Consent_Log_Controller::init();
+		}
 	}
 
 	/**
@@ -146,12 +167,15 @@ class Cookie_Consent {
 	 * @since $$next-version$$
 	 */
 	public static function deactivate() {
-		// These mirror init()'s front-end registrations and matter only when a
-		// consumer deactivates within the same request (e.g. a runtime toggle).
-		// The standard register_deactivation_hook path runs in a separate admin
-		// request where these hooks never fire, so the durable cleanup is the
-		// cron unschedule and setting unregister below. Keep this list in sync
-		// with init() whenever a hook is added there.
+		// These mirror the full set of hooks init() can register across every
+		// features.* toggle, and matter only when a consumer deactivates within
+		// the same request (e.g. a runtime toggle). Removing a hook that a gated
+		// init() never added is a harmless no-op, so this list stays unconditional
+		// rather than re-deriving which toggles were on. The standard
+		// register_deactivation_hook path runs in a separate admin request where
+		// these hooks never fire, so the durable cleanup is the cron unschedule and
+		// setting unregister below. Keep this list in sync with init() whenever a
+		// hook is added there.
 		remove_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		remove_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
 		remove_action( 'wp_footer', array( __CLASS__, 'maybe_render_footer_links_fallback' ), 999 );
@@ -1007,18 +1031,27 @@ class Cookie_Consent {
 			return;
 		}
 
-		// Load Automattic Tracks (w.js) for analytics.
-		// External script, version managed by Automattic - no version needed.
-		wp_enqueue_script(
-			'jetpack-cookie-consent-tracks',
-			'https://stats.wp.com/w.js',
-			array(),
-			gmdate( 'YW' ),
-			array(
-				'strategy'  => 'defer',
-				'in_footer' => true,
-			)
-		);
+		$config   = self::get_config();
+		$features = $config['features'];
+
+		if ( $features['tracks'] ) {
+			// Load Automattic Tracks (w.js) for analytics.
+			// External script, version managed by Automattic - no version needed.
+			wp_enqueue_script(
+				'jetpack-cookie-consent-tracks',
+				'https://stats.wp.com/w.js',
+				array(),
+				gmdate( 'YW' ),
+				array(
+					'strategy'  => 'defer',
+					'in_footer' => true,
+				)
+			);
+		}
+
+		if ( ! $features['banner'] ) {
+			return;
+		}
 
 		// Register and enqueue the Interactivity API script module built by webpack.
 		// Only the build version is read from the asset file; module dependencies are
@@ -1049,7 +1082,6 @@ class Cookie_Consent {
 		);
 
 		// Resolve the configured Tracks event prefix once so it can be shared below.
-		$config              = self::get_config();
 		$frontend_categories = self::get_frontend_consent_categories( $config['consent']['categories'] );
 
 		$config_data = array(
@@ -1088,6 +1120,10 @@ class Cookie_Consent {
 			'gdprHonorsGpc'   => $config['gdpr_honors_gpc'] ?? true,
 			'forcePreview'    => $force_preview,
 			'categories'      => $frontend_categories,
+			'geoEnabled'      => (bool) $features['geo'],
+			// Always emit the full geo sub-array, even when the geo feature is off:
+			// the banner JS dereferences config.geo unconditionally, so omitting it
+			// (rather than gating on geoEnabled) would break the module.
 			'geo'             => array(
 				'provider'          => $config['geo']['provider'],
 				'apiUrl'            => $config['geo']['api_url'],

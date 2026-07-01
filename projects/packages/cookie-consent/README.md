@@ -6,7 +6,10 @@ It renders a fixed-position consent banner and a preferences modal on `wp_footer
 
 ## Usage
 
-`\Automattic\Jetpack\CookieConsent\Cookie_Consent::init();`
+`\Automattic\Jetpack\CookieConsent\Cookie_Consent::init( array $config = array() );`
+
+`$config` is an optional, partial configuration array resolved against package
+defaults — see [Configuration](#configuration) below.
 
 Build the frontend module before use:
 
@@ -44,30 +47,73 @@ clear `jetpack_cookie_consent_consent_log_db_version`, call:
 
 ## Configuration
 
-Filter `jetpack_cookie_consent_config` to override defaults. Geo controls are grouped under `geo`:
+`Cookie_Consent::init( array $config = array() )` takes the whole configuration
+as a single argument. `$config` is partial — every key is optional and falls
+back to a package default — and is resolved once, on the first `init()` call,
+via `Config_Schema` (see `src/schema/class-config-schema.php` for the full
+shape). There is no filter to hook into after that: pass everything the
+consuming plugin needs up front.
+
+### Master switch
+
+Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at
+all, including the consent-log REST controller:
 
 ```php
-add_filter(
-	'jetpack_cookie_consent_config',
-	static function ( $config ) {
-		$config['geo']             = array_merge(
-			$config['geo'],
-			array(
-				'provider'            => 'custom',
-				'api_url'             => 'https://example.com/geo/',
-				'country_code_cookie' => 'shopper_country',
-				'region_cookie'       => 'shopper_region',
-				'cookie_duration'     => 6 * HOUR_IN_SECONDS,
-				'gdpr_countries'      => array( 'GB', 'FR' ),
-				'ccpa_regions'        => array( 'california' ),
-				'show_on_error'       => true,
-			)
-		);
+\Automattic\Jetpack\CookieConsent\Cookie_Consent::init(
+	array(
+		'enabled' => false,
+	)
+);
+```
 
-		$config['event_prefix'] = 'woocommerceanalytics';
+### Feature toggles
 
-		return $config;
-	}
+The `features` group turns individual pieces of functionality on or off. Every
+key defaults to `true` except `page_deletion_lock`, which defaults to `false`
+and is reserved for future use:
+
+```php
+\Automattic\Jetpack\CookieConsent\Cookie_Consent::init(
+	array(
+		'features' => array(
+			'banner'             => true,  // Consent banner/modal and their frontend assets.
+			'ccpa_page'          => true,  // CCPA "Your Privacy Choices" opt-out page and directives.
+			'footer_links'       => true,  // Required footer legal links (Block Hooks + classic-theme fallback).
+			'consent_log'        => true,  // Consent-log REST controller (table, cron cleanup, routes).
+			'tracks'             => true,  // Automattic Tracks (stats.wp.com/w.js) enqueue.
+			'geo'                => true,  // Geolocation-based consent model and Boost cache-key exclusion.
+			'page_deletion_lock' => false, // Reserved; not yet wired to a behavior.
+		),
+	)
+);
+```
+
+Turning `geo` off stops resolving a visitor's region and excluding the geo
+cookies from Jetpack Boost's cache key, but the frontend module still receives
+a `geo` config sub-object (with `geoEnabled: false`) rather than none at all,
+since the module dereferences it unconditionally.
+
+### Nested config groups
+
+The rest of `$config` shapes behavior rather than gating it. Geo controls are
+grouped under `geo`:
+
+```php
+\Automattic\Jetpack\CookieConsent\Cookie_Consent::init(
+	array(
+		'geo' => array(
+			'provider'            => 'custom',
+			'api_url'             => 'https://example.com/geo/',
+			'country_code_cookie' => 'shopper_country',
+			'region_cookie'       => 'shopper_region',
+			'cookie_duration'     => 6 * HOUR_IN_SECONDS,
+			'gdpr_countries'      => array( 'GB', 'FR' ),
+			'ccpa_regions'        => array( 'california' ),
+			'show_on_error'       => true,
+		),
+		'event_prefix' => 'woocommerceanalytics',
+	)
 );
 ```
 
@@ -84,27 +130,25 @@ Set `links.cookie_policy_url` only when the consuming site has a separate cookie
 policy page:
 
 ```php
-add_filter(
-	'jetpack_cookie_consent_config',
-	function ( $config ) {
-		$config['links']['cookie_policy_url'] = 'https://example.com/cookie-policy/';
-
-		return $config;
-	}
+\Automattic\Jetpack\CookieConsent\Cookie_Consent::init(
+	array(
+		'links' => array(
+			'cookie_policy_url' => 'https://example.com/cookie-policy/',
+		),
+	)
 );
 ```
 
-User-facing banner, preferences modal, footer link, CCPA page, and CCPA snackbar strings are configured through the `copy` group. Package defaults are translated with the `jetpack-cookie-consent` text domain. Consumers that override strings should translate those overrides before returning them from the filter, using their own text domain:
+User-facing banner, preferences modal, footer link, CCPA page, and CCPA snackbar strings are configured through the `copy` group. Package defaults are translated with the `jetpack-cookie-consent` text domain. Consumers that override strings should translate those overrides before passing them to `init()`, using their own text domain. Only the overridden keys need to be present — anything omitted keeps the package default:
 
 ```php
-add_filter(
-	'jetpack_cookie_consent_config',
-	function ( $config ) {
-		$config['copy']['banner_title'] = __( 'Your privacy settings', 'my-plugin' );
-		$config['copy']['ccpa_opt_out_button'] = __( 'Do Not Sell or Share My Personal Information', 'my-plugin' );
-
-		return $config;
-	}
+\Automattic\Jetpack\CookieConsent\Cookie_Consent::init(
+	array(
+		'copy' => array(
+			'banner_title'        => __( 'Your privacy settings', 'my-plugin' ),
+			'ccpa_opt_out_button' => __( 'Do Not Sell or Share My Personal Information', 'my-plugin' ),
+		),
+	)
 );
 ```
 
@@ -117,21 +161,51 @@ frontend preserves the existing `required` and `advertising` aliases for
 `advertising` are reserved keys: a category registered with either key is
 ignored during normalization to avoid colliding with a built-in category.
 
-```php
-add_filter(
-	'jetpack_cookie_consent_config',
-	function ( $config ) {
-		$config['consent']['categories'][] = array(
-			'key'             => 'personalization',
-			'label'           => __( 'Personalization', 'my-plugin' ),
-			'description'     => __( 'Remember choices that tailor the site experience.', 'my-plugin' ),
-			'required'        => false,
-			'default_checked' => false,
-			'wp_consent_map'  => array( 'personalization' ),
-		);
+Unlike the other groups, `consent.categories` **replaces** the default registry
+rather than merging into it — there is no existing config to merge with when a
+consumer calls `init()`. Include the built-in categories explicitly if they
+should still appear alongside a custom one:
 
-		return $config;
-	}
+```php
+\Automattic\Jetpack\CookieConsent\Cookie_Consent::init(
+	array(
+		'consent' => array(
+			'categories' => array(
+				array(
+					'key'             => 'functional',
+					'label'           => __( 'Required', 'my-plugin' ),
+					'description'     => __( 'Necessary for the site to function.', 'my-plugin' ),
+					'required'        => true,
+					'default_checked' => true,
+					'wp_consent_map'  => array( 'functional' ),
+				),
+				array(
+					'key'             => 'analytics',
+					'label'           => __( 'Analytics', 'my-plugin' ),
+					'description'     => __( 'Help us understand how visitors use the site.', 'my-plugin' ),
+					'required'        => false,
+					'default_checked' => true,
+					'wp_consent_map'  => array( 'statistics', 'statistics-anonymous' ),
+				),
+				array(
+					'key'             => 'marketing',
+					'label'           => __( 'Advertising', 'my-plugin' ),
+					'description'     => __( 'Used by advertising partners to serve relevant ads.', 'my-plugin' ),
+					'required'        => false,
+					'default_checked' => false,
+					'wp_consent_map'  => array( 'marketing' ),
+				),
+				array(
+					'key'             => 'personalization',
+					'label'           => __( 'Personalization', 'my-plugin' ),
+					'description'     => __( 'Remember choices that tailor the site experience.', 'my-plugin' ),
+					'required'        => false,
+					'default_checked' => false,
+					'wp_consent_map'  => array( 'personalization' ),
+				),
+			),
+		),
+	)
 );
 ```
 
