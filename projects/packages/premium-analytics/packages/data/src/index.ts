@@ -177,7 +177,6 @@ export {
 } from './hooks/use-stats-app-dashboard-modules';
 export type {
 	StatsAppDashboardModules,
-	StatsAppDashboardModulesSettings,
 	StatsAppDashboardModuleValue,
 	StatsAppDashboardTrafficModule,
 } from './hooks/use-stats-app-dashboard-modules';

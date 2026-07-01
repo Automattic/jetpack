@@ -25,27 +25,10 @@ export type StatsAppDashboardTrafficModule =
 	| 'videos'
 	| 'app-promo';
 
-export type StatsAppDashboardModuleValue = boolean | Record< string, unknown >;
+export type StatsAppDashboardModuleValue = boolean;
 
 export type StatsAppDashboardModules = {
 	traffic?: Partial< Record< StatsAppDashboardTrafficModule, StatsAppDashboardModuleValue > >;
-};
-
-export type StatsAppDashboardModulesSettings = {
-	traffic?: {
-		highlights?: {
-			period_in_days?: 7 | 30;
-		};
-		chart?: null;
-		'posts-pages'?: null;
-		referrers?: null;
-		countries?: null;
-		authors?: null;
-		'search-terms'?: null;
-		clicks?: null;
-		videos?: null;
-		'app-promo'?: null;
-	};
 };
 
 /**
@@ -77,7 +60,7 @@ export function useStatsAppDashboardModulesMutation() {
 
 	return useMutation( {
 		mutationFn: ( body: StatsAppDashboardModules ) =>
-			fetchStatsProxy( {
+			fetchStatsProxy< StatsAppDashboardModules, StatsAppDashboardModules >( {
 				version: STATS_APP_DASHBOARD_MODULES_VERSION,
 				endpoint: STATS_APP_DASHBOARD_MODULES_ENDPOINT,
 				method: 'POST',
