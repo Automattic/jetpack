@@ -323,4 +323,54 @@ class Contact_Form_Field_Test extends BaseTestCase {
 			'rating'            => array( 'rating', array() ),
 		);
 	}
+
+	/**
+	 * Per-viewport hide: a grouped field whose legend label carries a
+	 * wp-block-hidden-{viewport} class is still rendered (display:none only on
+	 * that viewport), but the <fieldset> also gets an aria-label so the group
+	 * keeps an accessible name where the legend is hidden. See FORMS-694.
+	 */
+	public function test_render_grouped_field_per_viewport_hidden_legend_keeps_accessible_name() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'         => 'radio',
+				'id'           => 'test_group',
+				'label'        => 'Pick one',
+				'options'      => array( 'A', 'B' ),
+				'labelclasses' => 'wp-block-hidden-mobile',
+			)
+		);
+
+		$html = $field->render();
+
+		// The legend is still rendered (per-viewport is display:none, not removed)...
+		$this->assertStringContainsString( '<legend', $html );
+		$this->assertStringContainsString( 'wp-block-hidden-mobile', $html );
+		// ...and the accessible name is also on the fieldset for the hidden viewport.
+		$this->assertStringContainsString( "aria-label='Pick one'", $html );
+	}
+
+	/**
+	 * Per-viewport hide: a single input whose label carries a
+	 * wp-block-hidden-{viewport} class gets an aria-label (the label text, not the
+	 * placeholder) so it keeps an accessible name where the label is hidden. See
+	 * FORMS-694.
+	 */
+	public function test_render_input_per_viewport_hidden_label_keeps_accessible_name() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'         => 'text',
+				'id'           => 'test_text',
+				'label'        => 'Your name',
+				'placeholder'  => 'e.g. Jane',
+				'labelclasses' => 'wp-block-hidden-tablet',
+			)
+		);
+
+		$html = $field->render();
+
+		// The accessible name falls back to the label, matching the visible label.
+		$this->assertStringContainsString( "aria-label='Your name'", $html );
+		$this->assertStringNotContainsString( "aria-label='e.g. Jane'", $html );
+	}
 } // end class
