@@ -22,7 +22,7 @@ describe( 'Stats email summary normalizer', () => {
 							expect.objectContaining( {
 								id: 71,
 								label: 'Newsletter',
-								value: 4,
+								value: 30,
 								link: 'https://example.com/newsletter/',
 								actions: [ { type: 'link', data: 'https://example.com/newsletter/' } ],
 								unique_opens: 24,

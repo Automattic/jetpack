@@ -639,10 +639,12 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Puts the current request into a block-editor screen with Agents Manager enabled
-	 * (block-editor-only, no unified experience), so the editor omnibar branch is reachable.
+	 * Puts the current request into a block-editor screen so the editor omnibar branch is reachable.
+	 *
+	 * @param bool $enable Whether to enable Agents Manager in the block editor (block-editor-only,
+	 *                     no unified experience). Pass false to exercise the not-enabled path.
 	 */
-	private function set_up_block_editor_request() {
+	private function set_up_block_editor_request( $enable = true ) {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'post' );
 		$screen     = get_current_screen();
@@ -654,19 +656,21 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$property->setValue( $screen, true );
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
-		add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+
+		if ( $enable ) {
+			add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+		}
 	}
 
 	/**
-	 * Tests that the Ask AI button is added to the editor admin bar when the omnibar experiment
-	 * is active in a dev/internal context (here, a proxied request).
+	 * Tests that the Ask AI button is added to the editor admin bar when the omnibar experiment is
+	 * active and Agents Manager is enabled — independent of dev mode (here, a non-proxied request).
 	 */
 	public function test_ai_chat_button_registered_in_editor_omnibar() {
 		$this->set_up_block_editor_request();
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
 		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
-		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -679,14 +683,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that the Ask AI button is not added to the editor admin bar when the omnibar
-	 * experiment is inactive, even in a dev/internal context.
+	 * experiment is inactive, even though Agents Manager is enabled.
 	 */
 	public function test_ai_chat_button_not_registered_in_editor_without_omnibar() {
 		$this->set_up_block_editor_request();
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
 		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( false );
-		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -698,23 +701,20 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the Ask AI button is not added to the editor admin bar outside dev/internal
-	 * contexts, even when the omnibar experiment is active.
+	 * Tests that the Ask AI button is not added to the editor admin bar when Agents Manager is
+	 * not enabled, even while the omnibar experiment is active.
 	 */
-	public function test_ai_chat_button_not_registered_in_editor_outside_dev_mode() {
-		$this->set_up_block_editor_request();
+	public function test_ai_chat_button_not_registered_in_editor_when_not_enabled() {
+		$this->set_up_block_editor_request( false );
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
 		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
-		Functions\when( 'wpcom_is_proxied_request' )->justReturn( false );
 
 		$this->agents_manager->enqueue_scripts();
 
 		$this->assertFalse(
 			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
 		);
-
-		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
 	}
 
 	/**

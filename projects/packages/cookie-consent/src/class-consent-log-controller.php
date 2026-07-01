@@ -55,7 +55,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	private const DB_VERSION = '0.0.2';
+	private const DB_VERSION = '0.0.3';
 
 	/**
 	 * Default retention period in days.
@@ -98,6 +98,20 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 * @var int
 	 */
 	private const MAX_URL_LENGTH = 1024;
+
+	/**
+	 * Default IP address handling mode.
+	 *
+	 * @var string
+	 */
+	private const DEFAULT_IP_MODE = 'drop';
+
+	/**
+	 * Supported IP address handling modes.
+	 *
+	 * @var array
+	 */
+	private const IP_MODES = array( 'drop', 'hash', 'truncate', 'raw' );
 
 	/**
 	 * Cleanup cron hook name.
@@ -208,7 +222,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			consent_id varchar(36) DEFAULT NULL,
 			event_type varchar(50) NOT NULL,
 			customer_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
-			ip_address varchar(45) DEFAULT NULL,
+			ip_address varchar(64) DEFAULT NULL,
 			url text DEFAULT NULL,
 			consent_types longtext DEFAULT NULL,
 			policy_version varchar(191) NOT NULL DEFAULT '1',
@@ -630,7 +644,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			'consent_id'       => $consent_id,
 			'event_type'       => $request->get_param( 'event_type' ),
 			'customer_id'      => get_current_user_id(),
-			'ip_address'       => $ip,
+			'ip_address'       => $this->get_consent_log_ip_address( $ip ),
 			'url'              => $request->get_param( 'url' ),
 			'consent_types'    => $consent_json,
 			'policy_version'   => $log_versions['policy_version'],
@@ -654,6 +668,104 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		}
 
 		return rest_ensure_response( array( 'consent_id' => $consent_id ) );
+	}
+
+	/**
+	 * Get the IP address value to persist for the consent log.
+	 *
+	 * @param string|null $ip_address Resolved client IP address.
+	 * @return string|null
+	 */
+	private function get_consent_log_ip_address( $ip_address = null ) {
+		// Guard against a null IP: format_ip_address_for_log() would otherwise hash the empty
+		// string or hand null to wp_privacy_anonymize_ip() (which returns 0.0.0.0). The 'drop'
+		// mode itself is already handled by that method's default branch.
+		if ( null === $ip_address ) {
+			return null;
+		}
+
+		return $this->format_ip_address_for_log( $ip_address, $this->get_ip_mode() );
+	}
+
+	/**
+	 * Get the configured IP address handling mode.
+	 *
+	 * @return string
+	 */
+	private function get_ip_mode() {
+		$config     = Cookie_Consent::get_config();
+		$log_config = isset( $config['log'] ) && is_array( $config['log'] ) ? $config['log'] : array();
+		$ip_mode    = isset( $log_config['ip_mode'] ) ? sanitize_key( $log_config['ip_mode'] ) : self::DEFAULT_IP_MODE;
+
+		if ( ! in_array( $ip_mode, self::IP_MODES, true ) ) {
+			return self::DEFAULT_IP_MODE;
+		}
+
+		return $ip_mode;
+	}
+
+	/**
+	 * Format an IP address for the configured log storage mode.
+	 *
+	 * @param string $ip_address Valid IP address.
+	 * @param string $ip_mode    IP address handling mode.
+	 * @return string|null
+	 */
+	private function format_ip_address_for_log( $ip_address, $ip_mode ) {
+		switch ( $ip_mode ) {
+			case 'raw':
+				return $ip_address;
+
+			case 'hash':
+				// 64-char hex digest; the ip_address column must stay at least varchar(64) to hold it.
+				return hash_hmac( 'sha256', $ip_address, wp_salt( 'auth' ) );
+
+			case 'truncate':
+				return $this->truncate_ip_address( $ip_address );
+
+			case 'drop':
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * Truncate an IP address so the full address is not persisted.
+	 *
+	 * @param string $ip_address Valid IP address.
+	 * @return string|null
+	 */
+	private function truncate_ip_address( $ip_address ) {
+		if ( function_exists( 'wp_privacy_anonymize_ip' ) ) {
+			return wp_privacy_anonymize_ip( $ip_address );
+		}
+
+		if ( filter_var( $ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			$octets    = explode( '.', $ip_address );
+			$octets[3] = '0';
+			return implode( '.', $octets );
+		}
+
+		if ( filter_var( $ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			$packed = inet_pton( $ip_address );
+			if ( false === $packed ) {
+				return null;
+			}
+
+			$bytes = unpack( 'C*', $packed );
+			if ( false === $bytes ) {
+				return null;
+			}
+
+			for ( $i = 9; $i <= 16; $i++ ) {
+				$bytes[ $i ] = 0;
+			}
+
+			$truncated = inet_ntop( pack( 'C*', ...array_values( $bytes ) ) );
+			return false === $truncated ? null : $truncated;
+		}
+
+		return null;
 	}
 
 	/**
@@ -820,8 +932,8 @@ class Consent_Log_Controller extends WP_REST_Controller {
 						'readonly'    => true,
 					),
 					'ip_address'       => array(
-						'description' => __( 'The client IP address.', 'jetpack-cookie-consent' ),
-						'type'        => 'string',
+						'description' => __( 'The stored client IP address value.', 'jetpack-cookie-consent' ),
+						'type'        => array( 'string', 'null' ),
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),

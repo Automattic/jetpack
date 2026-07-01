@@ -57,10 +57,10 @@ export const scalarDaysTimeSeriesFixture = {
 export const emailOpensTimeSeriesFixture = {
 	timeline: {
 		unit: 'day',
-		fields: [ 'date', 'opens_count', 'unique_opens_count' ],
+		fields: [ 'date', 'opens_count' ],
 		data: [
-			[ '2026-06-15', '8', '6' ],
-			[ '2026-06-16', '13', '9' ],
+			[ '2026-06-15', 8 ],
+			[ '2026-06-16', 13 ],
 		],
 	},
 };
@@ -79,10 +79,21 @@ export const emailClicksTimeSeriesFixture = {
 export const emailOpensHourlyTimeSeriesFixture = {
 	timeline: {
 		unit: 'hour',
-		fields: [ 'date', 'opens_count' ],
+		fields: [ 'date', 'hour', 'opens_count' ],
 		data: [
-			[ '2026-06-15', '3', 9 ],
-			[ '2026-06-15', '5', 10 ],
+			[ '2026-06-15', 9, 3 ],
+			[ '2026-06-15', 10, 5 ],
+		],
+	},
+};
+
+export const emailClicksHourlyTimeSeriesFixture = {
+	timeline: {
+		unit: 'hour',
+		fields: [ 'date', 'hour', 'clicks_count' ],
+		data: [
+			[ '2026-06-15', 9, 4 ],
+			[ '2026-06-15', 10, 7 ],
 		],
 	},
 };

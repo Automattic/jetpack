@@ -179,6 +179,13 @@ class Initializer {
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu_item' ), 10 );
 
+		// Read-only REST routes the dashboard hydrates its initial state from. Preloaded
+		// into the page (see inject_script_data) so a normal load resolves them with no
+		// request, and fetched by the app when that preload is missing or stale — so the
+		// dashboard recovers its data instead of dead-ending. Registered whenever the
+		// surface is visible (independent of the seo-tools module, like the Overview).
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_reads' ) );
+
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
 		// endpoints until then. Expose the core `blog_public` option to the REST settings
@@ -288,8 +295,10 @@ class Initializer {
 	 * Because wp-build pages load as ES modules, `wp_localize_script` can't
 	 * attach data to them; the shared `jetpack_admin_js_script_data` filter
 	 * (printed by the Script_Data package onto the `jetpack-script-data` handle
-	 * the bundle already depends on) is the supported channel. Mirrors Podcast
-	 * and Newsletter.
+	 * the bundle already depends on) is the supported channel. The per-tab state
+	 * is provided as an apiFetch *preload* (mirrors Podcast) so the app resolves
+	 * it with no request on a normal load yet can re-fetch when the preload is
+	 * missing or stale, rather than dead-ending on a one-shot read.
 	 *
 	 * @param array $data Script data being injected onto the page.
 	 * @return array
@@ -299,10 +308,21 @@ class Initializer {
 			$data = array();
 		}
 
-		$data[ self::SCRIPT_DATA_KEY ]['overview']      = self::get_overview_data();
-		$data[ self::SCRIPT_DATA_KEY ]['settings']      = self::get_settings_data();
+		// Preload the dashboard's REST reads into the page so the app resolves them from
+		// cache on first paint with no network request — while still being able to
+		// re-fetch if that preload is ever missing or stale. This replaces injecting the
+		// raw payloads, which the app read synchronously once and couldn't recover from
+		// when momentarily absent (the load-error dead-end). See register_rest_reads() and
+		// the client readers `_inc/data/get-preloaded.ts` + `_inc/data/use-ensure-tab-data.ts`.
+		$data[ self::SCRIPT_DATA_KEY ]['preload'] = array_reduce(
+			self::rest_read_paths(),
+			'rest_preload_api_request',
+			array()
+		);
+
+		// Small synchronous reads used outside the per-tab data stores, and not part of
+		// the load-error path.
 		$data[ self::SCRIPT_DATA_KEY ]['google_verify'] = self::get_google_verify_data();
-		$data[ self::SCRIPT_DATA_KEY ]['ai']            = self::get_ai_data();
 		$data[ self::SCRIPT_DATA_KEY ]['site']          = self::get_site_data();
 
 		return $data;
@@ -705,6 +725,70 @@ class Initializer {
 				'redirect' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
 			)
 		);
+	}
+
+	/**
+	 * Map of read-only dashboard routes: tab slug => data-builder callable. The
+	 * single source of truth for both the registered routes and the paths
+	 * preloaded onto the page, so the two can't drift.
+	 *
+	 * @return array<string, callable>
+	 */
+	private static function rest_reads() {
+		return array(
+			'overview' => array( __CLASS__, 'get_overview_data' ),
+			'settings' => array( __CLASS__, 'get_settings_data' ),
+			'ai'       => array( __CLASS__, 'get_ai_data' ),
+		);
+	}
+
+	/**
+	 * REST paths the dashboard reads its initial state from, preloaded into the
+	 * page (see {@see self::inject_script_data()}) and fetched by the app.
+	 *
+	 * @return string[]
+	 */
+	private static function rest_read_paths() {
+		return array_map(
+			static function ( $slug ) {
+				return '/jetpack/v4/seo/' . $slug;
+			},
+			array_keys( self::rest_reads() )
+		);
+	}
+
+	/**
+	 * Register the read-only REST routes the dashboard hydrates from — one per
+	 * data-backed tab, each returning the same builder payload previously injected
+	 * synchronously onto the page. Read-only and gated to the page's own
+	 * `manage_options`; writes still go through their existing endpoints.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_reads() {
+		foreach ( self::rest_reads() as $slug => $builder ) {
+			register_rest_route(
+				'jetpack/v4',
+				'/seo/' . $slug,
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => static function () use ( $builder ) {
+						return rest_ensure_response( call_user_func( $builder ) );
+					},
+					'permission_callback' => array( __CLASS__, 'reads_permission_check' ),
+				)
+			);
+		}
+	}
+
+	/**
+	 * Capability gate for the dashboard's read routes — the same `manage_options`
+	 * the SEO admin page itself requires.
+	 *
+	 * @return bool
+	 */
+	public static function reads_permission_check() {
+		return current_user_can( 'manage_options' );
 	}
 
 	/**

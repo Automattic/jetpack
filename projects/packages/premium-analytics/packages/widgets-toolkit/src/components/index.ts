@@ -9,6 +9,12 @@ export { SemiCircleChart } from './chart-semi-circle';
 export { DonutChart, type DonutChartData } from './chart-donut';
 export { ReportMetricWidget } from './report-metric';
 export {
+	MetricTabsChart,
+	type MetricTab,
+	type MetricTabDatum,
+	type MetricTabsChartProps,
+} from './metric-tabs-chart';
+export {
 	LeaderboardChart,
 	type LeaderboardChartProps,
 	type LeaderboardChartData,

@@ -67,8 +67,16 @@ class Analytics {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
 
-		// Hydrate the widget type registry from the build manifest at init.
+		// Load the widget type registry: hydration routine, registry-time and
+		// runtime filters, and the registry accessors.
 		require_once __DIR__ . '/widget-types.php';
+
+		// Apply Premium Analytics' availability policy: hooks the registry-time
+		// filter to keep developer-only types out of production.
+		require_once __DIR__ . '/widget-availability.php';
+
+		// Hydrate the registry with the availability filter in place.
+		bootstrap_widget_types();
 
 		// Expose dashboard widget modules over REST and wire them into the
 		// page import map for dynamic import() on the client.

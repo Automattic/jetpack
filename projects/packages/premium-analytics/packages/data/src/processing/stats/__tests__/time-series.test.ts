@@ -4,6 +4,7 @@ import {
 	sanitizeStatsTimeSeriesResponse,
 } from '..';
 import {
+	emailClicksHourlyTimeSeriesFixture,
 	emailClicksTimeSeriesFixture,
 	emailOpensHourlyTimeSeriesFixture,
 	emailOpensTimeSeriesFixture,
@@ -146,7 +147,6 @@ describe( 'Stats time-series normalizer', () => {
 		expect( result.summary ).toEqual(
 			expect.objectContaining( {
 				opens_count: 21,
-				unique_opens_count: 15,
 				date_start: '2026-06-15T00:00:00+00:00',
 				date_end: '2026-06-16T23:59:59+00:00',
 			} )
@@ -157,7 +157,6 @@ describe( 'Stats time-series normalizer', () => {
 				label: '2026-06-15',
 				value: 8,
 				opens_count: 8,
-				unique_opens_count: 6,
 				items: [],
 			} )
 		);
@@ -172,18 +171,84 @@ describe( 'Stats time-series normalizer', () => {
 		);
 	} );
 
-	it( 'preserves the unlabeled hour column for hourly email timelines', () => {
+	it( 'resolves hourly email timelines into distinct per-hour buckets', () => {
 		const result = sanitizeStatsEmailTimeSeriesResponse( emailOpensHourlyTimeSeriesFixture, {
 			period: 'hour',
 		} );
 
 		expect( result.data ).toEqual( [
-			expect.objectContaining( { value: 3, opens_count: 3, hour: 9 } ),
-			expect.objectContaining( { value: 5, opens_count: 5, hour: 10 } ),
+			expect.objectContaining( {
+				time_interval: '2026-06-15 09:00',
+				date_start: '2026-06-15T09:00:00+00:00',
+				date_end: '2026-06-15T09:59:59+00:00',
+				label: '2026-06-15 09:00',
+				value: 3,
+				opens_count: 3,
+				hour: 9,
+			} ),
+			expect.objectContaining( {
+				time_interval: '2026-06-15 10:00',
+				date_start: '2026-06-15T10:00:00+00:00',
+				value: 5,
+				opens_count: 5,
+				hour: 10,
+			} ),
 		] );
 		// The hour dimension must not be summed into the metric summary.
 		expect( result.summary ).toEqual( expect.objectContaining( { opens_count: 8 } ) );
 		expect( result.summary ).not.toHaveProperty( 'hour' );
+	} );
+
+	it( 'resolves hourly email clicks timelines into distinct per-hour buckets', () => {
+		const result = sanitizeStatsEmailTimeSeriesResponse( emailClicksHourlyTimeSeriesFixture, {
+			period: 'hour',
+		} );
+
+		expect( result.data ).toEqual( [
+			expect.objectContaining( {
+				time_interval: '2026-06-15 09:00',
+				date_start: '2026-06-15T09:00:00+00:00',
+				date_end: '2026-06-15T09:59:59+00:00',
+				value: 4,
+				clicks_count: 4,
+				hour: 9,
+			} ),
+			expect.objectContaining( {
+				time_interval: '2026-06-15 10:00',
+				value: 7,
+				clicks_count: 7,
+				hour: 10,
+			} ),
+		] );
+		expect( result.summary ).toEqual( expect.objectContaining( { clicks_count: 11 } ) );
+	} );
+
+	it( 'normalizes hour 0 and string-typed hour values into padded per-hour buckets', () => {
+		const result = sanitizeStatsEmailTimeSeriesResponse(
+			{
+				timeline: {
+					unit: 'hour',
+					fields: [ 'date', 'opens_count' ],
+					data: [
+						[ '2026-06-15', '2', 0 ],
+						[ '2026-06-15', '4', '23' ],
+					],
+				},
+			},
+			{ period: 'hour' }
+		);
+
+		expect( result.data[ 0 ] ).toEqual(
+			expect.objectContaining( { time_interval: '2026-06-15 00:00', hour: 0, value: 2 } )
+		);
+		expect( result.data[ 1 ] ).toEqual(
+			expect.objectContaining( {
+				time_interval: '2026-06-15 23:00',
+				date_end: '2026-06-15T23:59:59+00:00',
+				hour: '23',
+				value: 4,
+			} )
+		);
 	} );
 
 	it( 'returns an empty email time series report when the timeline key is missing', () => {

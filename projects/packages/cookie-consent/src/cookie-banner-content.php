@@ -10,8 +10,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // $config is supplied by Cookie_Consent::render_banner() when this template is included.
-$config = isset( $config ) && is_array( $config ) ? $config : array( 'cookie_policy_url' => '' );
-$copy   = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
+$config             = isset( $config ) && is_array( $config ) ? $config : array();
+$copy               = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
+$links              = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
+$cookie_policy_url  = array_key_exists( 'cookie_policy_url', $links ) && is_scalar( $links['cookie_policy_url'] )
+	? trim( (string) $links['cookie_policy_url'] )
+	: '';
+$privacy_policy_url = (string) get_privacy_policy_url();
 ?>
 
 <div
@@ -107,14 +112,35 @@ $copy   = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
 		<div class="jetpack-cookie-consent__modal-content">
 			<div class="jetpack-cookie-consent__modal-body">
 				<p class="jetpack-cookie-consent__modal-description">
-					<?php echo esc_html( $copy['modal_description'] ); ?>
-					<a href="<?php echo esc_url( get_privacy_policy_url() ); ?>" class="jetpack-cookie-consent__link">
-						<?php echo esc_html( $copy['privacy_policy_link'] ); ?>
-					</a>
-					<?php echo esc_html( $copy['modal_links_conjunction'] ); ?>
-					<a href="<?php echo esc_url( $config['cookie_policy_url'] ); ?>" class="jetpack-cookie-consent__link">
-						<?php echo esc_html( $copy['cookie_policy_link'] ); ?>
-					</a>.
+					<?php
+					echo esc_html( $copy['modal_description'] );
+
+					// Only link policies that are actually configured, so we never render a
+					// dead href="" link (e.g. when the site has no Privacy Policy page set).
+					$policy_links = array();
+					if ( '' !== $privacy_policy_url ) {
+						$policy_links[] = sprintf(
+							'<a href="%s" class="jetpack-cookie-consent__link">%s</a>',
+							esc_url( $privacy_policy_url ),
+							esc_html( $copy['privacy_policy_link'] )
+						);
+					}
+					if ( '' !== $cookie_policy_url ) {
+						$policy_links[] = sprintf(
+							'<a href="%s" class="jetpack-cookie-consent__link">%s</a>',
+							esc_url( $cookie_policy_url ),
+							esc_html( $copy['cookie_policy_link'] )
+						);
+					}
+					// Append the "Learn more in our <links>." clause only when at least one
+					// policy link exists, so the description never ends with a dangling lead-in.
+					if ( $policy_links ) {
+						// Each link is already escaped above; join them with the conjunction.
+						echo ' ' . esc_html( $copy['modal_links_lead'] ) . ' '
+							. wp_kses_post( implode( ' ' . esc_html( $copy['modal_links_conjunction'] ) . ' ', $policy_links ) )
+							. '.';
+					}
+					?>
 				</p>
 
 				<div class="jetpack-cookie-consent__category-controls">

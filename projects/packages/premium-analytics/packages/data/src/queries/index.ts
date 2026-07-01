@@ -25,6 +25,23 @@ export { statsCountryViewsQuery } from './stats-country-views-query';
 export { statsVideoPlaysQuery } from './stats-video-plays-query';
 export { statsAppDashboardModuleSettingsQuery } from './stats-app-dashboard-module-settings-query';
 export { statsAppPlanUsageQuery } from './stats-app-plan-usage-query';
+export {
+	statsAppNoticesQuery,
+	updateStatsAppNotice,
+	type StatsAppNoticeId,
+	type StatsAppNoticeMutationParams,
+	type StatsAppNoticeMutationResponse,
+	type StatsAppNotices,
+	type StatsAppNoticesParams,
+	type StatsAppNoticeStatus,
+} from './stats-app-notices-query';
+export { statsAppPurchasesQuery } from './stats-app-purchases-query';
+export type {
+	StatsAppPurchase,
+	StatsAppPurchaseExpiryStatus,
+	StatsAppPurchasesParams,
+	StatsAppPurchasesResponse,
+} from './stats-app-purchases-query';
 export { statsArchivesQuery } from './stats-archives-query';
 export { statsCommentFollowersQuery } from './stats-comment-followers-query';
 export type {
@@ -77,3 +94,4 @@ export {
 	statsEmailOpensTimeSeriesQuery,
 	statsEmailClicksTimeSeriesQuery,
 } from './stats-email-time-series-query';
+export { statsAppDashboardModulesQuery } from './stats-app-dashboard-modules-query';
