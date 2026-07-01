@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { SelectControl } from '@wordpress/components';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import {
@@ -49,7 +49,7 @@ const UTM_PARAM_OPTIONS: { label: string; value: StatsUtmParam }[] = [
 type UtmInsightsInnerProps = {
 	utmParam: StatsUtmParam;
 	max: number;
-	setAttributes: WidgetRenderProps< UtmInsightsRenderAttributes >[ 'setAttributes' ];
+	setAttributes?: NonNullable< WidgetRenderProps< UtmInsightsRenderAttributes >[ 'setAttributes' ] >;
 };
 
 /**
@@ -58,17 +58,25 @@ type UtmInsightsInnerProps = {
  * @param props               - Props.
  * @param props.utmParam      - Active UTM dimension.
  * @param props.max           - Max rows to display.
- * @param props.setAttributes - Widget attribute setter (persists utmParam selection).
+ * @param props.setAttributes - Optional widget attribute setter (persists utmParam selection).
  * @return The rendered leaderboard or state placeholder.
  */
 function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
+	const [ activeUtmParam, setActiveUtmParam ] = useState< StatsUtmParam >( utmParam );
 	const [ selectedUtmLabel, setSelectedUtmLabel ] = useState< string | null >( null );
+
+	useEffect( () => {
+		setActiveUtmParam( utmParam );
+		setSelectedUtmLabel( null );
+	}, [ utmParam ] );
 
 	const handleParamChange = useCallback(
 		( value: string ) => {
+			const nextUtmParam = value as StatsUtmParam;
 			setSelectedUtmLabel( null );
-			setAttributes( { utmParam: value as StatsUtmParam } );
+			setActiveUtmParam( nextUtmParam );
+			setAttributes?.( { utmParam: nextUtmParam } );
 		},
 		[ setAttributes ]
 	);
@@ -77,7 +85,7 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 
 	const { data, hasComparison, isLoading, isFetching, hasData, isError } = useUtmInsights( {
 		reportParams,
-		utmParam,
+		utmParam: activeUtmParam,
 		max,
 	} );
 	const showLoading = isLoading || ( isFetching && hasData );
@@ -161,7 +169,7 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 					__nextHasNoMarginBottom
 					label={ __( 'UTM parameter', 'jetpack-premium-analytics' ) }
 					hideLabelFromVision
-					value={ utmParam }
+					value={ activeUtmParam }
 					options={ UTM_PARAM_OPTIONS }
 					onChange={ handleParamChange }
 					className={ styles.paramSelect }

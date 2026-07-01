@@ -4,8 +4,6 @@
 import { useStatsUtm } from '@jetpack-premium-analytics/data';
 import type {
 	ReportParams,
-	StatsNormalizedReport,
-	StatsUtmItem,
 	StatsUtmParam,
 	StatsUtmTopPostItem,
 } from '@jetpack-premium-analytics/data';
@@ -65,10 +63,8 @@ export default function useUtmInsights( {
 	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
 		useStatsUtm( params );
 
-	const primaryReport = primary.data as StatsNormalizedReport< StatsUtmItem > | undefined;
-	const comparisonReport = comparison.data as StatsNormalizedReport< StatsUtmItem > | undefined;
-	const rawItems = primaryReport?.data?.[ 0 ]?.items ?? [];
-	const comparisonItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
+	const rawItems = primary.data?.data?.[ 0 ]?.items ?? [];
+	const comparisonItems = comparison.data?.data?.[ 0 ]?.items ?? [];
 	const comparisonByLabel = new Map( comparisonItems.map( item => [ getLabel( item ), item ] ) );
 	const items = rawItems
 		.map( item => {
