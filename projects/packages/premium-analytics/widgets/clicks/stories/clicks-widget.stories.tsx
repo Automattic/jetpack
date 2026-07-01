@@ -49,7 +49,6 @@ function renderClicksWidget( { withComparison }: ClicksStoryControls ) {
 	return (
 		<ClicksRender
 			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-			showTitle={ false }
 		/>
 	);
 }
