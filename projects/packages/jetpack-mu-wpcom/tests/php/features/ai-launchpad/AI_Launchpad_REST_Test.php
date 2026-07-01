@@ -20,6 +20,7 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-rest.php';
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WpOrg\Requests\Requests;
 
 /**
@@ -451,6 +452,146 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// launch task, which routes to the wordpress.com launch flow client-side).
 		$this->assertArrayHasKey( 'site_launched', $paths );
 		$this->assertNull( $paths['site_launched'] );
+	}
+
+	/**
+	 * Test that GET points the theme tasks at the Calypso themes showcase pre-filtered
+	 * by the AI-inferred niche, so the theme list feels relevant to what the user is
+	 * building. This overrides the plain wp-admin themes.php target, which can only
+	 * filter already-installed themes.
+	 *
+	 * The showcase search ANDs its terms, so a multi-word niche is reduced to its first
+	 * keyword — 'ceramics and pottery' matches no theme, but 'ceramics' does.
+	 */
+	public function test_get_filters_theme_ctas_by_inferred_niche() {
+		wp_set_current_user( $this->admin_id );
+
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'site_theme_selected',
+							'subtitle' => 'Pick a gallery-style theme.',
+						),
+						array(
+							'id'       => 'design_selected',
+							'subtitle' => 'Make it yours.',
+						),
+						array(
+							'id'       => 'site_launched',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array(
+						'goal'  => 'build',
+						'niche' => 'ceramics and pottery',
+					),
+				),
+			),
+			false
+		);
+
+		$paths = array();
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			$paths[ $task['id'] ] = $task['calypso_path'];
+		}
+
+		$expected = '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '?s=ceramics';
+		$this->assertSame( $expected, $paths['site_theme_selected'] );
+		$this->assertSame( $expected, $paths['design_selected'] );
+		// A non-theme task is untouched by the niche filter.
+		$this->assertNull( $paths['site_launched'] );
+	}
+
+	/**
+	 * Test that a multi-word niche is reduced to a single search keyword: connective
+	 * words are dropped and the first meaningful keyword is kept, so the showcase's
+	 * term-ANDing search still returns matching themes.
+	 *
+	 * @dataProvider provider_niche_search_terms
+	 *
+	 * @param string $niche    The inferred niche.
+	 * @param string $expected The expected `?s=` search term.
+	 */
+	#[DataProvider( 'provider_niche_search_terms' )]
+	public function test_get_reduces_multiword_niche_to_single_keyword( $niche, $expected ) {
+		wp_set_current_user( $this->admin_id );
+
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'site_theme_selected',
+							'subtitle' => 'Pick a theme.',
+						),
+						array(
+							'id'       => 'site_launched',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array(
+						'goal'  => 'build',
+						'niche' => $niche,
+					),
+				),
+			),
+			false
+		);
+
+		$path = null;
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			if ( 'site_theme_selected' === $task['id'] ) {
+				$path = $task['calypso_path'];
+			}
+		}
+
+		$this->assertSame( '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $expected ), $path );
+	}
+
+	/**
+	 * Niche → single search keyword expectations.
+	 *
+	 * @return array
+	 */
+	public static function provider_niche_search_terms() {
+		return array(
+			'strips "and" connective'      => array( 'ceramics and pottery', 'ceramics' ),
+			'keeps first of two subjects'  => array( 'photography and travel', 'photography' ),
+			'drops leading adjective-only' => array( 'handmade ceramics', 'handmade' ),
+			'drops ampersand connective'   => array( 'arts & crafts', 'arts' ),
+			'single word is unchanged'     => array( 'cooking', 'cooking' ),
+			'skips leading stop word'      => array( 'the great outdoors', 'great' ),
+		);
+	}
+
+	/**
+	 * Test that without an inferred niche the theme CTAs keep their existing targets
+	 * (the wp-admin override for design_selected), so the filter is purely additive.
+	 */
+	public function test_get_leaves_theme_ctas_unfiltered_without_niche() {
+		wp_set_current_user( $this->admin_id );
+		// seed_ai_output_with_tasks writes no `inferred` block, so there is no niche.
+		$this->seed_ai_output_with_tasks( array( 'site_theme_selected', 'design_selected', 'site_launched' ) );
+
+		$paths = array();
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			$paths[ $task['id'] ] = $task['calypso_path'];
+		}
+
+		// The CTA_OVERRIDES branch keeps its wp-admin target.
+		$this->assertSame( admin_url( 'themes.php' ), $paths['design_selected'] );
+		// The load_calypso_path branch keeps the catalog's default theme path.
+		$this->assertSame( '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '#theme-selected', $paths['site_theme_selected'] );
 	}
 
 	/**

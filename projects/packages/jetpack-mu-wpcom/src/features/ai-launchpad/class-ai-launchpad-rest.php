@@ -58,6 +58,17 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
+	 * Theme-picker tasks. When the AI infers a niche, these point at the wordpress.com themes showcase
+	 * pre-filtered by that niche, so the theme list feels relevant to what the user is building (instead of
+	 * plain themes.php, which only filters already-installed themes). Falls back to the paths above when no niche.
+	 */
+	const THEME_TASK_IDS = array(
+		'site_theme_selected',
+		'design_selected',
+		'design_completed',
+	);
+
+	/**
 	 * Jetpack Social tasks, hidden on private sites where wpcom does not load Publicize (so their CTA page would 404).
 	 */
 	const SOCIAL_PAGE_TASK_IDS = array(
@@ -267,7 +278,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// Guard the nested payload: partial/failed writes may leave the option without payload.tasks.
 			$tasks = array();
 			if ( is_array( $ai_output ) && isset( $ai_output['payload']['tasks'] ) && is_array( $ai_output['payload']['tasks'] ) ) {
-				$tasks = $this->build_tasks( $ai_output['payload']['tasks'] );
+				$niche = isset( $ai_output['payload']['inferred']['niche'] ) && is_string( $ai_output['payload']['inferred']['niche'] )
+					? trim( $ai_output['payload']['inferred']['niche'] )
+					: '';
+				$tasks = $this->build_tasks( $ai_output['payload']['tasks'], false, $niche );
 			}
 		}
 
@@ -510,11 +524,12 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	/**
 	 * Enriches the persisted tasks with title, completion state, and CTA path from the catalog.
 	 *
-	 * @param array $tasks             The persisted `payload.tasks` array.
-	 * @param bool  $bypass_visibility Skip the catalog visibility gate (for the all-tasks testing view).
+	 * @param array  $tasks             The persisted `payload.tasks` array.
+	 * @param bool   $bypass_visibility Skip the catalog visibility gate (for the all-tasks testing view).
+	 * @param string $niche             The AI-inferred niche, used to pre-filter the theme-picker CTAs.
 	 * @return array
 	 */
-	private function build_tasks( $tasks, $bypass_visibility = false ) {
+	private function build_tasks( $tasks, $bypass_visibility = false, $niche = '' ) {
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$built       = array();
 
@@ -557,9 +572,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
 				: wpcom_launchpad_checklists()->is_task_complete( $definition );
 
-			$calypso_path = isset( self::CTA_OVERRIDES[ $task['id'] ] )
-				? admin_url( self::CTA_OVERRIDES[ $task['id'] ] )
-				: wpcom_launchpad_checklists()->load_calypso_path( $definition );
+			$theme_showcase_path = $this->get_themes_showcase_path( $task['id'], $niche );
+			if ( null !== $theme_showcase_path ) {
+				$calypso_path = $theme_showcase_path;
+			} elseif ( isset( self::CTA_OVERRIDES[ $task['id'] ] ) ) {
+				$calypso_path = admin_url( self::CTA_OVERRIDES[ $task['id'] ] );
+			} else {
+				$calypso_path = wpcom_launchpad_checklists()->load_calypso_path( $definition );
+			}
 
 			$title       = isset( $definition['get_title'] ) ? $definition['get_title']() : '';
 			$in_progress = false;
@@ -588,6 +608,48 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		return $built;
+	}
+
+	/**
+	 * The wordpress.com themes-showcase path for a theme-picker task, pre-filtered by the inferred niche.
+	 *
+	 * Returns null for non-theme tasks or when no niche was inferred, so the caller falls back to the task's
+	 * default CTA. The niche is passed as the showcase's free-text search term (`?s=`), and the client's
+	 * `toNavigableUrl` resolves the relative path against wordpress.com.
+	 *
+	 * @param string $task_id The catalog task id.
+	 * @param string $niche   The AI-inferred niche.
+	 * @return string|null
+	 */
+	private function get_themes_showcase_path( $task_id, $niche ) {
+		if ( '' === $niche || ! in_array( $task_id, self::THEME_TASK_IDS, true ) ) {
+			return null;
+		}
+
+		return '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $this->niche_to_search_term( $niche ) );
+	}
+
+	/**
+	 * Reduces a possibly multi-word niche to a single keyword for the themes-showcase search.
+	 *
+	 * The showcase ANDs its search terms, so a phrase like "ceramics and pottery" matches no theme even
+	 * though "ceramics" and "pottery" each do. Connective/filler words are dropped and the first remaining
+	 * keyword is kept. Falls back to the trimmed niche when nothing survives filtering.
+	 *
+	 * @param string $niche The AI-inferred niche.
+	 * @return string
+	 */
+	private function niche_to_search_term( $niche ) {
+		$stop_words = array( 'and', 'or', 'the', 'a', 'an', 'of', 'for', 'with', 'in', 'on', 'to', 'your', 'my' );
+		$words      = preg_split( '/[\s,&]+/', strtolower( $niche ), -1, PREG_SPLIT_NO_EMPTY );
+
+		foreach ( $words as $word ) {
+			if ( ! in_array( $word, $stop_words, true ) ) {
+				return $word;
+			}
+		}
+
+		return trim( $niche );
 	}
 
 	/**
