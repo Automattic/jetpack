@@ -352,14 +352,16 @@ function getStatsMock( path: string ): unknown | null {
 	const withoutBase = path.slice( STATS_BASE.length );
 	const queryIndex = withoutBase.indexOf( '?' );
 	const subPath = queryIndex === -1 ? withoutBase : withoutBase.slice( 0, queryIndex );
-	const query = new URLSearchParams( queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 ) );
-	const locationViewsMatch = subPath.match( /^\/location-views\/(country|region|city)$/ );
 
 	if ( subPath.startsWith( '/file-downloads' ) ) {
 		return isComparisonRequest( path ) ? MOCK_FILE_DOWNLOADS_COMPARISON : MOCK_FILE_DOWNLOADS;
 	}
 
+	const locationViewsMatch = subPath.match( /^\/location-views\/(country|region|city)$/ );
 	if ( locationViewsMatch ) {
+		const query = new URLSearchParams(
+			queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 )
+		);
 		return buildStatsLocationViewsResponse(
 			locationViewsMatch[ 1 ] as GeoMode,
 			query,
