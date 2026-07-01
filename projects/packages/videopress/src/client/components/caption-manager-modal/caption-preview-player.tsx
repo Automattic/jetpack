@@ -111,6 +111,25 @@ function CaptionPreviewPlayer(
 		playerIframeRef.current?.contentWindow?.postMessage( message, '*' );
 	}, [] );
 
+	/*
+	 * Resume playback that was paused while the author was typing, for whichever
+	 * player is active (native video or the embed iframe).
+	 */
+	const resumePreviewPlayback = useCallback( () => {
+		if ( ! shouldResumePreviewAfterTypingRef.current ) {
+			return;
+		}
+
+		shouldResumePreviewAfterTypingRef.current = false;
+		const video = videoRef.current;
+		if ( video?.paused ) {
+			video.play().catch( error => debug( 'resume preview after typing error', error ) );
+		} else if ( playerIframeRef.current ) {
+			postPreviewPlayerMessage( { event: 'videopress_action_play' } );
+			setIsPreviewPlaying( true );
+		}
+	}, [ postPreviewPlayerMessage ] );
+
 	useEffect( () => clearPreviewResumeTimer, [ clearPreviewResumeTimer ] );
 
 	useEffect( () => {
@@ -156,14 +175,8 @@ function CaptionPreviewPlayer(
 		}
 
 		clearPreviewResumeTimer();
-		if ( shouldResumePreviewAfterTypingRef.current && videoRef.current?.paused ) {
-			videoRef.current.play().catch( error => debug( 'resume preview after typing error', error ) );
-		} else if ( shouldResumePreviewAfterTypingRef.current && playerIframeRef.current ) {
-			postPreviewPlayerMessage( { event: 'videopress_action_play' } );
-			setIsPreviewPlaying( true );
-		}
-		shouldResumePreviewAfterTypingRef.current = false;
-	}, [ clearPreviewResumeTimer, pauseWhileTyping, postPreviewPlayerMessage ] );
+		resumePreviewPlayback();
+	}, [ clearPreviewResumeTimer, pauseWhileTyping, resumePreviewPlayback ] );
 
 	const seekTo = useCallback(
 		( nextTime: number ) => {
@@ -216,21 +229,9 @@ function CaptionPreviewPlayer(
 
 		previewResumeTimerRef.current = setTimeout( () => {
 			previewResumeTimerRef.current = null;
-
-			if ( ! shouldResumePreviewAfterTypingRef.current ) {
-				return;
-			}
-
-			shouldResumePreviewAfterTypingRef.current = false;
-			const video = videoRef.current;
-			if ( video?.paused ) {
-				video.play().catch( error => debug( 'resume preview after typing error', error ) );
-			} else if ( playerIframeRef.current ) {
-				postPreviewPlayerMessage( { event: 'videopress_action_play' } );
-				setIsPreviewPlaying( true );
-			}
+			resumePreviewPlayback();
 		}, PREVIEW_RESUME_DELAY_MS );
-	}, [ clearPreviewResumeTimer, postPreviewPlayerMessage ] );
+	}, [ clearPreviewResumeTimer, resumePreviewPlayback ] );
 
 	const pauseWhileTypingNow = useCallback( () => {
 		if ( ! pauseWhileTyping ) {

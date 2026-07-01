@@ -182,6 +182,9 @@ const getAcceptedFileTypes = ( supportedFormats: string[] ) =>
 		} )
 		.join( ',' );
 
+const ACCEPTED_FILE_TYPES = getAcceptedFileTypes( SUPPORTED_CAPTION_FORMATS );
+const SUPPORTED_CAPTION_FORMATS_LABEL = SUPPORTED_CAPTION_FORMATS.join( ', ' );
+
 const isAcceptedTrackFile = ( file: File | null, supportedFormats: string[] ): boolean => {
 	if ( ! file ) {
 		return false;
@@ -415,7 +418,6 @@ export default function CaptionManagerModal( {
 	const [ replacingTrack, setReplacingTrack ] = useState< VideoTextTrack | null >( null );
 	const [ manualTrack, setManualTrack ] = useState< ManualTrack >( emptyManualTrack );
 	const [ manualSourceTrack, setManualSourceTrack ] = useState< VideoTextTrack | null >( null );
-	const supportedCaptionFormats = SUPPORTED_CAPTION_FORMATS;
 	const [ cueBlocks, setCueBlocks ] = useState< CaptionCueBlock[] >( createEmptyCueBlocks );
 	const [ captionTrackId, setCaptionTrackId ] = useState< number | undefined >();
 	const [ notice, setNotice ] = useState< NoticeState >( null );
@@ -510,15 +512,6 @@ export default function CaptionManagerModal( {
 		target?.focus();
 	}, [ isOpen, modalView, workspaceMode ] );
 
-	const acceptedFileTypes = useMemo(
-		() => getAcceptedFileTypes( supportedCaptionFormats ),
-		[ supportedCaptionFormats ]
-	);
-
-	const supportedCaptionFormatsLabel = useMemo(
-		() => supportedCaptionFormats.join( ', ' ),
-		[ supportedCaptionFormats ]
-	);
 	const visibleCaptionTracks = useMemo(
 		() => captionTracks.filter( isListableCaptionTrack ),
 		[ captionTracks ]
@@ -607,23 +600,35 @@ export default function CaptionManagerModal( {
 
 	const editorCues = useMemo( () => captionBlocksToCues( cueBlocks ), [ cueBlocks ] );
 
-	const activeCue = useMemo( () => {
-		return editorCues.find( cue => {
-			const startTime = parseTimestampToSeconds( cue.startTime );
-			const endTime = parseTimestampToSeconds( cue.endTime );
-			return (
-				startTime !== null && endTime !== null && currentTime >= startTime && currentTime <= endTime
-			);
-		} );
-	}, [ editorCues, currentTime ] );
+	/*
+	 * Parse each cue's timestamps once per cue change so the per-timeupdate
+	 * lookups below compare plain numbers instead of re-parsing the strings.
+	 */
+	const cueRanges = useMemo(
+		() =>
+			editorCues.map( cue => ( {
+				start: parseTimestampToSeconds( cue.startTime ),
+				end: parseTimestampToSeconds( cue.endTime ),
+				text: cue.text,
+			} ) ),
+		[ editorCues ]
+	);
+
+	const activeCueText = useMemo( () => {
+		const activeCue = cueRanges.find(
+			( { start, end } ) =>
+				start !== null && end !== null && currentTime >= start && currentTime <= end
+		);
+		return activeCue?.text;
+	}, [ cueRanges, currentTime ] );
 
 	const cueStartTimes = useMemo(
 		() =>
-			editorCues
-				.map( cue => parseTimestampToSeconds( cue.startTime ) )
-				.filter( ( startTime ): startTime is number => startTime !== null )
+			cueRanges
+				.map( ( { start } ) => start )
+				.filter( ( start ): start is number => start !== null )
 				.sort( ( a, b ) => a - b ),
-		[ editorCues ]
+		[ cueRanges ]
 	);
 
 	/*
@@ -662,10 +667,6 @@ export default function CaptionManagerModal( {
 		setReplacingTrack( null );
 		setNotice( null );
 	}, [] );
-
-	const returnToTrackList = useCallback( () => {
-		resetEditorToTrackList();
-	}, [ resetEditorToTrackList ] );
 
 	const findCaptionTrackForManualTrack = useCallback(
 		( track: ManualTrack, sourceTrack: VideoTextTrack | null ) => {
@@ -803,13 +804,13 @@ export default function CaptionManagerModal( {
 				return;
 			}
 
-			if ( ! isAcceptedTrackFile( file, supportedCaptionFormats ) ) {
+			if ( ! isAcceptedTrackFile( file, SUPPORTED_CAPTION_FORMATS ) ) {
 				setNotice( {
 					status: 'error',
 					message: sprintf(
 						/* translators: %s: comma-separated list of accepted subtitle file extensions. */
 						__( 'Accepted formats: %s.', 'jetpack-videopress-pkg' ),
-						supportedCaptionFormatsLabel
+						SUPPORTED_CAPTION_FORMATS_LABEL
 					),
 				} );
 				return;
@@ -818,7 +819,7 @@ export default function CaptionManagerModal( {
 			startUploadTrack();
 			updateUploadForm( 'tmpFile', file );
 		},
-		[ startUploadTrack, supportedCaptionFormats, supportedCaptionFormatsLabel, updateUploadForm ]
+		[ startUploadTrack, updateUploadForm ]
 	);
 
 	const startTextImportTrack = useCallback( () => {
@@ -977,13 +978,13 @@ export default function CaptionManagerModal( {
 			return;
 		}
 
-		if ( ! isAcceptedTrackFile( uploadForm.tmpFile, supportedCaptionFormats ) ) {
+		if ( ! isAcceptedTrackFile( uploadForm.tmpFile, SUPPORTED_CAPTION_FORMATS ) ) {
 			setNotice( {
 				status: 'error',
 				message: sprintf(
 					/* translators: %s: comma-separated list of supported subtitle file extensions. */
 					__( 'Supported subtitle formats: %s.', 'jetpack-videopress-pkg' ),
-					supportedCaptionFormatsLabel
+					SUPPORTED_CAPTION_FORMATS_LABEL
 				),
 			} );
 			return;
@@ -1096,7 +1097,7 @@ export default function CaptionManagerModal( {
 			}
 
 			applyTracksChange( updatedTracks );
-			returnToTrackList();
+			resetEditorToTrackList();
 			setNotice(
 				cleanupFailed
 					? {
@@ -1132,11 +1133,9 @@ export default function CaptionManagerModal( {
 		applyTracksChange,
 		managedTracks,
 		replacingTrack,
-		returnToTrackList,
+		resetEditorToTrackList,
 		uploadForm,
 		uploadFormMode,
-		supportedCaptionFormats,
-		supportedCaptionFormatsLabel,
 	] );
 
 	const buildCaptionTrackPayload = useCallback(
@@ -1357,7 +1356,7 @@ export default function CaptionManagerModal( {
 			}
 
 			applyTracksChange( updatedTracks );
-			returnToTrackList();
+			resetEditorToTrackList();
 			setNotice(
 				cleanupFailed
 					? {
@@ -1388,7 +1387,7 @@ export default function CaptionManagerModal( {
 		managedTracks,
 		manualSourceTrack,
 		manualTrack,
-		returnToTrackList,
+		resetEditorToTrackList,
 		saveManualCaptionTrack,
 	] );
 
@@ -1520,20 +1519,24 @@ export default function CaptionManagerModal( {
 	 * this language: publishing overwrites the live track (so the button reads
 	 * "Update"), and saving a draft alongside it doesn't make sense.
 	 */
-	const isUpdatingPublishedTrack =
-		isEditorView &&
-		workspaceMode === 'manual' &&
-		visibleManagedTracks.some(
-			track =>
-				isMatchingSubtitleTrackLanguage(
-					track,
-					canonicalizeLanguageTag( manualTrack.srcLang ) ?? ''
-				) && ! isAutoGeneratedTrack( track )
-		);
+	const isUpdatingPublishedTrack = useMemo(
+		() =>
+			isEditorView &&
+			workspaceMode === 'manual' &&
+			visibleManagedTracks.some(
+				track =>
+					isMatchingSubtitleTrackLanguage(
+						track,
+						canonicalizeLanguageTag( manualTrack.srcLang ) ?? ''
+					) && ! isAutoGeneratedTrack( track )
+			),
+		[ isEditorView, workspaceMode, visibleManagedTracks, manualTrack.srcLang ]
+	);
 
-	const manualLanguageName = manualTrack.srcLang
-		? getLanguageDisplayName( manualTrack.srcLang )
-		: '';
+	const manualLanguageName = useMemo(
+		() => ( manualTrack.srcLang ? getLanguageDisplayName( manualTrack.srcLang ) : '' ),
+		[ manualTrack.srcLang ]
+	);
 	const videoTitle = title || __( 'VideoPress video', 'jetpack-videopress-pkg' );
 	const showManualLanguageInTitle =
 		isEditorView && workspaceMode === 'manual' && !! manualLanguageName;
@@ -1556,7 +1559,7 @@ export default function CaptionManagerModal( {
 			videoSrc={ videoSrc }
 			poster={ poster }
 			previewAspectRatio={ previewAspectRatio }
-			activeCueText={ activeCue?.text }
+			activeCueText={ activeCueText }
 			onCurrentTimeChange={ setCurrentTime }
 		/>
 	);
@@ -1593,7 +1596,7 @@ export default function CaptionManagerModal( {
 								<Button
 									variant="secondary"
 									icon={ isRTL() ? chevronRight : chevronLeft }
-									onClick={ returnToTrackList }
+									onClick={ resetEditorToTrackList }
 								>
 									{ __( 'Back to tracks', 'jetpack-videopress-pkg' ) }
 								</Button>
@@ -1725,7 +1728,7 @@ export default function CaptionManagerModal( {
 										</div>
 
 										<FormFileUpload
-											accept={ acceptedFileTypes }
+											accept={ ACCEPTED_FILE_TYPES }
 											onChange={ ( event: ChangeEvent< HTMLInputElement > ) => {
 												const file = event.target.files?.[ 0 ] ?? null;
 												updateUploadForm( 'tmpFile', file );
@@ -1739,7 +1742,7 @@ export default function CaptionManagerModal( {
 														{ sprintf(
 															/* translators: %s: accepted subtitle file extensions. */
 															__( 'Accepted formats: %s', 'jetpack-videopress-pkg' ),
-															supportedCaptionFormatsLabel
+															SUPPORTED_CAPTION_FORMATS_LABEL
 														) }
 													</p>
 												</div>
