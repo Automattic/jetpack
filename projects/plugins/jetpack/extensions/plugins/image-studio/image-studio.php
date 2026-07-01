@@ -57,12 +57,12 @@ function is_image_studio_enabled() {
 /**
  * Whether the current user may load Image Studio's editor assets.
  *
- * True on WordPress.com Simple, which has no per-user Jetpack connection so every
- * admin counts as connected. Atomic (WoA), self-hosted and VIP all have per-user
- * connections, so there the current user must have connected their own
- * WordPress.com account — a user who has disconnected is correctly treated as not
- * connected. Gates the asset enqueue and the media-library entry point so
- * non-connected users aren't shown tools that would only error out.
+ * True on WordPress.com Simple, which has no per-user Jetpack connection, so the
+ * current user is always treated as connected. Atomic (WoA), self-hosted and VIP
+ * all have per-user connections, so there the current user must have connected
+ * their own WordPress.com account — a user who has disconnected is correctly
+ * treated as not connected. Gates the asset enqueue and the media-library entry
+ * point so non-connected users aren't shown tools that would only error out.
  *
  * @return bool
  */

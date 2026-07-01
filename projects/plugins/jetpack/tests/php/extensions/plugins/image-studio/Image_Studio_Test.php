@@ -59,13 +59,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	private $saved_siteurl;
 
 	/**
-	 * Local user ID of the simulated connection owner, also the default current user.
-	 *
-	 * @var int
-	 */
-	private $connection_owner_id;
-
-	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
@@ -128,7 +121,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
-		$this->connection_owner_id = $user_id;
 		wp_set_current_user( $user_id );
 	}
 
