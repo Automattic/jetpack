@@ -4,14 +4,13 @@
 import {
 	MetricTabsChart,
 	WidgetRoot,
+	useWidgetError,
 	useWidgetRootContext,
 	type MetricTab,
-	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -21,10 +20,12 @@ import useSubscribersChart, {
 	type SubscribersChartState,
 	type SubscribersPeriod,
 } from './use-subscribers-chart';
+import type { ComponentProps } from 'react';
 
-type SubscribersChartRenderProps = {
-	attributes?: Partial< ReportParamsFieldAttributes >;
-};
+type SubscribersChartRenderProps = Pick<
+	ComponentProps< typeof WidgetRoot >,
+	'attributes' | 'setError'
+>;
 
 const DATA_FORMAT = {
 	type: 'number' as const,
@@ -32,9 +33,12 @@ const DATA_FORMAT = {
 };
 
 /**
- * Seed the granularity dropdown from the dashboard interval so it opens at the
- * granularity the range implies; the subscribers endpoint only buckets by
- * day/week/month, so finer/coarser dashboard intervals collapse onto those.
+ * Default granularity for the dashboard interval: opens the dropdown at the
+ * granularity the range implies (and, until the user picks one explicitly,
+ * keeps following the range). The subscribers endpoint only buckets by
+ * day/week/month, so finer/coarser dashboard intervals collapse onto those —
+ * this mirrors `getStatsPeriodFromInterval` + `toSubscribersUnit` in the data
+ * layer, narrowed to the dropdown's options.
  *
  * @param interval - The dashboard-derived interval.
  * @return The matching selectable granularity.
@@ -117,11 +121,14 @@ function buildMetrics( state: SubscribersChartState ): MetricTab[] {
  */
 function SubscribersChartInner() {
 	const { reportParams } = useWidgetRootContext();
-	const [ period, setPeriod ] = useState< SubscribersPeriod >( () =>
-		defaultPeriodForInterval( reportParams.interval )
-	);
+	// `null` means "follow the dashboard range"; a value is an explicit user
+	// override that then sticks across range changes. This keeps a wide range
+	// from staying stuck on `day` granularity (and blowing up the bucket count)
+	// while the user hasn't picked a granularity themselves.
+	const [ periodOverride, setPeriodOverride ] = useState< SubscribersPeriod | null >( null );
+	const period = periodOverride ?? defaultPeriodForInterval( reportParams.interval );
 	const handlePeriodChange = useCallback(
-		( value: string ) => setPeriod( value as SubscribersPeriod ),
+		( value: string ) => setPeriodOverride( value as SubscribersPeriod ),
 		[]
 	);
 
@@ -134,12 +141,9 @@ function SubscribersChartInner() {
 	const state = useSubscribersChart( reportParams, period );
 	const metrics = useMemo( () => buildMetrics( state ), [ state ] );
 
-	if ( state.isError ) {
-		return (
-			<div className={ styles.root }>
-				<Text>{ __( 'Unable to load subscribers.', 'jetpack-premium-analytics' ) }</Text>
-			</div>
-		);
+	const hasError = useWidgetError( state.isError, state.error, state.refetch );
+	if ( hasError ) {
+		return null; // Dashboard shows error UI via WidgetErrorBoundary.
 	}
 
 	return (
@@ -175,11 +179,12 @@ function SubscribersChartInner() {
  *
  * @param props            - Render props supplied by the widget host.
  * @param props.attributes - Widget attributes, carrying host-provided report params.
+ * @param props.setError   - Host callback to surface a widget error in the dashboard frame.
  * @return The rendered widget.
  */
-export default function SubscribersChart( { attributes }: SubscribersChartRenderProps ) {
+export default function SubscribersChart( { attributes, setError }: SubscribersChartRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
+		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<SubscribersChartInner />
 		</WidgetRoot>
 	);

@@ -37,6 +37,8 @@ export interface SubscribersChartState {
 	/** True while either window is fetching, including granularity-switch refetches. */
 	isFetching: boolean;
 	isError: boolean;
+	error: Error | null | undefined;
+	refetch: () => void;
 }
 
 /**
@@ -84,5 +86,7 @@ export default function useSubscribersChart(
 		isLoading: report.isLoading,
 		isFetching: report.isFetching,
 		isError: report.isError,
+		error: report.error,
+		refetch: report.refetch,
 	};
 }
