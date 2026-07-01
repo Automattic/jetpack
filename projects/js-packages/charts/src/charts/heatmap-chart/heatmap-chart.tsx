@@ -2,15 +2,7 @@ import { formatNumber, formatNumberCompact } from '@automattic/number-formatters
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -30,18 +22,17 @@ import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
-import { getValueExtent, getNormalizedValue, HeatmapLegend, isPresent } from './private';
+import {
+	getValueExtent,
+	getNormalizedValue,
+	HeatmapContext,
+	HeatmapLegend,
+	isPresent,
+} from './private';
+import type { HeatmapContextValue } from './private';
 import type { HeatmapChartProps, HeatmapTooltipData } from './types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { CSSProperties, FC } from 'react';
-
-export type HeatmapContextValue = {
-	extent: [ number, number ];
-	/** The resolved primary color (full intensity); the legend mixes toward it in CSS. */
-	primaryColorHex: string;
-};
-
-export const HeatmapContext = createContext< HeatmapContextValue | null >( null );
 
 // Mirrors the color-mix floor in heatmap-chart.module.scss (.heatmap-chart__cell--filled):
 // the rendered fill is the primary mixed over the chart background at 0.15 + 0.85 * intensity.
@@ -87,6 +78,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	// Pick the in-cell text color from the cell's actual blended fill luminance (not the data
 	// value), so light text is only used where it out-contrasts dark text. Falls back to dark
 	// text when the primary isn't a resolvable hex (e.g. a bare CSS token).
+	//
+	// Assumes a light chart background: this estimates the fill by blending the primary toward
+	// white via lightenHexColor, whereas the actual CSS fill is color-mix(primary, transparent)
+	// over whatever sits behind the cell. Those match on a light background (the package default);
+	// on a dark background the light/dark choice could invert. Make this background-aware if the
+	// package ever ships a dark chart background.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
 	const cellHasLightText = ( intensity: number ): boolean =>
 		isValidHexColor( primaryHex ) &&
@@ -292,17 +289,20 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>
-						{ /* Corner gutter + column labels; aria-hidden, since each cell's label carries the text. */ }
-						<span aria-hidden="true" />
-						{ data.map( ( column, columnIndex ) => (
-							<span
-								key={ `col-${ columnIndex }` }
-								aria-hidden="true"
-								className={ styles[ 'heatmap-chart__col-label' ] }
-							>
-								{ column.label }
-							</span>
-						) ) }
+						{ /* Corner gutter + column labels wrapped in a row so the grid keeps a strict
+						grid → row structure. aria-hidden, since each data cell's label already
+						carries this text. */ }
+						<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
+							<span />
+							{ data.map( ( column, columnIndex ) => (
+								<span
+									key={ `col-${ columnIndex }` }
+									className={ styles[ 'heatmap-chart__col-label' ] }
+								>
+									{ column.label }
+								</span>
+							) ) }
+						</div>
 
 						{ Array.from( { length: rows } ).map( ( _row, rowIndex ) => {
 							const labelVisible = ! compact || rowIndex % 2 === 0;

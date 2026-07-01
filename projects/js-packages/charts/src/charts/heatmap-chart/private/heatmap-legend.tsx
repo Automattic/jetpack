@@ -2,8 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { useContext } from 'react';
 import { useGlobalChartsTheme } from '../../../providers';
-import { HeatmapContext } from '../heatmap-chart';
 import styles from '../heatmap-chart.module.scss';
+import { HeatmapContext } from './heatmap-context';
 import type { CSSProperties, FC } from 'react';
 
 export interface HeatmapLegendProps {

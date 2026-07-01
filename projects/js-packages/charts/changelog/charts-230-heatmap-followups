@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: Wrap heatmap chart header labels in an ARIA row so the grid keeps a strict grid/row/gridcell structure.
