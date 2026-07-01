@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: treat pages with inlined CSS as a benign state instead of showing a generation error.
