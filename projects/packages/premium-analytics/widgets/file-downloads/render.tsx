@@ -264,17 +264,15 @@ export function FileDownloadsLeaderboard( {
 	}
 
 	return (
-		<div className={ styles.content }>
-			<LeaderboardChart
-				data={ buildLeaderboardData( rows, withComparison ) }
-				loading={ isLoading }
-				withComparison={ withComparison }
-				withOverlayLabel
-				showLegend={ false }
-				emptyStateText={ __( 'No file downloads in this period.', 'jetpack-premium-analytics' ) }
-				dataFormat={ DATA_FORMAT }
-			/>
-		</div>
+		<LeaderboardChart
+			data={ buildLeaderboardData( rows, withComparison ) }
+			loading={ isLoading }
+			withComparison={ withComparison }
+			withOverlayLabel
+			showLegend={ false }
+			emptyStateText={ __( 'No file downloads in this period.', 'jetpack-premium-analytics' ) }
+			dataFormat={ DATA_FORMAT }
+		/>
 	);
 }
 
@@ -305,13 +303,15 @@ function FileDownloadsInner( { max }: { max: number } ) {
 	);
 
 	return (
-		<FileDownloadsLeaderboard
-			rows={ rows }
-			isLoading={ showLoading }
-			isError={ isError }
-			withComparison={ hasComparison }
-			errorMessage={ errorMessage }
-		/>
+		<div className={ styles.content }>
+			<FileDownloadsLeaderboard
+				rows={ rows }
+				isLoading={ showLoading }
+				isError={ isError }
+				withComparison={ hasComparison }
+				errorMessage={ errorMessage }
+			/>
+		</div>
 	);
 }
 
