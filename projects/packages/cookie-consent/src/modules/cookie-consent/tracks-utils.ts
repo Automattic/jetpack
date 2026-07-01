@@ -4,6 +4,7 @@
  * Core w.js integration utilities. Can be extracted to a separate package for use across multiple packages.
  */
 
+import { isFeatureEnabled } from './features';
 import type { TrackingProperties } from './types';
 
 const TRACKS_SCRIPT_ID = 'jetpack-cookie-consent-tracks-js';
@@ -66,15 +67,11 @@ export function ensureTrackingQueue(): void {
 	}
 }
 
-function isTracksEnabled(): boolean {
-	return window.jetpackCookieConsentConfig?.features?.tracks !== false;
-}
-
 /**
  * Load w.js after consent allows cookie-based Tracks.
  */
 export function loadTracksScript(): void {
-	if ( ! isTracksEnabled() || document.getElementById( TRACKS_SCRIPT_ID ) ) {
+	if ( ! isFeatureEnabled( 'tracks' ) || document.getElementById( TRACKS_SCRIPT_ID ) ) {
 		return;
 	}
 
@@ -96,7 +93,7 @@ export function loadTracksScript(): void {
  * @param properties      Event properties object.
  */
 export function recordEvent( eventNameSuffix: string, properties: TrackingProperties ): void {
-	if ( ! isTracksEnabled() ) {
+	if ( ! isFeatureEnabled( 'tracks' ) ) {
 		return;
 	}
 
