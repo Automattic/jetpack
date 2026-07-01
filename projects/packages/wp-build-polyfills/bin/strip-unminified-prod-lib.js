@@ -2,7 +2,7 @@
  * Library for the `strip-unminified-prod` bin.
  *
  * Background: `@wordpress/build` emits two copies of every route/script/
- * module bundle — a minified `*.min.js` (loaded when SCRIPT_DEBUG is false)
+ * module/widget bundle — a minified `*.min.js` (loaded when SCRIPT_DEBUG is false)
  * and an unminified `*.js` (loaded when SCRIPT_DEBUG is true). It does the
  * same thing for stylesheets, with a slightly different shape (`*.css` /
  * `*.min.css`, with a `$suffix` ternary in the generated `styles.php`
@@ -36,7 +36,7 @@ const STRIPPABLE_EXTS = [ '.js', '.css' ];
 // Patches collapse SCRIPT_DEBUG-driven ternaries to the minified asset.
 // Three shapes need to be handled:
 //
-// 1. Single-line extension ternary in routes.php and scripts.php:
+// 1. Single-line extension ternary in routes.php, scripts.php, and widgets.php:
 //      $extension = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.js' : '.min.js';
 //
 // 2. Multi-line extension ternary in modules.php (with min_only carve-out):
