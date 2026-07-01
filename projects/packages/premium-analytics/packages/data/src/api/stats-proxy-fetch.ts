@@ -25,13 +25,6 @@ export type StatsProxyFetchParams< TBody = unknown > = {
 	body?: TBody;
 };
 
-type ResponseLike = {
-	ok?: boolean;
-	status: number;
-	statusText?: string;
-	json: () => Promise< unknown >;
-};
-
 function normalizeEndpoint( endpoint: string ) {
 	return endpoint.replace( /^\/+/, '' );
 }
@@ -59,54 +52,6 @@ export function getStatsProxyPath( {
 	return queryParams ? addQueryArgs( path, queryParams ) : path;
 }
 
-function isResponseLike( value: unknown ): value is ResponseLike {
-	return (
-		!! value &&
-		typeof value === 'object' &&
-		typeof ( value as ResponseLike ).status === 'number' &&
-		typeof ( value as ResponseLike ).json === 'function'
-	);
-}
-
-async function parseStatsProxyResponse< TResponse >(
-	response: ResponseLike
-): Promise< TResponse > {
-	return response.status === 204
-		? ( null as TResponse )
-		: ( ( await response.json() ) as TResponse );
-}
-
-async function throwStatsProxyError( error: unknown ): Promise< never > {
-	if ( ! isResponseLike( error ) ) {
-		throw error;
-	}
-
-	let body: unknown;
-	try {
-		body = await error.json();
-	} catch {
-		throw {
-			code: 'invalid_json',
-			message: 'The response is not a valid JSON response.',
-			status: error.status,
-		};
-	}
-
-	if ( body && typeof body === 'object' ) {
-		throw {
-			...( body as Record< string, unknown > ),
-			status: error.status,
-		};
-	}
-
-	throw {
-		code: 'api_error',
-		message: error.statusText || 'Error processing the request.',
-		status: error.status,
-		data: body,
-	};
-}
-
 export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
 	version,
 	endpoint,
@@ -116,16 +61,9 @@ export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
 }: StatsProxyFetchParams< TBody > ): Promise< TResponse > {
 	const path = getStatsProxyPath( { version, endpoint, params } );
 
-	try {
-		const response = await apiFetch< never, false >( {
-			path,
-			method,
-			parse: false,
-			...( method === 'POST' ? { data: body } : {} ),
-		} );
-
-		return parseStatsProxyResponse< TResponse >( response );
-	} catch ( error ) {
-		return throwStatsProxyError( error );
-	}
+	return apiFetch< TResponse >( {
+		path,
+		method,
+		...( method === 'POST' ? { data: body } : {} ),
+	} );
 }

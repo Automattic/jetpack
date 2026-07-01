@@ -11,17 +11,8 @@ jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
-function mockJsonResponse( body: unknown, status = 200, statusText = 'OK' ) {
-	return {
-		ok: status >= 200 && status < 300,
-		status,
-		statusText,
-		json: jest.fn().mockResolvedValue( body ),
-	};
-}
-
 beforeEach( () => {
-	mockApiFetch.mockResolvedValue( mockJsonResponse( {} ) as never );
+	mockApiFetch.mockResolvedValue( {} );
 } );
 
 afterEach( () => {
@@ -83,7 +74,6 @@ describe( 'fetchStatsProxy', () => {
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/jetpack-premium-analytics/v1/proxy/v1.1/stats/top-posts?period=day',
 			method: 'GET',
-			parse: false,
 		} );
 	} );
 
@@ -100,33 +90,7 @@ describe( 'fetchStatsProxy', () => {
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats-dashboard/modules',
 			method: 'POST',
-			parse: false,
 			data: body,
-		} );
-	} );
-
-	it( 'adds the HTTP status to non-2xx API errors', async () => {
-		mockApiFetch.mockRejectedValue(
-			mockJsonResponse(
-				{
-					code: 'rest_forbidden',
-					message: 'Not allowed.',
-				},
-				403,
-				'Forbidden'
-			)
-		);
-
-		await expect(
-			fetchStatsProxy( {
-				version: '1.1',
-				endpoint: 'stats/devices/screensize',
-				params: { period: 'day' },
-			} )
-		).rejects.toEqual( {
-			code: 'rest_forbidden',
-			message: 'Not allowed.',
-			status: 403,
 		} );
 	} );
 } );

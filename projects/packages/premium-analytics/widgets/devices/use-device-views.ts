@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
+import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
 	StatsDevicesItem,
@@ -47,16 +48,6 @@ const DEVICE_LABELS: Record< string, string > = {
 };
 
 /**
- * Maps a raw API device key to a human-readable label.
- *
- * @param key - Raw device key from the API (e.g. 'desktop', 'mobile').
- * @return Display label for the device type.
- */
-function toDisplayLabel( key: string ): string {
-	return DEVICE_LABELS[ key.toLowerCase() ] ?? key.charAt( 0 ).toUpperCase() + key.slice( 1 );
-}
-
-/**
  * Converts a StatsDevicesItem from the data layer to the widget's DeviceView shape.
  *
  * @param item - Normalized device item from the data layer.
@@ -66,7 +57,7 @@ function toDeviceView( item: StatsDevicesItem ): DeviceView {
 	const key = typeof item.label === 'string' ? item.label : String( item.label );
 	return {
 		label: key,
-		displayLabel: toDisplayLabel( key ),
+		displayLabel: formatDisplayLabel( key, DEVICE_LABELS ),
 		views: item.views,
 	};
 }

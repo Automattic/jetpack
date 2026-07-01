@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
+import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
 	StatsDevicesItem,
@@ -29,24 +30,23 @@ interface PlatformViewsState {
 	errorReason: 'upgrade-required' | null;
 }
 
-/**
- * Converts a raw device key to a display label, title-casing as needed.
- *
- * @param key - Raw key from the API (e.g. 'chrome', 'ios', 'macos').
- * @return Display label.
- */
-function toDisplayLabel( key: string ): string {
-	// Special-case well-known platform names.
-	const known: Record< string, string > = {
-		ios: 'iOS',
-		ipad: 'iPad',
-		iphone: 'iPhone',
-		ipados: 'iPadOS',
-		macos: 'macOS',
-		ie: 'IE',
+const PLATFORM_LABELS: Record< string, string > = {
+	ios: 'iOS',
+	ipad: 'iPad',
+	iphone: 'iPhone',
+	ipados: 'iPadOS',
+	macos: 'macOS',
+	ie: 'IE',
+};
+
+function toPlatformView( item: StatsDevicesItem ): PlatformView {
+	const key = String( item.label ?? '' );
+
+	return {
+		key,
+		label: formatDisplayLabel( key, PLATFORM_LABELS ),
+		views: item.views,
 	};
-	const lower = key.toLowerCase();
-	return known[ lower ] ?? key.charAt( 0 ).toUpperCase() + key.slice( 1 );
 }
 
 /**
@@ -74,28 +74,12 @@ export default function usePlatformViews( {
 
 	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
 	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems
-		.map( item => {
-			const key = String( item.label ?? '' );
-			return {
-				key,
-				label: toDisplayLabel( key ),
-				views: item.views,
-			};
-		} )
-		.slice( 0, max > 0 ? max : undefined );
+	const items = rawItems.map( toPlatformView ).slice( 0, max > 0 ? max : undefined );
 
 	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
 	const comparisonRawItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
 	const comparisonItems = comparisonRawItems
-		.map( item => {
-			const key = String( item.label ?? '' );
-			return {
-				key,
-				label: toDisplayLabel( key ),
-				views: item.views,
-			};
-		} )
+		.map( toPlatformView )
 		.slice( 0, max > 0 ? max : undefined );
 
 	return {

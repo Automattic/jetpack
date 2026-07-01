@@ -70,6 +70,7 @@ export {
 	buildPaymentStatusData,
 	type PaymentStatusData,
 	formatLegendLabels,
+	formatDisplayLabel,
 } from './helpers';
 
 /**
