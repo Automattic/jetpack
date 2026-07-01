@@ -2,7 +2,6 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
 import SeoInspector from '../../_inc/screens/content/seo-inspector';
-import type { ContentPostType } from '../../_inc/data/content-types';
 
 type InspectorSearch = Record< string, unknown > & { postId?: string; postType?: string };
 
@@ -26,7 +25,7 @@ function Inspector() {
 	if ( ! postId ) {
 		return null;
 	}
-	const postType: ContentPostType = search.postType === 'page' ? 'page' : 'post';
+	const postType = typeof search.postType === 'string' && search.postType !== '' ? search.postType : 'post';
 
 	return (
 		<ThemeProvider>

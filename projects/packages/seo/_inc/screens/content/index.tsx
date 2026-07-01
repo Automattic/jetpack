@@ -95,7 +95,7 @@ const ContentScreen: FC = () => {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const navigate = useNavigate();
 
-	const { items, isLoading } = useSeoPosts();
+	const { items, isLoading, postTypeOptions } = useSeoPosts();
 
 	// Select a row for editing by writing it to the URL; the Content route's
 	// `inspector` predicate (`?postId`) then renders the editor in the sidebar.
@@ -119,15 +119,12 @@ const ContentScreen: FC = () => {
 			{
 				id: POST_TYPE_FIELD,
 				label: __( 'Type', 'jetpack-seo' ),
-				elements: [
-					{ value: 'post', label: __( 'Posts', 'jetpack-seo' ) },
-					{ value: 'page', label: __( 'Pages', 'jetpack-seo' ) },
-				],
+				elements: postTypeOptions,
 				filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
 				enableSorting: false,
 				enableHiding: false,
 				// Filter-only field; not shown as a column. Core REST records
-				// expose `type` as 'post' | 'page', matching the elements, so
+				// expose `type` as the post type slug, matching the elements, so
 				// `filterSortAndPaginate` narrows the merged set.
 				render: () => null,
 				getValue: ( { item } ) => item.type,
@@ -223,7 +220,7 @@ const ContentScreen: FC = () => {
 				render: ( { item } ) => <EditButton item={ item } onEdit={ onEdit } />,
 			},
 		],
-		[ onEdit ]
+		[ onEdit, postTypeOptions ]
 	);
 
 	// Client-side filter, sort and paginate the merged posts+pages set. Returns

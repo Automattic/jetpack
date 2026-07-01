@@ -574,19 +574,14 @@ class Initializer {
 
 	/**
 	 * Factual content-coverage counts for the Overview card: how many published
-	 * posts/pages have each SEO field set. State, not a score — the card shows
-	 * proportions + raw counts and lets the admin decide what matters.
+	 * supported content items have each SEO field set. State, not a score — the
+	 * card shows proportions + raw counts and lets the admin decide what matters.
 	 *
 	 * @return array{total:int,with_schema:int,with_title:int,with_description:int,with_search_visible:int}
 	 */
 	private static function get_content_coverage() {
-		$post_types = array( 'post', 'page' );
-
-		$total = 0;
-		foreach ( $post_types as $post_type ) {
-			$counts = wp_count_posts( $post_type );
-			$total += isset( $counts->publish ) ? (int) $counts->publish : 0;
-		}
+		$post_types = Post_Types::get_supported_content_types();
+		$total      = self::count_published_posts( $post_types );
 
 		// Search-engine visibility is the inverse of the per-post noindex meta: a
 		// post is visible unless it's explicitly set to noindex (stored as '1'), so
@@ -603,8 +598,33 @@ class Initializer {
 	}
 
 	/**
-	 * Count published posts/pages whose meta is set. With no `$value`, counts a
-	 * non-empty string meta; with a `$value`, counts an exact match.
+	 * Count published supported content items.
+	 *
+	 * @param string[] $post_types Post types to count across.
+	 * @return int
+	 */
+	private static function count_published_posts( $post_types ) {
+		if ( empty( $post_types ) ) {
+			return 0;
+		}
+
+		$query = new \WP_Query(
+			array(
+				'post_type'              => $post_types,
+				'post_status'            => 'publish',
+				'posts_per_page'         => 1,
+				'fields'                 => 'ids',
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+
+		return (int) $query->found_posts;
+	}
+
+	/**
+	 * Count published supported content items whose meta is set. With no
+	 * `$value`, counts a non-empty string meta; with a `$value`, counts an exact match.
 	 *
 	 * @param string[]    $post_types Post types to count across.
 	 * @param string      $meta_key   Meta key to test.
@@ -612,6 +632,10 @@ class Initializer {
 	 * @return int
 	 */
 	private static function count_published_with_meta( $post_types, $meta_key, $value = null ) {
+		if ( empty( $post_types ) ) {
+			return 0;
+		}
+
 		$clause = null === $value
 			? array(
 				'key'     => $meta_key,

@@ -9,12 +9,109 @@ namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use WorDBless\Posts as WorDBless_Posts;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Initializer
  */
 #[CoversClass( Initializer::class )]
 class InitializerTest extends TestCase {
+
+	/**
+	 * Test-only WP_Query short-circuit for WorDBless.
+	 *
+	 * @var callable|null
+	 */
+	private $posts_query_filter = null;
+
+	/**
+	 * Test-only found_posts override for WorDBless aggregate queries.
+	 *
+	 * @var callable|null
+	 */
+	private $found_posts_filter = null;
+
+	/**
+	 * Clean up test posts and custom post types.
+	 *
+	 * @return void
+	 */
+	public function tearDown(): void {
+		if ( null !== $this->posts_query_filter ) {
+			remove_filter( 'posts_pre_query', $this->posts_query_filter, 10 );
+			$this->posts_query_filter = null;
+		}
+		if ( null !== $this->found_posts_filter ) {
+			remove_filter( 'found_posts', $this->found_posts_filter, 10 );
+			$this->found_posts_filter = null;
+		}
+
+		if ( post_type_exists( 'seo_book' ) ) {
+			unregister_post_type( 'seo_book' );
+		}
+
+		WorDBless_Posts::init()->clear_all_posts();
+
+		parent::tearDown();
+	}
+
+	/**
+	 * WorDBless does not support the aggregate WP_Query SQL used by the
+	 * coverage counts, so short-circuit only the queries in this test with
+	 * inserted posts that match the query vars.
+	 *
+	 * @param int[] $post_ids Inserted post IDs.
+	 * @return void
+	 */
+	private function hook_wordbless_posts_query( $post_ids ) {
+		$this->posts_query_filter = function ( $posts, $query ) use ( $post_ids ) {
+			return $this->get_wordbless_query_matches( $post_ids, $query, 'ids' === $query->get( 'fields' ) );
+		};
+		$this->found_posts_filter = function ( $found_posts, $query ) use ( $post_ids ) {
+			return count( $this->get_wordbless_query_matches( $post_ids, $query, true ) );
+		};
+
+		add_filter( 'posts_pre_query', $this->posts_query_filter, 10, 2 );
+		add_filter( 'found_posts', $this->found_posts_filter, 10, 2 );
+	}
+
+	/**
+	 * Match inserted test posts against the query shape used by coverage counts.
+	 *
+	 * @param int[]     $post_ids Inserted post IDs.
+	 * @param \WP_Query $query    Query to match.
+	 * @param bool      $ids_only Whether to return IDs instead of post objects.
+	 * @return array
+	 */
+	private function get_wordbless_query_matches( $post_ids, $query, $ids_only ) {
+		$post_types = (array) $query->get( 'post_type' );
+		$meta_query = $query->get( 'meta_query' );
+		$matches    = array();
+
+		foreach ( $post_ids as $post_id ) {
+			$post = get_post( $post_id );
+			if ( ! $post || 'publish' !== $post->post_status || ! in_array( $post->post_type, $post_types, true ) ) {
+				continue;
+			}
+
+			if ( is_array( $meta_query ) && isset( $meta_query[0]['key'] ) ) {
+				$meta    = get_post_meta( $post_id, $meta_query[0]['key'], true );
+				$value   = isset( $meta_query[0]['value'] ) ? $meta_query[0]['value'] : '';
+				$compare = isset( $meta_query[0]['compare'] ) ? $meta_query[0]['compare'] : '=';
+
+				if ( '!=' === $compare && $meta === $value ) {
+					continue;
+				}
+				if ( '!=' !== $compare && $meta !== $value ) {
+					continue;
+				}
+			}
+
+			$matches[] = $ids_only ? (int) $post_id : $post;
+		}
+
+		return $matches;
+	}
 
 	/**
 	 * The Initializer class exists and exposes the expected menu slug.
@@ -57,6 +154,77 @@ class InitializerTest extends TestCase {
 
 		// Search-visible can never exceed the total (it's total minus noindexed).
 		$this->assertLessThanOrEqual( $coverage['total'], $coverage['with_search_visible'] );
+	}
+
+	/**
+	 * Content coverage counts every supported content type, not only core posts
+	 * and pages.
+	 *
+	 * @return void
+	 */
+	public function test_content_coverage_includes_supported_custom_post_types() {
+		register_post_type(
+			'seo_book',
+			array(
+				'label'        => 'Books',
+				'public'       => true,
+				'show_ui'      => true,
+				'show_in_rest' => true,
+				'supports'     => array( 'custom-fields' ),
+			)
+		);
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Post with SEO',
+			)
+		);
+		update_post_meta( $post_id, Initializer::META_TITLE, 'Custom post SEO title' );
+		update_post_meta( $post_id, Initializer::META_DESCRIPTION, 'Custom post description.' );
+		update_post_meta( $post_id, Initializer::META_SCHEMA_TYPE, 'article' );
+
+		$page_id = wp_insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Visible Page',
+			)
+		);
+
+		$book_id = wp_insert_post(
+			array(
+				'post_type'   => 'seo_book',
+				'post_status' => 'publish',
+				'post_title'  => 'Book with SEO',
+			)
+		);
+		update_post_meta( $book_id, Initializer::META_TITLE, 'Book SEO title' );
+		update_post_meta( $book_id, Initializer::META_DESCRIPTION, 'Book description.' );
+		update_post_meta( $book_id, Initializer::META_SCHEMA_TYPE, 'faq' );
+		update_post_meta( $book_id, Initializer::META_NOINDEX, '1' );
+
+		// Keep the inserted page from being optimized away by WorDBless.
+		$this->assertIsInt( $page_id );
+		$this->hook_wordbless_posts_query( array( $post_id, $page_id, $book_id ) );
+		wp_cache_flush();
+
+		$method = new \ReflectionMethod( Initializer::class, 'get_content_coverage' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame(
+			array(
+				'total'               => 3,
+				'with_schema'         => 2,
+				'with_title'          => 2,
+				'with_description'    => 2,
+				'with_search_visible' => 2,
+			),
+			$method->invoke( null )
+		);
 	}
 
 	/**
