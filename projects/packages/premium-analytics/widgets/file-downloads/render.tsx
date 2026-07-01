@@ -251,13 +251,14 @@ export function FileDownloadsLeaderboard( {
 	withComparison = false,
 	errorMessage,
 }: FileDownloadsLeaderboardProps ) {
+	if ( isError && errorMessage ) {
+		return <LeaderboardChart data={ [] } emptyStateText={ errorMessage } showLegend={ false } />;
+	}
+
 	if ( isError ) {
 		return (
 			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>
-					{ errorMessage ??
-						__( 'Could not load file download data.', 'jetpack-premium-analytics' ) }
-				</Text>
+				<Text>{ __( 'Could not load file download data.', 'jetpack-premium-analytics' ) }</Text>
 			</Stack>
 		);
 	}
