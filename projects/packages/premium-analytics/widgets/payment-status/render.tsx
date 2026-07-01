@@ -28,11 +28,6 @@ type PaymentStatusRenderProps = WidgetRenderProps< PaymentStatusRenderAttributes
  * Thin composition over WidgetRoot: WidgetRoot provides the query client,
  * chart theme, and resolved report params; PaymentStatusWidget renders the
  * paid vs unpaid order revenue donut chart.
- *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
- * @param props.setError   - Dashboard error-state setter.
- * @return The rendered widget.
  */
 export default function PaymentStatusRender( {
 	attributes = {},

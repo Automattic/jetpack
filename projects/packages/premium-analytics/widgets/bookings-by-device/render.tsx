@@ -33,11 +33,6 @@ function BookingsByDeviceWidget() {
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; SalesByDeviceWidget fetches
  * the filtered bookings attribution report and renders the device breakdown.
- *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
- * @param props.setError   - Dashboard error-state setter.
- * @return The rendered widget.
  */
 export default function BookingsByDeviceRender( {
 	attributes = {},

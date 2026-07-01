@@ -29,11 +29,6 @@ type AverageItemsPerOrderRenderProps = WidgetRenderProps< AverageItemsPerOrderRe
  * client, chart theme, and resolved report params; OrderMetricWidget fetches
  * the orders report and renders the avg_items metric with a comparison delta
  * and sparkline.
- *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
- * @param props.setError   - Dashboard error-state setter.
- * @return The rendered widget.
  */
 export default function AverageItemsPerOrderRender( {
 	attributes = {},

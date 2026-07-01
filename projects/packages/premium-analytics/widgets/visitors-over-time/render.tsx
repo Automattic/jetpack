@@ -28,11 +28,6 @@ type VisitorsOverTimeRenderProps = WidgetRenderProps< VisitorsOverTimeRenderAttr
  * Thin composition over WidgetRoot: WidgetRoot provides the query client,
  * chart theme, and resolved report params; VisitorMetricWidget fetches the
  * visitors report and renders visitor trends over time.
- *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
- * @param props.setError   - Dashboard error-state setter.
- * @return The rendered widget.
  */
 export default function VisitorsOverTimeRender( {
 	attributes = {},

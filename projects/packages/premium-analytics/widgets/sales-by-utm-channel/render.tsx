@@ -82,11 +82,6 @@ function SalesByUtmChannelWidget() {
  * WidgetRoot provides the query client, chart theme, and resolved report params;
  * this render module fetches the order-attribution report and renders the
  * channel leaderboard.
- *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
- * @param props.setError   - Dashboard error-state setter.
- * @return The rendered widget.
  */
 export default function SalesByUtmChannelRender( {
 	attributes = {},
