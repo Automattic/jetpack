@@ -205,21 +205,18 @@ export const useKeyboardNavigation = ( {
 
 			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
 
-			if ( currentSelectedIndex + 1 >= totalPoints && [ 'ArrowRight' ].includes( event.key ) ) {
-				chartRef.current?.focus();
-				setSelectedIndex( undefined );
-				setIsNavigating( false );
-				return;
-			}
-
 			event.preventDefault();
 
 			if ( [ 'ArrowRight' ].includes( event.key ) ) {
 				setIsNavigating( true );
-				setSelectedIndex( ( currentSelectedIndex + 1 ) % totalPoints );
+				// Follow the WAI-ARIA grid pattern: at the last cell focus does not move.
+				// Stay on the last point (keep the highlight/tooltip) instead of escaping or wrapping.
+				setSelectedIndex( Math.min( currentSelectedIndex + 1, totalPoints - 1 ) );
 			} else if ( [ 'ArrowLeft' ].includes( event.key ) ) {
 				setIsNavigating( true );
-				setSelectedIndex( ( currentSelectedIndex - 1 + totalPoints ) % totalPoints );
+				// Follow the WAI-ARIA grid pattern: at the first cell focus does not move.
+				// Stay on the first point instead of wrapping to the last.
+				setSelectedIndex( Math.max( currentSelectedIndex - 1, 0 ) );
 			} else if ( event.key === 'Escape' ) {
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
