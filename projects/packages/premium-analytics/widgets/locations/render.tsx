@@ -132,27 +132,24 @@ function LocationsInner( { max }: { max: number } ) {
 	}, [ comparisonData, data, geoMode, hasComparison ] );
 
 	const header = (
-		<Stack
-			direction="row"
-			justify={ selectedCountry ? 'space-between' : 'flex-end' }
-			align="center"
-			className={ styles.widgetHeader }
-		>
-			{ selectedCountry && (
-				<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
-					<Button
-						variant="unstyled"
-						onClick={ clearSelectedCountry }
-						className={ styles.breadcrumbLink }
-					>
-						{ __( 'Locations', 'jetpack-premium-analytics' ) }
-					</Button>
+		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
+			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
+				{ selectedCountry ? (
 					<>
+						<Button
+							variant="unstyled"
+							onClick={ clearSelectedCountry }
+							className={ styles.breadcrumbLink }
+						>
+							{ __( 'Locations', 'jetpack-premium-analytics' ) }
+						</Button>
 						<Text className={ styles.breadcrumbSeparator }>/</Text>
-						<Text>{ selectedCountry.name }</Text>
+						<Text className={ styles.breadcrumbCurrent }>{ selectedCountry.name }</Text>
 					</>
-				</Stack>
-			) }
+				) : (
+					<Text>{ __( 'Locations', 'jetpack-premium-analytics' ) }</Text>
+				) }
+			</Stack>
 			<SelectControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
