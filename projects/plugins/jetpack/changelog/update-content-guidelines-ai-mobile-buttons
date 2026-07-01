@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Content Guidelines AI: wrap the per-section Save/Clear/Generate button row so the buttons no longer overlap on narrow screens

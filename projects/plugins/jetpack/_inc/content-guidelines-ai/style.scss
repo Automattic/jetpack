@@ -230,6 +230,16 @@ $cg-diff-removed: #f8d7da;
 	display: inline-flex;
 }
 
+// The per-section Generate/Improve button is injected as a third control into
+// the form's Save/Clear row — a Gutenberg HStack laid out for two buttons and
+// set not to wrap. On narrow viewports the extra button overflows and, because
+// flex items shrink by default, the button labels overlap. Let that row wrap
+// onto multiple lines instead. Scoped through the injected container (a direct
+// child of the HStack) so only the rows we add a button to are affected.
+.guidelines__list-item form :has(> .jetpack-content-guidelines-ai__section-button-container) {
+	flex-wrap: wrap;
+}
+
 // Upgrade notice.
 .jetpack-content-guidelines-ai__upgrade-notice-container {
 	display: contents;
