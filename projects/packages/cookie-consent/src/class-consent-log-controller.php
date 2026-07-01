@@ -101,20 +101,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	private const MAX_URL_LENGTH = 1024;
 
 	/**
-	 * Default IP address handling mode.
-	 *
-	 * @var string
-	 */
-	private const DEFAULT_IP_MODE = 'drop';
-
-	/**
-	 * Supported IP address handling modes.
-	 *
-	 * @var array
-	 */
-	private const IP_MODES = array( 'drop', 'hash', 'truncate', 'raw' );
-
-	/**
 	 * Cleanup cron hook name.
 	 *
 	 * @var string
@@ -703,8 +689,8 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$ip_mode = $this->log_config['ip_mode'] ?? Cookie_Consent::get_config()['log']['ip_mode'];
 		$ip_mode = sanitize_key( $ip_mode );
 
-		if ( ! in_array( $ip_mode, self::IP_MODES, true ) ) {
-			return self::DEFAULT_IP_MODE;
+		if ( ! in_array( $ip_mode, Config_Schema::ip_modes(), true ) ) {
+			return Config_Schema::default_ip_mode();
 		}
 
 		return $ip_mode;

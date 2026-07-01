@@ -12,9 +12,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Single source of truth for the package config: shape, types, defaults, validation.
+ * Single source of truth for the package config: shape, types, defaults, and the
+ * enum lists below. The schema descriptor and every bespoke validator (resolve_geo(),
+ * Consent_Log_Controller::get_ip_mode()) read their allowed values from the same
+ * constants, so an enum is declared exactly once.
  */
 final class Config_Schema {
+
+	/**
+	 * Allowed geolocation providers. Sourced by the schema and resolve_geo().
+	 *
+	 * @var string[]
+	 */
+	private const GEO_PROVIDERS = array( 'wpcom', 'custom' );
+
+	/**
+	 * Allowed consent-log IP handling modes. Sourced by the schema and, via
+	 * ip_modes(), by Consent_Log_Controller::get_ip_mode().
+	 *
+	 * @var string[]
+	 */
+	private const IP_MODES = array( 'drop', 'hash', 'truncate', 'raw' );
+
+	/**
+	 * Default consent-log IP handling mode. Sourced by the schema and default_ip_mode().
+	 */
+	private const DEFAULT_IP_MODE = 'drop';
 
 	/**
 	 * JSON-Schema-shaped descriptor for the full config.
@@ -71,7 +94,7 @@ final class Config_Schema {
 					'properties' => array(
 						'provider'            => array(
 							'type'    => 'string',
-							'enum'    => array( 'wpcom', 'custom' ),
+							'enum'    => self::GEO_PROVIDERS,
 							'default' => 'wpcom',
 						),
 						'api_url'             => array(
@@ -138,8 +161,8 @@ final class Config_Schema {
 						),
 						'ip_mode'        => array(
 							'type'    => 'string',
-							'enum'    => array( 'drop', 'hash', 'truncate', 'raw' ),
-							'default' => 'drop',
+							'enum'    => self::IP_MODES,
+							'default' => self::DEFAULT_IP_MODE,
 						),
 					),
 				),
@@ -153,6 +176,28 @@ final class Config_Schema {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Allowed consent-log IP handling modes.
+	 *
+	 * @internal For package classes only; not part of the public API.
+	 *
+	 * @return string[]
+	 */
+	public static function ip_modes() {
+		return self::IP_MODES;
+	}
+
+	/**
+	 * Default consent-log IP handling mode.
+	 *
+	 * @internal For package classes only; not part of the public API.
+	 *
+	 * @return string
+	 */
+	public static function default_ip_mode() {
+		return self::DEFAULT_IP_MODE;
 	}
 
 	/**
@@ -282,14 +327,16 @@ final class Config_Schema {
 		$nested_geo = isset( $config['geo'] ) && is_array( $config['geo'] ) ? $config['geo'] : array();
 		$geo        = array_merge( $defaults, $nested_geo );
 
-		if ( ! in_array( $geo['provider'], array( 'wpcom', 'custom' ), true ) ) {
-			$geo['provider'] = 'wpcom';
+		if ( ! in_array( $geo['provider'], self::GEO_PROVIDERS, true ) ) {
+			$geo['provider'] = $defaults['provider'];
 			$geo['api_url']  = $defaults['api_url'];
 		}
 		if ( ! is_string( $geo['api_url'] ) ) {
 			$geo['api_url'] = '';
 		}
-		if ( 'wpcom' === $geo['provider'] && '' === $geo['api_url'] ) {
+		// The default provider uses a shared, canonical endpoint, so an empty api_url is
+		// refilled from the default; a custom provider may keep an explicitly blank url.
+		if ( $defaults['provider'] === $geo['provider'] && '' === $geo['api_url'] ) {
 			$geo['api_url'] = $defaults['api_url'];
 		}
 		$geo['country_code_cookie'] = is_string( $geo['country_code_cookie'] ) && '' !== $geo['country_code_cookie'] ? $geo['country_code_cookie'] : $defaults['country_code_cookie'];

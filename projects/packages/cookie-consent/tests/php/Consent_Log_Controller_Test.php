@@ -222,6 +222,22 @@ class Consent_Log_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * An unknown injected ip_mode falls back to the schema default. get_ip_mode() now
+	 * validates against Config_Schema (the single enum source) rather than a local
+	 * constant, so this guards that the controller and schema can't drift apart.
+	 */
+	public function test_get_ip_mode_falls_back_to_default_for_unknown_mode() {
+		$instance = Consent_Log_Controller::init( array( 'ip_mode' => 'bogus' ) );
+
+		$ref = new ReflectionMethod( Consent_Log_Controller::class, 'get_ip_mode' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+
+		$this->assertSame( Config_Schema::default_ip_mode(), $ref->invoke( $instance ) );
+	}
+
+	/**
 	 * The cleanup cutoff is derived from the retention_days injected via init().
 	 */
 	public function test_cleanup_uses_injected_retention_days() {

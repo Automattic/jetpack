@@ -36,6 +36,17 @@ class Config_Schema_Test extends TestCase {
 		$this->assertSame( 'drop', $schema['properties']['log']['properties']['ip_mode']['default'] );
 	}
 
+	/**
+	 * The public ip_mode accessors return the same values the schema declares, so a
+	 * consumer (Consent_Log_Controller) reading them can't drift from the descriptor.
+	 */
+	public function test_ip_mode_accessors_match_schema() {
+		$schema = Config_Schema::schema();
+
+		$this->assertSame( $schema['properties']['log']['properties']['ip_mode']['enum'], Config_Schema::ip_modes() );
+		$this->assertSame( $schema['properties']['log']['properties']['ip_mode']['default'], Config_Schema::default_ip_mode() );
+	}
+
 	public function test_resolve_fills_defaults() {
 		$config = Config_Schema::resolve();
 
