@@ -83,10 +83,10 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$this->assertLessThan( $search_submenu_position, $backup_submenu_position, 'Jetpack Backup should be above Search in the submenu order.' );
 		$this->assertLessThan( $settings_submenu_position, $search_submenu_position, 'Search should be above Settings in the submenu order.' );
 
-		// Test that Activity Log appears immediately before Settings.
+		// Test that Activity Log appears immediately before Settings when present.
 		if ( in_array( 'Activity Log', $submenu_names, true ) ) {
 			$activity_log_submenu_position = array_search( 'Activity Log', $submenu_names, true );
-			$this->assertLessThan( $settings_submenu_position, $activity_log_submenu_position, 'Activity Log should be above Settings in the submenu order.' );
+			$this->assertSame( $settings_submenu_position - 1, $activity_log_submenu_position, 'Activity Log should be immediately above Settings in the submenu order.' );
 		}
 	}
 }
