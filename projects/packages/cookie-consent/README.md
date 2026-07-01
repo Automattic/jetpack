@@ -108,6 +108,33 @@ add_filter(
 );
 ```
 
+Consent categories are configured through `consent.categories`. Each category is
+an array with `key`, `label`, `description`, `required`, `default_checked`, and
+`wp_consent_map`. Use lowercase alphanumeric or underscore category keys. The
+default registry is `functional` (required), `analytics`, and `marketing`; the
+frontend preserves the existing `required` and `advertising` aliases for
+`functional` and `marketing`. Because of those aliases, `required` and
+`advertising` are reserved keys: a category registered with either key is
+ignored during normalization to avoid colliding with a built-in category.
+
+```php
+add_filter(
+	'jetpack_cookie_consent_config',
+	function ( $config ) {
+		$config['consent']['categories'][] = array(
+			'key'             => 'personalization',
+			'label'           => __( 'Personalization', 'my-plugin' ),
+			'description'     => __( 'Remember choices that tailor the site experience.', 'my-plugin' ),
+			'required'        => false,
+			'default_checked' => false,
+			'wp_consent_map'  => array( 'personalization' ),
+		);
+
+		return $config;
+	}
+);
+```
+
 ## Public APIs
 
 ### Gating scripts on consent
@@ -140,12 +167,7 @@ The event detail has this stable shape:
 
 ```ts
 type CookieConsentSavedDetail = {
-	eventType:
-		| 'accept_all'
-		| 'accept_selected'
-		| 'reject_all'
-		| 'auto_granted'
-		| 'opt-out';
+	eventType: 'accept_all' | 'accept_selected' | 'reject_all' | 'auto_granted' | 'opt-out';
 	choices: Partial< Record< string, boolean > >;
 };
 ```

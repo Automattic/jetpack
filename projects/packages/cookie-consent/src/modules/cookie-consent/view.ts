@@ -23,8 +23,10 @@ import {
 	isGdprCountry,
 	pertainsToCCPA,
 	handleConsentByRegion,
+	getConsentChoices,
 	type GeoConfig,
 } from './utils';
+import type { ConsentEventChoices } from './types';
 
 interface GeoState {
 	initialized: boolean;
@@ -35,10 +37,7 @@ interface GeoState {
 interface CookieBannerContext {
 	showBanner: boolean;
 	showModal: boolean;
-	categories: {
-		analytics: boolean;
-		advertising: boolean;
-	};
+	categories: ConsentEventChoices;
 	textExpanded: boolean;
 }
 
@@ -122,6 +121,18 @@ function hideConsentUi( context: CookieBannerContext ): void {
 	openedFromFooter = false;
 }
 
+function setContextCategories(
+	context: CookieBannerContext,
+	choices: ConsentEventChoices
+): ConsentEventChoices {
+	context.categories = {
+		...context.categories,
+		...choices,
+	};
+
+	return context.categories;
+}
+
 function updateManageLinkContexts( config: StoreConfig ): void {
 	const shouldShow = shouldShowManagePreferencesLink( config );
 	gdprManageLinkContexts.forEach( context => {
@@ -163,25 +174,15 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		 */
 		acceptAll() {
 			const context = getContext< CookieBannerContext >();
+			const choices = getConsentChoices( true );
 
 			// Update context
-			context.categories.analytics = true;
-			context.categories.advertising = true;
+			setContextCategories( context, choices );
 
-			trackPrivacyBannerAccept( {
-				required: true,
-				analytics: true,
-				advertising: true,
-			} );
+			trackPrivacyBannerAccept( choices );
 
 			// Save consent to WP Consent API (this will set the cookies)
-			saveConsentChoices(
-				{
-					analytics: true,
-					advertising: true,
-				},
-				'accept_all'
-			);
+			saveConsentChoices( choices, 'accept_all' );
 
 			hideConsentUi( context );
 		},
@@ -191,21 +192,15 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		 */
 		rejectAll() {
 			const context = getContext< CookieBannerContext >();
+			const choices = getConsentChoices( false );
 
 			// Update context
-			context.categories.analytics = false;
-			context.categories.advertising = false;
+			setContextCategories( context, choices );
 
 			trackPrivacyBannerReject();
 
 			// Save consent to WP Consent API (this will set the cookies)
-			saveConsentChoices(
-				{
-					analytics: false,
-					advertising: false,
-				},
-				'reject_all'
-			);
+			saveConsentChoices( choices, 'reject_all' );
 
 			hideConsentUi( context );
 		},
@@ -215,21 +210,15 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		 */
 		savePreferences() {
 			const context = getContext< CookieBannerContext >();
-
-			trackPrivacyBannerAccept( {
-				required: true,
-				analytics: context.categories.analytics,
-				advertising: context.categories.advertising,
+			const choices = setContextCategories( context, {
+				...getConsentChoices(),
+				...context.categories,
 			} );
 
+			trackPrivacyBannerAccept( choices );
+
 			// Save consent to WP Consent API (this will set the cookies)
-			saveConsentChoices(
-				{
-					analytics: context.categories.analytics,
-					advertising: context.categories.advertising,
-				},
-				'accept_selected'
-			);
+			saveConsentChoices( choices, 'accept_selected' );
 
 			hideConsentUi( context );
 		},
@@ -318,20 +307,23 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		} ),
 
 		/**
-		 * Toggle analytics cookies
+		 * Toggle a non-required cookie category.
 		 */
-		toggleAnalytics() {
-			const context = getContext< CookieBannerContext >();
-			context.categories.analytics = ! context.categories.analytics;
-		},
+		toggleCategory: withSyncEvent( ( event: Event ) => {
+			const target = event.target;
 
-		/**
-		 * Toggle advertising cookies
-		 */
-		toggleAdvertising() {
+			if ( ! ( target instanceof HTMLInputElement ) ) {
+				return;
+			}
+
+			const category = target.dataset.consentCategory;
+			if ( ! category ) {
+				return;
+			}
+
 			const context = getContext< CookieBannerContext >();
-			context.categories.advertising = ! context.categories.advertising;
-		},
+			context.categories[ category ] = target.checked;
+		} ),
 
 		/**
 		 * Toggle all categories expanded state
@@ -360,13 +352,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 
 			trackPrivacyPolicyOptOut();
 
-			saveConsentChoices(
-				{
-					analytics: false,
-					advertising: false,
-				},
-				'opt-out'
-			);
+			saveConsentChoices( getConsentChoices( false ), 'opt-out' );
 
 			// Show confirmation snackbar
 			context.showSnackbar = true;
@@ -589,8 +575,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 
 				openModalFromFooter = () => {
 					const currentConsent = readConsentChoices();
-					bannerContext.categories.analytics = currentConsent.analytics;
-					bannerContext.categories.advertising = currentConsent.advertising;
+					setContextCategories( bannerContext, currentConsent );
 					bannerContext.showModal = true;
 					bannerContext.showBanner = false;
 					openedFromFooter = true;
