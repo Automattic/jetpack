@@ -5,7 +5,12 @@
  */
 
 import { getCategoryPreferenceKey } from './category-preferences';
-import { recordEvent, getCommonProperties } from './tracks-utils';
+import {
+	recordAnalyticsEvent,
+	recordConsentEvent,
+	recordCookielessStat,
+	getCommonProperties,
+} from './tracks-utils';
 import type { ConsentPreferences, TrackingProperties } from './types';
 
 const DEFAULT_TRACKS_PREFERENCE_KEYS = new Set( [ 'required', 'analytics', 'advertising' ] );
@@ -37,7 +42,7 @@ function getPreferenceProperties( preferences: ConsentPreferences ): TrackingPro
  * Fired when the cookie consent banner is displayed to the visitor.
  */
 export function trackPrivacyBannerView(): void {
-	recordEvent( 'privacy_banner_view', getCommonProperties() );
+	recordCookielessStat( 'privacy-banner-view' );
 }
 
 /**
@@ -46,7 +51,7 @@ export function trackPrivacyBannerView(): void {
  * @param preferences Object with consent preferences, keyed by category preference key (e.g. required, analytics, advertising, plus any custom registered categories).
  */
 export function trackPrivacyBannerAccept( preferences: ConsentPreferences ): void {
-	recordEvent( 'privacy_banner_button_accept', getPreferenceProperties( preferences ) );
+	recordConsentEvent( 'privacy_banner_button_accept', getPreferenceProperties( preferences ) );
 }
 
 /**
@@ -55,7 +60,7 @@ export function trackPrivacyBannerAccept( preferences: ConsentPreferences ): voi
  * Fired when the visitor clicks "Reject All" in customize modal.
  */
 export function trackPrivacyBannerReject(): void {
-	recordEvent( 'privacy_banner_button_reject', getCommonProperties() );
+	recordConsentEvent( 'privacy_banner_button_reject', getCommonProperties() );
 }
 
 /**
@@ -64,16 +69,29 @@ export function trackPrivacyBannerReject(): void {
  * Fired when the visitor clicks "Customize" to open the preferences modal.
  */
 export function trackPrivacyBannerCustomize(): void {
-	recordEvent( 'privacy_banner_button_customize', getCommonProperties() );
+	recordCookielessStat( 'privacy-banner-button-customize' );
 }
 
 /**
  * Track "Manage Privacy Preferences" link click
  *
  * Fired when the visitor opens preferences modal from the footer link.
+ *
+ * @param hasPriorConsent     Whether the visitor already has stored consent choices.
+ * @param hasAnalyticsConsent Whether those stored choices allow analytics.
  */
-export function trackPrivacyManageOpen(): void {
-	recordEvent( 'privacy_manage_open', getCommonProperties() );
+export function trackPrivacyManageOpen(
+	hasPriorConsent: boolean,
+	hasAnalyticsConsent: boolean
+): void {
+	if ( ! hasPriorConsent ) {
+		recordCookielessStat( 'privacy-manage-open' );
+		return;
+	}
+
+	if ( hasAnalyticsConsent ) {
+		recordAnalyticsEvent( 'privacy_manage_open', getCommonProperties() );
+	}
 }
 
 /**
@@ -82,5 +100,5 @@ export function trackPrivacyManageOpen(): void {
  * Fired when the visitor submits the CCPA "Do Not Sell/Share" opt-out.
  */
 export function trackPrivacyPolicyOptOut(): void {
-	recordEvent( 'privacy_policy_page_button_opt_out', getCommonProperties() );
+	recordConsentEvent( 'privacy_policy_page_button_opt_out', getCommonProperties() );
 }

@@ -32,12 +32,28 @@ interface StoreConfig {
 	forcePreview: boolean;
 }
 
-type Action = ( ...args: unknown[] ) => Generator< unknown, unknown, unknown >;
+type Action = ( ...args: unknown[] ) => unknown;
+type StoreDefinition = {
+	actions: Record< string, Action >;
+	callbacks: {
+		init: () => Promise< void >;
+	};
+};
 
 let storeActions: Record< string, Action >;
+let storeCallbacks: StoreDefinition[ 'callbacks' ];
 let cookieWrites: string[];
 let cookieJar: string;
 let fetchMock: jest.Mock< typeof fetch >;
+let imageSources: string[];
+
+const TRACKS_SCRIPT_ID = 'jetpack-cookie-consent-tracks-js';
+
+class MockImage {
+	set src( value: string ) {
+		imageSources.push( value );
+	}
+}
 
 const DEFAULT_GEO: GeoConfig = {
 	provider: 'wpcom',
@@ -85,12 +101,27 @@ async function runAction( generator: Generator< unknown, unknown, unknown > ): P
 	return step.value;
 }
 
+/**
+ *
+ */
+/**
+ * Define the optional WP Consent API setter for tests that need the banner init path.
+ */
+function mockWpSetConsent(): void {
+	Object.defineProperty( window, 'wp_set_consent', {
+		configurable: true,
+		value: jest.fn(),
+	} );
+}
+
 beforeEach( async () => {
 	// Re-import per test so the module-level geoState singleton starts uninitialized.
 	jest.resetModules();
 
 	cookieWrites = [];
 	cookieJar = '';
+	imageSources = [];
+	global.Image = MockImage as unknown as typeof Image;
 	Object.defineProperty( document, 'cookie', {
 		configurable: true,
 		get: () => cookieJar,
@@ -104,12 +135,11 @@ beforeEach( async () => {
 	global.fetch = fetchMock;
 
 	mockGetContext.mockReturnValue( {} );
-	mockStore.mockImplementation(
-		( _namespace: string, config: { actions: Record< string, Action > } ) => {
-			storeActions = config.actions;
-			return config;
-		}
-	);
+	mockStore.mockImplementation( ( _namespace: string, config: StoreDefinition ) => {
+		storeActions = config.actions;
+		storeCallbacks = config.callbacks;
+		return config;
+	} );
 
 	await import( '../src/modules/cookie-consent/view' );
 } );
@@ -119,7 +149,9 @@ describe( 'initializeGeolocation geo-provider error handling', () => {
 		mockGetConfig.mockReturnValue( makeConfig( { showOnError: false } ) );
 		fetchMock.mockRejectedValue( new Error( 'network down' ) );
 
-		const result = await runAction( storeActions.initializeGeolocation() );
+		const result = await runAction(
+			storeActions.initializeGeolocation() as Generator< unknown, unknown, unknown >
+		);
 
 		expect( result ).toEqual( { initialized: true, countryCode: null, region: null } );
 		expect( cookieWrites ).toHaveLength( 0 );
@@ -130,7 +162,9 @@ describe( 'initializeGeolocation geo-provider error handling', () => {
 		mockGetConfig.mockReturnValue( makeConfig( { showOnError: true } ) );
 		fetchMock.mockRejectedValue( new Error( 'network down' ) );
 
-		const result = await runAction( storeActions.initializeGeolocation() );
+		const result = await runAction(
+			storeActions.initializeGeolocation() as Generator< unknown, unknown, unknown >
+		);
 
 		expect( result ).toMatchObject( { initialized: true, countryCode: UNKNOWN_COUNTRY_CODE } );
 		expect(
@@ -143,7 +177,9 @@ describe( 'initializeGeolocation geo-provider error handling', () => {
 		mockGetConfig.mockReturnValue(
 			makeConfig( { provider: 'custom', apiUrl: '', showOnError: false } )
 		);
-		const result = await runAction( storeActions.initializeGeolocation() );
+		const result = await runAction(
+			storeActions.initializeGeolocation() as Generator< unknown, unknown, unknown >
+		);
 
 		expect( result ).toEqual( { initialized: true, countryCode: null, region: null } );
 		expect( fetchMock ).not.toHaveBeenCalled();
@@ -158,7 +194,9 @@ describe( 'initializeGeolocation geo-provider error handling', () => {
 			json: async () => ( { country_short: 'FR', region: 'Brittany' } ),
 		} as unknown as Response );
 
-		const result = await runAction( storeActions.initializeGeolocation() );
+		const result = await runAction(
+			storeActions.initializeGeolocation() as Generator< unknown, unknown, unknown >
+		);
 
 		expect( result ).toMatchObject( { initialized: true, countryCode: 'FR', region: 'Brittany' } );
 		expect( cookieWrites.some( write => write.includes( 'country_code=FR' ) ) ).toBe( true );
@@ -173,9 +211,122 @@ describe( 'updateContextFromGeolocation', () => {
 		mockGetConfig.mockReturnValue( makeConfig( { showOnError: false } ) );
 		fetchMock.mockRejectedValue( new Error( 'network down' ) );
 
-		await runAction( storeActions.updateContextFromGeolocation() );
+		await runAction(
+			storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
+		);
 
 		expect( context.isGdprManageLink ).toBe( false );
 		expect( console ).toHaveWarned();
+	} );
+} );
+
+describe( 'Tracks consent gating', () => {
+	afterEach( () => {
+		delete ( window as unknown as { _tkq?: unknown } )._tkq;
+		delete ( window as unknown as { wp_set_consent?: unknown } ).wp_set_consent;
+		document.getElementById( TRACKS_SCRIPT_ID )?.remove();
+	} );
+
+	it( 'records a cookieless banner stat in preview mode', async () => {
+		const context = { showBanner: false };
+		mockWpSetConsent();
+		mockGetContext.mockReturnValue( context );
+		mockGetConfig.mockReturnValue( { ...makeConfig(), forcePreview: true } );
+
+		await storeCallbacks.init();
+
+		expect( context.showBanner ).toBe( true );
+		expect( window._tkq ).toBeUndefined();
+		expect(
+			new URL( imageSources[ 0 ] ).searchParams.get(
+				'x_jetpack-cookie-consent-privacy-banner-view'
+			)
+		).toBe( `total,${ window.location.hostname }` );
+	} );
+
+	it( 'loads Tracks when a consent lifecycle event grants analytics', async () => {
+		mockWpSetConsent();
+		mockGetContext.mockReturnValue( {} );
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await storeCallbacks.init();
+		window.dispatchEvent(
+			new CustomEvent( 'wp_consent_saved', {
+				detail: {
+					eventType: 'accept_selected',
+					choices: {
+						required: true,
+						analytics: true,
+						advertising: false,
+					},
+				},
+			} )
+		);
+
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
+	} );
+
+	it( 'does not load Tracks when a consent lifecycle event denies analytics', async () => {
+		mockWpSetConsent();
+		mockGetContext.mockReturnValue( {} );
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await storeCallbacks.init();
+		window.dispatchEvent(
+			new CustomEvent( 'wp_consent_saved', {
+				detail: {
+					eventType: 'reject_all',
+					choices: {
+						required: true,
+						analytics: false,
+						advertising: false,
+					},
+				},
+			} )
+		);
+
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
+	} );
+
+	it( 'records pre-consent manage opens through the cookieless stat', () => {
+		const event = { preventDefault: jest.fn() } as unknown as MouseEvent;
+
+		storeActions.openManagePreferences( event );
+
+		expect( event.preventDefault ).toHaveBeenCalled();
+		expect( window._tkq ).toBeUndefined();
+		expect(
+			new URL( imageSources[ 0 ] ).searchParams.get(
+				'x_jetpack-cookie-consent-privacy-manage-open'
+			)
+		).toBe( `total,${ window.location.hostname }` );
+	} );
+
+	it( 'does not record post-consent manage opens when analytics is denied', () => {
+		cookieJar = 'wp_consent_functional=allow; wp_consent_statistics=deny';
+		const event = { preventDefault: jest.fn() } as unknown as MouseEvent;
+
+		storeActions.openManagePreferences( event );
+
+		expect( window._tkq ).toBeUndefined();
+		expect( imageSources ).toHaveLength( 0 );
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
+	} );
+
+	it( 'records post-consent manage opens when analytics is allowed', () => {
+		cookieJar =
+			'wp_consent_functional=allow; wp_consent_statistics=allow; wp_consent_statistics-anonymous=allow';
+		const event = { preventDefault: jest.fn() } as unknown as MouseEvent;
+
+		storeActions.openManagePreferences( event );
+
+		expect( window._tkq?.[ 0 ] ).toEqual( [
+			'recordEvent',
+			'jetpack_privacy_manage_open',
+			expect.objectContaining( {
+				domain: window.location.hostname,
+			} ),
+		] );
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
 	} );
 } );

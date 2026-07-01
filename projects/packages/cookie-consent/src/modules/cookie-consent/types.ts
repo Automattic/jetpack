@@ -40,6 +40,9 @@ declare global {
 		jetpackCookieConsentConfig?: {
 			apiUrl: string;
 			eventPrefix?: string;
+			features?: {
+				tracks?: boolean;
+			};
 			categories?: ConsentCategory[];
 			nonce?: string;
 		};

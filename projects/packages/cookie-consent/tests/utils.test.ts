@@ -10,6 +10,7 @@ import {
 	getCookie,
 	getGeoConfig,
 	handleConsentByRegion,
+	hasAnalyticsConsent,
 	hasConsentSet,
 	isGdprCountry,
 	pertainsToCCPA,
@@ -17,6 +18,14 @@ import {
 	saveConsentChoices,
 	setCookie,
 } from '../src/modules/cookie-consent/utils';
+
+class MockImage {
+	set src( value: string ) {
+		imageSources.push( value );
+	}
+}
+
+let imageSources: string[];
 
 describe( 'setCookie', () => {
 	let writes: string[];
@@ -139,6 +148,8 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 
 	beforeEach( () => {
 		consentCalls = [];
+		imageSources = [];
+		global.Image = MockImage as unknown as typeof Image;
 		window.wp_set_consent = ( category: string, state: string ) => {
 			consentCalls.push( [ category, state ] );
 		};
@@ -169,6 +180,7 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 		expect( wasDenied( 'marketing' ) ).toBe( true );
 		// Functional/required cookies are always allowed.
 		expect( consentCalls ).toContainEqual( [ 'functional', 'allow' ] );
+		expect( imageSources ).toHaveLength( 0 );
 	} );
 
 	it( 'shows the opt-in banner when GPC is absent in a GDPR region', () => {
@@ -179,6 +191,31 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 
 		expect( context.showBanner ).toBe( true );
 		expect( wasDenied( 'statistics' ) ).toBe( false );
+		expect(
+			new URL( imageSources[ 0 ] ).searchParams.get(
+				'x_jetpack-cookie-consent-privacy-banner-view'
+			)
+		).toBe( `total,${ window.location.hostname }` );
+	} );
+
+	it( 'does not record a banner stat in CCPA regions', () => {
+		setGpc( undefined );
+		const context = { showBanner: false };
+
+		handleConsentByRegion( 'US', 'california', baseConfig, context );
+
+		expect( context.showBanner ).toBe( false );
+		expect( imageSources ).toHaveLength( 0 );
+	} );
+
+	it( 'does not record a banner stat in non-regulated regions', () => {
+		setGpc( undefined );
+		const context = { showBanner: false };
+
+		handleConsentByRegion( 'CA', '', baseConfig, context );
+
+		expect( context.showBanner ).toBe( false );
+		expect( imageSources ).toHaveLength( 0 );
 	} );
 
 	it( 'ignores GPC in a GDPR region when honoring is disabled by config', () => {
@@ -352,6 +389,49 @@ describe( 'registry-driven consent choices', () => {
 			advertising: false,
 			personalization: true,
 		} );
+	} );
+
+	it( 'resolves analytics consent from the configured category registry', () => {
+		expect(
+			hasAnalyticsConsent( {
+				required: true,
+				analytics: true,
+				advertising: false,
+			} )
+		).toBe( true );
+		expect(
+			hasAnalyticsConsent( {
+				required: true,
+				analytics: false,
+				advertising: true,
+			} )
+		).toBe( false );
+	} );
+
+	it( 'resolves analytics consent from a custom analytics category preference key', () => {
+		window.jetpackCookieConsentConfig = {
+			apiUrl: 'https://example.com/wp-json/jetpack/v4/cookie-consent/consent-log',
+			categories: [
+				{
+					key: 'analytics',
+					preferenceKey: 'measurement',
+					required: false,
+					defaultChecked: true,
+					wpConsentMap: [ 'statistics' ],
+				},
+			],
+		};
+
+		expect(
+			hasAnalyticsConsent( {
+				measurement: true,
+			} )
+		).toBe( true );
+		expect(
+			hasAnalyticsConsent( {
+				measurement: false,
+			} )
+		).toBe( false );
 	} );
 
 	it( 'dispatches the public wp_consent_saved event with event type and category choices', () => {

@@ -6,6 +6,11 @@
 
 import type { TrackingProperties } from './types';
 
+const TRACKS_SCRIPT_ID = 'jetpack-cookie-consent-tracks-js';
+const TRACKS_SCRIPT_URL = 'https://stats.wp.com/w.js';
+const COOKIELESS_PIXEL_URL = 'https://pixel.wp.com/g.gif';
+const COOKIELESS_STAT_PREFIX = 'x_jetpack-cookie-consent';
+
 /**
  * Extract UTM parameters from URL
  *
@@ -61,6 +66,25 @@ export function ensureTrackingQueue(): void {
 	}
 }
 
+function isTracksEnabled(): boolean {
+	return window.jetpackCookieConsentConfig?.features?.tracks !== false;
+}
+
+/**
+ * Load w.js after consent allows cookie-based Tracks.
+ */
+export function loadTracksScript(): void {
+	if ( ! isTracksEnabled() || document.getElementById( TRACKS_SCRIPT_ID ) ) {
+		return;
+	}
+
+	const script = document.createElement( 'script' );
+	script.id = TRACKS_SCRIPT_ID;
+	script.src = TRACKS_SCRIPT_URL;
+	script.defer = true;
+	document.head.appendChild( script );
+}
+
 /**
  * Record a Tracks event via w.js
  *
@@ -72,6 +96,10 @@ export function ensureTrackingQueue(): void {
  * @param properties      Event properties object.
  */
 export function recordEvent( eventNameSuffix: string, properties: TrackingProperties ): void {
+	if ( ! isTracksEnabled() ) {
+		return;
+	}
+
 	const eventNamePrefix = window.jetpackCookieConsentConfig?.eventPrefix || 'jetpack';
 	const eventName = `${ eventNamePrefix }_${ eventNameSuffix }`;
 	// Ensure queue exists - w.js will process events when it loads
@@ -79,4 +107,53 @@ export function recordEvent( eventNameSuffix: string, properties: TrackingProper
 
 	// Queue the event
 	window._tkq!.push( [ 'recordEvent', eventName, properties ] );
+}
+
+/**
+ * Record an allowlisted consent-record Tracks event and load w.js to flush it.
+ *
+ * These events document the consent decision itself, so they are not gated on the
+ * analytics category.
+ *
+ * @param eventNameSuffix The event name (must follow Tracks naming conventions).
+ * @param properties      Event properties object.
+ */
+export function recordConsentEvent(
+	eventNameSuffix: string,
+	properties: TrackingProperties
+): void {
+	recordEvent( eventNameSuffix, properties );
+	loadTracksScript();
+}
+
+/**
+ * Record an analytics-gated Tracks event.
+ *
+ * @param eventNameSuffix The event name (must follow Tracks naming conventions).
+ * @param properties      Event properties object.
+ */
+export function recordAnalyticsEvent(
+	eventNameSuffix: string,
+	properties: TrackingProperties
+): void {
+	recordEvent( eventNameSuffix, properties );
+	loadTracksScript();
+}
+
+/**
+ * Record an identity-free aggregate stat via g.gif.
+ *
+ * @param statName Stat name suffix.
+ */
+export function recordCookielessStat( statName: string ): void {
+	const statKey = `${ COOKIELESS_STAT_PREFIX }-${ statName }`;
+	const statValue = `total,${ window.location.hostname }`;
+	const cacheBuster = `${ Date.now() }-${ Math.random().toString( 36 ).slice( 2 ) }`;
+	const url = new URL( COOKIELESS_PIXEL_URL );
+
+	url.searchParams.set( 'v', 'wpcom-no-pv' );
+	url.searchParams.set( statKey, statValue );
+	url.searchParams.set( 'r', cacheBuster );
+
+	new Image().src = url.toString();
 }
