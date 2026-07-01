@@ -158,7 +158,7 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 						<Text className={ styles.breadcrumbCurrent }>{ selectedUtm?.label }</Text>
 					</>
 				) : (
-					<Text>
+					<Text className={ styles.breadcrumbTitle }>
 						<UtmInsightsHeaderTitle />
 					</Text>
 				) }
