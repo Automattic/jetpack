@@ -4,10 +4,7 @@
 // keeps the `var()` chains intact and lets the cascade pick the runtime
 // value when defined. postcss still emits a literal substitution alongside
 // each `var()`, which serves as the static fallback for browsers /
-// contexts where the variable isn't defined. The other bundles
-// (inline-search, customberg, instant-search) keep `postcss.config.js`
-// with `preserve: false` — `instant-search` in particular reads
-// calypso-color-schemes vars that aren't shipped to the runtime.
+// contexts where the variable isn't defined.
 module.exports = () => ( {
 	plugins: [
 		require( '@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks' ).default,
