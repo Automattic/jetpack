@@ -25,10 +25,9 @@ class Config_Normalization_Test extends TestCase {
 	private $doing_it_wrong = array();
 
 	/**
-	 * Tear down: clear config filters and doing-it-wrong capture.
+	 * Tear down: clear doing-it-wrong capture.
 	 */
 	public function tearDown(): void {
-		remove_all_filters( 'jetpack_cookie_consent_config' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		parent::tearDown();

@@ -63,6 +63,13 @@ class Cookie_Consent {
 	private static $initialized = false;
 
 	/**
+	 * Resolved configuration, stashed on first access.
+	 *
+	 * @var array|null
+	 */
+	private static $config = null;
+
+	/**
 	 * Whether the required footer legal links were injected into a footer
 	 * navigation block (Block Hooks) for the current rendered response.
 	 *
@@ -355,8 +362,11 @@ class Cookie_Consent {
 		}
 
 		ob_start();
-		// Get config for template (consumed by ccpa-content.php via include scope).
+		// Get config for template (consumed by ccpa-content.php via include scope). $copy is
+		// pre-resolved here so the template can use it directly instead of re-resolving via
+		// get_copy() — the config is already stashed and fully normalized at this point.
 		$config = self::get_config(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$copy   = $config['copy']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		include $template_path;
 		return ob_get_clean();
 	}
@@ -863,7 +873,8 @@ class Cookie_Consent {
 	 * Templates normally receive a fully normalized `copy` group from get_config(),
 	 * but they can also be included directly (tests, Storybook). Routing through this
 	 * helper guarantees every key is present so a partial or absent `copy` array can't
-	 * cause undefined-index access.
+	 * cause undefined-index access. An empty (the default) $config reads the already
+	 * resolved and stashed get_config() instead of re-resolving from scratch.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -871,11 +882,18 @@ class Cookie_Consent {
 	 * @return array Copy with every key present.
 	 */
 	public static function get_copy( $config = array() ) {
+		if ( empty( $config ) ) {
+			return self::get_config()['copy'];
+		}
+
 		return Config_Schema::resolve( $config )['copy'];
 	}
 
 	/**
 	 * Get normalized consent categories from a configuration array.
+	 *
+	 * An empty (the default) $config reads the already resolved and stashed
+	 * get_config() instead of re-resolving from scratch.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -883,6 +901,10 @@ class Cookie_Consent {
 	 * @return array Normalized consent categories.
 	 */
 	public static function get_consent_categories( $config = array() ) {
+		if ( empty( $config ) ) {
+			return self::get_config()['consent']['categories'];
+		}
+
 		return Config_Schema::resolve( $config )['consent']['categories'];
 	}
 
@@ -962,47 +984,18 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Get default configuration.
-	 *
-	 * Thin delegate: defaults now live on Config_Schema. Kept as the starting point
-	 * `get_config()` passes through the `jetpack_cookie_consent_config` filter.
-	 *
-	 * @return array Configuration array.
-	 */
-	private static function get_default_config() {
-		return Config_Schema::resolve();
-	}
-
-	/**
-	 * Normalize filtered configuration into the current schema.
-	 *
-	 * Thin delegate: normalization now lives on Config_Schema::resolve(), which
-	 * recomputes its own defaults, so $default_config is unused.
-	 *
-	 * @param array $config         Filtered configuration.
-	 * @param array $default_config Unused; kept for call-site compatibility.
-	 * @return array Normalized configuration.
-	 */
-	private static function normalize_config( $config, $default_config ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-		return Config_Schema::resolve( $config );
-	}
-
-	/**
-	 * Get package configuration with filters.
+	 * Get package configuration, resolving and stashing it on first access.
 	 *
 	 * @internal This accessor is for package classes only and is not part of the public API.
 	 *
 	 * @return array Configuration array.
 	 */
 	public static function get_config() {
-		$default_config = self::get_default_config();
+		if ( null === self::$config ) {
+			self::$config = Config_Schema::resolve();
+		}
 
-		/**
-		 * Filter cookie consent configuration
-		 *
-		 * @param array $config Configuration array
-		 */
-		return self::normalize_config( apply_filters( 'jetpack_cookie_consent_config', $default_config ), $default_config );
+		return self::$config;
 	}
 
 	/**
@@ -1126,7 +1119,12 @@ class Cookie_Consent {
 		$template_path = plugin_dir_path( __FILE__ ) . 'cookie-banner-content.php';
 		if ( file_exists( $template_path ) ) {
 			// Get config for template (consumed by cookie-banner-content.php via include scope).
-			$config = self::get_config(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			// $copy/$categories are pre-resolved here so the template can use them directly
+			// instead of re-resolving via get_copy()/get_consent_categories() — the config is
+			// already stashed and fully normalized at this point.
+			$config     = self::get_config(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$copy       = $config['copy']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$categories = $config['consent']['categories']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			ob_start();
 			include $template_path;
 			$html = ob_get_clean();

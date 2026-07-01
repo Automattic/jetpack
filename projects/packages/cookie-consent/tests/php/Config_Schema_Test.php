@@ -84,4 +84,48 @@ class Config_Schema_Test extends TestCase {
 		$this->assertFalse( $config['features']['tracks'] );
 		$this->assertTrue( $config['features']['banner'] );
 	}
+
+	/**
+	 * A single resolve() derives `consent.categories` from the resolved `copy`, not the
+	 * pristine default, when the caller doesn't supply its own categories. This guards the
+	 * single-pass contract only; it does not exercise a re-resolve of an already-resolved
+	 * config (which is no longer done now that get_config() resolves once and stashes).
+	 */
+	public function test_resolve_derives_categories_from_overridden_copy() {
+		$config = Config_Schema::resolve(
+			array(
+				'copy' => array(
+					'required_category_label' => 'CUSTOM REQUIRED LABEL',
+				),
+			)
+		);
+
+		$functional = null;
+		foreach ( $config['consent']['categories'] as $category ) {
+			if ( 'functional' === $category['key'] ) {
+				$functional = $category;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $functional, 'The default functional/required category must still be present.' );
+		$this->assertSame( 'CUSTOM REQUIRED LABEL', $functional['label'] );
+	}
+
+	/**
+	 * Idempotency isn't relied on for the derivation above, but resolve() must still be
+	 * stable: resolving an already-resolved config a second time returns the same result.
+	 */
+	public function test_resolve_is_stable_when_applied_twice() {
+		$once  = Config_Schema::resolve(
+			array(
+				'copy' => array(
+					'required_category_label' => 'CUSTOM REQUIRED LABEL',
+				),
+			)
+		);
+		$twice = Config_Schema::resolve( $once );
+
+		$this->assertSame( $once, $twice );
+	}
 }

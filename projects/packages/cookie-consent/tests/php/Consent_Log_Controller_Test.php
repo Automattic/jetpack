@@ -71,7 +71,6 @@ class Consent_Log_Controller_Test extends TestCase {
 		$_SERVER = $this->server;
 		// Reset state some tests flip on, so sibling suites see the defaults.
 		wp_using_ext_object_cache( false );
-		remove_all_filters( 'jetpack_cookie_consent_config' );
 		remove_all_filters( 'jetpack_cookie_consent_rate_limit_max' );
 		unset( $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_exists'] );
 		unset( $GLOBALS['jetpack_cookie_consent_test_wp_privacy_anonymize_ip_calls'] );
@@ -126,7 +125,7 @@ class Consent_Log_Controller_Test extends TestCase {
 		foreach ( $this->get_ip_mode_cases() as $case => $args ) {
 			list( $mode, $ip_address, $expected ) = $args;
 
-			remove_all_filters( 'jetpack_cookie_consent_config' );
+			$this->reset_cookie_consent_config();
 			$this->set_config_ip_mode( $mode );
 			$this->set_server_ip( $ip_address );
 
@@ -234,12 +233,12 @@ class Consent_Log_Controller_Test extends TestCase {
 	 * @param string $mode IP handling mode.
 	 */
 	private function set_config_ip_mode( $mode ) {
-		add_filter(
-			'jetpack_cookie_consent_config',
-			function ( $config ) use ( $mode ) {
-				$config['log']['ip_mode'] = $mode;
-				return $config;
-			}
+		$this->set_cookie_consent_config(
+			array(
+				'log' => array(
+					'ip_mode' => $mode,
+				),
+			)
 		);
 	}
 
@@ -357,20 +356,21 @@ class Consent_Log_Controller_Test extends TestCase {
 	 * Consent types are allowed from the configured category registry.
 	 */
 	public function test_sanitize_consent_types_allows_configured_category_keys() {
-		add_filter(
-			'jetpack_cookie_consent_config',
-			static function ( $config ) {
-				$config['consent']['categories'][] = array(
-					'key'             => 'personalization',
-					'label'           => 'Personalization',
-					'description'     => 'Personalized site features.',
-					'required'        => false,
-					'default_checked' => false,
-					'wp_consent_map'  => array( 'personalization' ),
-				);
-
-				return $config;
-			}
+		$categories   = Config_Schema::resolve()['consent']['categories'];
+		$categories[] = array(
+			'key'             => 'personalization',
+			'label'           => 'Personalization',
+			'description'     => 'Personalized site features.',
+			'required'        => false,
+			'default_checked' => false,
+			'wp_consent_map'  => array( 'personalization' ),
+		);
+		$this->set_cookie_consent_config(
+			array(
+				'consent' => array(
+					'categories' => $categories,
+				),
+			)
 		);
 
 		$result = $this->controller->sanitize_consent_types(
@@ -494,14 +494,13 @@ class Consent_Log_Controller_Test extends TestCase {
 		// Admit the write past the rate limiter (object-cache backend is portable here).
 		$this->force_object_cache_limit( 10 );
 
-		add_filter(
-			'jetpack_cookie_consent_config',
-			static function ( $config ) {
-				$config['log']['policy_version'] = 'policy-2026-06';
-				$config['log']['banner_version'] = 'banner-2026-06';
-
-				return $config;
-			}
+		$this->set_cookie_consent_config(
+			array(
+				'log' => array(
+					'policy_version' => 'policy-2026-06',
+					'banner_version' => 'banner-2026-06',
+				),
+			)
 		);
 
 		global $wpdb;

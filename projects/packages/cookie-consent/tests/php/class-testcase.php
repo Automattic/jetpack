@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\CookieConsent;
 
 use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
+use ReflectionProperty;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
@@ -26,6 +27,7 @@ abstract class TestCase extends PHPUnit_TestCase {
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
 		wp_set_current_user( 0 );
+		$this->reset_cookie_consent_config();
 	}
 
 	/**
@@ -37,5 +39,41 @@ abstract class TestCase extends PHPUnit_TestCase {
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
 		wp_set_current_user( 0 );
+		$this->reset_cookie_consent_config();
+	}
+
+	/**
+	 * Stash a resolved config on Cookie_Consent for the rest of the test.
+	 *
+	 * Cookie_Consent::get_config() resolves once and stashes the result rather than
+	 * going through a filter, so tests inject configuration by writing the private
+	 * static stash directly via reflection instead of hooking a filter.
+	 *
+	 * @param array $config Partial config to resolve and stash.
+	 */
+	protected function set_cookie_consent_config( array $config ) {
+		$this->cookie_consent_config_property()->setValue( null, Config_Schema::resolve( $config ) );
+	}
+
+	/**
+	 * Clear the Cookie_Consent config stash so the next get_config() call re-resolves.
+	 */
+	protected function reset_cookie_consent_config() {
+		$this->cookie_consent_config_property()->setValue( null, null );
+	}
+
+	/**
+	 * Get a writable reflection handle on Cookie_Consent's private config stash.
+	 *
+	 * @return ReflectionProperty
+	 */
+	private function cookie_consent_config_property() {
+		$property = new ReflectionProperty( Cookie_Consent::class, 'config' );
+		// setAccessible() is required to write a private property on PHP < 8.1, and a
+		// deprecated no-op from 8.1 on. Call it only where it's actually needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		return $property;
 	}
 }
