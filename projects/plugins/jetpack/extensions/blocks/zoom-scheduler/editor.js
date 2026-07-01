@@ -3,7 +3,7 @@ import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-
 import metadata from './block.json';
 import edit from './edit';
 import save from './save';
-import { normalizeUrl, URL_REGEX } from './utils';
+import { normalizeUrl } from './utils';
 
 import './editor.scss';
 
@@ -14,10 +14,14 @@ registerJetpackBlockFromMetadata( metadata, {
 		from: [
 			{
 				type: 'raw',
-				isMatch: node => node.nodeName === 'P' && URL_REGEX.test( node.textContent.trim() ),
+				isMatch: node => node.nodeName === 'P' && !! normalizeUrl( node.textContent.trim() ),
 				transform: node => {
-					const url = normalizeUrl( node.textContent.trim() );
-					return createBlock( 'jetpack/zoom-scheduler', { url } );
+					const content = node.textContent.trim();
+					const url = normalizeUrl( content );
+
+					return url
+						? createBlock( 'jetpack/zoom-scheduler', { url } )
+						: createBlock( 'core/paragraph', { content } );
 				},
 			},
 		],
