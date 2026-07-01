@@ -35,7 +35,7 @@ interface DevicesDashboardStoryProps
 		DevicesStoryControls {}
 
 const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
+	<div style={ { width: '100%', height: '380px' } }>
 		<Story />
 	</div>
 );
