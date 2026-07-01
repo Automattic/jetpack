@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Keep the jetpack_cookie_consent_config and jetpack_cookie_consent_log_retention_days filters so code that does not own the init() call can still override config.
