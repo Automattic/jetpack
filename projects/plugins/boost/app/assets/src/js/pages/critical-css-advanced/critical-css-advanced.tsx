@@ -9,6 +9,7 @@ import {
 	ErrorSet,
 	groupErrorsByFrequency,
 	groupRecommendationsByStatus,
+	isBenignErrorType,
 } from '$features/critical-css/lib/critical-css-errors';
 import { BackButton, CloseButton } from '$features/ui';
 import CriticalCssErrorDescription from '$features/critical-css/error-description/error-description';
@@ -40,6 +41,13 @@ export default function AdvancedCriticalCss() {
 	const { activeRecommendations, dismissedRecommendations } =
 		groupRecommendationsByStatus( providersWithIssues );
 
+	const realRecommendations = activeRecommendations.filter(
+		recommendation => ! isBenignErrorType( recommendation.errorType )
+	);
+	const inlinedRecommendations = activeRecommendations.filter( recommendation =>
+		isBenignErrorType( recommendation.errorType )
+	);
+
 	function setDismissed( data: DismissedItem[] ) {
 		setDismissedAction.mutate(
 			data.map( item => ( {
@@ -58,8 +66,13 @@ export default function AdvancedCriticalCss() {
 		}
 	}, [ providersWithIssues, navigate ] );
 	const heading =
-		activeRecommendations.length === 0
+		realRecommendations.length === 0 && inlinedRecommendations.length === 0
 			? __( 'Congratulations, you have dealt with all the recommendations.', 'jetpack-boost' )
+			: realRecommendations.length === 0
+			? __(
+					'Some of your pages inline their CSS, so Critical CSS is not needed for them. This is expected and safe to ignore.',
+					'jetpack-boost'
+			  )
 			: __(
 					'While Jetpack Boost has been able to automatically generate optimized CSS for most of your important files & sections, we have identified a few more that require your attention.',
 					'jetpack-boost'
@@ -92,13 +105,26 @@ export default function AdvancedCriticalCss() {
 				) }
 			</section>
 
-			{ activeRecommendations.map( ( recommendation: ProviderRecommendation ) => (
+			{ realRecommendations.map( ( recommendation: ProviderRecommendation ) => (
 				<Recommendation
 					key={ `${ recommendation.key }-${ recommendation.errorType }` }
 					recommendation={ recommendation }
 					setDismissed={ setDismissed }
 				/>
 			) ) }
+
+			{ inlinedRecommendations.length > 0 && (
+				<>
+					<h4>{ __( 'Pages that inline their CSS', 'jetpack-boost' ) }</h4>
+					{ inlinedRecommendations.map( ( recommendation: ProviderRecommendation ) => (
+						<Recommendation
+							key={ `${ recommendation.key }-${ recommendation.errorType }` }
+							recommendation={ recommendation }
+							setDismissed={ setDismissed }
+						/>
+					) ) }
+				</>
+			) }
 		</div>
 	);
 }
