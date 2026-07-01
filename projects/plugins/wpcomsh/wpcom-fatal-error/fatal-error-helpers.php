@@ -54,7 +54,7 @@ function wpcomsh_fatal_current_user_id() {
  * @return bool
  */
 function wpcomsh_fatal_ensure_render_memory() {
-	$needed = MB_IN_BYTES;
+	$needed = 2 * MB_IN_BYTES;
 	$usage  = memory_get_usage( true );
 	$limit  = wp_convert_hr_to_bytes( (string) ini_get( 'memory_limit' ) );
 	if ( $limit <= 0 || $limit - $usage >= $needed ) {
