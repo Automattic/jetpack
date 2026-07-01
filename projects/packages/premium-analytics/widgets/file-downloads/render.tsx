@@ -302,16 +302,27 @@ function FileDownloadsInner( { max }: { max: number } ) {
 		[ primary.data, max, hasComparison, comparison.data ]
 	);
 
+	const header = (
+		<Stack direction="row" align="center" className={ styles.widgetHeader }>
+			<Text variant="heading-md" render={ <h3 /> }>
+				{ __( 'File downloads', 'jetpack-premium-analytics' ) }
+			</Text>
+		</Stack>
+	);
+
 	return (
-		<div className={ styles.content }>
-			<FileDownloadsLeaderboard
-				rows={ rows }
-				isLoading={ showLoading }
-				isError={ isError }
-				withComparison={ hasComparison }
-				errorMessage={ errorMessage }
-			/>
-		</div>
+		<>
+			{ header }
+			<div className={ styles.content }>
+				<FileDownloadsLeaderboard
+					rows={ rows }
+					isLoading={ showLoading }
+					isError={ isError }
+					withComparison={ hasComparison }
+					errorMessage={ errorMessage }
+				/>
+			</div>
+		</>
 	);
 }
 

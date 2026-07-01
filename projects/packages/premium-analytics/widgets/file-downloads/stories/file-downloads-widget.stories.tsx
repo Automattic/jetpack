@@ -28,6 +28,7 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
+	presentation: 'full-bleed' as const,
 };
 
 interface FileDownloadsStoryControls {

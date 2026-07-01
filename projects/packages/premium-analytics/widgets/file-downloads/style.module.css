@@ -26,8 +26,11 @@
 
 .placeholder {
 	flex: 1 1 0;
+	min-block-size: 0;
+	inline-size: 100%;
 	min-height: 200px;
 	color: var(--wpds-color-fg-content-neutral-weak);
+	text-align: center;
 }
 
 .root {
@@ -38,10 +41,16 @@
 	overflow: hidden;
 }
 
+.widgetHeader {
+	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+	min-height: var(--wpds-dimension-size-md);
+}
+
 .content {
+	position: relative;
 	display: flex;
 	flex-direction: column;
-	padding: var(--wpds-dimension-padding-lg, 16px);
+	padding: var(--wpds-dimension-padding-lg);
 	flex: 1 1 0;
 	min-height: 0;
 }
