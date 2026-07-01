@@ -399,6 +399,12 @@ $jp-breakpoint-mobile: 782px;
 		background: var(--jp-gray-0, #f6f7f7);
 	}
 
+	// Once the stage exists, let the rounded cutouts reveal wp-admin's dark
+	// chrome color instead of the light loading canvas.
+	.boot-layout__surfaces:has(.boot-layout__stage) {
+		background: #1e1e1e;
+	}
+
 	// The admin-ui page surface fills the boot stage and paints white. Mask
 	// the stage itself so that child surface cannot square off the rounded
 	// corners, while preserving boot's overflow scrolling behavior.
