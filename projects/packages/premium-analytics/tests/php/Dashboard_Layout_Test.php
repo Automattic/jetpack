@@ -69,7 +69,7 @@ class Dashboard_Layout_Test extends TestCase {
 			'type' => 'jpa/utm-insights',
 		);
 
-		$layout = seed_default_dashboard_layout( array( $existing_utm_widget ), DASHBOARD_NAME );
+		$layout      = seed_default_dashboard_layout( array( $existing_utm_widget ), DASHBOARD_NAME );
 		$utm_widgets = array_filter(
 			$layout,
 			static function ( $widget ) {
