@@ -499,6 +499,10 @@ behavior across Stats widgets.
 - Top-level body header: for `full-bleed` widgets, render any required title/body controls inside
   the widget body because the host title is hidden. For framed widgets, avoid repeating the host
   title inside the body unless design explicitly calls for a separate body heading.
+- Body header icon: when a Stats widget renders its own body title, include the widget icon before
+  the title and source it from that widget's `widgetDefinition.icon`. For drill-down widgets, use
+  the same title helper for the top-level title and the breadcrumb root title so the icon/title
+  presentation stays consistent before and after drill-down.
 - Header controls: `SelectControl` in widget headers should use `__next40pxDefaultSize` and
   `__nextHasNoMarginBottom`, with the visible label hidden from sighted users when the header
   context already names the control.
