@@ -16,7 +16,6 @@ import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnai
 import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
-import { useModalHistory } from '../../src/dashboard/hooks/use-modal-history';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
 import './style.scss';
@@ -185,7 +184,6 @@ const StageReady = ( { video }: StageReadyProps ) => {
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
 	const [ captionsOpen, setCaptionsOpen ] = useState( false );
-	useModalHistory( captionsOpen, () => setCaptionsOpen( false ) );
 	// Deletes keep running after an unmount (the user can navigate away via
 	// the breadcrumb mid-flight). The notice cleanup below must still happen
 	// then, but we shouldn't yank them to the Library if they've moved on.
@@ -282,7 +280,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 					title={ video.title }
 					poster={ video.thumbnailUrl }
 					tracks={ video.tracks }
-					onClose={ () => window.history.back() }
+					onClose={ () => setCaptionsOpen( false ) }
 					onTracksChange={ () => void invalidateVideo( video.id ) }
 				/>
 			) }

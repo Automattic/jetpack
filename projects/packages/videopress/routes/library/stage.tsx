@@ -14,7 +14,6 @@ import QueryClientWrapper from '../../src/dashboard/components/query-client-wrap
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
-import { useModalHistory } from '../../src/dashboard/hooks/use-modal-history';
 import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
 import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
@@ -66,7 +65,6 @@ const StageInner = () => {
 	const [ view, setView ] = useState< View >( initialView );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );
-	useModalHistory( !! captionVideo, () => setCaptionVideo( null ) );
 	// Local IDs currently being promoted from local-storage to VideoPress.
 	// The upload-from-library endpoint doesn't report progress, so we just
 	// need to know which rows to overlay with an "Uploading…" state.
@@ -480,7 +478,7 @@ const StageInner = () => {
 					title={ captionVideo.title }
 					poster={ captionVideo.thumbnailUrl }
 					tracks={ captionVideo.tracks }
-					onClose={ () => window.history.back() }
+					onClose={ () => setCaptionVideo( null ) }
 					onTracksChange={ onCaptionTracksChange }
 				/>
 			) }
