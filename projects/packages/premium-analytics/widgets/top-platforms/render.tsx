@@ -4,7 +4,7 @@
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon, Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
@@ -19,7 +19,7 @@ import {
  */
 import styles from './style.module.css';
 import usePlatformViews from './use-platform-views';
-import type { TopPlatformsAttributes } from './widget';
+import widgetDefinition, { type TopPlatformsAttributes } from './widget';
 /**
  * Types
  */
@@ -38,6 +38,15 @@ const MODE_OPTIONS = [
 ] as const;
 
 type PlatformMode = 'browser' | 'platform';
+
+function TopPlatformsHeaderTitle() {
+	return (
+		<span className={ styles.headerTitle }>
+			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
+			<span>{ __( 'Top Platforms', 'jetpack-premium-analytics' ) }</span>
+		</span>
+	);
+}
 
 /**
  * Inner component — rendered inside WidgetRoot.
@@ -72,7 +81,7 @@ function TopPlatformsInner( { max, showTitle }: { max: number; showTitle: boolea
 		>
 			{ showTitle && (
 				<Text variant="heading-md" render={ <h3 /> }>
-					{ __( 'Top Platforms', 'jetpack-premium-analytics' ) }
+					<TopPlatformsHeaderTitle />
 				</Text>
 			) }
 			<SelectControl

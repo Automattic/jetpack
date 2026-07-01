@@ -20,6 +20,17 @@
 	min-height: 32px;
 }
 
+.headerTitle {
+	display: inline-flex;
+	align-items: center;
+	min-inline-size: 0;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.headerIcon {
+	flex: 0 0 auto;
+}
+
 .modeSelect {
 	flex-shrink: 0;
 }

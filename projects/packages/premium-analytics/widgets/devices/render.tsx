@@ -6,7 +6,7 @@ import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon, Stack, Text } from '@wordpress/ui';
 import {
 	Legend,
 	SemiCircleChart,
@@ -23,7 +23,7 @@ import {
  */
 import styles from './style.module.css';
 import useDeviceViews from './use-device-views';
-import type { DevicesAttributes } from './widget';
+import widgetDefinition, { type DevicesAttributes } from './widget';
 /**
  * Types
  */
@@ -41,6 +41,15 @@ const PERCENTAGE_DATA_FORMAT = {
 
 function toRatio( percentage: number ) {
 	return percentage / 100;
+}
+
+function DevicesHeaderTitle() {
+	return (
+		<span className={ styles.headerTitle }>
+			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
+			<span>{ __( 'Devices', 'jetpack-premium-analytics' ) }</span>
+		</span>
+	);
 }
 
 /**
@@ -70,7 +79,7 @@ function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } )
 	const header = showTitle ? (
 		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
 			<Text variant="heading-md" render={ <h3 /> }>
-				{ __( 'Devices', 'jetpack-premium-analytics' ) }
+				<DevicesHeaderTitle />
 			</Text>
 		</Stack>
 	) : null;
