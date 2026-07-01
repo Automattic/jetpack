@@ -1,83 +1,83 @@
 # Cookie Consent
 
-Cookie Consent (`@automattic/jetpack-cookie-consent`) is a plugin-agnostic package intended to provide a GDPR cookie-consent banner, a CCPA "Do Not Sell/Share" opt-out flow, geolocation-based consent-model selection, WP Consent API integration, and consent logging.
+Cookie Consent (`@automattic/jetpack-cookie-consent`) is a plugin-agnostic package that provides a GDPR cookie-consent banner, a CCPA "Do Not Sell/Share" opt-out flow, geolocation-based consent-model selection, WP Consent API integration, and consent logging.
 
 It renders a fixed-position consent banner and a preferences modal on `wp_footer` (driven by the WordPress Interactivity API), auto-creates a CCPA "Your Privacy Choices" opt-out page, injects the required legal links into a footer `core/navigation` block on block themes (via Block Hooks), and provides a floating fallback control for those links on classic themes.
 
-## Usage
+## Quick start
 
-`\Automattic\Jetpack\CookieConsent\Cookie_Consent::init( array $config = array() );`
-
-`$config` is an optional, partial configuration array resolved against package
-defaults — see [Configuration](#configuration) below.
-
-Build the frontend module before use:
-
-`pnpm --filter @automattic/jetpack-cookie-consent build`
-
-## Lifecycle
-
-Cookie Consent is a package, not a plugin, so consumers must wire lifecycle hooks
-from their own plugin entry point:
+Wire the lifecycle hooks from your own plugin entry point — this is a package, not a plugin:
 
 ```php
-add_action( 'plugins_loaded', array( \Automattic\Jetpack\CookieConsent\Cookie_Consent::class, 'init' ) );
-register_deactivation_hook( __FILE__, array( \Automattic\Jetpack\CookieConsent\Cookie_Consent::class, 'deactivate' ) );
+use Automattic\Jetpack\CookieConsent\Cookie_Consent;
+
+add_action( 'plugins_loaded', array( Cookie_Consent::class, 'init' ) );
+register_deactivation_hook( __FILE__, array( Cookie_Consent::class, 'deactivate' ) );
 
 register_uninstall_hook( __FILE__, 'my_plugin_uninstall' );
 function my_plugin_uninstall() {
-	\Automattic\Jetpack\CookieConsent\Cookie_Consent::uninstall();
+	Cookie_Consent::uninstall();
 }
 ```
 
-`deactivate()` unschedules the daily consent-log cleanup cron while keeping the
-CCPA page, options, and consent logs intact.
+Called with no arguments, `init()` boots with package defaults. Pass a partial config to customize it — an `enabled` master switch and per-feature toggles are available; see [Configuration](#configuration).
 
-`uninstall()` unschedules cron, deletes the package-created CCPA page, and
-clears the `jetpack_cookie_consent_ccpa_page_id` and
-`jetpack_cookie_consent_ccpa_page_created` options. If the stored CCPA page ID
-points to a manually configured page or a page adopted by slug, the page is left
-intact and only the package options are cleared. Consent logs are retained by
-default because they may be compliance records. To drop the consent-log table and
-clear `jetpack_cookie_consent_consent_log_db_version`, call:
+Build the frontend module before use:
 
-```php
-\Automattic\Jetpack\CookieConsent\Cookie_Consent::uninstall( true );
+```bash
+pnpm --filter @automattic/jetpack-cookie-consent build
 ```
 
-## Configuration
+## Public API surface
 
-`Cookie_Consent::init( array $config = array() )` takes the whole configuration
-as a single argument. `$config` is partial — every key is optional and falls
-back to a package default — and is resolved once, on the first `init()` call,
-via `Config_Schema` (see `src/schema/class-config-schema.php` for the full
-shape). The consuming plugin should pass everything it needs up front here.
+These are the supported, stable entry points consumers may depend on. Everything not listed here — including the many `public` PHP methods that exist only because WordPress hooks require them — is **internal** (see [Internal](#internal--not-public-api)). Stability is governed by the [versioning policy](#versioning-and-backward-compatibility).
 
-Other code on the site that does not own the `init()` call can still layer
-overrides through the `jetpack_cookie_consent_config` filter (see
-[Overriding config from another plugin](#overriding-config-from-another-plugin)).
+| Surface                                                     | Kind                  | Where                           |
+| ----------------------------------------------------------- | --------------------- | ------------------------------- |
+| `Cookie_Consent::init( array $config = array() )`           | PHP static method     | Entry point                     |
+| `Cookie_Consent::deactivate()`                              | PHP static method     | Lifecycle                       |
+| `Cookie_Consent::uninstall( $delete_consent_logs = false )` | PHP static method     | Lifecycle                       |
+| `jetpack_cookie_consent_config`                             | WP filter             | Configuration                   |
+| `jetpack_cookie_consent_log_retention_days`                 | WP filter             | Configuration                   |
+| `POST jetpack/v4/cookie-consent/consent-log`                | REST route            | Consent logging                 |
+| `GET jetpack/v4/cookie-consent/consent-log`                 | REST route            | Consent logging (authenticated) |
+| `wp_consent_saved`                                          | JS `window` event     | Consent notifications           |
+| `--jp-cookie-consent--*`                                    | CSS custom properties | Theming                         |
 
-### Master switch
+### Entry point and lifecycle
 
-Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at
-all, including the consent-log REST controller:
+`Cookie_Consent::init( array $config = array() )` boots the package: it resolves the config once, bails early if the `enabled` master switch is `false`, and otherwise registers each feature (asset enqueue, banner render, CCPA page auto-creation, footer link Block Hooks, geo cache filter, and the consent-log REST controller) only when its toggle is on.
+
+`deactivate()` unschedules the daily consent-log cleanup cron while keeping the CCPA page, options, and consent logs intact.
+
+`uninstall()` unschedules cron, deletes the package-created CCPA page, and clears the `jetpack_cookie_consent_ccpa_page_id` and `jetpack_cookie_consent_ccpa_page_created` options. If the stored CCPA page ID points to a manually configured page or a page adopted by slug, the page is left intact and only the package options are cleared. Consent logs are retained by default because they may be compliance records. To drop the consent-log table and clear `jetpack_cookie_consent_consent_log_db_version`, pass `true`:
 
 ```php
-\Automattic\Jetpack\CookieConsent\Cookie_Consent::init(
+Cookie_Consent::uninstall( true );
+```
+
+### Configuration
+
+`Cookie_Consent::init( array $config = array() )` takes the whole configuration as a single argument. `$config` is partial — every key is optional and falls back to a package default — and is resolved once, on the first `init()` call, via `Config_Schema` (see `src/schema/class-config-schema.php` for the full shape). The consuming plugin should pass everything it needs up front here.
+
+#### Master switch
+
+Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at all, including the consent-log REST controller:
+
+```php
+Cookie_Consent::init(
 	array(
 		'enabled' => false,
 	)
 );
 ```
 
-### Feature toggles
+#### Feature toggles
 
-The `features` group turns individual pieces of functionality on or off. Every
-key defaults to `true` except `page_deletion_lock`, which defaults to `false`
-and is reserved for future use:
+The `features` group turns individual pieces of functionality on or off. Every key defaults to `true` except `page_deletion_lock`, which defaults to `false` and is reserved for future use:
 
 ```php
-\Automattic\Jetpack\CookieConsent\Cookie_Consent::init(
+Cookie_Consent::init(
 	array(
 		'features' => array(
 			'banner'             => true,  // Consent banner/modal and their frontend assets.
@@ -92,18 +92,14 @@ and is reserved for future use:
 );
 ```
 
-Turning `geo` off stops resolving a visitor's region and excluding the geo
-cookies from Jetpack Boost's cache key, but the frontend module still receives
-a `geo` config sub-object (with `geoEnabled: false`) rather than none at all,
-since the module dereferences it unconditionally.
+Turning `geo` off stops resolving a visitor's region and excluding the geo cookies from Jetpack Boost's cache key, but the frontend module still receives a `geo` config sub-object (with `geoEnabled: false`) rather than none at all, since the module dereferences it unconditionally.
 
-### Nested config groups
+#### Nested config groups
 
-The rest of `$config` shapes behavior rather than gating it. Geo controls are
-grouped under `geo`:
+The rest of `$config` shapes behavior rather than gating it. Geo controls are grouped under `geo`:
 
 ```php
-\Automattic\Jetpack\CookieConsent\Cookie_Consent::init(
+Cookie_Consent::init(
 	array(
 		'geo' => array(
 			'provider'            => 'custom',
@@ -124,16 +120,10 @@ The default geo provider is `wpcom`, which resolves shoppers through `https://pu
 
 The Tracks event prefix defaults to `jetpack`; set it to `woocommerceanalytics` to keep continuity with the WooCommerce/Unified Analytics Tracks stream.
 
-Link URLs are configured through the `links` group. `links.cookie_policy_url`
-defaults to an empty string, which hides the Cookie Policy link in the
-preferences modal. The Privacy Policy link uses the site's own WordPress
-Privacy Policy URL from `get_privacy_policy_url()`, and is likewise hidden when
-no Privacy Policy page is configured, so the modal never renders an empty link.
-Set `links.cookie_policy_url` only when the consuming site has a separate cookie
-policy page:
+Link URLs are configured through the `links` group. `links.cookie_policy_url` defaults to an empty string, which hides the Cookie Policy link in the preferences modal. The Privacy Policy link uses the site's own WordPress Privacy Policy URL from `get_privacy_policy_url()`, and is likewise hidden when no Privacy Policy page is configured, so the modal never renders an empty link. Set `links.cookie_policy_url` only when the consuming site has a separate cookie policy page:
 
 ```php
-\Automattic\Jetpack\CookieConsent\Cookie_Consent::init(
+Cookie_Consent::init(
 	array(
 		'links' => array(
 			'cookie_policy_url' => 'https://example.com/cookie-policy/',
@@ -145,7 +135,7 @@ policy page:
 User-facing banner, preferences modal, footer link, CCPA page, and CCPA snackbar strings are configured through the `copy` group. Package defaults are translated with the `jetpack-cookie-consent` text domain. Consumers that override strings should translate those overrides before passing them to `init()`, using their own text domain. Only the overridden keys need to be present — anything omitted keeps the package default:
 
 ```php
-\Automattic\Jetpack\CookieConsent\Cookie_Consent::init(
+Cookie_Consent::init(
 	array(
 		'copy' => array(
 			'banner_title'        => __( 'Your privacy settings', 'my-plugin' ),
@@ -155,22 +145,12 @@ User-facing banner, preferences modal, footer link, CCPA page, and CCPA snackbar
 );
 ```
 
-Consent categories are configured through `consent.categories`. Each category is
-an array with `key`, `label`, `description`, `required`, `default_checked`, and
-`wp_consent_map`. Use lowercase alphanumeric or underscore category keys. The
-default registry is `functional` (required), `analytics`, and `marketing`; the
-frontend preserves the existing `required` and `advertising` aliases for
-`functional` and `marketing`. Because of those aliases, `required` and
-`advertising` are reserved keys: a category registered with either key is
-ignored during normalization to avoid colliding with a built-in category.
+Consent categories are configured through `consent.categories`. Each category is an array with `key`, `label`, `description`, `required`, `default_checked`, and `wp_consent_map`. Use lowercase alphanumeric or underscore category keys. The default registry is `functional` (required), `analytics`, and `marketing`; the frontend preserves the existing `required` and `advertising` aliases for `functional` and `marketing`. Because of those aliases, `required` and `advertising` are reserved keys: a category registered with either key is ignored during normalization to avoid colliding with a built-in category.
 
-Unlike the other groups, `consent.categories` **replaces** the default registry
-rather than merging into it — there is no existing config to merge with when a
-consumer calls `init()`. Include the built-in categories explicitly if they
-should still appear alongside a custom one:
+Unlike the other groups, `consent.categories` **replaces** the default registry rather than merging into it — there is no existing config to merge with when a consumer calls `init()`. Include the built-in categories explicitly if they should still appear alongside a custom one:
 
 ```php
-\Automattic\Jetpack\CookieConsent\Cookie_Consent::init(
+Cookie_Consent::init(
 	array(
 		'consent' => array(
 			'categories' => array(
@@ -212,14 +192,9 @@ should still appear alongside a custom one:
 );
 ```
 
-### Overriding config from another plugin
+#### Overriding config from another plugin
 
-`init()` is the primary configuration path, meant for the plugin that owns the
-boot call. Code that does not own that call — another plugin or a theme — can
-layer overrides through the `jetpack_cookie_consent_config` filter. The filter
-receives the fully resolved config and its return value is resolved again, so
-unknown or malformed keys are sanitized back to package defaults rather than
-trusted verbatim:
+`init()` is the primary configuration path, meant for the plugin that owns the boot call. Code that does not own that call — another plugin or a theme — can layer overrides through the `jetpack_cookie_consent_config` filter. The filter receives the fully resolved config and its return value is resolved again, so unknown or malformed keys are sanitized back to package defaults rather than trusted verbatim:
 
 ```php
 add_filter(
@@ -231,31 +206,29 @@ add_filter(
 );
 ```
 
-The consent-log retention period can also be overridden through the dedicated
-`jetpack_cookie_consent_log_retention_days` filter, which takes precedence over
-the injected `log.retention_days` when the daily cleanup cron runs.
+The consent-log retention period can also be overridden through the dedicated `jetpack_cookie_consent_log_retention_days` filter, which takes precedence over the injected `log.retention_days` when the daily cleanup cron runs.
 
-## Public APIs
+### REST routes
 
-### Gating scripts on consent
+The consent-log controller registers two routes under `jetpack/v4/cookie-consent/consent-log`:
 
-Consumers that need to gate their own scripts on visitor consent should use the
-WP Consent API directly, not a Cookie Consent lifecycle event:
+- `POST` — public and unauthenticated; anonymous visitors submit a consent record. Rate-limited (the create route enforces its own window; see `jetpack_cookie_consent_log_create_rate_limit`).
+- `GET` — authenticated; reads consent-log entries for sites that surface them.
 
-- JavaScript: call `window.wp_has_consent( category )` for the initial state and
-  listen for the `wp_listen_for_consent_change` DOM event for changes.
-- PHP: call `wp_has_consent( category )` before rendering or enqueueing gated
-  server-side output.
+### JS events
 
-The canonical integration pattern is `woocommerce-analytics`: it gates tracking
-with the WP Consent API state and change event because those APIs model consent
-categories across providers.
+#### Gating scripts on consent
 
-### `wp_consent_saved`
+Consumers that need to gate their own scripts on visitor consent should use the WP Consent API directly, not a Cookie Consent event:
 
-Cookie Consent dispatches `wp_consent_saved` on `window` after it writes a
-visitor choice through the WP Consent API. This event is public API and follows
-the package's backward-compatibility policy for documented APIs.
+- JavaScript: call `window.wp_has_consent( category )` for the initial state and listen for the `wp_listen_for_consent_change` DOM event for changes.
+- PHP: call `wp_has_consent( category )` before rendering or enqueueing gated server-side output.
+
+The canonical integration pattern is `woocommerce-analytics`: it gates tracking with the WP Consent API state and change event because those APIs model consent categories across providers.
+
+#### `wp_consent_saved`
+
+Cookie Consent dispatches `wp_consent_saved` on `window` after it writes a visitor choice through the WP Consent API:
 
 ```js
 window.addEventListener( 'wp_consent_saved', event => {
@@ -272,16 +245,9 @@ type CookieConsentSavedDetail = {
 };
 ```
 
-`choices` is keyed by Cookie Consent category keys (`consent.categories`;
-currently `analytics` and `advertising`), not raw WP Consent API category names,
-and each present value indicates whether that category was allowed. Use
-`eventType` when you need to distinguish the user action behind the saved choice.
-Use the WP Consent API for category-state gating.
+`choices` is keyed by each category's **preference key** — for the default registry that is `required` (functional), `analytics`, and `advertising` (marketing) — and each present value indicates whether that category was allowed. Use `eventType` when you need to distinguish the user action behind the saved choice, and the WP Consent API for category-state gating.
 
-`wp_consent_type_defined` remains an internal implementation event and is not
-part of the public API surface.
-
-## Theming and customization
+### Theming tokens
 
 The banner, modal, category toggles, and footer-links fallback control are styled from namespaced CSS custom properties (design tokens) with self-contained defaults, so they render consistently regardless of the active theme. The tokens are deliberately **not** derived from theme presets (`--wp--preset--*`): a theme that defines those presets for its own layout (a small spacing scale, an inverted palette, etc.) cannot break or recolor the consent UI.
 
@@ -303,6 +269,31 @@ Override the tokens to customize the look — via the Customizer/Site Editor **A
 
 The token-defining rule uses `:where()` (zero specificity), so any of these mechanisms overrides it without needing `!important`. The banner is rendered on `wp_footer` and is not a block, so it cannot be customized through the block editor or Global Styles — Additional CSS / the tokens are the supported customization path.
 
+## Internal — not public API
+
+The following are implementation details. They may change or be removed in any release without notice, and consumers must not depend on them:
+
+- The block-hook and Interactivity callbacks on `Cookie_Consent` (`register_footer_navigation_links`, `set_footer_navigation_link_attributes`, `add_ccpa_*`, `add_gdpr_manage_preferences_directives`, `mark_footer_links_injected`, `maybe_render_footer_links_fallback`, `maybe_suppress_privacy_policy_link`, etc.). These are `public` only because WordPress hooks require a public callable.
+- Config accessors and helpers such as `get_config()`, `get_copy()`, `get_consent_categories()`, and the other `get_*` methods.
+- The `wp_consent_type_defined` JS event.
+- The consent-log database table, its schema, and the `jetpack_cookie_consent_consent_log_db_version` / `jetpack_cookie_consent_ccpa_page_*` option keys.
+
+## Versioning and backward compatibility
+
+This package follows [Semantic Versioning](https://semver.org). **It is currently pre-1.0 (`0.x`) and unreleased**: the public surface is still being designed, and anything above — including the entry point and config shape — may change in any release until 1.0. Notable changes are recorded in `CHANGELOG.md`.
+
+The surface freezes at **1.0**. From then on, breaking changes to anything under [Public API surface](#public-api-surface) ship only in a major release; deprecations get at least one major of runway with `_deprecated_*()` notices before removal. Anything under [Internal](#internal--not-public-api) is exempt and may change at any time.
+
+The configuration passed to `init()` carries its own `schema_version` field, which tracks the config-contract shape independently of the package version and bumps whenever that contract changes.
+
+## Requirements
+
+The minimum-requirements contract for consumers:
+
+- PHP >= 7.2
+- The WordPress Interactivity API (WP 6.5+ / Gutenberg).
+- The WP Consent API plugin (provides `window.wp_set_consent`) for writing consent state.
+
 ## Theme support
 
 | Required legal links                                                                                  | Banner + modal | Consistent styling |
@@ -314,9 +305,3 @@ The token-defining rule uses `:where()` (zero specificity), so any of these mech
 Rendering assumes the theme calls `wp_footer()`, which is effectively universal. A theme that omits `wp_footer()` will simply not render the banner/controls — a graceful no-op, not an error.
 
 Manual test matrix: verify on a representative classic theme (Twenty Twenty-One) and a block theme (Twenty Twenty-Four), with and without a footer `core/navigation` block.
-
-## Requirements
-
-- PHP >= 7.2
-- The WordPress Interactivity API (WP 6.5+ / Gutenberg).
-- The WP Consent API plugin (provides `window.wp_set_consent`) for writing consent state.

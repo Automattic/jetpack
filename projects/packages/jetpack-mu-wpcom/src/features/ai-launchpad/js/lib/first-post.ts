@@ -6,9 +6,8 @@ interface CreatedPost {
 }
 
 /**
- * Escape HTML-significant characters in plain text. The AI-drafted paragraphs
- * are plain prose, so escaping keeps untrusted output from injecting markup
- * (stored XSS) or breaking the surrounding block delimiters.
+ * Escape HTML-significant characters in plain text to keep AI-drafted output
+ * from injecting markup (stored XSS) or breaking block delimiters.
  *
  * @param text - The plain text to escape.
  * @return The escaped text, safe to embed in HTML.
@@ -30,9 +29,8 @@ function toBlocks( paragraphs: string[] ): string {
 }
 
 /**
- * Create a WordPress draft post from the AI-drafted first post and return the
- * new post id with its block-editor URL. Content is emitted as Gutenberg
- * paragraph blocks so the editor opens with structured blocks, not raw HTML.
+ * Create a WordPress draft post from the AI-drafted first post, emitting content
+ * as Gutenberg paragraph blocks.
  *
  * @param draft - The AI-drafted first post.
  * @return The created post id and its editor URL.

@@ -7,7 +7,7 @@ import {
 	type RenderResult,
 } from '../utils/render-messages';
 import { normalizeShareStatus } from '../utils/share-status';
-import { setConnections } from './actions/connection-data';
+import { fetchConnections, setConnections } from './actions/connection-data';
 import {
 	finishRenderingMessages,
 	receiveRenderedMessages,
@@ -32,34 +32,37 @@ import {
  * @return {Function} Resolver
  */
 export function getConnections() {
-	return function ( { dispatch, registry } ) {
+	return async function ( { dispatch, registry } ) {
 		const editor = registry.select( editorStore );
-		if ( ! editor.getCurrentPostId() ) {
-			return;
-		}
-		// Get the initial connections from the post meta
-		const connections = editor.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
-		/**
-		 * If by any chance the REST meta validation fails,
-		 * the value can be in the following format:
-		 *
-		 * {
-		 * "errors": { "rest_invalid_type": [] },
-		 * "error_data": { "rest_invalid_type": { "param": "" } }
-		 * }
-		 *
-		 * It's because of https://github.com/Automattic/jetpack/blob/42a62f9821d4d5c89866e09813eafaad7648d243/projects/packages/publicize/src/class-connections-post-field.php#L224-L228
-		 *
-		 * So, we need to check if the value is actually an array or not.
-		 */
-		if ( ! Array.isArray( connections ) ) {
-			// eslint-disable-next-line no-console
-			console.error( 'Invalid connections data received from the post meta.', connections );
-			return;
+		// In the editor, seed the list from the post meta for a fast initial
+		// paint before the server fetch below merges in fresh test results.
+		if ( editor.getCurrentPostId() ) {
+			const connections = editor.getEditedPostAttribute( 'jetpack_publicize_connections' );
+
+			/**
+			 * If by any chance the REST meta validation fails,
+			 * the value can be in the following format:
+			 *
+			 * {
+			 * "errors": { "rest_invalid_type": [] },
+			 * "error_data": { "rest_invalid_type": { "param": "" } }
+			 * }
+			 *
+			 * It's because of https://github.com/Automattic/jetpack/blob/42a62f9821d4d5c89866e09813eafaad7648d243/projects/packages/publicize/src/class-connections-post-field.php#L224-L228
+			 *
+			 * So, we need to check if the value is actually an array or not.
+			 */
+			if ( Array.isArray( connections ) ) {
+				dispatch( setConnections( connections ) );
+			} else {
+				// eslint-disable-next-line no-console
+				console.error( 'Invalid connections data received from the post meta.', connections );
+			}
 		}
 
-		dispatch( setConnections( connections || [] ) );
+		// Fetch fresh connections (with test results) from the server.
+		await dispatch( fetchConnections( { test_connections: 1 } ) );
 	};
 }
 

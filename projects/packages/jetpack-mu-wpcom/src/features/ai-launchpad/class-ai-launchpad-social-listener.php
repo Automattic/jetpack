@@ -12,18 +12,12 @@ use Automattic\Jetpack\Publicize\Connections;
 use Automattic\Jetpack\Publicize\Publicize_Utils;
 
 /**
- * Completes the Jetpack Social tasks from wp-admin when the AI Launchpad selected
- * them: `connect_social_media` / `drive_traffic` (a Publicize connection exists)
- * and `post_sharing_enabled` (the Publicize module is active).
+ * Completes the AI-selected Jetpack Social tasks from wp-admin: `connect_social_media` /
+ * `drive_traffic` (a Publicize connection exists) and `post_sharing_enabled` (the Publicize module is active).
  *
- * These catalog tasks have no `add_listener_callback` and complete in Calypso
- * only, so a wp-admin launchpad never ticks them. Jetpack Social runs locally,
- * so the real state is readable — but there is no local "connection created"
- * action on Atomic (connections are created through a proxied wpcom request).
- * This reconciles when the AI Launchpad page loads: the gate keeps the Publicize
- * connection lookup off every other admin page, and the per-task completion
- * check short-circuits once a task is done, so the lookup only runs while a
- * selected social task is still incomplete.
+ * These catalog tasks have no `add_listener_callback` and there is no local "connection created" action on Atomic, so
+ * this reconciles the local state when the AI Launchpad page loads. The page gate keeps the lookup off every other
+ * admin page, and it only runs while a selected social task is still incomplete.
  */
 class AI_Launchpad_Social_Listener {
 
@@ -42,9 +36,7 @@ class AI_Launchpad_Social_Listener {
 	 * @return void
 	 */
 	public static function maybe_complete_social_tasks() {
-		// Only reconcile on the AI Launchpad page itself — that is where completion
-		// must show, and it keeps the Publicize connection lookup off every other
-		// admin page.
+		// Only reconcile on the AI Launchpad page, keeping the Publicize connection lookup off every other admin page.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['page'] ) || AI_Launchpad::MENU_SLUG !== sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
 			return;
@@ -67,9 +59,8 @@ class AI_Launchpad_Social_Listener {
 			wpcom_mark_launchpad_task_complete( 'post_sharing_enabled' );
 		}
 
-		// connect_social_media / drive_traffic complete once a Publicize connection
-		// exists. connect_social_media id-maps to drive_traffic, so completing
-		// either writes the same status; we mark whichever the AI selected.
+		// connect_social_media / drive_traffic complete once a Publicize connection exists. connect_social_media
+		// id-maps to drive_traffic, so we mark whichever the AI selected.
 		$connection_tasks = array_filter(
 			array( 'connect_social_media', 'drive_traffic' ),
 			static function ( $task_id ) use ( $ai_task_ids, $task_lists ) {

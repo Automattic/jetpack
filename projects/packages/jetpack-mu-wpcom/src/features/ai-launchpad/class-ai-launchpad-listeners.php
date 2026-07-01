@@ -6,11 +6,10 @@
  */
 
 /**
- * Registers the existing Launchpad completion listeners for the tasks the AI
- * Launchpad selected, mirroring Launchpad_Task_Lists::add_hooks_for_active_tasks()
- * without the fullscreen-launchpad gate. Task selection is read from the
- * `wpcom_ai_launchpad_ai_output` option; completion writes go through each
- * task's own `add_listener_callback` into `launchpad_checklist_tasks_statuses`.
+ * Registers the existing Launchpad completion listeners for the AI-selected tasks, without the fullscreen gate.
+ *
+ * Task selection is read from `wpcom_ai_launchpad_ai_output`; completion writes go through each task's own
+ * `add_listener_callback` into `launchpad_checklist_tasks_statuses`.
  */
 class AI_Launchpad_Listeners {
 
@@ -25,9 +24,7 @@ class AI_Launchpad_Listeners {
 	}
 
 	/**
-	 * Treats AI-selected tasks as active so their shared completion callbacks
-	 * write status even when the task is absent from the site's `site_intent`
-	 * task list.
+	 * Treats AI-selected tasks as active so their completion callbacks write status even when absent from `site_intent`.
 	 *
 	 * @param bool   $is_active Whether the task is active per the site_intent task list.
 	 * @param string $task_id   The task being completed.
