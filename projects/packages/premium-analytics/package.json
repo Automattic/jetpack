@@ -89,6 +89,7 @@
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.2",
 		"@types/jest": "30.0.0",
+		"@types/react": "18.3.28",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/base-styles": "10.1.0",
 		"@wordpress/build": "0.16.1",

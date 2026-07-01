@@ -428,6 +428,11 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies.stylelint = '^17';
 	}
 
+	// Having copies with and without the peer dep tends to break tests. So let's just make it non-optional.
+	if ( pkg.name === '@wordpress/data' ) {
+		delete pkg.peerDependenciesMeta?.[ '@types/react' ];
+	}
+
 	return pkg;
 }
 

@@ -93,6 +93,7 @@
 		"@testing-library/preact": "3.2.4",
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "^14.6.1",
+		"@types/react": "18.3.28",
 		"@wordpress/browserslist-config": "6.49.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.49.0",
 		"autoprefixer": "10.4.20",
