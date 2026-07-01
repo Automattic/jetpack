@@ -100,7 +100,7 @@ class Post_Settings {
 		 *
 		 * @module publicize
 		 *
-		 * @since {yahan aane wale Jetpack version ka pata nahi, par 'x.y.z' ya khali chhod do baad mein lint theek karega}
+		 * @since $$next-version$$
 		 *
 		 * @param bool $disable_text Whether to disable the text overlay. Default false.
 		 * @param int  $post_id      The Post ID.

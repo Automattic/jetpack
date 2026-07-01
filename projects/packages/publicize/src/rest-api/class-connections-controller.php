@@ -225,7 +225,7 @@ class Connections_Controller extends Base_Controller {
 				'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
 			),
 			'status'          => array(
-				'type'        => 'string',
+				'type'        => array( 'string', 'null' ),
 				'description' => __( 'The connection status.', 'jetpack-publicize-pkg' ),
 				'enum'        => array(
 					'ok',
