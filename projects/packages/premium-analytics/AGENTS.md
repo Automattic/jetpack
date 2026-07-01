@@ -442,7 +442,10 @@ widget content so padding and sizing stay consistent. If the current widget stat
 body chrome such as a breadcrumb, dropdown, or view selector, keep that chrome available and
 replace only the content area with the state message. Full-bleed widgets do not get a visible
 host card title in the product dashboard, so if the widget needs a title-like body header it must
-render that header itself and keep it visible across these states. Composite widgets may use a
+render that header itself and keep it visible across these states. Define full-bleed Stats widget
+body headers before early returns, and render them for loading, empty, error, and populated states;
+do not return a bare loading overlay or placeholder that drops the widget title, breadcrumb, or
+header controls. Composite widgets may use a
 custom placeholder instead of `LeaderboardChart`'s `emptyStateText`, but the state should still be
 centered inside the content area.
 
