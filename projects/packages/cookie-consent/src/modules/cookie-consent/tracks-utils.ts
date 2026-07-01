@@ -107,29 +107,18 @@ export function recordEvent( eventNameSuffix: string, properties: TrackingProper
 }
 
 /**
- * Record an allowlisted consent-record Tracks event and load w.js to flush it.
+ * Record a Tracks event and load w.js to flush it.
  *
- * These events document the consent decision itself, so they are not gated on the
- * analytics category.
- *
- * @param eventNameSuffix The event name (must follow Tracks naming conventions).
- * @param properties      Event properties object.
- */
-export function recordConsentEvent(
-	eventNameSuffix: string,
-	properties: TrackingProperties
-): void {
-	recordEvent( eventNameSuffix, properties );
-	loadTracksScript();
-}
-
-/**
- * Record an analytics-gated Tracks event.
+ * Loading w.js is a cookie-setting side effect, so the caller is responsible for
+ * ensuring it is permitted at the call site: either the event documents the
+ * consent decision itself (an allowlisted consent-record event) or the caller has
+ * already verified analytics consent. This helper performs no consent gating of
+ * its own (beyond the `features.tracks` flag honored by recordEvent/loadTracksScript).
  *
  * @param eventNameSuffix The event name (must follow Tracks naming conventions).
  * @param properties      Event properties object.
  */
-export function recordAnalyticsEvent(
+export function recordEventAndLoadTracks(
 	eventNameSuffix: string,
 	properties: TrackingProperties
 ): void {

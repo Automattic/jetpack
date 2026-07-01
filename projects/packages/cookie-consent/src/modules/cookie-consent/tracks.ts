@@ -6,8 +6,7 @@
 
 import { getCategoryPreferenceKey } from './category-preferences';
 import {
-	recordAnalyticsEvent,
-	recordConsentEvent,
+	recordEventAndLoadTracks,
 	recordCookielessStat,
 	getCommonProperties,
 } from './tracks-utils';
@@ -51,7 +50,12 @@ export function trackPrivacyBannerView(): void {
  * @param preferences Object with consent preferences, keyed by category preference key (e.g. required, analytics, advertising, plus any custom registered categories).
  */
 export function trackPrivacyBannerAccept( preferences: ConsentPreferences ): void {
-	recordConsentEvent( 'privacy_banner_button_accept', getPreferenceProperties( preferences ) );
+	// Allowlisted consent-record event: documents the accepted preferences, so it
+	// is not gated on the analytics category.
+	recordEventAndLoadTracks(
+		'privacy_banner_button_accept',
+		getPreferenceProperties( preferences )
+	);
 }
 
 /**
@@ -60,7 +64,9 @@ export function trackPrivacyBannerAccept( preferences: ConsentPreferences ): voi
  * Fired when the visitor clicks "Reject All" in customize modal.
  */
 export function trackPrivacyBannerReject(): void {
-	recordConsentEvent( 'privacy_banner_button_reject', getCommonProperties() );
+	// Rejecting analytics must not load the cookie-setting Tracks bundle, so record
+	// the rejection as an identity-free aggregate stat instead.
+	recordCookielessStat( 'privacy-banner-button-reject' );
 }
 
 /**
@@ -90,7 +96,8 @@ export function trackPrivacyManageOpen(
 	}
 
 	if ( hasAnalyticsConsent ) {
-		recordAnalyticsEvent( 'privacy_manage_open', getCommonProperties() );
+		// The caller has verified analytics consent above, so loading w.js is allowed.
+		recordEventAndLoadTracks( 'privacy_manage_open', getCommonProperties() );
 	}
 }
 
@@ -100,5 +107,7 @@ export function trackPrivacyManageOpen(
  * Fired when the visitor submits the CCPA "Do Not Sell/Share" opt-out.
  */
 export function trackPrivacyPolicyOptOut(): void {
-	recordConsentEvent( 'privacy_policy_page_button_opt_out', getCommonProperties() );
+	// Opting out must not load the cookie-setting Tracks bundle, so record the
+	// opt-out as an identity-free aggregate stat instead.
+	recordCookielessStat( 'privacy-policy-page-button-opt-out' );
 }

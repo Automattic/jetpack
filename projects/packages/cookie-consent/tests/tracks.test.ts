@@ -4,6 +4,7 @@ import {
 	trackPrivacyBannerReject,
 	trackPrivacyBannerView,
 	trackPrivacyManageOpen,
+	trackPrivacyPolicyOptOut,
 } from '../src/modules/cookie-consent/tracks';
 
 const TRACKS_SCRIPT_ID = 'jetpack-cookie-consent-tracks-js';
@@ -156,17 +157,26 @@ describe( 'trackPrivacyBannerAccept', () => {
 		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
 	} );
 
-	it( 'loads Tracks for reject as an allowlisted consent-record event', () => {
+	it( 'records reject through a cookieless aggregate stat', () => {
 		trackPrivacyBannerReject();
 
-		expect( window._tkq?.[ 0 ] ).toEqual( [
-			'recordEvent',
-			'jetpack_privacy_banner_button_reject',
-			expect.objectContaining( {
-				domain: window.location.hostname,
-			} ),
-		] );
-		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
+		expect( window._tkq ).toBeUndefined();
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
+		const url = new URL( imageSources[ 0 ] );
+		expect( url.searchParams.get( 'x_jetpack-cookie-consent-privacy-banner-button-reject' ) ).toBe(
+			`total,${ window.location.hostname }`
+		);
+	} );
+
+	it( 'records opt-out through a cookieless aggregate stat', () => {
+		trackPrivacyPolicyOptOut();
+
+		expect( window._tkq ).toBeUndefined();
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
+		const url = new URL( imageSources[ 0 ] );
+		expect(
+			url.searchParams.get( 'x_jetpack-cookie-consent-privacy-policy-page-button-opt-out' )
+		).toBe( `total,${ window.location.hostname }` );
 	} );
 
 	it( 'honors the tracks feature flag for cookie-based Tracks events', () => {
@@ -177,7 +187,9 @@ describe( 'trackPrivacyBannerAccept', () => {
 			},
 		};
 
-		trackPrivacyBannerReject();
+		// A post-consent manage open is a cookie-based Tracks event, so the flag
+		// must suppress both the queued event and the w.js load.
+		trackPrivacyManageOpen( true, true );
 
 		expect( window._tkq ).toBeUndefined();
 		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();

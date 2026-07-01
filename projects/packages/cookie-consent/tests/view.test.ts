@@ -102,9 +102,6 @@ async function runAction( generator: Generator< unknown, unknown, unknown > ): P
 }
 
 /**
- *
- */
-/**
  * Define the optional WP Consent API setter for tests that need the banner init path.
  */
 function mockWpSetConsent(): void {
@@ -242,6 +239,30 @@ describe( 'Tracks consent gating', () => {
 				'x_jetpack-cookie-consent-privacy-banner-view'
 			)
 		).toBe( `total,${ window.location.hostname }` );
+	} );
+
+	it( 'loads Tracks on init for a returning visitor who granted analytics', async () => {
+		cookieJar =
+			'wp_consent_functional=allow; wp_consent_statistics=allow; wp_consent_statistics-anonymous=allow';
+		mockWpSetConsent();
+		mockGetContext.mockReturnValue( { showBanner: false } );
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await storeCallbacks.init();
+
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
+	} );
+
+	it( 'does not load Tracks on init for a returning visitor who denied analytics', async () => {
+		cookieJar = 'wp_consent_functional=allow; wp_consent_statistics=deny';
+		mockWpSetConsent();
+		mockGetContext.mockReturnValue( { showBanner: false } );
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await storeCallbacks.init();
+
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
+		expect( window._tkq ).toBeUndefined();
 	} );
 
 	it( 'loads Tracks when a consent lifecycle event grants analytics', async () => {
