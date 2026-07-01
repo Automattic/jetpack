@@ -207,6 +207,21 @@ class Consent_Log_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that an IP mode injected via init()'s log config takes priority over
+	 * Cookie_Consent's global config, without a consumer needing to touch that config.
+	 */
+	public function test_ip_mode_read_from_injected_log_config() {
+		$instance = Consent_Log_Controller::init( array( 'ip_mode' => 'hash' ) );
+
+		$ref = new ReflectionMethod( Consent_Log_Controller::class, 'get_ip_mode' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+
+		$this->assertSame( 'hash', $ref->invoke( $instance ) );
+	}
+
+	/**
 	 * Test that the read schema allows dropped IP addresses.
 	 */
 	public function test_consent_logs_schema_allows_null_ip_address() {

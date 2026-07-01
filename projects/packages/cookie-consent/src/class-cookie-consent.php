@@ -153,7 +153,7 @@ class Cookie_Consent {
 
 		if ( $features['consent_log'] ) {
 			// Consent log REST controller: table, cron cleanup, routes.
-			Consent_Log_Controller::init();
+			Consent_Log_Controller::init( self::$config['log'] );
 		}
 	}
 

@@ -30,6 +30,14 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	private static $instance = null;
 
 	/**
+	 * Resolved `log` config injected via init(), or empty when constructed
+	 * directly (as the existing unit tests do) without going through init().
+	 *
+	 * @var array
+	 */
+	private $log_config = array();
+
+	/**
 	 * Endpoint namespace.
 	 *
 	 * @var string
@@ -124,14 +132,17 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 * Initialize the controller: create the table, schedule cleanup,
 	 * register REST routes, and wire the cleanup cron callback.
 	 *
+	 * @param array $log_config Resolved `log` config (retention_days, policy_version,
+	 *                          banner_version, ip_mode) from Config_Schema::resolve().
 	 * @return Consent_Log_Controller
 	 */
-	public static function init() {
+	public static function init( array $log_config = array() ) {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 
-		$instance = self::$instance;
+		$instance             = self::$instance;
+		$instance->log_config = $log_config;
 
 		$instance->maybe_create_table();
 		$instance->schedule_cleanup();
@@ -680,12 +691,15 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	/**
 	 * Get the configured IP address handling mode.
 	 *
+	 * Prefers the log config injected via init(); falls back to Cookie_Consent's
+	 * global config for controller instances constructed directly (as the unit
+	 * tests do) without going through init().
+	 *
 	 * @return string
 	 */
 	private function get_ip_mode() {
-		$config     = Cookie_Consent::get_config();
-		$log_config = isset( $config['log'] ) && is_array( $config['log'] ) ? $config['log'] : array();
-		$ip_mode    = isset( $log_config['ip_mode'] ) ? sanitize_key( $log_config['ip_mode'] ) : self::DEFAULT_IP_MODE;
+		$ip_mode = $this->log_config['ip_mode'] ?? Cookie_Consent::get_config()['log']['ip_mode'];
+		$ip_mode = sanitize_key( $ip_mode );
 
 		if ( ! in_array( $ip_mode, self::IP_MODES, true ) ) {
 			return self::DEFAULT_IP_MODE;
@@ -979,12 +993,9 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	public function cleanup_expired_logs() {
 		global $wpdb;
 
-		/**
-		 * Filters the retention period for consent logs.
-		 *
-		 * @param int $retention_days The retention period in days.
-		 */
-		$retention_days = filter_var( apply_filters( 'jetpack_cookie_consent_log_retention_days', self::DEFAULT_RETENTION_DAYS ), FILTER_VALIDATE_INT );
+		// The retention period comes from the log config injected via init(); guard
+		// against a missing or malformed value the same way a filtered value used to be.
+		$retention_days = filter_var( $this->log_config['retention_days'] ?? self::DEFAULT_RETENTION_DAYS, FILTER_VALIDATE_INT );
 
 		if ( false === $retention_days || $retention_days <= 0 ) {
 			$retention_days = self::DEFAULT_RETENTION_DAYS;
