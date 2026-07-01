@@ -241,6 +241,7 @@ jest.mock( '../../../lib/video-tracks', () => ( {
 	],
 	deleteTrackForGuid: jest.fn(),
 	fetchTrackContentForGuid: jest.fn(),
+	flattenVideoTracks: jest.fn( () => [] ),
 	normalizeVideoTextTrackResponse: jest.fn( ( response, fallback ) => ( {
 		...fallback,
 		...( typeof response === 'object' && response !== null ? response : {} ),
@@ -1240,5 +1241,32 @@ describe( 'CaptionManagerModal', () => {
 				src: 'uploaded.vtt',
 			} ),
 		] );
+	} );
+
+	it( 'reuses the existing caption track for a language instead of creating a duplicate', async () => {
+		const user = userEvent.setup();
+		( fetchCaptionTracks as jest.Mock ).mockResolvedValueOnce( [
+			{
+				id: 55,
+				title: 'English captions',
+				content: '',
+				status: 'publish',
+				meta: {
+					_videopress_guid: 'abc123',
+					_videopress_caption_kind: 'captions',
+					_videopress_caption_src_lang: 'en',
+					_videopress_caption_label: 'English',
+				},
+			},
+		] );
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+		await waitFor( () => expect( fetchCaptionTracks ).toHaveBeenCalledWith( 'abc123' ) );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
+		await user.click( screen.getByRole( 'button', { name: 'Save Draft' } ) );
+
+		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
+		expect( saveCaptionTrack ).toHaveBeenCalledWith( expect.objectContaining( { id: 55 } ) );
 	} );
 } );
