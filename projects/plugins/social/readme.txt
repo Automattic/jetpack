@@ -4,7 +4,7 @@ Tags: social media automation, social media scheduling, auto share, social shari
 Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
-Stable tag: 9.0.1
+Stable tag: 9.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,18 +104,9 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 9.0.1 - 2026-06-23
-#### Changed
-- Reconnect accounts in place instead of disconnecting and recreating them, retaining connection settings.
-- Updated package dependencies.
-
+### 9.0.3 - 2026-06-26
 #### Fixed
-- Fix PHP warnings on the front end of posts shared with the no link sharing option.
-- Contain errors in the post-publish sharing status panel so they no longer crash the editor.
-- Detect when the browser blocks the connection popup and notify the user.
-- Social Previews: Remove the misleading URL from captions when it is not a part of it.
-- Fix Jetpack Social admin page rendering blank on WordPress 6.9.x.
-
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
 
 == Upgrade Notice ==
 

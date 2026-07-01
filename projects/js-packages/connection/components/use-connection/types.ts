@@ -1,3 +1,5 @@
+import type { SyntheticEvent } from 'react';
+
 export interface UseConnectionProps {
 	/**
 	 * The registration nonce.
@@ -61,7 +63,7 @@ export interface RegistrationError {
 }
 
 export interface UseConnectionReturn {
-	handleRegisterSite: ( e?: Event ) => Promise< unknown >;
+	handleRegisterSite: ( e?: Event | SyntheticEvent ) => Promise< unknown >;
 	handleConnectUser: () => Promise< unknown >;
 	refreshConnectedPlugins: () => Promise< unknown >;
 	isRegistered: boolean;

@@ -1,5 +1,5 @@
-import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useReducer, useRef } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -27,7 +27,7 @@ export function ServiceItem( {
 	serviceConnections,
 	isPanelDefaultOpen,
 }: ServicesItemProps ) {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, isPanelDefaultOpen );
 	const panelRef = useRef< HTMLDivElement >( null );

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "1.4.63",
+	"version": "1.4.66",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -35,15 +35,15 @@
 		"@automattic/jetpack-config": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-stores": "workspace:*",
-		"@wordpress/base-styles": "10.0.1",
-		"@wordpress/browserslist-config": "6.48.1",
-		"@wordpress/components": "35.0.1",
-		"@wordpress/data": "10.48.1",
-		"@wordpress/element": "8.0.1",
-		"@wordpress/i18n": "6.21.1",
+		"@wordpress/base-styles": "10.1.0",
+		"@wordpress/browserslist-config": "6.49.0",
+		"@wordpress/components": "36.0.1",
+		"@wordpress/data": "10.49.0",
+		"@wordpress/element": "8.1.0",
+		"@wordpress/i18n": "6.22.0",
 		"@wordpress/icons": "13.1.0",
 		"@wordpress/ui": "0.13.0",
-		"@wordpress/url": "4.48.1",
+		"@wordpress/url": "4.49.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",
 		"prop-types": "^15.7.2"
@@ -51,7 +51,6 @@
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@babel/preset-react": "7.29.7",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+AI Launchpad: show an in-progress state (drafts icon, "Continue" CTA) for site-editor tasks with an unpublished draft, reopening that draft instead of creating a new one.

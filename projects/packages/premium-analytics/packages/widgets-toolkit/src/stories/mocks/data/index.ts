@@ -15,6 +15,8 @@
 export {
 	mockOrderAttributionData,
 	mockOrderAttributionDeviceData,
+	mockOrderAttributionByProductDeviceData,
+	mockOrderAttributionByProductDeviceComparisonData,
 	mockOrderAttributionChannelData,
 	mockOrderAttributionSourceData,
 	mockOrderAttributionCampaignData,

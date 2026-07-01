@@ -281,14 +281,18 @@ describe( 'store actions', () => {
 		state.pageHandle = 'old-page';
 		state.aggregations = { category: { buckets: [ { key: 'news', doc_count: 3 } ] } };
 		state.hasError = false;
+		const resultsRef = state.results;
+		const aggregationsRef = state.aggregations;
 
 		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
 		await runGenerator( actions.search( { syncUrl: false } ) );
 
 		expect( state.hasError ).toBe( true );
+		expect( state.results ).toBe( resultsRef );
 		expect( state.results ).toEqual( [] );
 		expect( state.totalResults ).toBe( 0 );
 		expect( state.pageHandle ).toBeNull();
+		expect( state.aggregations ).toBe( aggregationsRef );
 		expect( state.aggregations ).toEqual( {} );
 		// `resultsCountText` reads from `totalResults` via `computeResultsCountText`,
 		// so an empty count string falls out for free — no extra wiring.
@@ -344,6 +348,154 @@ describe( 'store actions', () => {
 		// Slot key must not leak into state — downstream readers key off
 		// `filterKey`, never `effectiveSlug`.
 		expect( state.aggregations[ 'jetpack-search-tag1' ] ).toBeUndefined();
+	} );
+
+	it( 'keeps each-bound result and aggregation containers stable when search() resolves', async () => {
+		state.results = [];
+		state.aggregations = {};
+		state.retainedFilterOptions = {};
+		state.filterConfigs = {
+			category: {
+				filterKey: 'category',
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+				maxItems: 10,
+			},
+		};
+		const resultsRef = state.results;
+		const aggregationsRef = state.aggregations;
+		const retainedRef = state.retainedFilterOptions;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh result' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: {
+					category: {
+						buckets: [ { key: 'news/News', doc_count: 4 } ],
+					},
+				},
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.results ).toBe( resultsRef );
+		expect( state.results ).toHaveLength( 1 );
+		expect( state.results[ 0 ].title ).toBe( 'Fresh result' );
+		expect( state.aggregations ).toBe( aggregationsRef );
+		expect( state.aggregations.category.buckets[ 0 ].key ).toBe( 'news/News' );
+		expect( state.retainedFilterOptions ).toBe( retainedRef );
+		expect( state.retainedFilterOptions.category ).toEqual( [ { value: 'news', label: 'News' } ] );
+	} );
+
+	it( 'overwrites a kept aggregation key in place when a re-search returns the same key', async () => {
+		// The happy-path stability test starts from `{}`, so it only exercises
+		// replaceStateObject's add branch. Here `category` is present in BOTH
+		// the prior and the next aggregations — proving the keep-branch
+		// overwrites the bucket contents while holding the same object
+		// reference (the load-bearing property for `data-wp-each`).
+		state.results = [];
+		state.aggregations = { category: { buckets: [ { key: 'old/Old', doc_count: 1 } ] } };
+		state.retainedFilterOptions = {};
+		state.filterConfigs = {
+			category: {
+				filterKey: 'category',
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+				maxItems: 10,
+			},
+		};
+		const aggregationsRef = state.aggregations;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh result' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: { category: { buckets: [ { key: 'news/News', doc_count: 4 } ] } },
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.aggregations ).toBe( aggregationsRef );
+		expect( state.aggregations.category.buckets ).toEqual( [ { key: 'news/News', doc_count: 4 } ] );
+	} );
+
+	it( 'drops an aggregation key absent from the next response while keeping the container reference', async () => {
+		// replaceStateObject's delete-stale branch: a prior response had both
+		// `category` and `tag`; the next response only returns `category`. The
+		// stale `tag` key must be deleted from the SAME object (not a fresh
+		// one), or a `data-wp-each` bound to it would render a ghost facet.
+		state.results = [];
+		state.aggregations = {
+			category: { buckets: [ { key: 'news/News', doc_count: 4 } ] },
+			tag: { buckets: [ { key: 'react/React', doc_count: 2 } ] },
+		};
+		state.retainedFilterOptions = {};
+		state.filterConfigs = {
+			category: {
+				filterKey: 'category',
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+				maxItems: 10,
+			},
+			tag: {
+				filterKey: 'tag',
+				filterType: 'taxonomy',
+				taxonomy: 'tag',
+				effectiveSlug: 'tag',
+				maxItems: 10,
+			},
+		};
+		const aggregationsRef = state.aggregations;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh result' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: { category: { buckets: [ { key: 'updates/Updates', doc_count: 7 } ] } },
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.aggregations ).toBe( aggregationsRef );
+		expect( state.aggregations.category.buckets ).toEqual( [
+			{ key: 'updates/Updates', doc_count: 7 },
+		] );
+		expect( Object.hasOwn( state.aggregations, 'tag' ) ).toBe( false );
+	} );
+
+	it( 'appends loadMore() results in place, keeping the results array reference', async () => {
+		// loadMore does `state.results.push( ...appended )` rather than
+		// reassigning, so the each-bound array keeps its reference and the
+		// runtime keeps re-rendering. Without this the second page would
+		// silently never paint.
+		state.results = [ { id: 'page1-1', title: 'Page 1 result', index: 0 } ];
+		state.pageHandle = 'next-page';
+		const resultsRef = state.results;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Page 2 result' ) ],
+				page_handle: 'page-3',
+			} )
+		);
+
+		await runGenerator( actions.loadMore() );
+
+		expect( state.results ).toBe( resultsRef );
+		expect( state.results ).toHaveLength( 2 );
+		expect( state.results[ 0 ].title ).toBe( 'Page 1 result' );
+		expect( state.results[ 1 ].title ).toBe( 'Page 2 result' );
+		expect( state.pageHandle ).toBe( 'page-3' );
 	} );
 
 	it( 'leaves the existing results in place when loadMore() errors out', async () => {

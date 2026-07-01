@@ -244,6 +244,251 @@ class Backup_Abilities_Test extends BaseTestCase {
 		}
 	}
 
+	public function test_every_ability_declares_public_rest_mcp_and_output_contract(): void {
+		foreach ( Backup_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( 'output_schema', $spec, "Ability {$slug} missing output_schema." );
+			$this->assertNotEmpty( $spec['output_schema'], "Ability {$slug} must declare a non-empty output_schema." );
+			$this->assertArrayHasKey( 'meta', $spec, "Ability {$slug} missing meta." );
+			$this->assertArrayHasKey( 'mcp', $spec['meta'], "Ability {$slug} must publish meta.mcp." );
+			$this->assertSame(
+				array(
+					'public' => true,
+					'type'   => 'tool',
+				),
+				$spec['meta']['mcp'],
+				"{$slug} must be exposed as a public MCP tool."
+			);
+			$this->assertArrayHasKey( 'show_in_rest', $spec['meta'], "Ability {$slug} must explicitly declare show_in_rest." );
+			$this->assertTrue( $spec['meta']['show_in_rest'], "{$slug} must be exposed through the Abilities REST surface." );
+		}
+	}
+
+	public function test_request_backup_contract_is_public_non_idempotent_write_tool(): void {
+		$spec = Backup_Abilities::get_abilities()['jetpack-backup/request-backup'];
+
+		$this->assertSame(
+			array(
+				'type'                 => 'object',
+				'default'              => array(),
+				'properties'           => array(),
+				'additionalProperties' => false,
+			),
+			$spec['input_schema']
+		);
+		$this->assertSame(
+			array(
+				'type'       => 'object',
+				'properties' => array(
+					'enqueued' => array( 'type' => 'boolean' ),
+					'message'  => array( 'type' => 'string' ),
+				),
+			),
+			$spec['output_schema']
+		);
+		$this->assertSame( array( Backup_Abilities::class, 'execute_request_backup' ), $spec['execute_callback'] );
+		$this->assertSame( array( Backup_Abilities::class, 'can_manage_backups' ), $spec['permission_callback'] );
+		$this->assertSame(
+			array(
+				'annotations'  => array(
+					'readonly'    => false,
+					'destructive' => false,
+					'idempotent'  => false,
+				),
+				'mcp'          => array(
+					'public' => true,
+					'type'   => 'tool',
+				),
+				'show_in_rest' => true,
+			),
+			$spec['meta']
+		);
+	}
+
+	/**
+	 * @param string $slug                   Ability slug.
+	 * @param array  $expected_output_schema Expected output schema.
+	 * @dataProvider provider_read_ability_contracts
+	 */
+	#[DataProvider( 'provider_read_ability_contracts' )]
+	public function test_read_ability_contracts_have_stable_public_schemas( string $slug, array $expected_output_schema ): void {
+		$spec = Backup_Abilities::get_abilities()[ $slug ];
+
+		$this->assertSame( $expected_output_schema, $spec['output_schema'], "{$slug} output schema drifted." );
+		$this->assertSame( array( Backup_Abilities::class, 'can_view_backups' ), $spec['permission_callback'], "{$slug} permission callback drifted." );
+		$this->assertSame(
+			array(
+				'readonly'    => true,
+				'destructive' => false,
+				'idempotent'  => true,
+			),
+			$spec['meta']['annotations'],
+			"{$slug} read annotations drifted."
+		);
+		$this->assertSame(
+			array(
+				'public' => true,
+				'type'   => 'tool',
+			),
+			$spec['meta']['mcp'],
+			"{$slug} MCP metadata drifted."
+		);
+		$this->assertTrue( $spec['meta']['show_in_rest'], "{$slug} show_in_rest metadata drifted." );
+	}
+
+	public function test_read_ability_input_schemas_and_callbacks_do_not_drift(): void {
+		$abilities = Backup_Abilities::get_abilities();
+
+		$overview = $abilities['jetpack-backup/get-backup-overview'];
+		$this->assertSame( array( Backup_Abilities::class, 'execute_get_backup_overview' ), $overview['execute_callback'] );
+		$this->assertSame( 'object', $overview['input_schema']['type'] );
+		$this->assertSame( array(), $overview['input_schema']['default'] );
+		$this->assertSame( array(), $overview['input_schema']['properties'] );
+		$this->assertFalse( $overview['input_schema']['additionalProperties'] );
+
+		$list_backups = $abilities['jetpack-backup/list-backups'];
+		$this->assertSame( array( Backup_Abilities::class, 'execute_list_backups' ), $list_backups['execute_callback'] );
+		$this->assertSame( 'object', $list_backups['input_schema']['type'] );
+		$this->assertSame( array(), $list_backups['input_schema']['default'] );
+		$this->assertFalse( $list_backups['input_schema']['additionalProperties'] );
+		$this->assertSame(
+			array( 'id', 'date_from', 'date_to', 'date', 'match', 'status', 'page', 'per_page' ),
+			array_keys( $list_backups['input_schema']['properties'] )
+		);
+		$this->assertSame( 1, $list_backups['input_schema']['properties']['id']['minLength'] );
+		$this->assertSame( 'date-time', $list_backups['input_schema']['properties']['date_from']['format'] );
+		$this->assertSame( 'date-time', $list_backups['input_schema']['properties']['date_to']['format'] );
+		$this->assertSame( 'date-time', $list_backups['input_schema']['properties']['date']['format'] );
+		$this->assertSame( array( 'on_or_before', 'on_or_after', 'closest' ), $list_backups['input_schema']['properties']['match']['enum'] );
+		$this->assertSame( 'on_or_before', $list_backups['input_schema']['properties']['match']['default'] );
+		$this->assertSame( 1, $list_backups['input_schema']['properties']['page']['minimum'] );
+		$this->assertSame( Backup_Abilities::PER_PAGE_DEFAULT, $list_backups['input_schema']['properties']['per_page']['default'] );
+		$this->assertSame( Backup_Abilities::PER_PAGE_MAX, $list_backups['input_schema']['properties']['per_page']['maximum'] );
+
+		$list_restores = $abilities['jetpack-backup/list-restores'];
+		$this->assertSame( array( Backup_Abilities::class, 'execute_list_restores' ), $list_restores['execute_callback'] );
+		$this->assertSame( 'object', $list_restores['input_schema']['type'] );
+		$this->assertSame( array(), $list_restores['input_schema']['default'] );
+		$this->assertFalse( $list_restores['input_schema']['additionalProperties'] );
+		$this->assertSame( array( 'id', 'page', 'per_page' ), array_keys( $list_restores['input_schema']['properties'] ) );
+		$this->assertSame( 1, $list_restores['input_schema']['properties']['id']['minLength'] );
+		$this->assertSame( 1, $list_restores['input_schema']['properties']['page']['minimum'] );
+		$this->assertSame( Backup_Abilities::PER_PAGE_DEFAULT, $list_restores['input_schema']['properties']['per_page']['default'] );
+		$this->assertSame( Backup_Abilities::PER_PAGE_MAX, $list_restores['input_schema']['properties']['per_page']['maximum'] );
+	}
+
+	/**
+	 * @return array<string, array{string, array<string, mixed>}>
+	 */
+	public static function provider_read_ability_contracts(): array {
+		$backup_item_schema = array(
+			'type'       => 'object',
+			'properties' => array(
+				'id'            => array( 'type' => array( 'string', 'null' ) ),
+				'started'       => array( 'type' => array( 'string', 'null' ) ),
+				'last_updated'  => array( 'type' => array( 'string', 'null' ) ),
+				'status'        => array( 'type' => array( 'string', 'null' ) ),
+				'period'        => array( 'type' => array( 'string', 'integer', 'null' ) ),
+				'is_rewindable' => array( 'type' => array( 'boolean', 'null' ) ),
+				'has_warnings'  => array( 'type' => array( 'boolean', 'null' ) ),
+			),
+		);
+
+		$restore_item_schema = array(
+			'type'       => 'object',
+			'properties' => array(
+				'id'           => array( 'type' => array( 'string', 'null' ) ),
+				'started'      => array( 'type' => array( 'string', 'null' ) ),
+				'last_updated' => array( 'type' => array( 'string', 'null' ) ),
+				'status'       => array( 'type' => array( 'string', 'null' ) ),
+				'progress'     => array( 'type' => array( 'integer', 'null' ) ),
+			),
+		);
+
+		return array(
+			'backup overview' => array(
+				'jetpack-backup/get-backup-overview',
+				array(
+					'type'       => 'object',
+					'properties' => array(
+						'recent_backup_count' => array( 'type' => array( 'integer', 'null' ) ),
+						'last_backup'         => array(
+							'type'       => array( 'object', 'null' ),
+							'properties' => array(
+								'id'            => array( 'type' => array( 'string', 'null' ) ),
+								'last_updated'  => array( 'type' => array( 'string', 'null' ) ),
+								'status'        => array( 'type' => array( 'string', 'null' ) ),
+								'is_rewindable' => array( 'type' => array( 'boolean', 'null' ) ),
+								'has_warnings'  => array( 'type' => array( 'boolean', 'null' ) ),
+							),
+						),
+						'schedule'            => array(
+							'type'       => array( 'object', 'null' ),
+							'properties' => array(
+								'hour'   => array( 'type' => array( 'integer', 'null' ) ),
+								'minute' => array( 'type' => array( 'integer', 'null' ) ),
+							),
+						),
+						'storage'             => array(
+							'type'       => array( 'object', 'null' ),
+							'properties' => array(
+								'used_bytes'  => array( 'type' => array( 'integer', 'null' ) ),
+								'limit_bytes' => array( 'type' => array( 'integer', 'null' ) ),
+							),
+						),
+					),
+				),
+			),
+			'list backups'    => array(
+				'jetpack-backup/list-backups',
+				array(
+					'type'  => 'array',
+					'items' => $backup_item_schema,
+				),
+			),
+			'list restores'   => array(
+				'jetpack-backup/list-restores',
+				array(
+					'type'  => 'array',
+					'items' => $restore_item_schema,
+				),
+			),
+		);
+	}
+
+	public function test_registered_abilities_preserve_public_schema_and_meta_contracts(): void {
+		if ( ! function_exists( 'wp_register_ability' ) || ! function_exists( 'wp_get_abilities' ) ) {
+			$this->markTestSkipped( 'Abilities API not available in this test environment.' );
+		}
+
+		$this->mock_backup_plan_available();
+		$this->ensure_site_category();
+
+		$this->simulate_doing_categories_init();
+		Backup_Abilities::register_category();
+
+		$this->simulate_doing_abilities_init();
+		Backup_Abilities::register_abilities();
+
+		$registered = array();
+		foreach ( wp_get_abilities() as $ability ) {
+			if ( 0 === strpos( $ability->get_name(), 'jetpack-backup/' ) ) {
+				$registered[ $ability->get_name() ] = $ability;
+			}
+		}
+
+		foreach ( Backup_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( $slug, $registered, "Ability {$slug} should be registered." );
+			$this->assertSame( Backup_Abilities::get_category_slug(), $registered[ $slug ]->get_category(), "{$slug} category drifted at registration." );
+			$this->assertSame( $spec['input_schema'], $registered[ $slug ]->get_input_schema(), "{$slug} registered input_schema drifted." );
+			$this->assertSame( $spec['output_schema'], $registered[ $slug ]->get_output_schema(), "{$slug} registered output_schema drifted." );
+
+			$meta = $registered[ $slug ]->get_meta();
+			$this->assertSame( $spec['meta']['annotations'], $meta['annotations'], "{$slug} registered annotations drifted." );
+			$this->assertSame( $spec['meta']['mcp'], $meta['mcp'], "{$slug} registered MCP metadata drifted." );
+			$this->assertSame( $spec['meta']['show_in_rest'], $meta['show_in_rest'], "{$slug} registered show_in_rest metadata drifted." );
+		}
+	}
+
 	public function test_init_registers_nothing_when_gate_filter_is_false(): void {
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );

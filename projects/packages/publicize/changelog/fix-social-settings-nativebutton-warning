@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Base UI nativeButton console warning on the settings tab Create a note button.

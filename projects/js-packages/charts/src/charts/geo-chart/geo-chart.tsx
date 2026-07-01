@@ -2,10 +2,9 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { FC, useContext, useMemo } from 'react';
-import { Chart } from 'react-google-charts';
+import { Chart, type GoogleChartPackages } from 'react-google-charts';
 /**
  * Internal dependencies
  */
@@ -13,12 +12,17 @@ import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } fro
 import { lightenHexColor, normalizeColorToHex } from '../../utils/color-utils';
 import { resolveCssVariable } from '../../utils/resolve-css-var';
 import { sanitizeHtml } from '../../utils/sanitize-html';
+import { Center } from '../private/center';
 import { withResponsive } from '../private/with-responsive';
 import styles from './geo-chart.module.scss';
 import { GeoChartProps } from './types';
 
 const DEFAULT_FEATURE_FILL_COLOR = '#ffffff';
 const DEFAULT_BACKGROUND_COLOR = '#ffffff';
+// `chartPackages` replaces (not extends) react-google-charts' default `[ 'corechart', 'controls' ]`,
+// so we restate the defaults and add `geochart`. Without it the loader backfills the geochart package
+// late, which can clash with another Google Charts version already loaded on the page.
+const GEO_CHART_PACKAGES: GoogleChartPackages[] = [ 'corechart', 'controls', 'geochart' ];
 
 type GoogleChartOptions = Record< string, unknown >;
 
@@ -60,15 +64,13 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 
 	// Render loading placeholder
 	const loadingPlaceholder = (
-		<Stack
-			align="center"
-			justify="center"
+		<Center
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart-loading"
 			style={ { width, height } }
 		>
 			{ renderPlaceholder ? renderPlaceholder() : __( 'Loading map', 'jetpack-charts' ) }
-		</Stack>
+		</Center>
 	);
 
 	// Google charts doesn't accept CSS variables, so we need to convert them to hex colors
@@ -149,22 +151,21 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	);
 
 	return (
-		<Stack
-			align="center"
-			justify="center"
+		<Center
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart"
 			style={ { width, height, backgroundColor } }
 		>
 			<Chart
 				chartType="GeoChart"
+				chartPackages={ GEO_CHART_PACKAGES }
 				width={ width }
 				height={ height }
 				data={ sanitizedData.data }
 				options={ options }
 				loader={ loadingPlaceholder }
 			/>
-		</Stack>
+		</Center>
 	);
 };
 

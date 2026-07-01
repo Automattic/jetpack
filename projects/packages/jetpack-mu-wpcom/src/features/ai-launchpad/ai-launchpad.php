@@ -10,15 +10,17 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
-// helpers.php defines the shared option reader the listeners depend on, so it
-// loads first. The REST controller and completion listeners self-register on
-// their own hooks (rest_api_init / init) at load time, and must run on every
-// request regardless of which admin page is showing.
+// helpers.php defines the shared option reader the listeners depend on, so it loads first.
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/eligibility.php';
+require_once __DIR__ . '/class-ai-launchpad-memberships.php';
 require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
 require_once __DIR__ . '/class-ai-launchpad-theme-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-social-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-subscribers-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-about-page-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-first-post-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-dev-enable.php';
 
 /**
@@ -27,10 +29,7 @@ require_once __DIR__ . '/class-ai-launchpad-dev-enable.php';
 class AI_Launchpad {
 
 	/**
-	 * Admin page slug. The `-wp-admin` suffix is the wp-build convention for
-	 * pages that integrate with the standard wp-admin chrome: the generated
-	 * page PHP only enqueues its assets when `$_GET['page']` matches
-	 * `<page-id>-wp-admin`.
+	 * Admin page slug. The `-wp-admin` suffix is the wp-build convention for pages that integrate with wp-admin chrome.
 	 */
 	const MENU_SLUG = 'ai-launchpad-wp-admin';
 
@@ -67,12 +66,7 @@ class AI_Launchpad {
 	/**
 	 * Whether the current site is eligible for the AI Launchpad.
 	 *
-	 * MVP gate: paid plan, not already AI-onboarded, and explicitly enabled for
-	 * the site via the `wpcom_ai_launchpad_enabled` option (set per-site over
-	 * wp-cli). Replaces the earlier automattician/blog-sticker check, which did
-	 * not work on Atomic: `is_automattician()` is undefined there and blog
-	 * stickers require the wpcom sandbox. The option works identically on Simple
-	 * and Atomic and is context-independent (admin, REST, and CLI agree).
+	 * Gate: paid plan, not already AI-onboarded, and explicitly enabled for the site via the `wpcom_ai_launchpad_enabled` option.
 	 *
 	 * @return bool
 	 */
@@ -80,10 +74,7 @@ class AI_Launchpad {
 		static $eligible = null;
 
 		if ( null === $eligible ) {
-			// Cheapest gate first: the per-site option disqualifies the vast
-			// majority of sites with a single option read, before the more
-			// expensive purchases lookup in has_paid_plan() runs on every admin
-			// page. Memoized since the result is stable for the request.
+			// Cheapest gate first: the per-site option disqualifies most sites before the more expensive purchases lookup.
 			$eligible = self::is_enabled_for_site()
 				&& ! self::was_ai_onboarded()
 				&& self::has_paid_plan();
@@ -135,9 +126,7 @@ class AI_Launchpad {
 			return;
 		}
 
-		// The render callback only exists when build/build.php has been loaded,
-		// which happens on the AI Launchpad page itself. On other admin screens
-		// the menu just needs a registered slug.
+		// The render callback only exists once build/build.php is loaded, which happens on the AI Launchpad page itself.
 		$callback = function_exists( self::RENDER_CALLBACK )
 			? self::RENDER_CALLBACK
 			: '__return_empty_string';
@@ -201,15 +190,11 @@ class AI_Launchpad {
 	/**
 	 * Fix import map ordering for the wp-build boot script.
 	 *
-	 * In wp-admin, _wp_footer_scripts (classic scripts) and print_import_map
-	 * both hook into admin_print_footer_scripts at priority 10, but
-	 * _wp_footer_scripts is registered first. This causes the inline
-	 * import("@wordpress/boot") to execute before the import map exists.
+	 * In wp-admin both _wp_footer_scripts and print_import_map hook admin_print_footer_scripts at priority 10, but
+	 * _wp_footer_scripts runs first, so the inline import("@wordpress/boot") executes before the import map exists.
+	 * This moves the import() call to a <script type="module"> printed at priority 20, after the import map.
 	 *
-	 * This fix moves the import() call from the classic inline script to a
-	 * <script type="module"> printed at priority 20 (after the import map).
-	 *
-	 * @todo Remove once @wordpress/build ships with the loader.js fix upstream
+	 * @todo Remove once @wordpress/build ships the loader.js fix upstream
 	 *       (WordPress/gutenberg#76870) and Jetpack updates the dependency.
 	 */
 	private static function fix_boot_import_map_ordering() {
@@ -223,7 +208,6 @@ class AI_Launchpad {
 					return;
 				}
 
-				// Find and extract the import("@wordpress/boot") inline script.
 				$boot_script = null;
 				$remaining   = array();
 				foreach ( $data as $line ) {
@@ -238,7 +222,6 @@ class AI_Launchpad {
 					return;
 				}
 
-				// Remove from the classic script handle.
 				wp_scripts()->add_data( $handle, 'after', $remaining );
 
 				// Re-emit as a module script after the import map.

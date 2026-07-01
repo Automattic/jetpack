@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
-import { ReactNode, lazy, Suspense } from 'react';
+import { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -10,19 +10,6 @@ import { globalErrorManager } from './global-error-manager';
 
 const DEFAULT_STALE_TIME = 5 * 60 * 1000;
 const DEFAULT_GC_TIME = 10 * 60 * 1000;
-
-// Upstream gates devtools behind an admin-toolkit experiment flag; that system
-// isn't available here, so we show them in dev builds only. Gate the `lazy()`
-// creation on NODE_ENV (not just the render) so the dynamic import sits in a
-// dead branch that production builds tree-shake out — no orphaned chunk.
-const ReactQueryDevtools =
-	process.env.NODE_ENV !== 'production'
-		? lazy( () =>
-				import( '@tanstack/react-query-devtools' ).then( d => ( {
-					default: d.ReactQueryDevtools,
-				} ) )
-		  )
-		: null;
 
 /**
  * Extract HTTP status code from various error formats.
@@ -133,14 +120,5 @@ export const queryClient = new QueryClient( {
 } );
 
 export const AnalyticsQueryClientProvider = ( { children }: { children: ReactNode } ) => {
-	return (
-		<QueryClientProvider client={ queryClient }>
-			<>{ children }</>
-			{ ReactQueryDevtools && (
-				<Suspense fallback={ null }>
-					<ReactQueryDevtools initialIsOpen={ false } />
-				</Suspense>
-			) }
-		</QueryClientProvider>
-	);
+	return <QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>;
 };
