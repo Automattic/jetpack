@@ -66,8 +66,7 @@ function is_image_studio_enabled() {
  * @return bool
  */
 function is_current_user_connected() {
-	$host = new Host();
-	if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
+	if ( ( new Host() )->is_wpcom_platform() ) {
 		return true;
 	}
 
