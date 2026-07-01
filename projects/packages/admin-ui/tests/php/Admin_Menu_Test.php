@@ -290,6 +290,30 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * Settings remains the last normal submenu item in legacy ordering.
+	 *
+	 * @return void
+	 */
+	public function test_settings_is_last_normal_submenu_item_in_legacy_order() {
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_menu( 'Settings', 'Settings', 'manage_options', 'admin.php?page=jetpack#/settings', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Backup', 'Backup', 'manage_options', 'jetpack-backup', '__return_null', 50 );
+		Admin_Menu::add_menu( 'Activity Log', 'Activity Log', 'manage_options', 'jetpack-activity-log', '__return_null', 100 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame(
+			array(
+				'jetpack-backup',
+				'jetpack-activity-log',
+				'admin.php?page=jetpack#/settings',
+			),
+			$this->get_registered_submenu_slugs()
+		);
+	}
+
+	/**
 	 * Active customization uses the recommended grouped order and marks group starts.
 	 *
 	 * @return void
@@ -310,6 +334,52 @@ class Admin_Menu_Test extends TestCase {
 		$this->assertSubmenuTitleContains( 'jetpack-forms-admin', 'Create' );
 		$this->assertSubmenuItemHasClass( 'jetpack-scan', 'jetpack-admin-menu-group-start' );
 		$this->assertSubmenuTitleContains( 'jetpack-scan', 'Protect' );
+	}
+
+	/**
+	 * Settings remains the last normal submenu item when customization is active.
+	 *
+	 * @return void
+	 */
+	public function test_settings_is_last_normal_submenu_item_when_customization_active() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( 'jetpack_admin_menu_customization_enabled', '__return_true' );
+		Admin_Menu::update_site_menu_layout(
+			array(
+				'enabled' => true,
+				'items'   => array(
+					'settings'     => array(
+						'group' => 'manage',
+						'order' => 1,
+					),
+					'activity-log' => array(
+						'group' => 'utility',
+						'order' => 999,
+					),
+				),
+			)
+		);
+
+		Admin_Menu::add_menu( 'Settings', 'Settings', 'manage_options', 'admin.php?page=jetpack#/settings', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Activity Log', 'Activity Log', 'manage_options', 'jetpack-activity-log', '__return_null', 100 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame(
+			array(
+				'jetpack-activity-log',
+				'admin.php?page=jetpack#/settings',
+			),
+			$this->get_registered_submenu_slugs()
+		);
+
+		$all_slugs      = $this->get_registered_submenu_slugs_including_upgrade();
+		$settings_index = array_search( 'admin.php?page=jetpack#/settings', $all_slugs, true );
+		$upgrade_index  = $this->get_upgrade_submenu_index( $all_slugs );
+
+		$this->assertNotFalse( $settings_index, 'Expected Settings submenu item to be registered.' );
+		$this->assertNotNull( $upgrade_index, 'Expected the upgrade menu item to be registered.' );
+		$this->assertLessThan( $upgrade_index, $settings_index, 'Expected Settings to appear above the upgrade menu item.' );
 	}
 
 	/**
@@ -735,6 +805,41 @@ class Admin_Menu_Test extends TestCase {
 				}
 			)
 		);
+	}
+
+	/**
+	 * Gets currently registered Jetpack submenu slugs, including the upgrade item.
+	 *
+	 * @return array
+	 */
+	private function get_registered_submenu_slugs_including_upgrade() {
+		global $submenu;
+		$slugs = array_column( $submenu['jetpack'] ?? array(), 2 );
+
+		return array_values(
+			array_filter(
+				$slugs,
+				function ( $slug ) {
+					return 'jetpack' !== $slug;
+				}
+			)
+		);
+	}
+
+	/**
+	 * Gets the index of the upgrade item from a submenu slug list.
+	 *
+	 * @param array $slugs Registered submenu slugs.
+	 * @return int|null
+	 */
+	private function get_upgrade_submenu_index( $slugs ) {
+		foreach ( $slugs as $index => $slug ) {
+			if ( false !== strpos( $slug, Admin_Menu::UPGRADE_MENU_SLUG ) ) {
+				return $index;
+			}
+		}
+
+		return null;
 	}
 
 	/**

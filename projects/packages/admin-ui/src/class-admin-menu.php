@@ -481,6 +481,11 @@ class Admin_Menu {
 		usort(
 			$menu_items,
 			function ( $a, $b ) {
+				$result = self::compare_settings_menu_item_position( $a, $b );
+				if ( 0 !== $result ) {
+					return $result;
+				}
+
 				$position_a = empty( $a['position'] ) ? 0 : $a['position'];
 				$position_b = empty( $b['position'] ) ? 0 : $b['position'];
 				$result     = $position_a <=> $position_b;
@@ -492,6 +497,8 @@ class Admin_Menu {
 				return $result;
 			}
 		);
+
+		self::append_settings_menu_item( $menu_items );
 	}
 
 	/**
@@ -531,6 +538,11 @@ class Admin_Menu {
 		usort(
 			$resolved_items,
 			function ( $a, $b ) {
+				$result = self::compare_settings_menu_item_position( $a, $b );
+				if ( 0 !== $result ) {
+					return $result;
+				}
+
 				$result = $a['resolved_group_order'] <=> $b['resolved_group_order'];
 				if ( 0 === $result ) {
 					$result = $a['resolved_order'] <=> $b['resolved_order'];
@@ -668,7 +680,7 @@ class Admin_Menu {
 
 		$item_id              = ! empty( $metadata['id'] ) ? self::normalize_menu_item_id( $metadata['id'] ) : self::infer_menu_item_id( $menu_item );
 		$recommended_defaults = self::get_recommended_menu_item_defaults();
-		$defaults             = isset( $recommended_defaults[ $item_id ] ) ? $recommended_defaults[ $item_id ] : array();
+		$defaults             = $recommended_defaults[ $item_id ] ?? array();
 		$metadata             = array_merge( $defaults, $metadata );
 		$group                = ! empty( $metadata['group'] ) ? sanitize_key( $metadata['group'] ) : 'manage';
 		$groups               = self::get_recommended_groups();
@@ -757,6 +769,56 @@ class Admin_Menu {
 	 */
 	private static function is_external_menu_slug( $menu_slug ) {
 		return 1 === preg_match( '#^https?://#i', (string) $menu_slug );
+	}
+
+	/**
+	 * Compares whether Settings should be pinned after another menu item.
+	 *
+	 * @param array $a First menu item.
+	 * @param array $b Second menu item.
+	 * @return int
+	 */
+	private static function compare_settings_menu_item_position( $a, $b ) {
+		$a_is_settings = self::is_settings_menu_item( $a );
+		$b_is_settings = self::is_settings_menu_item( $b );
+
+		if ( $a_is_settings === $b_is_settings ) {
+			return 0;
+		}
+
+		return $a_is_settings ? 1 : -1;
+	}
+
+	/**
+	 * Determines whether a menu item is the Settings item.
+	 *
+	 * @param array $menu_item Menu item.
+	 * @return bool
+	 */
+	private static function is_settings_menu_item( $menu_item ) {
+		$item_id = '';
+
+		if ( isset( $menu_item['metadata']['id'] ) ) {
+			$item_id = $menu_item['metadata']['id'];
+		} elseif ( isset( $menu_item['id'] ) ) {
+			$item_id = $menu_item['id'];
+		}
+
+		return 'settings' === $item_id;
+	}
+
+	/**
+	 * Ensures Settings appends after other normal submenu items in legacy registration.
+	 *
+	 * @param array $menu_items Menu items.
+	 * @return void
+	 */
+	private static function append_settings_menu_item( &$menu_items ) {
+		foreach ( $menu_items as $index => $menu_item ) {
+			if ( self::is_settings_menu_item( $menu_item ) ) {
+				$menu_items[ $index ]['position'] = null;
+			}
+		}
 	}
 
 	/**
@@ -964,6 +1026,11 @@ class Admin_Menu {
 		usort(
 			$model_items,
 			function ( $a, $b ) use ( $site_layout ) {
+				$result = self::compare_settings_menu_item_position( $a, $b );
+				if ( 0 !== $result ) {
+					return $result;
+				}
+
 				$group_a = self::get_group_for_layout( $a['group'], $site_layout );
 				$group_b = self::get_group_for_layout( $b['group'], $site_layout );
 				$result  = $group_a['order'] <=> $group_b['order'];
