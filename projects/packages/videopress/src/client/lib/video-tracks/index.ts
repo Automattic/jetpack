@@ -6,13 +6,9 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import { fetchVideoItem } from '../fetch-video-item';
 import getMediaToken from '../get-media-token';
-import {
-	DeleteTrackDataProps,
-	UploadTrackDataProps,
-	UpdateTrackDataProps,
-	VideoTracksListResult,
-} from './types';
+import { DeleteTrackDataProps, UploadTrackDataProps } from './types';
 /**
  * Types
  */
@@ -48,41 +44,8 @@ export const SUPPORTED_CAPTION_FORMATS = Object.keys( CAPTION_FORMAT_MIME_TYPES 
 const isTrackKindOption = ( kind: string ): kind is trackKindOptionProps =>
 	TRACK_KIND_OPTIONS.includes( kind as trackKindOptionProps );
 
-const TRACKS_API_NAMESPACE = 'wpcom/v2';
-const PUBLIC_TRACKS_API_BASE = `https://public-api.wordpress.com/${ TRACKS_API_NAMESPACE }`;
-
-type TrackRequestOptions = {
-	method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-	pathSuffix?: string;
-	body?: BodyInit;
-	formData?: Array< [ string, string | Blob ] >;
-	headers?: Record< string, string >;
-	filename?: string;
-	parse?: 'json' | 'text';
-};
-
 type TrackFallback = Pick< VideoTextTrack, 'kind' | 'srcLang' | 'label' > &
 	Partial< VideoTextTrack >;
-type TrackContentResponse =
-	| string
-	| {
-			code?: string;
-			error?: string;
-			message?: string;
-			content?: string;
-	  };
-type TrackRequestError = {
-	code: string;
-	error?: string;
-	message: string;
-	status?: number;
-};
-
-const buildTracksPath = ( guid: string, pathSuffix = '' ) =>
-	`/videopress/videos/${ guid }/tracks${ pathSuffix }`;
-
-const getTrackPathSuffix = ( trackId: string | number, suffix = '' ) =>
-	`/${ encodeURIComponent( String( trackId ) ) }${ suffix }`;
 
 const maybeString = ( value: unknown ): string | undefined => {
 	if ( typeof value === 'string' ) {
@@ -114,46 +77,6 @@ const maybeBoolean = ( value: unknown ): boolean | undefined => {
 	return undefined;
 };
 
-const formatCaptionExtension = ( value: string ) => {
-	const extension = value.trim().toLowerCase().replace( /^\.+/, '' );
-	return extension ? `.${ extension }` : '';
-};
-
-const normalizeSupportedCaptionFormats = ( response: unknown ): string[] => {
-	if ( ! isObject( response ) ) {
-		return SUPPORTED_CAPTION_FORMATS;
-	}
-
-	const value = response.supported_formats || response.supportedFormats || response.formats;
-	let formats: string[] = [];
-
-	if ( Array.isArray( value ) ) {
-		formats = value.filter( ( format ): format is string => typeof format === 'string' );
-	} else if ( isObject( value ) ) {
-		formats = Object.keys( value );
-	}
-
-	const normalizedFormats = Array.from(
-		new Set( formats.map( formatCaptionExtension ).filter( Boolean ) )
-	);
-
-	return normalizedFormats.length ? normalizedFormats : SUPPORTED_CAPTION_FORMATS;
-};
-
-const getFileFormat = ( fileName: string ) => fileName.split( '.' ).pop()?.toLowerCase();
-
-const normalizeTrackContentResponse = ( response: TrackContentResponse ): string => {
-	if ( typeof response === 'string' ) {
-		return response;
-	}
-
-	if ( response.code || response.error ) {
-		throw response;
-	}
-
-	return response.content || '';
-};
-
 const withoutUndefinedValues = ( value: Record< string, unknown > ) => {
 	const output: Record< string, unknown > = {};
 	Object.keys( value ).forEach( key => {
@@ -167,11 +90,6 @@ const withoutUndefinedValues = ( value: Record< string, unknown > ) => {
 
 const getTrackId = ( track?: Partial< VideoTextTrack | VideoTrackResponseBodyProps > ) =>
 	track?.id ?? ( track as VideoTrackResponseBodyProps | undefined )?.track_id;
-
-export const hasTrackId = (
-	trackId: string | number | undefined | null
-): trackId is string | number =>
-	trackId !== undefined && trackId !== null && String( trackId ) !== '';
 
 const getTrackSrcLang = (
 	track: VideoTrackResponseBodyProps,
@@ -314,8 +232,7 @@ export const normalizeVideoTextTrackResponse = (
 
 /**
  * Convert the VideoPress API's nested track response into the flat track list
- * used by the block and caption manager UI. Supports the legacy nested
- * rest/v1.1 shape and the wpcom/v2 list/object shapes.
+ * used by the block and caption manager UI.
  *
  * @param tracks - VideoPress API track response.
  * @return Flat text track list.
@@ -374,127 +291,10 @@ export function flattenVideoTracks( tracks?: VideoTracksResponseBodyProps ): Vid
 
 const { siteType = '' } = window?.videoPressEditorState || {};
 const shouldUseJetpackVideoFetch = siteType !== 'simple';
+
+const PUBLIC_TRACKS_API_BASE = 'https://public-api.wordpress.com/rest/v1.1';
+
 const debug = debugFactory( 'videopress:tracks:lib:video-tracks' );
-
-const parseTrackResponse = async < T = unknown >(
-	response: Response,
-	parse: TrackRequestOptions[ 'parse' ] = 'json'
-): Promise< T > => {
-	const getHttpErrorResponse = ( parsedResponse: unknown ): TrackRequestError => {
-		if ( isObject( parsedResponse ) ) {
-			const code = maybeString( parsedResponse.code ) || maybeString( parsedResponse.error );
-			const message = maybeString( parsedResponse.message );
-
-			if ( code || message ) {
-				return withoutUndefinedValues( {
-					code: code || 'videopress_track_request_failed',
-					error: maybeString( parsedResponse.error ),
-					message: message || code || 'VideoPress track request failed.',
-					status: response.status,
-				} ) as TrackRequestError;
-			}
-		}
-
-		return withoutUndefinedValues( {
-			code: 'videopress_track_request_failed',
-			message:
-				response.statusText ||
-				`VideoPress track request failed${
-					response.status ? ` with status ${ response.status }` : ''
-				}.`,
-			status: response.status,
-		} ) as TrackRequestError;
-	};
-
-	if ( parse === 'text' ) {
-		const text = await response.text();
-		if ( response.ok === false ) {
-			throw getHttpErrorResponse( text );
-		}
-		return text as T;
-	}
-
-	const text = await response.text();
-	if ( ! text ) {
-		if ( response.ok === false ) {
-			throw getHttpErrorResponse( {} );
-		}
-		return {} as T;
-	}
-
-	let parsedResponse: T;
-	try {
-		parsedResponse = JSON.parse( text ) as T;
-	} catch ( error ) {
-		debug( 'Unable to parse track response as JSON: %o', error );
-		if ( response.ok === false ) {
-			throw getHttpErrorResponse( text );
-		}
-		return text as T;
-	}
-
-	if ( response.ok === false ) {
-		throw getHttpErrorResponse( parsedResponse );
-	}
-
-	return parsedResponse;
-};
-
-const getUploadAuthorizationHeader = async ( filename?: string ) => {
-	const { token, blogId } = await getMediaToken( 'upload', filename ? { filename } : {} );
-
-	if ( ! token || ! blogId ) {
-		return {};
-	}
-
-	return {
-		Authorization: `X_UPLOAD_TOKEN token="${ token }" blog_id="${ blogId }"`,
-	};
-};
-
-const requestVideoPressTrackResource = async < T = unknown >(
-	guid: string,
-	{
-		method,
-		pathSuffix = '',
-		body,
-		formData,
-		headers = {},
-		filename,
-		parse = 'json',
-	}: TrackRequestOptions
-): Promise< T > => {
-	const path = buildTracksPath( guid, pathSuffix );
-
-	if ( shouldUseJetpackVideoFetch ) {
-		const formDataBody = formData?.reduce( ( data, [ key, value ] ) => {
-			data.append( key, value );
-			return data;
-		}, new FormData() );
-		const response = await fetch( `${ PUBLIC_TRACKS_API_BASE }${ path }`, {
-			method,
-			headers: {
-				...( await getUploadAuthorizationHeader( filename ) ),
-				...headers,
-			},
-			body: formDataBody || body,
-		} );
-
-		return parseTrackResponse< T >( response, parse );
-	}
-
-	const response = await apiFetch< Response >( {
-		method,
-		path,
-		apiNamespace: TRACKS_API_NAMESPACE,
-		global: true,
-		parse: false,
-		...( formData ? { formData } : { body } ),
-		headers,
-	} );
-
-	return parseTrackResponse< T >( response, parse );
-};
 
 type isAutogeneratedChaterFileParamsProps = {
 	guid?: VideoGUID;
@@ -547,62 +347,68 @@ export async function isAutogeneratedChapterFile(
 }
 
 /**
- * Uploads a track to a video.
- * Uses different methods depending on Jetpack or WPCOM.
+ * Uploads a track (caption/subtitle) file to a video.
  *
- * @param {object} track - the track file
+ * Posts to the v1 tracks endpoint. The file may be in any supported caption
+ * format; the server converts it to WebVTT and replaces any existing track for
+ * the same kind and language. Uses different transports for Jetpack and WPCOM.
+ *
+ * @param {object} track - the track file and metadata
  * @param {string} guid  - the video guid
- * @return {Promise} the api request promise
+ * @return {Promise} the api request promise, resolving to the stored filename
  */
 export const uploadTrackForGuid = ( track: UploadTrackDataProps, guid: string ) => {
 	const { kind, srcLang, label, tmpFile } = track;
 
-	return requestVideoPressTrackResource( guid, {
+	if ( shouldUseJetpackVideoFetch ) {
+		return new Promise( function ( resolve, reject ) {
+			getMediaToken( 'upload', { filename: tmpFile.name } ).then( ( { token, blogId } ) => {
+				const body = new FormData();
+				body.append( 'kind', kind );
+				body.append( 'srclang', srcLang );
+				body.append( 'label', label );
+				body.append( 'vtt', tmpFile );
+
+				fetch( `${ PUBLIC_TRACKS_API_BASE }/videos/${ guid }/tracks`, {
+					method: 'POST',
+					headers: {
+						// Set auth header with upload token.
+						Authorization: `X_UPLOAD_TOKEN token="${ token }" blog_id="${ blogId }"`,
+					},
+					body,
+				} )
+					.then( response => resolve( response.json() ) )
+					.catch( reject );
+			} );
+		} );
+	}
+
+	return apiFetch( {
 		method: 'POST',
-		filename: tmpFile.name,
+		path: `/videos/${ guid }/tracks`,
+		apiNamespace: 'rest/v1.1',
+		global: true,
+		parse: false,
 		formData: [
 			[ 'kind', kind ],
 			[ 'srclang', srcLang ],
 			[ 'label', label ],
-			[ 'filedata', tmpFile ],
+			[ 'vtt', tmpFile ],
 		],
-	} );
+	} ).then( ( response: Response ) => response.json() );
 };
 
-export const fetchTrackListForGuid = async ( guid: string ): Promise< VideoTracksListResult > => {
-	const response = await requestVideoPressTrackResource< VideoTracksResponseBodyProps >( guid, {
-		method: 'GET',
-	} );
-
-	return {
-		tracks: flattenVideoTracks( response ),
-		supportedFormats: normalizeSupportedCaptionFormats( response ),
-	};
-};
-
-const fetchTracksForGuid = async ( guid: string ): Promise< VideoTextTrack[] > =>
-	( await fetchTrackListForGuid( guid ) ).tracks;
-
-const findTrackByKindLanguageForGuid = async (
-	guid: string,
-	track: Pick< VideoTextTrack, 'kind' | 'srcLang' >
-): Promise< VideoTextTrack | null > => {
-	const tracks = await fetchTracksForGuid( guid );
-	return (
-		tracks.find(
-			candidate => candidate.kind === track.kind && candidate.srcLang === track.srcLang
-		) ?? null
-	);
-};
-
-const getTrackIdForGuid = async (
-	track: DeleteTrackDataProps | UpdateTrackDataProps | VideoTextTrack,
-	guid: string
-) =>
-	getTrackId( track ) ??
-	getTrackId( ( await findTrackByKindLanguageForGuid( guid, track ) ) ?? {} );
-
-const deleteTrackWithLegacyEndpoint = ( track: DeleteTrackDataProps, guid: string ) => {
+/**
+ * Deletes a track from a video.
+ *
+ * Posts to the v1 tracks/delete endpoint, which identifies the track by kind and
+ * language. Uses different transports for Jetpack and WPCOM.
+ *
+ * @param {object} track - the track to delete
+ * @param {string} guid  - the video guid
+ * @return {Promise} the api request promise
+ */
+export const deleteTrackForGuid = ( track: DeleteTrackDataProps, guid: string ) => {
 	const { kind, srcLang } = track;
 
 	if ( shouldUseJetpackVideoFetch ) {
@@ -612,26 +418,15 @@ const deleteTrackWithLegacyEndpoint = ( track: DeleteTrackDataProps, guid: strin
 				body.append( 'kind', kind );
 				body.append( 'srclang', srcLang );
 
-				const requestOptions = {
+				fetch( `${ PUBLIC_TRACKS_API_BASE }/videos/${ guid }/tracks/delete`, {
+					method: 'POST',
 					headers: {
 						// Set auth header with upload token.
 						Authorization: `X_UPLOAD_TOKEN token="${ token }" blog_id="${ blogId }"`,
 					},
-					method: 'POST',
 					body,
-				};
-
-				fetch(
-					`https://public-api.wordpress.com/rest/v1.1/videos/${ guid }/tracks/delete`,
-					requestOptions
-				)
-					.then( data => {
-						try {
-							return resolve( data.json() );
-						} catch ( error ) {
-							return reject( error );
-						}
-					} )
+				} )
+					.then( response => resolve( response.json() ) )
 					.catch( reject );
 			} );
 		} );
@@ -647,104 +442,74 @@ const deleteTrackWithLegacyEndpoint = ( track: DeleteTrackDataProps, guid: strin
 			[ 'kind', kind ],
 			[ 'srclang', srcLang ],
 		],
-	} );
+	} ).then( ( response: Response ) => response.json() );
 };
+
+const isAbsoluteUrl = ( value: string ): boolean => /^https?:\/\//i.test( value );
 
 /**
- * -Deletes a track from a video.
- * -Uses different methods depending on Jetpack or WPCOM.
+ * Resolve a track's fetchable file URL. Tracks read from the video info carry
+ * only a filename; the full URL is that filename appended to the video's
+ * `file_url_base`, which the video info endpoint returns alongside the tracks.
  *
- * @param {object} track - the track file
- * @param {string} guid  - the video guid
- * @return {Promise} the api request promise
+ * @param track - The track whose file URL to resolve.
+ * @param guid  - The video GUID.
+ * @return The absolute file URL, or an empty string when it can't be resolved.
  */
-export const deleteTrackForGuid = async ( track: DeleteTrackDataProps, guid: string ) => {
-	const trackId = await getTrackIdForGuid( track, guid ).catch( error => {
-		debug( 'Unable to resolve track id before delete: %o', error );
-		return null;
-	} );
-
-	if ( hasTrackId( trackId ) ) {
-		return requestVideoPressTrackResource( guid, {
-			method: 'DELETE',
-			pathSuffix: getTrackPathSuffix( trackId ),
-		} );
-	}
-
-	return deleteTrackWithLegacyEndpoint( track, guid );
-};
-
-export const updateTrackForGuid = async ( track: UpdateTrackDataProps, guid: string ) => {
-	const trackId = await getTrackIdForGuid( track, guid );
-
-	if ( ! hasTrackId( trackId ) ) {
-		throw new Error( 'Track ID is required to update track metadata.' );
-	}
-
-	return requestVideoPressTrackResource( guid, {
-		method: 'PATCH',
-		pathSuffix: getTrackPathSuffix( trackId ),
-		body: JSON.stringify( {
-			kind: track.kind,
-			srclang: track.srcLang,
-			label: track.label,
-		} ),
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	} );
-};
-
-export const fetchTrackContentForGuid = async (
-	track: VideoTextTrack,
-	guid: string
-): Promise< string > => {
-	const trackId = await getTrackIdForGuid( track, guid ).catch( error => {
-		debug( 'Unable to resolve track id before fetching content: %o', error );
-		return null;
-	} );
-
-	if ( hasTrackId( trackId ) ) {
-		const response = await requestVideoPressTrackResource< TrackContentResponse >( guid, {
-			method: 'GET',
-			pathSuffix: getTrackPathSuffix( trackId, '/content' ),
-		} );
-		return normalizeTrackContentResponse( response );
-	}
-
+const resolveTrackFileUrl = async ( track: VideoTextTrack, guid: string ): Promise< string > => {
 	if ( ! track.src ) {
 		return '';
 	}
 
-	const response = await fetch( track.src );
+	if ( isAbsoluteUrl( track.src ) ) {
+		return track.src;
+	}
+
+	try {
+		const videoInfo = await fetchVideoItem( { guid, isPrivate: false } );
+		const base = videoInfo?.file_url_base?.https;
+		return base ? `${ base }${ track.src }` : '';
+	} catch ( error ) {
+		debug( 'Unable to resolve track file url: %o', error );
+		return '';
+	}
+};
+
+/**
+ * Fetches the WebVTT content for an existing track.
+ *
+ * The v1 tracks endpoint has no content route, so the track's source file is the
+ * source of truth. Private videos require a playback token, so a 403 is retried
+ * with one.
+ *
+ * @param {object} track - the track whose content to load
+ * @param {string} guid  - the video guid, used to resolve the file URL and mint a token
+ * @return {Promise<string>} the track's text content, or an empty string
+ */
+export const fetchTrackContentForGuid = async (
+	track: VideoTextTrack,
+	guid: string
+): Promise< string > => {
+	const url = await resolveTrackFileUrl( track, guid );
+	if ( ! url ) {
+		return '';
+	}
+
+	let response = await fetch( url );
+
+	// Private videos require a playback token; retry with one on 403.
+	if ( ! response.ok && response.status === 403 && guid ) {
+		const tokenData = await getMediaToken( 'playback', { guid } );
+		if ( tokenData?.token ) {
+			const separator = url.includes( '?' ) ? '&' : '?';
+			const queryString = new URLSearchParams( { metadata_token: tokenData.token } ).toString();
+			response = await fetch( `${ url }${ separator }${ queryString }` );
+		}
+	}
+
 	if ( ! response.ok ) {
 		return '';
 	}
 
 	return response.text();
-};
-
-export const updateTrackContentForGuid = async (
-	track: UpdateTrackDataProps,
-	guid: string,
-	content: string | File
-) => {
-	const trackId = await getTrackIdForGuid( track, guid );
-
-	if ( ! hasTrackId( trackId ) ) {
-		throw new Error( 'Track ID is required to update track content.' );
-	}
-
-	const text = typeof content === 'string' ? content : await content.text();
-	const format = typeof content === 'string' ? 'vtt' : getFileFormat( content.name );
-
-	return requestVideoPressTrackResource( guid, {
-		method: 'PUT',
-		pathSuffix: getTrackPathSuffix( trackId, '/content' ),
-		body: JSON.stringify( withoutUndefinedValues( { content: text, format } ) ),
-		filename: typeof content === 'string' ? undefined : content.name,
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	} );
 };

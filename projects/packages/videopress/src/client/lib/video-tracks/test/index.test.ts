@@ -1,5 +1,6 @@
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock( '../../get-media-token', () => jest.fn() );
+jest.mock( '../../fetch-video-item', () => ( { fetchVideoItem: jest.fn() } ) );
 jest.mock( 'debug', () => () => jest.fn() );
 
 const getVideoTracksModule = async () => {
@@ -15,6 +16,9 @@ const getApiFetchMock = async () => ( await import( '@wordpress/api-fetch' ) ).d
 
 const getMediaTokenMock = async () =>
 	( await import( '../../get-media-token' ) ).default as jest.Mock;
+
+const getFetchVideoItemMock = async () =>
+	( await import( '../../fetch-video-item' ) ).fetchVideoItem as jest.Mock;
 
 describe( 'video-tracks', () => {
 	beforeEach( () => {
@@ -44,7 +48,7 @@ describe( 'video-tracks', () => {
 		] );
 	} );
 
-	it( 'flattens wpcom/v2 track list responses with track ids', async () => {
+	it( 'flattens array track responses with ids', async () => {
 		const { flattenVideoTracks } = await getVideoTracksModule();
 
 		expect(
@@ -81,140 +85,41 @@ describe( 'video-tracks', () => {
 		] );
 	} );
 
-	it( 'fetches tracks with backend-provided supported formats', async () => {
-		const apiFetch = await getApiFetchMock();
-		apiFetch.mockResolvedValue( {
-			text: () =>
-				Promise.resolve(
-					JSON.stringify( {
-						tracks: [
-							{
-								track_id: 'track-1',
-								kind: 'captions',
-								srclang: 'en',
-								label: 'English',
-								download_url: 'english.vtt',
-							},
-						],
-						supported_formats: {
-							vtt: 'WebVTT',
-							srt: 'SubRip',
-						},
-					} )
-				),
-		} );
-		const { fetchTrackListForGuid } = await getVideoTracksModule();
-
-		await expect( fetchTrackListForGuid( 'abc123' ) ).resolves.toEqual( {
-			tracks: [
-				{
-					id: 'track-1',
-					downloadUrl: 'english.vtt',
-					kind: 'captions',
-					label: 'English',
-					src: 'english.vtt',
-					srcLang: 'en',
-				},
-			],
-			supportedFormats: [ '.vtt', '.srt' ],
-		} );
-	} );
-
-	it( 'uploads tracks to the wpcom/v2 filedata field', async () => {
+	it( 'uploads tracks to the v1 tracks endpoint in the vtt field', async () => {
 		const apiFetch = await getApiFetchMock();
 		const file = new File( [ 'WEBVTT' ], 'english.vtt', { type: 'text/vtt' } );
 		apiFetch.mockResolvedValue( {
-			text: () => Promise.resolve( '{}' ),
+			json: () => Promise.resolve( 'video_captions_en.vtt' ),
 		} );
 		const { uploadTrackForGuid } = await getVideoTracksModule();
 
-		await uploadTrackForGuid(
-			{
-				kind: 'captions',
-				srcLang: 'en',
-				label: 'English',
-				tmpFile: file,
-			},
-			'abc123'
-		);
+		await expect(
+			uploadTrackForGuid(
+				{
+					kind: 'captions',
+					srcLang: 'en',
+					label: 'English',
+					tmpFile: file,
+				},
+				'abc123'
+			)
+		).resolves.toBe( 'video_captions_en.vtt' );
 
 		expect( apiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( {
-				apiNamespace: 'wpcom/v2',
+				apiNamespace: 'rest/v1.1',
 				formData: [
 					[ 'kind', 'captions' ],
 					[ 'srclang', 'en' ],
 					[ 'label', 'English' ],
-					[ 'filedata', file ],
+					[ 'vtt', file ],
 				],
 				global: true,
 				method: 'POST',
-				path: '/videopress/videos/abc123/tracks',
+				path: '/videos/abc123/tracks',
 				parse: false,
 			} )
 		);
-	} );
-
-	it( 'throws structured wpcom/v2 errors from non-OK JSON responses', async () => {
-		const apiFetch = await getApiFetchMock();
-		const file = new File( [ 'WEBVTT' ], 'english.vtt', { type: 'text/vtt' } );
-		apiFetch.mockResolvedValue( {
-			ok: false,
-			status: 415,
-			statusText: 'Unsupported Media Type',
-			text: () =>
-				Promise.resolve(
-					JSON.stringify( {
-						code: 'unsupported_caption_format',
-						message: 'Unsupported caption format.',
-					} )
-				),
-		} );
-		const { uploadTrackForGuid } = await getVideoTracksModule();
-
-		await expect(
-			uploadTrackForGuid(
-				{
-					kind: 'captions',
-					srcLang: 'en',
-					label: 'English',
-					tmpFile: file,
-				},
-				'abc123'
-			)
-		).rejects.toMatchObject( {
-			code: 'unsupported_caption_format',
-			message: 'Unsupported caption format.',
-			status: 415,
-		} );
-	} );
-
-	it( 'throws a fallback error from non-OK empty wpcom/v2 responses', async () => {
-		const apiFetch = await getApiFetchMock();
-		const file = new File( [ 'WEBVTT' ], 'english.vtt', { type: 'text/vtt' } );
-		apiFetch.mockResolvedValue( {
-			ok: false,
-			status: 500,
-			statusText: 'Server Error',
-			text: () => Promise.resolve( '' ),
-		} );
-		const { uploadTrackForGuid } = await getVideoTracksModule();
-
-		await expect(
-			uploadTrackForGuid(
-				{
-					kind: 'captions',
-					srcLang: 'en',
-					label: 'English',
-					tmpFile: file,
-				},
-				'abc123'
-			)
-		).rejects.toMatchObject( {
-			code: 'videopress_track_request_failed',
-			message: 'Server Error',
-			status: 500,
-		} );
 	} );
 
 	it( 'normalizes an uploaded track response with fallback metadata', async () => {
@@ -243,16 +148,15 @@ describe( 'video-tracks', () => {
 		} );
 	} );
 
-	it( 'deletes wpcom/v2 tracks by track id', async () => {
+	it( 'deletes v1 tracks by kind and language', async () => {
 		const apiFetch = await getApiFetchMock();
 		apiFetch.mockResolvedValue( {
-			text: () => Promise.resolve( '{}' ),
+			json: () => Promise.resolve( true ),
 		} );
 		const { deleteTrackForGuid } = await getVideoTracksModule();
 
 		await deleteTrackForGuid(
 			{
-				id: 'track-1',
 				kind: 'captions',
 				srcLang: 'en',
 			},
@@ -261,75 +165,114 @@ describe( 'video-tracks', () => {
 
 		expect( apiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( {
-				apiNamespace: 'wpcom/v2',
+				apiNamespace: 'rest/v1.1',
+				formData: [
+					[ 'kind', 'captions' ],
+					[ 'srclang', 'en' ],
+				],
 				global: true,
-				method: 'DELETE',
-				path: '/videopress/videos/abc123/tracks/track-1',
+				method: 'POST',
+				path: '/videos/abc123/tracks/delete',
 				parse: false,
 			} )
 		);
 	} );
 
-	it( 'reads wpcom/v2 track content from the content response field', async () => {
-		const apiFetch = await getApiFetchMock();
-		apiFetch.mockResolvedValue( {
-			text: () => Promise.resolve( JSON.stringify( { content: 'WEBVTT\n\nCaption text.' } ) ),
+	describe( 'fetchTrackContentForGuid', () => {
+		it( 'resolves a filename against the video file_url_base and fetches it', async () => {
+			const fetchVideoItem = await getFetchVideoItemMock();
+			fetchVideoItem.mockResolvedValue( {
+				file_url_base: { https: 'https://videos.files.wordpress.com/abc123/' },
+			} );
+			const fetchMock = jest.fn().mockResolvedValue( {
+				ok: true,
+				status: 200,
+				text: () => Promise.resolve( 'WEBVTT\n\nCaption text.' ),
+			} );
+			global.fetch = fetchMock;
+			const { fetchTrackContentForGuid } = await getVideoTracksModule();
+
+			await expect(
+				fetchTrackContentForGuid(
+					{ kind: 'captions', srcLang: 'en', label: 'English', src: 'english.vtt' },
+					'abc123'
+				)
+			).resolves.toBe( 'WEBVTT\n\nCaption text.' );
+
+			expect( fetchVideoItem ).toHaveBeenCalledWith( { guid: 'abc123', isPrivate: false } );
+			expect( fetchMock ).toHaveBeenCalledWith(
+				'https://videos.files.wordpress.com/abc123/english.vtt'
+			);
 		} );
-		const { fetchTrackContentForGuid } = await getVideoTracksModule();
 
-		await expect(
-			fetchTrackContentForGuid(
-				{
-					id: 'track-1',
-					kind: 'captions',
-					srcLang: 'en',
-					label: 'English',
-					src: 'english.vtt',
-				},
-				'abc123'
-			)
-		).resolves.toBe( 'WEBVTT\n\nCaption text.' );
+		it( 'fetches an absolute track src directly without resolving a base', async () => {
+			const fetchVideoItem = await getFetchVideoItemMock();
+			const fetchMock = jest.fn().mockResolvedValue( {
+				ok: true,
+				status: 200,
+				text: () => Promise.resolve( 'WEBVTT' ),
+			} );
+			global.fetch = fetchMock;
+			const { fetchTrackContentForGuid } = await getVideoTracksModule();
 
-		expect( apiFetch ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				apiNamespace: 'wpcom/v2',
-				global: true,
-				method: 'GET',
-				path: '/videopress/videos/abc123/tracks/track-1/content',
-				parse: false,
-			} )
-		);
-	} );
+			await expect(
+				fetchTrackContentForGuid(
+					{
+						kind: 'captions',
+						srcLang: 'en',
+						label: 'English',
+						src: 'https://example.com/english.vtt',
+					},
+					'abc123'
+				)
+			).resolves.toBe( 'WEBVTT' );
 
-	it( 'updates wpcom/v2 track content by track id', async () => {
-		const apiFetch = await getApiFetchMock();
-		apiFetch.mockResolvedValue( {
-			text: () => Promise.resolve( '{}' ),
+			expect( fetchVideoItem ).not.toHaveBeenCalled();
+			expect( fetchMock ).toHaveBeenCalledWith( 'https://example.com/english.vtt' );
 		} );
-		const { updateTrackContentForGuid } = await getVideoTracksModule();
 
-		await updateTrackContentForGuid(
-			{
-				id: 'track-1',
-				kind: 'captions',
-				srcLang: 'en',
-				label: 'English',
-			},
-			'abc123',
-			'WEBVTT'
-		);
+		it( 'retries with a playback token when the file is forbidden', async () => {
+			const getMediaToken = await getMediaTokenMock();
+			getMediaToken.mockResolvedValue( { token: 'tok', blogId: 1 } );
+			const fetchMock = jest
+				.fn()
+				.mockResolvedValueOnce( { ok: false, status: 403 } )
+				.mockResolvedValueOnce( {
+					ok: true,
+					status: 200,
+					text: () => Promise.resolve( 'WEBVTT' ),
+				} );
+			global.fetch = fetchMock;
+			const { fetchTrackContentForGuid } = await getVideoTracksModule();
 
-		expect( apiFetch ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				apiNamespace: 'wpcom/v2',
-				body: JSON.stringify( { content: 'WEBVTT', format: 'vtt' } ),
-				global: true,
-				headers: { 'Content-Type': 'application/json' },
-				method: 'PUT',
-				path: '/videopress/videos/abc123/tracks/track-1/content',
-				parse: false,
-			} )
-		);
+			await expect(
+				fetchTrackContentForGuid(
+					{
+						kind: 'captions',
+						srcLang: 'en',
+						label: 'English',
+						src: 'https://example.com/english.vtt',
+					},
+					'abc123'
+				)
+			).resolves.toBe( 'WEBVTT' );
+
+			expect( getMediaToken ).toHaveBeenCalledWith( 'playback', { guid: 'abc123' } );
+			expect( fetchMock ).toHaveBeenLastCalledWith(
+				'https://example.com/english.vtt?metadata_token=tok'
+			);
+		} );
+
+		it( 'returns an empty string when the track has no src', async () => {
+			const { fetchTrackContentForGuid } = await getVideoTracksModule();
+
+			await expect(
+				fetchTrackContentForGuid(
+					{ kind: 'captions', srcLang: 'en', label: 'English', src: '' },
+					'abc123'
+				)
+			).resolves.toBe( '' );
+		} );
 	} );
 
 	describe( 'isAutogeneratedChapterFile', () => {
@@ -418,43 +361,6 @@ describe( 'video-tracks', () => {
 			await expect(
 				isAutogeneratedChapterFile( 'https://example.com/chapters.vtt', { guid: 'abc123' } )
 			).resolves.toBe( false );
-		} );
-	} );
-
-	describe( 'updateTrackForGuid', () => {
-		it( 'patches wpcom/v2 track metadata by track id', async () => {
-			const apiFetch = await getApiFetchMock();
-			apiFetch.mockResolvedValue( { text: () => Promise.resolve( '{}' ) } );
-			const { updateTrackForGuid } = await getVideoTracksModule();
-
-			await updateTrackForGuid(
-				{ id: 'track-1', kind: 'captions', srcLang: 'en', label: 'English' },
-				'abc123'
-			);
-
-			expect( apiFetch ).toHaveBeenCalledWith(
-				expect.objectContaining( {
-					apiNamespace: 'wpcom/v2',
-					body: JSON.stringify( { kind: 'captions', srclang: 'en', label: 'English' } ),
-					global: true,
-					headers: { 'Content-Type': 'application/json' },
-					method: 'PATCH',
-					path: '/videopress/videos/abc123/tracks/track-1',
-					parse: false,
-				} )
-			);
-		} );
-
-		it( 'throws when the track id cannot be resolved', async () => {
-			const apiFetch = await getApiFetchMock();
-			apiFetch.mockResolvedValue( {
-				text: () => Promise.resolve( JSON.stringify( { tracks: [] } ) ),
-			} );
-			const { updateTrackForGuid } = await getVideoTracksModule();
-
-			await expect(
-				updateTrackForGuid( { kind: 'captions', srcLang: 'fr', label: 'French' }, 'abc123' )
-			).rejects.toThrow( 'Track ID is required to update track metadata.' );
 		} );
 	} );
 } );
