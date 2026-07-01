@@ -22,7 +22,6 @@ export const SCENARIOS = [
 		envVar: 'WP_JETPACK_CONNECTED_URL',
 		defaultUrl: 'http://localhost:8083',
 		header: 'Jetpack Connected (Simulated + 200ms Latency)',
-		metricPrefix: 'wp_admin_lcp_jetpack_connected',
 		// Metrics posted for this scenario, all in a single CodeVitals call. Each entry is:
 		//   field         — the summary field to read the value from (summary.<field>.median)
 		//   codevitalsKey — the exact CodeVitals metric key to post to
