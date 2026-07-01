@@ -38,7 +38,7 @@ import {
 import { SANITY_RANGES, SCENARIOS } from './scenarios.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
-const LCP_KEY = 'wp-admin-dashboard-connection-sim-largestContentfulPaint';
+const LCP_KEY = 'wp-admin-dashboard-connection-sim-largestContentfulPaint-v2';
 
 /** Write a results fixture with the given median LCP and return its path. */
 function writeResults( median ) {

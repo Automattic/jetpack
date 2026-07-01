@@ -27,7 +27,7 @@ export const SCENARIOS = [
 		// it to a `-staging` key first (e.g. `…-timeToFirstByte-staging`) for 2-3
 		// builds, inspect it in the CodeVitals UI, then rename to the production key.
 		// See the "Safeguards" section of README.md for the full convention.
-		metricKey: 'wp-admin-dashboard-connection-sim-largestContentfulPaint',
+		metricKey: 'wp-admin-dashboard-connection-sim-largestContentfulPaint-v2',
 		// Metric type — drives the sanity-range check in post-to-codevitals.js.
 		metricType: 'lcp',
 		postToCodeVitals: true,

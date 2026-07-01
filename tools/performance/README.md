@@ -29,7 +29,7 @@ The test suite is designed to run in TeamCity. See `TEAMCITY-SETUP.md` for detai
 
 ## Metric
 
-- `wp-admin-dashboard-connection-sim-largestContentfulPaint` - Dashboard LCP with simulated Jetpack connection
+- `wp-admin-dashboard-connection-sim-largestContentfulPaint-v2` - Dashboard LCP with simulated Jetpack connection
 
 ## How It Works
 
