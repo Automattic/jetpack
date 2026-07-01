@@ -27,6 +27,7 @@
 	min-inline-size: 0;
 	min-height: 32px;
 	font-size: 13px;
+	line-height: 20px;
 	font-weight: 500; /* design spec was 499; 500 is the nearest valid CSS value */
 	color: inherit;
 }
@@ -40,10 +41,18 @@
 	align-items: center;
 	min-inline-size: 0;
 	gap: var(--wpds-dimension-gap-xs, 4px);
+	line-height: inherit;
 }
 
 .headerIcon {
 	flex: 0 0 auto;
+}
+
+.breadcrumbTitle,
+.breadcrumbLink {
+	display: inline-flex;
+	align-items: center;
+	min-block-size: 20px;
 }
 
 .breadcrumbLink {
@@ -65,11 +74,13 @@
 
 .breadcrumbSeparator {
 	flex: 0 0 auto;
+	line-height: inherit;
 	color: var(--wpds-color-fg-content-neutral-weak);
 }
 
 .breadcrumbCurrent {
 	min-inline-size: 0;
+	line-height: inherit;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

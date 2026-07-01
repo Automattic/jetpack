@@ -158,7 +158,7 @@ function LocationsInner( { max }: { max: number } ) {
 						<Text className={ styles.breadcrumbCurrent }>{ selectedCountry.name }</Text>
 					</>
 				) : (
-					<Text>
+					<Text className={ styles.breadcrumbTitle }>
 						<LocationsHeaderTitle />
 					</Text>
 				) }
