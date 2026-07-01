@@ -18,12 +18,12 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Link, Stack, Text } from '@wordpress/ui';
+import { Button, Icon, Link, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { ClicksAttributes } from './widget';
+import widgetDefinition, { type ClicksAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type ClicksRenderAttributes = ClicksAttributes & Partial< ReportParamsFieldAttributes >;
@@ -182,6 +182,15 @@ function ClickLabel( { row }: { row: ClickRow } ) {
 	);
 }
 
+function ClicksHeaderTitle() {
+	return (
+		<span className={ styles.headerTitle }>
+			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
+			<span>{ __( 'Clicks', 'jetpack-premium-analytics' ) }</span>
+		</span>
+	);
+}
+
 /**
  * Maps normalized click rows onto the shape `LeaderboardChart` expects.
  *
@@ -331,13 +340,15 @@ function ClicksInner( { max }: { max: number } ) {
 							onClick={ clearSelectedClick }
 							className={ styles.breadcrumbLink }
 						>
-							{ __( 'Clicks', 'jetpack-premium-analytics' ) }
+							<ClicksHeaderTitle />
 						</Button>
 						<Text className={ styles.breadcrumbSeparator }>/</Text>
 						<Text className={ styles.breadcrumbCurrent }>{ selectedClick?.label }</Text>
 					</>
 				) : (
-					<Text>{ __( 'Clicks', 'jetpack-premium-analytics' ) }</Text>
+					<Text>
+						<ClicksHeaderTitle />
+					</Text>
 				) }
 			</Stack>
 		</Stack>
