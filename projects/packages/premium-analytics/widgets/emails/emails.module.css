@@ -9,18 +9,17 @@
 .header {
 	flex-wrap: wrap;
 	gap: var(--wpds-dimension-gap-sm, 8px);
-	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
-	min-height: 32px;
+	margin-block-end: var(--wpds-dimension-gap-sm, 8px);
 }
 
 .metricSelect {
 	flex: 0 1 220px;
+	inline-size: min(100%, 220px);
 	max-inline-size: 100%;
-	min-inline-size: min(100%, 160px);
+	min-inline-size: 0;
 }
 
 .leaderboard {
-	padding: 0 var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-lg);
 	min-width: 0;
 	min-height: 0;
 	overflow: hidden;
@@ -40,7 +39,6 @@
 }
 
 .placeholder {
-	padding: var(--wpds-dimension-padding-lg);
 	color: var(--wpds-color-fg-content-neutral-weak);
 }
 
@@ -55,16 +53,4 @@
 	height: auto;
 	aspect-ratio: 4 / 3;
 	overflow: hidden;
-}
-
-@container (max-width: 431px) {
-
-	.header {
-		align-items: stretch;
-	}
-
-	.metricSelect {
-		flex-basis: 100%;
-		inline-size: 100%;
-	}
 }

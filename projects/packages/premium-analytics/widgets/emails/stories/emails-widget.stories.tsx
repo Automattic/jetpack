@@ -203,7 +203,7 @@ export const SizeLarge: Story = {
 
 /**
  * Renders the data-connected widget through the shared dashboard harness, so it
- * appears exactly as it does in product (content-bleed framing, sizing, edit mode).
+ * appears exactly as it does in product (framed card, sizing, edit mode).
  *
  * @param props - The dashboard story controls.
  * @return The widget mounted inside the real `WidgetDashboard`.
@@ -216,9 +216,7 @@ function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
 				name: widgetDefinition.name,
 				title: widgetDefinition.title,
 				icon: widgetDefinition.icon,
-				// Matches widget.json so the host renders the standard title/icon
-				// header while the widget body can still bleed to the card edges.
-				presentation: 'content-bleed',
+				presentation: 'framed',
 			} }
 			renderModule={ EMAILS_RENDER_MODULE }
 			renderComponent={ EmailsRender as ComponentType< WidgetRenderProps< unknown > > }

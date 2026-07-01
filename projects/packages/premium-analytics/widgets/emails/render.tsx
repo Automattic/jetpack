@@ -251,8 +251,8 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 /**
  * Widget render entry point.
  *
- * Runs inside `WidgetRoot` so it can reach the analytics query client, keeping
- * the leaderboard prop-driven (and Storybook-friendly).
+ * Passes host attributes into `WidgetRoot` for the widget contract. The email
+ * summary still reads `max` from props because it does not use report params.
  *
  * @param {WidgetRenderProps< EmailsRenderAttributes >} props - The render props supplied by the widget host.
  * @return The rendered widget.
