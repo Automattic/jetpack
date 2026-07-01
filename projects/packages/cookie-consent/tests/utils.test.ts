@@ -291,6 +291,39 @@ describe( 'registry-driven consent choices', () => {
 			personalization: true,
 		} );
 	} );
+
+	it( 'dispatches the public wp_consent_saved event with event type and category choices', () => {
+		let savedEvent: CustomEvent | undefined;
+		const listener = ( event: Event ) => {
+			savedEvent = event as CustomEvent;
+		};
+		window.addEventListener( 'wp_consent_saved', listener );
+
+		saveConsentChoices(
+			{
+				analytics: true,
+				advertising: false,
+			},
+			'accept_selected'
+		);
+
+		window.removeEventListener( 'wp_consent_saved', listener );
+
+		expect( consentCalls ).toEqual( [
+			[ 'functional', 'allow' ],
+			[ 'preferences', 'allow' ],
+			[ 'statistics', 'allow' ],
+			[ 'statistics-anonymous', 'allow' ],
+			[ 'marketing', 'deny' ],
+		] );
+		expect( savedEvent?.detail ).toEqual( {
+			eventType: 'accept_selected',
+			choices: {
+				analytics: true,
+				advertising: false,
+			},
+		} );
+	} );
 } );
 
 describe( 'geo configuration helpers', () => {

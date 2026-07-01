@@ -75,6 +75,25 @@ The default geo provider is `wpcom`, which resolves shoppers through `https://pu
 
 The Tracks event prefix defaults to `jetpack`; set it to `woocommerceanalytics` to keep continuity with the WooCommerce/Unified Analytics Tracks stream.
 
+Link URLs are configured through the `links` group. `links.cookie_policy_url`
+defaults to an empty string, which hides the Cookie Policy link in the
+preferences modal. The Privacy Policy link uses the site's own WordPress
+Privacy Policy URL from `get_privacy_policy_url()`, and is likewise hidden when
+no Privacy Policy page is configured, so the modal never renders an empty link.
+Set `links.cookie_policy_url` only when the consuming site has a separate cookie
+policy page:
+
+```php
+add_filter(
+	'jetpack_cookie_consent_config',
+	function ( $config ) {
+		$config['links']['cookie_policy_url'] = 'https://example.com/cookie-policy/';
+
+		return $config;
+	}
+);
+```
+
 User-facing banner, preferences modal, footer link, CCPA page, and CCPA snackbar strings are configured through the `copy` group. Package defaults are translated with the `jetpack-cookie-consent` text domain. Consumers that override strings should translate those overrides before returning them from the filter, using their own text domain:
 
 ```php
@@ -113,6 +132,57 @@ add_filter(
 	}
 );
 ```
+
+## Public APIs
+
+### Gating scripts on consent
+
+Consumers that need to gate their own scripts on visitor consent should use the
+WP Consent API directly, not a Cookie Consent lifecycle event:
+
+- JavaScript: call `window.wp_has_consent( category )` for the initial state and
+  listen for the `wp_listen_for_consent_change` DOM event for changes.
+- PHP: call `wp_has_consent( category )` before rendering or enqueueing gated
+  server-side output.
+
+The canonical integration pattern is `woocommerce-analytics`: it gates tracking
+with the WP Consent API state and change event because those APIs model consent
+categories across providers.
+
+### `wp_consent_saved`
+
+Cookie Consent dispatches `wp_consent_saved` on `window` after it writes a
+visitor choice through the WP Consent API. This event is public API and follows
+the package's backward-compatibility policy for documented APIs.
+
+```js
+window.addEventListener( 'wp_consent_saved', event => {
+	const { eventType, choices } = event.detail;
+} );
+```
+
+The event detail has this stable shape:
+
+```ts
+type CookieConsentSavedDetail = {
+	eventType:
+		| 'accept_all'
+		| 'accept_selected'
+		| 'reject_all'
+		| 'auto_granted'
+		| 'opt-out';
+	choices: Partial< Record< string, boolean > >;
+};
+```
+
+`choices` is keyed by Cookie Consent category keys (`consent.categories`;
+currently `analytics` and `advertising`), not raw WP Consent API category names,
+and each present value indicates whether that category was allowed. Use
+`eventType` when you need to distinguish the user action behind the saved choice.
+Use the WP Consent API for category-state gating.
+
+`wp_consent_type_defined` remains an internal implementation event and is not
+part of the public API surface.
 
 ## Theming and customization
 

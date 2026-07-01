@@ -41,6 +41,7 @@ declare global {
 			apiUrl: string;
 			eventPrefix?: string;
 			categories?: ConsentCategory[];
+			nonce?: string;
 		};
 		wp_set_consent?: ( category: string, value: 'allow' | 'deny' ) => void;
 		wp_consent_type?: ConsentType;

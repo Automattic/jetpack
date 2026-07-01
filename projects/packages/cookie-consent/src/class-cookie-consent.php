@@ -849,8 +849,9 @@ class Cookie_Consent {
 			'banner_customize_button'          => __( 'Customize', 'jetpack-cookie-consent' ),
 			'modal_title'                      => __( 'Customize preferences', 'jetpack-cookie-consent' ),
 			'modal_close_label'                => __( 'Close modal', 'jetpack-cookie-consent' ),
-			'modal_description'                => __( 'Your privacy is important to us. We and our partners use, store, and process your personal data to improve our website, such as by improving security or conducting analytics, marketing activities to help deliver relevant marketing or content, and your user experience, such as by remembering your account name or language settings where applicable. You can customize your cookie settings below. Learn more in our', 'jetpack-cookie-consent' ),
+			'modal_description'                => __( 'Your privacy is important to us. We and our partners use, store, and process your personal data to improve our website, such as by improving security or conducting analytics, marketing activities to help deliver relevant marketing or content, and your user experience, such as by remembering your account name or language settings where applicable. You can customize your cookie settings below.', 'jetpack-cookie-consent' ),
 			'privacy_policy_link'              => __( 'Privacy Policy', 'jetpack-cookie-consent' ),
+			'modal_links_lead'                 => __( 'Learn more in our', 'jetpack-cookie-consent' ),
 			'modal_links_conjunction'          => __( 'and', 'jetpack-cookie-consent' ),
 			'cookie_policy_link'               => __( 'Cookie Policy', 'jetpack-cookie-consent' ),
 			'category_toggle_label'            => __( 'Toggle category description', 'jetpack-cookie-consent' ),
@@ -1164,6 +1165,29 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Normalize configured links by merging consumer overrides with defaults.
+	 *
+	 * @param array $config   Configuration array supplied through filters.
+	 * @param array $defaults Default link values.
+	 * @return array Normalized links.
+	 */
+	private static function normalize_links( $config, $defaults ) {
+		$links = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
+
+		foreach ( $links as $key => $value ) {
+			if ( ! is_string( $key ) ) {
+				continue;
+			}
+
+			if ( is_scalar( $value ) ) {
+				$defaults[ $key ] = trim( (string) $value );
+			}
+		}
+
+		return $defaults;
+	}
+
+	/**
 	 * Get default GDPR country list.
 	 *
 	 * @return string[] Country codes where opt-in consent applies.
@@ -1272,11 +1296,14 @@ class Cookie_Consent {
 			'ccpa_regions'        => $geo_config['ccpa_regions'],
 			'show_on_error'       => $geo_config['show_on_error'],
 			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
-			'cookie_policy_url'   => 'https://automattic.com/cookies/',
+			'links'               => array(
+				'cookie_policy_url' => '', // Empty hides the Cookie Policy link; set it to link a consumer's own cookie policy page.
+			),
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
 			'log'                 => array(
 				'policy_version' => '1',
 				'banner_version' => '1',
+				'ip_mode'        => 'drop',
 			),
 			'copy'                => $default_copy,
 			'consent'             => array(
@@ -1355,11 +1382,11 @@ class Cookie_Consent {
 		$geo['ccpa_regions']        = is_array( $geo['ccpa_regions'] ) ? self::normalize_ccpa_regions( $geo['ccpa_regions'] ) : $default_config['geo']['ccpa_regions'];
 		$geo['show_on_error']       = (bool) $geo['show_on_error'];
 
-		$config['geo']               = $geo;
-		$config['cookie_policy_url'] = $config['cookie_policy_url'] ?? $default_config['cookie_policy_url'];
-		$config['event_prefix']      = $config['event_prefix'] ?? $default_config['event_prefix'];
-		$config['copy']              = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
-		$config['consent']           = isset( $config['consent'] ) && is_array( $config['consent'] ) ? $config['consent'] : array();
+		$config['geo']          = $geo;
+		$config['links']        = self::normalize_links( $config, $default_config['links'] );
+		$config['event_prefix'] = $config['event_prefix'] ?? $default_config['event_prefix'];
+		$config['copy']         = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
+		$config['consent']      = isset( $config['consent'] ) && is_array( $config['consent'] ) ? $config['consent'] : array();
 
 		$default_categories = self::get_default_consent_categories( $config['copy'] );
 		$categories         = $config['consent']['categories'] ?? $default_categories;
@@ -1374,11 +1401,13 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Get configuration with filters.
+	 * Get package configuration with filters.
+	 *
+	 * @internal This accessor is for package classes only and is not part of the public API.
 	 *
 	 * @return array Configuration array.
 	 */
-	private static function get_config() {
+	public static function get_config() {
 		$default_config = self::get_default_config();
 
 		/**
@@ -1443,16 +1472,27 @@ class Cookie_Consent {
 		$config              = self::get_config();
 		$frontend_categories = self::get_frontend_consent_categories( $config['consent']['categories'] );
 
+		$config_data = array(
+			'apiUrl'      => rest_url( 'jetpack/v4/cookie-consent/consent-log' ),
+			'eventPrefix' => $config['event_prefix'],
+		);
+
+		// Only expose a REST nonce to logged-in visitors, so the consent logger can
+		// authenticate and record the real user_id. Anonymous visitors deliberately get
+		// none: their pages are full-page-cached, a cached nonce would go stale and make
+		// core reject the request (rest_cookie_invalid_nonce). Without a nonce core treats
+		// the request as anonymous and stores user_id = 0, which is correct for them.
+		if ( is_user_logged_in() ) {
+			$config_data['nonce'] = wp_create_nonce( 'wp_rest' );
+		}
+		$config_data['categories'] = $frontend_categories;
+
 		// Pass REST API URL and Tracks event prefix to the module via global config.
 		wp_print_inline_script_tag(
 			sprintf(
 				'window.jetpackCookieConsentConfig = %s;',
 				wp_json_encode(
-					array(
-						'apiUrl'      => rest_url( 'jetpack/v4/cookie-consent/consent-log' ),
-						'eventPrefix' => $config['event_prefix'],
-						'categories'  => $frontend_categories,
-					),
+					$config_data,
 					JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 				)
 			),
@@ -1464,7 +1504,7 @@ class Cookie_Consent {
 		$force_preview = isset( $_GET['preview_cookie_consent'] ) && '1' === $_GET['preview_cookie_consent'];
 
 		$frontend_config = array(
-			'cookiePolicyUrl' => $config['cookie_policy_url'],
+			'cookiePolicyUrl' => $config['links']['cookie_policy_url'],
 			'gdprHonorsGpc'   => $config['gdpr_honors_gpc'] ?? true,
 			'forcePreview'    => $force_preview,
 			'categories'      => $frontend_categories,
