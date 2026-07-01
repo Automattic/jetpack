@@ -3544,6 +3544,9 @@ importers:
       '@wordpress/build':
         specifier: 0.16.1
         version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
+      autoprefixer:
+        specifier: 10.4.20
+        version: 10.4.20(postcss@8.5.14)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.4
@@ -3553,6 +3556,12 @@ importers:
       jest:
         specifier: 30.4.2
         version: 30.4.2
+      postcss:
+        specifier: 8.5.14
+        version: 8.5.14
+      postcss-loader:
+        specifier: 8.2.0
+        version: 8.2.0(postcss@8.5.14)(webpack@5.107.2)
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -3561,7 +3570,7 @@ importers:
         version: 16.0.5(sass-embedded@1.97.3)(webpack@5.107.2)
       webpack:
         specifier: 5.107.2
-        version: 5.107.2(webpack-cli@6.0.1)
+        version: 5.107.2(postcss@8.5.14)(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.107.2)
@@ -5479,6 +5488,12 @@ importers:
       '@wordpress/i18n':
         specifier: 6.23.0
         version: 6.23.0
+      '@wordpress/theme':
+        specifier: 0.15.1
+        version: 0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      autoprefixer:
+        specifier: 10.4.20
+        version: 10.4.20(postcss@8.5.14)
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
@@ -5494,6 +5509,9 @@ importers:
       postcss:
         specifier: 8.5.14
         version: 8.5.14
+      postcss-loader:
+        specifier: 8.2.0
+        version: 8.2.0(postcss@8.5.14)(typescript@5.9.3)(webpack@5.107.2)
       process:
         specifier: 0.11.10
         version: 0.11.10
