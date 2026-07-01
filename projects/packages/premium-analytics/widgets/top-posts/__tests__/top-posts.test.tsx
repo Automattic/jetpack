@@ -58,7 +58,7 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	it( 'renders the fetched top posts as links', async () => {
-		render( <TopPostsWidget attributes={ { range: 'last-7-days', num: 10 } } /> );
+		render( <TopPostsWidget attributes={ { num: 10 } } /> );
 
 		// The `@wordpress/ui` `Link` appends an "(opens in a new tab)" indicator
 		// to the accessible name, so match the title as a substring.
@@ -68,16 +68,32 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	it( 'filters rows by post type when the postType attribute is set', async () => {
-		render( <TopPostsWidget attributes={ { range: 'last-7-days', num: 10, postType: 'page' } } /> );
+		render( <TopPostsWidget attributes={ { num: 10, postType: 'page' } } /> );
 
 		await expect( screen.findByText( 'About Page' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Hello World Post' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'requests the dashboard date range from report params', async () => {
+		render(
+			<TopPostsWidget
+				attributes={ { num: 10, reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
+			/>
+		);
+
+		await expect(
+			screen.findByRole( 'link', { name: /Hello World Post/ } )
+		).resolves.toBeInTheDocument();
+
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'start_date=2026-03-01' );
+		expect( requestedPath ).toContain( 'date=2026-03-10' );
+	} );
+
 	it( 'renders the empty state when there are no views', async () => {
 		mockApiFetch.mockResolvedValue( { date: '2026-06-10', days: {} } );
 
-		render( <TopPostsWidget attributes={ { range: 'last-7-days' } } /> );
+		render( <TopPostsWidget attributes={ { num: 10 } } /> );
 
 		await expect( screen.findByText( 'No views in this period.' ) ).resolves.toBeInTheDocument();
 	} );
