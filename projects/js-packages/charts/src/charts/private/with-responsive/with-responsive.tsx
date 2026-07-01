@@ -94,9 +94,16 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 
 		const defaultHeight = hasAspectRatio ? 'auto' : '100%';
 		// Express the aspect ratio in CSS so the container height tracks its width
-		// fluidly, rather than snapping to a debounced measured height.
+		// fluidly, rather than snapping to a debounced measured height. Cap the width
+		// at maxWidth so the CSS-derived height matches the maxWidth-capped content
+		// (the wrapped chart is sized from the capped `measuredWidth`).
 		const aspectRatioStyle =
-			hasAspectRatio && aspectRatio ? { aspectRatio: `${ 1 / aspectRatio }` } : null;
+			hasAspectRatio && aspectRatio
+				? {
+						aspectRatio: `${ 1 / aspectRatio }`,
+						maxWidth: width === undefined ? maxWidth : undefined,
+				  }
+				: null;
 
 		return (
 			<div
