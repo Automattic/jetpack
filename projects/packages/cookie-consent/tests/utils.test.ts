@@ -138,6 +138,7 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 
 	let consentCalls: Array< [ string, string ] >;
 	let originalGpc: PropertyDescriptor | undefined;
+	let originalImage: typeof Image;
 
 	const setGpc = ( value: boolean | undefined ) => {
 		Object.defineProperty( window.navigator, 'globalPrivacyControl', {
@@ -149,6 +150,7 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 	beforeEach( () => {
 		consentCalls = [];
 		imageSources = [];
+		originalImage = global.Image;
 		global.Image = MockImage as unknown as typeof Image;
 		window.wp_set_consent = ( category: string, state: string ) => {
 			consentCalls.push( [ category, state ] );
@@ -157,6 +159,7 @@ describe( 'handleConsentByRegion (GDPR + GPC)', () => {
 	} );
 
 	afterEach( () => {
+		global.Image = originalImage;
 		delete ( window as unknown as { wp_set_consent?: unknown } ).wp_set_consent;
 		if ( originalGpc ) {
 			Object.defineProperty( window.navigator, 'globalPrivacyControl', originalGpc );

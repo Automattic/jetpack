@@ -5,11 +5,7 @@
  */
 
 import { getCategoryPreferenceKey } from './category-preferences';
-import {
-	recordEventAndLoadTracks,
-	recordCookielessStat,
-	getCommonProperties,
-} from './tracks-utils';
+import { recordEvent, recordCookielessStat, getCommonProperties } from './tracks-utils';
 import type { ConsentPreferences, TrackingProperties } from './types';
 
 const DEFAULT_TRACKS_PREFERENCE_KEYS = new Set( [ 'required', 'analytics', 'advertising' ] );
@@ -52,10 +48,7 @@ export function trackPrivacyBannerView(): void {
 export function trackPrivacyBannerAccept( preferences: ConsentPreferences ): void {
 	// Allowlisted consent-record event: documents the accepted preferences, so it
 	// is not gated on the analytics category.
-	recordEventAndLoadTracks(
-		'privacy_banner_button_accept',
-		getPreferenceProperties( preferences )
-	);
+	recordEvent( 'privacy_banner_button_accept', getPreferenceProperties( preferences ) );
 }
 
 /**
@@ -97,7 +90,7 @@ export function trackPrivacyManageOpen(
 
 	if ( hasAnalyticsConsent ) {
 		// The caller has verified analytics consent above, so loading w.js is allowed.
-		recordEventAndLoadTracks( 'privacy_manage_open', getCommonProperties() );
+		recordEvent( 'privacy_manage_open', getCommonProperties() );
 	}
 }
 

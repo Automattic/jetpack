@@ -68,9 +68,13 @@ export function ensureTrackingQueue(): void {
 }
 
 /**
- * Load w.js after consent allows cookie-based Tracks.
+ * Ensure w.js is loaded so queued cookie-based Tracks events can flush.
+ *
+ * Idempotent: injects the loader at most once (guarded by its script id) and
+ * no-ops when Tracks is disabled or the script is already present, so callers can
+ * safely invoke it on every consent-allowed event.
  */
-export function loadTracksScript(): void {
+export function ensureTracksLoaded(): void {
 	if ( ! isFeatureEnabled( 'tracks' ) || document.getElementById( TRACKS_SCRIPT_ID ) ) {
 		return;
 	}
@@ -83,11 +87,13 @@ export function loadTracksScript(): void {
 }
 
 /**
- * Record a Tracks event via w.js
+ * Record a cookie-based Tracks event via w.js.
  *
- * This is the core function for sending events to Automattic Tracks.
- * Events are queued immediately and processed when w.js loads.
- * Use this directly or create wrapper functions for specific events.
+ * The event is queued and w.js is loaded (idempotently) to flush the queue — a
+ * queued event never sends on its own, so recording inherently loads the loader.
+ * Callers must ensure loading w.js is permitted: the event either documents the
+ * consent decision itself (allowlisted) or the caller has verified analytics
+ * consent. The whole call no-ops when the `features.tracks` flag is off.
  *
  * @param eventNameSuffix The event name (must follow Tracks naming conventions).
  * @param properties      Event properties object.
@@ -104,26 +110,9 @@ export function recordEvent( eventNameSuffix: string, properties: TrackingProper
 
 	// Queue the event
 	window._tkq!.push( [ 'recordEvent', eventName, properties ] );
-}
 
-/**
- * Record a Tracks event and load w.js to flush it.
- *
- * Loading w.js is a cookie-setting side effect, so the caller is responsible for
- * ensuring it is permitted at the call site: either the event documents the
- * consent decision itself (an allowlisted consent-record event) or the caller has
- * already verified analytics consent. This helper performs no consent gating of
- * its own (beyond the `features.tracks` flag honored by recordEvent/loadTracksScript).
- *
- * @param eventNameSuffix The event name (must follow Tracks naming conventions).
- * @param properties      Event properties object.
- */
-export function recordEventAndLoadTracks(
-	eventNameSuffix: string,
-	properties: TrackingProperties
-): void {
-	recordEvent( eventNameSuffix, properties );
-	loadTracksScript();
+	// A queued event only sends once w.js loads to drain the queue.
+	ensureTracksLoaded();
 }
 
 /**

@@ -18,12 +18,16 @@ class MockImage {
 let imageSources: string[];
 
 describe( 'trackPrivacyBannerAccept', () => {
+	let originalImage: typeof Image;
+
 	beforeEach( () => {
 		imageSources = [];
+		originalImage = global.Image;
 		global.Image = MockImage as unknown as typeof Image;
 	} );
 
 	afterEach( () => {
+		global.Image = originalImage;
 		delete ( window as unknown as { _tkq?: unknown } )._tkq;
 		delete ( window as unknown as { jetpackCookieConsentConfig?: unknown } )
 			.jetpackCookieConsentConfig;

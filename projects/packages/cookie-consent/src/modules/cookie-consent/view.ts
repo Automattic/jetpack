@@ -14,7 +14,7 @@ import {
 	trackPrivacyManageOpen,
 	trackPrivacyPolicyOptOut,
 } from './tracks';
-import { loadTracksScript } from './tracks-utils';
+import { ensureTracksLoaded } from './tracks-utils';
 import {
 	UNKNOWN_COUNTRY_CODE,
 	getCookie,
@@ -153,7 +153,7 @@ function registerTracksConsentListener(): void {
 	window.addEventListener( 'wp_consent_saved', ( event: Event ) => {
 		const consentEvent = event as CustomEvent< ConsentEvent >;
 		if ( consentEvent.detail?.choices && hasAnalyticsConsent( consentEvent.detail.choices ) ) {
-			loadTracksScript();
+			ensureTracksLoaded();
 		}
 	} );
 }
@@ -620,7 +620,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				if ( hasConsentSet() ) {
 					// User already made a choice, read from WP Consent API
 					if ( hasAnalyticsConsent( readConsentChoices() ) ) {
-						loadTracksScript();
+						ensureTracksLoaded();
 					}
 					return;
 				}
