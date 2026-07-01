@@ -1,20 +1,17 @@
 /**
  * External dependencies
  */
-import { useEffect, useRef, useState } from '@wordpress/element';
-import debugFactory from 'debug';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 /**
  * Internal dependencies
  */
 import { fetchCaptionTracks } from '../../lib/video-tracks/caption-tracks';
-import { useLocalEditGuard } from './use-local-edit-guard';
 /**
  * Types
  */
-import type { LocalEditSetter } from './use-local-edit-guard';
 import type { SavedCaptionTrack } from '../../lib/video-tracks/caption-tracks';
-
-const debug = debugFactory( 'videopress:caption-manager-modal:use-caption-tracks' );
+import type { Dispatch, SetStateAction } from 'react';
 
 type UseCaptionTracksArgs = {
 	guid: string;
@@ -24,84 +21,80 @@ type UseCaptionTracksArgs = {
 
 type UseCaptionTracksResult = {
 	captionTracks: SavedCaptionTrack[];
-	setCaptionTracks: LocalEditSetter< SavedCaptionTrack[] >;
+	setCaptionTracks: Dispatch< SetStateAction< SavedCaptionTrack[] > >;
 	isLoadingCaptionTracks: boolean;
+	invalidateCaptionTracks: () => void;
 };
+
+const EMPTY_CAPTION_TRACKS: SavedCaptionTrack[] = [];
+
+const getCaptionTracksQueryKey = ( guid: string ) => [ 'videopress', 'caption-tracks', guid ];
 
 /**
  * Loads and owns the locally stored caption-track drafts for a video.
  *
- * The list is fetched when the modal opens and then kept in state so mutations
- * (save/delete) can update it optimistically.
+ * Backed by a react-query cache keyed by GUID. Mutations write the cache
+ * optimistically via `setCaptionTracks`, which cancels any in-flight fetch so
+ * a stale response can't overwrite the optimistic list; after a mutation
+ * settles, `invalidateCaptionTracks` refetches the authoritative list (the
+ * caption-tracks REST store is strongly consistent).
  *
  * @param args         - Hook arguments.
  * @param args.guid    - VideoPress GUID.
  * @param args.isOpen  - Whether the modal is open.
  * @param args.onError - Called when the caption tracks can't be loaded, so a
  *                     stale-empty list doesn't silently invite duplicates.
- * @return Caption-track state and loading flag.
+ * @return Caption-track state, a loading flag, and cache controls.
  */
 export function useCaptionTracks( {
 	guid,
 	isOpen,
 	onError,
 }: UseCaptionTracksArgs ): UseCaptionTracksResult {
-	const [ captionTracks, setCaptionTracks ] = useState< SavedCaptionTrack[] >( [] );
-	const [ isLoadingCaptionTracks, setIsLoadingCaptionTracks ] = useState( false );
+	const queryClient = useQueryClient();
 	const onErrorRef = useRef( onError );
 	onErrorRef.current = onError;
-	const { hasLocalEditsRef, setWithGuard, resetLocalEdits } = useLocalEditGuard( setCaptionTracks );
 
+	const query = useQuery< SavedCaptionTrack[] >( {
+		queryKey: getCaptionTracksQueryKey( guid ),
+		queryFn: () => fetchCaptionTracks( guid ),
+		enabled: isOpen && !! guid,
+	} );
+
+	// Surface each load failure; the cached list keeps rendering meanwhile.
+	const { isError, errorUpdatedAt } = query;
 	useEffect( () => {
-		if ( ! isOpen || ! guid ) {
-			return;
+		if ( isError && errorUpdatedAt ) {
+			onErrorRef.current?.();
 		}
+	}, [ isError, errorUpdatedAt ] );
 
-		let isMounted = true;
-		resetLocalEdits();
-		setIsLoadingCaptionTracks( true );
-		fetchCaptionTracks( guid )
-			.then( loadedCaptionTracks => {
-				if ( ! isMounted ) {
-					return;
-				}
-
-				if ( ! hasLocalEditsRef.current ) {
-					setCaptionTracks( loadedCaptionTracks );
-					return;
-				}
-
-				// A save landed before this fetch resolved; keep it and merge the server drafts in behind it.
-				setCaptionTracks( current => {
-					const localIds = new Set( current.map( track => track.id ) );
-					return [
-						...current,
-						...loadedCaptionTracks.filter( track => ! localIds.has( track.id ) ),
-					];
+	const setCaptionTracks = useCallback< Dispatch< SetStateAction< SavedCaptionTrack[] > > >(
+		value => {
+			const queryKey = getCaptionTracksQueryKey( guid );
+			/*
+			 * Cancel the in-flight open-fetch first so its now-stale response can't
+			 * land, and write only after the cancellation's state revert has settled
+			 * — a synchronous write here would itself be reverted.
+			 */
+			void queryClient.cancelQueries( { queryKey } ).then( () => {
+				queryClient.setQueryData< SavedCaptionTrack[] >( queryKey, current => {
+					const currentTracks = current ?? EMPTY_CAPTION_TRACKS;
+					return typeof value === 'function' ? value( currentTracks ) : value;
 				} );
-			} )
-			.catch( error => {
-				debug( 'fetch caption tracks error', error );
-				if ( ! isMounted ) {
-					return;
-				}
-
-				// Report the failure regardless; only skip the empty fallback so it can't wipe local edits.
-				if ( ! hasLocalEditsRef.current ) {
-					setCaptionTracks( [] );
-				}
-				onErrorRef.current?.();
-			} )
-			.finally( () => {
-				if ( isMounted ) {
-					setIsLoadingCaptionTracks( false );
-				}
 			} );
+		},
+		[ guid, queryClient ]
+	);
 
-		return () => {
-			isMounted = false;
-		};
-	}, [ guid, isOpen, hasLocalEditsRef, resetLocalEdits ] );
+	const invalidateCaptionTracks = useCallback( () => {
+		void queryClient.invalidateQueries( { queryKey: getCaptionTracksQueryKey( guid ) } );
+	}, [ guid, queryClient ] );
 
-	return { captionTracks, setCaptionTracks: setWithGuard, isLoadingCaptionTracks };
+	return {
+		captionTracks: query.data ?? EMPTY_CAPTION_TRACKS,
+		setCaptionTracks,
+		isLoadingCaptionTracks: query.isLoading,
+		invalidateCaptionTracks,
+	};
 }

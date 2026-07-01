@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event -- The mocked ComboboxControl is controlled by its value, so a single fireEvent.change is needed to replace the language instead of userEvent.type appending to it. */
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CaptionManagerModal from '..';
 import getMediaToken from '../../../lib/get-media-token';
@@ -166,6 +166,14 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</div>
 	),
+	__experimentalConfirmDialog: ( { children, isOpen, onCancel, onConfirm, confirmButtonText } ) =>
+		isOpen ? (
+			<div role="alertdialog">
+				<p>{ children }</p>
+				<button onClick={ onCancel }>Cancel</button>
+				<button onClick={ onConfirm }>{ confirmButtonText }</button>
+			</div>
+		) : null,
 	Notice: ( { children } ) => <div role="alert">{ children }</div>,
 	TextareaControl: ( { label, onChange, value } ) => (
 		<label htmlFor={ label }>
@@ -345,7 +353,6 @@ describe( 'CaptionManagerModal', () => {
 			value: jest.fn(),
 			writable: true,
 		} );
-		jest.spyOn( window, 'confirm' ).mockImplementation().mockReturnValue( true );
 		jest
 			.spyOn( window.URL, 'createObjectURL' )
 			.mockImplementation()
@@ -364,7 +371,15 @@ describe( 'CaptionManagerModal', () => {
 			reader.readAsText( file );
 		} );
 
-	it( 'registers the subtitle cue block used by the editor', () => {
+	const getConfirmDialog = () => screen.getByRole( 'alertdialog' );
+
+	it( 'registers the subtitle cue block when the modal first mounts, not at import time', () => {
+		expect(
+			jest.requireMock( '@wordpress/blocks' ).__registry.get( 'videopress/caption-cue' )
+		).toBeUndefined();
+
+		render( <CaptionManagerModal { ...defaultProps } /> );
+
 		expect(
 			jest.requireMock( '@wordpress/blocks' ).__registry.get( 'videopress/caption-cue' )
 		).toEqual(
@@ -526,14 +541,15 @@ describe( 'CaptionManagerModal', () => {
 
 	it( 'prompts before discarding unsaved cue edits and stays in the editor when cancelled', async () => {
 		const user = userEvent.setup();
-		( window.confirm as jest.Mock ).mockReturnValue( false );
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
 		await user.click( screen.getByText( 'Add track' ) );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Unsaved cue.' );
 		await user.click( screen.getByText( 'Back to tracks' ) );
 
-		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+		expect( getConfirmDialog() ).toHaveTextContent( 'Discard unsaved subtitle changes?' );
+		await user.click( within( getConfirmDialog() ).getByText( 'Cancel' ) );
+
 		expect( screen.getByText( 'Back to tracks' ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Cue text' ) ).toHaveValue( 'Unsaved cue.' );
 	} );
@@ -546,7 +562,9 @@ describe( 'CaptionManagerModal', () => {
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Unsaved cue.' );
 		await user.click( screen.getByText( 'Back to tracks' ) );
 
-		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+		expect( getConfirmDialog() ).toHaveTextContent( 'Discard unsaved subtitle changes?' );
+		await user.click( within( getConfirmDialog() ).getByText( 'Discard' ) );
+
 		expect( screen.getByText( 'Add track' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Back to tracks' ) ).not.toBeInTheDocument();
 	} );
@@ -576,7 +594,7 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getByText( 'Back to tracks' ) );
 
-		expect( window.confirm ).not.toHaveBeenCalled();
+		expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Add track' ) ).toBeInTheDocument();
 	} );
 
@@ -588,12 +606,11 @@ describe( 'CaptionManagerModal', () => {
 		await user.type( screen.getByLabelText( 'Subtitle text' ), 'Some transcript.' );
 		await user.click( screen.getByText( 'Back to tracks' ) );
 
-		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+		expect( getConfirmDialog() ).toHaveTextContent( 'Discard unsaved subtitle changes?' );
 	} );
 
 	it( 'prompts before closing with unsaved edits and stays open when cancelled', async () => {
 		const user = userEvent.setup();
-		( window.confirm as jest.Mock ).mockReturnValue( false );
 		const onClose = jest.fn();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } onClose={ onClose } /> );
 
@@ -601,7 +618,9 @@ describe( 'CaptionManagerModal', () => {
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Unsaved cue.' );
 		await user.click( screen.getByRole( 'button', { name: 'Close dialog' } ) );
 
-		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+		expect( getConfirmDialog() ).toHaveTextContent( 'Discard unsaved subtitle changes?' );
+		await user.click( within( getConfirmDialog() ).getByText( 'Cancel' ) );
+
 		expect( onClose ).not.toHaveBeenCalled();
 	} );
 
@@ -613,6 +632,7 @@ describe( 'CaptionManagerModal', () => {
 		await user.click( screen.getByText( 'Add track' ) );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Unsaved cue.' );
 		await user.click( screen.getByRole( 'button', { name: 'Close dialog' } ) );
+		await user.click( within( getConfirmDialog() ).getByText( 'Discard' ) );
 
 		expect( onClose ).toHaveBeenCalledTimes( 1 );
 	} );
@@ -1025,9 +1045,11 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getAllByText( 'Delete' )[ 0 ] );
 
-		expect( window.confirm ).toHaveBeenCalledWith(
+		expect( getConfirmDialog() ).toHaveTextContent(
 			'Delete the English subtitle track? This cannot be undone.'
 		);
+		await user.click( within( getConfirmDialog() ).getByText( 'Delete' ) );
+
 		await waitFor( () =>
 			expect( deleteTrackForGuid ).toHaveBeenCalledWith( tracks[ 0 ], 'abc123' )
 		);
@@ -1036,10 +1058,10 @@ describe( 'CaptionManagerModal', () => {
 
 	it( 'does not delete when the confirmation is cancelled', async () => {
 		const user = userEvent.setup();
-		( window.confirm as jest.Mock ).mockReturnValue( false );
 		render( <CaptionManagerModal { ...defaultProps } /> );
 
 		await user.click( screen.getAllByText( 'Delete' )[ 0 ] );
+		await user.click( within( getConfirmDialog() ).getByText( 'Cancel' ) );
 
 		expect( deleteTrackForGuid ).not.toHaveBeenCalled();
 	} );
@@ -1065,7 +1087,11 @@ describe( 'CaptionManagerModal', () => {
 		await expect( screen.findByText( 'Portuguese' ) ).resolves.toBeInTheDocument();
 		await user.click( screen.getByRole( 'button', { name: 'Delete' } ) );
 
-		expect( window.confirm ).toHaveBeenCalled();
+		expect( getConfirmDialog() ).toHaveTextContent(
+			'Delete the Portuguese subtitle draft? This cannot be undone.'
+		);
+		await user.click( within( getConfirmDialog() ).getByText( 'Delete' ) );
+
 		await waitFor( () => expect( deleteCaptionTrack ).toHaveBeenCalledWith( 202 ) );
 		await waitFor( () => expect( screen.queryByText( 'Portuguese' ) ).not.toBeInTheDocument() );
 	} );
@@ -1469,7 +1495,6 @@ describe( 'CaptionManagerModal', () => {
 
 	it( 'guards a file drop behind the discard prompt while cue edits are unsaved', async () => {
 		const user = userEvent.setup();
-		( window.confirm as jest.Mock ).mockReturnValue( false );
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
 		await user.click( screen.getByText( 'Add track' ) );
@@ -1481,9 +1506,30 @@ describe( 'CaptionManagerModal', () => {
 			] );
 		} );
 
-		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+		expect( getConfirmDialog() ).toHaveTextContent( 'Discard unsaved subtitle changes?' );
+		await user.click( within( getConfirmDialog() ).getByText( 'Cancel' ) );
+
 		expect( screen.queryByText( 'Upload track' ) ).not.toBeInTheDocument();
 		expect( screen.getByLabelText( 'Cue text' ) ).toHaveValue( 'Unsaved cue.' );
+	} );
+
+	it( 'starts an upload seeded with the dropped file once the discard is confirmed', async () => {
+		const user = userEvent.setup();
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Unsaved cue.' );
+
+		act( () => {
+			mockDropZoneProps.onFilesDrop?.( [
+				new File( [ 'WEBVTT' ], 'subs.vtt', { type: 'text/vtt' } ),
+			] );
+		} );
+
+		await user.click( within( getConfirmDialog() ).getByText( 'Discard' ) );
+
+		expect( screen.getByText( 'Upload track' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'subs.vtt' ) ).toBeInTheDocument();
 	} );
 
 	it( 'reports a failed draft save and keeps the editor dirty', async () => {
@@ -1501,9 +1547,8 @@ describe( 'CaptionManagerModal', () => {
 		);
 
 		// The save failed, so leaving the editor must still prompt about unsaved edits.
-		( window.confirm as jest.Mock ).mockReturnValue( false );
 		await user.click( screen.getByText( 'Back to tracks' ) );
-		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+		expect( getConfirmDialog() ).toHaveTextContent( 'Discard unsaved subtitle changes?' );
 	} );
 
 	it( 'surfaces a failed draft delete and keeps the draft listed', async () => {
@@ -1527,6 +1572,7 @@ describe( 'CaptionManagerModal', () => {
 
 		await expect( screen.findByText( 'Portuguese' ) ).resolves.toBeInTheDocument();
 		await user.click( screen.getByRole( 'button', { name: 'Delete' } ) );
+		await user.click( within( getConfirmDialog() ).getByText( 'Delete' ) );
 
 		await waitFor( () => expect( deleteCaptionTrack ).toHaveBeenCalledWith( 202 ) );
 		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
@@ -1587,7 +1633,6 @@ describe( 'CaptionManagerModal', () => {
 
 	it( 'treats a language-only change as an unsaved edit', async () => {
 		const user = userEvent.setup();
-		( window.confirm as jest.Mock ).mockReturnValue( false );
 		const onClose = jest.fn();
 		( fetchCaptionTracks as jest.Mock ).mockResolvedValueOnce( [
 			{
@@ -1610,7 +1655,7 @@ describe( 'CaptionManagerModal', () => {
 		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'fr' } } );
 		await user.click( screen.getByRole( 'button', { name: 'Close dialog' } ) );
 
-		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+		expect( getConfirmDialog() ).toHaveTextContent( 'Discard unsaved subtitle changes?' );
 		expect( onClose ).not.toHaveBeenCalled();
 	} );
 

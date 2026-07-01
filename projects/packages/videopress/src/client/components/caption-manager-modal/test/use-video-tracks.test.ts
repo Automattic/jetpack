@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { createElement } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -12,6 +14,7 @@ import { useVideoTracks } from '../use-video-tracks';
  * Types
  */
 import type { VideoTextTrack } from '../../../lib/video-tracks/types';
+import type { ReactNode } from 'react';
 
 jest.mock( 'debug', () => () => jest.fn() );
 jest.mock( '../../../lib/fetch-video-item', () => ( {
@@ -41,6 +44,22 @@ const deferred = < T >() => {
 	return { promise, resolve, reject };
 };
 
+/**
+ * Render the hook inside a fresh query client provider.
+ *
+ * @param props - Hook arguments.
+ * @return The renderHook result.
+ */
+const renderVideoTracks = ( props: Parameters< typeof useVideoTracks >[ 0 ] ) => {
+	const queryClient = new QueryClient( {
+		defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
+	} );
+	return renderHook( () => useVideoTracks( props ), {
+		wrapper: ( { children }: { children: ReactNode } ) =>
+			createElement( QueryClientProvider, { client: queryClient }, children ),
+	} );
+};
+
 describe( 'useVideoTracks', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -50,23 +69,41 @@ describe( 'useVideoTracks', () => {
 	it( 'replaces the managed tracks with the fetched video info on open', async () => {
 		fetchVideoItemMock.mockResolvedValue( { tracks: {}, width: 1920, height: 1080 } );
 
-		const { result } = renderHook( () =>
-			useVideoTracks( { guid: 'abc123', isOpen: true, tracks: [ track( 'prop' ) ] } )
-		);
+		const { result } = renderVideoTracks( {
+			guid: 'abc123',
+			isOpen: true,
+			tracks: [ track( 'prop' ) ],
+		} );
 
+		expect( result.current.managedTracks.map( t => t.srcLang ) ).toEqual( [ 'prop' ] );
 		await waitFor( () =>
 			expect( result.current.managedTracks.map( t => t.srcLang ) ).toEqual( [ 'server' ] )
 		);
 		expect( result.current.previewAspectRatio ).toBe( '1920 / 1080' );
 	} );
 
-	it( 'keeps an optimistic mutation that landed before the fetch resolved', async () => {
+	it( 'keeps the prop tracks when the video info carries none', async () => {
+		fetchVideoItemMock.mockResolvedValue( { width: 1920, height: 1080 } );
+
+		const { result } = renderVideoTracks( {
+			guid: 'abc123',
+			isOpen: true,
+			tracks: [ track( 'prop' ) ],
+		} );
+
+		await waitFor( () => expect( result.current.previewAspectRatio ).toBe( '1920 / 1080' ) );
+		expect( result.current.managedTracks.map( t => t.srcLang ) ).toEqual( [ 'prop' ] );
+	} );
+
+	it( 'keeps an optimistic mutation over the response of an in-flight fetch', async () => {
 		const fetch = deferred();
 		fetchVideoItemMock.mockReturnValue( fetch.promise );
 
-		const { result } = renderHook( () =>
-			useVideoTracks( { guid: 'abc123', isOpen: true, tracks: [ track( 'prop' ) ] } )
-		);
+		const { result } = renderVideoTracks( {
+			guid: 'abc123',
+			isOpen: true,
+			tracks: [ track( 'prop' ) ],
+		} );
 
 		act( () => result.current.setManagedTracks( [ track( 'local' ) ] ) );
 
@@ -74,17 +111,20 @@ describe( 'useVideoTracks', () => {
 			fetch.resolve( { tracks: {}, width: 1920, height: 1080 } );
 		} );
 
-		expect( result.current.managedTracks.map( t => t.srcLang ) ).toEqual( [ 'local' ] );
+		await waitFor( () =>
+			expect( result.current.managedTracks.map( t => t.srcLang ) ).toEqual( [ 'local' ] )
+		);
 	} );
 
-	it( 'reports a load failure even after a local edit', async () => {
+	it( 'keeps a local edit when the cancelled fetch rejects', async () => {
 		const fetch = deferred();
 		fetchVideoItemMock.mockReturnValue( fetch.promise );
-		const onError = jest.fn();
 
-		const { result } = renderHook( () =>
-			useVideoTracks( { guid: 'abc123', isOpen: true, tracks: [ track( 'prop' ) ], onError } )
-		);
+		const { result } = renderVideoTracks( {
+			guid: 'abc123',
+			isOpen: true,
+			tracks: [ track( 'prop' ) ],
+		} );
 
 		act( () => result.current.setManagedTracks( [ track( 'local' ) ] ) );
 
@@ -92,7 +132,28 @@ describe( 'useVideoTracks', () => {
 			fetch.reject( new Error( 'network down' ) );
 		} );
 
+		await waitFor( () =>
+			expect( result.current.managedTracks.map( t => t.srcLang ) ).toEqual( [ 'local' ] )
+		);
+	} );
+
+	it( 'reports a load failure when nothing was edited locally', async () => {
+		const fetch = deferred();
+		fetchVideoItemMock.mockReturnValue( fetch.promise );
+		const onError = jest.fn();
+
+		const { result } = renderVideoTracks( {
+			guid: 'abc123',
+			isOpen: true,
+			tracks: [ track( 'prop' ) ],
+			onError,
+		} );
+
+		await act( async () => {
+			fetch.reject( new Error( 'network down' ) );
+		} );
+
 		await waitFor( () => expect( onError ).toHaveBeenCalledTimes( 1 ) );
-		expect( result.current.managedTracks.map( t => t.srcLang ) ).toEqual( [ 'local' ] );
+		expect( result.current.managedTracks.map( t => t.srcLang ) ).toEqual( [ 'prop' ] );
 	} );
 } );

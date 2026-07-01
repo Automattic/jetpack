@@ -1,41 +1,50 @@
 /**
  * External dependencies
  */
-import { useEffect, useRef, useState } from '@wordpress/element';
-import debugFactory from 'debug';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
 import { fetchVideoItem } from '../../lib/fetch-video-item';
 import { flattenVideoTracks } from '../../lib/video-tracks';
-import { useLocalEditGuard } from './use-local-edit-guard';
 /**
  * Types
  */
-import type { LocalEditSetter } from './use-local-edit-guard';
 import type { VideoTextTrack } from '../../lib/video-tracks/types';
+import type { Dispatch, SetStateAction } from 'react';
 
-const debug = debugFactory( 'videopress:caption-manager-modal:use-video-tracks' );
+type VideoTracksQueryData = {
+	/** Flattened track list, or null when the video info carried none. */
+	tracks: VideoTextTrack[] | null;
+	aspectRatio: string | undefined;
+};
 
 type UseVideoTracksArgs = {
 	guid: string;
 	isOpen: boolean;
-	tracks: VideoTextTrack[];
+	tracks?: VideoTextTrack[];
 	onError?: () => void;
 };
 
 type UseVideoTracksResult = {
 	managedTracks: VideoTextTrack[];
-	setManagedTracks: LocalEditSetter< VideoTextTrack[] >;
+	setManagedTracks: Dispatch< SetStateAction< VideoTextTrack[] > >;
 	previewAspectRatio: string | undefined;
 };
+
+const EMPTY_TRACKS: VideoTextTrack[] = [];
+
+const getVideoTracksQueryKey = ( guid: string ) => [ 'videopress', 'video-info', guid ];
 
 /**
  * Owns the video's live "managed" track list and preview aspect ratio.
  *
- * The video-info tracks are the source of truth; the `tracks` prop isn't always
- * populated (e.g. the dashboard media REST omits it), so the list is re-synced
- * from the prop on open and then replaced with the fetched video info.
+ * The video-info endpoint is the source of truth; the `tracks` prop isn't
+ * always populated (e.g. the dashboard media REST omits it), so it renders
+ * until the query resolves. Mutations write the cache optimistically via
+ * `setManagedTracks`, which cancels any in-flight fetch so a stale response
+ * can't overwrite the optimistic list.
  *
  * @param args         - Hook arguments.
  * @param args.guid    - VideoPress GUID.
@@ -47,58 +56,75 @@ type UseVideoTracksResult = {
 export function useVideoTracks( {
 	guid,
 	isOpen,
-	tracks,
+	tracks = EMPTY_TRACKS,
 	onError,
 }: UseVideoTracksArgs ): UseVideoTracksResult {
-	const [ managedTracks, setManagedTracks ] = useState< VideoTextTrack[] >( tracks );
-	const [ previewAspectRatio, setPreviewAspectRatio ] = useState< string | undefined >();
+	const queryClient = useQueryClient();
 	const onErrorRef = useRef( onError );
 	onErrorRef.current = onError;
-	const { hasLocalEditsRef, setWithGuard, resetLocalEdits } = useLocalEditGuard( setManagedTracks );
+	const propTracksRef = useRef( tracks );
+	propTracksRef.current = tracks;
 
-	// Re-sync from the tracks prop only on open, so an interim empty prop can't blank the list.
+	/*
+	 * Capture the seed on open only: an interim prop change while the modal is
+	 * open (e.g. a host refetch whose media REST field omits tracks) must not
+	 * blank the list.
+	 */
+	const [ seedTracks, setSeedTracks ] = useState( tracks );
+	const seedTracksRef = useRef( tracks );
 	useEffect( () => {
 		if ( isOpen ) {
-			resetLocalEdits();
-			setManagedTracks( tracks );
+			seedTracksRef.current = propTracksRef.current;
+			setSeedTracks( propTracksRef.current );
 		}
-	}, [ isOpen, resetLocalEdits ] );
+	}, [ isOpen ] );
 
-	// Fetch the video info on open for the authoritative track list and aspect ratio.
+	const query = useQuery< VideoTracksQueryData >( {
+		queryKey: getVideoTracksQueryKey( guid ),
+		queryFn: async () => {
+			const info = await fetchVideoItem( { guid, isPrivate: false } );
+			const width = Number( info?.width );
+			const height = Number( info?.height );
+			return {
+				tracks: info?.tracks ? flattenVideoTracks( info.tracks ) : null,
+				aspectRatio: width > 0 && height > 0 ? `${ width } / ${ height }` : undefined,
+			};
+		},
+		enabled: isOpen && !! guid,
+	} );
+
+	// Surface each load failure; the prop/cached list keeps rendering meanwhile.
+	const { isError, errorUpdatedAt } = query;
 	useEffect( () => {
-		if ( ! isOpen || ! guid ) {
-			return;
+		if ( isError && errorUpdatedAt ) {
+			onErrorRef.current?.();
 		}
+	}, [ isError, errorUpdatedAt ] );
 
-		let isMounted = true;
-		fetchVideoItem( { guid, isPrivate: false } )
-			.then( info => {
-				if ( ! isMounted ) {
-					return;
-				}
-
-				// Keep an optimistic mutation that raced ahead of this fetch rather than reverting to it.
-				if ( info?.tracks && ! hasLocalEditsRef.current ) {
-					setManagedTracks( flattenVideoTracks( info.tracks ) );
-				}
-
-				const width = Number( info?.width );
-				const height = Number( info?.height );
-				if ( width > 0 && height > 0 ) {
-					setPreviewAspectRatio( `${ width } / ${ height }` );
-				}
-			} )
-			.catch( error => {
-				debug( 'fetch video info error', error );
-				if ( isMounted ) {
-					onErrorRef.current?.();
-				}
+	const setManagedTracks = useCallback< Dispatch< SetStateAction< VideoTextTrack[] > > >(
+		value => {
+			const queryKey = getVideoTracksQueryKey( guid );
+			/*
+			 * Cancel the in-flight open-fetch first so its now-stale response can't
+			 * land, and write only after the cancellation's state revert has settled
+			 * — a synchronous write here would itself be reverted.
+			 */
+			void queryClient.cancelQueries( { queryKey } ).then( () => {
+				queryClient.setQueryData< VideoTracksQueryData >( queryKey, current => {
+					const currentTracks = current?.tracks ?? seedTracksRef.current;
+					return {
+						tracks: typeof value === 'function' ? value( currentTracks ) : value,
+						aspectRatio: current?.aspectRatio,
+					};
+				} );
 			} );
+		},
+		[ guid, queryClient ]
+	);
 
-		return () => {
-			isMounted = false;
-		};
-	}, [ guid, isOpen, hasLocalEditsRef ] );
-
-	return { managedTracks, setManagedTracks: setWithGuard, previewAspectRatio };
+	return {
+		managedTracks: query.data?.tracks ?? seedTracks,
+		setManagedTracks,
+		previewAspectRatio: query.data?.aspectRatio,
+	};
 }

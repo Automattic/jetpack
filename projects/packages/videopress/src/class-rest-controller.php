@@ -77,6 +77,7 @@ class Rest_Controller {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( Caption_Tracks::class, 'rest_save_track' ),
 					'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),
+					'args'                => Caption_Tracks::save_track_args(),
 				),
 			)
 		);
@@ -90,6 +91,7 @@ class Rest_Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( Caption_Tracks::class, 'rest_save_track' ),
 					'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),
+					'args'                => Caption_Tracks::save_track_args(),
 				),
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,

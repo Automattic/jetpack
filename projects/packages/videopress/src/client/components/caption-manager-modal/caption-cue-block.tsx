@@ -17,6 +17,7 @@ import {
 	normalizeCueTimestamp,
 	parseTimestampToSeconds,
 } from '../../lib/video-tracks/cues';
+import { useCaptionEditorContext } from './caption-editor-context';
 /**
  * Types
  */
@@ -36,46 +37,17 @@ type CaptionCueEditProps = {
 
 const DEFAULT_CUE_DURATION_SECONDS = 2;
 
-/*
- * Client ID of a freshly inserted cue whose text field should grab focus once it
- * mounts, so adding a cue lands the caret in the caption text rather than on the
- * first toolbar button.
- */
-let cueClientIdToFocus: string | null = null;
-
 /**
- * Mark a newly created cue so its text field receives focus when it mounts.
+ * Create a cue that starts at the given video playback time.
  *
- * @param clientId - Client ID of the new cue block.
- */
-export function focusCueOnMount( clientId: string ): void {
-	cueClientIdToFocus = clientId;
-}
-
-/*
- * Latest video playback time (seconds), kept current by the modal so a cue added
- * from within the editor starts at the moment the viewer is watching.
- */
-let currentVideoTimeSeconds = 0;
-
-/**
- * Update the playback time used to seed newly inserted cues.
- *
- * @param seconds - Current video time in seconds.
- */
-export function setCurrentCueVideoTime( seconds: number ): void {
-	currentVideoTimeSeconds = Number.isFinite( seconds ) ? Math.max( 0, seconds ) : 0;
-}
-
-/**
- * Create a cue that starts at the current video playback time.
- *
+ * @param currentTime - Current video time in seconds.
  * @return The new caption cue block.
  */
-function createCueAtPlayhead() {
+function createCueAtPlayhead( currentTime: number ) {
+	const seconds = Number.isFinite( currentTime ) ? Math.max( 0, currentTime ) : 0;
 	return createBlock( CAPTION_CUE_BLOCK_NAME, {
-		startTime: formatSecondsAsTimestamp( currentVideoTimeSeconds ),
-		endTime: formatSecondsAsTimestamp( currentVideoTimeSeconds + DEFAULT_CUE_DURATION_SECONDS ),
+		startTime: formatSecondsAsTimestamp( seconds ),
+		endTime: formatSecondsAsTimestamp( seconds + DEFAULT_CUE_DURATION_SECONDS ),
 	} );
 }
 
@@ -94,6 +66,7 @@ const CaptionCueEdit = ( {
 	clientId,
 	setAttributes,
 }: CaptionCueEditProps ): ReactElement => {
+	const { getCurrentTime, pendingFocusClientIdRef } = useCaptionEditorContext();
 	const { insertBlock, moveBlocksDown, moveBlocksUp, removeBlock } =
 		useDispatch( blockEditorStore );
 	const { index, count, rootClientId } = useSelect(
@@ -122,11 +95,11 @@ const CaptionCueEdit = ( {
 	const textRef = useRef< HTMLDivElement >( null );
 
 	useEffect( () => {
-		if ( cueClientIdToFocus === clientId ) {
-			cueClientIdToFocus = null;
+		if ( pendingFocusClientIdRef.current === clientId ) {
+			pendingFocusClientIdRef.current = null;
 			textRef.current?.querySelector( 'textarea' )?.focus();
 		}
-	}, [ clientId ] );
+	}, [ clientId, pendingFocusClientIdRef ] );
 
 	/**
 	 * Build a cue that follows this one, reusing its duration when available.
@@ -220,7 +193,7 @@ const CaptionCueEdit = ( {
 						showTooltip
 						onClick={ () => {
 							const block = createAdjacentCue( attributes.text );
-							focusCueOnMount( block.clientId );
+							pendingFocusClientIdRef.current = block.clientId;
 							insertBlock( block, index + 1, rootClientId, false );
 						} }
 					/>
@@ -240,8 +213,8 @@ const CaptionCueEdit = ( {
 				label={ __( 'Add subtitle below', 'jetpack-videopress-pkg' ) }
 				showTooltip
 				onClick={ () => {
-					const block = createCueAtPlayhead();
-					focusCueOnMount( block.clientId );
+					const block = createCueAtPlayhead( getCurrentTime() );
+					pendingFocusClientIdRef.current = block.clientId;
 					insertBlock( block, index + 1, rootClientId, false );
 				} }
 			/>

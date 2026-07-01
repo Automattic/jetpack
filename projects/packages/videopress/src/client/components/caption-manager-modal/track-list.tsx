@@ -39,15 +39,20 @@ export type DraftTrackRow = {
  */
 export type CaptionTrackRow = ManagedTrackRow | DraftTrackRow;
 
+/**
+ * The mutation currently in flight, if any. Any busy mutation disables the
+ * whole list; keyed actions also mark their own row as busy.
+ */
+export type TrackListBusy =
+	| { action: 'upload' | 'publish' }
+	| { action: 'delete' | 'download'; key: string }
+	| null;
+
 type TrackListProps = {
 	rows: CaptionTrackRow[];
 	isLoading: boolean;
 	emptyMessage: string;
-	deletingTrackKey: string | null;
-	downloadingTrackKey: string | null;
-	isSavingUpload: boolean;
-	isPublishing: boolean;
-	isLoadingTrackText: boolean;
+	busy: TrackListBusy;
 	onEditManaged: ( track: VideoTextTrack ) => void;
 	onReplaceManaged: ( track: VideoTextTrack ) => void;
 	onDownloadManaged: ( track: VideoTextTrack ) => void;
@@ -60,32 +65,24 @@ type TrackListProps = {
  * Presentational list of a video's subtitle tracks: published/managed tracks
  * and local drafts merged into one list, each with its available actions.
  *
- * @param props                     - Component props.
- * @param props.rows                - Merged track rows to render.
- * @param props.isLoading           - Whether the caption tracks are still loading.
- * @param props.emptyMessage        - Message shown when there are no tracks.
- * @param props.deletingTrackKey    - Key of the track currently being deleted.
- * @param props.downloadingTrackKey - Key of the track currently being downloaded.
- * @param props.isSavingUpload      - Whether an upload is in progress.
- * @param props.isPublishing        - Whether a publish is in progress.
- * @param props.isLoadingTrackText  - Whether track content is loading.
- * @param props.onEditManaged       - Edit a managed track.
- * @param props.onReplaceManaged    - Replace a managed track's file.
- * @param props.onDownloadManaged   - Download a managed track.
- * @param props.onDeleteManaged     - Delete a managed track.
- * @param props.onEditDraft         - Edit a draft track.
- * @param props.onDeleteDraft       - Delete a draft track.
+ * @param props                   - Component props.
+ * @param props.rows              - Merged track rows to render.
+ * @param props.isLoading         - Whether the caption tracks are still loading.
+ * @param props.emptyMessage      - Message shown when there are no tracks.
+ * @param props.busy              - Mutation currently in flight, if any.
+ * @param props.onEditManaged     - Edit a managed track.
+ * @param props.onReplaceManaged  - Replace a managed track's file.
+ * @param props.onDownloadManaged - Download a managed track.
+ * @param props.onDeleteManaged   - Delete a managed track.
+ * @param props.onEditDraft       - Edit a draft track.
+ * @param props.onDeleteDraft     - Delete a draft track.
  * @return The track list, or the empty/loading placeholder.
  */
 export default function TrackList( {
 	rows,
 	isLoading,
 	emptyMessage,
-	deletingTrackKey,
-	downloadingTrackKey,
-	isSavingUpload,
-	isPublishing,
-	isLoadingTrackText,
+	busy,
 	onEditManaged,
 	onReplaceManaged,
 	onDownloadManaged,
@@ -101,10 +98,12 @@ export default function TrackList( {
 		);
 	}
 
+	const isBusy = !! busy;
+
 	return (
 		<div className="videopress-caption-manager__track-list">
 			{ rows.map( row => {
-				const isDeleting = deletingTrackKey === row.key;
+				const isDeleting = busy?.action === 'delete' && busy.key === row.key;
 
 				if ( row.type === 'draft' ) {
 					return (
@@ -121,9 +120,7 @@ export default function TrackList( {
 									variant="link"
 									icon={ pencil }
 									onClick={ () => onEditDraft( row.captionTrack ) }
-									disabled={
-										isSavingUpload || isPublishing || isLoadingTrackText || !! deletingTrackKey
-									}
+									disabled={ isBusy }
 								>
 									{ __( 'Edit', 'jetpack-videopress-pkg' ) }
 								</Button>
@@ -132,7 +129,7 @@ export default function TrackList( {
 									icon={ trash }
 									isDestructive
 									isBusy={ isDeleting }
-									disabled={ isSavingUpload || isPublishing || !! deletingTrackKey }
+									disabled={ isBusy }
 									onClick={ () => onDeleteDraft( row.captionTrack ) }
 								>
 									{ __( 'Delete', 'jetpack-videopress-pkg' ) }
@@ -142,7 +139,7 @@ export default function TrackList( {
 					);
 				}
 
-				const isDownloading = downloadingTrackKey === row.key;
+				const isDownloading = busy?.action === 'download' && busy.key === row.key;
 
 				return (
 					<div className="videopress-caption-manager__track" key={ `managed-${ row.key }` }>
@@ -155,7 +152,7 @@ export default function TrackList( {
 								variant="link"
 								icon={ pencil }
 								onClick={ () => onEditManaged( row.track ) }
-								disabled={ isSavingUpload || isPublishing || !! deletingTrackKey || ! row.isReady }
+								disabled={ isBusy || ! row.isReady }
 							>
 								{ __( 'Edit', 'jetpack-videopress-pkg' ) }
 							</Button>
@@ -163,13 +160,7 @@ export default function TrackList( {
 								variant="link"
 								icon={ replace }
 								onClick={ () => onReplaceManaged( row.track ) }
-								disabled={
-									isSavingUpload ||
-									isPublishing ||
-									!! deletingTrackKey ||
-									! row.isReady ||
-									row.isGenerated
-								}
+								disabled={ isBusy || ! row.isReady || row.isGenerated }
 							>
 								{ __( 'Replace file', 'jetpack-videopress-pkg' ) }
 							</Button>
@@ -178,13 +169,7 @@ export default function TrackList( {
 								icon={ download }
 								isBusy={ isDownloading }
 								onClick={ () => onDownloadManaged( row.track ) }
-								disabled={
-									isSavingUpload ||
-									isPublishing ||
-									isDownloading ||
-									!! deletingTrackKey ||
-									! row.isReady
-								}
+								disabled={ isBusy || ! row.isReady }
 							>
 								{ __( 'Download', 'jetpack-videopress-pkg' ) }
 							</Button>
@@ -193,7 +178,7 @@ export default function TrackList( {
 								icon={ trash }
 								isDestructive
 								isBusy={ isDeleting }
-								disabled={ isSavingUpload || isDeleting || isDownloading || isPublishing }
+								disabled={ isBusy }
 								onClick={ () => onDeleteManaged( row.track ) }
 							>
 								{ __( 'Delete', 'jetpack-videopress-pkg' ) }

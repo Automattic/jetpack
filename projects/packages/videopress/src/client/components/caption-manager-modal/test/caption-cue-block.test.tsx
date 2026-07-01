@@ -2,7 +2,9 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getBlockType, unregisterBlockType } from '@wordpress/blocks';
 import { CAPTION_CUE_BLOCK_NAME } from '../../../lib/video-tracks/cues';
-import { registerCaptionCueBlock, setCurrentCueVideoTime } from '../caption-cue-block';
+import { registerCaptionCueBlock } from '../caption-cue-block';
+import { CaptionEditorContext } from '../caption-editor-context';
+import type { CaptionEditorContextValue } from '../caption-editor-context';
 import type { ComponentType } from 'react';
 
 /**
@@ -139,22 +141,29 @@ describe( 'registerCaptionCueBlock', () => {
 } );
 
 describe( 'CaptionCueEdit', () => {
-	const setup = ( attributes = {} ) => {
+	const setup = ( attributes = {}, context: Partial< CaptionEditorContextValue > = {} ) => {
 		const setAttributes = jest.fn();
+		const contextValue: CaptionEditorContextValue = {
+			getCurrentTime: () => 0,
+			pendingFocusClientIdRef: { current: null },
+			...context,
+		};
 		const Edit = registerCaptionCueBlock()?.edit as unknown as ComponentType< CueEditProps >;
 		render(
-			<Edit
-				attributes={ {
-					startTime: '00:00:00.000',
-					endTime: '00:00:02.000',
-					text: 'Hello',
-					...attributes,
-				} }
-				clientId="cue-1"
-				setAttributes={ setAttributes }
-			/>
+			<CaptionEditorContext.Provider value={ contextValue }>
+				<Edit
+					attributes={ {
+						startTime: '00:00:00.000',
+						endTime: '00:00:02.000',
+						text: 'Hello',
+						...attributes,
+					} }
+					clientId="cue-1"
+					setAttributes={ setAttributes }
+				/>
+			</CaptionEditorContext.Provider>
 		);
-		return { setAttributes };
+		return { setAttributes, contextValue };
 	};
 
 	it( 'renders the cue number and fields with their current values', () => {
@@ -238,8 +247,7 @@ describe( 'CaptionCueEdit', () => {
 	} );
 
 	it( 'inserts a cue below at the current playback time', async () => {
-		setCurrentCueVideoTime( 5 );
-		setup();
+		setup( {}, { getCurrentTime: () => 5 } );
 
 		await userEvent.click( screen.getByLabelText( 'Add subtitle below' ) );
 
@@ -252,6 +260,13 @@ describe( 'CaptionCueEdit', () => {
 			undefined,
 			false
 		);
+	} );
+
+	it( 'focuses the text field of a newly inserted cue and clears the pending flag', () => {
+		const { contextValue } = setup( {}, { pendingFocusClientIdRef: { current: 'cue-1' } } );
+
+		expect( contextValue.pendingFocusClientIdRef.current ).toBeNull();
+		expect( screen.getByLabelText( 'Subtitle' ) ).toHaveFocus();
 	} );
 
 	it( 'removes the block when the delete button is clicked', async () => {

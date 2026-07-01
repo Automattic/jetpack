@@ -606,6 +606,83 @@ class Caption_Tracks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that the route schema rejects a status outside the draft/publish enum.
+	 */
+	public function test_caption_track_save_rejects_invalid_status() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$payload           = $this->track_payload();
+		$payload['status'] = 'pending';
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $payload );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Tests that the route schema rejects meta keys outside the registered set.
+	 */
+	public function test_caption_track_save_rejects_unknown_meta_key() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$payload                        = $this->track_payload();
+		$payload['meta']['_wp_smuggle'] = 'value';
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $payload );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Tests that the route schema requires the meta object.
+	 */
+	public function test_caption_track_save_requires_meta() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$payload = $this->track_payload();
+		unset( $payload['meta'] );
+		$payload['guid'] = 'abcd1234';
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $payload );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_missing_callback_param', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Tests that the route schema rejects non-string content.
+	 */
+	public function test_caption_track_save_rejects_non_string_content() {
+		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
+		wp_set_current_user( $this->admin_id );
+
+		$payload            = $this->track_payload();
+		$payload['content'] = array( 'not' => 'a string' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request->set_body_params( $payload );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	/**
 	 * Tests that a cue block's inner HTML is stripped from stored content.
 	 *
 	 * Cue blocks are rebuilt from their name and attributes only, so markup
