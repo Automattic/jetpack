@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add the externalized Jetpack connection data store on a /connection subpath.
+Add the externalized Jetpack connection data store on a /connection subpath, registered lazily via initConnectionStore() so it is only initialised where it is used.

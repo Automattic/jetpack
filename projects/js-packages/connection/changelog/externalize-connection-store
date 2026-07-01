@@ -1,4 +1,4 @@
-Significance: patch
+Significance: major
 Type: changed
 
-Externalize the connection data store into the shared stores bundle. The store's public surface is unchanged.
+Externalize the connection data store into the shared stores bundle and register it lazily. Importing the package no longer auto-registers the store; consumers that use the store directly must now call initConnectionStore() to register it and select/dispatch against the returned store descriptor. Components and hooks (useConnection, ConnectScreen, etc.) initialise it automatically and are unaffected.
