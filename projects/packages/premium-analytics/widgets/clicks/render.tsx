@@ -346,7 +346,7 @@ function ClicksInner( { max }: { max: number } ) {
 						<Text className={ styles.breadcrumbCurrent }>{ selectedClick?.label }</Text>
 					</>
 				) : (
-					<Text>
+					<Text className={ styles.breadcrumbTitle }>
 						<ClicksHeaderTitle />
 					</Text>
 				) }
