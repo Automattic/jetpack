@@ -27,9 +27,17 @@ The test suite is designed to run in TeamCity. See `TEAMCITY-SETUP.md` for detai
 | `WP_ADMIN_USER`        | WordPress admin username (default: admin)                                                                                                                                                                                                                                             |
 | `WP_ADMIN_PASS`        | WordPress admin password (default: password)                                                                                                                                                                                                                                          |
 
-## Metric
+## Metrics
 
-- `wp-admin-dashboard-connection-sim-largestContentfulPaint` - Dashboard LCP with simulated Jetpack connection
+The `jetpackConnected` scenario posts three metrics per run, all in a single CodeVitals call (one per `metrics` entry in `scenarios.js`):
+
+| CodeVitals key                                             | Field  | Type   | Description                                     |
+| ---------------------------------------------------------- | ------ | ------ | ----------------------------------------------- |
+| `wp-admin-dashboard-connection-sim-largestContentfulPaint` | `lcp`  | `lcp`  | Dashboard LCP with simulated Jetpack connection |
+| `wp-admin-dashboard-connection-sim-timeToFirstByte`        | `ttfb` | `ttfb` | Dashboard TTFB (navigation `responseStart`)     |
+| `wp-admin-dashboard-connection-sim-firstContentfulPaint`   | `fcp`  | `fcp`  | Dashboard FCP (first-contentful-paint)          |
+
+Each metric reads its value from `summary.<field>.median` and is range-checked against its `type` in `SANITY_RANGES` before posting.
 
 ## How It Works
 
@@ -71,7 +79,7 @@ CodeVitals is an **append-only** store with no self-service rollback. Once a bad
 | `tbt`  | 0   | 10000 |
 | `cls`  | 0   | 5     |
 
-Add a row when a new metric type starts being posted, and set `metricType` on the scenario so the check applies to it.
+Add a row when a new metric type starts being posted, and set the `type` on the metric so the check applies to it — either `type` on a `metrics[]` entry (the multi-metric shape) or the scenario-level `metricType` (the legacy single-key shape). A keyed metric with no type is refused (never posted unchecked).
 
 ### Staging keys
 

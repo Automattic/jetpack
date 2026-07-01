@@ -46,8 +46,51 @@ function exitCodeForError( error ) {
  *
  * Each entry carries its CodeVitals key, value, and (optional) type. The type
  * drives the sanity-range check; untyped legacy entries are posted unchecked.
+ *
+ * Three shapes, in precedence order. A `metrics` array yields one typed entry per element,
+ * each reading its value from summary.<field>.median and posting to its own key (the
+ * FORMS-707 multi-metric-per-scenario path). A single `metricKey` yields one typed entry
+ * reading the flat summary.median (legacy). A `metricPrefix` yields five untyped
+ * prefix-suffixed entries, posted unchecked (legacy).
  */
 function extractScenarioMetrics( scenario, summary ) {
+	// Multi-metric path: a scenario declares several metrics posted together in one call.
+	if ( Array.isArray( scenario.metrics ) ) {
+		const seen = new Set();
+		return scenario.metrics.map( metric => {
+			// Every keyed metric MUST declare a type so checkSanityRange can range-check it —
+			// the same fail-closed invariant the single-metricKey path enforces below. A
+			// missing type is a scenario misconfiguration, so fail loud here (the dry-run CI
+			// smoke test catches it before any post) rather than post an unchecked value.
+			if ( ! metric.type ) {
+				throw new ValidationError(
+					`Scenario "${ scenario.key ?? 'unknown' }" metric "${
+						metric.codevitalsKey ?? metric.field ?? 'unknown'
+					}" has no type; refusing to post an unchecked keyed metric`
+				);
+			}
+			// A metrics array that lists the same key twice would post one value then clobber
+			// it — a scenario-config bug, not bad runtime data. Fail closed here, before any
+			// value is read, mirroring the cross-scenario duplicate-key guard in the loop.
+			if ( seen.has( metric.codevitalsKey ) ) {
+				throw new ValidationError(
+					`Duplicate CodeVitals metric key "${ metric.codevitalsKey }" within scenario "${
+						scenario.key ?? 'unknown'
+					}"`
+				);
+			}
+			seen.add( metric.codevitalsKey );
+			// Read the value from the per-field summary block (summary.<field>.median). A
+			// missing field yields undefined, which checkSanityRange rejects (fail closed)
+			// rather than crashing — never a fabricated value into the append-only store.
+			return {
+				key: metric.codevitalsKey,
+				value: summary?.[ metric.field ]?.median,
+				type: metric.type,
+			};
+		} );
+	}
+
 	// Use explicit metricKey if defined, otherwise fall back to prefix-based keys
 	if ( scenario.metricKey ) {
 		// A posted exact-key metric must declare a metricType so checkSanityRange can

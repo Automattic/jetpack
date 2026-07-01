@@ -17,7 +17,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { inspect } from 'node:util';
-import { resolveResultsGit } from './measure-lcp.js';
+import { buildSummary, resolveResultsGit } from './measure-lcp.js';
 import {
 	checkSanityRange,
 	exitCodeForError,
@@ -39,16 +39,41 @@ import { SANITY_RANGES, SCENARIOS } from './scenarios.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
 const LCP_KEY = 'wp-admin-dashboard-connection-sim-largestContentfulPaint';
+const TTFB_KEY = 'wp-admin-dashboard-connection-sim-timeToFirstByte';
+const FCP_KEY = 'wp-admin-dashboard-connection-sim-firstContentfulPaint';
 
-/** Write a results fixture with the given median LCP and return its path. */
-function writeResults( median ) {
+/**
+ * Build the nested per-field summary the multi-metric jetpackConnected scenario reads.
+ * The poster reads summary.<field>.median for each metrics-array entry; the flat
+ * top-level `median` mirrors LCP for the legacy metricKey path and older readers.
+ */
+function jetpackSummary( { lcp = 120, ttfb = 150, fcp = 400 } = {} ) {
+	return {
+		median: lcp, // flat LCP mirror (backward-compat)
+		lcp: { median: lcp },
+		ttfb: { median: ttfb },
+		fcp: { median: fcp },
+	};
+}
+
+/**
+ * Write a results fixture and return its path. `median` is the LCP median (kept as the
+ * first positional arg so existing single-arg call sites read the same); TTFB and FCP
+ * default to in-range values so the two new metrics post cleanly unless overridden.
+ */
+function writeResults(
+	median,
+	{ ttfb = 150, fcp = 400, hash = 'testhash', branch = 'trunk' } = {}
+) {
 	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-results-' ) );
 	const file = path.join( dir, 'results.json' );
 	fs.writeFileSync(
 		file,
 		JSON.stringify( {
-			git: { hash: 'testhash', branch: 'trunk' },
-			measurements: { jetpackConnected: { summary: { median } } },
+			git: { hash, branch },
+			measurements: {
+				jetpackConnected: { summary: jetpackSummary( { lcp: median, ttfb, fcp } ) },
+			},
 		} )
 	);
 	return file;
@@ -132,6 +157,98 @@ test( 'legacy prefix yields five untyped entries', () => {
 	);
 } );
 
+// --- extractScenarioMetrics: the FORMS-707 multi-metric (metrics-array) path ---
+
+test( 'a metrics array yields one typed entry per element, each from its own summary field', () => {
+	const entries = extractScenarioMetrics(
+		{
+			key: 'multi',
+			metrics: [
+				{ field: 'lcp', codevitalsKey: 'k-lcp', type: 'lcp' },
+				{ field: 'ttfb', codevitalsKey: 'k-ttfb', type: 'ttfb' },
+				{ field: 'fcp', codevitalsKey: 'k-fcp', type: 'fcp' },
+			],
+		},
+		{
+			median: 120, // flat mirror — must NOT be read by the array path
+			lcp: { median: 120 },
+			ttfb: { median: 150 },
+			fcp: { median: 400 },
+		}
+	);
+	assert.deepEqual( entries, [
+		{ key: 'k-lcp', value: 120, type: 'lcp' },
+		{ key: 'k-ttfb', value: 150, type: 'ttfb' },
+		{ key: 'k-fcp', value: 400, type: 'fcp' },
+	] );
+} );
+
+test( 'a metrics-array entry missing its type fails closed (never posted unchecked)', () => {
+	// Same fail-closed invariant as the single-metricKey path: a keyed metric with no type
+	// would post any finite value to the append-only store, so extraction must throw instead.
+	assert.throws(
+		() =>
+			extractScenarioMetrics(
+				{
+					key: 'multi',
+					metrics: [
+						{ field: 'lcp', codevitalsKey: 'k-lcp', type: 'lcp' },
+						{ field: 'ttfb', codevitalsKey: 'k-ttfb' }, // no type
+					],
+				},
+				{ lcp: { median: 120 }, ttfb: { median: 150 } }
+			),
+		err => {
+			assert.equal( err.name, 'ValidationError' );
+			assert.match( err.message, /no type/ );
+			assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+			return true;
+		}
+	);
+} );
+
+test( 'a metrics array that repeats a CodeVitals key fails closed at extraction', () => {
+	// A within-scenario duplicate key would post one value then clobber it. It is a config
+	// bug (value-independent), so it must fail closed at extraction — before any value is
+	// even read — not depend on the loop-level guard, which a skipped sanity check can bypass.
+	assert.throws(
+		() =>
+			extractScenarioMetrics(
+				{
+					key: 'multi',
+					metrics: [
+						{ field: 'lcp', codevitalsKey: 'dup-key', type: 'lcp' },
+						{ field: 'ttfb', codevitalsKey: 'dup-key', type: 'ttfb' }, // same key
+					],
+				},
+				{ lcp: { median: 120 }, ttfb: { median: 150 } }
+			),
+		err => {
+			assert.equal( err.name, 'ValidationError' );
+			assert.match( err.message, /[Dd]uplicate/ );
+			assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+			return true;
+		}
+	);
+} );
+
+test( 'a metrics-array entry with a missing summary field reads undefined (fails closed later, no crash)', () => {
+	// A field absent from the summary (e.g. the browser never captured it) must yield
+	// undefined — not crash on summary.<field>.median — so checkSanityRange rejects it.
+	const entries = extractScenarioMetrics(
+		{
+			key: 'multi',
+			metrics: [
+				{ field: 'lcp', codevitalsKey: 'k-lcp', type: 'lcp' },
+				{ field: 'ttfb', codevitalsKey: 'k-ttfb', type: 'ttfb' },
+			],
+		},
+		{ lcp: { median: 120 } } // no ttfb block
+	);
+	assert.deepEqual( entries[ 1 ], { key: 'k-ttfb', value: undefined, type: 'ttfb' } );
+	assert.equal( checkSanityRange( entries[ 1 ].type, entries[ 1 ].value ).ok, false );
+} );
+
 test( 'a keyed scenario without a metricType is rejected, not posted unchecked', () => {
 	// Without this guard the entry would emit type:undefined and pass the range
 	// check as a "legacy" metric — posting any finite value to an append-only store.
@@ -156,20 +273,49 @@ test( 'a scenario misconfiguration maps to the validation exit code, a transport
 	assert.equal( exitCodeForError( new Error( 'CodeVitals API error (500)' ) ), 1 );
 } );
 
-test( 'every posted exact-key scenario declares a metricType with a matching sanity range', () => {
-	// Config contract for the real SCENARIOS: any scenario that posts an exact metricKey
-	// must declare a metricType that has a SANITY_RANGES row, or it would post unchecked
-	// (or throw at extraction). Pins this as a 2nd posted metric is added (FORMS-707).
-	const posted = SCENARIOS.filter( s => s.postToCodeVitals && s.metricKey );
-	assert.ok( posted.length > 0, 'expected at least one posted exact-key scenario' );
+test( 'every posted keyed metric declares a type with a matching sanity range', () => {
+	// Config contract for the real SCENARIOS: any scenario that posts a keyed metric — via a
+	// single metricKey OR a metrics array — must declare a type that has a SANITY_RANGES row,
+	// or it would post unchecked (or throw at extraction). Covers both the legacy single-key
+	// shape and the FORMS-707 multi-metric shape, so neither can regress the fail-closed rule.
+	const posted = SCENARIOS.filter(
+		s => s.postToCodeVitals && ( s.metricKey || Array.isArray( s.metrics ) )
+	);
+	assert.ok( posted.length > 0, 'expected at least one posted keyed scenario' );
 	for ( const scenario of posted ) {
-		const label = scenario.key ?? scenario.metricKey;
-		assert.ok( scenario.metricType, `scenario "${ label }" must declare a metricType` );
-		assert.ok(
-			SANITY_RANGES[ scenario.metricType ],
-			`scenario "${ label }" type "${ scenario.metricType }" needs a SANITY_RANGES row`
-		);
+		// Normalize both shapes to a list of { key, type } to assert on uniformly.
+		const keyed = Array.isArray( scenario.metrics )
+			? scenario.metrics.map( m => ( { key: m.codevitalsKey, type: m.type } ) )
+			: [ { key: scenario.metricKey, type: scenario.metricType } ];
+		for ( const { key, type } of keyed ) {
+			const label = `${ scenario.key ?? key } → ${ key }`;
+			assert.ok( type, `metric "${ label }" must declare a type` );
+			assert.ok(
+				SANITY_RANGES[ type ],
+				`metric "${ label }" type "${ type }" needs a SANITY_RANGES row`
+			);
+		}
 	}
+} );
+
+test( 'the jetpackConnected scenario posts LCP, TTFB and FCP to their production keys', () => {
+	// Pins the FORMS-707 config: the dashboard scenario declares exactly the three production
+	// keys, each reading its own summary field, so a future edit that drops or renames one
+	// (or swaps in a -staging key) fails here rather than silently in production.
+	const scenario = SCENARIOS.find( s => s.key === 'jetpackConnected' );
+	assert.ok( Array.isArray( scenario.metrics ), 'jetpackConnected must use the metrics array' );
+	assert.deepEqual(
+		scenario.metrics.map( m => ( {
+			field: m.field,
+			codevitalsKey: m.codevitalsKey,
+			type: m.type,
+		} ) ),
+		[
+			{ field: 'lcp', codevitalsKey: LCP_KEY, type: 'lcp' },
+			{ field: 'ttfb', codevitalsKey: TTFB_KEY, type: 'ttfb' },
+			{ field: 'fcp', codevitalsKey: FCP_KEY, type: 'fcp' },
+		]
+	);
 } );
 
 // --- redactToken (keeps the token out of logs and errors) ---
@@ -188,12 +334,106 @@ test( 'redactToken strips the exact token and any token query param', () => {
 
 // --- postToCodeVitals (the accumulation loop + exit semantics) ---
 
-test( 'dry-run posts an in-range metric into the payload, nothing rejected', async () => {
-	const file = writeResults( 120 );
+test( 'dry-run posts all three scenario metrics into the payload, nothing rejected', async () => {
+	const file = writeResults( 120, { ttfb: 150, fcp: 400 } );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.posted, false ); // dry run never posts
 	assert.equal( result.validationFailed, false );
+	// All three production keys, each from its own summary field; LCP unchanged.
 	assert.equal( result.payload.metrics[ LCP_KEY ], 120 );
+	assert.equal( result.payload.metrics[ TTFB_KEY ], 150 );
+	assert.equal( result.payload.metrics[ FCP_KEY ], 400 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 3 );
+} );
+
+test( 'per-type sanity: one out-of-range metric is rejected while the others still post', async () => {
+	// The core multi-metric guarantee: TTFB out of its own range [10,10000] is dropped, but
+	// LCP and FCP — each checked against its OWN type — still land. A per-metric failure must
+	// not take down the whole scenario, and the rejected key must never reach the payload.
+	const file = writeResults( 120, { ttfb: 99999, fcp: 400 } );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.validationFailed, true ); // ttfb failed its range
+	assert.equal( result.payload.metrics[ LCP_KEY ], 120 ); // still posts
+	assert.equal( result.payload.metrics[ FCP_KEY ], 400 ); // still posts
+	assert.ok(
+		! Object.prototype.hasOwnProperty.call( result.payload.metrics, TTFB_KEY ),
+		'the out-of-range TTFB key must not appear in the payload'
+	);
+} );
+
+test( 'a duplicate key within a scenario metrics array fails closed through the posting path', async () => {
+	// End-to-end (not just at extraction): a scenario whose metrics array repeats a key must
+	// exit 2 before anything posts, so the append-only store can't get a clobbered value.
+	const dup = {
+		key: 'dupArray',
+		name: 'Dup Array',
+		postToCodeVitals: true,
+		metrics: [
+			{ field: 'lcp', codevitalsKey: 'dup-array-key', type: 'lcp' },
+			{ field: 'fcp', codevitalsKey: 'dup-array-key', type: 'fcp' }, // same key, twice
+		],
+	};
+	SCENARIOS.push( dup );
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-duparr-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: {
+				jetpackConnected: { summary: jetpackSummary() },
+				dupArray: { summary: { lcp: { median: 120 }, fcp: { median: 400 } } },
+			},
+		} )
+	);
+	let err;
+	try {
+		await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	} catch ( e ) {
+		err = e;
+	} finally {
+		SCENARIOS.pop();
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+	assert.ok( err, 'a duplicate key within a metrics array should reject' );
+	assert.equal( err.name, 'ValidationError' );
+	assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+	assert.match( err.message, /[Dd]uplicate/ );
+} );
+
+test( 'backward-compat: a legacy single metricKey scenario still posts unchanged', async () => {
+	// FORMS-707 must not regress the legacy shape: a scenario with metricKey/metricType (no
+	// metrics array) still extracts one typed entry from the flat summary.median and posts it.
+	const legacy = {
+		key: 'legacyKeyed',
+		name: 'Legacy Keyed',
+		postToCodeVitals: true,
+		metricKey: 'legacy-single-key',
+		metricType: 'lcp',
+	};
+	SCENARIOS.push( legacy );
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-legacy-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk' },
+			measurements: {
+				jetpackConnected: { summary: jetpackSummary() },
+				legacyKeyed: { summary: { median: 250 } }, // flat summary.median, the legacy contract
+			},
+		} )
+	);
+	let result;
+	try {
+		result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	} finally {
+		SCENARIOS.pop();
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+	assert.equal( result.validationFailed, false );
+	assert.equal( result.payload.metrics[ 'legacy-single-key' ], 250 ); // read from flat summary.median
+	assert.equal( result.payload.metrics[ LCP_KEY ], 120 ); // the array-path scenario still posts too
 } );
 
 test( 'a dry run never calls fetch, even with a malformed URL and a token set', async () => {
@@ -251,7 +491,7 @@ test( 'a mixed valid/invalid run keeps the valid metric and excludes the rejecte
 		JSON.stringify( {
 			git: { hash: 'h', branch: 'trunk' },
 			measurements: {
-				jetpackConnected: { summary: { median: 120 } }, // valid LCP → stays in payload
+				jetpackConnected: { summary: jetpackSummary() }, // valid LCP/TTFB/FCP → stay in payload
 				extraMetric: { summary: { median: 99999 } }, // outside [0,1000] → rejected, excluded
 			},
 		} )
@@ -292,7 +532,7 @@ test( 'two scenarios posting the same CodeVitals key fail closed as a validation
 		JSON.stringify( {
 			git: { hash: 'h', branch: 'trunk' },
 			measurements: {
-				jetpackConnected: { summary: { median: 120 } },
+				jetpackConnected: { summary: jetpackSummary() },
 				dupMetric: { summary: { median: 130 } },
 			},
 		} )
@@ -793,7 +1033,7 @@ test( 'a validation failure is not downgraded to exit 1 when a later live POST a
 		JSON.stringify( {
 			git: { hash: 'h', branch: 'trunk' },
 			measurements: {
-				jetpackConnected: { summary: { median: 120 } }, // valid LCP → gets POSTed
+				jetpackConnected: { summary: jetpackSummary() }, // valid LCP/TTFB/FCP → get POSTed
 				extraMetric: { summary: { median: 99999 } }, // outside [0,1000] → skipped, flags validationFailed
 			},
 		} )
@@ -1024,7 +1264,7 @@ test( 'a dry-run payload is stamped with the commit time from the results file',
 		file,
 		JSON.stringify( {
 			git: { hash: 'h', branch: 'trunk', timestamp: 1700000000000 },
-			measurements: { jetpackConnected: { summary: { median: 120 } } },
+			measurements: { jetpackConnected: { summary: jetpackSummary() } },
 		} )
 	);
 	try {
@@ -1033,6 +1273,75 @@ test( 'a dry-run payload is stamped with the commit time from the results file',
 	} finally {
 		fs.rmSync( dir, { recursive: true, force: true } );
 	}
+} );
+
+// --- buildSummary (measure-lcp per-field aggregation; the load-bearing FORMS-707 change) ---
+
+test( 'buildSummary aggregates every field into its own block and mirrors LCP flat', () => {
+	// Each field gets a nested { median, mean, min, max, stdDev } block, and the LCP block is
+	// ALSO mirrored flat on the summary root so the poster's legacy metricKey path and older
+	// readers of summary.median keep working. TTFB/FCP are aggregated for the first time here.
+	const results = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: 50, fcp: 200 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: 70, fcp: 400 } },
+		{ lcp: 300, metrics: { lcp: 300, ttfb: 90, fcp: 600 } },
+	];
+	const summary = buildSummary( results, 3 );
+
+	// Nested per-field blocks (what the multi-metric poster path reads: summary.<field>.median).
+	assert.deepEqual( summary.lcp, { median: 200, mean: 200, min: 100, max: 300, stdDev: 82 } );
+	assert.equal( summary.ttfb.median, 70 );
+	assert.equal( summary.fcp.median, 400 );
+	assert.equal( summary.fcp.min, 200 );
+	assert.equal( summary.fcp.max, 600 );
+
+	// Flat top-level mirror of LCP (backward-compat) — byte-for-byte the old LCP-only summary.
+	assert.equal( summary.median, 200 );
+	assert.equal( summary.mean, 200 );
+	assert.equal( summary.min, 100 );
+	assert.equal( summary.max, 300 );
+	assert.equal( summary.stdDev, 82 );
+
+	// Iteration counters preserved.
+	assert.equal( summary.successfulIterations, 3 );
+	assert.equal( summary.totalIterations, 3 );
+} );
+
+test( 'buildSummary flat LCP mirror matches the old LCP-only summary exactly', () => {
+	// Pins that LCP stays byte-for-byte: same value source (r.lcp), same rounding, same number.
+	const lcpValues = [ 111, 222, 333, 444 ];
+	const results = lcpValues.map( lcp => ( { lcp, metrics: { lcp, ttfb: 40, fcp: 300 } } ) );
+	const summary = buildSummary( results, 4 );
+	assert.equal( summary.median, 278 ); // (222+333)/2 = 277.5 → round 278
+	assert.equal( summary.min, 111 );
+	assert.equal( summary.max, 444 );
+	assert.equal( summary.lcp.median, summary.median ); // nested and flat agree
+} );
+
+test( 'buildSummary omits a field with no finite samples so the poster fails closed', () => {
+	// A field the browser never captured (all null) must be omitted — not a fabricated 0 —
+	// so extractScenarioMetrics reads undefined and checkSanityRange rejects it downstream.
+	const results = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: null, fcp: 200 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: null, fcp: 400 } },
+	];
+	const summary = buildSummary( results, 2 );
+	assert.equal( summary.ttfb, undefined, 'no finite TTFB sample → omitted, not 0' );
+	assert.ok( summary.lcp && summary.fcp, 'fields with samples are still aggregated' );
+	assert.equal( summary.median, 150 ); // flat LCP mirror still present
+} );
+
+test( 'buildSummary drops individual non-finite samples before aggregating a field', () => {
+	// A field present on some iterations but null on others aggregates only the finite ones.
+	const results = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: 60, fcp: 200 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: null, fcp: 400 } }, // ttfb missing this run
+		{ lcp: 300, metrics: { lcp: 300, ttfb: 80, fcp: 600 } },
+	];
+	const summary = buildSummary( results, 3 );
+	assert.equal( summary.ttfb.median, 70 ); // median of [60, 80], the null dropped
+	assert.equal( summary.ttfb.min, 60 );
+	assert.equal( summary.ttfb.max, 80 );
 } );
 
 // --- commit-time plumbing: getGitInfo reads the producer side (real temp git repo) ---
@@ -1481,7 +1790,7 @@ test( 'dedup is bypassed for an unknown hash (still posts, no read)', async () =
 		file,
 		JSON.stringify( {
 			git: { hash: 'unknown', branch: 'trunk' },
-			measurements: { jetpackConnected: { summary: { median: 120 } } },
+			measurements: { jetpackConnected: { summary: jetpackSummary() } },
 		} )
 	);
 	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'unknown' ] } );

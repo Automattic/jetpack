@@ -251,27 +251,92 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 		);
 	}
 
-	const lcpValues = validResults.map( r => r.lcp );
-
-	// Calculate statistics using shared utilities
-	const median = calcMedian( lcpValues );
-	const mean = calcMean( lcpValues );
-	const stdDev = calcStdDev( lcpValues );
-	const min = Math.min( ...lcpValues );
-	const max = Math.max( ...lcpValues );
-
 	return {
-		summary: {
-			median: Math.round( median ),
-			mean: Math.round( mean ),
-			min: Math.round( min ),
-			max: Math.round( max ),
-			stdDev: Math.round( stdDev ),
-			successfulIterations: validResults.length,
-			totalIterations: iterations,
-		},
+		summary: buildSummary( validResults, iterations ),
 		results,
 		url,
+	};
+}
+
+/**
+ * Metric fields aggregated into the summary. LCP stays first: it is the load-bearing
+ * value (unchanged), and it also populates the flat top-level summary for backward-compat.
+ * TTFB and FCP are already captured per iteration (see the page.evaluate block above);
+ * this is where they finally get aggregated into the summary.
+ */
+const SUMMARY_FIELDS = [ 'lcp', 'ttfb', 'fcp' ];
+
+/**
+ * Read one metric field from a single iteration's result.
+ *
+ * LCP lives at the top level (r.lcp) exactly as before, so its value source is byte-for-byte
+ * unchanged; the other Core Web Vitals come from the captured per-iteration `metrics` block.
+ *
+ * @param {object} result - One entry from the measureLCP results array.
+ * @param {string} field  - Metric field name (e.g. 'lcp', 'ttfb', 'fcp').
+ * @return {number|null|undefined} The raw value, or null/undefined when the browser had none.
+ */
+function readIterationField( result, field ) {
+	if ( field === 'lcp' ) {
+		return result.lcp;
+	}
+	return result.metrics ? result.metrics[ field ] : null;
+}
+
+/**
+ * Summary stats for one field across the valid iterations, rounded to whole ms to match
+ * the original LCP-only summary. Non-finite samples (a browser that reported null for a
+ * field on some iteration) are dropped before aggregating; a field with NO finite samples
+ * returns null so the caller omits it and the poster fails closed on the missing field
+ * rather than posting a fabricated 0.
+ *
+ * @param {Array<number|null|undefined>} values - Raw per-iteration values for the field.
+ * @return {{median:number,mean:number,min:number,max:number,stdDev:number}|null} Rounded stats, or null.
+ */
+function summarizeField( values ) {
+	const finite = values.filter( v => typeof v === 'number' && Number.isFinite( v ) );
+	if ( finite.length === 0 ) {
+		return null;
+	}
+	return {
+		median: Math.round( calcMedian( finite ) ),
+		mean: Math.round( calcMean( finite ) ),
+		min: Math.round( Math.min( ...finite ) ),
+		max: Math.round( Math.max( ...finite ) ),
+		stdDev: Math.round( calcStdDev( finite ) ),
+	};
+}
+
+/**
+ * Build the measurement summary from the per-iteration results.
+ *
+ * Produces a nested `summary.<field>` block ({ median, mean, min, max, stdDev }) for every
+ * field with finite samples, AND mirrors the LCP block's stats flat on the summary root for
+ * backward-compat: the poster's legacy `metricKey` path and older dashboards read
+ * `summary.median` directly, and it must keep returning the same LCP number as before.
+ *
+ * @param {Array}    validResults - Iteration results already filtered to successful runs.
+ * @param {number}   iterations   - Total iterations attempted (for the summary counters).
+ * @param {string[]} [fields]     - Metric fields to aggregate (defaults to SUMMARY_FIELDS).
+ * @return {object} The summary object.
+ */
+function buildSummary( validResults, iterations, fields = SUMMARY_FIELDS ) {
+	const perField = {};
+	for ( const field of fields ) {
+		const stats = summarizeField( validResults.map( r => readIterationField( r, field ) ) );
+		if ( stats ) {
+			perField[ field ] = stats;
+		}
+	}
+	return {
+		// Flat top-level LCP stats, mirrored for backward-compat (legacy metricKey path +
+		// older readers of summary.median). validResults always carries a finite LCP, so
+		// perField.lcp is always present.
+		...( perField.lcp ?? {} ),
+		successfulIterations: validResults.length,
+		totalIterations: iterations,
+		// Per-field nested blocks for the multi-metric poster path (reads summary.<field>.median).
+		...perField,
 	};
 }
 
@@ -424,4 +489,4 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 	} );
 }
 
-export { measureLCP, resolveResultsGit };
+export { measureLCP, resolveResultsGit, buildSummary };
