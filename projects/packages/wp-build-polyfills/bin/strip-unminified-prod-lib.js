@@ -11,8 +11,8 @@
  * inflating the payload by ~13 MiB as of this writing.
  *
  * `strip(buildDir)` deletes the unminified siblings under
- * build/{routes,scripts,modules,styles}/** and rewrites the generated
- * routes.php / scripts.php / modules.php / styles.php loaders so the
+ * build/{routes,scripts,modules,styles,widgets}/** and rewrites the generated
+ * routes.php / scripts.php / modules.php / styles.php / widgets.php loaders so the
  * SCRIPT_DEBUG branch collapses to the minified asset — keeping the asset
  * reachable even if a deploy target enables SCRIPT_DEBUG. The function is
  * idempotent and throws if it finds a SCRIPT_DEBUG-driven `.js`/`.min`
@@ -30,7 +30,7 @@
 const { readdirSync, existsSync, unlinkSync, readFileSync, writeFileSync } = require( 'fs' );
 const path = require( 'path' );
 
-const TARGET_SUBDIRS = [ 'routes', 'scripts', 'modules', 'styles' ];
+const TARGET_SUBDIRS = [ 'routes', 'scripts', 'modules', 'styles', 'widgets' ];
 const STRIPPABLE_EXTS = [ '.js', '.css' ];
 
 // Patches collapse SCRIPT_DEBUG-driven ternaries to the minified asset.
@@ -68,12 +68,12 @@ const REPLACEMENTS = [
 // build catches it. Catches both the extension and the suffix shapes.
 const UNMATCHED_SUSPICIOUS_PATTERNS = [ /\?\s*'\.js'\s*:\s*'\.min\.js'/, /\?\s*''\s*:\s*'\.min'/ ];
 
-const PHP_TARGETS = [ 'routes.php', 'scripts.php', 'modules.php', 'styles.php' ];
+const PHP_TARGETS = [ 'routes.php', 'scripts.php', 'modules.php', 'styles.php', 'widgets.php' ];
 
 /**
  * Recursively walk a directory and pass every file path to a callback.
  * Missing directories are silently skipped, since not every consuming
- * package emits all of routes/scripts/modules/styles.
+ * package emits all of routes/scripts/modules/styles/widgets.
  *
  * @param {string}                   dir   - Absolute path to the directory to walk.
  * @param {(filePath: string)=>void} visit - Called once per regular file under `dir`.
