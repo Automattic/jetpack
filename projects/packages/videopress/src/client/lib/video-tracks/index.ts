@@ -528,23 +528,32 @@ export const fetchTrackContentForGuid = async (
 		return '';
 	}
 
-	let response = await fetch( url );
+	try {
+		let response = await fetch( url );
 
-	if ( ! response.ok && response.status === 403 && guid ) {
-		const tokenData = await getMediaToken( 'playback', { guid } );
-		if ( tokenData?.token ) {
-			const separator = url.includes( '?' ) ? '&' : '?';
-			const queryString = new URLSearchParams( { metadata_token: tokenData.token } ).toString();
-			response = await fetch( `${ url }${ separator }${ queryString }` );
-		} else {
-			debug( 'track content 403 but no playback token was minted for %s', guid );
+		if ( ! response.ok && response.status === 403 && guid ) {
+			const tokenData = await getMediaToken( 'playback', { guid } );
+			if ( tokenData?.token ) {
+				const separator = url.includes( '?' ) ? '&' : '?';
+				const queryString = new URLSearchParams( {
+					metadata_token: tokenData.token,
+				} ).toString();
+				response = await fetch( `${ url }${ separator }${ queryString }` );
+			} else {
+				debug( 'track content 403 but no playback token was minted for %s', guid );
+			}
 		}
-	}
 
-	if ( ! response.ok ) {
-		debug( 'track content fetch failed with status %d', response.status );
+		if ( ! response.ok ) {
+			debug( 'track content fetch failed with status %d', response.status );
+			return '';
+		}
+
+		return await response.text();
+	} catch ( error ) {
+		// A network-level failure (offline, DNS, CORS) rejects `fetch`; honor the
+		// documented contract by returning an empty string instead of throwing.
+		debug( 'track content fetch error: %o', error );
 		return '';
 	}
-
-	return response.text();
 };

@@ -3,6 +3,8 @@ jest.mock( '../../get-media-token', () => jest.fn() );
 jest.mock( '../../fetch-video-item', () => ( { fetchVideoItem: jest.fn() } ) );
 jest.mock( 'debug', () => () => jest.fn() );
 
+declare const global: typeof globalThis & { fetch: jest.MockedFunction< typeof fetch > };
+
 const getVideoTracksModule = async () => {
 	Object.defineProperty( window, 'videoPressEditorState', {
 		configurable: true,
@@ -12,7 +14,8 @@ const getVideoTracksModule = async () => {
 	return import( '..' );
 };
 
-const getApiFetchMock = async () => ( await import( '@wordpress/api-fetch' ) ).default as jest.Mock;
+const getApiFetchMock = async () =>
+	( await import( '@wordpress/api-fetch' ) ).default as unknown as jest.Mock;
 
 const getMediaTokenMock = async () =>
 	( await import( '../../get-media-token' ) ).default as jest.Mock;
@@ -269,6 +272,24 @@ describe( 'video-tracks', () => {
 			await expect(
 				fetchTrackContentForGuid(
 					{ kind: 'captions', srcLang: 'en', label: 'English', src: '' },
+					'abc123'
+				)
+			).resolves.toBe( '' );
+		} );
+
+		it( 'returns an empty string when the network request rejects', async () => {
+			const fetchMock = jest.fn().mockRejectedValue( new Error( 'Network down' ) );
+			global.fetch = fetchMock;
+			const { fetchTrackContentForGuid } = await getVideoTracksModule();
+
+			await expect(
+				fetchTrackContentForGuid(
+					{
+						kind: 'captions',
+						srcLang: 'en',
+						label: 'English',
+						src: 'https://example.com/english.vtt',
+					},
 					'abc123'
 				)
 			).resolves.toBe( '' );

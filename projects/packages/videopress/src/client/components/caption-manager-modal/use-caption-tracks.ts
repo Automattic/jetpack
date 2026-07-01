@@ -7,11 +7,12 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { fetchCaptionTracks } from '../../lib/video-tracks/caption-tracks';
+import { useLocalEditGuard } from './use-local-edit-guard';
 /**
  * Types
  */
+import type { LocalEditSetter } from './use-local-edit-guard';
 import type { SavedCaptionTrack } from '../../lib/video-tracks/caption-tracks';
-import type { Dispatch, SetStateAction } from 'react';
 
 const debug = debugFactory( 'videopress:caption-manager-modal:use-caption-tracks' );
 
@@ -23,7 +24,7 @@ type UseCaptionTracksArgs = {
 
 type UseCaptionTracksResult = {
 	captionTracks: SavedCaptionTrack[];
-	setCaptionTracks: Dispatch< SetStateAction< SavedCaptionTrack[] > >;
+	setCaptionTracks: LocalEditSetter< SavedCaptionTrack[] >;
 	isLoadingCaptionTracks: boolean;
 };
 
@@ -49,6 +50,7 @@ export function useCaptionTracks( {
 	const [ isLoadingCaptionTracks, setIsLoadingCaptionTracks ] = useState( false );
 	const onErrorRef = useRef( onError );
 	onErrorRef.current = onError;
+	const { hasLocalEditsRef, setWithGuard, resetLocalEdits } = useLocalEditGuard( setCaptionTracks );
 
 	useEffect( () => {
 		if ( ! isOpen || ! guid ) {
@@ -56,19 +58,39 @@ export function useCaptionTracks( {
 		}
 
 		let isMounted = true;
+		resetLocalEdits();
 		setIsLoadingCaptionTracks( true );
 		fetchCaptionTracks( guid )
 			.then( loadedCaptionTracks => {
-				if ( isMounted ) {
-					setCaptionTracks( loadedCaptionTracks );
+				if ( ! isMounted ) {
+					return;
 				}
+
+				if ( ! hasLocalEditsRef.current ) {
+					setCaptionTracks( loadedCaptionTracks );
+					return;
+				}
+
+				// A save landed before this fetch resolved; keep it and merge the server drafts in behind it.
+				setCaptionTracks( current => {
+					const localIds = new Set( current.map( track => track.id ) );
+					return [
+						...current,
+						...loadedCaptionTracks.filter( track => ! localIds.has( track.id ) ),
+					];
+				} );
 			} )
 			.catch( error => {
 				debug( 'fetch caption tracks error', error );
-				if ( isMounted ) {
-					setCaptionTracks( [] );
-					onErrorRef.current?.();
+				if ( ! isMounted ) {
+					return;
 				}
+
+				// Report the failure regardless; only skip the empty fallback so it can't wipe local edits.
+				if ( ! hasLocalEditsRef.current ) {
+					setCaptionTracks( [] );
+				}
+				onErrorRef.current?.();
 			} )
 			.finally( () => {
 				if ( isMounted ) {
@@ -79,7 +101,7 @@ export function useCaptionTracks( {
 		return () => {
 			isMounted = false;
 		};
-	}, [ guid, isOpen ] );
+	}, [ guid, isOpen, hasLocalEditsRef, resetLocalEdits ] );
 
-	return { captionTracks, setCaptionTracks, isLoadingCaptionTracks };
+	return { captionTracks, setCaptionTracks: setWithGuard, isLoadingCaptionTracks };
 }

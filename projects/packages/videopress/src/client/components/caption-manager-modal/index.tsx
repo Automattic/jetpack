@@ -324,6 +324,18 @@ const createCueBlocksFromCaptionTrack = ( captionTrack: SavedCaptionTrack ) => {
 	return cueBlocks.length ? cueBlocks : createEmptyCueBlocks();
 };
 
+// Stable signature of a cue list's content, to tell a real edit from merely viewing a track.
+const getCueBlocksSignature = ( blocks: CaptionCueBlock[] ): string =>
+	JSON.stringify(
+		blocks
+			.filter( block => block.name === CAPTION_CUE_BLOCK_NAME )
+			.map( block => [
+				block.attributes?.startTime ?? '',
+				block.attributes?.endTime ?? '',
+				block.attributes?.text ?? '',
+			] )
+	);
+
 const getManualTrackFromCaptionTrack = ( captionTrack: SavedCaptionTrack ): ManualTrack => ( {
 	kind: captionTrack.meta[ CAPTION_TRACK_META.kind ],
 	srcLang: captionTrack.meta[ CAPTION_TRACK_META.srcLang ],
@@ -419,6 +431,8 @@ export default function CaptionManagerModal( {
 	const [ manualTrack, setManualTrack ] = useState< ManualTrack >( emptyManualTrack );
 	const [ manualSourceTrack, setManualSourceTrack ] = useState< VideoTextTrack | null >( null );
 	const [ cueBlocks, setCueBlocks ] = useState< CaptionCueBlock[] >( createEmptyCueBlocks );
+	// Signature of the last loaded/saved cue content, to distinguish an edit from viewing.
+	const manualBaselineRef = useRef( getCueBlocksSignature( createEmptyCueBlocks() ) );
 	const [ captionTrackId, setCaptionTrackId ] = useState< number | undefined >();
 	const [ notice, setNotice ] = useState< NoticeState >( null );
 
@@ -458,6 +472,12 @@ export default function CaptionManagerModal( {
 	const [ isTextImportOpen, setIsTextImportOpen ] = useState( false );
 	const [ captionTextInput, setCaptionTextInput ] = useState( '' );
 
+	// Seed the editor and record the baseline, so opening a track to view isn't a dirty edit.
+	const setEditorCueBlocks = useCallback( ( blocks: CaptionCueBlock[] ) => {
+		manualBaselineRef.current = getCueBlocksSignature( blocks );
+		setCueBlocks( blocks );
+	}, [] );
+
 	const resetEditorToTrackList = useCallback( () => {
 		setWorkspaceMode( 'manual' );
 		setModalView( 'tracks' );
@@ -466,13 +486,47 @@ export default function CaptionManagerModal( {
 		setReplacingTrack( null );
 		setManualTrack( emptyManualTrack() );
 		setManualSourceTrack( null );
-		setCueBlocks( createEmptyCueBlocks() );
+		setEditorCueBlocks( createEmptyCueBlocks() );
 		setCaptionTrackId( undefined );
 		setIsLoadingTrackText( false );
 		setIsTextImportOpen( false );
 		setCaptionTextInput( '' );
 		setNotice( null );
-	}, [] );
+	}, [ setEditorCueBlocks ] );
+
+	// Whether the manual editor holds unsaved work, to guard close/back/drop-to-upload.
+	const hasUnsavedManualEdits = useCallback( () => {
+		if ( modalView !== 'editor' || workspaceMode !== 'manual' ) {
+			return false;
+		}
+
+		if ( captionTextInput.trim() ) {
+			return true;
+		}
+
+		return getCueBlocksSignature( cueBlocks ) !== manualBaselineRef.current;
+	}, [ modalView, workspaceMode, captionTextInput, cueBlocks ] );
+
+	const confirmDiscardManualEdits = useCallback( () => {
+		if ( ! hasUnsavedManualEdits() ) {
+			return true;
+		}
+
+		// eslint-disable-next-line no-alert -- Blocking confirmation so unsaved subtitle edits aren't silently discarded.
+		return window.confirm( __( 'Discard unsaved subtitle changes?', 'jetpack-videopress-pkg' ) );
+	}, [ hasUnsavedManualEdits ] );
+
+	const handleRequestClose = useCallback( () => {
+		if ( confirmDiscardManualEdits() ) {
+			onClose();
+		}
+	}, [ confirmDiscardManualEdits, onClose ] );
+
+	const handleBackToTracks = useCallback( () => {
+		if ( confirmDiscardManualEdits() ) {
+			resetEditorToTrackList();
+		}
+	}, [ confirmDiscardManualEdits, resetEditorToTrackList ] );
 
 	useEffect( () => {
 		if ( ! shouldScrollCueEditorToEndRef.current ) {
@@ -702,13 +756,13 @@ export default function CaptionManagerModal( {
 			setManualTrack( getManualTrackFromCaptionTrack( captionTrack ) );
 			setManualSourceTrack( getSourceTrackFromCaptionTrack( captionTrack, managedTracks ) );
 			setCaptionTrackId( captionTrack.id );
-			setCueBlocks( createCueBlocksFromCaptionTrack( captionTrack ) );
+			setEditorCueBlocks( createCueBlocksFromCaptionTrack( captionTrack ) );
 			setIsLoadingTrackText( false );
 			setIsTextImportOpen( false );
 			setCaptionTextInput( '' );
 			setNotice( null );
 		},
-		[ managedTracks ]
+		[ managedTracks, setEditorCueBlocks ]
 	);
 
 	const loadTrackText = useCallback(
@@ -744,19 +798,19 @@ export default function CaptionManagerModal( {
 			setNotice( null );
 
 			if ( matchingCaptionTrack ) {
-				setCueBlocks( createCueBlocksFromCaptionTrack( matchingCaptionTrack ) );
+				setEditorCueBlocks( createCueBlocksFromCaptionTrack( matchingCaptionTrack ) );
 				return;
 			}
 
 			if ( ! sourceTrack ) {
-				setCueBlocks( createEmptyCueBlocks() );
+				setEditorCueBlocks( createEmptyCueBlocks() );
 				return;
 			}
 
-			setCueBlocks( createEmptyCueBlocks() );
+			setEditorCueBlocks( createEmptyCueBlocks() );
 			setIsLoadingTrackText( true );
 			try {
-				setCueBlocks( await loadTrackText( sourceTrack ) );
+				setEditorCueBlocks( await loadTrackText( sourceTrack ) );
 			} catch ( error ) {
 				debug( 'fetch caption track text error', error );
 				setNotice( {
@@ -770,7 +824,7 @@ export default function CaptionManagerModal( {
 				setIsLoadingTrackText( false );
 			}
 		},
-		[ defaultLanguageTag, findCaptionTrackForManualTrack, loadTrackText ]
+		[ defaultLanguageTag, findCaptionTrackForManualTrack, loadTrackText, setEditorCueBlocks ]
 	);
 
 	const startUploadTrack = useCallback(
@@ -816,10 +870,15 @@ export default function CaptionManagerModal( {
 				return;
 			}
 
+			// Dropping a file switches to upload mode; confirm so it can't discard unsaved cue edits.
+			if ( ! confirmDiscardManualEdits() ) {
+				return;
+			}
+
 			startUploadTrack();
 			updateUploadForm( 'tmpFile', file );
 		},
-		[ startUploadTrack, updateUploadForm ]
+		[ confirmDiscardManualEdits, startUploadTrack, updateUploadForm ]
 	);
 
 	const startTextImportTrack = useCallback( () => {
@@ -828,12 +887,12 @@ export default function CaptionManagerModal( {
 		setManualTrack( emptyManualTrack( defaultLanguageTag ) );
 		setManualSourceTrack( null );
 		setCaptionTrackId( undefined );
-		setCueBlocks( createEmptyCueBlocks() );
+		setEditorCueBlocks( createEmptyCueBlocks() );
 		setIsLoadingTrackText( false );
 		setIsTextImportOpen( true );
 		setCaptionTextInput( '' );
 		setNotice( null );
-	}, [ defaultLanguageTag ] );
+	}, [ defaultLanguageTag, setEditorCueBlocks ] );
 
 	const deleteTrack = useCallback(
 		async ( track: VideoTextTrack ) => {
@@ -1183,7 +1242,10 @@ export default function CaptionManagerModal( {
 	);
 
 	const saveManualCaptionTrack = useCallback(
-		async ( status: 'draft' | 'publish' = 'draft' ) => {
+		async (
+			status: 'draft' | 'publish' = 'draft',
+			{ announce = true }: { announce?: boolean } = {}
+		) => {
 			const payload = buildCaptionTrackPayload( status );
 			if ( ! payload ) {
 				return null;
@@ -1206,23 +1268,30 @@ export default function CaptionManagerModal( {
 					next[ existingIndex ] = savedCaptionTrack;
 					return next;
 				} );
-				setNotice( {
-					status: 'success',
-					message: CAPTION_TRACK_NOTICE_LABELS[ status ],
-				} );
+				// The editor now matches what was saved, so it's no longer dirty.
+				manualBaselineRef.current = getCueBlocksSignature( cueBlocks );
+				// Publish owns the notice; only announce when Save Draft is the whole action.
+				if ( announce ) {
+					setNotice( {
+						status: 'success',
+						message: CAPTION_TRACK_NOTICE_LABELS[ status ],
+					} );
+				}
 				return savedCaptionTrack;
 			} catch ( error ) {
 				debug( 'save caption track error', error );
-				setNotice( {
-					status: 'error',
-					message: __( 'Unable to save subtitle track.', 'jetpack-videopress-pkg' ),
-				} );
+				if ( announce ) {
+					setNotice( {
+						status: 'error',
+						message: __( 'Unable to save subtitle track.', 'jetpack-videopress-pkg' ),
+					} );
+				}
 				return null;
 			} finally {
 				setIsSavingCaptionTrack( false );
 			}
 		},
-		[ buildCaptionTrackPayload ]
+		[ buildCaptionTrackPayload, cueBlocks ]
 	);
 
 	const publishManualTrack = useCallback( async () => {
@@ -1330,7 +1399,7 @@ export default function CaptionManagerModal( {
 				}
 			}
 
-			const savedCaptionTrack = await saveManualCaptionTrack( 'publish' );
+			const savedCaptionTrack = await saveManualCaptionTrack( 'publish', { announce: false } );
 			if ( ! savedCaptionTrack ) {
 				/*
 				 * The VTT is already live on the video; only the local editable copy
@@ -1568,7 +1637,7 @@ export default function CaptionManagerModal( {
 		<>
 			<Modal
 				title={ modalHeaderTitle }
-				onRequestClose={ onClose }
+				onRequestClose={ handleRequestClose }
 				className="videopress-caption-manager"
 				focusOnMount={ false }
 			>
@@ -1596,7 +1665,7 @@ export default function CaptionManagerModal( {
 								<Button
 									variant="secondary"
 									icon={ isRTL() ? chevronRight : chevronLeft }
-									onClick={ resetEditorToTrackList }
+									onClick={ handleBackToTracks }
 								>
 									{ __( 'Back to tracks', 'jetpack-videopress-pkg' ) }
 								</Button>

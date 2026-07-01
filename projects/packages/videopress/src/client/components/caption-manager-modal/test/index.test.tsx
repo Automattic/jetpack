@@ -13,6 +13,8 @@ import {
 	saveCaptionTrack,
 } from '../../../lib/video-tracks/caption-tracks';
 
+declare const global: typeof globalThis & { fetch: jest.MockedFunction< typeof fetch > };
+
 let mockBlockEditorState: {
 	blocks: Array< { name: string; attributes: Record< string, string >; clientId: string } >;
 	onChange?: ( blocks: unknown[] ) => void;
@@ -132,6 +134,7 @@ jest.mock( '@wordpress/components', () => ( {
 			{ help && <span>{ help }</span> }
 		</div>
 	),
+	Disabled: ( { children } ) => <>{ children }</>,
 	CheckboxControl: ( { checked, label, onChange } ) => (
 		<label htmlFor="pause-while-typing">
 			<input
@@ -149,8 +152,11 @@ jest.mock( '@wordpress/components', () => ( {
 			{ renderProp( { openFileDialog: jest.fn() } ) }
 		</>
 	),
-	Modal: ( { children, title } ) => (
+	Modal: ( { children, title, onRequestClose } ) => (
 		<div role="dialog" aria-label={ title }>
+			<button aria-label="Close dialog" onClick={ onRequestClose }>
+				Close dialog
+			</button>
 			{ children }
 		</div>
 	),
@@ -503,6 +509,99 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getByLabelText( 'Cue text' ) ).toHaveValue( 'Draft text.' );
 		expect( screen.getByLabelText( 'Cue start' ) ).toHaveValue( '00:00:03.000' );
 		expect( screen.getByLabelText( 'Cue end' ) ).toHaveValue( '00:00:05.000' );
+	} );
+
+	it( 'prompts before discarding unsaved cue edits and stays in the editor when cancelled', async () => {
+		const user = userEvent.setup();
+		( window.confirm as jest.Mock ).mockReturnValue( false );
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Unsaved cue.' );
+		await user.click( screen.getByText( 'Back to tracks' ) );
+
+		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+		expect( screen.getByText( 'Back to tracks' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Cue text' ) ).toHaveValue( 'Unsaved cue.' );
+	} );
+
+	it( 'returns to the track list when discarding unsaved cue edits is confirmed', async () => {
+		const user = userEvent.setup();
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Unsaved cue.' );
+		await user.click( screen.getByText( 'Back to tracks' ) );
+
+		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+		expect( screen.getByText( 'Add track' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Back to tracks' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not prompt when returning after only viewing a saved track', async () => {
+		const user = userEvent.setup();
+		( fetchCaptionTracks as jest.Mock ).mockResolvedValueOnce( [
+			{
+				id: 101,
+				title: 'Portuguese captions',
+				content:
+					'<!-- wp:videopress/caption-cue {"startTime":"00:00:03.000","endTime":"00:00:05.000","text":"Draft text."} /-->',
+				status: 'draft',
+				meta: {
+					_videopress_guid: 'abc123',
+					_videopress_caption_kind: 'captions',
+					_videopress_caption_src_lang: 'pt-BR',
+					_videopress_caption_label: 'Portuguese',
+				},
+			},
+		] );
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await expect( screen.findByText( 'Portuguese' ) ).resolves.toBeInTheDocument();
+		await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
+		expect( screen.getByLabelText( 'Cue text' ) ).toHaveValue( 'Draft text.' );
+
+		await user.click( screen.getByText( 'Back to tracks' ) );
+
+		expect( window.confirm ).not.toHaveBeenCalled();
+		expect( screen.getByText( 'Add track' ) ).toBeInTheDocument();
+	} );
+
+	it( 'prompts before discarding pasted import text', async () => {
+		const user = userEvent.setup();
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( screen.getByText( 'Paste transcript' ) );
+		await user.type( screen.getByLabelText( 'Subtitle text' ), 'Some transcript.' );
+		await user.click( screen.getByText( 'Back to tracks' ) );
+
+		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+	} );
+
+	it( 'prompts before closing with unsaved edits and stays open when cancelled', async () => {
+		const user = userEvent.setup();
+		( window.confirm as jest.Mock ).mockReturnValue( false );
+		const onClose = jest.fn();
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } onClose={ onClose } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Unsaved cue.' );
+		await user.click( screen.getByRole( 'button', { name: 'Close dialog' } ) );
+
+		expect( window.confirm ).toHaveBeenCalledWith( 'Discard unsaved subtitle changes?' );
+		expect( onClose ).not.toHaveBeenCalled();
+	} );
+
+	it( 'closes with unsaved edits when the discard is confirmed', async () => {
+		const user = userEvent.setup();
+		const onClose = jest.fn();
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } onClose={ onClose } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Unsaved cue.' );
+		await user.click( screen.getByRole( 'button', { name: 'Close dialog' } ) );
+
+		expect( onClose ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'disables manual save actions while existing track content loads', async () => {
@@ -1046,6 +1145,39 @@ describe( 'CaptionManagerModal', () => {
 				src: 'uploaded.vtt',
 			} ),
 		] );
+	} );
+
+	it( 'shows a single publish notice and suppresses the inner save notice', async () => {
+		const user = userEvent.setup();
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
+		await user.click( screen.getByText( 'Publish' ) );
+
+		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
+		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
+			'Subtitles published.'
+		);
+		expect( screen.queryByText( 'Subtitle track published.' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'reports a published track whose editable copy failed to save, without the generic save error', async () => {
+		const user = userEvent.setup();
+		( saveCaptionTrack as jest.Mock ).mockRejectedValueOnce( new Error( 'save failed' ) );
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
+		await user.type( screen.getByLabelText( 'Cue text' ), 'Trail closed.' );
+		await user.click( screen.getByText( 'Publish' ) );
+
+		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
+		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
+			'Subtitles were published to the video, but saving the editable copy failed. Reopen the track to keep editing.'
+		);
+		expect( screen.queryByText( 'Unable to save subtitle track.' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'blocks publishing when a cue end time is before its start time', async () => {

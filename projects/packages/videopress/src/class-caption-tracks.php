@@ -18,6 +18,8 @@ class Caption_Tracks {
 
 	const POST_TYPE = 'vp_caption_track';
 
+	const CUE_BLOCK_NAME = 'videopress/caption-cue';
+
 	const META_GUID                  = '_videopress_guid';
 	const META_KIND                  = '_videopress_caption_kind';
 	const META_SRC_LANG              = '_videopress_caption_src_lang';
@@ -127,9 +129,18 @@ class Caption_Tracks {
 	public static function rest_permission_check( WP_REST_Request $request ) {
 		$track_id = absint( $request->get_param( 'id' ) );
 		if ( $track_id ) {
-			$existing_guid = (string) get_post_meta( $track_id, self::META_GUID, true );
-			if ( '' !== $existing_guid ) {
-				return self::current_user_can_edit_video( $existing_guid );
+			$existing = get_post( $track_id );
+			if ( $existing instanceof WP_Post && self::POST_TYPE === $existing->post_type ) {
+				/*
+				 * An existing track stays pinned to the video it already belongs
+				 * to; the request body can never re-target it. A track whose
+				 * stored GUID is empty is malformed and cannot be authorized, so
+				 * `current_user_can_edit_video` denies it rather than falling back
+				 * to the (attacker-controlled) body GUID.
+				 */
+				return self::current_user_can_edit_video(
+					(string) get_post_meta( $track_id, self::META_GUID, true )
+				);
 			}
 		}
 
@@ -142,10 +153,13 @@ class Caption_Tracks {
 	/**
 	 * Whether the current user may manage caption tracks for a VideoPress GUID.
 	 *
-	 * Editing a video's captions requires the ability to edit that video. The
-	 * upload-capability fallback is reserved for environments without a local
-	 * attachment store (e.g. WordPress.com); where the resolver is available a
-	 * GUID that has no local attachment is denied rather than broadly allowed.
+	 * Editing a video's captions requires the ability to edit that video. Where
+	 * the GUID resolver is unavailable (an environment without a local
+	 * attachment store, e.g. WordPress.com) ownership can't be verified, so the
+	 * fallback requires `edit_others_posts` rather than the far broader
+	 * `upload_files`: without it any author could manage another author's video
+	 * captions. The resolver ships with this package, so this fallback is a rare
+	 * last resort.
 	 *
 	 * @param string $guid VideoPress GUID.
 	 * @return bool
@@ -163,7 +177,7 @@ class Caption_Tracks {
 			return $attachment instanceof WP_Post && current_user_can( 'edit_post', $attachment->ID );
 		}
 
-		return current_user_can( 'upload_files' );
+		return current_user_can( 'edit_others_posts' );
 	}
 
 	/**
@@ -214,6 +228,44 @@ class Caption_Tracks {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Sanitize serialized caption-cue block content.
+	 *
+	 * The client canonicalizes cue text before saving, but a direct API call
+	 * could embed a WebVTT/comment terminator (`-->`) in a cue's text and corrupt
+	 * block parsing or the WebVTT the track is later serialized to. Re-parse the
+	 * blocks, keep only caption-cue blocks, neutralize the terminator in each
+	 * cue's text, and re-serialize so the stored content is always well-formed.
+	 *
+	 * @param string $content Raw serialized block content.
+	 * @return string Sanitized block content.
+	 */
+	private static function sanitize_track_content( $content ) {
+		$content = (string) $content;
+		if ( '' === trim( $content ) ) {
+			return '';
+		}
+
+		$sanitized = array();
+		foreach ( parse_blocks( $content ) as $block ) {
+			if ( self::CUE_BLOCK_NAME !== ( $block['blockName'] ?? '' ) ) {
+				continue;
+			}
+
+			if ( isset( $block['attrs']['text'] ) ) {
+				$block['attrs']['text'] = str_replace(
+					array( '--!>', '-->' ),
+					'->',
+					(string) $block['attrs']['text']
+				);
+			}
+
+			$sanitized[] = $block;
+		}
+
+		return serialize_blocks( $sanitized );
 	}
 
 	/**
@@ -301,11 +353,23 @@ class Caption_Tracks {
 			);
 		}
 
+		/*
+		 * Preserve an existing track's status when the request omits `status`
+		 * (e.g. a label-only edit): treating a missing value as `draft` would
+		 * silently unpublish a published caption track.
+		 */
+		$requested_status = $request->get_param( 'status' );
+		if ( in_array( $requested_status, array( 'publish', 'draft' ), true ) ) {
+			$post_status = $requested_status;
+		} else {
+			$post_status = $existing ? $existing->post_status : 'draft';
+		}
+
 		$postarr = array(
 			'post_type'    => self::POST_TYPE,
 			'post_title'   => sanitize_text_field( $request->get_param( 'title' ) ),
-			'post_content' => wp_kses_post( $request->get_param( 'content' ) ),
-			'post_status'  => 'publish' === $request->get_param( 'status' ) ? 'publish' : 'draft',
+			'post_content' => self::sanitize_track_content( $request->get_param( 'content' ) ),
+			'post_status'  => $post_status,
 		);
 
 		if ( $track_id ) {
