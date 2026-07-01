@@ -190,13 +190,17 @@ class Caption_Tracks {
 	}
 
 	/**
-	 * Canonicalize a manually entered BCP-47 language tag.
+	 * Validate a manually entered BCP-47 language tag.
 	 *
-	 * Generated keys such as `auto_en` are source-track identifiers, not
-	 * manually entered language tags, so they are rejected here.
+	 * The client canonicalizes tags with `Intl.getCanonicalLocales` before
+	 * saving, and the "one track per language" lookup matches stored tags by
+	 * exact string, so this is a validation gate only: it rejects generated
+	 * source keys such as `auto_en` and malformed tags, then keeps the client's
+	 * canonical value verbatim. Re-casing here would risk diverging from the
+	 * client's canonical form and silently create duplicate tracks.
 	 *
 	 * @param string $value Raw value.
-	 * @return string
+	 * @return string Validated tag, or empty string when invalid.
 	 */
 	public static function sanitize_manual_language( $value ) {
 		$value = trim( sanitize_text_field( $value ) );
@@ -209,20 +213,7 @@ class Caption_Tracks {
 			return '';
 		}
 
-		$parts = explode( '-', str_replace( '_', '-', $value ) );
-		foreach ( $parts as $index => $part ) {
-			if ( 0 === $index ) {
-				$parts[ $index ] = strtolower( $part );
-			} elseif ( 4 === strlen( $part ) && ctype_alpha( $part ) ) {
-				$parts[ $index ] = ucfirst( strtolower( $part ) );
-			} elseif ( ( 2 === strlen( $part ) && ctype_alpha( $part ) ) || ( 3 === strlen( $part ) && ctype_digit( $part ) ) ) {
-				$parts[ $index ] = strtoupper( $part );
-			} else {
-				$parts[ $index ] = strtolower( $part );
-			}
-		}
-
-		return implode( '-', $parts );
+		return $value;
 	}
 
 	/**
