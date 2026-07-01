@@ -201,7 +201,7 @@ function buildLeaderboardData(
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue ?? 0;
 		const hasChildren = !! row.children?.length;
-		const shouldRenderLink = !! row.href && ! onDrillDown;
+		const shouldRenderLink = !! row.href && ! hasChildren;
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,

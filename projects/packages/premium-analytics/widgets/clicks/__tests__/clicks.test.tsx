@@ -35,6 +35,11 @@ const CLICKS_RESPONSE = {
 					},
 				],
 			},
+			{
+				name: 'jetpack.com',
+				views: 18,
+				url: 'https://jetpack.com/',
+			},
 		],
 	},
 };
@@ -64,6 +69,17 @@ describe( 'ClicksWidget', () => {
 			name: /\/plugins\/jetpack-search/i,
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://wordpress.org/plugins/jetpack-search' );
+	} );
+
+	it( 'renders childless top-level URLs as external links', async () => {
+		render(
+			<ClicksWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		const link = await screen.findByRole( 'link', { name: /jetpack\.com/i } );
+		expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/' );
 	} );
 } );
 
