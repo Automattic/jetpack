@@ -13,6 +13,13 @@ use WP_REST_Request;
 
 /**
  * Stores editable caption track documents as private WordPress posts.
+ *
+ * Track content is stored as serialized `videopress/caption-cue` block markup,
+ * matching the block-based editor that produces it. This is a deliberate
+ * trade-off: it keeps the draft round-trippable through the editor without a
+ * bespoke format, at the cost of coupling stored drafts to the block markup
+ * (sanitization re-parses blocks, and replacing the editor later means
+ * migrating stored content).
  */
 class Caption_Tracks {
 
@@ -93,7 +100,7 @@ class Caption_Tracks {
 				'show_ui'             => false,
 				'show_in_menu'        => false,
 				'show_in_rest'        => false,
-				'supports'            => array( 'title', 'editor' ),
+				'supports'            => array( 'title', 'editor', 'revisions' ),
 
 				/*
 				 * Caption tracks are an internal store reached only through the
@@ -135,6 +142,48 @@ class Caption_Tracks {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Request schema for the caption track create/update routes.
+	 *
+	 * Type and shape validation only; the save handler still owns the semantic
+	 * checks (GUID format, language tag, kind) so it can return specific errors.
+	 *
+	 * @return array
+	 */
+	public static function save_track_args() {
+		$meta_properties = array();
+		foreach ( self::$meta_keys as $key ) {
+			$meta_properties[ $key ] = array( 'type' => 'string' );
+		}
+
+		return array(
+			'guid'    => array(
+				'description' => __( 'VideoPress GUID.', 'jetpack-videopress-pkg' ),
+				'type'        => 'string',
+			),
+			'title'   => array(
+				'description' => __( 'Caption track title.', 'jetpack-videopress-pkg' ),
+				'type'        => 'string',
+			),
+			'content' => array(
+				'description' => __( 'Serialized caption-cue block content.', 'jetpack-videopress-pkg' ),
+				'type'        => 'string',
+			),
+			'status'  => array(
+				'description' => __( 'Caption track status.', 'jetpack-videopress-pkg' ),
+				'type'        => 'string',
+				'enum'        => array( 'draft', 'publish' ),
+			),
+			'meta'    => array(
+				'description'          => __( 'Caption track metadata.', 'jetpack-videopress-pkg' ),
+				'type'                 => 'object',
+				'required'             => true,
+				'properties'           => $meta_properties,
+				'additionalProperties' => false,
+			),
+		);
 	}
 
 	/**

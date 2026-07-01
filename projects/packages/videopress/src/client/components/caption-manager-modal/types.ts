@@ -8,7 +8,16 @@ export type CaptionManagerModalProps = {
 	videoSrc?: string;
 	poster?: string | null;
 	isPrivate?: boolean;
-	tracks: VideoTextTrack[];
+	/**
+	 * Track list already known to the host, shown until the modal fetches the
+	 * authoritative list itself. Hosts without one may omit it.
+	 */
+	tracks?: VideoTextTrack[];
 	onClose: () => void;
+	/**
+	 * Called with the updated track list after a mutation. Hosts that keep
+	 * their own copy of the video (e.g. a query cache) may ignore the payload
+	 * and simply invalidate/refetch.
+	 */
 	onTracksChange: ( tracks: VideoTextTrack[] ) => void;
 };

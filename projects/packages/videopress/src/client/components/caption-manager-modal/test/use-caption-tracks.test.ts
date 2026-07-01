@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { createElement } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -11,6 +13,7 @@ import { useCaptionTracks } from '../use-caption-tracks';
  * Types
  */
 import type { SavedCaptionTrack } from '../../../lib/video-tracks/caption-tracks';
+import type { ReactNode } from 'react';
 
 jest.mock( 'debug', () => () => jest.fn() );
 jest.mock( '../../../lib/video-tracks/caption-tracks', () => ( {
@@ -37,6 +40,22 @@ const deferred = < T >() => {
 	return { promise, resolve, reject };
 };
 
+/**
+ * Render the hook inside a fresh query client provider.
+ *
+ * @param props - Hook arguments.
+ * @return The renderHook result.
+ */
+const renderCaptionTracks = ( props: Parameters< typeof useCaptionTracks >[ 0 ] ) => {
+	const queryClient = new QueryClient( {
+		defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
+	} );
+	return renderHook( () => useCaptionTracks( props ), {
+		wrapper: ( { children }: { children: ReactNode } ) =>
+			createElement( QueryClientProvider, { client: queryClient }, children ),
+	} );
+};
+
 describe( 'useCaptionTracks', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -45,37 +64,45 @@ describe( 'useCaptionTracks', () => {
 	it( 'loads caption tracks when the modal opens', async () => {
 		fetchMock.mockResolvedValue( [ track( 1 ) ] );
 
-		const { result } = renderHook( () => useCaptionTracks( { guid: 'abc123', isOpen: true } ) );
+		const { result } = renderCaptionTracks( { guid: 'abc123', isOpen: true } );
 
 		await waitFor( () => expect( result.current.captionTracks ).toHaveLength( 1 ) );
 		expect( fetchMock ).toHaveBeenCalledWith( 'abc123' );
 		expect( result.current.isLoadingCaptionTracks ).toBe( false );
 	} );
 
-	it( 'keeps an optimistic save and merges the server drafts in behind it', async () => {
+	it( 'does not fetch while the modal is closed', () => {
+		fetchMock.mockResolvedValue( [ track( 1 ) ] );
+
+		renderCaptionTracks( { guid: 'abc123', isOpen: false } );
+
+		expect( fetchMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps an optimistic write over the response of an in-flight fetch', async () => {
 		const fetch = deferred< SavedCaptionTrack[] >();
 		fetchMock.mockReturnValue( fetch.promise );
 
-		const { result } = renderHook( () => useCaptionTracks( { guid: 'abc123', isOpen: true } ) );
+		const { result } = renderCaptionTracks( { guid: 'abc123', isOpen: true } );
 
-		// A save lands before the open-fetch resolves.
+		// A save lands before the open-fetch resolves; the fetch is cancelled.
 		act( () => result.current.setCaptionTracks( [ track( 77 ) ] ) );
 
 		await act( async () => {
 			fetch.resolve( [ track( 1 ), track( 2 ) ] );
 		} );
 
-		expect( result.current.captionTracks.map( saved => saved.id ) ).toEqual( [ 77, 1, 2 ] );
+		await waitFor( () =>
+			expect( result.current.captionTracks.map( saved => saved.id ) ).toEqual( [ 77 ] )
+		);
 	} );
 
-	it( 'reports a load failure after a local edit without wiping the edited list', async () => {
+	it( 'keeps the edited list when the cancelled fetch rejects, without a spurious error', async () => {
 		const fetch = deferred< SavedCaptionTrack[] >();
 		fetchMock.mockReturnValue( fetch.promise );
 		const onError = jest.fn();
 
-		const { result } = renderHook( () =>
-			useCaptionTracks( { guid: 'abc123', isOpen: true, onError } )
-		);
+		const { result } = renderCaptionTracks( { guid: 'abc123', isOpen: true, onError } );
 
 		act( () => result.current.setCaptionTracks( [ track( 77 ) ] ) );
 
@@ -83,18 +110,18 @@ describe( 'useCaptionTracks', () => {
 			fetch.reject( new Error( 'network down' ) );
 		} );
 
-		await waitFor( () => expect( onError ).toHaveBeenCalledTimes( 1 ) );
-		expect( result.current.captionTracks.map( saved => saved.id ) ).toEqual( [ 77 ] );
+		await waitFor( () =>
+			expect( result.current.captionTracks.map( saved => saved.id ) ).toEqual( [ 77 ] )
+		);
+		expect( onError ).not.toHaveBeenCalled();
 	} );
 
-	it( 'empties the list and reports the failure when there are no local edits', async () => {
+	it( 'reports the failure and stays empty when there are no local edits', async () => {
 		const fetch = deferred< SavedCaptionTrack[] >();
 		fetchMock.mockReturnValue( fetch.promise );
 		const onError = jest.fn();
 
-		const { result } = renderHook( () =>
-			useCaptionTracks( { guid: 'abc123', isOpen: true, onError } )
-		);
+		const { result } = renderCaptionTracks( { guid: 'abc123', isOpen: true, onError } );
 
 		await act( async () => {
 			fetch.reject( new Error( 'network down' ) );
@@ -102,5 +129,19 @@ describe( 'useCaptionTracks', () => {
 
 		await waitFor( () => expect( onError ).toHaveBeenCalledTimes( 1 ) );
 		expect( result.current.captionTracks ).toEqual( [] );
+	} );
+
+	it( 'refetches the authoritative list on invalidate', async () => {
+		fetchMock
+			.mockResolvedValueOnce( [ track( 1 ) ] )
+			.mockResolvedValueOnce( [ track( 1 ), track( 2 ) ] );
+
+		const { result } = renderCaptionTracks( { guid: 'abc123', isOpen: true } );
+
+		await waitFor( () => expect( result.current.captionTracks ).toHaveLength( 1 ) );
+
+		act( () => result.current.invalidateCaptionTracks() );
+
+		await waitFor( () => expect( result.current.captionTracks ).toHaveLength( 2 ) );
 	} );
 } );
