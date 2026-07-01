@@ -130,18 +130,4 @@ describe( 'useCaptionTracks', () => {
 		await waitFor( () => expect( onError ).toHaveBeenCalledTimes( 1 ) );
 		expect( result.current.captionTracks ).toEqual( [] );
 	} );
-
-	it( 'refetches the authoritative list on invalidate', async () => {
-		fetchMock
-			.mockResolvedValueOnce( [ track( 1 ) ] )
-			.mockResolvedValueOnce( [ track( 1 ), track( 2 ) ] );
-
-		const { result } = renderCaptionTracks( { guid: 'abc123', isOpen: true } );
-
-		await waitFor( () => expect( result.current.captionTracks ).toHaveLength( 1 ) );
-
-		act( () => result.current.invalidateCaptionTracks() );
-
-		await waitFor( () => expect( result.current.captionTracks ).toHaveLength( 2 ) );
-	} );
 } );

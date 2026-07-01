@@ -3,21 +3,17 @@
  */
 import { BlockEditorProvider, BlockList } from '@wordpress/block-editor';
 import { Button, TextareaControl } from '@wordpress/components';
-import { useCallback, useEffect, useRef } from '@wordpress/element';
+import { useFocusOnMount } from '@wordpress/compose';
+import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plus } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { CAPTION_CUE_BLOCK_NAME } from '../../lib/video-tracks/cues';
+import { CAPTION_CUE_BLOCK_NAME, captionBlocksToCues } from '../../lib/video-tracks/cues';
 import { useCaptionEditorContext } from './caption-editor-context';
 import LanguageControl from './language-control';
-import {
-	createCueBlock,
-	getDefaultCueEndTime,
-	getDefaultCueStartTime,
-	isFormFieldTarget,
-} from './track-helpers';
+import { createCueAtPlayhead, isFormFieldTarget } from './track-helpers';
 /**
  * Types
  */
@@ -45,8 +41,6 @@ type ManualEditorProps = {
 	previewPanel: ReactElement;
 	/** Sorted cue start times, for the next/previous-cue shortcuts. */
 	cueStartTimes: number[];
-	/** Whether the editor holds any complete cues, for the import actions. */
-	hasCues: boolean;
 	onLanguageChange: ( tag: string, displayName: string ) => void;
 	onCueBlocksChange: ( cueBlocks: CaptionCueBlock[] ) => void;
 	onTextImportOpenChange: ( isOpen: boolean ) => void;
@@ -64,7 +58,6 @@ type ManualEditorProps = {
  * @param props.playerRef               - Imperative preview player handle.
  * @param props.previewPanel            - Preview player element.
  * @param props.cueStartTimes           - Sorted cue start times for cue jumps.
- * @param props.hasCues                 - Whether the editor holds complete cues.
  * @param props.onLanguageChange        - Called with the selected language tag and display name.
  * @param props.onCueBlocksChange       - Called with the edited cue blocks.
  * @param props.onTextImportOpenChange  - Toggle the paste-text panel.
@@ -77,26 +70,27 @@ export default function ManualEditor( {
 	playerRef,
 	previewPanel,
 	cueStartTimes,
-	hasCues,
 	onLanguageChange,
 	onCueBlocksChange,
 	onTextImportOpenChange,
 	onTextImportValueChange,
 	onImportText,
 }: ManualEditorProps ): ReactElement {
-	const { getCurrentTime, pendingFocusClientIdRef } = useCaptionEditorContext();
-	const containerRef = useRef< HTMLDivElement >( null );
-	const cueEditorRef = useRef< HTMLDivElement >( null );
-	const shouldScrollCueEditorToEndRef = useRef( false );
-
+	const { pendingFocusClientIdRef } = useCaptionEditorContext();
 	/*
 	 * Focus the workspace container (not a header button or the language field)
 	 * on mount, so entering the editor never grabs the close button, and the
 	 * keyboard shortcuts work right away.
 	 */
-	useEffect( () => {
-		containerRef.current?.focus();
-	}, [] );
+	const focusOnMountRef = useFocusOnMount( true );
+	const cueEditorRef = useRef< HTMLDivElement >( null );
+	const shouldScrollCueEditorToEndRef = useRef( false );
+
+	// Whether the editor holds any complete cues, for the import actions.
+	const hasCues = useMemo(
+		() => captionBlocksToCues( workspace.cueBlocks ).length > 0,
+		[ workspace.cueBlocks ]
+	);
 
 	useEffect( () => {
 		if ( ! shouldScrollCueEditorToEndRef.current ) {
@@ -115,15 +109,11 @@ export default function ManualEditor( {
 	}, [ workspace.cueBlocks ] );
 
 	const addCue = useCallback( () => {
-		const currentTime = getCurrentTime();
 		shouldScrollCueEditorToEndRef.current = true;
-		const block = createCueBlock( {
-			startTime: getDefaultCueStartTime( currentTime ),
-			endTime: getDefaultCueEndTime( currentTime ),
-		} );
+		const block = createCueAtPlayhead( playerRef.current?.getCurrentTime() ?? 0 );
 		pendingFocusClientIdRef.current = block.clientId;
 		onCueBlocksChange( [ ...workspace.cueBlocks, block ] );
-	}, [ getCurrentTime, onCueBlocksChange, pendingFocusClientIdRef, workspace.cueBlocks ] );
+	}, [ onCueBlocksChange, pendingFocusClientIdRef, playerRef, workspace.cueBlocks ] );
 
 	const seekToAdjacentCue = useCallback(
 		( direction: 'next' | 'previous' ) => {
@@ -131,7 +121,7 @@ export default function ManualEditor( {
 				return;
 			}
 
-			const baseTime = playerRef.current?.getCurrentTime() ?? getCurrentTime();
+			const baseTime = playerRef.current?.getCurrentTime() ?? 0;
 			const nextTime =
 				direction === 'next'
 					? cueStartTimes.find( startTime => startTime > baseTime + 0.01 )
@@ -141,7 +131,7 @@ export default function ManualEditor( {
 				playerRef.current?.seekTo( nextTime );
 			}
 		},
-		[ cueStartTimes, getCurrentTime, playerRef ]
+		[ cueStartTimes, playerRef ]
 	);
 
 	const handleKeyDown = useCallback(
@@ -198,7 +188,7 @@ export default function ManualEditor( {
 			aria-describedby="videopress-caption-manager-shortcuts"
 			tabIndex={ 0 }
 			onKeyDown={ handleKeyDown }
-			ref={ containerRef }
+			ref={ focusOnMountRef }
 		>
 			<p
 				id="videopress-caption-manager-shortcuts"

@@ -85,6 +85,12 @@ export type WorkspaceAction =
 
 export const initialWorkspaceState: WorkspaceState = { view: 'tracks', requestId: 0 };
 
+const WORKSPACE_CREATING_ACTIONS: ReadonlyArray< WorkspaceAction[ 'type' ] > = [
+	'RESET',
+	'OPEN_UPLOAD',
+	'OPEN_MANUAL',
+];
+
 /**
  * Reduce a workspace action into the next workspace state.
  *
@@ -97,6 +103,19 @@ export const initialWorkspaceState: WorkspaceState = { view: 'tracks', requestId
  * @return The next workspace state.
  */
 export function workspaceReducer( state: WorkspaceState, action: WorkspaceAction ): WorkspaceState {
+	/*
+	 * The generic staleness gate: any non-creating action carrying a requestId
+	 * is an async continuation, and is dropped when a newer workspace has
+	 * replaced the one it was started for.
+	 */
+	if (
+		! WORKSPACE_CREATING_ACTIONS.includes( action.type ) &&
+		'requestId' in action &&
+		action.requestId !== state.requestId
+	) {
+		return state;
+	}
+
 	switch ( action.type ) {
 		case 'RESET':
 			return { view: 'tracks', requestId: action.requestId };
@@ -153,7 +172,7 @@ export function workspaceReducer( state: WorkspaceState, action: WorkspaceAction
 			return { ...state, cueBlocks: action.cueBlocks };
 
 		case 'SEED_CUE_BLOCKS':
-			if ( state.view !== 'manual' || state.requestId !== action.requestId ) {
+			if ( state.view !== 'manual' ) {
 				return state;
 			}
 			return {
@@ -164,13 +183,13 @@ export function workspaceReducer( state: WorkspaceState, action: WorkspaceAction
 			};
 
 		case 'CONTENT_LOAD_FAILED':
-			if ( state.view !== 'manual' || state.requestId !== action.requestId ) {
+			if ( state.view !== 'manual' ) {
 				return state;
 			}
 			return { ...state, isLoadingContent: false };
 
 		case 'MARK_SAVED':
-			if ( state.view !== 'manual' || state.requestId !== action.requestId ) {
+			if ( state.view !== 'manual' ) {
 				return state;
 			}
 			return {

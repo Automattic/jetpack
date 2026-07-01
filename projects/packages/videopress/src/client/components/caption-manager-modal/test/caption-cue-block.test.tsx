@@ -254,7 +254,7 @@ describe( 'CaptionCueEdit', () => {
 		expect( mockInsertBlock ).toHaveBeenCalledWith(
 			{
 				name: CAPTION_CUE_BLOCK_NAME,
-				attributes: { startTime: '00:00:05.000', endTime: '00:00:07.000' },
+				attributes: { startTime: '00:00:05.000', endTime: '00:00:07.000', text: '' },
 			},
 			1,
 			undefined,
