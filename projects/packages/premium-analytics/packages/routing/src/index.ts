@@ -5,4 +5,4 @@ export {
 } from './search/date-range';
 
 export { deriveComparisonRange } from './search/comparison';
-export { useStagedSearch } from './hooks';
+export { useStagedSearch, useReportDateFilters, type ReportDateFilters } from './hooks';
