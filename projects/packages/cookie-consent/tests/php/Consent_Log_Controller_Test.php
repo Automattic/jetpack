@@ -222,6 +222,127 @@ class Consent_Log_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * The cleanup cutoff is derived from the retention_days injected via init().
+	 */
+	public function test_cleanup_uses_injected_retention_days() {
+		$cutoff_ts = $this->capture_cleanup_cutoff( array( 'retention_days' => 1 ) );
+
+		$this->assertEqualsWithDelta( time() - DAY_IN_SECONDS, $cutoff_ts, 600, 'Cutoff should be one day back for retention_days=1.' );
+	}
+
+	/**
+	 * A malformed injected retention_days falls back to DEFAULT_RETENTION_DAYS rather than
+	 * deleting everything (cutoff = now) or erroring. Guards the `log` group's deliberate
+	 * lack of schema validation, whose sole protection is the filter_var/`<= 0` guard.
+	 */
+	public function test_cleanup_falls_back_on_malformed_retention_days() {
+		$default_days = ( new \ReflectionClass( Consent_Log_Controller::class ) )->getConstant( 'DEFAULT_RETENTION_DAYS' );
+
+		foreach ( array( 'nonsense', 0, -5 ) as $bad ) {
+			$cutoff_ts = $this->capture_cleanup_cutoff( array( 'retention_days' => $bad ) );
+
+			$this->assertEqualsWithDelta(
+				time() - ( $default_days * DAY_IN_SECONDS ),
+				$cutoff_ts,
+				600,
+				"Malformed retention_days ($bad) should fall back to DEFAULT_RETENTION_DAYS."
+			);
+		}
+	}
+
+	/**
+	 * Run cleanup_expired_logs() against a $wpdb that records the DELETE cutoff instead of
+	 * touching a real table, mirroring the insert-boundary interception used elsewhere.
+	 *
+	 * @param array $log_config Log config to inject via init().
+	 * @return int Cutoff as a UNIX timestamp parsed from the captured GMT date.
+	 */
+	private function capture_cleanup_cutoff( array $log_config ) {
+		$instance = Consent_Log_Controller::init( $log_config );
+
+		global $wpdb;
+		$real_wpdb = $wpdb;
+		$wpdb      = new class( $real_wpdb ) {
+			/**
+			 * Underlying database handle.
+			 *
+			 * @var \wpdb
+			 */
+			private $real;
+
+			/**
+			 * Cutoff date (GMT) captured from the DELETE prepare() call.
+			 *
+			 * @var string|null
+			 */
+			public $cutoff = null;
+
+			/**
+			 * Wrap the real database handle.
+			 *
+			 * @param \wpdb $real Real database handle.
+			 */
+			public function __construct( $real ) {
+				$this->real = $real;
+			}
+
+			/**
+			 * Delegate property reads (e.g. prefix) to the real handle.
+			 *
+			 * @param string $name Property name.
+			 * @return mixed
+			 */
+			public function __get( $name ) {
+				return $this->real->$name;
+			}
+
+			/**
+			 * Delegate uncaptured method calls to the real handle.
+			 *
+			 * @param string $name Method name.
+			 * @param array  $args Arguments.
+			 * @return mixed
+			 */
+			public function __call( $name, $args ) {
+				return $this->real->$name( ...$args );
+			}
+
+			/**
+			 * Capture the cutoff argument, then delegate to the real prepare().
+			 *
+			 * @param string $query Query with placeholders.
+			 * @param mixed  ...$args Positional args: table, cutoff, batch size.
+			 * @return string
+			 */
+			public function prepare( $query, ...$args ) {
+				if ( null === $this->cutoff && isset( $args[1] ) ) {
+					$this->cutoff = $args[1];
+				}
+				return $this->real->prepare( $query, ...$args );
+			}
+
+			/**
+			 * Report zero rows deleted so cleanup's batch loop terminates immediately.
+			 *
+			 * @return int
+			 */
+			public function query() {
+				return 0;
+			}
+		};
+
+		try {
+			$instance->cleanup_expired_logs();
+			$cutoff = $wpdb->cutoff;
+		} finally {
+			$wpdb = $real_wpdb;
+		}
+
+		$this->assertNotNull( $cutoff, 'cleanup_expired_logs() should reach the DELETE prepare().' );
+		return (int) strtotime( $cutoff . ' UTC' );
+	}
+
+	/**
 	 * Test that the read schema allows dropped IP addresses.
 	 */
 	public function test_consent_logs_schema_allows_null_ip_address() {

@@ -88,26 +88,32 @@ class Cookie_Consent {
 	 * and stashes the configuration, bails entirely when `enabled` is false, and
 	 * otherwise registers each hook slice only when its `features.*` toggle is on.
 	 *
+	 * The first call latches, including when `enabled` is false: a disabled init is a
+	 * sticky no-op, so a later caller cannot re-enable the feature within the same
+	 * request. Only deactivate() clears the latch.
+	 *
 	 * @param array $config Partial consumer config, resolved via Config_Schema.
 	 */
 	public static function init( array $config = array() ) {
 		if ( self::$initialized ) {
 			return;
 		}
-		$resolved     = Config_Schema::resolve( $config );
-		self::$config = $resolved;
+		self::$initialized = true;
+		$resolved          = Config_Schema::resolve( $config );
+		self::$config      = $resolved;
 		if ( empty( $resolved['enabled'] ) ) {
 			return;
 		}
-		self::$initialized = true;
 
 		$features = $resolved['features'];
 
 		if ( $features['banner'] ) {
 			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 			add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
-		} elseif ( $features['tracks'] || $features['geo'] ) {
-			// enqueue_assets also carries Tracks + geo emission; still enqueue when those are on.
+		} elseif ( $features['tracks'] ) {
+			// enqueue_assets also carries the Tracks (w.js) enqueue, so register it when
+			// tracks is on even without the banner. Geo emission lives after the banner
+			// guard inside enqueue_assets(), so geo alone has nothing to enqueue here.
 			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		}
 

@@ -166,11 +166,17 @@ final class Config_Schema {
 			$config = array();
 		}
 
-		$defaults = self::defaults();
+		// Build the schema once and index every default and field-schema below into it.
+		// Each schema() build re-materializes the copy, category, and country/region
+		// defaults, so resolving off a single materialization avoids rebuilding them per
+		// field lookup.
+		$schema     = self::schema();
+		$properties = $schema['properties'];
+		$defaults   = self::defaults_from_schema_node( $schema );
 
 		// Scalars, enums, booleans, integers: let the schema coerce them, field by field,
 		// falling back to the default whenever a value is missing or fails validation.
-		$features = self::resolve_group( $config['features'] ?? array(), $defaults['features'], self::schema()['properties']['features']['properties'] );
+		$features = self::resolve_group( $config['features'] ?? array(), $defaults['features'], $properties['features']['properties'] );
 		$geo      = self::resolve_geo( $config, $defaults['geo'] );
 		// `log` predates schema-level validation: Cookie_Consent::get_log_versions() already
 		// coerces and diagnoses its scalar values (including non-string overrides) downstream,
@@ -178,11 +184,11 @@ final class Config_Schema {
 		$log = isset( $config['log'] ) && is_array( $config['log'] ) ? array_merge( $defaults['log'], $config['log'] ) : $defaults['log'];
 
 		$resolved = array(
-			'enabled'         => self::resolve_scalar( $config, 'enabled', $defaults['enabled'], self::schema()['properties']['enabled'] ),
-			'schema_version'  => self::resolve_scalar( $config, 'schema_version', $defaults['schema_version'], self::schema()['properties']['schema_version'] ),
+			'enabled'         => self::resolve_scalar( $config, 'enabled', $defaults['enabled'], $properties['enabled'] ),
+			'schema_version'  => self::resolve_scalar( $config, 'schema_version', $defaults['schema_version'], $properties['schema_version'] ),
 			'features'        => $features,
 			'geo'             => $geo,
-			'gdpr_honors_gpc' => self::resolve_scalar( $config, 'gdpr_honors_gpc', $defaults['gdpr_honors_gpc'], self::schema()['properties']['gdpr_honors_gpc'] ),
+			'gdpr_honors_gpc' => self::resolve_scalar( $config, 'gdpr_honors_gpc', $defaults['gdpr_honors_gpc'], $properties['gdpr_honors_gpc'] ),
 			'links'           => self::normalize_links( $config, $defaults['links'] ),
 			'event_prefix'    => isset( $config['event_prefix'] ) && is_string( $config['event_prefix'] ) ? $config['event_prefix'] : $defaults['event_prefix'],
 			'log'             => $log,
@@ -196,15 +202,6 @@ final class Config_Schema {
 		$resolved['consent'] = array( 'categories' => self::normalize_consent_categories( $categories, $default_categories ) );
 
 		return $resolved;
-	}
-
-	/**
-	 * Collect the default value for every leaf in the schema, keeping the schema's nesting.
-	 *
-	 * @return array
-	 */
-	private static function defaults() {
-		return self::defaults_from_schema_node( self::schema() );
 	}
 
 	/**

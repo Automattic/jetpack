@@ -30,6 +30,12 @@ class Init_Feature_Toggles_Test extends TestCase {
 
 		$this->assertFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
 		$this->assertFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ) ) );
+		// The side effects that outlive the request must stay unregistered too: the
+		// consent-log cleanup cron, the geo Boost cache-key filter, and the CCPA REST hook.
+		// These guard against a regression that registers durable state before the enabled bail.
+		$this->assertFalse( wp_next_scheduled( 'jetpack_cookie_consent_cleanup_consent_logs' ) );
+		$this->assertFalse( has_filter( 'jetpack_boost_ignore_cookies', array( Cookie_Consent::class, 'ignore_geo_cookies_in_page_cache' ) ) );
+		$this->assertFalse( has_action( 'rest_api_init', array( Cookie_Consent::class, 'register_ccpa_page_setting' ) ) );
 	}
 
 	public function test_defaults_register_banner_and_ccpa() {
@@ -102,9 +108,8 @@ class Init_Feature_Toggles_Test extends TestCase {
 	}
 
 	public function test_tracks_and_geo_off_without_banner_skips_enqueue() {
-		// enqueue_assets is registered when banner OR tracks OR geo is on. Turning
-		// all three off is the only way to observe "tracks off" and "geo off" as an
-		// absent hook, since neither toggle owns a dedicated registration of its own.
+		// enqueue_assets is registered when banner OR tracks is on. With all of banner,
+		// tracks, and geo off there is nothing to enqueue, so the hook stays absent.
 		Cookie_Consent::init(
 			array(
 				'features' => array(
@@ -133,7 +138,9 @@ class Init_Feature_Toggles_Test extends TestCase {
 		$this->assertFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ), 999 ) );
 	}
 
-	public function test_geo_on_without_banner_or_tracks_still_registers_enqueue() {
+	public function test_geo_on_without_banner_or_tracks_skips_enqueue() {
+		// Geo emission lives behind the banner guard inside enqueue_assets(), so geo alone
+		// (banner and tracks off) has nothing to enqueue and must not register the hook.
 		Cookie_Consent::init(
 			array(
 				'features' => array(
@@ -144,7 +151,7 @@ class Init_Feature_Toggles_Test extends TestCase {
 			)
 		);
 
-		$this->assertNotFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
+		$this->assertFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
 		$this->assertFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ), 999 ) );
 	}
 
