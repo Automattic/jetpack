@@ -399,9 +399,11 @@ $jp-breakpoint-mobile: 782px;
 		background: var(--jp-gray-0, #f6f7f7);
 	}
 
-	// Once the stage exists, let the rounded cutouts reveal wp-admin's dark
-	// chrome color instead of the light loading canvas.
+	// Once the stage exists, remove boot's default end/bottom margin so the
+	// frame fills the available chrome, and let the rounded cutouts reveal
+	// wp-admin's dark chrome color instead of the light loading canvas.
 	.boot-layout__surfaces:has(.boot-layout__stage) {
+		margin: 0;
 		background: #1e1e1e;
 	}
 
