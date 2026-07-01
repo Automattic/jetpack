@@ -438,11 +438,12 @@ Show `<WidgetLoadingOverlay />` only when there is no data yet:
 to the chart component so an in-place spinner appears without hiding the rows.
 
 Loading, empty, and error states should live in the same body/content wrapper as the normal
-widget content so padding and sizing stay consistent. If the widget has interactive body chrome
-such as a breadcrumb, dropdown, or view selector, keep that chrome available and replace only
-the content area with the state message. Composite widgets may use a custom placeholder instead
-of `LeaderboardChart`'s `emptyStateText`, but the state should still be centered inside the
-content area.
+widget content so padding and sizing stay consistent. If the current widget state has interactive
+body chrome such as a breadcrumb, dropdown, or view selector, keep that chrome available and
+replace only the content area with the state message. Do not add a static widget title to the
+body just to balance a top-level header layout; the dashboard/widget chrome owns the widget
+title. Composite widgets may use a custom placeholder instead of `LeaderboardChart`'s
+`emptyStateText`, but the state should still be centered inside the content area.
 
 Known unsupported endpoint states should use product-specific copy rather than the generic
 "Could not load" fallback (for example unsupported Jetpack-site responses). Map the relevant
@@ -487,6 +488,9 @@ behavior across Stats widgets.
 - Dashboard render: avoid duplicating the dashboard-provided widget title. If the close-up
   component can show its own title, pass `showTitle={ false }` from dashboard stories and
   dashboard render paths.
+- Top-level body header: do not repeat the widget title inside the body when the dashboard
+  already renders it. Body headers are for body-level controls or drill-down breadcrumbs, not
+  duplicate titles.
 - Header controls: `SelectControl` in widget headers should use `__next40pxDefaultSize` and
   `__nextHasNoMarginBottom`, with the visible label hidden from sighted users when the header
   context already names the control.
