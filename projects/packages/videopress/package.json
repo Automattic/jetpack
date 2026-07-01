@@ -73,14 +73,12 @@
 		"tus-js-client": "4.2.3"
 	},
 	"devDependencies": {
-		"@automattic/calypso-color-schemes": "4.0.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@csstools/postcss-global-data": "4.0.0",
 		"@jest/globals": "30.4.1",
 		"@storybook/addon-docs": "10.4.6",
 		"@storybook/react": "10.4.6",
@@ -100,7 +98,6 @@
 		"copy-webpack-plugin": "14.0.0",
 		"jest": "30.4.2",
 		"postcss": "8.5.14",
-		"postcss-custom-properties": "12.1.11",
 		"postcss-loader": "8.2.0",
 		"require-from-string": "2.0.2",
 		"sass-embedded": "1.97.3",
