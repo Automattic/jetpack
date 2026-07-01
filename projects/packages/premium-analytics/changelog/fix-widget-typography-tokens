@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Inject the `--wpds-typography-*` design tokens on the dashboard so metric values render at their intended size. The dashboard's runtime token injection omits the typography scale, so metric values (e.g. in the Subscribers and Traffic chart widgets) fell back to the body font size — small and flat — instead of the large, bold heading size seen in Storybook. Temporary shim until the boot/theme layer emits the typography custom properties.

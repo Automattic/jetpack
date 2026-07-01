@@ -15,6 +15,65 @@ import { DASHBOARD_REST_NAMESPACE } from './hooks/constants';
 type DashboardSearch = Record< string, string | undefined >;
 
 /**
+ * TEMPORARY (remove once `@wordpress/boot` injects the typography scale).
+ *
+ * The dashboard's runtime design-token injection emits the color / dimension /
+ * density `--wpds-*` custom properties but NOT the `--wpds-typography-*` scale,
+ * so components that size off `--wpds-typography-font-size-*` (e.g. the metric
+ * value in `MetricTabsChart`) fall back to the inherited body size and render
+ * visibly smaller/flatter than in Storybook — where `@automattic/jetpack-
+ * components`' `ThemeProvider` injects these tokens.
+ *
+ * Until the boot/theme layer emits the typography custom properties, inject them
+ * once on the dashboard. Values mirror `@wordpress/theme`'s design-token-fallbacks
+ * (0.15.1); they're inlined here only because that fallback map isn't a public
+ * export and the design-tokens.css import isn't supported by this build.
+ */
+/* eslint-disable @wordpress/no-setting-ds-tokens -- TEMPORARY: the `--wpds-typography-*`
+   scale isn't injected on the dashboard (see above); the sanctioned `ThemeProvider`
+   path is exactly what's failing to emit it. Delete this block, its enable pragma, and
+   the call in beforeLoad once the boot/theme layer emits the typography custom properties. */
+const TEMP_TYPOGRAPHY_TOKENS: Record< string, string > = {
+	'--wpds-typography-font-size-xs': '11px',
+	'--wpds-typography-font-size-sm': '12px',
+	'--wpds-typography-font-size-md': '13px',
+	'--wpds-typography-font-size-lg': '15px',
+	'--wpds-typography-font-size-xl': '20px',
+	'--wpds-typography-font-size-2xl': '32px',
+	'--wpds-typography-line-height-xs': '16px',
+	'--wpds-typography-line-height-sm': '20px',
+	'--wpds-typography-line-height-md': '24px',
+	'--wpds-typography-line-height-lg': '28px',
+	'--wpds-typography-line-height-xl': '32px',
+	'--wpds-typography-line-height-2xl': '40px',
+	'--wpds-typography-font-weight-regular': '400',
+	'--wpds-typography-font-weight-medium': '499',
+};
+/* eslint-enable @wordpress/no-setting-ds-tokens */
+
+const TEMP_TYPOGRAPHY_TOKENS_STYLE_ID = 'jpa-temp-typography-tokens';
+
+/**
+ * TEMPORARY typography-token shim — see `TEMP_TYPOGRAPHY_TOKENS`. Injects the
+ * missing `--wpds-typography-*` custom properties on `:root`, once.
+ */
+function injectTemporaryTypographyTokens(): void {
+	if (
+		typeof document === 'undefined' ||
+		document.getElementById( TEMP_TYPOGRAPHY_TOKENS_STYLE_ID )
+	) {
+		return;
+	}
+	const declarations = Object.entries( TEMP_TYPOGRAPHY_TOKENS )
+		.map( ( [ token, value ] ) => `${ token }: ${ value };` )
+		.join( '' );
+	const style = document.createElement( 'style' );
+	style.id = TEMP_TYPOGRAPHY_TOKENS_STYLE_ID;
+	style.textContent = `:root{${ declarations }}`;
+	document.head.appendChild( style );
+}
+
+/**
  * Route lifecycle for the dashboard.
  *
  * Guard:
@@ -53,6 +112,9 @@ export const route = {
 		if ( ! syncFinished ) {
 			throw redirect( { to: '/syncing' } );
 		}
+
+		// TEMPORARY: see injectTemporaryTypographyTokens.
+		injectTemporaryTypographyTokens();
 
 		const params = ( search ?? {} ) as DashboardSearch;
 		if ( ! params.from || ! params.to || ! params.interval ) {
