@@ -1228,15 +1228,26 @@ class Cookie_Consent {
 		// Resolve the configured Tracks event prefix once so it can be shared below.
 		$config = self::get_config();
 
+		$config_data = array(
+			'apiUrl'      => rest_url( 'jetpack/v4/cookie-consent/consent-log' ),
+			'eventPrefix' => $config['event_prefix'],
+		);
+
+		// Only expose a REST nonce to logged-in visitors, so the consent logger can
+		// authenticate and record the real user_id. Anonymous visitors deliberately get
+		// none: their pages are full-page-cached, a cached nonce would go stale and make
+		// core reject the request (rest_cookie_invalid_nonce). Without a nonce core treats
+		// the request as anonymous and stores user_id = 0, which is correct for them.
+		if ( is_user_logged_in() ) {
+			$config_data['nonce'] = wp_create_nonce( 'wp_rest' );
+		}
+
 		// Pass REST API URL and Tracks event prefix to the module via global config.
 		wp_print_inline_script_tag(
 			sprintf(
 				'window.jetpackCookieConsentConfig = %s;',
 				wp_json_encode(
-					array(
-						'apiUrl'      => rest_url( 'jetpack/v4/cookie-consent/consent-log' ),
-						'eventPrefix' => $config['event_prefix'],
-					),
+					$config_data,
 					JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 				)
 			),
