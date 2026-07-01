@@ -77,4 +77,25 @@ describe( 'initConnectionStore', () => {
 		expect( mockSetApiRoot ).not.toHaveBeenCalled();
 		expect( mockSetApiNonce ).not.toHaveBeenCalled();
 	} );
+
+	it( 'configures the api on a later call once initial state becomes available', () => {
+		jest.isolateModules( () => {
+			const { initConnectionStore } = require( '../index' );
+
+			// First call before api config is available: nothing to configure.
+			window.JP_CONNECTION_INITIAL_STATE = { connectionStatus: {} };
+			initConnectionStore();
+			expect( mockSetApiRoot ).not.toHaveBeenCalled();
+
+			// A later call, once the data is present, still configures the api
+			// even though the store was already registered.
+			window.JP_CONNECTION_INITIAL_STATE = {
+				apiRoot: 'https://example.com/wp-json/',
+				apiNonce: 'test-nonce',
+			};
+			initConnectionStore();
+			expect( mockSetApiRoot ).toHaveBeenCalledWith( 'https://example.com/wp-json/' );
+			expect( mockSetApiNonce ).toHaveBeenCalledWith( 'test-nonce' );
+		} );
+	} );
 } );

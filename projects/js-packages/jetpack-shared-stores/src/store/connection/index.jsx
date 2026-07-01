@@ -37,18 +37,7 @@ let store;
  * @return {import('@wordpress/data').StoreDescriptor} The registered connection store descriptor.
  */
 export function initConnectionStore() {
-	if ( store ) {
-		return store;
-	}
-
 	const initialState = window.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection;
-
-	if ( ! initialState ) {
-		// eslint-disable-next-line no-console
-		console.error(
-			'Jetpack Connection package: Initial state is missing. Check documentation to see how to use the Connection composer package to set up the initial state.'
-		);
-	}
 
 	/*
 	 * Configure this bundle's `@automattic/jetpack-api` instance from the
@@ -57,12 +46,27 @@ export function initConnectionStore() {
 	 * shared-stores bundle it has its own copy of the api singleton, separate
 	 * from the consuming app's copy. Without this the store's REST calls would
 	 * hit the default root with no nonce and fail.
+	 *
+	 * This runs on every call (it's a cheap idempotent setter) so that if the
+	 * first call happened before the connection script data was available, a
+	 * later call still points the api at the right root and nonce.
 	 */
 	if ( initialState?.apiRoot ) {
 		restApi.setApiRoot( initialState.apiRoot );
 	}
 	if ( initialState?.apiNonce ) {
 		restApi.setApiNonce( initialState.apiNonce );
+	}
+
+	if ( store ) {
+		return store;
+	}
+
+	if ( ! initialState ) {
+		// eslint-disable-next-line no-console
+		console.error(
+			'Jetpack Connection package: Initial state is missing. Check documentation to see how to use the Connection composer package to set up the initial state.'
+		);
 	}
 
 	store = createReduxStore( STORE_ID, {
