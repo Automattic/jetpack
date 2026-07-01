@@ -27,6 +27,9 @@ import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
+type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes > & {
+	showTitle?: boolean;
+};
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
@@ -49,6 +52,7 @@ const UTM_PARAM_OPTIONS: { label: string; value: StatsUtmParam }[] = [
 type UtmInsightsInnerProps = {
 	utmParam: StatsUtmParam;
 	max: number;
+	showTitle: boolean;
 	setAttributes?: NonNullable<
 		WidgetRenderProps< UtmInsightsRenderAttributes >[ 'setAttributes' ]
 	>;
@@ -60,10 +64,11 @@ type UtmInsightsInnerProps = {
  * @param props               - Props.
  * @param props.utmParam      - Active UTM dimension.
  * @param props.max           - Max rows to display.
+ * @param props.showTitle     - Whether to render the widget title/breadcrumb.
  * @param props.setAttributes - Optional widget attribute setter (persists utmParam selection).
  * @return The rendered leaderboard or state placeholder.
  */
-function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerProps ) {
+function UtmInsightsInner( { utmParam, max, showTitle, setAttributes }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ activeUtmParam, setActiveUtmParam ] = useState< StatsUtmParam >( utmParam );
 	const [ selectedUtmLabel, setSelectedUtmLabel ] = useState< string | null >( null );
@@ -133,25 +138,33 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 		} ) );
 	}, [ activeData, hasComparison, isDrillDown ] );
 
+	const showBreadcrumb = showTitle || isDrillDown;
 	const header = (
-		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
-			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
-				{ isDrillDown ? (
-					<>
-						<Button
-							variant="unstyled"
-							onClick={ clearSelectedUtm }
-							className={ styles.breadcrumbLink }
-						>
-							{ __( 'UTM Insights', 'jetpack-premium-analytics' ) }
-						</Button>
-						<Text className={ styles.breadcrumbSeparator }>/</Text>
-						<Text className={ styles.breadcrumbCurrent }>{ selectedUtm?.label }</Text>
-					</>
-				) : (
-					<Text>{ __( 'UTM Insights', 'jetpack-premium-analytics' ) }</Text>
-				) }
-			</Stack>
+		<Stack
+			direction="row"
+			justify={ showBreadcrumb ? 'space-between' : 'end' }
+			align="center"
+			className={ styles.widgetHeader }
+		>
+			{ showBreadcrumb && (
+				<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
+					{ isDrillDown ? (
+						<>
+							<Button
+								variant="unstyled"
+								onClick={ clearSelectedUtm }
+								className={ styles.breadcrumbLink }
+							>
+								{ __( 'UTM Insights', 'jetpack-premium-analytics' ) }
+							</Button>
+							<Text className={ styles.breadcrumbSeparator }>/</Text>
+							<Text className={ styles.breadcrumbCurrent }>{ selectedUtm?.label }</Text>
+						</>
+					) : (
+						<Text>{ __( 'UTM Insights', 'jetpack-premium-analytics' ) }</Text>
+					) }
+				</Stack>
+			) }
 			<SelectControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
@@ -217,19 +230,26 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
  * @param props               - Render props.
  * @param props.attributes    - Widget attributes (utmParam, max).
  * @param props.setAttributes - Attribute setter.
+ * @param props.showTitle     - Whether to render the widget title/breadcrumb.
  * @return The rendered widget content.
  */
 export default function UtmInsightsWidget( {
 	attributes = {},
 	setAttributes,
-}: WidgetRenderProps< UtmInsightsRenderAttributes > ) {
+	showTitle = true,
+}: UtmInsightsWidgetProps ) {
 	const utmParam = attributes.utmParam ?? DEFAULT_UTM_PARAM;
 	const max = attributes.max ?? 10;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<UtmInsightsInner utmParam={ utmParam } max={ max } setAttributes={ setAttributes } />
+				<UtmInsightsInner
+					utmParam={ utmParam }
+					max={ max }
+					showTitle={ showTitle }
+					setAttributes={ setAttributes }
+				/>
 			</div>
 		</WidgetRoot>
 	);
