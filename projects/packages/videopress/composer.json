@@ -29,12 +29,16 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --testsuite main --colors=always",
+			"phpunit-select-config phpunit.#.xml.dist --testsuite sqlite --bootstrap tests/php-sqlite/bootstrap.php --colors=always"
 		],
 		"test-js": "pnpm run test",
 		"test-js-coverage": "pnpm run test-coverage",
 		"test-php": "@composer phpunit",
-		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+		"test-php-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --testsuite main --coverage-php \"$COVERAGE_DIR/php.cov\"",
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --testsuite sqlite --bootstrap tests/php-sqlite/bootstrap.php --coverage-php \"$COVERAGE_DIR/php-sqlite.cov\""
+		],
 		"build-production": [
 			"pnpm run build-production"
 		],

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress Dashboard: add a feature-gated playlist taxonomy for attachments with artwork, type, and ordering term meta, exposed through the core REST media endpoints (disabled by default).

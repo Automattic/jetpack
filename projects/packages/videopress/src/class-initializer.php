@@ -142,6 +142,15 @@ class Initializer {
 		Block_Editor_Content::init();
 
 		/*
+		 * Playlists back the Studio expansion of the dashboard, so they are
+		 * gated on the same filter as the Studio routes. Playlists::init()
+		 * only wires hooks; the taxonomy itself registers on `init`.
+		 */
+		if ( Admin_UI::is_studio_enabled() ) {
+			Playlists::init();
+		}
+
+		/*
 		 * These endpoints only add their routes on REST init, so defer calling
 		 * init() (and autoloading the endpoint classes) until a REST request is
 		 * served. Priority 0 ensures the routes still register before the
