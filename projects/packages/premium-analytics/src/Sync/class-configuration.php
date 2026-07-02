@@ -122,11 +122,7 @@ class Configuration {
 		$config = new Config();
 		$config->ensure( 'sync', $this->get_jetpack_sync_config() );
 
-		// Register Premium Analytics as a connected plugin so its slug lands in the
-		// jetpack_connection_active_plugins option. WPCom's WC Analytics table-provisioning
-		// gate only creates/ingests the analytics custom tables when that option lists a
-		// recognized analytics plugin. Without this, a PA-only store full-syncs
-		// woocommerce_analytics but WPCom drops the rows. (WOOA7S-1643)
+		// Register as a connected plugin so WPCom provisions the WC Analytics tables. (WOOA7S-1643)
 		$config->ensure( 'connection', $this->get_jetpack_connection_config() );
 	}
 
@@ -175,10 +171,7 @@ class Configuration {
 				),
 				'jetpack_sync_constants_whitelist' => array(
 					'WC_ANALYTICS_VERSION',
-					// Syncing this constant is what triggers WPCom to provision the WC Analytics
-					// custom tables up-front (even for an empty store) via its constants-sync
-					// path, once the connected-plugin gate above is satisfied. Defined in
-					// Analytics::init(). (WOOA7S-1643)
+					// Syncing this triggers WPCom to provision the WC Analytics tables. (WOOA7S-1643)
 					'PREMIUM_ANALYTICS_VERSION',
 				),
 			)
@@ -188,13 +181,9 @@ class Configuration {
 	/**
 	 * Jetpack Connection configuration.
 	 *
-	 * Registers Premium Analytics as a connected plugin. The slug landing in
-	 * jetpack_connection_active_plugins is what makes WPCom eligible to provision the WC
-	 * Analytics custom tables for this site (see {@see configure_sync()}).
-	 *
-	 * The slug must be exactly 'premium-analytics' to match the WPCom provisioning gate. It is
-	 * intentionally a literal, not derived from JETPACK_PREMIUM_ANALYTICS_SLUG (which is
-	 * 'jetpack-premium-analytics' and would not match the gate).
+	 * Registers Premium Analytics as a connected plugin so WPCom provisions the WC Analytics tables.
+	 * Slug must be the literal 'premium-analytics' to match the WPCom gate (not the
+	 * 'jetpack-premium-analytics' JETPACK_PREMIUM_ANALYTICS_SLUG).
 	 *
 	 * @return array Jetpack Connection config array.
 	 */
