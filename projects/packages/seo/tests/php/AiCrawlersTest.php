@@ -170,6 +170,18 @@ class AiCrawlersTest extends TestCase {
 	}
 
 	/**
+	 * Bots without official documentation get an empty redirect slug, so the AI
+	 * tab omits their "Learn what it does" link; bots with docs get a real slug.
+	 *
+	 * @return void
+	 */
+	public function test_bots_without_docs_have_empty_redirect_slug() {
+		$catalog = Ai_Crawlers::get_catalog();
+		$this->assertSame( '', $catalog['bytespider']['redirect_slug'], 'Bytespider has no official docs' );
+		$this->assertSame( 'jetpack-seo-crawler-gptbot', $catalog['gptbot']['redirect_slug'] );
+	}
+
+	/**
 	 * The three environment helpers return booleans.
 	 *
 	 * @return void

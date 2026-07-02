@@ -64,18 +64,24 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, 
 				disabled={ disabled }
 				__nextHasNoMarginBottom
 			/>
-			<Link
-				className="jetpack-seo-ai__crawler-doc"
-				href={ getRedirectUrl( crawler.redirectSlug ) }
-				openInNewTab
-				rel="noopener noreferrer"
-			>
-				{ sprintf(
-					/* translators: %s is an AI crawler's user-agent name, e.g. "GPTBot". */
-					__( 'Learn what %s does', 'jetpack-seo' ),
-					crawler.userAgent
-				) }
-			</Link>
+			{ /* Only render the doc link when the bot has one. An empty slug (e.g.
+			     Bytespider — no official docs) omits the link entirely rather than
+			     rendering an empty/placeholder link, which a screen reader would
+			     announce as a control leading nowhere. */ }
+			{ crawler.redirectSlug && (
+				<Link
+					className="jetpack-seo-ai__crawler-doc"
+					href={ getRedirectUrl( crawler.redirectSlug ) }
+					openInNewTab
+					rel="noopener noreferrer"
+				>
+					{ sprintf(
+						/* translators: %s is an AI crawler's user-agent name, e.g. "GPTBot". */
+						__( 'Learn what %s does', 'jetpack-seo' ),
+						crawler.userAgent
+					) }
+				</Link>
+			) }
 		</div>
 	);
 };

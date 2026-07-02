@@ -130,9 +130,12 @@ class Ai_Crawlers {
 		);
 
 		// The "Learn what X does" link points at a jetpack.com/redirect slug per
-		// bot, keyed off the catalog slug (`jetpack-seo-crawler-<slug>`).
+		// bot, keyed off the catalog slug (`jetpack-seo-crawler-<slug>`). Bots with
+		// no official documentation page get an empty slug; the AI tab then omits
+		// the link entirely rather than render one that points nowhere.
+		$no_docs = array( 'bytespider' ); // ByteDance publishes no official Bytespider docs.
 		foreach ( $catalog as $slug => &$info ) {
-			$info['redirect_slug'] = 'jetpack-seo-crawler-' . $slug;
+			$info['redirect_slug'] = in_array( $slug, $no_docs, true ) ? '' : 'jetpack-seo-crawler-' . $slug;
 		}
 		unset( $info );
 
