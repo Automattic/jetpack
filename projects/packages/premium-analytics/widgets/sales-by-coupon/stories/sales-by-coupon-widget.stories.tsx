@@ -60,9 +60,9 @@ function renderSalesByCoupon( { withComparison, preset }: SalesByCouponStoryCont
 /**
  * Storybook dashboard wrapper for the Sales by coupon widget.
  *
- * @param root0                - Story controls.
- * @param root0.withComparison - Whether comparison report params are enabled.
- * @param root0.preset         - Date-range preset used for report params.
+ * @param props                - Story controls.
+ * @param props.withComparison - Whether comparison report params are enabled.
+ * @param props.preset         - Date-range preset used for report params.
  * @return The dashboard story surface with the widget rendered inside it.
  */
 function SalesByCouponDashboardStory( {

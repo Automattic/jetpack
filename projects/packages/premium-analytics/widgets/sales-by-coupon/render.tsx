@@ -1,10 +1,26 @@
-import { SalesByCouponWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * External dependencies
+ */
+import {
+	SalesByCouponWidget,
+	WidgetRoot,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { SalesByCouponAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type SalesByCouponRenderProps = Pick<
-	ComponentProps< typeof WidgetRoot >,
-	'attributes' | 'setError'
->;
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type SalesByCouponRenderAttributes = SalesByCouponAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type SalesByCouponRenderProps = WidgetRenderProps< SalesByCouponRenderAttributes > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+};
 
 /**
  * Sales by coupon widget.
@@ -12,13 +28,11 @@ type SalesByCouponRenderProps = Pick<
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; SalesByCouponWidget fetches
  * the coupons report and renders the coupon revenue breakdown.
- *
- * @param root0            - Widget render props.
- * @param root0.attributes - Dashboard-provided widget attributes.
- * @param root0.setError   - Dashboard error-state setter.
- * @return The rendered Sales by coupon widget.
  */
-export default function SalesByCouponRender( { attributes, setError }: SalesByCouponRenderProps ) {
+export default function SalesByCouponRender( {
+	attributes = {},
+	setError,
+}: SalesByCouponRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<SalesByCouponWidget />
