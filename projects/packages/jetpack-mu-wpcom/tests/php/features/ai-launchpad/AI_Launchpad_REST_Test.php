@@ -714,7 +714,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * With WooCommerce missing, the install task leads with the plugin-install CTA and the setup task is absent.
+	 * With WooCommerce missing, the install task leads with the plugin-install CTA and stays actionable, while the
+	 * setup task follows as a disabled preview.
 	 */
 	public function test_get_leads_sell_with_install_task_when_woocommerce_missing() {
 		wp_set_current_user( $this->admin_id );
@@ -722,13 +723,42 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$tasks = $this->sell_tasks_by_id();
 		$this->assertSame( 'install_woocommerce', array_key_first( $tasks ) );
-		$this->assertArrayNotHasKey( 'setup_woocommerce_store', $tasks );
 
 		$install = $tasks['install_woocommerce'];
 		$this->assertFalse( $install['completed'] );
 		$this->assertFalse( $install['in_progress'] );
+		$this->assertFalse( $install['disabled'] );
 		$this->assertStringContainsString( 'Add the WooCommerce plugin', $install['subtitle'] );
 		$this->assertStringContainsString( 'plugin-install.php?s=woocommerce', $install['calypso_path'] );
+
+		// The setup task is still listed, but as a disabled preview with no CTA until WooCommerce is active.
+		$this->assertArrayHasKey( 'setup_woocommerce_store', $tasks );
+		$setup = $tasks['setup_woocommerce_store'];
+		$this->assertTrue( $setup['disabled'] );
+		$this->assertFalse( $setup['completed'] );
+		$this->assertNull( $setup['calypso_path'] );
+	}
+
+	/**
+	 * On a fresh sell site the gated commerce tasks are kept as disabled previews (with no CTA) instead of being
+	 * dropped, so the full store roadmap is visible.
+	 */
+	public function test_get_keeps_commerce_tasks_disabled_when_woocommerce_inactive() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+
+		$this->seed_sell_output_with_commerce_tasks();
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		foreach ( array( 'woo_customize_store', 'woo_products', 'set_up_payments', 'woo_launch_site' ) as $id ) {
+			$this->assertArrayHasKey( $id, $tasks, "$id should be kept as a disabled preview" );
+			$this->assertTrue( $tasks[ $id ]['disabled'], "$id should be disabled" );
+			$this->assertNull( $tasks[ $id ]['calypso_path'], "$id should have no CTA" );
+		}
+
+		// A non-commerce task in the same list stays actionable, not swept into the disabled treatment.
+		$this->assertArrayHasKey( 'site_theme_selected', $tasks );
+		$this->assertFalse( $tasks['site_theme_selected']['disabled'] );
 	}
 
 	/**
@@ -1251,6 +1281,50 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 					'inferred' => array(
 						'goal'  => $goal,
 						'niche' => $niche,
+					),
+				),
+			),
+			false
+		);
+	}
+
+	/**
+	 * Seeds a sell payload whose tasks include the WooCommerce-gated commerce tasks plus a non-commerce task, so the
+	 * disabled-preview behavior can be asserted.
+	 */
+	private function seed_sell_output_with_commerce_tasks() {
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'woo_customize_store',
+							'subtitle' => 'Make it yours.',
+						),
+						array(
+							'id'       => 'woo_products',
+							'subtitle' => 'Add products.',
+						),
+						array(
+							'id'       => 'set_up_payments',
+							'subtitle' => 'Get paid.',
+						),
+						array(
+							'id'       => 'site_theme_selected',
+							'subtitle' => 'Pick a theme.',
+						),
+						array(
+							'id'       => 'woo_launch_site',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array(
+						'goal'  => 'sell',
+						'niche' => 'organic coffee beans',
 					),
 				),
 			),

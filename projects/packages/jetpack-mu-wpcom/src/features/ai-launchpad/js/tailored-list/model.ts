@@ -13,6 +13,10 @@ export interface EnrichedTask {
 	// True when a site-editor task has a saved-but-unpublished draft: the card shows
 	// the drafts icon + a "Continue" CTA, and `calypso_path` reopens that draft.
 	in_progress: boolean;
+	// True for a task shown as a locked preview of the roadmap (e.g. a sell site's
+	// commerce tasks before WooCommerce is active): it renders muted, expands to its
+	// subtitle, but offers no CTA or Skip until its prerequisite is met.
+	disabled: boolean;
 	calypso_path: string | null;
 }
 
@@ -210,6 +214,10 @@ export function isTaskActionable(
 	output: TailoredOutput | null,
 	siteUrl: string | null = null
 ): boolean {
+	// A disabled preview task has no reachable action until its prerequisite is met.
+	if ( task.disabled ) {
+		return false;
+	}
 	// An in-progress task reopens its existing draft via calypso_path, so it stays actionable.
 	if ( task.in_progress && task.calypso_path ) {
 		return true;
@@ -226,16 +234,17 @@ export function isTaskActionable(
 }
 
 /**
- * The id of the next incomplete task to auto-expand. With no `afterId`, the first
- * incomplete task; with `afterId`, the first incomplete task after it, falling
- * back to any remaining incomplete task. Returns null when every task is complete.
+ * The id of the next actionable task to auto-expand. With no `afterId`, the first
+ * such task; with `afterId`, the first one after it, falling back to any remaining
+ * one. Disabled preview tasks are never targets (they can't be acted on yet, though
+ * they stay manually expandable). Returns null when nothing is left to act on.
  *
  * @param tasks   - The enriched tasks (skipped tasks already coerced to completed).
  * @param afterId - The id to advance past, or undefined to take the first.
- * @return The next incomplete task id, or null.
+ * @return The next actionable task id, or null.
  */
 export function nextIncompleteId( tasks: EnrichedTask[], afterId?: string ): string | null {
-	const incomplete = tasks.filter( task => ! task.completed );
+	const incomplete = tasks.filter( task => ! task.completed && ! task.disabled );
 	if ( incomplete.length === 0 ) {
 		return null;
 	}
@@ -261,6 +270,7 @@ export function tasksFromFixture( output: TailoredOutput ): EnrichedTask[] {
 		title: humanizeTaskId( task.id ),
 		completed: false,
 		in_progress: false,
+		disabled: false,
 		calypso_path: null,
 	} ) );
 }

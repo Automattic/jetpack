@@ -1,6 +1,6 @@
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { border, drafts, published } from '@wordpress/icons';
+import { border, drafts, lock, published } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard } from '@wordpress/ui';
 import { ctaKind, type EnrichedTask } from './model.ts';
 
@@ -119,6 +119,34 @@ export function TaskCard( {
 					</span>
 				</Card.Header>
 			</Card.Root>
+		);
+	}
+
+	// A disabled task is a locked preview of a task that isn't reachable yet (a sell site's
+	// commerce tasks before WooCommerce is active). It still expands to its subtitle, but
+	// shows a lock glyph and a hint in place of any CTA / Skip actions.
+	if ( task.disabled ) {
+		return (
+			<CollapsibleCard.Root
+				className="ai-launchpad-tailored-list__card is-disabled"
+				open={ isOpen }
+				onOpenChange={ onOpenChange }
+			>
+				<CollapsibleCard.Header>
+					<span className="ai-launchpad-tailored-list__header-inner">
+						<span className="ai-launchpad-tailored-list__icon">
+							<Icon icon={ lock } size={ 24 } />
+						</span>
+						<span className="ai-launchpad-tailored-list__title">{ task.title }</span>
+					</span>
+				</CollapsibleCard.Header>
+				<CollapsibleCard.Content>
+					<p className="ai-launchpad-tailored-list__subtitle">{ task.subtitle }</p>
+					<p className="ai-launchpad-tailored-list__hint">
+						{ __( 'Available once WooCommerce is active.', 'jetpack-mu-wpcom' ) }
+					</p>
+				</CollapsibleCard.Content>
+			</CollapsibleCard.Root>
 		);
 	}
 
