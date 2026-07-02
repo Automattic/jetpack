@@ -1590,6 +1590,28 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getByText( 'subs.vtt' ) ).toBeInTheDocument();
 	} );
 
+	it( 'enables Save draft only while there are unsaved edits', async () => {
+		const user = userEvent.setup();
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		const saveButton = () => screen.getByRole( 'button', { name: 'Save draft' } );
+
+		// A freshly opened editor has nothing to save.
+		expect( saveButton() ).toBeDisabled();
+
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'en' } } );
+		fireEvent.change( screen.getByLabelText( 'Cue text' ), { target: { value: 'Hello.' } } );
+		expect( saveButton() ).toBeEnabled();
+
+		// A successful save moves the baselines, so the editor is clean again.
+		await user.click( saveButton() );
+		await waitFor( () => expect( saveButton() ).toBeDisabled() );
+
+		fireEvent.change( screen.getByLabelText( 'Cue text' ), { target: { value: 'Hello again.' } } );
+		expect( saveButton() ).toBeEnabled();
+	} );
+
 	it( 'keeps the chosen language when a file is dropped onto the open upload form', async () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );

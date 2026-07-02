@@ -19,6 +19,7 @@ import { useCaptionEditorContext } from './caption-editor-context';
 import CaptionPreviewPlayer from './caption-preview-player';
 import LanguageControl from './language-control';
 import { createCueAtPlayhead, isFormFieldTarget } from './track-helpers';
+import { hasUnsavedTrackEdits } from './workspace-reducer';
 /**
  * Types
  */
@@ -55,6 +56,8 @@ type ManualEditorProps = {
 	/** Video props for the preview player. */
 	preview: CaptionPreviewProps;
 	onLanguageChange: ( tag: string, displayName: string ) => void;
+	/** Called when the editor gains or loses unsaved track edits. */
+	onDirtyChange: ( isDirty: boolean ) => void;
 	onTextImportOpenChange: ( isOpen: boolean ) => void;
 	onTextImportValueChange: ( value: string ) => void;
 	/** Import the pasted text; returns whether cues were created. */
@@ -71,6 +74,7 @@ type ManualEditorProps = {
  * @param props.cueBlocksRef            - Mirror of the live cue blocks for the modal.
  * @param props.preview                 - Video props for the preview player.
  * @param props.onLanguageChange        - Called with the selected language tag and display name.
+ * @param props.onDirtyChange           - Called when the editor gains or loses unsaved track edits.
  * @param props.onTextImportOpenChange  - Toggle the paste-text panel.
  * @param props.onTextImportValueChange - Called with the pasted text.
  * @param props.onImportText            - Import the pasted text.
@@ -82,6 +86,7 @@ export default function ManualEditor( {
 	cueBlocksRef,
 	preview,
 	onLanguageChange,
+	onDirtyChange,
 	onTextImportOpenChange,
 	onTextImportValueChange,
 	onImportText,
@@ -177,6 +182,15 @@ export default function ManualEditor( {
 	}, [ cueBlocksRef ] );
 
 	// Whether the editor holds any complete cues, for the import actions.
+	/*
+	 * Report dirty-state transitions (not every keystroke) so the modal can
+	 * gate its Save draft button without re-rendering per edit.
+	 */
+	const isDirty = hasUnsavedTrackEdits( workspace, cueBlocks );
+	useEffect( () => {
+		onDirtyChange( isDirty );
+	}, [ isDirty, onDirtyChange ] );
+
 	const cues = useMemo( () => captionBlocksToCues( cueBlocks ), [ cueBlocks ] );
 	const hasCues = cues.length > 0;
 
