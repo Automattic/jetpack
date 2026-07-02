@@ -373,4 +373,45 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		$this->assertStringContainsString( "aria-label='Your name'", $html );
 		$this->assertStringNotContainsString( "aria-label='e.g. Jane'", $html );
 	}
+
+	/**
+	 * The slider's <input type="range"> gets the hidden-label aria-label fallback
+	 * too — it renders a bare range input with no other accessible name. See
+	 * FORMS-694.
+	 */
+	public function test_render_slider_hidden_label_keeps_accessible_name() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'                         => 'slider',
+				'id'                           => 'test_slider',
+				'label'                        => 'Rate us',
+				'labelhiddenbyblockvisibility' => true,
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'type="range"', $html );
+		$this->assertStringContainsString( "aria-label='Rate us'", $html );
+	}
+
+	/**
+	 * When the label is hidden but empty and there is no placeholder, no
+	 * aria-label attribute is emitted (rather than an empty or fragment value).
+	 * See FORMS-694.
+	 */
+	public function test_render_input_hidden_empty_label_emits_no_aria_label() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'                         => 'text',
+				'id'                           => 'test_text',
+				'label'                        => '',
+				'labelhiddenbyblockvisibility' => true,
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringNotContainsString( 'aria-label', $html );
+	}
 } // end class
