@@ -5978,13 +5978,135 @@ function showPostPickerModal() {
 	} );
 }
 
+// --- Save failure telemetry (RSM-4323) ---
+//
+// Diagnostic Tracks events for save/publish failures. Today a throw during
+// content preparation, or a request stalled by a proxy/VPN/ad blocker, leaves
+// the Publish and Save buttons disabled with no error surfaced and nothing in
+// Tracks — so we can't see it happening. These events add observability only;
+// they intentionally do not change the save behavior. view.js is served
+// unminified, so error_code + error_message read against real line numbers,
+// and `phase` localizes which stage failed without needing a full stack trace.
+
+// Report a save that has neither resolved nor rejected within this window.
+const SAVE_STALL_THRESHOLD_MS = 30000;
+// Cap free-text error strings so a pathological message can't bloat the payload.
+const MAX_ERROR_MESSAGE_LENGTH = 200;
+
+/**
+ * Normalize an unknown thrown value into a small, Tracks-friendly descriptor.
+ *
+ * Handles the shapes `wp.apiFetch` actually rejects with: WP REST errors
+ * ( `{ code, message, data: { status } }` ), native/AbortError ( `{ name,
+ * message }` ), and non-object throws as a last resort.
+ *
+ * @param {*} err - The thrown value.
+ * @return {{ code: string, status: (number|null), message: string }} Descriptor.
+ */
+function describeSaveError( err ) {
+	if ( ! err || typeof err !== 'object' ) {
+		const raw = err === undefined ? '' : String( err );
+		return { code: 'unknown', status: null, message: raw.slice( 0, MAX_ERROR_MESSAGE_LENGTH ) };
+	}
+	// Prefer the specific REST `code`; fall back to `name` ('AbortError', 'TypeError', …).
+	const code = err.code || err.name || 'unknown';
+	const status = err.data && typeof err.data.status === 'number' ? err.data.status : null;
+	const message = String( err.message || '' ).slice( 0, MAX_ERROR_MESSAGE_LENGTH );
+	return { code: String( code ), status, message };
+}
+
+/**
+ * Fire the `wpcom_write_editor_save_failed` Tracks event.
+ *
+ * @param {*}       err                - The thrown value.
+ * @param {object}  context            - Save context.
+ * @param {string}  context.postStatus - The attempted status ('publish' or 'draft').
+ * @param {boolean} context.isAutosave - Whether the failed save was a periodic autosave.
+ * @param {boolean} context.isUpdate   - Whether this was an update to a published post.
+ * @param {boolean} context.isEditing  - Whether an existing post was being edited.
+ * @param {string}  context.phase      - Stage that failed ('prepare' | 'save_request').
+ */
+function recordSaveFailed( err, { postStatus, isAutosave, isUpdate, isEditing, phase } ) {
+	const { code, status, message } = describeSaveError( err );
+	window._tkq = window._tkq || [];
+	window._tkq.push( [
+		'recordEvent',
+		'wpcom_write_editor_save_failed',
+		{
+			post_status: postStatus,
+			is_autosave: !! isAutosave,
+			is_update: !! isUpdate,
+			is_new_post: ! isEditing,
+			phase,
+			error_code: code,
+			error_status: status,
+			error_message: message,
+		},
+	] );
+}
+
+/**
+ * Fire the `wpcom_write_editor_save_stalled` Tracks event for a save request
+ * that never settled within the watchdog window.
+ *
+ * @param {object}  context            - Save context.
+ * @param {string}  context.postStatus - The attempted status ('publish' or 'draft').
+ * @param {boolean} context.isAutosave - Whether the stalled save was a periodic autosave.
+ * @param {boolean} context.isUpdate   - Whether this was an update to a published post.
+ * @param {boolean} context.isEditing  - Whether an existing post was being edited.
+ * @param {number}  context.elapsedMs  - The watchdog threshold that elapsed, in ms.
+ */
+function recordSaveStalled( { postStatus, isAutosave, isUpdate, isEditing, elapsedMs } ) {
+	window._tkq = window._tkq || [];
+	window._tkq.push( [
+		'recordEvent',
+		'wpcom_write_editor_save_stalled',
+		{
+			post_status: postStatus,
+			is_autosave: !! isAutosave,
+			is_update: !! isUpdate,
+			is_new_post: ! isEditing,
+			elapsed_ms: elapsedMs,
+		},
+	] );
+}
+
 /**
  * Save or publish the current post via the REST API.
+ *
+ * Thin wrapper around performSave() that reports any throw during content
+ * preparation or tag resolution — code that runs before the save request's own
+ * try/catch and today surfaces as a silent unhandled rejection. It re-throws to
+ * preserve current behavior; this is an observability-only change (RSM-4323).
  *
  * @param {string}  postStatus - The desired post status ('publish' or 'draft').
  * @param {boolean} isAutosave - Whether this is a periodic autosave (quieter UX).
  */
 async function savePost( postStatus, isAutosave = false ) {
+	try {
+		await performSave( postStatus, isAutosave );
+	} catch ( err ) {
+		// Save-request failures are handled inside performSave; anything caught
+		// here threw during content prep / tag resolution. Report, then re-throw
+		// so behavior is unchanged.
+		recordSaveFailed( err, {
+			postStatus,
+			isAutosave,
+			isUpdate: state.editPostId > 0 && state.postStatus === 'publish',
+			isEditing: state.editPostId > 0,
+			phase: 'prepare',
+		} );
+		throw err;
+	}
+}
+
+/**
+ * Perform the save/publish request. See savePost() for the failure-telemetry wrapper.
+ *
+ * @param {string}  postStatus - The desired post status ('publish' or 'draft').
+ * @param {boolean} isAutosave - Whether this is a periodic autosave (quieter UX).
+ */
+async function performSave( postStatus, isAutosave = false ) {
 	if ( ! isAutosave ) {
 		// Use textContent rather than innerHTML so structural-only markup
 		// (e.g. <p><br></p> left over from clearing the editor) doesn't
@@ -6125,6 +6247,19 @@ async function savePost( postStatus, isAutosave = false ) {
 	// If editing, PUT to the existing post. If new, POST to create.
 	const path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
 
+	// Watchdog: report (without aborting) a save request that neither resolves
+	// nor rejects within the threshold — e.g. one held open by a proxy, VPN, or
+	// ad blocker. Cleared as soon as the request settles.
+	const stallWatchdog = setTimeout( () => {
+		recordSaveStalled( {
+			postStatus,
+			isAutosave,
+			isUpdate,
+			isEditing,
+			elapsedMs: SAVE_STALL_THRESHOLD_MS,
+		} );
+	}, SAVE_STALL_THRESHOLD_MS );
+
 	try {
 		const post = await window.wp.apiFetch( {
 			path,
@@ -6139,6 +6274,7 @@ async function savePost( postStatus, isAutosave = false ) {
 				wpcom_write_editor_used: true,
 			},
 		} );
+		clearTimeout( stallWatchdog );
 
 		// Store the post ID so subsequent saves update the same post.
 		if ( ! isEditing ) {
@@ -6217,6 +6353,8 @@ async function savePost( postStatus, isAutosave = false ) {
 			}, 2500 );
 		}
 	} catch ( err ) {
+		clearTimeout( stallWatchdog );
+		recordSaveFailed( err, { postStatus, isAutosave, isUpdate, isEditing, phase: 'save_request' } );
 		state.isSaving = false;
 		if ( ! isAutosave ) {
 			state.message = ( i18n.error || 'Error: %s' ).replace( '%s', err.message );
