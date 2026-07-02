@@ -37,6 +37,19 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Reset shared section registry state between tests.
+	 */
+	public function tear_down() {
+		$instance = new \ReflectionProperty( Dashboard_Section_Registry::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$instance->setValue( null, null );
+
+		parent::tear_down();
+	}
+
+	/**
 	 * Sections can be registered and retrieved.
 	 */
 	public function test_registers_dashboard_section() {
@@ -65,6 +78,28 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame( 'Traffic', $section->label );
 		$this->assertSame( 15, $section->order );
 		$this->assertSame( $layout, $section->get_default_layout() );
+	}
+
+	/**
+	 * Dashboard names must match the REST route grammar.
+	 */
+	public function test_rejects_dashboard_names_without_underscores() {
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+
+		$registry = new Dashboard_Section_Registry();
+		$section  = $registry->register(
+			'analytics',
+			'traffic',
+			array(
+				'label' => 'Traffic',
+				'order' => 10,
+			)
+		);
+
+		remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+
+		$this->assertFalse( $section );
+		$this->assertNull( $registry->get_registered( 'analytics', 'traffic' ) );
 	}
 
 	/**

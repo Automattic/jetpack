@@ -14,7 +14,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * tab. It carries display metadata plus availability and default-layout
  * callbacks that can be extended by consumers.
  */
-#[\AllowDynamicProperties]
 final class Dashboard_Section {
 
 	/**
@@ -119,7 +118,7 @@ final class Dashboard_Section {
 	 * @param array $args Section arguments.
 	 * @return void
 	 */
-	public function set_props( $args ) {
+	private function set_props( $args ) {
 		if ( ! is_array( $args ) ) {
 			return;
 		}

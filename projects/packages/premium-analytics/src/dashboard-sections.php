@@ -152,7 +152,7 @@ function get_dashboard_section_default_layout_response( $request ) {
 function register_dashboard_sections_rest_routes() {
 	register_rest_route(
 		DASHBOARD_REST_NAMESPACE,
-		'/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)+)/sections',
+		'/dashboards/(?P<name>' . DASHBOARD_NAME_PATTERN . ')/sections',
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_dashboard_sections_response',
@@ -168,7 +168,7 @@ function register_dashboard_sections_rest_routes() {
 
 	register_rest_route(
 		DASHBOARD_REST_NAMESPACE,
-		'/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)+)/sections/(?P<section>[a-z][a-z0-9-]*)/default-layout',
+		'/dashboards/(?P<name>' . DASHBOARD_NAME_PATTERN . ')/sections/(?P<section>[a-z][a-z0-9-]*)/default-layout',
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_dashboard_section_default_layout_response',

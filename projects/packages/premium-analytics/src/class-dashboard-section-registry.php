@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+require_once __DIR__ . '/dashboard-constants.php';
+
 /**
  * Stores Dashboard_Section instances keyed by dashboard and section ID.
  */
@@ -38,7 +40,7 @@ final class Dashboard_Section_Registry {
 		if ( ! $this->is_valid_dashboard_name( $dashboard_name ) ) {
 			_doing_it_wrong(
 				__METHOD__,
-				esc_html__( 'Dashboard names must be lowercase strings containing only letters, numbers, hyphens, and underscores.', 'jetpack-premium-analytics' ),
+				esc_html__( 'Dashboard names must be lowercase build identifiers containing at least one underscore. Example: my-plugin_dashboard.', 'jetpack-premium-analytics' ),
 				'0.1.0'
 			);
 			return false;
@@ -120,11 +122,11 @@ final class Dashboard_Section_Registry {
 		uasort(
 			$sections,
 			static function ( Dashboard_Section $a, Dashboard_Section $b ) {
-				if ( (int) $a->order === (int) $b->order ) {
+				if ( $a->order === $b->order ) {
 					return strcmp( $a->id, $b->id );
 				}
 
-				return (int) $a->order < (int) $b->order ? -1 : 1;
+				return $a->order <=> $b->order;
 			}
 		);
 
@@ -162,7 +164,7 @@ final class Dashboard_Section_Registry {
 	 * @return bool
 	 */
 	private function is_valid_dashboard_name( $dashboard_name ) {
-		return is_string( $dashboard_name ) && 1 === preg_match( '/^[a-z][a-z0-9-_]*$/', $dashboard_name );
+		return is_string( $dashboard_name ) && 1 === preg_match( DASHBOARD_NAME_REGEX, $dashboard_name );
 	}
 
 	/**
