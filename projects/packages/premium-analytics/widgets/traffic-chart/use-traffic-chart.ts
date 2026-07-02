@@ -66,7 +66,9 @@ function toPoints( report: StatsVisitsResponse | undefined, field: string ) {
 /**
  * Build one metric tab from the request that carries its field. The headline is
  * the period total; the previous-period total and overlay are included only when
- * the dashboard comparison is on.
+ * comparison is on *and* the comparison request actually returned rows — while
+ * that request is still loading or came back empty, `total()` would be `0`, which
+ * would render a misleading previous-period value.
  *
  * @param primary       - The current-period report for this field.
  * @param comparison    - The previous-period report, when comparison is on.
@@ -82,13 +84,15 @@ function toMetric(
 	field: string,
 	label: string
 ): MetricTab {
+	const previous = hasComparison ? toPoints( comparison, field ) : undefined;
+	const hasPrevious = !! previous?.length;
 	return {
 		key: field,
 		label,
 		value: total( primary, field ),
-		previousValue: hasComparison ? total( comparison, field ) : undefined,
+		previousValue: hasPrevious ? total( comparison, field ) : undefined,
 		current: toPoints( primary, field ),
-		previous: hasComparison ? toPoints( comparison, field ) : undefined,
+		previous: hasPrevious ? previous : undefined,
 	};
 }
 

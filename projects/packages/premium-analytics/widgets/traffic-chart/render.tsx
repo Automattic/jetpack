@@ -6,6 +6,7 @@ import {
 	WidgetRoot,
 	useWidgetError,
 	useWidgetRootContext,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
@@ -13,14 +14,16 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import styles from './traffic-chart.module.css';
+import styles from './style.module.css';
 import useTrafficChart, { type TrafficPeriod } from './use-traffic-chart';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type TrafficChartRenderProps = Pick<
-	ComponentProps< typeof WidgetRoot >,
-	'attributes' | 'setError'
->;
+// The widget has no own attributes; report params arrive from the host (or
+// WidgetRoot's URL fallback), so the render shape is host fields only.
+type TrafficChartRenderProps = WidgetRenderProps< Partial< ReportParamsFieldAttributes > > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+};
 
 const DATA_FORMAT = {
 	type: 'number' as const,
@@ -119,7 +122,7 @@ function TrafficChartInner() {
  * @param props.setError   - Host callback to surface a widget error in the dashboard frame.
  * @return The rendered widget.
  */
-export default function TrafficChart( { attributes, setError }: TrafficChartRenderProps ) {
+export default function TrafficChart( { attributes = {}, setError }: TrafficChartRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<TrafficChartInner />
