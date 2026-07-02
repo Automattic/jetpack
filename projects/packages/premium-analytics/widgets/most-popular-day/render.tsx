@@ -13,7 +13,7 @@ import { Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import styles from './most-popular-day.module.css';
+import styles from './style.module.css';
 import type { MostPopularDayAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
