@@ -21,6 +21,23 @@ describe( 'CreatePlaylistModal', () => {
 		mockErrorNotice.mockClear();
 	} );
 
+	it( 'renders the form fields inside the padded Dialog.Content region', () => {
+		mockApiFetch( async () => [] );
+
+		render( <CreatePlaylistModal isOpen onClose={ jest.fn() } />, {
+			wrapper: createTestWrapper(),
+		} );
+
+		// Dialog.Popup is an unpadded flex column; body padding (and scroll)
+		// comes from Dialog.Content, marked by the overlay scroll-container
+		// attribute. Guards against the fields sitting flush against the
+		// popup edges.
+		expect(
+			// eslint-disable-next-line testing-library/no-node-access -- asserting an ancestor region requires DOM traversal.
+			screen.getByLabelText( 'Name' ).closest( '[data-wp-ui-overlay-scroll-container]' )
+		).not.toBeNull();
+	} );
+
 	it( 'does not submit while the name is empty or whitespace', async () => {
 		const calls: unknown[] = [];
 		mockApiFetch( async options => {

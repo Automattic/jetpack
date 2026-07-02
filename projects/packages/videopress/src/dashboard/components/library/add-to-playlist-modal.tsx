@@ -8,26 +8,40 @@ import { usePlaylists } from '../../hooks/use-playlists';
 import { useSetPlaylists } from '../../hooks/use-set-playlists';
 import type { LibraryItem } from '../../types/library';
 import type { Playlist } from '../../types/playlist';
-import type { RenderModalProps } from '@wordpress/dataviews';
+
+// Structurally identical to DataViews' `RenderModalProps< LibraryItem >` —
+// the assignment to `RenderModal` in actions.ts keeps that compatibility
+// checked at compile time — but owned locally so the component can also be
+// driven directly (the video details screen renders it inside its own
+// Dialog chrome with a single-item array).
+export type AddToPlaylistModalProps = {
+	/** The videos to add to the chosen playlists. */
+	items: LibraryItem[];
+	/** Closes the hosting modal/dialog; invoked on Cancel and after confirm. */
+	closeModal?: () => void;
+	/** Notifies the host that memberships changed (DataViews clears its selection). */
+	onActionPerformed?: ( items: LibraryItem[] ) => void;
+};
 
 /**
- * Modal body for the library's "Add to playlist" action. Rendered by
- * DataViews inside its own modal chrome (title comes from the action's
- * `modalHeader`). Offers a checkbox per playlist plus an inline
- * create-new-playlist input; owns the membership mutation so actions.ts
- * stays a plain declarative list.
+ * Modal body for the "Add to playlist" action. Rendered by DataViews inside
+ * its own modal chrome for the library bulk action (title comes from the
+ * action's `modalHeader`), and directly by the video details screen inside a
+ * `Dialog` for the single current video. Offers a checkbox per playlist plus
+ * an inline create-new-playlist input; owns the membership mutation (and its
+ * success/error notices) so hosts stay declarative.
  *
- * @param props                   - RenderModal props injected by DataViews.
- * @param props.items             - The videos selected for the action.
- * @param props.closeModal        - Closes the modal.
- * @param props.onActionPerformed - Notifies DataViews the action completed.
+ * @param props                   - Component props (see AddToPlaylistModalProps).
+ * @param props.items             - The videos to add to the chosen playlists.
+ * @param props.closeModal        - Closes the hosting modal/dialog.
+ * @param props.onActionPerformed - Notifies the host the action completed.
  * @return The modal body element.
  */
 export default function AddToPlaylistModal( {
 	items,
 	closeModal,
 	onActionPerformed,
-}: RenderModalProps< LibraryItem > ) {
+}: AddToPlaylistModalProps ) {
 	const { playlists, isLoading } = usePlaylists();
 	const { mutateAsync: setPlaylists, isPending } = useSetPlaylists();
 	const { mutate: createPlaylist, isPending: isCreating } = useCreatePlaylist();
