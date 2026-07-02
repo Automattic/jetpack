@@ -23,6 +23,10 @@ let mockTracksResult: { managedTracks: unknown[]; isLoading: boolean } = {
 jest.mock( '../../../../client/components/caption-manager-modal/use-video-tracks', () => ( {
 	useVideoTracks: () => mockTracksResult,
 } ) );
+let mockCaptionTracksResult: { captionTracks: unknown[] } = { captionTracks: [] };
+jest.mock( '../../../../client/components/caption-manager-modal/use-caption-tracks', () => ( {
+	useCaptionTracks: () => mockCaptionTracksResult,
+} ) );
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
 
 jest.mock( '../../../utils/select-image-from-media-library', () => ( {
@@ -103,6 +107,7 @@ beforeEach( () => {
 	mockSuccessNotice.mockReset();
 	mockErrorNotice.mockReset();
 	mockTracksResult = { managedTracks: [], isLoading: false };
+	mockCaptionTracksResult = { captionTracks: [] };
 	// Provide window.wp.media so canUploadImage is true for upload-mode tests.
 	( window as unknown as { wp?: { media?: unknown } } ).wp = { media: jest.fn() };
 } );
@@ -265,6 +270,63 @@ describe( 'ThumbnailCard — subtitles row', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Manage subtitles' } ) );
 		expect( onManageSubtitles ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'collapses long language lists into the first two and a count', () => {
+		mockTracksResult = {
+			managedTracks: [
+				{ kind: 'captions', srcLang: 'en-US', label: '', src: '' },
+				{ kind: 'subtitles', srcLang: 'de', label: '', src: '' },
+				{ kind: 'subtitles', srcLang: 'fr', label: '', src: '' },
+				{ kind: 'subtitles', srcLang: 'es', label: '', src: '' },
+			],
+			isLoading: false,
+		};
+		render(
+			<ThumbnailCard
+				video={ baseVideo }
+				onAddToNewPost={ jest.fn() }
+				onManageSubtitles={ jest.fn() }
+			/>,
+			{ wrapper }
+		);
+
+		expect( screen.getByText( 'English (US), German, and 2 more' ) ).toBeInTheDocument();
+	} );
+
+	it( 'counts unpublished drafts alongside the published languages', () => {
+		mockTracksResult = {
+			managedTracks: [ { kind: 'captions', srcLang: 'en-US', label: '', src: '' } ],
+			isLoading: false,
+		};
+		mockCaptionTracksResult = {
+			captionTracks: [
+				{
+					status: 'draft',
+					meta: { _videopress_caption_kind: 'subtitles', _videopress_caption_src_lang: 'de' },
+				},
+				// Draft matching a published language: already counted as published.
+				{
+					status: 'draft',
+					meta: { _videopress_caption_kind: 'captions', _videopress_caption_src_lang: 'en-US' },
+				},
+				// Published record: not a draft.
+				{
+					status: 'publish',
+					meta: { _videopress_caption_kind: 'subtitles', _videopress_caption_src_lang: 'fr' },
+				},
+			],
+		};
+		render(
+			<ThumbnailCard
+				video={ baseVideo }
+				onAddToNewPost={ jest.fn() }
+				onManageSubtitles={ jest.fn() }
+			/>,
+			{ wrapper }
+		);
+
+		expect( screen.getByText( 'English (US) · 1 draft' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows None when the video has no subtitle tracks', () => {
