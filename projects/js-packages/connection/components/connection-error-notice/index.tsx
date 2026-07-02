@@ -1,6 +1,7 @@
 import { Icon, Notice, Path, SVG, Spinner } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import { getReconnectErrorMessage } from '../../helpers/get-reconnect-error-message';
 import styles from './styles.module.scss';
 import type { ConnectionErrorNoticeProps } from './types';
 
@@ -58,11 +59,7 @@ const ConnectionErrorNotice = ( {
 		>
 			<div className={ styles.message }>
 				{ icon }
-				{ sprintf(
-					/* translators: %s: the error. */
-					__( 'There was an error reconnecting Jetpack. Error: %s', 'jetpack-connection-js' ),
-					restoreConnectionError
-				) }
+				{ getReconnectErrorMessage( restoreConnectionError ) }
 			</div>
 		</Notice>
 	) : null;
