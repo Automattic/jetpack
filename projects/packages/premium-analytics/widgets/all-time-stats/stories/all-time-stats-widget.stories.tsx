@@ -1,0 +1,181 @@
+/**
+ * The stories drive the data-connected All-time stats widget through the shared
+ * report-mock harness. The central `registerReportMocks` middleware does not
+ * cover the `stats` (site summary) endpoint, so a story-scoped `apiFetch`
+ * middleware supplies a mock response for it here — the shared
+ * `register-report-mocks` module is left untouched.
+ *
+ * This module has no comparison period, so `Default` and `WithComparison`
+ * render identically; the toggle only exercises the date-range picker's
+ * comparison params flowing through `reportParams` without breaking the widget.
+ */
+/**
+ * External dependencies
+ */
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import apiFetch from '@wordpress/api-fetch';
+/**
+ * Internal dependencies
+ */
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
+	widgetDashboardWithWidgetArgTypes,
+	type WidgetDashboardWithWidgetControls,
+} from '../../stories/widget-dashboard-with-widget';
+import AllTimeStatsRender from '../render';
+import widgetDefinition from '../widget';
+import type { APIFetchMiddleware } from '@wordpress/api-fetch';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentType } from 'react';
+
+registerReportMocks();
+
+// The site-summary proxy path (`v1.1/stats`), without a sub-path — distinct
+// from `stats/followers`, `stats/subscribers`, etc.
+const STATS_SITE_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
+
+const mockSiteSummary = {
+	stats: {
+		views: 1_284_530,
+		visitors: 458_210,
+		posts: 342,
+		comments: 5_821,
+		views_best_day: '2023-11-14',
+		views_best_day_total: 18_420,
+	},
+};
+
+const statsSiteMockMiddleware: APIFetchMiddleware = ( options, next ) => {
+	const requestPath = options.path ?? options.url ?? '';
+
+	if ( requestPath.split( '?' )[ 0 ] === STATS_SITE_PATH ) {
+		return Promise.resolve( mockSiteSummary );
+	}
+
+	return next( options );
+};
+
+// Register exactly once so hot-reloading the story does not stack middlewares.
+declare global {
+	var __jpaAllTimeStatsMockRegistered: boolean | undefined;
+}
+
+if ( ! globalThis.__jpaAllTimeStatsMockRegistered ) {
+	globalThis.__jpaAllTimeStatsMockRegistered = true;
+	apiFetch.use( statsSiteMockMiddleware );
+}
+
+const ALL_TIME_STATS_RENDER_MODULE = 'storybook/all-time-stats';
+
+interface AllTimeStatsStoryControls {
+	withComparison: boolean;
+}
+
+/**
+ * Renders the data-connected widget with report params derived from the
+ * date-range picker preset.
+ *
+ * @param props                - The story controls.
+ * @param props.withComparison - Whether to include comparison report params.
+ * @return The rendered widget.
+ */
+function renderAllTimeStats( { withComparison }: AllTimeStatsStoryControls ) {
+	return (
+		<AllTimeStatsRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
+	);
+}
+
+// Close-up canvas so the tile grid fills the frame outside the dashboard grid.
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', maxWidth: '480px' } }>
+		<Story />
+	</div>
+);
+
+const meta = {
+	title: 'Packages/Premium Analytics/Widgets/AllTimeStats',
+	component: AllTimeStatsRender,
+	tags: [ 'autodocs' ],
+	argTypes: {
+		withComparison: { control: 'boolean' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				component:
+					'The "All-time stats" widget. Shows lifetime totals for the site — views, visitors, posts, and the best day ever — as a grid of stat tiles, sourced from the Jetpack Stats site-summary endpoint. This module has no comparison period, so the values render as bare numbers and the `WithComparison` story looks identical to `Default`.',
+			},
+		},
+	},
+} satisfies Meta< AllTimeStatsStoryControls >;
+
+export default meta;
+
+type Story = StoryObj< AllTimeStatsStoryControls >;
+
+/**
+ * Default state — lifetime totals for the current preset.
+ */
+export const Default: Story = {
+	render: renderAllTimeStats,
+	args: { withComparison: false },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * Comparison params flow through `reportParams`, but the site summary has no
+ * comparison data, so the widget renders identically to `Default` — no fake
+ * deltas.
+ */
+export const WithComparison: Story = {
+	render: renderAllTimeStats,
+	args: { withComparison: true },
+	decorators: [ withWidgetCanvas ],
+};
+
+interface AllTimeStatsDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		AllTimeStatsStoryControls {}
+
+/**
+ * Renders the data-connected widget through the shared dashboard harness, so it
+ * appears exactly as it does in product (framed card, sizing, edit mode).
+ *
+ * @param props                - The dashboard story controls.
+ * @param props.withComparison - Whether to include comparison report params.
+ * @return The widget mounted inside the real `WidgetDashboard`.
+ */
+function AllTimeStatsDashboardStory( {
+	withComparison,
+	...dashboardArgs
+}: AllTimeStatsDashboardStoryProps ) {
+	return (
+		<WidgetDashboardWithWidgetStory
+			{ ...dashboardArgs }
+			widgetType={ {
+				name: widgetDefinition.name,
+				title: widgetDefinition.title,
+				icon: widgetDefinition.icon,
+				presentation: 'framed',
+			} }
+			renderModule={ ALL_TIME_STATS_RENDER_MODULE }
+			renderComponent={ AllTimeStatsRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+		/>
+	);
+}
+
+export const WidgetDashboardWithWidget: StoryObj< AllTimeStatsDashboardStoryProps > = {
+	render: args => <AllTimeStatsDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		withComparison: true,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+		withComparison: { control: 'boolean' },
+	},
+};

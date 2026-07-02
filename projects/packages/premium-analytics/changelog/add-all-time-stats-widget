@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Port the All-time stats dashboard widget from the Jetpack Stats all-time highlights card, composed from the widgets-toolkit and data packages.

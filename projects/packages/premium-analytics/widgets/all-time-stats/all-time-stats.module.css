@@ -1,0 +1,34 @@
+.root {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	gap: var(--wpds-dimension-gap-lg, 16px);
+}
+
+.tile {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.label {
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+.caption {
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+.state {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 120px;
+	text-align: center;
+}
+
+/* Widget picker preview: keep a sensible aspect ratio instead of collapsing. */
+:global([inert]:not([inert="true"])) .root {
+	height: auto;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+}
