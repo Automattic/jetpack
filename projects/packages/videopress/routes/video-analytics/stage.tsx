@@ -6,6 +6,7 @@ import { Link, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import DateRangeSelector from '../../src/dashboard/components/stats/date-range-selector';
+import StatsErrorCard from '../../src/dashboard/components/stats/stats-error-card';
 import ViewsTrendsCard from '../../src/dashboard/components/stats/views-trends-card';
 import ChannelAverageCard from '../../src/dashboard/components/video-analytics/channel-average-card';
 import KpiCardsRow from '../../src/dashboard/components/video-analytics/kpi-cards-row';
@@ -117,10 +118,18 @@ const Ready = ( { video }: { video: LibraryItem } ) => {
 	const [ activeMetric, setActiveMetricRaw ] = useState< VideoMetric >( 'views' );
 	const [ compare, setCompare ] = useState< ChartCompare >( 'secondary_and_previous_period' );
 
-	const { stats, isLoading } = useVideoStats( video.id, dateRange, granularity );
+	const { stats, isLoading, isError } = useVideoStats( video.id, dateRange, granularity );
 	// Same current-window query as useVideoStats (shared cache entry), so
 	// the comparison card adds no request.
-	const { averages, isLoading: isChannelLoading } = useChannelAverages( dateRange );
+	const {
+		averages,
+		isLoading: isChannelLoading,
+		isError: isChannelError,
+	} = useChannelAverages( dateRange );
+	// Deliberately not scoped to the header's DateRangeSelector: upstream
+	// `pages[]` is a cumulative list of posts embedding the video, not a
+	// range-windowed metric, so the default period=day&num=30 window is
+	// used regardless of the selected range.
 	const { pages, isLoading: arePagesLoading, isError: isPagesError } = useVideoPages( video.id );
 
 	// When Watch time becomes the active metric, compares against the
@@ -141,31 +150,40 @@ const Ready = ( { video }: { video: LibraryItem } ) => {
 			actions={ <DateRangeSelector value={ dateRange } onChange={ setDateRange } /> }
 		>
 			<div className="vp-video-analytics">
-				<KpiCardsRow
-					stats={ stats }
-					isLoading={ isLoading }
-					activeMetric={ activeMetric }
-					onChangeActiveMetric={ setActiveMetric }
-					tabIds={ KPI_TAB_IDS }
-					panelId={ TRENDS_PANEL_ID }
-				/>
-				{ activeMetric === 'retention' ? (
-					// Retention has no time series upstream (WPCOM reports only a
-					// per-day scalar), so the chart is replaced by an explanatory
-					// panel; the weighted KPI in the card above stays visible.
-					<RetentionPanel panelId={ TRENDS_PANEL_ID } activeTabId={ KPI_TAB_IDS.retention } />
+				{ isError ? (
+					// A failed window degrades `stats` to zeros indistinguishable
+					// from a genuinely zero-view video, so the KPI/chart region is
+					// replaced outright rather than rendering misleading zeros.
+					<StatsErrorCard />
 				) : (
-					<ViewsTrendsCard
-						series={ stats.series }
-						activeMetric={ activeMetric }
-						compare={ compare }
-						granularity={ granularity }
-						isLoading={ isLoading }
-						onChangeCompare={ setCompare }
-						onChangeGranularity={ setGranularity }
-						panelId={ TRENDS_PANEL_ID }
-						activeTabId={ KPI_TAB_IDS[ activeMetric ] }
-					/>
+					<>
+						<KpiCardsRow
+							stats={ stats }
+							isLoading={ isLoading }
+							activeMetric={ activeMetric }
+							onChangeActiveMetric={ setActiveMetric }
+							tabIds={ KPI_TAB_IDS }
+							panelId={ TRENDS_PANEL_ID }
+						/>
+						{ activeMetric === 'retention' ? (
+							// Retention has no time series upstream (WPCOM reports only a
+							// per-day scalar), so the chart is replaced by an explanatory
+							// panel; the weighted KPI in the card above stays visible.
+							<RetentionPanel panelId={ TRENDS_PANEL_ID } activeTabId={ KPI_TAB_IDS.retention } />
+						) : (
+							<ViewsTrendsCard
+								series={ stats.series }
+								activeMetric={ activeMetric }
+								compare={ compare }
+								granularity={ granularity }
+								isLoading={ isLoading }
+								onChangeCompare={ setCompare }
+								onChangeGranularity={ setGranularity }
+								panelId={ TRENDS_PANEL_ID }
+								activeTabId={ KPI_TAB_IDS[ activeMetric ] }
+							/>
+						) }
+					</>
 				) }
 				<div className="vp-video-analytics__row--bottom">
 					<PagesCard pages={ pages } isLoading={ arePagesLoading } isError={ isPagesError } />
@@ -173,6 +191,7 @@ const Ready = ( { video }: { video: LibraryItem } ) => {
 						stats={ stats }
 						channel={ averages }
 						isLoading={ isLoading || isChannelLoading }
+						isError={ isError || isChannelError }
 					/>
 				</div>
 			</div>

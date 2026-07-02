@@ -117,3 +117,17 @@
 		padding-right: var(--wpds-dimension-padding-lg, 16px);
 	}
 }
+
+// Quiet failure state rendered in place of the KPI row + trends chart
+// when the video-plays queries fail (see `stats-error-card.tsx`, shared
+// by the Overview and per-video Analytics screens). Matches the chart
+// card's reserved 240px canvas so the swap doesn't reflow the page.
+.vp-stats-error-card__body {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 240px;
+	padding: 0 24px;
+	text-align: center;
+	color: #646970;
+}

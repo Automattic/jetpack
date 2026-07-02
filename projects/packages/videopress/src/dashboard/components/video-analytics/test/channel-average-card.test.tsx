@@ -20,7 +20,14 @@ const CHANNEL: ChannelAverages = {
 
 describe( 'ChannelAverageCard', () => {
 	it( 'renders one row per metric with this video and the channel average', () => {
-		render( <ChannelAverageCard stats={ STATS } channel={ CHANNEL } isLoading={ false } /> );
+		render(
+			<ChannelAverageCard
+				stats={ STATS }
+				channel={ CHANNEL }
+				isLoading={ false }
+				isError={ false }
+			/>
+		);
 
 		const table = screen.getByRole( 'table', { name: 'Compared to channel average' } );
 		// Head row + four metric rows.
@@ -42,10 +49,24 @@ describe( 'ChannelAverageCard', () => {
 	} );
 
 	it( 'replaces values with skeletons while loading', () => {
-		render( <ChannelAverageCard stats={ STATS } channel={ CHANNEL } isLoading /> );
+		render(
+			<ChannelAverageCard stats={ STATS } channel={ CHANNEL } isLoading isError={ false } />
+		);
 
 		expect( screen.queryByText( '87.5%' ) ).not.toBeInTheDocument();
 		// Metric labels stay visible so the card keeps its shape.
 		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+	} );
+
+	it( 'replaces the table with a failure message on error', () => {
+		render(
+			<ChannelAverageCard stats={ STATS } channel={ CHANNEL } isLoading={ false } isError />
+		);
+
+		expect( screen.getByText( 'Could not load the channel comparison.' ) ).toBeInTheDocument();
+		// Zeroed columns would read as real data, so no table renders.
+		expect(
+			screen.queryByRole( 'table', { name: 'Compared to channel average' } )
+		).not.toBeInTheDocument();
 	} );
 } );

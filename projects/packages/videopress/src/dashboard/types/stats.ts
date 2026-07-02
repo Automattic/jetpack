@@ -60,15 +60,10 @@ export interface VideoStats {
 
 // Sanitized shape of the per-video `stats/video/{post_id}` proxy
 // (`/jetpack/v4/videopress/stats/video/{post_id}`). WPCOM returns
-// `{ data: [ [ date, plays ], ... ], pages: [ url, ... ] }`; the client
-// reshapes the tuples into objects and drops anything malformed.
-export interface VideoDailyPlay {
-	date: string;
-	plays: number;
-}
-
+// `{ data: [ [ date, plays ], ... ], pages: [ url, ... ] }`, but only
+// the embedding-page URLs have a consumer (the "Posts featuring this
+// video" card); the daily-plays tuples are dropped during sanitization.
 export interface VideoPages {
-	dailyPlays: VideoDailyPlay[];
 	pages: string[];
 }
 

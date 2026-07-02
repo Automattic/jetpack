@@ -195,6 +195,34 @@ class Rest_Controller_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that a malformed end_date is rejected before proxying. Core's
+	 * schema validation does not enforce `format: date`, so the route
+	 * supplies its own validate_callback.
+	 */
+	public function test_stats_video_rejects_invalid_end_date() {
+		foreach ( array( 'not-a-date', '2026-13-01', '2026-02-30', '20260701' ) as $invalid ) {
+			$response = $this->get_stats_video( 123, array( 'end_date' => $invalid ) );
+
+			$this->assertEquals( 400, $response->get_status(), "end_date '$invalid' should be rejected" );
+			$this->assertEquals( 'rest_invalid_param', $response->get_data()['code'] );
+		}
+	}
+
+	/**
+	 * Test that a well-formed end_date passes validation and is forwarded
+	 * to WPCOM.
+	 */
+	public function test_stats_video_forwards_valid_end_date() {
+		$mock = array( $this, 'mock_wpcom_video_stats_response' );
+		add_filter( 'pre_http_request', $mock, 10, 3 );
+		$response = $this->get_stats_video( 123, array( 'end_date' => '2026-07-01' ) );
+		remove_filter( 'pre_http_request', $mock, 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertStringContainsString( 'end_date=2026-07-01', $this->last_wpcom_url );
+	}
+
+	/**
 	 * Test that a valid request proxies to the WPCOM v1.1 per-video stats
 	 * endpoint (with the default period/num applied) and passes the
 	 * upstream body through untouched.

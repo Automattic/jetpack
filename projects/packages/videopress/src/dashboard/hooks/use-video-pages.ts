@@ -1,7 +1,7 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-import type { VideoDailyPlay, VideoPages } from '../types/stats';
+import type { VideoPages } from '../types/stats';
 
 type VideoPagesQueryParams = {
 	period: 'day' | 'week' | 'month' | 'year';
@@ -15,30 +15,22 @@ const REST_BASE = '/jetpack/v4/videopress/stats/video';
 const DEFAULT_PARAMS: VideoPagesQueryParams = { period: 'day', num: 30 };
 
 /**
- * Tolerantly sanitize the WPCOM `stats/video/{post_id}` payload. The
- * expected shape is `{ data: [ [ date, plays ], ... ], pages: [ url,
- * ... ] }`, but the proxy forwards the upstream body untouched, so the
- * client survives missing keys, non-array values, and malformed rows:
- * rows without a string date are dropped, non-numeric plays become 0,
- * and non-string pages are dropped.
+ * Tolerantly sanitize the WPCOM `stats/video/{post_id}` payload down to
+ * the embedding-page URLs. The upstream shape is `{ data: [ [ date,
+ * plays ], ... ], pages: [ url, ... ] }`, but only `pages[]` has a
+ * consumer (the "Posts featuring this video" card) — the analytics
+ * chart derives from the video-plays proxy instead, so the `data`
+ * tuples are ignored rather than reshaped. The proxy forwards the
+ * upstream body untouched, so the client survives missing keys,
+ * non-array values, and non-string page entries.
  *
  * @param raw - Raw response body, of any shape.
- * @return Sanitized daily plays and embedding-page URLs.
+ * @return Sanitized embedding-page URLs.
  */
 export function sanitizeVideoPages( raw: unknown ): VideoPages {
-	const dailyPlays: VideoDailyPlay[] = [];
 	const pages: string[] = [];
 	if ( raw && typeof raw === 'object' ) {
-		const { data, pages: rawPages } = raw as { data?: unknown; pages?: unknown };
-		if ( Array.isArray( data ) ) {
-			for ( const row of data ) {
-				if ( ! Array.isArray( row ) || typeof row[ 0 ] !== 'string' ) {
-					continue;
-				}
-				const plays = Number( row[ 1 ] );
-				dailyPlays.push( { date: row[ 0 ], plays: Number.isFinite( plays ) ? plays : 0 } );
-			}
-		}
+		const { pages: rawPages } = raw as { pages?: unknown };
 		if ( Array.isArray( rawPages ) ) {
 			for ( const page of rawPages ) {
 				if ( typeof page === 'string' ) {
@@ -47,7 +39,7 @@ export function sanitizeVideoPages( raw: unknown ): VideoPages {
 			}
 		}
 	}
-	return { dailyPlays, pages };
+	return { pages };
 }
 
 /**
@@ -75,12 +67,12 @@ export function videoPagesQueryOptions(
 }
 
 /**
- * Fetch and cache the per-video plays series and embedding-page URLs
- * from `/jetpack/v4/videopress/stats/video/{post_id}`.
+ * Fetch and cache the URLs of the posts/pages embedding a video, from
+ * `/jetpack/v4/videopress/stats/video/{post_id}`.
  *
  * @param postId - Video (attachment) post ID; falsy disables the query.
  * @param params - Optional period/num overrides (defaults: day, 30).
- * @return Sanitized daily plays, page URLs, and loading/error state.
+ * @return Sanitized page URLs and loading/error state.
  */
 export function useVideoPages(
 	postId: number | string,
@@ -92,7 +84,6 @@ export function useVideoPages(
 	} );
 
 	return {
-		dailyPlays: query.data?.dailyPlays ?? [],
 		pages: query.data?.pages ?? [],
 		isLoading: query.isLoading,
 		isError: query.isError,

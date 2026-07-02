@@ -495,6 +495,21 @@ describe( 'useVideoStats', () => {
 		expect( result.current.video.stats.views.current ).toBe( 10 );
 		expect( result.current.video.stats.retentionRate.current ).toBe( 50 );
 	} );
+
+	it( 'reports isError when a window fetch fails, instead of silent zeros', async () => {
+		mockApiFetch( async () => {
+			throw new Error( 'boom' );
+		} );
+
+		const { result } = renderHook( () => useVideoStats( 1 ), {
+			wrapper: createTestWrapper(),
+		} );
+
+		await waitFor( () => expect( result.current.isError ).toBe( true ) );
+		// The stats payload still degrades to zeros — the flag is what lets
+		// consumers avoid presenting them as real data.
+		expect( result.current.stats.views.current ).toBe( 0 );
+	} );
 } );
 
 describe( 'computeChannelAverages', () => {
@@ -575,5 +590,18 @@ describe( 'useChannelAverages', () => {
 		expect( result.current.channel.averages.videoCount ).toBe( 2 );
 		expect( result.current.channel.averages.views ).toBe( 15 );
 		expect( result.current.channel.averages.retentionRate ).toBe( ( 50 * 10 + 90 * 20 ) / 30 );
+	} );
+
+	it( 'reports isError when the window fetch fails, instead of silent zero averages', async () => {
+		mockApiFetch( async () => {
+			throw new Error( 'boom' );
+		} );
+
+		const { result } = renderHook( () => useChannelAverages(), {
+			wrapper: createTestWrapper(),
+		} );
+
+		await waitFor( () => expect( result.current.isError ).toBe( true ) );
+		expect( result.current.averages.videoCount ).toBe( 0 );
 	} );
 } );

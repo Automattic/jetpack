@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Card } from '@wordpress/ui';
+import { Card, Text } from '@wordpress/ui';
 import { formatWatchTime } from '../../utils/format';
 // Skeleton placeholder classes live in the shared stats stylesheet.
 import '../stats/style.scss';
@@ -11,6 +11,7 @@ type Props = {
 	stats: VideoStats;
 	channel: ChannelAverages;
 	isLoading: boolean;
+	isError: boolean;
 };
 
 // Channel averages are per-video means, so they are fractional; both
@@ -40,9 +41,15 @@ type Row = {
  * @param props.stats     - This video's stats for the current window.
  * @param props.channel   - Channel-wide per-video averages for the same window.
  * @param props.isLoading - When true, value cells render as skeletons.
+ * @param props.isError   - When true, renders a quiet failure message in place of the table (zeroed columns would read as real data).
  * @return The card element.
  */
-export default function ChannelAverageCard( { stats, channel, isLoading }: Props ): ReactElement {
+export default function ChannelAverageCard( {
+	stats,
+	channel,
+	isLoading,
+	isError,
+}: Props ): ReactElement {
 	const rows: Row[] = [
 		{
 			key: 'views',
@@ -79,6 +86,21 @@ export default function ChannelAverageCard( { stats, channel, isLoading }: Props
 		) : (
 			value
 		);
+
+	if ( isError ) {
+		return (
+			<Card.Root>
+				<Card.Header>
+					<Card.Title>{ __( 'Compared to channel average', 'jetpack-videopress-pkg' ) }</Card.Title>
+				</Card.Header>
+				<Card.Content>
+					<Text className="vp-video-analytics__list-empty">
+						{ __( 'Could not load the channel comparison.', 'jetpack-videopress-pkg' ) }
+					</Text>
+				</Card.Content>
+			</Card.Root>
+		);
+	}
 
 	return (
 		<Card.Root>

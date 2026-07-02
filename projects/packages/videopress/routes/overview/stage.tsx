@@ -6,6 +6,7 @@ import StorageMeterCard from '../../src/dashboard/components/overview/storage-me
 import TopByWatchTimeCard from '../../src/dashboard/components/overview/top-by-watch-time-card';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import DateRangeSelector from '../../src/dashboard/components/stats/date-range-selector';
+import StatsErrorCard from '../../src/dashboard/components/stats/stats-error-card';
 import ViewsTrendsCard from '../../src/dashboard/components/stats/views-trends-card';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useStats } from '../../src/dashboard/hooks/use-stats';
@@ -25,6 +26,7 @@ const StageInner = () => {
 	const {
 		stats,
 		isLoading,
+		isError,
 		dateRange,
 		setDateRange,
 		granularity,
@@ -45,32 +47,46 @@ const StageInner = () => {
 		>
 			<div className="vp-overview">
 				{ isFree && <FreeTierNotice /> }
-				<KpiCardsRow
-					views={ stats.views }
-					impressions={ stats.impressions }
-					watchTimeSeconds={ stats.watchTimeSeconds }
-					isLoading={ isLoading }
-					activeMetric={ activeMetric }
-					onChangeActiveMetric={ setActiveMetric }
-					tabIds={ KPI_TAB_IDS }
-					panelId={ TRENDS_PANEL_ID }
-				/>
-				<ViewsTrendsCard
-					series={ stats.series }
-					activeMetric={ activeMetric }
-					compare={ compare }
-					granularity={ granularity }
-					isLoading={ isLoading }
-					onChangeCompare={ setCompare }
-					onChangeGranularity={ setGranularity }
-					panelId={ TRENDS_PANEL_ID }
-					activeTabId={ KPI_TAB_IDS[ activeMetric ] }
-				/>
+				{ isError ? (
+					// A failed window degrades `stats` to zeros indistinguishable
+					// from a genuinely zero-view period, so the KPI/chart region is
+					// replaced outright rather than rendering misleading zeros.
+					<StatsErrorCard />
+				) : (
+					<>
+						<KpiCardsRow
+							views={ stats.views }
+							impressions={ stats.impressions }
+							watchTimeSeconds={ stats.watchTimeSeconds }
+							isLoading={ isLoading }
+							activeMetric={ activeMetric }
+							onChangeActiveMetric={ setActiveMetric }
+							tabIds={ KPI_TAB_IDS }
+							panelId={ TRENDS_PANEL_ID }
+						/>
+						<ViewsTrendsCard
+							series={ stats.series }
+							activeMetric={ activeMetric }
+							compare={ compare }
+							granularity={ granularity }
+							isLoading={ isLoading }
+							onChangeCompare={ setCompare }
+							onChangeGranularity={ setGranularity }
+							panelId={ TRENDS_PANEL_ID }
+							activeTabId={ KPI_TAB_IDS[ activeMetric ] }
+						/>
+					</>
+				) }
 				{ showStorageMeter && <StorageMeterCard /> }
-				<div className="vp-overview__row--bottom">
-					<MostViewedCard videos={ stats.topVideos } isLoading={ isLoading } />
-					<TopByWatchTimeCard videos={ stats.topVideosByWatchTime } isLoading={ isLoading } />
-				</div>
+				{ /* The ranking cards derive from the same failed queries; their
+				     "No videos viewed" empty state would be just as misleading
+				     as zeroed KPIs, so the row is dropped alongside them. */ }
+				{ ! isError && (
+					<div className="vp-overview__row--bottom">
+						<MostViewedCard videos={ stats.topVideos } isLoading={ isLoading } />
+						<TopByWatchTimeCard videos={ stats.topVideosByWatchTime } isLoading={ isLoading } />
+					</div>
+				) }
 			</div>
 		</DashboardLayout>
 	);

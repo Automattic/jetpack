@@ -528,7 +528,7 @@ export function computeChannelAverages(
  * through the cache; this hook adds no request of its own.
  *
  * @param dateRange - Active range; must match the range passed to `useVideoStats`.
- * @return Channel averages for the current window and loading state.
+ * @return Channel averages for the current window plus loading/error state.
  */
 export function useChannelAverages( dateRange: DateRange = DEFAULTS.dateRange ) {
 	const rangeDays = DATE_RANGE_DAYS[ dateRange ];
@@ -541,6 +541,10 @@ export function useChannelAverages( dateRange: DateRange = DEFAULTS.dateRange ) 
 	return {
 		averages,
 		isLoading: query.isLoading,
+		// Surfaced so consumers can distinguish "failed to load" from
+		// genuinely all-zero averages (which EMPTY_CHANNEL_AVERAGES would
+		// otherwise silently mimic).
+		isError: query.isError,
 	};
 }
 
@@ -585,6 +589,9 @@ export function useStats() {
 	return {
 		stats,
 		isLoading: currentQuery.isLoading || previousQuery.isLoading,
+		// Either window failing means the KPI deltas/series are wrong or
+		// misleadingly zero, so the whole payload is flagged.
+		isError: currentQuery.isError || previousQuery.isError,
 		dateRange,
 		granularity,
 		activeMetric,
@@ -607,7 +614,7 @@ export function useStats() {
  * @param postId      - Video (attachment) post ID to isolate.
  * @param dateRange   - Active range; defaults to the Overview default.
  * @param granularity - Active series bucketing; defaults to days.
- * @return Per-video stats and loading state.
+ * @return Per-video stats plus loading/error state.
  */
 export function useVideoStats(
 	postId: number | string,
@@ -632,5 +639,9 @@ export function useVideoStats(
 	return {
 		stats,
 		isLoading: currentQuery.isLoading || previousQuery.isLoading,
+		// On failure `stats` degrades to zeros, which is indistinguishable
+		// from a genuinely zero-view video — consumers must check this flag
+		// and show an error affordance instead of the zeroed KPIs.
+		isError: currentQuery.isError || previousQuery.isError,
 	};
 }

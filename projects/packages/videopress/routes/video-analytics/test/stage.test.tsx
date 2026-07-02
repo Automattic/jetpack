@@ -117,10 +117,13 @@ describe( 'video-analytics stage', () => {
 		jest.clearAllMocks();
 		globals.JPVIDEOPRESS_INITIAL_STATE = { features: { studio: true } };
 		mockUseVideo.mockReturnValue( { video: makeLibraryItem(), isLoading: false } );
-		mockUseVideoStats.mockReturnValue( { stats: STATS, isLoading: false } );
-		mockUseChannelAverages.mockReturnValue( { averages: CHANNEL, isLoading: false } );
+		mockUseVideoStats.mockReturnValue( { stats: STATS, isLoading: false, isError: false } );
+		mockUseChannelAverages.mockReturnValue( {
+			averages: CHANNEL,
+			isLoading: false,
+			isError: false,
+		} );
 		mockUseVideoPages.mockReturnValue( {
-			dailyPlays: [],
 			pages: [ 'https://example.com/my-post' ],
 			isLoading: false,
 			isError: false,
@@ -197,6 +200,29 @@ describe( 'video-analytics stage', () => {
 		// Per-video hooks receive the routed id via the resolved video.
 		expect( mockUseVideoStats ).toHaveBeenCalledWith( '42', 'last_30_days', 'days' );
 		expect( mockUseVideoPages ).toHaveBeenCalledWith( '42' );
+	} );
+
+	it( 'replaces the KPI/chart region and comparison table when the stats queries fail', () => {
+		mockUseVideoStats.mockReturnValue( { stats: STATS, isLoading: false, isError: true } );
+		mockUseChannelAverages.mockReturnValue( {
+			averages: CHANNEL,
+			isLoading: false,
+			isError: true,
+		} );
+		render( <Stage /> );
+
+		// Zeroed KPIs are indistinguishable from a genuinely zero-view
+		// video, so an explicit error card takes over the region.
+		expect( screen.getByText( /Could not load stats for this period/ ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'tab', { name: /VIEWS/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Could not load the channel comparison.' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'table', { name: 'Compared to channel average' } )
+		).not.toBeInTheDocument();
+
+		// The pages card has its own independent fetch and stays rendered.
+		expect( screen.getByRole( 'link', { name: /example\.com\/my-post/ } ) ).toBeInTheDocument();
 	} );
 
 	it( 'swaps the chart for the retention explanation when Retention is selected', async () => {
