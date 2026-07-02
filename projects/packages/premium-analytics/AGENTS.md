@@ -214,6 +214,11 @@ not be merged.
    simpler canvas decorator from the template below — but never ship *only* a bare-div story.
 3. **Mocks**: Call `registerReportMocks()` at module-level for any widget that fetches
    report data. Without this the widget renders an error state in Storybook.
+   - **Woo analytics widgets** (`/proxy/v2/analytics/reports/*`) are covered out of the box.
+   - **Stats widgets** (`/proxy/v1.1/stats/*`) are NOT covered by default. For each new Stats
+     endpoint, add fixture data under `packages/widgets-toolkit/src/stories/mocks/data/` and
+     wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
+     `data/search-terms.ts` for a reference implementation.
 4. **Title**: `Packages/Premium Analytics/Widgets/<WidgetName>` (note: no "Widgets Toolkit"
    in the path — that path is reserved for the legacy widgets).
 5. **Tags**: Include `tags: [ 'autodocs' ]` so the widget shows up in auto-generated docs.
@@ -391,6 +396,9 @@ the state needs direct review.
   sizing when the style is not part of the shipped widget UI.
 - Reimplementing a utility that already exists in `widgets-toolkit` (e.g. `flagUrl`) — check
   `packages/widgets-toolkit/src/helpers/` before writing a new one.
+- Porting a Stats widget and forgetting to add its endpoint to `routeStatsReport()` in
+  `register-report-mocks.ts` — stories will render an error state instead of mock data because
+  the middleware only intercepts Woo analytics paths by default.
 
 ### Stats widgets
 
@@ -460,6 +468,14 @@ When a leaderboard drills down, use a breadcrumb in the widget body header to na
 the parent list. The child list should show child labels only; do not repeat the selected parent
 label in every row if the breadcrumb already identifies that parent. Header controls such as
 dropdowns should wrap cleanly on narrow widget widths instead of colliding with the breadcrumb.
+
+**Storybook mocks for Stats endpoints**
+
+`registerReportMocks()` covers Woo analytics paths (`/proxy/v2/analytics/reports/*`) out of
+the box. Stats proxy paths (`/proxy/v1.1/stats/*`) are NOT covered by default. For each new
+Stats endpoint, add fixture data under `packages/widgets-toolkit/src/stories/mocks/data/` and
+wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
+`data/search-terms.ts` for a reference implementation.
 
 **Visual conventions**
 

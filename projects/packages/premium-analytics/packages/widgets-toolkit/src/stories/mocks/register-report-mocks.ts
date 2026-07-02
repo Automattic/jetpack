@@ -43,12 +43,14 @@ import {
 	mockCustomersComparisonData,
 	mockCustomersByDateData,
 	mockCustomersByDateComparisonData,
+	mockSearchTermsData,
+	mockSearchTermsComparisonData,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
 /**
- * Base path that all report requests share. Matches `reportsPath` in the data
+ * Base path for Woo analytics report requests. Matches `reportsPath` in the data
  * package (`@jetpack-premium-analytics/data`).
  */
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
@@ -66,6 +68,11 @@ const coreSettingsMock = {
 	start_of_week: 1,
 	title: 'Storybook',
 };
+
+/**
+ * Base path for Jetpack Stats proxy requests (v1.1).
+ */
+const STATS_API_BASE = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
 
 /**
  * Days of mock data to generate (covering past requests).
@@ -613,6 +620,23 @@ function buildEmailSummaryResponse() {
 }
 
 /**
+ * Routes a Stats sub-path to the matching mock generator.
+ *
+ * @param subPath - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
+ * @return The mock response body, or `null` if no specific handler matched.
+ */
+function routeStatsReport( subPath: string ): unknown {
+	switch ( subPath ) {
+		case '/search-terms':
+			return nextIsComparison( 'stats/search-terms' )
+				? mockSearchTermsComparisonData
+				: mockSearchTermsData;
+		default:
+			return null;
+	}
+}
+
+/**
  * Read a query-string parameter from a (possibly relative) apiFetch request
  * path.
  *
@@ -716,6 +740,12 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_VIDEO_PLAYS_PATH ) ) {
 		return buildVideoPlaysResponse( requestPath );
+	}
+
+	if ( requestPath.startsWith( STATS_API_BASE ) ) {
+		const subPath = requestPath.slice( STATS_API_BASE.length ).split( '?' )[ 0 ];
+		const response = routeStatsReport( subPath );
+		return response !== null ? response : { data: [], summary: {} };
 	}
 
 	if ( ! requestPath.startsWith( API_BASE ) ) {
