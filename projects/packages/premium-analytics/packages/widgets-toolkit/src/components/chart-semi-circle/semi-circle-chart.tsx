@@ -2,8 +2,9 @@
  * External dependencies
  */
 import { PieSemiCircleChart } from '@automattic/charts';
+import { useResizeObserver } from '@wordpress/compose';
 import { Icon, Stack } from '@wordpress/ui';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	resolveSegmentStyles,
@@ -26,6 +27,58 @@ import type { ComponentProps } from 'react';
 // Default chart configuration
 const DEFAULT_THICKNESS = 0.3;
 const DEFAULT_ASPECT_RATIO = 0.5;
+
+// Smallest chart width we allow before letting the tile scroll instead of
+// shrinking the semi-circle into illegibility.
+const MIN_CHART_WIDTH = 120;
+// Fallback container dimension used before the ResizeObserver reports a size.
+const DEFAULT_CONTAINER_SIZE = 240;
+// Vertical gap between the chart and the legend, matching the `xl`/`sm` gap
+// tokens applied to the wrapper Stack (24px / 8px).
+const DEFAULT_LEGEND_GAP_SIZE = 24;
+const COMPACT_LEGEND_GAP_SIZE = 8;
+
+type ElementSize = { width: number; height: number };
+
+function getElementSize( element: Element ): ElementSize {
+	const { width, height } = element.getBoundingClientRect();
+	return { width: Math.round( width ), height: Math.round( height ) };
+}
+
+/**
+ * Tracks an element's rendered size via ResizeObserver, so the chart can be
+ * bounded by the height its tile actually offers (not only its width).
+ */
+function useElementSize< T extends HTMLElement >() {
+	const elementRef = useRef< T | null >( null );
+	const [ size, setSize ] = useState< ElementSize >( { width: 0, height: 0 } );
+
+	const updateSize = useCallback( ( next: ElementSize ) => {
+		setSize( prev => ( prev.width === next.width && prev.height === next.height ? prev : next ) );
+	}, [] );
+
+	const observerRef = useResizeObserver< T >( entries => {
+		const element = entries[ 0 ]?.target ?? elementRef.current;
+		if ( element ) {
+			updateSize( getElementSize( element ) );
+		}
+	} );
+
+	const setElementRef = useCallback(
+		( element: T | null ) => {
+			elementRef.current = element;
+			if ( typeof ResizeObserver !== 'undefined' ) {
+				observerRef( element );
+			}
+			if ( element ) {
+				updateSize( getElementSize( element ) );
+			}
+		},
+		[ observerRef, updateSize ]
+	);
+
+	return [ setElementRef, size ] as const;
+}
 
 export type SemiCircleChartData = ComponentProps< typeof PieSemiCircleChart >[ 'data' ];
 
@@ -88,7 +141,9 @@ export type SemiCircleChartProps = {
 	aspectRatio?: number;
 
 	/**
-	 * Width of the chart.
+	 * Hard upper bound for the chart width, in pixels. The chart otherwise grows
+	 * to fill its container while staying bounded by the tile height (so it never
+	 * overflows a short cell). Leave unset to only be bounded by the tile.
 	 * @default Infinity
 	 */
 	maxWidth?: number;
@@ -159,6 +214,9 @@ export function SemiCircleChart( {
 }: SemiCircleChartProps ) {
 	const hasComparison = comparisonValue !== null && comparisonValue !== undefined;
 
+	const [ containerRef, containerSize ] = useElementSize< HTMLDivElement >();
+	const [ legendRef, legendSize ] = useElementSize< HTMLDivElement >();
+
 	/**
 	 * Resolve styles: prop takes priority, fallback to chartData colors.
 	 */
@@ -194,13 +252,43 @@ export function SemiCircleChart( {
 		return <ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />;
 	}
 
+	const hasLegend = showLegend && Boolean( styledLegendData?.length );
+	const hardMaxWidth = Number.isFinite( maxWidth ) ? maxWidth : Number.POSITIVE_INFINITY;
+	const availableWidth = containerSize.width || DEFAULT_CONTAINER_SIZE;
+	const availableHeight = containerSize.height || DEFAULT_CONTAINER_SIZE;
+	const legendHeight = legendSize.height;
+
+	// Natural chart height when only the width constrains it; used to decide
+	// whether the tile is too short to afford the default chart-to-legend gap.
+	const widthBoundedHeight = Math.min( availableWidth, hardMaxWidth ) * aspectRatio;
+	const isCompactLayout =
+		hasLegend && availableHeight < widthBoundedHeight + legendHeight + DEFAULT_LEGEND_GAP_SIZE;
+	const legendGapSize = isCompactLayout ? COMPACT_LEGEND_GAP_SIZE : DEFAULT_LEGEND_GAP_SIZE;
+	const reservedLegendHeight = hasLegend && legendHeight ? legendHeight + legendGapSize : 0;
+
+	// Cap the width so the derived height (width * aspectRatio) fits the space
+	// left after the legend, keeping the whole widget contained in a short tile
+	// while still growing to fill taller/wider cells.
+	const availableChartHeight = availableHeight - reservedLegendHeight;
+	const heightBoundedWidth =
+		availableChartHeight > 0 ? availableChartHeight / aspectRatio : MIN_CHART_WIDTH;
+	const chartMaxWidth = Math.max( MIN_CHART_WIDTH, Math.min( hardMaxWidth, heightBoundedWidth ) );
+	const stackGap = isCompactLayout ? 'sm' : 'xl';
+
 	return (
-		<Stack direction="column" align="center" justify="center" className={ styles.container }>
+		<Stack
+			direction="column"
+			align="center"
+			justify="safe center"
+			className={ styles.container }
+			ref={ containerRef }
+		>
 			<Stack
 				direction="column"
+				align="center"
 				className={ styles.wrapper }
-				style={ Number.isFinite( maxWidth ) ? { maxWidth } : undefined }
-				gap="xl"
+				style={ { maxWidth: chartMaxWidth } }
+				gap={ stackGap }
 			>
 				<PieSemiCircleChart
 					data={ styledChartData }
@@ -235,8 +323,10 @@ export function SemiCircleChart( {
 					) }
 				</PieSemiCircleChart>
 
-				{ showLegend && styledLegendData && (
-					<LegendPure items={ styledLegendData } withComparison={ hasComparison } />
+				{ hasLegend && styledLegendData && (
+					<div ref={ legendRef } className={ styles.legendContainer }>
+						<LegendPure items={ styledLegendData } withComparison={ hasComparison } />
+					</div>
 				) }
 			</Stack>
 		</Stack>
