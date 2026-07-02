@@ -58,16 +58,6 @@ class Admin_UI_Studio_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Invoke the private Admin_UI::maybe_strip_studio_routes().
-	 *
-	 * @return void
-	 */
-	private function invoke_maybe_strip_studio_routes() {
-		$method = new \ReflectionMethod( Admin_UI::class, 'maybe_strip_studio_routes' );
-		$method->invoke( null );
-	}
-
-	/**
 	 * Extract the path column from a route-registry array.
 	 *
 	 * @param array $routes Route entries.
@@ -109,7 +99,7 @@ class Admin_UI_Studio_Test extends BaseTestCase {
 	public function test_maybe_strip_studio_routes_strips_global_when_off() {
 		$GLOBALS[ self::ROUTES_GLOBAL ] = $this->get_fixture_routes();
 
-		$this->invoke_maybe_strip_studio_routes();
+		Admin_UI::maybe_strip_studio_routes();
 
 		$this->assertSame( array( '/library', '/', '/settings', '/video/$id' ), $this->get_paths( $GLOBALS[ self::ROUTES_GLOBAL ] ) );
 	}
@@ -121,7 +111,7 @@ class Admin_UI_Studio_Test extends BaseTestCase {
 		$fixture                        = $this->get_fixture_routes();
 		$GLOBALS[ self::ROUTES_GLOBAL ] = $fixture;
 
-		$this->invoke_maybe_strip_studio_routes();
+		Admin_UI::maybe_strip_studio_routes();
 
 		$this->assertSame( $fixture, $GLOBALS[ self::ROUTES_GLOBAL ] );
 	}
@@ -130,7 +120,7 @@ class Admin_UI_Studio_Test extends BaseTestCase {
 	public function test_maybe_strip_studio_routes_missing_global_does_not_error() {
 		unset( $GLOBALS[ self::ROUTES_GLOBAL ] );
 
-		$this->invoke_maybe_strip_studio_routes();
+		Admin_UI::maybe_strip_studio_routes();
 
 		$this->assertArrayNotHasKey( self::ROUTES_GLOBAL, $GLOBALS );
 	}
@@ -139,7 +129,7 @@ class Admin_UI_Studio_Test extends BaseTestCase {
 	public function test_maybe_strip_studio_routes_empty_global_does_not_error() {
 		$GLOBALS[ self::ROUTES_GLOBAL ] = array();
 
-		$this->invoke_maybe_strip_studio_routes();
+		Admin_UI::maybe_strip_studio_routes();
 
 		$this->assertSame( array(), $GLOBALS[ self::ROUTES_GLOBAL ] );
 	}
@@ -148,7 +138,7 @@ class Admin_UI_Studio_Test extends BaseTestCase {
 	public function test_maybe_strip_studio_routes_non_array_global_does_not_error() {
 		$GLOBALS[ self::ROUTES_GLOBAL ] = 'not-an-array';
 
-		$this->invoke_maybe_strip_studio_routes();
+		Admin_UI::maybe_strip_studio_routes();
 
 		$this->assertSame( 'not-an-array', $GLOBALS[ self::ROUTES_GLOBAL ] );
 	}

@@ -503,7 +503,15 @@ class Admin_UI {
 
 		require_once $build_index;
 
-		self::maybe_strip_studio_routes();
+		// Defer the Studio-route stripping to the page init actions, at a
+		// priority ahead of the `build/routes.php` readers (default 10). Those
+		// actions fire from the page's `admin_enqueue_scripts` callback, one
+		// priority before `Initial_State` mirrors the Studio filter to the
+		// client (priority 11), so both evaluations of the filter happen at
+		// the same request stage and a filter registered after this method
+		// runs (`init`, `admin_init`, …) is honored consistently by both.
+		add_action( 'jetpack-videopress-dashboard_init', array( __CLASS__, 'maybe_strip_studio_routes' ), 5 );
+		add_action( 'jetpack-videopress-dashboard-wp-admin_init', array( __CLASS__, 'maybe_strip_studio_routes' ), 5 );
 
 		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 			'jetpack-videopress',
@@ -520,13 +528,16 @@ class Admin_UI {
 	 *
 	 * The wp-build routes loader (`build/routes.php`) stores each page's route
 	 * list in `$GLOBALS['jetpack_videopress_jetpack_videopress_dashboard_routes_data']`
-	 * and reads it back on the page init hook, so filtering the global here —
-	 * right after `load_wp_build()` requires the build index — keeps the
-	 * Studio route modules from ever being registered.
+	 * and reads it back on the page init hooks at default priority, so
+	 * `load_wp_build()` hooks this on those same actions at priority 5 —
+	 * filtering the global just before it is consumed keeps the Studio route
+	 * modules from ever being registered.
+	 *
+	 * @internal Only public so the wp-build page init actions can invoke it.
 	 *
 	 * @return void
 	 */
-	private static function maybe_strip_studio_routes() {
+	public static function maybe_strip_studio_routes() {
 		if ( self::is_studio_enabled() ) {
 			return;
 		}

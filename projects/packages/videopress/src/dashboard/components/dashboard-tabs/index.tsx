@@ -18,7 +18,8 @@ type Props = {
 };
 
 /**
- * The Overview / Library / Settings tab strip. Must be rendered inside a
+ * The Overview / Library / (Playlists) / Settings tab strip — Playlists only
+ * when feature-flagged on. Must be rendered inside a
  * `<Tabs.Root>` whose `value` and `onValueChange` are managed by the parent
  * (DashboardLayout) so the strip and its sibling `<Tabs.Panel>`s share
  * Tabs context.
