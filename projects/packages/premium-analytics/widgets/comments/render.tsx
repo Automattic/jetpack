@@ -24,7 +24,7 @@ import type { MouseEvent } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './comments.module.css';
+import styles from './style.module.css';
 import { type CommentsAttributes, type CommentsView } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
