@@ -91,7 +91,9 @@ const OverviewScreen: FC = () => {
 			<div className={ styles.contentCard }>
 				<ContentCoverageCard data={ coverage ?? data.content_coverage } onManage={ goToContent } />
 			</div>
-			<DisableSeoTools />
+			{ /* Hidden on WordPress.com Simple, where SEO tools are always active and
+			     can't be disabled — the off-ramp would appear to do nothing there. */ }
+			{ ! data.is_simple && <DisableSeoTools /> }
 		</div>
 	);
 };

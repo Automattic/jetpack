@@ -567,6 +567,11 @@ class Initializer {
 			$codes = array();
 		}
 
+		// On WordPress.com Simple, modules are always reported active and can't be
+		// turned off, so the Overview's "Disable SEO tools" off-ramp is hidden there
+		// (it would appear to do nothing). Atomic and self-hosted can disable normally.
+		$is_simple = class_exists( 'Automattic\\Jetpack\\Status\\Host' ) && ( new Host() )->is_wpcom_simple();
+
 		return array(
 			'site_visibility'   => array(
 				'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
@@ -589,6 +594,7 @@ class Initializer {
 			'plan'              => array(
 				'seo_enabled_for_site' => $seo_enabled,
 			),
+			'is_simple'         => $is_simple,
 		);
 	}
 
