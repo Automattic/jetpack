@@ -36,14 +36,11 @@ function closestHTMLElement(
 	return match instanceof HTMLElement ? match : null;
 }
 
-function isSingleColumnTileFromGridColumnEnd( gridColumnEnd: string ) {
-	const raw = ( gridColumnEnd || '' ).trim();
-	const match = raw.match( /^span\s+(\d+)$/ );
-	if ( ! match ) {
-		return false;
-	}
-	return Number( match[ 1 ] ) === 1;
-}
+// Below this rendered tile width the side-by-side map + leaderboard layout is
+// too cramped, so we collapse to the map-only ("minimized") layout. This
+// roughly corresponds to a single-column dashboard tile (~381px) while the
+// two-column layout (~786px) stays above it.
+const MAP_ONLY_MAX_TILE_WIDTH = 480;
 
 export function VisitorsByLocationWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -98,12 +95,17 @@ export function VisitorsByLocationWidget() {
 	);
 
 	const updateIsMinimized = useCallback( () => {
-		const tileButton = tileButtonRef.current;
-		if ( ! tileButton ) {
+		// Measure the dashboard tile when present, otherwise the widget root.
+		// The rendered width is a reliable signal across the real dashboard grid
+		// (where the grid span lives on a parent wrapper, not the sortable tile),
+		// the mobile stacked layout, and standalone embeddings.
+		const measuredEl = tileButtonRef.current ?? rootRef.current;
+		if ( ! measuredEl ) {
 			return;
 		}
 
-		const nextIsMinimized = isSingleColumnTileFromGridColumnEnd( tileButton.style.gridColumnEnd );
+		const width = measuredEl.getBoundingClientRect().width;
+		const nextIsMinimized = width > 0 && width < MAP_ONLY_MAX_TILE_WIDTH;
 
 		// Avoid scheduling React state updates when nothing changes.
 		setIsMinimized( prev => ( prev === nextIsMinimized ? prev : nextIsMinimized ) );
@@ -135,35 +137,30 @@ export function VisitorsByLocationWidget() {
 			return;
 		}
 
-		// Dashboard tile: react to changes in the tile's grid span.
+		// Dashboard tile: react to changes in the tile's rendered width. Fall
+		// back to the widget root for standalone embeddings that aren't wrapped
+		// in a sortable dashboard tile.
 		const tileButton = closestHTMLElement(
 			root,
 			'[role="button"][aria-roledescription="sortable"]'
 		);
 
-		if ( ! tileButton ) {
-			tileButtonRef.current = null;
+		tileButtonRef.current = tileButton;
+
+		const observedEl = tileButton ?? root;
+		if ( ! observedEl ) {
 			setIsMinimized( false );
 			return;
 		}
 
-		tileButtonRef.current = tileButton;
-
 		updateIsMinimized();
 
-		const mutationObserver = new MutationObserver( updateIsMinimized );
-		mutationObserver.observe( tileButton, {
-			attributes: true,
-			attributeFilter: [ 'style', 'class' ],
-		} );
-
 		// `useResizeObserver` returns a ref callback. We can attach it
-		// programmatically to `tileButton` even though it's outside this component's
-		// render tree.
-		resizeObserverRef( tileButton );
+		// programmatically to `observedEl` even though it may be outside this
+		// component's render tree.
+		resizeObserverRef( observedEl );
 
 		return () => {
-			mutationObserver.disconnect();
 			resizeObserverRef( null );
 			tileButtonRef.current = null;
 			if ( resizeDebounceTimeoutRef.current ) {
