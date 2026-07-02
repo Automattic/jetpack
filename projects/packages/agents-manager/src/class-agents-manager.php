@@ -519,9 +519,9 @@ class Agents_Manager {
 
 		$script_dependencies = $asset_file['dependencies'] ?? array();
 
-		// Load translations for connected variants from widgets.wp.com. Disconnected
-		// variants ship a minimal bundle with no translatable in-app UI, so they are
-		// skipped — mirroring Help Center. English needs no translation file.
+		// Load translations for connected variants from widgets.wp.com.
+		// Disconnected variants have no translatable UI, so skip them (as Help
+		// Center does). English needs no translation file.
 		if ( ! str_contains( $variant, 'disconnected' ) ) {
 			$locale = self::determine_iso_639_locale();
 
