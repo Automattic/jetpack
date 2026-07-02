@@ -11126,7 +11126,7 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/build@0.16.1':
-    resolution: {integrity: sha512-hapzl0yZfyYdgaDnHuEF7a8c0/JURJUS5W4gPuIpU5eVprEh33a6bNv8uBUc99f0UDC70VvpJ2TwV8XXvKb55g==, tarball: https://registry.npmjs.org/@wordpress/build/-/build-0.16.1.tgz}
+    resolution: {integrity: sha512-hapzl0yZfyYdgaDnHuEF7a8c0/JURJUS5W4gPuIpU5eVprEh33a6bNv8uBUc99f0UDC70VvpJ2TwV8XXvKb55g==}
     engines: {node: '>=20.10.0', npm: '>=10.2.3'}
     hasBin: true
     peerDependencies:
@@ -13145,7 +13145,7 @@ packages:
     engines: {node: '>=18'}
 
   dotenv@16.6.1:
-    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==, tarball: https://registry.npmjs.org/dotenv/-/dotenv-16.6.1.tgz}
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
 
   dts-resolver@3.0.0:
