@@ -216,6 +216,17 @@ export function useDriveRenderedMessagesFetch(): void {
 		void registry
 			.resolveSelect( socialStore )
 			.getRenderedMessages( postId, items, postIntent )
+			.then( batch => {
+				// A failed fetch leaves the slot empty, and wp.data would cache that
+				// resolution forever — previews would then permanently fall back to
+				// the raw message template. Invalidate so the next mount (e.g.
+				// reopening the preview) retries.
+				if ( ! batch ) {
+					registry
+						.dispatch( socialStore )
+						.invalidateResolution( 'getRenderedMessages', [ postId, items, postIntent ] );
+				}
+			} )
 			// Errors are intentionally swallowed to preserve existing UI behavior.
 			.catch( () => {} );
 	}, [ items, postId, postIntent, registry ] );
