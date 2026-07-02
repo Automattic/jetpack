@@ -131,6 +131,13 @@ const StageInner = () => {
 		[ navigate ]
 	);
 
+	const openVideoAnalytics = useCallback(
+		( id: string ) => {
+			navigate( { href: `/video/${ id }/analytics` } );
+		},
+		[ navigate ]
+	);
+
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 
 	// Drag-and-drop entry point. Mirrors the file-picker's `startUpload`
@@ -227,6 +234,7 @@ const StageInner = () => {
 				promoteLocal,
 				retryUpload,
 				openVideoDetails,
+				openVideoAnalytics,
 				deleteItems: async ( ids: string[] ) => {
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// The row overlay/pill is purely visual; this notice is what
@@ -360,6 +368,7 @@ const StageInner = () => {
 			deleteVideo,
 			setPrivacyAsync,
 			openVideoDetails,
+			openVideoAnalytics,
 			createSuccessNotice,
 			createErrorNotice,
 			createInfoNotice,

@@ -10,6 +10,7 @@ type Api = {
 	deleteItems: ( ids: string[] ) => void;
 	setPrivacy: ( ids: string[], privacy: LibraryItemPrivacy ) => void;
 	openVideoDetails: ( id: string ) => void;
+	openVideoAnalytics: ( id: string ) => void;
 };
 
 // Allowlist on 'idle' (matching TitleText and ThumbnailField) rather than a
@@ -57,14 +58,36 @@ const PRIVACY_ACTIONS: { idSuffix: string; label: string; privacy: LibraryItemPr
  * delete already in flight are ineligible for every action so a slow delete
  * can't be double-fired or raced by an edit.
  *
- * With the Studio flag on, a bulk "Add to playlist" action is included; it
- * confirms through a DataViews modal (see AddToPlaylistModal, which owns the
- * membership mutation) so it needs no entry in `api`.
+ * With the Studio flag on, two more actions appear: a bulk "Add to playlist"
+ * action that confirms through a DataViews modal (see AddToPlaylistModal,
+ * which owns the membership mutation, so it needs no entry in `api`), and a
+ * per-row "View analytics" action that routes to the video's Analytics
+ * screen at `/video/{id}/analytics`.
  *
  * @param api - Hook mutators forwarded into the action callbacks.
  * @return The actions array for `<DataViews>`.
  */
 export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
+	// Gated with the same predicate as the analytics route itself: the
+	// screen only exists (server-side route registry included) when the
+	// Studio flag is on.
+	const viewAnalytics: Action< LibraryItem >[] = isStudioEnabled()
+		? [
+				{
+					id: 'view-analytics',
+					label: __( 'View analytics', 'jetpack-videopress-pkg' ),
+					supportsBulk: false,
+					isEligible: isVideoPressIdle,
+					callback: ( items: LibraryItem[] ) => {
+						const [ item ] = items;
+						if ( item ) {
+							api.openVideoAnalytics( item.id );
+						}
+					},
+				},
+		  ]
+		: [];
+
 	const addToPlaylist: Action< LibraryItem >[] = isStudioEnabled()
 		? [
 				{
@@ -98,6 +121,7 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 				}
 			},
 		},
+		...viewAnalytics,
 		...PRIVACY_ACTIONS.map( ( { idSuffix, label, privacy } ) => ( {
 			id: `set-privacy-${ idSuffix }`,
 			label,

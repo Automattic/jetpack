@@ -2,9 +2,11 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
 import {
+	computeChannelAverages,
 	filterResponseToVideo,
 	transformVideoPlays,
 	transformVideoPlaysForVideo,
+	useChannelAverages,
 	useStats,
 	useVideoStats,
 	videoPlaysQueryOptions,
@@ -492,5 +494,86 @@ describe( 'useVideoStats', () => {
 		expect( result.current.overview.stats.views.current ).toBe( 30 );
 		expect( result.current.video.stats.views.current ).toBe( 10 );
 		expect( result.current.video.stats.retentionRate.current ).toBe( 50 );
+	} );
+} );
+
+describe( 'computeChannelAverages', () => {
+	it( 'returns all-zero averages for an undefined or empty response', () => {
+		const zero = {
+			videoCount: 0,
+			views: 0,
+			impressions: 0,
+			watchTimeSeconds: 0,
+			retentionRate: 0,
+		};
+		expect( computeChannelAverages( undefined ) ).toEqual( zero );
+		expect( computeChannelAverages( {} ) ).toEqual( zero );
+		expect( computeChannelAverages( { days: { '2026-05-15': {} } } ) ).toEqual( zero );
+	} );
+
+	it( 'averages per-video totals across distinct videos and days', () => {
+		const response = {
+			days: {
+				'2026-05-15': {
+					data: [
+						{ post_id: 1, views: 10, impressions: 100, watch_time: 1, retention_rate: 50 },
+						{ post_id: 2, views: 30, impressions: 200, watch_time: 2, retention_rate: 90 },
+					],
+				},
+				'2026-05-16': {
+					// Same video on a second day: counts accumulate, but the
+					// video is only counted once in the denominator.
+					data: [ { post_id: 1, views: 20, impressions: 100, watch_time: 1 } ],
+				},
+			},
+		};
+		const averages = computeChannelAverages( response );
+		expect( averages.videoCount ).toBe( 2 );
+		expect( averages.views ).toBe( 30 ); // (10 + 30 + 20) / 2
+		expect( averages.impressions ).toBe( 200 ); // (100 + 200 + 100) / 2
+		expect( averages.watchTimeSeconds ).toBe( ( 4 * 3600 ) / 2 );
+		// Retention weights by views over rows that report it: the second
+		// day's row (no retention_rate) is excluded from both sides.
+		expect( averages.retentionRate ).toBe( ( 50 * 10 + 90 * 30 ) / 40 );
+	} );
+
+	it( 'yields zero retention — not NaN — when no row reports a rate', () => {
+		const response = {
+			days: { '2026-05-15': { data: [ { post_id: 1, views: 10 } ] } },
+		};
+		expect( computeChannelAverages( response ).retentionRate ).toBe( 0 );
+	} );
+} );
+
+describe( 'useChannelAverages', () => {
+	it( 'shares the per-video current-window query: one cache entry, no extra fetch', async () => {
+		mockApiFetch( async () => ( {
+			days: {
+				'2026-05-15': {
+					total: { views: 30, impressions: 300, watch_time: 3 },
+					data: [
+						{ post_id: 1, views: 10, impressions: 100, watch_time: 1, retention_rate: 50 },
+						{ post_id: 2, views: 20, impressions: 200, watch_time: 2, retention_rate: 90 },
+					],
+				},
+			},
+		} ) );
+
+		const client = createTestQueryClient();
+		const { result } = renderHook(
+			() => ( { video: useVideoStats( 1 ), channel: useChannelAverages() } ),
+			{ wrapper: createTestWrapper( client ) }
+		);
+
+		await waitFor( () => expect( result.current.channel.isLoading ).toBe( false ) );
+
+		// useVideoStats registers two windows; useChannelAverages reuses the
+		// current one instead of adding a third entry or a third fetch.
+		expect( client.getQueryCache().getAll() ).toHaveLength( 2 );
+		expect( getApiFetchMock().mock.calls ).toHaveLength( 2 );
+
+		expect( result.current.channel.averages.videoCount ).toBe( 2 );
+		expect( result.current.channel.averages.views ).toBe( 15 );
+		expect( result.current.channel.averages.retentionRate ).toBe( ( 50 * 10 + 90 * 20 ) / 30 );
 	} );
 } );

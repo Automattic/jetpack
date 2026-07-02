@@ -2,6 +2,13 @@ export type DateRange = 'last_7_days' | 'last_30_days' | 'last_90_days' | 'last_
 export type Granularity = 'days' | 'weeks' | 'months';
 export type ActiveMetric = 'views' | 'impressions' | 'watch_time';
 
+// KPI selectable on the per-video Analytics screen. Superset of
+// `ActiveMetric`: retention is a KPI tab there, but it has no time
+// series upstream, so it never becomes an `ActiveMetric` for the
+// trends chart — the screen swaps the chart panel for an explanatory
+// state when it is selected.
+export type VideoMetric = ActiveMetric | 'retention';
+
 // Compare values are metric-agnostic. "secondary" means "the other
 // daily-count metric" — Impressions when Views is active, Views when
 // Impressions is active. Watch time has no meaningful secondary, so the
@@ -63,6 +70,18 @@ export interface VideoDailyPlay {
 export interface VideoPages {
 	dailyPlays: VideoDailyPlay[];
 	pages: string[];
+}
+
+// Per-video means across every video with a `data[]` row in one
+// video-plays window ("channel average"). Count metrics are plain means
+// (window total ÷ distinct videos); `retentionRate` is the views-weighted
+// mean across every row, mirroring the per-video retention KPI.
+export interface ChannelAverages {
+	videoCount: number;
+	views: number;
+	impressions: number;
+	watchTimeSeconds: number;
+	retentionRate: number;
 }
 
 export const DATE_RANGE_DAYS: Record< DateRange, number > = {
