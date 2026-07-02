@@ -5,9 +5,8 @@
  * @package automattic/jetpack-videopress
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\VideoPress\Admin_UI;
 use WorDBless\BaseTestCase;
 
 /**
