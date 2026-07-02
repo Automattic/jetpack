@@ -153,6 +153,12 @@ function CaptionManagerModalInner( {
 	const [ workspace, dispatch ] = useReducer( workspaceReducer, initialWorkspaceState );
 	const [ notice, setNotice ] = useState< NoticeState >( null );
 	const [ confirmation, setConfirmation ] = useState< ConfirmationState | null >( null );
+	// Whether the manual editor holds unsaved track edits; reported by the
+	// editor on transitions and reset with each new workspace instance.
+	const [ isManualDirty, setIsManualDirty ] = useState( false );
+	useEffect( () => {
+		setIsManualDirty( false );
+	}, [ workspace.requestId ] );
 
 	// Whether an async continuation still belongs to the current workspace.
 	const isCurrentWorkspace = useCallback(
@@ -921,7 +927,12 @@ function CaptionManagerModalInner( {
 													variant="secondary"
 													onClick={ () => void saveDraft() }
 													isBusy={ isSavingCaptionTrack }
-													disabled={ isSavingCaptionTrack || isPublishing || isLoadingTrackText }
+													disabled={
+														! isManualDirty ||
+														isSavingCaptionTrack ||
+														isPublishing ||
+														isLoadingTrackText
+													}
 												>
 													{ __( 'Save draft', 'jetpack-videopress-pkg' ) }
 												</Button>
@@ -1036,6 +1047,7 @@ function CaptionManagerModalInner( {
 									playerRef={ playerRef }
 									cueBlocksRef={ cueBlocksRef }
 									preview={ previewProps }
+									onDirtyChange={ setIsManualDirty }
 									onLanguageChange={ ( tag, displayName ) =>
 										dispatchAndClearNotice( {
 											type: 'SET_MANUAL_LANGUAGE',

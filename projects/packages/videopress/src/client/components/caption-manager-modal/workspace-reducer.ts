@@ -249,7 +249,32 @@ export function workspaceReducer( state: WorkspaceState, action: WorkspaceAction
 }
 
 /**
+ * Whether the manual editor's saveable state — the track fields and cue
+ * blocks — differs from its baselines, i.e. whether "Save draft" has
+ * anything to persist.
+ *
+ * @param state     - Current manual workspace state.
+ * @param cueBlocks - The editor's live cue blocks.
+ * @return Whether there are unsaved track edits.
+ */
+export function hasUnsavedTrackEdits(
+	state: ManualWorkspace,
+	cueBlocks: CaptionCueBlock[]
+): boolean {
+	if (
+		state.track.srcLang !== state.trackBaseline.srcLang ||
+		state.track.label !== state.trackBaseline.label
+	) {
+		return true;
+	}
+
+	return getCueBlocksSignature( cueBlocks ) !== state.cueBaseline;
+}
+
+/**
  * Whether the manual editor holds unsaved work, to guard close/back/drop-to-upload.
+ * Unlike {@link hasUnsavedTrackEdits} this also counts pasted-but-unimported
+ * text, which a close would discard even though "Save draft" wouldn't persist it.
  *
  * @param state     - Current workspace state.
  * @param cueBlocks - The editor's live cue blocks.
@@ -267,12 +292,5 @@ export function hasUnsavedManualEdits(
 		return true;
 	}
 
-	if (
-		state.track.srcLang !== state.trackBaseline.srcLang ||
-		state.track.label !== state.trackBaseline.label
-	) {
-		return true;
-	}
-
-	return getCueBlocksSignature( cueBlocks ) !== state.cueBaseline;
+	return hasUnsavedTrackEdits( state, cueBlocks );
 }
