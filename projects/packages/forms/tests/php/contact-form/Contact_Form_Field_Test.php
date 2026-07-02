@@ -431,7 +431,9 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	public function test_file_dropzone_aria_label( $atts, $expected ) {
 		$field  = $this->get_new_field_instance( array_merge( array( 'type' => 'file' ), $atts ) );
 		$method = new \ReflectionMethod( $field, 'get_file_dropzone_aria_label' );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$this->assertSame( $expected, $method->invoke( $field ) );
 	}
@@ -464,6 +466,50 @@ class Contact_Form_Field_Test extends BaseTestCase {
 					'labelhiddenbyblockvisibility' => true,
 				),
 				'Select a file to upload.',
+			),
+		);
+	}
+
+	/**
+	 * The hidden-label aria-label fallback reaches the other single-input render
+	 * paths too — textarea, select and the country-selector phone input each move
+	 * the label onto the control when it's hidden. See FORMS-694.
+	 *
+	 * @dataProvider data_single_input_render_paths
+	 *
+	 * @param array $atts Field attributes (type plus anything needed to render).
+	 */
+	#[DataProvider( 'data_single_input_render_paths' )]
+	public function test_render_single_input_hidden_label_keeps_accessible_name( $atts ) {
+		$hidden = $this->get_new_field_instance(
+			array_merge( array( 'label' => 'Your name' ), $atts, array( 'labelhiddenbyblockvisibility' => true ) )
+		);
+		$this->assertStringContainsString( "aria-label='Your name'", $hidden->render() );
+
+		// And no stray aria-label when the label is visible.
+		$shown = $this->get_new_field_instance( array_merge( array( 'label' => 'Your name' ), $atts ) );
+		$this->assertStringNotContainsString( "aria-label='Your name'", $shown->render() );
+	}
+
+	/**
+	 * Data provider for test_render_single_input_hidden_label_keeps_accessible_name.
+	 *
+	 * @return array
+	 */
+	public static function data_single_input_render_paths() {
+		return array(
+			'textarea'          => array( array( 'type' => 'textarea' ) ),
+			'select'            => array(
+				array(
+					'type'    => 'select',
+					'options' => array( 'A', 'B' ),
+				),
+			),
+			'phone w/ selector' => array(
+				array(
+					'type'                => 'phone',
+					'showcountryselector' => true,
+				),
 			),
 		);
 	}
