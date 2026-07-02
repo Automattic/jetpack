@@ -2,6 +2,9 @@
 
 Welcome to the Jetpack Monorepo! This document will give you some idea of the layout, and what is required for your project to fit in with our tooling.
 
+For a broader, cross-linked reference covering setup, architecture, workflows, CI, release automation,
+project inventory, and agent-oriented navigation, see the [Jetpack Monorepo Reference](repo-reference/index.html).
+
 ## Table of contents
 
 - [Layout](#layout)
