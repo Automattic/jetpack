@@ -6,10 +6,17 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { AverageOrderValueAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps } from 'react';
 
-type AverageOrderValueRenderProps = {
-	attributes?: Partial< ReportParamsFieldAttributes >;
-	setError?: Parameters< typeof WidgetRoot >[ 0 ][ 'setError' ];
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type AverageOrderValueRenderAttributes = AverageOrderValueAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type AverageOrderValueRenderProps = WidgetRenderProps< AverageOrderValueRenderAttributes > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
@@ -21,7 +28,7 @@ type AverageOrderValueRenderProps = {
  * comparison delta and sparkline.
  */
 export default function AverageOrderValueRender( {
-	attributes,
+	attributes = {},
 	setError,
 }: AverageOrderValueRenderProps ) {
 	return (

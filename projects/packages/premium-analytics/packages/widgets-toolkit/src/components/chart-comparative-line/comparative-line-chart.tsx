@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { LineChart } from '@automattic/charts';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -9,7 +10,6 @@ import { type ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
-import { LineChart } from '../../../../../../../js-packages/charts/src/charts/line-chart';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import { isEmptyChartData, getEmptyChartDomain } from '../../helpers';
 import { ChartTooltip } from '../chart-tooltip';
