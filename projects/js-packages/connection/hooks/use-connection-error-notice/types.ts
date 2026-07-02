@@ -1,3 +1,5 @@
+import type { ReactElement } from 'react';
+
 export interface ConnectionErrorData {
 	action?: string;
 	action_label?: string;
@@ -56,6 +58,8 @@ export interface ConnectionErrorProps {
 	reconnectTrackingEvent?: string;
 	/** Navigation handler for URL-based actions. Defaults to setting `window.location.href`. */
 	navigate?: ( url: string ) => void;
+	/** Optional feature-supplied context line rendered above the shared cause/action. */
+	context?: string | ReactElement;
 }
 
 /**

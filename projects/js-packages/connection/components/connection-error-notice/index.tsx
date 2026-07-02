@@ -7,6 +7,7 @@ import type { ConnectionErrorNoticeProps } from './types';
 
 const ConnectionErrorNotice = ( {
 	message,
+	context,
 	isRestoringConnection,
 	restoreConnectionCallback,
 	restoreConnectionError,
@@ -113,7 +114,10 @@ const ConnectionErrorNotice = ( {
 			<Notice status={ 'error' } isDismissible={ false } className={ wrapperClassName }>
 				<div className={ styles.message }>
 					{ icon }
-					{ message }
+					<div className={ styles.body }>
+						{ context && <span className={ styles.context }>{ context }</span> }
+						<span>{ message }</span>
+					</div>
 				</div>
 				{ actionButtons.length > 0 && <div className={ styles.actions }>{ actionButtons }</div> }
 			</Notice>
@@ -124,6 +128,8 @@ const ConnectionErrorNotice = ( {
 ConnectionErrorNotice.propTypes = {
 	/** The notice message. */
 	message: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
+	/** Optional feature-supplied context line rendered above the message. */
+	context: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	/** "Restore Connection" button callback. */
 	restoreConnectionCallback: PropTypes.func,
 	/** Whether connection restore is in progress. */

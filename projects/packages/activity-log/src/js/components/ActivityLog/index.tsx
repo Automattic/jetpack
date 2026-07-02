@@ -7,12 +7,18 @@
  * until #48236 lands.
  */
 import { AdminPage } from '@automattic/jetpack-components';
+import {
+	ConnectionError,
+	useConnectionErrorNotice,
+	CONNECTION_STORE_ID,
+} from '@automattic/jetpack-connection';
 import { useQuery } from '@tanstack/react-query';
+import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { __, sprintf } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import fastDeepEqual from 'fast-deep-equal/es6';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
 	activityLogQuery,
 	activityLogGroupCountsQuery,
@@ -335,6 +341,39 @@ export default function ActivityLog() {
 
 	const logData = ( activityLogData?.activityLogs ?? [] ) as Activity[];
 
+	// When the list request fails, it may be because the site's connection to
+	// WordPress.com is broken (the activity feed is proxied through a
+	// user-token-signed WPCOM request). Reactively probe the connection health
+	// check so a real broken-connection state surfaces an actionable notice
+	// instead of a generic "couldn't load" dead-end. Never runs on mount — only
+	// off a failure — so the multi-call probe stays off the happy path.
+	const { runConnectionHealthCheck } = useDispatch( CONNECTION_STORE_ID );
+	const { hasConnectionError } = useConnectionErrorNotice();
+	// Deliberately use a layout effect so the "generic" error notice never
+	// paints before we begin the connection health check. A regular
+	// useEffect produces a brief flash of the generic notice before it is
+	// replaced by the actionable connection banner.
+	const [ isCheckingHealth, setIsCheckingHealth ] = useState( false );
+	useLayoutEffect( () => {
+		if ( ! isListError ) {
+			setIsCheckingHealth( false );
+			return;
+		}
+		setIsCheckingHealth( true );
+		// runConnectionHealthCheck always settles (its thunk try/catches to `{}`
+		// or a mapped error), so the pending flag is guaranteed to clear.
+		Promise.resolve( runConnectionHealthCheck() ).finally( () => setIsCheckingHealth( false ) );
+	}, [ isListError, runConnectionHealthCheck ] );
+
+	// Prefer the shared, actionable connection-error notice over the generic
+	// one whenever the failure is attributable to a broken connection.
+	const showConnectionError = isListError && hasConnectionError;
+	// Suppress the generic dead-end notice until the health probe resolves, so a
+	// broken-connection failure shows only the actionable banner (not both in
+	// sequence). A genuine non-connection failure falls through to the generic
+	// notice once the probe comes back clean.
+	const showGenericNotice = ! showConnectionError && ! isCheckingHealth;
+
 	// Surface request failures so a broken WPCOM round-trip doesn't read as "no events".
 	const errorNotice = useMemo< ErrorNoticeState | null >(
 		() =>
@@ -503,10 +542,20 @@ export default function ActivityLog() {
 				 * overrides needed.
 				 */ }
 				<div className="jp-activity-log__inner">
-					{ errorNotice && (
-						<Notice.Root intent={ errorNotice.status }>
-							<Notice.Description>{ errorNotice.message }</Notice.Description>
-						</Notice.Root>
+					{ showConnectionError ? (
+						<ConnectionError
+							context={ __(
+								'Your activity log couldn’t load because your site isn’t fully connected to WordPress.com.',
+								'jetpack-activity-log'
+							) }
+						/>
+					) : (
+						showGenericNotice &&
+						errorNotice && (
+							<Notice.Root intent={ errorNotice.status }>
+								<Notice.Description>{ errorNotice.message }</Notice.Description>
+							</Notice.Root>
+						)
 					) }
 					<DataViews< Activity >
 						data={ logData }

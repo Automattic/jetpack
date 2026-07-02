@@ -1,3 +1,4 @@
+import type { ConnectionErrorMap } from '../../hooks/use-connection-error-notice/types';
 import type { SyntheticEvent } from 'react';
 
 export interface UseConnectionProps {
@@ -75,5 +76,6 @@ export interface UseConnectionReturn {
 	hasConnectedOwner: boolean;
 	connectedPlugins: Record< string, unknown > | unknown[];
 	connectionErrors: Array< string | object >;
+	connectionHealthErrors: ConnectionErrorMap;
 	isOfflineMode: boolean;
 }

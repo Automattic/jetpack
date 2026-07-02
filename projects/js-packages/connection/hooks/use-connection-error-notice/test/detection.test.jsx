@@ -23,6 +23,7 @@ const { default: useConnectionErrorNotice } = await import( '../index' );
 const mockConnection = overrides =>
 	useConnection.mockReturnValue( {
 		connectionErrors: {},
+		connectionHealthErrors: {},
 		isRegistered: false,
 		isUserConnected: false,
 		...overrides,
@@ -98,5 +99,45 @@ describe( 'useConnectionErrorNotice — error detection', () => {
 		const { result } = renderHook( () => useConnectionErrorNotice() );
 		expect( result.current.hasConnectionError ).toBe( false );
 		expect( result.current.connectionError ).toBeUndefined();
+	} );
+
+	// Health-check failures are the fallback source: when the store has no real
+	// WPCOM error, a connectionHealthErrors entry still surfaces a notice.
+	it( 'surfaces a health-check error when the store has no WPCOM error', () => {
+		mockConnection( {
+			connectionErrors: {},
+			connectionHealthErrors: {
+				failed_test__connection_token_health: {
+					0: {
+						error_code: 'failed_test__connection_token_health',
+						error_message: 'The site token could not be validated.',
+						error_type: 'connection_health',
+					},
+				},
+			},
+		} );
+
+		const { result } = renderHook( () => useConnectionErrorNotice() );
+		expect( result.current.hasConnectionError ).toBe( true );
+		expect( result.current.connectionErrorMessage ).toBe(
+			'The site token could not be validated.'
+		);
+	} );
+
+	// Precedence: a real WPCOM store error wins over a health-check error.
+	it( 'prefers a store error over a health-check error', () => {
+		mockConnection( {
+			connectionErrors: {
+				real_code: { 1: { error_message: 'Real WPCOM error', error_type: 'a' } },
+			},
+			connectionHealthErrors: {
+				failed_test__outbound_https: {
+					0: { error_message: 'Health error', error_type: 'connection_health' },
+				},
+			},
+		} );
+
+		const { result } = renderHook( () => useConnectionErrorNotice() );
+		expect( result.current.connectionErrorMessage ).toBe( 'Real WPCOM error' );
 	} );
 } );
