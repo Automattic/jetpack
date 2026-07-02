@@ -124,6 +124,8 @@ export interface StudioEditorPreviewPlayerHandle {
 	play: () => void;
 	/** Pause playback. */
 	pause: () => void;
+	/** Toggle between play and pause (timeline space-bar shortcut). */
+	togglePlay: () => void;
 }
 
 type Props = {
@@ -162,7 +164,12 @@ const StudioEditorPreviewPlayer = forwardRef< StudioEditorPreviewPlayerHandle, P
 				fallbackDurationMs: durationSeconds * 1000,
 			} );
 
-		useImperativeHandle( ref, () => ( { seekTo, play, pause } ), [ seekTo, play, pause ] );
+		useImperativeHandle( ref, () => ( { seekTo, play, pause, togglePlay } ), [
+			seekTo,
+			play,
+			pause,
+			togglePlay,
+		] );
 
 		useEffect( () => {
 			onTimeUpdate?.( currentMs );

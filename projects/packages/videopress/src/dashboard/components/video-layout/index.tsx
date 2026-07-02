@@ -24,6 +24,7 @@ type Props = {
 	activeTab: VideoNavTab;
 	breadcrumbLabel: string;
 	actions?: ReactNode;
+	confirmNavigation?: () => boolean;
 	children: ReactNode;
 };
 
@@ -34,13 +35,15 @@ type Props = {
  * its own chrome (the sub-nav there is feature-flagged) and should migrate
  * here once the flag-gated routes ship.
  *
- * @param props                 - Component props.
- * @param props.videoId         - The video's attachment id.
- * @param props.activeTab       - Currently active per-video tab.
- * @param props.breadcrumbLabel - Label for the current breadcrumb item.
- * @param props.actions         - Optional content for the page header's
- *                              top-right actions slot.
- * @param props.children        - The screen's body content.
+ * @param props                   - Component props.
+ * @param props.videoId           - The video's attachment id.
+ * @param props.activeTab         - Currently active per-video tab.
+ * @param props.breadcrumbLabel   - Label for the current breadcrumb item.
+ * @param props.actions           - Optional content for the page header's
+ *                                top-right actions slot.
+ * @param props.confirmNavigation - Optional guard invoked before the sub-nav
+ *                                navigates away; return false to cancel.
+ * @param props.children          - The screen's body content.
  * @return The wrapped page element.
  */
 export default function VideoLayout( {
@@ -48,6 +51,7 @@ export default function VideoLayout( {
 	activeTab,
 	breadcrumbLabel,
 	actions,
+	confirmNavigation,
 	children,
 }: Props ) {
 	return (
@@ -57,7 +61,11 @@ export default function VideoLayout( {
 			}
 			actions={ actions }
 		>
-			<VideoNav videoId={ videoId } activeTab={ activeTab } />
+			<VideoNav
+				videoId={ videoId }
+				activeTab={ activeTab }
+				confirmNavigation={ confirmNavigation }
+			/>
 			{ children }
 		</AdminPage>
 	);

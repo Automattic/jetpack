@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
+import StudioEditorScreen from '../../src/dashboard/components/editor/editor-screen';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
-import VideoLayout from '../../src/dashboard/components/video-layout';
 import { isStudioEnabled } from '../../src/dashboard/utils/studio';
 import './style.scss';
 
@@ -38,17 +38,7 @@ const StageInner = () => {
 		return <NotFound />;
 	}
 
-	return (
-		<VideoLayout
-			videoId={ id }
-			activeTab="editor"
-			breadcrumbLabel={ __( 'Editor', 'jetpack-videopress-pkg' ) }
-		>
-			<div className="vp-video-editor">
-				<Text>{ __( 'Video editing is coming soon.', 'jetpack-videopress-pkg' ) }</Text>
-			</div>
-		</VideoLayout>
-	);
+	return <StudioEditorScreen videoId={ id } />;
 };
 
 const Stage = () => (

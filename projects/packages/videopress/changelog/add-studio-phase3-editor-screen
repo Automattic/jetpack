@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Studio editor screen: preview-plus-timeline assembly with undo/redo header actions, save/discard/restore-original flows against the edits REST contract, job status banner, and unsaved-edit navigation guards.
