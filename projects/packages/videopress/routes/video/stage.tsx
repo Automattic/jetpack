@@ -8,7 +8,6 @@ import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
-import { getCaptionTracksQueryKey } from '../../src/client/components/caption-manager-modal/use-caption-tracks';
 import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
@@ -195,16 +194,13 @@ const StageReady = ( { video }: StageReadyProps ) => {
 
 	/*
 	 * The caption manager runs on its own query client, so the page's caches
-	 * (the thumbnail card's Subtitles row) don't see its changes. Refresh them
-	 * on close to pick up publishes, drafts, and deletions alike.
+	 * (the thumbnail card's Subtitles row) don't see its changes. Refresh the
+	 * video info on close to pick up publishes and deletions.
 	 */
 	const closeCaptions = useCallback( () => {
 		setCaptionsOpen( false );
 		void queryClient.invalidateQueries( {
 			queryKey: getVideoInfoQueryKeyPrefix( video.guid ?? '' ),
-		} );
-		void queryClient.invalidateQueries( {
-			queryKey: getCaptionTracksQueryKey( video.guid ?? '' ),
 		} );
 	}, [ queryClient, video.guid ] );
 	// Deletes keep running after an unmount (the user can navigate away via
