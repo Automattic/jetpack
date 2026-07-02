@@ -33,6 +33,7 @@ type UseVideoTracksResult = {
 	managedTracks: VideoTextTrack[];
 	setManagedTracks: Dispatch< SetStateAction< VideoTextTrack[] > >;
 	previewAspectRatio: string | undefined;
+	isLoading: boolean;
 };
 
 const EMPTY_TRACKS: VideoTextTrack[] = [];
@@ -135,5 +136,6 @@ export function useVideoTracks( {
 		managedTracks: query.data?.tracks ?? seedTracks,
 		setManagedTracks,
 		previewAspectRatio: query.data?.aspectRatio,
+		isLoading: query.isLoading,
 	};
 }

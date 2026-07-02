@@ -147,7 +147,11 @@ const Editor = ( {
 			}
 		>
 			<div className="vp-video-details">
-				<ThumbnailCard video={ video } onAddToNewPost={ onAddToNewPost } />
+				<ThumbnailCard
+					video={ video }
+					onAddToNewPost={ onAddToNewPost }
+					onManageSubtitles={ onManageCaptions }
+				/>
 				<VideoDetailsCard
 					title={ values.title }
 					description={ values.description }
