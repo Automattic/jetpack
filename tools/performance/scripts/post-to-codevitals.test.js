@@ -949,6 +949,32 @@ test( 'resolvePostTimestamp falls back to the env commit time (numeric string ok
 	assert.equal( ts, 1600000000000 );
 } );
 
+test( 'resolvePostTimestamp drops the env commit time when the results file names a different commit', async () => {
+	const before = Date.now();
+	// A stale results file (hash but no timestamp) plus an inherited env pair for a
+	// DIFFERENT commit: the env timestamp must not stamp the results-file hash, so the
+	// poster falls back to build time (with the warning) instead of mixing provenance.
+	const ts = await silenced( () =>
+		resolvePostTimestamp(
+			{ git: { hash: 'results-hash' } },
+			{ gitHash: 'env-hash', commitTimestampMs: '1600000000000' }
+		)
+	);
+	assert.notEqual( ts, 1600000000000, 'the mismatched env timestamp is not posted' );
+	assert.ok( ts >= before && ts <= Date.now() + 1000, 'falls back to build time' );
+} );
+
+test( 'resolvePostTimestamp keeps the env commit time when it matches the posted hash', () => {
+	// Same hash on both sides (the normal runner handoff): the env pair is provenance-safe.
+	assert.equal(
+		resolvePostTimestamp(
+			{ git: { hash: 'same-hash' } },
+			{ gitHash: 'same-hash', commitTimestampMs: '1600000000000' }
+		),
+		1600000000000
+	);
+} );
+
 test( 'resolvePostTimestamp rejects non-positive / non-numeric values and uses build time', async () => {
 	const before = Date.now();
 	// git.timestamp 0 and a non-numeric env value are both invalid → build-time fallback.

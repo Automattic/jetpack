@@ -215,6 +215,13 @@ function sanitizeErrorChain( error, token ) {
  * epoch-ms value — a gross unit error (e.g. epoch seconds, which would post as 1970) is
  * rejected the same as a non-numeric one.
  *
+ * The env value is only considered when it cannot contradict the posted hash: the payload
+ * hash prefers results.git.hash over config.gitHash, while config.commitTimestampMs is
+ * provenance-paired with the env GIT_COMMIT hash (see pairedCommitTimestampMs). So when a
+ * results file names a DIFFERENT commit than the env pair — a stale results file plus an
+ * inherited GIT_COMMIT/GIT_COMMIT_TIMESTAMP_MS pair — the env timestamp is dropped rather
+ * than stamped onto another commit's hash.
+ *
  * @param {object} results - Parsed results file (may carry git.timestamp in ms).
  * @param {object} config  - Poster config (may carry commitTimestampMs from env).
  * @return {number} Epoch milliseconds to post.
@@ -227,9 +234,16 @@ function resolvePostTimestamp( results, config ) {
 	// a normal commit time.
 	const MIN_PLAUSIBLE_MS = 1_000_000_000_000; // ≈ 2001-09-09
 	const MAX_PLAUSIBLE_MS = 4_102_444_800_000; // ≈ 2100-01-01
+	// Hash and timestamp are resolved as one provenance tuple: only offer the env
+	// timestamp when the env hash is (or matches) the hash being posted — see the
+	// JSDoc above.
+	const envPairMatchesPostedHash = ! results?.git?.hash || results.git.hash === config?.gitHash;
+	const candidates = envPairMatchesPostedHash
+		? [ results?.git?.timestamp, config?.commitTimestampMs ]
+		: [ results?.git?.timestamp ];
 	// A numeric string (env vars are always strings) is fine; a non-numeric one
 	// coerces to NaN and is rejected below.
-	for ( const candidate of [ results?.git?.timestamp, config?.commitTimestampMs ] ) {
+	for ( const candidate of candidates ) {
 		const ms = Number( candidate );
 		// A real commit time is a finite epoch-ms inside the plausible window. Reject 0,
 		// NaN, negatives, empty strings, and out-of-window unit errors so a malformed
