@@ -1,6 +1,6 @@
 <?php
 /**
- * Crowdsignal Forms tweaks for WoA sites.
+ * Crowdsignal plugin tweaks for WoA sites.
  *
  * @package wpcomsh
  */
@@ -48,3 +48,23 @@ add_action( 'admin_init', 'wpcomsh_suppress_crowdsignal_activation_redirect', 1 
  * part of the activation clutter, so it is left intact.
  */
 add_filter( 'crowdsignal_forms_show_admin_notice_core_setup', '__return_false', PHP_INT_MAX );
+
+/**
+ * Suppress the Crowdsignal Dashboard (Polldaddy) "link your account" warning on WoA sites.
+ *
+ * The Crowdsignal Dashboard plugin (slug `polldaddy`) prints a "Crowdsignal features will be
+ * unavailable until you link your Crowdsignal.com account" warning on the Plugins screen and on
+ * its own poll/rating screens whenever no `polldaddy_api_key` option is stored. As with Crowdsignal
+ * Forms, WoA activates this plugin without the user asking, and the account link lives in
+ * WordPress.com-managed state the plugin can't read locally, so the warning is never actionable
+ * here and just clutters the Plugins page.
+ *
+ * Unlike Crowdsignal Forms, this notice has no suppression filter: it is echoed directly from a
+ * named `admin_notices` callback. Remove that callback instead. admin_init runs after all plugins
+ * have loaded (so polldaddy has already registered the callback) but before admin_notices fires,
+ * and remove_action is a no-op when the plugin is inactive.
+ */
+function wpcomsh_suppress_crowdsignal_polldaddy_login_warning() {
+	remove_action( 'admin_notices', 'polldaddy_login_warning' );
+}
+add_action( 'admin_init', 'wpcomsh_suppress_crowdsignal_polldaddy_login_warning' );

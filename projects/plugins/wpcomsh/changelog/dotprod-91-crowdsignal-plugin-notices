@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Crowdsignal Forms: suppress the "getting started" setup notice that cluttered the Plugins page on WoA sites after activation.
+Crowdsignal: suppress the onboarding and "link your account" notices that cluttered the Plugins page on WoA sites after activation.
