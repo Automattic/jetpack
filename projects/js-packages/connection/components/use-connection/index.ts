@@ -9,7 +9,7 @@ import type {
 	UseConnectionProps,
 	UseConnectionReturn,
 } from './types.ts';
-import type { ConnectionErrorMap } from '../../hooks/use-connection-error-notice/types';
+import type { ConnectionErrorMap } from '../../hooks/use-connection-error-notice/types.ts';
 import type { SyntheticEvent } from 'react';
 
 type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
@@ -67,7 +67,10 @@ export default function useConnection( {
 			// Always a code→user→error map (selector defaults to `{}`), unlike
 			// `connectionErrors` which can be an array — so type it as the real
 			// `ConnectionErrorMap` and skip the array normalization downstream.
-			connectionHealthErrors: select( STORE_ID ).getConnectionHealthErrors() as ConnectionErrorMap,
+			// Optional-call the selector: downstream consumers that register a
+			// partial connection-store mock may not define it.
+			connectionHealthErrors: ( select( STORE_ID ).getConnectionHealthErrors?.() ??
+				{} ) as ConnectionErrorMap,
 			isOfflineMode: select( STORE_ID ).getIsOfflineMode() as boolean,
 			isRegistered: ( connectionStatus.isRegistered ?? false ) as boolean,
 			isUserConnected: ( connectionStatus.isUserConnected ?? false ) as boolean,

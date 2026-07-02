@@ -1,4 +1,4 @@
-import type { ConnectionErrorMap } from '../../hooks/use-connection-error-notice/types';
+import type { ConnectionErrorMap } from '../../hooks/use-connection-error-notice/types.ts';
 import type { SyntheticEvent } from 'react';
 
 export interface UseConnectionProps {
