@@ -46,8 +46,81 @@ function exitCodeForError( error ) {
  *
  * Each entry carries its CodeVitals key, value, and (optional) type. The type
  * drives the sanity-range check; untyped legacy entries are posted unchecked.
+ *
+ * Three shapes, in precedence order. A `metrics` array yields one typed entry per element,
+ * each reading its value from summary.<field>.median and posting to its own key (the
+ * FORMS-707 multi-metric-per-scenario path). A single `metricKey` yields one typed entry
+ * reading the flat summary.median (legacy). A `metricPrefix` yields five untyped
+ * prefix-suffixed entries, posted unchecked (legacy).
  */
 function extractScenarioMetrics( scenario, summary ) {
+	const scenarioLabel = scenario.key ?? 'unknown';
+	// Multi-metric path: a scenario declares several metrics posted together in one call.
+	if ( Array.isArray( scenario.metrics ) ) {
+		// An empty metrics[] posts nothing without tripping any guard: solo it falls
+		// through to the fail-closed no-metrics gate, but next to a sibling posting
+		// scenario it would be dropped silently while the run posts green. Declaring
+		// the array and leaving it empty is a scenario misconfiguration either way.
+		if ( scenario.metrics.length === 0 ) {
+			throw new ValidationError(
+				`Scenario "${ scenarioLabel }" declares an empty metrics array; declare at least one metric or drop postToCodeVitals`
+			);
+		}
+		const seen = new Set();
+		return scenario.metrics.map( metric => {
+			// A null/undefined entry would throw a raw TypeError on the key read below,
+			// and a plain Error maps to the suppressible exit 1 — escaping the exit-2
+			// contract every other misconfiguration here honors. Reject the shape first.
+			if ( ! metric || typeof metric !== 'object' ) {
+				throw new ValidationError(
+					`Scenario "${ scenarioLabel }" has a non-object metrics[] entry (${ JSON.stringify(
+						metric
+					) }); refusing to post`
+				);
+			}
+			// Every entry MUST name a CodeVitals key. Without one, `key` is undefined and the
+			// value lands under the literal key "undefined" in the append-only store — a
+			// permanent garbage point checkSanityRange (which only inspects the value) can't
+			// catch. A missing or blank key is a scenario misconfiguration, so fail closed
+			// here, mirroring the type and duplicate-key guards below.
+			if ( typeof metric.codevitalsKey !== 'string' || ! metric.codevitalsKey.trim() ) {
+				throw new ValidationError(
+					`Scenario "${ scenarioLabel }" has a metric (field "${
+						metric.field ?? 'unknown'
+					}") with no codevitalsKey; refusing to post to the append-only store`
+				);
+			}
+			// Every keyed metric MUST declare a type so checkSanityRange can range-check it —
+			// the same fail-closed invariant the single-metricKey path enforces below. A
+			// missing type is a scenario misconfiguration, so fail loud here (the dry-run CI
+			// smoke test catches it before any post) rather than post an unchecked value.
+			if ( ! metric.type ) {
+				throw new ValidationError(
+					`Scenario "${ scenarioLabel }" metric "${
+						metric.codevitalsKey ?? metric.field ?? 'unknown'
+					}" has no type; refusing to post an unchecked keyed metric`
+				);
+			}
+			// A metrics array that lists the same key twice would post one value then clobber
+			// it — a scenario-config bug, not bad runtime data. Fail closed here, before any
+			// value is read, mirroring the cross-scenario duplicate-key guard in the loop.
+			if ( seen.has( metric.codevitalsKey ) ) {
+				throw new ValidationError(
+					`Duplicate CodeVitals metric key "${ metric.codevitalsKey }" within scenario "${ scenarioLabel }"`
+				);
+			}
+			seen.add( metric.codevitalsKey );
+			// Read the value from the per-field summary block (summary.<field>.median). A
+			// missing field yields undefined, which checkSanityRange rejects (fail closed)
+			// rather than crashing — never a fabricated value into the append-only store.
+			return {
+				key: metric.codevitalsKey,
+				value: summary?.[ metric.field ]?.median,
+				type: metric.type,
+			};
+		} );
+	}
+
 	// Use explicit metricKey if defined, otherwise fall back to prefix-based keys
 	if ( scenario.metricKey ) {
 		// A posted exact-key metric must declare a metricType so checkSanityRange can
@@ -67,6 +140,15 @@ function extractScenarioMetrics( scenario, summary ) {
 	}
 
 	// Legacy: prefix-based keys with suffixes (untyped — not range-checked)
+	// A posting scenario with none of the three selectors would reach here with an
+	// undefined prefix and post five finite summary stats under literal "undefined_*"
+	// keys — untyped, so unchecked, and with a green build. That is the one fail-open
+	// shape in this function, so refuse it like the sibling guards above.
+	if ( typeof scenario.metricPrefix !== 'string' || ! scenario.metricPrefix.trim() ) {
+		throw new ValidationError(
+			`Scenario "${ scenarioLabel }" posts to CodeVitals but declares no metrics[], metricKey, or metricPrefix; refusing to post under "undefined_*" keys`
+		);
+	}
 	const prefix = scenario.metricPrefix;
 	return [
 		{ key: `${ prefix }_ms`, value: summary.median },
@@ -102,10 +184,16 @@ function checkSanityRange( type, value ) {
 		return { ok: true };
 	}
 
-	const range = SANITY_RANGES[ type ];
-	if ( ! range ) {
+	// Look up the range as an OWN property only. SANITY_RANGES is a plain object, so a type
+	// that happens to name an inherited property ("constructor", "toString", "valueOf", …)
+	// would resolve to a truthy prototype value with undefined min/max, and the range
+	// comparison below (value < undefined || value > undefined) is always false — the value
+	// would post unchecked. A type with no OWN range row is a typo or a forgotten entry and
+	// must fail closed.
+	if ( ! Object.hasOwn( SANITY_RANGES, type ) ) {
 		return { ok: false, reason: `no sanity range is defined for type "${ type }"` };
 	}
+	const range = SANITY_RANGES[ type ];
 
 	if ( value < range.min || value > range.max ) {
 		return { ok: false, reason: `${ value } is outside [${ range.min }, ${ range.max }]` };
@@ -435,6 +523,20 @@ async function postToCodeVitals( resultsPath, config ) {
 		return { posted: false, validationFailed, payload };
 	}
 
+	// Atomic per-run posting: any sanity-check failure above already commits this run to
+	// exit 2, so never live-post the surviving subset. CodeVitals is append-only and dedup
+	// is opt-in (off by default), so posting survivors (e.g. a good LCP) just before the
+	// build reds would re-append them as duplicate trend points when the red build is
+	// retried. Posting nothing keeps the retry clean: fix the bad metric, re-run, and the
+	// full set lands exactly once. The dry-run path above still prints the partial payload,
+	// so CI diagnostics keep showing which metrics survived.
+	if ( validationFailed ) {
+		console.error(
+			'✗ Skipping CodeVitals post: one or more metrics failed sanity checks; posting nothing.'
+		);
+		return { posted: false, validationFailed };
+	}
+
 	// Cross-commit dedup (live posts only — kept after the dry-run return so the
 	// token-free CI smoke test still makes zero network calls). CodeVitals is
 	// append-only, so re-testing a commit (a manual re-run, a TeamCity retryBuild,
@@ -538,10 +640,12 @@ async function postToCodeVitals( resultsPath, config ) {
 				? `CodeVitals request timed out after ${ TIMEOUT_MS / 1000 }s`
 				: error.message;
 		console.error( '✗ Failed to post metrics to CodeVitals:', message );
-		// If a metric already failed local validation, the build must fail with the
-		// data-integrity code even though the transport ALSO failed here — bad local
-		// data is never suppressible by --allow-codevitals-failure. A pure transport
-		// failure (no prior validation failure) stays a plain Error (exit 1).
+		// Backstop for the exit-code split: bad local data is never suppressible by
+		// --allow-codevitals-failure, so a validation failure must map to the
+		// data-integrity code even when the transport ALSO failed. The atomic gate above
+		// means a live POST can no longer run with validationFailed set, so this stays
+		// Error (exit 1) today — kept so a future re-ordering of the gate cannot
+		// silently downgrade a validation failure to a suppressible exit 1.
 		const ErrorClass = validationFailed ? ValidationError : Error;
 		throw new ErrorClass( message, { cause: error } );
 	} finally {
@@ -652,7 +756,7 @@ async function main() {
 		const result = await postToCodeVitals( config.resultsPath, config );
 		if ( result.validationFailed ) {
 			console.error(
-				'\n✗ One or more metrics failed sanity checks (see above). Any valid metrics were still processed.'
+				'\n✗ One or more metrics failed sanity checks (see above). Nothing was posted.'
 			);
 			// Exit with the data-integrity code so the runner always fails the build
 			// here, even under --allow-codevitals-failure (that flag is for outages).
