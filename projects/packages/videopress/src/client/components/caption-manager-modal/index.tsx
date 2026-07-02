@@ -138,7 +138,7 @@ function CaptionManagerModalInner( {
 	title,
 	videoSrc,
 	poster,
-	isPrivate,
+	isPrivate = false,
 	tracks = [],
 	onClose,
 	onTracksChange,
@@ -221,6 +221,7 @@ function CaptionManagerModalInner( {
 		downloadTrack,
 	} = useTrackMutations( {
 		guid,
+		isPrivate,
 		managedTracks,
 		setManagedTracks,
 		setCaptionTracks,
@@ -239,6 +240,30 @@ function CaptionManagerModalInner( {
 			setConfirmation( null );
 		}
 	}, [ isOpen, resetToTrackList ] );
+
+	/*
+	 * The discard confirmation only guards in-modal navigation; this guards the
+	 * rest — closing the tab or navigating the whole page away with unsaved cue
+	 * edits. Read through refs so the listener binds once per open.
+	 */
+	const workspaceRef = useRef( workspace );
+	workspaceRef.current = workspace;
+	useEffect( () => {
+		if ( ! isOpen ) {
+			return;
+		}
+
+		const warnBeforeUnload = ( event: BeforeUnloadEvent ) => {
+			if ( hasUnsavedManualEdits( workspaceRef.current, cueBlocksRef.current ) ) {
+				event.preventDefault();
+				// Chrome requires returnValue to be set for the prompt to show.
+				event.returnValue = '';
+			}
+		};
+
+		window.addEventListener( 'beforeunload', warnBeforeUnload );
+		return () => window.removeEventListener( 'beforeunload', warnBeforeUnload );
+	}, [ isOpen ] );
 
 	/*
 	 * Place initial focus deliberately: the "Add track" button in the list view
@@ -358,13 +383,13 @@ function CaptionManagerModalInner( {
 
 	const loadTrackText = useCallback(
 		async ( track: VideoTextTrack ) => {
-			const content = await fetchTrackContentForGuid( track, guid );
+			const content = await fetchTrackContentForGuid( track, guid, isPrivate );
 			if ( ! content ) {
 				throw new Error( 'Track content was empty.' );
 			}
 			return createCueBlocksFromTrackText( content );
 		},
-		[ guid ]
+		[ guid, isPrivate ]
 	);
 
 	const startManualTrack = useCallback(

@@ -271,6 +271,38 @@ describe( 'video-tracks', () => {
 		);
 	} );
 
+	it( 'rejects a token-transport delete when the HTTP response is not ok', async () => {
+		const getMediaToken = await getMediaTokenMock();
+		getMediaToken.mockResolvedValue( { token: 'tok', blogId: 1 } );
+		const fetchMock = jest.fn().mockResolvedValue( {
+			ok: false,
+			status: 404,
+			json: () => Promise.resolve( { error: 'not_found', message: 'No such track.' } ),
+		} );
+		global.fetch = fetchMock;
+		const { deleteTrackForGuid } = await getVideoTracksModule( 'jetpack' );
+
+		await expect(
+			deleteTrackForGuid( { kind: 'captions', srcLang: 'en' }, 'abc123' )
+		).rejects.toThrow( 'No such track.' );
+	} );
+
+	it( 'rejects a token-transport delete with the status when the error body is unreadable', async () => {
+		const getMediaToken = await getMediaTokenMock();
+		getMediaToken.mockResolvedValue( { token: 'tok', blogId: 1 } );
+		const fetchMock = jest.fn().mockResolvedValue( {
+			ok: false,
+			status: 500,
+			json: () => Promise.reject( new Error( 'not json' ) ),
+		} );
+		global.fetch = fetchMock;
+		const { deleteTrackForGuid } = await getVideoTracksModule( 'jetpack' );
+
+		await expect(
+			deleteTrackForGuid( { kind: 'captions', srcLang: 'en' }, 'abc123' )
+		).rejects.toThrow( 'Track delete failed with status 500' );
+	} );
+
 	describe( 'fetchTrackContentForGuid', () => {
 		it( 'resolves a filename against the video file_url_base and fetches it', async () => {
 			const fetchVideoItem = await getFetchVideoItemMock();
@@ -296,6 +328,28 @@ describe( 'video-tracks', () => {
 			expect( fetchMock ).toHaveBeenCalledWith(
 				'https://videos.files.wordpress.com/abc123/english.vtt'
 			);
+		} );
+
+		it( 'resolves the file URL with the known privacy so private videos authenticate up front', async () => {
+			const fetchVideoItem = await getFetchVideoItemMock();
+			fetchVideoItem.mockResolvedValue( {
+				file_url_base: { https: 'https://videos.files.wordpress.com/abc123/' },
+			} );
+			const fetchMock = jest.fn().mockResolvedValue( {
+				ok: true,
+				status: 200,
+				text: () => Promise.resolve( 'WEBVTT' ),
+			} );
+			global.fetch = fetchMock;
+			const { fetchTrackContentForGuid } = await getVideoTracksModule();
+
+			await fetchTrackContentForGuid(
+				{ kind: 'captions', srcLang: 'en', label: 'English', src: 'english.vtt' },
+				'abc123',
+				true
+			);
+
+			expect( fetchVideoItem ).toHaveBeenCalledWith( { guid: 'abc123', isPrivate: true } );
 		} );
 
 		it( 'fetches an absolute track src directly without resolving a base', async () => {

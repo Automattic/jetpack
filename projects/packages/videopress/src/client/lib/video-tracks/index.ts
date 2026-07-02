@@ -601,7 +601,25 @@ export const deleteTrackForGuid = ( track: DeleteTrackDataProps, guid: string ) 
 							Authorization: `X_UPLOAD_TOKEN token="${ token }" blog_id="${ blogId }"`,
 						},
 						body,
-					} ).then( response => resolve( response.json() ) );
+					} ).then( response => {
+						if ( ! response.ok ) {
+							// Reject on HTTP errors so a JSON error body can't masquerade as a deletion.
+							return response
+								.json()
+								.catch( () => null )
+								.then( ( errorBody: { message?: string; error?: string } | null ) => {
+									reject(
+										new Error(
+											errorBody?.message ||
+												errorBody?.error ||
+												`Track delete failed with status ${ response.status }`
+										)
+									);
+								} );
+						}
+
+						return resolve( response.json() );
+					} );
 				} )
 				// Reject on a token-mint failure too, not just a fetch failure, so the
 				// caller's promise always settles instead of hanging.
@@ -636,11 +654,16 @@ const isAbsoluteUrl = ( value: string ): boolean => /^https?:\/\//i.test( value 
  * only a filename; the full URL is that filename appended to the video's
  * `file_url_base`, which the video info endpoint returns alongside the tracks.
  *
- * @param track - The track whose file URL to resolve.
- * @param guid  - The video GUID.
+ * @param track     - The track whose file URL to resolve.
+ * @param guid      - The video GUID.
+ * @param isPrivate - Whether the video is private, so the fetch authenticates up front.
  * @return The absolute file URL, or an empty string when it can't be resolved.
  */
-const resolveTrackFileUrl = async ( track: VideoTextTrack, guid: string ): Promise< string > => {
+const resolveTrackFileUrl = async (
+	track: VideoTextTrack,
+	guid: string,
+	isPrivate: boolean
+): Promise< string > => {
 	if ( ! track.src ) {
 		return '';
 	}
@@ -650,7 +673,7 @@ const resolveTrackFileUrl = async ( track: VideoTextTrack, guid: string ): Promi
 	}
 
 	try {
-		const videoInfo = await fetchVideoItem( { guid, isPrivate: false } );
+		const videoInfo = await fetchVideoItem( { guid, isPrivate } );
 		const base = videoInfo?.file_url_base?.https;
 		return base ? `${ base }${ track.src }` : '';
 	} catch ( error ) {
@@ -666,15 +689,17 @@ const resolveTrackFileUrl = async ( track: VideoTextTrack, guid: string ): Promi
  * the source of truth. Private videos require a playback token, so a 403 is
  * retried with one.
  *
- * @param {object} track - the track whose content to load
- * @param {string} guid  - the video guid, used to resolve the file URL and mint a token
+ * @param {object}  track     - the track whose content to load
+ * @param {string}  guid      - the video guid, used to resolve the file URL and mint a token
+ * @param {boolean} isPrivate - whether the video is private, so requests authenticate up front
  * @return {Promise<string>} the track's text content, or an empty string
  */
 export const fetchTrackContentForGuid = async (
 	track: VideoTextTrack,
-	guid: string
+	guid: string,
+	isPrivate = false
 ): Promise< string > => {
-	const url = await resolveTrackFileUrl( track, guid );
+	const url = await resolveTrackFileUrl( track, guid, isPrivate );
 	if ( ! url ) {
 		return '';
 	}
