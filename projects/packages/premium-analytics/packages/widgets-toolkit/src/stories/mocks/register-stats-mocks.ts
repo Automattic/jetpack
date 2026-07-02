@@ -14,6 +14,106 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 const STATS_BASE = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
+const MOCK_FILE_DOWNLOADS_FILES = [
+	{
+		relative_url: '/annual-report-2025.pdf',
+		filename: 'annual-report-2025.pdf',
+		download_url: 'https://example.com/annual-report-2025.pdf',
+		downloads: '3840',
+	},
+	{
+		relative_url: '/product-brochure.pdf',
+		filename: 'product-brochure.pdf',
+		download_url: 'https://example.com/product-brochure.pdf',
+		downloads: '2610',
+	},
+	{
+		relative_url: '/getting-started-guide.pdf',
+		filename: 'getting-started-guide.pdf',
+		download_url: 'https://example.com/getting-started-guide.pdf',
+		downloads: '1920',
+	},
+	{
+		relative_url: '/press-release-q1.docx',
+		filename: 'press-release-q1.docx',
+		download_url: 'https://example.com/press-release-q1.docx',
+		downloads: '1305',
+	},
+	{
+		relative_url: '/logo-assets.zip',
+		filename: 'logo-assets.zip',
+		download_url: 'https://example.com/logo-assets.zip',
+		downloads: '870',
+	},
+];
+
+const MOCK_FILE_DOWNLOADS_COMPARISON_FILES = [
+	{
+		relative_url: '/annual-report-2025.pdf',
+		filename: 'annual-report-2025.pdf',
+		download_url: 'https://example.com/annual-report-2025.pdf',
+		downloads: '3200',
+	},
+	{
+		relative_url: '/product-brochure.pdf',
+		filename: 'product-brochure.pdf',
+		download_url: 'https://example.com/product-brochure.pdf',
+		downloads: '2900',
+	},
+	{
+		relative_url: '/getting-started-guide.pdf',
+		filename: 'getting-started-guide.pdf',
+		download_url: 'https://example.com/getting-started-guide.pdf',
+		downloads: '1600',
+	},
+	{
+		relative_url: '/press-release-q1.docx',
+		filename: 'press-release-q1.docx',
+		download_url: 'https://example.com/press-release-q1.docx',
+		downloads: '1500',
+	},
+	{
+		relative_url: '/logo-assets.zip',
+		filename: 'logo-assets.zip',
+		download_url: 'https://example.com/logo-assets.zip',
+		downloads: '700',
+	},
+];
+
+const MOCK_FILE_DOWNLOADS = {
+	date: '2026-06-29',
+	period: 'day',
+	days: {
+		'2026-06-29': {
+			files: MOCK_FILE_DOWNLOADS_FILES,
+			other_downloads: 0,
+			total_downloads: 10545,
+		},
+	},
+	summary: {
+		files: MOCK_FILE_DOWNLOADS_FILES,
+		other_downloads: 0,
+		total_downloads: 10545,
+	},
+};
+
+const MOCK_FILE_DOWNLOADS_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	days: {
+		'2026-05-30': {
+			files: MOCK_FILE_DOWNLOADS_COMPARISON_FILES,
+			other_downloads: 0,
+			total_downloads: 9900,
+		},
+	},
+	summary: {
+		files: MOCK_FILE_DOWNLOADS_COMPARISON_FILES,
+		other_downloads: 0,
+		total_downloads: 9900,
+	},
+};
+
 type UtmMock = {
 	top_utm_values: Record< string, number >;
 	top_posts: Record< string, unknown[] >;
@@ -308,7 +408,7 @@ const REGION_COMPARISON_ROWS_BY_COUNTRY: Record< string, StatsLocationItem[] > =
 
 // Heuristic: a request whose `date` param is more than 1 day ago is treated as the
 // comparison-period request. This works for the default `last-30-days` preset (primary
-// date ≈ today, comparison date ≈ 30 days ago). It would misclassify a `today` preset
+// date ~= today, comparison date ~= 30 days ago). It would misclassify a `today` preset
 // (comparison date = yesterday, daysFromToday === 1), but the stories only use the default
 // preset so this is fine in practice.
 function isComparisonRequest( path: string ): boolean {
@@ -382,10 +482,16 @@ function getStatsMock( path: string ): unknown | null {
 	const withoutBase = path.slice( STATS_BASE.length );
 	const queryIndex = withoutBase.indexOf( '?' );
 	const subPath = queryIndex === -1 ? withoutBase : withoutBase.slice( 0, queryIndex );
-	const query = new URLSearchParams( queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 ) );
-	const locationViewsMatch = subPath.match( /^\/location-views\/(country|region|city)$/ );
 
+	if ( subPath.startsWith( '/file-downloads' ) ) {
+		return isComparisonRequest( path ) ? MOCK_FILE_DOWNLOADS_COMPARISON : MOCK_FILE_DOWNLOADS;
+	}
+
+	const locationViewsMatch = subPath.match( /^\/location-views\/(country|region|city)$/ );
 	if ( locationViewsMatch ) {
+		const query = new URLSearchParams(
+			queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 )
+		);
 		return buildStatsLocationViewsResponse(
 			locationViewsMatch[ 1 ] as GeoMode,
 			query,
