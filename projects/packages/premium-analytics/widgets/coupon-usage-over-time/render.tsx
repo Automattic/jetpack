@@ -1,12 +1,24 @@
-import type { ComponentProps } from 'react';
+/**
+ * External dependencies
+ */
 import {
 	CouponUseWidget,
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { CouponUsageOverTimeAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps } from 'react';
 
-type CouponUsageOverTimeRenderProps = {
-	attributes?: Partial< ReportParamsFieldAttributes >;
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type CouponUsageOverTimeRenderAttributes = CouponUsageOverTimeAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type CouponUsageOverTimeRenderProps = WidgetRenderProps< CouponUsageOverTimeRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -18,7 +30,7 @@ type CouponUsageOverTimeRenderProps = {
  * coupons-by-date report and renders the coupon usage breakdown.
  */
 export default function CouponUsageOverTimeRender( {
-	attributes,
+	attributes = {},
 	setError,
 }: CouponUsageOverTimeRenderProps ) {
 	return (
