@@ -1,7 +1,7 @@
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { formatWatchTime } from '../../utils/format';
-import KpiCard from './kpi-card';
+import KpiCard from '../stats/kpi-card';
 import type { ActiveMetric, OverviewStats } from '../../types/stats';
 import type { ReactElement } from 'react';
 

@@ -1,4 +1,6 @@
 import { Card, Text } from '@wordpress/ui';
+// Skeleton-row placeholder classes live in the shared stats stylesheet.
+import '../stats/style.scss';
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
 
 const NUMBER_FORMATTER = new Intl.NumberFormat();

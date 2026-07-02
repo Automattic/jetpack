@@ -1,12 +1,12 @@
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
-import DateRangeSelector from '../../src/dashboard/components/overview/date-range-selector';
 import FreeTierNotice from '../../src/dashboard/components/overview/free-tier-notice';
 import KpiCardsRow from '../../src/dashboard/components/overview/kpi-cards-row';
 import MostViewedCard from '../../src/dashboard/components/overview/most-viewed-card';
 import StorageMeterCard from '../../src/dashboard/components/overview/storage-meter-card';
 import TopByWatchTimeCard from '../../src/dashboard/components/overview/top-by-watch-time-card';
-import ViewsTrendsCard from '../../src/dashboard/components/overview/views-trends-card';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import DateRangeSelector from '../../src/dashboard/components/stats/date-range-selector';
+import ViewsTrendsCard from '../../src/dashboard/components/stats/views-trends-card';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useStats } from '../../src/dashboard/hooks/use-stats';
 import './style.scss';

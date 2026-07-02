@@ -1,6 +1,7 @@
 import { useCallback } from '@wordpress/element';
 import { Icon, arrowUp, arrowDown } from '@wordpress/icons';
 import { Card, Stack, Text } from '@wordpress/ui';
+import './style.scss';
 import type { KpiSummary } from '../../types/stats';
 import type { KeyboardEvent, ReactElement, ReactNode } from 'react';
 
