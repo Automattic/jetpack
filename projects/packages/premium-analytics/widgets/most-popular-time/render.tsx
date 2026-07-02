@@ -17,7 +17,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './most-popular-time.module.css';
+import styles from './style.module.css';
 import type { MostPopularTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
