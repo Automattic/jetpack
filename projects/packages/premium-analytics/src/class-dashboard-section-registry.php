@@ -40,7 +40,7 @@ final class Dashboard_Section_Registry {
 		if ( ! $this->is_valid_dashboard_name( $dashboard_name ) ) {
 			_doing_it_wrong(
 				__METHOD__,
-				esc_html__( 'Dashboard names must be lowercase build identifiers containing at least one underscore. Example: my-plugin_dashboard.', 'jetpack-premium-analytics' ),
+				esc_html__( 'Dashboard names must be lowercase strings of letters, numbers, and hyphens, optionally separated by underscores.', 'jetpack-premium-analytics' ),
 				'0.1.0'
 			);
 			return false;

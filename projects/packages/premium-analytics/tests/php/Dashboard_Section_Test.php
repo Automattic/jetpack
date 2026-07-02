@@ -81,13 +81,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Dashboard names must match the REST route grammar.
+	 * Dashboard names can omit underscores when they match the REST route grammar.
 	 */
-	public function test_rejects_dashboard_names_without_underscores() {
-		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
-
-		$registry = new Dashboard_Section_Registry();
-		$section  = $registry->register(
+	public function test_accepts_dashboard_names_without_underscores() {
+		$section = register_dashboard_section(
 			'analytics',
 			'traffic',
 			array(
@@ -96,10 +93,26 @@ class Dashboard_Section_Test extends BaseTestCase {
 			)
 		);
 
-		remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		$this->assertInstanceOf( Dashboard_Section::class, $section );
+		$this->assertSame( $section, get_registered_dashboard_section( 'analytics', 'traffic' ) );
 
-		$this->assertFalse( $section );
-		$this->assertNull( $registry->get_registered( 'analytics', 'traffic' ) );
+		$this->set_admin_user();
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/analytics/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				array(
+					'id'    => 'traffic',
+					'label' => 'Traffic',
+					'order' => 10,
+				),
+			),
+			$response->get_data()
+		);
 	}
 
 	/**
