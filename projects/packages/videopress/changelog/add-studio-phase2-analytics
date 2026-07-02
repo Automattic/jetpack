@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a per-video analytics screen to the VideoPress dashboard behind the Studio feature flag.
