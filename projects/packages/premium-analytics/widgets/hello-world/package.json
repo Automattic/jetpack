@@ -9,7 +9,7 @@
 		"@wordpress/ui": "0.13.0"
 	},
 	"devDependencies": {
-		"@wordpress/element": "6.46.0",
+		"@wordpress/element": "8.1.0",
 		"@wordpress/widget-dashboard": "next",
 		"@wordpress/widget-primitives": "next"
 	}

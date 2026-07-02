@@ -2,8 +2,6 @@
  * External dependencies
  */
 import {
-	computeDateRangeFromPreset,
-	localTZDate,
 	useStatsTopPosts,
 	type StatsNormalizedReport,
 	type StatsTopPostsItem,
@@ -13,12 +11,14 @@ import {
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	calculateDelta,
+	formatLegendLabels,
+	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LegendLabels,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
-import { format } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -57,9 +57,11 @@ export type TopPostRow = {
 	type: string;
 };
 
-type TopPostsProps = {
-	attributes?: TopPostsAttributes;
-};
+// Report params are dashboard-driven — WidgetRoot resolves them from the date
+// picker — but the host (and Storybook) may also inject them via `attributes`.
+type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
+
+type TopPostsReportProps = Pick< TopPostsAttributes, 'num' | 'postType' >;
 
 /**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
@@ -212,33 +214,23 @@ function toTopPostRows(
 /**
  * Fetches the top-posts report through the designated `useStatsTopPosts` Stats
  * traffic hook and hands the normalized rows to the presentational
- * `TopPostsLeaderboard`.
+ * `TopPostsLeaderboard`. The date range and comparison period come from the
+ * dashboard picker via `reportParams`.
  *
- * @param props            - Component props.
- * @param props.attributes - Widget attributes.
+ * @param props          - Component props.
+ * @param props.num      - Maximum number of posts to display.
+ * @param props.postType - Post type(s) to keep, or undefined/empty for all.
  * @return The widget content.
  */
-function TopPostsReport( { attributes }: TopPostsProps ) {
-	// Default to the trailing 7 days, matching the Jetpack Stats "Top posts &
-	// pages" card's default range.
-	const range = attributes?.range ?? 'last-7-days';
-	const num = attributes?.num ?? 10;
-	const postType = attributes?.postType;
+function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
+	const { reportParams } = useWidgetRootContext();
 
-	// Resolve the preset to an absolute window. `computeDateRangeFromPreset`
-	// returns ISO strings with a TZ offset; the stats query layer trims them to
-	// the date part, so the raw values can be passed straight through.
-	const today = format( localTZDate(), 'yyyy-MM-dd' );
-	const { from, to } = computeDateRangeFromPreset( range ) ?? {};
+	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
+	// date range is owned by the dashboard picker and carried in `reportParams`.
+	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
 
-	const { primary, isLoading, isError } = useStatsTopPosts( {
-		from: from ?? today,
-		to: to ?? today,
-		interval: 'day',
-		period: 'day',
-		// The widget's "Number of results" maps to the WPCOM stats API's `max`.
-		max: num,
-	} );
+	const { primary, comparison, hasComparison, isLoading, isError } =
+		useStatsTopPosts( statsParams );
 
 	const allowedTypes = useMemo( () => {
 		if ( postType === undefined || postType === '' ) {
@@ -247,31 +239,74 @@ function TopPostsReport( { attributes }: TopPostsProps ) {
 		return Array.isArray( postType ) ? postType : [ postType ];
 	}, [ postType ] );
 
-	const rows = useMemo(
+	const primaryRows = useMemo(
 		() => toTopPostRows( primary.data as StatsNormalizedReport< StatsTopPostsItem >, allowedTypes ),
 		[ primary.data, allowedTypes ]
 	);
 
-	return <TopPostsLeaderboard rows={ rows } isLoading={ isLoading } isError={ isError } />;
+	// Comparison-period views keyed by the same post URL the primary rows use.
+	// Empty when comparison is disabled or the comparison query returned no rows.
+	const previousViewsByHref = useMemo( () => {
+		if ( ! hasComparison ) {
+			return new Map< string, number >();
+		}
+		return new Map(
+			toTopPostRows(
+				comparison.data as StatsNormalizedReport< StatsTopPostsItem >,
+				allowedTypes
+			).map( row => [ row.href, row.value ] )
+		);
+	}, [ comparison.data, allowedTypes, hasComparison ] );
+
+	// Only render comparison UI when at least one primary row actually overlaps
+	// the comparison period; otherwise unmatched rows would fall to a placeholder
+	// `previousValue: 0` and the chart would show a fabricated delta (see AGENTS.md).
+	const withComparison =
+		hasComparison && primaryRows.some( row => previousViewsByHref.has( row.href ) );
+
+	const rows = useMemo(
+		() =>
+			withComparison
+				? primaryRows.map( row => ( {
+						...row,
+						previousValue: previousViewsByHref.get( row.href ) ?? 0,
+				  } ) )
+				: primaryRows,
+		[ primaryRows, previousViewsByHref, withComparison ]
+	);
+
+	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
+
+	return (
+		<TopPostsLeaderboard
+			rows={ rows }
+			isLoading={ isLoading }
+			isError={ isError }
+			withComparison={ withComparison }
+			showLegend={ withComparison }
+			legendLabels={ legendLabels }
+		/>
+	);
 }
 
 /**
  * Widget render entry point.
  *
- * Attributes flow to the inner component via props rather than
- * `WidgetRootContext` — the context's report params are WC-Analytics-shaped
- * and do not fit stats queries. Runs inside `WidgetRoot` so it can reach the
- * analytics query client, keeping the leaderboard prop-driven (and
- * Storybook-friendly).
+ * WidgetRoot provides the analytics query client, chart theme, and the report
+ * params consumed by the inner leaderboard — resolved from the dashboard date
+ * range via context, the same way the other Stats widgets read them. The
+ * widget's own `num`/`postType` settings are forwarded to the inner component.
  *
  * @param props            - Render props supplied by the widget host.
  * @param props.attributes - Widget attributes.
  * @return The rendered widget.
  */
-export default function TopPosts( { attributes }: WidgetRenderProps< TopPostsAttributes > ) {
+export default function TopPosts( {
+	attributes = {},
+}: WidgetRenderProps< TopPostsRenderAttributes > ) {
 	return (
-		<WidgetRoot>
-			<TopPostsReport attributes={ attributes } />
+		<WidgetRoot attributes={ attributes }>
+			<TopPostsReport num={ attributes.num } postType={ attributes.postType } />
 		</WidgetRoot>
 	);
 }

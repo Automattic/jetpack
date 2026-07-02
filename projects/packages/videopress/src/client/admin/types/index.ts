@@ -231,6 +231,13 @@ export type MetadataVideo = {
 	uploadProgress?: number;
 };
 
+/**
+ * A VideoPress video as rendered in the admin dashboard: the video data merged
+ * with its per-item upload/UI metadata. This is the shape the videos store
+ * exposes through `useVideos`/`useDashboardVideos` and the libraries consume.
+ */
+export type AdminVideo = VideoPressVideo & MetadataVideo;
+
 export type SiteType = 'atomic' | 'jetpack' | 'simple';
 
 export type VideoPressSettings = {

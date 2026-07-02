@@ -73,13 +73,14 @@ export {
 	type StatsCommentsResponse,
 } from './hooks/use-stats-comments';
 export {
-	useStatsSubscribers,
 	useStatsSubscribersCounts,
+	useStatsSubscribersReport,
 	type StatsSubscribersCounts,
 	type StatsSubscribersCountsParams,
 	type StatsSubscribersCountsResponse,
 	type StatsSubscribersParams,
 	type StatsSubscribersResponse,
+	type StatsSubscribersUnit,
 } from './hooks/use-stats-subscribers';
 export {
 	useStatsStreak,
@@ -249,6 +250,7 @@ export type {
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
+	StatsPostMeta,
 	StatsPostMonthValues,
 	StatsPostRawResponse,
 	StatsPostWeek,

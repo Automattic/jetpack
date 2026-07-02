@@ -7,6 +7,7 @@ import {
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	type LeaderboardChartData,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -18,6 +19,8 @@ import { Stack, Text } from '@wordpress/ui';
 import styles from './emails.module.css';
 import type { EmailsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+type EmailsRenderAttributes = EmailsAttributes & Partial< ReportParamsFieldAttributes >;
 
 /**
  * Which rate the leaderboard displays. Rows stay in newest-first order
@@ -172,8 +175,7 @@ export const EmailsLeaderboard = ( {
 
 	return (
 		<Stack className={ styles.root }>
-			<Stack direction="row" justify="space-between" align="center" className={ styles.header }>
-				<Text>{ __( 'Latest emails sent', 'jetpack-premium-analytics' ) }</Text>
+			<Stack direction="row" justify="flex-end" align="center" className={ styles.header }>
 				<SelectControl
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
@@ -249,18 +251,15 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 /**
  * Widget render entry point.
  *
- * Attributes flow to the inner component via props rather than
- * `WidgetRootContext` — the emails summary has no date range, so the
- * WC-Analytics-shaped report params do not apply. Runs inside `WidgetRoot` so
- * it can reach the analytics query client, keeping the leaderboard prop-driven
- * (and Storybook-friendly).
+ * Passes host attributes into `WidgetRoot` for the widget contract. The email
+ * summary still reads `max` from props because it does not use report params.
  *
- * @param {WidgetRenderProps< EmailsAttributes >} props - The render props supplied by the widget host.
+ * @param {WidgetRenderProps< EmailsRenderAttributes >} props - The render props supplied by the widget host.
  * @return The rendered widget.
  */
-export default function Emails( { attributes }: WidgetRenderProps< EmailsAttributes > ) {
+export default function Emails( { attributes = {} }: WidgetRenderProps< EmailsRenderAttributes > ) {
 	return (
-		<WidgetRoot>
+		<WidgetRoot attributes={ attributes }>
 			<EmailsReport attributes={ attributes } />
 		</WidgetRoot>
 	);

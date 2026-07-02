@@ -288,4 +288,37 @@ describe( 'normalizeReportParams', () => {
 
 		expect( result.date_type ).toBe( 'created' );
 	} );
+
+	/*
+	 * Single-resource scope – post_id survives normalization so detail-page
+	 * widgets stay bound to their post/page.
+	 */
+	it( 'coerces a valid post_id to a positive integer', () => {
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			post_id: '2428',
+		} );
+
+		expect( result.post_id ).toBe( 2428 );
+	} );
+
+	it( 'omits post_id when search has none', () => {
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+		} );
+
+		expect( result.post_id ).toBeUndefined();
+	} );
+
+	it.each( [ 'foo', '0', '-5', '12.5' ] )( 'drops an invalid post_id (%s)', invalid => {
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			post_id: invalid,
+		} );
+
+		expect( result.post_id ).toBeUndefined();
+	} );
 } );

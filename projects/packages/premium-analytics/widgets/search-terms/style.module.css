@@ -1,0 +1,60 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.placeholder {
+	flex: 1 1 0;
+	min-block-size: 0;
+	inline-size: 100%;
+	min-height: 200px;
+	color: var(--wpds-color-fg-content-neutral-weak);
+	text-align: center;
+}
+
+.widgetHeader {
+	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+	min-height: var(--wpds-dimension-size-md);
+}
+
+.headerTitle {
+	display: inline-flex;
+	align-items: center;
+	min-inline-size: 0;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.headerIcon {
+	flex: 0 0 auto;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	padding: var(--wpds-dimension-padding-lg);
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+.itemLabel {
+	padding: var(--wpds-dimension-padding-sm);
+	min-width: 0;
+	overflow: hidden;
+}
+
+.itemLabelText {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+/* Constrain the picker preview tile to a 4:3 aspect ratio. */
+:global([inert]:not([inert="true"])) .root {
+	height: auto;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+}

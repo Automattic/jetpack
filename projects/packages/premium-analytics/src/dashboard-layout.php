@@ -209,6 +209,21 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 		);
 	}
 
+	if ( ! in_array( 'default-search-terms-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'       => 'default-search-terms-widget-instance',
+			'type'       => 'jpa/search-terms',
+			'attributes' => array(
+				'max' => 10,
+			),
+			'placement'  => array(
+				'width'  => 1,
+				'height' => 2,
+				'order'  => 4,
+			),
+		);
+	}
+
 	if ( ! in_array( 'default-clicks-widget-instance', $uuids, true ) ) {
 		$dashboard_layout[] = array(
 			'uuid'       => 'default-clicks-widget-instance',
@@ -219,7 +234,7 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 			'placement'  => array(
 				'width'  => 1,
 				'height' => 2,
-				'order'  => 2,
+				'order'  => 6,
 			),
 		);
 	}

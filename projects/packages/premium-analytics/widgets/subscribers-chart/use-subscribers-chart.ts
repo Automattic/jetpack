@@ -2,30 +2,19 @@
  * External dependencies
  */
 import {
-	useStatsSubscribers,
+	useStatsSubscribersReport,
 	localTZDate,
+	type ReportParams,
 	type StatsSubscribersResponse,
+	type StatsSubscribersUnit,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
-import { format, sub, type Duration } from 'date-fns';
 
 /**
  * Granularity the chart can be grouped by. Maps directly to the WPCOM stats
- * `unit` query param.
+ * `unit` query param and is layered onto the dashboard range as its `period`.
  */
-export type SubscribersPeriod = 'day' | 'week' | 'month';
-
-/**
- * How many periods to request per granularity, and the matching `date-fns`
- * duration key used to step back one full window for the previous period.
- */
-const PERIOD_CONFIG: Record< SubscribersPeriod, { quantity: number; unit: keyof Duration } > = {
-	day: { quantity: 30, unit: 'days' },
-	week: { quantity: 12, unit: 'weeks' },
-	month: { quantity: 12, unit: 'months' },
-};
-
-const DATE_FORMAT = 'yyyy-MM-dd';
+export type SubscribersPeriod = Extract< StatsSubscribersUnit, 'day' | 'week' | 'month' >;
 
 /**
  * A single normalized point on the subscribers chart.
@@ -48,6 +37,8 @@ export interface SubscribersChartState {
 	/** True while either window is fetching, including granularity-switch refetches. */
 	isFetching: boolean;
 	isError: boolean;
+	error: Error | null | undefined;
+	refetch: () => void;
 }
 
 /**
@@ -65,42 +56,37 @@ function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersCh
 }
 
 /**
- * Fetch the subscribers time series for the selected granularity, together
- * with the immediately preceding window so the chart can overlay the previous
- * period and the headline can show a period-over-period delta.
+ * Fetch the subscribers time series for the dashboard's date range at the
+ * selected granularity, together with the dashboard comparison window.
  *
- * Both windows request `quantity` periods; the previous window simply ends one
- * full window earlier. `useStatsSubscribers` is the designated Stats data hook
- * (a non-time-series TanStack query result — no `primary`/`comparison` shape).
+ * The dashboard date range drives the window and the previous-period overlay is
+ * driven by the dashboard's comparison state; the in-body granularity control
+ * only overrides which `unit` the range is bucketed into. Both windows are
+ * fetched by `useStatsSubscribersReport`, which layers the comparison range on
+ * top of `reportParams`.
  *
- * @param period        - Selected granularity (day/week/month).
- * @param referenceDate - The window's end date; defaults to "today" in the
- *                      site timezone (like other Stats widgets) so the terminal
- *                      bucket is correct regardless of the viewer's timezone.
- *                      Injectable for deterministic tests/stories.
+ * @param reportParams - The dashboard report params (date range + comparison).
+ * @param period       - Selected granularity (day/week/month).
  * @return The current/previous series, totals, and load state.
  */
 export default function useSubscribersChart(
-	period: SubscribersPeriod,
-	referenceDate: Date = localTZDate()
+	reportParams: ReportParams,
+	period: SubscribersPeriod
 ): SubscribersChartState {
-	const { quantity, unit } = PERIOD_CONFIG[ period ];
+	const params = useMemo( () => ( { ...reportParams, period } ), [ reportParams, period ] );
+	const report = useStatsSubscribersReport( params );
 
-	const currentDate = format( referenceDate, DATE_FORMAT );
-	const previousDate = format( sub( referenceDate, { [ unit ]: quantity } ), DATE_FORMAT );
-
-	const currentQuery = useStatsSubscribers( { unit: period, quantity, date: currentDate } );
-	const previousQuery = useStatsSubscribers( { unit: period, quantity, date: previousDate } );
-
-	const current = useMemo( () => toPoints( currentQuery.data ), [ currentQuery.data ] );
-	const previous = useMemo( () => toPoints( previousQuery.data ), [ previousQuery.data ] );
+	const current = useMemo( () => toPoints( report.primary.data ), [ report.primary.data ] );
+	const previous = useMemo( () => toPoints( report.comparison.data ), [ report.comparison.data ] );
 
 	return {
 		current,
 		previous,
 		hasPaid: current.some( point => point.paid > 0 ),
-		isLoading: currentQuery.isLoading || previousQuery.isLoading,
-		isFetching: currentQuery.isFetching || previousQuery.isFetching,
-		isError: currentQuery.isError || previousQuery.isError,
+		isLoading: report.isLoading,
+		isFetching: report.isFetching,
+		isError: report.isError,
+		error: report.error,
+		refetch: report.refetch,
 	};
 }

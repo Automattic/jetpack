@@ -16,14 +16,14 @@ import {
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, Icon, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import useLocationViews, { type GeoMode } from './use-location-views';
-import type { LocationsAttributes } from './widget';
+import widgetDefinition, { type LocationsAttributes } from './widget';
 /**
  * Types
  */
@@ -32,6 +32,15 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type LocationsRenderAttributes = LocationsAttributes & Partial< ReportParamsFieldAttributes >;
 type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
+
+function LocationsHeaderTitle() {
+	return (
+		<span className={ styles.headerTitle }>
+			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
+			<span>{ __( 'Locations', 'jetpack-premium-analytics' ) }</span>
+		</span>
+	);
+}
 
 /**
  * Locations widget inner component. Reads report params from WidgetRoot context.
@@ -92,16 +101,18 @@ function LocationsInner( { max }: { max: number } ) {
 			return {
 				id: location.key,
 				label: (
-					<LeaderboardLabel
-						label={ location.label }
-						imageUrl={ imageUrl ?? undefined }
-						imageAlt={ sprintf(
-							/* translators: %s is the country name */
-							__( 'Flag of %s', 'jetpack-premium-analytics' ),
-							location.countryFull
-						) }
-						imageClassName={ styles.leaderboardImage }
-					/>
+					<div className={ styles.leaderboardLabel }>
+						<LeaderboardLabel
+							label={ location.label }
+							imageUrl={ imageUrl ?? undefined }
+							imageAlt={ sprintf(
+								/* translators: %s is the country name */
+								__( 'Flag of %s', 'jetpack-premium-analytics' ),
+								location.countryFull
+							) }
+							imageClassName={ styles.leaderboardImage }
+						/>
+					</div>
 				),
 				currentValue: location.value,
 				previousValue,
@@ -132,27 +143,26 @@ function LocationsInner( { max }: { max: number } ) {
 	}, [ comparisonData, data, geoMode, hasComparison ] );
 
 	const header = (
-		<Stack
-			direction="row"
-			justify={ selectedCountry ? 'space-between' : 'flex-end' }
-			align="center"
-			className={ styles.widgetHeader }
-		>
-			{ selectedCountry && (
-				<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
-					<Button
-						variant="unstyled"
-						onClick={ clearSelectedCountry }
-						className={ styles.breadcrumbLink }
-					>
-						{ __( 'Locations', 'jetpack-premium-analytics' ) }
-					</Button>
+		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
+			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
+				{ selectedCountry ? (
 					<>
+						<Button
+							variant="unstyled"
+							onClick={ clearSelectedCountry }
+							className={ styles.breadcrumbLink }
+						>
+							<LocationsHeaderTitle />
+						</Button>
 						<Text className={ styles.breadcrumbSeparator }>/</Text>
-						<Text>{ selectedCountry.name }</Text>
+						<Text className={ styles.breadcrumbCurrent }>{ selectedCountry.name }</Text>
 					</>
-				</Stack>
-			) }
+				) : (
+					<Text className={ styles.breadcrumbTitle }>
+						<LocationsHeaderTitle />
+					</Text>
+				) }
+			</Stack>
 			<SelectControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
