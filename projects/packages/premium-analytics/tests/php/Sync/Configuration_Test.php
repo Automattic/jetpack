@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
 use Automattic\Jetpack\Connection\Plugin_Storage;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
@@ -55,8 +56,10 @@ class Configuration_Test extends TestCase {
 	 * With WooCommerce active, configure_sync registers the sync filters and the connected plugin.
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_configure_sync_registers_filters_and_connection() {
 		// Make is_woocommerce_active() return true without loading WooCommerce.
 		require_once __DIR__ . '/../fixtures/wc-stub.php';

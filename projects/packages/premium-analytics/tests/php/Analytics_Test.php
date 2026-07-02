@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
@@ -39,8 +40,10 @@ class Analytics_Test extends TestCase {
 	 * Init defines PREMIUM_ANALYTICS_VERSION so Sync can whitelist and sync it.
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_init_defines_version_constant() {
 		Analytics::init();
 
