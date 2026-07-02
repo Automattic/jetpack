@@ -702,6 +702,61 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The store-setup task leads the sell sequence and offers an install CTA while WooCommerce is inactive.
+	 */
+	public function test_get_injects_store_task_leading_for_sell_goal() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		$this->seed_gallery_output( 'sell', 'organic coffee beans' );
+
+		$tasks = $this->call_api( Requests::GET )->get_data()['tasks'];
+		$ids   = array_column( $tasks, 'id' );
+		$this->assertContains( 'install_woocommerce', $ids );
+		$this->assertSame( 'install_woocommerce', $ids[0] );
+
+		$store = null;
+		foreach ( $tasks as $task ) {
+			if ( 'install_woocommerce' === $task['id'] ) {
+				$store = $task;
+			}
+		}
+		$this->assertSame( 'Set up your store', $store['title'] );
+		$this->assertFalse( $store['completed'] );
+		$this->assertStringContainsString( 'plugin-install.php?s=woocommerce', $store['calypso_path'] );
+	}
+
+	/**
+	 * The store-setup task shows complete with no CTA once WooCommerce is active.
+	 */
+	public function test_get_marks_store_task_complete_when_woocommerce_active() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php' ) );
+		$this->seed_gallery_output( 'sell', 'organic coffee beans' );
+
+		$store = null;
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			if ( 'install_woocommerce' === $task['id'] ) {
+				$store = $task;
+			}
+		}
+		update_option( 'active_plugins', array() );
+
+		$this->assertNotNull( $store );
+		$this->assertTrue( $store['completed'] );
+		$this->assertNull( $store['calypso_path'] );
+	}
+
+	/**
+	 * The store-setup task is not injected for a non-sell goal.
+	 */
+	public function test_get_omits_store_task_for_non_sell_goal() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'build', 'organic coffee beans' );
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertNotContains( 'install_woocommerce', $ids );
+	}
+
+	/**
 	 * The gallery task is not injected on the ?all_tasks=1 catalog view.
 	 */
 	public function test_get_all_tasks_param_omits_gallery_task() {

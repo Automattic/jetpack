@@ -294,6 +294,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			if ( null !== $gallery ) {
 				$tasks = $this->insert_before_launch_task( $tasks, $gallery );
 			}
+
+			$store = $this->build_store_task( $inferred );
+			if ( null !== $store ) {
+				$tasks = $this->insert_lead_task( $tasks, $store );
+			}
 		}
 
 		// The membership tasks' completion is recomputed in build_tasks(), so overlay it to keep
@@ -744,6 +749,48 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
+	 * Whether the synthetic "Set up your store" task should be offered, based on the inferred goal.
+	 *
+	 * @param array $inferred The AI output's `inferred` block.
+	 * @return bool
+	 */
+	private function should_offer_store_task( $inferred ) {
+		return isset( $inferred['goal'] ) && 'sell' === $inferred['goal'];
+	}
+
+	/**
+	 * Builds the synthetic store-setup task, or null when it should not be offered.
+	 *
+	 * The commerce (`woo_*`) tasks are visibility-gated on WooCommerce being active, so a fresh sell site would
+	 * otherwise collapse to almost nothing. This task leads the sell sequence with a WooCommerce install CTA and
+	 * completes — letting the woo_* tasks surface — once the plugin is active. Completion is read live, so no
+	 * marker or listener is needed.
+	 *
+	 * @param array $inferred The AI output's `inferred` block.
+	 * @return array|null
+	 */
+	private function build_store_task( $inferred ) {
+		if ( ! $this->should_offer_store_task( $inferred ) ) {
+			return null;
+		}
+
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$completed = is_plugin_active( 'woocommerce/woocommerce.php' );
+
+		return array(
+			'id'           => 'install_woocommerce',
+			'subtitle'     => __( 'Add WooCommerce so you can start selling.', 'jetpack-mu-wpcom' ),
+			'title'        => __( 'Set up your store', 'jetpack-mu-wpcom' ),
+			'completed'    => $completed,
+			'in_progress'  => false,
+			// Install-and-activate from wp-admin; once WooCommerce is active the woo_* tasks take over and the CTA drops.
+			'calypso_path' => $completed ? null : admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' ),
+		);
+	}
+
+	/**
 	 * Inserts a synthetic task immediately before the trailing launch task (or appends it), idempotently by id.
 	 *
 	 * @param array $tasks The enriched task list.
@@ -766,6 +813,24 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		array_splice( $tasks, $insert_at, 0, array( $task ) );
+		return $tasks;
+	}
+
+	/**
+	 * Inserts a synthetic task at the head of the list, idempotently by id.
+	 *
+	 * @param array $tasks The enriched task list.
+	 * @param array $task  The synthetic task entry.
+	 * @return array
+	 */
+	private function insert_lead_task( $tasks, $task ) {
+		foreach ( $tasks as $existing ) {
+			if ( isset( $existing['id'] ) && $existing['id'] === $task['id'] ) {
+				return $tasks;
+			}
+		}
+
+		array_unshift( $tasks, $task );
 		return $tasks;
 	}
 
