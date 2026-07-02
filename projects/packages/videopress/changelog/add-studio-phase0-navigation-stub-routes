@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress Dashboard: add feature-gated Playlists tab, per-video sub-navigation, and stub routes for playlists and per-video analytics/editor screens (disabled by default).

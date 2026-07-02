@@ -6,6 +6,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import { isStudioEnabled } from '../../utils/studio';
 import DashboardTabs, { TAB_PATHS, type DashboardTab } from '../dashboard-tabs';
 import './style.scss';
 import type { ReactNode } from 'react';
@@ -17,7 +18,7 @@ type Props = {
 	hideFooter?: boolean;
 };
 
-const TAB_VALUES: DashboardTab[] = [ 'overview', 'library', 'settings' ];
+const TAB_VALUES: DashboardTab[] = [ 'overview', 'library', 'playlists', 'settings' ];
 
 /**
  * Shared chrome for every wp-build VideoPress dashboard tab. Renders
@@ -38,6 +39,13 @@ const TAB_VALUES: DashboardTab[] = [ 'overview', 'library', 'settings' ];
 export default function DashboardLayout( { activeTab, children, actions, hideFooter }: Props ) {
 	const navigate = useNavigate();
 
+	// Read once per render: the flag comes from the server-inlined initial
+	// state, which can't change without a full page load. The panel list below
+	// must track it too — the dev-mode Tabs validator requires the Tab and
+	// Panel counts to match.
+	const showPlaylists = isStudioEnabled();
+	const tabValues = showPlaylists ? TAB_VALUES : TAB_VALUES.filter( tab => tab !== 'playlists' );
+
 	const onValueChange = useCallback(
 		( next: string ) => {
 			const target = TAB_PATHS[ next as DashboardTab ];
@@ -56,8 +64,8 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 			showFooter={ ! hideFooter }
 		>
 			<Tabs.Root className="vp-dashboard-tabs" value={ activeTab } onValueChange={ onValueChange }>
-				<DashboardTabs />
-				{ TAB_VALUES.map( tab => (
+				<DashboardTabs showPlaylists={ showPlaylists } />
+				{ tabValues.map( tab => (
 					<Tabs.Panel key={ tab } value={ tab }>
 						{ activeTab === tab ? children : null }
 					</Tabs.Panel>

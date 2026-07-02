@@ -14,9 +14,11 @@ import RatingCard from '../../src/dashboard/components/video-details/rating-card
 import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
 import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
+import VideoNav from '../../src/dashboard/components/video-nav';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useVideo } from '../../src/dashboard/hooks/use-video';
+import { isStudioEnabled } from '../../src/dashboard/utils/studio';
 import './style.scss';
 import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
 
@@ -90,6 +92,7 @@ type EditorProps = {
 	onAddToNewPost: () => void;
 	chaptersOpen: boolean;
 	setChaptersOpen: ( open: boolean ) => void;
+	showVideoNav: boolean;
 };
 
 const Editor = ( {
@@ -101,6 +104,7 @@ const Editor = ( {
 	onAddToNewPost,
 	chaptersOpen,
 	setChaptersOpen,
+	showVideoNav,
 }: EditorProps ) => {
 	const { values, update, isDirty, reset } = useVideoDetailsForm( video );
 
@@ -142,6 +146,7 @@ const Editor = ( {
 				/>
 			}
 		>
+			{ showVideoNav && <VideoNav videoId={ video.id } activeTab="details" /> }
 			<div className="vp-video-details">
 				<ThumbnailCard video={ video } onAddToNewPost={ onAddToNewPost } />
 				<VideoDetailsCard
@@ -178,6 +183,9 @@ const StageReady = ( { video }: StageReadyProps ) => {
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
+	// Read once per render: the flag comes from the server-inlined initial
+	// state, which can't change without a full page load.
+	const showVideoNav = isStudioEnabled();
 	// Deletes keep running after an unmount (the user can navigate away via
 	// the breadcrumb mid-flight). The notice cleanup below must still happen
 	// then, but we shouldn't yank them to the Library if they've moved on.
@@ -261,6 +269,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 			} }
 			chaptersOpen={ chaptersOpen }
 			setChaptersOpen={ setChaptersOpen }
+			showVideoNav={ showVideoNav }
 		/>
 	);
 };
