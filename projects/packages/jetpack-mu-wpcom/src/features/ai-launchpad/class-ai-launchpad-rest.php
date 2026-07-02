@@ -290,8 +290,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				$tasks = $this->build_tasks( $payload['tasks'], false, $niche );
 			}
 
-			$inferred = isset( $payload['inferred'] ) && is_array( $payload['inferred'] ) ? $payload['inferred'] : array();
-			$gallery  = $this->build_gallery_task( $inferred );
+			$gallery = $this->build_gallery_task( $inferred );
 			if ( null !== $gallery ) {
 				$tasks = $this->insert_before_launch_task( $tasks, $gallery );
 			}
