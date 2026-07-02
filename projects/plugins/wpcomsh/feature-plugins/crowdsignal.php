@@ -26,3 +26,20 @@ function wpcomsh_suppress_crowdsignal_activation_redirect() {
 	}
 }
 add_action( 'admin_init', 'wpcomsh_suppress_crowdsignal_activation_redirect', 1 );
+
+/**
+ * Suppress Crowdsignal Forms' onboarding admin notices on WoA sites.
+ *
+ * On activation Crowdsignal Forms enqueues a persistent "core setup" notice and renders it on
+ * the Plugins and Dashboard screens until the user either connects a Crowdsignal account or
+ * dismisses it. Because WoA activates the plugin during the Simple-to-Atomic transfer and again
+ * on every managed version-bump reactivation, and because the account connection lives in
+ * WordPress.com-managed state the plugin can't read locally, this notice reappears uninvited and
+ * clutters the Plugins page for users who never chose to install it.
+ *
+ * Crowdsignal Forms exposes a `crowdsignal_forms_show_admin_notice_{notice}` filter for exactly
+ * this purpose; returning false keeps each notice from rendering without disturbing its stored
+ * state or the plugin's own dismissal handling.
+ */
+add_filter( 'crowdsignal_forms_show_admin_notice_core_setup', '__return_false' );
+add_filter( 'crowdsignal_forms_show_admin_notice_setup_success', '__return_false' );

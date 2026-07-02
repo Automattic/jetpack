@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Crowdsignal Forms: suppress the onboarding admin notices that cluttered the Plugins page on WoA sites after activation.
