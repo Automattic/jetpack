@@ -11,7 +11,7 @@ interface GoalOption {
 }
 
 /**
- * The six goal cards shown on step 1, with PoC copy.
+ * The six goal cards shown on step 1.
  *
  * @return The goal options.
  */

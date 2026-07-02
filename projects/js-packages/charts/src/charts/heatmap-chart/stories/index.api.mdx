@@ -1,0 +1,129 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Heatmap Chart/API Reference" />
+
+# Heatmap Chart API Reference
+
+## HeatmapChart
+
+Main component for rendering a two-dimensional heatmap. Cells are laid out with CSS Grid
+and shaded with CSS `color-mix`, so the scale adapts to the chart background.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `HeatmapColumn[]` | - | **Required.** Array of columns; each column contains an optional label and an array of cells. |
+| `rowLabels` | `string[]` | `[]` | y-axis labels by row index. Empty entries render blank. |
+| `compact` | `boolean` | `false` | Compact mode: tighten cell gaps, suppress in-cell values, and thin axis labels. |
+| `showValues` | `boolean` | `!compact` | Render the numeric value inside each cell (compact notation for large numbers; the tooltip and aria-label keep full precision). |
+| `primaryColor` | `string` | theme / palette | Color the scale interpolates toward at the highest value. Resolution order: this prop > `heatmapChart.primaryColor` > palette `colors[0]`. |
+| `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover or keyboard navigation. |
+| `renderTooltip` | `(data: HeatmapTooltipData) => ReactNode` | - | Custom tooltip render function. Receives `HeatmapTooltipData`. The default tooltip formats numeric values with `@automattic/number-formatters`. |
+| `width` | `number` | - | Fixed width in pixels. When omitted, the chart fills its parent's width. |
+| `height` | `number` | - | Fixed height in pixels. When omitted, the chart fills its parent's height. |
+| `aspectRatio` | `number` | - | Height as a ratio of width in responsive mode (e.g. `0.4`). Used when `width`/`height` are omitted. |
+| `chartId` | `string` | - | Custom chart identifier used in accessibility attributes. |
+| `className` | `string` | - | Additional CSS class for the outermost element. |
+| `gap` | `GapSize` | `'md'` | Gap between chart layout regions (chart area, legend, children). Uses WordPress design system tokens. |
+| `children` | `ReactNode` | - | Composition children, e.g. `<HeatmapChart.Legend />`. |
+
+## HeatmapChart.Legend
+
+Sub-component that renders a sequential gradient scale from the lightest to the fullest color, annotated with the min and max values present in `data`.
+
+```jsx
+<HeatmapChart data={ columns } rowLabels={ rowLabels }>
+	<HeatmapChart.Legend />
+</HeatmapChart>
+```
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `steps` | `number` | `5` | Number of color swatches in the scale. |
+| `lessLabel` | `string` | `'Less'` | Label shown to the left of the swatches. |
+| `moreLabel` | `string` | `'More'` | Label shown to the right of the swatches. |
+
+## HeatmapColumn Type
+
+A single column in the heatmap matrix (rendered left→right); its cells render top→bottom.
+
+```typescript
+type HeatmapColumn = {
+	/** x-axis label for this column. Empty or omitted renders blank. */
+	label?: string;
+	/** Ordered array of cells for this column. */
+	data: HeatmapCell[];
+};
+```
+
+## HeatmapCell Type
+
+A single cell in the heatmap.
+
+```typescript
+type HeatmapCell = {
+	/** Per-cell label used in the tooltip / accessible name. */
+	label?: string;
+	/** Numeric value. Use null to mark an empty / missing cell. */
+	value: number | null;
+};
+```
+
+## HeatmapTooltipData Type
+
+Data passed to `renderTooltip` when a cell is hovered or selected via keyboard.
+
+```typescript
+type HeatmapTooltipData = {
+	/** Cell value, or null for an empty cell. */
+	value: number | null;
+	/** Row label from `rowLabels` at this cell's row index. */
+	rowLabel?: string;
+	/** Column label from the column's `label` property. */
+	columnLabel?: string;
+	/** Per-cell label from `HeatmapCell.label`. */
+	cellLabel?: string;
+	/** Zero-based row index of the cell. */
+	row: number;
+	/** Zero-based column index of the cell. */
+	column: number;
+};
+```
+
+## buildCalendarHeatmapData
+
+Utility function that converts a flat time-series into the `HeatmapColumn[]` / `rowLabels` structure used by `HeatmapChart`, producing a calendar/contribution-style layout.
+
+**Signature:**
+
+```typescript
+function buildCalendarHeatmapData(
+	series: DataPointDate[],
+	options?: { weekStartsOn?: 0 | 1 }
+): CalendarHeatmapResult
+```
+
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `series` | `DataPointDate[]` | - | **Required.** Array of data points with a `date` (or `dateString`) and a numeric `value`. |
+| `options.weekStartsOn` | `0 \| 1` | `1` | Day the week starts on: `0` = Sunday, `1` = Monday. |
+
+**Returns:** `CalendarHeatmapResult`
+
+## CalendarHeatmapResult Type
+
+Return value of `buildCalendarHeatmapData`.
+
+```typescript
+type CalendarHeatmapResult = {
+	/** Columns to pass directly to HeatmapChart's `data` prop. */
+	data: HeatmapColumn[];
+	/** Row labels to pass directly to HeatmapChart's `rowLabels` prop. */
+	rowLabels: string[];
+};
+```

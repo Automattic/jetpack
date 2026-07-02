@@ -65,13 +65,6 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	private const DEFAULT_RETENTION_DAYS = 30;
 
 	/**
-	 * Default consent types.
-	 *
-	 * @var array
-	 */
-	private const DEFAULT_CONSENT_TYPES = array( 'functional', 'analytics', 'marketing' );
-
-	/**
 	 * Default rate-limit window in seconds for the public create route.
 	 *
 	 * @var int
@@ -583,14 +576,11 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			return null;
 		}
 
-		/**
-		 * Filter the allowed consent types.
-		 *
-		 * @param array $allowed_types Array of allowed consent type keys.
-		 */
-		$allowed_types = apply_filters(
-			'jetpack_cookie_consent_allowed_consent_types',
-			self::DEFAULT_CONSENT_TYPES
+		$allowed_types = array_map(
+			static function ( $category ) {
+				return $category['key'];
+			},
+			Cookie_Consent::get_current_consent_categories()
 		);
 
 		$sanitized = array();

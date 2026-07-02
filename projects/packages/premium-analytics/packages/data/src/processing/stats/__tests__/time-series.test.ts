@@ -15,6 +15,7 @@ import {
 	scalarDaysTimeSeriesFixture,
 	visitsFixture,
 	weeklySubscribersFixture,
+	wpcomWeeklySubscribersFixture,
 	yearlySubscribersFixture,
 } from '../__fixtures__/time-series';
 
@@ -69,6 +70,18 @@ describe( 'Stats time-series normalizer', () => {
 				time_interval: '2026-06-15',
 				date_start: '2026-06-15T00:00:00+00:00',
 				date_end: '2026-06-21T23:59:59+00:00',
+				value: 9,
+				subscribers: 9,
+			} )
+		);
+	} );
+
+	it( 'normalizes WPCOM YYYYWMMWDD week labels to date ranges', () => {
+		expect( sanitizeStatsTimeSeriesResponse( wpcomWeeklySubscribersFixture ).data[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				time_interval: '2026-06-29',
+				date_start: '2026-06-29T00:00:00+00:00',
+				date_end: '2026-07-05T23:59:59+00:00',
 				value: 9,
 				subscribers: 9,
 			} )

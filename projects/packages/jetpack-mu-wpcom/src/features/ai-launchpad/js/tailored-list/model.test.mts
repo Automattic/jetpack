@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { validateAgainstSchema } from '../lib/schema-validator.ts';
 import {
 	ctaKind,
-	firstIncompleteIndex,
+	nextIncompleteId,
 	isCompleteOnClickTask,
 	isTaskActionable,
 	launchSiteUrl,
@@ -65,6 +65,7 @@ function task( overrides: Partial< EnrichedTask > = {} ): EnrichedTask {
 		subtitle: 'Pick a theme.',
 		title: 'Choose a design',
 		completed: false,
+		in_progress: false,
 		calypso_path: '/themes/example.com',
 		...overrides,
 	};
@@ -154,6 +155,30 @@ describe( 'isTaskActionable', () => {
 		// actionable (stays in lockstep with resolveCtaUrl).
 		assert.equal( isTaskActionable( launch, null, '' ), false );
 		assert.equal( isTaskActionable( launch, null, 'not-a-url' ), false );
+	} );
+
+	it( 'treats an in-progress task as actionable when it has a draft to reopen', () => {
+		// No AI output: a not-in-progress create-content task would be non-actionable,
+		// so this proves the in-progress reopen path is what makes it actionable.
+		assert.equal(
+			isTaskActionable(
+				task( {
+					id: 'add_about_page',
+					in_progress: true,
+					calypso_path: '/wp-admin/post.php?post=9',
+				} ),
+				null
+			),
+			true
+		);
+		// Flagged in progress but with no draft path there is nothing to reopen.
+		assert.equal(
+			isTaskActionable(
+				task( { id: 'add_about_page', in_progress: true, calypso_path: null } ),
+				null
+			),
+			false
+		);
 	} );
 } );
 
@@ -246,6 +271,34 @@ describe( 'resolveCtaUrl', () => {
 		assert.deepEqual( clicked, [ 'add_about_page' ] );
 	} );
 
+	it( 'reopens the existing draft for an in-progress task instead of creating a new one', async () => {
+		const { clicked, handlers } = stubHandlers();
+		// The create-page handler would return .../post=2; reopening the draft returns .../post=9.
+		const aboutPage = await resolveCtaUrl(
+			task( {
+				id: 'add_about_page',
+				in_progress: true,
+				calypso_path: 'https://example.com/wp-admin/post.php?post=9&action=edit',
+			} ),
+			fixture,
+			handlers
+		);
+		assert.equal( aboutPage, 'https://example.com/wp-admin/post.php?post=9&action=edit' );
+
+		// The first-post task reopens its draft too, rather than drafting a fresh post (.../post=1).
+		const firstPost = await resolveCtaUrl(
+			task( {
+				id: 'first_post_published',
+				in_progress: true,
+				calypso_path: 'https://example.com/wp-admin/post.php?post=7&action=edit',
+			} ),
+			fixture,
+			handlers
+		);
+		assert.equal( firstPost, 'https://example.com/wp-admin/post.php?post=7&action=edit' );
+		assert.deepEqual( clicked, [ 'add_about_page', 'first_post_published' ] );
+	} );
+
 	it( 'sends launch tasks to the wordpress.com launch flow built from the site URL', async () => {
 		const { clicked, handlers } = stubHandlers();
 		const url = await resolveCtaUrl(
@@ -273,24 +326,48 @@ describe( 'resolveCtaUrl', () => {
 	} );
 } );
 
-describe( 'firstIncompleteIndex', () => {
-	it( 'returns the first incomplete task index', () => {
+describe( 'nextIncompleteId', () => {
+	it( 'returns the first incomplete task id', () => {
 		const tasks = [
 			task( { id: 'a', completed: true } ),
 			task( { id: 'b', completed: false } ),
 			task( { id: 'c', completed: false } ),
 		];
-		assert.equal( firstIncompleteIndex( tasks ), 1 );
+		assert.equal( nextIncompleteId( tasks ), 'b' );
 	} );
 
-	it( 'returns 0 when nothing is complete', () => {
+	it( 'returns the first id when nothing is complete', () => {
 		const tasks = [ task( { id: 'a' } ), task( { id: 'b' } ) ];
-		assert.equal( firstIncompleteIndex( tasks ), 0 );
+		assert.equal( nextIncompleteId( tasks ), 'a' );
 	} );
 
-	it( 'returns -1 when everything is complete', () => {
+	it( 'returns null when everything is complete', () => {
 		const tasks = [ task( { id: 'a', completed: true } ), task( { id: 'b', completed: true } ) ];
-		assert.equal( firstIncompleteIndex( tasks ), -1 );
+		assert.equal( nextIncompleteId( tasks ), null );
+	} );
+
+	it( 'advances to the next incomplete task after the given id', () => {
+		const tasks = [
+			task( { id: 'a', completed: true } ),
+			task( { id: 'b', completed: false } ),
+			task( { id: 'c', completed: false } ),
+		];
+		assert.equal( nextIncompleteId( tasks, 'b' ), 'c' );
+	} );
+
+	it( 'wraps back to a remaining incomplete task when none follow the given id', () => {
+		const tasks = [
+			task( { id: 'a', completed: false } ),
+			task( { id: 'b', completed: false } ),
+			task( { id: 'c', completed: true } ),
+		];
+		// Skipping the last incomplete task (b) leaves only a earlier in the list.
+		assert.equal( nextIncompleteId( tasks, 'b' ), 'a' );
+	} );
+
+	it( 'returns null when the given id was the only incomplete task', () => {
+		const tasks = [ task( { id: 'a', completed: true } ), task( { id: 'b', completed: true } ) ];
+		assert.equal( nextIncompleteId( tasks, 'b' ), null );
 	} );
 } );
 

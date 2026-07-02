@@ -13,6 +13,10 @@ require_once __DIR__ . '/fixtures/memberships-stubs.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-memberships.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-about-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-first-post-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-rest.php';
 
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -193,13 +197,113 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'Share your first trail story.', $first_task['subtitle'] );
 		$this->assertSame( 'Write your first post', $first_task['title'] );
 		$this->assertTrue( $first_task['completed'] );
+		$this->assertFalse( $first_task['in_progress'] );
 		$this->assertSame( admin_url( 'post-new.php' ), $first_task['calypso_path'] );
 
 		$last_task = $data['tasks'][5];
 		$this->assertSame( 'site_launched', $last_task['id'] );
 		$this->assertSame( 'Launch your site', $last_task['title'] );
 		$this->assertFalse( $last_task['completed'] );
+		$this->assertFalse( $last_task['in_progress'] );
 		$this->assertNull( $last_task['calypso_path'] );
+	}
+
+	/**
+	 * Test that an unpublished, AI-created About page draft puts the add_about_page task "in progress": the task
+	 * surfaces the `in_progress` flag, a "Continue…" title, and a calypso_path that reopens the existing draft rather
+	 * than creating a new one.
+	 *
+	 * The marker-meta draft lookup runs through WP_Query, which WorDBless can't execute, so it's short-circuited with
+	 * core's `posts_pre_query` filter to return the seeded draft id.
+	 */
+	public function test_get_marks_about_page_in_progress_with_unpublished_draft() {
+		wp_set_current_user( $this->admin_id );
+
+		// add_about_page's catalog visibility gate requires this meta to be registered on pages (as on WoA).
+		register_post_meta( 'page', '_wpcom_template_layout_category', array( 'show_in_rest' => true ) );
+
+		$this->seed_ai_output_with_tasks( array( 'add_about_page', 'site_launched' ) );
+
+		$get_about = function () {
+			foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+				if ( 'add_about_page' === $task['id'] ) {
+					return $task;
+				}
+			}
+			return null;
+		};
+
+		// No draft yet: the task renders in its plain, not-started state.
+		$before = $get_about();
+		$this->assertNotNull( $before );
+		$this->assertFalse( $before['in_progress'] );
+		$this->assertSame( 'Add your About page', $before['title'] );
+
+		// Stand in for a saved-but-unpublished AI About page draft by short-circuiting its marker-meta lookup.
+		$draft_id = 4242;
+		add_filter(
+			'posts_pre_query',
+			static function ( $posts, $query ) use ( $draft_id ) {
+				if ( AI_Launchpad_About_Page_Listener::META_KEY === $query->get( 'meta_key' ) ) {
+					return array( $draft_id );
+				}
+				return $posts;
+			},
+			10,
+			2
+		);
+
+		$after = $get_about();
+		$this->assertNotNull( $after );
+		$this->assertTrue( $after['in_progress'] );
+		$this->assertSame( 'Continue working on the About page', $after['title'] );
+		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $after['calypso_path'] );
+	}
+
+	/**
+	 * Test that an unpublished AI-created first-post draft puts the newsletter first-post task "in progress": it's
+	 * detected through the first-post marker meta (not any latest draft), gets the drafts-aware "Continue writing"
+	 * title override, and reopens that draft. The marker query is short-circuited via `posts_pre_query` (WorDBless
+	 * can't run WP_Query).
+	 */
+	public function test_get_marks_first_post_in_progress_with_marked_draft() {
+		wp_set_current_user( $this->admin_id );
+
+		$this->seed_ai_output_with_tasks( array( 'first_post_published_newsletter', 'site_launched' ) );
+
+		$get_first_post = function () {
+			foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+				if ( 'first_post_published_newsletter' === $task['id'] ) {
+					return $task;
+				}
+			}
+			return null;
+		};
+
+		// No marked draft: the task renders in its plain, not-started state.
+		$before = $get_first_post();
+		$this->assertNotNull( $before );
+		$this->assertFalse( $before['in_progress'] );
+
+		// Stand in for the AI-created first-post draft by short-circuiting its marker-meta lookup.
+		$draft_id = 5151;
+		add_filter(
+			'posts_pre_query',
+			static function ( $posts, $query ) use ( $draft_id ) {
+				if ( AI_Launchpad_First_Post_Listener::META_KEY === $query->get( 'meta_key' ) ) {
+					return array( $draft_id );
+				}
+				return $posts;
+			},
+			10,
+			2
+		);
+
+		$after = $get_first_post();
+		$this->assertNotNull( $after );
+		$this->assertTrue( $after['in_progress'] );
+		$this->assertSame( 'Continue writing your first post', $after['title'] );
+		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $after['calypso_path'] );
 	}
 
 	/**

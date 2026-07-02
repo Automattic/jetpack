@@ -15,11 +15,8 @@ interface AiQueryResponse {
 }
 
 /**
- * Outcome of a single jetpack-ai-query attempt. `retryable` distinguishes
- * transient failures worth a second attempt (5xx/429, empty content, or
- * malformed/schema-invalid JSON that a re-roll often fixes) from failures where
- * a retry would not help or would only add latency (auth/quota 4xx, network
- * errors, and timeouts).
+ * Outcome of a single jetpack-ai-query attempt; `retryable` flags transient
+ * failures worth a second attempt.
  */
 type FetchOutcome = { ok: true; output: TailoredOutput } | { ok: false; retryable: boolean };
 
@@ -73,9 +70,7 @@ async function fetchAiOutput( input: WizardInput ): Promise< FetchOutcome > {
 
 		return { ok: true, output };
 	} catch {
-		// Network error or timeout (abort): fall back to the deterministic picker.
-		// Not retried - a timeout retry only doubles the wait before the fallback.
-		// The AI call itself is logged server-side by the AI Proxy.
+		// Network error or timeout: not retried, since a retry only doubles the wait before the fallback.
 		return { ok: false, retryable: false };
 	} finally {
 		clearTimeout( timeout );
@@ -84,9 +79,7 @@ async function fetchAiOutput( input: WizardInput ): Promise< FetchOutcome > {
 
 /**
  * Call jetpack-ai-query, retrying once on a transient/validation failure, and
- * return the validated output or null. The retry hardens the happy path against
- * the occasional malformed JSON or transient proxy error without unbounded
- * latency: timeouts and auth/quota failures are not retried.
+ * return the validated output or null.
  *
  * @param input - The collected wizard input.
  * @return The validated output, or null.
@@ -100,8 +93,7 @@ async function fetchAiOutputWithRetry( input: WizardInput ): Promise< TailoredOu
 }
 
 /**
- * Persist the tailored output via Stream B's PUT /tailored. The body is the
- * unwrapped schema payload; the source is passed as a query parameter.
+ * Persist the tailored output via Stream B's PUT /tailored.
  *
  * @param output - The tailored output to persist.
  * @param source - Whether the output came from AI or the fallback.
@@ -115,13 +107,8 @@ async function persist( output: TailoredOutput, source: TailorSource ): Promise<
 }
 
 /**
- * Tailor the launchpad from the wizard input: call jetpack-ai-query with the
- * combined prompt (retrying once on a transient/validation failure), validate
- * the response against the agent output schema, and fall back to the
- * deterministic picker on any failure (network, timeout, auth, quota, malformed
- * or schema-invalid output). The result is persisted via Stream B's
- * PUT /tailored, tagged with its source. If the AI output is rejected by the
- * server (422), retry the persist with the deterministic fallback.
+ * Tailor the launchpad from the wizard input, falling back to the deterministic
+ * picker on any failure and persisting the result tagged with its source.
  *
  * @param input - The collected wizard input.
  * @return The tailored result, tagged with whether it came from AI or fallback.
@@ -139,8 +126,7 @@ export async function tailor( input: WizardInput ): Promise< TailorResult > {
 			} );
 			return { source: 'ai', output: aiOutput };
 		} catch {
-			// PUT rejected the AI output (e.g. 422 / per-site catalog filtering);
-			// fall through to the deterministic fallback below.
+			// PUT rejected the AI output; fall through to the deterministic fallback below.
 		}
 	}
 
@@ -148,9 +134,7 @@ export async function tailor( input: WizardInput ): Promise< TailorResult > {
 	try {
 		await persist( fallbackOutput, 'fallback' );
 	} catch {
-		// The deterministic fallback is meant to be guaranteed. Even if the write
-		// fails, still return it so the consumer renders the local list instead of
-		// an empty launchpad.
+		// Even if the write fails, still return the fallback so the consumer renders a list, not an empty launchpad.
 	}
 	trackAiResponseReceived( {
 		duration_ms: Math.round( performance.now() - start ),

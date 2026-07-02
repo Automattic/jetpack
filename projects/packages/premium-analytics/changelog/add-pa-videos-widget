@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a Videos dashboard widget showing the most played videos via the Jetpack Stats API (through the stats-admin proxy).

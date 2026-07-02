@@ -35,7 +35,11 @@ import { statsPostQuery } from '../stats-post-query';
 import { statsPublicizeQuery } from '../stats-publicize-query';
 import { statsSingleVideoQuery } from '../stats-single-video-query';
 import { statsStreakQuery } from '../stats-streak-query';
-import { statsSubscribersCountsQuery, statsSubscribersQuery } from '../stats-subscribers-query';
+import {
+	statsSubscribersCountsQuery,
+	statsSubscribersQuery,
+	statsSubscribersReportQuery,
+} from '../stats-subscribers-query';
 import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
@@ -698,6 +702,41 @@ describe( 'Stats query factories', () => {
 			undefined,
 			'subscribersCounts',
 		] );
+	} );
+
+	it( 'maps a daily dashboard range onto subscribers unit/quantity/date', () => {
+		const query = statsSubscribersReportQuery( {
+			from: '2026-06-01',
+			to: '2026-06-30',
+			interval: 'day',
+		} as StatsReportParams );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			unit: 'day',
+			quantity: 30,
+			date: '2026-06-30',
+			stat_fields: 'subscribers,subscribers_paid',
+		} );
+	} );
+
+	it( 'clamps unsupported intervals to a supported subscribers unit', () => {
+		const query = statsSubscribersReportQuery( {
+			from: '2026-01-01',
+			to: '2026-06-30',
+			interval: 'quarter',
+		} as StatsReportParams );
+
+		expect( query.queryKey[ 5 ] ).toEqual(
+			expect.objectContaining( { unit: 'month', quantity: 6, date: '2026-06-30' } )
+		);
+	} );
+
+	it( 'disables the subscribers report query and omits date until a range is available', () => {
+		const query = statsSubscribersReportQuery( {} as StatsReportParams );
+
+		expect( query.enabled ).toBe( false );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'date' );
 	} );
 
 	it( 'builds WordAds stats query keys with Calypso endpoint params', () => {
