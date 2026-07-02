@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Widgets: Fix module registry hydration for REST requests.
