@@ -1,30 +1,121 @@
+@font-face {
+	font-family: Recoleta;
+	font-style: normal;
+	font-weight: 400;
+	src:
+		url(https://s1.wp.com/i/fonts/recoleta/400.woff2) format("woff2"),
+		url(https://s1.wp.com/i/fonts/recoleta/400.woff) format("woff");
+	font-display: swap;
+}
+
 .root {
 	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-md, 12px);
+	gap: var(--wpds-dimension-gap-xl, 24px);
 	height: 100%;
-	overflow: hidden;
+	padding: var(--wpds-dimension-padding-xl, 20px);
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
-.year {
+.header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-md, 12px);
+}
+
+.headerMain {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	min-width: 0;
+}
+
+.titleRow {
+	display: flex;
+	align-items: baseline;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-md, 12px);
+}
+
+.title {
+	margin: 0;
+	font-family: Recoleta, "Noto Serif", Georgia, "Times New Roman", Times, serif;
+	font-size: 40px;
+	font-weight: 400;
+	line-height: 1.1;
+	color: var(--wpds-color-fg-content-neutral);
+}
+
+.insightsLink {
+	color: var(--wpds-color-fg-content-neutral-weak);
+	text-decoration: none;
+}
+
+.subtitle {
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+.yearNav {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
+.navButton {
+	color: var(--wpds-color-fg-content-neutral);
+}
+
+/* The buttons stay focusable when disabled, so they carry data-disabled rather
+ * than the :disabled state; dim the arrow to signal the range boundary. */
+.navButton[data-disabled] {
 	color: var(--wpds-color-fg-content-neutral-weak);
 }
 
 .grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	grid-template-columns: 1fr;
 	gap: var(--wpds-dimension-gap-md, 12px);
 }
 
 .tile {
 	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs, 4px);
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	padding: var(--wpds-dimension-padding-lg, 16px) var(--wpds-dimension-padding-xl, 20px);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg, 8px);
 }
 
-.label {
-	color: var(--wpds-color-fg-content-neutral-weak);
+.tileHeader {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-md, 12px);
+	min-width: 0;
+	color: var(--wpds-color-fg-content-neutral);
+}
+
+.tileIcon {
+	flex: 0 0 auto;
+}
+
+.tileLabel {
+	font-size: var(--wpds-typography-font-size-lg, 15px);
+	color: var(--wpds-color-fg-content-neutral);
+}
+
+.tileValue {
+	font-family: Recoleta, "Noto Serif", Georgia, "Times New Roman", Times, serif;
+	font-size: 44px;
+	line-height: 1;
+	color: var(--wpds-color-fg-content-neutral);
+	white-space: nowrap;
 }
 
 .placeholder {
@@ -34,6 +125,27 @@
 	height: 100%;
 	color: var(--wpds-color-fg-content-neutral-weak);
 	text-align: center;
+}
+
+/* Wide widths: lay the tiles out four across with the value stacked below the
+ * icon and label, matching the dashboard hero treatment. */
+@container (min-width: 640px) {
+
+	.grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.tile {
+		flex-direction: column;
+		align-items: flex-start;
+		justify-content: flex-start;
+		gap: var(--wpds-dimension-gap-xl, 24px);
+	}
+
+	.tileHeader {
+		flex-direction: column;
+		align-items: flex-start;
+	}
 }
 
 /* Constrain the picker preview tile to a 4:3 aspect ratio. The picker's

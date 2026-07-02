@@ -22,6 +22,16 @@ registerReportMocks();
 
 const ANNUAL_HIGHLIGHTS_RENDER_MODULE = 'storybook/annual-highlights';
 
+// Pick only the fields StoryWidgetMetadata accepts, and surface the widget's
+// full-bleed presentation so the dashboard story renders it edge-to-edge with
+// its own header instead of inside the host's framed chrome.
+const storyWidgetType = {
+	name: widgetDefinition.name,
+	title: widgetDefinition.title,
+	icon: widgetDefinition.icon,
+	presentation: 'full-bleed' as const,
+};
+
 interface AnnualHighlightsStoryControls {
 	withComparison: boolean;
 }
@@ -62,7 +72,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Annual highlights" widget. Shows the most recent year\'s totals — posts, words, likes, comments, and images — as a grid of metric tiles. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts and the `WithComparison` story renders identically to `Default`.',
+					'The "Annual highlights" widget. Shows one year\'s totals — posts, words, likes, and comments — as a grid of metric tiles, with year arrows to step through the years the site has published in. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts and the `WithComparison` story renders identically to `Default`.',
 			},
 		},
 	},
@@ -110,7 +120,7 @@ function AnnualHighlightsDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ storyWidgetType }
 			renderModule={ ANNUAL_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={ AnnualHighlightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
@@ -122,6 +132,8 @@ export const WidgetDashboardWithWidget: StoryObj< AnnualHighlightsDashboardStory
 	render: args => <AnnualHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		widgetWidth: 1,
+		widgetHeight: 1,
 		withComparison: true,
 	},
 	argTypes: {

@@ -1,7 +1,7 @@
 {
 	"name": "jpa/annual-highlights",
 	"title": "Annual highlights",
-	"description": "Your totals for the year at a glance — posts, words, likes, comments, and images.",
+	"description": "Your totals for the year at a glance — posts, words, likes, and comments.",
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "full-bleed"
 }

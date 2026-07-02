@@ -6,15 +6,16 @@ import {
 	type StatsInsightsResponse,
 	type StatsInsightsYear,
 } from '@jetpack-premium-analytics/data';
+import { formatNumberCompact } from '@automattic/number-formatters';
 import {
-	MetricWithComparison,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
-import { useMemo } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
+import { arrowLeft, arrowRight, comment, paragraph, postList, starEmpty } from '@wordpress/icons';
+import { Button, Icon, Link, Text } from '@wordpress/ui';
+import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -28,76 +29,156 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type AnnualHighlightsRenderAttributes = AnnualHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-const COUNT_FORMAT = { type: 'number', options: { useMultipliers: true, decimals: 0 } } as const;
-
 /**
- * Picks the most recent year from the insights payload. The endpoint returns one
- * entry per year the site has published in; the highlights grid shows the latest.
+ * Sorts the insights payload newest year first so index 0 is the most recent
+ * year and the year arrows can step through history in a predictable order.
  *
  * @param data - The normalized insights response, or undefined while loading.
- * @return The most recent year's totals, or undefined when none are available.
+ * @return The years sorted from most to least recent.
  */
-function getMostRecentYear( data?: StatsInsightsResponse ): StatsInsightsYear | undefined {
-	const years = data?.years ?? [];
-
-	if ( years.length === 0 ) {
-		return undefined;
-	}
-
-	return years.reduce( ( latest, current ) =>
-		Number( current.year ) > Number( latest.year ) ? current : latest
-	);
+function sortYearsDescending( data?: StatsInsightsResponse ): StatsInsightsYear[] {
+	return [ ...( data?.years ?? [] ) ].sort( ( a, b ) => Number( b.year ) - Number( a.year ) );
 }
 
 /**
  * Fetches the insights report through the designated `useStatsInsights` Stats
- * hook and renders the most recent year's totals as a grid of metric tiles.
- * There is no comparison period for this module, so each tile shows a bare
- * formatted count with no delta.
+ * hook and renders one year's totals as a grid of metric tiles. The year arrows
+ * step between the years the site has published in; the insights module has no
+ * comparison period, so each tile shows a bare formatted count.
  *
  * @return The widget content.
  */
 function AnnualHighlightsReport() {
 	const { data, isLoading, isError } = useStatsInsights();
 
-	const year = useMemo( () => getMostRecentYear( data ), [ data ] );
+	const years = useMemo( () => sortYearsDescending( data ), [ data ] );
+	const [ selectedIndex, setSelectedIndex ] = useState( 0 );
+
+	const showOlderYear = useCallback(
+		() => setSelectedIndex( index => Math.min( index + 1, years.length - 1 ) ),
+		[ years.length ]
+	);
+	const showNewerYear = useCallback(
+		() => setSelectedIndex( index => Math.max( index - 1, 0 ) ),
+		[]
+	);
+
+	const safeIndex = years.length ? Math.min( selectedIndex, years.length - 1 ) : 0;
+	const year = years[ safeIndex ];
 
 	if ( isError ) {
 		return (
-			<Text className={ styles.placeholder }>
-				{ __( 'Unable to load annual highlights.', 'jetpack-premium-analytics' ) }
-			</Text>
+			<div className={ styles.root }>
+				<Text className={ styles.placeholder }>
+					{ __( 'Unable to load annual highlights.', 'jetpack-premium-analytics' ) }
+				</Text>
+			</div>
 		);
 	}
 
 	if ( isLoading && ! year ) {
-		return <WidgetLoadingOverlay />;
+		return (
+			<div className={ styles.root }>
+				<WidgetLoadingOverlay />
+			</div>
+		);
 	}
 
 	if ( ! year ) {
 		return (
-			<Text className={ styles.placeholder }>
-				{ __( 'No highlights to show yet.', 'jetpack-premium-analytics' ) }
-			</Text>
+			<div className={ styles.root }>
+				<Text className={ styles.placeholder }>
+					{ __( 'No highlights to show yet.', 'jetpack-premium-analytics' ) }
+				</Text>
+			</div>
 		);
 	}
 
-	const tiles: { label: string; value: number }[] = [
-		{ label: __( 'Posts', 'jetpack-premium-analytics' ), value: year.total_posts },
-		{ label: __( 'Words', 'jetpack-premium-analytics' ), value: year.total_words },
-		{ label: __( 'Likes', 'jetpack-premium-analytics' ), value: year.total_likes },
-		{ label: __( 'Comments', 'jetpack-premium-analytics' ), value: year.total_comments },
-		{ label: __( 'Images', 'jetpack-premium-analytics' ), value: year.total_images },
+	const canShowOlder = safeIndex < years.length - 1;
+	const canShowNewer = safeIndex > 0;
+
+	const tiles = [
+		{
+			key: 'posts',
+			icon: postList,
+			label: __( 'Posts', 'jetpack-premium-analytics' ),
+			value: year.total_posts,
+		},
+		{
+			key: 'words',
+			icon: paragraph,
+			label: __( 'Words', 'jetpack-premium-analytics' ),
+			value: year.total_words,
+		},
+		{
+			key: 'likes',
+			icon: starEmpty,
+			label: __( 'Likes', 'jetpack-premium-analytics' ),
+			value: year.total_likes,
+		},
+		{
+			key: 'comments',
+			icon: comment,
+			label: __( 'Comments', 'jetpack-premium-analytics' ),
+			value: year.total_comments,
+		},
 	];
 
 	return (
 		<div className={ styles.root }>
-			<Text className={ styles.year }>{ year.year }</Text>
+			<div className={ styles.header }>
+				<div className={ styles.headerMain }>
+					<div className={ styles.titleRow }>
+						<h3 className={ styles.title }>
+							{ sprintf(
+								/* translators: %s is a calendar year, e.g. "2026". */
+								__( '%s in review', 'jetpack-premium-analytics' ),
+								year.year
+							) }
+						</h3>
+						<Link className={ styles.insightsLink } tone="neutral">
+							{ __( 'View all annual insights', 'jetpack-premium-analytics' ) }
+						</Link>
+					</div>
+					<Text className={ styles.subtitle }>
+						{ __( 'Updates every 30 minutes', 'jetpack-premium-analytics' ) }
+					</Text>
+				</div>
+				<div className={ styles.yearNav }>
+					<Button
+						type="button"
+						variant="minimal"
+						tone="neutral"
+						size="small"
+						className={ styles.navButton }
+						onClick={ showOlderYear }
+						disabled={ ! canShowOlder }
+						aria-label={ __( 'Previous year', 'jetpack-premium-analytics' ) }
+					>
+						<Button.Icon icon={ arrowLeft } size={ 24 } />
+					</Button>
+					<Button
+						type="button"
+						variant="minimal"
+						tone="neutral"
+						size="small"
+						className={ styles.navButton }
+						onClick={ showNewerYear }
+						disabled={ ! canShowNewer }
+						aria-label={ __( 'Next year', 'jetpack-premium-analytics' ) }
+					>
+						<Button.Icon icon={ arrowRight } size={ 24 } />
+					</Button>
+				</div>
+			</div>
 			<div className={ styles.grid }>
 				{ tiles.map( tile => (
-					<div key={ tile.label } className={ styles.tile }>
-						<Text className={ styles.label }>{ tile.label }</Text>
-						<MetricWithComparison value={ tile.value } dataFormat={ COUNT_FORMAT } />
+					<div key={ tile.key } className={ styles.tile }>
+						<div className={ styles.tileHeader }>
+							<Icon icon={ tile.icon } size={ 24 } className={ styles.tileIcon } />
+							<Text className={ styles.tileLabel }>{ tile.label }</Text>
+						</div>
+						<span className={ styles.tileValue }>{ formatNumberCompact( tile.value ) }</span>
 					</div>
 				) ) }
 			</div>
