@@ -29,6 +29,9 @@ const settings = {
 	},
 	usesContext: [ 'jetpack/field-share-attributes' ],
 	supports: {
+		// FORMS-694: choice/option blocks flatten through the field shortcode
+		// like inputs — visibility is inert; disable the control.
+		visibility: false,
 		spacing: {
 			blockGap: false,
 		},
