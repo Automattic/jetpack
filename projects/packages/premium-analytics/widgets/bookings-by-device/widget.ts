@@ -9,7 +9,7 @@ import { chartBar } from '@wordpress/icons';
  * through WidgetRoot: the dashboard date range, or `attributes.reportParams`
  * when a host injects them (e.g. Storybook and dashboard previews).
  */
-export type BookingsByDeviceAttributes = Record< string, never >;
+export type BookingsByDeviceAttributes = Record< never, never >;
 
 /**
  * Widget type definition.
