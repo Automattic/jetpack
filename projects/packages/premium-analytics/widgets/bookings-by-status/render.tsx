@@ -1,12 +1,26 @@
-import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+/**
+ * External dependencies
+ */
 import {
 	BookingsByAttendanceWidget,
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { BookingsByStatusAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps } from 'react';
 
-type BookingsByStatusRenderProps = WidgetRenderProps< Partial< ReportParamsFieldAttributes > >;
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type BookingsByStatusRenderAttributes = BookingsByStatusAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type BookingsByStatusRenderProps = WidgetRenderProps< BookingsByStatusRenderAttributes > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+};
 
 /**
  * Bookings by status widget.
@@ -15,12 +29,13 @@ type BookingsByStatusRenderProps = WidgetRenderProps< Partial< ReportParamsField
  * client, chart theme, and resolved report params; BookingsByAttendanceWidget
  * fetches the bookings report and renders the status breakdown.
  */
-export default function BookingsByStatusRender( { attributes }: BookingsByStatusRenderProps ) {
+export default function BookingsByStatusRender( {
+	attributes = {},
+	setError,
+}: BookingsByStatusRenderProps ) {
 	return (
-		<GlobalErrorProvider>
-			<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
-				<BookingsByAttendanceWidget />
-			</WidgetRoot>
-		</GlobalErrorProvider>
+		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
+			<BookingsByAttendanceWidget />
+		</WidgetRoot>
 	);
 }
