@@ -13,11 +13,14 @@ const SAVE_NOTICE_ID = 'jetpack-seo-ai-save';
 export interface AiForm {
 	enhancer: AiState[ 'enhancer' ] | null;
 	llmsTxt: AiState[ 'llmsTxt' ] | null;
+	crawlers: AiState[ 'crawlers' ] | null;
 	isSaving: boolean;
 	/** Toggle the AI SEO Enhancer and save immediately. */
 	setEnhancerEnabled: ( next: boolean ) => void;
 	/** Toggle llms.txt generation and save immediately. */
 	setLlmsTxtEnabled: ( next: boolean ) => void;
+	/** Allow or block a single AI crawler and save immediately. */
+	setCrawlerBlocked: ( slug: string, blocked: boolean ) => void;
 }
 
 /**
@@ -38,13 +41,19 @@ export function useAiForm(): AiForm {
 	// Seed from the store (latest-saved snapshot), not the one-time bootstrap.
 	const initialEnhancer = useMemo( () => select( aiStore ).getEnhancer(), [] );
 	const initialLlmsTxt = useMemo( () => select( aiStore ).getLlmsTxt(), [] );
+	const initialCrawlers = useMemo( () => select( aiStore ).getCrawlers(), [] );
 
 	const [ enhancer, setEnhancer ] = useState< AiState[ 'enhancer' ] | null >( initialEnhancer );
 	const [ llmsTxt, setLlmsTxt ] = useState< AiState[ 'llmsTxt' ] | null >( initialLlmsTxt );
+	const [ crawlers, setCrawlers ] = useState< AiState[ 'crawlers' ] | null >( initialCrawlers );
 	const [ isSaving, setIsSaving ] = useState( false );
 
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const { setEnhancer: persistEnhancer, setLlmsTxt: persistLlmsTxt } = useDispatch( aiStore );
+	const {
+		setEnhancer: persistEnhancer,
+		setLlmsTxt: persistLlmsTxt,
+		setCrawlers: persistCrawlers,
+	} = useDispatch( aiStore );
 
 	// Shared save lifecycle: optimistic snackbar, POST, then `onSuccess` (persist
 	// the saved value to the store) or `onError` (revert the optimistic update).
@@ -108,11 +117,43 @@ export function useAiForm(): AiForm {
 		[ runSave, persistLlmsTxt, initialLlmsTxt ]
 	);
 
+	const setCrawlerBlocked = useCallback(
+		( slug: string, blocked: boolean ) => {
+			if ( ! crawlers ) {
+				return;
+			}
+			// The default policy for this bot: training crawlers blocked, answer
+			// engines allowed. An override that matches the default is dropped so the
+			// stored map stays sparse (and new training bots stay covered).
+			const bot = crawlers.catalog.find( entry => entry.slug === slug );
+			const defaultBlocked = bot ? bot.type === 'training' : false;
+
+			const nextOverrides = { ...crawlers.overrides };
+			if ( blocked === defaultBlocked ) {
+				delete nextOverrides[ slug ];
+			} else {
+				nextOverrides[ slug ] = blocked;
+			}
+
+			const prevCrawlers = crawlers;
+			const nextCrawlers = { ...crawlers, overrides: nextOverrides };
+			setCrawlers( nextCrawlers );
+			runSave(
+				{ jetpack_seo_ai_crawler_overrides: nextOverrides },
+				() => persistCrawlers( nextCrawlers ),
+				() => setCrawlers( prevCrawlers )
+			);
+		},
+		[ crawlers, runSave, persistCrawlers ]
+	);
+
 	return {
 		enhancer,
 		llmsTxt,
+		crawlers,
 		isSaving,
 		setEnhancerEnabled,
 		setLlmsTxtEnabled,
+		setCrawlerBlocked,
 	};
 }

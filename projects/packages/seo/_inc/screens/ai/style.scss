@@ -16,3 +16,24 @@
 .jetpack-seo-ai__llms-link {
 	margin-inline-start: 40px;
 }
+
+// Muted intro line above the per-crawler toggles; reset the default paragraph
+// margins so it sits flush in the card's Stack.
+.jetpack-seo-ai__crawlers-intro {
+	margin: 0;
+	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
+}
+
+// One crawler row: the allow/block toggle plus its "Learn what … does" link.
+.jetpack-seo-ai__crawler-row {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+// Indent the doc link to align with the toggle's label/help text (not the
+// switch), matching the llms.txt link; sized to match the toggle's help text.
+.jetpack-seo-ai__crawler-doc {
+	margin-inline-start: 40px;
+	font-size: 12px;
+}

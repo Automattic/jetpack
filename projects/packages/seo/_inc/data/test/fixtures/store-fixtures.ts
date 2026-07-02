@@ -37,6 +37,28 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 export const SEEDED_AI: AiState = {
 	enhancer: { available: true, enabled: false },
 	llmsTxt: { enabled: false, url: 'https://example.com/llms.txt' },
+	crawlers: {
+		catalog: [
+			{
+				slug: 'perplexitybot',
+				label: 'Perplexity',
+				userAgent: 'PerplexityBot',
+				type: 'answer',
+				redirectSlug: 'jetpack-seo-crawler-perplexitybot',
+			},
+			{
+				slug: 'gptbot',
+				label: 'ChatGPT (OpenAI)',
+				userAgent: 'GPTBot',
+				type: 'training',
+				redirectSlug: 'jetpack-seo-crawler-gptbot',
+			},
+		],
+		overrides: {},
+		searchEnginesVisible: true,
+		restrictedSubdomain: false,
+		staticRobotsTxt: false,
+	},
 };
 
 ( window as unknown as { JetpackScriptData: unknown } ).JetpackScriptData = {

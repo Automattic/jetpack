@@ -16,21 +16,25 @@ const STORE_NAME = 'jetpack-seo/ai';
 
 type Enhancer = AiState[ 'enhancer' ];
 type LlmsTxt = AiState[ 'llmsTxt' ];
+type Crawlers = AiState[ 'crawlers' ];
 
 interface State {
 	enhancer: Enhancer | null;
 	llmsTxt: LlmsTxt | null;
+	crawlers: Crawlers | null;
 }
 
 type Action =
 	| { type: 'SET_ENHANCER'; enhancer: Enhancer }
-	| { type: 'SET_LLMS_TXT'; llmsTxt: LlmsTxt };
+	| { type: 'SET_LLMS_TXT'; llmsTxt: LlmsTxt }
+	| { type: 'SET_CRAWLERS'; crawlers: Crawlers };
 
 const preloaded = getPreloaded< AiState >( AI_PATH );
 
 const DEFAULT_STATE: State = {
 	enhancer: preloaded?.enhancer ?? null,
 	llmsTxt: preloaded?.llmsTxt ?? null,
+	crawlers: preloaded?.crawlers ?? null,
 };
 
 const actions = {
@@ -51,6 +55,15 @@ const actions = {
 	 */
 	setLlmsTxt( llmsTxt: LlmsTxt ): Action {
 		return { type: 'SET_LLMS_TXT', llmsTxt };
+	},
+	/**
+	 * Replace the stored crawler snapshot with the value just persisted.
+	 *
+	 * @param crawlers - The latest-saved crawler state.
+	 * @return The action.
+	 */
+	setCrawlers( crawlers: Crawlers ): Action {
+		return { type: 'SET_CRAWLERS', crawlers };
 	},
 };
 
@@ -73,6 +86,15 @@ const selectors = {
 	getLlmsTxt( state: State ): LlmsTxt | null {
 		return state.llmsTxt;
 	},
+	/**
+	 * The latest-known crawler state (or `null` when the bootstrap was absent).
+	 *
+	 * @param state - Store state.
+	 * @return The crawler state.
+	 */
+	getCrawlers( state: State ): Crawlers | null {
+		return state.crawlers;
+	},
 };
 
 const store = createReduxStore( STORE_NAME, {
@@ -82,6 +104,8 @@ const store = createReduxStore( STORE_NAME, {
 				return { ...state, enhancer: action.enhancer };
 			case 'SET_LLMS_TXT':
 				return { ...state, llmsTxt: action.llmsTxt };
+			case 'SET_CRAWLERS':
+				return { ...state, crawlers: action.crawlers };
 			default:
 				return state;
 		}
