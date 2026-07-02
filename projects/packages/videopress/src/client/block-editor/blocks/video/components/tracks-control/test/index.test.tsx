@@ -22,9 +22,9 @@ jest.mock( '@wordpress/i18n', () => ( {
 
 jest.mock( '../../../../../../components/caption-manager-modal/lazy', () => ( {
 	__esModule: true,
-	default: ( { isOpen, onTracksChange } ) =>
+	default: ( { isOpen, isPrivate, onTracksChange } ) =>
 		isOpen ? (
-			<div role="dialog" aria-label="Manage subtitles">
+			<div role="dialog" aria-label="Manage subtitles" data-is-private={ String( isPrivate ) }>
 				<button
 					onClick={ () =>
 						onTracksChange( [
@@ -100,5 +100,23 @@ describe( 'TracksControl', () => {
 		expect( mockInvalidateResolution ).toHaveBeenCalledWith( 'getEmbedPreview', [
 			'https://videopress.example/video',
 		] );
+	} );
+
+	it( 'passes the video privacy through so private previews authenticate', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<TracksControl
+				attributes={ { guid: 'abc123', title: 'Test video', isPrivate: true, tracks: [] } }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		await user.click( screen.getByText( 'Manage subtitles' ) );
+
+		expect( screen.getByRole( 'dialog', { name: 'Manage subtitles' } ) ).toHaveAttribute(
+			'data-is-private',
+			'true'
+		);
 	} );
 } );
