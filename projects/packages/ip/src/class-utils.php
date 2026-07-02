@@ -136,8 +136,14 @@ class Utils {
 			return false;
 		}
 
-		// Ignore any IPv6 zone identifier (e.g. fe80::1%eth0).
-		$ip = preg_replace( '/%.*$/', '', $ip );
+		// Strip an IPv6 zone identifier (e.g. fe80::1%eth0). Zone ids are only valid
+		// on IPv6 addresses, so a '%' on anything else (e.g. "8.8.8.8%foo") is malformed.
+		if ( false !== strpos( $ip, '%' ) ) {
+			if ( false === strpos( $ip, ':' ) ) {
+				return false;
+			}
+			$ip = preg_replace( '/%.*$/', '', $ip );
+		}
 
 		// Decode IPv6 forms that embed an IPv4 address to that IPv4 and check it,
 		// so the embedded IPv4 is classified the same way whether or not it is wrapped.

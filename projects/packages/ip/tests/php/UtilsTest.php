@@ -330,6 +330,8 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 			'',
 			'not-an-ip',
 			'999.999.999.999',
+			'8.8.8.8%foo',                    // Zone identifier is only valid on IPv6; malformed on IPv4.
+			'8.8.8.8%eth0',
 		);
 		foreach ( $non_public_ips as $non_public_ip ) {
 			$this->assertFalse( Utils::ip_is_public( $non_public_ip ), "$non_public_ip should not be public" );
