@@ -258,10 +258,11 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 		);
 	}, [ comparison.data, allowedTypes, hasComparison ] );
 
-	// Only render comparison UI when the comparison period actually returned
-	// rows; otherwise every row would fall to a placeholder `previousValue: 0`
-	// and the chart would show a fabricated delta (see AGENTS.md).
-	const withComparison = hasComparison && previousViewsByHref.size > 0;
+	// Only render comparison UI when at least one primary row actually overlaps
+	// the comparison period; otherwise unmatched rows would fall to a placeholder
+	// `previousValue: 0` and the chart would show a fabricated delta (see AGENTS.md).
+	const withComparison =
+		hasComparison && primaryRows.some( row => previousViewsByHref.has( row.href ) );
 
 	const rows = useMemo(
 		() =>

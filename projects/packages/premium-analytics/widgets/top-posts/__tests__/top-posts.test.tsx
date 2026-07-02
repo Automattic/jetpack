@@ -150,6 +150,54 @@ describe( 'TopPostsWidget', () => {
 		).toBe( true );
 	} );
 
+	it( 'does not render deltas when the comparison period has no overlapping posts', async () => {
+		// Comparison returns rows, but for a different post — so no primary row
+		// has a previous value and the comparison UI must stay off.
+		const nonOverlappingComparison = {
+			date: '2026-02-10',
+			days: {},
+			summary: {
+				postviews: [
+					{
+						id: 9,
+						href: 'https://example.com/unrelated/',
+						date: '2026-02-01',
+						title: 'Unrelated Post',
+						type: 'post',
+						views: 99,
+					},
+				],
+				total_views: 99,
+			},
+		};
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve(
+				path.includes( 'date=2026-02-10' ) ? nonOverlappingComparison : TOP_POSTS_RESPONSE
+			)
+		);
+
+		render(
+			<TopPostsWidget
+				attributes={ {
+					num: 10,
+					reportParams: {
+						from: '2026-03-01',
+						to: '2026-03-10',
+						comp: '1',
+						compare_from: '2026-02-01',
+						compare_to: '2026-02-10',
+					},
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByRole( 'link', { name: /Hello World Post/ } )
+		).resolves.toBeInTheDocument();
+		// No fabricated per-row delta from placeholder zeros.
+		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'renders the empty state when there are no views', async () => {
 		mockApiFetch.mockResolvedValue( { date: '2026-06-10', days: {} } );
 
