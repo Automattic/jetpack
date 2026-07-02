@@ -114,13 +114,12 @@ function AllTimeStatsReport() {
 			{ rows.map( row => (
 				<div key={ row.key } className={ styles.row }>
 					<Icon className={ styles.icon } icon={ row.icon } />
-					<Text className={ styles.label } variant="body-xl">
-						{ row.label }
-					</Text>
+					<Text className={ styles.label }>{ row.label }</Text>
 					<MetricWithComparison
 						className={ styles.value }
 						value={ row.value }
 						dataFormat={ COUNT_FORMAT }
+						fontSize="md"
 					/>
 				</div>
 			) ) }
