@@ -314,8 +314,7 @@ function FileDownloadsInner( { max, showTitle }: { max: number; showTitle: boole
 			),
 		[ primary.data, max, hasComparison, comparison.data ]
 	);
-	const withComparison =
-		hasComparison && rows.some( row => typeof row.previousValue === 'number' );
+	const withComparison = hasComparison && rows.some( row => typeof row.previousValue === 'number' );
 
 	const header = showTitle ? (
 		<Stack direction="row" align="center" className={ styles.widgetHeader }>
