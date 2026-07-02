@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Add aria-label to hidden Carousel download link for better accessibility.
