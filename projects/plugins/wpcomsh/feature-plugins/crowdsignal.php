@@ -28,7 +28,7 @@ function wpcomsh_suppress_crowdsignal_activation_redirect() {
 add_action( 'admin_init', 'wpcomsh_suppress_crowdsignal_activation_redirect', 1 );
 
 /**
- * Suppress Crowdsignal Forms' onboarding admin notices on WoA sites.
+ * Suppress Crowdsignal Forms' "getting started" setup notice on WoA sites.
  *
  * On activation Crowdsignal Forms enqueues a persistent "core setup" notice and renders it on
  * the Plugins and Dashboard screens until the user either connects a Crowdsignal account or
@@ -38,8 +38,13 @@ add_action( 'admin_init', 'wpcomsh_suppress_crowdsignal_activation_redirect', 1 
  * clutters the Plugins page for users who never chose to install it.
  *
  * Crowdsignal Forms exposes a `crowdsignal_forms_show_admin_notice_{notice}` filter for exactly
- * this purpose; returning false keeps each notice from rendering without disturbing its stored
- * state or the plugin's own dismissal handling.
+ * this purpose; returning false keeps the notice from rendering without disturbing its stored
+ * state or the plugin's own dismissal handling. The plugin's own callback on this filter runs at
+ * the default priority and returns true whenever no account is connected, so we hook at
+ * PHP_INT_MAX to have the final say regardless of hook-registration order.
+ *
+ * Only the "core setup" notice is suppressed: the sibling "setup success" notice is gated on a
+ * `?msg=connect` request and is deliberate feedback shown right after a user completes setup, not
+ * part of the activation clutter, so it is left intact.
  */
-add_filter( 'crowdsignal_forms_show_admin_notice_core_setup', '__return_false' );
-add_filter( 'crowdsignal_forms_show_admin_notice_setup_success', '__return_false' );
+add_filter( 'crowdsignal_forms_show_admin_notice_core_setup', '__return_false', PHP_INT_MAX );
