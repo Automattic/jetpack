@@ -96,15 +96,16 @@ export function trackPrivacyManageOpen(
 	hasPriorConsent: boolean,
 	hasAnalyticsConsent: boolean
 ): void {
-	if ( ! hasPriorConsent ) {
+	// Without analytics consent — a fresh visitor, or a returning one who declined
+	// analytics — count the open through the identity-free aggregate stat instead of
+	// loading the cookie-setting Tracks bundle.
+	if ( ! hasPriorConsent || ! hasAnalyticsConsent ) {
 		recordCookielessStat( 'privacy-manage-open' );
 		return;
 	}
 
-	if ( hasAnalyticsConsent ) {
-		// The caller has verified analytics consent above, so loading w.js is allowed.
-		recordEvent( 'privacy_manage_open', getCommonProperties() );
-	}
+	// The caller has verified analytics consent above, so loading w.js is allowed.
+	recordEvent( 'privacy_manage_open', getCommonProperties() );
 }
 
 /**

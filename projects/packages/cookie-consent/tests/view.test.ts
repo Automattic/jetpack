@@ -360,15 +360,19 @@ describe( 'Tracks consent gating', () => {
 		).toBe( `total,${ window.location.hostname }` );
 	} );
 
-	it( 'does not record post-consent manage opens when analytics is denied', () => {
+	it( 'records post-consent manage opens through the cookieless stat when analytics is denied', () => {
 		cookieJar = 'wp_consent_functional=allow; wp_consent_statistics=deny';
 		const event = { preventDefault: jest.fn() } as unknown as MouseEvent;
 
 		storeActions.openManagePreferences( event );
 
 		expect( window._tkq ).toBeUndefined();
-		expect( imageSources ).toHaveLength( 0 );
 		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
+		expect(
+			new URL( imageSources[ 0 ] ).searchParams.get(
+				'x_jetpack-cookie-consent-privacy-manage-open'
+			)
+		).toBe( `total,${ window.location.hostname }` );
 	} );
 
 	it( 'records post-consent manage opens when analytics is allowed', () => {

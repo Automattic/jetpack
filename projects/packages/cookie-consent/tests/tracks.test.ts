@@ -166,12 +166,15 @@ describe( 'trackPrivacyBannerAccept', () => {
 		);
 	} );
 
-	it( 'does not record post-consent manage opens when analytics is denied', () => {
+	it( 'records post-consent manage opens through a cookieless aggregate stat when analytics is denied', () => {
 		trackPrivacyManageOpen( true, false );
 
 		expect( window._tkq ).toBeUndefined();
-		expect( imageSources ).toHaveLength( 0 );
 		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
+		const url = new URL( imageSources[ 0 ] );
+		expect( url.searchParams.get( 'x_jetpack-cookie-consent-privacy-manage-open' ) ).toBe(
+			`total,${ window.location.hostname }`
+		);
 	} );
 
 	it( 'records post-consent manage opens through analytics-gated Tracks when analytics is allowed', () => {
