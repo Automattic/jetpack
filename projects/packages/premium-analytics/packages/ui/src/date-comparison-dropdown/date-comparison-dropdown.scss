@@ -14,7 +14,6 @@
 }
 
 /* disable animation for the date range popover */
-/* stylelint-disable property-no-unknown, selector-pseudo-element-no-unknown */
 @media not ( prefers-reduced-motion: reduce ) {
 
 	.date-comparison-dropdown__popover {
@@ -33,4 +32,3 @@
 ::view-transition-old(jp-premium-analytics--date-comparison-dropdown) {
 	animation: none;
 }
-/* stylelint-enable property-no-unknown, selector-pseudo-element-no-unknown */
