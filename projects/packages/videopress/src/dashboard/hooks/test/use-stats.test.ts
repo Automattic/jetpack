@@ -1,7 +1,14 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
-import { createTestWrapper } from '../../test-utils/query-client-wrapper';
-import { transformVideoPlays, useStats, videoPlaysQueryOptions } from '../use-stats';
+import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
+import {
+	filterResponseToVideo,
+	transformVideoPlays,
+	transformVideoPlaysForVideo,
+	useStats,
+	useVideoStats,
+	videoPlaysQueryOptions,
+} from '../use-stats';
 
 describe( 'transformVideoPlays', () => {
 	it( 'returns empty stats when neither window has loaded', () => {
@@ -208,6 +215,169 @@ describe( 'transformVideoPlays', () => {
 	} );
 } );
 
+describe( 'filterResponseToVideo', () => {
+	it( 'passes through undefined and day-less responses unchanged', () => {
+		expect( filterResponseToVideo( undefined, 1 ) ).toBeUndefined();
+		expect( filterResponseToVideo( {}, 1 ) ).toEqual( {} );
+	} );
+
+	it( "rewrites each day's totals from the target video's row", () => {
+		const response = {
+			days: {
+				'2026-05-15': {
+					total: { views: 30, impressions: 300, watch_time: 3 },
+					data: [
+						{ post_id: 1, title: 'A', views: 10, impressions: 100, watch_time: 1 },
+						{ post_id: 2, title: 'B', views: 20, impressions: 200, watch_time: 2 },
+					],
+				},
+			},
+		};
+		const filtered = filterResponseToVideo( response, 1 );
+		expect( filtered?.days?.[ '2026-05-15' ].total ).toEqual( {
+			views: 10,
+			impressions: 100,
+			watch_time: 1,
+		} );
+		// Only the target video's row survives in data[].
+		expect( filtered?.days?.[ '2026-05-15' ].data ).toEqual( [
+			expect.objectContaining( { post_id: 1 } ),
+		] );
+	} );
+
+	it( 'keeps days where the video is absent, zero-filled, so bucket alignment holds', () => {
+		const response = {
+			days: {
+				'2026-05-15': { data: [ { post_id: 1, views: 10 } ] },
+				'2026-05-16': { data: [ { post_id: 2, views: 20 } ] },
+			},
+		};
+		const filtered = filterResponseToVideo( response, 1 );
+		expect( Object.keys( filtered?.days ?? {} ) ).toHaveLength( 2 );
+		expect( filtered?.days?.[ '2026-05-16' ].total ).toEqual( {
+			views: 0,
+			impressions: 0,
+			watch_time: 0,
+		} );
+		expect( filtered?.days?.[ '2026-05-16' ].data ).toEqual( [] );
+	} );
+
+	it( 'skips rows lacking a post_id instead of matching them', () => {
+		const response = {
+			days: {
+				'2026-05-15': { data: [ { title: 'Untagged', views: 9, watch_time: 1 } ] },
+			},
+		};
+		const filtered = filterResponseToVideo( response, 1 );
+		expect( filtered?.days?.[ '2026-05-15' ].total?.views ).toBe( 0 );
+	} );
+
+	it( 'matches post_id across string/number representations', () => {
+		const response = {
+			days: {
+				'2026-05-15': { data: [ { post_id: '7', views: 5 } ] },
+			},
+		};
+		expect( filterResponseToVideo( response, 7 )?.days?.[ '2026-05-15' ].total?.views ).toBe( 5 );
+	} );
+} );
+
+describe( 'transformVideoPlaysForVideo', () => {
+	it( 'returns zeroed stats, including retention, when neither window has loaded', () => {
+		const result = transformVideoPlaysForVideo( undefined, undefined, 'days', 1 );
+		expect( result.views ).toEqual( { current: 0, previousPeriod: 0 } );
+		expect( result.retentionRate ).toEqual( { current: 0, previousPeriod: 0 } );
+		expect( result.series ).toEqual( [] );
+	} );
+
+	it( 'computes per-video KPIs through the shared pipeline, ignoring other videos', () => {
+		const current = {
+			days: {
+				'2026-05-15': {
+					total: { views: 30, impressions: 300, watch_time: 3 },
+					data: [
+						{ post_id: 1, views: 10, impressions: 100, watch_time: 1, retention_rate: 50 },
+						{ post_id: 2, views: 20, impressions: 200, watch_time: 2, retention_rate: 90 },
+					],
+				},
+			},
+		};
+		const result = transformVideoPlaysForVideo( current, undefined, 'days', 1 );
+		expect( result.views.current ).toBe( 10 );
+		expect( result.impressions.current ).toBe( 100 );
+		// Hours → seconds conversion happens in the shared pipeline.
+		expect( result.watchTimeSeconds.current ).toBe( 3600 );
+		expect( result.series ).toEqual( [
+			expect.objectContaining( { date: '2026-05-15', views: 10, impressions: 100 } ),
+		] );
+	} );
+
+	it( 'weights the retention mean by daily views', () => {
+		const current = {
+			days: {
+				'2026-05-15': { data: [ { post_id: 1, views: 10, retention_rate: 50 } ] },
+				'2026-05-16': { data: [ { post_id: 1, views: 30, retention_rate: 100 } ] },
+			},
+		};
+		const result = transformVideoPlaysForVideo( current, undefined, 'days', 1 );
+		// ( 50 * 10 + 100 * 30 ) / 40 = 87.5 — not the unweighted 75.
+		expect( result.retentionRate.current ).toBe( 87.5 );
+	} );
+
+	it( 'returns zero retention, not NaN, when the video has no views', () => {
+		const current = {
+			days: {
+				'2026-05-15': { data: [ { post_id: 1, views: 0, retention_rate: 80 } ] },
+			},
+		};
+		const result = transformVideoPlaysForVideo( current, undefined, 'days', 1 );
+		expect( result.retentionRate.current ).toBe( 0 );
+	} );
+
+	it( 'excludes days without a retention_rate from the weighting entirely', () => {
+		const current = {
+			days: {
+				'2026-05-15': { data: [ { post_id: 1, views: 10, retention_rate: 40 } ] },
+				'2026-05-16': { data: [ { post_id: 1, views: 90 } ] },
+			},
+		};
+		const result = transformVideoPlaysForVideo( current, undefined, 'days', 1 );
+		// The 90 unobserved views must not dilute the mean to 4.
+		expect( result.retentionRate.current ).toBe( 40 );
+	} );
+
+	it( 'computes previousPeriod retention from the previous window', () => {
+		const current = {
+			days: { '2026-05-15': { data: [ { post_id: 1, views: 10, retention_rate: 60 } ] } },
+		};
+		const previous = {
+			days: { '2026-05-08': { data: [ { post_id: 1, views: 5, retention_rate: 20 } ] } },
+		};
+		const result = transformVideoPlaysForVideo( current, previous, 'days', 1 );
+		expect( result.retentionRate ).toEqual( { current: 60, previousPeriod: 20 } );
+	} );
+
+	it( 'aligns the series across zero-filled days where the video is absent', () => {
+		const current = {
+			days: {
+				'2026-05-15': { data: [ { post_id: 1, views: 10 } ] },
+				'2026-05-16': { data: [ { post_id: 2, views: 99 } ] },
+			},
+		};
+		const previous = {
+			days: {
+				'2026-05-13': { data: [ { post_id: 1, views: 1 } ] },
+				'2026-05-14': { data: [ { post_id: 1, views: 2 } ] },
+			},
+		};
+		const result = transformVideoPlaysForVideo( current, previous, 'days', 1 );
+		expect( result.series ).toEqual( [
+			expect.objectContaining( { date: '2026-05-15', views: 10, previousPeriodViews: 1 } ),
+			expect.objectContaining( { date: '2026-05-16', views: 0, previousPeriodViews: 2 } ),
+		] );
+	} );
+} );
+
 describe( 'videoPlaysQueryOptions', () => {
 	it( 'keys the query by path and window params', () => {
 		const params = { num: 7, date: '2026-05-15' };
@@ -265,5 +435,62 @@ describe( 'useStats', () => {
 
 		expect( result.current.activeMetric ).toBe( 'impressions' );
 		expect( result.current.compare ).toBe( 'secondary_and_previous_period' );
+	} );
+} );
+
+describe( 'useVideoStats', () => {
+	it( 'shares the Overview cache: same query keys, no extra fetch, per-video shape', async () => {
+		mockApiFetch( async () => ( {
+			days: {
+				'2026-05-15': {
+					total: { views: 30, impressions: 300, watch_time: 3 },
+					data: [
+						{
+							post_id: 1,
+							title: 'A',
+							views: 10,
+							impressions: 100,
+							watch_time: 1,
+							retention_rate: 50,
+						},
+						{
+							post_id: 2,
+							title: 'B',
+							views: 20,
+							impressions: 200,
+							watch_time: 2,
+							retention_rate: 90,
+						},
+					],
+				},
+			},
+		} ) );
+
+		const client = createTestQueryClient();
+		// Mount both hooks against one client, as the Overview and
+		// Analytics screens would share the app-level QueryClient.
+		const { result } = renderHook( () => ( { overview: useStats(), video: useVideoStats( 1 ) } ), {
+			wrapper: createTestWrapper( client ),
+		} );
+
+		await waitFor( () => expect( result.current.video.isLoading ).toBe( false ) );
+
+		// Two windows → two cache entries total, not four: the per-video
+		// hook reuses the Overview's keys instead of registering its own.
+		expect( client.getQueryCache().getAll() ).toHaveLength( 2 );
+		// And exactly two network calls, both to the video-plays proxy.
+		const calls = getApiFetchMock().mock.calls;
+		expect( calls ).toHaveLength( 2 );
+		for ( const [ args ] of calls ) {
+			expect( ( args as { path: string } ).path ).toContain(
+				'/jetpack/v4/videopress/stats/video-plays'
+			);
+		}
+
+		// Same payload, two shapes: site-wide for the Overview, scoped
+		// (plus retention) for the video.
+		expect( result.current.overview.stats.views.current ).toBe( 30 );
+		expect( result.current.video.stats.views.current ).toBe( 10 );
+		expect( result.current.video.stats.retentionRate.current ).toBe( 50 );
 	} );
 } );

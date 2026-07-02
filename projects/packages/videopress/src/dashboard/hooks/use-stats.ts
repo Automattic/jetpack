@@ -12,6 +12,7 @@ import type {
 	OverviewStats,
 	StatsSeriesPoint,
 	TopVideo,
+	VideoStats,
 } from '../types/stats';
 
 // Raw WPCOM `sites/{id}/stats/video-plays?complete_stats=true` shape.
@@ -60,6 +61,14 @@ const EMPTY_STATS: OverviewStats = {
 	series: [],
 	topVideos: [],
 	topVideosByWatchTime: [],
+};
+
+const EMPTY_VIDEO_STATS: VideoStats = {
+	views: ZERO_SUMMARY,
+	impressions: ZERO_SUMMARY,
+	watchTimeSeconds: ZERO_SUMMARY,
+	retentionRate: ZERO_SUMMARY,
+	series: [],
 };
 
 const DEFAULTS = {
@@ -341,6 +350,114 @@ export function transformVideoPlays(
 }
 
 /**
+ * Rewrite a `stats/video-plays` response so each day's `total` block
+ * reflects a single video's per-day `data[]` row instead of the
+ * site-wide totals. Days where the video has no row are kept with
+ * zeroed totals — dropping them would shift the ordinal previous-window
+ * alignment `buildSeries` relies on. Rows lacking a `post_id` can never
+ * be attributed to a video, so they are skipped rather than matched by
+ * title.
+ *
+ * @param response - One `stats/video-plays` response, or undefined.
+ * @param postId   - Video (attachment) post ID to isolate.
+ * @return A response of the same shape scoped to that video.
+ */
+export function filterResponseToVideo(
+	response: VideoPlaysResponse | undefined,
+	postId: number | string
+): VideoPlaysResponse | undefined {
+	if ( ! response?.days ) {
+		return response;
+	}
+	const id = String( postId );
+	const days: Record< string, DayEntry > = {};
+	for ( const [ date, day ] of Object.entries( response.days ) ) {
+		const entry = day.data?.find(
+			row => row.post_id !== undefined && String( row.post_id ) === id
+		);
+		days[ date ] = {
+			total: {
+				views: entry?.views ?? 0,
+				impressions: entry?.impressions ?? 0,
+				watch_time: entry?.watch_time ?? 0,
+			},
+			data: entry ? [ entry ] : [],
+		};
+	}
+	return { ...response, days };
+}
+
+/**
+ * Views-weighted mean of the per-day `retention_rate` values in a
+ * response (expects a response already filtered to one video, so each
+ * day carries at most one row). Days without a numeric retention_rate
+ * are excluded from both numerator and denominator — counting their
+ * views would dilute the mean with unobserved days. Zero total weight
+ * yields 0 rather than NaN.
+ *
+ * @param response - A filtered `stats/video-plays` response, or undefined.
+ * @return Weighted mean retention rate (same percentage unit WPCOM reports).
+ */
+function weightedRetentionRate( response: VideoPlaysResponse | undefined ): number {
+	if ( ! response?.days ) {
+		return 0;
+	}
+	let weightedSum = 0;
+	let totalViews = 0;
+	for ( const day of Object.values( response.days ) ) {
+		for ( const row of day.data ?? [] ) {
+			if ( typeof row.retention_rate !== 'number' ) {
+				continue;
+			}
+			const views = row.views ?? 0;
+			weightedSum += row.retention_rate * views;
+			totalViews += views;
+		}
+	}
+	return totalViews > 0 ? weightedSum / totalViews : 0;
+}
+
+/**
+ * Per-video counterpart of `transformVideoPlays`: scopes both windows
+ * to one video via `filterResponseToVideo`, reuses the shared
+ * totals/series pipeline, and adds a retention KPI (views-weighted mean
+ * of the daily `retention_rate` — WPCOM does not expose a per-period
+ * retention aggregate, so the client derives one). Top-video lists are
+ * meaningless for a single video and are omitted.
+ *
+ * @param current     - Current-window response, if loaded.
+ * @param previous    - Previous-window response, if loaded.
+ * @param granularity - Active series bucketing.
+ * @param postId      - Video (attachment) post ID to isolate.
+ * @return Per-video stats payload, or `EMPTY_VIDEO_STATS` when both responses are missing.
+ */
+export function transformVideoPlaysForVideo(
+	current: VideoPlaysResponse | undefined,
+	previous: VideoPlaysResponse | undefined,
+	granularity: Granularity,
+	postId: number | string
+): VideoStats {
+	if ( ! current && ! previous ) {
+		return EMPTY_VIDEO_STATS;
+	}
+
+	const filteredCurrent = filterResponseToVideo( current, postId );
+	const filteredPrevious = filterResponseToVideo( previous, postId );
+	const base = transformVideoPlays( filteredCurrent, filteredPrevious, granularity );
+
+	return {
+		views: base.views,
+		impressions: base.impressions,
+		watchTimeSeconds: base.watchTimeSeconds,
+		retentionRate: {
+			current: weightedRetentionRate( filteredCurrent ),
+			previousPeriod: weightedRetentionRate( filteredPrevious ),
+		},
+		series: base.series,
+	};
+}
+
+/**
  * Live-data hook for the Overview tab. Settings live in local React
  * state; data is fetched as two `useQuery` calls (current + previous
  * window) coordinated via `useQueries`.
@@ -389,5 +506,44 @@ export function useStats() {
 		setGranularity,
 		setActiveMetric,
 		setCompare,
+	};
+}
+
+/**
+ * Live-data hook for the per-video Analytics screen. Issues the same
+ * two window queries as `useStats` — identical `videoPlaysQueryOptions`
+ * keys, so the cache is shared with the Overview and no extra request
+ * fires when both screens are visited — and derives the per-video shape
+ * with `transformVideoPlaysForVideo`. UI state (date range, metric,
+ * compare) is owned by the caller, unlike `useStats`.
+ *
+ * @param postId      - Video (attachment) post ID to isolate.
+ * @param dateRange   - Active range; defaults to the Overview default.
+ * @param granularity - Active series bucketing; defaults to days.
+ * @return Per-video stats and loading state.
+ */
+export function useVideoStats(
+	postId: number | string,
+	dateRange: DateRange = DEFAULTS.dateRange,
+	granularity: Granularity = DEFAULTS.granularity
+) {
+	const rangeDays = DATE_RANGE_DAYS[ dateRange ];
+	const windows = useMemo( () => computeWindows( rangeDays ), [ rangeDays ] );
+
+	const [ currentQuery, previousQuery ] = useQueries( {
+		queries: [
+			videoPlaysQueryOptions( windows.current ),
+			videoPlaysQueryOptions( windows.previous ),
+		],
+	} );
+
+	const stats = useMemo(
+		() => transformVideoPlaysForVideo( currentQuery.data, previousQuery.data, granularity, postId ),
+		[ currentQuery.data, previousQuery.data, granularity, postId ]
+	);
+
+	return {
+		stats,
+		isLoading: currentQuery.isLoading || previousQuery.isLoading,
 	};
 }
