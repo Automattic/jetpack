@@ -84,13 +84,13 @@
 	flex-shrink: 0;
 	background: var(--jpbeta-color-surface);
 	border-bottom: 1px solid var(--jpbeta-color-border);
-	padding: 20px var(--jpbeta-pad);
+	padding: 16px var(--jpbeta-pad);
 }
 
 .jetpack-beta-header__inner {
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: 8px;
 }
 
 .jetpack-beta-header__logo {
@@ -104,7 +104,8 @@
 
 .jetpack-beta-header__breadcrumb {
 	font-size: 15px;
-	font-weight: 600;
+	font-weight: 500;
+	line-height: 20px;
 }
 
 /* Render the breadcrumb list inline with a "/" between items. */
@@ -150,7 +151,8 @@
 	margin: 0;
 	padding: 0;
 	font-size: 15px;
-	font-weight: 600;
+	font-weight: 500;
+	line-height: 20px;
 	color: var(--jpbeta-color-text);
 }
 
