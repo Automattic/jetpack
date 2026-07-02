@@ -711,7 +711,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		wp_set_current_user( $this->admin_id );
 
 		$payload            = $this->track_payload();
-		$payload['content'] = str_repeat( 'a', Caption_Tracks::MAX_CONTENT_BYTES + 1 );
+		$payload['content'] = str_repeat( 'a', WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks::MAX_CONTENT_BYTES + 1 );
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
@@ -730,7 +730,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		wp_set_current_user( $this->admin_id );
 
 		$payload            = $this->track_payload();
-		$payload['content'] = str_repeat( '<!-- wp:videopress/caption-cue /-->', Caption_Tracks::MAX_CUE_BLOCKS + 1 );
+		$payload['content'] = str_repeat( '<!-- wp:videopress/caption-cue /-->', WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks::MAX_CUE_BLOCKS + 1 );
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
