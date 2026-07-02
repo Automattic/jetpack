@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { getDefaultQueryParams, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
@@ -156,12 +156,6 @@ const withWidgetCanvas: Decorator = Story => (
 	</div>
 );
 
-const withGlobalErrorProvider: Decorator = Story => (
-	<GlobalErrorProvider>
-		<Story />
-	</GlobalErrorProvider>
-);
-
 function getTopPerformingBookingsAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
@@ -210,6 +204,14 @@ function renderTopPerformingBookings( {
 	);
 }
 
+/**
+ * Story wrapper for rendering the top performing bookings widget in dashboard chrome.
+ *
+ * @param root0                - Story controls.
+ * @param root0.withComparison - Whether to include comparison report params.
+ * @param root0.preset         - Date-range preset used for report params.
+ * @return The rendered Storybook story.
+ */
 function TopPerformingBookingsDashboardStory( {
 	withComparison,
 	preset,
@@ -234,7 +236,6 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/TopPerformingBookings',
 	component: TopPerformingBookingsRender,
 	tags: [ 'autodocs' ],
-	decorators: [ withGlobalErrorProvider ],
 	argTypes: {
 		preset: {
 			control: 'select',

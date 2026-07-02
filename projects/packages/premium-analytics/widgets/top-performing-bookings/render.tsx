@@ -1,15 +1,27 @@
+/**
+ * External dependencies
+ */
 import {
 	TopPerformingBookingsWidget,
 	WidgetRoot,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { TopPerformingBookingsAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type TopPerformingBookingsRenderProps = Pick<
-	ComponentProps< typeof WidgetRoot >,
-	'attributes'
-> & {
-	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type TopPerformingBookingsRenderAttributes = TopPerformingBookingsAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type TopPerformingBookingsRenderProps =
+	WidgetRenderProps< TopPerformingBookingsRenderAttributes > & {
+		setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+	};
 
 /**
  * Top performing bookings widget.
@@ -19,7 +31,7 @@ type TopPerformingBookingsRenderProps = Pick<
  * fetches booking product data and renders a revenue leaderboard.
  */
 export default function TopPerformingBookingsRender( {
-	attributes,
+	attributes = {},
 	setError,
 }: TopPerformingBookingsRenderProps ) {
 	return (
