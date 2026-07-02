@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress Dashboard: add the feature-gated playlist detail screen — editable header (artwork, name, type, description) and a drag-and-drop video list with move up/down fallbacks, remove-from-playlist, and persisted ordering (disabled by default).

@@ -1,6 +1,220 @@
-// Placeholder-only styles for the flag-gated single-playlist stub; replace
-// with the real playlist layout when the route grows content.
 .vp-playlist {
-	padding: 48px 24px;
-	text-align: center;
+	max-width: 900px;
+	margin-inline: auto;
+	padding: 24px;
+
+	// Flag-off / unknown-id fallback (see NotFound in stage.tsx).
+	&__not-found {
+		padding: 48px 24px;
+		text-align: center;
+	}
+
+	// Empty placeholder shown while the term / members fetches are in
+	// flight. Sized to roughly match the body height so the layout doesn't
+	// jump when the real content arrives.
+	&__loading {
+		min-height: 320px;
+	}
+
+	&__header {
+		margin-bottom: 32px;
+	}
+
+	// Fixed 16:9 frame for the reused ArtworkField (its own styles ship
+	// with the playlists list route, so the subset it needs is duplicated
+	// below under this scope).
+	&__artwork-slot {
+		width: 240px;
+		aspect-ratio: 16 / 9;
+		flex-shrink: 0;
+		border-radius: 4px;
+		overflow: hidden;
+	}
+
+	&__details {
+		flex: 1;
+		min-width: 0;
+	}
+
+	&__videos-count {
+		display: block;
+		margin-bottom: 12px;
+		color: var(--jp-gray-50, #646970);
+	}
+
+	&__video-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	&__row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 8px 12px;
+		border: 1px solid #e0e0e0;
+		border-radius: 4px;
+		background: #fff;
+		margin-bottom: 8px;
+
+		&.is-dragging {
+			position: relative;
+			z-index: 1;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		}
+	}
+
+	&__row-drag-handle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin: 0;
+		padding: 4px;
+		border: 0;
+		border-radius: 2px;
+		background: transparent;
+		color: #757575;
+		cursor: grab;
+		touch-action: none;
+		appearance: none;
+
+		&:active {
+			cursor: grabbing;
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+			outline-offset: 2px;
+		}
+	}
+
+	&__row-position {
+		min-width: 24px;
+		text-align: center;
+		color: var(--jp-gray-50, #646970);
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__row-thumbnail {
+		width: 96px;
+		aspect-ratio: 16 / 9;
+		flex-shrink: 0;
+		border-radius: 2px;
+		overflow: hidden;
+		background: #1e1e1e;
+
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
+		}
+	}
+
+	&__row-thumbnail-placeholder {
+		display: block;
+		width: 100%;
+		height: 100%;
+		background: #f0f0f0;
+	}
+
+	&__row-info {
+		flex: 1;
+		min-width: 0;
+	}
+
+	&__row-title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__row-duration {
+		color: var(--jp-gray-50, #646970);
+		font-size: 12px;
+	}
+
+	&__row-actions {
+		flex-shrink: 0;
+	}
+}
+
+// Styles for the ArtworkField component reused from the playlists list
+// screen (components/playlists/artwork-field.tsx). Its class names are
+// vp-playlists__* and its full styles ship with routes/playlists/style.scss;
+// this is the subset the detail header needs, scoped to the artwork slot.
+.vp-playlist__artwork-slot {
+
+	.vp-playlists__artwork {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background: #1e1e1e;
+	}
+
+	// Override wp-build's `.boot-layout-container .boot-layout img { height:
+	// auto }` reset without referencing wp-build's class names — same
+	// specificity trick as the playlists grid artwork.
+	.vp-playlists__artwork .vp-playlists__artwork-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.vp-playlists__artwork-placeholder {
+		position: absolute;
+		inset: 0;
+		background: #f0f0f0;
+		color: #757575;
+	}
+
+	.vp-playlists__hover-action {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 120ms ease-out;
+		background: rgba(240, 240, 240, 0.92);
+	}
+
+	.vp-playlists__artwork:hover .vp-playlists__hover-action,
+	.vp-playlists__artwork:focus-within .vp-playlists__hover-action {
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	.vp-playlists__hover-action-button {
+		margin: 0;
+		padding: 4px 12px;
+		border: 0;
+		border-radius: 2px;
+		background: #fff;
+		color: #1e1e1e;
+		font-size: 13px;
+		font-weight: 500;
+		box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+		cursor: pointer;
+		appearance: none;
+
+		&:focus-visible {
+			outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+			outline-offset: 2px;
+		}
+	}
+}
+
+// Mobile: stack the header's artwork above the fields instead of squeezing
+// them side by side.
+@media (max-width: 600px) {
+
+	.vp-playlist__header {
+		flex-direction: column !important;
+	}
+
+	.vp-playlist__artwork-slot {
+		width: 100%;
+	}
 }
