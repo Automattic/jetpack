@@ -86,13 +86,21 @@ class Playlists {
 	/**
 	 * Initializer.
 	 *
-	 * This method should be called only once by the Initializer class, and
-	 * only when the Studio feature flag is enabled. Do not call this method
-	 * again.
+	 * This method should be called only once by the Initializer class. Do not
+	 * call this method again.
+	 *
+	 * Deliberately not gated on the Studio flag: the Initializer runs at
+	 * plugins_loaded, which is too early to see a filter added from e.g. a
+	 * theme's functions.php. The hooks wired here are cheap, `register()`
+	 * re-evaluates the flag on `init`, and the delete_attachment handlers
+	 * no-op while the taxonomy is unregistered — so the effective gate is a
+	 * single `init`-time evaluation, matching when the Studio routes and
+	 * initial state read the flag.
 	 */
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register' ) );
 		add_action( 'delete_attachment', array( __CLASS__, 'prune_deleted_attachment_from_playlist_order' ) );
+		add_action( 'delete_attachment', array( __CLASS__, 'prune_deleted_attachment_from_playlist_artwork' ) );
 	}
 
 	/**
@@ -124,6 +132,14 @@ class Playlists {
 				'show_ui'               => false,
 				'show_in_rest'          => true,
 				'rest_base'             => self::REST_BASE,
+
+				/*
+				 * Core's terms controller allows anonymous view-context reads
+				 * of any show_in_rest taxonomy; this subclass gates reads on
+				 * the same `upload_files` capability as the write caps below,
+				 * keeping the taxonomy's not-public design true over REST.
+				 */
+				'rest_controller_class' => Playlists_Rest_Controller::class,
 				'hierarchical'          => false,
 				'labels'                => array(
 					'name'          => __( 'Playlists', 'jetpack-videopress-pkg' ),
@@ -141,6 +157,13 @@ class Playlists {
 				 * parent post is published, so it would report 0 forever.
 				 * `_update_generic_term_count()` counts raw term
 				 * relationships instead.
+				 *
+				 * Known limitation: because raw relationships ignore
+				 * post_status, a video trashed under MEDIA_TRASH still counts
+				 * (and, since trashing doesn't fire `delete_attachment`, its
+				 * `vps_playlist_order` entry survives too) until the trash is
+				 * emptied. The dashboard tolerates the stale order entry; the
+				 * playlist count simply runs high until then.
 				 */
 				'update_count_callback' => '_update_generic_term_count',
 
@@ -326,6 +349,44 @@ class Playlists {
 			if ( count( $pruned ) !== count( $order ) ) {
 				update_term_meta( $term->term_id, self::META_ORDER, $pruned );
 			}
+		}
+	}
+
+	/**
+	 * Clears the artwork meta of every playlist referencing a deleted attachment.
+	 *
+	 * Runs on `delete_attachment`. Artwork images are ordinary image
+	 * attachments (not playlist members), so this lookup is by meta value
+	 * rather than by the deleted attachment's terms. Without it, a deleted
+	 * artwork leaves a dangling attachment ID behind: the dashboard falls
+	 * back to the placeholder but keeps offering "Change artwork" and re-runs
+	 * a doomed media lookup on every playlists refetch.
+	 *
+	 * @param int $post_id Attachment ID being deleted.
+	 */
+	public static function prune_deleted_attachment_from_playlist_artwork( $post_id ) {
+		if ( ! taxonomy_exists( self::TAXONOMY ) ) {
+			return;
+		}
+
+		$term_ids = get_terms(
+			array(
+				'taxonomy'   => self::TAXONOMY,
+				'hide_empty' => false,
+				'fields'     => 'ids',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Term meta lookup over a small taxonomy, and only on attachment deletion.
+				'meta_key'   => self::META_ARTWORK_ID,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'meta_value' => (int) $post_id,
+			)
+		);
+
+		if ( is_wp_error( $term_ids ) ) {
+			return;
+		}
+
+		foreach ( $term_ids as $term_id ) {
+			delete_term_meta( $term_id, self::META_ARTWORK_ID );
 		}
 	}
 }

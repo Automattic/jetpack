@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { LIBRARY_QUERY_KEY } from './use-library';
 import { PLAYLISTS_QUERY_KEY, PLAYLISTS_REST_PATH } from './use-playlists';
 import type { PlaylistVideo } from './use-playlist-videos';
 
@@ -17,10 +18,17 @@ type RemoveVars = {
  *
  * Two sequential writes: first the term relationship (the membership source
  * of truth) is dropped by re-writing the attachment's playlist terms without
- * this playlist, then the playlist's `vps_playlist_order` meta is pruned. If
- * the second write fails the UI still self-heals — resolveOrderedIds() drops
- * order entries that are no longer members. The playlists cache is
- * invalidated on settle either way.
+ * this playlist, then the playlist's `vps_playlist_order` meta is pruned. A
+ * failure on the second write is deliberately swallowed (matching
+ * useSetPlaylists' policy for the add path): order is presentation-only,
+ * resolveOrderedIds() drops entries that are no longer members, and the
+ * membership removal — the write that matters — already landed.
+ *
+ * Both the playlists and the library caches are invalidated on settle:
+ * library rows carry playlistIds (the chips column, the playlist filter, and
+ * the seed for useSetPlaylists' replace-set union), so a stale library cache
+ * wouldn't just display the removed membership — the next "Add to playlist"
+ * could silently write it back.
  *
  * @return A TanStack Query mutation accepting `{ playlistId, video, order }`.
  */
@@ -35,12 +43,20 @@ export function useRemoveFromPlaylist() {
 					'videopress-playlists': video.playlistIds.filter( id => id !== playlistId ),
 				},
 			} );
-			await apiFetch( {
-				path: `${ PLAYLISTS_REST_PATH }/${ playlistId }`,
-				method: 'POST',
-				data: { meta: { vps_playlist_order: order.filter( id => id !== video.id ) } },
-			} );
+			try {
+				await apiFetch( {
+					path: `${ PLAYLISTS_REST_PATH }/${ playlistId }`,
+					method: 'POST',
+					data: { meta: { vps_playlist_order: order.filter( id => id !== video.id ) } },
+				} );
+			} catch {
+				// Swallowed — see the docblock. Failing the mutation here would
+				// report an error for a removal that actually succeeded.
+			}
 		},
-		onSettled: () => client.invalidateQueries( { queryKey: [ PLAYLISTS_QUERY_KEY ] } ),
+		onSettled: () => {
+			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
+			client.invalidateQueries( { queryKey: [ PLAYLISTS_QUERY_KEY ] } );
+		},
 	} );
 }

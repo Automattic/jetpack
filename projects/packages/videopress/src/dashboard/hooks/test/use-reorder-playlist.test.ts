@@ -136,4 +136,43 @@ describe( 'useReorderPlaylist', () => {
 		} );
 		await waitFor( () => expect( invalidateSpy ).toHaveBeenCalledWith( { queryKey: LIST_KEY } ) );
 	} );
+
+	it( 'invalidates when overlapping reorders settle in the same macrotask', async () => {
+		const resolvers: ( ( value: unknown ) => void )[] = [];
+		mockApiFetch(
+			() =>
+				new Promise( resolve => {
+					resolvers.push( resolve );
+				} )
+		);
+
+		const client = createTestQueryClient();
+		const invalidateSpy = jest.spyOn( client, 'invalidateQueries' );
+		const { result } = renderHook( () => useReorderPlaylist(), {
+			wrapper: createTestWrapper( client ),
+		} );
+
+		let first: Promise< Playlist > = Promise.resolve( undefined as unknown as Playlist );
+		let second: Promise< Playlist > = first;
+		act( () => {
+			first = result.current.mutateAsync( { id: 7, order: [ 2, 1 ] } );
+			second = result.current.mutateAsync( { id: 7, order: [ 1, 2 ] } );
+		} );
+		await waitFor( () => expect( resolvers ).toHaveLength( 2 ) );
+
+		// Both requests land in the same macrotask. TanStack v5 keeps each
+		// mutation "pending" until after its own onSettled resolves, so a
+		// naive "am I the last one?" isMutating() probe sees 2 from both
+		// settlers and neither invalidates — the caches would keep the
+		// optimistic order forever. Exactly one settler must invalidate.
+		await act( async () => {
+			resolvers[ 0 ]( { id: 7, meta: { vps_playlist_order: [ 2, 1 ] } } );
+			resolvers[ 1 ]( { id: 7, meta: { vps_playlist_order: [ 1, 2 ] } } );
+			await Promise.all( [ first, second ] );
+		} );
+		expect( invalidateSpy ).toHaveBeenCalledWith( { queryKey: LIST_KEY } );
+		expect(
+			invalidateSpy.mock.calls.filter( ( [ arg ] ) => arg?.queryKey === LIST_KEY ).length
+		).toBeLessThanOrEqual( 1 );
+	} );
 } );

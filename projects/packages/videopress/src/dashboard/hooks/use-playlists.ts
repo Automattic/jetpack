@@ -8,6 +8,11 @@ export const PLAYLISTS_QUERY_KEY = 'jetpack-videopress-playlists' as const;
 
 export const PLAYLISTS_REST_PATH = '/wp/v2/videopress-playlists';
 
+// Stable fallback while the query has no data — which with the Studio flag
+// off is every render (the query is disabled). A fresh `[]` per render would
+// defeat downstream useMemo identity checks (e.g. the library's fields memo).
+const NO_PLAYLISTS: Playlist[] = [];
+
 /**
  * Fetch the full playlists collection from the core terms endpoint.
  *
@@ -48,7 +53,7 @@ export function usePlaylists( { enabled = true }: { enabled?: boolean } = {} ) {
 	} );
 
 	return {
-		playlists: query.data ?? [],
+		playlists: query.data ?? NO_PLAYLISTS,
 		isLoading: query.isLoading,
 		isError: query.isError,
 		error: query.error,

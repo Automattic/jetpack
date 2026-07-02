@@ -86,6 +86,7 @@ class Playlists_Test extends TestCase {
 		remove_all_filters( Admin_UI::STUDIO_FILTER );
 		remove_action( 'init', array( Playlists::class, 'register' ) );
 		remove_action( 'delete_attachment', array( Playlists::class, 'prune_deleted_attachment_from_playlist_order' ) );
+		remove_action( 'delete_attachment', array( Playlists::class, 'prune_deleted_attachment_from_playlist_artwork' ) );
 
 		foreach ( array( Playlists::META_ARTWORK_ID, Playlists::META_TYPE, Playlists::META_ORDER ) as $meta_key ) {
 			unregister_meta_key( 'term', $meta_key, Playlists::TAXONOMY );
@@ -204,6 +205,7 @@ class Playlists_Test extends TestCase {
 		$this->assertTrue( $taxonomy->show_in_rest );
 		$this->assertFalse( $taxonomy->hierarchical );
 		$this->assertSame( Playlists::REST_BASE, $taxonomy->rest_base );
+		$this->assertSame( Playlists_Rest_Controller::class, $taxonomy->rest_controller_class );
 		$this->assertSame( '_update_generic_term_count', $taxonomy->update_count_callback );
 		$this->assertSame( array( 'attachment' ), $taxonomy->object_type );
 		$this->assertSame( 'upload_files', $taxonomy->cap->manage_terms );
@@ -297,6 +299,67 @@ class Playlists_Test extends TestCase {
 			array( $playlist_one, $playlist_two ),
 			wp_get_object_terms( $video_b, Playlists::TAXONOMY, array( 'fields' => 'ids' ) )
 		);
+	}
+
+	/**
+	 * Tests that the deleted artwork attachment is cleared from every playlist
+	 * referencing it, while other playlists' artwork survives.
+	 */
+	public function test_delete_attachment_clears_playlist_artwork_meta() {
+		$this->enable_studio_and_register();
+		Playlists::init(); // Wires the delete_attachment hooks like production does.
+
+		// Artwork images are plain attachments, never playlist members, so
+		// the order-prune handler's term lookup won't find them — the artwork
+		// handler has to match by meta value instead.
+		$artwork_id       = $this->create_video_attachment();
+		$other_artwork_id = $this->create_video_attachment();
+
+		$playlist_one       = $this->create_playlist();
+		$playlist_two       = $this->create_playlist();
+		$playlist_untouched = $this->create_playlist();
+
+		update_term_meta( $playlist_one, Playlists::META_ARTWORK_ID, $artwork_id );
+		update_term_meta( $playlist_two, Playlists::META_ARTWORK_ID, $artwork_id );
+		update_term_meta( $playlist_untouched, Playlists::META_ARTWORK_ID, $other_artwork_id );
+
+		wp_delete_attachment( $artwork_id, true );
+
+		$this->assertSame( '', get_term_meta( $playlist_one, Playlists::META_ARTWORK_ID, true ) );
+		$this->assertSame( '', get_term_meta( $playlist_two, Playlists::META_ARTWORK_ID, true ) );
+		$this->assertSame( $other_artwork_id, (int) get_term_meta( $playlist_untouched, Playlists::META_ARTWORK_ID, true ) );
+	}
+
+	/**
+	 * Tests that the terms REST routes deny reads below `upload_files`.
+	 *
+	 * Core's WP_REST_Terms_Controller lets anyone read view-context terms of
+	 * a show_in_rest taxonomy; the custom controller must close that off so
+	 * playlist names/meta don't leak to logged-out visitors or subscribers.
+	 */
+	public function test_terms_rest_reads_require_upload_files() {
+		$this->enable_studio_and_register();
+
+		$term_id = $this->create_playlist();
+		$server  = $this->initialize_rest_server();
+
+		// Logged out: 401.
+		wp_set_current_user( 0 );
+		$response = $server->dispatch( new WP_REST_Request( 'GET', '/wp/v2/videopress-playlists' ) );
+		$this->assertSame( 401, $response->get_status() );
+
+		// Logged in without upload_files: 403, on both routes.
+		wp_set_current_user( $this->create_user_with_role( 'subscriber' ) );
+		$response = $server->dispatch( new WP_REST_Request( 'GET', '/wp/v2/videopress-playlists' ) );
+		$this->assertSame( 403, $response->get_status() );
+		$response = $server->dispatch( new WP_REST_Request( 'GET', '/wp/v2/videopress-playlists/' . $term_id ) );
+		$this->assertSame( 403, $response->get_status() );
+
+		// upload_files-capable users (the dashboard audience) can read.
+		wp_set_current_user( $this->create_user_with_role( 'author' ) );
+		$response = $server->dispatch( new WP_REST_Request( 'GET', '/wp/v2/videopress-playlists' ) );
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertContains( $term_id, wp_list_pluck( $response->get_data(), 'id' ) );
 	}
 
 	/**

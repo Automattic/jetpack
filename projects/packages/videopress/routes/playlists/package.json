@@ -12,7 +12,8 @@
 		"@wordpress/element": "8.1.0",
 		"@wordpress/i18n": "6.22.0",
 		"@wordpress/route": "0.15.0",
-		"@wordpress/ui": "0.13.0"
+		"@wordpress/ui": "0.13.0",
+		"@wordpress/url": "4.49.0"
 	},
 	"route": {
 		"path": "/playlists",

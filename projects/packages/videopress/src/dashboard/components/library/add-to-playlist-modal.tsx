@@ -120,8 +120,10 @@ export default function AddToPlaylistModal( {
 				createErrorNotice(
 					sprintf(
 						/* translators: 1: number of videos added. 2: number of videos that could not be added. */
-						__(
+						_n(
+							'%1$d video added to playlists; %2$d could not be added.',
 							'%1$d videos added to playlists; %2$d could not be added.',
+							succeeded.length,
 							'jetpack-videopress-pkg'
 						),
 						succeeded.length,

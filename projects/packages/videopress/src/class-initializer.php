@@ -142,13 +142,15 @@ class Initializer {
 		Block_Editor_Content::init();
 
 		/*
-		 * Playlists back the Studio expansion of the dashboard, so they are
-		 * gated on the same filter as the Studio routes. Playlists::init()
-		 * only wires hooks; the taxonomy itself registers on `init`.
+		 * Playlists back the Studio expansion of the dashboard and are gated
+		 * on the same filter as the Studio routes — but not here: this runs
+		 * at plugins_loaded, before e.g. a theme's functions.php can add the
+		 * filter, and gating here would leave the Studio UI on with its REST
+		 * routes missing. Playlists::init() only wires cheap hooks and
+		 * re-evaluates the flag on `init`, the same request stage where the
+		 * routes and initial state read it.
 		 */
-		if ( Admin_UI::is_studio_enabled() ) {
-			Playlists::init();
-		}
+		Playlists::init();
 
 		/*
 		 * These endpoints only add their routes on REST init, so defer calling

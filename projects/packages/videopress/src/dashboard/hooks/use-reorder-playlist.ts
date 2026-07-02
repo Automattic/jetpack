@@ -5,9 +5,13 @@ import { PLAYLIST_ITEM_QUERY_SEGMENT } from './use-playlist';
 import { PLAYLISTS_QUERY_KEY, PLAYLISTS_REST_PATH } from './use-playlists';
 import type { ApiPlaylistTerm, Playlist } from '../types/playlist';
 
-// Mutation key so overlapping reorders can see each other via isMutating()
-// (see the onSettled guard below).
-export const REORDER_PLAYLIST_MUTATION_KEY = [ 'jetpack-videopress-reorder-playlist' ] as const;
+// Reorders in flight across every instance of this hook. Not isMutating():
+// TanStack v5 keeps a mutation "pending" until after its own onSettled
+// resolves, so two overlapping reorders settling in the same macrotask would
+// each count the other (and themselves) and both skip the invalidation. The
+// counter is decremented synchronously at the top of onSettled, so exactly
+// one settler observes it reach zero.
+let pendingReorders = 0;
 
 type ReorderVars = { id: number; order: number[] };
 
@@ -33,7 +37,6 @@ type ReorderContext = {
 export function useReorderPlaylist() {
 	const client = useQueryClient();
 	return useMutation< Playlist, Error, ReorderVars, ReorderContext >( {
-		mutationKey: REORDER_PLAYLIST_MUTATION_KEY,
 		mutationFn: async ( { id, order } ) => {
 			const raw = await apiFetch< ApiPlaylistTerm >( {
 				path: `${ PLAYLISTS_REST_PATH }/${ id }`,
@@ -43,6 +46,7 @@ export function useReorderPlaylist() {
 			return toPlaylist( raw );
 		},
 		onMutate: async ( { id, order } ) => {
+			pendingReorders++;
 			await client.cancelQueries( { queryKey: [ PLAYLISTS_QUERY_KEY ] } );
 			const itemKey = [ PLAYLISTS_QUERY_KEY, PLAYLIST_ITEM_QUERY_SEGMENT, String( id ) ];
 			const previousItem = client.getQueryData< Playlist >( itemKey );
@@ -70,8 +74,11 @@ export function useReorderPlaylist() {
 			}
 		},
 		onSettled: () => {
-			// Count includes this mutation, so 1 means "I'm the last one".
-			if ( client.isMutating( { mutationKey: REORDER_PLAYLIST_MUTATION_KEY } ) === 1 ) {
+			pendingReorders--;
+			// Zero means this settler is the last one out; while others are
+			// still pending their optimistic order is newer than anything a
+			// refetch could return, so leave the caches alone.
+			if ( pendingReorders === 0 ) {
 				return client.invalidateQueries( { queryKey: [ PLAYLISTS_QUERY_KEY ] } );
 			}
 		},

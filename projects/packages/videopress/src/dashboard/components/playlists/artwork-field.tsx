@@ -67,7 +67,10 @@ export default function ArtworkField( { item }: { item: Playlist } ) {
 		// The whole media cell doubles as the row-navigation target (DataViews'
 		// onClickItem); keep the artwork action from also opening the playlist.
 		event.stopPropagation();
-		const attachment = await selectImageFromMediaLibrary().catch( () => null );
+		const attachment = await selectImageFromMediaLibrary( {
+			title: __( 'Select artwork', 'jetpack-videopress-pkg' ),
+			buttonText: __( 'Use this image as artwork', 'jetpack-videopress-pkg' ),
+		} ).catch( () => null );
 		if ( ! attachment ) {
 			return;
 		}

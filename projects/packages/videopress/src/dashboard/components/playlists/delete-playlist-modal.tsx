@@ -27,20 +27,46 @@ export default function DeletePlaylistModal( {
 
 	const onConfirm = async () => {
 		try {
-			await deletePlaylists( items.map( item => item.id ) );
-			createSuccessNotice(
-				sprintf(
-					/* translators: %d: number of deleted playlists. */
+			const { succeeded, failed } = await deletePlaylists( items.map( item => item.id ) );
+			if ( failed.length === 0 ) {
+				createSuccessNotice(
+					sprintf(
+						/* translators: %d: number of deleted playlists. */
+						_n(
+							'%d playlist deleted.',
+							'%d playlists deleted.',
+							succeeded.length,
+							'jetpack-videopress-pkg'
+						),
+						succeeded.length
+					)
+				);
+				onActionPerformed?.( items );
+			} else if ( succeeded.length === 0 ) {
+				createErrorNotice(
 					_n(
-						'%d playlist deleted.',
-						'%d playlists deleted.',
-						items.length,
+						'Failed to delete playlist.',
+						'Failed to delete the selected playlists.',
+						failed.length,
 						'jetpack-videopress-pkg'
-					),
-					items.length
-				)
-			);
-			onActionPerformed?.( items );
+					)
+				);
+			} else {
+				createErrorNotice(
+					sprintf(
+						/* translators: 1: number of deleted playlists. 2: number of playlists that could not be deleted. */
+						_n(
+							'%1$d playlist deleted; %2$d could not be deleted.',
+							'%1$d playlists deleted; %2$d could not be deleted.',
+							succeeded.length,
+							'jetpack-videopress-pkg'
+						),
+						succeeded.length,
+						failed.length
+					)
+				);
+				onActionPerformed?.( items );
+			}
 		} catch {
 			createErrorNotice( __( 'Failed to delete playlist.', 'jetpack-videopress-pkg' ) );
 		}
@@ -61,8 +87,10 @@ export default function DeletePlaylistModal( {
 					  )
 					: sprintf(
 							/* translators: %d: number of playlists to delete. */
-							__(
+							_n(
+								'Delete %d playlist? Videos in this playlist will not be deleted.',
 								'Delete %d playlists? Videos in these playlists will not be deleted.',
+								items.length,
 								'jetpack-videopress-pkg'
 							),
 							items.length
