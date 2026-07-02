@@ -131,8 +131,9 @@ function CaptionPreviewPlayer(
 
 	const updateCurrentTime = useCallback( ( seconds: number ) => {
 		currentTimeRef.current = seconds;
+		// WebVTT end times are exclusive, so back-to-back cues hand off cleanly at the boundary.
 		const activeCue = cueRangesRef.current.find(
-			( { start, end } ) => start !== null && end !== null && seconds >= start && seconds <= end
+			( { start, end } ) => start !== null && end !== null && seconds >= start && seconds < end
 		);
 		setActiveCueText( activeCue?.text );
 	}, [] );

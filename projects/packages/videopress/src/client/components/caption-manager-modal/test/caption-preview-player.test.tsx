@@ -68,6 +68,19 @@ describe( 'CaptionPreviewPlayer', () => {
 			expect( screen.getByText( 'Second cue' ) ).toBeInTheDocument();
 		} );
 
+		it( 'hands off between back-to-back cues at the shared boundary', () => {
+			renderNativePlayer( [
+				{ start: 1, end: 3, text: 'First cue' },
+				{ start: 3, end: 5, text: 'Adjacent cue' },
+			] );
+
+			// End times are exclusive, so at exactly 3s only the next cue is active.
+			timeUpdate( getVideo(), 3 );
+
+			expect( screen.queryByText( 'First cue' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Adjacent cue' ) ).toBeInTheDocument();
+		} );
+
 		it( 'clears the overlay between cues', () => {
 			renderNativePlayer();
 
