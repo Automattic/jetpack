@@ -196,6 +196,10 @@ class Initializer {
 			// Front-end JSON-LD schema output and author profile schema fields.
 			Schema_Builder::init();
 			Author_Schema_Node::init();
+			// GEO tab front-end behavior: the /llms.txt handler. Self-hooks a front-end
+			// action, so it no-ops off the front end and stays behind the same gates as
+			// the schema above.
+			Llms_Txt::init();
 			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
@@ -905,6 +909,10 @@ class Initializer {
 			'enhancer' => array(
 				'available' => $filter_on && $plan_supports,
 				'enabled'   => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
+			),
+			'llmsTxt'  => array(
+				'enabled' => Llms_Txt::is_enabled(),
+				'url'     => home_url( '/llms.txt' ),
 			),
 		);
 	}

@@ -1,0 +1,18 @@
+// AI tab layout. A single, centered fixed-width column matching the Settings
+// tab's treatment — 660px is the established Jetpack settings-page width (see
+// settings/style.scss). The cards stack with a consistent gap.
+.jetpack-seo-ai {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	max-inline-size: 660px;
+	margin-inline: auto;
+}
+
+// Align the "View your llms.txt" link with the toggle's label/help text rather
+// than the switch. 40px matches @wordpress/components ToggleControl's help
+// margin-inline-start (≈ 36px switch + gap) — same treatment as the Settings
+// tab's sitemap link.
+.jetpack-seo-ai__llms-link {
+	margin-inline-start: 40px;
+}

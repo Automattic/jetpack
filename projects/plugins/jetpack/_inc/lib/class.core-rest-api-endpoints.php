@@ -2950,6 +2950,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'Jetpack_SEO_Titles::sanitize_title_formats',
 			),
 
+			// AI tab (Jetpack > SEO). Plain option the SEO package reads to serve
+			// /llms.txt. The front-end behavior is gated inside the package; this
+			// only round-trips the persisted state alongside the other seo-tools
+			// settings.
+			'jetpack_seo_llms_txt_enabled'              => array(
+				'description'       => esc_html__( 'Generate an llms.txt file to guide AI assistants around your content.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'seo-tools',
+			),
+
 			// VideoPress.
 			'videopress_private_enabled_for_site'       => array(
 				'description'       => esc_html__( 'Video Privacy: Restrict views to members of this site', 'jetpack' ),
