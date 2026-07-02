@@ -2271,4 +2271,22 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( '', trim( $html ) );
 	}
+
+	/**
+	 * The launch-blocked flag must be localized as a '1'/'0' string the overlay
+	 * can compare against — wp_localize_script() stringifies scalars, so a raw
+	 * bool would arrive as '1'/'' and silently never match in JS.
+	 */
+	public function test_post_publish_checklist_localizes_blocked_as_string() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'wpcom_public_coming_soon', 1 );
+		$this->go_to_singular_post();
+		$_GET[ WPCOM_WRITE_PUBLISHED_MARKER ] = '1';
+
+		wpcom_write_enqueue_post_publish_checklist_assets();
+
+		$data = wp_scripts()->get_data( 'wpcom-write-post-publish-checklist', 'data' );
+		// Email_Verification is absent in the test env, so the gate is not blocked.
+		$this->assertStringContainsString( '"blocked":"0"', $data );
+	}
 }

@@ -24,6 +24,9 @@ if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 // Write-editor publish on a Coming Soon site.
 require_once __DIR__ . '/post-publish-checklist.php';
 
+// Email-verification launch gate backing the checklist's inline confirm-email step.
+require_once __DIR__ . '/email-verification.php';
+
 /**
  * Get the URL for a Write feature asset file.
  *

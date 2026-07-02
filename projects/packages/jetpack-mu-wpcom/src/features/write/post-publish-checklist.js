@@ -122,6 +122,24 @@
 			}
 		}
 
+		const strings = config.strings || {};
+
+		/**
+		 * Whether launch is blocked pending email verification.
+		 *
+		 * Computed server-side at render and passed in (see post-publish-checklist.php).
+		 * A wpcom Simple site serves no REST API at its own hostname, so a same-origin
+		 * status fetch would 404; reading the rendered value avoids that round-trip.
+		 * The value is a '1'/'0' string because wp_localize_script() stringifies
+		 * scalars. Anything other than '1' (absent, '0', '') means not blocked, so the
+		 * user proceeds to the launch flow where the back end is the real gate.
+		 *
+		 * @return {boolean} Whether launch is blocked.
+		 */
+		function isLaunchBlocked() {
+			return config.blocked === '1';
+		}
+
 		/**
 		 * Navigate to the canonical launch flow.
 		 */
@@ -131,11 +149,53 @@
 			}
 		}
 
+		/**
+		 * Swap the card's body into the inline "confirm your email" step.
+		 *
+		 * Replaces the checklist and the launch CTA with an "I've confirmed — launch"
+		 * button that proceeds to the launch flow, where the back-end gate is the real
+		 * enforcement. (Inline resend is deferred to a follow-up — it needs a transport
+		 * that works on a Simple site's front end, e.g. admin-ajax.)
+		 */
+		function showVerifyStep() {
+			const launchBtn = card.querySelector( '.wpcom-write-ppc__launch' );
+			if ( ! launchBtn ) {
+				return;
+			}
+			const title = card.querySelector( '.wpcom-write-ppc__title' );
+			const desc = card.querySelector( '.wpcom-write-ppc__desc' );
+			const list = card.querySelector( '.wpcom-write-ppc__list' );
+			if ( title ) {
+				title.textContent = strings.verifyTitle || title.textContent;
+			}
+			if ( desc ) {
+				desc.textContent = strings.verifyDesc || desc.textContent;
+			}
+			if ( list ) {
+				list.remove();
+			}
+
+			const confirm = document.createElement( 'button' );
+			confirm.type = 'button';
+			confirm.className = 'wpcom-write-ppc__launch';
+			confirm.textContent = strings.confirmCta || '';
+			confirm.addEventListener( 'click', goToLaunch );
+
+			launchBtn.parentNode.insertBefore( confirm, launchBtn );
+			launchBtn.remove();
+			confirm.focus();
+		}
+
 		const launch = overlay.querySelector( '[data-wpcom-write-ppc-launch]' );
 		if ( launch ) {
 			launch.addEventListener( 'click', function () {
 				recordEvent( 'wpcom_write_post_publish_checklist_launch_click' );
-				goToLaunch();
+				if ( ! isLaunchBlocked() ) {
+					goToLaunch();
+					return;
+				}
+				recordEvent( 'wpcom_write_post_publish_checklist_verify_shown' );
+				showVerifyStep();
 			} );
 		}
 

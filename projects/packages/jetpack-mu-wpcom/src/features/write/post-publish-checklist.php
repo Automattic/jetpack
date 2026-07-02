@@ -90,6 +90,11 @@ function wpcom_write_get_post_publish_checklist_strings() {
 		'launchCta'   => __( 'Launch your site', 'jetpack-mu-wpcom' ),
 		'dismiss'     => __( 'Maybe later', 'jetpack-mu-wpcom' ),
 		'close'       => __( 'Close', 'jetpack-mu-wpcom' ),
+		// Inline email-verification step, swapped in when the author tries to
+		// launch with an unverified email (see post-publish-checklist.js).
+		'verifyTitle' => __( 'Confirm your email to launch', 'jetpack-mu-wpcom' ),
+		'verifyDesc'  => __( 'Your site can go public once your email is confirmed. Check your inbox for the confirmation link.', 'jetpack-mu-wpcom' ),
+		'confirmCta'  => __( "I've confirmed — launch", 'jetpack-mu-wpcom' ),
 	);
 }
 
@@ -118,12 +123,24 @@ function wpcom_write_enqueue_post_publish_checklist_assets() {
 		true
 	);
 
+	$strings = wpcom_write_get_post_publish_checklist_strings();
+
 	wp_localize_script(
 		'wpcom-write-post-publish-checklist',
 		'wpcomWritePostPublishChecklist',
 		array(
 			'launchUrl' => wpcom_write_post_publish_launch_url(),
 			'marker'    => WPCOM_WRITE_PUBLISHED_MARKER,
+			// Computed server-side: a Simple site serves no REST at its own host, so
+			// the overlay can't fetch this — it reads the value rendered into the page.
+			// Sent as a '1'/'0' string because wp_localize_script() stringifies scalars
+			// (bool true -> '1', false -> ''); the JS compares against '1'.
+			'blocked'   => wpcom_write_launch_blocked_for_unverified_email() ? '1' : '0',
+			'strings'   => array(
+				'verifyTitle' => $strings['verifyTitle'],
+				'verifyDesc'  => $strings['verifyDesc'],
+				'confirmCta'  => $strings['confirmCta'],
+			),
 		)
 	);
 }
