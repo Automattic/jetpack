@@ -39,6 +39,8 @@ import {
 	mockSessionsByDeviceComparisonData,
 	mockCouponsData,
 	mockCouponsComparisonData,
+	mockCouponsByDateData,
+	mockCouponsByDateComparisonData,
 	mockCustomersData,
 	mockCustomersComparisonData,
 	mockCustomersByDateData,
@@ -466,6 +468,10 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 		case '/coupons/':
 		case '/coupons':
 			return nextIsComparison( 'coupons' ) ? mockCouponsComparisonData : mockCouponsData;
+		case '/coupons/by-date':
+			return nextIsComparison( 'coupons/by-date' )
+				? mockCouponsByDateComparisonData
+				: mockCouponsByDateData;
 		case '/customers/new-returning':
 			return nextIsComparison( 'customers/new-returning' )
 				? mockCustomersComparisonData
