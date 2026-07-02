@@ -158,6 +158,8 @@ export function selectPatternPage(
 	const pattern = pickPattern( pool, inferred );
 	const fallback = variant === 'gallery' ? GALLERY_FALLBACK_HTML : '';
 	// The gallery page gets a fixed title; the pattern's own name ("Gallery: Two columns…") is not a useful title.
+	// Left untranslated on purpose: it's a placeholder on the created draft that the user renames before
+	// publishing (like WordPress core's English "Auto Draft"), not a piece of shipped UI copy.
 	const title =
 		variant === 'gallery' ? 'Gallery' : pattern?.title ?? inferred.brand_name ?? 'New page';
 	const rawContent = pattern?.html ?? fallback;
