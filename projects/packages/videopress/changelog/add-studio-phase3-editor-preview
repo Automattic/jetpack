@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Studio editor preview player: video stage with playback-token signing, transport row, and a requestAnimationFrame playback hook wired to the edit-session skip engine.
