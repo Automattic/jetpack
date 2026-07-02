@@ -3,11 +3,13 @@ import { useCopyToClipboard } from '@wordpress/compose';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { copy } from '@wordpress/icons';
-import { Button, Card, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Dialog, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useState } from 'react';
 import { usePosterUrl } from '../../hooks/use-poster-url';
 import { useUpdateVideoPoster } from '../../hooks/use-update-video-poster';
 import { selectImageFromMediaLibrary } from '../../utils/select-image-from-media-library';
+import { isStudioEnabled } from '../../utils/studio';
+import AddToPlaylistModal from '../library/add-to-playlist-modal';
 import SelectFrameDialog from './select-frame-dialog';
 import ThumbnailUpdateButton from './thumbnail-update-button';
 import type { LibraryItem } from '../../types/library';
@@ -77,7 +79,8 @@ const canEditThumbnail = ( video: LibraryItem ): boolean =>
 
 /**
  * Top-of-page card on the Video details screen. Renders the thumbnail,
- * the "Add video to new post" outlined action, two read-only copy fields
+ * the "Add video to new post" outlined action (plus a Studio-gated
+ * "Add to playlist" action next to it), two read-only copy fields
  * (Link to video, Shortcode) using InputControl + IconButton suffix, and
  * two metadata rows (File name, Uploaded on).
  *
@@ -92,6 +95,11 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const updatePoster = useUpdateVideoPoster();
 	const [ dialogOpen, setDialogOpen ] = useState( false );
+	const [ playlistDialogOpen, setPlaylistDialogOpen ] = useState( false );
+	// Read once per render: playlists only exist with the Studio flag on, and
+	// the flag comes from the server-inlined initial state, which can't change
+	// without a full page load.
+	const showAddToPlaylist = isStudioEnabled();
 	// True between a poster mutation resolving and the new thumbnail <img>
 	// actually loading. Keeps the "Updating…" overlay up and the success
 	// notice held back so the toast lines up with the visible change rather
@@ -200,13 +208,20 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 						) }
 					</div>
 					<Stack direction="column" gap="md" className="vp-video-details__thumbnail-meta">
-						<Button
-							variant="outline"
-							onClick={ onAddToNewPost }
-							className="vp-video-details__primary-action"
-						>
-							{ __( 'Add video to new post', 'jetpack-videopress-pkg' ) }
-						</Button>
+						<Stack direction="row" gap="sm">
+							<Button
+								variant="outline"
+								onClick={ onAddToNewPost }
+								className="vp-video-details__primary-action"
+							>
+								{ __( 'Add video to new post', 'jetpack-videopress-pkg' ) }
+							</Button>
+							{ showAddToPlaylist && (
+								<Button variant="outline" onClick={ () => setPlaylistDialogOpen( true ) }>
+									{ __( 'Add to playlist', 'jetpack-videopress-pkg' ) }
+								</Button>
+							) }
+						</Stack>
 
 						<InputControl
 							label={ __( 'Link to video', 'jetpack-videopress-pkg' ) }
@@ -254,6 +269,39 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 				onClose={ () => setDialogOpen( false ) }
 				onConfirm={ handleConfirmFrame }
 			/>
+			{ showAddToPlaylist && (
+				<Dialog.Root
+					open={ playlistDialogOpen }
+					onOpenChange={ open => {
+						if ( ! open ) {
+							setPlaylistDialogOpen( false );
+						}
+					} }
+				>
+					<Dialog.Popup size="small">
+						<Dialog.Header>
+							<Dialog.Title>
+								{ __( 'Add video to playlist', 'jetpack-videopress-pkg' ) }
+							</Dialog.Title>
+							<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
+						</Dialog.Header>
+						{ /* Mount the body only while open (mirrors SelectFrameDialog's
+						     FrameScrubber guard): the modal fetches playlists on mount and
+						     holds selection state, so a fresh mount per open avoids an
+						     eager fetch on page load and stale checkboxes on reopen.
+						     Dialog.Popup is an unpadded flex column; body padding (and
+						     scrolling) comes from the Dialog.Content region. */ }
+						{ playlistDialogOpen && (
+							<Dialog.Content>
+								<AddToPlaylistModal
+									items={ [ video ] }
+									closeModal={ () => setPlaylistDialogOpen( false ) }
+								/>
+							</Dialog.Content>
+						) }
+					</Dialog.Popup>
+				</Dialog.Root>
+			) }
 		</Card.Root>
 	);
 }

@@ -84,29 +84,36 @@ export default function CreatePlaylistModal( { isOpen, onClose }: Props ) {
 					<Dialog.Title>{ __( 'New playlist', 'jetpack-videopress-pkg' ) }</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
 				</Dialog.Header>
-				<Stack direction="column" gap="md">
-					<InputControl
-						label={ __( 'Name', 'jetpack-videopress-pkg' ) }
-						value={ name }
-						onValueChange={ next => setName( next ) }
-						required
-					/>
-					<SelectControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						label={ __( 'Type', 'jetpack-videopress-pkg' ) }
-						value={ type }
-						options={ TYPE_OPTIONS }
-						onChange={ next => setType( next as PlaylistType ) }
-					/>
-					<TextareaControl
-						__nextHasNoMarginBottom
-						label={ __( 'Description', 'jetpack-videopress-pkg' ) }
-						value={ description }
-						onChange={ setDescription }
-						rows={ 3 }
-					/>
-				</Stack>
+				{ /*
+				 * Dialog.Popup is an unpadded flex column; body padding comes
+				 * from the Dialog.Content region, which also owns scrolling
+				 * when the body outgrows the popup.
+				 */ }
+				<Dialog.Content>
+					<Stack direction="column" gap="md">
+						<InputControl
+							label={ __( 'Name', 'jetpack-videopress-pkg' ) }
+							value={ name }
+							onValueChange={ next => setName( next ) }
+							required
+						/>
+						<SelectControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Type', 'jetpack-videopress-pkg' ) }
+							value={ type }
+							options={ TYPE_OPTIONS }
+							onChange={ next => setType( next as PlaylistType ) }
+						/>
+						<TextareaControl
+							__nextHasNoMarginBottom
+							label={ __( 'Description', 'jetpack-videopress-pkg' ) }
+							value={ description }
+							onChange={ setDescription }
+							rows={ 3 }
+						/>
+					</Stack>
+				</Dialog.Content>
 				<Dialog.Footer>
 					<Button variant="outline" onClick={ onClose } disabled={ isPending }>
 						{ __( 'Cancel', 'jetpack-videopress-pkg' ) }

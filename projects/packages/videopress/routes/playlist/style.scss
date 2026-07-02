@@ -1,7 +1,15 @@
+// Card-based layout mirroring routes/video/style.scss. Browsers clip
+// margin-bottom on the last child of a scroll container, so vertical padding
+// (not margin) keeps the bottom 24px gap inside the container's clientHeight
+// when the page scrolls all the way down.
 .vp-playlist {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
 	max-width: 900px;
 	margin-inline: auto;
-	padding: 24px;
+	padding-block: 24px;
+	padding-inline: 24px;
 
 	// Flag-off / unknown-id fallback (see NotFound in stage.tsx).
 	&__not-found {
@@ -16,13 +24,9 @@
 		min-height: 320px;
 	}
 
-	&__header {
-		margin-bottom: 32px;
-	}
-
-	// Fixed 16:9 frame for the reused ArtworkField (its own styles ship
-	// with the playlists list route, so the subset it needs is duplicated
-	// below under this scope).
+	// Fixed 16:9 frame for the detail artwork control (its inner class names
+	// are vp-playlists__*, shared with the playlists list route; the subset it
+	// needs is duplicated below under this scope).
 	&__artwork-slot {
 		width: 240px;
 		aspect-ratio: 16 / 9;
@@ -34,12 +38,6 @@
 	&__details {
 		flex: 1;
 		min-width: 0;
-	}
-
-	&__videos-count {
-		display: block;
-		margin-bottom: 12px;
-		color: var(--jp-gray-50, #646970);
 	}
 
 	&__video-list {
@@ -140,10 +138,29 @@
 	}
 }
 
-// Styles for the ArtworkField component reused from the playlists list
-// screen (components/playlists/artwork-field.tsx). Its class names are
-// vp-playlists__* and its full styles ship with routes/playlists/style.scss;
-// this is the subset the detail header needs, scoped to the artwork slot.
+// `width: 100%` is required because the wrapper is a flex child of the
+// dashboard tabpanel (column-flex); without an explicit cross-axis size
+// a `display: flex` flex item is sized to its content, leaving
+// `max-width` unable to extend it. The `> *` rule has the same role for
+// the inner @wordpress/ui Card.Root children (display: flex). Both gated
+// to non-mobile so the mobile breakpoint keeps cards content-sized with
+// natural breathing room instead of stretching edge-to-edge of the
+// viewport. (Same trick as routes/video/style.scss.)
+@media (min-width: 600px) {
+
+	.vp-playlist {
+		width: 100%;
+	}
+
+	.vp-playlist > * {
+		width: 100%;
+	}
+}
+
+// Styles for the artwork visuals shared with the playlists list screen
+// (components/playlists/artwork-field.tsx). Their class names are
+// vp-playlists__* and their full styles ship with routes/playlists/style.scss;
+// this is the subset the detail card needs, scoped to the artwork slot.
 .vp-playlist__artwork-slot {
 
 	.vp-playlists__artwork {
@@ -170,44 +187,96 @@
 		background: #f0f0f0;
 		color: #757575;
 	}
+}
 
-	.vp-playlists__hover-action {
-		position: absolute;
-		inset: 0;
-		opacity: 0;
-		pointer-events: none;
-		transition: opacity 120ms ease-out;
-		background: rgba(240, 240, 240, 0.92);
-	}
+// The trigger is the @wordpress/components DropdownMenu wrapper; position it
+// over the artwork's top-right corner (inside the position: relative
+// vp-playlists__artwork frame). Opaque surface so the pencil icon stays
+// legible over any artwork, mirroring the video details screen's
+// .vp-thumbnail-update__trigger — restated here because that stylesheet
+// only ships with the video route.
+.vp-playlist__artwork-update {
+	position: absolute;
+	top: 8px;
+	right: 8px;
 
-	.vp-playlists__artwork:hover .vp-playlists__hover-action,
-	.vp-playlists__artwork:focus-within .vp-playlists__hover-action {
-		opacity: 1;
-		pointer-events: auto;
-	}
-
-	.vp-playlists__hover-action-button {
-		margin: 0;
-		padding: 4px 12px;
-		border: 0;
-		border-radius: 2px;
-		background: #fff;
-		color: #1e1e1e;
-		font-size: 13px;
-		font-weight: 500;
+	.components-button {
+		background: rgba(255, 255, 255, 0.9);
 		box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-		cursor: pointer;
-		appearance: none;
 
-		&:focus-visible {
-			outline: 2px solid var(--wp-admin-theme-color, #3858e9);
-			outline-offset: 2px;
+		&:hover:not(:disabled) {
+			background: #fff;
 		}
 	}
 }
 
-// Mobile: stack the header's artwork above the fields instead of squeezing
-// them side by side.
+// "Select from playlist" dialog: a responsive grid of poster thumbnails +
+// titles. Long playlists scroll via the dialog's Dialog.Content region,
+// which owns the popup's overflow, so no height cap is needed here.
+.vp-playlist__artwork-picker {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	gap: 16px;
+}
+
+.vp-playlist__artwork-picker-button {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 4px;
+	background: transparent;
+	cursor: pointer;
+	appearance: none;
+	text-align: start;
+
+	&:focus-visible {
+		outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+		outline-offset: 2px;
+	}
+}
+
+.vp-playlist__artwork-picker-thumbnail {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	border-radius: 4px;
+	overflow: hidden;
+	background: #1e1e1e;
+}
+
+// Three-class chain beats wp-build's `.boot-layout-container .boot-layout
+// img { height: auto }` reset (0,2,1) on specificity, same trick as the
+// artwork rules above.
+.vp-playlist__artwork-picker .vp-playlist__artwork-picker-thumbnail .vp-playlist__artwork-picker-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.vp-playlist__artwork-picker-placeholder {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: #f0f0f0;
+}
+
+.vp-playlist__artwork-picker-title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 100%;
+}
+
+// Mobile: stack the details card's artwork above the fields instead of
+// squeezing them side by side.
 @media (max-width: 600px) {
 
 	.vp-playlist__header {

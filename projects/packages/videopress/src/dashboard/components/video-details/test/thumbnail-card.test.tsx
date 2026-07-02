@@ -48,6 +48,22 @@ jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
 	} ),
 } ) );
 
+// Stub the playlist modal body: its own behaviour is covered by the library
+// tests; here we only care that the card mounts it with this video and wires
+// closeModal back to the hosting dialog.
+const mockPlaylistModalProps = jest.fn();
+jest.mock( '../../library/add-to-playlist-modal', () => ( {
+	__esModule: true,
+	default: ( props: { items: unknown[]; closeModal?: () => void } ) => {
+		mockPlaylistModalProps( props );
+		return (
+			<div data-testid="add-to-playlist-modal">
+				<button onClick={ () => props.closeModal?.() }>close-playlist-modal</button>
+			</div>
+		);
+	},
+} ) );
+
 const baseVideo: LibraryItem = {
 	id: '42',
 	guid: 'abc123',
@@ -90,6 +106,7 @@ beforeEach( () => {
 	mockedSelectImage.mockReset();
 	mockSuccessNotice.mockReset();
 	mockErrorNotice.mockReset();
+	mockPlaylistModalProps.mockReset();
 	// Provide window.wp.media so canUploadImage is true for upload-mode tests.
 	( window as unknown as { wp?: { media?: unknown } } ).wp = { media: jest.fn() };
 } );
@@ -183,5 +200,55 @@ describe( 'ThumbnailCard — update flow', () => {
 
 		await waitFor( () => expect( mockErrorNotice ).toHaveBeenCalledTimes( 1 ) );
 		expect( mockSuccessNotice ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'ThumbnailCard — add to playlist (Studio-gated)', () => {
+	type InitialState = { features?: { studio?: boolean } };
+	const globals = window as unknown as { JPVIDEOPRESS_INITIAL_STATE?: InitialState };
+
+	afterEach( () => {
+		delete globals.JPVIDEOPRESS_INITIAL_STATE;
+	} );
+
+	it( 'does not render the button when the Studio flag is off', () => {
+		render( <ThumbnailCard video={ baseVideo } onAddToNewPost={ jest.fn() } />, { wrapper } );
+		expect( screen.queryByRole( 'button', { name: 'Add to playlist' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'opens the dialog with this single video when the flag is on', async () => {
+		globals.JPVIDEOPRESS_INITIAL_STATE = { features: { studio: true } };
+		const user = userEvent.setup();
+		render( <ThumbnailCard video={ baseVideo } onAddToNewPost={ jest.fn() } />, { wrapper } );
+
+		// Modal body mounts only while the dialog is open.
+		expect( screen.queryByTestId( 'add-to-playlist-modal' ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Add to playlist' } ) );
+
+		expect( screen.getByText( 'Add video to playlist' ) ).toBeInTheDocument();
+		const modalBody = screen.getByTestId( 'add-to-playlist-modal' );
+		expect( modalBody ).toBeInTheDocument();
+		// Dialog.Popup is an unpadded flex column; the modal body must sit in
+		// the Dialog.Content region (the overlay scroll container) for padding
+		// and scrolling.
+		// eslint-disable-next-line testing-library/no-node-access -- asserting an ancestor region requires DOM traversal.
+		expect( modalBody.closest( '[data-wp-ui-overlay-scroll-container]' ) ).not.toBeNull();
+		expect( mockPlaylistModalProps ).toHaveBeenCalledWith(
+			expect.objectContaining( { items: [ baseVideo ] } )
+		);
+	} );
+
+	it( 'closes the dialog when the modal invokes closeModal', async () => {
+		globals.JPVIDEOPRESS_INITIAL_STATE = { features: { studio: true } };
+		const user = userEvent.setup();
+		render( <ThumbnailCard video={ baseVideo } onAddToNewPost={ jest.fn() } />, { wrapper } );
+
+		await user.click( screen.getByRole( 'button', { name: 'Add to playlist' } ) );
+		await user.click( screen.getByText( 'close-playlist-modal' ) );
+
+		await waitFor( () =>
+			expect( screen.queryByTestId( 'add-to-playlist-modal' ) ).not.toBeInTheDocument()
+		);
 	} );
 } );

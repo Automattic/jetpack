@@ -5,8 +5,8 @@ import { SelectControl, TextareaControl } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Link, useNavigate, useParams } from '@wordpress/route';
-import { Button, EmptyState, InputControl, Stack, Text } from '@wordpress/ui';
-import ArtworkField from '../../src/dashboard/components/playlists/artwork-field';
+import { Button, Card, EmptyState, InputControl, Stack, Text } from '@wordpress/ui';
+import { PlaylistDetailArtwork } from '../../src/dashboard/components/playlists/artwork-field';
 import { PLAYLIST_TYPE_LABELS } from '../../src/dashboard/components/playlists/fields';
 import SortableVideoList from '../../src/dashboard/components/playlists/sortable-video-list';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
@@ -68,17 +68,26 @@ const Loading = () => (
 );
 
 /**
- * Editable playlist header: artwork (with the hover change-artwork action),
- * inline-editable name, type select, and description. Name and description
- * commit on blur when dirty; type commits on change. Failed saves revert the
- * draft to the server value and surface an error notice — no explicit Save
- * button to keep in sync.
+ * Top section card, mirroring the video details screen's ThumbnailCard shape:
+ * artwork on the left (with the overlaid update menu), editable name, type
+ * select, and description on the right. Name and description commit on blur
+ * when dirty; type commits on change. Failed saves revert the draft to the
+ * server value and surface an error notice — no explicit Save button to keep
+ * in sync.
  *
  * @param props          - Component props.
  * @param props.playlist - The playlist being edited.
- * @return The header element.
+ * @param props.videos   - The playlist's members in display order (the first
+ *                       one's poster is the unset-artwork fallback).
+ * @return The card element.
  */
-const PlaylistHeader = ( { playlist }: { playlist: Playlist } ) => {
+const PlaylistDetailsCard = ( {
+	playlist,
+	videos,
+}: {
+	playlist: Playlist;
+	videos: PlaylistVideo[];
+} ) => {
 	const { mutate: updatePlaylist } = useUpdatePlaylist();
 	const { createErrorNotice } = useGlobalNotices();
 	const [ name, setName ] = useState( playlist.name );
@@ -134,36 +143,40 @@ const PlaylistHeader = ( { playlist }: { playlist: Playlist } ) => {
 	};
 
 	return (
-		<Stack direction="row" gap="lg" align="flex-start" className="vp-playlist__header">
-			<div className="vp-playlist__artwork-slot">
-				<ArtworkField item={ playlist } />
-			</div>
-			<Stack direction="column" gap="md" className="vp-playlist__details">
-				<InputControl
-					label={ __( 'Name', 'jetpack-videopress-pkg' ) }
-					value={ name }
-					onValueChange={ next => setName( next ?? '' ) }
-					onBlur={ commitName }
-					required
-				/>
-				<SelectControl
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-					label={ __( 'Type', 'jetpack-videopress-pkg' ) }
-					value={ type }
-					options={ TYPE_OPTIONS }
-					onChange={ onTypeChange }
-				/>
-				<TextareaControl
-					__nextHasNoMarginBottom
-					label={ __( 'Description', 'jetpack-videopress-pkg' ) }
-					value={ description }
-					onChange={ setDescription }
-					onBlur={ commitDescription }
-					rows={ 3 }
-				/>
-			</Stack>
-		</Stack>
+		<Card.Root>
+			<Card.Content>
+				<Stack direction="row" gap="md" align="start" className="vp-playlist__header">
+					<div className="vp-playlist__artwork-slot">
+						<PlaylistDetailArtwork playlist={ playlist } videos={ videos } />
+					</div>
+					<Stack direction="column" gap="md" className="vp-playlist__details">
+						<InputControl
+							label={ __( 'Name', 'jetpack-videopress-pkg' ) }
+							value={ name }
+							onValueChange={ next => setName( next ?? '' ) }
+							onBlur={ commitName }
+							required
+						/>
+						<SelectControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Type', 'jetpack-videopress-pkg' ) }
+							value={ type }
+							options={ TYPE_OPTIONS }
+							onChange={ onTypeChange }
+						/>
+						<TextareaControl
+							__nextHasNoMarginBottom
+							label={ __( 'Description', 'jetpack-videopress-pkg' ) }
+							value={ description }
+							onChange={ setDescription }
+							onBlur={ commitDescription }
+							rows={ 3 }
+						/>
+					</Stack>
+				</Stack>
+			</Card.Content>
+		</Card.Root>
 	);
 };
 
@@ -235,6 +248,10 @@ const StageReady = ( { playlist }: { playlist: Playlist } ) => {
 		body = <SortableVideoList videos={ videos } onReorder={ onReorder } onRemove={ onRemove } />;
 	}
 
+	// While the members are in flight the term count stands in, so the videos
+	// card title doesn't flash "0 videos" before settling.
+	const videoCount = videosLoading ? playlist.count : videos.length;
+
 	return (
 		<AdminPage
 			breadcrumbs={
@@ -247,17 +264,19 @@ const StageReady = ( { playlist }: { playlist: Playlist } ) => {
 			}
 		>
 			<div className="vp-playlist">
-				<PlaylistHeader playlist={ playlist } />
-				<div className="vp-playlist__videos">
-					<Text className="vp-playlist__videos-count">
-						{ sprintf(
-							/* translators: %d: number of videos in the playlist. */
-							_n( '%d video', '%d videos', videos.length, 'jetpack-videopress-pkg' ),
-							videos.length
-						) }
-					</Text>
-					{ body }
-				</div>
+				<PlaylistDetailsCard playlist={ playlist } videos={ videos } />
+				<Card.Root>
+					<Card.Header>
+						<Card.Title>
+							{ sprintf(
+								/* translators: %d: number of videos in the playlist. */
+								_n( '%d video', '%d videos', videoCount, 'jetpack-videopress-pkg' ),
+								videoCount
+							) }
+						</Card.Title>
+					</Card.Header>
+					<Card.Content>{ body }</Card.Content>
+				</Card.Root>
 			</div>
 		</AdminPage>
 	);
