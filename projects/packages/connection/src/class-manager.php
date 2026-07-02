@@ -2459,7 +2459,7 @@ class Manager {
 				sprintf(
 					/* translators: %1$s is a domain name. */
 					__(
-						'IP address `%1$s` just failed is_usable_domain check as it is in the private network.',
+						'IP address `%1$s` just failed is_usable_domain check as it is not a public IP address.',
 						'jetpack-connection'
 					),
 					$domain
