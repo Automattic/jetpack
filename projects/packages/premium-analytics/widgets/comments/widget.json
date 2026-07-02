@@ -1,0 +1,7 @@
+{
+	"name": "jpa/comments",
+	"title": "Comments",
+	"description": "Your most active comment authors and most commented posts.",
+	"category": "stats",
+	"presentation": "framed"
+}

@@ -1,0 +1,129 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.tabs {
+	display: flex;
+	gap: var(--wpds-dimension-gap-md, 12px);
+	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg) 0;
+}
+
+.tab {
+	appearance: none;
+	background: none;
+	border: none;
+	border-bottom: 2px solid transparent;
+	padding: var(--wpds-dimension-padding-xs, 4px) 0;
+	cursor: pointer;
+	color: var(--wpds-color-fg-content-neutral-weak);
+	font: inherit;
+	font-weight: 500;
+	line-height: 20px;
+}
+
+.tab:hover,
+.tab:focus {
+	color: var(--wp-admin-theme-color);
+}
+
+.tabActive {
+	color: inherit;
+	border-bottom-color: var(--wp-admin-theme-color);
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	padding: var(--wpds-dimension-padding-lg);
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+.placeholder {
+	flex: 1 1 0;
+	min-block-size: 0;
+	inline-size: 100%;
+	min-height: 200px;
+	color: var(--wpds-color-fg-content-neutral-weak);
+	text-align: center;
+}
+
+.leaderboard {
+	align-self: stretch;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.authorLabel {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.authorLabel > * {
+	min-width: 0;
+	max-width: 100%;
+}
+
+.authorLabel span {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.avatar {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+}
+
+.postLink,
+.postLabel {
+	display: block;
+
+	/* Vertical padding sets the overlay bar height — the bar fills the row, whose
+	   height is driven by this label (there is no image to size it). */
+	padding-block: var(--wpds-dimension-padding-md, 12px);
+
+	/* Inset the text from the bar's rounded left edge, mirroring the chart's
+	   default `.is-overlay .label` rule that a custom label element bypasses. */
+	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+	color: inherit;
+	text-decoration: none;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.postLink:hover,
+.postLink:focus {
+	text-decoration: underline;
+}
+
+/* Constrain the picker preview tile to a 4:3 aspect ratio. The picker's
+ * `.preview` wrapper uses `height: 125%` of an auto-height parent, so
+ * `height: 100%` on `.root` also resolves to auto, leaving `aspect-ratio` with
+ * no anchor. Setting `height: auto` here lets `aspect-ratio` derive the height
+ * from the known inline size and `overflow: hidden` clips the chart content.
+ * Targets only the picker (`inert=""`), not the edit-mode wrapper
+ * (`inert="true"`) where the grid tile supplies a real height. */
+:global([inert]:not([inert="true"])) .root {
+	height: auto;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+}
+
+/* The picker grid applies `object-fit: cover` and 100% sizing to every image in
+ * the media cell, overriding our avatar sizing. Restore it for avatar images in
+ * any inert context. */
+:global([inert]) .leaderboard .avatar {
+	width: 24px;
+	height: 24px;
+	object-fit: cover;
+}
