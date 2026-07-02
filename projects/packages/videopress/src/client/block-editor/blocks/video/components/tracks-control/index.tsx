@@ -29,7 +29,7 @@ export default function TracksControl( {
 	attributes,
 	setAttributes,
 }: VideoControlProps ): ReactElement | null {
-	const { guid, poster, title, tracks = [] } = attributes;
+	const { guid, isPrivate, poster, title, tracks = [] } = attributes;
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 	const hasGuid = !! guid;
@@ -74,6 +74,7 @@ export default function TracksControl( {
 					guid={ guid }
 					title={ title }
 					poster={ poster }
+					isPrivate={ isPrivate }
 					tracks={ tracks }
 					onClose={ () => setIsModalOpen( false ) }
 					onTracksChange={ onTracksChange }
