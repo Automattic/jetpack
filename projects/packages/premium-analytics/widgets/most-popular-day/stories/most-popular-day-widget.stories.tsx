@@ -1,17 +1,16 @@
 /**
- * The three stories render the data-connected widget fed by a mocked
- * `stats/insights` response, so it appears populated without a live backend.
- * `registerReportMocks` supplies the shared host requests (settings, etc.); a
- * story-scoped middleware supplies the insights payload the central mocks do not
- * cover. The Stats Insights "most popular day" highlight has no comparison
- * period and ignores the dashboard date range, so `WithComparison` renders
- * identically to `Default`.
+ * The three stories render the data-connected widget fed by the shared
+ * report-mock harness. `registerReportMocks` routes the `stats/` site summary
+ * (`/proxy/v1.1/stats`) — including the `views_best_day*` fields this widget
+ * reads — through `routeStatsReport()`, so no story-scoped middleware is
+ * needed. The all-time "most popular day" highlight has no comparison period
+ * and ignores the dashboard date range, so `WithComparison` renders identically
+ * to `Default`.
  */
 /**
  * External dependencies
  */
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
@@ -24,56 +23,11 @@ import {
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import MostPopularDayRender from '../render';
 import widgetDefinition from '../widget';
-import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
 
 registerReportMocks();
-
-const STATS_INSIGHTS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/insights';
-
-// Raw WPCOM insights payload the data package sanitizes. `highest_day_of_week`
-// 3 maps to Thursday; the sanitizer requires this field or it returns no data.
-const insightsMock = {
-	highest_day_of_week: 3,
-	highest_day_percent: 45,
-	highest_hour: 18,
-	highest_hour_percent: 12,
-	hourly_views: {},
-	years: [],
-};
-
-const insightsMocksMiddleware: APIFetchMiddleware = ( options: APIFetchOptions, next ) => {
-	const requestPath = options.path ?? options.url ?? '';
-
-	if ( ! requestPath.startsWith( STATS_INSIGHTS_PATH ) ) {
-		return next( options );
-	}
-
-	if ( options.parse === false ) {
-		return Promise.resolve(
-			new Response( JSON.stringify( insightsMock ), {
-				status: 200,
-				headers: { 'Content-Type': 'application/json' },
-			} )
-		);
-	}
-
-	return Promise.resolve( insightsMock );
-};
-
-let insightsMocksRegistered = false;
-
-function registerInsightsMocks() {
-	if ( insightsMocksRegistered ) {
-		return;
-	}
-	insightsMocksRegistered = true;
-	apiFetch.use( insightsMocksMiddleware );
-}
-
-registerInsightsMocks();
 
 const MOST_POPULAR_DAY_RENDER_MODULE = 'storybook/most-popular-day';
 
@@ -113,7 +67,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Most popular day" widget ports the Jetpack Stats Insights highlight: the day of the week that draws the highest share of views. The value comes from a site-wide insight that has no comparison period and does not depend on the dashboard date range, so `WithComparison` renders identically to `Default`.',
+					'The "Most popular day" widget ports the Jetpack Stats all-time highlight: the single day your site drew the most views, with that day\'s view count and its share of all views. The value comes from a site-wide summary that has no comparison period and does not depend on the dashboard date range, so `WithComparison` renders identically to `Default`.',
 			},
 		},
 	},
@@ -124,7 +78,7 @@ export default meta;
 type Story = StoryObj< MostPopularDayStoryControls >;
 
 /**
- * Default state — the busiest day and its share of views.
+ * Default state — the best day for views and its share of all views.
  */
 export const Default: Story = {
 	render: renderMostPopularDay,
@@ -134,7 +88,7 @@ export const Default: Story = {
 
 /**
  * Comparison params from the date-range picker are passed through, but the
- * insight has no comparison data, so the widget renders the same single value.
+ * highlight has no comparison data, so the widget renders the same single value.
  */
 export const WithComparison: Story = {
 	render: renderMostPopularDay,
