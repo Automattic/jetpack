@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: Let the heatmap grid shrink to fit short containers instead of overflowing and scrolling.
