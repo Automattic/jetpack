@@ -29,30 +29,20 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
 
 const STATS_INSIGHTS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/insights';
-const PEAK_HOUR = 18;
 
 /**
- * Builds a raw `stats/insights` payload (pre-sanitizer) with views peaking in
- * the early evening, so the widget renders a populated highlight and a smooth
- * hourly bar chart.
+ * Builds a raw `stats/insights` payload (pre-sanitizer) with a clear peak day
+ * and hour, so the widget renders both populated highlights.
  *
  * @return The raw insights response.
  */
 function buildInsightsResponse() {
-	const hourlyViews: Record< string, number > = {};
-
-	for ( let hour = 0; hour < 24; hour++ ) {
-		const distanceFromPeak = Math.abs( hour - PEAK_HOUR );
-		const views = Math.max( 6, Math.round( 340 * Math.exp( -( distanceFromPeak ** 2 ) / 18 ) ) );
-		hourlyViews[ `2026-06-01 ${ String( hour ).padStart( 2, '0' ) }:00:00` ] = views;
-	}
-
 	return {
-		highest_hour: PEAK_HOUR,
+		highest_hour: 18,
 		highest_hour_percent: 30,
 		highest_day_of_week: 4,
 		highest_day_percent: 22,
-		hourly_views: hourlyViews,
+		hourly_views: {},
 		years: [],
 	};
 }
@@ -110,7 +100,7 @@ function renderMostPopularTime( { withComparison }: MostPopularTimeStoryControls
 	);
 }
 
-// Close-up canvas so the highlight and chart fill the frame outside the grid.
+// Close-up canvas so the highlights fill the frame outside the grid.
 const withWidgetCanvas: Decorator = Story => (
 	<div style={ { width: '100%', height: '360px' } }>
 		<Story />
@@ -128,7 +118,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Most popular time" widget. Shows the hour of day that draws the most views and its share of the total, above a bar chart of views across the day. The insights endpoint reports across the whole lifetime of the site, so there is no date range or comparison period.',
+					'The "Most popular time" widget. Shows the day of week and hour of day that draw the most views, each with its share of the total. The insights endpoint reports across the whole lifetime of the site, so there is no date range or comparison period.',
 			},
 		},
 	},
@@ -139,7 +129,7 @@ export default meta;
 type Story = StoryObj< MostPopularTimeStoryControls >;
 
 /**
- * Default state — the peak hour highlight and the hourly distribution.
+ * Default state — the peak day and hour highlights.
  */
 export const Default: Story = {
 	render: renderMostPopularTime,

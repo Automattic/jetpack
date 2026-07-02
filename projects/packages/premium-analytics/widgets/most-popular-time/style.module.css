@@ -1,23 +1,28 @@
 .root {
 	container-type: inline-size;
 	height: 100%;
+	padding-block: var(--wpds-dimension-padding-xs, 4px);
 	overflow: hidden;
 }
 
-.highlight {
-	padding-block: var(--wpds-dimension-padding-md, 12px);
-	text-align: center;
+.label {
+	color: var(--wpds-color-fg-content-neutral);
+}
+
+/* Peak value shown as a large serif display figure, matching the Stats
+ * "Most popular time" highlight. Scales with the widget width via container
+ * query units; the serif stack falls back to system serifs where Recoleta is
+ * unavailable. Scoped under .root to win over the Text variant's default. */
+.root .value {
+	font-family: Recoleta, "Noto Serif", Georgia, "Times New Roman", serif;
+	font-size: clamp(28px, 12cqi, 40px);
+	line-height: 1.1;
+	font-weight: 400;
+	color: var(--wpds-color-fg-content-neutral);
 }
 
 .caption {
 	color: var(--wpds-color-fg-content-neutral-weak);
-}
-
-.chart {
-	flex: 1 1 auto;
-	min-width: 0;
-	min-height: 0;
-	overflow: hidden;
 }
 
 .placeholder {
@@ -30,7 +35,7 @@
  * .preview wrapper uses height: 125% of an auto-height parent, so height: 100%
  * on .root also resolves to auto, leaving aspect-ratio with no anchor. Setting
  * height: auto here lets aspect-ratio derive the height from the known inline
- * size and overflow: hidden clips the chart content. Targets only the picker
+ * size and overflow: hidden clips the content. Targets only the picker
  * (inert="") — not the edit-mode wrapper (inert="true") where the grid tile
  * supplies a real height. */
 :global([inert]:not([inert="true"])) .root {

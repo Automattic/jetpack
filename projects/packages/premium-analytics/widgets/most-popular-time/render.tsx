@@ -3,17 +3,12 @@
  */
 import { useStatsInsights, type StatsInsightsResponse } from '@jetpack-premium-analytics/data';
 import {
-	BarChart,
-	MetricWithComparison,
 	WidgetLoadingOverlay,
 	WidgetRoot,
-	type BarChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import { format, parse } from 'date-fns';
-import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -28,54 +23,43 @@ type MostPopularTimeRenderAttributes = MostPopularTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
 /**
- * The insights `hourly_views` timestamps arrive as `YYYY-MM-DD HH:mm:ss`
- * strings; this parses one back into a `Date` so its hour can be formatted for
- * the bar-chart axis.
- */
-const HOURLY_VIEWS_TIMESTAMP_FORMAT = 'yyyy-MM-dd HH:mm:ss';
-
-/**
- * Maps the insights `hourlyViews` map (timestamp → view count) onto the single
- * series `BarChart` expects, labelling each bar with its hour of day. Entries
- * are ordered chronologically by their timestamp key.
+ * A single "best day" / "best hour" highlight: a label, the peak value rendered
+ * as a large display figure, and its share of total views.
  *
- * @param hourlyViews - The insights hourly-views map, or undefined while loading.
- * @return The bar-chart series data.
+ * @param props         - The highlight props.
+ * @param props.label   - The highlight label (e.g. "Best day").
+ * @param props.value   - The peak value (e.g. "Tuesday" or "3:00 PM").
+ * @param props.percent - The value's share of total views, as a whole percent.
+ * @return The highlight block.
  */
-function toHourlyChartData( hourlyViews: StatsInsightsResponse[ 'hourlyViews' ] ): BarChartData {
-	if ( ! hourlyViews ) {
-		return [];
-	}
-
-	const points = Object.entries( hourlyViews )
-		.sort( ( [ a ], [ b ] ) => a.localeCompare( b ) )
-		.map( ( [ timestamp, views ] ) => ( {
-			label: format( parse( timestamp, HOURLY_VIEWS_TIMESTAMP_FORMAT, new Date() ), 'ha' ),
-			value: views,
-		} ) );
-
-	if ( points.length === 0 ) {
-		return [];
-	}
-
-	return [ { label: __( 'Views', 'jetpack-premium-analytics' ), data: points } ];
+function Highlight( { label, value, percent }: { label: string; value: string; percent: number } ) {
+	return (
+		<Stack direction="column" gap="xs">
+			<Text variant="heading-md" render={ <h4 /> } className={ styles.label }>
+				{ label }
+			</Text>
+			<Text className={ styles.value }>{ value }</Text>
+			<Text variant="body-md" className={ styles.caption }>
+				{ sprintf(
+					/* translators: %d: share of total views as a whole percent. */
+					__( '%d%% of views', 'jetpack-premium-analytics' ),
+					percent
+				) }
+			</Text>
+		</Stack>
+	);
 }
 
 /**
  * Fetches the insights report through the `useStatsInsights` Stats hook and
- * renders the most-popular-time highlight — the peak hour and its share of
- * views — above a bar chart of views across the day.
+ * renders the most-popular-time highlights — the peak day and hour, each with
+ * its share of views.
  *
  * @return The widget content.
  */
 function MostPopularTimeReport() {
 	const { data, isLoading, isError } = useStatsInsights();
 	const report = data as StatsInsightsResponse | undefined;
-
-	const chartData = useMemo< BarChartData >(
-		() => toHourlyChartData( report?.hourlyViews ),
-		[ report?.hourlyViews ]
-	);
 
 	if ( isError ) {
 		return (
@@ -89,7 +73,7 @@ function MostPopularTimeReport() {
 		return <WidgetLoadingOverlay />;
 	}
 
-	if ( ! report?.hour ) {
+	if ( ! report?.day || ! report?.hour ) {
 		return (
 			<Text className={ styles.placeholder }>
 				{ __(
@@ -101,36 +85,17 @@ function MostPopularTimeReport() {
 	}
 
 	return (
-		<Stack className={ styles.root } gap="md">
-			<Stack className={ styles.highlight } align="center" gap="xs">
-				<Text variant="heading-2xl" className={ styles.hour }>
-					{ report.hour }
-				</Text>
-				<Stack direction="row" align="baseline" justify="center" gap="xs">
-					<MetricWithComparison
-						value={ ( report.hourPercent ?? 0 ) / 100 }
-						dataFormat={ {
-							type: 'percentage',
-							options: { decimals: 0, signDisplay: 'never' },
-						} }
-						fontSize="lg"
-					/>
-					<Text variant="body-md" className={ styles.caption }>
-						{ __( 'of views', 'jetpack-premium-analytics' ) }
-					</Text>
-				</Stack>
-			</Stack>
-			{ chartData.length > 0 && (
-				<BarChart
-					className={ styles.chart }
-					chartData={ chartData }
-					dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
-					emptyStateText={ __(
-						'No hourly view data for this period.',
-						'jetpack-premium-analytics'
-					) }
-				/>
-			) }
+		<Stack className={ styles.root } direction="column" gap="lg">
+			<Highlight
+				label={ __( 'Best day', 'jetpack-premium-analytics' ) }
+				value={ report.day }
+				percent={ report.percent ?? 0 }
+			/>
+			<Highlight
+				label={ __( 'Best hour', 'jetpack-premium-analytics' ) }
+				value={ report.hour }
+				percent={ report.hourPercent ?? 0 }
+			/>
 		</Stack>
 	);
 }
