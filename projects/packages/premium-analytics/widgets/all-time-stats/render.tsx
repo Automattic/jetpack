@@ -16,7 +16,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './all-time-stats.module.css';
+import styles from './style.module.css';
 import type { AllTimeStatsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
