@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add playlist management to the VideoPress dashboard behind the Studio feature flag.

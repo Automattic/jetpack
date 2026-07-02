@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-VideoPress Dashboard: add the feature-gated playlists list screen — DataViews table/grid backed by the playlists taxonomy REST endpoints, with create, edit navigation, delete confirmation, and artwork selection (disabled by default).
