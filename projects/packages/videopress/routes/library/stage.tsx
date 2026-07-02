@@ -5,7 +5,7 @@ import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
-import CaptionManagerModal from '../../src/client/components/caption-manager-modal';
+import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
 import { libraryFields } from '../../src/dashboard/components/library/fields';

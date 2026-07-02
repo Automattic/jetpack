@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
-import CaptionManagerModal from '../../src/client/components/caption-manager-modal';
+import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
 import HeaderActions from '../../src/dashboard/components/video-details/header-actions';

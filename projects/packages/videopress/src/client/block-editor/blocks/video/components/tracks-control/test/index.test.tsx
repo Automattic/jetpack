@@ -20,7 +20,7 @@ jest.mock( '@wordpress/i18n', () => ( {
 	__: ( text: string ) => text,
 } ) );
 
-jest.mock( '../../../../../../components/caption-manager-modal', () => ( {
+jest.mock( '../../../../../../components/caption-manager-modal/lazy', () => ( {
 	__esModule: true,
 	default: ( { isOpen, onTracksChange } ) =>
 		isOpen ? (
