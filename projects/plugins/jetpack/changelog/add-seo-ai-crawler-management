@@ -1,4 +1,4 @@
 Significance: minor
-Type: added
+Type: enhancement
 
 SEO: add AI crawler management — free per-bot allow/block toggles (answer engines allowed, training crawlers blocked by default) that write robots.txt directives.

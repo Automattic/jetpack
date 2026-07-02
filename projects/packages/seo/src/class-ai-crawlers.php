@@ -57,7 +57,7 @@ class Ai_Crawlers {
 	 * drives the AI tab's two sections and the per-type default; `redirect_slug` is
 	 * the jetpack.com/redirect slug for that bot's "Learn what it does" link.
 	 *
-	 * @return array<string, array{label: string, user_agent: string, type: string, redirect_slug: string}>
+	 * @return array<string, array<string, string>>
 	 */
 	public static function get_catalog() {
 		$catalog = array(
