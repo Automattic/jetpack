@@ -286,16 +286,24 @@ function readIterationField( result, field ) {
 /**
  * Summary stats for one field across the valid iterations, rounded to whole ms to match
  * the original LCP-only summary. Non-finite samples (a browser that reported null for a
- * field on some iteration) are dropped before aggregating; a field with NO finite samples
- * returns null so the caller omits it and the poster fails closed on the missing field
- * rather than posting a fabricated 0.
+ * field on some iteration) are dropped before aggregating. A field whose finite samples do
+ * not cover a MAJORITY of the valid iterations returns null so the caller omits it and the
+ * poster fails closed on the missing field rather than posting a fabricated 0 — or, worse, a
+ * thin value (e.g. a field captured on 1 of 5 runs) as a full "median" with stdDev 0, a
+ * low-confidence point indistinguishable from a real full-sample median in the append-only store.
  *
  * @param {Array<number|null|undefined>} values - Raw per-iteration values for the field.
  * @return {{median:number,mean:number,min:number,max:number,stdDev:number}|null} Rounded stats, or null.
  */
 function summarizeField( values ) {
 	const finite = values.filter( v => typeof v === 'number' && Number.isFinite( v ) );
-	if ( finite.length === 0 ) {
+	// Require a STRICT majority of the valid iterations to have produced a finite sample:
+	// finite*2 > n. This keeps single-iteration runs working (1 of 1) while rejecting a thin
+	// field that would otherwise post a lone/minority sample as a trend point — including the
+	// even-count edge (1 of 2, 2 of 4) that a ceil(n/2) floor would let slip through. n=0 also
+	// falls through to null (0 > 0 is false). LCP is unaffected in practice: it is finite on
+	// every valid iteration by construction (validResults already filtered out null LCP).
+	if ( finite.length * 2 <= values.length ) {
 		return null;
 	}
 	return {

@@ -184,10 +184,16 @@ function checkSanityRange( type, value ) {
 		return { ok: true };
 	}
 
-	const range = SANITY_RANGES[ type ];
-	if ( ! range ) {
+	// Look up the range as an OWN property only. SANITY_RANGES is a plain object, so a type
+	// that happens to name an inherited property ("constructor", "toString", "valueOf", …)
+	// would resolve to a truthy prototype value with undefined min/max, and the range
+	// comparison below (value < undefined || value > undefined) is always false — the value
+	// would post unchecked. A type with no OWN range row is a typo or a forgotten entry and
+	// must fail closed.
+	if ( ! Object.hasOwn( SANITY_RANGES, type ) ) {
 		return { ok: false, reason: `no sanity range is defined for type "${ type }"` };
 	}
+	const range = SANITY_RANGES[ type ];
 
 	if ( value < range.min || value > range.max ) {
 		return { ok: false, reason: `${ value } is outside [${ range.min }, ${ range.max }]` };

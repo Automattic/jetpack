@@ -113,6 +113,17 @@ test( 'a typed metric with no range row fails closed (typo / forgotten row)', ()
 	assert.equal( checkSanityRange( 'LCP', 120 ).ok, false ); // case mismatch, lookup is exact
 } );
 
+test( 'a type naming an inherited Object property fails closed, not posted unchecked', () => {
+	// SANITY_RANGES is a plain object, so SANITY_RANGES.constructor (and toString/valueOf/
+	// hasOwnProperty) is a truthy inherited value with undefined min/max. A plain `! range`
+	// check would let it through and the value would post unchecked. The lookup must be
+	// own-property-only.
+	assert.equal( checkSanityRange( 'constructor', 999999 ).ok, false );
+	assert.equal( checkSanityRange( 'toString', 999999 ).ok, false );
+	assert.equal( checkSanityRange( 'valueOf', 999999 ).ok, false );
+	assert.equal( checkSanityRange( 'hasOwnProperty', 999999 ).ok, false );
+} );
+
 test( 'non-finite values are rejected, including on min-0 ranges', () => {
 	assert.equal( checkSanityRange( 'tbt', null ).ok, false ); // null coerces to 0; must not pass
 	assert.equal( checkSanityRange( 'cls', null ).ok, false );
@@ -286,10 +297,16 @@ test( 'a keyed scenario without a metricType is rejected, not posted unchecked',
 test( 'an empty metrics array is rejected as a misconfiguration, not silently dropped', () => {
 	// metrics:[] passes Array.isArray and would map to nothing: fail-closed while it is
 	// the only posting scenario, but a SILENT drop (green build) once a sibling posting
-	// scenario contributes a valid key. Reject the config shape outright.
+	// scenario contributes a valid key. Reject the config shape outright — as a
+	// ValidationError (exit 2), since --allow-codevitals-failure must not suppress it.
 	assert.throws(
 		() => extractScenarioMetrics( { key: 'future', metrics: [] }, { lcp: { median: 100 } } ),
-		/declares an empty metrics array/
+		err => {
+			assert.equal( err.name, 'ValidationError' );
+			assert.match( err.message, /declares an empty metrics array/ );
+			assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+			return true;
+		}
 	);
 } );
 
@@ -310,14 +327,20 @@ test( 'a null metrics[] entry maps to the validation exit code, not a suppressib
 test( 'a posting scenario with no metric selector at all is rejected, not posted under undefined_* keys', () => {
 	// Without this guard the legacy branch builds keys from an undefined prefix and posts
 	// five finite summary stats under literal "undefined_*" keys — untyped (unchecked) and
-	// with a green build. The only fail-open extraction shape; must throw like its siblings.
+	// with a green build. The only fail-open extraction shape; must throw like its siblings,
+	// as a ValidationError (exit 2) that --allow-codevitals-failure cannot suppress.
 	assert.throws(
 		() =>
 			extractScenarioMetrics(
 				{ key: 'future' },
 				{ median: 100, mean: 100, min: 90, max: 110, stdDev: 5 }
 			),
-		/no metrics\[\], metricKey, or metricPrefix/
+		err => {
+			assert.equal( err.name, 'ValidationError' );
+			assert.match( err.message, /no metrics\[\], metricKey, or metricPrefix/ );
+			assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+			return true;
+		}
 	);
 } );
 
@@ -1424,6 +1447,49 @@ test( 'buildSummary drops individual non-finite samples before aggregating a fie
 	assert.equal( summary.ttfb.median, 70 ); // median of [60, 80], the null dropped
 	assert.equal( summary.ttfb.min, 60 );
 	assert.equal( summary.ttfb.max, 80 );
+} );
+
+test( 'buildSummary omits a field whose finite samples miss a strict majority of iterations', () => {
+	// A field captured on only a minority of runs (here TTFB on 1 of 3) is too thin to post:
+	// a lone sample would land as a full "median" (stdDev 0) in the append-only store. Below
+	// the strict-majority floor the field is omitted so the poster fails closed instead. LCP/FCP,
+	// captured on every run, still aggregate with their real values.
+	const results = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: 60, fcp: 200 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: null, fcp: 400 } },
+		{ lcp: 300, metrics: { lcp: 300, ttfb: null, fcp: 600 } },
+	];
+	const summary = buildSummary( results, 3 );
+	assert.equal( summary.ttfb, undefined, '1 of 3 finite TTFB → below strict majority → omitted' );
+	assert.equal( summary.lcp.median, 200, 'majority-covered LCP still aggregates its real median' );
+	assert.equal( summary.fcp.median, 400, 'majority-covered FCP still aggregates its real median' );
+	assert.equal( summary.median, 200, 'flat LCP mirror unaffected' );
+} );
+
+test( 'buildSummary strict-majority floor: even-count 1-of-2 is omitted, but single-iteration 1-of-1 is kept', () => {
+	// finite*2 > n. The even-count edge (1 of 2) must NOT post — that is the case a ceil(n/2)
+	// floor would have let through. A single-iteration run (1 of 1) must still post, or
+	// ITERATIONS=1 could never report a metric.
+	const twoRuns = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: 60, fcp: 200 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: null, fcp: 400 } }, // ttfb finite on only 1 of 2
+	];
+	const twoSummary = buildSummary( twoRuns, 2 );
+	assert.equal(
+		twoSummary.ttfb,
+		undefined,
+		'1 of 2 finite TTFB → not a strict majority → omitted'
+	);
+	assert.ok( twoSummary.lcp && twoSummary.fcp, 'fields finite on both runs still aggregate' );
+
+	const oneRun = [ { lcp: 150, metrics: { lcp: 150, ttfb: 55, fcp: 300 } } ];
+	const oneSummary = buildSummary( oneRun, 1 );
+	assert.equal(
+		oneSummary.ttfb.median,
+		55,
+		'1 of 1 finite TTFB → kept (single-iteration runs work)'
+	);
+	assert.equal( oneSummary.median, 150, 'single-iteration LCP still mirrored flat' );
 } );
 
 // --- commit-time plumbing: getGitInfo reads the producer side (real temp git repo) ---
