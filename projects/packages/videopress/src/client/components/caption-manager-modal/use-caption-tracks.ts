@@ -28,7 +28,18 @@ type UseCaptionTracksResult = {
 
 const EMPTY_CAPTION_TRACKS: SavedCaptionTrack[] = [];
 
-const getCaptionTracksQueryKey = ( guid: string ) => [ 'videopress', 'caption-tracks', guid ];
+/**
+ * Query key for a video's saved caption tracks (drafts), exported so hosts
+ * can invalidate it (e.g. when the caption manager closes).
+ *
+ * @param {string} guid - VideoPress GUID.
+ * @return {Array} The query key.
+ */
+export const getCaptionTracksQueryKey = ( guid: string ) => [
+	'videopress',
+	'caption-tracks',
+	guid,
+];
 
 /**
  * Loads and owns the locally stored caption-track drafts for a video.

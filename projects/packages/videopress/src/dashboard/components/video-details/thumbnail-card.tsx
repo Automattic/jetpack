@@ -1,11 +1,13 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { copy } from '@wordpress/icons';
 import { Button, Card, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useState } from 'react';
+import { useCaptionTracks } from '../../../client/components/caption-manager-modal/use-caption-tracks';
 import { useVideoTracks } from '../../../client/components/caption-manager-modal/use-video-tracks';
+import { CAPTION_TRACK_META } from '../../../client/lib/video-tracks/caption-tracks';
 import {
 	getLanguageDisplayName,
 	getManualLanguageTagFromTrackKey,
@@ -31,6 +33,9 @@ const dateSettings = getDateSettings();
 // it sooner; this just guarantees the overlay can't get stuck if onLoad never
 // fires (identical URL, cache hit, or a load error).
 const POSTER_CONFIRM_TIMEOUT_MS = 5000;
+
+// The Subtitles row lists this many languages before collapsing into "and N more".
+const MAX_SUBTITLE_LANGUAGES_SHOWN = 2;
 
 const linkForVideo = ( video: LibraryItem ): string => {
 	const host = video.isPrivate ? 'video.wordpress.com' : 'videopress.com';
@@ -111,19 +116,61 @@ export default function ThumbnailCard( {
 		isPrivate: video.isPrivate,
 		tracks: video.tracks,
 	} );
+	const { captionTracks } = useCaptionTracks( {
+		guid: video.guid ?? '',
+		isOpen: !! video.guid,
+	} );
+
+	const publishedSubtitleTracks = managedTracks.filter(
+		track => track.kind === 'captions' || track.kind === 'subtitles'
+	);
 	const subtitleLanguages = [
 		...new Set(
-			managedTracks
-				.filter( track => track.kind === 'captions' || track.kind === 'subtitles' )
-				.map(
-					track =>
-						track.label ||
-						getLanguageDisplayName(
-							getManualLanguageTagFromTrackKey( track.srcLang ) || track.srcLang
-						)
-				)
+			publishedSubtitleTracks.map(
+				track =>
+					track.label ||
+					getLanguageDisplayName(
+						getManualLanguageTagFromTrackKey( track.srcLang ) || track.srcLang
+					)
+			)
 		),
 	];
+	// Local drafts without a published counterpart, as in the manager's track list.
+	const draftCount = captionTracks.filter( captionTrack => {
+		const kind = captionTrack.meta[ CAPTION_TRACK_META.kind ];
+		const srcLang = captionTrack.meta[ CAPTION_TRACK_META.srcLang ];
+		return (
+			captionTrack.status === 'draft' &&
+			( kind === 'captions' || kind === 'subtitles' ) &&
+			!! srcLang &&
+			! publishedSubtitleTracks.some( track => track.srcLang === srcLang )
+		);
+	} ).length;
+
+	const shownLanguages = subtitleLanguages.slice( 0, MAX_SUBTITLE_LANGUAGES_SHOWN ).join( ', ' );
+	const moreLanguagesCount = subtitleLanguages.length - MAX_SUBTITLE_LANGUAGES_SHOWN;
+	let subtitleSummary = shownLanguages || __( 'None', 'jetpack-videopress-pkg' );
+	if ( moreLanguagesCount > 0 ) {
+		subtitleSummary = sprintf(
+			/* translators: 1: list of subtitle language names. 2: how many further languages exist. */
+			_n(
+				'%1$s, and %2$d more',
+				'%1$s, and %2$d more',
+				moreLanguagesCount,
+				'jetpack-videopress-pkg'
+			),
+			shownLanguages,
+			moreLanguagesCount
+		);
+	}
+	if ( draftCount > 0 ) {
+		subtitleSummary = sprintf(
+			/* translators: 1: subtitle language summary. 2: how many unpublished drafts exist. */
+			_n( '%1$s · %2$d draft', '%1$s · %2$d drafts', draftCount, 'jetpack-videopress-pkg' ),
+			subtitleSummary,
+			draftCount
+		);
+	}
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const updatePoster = useUpdateVideoPoster();
 	const [ dialogOpen, setDialogOpen ] = useState( false );
@@ -290,11 +337,12 @@ export default function ThumbnailCard( {
 									<Text>
 										{ isLoadingTracks
 											? __( 'Loading…', 'jetpack-videopress-pkg' )
-											: subtitleLanguages.join( ', ' ) || __( 'None', 'jetpack-videopress-pkg' ) }
+											: subtitleSummary }
 									</Text>
 									<Button
 										variant="minimal"
 										size="small"
+										className="vp-video-details__manage-subtitles"
 										aria-label={ __( 'Manage subtitles', 'jetpack-videopress-pkg' ) }
 										onClick={ onManageSubtitles }
 									>

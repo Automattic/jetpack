@@ -1,5 +1,6 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { useQueryClient } from '@tanstack/react-query';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -7,6 +8,8 @@ import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
+import { getCaptionTracksQueryKey } from '../../src/client/components/caption-manager-modal/use-caption-tracks';
+import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
 import HeaderActions from '../../src/dashboard/components/video-details/header-actions';
@@ -188,6 +191,22 @@ const StageReady = ( { video }: StageReadyProps ) => {
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
 	const [ captionsOpen, setCaptionsOpen ] = useState( false );
+	const queryClient = useQueryClient();
+
+	/*
+	 * The caption manager runs on its own query client, so the page's caches
+	 * (the thumbnail card's Subtitles row) don't see its changes. Refresh them
+	 * on close to pick up publishes, drafts, and deletions alike.
+	 */
+	const closeCaptions = useCallback( () => {
+		setCaptionsOpen( false );
+		void queryClient.invalidateQueries( {
+			queryKey: getVideoInfoQueryKeyPrefix( video.guid ?? '' ),
+		} );
+		void queryClient.invalidateQueries( {
+			queryKey: getCaptionTracksQueryKey( video.guid ?? '' ),
+		} );
+	}, [ queryClient, video.guid ] );
 	// Deletes keep running after an unmount (the user can navigate away via
 	// the breadcrumb mid-flight). The notice cleanup below must still happen
 	// then, but we shouldn't yank them to the Library if they've moved on.
@@ -285,7 +304,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 					poster={ video.thumbnailUrl }
 					isPrivate={ video.isPrivate }
 					tracks={ video.tracks }
-					onClose={ () => setCaptionsOpen( false ) }
+					onClose={ closeCaptions }
 					onTracksChange={ () => void invalidateVideo( video.id ) }
 				/>
 			) }

@@ -38,10 +38,18 @@ type UseVideoTracksResult = {
 
 const EMPTY_TRACKS: VideoTextTrack[] = [];
 
+/**
+ * Query-key prefix for a video's video-info data, exported so hosts can
+ * invalidate it (e.g. when the caption manager closes) without knowing the
+ * full key shape.
+ *
+ * @param {string} guid - VideoPress GUID.
+ * @return {Array} The query-key prefix.
+ */
+export const getVideoInfoQueryKeyPrefix = ( guid: string ) => [ 'videopress', 'video-info', guid ];
+
 const getVideoTracksQueryKey = ( guid: string, isPrivate: boolean ) => [
-	'videopress',
-	'video-info',
-	guid,
+	...getVideoInfoQueryKeyPrefix( guid ),
 	isPrivate,
 ];
 
