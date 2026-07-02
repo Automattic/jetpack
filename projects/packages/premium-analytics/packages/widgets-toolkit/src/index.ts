@@ -65,6 +65,7 @@ export {
 	PAYMENT_STATUS_FILTERS,
 	buildPaymentStatusData,
 	type PaymentStatusData,
+	buildSalesByUtmData,
 	formatLegendLabels,
 } from './helpers';
 

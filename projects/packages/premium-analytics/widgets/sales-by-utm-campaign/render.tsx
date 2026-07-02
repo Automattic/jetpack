@@ -7,6 +7,7 @@ import {
 	LeaderboardChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
+	buildSalesByUtmData,
 	formatLegendLabels,
 	useWidgetError,
 	useWidgetRootContext,
@@ -16,7 +17,6 @@ import { useMemo, type ComponentProps, type CSSProperties } from 'react';
 /**
  * Internal dependencies
  */
-import { buildSalesByUtmData } from './helpers/build-sales-by-utm-data';
 import type { SalesByUtmCampaignAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
