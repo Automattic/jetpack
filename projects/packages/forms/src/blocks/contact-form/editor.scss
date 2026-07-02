@@ -864,9 +864,6 @@
 				border-radius: unset !important;
 				padding: 0 4px;
 				transition: border 150ms linear;
-				// For some reason, when keeping the rule below together with the above
-				// selector, on production builds, the attributes are being reordered,
-				// causing side-effects.
 				border-left: none !important;
 				border-right: none !important;
 				box-sizing: content-box;
