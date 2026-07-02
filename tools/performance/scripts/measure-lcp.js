@@ -330,8 +330,10 @@ function buildSummary( validResults, iterations, fields = SUMMARY_FIELDS ) {
 	}
 	return {
 		// Flat top-level LCP stats, mirrored for backward-compat (legacy metricKey path +
-		// older readers of summary.median). validResults always carries a finite LCP, so
-		// perField.lcp is always present.
+		// older readers of summary.median). Nothing above enforces a FINITE LCP (the
+		// validResults filter only drops null/undefined), so in the degenerate case where
+		// every LCP sample is non-finite, perField.lcp is absent: the flat mirror is
+		// simply omitted and the poster fails closed on the missing field.
 		...( perField.lcp ?? {} ),
 		successfulIterations: validResults.length,
 		totalIterations: iterations,
