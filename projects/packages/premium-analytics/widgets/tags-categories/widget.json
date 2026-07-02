@@ -1,0 +1,7 @@
+{
+	"name": "jpa/tags-categories",
+	"title": "Tags & categories",
+	"description": "Most viewed tags and categories, sourced from Jetpack Stats.",
+	"category": "stats",
+	"presentation": "framed"
+}
