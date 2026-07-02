@@ -17,10 +17,12 @@ type EditEntityRecord = DispatchActions[ 'editEntityRecord' ];
  * the sidebar badge, then reconciles with the authoritative server count, and
  * reverts both the store edit and the badge if the request fails.
  *
- * This is shared by the inbox inspectors (via `useMarkAsReadOnView`) and the
- * "Mark as read" row/bulk actions so the behaviour cannot drift between the
- * wp-build and legacy dashboards — the divergence that previously left the
- * sidebar badge stale until a page refresh.
+ * Used by both inbox inspectors (via `useMarkAsReadOnView`) so the "mark as read
+ * on view" behaviour cannot drift between the wp-build and legacy dashboards —
+ * the divergence that previously left the sidebar badge stale until a page
+ * refresh. It mirrors (but does not yet share) the equivalent per-item logic in
+ * the "Mark as read" row/bulk actions; consolidating those is a possible
+ * follow-up.
  *
  * @param response         - The response to mark as read.
  * @param editEntityRecord - The core-data `editEntityRecord` dispatcher.
