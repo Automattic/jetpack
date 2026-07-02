@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: fix the widget dashboard Storybook stories flickering when resizing a widget vertically, by bounding the story container height so the page scrolls internally.
