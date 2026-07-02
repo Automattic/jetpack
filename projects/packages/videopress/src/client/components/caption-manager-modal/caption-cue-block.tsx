@@ -136,6 +136,16 @@ const CaptionCueEdit = ( {
 						label={ __( 'End', 'jetpack-videopress-pkg' ) }
 						value={ attributes.endTime }
 						onChange={ endTime => setAttributes( { endTime } ) }
+						onKeyDown={ event => {
+							// Enter appends the next cue and moves the caret to its text.
+							if ( event.key !== 'Enter' || event.nativeEvent.isComposing ) {
+								return;
+							}
+							event.preventDefault();
+							const block = createAdjacentCue();
+							pendingFocusClientIdRef.current = block.clientId;
+							insertBlock( block, index + 1, rootClientId, false );
+						} }
 						onBlur={ () =>
 							setAttributes( {
 								endTime: normalizeCueTimestamp( attributes.endTime ) || attributes.endTime,
