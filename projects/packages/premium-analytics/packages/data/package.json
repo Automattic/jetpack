@@ -9,6 +9,7 @@
 	"types": "src/index.ts",
 	"sideEffects": false,
 	"dependencies": {
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@date-fns/tz": "1.4.1",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@tanstack/react-query": "5.90.8",
