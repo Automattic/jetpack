@@ -24,6 +24,7 @@ export function videoTabPath( videoId: string, tab: VideoNavTab ): string {
 type Props = {
 	videoId: string;
 	activeTab: VideoNavTab;
+	confirmNavigation?: () => boolean;
 };
 
 /**
@@ -33,21 +34,28 @@ type Props = {
  * each of these tabs is a sibling route, so this component owns its own
  * `Tabs.Root` and navigates on tab activation instead of swapping panels.
  *
- * @param props           - Component props.
- * @param props.videoId   - The video's attachment id, used to build tab paths.
- * @param props.activeTab - Currently active per-video tab.
+ * @param props                   - Component props.
+ * @param props.videoId           - The video's attachment id, used to build tab paths.
+ * @param props.activeTab         - Currently active per-video tab.
+ * @param props.confirmNavigation - Optional guard invoked before navigating
+ *                                away; return false to cancel (e.g. unsaved
+ *                                editor changes). The active tab never prompts.
  * @return The sub-nav element.
  */
-export default function VideoNav( { videoId, activeTab }: Props ) {
+export default function VideoNav( { videoId, activeTab, confirmNavigation }: Props ) {
 	const navigate = useNavigate();
 
 	const onValueChange = useCallback(
 		( next: string ) => {
-			if ( TAB_VALUES.includes( next as VideoNavTab ) ) {
-				navigate( { href: videoTabPath( videoId, next as VideoNavTab ) } );
+			if ( next === activeTab || ! TAB_VALUES.includes( next as VideoNavTab ) ) {
+				return;
 			}
+			if ( confirmNavigation && ! confirmNavigation() ) {
+				return;
+			}
+			navigate( { href: videoTabPath( videoId, next as VideoNavTab ) } );
 		},
-		[ navigate, videoId ]
+		[ navigate, videoId, activeTab, confirmNavigation ]
 	);
 
 	return (

@@ -1,0 +1,81 @@
+// Studio editor screen layout: an optional status banner on top, then the
+// operations rail beside the main column (preview player over timeline).
+
+.vp-studio-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.vp-studio-editor__loading,
+.vp-studio-editor__processing,
+.vp-studio-editor__not-found {
+	padding: 48px 24px;
+	text-align: center;
+}
+
+.vp-studio-editor__body {
+	display: flex;
+	gap: 24px;
+	align-items: flex-start;
+}
+
+.vp-studio-editor__operations {
+	flex-shrink: 0;
+	width: 180px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.vp-studio-editor__operation {
+	display: block;
+	width: 100%;
+	padding: 8px 12px;
+	border: 0;
+	border-radius: 4px;
+	background: transparent;
+	text-align: left;
+	cursor: pointer;
+
+	&:hover {
+		background: rgba(0, 0, 0, 0.05);
+	}
+
+	&--active {
+		background: rgba(0, 0, 0, 0.08);
+		font-weight: 600;
+	}
+}
+
+.vp-studio-editor__main {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+// A processing job locks editing: block pointer interaction (keyboard-driven
+// dispatches are dropped by the screen's guarded dispatch) and dim the strip.
+.vp-studio-editor__timeline--locked {
+	pointer-events: none;
+	opacity: 0.6;
+}
+
+.vp-studio-editor__banner {
+	padding: 12px 16px;
+	border-radius: 4px;
+	border: 1px solid #ddd;
+	background: #f6f7f7;
+
+	&--failed,
+	&--conflict {
+		border-color: #d63638;
+		background: #fcf0f1;
+	}
+}
+
+.vp-studio-editor__banner-progress {
+	width: 160px;
+}

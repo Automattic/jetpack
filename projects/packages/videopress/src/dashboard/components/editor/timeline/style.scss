@@ -1,0 +1,217 @@
+// Studio editor timeline: toolbar row on top, then a horizontally scrollable
+// strip. Inside the strip a scaled content element stacks the tracks (ruler,
+// filmstrip) with the edit overlay and the playhead absolutely positioned
+// across the full track height.
+
+$vp-timeline-handle-width: 10px;
+$vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
+
+.vp-studio-timeline {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
+}
+
+.vp-studio-timeline__toolbar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.vp-studio-timeline__timecode {
+	width: 9ch;
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+	border: 1px solid transparent;
+	border-radius: 2px;
+	background: transparent;
+	padding: 2px 4px;
+
+	&:hover,
+	&:focus {
+		border-color: $vp-timeline-accent;
+	}
+}
+
+.vp-studio-timeline__zoom {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-left: auto;
+}
+
+.vp-studio-timeline__zoom-slider {
+	width: 120px;
+}
+
+.vp-studio-timeline__scroller {
+	overflow-x: auto;
+	overflow-y: hidden;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.vp-studio-timeline__content {
+	position: relative;
+	min-width: 100%;
+	// Pointer-captured drags must keep reporting positions instead of turning
+	// into native scrolling/text-selection gestures.
+	touch-action: none;
+	user-select: none;
+}
+
+.vp-studio-timeline__track--ruler {
+	height: 24px;
+}
+
+.vp-studio-timeline__ruler {
+	position: relative;
+	height: 100%;
+	border-bottom: 1px solid #e0e0e0;
+	overflow: hidden;
+}
+
+.vp-studio-timeline__ruler-tick {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	border-left: 1px solid #ccc;
+	padding-left: 4px;
+	display: flex;
+	align-items: center;
+}
+
+.vp-studio-timeline__ruler-label {
+	font-size: 10px;
+	color: #757575;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.vp-studio-timeline__track--filmstrip {
+	height: 64px;
+}
+
+// Neutral strip while the filmstrip loads or when no source is usable.
+.vp-studio-timeline__filmstrip-placeholder {
+	height: 100%;
+	background: repeating-linear-gradient(90deg, #e8e8e8 0, #e8e8e8 47px, #d4d4d4 47px, #d4d4d4 48px);
+}
+
+// The filmstrip proper: equal-width tiles flex-stretched across the content
+// width, so zooming stretches them with no re-extraction.
+.vp-studio-timeline__filmstrip {
+	display: flex;
+	height: 100%;
+	overflow: hidden;
+}
+
+.vp-studio-timeline__filmstrip-tile {
+	flex: 1 1 0;
+	min-width: 0;
+	height: 100%;
+	background-repeat: no-repeat;
+	// Extraction-mode <img> tiles; ignored by storyboard background tiles.
+	object-fit: cover;
+}
+
+// The overlay sheet spans every track; it is pointer-transparent so empty
+// areas scrub, and interactive children opt back in.
+.vp-studio-timeline__overlay {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.vp-studio-timeline__shroud {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.35);
+}
+
+.vp-studio-timeline__trim-handle {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: $vp-timeline-handle-width;
+	background: $vp-timeline-accent;
+	border-radius: 2px;
+	cursor: ew-resize;
+	pointer-events: auto;
+
+	// Center the grip on its time; translateX positions the left edge.
+	margin-left: -($vp-timeline-handle-width * 0.5);
+
+	&:focus-visible {
+		outline: 2px solid $vp-timeline-accent;
+		outline-offset: 1px;
+	}
+}
+
+.vp-studio-timeline__cut {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	background: repeating-linear-gradient(-45deg, rgba(214, 54, 56, 0.35) 0, rgba(214, 54, 56, 0.35) 6px, rgba(214, 54, 56, 0.15) 6px, rgba(214, 54, 56, 0.15) 12px);
+	border: 1px solid rgba(214, 54, 56, 0.8);
+	pointer-events: auto;
+
+	&--selected {
+		border-color: $vp-timeline-accent;
+		border-width: 2px;
+		box-shadow: 0 0 0 1px $vp-timeline-accent;
+	}
+}
+
+.vp-studio-timeline__cut-edge {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 8px;
+	cursor: ew-resize;
+	background: rgba(214, 54, 56, 0.9);
+
+	&--start {
+		left: -4px;
+	}
+
+	&--end {
+		right: -4px;
+	}
+
+	&:focus-visible {
+		outline: 2px solid $vp-timeline-accent;
+		outline-offset: 1px;
+	}
+}
+
+.vp-studio-timeline__cut-remove {
+	position: absolute;
+	top: 2px;
+	right: 6px;
+	background: #fff;
+	border-radius: 2px;
+
+	// Survive very narrow cuts: the button may overflow the segment.
+	min-width: 0;
+}
+
+.vp-studio-timeline__playhead {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 1px;
+	background: #d63638;
+	// Never block scrubbing; keyboard focus still works via Tab.
+	pointer-events: none;
+
+	&:focus-visible {
+		outline: 2px solid $vp-timeline-accent;
+		outline-offset: 1px;
+	}
+}
