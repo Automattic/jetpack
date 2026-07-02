@@ -224,6 +224,22 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 		);
 	}
 
+	if ( ! in_array( 'default-utm-insights-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'       => 'default-utm-insights-widget-instance',
+			'type'       => 'jpa/utm-insights',
+			'attributes' => array(
+				'utmParam' => 'utm_source,utm_medium',
+				'max'      => 10,
+			),
+			'placement'  => array(
+				'width'  => 1,
+				'height' => 2,
+				'order'  => 5,
+			),
+		);
+	}
+
 	return $dashboard_layout;
 }
 add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\seed_default_dashboard_layout', 10, 2 );
