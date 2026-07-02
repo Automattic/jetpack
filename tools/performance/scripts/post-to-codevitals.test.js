@@ -283,6 +283,30 @@ test( 'a keyed scenario without a metricType is rejected, not posted unchecked',
 	);
 } );
 
+test( 'an empty metrics array is rejected as a misconfiguration, not silently dropped', () => {
+	// metrics:[] passes Array.isArray and would map to nothing: fail-closed while it is
+	// the only posting scenario, but a SILENT drop (green build) once a sibling posting
+	// scenario contributes a valid key. Reject the config shape outright.
+	assert.throws(
+		() => extractScenarioMetrics( { key: 'future', metrics: [] }, { lcp: { median: 100 } } ),
+		/declares an empty metrics array/
+	);
+} );
+
+test( 'a null metrics[] entry maps to the validation exit code, not a suppressible TypeError', () => {
+	// Without the shape guard, metric.codevitalsKey on null throws a raw TypeError →
+	// exit 1 (suppressible), escaping the exit-2 contract its sibling guards honor.
+	let err;
+	try {
+		extractScenarioMetrics( { key: 'future', metrics: [ null ] }, { lcp: { median: 100 } } );
+	} catch ( e ) {
+		err = e;
+	}
+	assert.equal( err?.name, 'ValidationError' );
+	assert.match( err.message, /non-object metrics\[\] entry/ );
+	assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+} );
+
 test( 'a posting scenario with no metric selector at all is rejected, not posted under undefined_* keys', () => {
 	// Without this guard the legacy branch builds keys from an undefined prefix and posts
 	// five finite summary stats under literal "undefined_*" keys — untyped (unchecked) and

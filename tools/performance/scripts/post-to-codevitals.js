@@ -54,10 +54,30 @@ function exitCodeForError( error ) {
  * prefix-suffixed entries, posted unchecked (legacy).
  */
 function extractScenarioMetrics( scenario, summary ) {
+	const scenarioLabel = scenario.key ?? 'unknown';
 	// Multi-metric path: a scenario declares several metrics posted together in one call.
 	if ( Array.isArray( scenario.metrics ) ) {
+		// An empty metrics[] posts nothing without tripping any guard: solo it falls
+		// through to the fail-closed no-metrics gate, but next to a sibling posting
+		// scenario it would be dropped silently while the run posts green. Declaring
+		// the array and leaving it empty is a scenario misconfiguration either way.
+		if ( scenario.metrics.length === 0 ) {
+			throw new ValidationError(
+				`Scenario "${ scenarioLabel }" declares an empty metrics array; declare at least one metric or drop postToCodeVitals`
+			);
+		}
 		const seen = new Set();
 		return scenario.metrics.map( metric => {
+			// A null/undefined entry would throw a raw TypeError on the key read below,
+			// and a plain Error maps to the suppressible exit 1 — escaping the exit-2
+			// contract every other misconfiguration here honors. Reject the shape first.
+			if ( ! metric || typeof metric !== 'object' ) {
+				throw new ValidationError(
+					`Scenario "${ scenarioLabel }" has a non-object metrics[] entry (${ JSON.stringify(
+						metric
+					) }); refusing to post`
+				);
+			}
 			// Every entry MUST name a CodeVitals key. Without one, `key` is undefined and the
 			// value lands under the literal key "undefined" in the append-only store — a
 			// permanent garbage point checkSanityRange (which only inspects the value) can't
@@ -65,7 +85,7 @@ function extractScenarioMetrics( scenario, summary ) {
 			// here, mirroring the type and duplicate-key guards below.
 			if ( typeof metric.codevitalsKey !== 'string' || ! metric.codevitalsKey.trim() ) {
 				throw new ValidationError(
-					`Scenario "${ scenario.key ?? 'unknown' }" has a metric (field "${
+					`Scenario "${ scenarioLabel }" has a metric (field "${
 						metric.field ?? 'unknown'
 					}") with no codevitalsKey; refusing to post to the append-only store`
 				);
@@ -76,7 +96,7 @@ function extractScenarioMetrics( scenario, summary ) {
 			// smoke test catches it before any post) rather than post an unchecked value.
 			if ( ! metric.type ) {
 				throw new ValidationError(
-					`Scenario "${ scenario.key ?? 'unknown' }" metric "${
+					`Scenario "${ scenarioLabel }" metric "${
 						metric.codevitalsKey ?? metric.field ?? 'unknown'
 					}" has no type; refusing to post an unchecked keyed metric`
 				);
@@ -86,9 +106,7 @@ function extractScenarioMetrics( scenario, summary ) {
 			// value is read, mirroring the cross-scenario duplicate-key guard in the loop.
 			if ( seen.has( metric.codevitalsKey ) ) {
 				throw new ValidationError(
-					`Duplicate CodeVitals metric key "${ metric.codevitalsKey }" within scenario "${
-						scenario.key ?? 'unknown'
-					}"`
+					`Duplicate CodeVitals metric key "${ metric.codevitalsKey }" within scenario "${ scenarioLabel }"`
 				);
 			}
 			seen.add( metric.codevitalsKey );
@@ -128,9 +146,7 @@ function extractScenarioMetrics( scenario, summary ) {
 	// shape in this function, so refuse it like the sibling guards above.
 	if ( typeof scenario.metricPrefix !== 'string' || ! scenario.metricPrefix.trim() ) {
 		throw new ValidationError(
-			`Scenario "${
-				scenario.key ?? 'unknown'
-			}" posts to CodeVitals but declares no metrics[], metricKey, or metricPrefix; refusing to post under "undefined_*" keys`
+			`Scenario "${ scenarioLabel }" posts to CodeVitals but declares no metrics[], metricKey, or metricPrefix; refusing to post under "undefined_*" keys`
 		);
 	}
 	const prefix = scenario.metricPrefix;
