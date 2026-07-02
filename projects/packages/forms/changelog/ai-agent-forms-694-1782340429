@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix device visibility settings (Hide on desktop/tablet/mobile) not being applied to form fields on the front end.

@@ -886,6 +886,14 @@ class Feedback {
 				if ( $field->is_of_type( 'hidden' ) ) {
 					continue;
 				}
+
+				// Don't show an empty field that is hidden for the visitor's device (block device
+				// visibility): the visitor couldn't see it, so it shouldn't appear on the
+				// post-submission confirmation. A device-visibility field that was filled in (on a
+				// viewport where it is shown) still has a value and is displayed.
+				if ( $field->is_hidden_for_device() && $field->is_empty() ) {
+					continue;
+				}
 			}
 
 			$label = $field->get_label( $context );
@@ -2125,6 +2133,7 @@ class Feedback {
 				$meta      = array_merge( $meta, $processed['meta'] );
 			}
 			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta, $field_id );
+			$fields[ $key ]->set_hidden_for_device( $field->is_hidden_by_device_visibility() );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;
 			}
