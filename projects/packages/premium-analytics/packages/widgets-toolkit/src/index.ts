@@ -38,6 +38,16 @@ export {
 	type SubscriberListProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	ReportPageLayout,
+	ReportPageSection,
+	ReportPerformanceChart,
+	ReportRecordsTable,
+	buildReportMetricSeries,
+	type ReportChartMetric,
+	type ReportPageLayoutProps,
+	type ReportPageSectionProps,
+	type ReportPerformanceChartProps,
+	type ReportRecordsTableProps,
 } from './components';
 
 /**

@@ -1,0 +1,46 @@
+# Report page
+
+The shared framework for second-level "view all" report pages (Posts & Pages,
+Referrers, Locations, …). A module report page is assembled by composing these
+pieces with the module's data hook and DataViews field config — composition,
+not a bespoke page per module.
+
+```tsx
+<ReportPageLayout
+	breadcrumbs={ <StatsBreadcrumbs title={ __( 'Pages' ) } /> }
+	description={ __( 'All your posts and archive pages.' ) }
+	actions={ downloadButton }
+	filters={ <DateFiltersPanel /* … */ /> }
+>
+	<ReportPerformanceChart
+		primary={ visits.primary.data }
+		comparison={ visits.hasComparison ? visits.comparison.data : undefined }
+		isLoading={ visits.isLoading }
+		interval={ interval }
+		onIntervalChange={ setInterval }
+	/>
+	<ReportRecordsTable
+		data={ rows }
+		fields={ fields }
+		getItemId={ item => String( item.id ) }
+		isLoading={ report.isLoading }
+		initialView={ { sort: { field: 'views', direction: 'desc' } } }
+	/>
+</ReportPageLayout>
+```
+
+- **`ReportPageLayout`** — page scaffold: breadcrumb header with an actions
+  slot, optional internal tabs, a filters row, and stacked sections.
+  `ReportPageSection` is the bordered card each section renders in.
+- **`ReportPerformanceChart`** — the multi-metric visits chart
+  (Views/Visitors/Comments/Likes via `useStatsVisits` `stat_fields`), with a
+  metric show/hide menu, the time-bucket selector (owned by the page — it
+  changes the query), and a collapse toggle. With exactly one visible metric
+  and comparison data, the previous period draws as a dashed overlay.
+- **`ReportRecordsTable`** — a Core DataViews table over the module's
+  summarized rows; search, sorting, column config, and pagination run
+  client-side via `filterSortAndPaginate`.
+
+These components do not fetch: the page owns the data hooks and the
+`reportParams` derived from the URL (`useReportDateFilters`), and passes
+results in as props.

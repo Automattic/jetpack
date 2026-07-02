@@ -36,3 +36,15 @@ export {
 	type SubscriberListItem,
 	type SubscriberListProps,
 } from './subscriber-list';
+export {
+	ReportPageLayout,
+	ReportPageSection,
+	ReportPerformanceChart,
+	ReportRecordsTable,
+	buildReportMetricSeries,
+	type ReportChartMetric,
+	type ReportPageLayoutProps,
+	type ReportPageSectionProps,
+	type ReportPerformanceChartProps,
+	type ReportRecordsTableProps,
+} from './report-page';
