@@ -43,11 +43,26 @@ add_action( 'admin_init', 'wpcomsh_suppress_crowdsignal_activation_redirect', 1 
  * the default priority and returns true whenever no account is connected, so we hook at
  * PHP_INT_MAX to have the final say regardless of hook-registration order.
  *
- * Only the "core setup" notice is suppressed: the sibling "setup success" notice is gated on a
+ * The suppression is scoped to the Plugins and Dashboard screens, which is where the notice is
+ * unsolicited clutter. Upstream also renders it on Crowdsignal Forms' own admin screen; there it
+ * is deliberate setup guidance for a user who navigated in on purpose, so we pass the incoming
+ * value through and leave the plugin's own logic in charge.
+ *
+ * Only the "core setup" notice is touched: the sibling "setup success" notice is gated on a
  * `?msg=connect` request and is deliberate feedback shown right after a user completes setup, not
  * part of the activation clutter, so it is left intact.
+ *
+ * @param bool $show Whether Crowdsignal Forms intends to show the notice.
+ * @return bool
  */
-add_filter( 'crowdsignal_forms_show_admin_notice_core_setup', '__return_false', PHP_INT_MAX );
+function wpcomsh_suppress_crowdsignal_forms_setup_notice( $show ) {
+	$screen = get_current_screen();
+	if ( $screen && in_array( $screen->id, array( 'plugins', 'dashboard' ), true ) ) {
+		return false;
+	}
+	return $show;
+}
+add_filter( 'crowdsignal_forms_show_admin_notice_core_setup', 'wpcomsh_suppress_crowdsignal_forms_setup_notice', PHP_INT_MAX );
 
 /**
  * Suppress the Crowdsignal Dashboard (Polldaddy) "link your account" warning on WoA sites.
@@ -59,12 +74,19 @@ add_filter( 'crowdsignal_forms_show_admin_notice_core_setup', '__return_false', 
  * WordPress.com-managed state the plugin can't read locally, so the warning is never actionable
  * here and just clutters the Plugins page.
  *
+ * Scope this to the Plugins screen only. On the plugin's own poll/rating screens the warning is
+ * the intended explanation for why features are unavailable, so leave it there.
+ *
  * Unlike Crowdsignal Forms, this notice has no suppression filter: it is echoed directly from a
- * named `admin_notices` callback. Remove that callback instead. admin_init runs after all plugins
- * have loaded (so polldaddy has already registered the callback) but before admin_notices fires,
- * and remove_action is a no-op when the plugin is inactive.
+ * named `admin_notices` callback. Remove that callback instead. The `current_screen` hook fires
+ * after all plugins have loaded (so polldaddy has already registered the callback) and before
+ * admin_notices renders, and remove_action is a no-op when the plugin is inactive.
+ *
+ * @param WP_Screen $screen The current admin screen.
  */
-function wpcomsh_suppress_crowdsignal_polldaddy_login_warning() {
-	remove_action( 'admin_notices', 'polldaddy_login_warning' );
+function wpcomsh_suppress_crowdsignal_polldaddy_login_warning( $screen ) {
+	if ( $screen instanceof WP_Screen && 'plugins' === $screen->id ) {
+		remove_action( 'admin_notices', 'polldaddy_login_warning' );
+	}
 }
-add_action( 'admin_init', 'wpcomsh_suppress_crowdsignal_polldaddy_login_warning' );
+add_action( 'current_screen', 'wpcomsh_suppress_crowdsignal_polldaddy_login_warning' );
