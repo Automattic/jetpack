@@ -462,7 +462,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		);
 	} else if ( isComingSoon() ) {
 		text = __(
-			'Your site is in Coming Soon mode. Emails are sent only when your site is public.',
+			'Your site is in Coming Soon mode. Emails are sent only when your site is public. <visibilityLink>Update your site visibility</visibilityLink>.',
 			'jetpack'
 		);
 	} else if ( isSendingInProgress ) {
@@ -495,6 +495,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				{ createInterpolateElement( text, {
 					strong: <strong />,
 					link: <a href={ getJetpackEmailStatsLink( blogId, postId ) } />,
+					visibilityLink: <a href={ getSiteVisibilitySettingsLink() } />,
 				} ) }
 			</p>
 			{ showWontResendMessage && (
@@ -522,6 +523,17 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
  */
 export function getJetpackEmailStatsLink( blogId, postId ) {
 	return getAdminUrl( `admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ blogId }` );
+}
+
+/**
+ * Get the link to the site visibility settings, where a user can take their site
+ * out of Coming Soon mode. The Coming Soon / privacy controls live on the Reading
+ * settings page (see the `blog_privacy_selector` hook).
+ *
+ * @return {string} - The admin URL for the Reading settings page.
+ */
+export function getSiteVisibilitySettingsLink() {
+	return getAdminUrl( 'options-reading.php' );
 }
 
 export default SubscribersAffirmation;

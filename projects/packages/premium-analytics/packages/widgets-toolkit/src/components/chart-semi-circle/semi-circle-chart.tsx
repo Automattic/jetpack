@@ -25,6 +25,7 @@ import type { ComponentProps } from 'react';
 
 // Default chart configuration
 const DEFAULT_THICKNESS = 0.3;
+const DEFAULT_ASPECT_RATIO = 0.5;
 
 export type SemiCircleChartData = ComponentProps< typeof PieSemiCircleChart >[ 'data' ];
 
@@ -45,7 +46,7 @@ export type SemiCircleChartProps = {
 	/**
 	 * Primary metric value (total)
 	 */
-	value: number;
+	value?: number;
 
 	/**
 	 * Optional comparison value (previous period)
@@ -68,10 +69,23 @@ export type SemiCircleChartProps = {
 	showLegend?: boolean;
 
 	/**
+	 * Show the center metric value.
+	 * @default true
+	 */
+	showMetric?: boolean;
+
+	/**
 	 * Thickness of the arc (0-1).
 	 * @default 0.3
 	 */
 	thickness?: number;
+
+	/**
+	 * Aspect ratio of the chart (height / width). Keeps the semi-circle's
+	 * intended proportions when the widget cell size changes.
+	 * @default 0.5
+	 */
+	aspectRatio?: number;
 
 	/**
 	 * Width of the chart.
@@ -132,7 +146,9 @@ export function SemiCircleChart( {
 	},
 	legendData,
 	showLegend = true,
+	showMetric = true,
 	thickness = DEFAULT_THICKNESS,
+	aspectRatio = DEFAULT_ASPECT_RATIO,
 	maxWidth = Infinity,
 	emptyStateIcon,
 	emptyStateText,
@@ -191,6 +207,7 @@ export function SemiCircleChart( {
 					className={ styles.chart }
 					thickness={ thickness }
 					clockwise={ false }
+					aspectRatio={ aspectRatio }
 					withTooltips={ withTooltips }
 					{ ...( tooltipOffsetX !== undefined && {
 						tooltipOffsetX,
@@ -206,14 +223,16 @@ export function SemiCircleChart( {
 					) }
 					resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 				>
-					<MetricWithComparison
-						className={ styles.metricContainer }
-						value={ value }
-						dataFormat={ dataFormat }
-						previousValue={ hasComparison ? comparisonValue : null }
-						direction="column"
-						align="center"
-					/>
+					{ showMetric && value !== undefined && (
+						<MetricWithComparison
+							className={ styles.metricContainer }
+							value={ value }
+							dataFormat={ dataFormat }
+							previousValue={ hasComparison ? comparisonValue : null }
+							direction="column"
+							align="center"
+						/>
+					) }
 				</PieSemiCircleChart>
 
 				{ showLegend && styledLegendData && (

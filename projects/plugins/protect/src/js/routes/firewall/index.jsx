@@ -1,5 +1,6 @@
-import { Button, Col, Container, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Button, Col, Container, Text } from '@automattic/jetpack-components';
 import { Popover, ToggleControl } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
@@ -21,7 +22,7 @@ import styles from './styles.module.scss';
 const ADMIN_URL = window?.jetpackProtectInitialState?.adminUrl;
 
 const FirewallPage = () => {
-	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+	const isSmall = useViewportMatch( 'small', '<' );
 	const {
 		config: {
 			jetpackWafAutomaticRules,

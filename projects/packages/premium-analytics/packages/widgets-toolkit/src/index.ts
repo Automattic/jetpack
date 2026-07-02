@@ -5,9 +5,16 @@ export {
 	MetricDelta,
 	MetricWithComparison,
 	ComparativeLineChart,
+	DonutChart,
 	Legend,
+	ReportMetricWidget,
+	MetricTabsChart,
+	type MetricTab,
+	type MetricTabDatum,
+	type MetricTabsChartProps,
 	WidgetRoot,
 	useWidgetRootContext,
+	type DonutChartData,
 	type LegendItem,
 	type SeriesStyle,
 	LeaderboardChart,
@@ -21,6 +28,9 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	SubscriberList,
+	type SubscriberListItem,
+	type SubscriberListProps,
 } from './components';
 
 /**
@@ -47,11 +57,16 @@ export {
 	buildTimeSeriesChartData,
 	type TimeSeriesData,
 	calculateDelta,
+	flagUrl,
 	BOOKINGS_FILTER,
 	PHYSICAL_PRODUCTS_FILTER,
 	FULFILLED_ORDERS_FILTER,
 	UNFULFILLED_ORDERS_FILTER,
 	PAYMENT_STATUS_FILTERS,
+	buildPaymentStatusData,
+	type PaymentStatusData,
+	buildSalesByUtmData,
+	formatLegendLabels,
 } from './helpers';
 
 /**
@@ -63,6 +78,7 @@ export {
 	useSeriesStyles,
 	useWidgetError,
 } from './hooks';
+export { useSegmentStyles } from './widgets/common';
 
 /**
  * Widget components
@@ -78,16 +94,13 @@ export {
 	RevenueByCustomerTypeWidget,
 	NewVsReturningCustomerWidget,
 	OrderMetricWidget,
-	PaymentStatusWidget,
 	OrdersFulfillmentWidget,
 	SalesByCouponWidget,
 	TotalReturnsWidget,
-	VisitorMetricWidget,
 	VisitorsByLocationWidget,
 	SalesByDeviceWidget,
-	BookingsByDeviceWidget,
-	SessionsByDeviceWidget,
 	SalesByUtmWidget,
+	SessionsByDeviceWidget,
 	TopPerformingProductLeaderboardWidget,
 	type TopPerformingProductLeaderboardWidgetProps,
 	TopPerformingProductsWidget,

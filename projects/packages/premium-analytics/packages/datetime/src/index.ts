@@ -14,6 +14,16 @@ export {
 	endOfDayTZ,
 } from './tz';
 
+export { formatRelativeSince } from './relative-since';
+
+export {
+	formatDatePartWithTime,
+	getDateIntervalDateParts,
+	getDatePart,
+	type DateIntervalDateParts,
+	type DateIntervalPeriod,
+} from './date';
+
 export {
 	// Constants
 	SELECTABLE_PRESETS,

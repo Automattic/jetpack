@@ -53,7 +53,7 @@ const defaultTheme: CompleteChartTheme = {
 	leaderboardChart: {
 		rowGap: 12,
 		columnGap: 4,
-		labelSpacing: 1.5,
+		labelSpacing: 'xs',
 		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
 	},
 	conversionFunnelChart: {
@@ -69,9 +69,23 @@ const defaultTheme: CompleteChartTheme = {
 			},
 		},
 	},
+	barChart: {
+		barStyles: {
+			comparison: {
+				widthFactor: 1.5,
+				opacity: 0.5,
+			},
+		},
+	},
 	sparkline: {
 		margin: { top: 2, right: 2, bottom: 2, left: 2 },
 		strokeWidth: 1.5,
+	},
+	// `primaryColor` is left unset so it falls back to the palette's `colors[0]`. The compact
+	// 11px square / 2px gap is the contribution-graph rhythm, which has no WPDS dimension.
+	heatmapChart: {
+		compactCellGap: 2,
+		compactCellSize: 11,
 	},
 };
 

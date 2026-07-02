@@ -17,6 +17,7 @@ use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Jetpack_SEO_Titles;
 use Jetpack_SEO_Utils;
+use Jetpack_Sitemap_Librarian;
 
 /**
  * The main Initializer class. Registers the admin menu and loads the wp-build
@@ -29,7 +30,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.1';
+	const PACKAGE_VERSION = '0.3.1';
 
 	/**
 	 * Filter name that gates the entire Jetpack SEO surface.
@@ -80,6 +81,8 @@ class Initializer {
 	 */
 	const META_DESCRIPTION = 'advanced_seo_description';
 	const META_SCHEMA_TYPE = 'jetpack_seo_schema_type';
+	const META_TITLE       = 'jetpack_seo_html_title';
+	const META_NOINDEX     = 'jetpack_seo_noindex';
 
 	/**
 	 * Option recording whether sitemap generation is enabled.
@@ -175,6 +178,13 @@ class Initializer {
 		// before `add_menu_item()` runs at the default priority and needs it.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu_item' ), 10 );
+
+		// Read-only REST routes the dashboard hydrates its initial state from. Preloaded
+		// into the page (see inject_script_data) so a normal load resolves them with no
+		// request, and fetched by the app when that preload is missing or stale — so the
+		// dashboard recovers its data instead of dead-ending. Registered whenever the
+		// surface is visible (independent of the seo-tools module, like the Overview).
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_reads' ) );
 
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
@@ -285,8 +295,10 @@ class Initializer {
 	 * Because wp-build pages load as ES modules, `wp_localize_script` can't
 	 * attach data to them; the shared `jetpack_admin_js_script_data` filter
 	 * (printed by the Script_Data package onto the `jetpack-script-data` handle
-	 * the bundle already depends on) is the supported channel. Mirrors Podcast
-	 * and Newsletter.
+	 * the bundle already depends on) is the supported channel. The per-tab state
+	 * is provided as an apiFetch *preload* (mirrors Podcast) so the app resolves
+	 * it with no request on a normal load yet can re-fetch when the preload is
+	 * missing or stale, rather than dead-ending on a one-shot read.
 	 *
 	 * @param array $data Script data being injected onto the page.
 	 * @return array
@@ -296,10 +308,21 @@ class Initializer {
 			$data = array();
 		}
 
-		$data[ self::SCRIPT_DATA_KEY ]['overview']      = self::get_overview_data();
-		$data[ self::SCRIPT_DATA_KEY ]['settings']      = self::get_settings_data();
+		// Preload the dashboard's REST reads into the page so the app resolves them from
+		// cache on first paint with no network request — while still being able to
+		// re-fetch if that preload is ever missing or stale. This replaces injecting the
+		// raw payloads, which the app read synchronously once and couldn't recover from
+		// when momentarily absent (the load-error dead-end). See register_rest_reads() and
+		// the client readers `_inc/data/get-preloaded.ts` + `_inc/data/use-ensure-tab-data.ts`.
+		$data[ self::SCRIPT_DATA_KEY ]['preload'] = array_reduce(
+			self::rest_read_paths(),
+			'rest_preload_api_request',
+			array()
+		);
+
+		// Small synchronous reads used outside the per-tab data stores, and not part of
+		// the load-error path.
 		$data[ self::SCRIPT_DATA_KEY ]['google_verify'] = self::get_google_verify_data();
-		$data[ self::SCRIPT_DATA_KEY ]['ai']            = self::get_ai_data();
 		$data[ self::SCRIPT_DATA_KEY ]['site']          = self::get_site_data();
 
 		return $data;
@@ -320,6 +343,11 @@ class Initializer {
 		}
 
 		$data[ self::SCRIPT_DATA_KEY ]['optin_available'] = self::is_optin_available();
+		// Read by the legacy Traffic page to hide its SEO / Sitemaps sections once the
+		// site is on the new experience (fresh install / opted-in / WordPress.com), so the
+		// two surfaces never show at once. The legacy sections stay for self-hosted installs
+		// that haven't opted in.
+		$data[ self::SCRIPT_DATA_KEY ]['surface_visible'] = self::is_seo_surface_visible();
 
 		return $data;
 	}
@@ -383,6 +411,61 @@ class Initializer {
 		}
 
 		return (bool) $enabled;
+	}
+
+	/**
+	 * The public URL of the generated XML sitemap, or an empty string when none
+	 * is currently reachable.
+	 *
+	 * A sitemap is only reachable when generation is enabled, the site is public
+	 * (Jetpack does not load the Sitemaps module on sites that discourage search
+	 * engines), and the master sitemap has actually been generated — the Jetpack
+	 * plugin builds it via cron 1–15 minutes after activation, so the URL 404s
+	 * until then. Callers treat an empty string as "not yet reachable" and skip
+	 * linking to it.
+	 *
+	 * {@see Jetpack_Sitemap_Librarian} and jetpack_sitemap_uri() live in the
+	 * Jetpack plugin's Sitemaps module (loaded only for an active module on a
+	 * public site), so both are guarded; in the package-only context they are
+	 * absent and the sitemap is reported as not reachable.
+	 *
+	 * @param bool $sitemap_active Whether sitemap generation is enabled.
+	 * @return string The sitemap URL, or '' when not reachable.
+	 */
+	private static function get_reachable_sitemap_url( $sitemap_active ) {
+		// Jetpack only serves sitemaps when generation is on and the site is public.
+		if ( ! $sitemap_active || (int) get_option( 'blog_public', 1 ) !== 1 ) {
+			return '';
+		}
+
+		// The Sitemaps module (the librarian class, the `JP_MASTER_SITEMAP_TYPE`
+		// constant, and the `jp_sitemap_filename()` / `jetpack_sitemap_uri()`
+		// helpers) all live together in plugins/jetpack and load as a unit, so this
+		// single guard covers every symbol used below.
+		if (
+			! class_exists( 'Jetpack_Sitemap_Librarian' )
+			|| ! defined( 'JP_MASTER_SITEMAP_TYPE' )
+			|| ! function_exists( 'jp_sitemap_filename' )
+			|| ! function_exists( 'jetpack_sitemap_uri' )
+		) {
+			return '';
+		}
+
+		// The master sitemap is stored as a post once the cron generation run
+		// completes; until then there is nothing to link to.
+		// `jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE )` is the master file name
+		// ('sitemap.xml'); inlined so this stays one (untestable-in-package) line.
+		// @phan-suppress-next-line PhanUndeclaredFunction,PhanUndeclaredClassMethod -- guarded above; symbols live in plugins/jetpack.
+		$master = ( new Jetpack_Sitemap_Librarian() )->read_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ), JP_MASTER_SITEMAP_TYPE );
+		if ( null === $master ) {
+			return '';
+		}
+
+		// esc_url_raw (not esc_url): the value is transported via script data and
+		// rendered by React, so it must not be HTML-entity-encoded (e.g. the
+		// plain-permalink `?jetpack-sitemap=` form keeps its raw `&`).
+		// @phan-suppress-next-line PhanUndeclaredFunction -- jp_sitemap_filename()/jetpack_sitemap_uri() live in plugins/jetpack, guarded by function_exists.
+		return esc_url_raw( (string) jetpack_sitemap_uri( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ) ) );
 	}
 
 	/**
@@ -463,9 +546,9 @@ class Initializer {
 			'site_visibility'   => array(
 				'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
 				// Read the durable SEO option (seeded/synced from the `sitemaps` module
-				// by the Jetpack plugin) so the state survives the module's removal.
+				// by the Jetpack plugin) so the state survives the module's removal. The
+				// reachable sitemap URL + "View" link live on the Settings tab.
 				'sitemap_active'         => self::is_sitemap_enabled( $modules ),
-				'sitemap_url'            => home_url( '/sitemap.xml' ),
 				'seo_tools_active'       => $modules->is_active( 'seo-tools' ),
 			),
 			// Per-service booleans (a code is set or not) for the Overview's
@@ -489,7 +572,7 @@ class Initializer {
 	 * posts/pages have each SEO field set. State, not a score — the card shows
 	 * proportions + raw counts and lets the admin decide what matters.
 	 *
-	 * @return array{total:int,with_description:int,with_schema:int}
+	 * @return array{total:int,with_schema:int,with_title:int,with_description:int,with_search_visible:int}
 	 */
 	private static function get_content_coverage() {
 		$post_types = array( 'post', 'page' );
@@ -500,10 +583,17 @@ class Initializer {
 			$total += isset( $counts->publish ) ? (int) $counts->publish : 0;
 		}
 
+		// Search-engine visibility is the inverse of the per-post noindex meta: a
+		// post is visible unless it's explicitly set to noindex (stored as '1'), so
+		// most posts (no meta row) count as visible.
+		$noindexed = self::count_published_with_meta( $post_types, self::META_NOINDEX, '1' );
+
 		return array(
-			'total'            => $total,
-			'with_description' => self::count_published_with_meta( $post_types, self::META_DESCRIPTION ),
-			'with_schema'      => self::count_published_with_meta( $post_types, self::META_SCHEMA_TYPE ),
+			'total'               => $total,
+			'with_schema'         => self::count_published_with_meta( $post_types, self::META_SCHEMA_TYPE ),
+			'with_title'          => self::count_published_with_meta( $post_types, self::META_TITLE ),
+			'with_description'    => self::count_published_with_meta( $post_types, self::META_DESCRIPTION ),
+			'with_search_visible' => max( 0, $total - $noindexed ),
 		);
 	}
 
@@ -638,6 +728,70 @@ class Initializer {
 	}
 
 	/**
+	 * Map of read-only dashboard routes: tab slug => data-builder callable. The
+	 * single source of truth for both the registered routes and the paths
+	 * preloaded onto the page, so the two can't drift.
+	 *
+	 * @return array<string, callable>
+	 */
+	private static function rest_reads() {
+		return array(
+			'overview' => array( __CLASS__, 'get_overview_data' ),
+			'settings' => array( __CLASS__, 'get_settings_data' ),
+			'ai'       => array( __CLASS__, 'get_ai_data' ),
+		);
+	}
+
+	/**
+	 * REST paths the dashboard reads its initial state from, preloaded into the
+	 * page (see {@see self::inject_script_data()}) and fetched by the app.
+	 *
+	 * @return string[]
+	 */
+	private static function rest_read_paths() {
+		return array_map(
+			static function ( $slug ) {
+				return '/jetpack/v4/seo/' . $slug;
+			},
+			array_keys( self::rest_reads() )
+		);
+	}
+
+	/**
+	 * Register the read-only REST routes the dashboard hydrates from — one per
+	 * data-backed tab, each returning the same builder payload previously injected
+	 * synchronously onto the page. Read-only and gated to the page's own
+	 * `manage_options`; writes still go through their existing endpoints.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_reads() {
+		foreach ( self::rest_reads() as $slug => $builder ) {
+			register_rest_route(
+				'jetpack/v4',
+				'/seo/' . $slug,
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => static function () use ( $builder ) {
+						return rest_ensure_response( call_user_func( $builder ) );
+					},
+					'permission_callback' => array( __CLASS__, 'reads_permission_check' ),
+				)
+			);
+		}
+	}
+
+	/**
+	 * Capability gate for the dashboard's read routes — the same `manage_options`
+	 * the SEO admin page itself requires.
+	 *
+	 * @return bool
+	 */
+	public static function reads_permission_check() {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
 	 * Build the editable Settings state the Settings tab hydrates from.
 	 *
 	 * Read-only bootstrap only. Writes go through the existing
@@ -661,11 +815,16 @@ class Initializer {
 			$codes = array();
 		}
 
+		$sitemap_active = self::is_sitemap_enabled( $modules );
+
 		return array(
 			'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
 			// Read the durable SEO option (seeded/synced from the `sitemaps` module
 			// by the Jetpack plugin) so the state survives the module's removal.
-			'sitemap_active'         => self::is_sitemap_enabled( $modules ),
+			'sitemap_active'         => $sitemap_active,
+			// Empty until the sitemap is genuinely reachable, so the Settings tab can
+			// link to it only once it won't 404 (it's built by cron after activation).
+			'sitemap_url'            => self::get_reachable_sitemap_url( $sitemap_active ),
 			// Read the durable SEO option (seeded/synced from the `canonical-urls` module
 			// by the Jetpack plugin) so the state survives the module's removal.
 			'canonical_active'       => self::is_canonical_enabled( $modules ),

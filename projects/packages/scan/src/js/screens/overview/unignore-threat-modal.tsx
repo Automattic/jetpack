@@ -66,17 +66,17 @@ export function UnignoreThreatModal( {
 
 	return (
 		<Stack gap="lg" direction="column">
-			<Text variant="muted">
+			<Text className="jp-scan-text-muted">
 				{ __( 'Jetpack will be unignoring the following threat:', 'jetpack-scan-page' ) }
 			</Text>
 			<Stack gap="xs" direction="column">
 				<Stack gap="sm" direction="row" align="center" wrap="wrap">
-					<Text weight={ 500 }>{ threat.title }</Text>
+					<Text variant="heading-md">{ threat.title }</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
 				</Stack>
-				{ threat.description && <Text variant="muted">{ threat.description }</Text> }
+				{ threat.description && <Text className="jp-scan-text-muted">{ threat.description }</Text> }
 			</Stack>
-			<Notice.Root variant="warning">
+			<Notice.Root intent="warning">
 				<Notice.Description>
 					{ __(
 						'By unignoring this threat you confirm that you have reviewed the detected code and assume the risks of treating a potentially malicious file as an active threat again.',

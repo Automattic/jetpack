@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Performance: skip loading the Stats and Stats Admin packages on plain front-end GET page views when the Stats module is off, where they have no work to do, instead of loading them on every request. They still load on wp-admin, REST, cron, POST, and WP-CLI requests (and whenever the module is active), so behavior is unchanged. Reduces the per-request PHP footprint.

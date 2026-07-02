@@ -1,7 +1,12 @@
 /**
  * Internal dependencies
  */
-import { getStatsPeriodFromInterval, reportParamsToStatsQueryParams } from '../stats-params';
+import {
+	getPeriodsBetweenInclusive,
+	getStatsPeriodFromInterval,
+	reportParamsToStatsQueryParams,
+	statsQueryParamsToApiParams,
+} from '../stats-params';
 
 describe( 'getStatsPeriodFromInterval', () => {
 	it.each( [
@@ -17,6 +22,22 @@ describe( 'getStatsPeriodFromInterval', () => {
 	} );
 } );
 
+describe( 'getPeriodsBetweenInclusive', () => {
+	it.each( [
+		[ 'day', '2026-06-01', '2026-06-30', 30 ],
+		[ 'hour', '2026-06-01', '2026-06-02', 2 ],
+		[ 'week', '2026-06-01', '2026-06-28', 4 ],
+		[ 'month', '2026-01-15', '2026-06-15', 6 ],
+		[ 'year', '2024-03-01', '2026-03-01', 3 ],
+	] as const )( 'counts %s buckets inclusive of both ends', ( period, from, to, expected ) => {
+		expect( getPeriodsBetweenInclusive( period, from, to ) ).toBe( expected );
+	} );
+
+	it( 'falls back to one bucket for an inverted range', () => {
+		expect( getPeriodsBetweenInclusive( 'month', '2026-06-01', '2026-01-01' ) ).toBe( 1 );
+	} );
+} );
+
 describe( 'reportParamsToStatsQueryParams', () => {
 	it( 'converts report dates into stats date range params', () => {
 		expect(
@@ -24,6 +45,24 @@ describe( 'reportParamsToStatsQueryParams', () => {
 				from: '2026-06-01T00:00:00',
 				to: '2026-06-07T23:59:59',
 				interval: 'day',
+			} )
+		).toEqual(
+			expect.objectContaining( {
+				period: 'day',
+				end_date: '2026-06-07',
+				start_date: '2026-06-01',
+				days: 7,
+			} )
+		);
+	} );
+
+	it( 'maps the semantic end date to the Stats API date param', () => {
+		expect(
+			statsQueryParamsToApiParams( {
+				period: 'day',
+				start_date: '2026-06-01',
+				end_date: '2026-06-07',
+				days: 7,
 			} )
 		).toEqual(
 			expect.objectContaining( {
@@ -86,18 +125,29 @@ describe( 'reportParamsToStatsQueryParams', () => {
 			to: '2026-06-01',
 			geoMode: 'city',
 			utmParams: 'utm_source,utm_campaign',
-			deviceProperty: 'browser',
+			deviceParam: 'browser',
 		} );
 
 		expect( params ).not.toHaveProperty( 'geoMode' );
 		expect( params ).not.toHaveProperty( 'utmParams' );
-		expect( params ).not.toHaveProperty( 'deviceProperty' );
+		expect( params ).not.toHaveProperty( 'deviceParam' );
+	} );
+
+	it( 'does not forward unknown params to Stats endpoints', () => {
+		const params = reportParamsToStatsQueryParams( {
+			from: '2026-06-01',
+			to: '2026-06-01',
+			unknown_param: 'leak',
+		} );
+
+		expect( params ).not.toHaveProperty( 'unknown_param' );
 	} );
 
 	it( 'omits empty date params when no dates are provided', () => {
 		const params = reportParamsToStatsQueryParams();
 
 		expect( params ).not.toHaveProperty( 'date' );
+		expect( params ).not.toHaveProperty( 'end_date' );
 		expect( params ).not.toHaveProperty( 'start_date' );
 	} );
 } );

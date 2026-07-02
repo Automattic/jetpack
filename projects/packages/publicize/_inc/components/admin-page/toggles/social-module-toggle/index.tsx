@@ -1,10 +1,6 @@
-import {
-	IconTooltip,
-	Text,
-	getRedirectUrl,
-	useBreakpointMatch,
-} from '@automattic/jetpack-components';
+import { IconTooltip, Text, getRedirectUrl } from '@automattic/jetpack-components';
 import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Link, Notice } from '@wordpress/ui';
@@ -48,7 +44,7 @@ const SocialModuleToggle: FC = () => {
 		}
 	}, [ isModuleEnabled, updateSocialModuleSettings ] );
 
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	const renderConnectionManagement = () => {
 		return isModuleEnabled ? (

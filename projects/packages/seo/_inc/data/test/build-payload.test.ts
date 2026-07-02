@@ -10,6 +10,7 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	sitemap_active: false,
+	sitemap_url: '',
 	canonical_active: false,
 	...overrides,
 } );

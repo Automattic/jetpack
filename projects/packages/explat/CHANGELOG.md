@@ -5,10 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.33] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [0.4.32] - 2026-06-24
+### Changed
+- Defer ExPlat REST controller instantiation so the controller class only loads on REST API requests. [#49803]
+
+## [0.4.31] - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+## [0.4.30] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
 ## [0.4.29] - 2026-06-10
 ### Changed
-- Update package dependencies. [#49273]
-- Update package dependencies. [#49492]
+- Update package dependencies. [#49273] [#49492]
 
 ## [0.4.28] - 2026-06-08
 ### Changed
@@ -368,6 +383,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ExPlat: add condition to prevent fetching the experiment assignment if there's not anon id (meaning that Tracks is likely disabled) [#38327]
 - Updated package dependencies. [#38132]
 
+[0.4.33]: https://github.com/Automattic/jetpack-explat/compare/v0.4.32...v0.4.33
+[0.4.32]: https://github.com/Automattic/jetpack-explat/compare/v0.4.31...v0.4.32
+[0.4.31]: https://github.com/Automattic/jetpack-explat/compare/v0.4.30...v0.4.31
+[0.4.30]: https://github.com/Automattic/jetpack-explat/compare/v0.4.29...v0.4.30
 [0.4.29]: https://github.com/Automattic/jetpack-explat/compare/v0.4.28...v0.4.29
 [0.4.28]: https://github.com/Automattic/jetpack-explat/compare/v0.4.27...v0.4.28
 [0.4.27]: https://github.com/Automattic/jetpack-explat/compare/v0.4.26...v0.4.27

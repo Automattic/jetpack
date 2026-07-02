@@ -1,19 +1,101 @@
-import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
-import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
-import type { LabelProps } from '@visx/annotation/lib/components/Label';
-import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
+import type {
+	CircleSubjectProps,
+	ConnectorProps,
+	LabelProps,
+	LineSubjectProps,
+} from '@visx/annotation';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
-import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
-import type { TextProps } from '@visx/text/lib/Text';
+import type { TextProps } from '@visx/text';
 import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
-import type { GapSize } from '@wordpress/theme';
-import type { CSSProperties, MouseEvent, PointerEvent, ReactNode } from 'react';
-import type { GoogleDataTableColumn, GoogleDataTableRow } from 'react-google-charts';
+import type {
+	ComponentClass,
+	CSSProperties,
+	FC,
+	MouseEvent,
+	PointerEvent,
+	ReactElement,
+	ReactNode,
+} from 'react';
 
 type ValueOf< T > = T[ keyof T ];
 
 export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
+
+/**
+ * Mirrors the WordPress Design System gap token scale used by the WordPress UI Stack.
+ */
+export type GapSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+
+export type LegendShapeLabel< Data, Output, ExtraAttributes = object > = {
+	datum: Data;
+	index: number;
+	text: string;
+	value?: Output;
+} & ExtraAttributes;
+
+export type LegendShapeRenderProps< Data, Output > = {
+	width?: string | number;
+	height?: string | number;
+	label: LegendShapeLabel< Data, Output >;
+	item: Data;
+	itemIndex: number;
+	fill?: string;
+	size?: string | number;
+	style?: CSSProperties;
+};
+
+export type LegendShape< Data, Output > =
+	| 'rect'
+	| 'circle'
+	| 'line'
+	| FC< LegendShapeRenderProps< Data, Output > >
+	| ComponentClass< LegendShapeRenderProps< Data, Output > >;
+
+export type GoogleDataTableColumnType =
+	| 'string'
+	| 'number'
+	| 'boolean'
+	| 'date'
+	| 'datetime'
+	| 'timeofday';
+
+export enum GoogleDataTableColumnRoleType {
+	annotation = 'annotation',
+	annotationText = 'annotationText',
+	certainty = 'certainty',
+	emphasis = 'emphasis',
+	interval = 'interval',
+	scope = 'scope',
+	style = 'style',
+	tooltip = 'tooltip',
+	domain = 'domain',
+}
+
+export type GoogleDataTableColumn =
+	| {
+			type: GoogleDataTableColumnType;
+			label?: string;
+			role?: GoogleDataTableColumnRoleType;
+			pattern?: string;
+			p?: Record< string, unknown >;
+			id?: string;
+	  }
+	| string;
+
+export type GoogleDataTableCell =
+	| {
+			v?: unknown;
+			f?: string;
+			p?: Record< string, unknown >;
+	  }
+	| string
+	| number
+	| boolean
+	| Date
+	| null;
+
+export type GoogleDataTableRow = GoogleDataTableCell[];
 
 export type ChartType =
 	| 'area'
@@ -101,7 +183,7 @@ export type LeaderboardEntry = {
 	/**
 	 * Human-readable name (e.g., 'Direct') or a JSX element (e.g., <h4>Direct</h4>)
 	 */
-	label: string | JSX.Element;
+	label: string | ReactElement;
 
 	/**
 	 * Value of the entry
@@ -146,6 +228,17 @@ export type LeaderboardEntry = {
 	 * never both, since interactive elements cannot be nested in HTML.
 	 */
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+
+	/**
+	 * Optional accessible name for the interactive row's `<button>`. Only applies
+	 * when `onClick` is set — without it the row renders as a Fragment with no
+	 * element to receive `aria-label`. By default the button derives its name from
+	 * its rendered content (label text plus the formatted value), which is the
+	 * right outcome for plain-text labels. Set this when the `label` is JSX whose
+	 * text content does not yield a clean name on its own — e.g. an image-only
+	 * label — to give assistive tech a deterministic, human-readable name.
+	 */
+	ariaLabel?: string;
 };
 
 export type GradientStop = {
@@ -173,6 +266,16 @@ export type SeriesData = {
 	label: string;
 	data: DataPointDate[] | DataPoint[];
 	options?: SeriesDataOptions;
+};
+
+/**
+ * Visual styling for a bar series of a given semantic type (e.g. 'comparison').
+ * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%);
+ * `opacity` sets the shadow translucency.
+ */
+export type BarStyles = {
+	widthFactor?: number;
+	opacity?: number;
 };
 
 export type MultipleDataPointsDate = {
@@ -273,7 +376,7 @@ export type ChartTheme = {
 		/** Gap between columns in the leaderboard grid */
 		columnGap?: number;
 		/** Spacing between label and progress bars */
-		labelSpacing?: number;
+		labelSpacing?: GapSize;
 		/** Primary color for current period bars */
 		primaryColor?: string;
 		/** Secondary color for comparison period bars */
@@ -295,6 +398,9 @@ export type ChartTheme = {
 	lineChart?: {
 		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
+	barChart?: {
+		barStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles > >;
+	};
 	/** Sparkline specific settings */
 	sparkline?: {
 		/** Margin around the sparkline chart */
@@ -306,6 +412,21 @@ export type ChartTheme = {
 		};
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
+	};
+	/**
+	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
+	 * WPDS tokens in CSS, so only the scale color and the compact sizing live here.
+	 */
+	heatmapChart?: {
+		/**
+		 * Color the cell scale interpolates toward at the highest value (prop > this >
+		 * palette `colors[0]`), fed to CSS `color-mix`. Omit to use the palette color.
+		 */
+		primaryColor?: string;
+		/** Gap in px between cells in compact mode */
+		compactCellGap?: number;
+		/** Fixed square cell size in px for compact mode */
+		compactCellSize?: number;
 	};
 };
 
@@ -327,10 +448,15 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
 	};
+	barChart: {
+		barStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles >;
+	};
 	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
+	heatmapChart: Omit< Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >, 'primaryColor' > &
+		Pick< NonNullable< ChartTheme[ 'heatmapChart' ] >, 'primaryColor' >;
 };
 
 export type AxisOptions = {

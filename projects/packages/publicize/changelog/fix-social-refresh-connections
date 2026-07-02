@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load Publicize connections via a store resolver so the modern admin page fetches them even when there are no connections, and avoid a duplicate request.

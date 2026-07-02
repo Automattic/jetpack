@@ -52,6 +52,33 @@ function archives_shortcode( $atts ) {
 		$limit = '';
 	}
 
+	/*
+	 * The `postbypost` type (also the default) lists one entry per published
+	 * post. Left unbounded, wp_get_archives() materializes the entire post table
+	 * in a single request, which can exhaust PHP memory and fatal on large sites.
+	 * Apply a sane, filterable default cap when no explicit limit was supplied.
+	 */
+	if ( 'postbypost' === $attr['type'] && '' === $limit ) {
+		/**
+		 * Filter the default number of entries listed by the [archives] shortcode
+		 * when using the unbounded `postbypost` type with no explicit `limit`.
+		 *
+		 * Set to 0 to restore the previous (unlimited) behavior, though this is
+		 * not recommended on sites with a large number of posts.
+		 *
+		 * @module shortcodes
+		 *
+		 * @since 16.0
+		 *
+		 * @param int $limit Default maximum number of posts to list. Default 100.
+		 */
+		$default_limit = (int) apply_filters( 'jetpack_archives_shortcode_default_limit', 100 );
+
+		if ( $default_limit > 0 ) {
+			$limit = $default_limit;
+		}
+	}
+
 	$showcount = false !== $attr['showcount'] && 'false' !== $attr['showcount'];
 	$before    = wp_kses( $attr['before'], $allowedposttags );
 	$after     = wp_kses( $attr['after'], $allowedposttags );

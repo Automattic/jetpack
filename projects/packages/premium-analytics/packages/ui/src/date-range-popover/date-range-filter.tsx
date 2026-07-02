@@ -286,6 +286,26 @@ type DateRangePopoverProps = Omit< DateRangePopoverContentProps, 'isWideScreen' 
 	 * instead of its own wrapper to determine mobile/wide layouts.
 	 */
 	containerElement?: HTMLElement | null;
+
+	/**
+	 * Applied (committed) range used to label the trigger while the popover is
+	 * closed. Defaults to `range`. Pass the committed range here so closing
+	 * without Apply shows the applied range while `range` keeps the draft.
+	 */
+	appliedRange?: DateRange;
+
+	/**
+	 * Applied (committed) preset used to label the trigger while the popover is
+	 * closed. Defaults to `presetId`.
+	 */
+	appliedPresetId?: PrimaryPresetId;
+
+	/**
+	 * Notifies the parent when the popover opens or closes, so it can mirror the
+	 * draft-while-open / applied-while-closed behavior for related controls
+	 * (e.g. the comparison label that follows the primary range).
+	 */
+	onOpenChange?: ( isOpen: boolean ) => void;
 };
 
 /**
@@ -297,14 +317,29 @@ const WIDE_CONTAINER_THRESHOLD = 780;
 export function DateRangePopover( {
 	presetId,
 	range,
+	appliedRange,
+	appliedPresetId,
 	onChange,
 	onApply,
 	onCancel,
 	canApply,
 	timeZone,
 	containerElement,
+	onOpenChange,
 }: DateRangePopoverProps ) {
 	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
+
+	// Tracks whether the popover is open, to label the trigger from the live
+	// draft while open and from the applied range while closed.
+	const [ isOpen, setIsOpen ] = useState( false );
+
+	const handleOpenToggle = useCallback(
+		( next: boolean ) => {
+			setIsOpen( next );
+			onOpenChange?.( next );
+		},
+		[ onOpenChange ]
+	);
 
 	// Callback to update container width
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
@@ -328,13 +363,23 @@ export function DateRangePopover( {
 
 	const isWideScreen = containerWidth !== null && containerWidth >= WIDE_CONTAINER_THRESHOLD;
 
-	const presetLabel = getPresetLabel( presetId );
+	/*
+	 * While open, the trigger mirrors the live draft (`range`/`presetId`). While
+	 * closed, it shows the applied range so an accidental outside-click reverts
+	 * the display — the draft itself is kept and restored on reopen.
+	 */
+	const closedRange = appliedRange ?? range;
+	const closedPresetId = appliedRange ? appliedPresetId : presetId;
+	const labelRange = isOpen ? range : closedRange;
+	const labelPresetId = isOpen ? presetId : closedPresetId;
+	const presetLabel = getPresetLabel( labelPresetId );
 
 	return (
 		<Dropdown
 			popoverProps={ {
 				className: 'date-filters-panel__popover',
 			} }
+			onToggle={ handleOpenToggle }
 			renderToggle={ ( { onToggle } ) => (
 				<Button
 					className="date-filters-panel-button"
@@ -346,7 +391,7 @@ export function DateRangePopover( {
 				>
 					<Button.Icon icon={ calendar } size={ 16 } />
 					{ presetLabel && <Badge>{ presetLabel }</Badge> }
-					{ formatDateRange( range ) }
+					{ formatDateRange( labelRange ) }
 				</Button>
 			) }
 			renderContent={ ( { onClose } ) => (
@@ -358,6 +403,10 @@ export function DateRangePopover( {
 						onApply();
 						onClose();
 					} }
+					/*
+					 * Cancel explicitly discards the draft; an outside-click only
+					 * closes (keeping the draft for the next open).
+					 */
 					onCancel={ () => {
 						onCancel();
 						onClose();

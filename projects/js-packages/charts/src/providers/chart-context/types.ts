@@ -1,7 +1,13 @@
 import { CSSProperties, ReactNode } from 'react';
 import type { BaseLegendItem } from '../../components/legend';
-import type { ChartType, CompleteChartTheme, DataPointPercentage, SeriesData } from '../../types';
-import type { LegendShape } from '@visx/legend/lib/types';
+import type {
+	BarStyles,
+	ChartType,
+	CompleteChartTheme,
+	DataPointPercentage,
+	LegendShape,
+	SeriesData,
+} from '../../types';
 import type { GlyphProps, LineStyles } from '@visx/xychart';
 
 export interface ChartRegistration {
@@ -20,6 +26,7 @@ export type GetElementStylesParams = {
 export type ElementStyles = {
 	color: string;
 	lineStyles: LineStyles;
+	barStyles: BarStyles;
 	glyph: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 	shapeStyles: CSSProperties & LineStyles;
 };

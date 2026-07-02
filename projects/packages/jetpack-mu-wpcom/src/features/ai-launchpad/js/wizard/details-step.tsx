@@ -13,8 +13,7 @@ interface Props {
 }
 
 /**
- * Example placeholders per goal, grounded in the WordPress.com site
- * classification taxonomy and the "what users want to build" analysis.
+ * Example placeholders per goal.
  *
  * @param goal - The selected goal, or null.
  * @return The placeholder variants for the goal.
@@ -75,8 +74,7 @@ function intentVariants( goal: GoalSlug | null ): string[] {
  */
 function useIntentPlaceholder( goal: GoalSlug | null ): string {
 	const variants = intentVariants( goal );
-	// `variants` is derived from `goal` alone; re-rolling the example once per
-	// goal change (not on every render) is the intended rotating behavior.
+	// Re-roll the example once per goal change, not on every render.
 	return useMemo(
 		() => pickPlaceholder( variants ),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
