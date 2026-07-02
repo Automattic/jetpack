@@ -760,6 +760,26 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The generic preview features filter can still disable SEO suggestions inside a
+	 * testing environment (the gate raises the floor, not the ceiling).
+	 */
+	public function test_add_agents_manager_data_preview_features_filter_can_disable_seo_suggestions_in_testing_environment() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			function ( $features ) {
+				$features['seoSuggestions'] = false;
+				return $features;
+			}
+		);
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+	}
+
+	/**
 	 * The Big Sky provider is preserved so the editor can fall back to the Big Sky
 	 * sidebar when Jetpack AI Sidebar is unavailable. agentProviders passes through untouched.
 	 */

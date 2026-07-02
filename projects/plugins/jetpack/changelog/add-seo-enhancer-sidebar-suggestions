@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: enhancement
 
-Jetpack AI: surface SEO Enhancer suggestions (SEO title and meta description) in the AI sidebar, gated by a new seoSuggestions feature flag exposed in internal testing environments while the feature is in development.
+Jetpack AI: Surface SEO Enhancer suggestions (SEO title and meta description) in the AI sidebar.
