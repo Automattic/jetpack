@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Guard the shared react and react-dom script handles on the Stats admin page so a plugin that repoints them to an incompatible bundle can no longer prevent the dashboard from rendering.

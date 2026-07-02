@@ -48,6 +48,7 @@ class Dashboard {
 		self::$initialized = true;
 		// Jetpack uses 998 and 'Admin_Menu' uses 1000.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), $this->menu_priority );
+		React_Handle_Guard::register_snapshot();
 	}
 
 	/**
@@ -131,6 +132,8 @@ class Dashboard {
 	 */
 	public function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+		// Runs only on the Stats page (hooked from load-{page_suffix}); PHP_INT_MAX beats plugin overrides.
+		add_action( 'admin_enqueue_scripts', array( React_Handle_Guard::class, 'restore_if_hijacked' ), PHP_INT_MAX );
 	}
 
 	/**
