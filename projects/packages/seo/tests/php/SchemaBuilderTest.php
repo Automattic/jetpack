@@ -228,6 +228,42 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
+	 * The graph includes the site-level WebSite node, referenced to the
+	 * Organization by `publisher`.
+	 */
+	public function test_graph_includes_website_referenced_to_organization() {
+		$this->set_site_name( 'Acme Co' );
+
+		$doc = $this->emit_document( $this->make_post() );
+
+		$this->assertSame( 'WebSite', $doc['@graph'][1]['@type'], 'Site-level nodes come before the page node.' );
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$website      = $this->node_of_type( $doc, 'WebSite' );
+		$this->assertIsArray( $website, 'Expected a WebSite node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::website(), $website['@id'] );
+		$this->assertSame( 'Acme Co', $website['name'] );
+		$this->assertSame( $organization['@id'], $website['publisher']['@id'] );
+		$this->assertSame( 'SearchAction', $website['potentialAction']['@type'] );
+	}
+
+	/**
+	 * Without a Site Title, neither site-level node is emitted and the Article has
+	 * no `publisher` reference.
+	 */
+	public function test_graph_omits_site_level_nodes_without_site_name() {
+		$this->set_site_name( '' );
+
+		$doc = $this->emit_document( $this->make_post() );
+
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ) );
+		$this->assertNull( $this->node_of_type( $doc, 'WebSite' ) );
+
+		$article = $this->node_of_type( $doc, 'Article' );
+		$this->assertArrayNotHasKey( 'publisher', $article );
+	}
+
+	/**
 	 * A FAQPage joins the graph alongside the Organization, but carries no
 	 * `publisher` (only Article references a publisher).
 	 */
