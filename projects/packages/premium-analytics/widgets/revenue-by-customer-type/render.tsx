@@ -1,25 +1,37 @@
+/**
+ * External dependencies
+ */
 import {
 	RevenueByCustomerTypeWidget,
 	WidgetRoot,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { RevenueByCustomerTypeAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type WidgetRootProps = ComponentProps< typeof WidgetRoot >;
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type RevenueByCustomerTypeRenderAttributes = RevenueByCustomerTypeAttributes &
+	Partial< ReportParamsFieldAttributes >;
 
-type RevenueByCustomerTypeRenderProps = {
-	attributes?: WidgetRootProps[ 'attributes' ];
-	setError?: WidgetRootProps[ 'setError' ];
-};
+type RevenueByCustomerTypeRenderProps =
+	WidgetRenderProps< RevenueByCustomerTypeRenderAttributes > & {
+		setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+	};
 
 /**
  * Revenue by customer type widget.
  *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; RevenueByCustomerTypeWidget
- * fetches the customers report and renders the revenue breakdown.
+ * Thin composition over WidgetRoot: WidgetRoot provides the query client,
+ * chart theme, and resolved report params; RevenueByCustomerTypeWidget fetches
+ * the customers report and renders the new vs returning revenue breakdown.
  */
 export default function RevenueByCustomerTypeRender( {
-	attributes,
+	attributes = {},
 	setError,
 }: RevenueByCustomerTypeRenderProps ) {
 	return (
