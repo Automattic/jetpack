@@ -61,7 +61,7 @@ jest.mock( '@wordpress/components', () => ( {
 			<textarea id={ label } value={ value } onChange={ event => onChange( event.target.value ) } />
 		</div>
 	),
-	TextControl: ( { label, onBlur, onChange, value } ) => (
+	TextControl: ( { label, onBlur, onChange, onKeyDown, value } ) => (
 		<div>
 			<label htmlFor={ label }>{ label }</label>
 			<input
@@ -69,6 +69,7 @@ jest.mock( '@wordpress/components', () => ( {
 				value={ value }
 				onChange={ event => onChange( event.target.value ) }
 				onBlur={ onBlur }
+				onKeyDown={ onKeyDown }
 			/>
 		</div>
 	),
@@ -239,6 +240,23 @@ describe( 'CaptionCueEdit', () => {
 			{
 				name: CAPTION_CUE_BLOCK_NAME,
 				attributes: { startTime: '00:00:02.000', endTime: '00:00:04.000', text: 'Hello' },
+			},
+			1,
+			undefined,
+			false
+		);
+	} );
+
+	it( 'appends the next cue when Enter is pressed in the End field', async () => {
+		setup( { startTime: '00:00:01.000', endTime: '00:00:02.000', text: 'Hello' } );
+
+		await userEvent.type( screen.getByLabelText( 'End' ), '{Enter}' );
+
+		// The new cue starts at this cue's end and reuses its duration.
+		expect( mockInsertBlock ).toHaveBeenCalledWith(
+			{
+				name: CAPTION_CUE_BLOCK_NAME,
+				attributes: { startTime: '00:00:02.000', endTime: '00:00:03.000', text: '' },
 			},
 			1,
 			undefined,
