@@ -107,24 +107,10 @@ export function TaskCard( {
 	onMarkComplete,
 	onSkip,
 }: Props ) {
-	if ( task.completed ) {
-		return (
-			<Card.Root className="ai-launchpad-tailored-list__card is-completed">
-				<Card.Header>
-					<span className="ai-launchpad-tailored-list__header-inner">
-						<span className="ai-launchpad-tailored-list__icon is-done">
-							<Icon icon={ published } size={ 24 } />
-						</span>
-						<span className="ai-launchpad-tailored-list__title is-done">{ task.title }</span>
-					</span>
-				</Card.Header>
-			</Card.Root>
-		);
-	}
-
 	// A disabled task is a locked preview of a task that isn't reachable yet (a sell site's
 	// commerce tasks before WooCommerce is active). It still expands to its subtitle, but
-	// shows a lock glyph and a hint in place of any CTA / Skip actions.
+	// shows a lock glyph and a hint in place of any CTA / Skip actions. Checked before
+	// `completed` so a stale completion flag can never render it as a struck-through "done".
 	if ( task.disabled ) {
 		return (
 			<CollapsibleCard.Root
@@ -147,6 +133,21 @@ export function TaskCard( {
 					</p>
 				</CollapsibleCard.Content>
 			</CollapsibleCard.Root>
+		);
+	}
+
+	if ( task.completed ) {
+		return (
+			<Card.Root className="ai-launchpad-tailored-list__card is-completed">
+				<Card.Header>
+					<span className="ai-launchpad-tailored-list__header-inner">
+						<span className="ai-launchpad-tailored-list__icon is-done">
+							<Icon icon={ published } size={ 24 } />
+						</span>
+						<span className="ai-launchpad-tailored-list__title is-done">{ task.title }</span>
+					</span>
+				</Card.Header>
+			</Card.Root>
 		);
 	}
 

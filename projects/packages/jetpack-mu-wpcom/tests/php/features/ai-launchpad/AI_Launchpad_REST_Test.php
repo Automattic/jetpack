@@ -762,6 +762,28 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A commerce task previously completed in WooCommerce renders as a disabled preview (not "done") while
+	 * WooCommerce is inactive, and building the list must not persist a launchpad completion as a side effect.
+	 */
+	public function test_get_disabled_commerce_task_is_not_completed_and_does_not_write_status() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		// Simulate a task WooCommerce recorded as complete during a prior active period.
+		update_option( 'woocommerce_task_list_tracked_completed_tasks', array( 'products' ) );
+		delete_option( 'launchpad_checklist_tasks_statuses' );
+
+		$this->seed_sell_output_with_commerce_tasks();
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		$this->assertTrue( $tasks['woo_products']['disabled'] );
+		$this->assertFalse( $tasks['woo_products']['completed'] );
+
+		// The completion callback (which writes launchpad status) must not have fired for the disabled preview.
+		$statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+		$this->assertArrayNotHasKey( 'woo_products', $statuses );
+	}
+
+	/**
 	 * With WooCommerce installed but not active, the install task is in progress and points at the plugins screen.
 	 */
 	public function test_get_marks_install_task_in_progress_when_inactive() {

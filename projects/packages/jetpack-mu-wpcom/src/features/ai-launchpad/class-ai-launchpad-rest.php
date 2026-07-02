@@ -619,27 +619,30 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				}
 			}
 
-			// The membership tasks' catalog callbacks are always false on Atomic; recompute from local signals instead.
-			$completed = AI_Launchpad_Memberships::has_override( $task['id'] )
-				? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
-				: wpcom_launchpad_checklists()->is_task_complete( $definition );
-
-			$theme_showcase_path = $this->get_themes_showcase_path( $task['id'], $niche );
-			if ( null !== $theme_showcase_path ) {
-				$calypso_path = $theme_showcase_path;
-			} elseif ( isset( self::CTA_OVERRIDES[ $task['id'] ] ) ) {
-				$calypso_path = admin_url( self::CTA_OVERRIDES[ $task['id'] ] );
+			if ( $disabled ) {
+				// A disabled preview always renders as the locked card: never resolve its completion (the woo
+				// completion callback marks the task complete as a side effect, which must not fire on a read) and
+				// never resolve a CTA path (it has no reachable action).
+				$completed    = false;
+				$calypso_path = null;
 			} else {
-				$calypso_path = wpcom_launchpad_checklists()->load_calypso_path( $definition );
+				// The membership tasks' catalog callbacks are always false on Atomic; recompute from local signals.
+				$completed = AI_Launchpad_Memberships::has_override( $task['id'] )
+					? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
+					: wpcom_launchpad_checklists()->is_task_complete( $definition );
+
+				$theme_showcase_path = $this->get_themes_showcase_path( $task['id'], $niche );
+				if ( null !== $theme_showcase_path ) {
+					$calypso_path = $theme_showcase_path;
+				} elseif ( isset( self::CTA_OVERRIDES[ $task['id'] ] ) ) {
+					$calypso_path = admin_url( self::CTA_OVERRIDES[ $task['id'] ] );
+				} else {
+					$calypso_path = wpcom_launchpad_checklists()->load_calypso_path( $definition );
+				}
 			}
 
 			$title       = isset( $definition['get_title'] ) ? $definition['get_title']() : '';
 			$in_progress = false;
-
-			// A disabled preview task has no reachable CTA and can't be in progress, so drop its path.
-			if ( $disabled ) {
-				$calypso_path = null;
-			}
 
 			// A saved-but-unpublished draft (found by marker meta) puts a site-editor task "in progress": reopen that
 			// draft instead of creating a new one, and surface the drafts icon + a "Continue…" prompt in the card.
