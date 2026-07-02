@@ -5,6 +5,7 @@ import {
 	localTZDate,
 	useStatsVisits,
 	type ReportParams,
+	type StatsPeriod,
 	type StatsVisitsParams,
 	type StatsVisitsResponse,
 	type StatsVisitsStatFields,
@@ -15,6 +16,13 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import type { MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
+
+/**
+ * Granularity the chart can be grouped by. Layered onto the dashboard range as
+ * its `period` (mapped to the visits endpoint's `unit`); the range and
+ * comparison stay dashboard-driven.
+ */
+export type TrafficPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 /**
  * Normalized traffic chart state: one metric tab per traffic field plus the
@@ -84,17 +92,20 @@ function toMetric(
 
 /**
  * Compose the visits query params for one field pair: the dashboard report
- * params plus the `stat_fields` this request should fetch.
+ * params plus the `stat_fields` this request should fetch and the selected
+ * bucket `period`.
  *
  * @param reportParams - The dashboard report params.
  * @param statFields   - The field pair to request.
+ * @param period       - The selected bucket granularity.
  * @return The visits query params.
  */
 function toVisitsParams(
 	reportParams: ReportParams,
-	statFields: StatsVisitsStatFields
+	statFields: StatsVisitsStatFields,
+	period: TrafficPeriod
 ): StatsVisitsParams {
-	return { ...reportParams, stat_fields: statFields };
+	return { ...reportParams, stat_fields: statFields, period };
 }
 
 /**
@@ -105,18 +116,22 @@ function toVisitsParams(
  * parallel. Mirrors how Calypso's chart tabs fetch each pair.
  *
  * @param reportParams - The dashboard date range + comparison state.
+ * @param period       - The selected bucket granularity (day/week/month).
  * @return The metric tabs and combined load/error state.
  */
-export default function useTrafficChart( reportParams: ReportParams ): TrafficChartState {
+export default function useTrafficChart(
+	reportParams: ReportParams,
+	period: TrafficPeriod
+): TrafficChartState {
 	// Memoize each request's params (as sibling Stats widgets do) so the query key
 	// is stable across renders.
 	const viewsVisitorsParams = useMemo(
-		() => toVisitsParams( reportParams, 'views,visitors' ),
-		[ reportParams ]
+		() => toVisitsParams( reportParams, 'views,visitors', period ),
+		[ reportParams, period ]
 	);
 	const likesCommentsParams = useMemo(
-		() => toVisitsParams( reportParams, 'likes,comments' ),
-		[ reportParams ]
+		() => toVisitsParams( reportParams, 'likes,comments', period ),
+		[ reportParams, period ]
 	);
 
 	const viewsVisitors = useStatsVisits( viewsVisitorsParams );
