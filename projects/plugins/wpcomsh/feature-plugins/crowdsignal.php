@@ -57,7 +57,7 @@ add_action( 'admin_init', 'wpcomsh_suppress_crowdsignal_activation_redirect', 1 
  */
 function wpcomsh_suppress_crowdsignal_forms_setup_notice( $show ) {
 	$screen = get_current_screen();
-	if ( $screen && in_array( $screen->id, array( 'plugins', 'dashboard' ), true ) ) {
+	if ( $screen instanceof WP_Screen && in_array( $screen->id, array( 'plugins', 'dashboard' ), true ) ) {
 		return false;
 	}
 	return $show;
