@@ -19,6 +19,7 @@ export {
 	type ColorableItem,
 } from './segment-styles';
 export { buildSalesByDeviceData, type SalesByDeviceData } from './build-sales-by-device-data';
+export { buildSalesByUtmData } from './build-sales-by-utm-data';
 export {
 	buildSessionsByDeviceData,
 	type SessionsByDeviceData,

@@ -27,6 +27,13 @@ const ConnectPrompt = lazy( () => import( './connect-prompt' ) );
 // grandfathered users out of the Episodes tab.
 const hasProductAccess = (): boolean => getScriptData()?.podcast?.has_product_access !== false;
 
+// Fail-closed counterpart for entitlement *claims* (the welcome screen's
+// "included with your plan" copy): only treat the site as entitled when the
+// flag is explicitly true, so a missing flag never asserts entitlement we
+// haven't confirmed or hides the upgrade path from a non-entitled user.
+const hasConfirmedProductAccess = (): boolean =>
+	getScriptData()?.podcast?.has_product_access === true;
+
 const TabFallback = () => (
 	<div className="podcast__loading">
 		<Spinner />
@@ -70,6 +77,9 @@ const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 	const hasAccess = hasProductAccess();
+	// Confirmed entitlement gates the welcome "included" claim; the fail-open
+	// `hasAccess` keeps gating the tabs so a missing flag never locks anyone out.
+	const hasConfirmedAccess = hasConfirmedProductAccess();
 	const connected = isSiteConnected();
 
 	// `?tab=` owns the active tab; absent `?tab=` falls back to `defaultTab`.
@@ -179,7 +189,7 @@ const App = () => {
 				<div className="podcast__tab-content podcast__tab-content--wide">
 					<ErrorBoundary>
 						<Suspense fallback={ <TabFallback /> }>
-							<Welcome onEnable={ handleEnable } />
+							<Welcome onEnable={ handleEnable } hasAccess={ hasConfirmedAccess } />
 						</Suspense>
 					</ErrorBoundary>
 				</div>

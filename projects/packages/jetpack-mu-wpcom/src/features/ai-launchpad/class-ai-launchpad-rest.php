@@ -67,6 +67,17 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
+	 * First-post tasks that can sit "in progress": the AI-created draft post exists but has not been published yet.
+	 *
+	 * Detected through the `_wpcom_ai_launchpad_first_post` marker meta (via AI_Launchpad_First_Post_Listener), so an
+	 * unrelated pre-existing draft never counts. Paired with `add_about_page`, which has its own marker meta.
+	 */
+	const IN_PROGRESS_FIRST_POST_TASK_IDS = array(
+		'first_post_published',
+		'first_post_published_newsletter',
+	);
+
+	/**
 	 * Whether the site's visibility is set to private (`blog_public = -1`).
 	 *
 	 * Read directly to avoid a hard dependency on the Status package in this read path.
@@ -550,16 +561,86 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				? admin_url( self::CTA_OVERRIDES[ $task['id'] ] )
 				: wpcom_launchpad_checklists()->load_calypso_path( $definition );
 
+			$title       = isset( $definition['get_title'] ) ? $definition['get_title']() : '';
+			$in_progress = false;
+
+			// A saved-but-unpublished draft (found by marker meta) puts a site-editor task "in progress": reopen that
+			// draft instead of creating a new one, and surface the drafts icon + a "Continue…" prompt in the card.
+			if ( ! $completed ) {
+				$draft_url = $this->get_in_progress_draft_url( $task['id'] );
+				if ( null !== $draft_url ) {
+					$in_progress  = true;
+					$calypso_path = $draft_url;
+				}
+			}
+
+			// Title follows our precise in-progress signal so it, the icon, and the CTA agree.
+			$title = $this->get_task_title( $task['id'], $in_progress, $title );
+
 			$built[] = array(
 				'id'           => $task['id'],
 				'subtitle'     => $task['subtitle'],
-				'title'        => isset( $definition['get_title'] ) ? $definition['get_title']() : '',
+				'title'        => $title,
 				'completed'    => $completed,
+				'in_progress'  => $in_progress,
 				'calypso_path' => $calypso_path,
 			);
 		}
 
 		return $built;
+	}
+
+	/**
+	 * Resolves the editor URL of a site-editor task's in-progress draft, or null when there is none.
+	 *
+	 * The About page is found by its marker meta; the first-post tasks by the latest draft post. Returned as an
+	 * `admin_url()` so the client reopens the existing draft rather than creating a duplicate.
+	 *
+	 * @param string $task_id The catalog task id.
+	 * @return string|null
+	 */
+	private function get_in_progress_draft_url( $task_id ) {
+		$draft_id = null;
+
+		if ( 'add_about_page' === $task_id ) {
+			$draft_id = AI_Launchpad_About_Page_Listener::get_draft_id();
+		} elseif ( in_array( $task_id, self::IN_PROGRESS_FIRST_POST_TASK_IDS, true ) ) {
+			$draft_id = AI_Launchpad_First_Post_Listener::get_draft_id();
+		}
+
+		if ( null === $draft_id ) {
+			return null;
+		}
+
+		return admin_url( 'post.php?post=' . $draft_id . '&action=edit' );
+	}
+
+	/**
+	 * The card title for a site-editor task, chosen by our precise (marker-based) in-progress signal so the title,
+	 * icon, and CTA stay in agreement.
+	 *
+	 * This overrides `first_post_published`'s catalog title in both states: the catalog swaps it to "Continue…"
+	 * whenever ANY draft exists (a looser signal than our marker), so an unrelated draft would otherwise show a
+	 * "Continue…" title beside the not-started icon. Tasks not listed keep their catalog title.
+	 *
+	 * @param string $task_id     The catalog task id.
+	 * @param bool   $in_progress Whether our marker detected an in-progress draft.
+	 * @param string $default     The catalog-provided title, kept when we don't override.
+	 * @return string
+	 */
+	private function get_task_title( $task_id, $in_progress, $default ) {
+		switch ( $task_id ) {
+			case 'add_about_page':
+				return $in_progress ? __( 'Continue working on the About page', 'jetpack-mu-wpcom' ) : $default;
+			case 'first_post_published':
+				return $in_progress
+					? __( 'Continue to write your first post', 'jetpack-mu-wpcom' )
+					: __( 'Write your first post', 'jetpack-mu-wpcom' );
+			case 'first_post_published_newsletter':
+				return $in_progress ? __( 'Continue writing your first post', 'jetpack-mu-wpcom' ) : $default;
+			default:
+				return $default;
+		}
 	}
 
 	/**

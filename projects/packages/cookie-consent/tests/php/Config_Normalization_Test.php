@@ -153,6 +153,35 @@ class Config_Normalization_Test extends TestCase {
 	}
 
 	/**
+	 * The Tracks feature flag defaults on and can be disabled by configuration.
+	 */
+	public function test_resolve_preserves_tracks_feature_flag() {
+		$config = Config_Schema::resolve();
+		$this->assertTrue( $config['features']['tracks'] );
+
+		$config = Config_Schema::resolve( array( 'features' => array( 'tracks' => false ) ) );
+		$this->assertFalse( $config['features']['tracks'] );
+	}
+
+	/**
+	 * The frontend loader owns consent-aware Tracks loading, so PHP must not
+	 * enqueue w.js before the visitor's region and consent state are known.
+	 */
+	public function test_enqueue_assets_does_not_enqueue_tracks_script() {
+		global $wp_scripts, $wp_styles;
+
+		$wp_scripts = null;
+		$wp_styles  = null;
+
+		ob_start();
+		Cookie_Consent::enqueue_assets();
+		ob_end_clean();
+
+		$this->assertFalse( wp_script_is( 'jetpack-cookie-consent-tracks', 'registered' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-cookie-consent-tracks', 'enqueued' ) );
+	}
+
+	/**
 	 * Categories keyed with a reserved frontend alias are dropped so they can't
 	 * overwrite a built-in category, and the rejection is surfaced.
 	 */

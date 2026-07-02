@@ -108,8 +108,8 @@ class Init_Feature_Toggles_Test extends TestCase {
 	}
 
 	public function test_tracks_and_geo_off_without_banner_skips_enqueue() {
-		// enqueue_assets is registered when banner OR tracks is on. With all of banner,
-		// tracks, and geo off there is nothing to enqueue, so the hook stays absent.
+		// enqueue_assets is registered only when the banner is on. With banner off there
+		// is nothing to enqueue, so the hook stays absent regardless of tracks/geo.
 		Cookie_Consent::init(
 			array(
 				'features' => array(
@@ -123,7 +123,10 @@ class Init_Feature_Toggles_Test extends TestCase {
 		$this->assertFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
 	}
 
-	public function test_tracks_on_without_banner_still_registers_enqueue() {
+	public function test_tracks_on_without_banner_skips_enqueue() {
+		// Tracks (w.js) is loaded on the frontend by the banner module, gated on analytics
+		// consent (#50105). With the banner off there is no module to load it, so init()
+		// registers no enqueue hook even when tracks is on.
 		Cookie_Consent::init(
 			array(
 				'features' => array(
@@ -134,7 +137,7 @@ class Init_Feature_Toggles_Test extends TestCase {
 			)
 		);
 
-		$this->assertNotFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
+		$this->assertFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
 		$this->assertFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ), 999 ) );
 	}
 

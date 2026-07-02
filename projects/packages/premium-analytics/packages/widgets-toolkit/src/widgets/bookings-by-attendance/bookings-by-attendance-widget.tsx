@@ -81,6 +81,7 @@ export function BookingsByAttendanceWidget() {
 						type: 'number',
 						options: { useMultipliers: false, decimals: 0 },
 					} }
+					maxSize={ null }
 					emptyStateIcon={ calendar }
 					withTooltips
 				/>

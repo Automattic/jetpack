@@ -60,16 +60,35 @@ class Enqueue_Assets_Test extends TestCase {
 		$this->assertFalse( is_admin() );
 	}
 
-	public function test_tracks_on_enqueues_tracks_script() {
-		$this->init_and_enqueue( array( 'features' => array( 'tracks' => true ) ) );
+	public function test_tracks_on_does_not_php_enqueue_wjs_but_keeps_feature_enabled() {
+		$this->init_and_enqueue(
+			array(
+				'features' => array(
+					'banner' => true,
+					'tracks' => true,
+				),
+			)
+		);
 
-		$this->assertTrue( wp_script_is( 'jetpack-cookie-consent-tracks', 'enqueued' ) );
+		// w.js is loaded by the banner module on the frontend, gated on analytics
+		// consent (#50105); PHP must never enqueue it directly. The frontend reads the
+		// `features.tracks` flag from the emitted config to decide whether to load it.
+		$this->assertFalse( wp_script_is( 'jetpack-cookie-consent-tracks', 'enqueued' ) );
+		$this->assertTrue( Cookie_Consent::get_config()['features']['tracks'] );
 	}
 
-	public function test_tracks_off_does_not_enqueue_tracks_script() {
-		$this->init_and_enqueue( array( 'features' => array( 'tracks' => false ) ) );
+	public function test_tracks_off_does_not_php_enqueue_wjs_and_disables_feature() {
+		$this->init_and_enqueue(
+			array(
+				'features' => array(
+					'banner' => true,
+					'tracks' => false,
+				),
+			)
+		);
 
 		$this->assertFalse( wp_script_is( 'jetpack-cookie-consent-tracks', 'enqueued' ) );
+		$this->assertFalse( Cookie_Consent::get_config()['features']['tracks'] );
 	}
 
 	public function test_banner_off_skips_interactivity_module_and_config() {

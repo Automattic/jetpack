@@ -273,7 +273,12 @@ class Consent_Log_Controller_Test extends TestCase {
 	 * injected retention_days.
 	 */
 	public function test_cleanup_retention_days_filter_overrides_injected_value() {
-		add_filter( 'jetpack_cookie_consent_log_retention_days', static fn () => 3 );
+		add_filter(
+			'jetpack_cookie_consent_log_retention_days',
+			static function () {
+				return 3;
+			}
+		);
 
 		$cutoff_ts = $this->capture_cleanup_cutoff( array( 'retention_days' => 1 ) );
 

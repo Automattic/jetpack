@@ -110,11 +110,6 @@ class Cookie_Consent {
 		if ( $features['banner'] ) {
 			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 			add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
-		} elseif ( $features['tracks'] ) {
-			// enqueue_assets also carries the Tracks (w.js) enqueue, so register it when
-			// tracks is on even without the banner. Geo emission lives after the banner
-			// guard inside enqueue_assets(), so geo alone has nothing to enqueue here.
-			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		}
 
 		if ( $features['footer_links'] ) {
@@ -1070,21 +1065,8 @@ class Cookie_Consent {
 		$config   = self::get_config();
 		$features = $config['features'];
 
-		if ( $features['tracks'] ) {
-			// Load Automattic Tracks (w.js) for analytics.
-			// External script, version managed by Automattic - no version needed.
-			wp_enqueue_script(
-				'jetpack-cookie-consent-tracks',
-				'https://stats.wp.com/w.js',
-				array(),
-				gmdate( 'YW' ),
-				array(
-					'strategy'  => 'defer',
-					'in_footer' => true,
-				)
-			);
-		}
-
+		// w.js is loaded by the banner module on the frontend, gated on analytics consent
+		// (see tracks-utils.ts); PHP must not enqueue it here or it would load pre-consent.
 		if ( ! $features['banner'] ) {
 			return;
 		}
@@ -1123,6 +1105,7 @@ class Cookie_Consent {
 		$config_data = array(
 			'apiUrl'      => rest_url( 'jetpack/v4/cookie-consent/consent-log' ),
 			'eventPrefix' => $config['event_prefix'],
+			'features'    => $config['features'],
 		);
 
 		// Only expose a REST nonce to logged-in visitors, so the consent logger can

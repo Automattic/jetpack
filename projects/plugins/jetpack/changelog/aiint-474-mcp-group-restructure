@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+AI Admin: restructure MCP settings Read/Write pages to group tools by display group with collapsible per-group tool lists and a page-level Enable all toggle.

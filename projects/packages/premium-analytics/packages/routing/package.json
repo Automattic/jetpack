@@ -9,6 +9,10 @@
 	"dependencies": {
 		"@jetpack-premium-analytics/data": "workspace:*",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
-		"@wordpress/route": "0.14.1"
+		"@wordpress/core-data": "7.49.1",
+		"@wordpress/data": "10.49.0",
+		"@wordpress/route": "0.15.0",
+		"date-fns": "4.1.0",
+		"react": "18.3.1"
 	}
 }

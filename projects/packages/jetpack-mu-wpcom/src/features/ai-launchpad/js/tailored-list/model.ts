@@ -9,6 +9,9 @@ export interface EnrichedTask {
 	subtitle: string;
 	title: string;
 	completed: boolean;
+	// True when a site-editor task has a saved-but-unpublished draft: the card shows
+	// the drafts icon + a "Continue" CTA, and `calypso_path` reopens that draft.
+	in_progress: boolean;
 	calypso_path: string | null;
 }
 
@@ -173,7 +176,10 @@ export async function resolveCtaUrl(
 
 	const kind = ctaKind( task.id );
 	let url: string | null;
-	if ( kind === 'first_post' && output ) {
+	if ( task.in_progress && task.calypso_path ) {
+		// The task already has an unpublished draft; reopen it rather than creating a duplicate.
+		url = task.calypso_path;
+	} else if ( kind === 'first_post' && output ) {
 		url = ( await handlers.createFirstPostDraft( output.first_post_draft ) ).edit_url;
 	} else if ( kind === 'pattern_page' && output ) {
 		url = ( await handlers.createPatternPage( output.inferred ) ).edit_url;
@@ -201,6 +207,10 @@ export function isTaskActionable(
 	output: TailoredOutput | null,
 	siteUrl: string | null = null
 ): boolean {
+	// An in-progress task reopens its existing draft via calypso_path, so it stays actionable.
+	if ( task.in_progress && task.calypso_path ) {
+		return true;
+	}
 	const kind = ctaKind( task.id );
 	if ( ( kind === 'first_post' || kind === 'pattern_page' ) && output ) {
 		return true;
@@ -247,6 +257,7 @@ export function tasksFromFixture( output: TailoredOutput ): EnrichedTask[] {
 		subtitle: task.subtitle,
 		title: humanizeTaskId( task.id ),
 		completed: false,
+		in_progress: false,
 		calypso_path: null,
 	} ) );
 }

@@ -78,6 +78,7 @@ export function NewVsReturningCustomerWidget() {
 						type: 'number',
 						options: { useMultipliers: true, decimals: 0 },
 					} }
+					maxSize={ null }
 					emptyStateIcon={ customer }
 					withTooltips
 				/>
