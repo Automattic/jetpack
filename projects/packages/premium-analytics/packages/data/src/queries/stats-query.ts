@@ -6,6 +6,7 @@ import {
 } from '../api';
 import {
 	sanitizeStatsClicksResponse,
+	sanitizeStatsDevicesResponse,
 	sanitizeStatsFileDownloadsResponse,
 	sanitizeStatsHighlightsResponse,
 	sanitizeStatsLocationsResponse,
@@ -13,7 +14,6 @@ import {
 	sanitizeStatsCommentFollowersResponse,
 	sanitizeStatsFollowersResponse,
 	sanitizeStatsCommentsResponse,
-	sanitizeStatsDevicesResponse,
 	sanitizeStatsInsightsResponse,
 	sanitizeStatsStreakResponse,
 	sanitizeStatsVisitsResponse,
