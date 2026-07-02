@@ -1,4 +1,4 @@
-import { GlobalErrorProvider, getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -82,11 +82,9 @@ function renderTotalSalesOverTime( { withComparison, preset }: TotalSalesOverTim
 	ensureLineChartComposition();
 
 	return (
-		<GlobalErrorProvider>
-			<TotalSalesOverTimeRender
-				attributes={ getTotalSalesOverTimeAttributes( withComparison, preset ) }
-			/>
-		</GlobalErrorProvider>
+		<TotalSalesOverTimeRender
+			attributes={ getTotalSalesOverTimeAttributes( withComparison, preset ) }
+		/>
 	);
 }
 
@@ -98,19 +96,15 @@ function TotalSalesOverTimeDashboardStory( {
 	ensureLineChartComposition();
 
 	return (
-		<GlobalErrorProvider>
-			<WidgetDashboardWithWidgetStory
-				{ ...dashboardStoryArgs }
-				widgetType={ widgetDefinition }
-				renderModule={ TOTAL_SALES_OVER_TIME_RENDER_MODULE }
-				renderComponent={
-					TotalSalesOverTimeRender as ComponentType< WidgetRenderProps< unknown > >
-				}
-				attributes={ {
-					reportParams: getDefaultQueryParams( withComparison, preset ),
-				} }
-			/>
-		</GlobalErrorProvider>
+		<WidgetDashboardWithWidgetStory
+			{ ...dashboardStoryArgs }
+			widgetType={ widgetDefinition }
+			renderModule={ TOTAL_SALES_OVER_TIME_RENDER_MODULE }
+			renderComponent={ TotalSalesOverTimeRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ {
+				reportParams: getDefaultQueryParams( withComparison, preset ),
+			} }
+		/>
 	);
 }
 
