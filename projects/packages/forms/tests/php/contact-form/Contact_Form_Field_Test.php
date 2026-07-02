@@ -243,4 +243,51 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'type=\'hidden\'', $html );
 		$this->assertStringContainsString( 'consent-implicit', $html );
 	}
+
+	/**
+	 * Test that validate() does not emit a foreach warning for checkbox-multiple
+	 * when $_POST contains a non-array (string) value.
+	 */
+	public function test_validate_checkbox_multiple_no_foreach_warning_with_string_value() {
+		$_POST['test_field'] = 'not-an-array';
+
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'checkbox-multiple',
+				'id'       => 'test_field',
+				'required' => true,
+				'options'  => array( 'Option 1', 'Option 2' ),
+			)
+		);
+
+		// This should not emit a PHP warning ("foreach() argument must be of type array|object, string given").
+		$field->validate();
+
+		// A validation error is expected because the string value is not a valid option.
+		$this->assertTrue( $field->is_error() );
+	}
+
+	/**
+	 * Test that validate() does not emit a foreach warning for image-select with ismultiple
+	 * when $_POST contains a non-array (string) value.
+	 */
+	public function test_validate_image_select_multiple_no_foreach_warning_with_string_value() {
+		$_POST['test_field'] = 'not-an-array';
+
+		$field = $this->get_new_field_instance(
+			array(
+				'type'       => 'image-select',
+				'id'         => 'test_field',
+				'required'   => true,
+				'ismultiple' => true,
+				'options'    => array( 'a', 'b' ),
+			)
+		);
+
+		// This should not emit a PHP warning ("foreach() argument must be of type array|object, string given").
+		$field->validate();
+
+		// A validation error is expected because the string value is not a valid option.
+		$this->assertTrue( $field->is_error() );
+	}
 } // end class

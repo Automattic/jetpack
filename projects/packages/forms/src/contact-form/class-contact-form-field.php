@@ -370,7 +370,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 					$non_empty_options = array_map( array( $this, 'sanitize_text_field' ), $possible_values );
 
-					foreach ( $field_value  as $field_value_item ) {
+					foreach ( (array) $field_value as $field_value_item ) {
 						if ( ! in_array( $field_value_item, $non_empty_options, true ) ) {
 							/* translators: %s is the name of a form field */
 							$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
@@ -483,7 +483,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						}
 					} else {
 						// For multiple selection (checkbox), check each selected value
-						foreach ( $field_value as $field_value_item ) {
+						foreach ( (array) $field_value as $field_value_item ) {
 							// Decode the JSON response to get the selected value
 							$decoded_item   = json_decode( $field_value_item, true );
 							$selected_value = $decoded_item['selected'] ?? '';
