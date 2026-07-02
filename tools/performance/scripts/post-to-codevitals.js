@@ -122,6 +122,17 @@ function extractScenarioMetrics( scenario, summary ) {
 	}
 
 	// Legacy: prefix-based keys with suffixes (untyped — not range-checked)
+	// A posting scenario with none of the three selectors would reach here with an
+	// undefined prefix and post five finite summary stats under literal "undefined_*"
+	// keys — untyped, so unchecked, and with a green build. That is the one fail-open
+	// shape in this function, so refuse it like the sibling guards above.
+	if ( typeof scenario.metricPrefix !== 'string' || ! scenario.metricPrefix.trim() ) {
+		throw new ValidationError(
+			`Scenario "${
+				scenario.key ?? 'unknown'
+			}" posts to CodeVitals but declares no metrics[], metricKey, or metricPrefix; refusing to post under "undefined_*" keys`
+		);
+	}
 	const prefix = scenario.metricPrefix;
 	return [
 		{ key: `${ prefix }_ms`, value: summary.median },

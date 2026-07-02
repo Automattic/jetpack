@@ -283,6 +283,20 @@ test( 'a keyed scenario without a metricType is rejected, not posted unchecked',
 	);
 } );
 
+test( 'a posting scenario with no metric selector at all is rejected, not posted under undefined_* keys', () => {
+	// Without this guard the legacy branch builds keys from an undefined prefix and posts
+	// five finite summary stats under literal "undefined_*" keys — untyped (unchecked) and
+	// with a green build. The only fail-open extraction shape; must throw like its siblings.
+	assert.throws(
+		() =>
+			extractScenarioMetrics(
+				{ key: 'future' },
+				{ median: 100, mean: 100, min: 90, max: 110, stdDev: 5 }
+			),
+		/no metrics\[\], metricKey, or metricPrefix/
+	);
+} );
+
 test( 'a scenario misconfiguration maps to the validation exit code, a transport error to 1', () => {
 	let configError;
 	try {
@@ -376,12 +390,14 @@ test( 'dry-run posts all three scenario metrics into the payload, nothing reject
 } );
 
 test( 'per-type sanity: one out-of-range metric is rejected, the survivors stay visible in the dry-run payload', async () => {
-	// Each metric is checked against its OWN type: TTFB out of its range [10,10000] is
-	// dropped while LCP and FCP survive into the dry-run payload, so CI diagnostics show
+	// Each metric is checked against its OWN type: 15000 is out of TTFB's range [10,10000]
+	// but INSIDE the lcp [100,60000] and fcp [50,30000] ranges, so this only fails if the
+	// check really selected the ttfb row — a value out of range for every type would pass
+	// vacuously. LCP and FCP survive into the dry-run payload, so CI diagnostics show
 	// exactly which metrics passed. (A live run with validationFailed posts NOTHING — see
 	// the atomic-post test below — so the partial payload is diagnostic-only.) The
 	// rejected key must never reach the payload.
-	const file = writeResults( 120, { ttfb: 99999, fcp: 400 } );
+	const file = writeResults( 120, { ttfb: 15000, fcp: 400 } );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.validationFailed, true ); // ttfb failed its range
 	assert.equal( result.payload.metrics[ LCP_KEY ], 120 ); // still posts

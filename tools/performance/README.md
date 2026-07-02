@@ -69,7 +69,7 @@ CodeVitals is an **append-only** store with no self-service rollback. Once a bad
 
 ### Sanity-range assertions
 
-`post-to-codevitals.js` checks every typed metric against `SANITY_RANGES` in `scenarios.js` before posting. A value outside its range is logged and rejected, and the script exits non-zero so CI surfaces the failure. Live posting is all-or-nothing per run: any sanity failure suppresses the entire POST (nothing lands, so a retried build re-posts the full set exactly once). A dry run still prints the partial payload — the surviving metrics — for diagnostics.
+`post-to-codevitals.js` checks every typed metric against `SANITY_RANGES` in `scenarios.js` before posting. A value outside its range is logged and rejected, and the script exits non-zero so CI surfaces the failure. Live posting is all-or-nothing per run: any sanity failure suppresses the entire POST (nothing lands, so a retried build re-posts the full set exactly once). A dry run still prints the surviving metrics, if any, for diagnostics.
 
 | Metric | Min | Max   |
 | ------ | --- | ----- |
