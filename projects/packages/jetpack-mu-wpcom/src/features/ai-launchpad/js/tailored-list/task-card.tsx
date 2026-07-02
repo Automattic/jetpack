@@ -29,6 +29,12 @@ interface Props {
  * @return The translated CTA label.
  */
 function getCtaLabel( taskId: string, inProgress: boolean ): string {
+	// The install task's in-progress state means "installed but inactive", so its CTA activates the plugin rather
+	// than resuming a draft.
+	if ( inProgress && taskId === 'install_woocommerce' ) {
+		return __( 'Activate WooCommerce', 'jetpack-mu-wpcom' );
+	}
+
 	// An in-progress task reopens its existing draft, so the CTA invites the user to pick up where they left off.
 	if ( inProgress ) {
 		return __( 'Continue', 'jetpack-mu-wpcom' );

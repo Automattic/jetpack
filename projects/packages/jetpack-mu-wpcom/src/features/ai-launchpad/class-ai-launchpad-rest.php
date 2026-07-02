@@ -295,10 +295,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// The sell goal leads with the store-setup task; every other goal may offer the gallery task. They are
 			// mutually exclusive so a sell site with a visual niche doesn't also get an off-target gallery task.
 			if ( 'sell' === $goal ) {
-				// The store-setup tasks lead the sell list; prepend in reverse so they keep their display order.
-				foreach ( array_reverse( $this->build_store_tasks() ) as $lead ) {
-					$tasks = $this->insert_lead_task( $tasks, $lead );
-				}
+				// The store-setup tasks lead the sell list. Their synthetic ids never appear in the AI payload, so a
+				// plain prepend is safe.
+				$tasks = array_merge( $this->build_store_tasks(), $tasks );
 			} else {
 				$gallery = $this->build_gallery_task( $inferred );
 				if ( null !== $gallery ) {
@@ -852,24 +851,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		array_splice( $tasks, $insert_at, 0, array( $task ) );
-		return $tasks;
-	}
-
-	/**
-	 * Inserts a synthetic task at the head of the list, idempotently by id.
-	 *
-	 * @param array $tasks The enriched task list.
-	 * @param array $task  The synthetic task entry.
-	 * @return array
-	 */
-	private function insert_lead_task( $tasks, $task ) {
-		foreach ( $tasks as $existing ) {
-			if ( isset( $existing['id'] ) && $existing['id'] === $task['id'] ) {
-				return $tasks;
-			}
-		}
-
-		array_unshift( $tasks, $task );
 		return $tasks;
 	}
 
