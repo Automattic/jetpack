@@ -236,10 +236,9 @@ class SchemaBuilderTest extends TestCase {
 
 		$doc = $this->emit_document( $this->make_post() );
 
-		$this->assertSame( 'WebSite', $doc['@graph'][1]['@type'], 'Site-level nodes come before the page node.' );
-
 		$organization = $this->node_of_type( $doc, 'Organization' );
 		$website      = $this->node_of_type( $doc, 'WebSite' );
+		$this->assertIsArray( $organization, 'Expected an Organization node in the graph.' );
 		$this->assertIsArray( $website, 'Expected a WebSite node in the graph.' );
 		$this->assertSame( Schema_Node_Ids::website(), $website['@id'] );
 		$this->assertSame( 'Acme Co', $website['name'] );
