@@ -143,6 +143,9 @@ export default meta;
 type Story = StoryObj< typeof meta >;
 type DashboardStory = StoryObj< TotalSalesOverTimeDashboardStoryProps >;
 
+/**
+ * Default state for the current report period.
+ */
 export const Default: Story = {
 	render: renderTotalSalesOverTime,
 	args: {
@@ -162,6 +165,9 @@ export const Default: Story = {
 	},
 };
 
+/**
+ * Comparison period enabled, showing period-over-period change and line chart data.
+ */
 export const WithComparison: Story = {
 	render: renderTotalSalesOverTime,
 	args: {
@@ -181,6 +187,9 @@ export const WithComparison: Story = {
 	},
 };
 
+/**
+ * Renders the widget through the shared dashboard harness.
+ */
 export const WidgetDashboardWithWidget: DashboardStory = {
 	render: args => <TotalSalesOverTimeDashboardStory { ...args } />,
 	args: {

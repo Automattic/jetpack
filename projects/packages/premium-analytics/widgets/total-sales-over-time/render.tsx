@@ -1,9 +1,25 @@
-import { OrderMetricWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * External dependencies
+ */
+import {
+	OrderMetricWidget,
+	WidgetRoot,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { TotalSalesOverTimeAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type WidgetRootProps = ComponentProps< typeof WidgetRoot >;
-type RenderProps = Pick< WidgetRootProps, 'attributes' > & {
-	setError?: WidgetRootProps[ 'setError' ];
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type TotalSalesOverTimeRenderAttributes = TotalSalesOverTimeAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type TotalSalesOverTimeRenderProps = WidgetRenderProps< TotalSalesOverTimeRenderAttributes > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
@@ -13,7 +29,10 @@ type RenderProps = Pick< WidgetRootProps, 'attributes' > & {
  * client, chart theme, and resolved report params; OrderMetricWidget fetches
  * the orders report and renders total sales over time.
  */
-export default function TotalSalesOverTimeRender( { attributes, setError }: RenderProps ) {
+export default function TotalSalesOverTimeRender( {
+	attributes = {},
+	setError,
+}: TotalSalesOverTimeRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget metricKey="total_sales" />
