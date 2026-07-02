@@ -1,12 +1,27 @@
+/**
+ * External dependencies
+ */
 import {
 	BookingConversionRateWidget,
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { StoreConversionRateBookingsAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps } from 'react';
 
-type StoreConversionRateBookingsRenderProps = {
-	attributes?: Partial< ReportParamsFieldAttributes >;
-};
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type StoreConversionRateBookingsRenderAttributes = StoreConversionRateBookingsAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type StoreConversionRateBookingsRenderProps =
+	WidgetRenderProps< StoreConversionRateBookingsRenderAttributes > & {
+		setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+	};
 
 /**
  * Store conversion rate bookings widget.
@@ -15,16 +30,13 @@ type StoreConversionRateBookingsRenderProps = {
  * client, chart theme, and resolved report params; BookingConversionRateWidget
  * fetches the conversion-rate report with bookings filters and renders the
  * funnel.
- *
- * @param root0            - Render props.
- * @param root0.attributes - Widget attributes supplied by the dashboard.
- * @return Store conversion rate bookings widget element.
  */
 export default function StoreConversionRateBookingsRender( {
-	attributes,
+	attributes = {},
+	setError,
 }: StoreConversionRateBookingsRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
+		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<BookingConversionRateWidget />
 		</WidgetRoot>
 	);

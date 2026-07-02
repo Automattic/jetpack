@@ -143,9 +143,9 @@ function getStoreConversionRateBookingsSource(
 /**
  * Renders the standalone store conversion rate bookings widget story.
  *
- * @param root0                - Story controls.
- * @param root0.withComparison - Whether to include comparison report params.
- * @param root0.preset         - Date-range preset to use for report params.
+ * @param props                - Story controls.
+ * @param props.withComparison - Whether to include comparison report params.
+ * @param props.preset         - Date-range preset to use for report params.
  * @return Store conversion rate bookings widget story element.
  */
 function renderStoreConversionRateBookings( {
@@ -162,9 +162,9 @@ function renderStoreConversionRateBookings( {
 /**
  * Renders the store conversion rate bookings widget inside the dashboard story shell.
  *
- * @param root0                - Story controls.
- * @param root0.withComparison - Whether to include comparison report params.
- * @param root0.preset         - Date-range preset to use for report params.
+ * @param props                - Story controls.
+ * @param props.withComparison - Whether to include comparison report params.
+ * @param props.preset         - Date-range preset to use for report params.
  * @return Store conversion rate bookings dashboard story element.
  */
 function StoreConversionRateBookingsDashboardStory( {
