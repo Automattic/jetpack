@@ -419,11 +419,14 @@
 .videopress-caption-manager__video {
 	position: relative;
 
-	// Size to the video's own aspect ratio (set via --preview-ar from the video
-	// dimensions), bounded so portrait videos are height-capped and landscape
-	// videos are width-capped — neither overflows or gets pillarboxed.
-	aspect-ratio: var(--preview-ar, 16 / 9);
-	inline-size: min(100%, calc(60vh * ( var(--preview-ar, 16 / 9) )));
+	// Size to the video's own aspect ratio (the inline --preview-ar from the
+	// video dimensions overrides this fallback), bounded so portrait videos are
+	// height-capped and landscape videos are width-capped — neither overflows
+	// or gets pillarboxed. The custom property also keeps the division out of
+	// Sass's reach, which would otherwise deprecation-warn on `/`.
+	--preview-ar: 16 / 9;
+	aspect-ratio: var(--preview-ar);
+	inline-size: min(100%, calc(60vh * ( var(--preview-ar) )));
 	max-block-size: 60vh;
 	margin-inline: auto;
 	background: #1d2327;
