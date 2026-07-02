@@ -61,10 +61,7 @@ export type TopPostRow = {
 // picker — but the host (and Storybook) may also inject them via `attributes`.
 type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
 
-type TopPostsReportProps = {
-	num?: number;
-	postType?: string | string[];
-};
+type TopPostsReportProps = Pick< TopPostsAttributes, 'num' | 'postType' >;
 
 /**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
@@ -242,30 +239,40 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 		return Array.isArray( postType ) ? postType : [ postType ];
 	}, [ postType ] );
 
-	const rows = useMemo( () => {
-		const primaryRows = toTopPostRows(
-			primary.data as StatsNormalizedReport< StatsTopPostsItem >,
-			allowedTypes
-		);
+	const primaryRows = useMemo(
+		() => toTopPostRows( primary.data as StatsNormalizedReport< StatsTopPostsItem >, allowedTypes ),
+		[ primary.data, allowedTypes ]
+	);
 
+	// Comparison-period views keyed by the same post URL the primary rows use.
+	// Empty when comparison is disabled or the comparison query returned no rows.
+	const previousViewsByHref = useMemo( () => {
 		if ( ! hasComparison ) {
-			return primaryRows;
+			return new Map< string, number >();
 		}
-
-		// Align the comparison period to each primary row by post URL — the same
-		// stable key the leaderboard uses — so posts absent last period count as 0.
-		const previousViewsByHref = new Map(
+		return new Map(
 			toTopPostRows(
 				comparison.data as StatsNormalizedReport< StatsTopPostsItem >,
 				allowedTypes
 			).map( row => [ row.href, row.value ] )
 		);
+	}, [ comparison.data, allowedTypes, hasComparison ] );
 
-		return primaryRows.map( row => ( {
-			...row,
-			previousValue: previousViewsByHref.get( row.href ) ?? 0,
-		} ) );
-	}, [ primary.data, comparison.data, allowedTypes, hasComparison ] );
+	// Only render comparison UI when the comparison period actually returned
+	// rows; otherwise every row would fall to a placeholder `previousValue: 0`
+	// and the chart would show a fabricated delta (see AGENTS.md).
+	const withComparison = hasComparison && previousViewsByHref.size > 0;
+
+	const rows = useMemo(
+		() =>
+			withComparison
+				? primaryRows.map( row => ( {
+						...row,
+						previousValue: previousViewsByHref.get( row.href ) ?? 0,
+				  } ) )
+				: primaryRows,
+		[ primaryRows, previousViewsByHref, withComparison ]
+	);
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
@@ -274,8 +281,8 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 			rows={ rows }
 			isLoading={ isLoading }
 			isError={ isError }
-			withComparison={ hasComparison }
-			showLegend={ hasComparison }
+			withComparison={ withComparison }
+			showLegend={ withComparison }
 			legendLabels={ legendLabels }
 		/>
 	);

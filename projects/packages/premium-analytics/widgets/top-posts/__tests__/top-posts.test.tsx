@@ -90,6 +90,66 @@ describe( 'TopPostsWidget', () => {
 		expect( requestedPath ).toContain( 'date=2026-03-10' );
 	} );
 
+	it( 'requests the comparison window and aligns previous views by post URL', async () => {
+		// Same post across both periods so the primary row can pick up a
+		// previous value; keyed by URL, not order.
+		const comparisonResponse = {
+			date: '2026-02-10',
+			days: {},
+			summary: {
+				postviews: [
+					{
+						id: 1,
+						href: 'https://example.com/hello-world/',
+						date: '2026-02-01',
+						title: 'Hello World Post',
+						type: 'post',
+						views: 20,
+					},
+				],
+				total_views: 20,
+			},
+		};
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve(
+				path.includes( 'date=2026-02-10' ) ? comparisonResponse : TOP_POSTS_RESPONSE
+			)
+		);
+
+		render(
+			<TopPostsWidget
+				attributes={ {
+					num: 10,
+					reportParams: {
+						from: '2026-03-01',
+						to: '2026-03-10',
+						comp: '1',
+						compare_from: '2026-02-01',
+						compare_to: '2026-02-10',
+					},
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByRole( 'link', { name: /Hello World Post/ } )
+		).resolves.toBeInTheDocument();
+
+		const requestedPaths = mockApiFetch.mock.calls.map(
+			( [ { path } ]: [ { path: string } ] ) => path
+		);
+		expect(
+			requestedPaths.some(
+				p => p.includes( 'start_date=2026-03-01' ) && p.includes( 'date=2026-03-10' )
+			)
+		).toBe( true );
+		expect(
+			requestedPaths.some(
+				p => p.includes( 'start_date=2026-02-01' ) && p.includes( 'date=2026-02-10' )
+			)
+		).toBe( true );
+	} );
+
 	it( 'renders the empty state when there are no views', async () => {
 		mockApiFetch.mockResolvedValue( { date: '2026-06-10', days: {} } );
 
