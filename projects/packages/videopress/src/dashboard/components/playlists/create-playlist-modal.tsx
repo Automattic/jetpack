@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Button, Dialog, InputControl, Stack } from '@wordpress/ui';
 import { useCreatePlaylist } from '../../hooks/use-create-playlist';
 import { DEFAULT_PLAYLIST_TYPE } from '../../types/playlist';
+import { STUDIO_DIALOG_CLASS } from '../studio-dialog';
 import { PLAYLIST_TYPE_LABELS } from './fields';
 import type { PlaylistType } from '../../types/playlist';
 
@@ -79,7 +80,7 @@ export default function CreatePlaylistModal( { isOpen, onClose }: Props ) {
 				}
 			} }
 		>
-			<Dialog.Popup size="small">
+			<Dialog.Popup className={ STUDIO_DIALOG_CLASS } size="small">
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'New playlist', 'jetpack-videopress-pkg' ) }</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />

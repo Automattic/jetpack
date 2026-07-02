@@ -2,6 +2,12 @@ import { useGlobalNotices } from '@automattic/jetpack-components/global-notices'
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { useDeletePlaylist } from '../../hooks/use-delete-playlist';
+// Stylesheet-only import: DataViews hosts this body in its own
+// `@wordpress/components` Modal; the studio-dialog rules re-center that
+// modal's `.dataviews-action-modal` overlay within the wp-admin content
+// area. Importing here makes the rules travel with this chunk instead of
+// depending on a sibling dialog happening to load them.
+import '../studio-dialog';
 import type { Playlist } from '../../types/playlist';
 import type { RenderModalProps } from '@wordpress/dataviews';
 

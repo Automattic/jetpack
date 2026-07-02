@@ -10,6 +10,7 @@ import { useUpdateVideoPoster } from '../../hooks/use-update-video-poster';
 import { selectImageFromMediaLibrary } from '../../utils/select-image-from-media-library';
 import { isStudioEnabled } from '../../utils/studio';
 import AddToPlaylistModal from '../library/add-to-playlist-modal';
+import { STUDIO_DIALOG_CLASS } from '../studio-dialog';
 import SelectFrameDialog from './select-frame-dialog';
 import ThumbnailUpdateButton from './thumbnail-update-button';
 import type { LibraryItem } from '../../types/library';
@@ -287,7 +288,7 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 						}
 					} }
 				>
-					<Dialog.Popup size="small">
+					<Dialog.Popup className={ STUDIO_DIALOG_CLASS } size="small">
 						<Dialog.Header>
 							<Dialog.Title>
 								{ __( 'Add video to playlist', 'jetpack-videopress-pkg' ) }

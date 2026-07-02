@@ -6,6 +6,12 @@ import { Button, InputControl, Stack, Text } from '@wordpress/ui';
 import { useCreatePlaylist } from '../../hooks/use-create-playlist';
 import { usePlaylists } from '../../hooks/use-playlists';
 import { useSetPlaylists } from '../../hooks/use-set-playlists';
+// Stylesheet-only import: when DataViews hosts this body in its own
+// `@wordpress/components` Modal (library bulk action), the studio-dialog
+// rules re-center that modal's `.dataviews-action-modal` overlay within the
+// wp-admin content area. Importing here makes the rules travel with every
+// chunk that can open the modal.
+import '../studio-dialog';
 import type { LibraryItem } from '../../types/library';
 import type { Playlist } from '../../types/playlist';
 

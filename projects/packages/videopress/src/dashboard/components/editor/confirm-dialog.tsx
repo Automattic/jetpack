@@ -5,6 +5,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Button, Dialog, Text } from '@wordpress/ui';
+import { STUDIO_DIALOG_CLASS } from '../studio-dialog';
 import type { ReactElement } from 'react';
 
 type Props = {
@@ -49,12 +50,19 @@ export default function StudioEditorConfirmDialog( {
 				}
 			} }
 		>
-			<Dialog.Popup size="small">
+			<Dialog.Popup className={ STUDIO_DIALOG_CLASS } size="small">
 				<Dialog.Header>
 					<Dialog.Title>{ title }</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
 				</Dialog.Header>
-				<Text>{ message }</Text>
+				{ /*
+				 * Dialog.Popup is an unpadded flex column; body padding comes
+				 * from the Dialog.Content region, which also owns scrolling
+				 * when the body outgrows the popup.
+				 */ }
+				<Dialog.Content>
+					<Text>{ message }</Text>
+				</Dialog.Content>
 				<Dialog.Footer>
 					<Button variant="outline" onClick={ onCancel } disabled={ isBusy }>
 						{ __( 'Cancel', 'jetpack-videopress-pkg' ) }

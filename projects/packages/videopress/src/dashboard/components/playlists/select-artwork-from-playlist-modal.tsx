@@ -1,5 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Dialog, Text } from '@wordpress/ui';
+import { STUDIO_DIALOG_CLASS } from '../studio-dialog';
 import type { PlaylistVideo } from '../../hooks/use-playlist-videos';
 
 type Props = {
@@ -39,7 +40,7 @@ export default function SelectArtworkFromPlaylistModal( {
 				}
 			} }
 		>
-			<Dialog.Popup size="medium">
+			<Dialog.Popup className={ STUDIO_DIALOG_CLASS } size="medium">
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Select artwork', 'jetpack-videopress-pkg' ) }</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />

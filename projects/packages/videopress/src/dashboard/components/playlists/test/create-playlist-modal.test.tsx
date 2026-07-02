@@ -36,6 +36,10 @@ describe( 'CreatePlaylistModal', () => {
 			// eslint-disable-next-line testing-library/no-node-access -- asserting an ancestor region requires DOM traversal.
 			screen.getByLabelText( 'Name' ).closest( '[data-wp-ui-overlay-scroll-container]' )
 		).not.toBeNull();
+
+		// The popup opts into Studio's content-area centering (positioning
+		// rules live in ../../studio-dialog/style.scss).
+		expect( screen.getByRole( 'dialog' ) ).toHaveClass( 'videopress-studio-dialog' );
 	} );
 
 	it( 'does not submit while the name is empty or whitespace', async () => {

@@ -306,11 +306,18 @@ describe( 'StudioEditorScreen', () => {
 		await addCut( user );
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
+		const confirmMessage = screen.getByText(
+			'Viewers will see the edited video. Your original is kept and can be restored.'
+		);
+		expect( confirmMessage ).toBeInTheDocument();
+		// Dialog.Popup is an unpadded flex column; body padding comes from the
+		// Dialog.Content region, marked by the overlay scroll-container
+		// attribute. Guards against the message sitting flush against the
+		// popup edges.
 		expect(
-			screen.getByText(
-				'Viewers will see the edited video. Your original is kept and can be restored.'
-			)
-		).toBeInTheDocument();
+			// eslint-disable-next-line testing-library/no-node-access -- asserting an ancestor region requires DOM traversal.
+			confirmMessage.closest( '[data-wp-ui-overlay-scroll-container]' )
+		).not.toBeNull();
 		await user.click( screen.getByRole( 'button', { name: 'Save edits' } ) );
 
 		await waitFor( () => expect( api.posts ).toHaveLength( 1 ) );

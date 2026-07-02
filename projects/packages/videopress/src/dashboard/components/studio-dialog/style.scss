@@ -1,0 +1,173 @@
+// Studio dialog positioning — center dialogs within the wp-admin CONTENT
+// AREA instead of the raw viewport.
+
+// Both dialog systems used by the Studio dashboard are viewport-centered by
+// design:
+//   - `@wordpress/ui` `Dialog.Popup` positions itself with `position: fixed;
+//     top: 50%; left: 50%; transform: translate(-50%, -50%)` (see
+//     `@wordpress/ui/src/dialog/style.module.css`).
+//   - `@wordpress/components` `Modal` — the chrome DataViews wraps around
+//     action `RenderModal` bodies — renders a full-viewport flex overlay
+//     (`.components-modal__screen-overlay`) and centers the frame with
+//     `margin: auto`.
+// Inside wp-admin the viewport is not the canvas the user is looking at: the
+// admin menu occupies the inline-start edge and the admin bar the top, so a
+// viewport-centered dialog reads as off-center. These rules re-center every
+// Studio-owned dialog within the same content column that
+// `jetpack-admin-page-layout` pins `#wpbody-content` to, mirroring its
+// body-class/breakpoint ladder (and reusing its constants — see
+// `@automattic/jetpack-base-styles/admin-page-layout.scss`).
+
+// Delivery/cascade notes:
+//   - This file ships through wp-build's inline-style pipeline (imported for
+//     side effects from `./index.ts`), which runs NO rtlcss pass and NO
+//     `postcss-custom-properties` resolution — physical properties stay
+//     physical and `var()` lookups stay live. RTL is therefore handled
+//     explicitly via `body.rtl` (added by wp-admin's admin-header.php):
+//     auto-flipping `left` to `right` would break the `translate(-50%)`
+//     centering math, which is anchor-side-specific.
+//   - The rules are unlayered, so they beat `@wordpress/ui`'s popup styles,
+//     which live in `@layer wp-ui-components` (unlayered wins over layered
+//     regardless of order or specificity).
+//   - Dialogs portal to `document.body`, outside `#wpbody-content`, so the
+//     body class is the only reliable scope.
+
+@use "@automattic/jetpack-base-styles/admin-page-layout" as wp-chrome;
+
+// `@wordpress/ui` Dialog popups opt in by passing STUDIO_DIALOG_CLASS (see
+// ./index.ts) as `Dialog.Popup`'s `className`.
+$studio-popup: ".videopress-studio-dialog";
+
+// DataViews stamps this overlayClassName on every action modal it opens
+// (`dataviews-item-actions`); on the Studio page all such modals are ours
+// (delete playlist, add to playlist).
+$dataviews-overlay: ".dataviews-action-modal";
+
+// Fallback for `--viewport-inset`, the popup's own margin-to-viewport custom
+// property (defined on the popup element by `@wordpress/ui` as
+// `--wpds-dimension-padding-2xl`, 24px). Referenced live so a token change
+// upstream keeps both formulas in sync; the fallback only covers the var
+// disappearing in a future `@wordpress/ui` refactor.
+$popup-viewport-inset: var(--viewport-inset, 24px);
+
+// Horizontal re-centering for one admin-menu state. The zero state (menu
+// off-canvas) branches to plain `50%`/upstream-equivalent values because a
+// unitless 0 — which stylelint's `length-zero-no-unit` autofix forces on
+// call sites — is invalid inside `calc()` additions.
+@mixin studio-dialog-sidebar-offset($sidebar-width) {
+
+	@if $sidebar-width == 0 {
+		// Menu off-canvas: upstream's own viewport centering is correct.
+		// Still emitted (rather than skipped) so each state's rules outrank
+		// the wider states earlier in the ladder.
+		#{$studio-popup} {
+			left: 50%;
+			width: calc(100vw - 2 * #{$popup-viewport-inset});
+		}
+
+		&.rtl #{$studio-popup} {
+			left: 50%;
+		}
+
+		#{$dataviews-overlay} {
+			padding-inline-start: 0;
+		}
+	} @else {
+		// Keep upstream's physical `left` + `translate(-50%)` technique and
+		// move the anchor by half the menu width: the content column's
+		// midpoint is `50vw + (menu / 2)` with the menu on the left. The
+		// width formula gives the menu's width back so the popup keeps
+		// symmetric viewport-inset margins *within the content column*
+		// (upstream: `100vw - 2 * inset`); the per-size `max-width` caps
+		// still apply on top.
+		#{$studio-popup} {
+			left: calc(50% + #{$sidebar-width * 0.5});
+			width: calc(100vw - #{$sidebar-width} - 2 * #{$popup-viewport-inset});
+		}
+
+		// RTL admin puts the menu on the right, so the anchor shifts the
+		// other way. Each state emits its own `.rtl` variant; the extra
+		// class outranks every lower state's LTR rule, so the ladder stays
+		// consistent for RTL bodies that also match a lower state (e.g.
+		// `.folded.rtl`).
+		&.rtl #{$studio-popup} {
+			left: calc(50% - #{$sidebar-width * 0.5});
+		}
+
+		// The components-Modal overlay is scrim + centering box in one
+		// element: padding moves the `margin: auto` centering box without
+		// shrinking the scrim, so the admin menu stays dimmed. Logical
+		// property — the overlay inherits the document direction, no manual
+		// RTL variant needed.
+		#{$dataviews-overlay} {
+			padding-inline-start: $sidebar-width;
+		}
+	}
+}
+
+// Vertical re-centering for one admin-bar height (the bar is fixed at the
+// top in wp-admin at all widths). `$fallback` feeds the same
+// `--wp-admin-bar-height` convention `jetpack-admin-page-layout` uses for
+// `#wpbody-content`, so a host that overrides the var moves both together.
+@mixin studio-dialog-admin-bar-offset($fallback) {
+	$admin-bar: var(--wp-admin-bar-height, #{$fallback});
+
+	#{$studio-popup} {
+		top: calc(50% + #{$admin-bar} / 2);
+		max-height: calc(100dvh - #{$admin-bar} - 2 * #{$popup-viewport-inset});
+	}
+
+	#{$dataviews-overlay} {
+		padding-top: $admin-bar;
+	}
+}
+
+body.jetpack_page_jetpack-videopress {
+
+	@include studio-dialog-admin-bar-offset(wp-chrome.$jp-admin-bar-height-desktop);
+	@include studio-dialog-sidebar-offset(wp-chrome.$jp-sidebar-width-expanded);
+
+	// `.folded` is the user's persistent "Collapse menu" preference; WP keeps
+	// it set at every viewport width, so match it unconditionally.
+	&.folded {
+
+		@include studio-dialog-sidebar-offset(wp-chrome.$jp-sidebar-width-folded);
+	}
+
+	// `.auto-fold` is WP JS state, gated to narrow-desktop widths; scope to
+	// the same media range wp-admin.css uses because the class can go stale
+	// after a narrow → wide resize (same guard as jetpack-admin-page-layout).
+	@media (max-width: #{wp-chrome.$jp-breakpoint-auto-fold}) {
+
+		&.auto-fold {
+
+			@include studio-dialog-sidebar-offset(wp-chrome.$jp-sidebar-width-folded);
+		}
+	}
+
+	// WP.com wp-admin (`body.is-nav-unification`) widens the sidebar to 272px
+	// at expanded widths only; `.folded` keeps winning via the `:not` guard.
+	@media (min-width: #{wp-chrome.$jp-breakpoint-auto-fold + 1px}) {
+
+		&.is-nav-unification:not(.folded) {
+
+			@include studio-dialog-sidebar-offset(wp-chrome.$jp-sidebar-width-nav-unification);
+		}
+	}
+
+	// Mobile: the admin menu slides off-canvas (0 width) regardless of
+	// fold state, and the admin bar grows to 46px. The selector list matches
+	// every fold variant so these later, equal-specificity rules win over the
+	// desktop ladder above.
+	@media (max-width: #{wp-chrome.$jp-breakpoint-mobile}) {
+
+		&,
+		&.folded,
+		&.auto-fold,
+		&.is-nav-unification {
+
+			@include studio-dialog-admin-bar-offset(wp-chrome.$jp-admin-bar-height-mobile);
+			@include studio-dialog-sidebar-offset(0);
+		}
+	}
+}

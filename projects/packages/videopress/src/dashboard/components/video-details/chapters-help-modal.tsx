@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Button, Dialog } from '@wordpress/ui';
+import { STUDIO_DIALOG_CLASS } from '../studio-dialog';
 import type { ReactElement } from 'react';
 
 type Props = {
@@ -27,61 +28,68 @@ export default function ChaptersHelpModal( { isOpen, onClose }: Props ): ReactEl
 				}
 			} }
 		>
-			<Dialog.Popup size="medium">
+			<Dialog.Popup className={ STUDIO_DIALOG_CLASS } size="medium">
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Chapters in VideoPress', 'jetpack-videopress-pkg' ) }</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
 				</Dialog.Header>
-				<p>
-					{ __(
-						'Chapters are a great way to split up longer videos and organize them into different sections.',
-						'jetpack-videopress-pkg'
-					) }
-				</p>
-				<p>
-					{ __(
-						'They allow your visitors to see what each section is about and skip to their favorite parts.',
-						'jetpack-videopress-pkg'
-					) }
-				</p>
-				<p>
-					<strong>
-						{ __( 'How to add Chapters to your VideoPress videos', 'jetpack-videopress-pkg' ) }
-					</strong>
-				</p>
-				<ol>
-					<li>
+				{ /*
+				 * Dialog.Popup is an unpadded flex column; body padding comes
+				 * from the Dialog.Content region, which also owns scrolling
+				 * when the body outgrows the popup.
+				 */ }
+				<Dialog.Content>
+					<p>
 						{ __(
-							'In the Description, add a list of timestamps and titles.',
+							'Chapters are a great way to split up longer videos and organize them into different sections.',
 							'jetpack-videopress-pkg'
 						) }
-					</li>
-					<li>
+					</p>
+					<p>
 						{ __(
-							'Make sure that the first timestamp starts with 00:00.',
+							'They allow your visitors to see what each section is about and skip to their favorite parts.',
 							'jetpack-videopress-pkg'
 						) }
-					</li>
-					<li>
-						{ __(
-							'Add at least three chapters entries and as many as you need.',
-							'jetpack-videopress-pkg'
-						) }
-					</li>
-					<li>
-						{ __(
-							'Add your chapters entries in consecutive order, with at least 10-second intervals between each.',
-							'jetpack-videopress-pkg'
-						) }
-					</li>
-				</ol>
-				<p>
-					<strong>{ __( 'Example', 'jetpack-videopress-pkg' ) }</strong>
-				</p>
-				<p>00:00 Intro</p>
-				<p>00:24 Mountains arise</p>
-				<p>02:38 Coming back home</p>
-				<p>03:04 Credits</p>
+					</p>
+					<p>
+						<strong>
+							{ __( 'How to add Chapters to your VideoPress videos', 'jetpack-videopress-pkg' ) }
+						</strong>
+					</p>
+					<ol>
+						<li>
+							{ __(
+								'In the Description, add a list of timestamps and titles.',
+								'jetpack-videopress-pkg'
+							) }
+						</li>
+						<li>
+							{ __(
+								'Make sure that the first timestamp starts with 00:00.',
+								'jetpack-videopress-pkg'
+							) }
+						</li>
+						<li>
+							{ __(
+								'Add at least three chapters entries and as many as you need.',
+								'jetpack-videopress-pkg'
+							) }
+						</li>
+						<li>
+							{ __(
+								'Add your chapters entries in consecutive order, with at least 10-second intervals between each.',
+								'jetpack-videopress-pkg'
+							) }
+						</li>
+					</ol>
+					<p>
+						<strong>{ __( 'Example', 'jetpack-videopress-pkg' ) }</strong>
+					</p>
+					<p>00:00 Intro</p>
+					<p>00:24 Mountains arise</p>
+					<p>02:38 Coming back home</p>
+					<p>03:04 Credits</p>
+				</Dialog.Content>
 				<Dialog.Footer>
 					<Dialog.Action render={ <Button /> }>
 						{ __( 'Got it, thanks', 'jetpack-videopress-pkg' ) }
