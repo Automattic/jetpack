@@ -368,11 +368,10 @@ export default function ActivityLog() {
 	// Prefer the shared, actionable connection-error notice over the generic
 	// one whenever the failure is attributable to a broken connection.
 	const showConnectionError = isListError && hasConnectionError;
-	// Suppress the generic dead-end notice until the health probe resolves, so a
-	// broken-connection failure shows only the actionable banner (not both in
-	// sequence). A genuine non-connection failure falls through to the generic
-	// notice once the probe comes back clean.
-	const showGenericNotice = ! showConnectionError && ! isCheckingHealth;
+	// Hold the generic notice until the health probe resolves (so a broken
+	// connection shows only the actionable banner) and until the list query
+	// settles (so the aux warning doesn't flash before the list errors).
+	const showGenericNotice = ! showConnectionError && ! isCheckingHealth && ! isLoadingList;
 
 	// Surface request failures so a broken WPCOM round-trip doesn't read as "no events".
 	const errorNotice = useMemo< ErrorNoticeState | null >(
