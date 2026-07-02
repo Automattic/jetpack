@@ -1,8 +1,24 @@
-import { OrderMetricWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * External dependencies
+ */
+import {
+	OrderMetricWidget,
+	WidgetRoot,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { NetSalesOverTimeAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type NetSalesOverTimeRenderProps = {
-	attributes?: ComponentProps< typeof WidgetRoot >[ 'attributes' ];
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type NetSalesOverTimeRenderAttributes = NetSalesOverTimeAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type NetSalesOverTimeRenderProps = WidgetRenderProps< NetSalesOverTimeRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -14,7 +30,7 @@ type NetSalesOverTimeRenderProps = {
  * the orders report and renders the net sales metric over time.
  */
 export default function NetSalesOverTimeRender( {
-	attributes,
+	attributes = {},
 	setError,
 }: NetSalesOverTimeRenderProps ) {
 	return (

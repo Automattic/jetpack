@@ -1,4 +1,4 @@
-import { GlobalErrorProvider, getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -36,11 +36,9 @@ interface NetSalesOverTimeDashboardStoryProps
 		NetSalesOverTimeStoryControls {}
 
 const withWidgetCanvas: Decorator = Story => (
-	<GlobalErrorProvider>
-		<div style={ { width: '100%', height: '300px' } }>
-			<Story />
-		</div>
-	</GlobalErrorProvider>
+	<div style={ { width: '100%', height: '300px' } }>
+		<Story />
+	</div>
 );
 
 function getNetSalesOverTimeAttributes(
@@ -98,15 +96,13 @@ function NetSalesOverTimeDashboardStory( {
 	ensureLineChartComposition();
 
 	return (
-		<GlobalErrorProvider>
-			<WidgetDashboardWithWidgetStory
-				{ ...dashboardStoryArgs }
-				widgetType={ widgetDefinition }
-				renderModule={ NET_SALES_OVER_TIME_RENDER_MODULE }
-				renderComponent={ NetSalesOverTimeRender as ComponentType< WidgetRenderProps< unknown > > }
-				attributes={ getNetSalesOverTimeAttributes( withComparison, preset ) }
-			/>
-		</GlobalErrorProvider>
+		<WidgetDashboardWithWidgetStory
+			{ ...dashboardStoryArgs }
+			widgetType={ widgetDefinition }
+			renderModule={ NET_SALES_OVER_TIME_RENDER_MODULE }
+			renderComponent={ NetSalesOverTimeRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ getNetSalesOverTimeAttributes( withComparison, preset ) }
+		/>
 	);
 }
 
