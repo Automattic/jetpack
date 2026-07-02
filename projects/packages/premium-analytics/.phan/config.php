@@ -18,9 +18,6 @@ return make_phan_config(
 		'+stubs'             => array( 'woocommerce', 'woocommerce-internal' ),
 		'exclude_file_regex' => array(
 			'build/',
-			// Test fixtures define runtime stubs (e.g. WC()) that the WooCommerce
-			// stubs above also declare; excluding them avoids PhanRedefine* noise.
-			'tests/php/fixtures/',
 		),
 	)
 );

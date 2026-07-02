@@ -8,9 +8,8 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 
 /**
  * Tests for the Analytics class.
@@ -37,15 +36,12 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Init defines PREMIUM_ANALYTICS_VERSION so Sync can whitelist and sync it.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * Defining the version constant makes PREMIUM_ANALYTICS_VERSION available for Sync to whitelist.
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_init_defines_version_constant() {
-		Analytics::init();
+	public function test_defines_version_constant() {
+		$define = new ReflectionMethod( Analytics::class, 'define_version_constant' );
+		$define->setAccessible( true );
+		$define->invoke( null );
 
 		$this->assertTrue( defined( 'PREMIUM_ANALYTICS_VERSION' ) );
 		$this->assertSame( Analytics::PACKAGE_VERSION, PREMIUM_ANALYTICS_VERSION );

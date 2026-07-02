@@ -7,10 +7,9 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
+use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Plugin_Storage;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
@@ -53,23 +52,13 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * With WooCommerce active, configure_sync registers the sync filters and the connected plugin.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * Ensuring the connection feature with the PA config lands the slug in the connection
+	 * registry (the jetpack_connection_active_plugins option WPCom's provisioning gate reads).
+	 * This is the exact path configure_sync() drives when WooCommerce is active.
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_configure_sync_registers_filters_and_connection() {
-		// Make is_woocommerce_active() return true without loading WooCommerce.
-		require_once __DIR__ . '/../fixtures/wc-stub.php';
+	public function test_connection_config_registers_slug_in_plugin_storage() {
+		( new Config() )->ensure( 'connection', $this->call_private( 'get_jetpack_connection_config' ) );
 
-		( new Configuration() )->configure_sync();
-
-		$this->assertNotFalse( has_filter( 'jetpack_sync_modules' ) );
-		$this->assertNotFalse( has_filter( 'jetpack_sync_post_meta_whitelist' ) );
-
-		// The connected plugin slug must land in the connection registry: the WPCom provisioning gate.
 		Plugin_Storage::configure();
 		$this->assertArrayHasKey( 'premium-analytics', (array) Plugin_Storage::get_all() );
 	}

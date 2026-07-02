@@ -52,11 +52,7 @@ class Analytics {
 
 		self::$initialized = true;
 
-		// Version constant Sync whitelists + syncs to trigger WPCom WC Analytics table
-		// provisioning. See Sync\Configuration. (WOOA7S-1643)
-		if ( ! defined( 'PREMIUM_ANALYTICS_VERSION' ) ) {
-			define( 'PREMIUM_ANALYTICS_VERSION', self::PACKAGE_VERSION );
-		}
+		self::define_version_constant();
 
 		if ( ! empty( $options['menu_title'] ) ) {
 			self::$menu_title = $options['menu_title'];
@@ -123,6 +119,20 @@ class Analytics {
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
+	}
+
+	/**
+	 * Define the Premium Analytics version constant.
+	 *
+	 * Sync whitelists and syncs it to trigger WPCom WC Analytics table provisioning.
+	 * See Sync\Configuration. (WOOA7S-1643)
+	 *
+	 * @return void
+	 */
+	private static function define_version_constant() {
+		if ( ! defined( 'PREMIUM_ANALYTICS_VERSION' ) ) {
+			define( 'PREMIUM_ANALYTICS_VERSION', self::PACKAGE_VERSION );
+		}
 	}
 
 	/**
