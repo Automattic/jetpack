@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Launchpad: keep a task's CTA spinner visible until the editor opens, so the create-post/page flow no longer looks stalled before navigating.
