@@ -20,7 +20,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './shares.module.css';
+import styles from './style.module.css';
 import type { SharesAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
