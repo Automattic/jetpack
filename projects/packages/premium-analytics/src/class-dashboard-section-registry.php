@@ -49,7 +49,7 @@ final class Dashboard_Section_Registry {
 		if ( ! $this->is_valid_section_id( $id ) ) {
 			_doing_it_wrong(
 				__METHOD__,
-				esc_html__( 'Dashboard section IDs must be lowercase strings containing only letters, numbers, and hyphens.', 'jetpack-premium-analytics' ),
+				esc_html__( 'Dashboard section IDs must contain a namespace prefix. Example: my-plugin/my-custom-section', 'jetpack-premium-analytics' ),
 				'0.1.0'
 			);
 			return false;
@@ -102,7 +102,12 @@ final class Dashboard_Section_Registry {
 	 * @return Dashboard_Section[] Map of `$id => $section` pairs.
 	 */
 	public function get_all_registered( $dashboard_name ) {
-		return $this->registered_sections[ $dashboard_name ] ?? array();
+		if ( ! isset( $this->registered_sections[ $dashboard_name ] ) ) {
+			// Unknown dashboards may be valid REST targets but have no sections registered.
+			return array();
+		}
+
+		return $this->registered_sections[ $dashboard_name ];
 	}
 
 	/**
@@ -174,6 +179,6 @@ final class Dashboard_Section_Registry {
 	 * @return bool
 	 */
 	private function is_valid_section_id( $id ) {
-		return is_string( $id ) && 1 === preg_match( '/^[a-z][a-z0-9-]*$/', $id );
+		return is_string( $id ) && 1 === preg_match( DASHBOARD_SECTION_ID_REGEX, $id );
 	}
 }

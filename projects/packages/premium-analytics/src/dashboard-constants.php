@@ -20,3 +20,16 @@ const DASHBOARD_NAME_PATTERN = '[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*';
  * Anchored dashboard identifier regex for validating registered dashboard names.
  */
 const DASHBOARD_NAME_REGEX = '/^' . DASHBOARD_NAME_PATTERN . '$/';
+
+/**
+ * Dashboard section identifier pattern.
+ *
+ * Mirrors WordPress block and Premium Analytics widget type names: a namespace
+ * prefix followed by a section slug.
+ */
+const DASHBOARD_SECTION_ID_PATTERN = '[a-z0-9-]+\/[a-z0-9-]+';
+
+/**
+ * Anchored dashboard section identifier regex for validating registered sections.
+ */
+const DASHBOARD_SECTION_ID_REGEX = '/^' . DASHBOARD_SECTION_ID_PATTERN . '$/';

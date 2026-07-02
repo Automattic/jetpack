@@ -63,7 +63,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$section = $registry->register(
 			'example_dashboard',
-			'traffic',
+			'example/traffic',
 			array(
 				'label'          => 'Traffic',
 				'order'          => 15,
@@ -72,9 +72,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		$this->assertInstanceOf( Dashboard_Section::class, $section );
-		$this->assertSame( $section, $registry->get_registered( 'example_dashboard', 'traffic' ) );
+		$this->assertSame( $section, $registry->get_registered( 'example_dashboard', 'example/traffic' ) );
 		$this->assertSame( 'example_dashboard', $section->dashboard_name );
-		$this->assertSame( 'traffic', $section->id );
+		$this->assertSame( 'example/traffic', $section->id );
 		$this->assertSame( 'Traffic', $section->label );
 		$this->assertSame( 15, $section->order );
 		$this->assertSame( $layout, $section->get_default_layout() );
@@ -86,7 +86,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	public function test_accepts_dashboard_names_without_underscores() {
 		$section = register_dashboard_section(
 			'analytics',
-			'traffic',
+			'analytics/traffic',
 			array(
 				'label' => 'Traffic',
 				'order' => 10,
@@ -94,7 +94,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		$this->assertInstanceOf( Dashboard_Section::class, $section );
-		$this->assertSame( $section, get_registered_dashboard_section( 'analytics', 'traffic' ) );
+		$this->assertSame( $section, get_registered_dashboard_section( 'analytics', 'analytics/traffic' ) );
 
 		$this->set_admin_user();
 
@@ -106,13 +106,27 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'    => 'traffic',
+					'id'    => 'analytics/traffic',
 					'label' => 'Traffic',
 					'order' => 10,
 				),
 			),
 			$response->get_data()
 		);
+	}
+
+	/**
+	 * Sections route returns an empty list for syntactically valid unknown dashboards.
+	 */
+	public function test_sections_route_returns_empty_array_for_unknown_dashboard() {
+		$this->set_admin_user();
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/unregistered_dashboard/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array(), $response->get_data() );
 	}
 
 	/**
@@ -123,7 +137,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$registry->register(
 			'ordered_dashboard',
-			'later',
+			'example/later',
 			array(
 				'label' => 'Later',
 				'order' => 20,
@@ -131,7 +145,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 		$registry->register(
 			'ordered_dashboard',
-			'unavailable',
+			'example/unavailable',
 			array(
 				'label'        => 'Unavailable',
 				'order'        => 5,
@@ -140,7 +154,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 		$registry->register(
 			'ordered_dashboard',
-			'first',
+			'example/first',
 			array(
 				'label' => 'First',
 				'order' => 10,
@@ -148,7 +162,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		$this->assertSame(
-			array( 'first', 'later' ),
+			array( 'example/first', 'example/later' ),
 			array_map(
 				static function ( Dashboard_Section $section ) {
 					return $section->id;
@@ -164,14 +178,14 @@ class Dashboard_Section_Test extends BaseTestCase {
 	public function test_global_register_dashboard_section_registers_with_singleton() {
 		$section = register_dashboard_section(
 			'helper_dashboard',
-			'insights',
+			'analytics/insights',
 			array(
 				'label' => 'Insights',
 				'order' => 10,
 			)
 		);
 
-		$this->assertSame( $section, get_registered_dashboard_section( 'helper_dashboard', 'insights' ) );
+		$this->assertSame( $section, get_registered_dashboard_section( 'helper_dashboard', 'analytics/insights' ) );
 	}
 
 	/**
@@ -183,17 +197,17 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'    => 'traffic',
+					'id'    => 'analytics/traffic',
 					'label' => 'Traffic',
 					'order' => 10,
 				),
 				array(
-					'id'    => 'insights',
+					'id'    => 'analytics/insights',
 					'label' => 'Insights',
 					'order' => 20,
 				),
 				array(
-					'id'    => 'subscribers',
+					'id'    => 'analytics/subscribers',
 					'label' => 'Subscribers',
 					'order' => 30,
 				),
@@ -213,7 +227,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	public function test_sections_route_returns_available_sections_sorted_by_order() {
 		register_dashboard_section(
 			'route_sections_dashboard',
-			'later',
+			'example/later',
 			array(
 				'label' => 'Later',
 				'order' => 20,
@@ -221,7 +235,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 		register_dashboard_section(
 			'route_sections_dashboard',
-			'unavailable',
+			'example/unavailable',
 			array(
 				'label'        => 'Unavailable',
 				'order'        => 5,
@@ -230,7 +244,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 		register_dashboard_section(
 			'route_sections_dashboard',
-			'first',
+			'example/first',
 			array(
 				'label' => 'First',
 				'order' => 10,
@@ -247,12 +261,12 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'    => 'first',
+					'id'    => 'example/first',
 					'label' => 'First',
 					'order' => 10,
 				),
 				array(
-					'id'    => 'later',
+					'id'    => 'example/later',
 					'label' => 'Later',
 					'order' => 20,
 				),
@@ -287,7 +301,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_dashboard_section(
 			'route_layout_dashboard',
-			'traffic',
+			'analytics/traffic',
 			array(
 				'label'          => 'Traffic',
 				'order'          => 10,
@@ -300,7 +314,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_layout_dashboard/sections/traffic/default-layout' )
+			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/traffic/default-layout' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );
@@ -314,7 +328,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_layout_dashboard/sections/missing/default-layout' )
+			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_layout_dashboard/sections/analytics/missing/default-layout' )
 		);
 
 		$this->assertSame( 404, $response->get_status() );
@@ -327,7 +341,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	public function test_default_layout_route_returns_404_for_unavailable_section() {
 		register_dashboard_section(
 			'route_unavailable_dashboard',
-			'insights',
+			'analytics/insights',
 			array(
 				'label'        => 'Insights',
 				'order'        => 10,
@@ -338,7 +352,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->set_admin_user();
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_unavailable_dashboard/sections/insights/default-layout' )
+			new WP_REST_Request( 'GET', '/jetpack/v4/dashboards/route_unavailable_dashboard/sections/analytics/insights/default-layout' )
 		);
 
 		$this->assertSame( 404, $response->get_status() );

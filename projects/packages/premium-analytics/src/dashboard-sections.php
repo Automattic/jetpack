@@ -53,18 +53,18 @@ function register_default_dashboard_sections() {
 	$registry = Dashboard_Section_Registry::get_instance();
 
 	$sections = array(
-		'traffic'     => array(
+		'analytics/traffic'     => array(
 			'label'          => __( 'Traffic', 'jetpack-premium-analytics' ),
 			'order'          => 10,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( DASHBOARD_NAME );
 			},
 		),
-		'insights'    => array(
+		'analytics/insights'    => array(
 			'label' => __( 'Insights', 'jetpack-premium-analytics' ),
 			'order' => 20,
 		),
-		'subscribers' => array(
+		'analytics/subscribers' => array(
 			'label' => __( 'Subscribers', 'jetpack-premium-analytics' ),
 			'order' => 30,
 		),
@@ -168,7 +168,7 @@ function register_dashboard_sections_rest_routes() {
 
 	register_rest_route(
 		DASHBOARD_REST_NAMESPACE,
-		'/dashboards/(?P<name>' . DASHBOARD_NAME_PATTERN . ')/sections/(?P<section>[a-z][a-z0-9-]*)/default-layout',
+		'/dashboards/(?P<name>' . DASHBOARD_NAME_PATTERN . ')/sections/(?P<section>' . DASHBOARD_SECTION_ID_PATTERN . ')/default-layout',
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_dashboard_section_default_layout_response',
