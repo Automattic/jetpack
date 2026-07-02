@@ -679,7 +679,13 @@ test( 'a live post sends the payload as POST and returns posted:true', async () 
 		assert.equal( result.posted, true );
 		assert.equal( sentInit.method, 'POST' );
 		assert.match( String( sentUrl ), /\/api\/log\?token=tok-success$/ );
-		assert.equal( JSON.parse( sentInit.body ).metrics[ LCP_KEY ], 120 );
+		// The dry-run tests pin the payload contract; this pins the LIVE serialization
+		// branch too — all three jetpackConnected metrics in one POST body, nothing extra.
+		const sentMetrics = JSON.parse( sentInit.body ).metrics;
+		assert.equal( sentMetrics[ LCP_KEY ], 120 );
+		assert.equal( sentMetrics[ TTFB_KEY ], 150 );
+		assert.equal( sentMetrics[ FCP_KEY ], 400 );
+		assert.equal( Object.keys( sentMetrics ).length, 3 );
 	} finally {
 		global.fetch = origFetch;
 	}
