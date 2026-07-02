@@ -633,6 +633,16 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A hyphenated/compound niche still matches on its keyword tokens.
+	 */
+	public function test_get_injects_gallery_task_for_hyphenated_niche() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'build', 'wildlife-photography' );
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertContains( 'add_gallery_page', $ids );
+	}
+
+	/**
 	 * The gallery task is NOT injected for an unrelated goal + niche.
 	 */
 	public function test_get_omits_gallery_task_for_unrelated_site() {

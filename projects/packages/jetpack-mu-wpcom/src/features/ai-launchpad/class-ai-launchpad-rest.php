@@ -702,7 +702,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			return false;
 		}
 
-		$words = preg_split( '/[\s,&]+/', $niche, -1, PREG_SPLIT_NO_EMPTY );
+		// Split on any non-alphanumeric run so hyphenated/compound niches ("wildlife-photography") tokenize like the client.
+		$words = preg_split( '/[^a-z0-9]+/', $niche, -1, PREG_SPLIT_NO_EMPTY );
 		return array() !== array_intersect( $words, self::GALLERY_NICHE_KEYWORDS );
 	}
 
