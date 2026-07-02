@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import CaptionManagerModal from '../../../../../components/caption-manager-modal';
+import CaptionManagerModal from '../../../../../components/caption-manager-modal/lazy';
 import { getVideoPressUrl } from '../../../../../lib/url';
 import { tracksIcon } from '../icons';
 /**
@@ -68,7 +68,7 @@ export default function TracksControl( {
 				onClick={ () => setIsModalOpen( true ) }
 				disabled={ ! hasGuid }
 			/>
-			{ hasGuid && (
+			{ hasGuid && isModalOpen && (
 				<CaptionManagerModal
 					isOpen={ isModalOpen }
 					guid={ guid }
