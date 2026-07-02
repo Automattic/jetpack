@@ -195,7 +195,7 @@ if ( $plugin->is_active( 'stable' ) ) {
 							</svg>
 						</div>
 						<input aria-hidden="false" class="dops-search__input" id="search-component-prs"
-							placeholder="<?php esc_attr_e( 'Search by name, PR number, or GitHub URL', 'jetpack-beta' ); ?>" role="search" type="search" value="">
+							placeholder="<?php esc_attr_e( 'Search by name or PR number', 'jetpack-beta' ); ?>" role="search" type="search" value="">
 						<span aria-controls="search-component" id="search-component-prs-close" aria-label="<?php esc_attr_e( 'Close Search', 'jetpack-beta' ); ?>" tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
 								viewbox="0 0 24 24" width="24">

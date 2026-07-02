@@ -27,20 +27,22 @@ $jpbeta_has_plugin = $plugin instanceof Plugin;
 ?>
 <div class="jetpack-beta-header">
 	<div class="jetpack-beta-header__inner">
-		<span class="jetpack-beta-header__logo" aria-hidden="true">
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="24" height="24" focusable="false">
+		<span class="jetpack-beta-header__logo">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="24" height="24" role="img" aria-labelledby="jetpack-beta-header-logo-title">
+				<title id="jetpack-beta-header-logo-title"><?php esc_html_e( 'Jetpack Logo', 'jetpack-beta' ); ?></title>
 				<path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z" />
 			</svg>
 		</span>
-		<nav class="jetpack-beta-header__breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'jetpack-beta' ); ?>">
-			<?php if ( $jpbeta_has_plugin ) { ?>
-				<a href="<?php echo esc_url( Utils::admin_url() ); ?>"><?php esc_html_e( 'Beta Tester', 'jetpack-beta' ); ?></a>
-				<span class="jetpack-beta-header__breadcrumb-separator" aria-hidden="true">/</span>
-				<span class="jetpack-beta-header__breadcrumb-current"><?php echo esc_html( $plugin->get_name() ); ?></span>
-			<?php } else { ?>
-				<span class="jetpack-beta-header__breadcrumb-current"><?php esc_html_e( 'Beta Tester', 'jetpack-beta' ); ?></span>
-			<?php } ?>
-		</nav>
+		<?php if ( $jpbeta_has_plugin ) { ?>
+			<nav class="jetpack-beta-header__breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'jetpack-beta' ); ?>">
+				<ul>
+					<li><a href="<?php echo esc_url( Utils::admin_url() ); ?>"><?php esc_html_e( 'Beta Tester', 'jetpack-beta' ); ?></a></li>
+					<li><span class="jetpack-beta-header__breadcrumb-current"><?php echo esc_html( $plugin->get_name() ); ?></span></li>
+				</ul>
+			</nav>
+		<?php } else { ?>
+			<h1 class="jetpack-beta-header__title"><?php esc_html_e( 'Beta Tester', 'jetpack-beta' ); ?></h1>
+		<?php } ?>
 	</div>
 	<?php if ( ! $jpbeta_has_plugin ) { ?>
 		<p class="jetpack-beta-header__subtitle"><?php esc_html_e( 'Test beta features and pull requests for Jetpack plugins.', 'jetpack-beta' ); ?></p>

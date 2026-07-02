@@ -103,11 +103,30 @@
 }
 
 .jetpack-beta-header__breadcrumb {
+	font-size: 15px;
+	font-weight: 600;
+}
+
+/* Render the breadcrumb list inline with a "/" between items. */
+.jetpack-beta-header__breadcrumb ul {
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	font-size: 15px;
-	font-weight: 600;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.jetpack-beta-header__breadcrumb li {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.jetpack-beta-header__breadcrumb li + li::before {
+	content: "/";
+	color: var(--jpbeta-color-border-strong);
+	user-select: none;
 }
 
 .jetpack-beta-header__breadcrumb a {
@@ -121,12 +140,17 @@
 	text-decoration: underline;
 }
 
-.jetpack-beta-header__breadcrumb-separator {
-	color: var(--jpbeta-color-border-strong);
-	user-select: none;
+.jetpack-beta-header__breadcrumb-current {
+	color: var(--jpbeta-color-text);
 }
 
-.jetpack-beta-header__breadcrumb-current {
+/* On the overview the title is a real <h1>; keep it visually matching the
+   breadcrumb rather than the browser default h1 sizing. */
+.jetpack-beta-header__title {
+	margin: 0;
+	padding: 0;
+	font-size: 15px;
+	font-weight: 600;
 	color: var(--jpbeta-color-text);
 }
 
