@@ -62,6 +62,7 @@ interface StoreConfig {
 	cookiePolicyUrl: string;
 	gdprHonorsGpc: boolean;
 	forcePreview: boolean;
+	geoEnabled?: boolean;
 }
 
 interface GeoApiResponse {
@@ -424,6 +425,14 @@ const { actions } = store( 'jetpack/cookie-consent', {
 
 			// getConfig() is not typed, so we need to assert the type.
 			const config = getConfig() as unknown as StoreConfig;
+
+			// Geo-based rules are disabled: treat every visitor as unknown so the default
+			// (opt-in/show-banner) path applies, without ever calling the geolocation provider.
+			if ( config.geoEnabled === false ) {
+				geoState = { initialized: true, countryCode: UNKNOWN_COUNTRY_CODE, region: '' };
+				return geoState;
+			}
+
 			// PHP (class-cookie-consent.php) always emits a fully-normalized nested `geo`, so the
 			// store config is already the resolved GeoConfig; no client-side reconciliation needed.
 			const geoConfig = config.geo;

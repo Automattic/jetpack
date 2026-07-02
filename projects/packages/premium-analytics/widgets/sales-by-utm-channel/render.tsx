@@ -10,14 +10,22 @@ import {
 	formatLegendLabels,
 	useWidgetError,
 	useWidgetRootContext,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo, type ComponentProps, type CSSProperties } from 'react';
 /**
  * Internal dependencies
  */
 import { buildSalesByUtmData } from './helpers/build-sales-by-utm-data';
+import type { SalesByUtmChannelAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-type SalesByUtmChannelRenderProps = Pick< ComponentProps< typeof WidgetRoot >, 'attributes' > & {
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type SalesByUtmChannelRenderAttributes = SalesByUtmChannelAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type SalesByUtmChannelRenderProps = WidgetRenderProps< SalesByUtmChannelRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -74,14 +82,9 @@ function SalesByUtmChannelWidget() {
  * WidgetRoot provides the query client, chart theme, and resolved report params;
  * this render module fetches the order-attribution report and renders the
  * channel leaderboard.
- *
- * @param root0            - Component props.
- * @param root0.attributes - Widget attributes.
- * @param root0.setError   - Dashboard error-state setter.
- * @return The rendered widget.
  */
 export default function SalesByUtmChannelRender( {
-	attributes,
+	attributes = {},
 	setError,
 }: SalesByUtmChannelRenderProps ) {
 	return (

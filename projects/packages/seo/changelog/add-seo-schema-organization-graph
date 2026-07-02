@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a site-level Organization node and output schema as a multi-node @graph.

@@ -14,9 +14,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
  *
  * @covers \Automattic\Jetpack\CookieConsent\Cookie_Consent
  * @covers \Automattic\Jetpack\CookieConsent\Consent_Log_Controller
+ * @covers \Automattic\Jetpack\CookieConsent\Consent_Log_Privacy
  */
 #[CoversClass( Cookie_Consent::class )]
 #[CoversClass( Consent_Log_Controller::class )]
+#[CoversClass( Consent_Log_Privacy::class )]
 class Lifecycle_Test extends TestCase {
 
 	/**
@@ -86,6 +88,21 @@ class Lifecycle_Test extends TestCase {
 	}
 
 	/**
+	 * Deactivation unhooks the privacy exporter/eraser filters it registered.
+	 */
+	public function test_deactivate_removes_privacy_filters() {
+		Consent_Log_Privacy::init();
+
+		$this->assertNotFalse( has_filter( 'wp_privacy_personal_data_exporters', array( Consent_Log_Privacy::class, 'register_exporter' ) ) );
+		$this->assertNotFalse( has_filter( 'wp_privacy_personal_data_erasers', array( Consent_Log_Privacy::class, 'register_eraser' ) ) );
+
+		Consent_Log_Controller::deactivate();
+
+		$this->assertFalse( has_filter( 'wp_privacy_personal_data_exporters', array( Consent_Log_Privacy::class, 'register_exporter' ) ) );
+		$this->assertFalse( has_filter( 'wp_privacy_personal_data_erasers', array( Consent_Log_Privacy::class, 'register_eraser' ) ) );
+	}
+
+	/**
 	 * Uninstall removes the package-owned CCPA page and options.
 	 */
 	public function test_uninstall_deletes_ccpa_page_and_options() {
@@ -94,7 +111,7 @@ class Lifecycle_Test extends TestCase {
 
 		$this->assertGreaterThan( 0, $page_id );
 		$this->assertNotNull( get_post( $page_id ) );
-		$this->assertSame( 1, get_post_meta( $page_id, self::CCPA_PAGE_CREATED_META, true ) );
+		$this->assertSame( '1', get_post_meta( $page_id, self::CCPA_PAGE_CREATED_META, true ) );
 
 		Cookie_Consent::uninstall();
 
