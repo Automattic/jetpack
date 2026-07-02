@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add the Studio edits REST contract: react-query hooks plus a deletable local mock of the wpcom edits/storyboard endpoints.

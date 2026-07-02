@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add the pure edit-session state core (trim/cut reducer, undo history, serialization, timeline math, playback skip engine) for the Studio video editor.
