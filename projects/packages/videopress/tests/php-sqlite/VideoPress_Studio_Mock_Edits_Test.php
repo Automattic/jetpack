@@ -1,6 +1,8 @@
 <?php
 /**
- * Tests for the Studio mock edits REST endpoints.
+ * Tests for the Studio edits REST endpoints: registration/gating of both
+ * backends (the default WPCOM proxy and the opt-in development mock) plus the
+ * mock's full behavioral contract.
  *
  * Lives in the sqlite suite (tests/php-sqlite) because the guid → attachment
  * lookup (videopress_get_post_id_by_guid) runs a WP_Query meta_query, which
@@ -113,8 +115,10 @@ class VideoPress_Studio_Mock_Edits_Test extends TestCase {
 	}
 
 	/**
-	 * Create a fresh REST server, construct the mock endpoints, and fire
-	 * rest_api_init so the routes (maybe) register.
+	 * Create a fresh REST server, construct both edits backends (mock and
+	 * WPCOM proxy — their should_register() gates make them mutually
+	 * exclusive, mirroring the Initializer), and fire rest_api_init so the
+	 * routes (maybe) register.
 	 *
 	 * @return WP_REST_Server
 	 */
@@ -124,9 +128,28 @@ class VideoPress_Studio_Mock_Edits_Test extends TestCase {
 		$this->server   = $wp_rest_server;
 
 		new VideoPress_Studio_Mock_Edits();
+		new WPCOM_REST_API_V2_Endpoint_VideoPress_Edits();
 		do_action( 'rest_api_init' );
 
 		return $wp_rest_server;
+	}
+
+	/**
+	 * Assert both routes are registered and every handler belongs to the
+	 * given backend class.
+	 *
+	 * @param WP_REST_Server $server     The REST server.
+	 * @param string         $class_name Expected handling class.
+	 */
+	private function assert_routes_handled_by( $server, $class_name ) {
+		$routes = $server->get_routes();
+
+		foreach ( array( self::ROUTE_EDITS, self::ROUTE_STORYBOARD ) as $route ) {
+			$this->assertArrayHasKey( $route, $routes );
+			foreach ( $routes[ $route ] as $handler ) {
+				$this->assertInstanceOf( $class_name, $handler['callback'][0] );
+			}
+		}
 	}
 
 	/**
@@ -199,6 +222,8 @@ class VideoPress_Studio_Mock_Edits_Test extends TestCase {
 	 */
 	private function setup_environment() {
 		add_filter( Admin_UI::STUDIO_FILTER, '__return_true' );
+		// The mock is opt-in since the WPCOM proxy became the default backend.
+		add_filter( 'videopress_studio_mock_edits', '__return_true' );
 
 		$user_id = $this->create_user_with_role( 'author' );
 		$this->mock_connection_for_user( $user_id );
@@ -228,7 +253,7 @@ class VideoPress_Studio_Mock_Edits_Test extends TestCase {
 		return $this->server->dispatch( $request );
 	}
 
-	/** Tests that no routes register while the Studio flag is off. */
+	/** Tests that no routes register (mock or proxy) while the Studio flag is off. */
 	public function test_routes_not_registered_when_studio_flag_off() {
 		$server = $this->initialize_rest_server();
 
@@ -236,10 +261,9 @@ class VideoPress_Studio_Mock_Edits_Test extends TestCase {
 		$this->assertArrayNotHasKey( self::ROUTE_STORYBOARD, $server->get_routes() );
 	}
 
-	/** Tests that the mock filter can disable the routes with Studio on. */
-	public function test_routes_not_registered_when_mock_filter_off() {
-		add_filter( Admin_UI::STUDIO_FILTER, '__return_true' );
-		add_filter( 'videopress_studio_mock_edits', '__return_false' );
+	/** Tests that neither backend registers with Studio off even when the mock is opted into. */
+	public function test_routes_not_registered_when_studio_flag_off_with_mock_opt_in() {
+		add_filter( 'videopress_studio_mock_edits', '__return_true' );
 
 		$server = $this->initialize_rest_server();
 
@@ -247,14 +271,23 @@ class VideoPress_Studio_Mock_Edits_Test extends TestCase {
 		$this->assertArrayNotHasKey( self::ROUTE_STORYBOARD, $server->get_routes() );
 	}
 
-	/** Tests that both routes register when the Studio flag is on. */
-	public function test_routes_registered_when_flag_on() {
+	/** Tests that the WPCOM proxy serves the routes by default when Studio is on. */
+	public function test_proxy_routes_registered_by_default_when_studio_on() {
 		add_filter( Admin_UI::STUDIO_FILTER, '__return_true' );
 
 		$server = $this->initialize_rest_server();
 
-		$this->assertArrayHasKey( self::ROUTE_EDITS, $server->get_routes() );
-		$this->assertArrayHasKey( self::ROUTE_STORYBOARD, $server->get_routes() );
+		$this->assert_routes_handled_by( $server, WPCOM_REST_API_V2_Endpoint_VideoPress_Edits::class );
+	}
+
+	/** Tests that opting into the mock filter hands the routes to the mock instead. */
+	public function test_mock_routes_registered_when_opted_in() {
+		add_filter( Admin_UI::STUDIO_FILTER, '__return_true' );
+		add_filter( 'videopress_studio_mock_edits', '__return_true' );
+
+		$server = $this->initialize_rest_server();
+
+		$this->assert_routes_handled_by( $server, VideoPress_Studio_Mock_Edits::class );
 	}
 
 	/**
