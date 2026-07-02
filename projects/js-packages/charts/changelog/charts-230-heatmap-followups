@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Charts: Wrap heatmap chart header labels in an ARIA row so the grid keeps a strict grid/row/gridcell structure.
+Charts: HeatmapChart follow-ups — wrap header labels in an ARIA row so the grid keeps a strict grid/row/gridcell structure, and let the grid shrink to fit short containers instead of overflowing and scrolling.
