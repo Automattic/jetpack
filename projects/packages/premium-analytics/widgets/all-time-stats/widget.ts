@@ -16,15 +16,14 @@ export type AllTimeStatsAttributes = Record< never, never >;
 /**
  * Widget type definition.
  *
- * Ported from the Jetpack Stats "All-time highlights" card
- * (`client/my-sites/stats/sections/all-time-highlights-section/` in wp-calypso):
- * a grid of lifetime totals — views, visitors, posts, and the site's best day.
+ * Ported from the Jetpack Stats "All-time stats" card: a labelled list of
+ * lifetime totals — views, visitors, posts, and comments.
  */
 export default {
 	name: 'jpa/all-time-stats',
 	title: __( 'All-time stats', 'jetpack-premium-analytics' ),
 	description: __(
-		'Show lifetime totals for your site: views, visitors, posts, and your most popular day.',
+		'Show lifetime totals for your site: views, visitors, posts, and comments.',
 		'jetpack-premium-analytics'
 	),
 	icon: trendingUp,

@@ -1,21 +1,26 @@
 .root {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	display: flex;
+	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg, 16px);
 }
 
-.tile {
+.row {
 	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs, 4px);
+	align-items: center;
+	gap: var(--wpds-dimension-gap-md, 12px);
+}
+
+.icon {
+	flex-shrink: 0;
+	fill: var(--wpds-color-fg-content-neutral);
 }
 
 .label {
-	color: var(--wpds-color-fg-content-neutral-weak);
+	flex: 1;
 }
 
-.caption {
-	color: var(--wpds-color-fg-content-neutral-weak);
+.value {
+	margin-inline-start: auto;
 }
 
 .state {

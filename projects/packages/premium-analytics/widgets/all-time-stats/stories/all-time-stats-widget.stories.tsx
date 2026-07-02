@@ -39,12 +39,10 @@ const STATS_SITE_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
 
 const mockSiteSummary = {
 	stats: {
-		views: 1_284_530,
-		visitors: 458_210,
-		posts: 342,
-		comments: 5_821,
-		views_best_day: '2023-11-14',
-		views_best_day_total: 18_420,
+		views: 62_588_309,
+		visitors: 31_217_606,
+		posts: 994,
+		comments: 4_123,
 	},
 };
 
@@ -88,7 +86,7 @@ function renderAllTimeStats( { withComparison }: AllTimeStatsStoryControls ) {
 	);
 }
 
-// Close-up canvas so the tile grid fills the frame outside the dashboard grid.
+// Close-up canvas so the stat list fills the frame outside the dashboard grid.
 const withWidgetCanvas: Decorator = Story => (
 	<div style={ { width: '100%', maxWidth: '480px' } }>
 		<Story />
@@ -106,7 +104,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "All-time stats" widget. Shows lifetime totals for the site — views, visitors, posts, and the best day ever — as a grid of stat tiles, sourced from the Jetpack Stats site-summary endpoint. This module has no comparison period, so the values render as bare numbers and the `WithComparison` story looks identical to `Default`.',
+					'The "All-time stats" widget. Shows lifetime totals for the site — views, visitors, posts, and comments — as a labelled list of icon rows, sourced from the Jetpack Stats site-summary endpoint. This module has no comparison period, so the values render as bare numbers and the `WithComparison` story looks identical to `Default`.',
 			},
 		},
 	},
