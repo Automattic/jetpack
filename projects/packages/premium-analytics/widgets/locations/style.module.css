@@ -16,19 +16,43 @@
 }
 
 .widgetHeader {
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-sm, 8px);
 	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
 	min-height: 32px;
 }
 
 .breadcrumb {
+	flex: 1 1 0;
+	min-inline-size: 0;
 	min-height: 32px;
 	font-size: 13px;
+	line-height: 20px;
 	font-weight: 500; /* design spec was 499; 500 is the nearest valid CSS value */
 	color: inherit;
 }
 
 .breadcrumb * {
 	font-weight: inherit;
+}
+
+.headerTitle {
+	display: inline-flex;
+	align-items: center;
+	min-inline-size: 0;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	line-height: inherit;
+}
+
+.headerIcon {
+	flex: 0 0 auto;
+}
+
+.breadcrumbTitle,
+.breadcrumbLink {
+	display: inline-flex;
+	align-items: center;
+	min-block-size: 20px;
 }
 
 .breadcrumbLink {
@@ -49,11 +73,23 @@
 }
 
 .breadcrumbSeparator {
+	flex: 0 0 auto;
+	line-height: inherit;
 	color: var(--wpds-color-fg-content-neutral-weak);
 }
 
+.breadcrumbCurrent {
+	min-inline-size: 0;
+	line-height: inherit;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .modeSelect {
-	flex-shrink: 0;
+	flex: 0 1 220px;
+	max-inline-size: 100%;
+	min-inline-size: min(100%, 160px);
 }
 
 .content {
@@ -83,6 +119,23 @@
 	overflow: hidden;
 }
 
+.leaderboardLabel {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.leaderboardLabel > * {
+	min-width: 0;
+	max-width: 100%;
+}
+
+.leaderboardLabel span {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .noMap {
 	grid-template-columns: 1fr;
 }
@@ -95,9 +148,29 @@
 	overflow: hidden;
 }
 
-/* Narrow container (< 480px): hide the map and collapse to a
- * single leaderboard column. */
-@container (max-width: 479px) {
+/* Very narrow containers: hide the map and collapse to a single leaderboard
+ * column. Keep the threshold below a dashboard width-2 tile at the minimum
+ * four-column dashboard width, so the default Locations widget still shows
+ * the map. */
+@container (max-width: 431px) {
+
+	.widgetHeader {
+		align-items: stretch;
+	}
+
+	.breadcrumb,
+	.modeSelect {
+		flex-basis: 100%;
+	}
+
+	.breadcrumb {
+		order: 2;
+	}
+
+	.modeSelect {
+		inline-size: 100%;
+		order: 1;
+	}
 
 	.geoChart {
 		display: none;

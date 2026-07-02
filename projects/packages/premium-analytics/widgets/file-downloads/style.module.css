@@ -1,0 +1,73 @@
+.labelLink {
+	display: block;
+
+	padding-block: var(--wpds-dimension-padding-md, 12px);
+	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+	color: inherit;
+	text-decoration: none;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.labelLink:hover,
+.labelLink:focus {
+	text-decoration: underline;
+}
+
+.labelText {
+	display: block;
+	padding-block: var(--wpds-dimension-padding-md, 12px);
+	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.placeholder {
+	flex: 1 1 0;
+	min-block-size: 0;
+	inline-size: 100%;
+	min-height: 200px;
+	color: var(--wpds-color-fg-content-neutral-weak);
+	text-align: center;
+}
+
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.widgetHeader {
+	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+	min-height: var(--wpds-dimension-size-md);
+}
+
+.headerTitle {
+	display: inline-flex;
+	align-items: center;
+	min-inline-size: 0;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.headerIcon {
+	flex: 0 0 auto;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	padding: var(--wpds-dimension-padding-lg);
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+:global([inert]:not([inert="true"])) .root {
+	height: auto;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+}

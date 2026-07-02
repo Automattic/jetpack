@@ -330,7 +330,7 @@ class Consent_Log_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Consent types are bounded to the allow-list; unknown keys are dropped.
+	 * Consent types are bounded to the configured category registry; unknown keys are dropped.
 	 */
 	public function test_sanitize_consent_types_filters_to_allowed_keys() {
 		$result = $this->controller->sanitize_consent_types(
@@ -347,6 +347,48 @@ class Consent_Log_Controller_Test extends TestCase {
 				'functional' => true,
 				'analytics'  => false,
 				'marketing'  => true,
+			),
+			$result
+		);
+		$this->assertArrayNotHasKey( 'evil', $result );
+	}
+
+	/**
+	 * Consent types are allowed from the configured category registry.
+	 */
+	public function test_sanitize_consent_types_allows_configured_category_keys() {
+		add_filter(
+			'jetpack_cookie_consent_config',
+			static function ( $config ) {
+				$config['consent']['categories'][] = array(
+					'key'             => 'personalization',
+					'label'           => 'Personalization',
+					'description'     => 'Personalized site features.',
+					'required'        => false,
+					'default_checked' => false,
+					'wp_consent_map'  => array( 'personalization' ),
+				);
+
+				return $config;
+			}
+		);
+
+		$result = $this->controller->sanitize_consent_types(
+			array(
+				'functional'      => true,
+				'analytics'       => false,
+				'marketing'       => false,
+				'personalization' => true,
+				'evil'            => true,
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'functional'      => true,
+				'analytics'       => false,
+				'marketing'       => false,
+				'personalization' => true,
 			),
 			$result
 		);

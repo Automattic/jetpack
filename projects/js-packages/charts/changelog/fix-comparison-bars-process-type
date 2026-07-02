@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Bar Chart: Declare a local process type so the comparison-bars module type-checks when imported as source by other packages.

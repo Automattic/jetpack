@@ -142,11 +142,6 @@ describe( 'ContentCreationCard', () => {
 		await userEvent.click( screen.getByLabelText( 'Append post link' ) );
 
 		expect( actionSpies.updateSocialNotesConfig ).toHaveBeenCalledWith( { append_link: false } );
-
-		// The "Create a note" link renders an <a> through @wordpress/ui's
-		// Button, which logs a Base UI nativeButton notice. It's incidental to
-		// the behavior under test; acknowledge it so jest-console stays happy.
-		expect( console ).toHaveErrored();
 	} );
 
 	it( 'hides the nested options while Social Notes is off', () => {

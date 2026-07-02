@@ -10,27 +10,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // $config is supplied by Cookie_Consent::render_banner() when this template is included.
-$config             = isset( $config ) && is_array( $config ) ? $config : array();
-$copy               = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
-$links              = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
-$cookie_policy_url  = array_key_exists( 'cookie_policy_url', $links ) && is_scalar( $links['cookie_policy_url'] )
+$config              = isset( $config ) && is_array( $config ) ? $config : array();
+$copy                = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
+$categories          = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_consent_categories( $config );
+$category_context    = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_category_context( $categories );
+$banner_context      = array(
+	'showBanner'   => false,
+	'showModal'    => false,
+	'categories'   => $category_context,
+	'textExpanded' => false,
+);
+$banner_context_json = wp_json_encode( $banner_context, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+$links               = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
+$cookie_policy_url   = array_key_exists( 'cookie_policy_url', $links ) && is_scalar( $links['cookie_policy_url'] )
 	? trim( (string) $links['cookie_policy_url'] )
 	: '';
-$privacy_policy_url = (string) get_privacy_policy_url();
+$privacy_policy_url  = (string) get_privacy_policy_url();
 ?>
 
 <div
 	data-wp-interactive="jetpack/cookie-consent"
-	data-wp-context='{
-		"showBanner": false,
-		"showModal": false,
-		"categories": {
-			"required": true,
-			"analytics": true,
-			"advertising": false
-		},
-		"textExpanded": false
-	}'
+	data-wp-context="<?php echo esc_attr( $banner_context_json ); ?>"
 	data-wp-init="callbacks.init"
 	class="jetpack-cookie-consent"
 >
@@ -156,93 +156,56 @@ $privacy_policy_url = (string) get_privacy_policy_url();
 						</svg>
 					</button>
 
-					<!-- Required Cookies -->
-					<div class="jetpack-cookie-consent__category">
-						<div class="jetpack-cookie-consent__category-header">
-							<div class="jetpack-cookie-consent__category-checkbox jetpack-cookie-consent__category-checkbox--disabled">
-								<input
-									type="checkbox"
-									id="cookie-required"
-									checked
-									disabled
-								/>
-								<label for="cookie-required">
-									<span class="jetpack-cookie-consent__category-checkbox-icon"></span>
-									<span class="jetpack-cookie-consent__category-label-text">
-										<?php echo esc_html( $copy['required_category_label'] ); ?>
-										<span class="jetpack-cookie-consent__category-badge">
-											<?php echo esc_html( $copy['always_active_label'] ); ?>
+					<?php foreach ( $categories as $category ) : ?>
+						<?php
+						$preference_key  = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_category_preference_key( $category['key'] );
+						$input_id        = 'cookie-' . sanitize_html_class( $preference_key );
+						$checkbox_class  = 'jetpack-cookie-consent__category-checkbox';
+						$checkbox_class .= $category['required'] ? ' jetpack-cookie-consent__category-checkbox--disabled' : '';
+						?>
+						<div class="jetpack-cookie-consent__category">
+							<div class="jetpack-cookie-consent__category-header">
+								<div class="<?php echo esc_attr( $checkbox_class ); ?>">
+									<input
+										type="checkbox"
+										id="<?php echo esc_attr( $input_id ); ?>"
+										data-consent-category="<?php echo esc_attr( $preference_key ); ?>"
+										data-wp-bind--checked="context.categories.<?php echo esc_attr( $preference_key ); ?>"
+										<?php if ( ! $category['required'] ) : ?>
+											data-wp-on--change="actions.toggleCategory"
+										<?php endif; ?>
+										<?php checked( $category_context[ $preference_key ] ); ?>
+										<?php disabled( $category['required'] ); ?>
+									/>
+									<label for="<?php echo esc_attr( $input_id ); ?>">
+										<span class="jetpack-cookie-consent__category-checkbox-icon"></span>
+										<span class="jetpack-cookie-consent__category-label-text">
+											<?php echo esc_html( $category['label'] ); ?>
+											<?php if ( $category['required'] ) : ?>
+												<span class="jetpack-cookie-consent__category-badge">
+													<?php echo esc_html( $copy['always_active_label'] ); ?>
+												</span>
+											<?php endif; ?>
 										</span>
-									</span>
-								</label>
+									</label>
+								</div>
+							</div>
+							<div class="jetpack-cookie-consent__category-content">
+								<?php if ( $category['required'] ) : ?>
+									<p data-wp-bind--hidden="context.textExpanded" class="jetpack-cookie-consent__category-text">
+										<?php echo esc_html( wp_trim_words( $category['description'], 25 ) ); ?>
+									</p>
+									<p data-wp-bind--hidden="!context.textExpanded" class="jetpack-cookie-consent__category-text">
+										<?php echo esc_html( $category['description'] ); ?>
+									</p>
+								<?php else : ?>
+									<p class="jetpack-cookie-consent__category-text">
+										<?php echo esc_html( $category['description'] ); ?>
+									</p>
+								<?php endif; ?>
 							</div>
 						</div>
-						<div class="jetpack-cookie-consent__category-content">
-							<p data-wp-bind--hidden="context.textExpanded" class="jetpack-cookie-consent__category-text">
-								<?php
-								echo esc_html(
-									wp_trim_words(
-										$copy['required_category_description'],
-										25
-									)
-								);
-								?>
-							</p>
-							<p data-wp-bind--hidden="!context.textExpanded" class="jetpack-cookie-consent__category-text">
-								<?php echo esc_html( $copy['required_category_description'] ); ?>
-							</p>
-						</div>
-					</div>
-
-					<!-- Analytics Cookies -->
-					<div class="jetpack-cookie-consent__category">
-						<div class="jetpack-cookie-consent__category-header">
-							<div class="jetpack-cookie-consent__category-checkbox">
-								<input
-									type="checkbox"
-									id="cookie-analytics"
-									data-wp-bind--checked="context.categories.analytics"
-									data-wp-on--change="actions.toggleAnalytics"
-								/>
-								<label for="cookie-analytics">
-									<span class="jetpack-cookie-consent__category-checkbox-icon"></span>
-									<span class="jetpack-cookie-consent__category-label-text">
-										<?php echo esc_html( $copy['analytics_category_label'] ); ?>
-									</span>
-								</label>
-							</div>
-						</div>
-						<div class="jetpack-cookie-consent__category-content">
-							<p class="jetpack-cookie-consent__category-text">
-								<?php echo esc_html( $copy['analytics_category_description'] ); ?>
-							</p>
-						</div>
-					</div>
-
-					<!-- Advertising Cookies -->
-					<div class="jetpack-cookie-consent__category">
-						<div class="jetpack-cookie-consent__category-header">
-							<div class="jetpack-cookie-consent__category-checkbox">
-								<input
-									type="checkbox"
-									id="cookie-advertising"
-									data-wp-bind--checked="context.categories.advertising"
-									data-wp-on--change="actions.toggleAdvertising"
-								/>
-								<label for="cookie-advertising">
-									<span class="jetpack-cookie-consent__category-checkbox-icon"></span>
-									<span class="jetpack-cookie-consent__category-label-text">
-										<?php echo esc_html( $copy['advertising_category_label'] ); ?>
-									</span>
-								</label>
-							</div>
-						</div>
-						<div class="jetpack-cookie-consent__category-content">
-							<p class="jetpack-cookie-consent__category-text">
-								<?php echo esc_html( $copy['advertising_category_description'] ); ?>
-							</p>
-						</div>
-					</div>
+					<?php endforeach; ?>
 				</div>
 			</div>
 			<div class="jetpack-cookie-consent__modal-footer">

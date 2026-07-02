@@ -2,6 +2,10 @@
 /**
  * Tests for the Jetpack SEO Schema_Builder.
  *
+ * These exercise the emitted `<script type="application/ld+json">` document end
+ * to end — the real regression surface — rather than the internal node builders
+ * (those are covered by PostSchemaNodeTest / OrganizationSchemaNodeTest).
+ *
  * @package automattic/jetpack-seo
  */
 
@@ -9,7 +13,6 @@ namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use ReflectionMethod;
 use WP_Post;
 
 /**
@@ -28,6 +31,33 @@ class SchemaBuilderTest extends TestCase {
 		\Jetpack_SEO_Utils::$enabled     = true;
 		\Jetpack_SEO_Posts::$schema_type = '';
 		\Jetpack_SEO_Posts::$description = '';
+	}
+
+	/**
+	 * Remove any site-identity filters a test added so they don't leak.
+	 *
+	 * @return void
+	 */
+	protected function tearDown(): void {
+		remove_all_filters( 'pre_option_blogname' );
+		remove_all_filters( 'home_url' );
+		parent::tearDown();
+	}
+
+	/**
+	 * Give the site a Site Title so the Organization node is emitted deterministically,
+	 * regardless of the test environment's default `blogname`.
+	 *
+	 * @param string $name Site Title.
+	 * @return void
+	 */
+	private function set_site_name( $name ) {
+		add_filter(
+			'pre_option_blogname',
+			static function () use ( $name ) {
+				return $name;
+			}
+		);
 	}
 
 	/**
@@ -55,88 +85,114 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
-	 * Invoke a private static Schema_Builder method by reflection.
+	 * Drive Schema_Builder::emit() against a queried singular post and return the
+	 * decoded JSON-LD document, or null when nothing is emitted. This is the
+	 * regression surface that matters: the actual emitted
+	 * `<script type="application/ld+json">` content, not the internal builders.
 	 *
-	 * @param string $name Method name.
-	 * @param mixed  ...$args Arguments.
-	 * @return mixed
+	 * @param WP_Post|null $post Queried singular post, or null for a non-singular request.
+	 * @return array|null Decoded JSON-LD document, or null when emit() outputs nothing.
 	 */
-	private function invoke( string $name, ...$args ) {
-		$method = new ReflectionMethod( Schema_Builder::class, $name );
-		// setAccessible() is required to invoke a private method on PHP < 8.1, and a
-		// deprecated no-op from 8.1 on — call it only where it's actually needed.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
+	private function emit_document( $post ) {
+		global $wp_query;
+		$wp_query = new \WP_Query();
+		if ( $post instanceof WP_Post ) {
+			$wp_query->is_singular       = true;
+			$wp_query->queried_object    = $post;
+			$wp_query->queried_object_id = $post->ID;
 		}
-		return $method->invoke( null, ...$args );
-	}
 
-	/**
-	 * The default schema type is Article only for standard posts; pages,
-	 * attachments, and custom post types get no default (require an override).
-	 */
-	public function test_default_schema_is_article_only_for_standard_posts() {
-		$this->assertSame( 'article', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'post' ) ) ) );
-		$this->assertSame( '', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'page' ) ) ) );
-		$this->assertSame( '', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'attachment' ) ) ) );
-		$this->assertSame( '', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'product' ) ) ) );
-	}
+		ob_start();
+		Schema_Builder::emit();
+		$html = (string) ob_get_clean();
 
-	/**
-	 * No structured data is emitted for unpublished content (previews, drafts,
-	 * private, etc.), even when a logged-in user can view it.
-	 */
-	public function test_no_schema_for_unpublished_posts() {
-		foreach ( array( 'draft', 'private', 'pending', 'future', 'auto-draft' ) as $status ) {
-			$this->assertNull(
-				$this->invoke( 'build_for_post', $this->make_post( array( 'post_status' => $status ) ) ),
-				"Expected no schema for status: {$status}"
-			);
+		if ( '' === $html ) {
+			return null;
 		}
-	}
 
-	/**
-	 * A non-WP_Post (e.g. a non-singular queried object) yields no node.
-	 */
-	public function test_no_schema_for_non_post() {
-		$this->assertNull( $this->invoke( 'build_for_post', null ) );
-	}
-
-	/**
-	 * A published standard post with no override produces an Article node.
-	 */
-	public function test_published_post_builds_article_by_default() {
-		$node = $this->invoke(
-			'build_for_post',
-			$this->make_post(
-				array(
-					'post_type'  => 'post',
-					'post_title' => 'Hello world',
-				)
-			)
+		$this->assertSame(
+			1,
+			preg_match( '#<script type="application/ld\+json">(.*)</script>#s', $html, $matches ),
+			'emit() output is not a single application/ld+json script block.'
 		);
-
-		$this->assertIsArray( $node );
-		$this->assertSame( 'Article', $node['@type'] );
-		$this->assertArrayHasKey( 'headline', $node );
-		$this->assertArrayHasKey( 'datePublished', $node );
-		$this->assertArrayHasKey( 'mainEntityOfPage', $node );
+		return json_decode( $matches[1], true );
 	}
 
 	/**
-	 * A page with no override produces no node (pages have no default schema).
+	 * Find the first node of a given `@type` in a `@graph` document, or null.
+	 *
+	 * Looking nodes up by type (rather than position) keeps these assertions
+	 * stable as more site-level nodes join the graph.
+	 *
+	 * @param array  $document Decoded `@graph` document.
+	 * @param string $type     The `@type` to find.
+	 * @return array|null
 	 */
-	public function test_published_page_has_no_default_schema() {
-		$this->assertNull(
-			$this->invoke( 'build_for_post', $this->make_post( array( 'post_type' => 'page' ) ) )
-		);
+	private function node_of_type( array $document, string $type ) {
+		foreach ( $document['@graph'] as $node ) {
+			if ( is_array( $node ) && ( $node['@type'] ?? '' ) === $type ) {
+				return $node;
+			}
+		}
+		return null;
 	}
 
 	/**
-	 * FAQPage answers are built from a `core/details` block's inner blocks only,
-	 * so the question (the `<summary>`) is not duplicated into the answer text.
+	 * Nothing is emitted when the SEO feature is disabled.
 	 */
-	public function test_faq_answer_excludes_the_question() {
+	public function test_emits_nothing_when_feature_disabled() {
+		\Jetpack_SEO_Utils::$enabled = false;
+		$this->assertNull( $this->emit_document( $this->make_post() ) );
+	}
+
+	/**
+	 * Nothing is emitted on non-singular requests (home, archives, 404). Site-level
+	 * nodes ride along on the singular request's graph; they are not emitted on
+	 * their own yet.
+	 */
+	public function test_emits_nothing_on_non_singular() {
+		$this->assertNull( $this->emit_document( null ) );
+	}
+
+	/**
+	 * Nothing is emitted for unpublished content, even on a singular request.
+	 */
+	public function test_emits_nothing_for_unpublished() {
+		$this->assertNull( $this->emit_document( $this->make_post( array( 'post_status' => 'draft' ) ) ) );
+	}
+
+	/**
+	 * A page with no schema override yields no page node, so the request emits
+	 * nothing at all (no standalone site-level graph).
+	 */
+	public function test_emits_nothing_for_page_without_override() {
+		$this->assertNull( $this->emit_document( $this->make_post( array( 'post_type' => 'page' ) ) ) );
+	}
+
+	/**
+	 * A published standard post emits a `@graph` document containing an Article
+	 * node. Title/permalink values resolve through DB lookups the dbless test
+	 * environment can't satisfy, so this asserts document shape, not those values.
+	 */
+	public function test_emits_graph_with_article_for_published_post() {
+		$doc = $this->emit_document( $this->make_post( array( 'post_title' => 'Hello world' ) ) );
+
+		$this->assertIsArray( $doc );
+		$this->assertSame( 'https://schema.org', $doc['@context'] );
+		$this->assertIsArray( $doc['@graph'] );
+		$this->assertArrayNotHasKey( '@type', $doc, 'The document is a @graph, not a single top-level node.' );
+
+		$article = $this->node_of_type( $doc, 'Article' );
+		$this->assertIsArray( $article, 'Expected an Article node in the graph.' );
+		$this->assertArrayHasKey( 'headline', $article );
+		$this->assertArrayHasKey( 'datePublished', $article );
+		$this->assertArrayHasKey( 'mainEntityOfPage', $article );
+	}
+
+	/**
+	 * A "faq" override emits a `@graph` document containing a FAQPage node.
+	 */
+	public function test_emits_graph_with_faqpage_for_faq_override() {
 		\Jetpack_SEO_Posts::$schema_type = 'faq';
 
 		$content  = '<!-- wp:details {"summary":"What is SEO?"} -->';
@@ -144,29 +200,51 @@ class SchemaBuilderTest extends TestCase {
 		$content .= '<!-- wp:paragraph --><p>Search engine optimization.</p><!-- /wp:paragraph -->';
 		$content .= '</details><!-- /wp:details -->';
 
-		$node = $this->invoke( 'build_for_post', $this->make_post( array( 'post_content' => $content ) ) );
+		$doc = $this->emit_document( $this->make_post( array( 'post_content' => $content ) ) );
 
-		$this->assertIsArray( $node );
-		$this->assertSame( 'FAQPage', $node['@type'] );
-		$this->assertCount( 1, $node['mainEntity'] );
-
-		$item = $node['mainEntity'][0];
-		$this->assertSame( 'Question', $item['@type'] );
-		$this->assertSame( 'What is SEO?', $item['name'] );
-		$this->assertSame( 'Search engine optimization.', $item['acceptedAnswer']['text'] );
-		$this->assertStringNotContainsString( 'What is SEO?', $item['acceptedAnswer']['text'] );
+		$this->assertIsArray( $doc );
+		$faq = $this->node_of_type( $doc, 'FAQPage' );
+		$this->assertIsArray( $faq, 'Expected a FAQPage node in the graph.' );
+		$this->assertSame( 'What is SEO?', $faq['mainEntity'][0]['name'] );
 	}
 
 	/**
-	 * A "faq" override with no `core/details` blocks yields no node, rather than
-	 * an empty/invalid FAQPage.
+	 * The graph leads with the site-level Organization node, and the Article
+	 * references it as `publisher` by `@id`.
 	 */
-	public function test_faq_without_details_blocks_is_null() {
+	public function test_graph_leads_with_organization_referenced_as_article_publisher() {
+		$this->set_site_name( 'Acme Co' );
+
+		$doc = $this->emit_document( $this->make_post() );
+
+		$this->assertSame( 'Organization', $doc['@graph'][0]['@type'], 'Site-level nodes come first.' );
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$this->assertIsArray( $organization, 'Expected an Organization node in the graph.' );
+		$this->assertSame( 'Acme Co', $organization['name'] );
+
+		$article = $this->node_of_type( $doc, 'Article' );
+		$this->assertSame( $organization['@id'], $article['publisher']['@id'] );
+	}
+
+	/**
+	 * A FAQPage joins the graph alongside the Organization, but carries no
+	 * `publisher` (only Article references a publisher).
+	 */
+	public function test_faqpage_has_no_publisher_but_graph_has_organization() {
+		$this->set_site_name( 'Acme Co' );
 		\Jetpack_SEO_Posts::$schema_type = 'faq';
-		$node                            = $this->invoke(
-			'build_for_post',
-			$this->make_post( array( 'post_content' => '<!-- wp:paragraph --><p>No FAQ here.</p><!-- /wp:paragraph -->' ) )
-		);
-		$this->assertNull( $node );
+
+		$content  = '<!-- wp:details {"summary":"What is SEO?"} -->';
+		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
+		$content .= '<!-- wp:paragraph --><p>Search engine optimization.</p><!-- /wp:paragraph -->';
+		$content .= '</details><!-- /wp:details -->';
+
+		$doc = $this->emit_document( $this->make_post( array( 'post_content' => $content ) ) );
+
+		$this->assertIsArray( $this->node_of_type( $doc, 'Organization' ) );
+
+		$faq = $this->node_of_type( $doc, 'FAQPage' );
+		$this->assertArrayNotHasKey( 'publisher', $faq );
 	}
 }

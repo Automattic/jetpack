@@ -131,6 +131,28 @@ function getWeekIntervalFields( period: string ) {
 	return getDateFnsIntervalFields( startOfISOWeek( parsed ), endOfISOWeek( parsed ) );
 }
 
+// WPCOM stats weekly labels arrive as `YYYY'W'MM'W'DD`, where the trailing
+// month/day is the week's start date (e.g. `2026W06W29` → week of 2026-06-29).
+function getWpcomWeekIntervalFields( period: string ) {
+	const match = period.match( /^(\d{4})W(\d{2})W(\d{2})$/ );
+
+	if ( ! match ) {
+		return null;
+	}
+
+	const parsed = parse(
+		`${ match[ 1 ] }-${ match[ 2 ] }-${ match[ 3 ] }`,
+		'yyyy-MM-dd',
+		referenceDate
+	);
+
+	if ( ! isValid( parsed ) ) {
+		return null;
+	}
+
+	return getDateFnsIntervalFields( startOfISOWeek( parsed ), endOfISOWeek( parsed ) );
+}
+
 function getMonthIntervalFields( period: string ) {
 	const parsed = parse( period, 'yyyy-MM', referenceDate );
 
@@ -155,7 +177,11 @@ function getTimeSeriesIntervalFields( period: unknown, unit?: string ) {
 	const periodString = typeof period === 'string' ? period : '';
 
 	if ( unit === 'week' ) {
-		return getWeekIntervalFields( periodString ) ?? getStatsIntervalFields( periodString, unit );
+		return (
+			getWeekIntervalFields( periodString ) ??
+			getWpcomWeekIntervalFields( periodString ) ??
+			getStatsIntervalFields( periodString, unit )
+		);
 	}
 
 	if ( unit === 'month' ) {

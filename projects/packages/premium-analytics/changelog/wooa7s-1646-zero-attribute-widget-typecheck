@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix TypeScript error in five zero-attribute widget stories (Record<never, never> instead of Record<string, never>).

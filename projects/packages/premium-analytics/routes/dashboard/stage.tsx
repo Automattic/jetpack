@@ -86,9 +86,17 @@ function Dashboard(): JSX.Element {
 		select =>
 			(
 				select( coreStore ) as unknown as {
-					getEntityRecords: ( kind: string, name: string ) => WidgetModuleRecord[] | null;
+					getEntityRecords: (
+						kind: string,
+						name: string,
+						query?: Record< string, unknown >
+					) => WidgetModuleRecord[] | null;
 				}
-			 ).getEntityRecords( 'root', 'widgetModule' ),
+			 )
+				// `per_page: -1` returns every widget type. Without it, core-data's default
+				// query (`per_page: 10`) caps the mapped records at 10, silently hiding any
+				// widget past the tenth from the "Add widget" gallery.
+				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
 		[]
 	);
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: align the woocommerce-analytics-ported widgets with the shared widget render-props contract.
