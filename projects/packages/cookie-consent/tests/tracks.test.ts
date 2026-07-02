@@ -190,6 +190,15 @@ describe( 'trackPrivacyBannerAccept', () => {
 		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
 	} );
 
+	it( 'loads w.js with a weekly cache-busting ver query param', () => {
+		trackPrivacyManageOpen( true, true );
+
+		const script = document.getElementById( TRACKS_SCRIPT_ID ) as HTMLScriptElement;
+		const url = new URL( script.src );
+		expect( url.origin + url.pathname ).toBe( 'https://stats.wp.com/w.js' );
+		expect( url.searchParams.get( 'ver' ) ).toBe( String( Math.floor( Date.now() / 6.048e8 ) ) );
+	} );
+
 	it( 'records reject through a cookieless aggregate stat', () => {
 		trackPrivacyBannerReject();
 

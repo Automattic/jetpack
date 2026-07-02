@@ -11,6 +11,7 @@ const TRACKS_SCRIPT_ID = 'jetpack-cookie-consent-tracks-js';
 const TRACKS_SCRIPT_URL = 'https://stats.wp.com/w.js';
 const COOKIELESS_PIXEL_URL = 'https://pixel.wp.com/g.gif';
 const COOKIELESS_STAT_PREFIX = 'x_jetpack-cookie-consent';
+const WEEK_IN_MS = 6.048e8;
 
 /**
  * Extract UTM parameters from URL
@@ -79,9 +80,14 @@ export function ensureTracksLoaded(): void {
 		return;
 	}
 
+	// Weekly cache-buster, matching the `?ver=gmdate('YW')` the PHP enqueue used to
+	// apply, so a stale w.js can't be served from cache for more than a week.
+	const url = new URL( TRACKS_SCRIPT_URL );
+	url.searchParams.set( 'ver', String( Math.floor( Date.now() / WEEK_IN_MS ) ) );
+
 	const script = document.createElement( 'script' );
 	script.id = TRACKS_SCRIPT_ID;
-	script.src = TRACKS_SCRIPT_URL;
+	script.src = url.toString();
 	script.defer = true;
 	document.head.appendChild( script );
 }
