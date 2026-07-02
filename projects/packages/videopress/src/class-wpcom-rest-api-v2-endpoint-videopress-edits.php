@@ -23,12 +23,27 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * The routes, methods and permission checks are identical to the ones the
  * development mock (VideoPress_Studio_Mock_Edits) serves, so the frontend is
- * agnostic to which backend is active. Each handler is a thin, tolerant
- * passthrough: the incoming JSON body is forwarded verbatim, and the upstream
- * response body and status come back verbatim — the contract's 409/400/422
- * error responses (edits_conflict, edits_invalid_operations, …) reach the
- * client untouched. Only transport failures (no HTTP response at all) are
- * translated into a local 500.
+ * agnostic to which backend is active. Each handler is a thin passthrough:
+ * the incoming JSON body and query parameters are forwarded, and the
+ * upstream body and status come back with one translation — the v1.1 API
+ * serializes a WP_Error as `{ error, message }` (plus `data` only when the
+ * error carries `additional_data`), so proxy_request() remaps `error` to
+ * `code` on failures to restore the canonical WP REST error shape the editor
+ * matches on (`code === 'edits_conflict'`, `data.current_revision`, …). The
+ * upstream status (409/400/422 …) is always preserved; only transport
+ * failures (no HTTP response at all) become a local 500.
+ *
+ * The local DELETE route (restore original) maps to POST
+ * `videos/%s/edits/delete` upstream: the v1.x JSON API dispatcher only
+ * serves GET and POST, and `/delete` sub-paths are its deletion convention
+ * (`videos/%s/delete`, `videos/%s/tracks/delete`).
+ *
+ * Requests are blog-signed (site auth, WPCOM user 0). The upstream
+ * endpoints accept that explicitly via `is_jetpack_authorized_for_site()`,
+ * but their rollout gate (`videopress_studio_edits_enabled()`) then only
+ * passes for sites carrying the `videopress-studio-edits` blog sticker —
+ * the Automattician bypass never applies to user 0. Sandbox testers: stick
+ * the test blog.
  *
  * See the mock class docblock for the full JSON contract.
  *
@@ -150,11 +165,16 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 	/**
 	 * DELETE /wpcom/v2/videopress/{guid}/edits — restore the original master.
 	 *
+	 * Maps to POST `videos/%s/edits/delete` upstream: the v1.x JSON API
+	 * dispatcher rejects any method other than GET/POST with a 405 before an
+	 * endpoint could even see the request, so deletions are conventionally
+	 * POSTs to a `/delete` sub-path.
+	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function restore_original( $request ) {
-		return $this->proxy_request( $request, sprintf( 'videos/%s/edits', $request['guid'] ), 'DELETE' );
+		return $this->proxy_request( $request, sprintf( 'videos/%s/edits/delete', $request['guid'] ), 'POST' );
 	}
 
 	/**
@@ -169,13 +189,16 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 
 	/**
 	 * Forward a request to the blog-signed WPCOM v1.1 endpoint and hand the
-	 * upstream JSON body and status code back verbatim.
+	 * upstream JSON body and status code back.
 	 *
-	 * The request's raw JSON body (when present) is forwarded untouched, so
-	 * upstream owns all payload validation. The upstream status is preserved
-	 * even for errors — the contract's 409/400/422 responses must reach the
-	 * client exactly as WPCOM produced them. Only a transport failure (the
-	 * request never got an HTTP response) becomes a local 500 WP_Error.
+	 * The request's raw JSON body (when present) and its query parameters
+	 * (minus WP-internal ones) are forwarded untouched, so upstream owns all
+	 * payload validation. The upstream status is preserved even for errors —
+	 * the contract's 409/400/422 responses must reach the client with the
+	 * status WPCOM produced. Error bodies are normalized from the v1.1
+	 * serialization to the canonical WP REST shape (see normalize_error_body).
+	 * Only a transport failure (the request never got an HTTP response)
+	 * becomes a local 500 WP_Error.
 	 *
 	 * @param WP_REST_Request $request The incoming request (body source).
 	 * @param string          $path    WPCOM REST v1.1 path.
@@ -184,6 +207,18 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 	 */
 	private function proxy_request( $request, $path, $method ) {
 		$args = array( 'method' => $method );
+
+		$query_params = $request->get_query_params();
+		unset( $query_params['rest_route'] );
+		foreach ( array_keys( $query_params ) as $key ) {
+			// WP REST meta params (_locale, _envelope, _fields, …) mean nothing upstream.
+			if ( str_starts_with( (string) $key, '_' ) ) {
+				unset( $query_params[ $key ] );
+			}
+		}
+		if ( $query_params ) {
+			$path = add_query_arg( urlencode_deep( $query_params ), $path );
+		}
 
 		$body = $request->get_body();
 		if ( '' === $body ) {
@@ -202,11 +237,44 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 			);
 		}
 
-		$status = (int) wp_remote_retrieve_response_code( $response );
+		$status  = (int) wp_remote_retrieve_response_code( $response );
+		$status  = $status ? $status : 500;
+		$decoded = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		return new WP_REST_Response(
-			json_decode( wp_remote_retrieve_body( $response ), true ),
-			$status ? $status : 500
+		if ( $status >= 400 ) {
+			$decoded = $this->normalize_error_body( $decoded, $status );
+		}
+
+		return new WP_REST_Response( $decoded, $status );
+	}
+
+	/**
+	 * Translate a v1.1 error body into the canonical WP REST error shape.
+	 *
+	 * The v1.1 API serializes a WP_Error as `{ error: <code>, message }`,
+	 * including `data` only when the error carries an `additional_data` key
+	 * (WPCOM_JSON_API::serializable_error()). The editor, however, matches
+	 * canonical WP REST errors: `code === 'edits_conflict'` and
+	 * `data.current_revision` (use-save-video-edits.ts). So on failures the
+	 * `error` key is remapped to `code`, `message` is kept, upstream `data`
+	 * is passed through when present (the wpcom side packs
+	 * `current_revision` there via `additional_data`), and a WP-style
+	 * `data.status` is filled in when upstream sent no data at all. Bodies
+	 * that already look canonical (or aren't objects) pass through verbatim.
+	 *
+	 * @param mixed $decoded Decoded upstream body.
+	 * @param int   $status  Upstream HTTP status.
+	 * @return mixed The normalized body.
+	 */
+	private function normalize_error_body( $decoded, $status ) {
+		if ( ! is_array( $decoded ) || ! isset( $decoded['error'] ) || isset( $decoded['code'] ) ) {
+			return $decoded;
+		}
+
+		return array(
+			'code'    => (string) $decoded['error'],
+			'message' => isset( $decoded['message'] ) ? (string) $decoded['message'] : '',
+			'data'    => $decoded['data'] ?? array( 'status' => $status ),
 		);
 	}
 }

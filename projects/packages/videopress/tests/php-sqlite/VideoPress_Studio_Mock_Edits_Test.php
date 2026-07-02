@@ -1,8 +1,11 @@
 <?php
 /**
  * Tests for the Studio edits REST endpoints: registration/gating of both
- * backends (the default WPCOM proxy and the opt-in development mock) plus the
- * mock's full behavioral contract.
+ * backends (the default WPCOM proxy and the opt-in development mock), the
+ * mock's full behavioral contract, and the proxy's dispatch behavior
+ * (passthrough, v1.1 error-shape normalization, DELETE→POST /delete mapping,
+ * query-param forwarding, transport-failure 500) against a faked upstream
+ * via the pre_http_request filter.
  *
  * Lives in the sqlite suite (tests/php-sqlite) because the guid → attachment
  * lookup (videopress_get_post_id_by_guid) runs a WP_Query meta_query, which
@@ -16,7 +19,9 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
@@ -105,6 +110,8 @@ class VideoPress_Studio_Mock_Edits_Test extends TestCase {
 		remove_all_filters( Admin_UI::STUDIO_FILTER );
 		remove_all_filters( 'videopress_studio_mock_edits' );
 		remove_all_filters( 'videopress_studio_mock_edits_delay' );
+		remove_all_filters( 'pre_http_request' );
+		Constants::clear_constants();
 
 		global $wp_rest_server;
 		$wp_rest_server = null;
@@ -764,5 +771,255 @@ class VideoPress_Studio_Mock_Edits_Test extends TestCase {
 			)
 		);
 		$this->assertSame( 202, $response->get_status() );
+	}
+
+	/*
+	 * ----------------------------------------------------------------------
+	 * WPCOM proxy dispatch tests (faked upstream via pre_http_request).
+	 * ----------------------------------------------------------------------
+	 */
+
+	/**
+	 * Environment for proxy dispatch tests: Studio flag on with the mock left
+	 * opted out, so the WPCOM proxy claims the routes; connected author as
+	 * the current user (permissions_check needs a user token AND
+	 * upload_files); REST server up.
+	 *
+	 * No attachment is created: the proxy never resolves the guid locally —
+	 * that is upstream's job.
+	 *
+	 * @return string A guid to use in request paths.
+	 */
+	private function setup_proxy_environment() {
+		add_filter( Admin_UI::STUDIO_FILTER, '__return_true' );
+
+		// Client builds the upstream URL from this constant BEFORE its own
+		// default-value filter is registered (that only happens inside
+		// build_signed_request), so the first Client call in a process fails
+		// with a malformed URL unless the constant is pinned explicitly.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$user_id = $this->create_user_with_role( 'author' );
+		$this->mock_connection_for_user( $user_id );
+		wp_set_current_user( $user_id );
+
+		$this->initialize_rest_server();
+
+		return 'proxyguid' . uniqid();
+	}
+
+	/**
+	 * Short-circuit outgoing HTTP with a fake upstream response, capturing
+	 * the URL and args the proxy sent.
+	 *
+	 * @param int   $status   Upstream HTTP status.
+	 * @param mixed $body     Upstream body (JSON-encoded into the response).
+	 * @param array $captured Populated by reference with 'url' and 'args'.
+	 */
+	private function fake_upstream( $status, $body, &$captured = array() ) {
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $parsed_args, $url ) use ( $status, $body, &$captured ) {
+				$captured = array(
+					'url'  => $url,
+					'args' => $parsed_args,
+				);
+
+				return array(
+					'headers'  => array(),
+					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+					'response' => array(
+						'code'    => $status,
+						'message' => '',
+					),
+					'cookies'  => array(),
+					'filename' => null,
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/** Tests that a successful upstream GET body and status pass through verbatim. */
+	public function test_proxy_passes_upstream_success_through() {
+		$guid     = $this->setup_proxy_environment();
+		$upstream = array(
+			'guid'                 => $guid,
+			'revision'             => 3,
+			'original_duration_ms' => self::DURATION_MS,
+			'output_duration_ms'   => 42000,
+			'operations'           => array(
+				array(
+					'type'     => 'trim',
+					'start_ms' => 0,
+					'end_ms'   => 42000,
+				),
+			),
+			'can_restore_original' => true,
+			'job'                  => array(
+				'id'              => null,
+				'status'          => 'idle',
+				'target_revision' => null,
+				'progress'        => null,
+				'error'           => null,
+			),
+			'updated'              => '2026-07-02T10:00:00+00:00',
+		);
+		$captured = array();
+		$this->fake_upstream( 200, $upstream, $captured );
+
+		$response = $this->dispatch( 'GET', '/wpcom/v2/videopress/' . $guid . '/edits' );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( $upstream, $response->get_data() );
+		$this->assertSame( 'GET', $captured['args']['method'] );
+		$this->assertSame(
+			'/rest/v1.1/videos/' . $guid . '/edits',
+			wp_parse_url( $captured['url'], PHP_URL_PATH )
+		);
+	}
+
+	/**
+	 * Tests that the v1.1 error serialization ({ error, message, data }) is
+	 * normalized to the canonical WP REST shape ({ code, message, data }) the
+	 * editor matches on, preserving the upstream status and the
+	 * data.current_revision payload the conflict banner needs.
+	 */
+	public function test_proxy_normalizes_v11_error_shape_for_conflicts() {
+		$guid = $this->setup_proxy_environment();
+		$this->fake_upstream(
+			409,
+			array(
+				'error'   => 'edits_conflict',
+				'message' => 'The video was edited elsewhere.',
+				'data'    => array( 'current_revision' => 7 ),
+			)
+		);
+
+		$response = $this->dispatch(
+			'POST',
+			'/wpcom/v2/videopress/' . $guid . '/edits',
+			array(
+				'base_revision' => 3,
+				'operations'    => array(),
+			)
+		);
+
+		$this->assertSame( 409, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertSame( 'edits_conflict', $data['code'] );
+		$this->assertSame( 'The video was edited elsewhere.', $data['message'] );
+		$this->assertSame( 7, $data['data']['current_revision'] );
+		$this->assertArrayNotHasKey( 'error', $data );
+	}
+
+	/**
+	 * Tests the two normalization edge cases: an errors body with no data
+	 * gains a WP-style data.status, and an already-canonical body passes
+	 * through untouched.
+	 */
+	public function test_proxy_error_normalization_edge_cases() {
+		$guid = $this->setup_proxy_environment();
+		$path = '/wpcom/v2/videopress/' . $guid . '/storyboard';
+
+		// No data upstream → data.status is filled in.
+		$this->fake_upstream(
+			404,
+			array(
+				'error'   => 'storyboard_unavailable',
+				'message' => 'No storyboard is available for this video.',
+			)
+		);
+		$data = $this->dispatch( 'GET', $path )->get_data();
+		$this->assertSame( 'storyboard_unavailable', $data['code'] );
+		$this->assertSame( array( 'status' => 404 ), $data['data'] );
+
+		// Already-canonical body (has 'code') is not rewritten.
+		remove_all_filters( 'pre_http_request' );
+		$canonical = array(
+			'code'    => 'edits_conflict',
+			'message' => 'Canonical.',
+			'data'    => array(
+				'status'           => 409,
+				'current_revision' => 5,
+			),
+		);
+		$this->fake_upstream( 409, $canonical );
+		$response = $this->dispatch( 'GET', $path );
+		$this->assertSame( 409, $response->get_status() );
+		$this->assertSame( $canonical, $response->get_data() );
+	}
+
+	/**
+	 * Tests that the local DELETE (restore original) becomes a POST to the
+	 * conventional /delete sub-path upstream — the v1.x dispatcher rejects
+	 * any method other than GET/POST with a 405.
+	 */
+	public function test_proxy_maps_delete_to_post_delete_subpath() {
+		$guid     = $this->setup_proxy_environment();
+		$upstream = array(
+			'guid'     => $guid,
+			'revision' => 4,
+			'job'      => array(
+				'id'              => 'job_1',
+				'status'          => 'processing',
+				'target_revision' => 4,
+				'progress'        => 0,
+				'error'           => null,
+			),
+		);
+		$captured = array();
+		$this->fake_upstream( 202, $upstream, $captured );
+
+		$response = $this->dispatch( 'DELETE', '/wpcom/v2/videopress/' . $guid . '/edits' );
+
+		$this->assertSame( 202, $response->get_status() );
+		$this->assertSame( $upstream, $response->get_data() );
+		$this->assertSame( 'POST', $captured['args']['method'] );
+		$this->assertSame(
+			'/rest/v1.1/videos/' . $guid . '/edits/delete',
+			wp_parse_url( $captured['url'], PHP_URL_PATH )
+		);
+	}
+
+	/** Tests that query params are forwarded upstream, minus WP-internal ones. */
+	public function test_proxy_forwards_query_params_and_strips_wp_internals() {
+		$guid     = $this->setup_proxy_environment();
+		$captured = array();
+		$this->fake_upstream( 200, array( 'url' => 'https://videos.files.wordpress.com/x/sheet.jpg' ), $captured );
+
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/videopress/' . $guid . '/storyboard' );
+		$request->set_query_params(
+			array(
+				'width'      => '160',
+				'_locale'    => 'user',
+				'rest_route' => '/wpcom/v2/videopress/' . $guid . '/storyboard',
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$query = array();
+		wp_parse_str( (string) wp_parse_url( $captured['url'], PHP_URL_QUERY ), $query );
+		$this->assertSame( '160', $query['width'] );
+		$this->assertArrayNotHasKey( '_locale', $query );
+		$this->assertArrayNotHasKey( 'rest_route', $query );
+	}
+
+	/** Tests that a transport failure (no HTTP response at all) maps to a local 500. */
+	public function test_proxy_maps_transport_failure_to_500() {
+		$guid = $this->setup_proxy_environment();
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new WP_Error( 'http_request_failed', 'cURL error 28: timeout' );
+			}
+		);
+
+		$response = $this->dispatch( 'GET', '/wpcom/v2/videopress/' . $guid . '/edits' );
+
+		$this->assertSame( 500, $response->get_status() );
+		$this->assertSame( 'videopress_edits_request_failed', $response->get_data()['code'] );
 	}
 }
