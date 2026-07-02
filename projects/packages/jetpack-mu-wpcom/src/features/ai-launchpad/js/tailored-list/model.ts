@@ -10,8 +10,10 @@ export interface EnrichedTask {
 	subtitle: string;
 	title: string;
 	completed: boolean;
-	// True when a site-editor task has a saved-but-unpublished draft: the card shows
-	// the drafts icon + a "Continue" CTA, and `calypso_path` reopens that draft.
+	// True when a task is mid-way through its prerequisite. For a site-editor task that
+	// means a saved-but-unpublished draft (drafts icon + "Continue" CTA, `calypso_path`
+	// reopens it); for the synthetic `install_woocommerce` task it means the plugin is
+	// installed but not yet active (the CTA activates it).
 	in_progress: boolean;
 	// True for a task shown as a locked preview of the roadmap (e.g. a sell site's
 	// commerce tasks before WooCommerce is active): it renders muted, expands to its
