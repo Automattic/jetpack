@@ -96,10 +96,14 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 	const updatePoster = useUpdateVideoPoster();
 	const [ dialogOpen, setDialogOpen ] = useState( false );
 	const [ playlistDialogOpen, setPlaylistDialogOpen ] = useState( false );
-	// Read once per render: playlists only exist with the Studio flag on, and
-	// the flag comes from the server-inlined initial state, which can't change
-	// without a full page load.
-	const showAddToPlaylist = isStudioEnabled();
+	// The flag is read once per render: playlists only exist with the Studio
+	// flag on, and it comes from the server-inlined initial state, which can't
+	// change without a full page load. The idle gate matches the library's
+	// isVideoPressIdle bulk-action eligibility — this route also renders
+	// uploading/processing videos (anything short of 'failed'), and those
+	// shouldn't be addable to playlists from here when the library refuses.
+	const showAddToPlaylist =
+		isStudioEnabled() && video.type === 'videopress' && video.upload.status === 'idle';
 	// True between a poster mutation resolving and the new thumbnail <img>
 	// actually loading. Keeps the "Updating…" overlay up and the success
 	// notice held back so the toast lines up with the visible change rather
@@ -208,7 +212,12 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 						) }
 					</div>
 					<Stack direction="column" gap="md" className="vp-video-details__thumbnail-meta">
-						<Stack direction="row" gap="sm">
+						{ /* wrap: on narrow viewports the thumbnail row column-stacks
+						     (style.scss <=600px) and the two outlined buttons can
+						     exceed the full-width meta column; Stack leaves flex-wrap
+						     unset, so the second button must be allowed to drop to
+						     its own line instead of overflowing the card. */ }
+						<Stack direction="row" gap="sm" wrap="wrap">
 							<Button
 								variant="outline"
 								onClick={ onAddToNewPost }

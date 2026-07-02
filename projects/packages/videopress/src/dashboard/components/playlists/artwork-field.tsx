@@ -141,6 +141,12 @@ type PlaylistDetailArtworkProps = {
 	playlist: Playlist;
 	/** The playlist's members in display order; the first is the artwork fallback. */
 	videos: PlaylistVideo[];
+	/**
+	 * Whether the members fetch is still in flight. While true, `videos` is
+	 * `[]`, so the unset-artwork fallback resolves via `order[0]` (usually
+	 * already cached from the list screen) instead of flashing the placeholder.
+	 */
+	videosLoading?: boolean;
 };
 
 /**
@@ -151,16 +157,24 @@ type PlaylistDetailArtworkProps = {
  * chosen video's attachment ID becomes the artwork) and "Upload image" (the
  * WordPress media library).
  *
- * @param props          - Component props.
- * @param props.playlist - The playlist being edited.
- * @param props.videos   - The playlist's members in display order.
+ * @param props               - Component props.
+ * @param props.playlist      - The playlist being edited.
+ * @param props.videos        - The playlist's members in display order.
+ * @param props.videosLoading - Whether the members fetch is still in flight.
  * @return The artwork control element.
  */
-export function PlaylistDetailArtwork( { playlist, videos }: PlaylistDetailArtworkProps ) {
-	// The members are already loaded here, so the unset-artwork fallback is
-	// the first ordered video's poster — no extra media lookup.
+export function PlaylistDetailArtwork( {
+	playlist,
+	videos,
+	videosLoading = false,
+}: PlaylistDetailArtworkProps ) {
+	// Once the members are loaded the unset-artwork fallback is the first
+	// ordered video's poster — no extra media lookup. While they're still in
+	// flight, `videos` is `[]`; passing undefined lets the hook resolve the
+	// fallback itself from `order[0]` (typically already cached from the list
+	// screen) rather than flashing the "No artwork" placeholder.
 	const { url } = usePlaylistArtwork( playlist, {
-		firstVideoPoster: videos[ 0 ]?.thumbnailUrl ?? null,
+		firstVideoPoster: videosLoading ? undefined : videos[ 0 ]?.thumbnailUrl ?? null,
 	} );
 	const setArtwork = useSetArtwork( playlist.id );
 	const [ isSelectOpen, setSelectOpen ] = useState( false );
@@ -188,7 +202,7 @@ export function PlaylistDetailArtwork( { playlist, videos }: PlaylistDetailArtwo
 					<MenuGroup>
 						<MenuItem
 							icon={ media }
-							disabled={ videos.length === 0 }
+							disabled={ videosLoading || videos.length === 0 }
 							onClick={ () => {
 								setSelectOpen( true );
 								onClose();

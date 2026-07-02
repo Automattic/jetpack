@@ -118,6 +118,51 @@ describe( 'PlaylistDetailArtwork', () => {
 		expect( mocked ).not.toHaveBeenCalled();
 	} );
 
+	it( 'falls back to the order[0] poster lookup while the members are still loading', async () => {
+		mockApiFetch( async ( { path } ) => {
+			if ( path?.includes( 'include=7' ) ) {
+				return [
+					{
+						id: 7,
+						media_type: 'file',
+						mime_type: 'video/videopress',
+						media_details: { videopress: { poster: 'https://example.com/poster-7.jpg' } },
+					},
+				];
+			}
+			return [];
+		} );
+
+		// While the members fetch is in flight `videos` is [], which must not
+		// flash the placeholder: the hook resolves the fallback from order[0].
+		render(
+			<PlaylistDetailArtwork
+				playlist={ makePlaylist( { order: [ 7, 8 ] } ) }
+				videos={ [] }
+				videosLoading
+			/>,
+			{ wrapper: createTestWrapper() }
+		);
+
+		const image = await screen.findByAltText( 'My playlist' );
+		expect( image ).toHaveAttribute( 'src', 'https://example.com/poster-7.jpg' );
+	} );
+
+	it( 'disables Select from playlist while the members are still loading', async () => {
+		const user = userEvent.setup();
+		mockApiFetch( async () => [] );
+
+		render( <PlaylistDetailArtwork playlist={ makePlaylist() } videos={ [] } videosLoading />, {
+			wrapper: createTestWrapper(),
+		} );
+
+		await user.click( screen.getByRole( 'button', { name: /update artwork/i } ) );
+		expect( screen.getByRole( 'menuitem', { name: /select from playlist/i } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
 	it( 'disables Select from playlist when the playlist has no videos', async () => {
 		const user = userEvent.setup();
 		mockApiFetch( async () => [] );

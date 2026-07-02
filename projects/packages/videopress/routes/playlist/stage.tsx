@@ -75,18 +75,23 @@ const Loading = () => (
  * server value and surface an error notice — no explicit Save button to keep
  * in sync.
  *
- * @param props          - Component props.
- * @param props.playlist - The playlist being edited.
- * @param props.videos   - The playlist's members in display order (the first
- *                       one's poster is the unset-artwork fallback).
+ * @param props               - Component props.
+ * @param props.playlist      - The playlist being edited.
+ * @param props.videos        - The playlist's members in display order (the
+ *                            first one's poster is the unset-artwork fallback).
+ * @param props.videosLoading - Whether the members fetch is still in flight,
+ *                            so the artwork control can avoid a placeholder
+ *                            flash while `videos` is still empty.
  * @return The card element.
  */
 const PlaylistDetailsCard = ( {
 	playlist,
 	videos,
+	videosLoading,
 }: {
 	playlist: Playlist;
 	videos: PlaylistVideo[];
+	videosLoading: boolean;
 } ) => {
 	const { mutate: updatePlaylist } = useUpdatePlaylist();
 	const { createErrorNotice } = useGlobalNotices();
@@ -147,7 +152,11 @@ const PlaylistDetailsCard = ( {
 			<Card.Content>
 				<Stack direction="row" gap="md" align="start" className="vp-playlist__header">
 					<div className="vp-playlist__artwork-slot">
-						<PlaylistDetailArtwork playlist={ playlist } videos={ videos } />
+						<PlaylistDetailArtwork
+							playlist={ playlist }
+							videos={ videos }
+							videosLoading={ videosLoading }
+						/>
 					</div>
 					<Stack direction="column" gap="md" className="vp-playlist__details">
 						<InputControl
@@ -264,7 +273,11 @@ const StageReady = ( { playlist }: { playlist: Playlist } ) => {
 			}
 		>
 			<div className="vp-playlist">
-				<PlaylistDetailsCard playlist={ playlist } videos={ videos } />
+				<PlaylistDetailsCard
+					playlist={ playlist }
+					videos={ videos }
+					videosLoading={ videosLoading }
+				/>
 				<Card.Root>
 					<Card.Header>
 						<Card.Title>

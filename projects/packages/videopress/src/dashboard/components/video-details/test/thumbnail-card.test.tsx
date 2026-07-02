@@ -216,6 +216,20 @@ describe( 'ThumbnailCard — add to playlist (Studio-gated)', () => {
 		expect( screen.queryByRole( 'button', { name: 'Add to playlist' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'does not render the button while the video is not idle, even with the flag on', () => {
+		globals.JPVIDEOPRESS_INITIAL_STATE = { features: { studio: true } };
+		// Mirrors the library's isVideoPressIdle bulk-action gate: this route
+		// renders any non-failed upload, but in-flight videos are not addable.
+		render(
+			<ThumbnailCard
+				video={ { ...baseVideo, upload: { status: 'uploading', progress: 50 } } }
+				onAddToNewPost={ jest.fn() }
+			/>,
+			{ wrapper }
+		);
+		expect( screen.queryByRole( 'button', { name: 'Add to playlist' } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'opens the dialog with this single video when the flag is on', async () => {
 		globals.JPVIDEOPRESS_INITIAL_STATE = { features: { studio: true } };
 		const user = userEvent.setup();
