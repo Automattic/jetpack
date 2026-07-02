@@ -47,8 +47,8 @@ const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 		'site_launched',
 	],
 	sell: [
-		'woo_products',
 		'woo_customize_store',
+		'woo_products',
 		'set_up_payments',
 		'site_theme_selected',
 		'complete_profile',

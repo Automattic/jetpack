@@ -39,6 +39,8 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 			return __( 'Browse themes', 'jetpack-mu-wpcom' );
 		case 'add_gallery_page':
 			return __( 'Create gallery', 'jetpack-mu-wpcom' );
+		case 'install_woocommerce':
+			return __( 'Set up store', 'jetpack-mu-wpcom' );
 		case 'woo_products':
 			return __( 'Add products', 'jetpack-mu-wpcom' );
 		case 'woo_customize_store':

@@ -97,6 +97,8 @@ describe( 'ctaKind', () => {
 		assert.equal( ctaKind( 'site_theme_selected' ), 'deeplink' );
 		// woo_launch_site has its own wc-admin deeplink, so it is not a launch kind.
 		assert.equal( ctaKind( 'woo_launch_site' ), 'deeplink' );
+		// The synthetic store task navigates to its wp-admin install CTA.
+		assert.equal( ctaKind( 'install_woocommerce' ), 'deeplink' );
 	} );
 } );
 
