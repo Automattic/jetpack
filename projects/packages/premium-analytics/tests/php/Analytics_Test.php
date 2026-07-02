@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -32,6 +33,19 @@ class Analytics_Test extends TestCase {
 	 */
 	public function test_class_exists() {
 		$this->assertTrue( class_exists( Analytics::class ) );
+	}
+
+	/**
+	 * Init defines PREMIUM_ANALYTICS_VERSION so Sync can whitelist and sync it.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function test_init_defines_version_constant() {
+		Analytics::init();
+
+		$this->assertTrue( defined( 'PREMIUM_ANALYTICS_VERSION' ) );
+		$this->assertSame( Analytics::PACKAGE_VERSION, PREMIUM_ANALYTICS_VERSION );
 	}
 
 	/**
