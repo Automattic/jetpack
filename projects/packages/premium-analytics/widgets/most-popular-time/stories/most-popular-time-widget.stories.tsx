@@ -1,0 +1,209 @@
+/**
+ * All three stories render the data-connected widget through `WidgetRoot`, so
+ * they need report data to resolve against. `registerReportMocks` covers the
+ * shared paths (e.g. WP settings), and the local middleware below mocks the
+ * `stats/insights` response the central mocks do not provide. The insights
+ * endpoint has no comparison period, so `WithComparison` renders identically to
+ * `Default` even though comparison report params are supplied.
+ */
+/**
+ * External dependencies
+ */
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import apiFetch from '@wordpress/api-fetch';
+/**
+ * Internal dependencies
+ */
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
+	widgetDashboardWithWidgetArgTypes,
+	type WidgetDashboardWithWidgetControls,
+} from '../../stories/widget-dashboard-with-widget';
+import MostPopularTimeRender from '../render';
+import widgetDefinition from '../widget';
+import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentType } from 'react';
+
+const STATS_INSIGHTS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/insights';
+const PEAK_HOUR = 18;
+
+/**
+ * Builds a raw `stats/insights` payload (pre-sanitizer) with views peaking in
+ * the early evening, so the widget renders a populated highlight and a smooth
+ * hourly bar chart.
+ *
+ * @return The raw insights response.
+ */
+function buildInsightsResponse() {
+	const hourlyViews: Record< string, number > = {};
+
+	for ( let hour = 0; hour < 24; hour++ ) {
+		const distanceFromPeak = Math.abs( hour - PEAK_HOUR );
+		const views = Math.max( 6, Math.round( 340 * Math.exp( -( distanceFromPeak ** 2 ) / 18 ) ) );
+		hourlyViews[ `2026-06-01 ${ String( hour ).padStart( 2, '0' ) }:00:00` ] = views;
+	}
+
+	return {
+		highest_hour: PEAK_HOUR,
+		highest_hour_percent: 30,
+		highest_day_of_week: 4,
+		highest_day_percent: 22,
+		hourly_views: hourlyViews,
+		years: [],
+	};
+}
+
+const insightsMockMiddleware: APIFetchMiddleware = ( options: APIFetchOptions, next ) => {
+	const requestPath = options.path ?? options.url ?? '';
+
+	if ( requestPath.startsWith( STATS_INSIGHTS_PATH ) ) {
+		return Promise.resolve( buildInsightsResponse() );
+	}
+
+	return next( options );
+};
+
+let insightsMockRegistered = false;
+
+/**
+ * Registers the story-scoped `stats/insights` mock exactly once, alongside the
+ * shared report mocks.
+ */
+function registerInsightsMock() {
+	registerReportMocks();
+
+	if ( insightsMockRegistered ) {
+		return;
+	}
+	insightsMockRegistered = true;
+	apiFetch.use( insightsMockMiddleware );
+}
+
+registerInsightsMock();
+
+const MOST_POPULAR_TIME_RENDER_MODULE = 'storybook/most-popular-time';
+
+/**
+ * Story controls. `withComparison` toggles the comparison report params to
+ * confirm the widget renders identically — the insights endpoint has no
+ * comparison period.
+ */
+interface MostPopularTimeStoryControls {
+	withComparison: boolean;
+}
+
+/**
+ * Renders the data-connected widget with the given comparison state.
+ *
+ * @param {MostPopularTimeStoryControls} controls - The story controls.
+ * @return The rendered widget.
+ */
+function renderMostPopularTime( { withComparison }: MostPopularTimeStoryControls ) {
+	return (
+		<MostPopularTimeRender
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+		/>
+	);
+}
+
+// Close-up canvas so the highlight and chart fill the frame outside the grid.
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', height: '360px' } }>
+		<Story />
+	</div>
+);
+
+const meta = {
+	title: 'Packages/Premium Analytics/Widgets/MostPopularTime',
+	component: MostPopularTimeRender,
+	tags: [ 'autodocs' ],
+	argTypes: {
+		withComparison: { control: 'boolean' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				component:
+					'The "Most popular time" widget. Shows the hour of day that draws the most views and its share of the total, above a bar chart of views across the day. The insights endpoint reports across the whole lifetime of the site, so there is no date range or comparison period.',
+			},
+		},
+	},
+} satisfies Meta< MostPopularTimeStoryControls >;
+
+export default meta;
+
+type Story = StoryObj< MostPopularTimeStoryControls >;
+
+/**
+ * Default state — the peak hour highlight and the hourly distribution.
+ */
+export const Default: Story = {
+	render: renderMostPopularTime,
+	args: { withComparison: false },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * Comparison state — comparison report params are supplied, but the insights
+ * endpoint has no comparison data, so this renders identically to Default.
+ */
+export const WithComparison: Story = {
+	render: renderMostPopularTime,
+	args: { withComparison: true },
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The insights endpoint has no comparison period, so this renders identically to Default even when comparison report params are supplied.',
+			},
+		},
+	},
+};
+
+interface MostPopularTimeDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		MostPopularTimeStoryControls {}
+
+/**
+ * Renders the data-connected widget through the shared dashboard harness, so it
+ * appears exactly as it does in product (framed card, sizing, edit mode).
+ *
+ * @param {MostPopularTimeDashboardStoryProps} props - The dashboard story controls.
+ * @return The widget mounted inside the real `WidgetDashboard`.
+ */
+function MostPopularTimeDashboardStory( {
+	withComparison,
+	...dashboardArgs
+}: MostPopularTimeDashboardStoryProps ) {
+	return (
+		<WidgetDashboardWithWidgetStory
+			{ ...dashboardArgs }
+			widgetType={ {
+				name: widgetDefinition.name,
+				title: widgetDefinition.title,
+				icon: widgetDefinition.icon,
+				presentation: 'framed',
+			} }
+			renderModule={ MOST_POPULAR_TIME_RENDER_MODULE }
+			renderComponent={ MostPopularTimeRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+		/>
+	);
+}
+
+export const WidgetDashboardWithWidget: StoryObj< MostPopularTimeDashboardStoryProps > = {
+	render: args => <MostPopularTimeDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		withComparison: true,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+		withComparison: { control: 'boolean' },
+	},
+};
