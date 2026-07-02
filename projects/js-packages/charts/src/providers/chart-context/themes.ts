@@ -17,7 +17,7 @@ const defaultTheme: CompleteChartTheme = {
 	tickLength: 4,
 	gridColor: '',
 	gridColorDark: '',
-	xTickLineStyles: { stroke: 'var(--wpds-color-fg-content-neutral, #1e1e1e)' },
+	xTickLineStyles: { stroke: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)', strokeWidth: 1 },
 	xAxisLineStyles: { stroke: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)', strokeWidth: 1 },
 	legend: {
 		labelStyles: {
