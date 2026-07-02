@@ -57,7 +57,7 @@ add_action( 'admin_init', 'wpcomsh_suppress_crowdsignal_activation_redirect', 1 
  */
 function wpcomsh_suppress_crowdsignal_forms_setup_notice( $show ) {
 	$screen = get_current_screen();
-	if ( $screen instanceof WP_Screen && in_array( $screen->id, array( 'plugins', 'dashboard' ), true ) ) {
+	if ( $screen && in_array( $screen->id, array( 'plugins', 'dashboard' ), true ) ) {
 		return false;
 	}
 	return $show;
@@ -85,7 +85,7 @@ add_filter( 'crowdsignal_forms_show_admin_notice_core_setup', 'wpcomsh_suppress_
  * @param WP_Screen $screen The current admin screen.
  */
 function wpcomsh_suppress_crowdsignal_polldaddy_login_warning( $screen ) {
-	if ( $screen instanceof WP_Screen && 'plugins' === $screen->id ) {
+	if ( $screen && 'plugins' === $screen->id ) {
 		remove_action( 'admin_notices', 'polldaddy_login_warning' );
 	}
 }
