@@ -1,11 +1,25 @@
-import { SalesByCouponWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * External dependencies
+ */
+import {
+	SalesByCouponWidget,
+	WidgetRoot,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { SalesByCouponUsageAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type WidgetRootProps = ComponentProps< typeof WidgetRoot >;
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type SalesByCouponUsageRenderAttributes = SalesByCouponUsageAttributes &
+	Partial< ReportParamsFieldAttributes >;
 
-type SalesByCouponUsageRenderProps = {
-	attributes?: WidgetRootProps[ 'attributes' ];
-	setError?: WidgetRootProps[ 'setError' ];
+type SalesByCouponUsageRenderProps = WidgetRenderProps< SalesByCouponUsageRenderAttributes > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
@@ -16,7 +30,7 @@ type SalesByCouponUsageRenderProps = {
  * the coupons report and renders the coupon sales breakdown.
  */
 export default function SalesByCouponUsageRender( {
-	attributes,
+	attributes = {},
 	setError,
 }: SalesByCouponUsageRenderProps ) {
 	return (
