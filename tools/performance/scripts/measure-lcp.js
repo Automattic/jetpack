@@ -6,6 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { chromium } from 'playwright';
+import { isDirectInvocation, pairedCommitTimestampMs } from './post-to-codevitals.js';
 import { SCENARIOS, getScenarioUrl } from './scenarios.js';
 import { median as calcMedian, mean as calcMean, stdDev as calcStdDev } from './stats.js';
 
@@ -382,10 +383,7 @@ async function main() {
 				: { enabled: false },
 		},
 		measurements,
-		git: {
-			hash: process.env.GIT_COMMIT || 'unknown',
-			branch: process.env.GIT_BRANCH || 'unknown',
-		},
+		git: resolveResultsGit( process.env ),
 	};
 
 	fs.writeFileSync( outputPath, JSON.stringify( output, null, 2 ) );
@@ -395,9 +393,35 @@ async function main() {
 	process.exit( hasFailures ? 1 : 0 );
 }
 
-main().catch( error => {
-	console.error( 'Fatal error:', error );
-	process.exit( 1 );
-} );
+/**
+ * Build the `git` block written into the results file from the environment.
+ *
+ * The commit time is stamped ONLY when paired with a GIT_COMMIT hash, via the shared
+ * pairedCommitTimestampMs rule (mirrors the runner's resolveCommitTimestampEnv and the
+ * poster's config gate). This is the DOMINANT timestamp channel: the poster PREFERS this
+ * results.git.timestamp over its own env fallback, so a lone/stale inherited
+ * GIT_COMMIT_TIMESTAMP_MS written here would backdate the append-only trend regardless of
+ * the poster-side guard. A lone value is dropped to undefined (JSON.stringify omits it);
+ * the poster then warns and falls back to build time.
+ *
+ * @param {object} env - Environment object (process.env or a test double).
+ * @return {{hash: string, branch: string, timestamp: (number|undefined)}} The results git block.
+ */
+function resolveResultsGit( env ) {
+	return {
+		hash: env.GIT_COMMIT || 'unknown',
+		branch: env.GIT_BRANCH || 'unknown',
+		timestamp: Number( pairedCommitTimestampMs( env ) ) || undefined,
+	};
+}
 
-export { measureLCP };
+// Run only when executed directly (node measure-lcp.js / pnpm measure), not when imported
+// by the unit tests, so importing resolveResultsGit never launches a browser via main().
+if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
+	main().catch( error => {
+		console.error( 'Fatal error:', error );
+		process.exit( 1 );
+	} );
+}
+
+export { measureLCP, resolveResultsGit };

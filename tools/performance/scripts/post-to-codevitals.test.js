@@ -17,16 +17,24 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { inspect } from 'node:util';
+import { resolveResultsGit } from './measure-lcp.js';
 import {
 	checkSanityRange,
 	exitCodeForError,
 	extractScenarioMetrics,
 	isDirectInvocation,
+	pairedCommitTimestampMs,
 	postToCodeVitals,
 	redactToken,
+	resolveDedupEnabled,
+	resolvePostTimestamp,
 	VALIDATION_FAILED_EXIT_CODE,
 } from './post-to-codevitals.js';
-import { shouldFailBuildOnPostError } from './run-performance-tests.js';
+import {
+	getGitInfo,
+	resolveCommitTimestampEnv,
+	shouldFailBuildOnPostError,
+} from './run-performance-tests.js';
 import { SANITY_RANGES, SCENARIOS } from './scenarios.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
@@ -672,6 +680,98 @@ test( 'a native abort (DOMException with a getter-only message) does not crash r
 	assert.match( err.message, /timed out/ );
 } );
 
+// A response-body reader (json()/text()) that never settles on its own — only the fetch
+// abort signal rejects it, the way undici aborts an in-flight body read. Proves the live-POST
+// timer stays armed ACROSS the body read: if the production code cleared it after headers (the
+// old shape), abort never fires, this hangs, and the per-test timeout fails instead of hanging
+// forever. Mirrors dedupFetchStub's stallBodyUntilAbort for the live-POST path.
+function bodyStallsUntilAbort( init ) {
+	return new Promise( ( resolve, reject ) => {
+		const abort = () => {
+			const err = new Error( 'The operation was aborted' );
+			err.name = 'AbortError';
+			reject( err );
+		};
+		if ( init?.signal?.aborted ) {
+			abort();
+		} else {
+			init?.signal?.addEventListener( 'abort', abort, { once: true } );
+		}
+	} );
+}
+
+test(
+	'live POST body read stays bounded: a stalled OK json() body aborts to a timeout, not a hang',
+	{ timeout: 20000 },
+	async () => {
+		// The live POST used to clear its abort timer right after fetch() resolved, leaving
+		// response.json() unbounded — a server that sends 200 headers then stalls the body would
+		// hang past the 30s timeout (undici's ~300s default at best). The timer now stays armed
+		// through the body read, so the stalled json() aborts. postTimeoutMs=50 stands in for the
+		// 30s production timer; the per-test timeout turns a reverted fix into a clean failure.
+		const file = writeResults( 120 );
+		const origFetch = global.fetch;
+		global.fetch = async ( url, init ) => ( {
+			ok: true,
+			status: 200,
+			text: async () => '',
+			json: () => bodyStallsUntilAbort( init ),
+		} );
+		let err;
+		try {
+			await silenced( () =>
+				postToCodeVitals( file, {
+					dryRun: false,
+					codeVitalsUrl: 'https://codevitals.test',
+					codeVitalsToken: 'tok-stall-ok',
+					postTimeoutMs: 50,
+				} )
+			);
+		} catch ( e ) {
+			err = e;
+		} finally {
+			global.fetch = origFetch;
+		}
+		assert.ok( err, 'a stalled OK body must abort, not hang' );
+		assert.match( err.message, /timed out/, 'a body-read abort is a timeout, not "invalid JSON"' );
+	}
+);
+
+test(
+	'live POST body read stays bounded: a stalled non-OK text() body aborts to a timeout, not a hang',
+	{ timeout: 20000 },
+	async () => {
+		// Same regression guard on the error branch: a non-OK response reads response.text() for
+		// the error message, and that read must be bounded by the same armed timer. A 500 whose
+		// body stalls aborts cleanly instead of hanging.
+		const file = writeResults( 120 );
+		const origFetch = global.fetch;
+		global.fetch = async ( url, init ) => ( {
+			ok: false,
+			status: 500,
+			json: async () => ( {} ),
+			text: () => bodyStallsUntilAbort( init ),
+		} );
+		let err;
+		try {
+			await silenced( () =>
+				postToCodeVitals( file, {
+					dryRun: false,
+					codeVitalsUrl: 'https://codevitals.test',
+					codeVitalsToken: 'tok-stall-err',
+					postTimeoutMs: 50,
+				} )
+			);
+		} catch ( e ) {
+			err = e;
+		} finally {
+			global.fetch = origFetch;
+		}
+		assert.ok( err, 'a stalled error body must abort, not hang' );
+		assert.match( err.message, /timed out/ );
+	}
+);
+
 test( 'a validation failure is not downgraded to exit 1 when a later live POST also fails', async () => {
 	// Reachable only with 2+ posted metrics (FORMS-707 territory): one metric fails the
 	// sanity check (validationFailed=true) while a valid one remains and is POSTed. If
@@ -832,4 +932,602 @@ test( 'shouldFailBuildOnPostError: a transport failure is suppressible only with
 	assert.equal( shouldFailBuildOnPostError( { status: 1 }, false ), true ); // fatal by default
 	assert.equal( shouldFailBuildOnPostError( undefined, true ), false ); // unknown exit, flag set
 	assert.equal( shouldFailBuildOnPostError( undefined, false ), true );
+} );
+
+// --- resolvePostTimestamp (stamp commit time, not build time) ---
+
+test( 'resolvePostTimestamp prefers the results commit time over env and build time', () => {
+	const ts = resolvePostTimestamp(
+		{ git: { timestamp: 1700000000000 } },
+		{ commitTimestampMs: '1600000000000' }
+	);
+	assert.equal( ts, 1700000000000 );
+} );
+
+test( 'resolvePostTimestamp falls back to the env commit time (numeric string ok)', () => {
+	const ts = resolvePostTimestamp( { git: {} }, { commitTimestampMs: '1600000000000' } );
+	assert.equal( ts, 1600000000000 );
+} );
+
+test( 'resolvePostTimestamp drops the env commit time when the results file names a different commit', async () => {
+	const before = Date.now();
+	// A stale results file (hash but no timestamp) plus an inherited env pair for a
+	// DIFFERENT commit: the env timestamp must not stamp the results-file hash, so the
+	// poster falls back to build time (with the warning) instead of mixing provenance.
+	const ts = await silenced( () =>
+		resolvePostTimestamp(
+			{ git: { hash: 'results-hash' } },
+			{ gitHash: 'env-hash', commitTimestampMs: '1600000000000' }
+		)
+	);
+	assert.notEqual( ts, 1600000000000, 'the mismatched env timestamp is not posted' );
+	assert.ok( ts >= before && ts <= Date.now() + 1000, 'falls back to build time' );
+} );
+
+test( 'resolvePostTimestamp keeps the env commit time when it matches the posted hash', () => {
+	// Same hash on both sides (the normal runner handoff): the env pair is provenance-safe.
+	assert.equal(
+		resolvePostTimestamp(
+			{ git: { hash: 'same-hash' } },
+			{ gitHash: 'same-hash', commitTimestampMs: '1600000000000' }
+		),
+		1600000000000
+	);
+} );
+
+test( 'resolvePostTimestamp rejects non-positive / non-numeric values and uses build time', async () => {
+	const before = Date.now();
+	// git.timestamp 0 and a non-numeric env value are both invalid → build-time fallback.
+	const ts = await silenced( () =>
+		resolvePostTimestamp( { git: { timestamp: 0 } }, { commitTimestampMs: 'not-a-number' } )
+	);
+	assert.ok( ts >= before && ts <= Date.now() + 1000, 'falls back to the current time' );
+	// A negative epoch must never be posted, even if present.
+	const fromNegative = await silenced( () =>
+		resolvePostTimestamp( { git: { timestamp: -5 } }, {} )
+	);
+	assert.ok( fromNegative > 0, 'a negative timestamp is rejected in favour of build time' );
+} );
+
+test( 'resolvePostTimestamp rejects unit errors (epoch seconds, micro/nanoseconds) as implausible', async () => {
+	const before = Date.now();
+	// A 10-digit epoch-*seconds* value (e.g. 1700000000) would post as 1970-01-20 if taken
+	// as ms. It must be rejected, not silently backdated into the append-only trend.
+	const fromSeconds = await silenced( () =>
+		resolvePostTimestamp( { git: { timestamp: 1700000000 } }, {} )
+	);
+	assert.notEqual( fromSeconds, 1700000000, 'epoch-seconds value is not posted verbatim' );
+	assert.ok(
+		fromSeconds >= before && fromSeconds <= Date.now() + 1000,
+		'an epoch-seconds value falls back to build time'
+	);
+	// Micro/nanosecond magnitudes are far in the future and equally implausible as ms.
+	const fromMicros = await silenced( () =>
+		resolvePostTimestamp( { git: {} }, { commitTimestampMs: '1700000000000000' } )
+	);
+	assert.ok(
+		fromMicros >= before && fromMicros <= Date.now() + 1000,
+		'a microsecond-magnitude value falls back to build time'
+	);
+	// A real epoch-ms value at the window edges is still accepted unchanged.
+	assert.equal(
+		resolvePostTimestamp( { git: { timestamp: 1_000_000_000_000 } }, {} ),
+		1_000_000_000_000,
+		'a plausible epoch-ms value passes through'
+	);
+} );
+
+test( 'a dry-run payload is stamped with the commit time from the results file', async () => {
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-ts-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'h', branch: 'trunk', timestamp: 1700000000000 },
+			measurements: { jetpackConnected: { summary: { median: 120 } } },
+		} )
+	);
+	try {
+		const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+		assert.equal( result.payload.timestamp, 1700000000000 );
+	} finally {
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+// --- commit-time plumbing: getGitInfo reads the producer side (real temp git repo) ---
+
+/**
+ * Make a throwaway git repo with one commit and return its dir. `body` becomes the
+ * commit message body (used to exercise Upstream-Ref parsing). Caller removes the dir.
+ */
+function initTempGitRepo( body = '' ) {
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-git-' ) );
+	const git = args => execFileSync( 'git', args, { cwd: dir, stdio: 'pipe' } );
+	git( [ 'init', '-q', '-b', 'trunk' ] );
+	git( [ 'config', 'user.email', 't@example.com' ] );
+	git( [ 'config', 'user.name', 'Test' ] );
+	git( [ 'config', 'commit.gpgsign', 'false' ] );
+	fs.writeFileSync( path.join( dir, 'file.txt' ), 'x' );
+	git( [ 'add', '-A' ] );
+	git( [ 'commit', '-q', '-m', 'subject', ...( body ? [ '-m', body ] : [] ) ] );
+	return dir;
+}
+
+test( 'getGitInfo: plain commit → hash is mirror HEAD and committedAtMs is %ct × 1000', () => {
+	const savedCommit = process.env.GIT_COMMIT;
+	delete process.env.GIT_COMMIT; // don't let the host env override hash selection
+	const dir = initTempGitRepo();
+	try {
+		const head = execFileSync( 'git', [ 'rev-parse', 'HEAD' ], { cwd: dir, stdio: 'pipe' } )
+			.toString()
+			.trim();
+		const ct = Number(
+			execFileSync( 'git', [ 'show', '-s', '--format=%ct', 'HEAD' ], { cwd: dir, stdio: 'pipe' } )
+				.toString()
+				.trim()
+		);
+		const info = getGitInfo( dir );
+		assert.equal( info.hash, head );
+		assert.equal( info.mirrorHash, head );
+		assert.equal( info.branch, 'trunk' );
+		assert.equal( info.committedAtMs, ct * 1000, 'commit time is epoch seconds × 1000' );
+	} finally {
+		if ( savedCommit === undefined ) {
+			delete process.env.GIT_COMMIT;
+		} else {
+			process.env.GIT_COMMIT = savedCommit;
+		}
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+test( 'getGitInfo: an Upstream-Ref footer wins over the mirror hash (monorepo SHA is posted)', () => {
+	const savedCommit = process.env.GIT_COMMIT;
+	delete process.env.GIT_COMMIT;
+	const upstream = 'a'.repeat( 40 );
+	const dir = initTempGitRepo( `Upstream-Ref: Automattic/jetpack@${ upstream }` );
+	try {
+		const head = execFileSync( 'git', [ 'rev-parse', 'HEAD' ], { cwd: dir, stdio: 'pipe' } )
+			.toString()
+			.trim();
+		const info = getGitInfo( dir );
+		assert.equal( info.hash, upstream, 'hash comes from the Upstream-Ref, not mirror HEAD' );
+		assert.equal( info.mirrorHash, head, 'mirrorHash still tracks the real checkout' );
+		assert.ok( info.committedAtMs > 0 );
+	} finally {
+		if ( savedCommit === undefined ) {
+			delete process.env.GIT_COMMIT;
+		} else {
+			process.env.GIT_COMMIT = savedCommit;
+		}
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+test( 'getGitInfo: a non-git directory degrades to unknown hash and null commit time', () => {
+	const savedCommit = process.env.GIT_COMMIT;
+	delete process.env.GIT_COMMIT;
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-nogit-' ) );
+	try {
+		const info = getGitInfo( dir );
+		assert.equal( info.hash, 'unknown' );
+		assert.equal( info.mirrorHash, 'unknown' );
+		assert.equal(
+			info.committedAtMs,
+			null,
+			'no git metadata → null, so the poster build-time falls back'
+		);
+	} finally {
+		if ( savedCommit === undefined ) {
+			delete process.env.GIT_COMMIT;
+		} else {
+			process.env.GIT_COMMIT = savedCommit;
+		}
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+// --- resolveCommitTimestampEnv (GIT_COMMIT + GIT_COMMIT_TIMESTAMP_MS are a paired override) ---
+
+test( 'resolveCommitTimestampEnv: paired override honored, lone timestamp dropped, source surfaced', () => {
+	const headInfo = { committedAtMs: 1700000000000 };
+
+	// Paired override (both env vars set): the caller-supplied timestamp wins, no warning.
+	const paired = resolveCommitTimestampEnv( headInfo, {
+		GIT_COMMIT: 'deadbeef',
+		GIT_COMMIT_TIMESTAMP_MS: '1600000000000',
+	} );
+	assert.equal( paired.value, '1600000000000' );
+	assert.equal( paired.warn, false );
+
+	// Lone GIT_COMMIT_TIMESTAMP_MS (no hash override) is orphaned → dropped for HEAD time,
+	// so it can't stamp HEAD's hash with an unrelated time. This is R4-IMPORTANT-1.
+	const lone = resolveCommitTimestampEnv( headInfo, { GIT_COMMIT_TIMESTAMP_MS: '999' } );
+	assert.equal( lone.value, '1700000000000', 'a lone timestamp does not win over HEAD time' );
+	assert.equal( lone.warn, false );
+
+	// Empty-string timestamp counts as absent, not a paired override.
+	const empty = resolveCommitTimestampEnv( headInfo, {
+		GIT_COMMIT: 'deadbeef',
+		GIT_COMMIT_TIMESTAMP_MS: '',
+	} );
+	assert.equal( empty.value, '1700000000000' );
+
+	// Hash override with no paired timestamp gets HEAD time but flags the provenance split.
+	const hashOnly = resolveCommitTimestampEnv( headInfo, { GIT_COMMIT: 'deadbeef' } );
+	assert.equal( hashOnly.value, '1700000000000' );
+	assert.equal( hashOnly.warn, true, 'an unpaired hash override warns about the split' );
+
+	// No env at all: plain HEAD time, no warning.
+	const plain = resolveCommitTimestampEnv( headInfo, {} );
+	assert.equal( plain.value, '1700000000000' );
+	assert.equal( plain.warn, false );
+
+	// No HEAD metadata and no paired override → null (caller unsets so the poster falls
+	// back to build time); a lone orphaned timestamp is still not trusted here.
+	assert.equal( resolveCommitTimestampEnv( { committedAtMs: null }, {} ).value, null );
+	assert.equal(
+		resolveCommitTimestampEnv( { committedAtMs: null }, { GIT_COMMIT_TIMESTAMP_MS: '999' } ).value,
+		null,
+		'a lone timestamp is dropped even when there is no HEAD time to fall back to'
+	);
+} );
+
+test( 'resolveResultsGit: the dominant channel pairs the commit time with GIT_COMMIT', () => {
+	// Paired (hash + time): both are written, as a coherent pair.
+	assert.deepEqual(
+		resolveResultsGit( {
+			GIT_COMMIT: 'deadbeef',
+			GIT_BRANCH: 'trunk',
+			GIT_COMMIT_TIMESTAMP_MS: '1600000000000',
+		} ),
+		{ hash: 'deadbeef', branch: 'trunk', timestamp: 1600000000000 }
+	);
+	// Lone GIT_COMMIT_TIMESTAMP_MS (no hash): the stale time is DROPPED so it can't be
+	// written into results.git.timestamp and backdate the trend (the poster prefers this
+	// value over its own guarded env fallback). This is R6-IMPORTANT-1, the dominant channel.
+	assert.deepEqual( resolveResultsGit( { GIT_COMMIT_TIMESTAMP_MS: '1600000000000' } ), {
+		hash: 'unknown',
+		branch: 'unknown',
+		timestamp: undefined,
+	} );
+	// Hash override with no paired time: hash written, time omitted (poster build-time falls back).
+	assert.equal( resolveResultsGit( { GIT_COMMIT: 'deadbeef' } ).timestamp, undefined );
+	// Paired but non-numeric time → dropped, not NaN.
+	assert.equal(
+		resolveResultsGit( { GIT_COMMIT: 'deadbeef', GIT_COMMIT_TIMESTAMP_MS: 'nope' } ).timestamp,
+		undefined
+	);
+} );
+
+test( 'pairedCommitTimestampMs: the env timestamp is trusted only when paired with GIT_COMMIT', () => {
+	// Paired override (both set): the env timestamp is carried into config.
+	assert.equal(
+		pairedCommitTimestampMs( { GIT_COMMIT: 'deadbeef', GIT_COMMIT_TIMESTAMP_MS: '1600000000000' } ),
+		'1600000000000'
+	);
+	// Lone GIT_COMMIT_TIMESTAMP_MS (no hash override) is dropped — it can't backdate a
+	// direct `pnpm report` run by stamping the results-file hash with an inherited time.
+	assert.equal(
+		pairedCommitTimestampMs( { GIT_COMMIT_TIMESTAMP_MS: '1600000000000' } ),
+		undefined
+	);
+	// Nothing set: undefined (resolvePostTimestamp uses results.git.timestamp / build time).
+	assert.equal( pairedCommitTimestampMs( {} ), undefined );
+} );
+
+// --- cross-commit dedup (gitaudit evolution read; fetch stubbed, no network) ---
+
+const DEDUP_CONFIG = {
+	dryRun: false,
+	codeVitalsUrl: 'https://codevitals.test',
+	codeVitalsToken: 'tok-dedup',
+	dedupBaseUrl: 'https://gitaudit.test',
+	dedupRepo: 'Automattic/jetpack',
+	dedupMetricId: '58',
+};
+
+/**
+ * A fetch stub that answers the dedup evolution GET ({ data: [...] }) and records
+ * whether the live POST was reached. Branches on the URL: the evolution read
+ * contains `/perf/evolution/`, the post contains `/api/log`.
+ */
+function dedupFetchStub( {
+	evolutionHashes = [],
+	evolutionStatus = 200,
+	throwOnEvolution = false,
+	rejectBody = false, // headers arrive OK but json() rejects synchronously (truncated body)
+	stallBodyUntilAbort = false, // headers arrive OK but json() settles only when init.signal aborts
+	evolutionBody, // when set, returned verbatim from the evolution json() (for bad-shape tests)
+} ) {
+	const calls = { evolution: 0, post: 0, evolutionUrl: null };
+	const fetchImpl = async ( u, init ) => {
+		if ( String( u ).includes( '/perf/evolution/' ) ) {
+			calls.evolution++;
+			calls.evolutionUrl = String( u );
+			if ( throwOnEvolution ) {
+				throw new Error( 'network down' );
+			}
+			return {
+				ok: evolutionStatus >= 200 && evolutionStatus < 300,
+				status: evolutionStatus,
+				json: async () => {
+					if ( rejectBody ) {
+						throw new Error( 'body read failed' );
+					}
+					if ( stallBodyUntilAbort ) {
+						// Never settle on our own: only the abort signal rejects this, the way
+						// undici aborts an in-flight body read. This passes ONLY if the abort
+						// timer is still armed across json() — if the production code cleared it
+						// after the headers (the reverted-fix shape), abort never fires, this
+						// promise hangs, and the test times out (the regression we want to catch).
+						return new Promise( ( resolve, reject ) => {
+							const abort = () => {
+								const err = new Error( 'The operation was aborted' );
+								err.name = 'AbortError';
+								reject( err );
+							};
+							if ( init?.signal?.aborted ) {
+								abort();
+							} else {
+								init?.signal?.addEventListener( 'abort', abort, { once: true } );
+							}
+						} );
+					}
+					return evolutionBody !== undefined
+						? evolutionBody
+						: { data: evolutionHashes.map( h => ( { hash: h, measuredAt: '2026-01-01' } ) ) };
+				},
+				text: async () => '',
+			};
+		}
+		calls.post++;
+		return { ok: true, status: 200, json: async () => ( { ok: true } ), text: async () => '' };
+	};
+	return { fetchImpl, calls };
+}
+
+test( 'resolveDedupEnabled: dedup is opt-in (off by default) and an explicit opt-out always wins', () => {
+	const noEnv = {};
+	// Default: OFF, the safe default until the dedup read and write backends match.
+	assert.equal( resolveDedupEnabled( [], noEnv ), false );
+	// Opt in by flag or a truthy env value.
+	assert.equal( resolveDedupEnabled( [ '--dedup' ], noEnv ), true );
+	assert.equal( resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: '1' } ), true );
+	assert.equal( resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: 'true' } ), true );
+	// A non-truthy env value does not enable.
+	assert.equal( resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: '0' } ), false );
+	assert.equal( resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: 'no' } ), false );
+	// Opt-out wins over opt-in, whichever side it comes from.
+	assert.equal( resolveDedupEnabled( [ '--dedup', '--no-dedup' ], noEnv ), false );
+	assert.equal( resolveDedupEnabled( [ '--dedup' ], { CODEVITALS_SKIP_DEDUP: '1' } ), false );
+	assert.equal(
+		resolveDedupEnabled( [], { CODEVITALS_ENABLE_DEDUP: '1', CODEVITALS_SKIP_DEDUP: 'yes' } ),
+		false
+	);
+} );
+
+test( 'dedup skips the post when the commit hash already has metrics', async () => {
+	const file = writeResults( 120 ); // git.hash = 'testhash'
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'testhash' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, false );
+		assert.equal( result.skipped, true );
+		assert.equal( calls.evolution, 1 );
+		assert.equal( calls.post, 0, 'must not POST when the hash is already present' );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup proceeds with the post when the hash is not yet present', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'someoneelse' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup fails open (still posts) when the read endpoint throws', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { throwOnEvolution: true } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true, 'a flaky dedup read must never block a post' );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup fails open on a non-OK read status', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionStatus: 500 } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup fails open (still posts) when the response body read fails', async () => {
+	// Headers arrive OK but json() rejects — a truncated/stalled body, or a server that
+	// answers headers then dies. The abort timer stays armed across the body read (so a
+	// real stall is bounded by the 15s abort, not undici's ~300s default), and the
+	// rejection is caught and turned into a fail-open. The post must still happen.
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { rejectBody: true } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true, 'a failed body read must never block a post' );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test(
+	'dedup body read stays bounded: a body that hangs until abort still fails open and posts',
+	{ timeout: 20000 },
+	async () => {
+		// The regression guard for the round-2 body-read fix: the abort timer must stay
+		// armed across response.json(). The stub's json() never settles on its own — only
+		// the AbortController signal rejects it — so this passes only if the timer is still
+		// live during the body read. dedupTimeoutMs=50 stands in for the 15s production
+		// timer; the per-test timeout turns a reverted fix (timer cleared after headers,
+		// abort never fires, json() hangs) into a clean failure instead of a hang. The
+		// budget is deliberately wide (~400x the 50ms abort) so a cold `node --test`
+		// warmup can't false-fail correct code; only a genuine hang reaches 20s.
+		const file = writeResults( 120 );
+		const { fetchImpl, calls } = dedupFetchStub( { stallBodyUntilAbort: true } );
+		const origFetch = global.fetch;
+		global.fetch = fetchImpl;
+		try {
+			const result = await silenced( () =>
+				postToCodeVitals( file, { ...DEDUP_CONFIG, dedupTimeoutMs: 50 } )
+			);
+			assert.equal( result.posted, true, 'a stalled body read must abort and fail open, not hang' );
+			assert.equal( calls.post, 1 );
+		} finally {
+			global.fetch = origFetch;
+		}
+	}
+);
+
+test( 'dedup makes no read call when skipDedup is set', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'testhash' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () =>
+			postToCodeVitals( file, { ...DEDUP_CONFIG, skipDedup: true } )
+		);
+		assert.equal( calls.evolution, 0, 'no dedup read when skipDedup is set' );
+		assert.equal( result.posted, true );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup is skipped (no read) when dedupBaseUrl is unset, as in the other live-post tests', async () => {
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'testhash' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		// No dedupBaseUrl → dedup is inert, so existing live-post tests keep making a
+		// single POST call and never hit the evolution endpoint.
+		const result = await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok-no-dedup-config',
+			} )
+		);
+		assert.equal( calls.evolution, 0 );
+		assert.equal( result.posted, true );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup queries the configured metric / repo / branch (endpoint identity)', async () => {
+	// A wrong metric id, repo, or branch would silently query the wrong series and
+	// never find a real duplicate. Pin the URL the read actually hits.
+	const file = writeResults( 120 ); // git.branch = 'trunk'
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'someoneelse' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		const u = calls.evolutionUrl;
+		assert.ok( u, 'the evolution endpoint should have been queried' );
+		assert.match(
+			u,
+			/^https:\/\/gitaudit\.test\/api\/repos\/Automattic\/jetpack\/perf\/evolution\/58\b/
+		);
+		assert.match( u, /[?&]branch=trunk\b/ );
+		assert.match( u, /[?&]limit=200\b/ );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'dedup is bypassed for an unknown hash (still posts, no read)', async () => {
+	// A results file with hash:'unknown' can't be deduped; it must skip the read and
+	// still post (fail open), matching the pre-existing "post unknown" behaviour.
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-unknownhash-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync(
+		file,
+		JSON.stringify( {
+			git: { hash: 'unknown', branch: 'trunk' },
+			measurements: { jetpackConnected: { summary: { median: 120 } } },
+		} )
+	);
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'unknown' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( calls.evolution, 0, 'no read for an unknown hash' );
+		assert.equal( result.posted, true );
+	} finally {
+		global.fetch = origFetch;
+		fs.rmSync( dir, { recursive: true, force: true } );
+	}
+} );
+
+test( 'dedup fails open on an unexpected (non-{data:[]}) read body', async () => {
+	const file = writeResults( 120 );
+	// 200 OK but the body isn't the expected { data: [...] } shape (e.g. an HTML/SPA
+	// response or an API change). Must fail open and post, not throw.
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionBody: { unexpected: 'shape' } } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () => postToCodeVitals( file, DEDUP_CONFIG ) );
+		assert.equal( result.posted, true );
+		assert.equal( calls.post, 1 );
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'a dry run makes no dedup read even when dedup is fully configured', async () => {
+	// Pins the ordering: the dry-run early return must precede the dedup block, so the
+	// token-free CI smoke test never touches the network even with dedupBaseUrl set.
+	const file = writeResults( 120 );
+	const { fetchImpl, calls } = dedupFetchStub( { evolutionHashes: [ 'testhash' ] } );
+	const origFetch = global.fetch;
+	global.fetch = fetchImpl;
+	try {
+		const result = await silenced( () =>
+			postToCodeVitals( file, { ...DEDUP_CONFIG, dryRun: true } )
+		);
+		assert.equal( calls.evolution, 0, 'a dry run must not hit the dedup endpoint' );
+		assert.equal( calls.post, 0 );
+		assert.equal( result.posted, false );
+	} finally {
+		global.fetch = origFetch;
+	}
 } );

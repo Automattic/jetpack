@@ -202,6 +202,148 @@ function sanitizeErrorChain( error, token ) {
 	}
 }
 
+/**
+ * Resolve the timestamp to stamp on the CodeVitals point: the time the code under
+ * test was COMMITTED, not when this build happened to run.
+ *
+ * CodeVitals orders a trend by this value, and the Scheduler reads the most recent
+ * point by it to decide "last tested commit". A build-time stamp (Date.now()) would
+ * order a backfilled or re-run commit by when CI ran rather than when the code
+ * landed, scrambling both the trend graph and the scheduler's catch-up logic.
+ * Prefer the commit time carried in the results file, then the runner-provided env
+ * value, and only fall back to Date.now() (with a warning) when neither is a plausible
+ * epoch-ms value — a gross unit error (e.g. epoch seconds, which would post as 1970) is
+ * rejected the same as a non-numeric one.
+ *
+ * The env value is only considered when it cannot contradict the posted hash: the payload
+ * hash prefers results.git.hash over config.gitHash, while config.commitTimestampMs is
+ * provenance-paired with the env GIT_COMMIT hash (see pairedCommitTimestampMs). So when a
+ * results file names a DIFFERENT commit than the env pair — a stale results file plus an
+ * inherited GIT_COMMIT/GIT_COMMIT_TIMESTAMP_MS pair — the env timestamp is dropped rather
+ * than stamped onto another commit's hash.
+ *
+ * @param {object} results - Parsed results file (may carry git.timestamp in ms).
+ * @param {object} config  - Poster config (may carry commitTimestampMs from env).
+ * @return {number} Epoch milliseconds to post.
+ */
+function resolvePostTimestamp( results, config ) {
+	// A posted timestamp is epoch *milliseconds*. Bound it to a wide plausible window so a
+	// gross unit mistake can't silently corrupt the append-only trend: a 10-digit
+	// epoch-*seconds* value (e.g. 1700000000) is below MIN and would post as 1970, and a
+	// micro/nanosecond value is far above MAX. The window only catches unit errors, never
+	// a normal commit time.
+	const MIN_PLAUSIBLE_MS = 1_000_000_000_000; // ≈ 2001-09-09
+	const MAX_PLAUSIBLE_MS = 4_102_444_800_000; // ≈ 2100-01-01
+	// Hash and timestamp are resolved as one provenance tuple: only offer the env
+	// timestamp when the env hash is (or matches) the hash being posted — see the
+	// JSDoc above.
+	const envPairMatchesPostedHash = ! results?.git?.hash || results.git.hash === config?.gitHash;
+	const candidates = envPairMatchesPostedHash
+		? [ results?.git?.timestamp, config?.commitTimestampMs ]
+		: [ results?.git?.timestamp ];
+	// A numeric string (env vars are always strings) is fine; a non-numeric one
+	// coerces to NaN and is rejected below.
+	for ( const candidate of candidates ) {
+		const ms = Number( candidate );
+		// A real commit time is a finite epoch-ms inside the plausible window. Reject 0,
+		// NaN, negatives, empty strings, and out-of-window unit errors so a malformed
+		// field can't poison the trend ordering.
+		if ( Number.isFinite( ms ) && ms >= MIN_PLAUSIBLE_MS && ms <= MAX_PLAUSIBLE_MS ) {
+			return ms;
+		}
+	}
+	console.warn(
+		'⚠ No commit timestamp available (results.git.timestamp / GIT_COMMIT_TIMESTAMP_MS); ' +
+			'falling back to the current time, which orders this point by build time, not commit time.'
+	);
+	return Date.now();
+}
+
+/**
+ * Whether a commit hash already has a data point in CodeVitals, so a re-run or
+ * retry doesn't append a duplicate to the append-only trend.
+ *
+ * Reads the same gitaudit repo-scoped evolution endpoint the Scheduler uses to
+ * compute "last tested commit", so dedup and scheduling agree on what counts as
+ * already tested. Needs no token (the read endpoint is unauthenticated, like the
+ * Scheduler's curl).
+ *
+ * Fails OPEN: any read error, timeout, non-OK status, or unexpected body shape
+ * returns false (the post proceeds). Missing a real data point is worse than a rare
+ * duplicate, and a flaky read must never block a legitimate post.
+ *
+ * IMPORTANT: the read and write backends must match before dedup can be trusted. This
+ * reads gitaudit (metric `config.dedupMetricId`) while the POST targets
+ * `config.codeVitalsUrl` (codevitals.run today). Until the two are reconciled (the
+ * FORMS-705 host/metric work), a hash written to codevitals.run may not appear here, so
+ * dedup is effectively a no-op. The "can only fail to skip, never wrongly skip" guarantee
+ * holds ONLY while dedup is off (the default): with no read, no skip can happen. If an
+ * operator enables dedup before the backends match, metric 58 is a different, *populated*
+ * trunk series (not the codevitals.run write target), so a coincidental hash match there
+ * could WRONGLY skip a real post on the append-only, no-rollback store. So `main()` keeps
+ * dedup OPT-IN (off by default) until the read series is proven to be the write series.
+ * See CODEVITALS_ENABLE_DEDUP. Do not enable it before then.
+ *
+ * @param {string} hash   - Monorepo commit hash about to be posted.
+ * @param {string} branch - Branch to scope the evolution query to.
+ * @param {object} config - Poster config (dedupBaseUrl, dedupRepo, dedupMetricId).
+ * @return {Promise<boolean>} True only on a confirmed existing point for this hash.
+ */
+async function hashAlreadyPosted( hash, branch, config ) {
+	if ( ! hash || hash === 'unknown' ) {
+		return false; // can't dedup an unknown hash — let it post
+	}
+
+	const TIMEOUT_MS = config.dedupTimeoutMs ?? 15000;
+	const controller = new AbortController();
+	const timeoutId = setTimeout( () => controller.abort(), TIMEOUT_MS );
+	try {
+		// Build the URL inside the try so even a pathological branch (a lone surrogate
+		// that makes encodeURIComponent throw) is caught and fails open — the "never
+		// block a post" contract stays total, not just total for the fetch itself.
+		const url =
+			`${ config.dedupBaseUrl }/api/repos/${ config.dedupRepo }` +
+			`/perf/evolution/${ config.dedupMetricId }` +
+			`?branch=${ encodeURIComponent( branch ) }&limit=200`;
+		const response = await fetch( url, {
+			headers: { Accept: 'application/json' },
+			signal: controller.signal,
+		} );
+		if ( ! response.ok ) {
+			clearTimeout( timeoutId );
+			console.warn(
+				`⚠ Dedup check skipped: evolution endpoint returned HTTP ${ response.status }. Proceeding with post.`
+			);
+			return false;
+		}
+		// Read the body with the abort timer still armed — only clear it once json()
+		// settles. Clearing right after fetch (as the live-POST path does) leaves the
+		// body read unbounded, so a server that sends headers then stalls the body
+		// could hang here (undici's ~300s default at best) and block the post,
+		// violating "a flaky read must never block a post". With the timer live,
+		// controller.abort() makes json() reject with AbortError → caught → fail open.
+		const body = await response.json();
+		clearTimeout( timeoutId );
+		// The gitaudit API returns { data: [ { hash, measuredAt, ... }, ... ] }.
+		if ( ! Array.isArray( body?.data ) ) {
+			// Fail open (post proceeds), but warn — every other degraded dedup path warns,
+			// and a silent {data: undefined} would make API/schema drift look like a valid
+			// empty series ("dedup never skips") with no signal once dedup is enabled.
+			console.warn(
+				'⚠ Dedup check skipped: evolution response had no data array (unexpected shape). Proceeding with post.'
+			);
+			return false;
+		}
+		return body.data.some( point => point?.hash === hash );
+	} catch ( error ) {
+		clearTimeout( timeoutId );
+		const reason =
+			error?.name === 'AbortError' ? `timed out after ${ TIMEOUT_MS / 1000 }s` : error?.message;
+		console.warn( `⚠ Dedup check skipped (${ reason }). Proceeding with post.` );
+		return false;
+	}
+}
+
 /** Post metrics to CodeVitals. */
 async function postToCodeVitals( resultsPath, config ) {
 	// Everything from here until the live POST is local data-integrity work: a missing
@@ -281,7 +423,8 @@ async function postToCodeVitals( resultsPath, config ) {
 		metrics,
 		baseMetrics: {}, // Empty object - we don't use baseline normalization
 		hash: results.git?.hash || config.gitHash || 'unknown',
-		timestamp: Date.now(),
+		// Commit time of the code under test, not build time — see resolvePostTimestamp.
+		timestamp: resolvePostTimestamp( results, config ),
 		branch: results.git?.branch || config.gitBranch || 'trunk',
 	};
 
@@ -290,6 +433,24 @@ async function postToCodeVitals( resultsPath, config ) {
 		console.log( '— DRY RUN — building payload only, not posting to CodeVitals —' );
 		console.log( JSON.stringify( payload, null, 2 ) );
 		return { posted: false, validationFailed, payload };
+	}
+
+	// Cross-commit dedup (live posts only — kept after the dry-run return so the
+	// token-free CI smoke test still makes zero network calls). CodeVitals is
+	// append-only, so re-testing a commit (a manual re-run, a TeamCity retryBuild,
+	// or the Scheduler double-triggering) would append a second point for the same
+	// hash. Skip the post if this hash already has metrics. This is gated OFF by
+	// default in main() until the dedup read and write backends are reconciled (see the
+	// IMPORTANT note above), so it runs here only when a caller opts in (config.skipDedup
+	// false + dedupBaseUrl set);
+	// the unit tests opt in by passing dedupBaseUrl, live runs via CODEVITALS_ENABLE_DEDUP.
+	if ( ! config.skipDedup && config.dedupBaseUrl ) {
+		if ( await hashAlreadyPosted( payload.hash, payload.branch, config ) ) {
+			console.log(
+				`✓ Commit ${ payload.hash } already has metrics in CodeVitals (metric ${ config.dedupMetricId }); skipping post.`
+			);
+			return { posted: false, skipped: true, validationFailed, payload };
+		}
 	}
 
 	console.log( 'Posting metrics to CodeVitals...' );
@@ -316,8 +477,21 @@ async function postToCodeVitals( resultsPath, config ) {
 	}
 	url.searchParams.set( 'token', config.codeVitalsToken );
 
-	const TIMEOUT_MS = 30000; // 30 second timeout
+	// Keep ONE abort timer armed across the whole response — fetch() headers AND the
+	// response.text()/response.json() body read — and clear it in a single finally. Clearing
+	// right after fetch (the old shape) left the body read unbounded, so a server that sent
+	// headers then stalled the body could hang past this timeout (undici's ~300s default at
+	// best). With the timer live through the body, controller.abort() makes that read reject
+	// with AbortError → caught → reported as a clean timeout. This mirrors the bounded dedup
+	// read in hashAlreadyPosted. Timeout is configurable (default 30s) so the body-stall
+	// regression tests can use a short bound instead of waiting the full 30s.
+	const TIMEOUT_MS = config.postTimeoutMs ?? 30000;
 	const controller = new AbortController();
+	// The finally below always clears this timer, so it is never left unused by an early
+	// return/throw; the lint rule only fires because the first textual reference now lives in
+	// that finally — which is the whole point of the fix (the timer must stay armed across the
+	// body read, so it cannot be cleared early).
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- cleared in finally
 	const timeoutId = setTimeout( () => controller.abort(), TIMEOUT_MS );
 
 	try {
@@ -329,7 +503,6 @@ async function postToCodeVitals( resultsPath, config ) {
 			body: JSON.stringify( payload ),
 			signal: controller.signal,
 		} );
-		clearTimeout( timeoutId );
 
 		if ( ! response.ok ) {
 			const errorText = await response.text();
@@ -341,6 +514,12 @@ async function postToCodeVitals( resultsPath, config ) {
 		try {
 			data = await response.json();
 		} catch ( jsonError ) {
+			// A stalled OK body aborts as AbortError — let it through so the outer catch
+			// reports the timeout, not a misleading "invalid JSON". A genuinely unparseable
+			// body (any other error) keeps the invalid-JSON message.
+			if ( jsonError.name === 'AbortError' ) {
+				throw jsonError;
+			}
 			throw new Error( `CodeVitals returned invalid JSON: ${ jsonError.message }`, {
 				cause: jsonError,
 			} );
@@ -348,7 +527,6 @@ async function postToCodeVitals( resultsPath, config ) {
 		console.log( '✓ Metrics posted successfully to CodeVitals' );
 		return { posted: true, data, validationFailed };
 	} catch ( error ) {
-		clearTimeout( timeoutId );
 		// Scrub the token from the caught error and its whole cause chain before we
 		// log it or re-use it as `cause`. fetch/undici can echo the token-bearing
 		// URL in a message or stack, so a caller that logs err.cause or
@@ -366,7 +544,52 @@ async function postToCodeVitals( resultsPath, config ) {
 		// failure (no prior validation failure) stays a plain Error (exit 1).
 		const ErrorClass = validationFailed ? ValidationError : Error;
 		throw new ErrorClass( message, { cause: error } );
+	} finally {
+		clearTimeout( timeoutId );
 	}
+}
+
+/**
+ * Decide whether cross-commit dedup runs, from CLI args and env. Dedup is OPT-IN (off
+ * by default) until the dedup read and write backends are reconciled (see
+ * hashAlreadyPosted's note). An explicit
+ * opt-out always wins over an opt-in, so a wrapper that forces `--dedup` can still be
+ * disabled with `--no-dedup` / CODEVITALS_SKIP_DEDUP.
+ *
+ * NOTE: `--dedup`/`--no-dedup` only take effect when post-to-codevitals.js is invoked
+ * directly. The TeamCity runner (run-performance-tests.js) does not forward CLI flags to
+ * this child, so the pipeline must toggle dedup via the CODEVITALS_ENABLE_DEDUP env var.
+ *
+ * @param {string[]} argv - Process argv (or any arg list).
+ * @param {object}   env  - Environment object (process.env or a test double).
+ * @return {boolean} True when dedup should run.
+ */
+function resolveDedupEnabled( argv, env ) {
+	// String()-coerce: process.env values are always strings, but this helper is exported,
+	// so a future caller passing a non-string env double must not TypeError on toLowerCase.
+	const truthy = value => [ '1', 'true', 'yes' ].includes( String( value ?? '' ).toLowerCase() );
+	const optedIn = argv.includes( '--dedup' ) || truthy( env.CODEVITALS_ENABLE_DEDUP );
+	const optedOut = argv.includes( '--no-dedup' ) || truthy( env.CODEVITALS_SKIP_DEDUP );
+	return optedIn && ! optedOut;
+}
+
+/**
+ * The env commit timestamp to trust at this (poster) entrypoint, mirroring the runner's
+ * paired-override rule in resolveCommitTimestampEnv.
+ *
+ * GIT_COMMIT_TIMESTAMP_MS is honored ONLY as a pair with a GIT_COMMIT hash override. A
+ * lone GIT_COMMIT_TIMESTAMP_MS (no GIT_COMMIT) is orphaned: trusting it would stamp the
+ * results-file hash with an unrelated inherited time, so we drop it and let
+ * resolvePostTimestamp fall back to results.git.timestamp (itself paired with GIT_COMMIT at
+ * the measure-lcp write site, so it is provenance-matched) or build time. The runner always
+ * sets GIT_COMMIT before spawning this child, so its env handoff is unaffected; this gate
+ * closes the direct `pnpm report` config channel (measure-lcp closes the dominant one).
+ *
+ * @param {object} env - Environment object (process.env or a test double).
+ * @return {string|undefined} The paired env timestamp, or undefined when unpaired.
+ */
+function pairedCommitTimestampMs( env ) {
+	return env.GIT_COMMIT ? env.GIT_COMMIT_TIMESTAMP_MS : undefined;
 }
 
 async function main() {
@@ -374,6 +597,10 @@ async function main() {
 	console.log( '=====================\n' );
 
 	const dryRun = process.argv.includes( '--dry-run' );
+	// Cross-commit dedup is OPT-IN until the dedup read and write backends are reconciled.
+	// See resolveDedupEnabled (the argv/env truth table) and hashAlreadyPosted's note for
+	// why default-off matters.
+	const skipDedup = ! resolveDedupEnabled( process.argv, process.env );
 
 	// Configuration from environment
 	const config = {
@@ -383,9 +610,21 @@ async function main() {
 		codeVitalsToken: process.env.CODEVITALS_TOKEN,
 		gitHash: process.env.GIT_COMMIT,
 		gitBranch: process.env.GIT_BRANCH || 'trunk',
+		// Commit time of the code under test, in epoch ms, supplied by the runner. The
+		// poster prefers results.git.timestamp and only uses this as a fallback. Honored
+		// only when paired with a GIT_COMMIT hash override (see pairedCommitTimestampMs),
+		// so a lone inherited timestamp can't backdate a direct `pnpm report` run.
+		commitTimestampMs: pairedCommitTimestampMs( process.env ),
 		resultsPath:
 			process.env.RESULTS_PATH || path.join( import.meta.dirname, '../results/lcp-results.json' ),
 		dryRun,
+		skipDedup,
+		// Read backend for the dedup check — the same gitaudit endpoint, repo, and
+		// metric the Scheduler reads, so "already tested" means the same thing to both.
+		dedupBaseUrl:
+			process.env.CODEVITALS_DEDUP_URL || 'https://gitaudit-server-production.up.railway.app',
+		dedupRepo: process.env.CODEVITALS_REPO || 'Automattic/jetpack',
+		dedupMetricId: process.env.CODEVITALS_DEDUP_METRIC_ID || '58',
 	};
 
 	// A live post needs a token; a dry run does not, so CI can smoke-test it.
@@ -400,6 +639,13 @@ async function main() {
 	console.log( `  Results Path: ${ config.resultsPath }` );
 	console.log( `  Git Hash: ${ config.gitHash || 'unknown' }` );
 	console.log( `  Git Branch: ${ config.gitBranch }` );
+	console.log(
+		`  Dedup: ${
+			dryRun || config.skipDedup
+				? 'off (opt in with CODEVITALS_ENABLE_DEDUP=1 once the dedup read and write backends are reconciled)'
+				: `on (metric ${ config.dedupMetricId } @ ${ config.dedupBaseUrl })`
+		}`
+	);
 	console.log( '' );
 
 	try {
@@ -460,6 +706,10 @@ export {
 	exitCodeForError,
 	isDirectInvocation,
 	redactToken,
+	resolvePostTimestamp,
+	hashAlreadyPosted,
+	resolveDedupEnabled,
+	pairedCommitTimestampMs,
 	ValidationError,
 	VALIDATION_FAILED_EXIT_CODE,
 };
