@@ -84,7 +84,7 @@
 	flex-shrink: 0;
 	background: var(--jpbeta-color-surface);
 	border-bottom: 1px solid var(--jpbeta-color-border);
-	padding: 16px var(--jpbeta-pad);
+	padding: 24px var(--jpbeta-pad);
 }
 
 .jetpack-beta-header__inner {
@@ -122,6 +122,10 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
+
+	/* Reset wp-admin's global `ul li { margin-bottom: 6px }`, which otherwise
+	   inflates the breadcrumb box and drops the logo ~3px below the text. */
+	margin: 0;
 }
 
 .jetpack-beta-header__breadcrumb li + li::before {
@@ -157,10 +161,11 @@
 }
 
 .jetpack-beta-header__subtitle {
-	margin: 6px 0 0;
+	margin: 10px 0 0;
 	font-size: 13px;
 	font-weight: 400;
-	color: var(--jpbeta-color-text-secondary);
+	line-height: 20px;
+	color: var(--jpbeta-color-text-muted);
 }
 
 /* ==========================================================================
