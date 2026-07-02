@@ -2,10 +2,11 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import {
-	calculateDelta,
-	type LeaderboardChartData,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import { calculateDelta } from './calculate-delta';
+import type { LeaderboardChartData } from '../components/chart-leaderboard/leaderboard-chart';
 import type { ReportDataMap } from '@jetpack-premium-analytics/data';
 
 /**
