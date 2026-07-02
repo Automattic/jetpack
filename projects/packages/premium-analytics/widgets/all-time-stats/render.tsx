@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
-import { reportParamsToStatsQueryParams, useStatsSite } from '@jetpack-premium-analytics/data';
+import { useStatsSite } from '@jetpack-premium-analytics/data';
 import {
 	MetricWithComparison,
 	WidgetLoadingOverlay,
 	WidgetRoot,
-	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -20,9 +19,9 @@ import styles from './style.module.css';
 import type { AllTimeStatsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// Report params are dashboard-driven — WidgetRoot resolves them from the date
-// picker — but the host (and Storybook) may also inject them via `attributes`.
-// The totals are all-time regardless; the params only key the query.
+// The host (and Storybook) may inject report params via `attributes`, but the
+// totals are all-time: the summary query takes no date params, so the picker's
+// range and comparison state do not change what this widget shows.
 type AllTimeStatsRenderAttributes = AllTimeStatsAttributes & Partial< ReportParamsFieldAttributes >;
 
 /**
@@ -70,14 +69,9 @@ function readCount( summary: StatsSummary | undefined, key: string ): number | u
  * @return The widget content.
  */
 function AllTimeStatsReport() {
-	const { reportParams } = useWidgetRootContext();
-
-	const statsParams = useMemo(
-		() => reportParamsToStatsQueryParams( reportParams ),
-		[ reportParams ]
-	);
-
-	const { data, isLoading, isError } = useStatsSite( statsParams );
+	// The summary is all-time, so the query takes no date params — its key stays
+	// stable across dashboard date-range and comparison changes.
+	const { data, isLoading, isError } = useStatsSite();
 
 	const summary = ( data as { stats?: StatsSummary } | undefined )?.stats;
 
@@ -89,50 +83,52 @@ function AllTimeStatsReport() {
 		[ summary ]
 	);
 
+	let content;
 	if ( isError ) {
-		return (
+		content = (
 			<div className={ styles.state }>
 				<Text>{ __( 'Unable to load all-time stats.', 'jetpack-premium-analytics' ) }</Text>
 			</div>
 		);
-	}
-
-	if ( isLoading && rows.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
-
-	if ( rows.length === 0 ) {
-		return (
+	} else if ( isLoading && rows.length === 0 ) {
+		content = <WidgetLoadingOverlay />;
+	} else if ( rows.length === 0 ) {
+		content = (
 			<div className={ styles.state }>
 				<Text>{ __( 'No stats recorded yet.', 'jetpack-premium-analytics' ) }</Text>
 			</div>
 		);
+	} else {
+		content = (
+			<div className={ styles.list }>
+				{ rows.map( row => (
+					<div key={ row.key } className={ styles.row }>
+						<Icon className={ styles.icon } icon={ row.icon } />
+						<Text className={ styles.label }>{ row.label }</Text>
+						<MetricWithComparison
+							className={ styles.value }
+							value={ row.value }
+							dataFormat={ COUNT_FORMAT }
+							fontSize="md"
+						/>
+					</div>
+				) ) }
+			</div>
+		);
 	}
 
-	return (
-		<div className={ styles.root }>
-			{ rows.map( row => (
-				<div key={ row.key } className={ styles.row }>
-					<Icon className={ styles.icon } icon={ row.icon } />
-					<Text className={ styles.label }>{ row.label }</Text>
-					<MetricWithComparison
-						className={ styles.value }
-						value={ row.value }
-						dataFormat={ COUNT_FORMAT }
-						fontSize="md"
-					/>
-				</div>
-			) ) }
-		</div>
-	);
+	// The states share the `.root` body wrapper so sizing (and the widget-picker
+	// aspect-ratio) stays consistent whether data, a spinner, or a message shows.
+	return <div className={ styles.root }>{ content }</div>;
 }
 
 /**
  * Widget render entry point.
  *
- * WidgetRoot provides the analytics query client, chart theme, and the report
- * params consumed by the inner list — resolved from the dashboard date range via
- * context, the same way the other Stats widgets read them.
+ * WidgetRoot provides the analytics query client and chart theme the inner
+ * report needs. This widget is all-time, so it does not read the dashboard date
+ * range; report params still flow into WidgetRoot for parity with the other
+ * Stats widgets.
  *
  * @param props            - Render props supplied by the widget host.
  * @param props.attributes - Widget attributes.

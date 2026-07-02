@@ -1,9 +1,7 @@
 /**
  * The stories drive the data-connected All-time stats widget through the shared
- * report-mock harness. The central `registerReportMocks` middleware does not
- * cover the `stats` (site summary) endpoint, so a story-scoped `apiFetch`
- * middleware supplies a mock response for it here — the shared
- * `register-report-mocks` module is left untouched.
+ * report-mock harness, which serves the Stats site-summary endpoint
+ * (`/proxy/v1.1/stats`) via `routeStatsReport()`.
  *
  * This module has no comparison period, so `Default` and `WithComparison`
  * render identically; the toggle only exercises the date-range picker's
@@ -13,7 +11,6 @@
  * External dependencies
  */
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
@@ -26,45 +23,11 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import AllTimeStatsRender from '../render';
 import widgetDefinition from '../widget';
-import type { APIFetchMiddleware } from '@wordpress/api-fetch';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
 
 registerReportMocks();
-
-// The site-summary proxy path (`v1.1/stats`), without a sub-path — distinct
-// from `stats/followers`, `stats/subscribers`, etc.
-const STATS_SITE_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
-
-const mockSiteSummary = {
-	stats: {
-		views: 62_588_309,
-		visitors: 31_217_606,
-		posts: 994,
-		comments: 4_123,
-	},
-};
-
-const statsSiteMockMiddleware: APIFetchMiddleware = ( options, next ) => {
-	const requestPath = options.path ?? options.url ?? '';
-
-	if ( requestPath.split( '?' )[ 0 ] === STATS_SITE_PATH ) {
-		return Promise.resolve( mockSiteSummary );
-	}
-
-	return next( options );
-};
-
-// Register exactly once so hot-reloading the story does not stack middlewares.
-declare global {
-	var __jpaAllTimeStatsMockRegistered: boolean | undefined;
-}
-
-if ( ! globalThis.__jpaAllTimeStatsMockRegistered ) {
-	globalThis.__jpaAllTimeStatsMockRegistered = true;
-	apiFetch.use( statsSiteMockMiddleware );
-}
 
 const ALL_TIME_STATS_RENDER_MODULE = 'storybook/all-time-stats';
 

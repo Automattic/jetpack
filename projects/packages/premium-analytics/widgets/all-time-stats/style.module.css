@@ -1,4 +1,9 @@
 .root {
+	position: relative;
+	min-height: 120px;
+}
+
+.list {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg, 16px);
