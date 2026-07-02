@@ -43,7 +43,8 @@ export default function LanguageControl( {
 	label,
 	value,
 	onChange,
-	disabled,
+	// An explicit default: `Disabled` treats an undefined `isDisabled` as true.
+	disabled = false,
 }: LanguageControlProps ): ReactElement {
 	const options = useMemo( () => {
 		const tags = [ ...LANGUAGE_TAGS ];
