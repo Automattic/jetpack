@@ -279,8 +279,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			$payload = is_array( $ai_output ) && isset( $ai_output['payload'] ) && is_array( $ai_output['payload'] )
 				? $ai_output['payload']
 				: array();
-			$niche   = isset( $payload['inferred']['niche'] ) && is_string( $payload['inferred']['niche'] )
-				? trim( $payload['inferred']['niche'] )
+			// Validate `inferred` as an array before reading from it, since a partial write could leave it non-array.
+			$inferred = isset( $payload['inferred'] ) && is_array( $payload['inferred'] ) ? $payload['inferred'] : array();
+			$niche    = isset( $inferred['niche'] ) && is_string( $inferred['niche'] )
+				? trim( $inferred['niche'] )
 				: '';
 
 			$tasks = array();
