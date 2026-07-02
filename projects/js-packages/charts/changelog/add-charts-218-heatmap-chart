@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: add HeatmapChart for matrix and calendar/contribution-style data, with a compact mode and a composition color-scale legend.

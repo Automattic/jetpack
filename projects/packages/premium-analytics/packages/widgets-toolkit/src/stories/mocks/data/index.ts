@@ -55,3 +55,5 @@ export {
 	mockCustomersByDateData,
 	mockCustomersByDateComparisonData,
 } from './customers';
+
+export { mockSearchTermsData, mockSearchTermsComparisonData } from './search-terms';

@@ -2,13 +2,9 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
- * Jetpack AI JWT, minted from the site and cached in localStorage.
- *
- * Ported from `@automattic/jetpack-ai-client`'s `requestJwt`: that package can't
- * currently be bundled by wp-build — its build output is misconfigured (tsgo
- * emits to `build/src/` instead of the `build/` that `package.json` `main`
- * points at, and skips asset files), so consumers can't resolve it. We only need
- * this one function, so we inline it against `@wordpress/api-fetch`.
+ * Jetpack AI JWT, minted from the site and cached in localStorage. Inlined from
+ * `@automattic/jetpack-ai-client`'s `requestJwt`, which wp-build can't currently
+ * bundle.
  */
 
 interface TokenData {
@@ -49,9 +45,7 @@ export async function requestJwt(): Promise< TokenData > {
 
 	const isSimple = isSimpleSite();
 
-	// Fail fast with a clear message rather than forming a bad request
-	// (`/sites/undefined/…` → 404, or `X-WP-Nonce: undefined` → 403) that would
-	// only surface downstream as "the AI never works".
+	// Fail fast with a clear message rather than forming a bad request that only surfaces downstream.
 	if ( isSimple && ! siteId ) {
 		throw new Error(
 			'[AI Launchpad] cannot mint a JWT: missing site id (JP_CONNECTION_INITIAL_STATE.siteSuffix).'

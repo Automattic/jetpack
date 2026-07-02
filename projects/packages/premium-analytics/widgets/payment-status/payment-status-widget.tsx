@@ -17,7 +17,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './payment-status-widget.module.scss';
+import styles from './style.module.css';
 
 /**
  * Payment Status Widget Component

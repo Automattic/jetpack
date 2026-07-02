@@ -10,6 +10,7 @@ import { STORE_ID } from '../../../state';
 import { usePlan } from '../use-plan';
 import { useSearchParams } from '../use-search-params';
 import useVideos, { useLocalVideos } from '../use-videos';
+import type { AdminVideo } from '../../types';
 
 export const useDashboardVideos = () => {
 	const { uploadVideo, uploadVideoFromLibrary, setVideosQuery } = useDispatch( STORE_ID );
@@ -61,7 +62,7 @@ export const useDashboardVideos = () => {
 			// update url to match store update
 			if ( page !== tempPage.current ) {
 				tempPage.current = page;
-				searchParams.setParam( 'page', page );
+				searchParams.setParam( 'page', String( page ) );
 				searchParams.update();
 			} else {
 				tempPage.current = pageFromSearchParam;
@@ -84,7 +85,7 @@ export const useDashboardVideos = () => {
 
 	// Stable placeholder list while fetching: deterministic IDs keyed on the
 	// inputs that determine count, so child keys don't churn every render.
-	const placeholders = useMemo( () => {
+	const placeholders = useMemo< AdminVideo[] | null >( () => {
 		if ( ! isFetching ) {
 			return null;
 		}
@@ -92,9 +93,13 @@ export const useDashboardVideos = () => {
 			1, // at least one placeholder
 			Math.min( itemsPerPage, uploadedVideoCount - itemsPerPage * ( page - 1 ) ) // at most the number of videos in the page without query
 		);
+		/*
+		 * Loading skeletons only carry an `id`; placeholder UI reads no other
+		 * fields, so the cast to the full video shape is safe.
+		 */
 		return Array.from( { length: numPlaceholders }, ( _, i ) => ( {
 			id: `placeholder-${ i }`,
-		} ) );
+		} ) ) as unknown as AdminVideo[];
 	}, [ isFetching, itemsPerPage, uploadedVideoCount, page ] );
 
 	// Do not show uploading videos if not in the first page or searching

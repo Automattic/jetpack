@@ -39,6 +39,7 @@ export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse
 export { sanitizeStatsSingleVideoResponse } from './single-video';
 export type { StatsTopPostsItem } from './top-posts';
 export type {
+	StatsPostMeta,
 	StatsPostMonthValues,
 	StatsPostRawResponse,
 	StatsPostResponse,

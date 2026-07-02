@@ -74,7 +74,7 @@ export function useChartTheme(): WooChartTheme {
 			leaderboardChart: {
 				rowGap: 12,
 				columnGap: 4,
-				labelSpacing: 1.5,
+				labelSpacing: 'xs',
 				barBorderRadius: 'var(--wpds-border-radius-md)',
 				deltaColors: [
 					'var(--wpds-color-fg-content-error-weak)',

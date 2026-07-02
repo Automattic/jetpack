@@ -17,6 +17,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { differenceInCalendarDays, isValid, parseISO } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -42,18 +43,21 @@ import {
 	mockCustomersComparisonData,
 	mockCustomersByDateData,
 	mockCustomersByDateComparisonData,
+	mockSearchTermsData,
+	mockSearchTermsComparisonData,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
 /**
- * Base path that all report requests share. Matches `reportsPath` in the data
+ * Base path for Woo analytics report requests. Matches `reportsPath` in the data
  * package (`@jetpack-premium-analytics/data`).
  */
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';
 const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/subscribers';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
+const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -64,6 +68,11 @@ const coreSettingsMock = {
 	start_of_week: 1,
 	title: 'Storybook',
 };
+
+/**
+ * Base path for Jetpack Stats proxy requests (v1.1).
+ */
+const STATS_API_BASE = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
 
 /**
  * Days of mock data to generate (covering past requests).
@@ -537,6 +546,13 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 				2,
 				'0'
 			) }`;
+		} else if ( unit === 'week' ) {
+			// Mirror WPCOM's weekly label shape: YYYY'W'MM'W'DD (week-start date).
+			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
+			period = `${ bucket.getUTCFullYear() }W${ String( bucket.getUTCMonth() + 1 ).padStart(
+				2,
+				'0'
+			) }W${ String( bucket.getUTCDate() ).padStart( 2, '0' ) }`;
 		} else {
 			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
 			period = bucket.toISOString().slice( 0, 10 );
@@ -603,6 +619,103 @@ function buildEmailSummaryResponse() {
 	return { posts };
 }
 
+/**
+ * Routes a Stats sub-path to the matching mock generator.
+ *
+ * @param subPath - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
+ * @return The mock response body, or `null` if no specific handler matched.
+ */
+function routeStatsReport( subPath: string ): unknown {
+	switch ( subPath ) {
+		case '/search-terms':
+			return nextIsComparison( 'stats/search-terms' )
+				? mockSearchTermsComparisonData
+				: mockSearchTermsData;
+		default:
+			return null;
+	}
+}
+
+/**
+ * Read a query-string parameter from a (possibly relative) apiFetch request
+ * path.
+ *
+ * @param requestPath - The request path, with or without a query string.
+ * @param key         - The parameter name to read.
+ * @return The decoded value, or undefined when absent.
+ */
+function getQueryParam( requestPath: string, key: string ): string | undefined {
+	const query = requestPath.split( '?' )[ 1 ];
+
+	return query ? new URLSearchParams( query ).get( key ) ?? undefined : undefined;
+}
+
+/**
+ * Scale factor for play counts based on how recent the requested window ends,
+ * so the primary (recent) period reads higher than the comparison (earlier)
+ * period and the widget shows period-over-period growth. Recent windows return
+ * the full count; windows ~30+ days back taper to ~70%.
+ *
+ * @param endDate - The window's end date (YYYY-MM-DD), or undefined for "today".
+ * @return A multiplier in the range [0.7, 1].
+ */
+function playsFactorForWindow( endDate: string | undefined ): number {
+	if ( ! endDate ) {
+		return 1;
+	}
+
+	const end = parseISO( endDate );
+
+	if ( ! isValid( end ) ) {
+		return 1;
+	}
+
+	// `differenceInCalendarDays` counts whole calendar days between the two
+	// dates, so the scaling (and the mocked counts) stay stable regardless of
+	// the machine's timezone.
+	const daysAgo = Math.max( 0, differenceInCalendarDays( new Date(), end ) );
+
+	return 1 - Math.min( daysAgo / 30, 1 ) * 0.3;
+}
+
+/**
+ * Builds a mock Stats "video-plays" response so the Videos widget renders a
+ * populated leaderboard in Storybook. The shape matches what
+ * `sanitizeStatsVideoPlaysResponse` reads (`days.<date>.plays[]`), and play
+ * counts scale by how recent the requested window is so the comparison period
+ * reads lower than the primary one.
+ *
+ * @param requestPath - The request path, used to read the window's end date.
+ * @return Raw video-plays response.
+ */
+function buildVideoPlaysResponse( requestPath: string ) {
+	const endDate = getQueryParam( requestPath, 'end_date' ) ?? getQueryParam( requestPath, 'date' );
+	const date = endDate ?? new Date().toISOString().slice( 0, 10 );
+	const factor = playsFactorForWindow( endDate );
+	const videos = [
+		{ post_id: 101, title: 'Getting Started Walkthrough', plays: 3820 },
+		{ post_id: 102, title: 'Product Launch Highlights', plays: 2640 },
+		{ post_id: 103, title: 'Customer Story: Acme Co.', plays: 1980 },
+		{ post_id: 104, title: 'How-To: Advanced Settings', plays: 1410 },
+		{ post_id: 105, title: 'Behind the Scenes', plays: 980 },
+		{ post_id: 106, title: 'Weekly Recap', plays: 540 },
+		{ post_id: 107, title: '', plays: 320 },
+	];
+	const rows = videos.map( video => ( {
+		post_id: video.post_id,
+		title: video.title,
+		url: `https://example.com/video/${ video.post_id }/`,
+		plays: Math.round( video.plays * factor ),
+		impressions: Math.round( video.plays * factor * 1.8 ),
+		watch_time: Math.round( video.plays * factor * 12 ),
+		retention_rate: 60,
+	} ) );
+
+	// `summary.plays` feeds the summarized path (multi-day ranges set
+	// `summarize=1`); `days.<date>.plays` covers the single-day path.
+	return { date, period: 'day', summary: { plays: rows }, days: { [ date ]: { plays: rows } } };
+}
+
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
 
@@ -623,6 +736,16 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_EMAIL_SUMMARY_PATH ) ) {
 		return buildEmailSummaryResponse();
+	}
+
+	if ( requestPath.startsWith( STATS_VIDEO_PLAYS_PATH ) ) {
+		return buildVideoPlaysResponse( requestPath );
+	}
+
+	if ( requestPath.startsWith( STATS_API_BASE ) ) {
+		const subPath = requestPath.slice( STATS_API_BASE.length ).split( '?' )[ 0 ];
+		const response = routeStatsReport( subPath );
+		return response !== null ? response : { data: [], summary: {} };
 	}
 
 	if ( ! requestPath.startsWith( API_BASE ) ) {

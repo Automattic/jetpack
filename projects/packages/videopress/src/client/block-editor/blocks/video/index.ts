@@ -13,24 +13,35 @@ import Edit from './edit';
 import transforms from './transforms';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 import './style.scss';
+/**
+ * Types
+ */
+import type { VideoBlockAttributes } from './types';
 
 // Extend the core/embed block
 import '../../extend/core-embed';
 
-export const { name, title, description, attributes } = metadata;
+export const { name, title, description, attributes, category } = metadata;
 
-registerBlockType( name, {
+registerBlockType< VideoBlockAttributes >( name, {
 	edit: Edit,
+	category,
 	title,
 	save: () => null,
 	icon,
 	attributes,
 	example: {
+		/*
+		 * `satisfies` validates these are real attribute values (typos/wrong
+		 * value types error here); the `unknown` cast then works around
+		 * `@wordpress/blocks` typing `example.attributes` as a map of attribute
+		 * schemas rather than values.
+		 */
 		attributes: {
 			src: editorImageURL( videoPressBlockExampleImage ),
 			isExample: true,
-		},
+		} satisfies Partial< VideoBlockAttributes > as unknown as Record< string, never >,
 	},
-	transforms,
+	transforms: transforms as never,
 	deprecated,
 } );
