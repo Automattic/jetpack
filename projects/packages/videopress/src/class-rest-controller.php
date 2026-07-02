@@ -3,10 +3,11 @@
  * The VideoPress REST Controller.
  *
  * Registers the `/jetpack/v4/videopress/*` routes backing the
- * modernized wp-build dashboard. Currently exposes one route — a
- * user-signed proxy to the WPCOM `sites/{id}/stats/video-plays`
- * endpoint — needed by the Overview screen's KPI / trends / top-N
- * cards.
+ * modernized wp-build dashboard. Exposes blog-signed proxies to the
+ * WPCOM `sites/{id}/stats/video-plays` endpoint (Overview screen's
+ * KPI / trends / top-N cards) and the WPCOM
+ * `sites/{id}/stats/video/{post_id}` endpoint (per-video analytics
+ * screen's plays chart).
  *
  * @package automattic/jetpack-videopress
  */
@@ -56,6 +57,17 @@ class Rest_Controller {
 				'args'                => self::stats_video_plays_args(),
 			)
 		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/stats/video/(?P<post_id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_stats_video' ),
+				'permission_callback' => array( __CLASS__, 'permissions_callback' ),
+				'args'                => self::stats_video_args(),
+			)
+		);
 	}
 
 	/**
@@ -86,6 +98,41 @@ class Rest_Controller {
 			),
 			'start_date' => array(
 				'description' => __( 'Starting date for range queries (YYYY-MM-DD).', 'jetpack-videopress-pkg' ),
+				'type'        => 'string',
+				'format'      => 'date',
+			),
+		);
+	}
+
+	/**
+	 * Query params accepted by the per-video stats proxy. `post_id` is
+	 * captured from the route path; the rest are forwarded verbatim to
+	 * WPCOM after permission and shape validation.
+	 *
+	 * @return array
+	 */
+	private static function stats_video_args() {
+		return array(
+			'post_id'  => array(
+				'description' => __( 'ID of the video to fetch stats for.', 'jetpack-videopress-pkg' ),
+				'type'        => 'integer',
+				'required'    => true,
+			),
+			'period'   => array(
+				'description' => __( 'Period unit: day, week, month, or year.', 'jetpack-videopress-pkg' ),
+				'type'        => 'string',
+				'enum'        => array( 'day', 'week', 'month', 'year' ),
+				'default'     => 'day',
+			),
+			'num'      => array(
+				'description' => __( 'Number of periods to include.', 'jetpack-videopress-pkg' ),
+				'type'        => 'integer',
+				'minimum'     => 1,
+				'maximum'     => 365,
+				'default'     => 30,
+			),
+			'end_date' => array(
+				'description' => __( 'Most recent day to include in results (YYYY-MM-DD).', 'jetpack-videopress-pkg' ),
 				'type'        => 'string',
 				'format'      => 'date',
 			),
@@ -138,6 +185,69 @@ class Rest_Controller {
 		$path     = sprintf(
 			'sites/%d/stats/video-plays?%s',
 			$blog_id,
+			http_build_query( $params )
+		);
+		$response = Client::wpcom_json_api_request_as_blog( $path );
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error(
+				'videopress_stats_request_failed',
+				$response->get_error_message(),
+				array( 'status' => 500 )
+			);
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( 200 !== $status ) {
+			$message = is_array( $body ) && isset( $body['message'] )
+				? (string) $body['message']
+				: esc_html__( 'Unable to fetch VideoPress stats.', 'jetpack-videopress-pkg' );
+			return new WP_Error(
+				'videopress_stats_request_failed',
+				$message,
+				array( 'status' => $status ? $status : 500 )
+			);
+		}
+
+		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Proxy the per-video stats endpoint.
+	 *
+	 * Forwards the whitelisted query params to WPCOM (REST v1.1, blog-signed
+	 * — same path as `get_stats_video_plays`) for a single video. The
+	 * upstream response is returned as a tolerant passthrough — typically
+	 * `{ data: [ [ date, plays ], ... ], pages: [ url, ... ] }` — with no
+	 * reshaping, so new upstream fields flow through untouched.
+	 *
+	 * @param WP_REST_Request $request Incoming request.
+	 * @return mixed Decoded JSON response from WPCOM, or WP_Error on failure.
+	 */
+	public static function get_stats_video( WP_REST_Request $request ) {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error(
+				'videopress_stats_not_connected',
+				esc_html__( 'This site is not connected to WordPress.com.', 'jetpack-videopress-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$params = array();
+		foreach ( array( 'period', 'num', 'end_date' ) as $key ) {
+			$value = $request->get_param( $key );
+			if ( $value !== null && $value !== '' ) {
+				$params[ $key ] = $value;
+			}
+		}
+
+		$path     = sprintf(
+			'sites/%d/stats/video/%d?%s',
+			$blog_id,
+			(int) $request->get_param( 'post_id' ),
 			http_build_query( $params )
 		);
 		$response = Client::wpcom_json_api_request_as_blog( $path );

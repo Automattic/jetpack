@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+VideoPress Dashboard: add a per-video stats REST route proxying the WPCOM per-video plays stats for the upcoming analytics screen.
