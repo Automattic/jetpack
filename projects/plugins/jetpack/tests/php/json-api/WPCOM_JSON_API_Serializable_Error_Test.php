@@ -15,8 +15,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
- * Tests that serializable_error() always serializes a valid HTTP error status: never
- * `1`, never a non-integer, and never a `< 400` status a client could read as success.
+ * Tests that serializable_error() extracts a valid integer status: never `1` and never a
+ * non-integer. A missing or invalid status defaults to 400, while valid HTTP status codes
+ * (including sub-400 redirect or success codes some callers use) are preserved.
  *
  * @covers \WPCOM_JSON_API::serializable_error
  * @covers \WPCOM_JSON_API
@@ -38,8 +39,8 @@ class WPCOM_JSON_API_Serializable_Error_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A valid status_code in the data passes through unchanged -- both the
-	 * canonical array key and a bare-integer data value.
+	 * A valid status_code in the data passes through unchanged, both as the
+	 * canonical array key and as a bare-integer data value.
 	 */
 	public function test_valid_status_passes_through() {
 		$this->assertSame( 404, $this->status_for( new WP_Error( 'not_found', 'Nope', array( 'status_code' => 404 ) ) ) );
@@ -101,34 +102,35 @@ class WPCOM_JSON_API_Serializable_Error_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A success/redirect status paired with an error must never render as `< 400`
-	 * (the crash: an app reads a 2xx as a successful, URL-less site).
+	 * A valid sub-400 status (a redirect or success code) carried on an error is preserved,
+	 * not coerced to 400. Existing callers return WP_Error with codes such as 100, 200, and
+	 * 302, and this function must not change their status.
 	 *
-	 * @param int $input Non-error status carried on the error.
-	 * @dataProvider provide_non_error_statuses
+	 * @param int $input Valid sub-400 status carried on the error.
+	 * @dataProvider provide_valid_sub_400_statuses
 	 */
-	#[DataProvider( 'provide_non_error_statuses' )]
-	public function test_non_error_status_coerced_to_400( $input ) {
-		$this->assertSame( 400, $this->status_for( new WP_Error( 'oops', 'Oops', array( 'status_code' => $input ) ) ) );
+	#[DataProvider( 'provide_valid_sub_400_statuses' )]
+	public function test_valid_sub_400_status_passes_through( $input ) {
+		$this->assertSame( $input, $this->status_for( new WP_Error( 'oops', 'Oops', array( 'status_code' => $input ) ) ) );
 	}
 
 	/**
-	 * Data provider: statuses a client could read as success.
+	 * Data provider: valid sub-400 statuses that callers return via WP_Error.
 	 *
 	 * @return array<string, array{int}>
 	 */
-	public static function provide_non_error_statuses(): array {
+	public static function provide_valid_sub_400_statuses(): array {
 		return array(
-			'200 OK'      => array( 200 ),
-			'201 Created' => array( 201 ),
-			'302 Found'   => array( 302 ),
+			'100 Continue' => array( 100 ),
+			'200 OK'       => array( 200 ),
+			'302 Found'    => array( 302 ),
 		);
 	}
 
 	/**
 	 * Codes status_header() cannot render (Cloudflare 52x, other non-standard) are a valid
 	 * integer >= 400, so they pass through unchanged. Coercing them to a renderable status is
-	 * deliberately NOT this function's job -- that belongs at the status_header() call site;
+	 * deliberately not this function's job. That belongs at the status_header() call site;
 	 * here we only guarantee a sane integer.
 	 *
 	 * @param int $input Unknown-to-WP status carried on the error.
