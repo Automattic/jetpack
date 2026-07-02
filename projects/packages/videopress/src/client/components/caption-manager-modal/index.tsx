@@ -531,10 +531,16 @@ function CaptionManagerModalInner( {
 				return;
 			}
 
+			// Already in the upload form: only set the file, keeping language and label.
+			if ( workspace.view === 'upload' ) {
+				dispatchAndClearNotice( { type: 'SET_UPLOAD_FILE', file } );
+				return;
+			}
+
 			// Dropping a file switches to upload mode; confirm so it can't discard unsaved cue edits.
 			confirmDiscardThen( () => startUploadTrack( null, file ) );
 		},
-		[ confirmDiscardThen, startUploadTrack ]
+		[ confirmDiscardThen, dispatchAndClearNotice, startUploadTrack, workspace.view ]
 	);
 
 	const submitUploadForm = useCallback( async () => {

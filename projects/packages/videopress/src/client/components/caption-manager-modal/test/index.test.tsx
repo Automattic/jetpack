@@ -1590,6 +1590,23 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getByText( 'subs.vtt' ) ).toBeInTheDocument();
 	} );
 
+	it( 'keeps the chosen language when a file is dropped onto the open upload form', async () => {
+		const user = userEvent.setup();
+		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
+
+		await user.click( screen.getByText( 'Upload subtitle file' ) );
+		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'de' } } );
+
+		act( () => {
+			mockDropZoneProps.onFilesDrop?.( [
+				new File( [ 'WEBVTT' ], 'subs.vtt', { type: 'text/vtt' } ),
+			] );
+		} );
+
+		expect( screen.getByText( 'subs.vtt' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( 'de' );
+	} );
+
 	it( 'reports a failed draft save and keeps the editor dirty', async () => {
 		const user = userEvent.setup();
 		( saveCaptionTrack as jest.Mock ).mockRejectedValueOnce( new Error( 'save failed' ) );
