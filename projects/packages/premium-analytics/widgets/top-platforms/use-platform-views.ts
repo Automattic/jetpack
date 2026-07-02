@@ -1,4 +1,8 @@
 /**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
@@ -30,24 +34,44 @@ interface PlatformViewsState {
 	errorReason: 'upgrade-required' | null;
 }
 
-const PLATFORM_LABELS: Record< string, string > = {
-	ios: 'iOS',
-	mac: 'macOS',
-	ipad: 'iPad',
-	iphone: 'iPhone',
-	ipados: 'iPadOS',
-	macos: 'macOS',
-	ie: 'IE',
-	chrome: 'Chrome OS',
-	android_tablet: 'Android Tablet',
+const BROWSER_LABELS: Record< string, string > = {
+	chrome: __( 'Chrome', 'jetpack-premium-analytics' ),
+	safari: __( 'Safari', 'jetpack-premium-analytics' ),
+	firefox: __( 'Firefox', 'jetpack-premium-analytics' ),
+	edge: __( 'Edge', 'jetpack-premium-analytics' ),
+	opera: __( 'Opera', 'jetpack-premium-analytics' ),
+	samsung: __( 'Samsung Internet', 'jetpack-premium-analytics' ),
+	ie: __( 'IE', 'jetpack-premium-analytics' ),
+	yandex: __( 'Yandex', 'jetpack-premium-analytics' ),
+	miui: __( 'Mi Browser', 'jetpack-premium-analytics' ),
+	other: __( 'Other', 'jetpack-premium-analytics' ),
 };
 
-function toPlatformView( item: StatsDevicesItem ): PlatformView {
+const PLATFORM_LABELS: Record< string, string > = {
+	windows: __( 'Windows', 'jetpack-premium-analytics' ),
+	mac: __( 'macOS', 'jetpack-premium-analytics' ),
+	android: __( 'Android', 'jetpack-premium-analytics' ),
+	linux: __( 'Linux', 'jetpack-premium-analytics' ),
+	ios: __( 'iOS', 'jetpack-premium-analytics' ),
+	ipad: __( 'iPad', 'jetpack-premium-analytics' ),
+	iphone: __( 'iPhone', 'jetpack-premium-analytics' ),
+	ipados: __( 'iPadOS', 'jetpack-premium-analytics' ),
+	macos: __( 'macOS', 'jetpack-premium-analytics' ),
+	chrome: __( 'Chrome OS', 'jetpack-premium-analytics' ),
+	android_tablet: __( 'Android Tablet', 'jetpack-premium-analytics' ),
+	other: __( 'Other', 'jetpack-premium-analytics' ),
+};
+
+function toPlatformView(
+	item: StatsDevicesItem,
+	deviceProperty: 'browser' | 'platform'
+): PlatformView {
 	const key = String( item.label ?? '' );
+	const labels = deviceProperty === 'browser' ? BROWSER_LABELS : PLATFORM_LABELS;
 
 	return {
 		key,
-		label: formatDisplayLabel( key, PLATFORM_LABELS ),
+		label: formatDisplayLabel( key, labels ),
 		views: item.value,
 	};
 }
@@ -77,12 +101,14 @@ export default function usePlatformViews( {
 
 	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
 	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems.map( toPlatformView ).slice( 0, max > 0 ? max : undefined );
+	const items = rawItems
+		.map( item => toPlatformView( item, deviceProperty ) )
+		.slice( 0, max > 0 ? max : undefined );
 
 	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
 	const comparisonRawItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
 	const comparisonItems = comparisonRawItems
-		.map( toPlatformView )
+		.map( item => toPlatformView( item, deviceProperty ) )
 		.slice( 0, max > 0 ? max : undefined );
 
 	return {
