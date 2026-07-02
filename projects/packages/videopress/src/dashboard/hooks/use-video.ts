@@ -25,6 +25,9 @@ type ApiMediaItem = {
 		is_private?: boolean;
 		description?: string;
 	};
+	// Playlist term IDs, exposed under the taxonomy rest_base. Absent when
+	// the Studio flag is off (the taxonomy isn't registered then).
+	'videopress-playlists'?: number[];
 };
 
 /**
@@ -62,6 +65,7 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
 		isProcessing,
+		playlistIds: raw[ 'videopress-playlists' ] ?? [],
 	};
 }
 

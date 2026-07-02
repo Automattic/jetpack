@@ -32,6 +32,12 @@ export interface LibraryItem {
 	shortcode: string;
 	sourceUrl?: string;
 	isProcessing: boolean;
+	/**
+	 * Playlist term IDs assigned to this attachment (the `videopress-playlists`
+	 * taxonomy). Empty when the Studio flag is off — the taxonomy isn't
+	 * registered then, so /wp/v2/media omits the property entirely.
+	 */
+	playlistIds: number[];
 }
 
 export type VideoDetailsPatch = Partial<

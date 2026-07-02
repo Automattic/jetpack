@@ -2,7 +2,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { libraryFields } from '../components/library/fields';
+import { buildLibraryFields } from '../components/library/fields';
 import type { View } from '@wordpress/dataviews';
 
 /**
@@ -35,7 +35,11 @@ type PersistedView = Pick< View, 'fields' | 'sort' | 'perPage' > & {
 
 type PersistenceData = Record< string, unknown >;
 
-const KNOWN_FIELD_IDS = new Set( libraryFields.map( field => field.id ) );
+// Field ids only — playlist filter elements are irrelevant here, so the
+// factory's default (empty) playlists are fine. Evaluated at module load,
+// after the flag's initial state is inlined; a view persisted with the
+// Studio-only `playlists` field is treated as stale once the flag goes off.
+const KNOWN_FIELD_IDS = new Set( buildLibraryFields().map( field => field.id ) );
 const VALID_TYPES = new Set< View[ 'type' ] >( [ 'grid', 'table' ] );
 const VALID_DENSITIES = new Set( [ 'compact', 'comfortable', 'balanced' ] );
 const VALID_SORT_DIRECTIONS = new Set( [ 'asc', 'desc' ] );

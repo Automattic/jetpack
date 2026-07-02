@@ -34,12 +34,17 @@ async function fetchPlaylists(): Promise< Playlist[] > {
 /**
  * Fetch and cache the VideoPress playlists from /wp/v2/videopress-playlists.
  *
+ * @param options         - Hook options.
+ * @param options.enabled - When false, the query never fires (the caller sits
+ *                        behind the Studio flag and the terms route isn't
+ *                        registered). Defaults to true.
  * @return Playlists array, loading/error state, and a refetch callback.
  */
-export function usePlaylists() {
+export function usePlaylists( { enabled = true }: { enabled?: boolean } = {} ) {
 	const query = useQuery( {
 		queryKey: [ PLAYLISTS_QUERY_KEY ],
 		queryFn: fetchPlaylists,
+		enabled,
 	} );
 
 	return {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress Dashboard: add feature-gated playlist management to the library — a playlists column and filter plus a bulk Add to playlist action with inline playlist creation (disabled by default).

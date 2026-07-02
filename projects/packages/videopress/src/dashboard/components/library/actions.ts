@@ -1,4 +1,6 @@
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
+import { isStudioEnabled } from '../../utils/studio';
+import AddToPlaylistModal from './add-to-playlist-modal';
 import type { LibraryItem, LibraryItemPrivacy } from '../../types/library';
 import type { Action } from '@wordpress/dataviews';
 
@@ -55,10 +57,33 @@ const PRIVACY_ACTIONS: { idSuffix: string; label: string; privacy: LibraryItemPr
  * delete already in flight are ineligible for every action so a slow delete
  * can't be double-fired or raced by an edit.
  *
+ * With the Studio flag on, a bulk "Add to playlist" action is included; it
+ * confirms through a DataViews modal (see AddToPlaylistModal, which owns the
+ * membership mutation) so it needs no entry in `api`.
+ *
  * @param api - Hook mutators forwarded into the action callbacks.
  * @return The actions array for `<DataViews>`.
  */
 export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
+	const addToPlaylist: Action< LibraryItem >[] = isStudioEnabled()
+		? [
+				{
+					id: 'add-to-playlist',
+					label: __( 'Add to playlist', 'jetpack-videopress-pkg' ),
+					supportsBulk: true,
+					isEligible: isVideoPressIdle,
+					RenderModal: AddToPlaylistModal,
+					modalHeader: items =>
+						_n(
+							'Add video to playlist',
+							'Add videos to playlist',
+							items.length,
+							'jetpack-videopress-pkg'
+						),
+				},
+		  ]
+		: [];
+
 	return [
 		{
 			id: 'edit-details',
@@ -85,6 +110,7 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 				);
 			},
 		} ) ),
+		...addToPlaylist,
 		{
 			id: 'delete',
 			label: __( 'Delete', 'jetpack-videopress-pkg' ),

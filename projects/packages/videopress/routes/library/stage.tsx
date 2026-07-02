@@ -7,17 +7,19 @@ import { useNavigate } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
-import { libraryFields } from '../../src/dashboard/components/library/fields';
+import { buildLibraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
+import { usePlaylists } from '../../src/dashboard/hooks/use-playlists';
 import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import { isStudioEnabled } from '../../src/dashboard/utils/studio';
 import { planVideoDrop } from './upload-drop';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
@@ -73,6 +75,11 @@ const StageInner = () => {
 	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
 
 	const { items, isLoading, paginationInfo } = useLibrary( view );
+	// Playlists back the Studio-gated playlists field (cell render + filter
+	// elements). With the flag off the query never fires — the terms route
+	// isn't registered — and buildLibraryFields() returns the ungated fields.
+	const { playlists } = usePlaylists( { enabled: isStudioEnabled() } );
+	const fields = useMemo( () => buildLibraryFields( { playlists } ), [ playlists ] );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
@@ -386,6 +393,7 @@ const StageInner = () => {
 				allowDownloads: false,
 				shortcode: '',
 				isProcessing: false,
+				playlistIds: [],
 			} ) );
 		// Overlay an in-flight state on items currently being promoted from
 		// local-storage to VideoPress or being deleted, so the title-cell
@@ -448,7 +456,7 @@ const StageInner = () => {
 					/>
 					<DataViews< LibraryItem >
 						data={ renderedItems }
-						fields={ libraryFields }
+						fields={ fields }
 						actions={ actions }
 						view={ view }
 						onChangeView={ onChangeView }

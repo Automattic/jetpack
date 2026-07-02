@@ -30,3 +30,30 @@ describe( 'buildLibraryActions — eligibility while deleting', () => {
 		expect( actions.find( a => a.id === 'edit-details' )?.isEligible?.( idle ) ).toBe( true );
 	} );
 } );
+
+describe( 'buildLibraryActions — add-to-playlist gating', () => {
+	type InitialState = { features?: { studio?: boolean } };
+	const globals = window as unknown as { JPVIDEOPRESS_INITIAL_STATE?: InitialState };
+
+	afterEach( () => {
+		delete globals.JPVIDEOPRESS_INITIAL_STATE;
+	} );
+
+	it( 'omits the action when the Studio flag is off', () => {
+		expect(
+			buildLibraryActions( makeApi() ).find( a => a.id === 'add-to-playlist' )
+		).toBeUndefined();
+	} );
+
+	it( 'includes a bulk action limited to idle VideoPress items when the flag is on', () => {
+		globals.JPVIDEOPRESS_INITIAL_STATE = { features: { studio: true } };
+		const action = buildLibraryActions( makeApi() ).find( a => a.id === 'add-to-playlist' );
+
+		expect( action?.supportsBulk ).toBe( true );
+		expect( action?.isEligible?.( item() ) ).toBe( true );
+		expect( action?.isEligible?.( item( { type: 'local' } ) ) ).toBe( false );
+		expect(
+			action?.isEligible?.( item( { upload: { status: 'uploading', progress: 10 } } ) )
+		).toBe( false );
+	} );
+} );

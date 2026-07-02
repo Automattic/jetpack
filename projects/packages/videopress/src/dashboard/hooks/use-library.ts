@@ -31,6 +31,9 @@ type ApiMediaItem = {
 		description?: string;
 		caption?: string;
 	};
+	// Playlist term IDs, exposed under the taxonomy rest_base. Absent when
+	// the Studio flag is off (the taxonomy isn't registered then).
+	'videopress-playlists'?: number[];
 };
 
 type PaginationInfo = { totalItems: number; totalPages: number };
@@ -133,6 +136,15 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 			} else if ( filter.value === 'local' ) {
 				args.no_videopress = 1;
 			}
+		} else if ( filter.field === 'playlists' ) {
+			// Term filter on the playlists taxonomy. The arg name is the
+			// taxonomy's rest_base, handled by core's attachments controller
+			// (it accepts a scalar or an array of term IDs; the `is` operator
+			// only ever produces a scalar here).
+			const termId = Number( filter.value );
+			if ( ! Number.isNaN( termId ) ) {
+				args[ 'videopress-playlists' ] = termId;
+			}
 		} else if ( filter.field === 'uploadDate' ) {
 			// DataViews emits the value from <input type=datetime-local>
 			// as a local-time string; convert to UTC ISO8601 for the WP
@@ -188,6 +200,7 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
 		isProcessing,
+		playlistIds: raw[ 'videopress-playlists' ] ?? [],
 	};
 }
 

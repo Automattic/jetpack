@@ -59,6 +59,30 @@ describe( 'viewToQueryArgs', () => {
 		).toMatchObject( { videopress_privacy_setting: '1' } );
 	} );
 
+	it( 'maps a playlists filter to the videopress-playlists term arg', () => {
+		expect(
+			viewToQueryArgs( {
+				...DEFAULT_VIEW,
+				filters: [ { field: 'playlists', operator: 'is', value: 7 } ],
+			} )
+		).toMatchObject( { 'videopress-playlists': 7 } );
+	} );
+
+	it( 'coerces a stringified playlists filter value and drops non-numeric ones', () => {
+		expect(
+			viewToQueryArgs( {
+				...DEFAULT_VIEW,
+				filters: [ { field: 'playlists', operator: 'is', value: '7' } ],
+			} )
+		).toMatchObject( { 'videopress-playlists': 7 } );
+		expect(
+			viewToQueryArgs( {
+				...DEFAULT_VIEW,
+				filters: [ { field: 'playlists', operator: 'is', value: 'bogus' } ],
+			} )
+		).not.toHaveProperty( 'videopress-playlists' );
+	} );
+
 	it( 'maps search to the search param', () => {
 		expect( viewToQueryArgs( { ...DEFAULT_VIEW, search: 'foo' } ) ).toMatchObject( {
 			search: 'foo',

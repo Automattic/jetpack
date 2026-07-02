@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { makeLibraryItem as item } from '../../../test-utils/library-item';
-import { libraryFields } from '../fields';
+import { buildLibraryFields } from '../fields';
 import ThumbnailField from '../thumbnail-field';
 import { UploadActionsProvider, type UploadActions } from '../upload-actions-context';
 import type { LibraryItem } from '../../../types/library';
@@ -23,6 +23,7 @@ const renderField = ( ui: React.ReactNode, actions: UploadActions ) =>
 	render( <UploadActionsProvider value={ actions }>{ ui }</UploadActionsProvider> );
 
 // The cell renders are whatever the exported field declarations provide.
+const libraryFields = buildLibraryFields();
 const TitleCellRender = ( libraryFields.find( f => f.id === 'title' ) as Field< LibraryItem > )
 	.render as ( args: { item: LibraryItem } ) => React.ReactNode;
 const FilenameRender = ( libraryFields.find( f => f.id === 'filename' ) as Field< LibraryItem > )
