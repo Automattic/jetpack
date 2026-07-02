@@ -68,7 +68,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		Caption_Tracks::init();
 		Caption_Tracks::register_post_type();
 		Caption_Tracks::register_meta();
-		Rest_Controller::init();
+		new WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks();
 		do_action( 'rest_api_init' );
 
 		$this->admin_id = wp_insert_user(
@@ -162,7 +162,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 	public function test_caption_track_save_denied_without_video_access() {
 		wp_set_current_user( $this->subscriber_id );
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $this->track_payload() );
 
 		$response = $this->server->dispatch( $request );
@@ -179,7 +179,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 
 		wp_set_current_user( $this->author_id );
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $this->track_payload_for_guid( $guid ) );
 
 		$response = $this->server->dispatch( $request );
@@ -200,7 +200,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 
 		wp_set_current_user( $this->other_author_id );
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $this->track_payload_for_guid( $guid ) );
 
 		$response = $this->server->dispatch( $request );
@@ -215,7 +215,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $this->track_payload() );
 
 		$response = $this->server->dispatch( $request );
@@ -235,7 +235,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params(
 			array_merge(
 				$this->track_payload(),
@@ -260,11 +260,11 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
-		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$create_request->set_body_params( $this->track_payload() );
 		$created = $this->server->dispatch( $create_request )->get_data();
 
-		$update_request = new WP_REST_Request( 'PUT', '/jetpack/v4/videopress/caption-tracks/' . $created['id'] );
+		$update_request = new WP_REST_Request( 'PUT', '/wpcom/v2/videopress/caption-tracks/' . $created['id'] );
 		$update_request->set_body_params(
 			array_merge(
 				$this->track_payload(),
@@ -290,11 +290,11 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
-		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$create_request->set_body_params( $this->track_payload() );
 		$created = $this->server->dispatch( $create_request )->get_data();
 
-		$delete_request = new WP_REST_Request( 'DELETE', '/jetpack/v4/videopress/caption-tracks/' . $created['id'] );
+		$delete_request = new WP_REST_Request( 'DELETE', '/wpcom/v2/videopress/caption-tracks/' . $created['id'] );
 		$response       = $this->server->dispatch( $delete_request );
 
 		$this->assertSame( 200, $response->get_status() );
@@ -310,13 +310,13 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$this->create_videopress_attachment( $guid, $this->author_id );
 		wp_set_current_user( $this->author_id );
 
-		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$create_request->set_body_params( $this->track_payload_for_guid( $guid ) );
 		$created = $this->server->dispatch( $create_request )->get_data();
 
 		wp_set_current_user( $this->other_author_id );
 
-		$delete_request = new WP_REST_Request( 'DELETE', '/jetpack/v4/videopress/caption-tracks/' . $created['id'] );
+		$delete_request = new WP_REST_Request( 'DELETE', '/wpcom/v2/videopress/caption-tracks/' . $created['id'] );
 		$response       = $this->server->dispatch( $delete_request );
 
 		$this->assertSame( 403, $response->get_status() );
@@ -332,7 +332,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 	public function test_caption_track_save_denied_for_unresolvable_guid() {
 		wp_set_current_user( $this->author_id );
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $this->track_payload_for_guid( 'novideo1' ) );
 
 		$response = $this->server->dispatch( $request );
@@ -350,11 +350,11 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
-		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$create_request->set_body_params( $this->track_payload() );
 		$created = $this->server->dispatch( $create_request )->get_data();
 
-		$update_request = new WP_REST_Request( 'PUT', '/jetpack/v4/videopress/caption-tracks/' . $created['id'] );
+		$update_request = new WP_REST_Request( 'PUT', '/wpcom/v2/videopress/caption-tracks/' . $created['id'] );
 		$update_request->set_body_params( $this->track_payload_for_guid( 'zzzz9999' ) );
 
 		$response = $this->server->dispatch( $update_request );
@@ -381,7 +381,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 
 		wp_set_current_user( $this->other_author_id );
 
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_query_params( array( 'guid' => $guid ) );
 
 		$response = $this->server->dispatch( $request );
@@ -402,7 +402,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$payload                                      = $this->track_payload();
 		$payload['meta'][ Caption_Tracks::META_KIND ] = 'not-a-kind';
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
 
 		$response = $this->server->dispatch( $request );
@@ -420,7 +420,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
-		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$create_request->set_body_params(
 			array_merge( $this->track_payload(), array( 'status' => 'publish' ) )
 		);
@@ -431,7 +431,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		unset( $payload['status'] );
 		$payload['meta'][ Caption_Tracks::META_LABEL ] = 'Renamed';
 
-		$update_request = new WP_REST_Request( 'PUT', '/jetpack/v4/videopress/caption-tracks/' . $created['id'] );
+		$update_request = new WP_REST_Request( 'PUT', '/wpcom/v2/videopress/caption-tracks/' . $created['id'] );
 		$update_request->set_body_params( $payload );
 		$response = $this->server->dispatch( $update_request );
 
@@ -462,7 +462,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 			'<!-- wp:videopress/caption-cue {"startTime":"00:00:00.000","endTime":"00:00:02.000","text":"Bad \u002d\u002d\u003e cue"} /-->' .
 			'<!-- wp:paragraph --><p>Injected</p><!-- /wp:paragraph -->';
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
 
 		/*
@@ -566,7 +566,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
-		$update_request = new WP_REST_Request( 'PUT', '/jetpack/v4/videopress/caption-tracks/' . $track_id );
+		$update_request = new WP_REST_Request( 'PUT', '/wpcom/v2/videopress/caption-tracks/' . $track_id );
 		$update_request->set_body_params( $this->track_payload_for_guid( 'abcd1234' ) );
 
 		$response = $this->server->dispatch( $update_request );
@@ -584,7 +584,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
-		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$create_request->set_body_params( $this->track_payload() );
 		$created = $this->server->dispatch( $create_request )->get_data();
 
@@ -596,7 +596,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$payload                                       = $this->track_payload();
 		$payload['meta'][ Caption_Tracks::META_LABEL ] = 'C:\captions\pt';
 
-		$update_request = new WP_REST_Request( 'PUT', '/jetpack/v4/videopress/caption-tracks/' . $created['id'] );
+		$update_request = new WP_REST_Request( 'PUT', '/wpcom/v2/videopress/caption-tracks/' . $created['id'] );
 		$update_request->set_body_params( $payload );
 
 		$response = $this->server->dispatch( $update_request );
@@ -615,7 +615,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$payload           = $this->track_payload();
 		$payload['status'] = 'pending';
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
 
 		$response = $this->server->dispatch( $request );
@@ -634,7 +634,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$payload                        = $this->track_payload();
 		$payload['meta']['_wp_smuggle'] = 'value';
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
 
 		$response = $this->server->dispatch( $request );
@@ -654,7 +654,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		unset( $payload['meta'] );
 		$payload['guid'] = 'abcd1234';
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
 
 		$response = $this->server->dispatch( $request );
@@ -673,7 +673,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$payload            = $this->track_payload();
 		$payload['content'] = array( 'not' => 'a string' );
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
 
 		$response = $this->server->dispatch( $request );
@@ -713,7 +713,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$payload            = $this->track_payload();
 		$payload['content'] = str_repeat( 'a', Caption_Tracks::MAX_CONTENT_BYTES + 1 );
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
 
 		$response = $this->server->dispatch( $request );
@@ -732,7 +732,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$payload            = $this->track_payload();
 		$payload['content'] = str_repeat( '<!-- wp:videopress/caption-cue /-->', Caption_Tracks::MAX_CUE_BLOCKS + 1 );
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
 
 		$response = $this->server->dispatch( $request );
@@ -752,7 +752,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
-		$create_request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$create_request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$create_request->set_body_params( $this->track_payload() );
 		$created = $this->server->dispatch( $create_request )->get_data();
 
@@ -760,7 +760,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$payload['id']    = $created['id'];
 		$payload['title'] = 'Renamed track';
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
 
 		$response = $this->server->dispatch( $request );
@@ -781,7 +781,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 			$payload = $this->track_payload();
 			$payload['meta'][ Caption_Tracks::META_SRC_LANG ] = $language;
 
-			$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+			$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 			$request->set_body_params( $payload );
 
 			$response = $this->server->dispatch( $request );
@@ -847,7 +847,7 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$payload            = $this->track_payload();
 		$payload['content'] = $content;
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/videopress/caption-tracks' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
 		$request->set_body_params( $payload );
 
 		/*

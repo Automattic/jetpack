@@ -37,7 +37,7 @@ describe( 'caption-tracks', () => {
 			await expect( fetchCaptionTracks( 'abc123' ) ).resolves.toEqual( tracks );
 
 			expect( apiFetchMock ).toHaveBeenCalledWith( {
-				path: '/jetpack/v4/videopress/caption-tracks?guid=abc123',
+				path: '/wpcom/v2/videopress/caption-tracks?guid=abc123',
 			} );
 		} );
 
@@ -47,7 +47,7 @@ describe( 'caption-tracks', () => {
 			await fetchCaptionTracks( 'a b&c' );
 
 			expect( apiFetchMock ).toHaveBeenCalledWith( {
-				path: '/jetpack/v4/videopress/caption-tracks?guid=a%20b%26c',
+				path: '/wpcom/v2/videopress/caption-tracks?guid=a%20b%26c',
 			} );
 		} );
 	} );
@@ -60,7 +60,7 @@ describe( 'caption-tracks', () => {
 
 			expect( apiFetchMock ).toHaveBeenCalledWith( {
 				method: 'POST',
-				path: '/jetpack/v4/videopress/caption-tracks',
+				path: '/wpcom/v2/videopress/caption-tracks',
 				data: baseTrack,
 			} );
 		} );
@@ -73,7 +73,7 @@ describe( 'caption-tracks', () => {
 
 			expect( apiFetchMock ).toHaveBeenCalledWith( {
 				method: 'PUT',
-				path: '/jetpack/v4/videopress/caption-tracks/7',
+				path: '/wpcom/v2/videopress/caption-tracks/7',
 				data: track,
 			} );
 		} );
@@ -87,7 +87,7 @@ describe( 'caption-tracks', () => {
 
 			expect( apiFetchMock ).toHaveBeenCalledWith( {
 				method: 'DELETE',
-				path: '/jetpack/v4/videopress/caption-tracks/7',
+				path: '/wpcom/v2/videopress/caption-tracks/7',
 			} );
 		} );
 	} );

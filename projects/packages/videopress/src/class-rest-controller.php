@@ -56,57 +56,6 @@ class Rest_Controller {
 				'args'                => self::stats_video_plays_args(),
 			)
 		);
-
-		register_rest_route(
-			self::REST_NAMESPACE,
-			'/caption-tracks',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( Caption_Tracks::class, 'rest_list_tracks' ),
-					'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),
-					'args'                => array(
-						'guid' => array(
-							'description' => __( 'VideoPress GUID.', 'jetpack-videopress-pkg' ),
-							'type'        => 'string',
-							'required'    => true,
-						),
-					),
-				),
-				array(
-					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( Caption_Tracks::class, 'rest_save_track' ),
-					'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),
-					'args'                => Caption_Tracks::save_track_args(),
-				),
-			)
-		);
-
-		register_rest_route(
-			self::REST_NAMESPACE,
-			'/caption-tracks/(?P<id>\d+)',
-			array(
-				array(
-					// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- register_rest_route() supports a shared `args` key alongside endpoint arrays.
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( Caption_Tracks::class, 'rest_save_track' ),
-					'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),
-					'args'                => Caption_Tracks::save_track_args(),
-				),
-				array(
-					'methods'             => WP_REST_Server::DELETABLE,
-					'callback'            => array( Caption_Tracks::class, 'rest_delete_track' ),
-					'permission_callback' => array( Caption_Tracks::class, 'rest_permission_check' ),
-				),
-				'args' => array(
-					'id' => array(
-						'description' => __( 'Caption track ID.', 'jetpack-videopress-pkg' ),
-						'type'        => 'integer',
-						'required'    => true,
-					),
-				),
-			)
-		);
 	}
 
 	/**
