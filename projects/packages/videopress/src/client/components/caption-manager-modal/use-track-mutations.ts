@@ -33,6 +33,7 @@ const debug = debugFactory( 'videopress:caption-manager-modal:mutations' );
 
 type UseTrackMutationsArgs = {
 	guid: string;
+	isPrivate?: boolean;
 	managedTracks: VideoTextTrack[];
 	setManagedTracks: Dispatch< SetStateAction< VideoTextTrack[] > >;
 	setCaptionTracks: Dispatch< SetStateAction< SavedCaptionTrack[] > >;
@@ -62,6 +63,7 @@ export type UploadOutcome = 'uploaded' | 'cleanup-failed' | 'failed';
  *
  * @param args                  - Hook arguments.
  * @param args.guid             - VideoPress GUID.
+ * @param args.isPrivate        - Whether the video is private, so downloads authenticate up front.
  * @param args.managedTracks    - Current managed track list.
  * @param args.setManagedTracks - Managed track list setter.
  * @param args.setCaptionTracks - Caption track (draft) list setter.
@@ -71,6 +73,7 @@ export type UploadOutcome = 'uploaded' | 'cleanup-failed' | 'failed';
  */
 export function useTrackMutations( {
 	guid,
+	isPrivate = false,
 	managedTracks,
 	setManagedTracks,
 	setCaptionTracks,
@@ -414,7 +417,7 @@ export function useTrackMutations( {
 			setNotice( null );
 
 			try {
-				const content = await fetchTrackContentForGuid( track, guid );
+				const content = await fetchTrackContentForGuid( track, guid, isPrivate );
 				if ( ! content ) {
 					setNotice( {
 						status: 'error',
@@ -445,7 +448,7 @@ export function useTrackMutations( {
 				setDownloadingTrackKey( null );
 			}
 		},
-		[ guid, setNotice ]
+		[ guid, isPrivate, setNotice ]
 	);
 
 	return {

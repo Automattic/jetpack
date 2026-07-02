@@ -495,6 +495,62 @@ describe( 'CaptionManagerModal', () => {
 		expect( screen.getByLabelText( 'Cue text' ) ).toBeInTheDocument();
 	} );
 
+	it( 'undoes and redoes cue edits with the keyboard, coalescing rapid edits', async () => {
+		const user = userEvent.setup();
+		const nowSpy = jest.spyOn( Date, 'now' );
+		render( <CaptionManagerModal { ...defaultProps } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+		const cueText = () => screen.getByLabelText( 'Cue text' );
+
+		/* Two edits within the coalescing window form one undo level. */
+		nowSpy.mockReturnValue( 1000 );
+		fireEvent.change( cueText(), { target: { value: 'One' } } );
+		nowSpy.mockReturnValue( 1500 );
+		fireEvent.change( cueText(), { target: { value: 'One two' } } );
+		/* A later edit starts a new level. */
+		nowSpy.mockReturnValue( 5000 );
+		fireEvent.change( cueText(), { target: { value: 'One two three' } } );
+
+		fireEvent.keyDown( cueText(), { key: 'z', ctrlKey: true } );
+		expect( cueText() ).toHaveValue( 'One two' );
+
+		fireEvent.keyDown( cueText(), { key: 'z', ctrlKey: true } );
+		expect( cueText() ).toHaveValue( '' );
+
+		fireEvent.keyDown( cueText(), { key: 'z', ctrlKey: true, shiftKey: true } );
+		expect( cueText() ).toHaveValue( 'One two' );
+
+		/* A fresh edit invalidates the redo stack. */
+		nowSpy.mockReturnValue( 9000 );
+		fireEvent.change( cueText(), { target: { value: 'One two four' } } );
+		fireEvent.keyDown( cueText(), { key: 'z', ctrlKey: true, shiftKey: true } );
+		expect( cueText() ).toHaveValue( 'One two four' );
+
+		nowSpy.mockRestore();
+	} );
+
+	it( 'warns before unloading the page with unsaved cue edits', async () => {
+		const user = userEvent.setup();
+		render( <CaptionManagerModal { ...defaultProps } /> );
+
+		const unloadEvent = () => {
+			const event = new Event( 'beforeunload', { cancelable: true } );
+			window.dispatchEvent( event );
+			return event;
+		};
+
+		// Nothing edited yet: no warning, in the track list or a fresh editor.
+		expect( unloadEvent().defaultPrevented ).toBe( false );
+		await user.click( screen.getByText( 'Add track' ) );
+		expect( unloadEvent().defaultPrevented ).toBe( false );
+
+		fireEvent.change( screen.getByLabelText( 'Cue text' ), {
+			target: { value: 'Unsaved cue.' },
+		} );
+		expect( unloadEvent().defaultPrevented ).toBe( true );
+	} );
+
 	it( 'does not expose track kind selection in the manager forms', async () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } /> );
@@ -1109,7 +1165,7 @@ describe( 'CaptionManagerModal', () => {
 			await user.click( screen.getAllByText( 'Download' )[ 0 ] );
 
 			await waitFor( () =>
-				expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracks[ 0 ], 'abc123' )
+				expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracks[ 0 ], 'abc123', false )
 			);
 			expect( window.URL.createObjectURL ).toHaveBeenCalledWith( expect.any( Blob ) );
 			expect( clickSpy ).toHaveBeenCalled();
@@ -1326,7 +1382,7 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getAllByText( 'Edit' )[ 1 ] );
 		await waitFor( () =>
-			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracks[ 1 ], 'abc123' )
+			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracks[ 1 ], 'abc123', false )
 		);
 		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( 'en' );
 		await user.click( screen.getByText( 'Update' ) );
@@ -1401,7 +1457,7 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getByText( 'Edit' ) );
 		await waitFor( () =>
-			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracksWithId[ 0 ], 'abc123' )
+			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracksWithId[ 0 ], 'abc123', false )
 		);
 		await user.clear( screen.getByLabelText( 'Cue text' ) );
 		await user.type( screen.getByLabelText( 'Cue text' ), 'Updated cue.' );
@@ -1431,7 +1487,7 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getByText( 'Edit' ) );
 		await waitFor( () =>
-			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracksWithId[ 0 ], 'abc123' )
+			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracksWithId[ 0 ], 'abc123', false )
 		);
 
 		// Change the language of the English track to French and publish.
@@ -1590,7 +1646,7 @@ describe( 'CaptionManagerModal', () => {
 
 		await user.click( screen.getByText( 'Edit' ) );
 		await waitFor( () =>
-			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracksWithId[ 0 ], 'abc123' )
+			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracksWithId[ 0 ], 'abc123', false )
 		);
 		fireEvent.change( screen.getByLabelText( 'Language' ), { target: { value: 'fr' } } );
 		await user.click( screen.getByText( 'Publish' ) );

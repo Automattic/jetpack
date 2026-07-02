@@ -32,6 +32,9 @@ import type { ManualWorkspace as ManualWorkspaceState } from './workspace-reduce
 import type { KeyboardEvent, MutableRefObject, ReactElement, RefObject } from 'react';
 
 const PREVIEW_SEEK_STEP_SECONDS = 5;
+/* Edits closer together than this merge into one undo level, so a burst of typing undoes as a unit. */
+const UNDO_COALESCE_MS = 1000;
+const MAX_UNDO_LEVELS = 100;
 
 /*
  * Module constant so the BlockEditorProvider doesn't reset all editor settings
@@ -103,16 +106,75 @@ export default function ManualEditor( {
 	 */
 	const [ cueBlocks, setCueBlocks ] = useState( workspace.cueBlocks );
 	const seededCueBlocksRef = useRef( workspace.cueBlocks );
+
+	/*
+	 * The isolated BlockEditorProvider carries no history of its own, so the
+	 * editor keeps its own undo/redo stacks of block snapshots. The arrays only
+	 * hold references, so levels are cheap.
+	 */
+	const undoStackRef = useRef< CaptionCueBlock[][] >( [] );
+	const redoStackRef = useRef< CaptionCueBlock[][] >( [] );
+	const lastEditTimeRef = useRef( 0 );
+
+	const pushUndoSnapshot = useCallback( ( blocks: CaptionCueBlock[] ) => {
+		const now = Date.now();
+		if ( ! undoStackRef.current.length || now - lastEditTimeRef.current > UNDO_COALESCE_MS ) {
+			undoStackRef.current.push( blocks );
+			if ( undoStackRef.current.length > MAX_UNDO_LEVELS ) {
+				undoStackRef.current.shift();
+			}
+		}
+		lastEditTimeRef.current = now;
+		redoStackRef.current = [];
+	}, [] );
+
 	if ( seededCueBlocksRef.current !== workspace.cueBlocks ) {
 		seededCueBlocksRef.current = workspace.cueBlocks;
+		// A re-seed (async load, text import) replaces every cue; keep it undoable.
+		undoStackRef.current.push( cueBlocks );
+		if ( undoStackRef.current.length > MAX_UNDO_LEVELS ) {
+			undoStackRef.current.shift();
+		}
+		redoStackRef.current = [];
+		lastEditTimeRef.current = 0;
 		setCueBlocks( workspace.cueBlocks );
 	}
 	cueBlocksRef.current = cueBlocks;
 
-	const handleCueBlocksChange = useCallback(
-		( blocks: unknown ) => setCueBlocks( blocks as CaptionCueBlock[] ),
-		[]
+	const applyCueBlocksChange = useCallback(
+		( blocks: CaptionCueBlock[] ) => {
+			pushUndoSnapshot( cueBlocksRef.current );
+			setCueBlocks( blocks );
+		},
+		[ cueBlocksRef, pushUndoSnapshot ]
 	);
+
+	const handleCueBlocksChange = useCallback(
+		( blocks: unknown ) => applyCueBlocksChange( blocks as CaptionCueBlock[] ),
+		[ applyCueBlocksChange ]
+	);
+
+	const undo = useCallback( () => {
+		const previousBlocks = undoStackRef.current.pop();
+		if ( ! previousBlocks ) {
+			return;
+		}
+
+		redoStackRef.current.push( cueBlocksRef.current );
+		lastEditTimeRef.current = 0;
+		setCueBlocks( previousBlocks );
+	}, [ cueBlocksRef ] );
+
+	const redo = useCallback( () => {
+		const nextBlocks = redoStackRef.current.pop();
+		if ( ! nextBlocks ) {
+			return;
+		}
+
+		undoStackRef.current.push( cueBlocksRef.current );
+		lastEditTimeRef.current = 0;
+		setCueBlocks( nextBlocks );
+	}, [ cueBlocksRef ] );
 
 	// Whether the editor holds any complete cues, for the import actions.
 	const cues = useMemo( () => captionBlocksToCues( cueBlocks ), [ cueBlocks ] );
@@ -159,8 +221,8 @@ export default function ManualEditor( {
 		shouldScrollCueEditorToEndRef.current = true;
 		const block = createCueAtPlayhead( playerRef.current?.getCurrentTime() ?? 0 );
 		pendingFocusClientIdRef.current = block.clientId;
-		setCueBlocks( current => [ ...current, block ] );
-	}, [ pendingFocusClientIdRef, playerRef ] );
+		applyCueBlocksChange( [ ...cueBlocksRef.current, block ] );
+	}, [ applyCueBlocksChange, cueBlocksRef, pendingFocusClientIdRef, playerRef ] );
 
 	const seekToAdjacentCue = useCallback(
 		( direction: 'next' | 'previous' ) => {
@@ -183,6 +245,26 @@ export default function ManualEditor( {
 
 	const handleKeyDown = useCallback(
 		( event: KeyboardEvent< HTMLDivElement > ) => {
+			/*
+			 * Undo/redo works from anywhere in the cue editor, including its text
+			 * fields (which are controlled, so there is no native undo to defer
+			 * to) — but not from the paste-text panel, which edits no cues.
+			 */
+			if (
+				( event.metaKey || event.ctrlKey ) &&
+				! event.altKey &&
+				event.key.toLowerCase() === 'z' &&
+				! workspace.isTextImportOpen
+			) {
+				event.preventDefault();
+				if ( event.shiftKey ) {
+					redo();
+				} else {
+					undo();
+				}
+				return;
+			}
+
 			if ( event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ) {
 				return;
 			}
@@ -218,7 +300,7 @@ export default function ManualEditor( {
 					break;
 			}
 		},
-		[ addCue, playerRef, seekToAdjacentCue ]
+		[ addCue, playerRef, redo, seekToAdjacentCue, undo, workspace.isTextImportOpen ]
 	);
 
 	const importText = ( mode: 'append' | 'replace' ) => {
@@ -231,7 +313,7 @@ export default function ManualEditor( {
 			className="videopress-caption-manager__editor-body videopress-caption-manager__editor-body--manual videopress-caption-manager__manual-panel"
 			role="group"
 			aria-label={ __( 'Subtitle editing workspace', 'jetpack-videopress-pkg' ) }
-			aria-keyshortcuts="Space ArrowLeft ArrowRight C N P"
+			aria-keyshortcuts="Space ArrowLeft ArrowRight C N P Control+Z Control+Shift+Z"
 			aria-describedby="videopress-caption-manager-shortcuts"
 			tabIndex={ 0 }
 			onKeyDown={ handleKeyDown }
@@ -242,7 +324,7 @@ export default function ManualEditor( {
 				className="videopress-caption-manager__visually-hidden"
 			>
 				{ __(
-					'Keyboard shortcuts: Space plays or pauses the preview, the Left and Right arrow keys seek, C adds a subtitle at the playhead, and N and P jump to the next or previous subtitle.',
+					'Keyboard shortcuts: Space plays or pauses the preview, the Left and Right arrow keys seek, C adds a subtitle at the playhead, N and P jump to the next or previous subtitle, and Control+Z or Command+Z undoes an edit (add Shift to redo).',
 					'jetpack-videopress-pkg'
 				) }
 			</p>
