@@ -25,7 +25,7 @@ import type { ComponentProps } from 'react';
 
 // Default chart configuration
 const DEFAULT_THICKNESS = 0.3;
-const SEMI_CIRCLE_ASPECT_RATIO = 0.5;
+const DEFAULT_ASPECT_RATIO = 0.5;
 
 export type SemiCircleChartData = ComponentProps< typeof PieSemiCircleChart >[ 'data' ];
 
@@ -79,6 +79,13 @@ export type SemiCircleChartProps = {
 	 * @default 0.3
 	 */
 	thickness?: number;
+
+	/**
+	 * Aspect ratio of the chart (height / width). Keeps the semi-circle's
+	 * intended proportions when the widget cell size changes.
+	 * @default 0.5
+	 */
+	aspectRatio?: number;
 
 	/**
 	 * Width of the chart.
@@ -141,6 +148,7 @@ export function SemiCircleChart( {
 	showLegend = true,
 	showMetric = true,
 	thickness = DEFAULT_THICKNESS,
+	aspectRatio = DEFAULT_ASPECT_RATIO,
 	maxWidth = Infinity,
 	emptyStateIcon,
 	emptyStateText,
@@ -199,7 +207,7 @@ export function SemiCircleChart( {
 					className={ styles.chart }
 					thickness={ thickness }
 					clockwise={ false }
-					aspectRatio={ SEMI_CIRCLE_ASPECT_RATIO }
+					aspectRatio={ aspectRatio }
 					withTooltips={ withTooltips }
 					{ ...( tooltipOffsetX !== undefined && {
 						tooltipOffsetX,
