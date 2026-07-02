@@ -40,7 +40,9 @@ class Analytics_Test extends TestCase {
 	 */
 	public function test_defines_version_constant() {
 		$define = new ReflectionMethod( Analytics::class, 'define_version_constant' );
-		$define->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$define->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
+		}
 		$define->invoke( null );
 
 		$this->assertTrue( defined( 'PREMIUM_ANALYTICS_VERSION' ) );

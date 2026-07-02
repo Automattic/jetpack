@@ -27,7 +27,9 @@ class Configuration_Test extends TestCase {
 	 */
 	private function call_private( string $method ) {
 		$ref = new ReflectionMethod( Configuration::class, $method );
-		$ref->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
+		}
 		return $ref->invoke( new Configuration() );
 	}
 
