@@ -41,6 +41,11 @@ export type ManualWorkspace = {
 	track: ManualTrack;
 	sourceTrack: VideoTextTrack | null;
 	captionTrackId: number | undefined;
+	/*
+	 * The cue blocks the editor was last seeded or saved with. The live blocks
+	 * are the editor's own state, read back through a ref at action time; a new
+	 * array here re-seeds the editor.
+	 */
 	cueBlocks: CaptionCueBlock[];
 	/* Signature of the last loaded/saved cue content, to tell an edit from viewing. */
 	cueBaseline: string;
@@ -75,13 +80,22 @@ export type WorkspaceAction =
 			isTextImportOpen?: boolean;
 	  }
 	| { type: 'SET_MANUAL_LANGUAGE'; srcLang: string; label: string }
-	| { type: 'SET_CUE_BLOCKS'; cueBlocks: CaptionCueBlock[] }
 	| { type: 'SEED_CUE_BLOCKS'; requestId: number; cueBlocks: CaptionCueBlock[] }
 	| { type: 'CONTENT_LOAD_FAILED'; requestId: number }
-	| { type: 'MARK_SAVED'; requestId: number; captionTrackId: number | undefined }
+	| {
+			type: 'MARK_SAVED';
+			requestId: number;
+			captionTrackId: number | undefined;
+			cueBlocks: CaptionCueBlock[];
+	  }
 	| { type: 'SET_TEXT_IMPORT_OPEN'; isOpen: boolean }
 	| { type: 'SET_TEXT_IMPORT_VALUE'; value: string }
-	| { type: 'IMPORT_CUES'; mode: 'append' | 'replace'; cueBlocks: CaptionCueBlock[] };
+	| {
+			type: 'IMPORT_CUES';
+			mode: 'append' | 'replace';
+			cueBlocks: CaptionCueBlock[];
+			currentCueBlocks: CaptionCueBlock[];
+	  };
 
 export const initialWorkspaceState: WorkspaceState = { view: 'tracks', requestId: 0 };
 
@@ -165,12 +179,6 @@ export function workspaceReducer( state: WorkspaceState, action: WorkspaceAction
 			}
 			return { ...state, track: { ...state.track, srcLang: action.srcLang, label: action.label } };
 
-		case 'SET_CUE_BLOCKS':
-			if ( state.view !== 'manual' ) {
-				return state;
-			}
-			return { ...state, cueBlocks: action.cueBlocks };
-
 		case 'SEED_CUE_BLOCKS':
 			if ( state.view !== 'manual' ) {
 				return state;
@@ -192,10 +200,14 @@ export function workspaceReducer( state: WorkspaceState, action: WorkspaceAction
 			if ( state.view !== 'manual' ) {
 				return state;
 			}
+			/*
+			 * Only the baseline moves; touching `cueBlocks` here would re-seed the
+			 * editor and revert anything typed while the save was in flight.
+			 */
 			return {
 				...state,
 				captionTrackId: action.captionTrackId,
-				cueBaseline: getCueBlocksSignature( state.cueBlocks ),
+				cueBaseline: getCueBlocksSignature( action.cueBlocks ),
 				trackBaseline: { srcLang: state.track.srcLang, label: state.track.label },
 			};
 
@@ -222,7 +234,9 @@ export function workspaceReducer( state: WorkspaceState, action: WorkspaceAction
 			const cueBlocks =
 				action.mode === 'append'
 					? [
-							...state.cueBlocks.filter( block => String( block.attributes?.text ?? '' ).trim() ),
+							...action.currentCueBlocks.filter( block =>
+								String( block.attributes?.text ?? '' ).trim()
+							),
 							...action.cueBlocks,
 					  ]
 					: action.cueBlocks;
@@ -237,10 +251,14 @@ export function workspaceReducer( state: WorkspaceState, action: WorkspaceAction
 /**
  * Whether the manual editor holds unsaved work, to guard close/back/drop-to-upload.
  *
- * @param state - Current workspace state.
+ * @param state     - Current workspace state.
+ * @param cueBlocks - The editor's live cue blocks.
  * @return Whether there are unsaved manual edits.
  */
-export function hasUnsavedManualEdits( state: WorkspaceState ): boolean {
+export function hasUnsavedManualEdits(
+	state: WorkspaceState,
+	cueBlocks: CaptionCueBlock[]
+): boolean {
 	if ( state.view !== 'manual' ) {
 		return false;
 	}
@@ -256,5 +274,5 @@ export function hasUnsavedManualEdits( state: WorkspaceState ): boolean {
 		return true;
 	}
 
-	return getCueBlocksSignature( state.cueBlocks ) !== state.cueBaseline;
+	return getCueBlocksSignature( cueBlocks ) !== state.cueBaseline;
 }

@@ -9,11 +9,13 @@ import { upload } from '@wordpress/icons';
  * Internal dependencies
  */
 import { getLanguageDisplayName } from '../../lib/video-tracks/language';
+import CaptionPreviewPlayer from './caption-preview-player';
 import LanguageControl from './language-control';
 import { ACCEPTED_FILE_TYPES, SUPPORTED_CAPTION_FORMATS_LABEL } from './track-helpers';
 /**
  * Types
  */
+import type { CaptionPreviewProps } from './caption-preview-player';
 import type { UploadWorkspace as UploadWorkspaceState } from './workspace-reducer';
 import type { ChangeEvent, ReactElement } from 'react';
 
@@ -30,7 +32,8 @@ const UPLOAD_FORM_ACTION_LABELS = {
 type UploadWorkspaceProps = {
 	workspace: UploadWorkspaceState;
 	isSaving: boolean;
-	previewPanel: ReactElement;
+	/** Video props for the preview player. */
+	preview: CaptionPreviewProps;
 	onLanguageChange: ( tag: string, displayName: string ) => void;
 	onFileChange: ( file: File | null ) => void;
 	onCancelReplace: () => void;
@@ -44,7 +47,7 @@ type UploadWorkspaceProps = {
  * @param props                  - Component props.
  * @param props.workspace        - Upload workspace state.
  * @param props.isSaving         - Whether an upload is in flight.
- * @param props.previewPanel     - Preview player element.
+ * @param props.preview          - Video props for the preview player.
  * @param props.onLanguageChange - Called with the selected language tag and display name.
  * @param props.onFileChange     - Called with the chosen file.
  * @param props.onCancelReplace  - Called when a replace is cancelled.
@@ -54,7 +57,7 @@ type UploadWorkspaceProps = {
 export default function UploadWorkspace( {
 	workspace,
 	isSaving,
-	previewPanel,
+	preview,
 	onLanguageChange,
 	onFileChange,
 	onCancelReplace,
@@ -134,7 +137,7 @@ export default function UploadWorkspace( {
 					</Button>
 				</div>
 			</div>
-			{ previewPanel }
+			<CaptionPreviewPlayer { ...preview } />
 		</div>
 	);
 }

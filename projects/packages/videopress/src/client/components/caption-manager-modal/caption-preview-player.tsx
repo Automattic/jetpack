@@ -47,6 +47,15 @@ const getVideoPressPreviewUrl = ( guid: string, isPrivate?: boolean, playbackTok
 	} );
 
 /**
+ * A cue's pre-parsed time range and text, for the active-cue overlay lookup.
+ */
+export type CueRange = {
+	start: number | null;
+	end: number | null;
+	text: string;
+};
+
+/**
  * Imperative controls the caption editor uses to drive the preview from its
  * keyboard shortcuts and typing handlers.
  */
@@ -58,32 +67,42 @@ export type CaptionPreviewPlayerHandle = {
 	pauseWhileTypingNow: () => void;
 };
 
-type CaptionPreviewPlayerProps = {
+/**
+ * The player's video-identifying props, which hosts pass through unchanged so
+ * each workspace can render its own preview.
+ */
+export type CaptionPreviewProps = {
 	guid: string;
 	videoSrc?: string;
 	poster?: string;
 	isPrivate?: boolean;
 	previewAspectRatio?: string;
-	activeCueText?: string;
-	onCurrentTimeChange: ( seconds: number ) => void;
+};
+
+const NO_CUE_RANGES: CueRange[] = [];
+
+type CaptionPreviewPlayerProps = CaptionPreviewProps & {
+	cueRanges?: CueRange[];
 };
 
 /**
  * Video preview for the caption editor.
  *
  * Plays either a direct video source (a native `<video>`) or the VideoPress
- * embed (an iframe driven over postMessage), tracks playback time so the editor
- * can highlight the active cue, and pauses playback while the author types.
+ * embed (an iframe driven over postMessage), tracks playback time to overlay
+ * the cue under the playhead, and pauses playback while the author types.
+ * Owning the playback time here keeps the per-timeupdate state churn out of
+ * the modal, which would otherwise re-render every cue block several times a
+ * second during playback.
  *
- * @param props                     - Component props.
- * @param props.guid                - VideoPress GUID, used for the embed player.
- * @param props.videoSrc            - Optional direct video source.
- * @param props.poster              - Optional poster image for the native player.
- * @param props.isPrivate           - Whether the video is private, so the embed needs a playback token.
- * @param props.previewAspectRatio  - Aspect ratio (`W / H`) to size the frame.
- * @param props.activeCueText       - Text of the cue currently under the playhead.
- * @param props.onCurrentTimeChange - Called with the playback time in seconds.
- * @param ref                       - Imperative playback controls.
+ * @param props                    - Component props.
+ * @param props.guid               - VideoPress GUID, used for the embed player.
+ * @param props.videoSrc           - Optional direct video source.
+ * @param props.poster             - Optional poster image for the native player.
+ * @param props.isPrivate          - Whether the video is private, so the embed needs a playback token.
+ * @param props.previewAspectRatio - Aspect ratio (`W / H`) to size the frame.
+ * @param props.cueRanges          - Pre-parsed cue ranges for the active-cue overlay.
+ * @param ref                      - Imperative playback controls.
  * @return The preview panel.
  */
 function CaptionPreviewPlayer(
@@ -93,8 +112,7 @@ function CaptionPreviewPlayer(
 		poster,
 		isPrivate,
 		previewAspectRatio,
-		activeCueText,
-		onCurrentTimeChange,
+		cueRanges = NO_CUE_RANGES,
 	}: CaptionPreviewPlayerProps,
 	ref: ForwardedRef< CaptionPreviewPlayerHandle >
 ): ReactElement {
@@ -103,8 +121,9 @@ function CaptionPreviewPlayer(
 	const previewResumeTimerRef = useRef< ReturnType< typeof setTimeout > | null >( null );
 	const shouldResumePreviewAfterTypingRef = useRef( false );
 	const currentTimeRef = useRef( 0 );
-	const onCurrentTimeChangeRef = useRef( onCurrentTimeChange );
-	onCurrentTimeChangeRef.current = onCurrentTimeChange;
+	const cueRangesRef = useRef( cueRanges );
+	cueRangesRef.current = cueRanges;
+	const [ activeCueText, setActiveCueText ] = useState< string | undefined >( undefined );
 	const [ isPreviewPlaying, setIsPreviewPlaying ] = useState( false );
 	const [ pauseWhileTyping, setPauseWhileTyping ] = useState( true );
 	// null = token fetch pending, '' = failed or not needed, string = minted token.
@@ -112,8 +131,16 @@ function CaptionPreviewPlayer(
 
 	const updateCurrentTime = useCallback( ( seconds: number ) => {
 		currentTimeRef.current = seconds;
-		onCurrentTimeChangeRef.current( seconds );
+		const activeCue = cueRangesRef.current.find(
+			( { start, end } ) => start !== null && end !== null && seconds >= start && seconds <= end
+		);
+		setActiveCueText( activeCue?.text );
 	}, [] );
+
+	// Refresh the overlay when the cues themselves change, e.g. edits while paused.
+	useEffect( () => {
+		updateCurrentTime( currentTimeRef.current );
+	}, [ cueRanges, updateCurrentTime ] );
 
 	const clearPreviewResumeTimer = useCallback( () => {
 		if ( previewResumeTimerRef.current ) {

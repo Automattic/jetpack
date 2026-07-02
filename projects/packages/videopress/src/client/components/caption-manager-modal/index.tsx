@@ -10,7 +10,7 @@ import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from '@wordpress/element';
-import { __, isRTL, sprintf } from '@wordpress/i18n';
+import { __, _x, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, plus, upload } from '@wordpress/icons';
 import debugFactory from 'debug';
 /**
@@ -22,7 +22,6 @@ import {
 	captionBlocksToCues,
 	getCaptionCueValidationErrors,
 	parseCaptionTextInput,
-	parseTimestampToSeconds,
 	serializeCuesToWebVtt,
 } from '../../lib/video-tracks/cues';
 import {
@@ -34,7 +33,6 @@ import {
 } from '../../lib/video-tracks/language';
 import { registerCaptionCueBlock } from './caption-cue-block';
 import { CaptionEditorContext } from './caption-editor-context';
-import CaptionPreviewPlayer from './caption-preview-player';
 import ManualEditor from './manual-editor';
 import { createCaptionManagerQueryClient } from './query-client';
 import {
@@ -75,7 +73,7 @@ import './style.scss';
 /**
  * Types
  */
-import type { CaptionPreviewPlayerHandle } from './caption-preview-player';
+import type { CaptionPreviewPlayerHandle, CaptionPreviewProps } from './caption-preview-player';
 import type { CaptionCueBlock, ManualTrack, NoticeState } from './track-helpers';
 import type { TrackListBusy } from './track-list';
 import type { CaptionManagerModalProps } from './types';
@@ -85,8 +83,6 @@ import type { VideoTextTrack } from '../../lib/video-tracks/types';
 import type { ReactElement } from 'react';
 
 const debug = debugFactory( 'videopress:caption-manager-modal' );
-
-const EMPTY_CUE_BLOCKS: CaptionCueBlock[] = [];
 
 type ConfirmationState = {
 	message: string;
@@ -149,6 +145,8 @@ function CaptionManagerModalInner( {
 }: CaptionManagerModalProps ): ReactElement | null {
 	const addTrackButtonRef = useRef< HTMLButtonElement >( null );
 	const playerRef = useRef< CaptionPreviewPlayerHandle >( null );
+	// Mirror of the manual editor's live cue blocks; see manual-editor.tsx.
+	const cueBlocksRef = useRef< CaptionCueBlock[] >( [] );
 	const pendingFocusClientIdRef = useRef< string | null >( null );
 	// Monotonic id source for workspace instances; see workspace-reducer.ts.
 	const requestIdRef = useRef( 0 );
@@ -160,13 +158,6 @@ function CaptionManagerModalInner( {
 	const [ workspace, dispatch ] = useReducer( workspaceReducer, initialWorkspaceState );
 	const [ notice, setNotice ] = useState< NoticeState >( null );
 	const [ confirmation, setConfirmation ] = useState< ConfirmationState | null >( null );
-	const [ currentTime, setCurrentTime ] = useState( 0 );
-	const currentTimeRef = useRef( 0 );
-
-	const handleCurrentTimeChange = useCallback( ( seconds: number ) => {
-		currentTimeRef.current = seconds;
-		setCurrentTime( seconds );
-	}, [] );
 
 	// Whether an async continuation still belongs to the current workspace.
 	const isCurrentWorkspace = useCallback(
@@ -183,7 +174,7 @@ function CaptionManagerModalInner( {
 	// Editor-wide bits the cue blocks can't receive as props; see caption-editor-context.ts.
 	const editorContext = useMemo(
 		() => ( {
-			getCurrentTime: () => currentTimeRef.current,
+			getCurrentTime: () => playerRef.current?.getCurrentTime() ?? 0,
 			pendingFocusClientIdRef,
 		} ),
 		[]
@@ -192,6 +183,7 @@ function CaptionManagerModalInner( {
 	const { managedTracks, setManagedTracks, previewAspectRatio } = useVideoTracks( {
 		guid,
 		isOpen,
+		isPrivate,
 		tracks,
 		onError: () =>
 			setNotice( {
@@ -318,44 +310,6 @@ function CaptionManagerModalInner( {
 	}, [ visibleManagedTracks, visibleCaptionTracks ] );
 
 	/*
-	 * Memoized on the cue-blocks slice, not the whole workspace, so unrelated
-	 * workspace edits (language, import text) don't re-parse every cue.
-	 */
-	const manualCueBlocks = workspace.view === 'manual' ? workspace.cueBlocks : EMPTY_CUE_BLOCKS;
-	const editorCues = useMemo( () => captionBlocksToCues( manualCueBlocks ), [ manualCueBlocks ] );
-
-	/*
-	 * Parse each cue's timestamps once per cue change so the per-timeupdate
-	 * lookups below compare plain numbers instead of re-parsing the strings.
-	 */
-	const cueRanges = useMemo(
-		() =>
-			editorCues.map( cue => ( {
-				start: parseTimestampToSeconds( cue.startTime ),
-				end: parseTimestampToSeconds( cue.endTime ),
-				text: cue.text,
-			} ) ),
-		[ editorCues ]
-	);
-
-	const activeCueText = useMemo( () => {
-		const activeCue = cueRanges.find(
-			( { start, end } ) =>
-				start !== null && end !== null && currentTime >= start && currentTime <= end
-		);
-		return activeCue?.text;
-	}, [ cueRanges, currentTime ] );
-
-	const cueStartTimes = useMemo(
-		() =>
-			cueRanges
-				.map( ( { start } ) => start )
-				.filter( ( start ): start is number => start !== null )
-				.sort( ( a, b ) => a - b ),
-		[ cueRanges ]
-	);
-
-	/*
 	 * Shared ending for the upload and publish flows: leave the editor and
 	 * announce the outcome, warning when the updated track's old record
 	 * couldn't be removed.
@@ -378,7 +332,7 @@ function CaptionManagerModalInner( {
 	 */
 	const confirmDiscardThen = useCallback(
 		( action: () => void ) => {
-			if ( ! hasUnsavedManualEdits( workspace ) ) {
+			if ( ! hasUnsavedManualEdits( workspace, cueBlocksRef.current ) ) {
 				action();
 				return;
 			}
@@ -586,12 +540,14 @@ function CaptionManagerModalInner( {
 			return;
 		}
 
+		// Capture the live blocks so the baseline matches exactly what was saved.
+		const cueBlocks = cueBlocksRef.current;
 		const payload = buildCaptionTrackPayload( {
 			status: 'draft',
 			guid,
 			manualTrack: workspace.track,
 			sourceTrack: workspace.sourceTrack,
-			cueBlocks: workspace.cueBlocks,
+			cueBlocks,
 			captionTrackId: workspace.captionTrackId,
 			captionTracks,
 		} );
@@ -610,6 +566,7 @@ function CaptionManagerModalInner( {
 				type: 'MARK_SAVED',
 				requestId: workspace.requestId,
 				captionTrackId: saved.id,
+				cueBlocks,
 			} );
 		}
 	}, [ captionTracks, guid, saveCaptionTrackRecord, workspace ] );
@@ -619,12 +576,13 @@ function CaptionManagerModalInner( {
 			return;
 		}
 
+		const cueBlocks = cueBlocksRef.current;
 		const payload = buildCaptionTrackPayload( {
 			status: 'publish',
 			guid,
 			manualTrack: workspace.track,
 			sourceTrack: workspace.sourceTrack,
-			cueBlocks: workspace.cueBlocks,
+			cueBlocks,
 			captionTrackId: workspace.captionTrackId,
 			captionTracks,
 		} );
@@ -636,7 +594,7 @@ function CaptionManagerModalInner( {
 			return;
 		}
 
-		const cueValidationErrors = getCaptionCueValidationErrors( workspace.cueBlocks );
+		const cueValidationErrors = getCaptionCueValidationErrors( cueBlocks );
 		if ( cueValidationErrors.length ) {
 			setNotice( {
 				status: 'error',
@@ -645,7 +603,7 @@ function CaptionManagerModalInner( {
 			return;
 		}
 
-		const cues = captionBlocksToCues( workspace.cueBlocks );
+		const cues = captionBlocksToCues( cueBlocks );
 		if ( ! cues.length ) {
 			setNotice( {
 				status: 'error',
@@ -720,7 +678,12 @@ function CaptionManagerModalInner( {
 				return false;
 			}
 
-			dispatch( { type: 'IMPORT_CUES', mode, cueBlocks: cues.map( createCueBlock ) } );
+			dispatch( {
+				type: 'IMPORT_CUES',
+				mode,
+				cueBlocks: cues.map( createCueBlock ),
+				currentCueBlocks: cueBlocksRef.current,
+			} );
 			setNotice( {
 				status: 'success',
 				message: __( 'Subtitle text imported.', 'jetpack-videopress-pkg' ),
@@ -834,18 +797,14 @@ function CaptionManagerModalInner( {
 		return null;
 	} )();
 
-	const previewPanel = (
-		<CaptionPreviewPlayer
-			ref={ playerRef }
-			guid={ guid }
-			videoSrc={ videoSrc }
-			poster={ poster }
-			isPrivate={ isPrivate }
-			previewAspectRatio={ previewAspectRatio }
-			activeCueText={ activeCueText }
-			onCurrentTimeChange={ handleCurrentTimeChange }
-		/>
-	);
+	// Each workspace renders its own preview player from these video props.
+	const previewProps: CaptionPreviewProps = {
+		guid,
+		videoSrc,
+		poster,
+		isPrivate,
+		previewAspectRatio,
+	};
 
 	return isOpen ? (
 		<CaptionEditorContext.Provider value={ editorContext }>
@@ -912,8 +871,13 @@ function CaptionManagerModalInner( {
 											isBusy={ isPublishing }
 											disabled={ isSavingCaptionTrack || isPublishing || isLoadingTrackText }
 										>
+											{ /* The context also keeps the branches distinct so minification can't merge the two calls, which would break string extraction. */ }
 											{ isUpdatingPublishedTrack
-												? __( 'Update', 'jetpack-videopress-pkg' )
+												? _x(
+														'Update',
+														'button: overwrite an already-published subtitle track',
+														'jetpack-videopress-pkg'
+												  )
 												: __( 'Publish', 'jetpack-videopress-pkg' ) }
 										</Button>
 									</>
@@ -986,7 +950,7 @@ function CaptionManagerModalInner( {
 							<UploadWorkspace
 								workspace={ workspace }
 								isSaving={ isSavingUpload }
-								previewPanel={ previewPanel }
+								preview={ previewProps }
 								onLanguageChange={ ( tag, displayName ) =>
 									dispatchAndClearNotice( {
 										type: 'SET_UPLOAD_LANGUAGE',
@@ -1004,10 +968,11 @@ function CaptionManagerModalInner( {
 					{ workspace.view === 'manual' && (
 						<section className="videopress-caption-manager__editor">
 							<ManualEditor
+								key={ workspace.requestId }
 								workspace={ workspace }
 								playerRef={ playerRef }
-								previewPanel={ previewPanel }
-								cueStartTimes={ cueStartTimes }
+								cueBlocksRef={ cueBlocksRef }
+								preview={ previewProps }
 								onLanguageChange={ ( tag, displayName ) =>
 									dispatchAndClearNotice( {
 										type: 'SET_MANUAL_LANGUAGE',
@@ -1015,7 +980,6 @@ function CaptionManagerModalInner( {
 										label: displayName,
 									} )
 								}
-								onCueBlocksChange={ cueBlocks => dispatch( { type: 'SET_CUE_BLOCKS', cueBlocks } ) }
 								onTextImportOpenChange={ importOpen =>
 									dispatchAndClearNotice( { type: 'SET_TEXT_IMPORT_OPEN', isOpen: importOpen } )
 								}

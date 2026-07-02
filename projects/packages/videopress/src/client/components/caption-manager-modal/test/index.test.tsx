@@ -201,6 +201,7 @@ jest.mock( '@wordpress/data', () => ( {
 
 jest.mock( '@wordpress/i18n', () => ( {
 	__: ( text: string ) => text,
+	_x: ( text: string ) => text,
 	isRTL: () => false,
 	sprintf: ( text: string, ...args: Array< number | string > ) => {
 		let sequentialIndex = 0;

@@ -4,23 +4,32 @@
 import { BlockEditorProvider, BlockList } from '@wordpress/block-editor';
 import { Button, TextareaControl } from '@wordpress/components';
 import { useFocusOnMount } from '@wordpress/compose';
-import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import { plus } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { CAPTION_CUE_BLOCK_NAME, captionBlocksToCues } from '../../lib/video-tracks/cues';
+import {
+	CAPTION_CUE_BLOCK_NAME,
+	captionBlocksToCues,
+	parseTimestampToSeconds,
+} from '../../lib/video-tracks/cues';
 import { useCaptionEditorContext } from './caption-editor-context';
+import CaptionPreviewPlayer from './caption-preview-player';
 import LanguageControl from './language-control';
 import { createCueAtPlayhead, isFormFieldTarget } from './track-helpers';
 /**
  * Types
  */
-import type { CaptionPreviewPlayerHandle } from './caption-preview-player';
+import type {
+	CaptionPreviewPlayerHandle,
+	CaptionPreviewProps,
+	CueRange,
+} from './caption-preview-player';
 import type { CaptionCueBlock } from './track-helpers';
 import type { ManualWorkspace as ManualWorkspaceState } from './workspace-reducer';
-import type { KeyboardEvent, ReactElement, RefObject } from 'react';
+import type { KeyboardEvent, MutableRefObject, ReactElement, RefObject } from 'react';
 
 const PREVIEW_SEEK_STEP_SECONDS = 5;
 
@@ -38,11 +47,11 @@ const CUE_EDITOR_SETTINGS = {
 type ManualEditorProps = {
 	workspace: ManualWorkspaceState;
 	playerRef: RefObject< CaptionPreviewPlayerHandle >;
-	previewPanel: ReactElement;
-	/** Sorted cue start times, for the next/previous-cue shortcuts. */
-	cueStartTimes: number[];
+	/** Mirror of the editor's live cue blocks, for the modal's action-time reads. */
+	cueBlocksRef: MutableRefObject< CaptionCueBlock[] >;
+	/** Video props for the preview player. */
+	preview: CaptionPreviewProps;
 	onLanguageChange: ( tag: string, displayName: string ) => void;
-	onCueBlocksChange: ( cueBlocks: CaptionCueBlock[] ) => void;
 	onTextImportOpenChange: ( isOpen: boolean ) => void;
 	onTextImportValueChange: ( value: string ) => void;
 	/** Import the pasted text; returns whether cues were created. */
@@ -56,10 +65,9 @@ type ManualEditorProps = {
  * @param props                         - Component props.
  * @param props.workspace               - Manual workspace state.
  * @param props.playerRef               - Imperative preview player handle.
- * @param props.previewPanel            - Preview player element.
- * @param props.cueStartTimes           - Sorted cue start times for cue jumps.
+ * @param props.cueBlocksRef            - Mirror of the live cue blocks for the modal.
+ * @param props.preview                 - Video props for the preview player.
  * @param props.onLanguageChange        - Called with the selected language tag and display name.
- * @param props.onCueBlocksChange       - Called with the edited cue blocks.
  * @param props.onTextImportOpenChange  - Toggle the paste-text panel.
  * @param props.onTextImportValueChange - Called with the pasted text.
  * @param props.onImportText            - Import the pasted text.
@@ -68,10 +76,9 @@ type ManualEditorProps = {
 export default function ManualEditor( {
 	workspace,
 	playerRef,
-	previewPanel,
-	cueStartTimes,
+	cueBlocksRef,
+	preview,
 	onLanguageChange,
-	onCueBlocksChange,
 	onTextImportOpenChange,
 	onTextImportValueChange,
 	onImportText,
@@ -86,10 +93,50 @@ export default function ManualEditor( {
 	const cueEditorRef = useRef< HTMLDivElement >( null );
 	const shouldScrollCueEditorToEndRef = useRef( false );
 
+	/*
+	 * The live cue blocks are editor-local state, so typing re-renders only this
+	 * subtree rather than the whole modal. The modal reads them back through
+	 * `cueBlocksRef` at action time (save, publish, dirty check) and re-seeds by
+	 * dispatching a new `workspace.cueBlocks` array (async content load, text
+	 * import). The render-phase sync keeps the ref current before any handler
+	 * can run, which an effect-based sync wouldn't.
+	 */
+	const [ cueBlocks, setCueBlocks ] = useState( workspace.cueBlocks );
+	const seededCueBlocksRef = useRef( workspace.cueBlocks );
+	if ( seededCueBlocksRef.current !== workspace.cueBlocks ) {
+		seededCueBlocksRef.current = workspace.cueBlocks;
+		setCueBlocks( workspace.cueBlocks );
+	}
+	cueBlocksRef.current = cueBlocks;
+
+	const handleCueBlocksChange = useCallback(
+		( blocks: unknown ) => setCueBlocks( blocks as CaptionCueBlock[] ),
+		[]
+	);
+
 	// Whether the editor holds any complete cues, for the import actions.
-	const hasCues = useMemo(
-		() => captionBlocksToCues( workspace.cueBlocks ).length > 0,
-		[ workspace.cueBlocks ]
+	const cues = useMemo( () => captionBlocksToCues( cueBlocks ), [ cueBlocks ] );
+	const hasCues = cues.length > 0;
+
+	// Pre-parsed cue ranges, so the player's per-timeupdate lookups compare numbers.
+	const cueRanges = useMemo< CueRange[] >(
+		() =>
+			cues.map( cue => ( {
+				start: parseTimestampToSeconds( cue.startTime ),
+				end: parseTimestampToSeconds( cue.endTime ),
+				text: cue.text,
+			} ) ),
+		[ cues ]
+	);
+
+	// Sorted cue start times, for the next/previous-cue shortcuts.
+	const cueStartTimes = useMemo(
+		() =>
+			cueRanges
+				.map( ( { start } ) => start )
+				.filter( ( start ): start is number => start !== null )
+				.sort( ( a, b ) => a - b ),
+		[ cueRanges ]
 	);
 
 	useEffect( () => {
@@ -106,14 +153,14 @@ export default function ManualEditor( {
 		} else if ( cueEditorRef.current ) {
 			cueEditorRef.current.scrollTop = cueEditorRef.current.scrollHeight;
 		}
-	}, [ workspace.cueBlocks ] );
+	}, [ cueBlocks ] );
 
 	const addCue = useCallback( () => {
 		shouldScrollCueEditorToEndRef.current = true;
 		const block = createCueAtPlayhead( playerRef.current?.getCurrentTime() ?? 0 );
 		pendingFocusClientIdRef.current = block.clientId;
-		onCueBlocksChange( [ ...workspace.cueBlocks, block ] );
-	}, [ onCueBlocksChange, pendingFocusClientIdRef, playerRef, workspace.cueBlocks ] );
+		setCueBlocks( current => [ ...current, block ] );
+	}, [ pendingFocusClientIdRef, playerRef ] );
 
 	const seekToAdjacentCue = useCallback(
 		( direction: 'next' | 'previous' ) => {
@@ -242,8 +289,13 @@ export default function ManualEditor( {
 								onClick={ () => importText( 'replace' ) }
 								disabled={ ! workspace.textImportValue.trim() }
 							>
+								{ /* The context also keeps the branches distinct so minification can't merge the two calls, which would break string extraction. */ }
 								{ hasCues
-									? __( 'Replace', 'jetpack-videopress-pkg' )
+									? _x(
+											'Replace',
+											'button: replace the existing subtitle cues with the pasted text',
+											'jetpack-videopress-pkg'
+									  )
 									: __( 'Create cues', 'jetpack-videopress-pkg' ) }
 							</Button>
 						</div>
@@ -251,14 +303,14 @@ export default function ManualEditor( {
 				) : (
 					<div className="videopress-caption-manager__cue-editor" ref={ cueEditorRef }>
 						<BlockEditorProvider
-							value={ workspace.cueBlocks }
-							onInput={ blocks => onCueBlocksChange( blocks as CaptionCueBlock[] ) }
-							onChange={ blocks => onCueBlocksChange( blocks as CaptionCueBlock[] ) }
+							value={ cueBlocks }
+							onInput={ handleCueBlocksChange }
+							onChange={ handleCueBlocksChange }
 							settings={ CUE_EDITOR_SETTINGS }
 						>
 							<BlockList />
 						</BlockEditorProvider>
-						{ ! workspace.cueBlocks.length && (
+						{ ! cueBlocks.length && (
 							<div className="videopress-caption-manager__cue-empty">
 								<Button variant="secondary" icon={ plus } onClick={ addCue }>
 									{ __( 'Add subtitle', 'jetpack-videopress-pkg' ) }
@@ -272,7 +324,7 @@ export default function ManualEditor( {
 				) }
 			</div>
 
-			{ previewPanel }
+			<CaptionPreviewPlayer ref={ playerRef } { ...preview } cueRanges={ cueRanges } />
 		</div>
 	);
 }

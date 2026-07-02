@@ -24,6 +24,7 @@ type VideoTracksQueryData = {
 type UseVideoTracksArgs = {
 	guid: string;
 	isOpen: boolean;
+	isPrivate?: boolean;
 	tracks?: VideoTextTrack[];
 	onError?: () => void;
 };
@@ -36,7 +37,12 @@ type UseVideoTracksResult = {
 
 const EMPTY_TRACKS: VideoTextTrack[] = [];
 
-const getVideoTracksQueryKey = ( guid: string ) => [ 'videopress', 'video-info', guid ];
+const getVideoTracksQueryKey = ( guid: string, isPrivate: boolean ) => [
+	'videopress',
+	'video-info',
+	guid,
+	isPrivate,
+];
 
 /**
  * Owns the video's live "managed" track list and preview aspect ratio.
@@ -47,16 +53,18 @@ const getVideoTracksQueryKey = ( guid: string ) => [ 'videopress', 'video-info',
  * `setManagedTracks`, which cancels any in-flight fetch so a stale response
  * can't overwrite the optimistic list.
  *
- * @param args         - Hook arguments.
- * @param args.guid    - VideoPress GUID.
- * @param args.isOpen  - Whether the modal is open.
- * @param args.tracks  - Track list from the host, used until the video info loads.
- * @param args.onError - Called when the video info can't be loaded.
+ * @param args           - Hook arguments.
+ * @param args.guid      - VideoPress GUID.
+ * @param args.isOpen    - Whether the modal is open.
+ * @param args.isPrivate - Whether the video is private, so the fetch authenticates up front.
+ * @param args.tracks    - Track list from the host, used until the video info loads.
+ * @param args.onError   - Called when the video info can't be loaded.
  * @return Managed track state and the preview aspect ratio.
  */
 export function useVideoTracks( {
 	guid,
 	isOpen,
+	isPrivate = false,
 	tracks = EMPTY_TRACKS,
 	onError,
 }: UseVideoTracksArgs ): UseVideoTracksResult {
@@ -81,9 +89,13 @@ export function useVideoTracks( {
 	}, [ isOpen ] );
 
 	const query = useQuery< VideoTracksQueryData >( {
-		queryKey: getVideoTracksQueryKey( guid ),
+		queryKey: getVideoTracksQueryKey( guid, isPrivate ),
 		queryFn: async () => {
-			const info = await fetchVideoItem( { guid, isPrivate: false } );
+			/*
+			 * Passing the known privacy mints the playback token up front instead
+			 * of burning a request that fails auth just to discover it.
+			 */
+			const info = await fetchVideoItem( { guid, isPrivate } );
 			const width = Number( info?.width );
 			const height = Number( info?.height );
 			return {
@@ -106,7 +118,7 @@ export function useVideoTracks( {
 		value => {
 			cancelQueryThenSetData< VideoTracksQueryData >(
 				queryClient,
-				getVideoTracksQueryKey( guid ),
+				getVideoTracksQueryKey( guid, isPrivate ),
 				current => {
 					const currentTracks = current?.tracks ?? seedTracksRef.current;
 					return {
@@ -116,7 +128,7 @@ export function useVideoTracks( {
 				}
 			);
 		},
-		[ guid, queryClient ]
+		[ guid, isPrivate, queryClient ]
 	);
 
 	return {

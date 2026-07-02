@@ -100,7 +100,8 @@ class Caption_Tracks {
 				'show_ui'             => false,
 				'show_in_menu'        => false,
 				'show_in_rest'        => false,
-				'supports'            => array( 'title', 'editor', 'revisions' ),
+				// No revisions: there is no restore UI, and each one would copy up to 1MB of content.
+				'supports'            => array( 'title', 'editor' ),
 
 				/*
 				 * Caption tracks are an internal store reached only through the
@@ -369,6 +370,10 @@ class Caption_Tracks {
 
 	/**
 	 * List caption tracks for a VideoPress GUID.
+	 *
+	 * Responses include each track's full content so the editor can open a
+	 * draft without a second fetch, so payload size scales with the number of
+	 * languages times their content size (capped per track by MAX_CONTENT_BYTES).
 	 *
 	 * @param WP_REST_Request $request Incoming request.
 	 * @return \WP_REST_Response|WP_Error
