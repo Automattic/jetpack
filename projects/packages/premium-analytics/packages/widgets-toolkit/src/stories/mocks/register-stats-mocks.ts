@@ -216,6 +216,236 @@ const MOCK_CLICKS_COMPARISON = {
 	},
 };
 
+const MOCK_FILE_DOWNLOADS_FILES = [
+	{
+		relative_url: '/annual-report-2025.pdf',
+		filename: 'annual-report-2025.pdf',
+		download_url: 'https://example.com/annual-report-2025.pdf',
+		downloads: '3840',
+	},
+	{
+		relative_url: '/product-brochure.pdf',
+		filename: 'product-brochure.pdf',
+		download_url: 'https://example.com/product-brochure.pdf',
+		downloads: '2610',
+	},
+	{
+		relative_url: '/getting-started-guide.pdf',
+		filename: 'getting-started-guide.pdf',
+		download_url: 'https://example.com/getting-started-guide.pdf',
+		downloads: '1920',
+	},
+	{
+		relative_url: '/press-release-q1.docx',
+		filename: 'press-release-q1.docx',
+		download_url: 'https://example.com/press-release-q1.docx',
+		downloads: '1305',
+	},
+	{
+		relative_url: '/logo-assets.zip',
+		filename: 'logo-assets.zip',
+		download_url: 'https://example.com/logo-assets.zip',
+		downloads: '870',
+	},
+];
+
+const MOCK_FILE_DOWNLOADS_COMPARISON_FILES = [
+	{
+		relative_url: '/annual-report-2025.pdf',
+		filename: 'annual-report-2025.pdf',
+		download_url: 'https://example.com/annual-report-2025.pdf',
+		downloads: '3200',
+	},
+	{
+		relative_url: '/product-brochure.pdf',
+		filename: 'product-brochure.pdf',
+		download_url: 'https://example.com/product-brochure.pdf',
+		downloads: '2900',
+	},
+	{
+		relative_url: '/getting-started-guide.pdf',
+		filename: 'getting-started-guide.pdf',
+		download_url: 'https://example.com/getting-started-guide.pdf',
+		downloads: '1600',
+	},
+	{
+		relative_url: '/press-release-q1.docx',
+		filename: 'press-release-q1.docx',
+		download_url: 'https://example.com/press-release-q1.docx',
+		downloads: '1500',
+	},
+	{
+		relative_url: '/logo-assets.zip',
+		filename: 'logo-assets.zip',
+		download_url: 'https://example.com/logo-assets.zip',
+		downloads: '700',
+	},
+];
+
+const MOCK_FILE_DOWNLOADS = {
+	date: '2026-06-29',
+	period: 'day',
+	days: {
+		'2026-06-29': {
+			files: MOCK_FILE_DOWNLOADS_FILES,
+			other_downloads: 0,
+			total_downloads: 10545,
+		},
+	},
+	summary: {
+		files: MOCK_FILE_DOWNLOADS_FILES,
+		other_downloads: 0,
+		total_downloads: 10545,
+	},
+};
+
+const MOCK_FILE_DOWNLOADS_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	days: {
+		'2026-05-30': {
+			files: MOCK_FILE_DOWNLOADS_COMPARISON_FILES,
+			other_downloads: 0,
+			total_downloads: 9900,
+		},
+	},
+	summary: {
+		files: MOCK_FILE_DOWNLOADS_COMPARISON_FILES,
+		other_downloads: 0,
+		total_downloads: 9900,
+	},
+};
+
+type UtmMock = {
+	top_utm_values: Record< string, number >;
+	top_posts: Record< string, unknown[] >;
+};
+
+function createUtmMock( topUtmValues: Record< string, number > ): UtmMock {
+	return {
+		top_utm_values: topUtmValues,
+		top_posts: Object.fromEntries(
+			Object.entries( topUtmValues ).map( ( [ key, value ], index ) => {
+				const baseSlug = `utm-${ index + 1 }`;
+
+				return [
+					key,
+					[
+						{
+							id: index * 2 + 1,
+							title: `Landing page ${ index + 1 }`,
+							views: Math.round( value * 0.6 ),
+							href: `https://example.com/${ baseSlug }`,
+						},
+						{
+							id: index * 2 + 2,
+							title: `Signup page ${ index + 1 }`,
+							views: Math.round( value * 0.3 ),
+							href: `https://example.com/${ baseSlug }/signup`,
+						},
+					],
+				];
+			} )
+		),
+	};
+}
+
+// top_utm_values keys for multi-param endpoints are JSON-stringified arrays,
+// matching the format the server returns and that sanitizeStatsUtmResponse parses.
+const MOCK_UTM_SOURCE_MEDIUM = createUtmMock( {
+	'["google","organic"]': 5200,
+	'["twitter","social"]': 1800,
+	'["newsletter","email"]': 950,
+	'["facebook","paid"]': 720,
+	'["bing","cpc"]': 380,
+} );
+
+const MOCK_UTM_SOURCE_MEDIUM_COMPARISON = createUtmMock( {
+	'["google","organic"]': 4800,
+	'["twitter","social"]': 2100,
+	'["newsletter","email"]': 760,
+	'["facebook","paid"]': 840,
+	'["bing","cpc"]': 300,
+} );
+
+const MOCK_UTM_CAMPAIGN_SOURCE_MEDIUM = createUtmMock( {
+	'["spring_sale","google","organic"]': 5200,
+	'["newsletter_q2","newsletter","email"]': 1800,
+	'["brand_awareness","twitter","social"]': 950,
+	'["retargeting","facebook","paid"]': 720,
+	'["product_launch","bing","cpc"]': 380,
+} );
+
+const MOCK_UTM_CAMPAIGN_SOURCE_MEDIUM_COMPARISON = createUtmMock( {
+	'["spring_sale","google","organic"]': 4700,
+	'["newsletter_q2","newsletter","email"]': 2100,
+	'["brand_awareness","twitter","social"]': 780,
+	'["retargeting","facebook","paid"]': 810,
+	'["product_launch","bing","cpc"]': 330,
+} );
+
+const MOCK_UTM_SOURCE = createUtmMock( {
+	google: 5200,
+	twitter: 1800,
+	newsletter: 950,
+	facebook: 720,
+	bing: 380,
+} );
+
+const MOCK_UTM_SOURCE_COMPARISON = createUtmMock( {
+	google: 4800,
+	twitter: 2100,
+	newsletter: 760,
+	facebook: 840,
+	bing: 300,
+} );
+
+const MOCK_UTM_MEDIUM = createUtmMock( {
+	organic: 5200,
+	social: 1800,
+	email: 950,
+	paid: 720,
+	cpc: 380,
+} );
+
+const MOCK_UTM_MEDIUM_COMPARISON = createUtmMock( {
+	organic: 4800,
+	social: 2100,
+	email: 760,
+	paid: 840,
+	cpc: 300,
+} );
+
+const MOCK_UTM_CAMPAIGN = createUtmMock( {
+	spring_sale: 5200,
+	newsletter_q2: 1800,
+	brand_awareness: 950,
+	retargeting: 720,
+	product_launch: 380,
+} );
+
+const MOCK_UTM_CAMPAIGN_COMPARISON = createUtmMock( {
+	spring_sale: 4700,
+	newsletter_q2: 2100,
+	brand_awareness: 780,
+	retargeting: 810,
+	product_launch: 330,
+} );
+
+const UTM_MOCKS: Record< string, { primary: UtmMock; comparison: UtmMock } > = {
+	'utm_source,utm_medium': {
+		primary: MOCK_UTM_SOURCE_MEDIUM,
+		comparison: MOCK_UTM_SOURCE_MEDIUM_COMPARISON,
+	},
+	'utm_campaign,utm_source,utm_medium': {
+		primary: MOCK_UTM_CAMPAIGN_SOURCE_MEDIUM,
+		comparison: MOCK_UTM_CAMPAIGN_SOURCE_MEDIUM_COMPARISON,
+	},
+	utm_source: { primary: MOCK_UTM_SOURCE, comparison: MOCK_UTM_SOURCE_COMPARISON },
+	utm_medium: { primary: MOCK_UTM_MEDIUM, comparison: MOCK_UTM_MEDIUM_COMPARISON },
+	utm_campaign: { primary: MOCK_UTM_CAMPAIGN, comparison: MOCK_UTM_CAMPAIGN_COMPARISON },
+};
+
 type GeoMode = 'country' | 'region' | 'city';
 
 type StatsLocationItem = {
@@ -380,7 +610,7 @@ const REGION_COMPARISON_ROWS_BY_COUNTRY: Record< string, StatsLocationItem[] > =
 
 // Heuristic: a request whose `date` param is more than 1 day ago is treated as the
 // comparison-period request. This works for the default `last-30-days` preset (primary
-// date ≈ today, comparison date ≈ 30 days ago). It would misclassify a `today` preset
+// date ~= today, comparison date ~= 30 days ago). It would misclassify a `today` preset
 // (comparison date = yesterday, daysFromToday === 1), but the stories only use the default
 // preset so this is fine in practice.
 function isComparisonRequest( path: string ): boolean {
@@ -461,14 +691,29 @@ function getStatsMock( path: string ): unknown | null {
 		return isComparison ? MOCK_CLICKS_COMPARISON : MOCK_CLICKS;
 	}
 
-	const locationViewsMatch = subPath.match( /^\/location-views\/(country|region|city)$/ );
+	if ( subPath.startsWith( '/file-downloads' ) ) {
+		return isComparison ? MOCK_FILE_DOWNLOADS_COMPARISON : MOCK_FILE_DOWNLOADS;
+	}
 
+	const locationViewsMatch = subPath.match( /^\/location-views\/(country|region|city)$/ );
 	if ( locationViewsMatch ) {
 		return buildStatsLocationViewsResponse(
 			locationViewsMatch[ 1 ] as GeoMode,
 			query,
 			isComparison
 		);
+	}
+
+	// /stats/utm/{utmParam} — strip leading slash and match against known params.
+	if ( subPath.startsWith( '/utm/' ) ) {
+		const utmParam = subPath.slice( '/utm/'.length );
+		const mock = UTM_MOCKS[ utmParam ];
+
+		if ( mock ) {
+			return isComparison ? mock.comparison : mock.primary;
+		}
+
+		return { top_utm_values: {}, top_posts: {} };
 	}
 
 	return null;

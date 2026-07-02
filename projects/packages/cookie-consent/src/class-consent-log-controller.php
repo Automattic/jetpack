@@ -139,6 +139,8 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		add_action( 'rest_api_init', array( $instance, 'register_routes' ) );
 		add_action( self::CLEANUP_HOOK, array( $instance, 'cleanup_expired_logs' ) );
 
+		Consent_Log_Privacy::init();
+
 		return $instance;
 	}
 
@@ -147,7 +149,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 *
 	 * @return string
 	 */
-	private static function get_table_name() {
+	public static function get_table_name() {
 		global $wpdb;
 		return $wpdb->prefix . self::TABLE_NAME;
 	}
@@ -182,6 +184,10 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	public static function deactivate() {
 		self::unschedule_cleanup();
 
+		// Privacy filters are registered statically in init() regardless of the
+		// singleton, so unhook them unconditionally (before the instance guard).
+		Consent_Log_Privacy::deactivate();
+
 		if ( null === self::$instance ) {
 			return;
 		}
@@ -214,7 +220,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			consent_id varchar(36) DEFAULT NULL,
 			event_type varchar(50) NOT NULL,
-			customer_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+			user_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
 			ip_address varchar(64) DEFAULT NULL,
 			url text DEFAULT NULL,
 			consent_types longtext DEFAULT NULL,
@@ -224,7 +230,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 			date_created_gmt datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 			PRIMARY KEY (id),
 			KEY consent_id (consent_id),
-			KEY customer_id (customer_id),
+			KEY user_id (user_id),
 			KEY event_type (event_type),
 			KEY date_created_gmt (date_created_gmt)
 		) {$charset_collate};";
@@ -293,34 +299,34 @@ class Consent_Log_Controller extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_consent_logs' ),
 					'permission_callback' => array( $this, 'check_read_permission' ),
 					'args'                => array(
-						'customer_id' => array(
+						'user_id'  => array(
 							'type'              => 'integer',
 							'description'       => __( 'Filter by WordPress user ID.', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'absint',
 						),
-						'before'      => array(
+						'before'   => array(
 							'type'              => 'string',
 							'format'            => 'date-time',
 							'description'       => __( 'Filter logs created before this date (ISO 8601 format).', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'after'       => array(
+						'after'    => array(
 							'type'              => 'string',
 							'format'            => 'date-time',
 							'description'       => __( 'Filter logs created after this date (ISO 8601 format).', 'jetpack-cookie-consent' ),
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'page'        => array(
+						'page'     => array(
 							'type'              => 'integer',
 							'description'       => __( 'Current page of the collection.', 'jetpack-cookie-consent' ),
 							'default'           => 1,
 							'validate_callback' => 'rest_validate_request_arg',
 							'sanitize_callback' => 'absint',
 						),
-						'per_page'    => array(
+						'per_page' => array(
 							'type'              => 'integer',
 							'description'       => __( 'Maximum number of items to return (max 100).', 'jetpack-cookie-consent' ),
 							'default'           => 50,
@@ -633,7 +639,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$data = array(
 			'consent_id'       => $consent_id,
 			'event_type'       => $request->get_param( 'event_type' ),
-			'customer_id'      => get_current_user_id(),
+			'user_id'          => get_current_user_id(),
 			'ip_address'       => $this->get_consent_log_ip_address( $ip ),
 			'url'              => $request->get_param( 'url' ),
 			'consent_types'    => $consent_json,
@@ -772,9 +778,9 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		$where  = array( '1=1' );
 		$values = array();
 
-		if ( $request->get_param( 'customer_id' ) ) {
-			$where[]  = 'customer_id = %d';
-			$values[] = $request->get_param( 'customer_id' );
+		if ( $request->get_param( 'user_id' ) ) {
+			$where[]  = 'user_id = %d';
+			$values[] = $request->get_param( 'user_id' );
 		}
 
 		if ( $request->get_param( 'after' ) ) {
@@ -915,7 +921,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 						'context'     => array( 'view' ),
 						'readonly'    => true,
 					),
-					'customer_id'      => array(
+					'user_id'          => array(
 						'description' => __( 'The WordPress user ID.', 'jetpack-cookie-consent' ),
 						'type'        => 'integer',
 						'context'     => array( 'view' ),

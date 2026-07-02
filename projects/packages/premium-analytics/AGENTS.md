@@ -62,15 +62,15 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 - `<prefix>` must be allowlisted in `PREFIX_CONFIG` or the route 404s. This is the security
   boundary — the blog token is only forwarded for these.
 
-| Prefix | Capability | Writes (POST) |
-| --- | --- | --- |
-| `analytics` (Woo store reports) | `manage_options` | — |
-| `stats` | `view_stats` | `stats/referrers/spam/` |
-| `wordads` | `activate_wordads` | — |
-| `subscribers` / `site-has-never-published-post` / `jetpack-stats` | `view_stats` | — |
-| `jetpack-stats-dashboard` | `view_stats` | whole prefix (busts read cache) |
-| `commercial-classification` | `view_stats` | exact path |
-| `upgrades` (not under `/sites/`) | `view_stats` | — |
+| Prefix                                                            | Capability         | Writes (POST)                   |
+| ----------------------------------------------------------------- | ------------------ | ------------------------------- |
+| `analytics` (Woo store reports)                                   | `manage_options`   | —                               |
+| `stats`                                                           | `view_stats`       | `stats/referrers/spam/`         |
+| `wordads`                                                         | `activate_wordads` | —                               |
+| `subscribers` / `site-has-never-published-post` / `jetpack-stats` | `view_stats`       | —                               |
+| `jetpack-stats-dashboard`                                         | `view_stats`       | whole prefix (busts read cache) |
+| `commercial-classification`                                       | `view_stats`       | exact path                      |
+| `upgrades` (not under `/sites/`)                                  | `view_stats`       | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
@@ -168,8 +168,7 @@ import {
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { MyWidgetAttributes } from './widget';
 
-type MyWidgetRenderAttributes =
-	MyWidgetAttributes & Partial< ReportParamsFieldAttributes >;
+type MyWidgetRenderAttributes = MyWidgetAttributes & Partial< ReportParamsFieldAttributes >;
 
 export default function MyWidget( {
 	attributes = {},
@@ -185,7 +184,10 @@ export default function MyWidget( {
 The widget's own attribute shape is declared and exported once from `widget.ts`,
 alongside the `attributes`/`example` schema it describes. `render.tsx` imports that type;
 it may compose a render-only type with host fields like `Partial<ReportParamsFieldAttributes>`,
-but it must not re-declare the widget's own attributes.
+but it must not re-declare the widget's own attributes. A widget with no own attributes
+must type its shape as `Record< never, never >`, not `Record< string, never >` — the
+latter's `[key: string]: never` index signature collapses composed host fields such as
+`reportParams` to `never`, while `Record< never, never >` composes cleanly.
 
 Dashboard state is read inside the component wrapped by `<WidgetRoot>`:
 
@@ -211,7 +213,7 @@ not be merged.
    It mounts the real `WidgetDashboard` with this single widget and exposes the standard
    dashboard controls (size, edit mode, host environment, etc.), so it shows how the widget
    actually renders in product. The `Default` / `WithComparison` close-up stories use the
-   simpler canvas decorator from the template below — but never ship *only* a bare-div story.
+   simpler canvas decorator from the template below — but never ship _only_ a bare-div story.
 3. **Mocks**: Call `registerReportMocks()` at module-level for any widget that fetches
    report data. Without this the widget renders an error state in Storybook.
    - **Woo analytics widgets** (`/proxy/v2/analytics/reports/*`) are covered out of the box.
@@ -269,9 +271,7 @@ interface MyWidgetStoryControls {
 
 function renderMyWidget( { withComparison }: MyWidgetStoryControls ) {
 	return (
-		<MyWidgetRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
+		<MyWidgetRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
 	);
 }
 
@@ -333,7 +333,10 @@ interface MyWidgetDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		MyWidgetStoryControls {}
 
-function MyWidgetDashboardStory( { withComparison, ...dashboardArgs }: MyWidgetDashboardStoryProps ) {
+function MyWidgetDashboardStory( {
+	withComparison,
+	...dashboardArgs
+}: MyWidgetDashboardStoryProps ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
@@ -387,6 +390,9 @@ the state needs direct review.
 - Re-declaring the attribute type in `render.tsx` — the shape is declared once in `widget.ts`
   and imported in `render.tsx`; render-only types may compose that imported shape with host
   fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate the shape.
+- Typing a zero-attribute widget as `Record< string, never >` — its `[key: string]: never`
+  index signature collapses composed host fields like `reportParams` to `never` and breaks the
+  typecheck. Use `Record< never, never >` instead.
 - Dropping `attributes` at the `<WidgetRoot>` boundary — this discards host-provided
   `reportParams` and makes date/comparison Storybook controls misleading.
 - Writing `<button>` without an explicit `type` — the HTML default is `type="submit"`, which
@@ -416,7 +422,7 @@ leaderboard/list widgets, reach data through:
 
 ```ts
 const report = primary.data as StatsNormalizedReport< StatsXxxItem > | undefined;
-const items  = report?.data?.[ 0 ]?.items ?? [];
+const items = report?.data?.[ 0 ]?.items ?? [];
 ```
 
 Date-range conversion (`from`/`to` → `period`/`end_date`/`days`) is handled inside
@@ -493,8 +499,8 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
 
 ```css
 :global( [inert]:not( [inert='true'] ) ) .root {
-    height: auto;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
+	height: auto;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
 }
 ```
