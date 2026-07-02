@@ -9,11 +9,20 @@
 }
 
 .vp-studio-editor-preview__stage {
+	// Keep the whole editor (preview + transport + timeline) inside the
+	// viewport on wide windows: cap the stage height against the viewport
+	// (minus admin chrome, transport, and timeline) and derive a matching
+	// 16:9 width, centered, so the timeline never falls below the fold.
+	--vp-editor-stage-max-height: clamp(204px, calc((100vh - 420px) * 0.85), 612px);
+
 	position: relative;
 	aspect-ratio: 16 / 9;
 	background: #000;
 	border-radius: 4px;
 	overflow: hidden;
+	max-height: var(--vp-editor-stage-max-height);
+	max-width: calc(var(--vp-editor-stage-max-height) * 16 / 9);
+	margin-inline: auto;
 }
 
 .vp-studio-editor-preview__video {
@@ -32,7 +41,8 @@
 }
 
 .vp-studio-editor-preview__timecode {
-	width: 9ch;
+	// 11ch: fits "H:MM:SS.t" plus the input chrome without clipping the tenths.
+	width: 11ch;
 	font-variant-numeric: tabular-nums;
 	text-align: right;
 	border: 1px solid transparent;
@@ -51,7 +61,7 @@
 	white-space: nowrap;
 }
 
-// Push the toggle to the far end of the transport row.
-.vp-studio-editor-preview__preview-cuts {
+.vp-studio-editor-preview__error {
 	margin-left: auto;
+	color: #d63638;
 }

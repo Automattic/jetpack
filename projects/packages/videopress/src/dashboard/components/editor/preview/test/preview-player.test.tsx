@@ -18,12 +18,16 @@ beforeEach( () => {
 	jest.spyOn( window.HTMLMediaElement.prototype, 'play' ).mockImplementation( function (
 		this: HTMLMediaElement
 	) {
+		// Flip `paused` too: jsdom's is a constant true, which would trip the
+		// hook's external-pause detection in the rAF loop.
+		Object.defineProperty( this, 'paused', { configurable: true, get: () => false } );
 		this.dispatchEvent( new Event( 'play' ) );
 		return Promise.resolve();
 	} );
 	jest.spyOn( window.HTMLMediaElement.prototype, 'pause' ).mockImplementation( function (
 		this: HTMLMediaElement
 	) {
+		Object.defineProperty( this, 'paused', { configurable: true, get: () => true } );
 		this.dispatchEvent( new Event( 'pause' ) );
 	} );
 } );
@@ -35,8 +39,6 @@ afterEach( () => {
 const defaultProps = {
 	video: makeLibraryItem( { sourceUrl: 'https://example.com/clip.mp4', durationSeconds: 60 } ),
 	session: createEditSession( 60000 ),
-	previewCutsEnabled: true,
-	onPreviewCutsChange: jest.fn(),
 };
 
 /**
@@ -107,11 +109,9 @@ describe( 'StudioEditorPreviewPlayer', () => {
 		expect( screen.getByRole( 'button', { name: 'Play' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'forwards the Preview cuts toggle', async () => {
-		const onPreviewCutsChange = jest.fn();
-		renderPlayer( { onPreviewCutsChange } );
-		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Preview cuts' } ) );
-		expect( onPreviewCutsChange ).toHaveBeenCalledWith( false );
+	it( 'renders no Preview cuts toggle (skip engine is always on)', () => {
+		renderPlayer();
+		expect( screen.queryByRole( 'checkbox', { name: 'Preview cuts' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'commits a typed timecode on Enter and seeks the element', async () => {

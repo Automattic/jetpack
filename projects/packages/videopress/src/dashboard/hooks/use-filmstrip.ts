@@ -196,7 +196,10 @@ export function useFilmstrip(
 	video: LibraryItem,
 	options: UseFilmstripOptions = {}
 ): FilmstripState {
-	const { guid, sourceUrl, isPrivate, durationSeconds } = video;
+	// Prefer the transcoded H.264 rendition for frame extraction: the original
+	// upload may be an HEVC .mov the browser can't decode.
+	const { guid, isPrivate, durationSeconds } = video;
+	const sourceUrl = video.playbackUrl ?? video.sourceUrl;
 	const token = usePlaybackToken( guid, isPrivate );
 	const queryClient = useQueryClient();
 	const { createGrabber = createVideoFrameGrabber } = options;

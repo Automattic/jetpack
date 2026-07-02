@@ -31,6 +31,13 @@ export interface LibraryItem {
 	allowDownloads: boolean;
 	shortcode: string;
 	sourceUrl?: string;
+	/**
+	 * Browser-playable URL: the best transcoded H.264 MP4 rendition
+	 * (hd → dvd → std). `sourceUrl` points at the ORIGINAL upload, which for
+	 * e.g. iPhone HEVC .mov files most browsers refuse to decode — playback
+	 * surfaces should prefer this and fall back to `sourceUrl`.
+	 */
+	playbackUrl?: string;
 	isProcessing: boolean;
 	/**
 	 * Playlist term IDs assigned to this attachment (the `videopress-playlists`

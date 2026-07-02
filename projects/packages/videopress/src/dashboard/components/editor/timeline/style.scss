@@ -20,7 +20,8 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 }
 
 .vp-studio-timeline__timecode {
-	width: 9ch;
+	// 11ch: fits "H:MM:SS.t" plus the input chrome without clipping the tenths.
+	width: 11ch;
 	font-variant-numeric: tabular-nums;
 	text-align: right;
 	border: 1px solid transparent;
@@ -51,6 +52,12 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 	border: 1px solid #ddd;
 	border-radius: 4px;
 	background: #fff;
+	// Zoomed content must scroll HERE, never widen the page: without
+	// inline-size containment the scroller's max-content size grows with the
+	// zoomed strip, and any ancestor that sizes to content inflates the whole
+	// layout (which also feeds the wider viewport back into the zoom math via
+	// the ResizeObserver, compounding the growth).
+	contain: inline-size;
 }
 
 .vp-studio-timeline__content {

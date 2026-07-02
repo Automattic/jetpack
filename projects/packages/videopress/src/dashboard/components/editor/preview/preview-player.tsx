@@ -3,9 +3,9 @@
  *
  * Renders a plain <video> on the attachment's `sourceUrl` (signed with a
  * `metadata_token` playback JWT for private videos) plus a transport row:
- * play/pause, an editable current timecode, the total duration, and the
- * "Preview cuts" toggle. Playback state lives in `usePreviewPlayback`, which
- * runs the edit session's skip engine while playing.
+ * play/pause, an editable current timecode, and the total duration. Playback
+ * state lives in `usePreviewPlayback`, which always runs the edit session's
+ * skip engine while playing (the preview shows the edited result).
  *
  * MASTER ASSUMPTION (v1): this player treats `sourceUrl` as the ORIGINAL
  * master file, which is true today because no edit pipeline exists — every
@@ -14,7 +14,7 @@
  * so the edits REST contract will need to expose an explicit master playback
  * URL for the editor. Deliberately not solved here.
  */
-import { Button, Spinner, ToggleControl } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
@@ -135,10 +135,6 @@ type Props = {
 	video: LibraryItem;
 	/** The edit session driving the skip engine. */
 	session: EditSession;
-	/** Whether cut skipping is active during playback. */
-	previewCutsEnabled: boolean;
-	/** Called when the user toggles "Preview cuts". */
-	onPreviewCutsChange: ( enabled: boolean ) => void;
 	/** Playhead position in master-timeline ms, once per change. */
 	onTimeUpdate?: ( currentMs: number ) => void;
 	/** Master duration in ms, reported when known (metadata or fallback). */
@@ -154,17 +150,31 @@ type Props = {
  */
 const StudioEditorPreviewPlayer = forwardRef< StudioEditorPreviewPlayerHandle, Props >(
 	function StudioEditorPreviewPlayerInner(
-		{ video, session, previewCutsEnabled, onPreviewCutsChange, onTimeUpdate, onDurationChange },
+		{ video, session, onTimeUpdate, onDurationChange },
 		ref
 	): ReactElement {
-		const { sourceUrl, isPrivate, guid, durationSeconds } = video;
+		// Prefer the transcoded H.264 rendition: the original upload may be an
+		// HEVC .mov the browser can't decode (playbackUrl falls back upstream).
+		const { isPrivate, guid, durationSeconds } = video;
+		const sourceUrl = video.playbackUrl ?? video.sourceUrl;
 		const token = usePlaybackToken( guid, isPrivate );
-		const { currentMs, playing, durationMs, attachVideo, play, pause, togglePlay, seekTo } =
-			usePreviewPlayback( {
-				session,
-				previewCutsEnabled,
-				fallbackDurationMs: durationSeconds * 1000,
-			} );
+		// Playback always previews the edited result: the skip engine jumps
+		// over cut ranges and honors the trim window, like YouTube's editor.
+		const {
+			currentMs,
+			playing,
+			durationMs,
+			attachVideo,
+			play,
+			pause,
+			togglePlay,
+			seekTo,
+			playbackError,
+		} = usePreviewPlayback( {
+			session,
+			previewCutsEnabled: true,
+			fallbackDurationMs: durationSeconds * 1000,
+		} );
 
 		useImperativeHandle(
 			ref,
@@ -233,13 +243,11 @@ const StudioEditorPreviewPlayer = forwardRef< StudioEditorPreviewPlayerHandle, P
 						<Text className="vp-studio-editor-preview__duration">
 							{ `/ ${ formatTimecode( durationMs ) }` }
 						</Text>
-						<ToggleControl
-							__nextHasNoMarginBottom
-							className="vp-studio-editor-preview__preview-cuts"
-							label={ __( 'Preview cuts', 'jetpack-videopress-pkg' ) }
-							checked={ previewCutsEnabled }
-							onChange={ onPreviewCutsChange }
-						/>
+						{ playbackError && (
+							<Text className="vp-studio-editor-preview__error" role="alert">
+								{ playbackError }
+							</Text>
+						) }
 					</Stack>
 				</div>
 			</div>

@@ -151,7 +151,6 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	const sessionRef = useRef( session );
 	sessionRef.current = session;
 
-	const [ previewCutsEnabled, setPreviewCutsEnabled ] = useState( true );
 	const [ currentMs, setCurrentMs ] = useState( 0 );
 	const [ conflict, setConflict ] = useState( false );
 	const [ confirmAction, setConfirmAction ] = useState< ConfirmAction | null >( null );
@@ -563,8 +562,6 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 								ref={ playerRef }
 								video={ video }
 								session={ session }
-								previewCutsEnabled={ previewCutsEnabled }
-								onPreviewCutsChange={ setPreviewCutsEnabled }
 								onTimeUpdate={ onTimeUpdate }
 								onDurationChange={ onDurationChange }
 							/>
