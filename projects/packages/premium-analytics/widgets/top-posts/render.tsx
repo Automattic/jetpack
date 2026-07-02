@@ -8,6 +8,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	PostStatsLink,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	calculateDelta,
@@ -18,7 +19,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Link, Text } from '@wordpress/ui';
+import { Text } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -33,6 +34,11 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
  * Storybook can build fixtures for `TopPostsLeaderboard`.
  */
 export type TopPostRow = {
+	/**
+	 * Post/page ID, used to link the row to its single-post detail view. Absent
+	 * for rows that are not a single post/page (e.g. the site home or archives).
+	 */
+	id?: string | number;
 	/**
 	 * Post or page title.
 	 */
@@ -70,9 +76,9 @@ type TopPostsReportProps = Pick< TopPostsAttributes, 'num' | 'postType' >;
  * and per-row deltas are derived from each row's `previousValue`; otherwise
  * the comparison fields are zeroed.
  *
- * Each row's label is a link that opens the published post/page in a new tab.
- * The link fills its row so the leaderboard overlay bar gets its height from
- * the label.
+ * Each row's label links to that post/page's single-post detail view inside the
+ * dashboard, carrying the current date range through. The link fills its row so
+ * the leaderboard overlay bar gets its height from the label.
  *
  * @param rows           - The normalized top-posts rows.
  * @param withComparison - Whether to derive previous-period shares and deltas.
@@ -89,15 +95,14 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 		return {
 			id: `${ index }-${ row.href }`,
 			label: (
-				<Link
+				<PostStatsLink
 					className={ styles.labelLink }
+					postId={ row.id }
 					href={ row.href }
-					variant="unstyled"
-					openInNewTab
 					title={ row.label }
 				>
 					{ row.label }
-				</Link>
+				</PostStatsLink>
 			),
 			currentValue: row.value,
 			currentShare: ( row.value / maxCurrentViews ) * 100,
@@ -184,9 +189,9 @@ export const TopPostsLeaderboard = ( {
 };
 
 /**
- * Flatten the designated `useStatsTopPosts` report into the `{ label, value,
- * href, type }` rows the leaderboard renders, dropping rows without a link and
- * (optionally) filtering by post type.
+ * Flatten the designated `useStatsTopPosts` report into the `{ id, label,
+ * value, href, type }` rows the leaderboard renders, dropping rows without a
+ * link and (optionally) filtering by post type.
  *
  * @param report       - The normalized top-posts report, or undefined while loading.
  * @param allowedTypes - Post types to keep, or null to keep all.
@@ -203,6 +208,7 @@ function toTopPostRows(
 			( item ): item is StatsTopPostsItem & { link: string } => typeof item.link === 'string'
 		)
 		.map( item => ( {
+			id: item.id,
 			label: String( item.label ?? '' ),
 			value: item.views,
 			href: item.link,

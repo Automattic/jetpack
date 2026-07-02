@@ -8,13 +8,33 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import TopPostsWidget from '../render';
+import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-// WidgetRoot reads URL search params as a fallback for report params; outside
-// a matched route the real hook warns and throws.
+// WidgetRoot reads URL search params as a fallback for report params and treats
+// a successful `useSearch` as the signal that in-app navigation is available.
+// The stubbed `Link` stands in for the router's client-side link so the rows
+// resolve to the `/post/<id>` detail route the widget now targets.
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
+	Link: ( {
+		to,
+		params,
+		children,
+		className,
+		title,
+	}: {
+		to: string;
+		params: { postId: string };
+		children: ReactNode;
+		className?: string;
+		title?: string;
+	} ) => (
+		<a href={ to.replace( '$postId', params.postId ) } className={ className } title={ title }>
+			{ children }
+		</a>
+	),
 } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
@@ -57,13 +77,11 @@ describe( 'TopPostsWidget', () => {
 		mockApiFetch.mockResolvedValue( TOP_POSTS_RESPONSE );
 	} );
 
-	it( 'renders the fetched top posts as links', async () => {
+	it( 'links each post to its single-post detail view', async () => {
 		render( <TopPostsWidget attributes={ { num: 10 } } /> );
 
-		// The `@wordpress/ui` `Link` appends an "(opens in a new tab)" indicator
-		// to the accessible name, so match the title as a substring.
 		const link = await screen.findByRole( 'link', { name: /Hello World Post/ } );
-		expect( link ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
+		expect( link ).toHaveAttribute( 'href', '/post/1' );
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
 	} );
 

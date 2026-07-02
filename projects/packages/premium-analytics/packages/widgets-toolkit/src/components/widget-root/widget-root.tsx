@@ -56,6 +56,10 @@ type WidgetRootProps = {
  */
 function useResolveReportParams( attributes?: Partial< ReportParamsFieldAttributes > ) {
 	let search: Record< string, unknown > = {};
+	// A successful `useSearch` doubles as the signal that in-app navigation is
+	// available; it throws (and leaves this false) outside a matched route, e.g.
+	// in Storybook.
+	let isRouterAvailable = false;
 
 	/*
 	 * Read the search params of the current route. `{ strict: false }` returns
@@ -67,6 +71,7 @@ function useResolveReportParams( attributes?: Partial< ReportParamsFieldAttribut
 	try {
 		// eslint-disable-next-line react-hooks/rules-of-hooks -- useSearch may throw outside a matched route
 		search = useSearch( { strict: false } );
+		isRouterAvailable = true;
 	} catch {
 		// Do nothing
 	}
@@ -79,7 +84,10 @@ function useResolveReportParams( attributes?: Partial< ReportParamsFieldAttribut
 	const hasReportParams =
 		!! attributes?.reportParams && Object.keys( attributes.reportParams ).length > 0;
 
-	return hasReportParams ? attributes.reportParams : search;
+	return {
+		reportParams: hasReportParams ? attributes.reportParams : search,
+		isRouterAvailable,
+	};
 }
 
 /**
@@ -108,7 +116,7 @@ function useResolveReportParams( attributes?: Partial< ReportParamsFieldAttribut
  */
 export function WidgetRoot( { attributes, children, setError }: WidgetRootProps ) {
 	const chartTheme = useChartTheme();
-	const rawReportParams = useResolveReportParams( attributes );
+	const { reportParams: rawReportParams, isRouterAvailable } = useResolveReportParams( attributes );
 
 	const { launchedDate } = getStoreInfo();
 	const defaultPreset = getDefaultPreset( launchedDate );
@@ -118,7 +126,10 @@ export function WidgetRoot( { attributes, children, setError }: WidgetRootProps 
 		[ rawReportParams, defaultPreset ]
 	);
 
-	const contextValue = useMemo( () => ( { reportParams, setError } ), [ reportParams, setError ] );
+	const contextValue = useMemo(
+		() => ( { reportParams, setError, isRouterAvailable } ),
+		[ reportParams, setError, isRouterAvailable ]
+	);
 
 	return (
 		<AnalyticsQueryClientProvider>

@@ -30,3 +30,4 @@ export {
 	type SubscriberListItem,
 	type SubscriberListProps,
 } from './subscriber-list';
+export { PostStatsLink } from './post-stats-link';

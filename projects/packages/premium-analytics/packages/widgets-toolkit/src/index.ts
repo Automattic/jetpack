@@ -31,6 +31,7 @@ export {
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
+	PostStatsLink,
 } from './components';
 
 /**

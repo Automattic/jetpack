@@ -4,6 +4,7 @@
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	PostStatsLink,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	type LeaderboardChartData,
@@ -39,6 +40,17 @@ export type EmailRow = {
 	 */
 	id: string | number;
 	/**
+	 * Post ID backing the email, used to link the row to its single-post detail
+	 * view. Only set when the summary item carries a real post ID (unlike `id`,
+	 * which falls back to the array index for the leaderboard key).
+	 */
+	postId?: string | number;
+	/**
+	 * URL of the published post/page behind the email, used as the fallback link
+	 * target when in-app navigation is unavailable.
+	 */
+	href?: string;
+	/**
 	 * Email subject line.
 	 */
 	label: string;
@@ -58,6 +70,9 @@ export type EmailRow = {
  * (shares are relative to the highest rate in the set). The emails summary has
  * no comparison period, so the comparison fields are zeroed.
  *
+ * Each row links to the email's single-post detail view, opening the tab that
+ * matches the selected metric (email opens or email clicks).
+ *
  * @param rows   - The normalized email rows.
  * @param metric - Which rate to display (`opens` or `clicks`).
  * @return The leaderboard chart data.
@@ -67,6 +82,7 @@ function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): Leaderbo
 	// Shares are relative to the real maximum so the top row always fills, even
 	// when every rate is below 1%. The `> 0` check guards the divide-by-zero.
 	const maxRate = Math.max( ...rows.map( rateOf ), 0 );
+	const section = metric === 'opens' ? 'email-opens' : 'email-clicks';
 
 	return rows.map( row => {
 		const rate = rateOf( row );
@@ -74,9 +90,15 @@ function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): Leaderbo
 		return {
 			id: String( row.id ),
 			label: (
-				<span className={ styles.label } title={ row.label }>
+				<PostStatsLink
+					className={ styles.label }
+					postId={ row.postId }
+					href={ row.href }
+					section={ section }
+					title={ row.label }
+				>
 					{ row.label }
-				</span>
+				</PostStatsLink>
 			),
 			// `LeaderboardChart` formats the value as a percentage, so the rate
 			// is expressed as a fraction here.
@@ -196,9 +218,9 @@ export const EmailsLeaderboard = ( {
 };
 
 /**
- * Flatten the `useStatsEmailSummary` report into the `{ id, label, opensRate,
- * clicksRate }` rows the leaderboard renders, keeping the endpoint's
- * newest-first order and trimming to `max`.
+ * Flatten the `useStatsEmailSummary` report into the `{ id, postId, href,
+ * label, opensRate, clicksRate }` rows the leaderboard renders, keeping the
+ * endpoint's newest-first order and trimming to `max`.
  *
  * @param report - The normalized email-summary report, or undefined while loading.
  * @param max    - Maximum rows to display; `0` keeps all rows.
@@ -211,6 +233,8 @@ function toEmailRows( report: StatsEmailSummary | undefined, max: number ): Emai
 	// `max = 0 → all rows` convention and a guard against an over-long response.
 	return items.slice( 0, max > 0 ? max : undefined ).map( ( item, index ) => ( {
 		id: item.id ?? index,
+		postId: item.id,
+		href: typeof item.link === 'string' ? item.link : undefined,
 		label: String( item.label ?? '' ),
 		opensRate: item.opens_rate,
 		clicksRate: item.clicks_rate,

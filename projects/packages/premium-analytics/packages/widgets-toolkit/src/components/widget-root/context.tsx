@@ -28,6 +28,13 @@ export type WidgetRootContextValue = {
 	 * ```
 	 */
 	setError?: ( error: WidgetErrorConfig | true | null ) => void;
+
+	/**
+	 * Whether the widget is rendered inside the dashboard SPA router. Falsy in
+	 * hosts without a router (Storybook, unit tests). Widgets use it to decide
+	 * whether they can link to in-app routes such as the post detail page.
+	 */
+	isRouterAvailable?: boolean;
 };
 
 const WidgetRootContext = createContext< WidgetRootContextValue | null >( null );
