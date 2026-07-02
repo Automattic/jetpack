@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Studio editor timeline filmstrip track: server storyboard sprites when available, client-side frame extraction as the fallback, and a graceful neutral placeholder when neither works.

@@ -56,6 +56,13 @@ jest.mock( '../timeline/use-element-width', () => ( {
 	useElementWidth: () => ( { ref: () => {}, width: 1000 } ),
 } ) );
 
+// The filmstrip resolves via the storyboard endpoint plus <video> frame
+// extraction, neither of which works in jsdom; keep the track on its neutral
+// placeholder here. The hook has its own dedicated tests.
+jest.mock( '../../../hooks/use-filmstrip', () => ( {
+	useFilmstrip: () => ( { status: 'unavailable' } ),
+} ) );
+
 const mockUseNavigate = useNavigate as jest.Mock;
 
 const GUID = 'abc123';

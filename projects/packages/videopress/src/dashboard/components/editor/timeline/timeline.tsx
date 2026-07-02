@@ -1,8 +1,7 @@
 /**
  * The Studio editor timeline: a horizontally scrollable strip with an ordered
- * stack of tracks (v1: time ruler + filmstrip placeholder), an edit-overlay
- * layer spanning all tracks (trim handles, shrouds, cut segments), and a 1px
- * playhead line.
+ * stack of tracks (time ruler + filmstrip), an edit-overlay layer spanning
+ * all tracks (trim handles, shrouds, cut segments), and a 1px playhead line.
  *
  * Geometry: the full master duration maps onto `viewportWidth * zoom` pixels
  * of content inside an `overflow-x` scroller (zoom 1 = fit). Zooming — via
@@ -23,6 +22,7 @@ import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { getPxPerMs, msToPx } from '../state/time-utils';
 import StudioEditorEditOverlay from './edit-overlay';
+import StudioEditorFilmstripTrack from './filmstrip-track';
 import StudioEditorTimeRuler from './time-ruler';
 import StudioEditorTimelineToolbar from './toolbar';
 import { useElementWidth } from './use-element-width';
@@ -30,6 +30,7 @@ import { NUDGE_LARGE_MS, NUDGE_MS, useKeyboardShortcuts } from './use-keyboard-s
 import { useTimelinePointerDrag } from './use-pointer-drag';
 import { MAX_ZOOM } from './zoom-control';
 import './style.scss';
+import type { FilmstripState } from '../../../hooks/use-filmstrip';
 import type { EditSession, EditSessionAction } from '../state/edit-session';
 import type { HistoryAction } from '../state/history';
 import type { KeyboardEvent as ReactKeyboardEvent, ReactElement } from 'react';
@@ -51,6 +52,8 @@ export type StudioEditorTimelineProps = {
 	onSeek: ( ms: number ) => void;
 	/** Toggle preview playback (space bar). */
 	onTogglePlay: () => void;
+	/** Filmstrip data for the strip track; absent renders the placeholder. */
+	filmstrip?: FilmstripState;
 };
 
 /**
@@ -73,6 +76,7 @@ function clampToDuration( ms: number, durationMs: number ): number {
  * @param props.currentMs    - Live playhead position in ms.
  * @param props.onSeek       - Seek the preview player.
  * @param props.onTogglePlay - Toggle preview playback.
+ * @param props.filmstrip    - Filmstrip data for the strip track.
  * @return The timeline element.
  */
 export default function StudioEditorTimeline( {
@@ -81,6 +85,7 @@ export default function StudioEditorTimeline( {
 	currentMs,
 	onSeek,
 	onTogglePlay,
+	filmstrip,
 }: StudioEditorTimelineProps ): ReactElement {
 	const durationMs = session.durationMs;
 	const [ zoom, setZoom ] = useState( 1 );
@@ -210,8 +215,7 @@ export default function StudioEditorTimeline( {
 		seekClamped( currentMs + delta );
 	};
 
-	// Ordered track stack; the real filmstrip replaces the placeholder in a
-	// later commit.
+	// Ordered track stack.
 	const tracks: { id: string; element: ReactElement }[] = [
 		{
 			id: 'ruler',
@@ -219,12 +223,7 @@ export default function StudioEditorTimeline( {
 		},
 		{
 			id: 'filmstrip',
-			element: (
-				<div
-					className="vp-studio-timeline__filmstrip-placeholder"
-					data-testid="studio-timeline-filmstrip"
-				/>
-			),
+			element: <StudioEditorFilmstripTrack filmstrip={ filmstrip } />,
 		},
 	];
 

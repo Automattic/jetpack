@@ -23,6 +23,7 @@ import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { useFilmstrip } from '../../hooks/use-filmstrip';
 import { LIBRARY_QUERY_KEY } from '../../hooks/use-library';
 import { useRestoreOriginal } from '../../hooks/use-restore-original';
 import { EditsConflictError, useSaveVideoEdits } from '../../hooks/use-save-video-edits';
@@ -133,6 +134,9 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	const { edits } = useVideoEdits( guid );
 	const saveEdits = useSaveVideoEdits();
 	const restoreOriginal = useRestoreOriginal();
+	// Storyboard/extracted thumbnails for the timeline's filmstrip track;
+	// resolves to 'unavailable' (neutral placeholder) when neither works.
+	const filmstrip = useFilmstrip( video );
 
 	const [ history, dispatch ] = useReducer( historyReducer, video, v =>
 		createHistory( createEditSession( v.durationSeconds * 1000 ) )
@@ -441,6 +445,7 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 								currentMs={ currentMs }
 								onSeek={ onSeek }
 								onTogglePlay={ onTogglePlay }
+								filmstrip={ filmstrip }
 							/>
 						</div>
 					</div>
