@@ -43,11 +43,24 @@ export function trackPrivacyBannerView(): void {
 /**
  * Track privacy banner accept button click
  *
- * @param preferences Object with consent preferences, keyed by category preference key (e.g. required, analytics, advertising, plus any custom registered categories).
+ * Fired on both "Accept All" and "Save preferences". When analytics consent is
+ * declined (e.g. saving preferences with analytics unchecked), loading the
+ * cookie-setting Tracks bundle would contradict the visitor's choice, so the
+ * accept is recorded as an identity-free aggregate stat instead.
+ *
+ * @param preferences         Object with consent preferences, keyed by category preference key (e.g. required, analytics, advertising, plus any custom registered categories).
+ * @param hasAnalyticsConsent Whether the saved preferences allow analytics.
  */
-export function trackPrivacyBannerAccept( preferences: ConsentPreferences ): void {
-	// Allowlisted consent-record event: documents the accepted preferences, so it
-	// is not gated on the analytics category.
+export function trackPrivacyBannerAccept(
+	preferences: ConsentPreferences,
+	hasAnalyticsConsent: boolean
+): void {
+	if ( ! hasAnalyticsConsent ) {
+		recordCookielessStat( 'privacy-banner-button-accept' );
+		return;
+	}
+
+	// Analytics granted: allowlisted consent-record event documenting the choice.
 	recordEvent( 'privacy_banner_button_accept', getPreferenceProperties( preferences ) );
 }
 

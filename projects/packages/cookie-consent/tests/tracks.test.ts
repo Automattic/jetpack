@@ -70,12 +70,15 @@ describe( 'trackPrivacyBannerAccept', () => {
 			],
 		};
 
-		trackPrivacyBannerAccept( {
-			required: true,
-			analytics: false,
-			advertising: true,
-			personalization: true,
-		} );
+		trackPrivacyBannerAccept(
+			{
+				required: true,
+				analytics: false,
+				advertising: true,
+				personalization: true,
+			},
+			true
+		);
 
 		expect( window._tkq?.[ 0 ] ).toEqual( [
 			'recordEvent',
@@ -91,9 +94,12 @@ describe( 'trackPrivacyBannerAccept', () => {
 	} );
 
 	it( 'keeps default preference props as booleans for partial preferences', () => {
-		trackPrivacyBannerAccept( {
-			required: true,
-		} );
+		trackPrivacyBannerAccept(
+			{
+				required: true,
+			},
+			true
+		);
 
 		expect( window._tkq?.[ 0 ] ).toEqual( [
 			'recordEvent',
@@ -104,6 +110,26 @@ describe( 'trackPrivacyBannerAccept', () => {
 				preferences_advertising: false,
 			} ),
 		] );
+	} );
+
+	it( 'records accept through a cookieless aggregate stat when analytics is declined', () => {
+		// Saving preferences with analytics unchecked must not load the
+		// cookie-setting Tracks bundle the visitor just declined.
+		trackPrivacyBannerAccept(
+			{
+				required: true,
+				analytics: false,
+				advertising: false,
+			},
+			false
+		);
+
+		expect( window._tkq ).toBeUndefined();
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
+		const url = new URL( imageSources[ 0 ] );
+		expect( url.searchParams.get( 'x_jetpack-cookie-consent-privacy-banner-button-accept' ) ).toBe(
+			`total,${ window.location.hostname }`
+		);
 	} );
 
 	it( 'records banner views through a cookieless aggregate stat', () => {

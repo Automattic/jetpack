@@ -197,7 +197,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// Update context
 			setContextCategories( context, choices );
 
-			trackPrivacyBannerAccept( choices );
+			trackPrivacyBannerAccept( choices, hasAnalyticsConsent( choices ) );
 
 			// Save consent to WP Consent API (this will set the cookies)
 			saveConsentChoices( choices, 'accept_all' );
@@ -233,7 +233,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				...context.categories,
 			} );
 
-			trackPrivacyBannerAccept( choices );
+			trackPrivacyBannerAccept( choices, hasAnalyticsConsent( choices ) );
 
 			// Save consent to WP Consent API (this will set the cookies)
 			saveConsentChoices( choices, 'accept_selected' );

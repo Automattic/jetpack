@@ -315,6 +315,37 @@ describe( 'Tracks consent gating', () => {
 		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
 	} );
 
+	it( 'skips Tracks and records a cookieless accept stat when saving preferences with analytics declined', () => {
+		mockWpSetConsent();
+		mockGetContext.mockReturnValue( {
+			categories: { required: true, analytics: false, advertising: false },
+		} );
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		storeActions.savePreferences();
+
+		expect( window._tkq ).toBeUndefined();
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
+		expect(
+			new URL( imageSources[ 0 ] ).searchParams.get(
+				'x_jetpack-cookie-consent-privacy-banner-button-accept'
+			)
+		).toBe( `total,${ window.location.hostname }` );
+	} );
+
+	it( 'loads Tracks and records the accept event when saving preferences with analytics granted', () => {
+		mockWpSetConsent();
+		mockGetContext.mockReturnValue( {
+			categories: { required: true, analytics: true, advertising: false },
+		} );
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		storeActions.savePreferences();
+
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
+		expect( window._tkq?.[ 0 ]?.[ 1 ] ).toBe( 'jetpack_privacy_banner_button_accept' );
+	} );
+
 	it( 'records pre-consent manage opens through the cookieless stat', () => {
 		const event = { preventDefault: jest.fn() } as unknown as MouseEvent;
 
