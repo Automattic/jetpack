@@ -726,24 +726,17 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The store-setup task shows complete with no CTA once WooCommerce is active.
+	 * The store-setup task drops out once WooCommerce is active, letting the woo_* tasks take over.
 	 */
-	public function test_get_marks_store_task_complete_when_woocommerce_active() {
+	public function test_get_omits_store_task_when_woocommerce_active() {
 		wp_set_current_user( $this->admin_id );
 		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php' ) );
 		$this->seed_gallery_output( 'sell', 'organic coffee beans' );
 
-		$store = null;
-		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
-			if ( 'install_woocommerce' === $task['id'] ) {
-				$store = $task;
-			}
-		}
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 		update_option( 'active_plugins', array() );
 
-		$this->assertNotNull( $store );
-		$this->assertTrue( $store['completed'] );
-		$this->assertNull( $store['calypso_path'] );
+		$this->assertNotContains( 'install_woocommerce', $ids );
 	}
 
 	/**
@@ -754,6 +747,19 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->seed_gallery_output( 'build', 'organic coffee beans' );
 		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 		$this->assertNotContains( 'install_woocommerce', $ids );
+	}
+
+	/**
+	 * A sell site whose niche matches a gallery keyword gets the store task, not the off-target gallery task.
+	 */
+	public function test_get_prefers_store_over_gallery_for_sell_goal() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		$this->seed_gallery_output( 'sell', 'handmade art' );
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertContains( 'install_woocommerce', $ids );
+		$this->assertNotContains( 'add_gallery_page', $ids );
 	}
 
 	/**

@@ -290,14 +290,20 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				$tasks = $this->build_tasks( $payload['tasks'], false, $niche );
 			}
 
-			$gallery = $this->build_gallery_task( $inferred );
-			if ( null !== $gallery ) {
-				$tasks = $this->insert_before_launch_task( $tasks, $gallery );
-			}
+			$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
 
-			$store = $this->build_store_task( $inferred );
-			if ( null !== $store ) {
-				$tasks = $this->insert_lead_task( $tasks, $store );
+			// The sell goal leads with the store-setup task; every other goal may offer the gallery task. They are
+			// mutually exclusive so a sell site with a visual niche doesn't also get an off-target gallery task.
+			if ( 'sell' === $goal ) {
+				$store = $this->build_store_task();
+				if ( null !== $store ) {
+					$tasks = $this->insert_lead_task( $tasks, $store );
+				}
+			} else {
+				$gallery = $this->build_gallery_task( $inferred );
+				if ( null !== $gallery ) {
+					$tasks = $this->insert_before_launch_task( $tasks, $gallery );
+				}
 			}
 		}
 
@@ -749,44 +755,30 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Whether the synthetic "Set up your store" task should be offered, based on the inferred goal.
-	 *
-	 * @param array $inferred The AI output's `inferred` block.
-	 * @return bool
-	 */
-	private function should_offer_store_task( $inferred ) {
-		return isset( $inferred['goal'] ) && 'sell' === $inferred['goal'];
-	}
-
-	/**
-	 * Builds the synthetic store-setup task, or null when it should not be offered.
+	 * Builds the synthetic store-setup task that leads the sell sequence, or null once WooCommerce is active.
 	 *
 	 * The commerce (`woo_*`) tasks are visibility-gated on WooCommerce being active, so a fresh sell site would
-	 * otherwise collapse to almost nothing. This task leads the sell sequence with a WooCommerce install CTA and
-	 * completes — letting the woo_* tasks surface — once the plugin is active. Completion is read live, so no
-	 * marker or listener is needed.
+	 * otherwise collapse to almost nothing. This task offers a WooCommerce install CTA until the plugin is active,
+	 * at which point the woo_* tasks take over and it drops out (rather than lingering as a completed lead card).
+	 * The active check is read live, so no marker or listener is needed. Callers gate this on the sell goal.
 	 *
-	 * @param array $inferred The AI output's `inferred` block.
 	 * @return array|null
 	 */
-	private function build_store_task( $inferred ) {
-		if ( ! $this->should_offer_store_task( $inferred ) ) {
-			return null;
-		}
-
+	private function build_store_task() {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
-		$completed = is_plugin_active( 'woocommerce/woocommerce.php' );
+		if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
+			return null;
+		}
 
 		return array(
 			'id'           => 'install_woocommerce',
 			'subtitle'     => __( 'Add WooCommerce so you can start selling.', 'jetpack-mu-wpcom' ),
 			'title'        => __( 'Set up your store', 'jetpack-mu-wpcom' ),
-			'completed'    => $completed,
+			'completed'    => false,
 			'in_progress'  => false,
-			// Install-and-activate from wp-admin; once WooCommerce is active the woo_* tasks take over and the CTA drops.
-			'calypso_path' => $completed ? null : admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' ),
+			'calypso_path' => admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' ),
 		);
 	}
 
