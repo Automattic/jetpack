@@ -1,11 +1,25 @@
-import { OrderMetricWidget, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * External dependencies
+ */
+import {
+	OrderMetricWidget,
+	WidgetRoot,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { GrossSalesOverTimeAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type WidgetRootProps = ComponentProps< typeof WidgetRoot >;
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type GrossSalesOverTimeRenderAttributes = GrossSalesOverTimeAttributes &
+	Partial< ReportParamsFieldAttributes >;
 
-type GrossSalesOverTimeRenderProps = {
-	attributes?: WidgetRootProps[ 'attributes' ];
-	setError?: WidgetRootProps[ 'setError' ];
+type GrossSalesOverTimeRenderProps = WidgetRenderProps< GrossSalesOverTimeRenderAttributes > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
@@ -16,7 +30,7 @@ type GrossSalesOverTimeRenderProps = {
  * the orders report and renders the gross sales metric over time.
  */
 export default function GrossSalesOverTimeRender( {
-	attributes,
+	attributes = {},
 	setError,
 }: GrossSalesOverTimeRenderProps ) {
 	return (
