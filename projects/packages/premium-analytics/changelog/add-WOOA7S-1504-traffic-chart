@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Traffic: Add the Traffic chart widget — views, visitors, likes, and comments over the selected period as metric tabs over a comparative line chart, driven by the dashboard date range and comparison controls. An in-body "Group by" dropdown chooses the bucket granularity (day/week/month) within that range, defaulting to the range's interval.

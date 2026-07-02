@@ -56,6 +56,7 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';
 const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/subscribers';
+const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
 const WP_SETTINGS_PATH = '/wp/v2/settings';
@@ -579,6 +580,84 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 }
 
 /**
+ * Number of days a unit step spans, used to lay out mock visits buckets.
+ */
+const VISITS_STEP_DAYS: Record< string, number > = { day: 1, week: 7, month: 30, year: 365 };
+
+/**
+ * Builds the stats/visits time-series response for the traffic chart.
+ *
+ * Honours the `unit`, `date`, `start_date`, and `stat_fields` query params, and
+ * returns only the requested fields (the traffic chart fetches views/visitors
+ * and likes/comments as two separate requests). Values are anchored to each
+ * bucket's absolute date so the current window trends above the comparison
+ * window and each metric shows a positive period-over-period delta; the series
+ * is wavy so the dashed previous-period overlay reads clearly against the solid
+ * current line.
+ *
+ * @param query - Parsed query params (`unit`, `date`, `start_date`, `stat_fields`).
+ * @return Raw visits response in the WPCOM matrix shape.
+ */
+function buildVisitsResponse( query: URLSearchParams ) {
+	const unit = query.get( 'unit' ) || 'day';
+	const stepDays = VISITS_STEP_DAYS[ unit ] ?? 1;
+	const fields = ( query.get( 'stat_fields' ) || 'views,visitors' ).split( ',' );
+	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+	const startDate = parseDateParam(
+		query.get( 'start_date' ),
+		new Date( endDate.getTime() - 29 * stepDays * DAY_MS )
+	);
+
+	const spanDays = Math.round( ( endDate.getTime() - startDate.getTime() ) / DAY_MS );
+	const count = Math.max( 1, Math.min( 400, Math.round( spanDays / stepDays ) + 1 ) );
+	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
+
+	const rows = Array.from( { length: count }, ( _, index ) => {
+		const i = count - 1 - index;
+		const bucket = new Date( endDate );
+		let period: string;
+
+		if ( unit === 'month' ) {
+			bucket.setUTCMonth( bucket.getUTCMonth() - i );
+			period = `${ bucket.getUTCFullYear() }-${ String( bucket.getUTCMonth() + 1 ).padStart(
+				2,
+				'0'
+			) }`;
+		} else if ( unit === 'week' ) {
+			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
+			// The stats/visits weekly label is `YYYYWMMWDD` — the week's start date.
+			period = `${ bucket.getUTCFullYear() }W${ String( bucket.getUTCMonth() + 1 ).padStart(
+				2,
+				'0'
+			) }W${ String( bucket.getUTCDate() ).padStart( 2, '0' ) }`;
+		} else {
+			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
+			period = bucket.toISOString().slice( 0, 10 );
+		}
+
+		const absDay = Math.floor( bucket.getTime() / DAY_MS );
+		const trend = ( absDay - anchorDay ) * 6;
+		const wave = 300 * Math.sin( absDay / 7 ) + 120 * Math.cos( absDay / 11 );
+		const views = Math.max( 0, Math.round( 800 + trend + wave ) );
+		const values: Record< string, number > = {
+			views,
+			visitors: Math.round( views * 0.64 ),
+			likes: Math.max( 0, Math.round( views * 0.08 + 6 * Math.sin( absDay / 5 ) ) ),
+			comments: Math.max( 0, Math.round( views * 0.03 + 3 * Math.cos( absDay / 6 ) ) ),
+		};
+
+		return [ period, ...fields.map( field => values[ field ] ?? 0 ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		unit,
+		fields: [ 'period', ...fields ],
+		data: rows,
+	};
+}
+
+/**
  * Builds a mock Stats "email summary" response so the Emails widget renders
  * populated in Storybook. The shape matches what `sanitizeStatsEmailSummaryResponse`
  * expects (`{ posts: [ { title, opens_rate, clicks_rate, … } ] }`); rates are
@@ -730,6 +809,13 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {
 		const queryIndex = requestPath.indexOf( '?' );
 		return buildSubscribersResponse(
+			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
+		);
+	}
+
+	if ( requestPath.startsWith( STATS_VISITS_PATH ) ) {
+		const queryIndex = requestPath.indexOf( '?' );
+		return buildVisitsResponse(
 			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
 		);
 	}
