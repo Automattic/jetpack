@@ -21,7 +21,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './tags-categories.module.css';
+import styles from './style.module.css';
 import type { TagsCategoriesAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
