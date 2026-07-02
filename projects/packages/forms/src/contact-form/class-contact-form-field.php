@@ -934,6 +934,38 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Accessible name for the file field's dropzone <div role="button">.
+	 *
+	 * The dropzone is the field's interactive control, but its name is otherwise
+	 * the generic "Select a file to upload.", so two hidden-label upload fields
+	 * would be announced identically. When the label is hidden (full or
+	 * per-viewport), prefix the field name — the same fallback the other single
+	 * inputs use. Falls back to the plain instruction when the label is visible
+	 * or there is no name to give. See FORMS-694.
+	 *
+	 * @return string
+	 */
+	private function get_file_dropzone_aria_label() {
+		$select_file_text = __( 'Select a file to upload.', 'jetpack-forms' );
+
+		if ( ! $this->is_label_hidden_by_block_visibility() ) {
+			return $select_file_text;
+		}
+
+		$hidden_name = $this->get_block_visibility_aria_label();
+		if ( '' === $hidden_name ) {
+			return $select_file_text;
+		}
+
+		return sprintf(
+			/* translators: 1: the form field's label, 2: the "Select a file to upload." instruction. */
+			_x( '%1$s: %2$s', 'file upload field accessible name', 'jetpack-forms' ),
+			$hidden_name,
+			$select_file_text
+		);
+	}
+
+	/**
 	 * Return the HTML for a legend that shares the same style as a label.
 	 *
 	 * @param string $type - the field type.
@@ -1704,6 +1736,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
 
+		$dropzone_aria_label = $this->get_file_dropzone_aria_label();
+
 		ob_start();
 		?>
 		<div
@@ -1721,7 +1755,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-is-required="<?php echo esc_attr( $required ); ?>"
 		>
 			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
-				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.handleKeyDown" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'Select a file to upload.', 'jetpack-forms' ); ?>"></div>
+				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.handleKeyDown" tabindex="0" role="button" aria-label="<?php echo esc_attr( $dropzone_aria_label ); ?>"></div>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
 				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
 				<input

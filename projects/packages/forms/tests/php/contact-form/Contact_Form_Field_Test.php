@@ -414,4 +414,57 @@ class Contact_Form_Field_Test extends BaseTestCase {
 
 		$this->assertStringNotContainsString( 'aria-label', $html );
 	}
+
+	/**
+	 * The file field's dropzone button gets a distinct accessible name when its
+	 * label is hidden (field label prefixed to the instruction) so two
+	 * hidden-label upload fields aren't announced identically, and falls back to
+	 * the plain instruction otherwise. Tested directly because the full file
+	 * render short-circuits without an active Jetpack. See FORMS-694.
+	 *
+	 * @dataProvider data_file_dropzone_aria_label
+	 *
+	 * @param array  $atts     Field attributes.
+	 * @param string $expected Expected dropzone accessible name.
+	 */
+	#[DataProvider( 'data_file_dropzone_aria_label' )]
+	public function test_file_dropzone_aria_label( $atts, $expected ) {
+		$field  = $this->get_new_field_instance( array_merge( array( 'type' => 'file' ), $atts ) );
+		$method = new \ReflectionMethod( $field, 'get_file_dropzone_aria_label' );
+		$method->setAccessible( true );
+
+		$this->assertSame( $expected, $method->invoke( $field ) );
+	}
+
+	/**
+	 * Data provider for test_file_dropzone_aria_label.
+	 *
+	 * @return array
+	 */
+	public static function data_file_dropzone_aria_label() {
+		return array(
+			'visible label'          => array( array( 'label' => 'Resume' ), 'Select a file to upload.' ),
+			'full-hidden label'      => array(
+				array(
+					'label'                        => 'Resume',
+					'labelhiddenbyblockvisibility' => true,
+				),
+				'Resume: Select a file to upload.',
+			),
+			'per-viewport hidden'    => array(
+				array(
+					'label'        => 'Resume',
+					'labelclasses' => 'wp-block-hidden-mobile',
+				),
+				'Resume: Select a file to upload.',
+			),
+			'hidden but empty label' => array(
+				array(
+					'label'                        => '',
+					'labelhiddenbyblockvisibility' => true,
+				),
+				'Select a file to upload.',
+			),
+		);
+	}
 } // end class
