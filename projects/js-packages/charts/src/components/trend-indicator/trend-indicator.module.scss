@@ -7,8 +7,7 @@
 	line-height: 1;
 
 	// Trend colors use the documented --charts-trend-* override API, falling
-	// back to the accessible WPDS semantic tokens (the original chart green/red
-	// did not meet contrast requirements).
+	// back to the accessible WPDS semantic tokens.
 	&--up {
 		color: var(--charts-trend-up-color, var(--wpds-color-fg-content-success-weak, #008030));
 	}
