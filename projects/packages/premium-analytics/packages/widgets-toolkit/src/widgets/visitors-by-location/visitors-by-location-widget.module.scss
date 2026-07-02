@@ -8,8 +8,20 @@
 }
 
 .geoChart {
+	// Fill the grid column but never exceed it. The map keeps the US aspect
+	// ratio (~1.9:1), so capping the width at the ~250px-tall map's natural
+	// width keeps the box aspect matched: the map fills the box instead of
+	// letterboxing with a large empty gap in wider tiles.
 	min-width: 0;
+	width: 100%;
+	max-width: 475px;
 	max-height: 250px;
+
+	// GeoChart renders a fixed pixel-sized SVG that Google redraws on a resize
+	// debounce. While a tile shrinks the previous (wider) SVG lingers briefly;
+	// clip it to the column so it can never spill over the leaderboard or get
+	// cut off by the widget's outer overflow.
+	overflow: hidden;
 }
 
 .toggleControl {
