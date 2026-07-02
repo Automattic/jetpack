@@ -4,30 +4,28 @@
 import {
 	MetricTabsChart,
 	WidgetRoot,
+	useWidgetError,
 	useWidgetRootContext,
-	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './traffic-chart.module.css';
 import useTrafficChart, { type TrafficPeriod } from './use-traffic-chart';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps } from 'react';
+
+type TrafficChartRenderProps = Pick<
+	ComponentProps< typeof WidgetRoot >,
+	'attributes' | 'setError'
+>;
 
 const DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
 };
-
-const PERIOD_OPTIONS = [
-	{ label: __( 'Days', 'jetpack-premium-analytics' ), value: 'day' },
-	{ label: __( 'Weeks', 'jetpack-premium-analytics' ), value: 'week' },
-	{ label: __( 'Months', 'jetpack-premium-analytics' ), value: 'month' },
-];
 
 /**
  * Default granularity for the dashboard interval: opens the dropdown at the
@@ -72,14 +70,17 @@ function TrafficChartInner() {
 		[]
 	);
 
-	const { metrics, isFetching, isError } = useTrafficChart( reportParams, period );
+	const periodOptions = [
+		{ label: __( 'Days', 'jetpack-premium-analytics' ), value: 'day' },
+		{ label: __( 'Weeks', 'jetpack-premium-analytics' ), value: 'week' },
+		{ label: __( 'Months', 'jetpack-premium-analytics' ), value: 'month' },
+	];
 
-	if ( isError ) {
-		return (
-			<div className={ styles.root }>
-				<Text>{ __( 'Unable to load traffic.', 'jetpack-premium-analytics' ) }</Text>
-			</div>
-		);
+	const { metrics, isFetching, isError, error, refetch } = useTrafficChart( reportParams, period );
+
+	const hasError = useWidgetError( isError, error, refetch );
+	if ( hasError ) {
+		return null; // Dashboard shows error UI via WidgetErrorBoundary.
 	}
 
 	return (
@@ -96,7 +97,7 @@ function TrafficChartInner() {
 						label={ __( 'Group by', 'jetpack-premium-analytics' ) }
 						hideLabelFromVision
 						value={ period }
-						options={ PERIOD_OPTIONS }
+						options={ periodOptions }
 						onChange={ handlePeriodChange }
 						className={ styles.periodSelect }
 					/>
@@ -115,13 +116,12 @@ function TrafficChartInner() {
  *
  * @param props            - Render props supplied by the widget host.
  * @param props.attributes - Widget attributes; the date range/comparison arrive here from the host.
+ * @param props.setError   - Host callback to surface a widget error in the dashboard frame.
  * @return The rendered widget.
  */
-export default function TrafficChart( {
-	attributes = {},
-}: WidgetRenderProps< Partial< ReportParamsFieldAttributes > > ) {
+export default function TrafficChart( { attributes, setError }: TrafficChartRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes }>
+		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<TrafficChartInner />
 		</WidgetRoot>
 	);

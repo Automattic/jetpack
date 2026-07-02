@@ -10,7 +10,7 @@ import {
 	type StatsVisitsResponse,
 	type StatsVisitsStatFields,
 } from '@jetpack-premium-analytics/data';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -33,6 +33,8 @@ export interface TrafficChartState {
 	/** True while either request is fetching, including comparison refetches. */
 	isFetching: boolean;
 	isError: boolean;
+	error: Error | null | undefined;
+	refetch: () => void;
 }
 
 /**
@@ -178,9 +180,16 @@ export default function useTrafficChart(
 		[ vvPrimary, vvComparison, vvHasComparison, lcPrimary, lcComparison, lcHasComparison ]
 	);
 
+	const refetch = useCallback( () => {
+		viewsVisitors.refetch();
+		likesComments.refetch();
+	}, [ viewsVisitors, likesComments ] );
+
 	return {
 		metrics,
 		isFetching: viewsVisitors.isFetching || likesComments.isFetching,
 		isError: viewsVisitors.isError || likesComments.isError,
+		error: viewsVisitors.error ?? likesComments.error,
+		refetch,
 	};
 }

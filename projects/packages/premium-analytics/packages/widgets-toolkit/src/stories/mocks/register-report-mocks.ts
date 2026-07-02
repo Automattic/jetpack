@@ -616,6 +616,13 @@ function buildVisitsResponse( query: URLSearchParams ) {
 				2,
 				'0'
 			) }`;
+		} else if ( unit === 'week' ) {
+			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
+			// The stats/visits weekly label is `YYYYWMMWDD` — the week's start date.
+			period = `${ bucket.getUTCFullYear() }W${ String( bucket.getUTCMonth() + 1 ).padStart(
+				2,
+				'0'
+			) }W${ String( bucket.getUTCDate() ).padStart( 2, '0' ) }`;
 		} else {
 			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
 			period = bucket.toISOString().slice( 0, 10 );
