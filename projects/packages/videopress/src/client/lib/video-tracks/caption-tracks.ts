@@ -41,7 +41,7 @@ export type SavedCaptionTrack = Required< Pick< CaptionTrack, 'id' | 'title' | '
 	meta: CaptionTrackMeta;
 };
 
-const REST_PATH = '/jetpack/v4/videopress/caption-tracks';
+const REST_PATH = '/wpcom/v2/videopress/caption-tracks';
 
 /**
  * Load caption tracks for a VideoPress GUID.

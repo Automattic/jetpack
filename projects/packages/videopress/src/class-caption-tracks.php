@@ -105,7 +105,7 @@ class Caption_Tracks {
 
 				/*
 				 * Caption tracks are an internal store reached only through the
-				 * /jetpack/v4/videopress/caption-tracks routes, which authorize
+				 * /wpcom/v2/videopress/caption-tracks routes, which authorize
 				 * each request against the video it targets. The post type itself
 				 * is not exposed (no REST, no admin UI), so standard post
 				 * capabilities are sufficient.
