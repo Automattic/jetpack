@@ -4,7 +4,7 @@ import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { useParams } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -14,7 +14,7 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
 import { PostDetailTabs, PostSummaryCard, StatsBreadcrumbs } from './components';
-import { getPostDetailTabs } from './config';
+import { getPostDetailTabs, type PostDetailTabId } from './config';
 import { useActiveTab, usePostDetailTabLayout, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
@@ -55,6 +55,18 @@ function PostDetail(): JSX.Element {
 
 	const [ editMode, setEditMode ] = useState( false );
 
+	// Switching tabs returns to view mode. Edit mode is page-level, and an empty
+	// tab force-enables it via the dashboard provider's empty-layout effect, so
+	// without this a non-empty tab would stay stuck in customize view after
+	// visiting an empty one.
+	const handleTabChange = useCallback(
+		( id: PostDetailTabId ) => {
+			setEditMode( false );
+			setActiveTab( id );
+		},
+		[ setActiveTab ]
+	);
+
 	// The single resource, date range, and comparison all live in the URL search
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
@@ -64,7 +76,16 @@ function PostDetail(): JSX.Element {
 
 	return (
 		<GlobalErrorProvider>
+			{ /*
+			 * Key the dashboard by the active tab so its staging layout resets on
+			 * every switch. Empty tabs otherwise share one `EMPTY_LAYOUT` identity,
+			 * and the provider only resets staging when the `layout` prop identity
+			 * changes — so staged-but-unsaved widgets could render on, and be saved
+			 * under, the wrong tab. Remount cost is negligible (only the active
+			 * tab's panel renders).
+			 */ }
 			<WidgetDashboard
+				key={ activeTab }
 				widgetTypes={ widgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
 				layout={ layout }
@@ -80,7 +101,7 @@ function PostDetail(): JSX.Element {
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.page }
 				>
-					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
+					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange }>
 						{ /*
 						 * The summary card and date filters are shared by every tab
 						 * (same post, same date range), so they render once below the

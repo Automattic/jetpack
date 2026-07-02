@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
+import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/route';
+import { Link, useSearch } from '@wordpress/route';
 import { Text } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -27,9 +28,15 @@ type StatsBreadcrumbsProps = {
  * @return The breadcrumb element.
  */
 export function StatsBreadcrumbs( { title }: StatsBreadcrumbsProps ) {
+	// Carry the shared date range and comparison back to the dashboard so the
+	// breadcrumb and the browser Back button return to the same view. Page-scoped
+	// params (`post_id`, `section`) are dropped by `pickReportDateParams`.
+	const search = useSearch( { strict: false } ) as Record< string, unknown >;
+	const dashboardSearch = pickReportDateParams( search );
+
 	return (
 		<div className={ styles.breadcrumbs }>
-			<Link to="/" className={ styles.root }>
+			<Link to="/" search={ dashboardSearch as unknown as never } className={ styles.root }>
 				{ __( 'Stats', 'jetpack-premium-analytics' ) }
 			</Link>
 			{ title ? (
