@@ -65,6 +65,8 @@ describe( 'selectPatternPage', () => {
 		const result = selectPatternPage( [ aboutPattern, galleryPattern ], inferred, 'gallery' );
 		assert.equal( result.content, galleryPattern.html );
 		assert.equal( result.markerMeta, '_wpcom_ai_launchpad_gallery_page' );
+		// The title is fixed, not the matched pattern's name.
+		assert.equal( result.title, 'Gallery' );
 	} );
 
 	it( 'gallery variant falls back to a bare gallery block when no gallery pattern exists', () => {
@@ -72,6 +74,28 @@ describe( 'selectPatternPage', () => {
 		assert.match( result.content, /wp:gallery/ );
 		assert.equal( result.markerMeta, '_wpcom_ai_launchpad_gallery_page' );
 		assert.equal( result.title, 'Gallery' );
+	} );
+
+	it( 'gallery variant strips an in-pattern heading that repeats the title', () => {
+		const withHeading: PtkPattern = {
+			title: 'Gallery Page 2',
+			html: '<!-- wp:heading --><h2 class="wp-block-heading">Gallery</h2><!-- /wp:heading -->\n<!-- wp:image --><figure></figure><!-- /wp:image -->',
+			categories: { c1: { slug: 'gallery', title: 'Gallery' } },
+		};
+		const result = selectPatternPage( [ withHeading ], inferred, 'gallery' );
+		assert.equal( result.title, 'Gallery' );
+		assert.ok( ! /wp:heading/.test( result.content ), 'redundant heading removed' );
+		assert.ok( /wp:image/.test( result.content ), 'other blocks kept' );
+	} );
+
+	it( 'gallery variant keeps a heading whose text differs from the title', () => {
+		const withHeading: PtkPattern = {
+			title: 'Gallery Page 3',
+			html: '<!-- wp:heading --><h2 class="wp-block-heading">Featured work</h2><!-- /wp:heading -->',
+			categories: { c1: { slug: 'gallery', title: 'Gallery' } },
+		};
+		const result = selectPatternPage( [ withHeading ], inferred, 'gallery' );
+		assert.ok( /Featured work/.test( result.content ), 'non-matching heading kept' );
 	} );
 
 	it( 'about variant is unfiltered and sets the about marker', () => {

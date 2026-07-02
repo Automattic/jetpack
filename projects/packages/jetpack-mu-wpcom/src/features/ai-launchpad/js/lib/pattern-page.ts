@@ -29,9 +29,10 @@ const VARIANT_CONFIG: Record< PatternVariant, { category: string | null; markerM
 	gallery: { category: 'gallery', markerMeta: '_wpcom_ai_launchpad_gallery_page' },
 };
 
-// An empty core/gallery block, used when the pattern library yields no gallery pattern.
+// An empty core/gallery block, used when the pattern library yields no gallery pattern. The class list mirrors
+// what the gallery block serializes (including the default flex layout) so the editor doesn't flag invalid markup.
 const GALLERY_FALLBACK_HTML =
-	'<!-- wp:gallery {"linkTo":"none"} --><figure class="wp-block-gallery has-nested-images columns-default is-cropped"></figure><!-- /wp:gallery -->';
+	'<!-- wp:gallery {"linkTo":"none"} --><figure class="wp-block-gallery has-nested-images columns-default is-cropped is-layout-flex wp-block-gallery-is-layout-flex"></figure><!-- /wp:gallery -->';
 
 /**
  * Tokenize the inferred niche/vibe/audience into lowercase match words. Goal is
@@ -111,6 +112,25 @@ export function pickPattern(
 }
 
 /**
+ * Remove heading blocks whose visible text just repeats the page title, so a page
+ * with a separately-set title doesn't show that word again as an in-content heading.
+ *
+ * @param html  - The pattern block markup.
+ * @param title - The page title to de-duplicate against.
+ * @return The markup with matching heading blocks removed.
+ */
+function stripHeadingMatching( html: string, title: string ): string {
+	const target = title.trim().toLowerCase();
+	return html.replace( /<!-- wp:heading\b[^]*?<!-- \/wp:heading -->\s*/g, block => {
+		const text = block
+			.replace( /<[^>]*>/g, '' )
+			.trim()
+			.toLowerCase();
+		return text === target ? '' : block;
+	} );
+}
+
+/**
  * Choose the page title, block content, and marker meta for a pattern-page variant.
  *
  * The gallery variant filters the library to the `gallery` category before niche scoring and falls back to a bare
@@ -137,10 +157,14 @@ export function selectPatternPage(
 			  );
 	const pattern = pickPattern( pool, inferred );
 	const fallback = variant === 'gallery' ? GALLERY_FALLBACK_HTML : '';
+	// The gallery page gets a fixed title; the pattern's own name ("Gallery: Two columns…") is not a useful title.
+	const title =
+		variant === 'gallery' ? 'Gallery' : pattern?.title ?? inferred.brand_name ?? 'New page';
+	const rawContent = pattern?.html ?? fallback;
 	return {
-		title:
-			pattern?.title ?? inferred.brand_name ?? ( variant === 'gallery' ? 'Gallery' : 'New page' ),
-		content: pattern?.html ?? fallback,
+		title,
+		// Drop any in-pattern heading that just repeats the title, so the gallery page doesn't show "Gallery" twice.
+		content: variant === 'gallery' ? stripHeadingMatching( rawContent, title ) : rawContent,
 		markerMeta: config.markerMeta,
 	};
 }
