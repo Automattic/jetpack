@@ -20,9 +20,9 @@ import styles from './style.module.css';
  * Server-gated: widget-availability.php drops `jpa/react-query-dev-tool` in
  * production, so this module is never requested there.
  *
- * @return {React.ReactNode} The rendered devtools panel.
+ * @return The rendered devtools panel.
  */
-export default function ReactQueryDevTool(): React.ReactNode {
+export default function ReactQueryDevTool() {
 	return (
 		<div className={ styles.root }>
 			<ReactQueryDevtoolsPanel client={ queryClient } style={ { height: '100%' } } />

@@ -6,11 +6,11 @@
 	"dependencies": {
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^13.0.0",
-		"@wordpress/ui": "0.13.0"
+		"@wordpress/ui": "0.13.0",
+		"@wordpress/widget-primitives": "next"
 	},
 	"devDependencies": {
 		"@wordpress/element": "8.1.0",
-		"@wordpress/widget-dashboard": "next",
-		"@wordpress/widget-primitives": "next"
+		"@wordpress/widget-dashboard": "next"
 	}
 }
