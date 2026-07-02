@@ -95,16 +95,6 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks extends \WP_REST_Cont
 	 * Register the routes.
 	 */
 	public function register_routes() {
-		/*
-		 * The routes store tracks in the caption-track CPT; make sure it and its
-		 * meta sanitizers exist even where the package initializer didn't run
-		 * (WordPress.com Simple loads only this endpoint file).
-		 */
-		if ( ! post_type_exists( Caption_Tracks::POST_TYPE ) ) {
-			Caption_Tracks::register_post_type();
-			Caption_Tracks::register_meta();
-		}
-
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
