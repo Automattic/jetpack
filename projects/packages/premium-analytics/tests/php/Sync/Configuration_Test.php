@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
+use Automattic\Jetpack\Connection\Plugin_Storage;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -51,7 +52,7 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * With WooCommerce active, configure_sync registers the sync filters and the connection feature.
+	 * With WooCommerce active, configure_sync registers the sync filters and the connected plugin.
 	 *
 	 * @runInSeparateProcess
 	 */
@@ -64,5 +65,9 @@ class Configuration_Test extends TestCase {
 
 		$this->assertNotFalse( has_filter( 'jetpack_sync_modules' ) );
 		$this->assertNotFalse( has_filter( 'jetpack_sync_post_meta_whitelist' ) );
+
+		// The connected plugin slug must land in the connection registry: the WPCom provisioning gate.
+		Plugin_Storage::configure();
+		$this->assertArrayHasKey( 'premium-analytics', (array) Plugin_Storage::get_all() );
 	}
 }
