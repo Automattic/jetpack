@@ -295,9 +295,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// The sell goal leads with the store-setup task; every other goal may offer the gallery task. They are
 			// mutually exclusive so a sell site with a visual niche doesn't also get an off-target gallery task.
 			if ( 'sell' === $goal ) {
-				$store = $this->build_store_task();
-				if ( null !== $store ) {
-					$tasks = $this->insert_lead_task( $tasks, $store );
+				// The store-setup tasks lead the sell list; prepend in reverse so they keep their display order.
+				foreach ( array_reverse( $this->build_store_tasks() ) as $lead ) {
+					$tasks = $this->insert_lead_task( $tasks, $lead );
 				}
 			} else {
 				$gallery = $this->build_gallery_task( $inferred );
@@ -755,30 +755,77 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Builds the synthetic store-setup task that leads the sell sequence, or null once WooCommerce is active.
+	 * Builds the synthetic store-setup lead tasks for the sell goal: an "install WooCommerce" task, plus a "set up
+	 * your store" task once WooCommerce is active.
 	 *
 	 * The commerce (`woo_*`) tasks are visibility-gated on WooCommerce being active, so a fresh sell site would
-	 * otherwise collapse to almost nothing. This task offers a WooCommerce install CTA until the plugin is active,
-	 * at which point the woo_* tasks take over and it drops out (rather than lingering as a completed lead card).
-	 * The active check is read live, so no marker or listener is needed. Callers gate this on the sell goal.
+	 * otherwise collapse to almost nothing. These tasks are read live (installed/active/profiler options), so no
+	 * marker or listener is needed. Callers gate this on the sell goal.
 	 *
-	 * @return array|null
+	 * @return array The lead tasks in display order.
 	 */
-	private function build_store_task() {
+	private function build_store_tasks() {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
-		if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
-			return null;
+
+		$active = is_plugin_active( 'woocommerce/woocommerce.php' );
+		$tasks  = array( $this->build_install_woocommerce_task( $active ) );
+
+		// The setup wizard needs WooCommerce running, so its task only appears once the plugin is active.
+		if ( $active ) {
+			$tasks[] = $this->build_setup_store_task();
+		}
+
+		return $tasks;
+	}
+
+	/**
+	 * The "Install the WooCommerce plugin" lead task: to-do until the plugin exists, in-progress while it is
+	 * installed-but-inactive, and complete once active.
+	 *
+	 * @param bool $active Whether WooCommerce is active.
+	 * @return array
+	 */
+	private function build_install_woocommerce_task( $active ) {
+		$in_progress = ! $active && array_key_exists( 'woocommerce/woocommerce.php', get_plugins() );
+
+		$calypso_path = null;
+		if ( ! $active ) {
+			$calypso_path = $in_progress
+				? admin_url( 'plugins.php?plugin_status=inactive' )
+				: admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' );
 		}
 
 		return array(
 			'id'           => 'install_woocommerce',
-			'subtitle'     => __( 'Add WooCommerce so you can start selling.', 'jetpack-mu-wpcom' ),
+			'subtitle'     => $in_progress
+				? __( 'Activate the WooCommerce plugin to continue.', 'jetpack-mu-wpcom' )
+				: __( 'Add the WooCommerce plugin to start selling.', 'jetpack-mu-wpcom' ),
+			'title'        => __( 'Install the WooCommerce plugin', 'jetpack-mu-wpcom' ),
+			'completed'    => $active,
+			'in_progress'  => $in_progress,
+			'calypso_path' => $calypso_path,
+		);
+	}
+
+	/**
+	 * The "Set up your store" lead task: to-do until the WooCommerce setup wizard (core profiler) is completed or
+	 * skipped, then complete. Only offered while WooCommerce is active.
+	 *
+	 * @return array
+	 */
+	private function build_setup_store_task() {
+		$profile   = (array) get_option( 'woocommerce_onboarding_profile', array() );
+		$completed = ! empty( $profile['completed'] ) || ! empty( $profile['skipped'] );
+
+		return array(
+			'id'           => 'setup_woocommerce_store',
+			'subtitle'     => __( 'Complete or skip the WooCommerce setup wizard.', 'jetpack-mu-wpcom' ),
 			'title'        => __( 'Set up your store', 'jetpack-mu-wpcom' ),
-			'completed'    => false,
+			'completed'    => $completed,
 			'in_progress'  => false,
-			'calypso_path' => admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' ),
+			'calypso_path' => $completed ? null : admin_url( 'admin.php?page=wc-admin&path=%2Fsetup-wizard' ),
 		);
 	}
 

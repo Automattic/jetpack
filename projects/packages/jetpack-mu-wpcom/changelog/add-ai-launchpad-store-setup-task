@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-AI Launchpad: rework the "sell" goal to lead with a store-setup task that installs WooCommerce, so the commerce tasks no longer collapse on a fresh site.
+AI Launchpad: rework the "sell" goal to lead with install-WooCommerce and store-setup tasks, so the commerce tasks no longer collapse on a fresh site.

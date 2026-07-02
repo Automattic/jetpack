@@ -40,6 +40,8 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 		case 'add_gallery_page':
 			return __( 'Create gallery', 'jetpack-mu-wpcom' );
 		case 'install_woocommerce':
+			return __( 'Install WooCommerce', 'jetpack-mu-wpcom' );
+		case 'setup_woocommerce_store':
 			return __( 'Set up store', 'jetpack-mu-wpcom' );
 		case 'woo_products':
 			return __( 'Add products', 'jetpack-mu-wpcom' );

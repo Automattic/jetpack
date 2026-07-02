@@ -702,62 +702,103 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The store-setup task leads the sell sequence and offers an install CTA while WooCommerce is inactive.
+	 * Returns the sell task list keyed by id (WooCommerce state controlled by the caller beforehand).
+	 *
+	 * @param string $niche The inferred niche.
+	 * @return array<string, array> Tasks keyed by id.
 	 */
-	public function test_get_injects_store_task_leading_for_sell_goal() {
-		wp_set_current_user( $this->admin_id );
-		update_option( 'active_plugins', array() );
-		$this->seed_gallery_output( 'sell', 'organic coffee beans' );
-
+	private function sell_tasks_by_id( $niche = 'organic coffee beans' ) {
+		$this->seed_gallery_output( 'sell', $niche );
 		$tasks = $this->call_api( Requests::GET )->get_data()['tasks'];
-		$ids   = array_column( $tasks, 'id' );
-		$this->assertContains( 'install_woocommerce', $ids );
-		$this->assertSame( 'install_woocommerce', $ids[0] );
-
-		$store = null;
-		foreach ( $tasks as $task ) {
-			if ( 'install_woocommerce' === $task['id'] ) {
-				$store = $task;
-			}
-		}
-		$this->assertSame( 'Set up your store', $store['title'] );
-		$this->assertFalse( $store['completed'] );
-		$this->assertStringContainsString( 'plugin-install.php?s=woocommerce', $store['calypso_path'] );
+		return array_column( $tasks, null, 'id' );
 	}
 
 	/**
-	 * The store-setup task drops out once WooCommerce is active, letting the woo_* tasks take over.
+	 * With WooCommerce missing, the install task leads with the plugin-install CTA and the setup task is absent.
 	 */
-	public function test_get_omits_store_task_when_woocommerce_active() {
+	public function test_get_leads_sell_with_install_task_when_woocommerce_missing() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+
+		$tasks = $this->sell_tasks_by_id();
+		$this->assertSame( 'install_woocommerce', array_key_first( $tasks ) );
+		$this->assertArrayNotHasKey( 'setup_woocommerce_store', $tasks );
+
+		$install = $tasks['install_woocommerce'];
+		$this->assertFalse( $install['completed'] );
+		$this->assertFalse( $install['in_progress'] );
+		$this->assertStringContainsString( 'Add the WooCommerce plugin', $install['subtitle'] );
+		$this->assertStringContainsString( 'plugin-install.php?s=woocommerce', $install['calypso_path'] );
+	}
+
+	/**
+	 * With WooCommerce installed but not active, the install task is in progress and points at the plugins screen.
+	 */
+	public function test_get_marks_install_task_in_progress_when_inactive() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		wp_cache_set( 'plugins', array( '' => array( 'woocommerce/woocommerce.php' => array( 'Name' => 'WooCommerce' ) ) ), 'plugins' );
+
+		$install = $this->sell_tasks_by_id()['install_woocommerce'];
+		wp_cache_delete( 'plugins', 'plugins' );
+
+		$this->assertTrue( $install['in_progress'] );
+		$this->assertFalse( $install['completed'] );
+		$this->assertStringContainsString( 'Activate the WooCommerce plugin', $install['subtitle'] );
+		$this->assertStringContainsString( 'plugins.php?plugin_status=inactive', $install['calypso_path'] );
+	}
+
+	/**
+	 * Once WooCommerce is active the install task shows complete and the setup task appears with the wizard CTA.
+	 */
+	public function test_get_completes_install_and_offers_setup_when_active() {
 		wp_set_current_user( $this->admin_id );
 		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php' ) );
-		$this->seed_gallery_output( 'sell', 'organic coffee beans' );
 
-		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$tasks = $this->sell_tasks_by_id();
 		update_option( 'active_plugins', array() );
 
-		$this->assertNotContains( 'install_woocommerce', $ids );
+		$this->assertTrue( $tasks['install_woocommerce']['completed'] );
+		$this->assertArrayHasKey( 'setup_woocommerce_store', $tasks );
+		$setup = $tasks['setup_woocommerce_store'];
+		$this->assertFalse( $setup['completed'] );
+		$this->assertStringContainsString( 'page=wc-admin&path=%2Fsetup-wizard', $setup['calypso_path'] );
 	}
 
 	/**
-	 * The store-setup task is not injected for a non-sell goal.
+	 * The setup task completes once the WooCommerce core profiler is completed or skipped.
 	 */
-	public function test_get_omits_store_task_for_non_sell_goal() {
+	public function test_get_completes_setup_when_profiler_done() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php' ) );
+		update_option( 'woocommerce_onboarding_profile', array( 'skipped' => true ) );
+
+		$setup = $this->sell_tasks_by_id()['setup_woocommerce_store'];
+		update_option( 'active_plugins', array() );
+
+		$this->assertTrue( $setup['completed'] );
+		$this->assertNull( $setup['calypso_path'] );
+	}
+
+	/**
+	 * The store tasks are not injected for a non-sell goal.
+	 */
+	public function test_get_omits_store_tasks_for_non_sell_goal() {
 		wp_set_current_user( $this->admin_id );
 		$this->seed_gallery_output( 'build', 'organic coffee beans' );
 		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 		$this->assertNotContains( 'install_woocommerce', $ids );
+		$this->assertNotContains( 'setup_woocommerce_store', $ids );
 	}
 
 	/**
-	 * A sell site whose niche matches a gallery keyword gets the store task, not the off-target gallery task.
+	 * A sell site whose niche matches a gallery keyword gets the store tasks, not the off-target gallery task.
 	 */
 	public function test_get_prefers_store_over_gallery_for_sell_goal() {
 		wp_set_current_user( $this->admin_id );
 		update_option( 'active_plugins', array() );
-		$this->seed_gallery_output( 'sell', 'handmade art' );
 
-		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$ids = array_keys( $this->sell_tasks_by_id( 'handmade art' ) );
 		$this->assertContains( 'install_woocommerce', $ids );
 		$this->assertNotContains( 'add_gallery_page', $ids );
 	}
