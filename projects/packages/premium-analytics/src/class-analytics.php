@@ -67,14 +67,6 @@ class Analytics {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
 
-		// Load the widget manifest (defines jpa_get_registered_widget_modules).
-		// Must happen before the is_admin() guard so REST requests can hydrate
-		// the widget type registry and serve /jetpack/v4/widget-modules.
-		$widgets_build = __DIR__ . '/../build/widgets.php';
-		if ( file_exists( $widgets_build ) ) {
-			require_once $widgets_build;
-		}
-
 		// Load the widget type registry: hydration routine, registry-time and
 		// runtime filters, and the registry accessors.
 		require_once __DIR__ . '/widget-types.php';
@@ -94,8 +86,9 @@ class Analytics {
 		// injection and the REST route the "reset to default" action reads.
 		require_once __DIR__ . '/dashboard-layout.php';
 
-		// Load wp-build output (interceptor, modules, widget manifest, routes, page render).
-		// Must stay above the is_admin() gate so the registry can serve REST
+		// Load wp-build output (interceptor, modules, routes, page render).
+		// Must stay above the is_admin() gate: build/widgets.php defines the
+		// manifest the widget registry reads, and the registry serves REST
 		// requests (e.g. /jetpack/v4/widget-modules) where is_admin() is false. The render
 		// pieces here self-gate on admin_init, so loading them globally is inert
 		// off the dashboard. Only the polyfill registration below is admin-scoped.
