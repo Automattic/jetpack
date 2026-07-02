@@ -375,10 +375,12 @@ test( 'dry-run posts all three scenario metrics into the payload, nothing reject
 	assert.equal( Object.keys( result.payload.metrics ).length, 3 );
 } );
 
-test( 'per-type sanity: one out-of-range metric is rejected while the others still post', async () => {
-	// The core multi-metric guarantee: TTFB out of its own range [10,10000] is dropped, but
-	// LCP and FCP — each checked against its OWN type — still land. A per-metric failure must
-	// not take down the whole scenario, and the rejected key must never reach the payload.
+test( 'per-type sanity: one out-of-range metric is rejected, the survivors stay visible in the dry-run payload', async () => {
+	// Each metric is checked against its OWN type: TTFB out of its range [10,10000] is
+	// dropped while LCP and FCP survive into the dry-run payload, so CI diagnostics show
+	// exactly which metrics passed. (A live run with validationFailed posts NOTHING — see
+	// the atomic-post test below — so the partial payload is diagnostic-only.) The
+	// rejected key must never reach the payload.
 	const file = writeResults( 120, { ttfb: 99999, fcp: 400 } );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.validationFailed, true ); // ttfb failed its range
@@ -1041,11 +1043,13 @@ test(
 	}
 );
 
-test( 'a validation failure is not downgraded to exit 1 when a later live POST also fails', async () => {
+test( 'a sanity-check failure suppresses the live POST entirely (atomic per-run posting)', async () => {
 	// Reachable only with 2+ posted metrics (FORMS-707 territory): one metric fails the
-	// sanity check (validationFailed=true) while a valid one remains and is POSTed. If
-	// that POST then fails, the build must STILL exit with the data-integrity code — bad
-	// local data is never suppressible by --allow-codevitals-failure.
+	// sanity check (validationFailed=true) while valid survivors remain. The run is
+	// already committed to exit 2, and CodeVitals is append-only with dedup off by
+	// default — so POSTing the survivors would re-append them as duplicate trend points
+	// when the red build is retried. The live path must post NOTHING: fetch is never
+	// called, and the result still carries validationFailed for main()'s exit-2 mapping.
 	const extra = {
 		key: 'extraMetric',
 		name: 'Extra Metric',
@@ -1062,34 +1066,37 @@ test( 'a validation failure is not downgraded to exit 1 when a later live POST a
 		JSON.stringify( {
 			git: { hash: 'h', branch: 'trunk' },
 			measurements: {
-				jetpackConnected: { summary: jetpackSummary() }, // valid LCP/TTFB/FCP → get POSTed
+				jetpackConnected: { summary: jetpackSummary() }, // valid LCP/TTFB/FCP survivors
 				extraMetric: { summary: { median: 99999 } }, // outside [0,1000] → skipped, flags validationFailed
 			},
 		} )
 	);
 	const origFetch = global.fetch;
-	// A transport failure AFTER a metric already failed local validation.
-	global.fetch = async () => ( { ok: false, status: 500, text: async () => 'boom' } );
-	let err;
+	let fetchCalls = 0;
+	global.fetch = async () => {
+		fetchCalls++;
+		return { ok: true, status: 200, json: async () => ( {} ) };
+	};
+	let result;
 	try {
-		await silenced( () =>
+		result = await silenced( () =>
 			postToCodeVitals( file, {
 				dryRun: false,
 				codeVitalsUrl: 'https://codevitals.test',
 				codeVitalsToken: 'tok-mixed',
 			} )
 		);
-	} catch ( e ) {
-		err = e;
 	} finally {
 		global.fetch = origFetch;
 		SCENARIOS.pop();
 		delete SANITY_RANGES.extratype;
 		fs.rmSync( dir, { recursive: true, force: true } );
 	}
-	assert.ok( err, 'the live post should reject' );
-	// Must map to the always-fatal data-integrity code, not a suppressible exit 1.
-	assert.equal( exitCodeForError( err ), VALIDATION_FAILED_EXIT_CODE );
+	assert.equal( fetchCalls, 0, 'a run with a validation failure must never reach fetch' );
+	assert.equal( result.posted, false );
+	// main() maps this to the always-fatal data-integrity exit 2, which
+	// --allow-codevitals-failure can never suppress.
+	assert.equal( result.validationFailed, true );
 } );
 
 // --- isDirectInvocation (the run-when-direct guard) ---

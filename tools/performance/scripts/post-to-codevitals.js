@@ -490,6 +490,20 @@ async function postToCodeVitals( resultsPath, config ) {
 		return { posted: false, validationFailed, payload };
 	}
 
+	// Atomic per-run posting: any sanity-check failure above already commits this run to
+	// exit 2, so never live-post the surviving subset. CodeVitals is append-only and dedup
+	// is opt-in (off by default), so posting survivors (e.g. a good LCP) just before the
+	// build reds would re-append them as duplicate trend points when the red build is
+	// retried. Posting nothing keeps the retry clean: fix the bad metric, re-run, and the
+	// full set lands exactly once. The dry-run path above still prints the partial payload,
+	// so CI diagnostics keep showing which metrics survived.
+	if ( validationFailed ) {
+		console.error(
+			'✗ Skipping CodeVitals post: one or more metrics failed sanity checks; posting nothing.'
+		);
+		return { posted: false, validationFailed };
+	}
+
 	// Cross-commit dedup (live posts only — kept after the dry-run return so the
 	// token-free CI smoke test still makes zero network calls). CodeVitals is
 	// append-only, so re-testing a commit (a manual re-run, a TeamCity retryBuild,
@@ -593,10 +607,12 @@ async function postToCodeVitals( resultsPath, config ) {
 				? `CodeVitals request timed out after ${ TIMEOUT_MS / 1000 }s`
 				: error.message;
 		console.error( '✗ Failed to post metrics to CodeVitals:', message );
-		// If a metric already failed local validation, the build must fail with the
-		// data-integrity code even though the transport ALSO failed here — bad local
-		// data is never suppressible by --allow-codevitals-failure. A pure transport
-		// failure (no prior validation failure) stays a plain Error (exit 1).
+		// Backstop for the exit-code split: bad local data is never suppressible by
+		// --allow-codevitals-failure, so a validation failure must map to the
+		// data-integrity code even when the transport ALSO failed. The atomic gate above
+		// means a live POST can no longer run with validationFailed set, so this stays
+		// Error (exit 1) today — kept so a future re-ordering of the gate cannot
+		// silently downgrade a validation failure to a suppressible exit 1.
 		const ErrorClass = validationFailed ? ValidationError : Error;
 		throw new ErrorClass( message, { cause: error } );
 	} finally {
@@ -707,7 +723,7 @@ async function main() {
 		const result = await postToCodeVitals( config.resultsPath, config );
 		if ( result.validationFailed ) {
 			console.error(
-				'\n✗ One or more metrics failed sanity checks (see above). Any valid metrics were still processed.'
+				'\n✗ One or more metrics failed sanity checks (see above). Nothing was posted.'
 			);
 			// Exit with the data-integrity code so the runner always fails the build
 			// here, even under --allow-codevitals-failure (that flag is for outages).
