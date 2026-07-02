@@ -2,16 +2,10 @@
  * External dependencies
  */
 import { QueryClientProvider } from '@tanstack/react-query';
-import {
-	Button,
-	DropZone,
-	Modal,
-	Notice,
-	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Button, DropZone, Modal, Notice } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from '@wordpress/element';
 import { __, _x, isRTL, sprintf } from '@wordpress/i18n';
-import { chevronLeft, chevronRight, plus, upload } from '@wordpress/icons';
+import { chevronLeft, chevronRight, close, plus, upload } from '@wordpress/icons';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -33,6 +27,7 @@ import {
 } from '../../lib/video-tracks/language';
 import { registerCaptionCueBlock } from './caption-cue-block';
 import { CaptionEditorContext } from './caption-editor-context';
+import ConfirmationOverlay from './confirmation-overlay';
 import ManualEditor from './manual-editor';
 import { createCaptionManagerQueryClient } from './query-client';
 import {
@@ -80,7 +75,7 @@ import type { CaptionManagerModalProps } from './types';
 import type { WorkspaceAction } from './workspace-reducer';
 import type { SavedCaptionTrack } from '../../lib/video-tracks/caption-tracks';
 import type { VideoTextTrack } from '../../lib/video-tracks/types';
-import type { ReactElement } from 'react';
+import type { KeyboardEvent, ReactElement } from 'react';
 
 const debug = debugFactory( 'videopress:caption-manager-modal' );
 
@@ -374,6 +369,23 @@ function CaptionManagerModalInner( {
 	const handleRequestClose = useCallback(
 		() => confirmDiscardThen( onClose ),
 		[ confirmDiscardThen, onClose ]
+	);
+
+	/*
+	 * Escape is handled here, before the Modal's own handler: the Modal plays
+	 * its exit animation before asking `onRequestClose`, so a vetoed close
+	 * (unsaved edits) would flash the modal closed and open again. Deferring
+	 * to anything that already handled the key keeps e.g. the language
+	 * combobox's list-dismiss working.
+	 */
+	const handleContentKeyDown = useCallback(
+		( event: KeyboardEvent< HTMLDivElement > ) => {
+			if ( event.key === 'Escape' && ! event.defaultPrevented ) {
+				event.preventDefault();
+				handleRequestClose();
+			}
+		},
+		[ handleRequestClose ]
 	);
 
 	const handleBackToTracks = useCallback(
@@ -838,197 +850,218 @@ function CaptionManagerModalInner( {
 				onRequestClose={ handleRequestClose }
 				className="videopress-caption-manager"
 				focusOnMount={ false }
+				/*
+				 * The built-in dismiss button and outside-click both play the close
+				 * animation before consulting `onRequestClose`, which flashes the
+				 * modal away and back when the discard confirmation vetoes the
+				 * close. Escape is intercepted in the content for the same reason.
+				 */
+				isDismissible={ false }
+				shouldCloseOnClickOutside={ false }
+				headerActions={
+					<Button
+						size="small"
+						icon={ close }
+						label={ __( 'Close', 'jetpack-videopress-pkg' ) }
+						onClick={ handleRequestClose }
+					/>
+				}
 			>
-				<DropZone
-					label={ __( 'Drop a subtitle file to upload', 'jetpack-videopress-pkg' ) }
-					onFilesDrop={ handleCaptionFileDrop }
-				/>
+				{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Intercepts Escape before the Modal's animate-then-close handling. */ }
+				<div className="videopress-caption-manager__body" onKeyDown={ handleContentKeyDown }>
+					<DropZone
+						label={ __( 'Drop a subtitle file to upload', 'jetpack-videopress-pkg' ) }
+						onFilesDrop={ handleCaptionFileDrop }
+					/>
 
-				<div className="videopress-caption-manager__action-bar">
-					<div className="videopress-caption-manager__action-bar-start">
-						<h3 className="videopress-caption-manager__action-bar-title">
-							{ isEditorView
-								? getEditorHeading()
-								: __( 'Subtitle tracks', 'jetpack-videopress-pkg' ) }
-						</h3>
-						{ isLoadingTrackText && (
-							<span className="videopress-caption-manager__status">
-								{ __( 'Loading subtitle content…', 'jetpack-videopress-pkg' ) }
-							</span>
-						) }
-					</div>
-					<div className="videopress-caption-manager__action-buttons">
-						{ isEditorView ? (
-							<>
-								<Button
-									variant="secondary"
-									icon={ isRTL() ? chevronRight : chevronLeft }
-									onClick={ handleBackToTracks }
-									disabled={ isPublishing || isSavingCaptionTrack }
-								>
-									{ __( 'Back to tracks', 'jetpack-videopress-pkg' ) }
-								</Button>
-								{ workspace.view === 'manual' && (
-									<>
-										{ ! workspace.isTextImportOpen && (
+					<div className="videopress-caption-manager__action-bar">
+						<div className="videopress-caption-manager__action-bar-start">
+							<h3 className="videopress-caption-manager__action-bar-title">
+								{ isEditorView
+									? getEditorHeading()
+									: __( 'Subtitle tracks', 'jetpack-videopress-pkg' ) }
+							</h3>
+							{ isLoadingTrackText && (
+								<span className="videopress-caption-manager__status">
+									{ __( 'Loading subtitle content…', 'jetpack-videopress-pkg' ) }
+								</span>
+							) }
+						</div>
+						<div className="videopress-caption-manager__action-buttons">
+							{ isEditorView ? (
+								<>
+									<Button
+										variant="secondary"
+										icon={ isRTL() ? chevronRight : chevronLeft }
+										onClick={ handleBackToTracks }
+										disabled={ isPublishing || isSavingCaptionTrack }
+									>
+										{ __( 'Back to tracks', 'jetpack-videopress-pkg' ) }
+									</Button>
+									{ workspace.view === 'manual' && (
+										<>
+											{ ! workspace.isTextImportOpen && (
+												<Button
+													variant="secondary"
+													onClick={ () =>
+														dispatchAndClearNotice( { type: 'SET_TEXT_IMPORT_OPEN', isOpen: true } )
+													}
+												>
+													{ __( 'Paste text', 'jetpack-videopress-pkg' ) }
+												</Button>
+											) }
+											{ ! isUpdatingPublishedTrack && (
+												<Button
+													variant="secondary"
+													onClick={ () => void saveDraft() }
+													isBusy={ isSavingCaptionTrack }
+													disabled={ isSavingCaptionTrack || isPublishing || isLoadingTrackText }
+												>
+													{ __( 'Save draft', 'jetpack-videopress-pkg' ) }
+												</Button>
+											) }
 											<Button
-												variant="secondary"
-												onClick={ () =>
-													dispatchAndClearNotice( { type: 'SET_TEXT_IMPORT_OPEN', isOpen: true } )
-												}
-											>
-												{ __( 'Paste text', 'jetpack-videopress-pkg' ) }
-											</Button>
-										) }
-										{ ! isUpdatingPublishedTrack && (
-											<Button
-												variant="secondary"
-												onClick={ () => void saveDraft() }
-												isBusy={ isSavingCaptionTrack }
+												variant="primary"
+												onClick={ () => void publishTrack() }
+												isBusy={ isPublishing }
 												disabled={ isSavingCaptionTrack || isPublishing || isLoadingTrackText }
 											>
-												{ __( 'Save draft', 'jetpack-videopress-pkg' ) }
+												{ /* The context also keeps the branches distinct so minification can't merge the two calls, which would break string extraction. */ }
+												{ isUpdatingPublishedTrack
+													? _x(
+															'Update',
+															'button: overwrite an already-published subtitle track',
+															'jetpack-videopress-pkg'
+													  )
+													: __( 'Publish', 'jetpack-videopress-pkg' ) }
 											</Button>
-										) }
-										<Button
-											variant="primary"
-											onClick={ () => void publishTrack() }
-											isBusy={ isPublishing }
-											disabled={ isSavingCaptionTrack || isPublishing || isLoadingTrackText }
-										>
-											{ /* The context also keeps the branches distinct so minification can't merge the two calls, which would break string extraction. */ }
-											{ isUpdatingPublishedTrack
-												? _x(
-														'Update',
-														'button: overwrite an already-published subtitle track',
-														'jetpack-videopress-pkg'
-												  )
-												: __( 'Publish', 'jetpack-videopress-pkg' ) }
-										</Button>
-									</>
-								) }
-							</>
-						) : (
-							<>
-								<Button
-									ref={ addTrackButtonRef }
-									variant="secondary"
-									icon={ plus }
-									onClick={ () => void startManualTrack() }
-									disabled={ isPublishing || isSavingCaptionTrack }
-								>
-									{ __( 'Add track', 'jetpack-videopress-pkg' ) }
-								</Button>
-								<Button
-									variant="secondary"
-									onClick={ startTextImportTrack }
-									disabled={ isPublishing || isSavingCaptionTrack }
-								>
-									{ __( 'Paste transcript', 'jetpack-videopress-pkg' ) }
-								</Button>
-								<Button
-									variant="secondary"
-									icon={ upload }
-									onClick={ () => startUploadTrack() }
-									disabled={ isPublishing || isSavingCaptionTrack }
-								>
-									{ __( 'Upload subtitle file', 'jetpack-videopress-pkg' ) }
-								</Button>
-							</>
+										</>
+									) }
+								</>
+							) : (
+								<>
+									<Button
+										ref={ addTrackButtonRef }
+										variant="secondary"
+										icon={ plus }
+										onClick={ () => void startManualTrack() }
+										disabled={ isPublishing || isSavingCaptionTrack }
+									>
+										{ __( 'Add track', 'jetpack-videopress-pkg' ) }
+									</Button>
+									<Button
+										variant="secondary"
+										onClick={ startTextImportTrack }
+										disabled={ isPublishing || isSavingCaptionTrack }
+									>
+										{ __( 'Paste transcript', 'jetpack-videopress-pkg' ) }
+									</Button>
+									<Button
+										variant="secondary"
+										icon={ upload }
+										onClick={ () => startUploadTrack() }
+										disabled={ isPublishing || isSavingCaptionTrack }
+									>
+										{ __( 'Upload subtitle file', 'jetpack-videopress-pkg' ) }
+									</Button>
+								</>
+							) }
+						</div>
+					</div>
+
+					{ notice && (
+						<Notice status={ notice.status } isDismissible={ false }>
+							{ notice.message }
+						</Notice>
+					) }
+
+					<div
+						className={ `videopress-caption-manager__workspace videopress-caption-manager__workspace--${
+							isEditorView ? 'editor' : 'tracks'
+						}` }
+					>
+						{ workspace.view === 'tracks' && (
+							<section className="videopress-caption-manager__tracks">
+								<TrackList
+									rows={ trackRows }
+									isLoading={ isLoadingCaptionTracks }
+									emptyMessage={ __(
+										'No subtitle tracks have been added to this video yet.',
+										'jetpack-videopress-pkg'
+									) }
+									busy={ trackListBusy }
+									onEditManaged={ track => void startManualTrack( track ) }
+									onReplaceManaged={ track => startUploadTrack( track ) }
+									onDownloadManaged={ track => void downloadTrack( track ) }
+									onDeleteManaged={ requestDeleteTrack }
+									onEditDraft={ startStoredCaptionTrack }
+									onDeleteDraft={ requestDeleteDraft }
+								/>
+							</section>
+						) }
+
+						{ workspace.view === 'upload' && (
+							<section className="videopress-caption-manager__editor">
+								<UploadWorkspace
+									workspace={ workspace }
+									isSaving={ isSavingUpload }
+									preview={ previewProps }
+									onLanguageChange={ ( tag, displayName ) =>
+										dispatchAndClearNotice( {
+											type: 'SET_UPLOAD_LANGUAGE',
+											srcLang: tag,
+											label: displayName,
+										} )
+									}
+									onFileChange={ file =>
+										dispatchAndClearNotice( { type: 'SET_UPLOAD_FILE', file } )
+									}
+									onCancelReplace={ () => startUploadTrack() }
+									onSubmit={ () => void submitUploadForm() }
+								/>
+							</section>
+						) }
+
+						{ workspace.view === 'manual' && (
+							<section className="videopress-caption-manager__editor">
+								<ManualEditor
+									key={ workspace.requestId }
+									workspace={ workspace }
+									playerRef={ playerRef }
+									cueBlocksRef={ cueBlocksRef }
+									preview={ previewProps }
+									onLanguageChange={ ( tag, displayName ) =>
+										dispatchAndClearNotice( {
+											type: 'SET_MANUAL_LANGUAGE',
+											srcLang: tag,
+											label: displayName,
+										} )
+									}
+									onTextImportOpenChange={ importOpen =>
+										dispatchAndClearNotice( { type: 'SET_TEXT_IMPORT_OPEN', isOpen: importOpen } )
+									}
+									onTextImportValueChange={ value =>
+										dispatchAndClearNotice( { type: 'SET_TEXT_IMPORT_VALUE', value } )
+									}
+									onImportText={ importCaptionText }
+								/>
+							</section>
 						) }
 					</div>
-				</div>
 
-				{ notice && (
-					<Notice status={ notice.status } isDismissible={ false }>
-						{ notice.message }
-					</Notice>
-				) }
-
-				<div
-					className={ `videopress-caption-manager__workspace videopress-caption-manager__workspace--${
-						isEditorView ? 'editor' : 'tracks'
-					}` }
-				>
-					{ workspace.view === 'tracks' && (
-						<section className="videopress-caption-manager__tracks">
-							<TrackList
-								rows={ trackRows }
-								isLoading={ isLoadingCaptionTracks }
-								emptyMessage={ __(
-									'No subtitle tracks have been added to this video yet.',
-									'jetpack-videopress-pkg'
-								) }
-								busy={ trackListBusy }
-								onEditManaged={ track => void startManualTrack( track ) }
-								onReplaceManaged={ track => startUploadTrack( track ) }
-								onDownloadManaged={ track => void downloadTrack( track ) }
-								onDeleteManaged={ requestDeleteTrack }
-								onEditDraft={ startStoredCaptionTrack }
-								onDeleteDraft={ requestDeleteDraft }
-							/>
-						</section>
-					) }
-
-					{ workspace.view === 'upload' && (
-						<section className="videopress-caption-manager__editor">
-							<UploadWorkspace
-								workspace={ workspace }
-								isSaving={ isSavingUpload }
-								preview={ previewProps }
-								onLanguageChange={ ( tag, displayName ) =>
-									dispatchAndClearNotice( {
-										type: 'SET_UPLOAD_LANGUAGE',
-										srcLang: tag,
-										label: displayName,
-									} )
-								}
-								onFileChange={ file => dispatchAndClearNotice( { type: 'SET_UPLOAD_FILE', file } ) }
-								onCancelReplace={ () => startUploadTrack() }
-								onSubmit={ () => void submitUploadForm() }
-							/>
-						</section>
-					) }
-
-					{ workspace.view === 'manual' && (
-						<section className="videopress-caption-manager__editor">
-							<ManualEditor
-								key={ workspace.requestId }
-								workspace={ workspace }
-								playerRef={ playerRef }
-								cueBlocksRef={ cueBlocksRef }
-								preview={ previewProps }
-								onLanguageChange={ ( tag, displayName ) =>
-									dispatchAndClearNotice( {
-										type: 'SET_MANUAL_LANGUAGE',
-										srcLang: tag,
-										label: displayName,
-									} )
-								}
-								onTextImportOpenChange={ importOpen =>
-									dispatchAndClearNotice( { type: 'SET_TEXT_IMPORT_OPEN', isOpen: importOpen } )
-								}
-								onTextImportValueChange={ value =>
-									dispatchAndClearNotice( { type: 'SET_TEXT_IMPORT_VALUE', value } )
-								}
-								onImportText={ importCaptionText }
-							/>
-						</section>
+					{ confirmation && (
+						<ConfirmationOverlay
+							message={ confirmation.message }
+							confirmLabel={ confirmation.confirmLabel }
+							onConfirm={ () => {
+								const pending = confirmation;
+								setConfirmation( null );
+								pending.onConfirm();
+							} }
+							onCancel={ () => setConfirmation( null ) }
+						/>
 					) }
 				</div>
-
-				<ConfirmDialog
-					isOpen={ !! confirmation }
-					onConfirm={ () => {
-						const pending = confirmation;
-						setConfirmation( null );
-						pending?.onConfirm();
-					} }
-					onCancel={ () => setConfirmation( null ) }
-					confirmButtonText={ confirmation?.confirmLabel }
-				>
-					{ confirmation?.message }
-				</ConfirmDialog>
 			</Modal>
 		</CaptionEditorContext.Provider>
 	) : null;

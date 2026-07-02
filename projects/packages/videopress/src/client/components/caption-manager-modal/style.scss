@@ -508,3 +508,41 @@
 		border-block-start: 1px solid #dcdcde;
 	}
 }
+
+/* The Escape-intercepting wrapper must not affect the modal's layout. */
+.videopress-caption-manager__body {
+	display: contents;
+}
+
+/*
+ * The discard confirmation renders as an in-modal overlay rather than a
+ * nested Modal, which WordPress would dismiss or hide this modal for.
+ */
+.videopress-caption-manager__confirm-scrim {
+	position: absolute;
+	inset: 0;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.35);
+	border-radius: inherit;
+}
+
+.videopress-caption-manager__confirm-dialog {
+	background: #fff;
+	border-radius: 4px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+	padding: 24px;
+	max-inline-size: 22rem;
+
+	p {
+		margin: 0 0 16px;
+	}
+}
+
+.videopress-caption-manager__confirm-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}

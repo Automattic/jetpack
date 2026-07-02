@@ -217,6 +217,7 @@ jest.mock( '@wordpress/icons', () => ( {
 	arrowUp: 'arrow-up',
 	chevronLeft: 'chevron-left',
 	chevronRight: 'chevron-right',
+	close: 'close',
 	copy: 'copy',
 	download: 'download',
 	pencil: 'pencil',
