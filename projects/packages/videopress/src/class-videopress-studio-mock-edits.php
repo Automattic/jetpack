@@ -47,9 +47,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Mock mechanics:
  *
- * - State lives in one site option (see OPTION_NAME) keyed by guid:
+ * - State lives in one site option PER GUID (see OPTION_NAME, the prefix):
  *   { revision, operations, job:{ status, target_revision,
- *     pending_operations, started_at, fail }, updated }.
+ *     pending_operations, started_at, fail }, updated }. One option per
+ *   video keeps concurrent requests for different videos from clobbering
+ *   each other's read-modify-write cycles on a shared map.
  * - Jobs are promoted lazily (no cron): on any request, a processing job
  *   whose `started_at` is at least `videopress_studio_mock_edits_delay`
  *   (default 10s) old completes — revision becomes target_revision and the
@@ -64,7 +66,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class VideoPress_Studio_Mock_Edits {
 
 	/**
-	 * Site option holding all mock edit state, keyed by video GUID.
+	 * Prefix of the per-GUID site options holding the mock edit state; the
+	 * record for a video lives in "{OPTION_NAME}_{guid}".
 	 */
 	const OPTION_NAME = 'videopress_studio_mock_edits';
 
@@ -336,15 +339,25 @@ class VideoPress_Studio_Mock_Edits {
 	}
 
 	/**
+	 * Name of the option holding one guid's record.
+	 *
+	 * @param string $guid The VideoPress GUID.
+	 * @return string The option name.
+	 */
+	private function option_name( $guid ) {
+		return self::OPTION_NAME . '_' . $guid;
+	}
+
+	/**
 	 * Read the stored record for a guid, or a pristine default.
 	 *
 	 * @param string $guid The VideoPress GUID.
 	 * @return array The record.
 	 */
 	private function get_record( $guid ) {
-		$all = get_option( self::OPTION_NAME, array() );
-		if ( is_array( $all ) && isset( $all[ $guid ] ) && is_array( $all[ $guid ] ) ) {
-			return $all[ $guid ];
+		$record = get_option( $this->option_name( $guid ), null );
+		if ( is_array( $record ) ) {
+			return $record;
 		}
 
 		return array(
@@ -368,12 +381,7 @@ class VideoPress_Studio_Mock_Edits {
 	 * @param array  $record The record to store.
 	 */
 	private function save_record( $guid, $record ) {
-		$all = get_option( self::OPTION_NAME, array() );
-		if ( ! is_array( $all ) ) {
-			$all = array();
-		}
-		$all[ $guid ] = $record;
-		update_option( self::OPTION_NAME, $all, false );
+		update_option( $this->option_name( $guid ), $record, false );
 	}
 
 	/**

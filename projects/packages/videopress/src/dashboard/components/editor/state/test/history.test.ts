@@ -1,4 +1,4 @@
-import { createEditSession, editSessionReducer } from '../edit-session';
+import { createEditSession, editSessionReducer, sessionEditsEqual } from '../edit-session';
 import { canRedo, canUndo, createHistory, withHistory, HISTORY_LIMIT } from '../history';
 import type { EditSessionAction } from '../edit-session';
 import type { HistoryState } from '../history';
@@ -242,6 +242,65 @@ describe( 'TRANSIENT / COMMIT gestures', () => {
 	} );
 } );
 
+describe( 'structural equality (options.equals)', () => {
+	const valueEquals = ( a: CounterState, b: CounterState ) => a.value === b.value;
+	const structural = withHistory( counterReducer, { equals: valueEquals } );
+
+	it( 'commits nothing for a gesture that returns to a structurally equal state', () => {
+		let h = start();
+		h = structural( h, { type: 'INC' } );
+		h = structural( h, { type: 'UNDO' } );
+		expect( h.future ).toEqual( [ { value: 1 } ] );
+
+		// Drag away and back: the reducer builds a NEW object equal to the
+		// gesture's base, so reference equality alone would push a spurious
+		// undo entry and wipe the redo stack.
+		h = structural( h, { type: 'TRANSIENT', action: { type: 'SET', value: 5 } } );
+		h = structural( h, { type: 'TRANSIENT', action: { type: 'SET', value: 0 } } );
+		expect( h.present ).not.toBe( h.transientBase );
+		h = structural( h, { type: 'COMMIT' } );
+
+		expect( h.past ).toEqual( [] );
+		expect( h.future ).toEqual( [ { value: 1 } ] );
+		expect( h.transientBase ).toBeNull();
+	} );
+
+	it( 'canUndo treats a gesture parked on its start as nothing to undo', () => {
+		let h = start();
+		h = structural( h, { type: 'TRANSIENT', action: { type: 'SET', value: 5 } } );
+		expect( canUndo( h, valueEquals ) ).toBe( true );
+		h = structural( h, { type: 'TRANSIENT', action: { type: 'SET', value: 0 } } );
+		expect( canUndo( h, valueEquals ) ).toBe( false );
+	} );
+
+	it( 'a history-equivalent plain action updates the present without touching the stacks', () => {
+		interface SelState {
+			value: number;
+			selected: string | null;
+		}
+		type SelAction = { type: 'SELECT'; id: string | null } | { type: 'SET'; value: number };
+		const selReducer = ( state: SelState, action: SelAction ): SelState => {
+			if ( action.type === 'SELECT' ) {
+				return state.selected === action.id ? state : { ...state, selected: action.id };
+			}
+			return state.value === action.value ? state : { ...state, value: action.value };
+		};
+		const selHistory = withHistory( selReducer, {
+			equals: ( a: SelState, b: SelState ) => a.value === b.value,
+		} );
+
+		let h = createHistory< SelState >( { value: 0, selected: null } );
+		h = selHistory( h, { type: 'SET', value: 3 } );
+		h = selHistory( h, { type: 'UNDO' } );
+
+		h = selHistory( h, { type: 'SELECT', id: 'a' } );
+		expect( h.present ).toEqual( { value: 0, selected: 'a' } );
+		// No undo entry consumed, and — crucially — the redo stack survives.
+		expect( h.past ).toEqual( [] );
+		expect( h.future ).toEqual( [ { value: 3, selected: null } ] );
+	} );
+} );
+
 describe( 'clearOn actions', () => {
 	it( 'apply and wipe both stacks', () => {
 		let h = start();
@@ -305,8 +364,10 @@ describe( 'canUndo / canRedo', () => {
 } );
 
 describe( 'integration with the edit-session reducer', () => {
+	// Mirrors the editor screen's configuration exactly.
 	const editorReducer = withHistory( editSessionReducer, {
 		clearOn: ( action: EditSessionAction ) => action.type === 'LOAD' || action.type === 'RESET',
+		equals: sessionEditsEqual,
 	} );
 
 	it( 'coalesces a trim drag into one undo entry', () => {
@@ -322,6 +383,44 @@ describe( 'integration with the edit-session reducer', () => {
 		expect( h.present.trimStartMs ).toBe( 0 );
 		h = editorReducer( h, { type: 'REDO' } );
 		expect( h.present.trimStartMs ).toBe( 2000 );
+	} );
+
+	it( 'a cut-edge drag that returns to its start leaves both stacks untouched', () => {
+		let h = createHistory( createEditSession( 10000 ) );
+		// Cut c1 spans 2000–4000.
+		h = editorReducer( h, { type: 'ADD_CUT', atMs: 3000, halfSpanMs: 1000, id: 'c1' } );
+		h = editorReducer( h, { type: 'ADD_CUT', atMs: 7000, halfSpanMs: 500, id: 'c2' } );
+		h = editorReducer( h, { type: 'UNDO' } );
+		expect( h.past ).toHaveLength( 1 );
+		expect( h.future ).toHaveLength( 1 );
+
+		h = editorReducer( h, {
+			type: 'TRANSIENT',
+			action: { type: 'UPDATE_CUT', id: 'c1', startMs: 2500 },
+		} );
+		h = editorReducer( h, {
+			type: 'TRANSIENT',
+			action: { type: 'UPDATE_CUT', id: 'c1', startMs: 2000 },
+		} );
+		h = editorReducer( h, { type: 'COMMIT' } );
+
+		expect( h.past ).toHaveLength( 1 );
+		expect( h.future ).toHaveLength( 1 );
+		expect( h.present.cuts ).toEqual( [ { id: 'c1', startMs: 2000, endMs: 4000 } ] );
+	} );
+
+	it( 'selection changes never consume undo entries or clear redo', () => {
+		let h = createHistory( createEditSession( 10000 ) );
+		h = editorReducer( h, { type: 'ADD_CUT', atMs: 3000, halfSpanMs: 1000, id: 'c1' } );
+		h = editorReducer( h, { type: 'ADD_CUT', atMs: 7000, halfSpanMs: 500, id: 'c2' } );
+		h = editorReducer( h, { type: 'UNDO' } );
+		expect( h.future ).toHaveLength( 1 );
+
+		h = editorReducer( h, { type: 'SELECT_CUT', id: 'c1' } );
+		h = editorReducer( h, { type: 'SELECT_CUT', id: null } );
+		expect( h.present.selectedCutId ).toBeNull();
+		expect( h.past ).toHaveLength( 1 );
+		expect( h.future ).toHaveLength( 1 );
 	} );
 
 	it( 'RESET clears editor history', () => {

@@ -335,19 +335,20 @@ function normalizeSelection(
 }
 
 /**
- * Structural equality of two sessions, used to return the previous reference
- * on no-op actions.
+ * Structural equality of the persistable edit state of two sessions —
+ * everything except the selection. This is the history-relevant comparison:
+ * the undo/redo wrapper uses it so selection-only changes and gestures that
+ * return to their exact start never consume undo entries.
  *
  * @param a - One session.
  * @param b - Another session.
- * @return Whether the sessions are structurally identical.
+ * @return Whether the sessions describe the same edits.
  */
-function sessionsEqual( a: EditSession, b: EditSession ): boolean {
+export function sessionEditsEqual( a: EditSession, b: EditSession ): boolean {
 	return (
 		a.durationMs === b.durationMs &&
 		a.trimStartMs === b.trimStartMs &&
 		a.trimEndMs === b.trimEndMs &&
-		a.selectedCutId === b.selectedCutId &&
 		a.cuts.length === b.cuts.length &&
 		a.cuts.every(
 			( cut, i ) =>
@@ -356,6 +357,18 @@ function sessionsEqual( a: EditSession, b: EditSession ): boolean {
 				cut.endMs === b.cuts[ i ].endMs
 		)
 	);
+}
+
+/**
+ * Full structural equality of two sessions (edits AND selection), used to
+ * return the previous reference on no-op actions.
+ *
+ * @param a - One session.
+ * @param b - Another session.
+ * @return Whether the sessions are structurally identical.
+ */
+function sessionsEqual( a: EditSession, b: EditSession ): boolean {
+	return a.selectedCutId === b.selectedCutId && sessionEditsEqual( a, b );
 }
 
 /**

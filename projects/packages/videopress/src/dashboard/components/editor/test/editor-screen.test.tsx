@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useNavigate } from '@wordpress/route';
 import { EDITS_QUERY_KEY } from '../../../hooks/use-video-edits';
@@ -26,18 +26,29 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // VideoLayout's AdminPage/Breadcrumbs chrome needs the full admin shell;
-// reduce it to the two slots the tests interact with (actions + body).
+// reduce it to the slots the tests interact with (breadcrumbs, actions, body).
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
-	default: ( { actions, children }: { actions?: ReactNode; children?: ReactNode } ) => (
+	default: ( {
+		breadcrumbs,
+		actions,
+		children,
+	}: {
+		breadcrumbs?: ReactNode;
+		actions?: ReactNode;
+		children?: ReactNode;
+	} ) => (
 		<div>
+			<div>{ breadcrumbs }</div>
 			<div>{ actions }</div>
 			{ children }
 		</div>
 	),
 } ) );
+// The parent breadcrumb is a real router link in production; rendering it as
+// a plain anchor lets the in-app link navigation guard be exercised.
 jest.mock( '@wordpress/admin-ui', () => ( {
-	Breadcrumbs: () => null,
+	Breadcrumbs: () => <a href="/library">VideoPress</a>,
 } ) );
 
 // Variables referenced inside jest.mock() factories must be prefixed with
@@ -424,5 +435,252 @@ describe( 'StudioEditorScreen', () => {
 
 		expect( confirmSpy ).not.toHaveBeenCalled();
 		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/analytics' } );
+	} );
+
+	it( 'guards in-app link clicks (the breadcrumb) while dirty', async () => {
+		const api: ApiState = { media: makeRawMedia(), edits: makeEdits(), posts: [] };
+		installApi( api );
+		const user = userEvent.setup();
+		const confirmSpy = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
+		// Record whether the capture-phase guard preventDefaulted each link
+		// click (and stop jsdom from attempting a real navigation).
+		const linkClicks: boolean[] = [];
+		const recorder = ( event: MouseEvent ) => {
+			// eslint-disable-next-line testing-library/no-node-access -- native listener inspecting the raw event target; no query applies.
+			if ( ( event.target as Element ).closest( 'a' ) ) {
+				linkClicks.push( event.defaultPrevented );
+				event.preventDefault();
+			}
+		};
+		document.addEventListener( 'click', recorder );
+
+		try {
+			await renderReadyEditor();
+			const link = screen.getByRole( 'link', { name: 'VideoPress' } );
+
+			// Clean session: no prompt, navigation proceeds.
+			await user.click( link );
+			expect( confirmSpy ).not.toHaveBeenCalled();
+			expect( linkClicks ).toEqual( [ false ] );
+
+			await addCut( user );
+
+			// Dirty + declined: prompted, navigation blocked.
+			await user.click( link );
+			expect( confirmSpy ).toHaveBeenCalledTimes( 1 );
+			expect( linkClicks ).toEqual( [ false, true ] );
+
+			// Dirty + confirmed: navigation proceeds.
+			confirmSpy.mockReturnValue( true );
+			await user.click( link );
+			expect( linkClicks ).toEqual( [ false, true, false ] );
+		} finally {
+			document.removeEventListener( 'click', recorder );
+		}
+	} );
+
+	it( 'guards browser back/forward while dirty', async () => {
+		const api: ApiState = { media: makeRawMedia(), edits: makeEdits(), posts: [] };
+		installApi( api );
+		const user = userEvent.setup();
+		const confirmSpy = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
+
+		await renderReadyEditor();
+
+		// Clean session: the guard is not even attached.
+		window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+		expect( confirmSpy ).not.toHaveBeenCalled();
+
+		await addCut( user );
+
+		// Dirty + declined: re-navigate to the editor to cancel the traversal.
+		window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+		expect( confirmSpy ).toHaveBeenCalledTimes( 1 );
+		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/editor' } );
+
+		// Dirty + confirmed: let the router's own navigation stand.
+		confirmSpy.mockReturnValue( true );
+		navigate.mockClear();
+		window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+		expect( navigate ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps the editor locked from save acceptance until the job is visible', async () => {
+		const api: ApiState = { media: makeRawMedia(), edits: makeEdits(), posts: [] };
+		// The POST is accepted, but api.edits stays idle: the refetch lands
+		// before the job is visible (the gap the pending-job lock must cover).
+		api.onPost = () => ( {
+			guid: GUID,
+			revision: 0,
+			job: {
+				id: 'mock-job-1-1',
+				status: 'processing',
+				target_revision: 1,
+				progress: 0,
+				error: null,
+			},
+		} );
+		installApi( api );
+		const client = createTestQueryClient();
+		const user = userEvent.setup();
+
+		await renderReadyEditor( client );
+		await addCut( user );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Save edits' } ) );
+		await waitFor( () => expect( api.posts ).toHaveLength( 1 ) );
+
+		// Locked even though the server still reports an idle job — edits made
+		// now would be silently replaced when the job's revision lands.
+		await waitFor( () =>
+			expect( screen.getByTestId( 'studio-editor-timeline-lock' ) ).toHaveAttribute(
+				'aria-busy',
+				'true'
+			)
+		);
+		expect( isButtonDisabled( 'Save' ) ).toBe( true );
+
+		// The job's revision lands: re-baseline, notify, unlock.
+		api.edits = makeEdits( {
+			revision: 1,
+			operations: [ { type: 'cut', start_ms: 0, end_ms: 2000 } ],
+			output_duration_ms: 58000,
+			can_restore_original: true,
+			job: {
+				id: 'mock-job-1-1',
+				status: 'complete',
+				target_revision: 1,
+				progress: null,
+				error: null,
+			},
+		} );
+		await act( async () => {
+			await client.invalidateQueries( { queryKey: [ EDITS_QUERY_KEY, GUID ] } );
+		} );
+
+		await waitFor( () => expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Video edits saved.' ) );
+		expect( screen.getByTestId( 'studio-editor-timeline-lock' ) ).not.toHaveAttribute(
+			'aria-busy'
+		);
+	} );
+
+	it( 'raises the conflict banner for a foreign revision landing after our job failed', async () => {
+		const api: ApiState = { media: makeRawMedia(), edits: makeEdits(), posts: [] };
+		api.onPost = () => {
+			// The accepted job fails server-side; the next GET reports it.
+			api.edits = makeEdits( {
+				job: {
+					id: 'mock-job-1-1',
+					status: 'failed',
+					target_revision: 1,
+					progress: null,
+					error: { code: 'transcode_failed', message: 'The edited video could not be transcoded.' },
+				},
+			} );
+			return {
+				guid: GUID,
+				revision: 0,
+				job: {
+					id: 'mock-job-1-1',
+					status: 'processing',
+					target_revision: 1,
+					progress: 0,
+					error: null,
+				},
+			};
+		};
+		installApi( api );
+		const client = createTestQueryClient();
+		const user = userEvent.setup();
+
+		await renderReadyEditor( client );
+		await addCut( user );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Save edits' } ) );
+
+		await expect(
+			screen.findByText( 'The edited video could not be transcoded.' )
+		).resolves.toBeInTheDocument();
+
+		// A foreign save lands on the exact revision our FAILED job targeted
+		// (revisions are sequential; the failed job never consumed its slot).
+		// It must NOT be mistaken for our own job completing.
+		api.edits = makeEdits( {
+			revision: 1,
+			operations: [ { type: 'trim', start_ms: 1000, end_ms: 59000 } ],
+			output_duration_ms: 58000,
+			can_restore_original: true,
+		} );
+		await act( async () => {
+			await client.invalidateQueries( { queryKey: [ EDITS_QUERY_KEY, GUID ] } );
+		} );
+
+		await expect(
+			screen.findByText( 'This video was edited somewhere else since you opened the editor.' )
+		).resolves.toBeInTheDocument();
+		expect( mockSuccessNotice ).not.toHaveBeenCalled();
+	} );
+
+	it( 'detaches the timeline shortcuts while the confirm dialog is open', async () => {
+		const api: ApiState = { media: makeRawMedia(), edits: makeEdits(), posts: [] };
+		installApi( api );
+		const user = userEvent.setup();
+
+		await renderReadyEditor();
+		// addCut leaves the new cut selected — exactly what a stray Delete
+		// behind the dialog would remove.
+		await addCut( user );
+		const cutCount = () => screen.getAllByTestId( /^studio-timeline-cut-cut-\d+$/ ).length;
+		expect( cutCount() ).toBe( 1 );
+
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		expect(
+			screen.getByText(
+				'Viewers will see the edited video. Your original is kept and can be restored.'
+			)
+		).toBeInTheDocument();
+
+		// Delete must not mutate the session the user is about to confirm.
+		// eslint-disable-next-line testing-library/prefer-user-event -- the shortcut under test listens for raw keydowns on document.
+		fireEvent.keyDown( document.body, { key: 'Delete' } );
+		expect( cutCount() ).toBe( 1 );
+
+		// With the dialog closed the shortcut works again.
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+		// eslint-disable-next-line testing-library/prefer-user-event -- the shortcut under test listens for raw keydowns on document.
+		fireEvent.keyDown( document.body, { key: 'Delete' } );
+		expect( screen.queryAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 0 );
+	} );
+
+	it( 'surfaces a failed initial edits load and recovers via retry', async () => {
+		const api: ApiState = { media: makeRawMedia(), edits: makeEdits(), posts: [] };
+		let editsFails = true;
+		mockApiFetch( options => {
+			const { path = '' } = options;
+			if ( path.startsWith( '/wp/v2/media/' ) ) {
+				return api.media;
+			}
+			if ( path === EDITS_PATH ) {
+				if ( editsFails ) {
+					throw { code: 'edits_video_not_found' };
+				}
+				return api.edits;
+			}
+			return {};
+		} );
+		const user = userEvent.setup();
+
+		render( <StudioEditorScreen videoId="42" />, { wrapper: createTestWrapper() } );
+
+		await expect(
+			screen.findByText( "The editor couldn't load this video's edit state." )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByTestId( 'studio-timeline' ) ).not.toBeInTheDocument();
+
+		editsFails = false;
+		await user.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+
+		await expect( screen.findByTestId( 'studio-timeline' ) ).resolves.toBeInTheDocument();
+		expect( isButtonDisabled( 'Save' ) ).toBe( true );
 	} );
 } );

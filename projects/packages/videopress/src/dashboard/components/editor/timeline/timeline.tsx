@@ -20,7 +20,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { getPxPerMs, msToPx } from '../state/time-utils';
+import { formatTimecode, getPxPerMs, msToPx } from '../state/time-utils';
 import StudioEditorEditOverlay from './edit-overlay';
 import StudioEditorFilmstripTrack from './filmstrip-track';
 import StudioEditorTimeRuler from './time-ruler';
@@ -52,6 +52,20 @@ export type StudioEditorTimelineProps = {
 	onSeek: ( ms: number ) => void;
 	/** Toggle preview playback (space bar). */
 	onTogglePlay: () => void;
+	/**
+	 * A scrub gesture started (pointer-down on empty track area). The parent
+	 * pauses playback here so per-move seeks don't fight the playback
+	 * resolver's own corrective seeks.
+	 */
+	onScrubStart?: () => void;
+	/** The scrub gesture ended (pointer-up/cancel). */
+	onScrubEnd?: () => void;
+	/**
+	 * False detaches the document-level keyboard shortcuts (e.g. while a
+	 * confirm dialog is open, so Space activates the focused dialog button
+	 * instead of toggling playback behind it). Defaults to true.
+	 */
+	shortcutsEnabled?: boolean;
 	/** Filmstrip data for the strip track; absent renders the placeholder. */
 	filmstrip?: FilmstripState;
 };
@@ -70,13 +84,16 @@ function clampToDuration( ms: number, durationMs: number ): number {
 /**
  * The timeline strip.
  *
- * @param props              - Component props.
- * @param props.session      - The edit session.
- * @param props.dispatch     - Dispatch into the history-wrapped reducer.
- * @param props.currentMs    - Live playhead position in ms.
- * @param props.onSeek       - Seek the preview player.
- * @param props.onTogglePlay - Toggle preview playback.
- * @param props.filmstrip    - Filmstrip data for the strip track.
+ * @param props                  - Component props.
+ * @param props.session          - The edit session.
+ * @param props.dispatch         - Dispatch into the history-wrapped reducer.
+ * @param props.currentMs        - Live playhead position in ms.
+ * @param props.onSeek           - Seek the preview player.
+ * @param props.onTogglePlay     - Toggle preview playback.
+ * @param props.onScrubStart     - A scrub gesture started.
+ * @param props.onScrubEnd       - The scrub gesture ended.
+ * @param props.shortcutsEnabled - Whether the document-level shortcuts attach.
+ * @param props.filmstrip        - Filmstrip data for the strip track.
  * @return The timeline element.
  */
 export default function StudioEditorTimeline( {
@@ -85,6 +102,9 @@ export default function StudioEditorTimeline( {
 	currentMs,
 	onSeek,
 	onTogglePlay,
+	onScrubStart,
+	onScrubEnd,
+	shortcutsEnabled = true,
 	filmstrip,
 }: StudioEditorTimelineProps ): ReactElement {
 	const durationMs = session.durationMs;
@@ -179,14 +199,17 @@ export default function StudioEditorTimeline( {
 		contentRef,
 		pxPerMs,
 		onDragStart: () => {
+			onScrubStart?.();
 			if ( session.selectedCutId !== null ) {
 				dispatch( { type: 'SELECT_CUT', id: null } );
 			}
 		},
 		onDragMove: seekClamped,
+		onDragEnd: onScrubEnd,
 	} );
 
 	useKeyboardShortcuts( {
+		enabled: shortcutsEnabled,
 		onTogglePlay,
 		onNudge: delta => seekClamped( currentMs + delta ),
 		onHome: () => onSeek( session.trimStartMs ),
@@ -282,6 +305,7 @@ export default function StudioEditorTimeline( {
 						aria-valuemin={ 0 }
 						aria-valuemax={ durationMs }
 						aria-valuenow={ playheadMs }
+						aria-valuetext={ formatTimecode( playheadMs ) }
 						style={ { transform: `translateX(${ msToPx( playheadMs, pxPerMs ) }px)` } }
 						onKeyDown={ onPlayheadKeyDown }
 					/>

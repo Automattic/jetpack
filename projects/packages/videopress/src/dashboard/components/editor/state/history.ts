@@ -14,6 +14,11 @@
  *
  * The inner reducer MUST return the previous state reference for no-op
  * actions — that is how this wrapper avoids recording empty history entries.
+ * `options.equals` extends that to STRUCTURAL no-ops the reference check
+ * can't see: a gesture that ends exactly where it started commits nothing,
+ * and a plain action whose result is history-equivalent to the present (e.g.
+ * a selection change, when `equals` ignores selection) replaces the present
+ * without consuming an undo entry or clearing the redo stack.
  */
 
 /**
@@ -50,11 +55,19 @@ export type HistoryAction< A extends { type: string } > =
 /**
  * Options for {@link withHistory}.
  */
-export interface WithHistoryOptions< A > {
+export interface WithHistoryOptions< S, A > {
 	/** Max undo entries kept; oldest are dropped. Default {@link HISTORY_LIMIT}. */
 	limit?: number;
 	/** Actions that apply and then clear all history (e.g. LOAD/RESET). */
 	clearOn?: ( action: A ) => boolean;
+	/**
+	 * History-relevant structural equality. States that compare equal never
+	 * produce an undo entry: a committed gesture that returned to its start is
+	 * dropped, and a plain action whose result is equal to the present (a
+	 * selection-only change, say) updates the present without touching the
+	 * stacks. Defaults to reference equality.
+	 */
+	equals?: ( a: S, b: S ) => boolean;
 }
 
 /**
@@ -70,13 +83,19 @@ export function createHistory< S >( present: S ): HistoryState< S > {
 /**
  * Whether an undo entry is available.
  *
- * @param state - History state.
+ * @param state  - History state.
+ * @param equals - History-relevant equality; pass the same function given to
+ *               {@link withHistory} so a gesture parked back on its start
+ *               doesn't advertise an undo that would change nothing.
  * @return True when UNDO would change the present.
  */
-export function canUndo< S >( state: HistoryState< S > ): boolean {
+export function canUndo< S >(
+	state: HistoryState< S >,
+	equals: ( a: S, b: S ) => boolean = ( a, b ) => a === b
+): boolean {
 	return (
 		state.past.length > 0 ||
-		( state.transientBase !== null && state.transientBase !== state.present )
+		( state.transientBase !== null && ! equals( state.transientBase, state.present ) )
 	);
 }
 
@@ -99,19 +118,23 @@ export function canRedo< S >( state: HistoryState< S > ): boolean {
  */
 export function withHistory< S, A extends { type: string } >(
 	reducer: ( state: S, action: A ) => S,
-	options: WithHistoryOptions< A > = {}
+	options: WithHistoryOptions< S, A > = {}
 ): ( state: HistoryState< S >, action: HistoryAction< A > ) => HistoryState< S > {
 	const limit = options.limit ?? HISTORY_LIMIT;
 	const clearOn = options.clearOn;
+	const equals = options.equals ?? ( ( a: S, b: S ) => a === b );
 
 	const pushEntry = ( past: S[], entry: S ): S[] => [ ...past, entry ].slice( -limit );
 
 	// Fold a pending gesture into a single undo entry, if one is in flight.
+	// Structural equality matters here: a drag that wanders and returns to its
+	// exact start produces a new reference equal to the base — committing it
+	// would push a no-op undo entry and wipe the redo stack.
 	const commitPending = ( state: HistoryState< S > ): HistoryState< S > => {
 		if ( state.transientBase === null ) {
 			return state;
 		}
-		if ( state.transientBase === state.present ) {
+		if ( equals( state.transientBase, state.present ) ) {
 			return { ...state, transientBase: null };
 		}
 		return {
@@ -192,6 +215,12 @@ export function withHistory< S, A extends { type: string } >(
 				const present = reducer( state.present, inner );
 				if ( present === state.present ) {
 					return state;
+				}
+				// History-equivalent result (e.g. a selection-only change when
+				// `equals` ignores selection): update the present without
+				// consuming an undo entry or clearing the redo stack.
+				if ( equals( present, state.present ) ) {
+					return { ...state, present };
 				}
 				// Coalesce any pending gesture into this entry.
 				const entry = state.transientBase ?? state.present;

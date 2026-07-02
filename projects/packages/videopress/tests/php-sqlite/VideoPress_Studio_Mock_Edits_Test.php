@@ -95,10 +95,9 @@ class VideoPress_Studio_Mock_Edits_Test extends TestCase {
 
 		foreach ( $this->guids as $guid ) {
 			delete_transient( 'videopress_get_post_id_by_guid_' . $guid );
+			delete_option( VideoPress_Studio_Mock_Edits::OPTION_NAME . '_' . $guid );
 		}
 		$this->guids = array();
-
-		delete_option( VideoPress_Studio_Mock_Edits::OPTION_NAME );
 		\Jetpack_Options::delete_option( array( 'blog_token', 'id', 'master_user', 'user_tokens' ) );
 
 		remove_all_filters( Admin_UI::STUDIO_FILTER );

@@ -81,6 +81,27 @@ describe( 'useKeyboardShortcuts', () => {
 		input.remove();
 	} );
 
+	it( 'bails on focused interactive controls so keys activate them instead', () => {
+		const button = document.createElement( 'button' );
+		const icon = document.createElement( 'span' );
+		button.appendChild( icon );
+		const link = document.createElement( 'a' );
+		link.setAttribute( 'href', '/library' );
+		document.body.append( button, link );
+
+		const { onTogglePlay, onRemoveSelectedCut, onNudge } = mountShortcuts();
+		fireEvent.keyDown( button, { key: ' ' } );
+		fireEvent.keyDown( icon, { key: ' ' } );
+		fireEvent.keyDown( button, { key: 'Delete' } );
+		fireEvent.keyDown( link, { key: 'ArrowRight' } );
+
+		expect( onTogglePlay ).not.toHaveBeenCalled();
+		expect( onRemoveSelectedCut ).not.toHaveBeenCalled();
+		expect( onNudge ).not.toHaveBeenCalled();
+		button.remove();
+		link.remove();
+	} );
+
 	it( 'bails on already-handled events', () => {
 		const { onTogglePlay } = mountShortcuts();
 		const event = new KeyboardEvent( 'keydown', { key: ' ', cancelable: true, bubbles: true } );

@@ -113,6 +113,21 @@ describe( 'StudioEditorTimeline', () => {
 		expect( dispatch ).not.toHaveBeenCalled();
 	} );
 
+	it( 'notifies scrub start and end so the parent can pause playback', () => {
+		const onScrubStart = jest.fn();
+		const onScrubEnd = jest.fn();
+		renderTimeline( { onScrubStart, onScrubEnd } );
+		const content = screen.getByTestId( 'studio-timeline-content' );
+
+		fireEvent.pointerDown( content, { button: 0, pointerId: 1, clientX: 300 } );
+		expect( onScrubStart ).toHaveBeenCalledTimes( 1 );
+		expect( onScrubEnd ).not.toHaveBeenCalled();
+
+		fireEvent.pointerMove( content, { pointerId: 1, clientX: 420 } );
+		fireEvent.pointerUp( content, { pointerId: 1 } );
+		expect( onScrubEnd ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'deselects the selected cut when a scrub starts', () => {
 		const { dispatch } = renderTimeline( { session: sessionWithCut() } );
 		fireEvent.pointerDown( screen.getByTestId( 'studio-timeline-content' ), {
@@ -223,6 +238,17 @@ describe( 'StudioEditorTimeline', () => {
 			} );
 			expect( onTogglePlay ).not.toHaveBeenCalled();
 		} );
+
+		it( 'detach entirely while shortcutsEnabled is false (e.g. a dialog is open)', () => {
+			const { onTogglePlay, dispatch } = renderTimeline( {
+				session: sessionWithCut(),
+				shortcutsEnabled: false,
+			} );
+			fireEvent.keyDown( document.body, { key: ' ' } );
+			fireEvent.keyDown( document.body, { key: 'Delete' } );
+			expect( onTogglePlay ).not.toHaveBeenCalled();
+			expect( dispatch ).not.toHaveBeenCalled();
+		} );
 	} );
 
 	it( 'nudges via the focusable playhead without double-firing the document shortcut', () => {
@@ -240,5 +266,8 @@ describe( 'StudioEditorTimeline', () => {
 		expect( playhead ).toHaveAttribute( 'aria-valuemin', '0' );
 		expect( playhead ).toHaveAttribute( 'aria-valuemax', '10000' );
 		expect( playhead ).toHaveAttribute( 'aria-valuenow', '2500' );
+		// Raw milliseconds are meaningless to a screen reader; the timecode
+		// mirrors the trim/cut sliders' aria-valuetext.
+		expect( playhead ).toHaveAttribute( 'aria-valuetext', '0:00:02.5' );
 	} );
 } );

@@ -9,7 +9,7 @@
  * expected (our own save/restore job completing) or when the session is
  * clean, and raises the conflict banner otherwise. `isDirty` against the
  * latest baseline drives Save/Discard enablement, the beforeunload guard,
- * and the sub-nav navigation guard.
+ * and the in-app navigation guards (sub-nav, links, browser back/forward).
  *
  * Timestamps everywhere are integer milliseconds on the ORIGINAL master
  * timeline. The session's duration prefers the server's
@@ -20,8 +20,8 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/route';
-import { Stack, Text } from '@wordpress/ui';
+import { Link, useNavigate } from '@wordpress/route';
+import { Button, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useFilmstrip } from '../../hooks/use-filmstrip';
 import { LIBRARY_QUERY_KEY } from '../../hooks/use-library';
@@ -30,11 +30,12 @@ import { EditsConflictError, useSaveVideoEdits } from '../../hooks/use-save-vide
 import { useVideo } from '../../hooks/use-video';
 import { EDITS_QUERY_KEY, useVideoEdits } from '../../hooks/use-video-edits';
 import VideoLayout from '../video-layout';
+import { videoTabPath } from '../video-nav';
 import StudioEditorConfirmDialog from './confirm-dialog';
 import StudioEditorHeaderActions from './header-actions';
 import StudioEditorOperationsPanel from './operations-panel';
 import StudioEditorPreviewPlayer from './preview/preview-player';
-import { createEditSession, editSessionReducer } from './state/edit-session';
+import { createEditSession, editSessionReducer, sessionEditsEqual } from './state/edit-session';
 import { canRedo, canUndo, createHistory, withHistory } from './state/history';
 import { isDirty as isSessionDirty, sessionToOperations } from './state/serialize';
 import StudioEditorStatusBanner from './status-banner';
@@ -45,13 +46,13 @@ import type { EditOperation, EditSession, EditSessionAction } from './state/edit
 import type { HistoryAction } from './state/history';
 import type { ApiEditOperation } from '../../types/edits';
 import type { LibraryItem } from '../../types/library';
-import type { ReactElement, ReactNode } from 'react';
+import type { MouseEvent as ReactMouseEvent, ReactElement, ReactNode } from 'react';
 
 type ConfirmAction = 'save' | 'discard' | 'restore';
 
 type PendingJob = {
 	kind: 'save' | 'restore';
-	targetRevision: number | null;
+	targetRevision: number;
 };
 
 /**
@@ -117,6 +118,10 @@ type ReadyProps = {
 
 const historyReducer = withHistory< EditSession, EditSessionAction >( editSessionReducer, {
 	clearOn: action => action.type === 'LOAD' || action.type === 'RESET',
+	// Selection is not history: clicking around between cuts must not eat
+	// undo entries (or clear redo), and a drag that returns to its exact
+	// start must commit nothing.
+	equals: sessionEditsEqual,
 } );
 
 /**
@@ -130,8 +135,9 @@ const historyReducer = withHistory< EditSession, EditSessionAction >( editSessio
 function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	const guid = video.guid;
 	const queryClient = useQueryClient();
+	const navigate = useNavigate();
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
-	const { edits } = useVideoEdits( guid );
+	const { edits, isError: editsFailed } = useVideoEdits( guid );
 	const saveEdits = useSaveVideoEdits();
 	const restoreOriginal = useRestoreOriginal();
 	// Storyboard/extracted thumbnails for the timeline's filmstrip track;
@@ -165,8 +171,12 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 		operations: EditOperation[];
 	} | null >( null );
 	// The save/restore we initiated, so its completed revision re-baselines
-	// (and notifies) instead of raising a conflict.
-	const pendingJobRef = useRef< PendingJob | null >( null );
+	// (and notifies) instead of raising a conflict. State (not a ref) because
+	// it participates in `locked`: the editor must stay locked through the gap
+	// between the POST resolving and the refetch reporting the processing job,
+	// or edits made in that gap would be silently LOADed over when the job's
+	// revision lands.
+	const [ pendingJob, setPendingJob ] = useState< PendingJob | null >( null );
 	// Set by "Reload latest": the next fetch re-baselines unconditionally.
 	const forceReloadRef = useRef( false );
 	// Media duration reported by the <video> element, once metadata loads.
@@ -180,7 +190,8 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	dirtyRef.current = dirty;
 
 	const processing = edits?.job.status === 'processing';
-	const locked = processing || saveEdits.isPending || restoreOriginal.isPending;
+	const locked =
+		processing || saveEdits.isPending || restoreOriginal.isPending || pendingJob !== null;
 	const lockedRef = useRef( locked );
 	lockedRef.current = locked;
 
@@ -201,6 +212,23 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	const effectiveDurationRef = useRef( effectiveDurationMs );
 	effectiveDurationRef.current = effectiveDurationMs;
 
+	// A failed job can never deliver its target revision, so a pending job
+	// whose target matches a reported failure is terminal: clear it. Keeping
+	// it around would let a LATER foreign save that lands on the same revision
+	// number (revisions are sequential, and the failed job's slot was never
+	// consumed) masquerade as our own job completing — silently LOADing the
+	// foreign operations over local edits with a false success notice instead
+	// of raising the conflict banner.
+	useEffect( () => {
+		if (
+			pendingJob !== null &&
+			edits?.job.status === 'failed' &&
+			edits.job.target_revision === pendingJob.targetRevision
+		) {
+			setPendingJob( null );
+		}
+	}, [ edits, pendingJob ] );
+
 	// Baseline sync: LOAD the server operations into the session on first
 	// fetch, when our own job's revision lands, when a foreign revision lands
 	// over a clean session, or when the user asked to reload. A foreign
@@ -215,12 +243,8 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 			return;
 		}
 
-		const pending = pendingJobRef.current;
 		const expected =
-			revisionChanged &&
-			pending !== null &&
-			pending.targetRevision !== null &&
-			edits.revision === pending.targetRevision;
+			revisionChanged && pendingJob !== null && edits.revision === pendingJob.targetRevision;
 
 		if ( revisionChanged && ! expected && ! forceReloadRef.current && dirtyRef.current ) {
 			setConflict( true );
@@ -238,16 +262,16 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 		setConflict( false );
 
 		if ( expected ) {
-			pendingJobRef.current = null;
+			setPendingJob( null );
 			createSuccessNotice(
-				pending.kind === 'restore'
+				pendingJob.kind === 'restore'
 					? __( 'Original video restored.', 'jetpack-videopress-pkg' )
 					: __( 'Video edits saved.', 'jetpack-videopress-pkg' )
 			);
 			// Duration/poster may change once the real pipeline transcodes.
 			queryClient.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 		}
-	}, [ edits, baseline, reloadNonce, createSuccessNotice, queryClient ] );
+	}, [ edits, baseline, pendingJob, reloadNonce, createSuccessNotice, queryClient ] );
 
 	// Dirty guard, half one: warn on tab close / full navigation.
 	useEffect( () => {
@@ -274,6 +298,61 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 		);
 	}, [] );
 
+	// Dirty guard, half three: in-app links (the "VideoPress" breadcrumb and
+	// anything else rendered inside this screen's chrome). Router links can't
+	// be guarded per-link here — Breadcrumbs renders them internally — so a
+	// capture-phase listener on the screen's wrapper intercepts the click
+	// before the router's own handler runs; preventDefault makes the router
+	// Link bail (it checks event.defaultPrevented) and stops plain anchors.
+	const guardLinkClick = useCallback(
+		( event: ReactMouseEvent< HTMLElement > ) => {
+			// Modified/secondary clicks open new tabs — nothing is discarded.
+			if (
+				event.defaultPrevented ||
+				event.button !== 0 ||
+				event.metaKey ||
+				event.ctrlKey ||
+				event.shiftKey ||
+				event.altKey
+			) {
+				return;
+			}
+			const anchor = ( event.target as Element ).closest?.( 'a[href]' );
+			const target = anchor?.getAttribute( 'target' );
+			if ( ! anchor || ( target && target !== '_self' ) ) {
+				return;
+			}
+			if ( ! confirmNavigation() ) {
+				// Cancel the navigation, not the click: the router Link bails
+				// on defaultPrevented, and plain anchors won't navigate.
+				event.preventDefault();
+			}
+		},
+		[ confirmNavigation ]
+	);
+
+	// Dirty guard, half four: browser back/forward. The router has already
+	// processed the popstate by the time this listener runs, so a decline
+	// re-navigates to the editor synchronously — both location updates land in
+	// the same render batch, keeping this component (and the dirty session)
+	// mounted throughout.
+	useEffect( () => {
+		if ( ! dirty ) {
+			return;
+		}
+		const onPopState = () => {
+			// eslint-disable-next-line no-alert -- deliberate synchronous guard; popstate can't await a custom dialog.
+			const leave = window.confirm(
+				__( 'You have unsaved edits. Leave the editor and discard them?', 'jetpack-videopress-pkg' )
+			);
+			if ( ! leave ) {
+				navigate( { href: videoTabPath( video.id, 'editor' ) } );
+			}
+		};
+		window.addEventListener( 'popstate', onPopState );
+		return () => window.removeEventListener( 'popstate', onPopState );
+	}, [ dirty, navigate, video.id ] );
+
 	// While a job is processing the timeline is locked: pointer events are
 	// blocked by CSS, and this guard drops the document-level keyboard
 	// shortcuts' dispatches.
@@ -286,6 +365,23 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	const onTimeUpdate = useCallback( ( ms: number ) => setCurrentMs( ms ), [] );
 	const onSeek = useCallback( ( ms: number ) => playerRef.current?.seekTo( ms ), [] );
 	const onTogglePlay = useCallback( () => playerRef.current?.togglePlay(), [] );
+
+	// Scrubbing pauses playback for the duration of the drag (resuming after,
+	// YouTube-style, when it was running). Without this every pointer-move
+	// seek fights the playback resolver's own corrective seeks — dragging into
+	// a cut or outside the trim window makes the playhead flicker between the
+	// pointer and the resolver's target.
+	const scrubWasPlayingRef = useRef( false );
+	const onScrubStart = useCallback( () => {
+		scrubWasPlayingRef.current = playerRef.current?.isPlaying() ?? false;
+		playerRef.current?.pause();
+	}, [] );
+	const onScrubEnd = useCallback( () => {
+		if ( scrubWasPlayingRef.current ) {
+			scrubWasPlayingRef.current = false;
+			playerRef.current?.play();
+		}
+	}, [] );
 
 	const onDurationChange = useCallback( ( ms: number ) => {
 		if ( ms <= 0 ) {
@@ -317,7 +413,12 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 				baseRevision: baseline.revision,
 				operations: sessionToOperations( current, current.durationMs ),
 			} );
-			pendingJobRef.current = { kind: 'save', targetRevision: response.job.target_revision };
+			// A null target_revision (contract allows it) would make the job
+			// unmatchable — leave nothing pending and let the revision change
+			// take the clean-or-conflict path instead of deadlocking the lock.
+			if ( typeof response.job.target_revision === 'number' ) {
+				setPendingJob( { kind: 'save', targetRevision: response.job.target_revision } );
+			}
 		} catch ( error ) {
 			if ( error instanceof EditsConflictError ) {
 				setConflict( true );
@@ -330,7 +431,9 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	const doRestore = useCallback( async () => {
 		try {
 			const response = await restoreOriginal.mutateAsync( { guid } );
-			pendingJobRef.current = { kind: 'restore', targetRevision: response.job.target_revision };
+			if ( typeof response.job.target_revision === 'number' ) {
+				setPendingJob( { kind: 'restore', targetRevision: response.job.target_revision } );
+			}
 		} catch {
 			createErrorNotice( __( 'Failed to restore the original video.', 'jetpack-videopress-pkg' ) );
 		}
@@ -345,6 +448,12 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 			durationMs: sessionRef.current.durationMs,
 		} );
 	}, [ baseline ] );
+
+	// Recover from a failed initial GET …/edits (the retry affordance in the
+	// error state below).
+	const onRetryLoadEdits = useCallback( () => {
+		queryClient.invalidateQueries( { queryKey: [ EDITS_QUERY_KEY, guid ] } );
+	}, [ queryClient, guid ] );
 
 	const onReloadLatest = useCallback( () => {
 		forceReloadRef.current = true;
@@ -393,75 +502,107 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 		},
 	};
 
+	// A session without a baseline can be edited but never saved; surface the
+	// failure and a retry instead of a silently dead Save button. Errors after
+	// the first successful load keep the cached data and don't hit this.
+	if ( editsFailed && ! edits ) {
+		return (
+			<EditorChrome videoId={ video.id }>
+				<div className="vp-studio-editor vp-studio-editor__error">
+					<Stack direction="column" gap="md" align="center">
+						<Text>
+							{ __(
+								"The editor couldn't load this video's edit state.",
+								'jetpack-videopress-pkg'
+							) }
+						</Text>
+						<Button variant="outline" onClick={ onRetryLoadEdits }>
+							{ __( 'Try again', 'jetpack-videopress-pkg' ) }
+						</Button>
+					</Stack>
+				</div>
+			</EditorChrome>
+		);
+	}
+
 	return (
-		<EditorChrome
-			videoId={ video.id }
-			confirmNavigation={ confirmNavigation }
-			actions={
-				<StudioEditorHeaderActions
-					canUndo={ ! locked && canUndo( history ) }
-					canRedo={ ! locked && canRedo( history ) }
-					onUndo={ () => guardedDispatch( { type: 'UNDO' } ) }
-					onRedo={ () => guardedDispatch( { type: 'REDO' } ) }
-					canDiscard={ dirty && ! locked }
-					onDiscard={ () => setConfirmAction( 'discard' ) }
-					canSave={ dirty && ! locked && ! conflict && baseline !== null }
-					onSave={ () => setConfirmAction( 'save' ) }
-					canRestoreOriginal={ Boolean( edits?.can_restore_original ) && ! locked && ! conflict }
-					onRestoreOriginal={ () => setConfirmAction( 'restore' ) }
-				/>
-			}
-		>
-			<div className="vp-studio-editor">
-				<StudioEditorStatusBanner
-					job={ edits?.job }
-					conflict={ conflict }
-					onRetry={ doSave }
-					onReloadLatest={ onReloadLatest }
-				/>
-				<div className="vp-studio-editor__body">
-					<StudioEditorOperationsPanel />
-					<div className="vp-studio-editor__main">
-						<StudioEditorPreviewPlayer
-							ref={ playerRef }
-							video={ video }
-							session={ session }
-							previewCutsEnabled={ previewCutsEnabled }
-							onPreviewCutsChange={ setPreviewCutsEnabled }
-							onTimeUpdate={ onTimeUpdate }
-							onDurationChange={ onDurationChange }
-						/>
-						<div
-							className={
-								'vp-studio-editor__timeline' +
-								( locked ? ' vp-studio-editor__timeline--locked' : '' )
-							}
-							data-testid="studio-editor-timeline-lock"
-							aria-busy={ locked || undefined }
-						>
-							<StudioEditorTimeline
+		// display:contents keeps the wrapper out of layout; it exists only to
+		// give the link guard a capture-phase hook over the whole chrome
+		// (breadcrumbs included).
+
+		<div style={ { display: 'contents' } } onClickCapture={ guardLinkClick }>
+			<EditorChrome
+				videoId={ video.id }
+				confirmNavigation={ confirmNavigation }
+				actions={
+					<StudioEditorHeaderActions
+						canUndo={ ! locked && canUndo( history, sessionEditsEqual ) }
+						canRedo={ ! locked && canRedo( history ) }
+						onUndo={ () => guardedDispatch( { type: 'UNDO' } ) }
+						onRedo={ () => guardedDispatch( { type: 'REDO' } ) }
+						canDiscard={ dirty && ! locked }
+						onDiscard={ () => setConfirmAction( 'discard' ) }
+						canSave={ dirty && ! locked && ! conflict && baseline !== null }
+						onSave={ () => setConfirmAction( 'save' ) }
+						canRestoreOriginal={ Boolean( edits?.can_restore_original ) && ! locked && ! conflict }
+						onRestoreOriginal={ () => setConfirmAction( 'restore' ) }
+					/>
+				}
+			>
+				<div className="vp-studio-editor">
+					<StudioEditorStatusBanner
+						job={ edits?.job }
+						conflict={ conflict }
+						onRetry={ doSave }
+						onReloadLatest={ onReloadLatest }
+					/>
+					<div className="vp-studio-editor__body">
+						<StudioEditorOperationsPanel />
+						<div className="vp-studio-editor__main">
+							<StudioEditorPreviewPlayer
+								ref={ playerRef }
+								video={ video }
 								session={ session }
-								dispatch={ guardedDispatch }
-								currentMs={ currentMs }
-								onSeek={ onSeek }
-								onTogglePlay={ onTogglePlay }
-								filmstrip={ filmstrip }
+								previewCutsEnabled={ previewCutsEnabled }
+								onPreviewCutsChange={ setPreviewCutsEnabled }
+								onTimeUpdate={ onTimeUpdate }
+								onDurationChange={ onDurationChange }
 							/>
+							<div
+								className={
+									'vp-studio-editor__timeline' +
+									( locked ? ' vp-studio-editor__timeline--locked' : '' )
+								}
+								data-testid="studio-editor-timeline-lock"
+								aria-busy={ locked || undefined }
+							>
+								<StudioEditorTimeline
+									session={ session }
+									dispatch={ guardedDispatch }
+									currentMs={ currentMs }
+									onSeek={ onSeek }
+									onTogglePlay={ onTogglePlay }
+									onScrubStart={ onScrubStart }
+									onScrubEnd={ onScrubEnd }
+									shortcutsEnabled={ confirmAction === null }
+									filmstrip={ filmstrip }
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			{ confirmAction !== null && (
-				<StudioEditorConfirmDialog
-					isOpen
-					title={ dialogCopy[ confirmAction ].title }
-					message={ dialogCopy[ confirmAction ].message }
-					confirmLabel={ dialogCopy[ confirmAction ].label }
-					onConfirm={ onConfirm }
-					onCancel={ () => setConfirmAction( null ) }
-				/>
-			) }
-		</EditorChrome>
+				{ confirmAction !== null && (
+					<StudioEditorConfirmDialog
+						isOpen
+						title={ dialogCopy[ confirmAction ].title }
+						message={ dialogCopy[ confirmAction ].message }
+						confirmLabel={ dialogCopy[ confirmAction ].label }
+						onConfirm={ onConfirm }
+						onCancel={ () => setConfirmAction( null ) }
+					/>
+				) }
+			</EditorChrome>
+		</div>
 	);
 }
 

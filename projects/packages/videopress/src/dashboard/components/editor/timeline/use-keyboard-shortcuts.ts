@@ -6,9 +6,11 @@
  * and mod+Z / shift+mod+Z undo/redo.
  *
  * The listener bails on editable targets (inputs, textareas, selects,
- * contenteditable) so typing in the timecode box never toggles playback, and
- * on already-handled events (the focusable timeline sliders preventDefault
- * and stopPropagation their own arrow keys before this listener runs).
+ * contenteditable) so typing in the timecode box never toggles playback, on
+ * focused interactive controls (buttons, links, menu items) so Space/Enter
+ * activate the control instead of driving the editor behind it, and on
+ * already-handled events (the focusable timeline sliders preventDefault and
+ * stopPropagation their own arrow keys before this listener runs).
  */
 import { useEffect, useRef } from 'react';
 
@@ -45,21 +47,43 @@ export interface KeyboardShortcuts {
 }
 
 /**
- * Whether a keyboard event targets an editable element and must be ignored.
+ * Selector for focused controls the shortcuts must never talk over: keyboard
+ * activation (Space/Enter) belongs to the control, and arrow keys may drive
+ * menu/radio navigation. Matched via `closest` so a focus target inside a
+ * control (an icon, say) is covered too.
+ */
+const INTERACTIVE_CONTROL_SELECTOR = [
+	'button',
+	'a[href]',
+	'summary',
+	'[role="button"]',
+	'[role="link"]',
+	'[role="menuitem"]',
+	'[role="menuitemcheckbox"]',
+	'[role="menuitemradio"]',
+].join( ', ' );
+
+/**
+ * Whether a keyboard event targets an element the shortcuts must leave alone:
+ * anything editable (typing) or an interactive control (activation).
  *
  * @param target - The event target.
- * @return True when the target takes text input.
+ * @return True when the shortcuts should ignore the event.
  */
-function isEditableTarget( target: EventTarget | null ): boolean {
-	if ( ! ( target instanceof HTMLElement ) ) {
+function isExemptTarget( target: EventTarget | null ): boolean {
+	if ( ! ( target instanceof Element ) ) {
 		return false;
 	}
-	return (
-		target.tagName === 'INPUT' ||
-		target.tagName === 'TEXTAREA' ||
-		target.tagName === 'SELECT' ||
-		target.isContentEditable
-	);
+	if (
+		target instanceof HTMLElement &&
+		( target.tagName === 'INPUT' ||
+			target.tagName === 'TEXTAREA' ||
+			target.tagName === 'SELECT' ||
+			target.isContentEditable )
+	) {
+		return true;
+	}
+	return target.closest( INTERACTIVE_CONTROL_SELECTOR ) !== null;
 }
 
 /**
@@ -78,7 +102,7 @@ export function useKeyboardShortcuts( shortcuts: KeyboardShortcuts ): void {
 		}
 
 		const onKeyDown = ( event: KeyboardEvent ) => {
-			if ( event.defaultPrevented || isEditableTarget( event.target ) ) {
+			if ( event.defaultPrevented || isExemptTarget( event.target ) ) {
 				return;
 			}
 			const current = shortcutsRef.current;

@@ -156,8 +156,8 @@ export default function StudioEditorCutSegment( props: Props ): ReactElement {
 				size="small"
 				icon={ <Icon icon={ closeSmall } size={ 16 } /> }
 				label={ __( 'Remove cut', 'jetpack-videopress-pkg' ) }
-				// Keep the press from also selecting the cut (an extra
-				// selection entry in undo history right before the removal).
+				// Keep the press from also selecting the cut it is about to
+				// remove (a pointless selection flash before the removal).
 				onPointerDown={ event => event.stopPropagation() }
 				onClick={ () => dispatch( { type: 'REMOVE_CUT', id: cut.id } ) }
 			/>
