@@ -53,7 +53,7 @@ class Dashboard_Layout_Test extends TestCase {
 				'placement'  => array(
 					'width'  => 1,
 					'height' => 2,
-					'order'  => 2,
+					'order'  => 5,
 				),
 			),
 			$layout_by_uuid[ $utm_widget_uuid ]
