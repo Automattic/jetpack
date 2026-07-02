@@ -1,0 +1,7 @@
+{
+	"name": "jpa/all-time-views",
+	"title": "All-time views",
+	"description": "The total number of views your site has received since it started.",
+	"category": "stats",
+	"presentation": "framed"
+}
