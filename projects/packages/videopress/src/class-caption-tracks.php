@@ -146,48 +146,6 @@ class Caption_Tracks {
 	}
 
 	/**
-	 * Request schema for the caption track create/update routes.
-	 *
-	 * Type and shape validation only; the save handler still owns the semantic
-	 * checks (GUID format, language tag, kind) so it can return specific errors.
-	 *
-	 * @return array
-	 */
-	public static function save_track_args() {
-		$meta_properties = array();
-		foreach ( self::$meta_keys as $key ) {
-			$meta_properties[ $key ] = array( 'type' => 'string' );
-		}
-
-		return array(
-			'guid'    => array(
-				'description' => __( 'VideoPress GUID.', 'jetpack-videopress-pkg' ),
-				'type'        => 'string',
-			),
-			'title'   => array(
-				'description' => __( 'Caption track title.', 'jetpack-videopress-pkg' ),
-				'type'        => 'string',
-			),
-			'content' => array(
-				'description' => __( 'Serialized caption-cue block content.', 'jetpack-videopress-pkg' ),
-				'type'        => 'string',
-			),
-			'status'  => array(
-				'description' => __( 'Caption track status.', 'jetpack-videopress-pkg' ),
-				'type'        => 'string',
-				'enum'        => array( 'draft', 'publish' ),
-			),
-			'meta'    => array(
-				'description'          => __( 'Caption track metadata.', 'jetpack-videopress-pkg' ),
-				'type'                 => 'object',
-				'required'             => true,
-				'properties'           => $meta_properties,
-				'additionalProperties' => false,
-			),
-		);
-	}
-
-	/**
 	 * REST permission callback for the caption track routes.
 	 *
 	 * Authorizes against the video the request targets: an existing track is
