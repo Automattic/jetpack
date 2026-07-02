@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import styles from './subscribers-chart.module.css';
+import styles from './style.module.css';
 import useSubscribersChart, {
 	type SubscribersChartPoint,
 	type SubscribersChartState,

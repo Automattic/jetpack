@@ -1,48 +1,117 @@
 <?php
 /**
- * Tests for the dashboard layout defaults.
+ * Tests for Premium Analytics dashboard layout defaults.
  *
  * @package automattic/jetpack-premium-analytics
  */
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-use PHPUnit\Framework\Attributes\CoversFunction;
-use WorDBless\BaseTestCase;
+use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/../../src/dashboard-layout.php';
 
 /**
- * @covers ::Automattic\Jetpack\PremiumAnalytics\seed_default_dashboard_layout
+ * Tests for Premium Analytics dashboard layout defaults.
  */
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\seed_default_dashboard_layout' )]
-class Dashboard_Layout_Test extends BaseTestCase {
+class Dashboard_Layout_Test extends TestCase {
 
 	/**
-	 * The bundled dashboard layout includes the File Downloads widget.
+	 * Non-Premium-Analytics dashboards are left untouched.
 	 */
-	public function test_seed_default_dashboard_layout_adds_file_downloads_widget() {
-		$layout = seed_default_dashboard_layout( array(), DASHBOARD_NAME );
-		$widget = $this->find_widget_by_uuid( $layout, 'default-file-downloads-widget-instance' );
+	public function test_seed_default_dashboard_layout_ignores_other_dashboards() {
+		$layout = array(
+			array(
+				'uuid' => 'existing-widget',
+				'type' => 'example/widget',
+			),
+		);
 
-		$this->assertNotNull( $widget, 'The default layout should include File Downloads.' );
-		$this->assertSame( 'jpa/file-downloads', $widget['type'] );
-		$this->assertSame( array( 'max' => 10 ), $widget['attributes'] );
+		$this->assertSame( $layout, seed_default_dashboard_layout( $layout, 'other_dashboard' ) );
+	}
+
+	/**
+	 * The Premium Analytics dashboard receives the UTM Insights widget.
+	 */
+	public function test_seed_default_dashboard_layout_adds_utm_insights_widget() {
+		$layout          = seed_default_dashboard_layout( array(), DASHBOARD_NAME );
+		$layout_by_uuid  = array_column( $layout, null, 'uuid' );
+		$utm_widget_uuid = 'default-utm-insights-widget-instance';
+
+		$this->assertArrayHasKey( 'default-hello-world-widget-instance', $layout_by_uuid );
+		$this->assertArrayHasKey( 'default-locations-widget-instance', $layout_by_uuid );
+		$this->assertArrayHasKey( $utm_widget_uuid, $layout_by_uuid );
+
 		$this->assertSame(
 			array(
-				'width'  => 1,
-				'height' => 2,
-				'order'  => 2,
+				'uuid'       => $utm_widget_uuid,
+				'type'       => 'jpa/utm-insights',
+				'attributes' => array(
+					'utmParam' => 'utm_source,utm_medium',
+					'max'      => 10,
+				),
+				'placement'  => array(
+					'width'  => 1,
+					'height' => 2,
+					'order'  => 5,
+				),
 			),
-			$widget['placement']
+			$layout_by_uuid[ $utm_widget_uuid ]
 		);
 	}
 
 	/**
-	 * Existing File Downloads instances are preserved rather than duplicated.
+	 * The Premium Analytics dashboard receives the File Downloads widget.
+	 */
+	public function test_seed_default_dashboard_layout_adds_file_downloads_widget() {
+		$layout                     = seed_default_dashboard_layout( array(), DASHBOARD_NAME );
+		$layout_by_uuid             = array_column( $layout, null, 'uuid' );
+		$file_downloads_widget_uuid = 'default-file-downloads-widget-instance';
+
+		$this->assertArrayHasKey( $file_downloads_widget_uuid, $layout_by_uuid );
+
+		$this->assertSame(
+			array(
+				'uuid'       => $file_downloads_widget_uuid,
+				'type'       => 'jpa/file-downloads',
+				'attributes' => array(
+					'max' => 10,
+				),
+				'placement'  => array(
+					'width'  => 1,
+					'height' => 2,
+					'order'  => 6,
+				),
+			),
+			$layout_by_uuid[ $file_downloads_widget_uuid ]
+		);
+	}
+
+	/**
+	 * An existing UTM Insights default instance is not duplicated.
+	 */
+	public function test_seed_default_dashboard_layout_does_not_duplicate_utm_insights_widget() {
+		$existing_utm_widget = array(
+			'uuid' => 'default-utm-insights-widget-instance',
+			'type' => 'jpa/utm-insights',
+		);
+
+		$layout      = seed_default_dashboard_layout( array( $existing_utm_widget ), DASHBOARD_NAME );
+		$utm_widgets = array_filter(
+			$layout,
+			static function ( $widget ) {
+				return 'default-utm-insights-widget-instance' === $widget['uuid'];
+			}
+		);
+
+		$this->assertCount( 1, $utm_widgets );
+	}
+
+	/**
+	 * An existing File Downloads default instance is not duplicated.
 	 */
 	public function test_seed_default_dashboard_layout_does_not_duplicate_file_downloads_widget() {
-		$existing_widget = array(
+		$existing_file_downloads_widget = array(
 			'uuid'       => 'default-file-downloads-widget-instance',
 			'type'       => 'jpa/file-downloads',
 			'attributes' => array( 'max' => 5 ),
@@ -53,32 +122,15 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			),
 		);
 
-		$layout  = seed_default_dashboard_layout( array( $existing_widget ), DASHBOARD_NAME );
-		$matches = array();
-		foreach ( $layout as $widget ) {
-			if ( 'default-file-downloads-widget-instance' === ( $widget['uuid'] ?? '' ) ) {
-				$matches[] = $widget;
+		$layout                 = seed_default_dashboard_layout( array( $existing_file_downloads_widget ), DASHBOARD_NAME );
+		$file_downloads_widgets = array_filter(
+			$layout,
+			static function ( $widget ) {
+				return 'default-file-downloads-widget-instance' === $widget['uuid'];
 			}
-		}
+		);
 
-		$this->assertCount( 1, $matches );
-		$this->assertSame( $existing_widget, $matches[0] );
-	}
-
-	/**
-	 * Finds a widget instance by UUID.
-	 *
-	 * @param array  $layout Dashboard layout entries.
-	 * @param string $uuid   Widget instance UUID.
-	 * @return array|null Matching widget instance, if present.
-	 */
-	private function find_widget_by_uuid( array $layout, $uuid ) {
-		foreach ( $layout as $widget ) {
-			if ( $uuid === ( $widget['uuid'] ?? '' ) ) {
-				return $widget;
-			}
-		}
-
-		return null;
+		$this->assertCount( 1, $file_downloads_widgets );
+		$this->assertSame( $existing_file_downloads_widget, reset( $file_downloads_widgets ) );
 	}
 }

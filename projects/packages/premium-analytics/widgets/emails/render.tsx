@@ -16,7 +16,7 @@ import { Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import styles from './emails.module.css';
+import styles from './style.module.css';
 import type { EmailsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
