@@ -255,6 +255,21 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 		);
 	}
 
+	if ( ! in_array( 'default-clicks-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'       => 'default-clicks-widget-instance',
+			'type'       => 'jpa/clicks',
+			'attributes' => array(
+				'max' => 10,
+			),
+			'placement'  => array(
+				'width'  => 1,
+				'height' => 2,
+				'order'  => 7,
+			),
+		);
+	}
+
 	return $dashboard_layout;
 }
 add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\seed_default_dashboard_layout', 10, 2 );

@@ -88,6 +88,33 @@ class Dashboard_Layout_Test extends TestCase {
 	}
 
 	/**
+	 * The Premium Analytics dashboard receives the Clicks widget.
+	 */
+	public function test_seed_default_dashboard_layout_adds_clicks_widget() {
+		$layout             = seed_default_dashboard_layout( array(), DASHBOARD_NAME );
+		$layout_by_uuid     = array_column( $layout, null, 'uuid' );
+		$clicks_widget_uuid = 'default-clicks-widget-instance';
+
+		$this->assertArrayHasKey( $clicks_widget_uuid, $layout_by_uuid );
+
+		$this->assertSame(
+			array(
+				'uuid'       => $clicks_widget_uuid,
+				'type'       => 'jpa/clicks',
+				'attributes' => array(
+					'max' => 10,
+				),
+				'placement'  => array(
+					'width'  => 1,
+					'height' => 2,
+					'order'  => 7,
+				),
+			),
+			$layout_by_uuid[ $clicks_widget_uuid ]
+		);
+	}
+
+	/**
 	 * An existing UTM Insights default instance is not duplicated.
 	 */
 	public function test_seed_default_dashboard_layout_does_not_duplicate_utm_insights_widget() {
@@ -132,5 +159,25 @@ class Dashboard_Layout_Test extends TestCase {
 
 		$this->assertCount( 1, $file_downloads_widgets );
 		$this->assertSame( $existing_file_downloads_widget, reset( $file_downloads_widgets ) );
+	}
+
+	/**
+	 * An existing Clicks default instance is not duplicated.
+	 */
+	public function test_seed_default_dashboard_layout_does_not_duplicate_clicks_widget() {
+		$existing_clicks_widget = array(
+			'uuid' => 'default-clicks-widget-instance',
+			'type' => 'jpa/clicks',
+		);
+
+		$layout         = seed_default_dashboard_layout( array( $existing_clicks_widget ), DASHBOARD_NAME );
+		$clicks_widgets = array_filter(
+			$layout,
+			static function ( $widget ) {
+				return 'default-clicks-widget-instance' === $widget['uuid'];
+			}
+		);
+
+		$this->assertCount( 1, $clicks_widgets );
 	}
 }

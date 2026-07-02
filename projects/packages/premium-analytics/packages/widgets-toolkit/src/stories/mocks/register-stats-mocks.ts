@@ -14,6 +14,208 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 const STATS_BASE = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
+const MOCK_CLICKS = {
+	date: '2026-06-29',
+	period: 'day',
+	days: {},
+	summary: {
+		clicks: [
+			{
+				name: 'wordpress.org',
+				views: 3840,
+				icon: 'https://www.google.com/s2/favicons?domain=wordpress.org&sz=32',
+				children: [
+					{
+						name: 'wordpress.org/plugins/jetpack-search',
+						views: 2410,
+						url: 'https://wordpress.org/plugins/jetpack-search',
+					},
+					{
+						name: 'wordpress.org/plugins/jetpack-boost/',
+						views: 1430,
+						url: 'https://wordpress.org/plugins/jetpack-boost/',
+					},
+				],
+			},
+			{
+				name: 'developer.wordpress.org',
+				views: 2610,
+				icon: 'https://www.google.com/s2/favicons?domain=developer.wordpress.org&sz=32',
+				children: [
+					{
+						name: 'developer.wordpress.org/reference/functions/wp_remote_get',
+						views: 1180,
+						url: 'https://developer.wordpress.org/reference/functions/wp_remote_get/',
+					},
+					{
+						name: 'developer.wordpress.org/rest-api/reference',
+						views: 840,
+						url: 'https://developer.wordpress.org/rest-api/reference/',
+					},
+					{
+						name: 'developer.wordpress.org/block-editor/reference-guides',
+						views: 590,
+						url: 'https://developer.wordpress.org/block-editor/reference-guides/',
+					},
+				],
+			},
+			{
+				name: 'jetpack.com',
+				views: 1920,
+				icon: 'https://www.google.com/s2/favicons?domain=jetpack.com&sz=32',
+				children: [
+					{
+						name: 'jetpack.com/support',
+						views: 910,
+						url: 'https://jetpack.com/support/',
+					},
+					{
+						name: 'jetpack.com/blog',
+						views: 640,
+						url: 'https://jetpack.com/blog/',
+					},
+					{
+						name: 'jetpack.com/pricing',
+						views: 370,
+						url: 'https://jetpack.com/pricing/',
+					},
+				],
+			},
+			{
+				name: 'woocommerce.com',
+				views: 1305,
+				icon: 'https://www.google.com/s2/favicons?domain=woocommerce.com&sz=32',
+				children: [
+					{
+						name: 'woocommerce.com/documentation/plugins',
+						views: 610,
+						url: 'https://woocommerce.com/documentation/plugins/',
+					},
+					{
+						name: 'woocommerce.com/products',
+						views: 460,
+						url: 'https://woocommerce.com/products/',
+					},
+					{
+						name: 'woocommerce.com/posts',
+						views: 235,
+						url: 'https://woocommerce.com/posts/',
+					},
+				],
+			},
+			{
+				name: 'example.com',
+				views: 870,
+				children: [
+					{
+						name: 'example.com/downloads/whitepaper.pdf',
+						views: 530,
+						url: 'https://example.com/downloads/whitepaper.pdf',
+					},
+					{
+						name: 'example.com/demo',
+						views: 340,
+						url: 'https://example.com/demo/',
+					},
+				],
+			},
+		],
+	},
+};
+
+const MOCK_CLICKS_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	days: {},
+	summary: {
+		clicks: [
+			{
+				name: 'wordpress.org',
+				views: 3100,
+				icon: 'https://www.google.com/s2/favicons?domain=wordpress.org&sz=32',
+				children: [
+					{
+						name: 'wordpress.org/plugins/jetpack-search',
+						views: 1980,
+						url: 'https://wordpress.org/plugins/jetpack-search',
+					},
+					{
+						name: 'wordpress.org/plugins/jetpack-boost/',
+						views: 1120,
+						url: 'https://wordpress.org/plugins/jetpack-boost/',
+					},
+				],
+			},
+			{
+				name: 'developer.wordpress.org',
+				views: 2940,
+				icon: 'https://www.google.com/s2/favicons?domain=developer.wordpress.org&sz=32',
+				children: [
+					{
+						name: 'developer.wordpress.org/reference/functions/wp_remote_get',
+						views: 1410,
+						url: 'https://developer.wordpress.org/reference/functions/wp_remote_get/',
+					},
+					{
+						name: 'developer.wordpress.org/rest-api/reference',
+						views: 870,
+						url: 'https://developer.wordpress.org/rest-api/reference/',
+					},
+					{
+						name: 'developer.wordpress.org/block-editor/reference-guides',
+						views: 660,
+						url: 'https://developer.wordpress.org/block-editor/reference-guides/',
+					},
+				],
+			},
+			{
+				name: 'jetpack.com',
+				views: 1270,
+				icon: 'https://www.google.com/s2/favicons?domain=jetpack.com&sz=32',
+				children: [
+					{
+						name: 'jetpack.com/support',
+						views: 620,
+						url: 'https://jetpack.com/support/',
+					},
+					{
+						name: 'jetpack.com/blog',
+						views: 410,
+						url: 'https://jetpack.com/blog/',
+					},
+					{
+						name: 'jetpack.com/pricing',
+						views: 240,
+						url: 'https://jetpack.com/pricing/',
+					},
+				],
+			},
+			{
+				name: 'woocommerce.com',
+				views: 980,
+				icon: 'https://www.google.com/s2/favicons?domain=woocommerce.com&sz=32',
+				children: [
+					{
+						name: 'woocommerce.com/documentation/plugins',
+						views: 460,
+						url: 'https://woocommerce.com/documentation/plugins/',
+					},
+					{
+						name: 'woocommerce.com/products',
+						views: 330,
+						url: 'https://woocommerce.com/products/',
+					},
+					{
+						name: 'woocommerce.com/posts',
+						views: 190,
+						url: 'https://woocommerce.com/posts/',
+					},
+				],
+			},
+		],
+	},
+};
+
 const MOCK_FILE_DOWNLOADS_FILES = [
 	{
 		relative_url: '/annual-report-2025.pdf',
@@ -482,20 +684,23 @@ function getStatsMock( path: string ): unknown | null {
 	const withoutBase = path.slice( STATS_BASE.length );
 	const queryIndex = withoutBase.indexOf( '?' );
 	const subPath = queryIndex === -1 ? withoutBase : withoutBase.slice( 0, queryIndex );
+	const query = new URLSearchParams( queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 ) );
+	const isComparison = isComparisonRequest( path );
+
+	if ( subPath.startsWith( '/clicks' ) ) {
+		return isComparison ? MOCK_CLICKS_COMPARISON : MOCK_CLICKS;
+	}
 
 	if ( subPath.startsWith( '/file-downloads' ) ) {
-		return isComparisonRequest( path ) ? MOCK_FILE_DOWNLOADS_COMPARISON : MOCK_FILE_DOWNLOADS;
+		return isComparison ? MOCK_FILE_DOWNLOADS_COMPARISON : MOCK_FILE_DOWNLOADS;
 	}
 
 	const locationViewsMatch = subPath.match( /^\/location-views\/(country|region|city)$/ );
 	if ( locationViewsMatch ) {
-		const query = new URLSearchParams(
-			queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 )
-		);
 		return buildStatsLocationViewsResponse(
 			locationViewsMatch[ 1 ] as GeoMode,
 			query,
-			isComparisonRequest( path )
+			isComparison
 		);
 	}
 
@@ -505,7 +710,7 @@ function getStatsMock( path: string ): unknown | null {
 		const mock = UTM_MOCKS[ utmParam ];
 
 		if ( mock ) {
-			return isComparisonRequest( path ) ? mock.comparison : mock.primary;
+			return isComparison ? mock.comparison : mock.primary;
 		}
 
 		return { top_utm_values: {}, top_posts: {} };
