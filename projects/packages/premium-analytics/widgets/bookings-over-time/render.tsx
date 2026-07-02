@@ -1,12 +1,24 @@
+/**
+ * External dependencies
+ */
 import {
 	BookingOrderMetricWidget,
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { BookingsOverTimeAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type BookingsOverTimeRenderProps = {
-	attributes?: Partial< ReportParamsFieldAttributes >;
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type BookingsOverTimeRenderAttributes = BookingsOverTimeAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type BookingsOverTimeRenderProps = WidgetRenderProps< BookingsOverTimeRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -15,17 +27,12 @@ type BookingsOverTimeRenderProps = {
  *
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; BookingOrderMetricWidget
- * fetches the bookings report and renders the orders_no metric with a
- * comparison delta and sparkline.
- *
- * @param props            - Widget render props supplied by the dashboard host.
- * @param props.attributes - Optional report params from dashboard state.
- * @param props.setError   - Error callback supplied by the widget host.
- * @return Rendered Bookings over time widget.
+ * fetches the bookings report and renders the order count metric over time.
  */
-export default function BookingsOverTimeRender( props: BookingsOverTimeRenderProps ) {
-	const { attributes, setError } = props;
-
+export default function BookingsOverTimeRender( {
+	attributes = {},
+	setError,
+}: BookingsOverTimeRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<BookingOrderMetricWidget metricKey="orders_no" />
