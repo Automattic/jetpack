@@ -1,23 +1,25 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import NewVsReturningCustomerRender, { type NewVsReturningCustomerRenderProps } from '../render';
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import NewVsReturningCustomerRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const NEW_VS_RETURNING_CUSTOMER_RENDER_MODULE = 'storybook/new-vs-returning-customer';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
+
+type NewVsReturningCustomerRenderProps = ComponentProps< typeof NewVsReturningCustomerRender >;
 
 interface NewVsReturningCustomerStoryControls {
 	withComparison: boolean;
@@ -27,10 +29,9 @@ interface NewVsReturningCustomerStoryControls {
 type NewVsReturningCustomerStoryProps = NewVsReturningCustomerRenderProps &
 	NewVsReturningCustomerStoryControls;
 
-interface NewVsReturningCustomerDashboardStoryProps extends WidgetDashboardWithWidgetControls {
-	withComparison: boolean;
-	preset: SelectablePresetId;
-}
+interface NewVsReturningCustomerDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		NewVsReturningCustomerStoryControls {}
 
 const withWidgetCanvas: Decorator = Story => (
 	<div style={ { width: '100%', height: '300px' } }>
@@ -86,17 +87,11 @@ function renderNewVsReturningCustomer( {
 	);
 }
 
-/**
- * Render the dashboard story for the new vs returning customer widget.
- *
- * @param props                - Story controls.
- * @param props.withComparison - Whether to include comparison report params.
- * @param props.preset         - Date-range preset to generate report params.
- * @return Story render output.
- */
-function NewVsReturningCustomerDashboardStory( props: NewVsReturningCustomerDashboardStoryProps ) {
-	const { withComparison, preset, ...dashboardStoryArgs } = props;
-
+function NewVsReturningCustomerDashboardStory( {
+	withComparison,
+	preset,
+	...dashboardStoryArgs
+}: NewVsReturningCustomerDashboardStoryProps ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardStoryArgs }

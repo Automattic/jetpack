@@ -1,31 +1,39 @@
+/**
+ * External dependencies
+ */
 import {
 	NewVsReturningCustomerWidget,
 	WidgetRoot,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { NewVsReturningCustomerAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type WidgetRootProps = ComponentProps< typeof WidgetRoot >;
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type NewVsReturningCustomerRenderAttributes = NewVsReturningCustomerAttributes &
+	Partial< ReportParamsFieldAttributes >;
 
-export type NewVsReturningCustomerRenderProps = {
-	attributes?: WidgetRootProps[ 'attributes' ];
-	setError?: WidgetRootProps[ 'setError' ];
-};
+type NewVsReturningCustomerRenderProps =
+	WidgetRenderProps< NewVsReturningCustomerRenderAttributes > & {
+		setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+	};
 
 /**
  * New vs returning customer widget.
  *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; NewVsReturningCustomerWidget
- * renders the customer breakdown donut chart.
- *
- * @param props            - Dashboard render props.
- * @param props.attributes - Widget attributes from the dashboard.
- * @param props.setError   - Dashboard error callback.
- * @return Widget render output.
+ * Thin composition over WidgetRoot: WidgetRoot provides the query client, chart
+ * theme, and resolved report params; NewVsReturningCustomerWidget renders the
+ * customer breakdown donut chart.
  */
-export default function NewVsReturningCustomerRender( props: NewVsReturningCustomerRenderProps ) {
-	const { attributes, setError } = props;
-
+export default function NewVsReturningCustomerRender( {
+	attributes = {},
+	setError,
+}: NewVsReturningCustomerRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<NewVsReturningCustomerWidget />
