@@ -5,6 +5,13 @@ import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
+ * The widget has no user-configurable attributes. Report params still reach it
+ * through WidgetRoot: the dashboard date range, or `attributes.reportParams`
+ * when a host injects them (e.g. Storybook and dashboard previews).
+ */
+export type BookingsByDeviceAttributes = Record< string, never >;
+
+/**
  * Widget type definition.
  *
  * Ported from `woocommerce-analytics/bookings-by-device` in
