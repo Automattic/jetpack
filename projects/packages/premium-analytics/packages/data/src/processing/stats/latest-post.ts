@@ -37,7 +37,7 @@ export type StatsLatestPostResponse = StatsLatestPost | null;
  * post's headline fields. Returns null when the site has no posts, so callers
  * can treat "no latest post" distinctly from a zeroed-out post.
  *
- * @param response - Raw posts-list payload from the proxy.
+ * @param response - Raw posts-list payload from the public WPCOM posts endpoint.
  * @return The normalized latest post, or null when none is present.
  */
 export function sanitizeStatsLatestPostResponse( response: unknown ): StatsLatestPostResponse {

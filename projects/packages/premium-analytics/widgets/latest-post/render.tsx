@@ -15,7 +15,7 @@ import { format, parseISO } from 'date-fns';
 /**
  * Internal dependencies
  */
-import styles from './latest-post.module.css';
+import styles from './style.module.css';
 import type { LatestPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
