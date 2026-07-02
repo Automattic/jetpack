@@ -1,27 +1,36 @@
+/**
+ * External dependencies
+ */
 import {
 	ConversionRateWidget,
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import type { ConversionRateAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps } from 'react';
 
-type ConversionRateRenderProps = Omit<
-	WidgetRenderProps< Partial< ReportParamsFieldAttributes > >,
-	'attributes'
-> & {
-	attributes?: Partial< ReportParamsFieldAttributes >;
-	setError?: Parameters< typeof WidgetRoot >[ 0 ][ 'setError' ];
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type ConversionRateRenderAttributes = ConversionRateAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type ConversionRateRenderProps = WidgetRenderProps< ConversionRateRenderAttributes > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
  * Conversion rate widget.
  *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; ConversionRateWidget fetches
- * the conversion-rate report and renders the funnel.
+ * Thin composition over WidgetRoot: WidgetRoot provides the query client,
+ * chart theme, and resolved report params; ConversionRateWidget fetches the
+ * conversion-rate report and renders the funnel.
  */
 export default function ConversionRateRender( {
-	attributes,
+	attributes = {},
 	setError,
 }: ConversionRateRenderProps ) {
 	return (

@@ -85,10 +85,9 @@ interface ConversionRateStoryControls {
 
 type ConversionRateStoryProps = ConversionRateRenderProps & ConversionRateStoryControls;
 
-interface ConversionRateDashboardStoryProps extends WidgetDashboardWithWidgetControls {
-	withComparison: boolean;
-	preset: SelectablePresetId;
-}
+interface ConversionRateDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		ConversionRateStoryControls {}
 
 const withWidgetCanvas: Decorator = Story => (
 	<div style={ { width: '100%', height: '300px' } }>
