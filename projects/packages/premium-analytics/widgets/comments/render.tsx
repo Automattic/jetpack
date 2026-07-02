@@ -19,7 +19,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import type { MouseEvent } from 'react';
 /**
  * Internal dependencies
@@ -164,6 +164,9 @@ const EMPTY_TEXT: Record< CommentsView, string > = {
  */
 function CommentsInner( { max, initialView }: { max: number; initialView: CommentsView } ) {
 	const [ view, setView ] = useState< CommentsView >( initialView );
+	const baseId = useId();
+	const panelId = `${ baseId }-panel`;
+	const tabId = ( id: CommentsView ) => `${ baseId }-tab-${ id }`;
 	const { data, isLoading, isError } = useStatsComments();
 
 	const groups = useMemo( () => data?.data?.[ 0 ]?.items ?? [], [ data ] );
@@ -195,7 +198,9 @@ function CommentsInner( { max, initialView }: { max: number; initialView: Commen
 					key={ tab.id }
 					type="button"
 					role="tab"
+					id={ tabId( tab.id ) }
 					aria-selected={ view === tab.id }
+					aria-controls={ panelId }
 					data-view={ tab.id }
 					className={ clsx( styles.tab, view === tab.id && styles.tabActive ) }
 					onClick={ handleTabClick }
@@ -209,7 +214,12 @@ function CommentsInner( { max, initialView }: { max: number; initialView: Commen
 	return (
 		<>
 			{ header }
-			<div className={ styles.content }>
+			<div
+				className={ styles.content }
+				id={ panelId }
+				role="tabpanel"
+				aria-labelledby={ tabId( view ) }
+			>
 				{ isLoading && ! hasAnyData && <WidgetLoadingOverlay /> }
 				{ isError && ! hasAnyData ? (
 					<Stack align="center" justify="center" className={ styles.placeholder }>
