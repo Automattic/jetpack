@@ -15,7 +15,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './posting-activity.module.css';
+import styles from './style.module.css';
 import type { PostingActivityAttributes } from './widget';
 import type { DataPointDate } from '@automattic/charts';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
