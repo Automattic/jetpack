@@ -151,7 +151,9 @@ export default function TagsCategories( {
 }: WidgetRenderProps< TagsCategoriesRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<TagsCategoriesReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+			<div className={ styles.root }>
+				<TagsCategoriesReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+			</div>
 		</WidgetRoot>
 	);
 }
