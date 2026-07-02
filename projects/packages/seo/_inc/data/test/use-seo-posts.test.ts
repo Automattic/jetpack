@@ -1,8 +1,14 @@
 import { jest } from '@jest/globals';
 import { renderHook } from '@testing-library/react';
 
-const useEntityRecords = jest.fn();
-const useSelect = jest.fn();
+type CoreDataSelect = ( store: string ) => {
+	getEntityRecords: ( kind: string, name: string ) => unknown[] | null;
+	hasFinishedResolution: () => boolean;
+	isResolving: () => boolean;
+};
+type UseSelectCallback = ( select: CoreDataSelect ) => unknown;
+
+const useSelect = jest.fn< ( selector: UseSelectCallback ) => unknown >();
 
 const recordsByType = {
 	post: [
@@ -75,7 +81,6 @@ const postTypes = [
 
 jest.unstable_mockModule( '@wordpress/core-data', () => ( {
 	store: 'core',
-	useEntityRecords,
 } ) );
 
 jest.unstable_mockModule( '@wordpress/data', () => ( {
@@ -87,11 +92,6 @@ const { default: useSeoPosts } = await import( '../use-seo-posts' );
 describe( 'useSeoPosts', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-
-		useEntityRecords.mockImplementation( ( _kind: string, name: keyof typeof recordsByType ) => ( {
-			records: recordsByType[ name ] ?? [],
-			hasResolved: true,
-		} ) );
 
 		useSelect.mockImplementation( selector =>
 			selector( () => ( {

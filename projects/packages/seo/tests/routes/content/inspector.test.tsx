@@ -22,7 +22,7 @@ jest.unstable_mockModule( '../../../_inc/screens/content/seo-inspector', () => (
 	),
 } ) );
 
-const { inspector: Inspector } = await import( '../inspector' );
+const { inspector: Inspector } = await import( '../../../routes/content/inspector' );
 
 describe( 'Content route inspector', () => {
 	beforeEach( () => {

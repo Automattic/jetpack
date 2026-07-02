@@ -25,7 +25,8 @@ function Inspector() {
 	if ( ! postId ) {
 		return null;
 	}
-	const postType = typeof search.postType === 'string' && search.postType !== '' ? search.postType : 'post';
+	const postType =
+		typeof search.postType === 'string' && search.postType !== '' ? search.postType : 'post';
 
 	return (
 		<ThemeProvider>

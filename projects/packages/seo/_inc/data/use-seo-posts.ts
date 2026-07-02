@@ -100,6 +100,12 @@ const POST_TYPES_QUERY = {
 	per_page: -1,
 };
 
+/**
+ * Normalize the REST post type response into a list.
+ *
+ * @param records - Raw post type records returned by core-data.
+ * @return Post type records as a list.
+ */
 function normalizePostTypes( records: unknown ): SeoPostTypeRecord[] {
 	if ( Array.isArray( records ) ) {
 		return records as SeoPostTypeRecord[];
@@ -110,6 +116,12 @@ function normalizePostTypes( records: unknown ): SeoPostTypeRecord[] {
 	return [];
 }
 
+/**
+ * Check whether a post type can be listed and edited by the Content tab.
+ *
+ * @param postType - The post type candidate from core REST.
+ * @return Whether the post type has the required REST/UI fields.
+ */
 function isSupportedPostType( postType: SeoPostTypeRecord ): postType is SeoPostTypeRecord & {
 	slug: string;
 	name: string;
@@ -123,6 +135,13 @@ function isSupportedPostType( postType: SeoPostTypeRecord ): postType is SeoPost
 	);
 }
 
+/**
+ * Sort posts and pages before custom post types, then custom types by label.
+ *
+ * @param a - First post type.
+ * @param b - Second post type.
+ * @return Sort order.
+ */
 function sortPostTypes(
 	a: SeoPostTypeRecord & { slug: string; name: string },
 	b: SeoPostTypeRecord & { slug: string; name: string }

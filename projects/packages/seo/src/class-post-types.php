@@ -70,8 +70,8 @@ class Post_Types {
 			'page' => 1,
 		);
 
-		$a_rank = isset( $preferred[ $a->name ] ) ? $preferred[ $a->name ] : 99;
-		$b_rank = isset( $preferred[ $b->name ] ) ? $preferred[ $b->name ] : 99;
+		$a_rank = $preferred[ $a->name ] ?? 99;
+		$b_rank = $preferred[ $b->name ] ?? 99;
 
 		if ( $a_rank !== $b_rank ) {
 			return $a_rank - $b_rank;
