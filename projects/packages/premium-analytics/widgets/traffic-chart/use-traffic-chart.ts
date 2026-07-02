@@ -180,10 +180,15 @@ export default function useTrafficChart(
 		[ vvPrimary, vvComparison, vvHasComparison, lcPrimary, lcComparison, lcHasComparison ]
 	);
 
+	// Depend on the underlying refetch callbacks (each a stable `useReport`
+	// `useCallback`), not the fresh result objects, so this stays stable across
+	// renders.
+	const { refetch: refetchViewsVisitors } = viewsVisitors;
+	const { refetch: refetchLikesComments } = likesComments;
 	const refetch = useCallback( () => {
-		viewsVisitors.refetch();
-		likesComments.refetch();
-	}, [ viewsVisitors, likesComments ] );
+		refetchViewsVisitors();
+		refetchLikesComments();
+	}, [ refetchViewsVisitors, refetchLikesComments ] );
 
 	return {
 		metrics,
