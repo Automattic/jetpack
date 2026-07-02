@@ -5,6 +5,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import { copy } from '@wordpress/icons';
 import { Button, Card, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useState } from 'react';
+import { useVideoTracks } from '../../../client/components/caption-manager-modal/use-video-tracks';
+import {
+	getLanguageDisplayName,
+	getManualLanguageTagFromTrackKey,
+} from '../../../client/lib/video-tracks/language';
 import { usePosterUrl } from '../../hooks/use-poster-url';
 import { useUpdateVideoPoster } from '../../hooks/use-update-video-poster';
 import { selectImageFromMediaLibrary } from '../../utils/select-image-from-media-library';
@@ -16,6 +21,7 @@ import type { ReactElement } from 'react';
 type Props = {
 	video: LibraryItem;
 	onAddToNewPost: () => void;
+	onManageSubtitles: () => void;
 };
 
 const dateSettings = getDateSettings();
@@ -79,16 +85,45 @@ const canEditThumbnail = ( video: LibraryItem ): boolean =>
  * Top-of-page card on the Video details screen. Renders the thumbnail,
  * the "Add video to new post" outlined action, two read-only copy fields
  * (Link to video, Shortcode) using InputControl + IconButton suffix, and
- * two metadata rows (File name, Uploaded on).
+ * metadata rows (File name, Uploaded on, Subtitles with a Manage action).
  *
- * @param props                - Component props.
- * @param props.video          - The current video record.
- * @param props.onAddToNewPost - Click handler for the secondary action.
+ * @param props                   - Component props.
+ * @param props.video             - The current video record.
+ * @param props.onAddToNewPost    - Click handler for the secondary action.
+ * @param props.onManageSubtitles - Opens the caption manager.
  * @return The card element.
  */
-export default function ThumbnailCard( { video, onAddToNewPost }: Props ): ReactElement {
+export default function ThumbnailCard( {
+	video,
+	onAddToNewPost,
+	onManageSubtitles,
+}: Props ): ReactElement {
 	const link = linkForVideo( video );
 	const posterUrl = usePosterUrl( video );
+
+	/*
+	 * The media REST item omits `tracks`, so the languages come from the same
+	 * video-info query the caption manager uses.
+	 */
+	const { managedTracks, isLoading: isLoadingTracks } = useVideoTracks( {
+		guid: video.guid ?? '',
+		isOpen: !! video.guid,
+		isPrivate: video.isPrivate,
+		tracks: video.tracks,
+	} );
+	const subtitleLanguages = [
+		...new Set(
+			managedTracks
+				.filter( track => track.kind === 'captions' || track.kind === 'subtitles' )
+				.map(
+					track =>
+						track.label ||
+						getLanguageDisplayName(
+							getManualLanguageTagFromTrackKey( track.srcLang ) || track.srcLang
+						)
+				)
+		),
+	];
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const updatePoster = useUpdateVideoPoster();
 	const [ dialogOpen, setDialogOpen ] = useState( false );
@@ -245,6 +280,29 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 							</Text>
 							<Text>{ dateI18n( dateSettings.formats.date, video.uploadDate ) }</Text>
 						</Stack>
+
+						{ video.guid && (
+							<Stack direction="column" gap="xs">
+								<Text variant="body-sm" className="vp-video-details__meta-label">
+									{ __( 'Subtitles', 'jetpack-videopress-pkg' ) }
+								</Text>
+								<Stack direction="row" gap="sm" align="center">
+									<Text>
+										{ isLoadingTracks
+											? __( 'Loading…', 'jetpack-videopress-pkg' )
+											: subtitleLanguages.join( ', ' ) || __( 'None', 'jetpack-videopress-pkg' ) }
+									</Text>
+									<Button
+										variant="minimal"
+										size="small"
+										aria-label={ __( 'Manage subtitles', 'jetpack-videopress-pkg' ) }
+										onClick={ onManageSubtitles }
+									>
+										{ __( 'Manage', 'jetpack-videopress-pkg' ) }
+									</Button>
+								</Stack>
+							</Stack>
+						) }
 					</Stack>
 				</Stack>
 			</Card.Content>
