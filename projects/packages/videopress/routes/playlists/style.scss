@@ -1,6 +1,102 @@
-// Placeholder-only styles for the flag-gated Playlists stub; replace with
-// the real listing layout when the route grows content.
+@use "sass:meta";
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
 .vp-playlists {
-	padding: 48px 24px;
-	text-align: center;
+
+	// Flag-off deep-link fallback (see NotFound in stage.tsx).
+	&__not-found {
+		padding: 48px 24px;
+		text-align: center;
+	}
+
+	&__viewport {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		min-height: 0;
+
+		// Flex-grow the single DataViews child inside this viewport so its
+		// pagination footer lands at the bottom (same trick as the Library
+		// viewport; targets `> *` to avoid DataViews' internal class names).
+		> * {
+			flex: 1;
+			min-height: 0;
+		}
+	}
+
+	// Override wp-build's `.boot-layout-container .boot-layout img { height:
+	// auto }` reset without referencing wp-build's class names — same
+	// specificity trick as the Library thumbnail image.
+	&__viewport &__artwork &__artwork-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	&__artwork {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background: #1e1e1e;
+	}
+
+	&__artwork-placeholder {
+		position: absolute;
+		inset: 0;
+		background: #f0f0f0;
+		color: #757575;
+	}
+
+	// Hover-revealed "Set/Change artwork" action, mirroring the Library
+	// thumbnail's `&__hover-action` overlay treatment.
+	&__hover-action {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 120ms ease-out;
+		background: rgba(240, 240, 240, 0.92);
+
+		.vp-playlists__artwork:hover &,
+		.vp-playlists__artwork:focus-within & {
+			opacity: 1;
+			pointer-events: auto;
+		}
+	}
+
+	&__hover-action-button {
+		margin: 0;
+		padding: 4px 12px;
+		border: 0;
+		border-radius: 2px;
+		background: #fff;
+		color: #1e1e1e;
+		font-size: 13px;
+		font-weight: 500;
+		box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+		cursor: pointer;
+		appearance: none;
+
+		&:focus-visible {
+			outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+			outline-offset: 2px;
+		}
+	}
+
+	// Table view: lock the artwork to DataViews' 32x32 media slot and drop
+	// the hover affordance — artwork editing lives in the grid and on the
+	// playlist detail screen.
+	&__viewport--table & {
+
+		&__artwork {
+			width: 32px;
+			height: 32px;
+		}
+
+		&__hover-action {
+			display: none;
+		}
+	}
 }
