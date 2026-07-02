@@ -1,0 +1,7 @@
+{
+	"name": "jpa/shares",
+	"title": "Shares",
+	"description": "Follower counts for your connected social accounts.",
+	"category": "stats",
+	"presentation": "framed"
+}
