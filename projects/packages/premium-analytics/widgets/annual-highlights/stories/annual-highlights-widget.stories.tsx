@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
@@ -15,68 +14,11 @@ import {
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AnnualHighlightsRender from '../render';
 import widgetDefinition from '../widget';
-import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
 
 registerReportMocks();
-
-const STATS_INSIGHTS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/insights';
-
-/**
- * `registerReportMocks()` does not cover the `stats/insights` endpoint, so it
- * would fall through to the empty catch-all and the widget would render its
- * empty state. This story-scoped middleware returns a raw insights payload
- * (pre-sanitizer shape) so all three stories render populated. It is registered
- * after `registerReportMocks()`, and `apiFetch.use` prepends middleware, so this
- * one runs first and intercepts the insights path before the catch-all.
- */
-const insightsMock = {
-	highest_day_of_week: 1,
-	highest_day_percent: 22.4,
-	highest_hour: 14,
-	highest_hour_percent: 9.1,
-	hourly_views: {},
-	years: [
-		{
-			year: '2025',
-			total_posts: 96,
-			total_comments: 214,
-			avg_comments: 2.2,
-			total_likes: 4120,
-			avg_likes: 42.9,
-			total_words: 61200,
-			avg_words: 637,
-			total_images: 148,
-			avg_images: 1.5,
-		},
-		{
-			year: '2026',
-			total_posts: 128,
-			total_comments: 342,
-			avg_comments: 2.7,
-			total_likes: 5820,
-			avg_likes: 45.5,
-			total_words: 86400,
-			avg_words: 675,
-			total_images: 210,
-			avg_images: 1.6,
-		},
-	],
-};
-
-const insightsMockMiddleware: APIFetchMiddleware = ( options: APIFetchOptions, next ) => {
-	const requestPath = options.path ?? options.url ?? '';
-
-	if ( requestPath.startsWith( STATS_INSIGHTS_PATH ) ) {
-		return Promise.resolve( insightsMock );
-	}
-
-	return next( options );
-};
-
-apiFetch.use( insightsMockMiddleware );
 
 const ANNUAL_HIGHLIGHTS_RENDER_MODULE = 'storybook/annual-highlights';
 
@@ -120,7 +62,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Annual highlights" widget. Shows the most recent year\'s totals — posts, words, likes, comments, and images — as a grid of metric tiles. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by a story-scoped `apiFetch` middleware (the shared `registerReportMocks` does not cover the insights endpoint). The insights module has no comparison period, so the tiles show bare counts and the `WithComparison` story renders identically to `Default`.',
+					'The "Annual highlights" widget. Shows the most recent year\'s totals — posts, words, likes, comments, and images — as a grid of metric tiles. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts and the `WithComparison` story renders identically to `Default`.',
 			},
 		},
 	},
