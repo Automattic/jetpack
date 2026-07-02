@@ -775,12 +775,12 @@ class WPCOM_JSON_API {
 	 */
 	public static function serializable_error( $error ) {
 
-		// Always serialize a valid HTTP error status >= 400 -- never 1, a non-integer, or any sub-400 (2xx/3xx) an app could read as success.
+		// A missing or non-numeric status resolves to 0 and defaults to 400. Valid HTTP codes, including sub-400 ones, are preserved.
 		$data        = $error->get_error_data();
 		$status_code = ( is_array( $data ) && isset( $data['status_code'] ) ) ? $data['status_code'] : $data;
 		$status_code = is_numeric( $status_code ) ? (int) $status_code : 0;
 
-		if ( $status_code < 400 ) {
+		if ( ! $status_code ) {
 			$status_code = 400;
 		}
 		$response = array(
