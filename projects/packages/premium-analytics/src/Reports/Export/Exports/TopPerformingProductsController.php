@@ -65,7 +65,7 @@ class TopPerformingProductsController extends AbstractCSVReportController {
 	 * @param string|null $interval Optional time interval for dynamic headers.
 	 * @return array The column headers.
 	 */
-	public function get_column_headers( ?string $interval = null ): array {
+	public function get_column_headers( ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $interval is required by CSVReportControllerInterface; these headers are static.
 		return array(
 			'product'             => __( 'Product', 'jetpack-premium-analytics' ),
 			'gross_sales'         => __( 'Gross sales', 'jetpack-premium-analytics' ),

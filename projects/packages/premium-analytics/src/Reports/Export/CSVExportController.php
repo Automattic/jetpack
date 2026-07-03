@@ -131,10 +131,9 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 	/**
 	 * Check if user has permission to export reports.
 	 *
-	 * @param WP_REST_Request $request The request object.
 	 * @return bool True if user has permission.
 	 */
-	public function check_permission( WP_REST_Request $request ): bool {
+	public function check_permission(): bool {
 		return current_user_can( 'manage_woocommerce' ) || current_user_can( 'view_woocommerce_reports' );
 	}
 
@@ -196,12 +195,10 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 	/**
 	 * Validate report type parameter.
 	 *
-	 * @param mixed           $value   The parameter value.
-	 * @param WP_REST_Request $request The request object.
-	 * @param string          $param   The parameter name.
+	 * @param mixed $value The parameter value.
 	 * @return bool|WP_Error True if valid, WP_Error otherwise.
 	 */
-	public function validate_report_type( $value, WP_REST_Request $request, string $param ) {
+	public function validate_report_type( $value ) {
 		if ( ! is_string( $value ) || ! $this->registry->is_registered( $value ) ) {
 			return new WP_Error(
 				'invalid_report_type',
@@ -443,7 +440,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 
 		// Handle delivery method.
 		if ( 'email' === $delivery_method ) {
-			return $this->schedule_email_export( $report_type, $params, $request );
+			return $this->schedule_email_export( $report_type, $params );
 		}
 
 		return $this->generate_download_export( $report_type, $data_endpoint, $params );
@@ -507,12 +504,11 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 	/**
 	 * Schedule email export via Action Scheduler.
 	 *
-	 * @param string          $report_type The report type.
-	 * @param array           $params      Request parameters.
-	 * @param WP_REST_Request $request     The request object.
+	 * @param string $report_type The report type.
+	 * @param array  $params      Request parameters.
 	 * @return WP_REST_Response|WP_Error Response or error.
 	 */
-	private function schedule_email_export( string $report_type, array $params, WP_REST_Request $request ) {
+	private function schedule_email_export( string $report_type, array $params ) {
 		$user   = wp_get_current_user();
 		$job_id = $this->scheduler->schedule_export( $report_type, $params, $user->ID, $user->user_email );
 
