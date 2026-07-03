@@ -46,7 +46,8 @@ const mockLatestPostResponse = [
 		_embedded: {
 			'wp:featuredmedia': [
 				{
-					source_url: 'https://picsum.photos/seed/latest-post/1200/900',
+					source_url:
+						"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23334155'/%3E%3Cstop offset='1' stop-color='%2394a3b8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='600' fill='url(%23g)'/%3E%3C/svg%3E",
 					alt_text: 'Featured image',
 				},
 			],
@@ -185,6 +186,9 @@ export const WidgetDashboardWithWidget: StoryObj< LatestPostDashboardStoryProps 
 	render: args => <LatestPostDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		// Latest post is a landscape widget: content left, featured image right.
+		widgetWidth: 2,
+		widgetHeight: 2,
 		withComparison: true,
 	},
 	argTypes: {

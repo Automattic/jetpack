@@ -10,7 +10,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { Link, Text } from '@wordpress/ui';
 import { format, parseISO } from 'date-fns';
 /**
  * Internal dependencies
@@ -83,7 +83,7 @@ type MetricTileProps = {
  */
 function MetricTile( { label, value }: MetricTileProps ) {
 	return (
-		<Stack className={ styles.metric } gap="2xs">
+		<div className={ styles.metric }>
 			<Text className={ styles.metricLabel } variant="body-md">
 				{ label }
 			</Text>
@@ -92,7 +92,7 @@ function MetricTile( { label, value }: MetricTileProps ) {
 				dataFormat={ METRIC_FORMAT }
 				fontSize={ METRIC_FONT_SIZE }
 			/>
-		</Stack>
+		</div>
 	);
 }
 
@@ -115,46 +115,45 @@ export const LatestPostCard = ( {
 }: LatestPostCardProps ) => {
 	if ( isError ) {
 		return (
-			<Stack className={ styles.root }>
+			<div className={ styles.root }>
 				<Text className={ styles.placeholder }>
 					{ __( 'Unable to load your latest post.', 'jetpack-premium-analytics' ) }
 				</Text>
-			</Stack>
+			</div>
 		);
 	}
 
 	if ( isLoading && ! post ) {
 		return (
-			<Stack className={ styles.root }>
+			<div className={ styles.root }>
 				<WidgetLoadingOverlay />
-			</Stack>
+			</div>
 		);
 	}
 
 	if ( ! post ) {
 		return (
-			<Stack className={ styles.root }>
+			<div className={ styles.root }>
 				<Text className={ styles.placeholder }>
 					{ __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics' ) }
 				</Text>
-			</Stack>
+			</div>
 		);
 	}
 
 	const publishDate = formatPublishDate( post.date );
 
 	return (
-		<Stack className={ styles.root } direction="row">
-			<Stack className={ styles.content } gap="lg">
-				<Stack gap="2xs">
+		<div className={ styles.root }>
+			<div className={ styles.content }>
+				<div className={ styles.header }>
 					<Link
-						className={ styles.title }
+						className={ styles.titleLink }
 						href={ post.url }
 						variant="unstyled"
-						openInNewTab
 						title={ post.title }
 					>
-						<Text variant="heading-2xl" render={ <h3 /> }>
+						<Text className={ styles.title } variant="heading-2xl" render={ <h3 /> }>
 							{ post.title }
 						</Text>
 					</Link>
@@ -163,8 +162,8 @@ export const LatestPostCard = ( {
 							{ publishDate }
 						</Text>
 					) }
-				</Stack>
-				<Stack className={ styles.metrics } direction="row" gap="xl">
+				</div>
+				<div className={ styles.metrics }>
 					<MetricTile label={ __( 'Views', 'jetpack-premium-analytics' ) } value={ post.views } />
 					<MetricTile
 						label={ __( 'Likes', 'jetpack-premium-analytics' ) }
@@ -174,14 +173,14 @@ export const LatestPostCard = ( {
 						label={ __( 'Comments', 'jetpack-premium-analytics' ) }
 						value={ post.commentCount }
 					/>
-				</Stack>
-			</Stack>
+				</div>
+			</div>
 			{ post.imageUrl && (
 				<div className={ styles.media }>
 					<img className={ styles.image } src={ post.imageUrl } alt={ post.imageAlt } />
 				</div>
 			) }
-		</Stack>
+		</div>
 	);
 };
 
