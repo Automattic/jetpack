@@ -19,7 +19,7 @@ import widgetDefinition from '../widget';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -121,7 +121,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< PostingActivityStoryControls >;
+} satisfies Meta< ComponentProps< typeof PostingActivityRender > & PostingActivityStoryControls >;
 
 export default meta;
 

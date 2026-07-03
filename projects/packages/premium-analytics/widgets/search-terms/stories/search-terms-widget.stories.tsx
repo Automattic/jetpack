@@ -63,7 +63,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< SearchTermsStoryControls >;
+} satisfies Meta< ComponentProps< typeof SearchTermsRender > & SearchTermsStoryControls >;
 
 export default meta;
 

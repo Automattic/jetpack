@@ -87,7 +87,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< TopPlatformsStoryControls >;
+} satisfies Meta< ComponentProps< typeof TopPlatformsRender > & TopPlatformsStoryControls >;
 
 export default meta;
 
