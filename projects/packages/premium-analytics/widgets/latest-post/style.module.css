@@ -1,5 +1,4 @@
 .root {
-	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg, 16px);
@@ -94,7 +93,7 @@
 /* Narrow tiles (single-column grid cells): stack the image as a top banner and
  * scale the headline, metrics, and spacing down so the content fits without
  * overflowing a small tile. */
-@container (max-width: 599px) {
+@container widget (max-width: 599px) {
 
 	.root {
 		gap: var(--wpds-dimension-gap-md, 12px);
@@ -123,7 +122,7 @@
 }
 
 /* Wide tiles: content left, image bleeds to the right and bottom card edges. */
-@container (min-width: 600px) {
+@container widget (min-width: 600px) {
 
 	.root {
 		flex-direction: row;
