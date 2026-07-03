@@ -95,8 +95,83 @@ function applyGlyphToLegendItem(
 	return baseItem;
 }
 
+type SeriesGroupMember = { series: SeriesData; index: number };
+
 /**
- * Processes SeriesData into legend items
+ * Buckets series by their `group`, preserving first-appearance order. Series with no group — or a
+ * group value unique to them — end up in a bucket of their own. Whether a multi-series bucket then
+ * collapses to a single legend item is decided by the caller (only the comparison pattern does).
+ * @param seriesData - The series data to group
+ * @return Ordered groups, each holding its member series with their original indices
+ */
+function groupSeriesForLegend( seriesData: SeriesData[] ): SeriesGroupMember[][] {
+	const groups: SeriesGroupMember[][] = [];
+	const groupIndexByKey = new Map< string, number >();
+
+	seriesData.forEach( ( series, index ) => {
+		const member: SeriesGroupMember = { series, index };
+		const key = series.group;
+
+		if ( key === undefined ) {
+			groups.push( [ member ] );
+			return;
+		}
+
+		const existing = groupIndexByKey.get( key );
+		if ( existing === undefined ) {
+			groupIndexByKey.set( key, groups.length );
+			groups.push( [ member ] );
+		} else {
+			groups[ existing ].push( member );
+		}
+	} );
+
+	return groups;
+}
+
+/**
+ * Builds a single legend item from a representative series, tagging it with the series it controls
+ * @param member           - The series (with its original index) that provides the label/colour
+ * @param seriesLabels     - Every series label this item toggles (grouped) or just its own
+ * @param getElementStyles - Function to get element styles
+ * @param showValues       - Whether to show values in legend
+ * @param withGlyph        - Whether to include glyph rendering
+ * @param glyphSize        - Size of the glyph
+ * @param renderGlyph      - Component to render the glyph
+ * @param legendShape      - The shape type for legend items (string literal or React component)
+ * @return The processed legend item
+ */
+function buildSeriesLegendItem(
+	member: SeriesGroupMember,
+	seriesLabels: string[],
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
+	showValues: boolean,
+	withGlyph: boolean,
+	glyphSize: number,
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode,
+	legendShape?: LegendShape< SeriesData[], number >
+): BaseLegendItem {
+	const { color, glyph, shapeStyles } = getElementStyles( {
+		data: member.series,
+		index: member.index,
+		legendShape,
+	} );
+
+	const baseItem: BaseLegendItem = {
+		label: member.series.label,
+		value: showValues ? member.series.data?.length?.toString() || '0' : '',
+		color,
+		shapeStyle: shapeStyles,
+		seriesLabels,
+	};
+
+	return applyGlyphToLegendItem( baseItem, withGlyph, glyph, renderGlyph, glyphSize );
+}
+
+/**
+ * Processes SeriesData into legend items. A group collapses to a single item only when it holds a
+ * `type: 'comparison'` overlay (the primary + previous-period pattern); every other series — grouped
+ * or not — keeps its own legend entry.
  * @param seriesData       - The series data to process
  * @param getElementStyles - Function to get element styles
  * @param showValues       - Whether to show values in legend
@@ -115,24 +190,37 @@ function processSeriesData(
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode,
 	legendShape?: LegendShape< SeriesData[], number >
 ): BaseLegendItem[] {
-	const mapper = ( series: SeriesData, index: number ) => {
-		const { color, glyph, shapeStyles } = getElementStyles( {
-			data: series,
-			index,
-			legendShape,
-		} );
+	const buildItem = ( member: SeriesGroupMember, seriesLabels: string[] ) =>
+		buildSeriesLegendItem(
+			member,
+			seriesLabels,
+			getElementStyles,
+			showValues,
+			withGlyph,
+			glyphSize,
+			renderGlyph,
+			legendShape
+		);
 
-		const baseItem: BaseLegendItem = {
-			label: series.label,
-			value: showValues ? series.data?.length?.toString() || '0' : '',
-			color,
-			shapeStyle: shapeStyles,
-		};
+	return groupSeriesForLegend( seriesData ).flatMap( members => {
+		const hasComparison = members.some( ( { series } ) => series.options?.type === 'comparison' );
 
-		return applyGlyphToLegendItem( baseItem, withGlyph, glyph, renderGlyph, glyphSize );
-	};
+		// Only the comparison pattern (a primary paired with its overlay) collapses to one item.
+		if ( members.length > 1 && hasComparison ) {
+			const primary =
+				members.find( ( { series } ) => series.options?.type !== 'comparison' ) ?? members[ 0 ];
 
-	return seriesData.map( mapper );
+			// Primary first so the interactive visibility check reads the series that owns the swatch.
+			const seriesLabels = [
+				primary.series.label,
+				...members.filter( member => member !== primary ).map( ( { series } ) => series.label ),
+			];
+
+			return [ buildItem( primary, seriesLabels ) ];
+		}
+
+		return members.map( member => buildItem( member, [ member.series.label ] ) );
+	} );
 }
 
 /**

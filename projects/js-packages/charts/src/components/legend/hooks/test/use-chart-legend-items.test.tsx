@@ -265,4 +265,89 @@ describe( 'useChartLegendItems', () => {
 			expect( result.current[ 0 ].color ).toBeDefined();
 		} );
 	} );
+
+	describe( 'Group deduplication (SeriesData)', () => {
+		const groupedComparisonData: SeriesData[] = [
+			{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [ { label: 'Mon', value: 90 } ],
+			},
+			{ label: 'Visitors', group: 'visitors', data: [ { label: 'Mon', value: 50 } ] },
+			{
+				label: 'Visitors — previous',
+				group: 'visitors',
+				options: { type: 'comparison' as const },
+				data: [ { label: 'Mon', value: 45 } ],
+			},
+		];
+
+		test( 'collapses series that share a group into one item per group', () => {
+			const { result } = renderHook( () => useChartLegendItems( groupedComparisonData ), {
+				wrapper,
+			} );
+
+			expect( result.current ).toHaveLength( 2 );
+		} );
+
+		test( 'uses the primary (non-comparison) series label for the grouped item', () => {
+			const { result } = renderHook( () => useChartLegendItems( groupedComparisonData ), {
+				wrapper,
+			} );
+
+			expect( result.current[ 0 ].label ).toBe( 'Views' );
+			expect( result.current[ 1 ].label ).toBe( 'Visitors' );
+		} );
+
+		test( 'exposes all member series labels via seriesLabels, primary first', () => {
+			const { result } = renderHook( () => useChartLegendItems( groupedComparisonData ), {
+				wrapper,
+			} );
+
+			expect( result.current[ 0 ].seriesLabels ).toEqual( [ 'Views', 'Views — previous' ] );
+			expect( result.current[ 1 ].seriesLabels ).toEqual( [ 'Visitors', 'Visitors — previous' ] );
+		} );
+
+		test( 'does not collapse series with distinct group values', () => {
+			const distinctGroups: SeriesData[] = [
+				{ label: 'A', group: 'a', data: [ { label: 'x', value: 1 } ] },
+				{ label: 'B', group: 'b', data: [ { label: 'x', value: 2 } ] },
+			];
+
+			const { result } = renderHook( () => useChartLegendItems( distinctGroups ), { wrapper } );
+
+			expect( result.current ).toHaveLength( 2 );
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'A', 'B' ] );
+		} );
+
+		test( 'does not collapse a shared group without a comparison series', () => {
+			const sharedGroupNoComparison: SeriesData[] = [
+				{ label: 'A', group: 'metrics', data: [ { label: 'x', value: 1 } ] },
+				{ label: 'B', group: 'metrics', data: [ { label: 'x', value: 2 } ] },
+			];
+
+			const { result } = renderHook( () => useChartLegendItems( sharedGroupNoComparison ), {
+				wrapper,
+			} );
+
+			expect( result.current ).toHaveLength( 2 );
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'A', 'B' ] );
+			expect( result.current[ 0 ].seriesLabels ).toEqual( [ 'A' ] );
+		} );
+
+		test( 'leaves ungrouped series as individual items with their own seriesLabels', () => {
+			const ungrouped: SeriesData[] = [
+				{ label: 'One', data: [ { label: 'x', value: 1 } ] },
+				{ label: 'Two', data: [ { label: 'x', value: 2 } ] },
+			];
+
+			const { result } = renderHook( () => useChartLegendItems( ungrouped ), { wrapper } );
+
+			expect( result.current ).toHaveLength( 2 );
+			expect( result.current[ 0 ].seriesLabels ).toEqual( [ 'One' ] );
+			expect( result.current[ 1 ].seriesLabels ).toEqual( [ 'Two' ] );
+		} );
+	} );
 } );

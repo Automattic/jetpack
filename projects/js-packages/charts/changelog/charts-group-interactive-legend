@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Charts: render one legend item per comparison group and, when the legend is interactive, toggle every series in that group from a single click.

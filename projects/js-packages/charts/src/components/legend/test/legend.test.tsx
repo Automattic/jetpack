@@ -3,7 +3,12 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useMemo } from 'react';
 import { SingleChartContext } from '../../../charts/private/single-chart-context';
-import { GlobalChartsProvider, useChartId, useChartRegistration } from '../../../providers';
+import {
+	GlobalChartsProvider,
+	useChartId,
+	useChartRegistration,
+	useGlobalChartsContext,
+} from '../../../providers';
 import { Legend } from '../legend';
 import { BaseLegend } from '../private/base-legend';
 import type { ChartType } from '../../../types';
@@ -631,6 +636,53 @@ describe( 'BaseLegend', () => {
 
 			// Should still be visible (pressed)
 			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'toggles every series in a group when a grouped item is clicked', async () => {
+			const user = userEvent.setup();
+
+			const groupedItems = [
+				{ label: 'Views', color: '#0000ff', seriesLabels: [ 'Views', 'Views — previous' ] },
+				{
+					label: 'Visitors',
+					color: '#00ff00',
+					seriesLabels: [ 'Visitors', 'Visitors — previous' ],
+				},
+			];
+
+			const VisibilityProbe = () => {
+				const { isSeriesVisible } = useGlobalChartsContext();
+				return (
+					<div>
+						<span data-testid="views">{ String( isSeriesVisible( 'test-chart', 'Views' ) ) }</span>
+						<span data-testid="views-prev">
+							{ String( isSeriesVisible( 'test-chart', 'Views — previous' ) ) }
+						</span>
+						<span data-testid="visitors">
+							{ String( isSeriesVisible( 'test-chart', 'Visitors' ) ) }
+						</span>
+					</div>
+				);
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ groupedItems } interactive={ true } chartId="test-chart" />
+					<VisibilityProbe />
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getByTestId( 'views' ) ).toHaveTextContent( 'true' );
+			expect( screen.getByTestId( 'views-prev' ) ).toHaveTextContent( 'true' );
+
+			const buttons = screen.getAllByRole( 'button' );
+			await user.click( buttons[ 0 ] );
+
+			// One click hides both series in the Views group, leaving Visitors untouched.
+			expect( screen.getByTestId( 'views' ) ).toHaveTextContent( 'false' );
+			expect( screen.getByTestId( 'views-prev' ) ).toHaveTextContent( 'false' );
+			expect( screen.getByTestId( 'visitors' ) ).toHaveTextContent( 'true' );
+			expect( buttons[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
 		} );
 	} );
 } );
