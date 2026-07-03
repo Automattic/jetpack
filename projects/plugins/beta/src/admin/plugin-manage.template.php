@@ -67,14 +67,10 @@ if ( $plugin->is_active( 'stable' ) ) {
 }
 
 ?>
+<div class="jetpack-beta-app">
 <?php require __DIR__ . '/header.template.php'; ?>
+<div class="jetpack-beta-scroll">
 <div class="jetpack-beta-container" >
-	<div id="jetpack-beta-tester__breadcrumb">
-		<a href="<?php echo esc_url( Utils::admin_url() ); ?>">
-			<?php esc_html_e( 'Jetpack Beta Tester Home', 'jetpack-beta' ); ?>
-		</a>
-		<span>&nbsp;&gt; <?php echo esc_html( $plugin->get_name() ); ?></span>
-	</div>
 	<?php
 	if ( ! Utils::has_been_used() ) {
 		require __DIR__ . '/notice.template.php';
@@ -98,33 +94,27 @@ if ( $plugin->is_active( 'stable' ) ) {
 	<?php } ?>
 
 	<?php if ( null !== $version ) { ?>
-	<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
-		<div class="dops-foldable-card__header has-border">
-			<span class="dops-foldable-card__main">
-				<span class="dops-foldable-card__header-text">
-					<?php echo esc_html( $plugin->get_name() ); ?> - Currently Running
-				</span>
-			</span>
-		</div>
-		<div class="dops-foldable-card__content">
-			<p data-jpbeta-version-for="<?php echo esc_attr( $verslug ); ?>"><?php echo wp_kses_post( $version ); ?></p>
-		</div>
-	</div>
 	<div class="dops-foldable-card has-expanded-summary dops-card">
 		<div class="dops-foldable-card__header has-border">
 			<span class="dops-foldable-card__main">
 				<div class="dops-foldable-card__header-text">
-					<div class="dops-foldable-card__header-text"><?php esc_html_e( 'Found a bug?', 'jetpack-beta' ); ?></div>
+					<div class="dops-foldable-card__header-text branch-card-header">
+						<?php
+						/* translators: %s: Plugin name. */
+						printf( esc_html__( '%s — Currently Running', 'jetpack-beta' ), esc_html( $plugin->get_name() ) );
+						?>
+					</div>
+					<div class="dops-foldable-card__subheader" data-jpbeta-version-for="<?php echo esc_attr( $verslug ); ?>"><?php echo wp_kses_post( $version ); ?></div>
 				</div>
 			</span>
 			<span class="dops-foldable-card__secondary" >
 				<span class="dops-foldable-card__summary">
 					<a type="button" href="<?php echo esc_url( $plugin->bug_report_url() ); ?>"
-						class="is-primary jp-form-button dops-button is-primary is-compact jptracks"
+						class="jetpack-beta-button--accent jp-form-button dops-button is-compact jptracks"
 						data-jptracks-name="jetpack_beta_submit_report"
 						data-jptracks-prop="<?php echo esc_attr( $plugin->plugin_slug() . ' ' . $active_branch->version ); ?>"
 					>
-						<?php esc_html_e( 'Report it!', 'jetpack-beta' ); ?>
+						<?php esc_html_e( 'Found a bug? Report it!', 'jetpack-beta' ); ?>
 					</a>
 				</span>
 			</span>
@@ -132,6 +122,7 @@ if ( $plugin->is_active( 'stable' ) ) {
 	</div>
 	<?php } ?>
 	<div class="jetpack-beta__wrap">
+		<div class="jetpack-beta-card jetpack-beta-list jetpack-beta-branch-group">
 		<?php
 		if ( $existing_branch && 'unknown' === $existing_branch->source ) {
 			$branch                 = clone $existing_branch;
@@ -177,6 +168,7 @@ if ( $plugin->is_active( 'stable' ) ) {
 			require __DIR__ . '/branch-card.template.php';
 		}
 		?>
+		</div>
 
 		<?php if ( empty( $manifest->pr ) || ! (array) $manifest->pr ) { ?>
 		<div id="section-pr">
@@ -189,6 +181,7 @@ if ( $plugin->is_active( 'stable' ) ) {
 			?>
 		</div>
 		<?php } else { ?>
+		<div class="jetpack-beta-section-label"><?php esc_html_e( 'Feature branches', 'jetpack-beta' ); ?></div>
 		<div class="dops-navigation">
 			<div class="dops-section-nav has-pinned-items">
 				<div class="dops-section-nav__panel">
@@ -202,7 +195,7 @@ if ( $plugin->is_active( 'stable' ) ) {
 							</svg>
 						</div>
 						<input aria-hidden="false" class="dops-search__input" id="search-component-prs"
-							placeholder="<?php esc_attr_e( 'Search for a Feature Branch', 'jetpack-beta' ); ?>" role="search" type="search" value="">
+							placeholder="<?php esc_attr_e( 'Search by name or PR number', 'jetpack-beta' ); ?>" role="search" type="search" value="">
 						<span aria-controls="search-component" id="search-component-prs-close" aria-label="<?php esc_attr_e( 'Close Search', 'jetpack-beta' ); ?>" tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
 								viewbox="0 0 24 24" width="24">
@@ -249,6 +242,7 @@ if ( $plugin->is_active( 'stable' ) ) {
 			?>
 		</div>
 		<?php } else { ?>
+		<div class="jetpack-beta-section-label"><?php esc_html_e( 'Released versions', 'jetpack-beta' ); ?></div>
 		<div class="dops-navigation">
 			<div class="dops-section-nav has-pinned-items">
 				<div class="dops-section-nav__panel">
@@ -329,4 +323,7 @@ if ( $plugin->is_active( 'stable' ) ) {
 			</div>
 		</div>
 	<?php } ?>
+</div>
+</div>
+<?php require __DIR__ . '/footer.template.php'; ?>
 </div>
