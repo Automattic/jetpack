@@ -9,7 +9,7 @@
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/write/email-verification.php';
 
 /**
- * Exercises wpcom_write_launch_blocked_for_unverified_email().
+ * Exercises the launch gate and its admin-ajax resend / re-check endpoints.
  */
 class Write_Email_Verification_Test extends \WorDBless\BaseTestCase {
 	/**
@@ -25,6 +25,7 @@ class Write_Email_Verification_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		delete_option( 'site_creation_flow' );
+		unset( $_REQUEST['nonce'], $_POST['nonce'] );
 		\Brain\Monkey\tearDown();
 		parent::tear_down();
 	}
@@ -58,5 +59,94 @@ class Write_Email_Verification_Test extends \WorDBless\BaseTestCase {
 		\Mockery::mock( 'alias:Email_Verification' )->shouldReceive( 'is_email_unverified' )->andReturn( true );
 
 		$this->assertFalse( wpcom_write_launch_blocked_for_unverified_email() );
+	}
+
+	/**
+	 * The resend endpoint asks Email_Verification to resend and reports success.
+	 */
+	public function test_resend_endpoint_resends_and_reports_success() {
+		$this->set_valid_nonce();
+		\Mockery::mock( 'alias:Email_Verification' )
+			->shouldReceive( 'resend_verification_email' )
+			->once();
+
+		$response = $this->capture_ajax_json( 'wpcom_write_ajax_resend_verification_email' );
+
+		$this->assertTrue( $response['success'] );
+	}
+
+	/**
+	 * The re-check endpoint reports verified=true once the email is confirmed.
+	 */
+	public function test_check_endpoint_reports_verified_when_confirmed() {
+		$this->set_valid_nonce();
+		\Mockery::mock( 'alias:Email_Verification' )
+			->shouldReceive( 'is_email_unverified' )
+			->andReturn( false );
+
+		$response = $this->capture_ajax_json( 'wpcom_write_ajax_check_email_verification' );
+
+		$this->assertTrue( $response['success'] );
+		$this->assertTrue( $response['data']['verified'] );
+	}
+
+	/**
+	 * The re-check endpoint reports verified=false while the email is unverified,
+	 * so a still-unverified author can't slip past to the launch flow.
+	 */
+	public function test_check_endpoint_reports_unverified_when_still_pending() {
+		$this->set_valid_nonce();
+		\Mockery::mock( 'alias:Email_Verification' )
+			->shouldReceive( 'is_email_unverified' )
+			->andReturn( true );
+
+		$response = $this->capture_ajax_json( 'wpcom_write_ajax_check_email_verification' );
+
+		$this->assertTrue( $response['success'] );
+		$this->assertFalse( $response['data']['verified'] );
+	}
+
+	/**
+	 * Prime a valid nonce for the shared verification action.
+	 */
+	private function set_valid_nonce() {
+		$nonce             = wp_create_nonce( WPCOM_WRITE_EMAIL_VERIFICATION_NONCE );
+		$_REQUEST['nonce'] = $nonce;
+		$_POST['nonce']    = $nonce;
+	}
+
+	/**
+	 * Invoke an ajax handler and return its JSON envelope as an array.
+	 *
+	 * WordPress's wp_send_json_* echoes the response then calls wp_die(); force the
+	 * ajax path and throw from the die handler so we can capture the buffered JSON
+	 * without ending the test process.
+	 *
+	 * @param callable $handler Ajax handler to invoke.
+	 * @return array<string, mixed> Decoded response.
+	 */
+	private function capture_ajax_json( $handler ) {
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_filter(
+			'wp_die_ajax_handler',
+			function () {
+				return function () {
+					throw new \Exception( 'wp_die' );
+				};
+			}
+		);
+
+		ob_start();
+		try {
+			$handler();
+		} catch ( \Exception $e ) {
+			unset( $e ); // wp_die() from wp_send_json_*; expected.
+		}
+		$output = ob_get_clean();
+
+		remove_all_filters( 'wp_doing_ajax' );
+		remove_all_filters( 'wp_die_ajax_handler' );
+
+		return json_decode( $output, true );
 	}
 }
