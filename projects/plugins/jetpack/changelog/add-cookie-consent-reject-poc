@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add a gated proof-of-concept consumer of the jetpack-cookie-consent package (EDI-425), behind the JETPACK_COOKIE_CONSENT_POC flag, which renders the Accept/Reject/Customize consent banner and suppresses the legacy cookie-consent block while enabled. Off by default.

@@ -95,4 +95,8 @@ add_filter( 'is_jetpack_site', '__return_true' );
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';
 
+// POC (EDI-425): gated consumer of the jetpack-cookie-consent package. Default OFF.
+require_once JETPACK__PLUGIN_DIR . 'cookie-consent-poc.php';
+jetpack_cookie_consent_poc_init();
+
 Jetpack::init();

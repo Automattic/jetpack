@@ -179,6 +179,15 @@ function cookie_consent_register_settings() {
 add_action( 'rest_api_init', __NAMESPACE__ . '\cookie_consent_register_settings' );
 
 /**
+ * POC (EDI-425): when the cookie-consent reject-button POC is enabled, suppress
+ * this legacy `eucookielaw` block so the site doesn't render two banners. Gated
+ * by the same helper that boots the package (see cookie-consent-poc.php).
+ */
+if ( function_exists( 'jetpack_cookie_consent_poc_enabled' ) && jetpack_cookie_consent_poc_enabled() ) {
+	add_filter( 'jetpack_disable_cookie_consent_block', '__return_true' );
+}
+
+/**
  * Add a fallback color to block styles.
  *
  * @since 15.1
