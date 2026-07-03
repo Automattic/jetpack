@@ -13,7 +13,7 @@ export const route = {
 		const connectionStatus = getScriptData()?.connection?.connectionStatus;
 
 		if ( connectionStatus?.isRegistered ) {
-			throw redirect( { to: '/', viewTransition: false } );
+			throw redirect( { to: '/' } );
 		}
 	},
 };
