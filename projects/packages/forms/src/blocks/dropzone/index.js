@@ -42,6 +42,9 @@ const settings = {
 	supports: {
 		reusable: false,
 		html: false,
+		// FORMS-694: the dropzone is the file field's input — inert for visibility
+		// (output discarded by the field renderer); disable the control.
+		visibility: false,
 		// Mimic the layout settings of the core Group block.
 		layout: {
 			type: 'flex',

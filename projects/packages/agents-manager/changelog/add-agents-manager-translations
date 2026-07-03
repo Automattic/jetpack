@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Load translation files for the Agents Manager UI so it can be displayed in the user's language.

@@ -125,12 +125,12 @@ describe( 'reportParamsToStatsQueryParams', () => {
 			to: '2026-06-01',
 			geoMode: 'city',
 			utmParams: 'utm_source,utm_campaign',
-			deviceParam: 'browser',
+			deviceProperty: 'browser',
 		} );
 
 		expect( params ).not.toHaveProperty( 'geoMode' );
 		expect( params ).not.toHaveProperty( 'utmParams' );
-		expect( params ).not.toHaveProperty( 'deviceParam' );
+		expect( params ).not.toHaveProperty( 'deviceProperty' );
 	} );
 
 	it( 'does not forward unknown params to Stats endpoints', () => {

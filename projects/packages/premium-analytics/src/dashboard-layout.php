@@ -209,6 +209,30 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 		);
 	}
 
+	if ( ! in_array( 'default-devices-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'      => 'default-devices-widget-instance',
+			'type'      => 'jpa/devices',
+			'placement' => array(
+				'width'  => 1,
+				'height' => 2,
+				'order'  => 2,
+			),
+		);
+	}
+
+	if ( ! in_array( 'default-top-platforms-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'      => 'default-top-platforms-widget-instance',
+			'type'      => 'jpa/top-platforms',
+			'placement' => array(
+				'width'  => 2,
+				'height' => 2,
+				'order'  => 3,
+			),
+		);
+	}
+
 	if ( ! in_array( 'default-search-terms-widget-instance', $uuids, true ) ) {
 		$dashboard_layout[] = array(
 			'uuid'       => 'default-search-terms-widget-instance',
