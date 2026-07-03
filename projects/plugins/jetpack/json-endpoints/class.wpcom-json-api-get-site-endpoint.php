@@ -101,6 +101,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'garden_is_provisioned'       => '(bool) If the Garden site is provisioned.',
 		'is_wpcom_flex'               => '(bool) If the site is a Flex site',
 		'big_sky_enabled'             => '(bool) Whether the Big Sky AI assistant is enabled for this site.',
+		'hosting_provider_guess'      => '(string) Guess of the hosting provider. WordPress.com-only; only returned when explicitly requested via the fields parameter.',
+		'environment_type'            => '(string) The WP_ENVIRONMENT_TYPE of the site as synced by Jetpack. WordPress.com-only; only returned when explicitly requested via the fields parameter.',
 	);
 
 	/**
@@ -673,6 +675,22 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'big_sky_enabled':
 				$response[ $key ] = $this->site->is_big_sky_enabled();
 				break;
+			case 'hosting_provider_guess':
+				// WordPress.com-only decoration, computed only when explicitly requested
+				// via `fields` so default `_all` responses are unchanged.
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM
+					&& function_exists( 'get_jetpack_hosting_provider' )
+					&& is_array( $this->fields_to_include ) ) {
+					$response[ $key ] = get_jetpack_hosting_provider( get_current_blog_id() );
+				}
+				break;
+			case 'environment_type':
+				// WordPress.com-only decoration, computed only when explicitly requested
+				// via `fields` so default `_all` responses are unchanged.
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM && is_array( $this->fields_to_include ) ) {
+					$response[ $key ] = get_blog_option( get_current_blog_id(), 'jetpack_callable_wp_get_environment_type', null );
+				}
+				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
@@ -1081,6 +1099,22 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 			foreach ( $wpcom_options_response as $key => $value ) {
 				$response->options[ $key ] = $value;
+			}
+		}
+
+		// WordPress.com-only decorations for Jetpack sites. Not part of the proxied
+		// site response, so they are only added when explicitly requested via the
+		// `fields` parameter, mirroring /me/sites. Lets WordPress Studio classify
+		// connected sites (e.g. Pressable) fetched one at a time as a pagination
+		// fallback. See Linear STU-1944 / STU-1977.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$query_args       = $this->query_args();
+			$requested_fields = empty( $query_args['fields'] ) ? array() : array_map( 'trim', explode( ',', $query_args['fields'] ) );
+			if ( function_exists( 'get_jetpack_hosting_provider' ) && in_array( 'hosting_provider_guess', $requested_fields, true ) ) {
+				$response->hosting_provider_guess = get_jetpack_hosting_provider( get_current_blog_id() );
+			}
+			if ( in_array( 'environment_type', $requested_fields, true ) ) {
+				$response->environment_type = get_blog_option( get_current_blog_id(), 'jetpack_callable_wp_get_environment_type', null );
 			}
 		}
 
