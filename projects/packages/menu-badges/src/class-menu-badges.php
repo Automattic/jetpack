@@ -25,6 +25,28 @@ class Menu_Badges {
 			return;
 		}
 		$done = true;
-		// Renderer + client wiring added in later tasks.
+
+		// Render badges late, after products have registered their menus and counts.
+		add_action( 'admin_menu', array( Menu_Renderer::class, 'render' ), 100000 );
+
+		// Client live-update API.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_client' ) );
+	}
+
+	/**
+	 * Enqueue the vanilla client that owns live badge updates.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_client() {
+		\Automattic\Jetpack\Assets::register_script(
+			'jetpack-menu-badges',
+			'../src/js/menu-badges.js',
+			__FILE__,
+			array(
+				'enqueue'   => true,
+				'in_footer' => true,
+			)
+		);
 	}
 }
