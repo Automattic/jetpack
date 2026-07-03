@@ -43,6 +43,7 @@
 	overflow: hidden;
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 3;
+	line-clamp: 3;
 }
 
 .date {
@@ -111,7 +112,9 @@
 
 	.header .title {
 		font-size: var(--wpds-typography-font-size-xl, 20px);
+		line-height: var(--wpds-typography-line-height-md, 24px);
 		-webkit-line-clamp: 2;
+		line-clamp: 2;
 	}
 
 	.metrics {
