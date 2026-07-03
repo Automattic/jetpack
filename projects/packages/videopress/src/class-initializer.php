@@ -116,6 +116,17 @@ class Initializer {
 			} elseif ( WPCOM_REST_API_V2_Endpoint_VideoPress_Edits::should_register() ) {
 				new WPCOM_REST_API_V2_Endpoint_VideoPress_Edits();
 			}
+
+			/*
+			 * Studio YouTube import endpoints (jetpack/v4/videopress/import/*):
+			 * gated on the same Studio flag as the routes above, and currently
+			 * served from bundled fixtures while the `videopress_import_mock_mode`
+			 * filter (default true) is on. The class re-checks the flag inside
+			 * its own should_register() at REST time.
+			 */
+			if ( Import_Rest_Controller::should_register() ) {
+				new Import_Rest_Controller();
+			}
 		};
 		add_action( 'rest_api_init', $register_rest_api_v2_endpoints, 0 );
 		add_action( 'restapi_theme_init', $register_rest_api_v2_endpoints, 0 );

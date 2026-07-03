@@ -51,7 +51,7 @@ class Admin_UI {
 	 * entries with these paths are stripped from the registry when the Studio
 	 * filter is off, so the routes never register.
 	 */
-	const STUDIO_ROUTE_PATHS = array( '/playlists', '/playlists/$id', '/video/$id/analytics', '/video/$id/editor' );
+	const STUDIO_ROUTE_PATHS = array( '/playlists', '/playlists/$id', '/video/$id/analytics', '/video/$id/editor', '/import' );
 
 	/**
 	 * Initializes the Admin UI of VideoPress
