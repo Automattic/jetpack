@@ -1,7 +1,7 @@
 import { Stack } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useChartLegendItems } from '../../../components/legend';
-import { GlobalChartsProvider, useGlobalChartsContext } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -449,54 +449,10 @@ export const ComparisonGroups: Story = {
 	},
 };
 
-export const LabelOverflowEllipsis: StoryObj< typeof BarChart > = {
-	render: () => (
-		<div style={ { display: 'grid', gap: '40px' } }>
-			<div>
-				<h3>Without labelOverflow (Default - Labels Overlap)</h3>
-				<p style={ { marginBottom: '20px', color: '#666' } }>
-					Default behavior: long labels overlap and become unreadable at narrow widths.
-				</p>
-				<div style={ { width: '350px', height: '250px', border: '1px solid #e0e0e0' } }>
-					<BarChart data={ longLabelData } withTooltips={ true } gridVisibility="x" />
-				</div>
-			</div>
-			<div>
-				<h3>With labelOverflow: &apos;ellipsis&apos; (Labels Truncated)</h3>
-				<p style={ { marginBottom: '20px', color: '#666' } }>
-					With <code>labelOverflow: &apos;ellipsis&apos;</code>, labels are truncated to fit the
-					available bandwidth. <strong>Hover over a label to see the full text.</strong>
-				</p>
-				<div style={ { width: '350px', height: '250px', border: '1px solid #e0e0e0' } }>
-					<BarChart
-						data={ longLabelData }
-						withTooltips={ true }
-						gridVisibility="x"
-						options={ {
-							axis: {
-								x: {
-									labelOverflow: 'ellipsis',
-								},
-							},
-						} }
-					/>
-				</div>
-			</div>
-		</div>
-	),
-	parameters: {
-		docs: {
-			description: {
-				story:
-					"Demonstrates the `labelOverflow: 'ellipsis'` option that truncates long axis labels to fit the available bandwidth. The full label text is shown on hover via a native tooltip. This is useful for narrow widget contexts where space is limited.",
-			},
-		},
-	},
-};
-
 // A 2-item interactive legend over a 4-series comparison chart. The built-in legend renders one
-// item per series; here it is disabled and replaced by a custom legend that shows one item per
-// metric and toggles each metric's current + previous-period series together.
+// item per series; here a custom legend is supplied through the composition API (a
+// <BarChart.Legend> child with a `render` prop), showing one item per metric and toggling each
+// metric's current + previous-period series together.
 const INTERACTIVE_COMPARISON_CHART_ID = 'views-visitors-comparison';
 
 // One legend entry per metric; each entry controls its current + previous series together.
@@ -574,32 +530,77 @@ const ComparisonLegend = () => {
 	);
 };
 
+// Passed to <BarChart.Legend>'s `render` prop; a module-level reference keeps the arrow out of the
+// JSX so it doesn't trip jsx-no-bind.
+const renderComparisonLegend = () => <ComparisonLegend />;
+
 export const ComparisonGroupsInteractiveLegend: Story = {
-	// The chart and the custom legend must share one GlobalChartsProvider so the legend's
-	// toggleSeriesVisibility calls reach the chart's visibility state. Storybook's decorator
-	// already provides one, but wrapping it explicitly here keeps the pattern copy-pasteable
-	// into a widget that has no such ambient provider.
+	// The custom legend is supplied through the composition API as a <BarChart.Legend> child, so it
+	// renders inside the chart's own layout — the chart stays responsive and fills its parent (no
+	// fixed dimensions), and the legend automatically shares the chart's GlobalChartsProvider, so
+	// its toggleSeriesVisibility calls reach the chart's visibility state.
 	render: () => (
-		<GlobalChartsProvider>
-			<div style={ { display: 'flex', flexDirection: 'column', gap: '16px', width: 700 } }>
-				<BarChart
-					chartId={ INTERACTIVE_COMPARISON_CHART_ID }
-					data={ viewsVisitorsComparisonData }
-					legend={ { interactive: true } }
-					showLegend={ false }
-					withTooltips
-					gridVisibility="x"
-					height={ 300 }
-				/>
-				<ComparisonLegend />
-			</div>
-		</GlobalChartsProvider>
+		<BarChart
+			chartId={ INTERACTIVE_COMPARISON_CHART_ID }
+			data={ viewsVisitorsComparisonData }
+			legend={ { interactive: true } }
+			withTooltips
+			gridVisibility="x"
+			maxWidth={ 1200 }
+		>
+			<BarChart.Legend position="bottom" render={ renderComparisonLegend } />
+		</BarChart>
 	),
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'A **2-item interactive legend** over a four-series comparison chart (`Views` / `Visitors`, each with a `type: "comparison"` previous-period overlay). The built-in legend renders one item per series, so it is disabled here (`showLegend={ false }`) and replaced by a custom legend showing a single item per metric. Clicking a metric toggles **both** its current and previous-period series together via the public `useGlobalChartsContext()` (`toggleSeriesVisibility` / `isSeriesVisible`) — one click hides or shows both bars, while tooltips keep distinct period labels. `legend={ { interactive: true } }` tells the chart to honour visibility even though it renders no legend of its own. The chart and the custom legend must be mounted inside the **same** `GlobalChartsProvider` so the toggle calls reach the chart\'s visibility state — Storybook supplies one via its decorator, and this story also wraps one explicitly so the snippet is self-contained. This is the recommended pattern for comparison widgets (e.g. the Premium Analytics Views & Visitors chart) that need a grouped, interactive legend today.',
+					'A **2-item interactive legend** over a four-series comparison chart (`Views` / `Visitors`, each with a `type: "comparison"` previous-period overlay). The built-in legend renders one item per series, so a custom legend is supplied through the composition API — a `<BarChart.Legend>` child with a `render` prop — showing a single item per metric. Because the legend is a child of the chart it renders inside the chart layout, so the chart stays responsive and fills its parent (no fixed dimensions) and the legend automatically shares the chart\'s `GlobalChartsProvider`. Clicking a metric toggles **both** its current and previous-period series together via the public `useGlobalChartsContext()` (`toggleSeriesVisibility` / `isSeriesVisible`) — one click hides or shows both bars and strikes through the item (matching the built-in legend\'s inactive styling), while tooltips keep distinct period labels. `legend={ { interactive: true } }` tells the chart to honour visibility. This is the recommended pattern for comparison widgets (e.g. the Premium Analytics Views & Visitors chart) that need a grouped, interactive legend today.',
+			},
+		},
+	},
+};
+
+export const LabelOverflowEllipsis: StoryObj< typeof BarChart > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '40px' } }>
+			<div>
+				<h3>Without labelOverflow (Default - Labels Overlap)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Default behavior: long labels overlap and become unreadable at narrow widths.
+				</p>
+				<div style={ { width: '350px', height: '250px', border: '1px solid #e0e0e0' } }>
+					<BarChart data={ longLabelData } withTooltips={ true } gridVisibility="x" />
+				</div>
+			</div>
+			<div>
+				<h3>With labelOverflow: &apos;ellipsis&apos; (Labels Truncated)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					With <code>labelOverflow: &apos;ellipsis&apos;</code>, labels are truncated to fit the
+					available bandwidth. <strong>Hover over a label to see the full text.</strong>
+				</p>
+				<div style={ { width: '350px', height: '250px', border: '1px solid #e0e0e0' } }>
+					<BarChart
+						data={ longLabelData }
+						withTooltips={ true }
+						gridVisibility="x"
+						options={ {
+							axis: {
+								x: {
+									labelOverflow: 'ellipsis',
+								},
+							},
+						} }
+					/>
+				</div>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Demonstrates the `labelOverflow: 'ellipsis'` option that truncates long axis labels to fit the available bandwidth. The full label text is shown on hover via a native tooltip. This is useful for narrow widget contexts where space is limited.",
 			},
 		},
 	},
