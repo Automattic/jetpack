@@ -42,12 +42,27 @@ export type UploadItem = {
 	error?: string;
 };
 
+// The media object the tus backend reports on completion (structurally
+// matching the legacy uploader's VideoMediaProps). Undefined-tolerant because
+// the legacy callback chain doesn't guarantee it.
+export type UploadedMedia = { id: number; guid: string; src: string };
+
+// Per-item completion callbacks, registered via startUpload's second
+// argument. They live in the shared store (not per-hook-instance) because a
+// pending item can be dispatched by whichever useUpload instance settles its
+// active upload first — see startNextPending.
+export type UploadSettlers = {
+	onSuccess?: ( media?: UploadedMedia ) => void;
+	onError?: ( message: string ) => void;
+};
+
 const STORE_KEY = '__jetpackVideopressUploadStore' as const;
 const SUCCESS_REMOVAL_DELAY_MS = 2_000;
 
 type UploadStore = {
 	queue: UploadItem[];
 	subscribers: Set< () => void >;
+	settlers: Map< string, UploadSettlers >;
 };
 
 declare global {
@@ -64,7 +79,12 @@ declare global {
  */
 function getStore(): UploadStore {
 	if ( ! window[ STORE_KEY ] ) {
-		window[ STORE_KEY ] = { queue: [], subscribers: new Set() };
+		window[ STORE_KEY ] = { queue: [], subscribers: new Set(), settlers: new Map() };
+	} else if ( ! window[ STORE_KEY ].settlers ) {
+		// A copy of this module bundled before the settlers field existed may
+		// have created the store; separately-built route bundles each carry
+		// their own copy, so patch the shared shape defensively.
+		window[ STORE_KEY ].settlers = new Map();
 	}
 	return window[ STORE_KEY ];
 }
@@ -105,12 +125,28 @@ function mutateQueue( updater: ( prev: UploadItem[] ) => UploadItem[] ): void {
 }
 
 /**
+ * Pop the completion callbacks registered for a queue item, if any. Settlers
+ * are one-shot: whichever terminal callback fires first (success or error)
+ * consumes them, so a later retry of a failed item settles silently.
+ *
+ * @param id - The queue item id.
+ * @return The registered settlers, or undefined.
+ */
+function takeSettlers( id: string ): UploadSettlers | undefined {
+	const store = getStore();
+	const settlers = store.settlers.get( id );
+	store.settlers.delete( id );
+	return settlers;
+}
+
+/**
  * Reset the shared upload store. Intended for tests; production code should
  * not call this.
  */
 export function __resetUploadStoreForTests(): void {
 	if ( window[ STORE_KEY ] ) {
 		window[ STORE_KEY ].queue = [];
+		window[ STORE_KEY ].settlers?.clear();
 	}
 }
 
@@ -178,7 +214,7 @@ export function useUpload() {
 				prev.map( item => ( item.id === id ? { ...item, progress, status: 'uploading' } : item ) )
 			);
 		},
-		onSuccess: () => {
+		onSuccess: ( media?: UploadedMedia ) => {
 			const id = currentIdRef.current;
 			if ( ! id ) {
 				return;
@@ -193,6 +229,9 @@ export function useUpload() {
 			window.setTimeout( () => {
 				mutateQueue( prev => prev.filter( item => item.id !== id ) );
 			}, SUCCESS_REMOVAL_DELAY_MS );
+			// Settlers fire last so a throwing caller callback can't stall
+			// the queue's own bookkeeping or the next dispatch.
+			takeSettlers( id )?.onSuccess?.( media );
 		},
 		onError: ( err: unknown ) => {
 			const id = currentIdRef.current;
@@ -213,14 +252,20 @@ export function useUpload() {
 			// Failed items stay in the queue so the user can retry. Move
 			// on to the next pending item rather than blocking the queue.
 			startNextPending();
+			// Settlers fire last so a throwing caller callback can't stall
+			// the queue's own bookkeeping or the next dispatch.
+			takeSettlers( id )?.onError?.( message );
 		},
 	} );
 
 	uploadHandlerRef.current = uploadHandler;
 
 	const startUpload = useCallback(
-		( file: File ): string => {
+		( file: File, settlers?: UploadSettlers ): string => {
 			const id = makeId( file );
+			if ( settlers ) {
+				getStore().settlers.set( id, settlers );
+			}
 			mutateQueue( prev => [ ...prev, { id, file, progress: 0, status: 'pending' } ] );
 			// Only dispatch immediately when this instance's legacy
 			// uploader is idle. Otherwise the item waits in the queue

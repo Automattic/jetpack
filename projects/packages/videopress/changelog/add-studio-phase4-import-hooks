@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Studio YouTube import data hooks: connection state, uploads listing, import job polling, and the attach-media completion flow.
