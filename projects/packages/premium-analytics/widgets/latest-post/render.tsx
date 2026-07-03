@@ -2,7 +2,7 @@
  * External dependencies
  */
 import {
-	MetricWithComparison,
+	MetricValue,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	type DataFormat,
@@ -17,7 +17,6 @@ import { format, parseISO } from 'date-fns';
 import styles from './style.module.css';
 import { useLatestPost, type LatestPostWithMetrics } from './use-latest-post';
 import type { LatestPostAttributes } from './widget';
-import type { FontSize } from '@wordpress/theme';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // Report params are dashboard-driven, but this widget reports lifetime totals
@@ -28,8 +27,6 @@ const METRIC_FORMAT: DataFormat = {
 	type: 'number',
 	options: { useMultipliers: true, decimals: 0 },
 };
-
-const METRIC_FONT_SIZE: FontSize = '2xl';
 
 type LatestPostCardProps = {
 	/**
@@ -74,9 +71,8 @@ type MetricTileProps = {
 };
 
 /**
- * A single labelled metric value. Uses `MetricWithComparison` in its value-only
- * mode (no `previousValue`), so no delta is shown — this module has no
- * comparison period.
+ * A single labelled metric value. This module reports lifetime totals with no
+ * comparison period, so it renders the value directly with `MetricValue`.
  *
  * @param {MetricTileProps} props - The tile props.
  * @return The rendered metric tile.
@@ -87,11 +83,7 @@ function MetricTile( { label, value }: MetricTileProps ) {
 			<Text className={ styles.metricLabel } variant="body-md">
 				{ label }
 			</Text>
-			<MetricWithComparison
-				value={ value }
-				dataFormat={ METRIC_FORMAT }
-				fontSize={ METRIC_FONT_SIZE }
-			/>
+			<MetricValue className={ styles.metricValue } value={ value } dataFormat={ METRIC_FORMAT } />
 		</div>
 	);
 }

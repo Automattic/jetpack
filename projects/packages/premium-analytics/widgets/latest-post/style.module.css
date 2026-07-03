@@ -67,6 +67,10 @@
 	color: var(--wpds-color-fg-content-neutral);
 }
 
+.metric .metricValue {
+	font-size: var(--wpds-typography-font-size-lg, 15px);
+}
+
 /* Featured image. Full-bleeds to the top and sides of the card by offsetting
  * the host body padding; the image covers its box at any aspect ratio. */
 .media {
@@ -86,13 +90,32 @@
 	text-align: center;
 }
 
-/* Narrow tiles: image sits on top with a fixed banner height. */
+/* Narrow tiles (single-column grid cells): stack the image as a top banner and
+ * scale the headline, metrics, and spacing down so the content fits without
+ * overflowing a small tile. */
 @container (max-width: 599px) {
+
+	.root {
+		gap: var(--wpds-dimension-gap-md, 12px);
+	}
+
+	.content {
+		gap: var(--wpds-dimension-gap-md, 12px);
+	}
 
 	.media {
 		order: -1;
-		height: 150px;
+		height: 140px;
 		margin-inline: calc(-1 * var(--latest-post-frame-pad));
+	}
+
+	.header .title {
+		font-size: var(--wpds-typography-font-size-xl, 20px);
+		-webkit-line-clamp: 2;
+	}
+
+	.metrics {
+		gap: var(--wpds-dimension-gap-lg, 16px);
 	}
 }
 
