@@ -278,6 +278,53 @@ function wpcom_get_current_plan_name() {
 }
 
 /**
+ * Whether the current site is on a Commerce plan (any ecommerce-bundle term).
+ *
+ * Legacy Woo Express plans are intentionally excluded: those users chose a Woo-branded
+ * product, so they keep the "WooCommerce" label.
+ *
+ * @return bool
+ */
+function wpcom_is_commerce_plan() {
+	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+		return false;
+	}
+
+	foreach ( wpcom_get_site_purchases() as $purchase ) {
+		if ( isset( $purchase->product_slug ) && str_starts_with( $purchase->product_slug, 'ecommerce-bundle' ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Relabels the WooCommerce menu item to "Store setup" on Commerce-plan sites.
+ *
+ * Only the sidebar label is changed; the page title is left untouched. This mirrors the
+ * relabel that Atomic_Admin_Menu applies on the nav-unified interface, so Commerce users
+ * see the same label on the classic wp-admin sidebar.
+ */
+function wpcom_relabel_woocommerce_menu() {
+	global $menu;
+
+	if ( ! is_array( $menu ) || ! wpcom_is_commerce_plan() ) {
+		return;
+	}
+
+	foreach ( $menu as $position => $item ) {
+		if ( isset( $item[2] ) && 'woocommerce' === $item[2] ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$menu[ $position ][0] = __( 'Store setup', 'jetpack-mu-wpcom' );
+			break;
+		}
+	}
+}
+// Priority 999999 so it runs after WooCommerce registers its menu (default priority).
+add_action( 'admin_menu', 'wpcom_relabel_woocommerce_menu', 999999 );
+
+/**
  * Re-order the submenu items of the given menu slug according to a sorted array of submenu slugs.
  *
  * @param string $menu_slug The menu slug.
