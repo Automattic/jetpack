@@ -18,7 +18,6 @@
 // Override visx-tooltip ONLY when our custom tooltip components are used.
 // This applies to ChartTooltip (line/bar) and PieChartTooltip
 // (pie/semi-circle).
-/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
 :global(.visx-tooltip):has(.tooltip) {
 	max-width: none !important;
 	box-shadow: none !important;
