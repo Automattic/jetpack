@@ -124,6 +124,10 @@ const StageInner = () => {
 
 	const navigate = useNavigate();
 
+	const openImport = useCallback( () => {
+		navigate( { href: '/import' } );
+	}, [ navigate ] );
+
 	const openVideoDetails = useCallback(
 		( id: string ) => {
 			navigate( { href: `/video/${ id }` } );
@@ -435,6 +439,16 @@ const StageInner = () => {
 						style={ { display: 'none' } }
 						onChange={ onFilePicked }
 					/>
+					{ isStudioEnabled() && (
+						<Button
+							className="vp-library__import-button"
+							variant="outline"
+							size="compact"
+							onClick={ openImport }
+						>
+							{ __( 'Import', 'jetpack-videopress-pkg' ) }
+						</Button>
+					) }
 					<Tooltip
 						text={
 							isAtLimit

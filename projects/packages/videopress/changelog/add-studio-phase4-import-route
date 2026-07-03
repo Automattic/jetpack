@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Studio YouTube import screen: connect card, uploads picker, and import queue on a new /import route, plus an Import entry in the library toolbar.
