@@ -1,0 +1,49 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
+	padding: var(--wpds-dimension-padding-lg);
+
+	/* The compact heatmap sizes to its content; let a wide 12-month grid scroll
+	   inside a narrow card instead of clipping months. */
+	overflow-x: auto;
+}
+
+/* Center the fixed-size grid + legend group in a taller-than-content card so it
+   doesn't hug the top; horizontal start keeps overflow scrolling reachable. */
+.heatmap {
+	min-width: 0;
+	justify-content: center;
+}
+
+.placeholder {
+	flex: 1 1 0;
+	min-block-size: 0;
+	inline-size: 100%;
+	min-height: 180px;
+	color: var(--wpds-color-fg-content-neutral-weak);
+	text-align: center;
+}
+
+/* Constrain the picker preview tile to a 4:3 aspect ratio. The picker's
+ * .preview wrapper uses height: 125% of an auto-height parent, so height: 100%
+ * on .root also resolves to auto, leaving aspect-ratio with no anchor.
+ * Setting height: auto here lets aspect-ratio derive the height from the known
+ * inline size and overflow: hidden clips the chart content. Targets only the
+ * picker (inert="") — not the edit-mode wrapper (inert="true") where the grid
+ * tile supplies a real height. */
+:global([inert]:not([inert="true"])) .root {
+	height: auto;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+}
