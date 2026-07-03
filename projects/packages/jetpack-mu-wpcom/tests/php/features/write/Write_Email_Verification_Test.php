@@ -130,6 +130,9 @@ class Write_Email_Verification_Test extends \WorDBless\BaseTestCase {
 		add_filter(
 			'wp_die_ajax_handler',
 			function () {
+				// Throw so wp_send_json_*'s wp_die() unwinds back to the test rather
+				// than ending the process. A `never` return type would break PHP 7.2.
+				// @phan-suppress-next-line PhanPluginNeverReturnFunction
 				return function () {
 					throw new \Exception( 'wp_die' );
 				};
