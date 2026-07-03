@@ -45,6 +45,9 @@ export async function createFirstPostDraft(
 			title: draft.title,
 			content: toBlocks( draft.paragraphs ),
 			status: 'draft',
+			// Tag as the AI Launchpad first post so the server can recognise this exact draft and show the
+			// in-progress "Continue" treatment, reopening it instead of drafting a second one.
+			meta: { _wpcom_ai_launchpad_first_post: true },
 		},
 	} ) ) as CreatedPost;
 

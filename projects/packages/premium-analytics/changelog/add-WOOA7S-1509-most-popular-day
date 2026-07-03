@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Most popular day widget to the Premium Analytics dashboard: the single day your site drew the most views, with that day's view count and its share of all views, ported from the Jetpack Stats all-time highlight.

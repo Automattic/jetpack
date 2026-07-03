@@ -1,3 +1,4 @@
+import type { PatternVariant } from '../lib/pattern-page.ts';
 import type { TailoredInferred, TailoredOutput, FirstPostDraft } from '../lib/types.ts';
 
 /**
@@ -9,6 +10,15 @@ export interface EnrichedTask {
 	subtitle: string;
 	title: string;
 	completed: boolean;
+	// True when a task is mid-way through its prerequisite. For a site-editor task that
+	// means a saved-but-unpublished draft (drafts icon + "Continue" CTA, `calypso_path`
+	// reopens it); for the synthetic `install_woocommerce` task it means the plugin is
+	// installed but not yet active (the CTA activates it).
+	in_progress: boolean;
+	// True for a task shown as a locked preview of the roadmap (e.g. a sell site's
+	// commerce tasks before WooCommerce is active): it renders muted, expands to its
+	// subtitle, but offers no CTA or Skip until its prerequisite is met.
+	disabled: boolean;
 	calypso_path: string | null;
 }
 
@@ -38,7 +48,7 @@ export interface LaunchpadData {
 export type CtaKind = 'first_post' | 'pattern_page' | 'launch' | 'deeplink';
 
 const FIRST_POST_TASK_IDS = [ 'first_post_published', 'first_post_published_newsletter' ];
-const PATTERN_PAGE_TASK_IDS = [ 'add_about_page' ];
+const PATTERN_PAGE_TASK_IDS = [ 'add_about_page', 'add_gallery_page' ];
 // Launch tasks with no catalog deeplink: they open the wordpress.com launch
 // flow. woo_launch_site is excluded — it has its own deeplink.
 const LAUNCH_TASK_IDS = [
@@ -127,7 +137,8 @@ export interface CtaHandlers {
 		draft: FirstPostDraft
 	) => Promise< { post_id: number; edit_url: string } >;
 	createPatternPage: (
-		inferred: TailoredInferred
+		inferred: TailoredInferred,
+		variant?: PatternVariant
 	) => Promise< { page_id: number; edit_url: string } >;
 }
 
@@ -173,10 +184,14 @@ export async function resolveCtaUrl(
 
 	const kind = ctaKind( task.id );
 	let url: string | null;
-	if ( kind === 'first_post' && output ) {
+	if ( task.in_progress && task.calypso_path ) {
+		// The task already has an unpublished draft; reopen it rather than creating a duplicate.
+		url = task.calypso_path;
+	} else if ( kind === 'first_post' && output ) {
 		url = ( await handlers.createFirstPostDraft( output.first_post_draft ) ).edit_url;
 	} else if ( kind === 'pattern_page' && output ) {
-		url = ( await handlers.createPatternPage( output.inferred ) ).edit_url;
+		const variant: PatternVariant = task.id === 'add_gallery_page' ? 'gallery' : 'about';
+		url = ( await handlers.createPatternPage( output.inferred, variant ) ).edit_url;
 	} else if ( kind === 'launch' ) {
 		url = siteUrl ? launchSiteUrl( siteUrl ) : null;
 	} else {
@@ -201,6 +216,14 @@ export function isTaskActionable(
 	output: TailoredOutput | null,
 	siteUrl: string | null = null
 ): boolean {
+	// A disabled preview task has no reachable action until its prerequisite is met.
+	if ( task.disabled ) {
+		return false;
+	}
+	// An in-progress task reopens its existing draft via calypso_path, so it stays actionable.
+	if ( task.in_progress && task.calypso_path ) {
+		return true;
+	}
 	const kind = ctaKind( task.id );
 	if ( ( kind === 'first_post' || kind === 'pattern_page' ) && output ) {
 		return true;
@@ -213,16 +236,17 @@ export function isTaskActionable(
 }
 
 /**
- * The id of the next incomplete task to auto-expand. With no `afterId`, the first
- * incomplete task; with `afterId`, the first incomplete task after it, falling
- * back to any remaining incomplete task. Returns null when every task is complete.
+ * The id of the next actionable task to auto-expand. With no `afterId`, the first
+ * such task; with `afterId`, the first one after it, falling back to any remaining
+ * one. Disabled preview tasks are never targets (they can't be acted on yet, though
+ * they stay manually expandable). Returns null when nothing is left to act on.
  *
  * @param tasks   - The enriched tasks (skipped tasks already coerced to completed).
  * @param afterId - The id to advance past, or undefined to take the first.
- * @return The next incomplete task id, or null.
+ * @return The next actionable task id, or null.
  */
 export function nextIncompleteId( tasks: EnrichedTask[], afterId?: string ): string | null {
-	const incomplete = tasks.filter( task => ! task.completed );
+	const incomplete = tasks.filter( task => ! task.completed && ! task.disabled );
 	if ( incomplete.length === 0 ) {
 		return null;
 	}
@@ -247,6 +271,8 @@ export function tasksFromFixture( output: TailoredOutput ): EnrichedTask[] {
 		subtitle: task.subtitle,
 		title: humanizeTaskId( task.id ),
 		completed: false,
+		in_progress: false,
+		disabled: false,
 		calypso_path: null,
 	} ) );
 }

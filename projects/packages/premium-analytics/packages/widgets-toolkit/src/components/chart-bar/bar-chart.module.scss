@@ -9,9 +9,14 @@
 	}
 
 	.legend {
-		height: var(--wpds-typography-line-height-lg);
+		width: 100%;
+		height: auto;
 		min-height: var(--wpds-typography-line-height-lg);
-		flex-wrap: nowrap;
+		align-content: center;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		row-gap: var(--wpds-dimension-gap-xs) !important;
 
 		// Vertically center the legend shape.
 		// The Charts package applies a non-zero transform to legend circles,
@@ -25,13 +30,16 @@
 
 	.legendItem {
 		min-width: 0;
+		max-width: 100%;
+		flex: 0 1 auto;
 		gap: var(--wpds-dimension-gap-sm);
+		justify-content: flex-start;
 		padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm); // 4px 6px->8px
 	}
 
 	.legendLabel {
 		min-width: 0;
-		flex: 1 1 0 !important; // Override the 0 0 auto default value
+		flex: 0 1 auto !important; // Allow the label to shrink so items wrap cleanly
 	}
 
 	.emptyState {

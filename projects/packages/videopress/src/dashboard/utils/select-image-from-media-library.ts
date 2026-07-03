@@ -1,13 +1,5 @@
 import { __ } from '@wordpress/i18n';
 
-type Attachment = { id: number; url: string };
-
-type MediaFrame = {
-	state: () => { get: ( k: string ) => { first: () => { toJSON: () => Attachment } } };
-	on: ( evt: 'select' | 'close', fn: () => void ) => void;
-	open: () => void;
-};
-
 /**
  * Open the WordPress media library picker and prompt the user to select a
  * single image. Resolves with the chosen attachment's `id` and `url`, or
@@ -17,14 +9,14 @@ type MediaFrame = {
  *
  * @return A Promise that resolves to the selected `{ id, url }` attachment, or `null` if the user closed the frame without selecting.
  */
-export async function selectImageFromMediaLibrary(): Promise< Attachment | null > {
-	const mediaFactory = window.wp?.media as
+export async function selectImageFromMediaLibrary(): Promise< WpMediaAttachment | null > {
+	const mediaFactory = ( window.wp as WpGlobal | undefined )?.media as
 		| ( ( opts: {
 				title: string;
 				multiple: boolean;
 				library: { type: string };
 				button: { text: string };
-		  } ) => MediaFrame )
+		  } ) => WpMediaFrame )
 		| undefined;
 
 	if ( ! mediaFactory ) {

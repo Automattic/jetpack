@@ -1,0 +1,49 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.placeholder {
+	flex: 1 1 0;
+	min-block-size: 0;
+	inline-size: 100%;
+	padding: var(--wpds-dimension-padding-lg);
+	color: var(--wpds-color-fg-content-neutral-weak);
+	text-align: center;
+}
+
+.widgetHeader {
+	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+	min-height: 32px;
+}
+
+.headerTitle {
+	display: inline-flex;
+	align-items: center;
+	min-inline-size: 0;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.headerIcon {
+	flex: 0 0 auto;
+}
+
+.modeSelect {
+	flex-shrink: 0;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	padding: var(--wpds-dimension-padding-lg);
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+.itemLabel {
+	padding: var(--wpds-dimension-padding-sm);
+}

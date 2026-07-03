@@ -1319,6 +1319,9 @@ class Cookie_Consent {
 				'cookie_policy_url' => '', // Empty hides the Cookie Policy link; set it to link a consumer's own cookie policy page.
 			),
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
+			'features'            => array(
+				'tracks' => true,
+			),
 			'log'                 => array(
 				'policy_version' => '1',
 				'banner_version' => '1',
@@ -1401,11 +1404,16 @@ class Cookie_Consent {
 		$geo['ccpa_regions']        = is_array( $geo['ccpa_regions'] ) ? self::normalize_ccpa_regions( $geo['ccpa_regions'] ) : $default_config['geo']['ccpa_regions'];
 		$geo['show_on_error']       = (bool) $geo['show_on_error'];
 
-		$config['geo']          = $geo;
-		$config['links']        = self::normalize_links( $config, $default_config['links'] );
-		$config['event_prefix'] = $config['event_prefix'] ?? $default_config['event_prefix'];
-		$config['copy']         = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
-		$config['consent']      = isset( $config['consent'] ) && is_array( $config['consent'] ) ? $config['consent'] : array();
+		$config['geo']                = $geo;
+		$config['links']              = self::normalize_links( $config, $default_config['links'] );
+		$config['event_prefix']       = $config['event_prefix'] ?? $default_config['event_prefix'];
+		$config['features']           = array_merge(
+			$default_config['features'],
+			isset( $config['features'] ) && is_array( $config['features'] ) ? $config['features'] : array()
+		);
+		$config['features']['tracks'] = (bool) $config['features']['tracks'];
+		$config['copy']               = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
+		$config['consent']            = isset( $config['consent'] ) && is_array( $config['consent'] ) ? $config['consent'] : array();
 
 		$default_categories = self::get_default_consent_categories( $config['copy'] );
 		$categories         = $config['consent']['categories'] ?? $default_categories;
@@ -1446,19 +1454,6 @@ class Cookie_Consent {
 			return;
 		}
 
-		// Load Automattic Tracks (w.js) for analytics.
-		// External script, version managed by Automattic - no version needed.
-		wp_enqueue_script(
-			'jetpack-cookie-consent-tracks',
-			'https://stats.wp.com/w.js',
-			array(),
-			gmdate( 'YW' ),
-			array(
-				'strategy'  => 'defer',
-				'in_footer' => true,
-			)
-		);
-
 		// Register and enqueue the Interactivity API script module built by webpack.
 		// Only the build version is read from the asset file; module dependencies are
 		// declared explicitly. Script modules may only depend on other script modules,
@@ -1494,6 +1489,7 @@ class Cookie_Consent {
 		$config_data = array(
 			'apiUrl'      => rest_url( 'jetpack/v4/cookie-consent/consent-log' ),
 			'eventPrefix' => $config['event_prefix'],
+			'features'    => $config['features'],
 		);
 
 		// Only expose a REST nonce to logged-in visitors, so the consent logger can

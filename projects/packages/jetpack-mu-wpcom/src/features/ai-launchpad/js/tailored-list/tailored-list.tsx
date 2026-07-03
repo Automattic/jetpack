@@ -202,13 +202,15 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 				} ).catch( () => {} );
 			}
 			if ( url ) {
+				// Keep the button busy through the page unload; clearing it here would flash
+				// the label back before the browser navigates, making the flow look stalled.
 				navigate( url );
+				return;
 			}
 		} catch {
-			// The finally clears busy so a thrown CTA can't leave the card disabled.
-		} finally {
-			setBusyId( null );
+			// Fall through to clear busy so a thrown CTA can't leave the card disabled.
 		}
+		setBusyId( null );
 	};
 
 	// Complete-on-click tasks with no CTA destination offer "Mark as complete":
