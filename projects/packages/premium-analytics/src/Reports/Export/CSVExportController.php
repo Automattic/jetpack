@@ -134,6 +134,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 	 * @return bool True if user has permission.
 	 */
 	public function check_permission(): bool {
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce-provided capabilities.
 		return current_user_can( 'manage_woocommerce' ) || current_user_can( 'view_woocommerce_reports' );
 	}
 
