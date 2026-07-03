@@ -95,6 +95,25 @@
 	color: var(--wpds-color-fg-interactive-neutral-strong, #f0f0f0);
 }
 
+// `showValues="auto"`: each cell is a size container and its value stays hidden
+// until the cell is roomy enough to fit the number, so a fluid heatmap shows
+// values only when spacious. The thresholds are the smallest box a compact
+// number reads in — layout limits, not spacings, so no WPDS token applies.
+.heatmap-chart__grid--auto-values .heatmap-chart__cell {
+	container: heatmap-cell / size;
+}
+
+.heatmap-chart__grid--auto-values .heatmap-chart__cell-value {
+	display: none;
+}
+
+@container heatmap-cell (min-width: 20px) and (min-height: 16px) {
+
+	.heatmap-chart__grid--auto-values .heatmap-chart__cell-value {
+		display: block;
+	}
+}
+
 .heatmap-chart__legend-swatch {
 	width: var(--wpds-dimension-size-3xs, 12px);
 	height: var(--wpds-dimension-size-3xs, 12px);

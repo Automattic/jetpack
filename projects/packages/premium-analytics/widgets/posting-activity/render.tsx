@@ -90,7 +90,7 @@ function PostingActivityInner() {
 			<HeatmapChart
 				data={ heatmapData }
 				rowLabels={ rowLabels }
-				compact
+				showValues="auto"
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
 				className={ styles.heatmap }

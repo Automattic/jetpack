@@ -14,16 +14,18 @@
 	min-height: 0;
 	padding: var(--wpds-dimension-padding-lg);
 
-	/* The compact heatmap sizes to its content; let a wide 12-month grid scroll
-	   inside a narrow card instead of clipping months. */
+	/* Cells fill the card; when it gets too narrow to keep them legible the grid
+	   holds a minimum column width and this scrolls horizontally instead. */
 	overflow-x: auto;
 }
 
-/* Center the fixed-size grid + legend group in a taller-than-content card so it
-   doesn't hug the top; horizontal start keeps overflow scrolling reachable. */
+/* Floor the column width so a narrow card scrolls rather than collapsing cells;
+   above the floor the 1fr tracks stretch to fill the available space. */
 .heatmap {
+	--heatmap-min-cell-width: 14px;
+	flex: 1 1 0;
 	min-width: 0;
-	justify-content: center;
+	min-height: 0;
 }
 
 .placeholder {

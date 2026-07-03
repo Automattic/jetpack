@@ -104,7 +104,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const rows = Math.max( 0, ...data.map( column => column.data.length ) );
 
 	const { compactCellGap, compactCellSize } = heatmapChartSettings;
-	const drawValues = showValues ?? ! compact;
+	// `'auto'` always renders the value node and lets CSS reveal it only where the
+	// cell is roomy enough (container query); a boolean is honored as-is.
+	const autoValues = showValues === 'auto';
+	const explicitValues = typeof showValues === 'boolean' ? showValues : undefined;
+	const drawValues = autoValues || ( explicitValues ?? ! compact );
 
 	const buildTooltipData = useCallback(
 		( columnIndex: number, rowIndex: number ): HeatmapTooltipData => {
@@ -244,11 +248,17 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		);
 	}
 
-	const trackSize = compact ? 'var(--heatmap-cell-size)' : 'minmax(0, 1fr)';
+	const rowTrack = compact ? 'var(--heatmap-cell-size)' : 'minmax(0, 1fr)';
+	// Columns honor an optional minimum width so a consumer can let a wide grid
+	// scroll (via an overflow ancestor) instead of shrinking cells to nothing; the
+	// default `0px` preserves the fill-to-width behavior for every other chart.
+	const columnTrack = compact
+		? 'var(--heatmap-cell-size)'
+		: 'minmax(var(--heatmap-min-cell-width, 0px), 1fr)';
 	const gridStyle: Record< string, string | number > = {
 		'--heatmap-primary': primaryColorHex,
-		gridTemplateColumns: `auto repeat(${ columns }, ${ trackSize })`,
-		gridTemplateRows: `auto repeat(${ rows }, ${ trackSize })`,
+		gridTemplateColumns: `auto repeat(${ columns }, ${ columnTrack })`,
+		gridTemplateRows: `auto repeat(${ rows }, ${ rowTrack })`,
 	};
 	if ( compact ) {
 		gridStyle[ '--heatmap-cell-gap' ] = `${ compactCellGap }px`;
@@ -289,6 +299,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						onKeyDown={ onChartKeyDown }
 						className={ clsx( styles[ 'heatmap-chart__grid' ], {
 							[ styles[ 'heatmap-chart__grid--compact' ] ]: compact,
+							[ styles[ 'heatmap-chart__grid--auto-values' ] ]: autoValues,
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>

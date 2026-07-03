@@ -30,8 +30,13 @@ export interface HeatmapChartProps
 	rowLabels?: string[];
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */
 	compact?: boolean;
-	/** Render the numeric value inside each cell. Default `! compact`. */
-	showValues?: boolean;
+	/**
+	 * Render the numeric value inside each cell. Default `! compact`. `'auto'`
+	 * renders the value but reveals it only where a cell is wide/tall enough to
+	 * fit it (a per-cell container query), so a fluid heatmap can show numbers
+	 * when roomy and hide them when cells shrink.
+	 */
+	showValues?: boolean | 'auto';
 	/**
 	 * Color the cell scale interpolates toward at the highest value
 	 * (this prop > theme `heatmapChart.primaryColor` > palette `colors[0]`).

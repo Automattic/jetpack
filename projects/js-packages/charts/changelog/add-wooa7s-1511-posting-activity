@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: HeatmapChart supports showValues='auto' (reveal in-cell values only where a cell is roomy enough) and a --heatmap-min-cell-width CSS var so a fluid heatmap can scroll instead of collapsing cells.
