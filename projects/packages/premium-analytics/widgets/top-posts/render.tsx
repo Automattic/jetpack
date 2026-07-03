@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	mergeStatsComparisonRows,
 	useStatsTopPosts,
 	type StatsNormalizedReport,
 	type StatsTopPostsItem,
@@ -84,7 +85,7 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue ?? 0;
+		const previousValue = row.previousValue;
 
 		return {
 			id: `${ index }-${ row.href }`,
@@ -103,8 +104,13 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 			currentShare: ( row.value / maxCurrentViews ) * 100,
 			previousValue,
 			previousShare:
-				withComparison && previousValue > 0 ? ( previousValue / maxPreviousViews ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+				withComparison && previousValue !== undefined && previousValue > 0
+					? ( previousValue / maxPreviousViews ) * 100
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( row.value, previousValue )
+					: undefined,
 		};
 	} );
 }
@@ -244,36 +250,24 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 		[ primary.data, allowedTypes ]
 	);
 
-	// Comparison-period views keyed by the same post URL the primary rows use.
-	// Empty when comparison is disabled or the comparison query returned no rows.
-	const previousViewsByHref = useMemo( () => {
-		if ( ! hasComparison ) {
-			return new Map< string, number >();
-		}
-		return new Map(
-			toTopPostRows(
-				comparison.data as StatsNormalizedReport< StatsTopPostsItem >,
-				allowedTypes
-			).map( row => [ row.href, row.value ] )
-		);
-	}, [ comparison.data, allowedTypes, hasComparison ] );
-
-	// Only render comparison UI when at least one primary row actually overlaps
-	// the comparison period; otherwise unmatched rows would fall to a placeholder
-	// `previousValue: 0` and the chart would show a fabricated delta (see AGENTS.md).
-	const withComparison =
-		hasComparison && primaryRows.some( row => previousViewsByHref.has( row.href ) );
-
-	const rows = useMemo(
+	const { rows, hasComparison: hasOverlappingComparison } = useMemo(
 		() =>
-			withComparison
-				? primaryRows.map( row => ( {
-						...row,
-						previousValue: previousViewsByHref.get( row.href ) ?? 0,
-				  } ) )
-				: primaryRows,
-		[ primaryRows, previousViewsByHref, withComparison ]
+			mergeStatsComparisonRows( {
+				primaryRows,
+				comparisonRows: hasComparison
+					? toTopPostRows(
+							comparison.data as StatsNormalizedReport< StatsTopPostsItem >,
+							allowedTypes
+					  )
+					: [],
+				getPrimaryKey: row => row.href,
+				getComparisonKey: row => row.href,
+				getComparisonValue: row => row.value,
+				mapRow: ( row, { previousValue } ) => ( { ...row, previousValue } ),
+			} ),
+		[ allowedTypes, comparison.data, hasComparison, primaryRows ]
 	);
+	const withComparison = hasComparison && hasOverlappingComparison;
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 

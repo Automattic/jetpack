@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { buildVideoPlaysData } from '../build-video-plays-data';
+import { buildVideoPlaysData, buildVideoPlaysDataWithComparison } from '../build-video-plays-data';
 import type { StatsNormalizedReport, StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 
 type VideoSeed = {
@@ -77,12 +77,11 @@ describe( 'buildVideoPlaysData', () => {
 			id: '1',
 			label: 'Intro',
 			currentValue: 10,
-			previousValue: 0,
 			currentShare: 100,
-			previousShare: 0,
-			// No comparison value, so the video reads as newly appeared.
-			delta: 100,
 		} );
+		expect( result[ 0 ].previousValue ).toBeUndefined();
+		expect( result[ 0 ].previousShare ).toBeUndefined();
+		expect( result[ 0 ].delta ).toBeUndefined();
 	} );
 
 	it( 'falls back to a translated label when the API omits a title', () => {
@@ -120,7 +119,28 @@ describe( 'buildVideoPlaysData', () => {
 		} );
 	} );
 
-	it( 'treats videos missing from the comparison period as zero', () => {
+	it( 'detects when at least one primary video overlaps the comparison period', () => {
+		expect(
+			buildVideoPlaysDataWithComparison(
+				makeReport( [
+					{ id: 1, label: 'Intro', plays: 10 },
+					{ id: 2, label: 'Outro', plays: 8 },
+				] ),
+				makeReport( [ { id: 2, label: 'Outro', plays: 5 } ] )
+			).hasComparison
+		).toBe( true );
+	} );
+
+	it( 'does not detect comparison rows when videos do not overlap', () => {
+		expect(
+			buildVideoPlaysDataWithComparison(
+				makeReport( [ { id: 1, label: 'Intro', plays: 10 } ] ),
+				makeReport( [ { id: 2, label: 'Outro', plays: 5 } ] )
+			).hasComparison
+		).toBe( false );
+	} );
+
+	it( 'does not fabricate comparison values for videos missing from the comparison period', () => {
 		const result = buildVideoPlaysData(
 			makeReport( [
 				{ id: 1, label: 'Intro', plays: 10 },
@@ -130,7 +150,8 @@ describe( 'buildVideoPlaysData', () => {
 		);
 
 		const outro = result.find( video => video.label === 'Outro' );
-		expect( outro ).toMatchObject( { previousValue: 0, delta: 100 } );
+		expect( outro?.previousValue ).toBeUndefined();
+		expect( outro?.delta ).toBeUndefined();
 	} );
 
 	it( 'aligns by label when the API omits IDs', () => {

@@ -19,7 +19,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildVideoPlaysData } from './build-video-plays-data';
+import { buildVideoPlaysDataWithComparison } from './build-video-plays-data';
 import type { VideosAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -144,10 +144,11 @@ function VideosReport( { max }: { max: number } ) {
 	const primaryData = primary.data;
 	const comparisonData = comparison.data;
 
-	const chartData = useMemo(
-		() => buildVideoPlaysData( primaryData, comparisonData ),
+	const { data: chartData, hasComparison: hasOverlappingComparison } = useMemo(
+		() => buildVideoPlaysDataWithComparison( primaryData, comparisonData ),
 		[ primaryData, comparisonData ]
 	);
+	const withComparison = hasComparison && hasOverlappingComparison;
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
@@ -161,7 +162,7 @@ function VideosReport( { max }: { max: number } ) {
 			data={ chartData }
 			isLoading={ isInitialLoading }
 			isRefetching={ isRefetching }
-			withComparison={ hasComparison }
+			withComparison={ withComparison }
 			legendLabels={ legendLabels }
 		/>
 	);

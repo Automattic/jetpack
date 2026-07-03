@@ -64,13 +64,11 @@ function TopPlatformsInner( { max, showTitle }: { max: number; showTitle: boolea
 		setMode( value as PlatformMode );
 	}, [] );
 
-	const { data, comparisonData, hasComparison, isLoading, isError, errorReason } = usePlatformViews(
-		{
-			reportParams,
-			max,
-			deviceProperty: mode,
-		}
-	);
+	const { data, hasComparison, isLoading, isError, errorReason } = usePlatformViews( {
+		reportParams,
+		max,
+		deviceProperty: mode,
+	} );
 
 	const header = (
 		<Stack
@@ -128,24 +126,31 @@ function TopPlatformsInner( { max, showTitle }: { max: number; showTitle: boolea
 	}
 
 	const maxViews = Math.max( ...data.map( d => d.views ), 0 );
-	const maxComparisonViews = Math.max( ...comparisonData.map( d => d.views ), 0 );
-	const comparisonMap = new Map( comparisonData.map( item => [ item.key, item.views ] ) );
-	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => ( {
-		id: `${ index }-${ item.key }`,
-		label: (
-			<Stack align="center" className={ styles.itemLabel }>
-				<Text>{ item.label }</Text>
-			</Stack>
-		),
-		currentValue: item.views,
-		currentShare: maxViews > 0 ? ( item.views / maxViews ) * 100 : 0,
-		previousValue: comparisonMap.get( item.key ) ?? 0,
-		previousShare:
-			maxComparisonViews > 0
-				? ( ( comparisonMap.get( item.key ) ?? 0 ) / maxComparisonViews ) * 100
-				: 0,
-		delta: calculateDelta( item.views, comparisonMap.get( item.key ) ?? 0 ),
-	} ) );
+	const maxComparisonViews = Math.max( ...data.map( d => d.previousViews ?? 0 ), 0 );
+	const withComparison = hasComparison;
+	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => {
+		const previousValue = item.previousViews;
+
+		return {
+			id: `${ index }-${ item.key }`,
+			label: (
+				<Stack align="center" className={ styles.itemLabel }>
+					<Text>{ item.label }</Text>
+				</Stack>
+			),
+			currentValue: item.views,
+			currentShare: maxViews > 0 ? ( item.views / maxViews ) * 100 : 0,
+			previousValue,
+			previousShare:
+				withComparison && previousValue !== undefined && maxComparisonViews > 0
+					? ( previousValue / maxComparisonViews ) * 100
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( item.views, previousValue )
+					: undefined,
+		};
+	} );
 
 	return (
 		<>
@@ -154,7 +159,7 @@ function TopPlatformsInner( { max, showTitle }: { max: number; showTitle: boolea
 				<LeaderboardChart
 					data={ leaderboardData }
 					loading={ isLoading }
-					withComparison={ hasComparison }
+					withComparison={ withComparison }
 					withOverlayLabel
 					showLegend={ false }
 					emptyStateText={ __( 'No platform data in this period.', 'jetpack-premium-analytics' ) }

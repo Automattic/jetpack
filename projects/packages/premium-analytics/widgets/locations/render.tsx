@@ -67,14 +67,14 @@ function LocationsInner( { max }: { max: number } ) {
 	// Drill-down (region) takes priority over topMode; city mode disables drill-down.
 	const geoMode: GeoMode = selectedCountry ? 'region' : topMode;
 
-	const { data, comparisonData, hasComparison, isLoading, isFetching, hasData, isError } =
-		useLocationViews( {
-			reportParams,
-			max,
-			geoMode,
-			countryFilter: selectedCountry?.code,
-		} );
+	const { data, hasComparison, isLoading, isFetching, hasData, isError } = useLocationViews( {
+		reportParams,
+		max,
+		geoMode,
+		countryFilter: selectedCountry?.code,
+	} );
 	const showLoading = isLoading || ( isFetching && hasData );
+	const withComparison = hasComparison;
 
 	const geoData = useMemo( (): GeoData => {
 		const header: GoogleDataTableColumn[] = [
@@ -89,14 +89,11 @@ function LocationsInner( { max }: { max: number } ) {
 
 	const leaderboardData = useMemo( () => {
 		const maxValue = Math.max( ...data.map( l => l.value ), 0 );
-		const maxComparisonValue = Math.max( ...comparisonData.map( l => l.value ), 0 );
-		const comparisonMap = new Map(
-			comparisonData.map( location => [ location.key, location.value ] )
-		);
+		const maxComparisonValue = Math.max( ...data.map( l => l.previousValue ?? 0 ), 0 );
 
 		return data.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
-			const previousValue = hasComparison ? comparisonMap.get( location.key ) ?? 0 : 0;
+			const previousValue = location.previousValue;
 
 			return {
 				id: location.key,
@@ -118,10 +115,13 @@ function LocationsInner( { max }: { max: number } ) {
 				previousValue,
 				currentShare: maxValue > 0 ? ( location.value / maxValue ) * 100 : 0,
 				previousShare:
-					hasComparison && maxComparisonValue > 0
+					withComparison && previousValue !== undefined && maxComparisonValue > 0
 						? ( previousValue / maxComparisonValue ) * 100
-						: 0,
-				delta: hasComparison ? calculateDelta( location.value, previousValue ) : 0,
+						: undefined,
+				delta:
+					withComparison && previousValue !== undefined
+						? calculateDelta( location.value, previousValue )
+						: undefined,
 				// Country mode: click to drill into regions.
 				// Region/city mode: rows are not interactive.
 				...( geoMode === 'country' &&
@@ -140,7 +140,7 @@ function LocationsInner( { max }: { max: number } ) {
 					} ),
 			};
 		} ) as LeaderboardChartData;
-	}, [ comparisonData, data, geoMode, hasComparison ] );
+	}, [ data, geoMode, withComparison ] );
 
 	const header = (
 		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
@@ -233,7 +233,7 @@ function LocationsInner( { max }: { max: number } ) {
 					<LeaderboardChart
 						data={ leaderboardData }
 						withOverlayLabel
-						withComparison={ hasComparison }
+						withComparison={ withComparison }
 						showLegend={ false }
 						dataFormat={ {
 							type: 'number',

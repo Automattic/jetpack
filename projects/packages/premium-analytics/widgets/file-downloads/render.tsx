@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	mergeStatsComparisonRows,
 	useStatsFileDownloads,
 	type StatsFileDownloadsItem,
 	type StatsNormalizedReport,
@@ -166,7 +167,7 @@ function buildLeaderboardData(
 	const maxPreviousValue = Math.max( ...rows.map( r => r.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue ?? 0;
+		const previousValue = row.previousValue;
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
@@ -189,8 +190,13 @@ function buildLeaderboardData(
 			currentShare: ( row.value / maxValue ) * 100,
 			previousValue,
 			previousShare:
-				withComparison && previousValue > 0 ? ( previousValue / maxPreviousValue ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+				withComparison && previousValue !== undefined && previousValue > 0
+					? ( previousValue / maxPreviousValue ) * 100
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( row.value, previousValue )
+					: undefined,
 		};
 	} );
 }
@@ -211,20 +217,24 @@ function toFileDownloadRows(
 	report: StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
 	max: number,
 	comparisonReport?: StatsNormalizedReport< StatsFileDownloadsItem >
-): FileDownloadRow[] {
+): { rows: FileDownloadRow[]; hasComparison: boolean } {
 	const items = report?.data.flatMap( point => point.items ) ?? [];
 	const sliced = max > 0 ? items.slice( 0, max ) : items;
 	const comparisonItems = comparisonReport?.data.flatMap( point => point.items ) ?? [];
-	const comparisonByKey = new Map(
-		comparisonItems.map( item => [ getFileDownloadItemKey( item ), item.downloads ] )
-	);
 
-	return sliced.map( item => ( {
-		label: item.shortLabel ?? String( item.label ?? '' ),
-		value: item.downloads,
-		previousValue: comparisonByKey.get( getFileDownloadItemKey( item ) ),
-		href: item.link,
-	} ) );
+	return mergeStatsComparisonRows( {
+		primaryRows: sliced,
+		comparisonRows: comparisonItems,
+		getPrimaryKey: getFileDownloadItemKey,
+		getComparisonKey: getFileDownloadItemKey,
+		getComparisonValue: item => item.downloads,
+		mapRow: ( item, { previousValue } ) => ( {
+			label: item.shortLabel ?? String( item.label ?? '' ),
+			value: item.downloads,
+			previousValue,
+			href: item.link,
+		} ),
+	} );
 }
 
 /**
@@ -303,7 +313,7 @@ function FileDownloadsInner( { max, showTitle }: { max: number; showTitle: boole
 	const showLoading = isLoading || ( isFetching && hasData );
 	const errorMessage = getFileDownloadsErrorMessage( error );
 
-	const rows = useMemo(
+	const { rows, hasComparison: hasOverlappingComparison } = useMemo(
 		() =>
 			toFileDownloadRows(
 				primary.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
@@ -314,7 +324,7 @@ function FileDownloadsInner( { max, showTitle }: { max: number; showTitle: boole
 			),
 		[ primary.data, max, hasComparison, comparison.data ]
 	);
-	const withComparison = hasComparison && rows.some( row => typeof row.previousValue === 'number' );
+	const withComparison = hasComparison && hasOverlappingComparison;
 
 	const header = showTitle ? (
 		<Stack direction="row" align="center" className={ styles.widgetHeader }>

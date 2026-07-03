@@ -19,7 +19,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildTopAuthorsData } from './build-top-authors-data';
+import { buildTopAuthorsDataWithComparison } from './build-top-authors-data';
 import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -145,10 +145,11 @@ function AuthorsReport( { max }: { max: number } ) {
 	const primaryData = primary.data;
 	const comparisonData = comparison.data;
 
-	const chartData = useMemo(
-		() => buildTopAuthorsData( primaryData, comparisonData ),
+	const { data: chartData, hasComparison: hasOverlappingComparison } = useMemo(
+		() => buildTopAuthorsDataWithComparison( primaryData, comparisonData ),
 		[ primaryData, comparisonData ]
 	);
+	const withComparison = hasComparison && hasOverlappingComparison;
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
@@ -162,7 +163,7 @@ function AuthorsReport( { max }: { max: number } ) {
 			data={ chartData }
 			isLoading={ isInitialLoading }
 			isRefetching={ isRefetching }
-			withComparison={ hasComparison }
+			withComparison={ withComparison }
 			legendLabels={ legendLabels }
 		/>
 	);

@@ -47,25 +47,36 @@ function SearchTermsInner( { max = 10, showTitle }: { max?: number; showTitle: b
 	const { reportParams } = useWidgetRootContext();
 
 	const { data, isLoading, isError, hasComparison } = useSearchTermViews( { reportParams, max } );
+	const withComparison = hasComparison;
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...data.map( t => t.views ), 0 );
-		const prevMaxValue = Math.max( ...data.map( t => t.previousViews ), 0 );
+		const prevMaxValue = Math.max( ...data.map( t => t.previousViews ?? 0 ), 0 );
 
-		return data.map( ( term, index ) => ( {
-			id: `${ index }-${ term.label }`,
-			label: (
-				<Stack align="center" className={ styles.itemLabel }>
-					<Text className={ styles.itemLabelText }>{ term.label }</Text>
-				</Stack>
-			),
-			currentValue: term.views,
-			previousValue: term.previousViews,
-			currentShare: maxValue > 0 ? ( term.views / maxValue ) * 100 : 0,
-			previousShare: prevMaxValue > 0 ? ( term.previousViews / prevMaxValue ) * 100 : 0,
-			delta: hasComparison ? calculateDelta( term.views, term.previousViews ) : 0,
-		} ) );
-	}, [ data, hasComparison ] );
+		return data.map( ( term, index ) => {
+			const previousViews = term.previousViews;
+
+			return {
+				id: `${ index }-${ term.label }`,
+				label: (
+					<Stack align="center" className={ styles.itemLabel }>
+						<Text className={ styles.itemLabelText }>{ term.label }</Text>
+					</Stack>
+				),
+				currentValue: term.views,
+				previousValue: previousViews,
+				currentShare: maxValue > 0 ? ( term.views / maxValue ) * 100 : 0,
+				previousShare:
+					withComparison && previousViews !== undefined && prevMaxValue > 0
+						? ( previousViews / prevMaxValue ) * 100
+						: undefined,
+				delta:
+					withComparison && previousViews !== undefined
+						? calculateDelta( term.views, previousViews )
+						: undefined,
+			};
+		} );
+	}, [ data, withComparison ] );
 
 	const header = showTitle ? (
 		<Stack direction="row" align="center" className={ styles.widgetHeader }>
@@ -106,7 +117,7 @@ function SearchTermsInner( { max = 10, showTitle }: { max?: number; showTitle: b
 				<LeaderboardChart
 					data={ leaderboardData }
 					loading={ isLoading }
-					withComparison={ hasComparison }
+					withComparison={ withComparison }
 					withOverlayLabel
 					showLegend={ false }
 					emptyStateText={ __( 'No search terms in this period.', 'jetpack-premium-analytics' ) }

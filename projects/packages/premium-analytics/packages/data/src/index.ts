@@ -287,3 +287,5 @@ export {
 	type StatsPeriod,
 	type StatsQueryParams,
 } from './utils/stats-params';
+export { mergeStatsComparisonRows } from './processing/stats';
+export type { StatsComparisonRowContext } from './processing/stats';

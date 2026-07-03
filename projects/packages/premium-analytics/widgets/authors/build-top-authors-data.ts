@@ -6,6 +6,7 @@ import {
 	type LeaderboardChartData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { mergeStatsComparisonRows } from '@jetpack-premium-analytics/data';
 import type { StatsNormalizedReport, StatsTopAuthorsItem } from '@jetpack-premium-analytics/data';
 
 // The Stats sanitizer substitutes this untranslated sentinel for authors with
@@ -46,12 +47,18 @@ function toAuthorItems(
 	return report?.data.flatMap( point => point.items ) ?? [];
 }
 
+export type TopAuthorsDataResult = {
+	data: LeaderboardChartData;
+	hasComparison: boolean;
+};
+
 /**
  * Builds leaderboard chart data for the Authors widget.
  *
  * Transforms Jetpack Stats top-authors data into the format required by
- * LeaderboardChart, with comparison values aligned by author display label
- * (authors missing from the comparison period count as zero).
+ * LeaderboardChart, with comparison values aligned by author display label.
+ * The render layer decides whether comparison UI is enabled based on visible
+ * row overlap.
  *
  * @param primary    - Primary period top-authors report
  * @param comparison - Comparison period top-authors report
@@ -61,38 +68,59 @@ export function buildTopAuthorsData(
 	primary: StatsNormalizedReport< StatsTopAuthorsItem > | undefined,
 	comparison: StatsNormalizedReport< StatsTopAuthorsItem > | undefined
 ): LeaderboardChartData {
+	return buildTopAuthorsDataWithComparison( primary, comparison ).data;
+}
+
+/**
+ * Builds leaderboard chart data and reports whether any visible author has a
+ * matching comparison-period row.
+ *
+ * @param primary    - Primary period top-authors report
+ * @param comparison - Comparison period top-authors report
+ * @return Processed data and row-overlap comparison state.
+ */
+export function buildTopAuthorsDataWithComparison(
+	primary: StatsNormalizedReport< StatsTopAuthorsItem > | undefined,
+	comparison: StatsNormalizedReport< StatsTopAuthorsItem > | undefined
+): TopAuthorsDataResult {
 	const authors = toAuthorItems( primary );
 
 	if ( authors.length === 0 ) {
-		return [];
+		return { data: [], hasComparison: false };
 	}
 
-	const comparisonViews = new Map(
-		toAuthorItems( comparison ).map( author => [ getAuthorLabel( author ), author.views ] )
-	);
+	const { rows, hasComparison } = mergeStatsComparisonRows( {
+		primaryRows: authors,
+		comparisonRows: toAuthorItems( comparison ),
+		getPrimaryKey: getAuthorLabel,
+		getComparisonKey: getAuthorLabel,
+		getComparisonValue: author => author.views,
+		mapRow: ( author, { previousValue } ) => ( {
+			id: getAuthorLabel( author ),
+			label: getAuthorLabel( author ),
+			currentValue: author.views,
+			previousValue,
+		} ),
+	} );
 
 	// Share each value against the largest of either period so the overlay bars
 	// stay proportional; `1` guards against division by zero.
 	const maxValue = Math.max(
-		...authors.map( author =>
-			Math.max( author.views, comparisonViews.get( getAuthorLabel( author ) ) ?? 0 )
-		),
+		...rows.map( author => Math.max( author.currentValue, author.previousValue ?? 0 ) ),
 		1
 	);
 
-	return authors.map( author => {
-		const label = getAuthorLabel( author );
-		const currentValue = author.views;
-		const previousValue = comparisonViews.get( label ) ?? 0;
-
-		return {
-			id: label,
-			label,
-			currentValue,
-			previousValue,
-			currentShare: ( currentValue / maxValue ) * 100,
-			previousShare: ( previousValue / maxValue ) * 100,
-			delta: calculateDelta( currentValue, previousValue ),
-		};
-	} );
+	return {
+		data: rows.map( author => ( {
+			...author,
+			currentShare: ( author.currentValue / maxValue ) * 100,
+			previousShare:
+				author.previousValue !== undefined ? ( author.previousValue / maxValue ) * 100 : undefined,
+			delta:
+				author.previousValue !== undefined
+					? calculateDelta( author.currentValue, author.previousValue )
+					: undefined,
+		} ) ),
+		hasComparison,
+	};
 }

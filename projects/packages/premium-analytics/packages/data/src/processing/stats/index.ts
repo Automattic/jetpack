@@ -1,8 +1,10 @@
 export {
 	combineStatsNormalizedReports,
+	mergeStatsComparisonRows,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsSiteResponse,
 } from './utils';
+export type { StatsComparisonRowContext } from './utils';
 export { sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
 export { sanitizeStatsReferrersResponse } from './referrers';

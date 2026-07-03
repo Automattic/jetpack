@@ -5,7 +5,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
+import {
+	getStatsPlanErrorReason,
+	mergeStatsComparisonRows,
+	useStatsDevices,
+} from '@jetpack-premium-analytics/data';
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
@@ -18,6 +22,7 @@ export interface DeviceView {
 	label: string;
 	displayLabel: string;
 	percentage: number;
+	previousPercentage?: number;
 }
 
 interface UseDeviceViewsArgs {
@@ -28,7 +33,6 @@ interface UseDeviceViewsArgs {
 
 interface DeviceViewsState {
 	data: DeviceView[];
-	comparisonData: DeviceView[];
 	hasComparison: boolean;
 	isLoading: boolean;
 	isError: boolean;
@@ -90,15 +94,22 @@ export default function useDeviceViews( {
 	const items = rawItems.map( toDeviceView ).slice( 0, max > 0 ? max : undefined );
 
 	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const comparisonRawItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const comparisonItems = comparisonRawItems
-		.map( toDeviceView )
-		.slice( 0, max > 0 ? max : undefined );
+	const comparisonRawItems = hasComparison ? comparisonReport?.data?.[ 0 ]?.items ?? [] : [];
+	const { rows, hasComparison: hasOverlappingComparison } = mergeStatsComparisonRows( {
+		primaryRows: items,
+		comparisonRows: comparisonRawItems.map( toDeviceView ),
+		getPrimaryKey: item => item.label,
+		getComparisonKey: item => item.label,
+		getComparisonValue: item => item.percentage,
+		mapRow: ( item, { previousValue } ) => ( {
+			...item,
+			previousPercentage: previousValue,
+		} ),
+	} );
 
 	return {
-		data: items,
-		comparisonData: comparisonItems,
-		hasComparison,
+		data: rows,
+		hasComparison: hasComparison && hasOverlappingComparison,
 		isLoading,
 		isError,
 		errorReason,

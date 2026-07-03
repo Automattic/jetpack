@@ -109,38 +109,46 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 		() => ( isDrillDown ? selectedUtm?.children ?? [] : data ),
 		[ data, isDrillDown, selectedUtm ]
 	);
+	const withComparison = isDrillDown ? !! selectedUtm?.childrenHaveComparison : hasComparison;
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...activeData.map( d => d.value ), 1 );
-		const maxPreviousValue = Math.max( ...activeData.map( d => d.previousValue ), 1 );
+		const maxPreviousValue = Math.max( ...activeData.map( d => d.previousValue ?? 0 ), 1 );
 
-		return activeData.map( ( item, index ) => ( {
-			id: `${ index }-${ item.label }`,
-			label: (
-				<Stack align="center" className={ styles.itemLabel }>
-					<Text className={ styles.itemLabelText }>{ item.label }</Text>
-				</Stack>
-			),
-			currentValue: item.value,
-			currentShare: ( item.value / maxValue ) * 100,
-			previousValue: item.previousValue,
-			previousShare:
-				hasComparison && item.previousValue > 0
-					? ( item.previousValue / maxPreviousValue ) * 100
-					: 0,
-			delta: hasComparison ? calculateDelta( item.value, item.previousValue ) : 0,
-			...( ! isDrillDown &&
-				'children' in item &&
-				item.children?.length && {
-					onClick: () => setSelectedUtmLabel( item.label ),
-					ariaLabel: sprintf(
-						/* translators: %s is the UTM value label. */
-						__( 'View posts for %s', 'jetpack-premium-analytics' ),
-						item.label
-					),
-				} ),
-		} ) );
-	}, [ activeData, hasComparison, isDrillDown ] );
+		return activeData.map( ( item, index ) => {
+			const previousValue = item.previousValue;
+
+			return {
+				id: `${ index }-${ item.label }`,
+				label: (
+					<Stack align="center" className={ styles.itemLabel }>
+						<Text className={ styles.itemLabelText }>{ item.label }</Text>
+					</Stack>
+				),
+				currentValue: item.value,
+				currentShare: ( item.value / maxValue ) * 100,
+				previousValue,
+				previousShare:
+					withComparison && previousValue !== undefined && previousValue > 0
+						? ( previousValue / maxPreviousValue ) * 100
+						: undefined,
+				delta:
+					withComparison && previousValue !== undefined
+						? calculateDelta( item.value, previousValue )
+						: undefined,
+				...( ! isDrillDown &&
+					'children' in item &&
+					item.children?.length && {
+						onClick: () => setSelectedUtmLabel( item.label ),
+						ariaLabel: sprintf(
+							/* translators: %s is the UTM value label. */
+							__( 'View posts for %s', 'jetpack-premium-analytics' ),
+							item.label
+						),
+					} ),
+			};
+		} );
+	}, [ activeData, isDrillDown, withComparison ] );
 
 	const header = (
 		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
@@ -207,7 +215,7 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 				<LeaderboardChart
 					data={ leaderboardData }
 					loading={ showLoading }
-					withComparison={ hasComparison }
+					withComparison={ withComparison }
 					withOverlayLabel
 					showLegend={ false }
 					emptyStateText={ __( 'No UTM data in this period.', 'jetpack-premium-analytics' ) }

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	mergeStatsComparisonRows,
 	useStatsClicks,
 	type StatsClicksItem,
 	type StatsNormalizedReport,
@@ -58,6 +59,10 @@ export type ClickRow = {
 	 * Child clicked links for drill-down.
 	 */
 	children?: ClickRow[];
+	/**
+	 * Whether the child rows have any matching comparison-period rows.
+	 */
+	childrenHaveComparison?: boolean;
 };
 
 function getItemLabel( item: StatsClicksItem, parentLabel?: string ): string {
@@ -72,56 +77,16 @@ type NormalizedClickItem = {
 	key: string;
 	label: string;
 	value: number;
-	previousValue: number;
+	previousValue?: number;
 	href?: string;
 	icon?: string | null;
 	children?: NormalizedClickItem[];
+	childrenHaveComparison?: boolean;
 };
 
 function getItemKey( item: StatsClicksItem, parentLabel?: string ): string {
 	const label = getItemLabel( item, parentLabel );
 	return item.link ?? label;
-}
-
-function buildClickItemLookup(
-	items: StatsClicksItem[],
-	parent?: { label: string }
-): Map< string, StatsClicksItem > {
-	const lookup = new Map< string, StatsClicksItem >();
-
-	items.forEach( item => {
-		const label = getItemLabel( item, parent?.label );
-		lookup.set( getItemKey( item, parent?.label ), item );
-		( item.children ?? [] ).forEach( child => {
-			buildClickItemLookup( [ child ], { label } ).forEach( ( value, key ) => {
-				lookup.set( key, value );
-			} );
-		} );
-	} );
-
-	return lookup;
-}
-
-function normalizeClickItem(
-	item: StatsClicksItem,
-	comparisonLookup: Map< string, StatsClicksItem >,
-	parent?: { label: string; icon?: string | null }
-): NormalizedClickItem {
-	const label = getItemLabel( item, parent?.label );
-	const key = getItemKey( item, parent?.label );
-	const children = ( item.children ?? [] ).map( child =>
-		normalizeClickItem( child, comparisonLookup, { label, icon: item.icon ?? parent?.icon } )
-	);
-
-	return {
-		key,
-		label,
-		value: item.views,
-		previousValue: comparisonLookup.get( key )?.views ?? 0,
-		href: item.link ?? undefined,
-		icon: item.icon ?? parent?.icon,
-		children: children.length ? sortClickItems( children ) : undefined,
-	};
 }
 
 function sortClickItems( items: NormalizedClickItem[] ): NormalizedClickItem[] {
@@ -133,17 +98,50 @@ function toClickRow( item: NormalizedClickItem ): ClickRow {
 		label: item.label,
 		value: item.value,
 		previousValue: item.previousValue,
-		href: item.href,
+		...( item.href ? { href: item.href } : {} ),
 		icon: item.icon,
 		children: item.children?.map( toClickRow ),
+		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
 	};
+}
+
+function hasClickRowsComparison( rows: NormalizedClickItem[] ): boolean {
+	return rows.some( row => row.previousValue !== undefined );
 }
 
 function normalizeClickItems(
 	items: StatsClicksItem[],
-	comparisonLookup: Map< string, StatsClicksItem >
-): NormalizedClickItem[] {
-	return sortClickItems( items.map( item => normalizeClickItem( item, comparisonLookup ) ) );
+	comparisonItems: StatsClicksItem[],
+	parent?: { label: string; icon?: string | null }
+): { rows: NormalizedClickItem[]; hasComparison: boolean } {
+	const { rows, hasComparison } = mergeStatsComparisonRows( {
+		primaryRows: items,
+		comparisonRows: comparisonItems,
+		getPrimaryKey: item => getItemKey( item, parent?.label ),
+		getComparisonKey: item => getItemKey( item, parent?.label ),
+		getComparisonValue: item => item.views,
+		mapRow: ( item, { previousValue, comparisonItem } ) => {
+			const label = getItemLabel( item, parent?.label );
+			const { rows: children, hasComparison: childrenHaveComparison } = normalizeClickItems(
+				item.children ?? [],
+				comparisonItem?.children ?? [],
+				{ label, icon: item.icon ?? parent?.icon }
+			);
+
+			return {
+				key: getItemKey( item, parent?.label ),
+				label,
+				value: item.views,
+				previousValue,
+				href: item.link ?? undefined,
+				icon: item.icon ?? parent?.icon,
+				children: children.length ? children : undefined,
+				childrenHaveComparison,
+			};
+		},
+	} );
+
+	return { rows: sortClickItems( rows ), hasComparison };
 }
 
 function getItems(
@@ -161,16 +159,35 @@ function getItems(
  * @param max              - Maximum rows to keep. 0 keeps all rows.
  * @return Rows ready for the leaderboard.
  */
+export function toClickRowsWithComparison(
+	report: StatsNormalizedReport< StatsClicksItem > | undefined,
+	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
+	max: number
+): { rows: ClickRow[]; hasComparison: boolean } {
+	const { rows: sorted } = normalizeClickItems( getItems( report ), getItems( comparisonReport ) );
+	const sliced = max > 0 ? sorted.slice( 0, max ) : sorted;
+
+	return {
+		rows: sliced.map( toClickRow ),
+		hasComparison: hasClickRowsComparison( sliced ),
+	};
+}
+
+/**
+ * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
+ * comparison values when a comparison report is present.
+ *
+ * @param report           - Primary clicks report.
+ * @param comparisonReport - Comparison clicks report.
+ * @param max              - Maximum rows to keep. 0 keeps all rows.
+ * @return Rows ready for the leaderboard.
+ */
 export function toClickRows(
 	report: StatsNormalizedReport< StatsClicksItem > | undefined,
 	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
 	max: number
 ): ClickRow[] {
-	const comparisonLookup = buildClickItemLookup( getItems( comparisonReport ) );
-	const sorted = normalizeClickItems( getItems( report ), comparisonLookup );
-	const sliced = max > 0 ? sorted.slice( 0, max ) : sorted;
-
-	return sliced.map( toClickRow );
+	return toClickRowsWithComparison( report, comparisonReport, max ).rows;
 }
 
 function ClickLabel( { row }: { row: ClickRow } ) {
@@ -208,7 +225,7 @@ function buildLeaderboardData(
 	const maxPreviousClicks = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue ?? 0;
+		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
 		const shouldRenderLink = !! row.href && ! hasChildren;
 
@@ -233,8 +250,13 @@ function buildLeaderboardData(
 			currentShare: ( row.value / maxCurrentClicks ) * 100,
 			previousValue,
 			previousShare:
-				withComparison && previousValue > 0 ? ( previousValue / maxPreviousClicks ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+				withComparison && previousValue !== undefined && previousValue > 0
+					? ( previousValue / maxPreviousClicks ) * 100
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( row.value, previousValue )
+					: undefined,
 			...( hasChildren &&
 				onDrillDown && {
 					onClick: () => onDrillDown( row ),
@@ -314,9 +336,9 @@ function ClicksInner( { max }: { max: number } ) {
 		useStatsClicks( statsParams );
 	const showLoading = isLoading || ( isFetching && hasData );
 
-	const rows = useMemo(
+	const { rows, hasComparison: hasOverlappingComparison } = useMemo(
 		() =>
-			toClickRows(
+			toClickRowsWithComparison(
 				primary.data as StatsNormalizedReport< StatsClicksItem > | undefined,
 				comparison.data as StatsNormalizedReport< StatsClicksItem > | undefined,
 				max
@@ -329,6 +351,9 @@ function ClicksInner( { max }: { max: number } ) {
 	);
 	const isDrillDown = !! selectedClick?.children?.length;
 	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
+	const withComparison = isDrillDown
+		? !! selectedClick?.childrenHaveComparison
+		: hasComparison && hasOverlappingComparison;
 
 	const header = (
 		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
@@ -362,7 +387,7 @@ function ClicksInner( { max }: { max: number } ) {
 					rows={ activeRows }
 					isLoading={ showLoading }
 					isError={ isError }
-					withComparison={ hasComparison }
+					withComparison={ withComparison }
 					onDrillDown={ isDrillDown ? undefined : handleDrillDown }
 				/>
 			</div>

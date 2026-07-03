@@ -167,6 +167,7 @@ describe( 'toClickRows', () => {
 				value: 60,
 				previousValue: 38,
 				icon: 'https://example.com/blavatar.png',
+				childrenHaveComparison: true,
 				children: [
 					{
 						label: '/plugins/jetpack-search',
@@ -179,7 +180,7 @@ describe( 'toClickRows', () => {
 					{
 						label: '/plugins/jetpack-boost/',
 						value: 18,
-						previousValue: 0,
+						previousValue: undefined,
 						href: 'https://wordpress.org/plugins/jetpack-boost/',
 						icon: 'https://example.com/blavatar.png',
 						children: undefined,

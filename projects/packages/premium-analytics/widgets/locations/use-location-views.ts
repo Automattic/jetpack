@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { useStatsLocations } from '@jetpack-premium-analytics/data';
+import { mergeStatsComparisonRows, useStatsLocations } from '@jetpack-premium-analytics/data';
 import type {
 	ReportParams,
 	StatsLocationsItem,
@@ -19,6 +19,7 @@ export interface LocationView {
 	countryCode: string;
 	countryFull: string;
 	value: number;
+	previousValue?: number;
 	region: string;
 }
 
@@ -31,7 +32,6 @@ interface UseLocationViewsArgs {
 
 interface LocationViewsState {
 	data: LocationView[];
-	comparisonData: LocationView[];
 	hasComparison: boolean;
 	isLoading: boolean;
 	isFetching: boolean;
@@ -96,20 +96,29 @@ export default function useLocationViews( {
 		| StatsNormalizedReport< StatsLocationsItem >
 		| undefined;
 	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const rawComparisonItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
+	const rawComparisonItems = hasComparison ? comparisonReport?.data?.[ 0 ]?.items ?? [] : [];
 	const items = rawItems
 		.map( toLocationView )
 		.filter( ( v ): v is LocationView => v !== null )
 		.slice( 0, max > 0 ? max : undefined );
 	const comparisonItems = rawComparisonItems
 		.map( toLocationView )
-		.filter( ( v ): v is LocationView => v !== null )
-		.slice( 0, max > 0 ? max : undefined );
+		.filter( ( v ): v is LocationView => v !== null );
+	const { rows, hasComparison: hasOverlappingComparison } = mergeStatsComparisonRows( {
+		primaryRows: items,
+		comparisonRows: comparisonItems,
+		getPrimaryKey: item => item.key,
+		getComparisonKey: item => item.key,
+		getComparisonValue: item => item.value,
+		mapRow: ( item, { previousValue } ) => ( {
+			...item,
+			previousValue,
+		} ),
+	} );
 
 	return {
-		data: items,
-		comparisonData: comparisonItems,
-		hasComparison,
+		data: rows,
+		hasComparison: hasComparison && hasOverlappingComparison,
 		isLoading,
 		isFetching,
 		hasData,

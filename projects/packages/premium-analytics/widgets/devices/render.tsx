@@ -62,7 +62,7 @@ function DevicesHeaderTitle() {
  */
 function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } ) {
 	const { reportParams } = useWidgetRootContext();
-	const { data, comparisonData, hasComparison, isLoading, isError, errorReason } = useDeviceViews( {
+	const { data, hasComparison, isLoading, isError, errorReason } = useDeviceViews( {
 		reportParams,
 		max,
 		deviceProperty: 'screensize',
@@ -128,9 +128,7 @@ function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } )
 		);
 	}
 
-	const comparisonMap = new Map(
-		comparisonData.map( item => [ item.label, toRatio( item.percentage ) ] )
-	);
+	const withComparison = hasComparison;
 
 	const legendData: LegendItem[] = data.map( item => ( {
 		label: item.displayLabel,
@@ -140,7 +138,10 @@ function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } )
 			PERCENTAGE_DATA_FORMAT.type,
 			PERCENTAGE_DATA_FORMAT.options
 		),
-		comparison: hasComparison ? comparisonMap.get( item.label ) ?? 0 : undefined,
+		comparison:
+			withComparison && item.previousPercentage !== undefined
+				? toRatio( item.previousPercentage )
+				: undefined,
 	} ) );
 	const styledLegendData = legendData.map( ( item, index ) => ( {
 		...item,
@@ -159,7 +160,7 @@ function DevicesInner( { max, showTitle }: { max: number; showTitle: boolean } )
 						showMetric={ false }
 						dataFormat={ PERCENTAGE_DATA_FORMAT }
 					/>
-					<Legend items={ styledLegendData } withComparison={ hasComparison } />
+					<Legend items={ styledLegendData } withComparison={ withComparison } />
 				</div>
 			</div>
 		</>

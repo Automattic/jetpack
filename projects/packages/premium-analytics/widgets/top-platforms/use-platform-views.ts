@@ -5,7 +5,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
+import {
+	getStatsPlanErrorReason,
+	mergeStatsComparisonRows,
+	useStatsDevices,
+} from '@jetpack-premium-analytics/data';
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
@@ -17,6 +21,7 @@ export interface PlatformView {
 	key: string;
 	label: string;
 	views: number;
+	previousViews?: number;
 }
 
 interface UsePlatformViewsArgs {
@@ -27,7 +32,6 @@ interface UsePlatformViewsArgs {
 
 interface PlatformViewsState {
 	data: PlatformView[];
-	comparisonData: PlatformView[];
 	hasComparison: boolean;
 	isLoading: boolean;
 	isError: boolean;
@@ -106,15 +110,22 @@ export default function usePlatformViews( {
 		.slice( 0, max > 0 ? max : undefined );
 
 	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const comparisonRawItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const comparisonItems = comparisonRawItems
-		.map( item => toPlatformView( item, deviceProperty ) )
-		.slice( 0, max > 0 ? max : undefined );
+	const comparisonRawItems = hasComparison ? comparisonReport?.data?.[ 0 ]?.items ?? [] : [];
+	const { rows, hasComparison: hasOverlappingComparison } = mergeStatsComparisonRows( {
+		primaryRows: items,
+		comparisonRows: comparisonRawItems.map( item => toPlatformView( item, deviceProperty ) ),
+		getPrimaryKey: item => item.key,
+		getComparisonKey: item => item.key,
+		getComparisonValue: item => item.views,
+		mapRow: ( item, { previousValue } ) => ( {
+			...item,
+			previousViews: previousValue,
+		} ),
+	} );
 
 	return {
-		data: items,
-		comparisonData: comparisonItems,
-		hasComparison,
+		data: rows,
+		hasComparison: hasComparison && hasOverlappingComparison,
 		isLoading,
 		isError,
 		errorReason,

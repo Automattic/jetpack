@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { useStatsSearchTerms } from '@jetpack-premium-analytics/data';
+import { mergeStatsComparisonRows, useStatsSearchTerms } from '@jetpack-premium-analytics/data';
 import type {
 	ReportParams,
 	StatsNormalizedReport,
@@ -11,7 +11,7 @@ import type {
 export interface SearchTermView {
 	label: string;
 	views: number;
-	previousViews: number;
+	previousViews?: number;
 }
 
 interface UseSearchTermViewsArgs {
@@ -56,21 +56,25 @@ export default function useSearchTermViews( {
 	const comparisonReport = comparison.data as
 		| StatsNormalizedReport< StatsSearchTermsItem >
 		| undefined;
-	const comparisonItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const comparisonByLabel = new Map( comparisonItems.map( i => [ itemLabel( i ), i.views ] ) );
-
-	const items = rawItems
-		.map( item => ( {
+	const comparisonItems = hasComparison ? comparisonReport?.data?.[ 0 ]?.items ?? [] : [];
+	const visibleItems = rawItems.slice( 0, max > 0 ? max : undefined );
+	const { rows, hasComparison: hasOverlappingComparison } = mergeStatsComparisonRows( {
+		primaryRows: visibleItems,
+		comparisonRows: comparisonItems,
+		getPrimaryKey: itemLabel,
+		getComparisonKey: itemLabel,
+		getComparisonValue: item => item.views,
+		mapRow: ( item, { previousValue } ) => ( {
 			label: itemLabel( item ),
 			views: item.views,
-			previousViews: hasComparison ? comparisonByLabel.get( itemLabel( item ) ) ?? 0 : 0,
-		} ) )
-		.slice( 0, max > 0 ? max : undefined );
+			previousViews: previousValue,
+		} ),
+	} );
 
 	return {
-		data: items,
+		data: rows,
 		isLoading: primary.isLoading || ( hasComparison && comparison.isLoading ),
 		isError: primary.isError || ( hasComparison && comparison.isError ),
-		hasComparison,
+		hasComparison: hasComparison && hasOverlappingComparison,
 	};
 }

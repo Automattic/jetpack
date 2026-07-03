@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { buildTopAuthorsData } from '../build-top-authors-data';
+import { buildTopAuthorsData, buildTopAuthorsDataWithComparison } from '../build-top-authors-data';
 import type { StatsNormalizedReport, StatsTopAuthorsItem } from '@jetpack-premium-analytics/data';
 
 type AuthorSeed = {
@@ -70,12 +70,11 @@ describe( 'buildTopAuthorsData', () => {
 			id: 'Alice',
 			label: 'Alice',
 			currentValue: 10,
-			previousValue: 0,
 			currentShare: 100,
-			previousShare: 0,
-			// No comparison value, so the author reads as newly appeared.
-			delta: 100,
 		} );
+		expect( result[ 0 ].previousValue ).toBeUndefined();
+		expect( result[ 0 ].previousShare ).toBeUndefined();
+		expect( result[ 0 ].delta ).toBeUndefined();
 	} );
 
 	it( 'preserves the order the API returns authors in', () => {
@@ -104,7 +103,28 @@ describe( 'buildTopAuthorsData', () => {
 		} );
 	} );
 
-	it( 'treats authors missing from the comparison period as zero', () => {
+	it( 'detects when at least one primary author overlaps the comparison period', () => {
+		expect(
+			buildTopAuthorsDataWithComparison(
+				makeReport( [
+					{ label: 'Alice', views: 10 },
+					{ label: 'Bob', views: 8 },
+				] ),
+				makeReport( [ { label: 'Bob', views: 5 } ] )
+			).hasComparison
+		).toBe( true );
+	} );
+
+	it( 'does not detect comparison rows when authors do not overlap', () => {
+		expect(
+			buildTopAuthorsDataWithComparison(
+				makeReport( [ { label: 'Alice', views: 10 } ] ),
+				makeReport( [ { label: 'Carol', views: 5 } ] )
+			).hasComparison
+		).toBe( false );
+	} );
+
+	it( 'does not fabricate comparison values for authors missing from the comparison period', () => {
 		const result = buildTopAuthorsData(
 			makeReport( [
 				{ label: 'Alice', views: 10 },
@@ -114,7 +134,8 @@ describe( 'buildTopAuthorsData', () => {
 		);
 
 		const bob = result.find( author => author.label === 'Bob' );
-		expect( bob ).toMatchObject( { previousValue: 0, delta: 100 } );
+		expect( bob?.previousValue ).toBeUndefined();
+		expect( bob?.delta ).toBeUndefined();
 	} );
 
 	it( 'localizes the untracked-authors sentinel produced by the sanitizer', () => {

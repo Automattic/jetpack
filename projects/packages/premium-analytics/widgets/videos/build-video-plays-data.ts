@@ -6,6 +6,7 @@ import {
 	type LeaderboardChartData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { mergeStatsComparisonRows } from '@jetpack-premium-analytics/data';
 import type { StatsNormalizedReport, StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 
 /**
@@ -54,12 +55,17 @@ function toVideoItems(
 	return report?.data.flatMap( point => point.items ) ?? [];
 }
 
+export type VideoPlaysDataResult = {
+	data: LeaderboardChartData;
+	hasComparison: boolean;
+};
+
 /**
  * Builds leaderboard chart data for the Videos widget.
  *
  * Transforms Jetpack Stats video-plays data into the format required by
- * LeaderboardChart, with comparison values aligned by video (videos missing
- * from the comparison period count as zero).
+ * LeaderboardChart, with comparison values aligned by video. The render layer
+ * decides whether comparison UI is enabled based on visible row overlap.
  *
  * @param primary    - Primary period video-plays report
  * @param comparison - Comparison period video-plays report
@@ -69,38 +75,59 @@ export function buildVideoPlaysData(
 	primary: StatsNormalizedReport< StatsVideoPlaysItem > | undefined,
 	comparison: StatsNormalizedReport< StatsVideoPlaysItem > | undefined
 ): LeaderboardChartData {
+	return buildVideoPlaysDataWithComparison( primary, comparison ).data;
+}
+
+/**
+ * Builds leaderboard chart data and reports whether any visible video has a
+ * matching comparison-period row.
+ *
+ * @param primary    - Primary period video-plays report
+ * @param comparison - Comparison period video-plays report
+ * @return Processed data and row-overlap comparison state.
+ */
+export function buildVideoPlaysDataWithComparison(
+	primary: StatsNormalizedReport< StatsVideoPlaysItem > | undefined,
+	comparison: StatsNormalizedReport< StatsVideoPlaysItem > | undefined
+): VideoPlaysDataResult {
 	const videos = toVideoItems( primary );
 
 	if ( videos.length === 0 ) {
-		return [];
+		return { data: [], hasComparison: false };
 	}
 
-	const comparisonPlays = new Map(
-		toVideoItems( comparison ).map( video => [ getVideoKey( video ), video.plays ] )
-	);
+	const { rows, hasComparison } = mergeStatsComparisonRows( {
+		primaryRows: videos,
+		comparisonRows: toVideoItems( comparison ),
+		getPrimaryKey: getVideoKey,
+		getComparisonKey: getVideoKey,
+		getComparisonValue: video => video.plays,
+		mapRow: ( video, { previousValue } ) => ( {
+			id: getVideoKey( video ),
+			label: getVideoLabel( video ),
+			currentValue: video.plays,
+			previousValue,
+		} ),
+	} );
 
 	// Share each value against the largest of either period so the overlay bars
 	// stay proportional; `1` guards against division by zero.
 	const maxValue = Math.max(
-		...videos.map( video =>
-			Math.max( video.plays, comparisonPlays.get( getVideoKey( video ) ) ?? 0 )
-		),
+		...rows.map( video => Math.max( video.currentValue, video.previousValue ?? 0 ) ),
 		1
 	);
 
-	return videos.map( video => {
-		const key = getVideoKey( video );
-		const currentValue = video.plays;
-		const previousValue = comparisonPlays.get( key ) ?? 0;
-
-		return {
-			id: key,
-			label: getVideoLabel( video ),
-			currentValue,
-			previousValue,
-			currentShare: ( currentValue / maxValue ) * 100,
-			previousShare: ( previousValue / maxValue ) * 100,
-			delta: calculateDelta( currentValue, previousValue ),
-		};
-	} );
+	return {
+		data: rows.map( video => ( {
+			...video,
+			currentShare: ( video.currentValue / maxValue ) * 100,
+			previousShare:
+				video.previousValue !== undefined ? ( video.previousValue / maxValue ) * 100 : undefined,
+			delta:
+				video.previousValue !== undefined
+					? calculateDelta( video.currentValue, video.previousValue )
+					: undefined,
+		} ) ),
+		hasComparison,
+	};
 }

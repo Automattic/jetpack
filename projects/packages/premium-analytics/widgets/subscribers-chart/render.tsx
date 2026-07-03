@@ -22,10 +22,9 @@ import useSubscribersChart, {
 } from './use-subscribers-chart';
 import type { ComponentProps } from 'react';
 
-type SubscribersChartRenderProps = Pick<
-	ComponentProps< typeof WidgetRoot >,
-	'attributes' | 'setError'
->;
+type SubscribersChartRenderProps = Pick< ComponentProps< typeof WidgetRoot >, 'attributes' > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+};
 
 const DATA_FORMAT = {
 	type: 'number' as const,
