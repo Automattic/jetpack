@@ -175,4 +175,73 @@ class Atomic_Admin_Menu_Test extends TestCase {
 			$this->assertSame( 'plugins.php', $submenu['plugins.php'][2][2] );
 		}
 	}
+
+	/**
+	 * Adds a WooCommerce top-level menu item to the global menu fixture.
+	 */
+	private function add_woocommerce_menu_item() {
+		global $menu;
+		$menu[56] = array(
+			'WooCommerce',
+			'manage_woocommerce',
+			'woocommerce',
+			'WooCommerce',
+			'menu-top toplevel_page_woocommerce',
+			'toplevel_page_woocommerce',
+			'dashicons-store',
+		);
+	}
+
+	/**
+	 * Tests that the WooCommerce menu item is relabeled to "Store setup" on eCommerce-plan sites.
+	 *
+	 * @param string $product_slug An eCommerce plan product slug.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_ecommerce_plan_slugs' )]
+	public function test_add_woocommerce_menu_relabels_on_ecommerce_plan( $product_slug ) {
+		global $menu;
+
+		$this->add_woocommerce_menu_item();
+		$GLOBALS['jetpack_masterbar_test_site_purchases'] = array( (object) array( 'product_slug' => $product_slug ) );
+
+		static::$admin_menu->add_woocommerce_menu();
+
+		$this->assertSame( 'Store setup', $menu[56][0] );
+		// The slug is preserved so the menu still points at WooCommerce.
+		$this->assertSame( 'woocommerce', $menu[56][2] );
+		// Only the sidebar label changes; the page title is left untouched.
+		$this->assertSame( 'WooCommerce', $menu[56][3] );
+
+		unset( $GLOBALS['jetpack_masterbar_test_site_purchases'] );
+	}
+
+	/**
+	 * Tests that the WooCommerce menu item keeps its label on non-eCommerce-plan sites.
+	 */
+	public function test_add_woocommerce_menu_keeps_label_without_ecommerce_plan() {
+		global $menu;
+
+		$this->add_woocommerce_menu_item();
+		$GLOBALS['jetpack_masterbar_test_site_purchases'] = array( (object) array( 'product_slug' => 'business-bundle' ) );
+
+		static::$admin_menu->add_woocommerce_menu();
+
+		$this->assertSame( 'WooCommerce', $menu[56][0] );
+
+		unset( $GLOBALS['jetpack_masterbar_test_site_purchases'] );
+	}
+
+	/**
+	 * Data provider for eCommerce plan slugs.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function provide_ecommerce_plan_slugs() {
+		return array(
+			'Commerce'          => array( 'ecommerce-bundle' ),
+			'Commerce monthly'  => array( 'ecommerce-bundle-monthly' ),
+			'WooExpress small'  => array( 'wooexpress-small-bundle-yearly' ),
+			'WooExpress medium' => array( 'wooexpress-medium-bundle-monthly' ),
+		);
+	}
 }

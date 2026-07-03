@@ -19,6 +19,23 @@ require_once __DIR__ . '/class-admin-menu.php';
 class Atomic_Admin_Menu extends Admin_Menu {
 
 	/**
+	 * Plan slugs (Commerce and WooExpress) for which the WooCommerce menu item is
+	 * relabeled to "Store setup".
+	 *
+	 * @var string[]
+	 */
+	const ECOMMERCE_PLAN_SLUGS = array(
+		'ecommerce-bundle',
+		'ecommerce-bundle-monthly',
+		'ecommerce-bundle-2y',
+		'ecommerce-bundle-3y',
+		'wooexpress-small-bundle-yearly',
+		'wooexpress-small-bundle-monthly',
+		'wooexpress-medium-bundle-yearly',
+		'wooexpress-medium-bundle-monthly',
+	);
+
+	/**
 	 * Atomic_Admin_Menu constructor.
 	 */
 	protected function __construct() {
@@ -73,7 +90,49 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
+		$this->add_woocommerce_menu();
+
 		ksort( $GLOBALS['menu'] );
+	}
+
+	/**
+	 * Relabels the WooCommerce menu item to "Store setup" on eCommerce-plan sites.
+	 *
+	 * Only the sidebar label is changed; the page title is left untouched.
+	 */
+	public function add_woocommerce_menu() {
+		global $menu;
+
+		if ( ! $this->is_ecommerce_plan() ) {
+			return;
+		}
+
+		foreach ( $menu as $position => $item ) {
+			if ( 'woocommerce' === $item[2] ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $position ][0] = __( 'Store setup', 'jetpack-masterbar' );
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Whether the current site is on an eCommerce plan (Commerce or WooExpress).
+	 *
+	 * @return bool
+	 */
+	protected function is_ecommerce_plan() {
+		if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+			return false;
+		}
+
+		foreach ( wpcom_get_site_purchases() as $purchase ) {
+			if ( isset( $purchase->product_slug ) && in_array( $purchase->product_slug, self::ECOMMERCE_PLAN_SLUGS, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
