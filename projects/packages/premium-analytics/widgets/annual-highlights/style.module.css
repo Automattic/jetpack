@@ -32,9 +32,12 @@
 	color: var(--wpds-color-fg-content-neutral);
 }
 
-/* The buttons stay focusable when disabled, so they carry data-disabled rather
- * than the :disabled state; dim the arrow to signal the range boundary. */
-.navButton[data-disabled] {
+/* Dim the arrow to signal the year-range boundary. The button stays focusable
+ * when disabled, so it carries data-disabled / aria-disabled rather than the
+ * native :disabled state; cover all three so the styling holds either way. */
+.navButton:disabled,
+.navButton[data-disabled],
+.navButton[aria-disabled="true"] {
 	color: var(--wpds-color-fg-content-neutral-weak);
 }
 

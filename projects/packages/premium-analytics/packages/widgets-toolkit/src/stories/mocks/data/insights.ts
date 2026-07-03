@@ -21,8 +21,6 @@ export const mockStatsInsightsData = {
 			avg_likes: 42.9,
 			total_words: 61200,
 			avg_words: 637,
-			total_images: 148,
-			avg_images: 1.5,
 		},
 		{
 			year: '2026',
@@ -33,8 +31,6 @@ export const mockStatsInsightsData = {
 			avg_likes: 45.5,
 			total_words: 86400,
 			avg_words: 675,
-			total_images: 210,
-			avg_images: 1.6,
 		},
 	],
 };
