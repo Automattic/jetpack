@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { PieSemiCircleChart } from '@automattic/charts';
-import { useResizeObserver } from '@wordpress/compose';
 import { Icon, Stack } from '@wordpress/ui';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	resolveSegmentStyles,
@@ -12,6 +11,7 @@ import {
 	isEmptyPieChartData,
 	type SegmentStyle,
 } from '../../helpers';
+import { useElementSize } from '../../hooks';
 import { ChartEmptyState } from '../chart-empty-state';
 import { PieChartTooltip } from '../chart-tooltip';
 /**
@@ -37,48 +37,6 @@ const DEFAULT_CONTAINER_SIZE = 240;
 // tokens applied to the wrapper Stack (24px / 8px).
 const DEFAULT_LEGEND_GAP_SIZE = 24;
 const COMPACT_LEGEND_GAP_SIZE = 8;
-
-type ElementSize = { width: number; height: number };
-
-function getElementSize( element: Element ): ElementSize {
-	const { width, height } = element.getBoundingClientRect();
-	return { width: Math.round( width ), height: Math.round( height ) };
-}
-
-/**
- * Tracks an element's rendered size via ResizeObserver, so the chart can be
- * bounded by the height its tile actually offers (not only its width).
- */
-function useElementSize< T extends HTMLElement >() {
-	const elementRef = useRef< T | null >( null );
-	const [ size, setSize ] = useState< ElementSize >( { width: 0, height: 0 } );
-
-	const updateSize = useCallback( ( next: ElementSize ) => {
-		setSize( prev => ( prev.width === next.width && prev.height === next.height ? prev : next ) );
-	}, [] );
-
-	const observerRef = useResizeObserver< T >( entries => {
-		const element = entries[ 0 ]?.target ?? elementRef.current;
-		if ( element ) {
-			updateSize( getElementSize( element ) );
-		}
-	} );
-
-	const setElementRef = useCallback(
-		( element: T | null ) => {
-			elementRef.current = element;
-			if ( typeof ResizeObserver !== 'undefined' ) {
-				observerRef( element );
-			}
-			if ( element ) {
-				updateSize( getElementSize( element ) );
-			}
-		},
-		[ observerRef, updateSize ]
-	);
-
-	return [ setElementRef, size ] as const;
-}
 
 export type SemiCircleChartData = ComponentProps< typeof PieSemiCircleChart >[ 'data' ];
 
