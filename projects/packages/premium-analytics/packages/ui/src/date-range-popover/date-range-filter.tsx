@@ -245,6 +245,9 @@ export function DateRangePopoverContent( {
 
 	const calendarRange = draftRange ?? range;
 
+	// Apply commits the staged range, not the draft: disable it mid-selection.
+	const effectiveCanApply = canApply && ! draftRange;
+
 	// Mobile layout: single column with dropdown presets
 	if ( isMobile ) {
 		return (
@@ -255,7 +258,7 @@ export function DateRangePopoverContent( {
 					timeZone={ timeZone }
 				/>
 
-				<DateRangeInput range={ calendarRange } onChange={ handleChange } timeZone={ timeZone } />
+				<DateRangeInput range={ range } onChange={ handleChange } timeZone={ timeZone } />
 
 				<DateRangeCalendar
 					className="date-range-calendar"
@@ -267,7 +270,11 @@ export function DateRangePopoverContent( {
 					timeZone={ timeZone }
 				/>
 
-				<DateRangePopoverActions onCancel={ onCancel } onApply={ onApply } canApply={ canApply } />
+				<DateRangePopoverActions
+					onCancel={ onCancel }
+					onApply={ onApply }
+					canApply={ effectiveCanApply }
+				/>
 			</div>
 		);
 	}
@@ -292,7 +299,7 @@ export function DateRangePopoverContent( {
 				gap="lg"
 				direction="column"
 			>
-				<DateRangeInput range={ calendarRange } onChange={ handleChange } timeZone={ timeZone } />
+				<DateRangeInput range={ range } onChange={ handleChange } timeZone={ timeZone } />
 
 				<DateRangeCalendar
 					className="date-range-calendar"
@@ -305,7 +312,11 @@ export function DateRangePopoverContent( {
 				/>
 			</Stack>
 
-			<DateRangePopoverActions onCancel={ onCancel } onApply={ onApply } canApply={ canApply } />
+			<DateRangePopoverActions
+				onCancel={ onCancel }
+				onApply={ onApply }
+				canApply={ effectiveCanApply }
+			/>
 		</div>
 	);
 }
