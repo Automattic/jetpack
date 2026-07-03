@@ -289,6 +289,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			if ( isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ) {
 				$tasks = $this->build_tasks( $payload['tasks'], false, $niche );
 			}
+
+			$gallery = $this->build_gallery_task( $inferred );
+			if ( null !== $gallery ) {
+				$tasks = $this->insert_before_launch_task( $tasks, $gallery );
+			}
 		}
 
 		// The membership tasks' completion is recomputed in build_tasks(), so overlay it to keep
@@ -659,6 +664,112 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
+	 * Visual-work niche keywords that (along with the `portfolio` goal) surface the synthetic gallery task.
+	 */
+	const GALLERY_NICHE_KEYWORDS = array(
+		'photography',
+		'photo',
+		'photos',
+		'photographer',
+		'portfolio',
+		'gallery',
+		'art',
+		'artist',
+		'illustration',
+		'illustrator',
+		'design',
+		'designer',
+		'visual',
+		'painting',
+		'drawing',
+	);
+
+	/**
+	 * Whether the synthetic "Create your first gallery" task should be offered, based on the inferred goal/niche.
+	 *
+	 * @param array $inferred The AI output's `inferred` block.
+	 * @return bool
+	 */
+	private function should_offer_gallery_task( $inferred ) {
+		$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
+		if ( 'portfolio' === $goal ) {
+			return true;
+		}
+
+		$niche = isset( $inferred['niche'] ) && is_string( $inferred['niche'] ) ? strtolower( $inferred['niche'] ) : '';
+		if ( '' === $niche ) {
+			return false;
+		}
+
+		// Split on any non-alphanumeric run so hyphenated/compound niches ("wildlife-photography") tokenize like the client.
+		$words = preg_split( '/[^a-z0-9]+/', $niche, -1, PREG_SPLIT_NO_EMPTY );
+		return array() !== array_intersect( $words, self::GALLERY_NICHE_KEYWORDS );
+	}
+
+	/**
+	 * Builds the synthetic gallery-task entry, or null when it should not be offered.
+	 *
+	 * Completion is read from the status option (written by AI_Launchpad_Gallery_Page_Listener on publish); an
+	 * unpublished marker draft puts it in progress and reopens that draft.
+	 *
+	 * @param array $inferred The AI output's `inferred` block.
+	 * @return array|null
+	 */
+	private function build_gallery_task( $inferred ) {
+		if ( ! $this->should_offer_gallery_task( $inferred ) ) {
+			return null;
+		}
+
+		$statuses  = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+		$completed = ! empty( $statuses['add_gallery_page'] );
+
+		$in_progress  = false;
+		$calypso_path = null;
+		if ( ! $completed ) {
+			$draft_url = $this->get_in_progress_draft_url( 'add_gallery_page' );
+			if ( null !== $draft_url ) {
+				$in_progress  = true;
+				$calypso_path = $draft_url;
+			}
+		}
+
+		return array(
+			'id'           => 'add_gallery_page',
+			'subtitle'     => __( 'Show your work in a beautiful photo gallery.', 'jetpack-mu-wpcom' ),
+			'title'        => $this->get_task_title( 'add_gallery_page', $in_progress, __( 'Create your first gallery', 'jetpack-mu-wpcom' ) ),
+			'completed'    => $completed,
+			'in_progress'  => $in_progress,
+			'calypso_path' => $calypso_path,
+		);
+	}
+
+	/**
+	 * Inserts a synthetic task immediately before the trailing launch task (or appends it), idempotently by id.
+	 *
+	 * @param array $tasks The enriched task list.
+	 * @param array $task  The synthetic task entry.
+	 * @return array
+	 */
+	private function insert_before_launch_task( $tasks, $task ) {
+		foreach ( $tasks as $existing ) {
+			if ( isset( $existing['id'] ) && $existing['id'] === $task['id'] ) {
+				return $tasks;
+			}
+		}
+
+		$insert_at = count( $tasks );
+		foreach ( $tasks as $index => $existing ) {
+			if ( isset( $existing['id'] ) && in_array( $existing['id'], self::LAUNCH_TASK_IDS, true ) ) {
+				$insert_at = $index;
+				break;
+			}
+		}
+
+		array_splice( $tasks, $insert_at, 0, array( $task ) );
+		return $tasks;
+	}
+
+	/**
 	 * Resolves the editor URL of a site-editor task's in-progress draft, or null when there is none.
 	 *
 	 * The About page is found by its marker meta; the first-post tasks by the latest draft post. Returned as an
@@ -672,6 +783,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		if ( 'add_about_page' === $task_id ) {
 			$draft_id = AI_Launchpad_About_Page_Listener::get_draft_id();
+		} elseif ( 'add_gallery_page' === $task_id ) {
+			$draft_id = AI_Launchpad_Gallery_Page_Listener::get_draft_id();
 		} elseif ( in_array( $task_id, self::IN_PROGRESS_FIRST_POST_TASK_IDS, true ) ) {
 			$draft_id = AI_Launchpad_First_Post_Listener::get_draft_id();
 		}
@@ -700,6 +813,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		switch ( $task_id ) {
 			case 'add_about_page':
 				return $in_progress ? __( 'Continue working on the About page', 'jetpack-mu-wpcom' ) : $default;
+			case 'add_gallery_page':
+				return $in_progress ? __( 'Continue working on your gallery', 'jetpack-mu-wpcom' ) : $default;
 			case 'first_post_published':
 				return $in_progress
 					? __( 'Continue to write your first post', 'jetpack-mu-wpcom' )

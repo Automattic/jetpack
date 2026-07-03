@@ -15,6 +15,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-about-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-gallery-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-first-post-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-rest.php';
@@ -595,6 +597,121 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The gallery task is injected before the launch task for a portfolio goal, defaulting to todo.
+	 */
+	public function test_get_injects_gallery_task_for_portfolio_goal() {
+		wp_set_current_user( $this->admin_id );
+		// seed_gallery_output seeds [ site_title, site_launched ] — both reliably visible in the test env
+		// (unlike add_about_page, whose visibility gate needs extra meta registered).
+		$this->seed_gallery_output( 'portfolio', 'freelance work' );
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertContains( 'add_gallery_page', $ids );
+		// Injected immediately before the launch task.
+		$this->assertSame( array( 'site_title', 'add_gallery_page', 'site_launched' ), $ids );
+
+		$gallery = null;
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			if ( 'add_gallery_page' === $task['id'] ) {
+				$gallery = $task;
+			}
+		}
+		$this->assertSame( 'Create your first gallery', $gallery['title'] );
+		$this->assertFalse( $gallery['completed'] );
+		$this->assertFalse( $gallery['in_progress'] );
+	}
+
+	/**
+	 * The gallery task is injected for a photo/visual niche even when the goal is not portfolio.
+	 */
+	public function test_get_injects_gallery_task_for_photo_niche() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'build', 'wedding photography' );
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertContains( 'add_gallery_page', $ids );
+	}
+
+	/**
+	 * A hyphenated/compound niche still matches on its keyword tokens.
+	 */
+	public function test_get_injects_gallery_task_for_hyphenated_niche() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'build', 'wildlife-photography' );
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertContains( 'add_gallery_page', $ids );
+	}
+
+	/**
+	 * The gallery task is NOT injected for an unrelated goal + niche.
+	 */
+	public function test_get_omits_gallery_task_for_unrelated_site() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'sell', 'organic coffee beans' );
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertNotContains( 'add_gallery_page', $ids );
+	}
+
+	/**
+	 * A completed gallery page marks the injected task done.
+	 */
+	public function test_get_marks_gallery_task_complete_from_status_option() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'portfolio', 'sculpture' );
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'add_gallery_page' => true ) );
+
+		$gallery = null;
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			if ( 'add_gallery_page' === $task['id'] ) {
+				$gallery = $task;
+			}
+		}
+		$this->assertTrue( $gallery['completed'] );
+	}
+
+	/**
+	 * An unpublished gallery draft puts the injected task in progress and reopens that draft.
+	 */
+	public function test_get_marks_gallery_task_in_progress_with_draft() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'portfolio', 'sculpture' );
+
+		// The marker-meta draft lookup runs through WP_Query, which WorDBless can't execute, so short-circuit it with
+		// core's posts_pre_query filter to return a seeded draft id (mirrors the About-page in-progress test).
+		$draft_id = 4343;
+		add_filter(
+			'posts_pre_query',
+			static function ( $posts, $query ) use ( $draft_id ) {
+				if ( AI_Launchpad_Gallery_Page_Listener::META_KEY === $query->get( 'meta_key' ) ) {
+					return array( $draft_id );
+				}
+				return $posts;
+			},
+			10,
+			2
+		);
+
+		$gallery = null;
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			if ( 'add_gallery_page' === $task['id'] ) {
+				$gallery = $task;
+			}
+		}
+		$this->assertTrue( $gallery['in_progress'] );
+		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $gallery['calypso_path'] );
+	}
+
+	/**
+	 * The gallery task is not injected on the ?all_tasks=1 catalog view.
+	 */
+	public function test_get_all_tasks_param_omits_gallery_task() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'portfolio', 'sculpture' );
+		$ids = array_column( $this->call_api( Requests::GET, '', null, array( 'all_tasks' => '1' ) )->get_data()['tasks'], 'id' );
+		$this->assertNotContains( 'add_gallery_page', $ids );
+	}
+
+	/**
 	 * Test that GET with ?all_tasks=1 returns the full catalog (a testing aid),
 	 * bypassing per-site visibility and not depending on any persisted AI output.
 	 */
@@ -1000,6 +1117,40 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'source'       => 'ai',
 				'generated_at' => 1717000000,
 				'payload'      => array( 'tasks' => $tasks ),
+			),
+			false
+		);
+	}
+
+	/**
+	 * Seed an AI output whose tasks end on a launch task, with the given inferred goal/niche.
+	 *
+	 * @param string $goal  The inferred goal.
+	 * @param string $niche The inferred niche.
+	 */
+	private function seed_gallery_output( $goal, $niche ) {
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'site_title',
+							'subtitle' => 'Name it.',
+						),
+						array(
+							'id'       => 'site_launched',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array(
+						'goal'  => $goal,
+						'niche' => $niche,
+					),
+				),
 			),
 			false
 		);

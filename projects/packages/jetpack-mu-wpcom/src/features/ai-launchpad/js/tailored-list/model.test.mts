@@ -100,6 +100,12 @@ describe( 'ctaKind', () => {
 	} );
 } );
 
+describe( 'ctaKind gallery', () => {
+	it( 'routes add_gallery_page through the pattern-page flow', () => {
+		assert.equal( ctaKind( 'add_gallery_page' ), 'pattern_page' );
+	} );
+} );
+
 describe( 'toNavigableUrl', () => {
 	it( 'pins Calypso router paths to wordpress.com', () => {
 		assert.equal(
@@ -269,6 +275,27 @@ describe( 'resolveCtaUrl', () => {
 		);
 		assert.equal( url, '/wp-admin/post.php?post=2' );
 		assert.deepEqual( clicked, [ 'add_about_page' ] );
+	} );
+
+	it( 'passes the pattern variant keyed by task id', async () => {
+		const variants: ( string | undefined )[] = [];
+		const handlers = {
+			trackTaskClicked: () => {},
+			createFirstPostDraft: async () => ( { post_id: 1, edit_url: '/wp-admin/post.php?post=1' } ),
+			createPatternPage: async ( _inferred: TailoredOutput[ 'inferred' ], variant?: string ) => {
+				variants.push( variant );
+				return { page_id: 2, edit_url: '/wp-admin/post.php?post=2' };
+			},
+		};
+
+		await resolveCtaUrl(
+			task( { id: 'add_gallery_page', calypso_path: null } ),
+			fixture,
+			handlers
+		);
+		await resolveCtaUrl( task( { id: 'add_about_page', calypso_path: null } ), fixture, handlers );
+
+		assert.deepEqual( variants, [ 'gallery', 'about' ] );
 	} );
 
 	it( 'reopens the existing draft for an in-progress task instead of creating a new one', async () => {
