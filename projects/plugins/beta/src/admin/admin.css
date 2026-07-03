@@ -177,8 +177,9 @@
 	align-items: center;
 	justify-content: space-between;
 	flex-wrap: wrap;
-	gap: 16px;
-	padding: 16px var(--jpbeta-pad);
+	gap: 24px;
+	padding: 20px var(--jpbeta-pad);
+	font-size: 13px;
 	background: var(--jpbeta-color-surface);
 	border-top: 1px solid var(--jpbeta-color-border);
 }
@@ -194,7 +195,8 @@
 }
 
 .jetpack-beta-footer__name {
-	font-size: 14px;
+	font-size: 13px;
+	line-height: 20px;
 	color: var(--jpbeta-color-text);
 }
 
