@@ -787,9 +787,11 @@ class Initializer {
 		// attention entry (count 1). The registry + renderer own the badge.
 		Menu_Badges::init(); // idempotent; wires the renderer.
 		foreach ( array_keys( $red_bubble_alerts ) as $slug ) {
-			// Protect now reports its own count directly to the registry; skip it here
-			// so it isn't counted twice in the top-level menu total.
-			if ( 'protect_has_threats' === $slug ) {
+			// Protect reports its own count directly to the registry, but only when its
+			// standalone plugin is active (see class-jetpack-protect.php::admin_page_init()).
+			// If the standalone plugin isn't active, nobody else registers this count, so we
+			// must not skip it here or the alert silently disappears from the menu total.
+			if ( 'protect_has_threats' === $slug && Products\Protect::is_standalone_plugin_active() ) {
 				continue;
 			}
 			Notification_Counts::register(

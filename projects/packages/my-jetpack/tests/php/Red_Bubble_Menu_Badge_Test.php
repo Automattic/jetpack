@@ -5,6 +5,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
+use Automattic\Jetpack\My_Jetpack\Products\Protect;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -85,6 +86,21 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 	}
 
 	/**
+	 * Installs and activates a mock jetpack-protect standalone plugin so
+	 * Products\Protect::is_standalone_plugin_active() reports true, mirroring the
+	 * scenario where the standalone Protect plugin registers its own count.
+	 */
+	private function activate_standalone_protect_plugin() {
+		$plugin_dir = WP_PLUGIN_DIR . '/' . Protect::$plugin_slug;
+		if ( ! file_exists( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0777, true );
+		}
+		copy( __DIR__ . '/assets/protect-mock-plugin.txt', $plugin_dir . '/jetpack-protect.php' );
+		wp_cache_delete( 'plugins', 'plugins' );
+		activate_plugins( Protect::get_installed_plugin_filename() );
+	}
+
+	/**
 	 * Non-silent alerts should each register as an 'attention' entry against the
 	 * 'my-jetpack' submenu, keyed uniquely so they don't overwrite one another.
 	 */
@@ -110,11 +126,18 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 	}
 
 	/**
-	 * Protect now reports its own count directly to the registry (Task 8); My Jetpack
-	 * must skip it in the menu-count registration loop to avoid double-counting the
-	 * top-level menu total.
+	 * Protect reports its own count directly to the registry when its standalone
+	 * plugin is active (Task 8); My Jetpack must skip it in the menu-count
+	 * registration loop in that case, to avoid double-counting the top-level menu
+	 * total.
 	 */
-	public function test_skips_protect_has_threats_to_avoid_double_counting() {
+	public function test_skips_protect_has_threats_when_standalone_plugin_active() {
+		$this->activate_standalone_protect_plugin();
+		$this->assertTrue(
+			Protect::is_standalone_plugin_active(),
+			'Precondition: the mock standalone Protect plugin should be active.'
+		);
+
 		$this->seed_cached_alerts(
 			array(
 				'protect_has_threats' => array( 'count' => 3 ),
@@ -128,10 +151,42 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 	}
 
 	/**
+	 * When the standalone Protect plugin is NOT active, nothing else registers the
+	 * protect_has_threats count (class-jetpack-protect.php::admin_page_init() only
+	 * runs from the standalone plugin). My Jetpack must NOT skip it in that case,
+	 * or a security-relevant alert silently disappears from the top-level menu
+	 * total on full Jetpack + Scan installs.
+	 */
+	public function test_registers_protect_has_threats_when_standalone_plugin_inactive() {
+		$this->assertFalse(
+			Protect::is_standalone_plugin_active(),
+			'Precondition: the standalone Protect plugin should not be installed/active.'
+		);
+
+		$this->seed_cached_alerts(
+			array(
+				'protect_has_threats' => array( 'count' => 3 ),
+			)
+		);
+
+		Initializer::maybe_show_red_bubble();
+
+		$entries = Notification_Counts::all();
+		$this->assertArrayHasKey( 'my-jetpack-protect_has_threats', $entries );
+		$this->assertSame( 'my-jetpack', $entries['my-jetpack-protect_has_threats']['menu_slug'] );
+		$this->assertSame( 'attention', $entries['my-jetpack-protect_has_threats']['type'] );
+		$this->assertSame( 1, Notification_Counts::get_for_menu( 'my-jetpack' ) );
+		$this->assertSame( 1, Notification_Counts::get_total() );
+	}
+
+	/**
 	 * The registered total for the my-jetpack submenu should equal the number of
-	 * non-silent, non-Protect alerts (each attention entry contributes 1 to the total).
+	 * non-silent alerts (each attention entry contributes 1 to the total), excluding
+	 * Protect's alert when the standalone plugin is active and reports it directly.
 	 */
 	public function test_total_reflects_non_silent_non_protect_alert_count() {
+		$this->activate_standalone_protect_plugin();
+
 		$this->seed_cached_alerts(
 			array(
 				'backup_failure'           => array( 'message' => 'Backup failed' ),

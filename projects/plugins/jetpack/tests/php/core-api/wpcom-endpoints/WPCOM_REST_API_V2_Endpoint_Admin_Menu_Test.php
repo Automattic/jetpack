@@ -367,6 +367,53 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	}
 
 	/**
+	 * Mirrors test_prepare_submenu_item_overlays_registry_count() but for the
+	 * top-level branch: the central menu-badges registry's authoritative grand
+	 * total overlays the top-level "Jetpack" menu item's `count`, so the total
+	 * reflects every registered menu_slug (e.g. both jetpack-forms and
+	 * my-jetpack contributions), not just one submenu's contribution.
+	 */
+	public function test_prepare_menu_item_overlays_registry_total() {
+		if ( ! class_exists( '\Automattic\Jetpack\Menu_Badges\Notification_Counts' ) ) {
+			$this->markTestSkipped( 'menu-badges package not loaded' );
+		}
+
+		global $submenu;
+		$old_submenu        = $submenu;
+		$submenu['jetpack'] = array();
+
+		\Automattic\Jetpack\Menu_Badges\Notification_Counts::reset();
+		\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
+			'jetpack-forms',
+			array(
+				'menu_slug' => 'jetpack-forms-responses-wp-admin',
+				'count'     => 15,
+			)
+		);
+		\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
+			'my-jetpack-protect_has_threats',
+			array(
+				'menu_slug' => 'my-jetpack',
+				'type'      => 'attention',
+			)
+		);
+
+		$class  = new \ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
+		$method = $class->getMethod( 'prepare_menu_item' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$menu_item = array( 'Jetpack', 'read', 'jetpack', 'Jetpack', 'menu-top', 'toplevel_page_jetpack', 'dashicons-admin-generic' );
+
+		$result = $method->invokeArgs( new \WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $menu_item ) );
+
+		$submenu = $old_submenu;
+
+		$this->assertSame( \Automattic\Jetpack\Menu_Badges\Notification_Counts::get_total(), $result['count'] );
+		\Automattic\Jetpack\Menu_Badges\Notification_Counts::reset();
+	}
+
+	/**
 	 * Check if the menu URL is properly generated from the first submenu slug.
 	 */
 	public function test_if_the_first_submenu_url_is_used_for_menu_url() {
