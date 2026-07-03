@@ -204,8 +204,10 @@ function rankBy< T >(
 /**
  * One weighted field per category label. Each label is scored on its own rather than against a
  * space-joined blob, so a multi-category item can still land an exact-match on a single category
- * word — otherwise completing that word would reshuffle results (the joined label could only ever
- * prefix-match). See `scoreTerm` for the match tiers.
+ * word. Otherwise completing that word reshuffles results: a single-category item's joined label
+ * already exact-matches the word, but a multi-category item's joined label (e.g. "Performance
+ * Recommended") can only prefix-match it — so only the multi-category item misses the exact-match
+ * bonus and gets overtaken on the final keystroke. See `scoreTerm` for the match tiers.
  *
  * @param {string[] | undefined} categories - The item's category labels.
  * @return One scored field per label (empty when there are no labels).
