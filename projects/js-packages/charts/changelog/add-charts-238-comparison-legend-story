@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Charts: add a Storybook story demonstrating a 2-item interactive legend for comparison bar charts.
