@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "64a7e3f6111300cfc62f31285fa1fff3",
+    "content-hash": "caea7600eeca649122fb8ab7843df34b",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2232,65 +2232,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "The WordPress.com Toolbar feature replaces the default admin bar and offers quick links to the Reader, all your sites, your WordPress.com profile, and notifications.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-menu-badges",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/menu-badges",
-                "reference": "f6a211b6b7d5fa6435b088df54d61109fd423a28"
-            },
-            "require": {
-                "automattic/jetpack-assets": "@dev",
-                "php": ">=7.2"
-            },
-            "require-dev": {
-                "automattic/jetpack-test-environment": "@dev",
-                "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^4.0.0"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-menu-badges",
-                "textdomain": "jetpack-menu-badges",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-menu-badges/compare/${old}...${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
-                },
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-menu-badges.php"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "test-php-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Central registry and renderer for Jetpack admin-menu notification-count badges.",
             "transport-options": {
                 "relative": true
             }
@@ -6128,7 +6069,6 @@
         "automattic/jetpack-licensing": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-masterbar": 20,
-        "automattic/jetpack-menu-badges": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-newsletter": 20,
         "automattic/jetpack-paypal-payments": 20,

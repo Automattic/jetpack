@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-menu-badges",
-	"version": "0.1.0",
+	"version": "0.1.0-alpha",
 	"description": "Central registry and renderer for Jetpack admin-menu notification-count badges.",
 	"private": true,
 	"scripts": {

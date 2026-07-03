@@ -21,6 +21,13 @@ class Notification_Counts {
 	private static $entries = array();
 
 	/**
+	 * Memoized result of all(), or null when stale. Invalidated on register()/reset().
+	 *
+	 * @var array<string,array>|null
+	 */
+	private static $visible_cache = null;
+
+	/**
 	 * Register (or overwrite) a notification count for a product.
 	 *
 	 * @param string $id   Unique id (e.g. 'jetpack-forms').
@@ -41,6 +48,7 @@ class Notification_Counts {
 			'type'      => ( isset( $args['type'] ) && 'attention' === $args['type'] ) ? 'attention' : 'count',
 			'is_silent' => ! empty( $args['is_silent'] ),
 		);
+		self::$visible_cache  = null;
 	}
 
 	/**
@@ -49,6 +57,10 @@ class Notification_Counts {
 	 * @return array<string,array>
 	 */
 	public static function all() {
+		if ( null !== self::$visible_cache ) {
+			return self::$visible_cache;
+		}
+
 		/**
 		 * Filters the registered menu notification counts.
 		 *
@@ -57,12 +69,15 @@ class Notification_Counts {
 		 */
 		$entries = apply_filters( 'jetpack_menu_notification_counts', self::$entries );
 
-		return array_filter(
-			$entries,
-			function ( $entry ) {
-				return empty( $entry['is_silent'] );
+		$visible = array();
+		foreach ( $entries as $id => $entry ) {
+			if ( empty( $entry['is_silent'] ) ) {
+				$visible[ $id ] = $entry;
 			}
-		);
+		}
+
+		self::$visible_cache = $visible;
+		return $visible;
 	}
 
 	/**
@@ -113,6 +128,7 @@ class Notification_Counts {
 	 * @return void
 	 */
 	public static function reset() {
-		self::$entries = array();
+		self::$entries       = array();
+		self::$visible_cache = null;
 	}
 }

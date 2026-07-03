@@ -55,7 +55,9 @@
 	 */
 	function setCount( menuSlug, count ) {
 		count = Math.max( 0, parseInt( count, 10 ) || 0 );
-		var el = document.querySelector( '[data-jp-menu-badge="' + menuSlug + '"]' );
+		// Escape the slug so an unusual character can't break the selector; feature-detected since this file ships without a build step.
+		var escaped = window.CSS && window.CSS.escape ? window.CSS.escape( menuSlug ) : menuSlug;
+		var el = document.querySelector( '[data-jp-menu-badge="' + escaped + '"]' );
 		if ( el ) {
 			setBadgeCount( el, count );
 		}

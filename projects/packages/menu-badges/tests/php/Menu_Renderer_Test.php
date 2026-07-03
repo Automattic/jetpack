@@ -72,6 +72,8 @@ class Menu_Renderer_Test extends TestCase {
 			)
 		);
 		Menu_Renderer::render();
+		// Rendering a second time must be idempotent: strip() removes the prior badge before re-adding.
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional repeat render.
 		Menu_Renderer::render();
 		// Only one badge on the Forms item.
 		$this->assertSame( 1, substr_count( $GLOBALS['submenu']['jetpack'][0][0], 'menu-counter' ) );

@@ -97,7 +97,10 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 		}
 		copy( __DIR__ . '/assets/protect-mock-plugin.txt', $plugin_dir . '/jetpack-protect.php' );
 		wp_cache_delete( 'plugins', 'plugins' );
-		activate_plugins( Protect::get_installed_plugin_filename() );
+		$plugin_file = Protect::get_installed_plugin_filename();
+		if ( $plugin_file ) {
+			activate_plugins( $plugin_file );
+		}
 	}
 
 	/**
