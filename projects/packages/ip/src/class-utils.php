@@ -202,15 +202,14 @@ class Utils {
 			if ( false === $binary || strlen( $binary ) < 2 ) {
 				return false;
 			}
-			$first  = ord( $binary[0] );
-			$second = ord( $binary[1] );
+			$first = unpack( 'n', $binary )[1];
 
 			// fe80::/10 link-local and fec0::/10 site-local (deprecated).
-			if ( 0xfe === $first && ( 0x80 === ( $second & 0xc0 ) || 0xc0 === ( $second & 0xc0 ) ) ) {
+			if ( 0xfe80 === ( $first & 0xffc0 ) || 0xfec0 === ( $first & 0xffc0 ) ) {
 				return false;
 			}
 			// fc00::/7 unique local addresses.
-			if ( 0xfc === ( $first & 0xfe ) ) {
+			if ( 0xfc00 === ( $first & 0xfe00 ) ) {
 				return false;
 			}
 			return true;
