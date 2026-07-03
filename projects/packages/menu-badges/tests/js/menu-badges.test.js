@@ -41,3 +41,27 @@ describe( 'jetpackMenuBadges.setCount', () => {
 		expect( total.querySelector( '.count' ) ).toHaveTextContent( '1' ); // just protect
 	} );
 } );
+
+describe( 'jetpackMenuBadges.setCount with a cloned flyout-header total badge', () => {
+	beforeEach( () => {
+		// WordPress clones the top-level menu title (badge included) into a
+		// `li.wp-submenu-head` flyout header, so two elements can carry
+		// data-jp-menu-badge-total="1" at once.
+		document.body.innerHTML =
+			`<div id="forms">${ badge( 'jetpack-forms-responses-wp-admin', 15 ) }</div>` +
+			`<div id="protect">${ badge( 'jetpack-protect', 1 ) }</div>` +
+			`<li id="toplevel_page_jetpack">${ badge( 'total', 16, true ) }</li>` +
+			`<li class="wp-submenu-head">${ badge( 'total', 16, true ) }</li>`;
+	} );
+
+	it( 'updates every total-badge clone, not just the first', () => {
+		window.jetpackMenuBadges.setCount( 'jetpack-forms-responses-wp-admin', 14 );
+
+		const totals = document.querySelectorAll( '[data-jp-menu-badge-total="1"]' );
+		expect( totals ).toHaveLength( 2 );
+		totals.forEach( totalEl => {
+			expect( totalEl ).toHaveAttribute( 'data-jp-menu-count', '15' );
+			expect( totalEl.querySelector( '.count' ) ).toHaveTextContent( '15' ); // 14 + 1
+		} );
+	} );
+} );

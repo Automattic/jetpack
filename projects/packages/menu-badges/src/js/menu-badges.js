@@ -27,6 +27,10 @@
 
 	/**
 	 * Recompute the top-level total badge as the sum of all non-total badge counts.
+	 *
+	 * WordPress clones the top-level menu title (badge included) into a
+	 * `li.wp-submenu-head` flyout header, so more than one element can carry
+	 * `data-jp-menu-badge-total="1"`; update all of them, not just the first.
 	 */
 	function recomputeTotal() {
 		var total = 0;
@@ -37,10 +41,10 @@
 			}
 			total += parseInt( el.getAttribute( 'data-jp-menu-count' ), 10 ) || 0;
 		} );
-		var totalEl = document.querySelector( '[data-jp-menu-badge-total="1"]' );
-		if ( totalEl ) {
+		var totalEls = document.querySelectorAll( '[data-jp-menu-badge-total="1"]' );
+		totalEls.forEach( function ( totalEl ) {
 			setBadgeCount( totalEl, total );
-		}
+		} );
 	}
 
 	/**
