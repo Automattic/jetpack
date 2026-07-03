@@ -16,10 +16,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * DELETE THIS CLASS when the real WPCOM proxy for the Studio edits pipeline
- * ships. It registers the exact routes the real proxy will expose, so the
- * frontend needs ZERO changes when the swap happens — remove this file, drop
- * its registration from Initializer, and point the same paths at WPCOM.
+ * DEVELOPMENT-ONLY mock for the Studio edits pipeline. The real backend is
+ * WPCOM_REST_API_V2_Endpoint_VideoPress_Edits, a thin proxy to the WPCOM v1.1
+ * `videos/%s/edits` and `videos/%s/storyboard` endpoints, which serves these
+ * exact routes by default. Opt into the mock with the
+ * `videopress_studio_mock_edits` filter (default false) to develop the Studio
+ * editor against local, deterministic state instead of a connected WPCOM
+ * backend — the routes are identical either way, so the frontend never knows.
  *
  * Mocked contract (all timestamps are integer milliseconds on the ORIGINAL
  * master timeline; editing is non-destructive — the server keeps the master):
@@ -100,17 +103,17 @@ class VideoPress_Studio_Mock_Edits {
 	 */
 	public static function should_register() {
 		/**
-		 * Filters whether the local Studio mock edits endpoints are enabled.
-		 *
-		 * The mock only ever registers when the Studio feature filter is also
-		 * on. Turn this off to develop against a real edits backend while
-		 * keeping the Studio UI enabled.
+		 * Filters whether the local Studio mock edits endpoints replace the
+		 * WPCOM proxy. Off by default: the mock is a development tool. Turn
+		 * it on to work on the Studio editor against local, deterministic
+		 * state instead of a connected WPCOM backend. The mock only ever
+		 * registers when the Studio feature filter is also on.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param bool $enabled Defaults to true.
+		 * @param bool $use_mock Defaults to false.
 		 */
-		return Admin_UI::is_studio_enabled() && apply_filters( 'videopress_studio_mock_edits', true );
+		return Admin_UI::is_studio_enabled() && apply_filters( 'videopress_studio_mock_edits', false );
 	}
 
 	/**

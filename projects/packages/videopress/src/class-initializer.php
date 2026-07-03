@@ -104,14 +104,17 @@ class Initializer {
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
 
 			/*
-			 * Local mock for the Studio edits/storyboard endpoints. DELETE this
-			 * registration together with the mock class when the real WPCOM
-			 * proxy ships; the routes are identical, so nothing else changes.
-			 * Gated on the Studio flag and on the mock's own opt-out filter —
-			 * both re-checked inside should_register() at REST time.
+			 * Studio edits/storyboard endpoints: served by the WPCOM proxy by
+			 * default, or by the local development mock when it is opted into
+			 * via the `videopress_studio_mock_edits` filter. The two classes
+			 * register identical routes and are mutually exclusive — each
+			 * re-checks the Studio flag and the mock filter inside its own
+			 * should_register() at REST time.
 			 */
 			if ( VideoPress_Studio_Mock_Edits::should_register() ) {
 				new VideoPress_Studio_Mock_Edits();
+			} elseif ( WPCOM_REST_API_V2_Endpoint_VideoPress_Edits::should_register() ) {
+				new WPCOM_REST_API_V2_Endpoint_VideoPress_Edits();
 			}
 		};
 		add_action( 'rest_api_init', $register_rest_api_v2_endpoints, 0 );
