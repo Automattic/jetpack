@@ -17,6 +17,7 @@
 
 .modeSelect {
 	flex: 0 1 220px;
+	inline-size: min(100%, 220px);
 	max-inline-size: 100%;
 	min-inline-size: min(100%, 160px);
 }

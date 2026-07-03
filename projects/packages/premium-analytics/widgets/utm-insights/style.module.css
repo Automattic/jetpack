@@ -17,6 +17,7 @@
 
 .paramSelect {
 	flex: 0 1 280px;
+	inline-size: min(100%, 280px);
 	max-inline-size: 100%;
 	min-inline-size: min(100%, 220px);
 }
