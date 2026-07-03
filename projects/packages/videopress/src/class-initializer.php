@@ -350,7 +350,7 @@ class Initializer {
 				}
 
 				return sprintf(
-					'<iframe title="%1$s" aria-label="%1$s" src="%2$s" width="640" height="360" allowfullscreen data-resize-to-parent="true" allow="clipboard-write"></iframe>',
+					'<iframe title="%1$s" aria-label="%1$s" src="%2$s" width="640" height="360" allowfullscreen data-resize-to-parent="true" allow="clipboard-write; presentation"></iframe>',
 					esc_attr__( 'VideoPress Video Player', 'jetpack-videopress-pkg' ),
 					esc_url( preg_replace( '#/v/#', '/embed/', $url, 1 ) )
 				);
