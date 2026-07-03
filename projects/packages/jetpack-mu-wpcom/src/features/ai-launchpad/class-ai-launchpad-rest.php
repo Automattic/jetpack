@@ -46,6 +46,19 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
+	 * Commerce tasks whose catalog visibility gate requires WooCommerce to be active.
+	 *
+	 * On a fresh sell site these would be dropped, collapsing the list. Instead the sell branch keeps them as a
+	 * disabled preview of the store roadmap until WooCommerce is active. See build_tasks()'s $disable_hidden_woo mode.
+	 */
+	const WOO_TASK_IDS = array(
+		'woo_customize_store',
+		'woo_products',
+		'set_up_payments',
+		'woo_launch_site',
+	);
+
+	/**
 	 * CTA destinations the AI Launchpad repoints to wp-admin, keyed by task id, each mapping to an `admin_url()` path.
 	 *
 	 * The catalog sends these to Calypso flows that are a poor fit for wp-admin. Overridden on read so the shared
@@ -285,14 +298,33 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				? trim( $inferred['niche'] )
 				: '';
 
+			$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
+
+			if ( ! function_exists( 'is_plugin_active' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
+			$woo_active = is_plugin_active( 'woocommerce/woocommerce.php' );
+
+			// On a sell site without WooCommerce, keep the gated commerce tasks as a disabled preview of the store
+			// roadmap instead of dropping them (which would collapse the list to almost nothing).
+			$disable_hidden_woo = 'sell' === $goal && ! $woo_active;
+
 			$tasks = array();
 			if ( isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ) {
-				$tasks = $this->build_tasks( $payload['tasks'], false, $niche );
+				$tasks = $this->build_tasks( $payload['tasks'], false, $niche, $disable_hidden_woo );
 			}
 
-			$gallery = $this->build_gallery_task( $inferred );
-			if ( null !== $gallery ) {
-				$tasks = $this->insert_before_launch_task( $tasks, $gallery );
+			// The sell goal leads with the store-setup task; every other goal may offer the gallery task. They are
+			// mutually exclusive so a sell site with a visual niche doesn't also get an off-target gallery task.
+			if ( 'sell' === $goal ) {
+				// The store-setup tasks lead the sell list. Their synthetic ids never appear in the AI payload, so a
+				// plain prepend is safe.
+				$tasks = array_merge( $this->build_store_tasks( $woo_active ), $tasks );
+			} else {
+				$gallery = $this->build_gallery_task( $inferred );
+				if ( null !== $gallery ) {
+					$tasks = $this->insert_before_launch_task( $tasks, $gallery );
+				}
 			}
 		}
 
@@ -535,12 +567,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	/**
 	 * Enriches the persisted tasks with title, completion state, and CTA path from the catalog.
 	 *
-	 * @param array  $tasks             The persisted `payload.tasks` array.
-	 * @param bool   $bypass_visibility Skip the catalog visibility gate (for the all-tasks testing view).
-	 * @param string $niche             The AI-inferred niche, used to pre-filter the theme-picker CTAs.
+	 * @param array  $tasks              The persisted `payload.tasks` array.
+	 * @param bool   $bypass_visibility  Skip the catalog visibility gate (for the all-tasks testing view).
+	 * @param string $niche              The AI-inferred niche, used to pre-filter the theme-picker CTAs.
+	 * @param bool   $disable_hidden_woo Keep WOO_TASK_IDS that fail the visibility gate as disabled preview cards
+	 *                                   instead of dropping them (sell goal while WooCommerce is inactive).
 	 * @return array
 	 */
-	private function build_tasks( $tasks, $bypass_visibility = false, $niche = '' ) {
+	private function build_tasks( $tasks, $bypass_visibility = false, $niche = '', $disable_hidden_woo = false ) {
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$built       = array();
 
@@ -567,6 +601,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 			$definition       = $definitions[ $task['id'] ];
 			$definition['id'] = $task['id'];
+			$disabled         = false;
 
 			// Honor the catalog's own visibility gate: a task the catalog would hide here must not render, since its
 			// CTA would 404 and it could never complete. Filtered on read so the deterministic fallback stays usable.
@@ -575,21 +610,35 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				&& ! in_array( $task['id'], self::FORCE_VISIBLE_TASK_IDS, true )
 				&& ! wpcom_launchpad_checklists()->is_visible( $definition )
 			) {
-				continue;
+				// On a sell site without WooCommerce, keep the commerce tasks as a disabled preview of the store
+				// roadmap rather than dropping them and collapsing the list. Everything else stays hidden.
+				if ( $disable_hidden_woo && in_array( $task['id'], self::WOO_TASK_IDS, true ) ) {
+					$disabled = true;
+				} else {
+					continue;
+				}
 			}
 
-			// The membership tasks' catalog callbacks are always false on Atomic; recompute from local signals instead.
-			$completed = AI_Launchpad_Memberships::has_override( $task['id'] )
-				? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
-				: wpcom_launchpad_checklists()->is_task_complete( $definition );
-
-			$theme_showcase_path = $this->get_themes_showcase_path( $task['id'], $niche );
-			if ( null !== $theme_showcase_path ) {
-				$calypso_path = $theme_showcase_path;
-			} elseif ( isset( self::CTA_OVERRIDES[ $task['id'] ] ) ) {
-				$calypso_path = admin_url( self::CTA_OVERRIDES[ $task['id'] ] );
+			if ( $disabled ) {
+				// A disabled preview always renders as the locked card: never resolve its completion (the woo
+				// completion callback marks the task complete as a side effect, which must not fire on a read) and
+				// never resolve a CTA path (it has no reachable action).
+				$completed    = false;
+				$calypso_path = null;
 			} else {
-				$calypso_path = wpcom_launchpad_checklists()->load_calypso_path( $definition );
+				// The membership tasks' catalog callbacks are always false on Atomic; recompute from local signals.
+				$completed = AI_Launchpad_Memberships::has_override( $task['id'] )
+					? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
+					: wpcom_launchpad_checklists()->is_task_complete( $definition );
+
+				$theme_showcase_path = $this->get_themes_showcase_path( $task['id'], $niche );
+				if ( null !== $theme_showcase_path ) {
+					$calypso_path = $theme_showcase_path;
+				} elseif ( isset( self::CTA_OVERRIDES[ $task['id'] ] ) ) {
+					$calypso_path = admin_url( self::CTA_OVERRIDES[ $task['id'] ] );
+				} else {
+					$calypso_path = wpcom_launchpad_checklists()->load_calypso_path( $definition );
+				}
 			}
 
 			$title       = isset( $definition['get_title'] ) ? $definition['get_title']() : '';
@@ -597,7 +646,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 			// A saved-but-unpublished draft (found by marker meta) puts a site-editor task "in progress": reopen that
 			// draft instead of creating a new one, and surface the drafts icon + a "Continue…" prompt in the card.
-			if ( ! $completed ) {
+			if ( ! $completed && ! $disabled ) {
 				$draft_url = $this->get_in_progress_draft_url( $task['id'] );
 				if ( null !== $draft_url ) {
 					$in_progress  = true;
@@ -614,6 +663,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				'title'        => $title,
 				'completed'    => $completed,
 				'in_progress'  => $in_progress,
+				'disabled'     => $disabled,
 				'calypso_path' => $calypso_path,
 			);
 		}
@@ -739,7 +789,78 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'title'        => $this->get_task_title( 'add_gallery_page', $in_progress, __( 'Create your first gallery', 'jetpack-mu-wpcom' ) ),
 			'completed'    => $completed,
 			'in_progress'  => $in_progress,
+			'disabled'     => false,
 			'calypso_path' => $calypso_path,
+		);
+	}
+
+	/**
+	 * Builds the synthetic store-setup lead tasks for the sell goal: an "install WooCommerce" task and a "set up
+	 * your store" task.
+	 *
+	 * Both are read live (installed/active/profiler options), so no marker or listener is needed. While WooCommerce
+	 * is inactive the setup task shows as a disabled preview, matching the disabled commerce tasks below it. Callers
+	 * gate this on the sell goal.
+	 *
+	 * @param bool $active Whether WooCommerce is active.
+	 * @return array The lead tasks in display order.
+	 */
+	private function build_store_tasks( $active ) {
+		return array(
+			$this->build_install_woocommerce_task( $active ),
+			$this->build_setup_store_task( $active ),
+		);
+	}
+
+	/**
+	 * The "Install the WooCommerce plugin" lead task: to-do until the plugin exists, in-progress while it is
+	 * installed-but-inactive, and complete once active.
+	 *
+	 * @param bool $active Whether WooCommerce is active.
+	 * @return array
+	 */
+	private function build_install_woocommerce_task( $active ) {
+		$in_progress = ! $active && array_key_exists( 'woocommerce/woocommerce.php', get_plugins() );
+
+		$calypso_path = null;
+		if ( ! $active ) {
+			$calypso_path = $in_progress
+				? admin_url( 'plugins.php?plugin_status=inactive' )
+				: admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' );
+		}
+
+		return array(
+			'id'           => 'install_woocommerce',
+			'subtitle'     => $in_progress
+				? __( 'Activate the WooCommerce plugin to continue.', 'jetpack-mu-wpcom' )
+				: __( 'Add the WooCommerce plugin to start selling.', 'jetpack-mu-wpcom' ),
+			'title'        => __( 'Install the WooCommerce plugin', 'jetpack-mu-wpcom' ),
+			'completed'    => $active,
+			'in_progress'  => $in_progress,
+			'disabled'     => false,
+			'calypso_path' => $calypso_path,
+		);
+	}
+
+	/**
+	 * The "Set up your store" lead task: to-do until the WooCommerce setup wizard (core profiler) is completed or
+	 * skipped, then complete. Shown as a disabled preview until WooCommerce is active, since the wizard needs it.
+	 *
+	 * @param bool $active Whether WooCommerce is active.
+	 * @return array
+	 */
+	private function build_setup_store_task( $active ) {
+		$profile   = (array) get_option( 'woocommerce_onboarding_profile', array() );
+		$completed = $active && ( ! empty( $profile['completed'] ) || ! empty( $profile['skipped'] ) );
+
+		return array(
+			'id'           => 'setup_woocommerce_store',
+			'subtitle'     => __( 'Complete or skip the WooCommerce setup wizard.', 'jetpack-mu-wpcom' ),
+			'title'        => __( 'Set up your store', 'jetpack-mu-wpcom' ),
+			'completed'    => $completed,
+			'in_progress'  => false,
+			'disabled'     => ! $active,
+			'calypso_path' => $completed || ! $active ? null : admin_url( 'admin.php?page=wc-admin&path=%2Fsetup-wizard' ),
 		);
 	}
 

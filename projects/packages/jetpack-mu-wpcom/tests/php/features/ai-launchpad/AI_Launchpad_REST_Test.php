@@ -702,6 +702,160 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Returns the sell task list keyed by id (WooCommerce state controlled by the caller beforehand).
+	 *
+	 * @param string $niche The inferred niche.
+	 * @return array<string, array> Tasks keyed by id.
+	 */
+	private function sell_tasks_by_id( $niche = 'organic coffee beans' ) {
+		$this->seed_gallery_output( 'sell', $niche );
+		$tasks = $this->call_api( Requests::GET )->get_data()['tasks'];
+		return array_column( $tasks, null, 'id' );
+	}
+
+	/**
+	 * With WooCommerce missing, the install task leads with the plugin-install CTA and stays actionable, while the
+	 * setup task follows as a disabled preview.
+	 */
+	public function test_get_leads_sell_with_install_task_when_woocommerce_missing() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+
+		$tasks = $this->sell_tasks_by_id();
+		$this->assertSame( 'install_woocommerce', array_key_first( $tasks ) );
+
+		$install = $tasks['install_woocommerce'];
+		$this->assertFalse( $install['completed'] );
+		$this->assertFalse( $install['in_progress'] );
+		$this->assertFalse( $install['disabled'] );
+		$this->assertStringContainsString( 'Add the WooCommerce plugin', $install['subtitle'] );
+		$this->assertStringContainsString( 'plugin-install.php?s=woocommerce', $install['calypso_path'] );
+
+		// The setup task is still listed, but as a disabled preview with no CTA until WooCommerce is active.
+		$this->assertArrayHasKey( 'setup_woocommerce_store', $tasks );
+		$setup = $tasks['setup_woocommerce_store'];
+		$this->assertTrue( $setup['disabled'] );
+		$this->assertFalse( $setup['completed'] );
+		$this->assertNull( $setup['calypso_path'] );
+	}
+
+	/**
+	 * On a fresh sell site the gated commerce tasks are kept as disabled previews (with no CTA) instead of being
+	 * dropped, so the full store roadmap is visible.
+	 */
+	public function test_get_keeps_commerce_tasks_disabled_when_woocommerce_inactive() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+
+		$this->seed_sell_output_with_commerce_tasks();
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		foreach ( array( 'woo_customize_store', 'woo_products', 'set_up_payments', 'woo_launch_site' ) as $id ) {
+			$this->assertArrayHasKey( $id, $tasks, "$id should be kept as a disabled preview" );
+			$this->assertTrue( $tasks[ $id ]['disabled'], "$id should be disabled" );
+			$this->assertNull( $tasks[ $id ]['calypso_path'], "$id should have no CTA" );
+		}
+
+		// A non-commerce task in the same list stays actionable, not swept into the disabled treatment.
+		$this->assertArrayHasKey( 'site_theme_selected', $tasks );
+		$this->assertFalse( $tasks['site_theme_selected']['disabled'] );
+	}
+
+	/**
+	 * A commerce task previously completed in WooCommerce renders as a disabled preview (not "done") while
+	 * WooCommerce is inactive, and building the list must not persist a launchpad completion as a side effect.
+	 */
+	public function test_get_disabled_commerce_task_is_not_completed_and_does_not_write_status() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		// Simulate a task WooCommerce recorded as complete during a prior active period.
+		update_option( 'woocommerce_task_list_tracked_completed_tasks', array( 'products' ) );
+		delete_option( 'launchpad_checklist_tasks_statuses' );
+
+		$this->seed_sell_output_with_commerce_tasks();
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		$this->assertTrue( $tasks['woo_products']['disabled'] );
+		$this->assertFalse( $tasks['woo_products']['completed'] );
+
+		// The completion callback (which writes launchpad status) must not have fired for the disabled preview.
+		$statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+		$this->assertArrayNotHasKey( 'woo_products', $statuses );
+	}
+
+	/**
+	 * With WooCommerce installed but not active, the install task is in progress and points at the plugins screen.
+	 */
+	public function test_get_marks_install_task_in_progress_when_inactive() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		wp_cache_set( 'plugins', array( '' => array( 'woocommerce/woocommerce.php' => array( 'Name' => 'WooCommerce' ) ) ), 'plugins' );
+
+		$install = $this->sell_tasks_by_id()['install_woocommerce'];
+		wp_cache_delete( 'plugins', 'plugins' );
+
+		$this->assertTrue( $install['in_progress'] );
+		$this->assertFalse( $install['completed'] );
+		$this->assertStringContainsString( 'Activate the WooCommerce plugin', $install['subtitle'] );
+		$this->assertStringContainsString( 'plugins.php?plugin_status=inactive', $install['calypso_path'] );
+	}
+
+	/**
+	 * Once WooCommerce is active the install task shows complete and the setup task appears with the wizard CTA.
+	 */
+	public function test_get_completes_install_and_offers_setup_when_active() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php' ) );
+
+		$tasks = $this->sell_tasks_by_id();
+		update_option( 'active_plugins', array() );
+
+		$this->assertTrue( $tasks['install_woocommerce']['completed'] );
+		$this->assertArrayHasKey( 'setup_woocommerce_store', $tasks );
+		$setup = $tasks['setup_woocommerce_store'];
+		$this->assertFalse( $setup['completed'] );
+		$this->assertStringContainsString( 'page=wc-admin&path=%2Fsetup-wizard', $setup['calypso_path'] );
+	}
+
+	/**
+	 * The setup task completes once the WooCommerce core profiler is completed or skipped.
+	 */
+	public function test_get_completes_setup_when_profiler_done() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php' ) );
+		update_option( 'woocommerce_onboarding_profile', array( 'skipped' => true ) );
+
+		$setup = $this->sell_tasks_by_id()['setup_woocommerce_store'];
+		update_option( 'active_plugins', array() );
+
+		$this->assertTrue( $setup['completed'] );
+		$this->assertNull( $setup['calypso_path'] );
+	}
+
+	/**
+	 * The store tasks are not injected for a non-sell goal.
+	 */
+	public function test_get_omits_store_tasks_for_non_sell_goal() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'build', 'organic coffee beans' );
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertNotContains( 'install_woocommerce', $ids );
+		$this->assertNotContains( 'setup_woocommerce_store', $ids );
+	}
+
+	/**
+	 * A sell site whose niche matches a gallery keyword gets the store tasks, not the off-target gallery task.
+	 */
+	public function test_get_prefers_store_over_gallery_for_sell_goal() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+
+		$ids = array_keys( $this->sell_tasks_by_id( 'handmade art' ) );
+		$this->assertContains( 'install_woocommerce', $ids );
+		$this->assertNotContains( 'add_gallery_page', $ids );
+	}
+
+	/**
 	 * The gallery task is not injected on the ?all_tasks=1 catalog view.
 	 */
 	public function test_get_all_tasks_param_omits_gallery_task() {
@@ -1149,6 +1303,50 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 					'inferred' => array(
 						'goal'  => $goal,
 						'niche' => $niche,
+					),
+				),
+			),
+			false
+		);
+	}
+
+	/**
+	 * Seeds a sell payload whose tasks include the WooCommerce-gated commerce tasks plus a non-commerce task, so the
+	 * disabled-preview behavior can be asserted.
+	 */
+	private function seed_sell_output_with_commerce_tasks() {
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'woo_customize_store',
+							'subtitle' => 'Make it yours.',
+						),
+						array(
+							'id'       => 'woo_products',
+							'subtitle' => 'Add products.',
+						),
+						array(
+							'id'       => 'set_up_payments',
+							'subtitle' => 'Get paid.',
+						),
+						array(
+							'id'       => 'site_theme_selected',
+							'subtitle' => 'Pick a theme.',
+						),
+						array(
+							'id'       => 'woo_launch_site',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array(
+						'goal'  => 'sell',
+						'niche' => 'organic coffee beans',
 					),
 				),
 			),

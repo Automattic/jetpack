@@ -66,6 +66,7 @@ function task( overrides: Partial< EnrichedTask > = {} ): EnrichedTask {
 		title: 'Choose a design',
 		completed: false,
 		in_progress: false,
+		disabled: false,
 		calypso_path: '/themes/example.com',
 		...overrides,
 	};
@@ -97,6 +98,9 @@ describe( 'ctaKind', () => {
 		assert.equal( ctaKind( 'site_theme_selected' ), 'deeplink' );
 		// woo_launch_site has its own wc-admin deeplink, so it is not a launch kind.
 		assert.equal( ctaKind( 'woo_launch_site' ), 'deeplink' );
+		// The synthetic store tasks navigate to their wp-admin CTAs.
+		assert.equal( ctaKind( 'install_woocommerce' ), 'deeplink' );
+		assert.equal( ctaKind( 'setup_woocommerce_store' ), 'deeplink' );
 	} );
 } );
 
@@ -181,6 +185,17 @@ describe( 'isTaskActionable', () => {
 		assert.equal(
 			isTaskActionable(
 				task( { id: 'add_about_page', in_progress: true, calypso_path: null } ),
+				null
+			),
+			false
+		);
+	} );
+
+	it( 'is never actionable for a disabled preview task', () => {
+		// Even with an otherwise-actionable shape, disabled short-circuits to false.
+		assert.equal(
+			isTaskActionable(
+				task( { id: 'woo_products', disabled: true, calypso_path: '/themes/example.com' } ),
 				null
 			),
 			false
@@ -395,6 +410,21 @@ describe( 'nextIncompleteId', () => {
 	it( 'returns null when the given id was the only incomplete task', () => {
 		const tasks = [ task( { id: 'a', completed: true } ), task( { id: 'b', completed: true } ) ];
 		assert.equal( nextIncompleteId( tasks, 'b' ), null );
+	} );
+
+	it( 'skips disabled preview tasks as auto-expand targets', () => {
+		const tasks = [
+			task( { id: 'a', disabled: true } ),
+			task( { id: 'b', disabled: true } ),
+			task( { id: 'c', completed: false } ),
+		];
+		// The two disabled cards are passed over in favor of the first actionable one.
+		assert.equal( nextIncompleteId( tasks ), 'c' );
+	} );
+
+	it( 'returns null when only disabled tasks remain', () => {
+		const tasks = [ task( { id: 'a', completed: true } ), task( { id: 'b', disabled: true } ) ];
+		assert.equal( nextIncompleteId( tasks ), null );
 	} );
 } );
 
