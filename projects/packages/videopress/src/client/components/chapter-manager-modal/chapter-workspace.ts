@@ -13,7 +13,7 @@ export type ChapterWorkspaceState = {
 	/* Signature of the last seeded/saved rows, to tell edits from viewing. */
 	baseline: string;
 	nextId: number;
-	/* Whether the workspace was seeded with chapters, so emptying it counts as a removal. */
+	/* Whether the last seeded/saved state had chapters, so emptying the workspace counts as a removal. */
 	hadChapters: boolean;
 };
 
@@ -122,7 +122,7 @@ export function chapterWorkspaceReducer(
 
 /**
  * Validation errors for the current rows against the player's chapter rules.
- * An empty list is not an error state — it means "no chapters".
+ * An empty rows list is valid — it means the video has no chapters.
  *
  * @param {ChapterRow[]} rows - Rows sorted by start time.
  * @return {ChapterValidationError[]} The errors, empty when the set is valid.

@@ -1,0 +1,24 @@
+.videopress-chapter-outline {
+	list-style: none;
+	margin: 0 0 12px;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+
+	&__time {
+		display: inline-block;
+		min-width: 52px;
+		color: var(--wp-admin-theme-color, #3858e9);
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	&__empty {
+		color: #757575;
+	}
+}

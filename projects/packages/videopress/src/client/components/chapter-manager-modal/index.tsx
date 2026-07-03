@@ -76,7 +76,8 @@ export default function ChapterManagerModal( props: ChapterManagerModalProps ): 
 /**
  * The chapter manager modal: a structured editor over the description's
  * chapter lines. Saving rewrites those lines and immediately regenerates the
- * auto-generated chapters VTT track.
+ * auto-generated chapters VTT track — or deletes it when all chapters are
+ * removed.
  *
  * @param props             - Component props (see {@link ChapterManagerModalProps}).
  * @param props.isOpen      - Whether the modal is open.
@@ -193,15 +194,11 @@ function ChapterManagerModalInner( {
 
 	const performSave = useCallback( async () => {
 		setIsSaving( true );
-		try {
-			const chapters = workspace.rows.map( ( { seconds, title: rowTitle } ) => ( {
-				seconds,
-				title: rowTitle,
-			} ) );
-			const nextDescription = applyChaptersToDescription( description, chapters );
-			let updatedTracks = managedTracks;
+		const nextDescription = applyChaptersToDescription( description, workspace.rows );
+		let updatedTracks = managedTracks;
 
-			if ( ! chapters.length ) {
+		try {
+			if ( ! workspace.rows.length ) {
 				if ( chaptersTrack ) {
 					await deleteTrackForGuid( { kind: 'chapters', srcLang: 'en' }, guid );
 					updatedTracks = managedTracks.filter( track => track !== chaptersTrack );
@@ -236,10 +233,6 @@ function ChapterManagerModalInner( {
 					? managedTracks.map( track => ( track === chaptersTrack ? uploadedTrack : track ) )
 					: [ ...managedTracks, uploadedTrack ];
 			}
-
-			dispatch( { type: 'MARK_SAVED' } );
-			onSaved( nextDescription, updatedTracks );
-			onClose();
 		} catch ( error ) {
 			debug( 'chapter save failed', error );
 			setNotice( {
@@ -249,9 +242,18 @@ function ChapterManagerModalInner( {
 						? error.message
 						: __( 'Failed to save chapters.', 'jetpack-videopress-pkg' ),
 			} );
-		} finally {
 			setIsSaving( false );
+			return;
 		}
+
+		/*
+		 * The track change is persisted; hand off outside the try so a host
+		 * callback error can't read as a save failure and provoke a re-upload.
+		 */
+		setIsSaving( false );
+		dispatch( { type: 'MARK_SAVED' } );
+		onSaved( nextDescription, updatedTracks );
+		onClose();
 	}, [
 		chaptersTrack,
 		description,
@@ -267,7 +269,7 @@ function ChapterManagerModalInner( {
 		if ( chaptersTrack && ! isOverwriteSafe ) {
 			setConfirmation( {
 				message: __(
-					'This video has a manually uploaded chapters file. Saving will replace it.',
+					'This video’s chapters file may have been uploaded manually. Saving will replace it.',
 					'jetpack-videopress-pkg'
 				),
 				confirmLabel: __( 'Replace', 'jetpack-videopress-pkg' ),

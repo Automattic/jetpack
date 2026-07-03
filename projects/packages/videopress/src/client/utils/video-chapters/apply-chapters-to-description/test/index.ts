@@ -52,6 +52,18 @@ describe( 'applyChaptersToDescription', () => {
 		);
 	} );
 
+	it( 'treats prose lines with embedded timestamps as chapter lines', () => {
+		/*
+		 * extractSingleChapter matches a time anywhere in a line, so prose like
+		 * this is (and always was) parsed as a chapter; the rewrite makes that
+		 * visible by replacing the line. This test pins the sharp edge.
+		 */
+		const description = 'We filmed this at 10:30 in the studio.\nMore prose.';
+		expect( applyChaptersToDescription( description, CHAPTERS ) ).toBe(
+			'00:00 Intro\n01:24 Mountains arise\n03:04 Credits\nMore prose.'
+		);
+	} );
+
 	it( 'trims chapter titles', () => {
 		expect( applyChaptersToDescription( '', [ { seconds: 0, title: '  Intro  ' } ] ) ).toBe(
 			'00:00 Intro'

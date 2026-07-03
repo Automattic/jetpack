@@ -21,8 +21,8 @@ const ChapterManagerModal = lazy(
  * Lazy-loading wrapper for the chapter manager modal.
  *
  * Mounting this is what triggers the chunk download, so hosts should render
- * it only while the modal is open rather than keeping it mounted with
- * `isOpen: false`.
+ * it only while the modal is open rather than keeping it mounted while
+ * closed.
  *
  * @param props - Modal props (see {@link ChapterManagerModalProps}).
  * @return The lazily loaded modal.

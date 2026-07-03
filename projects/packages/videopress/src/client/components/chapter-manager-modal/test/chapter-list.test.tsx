@@ -61,11 +61,16 @@ describe( 'ChapterList', () => {
 		] );
 	} );
 
-	it( 'disables the first row time field', () => {
+	it( 'disables the first row time field while it sits at 0:00', () => {
 		renderList();
 		const timeInputs = screen.getAllByLabelText( 'Start time' );
 		expect( timeInputs[ 0 ] ).toBeDisabled();
 		expect( timeInputs[ 1 ] ).toBeEnabled();
+	} );
+
+	it( 'keeps the first row time editable when it does not start at 0:00', () => {
+		renderList( { rows: [ { id: 1, seconds: 5, title: 'Late start' }, ...ROWS.slice( 1 ) ] } );
+		expect( screen.getAllByLabelText( 'Start time' )[ 0 ] ).toBeEnabled();
 	} );
 
 	it( 'commits a valid time on blur', async () => {
@@ -77,7 +82,7 @@ describe( 'ChapterList', () => {
 		expect( onSetTime ).toHaveBeenCalledWith( 2, 150 );
 	} );
 
-	it( 'reverts invalid time input on blur without committing', async () => {
+	it( 'reverts invalid time input on blur and explains the expected format', async () => {
 		const { onSetTime } = renderList();
 		const timeInput = screen.getAllByLabelText( 'Start time' )[ 1 ] as HTMLInputElement;
 		await userEvent.clear( timeInput );
@@ -85,6 +90,7 @@ describe( 'ChapterList', () => {
 		fireEvent.blur( timeInput );
 		expect( onSetTime ).not.toHaveBeenCalled();
 		expect( timeInput.value ).toBe( '01:24' );
+		expect( screen.getByText( 'Times use the MM:SS or H:MM:SS format.' ) ).toBeInTheDocument();
 	} );
 
 	it( 'commits a valid time on Enter', async () => {

@@ -12,8 +12,8 @@ type ChapterInput = {
 /**
  * Rewrites a video description's chapter lines: every line the chapter parser
  * recognizes is removed, and the given chapters are inserted as one block at
- * the position of the first removed line (appended when none existed). All
- * other prose is preserved untouched.
+ * the position of the first removed line (appended when none existed). Other
+ * prose is preserved, aside from whitespace normalization.
  *
  * @param {string}         description - The current video description.
  * @param {ChapterInput[]} chapters    - Chapters sorted by start time; empty removes all chapter lines.

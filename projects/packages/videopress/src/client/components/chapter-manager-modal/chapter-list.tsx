@@ -38,10 +38,14 @@ type ChapterRowItemProps = {
 
 const rowErrorMessage = ( errors: ChapterValidationError[], rowId: number ): string | null => {
 	for ( const error of errors ) {
-		if ( 'rowId' in error && error.rowId === rowId ) {
-			return error.code === 'gap'
-				? __( 'Chapters must be at least 10 seconds apart.', 'jetpack-videopress-pkg' )
-				: __( 'Add a title for this chapter.', 'jetpack-videopress-pkg' );
+		if ( ! ( 'rowId' in error ) || error.rowId !== rowId ) {
+			continue;
+		}
+		switch ( error.code ) {
+			case 'gap':
+				return __( 'Chapters must be at least 10 seconds apart.', 'jetpack-videopress-pkg' );
+			case 'empty-title':
+				return __( 'Add a title for this chapter.', 'jetpack-videopress-pkg' );
 		}
 	}
 	return null;
@@ -55,7 +59,7 @@ const rowErrorMessage = ( errors: ChapterValidationError[], rowId: number ): str
  *
  * @param props              - Component props.
  * @param props.row          - The chapter row to render.
- * @param props.isTimePinned - Whether the time field is locked (the 0:00 row).
+ * @param props.isTimePinned - Whether the time field is locked (the first row, while it sits at 0:00).
  * @param props.errorMessage - Validation message for this row, if any.
  * @param props.disabled     - Whether all controls are disabled.
  * @param props.onSetTime    - Called with (id, seconds) when a new time commits.
@@ -76,19 +80,33 @@ function ChapterRowItem( {
 }: ChapterRowItemProps ): ReactElement {
 	const formattedTime = formatChapterTime( row.seconds );
 	const [ timeInput, setTimeInput ] = useState( formattedTime );
+	const [ hasFormatError, setHasFormatError ] = useState( false );
 
-	// Re-sync the local field when the committed time changes (e.g. a re-sort).
+	/*
+	 * Re-sync the local field when the committed time changes — a commit
+	 * normalizes the typed format, or the workspace is re-seeded.
+	 */
 	useEffect( () => {
 		setTimeInput( formattedTime );
 	}, [ formattedTime ] );
 
 	const commitTime = () => {
 		const seconds = parseChapterTimeInput( timeInput );
-		if ( seconds === null || seconds === row.seconds ) {
+		if ( seconds === null ) {
+			setTimeInput( formattedTime );
+			setHasFormatError( timeInput.trim() !== formattedTime );
+			return;
+		}
+		if ( seconds === row.seconds ) {
 			setTimeInput( formattedTime );
 			return;
 		}
 		onSetTime( row.id, seconds );
+	};
+
+	const handleTimeChange = ( value: string ) => {
+		setTimeInput( value );
+		setHasFormatError( false );
 	};
 
 	const handleTimeKeyDown = ( event: KeyboardEvent< HTMLInputElement > ) => {
@@ -111,7 +129,7 @@ function ChapterRowItem( {
 						hideLabelFromVision
 						value={ timeInput }
 						disabled={ disabled || isTimePinned }
-						onChange={ setTimeInput }
+						onChange={ handleTimeChange }
 						onBlur={ commitTime }
 						onKeyDown={ handleTimeKeyDown }
 						__nextHasNoMarginBottom
@@ -145,6 +163,11 @@ function ChapterRowItem( {
 					onClick={ () => onRemove( row.id ) }
 				/>
 			</div>
+			{ hasFormatError && (
+				<p className="videopress-chapter-manager__row-error">
+					{ __( 'Times use the MM:SS or H:MM:SS format.', 'jetpack-videopress-pkg' ) }
+				</p>
+			) }
 			{ errorMessage && <p className="videopress-chapter-manager__row-error">{ errorMessage }</p> }
 		</li>
 	);
@@ -178,7 +201,7 @@ export default function ChapterList( {
 				<ChapterRowItem
 					key={ row.id }
 					row={ row }
-					isTimePinned={ index === 0 }
+					isTimePinned={ index === 0 && row.seconds === 0 }
 					errorMessage={ rowErrorMessage( errors, row.id ) }
 					disabled={ disabled }
 					onSetTime={ onSetTime }

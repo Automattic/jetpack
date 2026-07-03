@@ -93,7 +93,7 @@ type EditorProps = {
 	onDownload: () => void;
 	onManageCaptions: () => void;
 	onAddToNewPost: () => void;
-	onSaveChapters: ( description: string ) => Promise< void >;
+	onSaveChapters: ( description: string ) => Promise< boolean >;
 	chaptersOpen: boolean;
 	setChaptersOpen: ( open: boolean ) => void;
 };
@@ -121,16 +121,22 @@ const Editor = ( {
 	}, [ setChaptersOpen ] );
 
 	/*
-	 * The modal has already uploaded the chapters VTT at this point; move the
-	 * form's description baseline so the rewrite doesn't read as an unsaved
-	 * edit, then persist it.
+	 * The modal has already applied the chapters track change (upload or
+	 * delete) at this point. Only a successful description PATCH moves the
+	 * form baseline; on failure just the value updates, so the form goes
+	 * dirty and the Save button becomes the retry path.
 	 */
 	const onChaptersSaved = useCallback(
 		( nextDescription: string ) => {
-			patchBaseline( { description: nextDescription } );
-			void onSaveChapters( nextDescription );
+			void onSaveChapters( nextDescription ).then( saved => {
+				if ( saved ) {
+					patchBaseline( { description: nextDescription } );
+				} else {
+					update( { description: nextDescription } );
+				}
+			} );
 		},
-		[ onSaveChapters, patchBaseline ]
+		[ onSaveChapters, patchBaseline, update ]
 	);
 
 	const onRatingChange = useCallback(
@@ -193,7 +199,7 @@ const Editor = ( {
 					poster={ video.thumbnailUrl }
 					isPrivate={ video.isPrivate }
 					tracks={ video.tracks }
-					durationMs={ video.durationSeconds * 1000 }
+					durationMs={ video.durationSeconds > 0 ? video.durationSeconds * 1000 : undefined }
 					onClose={ closeChapters }
 					onSaved={ onChaptersSaved }
 				/>
@@ -310,21 +316,28 @@ const StageReady = ( { video }: StageReadyProps ) => {
 				onManageCaptions={ () => setCaptionsOpen( true ) }
 				onSaveChapters={ async nextDescription => {
 					/*
-					 * The chapters VTT is already uploaded when this runs; a failed
-					 * description PATCH is reported but doesn't reopen the modal.
+					 * The chapters track change is already applied when this runs; a
+					 * failed description PATCH is reported but doesn't reopen the modal.
 					 */
+					let saved = false;
 					try {
 						await updateMetaAsync( { id: video.id, patch: { description: nextDescription } } );
-						createSuccessNotice( __( 'Chapters saved.', 'jetpack-videopress-pkg' ) );
+						saved = true;
 					} catch {
+						// The failure surfaces through the notice below; the form's dirty state carries the retry.
+					}
+					if ( saved ) {
+						createSuccessNotice( __( 'Chapters saved.', 'jetpack-videopress-pkg' ) );
+					} else {
 						createErrorNotice(
 							__(
-								'Chapters track saved, but the description update failed.',
+								'Chapters track saved, but the description update failed. Save the video details to retry.',
 								'jetpack-videopress-pkg'
 							)
 						);
 					}
 					void invalidateVideo( video.id );
+					return saved;
 				} }
 				onAddToNewPost={ () => {
 					const nonce =
