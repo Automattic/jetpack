@@ -126,7 +126,7 @@ class Block_Editor_Content {
 					'title="' . __( 'VideoPress Video Player', 'jetpack-videopress-pkg' ) . '" ' .
 					'aria-label="' . __( 'VideoPress Video Player', 'jetpack-videopress-pkg' ) . '" ' .
 					'src="%s" ' .
-					'width="%s"' .
+					'width="%s" ' .
 					'height="%s" ' .
 					'frameborder="0" ' .
 					'allowfullscreen%s allow="clipboard-write; presentation">' .
