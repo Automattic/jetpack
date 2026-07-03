@@ -3500,6 +3500,13 @@ const { state } = store( 'wpcom-write', {
 			el.ref.style.height = 'auto';
 			el.ref.style.height = el.ref.scrollHeight + 'px';
 
+			// Typing a title counts as the first anon write too — the title field
+			// binds to this action rather than repairStructure, so hook it here so
+			// a title-only author still registers a write-start before publish.
+			if ( isAnon() && ! anonWriteStartTracked ) {
+				maybeTrackAnonWriteStart( state.title );
+			}
+
 			// Dismiss the recovery banner once the user starts editing.
 			if ( state.showRecoveryBanner ) {
 				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
