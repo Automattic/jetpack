@@ -201,7 +201,7 @@ function AnnualHighlightsReport( {
 							<MetricWithComparison
 								value={ tile.value }
 								dataFormat={ COUNT_FORMAT }
-								fontSize="2xl"
+								fontSize="xl"
 								className={ styles.tileValue }
 							/>
 						</div>
