@@ -105,7 +105,7 @@ registerJetpackBlockFromMetadata( metadata, {
 							.map( ( { attributes } ) => ( {
 								id: attributes.id,
 								url: attributes.url,
-								link: attributes.link,
+								link: attributes.href,
 								alt: attributes.alt,
 							} ) );
 					}
