@@ -2,12 +2,13 @@ import { safeParseFloat } from '../../utils/parsing';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
-	createStatsListDataPoint,
+	createStatsDataPoint,
 	createStatsSummaryDataPoint,
 	emptyStatsReport,
 	getStatsBuckets,
 	getStatsLabel,
 	getStatsTopLevelDataDate,
+	getStatsTopLevelPeriod,
 } from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
@@ -110,8 +111,7 @@ export function sanitizeStatsArchivesResponse(
 				.sort( ( a, b ) => b.value - a.value );
 
 			return {
-				...createStatsListDataPoint( { date }, query, items ),
-				time_interval: date,
+				...createStatsDataPoint( date, getStatsTopLevelPeriod( response, query ), items ),
 			};
 		} )
 		.filter( point => point.items.length );
