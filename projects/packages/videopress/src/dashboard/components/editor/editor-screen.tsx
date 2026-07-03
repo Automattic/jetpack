@@ -153,6 +153,9 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 
 	const [ currentMs, setCurrentMs ] = useState( 0 );
 	const [ conflict, setConflict ] = useState( false );
+	// Kind of the just-completed job whose success notice is pending (see the
+	// notice effect below for why this is decoupled from the baseline sync).
+	const [ completedKind, setCompletedKind ] = useState< 'save' | 'restore' | null >( null );
 	const [ confirmAction, setConfirmAction ] = useState< ConfirmAction | null >( null );
 	// Bumped by "Reload latest" so the baseline effect re-runs even when the
 	// refetched data is deep-equal to the cache (react-query keeps the same
@@ -262,15 +265,28 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 
 		if ( expected ) {
 			setPendingJob( null );
-			createSuccessNotice(
-				pendingJob.kind === 'restore'
-					? __( 'Original video restored.', 'jetpack-videopress-pkg' )
-					: __( 'Video edits saved.', 'jetpack-videopress-pkg' )
-			);
+			// Fire the success notice from its own effect: creating a notice
+			// re-renders every notices-store subscriber synchronously, which
+			// can flush THIS effect again before the state updates above have
+			// landed — queuing via state keeps the dispatch out of that window.
+			setCompletedKind( pendingJob.kind );
 			// Duration/poster may change once the real pipeline transcodes.
 			queryClient.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 		}
-	}, [ edits, baseline, pendingJob, reloadNonce, createSuccessNotice, queryClient ] );
+	}, [ edits, baseline, pendingJob, reloadNonce, queryClient ] );
+
+	// Completion notice, decoupled from the baseline-sync effect (see above).
+	useEffect( () => {
+		if ( completedKind === null ) {
+			return;
+		}
+		setCompletedKind( null );
+		createSuccessNotice(
+			completedKind === 'restore'
+				? __( 'Original video restored.', 'jetpack-videopress-pkg' )
+				: __( 'Video edits saved.', 'jetpack-videopress-pkg' )
+		);
+	}, [ completedKind, createSuccessNotice ] );
 
 	// Dirty guard, half one: warn on tab close / full navigation.
 	useEffect( () => {
