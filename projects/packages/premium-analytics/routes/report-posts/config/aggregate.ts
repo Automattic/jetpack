@@ -1,29 +1,14 @@
 /**
- * External dependencies
- */
-import { localTZDate } from '@jetpack-premium-analytics/data';
-import { addDays, format, startOfMonth, startOfWeek } from 'date-fns';
-/**
  * Internal dependencies
  */
 import { flattenArchiveRows, type ArchiveRow } from './fields';
 import type {
-	IntervalType,
 	StatsArchivesItem,
+	StatsNormalizedItem,
 	StatsNormalizedReport,
 	StatsTimeSeriesReport,
 	StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
-
-/**
- * The window a chart series covers: the report range plus the bucket size the
- * user picked with the chart's interval control.
- */
-export type ChartWindow = {
-	from: string;
-	to: string;
-	interval: IntervalType;
-};
 
 /**
  * The report pages fetch each tab's module report without `summarize`, so the
@@ -51,97 +36,71 @@ export function isPostRow( item: StatsTopPostsItem ): boolean {
 }
 
 /**
- * Build a chart time series from a daily-bucketed report.
+ * Build a chart time series from a bucketed report.
  *
- * The report is fetched with `period: 'day'`, so its data points are days —
- * but only days with rows (the sanitizers drop empty buckets, which would
- * leave the chart a few disconnected points). This zero-fills every day of
- * the window and then groups the days into the interval the chart control
- * selected, so the series always spans the full range with the right bucket
- * size.
+ * The query owns the bucket size (`period=day|week|month`), and the normalizer
+ * resolves each bucket's `date_start` / `date_end`. The report page only sums
+ * each bucket's rows for the chart metric.
  *
- * @param report - The daily-bucketed module report.
- * @param sum    - Sums one day's rows into the day's value.
- * @param window - The report range and chart bucket size.
+ * @param report - The bucketed module report.
+ * @param sum    - Sums one bucket's rows into the bucket's value.
  * @return The chart-ready time series.
  */
-function toTimeSeries< TItem >(
-	report: { data: Array< { time_interval: string; items: TItem[] } > } | undefined,
-	sum: ( items: TItem[] ) => number,
-	window: ChartWindow
+function toTimeSeries< TItem extends StatsNormalizedItem >(
+	report: StatsNormalizedReport< TItem > | undefined,
+	sum: ( items: TItem[] ) => number
 ): StatsTimeSeriesReport {
-	const viewsByDay = new Map< string, number >();
-	for ( const point of report?.data ?? [] ) {
-		const day = point.time_interval.slice( 0, 10 );
-		viewsByDay.set( day, ( viewsByDay.get( day ) ?? 0 ) + sum( point.items ) );
-	}
+	const data = ( report?.data ?? [] ).map( point => {
+		const views = sum( point.items );
 
-	const start = localTZDate( window.from );
-	const end = localTZDate( window.to );
-	const buckets = new Map< string, { views: number; date_start: string; date_end: string } >();
+		return {
+			time_interval: point.time_interval,
+			date_start: point.date_start,
+			date_end: point.date_end,
+			label: point.time_interval,
+			items: [],
+			value: views,
+			views,
+		};
+	} );
+	const first = data[ 0 ];
+	const last = data[ data.length - 1 ];
 
-	for ( let date = start; date <= end; date = addDays( date, 1 ) ) {
-		let bucketStart = date;
-		if ( window.interval === 'week' ) {
-			bucketStart = startOfWeek( date, { weekStartsOn: 1 } );
-		} else if ( window.interval === 'month' ) {
-			bucketStart = startOfMonth( date );
-		}
-
-		const key = format( bucketStart, 'yyyy-MM-dd' );
-		const day = format( date, 'yyyy-MM-dd' );
-		const bucket = buckets.get( key ) ?? { views: 0, date_start: key, date_end: day };
-		bucket.views += viewsByDay.get( day ) ?? 0;
-		bucket.date_end = day;
-		buckets.set( key, bucket );
-	}
-
-	const data = [ ...buckets.values() ].map( bucket => ( {
-		time_interval: bucket.date_start,
-		date_start: bucket.date_start,
-		date_end: bucket.date_end,
-		label: bucket.date_start,
-		items: [],
-		value: bucket.views,
-		views: bucket.views,
-	} ) );
-
-	return { summary: {}, data };
+	return {
+		summary: {
+			...report?.summary,
+			...( first ? { date_start: first.date_start } : {} ),
+			...( last ? { date_end: last.date_end } : {} ),
+		},
+		data,
+	};
 }
 
 /**
  * Views-per-bucket time series for the Posts & Pages tab.
  *
- * @param report - The daily-bucketed top-posts report.
- * @param window - The report range and chart bucket size.
+ * @param report - The bucketed top-posts report.
  * @return The chart-ready time series.
  */
 export function postsToTimeSeries(
-	report: StatsNormalizedReport< StatsTopPostsItem > | undefined,
-	window: ChartWindow
+	report: StatsNormalizedReport< StatsTopPostsItem > | undefined
 ): StatsTimeSeriesReport {
-	return toTimeSeries(
-		report,
-		items => items.filter( isPostRow ).reduce( ( total, item ) => total + item.views, 0 ),
-		window
+	return toTimeSeries( report, items =>
+		items.filter( isPostRow ).reduce( ( total, item ) => total + item.views, 0 )
 	);
 }
 
 /**
  * Views-per-bucket time series for the Archives tab.
  *
- * @param report - The daily-bucketed archives report.
- * @param window - The report range and chart bucket size.
+ * @param report - The bucketed archives report.
  * @return The chart-ready time series.
  */
 export function archivesToTimeSeries(
-	report: StatsNormalizedReport< StatsArchivesItem > | undefined,
-	window: ChartWindow
+	report: StatsNormalizedReport< StatsArchivesItem > | undefined
 ): StatsTimeSeriesReport {
-	return toTimeSeries(
-		report,
-		items => flattenArchiveRows( items ).reduce( ( total, row ) => total + row.views, 0 ),
-		window
+	return toTimeSeries( report, items =>
+		flattenArchiveRows( items ).reduce( ( total, row ) => total + row.views, 0 )
 	);
 }
 

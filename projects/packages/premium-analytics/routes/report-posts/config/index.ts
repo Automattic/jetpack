@@ -4,7 +4,6 @@ export {
 	aggregatePostRows,
 	archivesToTimeSeries,
 	postsToTimeSeries,
-	type ChartWindow,
 } from './aggregate';
 export {
 	DEFAULT_TAB_ID,
