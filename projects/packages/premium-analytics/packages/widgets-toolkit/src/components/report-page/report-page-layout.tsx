@@ -41,19 +41,23 @@ export function ReportPageLayout( {
 	filters,
 	children,
 }: ReportPageLayoutProps ) {
+	const hasHeader = !! ( breadcrumbs || description || actions );
+
 	return (
 		<div className={ styles.root }>
-			<header className={ styles.header }>
-				<div className={ styles.heading }>
-					{ breadcrumbs }
-					{ description ? (
-						<Text variant="body-md" className={ styles.description }>
-							{ description }
-						</Text>
-					) : null }
-				</div>
-				{ actions ? <div className={ styles.actions }>{ actions }</div> : null }
-			</header>
+			{ hasHeader ? (
+				<header className={ styles.header }>
+					<div className={ styles.heading }>
+						{ breadcrumbs }
+						{ description ? (
+							<Text variant="body-md" className={ styles.description }>
+								{ description }
+							</Text>
+						) : null }
+					</div>
+					{ actions ? <div className={ styles.actions }>{ actions }</div> : null }
+				</header>
+			) : null }
 			{ tabs }
 			{ filters ? <div className={ styles.filters }>{ filters }</div> : null }
 			<div className={ styles.sections }>{ children }</div>
