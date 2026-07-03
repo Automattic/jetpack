@@ -746,6 +746,75 @@ export const viewsVisitorsComparisonData: SeriesData[] = [
 ];
 
 /**
+ * Views & Visitors comparison time series
+ *
+ * Date-based sibling of `viewsVisitorsComparisonData` for the line chart: two metrics (Views,
+ * Visitors), each with a `type: 'comparison'` previous-period overlay sharing its `group`.
+ * - Category: comparative time series
+ * - Suitable for: LineChart, AreaChart
+ */
+export const viewsVisitorsComparisonTimeData: SeriesData[] = [
+	{
+		label: 'Views',
+		group: 'views',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 420 },
+			{ date: new Date( '2024-02-01' ), value: 580 },
+			{ date: new Date( '2024-03-01' ), value: 510 },
+			{ date: new Date( '2024-04-01' ), value: 690 },
+			{ date: new Date( '2024-05-01' ), value: 640 },
+			{ date: new Date( '2024-06-01' ), value: 760 },
+			{ date: new Date( '2024-07-01' ), value: 700 },
+			{ date: new Date( '2024-08-01' ), value: 830 },
+		],
+	},
+	{
+		label: 'Views — previous',
+		group: 'views',
+		options: { type: 'comparison' as const },
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 510 },
+			{ date: new Date( '2024-02-01' ), value: 490 },
+			{ date: new Date( '2024-03-01' ), value: 470 },
+			{ date: new Date( '2024-04-01' ), value: 610 },
+			{ date: new Date( '2024-05-01' ), value: 620 },
+			{ date: new Date( '2024-06-01' ), value: 700 },
+			{ date: new Date( '2024-07-01' ), value: 660 },
+			{ date: new Date( '2024-08-01' ), value: 690 },
+		],
+	},
+	{
+		label: 'Visitors',
+		group: 'visitors',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 280 },
+			{ date: new Date( '2024-02-01' ), value: 390 },
+			{ date: new Date( '2024-03-01' ), value: 340 },
+			{ date: new Date( '2024-04-01' ), value: 470 },
+			{ date: new Date( '2024-05-01' ), value: 430 },
+			{ date: new Date( '2024-06-01' ), value: 510 },
+			{ date: new Date( '2024-07-01' ), value: 480 },
+			{ date: new Date( '2024-08-01' ), value: 560 },
+		],
+	},
+	{
+		label: 'Visitors — previous',
+		group: 'visitors',
+		options: { type: 'comparison' as const },
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 340 },
+			{ date: new Date( '2024-02-01' ), value: 320 },
+			{ date: new Date( '2024-03-01' ), value: 360 },
+			{ date: new Date( '2024-04-01' ), value: 420 },
+			{ date: new Date( '2024-05-01' ), value: 440 },
+			{ date: new Date( '2024-06-01' ), value: 470 },
+			{ date: new Date( '2024-07-01' ), value: 470 },
+			{ date: new Date( '2024-08-01' ), value: 500 },
+		],
+	},
+];
+
+/**
  * Marketing channels by country data
  *
  * Sales performance by channel by country

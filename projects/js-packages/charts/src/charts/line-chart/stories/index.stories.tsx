@@ -1,9 +1,14 @@
+import { Stack } from '@wordpress/ui';
+import { useCallback } from 'react';
+import { useChartLegendItems } from '../../../components/legend';
+import { useGlobalChartsContext } from '../../../providers';
 import {
 	ChartStoryArgs,
 	extractLegendConfig,
 	temperatureData as sampleData,
 	largeValuesData,
 	trafficData as webTrafficData,
+	viewsVisitorsComparisonTimeData,
 } from '../../../stories';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
@@ -558,4 +563,117 @@ Comparison.args = {
 			},
 		},
 	],
+};
+
+// A 2-item interactive legend over a 4-series comparison line chart. The built-in legend renders one
+// item per series; here a custom legend is supplied through the composition API (a
+// <LineChart.Legend> child with a `render` prop), showing one item per metric and toggling each
+// metric's current + previous-period series together.
+const INTERACTIVE_COMPARISON_CHART_ID = 'views-visitors-comparison-line';
+
+// One legend entry per metric; each entry controls its current + previous series together.
+const comparisonLegendMetrics = [
+	{ label: 'Views', current: 'Views', previous: 'Views — previous' },
+	{ label: 'Visitors', current: 'Visitors', previous: 'Visitors — previous' },
+];
+
+type ComparisonMetric = ( typeof comparisonLegendMetrics )[ number ];
+
+const ComparisonLegendItem = ( {
+	metric,
+	color,
+}: {
+	metric: ComparisonMetric;
+	color?: string;
+} ) => {
+	const { toggleSeriesVisibility, isSeriesVisible } = useGlobalChartsContext();
+	const visible = isSeriesVisible( INTERACTIVE_COMPARISON_CHART_ID, metric.current );
+
+	const handleClick = useCallback( () => {
+		// One click toggles both the current and previous-period series for this metric.
+		toggleSeriesVisibility( INTERACTIVE_COMPARISON_CHART_ID, metric.current );
+		toggleSeriesVisibility( INTERACTIVE_COMPARISON_CHART_ID, metric.previous );
+	}, [ toggleSeriesVisibility, metric ] );
+
+	return (
+		<button
+			type="button"
+			aria-pressed={ visible }
+			aria-label={ `${ metric.label }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.` }
+			onClick={ handleClick }
+			style={ {
+				display: 'flex',
+				alignItems: 'center',
+				gap: '8px',
+				padding: 0,
+				border: 'none',
+				background: 'none',
+				cursor: 'pointer',
+				opacity: visible ? 1 : 0.4,
+			} }
+		>
+			<span
+				aria-hidden="true"
+				style={ {
+					width: '16px',
+					height: '16px',
+					borderRadius: '2px',
+					backgroundColor: color,
+				} }
+			/>
+			<span style={ { textDecoration: visible ? undefined : 'line-through' } }>
+				{ metric.label }
+			</span>
+		</button>
+	);
+};
+
+const ComparisonLegend = () => {
+	// Reuse the library's colour resolution so swatches match the primary lines.
+	const legendItems = useChartLegendItems( viewsVisitorsComparisonTimeData );
+	const colorByLabel = new Map( legendItems.map( item => [ item.label, item.color ] ) );
+
+	return (
+		<Stack direction="row" gap="lg" align="center" justify="center">
+			{ comparisonLegendMetrics.map( metric => (
+				<ComparisonLegendItem
+					key={ metric.label }
+					metric={ metric }
+					color={ colorByLabel.get( metric.current ) }
+				/>
+			) ) }
+		</Stack>
+	);
+};
+
+// Passed to <LineChart.Legend>'s `render` prop; a module-level reference keeps the arrow out of the
+// JSX so it doesn't trip jsx-no-bind.
+const renderComparisonLegend = () => <ComparisonLegend />;
+
+export const ComparisonGroupsInteractiveLegend: StoryObj< typeof LineChart > = {
+	// The custom legend is supplied through the composition API as a <LineChart.Legend> child, so it
+	// renders inside the chart's own layout — the chart stays responsive and fills its parent (no
+	// fixed dimensions), and the legend automatically shares the chart's GlobalChartsProvider, so its
+	// toggleSeriesVisibility calls reach the chart's visibility state.
+	render: () => (
+		<LineChart
+			chartId={ INTERACTIVE_COMPARISON_CHART_ID }
+			data={ viewsVisitorsComparisonTimeData }
+			legend={ { interactive: true } }
+			withTooltips
+			withGradientFill={ false }
+			smoothing={ false }
+			maxWidth={ 1200 }
+		>
+			<LineChart.Legend position="bottom" render={ renderComparisonLegend } />
+		</LineChart>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The same 2-item interactive comparison legend pattern as the BarChart story, applied to a LineChart. Four series across two groups (`Views` / `Visitors`, each with a `type: "comparison"` previous-period overlay drawn as a dashed line) are shown behind a custom 2-item legend supplied through the composition API — a `<LineChart.Legend>` child with a `render` prop. Clicking a metric toggles **both** its current and previous-period lines together via the public `useGlobalChartsContext()` (`toggleSeriesVisibility` / `isSeriesVisible`), striking through the item to match the built-in legend\'s inactive styling, while tooltips keep distinct period labels. `legend={ { interactive: true } }` tells the chart to honour visibility. Note: with the current API the value axis rescales to the visible series when a metric is toggled (unlike the bar chart, whose axis stays fixed).',
+			},
+		},
+	},
 };
