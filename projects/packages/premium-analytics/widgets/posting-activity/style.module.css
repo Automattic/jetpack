@@ -19,10 +19,12 @@
 	overflow-x: auto;
 }
 
-/* Floor the column width so a narrow card scrolls rather than collapsing cells;
-   above the floor the 1fr tracks stretch to fill the available space. */
+/* Columns fill the width (a narrow card scrolls once they hit this floor); rows
+   keep a fixed height so cells don't stretch vertically — the grid centers in
+   the card instead. */
 .heatmap {
 	--heatmap-min-cell-width: 14px;
+	--heatmap-row-height: 20px;
 	flex: 1 1 0;
 	min-width: 0;
 	min-height: 0;

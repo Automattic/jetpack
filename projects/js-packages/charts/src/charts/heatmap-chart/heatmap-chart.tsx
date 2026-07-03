@@ -104,11 +104,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const rows = Math.max( 0, ...data.map( column => column.data.length ) );
 
 	const { compactCellGap, compactCellSize } = heatmapChartSettings;
-	// `'auto'` always renders the value node and lets CSS reveal it only where the
-	// cell is roomy enough (container query); a boolean is honored as-is.
-	const autoValues = showValues === 'auto';
-	const explicitValues = typeof showValues === 'boolean' ? showValues : undefined;
-	const drawValues = autoValues || ( explicitValues ?? ! compact );
+	const drawValues = showValues ?? ! compact;
 
 	const buildTooltipData = useCallback(
 		( columnIndex: number, rowIndex: number ): HeatmapTooltipData => {
@@ -248,7 +244,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		);
 	}
 
-	const rowTrack = compact ? 'var(--heatmap-cell-size)' : 'minmax(0, 1fr)';
+	// Rows honor an optional fixed height so a consumer can keep cells from
+	// stretching to fill the container's height (and center the grid instead); the
+	// default `minmax(0, 1fr)` preserves the fill-to-height behavior everywhere else.
+	const rowTrack = compact
+		? 'var(--heatmap-cell-size)'
+		: 'var(--heatmap-row-height, minmax(0, 1fr))';
 	// Columns honor an optional minimum width so a consumer can let a wide grid
 	// scroll (via an overflow ancestor) instead of shrinking cells to nothing; the
 	// default `0px` preserves the fill-to-width behavior for every other chart.
@@ -299,7 +300,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						onKeyDown={ onChartKeyDown }
 						className={ clsx( styles[ 'heatmap-chart__grid' ], {
 							[ styles[ 'heatmap-chart__grid--compact' ] ]: compact,
-							[ styles[ 'heatmap-chart__grid--auto-values' ] ]: autoValues,
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>

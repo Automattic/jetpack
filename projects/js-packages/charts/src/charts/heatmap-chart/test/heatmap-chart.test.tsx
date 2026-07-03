@@ -58,14 +58,6 @@ describe( 'HeatmapChart', () => {
 		expect( screen.queryByText( '3' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'with showValues="auto" keeps the value node and marks the grid for responsive reveal', () => {
-		renderChart( { showValues: 'auto' } );
-		// The value stays in the DOM; a per-cell container query (not JS) governs
-		// whether it shows, so it renders like the default here.
-		expect( screen.getAllByText( '3' ).length ).toBeGreaterThan( 0 );
-		expect( screen.getByRole( 'grid' ) ).toHaveClass( 'heatmap-chart__grid--auto-values' );
-	} );
-
 	test( 'formats large in-cell values compactly', () => {
 		render(
 			<GlobalChartsProvider>
