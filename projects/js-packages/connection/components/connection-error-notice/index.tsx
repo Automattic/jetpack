@@ -116,7 +116,7 @@ const ConnectionErrorNotice = ( {
 					{ icon }
 					<div className={ styles.body }>
 						{ context && <span className={ styles.context }>{ context }</span> }
-						<span>{ message }</span>
+						{ message }
 					</div>
 				</div>
 				{ actionButtons.length > 0 && <div className={ styles.actions }>{ actionButtons }</div> }

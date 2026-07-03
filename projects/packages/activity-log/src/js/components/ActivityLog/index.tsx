@@ -355,14 +355,25 @@ export default function ActivityLog() {
 	// replaced by the actionable connection banner.
 	const [ isCheckingHealth, setIsCheckingHealth ] = useState( false );
 	useLayoutEffect( () => {
+		let cancelled = false;
+
 		if ( ! isListError ) {
 			setIsCheckingHealth( false );
-			return;
+			return () => {
+				cancelled = true;
+			};
 		}
 		setIsCheckingHealth( true );
 		// runConnectionHealthCheck always settles (its thunk try/catches to `{}`
 		// or a mapped error), so the pending flag is guaranteed to clear.
-		Promise.resolve( runConnectionHealthCheck() ).finally( () => setIsCheckingHealth( false ) );
+		Promise.resolve( runConnectionHealthCheck() ).finally( () => {
+			if ( ! cancelled ) {
+				setIsCheckingHealth( false );
+			}
+		} );
+		return () => {
+			cancelled = true;
+		};
 	}, [ isListError, runConnectionHealthCheck ] );
 
 	// Prefer the shared, actionable connection-error notice over the generic
