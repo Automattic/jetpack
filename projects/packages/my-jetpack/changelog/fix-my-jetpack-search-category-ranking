@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Products: Keep product search result order stable while typing a category name.
