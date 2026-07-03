@@ -668,7 +668,9 @@ const ComparisonLegendItem = ( {
 					backgroundColor: color,
 				} }
 			/>
-			{ metric.label }
+			<span style={ { textDecoration: visible ? undefined : 'line-through' } }>
+				{ metric.label }
+			</span>
 		</button>
 	);
 };
