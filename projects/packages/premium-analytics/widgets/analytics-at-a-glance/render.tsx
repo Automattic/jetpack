@@ -458,6 +458,7 @@ function StorePerformanceContent( {
 								series={ chartSeries }
 								styles={ seriesStyles }
 								dataFormat={ getFormatByMetricKey( currentMetric.metricKey ) }
+								compactWhenShort
 							/>
 						) }
 					</Tabs.Panel>
