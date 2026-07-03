@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add the Latest post widget to the Premium Analytics dashboard: the site's most recent published post with its views, likes, and comments, backed by a new `useStatsLatestPost` data hook.
+Add the Latest post widget to the Premium Analytics dashboard: the site's most recent published post with its featured image and its all-time views, likes, and comments.

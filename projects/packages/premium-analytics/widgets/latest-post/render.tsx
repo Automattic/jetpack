@@ -139,16 +139,17 @@ export const LatestPostCard = ( {
 		<div className={ styles.root }>
 			<div className={ styles.content }>
 				<div className={ styles.header }>
-					<Link
-						className={ styles.titleLink }
-						href={ post.url }
-						variant="unstyled"
-						title={ post.title }
-					>
-						<Text className={ styles.title } variant="heading-2xl" render={ <h3 /> }>
+					<Text className={ styles.title } variant="heading-2xl" render={ <h3 /> }>
+						<Link
+							className={ styles.titleLink }
+							href={ post.url }
+							variant="unstyled"
+							openInNewTab
+							title={ post.title }
+						>
 							{ post.title }
-						</Text>
-					</Link>
+						</Link>
+					</Text>
 					{ publishDate && (
 						<Text className={ styles.date } variant="body-md">
 							{ publishDate }
