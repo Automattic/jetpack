@@ -38,6 +38,13 @@
 	margin-block-end: var(--wpds-dimension-gap-md, 12px);
 }
 
+.bodyHeaderFloating {
+	position: absolute;
+	inset-block-start: var(--wpds-dimension-padding-lg);
+	inset-inline-end: var(--wpds-dimension-padding-lg);
+	margin-block-end: 0;
+}
+
 .chartArea {
 	display: grid;
 	grid-template-columns: 280fr 400fr;
@@ -93,6 +100,11 @@
 
 	.bodyHeader {
 		align-items: stretch;
+	}
+
+	.bodyHeaderFloating {
+		position: static;
+		margin-block-end: var(--wpds-dimension-gap-md, 12px);
 	}
 
 	.modeSelect {

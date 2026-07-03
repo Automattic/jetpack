@@ -147,7 +147,12 @@ function LocationsInner( { max }: { max: number } ) {
 	) : null;
 
 	const bodyHeader = (
-		<Stack direction="row" justify="flex-end" align="center" className={ styles.bodyHeader }>
+		<Stack
+			direction="row"
+			justify="flex-end"
+			align="center"
+			className={ clsx( styles.bodyHeader, backLink && styles.bodyHeaderFloating ) }
+		>
 			<SelectControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom

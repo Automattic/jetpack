@@ -5,6 +5,7 @@ import { SelectControl } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import {
 	calculateDelta,
 	LeaderboardChart,
@@ -146,7 +147,12 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 	) : null;
 
 	const bodyHeader = (
-		<Stack direction="row" justify="flex-end" align="center" className={ styles.bodyHeader }>
+		<Stack
+			direction="row"
+			justify="flex-end"
+			align="center"
+			className={ clsx( styles.bodyHeader, backLink && styles.bodyHeaderFloating ) }
+		>
 			<SelectControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
