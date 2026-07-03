@@ -37,7 +37,7 @@ interface StorePerformanceDashboardStoryProps
 		StorePerformanceStoryControls {}
 
 const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', minHeight: '420px' } }>
+	<div style={ { width: '100%', height: '420px' } }>
 		<Story />
 	</div>
 );
