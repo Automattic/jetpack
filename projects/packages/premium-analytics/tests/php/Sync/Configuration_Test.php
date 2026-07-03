@@ -44,12 +44,12 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * PREMIUM_ANALYTICS_VERSION must be whitelisted so syncing it triggers WPCom provisioning.
+	 * JETPACK_PREMIUM_ANALYTICS__VERSION must be whitelisted so syncing it triggers WPCom provisioning.
 	 */
 	public function test_sync_config_whitelists_premium_analytics_version() {
 		$config = $this->call_private( 'get_jetpack_sync_config' );
 
-		$this->assertContains( 'PREMIUM_ANALYTICS_VERSION', $config['jetpack_sync_constants_whitelist'] );
+		$this->assertContains( 'JETPACK_PREMIUM_ANALYTICS__VERSION', $config['jetpack_sync_constants_whitelist'] );
 		$this->assertContains( 'WC_ANALYTICS_VERSION', $config['jetpack_sync_constants_whitelist'] );
 	}
 
