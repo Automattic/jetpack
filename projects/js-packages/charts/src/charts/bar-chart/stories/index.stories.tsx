@@ -1,3 +1,7 @@
+import { Stack } from '@wordpress/ui';
+import { useCallback } from 'react';
+import { useChartLegendItems } from '../../../components/legend';
+import { useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -11,6 +15,7 @@ import {
 	themeArgTypes,
 } from '../../../stories';
 import BarChart from '../bar-chart';
+import type { SeriesData } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
@@ -554,6 +559,158 @@ export const LabelOverflowEllipsis: StoryObj< typeof BarChart > = {
 			description: {
 				story:
 					"Demonstrates the `labelOverflow: 'ellipsis'` option that truncates long axis labels to fit the available bandwidth. The full label text is shown on hover via a native tooltip. This is useful for narrow widget contexts where space is limited.",
+			},
+		},
+	},
+};
+
+// A 2-item interactive legend over a 4-series comparison chart. The built-in legend renders one
+// item per series; here it is disabled and replaced by a custom legend that shows one item per
+// metric and toggles each metric's current + previous-period series together.
+const INTERACTIVE_COMPARISON_CHART_ID = 'views-visitors-comparison';
+
+const comparisonLegendData: SeriesData[] = [
+	{
+		label: 'Views',
+		group: 'views',
+		data: [
+			{ label: 'Mon', value: 420 },
+			{ label: 'Tue', value: 580 },
+			{ label: 'Wed', value: 310 },
+			{ label: 'Thu', value: 750 },
+			{ label: 'Fri', value: 640 },
+		],
+	},
+	{
+		label: 'Views — previous',
+		group: 'views',
+		options: { type: 'comparison' as const },
+		data: [
+			{ label: 'Mon', value: 510 },
+			{ label: 'Tue', value: 490 },
+			{ label: 'Wed', value: 430 },
+			{ label: 'Thu', value: 620 },
+			{ label: 'Fri', value: 700 },
+		],
+	},
+	{
+		label: 'Visitors',
+		group: 'visitors',
+		data: [
+			{ label: 'Mon', value: 280 },
+			{ label: 'Tue', value: 390 },
+			{ label: 'Wed', value: 220 },
+			{ label: 'Thu', value: 500 },
+			{ label: 'Fri', value: 430 },
+		],
+	},
+	{
+		label: 'Visitors — previous',
+		group: 'visitors',
+		options: { type: 'comparison' as const },
+		data: [
+			{ label: 'Mon', value: 340 },
+			{ label: 'Tue', value: 320 },
+			{ label: 'Wed', value: 290 },
+			{ label: 'Thu', value: 410 },
+			{ label: 'Fri', value: 460 },
+		],
+	},
+];
+
+// One legend entry per metric; each entry controls its current + previous series together.
+const comparisonLegendMetrics = [
+	{ label: 'Views', current: 'Views', previous: 'Views — previous' },
+	{ label: 'Visitors', current: 'Visitors', previous: 'Visitors — previous' },
+];
+
+type ComparisonMetric = ( typeof comparisonLegendMetrics )[ number ];
+
+const ComparisonLegendItem = ( {
+	metric,
+	color,
+}: {
+	metric: ComparisonMetric;
+	color?: string;
+} ) => {
+	const { toggleSeriesVisibility, isSeriesVisible } = useGlobalChartsContext();
+	const visible = isSeriesVisible( INTERACTIVE_COMPARISON_CHART_ID, metric.current );
+
+	const handleClick = useCallback( () => {
+		// One click toggles both the current and previous-period series for this metric.
+		toggleSeriesVisibility( INTERACTIVE_COMPARISON_CHART_ID, metric.current );
+		toggleSeriesVisibility( INTERACTIVE_COMPARISON_CHART_ID, metric.previous );
+	}, [ toggleSeriesVisibility, metric ] );
+
+	return (
+		<button
+			type="button"
+			aria-pressed={ visible }
+			aria-label={ `${ metric.label }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.` }
+			onClick={ handleClick }
+			style={ {
+				display: 'flex',
+				alignItems: 'center',
+				gap: '8px',
+				padding: 0,
+				border: 'none',
+				background: 'none',
+				cursor: 'pointer',
+				opacity: visible ? 1 : 0.4,
+			} }
+		>
+			<span
+				aria-hidden="true"
+				style={ {
+					width: '16px',
+					height: '16px',
+					borderRadius: '2px',
+					backgroundColor: color,
+				} }
+			/>
+			{ metric.label }
+		</button>
+	);
+};
+
+const ComparisonLegend = () => {
+	// Reuse the library's colour resolution so swatches match the primary bars.
+	const legendItems = useChartLegendItems( comparisonLegendData );
+	const colorByLabel = new Map( legendItems.map( item => [ item.label, item.color ] ) );
+
+	return (
+		<Stack direction="row" gap="lg" align="center" justify="center">
+			{ comparisonLegendMetrics.map( metric => (
+				<ComparisonLegendItem
+					key={ metric.label }
+					metric={ metric }
+					color={ colorByLabel.get( metric.current ) }
+				/>
+			) ) }
+		</Stack>
+	);
+};
+
+export const ComparisonGroupsInteractiveLegend: Story = {
+	render: () => (
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '16px', width: 700 } }>
+			<BarChart
+				chartId={ INTERACTIVE_COMPARISON_CHART_ID }
+				data={ comparisonLegendData }
+				legend={ { interactive: true } }
+				showLegend={ false }
+				withTooltips
+				gridVisibility="x"
+				height={ 300 }
+			/>
+			<ComparisonLegend />
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'A **2-item interactive legend** over a four-series comparison chart (`Views` / `Visitors`, each with a `type: "comparison"` previous-period overlay). The built-in legend renders one item per series, so it is disabled here (`showLegend={ false }`) and replaced by a custom legend showing a single item per metric. Clicking a metric toggles **both** its current and previous-period series together via the public `useGlobalChartsContext()` (`toggleSeriesVisibility` / `isSeriesVisible`) — one click hides or shows both bars, while tooltips keep distinct period labels. `legend={ { interactive: true } }` tells the chart to honour visibility even though it renders no legend of its own. This is the recommended pattern for comparison widgets (e.g. the Premium Analytics Views & Visitors chart) that need a grouped, interactive legend today.',
 			},
 		},
 	},
