@@ -639,7 +639,7 @@ class Jetpack_Carousel {
 						<div class="jp-carousel-pagination"></div>
 					</div>
 					<div class="jp-carousel-photo-title-container">
-						<h2 class="jp-carousel-photo-caption"></h2>
+						<div class="jp-carousel-photo-caption"></div>
 					</div>
 					<div class="jp-carousel-photo-icons-container">
 						<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-info" aria-label="<?php esc_attr_e( 'Toggle photo metadata visibility', 'jetpack' ); ?>">
@@ -675,7 +675,7 @@ class Jetpack_Carousel {
 				<div class="jp-carousel-info-extra">
 					<div class="jp-carousel-info-content-wrapper">
 						<div class="jp-carousel-photo-title-container">
-							<h2 class="jp-carousel-photo-title"></h2>
+							<div class="jp-carousel-photo-title"></div>
 						</div>
 						<div class="jp-carousel-comments-wrapper">
 							<?php if ( $localize_strings['display_comments'] ) : ?>
@@ -755,7 +755,7 @@ class Jetpack_Carousel {
 						<div class="jp-carousel-image-meta">
 							<div class="jp-carousel-title-and-caption">
 								<div class="jp-carousel-photo-info">
-									<h3 class="jp-carousel-caption" itemprop="caption description"></h3>
+									<div class="jp-carousel-caption" itemprop="caption description"></div>
 								</div>
 
 								<div class="jp-carousel-photo-description"></div>
