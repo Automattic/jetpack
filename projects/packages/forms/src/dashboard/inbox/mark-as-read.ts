@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { FORMS_MENU_BADGE_SLUG, getMenuBadgeCount } from './utils';
+import { getFormsMenuBadgeSlug, getMenuBadgeCount } from './utils';
 import type { DispatchActions } from './stage/types';
 import type { FormResponse } from '../../types';
 
@@ -43,7 +43,7 @@ export function markResponseAsRead(
 	// Optimistically decrement the sidebar unread counter so it updates without
 	// waiting for the server (inbox/published responses only).
 	if ( status === 'publish' ) {
-		window.jetpackMenuBadges?.setCount( FORMS_MENU_BADGE_SLUG, getMenuBadgeCount() - 1 );
+		window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), getMenuBadgeCount() - 1 );
 	}
 
 	return apiFetch< { count: number } >( {
@@ -53,7 +53,7 @@ export function markResponseAsRead(
 	} )
 		.then( ( { count } ) => {
 			// Sync the sidebar counter with the authoritative server count.
-			window.jetpackMenuBadges?.setCount( FORMS_MENU_BADGE_SLUG, count );
+			window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), count );
 			onSuccess?.( id );
 		} )
 		.catch( () => {
@@ -62,7 +62,7 @@ export function markResponseAsRead(
 
 			// Revert the optimistic sidebar decrement.
 			if ( status === 'publish' ) {
-				window.jetpackMenuBadges?.setCount( FORMS_MENU_BADGE_SLUG, getMenuBadgeCount() + 1 );
+				window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), getMenuBadgeCount() + 1 );
 			}
 		} );
 }

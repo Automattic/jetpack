@@ -9,12 +9,22 @@ export const getPath = item => {
 };
 
 /**
- * Slug the Forms wp-admin submenu badge is registered under. Must match
- * `Dashboard::FORMS_WPBUILD_ADMIN_SLUG` in the PHP class of the same name, and
- * the `data-jp-menu-badge` attribute the shared menu-badges renderer tags the
- * Forms badge with.
+ * The Forms wp-admin submenu badge can be registered under either of two
+ * slugs, depending on the `jetpack_forms_alpha` filter: the wp-build slug
+ * (`jetpack-forms-responses-wp-admin`), or the legacy slug
+ * (`jetpack-forms-admin`, i.e. `Dashboard::ADMIN_SLUG`) when the filter
+ * returns false. This selector matches whichever one is actually rendered so
+ * callers don't have to hardcode (and potentially mismatch) the active slug.
  */
-export const FORMS_MENU_BADGE_SLUG = 'jetpack-forms-responses-wp-admin';
+const FORMS_MENU_BADGE_SELECTOR =
+	'[data-jp-menu-badge="jetpack-forms-responses-wp-admin"],[data-jp-menu-badge="jetpack-forms-admin"]';
+
+/**
+ * Fallback slug to use when no Forms menu badge is present in the DOM
+ * (e.g. the count is already 0, or the badge simply hasn't rendered yet).
+ * This matches the default wp-build slug.
+ */
+const DEFAULT_FORMS_MENU_BADGE_SLUG = 'jetpack-forms-responses-wp-admin';
 
 /**
  * Read the current Forms submenu badge count from the DOM, so callers can
@@ -24,11 +34,26 @@ export const FORMS_MENU_BADGE_SLUG = 'jetpack-forms-responses-wp-admin';
  * @return {number} The current badge count, or 0 if the badge isn't rendered (e.g. the count is already 0).
  */
 export const getMenuBadgeCount = () => {
-	const badge = document.querySelector( `[data-jp-menu-badge="${ FORMS_MENU_BADGE_SLUG }"]` );
+	const badge = document.querySelector( FORMS_MENU_BADGE_SELECTOR );
 	if ( ! badge ) {
 		return 0;
 	}
 	return parseInt( badge.getAttribute( 'data-jp-menu-count' ), 10 ) || 0;
+};
+
+/**
+ * Resolve the slug the Forms wp-admin submenu badge is currently registered
+ * under, by reading it off the rendered `data-jp-menu-badge` attribute rather
+ * than assuming a fixed slug. This is needed because the active slug depends
+ * on the `jetpack_forms_alpha` filter (see `FORMS_MENU_BADGE_SELECTOR`
+ * above), and using the wrong slug means `window.jetpackMenuBadges.setCount()`
+ * silently no-ops against a badge element that doesn't exist.
+ *
+ * @return {string} The active Forms menu badge slug, or the default wp-build slug if no badge is rendered.
+ */
+export const getFormsMenuBadgeSlug = () => {
+	const badge = document.querySelector( FORMS_MENU_BADGE_SELECTOR );
+	return badge?.getAttribute( 'data-jp-menu-badge' ) ?? DEFAULT_FORMS_MENU_BADGE_SLUG;
 };
 
 /**

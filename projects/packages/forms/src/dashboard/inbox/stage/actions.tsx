@@ -13,7 +13,7 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { notSpam, spam } from '../../icons/index.ts';
 import { store as dashboardStore } from '../../store/index.js';
-import { FORMS_MENU_BADGE_SLUG, getMenuBadgeCount, withTimeout } from '../utils.js';
+import { getFormsMenuBadgeSlug, getMenuBadgeCount, withTimeout } from '../utils.js';
 import { optimisticallyUpdateUnreadCount, processStatusChange } from './process-status-change';
 import { defaultView } from './views.js';
 /**
@@ -867,7 +867,7 @@ export const markAsReadAction: Action = {
 
 					// Immediately update menu counters optimistically to avoid delays, but only for inbox
 					if ( status === 'publish' ) {
-						window.jetpackMenuBadges?.setCount( FORMS_MENU_BADGE_SLUG, getMenuBadgeCount() - 1 );
+						window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), getMenuBadgeCount() - 1 );
 					}
 				}
 
@@ -879,7 +879,7 @@ export const markAsReadAction: Action = {
 				} )
 					.then( ( { count } ) => {
 						// Update menu counter with accurate count from server.
-						window.jetpackMenuBadges?.setCount( FORMS_MENU_BADGE_SLUG, count );
+						window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), count );
 					} )
 					.catch( () => {
 						// Revert the change in the store if the server update fails.
@@ -891,7 +891,7 @@ export const markAsReadAction: Action = {
 							// Revert the optimistic change in the sidebar.
 							if ( status === 'publish' ) {
 								window.jetpackMenuBadges?.setCount(
-									FORMS_MENU_BADGE_SLUG,
+									getFormsMenuBadgeSlug(),
 									getMenuBadgeCount() + 1
 								);
 							}
@@ -985,7 +985,7 @@ export const markAsUnreadAction: Action = {
 
 					// Immediately update menu counters optimistically to avoid delays, but only for inbox
 					if ( status === 'publish' ) {
-						window.jetpackMenuBadges?.setCount( FORMS_MENU_BADGE_SLUG, getMenuBadgeCount() + 1 );
+						window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), getMenuBadgeCount() + 1 );
 					}
 				}
 
@@ -997,7 +997,7 @@ export const markAsUnreadAction: Action = {
 				} )
 					.then( ( { count } ) => {
 						// Update menu counter with accurate count from server.
-						window.jetpackMenuBadges?.setCount( FORMS_MENU_BADGE_SLUG, count );
+						window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), count );
 					} )
 					.catch( () => {
 						// Revert the change in the store if the server update fails.
@@ -1009,7 +1009,7 @@ export const markAsUnreadAction: Action = {
 							// Revert the optimistic change in the sidebar.
 							if ( status === 'publish' ) {
 								window.jetpackMenuBadges?.setCount(
-									FORMS_MENU_BADGE_SLUG,
+									getFormsMenuBadgeSlug(),
 									getMenuBadgeCount() - 1
 								);
 							}
