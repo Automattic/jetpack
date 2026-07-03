@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 ?>
 <footer class="jetpack-beta-footer" role="contentinfo" aria-label="<?php esc_attr_e( 'Jetpack', 'jetpack-beta' ); ?>">
-	<span class="jetpack-beta-footer__logo">
+	<span class="jetpack-beta-footer__logo" aria-hidden="true">
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" role="img" aria-labelledby="jetpack-beta-footer-logo-title">
 			<title id="jetpack-beta-footer-logo-title"><?php esc_html_e( 'Jetpack Logo', 'jetpack-beta' ); ?></title>
 			<path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z" />
