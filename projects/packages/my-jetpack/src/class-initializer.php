@@ -20,6 +20,8 @@ use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\ExPlat;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Menu_Badges\Menu_Badges;
+use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
@@ -96,8 +98,9 @@ class Initializer {
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
-		// This is later than the admin-ui package, which runs on 1000
-		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
+		// Registered on admin_menu (not admin_init) and well before priority 100000, so the
+		// counts it registers exist before the menu-badges renderer runs on admin_menu 100000.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_show_red_bubble' ), 30 );
 
 		// Set up the ExPlat package endpoints
 		ExPlat::init();
@@ -735,7 +738,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function maybe_show_red_bubble() {
-		global $menu, $pagenow;
+		global $pagenow;
 
 		// Don't show red bubble alerts for non-admin users
 		// These alerts are generally only actionable for admins
@@ -780,14 +783,22 @@ class Initializer {
 			}
 		);
 
-		// The Jetpack menu item should be on index 3
-		if (
-			! empty( $red_bubble_alerts ) &&
-			isset( $menu[3] ) &&
-			$menu[3][0] === 'Jetpack'
-		) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$menu[3][0] .= sprintf( ' <span class="awaiting-mod">%d</span>', count( $red_bubble_alerts ) );
+		// Report each non-silent alert to the central menu-badges registry as an
+		// attention entry (count 1). The registry + renderer own the badge.
+		Menu_Badges::init(); // idempotent; wires the renderer.
+		foreach ( array_keys( $red_bubble_alerts ) as $slug ) {
+			// Protect now reports its own count directly to the registry; skip it here
+			// so it isn't counted twice in the top-level menu total.
+			if ( 'protect_has_threats' === $slug ) {
+				continue;
+			}
+			Notification_Counts::register(
+				'my-jetpack-' . $slug,
+				array(
+					'menu_slug' => 'my-jetpack',
+					'type'      => 'attention',
+				)
+			);
 		}
 	}
 
