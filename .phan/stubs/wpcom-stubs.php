@@ -998,9 +998,6 @@ namespace {
         public static function is_email_unverified($user_id = \false, $legacy_type = 'NEWKEY')
         {
         }
-        public static function resend_verification_email($meta = array())
-        {
-        }
     }
     /**
      * @param array $args

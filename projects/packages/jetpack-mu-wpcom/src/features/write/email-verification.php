@@ -64,6 +64,7 @@ function wpcom_write_ajax_resend_verification_email() {
 		wp_send_json_error( array( 'message' => 'unavailable' ), 400, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 	}
 
+	// @phan-suppress-next-line PhanUndeclaredStaticMethod -- class_exists guarded above; resend_verification_email() isn't in the generated wpcom stub, unlike is_email_unverified().
 	Email_Verification::resend_verification_email();
 
 	wp_send_json_success( null, 200, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
