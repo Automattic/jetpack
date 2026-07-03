@@ -15,21 +15,24 @@ import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stori
 import AnnualHighlightsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
 
 registerReportMocks();
 
 const ANNUAL_HIGHLIGHTS_RENDER_MODULE = 'storybook/annual-highlights';
 
-// Pick only the fields StoryWidgetMetadata accepts (the attribute schema is
-// typed loosely on the widget definition and does not satisfy Field<>), and
-// surface the widget's full-bleed presentation so the dashboard story renders it
-// edge-to-edge with its own header instead of inside the host's framed chrome.
+// Carry the widget's metadata, including the metric-visibility attribute schema
+// so the dashboard story's settings drawer renders the real checkboxes, and
+// surface the full-bleed presentation so it renders edge-to-edge with its own
+// header instead of inside the host's framed chrome. The attribute schema is
+// typed loosely on the widget definition, so it is cast to the WidgetType shape.
 const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
+	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
+	example: widgetDefinition.example,
 	presentation: 'full-bleed' as const,
 };
 

@@ -28,11 +28,35 @@ export default {
 	name: 'jpa/annual-highlights',
 	title: __( 'Annual highlights', 'jetpack-premium-analytics' ),
 	icon: calendar,
+	// Each metric defaults to enabled. The `getValue` defaults keep the settings
+	// checkbox in sync with the render, which also treats a missing flag as
+	// enabled: without them a metric absent from `attributes` would show as an
+	// unchecked box while its tile still rendered.
 	attributes: [
-		{ id: 'showPosts', label: __( 'Posts', 'jetpack-premium-analytics' ), type: 'boolean' },
-		{ id: 'showWords', label: __( 'Words', 'jetpack-premium-analytics' ), type: 'boolean' },
-		{ id: 'showLikes', label: __( 'Likes', 'jetpack-premium-analytics' ), type: 'boolean' },
-		{ id: 'showComments', label: __( 'Comments', 'jetpack-premium-analytics' ), type: 'boolean' },
+		{
+			id: 'showPosts',
+			label: __( 'Posts', 'jetpack-premium-analytics' ),
+			type: 'boolean',
+			getValue: ( { item }: { item: AnnualHighlightsAttributes } ) => item.showPosts ?? true,
+		},
+		{
+			id: 'showWords',
+			label: __( 'Words', 'jetpack-premium-analytics' ),
+			type: 'boolean',
+			getValue: ( { item }: { item: AnnualHighlightsAttributes } ) => item.showWords ?? true,
+		},
+		{
+			id: 'showLikes',
+			label: __( 'Likes', 'jetpack-premium-analytics' ),
+			type: 'boolean',
+			getValue: ( { item }: { item: AnnualHighlightsAttributes } ) => item.showLikes ?? true,
+		},
+		{
+			id: 'showComments',
+			label: __( 'Comments', 'jetpack-premium-analytics' ),
+			type: 'boolean',
+			getValue: ( { item }: { item: AnnualHighlightsAttributes } ) => item.showComments ?? true,
+		},
 	],
 	example: {
 		attributes: {

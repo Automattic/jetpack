@@ -202,7 +202,6 @@ function AnnualHighlightsReport( {
 								value={ tile.value }
 								dataFormat={ COUNT_FORMAT }
 								fontSize="2xl"
-								className={ styles.tileValue }
 							/>
 						</div>
 					) ) }
