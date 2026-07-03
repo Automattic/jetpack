@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Charts: HeatmapChart honors two optional CSS vars — --heatmap-min-cell-width (lets a wide grid scroll instead of shrinking columns to nothing) and --heatmap-row-height (fixes the row height and centers the grid vertically rather than stretching cells). Both default to the existing fill behavior.

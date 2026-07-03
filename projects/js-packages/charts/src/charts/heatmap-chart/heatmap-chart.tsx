@@ -244,22 +244,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		);
 	}
 
-	// Rows honor an optional fixed height so a consumer can keep cells from
-	// stretching to fill the container's height (and center the grid instead); the
-	// default `minmax(0, 1fr)` preserves the fill-to-height behavior everywhere else.
-	const rowTrack = compact
-		? 'var(--heatmap-cell-size)'
-		: 'var(--heatmap-row-height, minmax(0, 1fr))';
-	// Columns honor an optional minimum width so a consumer can let a wide grid
-	// scroll (via an overflow ancestor) instead of shrinking cells to nothing; the
-	// default `0px` preserves the fill-to-width behavior for every other chart.
-	const columnTrack = compact
-		? 'var(--heatmap-cell-size)'
-		: 'minmax(var(--heatmap-min-cell-width, 0px), 1fr)';
+	const trackSize = compact ? 'var(--heatmap-cell-size)' : 'minmax(0, 1fr)';
 	const gridStyle: Record< string, string | number > = {
 		'--heatmap-primary': primaryColorHex,
-		gridTemplateColumns: `auto repeat(${ columns }, ${ columnTrack })`,
-		gridTemplateRows: `auto repeat(${ rows }, ${ rowTrack })`,
+		gridTemplateColumns: `auto repeat(${ columns }, ${ trackSize })`,
+		gridTemplateRows: `auto repeat(${ rows }, ${ trackSize })`,
 	};
 	if ( compact ) {
 		gridStyle[ '--heatmap-cell-gap' ] = `${ compactCellGap }px`;

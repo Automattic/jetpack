@@ -19,9 +19,6 @@
 	width: 100%;
 	// Floor so the grid stays usable when the parent has no explicit height.
 	min-height: 200px;
-	// No-op while rows fill with `1fr`; centers the block when a fixed
-	// `--heatmap-row-height` leaves the grid taller than its rows.
-	align-content: center;
 
 	&:focus-visible {
 		outline:
