@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use ReflectionMethod;
 
 /**
  * Tests for the Analytics class.
@@ -33,20 +32,6 @@ class Analytics_Test extends TestCase {
 	 */
 	public function test_class_exists() {
 		$this->assertTrue( class_exists( Analytics::class ) );
-	}
-
-	/**
-	 * Defining the version constant makes JETPACK_PREMIUM_ANALYTICS_VERSION available for Sync to whitelist.
-	 */
-	public function test_defines_version_constant() {
-		$define = new ReflectionMethod( Analytics::class, 'define_version_constant' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$define->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
-		}
-		$define->invoke( null );
-
-		$this->assertTrue( defined( 'JETPACK_PREMIUM_ANALYTICS_VERSION' ) );
-		$this->assertSame( Analytics::PACKAGE_VERSION, JETPACK_PREMIUM_ANALYTICS_VERSION );
 	}
 
 	/**

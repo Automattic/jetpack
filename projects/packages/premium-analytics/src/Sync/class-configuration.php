@@ -171,8 +171,9 @@ class Configuration {
 				),
 				'jetpack_sync_constants_whitelist' => array(
 					'WC_ANALYTICS_VERSION',
-					// Syncing this triggers WPCom to provision the WC Analytics tables. (WOOA7S-1643)
-					'JETPACK_PREMIUM_ANALYTICS_VERSION',
+					// Syncing this triggers WPCom to provision the WC Analytics tables. Defined by the
+					// plugin at load (double underscore, per the JETPACK__VERSION convention). (WOOA7S-1643)
+					'JETPACK_PREMIUM_ANALYTICS__VERSION',
 				),
 			)
 		);
