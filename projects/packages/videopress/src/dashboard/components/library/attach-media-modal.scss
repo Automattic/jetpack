@@ -1,0 +1,20 @@
+.vp-attach-media {
+
+	// Hosts the DropZone overlay, which positions itself absolutely within
+	// its nearest positioned ancestor.
+	&__drop-target {
+		position: relative;
+		padding: 24px;
+		border: 1px dashed #949494;
+		border-radius: 4px;
+		text-align: center;
+	}
+
+	&__file-name {
+		overflow-wrap: anywhere;
+	}
+
+	&__error {
+		color: #cc1818;
+	}
+}

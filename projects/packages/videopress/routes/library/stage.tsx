@@ -7,6 +7,7 @@ import { useNavigate } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
+import AttachMediaModal from '../../src/dashboard/components/library/attach-media-modal';
 import { buildLibraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
@@ -73,6 +74,10 @@ const StageInner = () => {
 	// rows get a "Deleting…" state (thumbnail overlay in grid, title pill in
 	// table) until the post-delete refetch removes them from the listing.
 	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
+	// The import draft the "Attach video file" dialog is open for. A snapshot
+	// of the row (not an id): the attach flow's refetches remove the draft
+	// from the listing while the dialog still needs its title.
+	const [ attachDraft, setAttachDraft ] = useState< LibraryItem | null >( null );
 
 	const { items, isLoading, paginationInfo } = useLibrary( view );
 	// Playlists back the Studio-gated playlists field (cell render + filter
@@ -239,6 +244,9 @@ const StageInner = () => {
 				retryUpload,
 				openVideoDetails,
 				openVideoAnalytics,
+				// State setters are referentially stable, so this doesn't
+				// need to appear in the memo's dependency list.
+				attachMedia: setAttachDraft,
 				deleteItems: async ( ids: string[] ) => {
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// The row overlay/pill is purely visual; this notice is what
@@ -492,6 +500,9 @@ const StageInner = () => {
 					/>
 				</div>
 			</UploadActionsProvider>
+			{ attachDraft && (
+				<AttachMediaModal draft={ attachDraft } onClose={ () => setAttachDraft( null ) } />
+			) }
 		</DashboardLayout>
 	);
 };

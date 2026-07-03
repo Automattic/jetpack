@@ -11,6 +11,10 @@ type Api = {
 	setPrivacy: ( ids: string[], privacy: LibraryItemPrivacy ) => void;
 	openVideoDetails: ( id: string ) => void;
 	openVideoAnalytics: ( id: string ) => void;
+	// Receives the whole item (not just the id) so the stage can hand the
+	// attach dialog a stable snapshot of the draft without looking it up in a
+	// listing that refetches (and drops the row) mid-flow.
+	attachMedia: ( item: LibraryItem ) => void;
 };
 
 // Allowlist on 'idle' (matching TitleText and ThumbnailField) rather than a
@@ -21,6 +25,13 @@ type Api = {
 // — nor the local-only upload path, which allowlists 'local'.
 const isVideoPressIdle = ( item: LibraryItem ) =>
 	item.type === 'videopress' && item.upload.status === 'idle';
+
+// Import drafts get their own pair of affordances instead of the video
+// actions: "Attach video file" completes the import, and the shared Delete
+// action discards it (the delete path is a plain /wp/v2/media force-delete,
+// so it needs no VideoPress guid). Same idle allowlist as above so a draft
+// mid-delete can't be attached or double-deleted.
+const isDraftIdle = ( item: LibraryItem ) => item.type === 'draft' && item.upload.status === 'idle';
 
 /**
  * Eligibility for a privacy action: the item must be an idle VideoPress video
@@ -61,11 +72,14 @@ const PRIVACY_ACTIONS: { idSuffix: string; label: string; privacy: LibraryItemPr
  * delete already in flight are ineligible for every action so a slow delete
  * can't be double-fired or raced by an edit.
  *
- * With the Studio flag on, two more actions appear: a bulk "Add to playlist"
+ * With the Studio flag on, more actions appear: a bulk "Add to playlist"
  * action that confirms through a DataViews modal (see AddToPlaylistModal,
- * which owns the membership mutation, so it needs no entry in `api`), and a
+ * which owns the membership mutation, so it needs no entry in `api`), a
  * per-row "View analytics" action that routes to the video's Analytics
- * screen at `/video/{id}/analytics`.
+ * screen at `/video/{id}/analytics`, and a per-row "Attach video file"
+ * action on import drafts that opens the stage-owned attach dialog (see
+ * AttachMediaModal). Drafts are also deletable through the shared Delete
+ * action; every other action excludes them.
  *
  * @param api - Hook mutators forwarded into the action callbacks.
  * @return The actions array for `<DataViews>`.
@@ -85,6 +99,27 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 						const [ item ] = items;
 						if ( item ) {
 							api.openVideoAnalytics( item.id );
+						}
+					},
+				},
+		  ]
+		: [];
+
+	// Gated like the drafts themselves: with the flag off the server strips
+	// the import field from /wp/v2/media, so type 'draft' can never occur and
+	// the action would be dead weight in every menu.
+	const attachMedia: Action< LibraryItem >[] = isStudioEnabled()
+		? [
+				{
+					id: 'attach-media',
+					label: __( 'Attach video file', 'jetpack-videopress-pkg' ),
+					isPrimary: true,
+					supportsBulk: false,
+					isEligible: isDraftIdle,
+					callback: ( items: LibraryItem[] ) => {
+						const [ item ] = items;
+						if ( item ) {
+							api.attachMedia( item );
 						}
 					},
 				},
@@ -138,11 +173,14 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			},
 		} ) ),
 		...addToPlaylist,
+		...attachMedia,
 		{
 			id: 'delete',
 			label: __( 'Delete', 'jetpack-videopress-pkg' ),
 			supportsBulk: true,
-			isEligible: isVideoPressIdle,
+			// Drafts qualify too: deleting one discards the import (see the
+			// isDraftIdle comment — the delete path never touches a guid).
+			isEligible: item => isVideoPressIdle( item ) || isDraftIdle( item ),
 			callback: items => {
 				api.deleteItems( items.map( i => i.id ) );
 			},
