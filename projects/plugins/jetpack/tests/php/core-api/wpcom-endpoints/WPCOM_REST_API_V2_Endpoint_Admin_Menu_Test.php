@@ -335,6 +335,38 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	}
 
 	/**
+	 * Tests that the central menu-badges registry's authoritative count
+	 * overlays the submenu item's `count`, so Calypso/Simple sidebars get
+	 * registry-backed counts without relying on title-markup scraping.
+	 */
+	public function test_prepare_submenu_item_overlays_registry_count() {
+		if ( ! class_exists( '\Automattic\Jetpack\Menu_Badges\Notification_Counts' ) ) {
+			$this->markTestSkipped( 'menu-badges package not loaded' );
+		}
+		\Automattic\Jetpack\Menu_Badges\Notification_Counts::reset();
+		\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
+			'jetpack-forms',
+			array(
+				'menu_slug' => 'jetpack-forms-responses-wp-admin',
+				'count'     => 15,
+			)
+		);
+
+		$class  = new \ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
+		$method = $class->getMethod( 'prepare_submenu_item' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$submenu_item = array( 'Forms', 'edit_pages', 'jetpack-forms-responses-wp-admin', 'Forms', '' );
+		$menu_item    = array( 'Jetpack', 'jetpack_admin_page', 'jetpack', 'Jetpack', 'menu-top' );
+
+		$result = $method->invokeArgs( new \WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $submenu_item, $menu_item ) );
+
+		$this->assertSame( 15, $result['count'] );
+		\Automattic\Jetpack\Menu_Badges\Notification_Counts::reset();
+	}
+
+	/**
 	 * Check if the menu URL is properly generated from the first submenu slug.
 	 */
 	public function test_if_the_first_submenu_url_is_used_for_menu_url() {
