@@ -188,4 +188,27 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 
 		$this->assertSame( array(), Notification_Counts::all() );
 	}
+
+	/**
+	 * Notification_Counts registration must happen on `admin_menu` (not `admin_init`),
+	 * and at a priority earlier than the menu-badges Menu_Renderer, which runs on
+	 * `admin_menu` at priority 100000. Getting the hook or priority wrong here is
+	 * exactly how the renderer would silently miss My Jetpack's contribution to the
+	 * top-level badge total: registering on `admin_init` runs too early (before
+	 * `admin_menu` fires at all), while a priority at or after 100000 on `admin_menu`
+	 * would run after the renderer already read the registry.
+	 */
+	public function test_registers_on_admin_menu_at_priority_30_not_admin_init() {
+		Initializer::init();
+
+		$this->assertSame(
+			30,
+			has_action( 'admin_menu', array( Initializer::class, 'maybe_show_red_bubble' ) ),
+			'maybe_show_red_bubble must be registered on admin_menu at priority 30, well before the menu-badges renderer at priority 100000.'
+		);
+		$this->assertFalse(
+			has_action( 'admin_init', array( Initializer::class, 'maybe_show_red_bubble' ) ),
+			'maybe_show_red_bubble must not be registered on admin_init.'
+		);
+	}
 }
