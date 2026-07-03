@@ -37,6 +37,48 @@ function isAnon() {
 	return typeof window !== 'undefined' && window.wpcomWriteIsAnon === true;
 }
 
+// Approximates the anon editor open — the module loads immediately after the
+// server rendered the page (and fired `wpcom_write_editor_open`). Used as the
+// baseline for `time_to_publish_ms` on the anon publish-click event.
+const ANON_EDITOR_OPENED_AT = typeof Date !== 'undefined' ? Date.now() : 0;
+
+// Guards `wpcom_write_editor_anon_write_start` to once per session.
+let anonWriteStartTracked = false;
+
+/**
+ * Fire a client-side Tracks event via the `_tkq` queue. Anon callers share the
+ * `tk_ai` cookie, so these stitch to the eventual user at signup completion.
+ *
+ * @param {string} name    - Tracks event name.
+ * @param {object} [props] - Optional event properties.
+ */
+function recordTracksEvent( name, props ) {
+	try {
+		window._tkq = window._tkq || [];
+		window._tkq.push( [ 'recordEvent', name, props || {} ] );
+	} catch {
+		// Tracks unavailable — nothing useful to do; swallow.
+	}
+}
+
+/**
+ * Fire `wpcom_write_editor_anon_write_start` once, the first time an anon
+ * visitor types real content. Keeps the funnel's write-through step honest —
+ * an empty editor that's opened and abandoned shouldn't count as a write.
+ *
+ * @param {string} text - Current plain-text content of the editor.
+ */
+function maybeTrackAnonWriteStart( text ) {
+	if ( anonWriteStartTracked || ! isAnon() ) {
+		return;
+	}
+	if ( ! text || ! text.trim() ) {
+		return;
+	}
+	anonWriteStartTracked = true;
+	recordTracksEvent( 'wpcom_write_editor_anon_write_start' );
+}
+
 /**
  * Persist the current draft snapshot to localStorage under the anon key.
  *
@@ -3673,6 +3715,12 @@ const { state } = store( 'wpcom-write', {
 			promoteGapAtCursor();
 			ensureBlockStructure();
 			pushToUndoHistoryDebounced();
+
+			// First real keystroke in the anon funnel — fires once per session.
+			if ( isAnon() && ! anonWriteStartTracked ) {
+				const contentEl = getContent();
+				maybeTrackAnonWriteStart( contentEl ? contentEl.textContent : '' );
+			}
 		},
 
 		undo() {
@@ -5782,6 +5830,22 @@ const { state } = store( 'wpcom-write', {
 
 		async publish() {
 			if ( isAnon() ) {
+				// The publish-intent event — the moment an anon visitor hits the
+				// signup wall. Captured before navigating away so it isn't lost to
+				// the handoff. word_count / draft_size_bytes size the draft; the
+				// server open event and this share the tk_ai identity for stitching.
+				const contentEl = getContent();
+				const rawHtml = contentEl ? contentEl.innerHTML : '';
+				const plainText = contentEl ? contentEl.textContent || '' : '';
+				const words = plainText.trim() ? plainText.trim().split( /\s+/ ).length : 0;
+				const draftContent = rawHtml ? convertToBlocks( rawHtml ) : '';
+				recordTracksEvent( 'wpcom_write_editor_anon_publish_click', {
+					word_count: words,
+					time_to_publish_ms: Date.now() - ANON_EDITOR_OPENED_AT,
+					draft_size_bytes:
+						typeof Blob !== 'undefined' ? new Blob( [ draftContent ] ).size : draftContent.length,
+				} );
+
 				// Flush the latest draft snapshot before navigating — autosave is
 				// on a 30s tick, and a fast typer-then-clicker would otherwise
 				// hand off stale (or no) content to the signup flow.
