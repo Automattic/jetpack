@@ -51,28 +51,28 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 	 *
 	 * @var ReportRegistry
 	 */
-	private ReportRegistry $registry;
+	private $registry;
 
 	/**
 	 * Data fetcher instance.
 	 *
 	 * @var ReportDataFetcher
 	 */
-	private ReportDataFetcher $data_fetcher;
+	private $data_fetcher;
 
 	/**
 	 * CSV generator instance.
 	 *
 	 * @var ReportCSVGenerator
 	 */
-	private ReportCSVGenerator $csv_generator;
+	private $csv_generator;
 
 	/**
 	 * Export scheduler instance.
 	 *
 	 * @var CSVExportScheduler
 	 */
-	private CSVExportScheduler $scheduler;
+	private $scheduler;
 
 	/**
 	 * Constructor.

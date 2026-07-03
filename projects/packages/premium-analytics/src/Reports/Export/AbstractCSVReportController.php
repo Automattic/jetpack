@@ -49,7 +49,7 @@ abstract class AbstractCSVReportController implements CSVReportControllerInterfa
 	 *
 	 * @var ReportRegistry
 	 */
-	protected ReportRegistry $registry;
+	protected $registry;
 
 	/**
 	 * Constructor.

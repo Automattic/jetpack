@@ -53,28 +53,28 @@ class CSVExportScheduler implements RegistrableInterface {
 	 *
 	 * @var ReportRegistry
 	 */
-	private ReportRegistry $registry;
+	private $registry;
 
 	/**
 	 * Data fetcher instance.
 	 *
 	 * @var ReportDataFetcher
 	 */
-	private ReportDataFetcher $data_fetcher;
+	private $data_fetcher;
 
 	/**
 	 * CSV generator instance.
 	 *
 	 * @var ReportCSVGenerator
 	 */
-	private ReportCSVGenerator $csv_generator;
+	private $csv_generator;
 
 	/**
 	 * Email sender instance.
 	 *
 	 * @var CSVExportEmail
 	 */
-	private CSVExportEmail $email_sender;
+	private $email_sender;
 
 	/**
 	 * Constructor.

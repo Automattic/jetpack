@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 trait LoggerTrait {
 
 	/** @var LoggerInterface|null */
-	private ?LoggerInterface $logger = null;
+	private $logger = null;
 
 	/**
 	 * Set the logger object.

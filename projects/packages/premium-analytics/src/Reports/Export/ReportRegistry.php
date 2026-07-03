@@ -26,7 +26,7 @@ class ReportRegistry {
 	 *
 	 * @var ReportRegistry|null
 	 */
-	private static ?ReportRegistry $instance = null;
+	private static $instance = null;
 
 	/**
 	 * Registered controller instances.
