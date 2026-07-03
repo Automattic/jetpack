@@ -239,6 +239,10 @@ declare global {
 		jetpackForms?: {
 			generateStyleVariables: ( formNode: HTMLElement ) => Record< string, string >;
 		};
+		/** Shared client for live-updating Jetpack admin-menu notification badges (automattic/jetpack-menu-badges). */
+		jetpackMenuBadges?: {
+			setCount: ( menuSlug: string, count: number ) => void;
+		};
 	}
 }
 

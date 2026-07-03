@@ -5,45 +5,33 @@ import { describe, expect, it, beforeEach } from '@jest/globals';
 /**
  * Internal dependencies
  */
-import {
-	updateMenuCounter,
-	updateMenuCounterOptimistically,
-} from '../../../../src/dashboard/inbox/utils';
+import { FORMS_MENU_BADGE_SLUG, getMenuBadgeCount } from '../../../../src/dashboard/inbox/utils';
 
-describe( 'Menu counter updates', () => {
+describe( 'getMenuBadgeCount', () => {
 	beforeEach( () => {
+		document.body.innerHTML = '';
+	} );
+
+	it( 'reads the count from the Forms badge data attribute', () => {
+		document.body.innerHTML = `<span data-jp-menu-badge="${ FORMS_MENU_BADGE_SLUG }" data-jp-menu-count="5"></span>`;
+
+		expect( getMenuBadgeCount() ).toBe( 5 );
+	} );
+
+	it( 'returns 0 when the badge is not rendered (e.g. count is already 0)', () => {
+		expect( getMenuBadgeCount() ).toBe( 0 );
+	} );
+
+	it( 'ignores badges for other menu slugs', () => {
 		document.body.innerHTML =
-			'<span class="menu-counter jp-feedback-unread-counter count-5"><span class="count">5</span></span>';
+			'<span data-jp-menu-badge="some-other-plugin" data-jp-menu-count="9"></span>';
+
+		expect( getMenuBadgeCount() ).toBe( 0 );
 	} );
 
-	it( 'updates counter from server', () => {
-		updateMenuCounter( 10 );
+	it( 'returns 0 for a non-numeric count attribute', () => {
+		document.body.innerHTML = `<span data-jp-menu-badge="${ FORMS_MENU_BADGE_SLUG }" data-jp-menu-count="not-a-number"></span>`;
 
-		const counter = document.querySelector( '.jp-feedback-unread-counter' );
-		expect( counter ).toHaveTextContent( '10' );
-		expect( counter ).toHaveClass( 'count-10' );
-	} );
-
-	it( 'increments counter optimistically', () => {
-		updateMenuCounterOptimistically( 1 );
-
-		const counter = document.querySelector( '.jp-feedback-unread-counter' );
-		expect( counter ).toHaveTextContent( '6' );
-	} );
-
-	it( 'decrements counter optimistically', () => {
-		updateMenuCounterOptimistically( -1 );
-
-		const counter = document.querySelector( '.jp-feedback-unread-counter' );
-		expect( counter ).toHaveTextContent( '4' );
-	} );
-
-	it( 'server count overrides optimistic updates', () => {
-		updateMenuCounterOptimistically( 1 ); // Now 6
-		updateMenuCounterOptimistically( 1 ); // Now 7
-		updateMenuCounter( 10 ); // Server says 10
-
-		const counter = document.querySelector( '.jp-feedback-unread-counter' );
-		expect( counter ).toHaveTextContent( '10' );
+		expect( getMenuBadgeCount() ).toBe( 0 );
 	} );
 } );

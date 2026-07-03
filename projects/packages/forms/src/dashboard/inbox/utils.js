@@ -1,5 +1,3 @@
-import { formatNumber } from '@automattic/number-formatters';
-
 // Function to get the URL of the page or post where the form was submitted.
 export const getPath = item => {
 	try {
@@ -11,65 +9,26 @@ export const getPath = item => {
 };
 
 /**
- * Update `count-0` style CSS class in the unread menu badge with new count like `count-1`.
- *
- * @param {HTMLElement} element - Counter badge element
- * @param {number}      count   - Count to use in new CSS class
+ * Slug the Forms wp-admin submenu badge is registered under. Must match
+ * `Dashboard::FORMS_WPBUILD_ADMIN_SLUG` in the PHP class of the same name, and
+ * the `data-jp-menu-badge` attribute the shared menu-badges renderer tags the
+ * Forms badge with.
  */
-function updateBadge( element, count ) {
-	const oldClass = [ ...element.classList ].find( c => c.startsWith( 'count-' ) );
-	if ( oldClass ) {
-		element.classList.replace( oldClass, `count-${ count }` );
-	} else {
-		element.classList.add( `count-${ count }` );
-	}
-
-	element.ariaHidden = count > 0 ? 'false' : 'true';
-
-	const countElement = element.querySelector( '.count' );
-	if ( countElement ) {
-		countElement.textContent = formatNumber( count );
-	} else {
-		element.textContent = formatNumber( count );
-	}
-}
+export const FORMS_MENU_BADGE_SLUG = 'jetpack-forms-responses-wp-admin';
 
 /**
- * Update the unread count in the admin menu to specific count.
+ * Read the current Forms submenu badge count from the DOM, so callers can
+ * compute an optimistic delta (e.g. -1 on mark-as-read) without waiting for
+ * the authoritative server count.
  *
- * @param {number} count - The new unread count.
+ * @return {number} The current badge count, or 0 if the badge isn't rendered (e.g. the count is already 0).
  */
-export const updateMenuCounter = count => {
-	// Iterate over all badges with the class 'jp-feedback-unread-counter' and update their count
-	document.querySelectorAll( '.jp-feedback-unread-counter' ).forEach( item => {
-		// Jetpack menu item has combined count and forms unread counter
-		if ( item.dataset.unreadDiff ) {
-			const unreadDiff = parseInt( item.dataset.unreadDiff, 10 ) + count;
-			updateBadge( item, unreadDiff );
-		} else {
-			updateBadge( item, count );
-		}
-	} );
-};
-
-/**
- * Update the unread count in the admin menu by addition or substraction, not by knowing the actual count.
- *
- * @param {number} count - By how much we should add or substract from the current sidebar menu count; either positive or negative integer.
- */
-export const updateMenuCounterOptimistically = count => {
-	// Iterate over all badges with the class 'jp-feedback-unread-counter' and update their count
-	document.querySelectorAll( '.jp-feedback-unread-counter' ).forEach( item => {
-		let optimisticCount = 0;
-		if ( item.textContent !== '' ) {
-			// Ensure large formatted numbers like "1,000" are converted to integers properly
-			optimisticCount = parseInt( item.textContent.replace( /\D/g, '' ), 10 ) + count;
-		}
-
-		if ( optimisticCount >= 0 ) {
-			updateBadge( item, optimisticCount );
-		}
-	} );
+export const getMenuBadgeCount = () => {
+	const badge = document.querySelector( `[data-jp-menu-badge="${ FORMS_MENU_BADGE_SLUG }"]` );
+	if ( ! badge ) {
+		return 0;
+	}
+	return parseInt( badge.getAttribute( 'data-jp-menu-count' ), 10 ) || 0;
 };
 
 /**
