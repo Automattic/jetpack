@@ -54,7 +54,17 @@ export function useVideoDetailsForm( video: LibraryItem ) {
 		[ base ]
 	);
 
+	/*
+	 * Moves value and baseline together for just the given fields — for edits
+	 * persisted outside the form (e.g. the chapter manager saving the
+	 * description) — leaving other fields' dirtiness intact.
+	 */
+	const patchBaseline = useCallback( ( partial: Partial< VideoDetailsFormValues > ) => {
+		setValues( prev => ( { ...prev, ...partial } ) );
+		setBase( prev => ( { ...prev, ...partial } ) );
+	}, [] );
+
 	const isDirty = useMemo( () => ! shallowEqual( values, base ), [ values, base ] );
 
-	return { values, update, isDirty, reset };
+	return { values, update, isDirty, reset, patchBaseline };
 }

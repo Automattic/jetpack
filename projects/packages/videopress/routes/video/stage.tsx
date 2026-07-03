@@ -9,8 +9,9 @@ import { Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
+import ChapterManagerModal from '../../src/client/components/chapter-manager-modal/lazy';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
-import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
+import ChaptersCard from '../../src/dashboard/components/video-details/chapters-card';
 import HeaderActions from '../../src/dashboard/components/video-details/header-actions';
 import PrivacySharingCard from '../../src/dashboard/components/video-details/privacy-sharing-card';
 import RatingCard from '../../src/dashboard/components/video-details/rating-card';
@@ -92,6 +93,7 @@ type EditorProps = {
 	onDownload: () => void;
 	onManageCaptions: () => void;
 	onAddToNewPost: () => void;
+	onSaveChapters: ( description: string ) => Promise< void >;
 	chaptersOpen: boolean;
 	setChaptersOpen: ( open: boolean ) => void;
 };
@@ -104,10 +106,11 @@ const Editor = ( {
 	onDownload,
 	onManageCaptions,
 	onAddToNewPost,
+	onSaveChapters,
 	chaptersOpen,
 	setChaptersOpen,
 }: EditorProps ) => {
-	const { values, update, isDirty, reset } = useVideoDetailsForm( video );
+	const { values, update, isDirty, reset, patchBaseline } = useVideoDetailsForm( video );
 
 	const openChapters = useCallback( () => {
 		setChaptersOpen( true );
@@ -116,6 +119,19 @@ const Editor = ( {
 	const closeChapters = useCallback( () => {
 		setChaptersOpen( false );
 	}, [ setChaptersOpen ] );
+
+	/*
+	 * The modal has already uploaded the chapters VTT at this point; move the
+	 * form's description baseline so the rewrite doesn't read as an unsaved
+	 * edit, then persist it.
+	 */
+	const onChaptersSaved = useCallback(
+		( nextDescription: string ) => {
+			patchBaseline( { description: nextDescription } );
+			void onSaveChapters( nextDescription );
+		},
+		[ onSaveChapters, patchBaseline ]
+	);
 
 	const onRatingChange = useCallback(
 		( next: VideoRating ) => {
@@ -158,8 +174,8 @@ const Editor = ( {
 					title={ values.title }
 					description={ values.description }
 					onChange={ update }
-					onOpenChapters={ openChapters }
 				/>
+				<ChaptersCard description={ values.description } onManageChapters={ openChapters } />
 				<PrivacySharingCard
 					privacy={ values.privacy }
 					displayEmbed={ values.displayEmbed }
@@ -168,7 +184,20 @@ const Editor = ( {
 				/>
 				<RatingCard value={ values.rating } onChange={ onRatingChange } />
 			</div>
-			<ChaptersHelpModal isOpen={ chaptersOpen } onClose={ closeChapters } />
+			{ chaptersOpen && !! video.guid && (
+				<ChapterManagerModal
+					isOpen={ chaptersOpen }
+					guid={ video.guid }
+					title={ video.title }
+					description={ values.description }
+					poster={ video.thumbnailUrl }
+					isPrivate={ video.isPrivate }
+					tracks={ video.tracks }
+					durationMs={ video.durationSeconds * 1000 }
+					onClose={ closeChapters }
+					onSaved={ onChaptersSaved }
+				/>
+			) }
 		</AdminPage>
 	);
 };
@@ -185,7 +214,11 @@ const deletingNoticeId = ( videoId: string ) => `vp-video-deleting-${ videoId }`
 const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const invalidateVideo = useInvalidateVideo();
-	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
+	const {
+		mutate: updateMeta,
+		mutateAsync: updateMetaAsync,
+		isPending: isSaving,
+	} = useUpdateVideoMeta();
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
@@ -275,6 +308,24 @@ const StageReady = ( { video }: StageReadyProps ) => {
 					}
 				} }
 				onManageCaptions={ () => setCaptionsOpen( true ) }
+				onSaveChapters={ async nextDescription => {
+					/*
+					 * The chapters VTT is already uploaded when this runs; a failed
+					 * description PATCH is reported but doesn't reopen the modal.
+					 */
+					try {
+						await updateMetaAsync( { id: video.id, patch: { description: nextDescription } } );
+						createSuccessNotice( __( 'Chapters saved.', 'jetpack-videopress-pkg' ) );
+					} catch {
+						createErrorNotice(
+							__(
+								'Chapters track saved, but the description update failed.',
+								'jetpack-videopress-pkg'
+							)
+						);
+					}
+					void invalidateVideo( video.id );
+				} }
 				onAddToNewPost={ () => {
 					const nonce =
 						typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
