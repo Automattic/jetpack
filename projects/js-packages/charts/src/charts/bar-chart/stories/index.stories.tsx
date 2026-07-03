@@ -1,7 +1,7 @@
 import { Stack } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useChartLegendItems } from '../../../components/legend';
-import { useGlobalChartsContext } from '../../../providers';
+import { GlobalChartsProvider, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -692,25 +692,31 @@ const ComparisonLegend = () => {
 };
 
 export const ComparisonGroupsInteractiveLegend: Story = {
+	// The chart and the custom legend must share one GlobalChartsProvider so the legend's
+	// toggleSeriesVisibility calls reach the chart's visibility state. Storybook's decorator
+	// already provides one, but wrapping it explicitly here keeps the pattern copy-pasteable
+	// into a widget that has no such ambient provider.
 	render: () => (
-		<div style={ { display: 'flex', flexDirection: 'column', gap: '16px', width: 700 } }>
-			<BarChart
-				chartId={ INTERACTIVE_COMPARISON_CHART_ID }
-				data={ comparisonLegendData }
-				legend={ { interactive: true } }
-				showLegend={ false }
-				withTooltips
-				gridVisibility="x"
-				height={ 300 }
-			/>
-			<ComparisonLegend />
-		</div>
+		<GlobalChartsProvider>
+			<div style={ { display: 'flex', flexDirection: 'column', gap: '16px', width: 700 } }>
+				<BarChart
+					chartId={ INTERACTIVE_COMPARISON_CHART_ID }
+					data={ comparisonLegendData }
+					legend={ { interactive: true } }
+					showLegend={ false }
+					withTooltips
+					gridVisibility="x"
+					height={ 300 }
+				/>
+				<ComparisonLegend />
+			</div>
+		</GlobalChartsProvider>
 	),
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'A **2-item interactive legend** over a four-series comparison chart (`Views` / `Visitors`, each with a `type: "comparison"` previous-period overlay). The built-in legend renders one item per series, so it is disabled here (`showLegend={ false }`) and replaced by a custom legend showing a single item per metric. Clicking a metric toggles **both** its current and previous-period series together via the public `useGlobalChartsContext()` (`toggleSeriesVisibility` / `isSeriesVisible`) — one click hides or shows both bars, while tooltips keep distinct period labels. `legend={ { interactive: true } }` tells the chart to honour visibility even though it renders no legend of its own. This is the recommended pattern for comparison widgets (e.g. the Premium Analytics Views & Visitors chart) that need a grouped, interactive legend today.',
+					'A **2-item interactive legend** over a four-series comparison chart (`Views` / `Visitors`, each with a `type: "comparison"` previous-period overlay). The built-in legend renders one item per series, so it is disabled here (`showLegend={ false }`) and replaced by a custom legend showing a single item per metric. Clicking a metric toggles **both** its current and previous-period series together via the public `useGlobalChartsContext()` (`toggleSeriesVisibility` / `isSeriesVisible`) — one click hides or shows both bars, while tooltips keep distinct period labels. `legend={ { interactive: true } }` tells the chart to honour visibility even though it renders no legend of its own. The chart and the custom legend must be mounted inside the **same** `GlobalChartsProvider` so the toggle calls reach the chart\'s visibility state — Storybook supplies one via its decorator, and this story also wraps one explicitly so the snippet is self-contained. This is the recommended pattern for comparison widgets (e.g. the Premium Analytics Views & Visitors chart) that need a grouped, interactive legend today.',
 			},
 		},
 	},
