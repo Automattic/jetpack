@@ -129,7 +129,7 @@ class Block_Editor_Content {
 					'width="%s"' .
 					'height="%s" ' .
 					'frameborder="0" ' .
-					'allowfullscreen%s allow="clipboard-write">' .
+					'allowfullscreen%s allow="clipboard-write; presentation">' .
 				'</iframe>' .
 			'</div>' .
 		'</figure>';
