@@ -4,6 +4,7 @@
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import type { AnchorHTMLAttributes, ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -11,9 +12,30 @@ import TopPostsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
+type MockRouteLinkProps = {
+	to: string;
+	search?: Record< string, unknown >;
+	children: ReactNode;
+} & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
+
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
 jest.mock( '@wordpress/route', () => ( {
+	Link: ( { to, search, children, ...props }: MockRouteLinkProps ) => {
+		const params = new URLSearchParams();
+		Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
+			if ( value !== undefined && value !== null ) {
+				params.set( key, String( value ) );
+			}
+		} );
+		const query = params.toString();
+
+		return (
+			<a href={ query ? `${ to }?${ query }` : to } { ...props }>
+				{ children }
+			</a>
+		);
+	},
 	useSearch: () => ( {} ),
 } ) );
 
@@ -88,6 +110,41 @@ describe( 'TopPostsWidget', () => {
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'start_date=2026-03-01' );
 		expect( requestedPath ).toContain( 'date=2026-03-10' );
+	} );
+
+	it( 'links to the Posts & Pages report with the current date and comparison params', () => {
+		render(
+			<TopPostsWidget
+				attributes={ {
+					num: 10,
+					reportParams: {
+						from: '2026-03-01',
+						to: '2026-03-10',
+						interval: 'day',
+						date_type: 'created',
+						comp: '1',
+						compare_from: '2026-02-01',
+						compare_to: '2026-02-10',
+						compare_preset: 'previous-period',
+					},
+				} }
+			/>
+		);
+
+		const reportLink = screen.getByRole( 'link', { name: 'See report' } );
+		const href = reportLink.getAttribute( 'href' ) ?? '';
+		const params = new URLSearchParams( href.split( '?' )[ 1 ] );
+
+		expect( href ).toContain( '/report/posts?' );
+		expect( params.get( 'from' ) ).toBe( '2026-03-01' );
+		expect( params.get( 'to' ) ).toBe( '2026-03-10' );
+		expect( params.get( 'interval' ) ).toBe( 'day' );
+		expect( params.get( 'date_type' ) ).toBe( 'created' );
+		expect( params.get( 'comp' ) ).toBe( '1' );
+		expect( params.get( 'compare_from' ) ).toBe( '2026-02-01' );
+		expect( params.get( 'compare_to' ) ).toBe( '2026-02-10' );
+		expect( params.get( 'compare_preset' ) ).toBe( 'previous-period' );
+		expect( params.get( 'section' ) ).toBe( 'posts-pages' );
 	} );
 
 	it( 'requests the comparison window and aligns previous views by post URL', async () => {
