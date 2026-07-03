@@ -417,7 +417,7 @@ export const Comparison: Story = {
 		showLegend: true,
 		data: [
 			{
-				label: 'This period',
+				label: 'Views',
 				group: 'views',
 				data: [
 					{ label: 'Mon', value: 420 },
@@ -428,7 +428,7 @@ export const Comparison: Story = {
 				],
 			},
 			{
-				label: 'Previous period',
+				label: 'Views — previous',
 				group: 'views',
 				options: { type: 'comparison' as const },
 				data: [
@@ -458,9 +458,10 @@ export const ComparisonGroups: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
+		legendInteractive: true,
 		data: [
 			{
-				label: 'Views — this period',
+				label: 'Views',
 				group: 'views',
 				data: [
 					{ label: 'Mon', value: 420 },
@@ -471,7 +472,7 @@ export const ComparisonGroups: Story = {
 				],
 			},
 			{
-				label: 'Views — previous period',
+				label: 'Views — previous',
 				group: 'views',
 				options: { type: 'comparison' as const },
 				data: [
@@ -483,7 +484,7 @@ export const ComparisonGroups: Story = {
 				],
 			},
 			{
-				label: 'Visitors — this period',
+				label: 'Visitors',
 				group: 'visitors',
 				data: [
 					{ label: 'Mon', value: 280 },
@@ -494,7 +495,7 @@ export const ComparisonGroups: Story = {
 				],
 			},
 			{
-				label: 'Visitors — previous period',
+				label: 'Visitors — previous',
 				group: 'visitors',
 				options: { type: 'comparison' as const },
 				data: [
@@ -511,7 +512,7 @@ export const ComparisonGroups: Story = {
 		docs: {
 			description: {
 				story:
-					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width shadow bar sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts.',
+					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width shadow bar sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts. With `legend.interactive` enabled, each group collapses to a single legend item (Views, Visitors) that toggles both its current and previous-period series at once.',
 			},
 		},
 	},
