@@ -1,7 +1,5 @@
 .root {
-	container-type: inline-size;
 	height: 100%;
-	padding-block: var(--wpds-dimension-padding-xs, 4px);
 	overflow: hidden;
 }
 
@@ -9,15 +7,7 @@
 	color: var(--wpds-color-fg-content-neutral);
 }
 
-/* Peak value shown as a large serif display figure, matching the Stats
- * "Most popular time" highlight. Scales with the widget width via container
- * query units; the serif stack falls back to system serifs where Recoleta is
- * unavailable. Scoped under .root to win over the Text variant's default. */
-.root .value {
-	font-family: Recoleta, "Noto Serif", Georgia, "Times New Roman", serif;
-	font-size: clamp(28px, 12cqi, 40px);
-	line-height: 1.1;
-	font-weight: 400;
+.value {
 	color: var(--wpds-color-fg-content-neutral);
 }
 

@@ -38,7 +38,9 @@ function Highlight( { label, value, percent }: { label: string; value: string; p
 			<Text variant="heading-md" render={ <h4 /> } className={ styles.label }>
 				{ label }
 			</Text>
-			<Text className={ styles.value }>{ value }</Text>
+			<Text variant="heading-2xl" className={ styles.value }>
+				{ value }
+			</Text>
 			<Text variant="body-md" className={ styles.caption }>
 				{ sprintf(
 					/* translators: %d: share of total views as a whole percent. */
