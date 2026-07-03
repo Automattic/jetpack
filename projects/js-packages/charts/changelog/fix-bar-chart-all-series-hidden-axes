@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: stop the bar chart axes and grid rendering squished at the top when every series is toggled off; the empty state now stands alone.

@@ -544,11 +544,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										horizontal={ horizontal }
 										pointerEventsDataKey="nearest"
 									>
-										<Grid
-											columns={ gridVisibility.includes( 'y' ) }
-											rows={ gridVisibility.includes( 'x' ) }
-											numTicks={ 4 }
-										/>
+										{ ! allSeriesHidden && (
+											<Grid
+												columns={ gridVisibility.includes( 'y' ) }
+												rows={ gridVisibility.includes( 'x' ) }
+												numTicks={ 4 }
+											/>
+										) }
 
 										{ withPatterns && (
 											<>
@@ -615,8 +617,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											) ) }
 										</BarGroup>
 
-										<Axis { ...chartOptions.axis.x } />
-										<Axis { ...chartOptions.axis.y } />
+										{ /* With every series hidden there is no data to build the value scale from, so
+										     visx collapses the domain and the axes render squished at the top. Drop them
+										     while the empty state stands in. */ }
+										{ ! allSeriesHidden && (
+											<>
+												<Axis { ...chartOptions.axis.x } />
+												<Axis { ...chartOptions.axis.y } />
+											</>
+										) }
 
 										{ withTooltips && (
 											<AccessibleTooltip

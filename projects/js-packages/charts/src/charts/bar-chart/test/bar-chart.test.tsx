@@ -1194,5 +1194,45 @@ describe( 'BarChart', () => {
 				screen.getByText( /all series are hidden.*click legend items to show data/i )
 			).toBeInTheDocument();
 		} );
+
+		it( 'drops the value-axis ticks when all series are hidden so the axes do not collapse', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				gridVisibility: 'both',
+				legend: { interactive: true },
+				chartId: 'test-hidden-axes-bar-chart',
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+						options: {},
+					},
+				],
+			} );
+
+			// The value axis renders numeric tick labels while there is data to scale against.
+			// (Series labels carry no digits and the empty-state message is text-only, so a bare
+			// number can only be an axis tick.)
+			const numericTick = /^[\d,]+$/;
+			expect( screen.getAllByText( numericTick ).length ).toBeGreaterThan( 0 );
+
+			const legendItems = screen.getAllByRole( 'button' );
+			await user.click( legendItems[ 0 ] );
+			await user.click( legendItems[ 1 ] );
+
+			// With no visible data the value scale would collapse, so the axes are removed rather
+			// than rendered squished at the top — no tick labels remain.
+			expect( screen.queryAllByText( numericTick ) ).toHaveLength( 0 );
+			expect(
+				screen.getByText( /all series are hidden.*click legend items to show data/i )
+			).toBeInTheDocument();
+		} );
 	} );
 } );
