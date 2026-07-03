@@ -143,7 +143,7 @@ class ReportCSVGenerator {
 		$file_path     = trailingslashit( $export_dir ) . $safe_filename;
 
 		// Ensure we can write to the directory.
-		if ( ! is_writable( $export_dir ) ) {
+		if ( ! wp_is_writable( $export_dir ) ) {
 			$this->logger->log_error( 'Export directory is not writable: ' . $export_dir, __METHOD__ );
 			return new WP_Error(
 				'directory_not_writable',
