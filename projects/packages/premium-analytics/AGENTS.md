@@ -426,6 +426,12 @@ const items  = report?.data?.[ 0 ]?.items ?? [];
 Date-range conversion (`from`/`to` → `period`/`end_date`/`days`) is handled inside
 the query factory — do not do it in the widget or the view hook.
 
+Display labels should be keyed by the endpoint dimension, not only by the raw key. If the
+same raw key can mean different things for different dimensions (for example `chrome` as a
+browser versus `chrome` as an operating system/platform), keep separate label maps and choose
+the correct one from the active dimension before calling `formatDisplayLabel()`. Map values
+should be translated with `__()`; use the formatter's fallback only for unknown raw keys.
+
 **`max` semantics**
 
 `max = 0` means "all rows". Use `slice( 0, max > 0 ? max : undefined )`, never
@@ -489,9 +495,10 @@ behavior across Stats widgets.
 **Visual conventions**
 
 - Widget title: `<Text variant="heading-md" render={ <h3 /> }>`
-- Dashboard render: avoid duplicating the dashboard-provided widget title. If the close-up
-  component can show its own title, pass `showTitle={ false }` from dashboard stories and
-  dashboard render paths.
+- Body title visibility: full-bleed widgets should render the same body header in close-up
+  stories, the dashboard story, the product dashboard, and loading/empty/error/drill-down
+  states. Avoid ad hoc `showTitle` toggles; if a title looks duplicated, fix the widget's
+  `presentation` metadata or Storybook wrapper instead of hiding the body header in one context.
 - Storybook dashboard metadata: pass the same `presentation` used by `widget.json` into the
   `WidgetDashboardWithWidget` story helper. This is especially important for `full-bleed`
   widgets because the product host hides its card title; if Storybook omits `presentation`, it
