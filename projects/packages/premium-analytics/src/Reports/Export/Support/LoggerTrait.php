@@ -1,4 +1,9 @@
 <?php
+/**
+ * Shared logger accessor for CSV report export classes.
+ *
+ * @package automattic/jetpack-premium-analytics
+ */
 
 declare( strict_types=1 );
 
@@ -13,7 +18,11 @@ defined( 'ABSPATH' ) || exit;
  */
 trait LoggerTrait {
 
-	/** @var LoggerInterface|null */
+	/**
+	 * Logger instance.
+	 *
+	 * @var LoggerInterface|null
+	 */
 	private $logger = null;
 
 	/**

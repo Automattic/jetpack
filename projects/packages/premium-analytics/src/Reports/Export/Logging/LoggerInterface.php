@@ -1,4 +1,9 @@
 <?php
+/**
+ * Logger contract for the CSV report export pipeline.
+ *
+ * @package automattic/jetpack-premium-analytics
+ */
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging;
 

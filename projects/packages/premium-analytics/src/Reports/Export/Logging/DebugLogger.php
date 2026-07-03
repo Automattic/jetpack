@@ -1,4 +1,10 @@
 <?php
+/**
+ * Debug logger for the CSV report export pipeline.
+ *
+ * @package automattic/jetpack-premium-analytics
+ */
+
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging;
 
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;

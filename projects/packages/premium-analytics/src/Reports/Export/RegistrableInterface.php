@@ -1,4 +1,9 @@
 <?php
+/**
+ * Contract for CSV report export classes that register hooks/routes.
+ *
+ * @package automattic/jetpack-premium-analytics
+ */
 
 declare( strict_types=1 );
 
