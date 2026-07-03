@@ -266,6 +266,40 @@ describe( 'import stage', () => {
 		expect( screen.getAllByRole( 'button', { name: 'Retry' } ) ).toHaveLength( 2 );
 	} );
 
+	it( 'fails result-less items with a retry when the status poll errors terminally', async () => {
+		const startImport = jest.fn().mockResolvedValue( 'job-1' );
+		setImportJob( { startImport } );
+
+		const { rerender } = render( <Stage /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'picker-import' } ) );
+
+		// The job started, but its status query has failed for good (record
+		// expired, cache eviction, network) — isImporting is false and no
+		// per-item results ever arrived.
+		setImportJob( {
+			startImport,
+			jobId: 'job-1',
+			job: undefined,
+			jobError: new Error( 'expired' ),
+			isImporting: false,
+		} );
+		rerender( <Stage /> );
+
+		// Terminal failure rows, not perpetual "Importing…" spinners.
+		expect( screen.queryByText( 'Importing…' ) ).not.toBeInTheDocument();
+		expect( screen.getAllByText( 'Failed' ) ).toHaveLength( 2 );
+		expect(
+			screen.getAllByText(
+				"We couldn't check this video's import status. Retry to import it again."
+			)
+		).toHaveLength( 2 );
+
+		// Retry starts a fresh job for just that video.
+		await userEvent.click( screen.getAllByRole( 'button', { name: 'Retry' } )[ 0 ] );
+		expect( startImport ).toHaveBeenLastCalledWith( [ 'yt-1' ] );
+	} );
+
 	it( 'keeps the queue on screen if the connection errors mid-import', async () => {
 		const { rerender } = render( <Stage /> );
 

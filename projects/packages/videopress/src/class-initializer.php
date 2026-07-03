@@ -87,6 +87,16 @@ class Initializer {
 		Module_Control::init();
 
 		/*
+		 * Deleting a Studio import draft placeholder must cascade to its
+		 * sideloaded thumbnail attachment, whichever surface deletes it (the
+		 * import completion endpoint, the Studio library's REST delete, or
+		 * wp-admin's Media Library) — and even when the Studio flag has since
+		 * been turned off, because placeholders can outlive the flag. Cheap:
+		 * one mime comparison per attachment delete.
+		 */
+		add_action( 'delete_attachment', array( Import_Rest_Controller::class, 'cleanup_draft_thumbnail' ), 10, 2 );
+
+		/*
 		 * The WPCOM REST API v2 endpoints only register routes/fields on REST
 		 * init, so defer constructing them (and autoloading their classes) until
 		 * a REST request is actually served. Registered on both REST init hooks

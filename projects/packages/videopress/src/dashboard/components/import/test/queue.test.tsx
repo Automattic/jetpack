@@ -56,6 +56,12 @@ describe( 'ImportQueue', () => {
 		expect( onBack ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'uses the singular heading for a one-item import', () => {
+		renderQueue( [ makeItem( { status: 'done' } ) ], false );
+
+		expect( screen.getByText( 'Imported 1 of 1 video.' ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders the error message and a Retry button for failed items', async () => {
 		const { onRetry } = renderQueue(
 			[

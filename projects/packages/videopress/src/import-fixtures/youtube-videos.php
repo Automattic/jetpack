@@ -15,9 +15,17 @@
  *   (public|unlisted|private), published_at (ISO 8601), and thumbnails
  *   (default|high|maxres — maxres is null for low-resolution sources, as it
  *   is on the real API).
+ * - Thumbnail URLs point at the small placeholder JPEGs bundled under
+ *   import-fixtures/thumbs/ (cycled across the listing) instead of real
+ *   YouTube URLs: the mock must work offline, and the sideload step
+ *   (Import_Rest_Controller::sideload_thumbnail) copies these same files
+ *   locally, keeping the attach flow's poster-application branch
+ *   exercisable end to end.
  *
  * @package automattic/jetpack-videopress
  */
+
+$thumbs_base = plugins_url( 'thumbs/', __FILE__ );
 
 return array(
 	'connection' => array(
@@ -34,9 +42,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2026-05-18T14:00:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/k3xPn0qLmA1/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/k3xPn0qLmA1/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/k3xPn0qLmA1/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-01.jpg',
+				'high'    => $thumbs_base . 'thumb-01.jpg',
+				'maxres'  => $thumbs_base . 'thumb-01.jpg',
 			),
 		),
 		array(
@@ -48,9 +56,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2026-04-29T11:30:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Zt8vWy2RbQ4/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Zt8vWy2RbQ4/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Zt8vWy2RbQ4/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-02.jpg',
+				'high'    => $thumbs_base . 'thumb-02.jpg',
+				'maxres'  => $thumbs_base . 'thumb-02.jpg',
 			),
 		),
 		array(
@@ -62,9 +70,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2026-04-02T16:45:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Qw7eR5tY6u2/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Qw7eR5tY6u2/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Qw7eR5tY6u2/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-03.jpg',
+				'high'    => $thumbs_base . 'thumb-03.jpg',
+				'maxres'  => $thumbs_base . 'thumb-03.jpg',
 			),
 		),
 		array(
@@ -76,9 +84,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2026-03-15T13:15:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Ab1Cd2Ef3G4/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Ab1Cd2Ef3G4/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Ab1Cd2Ef3G4/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-04.jpg',
+				'high'    => $thumbs_base . 'thumb-04.jpg',
+				'maxres'  => $thumbs_base . 'thumb-04.jpg',
 			),
 		),
 		array(
@@ -90,9 +98,9 @@ return array(
 			'privacy'          => 'unlisted',
 			'published_at'     => '2026-02-27T09:00:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Hj5Kl6Mn7P8/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Hj5Kl6Mn7P8/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Hj5Kl6Mn7P8/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-05.jpg',
+				'high'    => $thumbs_base . 'thumb-05.jpg',
+				'maxres'  => $thumbs_base . 'thumb-05.jpg',
 			),
 		),
 		array(
@@ -104,9 +112,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2026-02-08T19:00:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Xy9Zw8Vu7T6/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Xy9Zw8Vu7T6/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Xy9Zw8Vu7T6/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-06.jpg',
+				'high'    => $thumbs_base . 'thumb-06.jpg',
+				'maxres'  => $thumbs_base . 'thumb-06.jpg',
 			),
 		),
 		array(
@@ -118,9 +126,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2026-01-19T15:20:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Lm4No3Pq2R1/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Lm4No3Pq2R1/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Lm4No3Pq2R1/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-01.jpg',
+				'high'    => $thumbs_base . 'thumb-01.jpg',
+				'maxres'  => $thumbs_base . 'thumb-01.jpg',
 			),
 		),
 		array(
@@ -132,9 +140,9 @@ return array(
 			'privacy'          => 'private',
 			'published_at'     => '2026-01-04T08:10:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/St6Uv7Wx8Y9/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/St6Uv7Wx8Y9/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/St6Uv7Wx8Y9/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-02.jpg',
+				'high'    => $thumbs_base . 'thumb-02.jpg',
+				'maxres'  => $thumbs_base . 'thumb-02.jpg',
 			),
 		),
 		array(
@@ -146,9 +154,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-12-11T17:00:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/De2Fg3Hi4J5/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/De2Fg3Hi4J5/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/De2Fg3Hi4J5/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-03.jpg',
+				'high'    => $thumbs_base . 'thumb-03.jpg',
+				'maxres'  => $thumbs_base . 'thumb-03.jpg',
 			),
 		),
 		array(
@@ -160,9 +168,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-11-23T12:00:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Kl8Mn9Op0Q1/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Kl8Mn9Op0Q1/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Kl8Mn9Op0Q1/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-04.jpg',
+				'high'    => $thumbs_base . 'thumb-04.jpg',
+				'maxres'  => $thumbs_base . 'thumb-04.jpg',
 			),
 		),
 		array(
@@ -174,9 +182,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-11-02T18:30:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Rs3Tu4Vw5X6/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Rs3Tu4Vw5X6/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Rs3Tu4Vw5X6/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-05.jpg',
+				'high'    => $thumbs_base . 'thumb-05.jpg',
+				'maxres'  => $thumbs_base . 'thumb-05.jpg',
 			),
 		),
 		array(
@@ -188,9 +196,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-10-14T14:45:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Yz7Ab8Cd9E0/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Yz7Ab8Cd9E0/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Yz7Ab8Cd9E0/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-06.jpg',
+				'high'    => $thumbs_base . 'thumb-06.jpg',
+				'maxres'  => $thumbs_base . 'thumb-06.jpg',
 			),
 		),
 		array(
@@ -202,9 +210,9 @@ return array(
 			'privacy'          => 'unlisted',
 			'published_at'     => '2025-09-26T22:00:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Fg1Hi2Jk3L4/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Fg1Hi2Jk3L4/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Fg1Hi2Jk3L4/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-01.jpg',
+				'high'    => $thumbs_base . 'thumb-01.jpg',
+				'maxres'  => $thumbs_base . 'thumb-01.jpg',
 			),
 		),
 		array(
@@ -216,9 +224,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-09-05T10:30:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Mn5Op6Qr7S8/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Mn5Op6Qr7S8/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Mn5Op6Qr7S8/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-02.jpg',
+				'high'    => $thumbs_base . 'thumb-02.jpg',
+				'maxres'  => $thumbs_base . 'thumb-02.jpg',
 			),
 		),
 		array(
@@ -230,9 +238,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-08-17T13:00:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Tu9Vw0Xy1Z2/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Tu9Vw0Xy1Z2/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Tu9Vw0Xy1Z2/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-03.jpg',
+				'high'    => $thumbs_base . 'thumb-03.jpg',
+				'maxres'  => $thumbs_base . 'thumb-03.jpg',
 			),
 		),
 		array(
@@ -244,8 +252,8 @@ return array(
 			'privacy'          => 'unlisted',
 			'published_at'     => '2025-07-30T16:15:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Cd3Ef4Gh5I6/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Cd3Ef4Gh5I6/hqdefault.jpg',
+				'default' => $thumbs_base . 'thumb-04.jpg',
+				'high'    => $thumbs_base . 'thumb-04.jpg',
 				'maxres'  => null,
 			),
 		),
@@ -258,9 +266,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-07-09T11:45:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Jk7Lm8No9P0/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Jk7Lm8No9P0/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Jk7Lm8No9P0/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-05.jpg',
+				'high'    => $thumbs_base . 'thumb-05.jpg',
+				'maxres'  => $thumbs_base . 'thumb-05.jpg',
 			),
 		),
 		array(
@@ -272,9 +280,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-06-18T09:30:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Qr1St2Uv3W4/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Qr1St2Uv3W4/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Qr1St2Uv3W4/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-06.jpg',
+				'high'    => $thumbs_base . 'thumb-06.jpg',
+				'maxres'  => $thumbs_base . 'thumb-06.jpg',
 			),
 		),
 		array(
@@ -286,8 +294,8 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-05-28T15:00:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Xy5Za6Bc7D8/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Xy5Za6Bc7D8/hqdefault.jpg',
+				'default' => $thumbs_base . 'thumb-01.jpg',
+				'high'    => $thumbs_base . 'thumb-01.jpg',
 				'maxres'  => null,
 			),
 		),
@@ -300,9 +308,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-05-06T14:00:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Ef9Gh0Ij1K2/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Ef9Gh0Ij1K2/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Ef9Gh0Ij1K2/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-02.jpg',
+				'high'    => $thumbs_base . 'thumb-02.jpg',
+				'maxres'  => $thumbs_base . 'thumb-02.jpg',
 			),
 		),
 		array(
@@ -314,8 +322,8 @@ return array(
 			'privacy'          => 'private',
 			'published_at'     => '2025-04-15T20:05:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Lm3No4Pq5R6/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Lm3No4Pq5R6/hqdefault.jpg',
+				'default' => $thumbs_base . 'thumb-03.jpg',
+				'high'    => $thumbs_base . 'thumb-03.jpg',
 				'maxres'  => null,
 			),
 		),
@@ -328,9 +336,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-03-22T12:30:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/St7Uv8Wx9Y0/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/St7Uv8Wx9Y0/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/St7Uv8Wx9Y0/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-04.jpg',
+				'high'    => $thumbs_base . 'thumb-04.jpg',
+				'maxres'  => $thumbs_base . 'thumb-04.jpg',
 			),
 		),
 		array(
@@ -342,9 +350,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-02-27T17:40:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Za1Bc2De3F4/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Za1Bc2De3F4/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/Za1Bc2De3F4/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-05.jpg',
+				'high'    => $thumbs_base . 'thumb-05.jpg',
+				'maxres'  => $thumbs_base . 'thumb-05.jpg',
 			),
 		),
 		array(
@@ -356,8 +364,8 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2025-02-03T21:15:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/Gh5Ij6Kl7M8/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/Gh5Ij6Kl7M8/hqdefault.jpg',
+				'default' => $thumbs_base . 'thumb-06.jpg',
+				'high'    => $thumbs_base . 'thumb-06.jpg',
 				'maxres'  => null,
 			),
 		),
@@ -370,9 +378,9 @@ return array(
 			'privacy'          => 'public',
 			'published_at'     => '2024-12-30T10:00:00Z',
 			'thumbnails'       => array(
-				'default' => 'https://i.ytimg.com/vi/No9Pq0Rs1T2/default.jpg',
-				'high'    => 'https://i.ytimg.com/vi/No9Pq0Rs1T2/hqdefault.jpg',
-				'maxres'  => 'https://i.ytimg.com/vi/No9Pq0Rs1T2/maxresdefault.jpg',
+				'default' => $thumbs_base . 'thumb-01.jpg',
+				'high'    => $thumbs_base . 'thumb-01.jpg',
+				'maxres'  => $thumbs_base . 'thumb-01.jpg',
 			),
 		),
 	),

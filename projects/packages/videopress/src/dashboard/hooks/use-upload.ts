@@ -40,6 +40,15 @@ export type UploadItem = {
 	progress: number; // 0..1
 	status: UploadStatus;
 	error?: string;
+	/**
+	 * Set on uploads that ride the queue on behalf of another flow (the
+	 * import-draft attach orchestration). The library listing skips these
+	 * rows: their progress/failure UI lives in the owning flow's dialog,
+	 * and the listing's generic Retry affordances would re-upload the file
+	 * without the orchestration — creating a bare VideoPress video with no
+	 * imported metadata applied while the draft placeholder survives.
+	 */
+	origin?: 'attach';
 };
 
 // The media object the tus backend reports on completion (structurally
@@ -137,6 +146,23 @@ function takeSettlers( id: string ): UploadSettlers | undefined {
 	const settlers = store.settlers.get( id );
 	store.settlers.delete( id );
 	return settlers;
+}
+
+/**
+ * Remove a queue item — and any settlers still registered for it — from the
+ * shared store. Used by orchestrating flows (the import-draft attach) to
+ * withdraw their failed items, so the library's generic Retry affordances
+ * can't re-run them as plain uploads outside the orchestration.
+ *
+ * Module-level rather than hook-returned: the store is a window singleton,
+ * and the caller may need it from an async continuation after its component
+ * unmounted.
+ *
+ * @param id - The queue item id returned by startUpload.
+ */
+export function removeUpload( id: string ): void {
+	getStore().settlers.delete( id );
+	mutateQueue( prev => prev.filter( item => item.id !== id ) );
 }
 
 /**
@@ -261,12 +287,15 @@ export function useUpload() {
 	uploadHandlerRef.current = uploadHandler;
 
 	const startUpload = useCallback(
-		( file: File, settlers?: UploadSettlers ): string => {
+		( file: File, settlers?: UploadSettlers, options?: Pick< UploadItem, 'origin' > ): string => {
 			const id = makeId( file );
 			if ( settlers ) {
 				getStore().settlers.set( id, settlers );
 			}
-			mutateQueue( prev => [ ...prev, { id, file, progress: 0, status: 'pending' } ] );
+			mutateQueue( prev => [
+				...prev,
+				{ id, file, progress: 0, status: 'pending', origin: options?.origin },
+			] );
 			// Only dispatch immediately when this instance's legacy
 			// uploader is idle. Otherwise the item waits in the queue
 			// and is picked up by startNextPending when the active

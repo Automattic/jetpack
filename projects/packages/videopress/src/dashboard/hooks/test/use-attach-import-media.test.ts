@@ -41,7 +41,7 @@ const DRAFT_ID = 123;
 const DRAFT_PATH = `/wp/v2/media/${ DRAFT_ID }`;
 const META_PATH = '/wpcom/v2/videopress/meta';
 const POSTER_PATH = '/wpcom/v2/videopress/guid-1/poster';
-const DELETE_PATH = `/wp/v2/media/${ DRAFT_ID }?force=true`;
+const COMPLETE_PATH = '/jetpack/v4/videopress/import/complete';
 
 const UPLOADED_MEDIA = { id: 77, guid: 'guid-1', src: 'https://videos.example/src.mp4' };
 
@@ -91,8 +91,8 @@ function mockAttachApi(
 		if ( options.path === POSTER_PATH && options.method === 'POST' ) {
 			return { data: { generating: false, poster: 'https://videos.example/poster.jpg' } };
 		}
-		if ( options.path === DELETE_PATH && options.method === 'DELETE' ) {
-			return { deleted: true };
+		if ( options.path === COMPLETE_PATH && options.method === 'POST' ) {
+			return { completed: true, media_id: 77 };
 		}
 		throw new Error( `Unexpected apiFetch call: ${ options.method ?? 'GET' } ${ options.path }` );
 	} );
@@ -212,13 +212,15 @@ describe( 'useAttachImportMedia — happy path', () => {
 		const posterCall = calls.find( call => call.path === POSTER_PATH );
 		expect( posterCall?.data ).toEqual( { poster_attachment_id: 55 } );
 
-		// The draft placeholder was removed.
-		const deleteCall = calls.find( call => call.path === DELETE_PATH );
-		expect( deleteCall?.method ).toBe( 'DELETE' );
+		// The import was completed server-side (markers moved onto the new
+		// video, draft placeholder deleted).
+		const completeCall = calls.find( call => call.path === COMPLETE_PATH );
+		expect( completeCall?.method ).toBe( 'POST' );
+		expect( completeCall?.data ).toEqual( { draft_id: DRAFT_ID, media_id: 77 } );
 
-		// Steps ran in order: metadata → poster → draft deletion.
+		// Steps ran in order: metadata → poster → completion.
 		expect( calls.indexOf( metaCall! ) ).toBeLessThan( calls.indexOf( posterCall! ) );
-		expect( calls.indexOf( posterCall! ) ).toBeLessThan( calls.indexOf( deleteCall! ) );
+		expect( calls.indexOf( posterCall! ) ).toBeLessThan( calls.indexOf( completeCall! ) );
 
 		// Final contract: library and import branches are invalidated.
 		await waitFor( () =>
@@ -244,8 +246,8 @@ describe( 'useAttachImportMedia — happy path', () => {
 			posterApplied: false,
 		} );
 		expect( calls.some( call => call.path === POSTER_PATH ) ).toBe( false );
-		// The draft is still deleted.
-		expect( calls.some( call => call.path === DELETE_PATH ) ).toBe( true );
+		// The import is still completed (draft deleted server-side).
+		expect( calls.some( call => call.path === COMPLETE_PATH ) ).toBe( true );
 	} );
 } );
 
@@ -303,8 +305,20 @@ describe( 'useAttachImportMedia — failure paths', () => {
 		const { result } = renderHook( () => useAttachImportMedia(), {
 			wrapper: createTestWrapper(),
 		} );
+		// Read the shared queue straight from the window store: rendering a
+		// second useUpload() here would steal `lastCallbacks` from the attach
+		// hook's own uploader instance and deadlock the test.
+		const readSharedQueue = () =>
+			( window as unknown as Record< string, { queue: { origin?: string }[] } > )
+				.__jetpackVideopressUploadStore.queue;
 
 		const { attachPromise } = await startAttach( result.current.attach );
+
+		// While in flight, the queue item is tagged as attach-originated so
+		// the library listing knows not to splice it in as a row of its own.
+		expect( readSharedQueue() ).toHaveLength( 1 );
+		expect( readSharedQueue()[ 0 ].origin ).toBe( 'attach' );
+
 		act( () => {
 			lastCallbacks.onError?.( new Error( 'tus exploded' ) );
 		} );
@@ -315,8 +329,12 @@ describe( 'useAttachImportMedia — failure paths', () => {
 			mediaId: null,
 			guid: null,
 		} );
-		// Nothing after the upload ran: no meta, no poster, no deletion.
+		// Nothing after the upload ran: no meta, no poster, no completion.
 		expect( calls.filter( call => call.path !== DRAFT_PATH ) ).toEqual( [] );
+		// The failed item was withdrawn from the shared queue — otherwise the
+		// library would splice it in as a failed row whose Retry re-runs a
+		// plain upload without the attach orchestration.
+		expect( readSharedQueue() ).toHaveLength( 0 );
 	} );
 
 	it( 'rejects with step upload when the uploader reports no media details', async () => {
@@ -360,7 +378,7 @@ describe( 'useAttachImportMedia — failure paths', () => {
 			guid: 'guid-1',
 		} );
 		// The draft placeholder survives so the flow can be retried/inspected.
-		expect( calls.some( call => call.path === DELETE_PATH ) ).toBe( false );
+		expect( calls.some( call => call.path === COMPLETE_PATH ) ).toBe( false );
 	} );
 
 	it( 'treats a poster failure as non-fatal and still deletes the draft', async () => {
@@ -383,13 +401,13 @@ describe( 'useAttachImportMedia — failure paths', () => {
 			guid: 'guid-1',
 			posterApplied: false,
 		} );
-		expect( calls.some( call => call.path === DELETE_PATH ) ).toBe( true );
+		expect( calls.some( call => call.path === COMPLETE_PATH ) ).toBe( true );
 	} );
 
-	it( 'rejects with step delete_draft (carrying the uploaded ids) when draft removal fails', async () => {
+	it( 'rejects with step delete_draft (carrying the uploaded ids) when completion fails', async () => {
 		mockAttachApi( {
-			[ DELETE_PATH ]: () => {
-				throw new Error( 'delete rejected' );
+			[ COMPLETE_PATH ]: () => {
+				throw new Error( 'complete rejected' );
 			},
 		} );
 		const { result } = renderHook( () => useAttachImportMedia(), {

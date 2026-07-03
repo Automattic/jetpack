@@ -1,15 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useState } from '@wordpress/element';
-import { useDeleteVideo } from './use-delete-video';
-import { LIBRARY_QUERY_KEY } from './use-library';
+import { __ } from '@wordpress/i18n';
+import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY, PRIVACY_FROM_IMPORT } from './use-library';
 import { useUpdateVideoMeta } from './use-update-video-meta';
 import { useUpdateVideoPoster } from './use-update-video-poster';
-import { useUpload } from './use-upload';
+import { removeUpload, useUpload } from './use-upload';
 import { IMPORT_QUERY_KEY } from './use-youtube-connection';
 import type { ImportMeta } from './use-library';
 import type { UploadedMedia } from './use-upload';
-import type { LibraryItemPrivacy, VideoDetailsPatch } from '../types/library';
+import type { VideoDetailsPatch } from '../types/library';
 
 export type AttachImportMediaVars = {
 	/** The draft placeholder's attachment ID. */
@@ -54,14 +54,9 @@ export class AttachImportMediaError extends Error {
 	}
 }
 
-// YouTube privacy → VideoPress privacy. "unlisted" (anyone with the link) has
-// no VideoPress equivalent; it maps to private so nothing becomes more
-// visible than it was on YouTube — the user can loosen it afterwards.
-const PRIVACY_FROM_IMPORT: Record< string, LibraryItemPrivacy > = {
-	public: 'public',
-	private: 'private',
-	unlisted: 'private',
-};
+// Completion endpoint: moves the imported markers onto the new video and
+// deletes the draft placeholder (cascading to its sideloaded thumbnail).
+const COMPLETE_PATH = '/jetpack/v4/videopress/import/complete';
 
 /**
  * Extract a human-readable message from an unknown thrown value.
@@ -119,8 +114,11 @@ export function importMetaToPatch( importMeta: ImportMeta ): Partial< VideoDetai
  * 4. Apply the sideloaded thumbnail as the poster via use-update-video-poster
  * — best effort: VideoPress generates its own poster anyway, so a failure
  * here isn't worth failing an otherwise-complete attach over.
- * 5. Delete the draft placeholder via use-delete-video (which also drops its
- * cached item query and invalidates the library).
+ * 5. Complete the import server-side (POST /import/complete): the endpoint
+ * moves the imported markers onto the new video — so the picker keeps
+ * flagging this YouTube video as imported instead of offering to import
+ * (and attach) it again — then deletes the draft placeholder, cascading
+ * to its sideloaded thumbnail.
  *
  * Failures reject with a typed {@link AttachImportMediaError} whose `step`
  * pinpoints the failure; after a successful upload the error also carries the
@@ -133,7 +131,6 @@ export function useAttachImportMedia() {
 	const { startUpload } = useUpload();
 	const updateMeta = useUpdateVideoMeta();
 	const updatePoster = useUpdateVideoPoster();
-	const deleteVideo = useDeleteVideo();
 
 	// The shared upload queue's item ID for the in-flight attach upload, so
 	// the UI can read progress from useUpload().uploadQueue.
@@ -151,33 +148,46 @@ export function useAttachImportMedia() {
 			} catch ( error ) {
 				throw new AttachImportMediaError(
 					'load_draft',
-					toMessage( error, 'Failed to load the import draft.' )
+					toMessage( error, __( 'Failed to load the import draft.', 'jetpack-videopress-pkg' ) )
 				);
 			}
 			if ( importMeta?.status !== 'awaiting_media' ) {
 				throw new AttachImportMediaError(
 					'load_draft',
-					'The selected item is not an import draft awaiting media.'
+					__( 'The selected item is not an import draft awaiting media.', 'jetpack-videopress-pkg' )
 				);
 			}
 
-			// 2. Upload the file through the shared tus queue.
+			// 2. Upload the file through the shared tus queue. The item is
+			// tagged origin 'attach' so the library listing never splices it
+			// in as a row of its own, and withdrawn from the queue on failure
+			// — a lingering failed item would offer the listing's plain
+			// Retry, which re-uploads the file without this orchestration.
 			const media = await new Promise< UploadedMedia >( ( resolve, reject ) => {
-				const id = startUpload( file, {
-					onSuccess: uploaded => {
-						if ( uploaded?.guid && uploaded.id !== undefined ) {
-							resolve( uploaded );
-						} else {
-							reject(
-								new AttachImportMediaError(
-									'upload',
-									'The upload finished but did not report the new video.'
-								)
-							);
-						}
+				let id = '';
+				const fail = ( message: string ) => {
+					removeUpload( id );
+					reject( new AttachImportMediaError( 'upload', message ) );
+				};
+				id = startUpload(
+					file,
+					{
+						onSuccess: uploaded => {
+							if ( uploaded?.guid && uploaded.id !== undefined ) {
+								resolve( uploaded );
+							} else {
+								fail(
+									__(
+										'The upload finished but did not report the new video.',
+										'jetpack-videopress-pkg'
+									)
+								);
+							}
+						},
+						onError: fail,
 					},
-					onError: message => reject( new AttachImportMediaError( 'upload', message ) ),
-				} );
+					{ origin: 'attach' }
+				);
 				setUploadItemId( id );
 			} );
 			const mediaId = Number( media.id );
@@ -192,7 +202,10 @@ export function useAttachImportMedia() {
 			} catch ( error ) {
 				throw new AttachImportMediaError(
 					'metadata',
-					toMessage( error, 'Failed to apply the imported metadata.' ),
+					toMessage(
+						error,
+						__( 'Failed to apply the imported metadata.', 'jetpack-videopress-pkg' )
+					),
 					{ mediaId, guid }
 				);
 			}
@@ -214,26 +227,36 @@ export function useAttachImportMedia() {
 				}
 			}
 
-			// 5. Delete the draft placeholder. The video is complete either
-			// way, but a lingering draft would keep offering "attach media"
-			// for a video that already exists — surface it.
+			// 5. Complete the import server-side: mark the new video as this
+			// YouTube source's import and delete the draft placeholder. The
+			// video is complete either way, but a lingering draft would keep
+			// offering "attach media" for a video that already exists —
+			// surface it.
 			try {
-				await deleteVideo.mutateAsync( draftId );
+				await apiFetch( {
+					path: COMPLETE_PATH,
+					method: 'POST',
+					data: { draft_id: Number( draftId ), media_id: mediaId },
+				} );
 			} catch ( error ) {
 				throw new AttachImportMediaError(
 					'delete_draft',
-					toMessage( error, 'Failed to remove the import draft.' ),
+					toMessage( error, __( 'Failed to remove the import draft.', 'jetpack-videopress-pkg' ) ),
 					{ mediaId, guid }
 				);
 			}
 
 			return { mediaId, guid, posterApplied };
 		},
-		onSuccess: () => {
-			// The composed mutations already invalidated the library; also
-			// refresh the import branch (the deleted draft flips the
-			// listing's already_imported flags) and re-assert the library
-			// invalidation as the flow's explicit final contract.
+		onSuccess: ( _result, { draftId } ) => {
+			// Drop the deleted draft's item-detail query outright — a refetch
+			// would 404 and TanStack would retain the stale data (same
+			// reasoning as use-delete-video) — then refresh the library and
+			// the import branch (the completion flips the listing's
+			// already_imported flags onto the new video).
+			client.removeQueries( {
+				queryKey: [ LIBRARY_QUERY_KEY, LIBRARY_ITEM_QUERY_SEGMENT, String( draftId ) ],
+			} );
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 			client.invalidateQueries( { queryKey: [ IMPORT_QUERY_KEY ] } );
 		},

@@ -388,10 +388,17 @@ const StageInner = () => {
 	);
 
 	// Splice in-flight uploads at the top of the listing so the user sees
-	// their upload immediately, before the next server refetch.
+	// their upload immediately, before the next server refetch. Attach-flow
+	// items (origin 'attach') are excluded: their progress and failure UI
+	// live in the attach dialog, and the generic Retry affordances here
+	// would re-upload the file without the attach orchestration.
 	const renderedItems = useMemo< LibraryItem[] >( () => {
 		const inFlight: LibraryItem[] = uploadQueue
-			.filter( u => u.status === 'pending' || u.status === 'uploading' || u.status === 'failed' )
+			.filter(
+				u =>
+					u.origin !== 'attach' &&
+					( u.status === 'pending' || u.status === 'uploading' || u.status === 'failed' )
+			)
 			.map( u => ( {
 				id: u.id,
 				guid: '',

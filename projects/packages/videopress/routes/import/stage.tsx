@@ -65,7 +65,7 @@ const StageInner = () => {
 	const { connection, isLoading, isError, refetch } = useYouTubeConnection( {
 		polling: isPopupOpen,
 	} );
-	const { startImport, isStarting, startError, job, isImporting } = useImportJob();
+	const { startImport, isStarting, startError, job, jobError, isImporting } = useImportJob();
 
 	// The batch being imported, in selection order, with titles captured at
 	// import time (the queue renders after the picker unmounts, so the
@@ -150,6 +150,26 @@ const StageInner = () => {
 					title,
 					status: 'failed',
 					error: { code: 'import_request_failed', message: startError.message },
+				};
+			}
+			if ( jobError && ! isStarting && ! isImporting ) {
+				// The status poll failed terminally (job record expired after
+				// an hour, cache eviction, network): polling has stopped, so
+				// without this the row would show an "Importing…" spinner
+				// forever. Fail it with a Retry — re-importing is idempotent
+				// server-side, so retrying a video that actually made it just
+				// resolves to its existing draft.
+				return {
+					externalId: id,
+					title,
+					status: 'failed',
+					error: {
+						code: 'import_status_unavailable',
+						message: __(
+							"We couldn't check this video's import status. Retry to import it again.",
+							'jetpack-videopress-pkg'
+						),
+					},
 				};
 			}
 			return { externalId: id, title, status: 'queued', error: null };

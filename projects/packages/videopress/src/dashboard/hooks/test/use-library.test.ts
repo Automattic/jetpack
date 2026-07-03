@@ -147,6 +147,20 @@ describe( 'applyImportDraft', () => {
 		expect( draft.thumbnailUrl ).toBeNull();
 	} );
 
+	it( 'maps the imported privacy (unlisted → private) onto the draft row', () => {
+		expect(
+			applyImportDraft( { status: 'awaiting_media', privacy: 'unlisted' }, mapped() ).privacy
+		).toBe( 'private' );
+		expect(
+			applyImportDraft( { status: 'awaiting_media', privacy: 'public' }, mapped() ).privacy
+		).toBe( 'public' );
+		// Unknown or absent values keep the item's default rather than
+		// inventing a privacy the attach flow won't apply.
+		expect( applyImportDraft( { status: 'awaiting_media' }, mapped() ).privacy ).toBe(
+			'site-default'
+		);
+	} );
+
 	it( 'leaves items without awaiting_media import meta untouched', () => {
 		const item = mapped();
 		expect( applyImportDraft( undefined, item ) ).toBe( item );
@@ -232,5 +246,35 @@ describe( 'useLibrary', () => {
 		expect( draft.thumbnailUrl ).toBe( 'https://i.ytimg.com/vi/Zt8vWy2RbQ4/hqdefault.jpg' );
 		expect( draft.guid ).toBe( '' );
 		expect( draft.isProcessing ).toBe( false );
+	} );
+
+	it( 'types a placeholder as draft by mime even without the import field', async () => {
+		// With the Studio flag off the server strips jetpack_videopress_import,
+		// but stale placeholders still list; typed 'local' they would offer an
+		// "Upload to VideoPress" action that can't work on a fileless post.
+		const body = JSON.stringify( [
+			{
+				id: 52,
+				title: { rendered: 'Stale placeholder' },
+				mime_type: 'video/videopress-draft',
+			},
+		] );
+		const responseHeaders: Record< string, string > = {
+			'X-WP-Total': '1',
+			'X-WP-TotalPages': '1',
+			'Content-Type': 'application/json',
+		};
+		mockApiFetch( async () => ( {
+			headers: { get: ( name: string ) => responseHeaders[ name ] ?? null },
+			json: async () => JSON.parse( body ),
+		} ) );
+
+		const { result } = renderHook( () => useLibrary( DEFAULT_VIEW ), {
+			wrapper: createTestWrapper(),
+		} );
+
+		await waitFor( () => expect( result.current.items.length ).toBeGreaterThan( 0 ) );
+		expect( result.current.items[ 0 ].type ).toBe( 'draft' );
+		expect( result.current.items[ 0 ].title ).toBe( 'Stale placeholder' );
 	} );
 } );

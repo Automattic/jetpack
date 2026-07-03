@@ -44,7 +44,12 @@ export default function ImportQueue( { items, isImporting, onRetry, onBack }: Pr
 					? __( 'Importing from YouTube…', 'jetpack-videopress-pkg' )
 					: sprintf(
 							/* translators: 1: number of videos imported. 2: number of videos requested. */
-							__( 'Imported %1$d of %2$d videos.', 'jetpack-videopress-pkg' ),
+							_n(
+								'Imported %1$d of %2$d video.',
+								'Imported %1$d of %2$d videos.',
+								items.length,
+								'jetpack-videopress-pkg'
+							),
 							doneCount,
 							items.length
 					  ) }

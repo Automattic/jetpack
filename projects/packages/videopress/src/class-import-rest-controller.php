@@ -55,6 +55,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  *            items: [ { external_id, status, attachment_id, error } ] }
  *          from a transient-backed job record (expires after an hour).
  *          Not mock-gated: job records are backend-agnostic.
+ * - POST   /import/complete { draft_id, media_id } →
+ *          { completed: true, media_id }. Called by the attach flow after
+ *          the media file uploaded and the stored metadata was applied: it
+ *          moves the imported markers onto the new video (so
+ *          already-imported lookups keep flagging the YouTube source after
+ *          the placeholder is gone) and deletes the draft. Not mock-gated:
+ *          placeholders are local regardless of the listing backend.
  *
  * Draft placeholder representation (decisions):
  * - post_type 'attachment', post_status 'inherit', post_parent 0 — the
@@ -79,7 +86,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *   0 and the URL retained in the blob.
  * - Re-importing an already-imported video is idempotent: the item
  *   resolves to the existing placeholder as 'done' instead of failing or
- *   duplicating.
+ *   duplicating. Completed imports stay flagged too — /import/complete
+ *   moves the marker meta onto the real video before the placeholder is
+ *   deleted.
+ * - Deleting a placeholder (any surface) cascades to its sideloaded
+ *   thumbnail via cleanup_draft_thumbnail(), hooked unconditionally on
+ *   `delete_attachment` from the Initializer.
  *
  * @phan-constructor-used-for-side-effects
  */
@@ -129,6 +141,14 @@ class Import_Rest_Controller {
 	 * @var string
 	 */
 	const STATUS_AWAITING_MEDIA = 'awaiting_media';
+
+	/**
+	 * Import status stored on the real video once the attach flow completed
+	 * the import (the placeholder itself is deleted at that point).
+	 *
+	 * @var string
+	 */
+	const STATUS_COMPLETED = 'completed';
 
 	/**
 	 * Prefix of the transient holding one import job's record.
@@ -243,6 +263,30 @@ class Import_Rest_Controller {
 							'type'    => 'string',
 							'pattern' => '^[A-Za-z0-9_-]{1,64}$',
 						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/import/complete',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'complete_import' ),
+				'permission_callback' => array( $this, 'permissions_check' ),
+				'args'                => array(
+					'draft_id' => array(
+						'description' => __( 'Attachment ID of the draft placeholder being completed.', 'jetpack-videopress-pkg' ),
+						'type'        => 'integer',
+						'required'    => true,
+						'minimum'     => 1,
+					),
+					'media_id' => array(
+						'description' => __( 'Attachment ID of the uploaded video replacing the draft.', 'jetpack-videopress-pkg' ),
+						'type'        => 'integer',
+						'required'    => true,
+						'minimum'     => 1,
 					),
 				),
 			)
@@ -455,6 +499,115 @@ class Import_Rest_Controller {
 	}
 
 	/**
+	 * POST /import/complete — finish an import whose media file was attached.
+	 *
+	 * The attach flow calls this after the upload succeeded and the stored
+	 * metadata was applied to the new video. Two things happen here, in
+	 * order:
+	 *
+	 * 1. The imported markers (`_videopress_import` blob and the external-id
+	 *    lookup key) are copied onto the completed video, with the lifecycle
+	 *    status set to {@see STATUS_COMPLETED}. Without this the markers
+	 *    would die with the placeholder and the YouTube video would reappear
+	 *    unbadged in the picker, ready to be imported and attached again —
+	 *    silently accumulating duplicate VideoPress videos of one source.
+	 * 2. The placeholder is deleted, cascading to its sideloaded thumbnail
+	 *    via {@see cleanup_draft_thumbnail()}.
+	 *
+	 * Deliberately not mock-gated: placeholders and their markers are local
+	 * regardless of which backend produced the listing.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function complete_import( $request ) {
+		$draft_id = (int) $request['draft_id'];
+		$media_id = (int) $request['media_id'];
+
+		$draft = get_post( $draft_id );
+		if ( ! $draft || 'attachment' !== $draft->post_type || self::DRAFT_MIME_TYPE !== $draft->post_mime_type ) {
+			return new WP_Error(
+				'import_draft_not_found',
+				__( 'No import draft with that ID was found.', 'jetpack-videopress-pkg' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$media = get_post( $media_id );
+		if ( ! $media || 'attachment' !== $media->post_type || self::DRAFT_MIME_TYPE === $media->post_mime_type ) {
+			return new WP_Error(
+				'import_media_not_found',
+				__( 'No uploaded video with that ID was found.', 'jetpack-videopress-pkg' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$import = get_post_meta( $draft_id, self::META_IMPORT, true );
+		if ( is_array( $import ) ) {
+			update_post_meta( $media_id, self::META_IMPORT, $import );
+		}
+		$external_id = (string) get_post_meta( $draft_id, self::META_IMPORT_EXTERNAL_ID, true );
+		if ( '' !== $external_id ) {
+			update_post_meta( $media_id, self::META_IMPORT_EXTERNAL_ID, $external_id );
+		}
+		update_post_meta( $media_id, self::META_IMPORT_STATUS, self::STATUS_COMPLETED );
+
+		if ( ! wp_delete_attachment( $draft_id, true ) ) {
+			// The markers were already copied, so completing again later (or
+			// deleting the leftover draft from the library) still converges.
+			return new WP_Error(
+				'import_draft_delete_failed',
+				__( 'The import draft could not be removed.', 'jetpack-videopress-pkg' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'completed' => true,
+				'media_id'  => $media_id,
+			)
+		);
+	}
+
+	/**
+	 * Delete the sideloaded thumbnail of a draft placeholder that is being
+	 * deleted, whatever surface deletes it (the attach flow's completion
+	 * endpoint, the library's Delete action, wp-admin's Media Library).
+	 *
+	 * The sideloader parents the thumbnail to the placeholder, but
+	 * wp_delete_attachment() never cascades to children, and the existing
+	 * poster cleanup (Attachment_Handler::delete_video_wpcom) only follows
+	 * `_thumbnail_id` on real VideoPress attachments — so without this hook
+	 * every discarded or completed import leaks a hidden-but-real image
+	 * attachment and its files.
+	 *
+	 * Hooked on `delete_attachment` unconditionally from the Initializer:
+	 * placeholders can outlive the Studio flag, and the guard is one mime
+	 * comparison per attachment delete.
+	 *
+	 * @param int      $post_id The attachment being deleted.
+	 * @param \WP_Post $post    The attachment post object.
+	 */
+	public static function cleanup_draft_thumbnail( $post_id, $post ) {
+		if ( ! isset( $post->post_mime_type ) || self::DRAFT_MIME_TYPE !== $post->post_mime_type ) {
+			return;
+		}
+
+		$import       = get_post_meta( $post_id, self::META_IMPORT, true );
+		$thumbnail_id = is_array( $import ) && isset( $import['thumbnail_attachment_id'] ) ? (int) $import['thumbnail_attachment_id'] : 0;
+		if ( $thumbnail_id <= 0 ) {
+			return;
+		}
+
+		// Same safety check as Attachment_Handler::delete_video_poster_attachment:
+		// only delete images the sideloader flagged as ours.
+		if ( '1' === (string) get_post_meta( $thumbnail_id, 'videopress_poster_image', true ) ) {
+			wp_delete_attachment( $thumbnail_id, true );
+		}
+	}
+
+	/**
 	 * Gate for endpoints whose real backend (the WPCOM YouTube proxy) does
 	 * not exist yet.
 	 *
@@ -481,6 +634,8 @@ class Import_Rest_Controller {
 	 * @return array Partial item record: status, and attachment_id or error.
 	 */
 	private function import_item( $external_id, $fixture_map ) {
+		$external_id = sanitize_text_field( (string) $external_id );
+
 		$existing = $this->find_imported_attachments( array( $external_id ) );
 		if ( isset( $existing[ $external_id ] ) ) {
 			// Idempotent: re-importing resolves to the existing placeholder.
@@ -502,14 +657,24 @@ class Import_Rest_Controller {
 
 		$video = $fixture_map[ $external_id ];
 
+		/*
+		 * Sanitize at the storage boundary even though v1 data comes from the
+		 * bundled fixtures: when the real YouTube listing replaces them, only
+		 * this class is supposed to change, so the seam that keeps external
+		 * strings (kses-exempt for unfiltered_html admins on wp_insert_post)
+		 * out of the database unsanitized has to exist here already.
+		 */
+		$title       = sanitize_text_field( (string) $video['title'] );
+		$description = sanitize_textarea_field( (string) $video['description'] );
+
 		$attachment_id = wp_insert_post(
 			array(
 				'post_type'      => 'attachment',
 				'post_status'    => 'inherit',
 				'post_parent'    => 0,
 				'post_mime_type' => self::DRAFT_MIME_TYPE,
-				'post_title'     => (string) $video['title'],
-				'post_content'   => (string) $video['description'],
+				'post_title'     => $title,
+				'post_content'   => $description,
 			),
 			true
 		);
@@ -523,7 +688,7 @@ class Import_Rest_Controller {
 			);
 		}
 
-		$thumbnail_url           = $this->best_thumbnail_url( isset( $video['thumbnails'] ) ? (array) $video['thumbnails'] : array() );
+		$thumbnail_url           = esc_url_raw( $this->best_thumbnail_url( isset( $video['thumbnails'] ) ? (array) $video['thumbnails'] : array() ) );
 		$thumbnail_attachment_id = $this->sideload_thumbnail( $thumbnail_url, $attachment_id );
 
 		update_post_meta(
@@ -532,12 +697,12 @@ class Import_Rest_Controller {
 			array(
 				'source'                  => 'youtube',
 				'external_id'             => $external_id,
-				'title'                   => (string) $video['title'],
-				'description'             => (string) $video['description'],
-				'tags'                    => array_map( 'strval', (array) $video['tags'] ),
+				'title'                   => $title,
+				'description'             => $description,
+				'tags'                    => array_map( 'sanitize_text_field', array_map( 'strval', (array) $video['tags'] ) ),
 				'duration_seconds'        => (int) $video['duration_seconds'],
-				'privacy'                 => (string) $video['privacy'],
-				'published_at'            => (string) $video['published_at'],
+				'privacy'                 => sanitize_text_field( (string) $video['privacy'] ),
+				'published_at'            => sanitize_text_field( (string) $video['published_at'] ),
 				'thumbnail_url'           => $thumbnail_url,
 				'thumbnail_attachment_id' => $thumbnail_attachment_id,
 			)
@@ -545,10 +710,58 @@ class Import_Rest_Controller {
 		update_post_meta( $attachment_id, self::META_IMPORT_EXTERNAL_ID, 'youtube:' . $external_id );
 		update_post_meta( $attachment_id, self::META_IMPORT_STATUS, self::STATUS_AWAITING_MEDIA );
 
+		/*
+		 * Concurrency guard: the duplicate check above is check-then-insert
+		 * with no lock, so two simultaneous imports of the same video (a
+		 * double submit, two tabs) can both get here. Now that the marker
+		 * meta is written, re-resolve and treat the oldest placeholder as
+		 * canonical so both requests converge on one attachment.
+		 */
+		$canonical_id = $this->resolve_canonical_placeholder( $external_id, (int) $attachment_id );
+		if ( $canonical_id !== (int) $attachment_id ) {
+			// Cascades to our sideloaded thumbnail via cleanup_draft_thumbnail().
+			wp_delete_attachment( $attachment_id, true );
+			return array(
+				'status'        => 'done',
+				'attachment_id' => $canonical_id,
+			);
+		}
+
 		return array(
 			'status'        => 'done',
 			'attachment_id' => (int) $attachment_id,
 		);
+	}
+
+	/**
+	 * Resolve which placeholder is canonical for an external ID: the oldest
+	 * (lowest-ID) attachment carrying its marker meta. See the concurrency
+	 * guard in import_item().
+	 *
+	 * @param string $external_id   The YouTube video ID.
+	 * @param int    $attachment_id The placeholder this request just created.
+	 * @return int The canonical placeholder attachment ID.
+	 */
+	private function resolve_canonical_placeholder( $external_id, $attachment_id ) {
+		$query = new WP_Query(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'posts_per_page' => 1,
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'   => self::META_IMPORT_EXTERNAL_ID,
+						'value' => 'youtube:' . $external_id,
+					),
+				),
+			)
+		);
+
+		return isset( $query->posts[0] ) ? (int) $query->posts[0] : $attachment_id;
 	}
 
 	/**
@@ -644,9 +857,21 @@ class Import_Rest_Controller {
 			require_once ABSPATH . 'wp-admin/includes/image.php';
 		}
 
+		/*
+		 * In mock mode the fixture thumbnails are bundled with the package
+		 * (import-fixtures/thumbs/), so "downloading" one is a local copy —
+		 * download_url() against the site's own plugins URL would be a
+		 * loopback request that fails in plenty of dev environments. The
+		 * branch is deleted with the rest of the mock.
+		 */
+		$tmp_name = $this->fixture_thumbnail_tmp_copy( $url );
+		if ( '' === $tmp_name ) {
+			$tmp_name = download_url( $url );
+		}
+
 		$file_array = array(
 			'name'     => basename( $matches[0] ),
-			'tmp_name' => download_url( $url ),
+			'tmp_name' => $tmp_name,
 		);
 		if ( is_wp_error( $file_array['tmp_name'] ) ) {
 			return 0;
@@ -665,6 +890,46 @@ class Import_Rest_Controller {
 		update_post_meta( $thumbnail_id, 'videopress_poster_image', 1 );
 
 		return (int) $thumbnail_id;
+	}
+
+	/**
+	 * Copy a bundled fixture thumbnail to a temp file for sideloading.
+	 *
+	 * DELETABLE with the mock: only returns a path in mock mode, and only
+	 * for URLs whose basename matches a file under import-fixtures/thumbs/
+	 * (which is where every fixture thumbnail URL points).
+	 *
+	 * @param string $url The thumbnail URL from the fixture listing.
+	 * @return string A temp-file path media_handle_sideload() may consume
+	 *                (and will move/delete), or '' when the URL is not a
+	 *                bundled fixture thumbnail.
+	 */
+	private function fixture_thumbnail_tmp_copy( $url ) {
+		if ( ! self::is_mock_mode() ) {
+			return '';
+		}
+
+		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
+		if ( '' === $path ) {
+			return '';
+		}
+
+		// basename() strips any traversal; the file must exist in our dir.
+		$file = __DIR__ . '/import-fixtures/thumbs/' . basename( $path );
+		if ( ! file_exists( $file ) ) {
+			return '';
+		}
+
+		$tmp_name = wp_tempnam( $file );
+		if ( ! $tmp_name ) {
+			return '';
+		}
+		if ( ! copy( $file, $tmp_name ) ) {
+			wp_delete_file( $tmp_name );
+			return '';
+		}
+
+		return $tmp_name;
 	}
 
 	/**

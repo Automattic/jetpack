@@ -6,6 +6,7 @@ import {
 	LIBRARY_ITEM_QUERY_SEGMENT,
 	LIBRARY_QUERY_KEY,
 	privacyIntToString,
+	resolveLibraryItemType,
 } from './use-library';
 import type { ImportMeta } from './use-library';
 import type { LibraryItem } from '../types/library';
@@ -15,6 +16,7 @@ type ApiMediaItem = {
 	title?: { rendered?: string };
 	source_url?: string;
 	date?: string;
+	mime_type?: string;
 	media_details?: {
 		length?: number;
 		filesize?: number;
@@ -94,7 +96,7 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 	return applyImportDraft( raw.jetpack_videopress_import, {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
-		type: isVideoPress ? 'videopress' : 'local',
+		type: resolveLibraryItemType( isVideoPress, raw.mime_type ),
 		title: raw.title?.rendered ?? '',
 		filename: raw.source_url?.split( '/' ).pop() ?? '',
 		thumbnailUrl: poster ?? null,

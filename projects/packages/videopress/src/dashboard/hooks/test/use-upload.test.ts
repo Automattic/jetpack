@@ -8,7 +8,7 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
-import { useUpload, __resetUploadStoreForTests } from '../use-upload';
+import { useUpload, removeUpload, __resetUploadStoreForTests } from '../use-upload';
 
 const mockUploadHandler = jest.fn();
 let lastCallbacks: {
@@ -97,6 +97,37 @@ describe( 'useUpload', () => {
 			result.current.retryUpload( 'upload-does-not-exist' );
 		} );
 		expect( mockUploadHandler ).not.toHaveBeenCalled();
+	} );
+
+	it( 'stamps the origin option onto the queue item', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		act( () => {
+			result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ), undefined, {
+				origin: 'attach',
+			} );
+		} );
+		expect( result.current.uploadQueue[ 0 ].origin ).toBe( 'attach' );
+	} );
+
+	it( 'removeUpload drops the item and its settlers from the shared store', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const onError = jest.fn();
+		let id = '';
+		act( () => {
+			id = result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ), {
+				onError,
+			} );
+		} );
+		act( () => {
+			removeUpload( id );
+		} );
+		expect( result.current.uploadQueue ).toEqual( [] );
+		// A retry of the removed id is a no-op, and no settler ever fires.
+		act( () => {
+			result.current.retryUpload( id );
+		} );
+		expect( result.current.uploadQueue ).toEqual( [] );
+		expect( onError ).not.toHaveBeenCalled();
 	} );
 
 	it( 'shares the upload queue across separate useUpload instances backed by the same QueryClient', () => {

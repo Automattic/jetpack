@@ -2,10 +2,14 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { buildShortcode } from '../utils/format';
-import type { LibraryItem, LibraryItemPrivacy } from '../types/library';
+import type { LibraryItem, LibraryItemPrivacy, LibraryItemType } from '../types/library';
 import type { View } from '@wordpress/dataviews';
 
 const REST_PATH = '/wp/v2/media';
+
+// Reserved mime type of import draft placeholders — see
+// Import_Rest_Controller::DRAFT_MIME_TYPE for why it is not video/videopress.
+export const DRAFT_MIME_TYPE = 'video/videopress-draft';
 
 type ApiMediaItem = {
 	id: number;
@@ -78,6 +82,18 @@ const PRIVACY_FROM_INT: Record< 0 | 1 | 2, LibraryItemPrivacy > = {
 	0: 'public',
 	1: 'private',
 	2: 'site-default',
+};
+
+// YouTube privacy → VideoPress privacy. "unlisted" (anyone with the link) has
+// no VideoPress equivalent; it maps to private so nothing becomes more
+// visible than it was on YouTube — the user can loosen it afterwards.
+// Shared by the library's draft-row overlay (applyImportDraft) and the attach
+// flow's metadata patch (use-attach-import-media), so the Privacy column
+// shows exactly what attaching the media file will apply.
+export const PRIVACY_FROM_IMPORT: Record< string, LibraryItemPrivacy > = {
+	public: 'public',
+	private: 'private',
+	unlisted: 'private',
 };
 
 /**
@@ -212,7 +228,35 @@ export function applyImportDraft(
 		description: importMeta.description ?? '',
 		durationSeconds: importMeta.duration_seconds ?? 0,
 		thumbnailUrl: importMeta.thumbnail_url || null,
+		// The imported privacy is what attaching will apply; without this
+		// the Privacy column would claim "Site default" for a video the
+		// import captured as private. Unknown values keep the item default.
+		privacy: PRIVACY_FROM_IMPORT[ importMeta.privacy ?? '' ] ?? item.privacy,
 	};
+}
+
+/**
+ * Resolve a raw media item's library type. Drafts are identified by their
+ * reserved mime type rather than by the jetpack_videopress_import field:
+ * the Studio flag strips that field from responses, but placeholders can
+ * outlive the flag, and typing them 'local' would offer an
+ * "Upload to VideoPress" action that cannot work on a fileless placeholder
+ * (while hiding the Delete affordance that can clean them up).
+ *
+ * Shared by use-library.ts and use-video.ts.
+ *
+ * @param isVideoPress - Whether the item carries a VideoPress guid.
+ * @param mimeType     - The raw item's mime_type.
+ * @return The LibraryItem type.
+ */
+export function resolveLibraryItemType(
+	isVideoPress: boolean,
+	mimeType: string | undefined
+): LibraryItemType {
+	if ( isVideoPress ) {
+		return 'videopress';
+	}
+	return mimeType === DRAFT_MIME_TYPE ? 'draft' : 'local';
 }
 
 /**
@@ -233,7 +277,7 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 	return applyImportDraft( raw.jetpack_videopress_import, {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
-		type: isVideoPress ? 'videopress' : 'local',
+		type: resolveLibraryItemType( isVideoPress, raw.mime_type ),
 		title: raw.title?.rendered ?? raw.slug ?? '',
 		filename: raw.source_url?.split( '/' ).pop() ?? '',
 		thumbnailUrl: poster ?? null,

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { LIBRARY_QUERY_KEY } from './use-library';
 import { IMPORT_QUERY_KEY } from './use-youtube-connection';
 import { VIDEOS_QUERY_SEGMENT } from './use-youtube-videos';
@@ -89,7 +90,10 @@ export function useImportJob() {
 				data: { video_ids: videoIds },
 			} );
 			if ( ! response?.job_id ) {
-				throw new Error( 'The import request did not return a job ID.' );
+				// Rendered verbatim in the import queue's error slot.
+				throw new Error(
+					__( 'The import request did not return a job ID.', 'jetpack-videopress-pkg' )
+				);
 			}
 			return response.job_id;
 		},
