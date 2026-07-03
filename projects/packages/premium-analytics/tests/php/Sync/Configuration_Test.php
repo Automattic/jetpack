@@ -50,7 +50,8 @@ class Configuration_Test extends TestCase {
 		$config = $this->call_private( 'get_jetpack_sync_config' );
 
 		$this->assertContains( 'JETPACK_PREMIUM_ANALYTICS__VERSION', $config['jetpack_sync_constants_whitelist'] );
-		$this->assertContains( 'WC_ANALYTICS_VERSION', $config['jetpack_sync_constants_whitelist'] );
+		// WC_ANALYTICS_VERSION is the standalone plugin's constant; PA must not whitelist it.
+		$this->assertNotContains( 'WC_ANALYTICS_VERSION', $config['jetpack_sync_constants_whitelist'] );
 	}
 
 	/**

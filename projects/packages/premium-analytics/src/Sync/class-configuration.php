@@ -170,9 +170,10 @@ class Configuration {
 					'woocommerce_date_type', // Date used to determine the date range for analytics reports.
 				),
 				'jetpack_sync_constants_whitelist' => array(
-					'WC_ANALYTICS_VERSION',
 					// Syncing this triggers WPCom to provision the WC Analytics tables. Defined by the
 					// plugin at load (double underscore, per the JETPACK__VERSION convention). (WOOA7S-1643)
+					// WC_ANALYTICS_VERSION is intentionally omitted: it is defined and whitelisted by the
+					// standalone woocommerce-analytics plugin, and on a PA-only store would only sync null.
 					'JETPACK_PREMIUM_ANALYTICS__VERSION',
 				),
 			)
