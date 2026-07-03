@@ -67,6 +67,9 @@ class Analytics {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
 
+		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
+		WooCommerce_Analytics_Tracker::configure();
+
 		// Load the widget type registry: hydration routine, registry-time and
 		// runtime filters, and the registry accessors.
 		require_once __DIR__ . '/widget-types.php';
