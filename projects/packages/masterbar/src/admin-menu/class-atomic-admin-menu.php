@@ -109,19 +109,28 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @return bool
 	 */
 	protected function is_ecommerce_plan() {
-		if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
-			return false;
-		}
-
 		$commerce_slugs = $this->get_commerce_plan_slugs();
 
-		foreach ( wpcom_get_site_purchases() as $purchase ) {
+		foreach ( $this->get_site_purchases() as $purchase ) {
 			if ( isset( $purchase->product_slug ) && in_array( $purchase->product_slug, $commerce_slugs, true ) ) {
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * The site's purchases, or an empty array when the WoA helper is unavailable.
+	 *
+	 * @return array Product objects, each with at least a product_slug property.
+	 */
+	protected function get_site_purchases() {
+		if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+			return array();
+		}
+
+		return wpcom_get_site_purchases();
 	}
 
 	/**
@@ -135,11 +144,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @return string[]
 	 */
 	protected function get_commerce_plan_slugs() {
-		$business_plans = Current_Plan::PLAN_DATA['business']['plans'] ?? array();
-
 		return array_values(
 			array_filter(
-				$business_plans,
+				Current_Plan::PLAN_DATA['business']['plans'],
 				static function ( $slug ) {
 					return str_starts_with( $slug, 'ecommerce-bundle' );
 				}

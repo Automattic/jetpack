@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -193,26 +194,61 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * Builds an Atomic_Admin_Menu whose site purchases are stubbed with the given plan slugs.
+	 *
+	 * @param string[] $product_slugs Product slugs to expose as site purchases.
+	 * @return Atomic_Admin_Menu
+	 */
+	private function admin_menu_with_purchases( array $product_slugs ) {
+		$purchases = array();
+		foreach ( $product_slugs as $slug ) {
+			$purchases[] = (object) array( 'product_slug' => $slug );
+		}
+
+		return new class( $purchases ) extends Atomic_Admin_Menu {
+			/**
+			 * Stubbed site purchases.
+			 *
+			 * @var array
+			 */
+			private $stub_purchases;
+
+			/**
+			 * @param array $stub_purchases Stubbed site purchases.
+			 */
+			public function __construct( array $stub_purchases ) {
+				$this->stub_purchases = $stub_purchases;
+			}
+
+			/**
+			 * @return array
+			 */
+			protected function get_site_purchases() {
+				return $this->stub_purchases;
+			}
+		};
+	}
+
+	/**
 	 * Tests that the WooCommerce menu item is relabeled to "Store setup" on Commerce-plan sites.
+	 *
+	 * @dataProvider provide_ecommerce_plan_slugs
 	 *
 	 * @param string $product_slug A Commerce plan product slug.
 	 */
-	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_ecommerce_plan_slugs' )]
+	#[DataProvider( 'provide_ecommerce_plan_slugs' )]
 	public function test_relabel_woocommerce_menu_on_commerce_plan( $product_slug ) {
 		global $menu;
 
 		$this->add_woocommerce_menu_item();
-		$GLOBALS['jetpack_masterbar_test_site_purchases'] = array( (object) array( 'product_slug' => $product_slug ) );
 
-		static::$admin_menu->relabel_woocommerce_menu();
+		$this->admin_menu_with_purchases( array( $product_slug ) )->relabel_woocommerce_menu();
 
 		$this->assertSame( 'Store setup', $menu[56][0] );
 		// The slug is preserved so the menu still points at WooCommerce.
 		$this->assertSame( 'woocommerce', $menu[56][2] );
 		// Only the sidebar label changes; the page title is left untouched.
 		$this->assertSame( 'WooCommerce', $menu[56][3] );
-
-		unset( $GLOBALS['jetpack_masterbar_test_site_purchases'] );
 	}
 
 	/**
@@ -220,20 +256,19 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	 *
 	 * Legacy Woo Express plans are included here: those users keep the "WooCommerce" label.
 	 *
+	 * @dataProvider provide_non_commerce_plan_slugs
+	 *
 	 * @param string $product_slug A non-Commerce plan product slug.
 	 */
-	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_non_commerce_plan_slugs' )]
+	#[DataProvider( 'provide_non_commerce_plan_slugs' )]
 	public function test_relabel_woocommerce_menu_keeps_label_without_commerce_plan( $product_slug ) {
 		global $menu;
 
 		$this->add_woocommerce_menu_item();
-		$GLOBALS['jetpack_masterbar_test_site_purchases'] = array( (object) array( 'product_slug' => $product_slug ) );
 
-		static::$admin_menu->relabel_woocommerce_menu();
+		$this->admin_menu_with_purchases( array( $product_slug ) )->relabel_woocommerce_menu();
 
 		$this->assertSame( 'WooCommerce', $menu[56][0] );
-
-		unset( $GLOBALS['jetpack_masterbar_test_site_purchases'] );
 	}
 
 	/**
