@@ -34,12 +34,12 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * The connection config must use the literal 'premium-analytics' slug the WPCom gate matches.
+	 * The connection config must use the 'jetpack-premium-analytics' slug the WPCom gate matches.
 	 */
 	public function test_connection_config_uses_expected_slug() {
 		$config = $this->call_private( 'get_jetpack_connection_config' );
 
-		$this->assertSame( 'premium-analytics', $config['slug'] );
+		$this->assertSame( 'jetpack-premium-analytics', $config['slug'] );
 		$this->assertNotEmpty( $config['name'] );
 	}
 
@@ -62,6 +62,6 @@ class Configuration_Test extends TestCase {
 		( new Config() )->ensure( 'connection', $this->call_private( 'get_jetpack_connection_config' ) );
 
 		Plugin_Storage::configure();
-		$this->assertArrayHasKey( 'premium-analytics', (array) Plugin_Storage::get_all() );
+		$this->assertArrayHasKey( 'jetpack-premium-analytics', (array) Plugin_Storage::get_all() );
 	}
 }
