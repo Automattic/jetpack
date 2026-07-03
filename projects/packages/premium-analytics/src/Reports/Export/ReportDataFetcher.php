@@ -266,7 +266,7 @@ class ReportDataFetcher {
 
 		// Convert to array if it's an object.
 		if ( is_object( $data ) ) {
-			$data = json_decode( wp_json_encode( $data ), true );
+			$data = json_decode( wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), true );
 		}
 
 		// Normalize response structure: some endpoints return 'items' instead of 'data'.

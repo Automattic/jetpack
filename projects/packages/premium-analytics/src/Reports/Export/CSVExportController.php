@@ -208,7 +208,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 				sprintf(
 					/* translators: %s: Report type */
 					__( 'Invalid report type: %s', 'jetpack-premium-analytics' ),
-					is_string( $value ) ? $value : wp_json_encode( $value )
+					is_string( $value ) ? $value : wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 				),
 				array( 'status' => 400 )
 			);
