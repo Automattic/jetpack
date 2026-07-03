@@ -210,11 +210,11 @@ function PostsReport(): JSX.Element {
 				breadcrumbs={
 					<StatsBreadcrumbs title={ __( 'Posts & Pages', 'jetpack-premium-analytics' ) } />
 				}
+				subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ) }
 				className={ styles.page }
 			>
 				<div className={ styles.content }>
 					<ReportPageLayout
-						description={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ) }
 						tabs={ <ReportPostsTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 						filters={
 							<div ref={ setContainerElement } className={ styles.dateFilters }>
