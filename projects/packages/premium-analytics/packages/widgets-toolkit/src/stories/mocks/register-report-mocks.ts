@@ -47,6 +47,7 @@ import {
 	mockCustomersByDateComparisonData,
 	mockSearchTermsData,
 	mockSearchTermsComparisonData,
+	mockSiteSummary,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -712,6 +713,9 @@ function buildEmailSummaryResponse() {
  */
 function routeStatsReport( subPath: string ): unknown {
 	switch ( subPath ) {
+		case '':
+			// Site summary — the bare `/stats` endpoint (all-time totals).
+			return mockSiteSummary;
 		case '/search-terms':
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
