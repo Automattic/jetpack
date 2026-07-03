@@ -6,11 +6,11 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { sanitizeStatsLatestPostResponse } from '../processing/stats';
-import type { StatsLatestPostResponse } from '../processing/stats';
+import { sanitizeLatestPostResponse } from '../processing/latest-post';
+import type { LatestPostResponse } from '../processing/latest-post';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
-export type { StatsLatestPostResponse };
+export type { LatestPostResponse };
 
 const LATEST_POST_PATH = addQueryArgs( '/wp/v2/posts', {
 	per_page: 1,
@@ -29,11 +29,10 @@ const LATEST_POST_PATH = addQueryArgs( '/wp/v2/posts', {
  *
  * @return The query options for the latest-post request.
  */
-export function statsLatestPostQuery(): UseQueryOptions< StatsLatestPostResponse > {
+export function latestPostQuery(): UseQueryOptions< LatestPostResponse > {
 	return {
-		queryKey: [ 'stats', 'latest-post' ],
-		queryFn: async () =>
-			sanitizeStatsLatestPostResponse( await apiFetch( { path: LATEST_POST_PATH } ) ),
+		queryKey: [ 'latest-post' ],
+		queryFn: async () => sanitizeLatestPostResponse( await apiFetch( { path: LATEST_POST_PATH } ) ),
 		placeholderData: previousData => previousData,
 	};
 }

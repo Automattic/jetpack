@@ -2,14 +2,14 @@
  * Internal dependencies
  */
 import {
-	statsLatestPostQuery,
+	latestPostQuery,
 	useStatsPost,
 	useStatsQuery,
-	type StatsLatestPost,
-	type StatsLatestPostResponse,
+	type LatestPost,
+	type LatestPostResponse,
 } from '@jetpack-premium-analytics/data';
 
-export type LatestPostWithMetrics = StatsLatestPost & {
+export type LatestPostWithMetrics = LatestPost & {
 	views: number;
 	likeCount: number;
 	commentCount: number;
@@ -35,7 +35,7 @@ export type UseLatestPostResult = {
  * @return The latest post with its metrics, plus combined loading/error state.
  */
 export function useLatestPost(): UseLatestPostResult {
-	const latestPostResult = useStatsQuery< StatsLatestPostResponse >( statsLatestPostQuery() );
+	const latestPostResult = useStatsQuery< LatestPostResponse >( latestPostQuery() );
 	const latestPost = latestPostResult.data ?? null;
 	const postId = latestPost?.id ?? 0;
 

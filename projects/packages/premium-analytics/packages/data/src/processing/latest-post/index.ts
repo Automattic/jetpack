@@ -1,13 +1,13 @@
 import { decodeEntities } from '@wordpress/html-entities';
 import { safeParseFloat } from '../../utils/parsing';
-import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
-import type { StatsRecord } from './types';
+import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from '../stats/utils';
+import type { StatsRecord } from '../stats/types';
 
-type StatsLatestPostRawTitle = {
+type LatestPostRawTitle = {
 	rendered?: string;
 };
 
-type StatsLatestPostRawMedia = {
+type LatestPostRawMedia = {
 	source_url?: string;
 	alt_text?: string;
 	media_details?: {
@@ -15,18 +15,18 @@ type StatsLatestPostRawMedia = {
 	};
 };
 
-export type StatsLatestPostRawItem = {
+export type LatestPostRawItem = {
 	id?: number | string;
-	title?: StatsLatestPostRawTitle;
+	title?: LatestPostRawTitle;
 	link?: string;
 	date?: string;
 	featured_media?: number;
 	_embedded?: {
-		'wp:featuredmedia'?: StatsLatestPostRawMedia[];
+		'wp:featuredmedia'?: LatestPostRawMedia[];
 	};
 };
 
-export type StatsLatestPost = {
+export type LatestPost = {
 	id: number;
 	title: string;
 	url: string;
@@ -35,7 +35,7 @@ export type StatsLatestPost = {
 	imageAlt: string;
 };
 
-export type StatsLatestPostResponse = StatsLatestPost | null;
+export type LatestPostResponse = LatestPost | null;
 
 // Prefer a display-sized variant, falling back to the full-size source.
 const PREFERRED_IMAGE_SIZES = [ 'medium_large', 'large', 'full' ];
@@ -63,7 +63,7 @@ function pickFeaturedImageUrl( media: StatsRecord ): string {
  * @param response - Raw payload from the core posts endpoint (with `_embed`).
  * @return The normalized latest post, or null when none is present.
  */
-export function sanitizeStatsLatestPostResponse( response: unknown ): StatsLatestPostResponse {
+export function sanitizeLatestPostResponse( response: unknown ): LatestPostResponse {
 	const [ first ] = coerceStatsArray( response );
 	if ( ! isStatsRecord( first ) ) {
 		return null;

@@ -1,9 +1,9 @@
-import { sanitizeStatsLatestPostResponse } from '..';
+import { sanitizeLatestPostResponse } from '..';
 import { latestPostEmptyFixture, latestPostFixture } from '../__fixtures__/latest-post';
 
-describe( 'Stats latest post normalizer', () => {
+describe( 'Latest post normalizer', () => {
 	it( 'reduces a core posts payload to the first post headline fields and featured image', () => {
-		expect( sanitizeStatsLatestPostResponse( latestPostFixture ) ).toEqual( {
+		expect( sanitizeLatestPostResponse( latestPostFixture ) ).toEqual( {
 			id: 779,
 			title: 'Hello world',
 			url: 'https://example.com/2026/06/22/hello-world/',
@@ -15,7 +15,7 @@ describe( 'Stats latest post normalizer', () => {
 
 	it( 'coerces a stringified id and falls back to the full-size image', () => {
 		expect(
-			sanitizeStatsLatestPostResponse( [
+			sanitizeLatestPostResponse( [
 				{
 					id: '779',
 					title: { rendered: 'Hello world' },
@@ -37,7 +37,7 @@ describe( 'Stats latest post normalizer', () => {
 	} );
 
 	it( 'decodes HTML entities in the title', () => {
-		const result = sanitizeStatsLatestPostResponse( [
+		const result = sanitizeLatestPostResponse( [
 			{
 				id: 5,
 				title: { rendered: 'Tips &amp; tricks for &#8220;fast&#8221; sites' },
@@ -50,7 +50,7 @@ describe( 'Stats latest post normalizer', () => {
 	} );
 
 	it( 'defaults missing strings and image without dropping the post', () => {
-		expect( sanitizeStatsLatestPostResponse( [ { id: 1 } ] ) ).toEqual( {
+		expect( sanitizeLatestPostResponse( [ { id: 1 } ] ) ).toEqual( {
 			id: 1,
 			title: '',
 			url: '',
@@ -61,10 +61,10 @@ describe( 'Stats latest post normalizer', () => {
 	} );
 
 	it( 'returns null when there is no post', () => {
-		expect( sanitizeStatsLatestPostResponse( latestPostEmptyFixture ) ).toBeNull();
-		expect( sanitizeStatsLatestPostResponse( [] ) ).toBeNull();
-		expect( sanitizeStatsLatestPostResponse( [ { id: 0 } ] ) ).toBeNull();
-		expect( sanitizeStatsLatestPostResponse( null ) ).toBeNull();
-		expect( sanitizeStatsLatestPostResponse( {} ) ).toBeNull();
+		expect( sanitizeLatestPostResponse( latestPostEmptyFixture ) ).toBeNull();
+		expect( sanitizeLatestPostResponse( [] ) ).toBeNull();
+		expect( sanitizeLatestPostResponse( [ { id: 0 } ] ) ).toBeNull();
+		expect( sanitizeLatestPostResponse( null ) ).toBeNull();
+		expect( sanitizeLatestPostResponse( {} ) ).toBeNull();
 	} );
 } );

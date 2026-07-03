@@ -1,6 +1,6 @@
-import type { StatsLatestPostRawItem } from '../latest-post';
+import type { LatestPostRawItem } from '..';
 
-export const latestPostFixture: StatsLatestPostRawItem[] = [
+export const latestPostFixture: LatestPostRawItem[] = [
 	{
 		id: 779,
 		title: { rendered: 'Hello world' },
@@ -26,4 +26,4 @@ export const latestPostFixture: StatsLatestPostRawItem[] = [
 	},
 ];
 
-export const latestPostEmptyFixture: StatsLatestPostRawItem[] = [];
+export const latestPostEmptyFixture: LatestPostRawItem[] = [];

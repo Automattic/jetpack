@@ -5,7 +5,6 @@ export {
 } from './utils';
 export { sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
-export { sanitizeStatsLatestPostResponse } from './latest-post';
 export { sanitizeStatsReferrersResponse } from './referrers';
 export { sanitizeStatsClicksResponse } from './clicks';
 export { sanitizeStatsSearchTermsResponse } from './search-terms';
@@ -48,11 +47,6 @@ export type {
 	StatsPostWeekDay,
 	StatsPostYear,
 } from './post';
-export type {
-	StatsLatestPost,
-	StatsLatestPostRawItem,
-	StatsLatestPostResponse,
-} from './latest-post';
 export type { StatsReferrersItem } from './referrers';
 export type { StatsClicksItem } from './clicks';
 export type { StatsSearchTermsItem } from './search-terms';
