@@ -18,6 +18,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Template variables are provided by wc_get_template_html() via extract(); see the @var block above.
+
 /**
  * Output the email header.
  *

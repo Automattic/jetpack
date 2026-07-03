@@ -18,6 +18,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Template variables are provided by wc_get_template_html() via extract(); see the @var block above.
+
 echo '= ' . esc_html( $email_heading ) . " =\n\n";
 
 esc_html_e( 'Your CSV export is ready for download!', 'jetpack-premium-analytics' );
