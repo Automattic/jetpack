@@ -113,19 +113,18 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 	 * @return void
 	 */
 	public function register_routes(): void {
-		register_rest_route(
-			$this->namespace,
-			$this->rest_base,
+		$args = array(
 			array(
-				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'create_export' ),
-					'permission_callback' => array( $this, 'check_permission' ),
-					'args'                => $this->get_endpoint_args(),
-				),
-				'schema' => array( $this, 'get_public_item_schema' ),
-			)
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'create_export' ),
+				'permission_callback' => array( $this, 'check_permission' ),
+				'args'                => $this->get_endpoint_args(),
+			),
 		);
+		// Set separately (not in the literal) to avoid mixing indexed endpoint entries with a keyed value.
+		$args['schema'] = array( $this, 'get_public_item_schema' );
+
+		register_rest_route( $this->namespace, $this->rest_base, $args );
 	}
 
 	/**

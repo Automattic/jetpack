@@ -21,7 +21,6 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportControll
  * so it does not support comparison mode.
  *
  * @since x.x.x
- * @internal
  */
 class TopPerformingProductsController extends AbstractCSVReportController {
 

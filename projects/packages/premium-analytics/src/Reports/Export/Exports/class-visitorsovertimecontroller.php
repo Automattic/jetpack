@@ -20,7 +20,6 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportControll
  * single interval and comparison interval data.
  *
  * @since x.x.x
- * @internal
  */
 class VisitorsOverTimeController extends AbstractCSVReportController {
 

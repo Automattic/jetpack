@@ -93,4 +93,11 @@ interface CSVReportControllerInterface extends RegistrableInterface {
 	 * @return array The formatted row with comparison fields.
 	 */
 	public function format_row_with_comparison( array $item ): array;
+
+	/**
+	 * Get controller-specific additional query parameters for the data request.
+	 *
+	 * @return array Additional parameters, keyed by name (empty for most reports).
+	 */
+	public function get_additional_params(): array;
 }

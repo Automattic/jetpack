@@ -21,7 +21,9 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
  * Include WC_Email dependencies if not already loaded.
  */
 if ( ! class_exists( 'WC_Email', false ) && function_exists( 'WC' ) ) {
+	// @phan-suppress-next-line PhanUndeclaredConstant -- WC_PLUGIN_FILE is defined by WooCommerce, guarded by function_exists( 'WC' ).
 	include_once dirname( WC_PLUGIN_FILE ) . '/includes/class-wc-emails.php';
+	// @phan-suppress-next-line PhanUndeclaredConstant -- WC_PLUGIN_FILE is defined by WooCommerce, guarded by function_exists( 'WC' ).
 	include_once dirname( WC_PLUGIN_FILE ) . '/includes/emails/class-wc-email.php';
 }
 

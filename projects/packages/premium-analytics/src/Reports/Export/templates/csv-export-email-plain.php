@@ -14,6 +14,8 @@
  * @var bool     $sent_to_admin   Whether sent to admin.
  * @var bool     $is_comparison   Whether this is a comparison request.
  * @var int      $retention_hours Retention period in hours.
+ *
+ * @phan-file-suppress PhanUndeclaredGlobalVariable -- Template variables are provided by wc_get_template_html() via extract(); see the @var block above.
  */
 
 defined( 'ABSPATH' ) || exit;

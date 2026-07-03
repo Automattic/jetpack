@@ -155,6 +155,7 @@ class CSVExportScheduler implements RegistrableInterface {
 		}
 
 		// Schedule the action.
+		// @phan-suppress-next-line PhanUndeclaredFunction -- Action Scheduler; guarded by function_exists() above.
 		$action_id = as_enqueue_async_action(
 			self::EXPORT_ACTION_HOOK,
 			array(
@@ -346,7 +347,9 @@ class CSVExportScheduler implements RegistrableInterface {
 		}
 
 		// Only schedule if not already scheduled.
+		// @phan-suppress-next-line PhanUndeclaredFunction -- Action Scheduler; guarded by function_exists() above.
 		if ( false === as_next_scheduled_action( self::CLEANUP_HOOK, array(), self::ACTION_GROUP ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Action Scheduler; guarded by function_exists() above.
 			as_schedule_recurring_action(
 				time(),
 				DAY_IN_SECONDS,
