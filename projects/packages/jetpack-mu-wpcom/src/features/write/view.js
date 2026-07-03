@@ -6054,9 +6054,10 @@ function recordSaveFailed( err, { postStatus, isAutosave, isUpdate, isEditing, p
  * @param {boolean} context.isAutosave - Whether the stalled save was a periodic autosave.
  * @param {boolean} context.isUpdate   - Whether this was an update to a published post.
  * @param {boolean} context.isEditing  - Whether an existing post was being edited.
+ * @param {string}  context.phase      - Stage that stalled ('prepare' | 'save_request').
  * @param {number}  context.elapsedMs  - The watchdog threshold that elapsed, in ms.
  */
-function recordSaveStalled( { postStatus, isAutosave, isUpdate, isEditing, elapsedMs } ) {
+function recordSaveStalled( { postStatus, isAutosave, isUpdate, isEditing, phase, elapsedMs } ) {
 	window._tkq = window._tkq || [];
 	window._tkq.push( [
 		'recordEvent',
@@ -6066,6 +6067,7 @@ function recordSaveStalled( { postStatus, isAutosave, isUpdate, isEditing, elaps
 			is_autosave: !! isAutosave,
 			is_update: !! isUpdate,
 			is_new_post: ! isEditing,
+			phase,
 			elapsed_ms: elapsedMs,
 		},
 	] );
@@ -6083,12 +6085,17 @@ function recordSaveStalled( { postStatus, isAutosave, isUpdate, isEditing, elaps
  * @param {boolean} isAutosave - Whether this is a periodic autosave (quieter UX).
  */
 async function savePost( postStatus, isAutosave = false ) {
+	// Shared with performSave so a prep-stage throw here can clear the stall
+	// watchdog performSave armed — otherwise it would fire a spurious
+	// save_stalled ~30s after a save that already failed.
+	const saveCtx = {};
 	try {
-		await performSave( postStatus, isAutosave );
+		await performSave( postStatus, isAutosave, saveCtx );
 	} catch ( err ) {
 		// Save-request failures are handled inside performSave; anything caught
 		// here threw during content prep / tag resolution. Report, then re-throw
 		// so behavior is unchanged.
+		clearTimeout( saveCtx.stallWatchdog );
 		recordSaveFailed( err, {
 			postStatus,
 			isAutosave,
@@ -6105,8 +6112,9 @@ async function savePost( postStatus, isAutosave = false ) {
  *
  * @param {string}  postStatus - The desired post status ('publish' or 'draft').
  * @param {boolean} isAutosave - Whether this is a periodic autosave (quieter UX).
+ * @param {object}  saveCtx    - Cross-call scratch; receives the stall watchdog handle.
  */
-async function performSave( postStatus, isAutosave = false ) {
+async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 	if ( ! isAutosave ) {
 		// Use textContent rather than innerHTML so structural-only markup
 		// (e.g. <p><br></p> left over from clearing the editor) doesn't
@@ -6134,6 +6142,24 @@ async function performSave( postStatus, isAutosave = false ) {
 		}
 		state.message = savingMessage;
 	}
+
+	// Watchdog: report (without aborting) a save that neither resolves nor rejects
+	// within the threshold — e.g. one held open by a proxy, VPN, or ad blocker.
+	// Armed here, before the pre-save awaits below (media-size swaps, tag
+	// resolution), so a hang in either of those is caught too — not just a hang
+	// in the main save request. `stallPhase` narrows the report to prep vs. the
+	// request. Cleared as soon as the flow settles or early-returns.
+	let stallPhase = 'prepare';
+	const stallWatchdog = ( saveCtx.stallWatchdog = setTimeout( () => {
+		recordSaveStalled( {
+			postStatus,
+			isAutosave,
+			isUpdate,
+			isEditing,
+			phase: stallPhase,
+			elapsedMs: SAVE_STALL_THRESHOLD_MS,
+		} );
+	}, SAVE_STALL_THRESHOLD_MS ) );
 
 	// Wait for any in-flight image size swaps to finish so the saved
 	// content's img.src matches its size-* class. Without this, a save
@@ -6187,6 +6213,7 @@ async function performSave( postStatus, isAutosave = false ) {
 	// Safety net: if stripping editor-only elements left the clone
 	// empty, treat it the same as no content.
 	if ( ! clone.innerHTML.trim() ) {
+		clearTimeout( stallWatchdog );
 		state.message = i18n.pleaseWriteSomething || 'Please write something';
 		state.isSaving = false;
 		setTimeout( () => {
@@ -6247,18 +6274,8 @@ async function performSave( postStatus, isAutosave = false ) {
 	// If editing, PUT to the existing post. If new, POST to create.
 	const path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
 
-	// Watchdog: report (without aborting) a save request that neither resolves
-	// nor rejects within the threshold — e.g. one held open by a proxy, VPN, or
-	// ad blocker. Cleared as soon as the request settles.
-	const stallWatchdog = setTimeout( () => {
-		recordSaveStalled( {
-			postStatus,
-			isAutosave,
-			isUpdate,
-			isEditing,
-			elapsedMs: SAVE_STALL_THRESHOLD_MS,
-		} );
-	}, SAVE_STALL_THRESHOLD_MS );
+	// Prep is done; a stall from here on is the main save request itself.
+	stallPhase = 'save_request';
 
 	try {
 		const post = await window.wp.apiFetch( {
