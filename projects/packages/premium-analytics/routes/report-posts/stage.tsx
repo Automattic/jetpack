@@ -13,6 +13,7 @@ import {
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
+	formatLegendLabels,
 	ReportPageLayout,
 	ReportPerformanceChart,
 	ReportRecordsTable,
@@ -163,6 +164,7 @@ function PostsReport(): JSX.Element {
 		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) } ],
 		[]
 	);
+	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	// The interval is part of the report window, so changing it writes the URL
 	// (and re-fetches) rather than living in component state.
@@ -213,6 +215,7 @@ function PostsReport(): JSX.Element {
 							metrics={ chartMetrics }
 							interval={ chartInterval }
 							onIntervalChange={ handleIntervalChange }
+							legendLabels={ chartLegendLabels }
 						/>
 						{ /*
 						 * Keyed by tab so the table's internal view state (sort,
