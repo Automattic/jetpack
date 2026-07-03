@@ -13,9 +13,9 @@ import {
 	largeValuesData,
 	trafficData,
 	themeArgTypes,
+	viewsVisitorsComparisonData,
 } from '../../../stories';
 import BarChart from '../bar-chart';
-import type { SeriesData } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
@@ -417,31 +417,8 @@ export const Comparison: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		data: [
-			{
-				label: 'This period',
-				group: 'views',
-				data: [
-					{ label: 'Mon', value: 420 },
-					{ label: 'Tue', value: 580 },
-					{ label: 'Wed', value: 310 },
-					{ label: 'Thu', value: 750 },
-					{ label: 'Fri', value: 640 },
-				],
-			},
-			{
-				label: 'Previous period',
-				group: 'views',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 510 },
-					{ label: 'Tue', value: 490 },
-					{ label: 'Wed', value: 430 },
-					{ label: 'Thu', value: 620 },
-					{ label: 'Fri', value: 700 },
-				],
-			},
-		],
+		// The Views group (primary + previous-period overlay) from the shared dataset.
+		data: viewsVisitorsComparisonData.slice( 0, 2 ),
 	},
 	parameters: {
 		docs: {
@@ -460,54 +437,7 @@ export const ComparisonGroups: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		data: [
-			{
-				label: 'Views — this period',
-				group: 'views',
-				data: [
-					{ label: 'Mon', value: 420 },
-					{ label: 'Tue', value: 580 },
-					{ label: 'Wed', value: 310 },
-					{ label: 'Thu', value: 750 },
-					{ label: 'Fri', value: 640 },
-				],
-			},
-			{
-				label: 'Views — previous period',
-				group: 'views',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 510 },
-					{ label: 'Tue', value: 490 },
-					{ label: 'Wed', value: 430 },
-					{ label: 'Thu', value: 620 },
-					{ label: 'Fri', value: 700 },
-				],
-			},
-			{
-				label: 'Visitors — this period',
-				group: 'visitors',
-				data: [
-					{ label: 'Mon', value: 280 },
-					{ label: 'Tue', value: 390 },
-					{ label: 'Wed', value: 220 },
-					{ label: 'Thu', value: 500 },
-					{ label: 'Fri', value: 430 },
-				],
-			},
-			{
-				label: 'Visitors — previous period',
-				group: 'visitors',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 340 },
-					{ label: 'Tue', value: 320 },
-					{ label: 'Wed', value: 290 },
-					{ label: 'Thu', value: 410 },
-					{ label: 'Fri', value: 460 },
-				],
-			},
-		],
+		data: viewsVisitorsComparisonData,
 	},
 	parameters: {
 		docs: {
@@ -569,55 +499,6 @@ export const LabelOverflowEllipsis: StoryObj< typeof BarChart > = {
 // metric and toggles each metric's current + previous-period series together.
 const INTERACTIVE_COMPARISON_CHART_ID = 'views-visitors-comparison';
 
-const comparisonLegendData: SeriesData[] = [
-	{
-		label: 'Views',
-		group: 'views',
-		data: [
-			{ label: 'Mon', value: 420 },
-			{ label: 'Tue', value: 580 },
-			{ label: 'Wed', value: 310 },
-			{ label: 'Thu', value: 750 },
-			{ label: 'Fri', value: 640 },
-		],
-	},
-	{
-		label: 'Views — previous',
-		group: 'views',
-		options: { type: 'comparison' as const },
-		data: [
-			{ label: 'Mon', value: 510 },
-			{ label: 'Tue', value: 490 },
-			{ label: 'Wed', value: 430 },
-			{ label: 'Thu', value: 620 },
-			{ label: 'Fri', value: 700 },
-		],
-	},
-	{
-		label: 'Visitors',
-		group: 'visitors',
-		data: [
-			{ label: 'Mon', value: 280 },
-			{ label: 'Tue', value: 390 },
-			{ label: 'Wed', value: 220 },
-			{ label: 'Thu', value: 500 },
-			{ label: 'Fri', value: 430 },
-		],
-	},
-	{
-		label: 'Visitors — previous',
-		group: 'visitors',
-		options: { type: 'comparison' as const },
-		data: [
-			{ label: 'Mon', value: 340 },
-			{ label: 'Tue', value: 320 },
-			{ label: 'Wed', value: 290 },
-			{ label: 'Thu', value: 410 },
-			{ label: 'Fri', value: 460 },
-		],
-	},
-];
-
 // One legend entry per metric; each entry controls its current + previous series together.
 const comparisonLegendMetrics = [
 	{ label: 'Views', current: 'Views', previous: 'Views — previous' },
@@ -677,7 +558,7 @@ const ComparisonLegendItem = ( {
 
 const ComparisonLegend = () => {
 	// Reuse the library's colour resolution so swatches match the primary bars.
-	const legendItems = useChartLegendItems( comparisonLegendData );
+	const legendItems = useChartLegendItems( viewsVisitorsComparisonData );
 	const colorByLabel = new Map( legendItems.map( item => [ item.label, item.color ] ) );
 
 	return (
@@ -703,7 +584,7 @@ export const ComparisonGroupsInteractiveLegend: Story = {
 			<div style={ { display: 'flex', flexDirection: 'column', gap: '16px', width: 700 } }>
 				<BarChart
 					chartId={ INTERACTIVE_COMPARISON_CHART_ID }
-					data={ comparisonLegendData }
+					data={ viewsVisitorsComparisonData }
 					legend={ { interactive: true } }
 					showLegend={ false }
 					withTooltips

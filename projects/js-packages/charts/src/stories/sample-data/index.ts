@@ -688,6 +688,64 @@ export const marketingChannelsComparison: SeriesData[] = [
 ];
 
 /**
+ * Views & Visitors traffic with current vs previous-period comparison
+ *
+ * Two metric groups (views, visitors), each a primary series plus a
+ * type: 'comparison' previous-period overlay sharing the same group.
+ * - Category: time-series comparison
+ * - Data points: 5 per series
+ * - Suitable for: BarChart comparison groups, interactive legends
+ */
+export const viewsVisitorsComparisonData: SeriesData[] = [
+	{
+		label: 'Views',
+		group: 'views',
+		data: [
+			{ label: 'Mon', value: 420 },
+			{ label: 'Tue', value: 580 },
+			{ label: 'Wed', value: 310 },
+			{ label: 'Thu', value: 750 },
+			{ label: 'Fri', value: 640 },
+		],
+	},
+	{
+		label: 'Views — previous',
+		group: 'views',
+		options: { type: 'comparison' as const },
+		data: [
+			{ label: 'Mon', value: 510 },
+			{ label: 'Tue', value: 490 },
+			{ label: 'Wed', value: 430 },
+			{ label: 'Thu', value: 620 },
+			{ label: 'Fri', value: 700 },
+		],
+	},
+	{
+		label: 'Visitors',
+		group: 'visitors',
+		data: [
+			{ label: 'Mon', value: 280 },
+			{ label: 'Tue', value: 390 },
+			{ label: 'Wed', value: 220 },
+			{ label: 'Thu', value: 500 },
+			{ label: 'Fri', value: 430 },
+		],
+	},
+	{
+		label: 'Visitors — previous',
+		group: 'visitors',
+		options: { type: 'comparison' as const },
+		data: [
+			{ label: 'Mon', value: 340 },
+			{ label: 'Tue', value: 320 },
+			{ label: 'Wed', value: 290 },
+			{ label: 'Thu', value: 410 },
+			{ label: 'Fri', value: 460 },
+		],
+	},
+];
+
+/**
  * Marketing channels by country data
  *
  * Sales performance by channel by country
