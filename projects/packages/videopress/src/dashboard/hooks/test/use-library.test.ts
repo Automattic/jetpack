@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestWrapper } from '../../test-utils/query-client-wrapper';
-import { useLibrary, viewToQueryArgs, privacyStringToInt } from '../use-library';
+import { useLibrary, viewToQueryArgs, privacyStringToInt, applyImportDraft } from '../use-library';
 import type { View } from '@wordpress/dataviews';
 
 const DEFAULT_VIEW: View = {
@@ -90,6 +90,70 @@ describe( 'viewToQueryArgs', () => {
 	} );
 } );
 
+describe( 'applyImportDraft', () => {
+	const mapped = () => ( {
+		id: '77',
+		guid: '',
+		type: 'local' as const,
+		title: 'Placeholder post title',
+		filename: '',
+		thumbnailUrl: null,
+		durationSeconds: 0,
+		uploadDate: '2026-06-01T00:00:00',
+		privacy: 'site-default' as const,
+		isPrivate: false,
+		fileSizeBytes: 0,
+		upload: { status: 'idle' as const, progress: 0 },
+		description: '',
+		rating: 'G' as const,
+		displayEmbed: false,
+		allowDownloads: false,
+		shortcode: '',
+		isProcessing: false,
+		playlistIds: [],
+	} );
+
+	it( 'converts an awaiting_media item to a draft with import-sourced fields', () => {
+		const draft = applyImportDraft(
+			{
+				source: 'youtube',
+				external_id: 'k3xPn0qLmA1',
+				title: 'Packing for the Andes',
+				description: 'Every item I carry.',
+				duration_seconds: 1245,
+				thumbnail_url: 'https://example.com/wp-content/uploads/thumb-1024x576.jpg',
+				thumbnail_attachment_id: 9,
+				status: 'awaiting_media',
+			},
+			mapped()
+		);
+
+		expect( draft.type ).toBe( 'draft' );
+		expect( draft.title ).toBe( 'Packing for the Andes' );
+		expect( draft.description ).toBe( 'Every item I carry.' );
+		expect( draft.durationSeconds ).toBe( 1245 );
+		expect( draft.thumbnailUrl ).toBe(
+			'https://example.com/wp-content/uploads/thumb-1024x576.jpg'
+		);
+		// No guid: drafts must stay out of every VideoPress-only flow.
+		expect( draft.guid ).toBe( '' );
+	} );
+
+	it( 'nulls the thumbnail when the import kept no usable URL', () => {
+		const draft = applyImportDraft(
+			{ title: 'T', status: 'awaiting_media', thumbnail_url: '' },
+			mapped()
+		);
+		expect( draft.thumbnailUrl ).toBeNull();
+	} );
+
+	it( 'leaves items without awaiting_media import meta untouched', () => {
+		const item = mapped();
+		expect( applyImportDraft( undefined, item ) ).toBe( item );
+		expect( applyImportDraft( { title: 'Done', status: 'completed' }, item ) ).toBe( item );
+	} );
+} );
+
 describe( 'useLibrary', () => {
 	it( 'returns items and paginationInfo derived from response headers', async () => {
 		const body = JSON.stringify( [
@@ -126,5 +190,47 @@ describe( 'useLibrary', () => {
 		expect( result.current.items[ 0 ].title ).toBe( 'Test video' );
 		expect( result.current.paginationInfo.totalItems ).toBe( 1 );
 		expect( result.current.paginationInfo.totalPages ).toBe( 1 );
+	} );
+
+	it( 'maps an import placeholder response to a draft item', async () => {
+		const body = JSON.stringify( [
+			{
+				id: 51,
+				title: { rendered: 'Sunrise Timelapse' },
+				mime_type: 'video/videopress-draft',
+				jetpack_videopress_import: {
+					source: 'youtube',
+					external_id: 'Zt8vWy2RbQ4',
+					title: 'Sunrise Timelapse Over Lake Titicaca (4K)',
+					description: 'Three hours compressed into three minutes.',
+					duration_seconds: 187,
+					thumbnail_url: 'https://i.ytimg.com/vi/Zt8vWy2RbQ4/hqdefault.jpg',
+					thumbnail_attachment_id: 0,
+					status: 'awaiting_media',
+				},
+			},
+		] );
+		const responseHeaders: Record< string, string > = {
+			'X-WP-Total': '1',
+			'X-WP-TotalPages': '1',
+			'Content-Type': 'application/json',
+		};
+		mockApiFetch( async () => ( {
+			headers: { get: ( name: string ) => responseHeaders[ name ] ?? null },
+			json: async () => JSON.parse( body ),
+		} ) );
+
+		const { result } = renderHook( () => useLibrary( DEFAULT_VIEW ), {
+			wrapper: createTestWrapper(),
+		} );
+
+		await waitFor( () => expect( result.current.items.length ).toBeGreaterThan( 0 ) );
+		const [ draft ] = result.current.items;
+		expect( draft.type ).toBe( 'draft' );
+		expect( draft.title ).toBe( 'Sunrise Timelapse Over Lake Titicaca (4K)' );
+		expect( draft.durationSeconds ).toBe( 187 );
+		expect( draft.thumbnailUrl ).toBe( 'https://i.ytimg.com/vi/Zt8vWy2RbQ4/hqdefault.jpg' );
+		expect( draft.guid ).toBe( '' );
+		expect( draft.isProcessing ).toBe( false );
 	} );
 } );

@@ -34,6 +34,25 @@ type ApiMediaItem = {
 	// Playlist term IDs, exposed under the taxonomy rest_base. Absent when
 	// the Studio flag is off (the taxonomy isn't registered then).
 	'videopress-playlists'?: number[];
+	// Studio import metadata. Only present on draft placeholder attachments
+	// (the field is registered behind the Studio flag and stripped from
+	// non-draft responses). thumbnail_url is resolved server-side to the
+	// sideloaded local copy when one exists, else the remote source URL.
+	jetpack_videopress_import?: ImportMeta;
+};
+
+export type ImportMeta = {
+	source?: string;
+	external_id?: string;
+	title?: string;
+	description?: string;
+	tags?: string[];
+	duration_seconds?: number;
+	privacy?: string;
+	published_at?: string;
+	thumbnail_url?: string;
+	thumbnail_attachment_id?: number;
+	status?: string;
 };
 
 type PaginationInfo = { totalItems: number; totalPages: number };
@@ -166,6 +185,37 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 }
 
 /**
+ * Overlay import-draft data on a mapped LibraryItem when the raw response
+ * carries the `jetpack_videopress_import` field with an unfinished import.
+ * There is no media file yet, so the imported metadata is the source of
+ * truth for what the row shows; the guid stays empty, which keeps drafts out
+ * of every flow that assumes a VideoPress video.
+ *
+ * Shared by use-library.ts and use-video.ts so their otherwise-duplicated
+ * toLibraryItem mappings stay in lockstep for drafts.
+ *
+ * @param importMeta - The raw item's `jetpack_videopress_import` field, if any.
+ * @param item       - The already-mapped LibraryItem.
+ * @return The item, converted to a draft when the import meta says so.
+ */
+export function applyImportDraft(
+	importMeta: ImportMeta | undefined,
+	item: LibraryItem
+): LibraryItem {
+	if ( importMeta?.status !== 'awaiting_media' ) {
+		return item;
+	}
+	return {
+		...item,
+		type: 'draft',
+		title: importMeta.title || item.title,
+		description: importMeta.description ?? '',
+		durationSeconds: importMeta.duration_seconds ?? 0,
+		thumbnailUrl: importMeta.thumbnail_url || null,
+	};
+}
+
+/**
  * Transform a raw /wp/v2/media API item into a LibraryItem.
  *
  * @param raw - The raw media item from the REST API response.
@@ -180,7 +230,7 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 	const poster = raw.media_details?.videopress?.poster;
 	const finished = raw.media_details?.videopress?.finished;
 	const isProcessing = isVideoPress && ( ! poster || finished === false );
-	return {
+	return applyImportDraft( raw.jetpack_videopress_import, {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
 		type: isVideoPress ? 'videopress' : 'local',
@@ -201,7 +251,7 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 		sourceUrl: raw.source_url,
 		isProcessing,
 		playlistIds: raw[ 'videopress-playlists' ] ?? [],
-	};
+	} );
 }
 
 /**

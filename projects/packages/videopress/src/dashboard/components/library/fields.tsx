@@ -92,6 +92,11 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 			intent: 'informational',
 			label: __( 'Processing', 'jetpack-videopress-pkg' ),
 		};
+	} else if ( type === 'draft' ) {
+		pill = {
+			intent: 'informational',
+			label: __( 'Imported from YouTube — attach video file', 'jetpack-videopress-pkg' ),
+		};
 	} else if ( type === 'local' ) {
 		pill = {
 			intent: 'none',
@@ -144,8 +149,18 @@ const baseLibraryFields: Field< LibraryItem >[] = [
 		id: 'type',
 		label: __( 'Type', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.type,
-		render: ( { item } ) =>
-			item.type === 'videopress' ? 'VideoPress' : __( 'Local', 'jetpack-videopress-pkg' ),
+		render: ( { item } ) => {
+			if ( item.type === 'videopress' ) {
+				return 'VideoPress';
+			}
+			if ( item.type === 'draft' ) {
+				return __( 'Draft', 'jetpack-videopress-pkg' );
+			}
+			return __( 'Local', 'jetpack-videopress-pkg' );
+		},
+		// No 'draft' filter element: drafts only exist behind the Studio flag
+		// and there's no server-side type=draft filter mapping (yet); the cell
+		// render above still labels them correctly wherever they appear.
 		elements: [
 			{ value: 'videopress', label: 'VideoPress' },
 			{ value: 'local', label: __( 'Local', 'jetpack-videopress-pkg' ) },

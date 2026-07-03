@@ -32,6 +32,31 @@ describe( 'buildLibraryActions — eligibility while deleting', () => {
 	} );
 } );
 
+describe( 'buildLibraryActions — import draft exclusion', () => {
+	type InitialState = { features?: { studio?: boolean } };
+	const globals = window as unknown as { JPVIDEOPRESS_INITIAL_STATE?: InitialState };
+
+	afterEach( () => {
+		delete globals.JPVIDEOPRESS_INITIAL_STATE;
+	} );
+
+	it( 'makes a draft row ineligible for every action, including the Studio ones', () => {
+		// Studio flag on so the gated actions (view-analytics, add-to-playlist)
+		// are built too — drafts must fall out of the full set, not just the base.
+		globals.JPVIDEOPRESS_INITIAL_STATE = { features: { studio: true } };
+		const actions = buildLibraryActions( makeApi() );
+		const draft = item( { type: 'draft', guid: '' } );
+
+		expect( actions.length ).toBeGreaterThan( 0 );
+		for ( const action of actions ) {
+			expect( { id: action.id, eligible: action.isEligible?.( draft ) } ).toEqual( {
+				id: action.id,
+				eligible: false,
+			} );
+		}
+	} );
+} );
+
 describe( 'buildLibraryActions — add-to-playlist gating', () => {
 	type InitialState = { features?: { studio?: boolean } };
 	const globals = window as unknown as { JPVIDEOPRESS_INITIAL_STATE?: InitialState };

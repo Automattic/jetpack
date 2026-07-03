@@ -106,3 +106,19 @@ describe( 'buildLibraryFields — Studio flag on', () => {
 		expect( field?.getValue?.( { item: item( { playlistIds: [ 7 ] } ) } ) ).toEqual( [ 7 ] );
 	} );
 } );
+
+describe( 'type field — draft rows', () => {
+	const renderType = () => {
+		const field = buildLibraryFields().find( f => f.id === 'type' );
+		return field?.render as ( args: { item: LibraryItem } ) => React.ReactNode;
+	};
+
+	it( 'labels import placeholders Draft, not Local', () => {
+		expect( renderType()( { item: item( { type: 'draft', guid: '' } ) } ) ).toBe( 'Draft' );
+	} );
+
+	it( 'keeps the existing labels for the other types', () => {
+		expect( renderType()( { item: item() } ) ).toBe( 'VideoPress' );
+		expect( renderType()( { item: item( { type: 'local' } ) } ) ).toBe( 'Local' );
+	} );
+} );

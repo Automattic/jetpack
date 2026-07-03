@@ -144,3 +144,31 @@ describe( 'TitleCell — grid Details access', () => {
 		expect( screen.getByText( longName ) ).toHaveAttribute( 'title', longName );
 	} );
 } );
+
+describe( 'import draft rows', () => {
+	const draft = ( overrides: Partial< LibraryItem > = {} ) =>
+		item( { type: 'draft', guid: '', title: 'Sunrise Timelapse', ...overrides } );
+
+	it( 'shows the imported-from-YouTube badge on the title cell', () => {
+		renderField( <TitleCellRender item={ draft() } />, makeActions() );
+		expect( screen.getByText( 'Imported from YouTube — attach video file' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the draft title as plain text — no details navigation without a video', async () => {
+		const actions = makeActions();
+		renderField( <TitleCellRender item={ draft() } />, actions );
+
+		expect( screen.getByText( 'Sunrise Timelapse', { selector: 'span' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Sunrise Timelapse' } ) ).not.toBeInTheDocument();
+		expect( actions.openVideoDetails ).not.toHaveBeenCalled();
+	} );
+
+	it( 'offers neither Edit details nor Upload to VideoPress on the draft thumbnail', () => {
+		renderField( <ThumbnailField item={ draft() } />, makeActions() );
+
+		expect( screen.queryByRole( 'button', { name: /Edit details/ } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'Upload to VideoPress' } )
+		).not.toBeInTheDocument();
+	} );
+} );

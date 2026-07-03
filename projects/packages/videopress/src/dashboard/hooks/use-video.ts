@@ -1,7 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { buildShortcode } from '../utils/format';
-import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY, privacyIntToString } from './use-library';
+import {
+	applyImportDraft,
+	LIBRARY_ITEM_QUERY_SEGMENT,
+	LIBRARY_QUERY_KEY,
+	privacyIntToString,
+} from './use-library';
+import type { ImportMeta } from './use-library';
 import type { LibraryItem } from '../types/library';
 
 type ApiMediaItem = {
@@ -34,6 +40,10 @@ type ApiMediaItem = {
 	// Playlist term IDs, exposed under the taxonomy rest_base. Absent when
 	// the Studio flag is off (the taxonomy isn't registered then).
 	'videopress-playlists'?: number[];
+	// Studio import metadata. Only present on draft placeholder attachments
+	// (the field is registered behind the Studio flag and stripped from
+	// non-draft responses).
+	jetpack_videopress_import?: ImportMeta;
 };
 
 /**
@@ -81,7 +91,7 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 	const poster = raw.media_details?.videopress?.poster;
 	const finished = raw.media_details?.videopress?.finished;
 	const isProcessing = isVideoPress && ( ! poster || finished === false );
-	return {
+	return applyImportDraft( raw.jetpack_videopress_import, {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
 		type: isVideoPress ? 'videopress' : 'local',
@@ -103,7 +113,7 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 		playbackUrl: pickPlaybackUrl( raw.media_details?.videopress ),
 		isProcessing,
 		playlistIds: raw[ 'videopress-playlists' ] ?? [],
-	};
+	} );
 }
 
 /**

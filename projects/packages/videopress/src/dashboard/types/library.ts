@@ -1,4 +1,8 @@
-export type LibraryItemType = 'videopress' | 'local';
+// 'draft' rows are import placeholders (post_mime_type video/videopress-draft)
+// still awaiting their media file: they carry metadata imported from an
+// external service (YouTube) but no VideoPress guid, so every flow that
+// assumes one (details, editor, analytics, video actions) must exclude them.
+export type LibraryItemType = 'videopress' | 'local' | 'draft';
 export type LibraryItemPrivacy = 'public' | 'private' | 'site-default';
 // `upload.status` doubles as the row's single in-flight-operation slot:
 // 'deleting' isn't an upload state, but riding this channel means every

@@ -15,7 +15,10 @@ type Api = {
 
 // Allowlist on 'idle' (matching TitleText and ThumbnailField) rather than a
 // blocklist of known in-flight statuses, so any future status is excluded
-// from row actions by default instead of silently slipping through.
+// from row actions by default instead of silently slipping through. The type
+// check is an allowlist for the same reason: import drafts (type 'draft')
+// have no VideoPress guid, so they must never match the video actions here
+// — nor the local-only upload path, which allowlists 'local'.
 const isVideoPressIdle = ( item: LibraryItem ) =>
 	item.type === 'videopress' && item.upload.status === 'idle';
 

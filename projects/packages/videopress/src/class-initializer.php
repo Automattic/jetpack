@@ -127,6 +127,16 @@ class Initializer {
 			if ( Import_Rest_Controller::should_register() ) {
 				new Import_Rest_Controller();
 			}
+
+			/*
+			 * Draft placeholders created by the import controller are exposed
+			 * on /wp/v2/media through the jetpack_videopress_import field —
+			 * gated on the same Studio flag, re-checked inside its own
+			 * should_register() at REST time.
+			 */
+			if ( WPCOM_REST_API_V2_Attachment_VideoPress_Import_Data::should_register() ) {
+				new WPCOM_REST_API_V2_Attachment_VideoPress_Import_Data();
+			}
 		};
 		add_action( 'rest_api_init', $register_rest_api_v2_endpoints, 0 );
 		add_action( 'restapi_theme_init', $register_rest_api_v2_endpoints, 0 );
