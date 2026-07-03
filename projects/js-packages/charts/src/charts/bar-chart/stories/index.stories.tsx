@@ -411,7 +411,7 @@ const longLabelData = [
 // Comparison mode: one primary series + one shadow series sharing the same group.
 // The shadow renders as a translucent bar (150% width, 50% opacity) centered behind
 // the primary bar, making it easy to compare the current period against a previous one.
-export const Comparison: Story = {
+export const ComparisonSingle: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
@@ -454,7 +454,7 @@ export const Comparison: Story = {
 // Comparison mode with multiple groups side by side.
 // Each group has its own primary series and its own shadow series,
 // demonstrating that comparison mode works correctly across grouped bar layouts.
-export const ComparisonGroups: Story = {
+export const ComparisonMulti: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,

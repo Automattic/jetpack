@@ -527,8 +527,8 @@ DateStringFormats.parameters = {
 
 // One metric paired with its previous-period comparison overlay, sharing a `group` so the legend
 // collapses to a single item.
-export const Comparison: StoryObj< StoryArgs > = Template.bind( {} );
-Comparison.args = {
+export const ComparisonSingle: StoryObj< StoryArgs > = Template.bind( {} );
+ComparisonSingle.args = {
 	...lineChartStoryArgs,
 	showLegend: true,
 	smoothing: false,
@@ -548,7 +548,7 @@ Comparison.args = {
 		},
 	],
 };
-Comparison.parameters = {
+ComparisonSingle.parameters = {
 	docs: {
 		description: {
 			story:
@@ -560,8 +560,8 @@ Comparison.parameters = {
 // Two metrics side by side, each with its own previous-period comparison overlay. The interactive
 // legend collapses each group to one item (Views, Visitors); clicking one toggles both of that
 // metric's series at once.
-export const ComparisonGroups: StoryObj< StoryArgs > = Template.bind( {} );
-ComparisonGroups.args = {
+export const ComparisonMulti: StoryObj< StoryArgs > = Template.bind( {} );
+ComparisonMulti.args = {
 	...lineChartStoryArgs,
 	showLegend: true,
 	legendInteractive: true,
@@ -595,7 +595,7 @@ ComparisonGroups.args = {
 		},
 	],
 };
-ComparisonGroups.parameters = {
+ComparisonMulti.parameters = {
 	docs: {
 		description: {
 			story:
