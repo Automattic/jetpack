@@ -1,0 +1,35 @@
+.backLink {
+	position: relative;
+	z-index: 2;
+	align-self: flex-start;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	min-block-size: 20px;
+	margin-block-end: var(--wpds-dimension-gap-md, 12px);
+	padding: 0;
+	color: var(--wpds-color-fg-content-neutral-weak);
+	font: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 20px;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.backLink:hover,
+.backLink:focus {
+	color: var(--wp-admin-theme-color);
+	text-decoration: none;
+}
+
+.icon {
+	flex: 0 0 auto;
+}
+
+.label {
+	min-inline-size: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
