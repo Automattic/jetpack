@@ -145,28 +145,30 @@ export function TopPerformingProductLeaderboardWidget( {
 
 				const productImage = productImages ? productImages[ product.product_id ] : undefined;
 
-				// Match by product_id instead of index
+				// Match by product_id instead of index.
 				const comparisonProduct = comparisonMap.get( product.product_id );
-				const previousValue = comparisonProduct?.product_net_revenue ?? 0;
+				const comparisonValue = comparisonProduct?.product_net_revenue ?? 0;
 
-				const previousShare =
-					comparisonItems.length > 0 && previousValue > 0
-						? ( previousValue / maxPreviousValue ) * 100
-						: 0;
+				// A product ranked below the previous top-N cutoff is absent from
+				// the comparison list. That is an unknown previous value, not a
+				// real 0, so leave the comparison fields undefined and let the
+				// chart show an em dash instead of a fabricated +100% delta.
+				const hasComparisonValue = comparisonValue > 0;
 
 				const label = product.product_name;
 				const imageUrl = productImage?.imageUrl || '';
 				const imageAlt = productImage?.imageAlt || label;
-				const delta = calculateDelta( currentValue, previousValue );
 
 				return {
 					id: String( product.product_id || index ),
 					label: <LeaderboardLabel label={ label } imageUrl={ imageUrl } imageAlt={ imageAlt } />,
 					currentValue,
 					currentShare: ( currentValue / maxCurrentValue ) * 100,
-					previousValue,
-					previousShare,
-					delta,
+					previousValue: hasComparisonValue ? comparisonValue : undefined,
+					previousShare: hasComparisonValue
+						? ( comparisonValue / maxPreviousValue ) * 100
+						: undefined,
+					delta: hasComparisonValue ? calculateDelta( currentValue, comparisonValue ) : undefined,
 				};
 			} ) || []
 		);

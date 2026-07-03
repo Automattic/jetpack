@@ -64,16 +64,26 @@ export function buildVisitorsByLocationData( {
 	// Build leaderboard data (top N items)
 	const leaderboardData: LeaderboardChartData = primaryData.slice( 0, limit ).map( item => {
 		const comparisonItem = comparisonData?.find( c => c.id === item.id );
-		const previousValue = comparisonItem?.value ?? 0;
+		const comparisonValue = comparisonItem?.value ?? 0;
 		const currentShare = maxPrimaryValue > 0 ? ( item.value / maxPrimaryValue ) * 100 : 0;
-		const previousShare = maxComparisonValue > 0 ? ( previousValue / maxComparisonValue ) * 100 : 0;
-		const delta = previousValue > 0 ? ( ( item.value - previousValue ) / previousValue ) * 100 : 0;
+
+		// A location absent from the comparison period has an unknown previous
+		// value, not a real 0. Leave the comparison fields undefined so the
+		// chart shows an em dash instead of a fabricated delta.
+		const hasComparisonValue = comparisonValue > 0;
+		const previousShare =
+			hasComparisonValue && maxComparisonValue > 0
+				? ( comparisonValue / maxComparisonValue ) * 100
+				: undefined;
+		const delta = hasComparisonValue
+			? ( ( item.value - comparisonValue ) / comparisonValue ) * 100
+			: undefined;
 
 		return {
 			id: item.id,
 			label: item.label,
 			currentValue: item.value,
-			previousValue,
+			previousValue: hasComparisonValue ? comparisonValue : undefined,
 			currentShare,
 			previousShare,
 			delta,
