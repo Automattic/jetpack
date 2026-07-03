@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Modules;
 
@@ -17,21 +18,6 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class Atomic_Admin_Menu.
  */
 class Atomic_Admin_Menu extends Admin_Menu {
-
-	/**
-	 * Commerce plan slugs for which the WooCommerce menu item is relabeled to "Store setup".
-	 *
-	 * Legacy Woo Express plans are intentionally excluded: those users chose a Woo-branded
-	 * product, so they keep the "WooCommerce" label.
-	 *
-	 * @var string[]
-	 */
-	const ECOMMERCE_PLAN_SLUGS = array(
-		'ecommerce-bundle',
-		'ecommerce-bundle-monthly',
-		'ecommerce-bundle-2y',
-		'ecommerce-bundle-3y',
-	);
 
 	/**
 	 * Atomic_Admin_Menu constructor.
@@ -117,6 +103,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	/**
 	 * Whether the current site is on a Commerce plan.
 	 *
+	 * Legacy Woo Express plans are intentionally excluded: those users chose a Woo-branded
+	 * product, so they keep the "WooCommerce" label.
+	 *
 	 * @return bool
 	 */
 	protected function is_ecommerce_plan() {
@@ -124,13 +113,38 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			return false;
 		}
 
+		$commerce_slugs = $this->get_commerce_plan_slugs();
+
 		foreach ( wpcom_get_site_purchases() as $purchase ) {
-			if ( isset( $purchase->product_slug ) && in_array( $purchase->product_slug, self::ECOMMERCE_PLAN_SLUGS, true ) ) {
+			if ( isset( $purchase->product_slug ) && in_array( $purchase->product_slug, $commerce_slugs, true ) ) {
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * Commerce plan slugs for which the WooCommerce menu item is relabeled.
+	 *
+	 * Derived from the canonical plan list so a new ecommerce-bundle-* variant is picked up
+	 * automatically. The "business" group also holds Woo Express and other business plans,
+	 * so it's narrowed to the ecommerce-bundle family (this also excludes the eCommerce trial,
+	 * ecommerce-trial-bundle-monthly).
+	 *
+	 * @return string[]
+	 */
+	protected function get_commerce_plan_slugs() {
+		$business_plans = Current_Plan::PLAN_DATA['business']['plans'] ?? array();
+
+		return array_values(
+			array_filter(
+				$business_plans,
+				static function ( $slug ) {
+					return str_starts_with( $slug, 'ecommerce-bundle' );
+				}
+			)
+		);
 	}
 
 	/**
