@@ -20,32 +20,32 @@ defined( 'ABSPATH' ) || exit;
 
 echo '= ' . esc_html( $email_heading ) . " =\n\n";
 
-esc_html_e( 'Your CSV export is ready for download!', 'woocommerce-analytics' );
+esc_html_e( 'Your CSV export is ready for download!', 'jetpack-premium-analytics' );
 echo "\n\n";
 
 echo esc_html( $report_label ) . "\n\n";
 
-echo esc_html__( 'Date Range:', 'woocommerce-analytics' ) . ' ';
+echo esc_html__( 'Date Range:', 'jetpack-premium-analytics' ) . ' ';
 $from = gmdate( 'F j, Y', strtotime( $params['from'] ) );
 $to   = gmdate( 'F j, Y', strtotime( $params['to'] ) );
 /* translators: 1: Start date, 2: End date */
-echo esc_html( sprintf( __( '%1$s to %2$s', 'woocommerce-analytics' ), $from, $to ) );
+echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics' ), $from, $to ) );
 echo "\n\n";
 
 if ( $is_comparison ) {
-	echo esc_html__( 'Comparison Period:', 'woocommerce-analytics' ) . ' ';
+	echo esc_html__( 'Comparison Period:', 'jetpack-premium-analytics' ) . ' ';
 	$compare_from = gmdate( 'F j, Y', strtotime( $params['compare_from'] ) );
 	$compare_to   = gmdate( 'F j, Y', strtotime( $params['compare_to'] ) );
 	/* translators: 1: Start date, 2: End date */
-	echo esc_html( sprintf( __( '%1$s to %2$s', 'woocommerce-analytics' ), $compare_from, $compare_to ) );
+	echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics' ), $compare_from, $compare_to ) );
 	echo "\n\n";
 }
 
-echo esc_html__( 'Download your CSV file:', 'woocommerce-analytics' ) . "\n";
+echo esc_html__( 'Download your CSV file:', 'jetpack-premium-analytics' ) . "\n";
 echo esc_url( $file_url ) . "\n\n";
 
 /* translators: %d: Number of hours until link expires */
-echo esc_html( sprintf( _n( 'Note: This download link will expire in %d hour.', 'Note: This download link will expire in %d hours.', $retention_hours, 'woocommerce-analytics' ), $retention_hours ) ) . "\n\n";
+echo esc_html( sprintf( _n( 'Note: This download link will expire in %d hour.', 'Note: This download link will expire in %d hours.', $retention_hours, 'jetpack-premium-analytics' ), $retention_hours ) ) . "\n\n";
 
 echo "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n";
 

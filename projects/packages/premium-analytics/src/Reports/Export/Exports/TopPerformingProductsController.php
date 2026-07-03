@@ -47,7 +47,7 @@ class TopPerformingProductsController extends AbstractCSVReportController {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Top Performing Products', 'woocommerce-analytics' );
+		return __( 'Top Performing Products', 'jetpack-premium-analytics' );
 	}
 
 	/**
@@ -67,15 +67,15 @@ class TopPerformingProductsController extends AbstractCSVReportController {
 	 */
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
-			'product'             => __( 'Product', 'woocommerce-analytics' ),
-			'gross_sales'         => __( 'Gross sales', 'woocommerce-analytics' ),
-			'discounts'           => __( 'Discounts', 'woocommerce-analytics' ),
-			'refunds'             => __( 'Refunds', 'woocommerce-analytics' ),
-			'net_sales'           => __( 'Net sales', 'woocommerce-analytics' ),
-			'new_customers'       => __( 'New customers', 'woocommerce-analytics' ),
-			'returning_customers' => __( 'Returning customers', 'woocommerce-analytics' ),
-			'profit'              => __( 'Profit', 'woocommerce-analytics' ),
-			'margin'              => __( 'Margin', 'woocommerce-analytics' ),
+			'product'             => __( 'Product', 'jetpack-premium-analytics' ),
+			'gross_sales'         => __( 'Gross sales', 'jetpack-premium-analytics' ),
+			'discounts'           => __( 'Discounts', 'jetpack-premium-analytics' ),
+			'refunds'             => __( 'Refunds', 'jetpack-premium-analytics' ),
+			'net_sales'           => __( 'Net sales', 'jetpack-premium-analytics' ),
+			'new_customers'       => __( 'New customers', 'jetpack-premium-analytics' ),
+			'returning_customers' => __( 'Returning customers', 'jetpack-premium-analytics' ),
+			'profit'              => __( 'Profit', 'jetpack-premium-analytics' ),
+			'margin'              => __( 'Margin', 'jetpack-premium-analytics' ),
 		);
 	}
 
@@ -91,7 +91,7 @@ class TopPerformingProductsController extends AbstractCSVReportController {
 		$product_name = ! empty( $item['product_name'] )
 			? $item['product_name']
 			/* translators: %s is the product ID */
-			: sprintf( __( 'Product #%s', 'woocommerce-analytics' ), $item['product_id'] ?? $defaults['product_id'] );
+			: sprintf( __( 'Product #%s', 'jetpack-premium-analytics' ), $item['product_id'] ?? $defaults['product_id'] );
 
 		$row = array(
 			'product'             => $product_name,

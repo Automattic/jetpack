@@ -82,7 +82,7 @@ class DebugLogger implements LoggerInterface {
 			$level,
 			sprintf( '%s %s', $method, $message ),
 			array(
-				'source' => 'woocommerce-analytics',
+				'source' => 'jetpack-premium-analytics',
 			)
 		);
 	}

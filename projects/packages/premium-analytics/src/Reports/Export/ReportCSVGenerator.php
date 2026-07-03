@@ -13,8 +13,8 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
 use Exception;
 use WP_Error;
 
@@ -65,7 +65,7 @@ class ReportCSVGenerator {
 				$this->logger->log_error( 'Failed to open CSV file for writing: ' . $file_path, __METHOD__ );
 				return new WP_Error(
 					'csv_file_open_failed',
-					__( 'Failed to open CSV file for writing.', 'woocommerce-analytics' )
+					__( 'Failed to open CSV file for writing.', 'jetpack-premium-analytics' )
 				);
 			}
 
@@ -107,7 +107,7 @@ class ReportCSVGenerator {
 			$this->logger->log_exception( $e, __METHOD__ );
 			return new WP_Error(
 				'csv_generation_failed',
-				__( 'Failed to generate CSV file.', 'woocommerce-analytics' ),
+				__( 'Failed to generate CSV file.', 'jetpack-premium-analytics' ),
 				array( 'exception' => $e->getMessage() )
 			);
 		}
@@ -147,7 +147,7 @@ class ReportCSVGenerator {
 			$this->logger->log_error( 'Export directory is not writable: ' . $export_dir, __METHOD__ );
 			return new WP_Error(
 				'directory_not_writable',
-				__( 'Export directory is not writable.', 'woocommerce-analytics' )
+				__( 'Export directory is not writable.', 'jetpack-premium-analytics' )
 			);
 		}
 
@@ -164,7 +164,7 @@ class ReportCSVGenerator {
 		if ( ! file_exists( $file_path ) ) {
 			return new WP_Error(
 				'file_not_found',
-				__( 'CSV file not found.', 'woocommerce-analytics' )
+				__( 'CSV file not found.', 'jetpack-premium-analytics' )
 			);
 		}
 

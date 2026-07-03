@@ -13,15 +13,13 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\RegistrableInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
 use WC_REST_Controller;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
-use WP_REST_Server;
 
 /**
  * CSV Export Controller class.
@@ -148,46 +146,46 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 	private function get_endpoint_args(): array {
 		return array(
 			'report_type'     => array(
-				'description'       => __( 'The type of report to export.', 'woocommerce-analytics' ),
+				'description'       => __( 'The type of report to export.', 'jetpack-premium-analytics' ),
 				'type'              => 'string',
 				'required'          => true,
 				'validate_callback' => array( $this, 'validate_report_type' ),
 			),
 			'from'            => array(
-				'description'       => __( 'Start date for the report period (ISO 8601 format).', 'woocommerce-analytics' ),
+				'description'       => __( 'Start date for the report period (ISO 8601 format).', 'jetpack-premium-analytics' ),
 				'type'              => 'string',
 				'format'            => 'date-time',
 				'required'          => true,
 				'validate_callback' => array( $this, 'validate_from_date' ),
 			),
 			'to'              => array(
-				'description'       => __( 'End date for the report period (ISO 8601 format).', 'woocommerce-analytics' ),
+				'description'       => __( 'End date for the report period (ISO 8601 format).', 'jetpack-premium-analytics' ),
 				'type'              => 'string',
 				'format'            => 'date-time',
 				'required'          => true,
 				'validate_callback' => array( $this, 'validate_to_date' ),
 			),
 			'interval'        => array(
-				'description'       => __( 'Time interval for grouping data.', 'woocommerce-analytics' ),
+				'description'       => __( 'Time interval for grouping data.', 'jetpack-premium-analytics' ),
 				'type'              => 'string',
 				'default'           => 'day',
 				'enum'              => array( 'hour', 'day', 'week', 'month', 'quarter', 'year' ),
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'compare_from'    => array(
-				'description'       => __( 'Start date for comparison period (ISO 8601 format).', 'woocommerce-analytics' ),
+				'description'       => __( 'Start date for comparison period (ISO 8601 format).', 'jetpack-premium-analytics' ),
 				'type'              => 'string',
 				'format'            => 'date-time',
 				'validate_callback' => array( $this, 'validate_compare_from_date' ),
 			),
 			'compare_to'      => array(
-				'description'       => __( 'End date for comparison period (ISO 8601 format).', 'woocommerce-analytics' ),
+				'description'       => __( 'End date for comparison period (ISO 8601 format).', 'jetpack-premium-analytics' ),
 				'type'              => 'string',
 				'format'            => 'date-time',
 				'validate_callback' => array( $this, 'validate_compare_to_date' ),
 			),
 			'delivery_method' => array(
-				'description' => __( 'Delivery method for the export.', 'woocommerce-analytics' ),
+				'description' => __( 'Delivery method for the export.', 'jetpack-premium-analytics' ),
 				'type'        => 'string',
 				'default'     => 'download',
 				'enum'        => array( 'download', 'email' ),
@@ -209,7 +207,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 				'invalid_report_type',
 				sprintf(
 					/* translators: %s: Report type */
-					__( 'Invalid report type: %s', 'woocommerce-analytics' ),
+					__( 'Invalid report type: %s', 'jetpack-premium-analytics' ),
 					is_string( $value ) ? $value : wp_json_encode( $value )
 				),
 				array( 'status' => 400 )
@@ -242,7 +240,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 			if ( $from_timestamp >= $to_timestamp ) {
 				return new WP_Error(
 					'invalid_date_range',
-					__( 'The "from" date must be before the "to" date.', 'woocommerce-analytics' ),
+					__( 'The "from" date must be before the "to" date.', 'jetpack-premium-analytics' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -275,7 +273,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		if ( $to_date_only > $today_date_only ) {
 			return new WP_Error(
 				'future_date',
-				__( 'The "to" date cannot be later than today.', 'woocommerce-analytics' ),
+				__( 'The "to" date cannot be later than today.', 'jetpack-premium-analytics' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -288,7 +286,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 			if ( $from_timestamp >= $to_timestamp ) {
 				return new WP_Error(
 					'invalid_date_range',
-					__( 'The "from" date must be before the "to" date.', 'woocommerce-analytics' ),
+					__( 'The "from" date must be before the "to" date.', 'jetpack-premium-analytics' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -321,7 +319,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		// If compare_from is provided but compare_to is not, return error.
 		return new WP_Error(
 			'missing_compare_to',
-			__( 'The "compare_to" parameter is required when "compare_from" is provided.', 'woocommerce-analytics' ),
+			__( 'The "compare_to" parameter is required when "compare_from" is provided.', 'jetpack-premium-analytics' ),
 			array( 'status' => 400 )
 		);
 	}
@@ -350,7 +348,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		if ( $compare_to_date_only > $today_date_only ) {
 			return new WP_Error(
 				'future_date',
-				__( 'The "compare_to" date cannot be later than today.', 'woocommerce-analytics' ),
+				__( 'The "compare_to" date cannot be later than today.', 'jetpack-premium-analytics' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -364,7 +362,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		// If compare_to is provided but compare_from is not, return error.
 		return new WP_Error(
 			'missing_compare_from',
-			__( 'The "compare_from" parameter is required when "compare_to" is provided.', 'woocommerce-analytics' ),
+			__( 'The "compare_from" parameter is required when "compare_to" is provided.', 'jetpack-premium-analytics' ),
 			array( 'status' => 400 )
 		);
 	}
@@ -384,7 +382,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		if ( $compare_from_timestamp >= $compare_to_timestamp ) {
 			return new WP_Error(
 				'invalid_compare_date_range',
-				__( 'The "compare_from" date must be before the "compare_to" date.', 'woocommerce-analytics' ),
+				__( 'The "compare_from" date must be before the "compare_to" date.', 'jetpack-premium-analytics' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -400,7 +398,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 			if ( $original_duration !== $compare_duration ) {
 				return new WP_Error(
 					'invalid_compare_period_length',
-					__( 'The comparison period length must match the original period length.', 'woocommerce-analytics' ),
+					__( 'The comparison period length must match the original period length.', 'jetpack-premium-analytics' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -530,7 +528,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		return new WP_REST_Response(
 			array(
 				'success' => true,
-				'message' => __( 'Export has been scheduled. You will receive an email when it is ready.', 'woocommerce-analytics' ),
+				'message' => __( 'Export has been scheduled. You will receive an email when it is ready.', 'jetpack-premium-analytics' ),
 				'job_id'  => $job_id,
 			),
 			202
@@ -569,17 +567,17 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 			'type'       => 'object',
 			'properties' => array(
 				'success' => array(
-					'description' => __( 'Whether the export was successful.', 'woocommerce-analytics' ),
+					'description' => __( 'Whether the export was successful.', 'jetpack-premium-analytics' ),
 					'type'        => 'boolean',
 					'context'     => array( 'view' ),
 				),
 				'message' => array(
-					'description' => __( 'Status message.', 'woocommerce-analytics' ),
+					'description' => __( 'Status message.', 'jetpack-premium-analytics' ),
 					'type'        => 'string',
 					'context'     => array( 'view' ),
 				),
 				'job_id'  => array(
-					'description' => __( 'Action Scheduler job ID (for email exports).', 'woocommerce-analytics' ),
+					'description' => __( 'Action Scheduler job ID (for email exports).', 'jetpack-premium-analytics' ),
 					'type'        => 'integer',
 					'context'     => array( 'view' ),
 				),

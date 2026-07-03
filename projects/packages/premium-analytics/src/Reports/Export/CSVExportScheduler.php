@@ -13,10 +13,9 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\RegistrableInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
 
 /**
  * CSV Export Scheduler class.
@@ -135,7 +134,7 @@ class CSVExportScheduler implements RegistrableInterface {
 		if ( ! \is_email( $user_email ) ) {
 			return new \WP_Error(
 				'invalid_email',
-				__( 'Invalid email address provided.', 'woocommerce-analytics' )
+				__( 'Invalid email address provided.', 'jetpack-premium-analytics' )
 			);
 		}
 
@@ -143,7 +142,7 @@ class CSVExportScheduler implements RegistrableInterface {
 			$this->logger->log_error( 'Action Scheduler is not available', __METHOD__ );
 			return new \WP_Error(
 				'action_scheduler_unavailable',
-				__( 'Action Scheduler is not available. Cannot schedule export.', 'woocommerce-analytics' )
+				__( 'Action Scheduler is not available. Cannot schedule export.', 'jetpack-premium-analytics' )
 			);
 		}
 
@@ -151,7 +150,7 @@ class CSVExportScheduler implements RegistrableInterface {
 		if ( ! $this->registry->is_registered( $report_type ) ) {
 			return new \WP_Error(
 				'invalid_report_type',
-				__( 'Invalid report type.', 'woocommerce-analytics' )
+				__( 'Invalid report type.', 'jetpack-premium-analytics' )
 			);
 		}
 
@@ -171,7 +170,7 @@ class CSVExportScheduler implements RegistrableInterface {
 			$this->logger->log_error( 'Failed to schedule CSV export action', __METHOD__ );
 			return new \WP_Error(
 				'schedule_failed',
-				__( 'Failed to schedule export job.', 'woocommerce-analytics' )
+				__( 'Failed to schedule export job.', 'jetpack-premium-analytics' )
 			);
 		}
 
@@ -302,13 +301,13 @@ class CSVExportScheduler implements RegistrableInterface {
 	private function send_error_email( string $user_email, string $report_type, string $error ): void {
 		$subject = sprintf(
 			/* translators: %s: Report type */
-			__( 'Export Failed: %s', 'woocommerce-analytics' ),
+			__( 'Export Failed: %s', 'jetpack-premium-analytics' ),
 			$report_type
 		);
 
 		$message = sprintf(
 			/* translators: 1: Report type, 2: Error message */
-			__( 'Your export for "%1$s" failed with the following error: %2$s', 'woocommerce-analytics' ),
+			__( 'Your export for "%1$s" failed with the following error: %2$s', 'jetpack-premium-analytics' ),
 			$report_type,
 			$error
 		);

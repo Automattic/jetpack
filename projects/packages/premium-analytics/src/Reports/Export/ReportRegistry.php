@@ -72,7 +72,6 @@ class ReportRegistry {
 		return true;
 	}
 
-
 	/**
 	 * Check if a report type is registered.
 	 *
@@ -82,7 +81,6 @@ class ReportRegistry {
 	public function is_registered( string $report_key ): bool {
 		return isset( $this->controllers[ $report_key ] );
 	}
-
 
 	/**
 	 * Get all registered report keys.
@@ -127,7 +125,7 @@ class ReportRegistry {
 		if ( $include_comparison ) {
 			$comparison_columns = array();
 			foreach ( $columns as $key => $label ) {
-				$comparison_columns[ ReportDataFetcher::COMPARISON_INDEX_PREFIX . $key ] = $label . ' (' . __( 'Previous Period', 'woocommerce-analytics' ) . ')';
+				$comparison_columns[ ReportDataFetcher::COMPARISON_INDEX_PREFIX . $key ] = $label . ' (' . __( 'Previous Period', 'jetpack-premium-analytics' ) . ')';
 			}
 			$columns = array_merge( $columns, $comparison_columns );
 		}

@@ -13,12 +13,11 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
-use WP_REST_Request;
 use WP_Error;
-
+use WP_REST_Request;
 
 /**
  * Data Fetcher class for retrieving report data.

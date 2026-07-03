@@ -15,8 +15,6 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\RegistrableInterface;
-
 /**
  * Interface for CSV report controllers.
  *

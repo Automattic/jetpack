@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -68,6 +68,11 @@ class Analytics {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
 
+		// Local-only test port (WOOA7S-1581): the WooCommerce Analytics CSV report export pipeline.
+		// Must register above the is_admin() gate so its REST route hooks rest_api_init (is_admin()
+		// is false during REST requests). Self-gates on WooCommerce being active + Jetpack connected.
+		Export::configure();
+
 		// Load the widget type registry: hydration routine, registry-time and
 		// runtime filters, and the registry accessors.
 		require_once __DIR__ . '/widget-types.php';
@@ -114,10 +119,6 @@ class Analytics {
 				)
 			);
 		}
-
-		// Local-only test port (WOOA7S-1581): bring over the WooCommerce Analytics CSV report
-		// export pipeline, registered only when WooCommerce is active and Jetpack is connected.
-		Export::configure();
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );

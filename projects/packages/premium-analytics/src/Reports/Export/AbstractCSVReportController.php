@@ -10,7 +10,6 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\RegistrableInterface;
 use DateTime;
 use Exception;
 
@@ -205,15 +204,15 @@ abstract class AbstractCSVReportController implements CSVReportControllerInterfa
 	 */
 	protected function get_interval_label( ?string $interval ): string {
 		$labels = array(
-			'hour'    => __( 'Hour', 'woocommerce-analytics' ),
-			'day'     => __( 'Day', 'woocommerce-analytics' ),
-			'week'    => __( 'Week', 'woocommerce-analytics' ),
-			'month'   => __( 'Month', 'woocommerce-analytics' ),
-			'quarter' => __( 'Quarter', 'woocommerce-analytics' ),
-			'year'    => __( 'Year', 'woocommerce-analytics' ),
+			'hour'    => __( 'Hour', 'jetpack-premium-analytics' ),
+			'day'     => __( 'Day', 'jetpack-premium-analytics' ),
+			'week'    => __( 'Week', 'jetpack-premium-analytics' ),
+			'month'   => __( 'Month', 'jetpack-premium-analytics' ),
+			'quarter' => __( 'Quarter', 'jetpack-premium-analytics' ),
+			'year'    => __( 'Year', 'jetpack-premium-analytics' ),
 		);
 
-		return $labels[ $interval ] ?? __( 'Date', 'woocommerce-analytics' );
+		return $labels[ $interval ] ?? __( 'Date', 'jetpack-premium-analytics' );
 	}
 
 	/**

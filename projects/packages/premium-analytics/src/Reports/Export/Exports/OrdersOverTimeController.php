@@ -34,7 +34,7 @@ class OrdersOverTimeController extends AbstractCSVReportController {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Orders Over Time', 'woocommerce-analytics' );
+		return __( 'Orders Over Time', 'jetpack-premium-analytics' );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class OrdersOverTimeController extends AbstractCSVReportController {
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval' => $this->get_interval_label( $interval ),
-			'orders_no'     => __( 'Orders', 'woocommerce-analytics' ),
+			'orders_no'     => __( 'Orders', 'jetpack-premium-analytics' ),
 		);
 	}
 

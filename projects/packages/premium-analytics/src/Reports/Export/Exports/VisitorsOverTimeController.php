@@ -39,7 +39,7 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Visitors Over Time', 'woocommerce-analytics' );
+		return __( 'Visitors Over Time', 'jetpack-premium-analytics' );
 	}
 
 	/**
@@ -59,8 +59,8 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 	 */
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
-			'time_interval' => __( 'Day', 'woocommerce-analytics' ),
-			'visitors'      => __( 'Visitors', 'woocommerce-analytics' ),
+			'time_interval' => __( 'Day', 'jetpack-premium-analytics' ),
+			'visitors'      => __( 'Visitors', 'jetpack-premium-analytics' ),
 		);
 	}
 

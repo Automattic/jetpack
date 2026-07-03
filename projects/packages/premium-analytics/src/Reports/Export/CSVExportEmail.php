@@ -13,10 +13,9 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\RegistrableInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
 
 /**
  * Include WC_Email dependencies if not already loaded.
@@ -75,8 +74,8 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 	 */
 	public function __construct( ?LoggerInterface $logger = null ) {
 		$this->id             = 'csv_export_ready';
-		$this->title          = __( 'CSV Export Ready', 'woocommerce-analytics' );
-		$this->description    = __( 'Email sent when a CSV export is ready for download.', 'woocommerce-analytics' );
+		$this->title          = __( 'CSV Export Ready', 'jetpack-premium-analytics' );
+		$this->description    = __( 'Email sent when a CSV export is ready for download.', 'jetpack-premium-analytics' );
 		$this->template_html  = 'csv-export-email.php';
 		$this->template_plain = 'csv-export-email-plain.php';
 		$this->template_base  = __DIR__ . '/templates/';
@@ -119,7 +118,7 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 	 * @return string
 	 */
 	public function get_default_subject(): string {
-		return __( 'Your export is ready!', 'woocommerce-analytics' );
+		return __( 'Your export is ready!', 'jetpack-premium-analytics' );
 	}
 
 	/**
@@ -128,7 +127,7 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 	 * @return string
 	 */
 	public function get_default_heading(): string {
-		return __( 'Your export is ready!', 'woocommerce-analytics' );
+		return __( 'Your export is ready!', 'jetpack-premium-analytics' );
 	}
 
 	/**
@@ -140,7 +139,7 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 		if ( ! empty( $this->report_label ) ) {
 			return sprintf(
 				/* translators: %s: Report name */
-				__( 'Your %s export is ready!', 'woocommerce-analytics' ),
+				__( 'Your %s export is ready!', 'jetpack-premium-analytics' ),
 				$this->report_label
 			);
 		}
@@ -156,7 +155,7 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 		if ( ! empty( $this->report_label ) ) {
 			return sprintf(
 				/* translators: %s: Report name */
-				__( 'Your %s export is ready!', 'woocommerce-analytics' ),
+				__( 'Your %s export is ready!', 'jetpack-premium-analytics' ),
 				$this->report_label
 			);
 		}
@@ -282,7 +281,7 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 
 		return sprintf(
 			/* translators: 1: Start date, 2: End date */
-			__( '%1$s to %2$s', 'woocommerce-analytics' ),
+			__( '%1$s to %2$s', 'jetpack-premium-analytics' ),
 			$from,
 			$to
 		);
