@@ -1,3 +1,4 @@
+import { decodeEntities } from '@wordpress/html-entities';
 import { safeParseFloat } from '../../utils/parsing';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
 import type { StatsRecord } from './types';
@@ -81,7 +82,8 @@ export function sanitizeStatsLatestPostResponse( response: unknown ): StatsLates
 
 	return {
 		id,
-		title: typeof title.rendered === 'string' ? title.rendered : '',
+		// `title.rendered` from core is HTML (encoded entities); decode for display.
+		title: typeof title.rendered === 'string' ? decodeEntities( title.rendered ) : '',
 		url: typeof post.link === 'string' ? post.link : '',
 		date: typeof post.date === 'string' ? post.date : '',
 		imageUrl: pickFeaturedImageUrl( media ),

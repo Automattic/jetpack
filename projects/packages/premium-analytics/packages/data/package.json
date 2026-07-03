@@ -16,6 +16,7 @@
 		"@wordpress/api-fetch": "7.50.0",
 		"@wordpress/core-data": "7.50.0",
 		"@wordpress/data": "10.50.0",
+		"@wordpress/html-entities": "4.50.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/url": "4.50.0",
 		"date-fns": "4.1.0"

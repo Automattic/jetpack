@@ -36,6 +36,19 @@ describe( 'Stats latest post normalizer', () => {
 		} );
 	} );
 
+	it( 'decodes HTML entities in the title', () => {
+		const result = sanitizeStatsLatestPostResponse( [
+			{
+				id: 5,
+				title: { rendered: 'Tips &amp; tricks for &#8220;fast&#8221; sites' },
+				link: 'https://example.com/tips/',
+				date: '2026-06-22T10:00:00',
+			},
+		] );
+
+		expect( result?.title ).toBe( 'Tips & tricks for “fast” sites' );
+	} );
+
 	it( 'defaults missing strings and image without dropping the post', () => {
 		expect( sanitizeStatsLatestPostResponse( [ { id: 1 } ] ) ).toEqual( {
 			id: 1,
