@@ -51,7 +51,6 @@ export type {
 export type {
 	StatsLatestPost,
 	StatsLatestPostRawItem,
-	StatsLatestPostRawResponse,
 	StatsLatestPostResponse,
 } from './latest-post';
 export type { StatsReferrersItem } from './referrers';

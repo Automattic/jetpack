@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Latest post widget: read post content locally from core so it resolves on private sites, and source views, likes, and comments from the Stats post endpoint.

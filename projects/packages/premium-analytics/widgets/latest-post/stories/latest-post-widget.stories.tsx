@@ -3,12 +3,11 @@
  * period: the `WithComparison` story passes comparison `reportParams` but
  * renders identically to `Default`.
  *
- * The widget fetches the public WPCOM posts endpoint directly (plain `fetch`,
- * no proxy), so the stories seed `window.JetpackScriptData` with a blog ID (to
- * enable the query) and stub `window.fetch` for that URL. Views still come from
- * the proxied `stats/post` endpoint, covered by an `apiFetch` middleware that
- * runs before the shared report mocks so it resolves to real counts instead of
- * their empty-stats fallback.
+ * The widget reads its content locally from the core `/wp/v2/posts` endpoint and
+ * its metrics (views, likes, comments) from the proxied `stats/post` endpoint,
+ * both covered here by an `apiFetch` middleware that runs before the shared
+ * report mocks so they resolve to real values instead of the empty-stats
+ * fallback.
  */
 /**
  * External dependencies
@@ -34,49 +33,26 @@ import type { ComponentType } from 'react';
 
 registerReportMocks();
 
-const MOCK_BLOG_ID = 20115252;
+const LATEST_POST_PATH = '/wp/v2/posts';
 const STATS_POST_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/post/';
 
-const mockLatestPostResponse = {
-	found: 12,
-	posts: [
-		{
-			ID: 779,
-			title: 'Ten things I learned building my first WordPress theme',
-			URL: 'https://example.com/2026/06/22/ten-things-i-learned/',
-			date: '2026-06-22T10:00:00+00:00',
-			like_count: 24,
-			discussion: { comment_count: 8 },
-		},
-	],
-};
+const mockLatestPostResponse = [
+	{
+		id: 779,
+		title: { rendered: 'Ten things I learned building my first WordPress theme' },
+		link: 'https://example.com/2026/06/22/ten-things-i-learned/',
+		date: '2026-06-22T10:00:00',
+	},
+];
 
-const mockPostViewsResponse = { views: 3820 };
+const mockPostStatsResponse = { views: 3820, like_count: 24, post: { comment_count: 8 } };
 
 let latestPostMocksRegistered = false;
 
 /**
- * Reads the URL out of a `fetch` argument, which may be a string, a `URL`, or a
- * `Request`.
- *
- * @param input - The first argument passed to `fetch`.
- * @return The request URL as a string.
- */
-function fetchInputToUrl( input: RequestInfo | URL ): string {
-	if ( typeof input === 'string' ) {
-		return input;
-	}
-	if ( input instanceof URL ) {
-		return input.href;
-	}
-	return input.url;
-}
-
-/**
- * Wires up the story mocks: seeds the connection data the latest-post query
- * reads for the blog ID, stubs `window.fetch` for the public posts endpoint,
- * and registers an `apiFetch` middleware for the proxied `stats/post` views
- * request. Idempotent.
+ * Registers an `apiFetch` middleware that resolves the widget's two requests:
+ * the local core posts endpoint (content) and the proxied `stats/post` endpoint
+ * (views, likes, comments). Idempotent.
  */
 function registerLatestPostMocks(): void {
 	if ( latestPostMocksRegistered ) {
@@ -84,32 +60,15 @@ function registerLatestPostMocks(): void {
 	}
 	latestPostMocksRegistered = true;
 
-	// Storybook has no WordPress boot, so seed the connection data getSiteData()
-	// reads; without a blog ID the latest-post query stays disabled.
-	( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
-		site: { wpcom: { blog_id: MOCK_BLOG_ID } },
-		user: { current_user: {} },
-	};
-
-	const originalFetch = window.fetch.bind( window );
-	window.fetch = ( input: RequestInfo | URL, init?: RequestInit ) => {
-		if ( fetchInputToUrl( input ).includes( `/sites/${ MOCK_BLOG_ID }/posts/` ) ) {
-			return Promise.resolve(
-				new Response( JSON.stringify( mockLatestPostResponse ), {
-					status: 200,
-					headers: { 'Content-Type': 'application/json' },
-				} )
-			);
-		}
-
-		return originalFetch( input, init );
-	};
-
 	const middleware: APIFetchMiddleware = ( options: APIFetchOptions, next ) => {
 		const path = options.path ?? options.url ?? '';
 
 		if ( path.startsWith( STATS_POST_PATH ) ) {
-			return Promise.resolve( mockPostViewsResponse );
+			return Promise.resolve( mockPostStatsResponse );
+		}
+
+		if ( path.startsWith( LATEST_POST_PATH ) ) {
+			return Promise.resolve( mockLatestPostResponse );
 		}
 
 		return next( options );

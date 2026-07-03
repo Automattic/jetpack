@@ -1,24 +1,15 @@
 import { safeParseFloat } from '../../utils/parsing';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
 
-type StatsLatestPostRawNumeric = number | string;
-
-type StatsLatestPostRawDiscussion = {
-	comment_count?: StatsLatestPostRawNumeric;
+type StatsLatestPostRawTitle = {
+	rendered?: string;
 };
 
 export type StatsLatestPostRawItem = {
-	ID?: StatsLatestPostRawNumeric;
-	title?: string;
-	URL?: string;
+	id?: number | string;
+	title?: StatsLatestPostRawTitle;
+	link?: string;
 	date?: string;
-	like_count?: StatsLatestPostRawNumeric;
-	discussion?: StatsLatestPostRawDiscussion;
-};
-
-export type StatsLatestPostRawResponse = {
-	found?: number;
-	posts?: StatsLatestPostRawItem[];
 };
 
 export type StatsLatestPost = {
@@ -26,39 +17,37 @@ export type StatsLatestPost = {
 	title: string;
 	url: string;
 	date: string;
-	likeCount: number;
-	commentCount: number;
 };
 
 export type StatsLatestPostResponse = StatsLatestPost | null;
 
 /**
- * Reduce a WPCOM posts-list response (`{ found, posts: [...] }`) to the first
- * post's headline fields. Returns null when the site has no posts, so callers
- * can treat "no latest post" distinctly from a zeroed-out post.
+ * Reduce a core `/wp/v2/posts` response (an array of posts) to the first post's
+ * headline fields. Content is read locally so it resolves regardless of site
+ * privacy; the post's views, likes, and comments come from the Stats post
+ * endpoint. Returns null when the site has no published post.
  *
- * @param response - Raw posts-list payload from the public WPCOM posts endpoint.
+ * @param response - Raw payload from the core posts endpoint.
  * @return The normalized latest post, or null when none is present.
  */
 export function sanitizeStatsLatestPostResponse( response: unknown ): StatsLatestPostResponse {
-	if ( ! isStatsRecord( response ) ) {
-		return null;
-	}
-
-	const [ first ] = coerceStatsArray( coerceStatsRecord( response ).posts );
+	const [ first ] = coerceStatsArray( response );
 	if ( ! isStatsRecord( first ) ) {
 		return null;
 	}
 
 	const post = coerceStatsRecord( first );
-	const discussion = coerceStatsRecord( post.discussion );
+	const id = safeParseFloat( post.id );
+	if ( id <= 0 ) {
+		return null;
+	}
+
+	const title = coerceStatsRecord( post.title );
 
 	return {
-		id: safeParseFloat( post.ID ),
-		title: typeof post.title === 'string' ? post.title : '',
-		url: typeof post.URL === 'string' ? post.URL : '',
+		id,
+		title: typeof title.rendered === 'string' ? title.rendered : '',
+		url: typeof post.link === 'string' ? post.link : '',
 		date: typeof post.date === 'string' ? post.date : '',
-		likeCount: safeParseFloat( post.like_count ),
-		commentCount: safeParseFloat( discussion.comment_count ),
 	};
 }
