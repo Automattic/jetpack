@@ -43,8 +43,9 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 	}
 
 	public function test_bootstrap_is_safe_to_run_twice() {
-		WooCommerce_Analytics_Tracker::bootstrap();
-		WooCommerce_Analytics_Tracker::bootstrap();
+		for ( $i = 0; $i < 2; $i++ ) {
+			WooCommerce_Analytics_Tracker::bootstrap();
+		}
 
 		// Filters still resolve to true; the modern pipeline stays enabled and no
 		// error is raised by the second run.
