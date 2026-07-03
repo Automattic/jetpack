@@ -182,14 +182,13 @@ class Configuration {
 	 * Jetpack Connection configuration.
 	 *
 	 * Registers Premium Analytics as a connected plugin so WPCom provisions the WC Analytics tables.
-	 * Slug must be the literal 'premium-analytics' to match the WPCom gate (not the
-	 * 'jetpack-premium-analytics' JETPACK_PREMIUM_ANALYTICS_SLUG).
+	 * The slug must match the WPCom provisioning gate (WOOA7S-1643).
 	 *
 	 * @return array Jetpack Connection config array.
 	 */
 	private function get_jetpack_connection_config(): array {
 		return array(
-			'slug' => 'premium-analytics',
+			'slug' => defined( 'JETPACK_PREMIUM_ANALYTICS_SLUG' ) ? JETPACK_PREMIUM_ANALYTICS_SLUG : 'jetpack-premium-analytics',
 			'name' => defined( 'JETPACK_PREMIUM_ANALYTICS_NAME' ) ? JETPACK_PREMIUM_ANALYTICS_NAME : 'Premium Analytics',
 		);
 	}
