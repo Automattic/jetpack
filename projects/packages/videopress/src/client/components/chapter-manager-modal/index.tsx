@@ -281,6 +281,14 @@ function ChapterManagerModalInner( {
 	}, [ chaptersTrack, isOverwriteSafe, performSave ] );
 
 	const handleRequestClose = useCallback( () => {
+		/*
+		 * An in-flight save must finish before the modal can close: its
+		 * continuation reports the saved result to the host, which a discard
+		 * here would contradict.
+		 */
+		if ( isSaving ) {
+			return;
+		}
 		if ( ! hasUnsavedChapterEdits( workspace ) ) {
 			onClose();
 			return;
@@ -290,7 +298,7 @@ function ChapterManagerModalInner( {
 			confirmLabel: __( 'Discard', 'jetpack-videopress-pkg' ),
 			onConfirm: onClose,
 		} );
-	}, [ onClose, workspace ] );
+	}, [ isSaving, onClose, workspace ] );
 
 	/*
 	 * Escape is handled here, before the Modal's own handler: the Modal plays

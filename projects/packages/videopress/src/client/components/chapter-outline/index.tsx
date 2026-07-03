@@ -45,8 +45,9 @@ export default function ChapterOutline( { description }: ChapterOutlineProps ): 
 
 	return (
 		<ul className="videopress-chapter-outline">
-			{ chapters.map( chapter => (
-				<li key={ `${ chapter.startAt }-${ chapter.title }` }>
+			{ /* Index keys are safe here: the list is read-only and fully derived from the description. */ }
+			{ chapters.map( ( chapter, index ) => (
+				<li key={ index }>
 					<span className="videopress-chapter-outline__time">
 						{ formatChapterTime( chapterStartAtToSeconds( chapter.startAt ) ) }
 					</span>

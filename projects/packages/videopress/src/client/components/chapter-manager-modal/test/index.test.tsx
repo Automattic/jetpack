@@ -299,4 +299,23 @@ describe( 'ChapterManagerModal', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Close dialog' } ) );
 		expect( onClose ).toHaveBeenCalled();
 	} );
+
+	it( 'cannot be closed while a save is in flight', async () => {
+		let resolveUpload: ( value: { src: string } ) => void;
+		mockUploadTrackForGuid.mockImplementation(
+			() => new Promise( resolve => ( resolveUpload = resolve ) )
+		);
+		const { onClose, onSaved } = renderModal();
+
+		await userEvent.type( screen.getAllByLabelText( 'Title' )[ 0 ], '!' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Save chapters' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Close dialog' } ) );
+
+		expect( onClose ).not.toHaveBeenCalled();
+		expect( screen.queryByText( 'Discard unsaved chapter changes?' ) ).not.toBeInTheDocument();
+
+		resolveUpload( { src: 'chapters.vtt' } );
+		await waitFor( () => expect( onSaved ).toHaveBeenCalled() );
+		expect( onClose ).toHaveBeenCalled();
+	} );
 } );
