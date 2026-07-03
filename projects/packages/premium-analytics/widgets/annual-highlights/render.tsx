@@ -14,7 +14,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { arrowLeft, arrowRight, comment, paragraph, postList, starEmpty } from '@wordpress/icons';
-import { Button, Icon, Link, Text } from '@wordpress/ui';
+import { Button, Icon, Text } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -54,16 +54,20 @@ function AnnualHighlightsReport() {
 	const years = useMemo( () => sortYearsDescending( data ), [ data ] );
 	const [ selectedIndex, setSelectedIndex ] = useState( 0 );
 
+	// Navigate relative to the clamped index, not the raw state: if the payload
+	// shrinks while an older year is selected, the stored index can outrun the
+	// array, and stepping from the raw value would take several clicks to move.
+	const safeIndex = years.length ? Math.min( selectedIndex, years.length - 1 ) : 0;
+
 	const showOlderYear = useCallback(
-		() => setSelectedIndex( index => Math.min( index + 1, years.length - 1 ) ),
-		[ years.length ]
+		() => setSelectedIndex( Math.min( safeIndex + 1, years.length - 1 ) ),
+		[ safeIndex, years.length ]
 	);
 	const showNewerYear = useCallback(
-		() => setSelectedIndex( index => Math.max( index - 1, 0 ) ),
-		[]
+		() => setSelectedIndex( Math.max( safeIndex - 1, 0 ) ),
+		[ safeIndex ]
 	);
 
-	const safeIndex = years.length ? Math.min( selectedIndex, years.length - 1 ) : 0;
 	const year = years[ safeIndex ];
 
 	if ( isError ) {
@@ -136,9 +140,9 @@ function AnnualHighlightsReport() {
 								year.year
 							) }
 						</h3>
-						<Link className={ styles.insightsLink } tone="neutral">
+						<Text className={ styles.insightsLink }>
 							{ __( 'View all annual insights', 'jetpack-premium-analytics' ) }
-						</Link>
+						</Text>
 					</div>
 					<Text className={ styles.subtitle }>
 						{ __( 'Updates every 30 minutes', 'jetpack-premium-analytics' ) }
