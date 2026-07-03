@@ -33,6 +33,11 @@ const DASHBOARD_LAYOUT_SCOPE = 'jetpack-premium-analytics/dashboard';
 const DASHBOARD_LAYOUT_KEY = 'dashboardLayout';
 
 /**
+ * Preferences key under DASHBOARD_LAYOUT_SCOPE that holds per-section layouts.
+ */
+const DASHBOARD_SECTION_LAYOUTS_KEY = 'dashboardSectionLayouts';
+
+/**
  * Identifier of the Premium Analytics dashboard, formatted as `<plugin>_<page>`
  * to match the underscore form produced by the wp-build pipeline. Used as the
  * `{name}` segment of the REST route and as the seed filter's target.
