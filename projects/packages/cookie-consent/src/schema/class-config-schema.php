@@ -223,10 +223,16 @@ final class Config_Schema {
 		// falling back to the default whenever a value is missing or fails validation.
 		$features = self::resolve_group( $config['features'] ?? array(), $defaults['features'], $properties['features']['properties'] );
 		$geo      = self::resolve_geo( $config, $defaults['geo'] );
-		// `log` predates schema-level validation: Cookie_Consent::get_log_versions() already
-		// coerces and diagnoses its scalar values (including non-string overrides) downstream,
-		// so this merges rather than rejects to keep that existing, more permissive contract.
-		$log = isset( $config['log'] ) && is_array( $config['log'] ) ? array_merge( $defaults['log'], $config['log'] ) : $defaults['log'];
+		// `log` is merged rather than resolved wholesale because `policy_version`/`banner_version`
+		// keep a deliberately permissive contract: Cookie_Consent::get_log_versions() coerces and
+		// diagnoses their scalar values (including non-string overrides) downstream. The two fields
+		// that DO carry a strict schema — `ip_mode` (enum) and `retention_days` (integer) — are
+		// validated here so a resolved config is schema-valid for them and the filter re-resolve
+		// re-sanitizes an injected value rather than trusting it verbatim.
+		$log                   = isset( $config['log'] ) && is_array( $config['log'] ) ? array_merge( $defaults['log'], $config['log'] ) : $defaults['log'];
+		$log_properties        = $properties['log']['properties'];
+		$log['ip_mode']        = self::resolve_scalar( $log, 'ip_mode', $defaults['log']['ip_mode'], $log_properties['ip_mode'] );
+		$log['retention_days'] = self::resolve_scalar( $log, 'retention_days', $defaults['log']['retention_days'], $log_properties['retention_days'] );
 
 		$resolved = array(
 			'enabled'         => self::resolve_scalar( $config, 'enabled', $defaults['enabled'], $properties['enabled'] ),

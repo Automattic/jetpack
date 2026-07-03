@@ -359,6 +359,21 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Whether the CCPA "Your Privacy Choices" footer link should be surfaced.
+	 *
+	 * The opt-out page must be published AND the `ccpa_page` feature on. The link's
+	 * region-gating interactivity directives (add_ccpa_interactivity_directives), its
+	 * page-list exclusion (exclude_ccpa_from_get_pages), and the trashed-page 404 guard
+	 * are all registered only inside init()'s ccpa_page branch, so injecting the link
+	 * while that feature is off would render an unguarded, always-visible dead link.
+	 *
+	 * @return bool
+	 */
+	private static function ccpa_footer_link_enabled() {
+		return self::ccpa_page_is_published() && ! empty( self::get_config()['features']['ccpa_page'] );
+	}
+
+	/**
 	 * Whether the site's Privacy Policy page exists and is published.
 	 *
 	 * Mirrors ccpa_page_is_published(): a trashed page still resolves via
@@ -458,8 +473,9 @@ class Cookie_Consent {
 			$privacy_policy_exists = true;
 		}
 
-		// Check CCPA page (must be published — a trashed page still resolves).
-		if ( self::ccpa_page_is_published() ) {
+		// Check CCPA page (must be published — a trashed page still resolves — and the
+		// ccpa_page feature on, which owns the link's directives and page-list exclusion).
+		if ( self::ccpa_footer_link_enabled() ) {
 			$ccpa_page_exists = true;
 		}
 
@@ -503,7 +519,7 @@ class Cookie_Consent {
 		$privacy_policy_page_id = (int) get_option( 'wp_page_for_privacy_policy' );
 		$privacy_policy_exists  = self::privacy_policy_is_published();
 
-		$ccpa_page_exists = self::ccpa_page_is_published();
+		$ccpa_page_exists = self::ccpa_footer_link_enabled();
 		$ccpa_page_id     = get_option( self::CCPA_PAGE_ID_OPTION );
 
 		// Process Privacy Policy first (if it exists and hasn't been processed).

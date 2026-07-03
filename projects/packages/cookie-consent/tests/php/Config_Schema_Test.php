@@ -172,6 +172,35 @@ class Config_Schema_Test extends TestCase {
 	}
 
 	/**
+	 * `log.ip_mode` carries a strict enum, so an unknown value resolves to the schema
+	 * default rather than passing through verbatim. This keeps the filter re-resolve a
+	 * real safety net for the field, not a no-op.
+	 */
+	public function test_resolve_validates_log_ip_mode_enum() {
+		$this->assertSame( 'hash', Config_Schema::resolve( array( 'log' => array( 'ip_mode' => 'hash' ) ) )['log']['ip_mode'] );
+		$this->assertSame( 'drop', Config_Schema::resolve( array( 'log' => array( 'ip_mode' => 'bogus' ) ) )['log']['ip_mode'] );
+	}
+
+	/**
+	 * `log.retention_days` is coerced to an integer; a non-numeric value falls back to the
+	 * schema default instead of being emitted as a raw string.
+	 */
+	public function test_resolve_coerces_log_retention_days() {
+		$this->assertSame( 45, Config_Schema::resolve( array( 'log' => array( 'retention_days' => '45' ) ) )['log']['retention_days'] );
+		$this->assertSame( 30, Config_Schema::resolve( array( 'log' => array( 'retention_days' => 'nope' ) ) )['log']['retention_days'] );
+	}
+
+	/**
+	 * `log.policy_version`/`banner_version` stay deliberately permissive — resolve() passes
+	 * them through unchanged for Cookie_Consent::get_log_versions() to coerce downstream.
+	 */
+	public function test_resolve_keeps_log_versions_permissive() {
+		$config = Config_Schema::resolve( array( 'log' => array( 'policy_version' => 'policy-2026-06' ) ) );
+
+		$this->assertSame( 'policy-2026-06', $config['log']['policy_version'] );
+	}
+
+	/**
 	 * A single resolve() derives `consent.categories` from the resolved `copy`, not the
 	 * pristine default, when the caller doesn't supply its own categories. This guards the
 	 * single-pass contract only; it does not exercise a re-resolve of an already-resolved
