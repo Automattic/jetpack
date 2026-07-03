@@ -63,3 +63,7 @@ export {
 } from './customers';
 
 export { mockSearchTermsData, mockSearchTermsComparisonData } from './search-terms';
+
+export { mockSiteSummary } from './site-summary';
+
+export { mockStatsInsightsData } from './insights';

@@ -13,8 +13,10 @@ export {
 	type MetricTabDatum,
 	type MetricTabsChartProps,
 	WidgetRoot,
+	WidgetRootContext,
 	useWidgetRootContext,
 	type DonutChartData,
+	type WidgetRootContextValue,
 	type LegendItem,
 	type SeriesStyle,
 	LeaderboardChart,
@@ -31,6 +33,8 @@ export {
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
+	SemiCircleChart,
+	type SemiCircleChartData,
 } from './components';
 
 /**
@@ -65,7 +69,9 @@ export {
 	PAYMENT_STATUS_FILTERS,
 	buildPaymentStatusData,
 	type PaymentStatusData,
+	buildSalesByUtmData,
 	formatLegendLabels,
+	formatDisplayLabel,
 } from './helpers';
 
 /**
@@ -74,10 +80,10 @@ export {
 export {
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useSegmentStyles,
 	useSeriesStyles,
 	useWidgetError,
 } from './hooks';
-export { useSegmentStyles } from './widgets/common';
 
 /**
  * Widget components
@@ -98,6 +104,7 @@ export {
 	TotalReturnsWidget,
 	VisitorsByLocationWidget,
 	SalesByDeviceWidget,
+	SalesByUtmWidget,
 	SessionsByDeviceWidget,
 	TopPerformingProductLeaderboardWidget,
 	type TopPerformingProductLeaderboardWidgetProps,

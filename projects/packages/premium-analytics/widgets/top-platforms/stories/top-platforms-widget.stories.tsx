@@ -1,0 +1,121 @@
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import {
+	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
+	widgetDashboardWithWidgetArgTypes,
+	type WidgetDashboardWithWidgetControls,
+} from '../../stories/widget-dashboard-with-widget';
+import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
+import TopPlatformsRender from '../render';
+import widgetDefinition from '../widget';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps, ComponentType } from 'react';
+
+registerReportMocks();
+registerStatsMocks();
+
+const TOP_PLATFORMS_RENDER_MODULE = 'storybook/top-platforms';
+
+const storyWidgetType = {
+	name: widgetDefinition.name,
+	title: widgetDefinition.title,
+	icon: widgetDefinition.icon,
+	presentation: 'full-bleed' as const,
+};
+
+interface TopPlatformsStoryControls {
+	withComparison: boolean;
+}
+
+interface TopPlatformsDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		TopPlatformsStoryControls {}
+
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', height: '300px' } }>
+		<Story />
+	</div>
+);
+
+function renderTopPlatformsWidget( { withComparison }: TopPlatformsStoryControls ) {
+	return (
+		<TopPlatformsRender
+			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			showTitle={ false }
+		/>
+	);
+}
+
+function TopPlatformsDashboardRender( props: WidgetRenderProps< unknown > ) {
+	return <TopPlatformsRender { ...( props as ComponentProps< typeof TopPlatformsRender > ) } />;
+}
+
+function TopPlatformsDashboardStory( {
+	withComparison,
+	...dashboardArgs
+}: TopPlatformsDashboardStoryProps ) {
+	return (
+		<WidgetDashboardWithWidgetStory
+			{ ...dashboardArgs }
+			widgetType={ storyWidgetType }
+			renderModule={ TOP_PLATFORMS_RENDER_MODULE }
+			renderComponent={
+				TopPlatformsDashboardRender as ComponentType< WidgetRenderProps< unknown > >
+			}
+			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+		/>
+	);
+}
+
+const meta = {
+	title: 'Packages/Premium Analytics/Widgets/TopPlatforms',
+	component: TopPlatformsRender,
+	tags: [ 'autodocs' ],
+	argTypes: {
+		withComparison: {
+			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				component:
+					'The "Top Platforms" widget. Shows browser and OS breakdown as a ranked leaderboard. The active dimension (Browser / OS) is switched via a runtime dropdown in the widget header.',
+			},
+		},
+	},
+} satisfies Meta< TopPlatformsStoryControls >;
+
+export default meta;
+
+type DashboardStory = StoryObj< TopPlatformsDashboardStoryProps >;
+
+export const Default: StoryObj< TopPlatformsStoryControls > = {
+	render: renderTopPlatformsWidget,
+	args: { withComparison: false },
+	decorators: [ withWidgetCanvas ],
+};
+
+export const WithComparison: StoryObj< TopPlatformsStoryControls > = {
+	render: renderTopPlatformsWidget,
+	args: { withComparison: true },
+	decorators: [ withWidgetCanvas ],
+};
+
+export const WidgetDashboardWithWidget: DashboardStory = {
+	render: args => <TopPlatformsDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		withComparison: true,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+		withComparison: {
+			control: 'boolean',
+			description: 'Include previous-period comparison report params.',
+		},
+	},
+};

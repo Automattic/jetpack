@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: default the post access level to "everybody" when the stored meta is not a string, and sanitize non-string writes, so corrupt values can no longer cause a fatal error when rendering a post.

@@ -29,6 +29,7 @@ export type StatsItemAction = {
 
 export type StatsNormalizedItem =
 	| StatsTopPostsItem
+	| StatsDevicesItem
 	| StatsReferrersItem
 	| StatsClicksItem
 	| StatsSearchTermsItem

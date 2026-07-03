@@ -1,0 +1,6 @@
+{
+	"name": "jpa/top-performing-products",
+	"title": "Top performing products",
+	"description": "Shows the top products by net revenue over the selected time period.",
+	"category": "store"
+}

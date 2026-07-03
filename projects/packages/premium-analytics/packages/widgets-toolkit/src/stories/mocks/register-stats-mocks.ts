@@ -608,6 +608,92 @@ const REGION_COMPARISON_ROWS_BY_COUNTRY: Record< string, StatsLocationItem[] > =
 	],
 };
 
+const MOCK_DEVICES_SCREENSIZE = {
+	date: '2026-06-29',
+	period: 'day',
+	top_values: {
+		desktop: 57.8,
+		mobile: 37,
+		tablet: 5.2,
+	},
+};
+
+const MOCK_DEVICES_SCREENSIZE_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	top_values: {
+		desktop: 52.3,
+		mobile: 41.6,
+		tablet: 6.1,
+	},
+};
+
+const MOCK_DEVICES_BROWSER = {
+	date: '2026-06-29',
+	period: 'day',
+	top_values: {
+		chrome: 29451,
+		safari: 3407,
+		other: 2721,
+		edge: 1823,
+		firefox: 1444,
+		opera: 169,
+		samsung: 125,
+		ie: 49,
+		yandex: 36,
+		miui: 14,
+	},
+};
+
+const MOCK_DEVICES_BROWSER_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	top_values: {
+		chrome: 27000,
+		safari: 3800,
+		other: 2500,
+		edge: 1600,
+		firefox: 1500,
+		opera: 180,
+		samsung: 118,
+		ie: 60,
+		yandex: 30,
+		miui: 20,
+	},
+};
+
+const MOCK_DEVICES_PLATFORM = {
+	date: '2026-06-29',
+	period: 'day',
+	top_values: {
+		windows: 22589,
+		mac: 5981,
+		android: 3140,
+		linux: 2720,
+		other: 2376,
+		iphone: 2095,
+		chrome: 149,
+		ipad: 128,
+		android_tablet: 74,
+	},
+};
+
+const MOCK_DEVICES_PLATFORM_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	top_values: {
+		windows: 21000,
+		mac: 6300,
+		android: 2800,
+		linux: 2500,
+		other: 2300,
+		iphone: 2400,
+		chrome: 130,
+		ipad: 140,
+		android_tablet: 66,
+	},
+};
+
 // Heuristic: a request whose `date` param is more than 1 day ago is treated as the
 // comparison-period request. This works for the default `last-30-days` preset (primary
 // date ~= today, comparison date ~= 30 days ago). It would misclassify a `today` preset
@@ -714,6 +800,16 @@ function getStatsMock( path: string ): unknown | null {
 		}
 
 		return { top_utm_values: {}, top_posts: {} };
+	}
+
+	if ( subPath.startsWith( '/devices/screensize' ) ) {
+		return isComparison ? MOCK_DEVICES_SCREENSIZE_COMPARISON : MOCK_DEVICES_SCREENSIZE;
+	}
+	if ( subPath.startsWith( '/devices/browser' ) ) {
+		return isComparison ? MOCK_DEVICES_BROWSER_COMPARISON : MOCK_DEVICES_BROWSER;
+	}
+	if ( subPath.startsWith( '/devices/client_type' ) || subPath.startsWith( '/devices/platform' ) ) {
+		return isComparison ? MOCK_DEVICES_PLATFORM_COMPARISON : MOCK_DEVICES_PLATFORM;
 	}
 
 	return null;

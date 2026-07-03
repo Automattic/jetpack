@@ -10,7 +10,7 @@
 		"@wordpress/widget-primitives": "next"
 	},
 	"devDependencies": {
-		"@wordpress/element": "8.1.0",
+		"@wordpress/element": "8.2.0",
 		"@wordpress/widget-dashboard": "next"
 	}
 }
