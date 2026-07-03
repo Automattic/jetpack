@@ -6,10 +6,11 @@ import {
 	type StatsInsightsResponse,
 	type StatsInsightsYear,
 } from '@jetpack-premium-analytics/data';
-import { formatNumberCompact } from '@automattic/number-formatters';
 import {
+	MetricWithComparison,
 	WidgetLoadingOverlay,
 	WidgetRoot,
+	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
@@ -28,6 +29,11 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 // boundary (and Storybook may inject them) so the host contract holds.
 type AnnualHighlightsRenderAttributes = AnnualHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
+
+const COUNT_FORMAT: DataFormat = {
+	type: 'number',
+	options: { useMultipliers: true, decimals: 0 },
+};
 
 /**
  * Sorts the insights payload newest year first so index 0 is the most recent
@@ -131,18 +137,13 @@ function AnnualHighlightsReport() {
 	return (
 		<div className={ styles.root }>
 			<div className={ styles.header }>
-				<div className={ styles.headerMain }>
-					<h3 className={ styles.title }>
-						{ sprintf(
-							/* translators: %s is a calendar year, e.g. "2026". */
-							__( '%s in review', 'jetpack-premium-analytics' ),
-							year.year
-						) }
-					</h3>
-					<Text className={ styles.subtitle }>
-						{ __( 'Updates every 30 minutes', 'jetpack-premium-analytics' ) }
-					</Text>
-				</div>
+				<Text variant="heading-md" render={ <h3 /> } className={ styles.title }>
+					{ sprintf(
+						/* translators: %s is a calendar year, e.g. "2026". */
+						__( '%s in review', 'jetpack-premium-analytics' ),
+						year.year
+					) }
+				</Text>
 				<div className={ styles.yearNav }>
 					<Button
 						type="button"
@@ -177,7 +178,7 @@ function AnnualHighlightsReport() {
 							<Icon icon={ tile.icon } size={ 24 } className={ styles.tileIcon } />
 							<Text className={ styles.tileLabel }>{ tile.label }</Text>
 						</div>
-						<span className={ styles.tileValue }>{ formatNumberCompact( tile.value ) }</span>
+						<MetricWithComparison value={ tile.value } dataFormat={ COUNT_FORMAT } fontSize="2xl" />
 					</div>
 				) ) }
 			</div>

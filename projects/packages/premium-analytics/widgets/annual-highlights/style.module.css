@@ -1,49 +1,24 @@
-@font-face {
-	font-family: Recoleta;
-	font-style: normal;
-	font-weight: 400;
-	src:
-		url(https://s1.wp.com/i/fonts/recoleta/400.woff2) format("woff2"),
-		url(https://s1.wp.com/i/fonts/recoleta/400.woff) format("woff");
-	font-display: swap;
-}
-
 .root {
 	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xl, 24px);
+	gap: var(--wpds-dimension-gap-lg, 16px);
 	height: 100%;
-	padding: var(--wpds-dimension-padding-xl, 20px);
+	padding: var(--wpds-dimension-padding-lg, 16px);
 	overflow-x: hidden;
 	overflow-y: auto;
 }
 
 .header {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	justify-content: space-between;
 	gap: var(--wpds-dimension-gap-md, 12px);
-}
-
-.headerMain {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs, 4px);
-	min-width: 0;
+	min-height: var(--wpds-dimension-size-md);
 }
 
 .title {
-	margin: 0;
-	font-family: Recoleta, "Noto Serif", Georgia, "Times New Roman", Times, serif;
-	font-size: 40px;
-	font-weight: 400;
-	line-height: 1.1;
-	color: var(--wpds-color-fg-content-neutral);
-}
-
-.subtitle {
-	color: var(--wpds-color-fg-content-neutral-weak);
+	min-width: 0;
 }
 
 .yearNav {
@@ -66,7 +41,7 @@
 .grid {
 	display: grid;
 	grid-template-columns: 1fr;
-	gap: var(--wpds-dimension-gap-md, 12px);
+	gap: var(--wpds-dimension-gap-sm, 8px);
 }
 
 .tile {
@@ -74,9 +49,9 @@
 	flex-direction: row;
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--wpds-dimension-gap-lg, 16px);
-	padding: var(--wpds-dimension-padding-lg, 16px) var(--wpds-dimension-padding-xl, 20px);
-	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	gap: var(--wpds-dimension-gap-md, 12px);
+	padding: var(--wpds-dimension-padding-md, 12px) var(--wpds-dimension-padding-lg, 16px);
+	border: var(--wpds-border-width-xs, 1px) solid var(--wpds-color-stroke-surface-neutral-weak);
 	border-radius: var(--wpds-border-radius-lg, 8px);
 }
 
@@ -84,7 +59,7 @@
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-md, 12px);
+	gap: var(--wpds-dimension-gap-sm, 8px);
 	min-width: 0;
 	color: var(--wpds-color-fg-content-neutral);
 }
@@ -94,16 +69,7 @@
 }
 
 .tileLabel {
-	font-size: var(--wpds-typography-font-size-lg, 15px);
 	color: var(--wpds-color-fg-content-neutral);
-}
-
-.tileValue {
-	font-family: Recoleta, "Noto Serif", Georgia, "Times New Roman", Times, serif;
-	font-size: 44px;
-	line-height: 1;
-	color: var(--wpds-color-fg-content-neutral);
-	white-space: nowrap;
 }
 
 .placeholder {
@@ -116,7 +82,7 @@
 }
 
 /* Wide widths: lay the tiles out four across with the value stacked below the
- * icon and label, matching the dashboard hero treatment. */
+ * icon and label. */
 @container (min-width: 640px) {
 
 	.grid {
@@ -127,7 +93,7 @@
 		flex-direction: column;
 		align-items: flex-start;
 		justify-content: flex-start;
-		gap: var(--wpds-dimension-gap-xl, 24px);
+		gap: var(--wpds-dimension-gap-lg, 16px);
 	}
 
 	.tileHeader {
