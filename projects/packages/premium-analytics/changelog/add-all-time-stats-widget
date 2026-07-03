@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Port the All-time stats dashboard widget from the Jetpack Stats all-time highlights card, composed from the widgets-toolkit and data packages.
+Add an All-time stats widget to the Analytics dashboard, showing your site's lifetime views, visitors, posts, and comments.

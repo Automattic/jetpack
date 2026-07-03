@@ -5,11 +5,11 @@ import { __ } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
 
 /**
- * The widget has no user-configurable attributes. Report params still reach it
- * through WidgetRoot: the dashboard date range, or `attributes.reportParams`
- * when a host injects them (e.g. Storybook and dashboard previews). The summary
- * itself is all-time, so those params only key the query — they do not scope the
- * totals.
+ * The widget has no user-configurable attributes, and it does not read the
+ * dashboard date range: the site summary is all-time, so `useStatsSite()` is
+ * queried without report params. Host-injected `attributes.reportParams` still
+ * flow into WidgetRoot for parity with the other Stats widgets, but they do not
+ * affect what this widget fetches or shows.
  */
 export type AllTimeStatsAttributes = Record< never, never >;
 
