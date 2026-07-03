@@ -525,6 +525,8 @@ DateStringFormats.parameters = {
 	},
 };
 
+// One metric paired with its previous-period comparison overlay, sharing a `group` so the legend
+// collapses to a single item.
 export const Comparison: StoryObj< StoryArgs > = Template.bind( {} );
 Comparison.args = {
 	...lineChartStoryArgs,
@@ -533,27 +535,71 @@ Comparison.args = {
 	data: [
 		{
 			...sampleData[ 0 ],
-			label: 'New York',
+			label: 'Views',
+			group: 'views',
 		},
 		{
 			...sampleData[ 1 ],
-			label: 'New York last year',
-			group: 'new-york',
+			label: 'Views — previous',
+			group: 'views',
+			options: {
+				type: 'comparison' as const,
+			},
+		},
+	],
+};
+Comparison.parameters = {
+	docs: {
+		description: {
+			story:
+				'A primary series paired with a `type: "comparison"` previous-period series sharing the same `group`, so the legend shows a single **Views** item.',
+		},
+	},
+};
+
+// Two metrics side by side, each with its own previous-period comparison overlay. The interactive
+// legend collapses each group to one item (Views, Visitors); clicking one toggles both of that
+// metric's series at once.
+export const ComparisonGroups: StoryObj< StoryArgs > = Template.bind( {} );
+ComparisonGroups.args = {
+	...lineChartStoryArgs,
+	showLegend: true,
+	legendInteractive: true,
+	smoothing: false,
+	data: [
+		{
+			...sampleData[ 0 ],
+			label: 'Views',
+			group: 'views',
+		},
+		{
+			...sampleData[ 1 ],
+			label: 'Views — previous',
+			group: 'views',
 			options: {
 				type: 'comparison' as const,
 			},
 		},
 		{
 			...sampleData[ 2 ],
-			label: 'Tokyo',
+			label: 'Visitors',
+			group: 'visitors',
 		},
 		{
 			...sampleData[ 3 ],
-			label: 'Tokyo last year',
-			group: 'tokyo',
+			label: 'Visitors — previous',
+			group: 'visitors',
 			options: {
 				type: 'comparison' as const,
 			},
 		},
 	],
+};
+ComparisonGroups.parameters = {
+	docs: {
+		description: {
+			story:
+				'Two groups (`views` and `visitors`), each a primary series plus its `type: "comparison"` overlay. With `legend.interactive` enabled, each group collapses to a single legend item that toggles both its current and previous-period series at once, and the value axis stays fixed as series are toggled.',
+		},
+	},
 };
