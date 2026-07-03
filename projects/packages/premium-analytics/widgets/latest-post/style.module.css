@@ -2,25 +2,33 @@
 	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
 	height: 100%;
 	overflow: hidden;
+
+	/* Offset the host card's body padding so the featured image can bleed to the
+	 * card edges. Tuned to the framed widget padding. */
+	--latest-post-frame-pad: var(--wpds-dimension-padding-2xl, 24px);
 }
 
 .content {
 	flex: 1;
+	min-width: 0;
 	min-height: 0;
 	justify-content: space-between;
 }
 
 .title {
-	display: block;
+	display: -webkit-box;
 	overflow: hidden;
-	font-size: var(--wpds-typography-font-size-lg, 16px);
-	font-weight: var(--wpds-typography-font-weight-medium, 500);
-	line-height: var(--wpds-typography-line-height-lg, 1.4);
 	color: var(--wpds-color-fg-content-neutral);
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	text-decoration: none;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+}
+
+.title:hover {
+	text-decoration: underline;
 }
 
 .date {
@@ -36,13 +44,58 @@
 }
 
 .metricLabel {
-	color: var(--wpds-color-fg-content-neutral-weak);
+	font-weight: var(--wpds-typography-font-weight-medium, 500);
+	color: var(--wpds-color-fg-content-neutral);
+}
+
+/* Featured image. Full-bleeds to the top and sides of the card by offsetting
+ * the host body padding; the image covers its box at any aspect ratio. */
+.media {
+	margin-block-start: calc(-1 * var(--latest-post-frame-pad));
+	margin-inline: calc(-1 * var(--latest-post-frame-pad));
+	overflow: hidden;
+}
+
+.image {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .placeholder {
 	margin: auto;
 	color: var(--wpds-color-fg-content-neutral-weak);
 	text-align: center;
+}
+
+/* Narrow tiles: image sits on top with a fixed banner height. */
+@container (max-width: 511px) {
+
+	.media {
+		order: -1;
+		height: 140px;
+		margin-block-end: 0;
+	}
+}
+
+/* Wide tiles: content left, image bleeds down the right side full height. */
+@container (min-width: 512px) {
+
+	.root {
+		flex-direction: row;
+	}
+
+	.content {
+		padding-block: var(--latest-post-frame-pad);
+		margin-block: calc(-1 * var(--latest-post-frame-pad));
+	}
+
+	.media {
+		flex: 0 0 42%;
+		margin-block: calc(-1 * var(--latest-post-frame-pad));
+		margin-inline: 0 calc(-1 * var(--latest-post-frame-pad));
+	}
 }
 
 /* Constrain the picker preview tile to a 4:3 aspect ratio. The picker's

@@ -17,7 +17,8 @@ const LATEST_POST_PATH = addQueryArgs( '/wp/v2/posts', {
 	status: 'publish',
 	orderby: 'date',
 	order: 'desc',
-	_fields: 'id,title,link,date',
+	_embed: 'wp:featuredmedia',
+	_fields: 'id,title,link,date,featured_media,_links.wp:featuredmedia,_embedded.wp:featuredmedia',
 } );
 
 /**

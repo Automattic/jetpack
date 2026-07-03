@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Latest post widget: read post content locally from core so it resolves on private sites, and source views, likes, and comments from the Stats post endpoint.
+Latest post widget: read post content locally from core (so it resolves on private sites), source views/likes/comments from the Stats post endpoint, and redesign the card with the post's featured image and larger, token-based typography.

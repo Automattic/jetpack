@@ -42,6 +42,15 @@ const mockLatestPostResponse = [
 		title: { rendered: 'Ten things I learned building my first WordPress theme' },
 		link: 'https://example.com/2026/06/22/ten-things-i-learned/',
 		date: '2026-06-22T10:00:00',
+		featured_media: 42,
+		_embedded: {
+			'wp:featuredmedia': [
+				{
+					source_url: 'https://picsum.photos/seed/latest-post/1200/900',
+					alt_text: 'Featured image',
+				},
+			],
+		},
 	},
 ];
 
