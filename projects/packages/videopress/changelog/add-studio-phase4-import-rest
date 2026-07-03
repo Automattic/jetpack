@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add flag-gated Studio YouTube import REST endpoints: mock-backed connection and listing, draft placeholder imports with metadata, and job status.

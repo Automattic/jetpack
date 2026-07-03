@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add YouTube metadata import with draft placeholders and an attach-media completion flow behind the Studio feature flag.
