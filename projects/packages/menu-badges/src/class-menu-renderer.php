@@ -74,10 +74,19 @@ class Menu_Renderer {
 			}
 		}
 
-		// Top-level total on the Jetpack parent (found by capability).
+		// Top-level total on the Jetpack parent. Match by menu slug (item[2]), which is
+		// portable across self-hosted, Atomic, and WP.com Simple — where jetpack-mu-wpcom
+		// builds the parent with a different capability, so the plugin's 'jetpack_admin_page'
+		// capability (kept as a fallback) is absent.
 		$total = Notification_Counts::get_total();
 		foreach ( $menu as $i => $item ) {
-			if ( isset( $item[1] ) && 'jetpack_admin_page' === $item[1] && isset( $item[0] ) ) {
+			if (
+				isset( $item[0] )
+				&& (
+					( isset( $item[2] ) && 'jetpack' === $item[2] )
+					|| ( isset( $item[1] ) && 'jetpack_admin_page' === $item[1] )
+				)
+			) {
 				$title = self::strip( $item[0] );
 				if ( $total > 0 ) {
 					$title .= self::badge_markup( 'total', $total, true );
