@@ -64,23 +64,78 @@ export type ArchiveRow = {
 };
 
 /**
- * Flatten the archives report groups into table rows — each group's children
- * (archive pages, taxonomy terms), or the group itself when it has none.
+ * Build the visible table label from an archive URL.
+ *
+ * @param link - The archive URL from the stats response.
+ * @return The archive path and query string.
+ */
+function getArchiveLinkLabel( link: string ): string | undefined {
+	try {
+		const url = new URL( link, 'https://example.com' );
+		const path = url.pathname.replace( /\/+$/, '' ) || '/';
+
+		return `${ path }${ url.search }`;
+	} catch {
+		return undefined;
+	}
+}
+
+/**
+ * Build a fallback label from the normalized archive group path.
+ *
+ * @param parts - Archive group labels from root to leaf.
+ * @return The slash-joined fallback label.
+ */
+function getArchiveFallbackLabel( parts: string[] ): string {
+	return parts.filter( Boolean ).join( '/' );
+}
+
+/**
+ * Flatten one normalized archive item to leaf table rows.
+ *
+ * @param item - The normalized archive item.
+ * @param path - Parent archive labels.
+ * @param id   - Stable ID prefix for the item.
+ * @return Leaf archive rows for the table.
+ */
+function flattenArchiveEntry( item: StatsArchivesItem, path: string[], id: string ): ArchiveRow[] {
+	const label = String( item.label ?? '' );
+	const nextPath = label ? [ ...path, label ] : path;
+	const children = item.children ?? [];
+
+	if ( children.length ) {
+		return children.flatMap( ( child, index ) =>
+			flattenArchiveEntry( child, nextPath, `${ id }-${ index }` )
+		);
+	}
+
+	const link = typeof item.link === 'string' ? item.link : undefined;
+
+	return [
+		{
+			id,
+			label: link
+				? getArchiveLinkLabel( link ) ?? getArchiveFallbackLabel( nextPath )
+				: getArchiveFallbackLabel( nextPath ),
+			views: item.value,
+			link,
+		},
+	];
+}
+
+/**
+ * Flatten the archives report groups into table rows. The backend groups
+ * archive entries by type/taxonomy; DataViews does not show nested rows yet,
+ * so the table shows only the leaf archive entries and labels them by URL
+ * path/query (`/category/news`, `/?s=analytics`, …).
  *
  * @param items - The top-level archive groups.
  * @return The flat rows.
  */
 export function flattenArchiveRows( items: StatsArchivesItem[] ): ArchiveRow[] {
-	return items.flatMap( ( group, groupIndex ) => {
-		const entries = group.children?.length ? group.children : [ group ];
-
-		return entries.map( ( entry, index ) => ( {
-			id: `${ String( group.label ) }-${ groupIndex }-${ index }`,
-			label: String( entry.label ?? '' ),
-			views: entry.value,
-			link: typeof entry.link === 'string' ? entry.link : undefined,
-		} ) );
-	} );
+	return items.flatMap( ( group, groupIndex ) =>
+		flattenArchiveEntry( group, [], `${ String( group.label ) }-${ groupIndex }` )
+	);
 }
 
 /**
