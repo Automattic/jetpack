@@ -170,7 +170,7 @@ function AnnualHighlightsReport( {
 						disabled={ ! canShowOlder }
 						aria-label={ __( 'Previous year', 'jetpack-premium-analytics' ) }
 					>
-						<Button.Icon icon={ arrowLeft } size={ 18 } />
+						<Button.Icon icon={ arrowLeft } size={ 16 } />
 					</Button>
 					<Button
 						type="button"
@@ -182,7 +182,7 @@ function AnnualHighlightsReport( {
 						disabled={ ! canShowNewer }
 						aria-label={ __( 'Next year', 'jetpack-premium-analytics' ) }
 					>
-						<Button.Icon icon={ arrowRight } size={ 18 } />
+						<Button.Icon icon={ arrowRight } size={ 16 } />
 					</Button>
 				</div>
 			</div>
@@ -202,6 +202,7 @@ function AnnualHighlightsReport( {
 								value={ tile.value }
 								dataFormat={ COUNT_FORMAT }
 								fontSize="2xl"
+								className={ styles.tileValue }
 							/>
 						</div>
 					) ) }

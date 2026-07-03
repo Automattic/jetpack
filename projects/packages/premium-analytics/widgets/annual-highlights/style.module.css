@@ -72,6 +72,14 @@
 	color: var(--wpds-color-fg-content-neutral);
 }
 
+/* MetricValue emits the 2xl font-size token without a fallback, and the
+ * dashboard runtime does not always inject --wpds-typography-font-size-2xl, so
+ * pin the metric total here with explicit fallbacks. */
+.tileValue span {
+	font-size: var(--wpds-typography-font-size-2xl, 32px);
+	line-height: var(--wpds-typography-line-height-2xl, 40px);
+}
+
 .placeholder {
 	display: flex;
 	align-items: center;
