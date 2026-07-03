@@ -65,6 +65,14 @@ const defaultDeltaFormatter = ( value: number ): string => {
 const getBarWidth = ( share: number ): string =>
 	`calc(${ share }% - var(--a8c--charts--leaderboard--bar--hover-inset, 0px) * ${ share } / 100)`;
 
+const hasComparisonValue = (
+	entry: LeaderboardEntry
+): entry is LeaderboardEntry & {
+	previousValue: number;
+	previousShare: number;
+	delta: number;
+} => entry.previousValue != null && entry.previousShare != null && entry.delta != null;
+
 const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
 );
@@ -87,39 +95,43 @@ const BarWithLabel = ( {
 	isPrimaryVisible?: boolean;
 	isComparisonVisible?: boolean;
 	animation?: boolean;
-} ) => (
-	<div
-		className={ clsx( styles.barWithLabelContainer, {
-			[ styles[ 'is-overlay' ] ]: withOverlayLabel,
-		} ) }
-	>
-		<BarLabel label={ entry.label } />
+} ) => {
+	const showComparisonBar = withComparison && ! withOverlayLabel && isComparisonVisible;
 
-		{ isPrimaryVisible && (
-			<div
-				className={ clsx( styles.bar, {
-					[ styles[ 'bar--animated' ] ]: animation,
-				} ) }
-				style={ {
-					width: getBarWidth( entry.currentShare ),
-					backgroundColor: primaryColor,
-				} }
-			></div>
-		) }
+	return (
+		<div
+			className={ clsx( styles.barWithLabelContainer, {
+				[ styles[ 'is-overlay' ] ]: withOverlayLabel,
+			} ) }
+		>
+			<BarLabel label={ entry.label } />
 
-		{ withComparison && ! withOverlayLabel && isComparisonVisible && (
-			<div
-				className={ clsx( styles.bar, {
-					[ styles[ 'bar--animated' ] ]: animation,
-				} ) }
-				style={ {
-					width: getBarWidth( entry.previousShare ),
-					backgroundColor: secondaryColor,
-				} }
-			></div>
-		) }
-	</div>
-);
+			{ isPrimaryVisible && (
+				<div
+					className={ clsx( styles.bar, {
+						[ styles[ 'bar--animated' ] ]: animation,
+					} ) }
+					style={ {
+						width: getBarWidth( entry.currentShare ),
+						backgroundColor: primaryColor,
+					} }
+				></div>
+			) }
+
+			{ showComparisonBar && hasComparisonValue( entry ) && (
+				<div
+					className={ clsx( styles.bar, {
+						[ styles[ 'bar--animated' ] ]: animation,
+					} ) }
+					style={ {
+						width: getBarWidth( entry.previousShare ),
+						backgroundColor: secondaryColor,
+					} }
+				></div>
+			) }
+		</div>
+	);
+};
 
 /**
  * LeaderboardChart component displays a ranked list of data with progress bars
@@ -335,7 +347,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					) : (
 						<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
 							{ data.map( entry => {
-								const colorIndex = Math.sign( entry.delta ) + 1;
+								const showComparisonColumn = withComparison && isComparisonVisible;
+								const showComparisonValue = showComparisonColumn && hasComparisonValue( entry );
+								const colorIndex = showComparisonValue ? Math.sign( entry.delta ) + 1 : 1;
 								const deltaColor = deltaColors[ colorIndex ];
 
 								const rowCells = (
@@ -362,9 +376,18 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 										>
 											{ isPrimaryVisible && <Text>{ valueFormatter( entry.currentValue ) }</Text> }
 
-											{ withComparison && isComparisonVisible && (
-												<Text style={ { color: deltaColor } }>
+											{ showComparisonValue && (
+												<Text className={ styles.deltaValue } style={ { color: deltaColor } }>
 													{ deltaFormatter( entry.delta ) }
+												</Text>
+											) }
+
+											{ showComparisonColumn && ! showComparisonValue && (
+												<Text
+													className={ clsx( styles.deltaValue, styles.deltaPlaceholder ) }
+													style={ { color: deltaColor } }
+												>
+													-
 												</Text>
 											) }
 										</Stack>

@@ -78,6 +78,29 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'shows a placeholder when a row has no previous value', () => {
+		render(
+			<LeaderboardChart
+				data={ [
+					...mockData,
+					{
+						id: 'new',
+						label: 'New Source',
+						currentValue: 100,
+						currentShare: 1,
+					},
+				] }
+				withComparison={ true }
+			/>
+		);
+
+		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'New Source' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'shows custom label when provided', () => {
 		render(
 			<LeaderboardChart
