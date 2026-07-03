@@ -1,16 +1,15 @@
 /**
  * All three stories render the data-connected widget through `WidgetRoot`, so
  * they need report data to resolve against. `registerReportMocks` covers the
- * shared paths (e.g. WP settings), and the local middleware below mocks the
- * `stats/insights` response the central mocks do not provide. The insights
- * endpoint has no comparison period, so `WithComparison` renders identically to
- * `Default` even though comparison report params are supplied.
+ * shared paths, including the `stats/insights` fixture wired into
+ * `routeStatsReport()`. The insights endpoint has no comparison period, so
+ * `WithComparison` renders identically to `Default` even though comparison
+ * report params are supplied.
  */
 /**
  * External dependencies
  */
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
@@ -23,57 +22,11 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import MostPopularTimeRender from '../render';
 import widgetDefinition from '../widget';
-import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
 
-const STATS_INSIGHTS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/insights';
-
-/**
- * Builds a raw `stats/insights` payload (pre-sanitizer) with a clear peak day
- * and hour, so the widget renders both populated highlights.
- *
- * @return The raw insights response.
- */
-function buildInsightsResponse() {
-	return {
-		highest_hour: 18,
-		highest_hour_percent: 30,
-		highest_day_of_week: 4,
-		highest_day_percent: 22,
-		hourly_views: {},
-		years: [],
-	};
-}
-
-const insightsMockMiddleware: APIFetchMiddleware = ( options: APIFetchOptions, next ) => {
-	const requestPath = options.path ?? options.url ?? '';
-
-	if ( requestPath.startsWith( STATS_INSIGHTS_PATH ) ) {
-		return Promise.resolve( buildInsightsResponse() );
-	}
-
-	return next( options );
-};
-
-let insightsMockRegistered = false;
-
-/**
- * Registers the story-scoped `stats/insights` mock exactly once, alongside the
- * shared report mocks.
- */
-function registerInsightsMock() {
-	registerReportMocks();
-
-	if ( insightsMockRegistered ) {
-		return;
-	}
-	insightsMockRegistered = true;
-	apiFetch.use( insightsMockMiddleware );
-}
-
-registerInsightsMock();
+registerReportMocks();
 
 const MOST_POPULAR_TIME_RENDER_MODULE = 'storybook/most-popular-time';
 

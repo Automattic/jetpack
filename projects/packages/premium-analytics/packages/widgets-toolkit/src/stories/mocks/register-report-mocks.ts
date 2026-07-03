@@ -48,6 +48,7 @@ import {
 	mockSearchTermsData,
 	mockSearchTermsComparisonData,
 	mockSiteSummary,
+	mockStatsInsightsData,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -720,6 +721,8 @@ function routeStatsReport( subPath: string ): unknown {
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
 				: mockSearchTermsData;
+		case '/insights':
+			return mockStatsInsightsData;
 		default:
 			return null;
 	}
