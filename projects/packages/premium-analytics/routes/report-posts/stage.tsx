@@ -23,8 +23,6 @@ import { Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-// The breadcrumb is shared page chrome, reused across the detail and report
-// routes (same precedent as post-detail reusing the dashboard's grid hook).
 import { StatsBreadcrumbs } from '../post-detail/components';
 import { ReportPostsTabs } from './components';
 import {
@@ -45,10 +43,22 @@ const ROUTE_FROM = route.path;
 const CHART_PERIODS = [ 'day', 'week', 'month' ] as const satisfies readonly StatsPeriod[];
 type ChartPeriod = ( typeof CHART_PERIODS )[ number ];
 
+/**
+ * Check whether a URL value is a supported chart period.
+ *
+ * @param value - The URL search value.
+ * @return Whether the value is a chart period.
+ */
 function isChartPeriod( value: unknown ): value is ChartPeriod {
 	return CHART_PERIODS.includes( value as ChartPeriod );
 }
 
+/**
+ * Choose the chart bucket period for a report interval.
+ *
+ * @param interval - The report date interval.
+ * @return The default chart bucket period.
+ */
 function getDefaultChartPeriod( interval?: IntervalType ): ChartPeriod {
 	if ( interval === 'week' ) {
 		return 'week';
