@@ -132,18 +132,13 @@ function AnnualHighlightsReport() {
 		<div className={ styles.root }>
 			<div className={ styles.header }>
 				<div className={ styles.headerMain }>
-					<div className={ styles.titleRow }>
-						<h3 className={ styles.title }>
-							{ sprintf(
-								/* translators: %s is a calendar year, e.g. "2026". */
-								__( '%s in review', 'jetpack-premium-analytics' ),
-								year.year
-							) }
-						</h3>
-						<Text className={ styles.insightsLink }>
-							{ __( 'View all annual insights', 'jetpack-premium-analytics' ) }
-						</Text>
-					</div>
+					<h3 className={ styles.title }>
+						{ sprintf(
+							/* translators: %s is a calendar year, e.g. "2026". */
+							__( '%s in review', 'jetpack-premium-analytics' ),
+							year.year
+						) }
+					</h3>
 					<Text className={ styles.subtitle }>
 						{ __( 'Updates every 30 minutes', 'jetpack-premium-analytics' ) }
 					</Text>

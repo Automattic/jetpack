@@ -33,13 +33,6 @@
 	min-width: 0;
 }
 
-.titleRow {
-	display: flex;
-	align-items: baseline;
-	flex-wrap: wrap;
-	gap: var(--wpds-dimension-gap-md, 12px);
-}
-
 .title {
 	margin: 0;
 	font-family: Recoleta, "Noto Serif", Georgia, "Times New Roman", Times, serif;
@@ -47,11 +40,6 @@
 	font-weight: 400;
 	line-height: 1.1;
 	color: var(--wpds-color-fg-content-neutral);
-}
-
-.insightsLink {
-	color: var(--wpds-color-fg-content-neutral-weak);
-	text-decoration: none;
 }
 
 .subtitle {
