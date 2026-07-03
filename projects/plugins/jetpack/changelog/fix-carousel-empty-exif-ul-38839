@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Change empty ul tag for EXIF data to div in Carousel to resolve accessibility warning.
