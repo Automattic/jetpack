@@ -50,11 +50,22 @@ function sortYearsDescending( data?: StatsInsightsResponse ): StatsInsightsYear[
  * Fetches the insights report through the designated `useStatsInsights` Stats
  * hook and renders one year's totals as a grid of metric tiles. The year arrows
  * step between the years the site has published in; the insights module has no
- * comparison period, so each tile shows a bare formatted count.
+ * comparison period, so each tile shows a bare formatted count. Which tiles
+ * appear is controlled by the per-metric visibility attributes.
  *
+ * @param props              - The enabled-metric flags from widget attributes.
+ * @param props.showPosts    - Whether the Posts tile is shown.
+ * @param props.showWords    - Whether the Words tile is shown.
+ * @param props.showLikes    - Whether the Likes tile is shown.
+ * @param props.showComments - Whether the Comments tile is shown.
  * @return The widget content.
  */
-function AnnualHighlightsReport() {
+function AnnualHighlightsReport( {
+	showPosts,
+	showWords,
+	showLikes,
+	showComments,
+}: Required< AnnualHighlightsAttributes > ) {
 	const { data, isLoading, isError } = useStatsInsights();
 
 	const years = useMemo( () => sortYearsDescending( data ), [ data ] );
@@ -113,31 +124,35 @@ function AnnualHighlightsReport() {
 			icon: postList,
 			label: __( 'Posts', 'jetpack-premium-analytics' ),
 			value: year.total_posts,
+			enabled: showPosts,
 		},
 		{
 			key: 'words',
 			icon: paragraph,
 			label: __( 'Words', 'jetpack-premium-analytics' ),
 			value: year.total_words,
+			enabled: showWords,
 		},
 		{
 			key: 'likes',
 			icon: starEmpty,
 			label: __( 'Likes', 'jetpack-premium-analytics' ),
 			value: year.total_likes,
+			enabled: showLikes,
 		},
 		{
 			key: 'comments',
 			icon: comment,
 			label: __( 'Comments', 'jetpack-premium-analytics' ),
 			value: year.total_comments,
+			enabled: showComments,
 		},
-	];
+	].filter( tile => tile.enabled );
 
 	return (
 		<div className={ styles.root }>
 			<div className={ styles.header }>
-				<Text variant="heading-md" render={ <h3 /> } className={ styles.title }>
+				<Text variant="heading-lg" render={ <h3 /> } className={ styles.title }>
 					{ sprintf(
 						/* translators: %s is a calendar year, e.g. "2026". */
 						__( '%s in review', 'jetpack-premium-analytics' ),
@@ -155,7 +170,7 @@ function AnnualHighlightsReport() {
 						disabled={ ! canShowOlder }
 						aria-label={ __( 'Previous year', 'jetpack-premium-analytics' ) }
 					>
-						<Button.Icon icon={ arrowLeft } size={ 24 } />
+						<Button.Icon icon={ arrowLeft } size={ 18 } />
 					</Button>
 					<Button
 						type="button"
@@ -167,21 +182,32 @@ function AnnualHighlightsReport() {
 						disabled={ ! canShowNewer }
 						aria-label={ __( 'Next year', 'jetpack-premium-analytics' ) }
 					>
-						<Button.Icon icon={ arrowRight } size={ 24 } />
+						<Button.Icon icon={ arrowRight } size={ 18 } />
 					</Button>
 				</div>
 			</div>
-			<div className={ styles.grid }>
-				{ tiles.map( tile => (
-					<div key={ tile.key } className={ styles.tile }>
-						<div className={ styles.tileHeader }>
-							<Icon icon={ tile.icon } size={ 24 } className={ styles.tileIcon } />
-							<Text className={ styles.tileLabel }>{ tile.label }</Text>
+			{ tiles.length === 0 ? (
+				<Text className={ styles.placeholder }>
+					{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+				</Text>
+			) : (
+				<div className={ styles.grid }>
+					{ tiles.map( tile => (
+						<div key={ tile.key } className={ styles.tile }>
+							<div className={ styles.tileHeader }>
+								<Icon icon={ tile.icon } size={ 24 } className={ styles.tileIcon } />
+								<Text className={ styles.tileLabel }>{ tile.label }</Text>
+							</div>
+							<MetricWithComparison
+								value={ tile.value }
+								dataFormat={ COUNT_FORMAT }
+								fontSize="2xl"
+								className={ styles.tileValue }
+							/>
 						</div>
-						<MetricWithComparison value={ tile.value } dataFormat={ COUNT_FORMAT } fontSize="2xl" />
-					</div>
-				) ) }
-			</div>
+					) ) }
+				</div>
+			) }
 		</div>
 	);
 }
@@ -202,7 +228,12 @@ export default function AnnualHighlights( {
 }: WidgetRenderProps< AnnualHighlightsRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<AnnualHighlightsReport />
+			<AnnualHighlightsReport
+				showPosts={ attributes.showPosts ?? true }
+				showWords={ attributes.showWords ?? true }
+				showLikes={ attributes.showLikes ?? true }
+				showComments={ attributes.showComments ?? true }
+			/>
 		</WidgetRoot>
 	);
 }

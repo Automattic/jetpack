@@ -72,6 +72,13 @@
 	color: var(--wpds-color-fg-content-neutral);
 }
 
+/* The design-system font-size scale caps at 2xl (32px); nudge the metric total
+ * a little larger than the MetricValue token for the hero treatment. */
+.tileValue span {
+	font-size: calc(var(--wpds-typography-font-size-2xl, 32px) + 6px);
+	line-height: var(--wpds-typography-line-height-2xl, 40px);
+}
+
 .placeholder {
 	display: flex;
 	align-items: center;

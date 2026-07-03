@@ -22,9 +22,10 @@ registerReportMocks();
 
 const ANNUAL_HIGHLIGHTS_RENDER_MODULE = 'storybook/annual-highlights';
 
-// Pick only the fields StoryWidgetMetadata accepts, and surface the widget's
-// full-bleed presentation so the dashboard story renders it edge-to-edge with
-// its own header instead of inside the host's framed chrome.
+// Pick only the fields StoryWidgetMetadata accepts (the attribute schema is
+// typed loosely on the widget definition and does not satisfy Field<>), and
+// surface the widget's full-bleed presentation so the dashboard story renders it
+// edge-to-edge with its own header instead of inside the host's framed chrome.
 const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
@@ -34,25 +35,61 @@ const storyWidgetType = {
 
 interface AnnualHighlightsStoryControls {
 	withComparison: boolean;
+	showPosts: boolean;
+	showWords: boolean;
+	showLikes: boolean;
+	showComments: boolean;
 }
 
 /**
  * Renders the data-connected widget with report params derived from the
- * comparison toggle. The insights endpoint is not period-scoped, so toggling
- * comparison does not change what the widget shows — it is wired through only to
- * prove the widget renders unchanged when the host injects comparison params.
+ * comparison toggle and the per-metric visibility toggles. The insights endpoint
+ * is not period-scoped, so toggling comparison does not change what the widget
+ * shows — it is wired through only to prove the widget renders unchanged when the
+ * host injects comparison params. The metric toggles mirror the widget's
+ * checkbox settings and hide/show the matching tile.
  *
  * @param props                - Story controls.
  * @param props.withComparison - Whether to inject comparison report params.
+ * @param props.showPosts      - Whether the Posts tile is shown.
+ * @param props.showWords      - Whether the Words tile is shown.
+ * @param props.showLikes      - Whether the Likes tile is shown.
+ * @param props.showComments   - Whether the Comments tile is shown.
  * @return The rendered widget.
  */
-function renderAnnualHighlights( { withComparison }: AnnualHighlightsStoryControls ) {
+function renderAnnualHighlights( {
+	withComparison,
+	showPosts,
+	showWords,
+	showLikes,
+	showComments,
+}: AnnualHighlightsStoryControls ) {
 	return (
 		<AnnualHighlightsRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ {
+				reportParams: getDefaultQueryParams( withComparison ),
+				showPosts,
+				showWords,
+				showLikes,
+				showComments,
+			} }
 		/>
 	);
 }
+
+const METRIC_ARG_TYPES = {
+	showPosts: { control: 'boolean' },
+	showWords: { control: 'boolean' },
+	showLikes: { control: 'boolean' },
+	showComments: { control: 'boolean' },
+} as const;
+
+const ALL_METRICS_ARGS = {
+	showPosts: true,
+	showWords: true,
+	showLikes: true,
+	showComments: true,
+} as const;
 
 // Close-up canvas so the grid fills the frame outside the dashboard grid.
 const withWidgetCanvas: Decorator = Story => (
@@ -67,12 +104,13 @@ const meta = {
 	tags: [ 'autodocs' ],
 	argTypes: {
 		withComparison: { control: 'boolean' },
+		...METRIC_ARG_TYPES,
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Annual highlights" widget. Shows one year\'s totals — posts, words, likes, and comments — as a grid of metric tiles, with year arrows to step through the years the site has published in. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts and the `WithComparison` story renders identically to `Default`.',
+					'The "Annual highlights" widget. Shows one year\'s totals — posts, words, likes, and comments — as a grid of metric tiles, with year arrows to step through the years the site has published in. Each metric tile can be toggled off via the widget\'s checkbox settings (the `show*` controls here). Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts and the `WithComparison` story renders identically to `Default`.',
 			},
 		},
 	},
@@ -87,7 +125,7 @@ type Story = StoryObj< AnnualHighlightsStoryControls >;
  */
 export const Default: Story = {
 	render: renderAnnualHighlights,
-	args: { withComparison: false },
+	args: { withComparison: false, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -98,7 +136,7 @@ export const Default: Story = {
  */
 export const WithComparison: Story = {
 	render: renderAnnualHighlights,
-	args: { withComparison: true },
+	args: { withComparison: true, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -111,10 +149,18 @@ interface AnnualHighlightsDashboardStoryProps
  *
  * @param props                - Dashboard and widget controls.
  * @param props.withComparison - Whether to inject comparison report params.
+ * @param props.showPosts      - Whether the Posts tile is shown.
+ * @param props.showWords      - Whether the Words tile is shown.
+ * @param props.showLikes      - Whether the Likes tile is shown.
+ * @param props.showComments   - Whether the Comments tile is shown.
  * @return The rendered dashboard with the widget.
  */
 function AnnualHighlightsDashboardStory( {
 	withComparison,
+	showPosts,
+	showWords,
+	showLikes,
+	showComments,
 	...dashboardArgs
 }: AnnualHighlightsDashboardStoryProps ) {
 	return (
@@ -123,7 +169,13 @@ function AnnualHighlightsDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ ANNUAL_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={ AnnualHighlightsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ {
+				reportParams: getDefaultQueryParams( withComparison ),
+				showPosts,
+				showWords,
+				showLikes,
+				showComments,
+			} }
 		/>
 	);
 }
@@ -135,9 +187,11 @@ export const WidgetDashboardWithWidget: StoryObj< AnnualHighlightsDashboardStory
 		widgetWidth: 1,
 		widgetHeight: 1,
 		withComparison: true,
+		...ALL_METRICS_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: { control: 'boolean' },
+		...METRIC_ARG_TYPES,
 	},
 };
