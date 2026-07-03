@@ -17,7 +17,7 @@ import FileDownloadsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 registerStatsMocks();
@@ -87,7 +87,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< FileDownloadsStoryControls >;
+} satisfies Meta< ComponentProps< typeof FileDownloadsRender > & FileDownloadsStoryControls >;
 
 export default meta;
 

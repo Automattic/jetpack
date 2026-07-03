@@ -127,7 +127,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< CouponUsageOverTimeStoryControls >;
 type DashboardStory = StoryObj< CouponUsageOverTimeDashboardStoryProps >;
 
 export const Default: Story = {

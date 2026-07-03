@@ -126,7 +126,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< OrdersFulfillmentStoryControls >;
 type DashboardStory = StoryObj< OrdersFulfillmentDashboardStoryProps >;
 
 /**
