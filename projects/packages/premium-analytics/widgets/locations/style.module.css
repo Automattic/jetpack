@@ -16,17 +16,25 @@
 }
 
 .modeSelect {
+	order: 2;
 	flex: 0 1 220px;
 	inline-size: min(100%, 220px);
 	max-inline-size: 100%;
 	min-inline-size: min(100%, 160px);
 }
 
+.backLink {
+	order: 1;
+	align-self: center;
+	min-inline-size: 0;
+	margin-inline-end: auto;
+	margin-block-end: 0;
+}
+
 .content {
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	padding: var(--wpds-dimension-padding-lg);
 	flex: 1 1 0;
 	min-height: 0;
 }
@@ -35,16 +43,9 @@
 	position: relative;
 	z-index: 2;
 	flex-wrap: wrap;
-	gap: var(--wpds-dimension-gap-sm, 8px);
+	justify-content: flex-end;
+	gap: var(--wpds-dimension-gap-sm, 8px) var(--wpds-dimension-gap-lg, 16px);
 	margin-block-end: var(--wpds-dimension-gap-md, 12px);
-}
-
-.bodyHeaderFloating {
-	position: absolute;
-	inset-block-start: var(--wpds-dimension-padding-lg);
-	inset-inline-end: var(--wpds-dimension-padding-lg);
-	inline-size: min(220px, calc(100% - var(--wpds-dimension-padding-lg, 16px) - var(--wpds-dimension-padding-lg, 16px)));
-	margin-block-end: 0;
 }
 
 .chartArea {
@@ -104,13 +105,12 @@
 		align-items: stretch;
 	}
 
-	.bodyHeaderFloating {
-		position: static;
-		inline-size: auto;
-		margin-block-end: var(--wpds-dimension-gap-md, 12px);
+	.backLink {
+		order: 2;
 	}
 
 	.modeSelect {
+		order: 1;
 		flex-basis: 100%;
 		inline-size: 100%;
 	}

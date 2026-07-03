@@ -143,16 +143,13 @@ function LocationsInner( { max }: { max: number } ) {
 			label={ __( 'All Locations', 'jetpack-premium-analytics' ) }
 			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics' ) }
 			onClick={ clearSelectedCountry }
+			className={ styles.backLink }
 		/>
 	) : null;
 
 	const bodyHeader = (
-		<Stack
-			direction="row"
-			justify="flex-end"
-			align="center"
-			className={ clsx( styles.bodyHeader, backLink && styles.bodyHeaderFloating ) }
-		>
+		<Stack direction="row" align="center" className={ styles.bodyHeader }>
+			{ backLink }
 			<SelectControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
@@ -173,7 +170,6 @@ function LocationsInner( { max }: { max: number } ) {
 		return (
 			<div className={ styles.content }>
 				{ bodyHeader }
-				{ backLink }
 				<WidgetLoadingOverlay />
 			</div>
 		);
@@ -183,7 +179,6 @@ function LocationsInner( { max }: { max: number } ) {
 		return (
 			<div className={ styles.content }>
 				{ bodyHeader }
-				{ backLink }
 				<Stack align="center" justify="center" className={ styles.placeholder }>
 					<Text>{ __( 'Could not load location data.', 'jetpack-premium-analytics' ) }</Text>
 				</Stack>
@@ -197,7 +192,6 @@ function LocationsInner( { max }: { max: number } ) {
 		return (
 			<div className={ styles.content }>
 				{ bodyHeader }
-				{ backLink }
 				<Stack align="center" justify="center" className={ styles.placeholder }>
 					<Text>
 						{ __(
@@ -213,7 +207,6 @@ function LocationsInner( { max }: { max: number } ) {
 	return (
 		<div className={ styles.content }>
 			{ bodyHeader }
-			{ backLink }
 			{ showLoading && <WidgetLoadingOverlay /> }
 			<div className={ clsx( styles.chartArea, geoMode === 'city' && styles.noMap ) }>
 				<LeaderboardChart

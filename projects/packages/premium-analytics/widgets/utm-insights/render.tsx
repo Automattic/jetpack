@@ -5,7 +5,6 @@ import { SelectControl } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import clsx from 'clsx';
 import {
 	calculateDelta,
 	LeaderboardChart,
@@ -143,16 +142,13 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 			label={ __( 'All UTM Insights', 'jetpack-premium-analytics' ) }
 			ariaLabel={ __( 'View all UTM insights', 'jetpack-premium-analytics' ) }
 			onClick={ clearSelectedUtm }
+			className={ styles.backLink }
 		/>
 	) : null;
 
 	const bodyHeader = (
-		<Stack
-			direction="row"
-			justify="flex-end"
-			align="center"
-			className={ clsx( styles.bodyHeader, backLink && styles.bodyHeaderFloating ) }
-		>
+		<Stack direction="row" align="center" className={ styles.bodyHeader }>
+			{ backLink }
 			<SelectControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
@@ -170,7 +166,6 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 		return (
 			<div className={ styles.content }>
 				{ bodyHeader }
-				{ backLink }
 				<Stack align="center" justify="center" className={ styles.placeholder }>
 					<Text>{ __( 'Could not load UTM data.', 'jetpack-premium-analytics' ) }</Text>
 				</Stack>
@@ -182,7 +177,6 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 		return (
 			<div className={ styles.content }>
 				{ bodyHeader }
-				{ backLink }
 				<WidgetLoadingOverlay />
 			</div>
 		);
@@ -191,7 +185,6 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 	return (
 		<div className={ styles.content }>
 			{ bodyHeader }
-			{ backLink }
 			<LeaderboardChart
 				data={ leaderboardData }
 				loading={ showLoading }

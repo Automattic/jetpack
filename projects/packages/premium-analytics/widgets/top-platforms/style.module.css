@@ -10,7 +10,6 @@
 	flex: 1 1 0;
 	min-block-size: 0;
 	inline-size: 100%;
-	padding: var(--wpds-dimension-padding-lg);
 	color: var(--wpds-color-fg-content-neutral-weak);
 	text-align: center;
 }
@@ -23,7 +22,6 @@
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	padding: var(--wpds-dimension-padding-lg);
 	flex: 1 1 0;
 	min-height: 0;
 }

@@ -10,7 +10,6 @@
 	flex: 1 1 0;
 	min-block-size: 0;
 	inline-size: 100%;
-	padding: var(--wpds-dimension-padding-lg);
 	color: var(--wpds-color-fg-content-neutral-weak);
 	text-align: center;
 }
@@ -19,7 +18,6 @@
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	padding: var(--wpds-dimension-padding-lg);
 	flex: 1 1 0;
 	min-height: 0;
 	align-items: center;
@@ -34,10 +32,6 @@
 }
 
 @container (max-width: 420px) {
-
-	.content {
-		padding-block: var(--wpds-dimension-padding-sm, 8px);
-	}
 
 	.chartShell {
 		inline-size: min(100%, 220px);
