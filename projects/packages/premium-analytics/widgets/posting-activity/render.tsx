@@ -90,9 +90,16 @@ function PostingActivityInner() {
 			<HeatmapChart
 				data={ heatmapData }
 				rowLabels={ rowLabels }
+				compact
+				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
 				className={ styles.heatmap }
-			/>
+			>
+				<HeatmapChart.Legend
+					lessLabel={ __( 'Fewer Posts', 'jetpack-premium-analytics' ) }
+					moreLabel={ __( 'More Posts', 'jetpack-premium-analytics' ) }
+				/>
+			</HeatmapChart>
 		</div>
 	);
 }
