@@ -6,7 +6,7 @@ import { createBlock } from '@wordpress/blocks';
  * @param {Array} images - Array of image objects
  * @return {Array} Array of image objects which have id and url
  */
-function getValidImages( images ) {
+function getValidImages( images = [] ) {
 	return images.filter( ( { id, url } ) => id && url );
 }
 
@@ -40,7 +40,7 @@ const transforms = {
 						.map( ( { attributes } ) => ( {
 							id: attributes.id,
 							url: attributes.url,
-							link: attributes.link,
+							link: attributes.href,
 							alt: attributes.alt,
 							caption: attributes.caption,
 						} ) );
