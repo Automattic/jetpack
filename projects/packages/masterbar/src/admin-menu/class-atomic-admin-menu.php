@@ -74,17 +74,17 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		$this->add_woocommerce_menu();
+		$this->relabel_woocommerce_menu();
 
 		ksort( $GLOBALS['menu'] );
 	}
 
 	/**
-	 * Relabels the WooCommerce menu item to "Store setup" on eCommerce-plan sites.
+	 * Relabels the WooCommerce menu item to "Store setup" on Commerce-plan sites.
 	 *
 	 * Only the sidebar label is changed; the page title is left untouched.
 	 */
-	public function add_woocommerce_menu() {
+	public function relabel_woocommerce_menu() {
 		global $menu;
 
 		if ( ! $this->is_ecommerce_plan() ) {

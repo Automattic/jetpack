@@ -198,13 +198,13 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	 * @param string $product_slug A Commerce plan product slug.
 	 */
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_ecommerce_plan_slugs' )]
-	public function test_add_woocommerce_menu_relabels_on_ecommerce_plan( $product_slug ) {
+	public function test_relabel_woocommerce_menu_on_commerce_plan( $product_slug ) {
 		global $menu;
 
 		$this->add_woocommerce_menu_item();
 		$GLOBALS['jetpack_masterbar_test_site_purchases'] = array( (object) array( 'product_slug' => $product_slug ) );
 
-		static::$admin_menu->add_woocommerce_menu();
+		static::$admin_menu->relabel_woocommerce_menu();
 
 		$this->assertSame( 'Store setup', $menu[56][0] );
 		// The slug is preserved so the menu still points at WooCommerce.
@@ -223,13 +223,13 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	 * @param string $product_slug A non-Commerce plan product slug.
 	 */
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_non_commerce_plan_slugs' )]
-	public function test_add_woocommerce_menu_keeps_label_without_ecommerce_plan( $product_slug ) {
+	public function test_relabel_woocommerce_menu_keeps_label_without_commerce_plan( $product_slug ) {
 		global $menu;
 
 		$this->add_woocommerce_menu_item();
 		$GLOBALS['jetpack_masterbar_test_site_purchases'] = array( (object) array( 'product_slug' => $product_slug ) );
 
-		static::$admin_menu->add_woocommerce_menu();
+		static::$admin_menu->relabel_woocommerce_menu();
 
 		$this->assertSame( 'WooCommerce', $menu[56][0] );
 
