@@ -193,9 +193,9 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests that the WooCommerce menu item is relabeled to "Store setup" on eCommerce-plan sites.
+	 * Tests that the WooCommerce menu item is relabeled to "Store setup" on Commerce-plan sites.
 	 *
-	 * @param string $product_slug An eCommerce plan product slug.
+	 * @param string $product_slug A Commerce plan product slug.
 	 */
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_ecommerce_plan_slugs' )]
 	public function test_add_woocommerce_menu_relabels_on_ecommerce_plan( $product_slug ) {
@@ -216,13 +216,18 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests that the WooCommerce menu item keeps its label on non-eCommerce-plan sites.
+	 * Tests that the WooCommerce menu item keeps its label on non-Commerce-plan sites.
+	 *
+	 * Legacy Woo Express plans are included here: those users keep the "WooCommerce" label.
+	 *
+	 * @param string $product_slug A non-Commerce plan product slug.
 	 */
-	public function test_add_woocommerce_menu_keeps_label_without_ecommerce_plan() {
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_non_commerce_plan_slugs' )]
+	public function test_add_woocommerce_menu_keeps_label_without_ecommerce_plan( $product_slug ) {
 		global $menu;
 
 		$this->add_woocommerce_menu_item();
-		$GLOBALS['jetpack_masterbar_test_site_purchases'] = array( (object) array( 'product_slug' => 'business-bundle' ) );
+		$GLOBALS['jetpack_masterbar_test_site_purchases'] = array( (object) array( 'product_slug' => $product_slug ) );
 
 		static::$admin_menu->add_woocommerce_menu();
 
@@ -232,14 +237,27 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Data provider for eCommerce plan slugs.
+	 * Data provider for Commerce plan slugs.
 	 *
 	 * @return array<string, array{string}>
 	 */
 	public static function provide_ecommerce_plan_slugs() {
 		return array(
-			'Commerce'          => array( 'ecommerce-bundle' ),
-			'Commerce monthly'  => array( 'ecommerce-bundle-monthly' ),
+			'Commerce'         => array( 'ecommerce-bundle' ),
+			'Commerce monthly' => array( 'ecommerce-bundle-monthly' ),
+			'Commerce 2y'      => array( 'ecommerce-bundle-2y' ),
+			'Commerce 3y'      => array( 'ecommerce-bundle-3y' ),
+		);
+	}
+
+	/**
+	 * Data provider for non-Commerce plan slugs that should keep the "WooCommerce" label.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function provide_non_commerce_plan_slugs() {
+		return array(
+			'Business'          => array( 'business-bundle' ),
 			'WooExpress small'  => array( 'wooexpress-small-bundle-yearly' ),
 			'WooExpress medium' => array( 'wooexpress-medium-bundle-monthly' ),
 		);

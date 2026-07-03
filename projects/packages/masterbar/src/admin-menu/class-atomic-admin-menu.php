@@ -19,8 +19,10 @@ require_once __DIR__ . '/class-admin-menu.php';
 class Atomic_Admin_Menu extends Admin_Menu {
 
 	/**
-	 * Plan slugs (Commerce and WooExpress) for which the WooCommerce menu item is
-	 * relabeled to "Store setup".
+	 * Commerce plan slugs for which the WooCommerce menu item is relabeled to "Store setup".
+	 *
+	 * Legacy Woo Express plans are intentionally excluded: those users chose a Woo-branded
+	 * product, so they keep the "WooCommerce" label.
 	 *
 	 * @var string[]
 	 */
@@ -29,10 +31,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		'ecommerce-bundle-monthly',
 		'ecommerce-bundle-2y',
 		'ecommerce-bundle-3y',
-		'wooexpress-small-bundle-yearly',
-		'wooexpress-small-bundle-monthly',
-		'wooexpress-medium-bundle-yearly',
-		'wooexpress-medium-bundle-monthly',
 	);
 
 	/**
@@ -117,7 +115,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Whether the current site is on an eCommerce plan (Commerce or WooExpress).
+	 * Whether the current site is on a Commerce plan.
 	 *
 	 * @return bool
 	 */
