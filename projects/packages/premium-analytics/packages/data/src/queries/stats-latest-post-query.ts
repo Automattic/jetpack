@@ -25,7 +25,7 @@ const LATEST_POST_PATH = addQueryArgs( '/wp/v2/posts', {
  * React Query options for the site's latest published post, read locally from
  * the core WordPress posts endpoint. Content is fetched on-site (not from WPCOM),
  * so it resolves even on private/unlaunched sites; the post's views, likes, and
- * comments are layered on from the Stats post endpoint by `useStatsLatestPost`.
+ * comments are layered on from the Stats post endpoint by the widget's `useLatestPost`.
  *
  * @return The query options for the latest-post request.
  */

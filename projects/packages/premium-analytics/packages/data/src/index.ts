@@ -17,13 +17,9 @@ export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device
 export { useStatsSite } from './hooks/use-stats-site';
 export { useStatsPost } from './hooks/use-stats-post';
 export type { StatsPostField, StatsPostParams, StatsPostResponse } from './hooks/use-stats-post';
-export { useStatsLatestPost } from './hooks/use-stats-latest-post';
-export type {
-	StatsLatestPost,
-	StatsLatestPostResponse,
-	StatsLatestPostWithViews,
-	UseStatsLatestPostResult,
-} from './hooks/use-stats-latest-post';
+export { useStatsQuery } from './hooks/use-stats-query';
+export { statsLatestPostQuery } from './queries/stats-latest-post-query';
+export type { StatsLatestPost, StatsLatestPostResponse } from './processing/stats';
 export { useStatsTopPosts } from './hooks/use-stats-top-posts';
 export { useStatsReferrers } from './hooks/use-stats-referrers';
 export { useStatsClicks } from './hooks/use-stats-clicks';

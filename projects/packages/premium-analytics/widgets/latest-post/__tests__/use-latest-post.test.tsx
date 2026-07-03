@@ -7,7 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { useStatsLatestPost } from '../use-stats-latest-post';
+import { useLatestPost } from '../use-latest-post';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -22,7 +22,7 @@ function wrapper( { children }: { children: ReactNode } ) {
 	return <QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>;
 }
 
-describe( 'useStatsLatestPost', () => {
+describe( 'useLatestPost', () => {
 	beforeEach( () => {
 		mockApiFetch.mockReset();
 	} );
@@ -55,7 +55,7 @@ describe( 'useStatsLatestPost', () => {
 			}
 		);
 
-		const { result } = renderHook( () => useStatsLatestPost(), { wrapper } );
+		const { result } = renderHook( () => useLatestPost(), { wrapper } );
 
 		await waitFor( () =>
 			expect( result.current.post ).toEqual( {
@@ -86,7 +86,7 @@ describe( 'useStatsLatestPost', () => {
 			}
 		);
 
-		const { result } = renderHook( () => useStatsLatestPost(), { wrapper } );
+		const { result } = renderHook( () => useLatestPost(), { wrapper } );
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 		expect( result.current.post ).toBeNull();
@@ -112,7 +112,7 @@ describe( 'useStatsLatestPost', () => {
 			}
 		);
 
-		const { result } = renderHook( () => useStatsLatestPost(), { wrapper } );
+		const { result } = renderHook( () => useLatestPost(), { wrapper } );
 
 		await waitFor( () =>
 			expect( result.current.post ).toEqual( {

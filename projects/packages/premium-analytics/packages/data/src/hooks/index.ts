@@ -12,13 +12,6 @@ export {
 	type StatsPostParams,
 	type StatsPostResponse,
 } from './use-stats-post';
-export {
-	useStatsLatestPost,
-	type StatsLatestPost,
-	type StatsLatestPostResponse,
-	type StatsLatestPostWithViews,
-	type UseStatsLatestPostResult,
-} from './use-stats-latest-post';
 export { useStatsTopPosts } from './use-stats-top-posts';
 export { useStatsReferrers } from './use-stats-referrers';
 export { useStatsClicks } from './use-stats-clicks';

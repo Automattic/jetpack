@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { useStatsLatestPost, type StatsLatestPostWithViews } from '@jetpack-premium-analytics/data';
 import {
 	MetricWithComparison,
 	WidgetLoadingOverlay,
@@ -16,6 +15,7 @@ import { format, parseISO } from 'date-fns';
  * Internal dependencies
  */
 import styles from './style.module.css';
+import { useLatestPost, type LatestPostWithMetrics } from './use-latest-post';
 import type { LatestPostAttributes } from './widget';
 import type { FontSize } from '@wordpress/theme';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -35,7 +35,7 @@ type LatestPostCardProps = {
 	/**
 	 * The resolved latest post, or null to render the empty state.
 	 */
-	post?: StatsLatestPostWithViews | null;
+	post?: LatestPostWithMetrics | null;
 	/**
 	 * When `true` and there is no post yet, the full loading overlay is shown.
 	 */
@@ -185,13 +185,13 @@ export const LatestPostCard = ( {
 };
 
 /**
- * Fetches the site's latest post (with its metrics) through `useStatsLatestPost`
+ * Fetches the site's latest post (with its metrics) through `useLatestPost`
  * and hands it to the presentational `LatestPostCard`.
  *
  * @return The widget content.
  */
 function LatestPostReport() {
-	const { post, isLoading, isError } = useStatsLatestPost();
+	const { post, isLoading, isError } = useLatestPost();
 
 	return <LatestPostCard post={ post } isLoading={ isLoading } isError={ isError } />;
 }
