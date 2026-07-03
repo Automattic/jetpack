@@ -7,9 +7,8 @@ import type { StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
 const report = (
 	days: Array< Record< string, number | string > >,
 	month = '06'
-): StatsTimeSeriesReport => ( {
-	summary: {},
-	data: days.map( ( metrics, index ) => {
+): StatsTimeSeriesReport => {
+	const data = days.map( ( metrics, index ) => {
 		const date = `2026-${ month }-0${ index + 1 }`;
 		return {
 			time_interval: date,
@@ -20,8 +19,16 @@ const report = (
 			items: [],
 			...metrics,
 		};
-	} ),
-} );
+	} );
+
+	return {
+		summary: {
+			...( data[ 0 ] ? { date_start: data[ 0 ].date_start } : {} ),
+			...( data[ data.length - 1 ] ? { date_end: data[ data.length - 1 ].date_end } : {} ),
+		},
+		data,
+	};
+};
 
 const PRIMARY = report( [
 	{ views: 100, visitors: 40, comments: 3, likes: 5 },
@@ -87,6 +94,23 @@ describe( 'buildReportMetricSeries', () => {
 		// Legend labels switch to date ranges so the two periods are tellable apart.
 		expect( series[ 0 ].label ).not.toBe( 'Views' );
 		expect( series[ 0 ].label ).not.toBe( series[ 1 ].label );
+	} );
+
+	it( 'uses supplied legend labels for single-metric comparison series', () => {
+		const series = buildReportMetricSeries( {
+			primary: PRIMARY,
+			comparison: COMPARISON,
+			metrics: [ VIEWS ],
+			legendLabels: {
+				primary: 'Apr 4-Jul 4, 2026',
+				comparison: 'Jan 2-Apr 3, 2026',
+			},
+		} );
+
+		expect( series.map( entry => entry.label ) ).toEqual( [
+			'Apr 4-Jul 4, 2026',
+			'Jan 2-Apr 3, 2026',
+		] );
 	} );
 
 	it( 'treats missing metric fields as zero', () => {
