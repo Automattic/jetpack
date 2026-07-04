@@ -11,7 +11,7 @@
  * @package automattic/jetpack-premium-analytics
  */
 
-// phpcs:disable Squiz.Commenting, Generic.Commenting, WordPress.NamingConventions.ValidFunctionName, WordPress.Files.FileName, PHPCompatibility.Classes.NewTypedProperties, Generic.Files.OneObjectStructurePerFile
+// phpcs:disable Squiz.Commenting, Generic.Commenting, WordPress.NamingConventions.ValidFunctionName, WordPress.Files.FileName, PHPCompatibility.Classes.NewTypedProperties, Generic.Files.OneObjectStructurePerFile, Universal.Files.SeparateFunctionsFromOO
 
 if ( ! class_exists( 'WC_REST_Controller' ) ) {
 	/**
@@ -42,5 +42,29 @@ if ( ! interface_exists( 'WC_Logger_Interface' ) ) {
 	 */
 	interface WC_Logger_Interface {
 		public function log( $level, $message, $context = array() );
+	}
+}
+
+if ( ! class_exists( 'WC_Email' ) ) {
+	/**
+	 * Stub of WooCommerce's email base class (enough for CSVExportEmail to load).
+	 */
+	class WC_Email {
+		public $id        = '';
+		public $title     = '';
+		public $recipient = '';
+		public function __construct() {}
+		public function get_option( $key, $default = '' ) {
+			return $default;
+		}
+	}
+}
+
+if ( ! function_exists( 'as_enqueue_async_action' ) ) {
+	/**
+	 * Stub of Action Scheduler's async-action enqueue; returns a fixed action id.
+	 */
+	function as_enqueue_async_action( $hook, $args = array(), $group = '' ) {
+		return 555;
 	}
 }
