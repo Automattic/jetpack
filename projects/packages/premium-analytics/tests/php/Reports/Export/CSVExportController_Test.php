@@ -49,7 +49,9 @@ class CSVExportController_Test extends TestCase {
 	#[Before]
 	public function set_up_controller() {
 		$prop = new ReflectionProperty( ReportRegistry::class, 'instance' );
-		$prop->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
+		}
 		$prop->setValue( null, null );
 
 		$registry = ReportRegistry::instance();

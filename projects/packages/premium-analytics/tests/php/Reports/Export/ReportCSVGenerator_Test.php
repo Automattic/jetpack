@@ -194,7 +194,7 @@ class ReportCSVGenerator_Test extends TestCase {
 		$path      = $generator->generate( array( 'data' => array() ), self::COLUMNS, $this->formatter(), 'unit-test-delete' );
 
 		$this->assertTrue( $generator->delete_file( $path ) );
-		$this->assertFileDoesNotExist( $path );
+		$this->assertFalse( file_exists( $path ) );
 		// Deleting a missing file returns false.
 		$this->assertFalse( $generator->delete_file( $path ) );
 	}
