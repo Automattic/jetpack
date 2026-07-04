@@ -212,7 +212,8 @@ abstract class AbstractCSVReportController implements CSVReportControllerInterfa
 			'year'    => __( 'Year', 'jetpack-premium-analytics' ),
 		);
 
-		return $labels[ $interval ] ?? __( 'Date', 'jetpack-premium-analytics' );
+		// Cast to string so a null interval doesn't trigger a "null array offset" deprecation (PHP 8.5+).
+		return $labels[ (string) $interval ] ?? __( 'Date', 'jetpack-premium-analytics' );
 	}
 
 	/**
