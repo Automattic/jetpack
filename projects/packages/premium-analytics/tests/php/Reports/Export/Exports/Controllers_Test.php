@@ -5,10 +5,11 @@
  * @package automattic/jetpack-premium-analytics
  */
 
-namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
+namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\ReportRegistry;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\TopPerformingProductsController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\VisitorsOverTimeController;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
