@@ -43,7 +43,9 @@
 	height: 100%;
 
 	&--animated {
-		transition: opacity 0.3s ease;
+		transition:
+			opacity var(--wpds-motion-duration-lg, 300ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	}
 
 	&--blurred {
@@ -84,7 +86,9 @@
 		transform-origin: bottom;
 		transform-box: fill-box;
 		transform: scaleY(0);
-		animation: stretch 1s ease-out forwards;
+		animation:
+			stretch var(--wpds-motion-duration-xl, 400ms)
+			var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
 	}
 
 	@keyframes stretch {
@@ -101,7 +105,7 @@
 	// Override .visx-tooltip inline styles.
 	border-radius: var(--wpds-border-radius-md, 4px) !important;
 	padding: var(--wpds-dimension-padding-md, 12px) !important;
-	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.15), 0 3px 9px 0 rgba(0, 0, 0, 0.12) !important;
+	box-shadow: var(--wpds-elevation-sm, 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005) !important;
 
 }
 
