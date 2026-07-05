@@ -89,7 +89,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< LocationsStoryControls >;
+} satisfies Meta< ComponentProps< typeof LocationsRender > & LocationsStoryControls >;
 
 export default meta;
 

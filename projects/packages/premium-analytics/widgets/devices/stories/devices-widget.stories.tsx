@@ -83,7 +83,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< DevicesStoryControls >;
+} satisfies Meta< ComponentProps< typeof DevicesRender > & DevicesStoryControls >;
 
 export default meta;
 

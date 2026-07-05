@@ -258,7 +258,7 @@ import MyWidgetRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -296,7 +296,10 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< MyWidgetStoryControls >;
+	// The story args are the widget-specific controls, but `component` is the render
+	// component (host `WidgetRenderProps`). Intersect the two so `component` type-checks
+	// against the meta while the controls still drive `argTypes`/`args`.
+} satisfies Meta< ComponentProps< typeof MyWidgetRender > & MyWidgetStoryControls >;
 
 export default meta;
 

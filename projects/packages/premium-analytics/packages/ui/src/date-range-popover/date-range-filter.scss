@@ -85,7 +85,6 @@
 }
 
 /* disable animation for the date range popover */
-/* stylelint-disable property-no-unknown, selector-pseudo-element-no-unknown */
 @media not ( prefers-reduced-motion: reduce ) {
 
 	.date-filters-panel__popover {
@@ -103,4 +102,3 @@
 ::view-transition-old(jp-premium-analytics--date-range-popover) {
 	animation: none;
 }
-/* stylelint-enable property-no-unknown, selector-pseudo-element-no-unknown */
