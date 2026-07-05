@@ -1669,6 +1669,10 @@
 		}
 
 		function shouldOpenModal( el ) {
+			if ( el.tagName === 'A' && el.querySelector( 'img' ) ) {
+				el = el.querySelector( 'img' );
+			}
+
 			var parent = el.parentElement;
 			var grandparent = parent.parentElement;
 
