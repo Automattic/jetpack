@@ -79,7 +79,7 @@
 .emptyState {
 	padding: var(--wpds-dimension-padding-3xl, 32px) var(--wpds-dimension-padding-lg, 16px);
 	text-align: center;
-	color: #666;
+	color: var(--wpds-color-fg-content-neutral-weak, #707070);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-style: italic;
 }

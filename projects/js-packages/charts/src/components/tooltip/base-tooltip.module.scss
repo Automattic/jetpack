@@ -1,5 +1,8 @@
 .tooltip {
 	padding: var(--wpds-dimension-padding-sm, 8px);
+	// No WPDS token fits a translucent dark tooltip surface:
+	// bg-interactive-neutral-strong is opaque, and there is no
+	// white-on-dark content foreground token.
 	background-color: rgba(0, 0, 0, 0.85);
 	color: #fff;
 	border-radius: var(--wpds-border-radius-md, 4px);

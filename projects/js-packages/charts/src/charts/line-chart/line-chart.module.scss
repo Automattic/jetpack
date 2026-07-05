@@ -16,7 +16,8 @@
 
 	&__tooltip,
 	&__annotation-label-popover {
-		background: #fff;
+		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+		color: var(--wpds-color-fg-content-neutral, #1e1e1e);
 		padding: var(--wpds-dimension-padding-sm, 8px);
 	}
 
@@ -59,7 +60,6 @@
 
 	&__annotation-label-popover {
 		min-width: 125px;
-		background: #fff;
 		border: none;
 		border-radius: var(--wpds-border-radius-md, 4px);
 		font-size: var(--wpds-typography-font-size-md, 13px);

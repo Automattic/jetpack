@@ -4,22 +4,24 @@ import type { CompleteChartTheme } from '../../types';
  * Default theme configuration
  */
 const defaultTheme: CompleteChartTheme = {
-	backgroundColor: '#FFFFFF', // chart background color
+	backgroundColor: 'var(--wpds-color-bg-surface-neutral-strong, #fff)',
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
-	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
+	// White label text sits on top of arbitrary series colors, so it has no WPDS
+	// content-foreground equivalent and stays hardcoded (tokenization outlier).
+	labelTextColor: '#FFFFFF',
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
-		stroke: '#DCDCDE',
+		stroke: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)',
 		strokeWidth: 1,
 	},
 	tickLength: 4,
 	gridColor: '',
 	gridColorDark: '',
-	xTickLineStyles: { stroke: 'black' },
-	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
+	xTickLineStyles: { stroke: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)', strokeWidth: 1 },
+	xAxisLineStyles: { stroke: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)', strokeWidth: 1 },
 	legend: {
 		labelStyles: {
-			color: 'var(--jp-gray-80, #2c3338)',
+			color: 'var(--wpds-color-fg-content-neutral, #1e1e1e)',
 		},
 		containerStyles: {},
 		shapeStyles: [],
@@ -31,35 +33,40 @@ const defaultTheme: CompleteChartTheme = {
 	// that `buildChartTheme` injects as an inline style on SVG `<text>`
 	// elements for axis labels and ticks. Setting `inherit` lets SVG text
 	// pick up the host application's font-family via normal CSS inheritance.
-	svgLabelSmall: { fill: 'var(--jp-gray-80, #2c3338)', fontFamily: 'inherit' },
+	svgLabelSmall: { fill: 'var(--wpds-color-fg-content-neutral, #1e1e1e)', fontFamily: 'inherit' },
 	svgLabelBig: { fontFamily: 'inherit' },
 	annotationStyles: {
 		label: {
-			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
-			backgroundFill: '#fff',
+			anchorLineStroke: 'var(--wpds-color-fg-content-neutral, #1e1e1e)',
+			backgroundFill: 'var(--wpds-color-bg-surface-neutral-strong, #fff)',
 		},
 		connector: {
-			stroke: 'var(--jp-gray-80, #2c3338)',
+			stroke: 'var(--wpds-color-fg-content-neutral, #1e1e1e)',
 		},
 		circleSubject: {
 			stroke: 'transparent',
-			fill: 'var(--jp-gray-80, #2c3338)',
+			fill: 'var(--wpds-color-fg-content-neutral, #1e1e1e)',
 			radius: 5,
 		},
 	},
 	geoChart: {
-		featureFillColor: 'var(--jp-gray-0, #f6f7f7)',
+		featureFillColor: 'var(--wpds-color-bg-surface-neutral-weak, #f4f4f4)',
 	},
 	leaderboardChart: {
 		rowGap: 12,
 		columnGap: 4,
 		labelSpacing: 'xs',
-		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
+		// [negative, neutral, positive]
+		deltaColors: [
+			'var(--wpds-color-fg-content-error-weak, #cc1818)',
+			'var(--wpds-color-fg-content-neutral-weak, #707070)',
+			'var(--wpds-color-fg-content-success-weak, #008030)',
+		],
 	},
 	conversionFunnelChart: {
-		backgroundColor: '#F3F4F6',
-		positiveChangeColor: '#1F9828',
-		negativeChangeColor: '#FF8C8F',
+		backgroundColor: 'var(--wpds-color-bg-surface-neutral-weak, #f4f4f4)',
+		positiveChangeColor: 'var(--wpds-color-fg-content-success-weak, #008030)',
+		negativeChangeColor: 'var(--wpds-color-fg-content-error-weak, #cc1818)',
 	},
 	lineChart: {
 		lineStyles: {
