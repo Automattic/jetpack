@@ -57,12 +57,31 @@ export const buildCalendarHeatmapData = (
 		LABELLED_ROWS.includes( row ) ? format( addDays( gridStart, row ), 'EEE' ) : ''
 	);
 
+	// The first grid column starts on a week boundary that can fall in the tail of
+	// a month, leaving a "partial" first month of just one or two columns. Its
+	// label would then sit directly under the next month's label and overlap it
+	// (labels are wider than a column, especially in the compact layout), so we
+	// suppress the first month's label unless it spans enough columns to clear the
+	// next one.
+	const MIN_FIRST_MONTH_WEEKS = 2;
+	const firstMonth = gridStart.getMonth();
+	let firstMonthWeeks = 0;
+	while (
+		firstMonthWeeks < weekCount &&
+		addDays( gridStart, firstMonthWeeks * 7 ).getMonth() === firstMonth
+	) {
+		firstMonthWeeks++;
+	}
+	const showFirstMonthLabel = firstMonthWeeks >= MIN_FIRST_MONTH_WEEKS;
+
 	const data: HeatmapColumn[] = [];
 	let previousMonth = -1;
 	for ( let week = 0; week < weekCount; week++ ) {
 		const columnStart = addDays( gridStart, week * 7 );
 		const month = columnStart.getMonth();
-		const label = month !== previousMonth ? format( columnStart, 'MMM' ) : '';
+		const isNewMonth = month !== previousMonth;
+		const label =
+			isNewMonth && ( week !== 0 || showFirstMonthLabel ) ? format( columnStart, 'MMM' ) : '';
 		previousMonth = month;
 
 		const cells: HeatmapCell[] = [];

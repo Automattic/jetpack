@@ -7,6 +7,7 @@ import {
 	heatmapActivityMatrix,
 	heatmapCalendarSeries,
 	heatmapLargeValueMatrix,
+	heatmapPartialMonthCalendarSeries,
 } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { HeatmapChart } from '../index';
@@ -59,6 +60,27 @@ export const Calendar: StoryObj< StoryArgs & { weekStartsOn: 0 | 1 } > = {
 		return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
 	},
 	args: { ...sharedThemeArgs, withTooltips: true, weekStartsOn: 1 },
+	argTypes: {
+		weekStartsOn: {
+			control: { type: 'inline-radio', labels: { 0: 'Sunday', 1: 'Monday' } },
+			options: [ 1, 0 ],
+			table: { category: 'Calendar' },
+		},
+	},
+};
+
+// A year of data that starts late in June, so the calendar's first column is a
+// single-week (partial) June. In compact mode the ~11px cells make month labels
+// far wider than a column, so the partial month's label would collide with the
+// next — this story guards that the partial first-month label is suppressed.
+export const CompactCalendarPartialMonth: StoryObj< StoryArgs & { weekStartsOn: 0 | 1 } > = {
+	render: ( { weekStartsOn, ...args } ) => {
+		const { data, rowLabels } = buildCalendarHeatmapData( heatmapPartialMonthCalendarSeries, {
+			weekStartsOn,
+		} );
+		return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
+	},
+	args: { ...sharedThemeArgs, compact: true, withTooltips: true, weekStartsOn: 1 },
 	argTypes: {
 		weekStartsOn: {
 			control: { type: 'inline-radio', labels: { 0: 'Sunday', 1: 'Monday' } },
