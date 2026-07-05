@@ -28,7 +28,7 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
-	presentation: 'full-bleed' as const,
+	presentation: 'framed' as const,
 };
 
 interface FileDownloadsStoryControls {
@@ -49,7 +49,6 @@ function renderFileDownloadsWidget( { withComparison }: FileDownloadsStoryContro
 	return (
 		<FileDownloadsRender
 			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-			showTitle={ false }
 		/>
 	);
 }

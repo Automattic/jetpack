@@ -12,7 +12,7 @@ import {
  */
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, Link, Stack, Text } from '@wordpress/ui';
+import { Link, Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
@@ -26,7 +26,7 @@ import {
  * Internal dependencies
  */
 import styles from './style.module.css';
-import widgetDefinition, { type FileDownloadsAttributes } from './widget';
+import { type FileDownloadsAttributes } from './widget';
 /**
  * Types
  */
@@ -34,21 +34,10 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type FileDownloadsRenderAttributes = FileDownloadsAttributes &
 	Partial< ReportParamsFieldAttributes >;
-type FileDownloadsWidgetProps = WidgetRenderProps< FileDownloadsRenderAttributes > & {
-	showTitle?: boolean;
-};
+type FileDownloadsWidgetProps = WidgetRenderProps< FileDownloadsRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 const FILE_DOWNLOADS_UNAVAILABLE_STATUS = 404;
-
-function FileDownloadsHeaderTitle() {
-	return (
-		<span className={ styles.headerTitle }>
-			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
-			<span>{ __( 'File downloads', 'jetpack-premium-analytics' ) }</span>
-		</span>
-	);
-}
 
 function toStatusNumber( value: unknown ): number | null {
 	if ( typeof value === 'number' ) {
@@ -291,12 +280,11 @@ export function FileDownloadsLeaderboard( {
 /**
  * Inner component — rendered inside WidgetRoot, reads dashboard context.
  *
- * @param props           - Props.
- * @param props.max       - Max rows to display.
- * @param props.showTitle - Whether to render the widget title inside the render module.
+ * @param props     - Props.
+ * @param props.max - Max rows to display.
  * @return The rendered leaderboard or state placeholder.
  */
-function FileDownloadsInner( { max, showTitle }: { max: number; showTitle: boolean } ) {
+function FileDownloadsInner( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
 	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error } =
 		useStatsFileDownloads( reportParams as StatsReportParams );
@@ -316,27 +304,16 @@ function FileDownloadsInner( { max, showTitle }: { max: number; showTitle: boole
 	);
 	const withComparison = hasComparison && rows.some( row => typeof row.previousValue === 'number' );
 
-	const header = showTitle ? (
-		<Stack direction="row" align="center" className={ styles.widgetHeader }>
-			<Text variant="heading-md" render={ <h3 /> }>
-				<FileDownloadsHeaderTitle />
-			</Text>
-		</Stack>
-	) : null;
-
 	return (
-		<>
-			{ header }
-			<div className={ styles.content }>
-				<FileDownloadsLeaderboard
-					rows={ rows }
-					isLoading={ showLoading }
-					isError={ isError }
-					withComparison={ withComparison }
-					errorMessage={ errorMessage }
-				/>
-			</div>
-		</>
+		<div className={ styles.content }>
+			<FileDownloadsLeaderboard
+				rows={ rows }
+				isLoading={ showLoading }
+				isError={ isError }
+				withComparison={ withComparison }
+				errorMessage={ errorMessage }
+			/>
+		</div>
 	);
 }
 
@@ -348,19 +325,15 @@ function FileDownloadsInner( { max, showTitle }: { max: number; showTitle: boole
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes (max).
- * @param props.showTitle  - Whether to render the widget title inside the render module.
  * @return The rendered widget content.
  */
-export default function FileDownloadsWidget( {
-	attributes = {},
-	showTitle = true,
-}: FileDownloadsWidgetProps ) {
+export default function FileDownloadsWidget( { attributes = {} }: FileDownloadsWidgetProps ) {
 	const max = attributes?.max ?? 10;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<FileDownloadsInner max={ max } showTitle={ showTitle } />
+				<FileDownloadsInner max={ max } />
 			</div>
 		</WidgetRoot>
 	);

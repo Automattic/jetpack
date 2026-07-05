@@ -22,7 +22,7 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
-	presentation: 'full-bleed' as const,
+	presentation: 'framed' as const,
 };
 
 interface TopPlatformsStoryControls {
@@ -43,7 +43,6 @@ function renderTopPlatformsWidget( { withComparison }: TopPlatformsStoryControls
 	return (
 		<TopPlatformsRender
 			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-			showTitle={ false }
 		/>
 	);
 }
@@ -83,7 +82,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Top Platforms" widget. Shows browser and OS breakdown as a ranked leaderboard. The active dimension (Browser / OS) is switched via a runtime dropdown in the widget header.',
+					'The "Top Platforms" widget. Shows browser and OS breakdown as a ranked leaderboard. The active dimension (Browser / OS) is switched via a runtime dropdown in the widget body.',
 			},
 		},
 	},

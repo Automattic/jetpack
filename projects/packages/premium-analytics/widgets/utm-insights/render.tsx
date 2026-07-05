@@ -4,12 +4,14 @@
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Icon, Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
 	LeaderboardChart,
+	WidgetBackLink,
 	WidgetLoadingOverlay,
 	WidgetRoot,
+	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -19,7 +21,7 @@ import {
  */
 import styles from './style.module.css';
 import useUtmInsights from './use-utm-insights';
-import widgetDefinition, { type UtmInsightsAttributes } from './widget';
+import { type UtmInsightsAttributes } from './widget';
 /**
  * Types
  */
@@ -54,15 +56,6 @@ type UtmInsightsInnerProps = {
 	>;
 };
 
-function UtmInsightsHeaderTitle() {
-	return (
-		<span className={ styles.headerTitle }>
-			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
-			<span>{ __( 'UTM Insights', 'jetpack-premium-analytics' ) }</span>
-		</span>
-	);
-}
-
 /**
  * Inner component — rendered inside WidgetRoot.
  *
@@ -75,24 +68,26 @@ function UtmInsightsHeaderTitle() {
 function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ activeUtmParam, setActiveUtmParam ] = useState< StatsUtmParam >( utmParam );
-	const [ selectedUtmLabel, setSelectedUtmLabel ] = useState< string | null >( null );
+	const {
+		drillDownItem: selectedUtmLabel,
+		drillDown: selectUtmLabel,
+		resetDrillDown: clearSelectedUtm,
+	} = useWidgetDrillDown< string >();
 
 	useEffect( () => {
 		setActiveUtmParam( utmParam );
-		setSelectedUtmLabel( null );
-	}, [ utmParam ] );
+		clearSelectedUtm();
+	}, [ clearSelectedUtm, utmParam ] );
 
 	const handleParamChange = useCallback(
 		( value: string ) => {
 			const nextUtmParam = value as StatsUtmParam;
-			setSelectedUtmLabel( null );
+			clearSelectedUtm();
 			setActiveUtmParam( nextUtmParam );
 			setAttributes?.( { utmParam: nextUtmParam } );
 		},
-		[ setAttributes ]
+		[ clearSelectedUtm, setAttributes ]
 	);
-
-	const clearSelectedUtm = useCallback( () => setSelectedUtmLabel( null ), [] );
 
 	const { data, hasComparison, isLoading, isFetching, hasData, isError } = useUtmInsights( {
 		reportParams,
@@ -132,7 +127,7 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 			...( ! isDrillDown &&
 				'children' in item &&
 				item.children?.length && {
-					onClick: () => setSelectedUtmLabel( item.label ),
+					onClick: () => selectUtmLabel( item.label ),
 					ariaLabel: sprintf(
 						/* translators: %s is the UTM value label. */
 						__( 'View posts for %s', 'jetpack-premium-analytics' ),
@@ -140,29 +135,20 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 					),
 				} ),
 		} ) );
-	}, [ activeData, hasComparison, isDrillDown ] );
+	}, [ activeData, hasComparison, isDrillDown, selectUtmLabel ] );
 
-	const header = (
-		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
-			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
-				{ isDrillDown ? (
-					<>
-						<Button
-							variant="unstyled"
-							onClick={ clearSelectedUtm }
-							className={ styles.breadcrumbLink }
-						>
-							<UtmInsightsHeaderTitle />
-						</Button>
-						<Text className={ styles.breadcrumbSeparator }>/</Text>
-						<Text className={ styles.breadcrumbCurrent }>{ selectedUtm?.label }</Text>
-					</>
-				) : (
-					<Text className={ styles.breadcrumbTitle }>
-						<UtmInsightsHeaderTitle />
-					</Text>
-				) }
-			</Stack>
+	const backLink = isDrillDown ? (
+		<WidgetBackLink
+			label={ __( 'All UTM Insights', 'jetpack-premium-analytics' ) }
+			ariaLabel={ __( 'View all UTM insights', 'jetpack-premium-analytics' ) }
+			onClick={ clearSelectedUtm }
+			className={ styles.backLink }
+		/>
+	) : null;
+
+	const bodyHeader = (
+		<Stack direction="row" align="center" className={ styles.bodyHeader }>
+			{ backLink }
 			<SelectControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
@@ -178,43 +164,37 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 
 	if ( isError ) {
 		return (
-			<>
-				{ header }
-				<div className={ styles.content }>
-					<Stack align="center" justify="center" className={ styles.placeholder }>
-						<Text>{ __( 'Could not load UTM data.', 'jetpack-premium-analytics' ) }</Text>
-					</Stack>
-				</div>
-			</>
+			<div className={ styles.content }>
+				{ bodyHeader }
+				<Stack align="center" justify="center" className={ styles.placeholder }>
+					<Text>{ __( 'Could not load UTM data.', 'jetpack-premium-analytics' ) }</Text>
+				</Stack>
+			</div>
 		);
 	}
 
 	if ( isLoading && data.length === 0 ) {
 		return (
-			<>
-				{ header }
-				<div className={ styles.content }>
-					<WidgetLoadingOverlay />
-				</div>
-			</>
+			<div className={ styles.content }>
+				{ bodyHeader }
+				<WidgetLoadingOverlay />
+			</div>
 		);
 	}
 
 	return (
-		<>
-			{ header }
-			<div className={ styles.content }>
-				<LeaderboardChart
-					data={ leaderboardData }
-					loading={ showLoading }
-					withComparison={ hasComparison }
-					withOverlayLabel
-					showLegend={ false }
-					emptyStateText={ __( 'No UTM data in this period.', 'jetpack-premium-analytics' ) }
-					dataFormat={ DATA_FORMAT }
-				/>
-			</div>
-		</>
+		<div className={ styles.content }>
+			{ bodyHeader }
+			<LeaderboardChart
+				data={ leaderboardData }
+				loading={ showLoading }
+				withComparison={ hasComparison }
+				withOverlayLabel
+				showLegend={ false }
+				emptyStateText={ __( 'No UTM data in this period.', 'jetpack-premium-analytics' ) }
+				dataFormat={ DATA_FORMAT }
+			/>
+		</div>
 	);
 }
 

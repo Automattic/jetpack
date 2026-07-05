@@ -22,7 +22,7 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
-	presentation: 'full-bleed' as const,
+	presentation: 'framed' as const,
 };
 
 interface SearchTermsStoryControls {
@@ -33,7 +33,6 @@ function renderSearchTerms( { withComparison }: SearchTermsStoryControls ) {
 	return (
 		<SearchTermsRender
 			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-			showTitle={ false }
 		/>
 	);
 }
