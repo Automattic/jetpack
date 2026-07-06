@@ -19,7 +19,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-require_once __DIR__ . '/dashboard-constants.php';
+require_once __DIR__ . '/dashboard-grammar.php';
 
 /**
  * Preferences scope under which the dashboard layout is stored. Mirrors the
@@ -151,7 +151,7 @@ function get_dashboard_default_layout_response( $request ) {
 function register_dashboard_default_layout_route() {
 	register_rest_route(
 		DASHBOARD_REST_NAMESPACE,
-		'/dashboards/(?P<name>' . DASHBOARD_NAME_PATTERN . ')/default-layout',
+		'/dashboards/(?P<name>' . get_dashboard_name_pattern() . ')/default-layout',
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_dashboard_default_layout_response',

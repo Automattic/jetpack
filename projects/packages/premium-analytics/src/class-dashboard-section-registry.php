@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-require_once __DIR__ . '/dashboard-constants.php';
+require_once __DIR__ . '/dashboard-grammar.php';
 
 /**
  * Stores Dashboard_Section instances keyed by dashboard and section ID.
@@ -169,7 +169,7 @@ final class Dashboard_Section_Registry {
 	 * @return bool
 	 */
 	private function is_valid_dashboard_name( $dashboard_name ) {
-		return is_string( $dashboard_name ) && 1 === preg_match( DASHBOARD_NAME_REGEX, $dashboard_name );
+		return is_string( $dashboard_name ) && 1 === preg_match( '/^' . get_dashboard_name_pattern() . '$/', $dashboard_name );
 	}
 
 	/**
@@ -179,6 +179,6 @@ final class Dashboard_Section_Registry {
 	 * @return bool
 	 */
 	private function is_valid_section_id( $id ) {
-		return is_string( $id ) && 1 === preg_match( DASHBOARD_SECTION_ID_REGEX, $id );
+		return is_string( $id ) && 1 === preg_match( '/^' . get_dashboard_section_id_pattern() . '$/', $id );
 	}
 }

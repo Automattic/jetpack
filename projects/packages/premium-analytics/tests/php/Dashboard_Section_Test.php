@@ -26,6 +26,13 @@ class Dashboard_Section_Test extends BaseTestCase {
 	private static $user_count = 0;
 
 	/**
+	 * _doing_it_wrong() method names captured during a test.
+	 *
+	 * @var string[]
+	 */
+	private $doing_it_wrong = array();
+
+	/**
 	 * Set up a fresh REST server for each test.
 	 */
 	public function set_up() {
@@ -46,7 +53,26 @@ class Dashboard_Section_Test extends BaseTestCase {
 		}
 		$instance->setValue( null, null );
 
+		remove_all_filters( 'doing_it_wrong_trigger_error' );
+		remove_all_actions( 'doing_it_wrong_run' );
+
 		parent::tear_down();
+	}
+
+	/**
+	 * Capture _doing_it_wrong() calls without tripping the suite's failOnWarning gate.
+	 *
+	 * @return void
+	 */
+	private function capture_doing_it_wrong() {
+		$this->doing_it_wrong = array();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) {
+				$this->doing_it_wrong[] = $function_name;
+			}
+		);
 	}
 
 	/**
@@ -78,6 +104,76 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame( 'Traffic', $section->label );
 		$this->assertSame( 15, $section->order );
 		$this->assertSame( $layout, $section->get_default_layout() );
+	}
+
+	/**
+	 * Registration is rejected for dashboard names that break the route grammar.
+	 */
+	public function test_register_rejects_invalid_dashboard_name() {
+		$registry = new Dashboard_Section_Registry();
+
+		$this->capture_doing_it_wrong();
+
+		$this->assertFalse( $registry->register( 'Invalid Name', 'example/traffic' ) );
+		$this->assertNotEmpty( $this->doing_it_wrong );
+		$this->assertNull( $registry->get_registered( 'Invalid Name', 'example/traffic' ) );
+	}
+
+	/**
+	 * Registration is rejected for section IDs that lack a namespace prefix.
+	 */
+	public function test_register_rejects_invalid_section_id() {
+		$registry = new Dashboard_Section_Registry();
+
+		$this->capture_doing_it_wrong();
+
+		$this->assertFalse( $registry->register( 'example_dashboard', 'traffic' ) );
+		$this->assertNotEmpty( $this->doing_it_wrong );
+		$this->assertNull( $registry->get_registered( 'example_dashboard', 'traffic' ) );
+	}
+
+	/**
+	 * A section that is already registered cannot be registered again.
+	 */
+	public function test_register_rejects_duplicate_section() {
+		$registry = new Dashboard_Section_Registry();
+
+		$first = $registry->register( 'example_dashboard', 'example/traffic', array( 'label' => 'Traffic' ) );
+		$this->assertInstanceOf( Dashboard_Section::class, $first );
+
+		$this->capture_doing_it_wrong();
+
+		$this->assertFalse( $registry->register( 'example_dashboard', 'example/traffic', array( 'label' => 'Duplicate' ) ) );
+		$this->assertNotEmpty( $this->doing_it_wrong );
+		$this->assertSame( $first, $registry->get_registered( 'example_dashboard', 'example/traffic' ) );
+	}
+
+	/**
+	 * Non-array section arguments are ignored and defaults are retained.
+	 */
+	public function test_section_ignores_non_array_args() {
+		$section = new Dashboard_Section( 'example_dashboard', 'example/traffic', 'not-an-array' );
+
+		$this->assertSame( 'example/traffic', $section->label );
+		$this->assertSame( 10, $section->order );
+		$this->assertTrue( $section->is_available() );
+		$this->assertSame( array(), $section->get_default_layout() );
+	}
+
+	/**
+	 * The built-in traffic section resolves its layout from the dashboard default.
+	 */
+	public function test_traffic_section_default_layout_uses_dashboard_default() {
+		register_default_dashboard_sections();
+
+		$traffic = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/traffic' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $traffic );
+		$this->assertSame(
+			get_dashboard_default_layout_for( DASHBOARD_NAME ),
+			$traffic->get_default_layout()
+		);
+		$this->assertNotEmpty( $traffic->get_default_layout() );
 	}
 
 	/**
@@ -173,6 +269,26 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Sections sharing an order are tie-broken alphabetically by ID.
+	 */
+	public function test_registry_tie_breaks_equal_order_sections_by_id() {
+		$registry = new Dashboard_Section_Registry();
+
+		$registry->register( 'tie_dashboard', 'example/beta', array( 'order' => 10 ) );
+		$registry->register( 'tie_dashboard', 'example/alpha', array( 'order' => 10 ) );
+
+		$this->assertSame(
+			array( 'example/alpha', 'example/beta' ),
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->id;
+				},
+				$registry->get_available_sections( 'tie_dashboard' )
+			)
+		);
+	}
+
+	/**
 	 * The global helper registers sections in the singleton registry.
 	 */
 	public function test_global_register_dashboard_section_registers_with_singleton() {
@@ -218,6 +334,20 @@ class Dashboard_Section_Test extends BaseTestCase {
 				},
 				get_available_dashboard_sections( DASHBOARD_NAME )
 			)
+		);
+	}
+
+	/**
+	 * Bootstrapping after init registers the default sections immediately.
+	 */
+	public function test_bootstrap_registers_defaults_when_init_has_run() {
+		do_action( 'init' );
+
+		bootstrap_dashboard_sections();
+
+		$this->assertInstanceOf(
+			Dashboard_Section::class,
+			get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/traffic' )
 		);
 	}
 
