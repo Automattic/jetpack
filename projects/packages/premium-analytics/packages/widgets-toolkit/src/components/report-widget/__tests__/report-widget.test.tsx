@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { globalErrorManager, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -20,6 +20,15 @@ function renderWithProvider( ui: ReactElement ) {
 }
 
 describe( 'ReportWidget', () => {
+	// A page-level global error is process-wide state on `globalErrorManager`;
+	// clear it after every test so it never leaks into the next one. Wrapped in
+	// `act` because a mounted provider re-renders in response to the change.
+	afterEach( () => {
+		act( () => {
+			globalErrorManager.clearError();
+		} );
+	} );
+
 	it( 'renders rows via the child render prop when ready', () => {
 		renderWithProvider(
 			<ReportWidget report={ baseReport } rows={ [ 'a', 'b' ] }>
@@ -64,5 +73,23 @@ describe( 'ReportWidget', () => {
 			</ReportWidget>
 		);
 		expect( screen.getByText( 'toolbar' ) ).toBeInTheDocument();
+	} );
+
+	it( 'mutes the widget into the error state when there is a page-level global error', () => {
+		renderWithProvider(
+			<ReportWidget report={ baseReport } rows={ [ 'a', 'b' ] }>
+				{ rows => <div>{ rows.join( ',' ) }</div> }
+			</ReportWidget>
+		);
+		// Children render while there is no global error…
+		expect( screen.getByText( 'a,b' ) ).toBeInTheDocument();
+		// …then a page-level global error mutes the widget into the error state.
+		act( () => {
+			globalErrorManager.setError( 'network' );
+		} );
+		// `isGlobalError` forces the error state, so the success children are gone…
+		expect( screen.queryByText( 'a,b' ) ).not.toBeInTheDocument();
+		// …and the descriptor is muted: empty description, no Retry action.
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 } );
