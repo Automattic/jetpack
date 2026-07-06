@@ -3,11 +3,6 @@
 	min-block-size: 120px;
 	padding: var(--wpds-dimension-padding-md);
 	text-align: center;
-	gap: var(--wpds-dimension-gap-sm);
-}
-
-.errorIcon {
-	color: var(--wpds-color-fg-content-error);
 }
 
 .title {
@@ -15,11 +10,10 @@
 }
 
 .description {
+	margin: 0;
 	color: var(--wpds-color-fg-content-neutral-weak);
-}
-
-.actions {
-	margin-block-start: var(--wpds-dimension-gap-sm);
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
 }
 
 .ready {

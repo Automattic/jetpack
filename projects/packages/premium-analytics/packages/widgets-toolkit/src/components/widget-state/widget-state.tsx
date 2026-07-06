@@ -2,13 +2,14 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { cautionFilled, chartBar } from '@wordpress/icons';
+import { chartBar } from '@wordpress/icons';
 import { Button, Icon, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import { ChartEmptyState } from '../chart-empty-state';
 import { WidgetLoadingOverlay } from '../widget-loading-overlay';
+import { errorStateIcon } from './error-state-icon';
 import styles from './widget-state.module.scss';
 import type { ComponentProps, ReactNode } from 'react';
 
@@ -49,7 +50,7 @@ export interface WidgetStateProps {
  * Priority: error → loading (first load) → empty → ready. During a background
  * refetch (`isFetching` with data) the children stay visible under a busy
  * overlay. The empty state defaults to a neutral `chartBar` glyph so it reads
- * differently from the error state's caution icon.
+ * differently from the error state's icon.
  *
  * @param props               - Component props.
  * @param props.isLoading     - A fetch is in flight and there is no data yet.
@@ -74,8 +75,8 @@ export function WidgetState( {
 }: WidgetStateProps ) {
 	if ( isError ) {
 		return (
-			<Stack className={ styles.state } direction="column" align="center" justify="center">
-				<Icon className={ styles.errorIcon } size={ 48 } icon={ cautionFilled } />
+			<Stack className={ styles.state } direction="column" gap="lg" align="center" justify="center">
+				<Icon size={ 40 } icon={ errorStateIcon } />
 				{ error?.title && <div className={ styles.title }>{ error.title }</div> }
 				<div className={ styles.description }>
 					{ error?.description ??
@@ -85,12 +86,13 @@ export function WidgetState( {
 						) }
 				</div>
 				{ !! error?.actions?.length && (
-					<Stack className={ styles.actions } direction="row" justify="center">
+					<Stack direction="row" gap="sm" justify="center">
 						{ error.actions.map( action => (
 							<Button
 								key={ action.label }
 								type="button"
-								variant="secondary"
+								variant="outline"
+								size="compact"
 								onClick={ action.onClick }
 							>
 								{ action.label }

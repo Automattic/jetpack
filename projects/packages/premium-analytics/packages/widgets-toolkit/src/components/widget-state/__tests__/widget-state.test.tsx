@@ -2,10 +2,11 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
-import { cautionFilled, chartBar } from '@wordpress/icons';
+import { chartBar } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { errorStateIcon } from '../error-state-icon';
 import { WidgetState } from '../widget-state';
 import type { ReactElement } from 'react';
 
@@ -88,11 +89,11 @@ describe( 'WidgetState', () => {
 		expect( onClick ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'uses a neutral empty icon, distinct from the error caution icon', () => {
-		const neutralPath = iconPathOf( <>{ chartBar }</> );
-		const cautionPath = iconPathOf( <>{ cautionFilled }</> );
-		// Sanity: the two source glyphs really are different.
-		expect( neutralPath ).not.toBe( cautionPath );
+	it( 'uses a neutral empty icon, distinct from the error icon', () => {
+		const emptyGlyphPath = iconPathOf( <>{ chartBar }</> );
+		const errorGlyphPath = iconPathOf( errorStateIcon );
+		// Sanity: the empty and error source glyphs really are different.
+		expect( emptyGlyphPath ).not.toBe( errorGlyphPath );
 
 		const { container: emptyContainer, unmount: unmountEmpty } = render(
 			<WidgetState
@@ -105,8 +106,8 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		const emptyIcon = svgPathOf( emptyContainer );
-		expect( emptyIcon ).toBe( neutralPath );
-		expect( emptyIcon ).not.toBe( cautionPath );
+		expect( emptyIcon ).toBe( emptyGlyphPath );
+		expect( emptyIcon ).not.toBe( errorGlyphPath );
 		unmountEmpty();
 
 		const { container: errorContainer } = render(
@@ -119,7 +120,7 @@ describe( 'WidgetState', () => {
 				{ CONTENT }
 			</WidgetState>
 		);
-		expect( svgPathOf( errorContainer ) ).toBe( cautionPath );
+		expect( svgPathOf( errorContainer ) ).toBe( errorGlyphPath );
 	} );
 
 	it( 'keeps children visible during a background refetch (busy)', () => {
