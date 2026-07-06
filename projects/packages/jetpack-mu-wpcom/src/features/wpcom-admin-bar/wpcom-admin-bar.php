@@ -506,21 +506,16 @@ add_action( 'admin_bar_menu', 'wpcom_add_site_badges_and_plan', 35 );
 function wpcom_add_stats_to_site_menu() {
 	global $wp_admin_bar;
 
-	if ( ! is_object( $wp_admin_bar ) || ! $wp_admin_bar->get_node( 'dashboard' ) ) {
+	if ( ! is_object( $wp_admin_bar ) || ! $wp_admin_bar->get_node( 'dashboard' ) || ! current_user_can( 'view_stats' ) ) {
 		return;
 	}
-
-	$site_slug = wpcom_get_site_slug();
-	$stats_url = $site_slug
-		? 'https://wordpress.com/stats/day/' . $site_slug
-		: admin_url( 'admin.php?page=stats' );
 
 	$wp_admin_bar->add_node(
 		array(
 			'parent' => 'site-name',
 			'id'     => 'wpcom-stats',
 			'title'  => __( 'Stats', 'jetpack-mu-wpcom' ),
-			'href'   => $stats_url,
+			'href'   => admin_url( 'admin.php?page=stats' ),
 		)
 	);
 }
