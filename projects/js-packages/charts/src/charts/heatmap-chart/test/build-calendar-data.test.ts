@@ -57,6 +57,18 @@ describe( 'buildCalendarHeatmapData', () => {
 		expect( data.map( c => c.label ).filter( Boolean )[ 0 ] ).toBe( 'Feb' );
 	} );
 
+	test( 'keeps the first month label when the range never reaches a second month', () => {
+		// A single week entirely within January: there is no later month label to
+		// collide with, so the only month label must stay for context.
+		const singleMonth: DataPointDate[] = [
+			{ dateString: '2024-01-01', value: 1 },
+			{ dateString: '2024-01-03', value: 2 },
+		];
+		const { data } = buildCalendarHeatmapData( singleMonth, { weekStartsOn: 1 } );
+		expect( data ).toHaveLength( 1 );
+		expect( data[ 0 ].label ).toBe( 'Jan' );
+	} );
+
 	test( 'filters out entries with unparseable or missing dates', () => {
 		const mixed: DataPointDate[] = [
 			{ dateString: '2024-01-01', value: 3 },

@@ -62,7 +62,9 @@ export const buildCalendarHeatmapData = (
 	// label would then sit directly under the next month's label and overlap it
 	// (labels are wider than a column, especially in the compact layout), so we
 	// suppress the first month's label unless it spans enough columns to clear the
-	// next one.
+	// next one. If the whole range stays in that first month there is no next
+	// label to collide with, so we keep it — otherwise a short single-month range
+	// would lose all month context.
 	const MIN_FIRST_MONTH_WEEKS = 2;
 	const firstMonth = gridStart.getMonth();
 	let firstMonthWeeks = 0;
@@ -72,7 +74,8 @@ export const buildCalendarHeatmapData = (
 	) {
 		firstMonthWeeks++;
 	}
-	const showFirstMonthLabel = firstMonthWeeks >= MIN_FIRST_MONTH_WEEKS;
+	const spansLaterMonth = firstMonthWeeks < weekCount;
+	const showFirstMonthLabel = ! spansLaterMonth || firstMonthWeeks >= MIN_FIRST_MONTH_WEEKS;
 
 	const data: HeatmapColumn[] = [];
 	let previousMonth = -1;
