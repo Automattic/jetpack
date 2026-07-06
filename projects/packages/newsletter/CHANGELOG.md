@@ -7,13 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.11.2] - 2026-07-06
 ### Changed
-- Newsletter settings: space the Email content private-site notice from the form with a Stack gap instead of a custom CSS margin rule. [#50085]
-- Update package dependencies. [#50097]
-- Update package dependencies. [#50183]
+- Settings: Space the Email content private-site notice from the form with a Stack gap instead of a custom CSS margin rule. [#50085]
+- Update package dependencies. [#50097] [#50183]
 
 ### Fixed
-- Daily Writing Prompt widget: show a branded fallback with a Reader link when no prompt is available or the request fails, instead of rendering a blank widget. [#50119]
-- Newsletter settings: add bottom margin to the Email content private-site notice so it no longer collides with the featured image toggle. [#50072]
+- Daily Writing Prompt: Show a branded fallback with a Reader link when no prompt is available or the request fails, instead of rendering a blank widget. [#50119]
+- Settings: Add bottom margin to the Email content private-site notice so it no longer collides with the featured image toggle. [#50072]
 
 ## [0.11.1] - 2026-06-29
 ### Changed

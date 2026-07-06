@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.45.0] - 2026-07-06
 ### Added
-- Sync the videopress_auto_subtitles_disabled option to WordPress.com. [#50014]
+- Sync the `videopress_auto_subtitles_disabled` option to WordPress.com. [#50014]
 
 ## [4.44.1] - 2026-06-25
 ### Fixed

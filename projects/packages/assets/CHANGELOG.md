@@ -7,11 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.4.3] - 2026-07-06
 ### Added
-- Expose the current user's edit_others_posts capability in the localized script data. [#50162]
+- Expose the current user's `edit_others_posts` capability in the localized script data. [#50162]
 
 ### Changed
-- Update package dependencies. [#50097]
-- Update package dependencies. [#50183]
+- Update package dependencies. [#50097] [#50183]
 
 ## [4.4.2] - 2026-06-26
 ### Changed

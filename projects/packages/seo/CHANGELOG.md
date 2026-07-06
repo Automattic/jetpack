@@ -14,11 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Emit the site Organization schema on the home page only; posts reference it by id. [#50111]
-- Update package dependencies. [#50097]
-- Update package dependencies. [#50183]
+- Update package dependencies. [#50097] [#50183]
 
 ### Fixed
-- Load the SEO dashboard's Overview, Settings, and AI tabs resiliently: their data is preloaded into the page for an instant first paint, and when that snapshot is missing or stale the tab now fetches it (showing a loading state and retrying) instead of dead-ending on an "Unable to load" error. [#50027]
+- Make the SEO dashboard's Overview, Settings, and AI tabs fetch their data when the preloaded snapshot is missing or stale (with a loading state and retry), instead of failing with an "Unable to load" error. [#50027]
 
 ## [0.3.1] - 2026-06-29
 ### Changed

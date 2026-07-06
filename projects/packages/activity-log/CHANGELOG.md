@@ -8,8 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.10] - 2026-07-06
 ### Changed
 - Admin Menu: Move "Activity Log" above "Settings". [#50104]
-- Update package dependencies. [#50097]
-- Update package dependencies. [#50183]
+- Update package dependencies. [#50097] [#50183]
 
 ## [0.1.9] - 2026-06-29
 ### Changed

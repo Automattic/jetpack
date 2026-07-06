@@ -7,12 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.0] - 2026-07-06
 ### Added
-- Load translation files for the Agents Manager UI so it can be displayed in the user's language. [#50069]
+- Load translation files for the UI so it can be displayed in the user's language. [#50069]
 
 ### Changed
-- Show the editor Ask AI button whenever Agents Manager is enabled, instead of only in dev contexts. [#50075]
-- Update package dependencies. [#50097]
-- Update package dependencies. [#50183]
+- Show the editor Ask AI button whenever manager is enabled, instead of only in dev contexts. [#50075]
+- Update package dependencies. [#50097] [#50183]
 
 ### Fixed
 - Site Editor: Skip the docked-sidebar pre-render on the navigation view, where the chat can't dock — only the editing canvas (`?canvas=edit`) docks the chat. [#50120]

@@ -4,10 +4,8 @@
 
 ## [1.5.0] - 2026-07-06
 ### Changed
-- Connection errors: useConnectionErrorNotice now owns CTA/action resolution and returns resolved actions, so consumers no longer re-derive copy/handlers from error_data. No change to which errors are surfaced. [#50081]
-- Update package dependencies. [#50097]
-- Update package dependencies. [#50183]
-- Update package dependencies. [#50212]
+- Make `useConnectionErrorNotice` own CTA and action resolution and return resolved actions, so consumers no longer re-derive copy and handlers from `error_data`. [#50081]
+- Update package dependencies. [#50097] [#50183] [#50212]
 
 ## [1.4.66] - 2026-06-26
 ### Changed

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.5] - 2026-07-06
 ### Added
-- Add edit_others_posts to the UserCapabilities type. [#50162]
+- Add `edit_others_posts` to the `UserCapabilities` type. [#50162]
 
 ## [0.6.4] - 2026-05-19
 ### Changed

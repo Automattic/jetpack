@@ -7,15 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.9.0] - 2026-07-06
 ### Added
-- Charts: add HeatmapChart for matrix and calendar/contribution-style data, with a compact mode and a composition color-scale legend. [#50065]
+- Add HeatmapChart for matrix and calendar/contribution-style data, with a compact mode and a composition color-scale legend. [#50065]
 
 ### Changed
 - Bar Chart: Declare a local process type so the comparison-bars module type-checks when imported as source by other packages. [#49205]
-- Charts: replace hardcoded surface, foreground, and UI colors with WPDS design tokens. [#49946]
-- Charts: tokenize box-shadow, transition, and animation values with WPDS elevation and motion tokens. Shadows now use --wpds-elevation-sm and motion uses --wpds-motion-duration/easing tokens, making elevation and motion themeable; chart entrance animations move to the design system's motion scale (400ms). [#49947]
-- Update package dependencies. [#50097]
-- Update package dependencies. [#50183]
-- Update package dependencies. [#50212]
+- Replace hardcoded surface, foreground, and UI colors with WPDS design tokens. [#49946]
+- Tokenize box-shadow, transition, and animation values with WPDS elevation and motion tokens, making elevation and motion themeable. [#49947]
+- Update package dependencies. [#50097] [#50183] [#50212]
 
 ### Fixed
 - Conversion Funnel Chart: Let the funnel shrink to fit height-constrained cards instead of enforcing a 200px minimum that forced a scrollbar. [#50163]

@@ -7,9 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.3] - 2026-07-06
 ### Changed
-- Refactor: Use store objects instead of string IDs [#49810]
-- Update package dependencies. [#50097]
-- Update package dependencies. [#50183]
+- Use store objects instead of string IDs. [#49810]
+- Update package dependencies. [#50097] [#50183]
 
 ## [0.1.2] - 2026-06-26
 ### Changed

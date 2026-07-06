@@ -8,14 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.39.0] - 2026-07-06
 ### Added
 - Add presentation to the player iframe allow list to enable casting from embeds. [#50215]
-- VideoPress: add a site-level setting to turn off auto-generated subtitles. [#50014]
+- Add a site-level setting to turn off auto-generated subtitles. [#50014]
 
 ### Changed
-- Dashboard: Release modernized VideoPress dashboard [#49023]
+- Dashboard: Release modernized VideoPress dashboard. [#49023]
 - Internal: Enable real typechecking on the package. [#49205]
-- Update package dependencies. [#50097]
-- Update package dependencies. [#50183]
-- Update package dependencies. [#50212]
+- Update package dependencies. [#50097] [#50183] [#50212]
 
 ## [0.38.2] - 2026-06-29
 ### Security
