@@ -66,7 +66,7 @@ export default function useUtmInsights( {
 
 	const rawItems = ( primary.data?.data?.[ 0 ]?.items ?? [] ) as StatsUtmTopPostItem[];
 	const comparisonItems = hasComparison
-		? ( comparison.data?.data?.[ 0 ]?.items ?? [] ) as StatsUtmTopPostItem[]
+		? ( ( comparison.data?.data?.[ 0 ]?.items ?? [] ) as StatsUtmTopPostItem[] )
 		: [];
 	const visibleItems = rawItems.slice( 0, max > 0 ? max : undefined );
 	const { rows, hasComparison: hasOverlappingComparison } = mergeStatsComparisonRows<
@@ -80,24 +80,23 @@ export default function useUtmInsights( {
 		getComparisonKey: getLabel,
 		getComparisonValue: item => item.value,
 		mapRow: ( item, { previousValue, comparisonItem } ) => {
-			const { rows: children, hasComparison: childrenHaveComparison } =
-				mergeStatsComparisonRows<
-					StatsUtmTopPostItem,
-					StatsUtmTopPostItem,
-					UtmInsightsChildRow
-				>( {
-					primaryRows: item.children ?? [],
-					comparisonRows: comparisonItem?.children ?? [],
-					getPrimaryKey: getChildKey,
-					getComparisonKey: getChildKey,
-					getComparisonValue: child => child.value,
-					mapRow: ( child, { previousValue: childPreviousValue } ) => ( {
-						label: getLabel( child ),
-						value: child.value,
-						previousValue: childPreviousValue,
-						href: child.href,
-					} ),
-				} );
+			const { rows: children, hasComparison: childrenHaveComparison } = mergeStatsComparisonRows<
+				StatsUtmTopPostItem,
+				StatsUtmTopPostItem,
+				UtmInsightsChildRow
+			>( {
+				primaryRows: item.children ?? [],
+				comparisonRows: comparisonItem?.children ?? [],
+				getPrimaryKey: getChildKey,
+				getComparisonKey: getChildKey,
+				getComparisonValue: child => child.value,
+				mapRow: ( child, { previousValue: childPreviousValue } ) => ( {
+					label: getLabel( child ),
+					value: child.value,
+					previousValue: childPreviousValue,
+					href: child.href,
+				} ),
+			} );
 
 			return {
 				label: getLabel( item ),

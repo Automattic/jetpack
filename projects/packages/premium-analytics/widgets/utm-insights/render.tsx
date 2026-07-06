@@ -123,27 +123,27 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 				currentValue: item.value,
 				currentShare: ( item.value / maxValue ) * 100,
 				previousValue,
-					previousShare:
-						withComparison && previousValue !== undefined && previousValue > 0
-							? ( previousValue / maxPreviousValue ) * 100
-							: undefined,
-					delta:
-						withComparison && previousValue !== undefined
-							? calculateDelta( item.value, previousValue )
-							: undefined,
-					...( ! isDrillDown &&
-						'children' in item &&
-						item.children?.length && {
-							onClick: () => selectUtmLabel( item.label ),
-							ariaLabel: sprintf(
-								/* translators: %s is the UTM value label. */
-								__( 'View posts for %s', 'jetpack-premium-analytics' ),
-								item.label
-							),
-						} ),
-				};
-			} );
-		}, [ activeData, isDrillDown, selectUtmLabel, withComparison ] );
+				previousShare:
+					withComparison && previousValue !== undefined && previousValue > 0
+						? ( previousValue / maxPreviousValue ) * 100
+						: undefined,
+				delta:
+					withComparison && previousValue !== undefined
+						? calculateDelta( item.value, previousValue )
+						: undefined,
+				...( ! isDrillDown &&
+					'children' in item &&
+					item.children?.length && {
+						onClick: () => selectUtmLabel( item.label ),
+						ariaLabel: sprintf(
+							/* translators: %s is the UTM value label. */
+							__( 'View posts for %s', 'jetpack-premium-analytics' ),
+							item.label
+						),
+					} ),
+			};
+		} );
+	}, [ activeData, isDrillDown, selectUtmLabel, withComparison ] );
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
