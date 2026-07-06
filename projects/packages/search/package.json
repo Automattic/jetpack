@@ -98,7 +98,7 @@
 		"@wordpress/dependency-extraction-webpack-plugin": "6.50.0",
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.4.1",
-		"babel-plugin-polyfill-corejs3": "0.14.0",
+		"babel-plugin-polyfill-corejs3": "1.0.0",
 		"concurrently": "10.0.3",
 		"core-js": "3.38.1",
 		"jest": "30.4.2",
