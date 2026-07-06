@@ -184,7 +184,9 @@ class ReportCSVGenerator_Test extends TestCase {
 
 		$url = $generator->get_file_url( $path );
 		$this->assertIsString( $url );
-		$this->assertStringContainsString( 'unit-test-url.csv', $url );
+		// Filename carries a random suffix, so match the prefix and extension.
+		$this->assertStringContainsString( 'unit-test-url-', $url );
+		$this->assertStringEndsWith( '.csv', $url );
 
 		$this->assertInstanceOf( \WP_Error::class, $generator->get_file_url( '/does/not/exist.csv' ) );
 	}
@@ -202,5 +204,59 @@ class ReportCSVGenerator_Test extends TestCase {
 	public function test_stream_file_returns_false_for_missing_file() {
 		$generator = $this->generator();
 		$this->assertFalse( $generator->stream_file( '/does/not/exist.csv' ) );
+	}
+
+	/**
+	 * Values that begin with a formula trigger character must be neutralized with a leading quote.
+	 *
+	 * @dataProvider formula_injection_provider
+	 * @param string $dangerous The raw cell value.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'formula_injection_provider' )]
+	public function test_generate_neutralizes_formula_injection( string $dangerous ) {
+		$generator = $this->generator();
+
+		$columns   = array(
+			'time_interval' => 'Date',
+			'orders_no'     => 'Orders',
+		);
+		$formatter = static function ( array $row ) {
+			return array(
+				'time_interval' => $row['time_interval'] ?? '',
+				'orders_no'     => $row['orders_no'] ?? '',
+			);
+		};
+		$data      = array(
+			'data' => array(
+				array(
+					'time_interval' => $dangerous,
+					'orders_no'     => 1,
+				),
+			),
+		);
+
+		$path            = $generator->generate( $data, $columns, $formatter, 'unit-test-injection' );
+		$this->created[] = $path;
+
+		$lines = array_values( array_filter( explode( "\n", trim( substr( file_get_contents( $path ), 3 ) ) ) ) );
+		// Data row is index 1 (0 is the header). The dangerous value is prefixed with a single quote.
+		$data_row = str_getcsv( $lines[1], ',', '"', '\\' );
+		$this->assertSame( "'" . $dangerous, $data_row[0] );
+	}
+
+	/**
+	 * Formula-injection trigger characters.
+	 *
+	 * @return array<string, array{0:string}>
+	 */
+	public static function formula_injection_provider(): array {
+		return array(
+			'equals'   => array( '=HYPERLINK("http://evil","x")' ),
+			'plus'     => array( '+1+1' ),
+			'minus'    => array( '-2+3' ),
+			'at'       => array( '@SUM(A1:A9)' ),
+			'tab'      => array( "\tcmd" ),
+			'carriage' => array( "\rcmd" ),
+		);
 	}
 }

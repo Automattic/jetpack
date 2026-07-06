@@ -21,7 +21,7 @@ use WP_Error;
 /**
  * CSV Generator class for creating CSV files from report data.
  *
- * @since x.x.x
+ * @since $$next-version$$
  * @internal
  */
 class ReportCSVGenerator {
@@ -69,32 +69,36 @@ class ReportCSVGenerator {
 				);
 			}
 
-			// Write BOM for UTF-8 (helps Excel recognize encoding).
-			fwrite( $handle, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
-
-			// Write header row.
-			fputcsv( $handle, array_values( $columns ), ',', '"', '\\' );
-
-			// Write data rows.
 			$rows = $data['data'] ?? array();
-			foreach ( $rows as $row ) {
-				$formatted_row = call_user_func( $formatter, $row );
 
-				// Skip empty rows (when formatter returns empty array).
-				if ( empty( $formatted_row ) ) {
-					continue;
+			// Use try/finally so the file handle is always closed, even if the formatter throws.
+			try {
+				// Write BOM for UTF-8 (helps Excel recognize encoding).
+				fwrite( $handle, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+
+				// Write header row (labels are our own strings, but escape for consistency).
+				fputcsv( $handle, array_map( array( self::class, 'escape_csv_value' ), array_values( $columns ) ), ',', '"', '\\' );
+
+				// Write data rows.
+				foreach ( $rows as $row ) {
+					$formatted_row = call_user_func( $formatter, $row );
+
+					// Skip empty rows (when formatter returns empty array).
+					if ( empty( $formatted_row ) ) {
+						continue;
+					}
+
+					// Extract values in the same order as columns, neutralizing CSV formula injection.
+					$csv_row = array();
+					foreach ( array_keys( $columns ) as $column_key ) {
+						$csv_row[] = self::escape_csv_value( $formatted_row[ $column_key ] ?? '' );
+					}
+
+					fputcsv( $handle, $csv_row, ',', '"', '\\' );
 				}
-
-				// Extract values in the same order as columns.
-				$csv_row = array();
-				foreach ( array_keys( $columns ) as $column_key ) {
-					$csv_row[] = $formatted_row[ $column_key ] ?? '';
-				}
-
-				fputcsv( $handle, $csv_row, ',', '"', '\\' );
+			} finally {
+				fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 			}
-
-			fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 			$this->logger->log_message(
 				sprintf( 'CSV file generated successfully: %s (%d rows)', $file_path, count( $rows ) ),
@@ -111,6 +115,26 @@ class ReportCSVGenerator {
 				array( 'exception' => $e->getMessage() )
 			);
 		}
+	}
+
+	/**
+	 * Neutralize CSV formula injection.
+	 *
+	 * Spreadsheet apps execute a cell whose value begins with =, +, -, @, tab, or CR.
+	 * Prefixing with a single quote renders it as literal text. Exported values (e.g.
+	 * product names) are store data and must not be trusted.
+	 *
+	 * @param mixed $value The cell value.
+	 * @return string The escaped value.
+	 */
+	private static function escape_csv_value( $value ): string {
+		$value = (string) $value;
+
+		if ( '' !== $value && in_array( $value[0], array( '=', '+', '-', '@', "\t", "\r" ), true ) ) {
+			return "'" . $value;
+		}
+
+		return $value;
 	}
 
 	/**
@@ -132,15 +156,11 @@ class ReportCSVGenerator {
 		}
 
 		// Create exports subdirectory.
-		$export_dir = trailingslashit( $upload_dir['basedir'] ) . 'woocommerce-analytics-exports';
+		$export_dir = trailingslashit( $upload_dir['basedir'] ) . 'jetpack-premium-analytics-exports';
 
 		if ( ! file_exists( $export_dir ) ) {
 			wp_mkdir_p( $export_dir );
 		}
-
-		// Sanitize filename and add extension.
-		$safe_filename = sanitize_file_name( $filename ) . '.csv';
-		$file_path     = trailingslashit( $export_dir ) . $safe_filename;
 
 		// Ensure we can write to the directory.
 		if ( ! wp_is_writable( $export_dir ) ) {
@@ -151,7 +171,32 @@ class ReportCSVGenerator {
 			);
 		}
 
-		return $file_path;
+		// Drop directory-listing/access protection so exports are not enumerable or web-served.
+		$this->protect_export_dir( $export_dir );
+
+		// Sanitize filename, add an unguessable suffix, and add extension. Files are delivered as
+		// email attachments; the random suffix is defense-in-depth against URL guessing.
+		$safe_filename = sanitize_file_name( $filename ) . '-' . wp_generate_password( 12, false ) . '.csv';
+
+		return trailingslashit( $export_dir ) . $safe_filename;
+	}
+
+	/**
+	 * Write index.html + .htaccess guards into the export directory (best-effort, idempotent).
+	 *
+	 * @param string $export_dir The export directory path.
+	 * @return void
+	 */
+	private function protect_export_dir( string $export_dir ): void {
+		$index = trailingslashit( $export_dir ) . 'index.html';
+		if ( ! file_exists( $index ) ) {
+			@file_put_contents( $index, '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
+		$htaccess = trailingslashit( $export_dir ) . '.htaccess';
+		if ( ! file_exists( $htaccess ) ) {
+			@file_put_contents( $htaccess, "Require all denied\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+		}
 	}
 
 	/**
