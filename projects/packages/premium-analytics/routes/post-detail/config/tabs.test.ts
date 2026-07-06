@@ -1,7 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import { DEFAULT_TAB_ID, POST_DETAIL_TAB_IDS, getPostDetailTabs, resolveTabId } from './tabs';
 
+// Spread the real module and spy only on `__`: importing `./tabs` now pulls in
+// the routing barrel, whose module graph executes `@wordpress/components` at load
+// time (which calls `isRTL`), so a mock that drops the rest of i18n would break.
 jest.mock( '@wordpress/i18n', () => ( {
+	...jest.requireActual( '@wordpress/i18n' ),
 	__: jest.fn( ( text: string ) => text ),
 } ) );
 

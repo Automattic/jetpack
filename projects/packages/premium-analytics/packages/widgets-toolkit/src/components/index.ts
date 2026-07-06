@@ -39,12 +39,17 @@ export {
 export {
 	ReportPageLayout,
 	ReportPageSection,
+	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	StatsBreadcrumbs,
 	buildReportMetricSeries,
 	type ReportChartMetric,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
+	type ReportPageTab,
+	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
+	type StatsBreadcrumbsProps,
 } from './report-page';

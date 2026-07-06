@@ -1,6 +1,7 @@
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { ReportPageTabs, StatsBreadcrumbs } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -13,9 +14,9 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // hook's own note), so the post-detail page reuses the dashboard's hook rather
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
-import { PostDetailTabs, PostSummaryCard, StatsBreadcrumbs } from './components';
-import { getPostDetailTabs, type PostDetailTabId } from './config';
-import { useActiveTab, usePostDetailTabLayout, usePostSummary } from './hooks';
+import { PostSummaryCard } from './components';
+import { getPostDetailTabs, resolveTabId, type PostDetailTabId } from './config';
+import { usePostDetailTabLayout, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
 
@@ -35,7 +36,7 @@ function PostDetail(): JSX.Element {
 	const postId = Number( postIdParam );
 
 	const tabs = useMemo( () => getPostDetailTabs(), [] );
-	const [ activeTab, setActiveTab ] = useActiveTab();
+	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 	const [ layout, setLayout, resetLayout ] = usePostDetailTabLayout( activeTab );
 	const [ gridSettings, setGridSettings ] = useDashboardGridSettings();
 
@@ -101,7 +102,7 @@ function PostDetail(): JSX.Element {
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.page }
 				>
-					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange }>
+					<ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange }>
 						{ /*
 						 * The summary card and date filters are shared by every tab
 						 * (same post, same date range), so they render once below the
@@ -127,7 +128,7 @@ function PostDetail(): JSX.Element {
 								) : null }
 							</Tabs.Panel>
 						) ) }
-					</PostDetailTabs>
+					</ReportPageTabs>
 
 					<WidgetDashboard.Commands />
 				</Page>

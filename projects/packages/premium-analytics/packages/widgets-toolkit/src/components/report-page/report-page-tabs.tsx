@@ -1,33 +1,40 @@
 import { Tabs } from '@wordpress/ui';
 import { useCallback } from 'react';
-import styles from './post-detail-tabs.module.scss';
-import type { PostDetailTab, PostDetailTabId } from '../../config';
+import styles from './report-page-tabs.module.scss';
 import type { ReactNode } from 'react';
 
-type PostDetailTabsProps = {
+/**
+ * A resolved report-page tab ({ id, label }).
+ */
+export type ReportPageTab< TabId extends string = string > = {
+	id: TabId;
+	label: string;
+};
+
+export interface ReportPageTabsProps< TabId extends string = string > {
 	/**
 	 * The tabs to render, in order.
 	 */
-	tabs: PostDetailTab[];
+	tabs: ReportPageTab< TabId >[];
 
 	/**
 	 * The currently active tab ID.
 	 */
-	value: PostDetailTabId;
+	value: TabId;
 
 	/**
 	 * Called with the new tab ID when the user selects a different tab.
 	 */
-	onChange: ( id: PostDetailTabId ) => void;
+	onChange: ( id: TabId ) => void;
 
 	/**
 	 * Tab panel content.
 	 */
 	children?: ReactNode;
-};
+}
 
 /**
- * The post-detail tab bar.
+ * The shared report-page tab bar.
  *
  * Purely presentational: it renders the tab triggers and reports selection
  * changes upward. Panel children render inside the same Tabs.Root so the
@@ -40,9 +47,14 @@ type PostDetailTabsProps = {
  * @param props.children - Tab panel content.
  * @return The tab bar element.
  */
-export function PostDetailTabs( { tabs, value, onChange, children }: PostDetailTabsProps ) {
+export function ReportPageTabs< TabId extends string = string >( {
+	tabs,
+	value,
+	onChange,
+	children,
+}: ReportPageTabsProps< TabId > ) {
 	const handleValueChange = useCallback(
-		( tabId: string ) => onChange( tabId as PostDetailTabId ),
+		( tabId: string ) => onChange( tabId as TabId ),
 		[ onChange ]
 	);
 

@@ -40,6 +40,15 @@ not a bespoke page per module.
 - **`ReportRecordsTable`** — a Core DataViews table over the module's
   summarized rows; search, sorting, column config, and pagination run
   client-side via `filterSortAndPaginate`.
+- **`ReportPageTabs`** — the presentational tab bar for report pages with
+  multiple views (the `tabs` slot above). It renders `{ id, label }` triggers
+  and reports selection upward; panel children render inside the same `Tabs.Root`
+  so the tablist and content share one tab/panel relationship. Generic over the
+  tab-id string type; pair it with `defineReportTabs` / `useSectionTab` from
+  `@jetpack-premium-analytics/routing` for the URL-backed tab state.
+- **`StatsBreadcrumbs`** — the `Stats / <title>` breadcrumb for the header
+  `breadcrumbs` slot. The leading crumb links back to the dashboard, carrying the
+  shared date range and comparison so Back returns to the same view.
 
 These components do not fetch: the page owns the data hooks and the
 `reportParams` derived from the URL (`useReportDateFilters`), and passes
