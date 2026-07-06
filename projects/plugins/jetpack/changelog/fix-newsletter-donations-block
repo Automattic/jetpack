@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Donations Block: add an email renderer that builds the block from its attributes with email-friendly CTA buttons, preserving per-interval customization.

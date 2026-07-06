@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Performance: Defer the wpcom/v2 Search and AI REST endpoint wrappers from loading their controller and helper classes until rest_api_init, so those classes are not loaded on front-end, cron, and login requests.

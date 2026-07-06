@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Show the editor Ask AI button whenever Agents Manager is enabled, instead of only in dev contexts.

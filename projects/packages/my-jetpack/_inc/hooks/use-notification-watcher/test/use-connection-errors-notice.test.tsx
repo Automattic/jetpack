@@ -1,14 +1,21 @@
 import '@testing-library/jest-dom';
-import { useConnectionErrorNotice, useRestoreConnection } from '@automattic/jetpack-connection';
+import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { renderHook, waitFor } from '@testing-library/react';
 import { NoticeContext } from '../../../context/notices/noticeContext';
 import useAnalytics from '../../use-analytics';
+import { assignLocation } from '../assignLocation';
 import useConnectionErrorsNotice from '../use-connection-errors-notice';
 import type { NoticeContextType } from '../../../context/notices/types';
 import type { ReactNode } from 'react';
 
-// Mock the dependencies
-jest.mock( '@automattic/jetpack-connection' );
+// Mock the dependencies. Use a factory for the connection package so its full
+// module graph (which touches `window` at import time) isn't loaded here.
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	useConnectionErrorNotice: jest.fn(),
+	getReconnectErrorMessage: jest.fn(
+		( error: string ) => `There was an error reconnecting Jetpack. Error: ${ error }`
+	),
+} ) );
 jest.mock( '../../use-analytics' );
 jest.mock( '../assignLocation' );
 
@@ -28,9 +35,6 @@ jest.mock( '@wordpress/i18n', () => ( {
 
 const mockUseConnectionErrorNotice = useConnectionErrorNotice as jest.MockedFunction<
 	typeof useConnectionErrorNotice
->;
-const mockUseRestoreConnection = useRestoreConnection as jest.MockedFunction<
-	typeof useRestoreConnection
 >;
 const mockUseAnalytics = useAnalytics as jest.MockedFunction< typeof useAnalytics >;
 
@@ -54,14 +58,12 @@ describe( 'useConnectionErrorsNotice', () => {
 		},
 	};
 
-	const defaultConnectionData = {
+	const noError = {
 		hasConnectionError: false,
 		connectionErrorMessage: '',
-		connectionError: null,
+		connectionError: undefined,
 		connectionErrors: {},
-	};
-
-	const defaultRestoreConnection = {
+		actions: [],
 		restoreConnection: mockRestoreConnection,
 		isRestoringConnection: false,
 		restoreConnectionError: null,
@@ -69,9 +71,7 @@ describe( 'useConnectionErrorsNotice', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
-
-		mockUseConnectionErrorNotice.mockReturnValue( defaultConnectionData );
-		mockUseRestoreConnection.mockReturnValue( defaultRestoreConnection );
+		mockUseConnectionErrorNotice.mockReturnValue( noError );
 		mockUseAnalytics.mockReturnValue( { recordEvent: mockRecordEvent } );
 	} );
 
@@ -83,649 +83,111 @@ describe( 'useConnectionErrorsNotice', () => {
 		return renderHook( () => useConnectionErrorsNotice(), { wrapper } );
 	};
 
-	describe( 'when there are no connection errors', () => {
-		it( 'should not set any notice', () => {
-			renderWithNoticeContext();
-			expect( mockSetNotice ).not.toHaveBeenCalled();
-		} );
+	it( 'sets no notice when there is no connection error', () => {
+		renderWithNoticeContext();
+		expect( mockSetNotice ).not.toHaveBeenCalled();
 	} );
 
-	describe( 'when there is a standard connection error', () => {
-		beforeEach( () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'Connection failed due to network issue',
-				connectionError: {
-					error_code: 'invalid_token',
-					error_message: 'Connection failed due to network issue',
-					error_type: 'connection',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
+	it( 'passes My Jetpack tracking/navigation wiring to the owner hook', () => {
+		renderWithNoticeContext();
+
+		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				navigate: assignLocation,
+				reconnectTrackingEvent: 'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click',
+				trackingCallback: expect.any( Function ),
+			} )
+		);
+	} );
+
+	it( "guards the tracking callback to only record 'jetpack_'-prefixed events", () => {
+		renderWithNoticeContext();
+
+		const { trackingCallback } = mockUseConnectionErrorNotice.mock.calls[ 0 ][ 0 ];
+		trackingCallback( 'jetpack_valid_event', {} );
+		trackingCallback( 'invalid_event', {} );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_valid_event', {} );
+		expect( mockRecordEvent ).not.toHaveBeenCalledWith( 'invalid_event', {} );
+	} );
+
+	it( 'maps the resolved actions into a notice, adding noDefaultClasses', async () => {
+		const onClick = jest.fn();
+		mockUseConnectionErrorNotice.mockReturnValue( {
+			...noError,
+			hasConnectionError: true,
+			connectionErrorMessage: 'Connection failed',
+			connectionError: { error_message: 'Connection failed' },
+			actions: [
+				{
+					label: 'Restore Connection',
+					onClick,
+					isLoading: false,
+					loadingText: 'Reconnecting Jetpack…',
 				},
-				connectionErrors: {
-					invalid_token: {
-						'1': {
-							error_code: 'invalid_token',
-							error_message: 'Connection failed due to network issue',
-							error_type: 'connection',
-							user_id: '1',
-							timestamp: Date.now(),
-							nonce: 'test-nonce',
+			],
+		} );
+
+		renderWithNoticeContext();
+
+		await waitFor( () => {
+			expect( mockSetNotice ).toHaveBeenCalledWith( {
+				message: 'Connection failed',
+				options: {
+					id: 'connection-error-notice',
+					level: 'error',
+					actions: [
+						{
+							label: 'Restore Connection',
+							onClick,
+							isLoading: false,
+							loadingText: 'Reconnecting Jetpack…',
+							noDefaultClasses: true,
 						},
-					},
+					],
+					priority: 300, // NOTICE_PRIORITY_HIGH + 0
 				},
-			} );
-		} );
-
-		it( 'should set a notice with restore connection action', async () => {
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalledWith( {
-					message: 'Connection failed due to network issue',
-					options: {
-						id: 'connection-error-notice',
-						level: 'error',
-						actions: [
-							{
-								label: 'Restore Connection',
-								onClick: expect.any( Function ),
-								isLoading: false,
-								loadingText: 'Reconnecting Jetpack…',
-								noDefaultClasses: true,
-							},
-						],
-						priority: 300, // NOTICE_PRIORITY_HIGH + 0
-					},
-				} );
-			} );
-		} );
-
-		it( 'should call restoreConnection and record analytics when restore button is clicked', async () => {
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
-			} );
-
-			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
-			const restoreAction = setNoticeCall.options.actions[ 0 ];
-
-			// Simulate clicking the restore button
-			restoreAction.onClick();
-
-			expect( mockRestoreConnection ).toHaveBeenCalled();
-			expect( mockRecordEvent ).toHaveBeenCalledWith(
-				'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click'
-			);
-		} );
-	} );
-
-	describe( 'when there is a custom error with action handler', () => {
-		const mockActionHandler = jest.fn();
-
-		beforeEach( () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'A custom error occurred',
-				connectionError: {
-					error_code: 'custom_error',
-					error_message: 'A custom error occurred',
-					error_type: 'custom',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-					error_data: {
-						action: 'custom_action',
-						action_label: 'Fix Issue',
-						action_variant: 'primary',
-						tracking_event: 'jetpack_custom_action_attempt',
-					},
-				},
-				connectionErrors: {},
-			} );
-		} );
-
-		it( 'should set a notice with custom action when action handler is provided', async () => {
-			const actionHandlers = { custom_action: mockActionHandler };
-			renderHook( () => useConnectionErrorsNotice( actionHandlers ), {
-				wrapper: ( { children }: { children: ReactNode } ) => (
-					<NoticeContext.Provider value={ mockNoticeContext }>{ children }</NoticeContext.Provider>
-				),
-			} );
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalledWith( {
-					message: 'A custom error occurred',
-					options: {
-						id: 'connection-error-notice',
-						level: 'error',
-						actions: [
-							{
-								label: 'Fix Issue',
-								onClick: expect.any( Function ),
-								noDefaultClasses: true,
-							},
-						],
-						priority: 300, // NOTICE_PRIORITY_HIGH + 0
-					},
-				} );
-			} );
-		} );
-
-		it( 'should record analytics when custom action is clicked', async () => {
-			const actionHandlers = { custom_action: mockActionHandler };
-			renderHook( () => useConnectionErrorsNotice( actionHandlers ), {
-				wrapper: ( { children }: { children: ReactNode } ) => (
-					<NoticeContext.Provider value={ mockNoticeContext }>{ children }</NoticeContext.Provider>
-				),
-			} );
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
-			} );
-
-			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
-			const customAction = setNoticeCall.options.actions[ 0 ];
-
-			// Simulate clicking the custom action button
-			customAction.onClick();
-
-			expect( mockActionHandler ).toHaveBeenCalledWith(
-				expect.objectContaining( {
-					error_code: 'custom_error',
-					error_message: 'A custom error occurred',
-				} )
-			);
-			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_custom_action_attempt', {} );
-		} );
-	} );
-
-	describe( 'when there is a custom error with action URL', () => {
-		beforeEach( () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'A custom error with URL action',
-				connectionError: {
-					error_code: 'custom_url_error',
-					error_message: 'A custom error with URL action',
-					error_type: 'custom',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-					error_data: {
-						action_url: 'https://example.com/fix',
-						action_label: 'Fix Issue',
-						action_variant: 'primary',
-						tracking_event: 'jetpack_custom_url_action_attempt',
-					},
-				},
-				connectionErrors: {},
-			} );
-		} );
-
-		it( 'should set a notice with URL navigation action', async () => {
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalledWith( {
-					message: 'A custom error with URL action',
-					options: {
-						id: 'connection-error-notice',
-						level: 'error',
-						actions: [
-							{
-								label: 'Fix Issue',
-								onClick: expect.any( Function ),
-								noDefaultClasses: true,
-							},
-						],
-						priority: 300, // NOTICE_PRIORITY_HIGH + 0
-					},
-				} );
 			} );
 		} );
 	} );
 
-	describe( 'when there is a restore connection error', () => {
-		beforeEach( () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'Connection failed',
-				connectionError: {
-					error_code: 'invalid_token',
-					error_message: 'Connection failed',
-					error_type: 'connection',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-				},
-				connectionErrors: {},
-			} );
-
-			mockUseRestoreConnection.mockReturnValue( {
-				restoreConnection: mockRestoreConnection,
-				isRestoringConnection: false,
-				restoreConnectionError: 'Failed to restore connection',
-			} );
+	it( 'increases priority when a restore is in progress', async () => {
+		mockUseConnectionErrorNotice.mockReturnValue( {
+			...noError,
+			hasConnectionError: true,
+			connectionErrorMessage: 'Connection failed',
+			connectionError: { error_message: 'Connection failed' },
+			actions: [ { label: 'Restore Connection', onClick: jest.fn() } ],
+			isRestoringConnection: true,
 		} );
 
-		it( 'should include restore connection error in the message', async () => {
-			renderWithNoticeContext();
+		renderWithNoticeContext();
 
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
-			} );
-
-			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
-			// The message should be a React element with both error messages
-			expect( setNoticeCall.message ).toBeDefined();
+		await waitFor( () => {
+			expect( mockSetNotice ).toHaveBeenCalled();
 		} );
+
+		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.priority ).toBe( 301 );
 	} );
 
-	describe( 'when there is a custom error with secondary button', () => {
-		const mockActionHandler = jest.fn();
-		const mockSecondaryHandler = jest.fn();
-
-		beforeEach( () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'A custom error with secondary action',
-				connectionError: {
-					error_code: 'custom_error',
-					error_message: 'A custom error with secondary action',
-					error_type: 'custom',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-					error_data: {
-						action: 'primary_action',
-						action_label: 'Primary Action',
-						action_variant: 'primary',
-						tracking_event: 'jetpack_primary_action_attempt',
-						secondary_action: 'secondary_action',
-						secondary_action_label: 'Secondary Action',
-						secondary_action_variant: 'secondary',
-						secondary_tracking_event: 'jetpack_secondary_action_attempt',
-					},
-				},
-				connectionErrors: {},
-			} );
+	it( 'renders the reconnect error alongside the connection error message', async () => {
+		mockUseConnectionErrorNotice.mockReturnValue( {
+			...noError,
+			hasConnectionError: true,
+			connectionErrorMessage: 'Connection failed',
+			connectionError: { error_message: 'Connection failed' },
+			actions: [ { label: 'Restore Connection', onClick: jest.fn() } ],
+			restoreConnectionError: 'Failed to restore connection',
 		} );
 
-		it( 'should set a notice with both primary and secondary actions', async () => {
-			const actionHandlers = {
-				primary_action: mockActionHandler,
-				secondary_action: mockSecondaryHandler,
-			};
-			renderHook( () => useConnectionErrorsNotice( actionHandlers ), {
-				wrapper: ( { children }: { children: ReactNode } ) => (
-					<NoticeContext.Provider value={ mockNoticeContext }>{ children }</NoticeContext.Provider>
-				),
-			} );
+		renderWithNoticeContext();
 
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalledWith( {
-					message: 'A custom error with secondary action',
-					options: {
-						id: 'connection-error-notice',
-						level: 'error',
-						actions: [
-							{
-								label: 'Primary Action',
-								onClick: expect.any( Function ),
-								noDefaultClasses: true,
-							},
-							{
-								label: 'Secondary Action',
-								onClick: expect.any( Function ),
-								noDefaultClasses: true,
-								variant: 'secondary',
-							},
-						],
-						priority: 300,
-					},
-				} );
-			} );
+		await waitFor( () => {
+			expect( mockSetNotice ).toHaveBeenCalled();
 		} );
 
-		it( 'should call secondary action handler when secondary button is clicked', async () => {
-			const actionHandlers = {
-				primary_action: mockActionHandler,
-				secondary_action: mockSecondaryHandler,
-			};
-			renderHook( () => useConnectionErrorsNotice( actionHandlers ), {
-				wrapper: ( { children }: { children: ReactNode } ) => (
-					<NoticeContext.Provider value={ mockNoticeContext }>{ children }</NoticeContext.Provider>
-				),
-			} );
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
-			} );
-
-			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
-			const secondaryAction = setNoticeCall.options.actions[ 1 ];
-
-			// Simulate clicking the secondary action button
-			secondaryAction.onClick();
-
-			expect( mockSecondaryHandler ).toHaveBeenCalledWith(
-				expect.objectContaining( {
-					error_code: 'custom_error',
-					error_message: 'A custom error with secondary action',
-				} )
-			);
-			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_secondary_action_attempt', {} );
-		} );
-	} );
-
-	describe( 'when there is a custom error with secondary URL action', () => {
-		beforeEach( () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'A custom error with secondary URL',
-				connectionError: {
-					error_code: 'custom_url_error',
-					error_message: 'A custom error with secondary URL',
-					error_type: 'custom',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-					error_data: {
-						action_url: 'https://example.com/primary',
-						action_label: 'Primary Action',
-						tracking_event: 'jetpack_primary_url_action_attempt',
-						secondary_action_url: 'https://example.com/secondary',
-						secondary_action_label: 'Secondary Action',
-						secondary_tracking_event: 'jetpack_secondary_url_action_attempt',
-					},
-				},
-				connectionErrors: {},
-			} );
-		} );
-
-		it( 'should set a notice with both primary and secondary URL actions', async () => {
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalledWith( {
-					message: 'A custom error with secondary URL',
-					options: {
-						id: 'connection-error-notice',
-						level: 'error',
-						actions: [
-							{
-								label: 'Primary Action',
-								onClick: expect.any( Function ),
-								noDefaultClasses: true,
-							},
-							{
-								label: 'Secondary Action',
-								onClick: expect.any( Function ),
-								noDefaultClasses: true,
-								variant: 'secondary',
-							},
-						],
-						priority: 300,
-					},
-				} );
-			} );
-		} );
-	} );
-
-	describe( 'priority calculation', () => {
-		beforeEach( () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'Connection failed',
-				connectionError: {
-					error_code: 'invalid_token',
-					error_message: 'Connection failed',
-					error_type: 'connection',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-				},
-				connectionErrors: {},
-			} );
-		} );
-
-		it( 'should increase priority when connection is restoring', async () => {
-			mockUseRestoreConnection.mockReturnValue( {
-				restoreConnection: mockRestoreConnection,
-				isRestoringConnection: true,
-				restoreConnectionError: null,
-			} );
-
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
-			} );
-
-			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
-			expect( setNoticeCall.options.priority ).toBe( 301 ); // NOTICE_PRIORITY_HIGH + 1
-		} );
-
-		it( 'should use normal priority when connection is not restoring', async () => {
-			mockUseRestoreConnection.mockReturnValue( {
-				restoreConnection: mockRestoreConnection,
-				isRestoringConnection: false,
-				restoreConnectionError: null,
-			} );
-
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
-			} );
-
-			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
-			expect( setNoticeCall.options.priority ).toBe( 300 ); // NOTICE_PRIORITY_HIGH + 0
-		} );
-	} );
-
-	describe( 'default action label fallback', () => {
-		it( 'should use default label when actionLabel is missing', async () => {
-			const mockActionHandler = jest.fn();
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'Custom error without label',
-				connectionError: {
-					error_code: 'custom_error',
-					error_message: 'Custom error without label',
-					error_type: 'custom',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-					error_data: {
-						action: 'custom_action',
-						// action_label is missing
-					},
-				},
-				connectionErrors: {},
-			} );
-
-			const actionHandlers = { custom_action: mockActionHandler };
-			renderHook( () => useConnectionErrorsNotice( actionHandlers ), {
-				wrapper: ( { children }: { children: ReactNode } ) => (
-					<NoticeContext.Provider value={ mockNoticeContext }>{ children }</NoticeContext.Provider>
-				),
-			} );
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalledWith( {
-					message: 'Custom error without label',
-					options: {
-						id: 'connection-error-notice',
-						level: 'error',
-						actions: [
-							{
-								label: 'Take Action', // Default fallback label
-								onClick: expect.any( Function ),
-								noDefaultClasses: true,
-							},
-						],
-						priority: 300,
-					},
-				} );
-			} );
-		} );
-	} );
-
-	describe( 'tracking event validation', () => {
-		it( 'should not record analytics for non-jetpack tracking events', async () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'Error with invalid tracking',
-				connectionError: {
-					error_code: 'custom_error',
-					error_message: 'Error with invalid tracking',
-					error_type: 'custom',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-					error_data: {
-						action_url: 'https://example.com/fix',
-						action_label: 'Fix Issue',
-						tracking_event: 'invalid_tracking_event', // Doesn't start with 'jetpack_'
-					},
-				},
-				connectionErrors: {},
-			} );
-
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
-			} );
-
-			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
-			const action = setNoticeCall.options.actions[ 0 ];
-
-			// Simulate clicking the action
-			action.onClick();
-
-			// Should not record the invalid tracking event
-			expect( mockRecordEvent ).not.toHaveBeenCalledWith( 'invalid_tracking_event', {} );
-		} );
-
-		it( 'should record analytics for valid jetpack tracking events', async () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'Error with valid tracking',
-				connectionError: {
-					error_code: 'custom_error',
-					error_message: 'Error with valid tracking',
-					error_type: 'custom',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-					error_data: {
-						action_url: 'https://example.com/fix',
-						action_label: 'Fix Issue',
-						tracking_event: 'jetpack_valid_tracking_event',
-					},
-				},
-				connectionErrors: {},
-			} );
-
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
-			} );
-
-			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
-			const action = setNoticeCall.options.actions[ 0 ];
-
-			// Simulate clicking the action
-			action.onClick();
-
-			// Should record the valid tracking event
-			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_valid_tracking_event', {} );
-		} );
-	} );
-
-	describe( 'secondary action validation', () => {
-		it( 'should not add secondary action when only URL is provided without label', async () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'Error with incomplete secondary action',
-				connectionError: {
-					error_code: 'custom_error',
-					error_message: 'Error with incomplete secondary action',
-					error_type: 'custom',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-					error_data: {
-						action_url: 'https://example.com/primary',
-						action_label: 'Primary Action',
-						secondary_action_url: 'https://example.com/secondary',
-						// secondary_action_label is missing
-					},
-				},
-				connectionErrors: {},
-			} );
-
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
-			} );
-
-			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
-			// Should only have primary action, no secondary action
-			expect( setNoticeCall.options.actions ).toHaveLength( 1 );
-			expect( setNoticeCall.options.actions[ 0 ].label ).toBe( 'Primary Action' );
-		} );
-
-		it( 'should not add secondary action when only handler is provided without label', async () => {
-			const mockPrimaryHandler = jest.fn();
-			const mockSecondaryHandler = jest.fn();
-
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'Error with incomplete secondary handler',
-				connectionError: {
-					error_code: 'custom_error',
-					error_message: 'Error with incomplete secondary handler',
-					error_type: 'custom',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-					error_data: {
-						action: 'primary_action',
-						action_label: 'Primary Action',
-						secondary_action: 'secondary_action',
-						// secondary_action_label is missing
-					},
-				},
-				connectionErrors: {},
-			} );
-
-			const actionHandlers = {
-				primary_action: mockPrimaryHandler,
-				secondary_action: mockSecondaryHandler,
-			};
-
-			renderHook( () => useConnectionErrorsNotice( actionHandlers ), {
-				wrapper: ( { children }: { children: ReactNode } ) => (
-					<NoticeContext.Provider value={ mockNoticeContext }>{ children }</NoticeContext.Provider>
-				),
-			} );
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
-			} );
-
-			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
-			// Should only have primary action, no secondary action
-			expect( setNoticeCall.options.actions ).toHaveLength( 1 );
-			expect( setNoticeCall.options.actions[ 0 ].label ).toBe( 'Primary Action' );
-		} );
+		// The message becomes a React element combining both errors.
+		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].message ).toBeDefined();
+		expect( typeof mockSetNotice.mock.calls[ 0 ][ 0 ].message ).not.toBe( 'string' );
 	} );
 } );

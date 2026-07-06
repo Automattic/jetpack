@@ -7,10 +7,12 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from '@wordp
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Button, Tabs } from '@wordpress/ui';
+import { isSiteConnected } from './connection';
 import ErrorBoundary from './error-boundary';
 import { usePodcastSettings } from './hooks/use-podcast-settings';
 import './style.scss';
 import type { TabName } from './types';
+import type { ReactNode } from 'react';
 
 const Welcome = lazy( () => import( './welcome' ) );
 const CategorySetupModal = lazy( () => import( './welcome/category-setup-modal' ) );
@@ -19,16 +21,44 @@ const EpisodesTab = lazy( () => import( './episodes' ) );
 const DistributionTab = lazy( () => import( './distribution' ) );
 const StatsTab = lazy( () => import( './stats' ) );
 const LockedPreview = lazy( () => import( './locked-preview' ) );
+const ConnectPrompt = lazy( () => import( './connect-prompt' ) );
 
 // Fail-open: a missing flag means access-granted, so a deploy race never locks
 // grandfathered users out of the Episodes tab.
 const hasProductAccess = (): boolean => getScriptData()?.podcast?.has_product_access !== false;
+
+// Fail-closed counterpart for entitlement *claims* (the welcome screen's
+// "included with your plan" copy): only treat the site as entitled when the
+// flag is explicitly true, so a missing flag never asserts entitlement we
+// haven't confirmed or hides the upgrade path from a non-entitled user.
+const hasConfirmedProductAccess = (): boolean =>
+	getScriptData()?.podcast?.has_product_access === true;
 
 const TabFallback = () => (
 	<div className="podcast__loading">
 		<Spinner />
 	</div>
 );
+
+const GatedTab = ( {
+	connected,
+	hasAccess,
+	variant,
+	children,
+}: {
+	connected: boolean;
+	hasAccess: boolean;
+	variant: 'stats' | 'episodes';
+	children: ReactNode;
+} ) => {
+	if ( ! connected ) {
+		return <ConnectPrompt variant={ variant } />;
+	}
+	if ( ! hasAccess ) {
+		return <LockedPreview variant={ variant } />;
+	}
+	return <>{ children }</>;
+};
 
 const VALID_TABS: readonly TabName[] = [ 'settings', 'episodes', 'distribution', 'stats' ];
 
@@ -47,6 +77,10 @@ const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 	const hasAccess = hasProductAccess();
+	// Confirmed entitlement gates the welcome "included" claim; the fail-open
+	// `hasAccess` keeps gating the tabs so a missing flag never locks anyone out.
+	const hasConfirmedAccess = hasConfirmedProductAccess();
+	const connected = isSiteConnected();
 
 	// `?tab=` owns the active tab; absent `?tab=` falls back to `defaultTab`.
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
@@ -155,7 +189,7 @@ const App = () => {
 				<div className="podcast__tab-content podcast__tab-content--wide">
 					<ErrorBoundary>
 						<Suspense fallback={ <TabFallback /> }>
-							<Welcome onEnable={ handleEnable } />
+							<Welcome onEnable={ handleEnable } hasAccess={ hasConfirmedAccess } />
 						</Suspense>
 					</ErrorBoundary>
 				</div>
@@ -210,7 +244,9 @@ const App = () => {
 					<div className="podcast__tab-content podcast__tab-content--xwide">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								{ hasAccess ? <StatsTab /> : <LockedPreview variant="stats" /> }
+								<GatedTab connected={ connected } hasAccess={ hasAccess } variant="stats">
+									<StatsTab />
+								</GatedTab>
 							</Suspense>
 						</ErrorBoundary>
 					</div>
@@ -219,7 +255,9 @@ const App = () => {
 					<div className="podcast__tab-content">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								{ hasAccess ? <EpisodesTab /> : <LockedPreview variant="episodes" /> }
+								<GatedTab connected={ connected } hasAccess={ hasAccess } variant="episodes">
+									<EpisodesTab />
+								</GatedTab>
 							</Suspense>
 						</ErrorBoundary>
 					</div>

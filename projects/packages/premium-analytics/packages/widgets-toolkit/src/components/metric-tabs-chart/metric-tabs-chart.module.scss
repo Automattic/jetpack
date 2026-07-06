@@ -1,0 +1,95 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md, 16px);
+	height: 100%;
+	min-height: 0;
+}
+
+.header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-start;
+	flex-shrink: 0;
+	gap: var(--wpds-dimension-gap-md, 16px);
+}
+
+/* The metric tab list: a row of cards that wrap (not a text tab bar). */
+.tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	min-width: 0;
+}
+
+/* On a narrow tile the metric cards squeeze into one cramped row. Stack the
+ * header so the tabs get the full width, and lay the cards out in an even
+ * two-column grid (a balanced 2 x 2 for the four-metric traffic chart). */
+@container (max-width: 420px) {
+
+	.header {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.tabs {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+
+		/* The toolkit tab list is `fit-content`, which `align-items: stretch`
+		 * can't widen; force it to fill so the two columns split the row. */
+		width: 100%;
+	}
+}
+
+.tab {
+	height: auto;
+	padding:
+		var(--wpds-dimension-padding-sm, 8px)
+		var(--wpds-dimension-padding-md, 12px);
+	border-radius: var(--wpds-border-radius-md, 4px);
+}
+
+/* Hide the selection underline; the card fill shows selection instead. Older
+ * `@wordpress/ui` rendered the indicator as a per-tab `<svg>`; newer versions
+ * render it as a tablist-level presentation span. Hide whichever is present. */
+.tab > svg {
+	display: none;
+}
+
+.root [role="tablist"] [role="presentation"] {
+	display: none;
+}
+
+.tab:hover {
+	background-color: var(--wpds-color-bg-interactive-neutral-weak);
+}
+
+.tab[aria-selected="true"] {
+	background-color: var(--wpds-color-bg-interactive-neutral-weak-active);
+}
+
+/* Each tab's content: label stacked over the value + delta, left-aligned. */
+.tabContent {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	align-items: flex-start;
+	text-align: left;
+}
+
+.tabLabel {
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+/* Anchors the absolutely positioned loading overlay. The chart fills the room
+ * left under the cards and shrinks with the tile (the component hides it once
+ * the tile is too short), so it never overflows or clips. */
+.chart {
+	position: relative;
+	flex: 1 1 0;
+	min-width: 0;
+	min-height: 0;
+}

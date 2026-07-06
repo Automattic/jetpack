@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Docs: Restructure README to define the public API surface, an explicit internal (non-API) list, and a versioning/back-compat policy.

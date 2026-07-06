@@ -9,7 +9,7 @@ import {
 } from '@jetpack-premium-analytics/datetime';
 import { BaseControl } from '@wordpress/components';
 import { Stack } from '@wordpress/ui';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -31,6 +31,19 @@ export type DateFiltersPanelProps = {
 	 * The current primary date range.
 	 */
 	range: DateRange;
+
+	/**
+	 * The applied (committed) preset ID. Used to label the picker's trigger
+	 * while the popover is closed, so a discarded draft shows the applied
+	 * preset. Falls back to `presetId` when omitted.
+	 */
+	appliedPresetId?: PrimaryPresetId;
+
+	/**
+	 * The applied (committed) date range. Used to label the picker's trigger
+	 * while the popover is closed. Falls back to `range` when omitted.
+	 */
+	appliedRange?: DateRange;
 
 	/**
 	 * The current comparison preset ID (e.g., 'previous-period', 'previous-month').
@@ -97,6 +110,8 @@ export type DateFiltersPanelProps = {
 export function DateFiltersPanel( {
 	presetId,
 	range,
+	appliedPresetId,
+	appliedRange,
 	comparisonPresetId,
 	onChange,
 	onComparisonChange,
@@ -129,6 +144,14 @@ export function DateFiltersPanel( {
 		return isPrimaryPreset( presetId ) ? presetId : undefined;
 	}, [ presetId ] );
 
+	// Same validation for the applied preset that labels the closed trigger.
+	const validatedAppliedPresetId = useMemo( () => {
+		if ( ! appliedPresetId ) {
+			return undefined;
+		}
+		return isPrimaryPreset( appliedPresetId ) ? appliedPresetId : undefined;
+	}, [ appliedPresetId ] );
+
 	// Validate and normalize the comparison preset ID
 	const validatedComparisonPresetId = useMemo( () => {
 		return isComparisonPresetId( comparisonPresetId ) ? comparisonPresetId : undefined;
@@ -137,8 +160,19 @@ export function DateFiltersPanel( {
 	// Derive comparison enabled state directly from validated prop
 	const comparisonEnabled = !! validatedComparisonPresetId;
 
-	// Get available presets for the current range
-	const presets = useComparisonDatePresets( range );
+	/*
+	 * Track whether the primary picker popover is open so the comparison label
+	 * mirrors it: while the picker is open it previews the draft range, but once
+	 * closed without Apply it reverts to the applied range (just like the
+	 * picker's own trigger). Without this, the comparison label would keep
+	 * showing the un-applied draft's derived range.
+	 */
+	const [ isPrimaryPickerOpen, setIsPrimaryPickerOpen ] = useState( false );
+	const comparisonSourceRange = isPrimaryPickerOpen ? range : appliedRange ?? range;
+
+	// Available comparison presets, derived from whichever primary range the
+	// picker is currently reflecting (draft while open, applied while closed).
+	const presets = useComparisonDatePresets( comparisonSourceRange );
 
 	/**
 	 * Determines the default preset ID to use when comparison is enabled.
@@ -200,12 +234,15 @@ export function DateFiltersPanel( {
 				<DateRangePopover
 					presetId={ validatedPresetId }
 					range={ range }
+					appliedPresetId={ validatedAppliedPresetId }
+					appliedRange={ appliedRange }
 					onChange={ onChange }
 					onApply={ onApply }
 					onCancel={ onCancel }
 					canApply={ canApply }
 					timeZone={ timeZone }
 					containerElement={ containerElement }
+					onOpenChange={ setIsPrimaryPickerOpen }
 				/>
 			</BaseControl>
 

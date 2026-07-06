@@ -4,20 +4,11 @@
  * The hook now fetches features dynamically from the Redux store via useSelect.
  */
 
-declare global {
-	interface Window {
-		jetpackVideoPressInitialState?: {
-			siteProductData?: object;
-			productData?: object;
-			productPrice?: object;
-			paidFeatures?: {
-				isVideoPressSupported?: boolean;
-				isVideoPress1TBSupported?: boolean;
-				isVideoPressUnlimitedSupported?: boolean;
-			};
-		};
-	}
-}
+// Type-only import of the Window augmentation; keeps this file a module so `require` stays block-scoped.
+import type {} from '../../../components/admin-page/types';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const require: ( id: string ) => any;
 
 // Store the mock features data that tests will set
 let mockFeaturesData: {
@@ -66,7 +57,6 @@ function importUsePlan(): { hasVideoPressPurchase: boolean; isFetchingFeatures: 
 		isFetchingFeatures: false,
 	};
 	jest.isolateModules( () => {
-		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		const { usePlan } = require( '..' );
 		result = usePlan();
 	} );
@@ -80,7 +70,7 @@ describe( 'usePlan hasVideoPressPurchase logic', () => {
 			siteProductData: {},
 			productData: {},
 			productPrice: {},
-		};
+		} as unknown as Window[ 'jetpackVideoPressInitialState' ];
 		mockFeaturesData = {
 			features: undefined,
 			isFetchingFeatures: false,
@@ -179,7 +169,7 @@ describe( 'usePlan hasVideoPressPurchase logic', () => {
 				isVideoPress1TBSupported: true,
 				isVideoPressUnlimitedSupported: false,
 			},
-		};
+		} as unknown as Window[ 'jetpackVideoPressInitialState' ];
 
 		// Dynamic features not yet loaded
 		mockFeaturesData = {

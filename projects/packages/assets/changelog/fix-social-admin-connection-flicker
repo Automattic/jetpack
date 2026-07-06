@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Expose the current user's edit_others_posts capability in the localized script data.

@@ -8,7 +8,15 @@ import PricingTable, {
 import Logo from './logo.js';
 import type { StoryFn, Meta } from '@storybook/react';
 
-const meta: Meta< typeof PricingTable > = {
+/**
+ * Story args extend the component props with story-only controls (e.g. a toggle
+ * forwarded to the nested ProductPrice).
+ */
+type StoryArgs = React.ComponentProps< typeof PricingTable > & {
+	hideDiscountLabel?: boolean;
+};
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Components/Pricing Table',
 	component: PricingTable,
 	subcomponents: { PricingTableColumn, PricingTableHeader, PricingTableItem },
@@ -16,7 +24,7 @@ const meta: Meta< typeof PricingTable > = {
 
 export default meta;
 
-const Template: StoryFn< typeof PricingTable > = args => {
+const Template: StoryFn< StoryArgs > = args => {
 	return (
 		<PricingTable { ...args }>
 			<PricingTableColumn primary>
@@ -109,7 +117,7 @@ const DefaultArgs = {
 export const _default = Template.bind( {} );
 _default.args = DefaultArgs;
 
-const WithLogoTemplate: StoryFn< typeof PricingTable > = args => {
+const WithLogoTemplate: StoryFn< StoryArgs > = args => {
 	return (
 		<PricingTable { ...args }>
 			<PricingTableColumn primary>
@@ -169,7 +177,7 @@ WithLogo.args = {
 	showIntroOfferDisclaimer: false,
 };
 
-const CustomLabelsTemplate: StoryFn< typeof PricingTable > = args => {
+const CustomLabelsTemplate: StoryFn< StoryArgs > = args => {
 	return (
 		<PricingTable { ...args }>
 			<PricingTableColumn>
@@ -203,7 +211,7 @@ WithCustomLabels.args = {
 	showIntroOfferDisclaimer: false,
 };
 
-const ThreeColumnsTemplate: StoryFn< typeof PricingTable > = args => {
+const ThreeColumnsTemplate: StoryFn< StoryArgs > = args => {
 	return (
 		<PricingTable { ...args }>
 			<PricingTableColumn>

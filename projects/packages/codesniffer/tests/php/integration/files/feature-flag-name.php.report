@@ -1,0 +1,2 @@
+ 15 | ERROR | Feature flag name "Invalid Flag!" is invalid. Names must match /^[a-z0-9][a-z0-9_-]*$/. (Jetpack.FeatureFlags.FeatureFlagName.Invalid)
+ 16 | ERROR | Feature flag name "-bad-leading-dash" is invalid. Names must match /^[a-z0-9][a-z0-9_-]*$/. (Jetpack.FeatureFlags.FeatureFlagName.Invalid)

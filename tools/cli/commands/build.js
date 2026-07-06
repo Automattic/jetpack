@@ -20,6 +20,7 @@ import PrefixStream from '../helpers/prefix-stream.js';
 import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
 import promptForProject from '../helpers/promptForProject.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
+import { printTimingSummary, buildTimingJson } from '../helpers/timing-summary.js';
 
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
@@ -70,6 +71,16 @@ export function builder( yargs ) {
 		.option( 'timing', {
 			type: 'boolean',
 			description: 'Output timing information.',
+		} )
+		.option( 'use-uncommitted-composer-lock', { type: 'boolean', hidden: true } )
+		.option( 'no-use-uncommitted-composer-lock', {
+			type: 'boolean',
+			description: "Don't use uncommitted composer.lock files.",
+		} )
+		.option( 'timing-output', {
+			type: 'string',
+			normalize: true,
+			description: 'Write machine-readable timing data (JSON) to the given file. Implies --timing.',
 		} );
 }
 
@@ -86,6 +97,13 @@ export async function handler( argv ) {
 	} catch ( e ) {
 		console.error( e.message );
 		process.exit( 1 );
+	}
+
+	argv.useUncommittedComposerLock = argv.useUncommittedComposerLock !== false;
+
+	// `--timing-output` writes JSON, which requires the timing data to be collected.
+	if ( argv.timingOutput ) {
+		argv.timing = true;
 	}
 
 	let dependencies = await getDependencies( process.cwd(), 'build' );
@@ -215,15 +233,35 @@ export async function handler( argv ) {
 		promises: {},
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
+		// When `--timing` is set, collect a flat list of phase timings to summarize at the end.
+		timings: argv.timing ? { overallStart: Date.now(), entries: [], buildOrder } : null,
 	};
 	await listr
 		.run( ctx )
-		.finally( () => {
+		.finally( async () => {
 			if ( missing.size ) {
 				console.error( '' );
 				const wrap = argv.v ? v => v : chalk.red;
 				for ( const project of missing ) {
 					console.error( wrap( `Project ${ project } was ignored as it does not exist.` ) );
+				}
+			}
+
+			// Print the timing summary (and optionally dump JSON) on both success and failure.
+			// This runs before the `.catch` below, which may call `process.exit()`.
+			if ( ctx.timings ) {
+				printTimingSummary( ctx, argv );
+				if ( argv.timingOutput ) {
+					try {
+						await fs.writeFile(
+							argv.timingOutput,
+							JSON.stringify( buildTimingJson( ctx, argv ), null, 2 ) + '\n',
+							'utf8'
+						);
+						console.log( `Timing data written to ${ argv.timingOutput }` );
+					} catch ( e ) {
+						console.error( `Failed to write timing output: ${ e.message }` );
+					}
 				}
 			}
 		} )
@@ -379,16 +417,61 @@ function createBuildTask( project, argv, title, build ) {
 						return p;
 					};
 
+					// Time a named build phase, recording its duration into ctx.timings (if enabled).
+					// Returns the wrapped function's value, and records even when it throws.
+					t.time = async ( phase, fn ) => {
+						// No-op passthrough when timing is disabled, so the normal build path is untouched.
+						if ( ! ctx.timings ) {
+							return fn();
+						}
+						const start = Date.now();
+						const record = ok => {
+							const end = Date.now();
+							ctx.timings.entries.push( {
+								project,
+								phase,
+								start,
+								end,
+								duration: end - start,
+								ok,
+							} );
+						};
+						try {
+							const result = await fn();
+							record( true );
+							return result;
+						} catch ( e ) {
+							record( false );
+							throw e;
+						}
+					};
+
 					// Build!
 					const t0 = Date.now();
 					buildStarted = true;
+					let taskOk = true;
 					try {
 						await build( t );
 					} catch ( e ) {
+						// Record the failure so the `_task` total below (and the JSON `ok` field) reflect it,
+						// even when the failure happens outside a `t.time()`-wrapped phase (e.g. mirroring).
+						taskOk = false;
 						await t.output( `\nBuild failed: ${ e.stack }\n` );
 						throw e;
 					} finally {
-						await t.setStatus( argv.timing ? formatDuration( Date.now() - t0 ) + 's' : 'complete' );
+						const dur = Date.now() - t0;
+						if ( ctx.timings ) {
+							// The authoritative per-task total (also covers the shared pnpm/changelogger tasks).
+							ctx.timings.entries.push( {
+								project,
+								phase: '_task',
+								start: t0,
+								end: t0 + dur,
+								duration: dur,
+								ok: taskOk,
+							} );
+						}
+						await t.setStatus( argv.timing ? formatDuration( dur ) + 's' : 'complete' );
 					}
 				} );
 			} )().then(
@@ -771,11 +854,13 @@ async function buildProject( t ) {
 	if ( skipInstall ) {
 		await t.output( `Skipping composer install for CI build of non-plugin with no build script\n` );
 	} else {
-		await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
-			cwd: t.cwd,
-			stdio: [ 'ignore', 'inherit', 'inherit' ],
-			buffer: false,
-		} );
+		await t.time( 'install', async () =>
+			t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
+				cwd: t.cwd,
+				stdio: [ 'ignore', 'inherit', 'inherit' ],
+				buffer: false,
+			} )
+		);
 	}
 
 	// Build.
@@ -783,11 +868,13 @@ async function buildProject( t ) {
 	if ( script === null ) {
 		await t.output( `No build scripts are defined for ${ t.project }\n` );
 	} else {
-		await t.execa( 'composer', [ 'run', '--timeout=0', script ], {
-			cwd: t.cwd,
-			stdio: [ 'ignore', 'inherit', 'inherit' ],
-			buffer: false,
-		} );
+		await t.time( 'build', async () =>
+			t.execa( 'composer', [ 'run', '--timeout=0', script ], {
+				cwd: t.cwd,
+				stdio: [ 'ignore', 'inherit', 'inherit' ],
+				buffer: false,
+			} )
+		);
 	}
 
 	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.

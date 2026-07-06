@@ -264,6 +264,38 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that gutenblock_render_field_file does not wrap its output in an extra element.
+	 *
+	 * The file field must render like every other gutenblock_render_field_* method - the
+	 * bare shortcode, with no extra wrapper. An extra wrapper demotes the field's own
+	 * `.grunion-field-wrap` shell from being the contact form's direct flex child, which
+	 * makes the field collapse to its content width on the front end instead of filling
+	 * the form.
+	 */
+	public function test_gutenblock_render_field_file_has_no_extra_wrapper() {
+		$block = array(
+			'blockName'   => 'jetpack/field-file',
+			'attrs'       => array(),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/label',
+					'attrs'     => array( 'label' => 'Upload a file' ),
+				),
+				array(
+					'blockName' => 'jetpack/dropzone',
+					'attrs'     => array(),
+				),
+			),
+		);
+
+		$output = Contact_Form_Plugin::gutenblock_render_field_file( array(), '', new WP_Block( $block ) );
+
+		$this->assertStringNotContainsString( '<div class="jetpack-form-file-field">', $output );
+		$this->assertStringStartsWith( '[contact-field', trim( $output ) );
+		$this->assertStringContainsString( 'type="file"', $output );
+	}
+
+	/**
 	 * Tests the render output of gutenblock_render_field_radio.
 	 */
 	public function test_gutenblock_gutenblock_render_field_radio() {
@@ -2108,5 +2140,80 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			);
 			wp_set_current_user( 0 );
 		}
+	}
+
+	/**
+	 * Test that ::block_attributes_to_shortcode_attributes honors the label's
+	 * blockVisibility support: full-hide (blockVisibility === false) sets
+	 * labelhiddenbyblockvisibility, and per-viewport hide adds the matching
+	 * wp-block-hidden-{mobile,tablet,desktop} classes to the label. See FORMS-694.
+	 *
+	 * @dataProvider data_provider_label_block_visibility
+	 *
+	 * @param mixed $block_visibility   The label's metadata.blockVisibility value (null to omit).
+	 * @param bool  $expected_full_hide Whether labelhiddenbyblockvisibility should be truthy.
+	 * @param array $expected_hidden    The viewports expected to add a wp-block-hidden-* class.
+	 */
+	#[DataProvider( 'data_provider_label_block_visibility' )]
+	public function test_block_attributes_to_shortcode_attributes_label_block_visibility( $block_visibility, $expected_full_hide, $expected_hidden ) {
+		$label_attrs = array( 'label' => 'Name' );
+		if ( null !== $block_visibility ) {
+			$label_attrs['metadata'] = array( 'blockVisibility' => $block_visibility );
+		}
+		$block = array(
+			'blockName'   => 'jetpack/field-name',
+			'attrs'       => array( 'required' => false ),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/label',
+					'attrs'     => $label_attrs,
+				),
+			),
+		);
+		$atts  = Contact_Form_Plugin::block_attributes_to_shortcode_attributes( array(), 'text', new WP_Block( $block ) );
+
+		$this->assertSame( $expected_full_hide, (bool) $atts['labelhiddenbyblockvisibility'] );
+
+		foreach ( array( 'mobile', 'tablet', 'desktop' ) as $viewport ) {
+			$class = 'wp-block-hidden-' . $viewport;
+			if ( in_array( $viewport, $expected_hidden, true ) ) {
+				$this->assertStringContainsString( $class, $atts['labelclasses'] );
+			} else {
+				$this->assertStringNotContainsString( $class, $atts['labelclasses'] );
+			}
+		}
+	}
+
+	/**
+	 * Data provider for test_block_attributes_to_shortcode_attributes_label_block_visibility.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_label_block_visibility() {
+		return array(
+			'no visibility set'       => array( null, false, array() ),
+			'full hide (false)'       => array( false, true, array() ),
+			'hide on mobile'          => array( array( 'viewport' => array( 'mobile' => false ) ), false, array( 'mobile' ) ),
+			'hide on mobile + tablet' => array(
+				array(
+					'viewport' => array(
+						'mobile' => false,
+						'tablet' => false,
+					),
+				),
+				false,
+				array( 'mobile', 'tablet' ),
+			),
+			'viewport all visible'    => array(
+				array(
+					'viewport' => array(
+						'mobile' => true,
+						'tablet' => true,
+					),
+				),
+				false,
+				array(),
+			),
+		);
 	}
 }

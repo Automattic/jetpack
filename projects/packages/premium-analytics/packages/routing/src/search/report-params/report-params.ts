@@ -1,0 +1,46 @@
+/**
+ * The URL search params that describe the shared report window (date range,
+ * interval, and comparison) — the state every analytics surface has in common.
+ *
+ * Page-owned scope params such as `post_id` and `section` are deliberately
+ * excluded, so this set is safe to carry between routes without leaking one
+ * page's scope onto another.
+ */
+export const REPORT_DATE_PARAM_KEYS = [
+	'from',
+	'to',
+	'interval',
+	'preset',
+	'period',
+	'date_type',
+	'compare_from',
+	'compare_to',
+	'compare_preset',
+	'comp',
+] as const;
+
+/**
+ * Pick only the shared report-window params from a URL search object.
+ *
+ * Used when navigating between analytics routes (e.g. a detail page back to the
+ * dashboard) to carry the date range and comparison through without also
+ * carrying page-scoped params like `post_id` or `section`.
+ *
+ * @param search - The current route search params.
+ * @return A new object with only the shared report-window params that are set.
+ */
+export function pickReportDateParams(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > {
+	if ( ! search ) {
+		return {};
+	}
+
+	const picked: Record< string, unknown > = {};
+	for ( const key of REPORT_DATE_PARAM_KEYS ) {
+		if ( search[ key ] !== undefined ) {
+			picked[ key ] = search[ key ];
+		}
+	}
+	return picked;
+}

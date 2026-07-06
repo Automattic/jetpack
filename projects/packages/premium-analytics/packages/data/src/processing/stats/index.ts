@@ -13,7 +13,11 @@ export { sanitizeStatsTopAuthorsResponse } from './top-authors';
 export { sanitizeStatsHighlightsResponse } from './highlights';
 export { sanitizeStatsLocationsResponse } from './locations';
 export { sanitizeStatsVideoPlaysResponse } from './video-plays';
-export { isStatsTimeSeriesPayload, sanitizeStatsTimeSeriesResponse } from './time-series';
+export {
+	isStatsTimeSeriesPayload,
+	sanitizeStatsTimeSeriesResponse,
+	sanitizeStatsEmailTimeSeriesResponse,
+} from './time-series';
 export { sanitizeStatsVisitsResponse } from './visits';
 export { sanitizeStatsInsightsResponse } from './insights';
 export { sanitizeStatsUtmResponse } from './utm';
@@ -32,8 +36,10 @@ export { sanitizeStatsTagsResponse } from './tags';
 export { sanitizeStatsDevicesResponse } from './devices';
 export { sanitizeStatsPublicizeResponse } from './publicize';
 export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
+export { sanitizeStatsSingleVideoResponse } from './single-video';
 export type { StatsTopPostsItem } from './top-posts';
 export type {
+	StatsPostMeta,
 	StatsPostMonthValues,
 	StatsPostRawResponse,
 	StatsPostResponse,
@@ -65,12 +71,19 @@ export type { StatsUtmItem, StatsUtmParam, StatsUtmTopPostItem } from './utm';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';
-export type { StatsTimeSeriesDataPoint, StatsTimeSeriesReport } from './time-series';
+export type {
+	StatsTimeSeriesDataPoint,
+	StatsTimeSeriesReport,
+	StatsEmailTimeSeriesDataPoint,
+	StatsEmailTimeSeriesSummary,
+	StatsEmailTimeSeriesReport,
+} from './time-series';
 export type {
 	StatsCommentFollowersItem,
 	StatsCommentFollowersRawPost,
 	StatsCommentFollowersRawResponse,
 } from './comment-followers';
+export type { StatsDevicesItem } from './devices';
 export type {
 	StatsPublicizeApiResponse,
 	StatsPublicizeItem,
@@ -81,12 +94,6 @@ export type {
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 } from './followers';
-export type {
-	StatsDevicesItem,
-	StatsDevicesResponse,
-	StatsDevicesResponseItem,
-	StatsDevicesTopValues,
-} from './devices';
 export type {
 	StatsCommentsAuthorItem,
 	StatsCommentsGroupItem,
@@ -128,6 +135,11 @@ export type {
 	StatsWordAdsRawResponse,
 	StatsWordAdsResponse,
 } from './wordads';
+export type {
+	StatsSingleVideoDataPoint,
+	StatsSingleVideoPage,
+	StatsSingleVideoReport,
+} from './single-video';
 export type {
 	StatsItemAction,
 	StatsNormalizedDataPoint,

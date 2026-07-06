@@ -116,12 +116,51 @@ function clearAnonDraft() {
 	}
 }
 
+/**
+ * Remove a stale `wpcom_user_id` left in localStorage by a previous Calypso
+ * session.
+ *
+ * The anon editor only renders for logged-out visitors, so any `wpcom_user_id`
+ * persisted under this origin is stale. Calypso bootstraps "is this visitor
+ * logged in?" from that key, and the `/setup/write-on` signup flow blocks entry
+ * and bails to My Home when it thinks the visitor is already authenticated — so
+ * a stale id (e.g. a logout that didn't clear it) silently drops the anon draft
+ * handed off on Publish. Clearing it keeps the persisted auth state in sync with
+ * the real, logged-out session. See READ-574.
+ *
+ * Scoped to the single key on purpose: clearing the whole store would also wipe
+ * the `wpcom-write-anon-draft` snapshot the editor just persisted.
+ *
+ * @return {boolean} True if a stale id was present and removed.
+ */
+function clearStaleWpcomUserId() {
+	try {
+		const hadStaleId = window.localStorage.getItem( 'wpcom_user_id' ) !== null;
+		window.localStorage.removeItem( 'wpcom_user_id' );
+		return hadStaleId;
+	} catch {
+		// localStorage unavailable/blocked — nothing to clear.
+		return false;
+	}
+}
+
 // Mark the page as anonymous so style.css can hide UI that has no anon
 // equivalent (back button, more-menu, the standalone Save-draft button,
 // unsupported-content "Open in editor" buttons). Set as early as the
 // module loads so the initial render doesn't flash the hidden surfaces.
 if ( isAnon() && typeof document !== 'undefined' && document.documentElement ) {
 	document.documentElement.classList.add( 'bw-anon' );
+}
+
+// Drop a stale `wpcom_user_id` from a prior Calypso session so the Publish
+// handoff to `/setup/write-on` doesn't mistake this logged-out visitor for an
+// authenticated one and discard their draft. See READ-574.
+if ( isAnon() ) {
+	const hadStaleId = clearStaleWpcomUserId();
+	if ( hadStaleId ) {
+		window._tkq = window._tkq || [];
+		window._tkq.push( [ 'recordEvent', 'wpcom_write_editor_anon_stale_user_cleared' ] );
+	}
 }
 
 /**
@@ -6142,7 +6181,22 @@ async function savePost( postStatus, isAutosave = false ) {
 				// stores it hidden — prevents a flash of stale content if
 				// the user later presses Back.
 				document.documentElement.style.visibility = 'hidden';
-				window.location.href = post.link;
+
+				// On a Coming Soon site the published post is still private. Tag
+				// the redirect so the post-publish next-steps checklist (launch +
+				// share) surfaces on the post the author lands on. Public sites
+				// redirect to the bare permalink, unchanged.
+				let destination = post.link;
+				if ( state.isComingSoon ) {
+					try {
+						const url = new URL( post.link );
+						url.searchParams.set( state.publishedMarker || 'wpcom_write_published', '1' );
+						destination = url.href;
+					} catch {
+						// Fall back to the bare permalink if it can't be parsed.
+					}
+				}
+				window.location.href = destination;
 			}, 800 );
 		} else {
 			state.editPostId = post.id;

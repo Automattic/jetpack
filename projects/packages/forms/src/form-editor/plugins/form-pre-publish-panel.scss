@@ -35,6 +35,11 @@
 			border-top: none;
 		}
 
+		// Warning shown when the form has no response destination.
+		.jetpack-form-pre-publish__not-collecting-notice {
+			margin-bottom: 16px;
+		}
+
 		// Form identity card
 		.jetpack-form-pre-publish__form-card {
 			display: flex;

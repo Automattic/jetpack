@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Site Editor: Skip the docked-sidebar pre-render on the navigation view, where the chat can't dock — only the editing canvas (`?canvas=edit`) docks the chat.

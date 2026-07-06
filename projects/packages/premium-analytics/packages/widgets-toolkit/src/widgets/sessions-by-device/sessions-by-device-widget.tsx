@@ -72,7 +72,13 @@ export function SessionsByDeviceWidget() {
 
 	return (
 		<>
-			<Stack className={ styles.container } direction="column" align="center" justify="center">
+			{ /*
+			 * `safe center` centers the chart in tall cells but falls back to
+			 * top-start when the chart + legend are taller than the tile, so the
+			 * top stays reachable within the dashboard's scroll area instead of
+			 * being clipped above the scroll origin.
+			 */ }
+			<Stack className={ styles.container } direction="column" align="center" justify="safe center">
 				<SemiCircleChart
 					chartData={ chartData }
 					value={ total }
@@ -86,7 +92,6 @@ export function SessionsByDeviceWidget() {
 						options: { useMultipliers: true, decimals: 0 },
 					} }
 					withTooltips
-					maxWidth={ 220 }
 				/>
 			</Stack>
 			{ isRefetching && <WidgetLoadingOverlay /> }
