@@ -56,4 +56,22 @@ class SalSiteTest extends WP_UnitTestCase {
 	public function test_interface() {
 		$this->assertTrue( method_exists( 'SAL_Site', 'is_module_active' ) );
 	}
+
+	public function test_get_difm_lite_site_options_is_null_without_active_difm_build() {
+		// No blog-sticker functions exist in this environment, so no DIFM build is detected.
+		$this->assertNull( self::$site->get_difm_lite_site_options() );
+	}
+
+	public function test_get_difm_lite_site_options_is_null_outside_wpcom() {
+		$platform = wpcom_get_sal_platform( self::$token );
+
+		// Simulate an active DIFM build; outside WordPress.com the options must still be null.
+		$site = new class( self::$token->blog_id, $platform ) extends Jetpack_Site {
+			public function is_difm_lite_in_progress() {
+				return true;
+			}
+		};
+
+		$this->assertNull( $site->get_difm_lite_site_options() );
+	}
 }
