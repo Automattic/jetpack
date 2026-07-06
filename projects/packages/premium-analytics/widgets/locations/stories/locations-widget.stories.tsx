@@ -22,6 +22,7 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
+	presentation: 'framed' as const,
 };
 
 interface LocationsStoryControls {
@@ -88,7 +89,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< LocationsStoryControls >;
+} satisfies Meta< ComponentProps< typeof LocationsRender > & LocationsStoryControls >;
 
 export default meta;
 

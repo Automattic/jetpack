@@ -28,6 +28,9 @@ const settings = {
 	supports: {
 		reusable: false,
 		html: false,
+		// FORMS-694: inputs are inert for visibility (output discarded by the
+		// field renderer); disable the control like the standard input block.
+		visibility: false,
 		color: {
 			text: true,
 			background: true,

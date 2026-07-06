@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add UTM Insights widget: traffic breakdown by UTM parameter (source/medium, campaign, source, medium, campaign) as a ranked leaderboard with a per-instance dimension selector.

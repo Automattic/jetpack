@@ -202,7 +202,15 @@ export function DateRangePopoverContent( {
 }: DateRangePopoverContentProps ) {
 	const [ displayedMonth, setDisplayedMonth ] = useState( getDisplayedMonth( range ) );
 
+	/*
+	 * Half-open calendar selection (`from` picked, `to` pending). Kept local:
+	 * consumers only receive complete ranges.
+	 */
+	const [ draftRange, setDraftRange ] = useState< DateRange | null >( null );
+
 	const handleChange = ( nextRange?: DateRange, nextPrimaryPresetId?: PrimaryPresetId ) => {
+		setDraftRange( null );
+
 		if ( nextRange ) {
 			setDisplayedMonth( getDisplayedMonth( nextRange ) );
 		}
@@ -213,6 +221,32 @@ export function DateRangePopoverContent( {
 
 		onChange( nextRange, effectivePrimaryPresetId );
 	};
+
+	/*
+	 * First click starts a new range, second click completes it. The computed
+	 * range from `onSelect` is ignored in favor of the clicked day, since
+	 * react-day-picker never restarts a complete range on click; it only moves
+	 * the nearest endpoint.
+	 */
+	const handleCalendarSelect = ( _nextRange: DateRange | undefined, triggerDate: Date ) => {
+		if ( draftRange?.from && ! draftRange.to ) {
+			const [ from, to ] =
+				triggerDate < draftRange.from
+					? [ triggerDate, draftRange.from ]
+					: [ draftRange.from, triggerDate ];
+
+			setDraftRange( null );
+			onChange( { from, to }, PRESET_CUSTOM );
+			return;
+		}
+
+		setDraftRange( { from: triggerDate, to: undefined } );
+	};
+
+	const calendarRange = draftRange ?? range;
+
+	// Apply commits the staged range, not the draft: disable it mid-selection.
+	const effectiveCanApply = canApply && ! draftRange;
 
 	// Mobile layout: single column with dropdown presets
 	if ( isMobile ) {
@@ -228,15 +262,19 @@ export function DateRangePopoverContent( {
 
 				<DateRangeCalendar
 					className="date-range-calendar"
-					selected={ range }
-					onSelect={ nextRange => handleChange( nextRange ) }
+					selected={ calendarRange }
+					onSelect={ handleCalendarSelect }
 					numberOfMonths={ 1 }
 					month={ displayedMonth }
 					onMonthChange={ setDisplayedMonth }
 					timeZone={ timeZone }
 				/>
 
-				<DateRangePopoverActions onCancel={ onCancel } onApply={ onApply } canApply={ canApply } />
+				<DateRangePopoverActions
+					onCancel={ onCancel }
+					onApply={ onApply }
+					canApply={ effectiveCanApply }
+				/>
 			</div>
 		);
 	}
@@ -265,8 +303,8 @@ export function DateRangePopoverContent( {
 
 				<DateRangeCalendar
 					className="date-range-calendar"
-					selected={ range }
-					onSelect={ nextRange => handleChange( nextRange ) }
+					selected={ calendarRange }
+					onSelect={ handleCalendarSelect }
 					numberOfMonths={ isWideScreen ? 2 : 1 }
 					month={ displayedMonth }
 					onMonthChange={ setDisplayedMonth }
@@ -274,7 +312,11 @@ export function DateRangePopoverContent( {
 				/>
 			</Stack>
 
-			<DateRangePopoverActions onCancel={ onCancel } onApply={ onApply } canApply={ canApply } />
+			<DateRangePopoverActions
+				onCancel={ onCancel }
+				onApply={ onApply }
+				canApply={ effectiveCanApply }
+			/>
 		</div>
 	);
 }

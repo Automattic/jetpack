@@ -7,17 +7,20 @@ import {
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	type LeaderboardChartData,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import styles from './emails.module.css';
-import type { EmailsAttributes } from './widget';
+import styles from './style.module.css';
+import widgetDefinition, { type EmailsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+type EmailsRenderAttributes = EmailsAttributes & Partial< ReportParamsFieldAttributes >;
 
 /**
  * Which rate the leaderboard displays. Rows stay in newest-first order
@@ -86,6 +89,23 @@ function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): Leaderbo
 	} );
 }
 
+/**
+ * Widget header title: the envelope icon plus the "Emails" label. Rendered by
+ * the widget itself (not the host) because the widget is `full-bleed`, so the
+ * header sits on the same row as the metric selector — matching the Locations
+ * widget's layout.
+ *
+ * @return The header title.
+ */
+function EmailsHeaderTitle() {
+	return (
+		<span className={ styles.headerTitle }>
+			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
+			<span>{ __( 'Emails', 'jetpack-premium-analytics' ) }</span>
+		</span>
+	);
+}
+
 type EmailsLeaderboardProps = {
 	/**
 	 * Normalized email rows to render. When omitted, the empty state is shown
@@ -143,9 +163,9 @@ export const EmailsLeaderboard = ( {
 	let body;
 	if ( isError ) {
 		body = (
-			<Text className={ styles.placeholder }>
-				{ __( 'Unable to load email stats.', 'jetpack-premium-analytics' ) }
-			</Text>
+			<Stack align="center" justify="center" className={ styles.placeholder }>
+				<Text>{ __( 'Unable to load email stats.', 'jetpack-premium-analytics' ) }</Text>
+			</Stack>
 		);
 	} else if ( isLoading && rows.length === 0 ) {
 		body = <WidgetLoadingOverlay />;
@@ -173,7 +193,9 @@ export const EmailsLeaderboard = ( {
 	return (
 		<Stack className={ styles.root }>
 			<Stack direction="row" justify="space-between" align="center" className={ styles.header }>
-				<Text>{ __( 'Latest emails sent', 'jetpack-premium-analytics' ) }</Text>
+				<Text className={ styles.title }>
+					<EmailsHeaderTitle />
+				</Text>
 				<SelectControl
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
@@ -188,7 +210,7 @@ export const EmailsLeaderboard = ( {
 					className={ styles.metricSelect }
 				/>
 			</Stack>
-			{ body }
+			<div className={ styles.content }>{ body }</div>
 		</Stack>
 	);
 };
@@ -249,18 +271,15 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 /**
  * Widget render entry point.
  *
- * Attributes flow to the inner component via props rather than
- * `WidgetRootContext` — the emails summary has no date range, so the
- * WC-Analytics-shaped report params do not apply. Runs inside `WidgetRoot` so
- * it can reach the analytics query client, keeping the leaderboard prop-driven
- * (and Storybook-friendly).
+ * Passes host attributes into `WidgetRoot` for the widget contract. The email
+ * summary still reads `max` from props because it does not use report params.
  *
- * @param {WidgetRenderProps< EmailsAttributes >} props - The render props supplied by the widget host.
+ * @param {WidgetRenderProps< EmailsRenderAttributes >} props - The render props supplied by the widget host.
  * @return The rendered widget.
  */
-export default function Emails( { attributes }: WidgetRenderProps< EmailsAttributes > ) {
+export default function Emails( { attributes = {} }: WidgetRenderProps< EmailsRenderAttributes > ) {
 	return (
-		<WidgetRoot>
+		<WidgetRoot attributes={ attributes }>
 			<EmailsReport attributes={ attributes } />
 		</WidgetRoot>
 	);

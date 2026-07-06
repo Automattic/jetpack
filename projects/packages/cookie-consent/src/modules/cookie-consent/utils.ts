@@ -153,6 +153,21 @@ export function readConsentChoices(): ConsentEventChoices {
 	}, {} );
 }
 
+export function hasAnalyticsConsent( choices: ConsentEventChoices ): boolean {
+	const analyticsCategory = getConsentCategories().find(
+		category =>
+			category.key === 'analytics' ||
+			category.wpConsentMap.includes( 'statistics' ) ||
+			category.wpConsentMap.includes( 'statistics-anonymous' )
+	);
+
+	if ( ! analyticsCategory ) {
+		return choices.analytics === true;
+	}
+
+	return choices[ getCategoryPreferenceKey( analyticsCategory ) ] === true;
+}
+
 export function saveConsentChoices(
 	choices: ConsentEventChoices,
 	eventType: ConsentEventType = 'accept_selected'

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Work around a new `git` bug that results in "fatal: error in object: unshallow <sha>" errors.

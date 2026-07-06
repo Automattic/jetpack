@@ -18,6 +18,11 @@ const settings = {
 	icon,
 	parent: [ 'jetpack/field-image-select' ],
 	allowedBlocks: [ 'jetpack/input-image-option' ],
+	supports: {
+		// FORMS-694: choice/option blocks flatten through the field shortcode
+		// like inputs — visibility is inert; disable the control.
+		visibility: false,
+	},
 	edit,
 	save,
 };

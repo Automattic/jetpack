@@ -107,7 +107,7 @@ class Initializer_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'allowfullscreen', $html );
 		$this->assertStringContainsString( 'data-resize-to-parent="true"', $html );
-		$this->assertStringContainsString( 'allow="clipboard-write"', $html );
+		$this->assertStringContainsString( 'allow="clipboard-write; presentation"', $html );
 		$this->assertStringContainsString( 'width="640"', $html );
 		$this->assertStringContainsString( 'height="360"', $html );
 	}

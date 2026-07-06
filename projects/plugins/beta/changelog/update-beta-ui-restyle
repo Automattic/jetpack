@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Refresh the Beta Tester admin UI to match the modernized Jetpack admin design: a Jetpack logo header with title/breadcrumb, an Automattic Airline footer, and flat WordPress-design-system cards, toggles, buttons, badges, and search.

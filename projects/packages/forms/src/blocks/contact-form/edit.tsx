@@ -16,7 +16,8 @@ import {
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
-	Notice,
+	Button,
+	Notice as CoreNotice,
 	PanelBody,
 	TextareaControl,
 	TextControl,
@@ -27,9 +28,17 @@ import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
+import {
+	useRef,
+	useEffect,
+	useCallback,
+	lazy,
+	Suspense,
+	useState,
+	createInterpolateElement,
+} from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 /*
  * Internal dependencies
@@ -62,6 +71,7 @@ import { useSyncedFormLoader } from './hooks/use-synced-form-loader.ts';
 import { useSyncedForm } from './hooks/use-synced-form.ts';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
 import { getEditorContext } from './util/get-editor-context.ts';
+import { isCollectingResponses } from './util/is-collecting-responses.ts';
 import VariationPicker from './variation-picker.js';
 
 import './util/form-styles.js';
@@ -1034,9 +1044,9 @@ function JetpackContactFormEdit( {
 				? __( "You don't have permission to edit this form.", 'jetpack-forms' )
 				: _x( 'The referenced form could not be found.', 'synced form error', 'jetpack-forms' );
 		elt = (
-			<Notice status="warning" isDismissible={ false }>
+			<CoreNotice status="warning" isDismissible={ false }>
 				{ errorMessage }
-			</Notice>
+			</CoreNotice>
 		);
 	}
 	// In widget editor, synced forms (with ref) are not editable
@@ -1097,6 +1107,41 @@ function JetpackContactFormEdit( {
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
 				<InspectorControls>
+					{ ! isCollectingResponses( attributes ) && (
+						<Notice.Root intent="warning" className="jetpack-contact-form__not-collecting-notice">
+							<Notice.Title>
+								{ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
+							</Notice.Title>
+							<Notice.Description>
+								{ createInterpolateElement(
+									__(
+										'Turn on <email>email notifications</email> or <storage>response storage</storage> settings to start collecting.',
+										'jetpack-forms'
+									),
+									{
+										email: (
+											<Button
+												variant="link"
+												onClick={ () =>
+													setOpenPanels( prev => ( { ...prev, 'form-notifications': true } ) )
+												}
+												children={ null }
+											/>
+										),
+										storage: (
+											<Button
+												variant="link"
+												onClick={ () =>
+													setOpenPanels( prev => ( { ...prev, 'responses-storage': true } ) )
+												}
+												children={ null }
+											/>
+										),
+									}
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					) }
 					<PanelBody
 						title={ __( 'Action after submit', 'jetpack-forms' ) }
 						initialOpen={ false }

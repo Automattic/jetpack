@@ -39,6 +39,7 @@ export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse
 export { sanitizeStatsSingleVideoResponse } from './single-video';
 export type { StatsTopPostsItem } from './top-posts';
 export type {
+	StatsPostMeta,
 	StatsPostMonthValues,
 	StatsPostRawResponse,
 	StatsPostResponse,
@@ -82,6 +83,7 @@ export type {
 	StatsCommentFollowersRawPost,
 	StatsCommentFollowersRawResponse,
 } from './comment-followers';
+export type { StatsDevicesItem } from './devices';
 export type {
 	StatsPublicizeApiResponse,
 	StatsPublicizeItem,
@@ -92,12 +94,6 @@ export type {
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 } from './followers';
-export type {
-	StatsDevicesItem,
-	StatsDevicesResponse,
-	StatsDevicesResponseItem,
-	StatsDevicesTopValues,
-} from './devices';
 export type {
 	StatsCommentsAuthorItem,
 	StatsCommentsGroupItem,

@@ -38,6 +38,7 @@ export { default as ManageConnectionDialog } from './components/manage-connectio
 export { default as thirdPartyCookiesFallbackHelper } from './helpers/third-party-cookies-fallback';
 export { default as getCalypsoOrigin } from './helpers/get-calypso-origin';
 export * from './helpers/get-user-connection-url.ts';
+export { getReconnectErrorMessage } from './helpers/get-reconnect-error-message.ts';
 
 /**
  * Store
@@ -50,3 +51,10 @@ export { STORE_ID as CONNECTION_STORE_ID, initConnectionStore } from './state/st
 export { default as useProductCheckoutWorkflow } from './hooks/use-product-checkout-workflow';
 export { default as useRestoreConnection } from './hooks/use-restore-connection';
 export { default as useConnectionErrorNotice } from './hooks/use-connection-error-notice';
+
+/**
+ * Public type contract for connection-error consumers. Forwarded via `export *`
+ * (not `export type`, which is invalid in this `.jsx` barrel) — type-only, so no
+ * runtime effect. Mirrors the existing `get-user-connection-url` re-export.
+ */
+export * from './hooks/use-connection-error-notice/types.ts';

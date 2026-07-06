@@ -32,6 +32,7 @@ export interface AdminSiteData {
 export interface SiteData extends PublicSiteData, Partial< AdminSiteData > {}
 
 export interface UserCapabilities {
+	edit_others_posts: boolean;
 	manage_options: boolean;
 	manage_modules: boolean;
 }

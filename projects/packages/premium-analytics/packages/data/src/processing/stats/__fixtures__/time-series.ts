@@ -23,6 +23,12 @@ export const weeklySubscribersFixture = {
 	data: [ [ '2026-W25', '9' ] ],
 };
 
+export const wpcomWeeklySubscribersFixture = {
+	unit: 'week',
+	fields: [ 'period', 'subscribers' ],
+	data: [ [ '2026W06W29', '9' ] ],
+};
+
 export const invalidWeekSubscribersFixture = {
 	unit: 'week',
 	fields: [ 'period', 'subscribers' ],

@@ -1,0 +1,6 @@
+{
+	"name": "jpa/gross-sales-over-time",
+	"title": "Gross sales over time",
+	"description": "Gross sales over the selected time period.",
+	"category": "store"
+}

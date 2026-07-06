@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Total sales over time: drop the GlobalErrorProvider wrapper from the Storybook stories to match the sibling over-time widgets.

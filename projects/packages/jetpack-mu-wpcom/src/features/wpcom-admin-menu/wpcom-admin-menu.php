@@ -94,6 +94,15 @@ function wpcom_add_my_home_menu() {
 		return;
 	}
 
+	// Site Setup (manage_options) replaces My Home only for users who can see it; others keep My Home.
+	if (
+		current_user_can( 'manage_options' )
+		&& function_exists( 'wpcom_ai_launchpad_is_eligible' )
+		&& wpcom_ai_launchpad_is_eligible()
+	) {
+		return;
+	}
+
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	add_menu_page( __( 'My Home', 'jetpack-mu-wpcom' ), __( 'My Home', 'jetpack-mu-wpcom' ), 'read', 'https://wordpress.com/home/' . $domain, null, 'dashicons-admin-home', 2.01 ); // The 2.01 position is to ensure it's above the VIP menu on P2 sites.'

@@ -4,22 +4,27 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardLabel,
+	WidgetBackLink,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	formatLegendLabels,
+	useWidgetDrillDown,
 	useWidgetError,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LegendLabels,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
+import { useEffect, useMemo } from 'react';
 import { postAuthor } from '@wordpress/icons';
-import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildTopAuthorsData } from './build-top-authors-data';
+import { buildTopAuthorsData, type AuthorLeaderboardRow } from './build-top-authors-data';
+import styles from './style.module.css';
 import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -42,10 +47,12 @@ const toPositiveInt = ( value: string | number | undefined, fallback: number ) =
 
 export type AuthorsLeaderboardProps = {
 	/**
-	 * Leaderboard rows to render, already built from the top-authors report.
+	 * Author rows to render, already built from the top-authors report. Each row
+	 * carries its avatar and posts so the leaderboard can show a name + picture
+	 * label and drill down into that author's posts on click.
 	 * When omitted, the empty state is shown (unless `isLoading` is set).
 	 */
-	data?: LeaderboardChartData;
+	rows?: AuthorLeaderboardRow[];
 	/**
 	 * When `true`, the initial loading overlay is rendered instead of the chart.
 	 */
@@ -67,15 +74,21 @@ export type AuthorsLeaderboardProps = {
 
 /**
  * Presentational leaderboard for the Authors widget. Renders the site's top
- * authors by views, and is responsible only for the loading, empty, and
- * populated states.
+ * authors by views — each row labelled with the author's name and avatar — and
+ * lets a click drill down into that author's posts, with a back link to return.
+ *
+ * Both the interactive row affordance (chevron, hover, keyboard access) and the
+ * name + picture label come from the shared `@automattic/charts` leaderboard
+ * primitives via the toolkit's `LeaderboardChart` / `LeaderboardLabel`; only the
+ * drill-down navigation state lives here.
  *
  * Takes already-built rows via props (and is exported) so Storybook can
- * exercise those states with fixture data — there is no Stats backend in
- * Storybook, so the data-connected entry point would only ever show chrome.
+ * exercise these states — including the drill-down — with fixture data; there
+ * is no Stats backend in Storybook, so the data-connected entry point would
+ * only ever show chrome.
  *
  * @param props                - Component props.
- * @param props.data           - Leaderboard rows to render.
+ * @param props.rows           - Author rows to render.
  * @param props.isLoading      - Whether to render the initial loading overlay.
  * @param props.isRefetching   - Whether to layer a loading overlay over the chart.
  * @param props.withComparison - Whether to render previous-period deltas.
@@ -83,34 +96,148 @@ export type AuthorsLeaderboardProps = {
  * @return The rendered leaderboard.
  */
 export function AuthorsLeaderboard( {
-	data = [],
+	rows = [],
 	isLoading = false,
 	isRefetching = false,
 	withComparison = false,
 	legendLabels,
 }: AuthorsLeaderboardProps ) {
+	// Store only the author id and resolve the row fresh from the current rows,
+	// so a background refetch that drops the author cleanly falls back to the
+	// top view instead of pinning a stale snapshot.
+	const {
+		drillDownItem: selectedAuthorId,
+		drillDown: selectAuthor,
+		resetDrillDown: clearSelectedAuthor,
+	} = useWidgetDrillDown< string >();
+
+	const selectedAuthor = useMemo(
+		() => ( selectedAuthorId ? rows.find( row => row.id === selectedAuthorId ) ?? null : null ),
+		[ rows, selectedAuthorId ]
+	);
+
+	useEffect( () => {
+		if ( selectedAuthorId && ! selectedAuthor ) {
+			clearSelectedAuthor();
+		}
+	}, [ selectedAuthorId, selectedAuthor, clearSelectedAuthor ] );
+
+	const chartData: LeaderboardChartData = useMemo( () => {
+		// Drilled-in: show the selected author's posts. Rows are not interactive;
+		// the data builder already aligned current/comparison values, including
+		// posts that only existed in the comparison period.
+		if ( selectedAuthor ) {
+			return selectedAuthor.posts.map( post => {
+				// A custom label element bypasses the chart's default overlay
+				// `.label` inset, so mirror top-posts: pad the block (sets the bar
+				// height, since there is no avatar to size the row) and inset the
+				// text from the bar's rounded left edge.
+				const label = post.link ? (
+					<Link
+						className={ styles.postLabel }
+						href={ post.link }
+						variant="unstyled"
+						openInNewTab
+						title={ post.title }
+					>
+						{ post.title }
+					</Link>
+				) : (
+					<span className={ styles.postLabel } title={ post.title }>
+						{ post.title }
+					</span>
+				);
+
+				return {
+					id: post.id,
+					label,
+					currentValue: post.currentValue,
+					previousValue: post.previousValue,
+					currentShare: post.currentShare,
+					previousShare: post.previousShare,
+					delta: post.delta,
+				};
+			} );
+		}
+
+		// Top authors: name + avatar label, and a click drills into the author's
+		// posts. Authors without posts stay inert (no onClick).
+		return rows.map( row => ( {
+			id: row.id,
+			label: (
+				<LeaderboardLabel
+					label={ row.label }
+					imageUrl={ row.avatarUrl ?? undefined }
+					imageAlt={ sprintf(
+						/* translators: %s is the author name */
+						__( 'Avatar of %s', 'jetpack-premium-analytics' ),
+						row.label
+					) }
+					imageClassName={ styles.avatar }
+				/>
+			),
+			currentValue: row.currentValue,
+			previousValue: row.previousValue,
+			currentShare: row.currentShare,
+			previousShare: row.previousShare,
+			delta: row.delta,
+			...( row.posts.length > 0 && {
+				onClick: () => selectAuthor( row.id ),
+				// The label already renders the name as text; without an explicit
+				// action name the button would announce the avatar alt ("Avatar of
+				// X") plus the name. Give it a concise, deterministic name instead.
+				ariaLabel: sprintf(
+					/* translators: %s is the author name */
+					__( 'View posts by %s', 'jetpack-premium-analytics' ),
+					row.label
+				),
+			} ),
+		} ) );
+	}, [ rows, selectedAuthor, selectAuthor ] );
+
 	if ( isLoading ) {
-		return <WidgetLoadingOverlay />;
+		return (
+			<div className={ styles.content }>
+				<WidgetLoadingOverlay />
+			</div>
+		);
 	}
 
+	const isDrilled = Boolean( selectedAuthor );
+
 	return (
-		<>
+		<div className={ styles.content }>
+			{ selectedAuthor && (
+				<WidgetBackLink
+					label={ __( 'All authors', 'jetpack-premium-analytics' ) }
+					onClick={ clearSelectedAuthor }
+				/>
+			) }
 			<LeaderboardChart
-				data={ data }
+				data={ chartData }
 				withComparison={ withComparison }
+				withOverlayLabel
+				showLegend={ false }
 				legendLabels={ legendLabels }
 				dataFormat={ {
 					type: 'number',
-					options: { useMultipliers: false, decimals: 0 },
+					options: { useMultipliers: true, decimals: 0 },
 				} }
 				emptyStateIcon={ postAuthor }
-				emptyStateText={ __(
-					'Learn about your most popular authors to better understand how they contribute to growing your site.',
-					'jetpack-premium-analytics'
-				) }
+				emptyStateText={
+					isDrilled
+						? __(
+								'This author has no posts with views for the selected period.',
+								'jetpack-premium-analytics'
+						  )
+						: __(
+								'Learn about your most popular authors to better understand how they contribute to growing your site.',
+								'jetpack-premium-analytics'
+						  )
+				}
 			/>
 			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</div>
 	);
 }
 
@@ -145,7 +272,7 @@ function AuthorsReport( { max }: { max: number } ) {
 	const primaryData = primary.data;
 	const comparisonData = comparison.data;
 
-	const chartData = useMemo(
+	const rows = useMemo(
 		() => buildTopAuthorsData( primaryData, comparisonData ),
 		[ primaryData, comparisonData ]
 	);
@@ -159,7 +286,7 @@ function AuthorsReport( { max }: { max: number } ) {
 
 	return (
 		<AuthorsLeaderboard
-			data={ chartData }
+			rows={ rows }
 			isLoading={ isInitialLoading }
 			isRefetching={ isRefetching }
 			withComparison={ hasComparison }
@@ -185,7 +312,9 @@ function AuthorsReport( { max }: { max: number } ) {
 export default function Authors( { attributes = {}, setError }: AuthorsRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
-			<AuthorsReport max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
+			<div className={ styles.root }>
+				<AuthorsReport max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
+			</div>
 		</WidgetRoot>
 	);
 }
