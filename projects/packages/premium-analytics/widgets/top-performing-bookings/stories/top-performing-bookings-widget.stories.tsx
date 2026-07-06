@@ -139,7 +139,13 @@ const PRESET_OPTIONS = SELECTABLE_PRESETS;
 type TopPerformingBookingsWidgetProps = ComponentProps< typeof TopPerformingBookingsRender >;
 
 interface TopPerformingBookingsStoryControls {
+	/**
+	 * Whether to include comparison report params.
+	 */
 	withComparison: boolean;
+	/**
+	 * Date-range preset used for report params.
+	 */
 	preset: SelectablePresetId;
 }
 
@@ -207,9 +213,7 @@ function renderTopPerformingBookings( {
 /**
  * Story wrapper for rendering the top performing bookings widget in dashboard chrome.
  *
- * @param root0                - Story controls.
- * @param root0.withComparison - Whether to include comparison report params.
- * @param root0.preset         - Date-range preset used for report params.
+ * @param {TopPerformingBookingsDashboardStoryProps} props - Story controls.
  * @return The rendered Storybook story.
  */
 function TopPerformingBookingsDashboardStory( {

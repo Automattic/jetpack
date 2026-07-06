@@ -37,10 +37,25 @@ const storyWidgetType = {
 };
 
 interface AnnualHighlightsStoryControls {
+	/**
+	 * Whether to inject comparison report params.
+	 */
 	withComparison: boolean;
+	/**
+	 * Whether the Posts tile is shown.
+	 */
 	showPosts: boolean;
+	/**
+	 * Whether the Words tile is shown.
+	 */
 	showWords: boolean;
+	/**
+	 * Whether the Likes tile is shown.
+	 */
 	showLikes: boolean;
+	/**
+	 * Whether the Comments tile is shown.
+	 */
 	showComments: boolean;
 }
 
@@ -52,12 +67,7 @@ interface AnnualHighlightsStoryControls {
  * host injects comparison params. The metric toggles mirror the widget's
  * checkbox settings and hide/show the matching tile.
  *
- * @param props                - Story controls.
- * @param props.withComparison - Whether to inject comparison report params.
- * @param props.showPosts      - Whether the Posts tile is shown.
- * @param props.showWords      - Whether the Words tile is shown.
- * @param props.showLikes      - Whether the Likes tile is shown.
- * @param props.showComments   - Whether the Comments tile is shown.
+ * @param {AnnualHighlightsStoryControls} props - Story controls.
  * @return The rendered widget.
  */
 function renderAnnualHighlights( {
@@ -150,12 +160,7 @@ interface AnnualHighlightsDashboardStoryProps
 /**
  * Renders the real registered widget through the shared dashboard harness.
  *
- * @param props                - Dashboard and widget controls.
- * @param props.withComparison - Whether to inject comparison report params.
- * @param props.showPosts      - Whether the Posts tile is shown.
- * @param props.showWords      - Whether the Words tile is shown.
- * @param props.showLikes      - Whether the Likes tile is shown.
- * @param props.showComments   - Whether the Comments tile is shown.
+ * @param {AnnualHighlightsDashboardStoryProps} props - Dashboard and widget controls.
  * @return The rendered dashboard with the widget.
  */
 function AnnualHighlightsDashboardStory( {

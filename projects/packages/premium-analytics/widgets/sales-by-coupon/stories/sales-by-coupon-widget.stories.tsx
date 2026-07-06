@@ -23,7 +23,13 @@ type SalesByCouponWidgetProps = ComponentProps< typeof SalesByCouponRender >;
 const setStoryError: SalesByCouponWidgetProps[ 'setError' ] = () => undefined;
 
 interface SalesByCouponStoryControls {
+	/**
+	 * Whether comparison report params are enabled.
+	 */
 	withComparison: boolean;
+	/**
+	 * Date-range preset used for report params.
+	 */
 	preset: SelectablePresetId;
 }
 
@@ -60,9 +66,7 @@ function renderSalesByCoupon( { withComparison, preset }: SalesByCouponStoryCont
 /**
  * Storybook dashboard wrapper for the Sales by coupon widget.
  *
- * @param props                - Story controls.
- * @param props.withComparison - Whether comparison report params are enabled.
- * @param props.preset         - Date-range preset used for report params.
+ * @param {SalesByCouponDashboardStoryProps} props - Story controls.
  * @return The dashboard story surface with the widget rendered inside it.
  */
 function SalesByCouponDashboardStory( {

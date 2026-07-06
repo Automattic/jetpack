@@ -22,7 +22,13 @@ const PRESET_OPTIONS = SELECTABLE_PRESETS;
 type SalesByUtmCampaignWidgetProps = ComponentProps< typeof SalesByUtmCampaignRender >;
 
 interface SalesByUtmCampaignStoryControls {
+	/**
+	 * Whether to include comparison report params.
+	 */
 	withComparison: boolean;
+	/**
+	 * Date-range preset used to generate report params.
+	 */
 	preset: SelectablePresetId;
 }
 
@@ -86,9 +92,7 @@ function renderSalesByUtmCampaign( { withComparison, preset }: SalesByUtmCampaig
 /**
  * Story wrapper for rendering the sales by UTM campaign widget in dashboard chrome.
  *
- * @param root0                - Story controls.
- * @param root0.withComparison - Whether to include comparison report params.
- * @param root0.preset         - Date-range preset used to generate report params.
+ * @param {SalesByUtmCampaignDashboardStoryProps} props - Story controls.
  * @return The rendered Storybook story.
  */
 function SalesByUtmCampaignDashboardStory( {
