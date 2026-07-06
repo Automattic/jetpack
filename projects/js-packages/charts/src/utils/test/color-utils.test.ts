@@ -2,6 +2,7 @@ import { hsl as d3Hsl } from '@visx/vendor/d3-color';
 import {
 	getColorDistance,
 	lightenHexColor,
+	mixHexColors,
 	isValidHexColor,
 	hexToRgba,
 	validateHexColor,
@@ -582,6 +583,34 @@ describe( 'lightenHexColor', () => {
 		it( 'throws for invalid hex characters', () => {
 			expect( () => lightenHexColor( '#gggggg', 0.5 ) ).toThrow();
 		} );
+	} );
+} );
+
+describe( 'mixHexColors', () => {
+	it( 'returns the from color at blend 0', () => {
+		expect( mixHexColors( '#ff0000', '#0000ff', 0 ) ).toBe( '#ff0000' );
+	} );
+
+	it( 'returns the to color at blend 1', () => {
+		expect( mixHexColors( '#ff0000', '#0000ff', 1 ) ).toBe( '#0000ff' );
+	} );
+
+	it( 'blends halfway between the two colors', () => {
+		expect( mixHexColors( '#000000', '#ffffff', 0.5 ) ).toBe( '#808080' );
+	} );
+
+	it( 'matches lightenHexColor when the target is white', () => {
+		expect( mixHexColors( '#98c8df', '#ffffff', 0.8 ) ).toBe( lightenHexColor( '#98c8df', 0.8 ) );
+	} );
+
+	it( 'clamps blend outside [0, 1]', () => {
+		expect( mixHexColors( '#123456', '#abcdef', -1 ) ).toBe( '#123456' );
+		expect( mixHexColors( '#123456', '#abcdef', 2 ) ).toBe( '#abcdef' );
+	} );
+
+	it( 'throws on a malformed hex', () => {
+		expect( () => mixHexColors( '#fff', '#000000', 0.5 ) ).toThrow();
+		expect( () => mixHexColors( '#000000', 'nope', 0.5 ) ).toThrow();
 	} );
 } );
 

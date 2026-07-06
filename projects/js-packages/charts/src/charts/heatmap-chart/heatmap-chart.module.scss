@@ -76,7 +76,7 @@
 // Floor the mix at 15% so the lowest value stays visibly tinted, distinct from
 // an empty cell.
 .heatmap-chart__cell--filled {
-	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), transparent);
+	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), var(--heatmap-bg, #fff));
 }
 
 .heatmap-chart__cell--selected {
@@ -101,5 +101,5 @@
 	width: var(--wpds-dimension-size-3xs, 12px);
 	height: var(--wpds-dimension-size-3xs, 12px);
 	border-radius: var(--wpds-border-radius-sm, 2px);
-	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), transparent);
+	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), var(--heatmap-bg, #fff));
 }
