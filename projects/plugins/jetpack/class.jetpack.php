@@ -1037,10 +1037,7 @@ class Jetpack {
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
 
-		// `false` reads the stored active-modules list directly, so a disconnected
-		// site (where load_modules() bails) still loads the package and keeps the
-		// podcast feed serving.
-		if ( ( new Modules() )->is_active( 'podcast', false ) ) {
+		if ( ( new Modules() )->is_active( 'podcast' ) ) {
 			Podcast::init();
 		}
 

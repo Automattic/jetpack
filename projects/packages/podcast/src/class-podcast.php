@@ -48,8 +48,9 @@ class Podcast {
 
 		Tracks::init();
 
+		Admin_Page::init();
+
 		if ( is_admin() ) {
-			Admin_Page::init();
 			New_Episode_Prefill::init();
 		}
 
