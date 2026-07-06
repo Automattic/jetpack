@@ -107,8 +107,21 @@ class Cookie_Consent {
 
 		$features = $resolved['features'];
 
-		if ( $features['banner'] ) {
+		// Gate each shared frontend resource on every feature that needs it, not on the
+		// banner alone — otherwise disabling the banner would break the CCPA opt-out button
+		// and the footer "Manage Privacy Preferences" link, which reuse the same module and
+		// modal. The consent-log route stays gated on `consent_log`; the frontend skips its
+		// POST when that's off (see logger.ts).
+		$needs_module = $features['banner'] || $features['ccpa_page'] || $features['footer_links'];
+		$needs_modal  = $features['banner'] || $features['footer_links'];
+
+		if ( $needs_module ) {
 			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		}
+
+		if ( $needs_modal ) {
+			// Also rendered for footer-links-only sites so the manage-preferences link can
+			// reopen the modal; it only auto-shows when the banner feature is on (view.ts).
 			add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
 		}
 
@@ -1081,11 +1094,9 @@ class Cookie_Consent {
 		$config   = self::get_config();
 		$features = $config['features'];
 
-		// w.js is loaded by the banner module on the frontend, gated on analytics consent
-		// (see tracks-utils.ts); PHP must not enqueue it here or it would load pre-consent.
-		if ( ! $features['banner'] ) {
-			return;
-		}
+		// init() registers this only when a consent UI feature needs the runtime, so no bail
+		// here. w.js (Tracks) is loaded by the module on the frontend, gated on consent
+		// (tracks-utils.ts); PHP must never enqueue it here.
 
 		// Register and enqueue the Interactivity API script module built by webpack.
 		// Only the build version is read from the asset file; module dependencies are

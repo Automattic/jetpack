@@ -99,57 +99,82 @@ class Init_Feature_Toggles_Test extends TestCase {
 		$this->assertNotFalse( wp_next_scheduled( 'jetpack_cookie_consent_cleanup_consent_logs' ) );
 	}
 
-	public function test_banner_off_skips_render_banner() {
-		// render_banner is only ever added inside the banner branch of init(), so
-		// its absence is unambiguous regardless of the other (default-on) toggles.
-		Cookie_Consent::init( array( 'features' => array( 'banner' => false ) ) );
-
-		$this->assertFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ), 999 ) );
-	}
-
-	public function test_tracks_and_geo_off_without_banner_skips_enqueue() {
-		// enqueue_assets is registered only when the banner is on. With banner off there
-		// is nothing to enqueue, so the hook stays absent regardless of tracks/geo.
+	public function test_banner_off_still_renders_modal_when_footer_links_on() {
+		// The footer "Manage Privacy Preferences" link reopens the banner/preferences modal,
+		// so render_banner must stay registered when the banner is off but footer_links is on.
 		Cookie_Consent::init(
 			array(
 				'features' => array(
-					'banner' => false,
-					'tracks' => false,
-					'geo'    => false,
+					'banner'       => false,
+					'footer_links' => true,
 				),
 			)
 		);
 
-		$this->assertFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
+		$this->assertNotFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ), 999 ) );
 	}
 
-	public function test_tracks_on_without_banner_skips_enqueue() {
-		// Tracks (w.js) is loaded on the frontend by the banner module, gated on analytics
-		// consent (#50105). With the banner off there is no module to load it, so init()
-		// registers no enqueue hook even when tracks is on.
+	public function test_modal_skipped_when_banner_and_footer_links_off() {
+		// The modal is only needed by the banner or the footer manage-preferences link, so
+		// with both off it must not render — even when ccpa_page is on, since the CCPA
+		// opt-out flow uses its own snackbar rather than the modal.
 		Cookie_Consent::init(
 			array(
 				'features' => array(
-					'banner' => false,
-					'tracks' => true,
-					'geo'    => false,
+					'banner'       => false,
+					'footer_links' => false,
+					'ccpa_page'    => true,
 				),
 			)
 		);
 
-		$this->assertFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
 		$this->assertFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ), 999 ) );
 	}
 
-	public function test_geo_on_without_banner_or_tracks_skips_enqueue() {
-		// Geo emission lives behind the banner guard inside enqueue_assets(), so geo alone
-		// (banner and tracks off) has nothing to enqueue and must not register the hook.
+	public function test_module_enqueued_for_ccpa_only() {
+		// The CCPA opt-out button relies on the Interactivity module, so it must be enqueued
+		// when ccpa_page is on even though the banner and footer links are off.
 		Cookie_Consent::init(
 			array(
 				'features' => array(
-					'banner' => false,
-					'tracks' => false,
-					'geo'    => true,
+					'banner'       => false,
+					'footer_links' => false,
+					'ccpa_page'    => true,
+				),
+			)
+		);
+
+		$this->assertNotFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
+	}
+
+	public function test_module_enqueued_for_footer_links_only() {
+		// The footer manage-preferences link drives the modal through the same module, so it
+		// must be enqueued when footer_links is on even though the banner is off.
+		Cookie_Consent::init(
+			array(
+				'features' => array(
+					'banner'       => false,
+					'ccpa_page'    => false,
+					'footer_links' => true,
+				),
+			)
+		);
+
+		$this->assertNotFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
+	}
+
+	public function test_module_and_modal_skipped_when_no_consent_ui_feature() {
+		// With banner, ccpa_page, and footer_links all off, nothing surfaces consent UI, so
+		// neither the module nor the modal is registered regardless of tracks/geo/consent_log.
+		Cookie_Consent::init(
+			array(
+				'features' => array(
+					'banner'       => false,
+					'ccpa_page'    => false,
+					'footer_links' => false,
+					'tracks'       => true,
+					'geo'          => true,
+					'consent_log'  => true,
 				),
 			)
 		);

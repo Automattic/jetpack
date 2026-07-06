@@ -80,10 +80,10 @@ The `features` group turns individual pieces of functionality on or off. Every k
 Cookie_Consent::init(
 	array(
 		'features' => array(
-			'banner'             => true,  // Consent banner/modal and their frontend assets.
+			'banner'             => true,  // Auto-showing consent banner (GDPR/preview). See note below on shared assets.
 			'ccpa_page'          => true,  // CCPA "Your Privacy Choices" opt-out page and directives.
 			'footer_links'       => true,  // Required footer legal links (Block Hooks + classic-theme fallback).
-			'consent_log'        => true,  // Consent-log REST controller (table, cron cleanup, routes).
+			'consent_log'        => true,  // Consent-log REST controller (table, cron cleanup, routes) + frontend logging.
 			'tracks'             => true,  // Automattic Tracks (stats.wp.com/w.js) enqueue.
 			'geo'                => true,  // Geolocation-based consent model and Boost cache-key exclusion.
 			'page_deletion_lock' => false, // Reserved; not yet wired to a behavior.
@@ -93,6 +93,12 @@ Cookie_Consent::init(
 ```
 
 Turning `geo` off stops resolving a visitor's region and excluding the geo cookies from Jetpack Boost's cache key, but the frontend module still receives a `geo` config sub-object (with `geoEnabled: false`) rather than none at all, since the module dereferences it unconditionally.
+
+The `banner`, `ccpa_page`, and `footer_links` toggles surface interactive consent UI that shares runtime resources, so each resource is gated on _every_ feature that needs it — not on `banner` alone:
+
+- **Frontend module** (the Interactivity runtime and config) is enqueued when **any** of `banner`, `ccpa_page`, or `footer_links` is on. The CCPA opt-out button and the footer "Manage Privacy Preferences" link both depend on it, so disabling `banner` no longer breaks them.
+- **Preferences modal** (the `wp_footer` banner/modal markup) is rendered when `banner` **or** `footer_links` is on, since the footer link reopens it. It starts hidden and only auto-shows when `banner` is on, so a `footer_links`-only site never pops the banner.
+- **Consent-log POST** is skipped by the frontend when `consent_log` is off (its REST route is not registered), so no consent submission fires a request that 404s; the banner/CCPA UI still works client-side.
 
 #### Nested config groups
 

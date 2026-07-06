@@ -91,18 +91,10 @@ class Enqueue_Assets_Test extends TestCase {
 		$this->assertFalse( Cookie_Consent::get_config()['features']['tracks'] );
 	}
 
-	public function test_banner_off_skips_interactivity_module_and_config() {
-		$this->init_and_enqueue( array( 'features' => array( 'banner' => false ) ) );
-
-		$queue = wp_script_modules()->get_queue();
-		$this->assertNotContains( '@automattic/jetpack-cookie-consent', $queue );
-
-		$config = wp_interactivity_config( 'jetpack/cookie-consent' );
-		$this->assertArrayNotHasKey( 'geo', $config );
-		$this->assertArrayNotHasKey( 'geoEnabled', $config );
-	}
-
-	public function test_banner_on_enqueues_interactivity_module_and_config() {
+	public function test_enqueue_emits_interactivity_module_and_config() {
+		// Which features cause enqueue_assets() to be registered is covered by
+		// Init_Feature_Toggles_Test (module = banner || ccpa_page || footer_links). Once it
+		// runs it always emits the shared module + config, since every consumer needs them.
 		$this->init_and_enqueue( array( 'features' => array( 'banner' => true ) ) );
 
 		$queue = wp_script_modules()->get_queue();
