@@ -10,6 +10,7 @@ import {
 	parseRgbString,
 	normalizeColorToHex,
 	relativeLuminance,
+	getContrastRatio,
 	prefersLightText,
 } from '../color-utils';
 
@@ -925,6 +926,24 @@ describe( 'relativeLuminance', () => {
 
 	it( 'throws on a malformed hex', () => {
 		expect( () => relativeLuminance( 'not-a-color' ) ).toThrow();
+	} );
+} );
+
+describe( 'getContrastRatio', () => {
+	it( 'returns the WCAG contrast ratio between two colors', () => {
+		expect( getContrastRatio( '#ffffff', '#000000' ) ).toBeCloseTo( 21, 5 );
+		expect( getContrastRatio( '#ffffff', '#7f5dc4' ) ).toBeCloseTo( 4.92, 2 );
+	} );
+
+	it( 'returns the same ratio regardless of color order', () => {
+		expect( getContrastRatio( '#ffffff', '#7f5dc4' ) ).toBeCloseTo(
+			getContrastRatio( '#7f5dc4', '#ffffff' ),
+			5
+		);
+	} );
+
+	it( 'throws on malformed colors', () => {
+		expect( () => getContrastRatio( 'not-a-color', '#ffffff' ) ).toThrow();
 	} );
 } );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: Fix HeatmapChart value contrast in custom themes.

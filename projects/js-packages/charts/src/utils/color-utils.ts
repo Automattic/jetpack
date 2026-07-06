@@ -284,8 +284,24 @@ export const relativeLuminance = ( hex: string ): number => {
 };
 
 /**
+ * WCAG contrast ratio between two hex colors.
+ *
+ * @param  foregroundHex - Foreground hex color
+ * @param  backgroundHex - Background hex color
+ * @return               Contrast ratio, where 4.5 meets WCAG AA for normal text
+ * @throws {Error} if either hex string is malformed
+ */
+export const getContrastRatio = ( foregroundHex: string, backgroundHex: string ): number => {
+	const foreground = relativeLuminance( foregroundHex );
+	const background = relativeLuminance( backgroundHex );
+	return (
+		( Math.max( foreground, background ) + 0.05 ) / ( Math.min( foreground, background ) + 0.05 )
+	);
+};
+
+/**
  * Whether light text reads better than dark text on the given background, using the W3C
- * luminance threshold (0.179) that maximizes contrast against black vs white.
+ * contrast formula against black and white.
  *
  * @param backgroundHex - Hex background color
  * @return true if light text should be used; false (dark text) for malformed colors
@@ -294,5 +310,7 @@ export const prefersLightText = ( backgroundHex: string ): boolean => {
 	if ( ! isValidHexColor( backgroundHex ) ) {
 		return false;
 	}
-	return relativeLuminance( backgroundHex ) <= 0.179;
+	return (
+		getContrastRatio( '#ffffff', backgroundHex ) > getContrastRatio( '#000000', backgroundHex )
+	);
 };
