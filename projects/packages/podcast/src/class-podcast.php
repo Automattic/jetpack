@@ -12,8 +12,7 @@ use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Loads Jetpack Podcast on Simple and Atomic sites. The package owns the
- * podcasting experience outright.
+ * Loads the Jetpack Podcast package.
  */
 class Podcast {
 
@@ -27,10 +26,7 @@ class Podcast {
 	private static $initialized = false;
 
 	/**
-	 * Initialize the package.
-	 *
-	 * Always loads on Simple and WoA. On self-hosted Jetpack it stays dormant
-	 * unless opted in via the `jetpack_podcast_for_the_world` filter.
+	 * Initialize the package. Loads unconditionally; callers decide whether to.
 	 */
 	public static function init() {
 		if ( self::$initialized ) {
@@ -39,19 +35,6 @@ class Podcast {
 		self::$initialized = true;
 
 		$host = new Host();
-
-		/**
-		 * Allow the Podcast package to load on self-hosted Jetpack sites.
-		 *
-		 * @since 1.1.1
-		 *
-		 * @param bool $enabled Whether to load the package on self-hosted. Default false.
-		 */
-		$for_the_world = (bool) apply_filters( 'jetpack_podcast_for_the_world', false );
-
-		if ( ! $host->is_wpcom_simple() && ! $host->is_woa_site() && ! $for_the_world ) {
-			return;
-		}
 
 		Podcast_Episode_Block::register_hooks();
 

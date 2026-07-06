@@ -15,6 +15,19 @@ use WorDBless\BaseTestCase;
 #[CoversClass( Settings::class )]
 class Settings_Test extends BaseTestCase {
 
+	protected function setUp(): void {
+		parent::setUp();
+		// register()'s static guard persists across tests once Podcast::init()
+		// has run, which would skip re-adding the sync filter. Reset it.
+		$property = new \ReflectionProperty( Settings::class, 'registered' );
+		// @todo Remove once we drop PHP < 8.1 support. `setAccessible()` is
+		// deprecated in 8.5 (a no-op since 8.1), so only call it where it's needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, false );
+	}
+
 	public function test_register_settings_exposes_every_option_to_rest() {
 		Settings::register_settings();
 
