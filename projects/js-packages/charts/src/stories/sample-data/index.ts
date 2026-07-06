@@ -1077,14 +1077,11 @@ export const heatmapCalendarSeries: DataPointDate[] = Array.from(
 );
 
 /**
- * Year-long daily activity series that starts late in a month (28 Jun 2023).
+ * Calendar series starting on 2023-06-28 to exercise partial first-month labels.
  *
- * The grid's first week column therefore lands in the tail of June, giving a
- * "partial" first month of a single column — used to reproduce the calendar
- * month-label collision (the partial month's label overlapping the next).
  * - Category: time-series
  * - Data points: 365
- * - Suitable for: HeatmapChart (calendar layout, partial first month)
+ * - Suitable for: HeatmapChart (calendar layout)
  */
 export const heatmapPartialMonthCalendarSeries: DataPointDate[] = Array.from(
 	{ length: 365 },

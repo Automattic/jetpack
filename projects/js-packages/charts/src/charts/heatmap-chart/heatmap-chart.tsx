@@ -70,8 +70,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const containerBoundsRef = useRef( containerBounds );
 	containerBoundsRef.current = containerBounds;
 
-	// Mirror visx's callback ref into our own so the background-token resolution below can read
-	// the grid element's computed style (visx's containerRef is a callback ref, not an object).
+	// Keep visx's callback ref while retaining the grid element for style lookup.
 	const gridRef = useRef< HTMLDivElement | null >( null );
 	const setGridRef = useCallback(
 		( node: HTMLDivElement | null ) => {
@@ -86,11 +85,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
 	} );
 
-	// Resolve the chart background against the grid element itself — the exact scope the CSS
-	// `--heatmap-bg` resolves in — so a consumer's scoped WPDS token (e.g. a dark surface) is
-	// seen. Resolving at the document root, or against the provider wrapper (which can sit outside
-	// the theme scope), would miss it and mis-pick the in-cell text color. Read in an effect since
-	// the grid ref is only populated after mount; defaults to the light-surface fallback first.
+	// Resolve --heatmap-bg from the grid, where scoped theme tokens apply.
+	// The ref is set after mount, so start with the light fallback.
 	const [ chartBackgroundHex, setChartBackgroundHex ] = useState( '#ffffff' );
 	useEffect( () => {
 		const resolved = normalizeColorToHex(
@@ -101,13 +97,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		setChartBackgroundHex( isValidHexColor( resolved ) ? resolved : '#ffffff' );
 	}, [ theme.backgroundColor ] );
 
-	// Pick the in-cell text color from the cell's actual blended fill luminance (not the data
-	// value), so light text is only used where it out-contrasts dark text. Falls back to dark
-	// text when either color isn't a resolvable hex (e.g. a bare CSS token).
-	//
-	// The fill is the primary mixed over that resolved background — the exact opaque equivalent of
-	// the CSS `color-mix(primary, var(--heatmap-bg))` — so the text choice stays correct on any
-	// themed background, light or dark.
+	// Choose text color from the blended fill, not the raw value.
+	// If either color cannot resolve to hex, keep dark text.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
 	const cellHasLightText = ( intensity: number ): boolean =>
 		isValidHexColor( primaryHex ) &&
@@ -319,9 +310,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>
-						{ /* Corner gutter + column labels wrapped in a row so the grid keeps a strict
-						grid → row structure. aria-hidden, since each data cell's label already
-						carries this text. */ }
+						{ /* Header row preserves the grid structure; cell aria-labels include this text. */ }
 						<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
 							<span />
 							{ data.map( ( column, columnIndex ) => (
@@ -390,7 +379,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 											>
 												{ drawValues && present && (
 													<span className={ styles[ 'heatmap-chart__cell-value' ] }>
-														{ /* Compact so large values fit the cell; tooltip + aria-label keep full precision. */ }
+														{ /* Compact display; tooltip and aria-label keep full precision. */ }
 														{ formatNumberCompact( value ) }
 													</span>
 												) }

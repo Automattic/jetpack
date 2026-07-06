@@ -17,9 +17,7 @@
 	gap: var(--heatmap-cell-gap, var(--wpds-dimension-gap-xs, 4px));
 	flex: 1 1 0;
 	width: 100%;
-	// min-height: 0 (not the flex default of `auto`) lets the grid shrink below
-	// its content height, so short widgets size it down to fit instead of the
-	// chart overflowing and scrolling.
+	// Override flex's auto minimum so short widgets do not scroll.
 	min-height: 0;
 
 	&:focus-visible {

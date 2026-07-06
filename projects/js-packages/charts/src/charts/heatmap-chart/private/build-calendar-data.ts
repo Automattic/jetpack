@@ -57,14 +57,8 @@ export const buildCalendarHeatmapData = (
 		LABELLED_ROWS.includes( row ) ? format( addDays( gridStart, row ), 'EEE' ) : ''
 	);
 
-	// The first grid column starts on a week boundary that can fall in the tail of
-	// a month, leaving a "partial" first month of just one or two columns. Its
-	// label would then sit directly under the next month's label and overlap it
-	// (labels are wider than a column, especially in the compact layout), so we
-	// suppress the first month's label unless it spans enough columns to clear the
-	// next one. If the whole range stays in that first month there is no next
-	// label to collide with, so we keep it — otherwise a short single-month range
-	// would lose all month context.
+	// Hide short partial first-month labels when a later month follows; compact
+	// cells make adjacent labels collide. Keep the label for single-month ranges.
 	const MIN_FIRST_MONTH_WEEKS = 2;
 	const firstMonth = gridStart.getMonth();
 	let firstMonthWeeks = 0;
