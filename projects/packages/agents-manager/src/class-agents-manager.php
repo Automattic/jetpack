@@ -19,7 +19,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.0';
+	const PACKAGE_VERSION = '0.7.0';
 
 	/**
 	 * Help Center URL for disconnected variants.
@@ -269,11 +269,12 @@ class Agents_Manager {
 			}
 		}
 
-		// When Gutenberg's "admin bar in editor" (omnibar) experiment is active, expose the entry
-		// points in that editor admin bar (CIAB is excluded — it has its own Site Hub UI). The Help
-		// "?" dropdown shows only in the full unified experience (mirroring wp-admin); the Ask AI
-		// button shows in any dev/internal context while the feature is in development. The
-		// wp-calypso admin-bar integration wires both, so no frontend change is needed.
+		// When Gutenberg's admin-bar-in-editor experiment is active, register the editor omnibar
+		// entry points. CIAB is excluded because it has its own Site Hub UI. The Help dropdown
+		// shows only in the full unified experience, and the Ask AI button shows whenever Agents
+		// Manager is enabled here. They stay registered on the navigation view too, because the
+		// Site Editor toggles the canvas on the client without a reload, so the frontend controls
+		// visibility there.
 		if ( ! $is_ciab && ! $use_disconnected && self::is_admin_bar_in_editor() ) {
 			// Help "?" node + dropdown panel first, matching the wp-admin admin bar order.
 			if ( self::is_unified_experience() ) {
@@ -287,8 +288,8 @@ class Agents_Manager {
 				add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
 			}
 
-			// Ask AI button — dev/internal contexts only while the feature is in development.
-			if ( self::is_dev_mode() ) {
+			// Ask AI button — shown whenever Agents Manager is enabled in this editor context.
+			if ( self::is_enabled() ) {
 				add_action( 'admin_bar_menu', array( $this, 'add_ai_chat_button' ), 100 );
 			}
 		}
@@ -519,6 +520,25 @@ class Agents_Manager {
 
 		$script_dependencies = $asset_file['dependencies'] ?? array();
 
+		// Load translations for connected variants from widgets.wp.com.
+		// Disconnected variants have no translatable UI, so skip them (as Help
+		// Center does). English needs no translation file.
+		if ( ! str_contains( $variant, 'disconnected' ) ) {
+			$locale = self::determine_iso_639_locale();
+
+			if ( 'en' !== $locale ) {
+				wp_enqueue_script(
+					'agents-manager-translations',
+					'https://widgets.wp.com/agents-manager/languages/' . $locale . '-v1.js',
+					array( 'wp-i18n' ),
+					$version,
+					true
+				);
+
+				$script_dependencies[] = 'agents-manager-translations';
+			}
+		}
+
 		wp_enqueue_script(
 			'agents-manager',
 			'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . '.min.js',
@@ -541,6 +561,33 @@ class Agents_Manager {
 				$version
 			);
 		}
+	}
+
+	/**
+	 * Returns the ISO 639 conforming locale string for the current user.
+	 *
+	 * Normalizes the WordPress user locale to match the widgets.wp.com translation
+	 * file naming at languages/{code}-v1.js. Preserves the region for the few locales
+	 * where it is meaningful (pt-br, zh-tw, zh-cn); strips the region for all others;
+	 * falls back to 'en' when the locale is empty.
+	 *
+	 * @return string The ISO 639 locale string, e.g. "en".
+	 */
+	private static function determine_iso_639_locale() {
+		$language = get_user_locale();
+		$language = strtolower( $language );
+
+		if ( in_array( $language, array( 'pt_br', 'pt-br', 'zh_tw', 'zh-tw', 'zh_cn', 'zh-cn' ), true ) ) {
+			$language = str_replace( '_', '-', $language );
+		} else {
+			$language = preg_replace( '/([-_].*)$/i', '', $language );
+		}
+
+		if ( empty( $language ) ) {
+			return 'en';
+		}
+
+		return $language;
 	}
 
 	/**
@@ -898,6 +945,23 @@ class Agents_Manager {
 			&& function_exists( 'gutenberg_is_experiment_enabled' )
 			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
 			&& \gutenberg_is_experiment_enabled( 'gutenberg-admin-bar-in-editor' );
+	}
+
+	/**
+	 * Whether the current request is the Site Editor navigation view, as opposed to
+	 * the editing canvas (`?canvas=edit`) where the chat can dock.
+	 *
+	 * @return bool
+	 */
+	public static function is_site_editor_navigation() {
+		if ( 'site-editor.php' !== ( $GLOBALS['pagenow'] ?? '' ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only layout hint; changes no state.
+		$canvas = isset( $_GET['canvas'] ) ? sanitize_text_field( wp_unslash( $_GET['canvas'] ) ) : '';
+
+		return 'edit' !== $canvas;
 	}
 
 	/**

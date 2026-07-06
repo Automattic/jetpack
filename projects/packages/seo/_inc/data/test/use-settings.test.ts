@@ -19,6 +19,10 @@ const SEED: SettingsResponse = {
 	sitemap_active: false,
 	sitemap_url: '',
 	canonical_active: false,
+	schema: {
+		organization: { name: '', description: '', sameAs: [], email: '' },
+		defaults: { organization: { name: 'Acme Co', description: 'We make things' } },
+	},
 };
 
 const SETTINGS_STORE = 'seo/settings';
@@ -141,6 +145,25 @@ describe( 'useSettingsForm', () => {
 		act( () => result.current.commitFields( [ 'front_page_description' ] ) );
 		act( () => result.current.commitTitleFormat( 'posts' ) );
 
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'updates the saved settings snapshot when schema saves separately', () => {
+		const { result } = renderHook( () => useSettingsForm() );
+		const schema = {
+			...SEED.schema,
+			organization: {
+				...SEED.schema.organization,
+				sameAs: [ 'https://example.com/acme' ],
+			},
+		};
+
+		act( () => result.current.setField( { front_page_description: 'Unsaved description.' } ) );
+		act( () => result.current.setSchemaSettings( schema ) );
+
+		expect( result.current.local?.schema ).toEqual( schema );
+		expect( result.current.local?.front_page_description ).toBe( 'Unsaved description.' );
+		expect( setSettings ).toHaveBeenCalledWith( { ...SEED, schema } );
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 } );

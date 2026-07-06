@@ -300,8 +300,8 @@ class Cookie_Consent {
 	 */
 	public static function ignore_geo_cookies_in_page_cache( $cookies ) {
 		$config       = self::get_config();
-		$country_code = $config['country_code_cookie'] ?? 'country_code';
-		$region       = $config['region_cookie'] ?? 'region';
+		$country_code = $config['geo']['country_code_cookie'];
+		$region       = $config['geo']['region_cookie'];
 		$cookies[]    = preg_quote( $country_code, '/' );
 		$cookies[]    = preg_quote( $region, '/' );
 
@@ -849,8 +849,9 @@ class Cookie_Consent {
 			'banner_customize_button'          => __( 'Customize', 'jetpack-cookie-consent' ),
 			'modal_title'                      => __( 'Customize preferences', 'jetpack-cookie-consent' ),
 			'modal_close_label'                => __( 'Close modal', 'jetpack-cookie-consent' ),
-			'modal_description'                => __( 'Your privacy is important to us. We and our partners use, store, and process your personal data to improve our website, such as by improving security or conducting analytics, marketing activities to help deliver relevant marketing or content, and your user experience, such as by remembering your account name or language settings where applicable. You can customize your cookie settings below. Learn more in our', 'jetpack-cookie-consent' ),
+			'modal_description'                => __( 'Your privacy is important to us. We and our partners use, store, and process your personal data to improve our website, such as by improving security or conducting analytics, marketing activities to help deliver relevant marketing or content, and your user experience, such as by remembering your account name or language settings where applicable. You can customize your cookie settings below.', 'jetpack-cookie-consent' ),
 			'privacy_policy_link'              => __( 'Privacy Policy', 'jetpack-cookie-consent' ),
+			'modal_links_lead'                 => __( 'Learn more in our', 'jetpack-cookie-consent' ),
 			'modal_links_conjunction'          => __( 'and', 'jetpack-cookie-consent' ),
 			'cookie_policy_link'               => __( 'Cookie Policy', 'jetpack-cookie-consent' ),
 			'category_toggle_label'            => __( 'Toggle category description', 'jetpack-cookie-consent' ),
@@ -909,6 +910,49 @@ class Cookie_Consent {
 	}
 
 	/**
+	 * Get the default consent category registry.
+	 *
+	 * Category keys are the internal/persistence names. The frontend keeps the
+	 * existing `required` and `advertising` aliases for the default `functional`
+	 * and `marketing` categories.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|null $copy Optional normalized copy array.
+	 * @return array Default consent categories.
+	 */
+	public static function get_default_consent_categories( $copy = null ) {
+		$copy = is_array( $copy ) ? self::normalize_copy( $copy, self::get_default_copy() ) : self::get_default_copy();
+
+		return array(
+			array(
+				'key'             => 'functional',
+				'label'           => $copy['required_category_label'],
+				'description'     => $copy['required_category_description'],
+				'required'        => true,
+				'default_checked' => true,
+				'wp_consent_map'  => array( 'functional' ),
+			),
+			array(
+				'key'             => 'analytics',
+				'label'           => $copy['analytics_category_label'],
+				'description'     => $copy['analytics_category_description'],
+				'required'        => false,
+				'default_checked' => true,
+				'wp_consent_map'  => array( 'statistics', 'statistics-anonymous' ),
+			),
+			array(
+				'key'             => 'marketing',
+				'label'           => $copy['advertising_category_label'],
+				'description'     => $copy['advertising_category_description'],
+				'required'        => false,
+				'default_checked' => false,
+				'wp_consent_map'  => array( 'marketing' ),
+			),
+		);
+	}
+
+	/**
 	 * Resolve UI copy for a template, backfilling any missing keys with defaults.
 	 *
 	 * Templates normally receive a fully normalized `copy` group from get_config(),
@@ -924,6 +968,97 @@ class Cookie_Consent {
 	public static function get_copy( $config = array() ) {
 		$copy = is_array( $config ) && isset( $config['copy'] ) ? $config['copy'] : array();
 		return self::normalize_copy( $copy, self::get_default_copy() );
+	}
+
+	/**
+	 * Get normalized consent categories from a configuration array.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $config Configuration array.
+	 * @return array Normalized consent categories.
+	 */
+	public static function get_consent_categories( $config = array() ) {
+		$copy       = self::get_copy( $config );
+		$defaults   = self::get_default_consent_categories( $copy );
+		$categories = $config['consent']['categories'] ?? $defaults;
+
+		return self::normalize_consent_categories( $categories, $defaults );
+	}
+
+	/**
+	 * Get the active configured consent category registry.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Normalized configured consent categories.
+	 */
+	public static function get_current_consent_categories() {
+		$config = self::get_config();
+		return $config['consent']['categories'];
+	}
+
+	/**
+	 * Get the frontend preference key for a registry category key.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $key Registry category key.
+	 * @return string Frontend preference key.
+	 */
+	public static function get_category_preference_key( $key ) {
+		if ( 'functional' === $key ) {
+			return 'required';
+		}
+
+		if ( 'marketing' === $key ) {
+			return 'advertising';
+		}
+
+		return $key;
+	}
+
+	/**
+	 * Get the Interactivity API category context object.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $categories Normalized category registry.
+	 * @return array Category choices keyed by frontend preference key.
+	 */
+	public static function get_category_context( $categories ) {
+		$context = array();
+
+		foreach ( $categories as $category ) {
+			$preference_key             = self::get_category_preference_key( $category['key'] );
+			$context[ $preference_key ] = $category['required'] || $category['default_checked'];
+		}
+
+		return $context;
+	}
+
+	/**
+	 * Convert normalized categories to the frontend config shape.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $categories Normalized category registry.
+	 * @return array Frontend category registry.
+	 */
+	public static function get_frontend_consent_categories( $categories ) {
+		$frontend_categories = array();
+
+		foreach ( $categories as $category ) {
+			$frontend_categories[] = array(
+				'key'            => $category['key'],
+				'preferenceKey'  => self::get_category_preference_key( $category['key'] ),
+				'required'       => (bool) $category['required'],
+				'defaultChecked' => (bool) $category['default_checked'],
+				'wpConsentMap'   => array_values( $category['wp_consent_map'] ),
+			);
+		}
+
+		return $frontend_categories;
 	}
 
 	/**
@@ -963,93 +1098,351 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Get configuration with filters
+	 * Normalize configured consent categories.
 	 *
-	 * @return array Configuration array
+	 * @param array $categories Categories supplied by configuration.
+	 * @param array $defaults   Default categories.
+	 * @return array Normalized categories.
 	 */
-	private static function get_config() {
-		$default_copy   = self::get_default_copy();
-		$default_config = array(
-			'geo_api_url'         => 'https://public-api.wordpress.com/geo/',
-			'geo_cookie_duration' => 6 * HOUR_IN_SECONDS, // 6 hours.
+	private static function normalize_consent_categories( $categories, $defaults ) {
+		if ( ! is_array( $categories ) ) {
+			return $defaults;
+		}
+
+		$normalized           = array();
+		$seen_keys            = array();
+		$seen_preference_keys = array();
+
+		// The frontend aliases the default `functional`/`marketing` categories to the
+		// `required`/`advertising` preference keys, so those alias strings are reserved.
+		// A consumer category whose key (or derived preference key) collides with one
+		// would otherwise silently overwrite a built-in category's consent state.
+		$reserved_keys = array( 'required', 'advertising' );
+
+		foreach ( $categories as $category ) {
+			if ( ! is_array( $category ) || empty( $category['key'] ) ) {
+				continue;
+			}
+
+			$key = self::normalize_consent_category_key( $category['key'] );
+			if ( '' === $key || isset( $seen_keys[ $key ] ) ) {
+				continue;
+			}
+
+			$preference_key = self::get_category_preference_key( $key );
+			if ( in_array( $key, $reserved_keys, true ) || isset( $seen_preference_keys[ $preference_key ] ) ) {
+				_doing_it_wrong(
+					__METHOD__,
+					/* translators: %s is the consent category key. */
+					esc_html( sprintf( __( 'Cookie consent category "%s" was ignored because it collides with a reserved preference key.', 'jetpack-cookie-consent' ), $key ) ),
+					''
+				);
+				continue;
+			}
+
+			$wp_consent_map = array();
+			if ( isset( $category['wp_consent_map'] ) && is_array( $category['wp_consent_map'] ) ) {
+				foreach ( $category['wp_consent_map'] as $wp_consent_key ) {
+					$wp_consent_key = sanitize_key( $wp_consent_key );
+					if ( '' !== $wp_consent_key && ! in_array( $wp_consent_key, $wp_consent_map, true ) ) {
+						$wp_consent_map[] = $wp_consent_key;
+					}
+				}
+			}
+
+			if ( empty( $wp_consent_map ) ) {
+				$wp_consent_map = array( $key );
+			}
+
+			$required = ! empty( $category['required'] );
+
+			$normalized[] = array(
+				'key'             => $key,
+				'label'           => isset( $category['label'] ) && is_scalar( $category['label'] ) ? (string) $category['label'] : $key,
+				'description'     => isset( $category['description'] ) && is_scalar( $category['description'] ) ? (string) $category['description'] : '',
+				'required'        => $required,
+				'default_checked' => $required || ! empty( $category['default_checked'] ),
+				'wp_consent_map'  => $wp_consent_map,
+			);
+
+			$seen_keys[ $key ]                       = true;
+			$seen_preference_keys[ $preference_key ] = true;
+		}
+
+		return empty( $normalized ) ? $defaults : $normalized;
+	}
+
+	/**
+	 * Normalize a consent category key for PHP arrays and Interactivity paths.
+	 *
+	 * @param mixed $key Consent category key.
+	 * @return string Normalized key.
+	 */
+	private static function normalize_consent_category_key( $key ) {
+		$key = sanitize_key( (string) $key );
+		return preg_replace( '/[^a-z0-9_]/', '_', $key );
+	}
+
+	/**
+	 * Normalize configured links by merging consumer overrides with defaults.
+	 *
+	 * @param array $config   Configuration array supplied through filters.
+	 * @param array $defaults Default link values.
+	 * @return array Normalized links.
+	 */
+	private static function normalize_links( $config, $defaults ) {
+		$links = isset( $config['links'] ) && is_array( $config['links'] ) ? $config['links'] : array();
+
+		foreach ( $links as $key => $value ) {
+			if ( ! is_string( $key ) ) {
+				continue;
+			}
+
+			if ( is_scalar( $value ) ) {
+				$defaults[ $key ] = trim( (string) $value );
+			}
+		}
+
+		return $defaults;
+	}
+
+	/**
+	 * Get default GDPR country list.
+	 *
+	 * @return string[] Country codes where opt-in consent applies.
+	 */
+	private static function get_default_gdpr_countries() {
+		return array(
+			// European Member countries.
+			'AT', // Austria.
+			'BE', // Belgium.
+			'BG', // Bulgaria.
+			'CY', // Cyprus.
+			'CZ', // Czech Republic.
+			'DE', // Germany.
+			'DK', // Denmark.
+			'EE', // Estonia.
+			'ES', // Spain.
+			'FI', // Finland.
+			'FR', // France.
+			'GR', // Greece.
+			'HR', // Croatia.
+			'HU', // Hungary.
+			'IE', // Ireland.
+			'IT', // Italy.
+			'LT', // Lithuania.
+			'LU', // Luxembourg.
+			'LV', // Latvia.
+			'MT', // Malta.
+			'NL', // Netherlands.
+			'PL', // Poland.
+			'PT', // Portugal.
+			'RO', // Romania.
+			'SE', // Sweden.
+			'SI', // Slovenia.
+			'SK', // Slovakia.
+			'GB', // United Kingdom.
+			// Single Market Countries that GDPR applies to.
+			'CH', // Switzerland.
+			'IS', // Iceland.
+			'LI', // Liechtenstein.
+			'NO', // Norway.
+		);
+	}
+
+	/**
+	 * Get default CCPA-style region list.
+	 *
+	 * @return string[] Lower-case region names where opt-out consent applies.
+	 */
+	private static function get_default_ccpa_regions() {
+		return array(
+			/* US regions/states that are treated like California for Do Not Sell requests. */
+			'california',
+			'utah',
+			'virginia',
+			'colorado',
+			'connecticut',
+			'texas',
+			'tennessee',
+			'oregon',
+			'new jersey',
+			'montana',
+			'iowa',
+			'indiana',
+			'delaware',
+		);
+	}
+
+	/**
+	 * Get default geo provider configuration.
+	 *
+	 * @return array Geo configuration.
+	 */
+	private static function get_default_geo_config() {
+		return array(
+			'provider'            => 'wpcom',
+			'api_url'             => 'https://public-api.wordpress.com/geo/',
 			'country_code_cookie' => 'country_code',
 			'region_cookie'       => 'region',
-			'cookie_policy_url'   => 'https://automattic.com/cookies/',
-			'gdpr_countries'      => array(
-				// European Member countries.
-				'AT', // Austria.
-				'BE', // Belgium.
-				'BG', // Bulgaria.
-				'CY', // Cyprus.
-				'CZ', // Czech Republic.
-				'DE', // Germany.
-				'DK', // Denmark.
-				'EE', // Estonia.
-				'ES', // Spain.
-				'FI', // Finland.
-				'FR', // France.
-				'GR', // Greece.
-				'HR', // Croatia.
-				'HU', // Hungary.
-				'IE', // Ireland.
-				'IT', // Italy.
-				'LT', // Lithuania.
-				'LU', // Luxembourg.
-				'LV', // Latvia.
-				'MT', // Malta.
-				'NL', // Netherlands.
-				'PL', // Poland.
-				'PT', // Portugal.
-				'RO', // Romania.
-				'SE', // Sweden.
-				'SI', // Slovenia.
-				'SK', // Slovakia.
-				'GB', // United Kingdom.
-				// Single Market Countries that GDPR applies to.
-				'CH', // Switzerland.
-				'IS', // Iceland.
-				'LI', // Liechtenstein.
-				'NO', // Norway.
-			),
-			'ccpa_regions'        => array(
-				/* US regions/states that are treated like California for Do Not Sell requests. */
-				'california',
-				'utah',
-				'virginia',
-				'colorado',
-				'connecticut',
-				'texas',
-				'tennessee',
-				'oregon',
-				'new jersey',
-				'montana',
-				'iowa',
-				'indiana',
-				'delaware',
-			),
+			'cookie_duration'     => 6 * HOUR_IN_SECONDS, // 6 hours.
+			'gdpr_countries'      => self::get_default_gdpr_countries(),
+			'ccpa_regions'        => self::get_default_ccpa_regions(),
 			'show_on_error'       => true, // Show banner if geolocation fails.
+		);
+	}
+
+	/**
+	 * Get default configuration.
+	 *
+	 * Legacy top-level geo keys are included so existing filters that append to the
+	 * defaults keep working. normalize_config() folds them into the nested geo schema.
+	 *
+	 * @return array Configuration array.
+	 */
+	private static function get_default_config() {
+		$default_copy = self::get_default_copy();
+		$geo_config   = self::get_default_geo_config();
+
+		return array(
+			'geo'                 => $geo_config,
+			'geo_provider'        => $geo_config['provider'],
+			'geo_api_url'         => $geo_config['api_url'],
+			'geo_cookie_duration' => $geo_config['cookie_duration'],
+			'country_code_cookie' => $geo_config['country_code_cookie'],
+			'region_cookie'       => $geo_config['region_cookie'],
+			'gdpr_countries'      => $geo_config['gdpr_countries'],
+			'ccpa_regions'        => $geo_config['ccpa_regions'],
+			'show_on_error'       => $geo_config['show_on_error'],
 			'gdpr_honors_gpc'     => true, // Honor a Global Privacy Control signal as an opt-out in GDPR regions.
+			'links'               => array(
+				'cookie_policy_url' => '', // Empty hides the Cookie Policy link; set it to link a consumer's own cookie policy page.
+			),
 			'event_prefix'        => 'jetpack', // Tracks event name prefix; set to 'woocommerceanalytics' for Unified Analytics continuity.
+			'features'            => array(
+				'tracks' => true,
+			),
 			'log'                 => array(
 				'policy_version' => '1',
 				'banner_version' => '1',
+				'ip_mode'        => 'drop',
 			),
 			'copy'                => $default_copy,
+			'consent'             => array(
+				'categories' => self::get_default_consent_categories( $default_copy ),
+			),
 		);
+	}
+
+	/**
+	 * Normalize GDPR country codes for case-insensitive matching.
+	 *
+	 * @param string[] $countries Country codes.
+	 * @return string[] Upper-case country codes.
+	 */
+	private static function normalize_gdpr_countries( $countries ) {
+		return array_map( 'strtoupper', array_values( $countries ) );
+	}
+
+	/**
+	 * Normalize CCPA region names for case-insensitive matching.
+	 *
+	 * @param string[] $regions Region names.
+	 * @return string[] Lower-case region names.
+	 */
+	private static function normalize_ccpa_regions( $regions ) {
+		return array_map( 'strtolower', array_values( $regions ) );
+	}
+
+	/**
+	 * Normalize filtered configuration into the current schema.
+	 *
+	 * @param array $config         Filtered configuration.
+	 * @param array $default_config Default configuration.
+	 * @return array Normalized configuration.
+	 */
+	private static function normalize_config( $config, $default_config ) {
+		if ( ! is_array( $config ) ) {
+			$config = array();
+		}
+
+		$nested_geo = isset( $config['geo'] ) && is_array( $config['geo'] ) ? $config['geo'] : array();
+		$geo        = array_merge( $default_config['geo'], $nested_geo );
+
+		$legacy_geo_keys = array(
+			'geo_provider'        => 'provider',
+			'geo_api_url'         => 'api_url',
+			'geo_cookie_duration' => 'cookie_duration',
+			'country_code_cookie' => 'country_code_cookie',
+			'region_cookie'       => 'region_cookie',
+			'gdpr_countries'      => 'gdpr_countries',
+			'ccpa_regions'        => 'ccpa_regions',
+			'show_on_error'       => 'show_on_error',
+		);
+
+		foreach ( $legacy_geo_keys as $legacy_key => $geo_key ) {
+			$has_nested_override = array_key_exists( $geo_key, $nested_geo );
+			if ( ! $has_nested_override && array_key_exists( $legacy_key, $config ) && $config[ $legacy_key ] !== $default_config[ $legacy_key ] ) {
+				$geo[ $geo_key ] = $config[ $legacy_key ];
+			}
+		}
+
+		if ( ! in_array( $geo['provider'], array( 'wpcom', 'custom' ), true ) ) {
+			$geo['provider'] = 'wpcom';
+			$geo['api_url']  = $default_config['geo']['api_url'];
+		}
+		if ( ! is_string( $geo['api_url'] ) ) {
+			$geo['api_url'] = '';
+		}
+		if ( 'wpcom' === $geo['provider'] && '' === $geo['api_url'] ) {
+			$geo['api_url'] = $default_config['geo']['api_url'];
+		}
+		$geo['country_code_cookie'] = is_string( $geo['country_code_cookie'] ) && '' !== $geo['country_code_cookie'] ? $geo['country_code_cookie'] : $default_config['geo']['country_code_cookie'];
+		$geo['region_cookie']       = is_string( $geo['region_cookie'] ) && '' !== $geo['region_cookie'] ? $geo['region_cookie'] : $default_config['geo']['region_cookie'];
+		$geo['cookie_duration']     = is_numeric( $geo['cookie_duration'] ) ? (int) $geo['cookie_duration'] : $default_config['geo']['cookie_duration'];
+		$geo['gdpr_countries']      = is_array( $geo['gdpr_countries'] ) ? self::normalize_gdpr_countries( $geo['gdpr_countries'] ) : $default_config['geo']['gdpr_countries'];
+		$geo['ccpa_regions']        = is_array( $geo['ccpa_regions'] ) ? self::normalize_ccpa_regions( $geo['ccpa_regions'] ) : $default_config['geo']['ccpa_regions'];
+		$geo['show_on_error']       = (bool) $geo['show_on_error'];
+
+		$config['geo']                = $geo;
+		$config['links']              = self::normalize_links( $config, $default_config['links'] );
+		$config['event_prefix']       = $config['event_prefix'] ?? $default_config['event_prefix'];
+		$config['features']           = array_merge(
+			$default_config['features'],
+			isset( $config['features'] ) && is_array( $config['features'] ) ? $config['features'] : array()
+		);
+		$config['features']['tracks'] = (bool) $config['features']['tracks'];
+		$config['copy']               = self::normalize_copy( $config['copy'] ?? array(), $default_config['copy'] );
+		$config['consent']            = isset( $config['consent'] ) && is_array( $config['consent'] ) ? $config['consent'] : array();
+
+		$default_categories = self::get_default_consent_categories( $config['copy'] );
+		$categories         = $config['consent']['categories'] ?? $default_categories;
+
+		if ( $categories === $default_config['consent']['categories'] ) {
+			$categories = $default_categories;
+		}
+
+		$config['consent']['categories'] = self::normalize_consent_categories( $categories, $default_categories );
+
+		return $config;
+	}
+
+	/**
+	 * Get package configuration with filters.
+	 *
+	 * @internal This accessor is for package classes only and is not part of the public API.
+	 *
+	 * @return array Configuration array.
+	 */
+	public static function get_config() {
+		$default_config = self::get_default_config();
 
 		/**
 		 * Filter cookie consent configuration
 		 *
 		 * @param array $config Configuration array
 		 */
-		$config = apply_filters( 'jetpack_cookie_consent_config', $default_config );
-		if ( ! is_array( $config ) ) {
-			$config = $default_config;
-		}
-
-		$config['copy'] = self::normalize_copy( $config['copy'] ?? array(), $default_copy );
-
-		return $config;
+		return self::normalize_config( apply_filters( 'jetpack_cookie_consent_config', $default_config ), $default_config );
 	}
 
 	/**
@@ -1060,19 +1453,6 @@ class Cookie_Consent {
 		if ( is_admin() ) {
 			return;
 		}
-
-		// Load Automattic Tracks (w.js) for analytics.
-		// External script, version managed by Automattic - no version needed.
-		wp_enqueue_script(
-			'jetpack-cookie-consent-tracks',
-			'https://stats.wp.com/w.js',
-			array(),
-			gmdate( 'YW' ),
-			array(
-				'strategy'  => 'defer',
-				'in_footer' => true,
-			)
-		);
 
 		// Register and enqueue the Interactivity API script module built by webpack.
 		// Only the build version is read from the asset file; module dependencies are
@@ -1103,17 +1483,31 @@ class Cookie_Consent {
 		);
 
 		// Resolve the configured Tracks event prefix once so it can be shared below.
-		$config = self::get_config();
+		$config              = self::get_config();
+		$frontend_categories = self::get_frontend_consent_categories( $config['consent']['categories'] );
+
+		$config_data = array(
+			'apiUrl'      => rest_url( 'jetpack/v4/cookie-consent/consent-log' ),
+			'eventPrefix' => $config['event_prefix'],
+			'features'    => $config['features'],
+		);
+
+		// Only expose a REST nonce to logged-in visitors, so the consent logger can
+		// authenticate and record the real user_id. Anonymous visitors deliberately get
+		// none: their pages are full-page-cached, a cached nonce would go stale and make
+		// core reject the request (rest_cookie_invalid_nonce). Without a nonce core treats
+		// the request as anonymous and stores user_id = 0, which is correct for them.
+		if ( is_user_logged_in() ) {
+			$config_data['nonce'] = wp_create_nonce( 'wp_rest' );
+		}
+		$config_data['categories'] = $frontend_categories;
 
 		// Pass REST API URL and Tracks event prefix to the module via global config.
 		wp_print_inline_script_tag(
 			sprintf(
 				'window.jetpackCookieConsentConfig = %s;',
 				wp_json_encode(
-					array(
-						'apiUrl'      => rest_url( 'jetpack/v4/cookie-consent/consent-log' ),
-						'eventPrefix' => $config['event_prefix'],
-					),
+					$config_data,
 					JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 				)
 			),
@@ -1124,22 +1518,25 @@ class Cookie_Consent {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$force_preview = isset( $_GET['preview_cookie_consent'] ) && '1' === $_GET['preview_cookie_consent'];
 
-		// Pass configuration to frontend using wp_interactivity_config.
-		wp_interactivity_config(
-			'jetpack/cookie-consent',
-			array(
-				'geoApiUrl'         => $config['geo_api_url'],
-				'geoCookieDuration' => $config['geo_cookie_duration'],
-				'countryCodeCookie' => $config['country_code_cookie'],
-				'regionCookie'      => $config['region_cookie'],
-				'cookiePolicyUrl'   => $config['cookie_policy_url'],
-				'gdprCountries'     => $config['gdpr_countries'],
-				'ccpaRegions'       => $config['ccpa_regions'],
-				'gdprHonorsGpc'     => $config['gdpr_honors_gpc'] ?? true,
-				'showOnError'       => $config['show_on_error'],
-				'forcePreview'      => $force_preview,
-			)
+		$frontend_config = array(
+			'cookiePolicyUrl' => $config['links']['cookie_policy_url'],
+			'gdprHonorsGpc'   => $config['gdpr_honors_gpc'] ?? true,
+			'forcePreview'    => $force_preview,
+			'categories'      => $frontend_categories,
+			'geo'             => array(
+				'provider'          => $config['geo']['provider'],
+				'apiUrl'            => $config['geo']['api_url'],
+				'countryCodeCookie' => $config['geo']['country_code_cookie'],
+				'regionCookie'      => $config['geo']['region_cookie'],
+				'cookieDuration'    => $config['geo']['cookie_duration'],
+				'gdprCountries'     => $config['geo']['gdpr_countries'],
+				'ccpaRegions'       => $config['geo']['ccpa_regions'],
+				'showOnError'       => $config['geo']['show_on_error'],
+			),
 		);
+
+		// Pass configuration to frontend using wp_interactivity_config.
+		wp_interactivity_config( 'jetpack/cookie-consent', $frontend_config );
 	}
 
 	/**

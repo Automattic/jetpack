@@ -115,11 +115,11 @@ bar',
 	 *
 	 * @testWith [ "dummy" ]
 	 */
-	#[TestWith()]
+	#[TestWith]
 	#[TestWith( 42 )]
 	#[TestWith( array( 1, 2, "x" => 3 ) )]
 	#[TestWith( array( 1 2 3 ) )]
-	#[TestWithJson()]
+	#[TestWithJson]
 	#[TestWithJson( array() )]
 	#[TestWithJson( '42' )]
 	#[TestWithJson( 'XXX' )]
@@ -142,11 +142,11 @@ bar',
 	/**
 	 * Same as the above but with no annotation. All except the missing parameters should not produce errors.
 	 */
-	#[TestWith()]
+	#[TestWith]
 	#[TestWith( 42 )]
 	#[TestWith( array( 1, 2, "x" => 3 ) )]
 	#[TestWith( array( 1 2 3 ) )]
-	#[TestWithJson()]
+	#[TestWithJson]
 	#[TestWithJson( array() )]
 	#[TestWithJson( '42' )]
 	#[TestWithJson( 'XXX' )]

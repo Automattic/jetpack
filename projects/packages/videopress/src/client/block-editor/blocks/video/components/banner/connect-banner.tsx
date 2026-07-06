@@ -37,12 +37,12 @@ export default function ConnectBanner( {
 
 	const needsActivation = isConnected && ! isModuleActive;
 
-	let connectButtonText = __( 'Connect Jetpack', 'jetpack-videopress-pkg' );
+	let connectButtonText: string = __( 'Connect Jetpack', 'jetpack-videopress-pkg' );
 	if ( isConnecting ) {
 		connectButtonText = __( 'Redirecting…', 'jetpack-videopress-pkg' );
 	}
 
-	let activateButtonText = __( 'Activate VideoPress', 'jetpack-videopress-pkg' );
+	let activateButtonText: string = __( 'Activate VideoPress', 'jetpack-videopress-pkg' );
 	if ( isConnecting ) {
 		activateButtonText = __( 'Activating…', 'jetpack-videopress-pkg' );
 	}

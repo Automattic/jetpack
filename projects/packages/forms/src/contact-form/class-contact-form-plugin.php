@@ -584,8 +584,22 @@ class Contact_Form_Plugin {
 					$atts['labelstyles']                      = $label_attrs['style'] ?? null;
 					$add_block_style_classes_to_field_wrapper = true;
 
-					// check if the block has been hidden by blockVisibility support
-					$atts['labelhiddenbyblockvisibility'] = isset( $inner_block['attrs']['metadata']['blockVisibility'] ) && false === $inner_block['attrs']['metadata']['blockVisibility'];
+					// Honor blockVisibility support on the label. Full-hide
+					// (blockVisibility === false) skips the label render; per-viewport
+					// hide gets the same wp-block-hidden-{mobile,tablet,desktop} classes
+					// Gutenberg would add — the matching media-query CSS is already
+					// registered by core's render_block visibility filter (the label
+					// keeps visibility support). See FORMS-694.
+					$block_visibility                     = $inner_block['attrs']['metadata']['blockVisibility'] ?? null;
+					$atts['labelhiddenbyblockvisibility'] = false === $block_visibility;
+
+					if ( is_array( $block_visibility ) && isset( $block_visibility['viewport'] ) && is_array( $block_visibility['viewport'] ) ) {
+						foreach ( array( 'mobile', 'tablet', 'desktop' ) as $viewport_size ) {
+							if ( isset( $block_visibility['viewport'][ $viewport_size ] ) && false === $block_visibility['viewport'][ $viewport_size ] ) {
+								$atts['labelclasses'] .= ' wp-block-hidden-' . $viewport_size;
+							}
+						}
+					}
 
 					continue;
 				}
@@ -1371,15 +1385,7 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_file( $atts, $content, $block ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file', $block );
-		// Create wrapper div for the file field
-		$output = '<div class="jetpack-form-file-field">';
-
-		// Render the file field
-		$output .= Contact_Form::parse_contact_field( $atts, $content );
-
-		$output .= '</div>';
-
-		return $output;
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 	/**
 	 * Render the dropzone field.

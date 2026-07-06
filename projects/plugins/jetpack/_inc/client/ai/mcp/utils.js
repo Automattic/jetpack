@@ -72,6 +72,31 @@ export function mergeSiteMcpAbilities( accountAbilities, siteAbilities, defaultE
 }
 
 /**
+ * Get the ordered display-group descriptors for the settings UI's middle
+ * grouping layer, sorted by their `order` field. A group defaults to a STRAP
+ * facade, but some facades are merged into another group (e.g. Create Site
+ * into Site).
+ *
+ * @param {object} mcpAbilities - The mcp_abilities response object.
+ * @return {Array<{name: string, label: string, description: string, order: number}>} Group descriptors sorted by order.
+ */
+export function getGroupDescriptors( mcpAbilities ) {
+	const groups = mcpAbilities?.groups ?? [];
+	return [ ...groups ].sort( ( a, b ) => a.order - b.order );
+}
+
+/**
+ * Get the account-level group "enable all" intents.
+ * Keys are `read`, `write`, or a compound slug like `"write:site"`.
+ *
+ * @param {object} mcpAbilities - The mcp_abilities response object.
+ * @return {Record<string, boolean>} Map of intent keys to enabled state.
+ */
+export function getGroupIntents( mcpAbilities ) {
+	return mcpAbilities?.group_intents ?? {};
+}
+
+/**
  * Check if site-level MCP is enabled for a specific site.
  *
  * @param {object} userSettings - The user settings object (mcp_abilities response body).

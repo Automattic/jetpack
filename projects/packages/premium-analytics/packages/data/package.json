@@ -12,14 +12,12 @@
 		"@date-fns/tz": "1.4.1",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@tanstack/react-query": "5.90.8",
-		"@wordpress/api-fetch": "7.48.1",
-		"@wordpress/core-data": "7.48.1",
-		"@wordpress/data": "10.48.1",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/core-data": "7.50.0",
+		"@wordpress/data": "10.50.0",
+		"@wordpress/html-entities": "4.50.0",
 		"@wordpress/i18n": "^6.9.0",
-		"@wordpress/url": "4.48.1",
+		"@wordpress/url": "4.50.0",
 		"date-fns": "4.1.0"
-	},
-	"devDependencies": {
-		"@tanstack/react-query-devtools": "5.90.2"
 	}
 }

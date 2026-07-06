@@ -1,0 +1,96 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.header {
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+	min-height: 32px;
+}
+
+.title {
+	flex: 1 1 0;
+	min-inline-size: 0;
+	font-size: 13px;
+	line-height: 20px;
+	font-weight: 500; /* design spec was 499; 500 is the nearest valid CSS value */
+	color: inherit;
+}
+
+.title * {
+	font-weight: inherit;
+}
+
+.headerTitle {
+	display: inline-flex;
+	align-items: center;
+	min-inline-size: 0;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	line-height: inherit;
+}
+
+.headerIcon {
+	flex: 0 0 auto;
+}
+
+.metricSelect {
+	flex: 0 1 220px;
+	inline-size: min(100%, 220px);
+	max-inline-size: 100%;
+	min-inline-size: 0;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	padding: 0 var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-lg);
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+.leaderboard {
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+/* The label fills its row; vertical padding sets the overlay bar height (there
+   is no image to size it) and the inline padding insets the text from the bar's
+   rounded left edge. */
+.label {
+	display: block;
+	padding-block: var(--wpds-dimension-padding-md, 12px);
+	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+	color: inherit;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.placeholder {
+	flex: 1 1 0;
+	inline-size: 100%;
+	min-block-size: 200px;
+	color: var(--wpds-color-fg-content-neutral-weak);
+	text-align: center;
+}
+
+/* Constrain the picker preview tile to a 4:3 aspect ratio. The picker's
+ * .preview wrapper uses height: 125% of an auto-height parent, so height: 100%
+ * on .root also resolves to auto, leaving aspect-ratio with no anchor.
+ * Setting height: auto here lets aspect-ratio derive the height from the known
+ * inline size and overflow: hidden clips the chart content. Targets only the
+ * picker (inert="") — not the edit-mode wrapper (inert="true") where the grid
+ * tile supplies a real height. */
+:global([inert]:not([inert="true"])) .root {
+	height: auto;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+}

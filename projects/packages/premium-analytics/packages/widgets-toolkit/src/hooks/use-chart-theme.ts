@@ -74,12 +74,12 @@ export function useChartTheme(): WooChartTheme {
 			leaderboardChart: {
 				rowGap: 12,
 				columnGap: 4,
-				labelSpacing: 1.5,
+				labelSpacing: 'xs',
 				barBorderRadius: 'var(--wpds-border-radius-md)',
 				deltaColors: [
-					'var(--wpds-color-fg-content-error-weak)',
-					'var(--wpds-color-fg-content-neutral)',
-					'var(--wpds-color-fg-content-success-weak)',
+					'var(--wpds-color-stroke-surface-error-strong)',
+					'var(--wpds-color-fg-content-neutral-weak)',
+					'var(--wpds-color-stroke-surface-success-strong)',
 				] as [ string, string, string ], // [ negative, neutral, positive ]
 			},
 			conversionFunnelChart: {

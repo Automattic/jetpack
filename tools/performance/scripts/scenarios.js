@@ -22,14 +22,32 @@ export const SCENARIOS = [
 		envVar: 'WP_JETPACK_CONNECTED_URL',
 		defaultUrl: 'http://localhost:8083',
 		header: 'Jetpack Connected (Simulated + 200ms Latency)',
-		metricPrefix: 'wp_admin_lcp_jetpack_connected',
-		// CodeVitals key for the posted metric. When introducing a NEW metric, post
-		// it to a `-staging` key first (e.g. `…-timeToFirstByte-staging`) for 2-3
-		// builds, inspect it in the CodeVitals UI, then rename to the production key.
-		// See the "Safeguards" section of README.md for the full convention.
-		metricKey: 'wp-admin-dashboard-connection-sim-largestContentfulPaint',
-		// Metric type — drives the sanity-range check in post-to-codevitals.js.
-		metricType: 'lcp',
+		// Metrics posted for this scenario, all in a single CodeVitals call. Each entry is:
+		//   field         — the summary field to read the value from (summary.<field>.median)
+		//   codevitalsKey — the exact CodeVitals metric key to post to
+		//   type          — the SANITY_RANGES key; REQUIRED, drives the range check in
+		//                   post-to-codevitals.js. A keyed metric with no type is refused.
+		// When introducing a NEW metric, post it to a `-staging` key first (e.g.
+		// `…-timeToFirstByte-staging`) for 2-3 builds, inspect it in the CodeVitals UI, then
+		// rename to the production key. See the "Safeguards" section of README.md for the
+		// full convention. (LCP/TTFB/FCP below post straight to production keys by decision.)
+		metrics: [
+			{
+				field: 'lcp',
+				codevitalsKey: 'wp-admin-dashboard-connection-sim-largestContentfulPaint',
+				type: 'lcp',
+			},
+			{
+				field: 'ttfb',
+				codevitalsKey: 'wp-admin-dashboard-connection-sim-timeToFirstByte',
+				type: 'ttfb',
+			},
+			{
+				field: 'fcp',
+				codevitalsKey: 'wp-admin-dashboard-connection-sim-firstContentfulPaint',
+				type: 'fcp',
+			},
+		],
 		postToCodeVitals: true,
 		isBaseline: false,
 	},

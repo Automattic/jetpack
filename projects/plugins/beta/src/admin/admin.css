@@ -1,605 +1,666 @@
+/**
+ * Jetpack Beta Tester — admin styles.
+ *
+ * A flat, WordPress-design-system look that mirrors the modernized
+ * @automattic/jetpack-components AdminPage UI (pinned header + footer, hairline
+ * cards, blue toggles, neutral/dark buttons) while keeping the plain PHP
+ * template + vanilla CSS/JS implementation — no React, no build step.
+ *
+ * @package automattic/jetpack-beta
+ */
+
+/* ==========================================================================
+   Design tokens
+   ========================================================================== */
+:root,
+.jetpack-beta-app {
+	--jpbeta-color-text: #1e1e1e;
+	--jpbeta-color-text-muted: #757575;
+	--jpbeta-color-text-secondary: #50575e;
+	--jpbeta-color-border: #e0e0e0;
+	--jpbeta-color-border-strong: #949494;
+	--jpbeta-color-surface: #fff;
+	--jpbeta-color-surface-hover: #f6f7f7;
+	--jpbeta-color-accent: var(--wp-admin-theme-color, #3858e9);
+	--jpbeta-color-accent-hover: var(--wp-admin-theme-color-darker-10, #2145e6);
+	--jpbeta-radius: 8px;
+	--jpbeta-radius-sm: 4px;
+	--jpbeta-content-width: 760px;
+	--jpbeta-pad: 24px;
+}
+
+/* ==========================================================================
+   Page chrome — full-bleed white canvas with a pinned header and footer.
+   ========================================================================== */
 .toplevel_page_jetpack-beta,
 .jetpack_page_jetpack-beta {
-	background: #f3f6f8;
+	background: var(--jpbeta-color-surface);
 }
 
 .toplevel_page_jetpack-beta #wpcontent,
 .jetpack_page_jetpack-beta #wpcontent {
 	padding-left: 0;
+	background: var(--jpbeta-color-surface);
 }
 
-html {
-	overflow: -moz-scrollbars-vertical;
-	overflow-y: scroll;
+.toplevel_page_jetpack-beta #wpbody-content,
+.jetpack_page_jetpack-beta #wpbody-content {
+	padding-bottom: 0;
 }
 
-.highlight {
-	background: #e9eff3;
+/* Opt the Beta screen out of wp-admin's cross-document view transitions. */
+@view-transition {
+	navigation: none;
 }
 
-.jetpack-beta-logo {
-	width: 10.375rem;
-	height: 1.8125rem;
-	fill: #72af3a;
+.jetpack-beta-app {
+	display: flex;
+	flex-direction: column;
+
+	/* Fill the area below the admin bar and let only the inner content scroll
+	   (see .jetpack-beta-scroll). This keeps the header/footer in place without
+	   position: sticky, which misbehaves on small screens where the admin bar
+	   scrolls away rather than staying fixed. */
+	height: calc(100vh - 32px);
+	overflow: hidden;
+	box-sizing: border-box;
+	background: #fcfcfc;
+	color: var(--jpbeta-color-text);
+	font-size: 14px;
+	line-height: 1.5;
 }
 
-.jetpack-beta__bleeding-edge-head {
-	background-color: #fff;
-	text-align: center;
-	box-shadow: 0 1px 0 rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
-	padding: 0 1.25rem;
+@media screen and (max-width: 782px) {
+
+	.jetpack-beta-app {
+		height: calc(100vh - 46px); /* Taller admin bar on small screens. */
+	}
 }
 
-.jetpack-beta__bleeding-edge-head a {
+/* ==========================================================================
+   Header
+   ========================================================================== */
+.jetpack-beta-header {
+	flex-shrink: 0;
+	background: var(--jpbeta-color-surface);
+	border-bottom: 1px solid var(--jpbeta-color-border);
+	padding: 24px var(--jpbeta-pad);
+}
+
+.jetpack-beta-header__inner {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.jetpack-beta-header__logo {
+	display: inline-flex;
+	flex-shrink: 0;
+}
+
+.jetpack-beta-header__logo svg {
+	display: block;
+}
+
+.jetpack-beta-header__breadcrumb {
+	font-size: 15px;
+	font-weight: 500;
+	line-height: 20px;
+}
+
+/* Render the breadcrumb list inline with a "/" between items. */
+.jetpack-beta-header__breadcrumb ul {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.jetpack-beta-header__breadcrumb li {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	/* Reset wp-admin's global `ul li { margin-bottom: 6px }`, which otherwise
+	   inflates the breadcrumb box and drops the logo ~3px below the text. */
+	margin: 0;
+}
+
+.jetpack-beta-header__breadcrumb li + li::before {
+	content: "/";
+	color: var(--jpbeta-color-border-strong);
+	user-select: none;
+}
+
+.jetpack-beta-header__breadcrumb a {
+	color: var(--jpbeta-color-text);
 	text-decoration: none;
 }
 
-.jetpack-beta__wrap {
-	margin-bottom: 32px;
+.jetpack-beta-header__breadcrumb a:hover,
+.jetpack-beta-header__breadcrumb a:focus {
+	color: var(--jpbeta-color-accent);
+	text-decoration: underline;
 }
 
-.jetpack-beta__wrap h2 {
+.jetpack-beta-header__breadcrumb-current {
+	color: var(--jpbeta-color-text);
+}
+
+/* On the overview the title is a real <h1>; keep it visually matching the
+   breadcrumb rather than the browser default h1 sizing. */
+.jetpack-beta-header__title {
+	margin: 0;
+	padding: 0;
+	font-size: 15px;
+	font-weight: 500;
+	line-height: 20px;
+	color: var(--jpbeta-color-text);
+}
+
+.jetpack-beta-header__subtitle {
+	margin: 10px 0 0;
+	font-size: 13px;
 	font-weight: 400;
-	margin-bottom: 8px;
+	line-height: 20px;
+	color: var(--jpbeta-color-text-muted);
 }
 
-.jetpack-beta__update-needed .dops-card {
-	border-left: 3px solid #f0b849;
+/* ==========================================================================
+   Footer — tiny Jetpack logo on the left, Automattic byline on the right.
+   ========================================================================== */
+.jetpack-beta-footer {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 24px;
+	padding: 20px var(--jpbeta-pad);
+	font-size: 13px;
+	background: var(--jpbeta-color-surface);
+	border-top: 1px solid var(--jpbeta-color-border);
 }
 
-.jetpack-beta__update-needed .dops-card.is-error {
-	border-left: 3px solid #f04949;
+.jetpack-beta-footer__logo {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
 }
 
-.jetpack-beta__bleeding-edge-head span {
-	font-weight: 300;
-	display: inline-block;
-	font-size: 20px;
-	vertical-align: super;
-	color: #a8bece;
-	line-height: 25px;
-	position: relative;
-	top: -5px;
-	left: 5px;
+.jetpack-beta-footer__logo svg {
+	display: block;
 }
 
-.jetpack-beta__bleeding-edge-head .jetpack-beta-container {
-	padding: 11px 0 6px;
+.jetpack-beta-footer__name {
+	font-size: 13px;
+	line-height: 20px;
+	color: var(--jpbeta-color-text);
 }
 
-#jetpack-beta-tester__is-mu-plugin.dops-card {
-	border-left: 3px solid #f0b849;
-	padding-top: 1px;
-	padding-bottom: 1px;
-	margin-top: 20px;
+.jetpack-beta-footer__a8c {
+	display: inline-flex;
+	align-items: center;
+	color: var(--jpbeta-color-text-muted);
+}
+
+.jetpack-beta-footer__a8c-logo {
+	display: block;
+	fill: currentColor;
+}
+
+.jetpack-beta-footer__a8c:hover,
+.jetpack-beta-footer__a8c:focus {
+	color: var(--jpbeta-color-text);
+}
+
+/* ==========================================================================
+   Content column
+   ========================================================================== */
+
+/* The only scrollable region — fills the space between header and footer so
+   the page itself doesn't scroll (keeps the admin bar put on small screens). */
+.jetpack-beta-scroll {
+	flex: 1 1 auto;
+	overflow-y: auto;
 }
 
 .jetpack-beta-container {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: var(--jpbeta-content-width);
 	margin: 0 auto;
-	text-align: left;
-	max-width: 45rem;
-	padding: 1.5rem;
+	padding: var(--jpbeta-pad);
 }
 
 .jetpack-beta-container img {
-	width: 100%;
+	max-width: 100%;
 	height: auto;
 }
 
-.to-test {
-	margin-top: 16px;
+.highlight {
+	background: #f5e6ab;
 }
 
-/* Card */
-.dops-card {
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+.dops-card,
+.jetpack-beta-card {
 	position: relative;
-	margin: 0 auto 0.625rem auto;
-	padding: 1rem;
 	box-sizing: border-box;
-	background: #fff;
-	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+	margin: 0 0 16px;
+	padding: var(--jpbeta-pad);
+	background: var(--jpbeta-color-surface);
+	border: 1px solid var(--jpbeta-color-border);
+	border-radius: var(--jpbeta-radius);
 }
 
-.dops-card::after {
-	content: ".";
-	display: block;
-	height: 0;
-	clear: both;
-	visibility: hidden;
+.dops-card:last-child,
+.jetpack-beta-card:last-child {
+	margin-bottom: 0;
 }
 
-@media ( min-width: 481px ) {
-
-	.dops-card {
-		margin-bottom: 1rem;
-		padding: 1.5rem;
-	}
-}
-
-.dops-card.is-compact {
-	margin-bottom: 1px;
-}
-
-@media ( min-width: 481px ) {
-
-	.dops-card.is-compact {
-		margin-bottom: 1px;
-		padding: 1rem 1.5rem;
-	}
-}
-
-.dops-card-title {
-	background-color: #f6f7f7;
-	color: #000;
-	font-family: Helvetica, Arial, sans-serif;
-	font-size: 12px;
-	font-weight: 400;
+/* Section heading shared across cards/sections. */
+.jetpack-beta-section-label {
+	margin: 0 0 8px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.2px;
 	text-transform: uppercase;
-	border-bottom: 1px solid #dcdcde;
-	padding: 10px 16px;
-	margin: 0;
+	color: var(--jpbeta-color-text-muted);
 }
 
-@media ( min-width: 481px ) {
-
-	.dops-card-title {
-		padding: 16px 24px;
-	}
-}
-
-.dops-card-title .dops-card-meta {
-	color: #a7aaad;
-	float: right;
-}
-
-.dops-card-section {
-	font-size: 14px;
-	padding: 16px;
-	border-bottom: 1px solid #dcdcde;
-}
-
-.dops-card-section::after {
-	content: ".";
-	display: block;
-	height: 0;
-	clear: both;
-	visibility: hidden;
-}
-
-@media ( min-width: 481px ) {
-
-	.dops-card-section {
-		padding: 24px;
-	}
-}
-
-.dops-card-section:last-child {
-	border-bottom: none;
-}
-
-.dops-card-section .dops-card-section-label {
-	color: #000;
-	font-size: 12px;
-	font-weight: 400;
-	text-transform: uppercase;
-}
-
-.dops-card-section .dops-card-section-orient-vertical .dops-card-section-label {
-	margin-bottom: 10px;
-}
-
-.dops-card-section .dops-card-section-orient-horizontal .dops-card-section-label {
-	float: left;
-	width: 30%;
-}
-
-@media all and ( max-width: 590px ) {
-
-	.dops-card-section .dops-card-section-orient-horizontal .dops-card-section-label {
-		margin-bottom: 10px;
-		float: none;
-		width: 100%;
-	}
-}
-
-.dops-card-section .dops-card-section-orient-horizontal .dops-card-section-content {
-	float: right;
-	width: 70%;
-}
-
-@media all and ( max-width: 590px ) {
-
-	.dops-card-section .dops-card-section-orient-horizontal .dops-card-section-content {
-		float: none;
-		width: 100%;
-	}
-}
-
-.dops-card-footer {
-	background: #f6f7f7;
-	padding: 15px 20px;
-}
-
-.dops-card-icon {
-	float: right;
-	text-transform: capitalize;
-}
-
-.dops-card-icon .genericon {
-	border-radius: 50%;
-	width: 16px;
-	height: 16px;
-	margin-right: 10px;
-	color: #fff;
-	background: #81bf16;
-}
-
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
 .dops-button {
-	background: #fff;
-	border-color: #c8d7e1;
-	border-style: solid;
-	border-width: 1px 1px 2px;
-	color: #2e4453;
-	cursor: pointer;
-	display: inline-block;
-	margin: 0;
-	outline: 0;
-	overflow: hidden;
-	font-size: 14px;
-	font-weight: 500;
-	text-overflow: ellipsis;
-	text-decoration: none;
-	vertical-align: top;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	box-sizing: border-box;
-	line-height: 21px;
-	border-radius: 4px;
-	padding: 7px 14px 9px;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	min-width: 100px;
+	min-height: 36px;
+	margin: 0;
+	padding: 6px 14px;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.5;
 	text-align: center;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+	border: 1px solid var(--jpbeta-color-border-strong);
+	border-radius: var(--jpbeta-radius-sm);
+	background: var(--jpbeta-color-surface);
+	color: var(--jpbeta-color-text);
+	transition: background-color 0.1s ease, border-color 0.1s ease, color 0.1s ease;
 	appearance: none;
 }
 
-.dops-button:hover {
-	border-color: #a8bece;
-	color: #2e4453;
-}
-
-.dops-button:active {
-	border-width: 2px 1px 1px;
-}
-
 .dops-button:visited {
-	color: #2e4453;
+	color: var(--jpbeta-color-text);
 }
 
-.dops-button[disabled]:active,
-.dops-button:disabled:active {
-	border-width: 1px 1px 2px;
+.dops-button:hover {
+	background: var(--jpbeta-color-surface-hover);
+	border-color: var(--jpbeta-color-text);
+	color: var(--jpbeta-color-text);
 }
 
 .dops-button:focus {
-	outline: 0;
-	border-color: #00aadc;
-	box-shadow: 0 0 0 2px #78dcfa;
+	outline: none;
+	border-color: var(--jpbeta-color-accent);
+	box-shadow: 0 0 0 1px var(--jpbeta-color-accent);
 }
 
+/* Keep compact variant visually identical (no legacy uppercase shrink). */
 .dops-button.is-compact {
-	padding: 7px;
-	color: #668eaa;
-	font-size: 11px;
-	line-height: 1;
-	text-transform: uppercase;
+	min-height: 34px;
+	padding: 5px 12px;
+	font-size: 13px;
+	line-height: 1.5;
+	text-transform: none;
+	color: var(--jpbeta-color-text);
 }
 
 .dops-button.is-disabled,
 .dops-button[disabled],
 .dops-button:disabled {
-	color: #e9eff3 !important;
-	background: #fff !important;
-	border-color: #e9eff3 !important;
-	cursor: default !important;
+	opacity: 0.5;
+	cursor: default;
+	pointer-events: none;
 }
 
-.dops-button.is-compact:disabled {
-	color: #e9eff3;
+/* Primary / dark fill — used for "Update". */
+.dops-button.is-primary,
+.update-branch.dops-button {
+	background: var(--jpbeta-color-text);
+	border-color: var(--jpbeta-color-text);
+	color: #fff;
 }
 
-.dops-button.is-compact .gridicon {
-	top: 4px;
-	margin-top: -8px;
-}
-
-.dops-button.is-compact .gridicons-plus-small {
-	margin-left: -4px;
-}
-
-.dops-button.is-compact .gridicons-plus-small:last-of-type {
-	margin-left: 0;
-}
-
-.dops-button.is-compact .gridicons-plus-small + .gridicon {
-	margin-left: -4px;
-}
-
-.dops-button.hidden {
-	display: none;
-}
-
-.dops-button .gridicon {
-	position: relative;
-	top: 4px;
-	margin-top: -2px;
-	width: 18px;
-	height: 18px;
-}
-
-.dops-button.is-primary {
-	background: #00aadc;
-	border-color: #0087be;
+.dops-button.is-primary:visited,
+.update-branch.dops-button:visited {
 	color: #fff;
 }
 
 .dops-button.is-primary:hover,
-.dops-button.is-primary:focus {
-	border-color: #005082;
+.dops-button.is-primary:focus,
+.update-branch.dops-button:hover,
+.update-branch.dops-button:focus {
+	background: #2c3338;
+	border-color: #2c3338;
 	color: #fff;
 }
 
-.dops-button.is-primary[disabled],
-.dops-button.is-primary:disabled {
-	background: #bceefd;
-	border-color: #8cc9e2;
-	color: #fff;
+/* Neutral secondary — used for "Activate" and "Manage". */
+.activate-branch.dops-button,
+.manage-plugin.dops-button {
+	background: var(--jpbeta-color-surface);
+	border-color: var(--jpbeta-color-border-strong);
+	color: var(--jpbeta-color-text);
 }
 
-.dops-button.is-primary.is-compact {
-	color: #fff;
+.activate-branch.dops-button:visited,
+.manage-plugin.dops-button:visited {
+	color: var(--jpbeta-color-text);
 }
 
-.dops-button.is-error {
-	background: #dc0000;
-	border-color: #be0000;
+/* Accent secondary — used for "Found a bug? Report it!". */
+.jetpack-beta-button--accent.dops-button {
+	background: var(--jpbeta-color-surface);
+	border-color: var(--jpbeta-color-accent);
+	color: var(--jpbeta-color-accent);
 }
 
-.dops-button.is-error:hover,
-.dops-button.is-error:focus {
-	border-color: #820000;
+.jetpack-beta-button--accent.dops-button:visited {
+	color: var(--jpbeta-color-accent);
 }
 
-.dops-button.is-error[disabled],
-.dops-button.is-error:disabled {
-	background: #fdbcbc;
-	border-color: #e28c8c;
+.jetpack-beta-button--accent.dops-button:hover,
+.jetpack-beta-button--accent.dops-button:focus {
+	background: rgba(56, 88, 233, 0.04);
+	border-color: var(--jpbeta-color-accent-hover);
+	color: var(--jpbeta-color-accent-hover);
 }
 
-@keyframes appear {
-
-	0% {
-		opacity: 0;
-	}
-
-	100% {
-		opacity: 1;
-	}
+/* ==========================================================================
+   Badges
+   ========================================================================== */
+.jetpack-beta-badge {
+	display: inline-block;
+	padding: 1px 8px;
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.6;
+	border-radius: 2px;
+	white-space: nowrap;
+	vertical-align: middle;
+	background: #f0f0f0;
+	color: var(--jpbeta-color-text-secondary);
 }
 
-/**
- * Toggle
- */
+.jetpack-beta-badge--active {
+	background: #e6ecff;
+	color: #2145e6;
+}
+
+.jetpack-beta-badge--dev {
+	background: #e5f4e3;
+	color: #00650e;
+}
+
+/* ==========================================================================
+   Toggles (Autoupdates / Email Notifications)
+   ========================================================================== */
+
+/* Keep the two settings toggles on a single light-weight row beside the label
+   rather than a tall stacked card — just a hairline separates it from the
+   content below, so it reads as a header strip instead of a boxed card. */
+.jetpack-beta-settings {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px 24px;
+	margin-bottom: 16px;
+	padding: 0 0 16px;
+	border: 0;
+	border-bottom: 1px solid var(--jpbeta-color-border);
+	border-radius: 0;
+	background: none;
+}
+
+.jetpack-beta-settings .jetpack-beta-section-label {
+	margin: 0;
+}
+
+.jetpack-beta-toggles {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 32px;
+}
+
 .form-toggle__label {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0;
+	color: var(--jpbeta-color-text);
 	text-decoration: none;
-	color: #124964;
-	margin-left: 10px;
+	cursor: pointer;
 }
 
 .form-toggle__label:focus {
 	box-shadow: none;
 }
 
-.form-toggle-explanation {
-	text-transform: uppercase;
-	color: #87a6bc;
-	font-size: 11px;
-	line-height: 20px;
-	vertical-align: top;
-}
-
 .form-toggle__switch {
-	margin-top: 2px;
-	border-radius: 8px;
-	width: 24px;
-	height: 16px;
-	background: #a8bece;
+	order: 0;
+	position: relative;
+	flex-shrink: 0;
 	display: inline-block;
+	width: 36px;
+	height: 20px;
+	border-radius: 10px;
+	background: var(--jpbeta-color-border-strong);
+	transition: background-color 0.15s ease;
 }
 
 .form-toggle__switch::after {
-	left: 2px;
+	content: "";
+	position: absolute;
 	top: 2px;
+	left: 2px;
+	width: 16px;
+	height: 16px;
 	border-radius: 50%;
 	background: #fff;
-	transition: all 0.2s ease;
-	width: 12px;
-	height: 12px;
-	position: relative;
-	display: block;
-	content: "";
+	transition: transform 0.15s ease;
 }
 
-.form-toggle__label:active .form-toggle__switch,
+.form-toggle-explanation {
+	order: 1;
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 20px;
+	text-transform: none;
+	color: var(--jpbeta-color-text);
+}
+
 .form-toggle__label.is-active .form-toggle__switch {
-	background: #00aadc;
+	background: var(--jpbeta-color-accent);
 }
 
-.form-toggle__label:active .form-toggle__switch::after,
 .form-toggle__label.is-active .form-toggle__switch::after {
-	left: 10px;
+	transform: translateX(16px);
 }
 
-.form-toggle__label.is-active:active .form-toggle__switch {
-	background: #a8bece;
+.form-toggle__label:focus .form-toggle__switch,
+.form-toggle__label.is-active:focus .form-toggle__switch {
+	box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--jpbeta-color-accent);
 }
 
-.form-toggle__label.is-active:active .form-toggle__switch::after {
-	left: 2px;
+/* ==========================================================================
+   List rows (plugin list + branch picker) — one card, hairline-divided rows.
+   ========================================================================== */
+.jetpack-beta-list {
+	padding: 0;
+	overflow: hidden;
 }
 
+.jetpack-beta-list-row {
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	width: 100%;
+	padding: 16px var(--jpbeta-pad);
+	color: var(--jpbeta-color-text);
+	text-decoration: none;
+}
+
+.jetpack-beta-list-row + .jetpack-beta-list-row {
+	border-top: 1px solid var(--jpbeta-color-border);
+}
+
+.jetpack-beta-list-row__icon {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	width: 40px;
+	height: 40px;
+	border-radius: var(--jpbeta-radius-sm);
+	background: #fff;
+	color: var(--jpbeta-color-text-muted);
+}
+
+.jetpack-beta-list-row__icon-img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+/* Fallback placeholder for plugins not on wordpress.org (no icon). A pure CSS
+   glyph via ::before — never rendered alongside a real icon image. */
+.jetpack-beta-list-row__icon.is-fallback {
+	background: #f0f0f0;
+}
+
+.jetpack-beta-list-row__icon.is-fallback::before {
+	content: "\f106";
+	font-family: dashicons;
+	font-size: 22px;
+	line-height: 1;
+	color: var(--jpbeta-color-text-muted);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.jetpack-beta-list-row__main {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.jetpack-beta-list-row__title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--jpbeta-color-text);
+}
+
+.jetpack-beta-list-row__subtitle {
+	margin-top: 2px;
+	font-size: 13px;
+	color: var(--jpbeta-color-text-muted);
+	overflow-wrap: anywhere;
+}
+
+.jetpack-beta-list-row__secondary {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.jetpack-beta-list-row__chevron {
+	display: inline-flex;
+	color: var(--jpbeta-color-text-muted);
+}
+
+/* Plugin rows are full-row links into the manage screen. */
+a.jetpack-beta-list-row,
+a.jetpack-beta-list-row:visited {
+	color: var(--jpbeta-color-text);
+}
+
+a.jetpack-beta-list-row:hover {
+	background: var(--jpbeta-color-surface-hover);
+}
+
+a.jetpack-beta-list-row:focus {
+	outline: none;
+	box-shadow: inset 0 0 0 2px var(--jpbeta-color-accent);
+}
+
+/* ==========================================================================
+   "Currently Running" / informational rows (foldable cards reused as rows).
+   ========================================================================== */
 .dops-foldable-card.dops-card {
-	position: relative;
-	transition: margin 0.15s linear;
 	padding: 0;
 }
 
-.dops-foldable-card.dops-card::after {
-	content: ".";
-	display: block;
-	height: 0;
-	clear: both;
-	visibility: hidden;
-}
-
-.dops-foldable-card.dops-card.is-expanded {
-	margin-bottom: 8px;
-}
-
-.dops-foldable-card.dops-card .is-clickable {
-	cursor: pointer;
-}
-
 .dops-foldable-card__header {
-	min-height: 64px;
-	width: 100%;
-	padding: 16px;
-	box-sizing: border-box;
 	display: flex;
-	-ms-flex-align: center;
 	align-items: center;
-	-ms-flex-pack: justify;
 	justify-content: space-between;
-	position: relative;
-}
-
-.dops-foldable-card__header.has-border .dops-foldable-card__summary,
-.dops-foldable-card__header.has-border .dops-foldable-card__summary_expanded {
-	margin-right: 0;
-}
-
-.dops-foldable-card__header.has-border .dops-foldable-card__expand {
-	border-left: 1px #f3f6f8 solid;
-}
-
-.dops-foldable-card.is-compact .dops-foldable-card__header {
-	padding: 8px 16px;
-	min-height: 40px;
-}
-
-.dops-foldable-card.is-expanded .dops-foldable-card__header {
-	margin-bottom: 0;
-	height: inherit;
-	min-height: 64px;
-}
-
-.dops-foldable-card.is-expanded.is-compact .dops-foldable-card__header {
-	min-height: 40px;
-}
-
-.dops-foldable-card.is-disabled .dops-foldable-card__header {
-	opacity: 0.2;
-}
-
-.dops-foldable-card__action {
-	position: absolute;
-	top: 0;
-	right: 0;
-	height: 100%;
-	background: none;
-	border: 0;
-}
-
-.dops-foldable-card.is-expanded .dops-foldable-card__action {
-	height: 100%;
-}
-
-.dops-foldable-card.is-disabled .dops-foldable-card__action {
-	cursor: default;
-}
-
-.accessible-focus .dops-foldable-card__action:focus {
-	outline: thin dotted;
-}
-
-button.dops-foldable-card__action {
-	cursor: pointer;
-	outline: 0;
+	gap: 16px;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 16px var(--jpbeta-pad);
 }
 
 .dops-foldable-card__main {
-	max-width: calc(100% - 36px);
-	display: block;
-	-ms-flex-align: center;
-	align-items: center;
-	width: 100%;
-	margin-right: 5px;
-	flex: 1 1;
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 .dops-foldable-card__secondary {
-	display: flex;
-	-ms-flex-align: center;
+	flex-shrink: 0;
+	display: inline-flex;
 	align-items: center;
-	flex: 0 1;
-	-ms-flex-pack: end;
-	justify-content: flex-end;
+	gap: 12px;
 }
 
-.dops-foldable-card__expand {
-	width: 48px;
-}
-
-.dops-foldable-card__expand .gridicon {
-	fill: #87a6bc;
-	display: flex;
-	-ms-flex-align: center;
-	align-items: center;
-	width: 100%;
-	vertical-align: middle;
-	transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease-in;
-}
-
-.dops-foldable-card.is-expanded .dops-foldable-card__expand .gridicon {
-	transform: rotate(180deg);
-}
-
-.dops-foldable-card__expand .gridicon:hover {
-	fill: #87a6bc;
-}
-
-.dops-foldable-card__expand:focus .gridicon,
-.dops-foldable-card__expand:hover .gridicon {
-	fill: #00aadc;
-}
-
-.dops-foldable-card__header-text {
-	font-size: 1.125rem;
-	width: 100%;
-	color: #1d2327;
+.dops-foldable-card__header-text,
+.branch-card-header {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--jpbeta-color-text);
 }
 
 .dops-foldable-card__header-text small {
 	font-size: 0.8rem;
+	font-weight: 400;
 }
 
 .dops-foldable-card__subheader {
-	margin-top: 0.125rem;
-	margin-bottom: 0.125rem;
-	font-size: 0.875rem;
-	color: #4f748e;
+	margin-top: 2px;
+	font-size: 13px;
+	font-weight: 400;
+	color: var(--jpbeta-color-text-muted);
+	overflow-wrap: anywhere;
 }
 
 .dops-foldable-card__content {
-	display: none;
+	padding: var(--jpbeta-pad);
+	border-top: 1px solid var(--jpbeta-color-border);
 }
 
 .dops-foldable-card__content pre code {
@@ -607,679 +668,70 @@ button.dops-foldable-card__action {
 	overflow: auto;
 }
 
-.dops-foldable-card.is-expanded .dops-foldable-card__content {
-	display: block;
-	padding: 16px;
-	border-top: 1px solid #f3f6f8;
-}
-
-.dops-foldable-card.is-compact .dops-foldable-card.is-expanded .dops-foldable-card__content {
-	padding: 8px;
-}
-
-.dops-foldable-card.is-expanded .dops-foldable-card__content p:first-child {
-	margin-top: 0;
-}
-
-.dops-foldable-card.is-expanded .dops-foldable-card__content p:last-child {
-	margin-bottom: 0;
-}
-
-.dops-foldable-card__summary,
-.dops-foldable-card__summary_expanded {
-	margin-right: 40px;
-	color: #87a6bc;
-	font-size: 12px;
-	transition: opacity 0.2s linear;
-	display: inline-block;
-}
-
-.dops-foldable-card.has-expanded-summary .dops-foldable-card__summary,
-.dops-foldable-card.has-expanded-summary .dops-foldable-card__summary_expanded {
-	transition: none;
-	flex: 2;
-	text-align: right;
-}
-
-@media ( max-width: 480px ) {
-
-	.dops-foldable-card__summary,
-	.dops-foldable-card__summary_expanded {
-		display: none;
-	}
-}
-
+/* "Currently Running" summary cell: Active badge via data-active. */
 .dops-foldable-card__summary {
-	opacity: 1;
-	display: inline-block;
+	font-size: 13px;
+	color: var(--jpbeta-color-text-muted);
 }
 
-.dops-foldable-card.is-expanded .dops-foldable-card__summary {
-	display: none;
-}
-
-.has-expanded-summary .dops-foldable-card.is-expanded .dops-foldable-card__summary {
-	display: none;
-}
-
-.dops-foldable-card__summary_expanded {
-	display: none;
-}
-
-.dops-foldable-card.is-expanded .dops-foldable-card__summary_expanded {
-	display: inline-block;
-}
-
-/**
- * @component Search
- */
-.dops-search {
+/* ==========================================================================
+   Branch picker: group the stable/RC/bleeding-edge cards into one bordered
+   card with hairline-divided rows.
+   ========================================================================== */
+.jetpack-beta__wrap {
 	margin-bottom: 24px;
-	width: 60px;
-	height: 51px;
-	position: relative;
-	z-index: 22;
 }
 
-@media ( max-width: 660px ) {
-
-	.dops-search {
-		width: 50px;
-	}
-}
-
-.dops-search .dops-search-open__icon {
-	position: absolute;
-	top: 50%;
-	margin-top: -12px;
-	width: 60px;
-	z-index: 20;
-	color: #0087be;
-}
-
-.dops-accessible-focus .dops-search .dops-search-open__icon:focus {
-	outline: dotted 1px #0087be;
-}
-
-@media ( max-width: 660px ) {
-
-	.dops-search .dops-search-open__icon {
-		width: 50px;
-	}
-}
-
-.dops-search .dops-search-open__icon:hover {
-	color: #3d596d;
-}
-
-.dops-search .dops-search-close__icon {
-	position: absolute;
-	bottom: 0;
-	top: 50%;
-	right: 0;
-	margin-top: -12px;
-	width: 60px;
-	cursor: pointer;
-	z-index: 20;
-	color: #3d596d;
-	display: none;
-	opacity: 0;
-	transition: opacity 0.2s ease-in;
-}
-
-.dops-accessible-focus .dops-search .dops-search-close__icon:focus {
-	outline: dotted 1px #0087be;
-}
-
-.dops-search .dops-search-close__icon::before {
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 50%;
-	margin-top: -8px;
-	font-size: 16px;
-	text-align: center;
-}
-
-@media ( max-width: 660px ) {
-
-	.dops-search .dops-search-close__icon::before {
-		font-size: 14px;
-		margin-top: -7px;
-	}
-}
-
-@media ( max-width: 660px ) {
-
-	.dops-search .dops-search-close__icon {
-		width: 50px;
-	}
-}
-
-.dops-search.is-pinned {
-	margin-bottom: 0;
-	height: auto;
-	position: absolute;
-	bottom: 0;
-	top: 0;
-	right: 0;
-	z-index: 170;
-}
-
-.dops-search.is-pinned .dops-search-open__icon {
-	right: 0;
-}
-
-.dops-search.is-pinned .dops-search__input[type="search"] {
-	height: 100%;
-}
-
-.dops-search__input[type="search"] {
-	width: 100%;
-	display: none;
-	position: absolute;
-	z-index: 10;
-	top: 0;
-	margin: 0;
-	padding: 0 50px 0 60px;
-	border: none;
-	background: #fff;
-	height: 51px;
-	-moz-appearance: none;
-	appearance: none;
-	box-sizing: border-box;
-	-webkit-appearance: none;
-	box-shadow: none;
-}
-
-@media ( max-width: 660px ) {
-
-	.dops-search__input[type="search"] {
-		opacity: 0;
-		left: 0;
-		padding-left: 50px;
-	}
-}
-
-.dops-search__input[type="search"]::-webkit-search-cancel-button {
-	-webkit-appearance: none;
-}
-
-.dops-search__input[type="search"]:focus {
-	box-shadow: none;
-	border: none;
-}
-
-.dops-search.is-open {
-	margin-right: 0 !important;
-	width: 100%;
-}
-
-.dops-search.is-open .dops-search-open__icon {
-	color: #3d596d;
-	left: 0;
-}
-
-.dops-search.is-open .dops-search-close__icon {
-	display: inline-block;
-}
-
-.dops-search.is-open .dops-search__input,
-.dops-search.is-open .dops-search-close__icon {
-	opacity: 1;
-}
-
-.dops-search.is-open .dops-search__input {
-	display: block;
-}
-
-.dops-search .dops-spinner {
-	display: none;
-	position: absolute;
-	top: 50%;
-	left: 30px;
-	transform: translate(-50%, -50%);
-}
-
-@media ( max-width: 660px ) {
-
-	.dops-search .dops-spinner {
-		left: 25px;
-	}
-}
-
-.dops-search.is-searching .dops-search-open__icon {
-	display: none;
-}
-
-.dops-search.is-searching .dops-spinner {
-	display: block;
-	z-index: 20;
-}
-
-@media ( max-width: 660px ) {
-
-	.animating.dops-search-opening .dops-search input {
-		opacity: 1;
-	}
-}
-
-/**
- * Section Nav
- */
-.dops-section-nav {
-	height: 35px;
-	position: relative;
-	width: 100%;
+/* The stable / RC / bleeding-edge branches form one bordered card with
+   hairline-divided rows (wrapper supplies the border + rounded corners). */
+.jetpack-beta-branch-group {
 	padding: 0;
-	margin: 0 0 1px 0;
-	background: #fff;
-	box-sizing: border-box;
-	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 }
 
-.dops-section-nav.is-empty .dops-section-nav__panel {
-	visibility: hidden;
-}
-
-@media ( max-width: 480px ) {
-
-	.dops-section-nav.is-open {
-		box-shadow: 0 0 0 1px #87a6bc, 0 2px 4px #c8d7e1;
-	}
-}
-
-@media ( min-width: 481px ) {
-
-	.dops-section-nav.has-pinned-items {
-		padding-right: 60px;
-	}
-}
-
-@media ( min-width: 481px ) and ( max-width: 660px ) {
-
-	.dops-section-nav.has-pinned-items {
-		padding-right: 50px;
-	}
-}
-
-@media ( max-width: 660px ) {
-
-	.dops-section-nav {
-		height: 46px;
-		margin-bottom: 9px;
-	}
-}
-
-.dops-section-nav__mobile-header {
-	display: flex;
-	padding: 15px;
-	font-size: 14px;
-	line-height: 16px;
-	color: #2e4453;
-	font-weight: 600;
-	cursor: pointer;
-}
-
-.dops-section-nav__mobile-header::after {
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	display: inline-block;
-	vertical-align: middle;
-	font: 400 16px/1 dashicons;
-	content: "\F347";
-	line-height: 16px;
-	color: rgba(135, 166, 188, 0.5);
-}
-
-.dops-section-nav.is-open .dops-section-nav__mobile-header::after {
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	display: inline-block;
-	vertical-align: middle;
-	font: 400 16px/1 dashicons;
-	content: "\F343";
-}
-
-.dops-section-nav.has-pinned-items .dops-section-nav__mobile-header {
-	padding-right: 50px;
-}
-
-.dops-section-nav.has-pinned-items .dops-section-nav__mobile-header::after {
-	margin-left: 8px;
-}
-
-@media ( min-width: 481px ) {
-
-	.dops-section-nav__mobile-header {
-		display: none;
-	}
-}
-
-.dops-section-nav__mobile-header-text {
-	width: 0;
-	flex: 1 0 auto;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-}
-
-.dops-section-nav__mobile-header-text small {
-	margin-left: 5px;
-	font-size: 11px;
-	color: #87a6bc;
-	font-weight: 600;
-	text-transform: uppercase;
-}
-
-.dops-section-nav.has-pinned-items .dops-section-nav__mobile-header-text {
-	width: auto;
-	flex: 0 1 auto;
-}
-
-.dops-section-nav__panel {
-	box-sizing: border-box;
-	width: 100%;
-}
-
-@media ( max-width: 480px ) {
-
-	.dops-section-nav.is-open .dops-section-nav__panel {
-		padding-bottom: 15px;
-		border-top: solid 1px #c8d7e1;
-		background: linear-gradient(to bottom, #f3f6f8 0%, #fff 4px);
-	}
-}
-
-@media ( min-width: 481px ) {
-
-	.dops-section-nav__panel {
-		display: flex;
-		-ms-flex-align: center;
-		align-items: center;
-	}
-
-	.dops-section-nav__panel:first-child {
-		width: 0;
-		flex: 1 0 auto;
-	}
-}
-
-.dops-section-nav-group {
-	position: relative;
-	margin-top: 16px;
-	padding-top: 16px;
-	border-top: solid 1px #c8d7e1;
-}
-
-.dops-section-nav-group:first-child {
-	padding-top: 0;
-	border-top: none;
-}
-
-@media ( max-width: 480px ) {
-
-	.dops-section-nav-group {
-		display: none;
-	}
-
-	.dops-section-nav.is-open .dops-section-nav-group {
-		display: block;
-	}
-}
-
-@media ( min-width: 481px ) {
-
-	.dops-section-nav-group {
-		margin-top: 0;
-		padding-top: 0;
-		border-top: none;
-	}
-
-	.dops-section-nav-group:first-child {
-		display: flex;
-		width: 0;
-		flex: 1 0 auto;
-	}
-}
-
-.dops-section-nav__button {
-	width: 100%;
-	margin-top: 24px;
-}
-
-.dops-section-nav__hr {
-	background: #e9eff3;
-}
-
-.dops-section-nav-group__label {
+/* Hide the wrapper entirely when it holds no branch rows (avoids an empty
+   bordered box). :has() tolerates the template's whitespace, unlike :empty. */
+.jetpack-beta-branch-group:not(:has(.branch-card)) {
 	display: none;
-	margin-bottom: 8px;
-	padding: 0 15px;
-	font-size: 11px;
-	color: #87a6bc;
-	font-weight: 600;
-	text-transform: uppercase;
-	line-height: 12px;
+	border: 0;
 }
 
-@media ( max-width: 480px ) {
-
-	.has-siblings .dops-section-nav-group__label {
-		display: block;
-	}
-}
-
-.dops-section-nav-group__label-text {
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow: hidden;
-}
-
-.dops-section-nav-tab .count {
-	margin-left: 8px;
-}
-
-@media ( min-width: 481px ) {
-
-	.dops-section-nav-tabs {
-		width: 0;
-		flex: 1 0 auto;
-	}
-
-	.dops-section-nav-tabs.is-dropdown {
-		position: relative;
-		width: auto;
-		flex: 0 1 auto;
-		margin: 8px;
-	}
-}
-
-.dops-section-nav-tabs__list {
+.jetpack-beta-branch-group .branch-card.dops-card {
 	margin: 0;
-	list-style: none;
+	border: 0;
+	border-radius: 0;
 }
 
-@media ( min-width: 481px ) {
-
-	.dops-section-nav-tabs__list {
-		display: flex;
-		width: 100%;
-		overflow: hidden;
-	}
-
-	.is-dropdown .dops-section-nav-tabs__list {
-		display: none;
-	}
+.jetpack-beta-branch-group .branch-card + .branch-card {
+	border-top: 1px solid var(--jpbeta-color-border);
 }
 
-.dops-section-nav-tab {
-	margin-bottom: 0;
+/* Feature-branch / released-version search hits: each visible row is its own
+   self-contained card (they appear/disappear as the search filters). */
+#section-pr .branch-card.dops-card,
+#section-releases .branch-card.dops-card {
+	margin: 0 0 8px;
+	border: 1px solid var(--jpbeta-color-border);
+	border-radius: var(--jpbeta-radius);
 }
 
-@media ( min-width: 481px ) {
-
-	.dops-section-nav-tab {
-		width: auto;
-		flex: none;
-		border-bottom: 2px solid transparent;
-		border-top: none;
-		text-align: center;
-	}
-
-	.dops-section-nav-tab.is-selected {
-		border-bottom-color: #2e4453;
-	}
+/* Active branch shows an inline "Active" badge (rendered in the title) instead
+   of the Activate button. */
+.branch-card-active .activate-branch {
+	display: none;
 }
 
-.dops-section-nav-tab__link,
-.dops-section-nav-tab__text {
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-}
-
-.dops-section-nav-tab__link {
-	display: flex;
-	-ms-flex-align: center;
-	align-items: center;
-	box-sizing: border-box;
-	padding: 15px;
-	width: 100%;
-	font-size: 14px;
-	font-weight: 600;
-	line-height: 18px;
-	color: #2e4453;
-	cursor: pointer;
-}
-
-.dops-section-nav-tab__link:visited {
-	color: #2e4453;
-}
-
-.dops-section-nav-tab__link[disabled],
-.notouch .dops-section-nav-tab__link[disabled]:hover {
-	color: #e9eff3;
-	cursor: default;
-}
-
-.is-selected .dops-section-nav-tab__link {
-	color: #fff;
-	background-color: #00aadc;
-}
-
-.dops-section-nav-tab__link:focus {
-	outline: none;
-	box-shadow: none;
-}
-
-.accessible-focus .dops-section-nav-tab__link:focus {
-	outline: solid #87a6bc 1px;
-}
-
-.is-external .dops-section-nav-tab__link::after {
-	font-size: 18px;
-	padding-left: 2px;
-}
-
-.notouch .dops-section-nav-tab__link:hover {
-	color: #00aadc;
-}
-
-.notouch .is-selected .dops-section-nav-tab__link:hover {
-	color: #fff;
-}
-
-@media ( min-width: 481px ) {
-
-	.dops-section-nav-tab__link {
-		display: block;
-		width: auto;
-		padding: 16px 16px 14px 16px;
-		color: #0087be;
-		font-weight: 400;
-	}
-
-	.dops-section-nav-tab__link:visited {
-		color: #0087be;
-	}
-
-	.is-selected .dops-section-nav-tab__link {
-		color: #2e4453;
-		background-color: transparent;
-	}
-
-	.is-selected .dops-section-nav-tab__link::after {
-		display: none;
-	}
-
-	.notouch .is-selected .dops-section-nav-tab__link:hover {
-		color: #2e4453;
-	}
-}
-
-.dops-section-nav-tab__text {
-	display: block;
-	flex: 1 0 auto;
-	width: 0;
-	color: inherit;
-}
-
-@media ( min-width: 481px ) {
-
-	.dops-section-nav-tab__text {
-		display: inline;
-		flex: none;
-		width: auto;
-	}
-}
-
-.dops-section-nav-tabs__dropdown {
-	position: relative;
-	z-index: 3;
-	width: 100%;
-}
-
-.dops-section-nav-tabs__dropdown.is-open {
-	z-index: 4;
-}
-
-.dops-section-nav-tabs__dropdown .dops-select-dropdown__container {
-	position: static;
-}
-
-.dops-section-nav__segmented .dops-segmented-control {
-	margin: 0 15px;
-}
-
-.dops-section-nav__segmented .dops-segmented-control__link {
-	padding: 3px 16px 5px;
-}
-
-@media ( max-width: 480px ) {
-
-	.dops-section-nav .dops-search.is-pinned {
-		height: 46px;
-	}
-}
-
-.jpbeta-file-list {
+/* Fallback for the rare client-side re-activation path in updates.js, which
+   adds .branch-card-active without the server-rendered title badge. */
+.branch-card-active:not(:has(.jetpack-beta-badge--active)) .dops-foldable-card__summary::before {
+	content: attr(data-active);
 	display: inline-block;
-	white-space: nowrap;
-}
-
-.jpbeta-file-list > li > .container {
-	width: 100%;
-	box-sizing: border-box;
-	display: flex;
-	-ms-flex-align: center;
-	align-items: center;
-	-ms-flex-pack: justify;
-	justify-content: space-between;
-}
-
-.jpbeta-file-list > li > .container > span {
-	flex: 0 0 auto;
+	padding: 1px 8px;
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.6;
+	border-radius: 2px;
+	background: #e6ecff;
+	color: #2145e6;
 }
 
 .branch-card.branch-card-hide {
@@ -1287,13 +739,223 @@ button.dops-foldable-card__action {
 }
 
 .branch-card.branch-card-active.branch-card-hide {
-	display: block;
+	display: flex;
 }
 
-.branch-card-active .activate-branch {
+/* ==========================================================================
+   Update-needed notice — a light info card with a dark "Update" button.
+   ========================================================================== */
+.jetpack-beta__update-needed {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	margin-bottom: 24px;
+	padding: 16px var(--jpbeta-pad);
+	background: #f0f6fc;
+	border: 1px solid #c5d9ed;
+	border-radius: var(--jpbeta-radius);
+}
+
+.jetpack-beta__update-needed-icon {
+	flex-shrink: 0;
+	display: inline-flex;
+	margin-top: 2px;
+	color: var(--jpbeta-color-accent);
+}
+
+.jetpack-beta__update-needed-body {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.jetpack-beta__update-needed .dops-foldable-card.dops-card {
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+}
+
+.jetpack-beta__update-needed .dops-foldable-card + .dops-foldable-card {
+	margin-top: 8px;
+}
+
+.jetpack-beta__update-needed .dops-foldable-card__header {
+	padding: 0;
+}
+
+.jetpack-beta__update-needed .error-message {
+	margin-top: 4px;
+	color: #b32d2e;
+}
+
+/* ==========================================================================
+   Breadcrumb (legacy in-content breadcrumb — superseded by header breadcrumb)
+   ========================================================================== */
+#jetpack-beta-tester__breadcrumb {
 	display: none;
 }
 
-.branch-card-active .dops-foldable-card__secondary .dops-foldable-card__summary::before {
-	content: attr(data-active);
+/* ==========================================================================
+   mu-plugin notice
+   ========================================================================== */
+#jetpack-beta-tester__is-mu-plugin.dops-card {
+	background: #f0f6fc;
+	border-color: #c5d9ed;
+}
+
+#jetpack-beta-tester__is-mu-plugin p {
+	margin: 0;
+}
+
+/* ==========================================================================
+   Welcome notice
+   ========================================================================== */
+#jetpack-beta-tester__start {
+	margin-bottom: 16px;
+}
+
+#jetpack-beta-tester__start h1 {
+	margin: 0 0 8px;
+	padding: 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--jpbeta-color-text);
+}
+
+#jetpack-beta-tester__start p {
+	margin: 0 0 1em;
+	color: var(--jpbeta-color-text-secondary);
+}
+
+#jetpack-beta-tester__start p:last-of-type {
+	margin-bottom: 0;
+}
+
+#jetpack-beta-tester__start a {
+	color: var(--jpbeta-color-accent);
+}
+
+/* On the plugins-list admin notice it keeps the standard wp notice frame. */
+#jetpack-beta-tester__start.notice {
+	padding: 16px 20px;
+}
+
+/* ==========================================================================
+   Search (feature branches / released versions)
+   ========================================================================== */
+.dops-navigation {
+	margin-bottom: 16px;
+}
+
+.dops-section-nav,
+.dops-section-nav__panel {
+	position: static;
+	width: 100%;
+	height: auto;
+	margin: 0;
+	padding: 0;
+	background: none;
+	box-shadow: none;
+}
+
+.dops-search {
+	position: relative;
+	width: 100%;
+	height: auto;
+	margin: 0;
+}
+
+.dops-search__input[type="search"] {
+	box-sizing: border-box;
+	display: block;
+	position: static;
+	width: 100%;
+	height: 40px;
+	margin: 0;
+	padding: 8px 40px;
+	font-size: 14px;
+	line-height: 1.5;
+	color: var(--jpbeta-color-text);
+	background: var(--jpbeta-color-surface);
+	border: 1px solid var(--jpbeta-color-border-strong);
+	border-radius: var(--jpbeta-radius-sm);
+	box-shadow: none;
+	appearance: none;
+}
+
+.dops-search__input[type="search"]:focus {
+	border-color: var(--jpbeta-color-accent);
+	box-shadow: 0 0 0 1px var(--jpbeta-color-accent);
+	outline: 2px solid transparent;
+}
+
+.dops-search__input[type="search"]::-webkit-search-cancel-button {
+	-webkit-appearance: none;
+}
+
+.dops-search .dops-search-open__icon {
+	position: absolute;
+	top: 50%;
+	left: 12px;
+	width: 18px;
+	height: 18px;
+	margin-top: -9px;
+	color: var(--jpbeta-color-text-muted);
+	pointer-events: none;
+	z-index: 1;
+}
+
+.dops-search .dops-search-close__icon {
+	position: absolute;
+	top: 50%;
+	right: 12px;
+	width: 18px;
+	height: 18px;
+	margin-top: -9px;
+	color: var(--jpbeta-color-text-muted);
+	cursor: pointer;
+	z-index: 2;
+}
+
+.dops-search .gridicon {
+	display: block;
+	width: 18px;
+	height: 18px;
+	fill: currentColor;
+}
+
+/* ==========================================================================
+   Changed-files list inside the "What changed" content.
+   ========================================================================== */
+.jpbeta-file-list {
+	display: block;
+	margin: 0;
+	white-space: nowrap;
+}
+
+.jpbeta-file-list > li > .container {
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.jpbeta-file-list > li > .container > span {
+	flex: 0 0 auto;
+}
+
+/* ==========================================================================
+   "To Test" / "What changed" cards — render the card title as a section label
+   and keep the rendered-markdown body at normal document sizing.
+   ========================================================================== */
+.dops-foldable-card__content > :first-child {
+	margin-top: 0;
+}
+
+.dops-foldable-card__content h1,
+.dops-foldable-card__content h2,
+.dops-foldable-card__content h3 {
+	font-weight: 600;
 }

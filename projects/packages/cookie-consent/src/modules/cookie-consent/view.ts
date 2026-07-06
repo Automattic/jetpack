@@ -10,20 +10,26 @@ import {
 	trackPrivacyBannerAccept,
 	trackPrivacyBannerCustomize,
 	trackPrivacyBannerReject,
+	trackPrivacyBannerView,
 	trackPrivacyManageOpen,
 	trackPrivacyPolicyOptOut,
 } from './tracks';
+import { ensureTracksLoaded } from './tracks-utils';
 import {
 	UNKNOWN_COUNTRY_CODE,
 	getCookie,
 	setCookie,
 	hasConsentSet,
+	hasAnalyticsConsent,
 	readConsentChoices,
 	saveConsentChoices,
 	isGdprCountry,
 	pertainsToCCPA,
 	handleConsentByRegion,
+	getConsentChoices,
+	type GeoConfig,
 } from './utils';
+import type { ConsentEvent, ConsentEventChoices } from './types';
 
 interface GeoState {
 	initialized: boolean;
@@ -34,10 +40,7 @@ interface GeoState {
 interface CookieBannerContext {
 	showBanner: boolean;
 	showModal: boolean;
-	categories: {
-		analytics: boolean;
-		advertising: boolean;
-	};
+	categories: ConsentEventChoices;
 	textExpanded: boolean;
 }
 
@@ -58,16 +61,11 @@ interface FooterLinksFallbackContext {
 }
 
 interface StoreConfig {
-	geoApiUrl: string;
-	geoCookieDuration: number;
-	countryCodeCookie: string;
-	regionCookie: string;
+	geo: GeoConfig;
 	cookiePolicyUrl: string;
-	gdprCountries: string[];
-	ccpaRegions: string[];
 	gdprHonorsGpc: boolean;
-	showOnError: boolean;
 	forcePreview: boolean;
+	geoEnabled?: boolean;
 }
 
 interface GeoApiResponse {
@@ -93,10 +91,15 @@ let geoState: GeoState = {
 let openedFromFooter = false;
 let openModalFromFooter: ( () => void ) | null = null;
 let manageLinkConsentListenerRegistered = false;
+let tracksConsentListenerRegistered = false;
 const gdprManageLinkContexts = new Set< GdprManageLinkContext >();
 
 function shouldShowManagePreferencesLink( config: StoreConfig ): boolean {
-	return isGdprCountry( geoState.countryCode || UNKNOWN_COUNTRY_CODE, config ) && hasConsentSet();
+	return (
+		geoState.countryCode !== null &&
+		isGdprCountry( geoState.countryCode, config ) &&
+		hasConsentSet()
+	);
 }
 
 function focusModal(): void {
@@ -123,10 +126,36 @@ function hideConsentUi( context: CookieBannerContext ): void {
 	openedFromFooter = false;
 }
 
+function setContextCategories(
+	context: CookieBannerContext,
+	choices: ConsentEventChoices
+): ConsentEventChoices {
+	context.categories = {
+		...context.categories,
+		...choices,
+	};
+
+	return context.categories;
+}
+
 function updateManageLinkContexts( config: StoreConfig ): void {
 	const shouldShow = shouldShowManagePreferencesLink( config );
 	gdprManageLinkContexts.forEach( context => {
 		context.isGdprManageLink = shouldShow;
+	} );
+}
+
+function registerTracksConsentListener(): void {
+	if ( tracksConsentListenerRegistered ) {
+		return;
+	}
+
+	tracksConsentListenerRegistered = true;
+	window.addEventListener( 'wp_consent_saved', ( event: Event ) => {
+		const consentEvent = event as CustomEvent< ConsentEvent >;
+		if ( consentEvent.detail?.choices && hasAnalyticsConsent( consentEvent.detail.choices ) ) {
+			ensureTracksLoaded();
+		}
 	} );
 }
 
@@ -164,25 +193,15 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		 */
 		acceptAll() {
 			const context = getContext< CookieBannerContext >();
+			const choices = getConsentChoices( true );
 
 			// Update context
-			context.categories.analytics = true;
-			context.categories.advertising = true;
+			setContextCategories( context, choices );
 
-			trackPrivacyBannerAccept( {
-				required: true,
-				analytics: true,
-				advertising: true,
-			} );
+			trackPrivacyBannerAccept( choices, hasAnalyticsConsent( choices ) );
 
 			// Save consent to WP Consent API (this will set the cookies)
-			saveConsentChoices(
-				{
-					analytics: true,
-					advertising: true,
-				},
-				'accept_all'
-			);
+			saveConsentChoices( choices, 'accept_all' );
 
 			hideConsentUi( context );
 		},
@@ -192,21 +211,15 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		 */
 		rejectAll() {
 			const context = getContext< CookieBannerContext >();
+			const choices = getConsentChoices( false );
 
 			// Update context
-			context.categories.analytics = false;
-			context.categories.advertising = false;
+			setContextCategories( context, choices );
 
 			trackPrivacyBannerReject();
 
 			// Save consent to WP Consent API (this will set the cookies)
-			saveConsentChoices(
-				{
-					analytics: false,
-					advertising: false,
-				},
-				'reject_all'
-			);
+			saveConsentChoices( choices, 'reject_all' );
 
 			hideConsentUi( context );
 		},
@@ -216,21 +229,15 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		 */
 		savePreferences() {
 			const context = getContext< CookieBannerContext >();
-
-			trackPrivacyBannerAccept( {
-				required: true,
-				analytics: context.categories.analytics,
-				advertising: context.categories.advertising,
+			const choices = setContextCategories( context, {
+				...getConsentChoices(),
+				...context.categories,
 			} );
 
+			trackPrivacyBannerAccept( choices, hasAnalyticsConsent( choices ) );
+
 			// Save consent to WP Consent API (this will set the cookies)
-			saveConsentChoices(
-				{
-					analytics: context.categories.analytics,
-					advertising: context.categories.advertising,
-				},
-				'accept_selected'
-			);
+			saveConsentChoices( choices, 'accept_selected' );
 
 			hideConsentUi( context );
 		},
@@ -319,20 +326,23 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		} ),
 
 		/**
-		 * Toggle analytics cookies
+		 * Toggle a non-required cookie category.
 		 */
-		toggleAnalytics() {
-			const context = getContext< CookieBannerContext >();
-			context.categories.analytics = ! context.categories.analytics;
-		},
+		toggleCategory: withSyncEvent( ( event: Event ) => {
+			const target = event.target;
 
-		/**
-		 * Toggle advertising cookies
-		 */
-		toggleAdvertising() {
+			if ( ! ( target instanceof HTMLInputElement ) ) {
+				return;
+			}
+
+			const category = target.dataset.consentCategory;
+			if ( ! category ) {
+				return;
+			}
+
 			const context = getContext< CookieBannerContext >();
-			context.categories.advertising = ! context.categories.advertising;
-		},
+			context.categories[ category ] = target.checked;
+		} ),
 
 		/**
 		 * Toggle all categories expanded state
@@ -348,7 +358,11 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		openManagePreferences: withSyncEvent( ( event: MouseEvent ) => {
 			event.preventDefault();
 
-			trackPrivacyManageOpen();
+			const hasPriorConsent = hasConsentSet();
+			trackPrivacyManageOpen(
+				hasPriorConsent,
+				hasPriorConsent && hasAnalyticsConsent( readConsentChoices() )
+			);
 
 			openModalFromFooter?.();
 		} ),
@@ -361,13 +375,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 
 			trackPrivacyPolicyOptOut();
 
-			saveConsentChoices(
-				{
-					analytics: false,
-					advertising: false,
-				},
-				'opt-out'
-			);
+			saveConsentChoices( getConsentChoices( false ), 'opt-out' );
 
 			// Show confirmation snackbar
 			context.showSnackbar = true;
@@ -440,9 +448,20 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// getConfig() is not typed, so we need to assert the type.
 			const config = getConfig() as unknown as StoreConfig;
 
+			// Geo-based rules are disabled: treat every visitor as unknown so the default
+			// (opt-in/show-banner) path applies, without ever calling the geolocation provider.
+			if ( config.geoEnabled === false ) {
+				geoState = { initialized: true, countryCode: UNKNOWN_COUNTRY_CODE, region: '' };
+				return geoState;
+			}
+
+			// PHP (class-cookie-consent.php) always emits a fully-normalized nested `geo`, so the
+			// store config is already the resolved GeoConfig; no client-side reconciliation needed.
+			const geoConfig = config.geo;
+
 			// Check if we already have country code from cookies
-			const cachedCountryCode = getCookie( config.countryCodeCookie );
-			const cachedRegion = getCookie( config.regionCookie );
+			const cachedCountryCode = getCookie( geoConfig.countryCodeCookie );
+			const cachedRegion = getCookie( geoConfig.regionCookie );
 
 			if ( cachedCountryCode !== null && cachedRegion !== null ) {
 				geoState = {
@@ -456,7 +475,11 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// If either the country_code or region cookie is missing, fetch geolocation.
 			// `no-store` avoids using the browser HTTP cache for this visitor-specific response.
 			try {
-				const response = ( yield fetch( config.geoApiUrl, { cache: 'no-store' } ) ) as Response;
+				if ( ! geoConfig.apiUrl ) {
+					throw new Error( 'Geolocation provider URL is not configured' );
+				}
+
+				const response = ( yield fetch( geoConfig.apiUrl, { cache: 'no-store' } ) ) as Response;
 				if ( ! response.ok ) {
 					throw new Error( 'Geolocation request failed' );
 				}
@@ -466,8 +489,8 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				const region = data.region || '';
 
 				// Store country code and region in cookies
-				setCookie( config.countryCodeCookie, countryCode, config.geoCookieDuration );
-				setCookie( config.regionCookie, region, config.geoCookieDuration );
+				setCookie( geoConfig.countryCodeCookie, countryCode, geoConfig.cookieDuration );
+				setCookie( geoConfig.regionCookie, region, geoConfig.cookieDuration );
 
 				geoState = {
 					initialized: true,
@@ -475,15 +498,26 @@ const { actions } = store( 'jetpack/cookie-consent', {
 					region,
 				};
 			} catch ( error: unknown ) {
+				// A custom geo provider URL can fail independently (typo, CORS, 5xx, non-JSON), so
+				// surface it at warn level to make a misconfigured endpoint diagnosable in production.
 				// eslint-disable-next-line no-console
-				console.debug( error );
-				// On error, set to unknown
+				console.warn( error );
+				if ( ! geoConfig.showOnError ) {
+					geoState = {
+						initialized: true,
+						countryCode: null,
+						region: null,
+					};
+					return geoState;
+				}
+
+				// On error, set to unknown so the default path shows the banner.
 				geoState = {
 					initialized: true,
 					countryCode: UNKNOWN_COUNTRY_CODE,
 					region: '',
 				};
-				setCookie( config.countryCodeCookie, UNKNOWN_COUNTRY_CODE, config.geoCookieDuration );
+				setCookie( geoConfig.countryCodeCookie, UNKNOWN_COUNTRY_CODE, geoConfig.cookieDuration );
 			}
 
 			return geoState;
@@ -505,6 +539,9 @@ const { actions } = store( 'jetpack/cookie-consent', {
 
 			// Initialize geolocation (will use cache if already done)
 			const geoData: GeoState = yield actions.initializeGeolocation();
+			if ( null === geoData.countryCode ) {
+				return;
+			}
 
 			// Update cookie banner context if present
 			if ( 'showBanner' in context ) {
@@ -545,6 +582,8 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				| FooterLinksFallbackContext
 				| ( CookieBannerContext & CcpaContext );
 
+			registerTracksConsentListener();
+
 			// Initialize CCPA-specific context if present.
 			// The footer-links fallback context also exposes isCcpaRegion (to gate
 			// the "Do Not Sell" link) but has no snackbar; only touch those keys
@@ -569,8 +608,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 
 				openModalFromFooter = () => {
 					const currentConsent = readConsentChoices();
-					bannerContext.categories.analytics = currentConsent.analytics;
-					bannerContext.categories.advertising = currentConsent.advertising;
+					setContextCategories( bannerContext, currentConsent );
 					bannerContext.showModal = true;
 					bannerContext.showBanner = false;
 					openedFromFooter = true;
@@ -584,11 +622,15 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				// Check for force preview mode
 				if ( config.forcePreview ) {
 					context.showBanner = true;
+					trackPrivacyBannerView();
 					return;
 				}
 
 				if ( hasConsentSet() ) {
 					// User already made a choice, read from WP Consent API
+					if ( hasAnalyticsConsent( readConsentChoices() ) ) {
+						ensureTracksLoaded();
+					}
 					return;
 				}
 			}

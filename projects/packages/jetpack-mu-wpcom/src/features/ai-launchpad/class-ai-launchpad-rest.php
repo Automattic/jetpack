@@ -20,26 +20,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	const LAUNCH_TASK_IDS = array( 'site_launched', 'blog_launched', 'woo_launch_site', 'link_in_bio_launched', 'videopress_launched' );
 
 	/**
-	 * Tasks whose completion the AI Launchpad writes when the user clicks their CTA,
-	 * because the real signal is unreachable when the launchpad runs in wp-admin:
+	 * Tasks the AI Launchpad marks complete on CTA click, because their real signal is unreachable from wp-admin.
 	 *
-	 * - The acknowledgment tasks (complete_profile … site_monitoring_page) complete
-	 *   on click / page-visit in Calypso, which writes the status to Calypso's
-	 *   *selected* site — never from the wp-admin context.
-	 * - setup_ssh's real signal (an SSH user exists) is only readable through the
-	 *   wpcom hosting endpoint, which rejects the launchpad's Atomic context (blog
-	 *   token 401, Jetpack-user token 403). Calypso's own hosting form completes it
-	 *   optimistically when the user creates SFTP credentials; this reuses that
-	 *   strategy, ticking it when the user opens the same hosting page via the CTA.
-	 * - share_site has no real signal at all (sharing is a transient client action;
-	 *   even Calypso completes it optimistically when the user copies/shares the URL)
-	 *   and no CTA destination, so the tailored list offers a "Mark as complete"
-	 *   button that hits this route.
-	 *
-	 * The AI Launchpad runs in wp-admin (on both Simple and Atomic), so it marks
-	 * these complete locally on CTA click. Server-side allowlist so the complete-task
-	 * route can only tick these ids, never arbitrary catalog tasks. Mirrored
-	 * client-side in model.ts (COMPLETE_ON_CLICK_TASK_IDS).
+	 * Server-side allowlist so the complete-task route can only tick these ids. Mirrored client-side in model.ts.
 	 */
 	const COMPLETE_ON_CLICK_TASK_IDS = array(
 		'complete_profile',
@@ -53,27 +36,33 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
-	 * Tasks whose catalog `is_visible_callback` encodes an `IS_WPCOM`-only platform
-	 * assumption that the AI Launchpad overrides because it retrieves the same data
-	 * cross-platform. `add_10_email_subscribers` is gated by
-	 * `wpcom_launchpad_are_newsletter_subscriber_counts_available` (false off
-	 * WordPress.com), but AI_Launchpad_Subscribers_Listener reads the count on
-	 * Atomic via `/sites/{id}/subscribers/stats`, so the task must still render and
-	 * its visibility gate is skipped here.
+	 * Tasks whose catalog visibility gate encodes an `IS_WPCOM`-only assumption the AI Launchpad overrides.
+	 *
+	 * `add_10_email_subscribers` is gated off WordPress.com, but AI_Launchpad_Subscribers_Listener reads the count on
+	 * Atomic, so the task must still render and its visibility gate is skipped here.
 	 */
 	const FORCE_VISIBLE_TASK_IDS = array(
 		'add_10_email_subscribers',
 	);
 
 	/**
-	 * CTA destinations the AI Launchpad repoints to wp-admin, keyed by task id and
-	 * mapping to an `admin_url()` path. The catalog sends these to Calypso flows
-	 * that are a poor fit for the wp-admin AI Launchpad: connect_social_media goes
-	 * to Calypso `/marketing/connections` even though it completes on the wp-admin
-	 * Jetpack Social page (where this lands it, matching drive_traffic), and the
-	 * design "Select a design" tasks go to a Calypso setup step-flow rather than the
-	 * theme browser. Overridden on read so the shared catalog (used by the legacy
-	 * launchpad too) is left untouched.
+	 * Commerce tasks whose catalog visibility gate requires WooCommerce to be active.
+	 *
+	 * On a fresh sell site these would be dropped, collapsing the list. Instead the sell branch keeps them as a
+	 * disabled preview of the store roadmap until WooCommerce is active. See build_tasks()'s $disable_hidden_woo mode.
+	 */
+	const WOO_TASK_IDS = array(
+		'woo_customize_store',
+		'woo_products',
+		'set_up_payments',
+		'woo_launch_site',
+	);
+
+	/**
+	 * CTA destinations the AI Launchpad repoints to wp-admin, keyed by task id, each mapping to an `admin_url()` path.
+	 *
+	 * The catalog sends these to Calypso flows that are a poor fit for wp-admin. Overridden on read so the shared
+	 * catalog (used by the legacy launchpad too) is left untouched.
 	 */
 	const CTA_OVERRIDES = array(
 		'connect_social_media' => 'admin.php?page=jetpack-social',
@@ -82,12 +71,18 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
-	 * Jetpack Social tasks, hidden on private sites. wpcom does not load Publicize
-	 * (and so the Jetpack Social admin page their CTA points to) on a private site,
-	 * mirroring Publicize_Setup::should_load(). The AI Launchpad runs only on the
-	 * wpcom platform, so the private-site flag (`blog_public = -1`) is the whole
-	 * condition — Publicize's additional `is_wpcom_platform()` check is always true
-	 * here.
+	 * Theme-picker tasks. When the AI infers a niche, these point at the wordpress.com themes showcase
+	 * pre-filtered by that niche, so the theme list feels relevant to what the user is building (instead of
+	 * plain themes.php, which only filters already-installed themes). Falls back to the paths above when no niche.
+	 */
+	const THEME_TASK_IDS = array(
+		'site_theme_selected',
+		'design_selected',
+		'design_completed',
+	);
+
+	/**
+	 * Jetpack Social tasks, hidden on private sites where wpcom does not load Publicize (so their CTA page would 404).
 	 */
 	const SOCIAL_PAGE_TASK_IDS = array(
 		'connect_social_media',
@@ -96,10 +91,20 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
-	 * Whether the site's visibility is set to private (`blog_public = -1`), the
-	 * core of Jetpack's Status::is_private_site(). Read directly to avoid a hard
-	 * dependency on the Status package in this read path; the launchpad is
-	 * wpcom-only, where this option is the private-site signal.
+	 * First-post tasks that can sit "in progress": the AI-created draft post exists but has not been published yet.
+	 *
+	 * Detected through the `_wpcom_ai_launchpad_first_post` marker meta (via AI_Launchpad_First_Post_Listener), so an
+	 * unrelated pre-existing draft never counts. Paired with `add_about_page`, which has its own marker meta.
+	 */
+	const IN_PROGRESS_FIRST_POST_TASK_IDS = array(
+		'first_post_published',
+		'first_post_published_newsletter',
+	);
+
+	/**
+	 * Whether the site's visibility is set to private (`blog_public = -1`).
+	 *
+	 * Read directly to avoid a hard dependency on the Status package in this read path.
 	 *
 	 * @return bool
 	 */
@@ -130,8 +135,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_data' ),
 					'permission_callback' => array( $this, 'can_read' ),
 					'args'                => array(
-						// Testing aid: render the full task catalog (visibility bypassed,
-						// no tailoring) so every task can be exercised from one site.
+						// Testing aid: render the full task catalog so every task can be exercised from one site.
 						'all_tasks' => array(
 							'description' => 'Return the full task catalog instead of the tailored list (testing aid).',
 							'type'        => 'boolean',
@@ -255,13 +259,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	/**
 	 * Returns a 404 error for ineligible sites, true otherwise.
 	 *
-	 * The eligibility gate itself is owned by the AI Launchpad loader.
-	 *
 	 * @return true|WP_Error
 	 */
 	private function check_eligibility() {
-		// Fail closed: if the gate is unavailable for any reason, treat the site
-		// as not eligible rather than exposing the endpoint to every capable user.
+		// Fail closed: if the gate is unavailable, treat the site as not eligible.
 		if ( ! function_exists( 'wpcom_ai_launchpad_is_eligible' ) || ! wpcom_ai_launchpad_is_eligible() ) {
 			return new WP_Error(
 				'ai_launchpad_not_eligible',
@@ -283,22 +284,51 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$wizard    = get_option( self::OPTION_WIZARD );
 		$ai_output = get_option( self::OPTION_AI_OUTPUT );
 
-		// Testing aid: ?all_tasks=1 renders the whole catalog (visibility bypassed),
-		// independent of the persisted tailored output, so every task can be
-		// exercised from a single site.
+		// Testing aid: ?all_tasks=1 renders the whole catalog, independent of the persisted tailored output.
 		if ( $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' ) ) {
 			$tasks = $this->build_all_catalog_tasks();
 		} else {
-			// Guard the nested payload: partial/legacy/failed writes may leave the
-			// option as an array without payload.tasks, which would warn and break.
+			// Guard the nested payload: partial/failed writes may leave the option without payload.tasks.
+			$payload = is_array( $ai_output ) && isset( $ai_output['payload'] ) && is_array( $ai_output['payload'] )
+				? $ai_output['payload']
+				: array();
+			// Validate `inferred` as an array before reading from it, since a partial write could leave it non-array.
+			$inferred = isset( $payload['inferred'] ) && is_array( $payload['inferred'] ) ? $payload['inferred'] : array();
+			$niche    = isset( $inferred['niche'] ) && is_string( $inferred['niche'] )
+				? trim( $inferred['niche'] )
+				: '';
+
+			$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
+
+			if ( ! function_exists( 'is_plugin_active' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
+			$woo_active = is_plugin_active( 'woocommerce/woocommerce.php' );
+
+			// On a sell site without WooCommerce, keep the gated commerce tasks as a disabled preview of the store
+			// roadmap instead of dropping them (which would collapse the list to almost nothing).
+			$disable_hidden_woo = 'sell' === $goal && ! $woo_active;
+
 			$tasks = array();
-			if ( is_array( $ai_output ) && isset( $ai_output['payload']['tasks'] ) && is_array( $ai_output['payload']['tasks'] ) ) {
-				$tasks = $this->build_tasks( $ai_output['payload']['tasks'] );
+			if ( isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ) {
+				$tasks = $this->build_tasks( $payload['tasks'], false, $niche, $disable_hidden_woo );
+			}
+
+			// The sell goal leads with the store-setup task; every other goal may offer the gallery task. They are
+			// mutually exclusive so a sell site with a visual niche doesn't also get an off-target gallery task.
+			if ( 'sell' === $goal ) {
+				// The store-setup tasks lead the sell list. Their synthetic ids never appear in the AI payload, so a
+				// plain prepend is safe.
+				$tasks = array_merge( $this->build_store_tasks( $woo_active ), $tasks );
+			} else {
+				$gallery = $this->build_gallery_task( $inferred );
+				if ( null !== $gallery ) {
+					$tasks = $this->insert_before_launch_task( $tasks, $gallery );
+				}
 			}
 		}
 
-		// The membership tasks' completion is recomputed in build_tasks() (their
-		// option is never written on Atomic), so overlay it here to keep
+		// The membership tasks' completion is recomputed in build_tasks(), so overlay it to keep
 		// checklist_statuses consistent with tasks[].completed for them.
 		$checklist_statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
 		foreach ( $tasks as $task ) {
@@ -314,26 +344,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'checklist_statuses' => $checklist_statuses,
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
 			'is_eligible'        => true,
-			// Site context the client needs: the front-end URL drives the launch-task
-			// CTA (its host is the launch-flow site slug) and the tailored-list
-			// preview thumbnail; the title labels that preview. Title and
-			// description also pre-fill the wizard's Name and Brief description
-			// fields so they reflect the site's current identity.
+			// Site context the client needs for the launch-task CTA, the preview thumbnail/title, and wizard prefill.
 			'site'               => array(
 				'url'         => home_url(),
 				'title'       => get_bloginfo( 'name' ),
 				'description' => get_bloginfo( 'description' ),
+				// Block themes open the Site Editor; classic themes fall back to the Customizer.
+				'edit_url'    => wp_is_block_theme() ? admin_url( 'site-editor.php' ) : admin_url( 'customize.php' ),
 			),
 		);
 	}
 
 	/**
-	 * Persists the wizard input to the wizard option and, on completion, writes
-	 * the entered Name and Brief description back to the site's identity options
-	 * (blogname / blogdescription) so the wizard reflects and updates the real
-	 * site title and tagline. Empty values are skipped so the wizard never blanks
-	 * an existing title or tagline. Values are already sanitized by the route's
-	 * sanitize_callbacks; update_option re-runs core's option sanitizers too.
+	 * Persists the wizard input and writes the entered Name and Brief description back to blogname / blogdescription.
+	 *
+	 * Empty values are skipped so the wizard never blanks an existing title or tagline.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return array
@@ -354,8 +379,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			update_option( 'blogname', $request['site_name'] );
 		}
 		if ( '' !== trim( (string) $request['description'] ) ) {
-			// The tagline is rendered inline by themes, so collapse the textarea
-			// brief's newlines to keep blogdescription single-line.
+			// Collapse the textarea brief's newlines to keep the inline-rendered tagline single-line.
 			update_option( 'blogdescription', sanitize_text_field( $request['description'] ) );
 		}
 
@@ -427,12 +451,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Marks an acknowledgment task complete. These tasks have no completion signal
-	 * in wp-admin — in Calypso they complete on click/page-visit, written to
-	 * Calypso's selected site — so the client calls this when the user clicks the
-	 * task's CTA. Restricted to the COMPLETE_ON_CLICK_TASK_IDS allowlist and to
-	 * tasks actually on the site's AI-selected list, so the route can't tick
-	 * arbitrary catalog tasks.
+	 * Marks an acknowledgment task complete when the user clicks its CTA, since these tasks have no wp-admin signal.
+	 *
+	 * Restricted to the COMPLETE_ON_CLICK_TASK_IDS allowlist and to tasks on the site's AI-selected list.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return array|WP_Error
@@ -448,8 +469,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			);
 		}
 
-		// Only tasks the AI actually put on this site's list may be completed, so a
-		// capable user can't tick a task that isn't on their launchpad.
+		// Only tasks the AI put on this site's list may be completed.
 		if ( ! in_array( $task_id, wpcom_ai_launchpad_get_ai_task_ids(), true ) ) {
 			return new WP_Error(
 				'ai_launchpad_task_not_selected',
@@ -515,10 +535,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Builds the enriched task list for every task in the catalog, bypassing the
-	 * per-site visibility gate. Backs the `?all_tasks=1` testing aid; each task is
-	 * enriched in isolation so one that can't be built in this context is skipped
-	 * rather than breaking the whole view.
+	 * Builds the enriched task list for every catalog task, bypassing the visibility gate (backs `?all_tasks=1`).
+	 *
+	 * Each task is enriched in isolation so one that can't be built is skipped rather than breaking the whole view.
 	 *
 	 * @return array
 	 */
@@ -548,18 +567,18 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	/**
 	 * Enriches the persisted tasks with title, completion state, and CTA path from the catalog.
 	 *
-	 * @param array $tasks             The persisted `payload.tasks` array.
-	 * @param bool  $bypass_visibility Skip the catalog visibility gate (for the all-tasks testing view).
+	 * @param array  $tasks              The persisted `payload.tasks` array.
+	 * @param bool   $bypass_visibility  Skip the catalog visibility gate (for the all-tasks testing view).
+	 * @param string $niche              The AI-inferred niche, used to pre-filter the theme-picker CTAs.
+	 * @param bool   $disable_hidden_woo Keep WOO_TASK_IDS that fail the visibility gate as disabled preview cards
+	 *                                   instead of dropping them (sell goal while WooCommerce is inactive).
 	 * @return array
 	 */
-	private function build_tasks( $tasks, $bypass_visibility = false ) {
+	private function build_tasks( $tasks, $bypass_visibility = false, $niche = '', $disable_hidden_woo = false ) {
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$built       = array();
 
-		// Some catalog visibility callbacks call is_plugin_active() (e.g. the
-		// WooCommerce tasks), which lives in wp-admin/includes/plugin.php and is not
-		// loaded during a REST request. Load it once so the is_visible() gate below
-		// can't fatal on those callbacks.
+		// Some catalog visibility callbacks call is_plugin_active(), which is not loaded during a REST request.
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
@@ -575,53 +594,357 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				continue;
 			}
 
-			// The Jetpack Social tasks point at an admin page wpcom doesn't load on
-			// a private site, so hide them there — their CTA would 404.
+			// The Jetpack Social tasks point at an admin page wpcom doesn't load on a private site, so hide them there.
 			if ( $is_private_site && in_array( $task['id'], self::SOCIAL_PAGE_TASK_IDS, true ) ) {
 				continue;
 			}
 
 			$definition       = $definitions[ $task['id'] ];
 			$definition['id'] = $task['id'];
+			$disabled         = false;
 
-			// Honor the catalog's own visibility gate, mirroring the legacy
-			// Launchpad_Task_Lists::build(): drop any task the catalog would hide
-			// on this site (e.g. WooCommerce tasks with no WooCommerce, or
-			// goal-gated tasks). The AI can select from the full menu, but a task
-			// it picks that is not applicable here must not render — the CTA would
-			// 404 and the task could never complete. Filtering on read (rather than
-			// rejecting on write) keeps the deterministic fallback usable: its fixed
-			// per-goal lists also contain conditionally-visible tasks, so gating the
-			// write path could strand a goal with too few surviving tasks.
+			// Honor the catalog's own visibility gate: a task the catalog would hide here must not render, since its
+			// CTA would 404 and it could never complete. Filtered on read so the deterministic fallback stays usable.
 			if (
 				! $bypass_visibility
 				&& ! in_array( $task['id'], self::FORCE_VISIBLE_TASK_IDS, true )
 				&& ! wpcom_launchpad_checklists()->is_visible( $definition )
 			) {
-				continue;
+				// On a sell site without WooCommerce, keep the commerce tasks as a disabled preview of the store
+				// roadmap rather than dropping them and collapsing the list. Everything else stays hidden.
+				if ( $disable_hidden_woo && in_array( $task['id'], self::WOO_TASK_IDS, true ) ) {
+					$disabled = true;
+				} else {
+					continue;
+				}
 			}
 
-			// The membership tasks' catalog callbacks recompute from membership
-			// settings that are null on Atomic (always false there); recompute them
-			// from Jetpack_Memberships' local signals instead.
-			$completed = AI_Launchpad_Memberships::has_override( $task['id'] )
-				? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
-				: wpcom_launchpad_checklists()->is_task_complete( $definition );
+			if ( $disabled ) {
+				// A disabled preview always renders as the locked card: never resolve its completion (the woo
+				// completion callback marks the task complete as a side effect, which must not fire on a read) and
+				// never resolve a CTA path (it has no reachable action).
+				$completed    = false;
+				$calypso_path = null;
+			} else {
+				// The membership tasks' catalog callbacks are always false on Atomic; recompute from local signals.
+				$completed = AI_Launchpad_Memberships::has_override( $task['id'] )
+					? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
+					: wpcom_launchpad_checklists()->is_task_complete( $definition );
 
-			$calypso_path = isset( self::CTA_OVERRIDES[ $task['id'] ] )
-				? admin_url( self::CTA_OVERRIDES[ $task['id'] ] )
-				: wpcom_launchpad_checklists()->load_calypso_path( $definition );
+				$theme_showcase_path = $this->get_themes_showcase_path( $task['id'], $niche );
+				if ( null !== $theme_showcase_path ) {
+					$calypso_path = $theme_showcase_path;
+				} elseif ( isset( self::CTA_OVERRIDES[ $task['id'] ] ) ) {
+					$calypso_path = admin_url( self::CTA_OVERRIDES[ $task['id'] ] );
+				} else {
+					$calypso_path = wpcom_launchpad_checklists()->load_calypso_path( $definition );
+				}
+			}
+
+			$title       = isset( $definition['get_title'] ) ? $definition['get_title']() : '';
+			$in_progress = false;
+
+			// A saved-but-unpublished draft (found by marker meta) puts a site-editor task "in progress": reopen that
+			// draft instead of creating a new one, and surface the drafts icon + a "Continue…" prompt in the card.
+			if ( ! $completed && ! $disabled ) {
+				$draft_url = $this->get_in_progress_draft_url( $task['id'] );
+				if ( null !== $draft_url ) {
+					$in_progress  = true;
+					$calypso_path = $draft_url;
+				}
+			}
+
+			// Title follows our precise in-progress signal so it, the icon, and the CTA agree.
+			$title = $this->get_task_title( $task['id'], $in_progress, $title );
 
 			$built[] = array(
 				'id'           => $task['id'],
 				'subtitle'     => $task['subtitle'],
-				'title'        => isset( $definition['get_title'] ) ? $definition['get_title']() : '',
+				'title'        => $title,
 				'completed'    => $completed,
+				'in_progress'  => $in_progress,
+				'disabled'     => $disabled,
 				'calypso_path' => $calypso_path,
 			);
 		}
 
 		return $built;
+	}
+
+	/**
+	 * The wordpress.com themes-showcase path for a theme-picker task, pre-filtered by the inferred niche.
+	 *
+	 * Returns null for non-theme tasks or when no niche was inferred, so the caller falls back to the task's
+	 * default CTA. The niche is passed as the showcase's free-text search term (`?s=`), and the client's
+	 * `toNavigableUrl` resolves the relative path against wordpress.com.
+	 *
+	 * @param string $task_id The catalog task id.
+	 * @param string $niche   The AI-inferred niche.
+	 * @return string|null
+	 */
+	private function get_themes_showcase_path( $task_id, $niche ) {
+		if ( '' === $niche || ! in_array( $task_id, self::THEME_TASK_IDS, true ) ) {
+			return null;
+		}
+
+		return '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $this->niche_to_search_term( $niche ) );
+	}
+
+	/**
+	 * Reduces a possibly multi-word niche to a single keyword for the themes-showcase search.
+	 *
+	 * The showcase ANDs its search terms, so a phrase like "ceramics and pottery" matches no theme even
+	 * though "ceramics" and "pottery" each do. Connective/filler words are dropped and the first remaining
+	 * keyword is kept. Falls back to the trimmed niche when nothing survives filtering.
+	 *
+	 * @param string $niche The AI-inferred niche.
+	 * @return string
+	 */
+	private function niche_to_search_term( $niche ) {
+		$stop_words = array( 'and', 'or', 'the', 'a', 'an', 'of', 'for', 'with', 'in', 'on', 'to', 'your', 'my' );
+		$words      = preg_split( '/[\s,&]+/', strtolower( $niche ), -1, PREG_SPLIT_NO_EMPTY );
+
+		foreach ( $words as $word ) {
+			if ( ! in_array( $word, $stop_words, true ) ) {
+				return $word;
+			}
+		}
+
+		return trim( $niche );
+	}
+
+	/**
+	 * Visual-work niche keywords that (along with the `portfolio` goal) surface the synthetic gallery task.
+	 */
+	const GALLERY_NICHE_KEYWORDS = array(
+		'photography',
+		'photo',
+		'photos',
+		'photographer',
+		'portfolio',
+		'gallery',
+		'art',
+		'artist',
+		'illustration',
+		'illustrator',
+		'design',
+		'designer',
+		'visual',
+		'painting',
+		'drawing',
+	);
+
+	/**
+	 * Whether the synthetic "Create your first gallery" task should be offered, based on the inferred goal/niche.
+	 *
+	 * @param array $inferred The AI output's `inferred` block.
+	 * @return bool
+	 */
+	private function should_offer_gallery_task( $inferred ) {
+		$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
+		if ( 'portfolio' === $goal ) {
+			return true;
+		}
+
+		$niche = isset( $inferred['niche'] ) && is_string( $inferred['niche'] ) ? strtolower( $inferred['niche'] ) : '';
+		if ( '' === $niche ) {
+			return false;
+		}
+
+		// Split on any non-alphanumeric run so hyphenated/compound niches ("wildlife-photography") tokenize like the client.
+		$words = preg_split( '/[^a-z0-9]+/', $niche, -1, PREG_SPLIT_NO_EMPTY );
+		return array() !== array_intersect( $words, self::GALLERY_NICHE_KEYWORDS );
+	}
+
+	/**
+	 * Builds the synthetic gallery-task entry, or null when it should not be offered.
+	 *
+	 * Completion is read from the status option (written by AI_Launchpad_Gallery_Page_Listener on publish); an
+	 * unpublished marker draft puts it in progress and reopens that draft.
+	 *
+	 * @param array $inferred The AI output's `inferred` block.
+	 * @return array|null
+	 */
+	private function build_gallery_task( $inferred ) {
+		if ( ! $this->should_offer_gallery_task( $inferred ) ) {
+			return null;
+		}
+
+		$statuses  = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+		$completed = ! empty( $statuses['add_gallery_page'] );
+
+		$in_progress  = false;
+		$calypso_path = null;
+		if ( ! $completed ) {
+			$draft_url = $this->get_in_progress_draft_url( 'add_gallery_page' );
+			if ( null !== $draft_url ) {
+				$in_progress  = true;
+				$calypso_path = $draft_url;
+			}
+		}
+
+		return array(
+			'id'           => 'add_gallery_page',
+			'subtitle'     => __( 'Show your work in a beautiful photo gallery.', 'jetpack-mu-wpcom' ),
+			'title'        => $this->get_task_title( 'add_gallery_page', $in_progress, __( 'Create your first gallery', 'jetpack-mu-wpcom' ) ),
+			'completed'    => $completed,
+			'in_progress'  => $in_progress,
+			'disabled'     => false,
+			'calypso_path' => $calypso_path,
+		);
+	}
+
+	/**
+	 * Builds the synthetic store-setup lead tasks for the sell goal: an "install WooCommerce" task and a "set up
+	 * your store" task.
+	 *
+	 * Both are read live (installed/active/profiler options), so no marker or listener is needed. While WooCommerce
+	 * is inactive the setup task shows as a disabled preview, matching the disabled commerce tasks below it. Callers
+	 * gate this on the sell goal.
+	 *
+	 * @param bool $active Whether WooCommerce is active.
+	 * @return array The lead tasks in display order.
+	 */
+	private function build_store_tasks( $active ) {
+		return array(
+			$this->build_install_woocommerce_task( $active ),
+			$this->build_setup_store_task( $active ),
+		);
+	}
+
+	/**
+	 * The "Install the WooCommerce plugin" lead task: to-do until the plugin exists, in-progress while it is
+	 * installed-but-inactive, and complete once active.
+	 *
+	 * @param bool $active Whether WooCommerce is active.
+	 * @return array
+	 */
+	private function build_install_woocommerce_task( $active ) {
+		$in_progress = ! $active && array_key_exists( 'woocommerce/woocommerce.php', get_plugins() );
+
+		$calypso_path = null;
+		if ( ! $active ) {
+			$calypso_path = $in_progress
+				? admin_url( 'plugins.php?plugin_status=inactive' )
+				: admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' );
+		}
+
+		return array(
+			'id'           => 'install_woocommerce',
+			'subtitle'     => $in_progress
+				? __( 'Activate the WooCommerce plugin to continue.', 'jetpack-mu-wpcom' )
+				: __( 'Add the WooCommerce plugin to start selling.', 'jetpack-mu-wpcom' ),
+			'title'        => __( 'Install the WooCommerce plugin', 'jetpack-mu-wpcom' ),
+			'completed'    => $active,
+			'in_progress'  => $in_progress,
+			'disabled'     => false,
+			'calypso_path' => $calypso_path,
+		);
+	}
+
+	/**
+	 * The "Set up your store" lead task: to-do until the WooCommerce setup wizard (core profiler) is completed or
+	 * skipped, then complete. Shown as a disabled preview until WooCommerce is active, since the wizard needs it.
+	 *
+	 * @param bool $active Whether WooCommerce is active.
+	 * @return array
+	 */
+	private function build_setup_store_task( $active ) {
+		$profile   = (array) get_option( 'woocommerce_onboarding_profile', array() );
+		$completed = $active && ( ! empty( $profile['completed'] ) || ! empty( $profile['skipped'] ) );
+
+		return array(
+			'id'           => 'setup_woocommerce_store',
+			'subtitle'     => __( 'Complete or skip the WooCommerce setup wizard.', 'jetpack-mu-wpcom' ),
+			'title'        => __( 'Set up your store', 'jetpack-mu-wpcom' ),
+			'completed'    => $completed,
+			'in_progress'  => false,
+			'disabled'     => ! $active,
+			'calypso_path' => $completed || ! $active ? null : admin_url( 'admin.php?page=wc-admin&path=%2Fsetup-wizard' ),
+		);
+	}
+
+	/**
+	 * Inserts a synthetic task immediately before the trailing launch task (or appends it), idempotently by id.
+	 *
+	 * @param array $tasks The enriched task list.
+	 * @param array $task  The synthetic task entry.
+	 * @return array
+	 */
+	private function insert_before_launch_task( $tasks, $task ) {
+		foreach ( $tasks as $existing ) {
+			if ( isset( $existing['id'] ) && $existing['id'] === $task['id'] ) {
+				return $tasks;
+			}
+		}
+
+		$insert_at = count( $tasks );
+		foreach ( $tasks as $index => $existing ) {
+			if ( isset( $existing['id'] ) && in_array( $existing['id'], self::LAUNCH_TASK_IDS, true ) ) {
+				$insert_at = $index;
+				break;
+			}
+		}
+
+		array_splice( $tasks, $insert_at, 0, array( $task ) );
+		return $tasks;
+	}
+
+	/**
+	 * Resolves the editor URL of a site-editor task's in-progress draft, or null when there is none.
+	 *
+	 * The About page is found by its marker meta; the first-post tasks by the latest draft post. Returned as an
+	 * `admin_url()` so the client reopens the existing draft rather than creating a duplicate.
+	 *
+	 * @param string $task_id The catalog task id.
+	 * @return string|null
+	 */
+	private function get_in_progress_draft_url( $task_id ) {
+		$draft_id = null;
+
+		if ( 'add_about_page' === $task_id ) {
+			$draft_id = AI_Launchpad_About_Page_Listener::get_draft_id();
+		} elseif ( 'add_gallery_page' === $task_id ) {
+			$draft_id = AI_Launchpad_Gallery_Page_Listener::get_draft_id();
+		} elseif ( in_array( $task_id, self::IN_PROGRESS_FIRST_POST_TASK_IDS, true ) ) {
+			$draft_id = AI_Launchpad_First_Post_Listener::get_draft_id();
+		}
+
+		if ( null === $draft_id ) {
+			return null;
+		}
+
+		return admin_url( 'post.php?post=' . $draft_id . '&action=edit' );
+	}
+
+	/**
+	 * The card title for a site-editor task, chosen by our precise (marker-based) in-progress signal so the title,
+	 * icon, and CTA stay in agreement.
+	 *
+	 * This overrides `first_post_published`'s catalog title in both states: the catalog swaps it to "Continue…"
+	 * whenever ANY draft exists (a looser signal than our marker), so an unrelated draft would otherwise show a
+	 * "Continue…" title beside the not-started icon. Tasks not listed keep their catalog title.
+	 *
+	 * @param string $task_id     The catalog task id.
+	 * @param bool   $in_progress Whether our marker detected an in-progress draft.
+	 * @param string $default     The catalog-provided title, kept when we don't override.
+	 * @return string
+	 */
+	private function get_task_title( $task_id, $in_progress, $default ) {
+		switch ( $task_id ) {
+			case 'add_about_page':
+				return $in_progress ? __( 'Continue working on the About page', 'jetpack-mu-wpcom' ) : $default;
+			case 'add_gallery_page':
+				return $in_progress ? __( 'Continue working on your gallery', 'jetpack-mu-wpcom' ) : $default;
+			case 'first_post_published':
+				return $in_progress
+					? __( 'Continue to write your first post', 'jetpack-mu-wpcom' )
+					: __( 'Write your first post', 'jetpack-mu-wpcom' );
+			case 'first_post_published_newsletter':
+				return $in_progress ? __( 'Continue writing your first post', 'jetpack-mu-wpcom' ) : $default;
+			default:
+				return $default;
+		}
 	}
 
 	/**

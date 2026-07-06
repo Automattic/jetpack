@@ -20,6 +20,9 @@ const settings = {
 	supports: {
 		reusable: false,
 		html: false,
+		// FORMS-694: choice/option blocks flatten through the field shortcode
+		// like inputs — visibility is inert; disable the control.
+		visibility: false,
 		splitting: true,
 		color: {
 			text: true,
