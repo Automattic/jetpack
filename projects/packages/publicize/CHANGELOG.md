@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.83.5] - 2026-07-06
+### Added
+- Social Image Generator: add new filter to allow disabling the text overlay in the feature. [#50029]
+
+### Changed
+- Remove the connection refresh on tab focus, which was legacy Calypso behavior no longer needed now that connection management lives in the editor. [#50118]
+- Update package dependencies. [#50097]
+- Update package dependencies. [#50183]
+- Update package dependencies. [#50212]
+
+### Removed
+- Remove unused store selector and utility functions [#49528]
+
+### Fixed
+- Avoid the "This connection is added by a site administrator" fallback from flickering for editors while the current user record is still resolving. [#50162]
+- Fix Base UI nativeButton console warning on the settings tab Create a note button. [#50106]
+- Load Publicize connections via a store resolver so the modern admin page fetches them even when there are no connections, and avoid a duplicate request. [#50115]
+- Update REST API status schema to use `oneOf` for Gemini compatibility while preserving null support. [#50030]
+
 ## [0.83.4] - 2026-06-29
 ### Changed
 - Internal updates.
@@ -1541,6 +1560,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.83.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.4...v0.83.5
 [0.83.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.3...v0.83.4
 [0.83.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.2...v0.83.3
 [0.83.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.1...v0.83.2

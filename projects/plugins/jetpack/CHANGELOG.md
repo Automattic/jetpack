@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.0-beta - 2026-07-06
+### Enhancements
+- AI Admin: restructure MCP settings Read/Write pages to group tools by display group with collapsible per-group tool lists and a page-level Enable all toggle. [#50045]
+- Forms: warn admins and editors when a form isn't collecting responses (email and saving both off, no integration). [#49808]
+- Jetpack AI: Surface SEO Enhancer suggestions (SEO title and meta description) in the AI sidebar. [#50042]
+- Newsletter: link to the site visibility settings from the Coming Soon notice in the pre-publish panel. [#50073]
+- VideoPress: Add presentation to the player iframe allow list to enable casting from embeds. [#50215]
+- VideoPress: make the VideoPress admin dashboard available in the Jetpack plugin (previously only in the standalone Jetpack VideoPress plugin). [#49696]
+
+### Bug fixes
+- Content Guidelines AI: place the suggestion badge to the left of the section chevron so chevrons stay aligned across sections with and without a badge [#50083]
+- Content Guidelines AI: Wrap the per-section Save/Clear/Generate button row so the buttons no longer overlap on narrow screens. [#50101]
+- JSON API: Ensure error responses always serialize an HTTP error status (>= 400), never a non-integer or a 2xx that clients could interpret as success. [#50077]
+- JSON API: Only default a missing or invalid error status to 400, and stop overwriting valid HTTP status codes below 400 that callers return via WP_Error. [#50173]
+- Newsletter: default the post access level to "everybody" when the stored meta is not a string, and sanitize non-string writes, so corrupt values can no longer cause a fatal error when rendering a post. [#50090]
+- Prevent Slideshow block crash when converting from Gallery [#50035]
+- Tiled Gallery: prevent editor crash when transforming a core gallery block. [#50025]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Donations block: update location of earnings link. [#50177]
+- Image Studio: share the translation script handle with the Agents Manager package to avoid enqueuing the same file twice. [#50069]
+- Newsletter widget: stop building the bundle twice. It was emitted by both the legacy module config (as newsletter-widget.min.js) and its own config (as newsletter-widget.js); only the latter is loaded, so the duplicate min build is removed. [#50087]
+- Performance: Reduce front-end PHP loaded for My Jetpack and Import on page views where they are not used. [#49936]
+- Performance: register pure display blocks lazily on first render instead of on every front-end request, to reduce per-request PHP/opcache footprint. [#49840]
+- Performance: skip loading the Stats and Stats Admin packages on plain front-end GET page views when the Stats module is off, where they have no work to do, instead of loading them on every request. They still load on wp-admin, REST, cron, POST, and WP-CLI requests (and whenever the module is active), so behavior is unchanged. Reduces the per-request PHP footprint. [#49839]
+- Update package dependencies. [#50097]
+- Update package dependencies. [#50183]
+- VideoPress dashboard update, not included in Jetpack plugin [#49023]
+
 ## 16.0-a.7 - 2026-06-29
 ### Enhancements
 - Donations Block: Render the block in emails with email-friendly CTA buttons. [#49963]

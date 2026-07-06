@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Emit the site Organization schema on the home page only; posts reference it by id.

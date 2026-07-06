@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Date field: prevent the on-screen keyboard from appearing on mobile when tapping the date picker; show the date picker instead.

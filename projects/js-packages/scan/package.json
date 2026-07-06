@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-scan",
-	"version": "1.4.8",
+	"version": "1.4.9",
 	"private": false,
 	"description": "A JS client for consuming Jetpack Scan services",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/scan/#readme",

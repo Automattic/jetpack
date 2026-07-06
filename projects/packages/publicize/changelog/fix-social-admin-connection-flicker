@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid the "This connection is added by a site administrator" fallback from flickering for editors while the current user record is still resolving.

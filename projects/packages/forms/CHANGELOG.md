@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.23.0] - 2026-07-06
+### Added
+- Forms: warn admins and editors when a form isn't collecting responses (email and saving both off, no integration) in the editor, on the live form, and in the dashboard. [#49808]
+- Responses: add a standalone full-page view for a single form response. [#49827]
+
+### Changed
+- Update package dependencies. [#50097]
+- Update package dependencies. [#50183]
+
+### Fixed
+- Date field: prevent the on-screen keyboard from appearing on mobile when tapping the date picker; show the date picker instead. [#50211]
+- Disable the block visibility control on form field, input, and choice/option blocks, where the per-viewport "Hide on…" option was not honored on the frontend. Fields still honor a saved "Hide everywhere" (removing the field entirely, which keeps required fields safe) regardless of WordPress version. Labels keep their visibility support and now honor the per-viewport "Hide on…" option too, and fields whose label is hidden keep an accessible name. [#49973]
+- File upload: Fix the file upload field collapsing to its content width on the front end instead of filling the form like it does in the editor. [#49978]
+- Multistep forms: Fix navigation buttons floating and the button gap collapsing on the frontend when a button width is set. [#49939]
+- Responses: update the unread response count in the admin sidebar immediately when a response is marked as read by viewing it, so the badge no longer requires a page refresh to reflect the change. [#50187]
+
 ## [7.22.6] - 2026-06-29
 ### Security
 - Restrict status counts to a user's own forms when they cannot edit others' forms. [#49929]
@@ -2561,6 +2577,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.23.0]: https://github.com/automattic/jetpack-forms/compare/v7.22.6...v7.23.0
 [7.22.6]: https://github.com/automattic/jetpack-forms/compare/v7.22.5...v7.22.6
 [7.22.5]: https://github.com/automattic/jetpack-forms/compare/v7.22.4...v7.22.5
 [7.22.4]: https://github.com/automattic/jetpack-forms/compare/v7.22.3...v7.22.4

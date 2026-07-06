@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.11.1 - 2026-07-06
+### Changed
+- Update package dependencies. [#50097]
+- Update package dependencies. [#50183]
+
 ## 3.11.0 - 2026-06-26
 ### Added
 - Add `/targets` entry point, which returns the configured browserslist targets, defaulting to `@wordpress/browserslist-config` rather than browserslist's own defaults. [#49977]

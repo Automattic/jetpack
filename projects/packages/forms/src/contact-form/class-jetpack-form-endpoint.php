@@ -263,7 +263,7 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * warn about forms that drop their submissions. Only added for the `edit`
 	 * context, which is permission-gated to users who can manage forms.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.23.0
 	 *
 	 * @param \WP_Post         $item    Post object.
 	 * @param \WP_REST_Request $request Request object.
@@ -287,7 +287,7 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * Parses the form's block content and applies the shared detection rule.
 	 * Returns true (no warning) when the form has no contact-form block to read.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.23.0
 	 *
 	 * @param int $form_id Form (jetpack_form) post ID.
 	 * @return bool
@@ -311,7 +311,7 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
 	 * Recursively locate the first jetpack/contact-form block's attributes.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.23.0
 	 *
 	 * @param array $block A parsed block.
 	 * @return array|null The block attributes, or null when not found.
