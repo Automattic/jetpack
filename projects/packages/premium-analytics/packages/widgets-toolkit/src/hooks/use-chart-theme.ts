@@ -77,15 +77,15 @@ export function useChartTheme(): WooChartTheme {
 				labelSpacing: 'xs',
 				barBorderRadius: 'var(--wpds-border-radius-md)',
 				deltaColors: [
-					'var(--wpds-color-fg-content-error-weak)',
-					'var(--wpds-color-fg-content-neutral)',
-					'var(--wpds-color-fg-content-success-weak)',
+					'var(--wpds-color-fg-content-error-weak, #cc1818)',
+					'var(--wpds-color-fg-content-neutral-weak, #707070)',
+					'var(--wpds-color-fg-content-success-weak, #008030)',
 				] as [ string, string, string ], // [ negative, neutral, positive ]
 			},
 			conversionFunnelChart: {
 				backgroundColor: 'var(--wpds-color-bg-surface-brand)',
-				positiveChangeColor: 'var(--wpds-color-fg-content-success-weak)',
-				negativeChangeColor: 'var(--wpds-color-fg-content-error-weak)',
+				positiveChangeColor: 'var(--wpds-color-fg-content-success-weak, #008030)',
+				negativeChangeColor: 'var(--wpds-color-fg-content-error-weak, #cc1818)',
 			},
 			lineChart: {
 				lineStyles: {
