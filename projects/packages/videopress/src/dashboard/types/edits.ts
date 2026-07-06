@@ -83,8 +83,15 @@ export type Storyboard = {
 	tile_height: number;
 	/** Total number of tiles in the sprite. */
 	tiles: number;
-	/** Tiles per sprite row. */
+	/** Tiles per sprite row (physical sprite columns). */
 	columns: number;
+	/**
+	 * Physical sprite rows. The sheet is a fixed columns x rows cell grid
+	 * (padded with blank cells past `tiles`), so this is NOT ceil(tiles/columns)
+	 * — it must come from the sprite. Optional for backends that predate it;
+	 * consumers fall back to ceil(tiles/columns) when absent.
+	 */
+	rows?: number;
 	/** Time covered by each tile, in ms. */
 	interval_ms: number;
 };

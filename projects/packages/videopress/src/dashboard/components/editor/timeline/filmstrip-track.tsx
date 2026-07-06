@@ -35,7 +35,14 @@ type Props = {
  * @return The tile's CSS properties.
  */
 function storyboardTileStyle( storyboard: Storyboard, index: number ): CSSProperties {
-	const rows = Math.max( 1, Math.ceil( storyboard.tiles / storyboard.columns ) );
+	// Prefer the sprite's real row count: the sheet is a fixed columns x rows
+	// grid padded with blank cells, so ceil(tiles/columns) under-counts the
+	// rows and mis-crops every tile (the padded rows render as blank). Fall
+	// back to the derivation only when the backend omits `rows`.
+	const rows =
+		storyboard.rows && storyboard.rows > 0
+			? storyboard.rows
+			: Math.max( 1, Math.ceil( storyboard.tiles / storyboard.columns ) );
 	const column = index % storyboard.columns;
 	const row = Math.floor( index / storyboard.columns );
 	const x = storyboard.columns > 1 ? ( column / ( storyboard.columns - 1 ) ) * 100 : 0;

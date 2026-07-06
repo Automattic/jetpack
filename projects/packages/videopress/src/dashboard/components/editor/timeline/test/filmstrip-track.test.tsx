@@ -101,4 +101,24 @@ describe( 'StudioEditorFilmstripTrack', () => {
 		expect( tiles[ 0 ] ).toHaveStyle( { backgroundSize: '300% 100%' } );
 		expect( tiles[ 1 ] ).toHaveStyle( { backgroundPosition: '50% 0%' } );
 	} );
+
+	it( 'uses the sprite physical row count for a padded grid', () => {
+		// 17 tiles in a fixed 10×10 sheet: the crop must span 10 rows, not
+		// ceil(17/10)=2, or every second-row tile shows a blank padded cell.
+		render(
+			<StudioEditorFilmstripTrack
+				filmstrip={ {
+					status: 'storyboard',
+					storyboard: makeStoryboard( { tiles: 17, columns: 10, rows: 10 } ),
+				} }
+			/>
+		);
+
+		const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
+		expect( tiles ).toHaveLength( 17 );
+		// 10 columns × 10 rows → the sheet spans 1000% × 1000% of one tile
+		// element (the pre-fix ceil derivation would give 200% height here).
+		expect( tiles[ 0 ] ).toHaveStyle( { backgroundSize: '1000% 1000%' } );
+		expect( tiles[ 16 ] ).toHaveStyle( { backgroundSize: '1000% 1000%' } );
+	} );
 } );
