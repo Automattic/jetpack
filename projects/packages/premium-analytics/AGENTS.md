@@ -42,7 +42,7 @@ jetpack build --deps packages/premium-analytics
 ```
 
 `pnpm run build` bundles only this package: monorepo dependencies (charts,
-wp-build-polyfills, assets) must already be built. `jetpack build -d` builds
+wp-build-polyfills, assets) must already be built. `jetpack build --deps` builds
 them first — use it after merging trunk or when charts exports look stale.
 
 Add a route: create `routes/<name>/package.json` (with `route.path` + `route.page`) and a
