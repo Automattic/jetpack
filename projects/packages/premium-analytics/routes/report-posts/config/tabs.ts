@@ -1,78 +1,50 @@
 /**
  * External dependencies
  */
+import { defineReportTabs } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Ordered list of the report's tab IDs.
+ * Report tab identifier for the Posts & Pages report page.
  *
- * This is the single source of truth for which views exist and in what order.
  * The IDs are stable and URL-friendly — they persist in the `?section=` search
  * param, mirroring the dashboard and the post-detail page.
  */
-export const REPORT_POSTS_TAB_IDS = [ 'posts-pages', 'archives' ] as const;
-
-/**
- * Report tab identifier.
- * Derived from REPORT_POSTS_TAB_IDS to keep the union in sync with the source list.
- */
-export type ReportPostsTabId = ( typeof REPORT_POSTS_TAB_IDS )[ number ];
+export type ReportPostsTabId = 'posts-pages' | 'archives';
 
 /**
  * Default tab shown when the URL has no (or an unknown) tab param.
  */
-export const DEFAULT_TAB_ID: ReportPostsTabId = 'posts-pages';
+const DEFAULT_TAB_ID: ReportPostsTabId = 'posts-pages';
 
 /**
- * A report tab definition.
- */
-export type ReportPostsTab = {
-	id: ReportPostsTabId;
-	label: string;
-};
-
-/**
- * Canonical tab definitions with lazy label getters, in display order.
+ * Canonical tab machinery built from the ordered definitions.
  *
- * Labels are defined once here, as getters resolved at call time, so
- * translations are applied after the i18n locale data has loaded. Mirrors the
+ * Labels are defined once here, as getters resolved at call time, so translations
+ * are applied after the i18n locale data has loaded. The generic `defineReportTabs`
+ * helper turns these into the `resolve`/`getTabs`/`getTabLabel` API. Mirrors the
  * post-detail tab definitions.
  */
-const TAB_DEFINITIONS: ReadonlyArray< {
-	id: ReportPostsTabId;
-	getLabel: () => string;
-} > = [
-	{ id: 'posts-pages', getLabel: () => __( 'Posts & Pages', 'jetpack-premium-analytics' ) },
-	{ id: 'archives', getLabel: () => __( 'Archives', 'jetpack-premium-analytics' ) },
-];
+const reportPostsTabs = defineReportTabs< ReportPostsTabId >(
+	[
+		{ id: 'posts-pages', getLabel: () => __( 'Posts & Pages', 'jetpack-premium-analytics' ) },
+		{ id: 'archives', getLabel: () => __( 'Archives', 'jetpack-premium-analytics' ) },
+	],
+	DEFAULT_TAB_ID
+);
 
 /**
  * Get the translated display label for a tab.
- *
- * @param id - The tab identifier.
- * @return Translated label for the tab.
  */
-export function getTabLabel( id: ReportPostsTabId ): string {
-	return TAB_DEFINITIONS.find( tab => tab.id === id )?.getLabel() ?? id;
-}
+export const getTabLabel = reportPostsTabs.getTabLabel;
 
 /**
- * Get the tabs in display order with translated labels.
- *
- * @return The tab definitions.
+ * Build the ordered list of tab definitions ({ id, label }), with labels
+ * resolved lazily so translations apply after the locale data has loaded.
  */
-export function getReportPostsTabs(): ReportPostsTab[] {
-	return TAB_DEFINITIONS.map( ( { id, getLabel } ) => ( { id, label: getLabel() } ) );
-}
+export const getReportPostsTabs = reportPostsTabs.getTabs;
 
 /**
- * Resolve a raw `?section=` value to a valid tab ID, defaulting unknown values.
- *
- * @param value - The raw search param value.
- * @return The resolved tab ID.
+ * Narrow an arbitrary string to a known tab ID, falling back to the default.
  */
-export function resolveTabId( value: string | undefined ): ReportPostsTabId {
-	return value && ( REPORT_POSTS_TAB_IDS as readonly string[] ).includes( value )
-		? ( value as ReportPostsTabId )
-		: DEFAULT_TAB_ID;
-}
+export const resolveTabId = reportPostsTabs.resolve;

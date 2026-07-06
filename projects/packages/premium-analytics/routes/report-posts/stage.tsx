@@ -11,20 +11,20 @@ import {
 	type StatsPeriod,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
-import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	formatLegendLabels,
 	ReportPageLayout,
+	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	StatsBreadcrumbs,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { StatsBreadcrumbs } from '../post-detail/components';
-import { ReportPostsTabs } from './components';
 import {
 	aggregateArchiveRows,
 	aggregatePostRows,
@@ -33,9 +33,9 @@ import {
 	getPostsFields,
 	getReportPostsTabs,
 	postsToTimeSeries,
+	resolveTabId,
 	type ArchiveRow,
 } from './config';
-import { useActiveTab } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
 
@@ -132,7 +132,7 @@ function PostsReport(): JSX.Element {
 	);
 
 	const tabs = useMemo( () => getReportPostsTabs(), [] );
-	const [ activeTab, setActiveTab ] = useActiveTab();
+	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 
 	const chartPeriod = isChartPeriod( search.period )
 		? search.period
@@ -225,7 +225,7 @@ function PostsReport(): JSX.Element {
 			>
 				<div className={ styles.content }>
 					<ReportPageLayout
-						tabs={ <ReportPostsTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
+						tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 						filters={
 							<div ref={ setContainerElement } className={ styles.dateFilters }>
 								<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
