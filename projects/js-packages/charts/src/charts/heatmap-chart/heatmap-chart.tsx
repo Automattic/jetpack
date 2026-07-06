@@ -2,7 +2,15 @@ import { formatNumber, formatNumberCompact } from '@automattic/number-formatters
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -86,9 +94,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	} );
 
 	// Resolve --heatmap-bg from the grid, where scoped theme tokens apply.
-	// The ref is set after mount, so start with the light fallback.
+	// Use layout effect so visible values do not flash with the wrong contrast.
 	const [ chartBackgroundHex, setChartBackgroundHex ] = useState( '#ffffff' );
-	useEffect( () => {
+	useLayoutEffect( () => {
 		const resolved = normalizeColorToHex(
 			theme.backgroundColor,
 			gridRef.current,
