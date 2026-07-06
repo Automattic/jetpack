@@ -19,6 +19,7 @@ require_once __DIR__ . '/class-ai-launchpad-listeners.php';
 require_once __DIR__ . '/class-ai-launchpad-theme-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-social-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-subscribers-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-subscribe-block-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-about-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-gallery-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-first-post-listener.php';
@@ -110,6 +111,12 @@ class AI_Launchpad {
 	 */
 	public static function register_menu() {
 		if ( ! self::is_eligible() ) {
+			return;
+		}
+
+		// Once every task is done, drop the launchpad from the sidebar. Separate from eligibility on purpose — the
+		// enable option stays set, so re-tailoring or a reset brings it back. Reads the latched flag, no rebuild.
+		if ( get_option( \AI_Launchpad_REST::OPTION_COMPLETED ) ) {
 			return;
 		}
 
