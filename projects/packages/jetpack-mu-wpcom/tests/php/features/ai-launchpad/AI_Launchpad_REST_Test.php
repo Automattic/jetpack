@@ -803,25 +803,55 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * On a Simple site, where wp-admin/plugins.php isn't reachable, the Activate CTA points at the Calypso plugin
-	 * page instead. Runs in a separate process so defining IS_WPCOM doesn't leak into the rest of the suite.
+	 * On a Simple site, where the wp-admin plugin screens aren't reachable, both the install (not-installed) and
+	 * activate (installed-but-inactive) CTAs point at the Calypso WooCommerce plugin page. Runs in a separate
+	 * process so defining IS_WPCOM doesn't leak into the rest of the suite.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_get_activate_cta_targets_calypso_on_simple() {
+	public function test_get_woocommerce_ctas_target_calypso_on_simple() {
 		define( 'IS_WPCOM', true );
 		wp_set_current_user( $this->admin_id );
-		update_option( 'active_plugins', array() );
-		wp_cache_set( 'plugins', array( '' => array( 'woocommerce/woocommerce.php' => array( 'Name' => 'WooCommerce' ) ) ), 'plugins' );
+		$calypso = '/plugins/woocommerce/' . rawurlencode( wpcom_get_site_slug() );
 
+		// Not installed: the install CTA routes to Calypso instead of plugin-install.php.
+		update_option( 'active_plugins', array() );
+		$install = $this->sell_tasks_by_id()['install_woocommerce'];
+		$this->assertFalse( $install['in_progress'] );
+		$this->assertSame( $calypso, $install['calypso_path'] );
+
+		// Installed but inactive: the activate CTA routes to Calypso instead of plugins.php.
+		wp_cache_set( 'plugins', array( '' => array( 'woocommerce/woocommerce.php' => array( 'Name' => 'WooCommerce' ) ) ), 'plugins' );
 		$install = $this->sell_tasks_by_id()['install_woocommerce'];
 		wp_cache_delete( 'plugins', 'plugins' );
 
 		$this->assertTrue( $install['in_progress'] );
-		$this->assertSame( '/plugins/woocommerce/' . rawurlencode( wpcom_get_site_slug() ), $install['calypso_path'] );
+		$this->assertSame( $calypso, $install['calypso_path'] );
+	}
+
+	/**
+	 * Any catalog task whose CTA resolves to a wp-admin plugins screen is routed to the Calypso plugins page on
+	 * Simple. Uses `install_custom_plugin`, whose catalog path is `plugins.php` under the wp-admin interface.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_routes_catalog_plugin_ctas_to_calypso_on_simple() {
+		define( 'IS_WPCOM', true );
+		wp_set_current_user( $this->admin_id );
+		// Force the catalog's plugin task to resolve to plugins.php (its wp-admin-interface branch).
+		update_option( 'wpcom_admin_interface', 'wp-admin' );
+		$this->seed_ai_output_with_tasks( array( 'install_custom_plugin', 'site_launched' ) );
+
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		$this->assertArrayHasKey( 'install_custom_plugin', $tasks );
+		$this->assertSame( '/plugins/' . rawurlencode( wpcom_get_site_slug() ), $tasks['install_custom_plugin']['calypso_path'] );
 	}
 
 	/**
