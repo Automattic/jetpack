@@ -105,6 +105,38 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 			'wpcom'
 		);
 
-		return $this->relay_response( $response );
+		$relayed = $this->relay_response( $response );
+
+		// wpcom persists the verdict to its own copy of the option, but the
+		// dashboard reads this site's local option, so mirror it here too.
+		if ( $relayed instanceof WP_REST_Response ) {
+			$this->persist_distribution_state( $relayed->get_data() );
+		}
+
+		return $relayed;
+	}
+
+	/**
+	 * Mirror the Pocket Casts verdict from the relayed wpcom response onto the
+	 * local `podcasting_show_states` / `podcasting_show_urls` options.
+	 *
+	 * Writes raw partial patches keyed by `pocketcasts`; the registered
+	 * {@see Settings} sanitizers merge them into the stored maps without
+	 * disturbing the other podcatchers. `rejected` clears the entry.
+	 *
+	 * @param mixed $data Decoded relay body.
+	 */
+	private function persist_distribution_state( $data ): void {
+		if ( ! is_array( $data ) || ! isset( $data['state'] )
+			|| ! in_array( $data['state'], array( 'pending', 'active', 'rejected' ), true ) ) {
+			return;
+		}
+
+		$state = in_array( $data['state'], array( 'pending', 'active' ), true ) ? $data['state'] : '';
+		update_option( 'podcasting_show_states', array( 'pocketcasts' => $state ) );
+
+		if ( 'active' === $data['state'] && ! empty( $data['share_link'] ) && is_string( $data['share_link'] ) ) {
+			update_option( 'podcasting_show_urls', array( 'pocketcasts' => $data['share_link'] ) );
+		}
 	}
 }
