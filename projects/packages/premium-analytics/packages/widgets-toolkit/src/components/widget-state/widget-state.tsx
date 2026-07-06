@@ -74,7 +74,7 @@ export function WidgetState( {
 }: WidgetStateProps ) {
 	if ( isError ) {
 		return (
-			<Stack className={ styles.state } align="center" justify="center">
+			<Stack className={ styles.state } direction="column" align="center" justify="center">
 				<Icon className={ styles.errorIcon } size={ 48 } icon={ cautionFilled } />
 				{ error?.title && <div className={ styles.title }>{ error.title }</div> }
 				<div className={ styles.description }>
