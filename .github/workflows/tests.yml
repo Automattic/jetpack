@@ -203,7 +203,7 @@ jobs:
             }
 
             while true; do
-              P=$( flock "$QUEUEFILE" sed -i -e '1{w/dev/stdout' -e 'd}' )
+              P=$( flock "$QUEUEFILE" sed -i -e '1{w/dev/stdout' -e 'd}' "$QUEUEFILE" )
               [[ -z "$P" ]] && break
 
               if [[ "$P" == "composer.json" ]]; then
