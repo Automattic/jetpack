@@ -1,6 +1,5 @@
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Card } from '@wordpress/ui';
+import { Button, Card } from '@wordpress/ui';
 import ChapterOutline from '../../../client/components/chapter-outline';
 import type { ReactElement } from 'react';
 
@@ -26,7 +25,7 @@ export default function ChaptersCard( { description, onManageChapters }: Props )
 			</Card.Header>
 			<Card.Content>
 				<ChapterOutline description={ description } />
-				<Button variant="secondary" onClick={ onManageChapters }>
+				<Button variant="outline" onClick={ onManageChapters }>
 					{ __( 'Manage chapters', 'jetpack-videopress-pkg' ) }
 				</Button>
 			</Card.Content>

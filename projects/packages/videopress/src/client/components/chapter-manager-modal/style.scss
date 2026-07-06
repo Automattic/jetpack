@@ -4,9 +4,6 @@
 
 	&__body {
 		position: relative;
-		display: flex;
-		flex-direction: column;
-		gap: 16px;
 	}
 
 	&__workspace {
@@ -20,16 +17,7 @@
 		}
 	}
 
-	&__preview {
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
-	}
-
 	&__editor {
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
 		min-width: 0;
 	}
 
@@ -44,12 +32,6 @@
 		overflow-y: auto;
 	}
 
-	&__row-fields {
-		display: flex;
-		gap: 8px;
-		align-items: center;
-	}
-
 	&__row-time {
 		flex: 0 0 90px;
 	}
@@ -60,24 +42,19 @@
 	}
 
 	&__row--invalid &__row-fields {
-		border-inline-start: 3px solid #cc1818;
+		border-inline-start: 3px solid var(--wpds-color-stroke-surface-error-strong, #cc1818);
 		padding-inline-start: 8px;
 	}
 
 	&__row-error,
 	&__error {
 		margin: 0;
-		color: #cc1818;
-		font-size: 12px;
+		color: var(--wpds-color-fg-content-error-weak, #cc1818);
+		font-size: var(--wpds-typography-font-size-sm, 12px);
 	}
 
 	&__empty {
 		margin: 0;
-		color: #757575;
-	}
-
-	&__save {
-		display: flex;
-		justify-content: flex-end;
+		color: var(--wpds-color-fg-content-neutral-weak, #707070);
 	}
 }

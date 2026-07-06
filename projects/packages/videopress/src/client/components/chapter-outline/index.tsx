@@ -3,6 +3,7 @@
  */
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -44,7 +45,7 @@ export default function ChapterOutline( { description }: ChapterOutlineProps ): 
 	}
 
 	return (
-		<ul className="videopress-chapter-outline">
+		<Stack direction="column" gap="xs" render={ <ul className="videopress-chapter-outline" /> }>
 			{ /* Index keys are safe here: the list is read-only and fully derived from the description. */ }
 			{ chapters.map( ( chapter, index ) => (
 				<li key={ index }>
@@ -54,6 +55,6 @@ export default function ChapterOutline( { description }: ChapterOutlineProps ): 
 					<span className="videopress-chapter-outline__title">{ chapter.title }</span>
 				</li>
 			) ) }
-		</ul>
+		</Stack>
 	);
 }

@@ -5,6 +5,7 @@ import { Button, TextControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { closeSmall, video } from '@wordpress/icons';
+import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -122,7 +123,12 @@ function ChapterRowItem( {
 				errorMessage ? ' videopress-chapter-manager__row--invalid' : ''
 			}` }
 		>
-			<div className="videopress-chapter-manager__row-fields">
+			<Stack
+				direction="row"
+				gap="sm"
+				align="center"
+				className="videopress-chapter-manager__row-fields"
+			>
 				<div className="videopress-chapter-manager__row-time">
 					<TextControl
 						label={ __( 'Start time', 'jetpack-videopress-pkg' ) }
@@ -162,7 +168,7 @@ function ChapterRowItem( {
 					disabled={ disabled }
 					onClick={ () => onRemove( row.id ) }
 				/>
-			</div>
+			</Stack>
 			{ hasFormatError && (
 				<p className="videopress-chapter-manager__row-error">
 					{ __( 'Times use the MM:SS or H:MM:SS format.', 'jetpack-videopress-pkg' ) }

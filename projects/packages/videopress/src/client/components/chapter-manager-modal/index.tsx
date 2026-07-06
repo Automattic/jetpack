@@ -6,6 +6,7 @@ import { Button, Modal, Notice } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { close, plus } from '@wordpress/icons';
+import { Stack } from '@wordpress/ui';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -115,7 +116,7 @@ function ChapterManagerModalInner( {
 	const [ confirmation, setConfirmation ] = useState< ConfirmationState | null >( null );
 	const [ isSaving, setIsSaving ] = useState( false );
 	/* Whether the existing chapters track may be overwritten without asking. */
-	const [ isOverwriteSafe, setIsOverwriteSafe ] = useState( true );
+	const [ isOverwriteSafe, setIsOverwriteSafe ] = useState( false );
 
 	const { managedTracks, previewAspectRatio } = useVideoTracks( {
 		guid,
@@ -167,6 +168,8 @@ function ChapterManagerModalInner( {
 			return;
 		}
 
+		// Not safe until the provenance check below resolves.
+		setIsOverwriteSafe( false );
 		let isStale = false;
 		const fileUrl = /^https?:/.test( chaptersTrackSrc )
 			? chaptersTrackSrc
@@ -367,8 +370,13 @@ function ChapterManagerModalInner( {
 				/>
 			}
 		>
-			{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Intercepts Escape before the Modal's animate-then-close handling. */ }
-			<div className="videopress-chapter-manager__body" onKeyDown={ handleContentKeyDown }>
+			{ /* The keydown listener intercepts Escape before the Modal's animate-then-close handling. */ }
+			<Stack
+				direction="column"
+				gap="lg"
+				className="videopress-chapter-manager__body"
+				onKeyDown={ handleContentKeyDown }
+			>
 				{ notice && (
 					<Notice status={ notice.status } isDismissible={ false }>
 						{ notice.message }
@@ -376,7 +384,7 @@ function ChapterManagerModalInner( {
 				) }
 
 				<div className="videopress-chapter-manager__workspace">
-					<div className="videopress-chapter-manager__preview">
+					<Stack direction="column" gap="md" className="videopress-chapter-manager__preview">
 						<CaptionPreviewPlayer
 							ref={ playerRef }
 							guid={ guid }
@@ -393,9 +401,9 @@ function ChapterManagerModalInner( {
 						>
 							{ __( 'Add chapter at current time', 'jetpack-videopress-pkg' ) }
 						</Button>
-					</div>
+					</Stack>
 
-					<div className="videopress-chapter-manager__editor">
+					<Stack direction="column" gap="md" className="videopress-chapter-manager__editor">
 						{ workspace.rows.length ? (
 							<ChapterList
 								rows={ workspace.rows }
@@ -425,7 +433,7 @@ function ChapterManagerModalInner( {
 							<p className="videopress-chapter-manager__error">{ aggregateErrorMessage }</p>
 						) }
 
-						<div className="videopress-chapter-manager__save">
+						<Stack direction="row" justify="flex-end">
 							<Button
 								variant="primary"
 								isBusy={ isSaving }
@@ -434,8 +442,8 @@ function ChapterManagerModalInner( {
 							>
 								{ __( 'Save chapters', 'jetpack-videopress-pkg' ) }
 							</Button>
-						</div>
-					</div>
+						</Stack>
+					</Stack>
 				</div>
 
 				{ confirmation && (
@@ -450,7 +458,7 @@ function ChapterManagerModalInner( {
 						onCancel={ () => setConfirmation( null ) }
 					/>
 				) }
-			</div>
+			</Stack>
 		</Modal>
 	) : null;
 }
