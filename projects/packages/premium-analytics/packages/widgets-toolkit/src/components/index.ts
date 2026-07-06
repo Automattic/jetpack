@@ -37,6 +37,7 @@ export {
 	type WidgetStateEmpty,
 } from './widget-state';
 export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
+export { ReportWidget, type ReportWidgetProps } from './report-widget';
 export {
 	SubscriberList,
 	type SubscriberListItem,
