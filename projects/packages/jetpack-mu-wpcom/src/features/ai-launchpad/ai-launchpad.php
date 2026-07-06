@@ -67,7 +67,8 @@ class AI_Launchpad {
 	/**
 	 * Whether the current site is eligible for the AI Launchpad.
 	 *
-	 * Gate: paid plan, not already AI-onboarded, and explicitly enabled for the site via the `wpcom_ai_launchpad_enabled` option.
+	 * Gate: not already AI-onboarded, and explicitly enabled for the site via the `wpcom_ai_launchpad_enabled` option.
+	 * The paid-plan requirement is temporarily lifted (see below).
 	 *
 	 * @return bool
 	 */
@@ -75,28 +76,13 @@ class AI_Launchpad {
 		static $eligible = null;
 
 		if ( null === $eligible ) {
-			// Cheapest gate first: the per-site option disqualifies most sites before the more expensive purchases lookup.
+			// TEMPORARY: the paid-plan gate is lifted so the AI Launchpad is available on all plans, including free.
+			// Revert this commit to re-require a paid bundle (the removed has_paid_plan() check).
 			$eligible = self::is_enabled_for_site()
-				&& ! self::was_ai_onboarded()
-				&& self::has_paid_plan();
+				&& ! self::was_ai_onboarded();
 		}
 
 		return $eligible;
-	}
-
-	/**
-	 * Whether the site has a paid plan (bundle purchase).
-	 *
-	 * @return bool
-	 */
-	private static function has_paid_plan() {
-		if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
-			return false;
-		}
-
-		$bundles = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
-
-		return ! empty( $bundles );
 	}
 
 	/**
