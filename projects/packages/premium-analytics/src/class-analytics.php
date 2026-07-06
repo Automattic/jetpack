@@ -68,9 +68,9 @@ class Analytics {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
 
-		// Local-only test port (WOOA7S-1581): the WooCommerce Analytics CSV report export pipeline.
-		// Must register above the is_admin() gate so its REST route hooks rest_api_init (is_admin()
-		// is false during REST requests). Self-gates on WooCommerce being active + Jetpack connected.
+		// CSV report export pipeline (WOOA7S-1581). Must register above the is_admin() gate so its
+		// REST route hooks rest_api_init (is_admin() is false during REST requests). Self-gates on
+		// WooCommerce being active + Jetpack connected.
 		Export::configure();
 
 		// Load the widget type registry: hydration routine, registry-time and

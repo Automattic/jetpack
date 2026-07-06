@@ -2,12 +2,9 @@
 /**
  * Report export bootstrap.
  *
- * Hand-wires the ported WooCommerce Analytics CSV export subsystem (no DI container)
- * and registers it, gated on WooCommerce being active and Jetpack being connected.
- *
- * This is a local-only test port: it brings the existing export pipeline over as-is so the
- * generation endpoints can be exercised on a Premium Analytics + WooCommerce store. The data
- * source is re-pointed at the package's own proxy (see ReportDataFetcher).
+ * Hand-wires the CSV export subsystem (no DI container) and registers it, gated on
+ * WooCommerce being active and Jetpack being connected. The data source is the package's
+ * own analytics proxy (see ReportDataFetcher).
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export
  */
