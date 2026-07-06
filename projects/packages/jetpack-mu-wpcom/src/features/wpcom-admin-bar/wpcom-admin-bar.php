@@ -497,13 +497,11 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_add_site_badges_and_plan', 35 );
 
 /**
- * Adds a "Stats" link directly beneath "Dashboard" in the site-name submenu (STATS-287).
+ * Adds a "Stats" link to the site-name submenu, alongside "Dashboard" (STATS-287).
  *
  * Hooks `wp_before_admin_bar_render`, the last point before WP_Admin_Bar builds
  * its render tree, so core's `dashboard` node (added during `admin_bar_menu`) is
- * guaranteed to exist. Sibling order in the rendered menu follows the order
- * nodes were registered, and core exposes no public API to insert at a given
- * position, so the new node is spliced into place directly.
+ * guaranteed to exist.
  */
 function wpcom_add_stats_to_site_menu() {
 	global $wp_admin_bar;
@@ -525,21 +523,5 @@ function wpcom_add_stats_to_site_menu() {
 			'href'   => $stats_url,
 		)
 	);
-
-	$nodes_property = new ReflectionProperty( WP_Admin_Bar::class, 'nodes' );
-	$nodes_property->setAccessible( true );
-	$nodes = $nodes_property->getValue( $wp_admin_bar );
-
-	$stats = $nodes['wpcom-stats'];
-	unset( $nodes['wpcom-stats'] );
-
-	$reordered = array();
-	foreach ( $nodes as $id => $node ) {
-		$reordered[ $id ] = $node;
-		if ( 'dashboard' === $id ) {
-			$reordered['wpcom-stats'] = $stats;
-		}
-	}
-	$nodes_property->setValue( $wp_admin_bar, $reordered );
 }
 add_action( 'wp_before_admin_bar_render', 'wpcom_add_stats_to_site_menu' );
