@@ -1,4 +1,7 @@
+import { withChartTheme } from '../../../stories/with-chart-theme';
+import { BarChart } from '../../chart-bar';
 import { WidgetState } from '../widget-state';
+import type { BarChartData, BarChartStyle } from '../../chart-bar';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof WidgetState > = {
@@ -10,25 +13,60 @@ const meta: Meta< typeof WidgetState > = {
 		docs: {
 			description: {
 				component:
-					'Data-agnostic widget content-area state. Derives one state (error → loading → empty → ready, plus a busy overlay on background refetch) from four boolean signals and renders it. Callers map their fetch result to the signals and pass generic `error` / `empty` descriptors.',
+					'Data-agnostic widget content-area state. Derives one state (error → loading → empty → ready, plus a busy overlay on background refetch) from four boolean signals and renders it. Callers map their fetch result to the signals and pass generic `error` / `empty` descriptors. Stories render it inside a mock widget card; the ready and busy states show a mock bar chart standing in for real widget content.',
 			},
 		},
 	},
+	// Supplies the charts context so the mock `BarChart` renders, mirroring what
+	// `WidgetRoot` provides at the top of the widget tree in the app.
+	decorators: [ withChartTheme ],
 };
 
 export default meta;
 
 type Story = StoryObj< typeof WidgetState >;
 
+const CHART_STYLES: BarChartStyle[] = [ { stroke: '#3858E9' } ];
+
+const CHART_DATA: BarChartData = [
+	{
+		label: 'Dec 16, 2025-Jan 14, 2026',
+		data: [
+			{ label: 'Direct', value: 4200 },
+			{ label: 'Search', value: 3100 },
+			{ label: 'Social', value: 2600 },
+			{ label: 'Email', value: 2050 },
+		],
+	},
+];
+
 /**
- * Widget card wrapper for the stories, simulating a widget container so each
- * state is shown within typical widget dimensions.
+ * Mock widget content: a bar chart standing in for a real widget body. The
+ * responsive `BarChart` fills its parent, so the wrapper needs an explicit
+ * height for the chart to render.
+ */
+const MockChart = () => (
+	<div
+		style={ {
+			width: '100%',
+			height: '100%',
+			boxSizing: 'border-box',
+			padding: 'var(--wpds-dimension-gap-lg, 16px)',
+		} }
+	>
+		<BarChart chartData={ CHART_DATA } dataFormat={ { type: 'number' } } styles={ CHART_STYLES } />
+	</div>
+);
+
+/**
+ * Widget card wrapper, simulating a dashboard widget container so each state is
+ * shown within typical widget dimensions.
  */
 const WidgetCard = ( { title, children }: { title: string; children: React.ReactNode } ) => (
 	<div
 		style={ {
-			width: '320px',
-			height: '260px',
+			width: '360px',
+			height: '320px',
 			border: '1px solid var(--wpds-color-stroke-surface-neutral-weaker, #e0e0e0)',
 			borderRadius: 'var(--wpds-border-radius-md, 8px)',
 			background: 'var(--wpds-color-bg-surface-primary, #fff)',
@@ -48,18 +86,7 @@ const WidgetCard = ( { title, children }: { title: string; children: React.React
 		>
 			{ title }
 		</div>
-		<div style={ { flex: 1, display: 'flex' } }>{ children }</div>
-	</div>
-);
-
-/**
- * Placeholder success content used by the ready / busy stories.
- */
-const Rows = () => (
-	<div style={ { flex: 1, padding: 'var(--wpds-dimension-gap-lg, 16px)' } }>
-		<div>Row one</div>
-		<div>Row two</div>
-		<div>Row three</div>
+		<div style={ { position: 'relative', flex: 1, minHeight: 0 } }>{ children }</div>
 	</div>
 );
 
@@ -72,11 +99,11 @@ export const Loading: Story = {
 		isLoading: true,
 		isError: false,
 		isEmpty: true,
-		children: <Rows />,
+		children: <MockChart />,
 	},
 	decorators: [
 		Story => (
-			<WidgetCard title="Loading">
+			<WidgetCard title="Traffic by source">
 				<Story />
 			</WidgetCard>
 		),
@@ -96,11 +123,11 @@ export const Error: Story = {
 			// eslint-disable-next-line no-console
 			actions: [ { label: 'Retry', onClick: () => console.log( 'Retry clicked' ) } ],
 		},
-		children: <Rows />,
+		children: <MockChart />,
 	},
 	decorators: [
 		Story => (
-			<WidgetCard title="Error">
+			<WidgetCard title="Traffic by source">
 				<Story />
 			</WidgetCard>
 		),
@@ -116,12 +143,12 @@ export const Empty: Story = {
 		isLoading: false,
 		isError: false,
 		isEmpty: true,
-		empty: { description: 'No posts here yet.' },
-		children: <Rows />,
+		empty: { description: 'No traffic recorded for this period.' },
+		children: <MockChart />,
 	},
 	decorators: [
 		Story => (
-			<WidgetCard title="Empty">
+			<WidgetCard title="Traffic by source">
 				<Story />
 			</WidgetCard>
 		),
@@ -129,18 +156,18 @@ export const Empty: Story = {
 };
 
 /**
- * Success: the children are rendered as-is.
+ * Success: the children (a mock bar chart) render as-is.
  */
 export const Ready: Story = {
 	args: {
 		isLoading: false,
 		isError: false,
 		isEmpty: false,
-		children: <Rows />,
+		children: <MockChart />,
 	},
 	decorators: [
 		Story => (
-			<WidgetCard title="Ready">
+			<WidgetCard title="Traffic by source">
 				<Story />
 			</WidgetCard>
 		),
@@ -148,8 +175,8 @@ export const Ready: Story = {
 };
 
 /**
- * Background refetch: the children stay visible under a non-blocking busy
- * overlay while fresh data loads.
+ * Background refetch: the chart stays visible under a non-blocking busy overlay
+ * while fresh data loads.
  */
 export const Busy: Story = {
 	args: {
@@ -157,11 +184,11 @@ export const Busy: Story = {
 		isFetching: true,
 		isError: false,
 		isEmpty: false,
-		children: <Rows />,
+		children: <MockChart />,
 	},
 	decorators: [
 		Story => (
-			<WidgetCard title="Busy (background refetch)">
+			<WidgetCard title="Traffic by source">
 				<Story />
 			</WidgetCard>
 		),
