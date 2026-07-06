@@ -124,4 +124,29 @@ describe( 'mapHealthCheckErrors', () => {
 			{}
 		);
 	} );
+
+	// The endpoint prefixes every genuine failure with `failed_`. Transport,
+	// permission, and routing rejections that `apiFetch` surfaces share the same
+	// { code, message, data } shape but are NOT broken-connection states — they
+	// must no-op so a consumer keeps its generic error instead of a connection
+	// banner.
+	it.each( [
+		[ 'fetch_error (admin browser offline)', 'fetch_error' ],
+		[ '401 permission rejection', 'invalid_user_permission_manage_options' ],
+		[ 'rest_no_route on older sites', 'rest_no_route' ],
+	] )( 'ignores a non-health rejection: %s', ( _label, code ) => {
+		expect( mapHealthCheckErrors( { code, message: 'nope', data: { status: 500 } } ) ).toEqual(
+			{}
+		);
+	} );
+
+	it( 'drops a non-failed_ primary but keeps failed_ additional_errors', () => {
+		const map = mapHealthCheckErrors( {
+			code: 'fetch_error',
+			message: 'You are probably offline.',
+			additional_errors: [ { code: 'failed_test__real', message: 'Real failure.' } ],
+		} );
+
+		expect( Object.keys( map ) ).toEqual( [ 'failed_test__real' ] );
+	} );
 } );

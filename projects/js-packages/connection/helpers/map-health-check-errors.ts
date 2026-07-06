@@ -14,6 +14,19 @@ import type {
 } from '../hooks/use-connection-error-notice/types';
 
 /**
+ * Prefix every genuine failed health check carries. The endpoint builds each
+ * failure code as `'failed_' . $result['name']` (see
+ * `Connection_Health_Test_Base::output_fails_as_wp_error()`), so this prefix is
+ * what distinguishes an actual connection-health failure from a transport,
+ * permission, or routing error that `apiFetch` surfaces with the same
+ * `{ code, message, data }` shape (e.g. `fetch_error` when the admin browser is
+ * offline, `invalid_user_permission_manage_options` on a 401, `rest_no_route`
+ * on older sites). Those are not broken-connection states and must not be
+ * re-skinned as connection banners.
+ */
+const FAILED_CHECK_PREFIX = 'failed_';
+
+/**
  * A single failed check, normalized from the REST-serialized WP_Error body.
  */
 interface FailedCheck {
@@ -113,7 +126,8 @@ export default function mapHealthCheckErrors( body: unknown ): ConnectionErrorMa
 	const errorMap: ConnectionErrorMap = {};
 
 	for ( const check of flattenFailedChecks( body ) ) {
-		if ( ! check.code ) {
+		// Only genuine health-check failures are mapped to connection banners.
+		if ( ! check.code.startsWith( FAILED_CHECK_PREFIX ) ) {
 			continue;
 		}
 
