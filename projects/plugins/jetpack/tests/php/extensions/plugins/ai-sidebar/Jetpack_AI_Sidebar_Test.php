@@ -720,12 +720,14 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
-		// generateFeedback, proofreadContent, optimizeTitleSuggestion, seoSuggestions and excerptSuggestion are in development: off outside testing environments.
-		$this->assertSame( false, $data['jetpackAiSidebar']['features']['generateFeedback'] );
-		$this->assertSame( false, $data['jetpackAiSidebar']['features']['proofreadContent'] );
-		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		// A8C_PROXIED_REQUEST marks an internal testing environment, which is the same gate that
+		// emits this payload at all, so the in-development Generate Feedback, Optimize Title,
+		// and Excerpt suggestions are exposed here. SEO suggestions stay off because the
+		// seo-tools module and plan gate are not satisfied in this test.
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['generateFeedback'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
-		$this->assertSame( false, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['chatHistory'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['supportGuides'] );
 	}
