@@ -106,6 +106,12 @@ class Schema_Builder {
 			}
 		}
 
+		$website = Website_Schema_Node::build();
+		if ( null !== $website && null !== $organization ) {
+			$website['publisher'] = array( '@id' => Schema_Node_Ids::organization() );
+		}
+		$graph->add( $website );
+
 		$graph->add( $post_node );
 
 		return $graph->to_document();
