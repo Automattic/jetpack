@@ -172,7 +172,9 @@ final class Config_Schema {
 				),
 				'consent'         => array(
 					'type'    => 'object',
-					'default' => array( 'categories' => self::default_consent_categories() ),
+					// Left empty: resolve() rebuilds categories from the resolved `copy`, so a
+					// static default here would use default copy and be discarded anyway.
+					'default' => array( 'categories' => array() ),
 				),
 			),
 		);
