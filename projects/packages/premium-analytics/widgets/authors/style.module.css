@@ -4,7 +4,16 @@
 	flex-direction: column;
 	height: 100%;
 	overflow: hidden;
+}
+
+/* Positioned anchor so WidgetLoadingOverlay (position: absolute; inset: 0)
+   resolves against the widget body, not the host frame. */
+.content {
 	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
 }
 
 /* Round the author avatar; a fixed size keeps the leaderboard row height

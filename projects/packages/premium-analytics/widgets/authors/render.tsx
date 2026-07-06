@@ -196,13 +196,17 @@ export function AuthorsLeaderboard( {
 	}, [ rows, selectedAuthor, selectAuthor ] );
 
 	if ( isLoading ) {
-		return <WidgetLoadingOverlay />;
+		return (
+			<div className={ styles.content }>
+				<WidgetLoadingOverlay />
+			</div>
+		);
 	}
 
 	const isDrilled = Boolean( selectedAuthor );
 
 	return (
-		<>
+		<div className={ styles.content }>
 			{ selectedAuthor && (
 				<WidgetBackLink
 					label={ __( 'All authors', 'jetpack-premium-analytics' ) }
@@ -233,7 +237,7 @@ export function AuthorsLeaderboard( {
 				}
 			/>
 			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</div>
 	);
 }
 
