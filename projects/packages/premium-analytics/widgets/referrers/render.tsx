@@ -369,17 +369,25 @@ function ReferrersInner( { max }: { max: number } ) {
 	}, [ drillPath, setDrillPath, resetDrillDown ] );
 
 	// The back link is labelled after the list it returns to: the parent row
-	// one level up, or the full top-level list.
-	const backLabel =
-		trail.length > 1
-			? trail[ trail.length - 2 ].label
-			: __( 'All referrers', 'jetpack-premium-analytics' );
+	// one level up, or the full top-level list. The visible label stays short
+	// while the accessible name spells out the action.
+	const parentLabel = trail.length > 1 ? trail[ trail.length - 2 ].label : null;
+	const backLabel = parentLabel ?? __( 'All referrers', 'jetpack-premium-analytics' );
+	const backAriaLabel = parentLabel
+		? sprintf(
+				/* translators: %s is the parent referrer group or source label. */
+				__( 'Back to %s', 'jetpack-premium-analytics' ),
+				parentLabel
+		  )
+		: __( 'View all referrers', 'jetpack-premium-analytics' );
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	return (
-		<>
-			{ trail.length > 0 && <WidgetBackLink label={ backLabel } onClick={ goBack } /> }
+		<div className={ styles.content }>
+			{ trail.length > 0 && (
+				<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
+			) }
 			<ReferrersLeaderboard
 				rows={ activeRows }
 				isLoading={ showLoading }
@@ -389,7 +397,7 @@ function ReferrersInner( { max }: { max: number } ) {
 				legendLabels={ legendLabels }
 				onDrillDown={ drillInto }
 			/>
-		</>
+		</div>
 	);
 }
 
