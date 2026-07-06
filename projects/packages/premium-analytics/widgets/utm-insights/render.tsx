@@ -124,7 +124,7 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
 				currentShare: ( item.value / maxValue ) * 100,
 				previousValue,
 				previousShare:
-					withComparison && previousValue !== undefined && previousValue > 0
+					withComparison && previousValue !== undefined
 						? ( previousValue / maxPreviousValue ) * 100
 						: undefined,
 				delta:

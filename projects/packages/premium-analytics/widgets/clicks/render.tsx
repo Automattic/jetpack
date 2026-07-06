@@ -243,7 +243,7 @@ function buildLeaderboardData(
 			currentShare: ( row.value / maxCurrentClicks ) * 100,
 			previousValue,
 			previousShare:
-				withComparison && previousValue !== undefined && previousValue > 0
+				withComparison && previousValue !== undefined
 					? ( previousValue / maxPreviousClicks ) * 100
 					: undefined,
 			delta:

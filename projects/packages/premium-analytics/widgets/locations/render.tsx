@@ -36,6 +36,19 @@ type LocationsRenderAttributes = LocationsAttributes & Partial< ReportParamsFiel
 type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
 
 /**
+ * A value's share of a maximum, as a percentage. Returns 0 instead of NaN
+ * when the maximum is 0, so a row with a real (defined) comparison value
+ * always gets a defined `previousShare`, matching `delta`.
+ *
+ * @param value - The value to share against the maximum.
+ * @param max   - The maximum value in the comparison set.
+ * @return The value's share of the maximum, as a percentage.
+ */
+function sharePercentage( value: number, max: number ): number {
+	return max > 0 ? ( value / max ) * 100 : 0;
+}
+
+/**
  * Locations widget inner component. Reads report params from WidgetRoot context.
  *
  * @param root0     - Component props.
@@ -111,8 +124,8 @@ function LocationsInner( { max }: { max: number } ) {
 				previousValue,
 				currentShare: maxValue > 0 ? ( location.value / maxValue ) * 100 : 0,
 				previousShare:
-					withComparison && previousValue !== undefined && maxComparisonValue > 0
-						? ( previousValue / maxComparisonValue ) * 100
+					withComparison && previousValue !== undefined
+						? sharePercentage( previousValue, maxComparisonValue )
 						: undefined,
 				delta:
 					withComparison && previousValue !== undefined

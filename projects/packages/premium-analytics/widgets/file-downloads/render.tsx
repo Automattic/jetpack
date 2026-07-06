@@ -179,7 +179,7 @@ function buildLeaderboardData(
 			currentShare: ( row.value / maxValue ) * 100,
 			previousValue,
 			previousShare:
-				withComparison && previousValue !== undefined && previousValue > 0
+				withComparison && previousValue !== undefined
 					? ( previousValue / maxPreviousValue ) * 100
 					: undefined,
 			delta:

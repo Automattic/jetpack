@@ -104,7 +104,7 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 			currentShare: ( row.value / maxCurrentViews ) * 100,
 			previousValue,
 			previousShare:
-				withComparison && previousValue !== undefined && previousValue > 0
+				withComparison && previousValue !== undefined
 					? ( previousValue / maxPreviousViews ) * 100
 					: undefined,
 			delta:

@@ -30,6 +30,19 @@ type TopPlatformsWidgetProps = WidgetRenderProps< TopPlatformsRenderAttributes >
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
+/**
+ * A value's share of a maximum, as a percentage. Returns 0 instead of NaN
+ * when the maximum is 0, so a row with a real (defined) comparison value
+ * always gets a defined `previousShare`, matching `delta`.
+ *
+ * @param value - The value to share against the maximum.
+ * @param max   - The maximum value in the comparison set.
+ * @return The value's share of the maximum, as a percentage.
+ */
+function sharePercentage( value: number, max: number ): number {
+	return max > 0 ? ( value / max ) * 100 : 0;
+}
+
 const MODE_OPTIONS = [
 	{ label: __( 'Browser', 'jetpack-premium-analytics' ), value: 'browser' },
 	{ label: __( 'OS', 'jetpack-premium-analytics' ), value: 'platform' },
@@ -116,8 +129,8 @@ function TopPlatformsInner( { max }: { max: number } ) {
 			currentShare: maxViews > 0 ? ( item.views / maxViews ) * 100 : 0,
 			previousValue,
 			previousShare:
-				withComparison && previousValue !== undefined && maxComparisonViews > 0
-					? ( previousValue / maxComparisonViews ) * 100
+				withComparison && previousValue !== undefined
+					? sharePercentage( previousValue, maxComparisonViews )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined
