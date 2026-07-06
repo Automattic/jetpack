@@ -118,7 +118,9 @@ class CSVExportController_Test extends TestCase {
 		$this->assertTrue( $this->controller->validate_to_date( '2025-06-01T00:00:00', $request, 'to' ) );
 	}
 
-	public function test_check_permission_requires_woocommerce_capability() {
+	public function test_check_permission_requires_manage_options() {
+		// A shop-manager-style user (WooCommerce caps but not manage_options) must be denied,
+		// because the analytics proxy the export fetch relies on requires manage_options.
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'exporter',
@@ -129,16 +131,23 @@ class CSVExportController_Test extends TestCase {
 		$this->assertIsInt( $user_id );
 
 		wp_set_current_user( $user_id );
-		$this->assertFalse( $this->controller->check_permission() );
 
-		// Grant the WooCommerce reports capability via the caps filter.
-		$grant = static function ( $allcaps ) {
+		$grant_wc = static function ( $allcaps ) {
+			$allcaps['manage_woocommerce']       = true;
 			$allcaps['view_woocommerce_reports'] = true;
 			return $allcaps;
 		};
-		add_filter( 'user_has_cap', $grant );
+		add_filter( 'user_has_cap', $grant_wc );
+		$this->assertFalse( $this->controller->check_permission(), 'WooCommerce report caps alone must not grant export.' );
+		remove_filter( 'user_has_cap', $grant_wc );
+
+		$grant_admin = static function ( $allcaps ) {
+			$allcaps['manage_options'] = true;
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $grant_admin );
 		$this->assertTrue( $this->controller->check_permission() );
-		remove_filter( 'user_has_cap', $grant );
+		remove_filter( 'user_has_cap', $grant_admin );
 	}
 
 	public function test_create_export_rejects_unknown_report_type() {

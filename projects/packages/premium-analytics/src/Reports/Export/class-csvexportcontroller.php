@@ -24,7 +24,7 @@ use WP_REST_Response;
 /**
  * CSV Export Controller class.
  *
- * @since x.x.x
+ * @since $$next-version$$
  * @internal
  */
 class CSVExportController extends WC_REST_Controller implements RegistrableInterface {
@@ -33,11 +33,16 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 	use Utilities;
 
 	/**
+	 * Plugin REST slug, matching the other Premium Analytics controllers.
+	 */
+	private const SLUG = 'jetpack-premium-analytics';
+
+	/**
 	 * Endpoint namespace.
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wc/v3';
+	protected $namespace;
 
 	/**
 	 * Route base.
@@ -90,7 +95,8 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		CSVExportScheduler $scheduler,
 		LoggerInterface $logger
 	) {
-		$this->rest_base     = $this->get_plugin_slug() . '/reports/csv-export';
+		$this->namespace     = self::SLUG . '/v1';
+		$this->rest_base     = 'reports/csv-export';
 		$this->registry      = $registry;
 		$this->data_fetcher  = $data_fetcher;
 		$this->csv_generator = $csv_generator;
@@ -130,11 +136,14 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 	/**
 	 * Check if user has permission to export reports.
 	 *
+	 * Must match the capability the analytics proxy enforces (`manage_options` for the
+	 * `analytics` prefix in Api_Proxy_Controller); otherwise the route would advertise
+	 * access the async data fetch cannot honor, scheduling a job that then fails.
+	 *
 	 * @return bool True if user has permission.
 	 */
 	public function check_permission(): bool {
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce-provided capabilities.
-		return current_user_can( 'manage_woocommerce' ) || current_user_can( 'view_woocommerce_reports' );
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -491,13 +500,24 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 			return $file_path;
 		}
 
-		// Stream the file.
-		$this->csv_generator->stream_file( $file_path, $filename . '.csv' );
+		// Stream the file. If streaming fails (headers already sent, missing file), return a
+		// structured error instead of silently deleting and exiting with an empty response.
+		$streamed = $this->csv_generator->stream_file( $file_path, $filename . '.csv' );
+		if ( ! $streamed ) {
+			$this->csv_generator->delete_file( $file_path );
+			return new WP_Error(
+				'csv_stream_failed',
+				__( 'Failed to stream the export file.', 'jetpack-premium-analytics' ),
+				array( 'status' => 500 )
+			);
+		}
 
-		// Clean up file after streaming.
+		// Clean up file after successful streaming.
 		$this->csv_generator->delete_file( $file_path );
 
-		// Terminate execution cleanly after file streaming.
+		// The file body has already been written to the output buffer; terminate so the REST
+		// stack does not append a JSON response. (Streaming a file is inherently a non-REST
+		// response; there is no cleaner hook once headers + body are sent.)
 		exit;
 	}
 
