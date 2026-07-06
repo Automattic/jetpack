@@ -58,20 +58,17 @@ class SalSiteTest extends WP_UnitTestCase {
 	}
 
 	public function test_get_difm_lite_site_options_is_null_without_active_difm_build() {
-		// No blog-sticker functions exist in this environment, so no DIFM build is detected.
+		// The test bootstrap mocks has_blog_sticker() as get_option(); the sticker option is unset here.
 		$this->assertNull( self::$site->get_difm_lite_site_options() );
 	}
 
 	public function test_get_difm_lite_site_options_is_null_outside_wpcom() {
-		$platform = wpcom_get_sal_platform( self::$token );
+		// The mocked has_blog_sticker() reads this option, simulating an active DIFM build.
+		update_option( 'difm-lite-in-progress', true );
 
-		// Simulate an active DIFM build; outside WordPress.com the options must still be null.
-		$site = new class( self::$token->blog_id, $platform ) extends Jetpack_Site {
-			public function is_difm_lite_in_progress() {
-				return true;
-			}
-		};
+		// Outside WordPress.com the options must still be null.
+		$this->assertNull( self::$site->get_difm_lite_site_options() );
 
-		$this->assertNull( $site->get_difm_lite_site_options() );
+		delete_option( 'difm-lite-in-progress' );
 	}
 }

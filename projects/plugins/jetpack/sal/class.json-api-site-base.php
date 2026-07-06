@@ -1534,7 +1534,6 @@ abstract class SAL_Site {
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM || ! function_exists( 'require_lib' ) ) {
 			return null;
 		}
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only function, guarded above.
 		require_lib( 'difm-lite' );
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
 		$difm_lite_options = new \DIFM_Lite_Options( $this->blog_id );
