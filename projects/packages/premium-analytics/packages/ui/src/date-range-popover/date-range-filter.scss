@@ -47,7 +47,7 @@
 	grid-template-columns: minmax(0, max-content) 1fr;
 	background-color: #fff;
 	padding-bottom: var(--wpds-dimension-gap-sm);
-	width: calc(60 * var(--wpds-dimension-base));
+	width: var(--wpds-dimension-surface-width-xs);
 	padding-right: var(--wpds-dimension-padding-sm);
 }
 
