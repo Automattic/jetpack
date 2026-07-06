@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Conversion Funnel Chart: Let the funnel shrink to fit height-constrained cards instead of enforcing a 200px minimum that forced a scrollbar.
