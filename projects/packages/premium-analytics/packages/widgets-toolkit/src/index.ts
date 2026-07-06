@@ -3,6 +3,7 @@
  */
 export {
 	MetricDelta,
+	MetricValue,
 	MetricWithComparison,
 	ComparativeLineChart,
 	DonutChart,
@@ -30,6 +31,8 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	WidgetBackLink,
+	type WidgetBackLinkProps,
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
@@ -83,6 +86,7 @@ export {
 	useSegmentStyles,
 	useSeriesStyles,
 	useWidgetError,
+	useWidgetDrillDown,
 } from './hooks';
 
 /**
@@ -118,3 +122,20 @@ export {
  * Types
  */
 export type { OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+
+/**
+ * Charts passthrough
+ *
+ * Widgets must import chart components from here, never from
+ * `@automattic/charts` directly: the toolkit is a shared script module, so
+ * charts is bundled once instead of once per widget.
+ */
+export {
+	GeoChart,
+	HeatmapChart,
+	buildCalendarHeatmapData,
+	type DataPointDate,
+	type GeoData,
+	type GoogleDataTableColumn,
+	type GoogleDataTableRow,
+} from '@automattic/charts';

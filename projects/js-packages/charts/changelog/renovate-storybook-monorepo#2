@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Line Chart: Fix typing on `.gradient.from` and `.gradient.to` to better match behavior and documentation.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Responses: update the unread response count in the admin sidebar immediately when a response is marked as read by viewing it, so the badge no longer requires a page refresh to reflect the change.

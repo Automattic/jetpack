@@ -13,12 +13,18 @@ import {
 	categorizedMetricsData as dataWithImageColor,
 	themeArgTypes,
 } from '../../../stories';
-import { legendArgTypes, extractLegendConfig } from '../../../stories/legend-config';
+import {
+	legendArgTypes,
+	extractLegendConfig,
+	type LegendStoryControls,
+} from '../../../stories/legend-config';
 import { formatMetricValue, hexToRgba } from '../../../utils';
 import LeaderboardChart from '../leaderboard-chart';
+import type { ChartLegendConfig, LeaderboardEntry } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart > >;
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart > > &
+	LegendStoryControls;
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts Library/Charts/Leaderboard Chart',
@@ -126,7 +132,7 @@ const meta: Meta< StoryArgs > = {
 	},
 	decorators: [ chartDecorator ],
 	render: args => {
-		const legend = extractLegendConfig( args );
+		const legend = extractLegendConfig< ChartLegendConfig< LeaderboardEntry > >( args );
 		return <LeaderboardChart { ...args } legend={ legend } />;
 	},
 };
@@ -455,7 +461,7 @@ export const WithLegendLabels: Story = {
 
 export const WithCompositionLegend: Story = {
 	render: args => {
-		const legend = extractLegendConfig( args );
+		const legend = extractLegendConfig< ChartLegendConfig< LeaderboardEntry > >( args );
 		return (
 			<LeaderboardChart
 				{ ...args }

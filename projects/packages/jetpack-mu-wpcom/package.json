@@ -143,7 +143,7 @@
 		"packageNamespace": "jetpack-mu-wpcom",
 		"handlePrefix": "jetpack-mu-wpcom",
 		"pages": [
-			"ai-launchpad"
+			"site-setup"
 		]
 	}
 }

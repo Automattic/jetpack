@@ -4,7 +4,6 @@
 	"private": true,
 	"type": "module",
 	"dependencies": {
-		"@automattic/charts": "workspace:*",
 		"@jetpack-premium-analytics/data": "link:../../packages/data",
 		"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit",
 		"@wordpress/components": "36.1.0",

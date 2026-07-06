@@ -13,7 +13,7 @@ import TrafficChartRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -51,7 +51,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< TrafficChartStoryControls >;
+} satisfies Meta< ComponentProps< typeof TrafficChartRender > & TrafficChartStoryControls >;
 
 export default meta;
 

@@ -188,8 +188,8 @@
 		// Reset everything browsers add by default — !important fights theme
 		// styles that try to re-style native inputs.
 		margin: 0;
-		padding: 0 !important; // stylelint-disable-line declaration-no-important
-		border: 0 !important; // stylelint-disable-line declaration-no-important
+		padding: 0 !important;
+		border: 0 !important;
 		outline: none;
 		background: transparent;
 		-webkit-appearance: none;

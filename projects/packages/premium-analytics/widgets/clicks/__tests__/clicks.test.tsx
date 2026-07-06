@@ -69,6 +69,15 @@ describe( 'ClicksWidget', () => {
 			name: /\/plugins\/jetpack-search/i,
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://wordpress.org/plugins/jetpack-search' );
+
+		const backLink = screen.getByRole( 'button', { name: /view all clicks/i } );
+		fireEvent.click( backLink ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+
+		await expect(
+			screen.findByRole( 'button', {
+				name: /view clicked links for wordpress\.org/i,
+			} )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders childless top-level URLs as external links', async () => {

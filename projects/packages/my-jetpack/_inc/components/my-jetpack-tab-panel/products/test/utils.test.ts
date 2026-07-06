@@ -216,6 +216,50 @@ describe( 'searchAndRankItems', () => {
 		expect( result ).toEqual( [] );
 	} );
 
+	it( 'requires every word of a multi-word category query to match a label (AND across labels)', () => {
+		// With one field per label, "performance recommended" matches an item in BOTH categories
+		// (each word exact-matches its own label), while an item in only "Performance" drops out —
+		// the "recommended" term has no field to match. Guards the AND-across-separate-fields
+		// contract of scoreFields that per-label scoring now leans on; a refactor collapsing the
+		// labels back into one field would silently let the "Performance"-only item through.
+		const both = makeCard( { slug: 'both', name: 'Both' } );
+		const onlyPerf = makeCard( { slug: 'only-perf', name: 'OnlyPerf' } );
+		const cardCategories = new Map( [
+			[ both.product.slug, [ 'Performance', 'Recommended' ] ],
+			[ onlyPerf.product.slug, [ 'Performance' ] ],
+		] );
+
+		const result = searchAndRankItems( [ both, onlyPerf ], [], 'performance recommended', {
+			cardCategories,
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].kind === 'card' && result[ 0 ].card.product.slug ).toBe( 'both' );
+	} );
+
+	it( 'keeps a stable order whether a category word is partially or fully typed', () => {
+		// Two cards both in "Performance"; `multi` is also in "Recommended". Each category label is
+		// scored on its own, so completing the word "Performance" boosts both equally and does not
+		// reshuffle them — previously the joined "Performance Recommended" label could only ever
+		// prefix-match, so `multi` lost the exact-match bonus and got overtaken on the last keystroke.
+		const single = makeCard( { slug: 'single', name: 'Single' } );
+		const multi = makeCard( { slug: 'multi', name: 'Multi' } );
+		const cardCategories = new Map( [
+			[ single.product.slug, [ 'Performance' ] ],
+			[ multi.product.slug, [ 'Performance', 'Recommended' ] ],
+		] );
+
+		const order = ( result: ReturnType< typeof searchAndRankItems > ) =>
+			result.map( item => ( item.kind === 'card' ? item.card.product.slug : item.module.module ) );
+
+		// `multi` is listed first so the old behavior (it getting overtaken) is observable.
+		const partial = searchAndRankItems( [ multi, single ], [], 'Performanc', { cardCategories } );
+		const full = searchAndRankItems( [ multi, single ], [], 'Performance', { cardCategories } );
+
+		expect( order( full ) ).toHaveLength( 2 );
+		expect( order( partial ) ).toEqual( order( full ) );
+	} );
+
 	it( 'is case-insensitive', () => {
 		const lower = searchAndRankItems( [ akismet, forms ], [], 'forms' );
 		const upper = searchAndRankItems( [ akismet, forms ], [], 'FORMS' );

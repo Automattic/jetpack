@@ -257,6 +257,83 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Attach the `is_collecting_responses` flag to admin (edit-context) responses.
+	 *
+	 * Exposed on both the forms list and single-form fetches so the dashboard can
+	 * warn about forms that drop their submissions. Only added for the `edit`
+	 * context, which is permission-gated to users who can manage forms.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param \WP_Post         $item    Post object.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response
+	 */
+	public function prepare_item_for_response( $item, $request ) {
+		$response = parent::prepare_item_for_response( $item, $request );
+
+		if ( 'edit' === $request->get_param( 'context' ) && isset( $item->ID ) ) {
+			$data                            = $response->get_data();
+			$data['is_collecting_responses'] = $this->is_form_collecting_responses( (int) $item->ID );
+			$response->set_data( $data );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Whether a stored form is configured to collect its responses anywhere.
+	 *
+	 * Parses the form's block content and applies the shared detection rule.
+	 * Returns true (no warning) when the form has no contact-form block to read.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $form_id Form (jetpack_form) post ID.
+	 * @return bool
+	 */
+	private function is_form_collecting_responses( int $form_id ): bool {
+		$post = get_post( $form_id );
+		if ( ! $post instanceof \WP_Post || '' === $post->post_content ) {
+			return true;
+		}
+
+		foreach ( parse_blocks( $post->post_content ) as $block ) {
+			$attributes = $this->find_contact_form_attributes( $block );
+			if ( null !== $attributes ) {
+				return Contact_Form::is_collecting_responses( $attributes );
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Recursively locate the first jetpack/contact-form block's attributes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $block A parsed block.
+	 * @return array|null The block attributes, or null when not found.
+	 */
+	private function find_contact_form_attributes( array $block ): ?array {
+		if ( isset( $block['blockName'] ) && 'jetpack/contact-form' === $block['blockName'] ) {
+			return isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+		}
+
+		if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+			foreach ( $block['innerBlocks'] as $inner_block ) {
+				$attributes = $this->find_contact_form_attributes( $inner_block );
+				if ( null !== $attributes ) {
+					return $attributes;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Batch compute feedback counts for a list of form IDs.
 	 *
 	 * @param int[] $form_ids Form IDs to count entries for.

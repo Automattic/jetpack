@@ -10,7 +10,7 @@ import UtmInsightsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerStatsMocks();
 
@@ -20,7 +20,7 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
-	presentation: 'full-bleed' as const,
+	presentation: 'framed' as const,
 };
 
 interface UtmInsightsStoryControls {
@@ -56,7 +56,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< UtmInsightsStoryControls >;
+} satisfies Meta< ComponentProps< typeof UtmInsightsRender > & UtmInsightsStoryControls >;
 
 export default meta;
 
