@@ -110,7 +110,7 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 		// wpcom persists the verdict to its own copy of the option, but the
 		// dashboard reads this site's local option, so mirror it here too.
 		if ( $relayed instanceof WP_REST_Response ) {
-			$this->store_show_state( $relayed->get_data() );
+			$this->save_show_state( $relayed->get_data() );
 		}
 
 		return $relayed;
@@ -122,7 +122,7 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 	 *
 	 * @param mixed $data Decoded relay body.
 	 */
-	private function store_show_state( $data ): void {
+	private function save_show_state( $data ): void {
 		$state = is_array( $data ) && isset( $data['state'] ) ? $data['state'] : '';
 
 		if ( ! in_array( $state, array( 'pending', 'active', 'rejected' ), true ) ) {

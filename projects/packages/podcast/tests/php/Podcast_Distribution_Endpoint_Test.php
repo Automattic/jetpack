@@ -42,17 +42,17 @@ class Podcast_Distribution_Endpoint_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Invoke the private store helper with a decoded relay body.
+	 * Invoke the private save helper with a decoded relay body.
 	 *
 	 * @param mixed $data Relay body.
 	 */
-	private function store( $data ): void {
-		$method = new ReflectionMethod( Podcast_Distribution_Endpoint::class, 'store_show_state' );
+	private function save( $data ): void {
+		$method = new ReflectionMethod( Podcast_Distribution_Endpoint::class, 'save_show_state' );
 		$method->invoke( new Podcast_Distribution_Endpoint(), $data );
 	}
 
 	public function test_active_persists_state_and_share_link() {
-		$this->store(
+		$this->save(
 			array(
 				'state'      => 'active',
 				'share_link' => 'https://pca.st/abcd1234',
@@ -64,7 +64,7 @@ class Podcast_Distribution_Endpoint_Test extends BaseTestCase {
 	}
 
 	public function test_pending_persists_state_without_url() {
-		$this->store( array( 'state' => 'pending' ) );
+		$this->save( array( 'state' => 'pending' ) );
 
 		$this->assertSame( 'pending', get_option( 'podcasting_show_states' )['pocketcasts'] );
 		$this->assertArrayNotHasKey( 'pocketcasts', (array) get_option( 'podcasting_show_urls', array() ) );
@@ -79,7 +79,7 @@ class Podcast_Distribution_Endpoint_Test extends BaseTestCase {
 			)
 		);
 
-		$this->store( array( 'state' => 'rejected' ) );
+		$this->save( array( 'state' => 'rejected' ) );
 
 		$states = get_option( 'podcasting_show_states' );
 		$this->assertArrayNotHasKey( 'pocketcasts', $states );
@@ -89,13 +89,13 @@ class Podcast_Distribution_Endpoint_Test extends BaseTestCase {
 	public function test_pending_does_not_downgrade_an_active_state() {
 		update_option( 'podcasting_show_states', array( 'pocketcasts' => 'active' ) );
 
-		$this->store( array( 'state' => 'pending' ) );
+		$this->save( array( 'state' => 'pending' ) );
 
 		$this->assertSame( 'active', get_option( 'podcasting_show_states' )['pocketcasts'] );
 	}
 
 	public function test_disallowed_share_link_host_is_dropped() {
-		$this->store(
+		$this->save(
 			array(
 				'state'      => 'active',
 				'share_link' => 'https://evil.example.com/abcd',
@@ -110,7 +110,7 @@ class Podcast_Distribution_Endpoint_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provide_noop_bodies' )]
 	public function test_non_verdict_bodies_persist_nothing( $data ) {
-		$this->store( $data );
+		$this->save( $data );
 
 		$this->assertFalse( get_option( 'podcasting_show_states', false ) );
 		$this->assertFalse( get_option( 'podcasting_show_urls', false ) );
