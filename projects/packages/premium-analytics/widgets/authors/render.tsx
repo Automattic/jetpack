@@ -9,6 +9,7 @@ import {
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	formatLegendLabels,
+	useWidgetDrillDown,
 	useWidgetError,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -17,7 +18,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { postAuthor } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -101,11 +102,15 @@ export function AuthorsLeaderboard( {
 	withComparison = false,
 	legendLabels,
 }: AuthorsLeaderboardProps ) {
-	const [ selectedAuthorId, setSelectedAuthorId ] = useState< string | null >( null );
-	const clearSelectedAuthor = useCallback( () => setSelectedAuthorId( null ), [] );
+	// Store only the author id and resolve the row fresh from the current rows,
+	// so a background refetch that drops the author cleanly falls back to the
+	// top view instead of pinning a stale snapshot.
+	const {
+		drillDownItem: selectedAuthorId,
+		drillDown: selectAuthor,
+		resetDrillDown: clearSelectedAuthor,
+	} = useWidgetDrillDown< string >();
 
-	// Resolve the drilled-into author from the current rows so a background
-	// refetch that drops the author cleanly falls back to the top view.
 	const selectedAuthor = useMemo(
 		() => ( selectedAuthorId ? rows.find( row => row.id === selectedAuthorId ) ?? null : null ),
 		[ rows, selectedAuthorId ]
@@ -113,9 +118,9 @@ export function AuthorsLeaderboard( {
 
 	useEffect( () => {
 		if ( selectedAuthorId && ! selectedAuthor ) {
-			setSelectedAuthorId( null );
+			clearSelectedAuthor();
 		}
-	}, [ selectedAuthorId, selectedAuthor ] );
+	}, [ selectedAuthorId, selectedAuthor, clearSelectedAuthor ] );
 
 	const chartData: LeaderboardChartData = useMemo( () => {
 		// Drilled-in: show the selected author's posts. Rows are not interactive;
@@ -177,7 +182,7 @@ export function AuthorsLeaderboard( {
 			previousShare: row.previousShare,
 			delta: row.delta,
 			...( row.posts.length > 0 && {
-				onClick: () => setSelectedAuthorId( row.id ),
+				onClick: () => selectAuthor( row.id ),
 				// The label already renders the name as text; without an explicit
 				// action name the button would announce the avatar alt ("Avatar of
 				// X") plus the name. Give it a concise, deterministic name instead.
@@ -188,7 +193,7 @@ export function AuthorsLeaderboard( {
 				),
 			} ),
 		} ) );
-	}, [ rows, selectedAuthor ] );
+	}, [ rows, selectedAuthor, selectAuthor ] );
 
 	if ( isLoading ) {
 		return <WidgetLoadingOverlay />;

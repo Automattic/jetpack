@@ -60,7 +60,10 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< AuthorsStoryControls >;
+	// The story args are the widget-specific controls, but `component` is the
+	// render component (host `WidgetRenderProps`). Intersect the two so
+	// `component` type-checks against the meta while the controls drive argTypes.
+} satisfies Meta< ComponentProps< typeof AuthorsRender > & AuthorsStoryControls >;
 
 export default meta;
 
