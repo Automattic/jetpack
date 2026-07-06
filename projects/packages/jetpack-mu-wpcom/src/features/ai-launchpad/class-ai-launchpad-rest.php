@@ -1022,10 +1022,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$in_progress = ! $active && array_key_exists( 'woocommerce/woocommerce.php', get_plugins() );
 
 		$calypso_path = null;
-		if ( ! $active ) {
-			$calypso_path = $in_progress
-				? admin_url( 'plugins.php?plugin_status=inactive' )
-				: admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' );
+		if ( ! $active && $in_progress ) {
+			// Simple sites can't reach wp-admin/plugins.php; send activation through the Calypso plugin page.
+			$calypso_path = defined( 'IS_WPCOM' ) && IS_WPCOM
+				? '/plugins/woocommerce/' . rawurlencode( wpcom_get_site_slug() )
+				: admin_url( 'plugins.php?plugin_status=inactive' );
+		} elseif ( ! $active ) {
+			$calypso_path = admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' );
 		}
 
 		return array(

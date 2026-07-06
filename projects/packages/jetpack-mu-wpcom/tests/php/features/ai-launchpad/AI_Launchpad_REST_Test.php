@@ -23,6 +23,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WpOrg\Requests\Requests;
 
 /**
@@ -798,6 +800,28 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $install['completed'] );
 		$this->assertStringContainsString( 'Activate the WooCommerce plugin', $install['subtitle'] );
 		$this->assertStringContainsString( 'plugins.php?plugin_status=inactive', $install['calypso_path'] );
+	}
+
+	/**
+	 * On a Simple site, where wp-admin/plugins.php isn't reachable, the Activate CTA points at the Calypso plugin
+	 * page instead. Runs in a separate process so defining IS_WPCOM doesn't leak into the rest of the suite.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_activate_cta_targets_calypso_on_simple() {
+		define( 'IS_WPCOM', true );
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		wp_cache_set( 'plugins', array( '' => array( 'woocommerce/woocommerce.php' => array( 'Name' => 'WooCommerce' ) ) ), 'plugins' );
+
+		$install = $this->sell_tasks_by_id()['install_woocommerce'];
+		wp_cache_delete( 'plugins', 'plugins' );
+
+		$this->assertTrue( $install['in_progress'] );
+		$this->assertSame( '/plugins/woocommerce/' . rawurlencode( wpcom_get_site_slug() ), $install['calypso_path'] );
 	}
 
 	/**
