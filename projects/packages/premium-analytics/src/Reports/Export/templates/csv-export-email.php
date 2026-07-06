@@ -7,13 +7,11 @@
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export
  *
  * @var WC_Email $email         Email object.
- * @var string   $report_label    Report label.
- * @var array    $params          Report parameters.
- * @var string   $file_url        Download URL.
- * @var string   $email_heading   Email heading.
- * @var bool     $sent_to_admin   Whether sent to admin.
- * @var bool     $is_comparison   Whether this is a comparison request.
- * @var int      $retention_hours Retention period in hours.
+ * @var string   $report_label  Report label.
+ * @var array    $params        Report parameters.
+ * @var string   $email_heading Email heading.
+ * @var bool     $sent_to_admin Whether sent to admin.
+ * @var bool     $is_comparison Whether this is a comparison request.
  *
  * @phan-file-suppress PhanUndeclaredGlobalVariable -- Template variables are provided by wc_get_template_html() via extract(); see the @var block above.
  */
@@ -29,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
  */
 do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 
-<p><?php esc_html_e( 'Your CSV export is ready for download!', 'jetpack-premium-analytics' ); ?></p>
+<p><?php esc_html_e( 'Your CSV export is attached to this email.', 'jetpack-premium-analytics' ); ?></p>
 
 <h2><?php echo esc_html( $report_label ); ?></h2>
 
@@ -55,19 +53,7 @@ do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 	</p>
 <?php endif; ?>
 
-<p style="margin: 30px 0;">
-	<a href="<?php echo esc_url( $file_url ); ?>"
-		style="background-color: #7f54b3; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
-		<?php esc_html_e( 'Download CSV File', 'jetpack-premium-analytics' ); ?>
-	</a>
-</p>
-
-<p style="color: #666; font-size: 12px;">
-	<?php
-	/* translators: %d: Number of hours until link expires */
-	echo esc_html( sprintf( _n( 'Note: This download link will expire in %d hour.', 'Note: This download link will expire in %d hours.', $retention_hours, 'jetpack-premium-analytics' ), $retention_hours ) );
-	?>
-</p>
+<p><?php esc_html_e( 'The report is attached as a CSV file.', 'jetpack-premium-analytics' ); ?></p>
 
 <?php
 /**

@@ -30,7 +30,7 @@ if ( ! class_exists( 'WC_Email', false ) && function_exists( 'WC' ) ) {
 /**
  * CSV Export Email class.
  *
- * @since x.x.x
+ * @since $$next-version$$
  * @internal
  */
 class CSVExportEmail extends \WC_Email implements RegistrableInterface {
@@ -61,13 +61,6 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 	 * @var array
 	 */
 	private $params = array();
-
-	/**
-	 * File URL for download.
-	 *
-	 * @var string
-	 */
-	private $file_url = '';
 
 	/**
 	 * Constructor.
@@ -171,15 +164,13 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 	 * @param string $report_label Report label.
 	 * @param array  $params       Report parameters.
 	 * @param string $file_path    Path to CSV file.
-	 * @param string $file_url     URL to download CSV.
 	 * @return bool True if email sent successfully.
 	 */
 	public function send_export_email(
 		string $recipient,
 		string $report_label,
 		array $params,
-		string $file_path,
-		string $file_url
+		string $file_path
 	): bool {
 		// Set recipient.
 		$this->recipient = $recipient;
@@ -187,13 +178,20 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 		// Store data for template.
 		$this->report_label = $report_label;
 		$this->params       = $params;
-		$this->file_url     = $file_url;
 
-		// Set attachment if file exists, is readable, and is not too large.
-		$attachments = array();
-		if ( file_exists( $file_path ) && is_readable( $file_path ) && filesize( $file_path ) < self::MAX_ATTACHMENT_SIZE ) {
-			$attachments[] = $file_path;
+		// The CSV is delivered as an attachment only (no public URL). If it is missing,
+		// unreadable, or too large to attach, fail rather than send a linkless dead-end email.
+		if ( ! file_exists( $file_path ) || ! is_readable( $file_path ) || filesize( $file_path ) >= self::MAX_ATTACHMENT_SIZE ) {
+			if ( null !== $this->logger ) {
+				$this->logger->log_error(
+					sprintf( 'Export file missing or too large to attach: %s', $file_path ),
+					__METHOD__
+				);
+			}
+			return false;
 		}
+
+		$attachments = array( $file_path );
 
 		// Send email.
 		$sent = $this->send(
@@ -234,14 +232,12 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 		return wc_get_template_html(
 			$this->template_html,
 			array(
-				'email'           => $this,
-				'report_label'    => $this->report_label ?? '',
-				'params'          => $this->params ?? array(),
-				'file_url'        => $this->file_url ?? '',
-				'email_heading'   => $this->get_heading(),
-				'sent_to_admin'   => false,
-				'is_comparison'   => $this->is_comparison_request( $this->params ?? array() ),
-				'retention_hours' => $this->get_retention_hours(),
+				'email'         => $this,
+				'report_label'  => $this->report_label ?? '',
+				'params'        => $this->params ?? array(),
+				'email_heading' => $this->get_heading(),
+				'sent_to_admin' => false,
+				'is_comparison' => $this->is_comparison_request( $this->params ?? array() ),
 			),
 			'',
 			$this->template_base
@@ -257,14 +253,12 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 		return wc_get_template_html(
 			$this->template_plain,
 			array(
-				'email'           => $this,
-				'report_label'    => $this->report_label ?? '',
-				'params'          => $this->params ?? array(),
-				'file_url'        => $this->file_url ?? '',
-				'email_heading'   => $this->get_heading(),
-				'sent_to_admin'   => false,
-				'is_comparison'   => $this->is_comparison_request( $this->params ?? array() ),
-				'retention_hours' => $this->get_retention_hours(),
+				'email'         => $this,
+				'report_label'  => $this->report_label ?? '',
+				'params'        => $this->params ?? array(),
+				'email_heading' => $this->get_heading(),
+				'sent_to_admin' => false,
+				'is_comparison' => $this->is_comparison_request( $this->params ?? array() ),
 			),
 			'',
 			$this->template_base
@@ -287,20 +281,5 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 			$from,
 			$to
 		);
-	}
-
-	/**
-	 * Get retention period in hours.
-	 *
-	 * @return int Retention period in hours.
-	 */
-	protected function get_retention_hours(): int {
-		/**
-		 * Filter the CSV export file retention period.
-		 *
-		 * @param int $retention_seconds Retention period in seconds. Default: 48 hours.
-		 */
-		$retention_seconds = apply_filters( 'woocommerce_analytics_csv_export_retention', CSVExportScheduler::DEFAULT_RETENTION_PERIOD );
-		return (int) ( $retention_seconds / HOUR_IN_SECONDS );
 	}
 }

@@ -7,13 +7,11 @@
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export
  *
  * @var WC_Email $email         Email object.
- * @var string   $report_label    Report label.
- * @var array    $params          Report parameters.
- * @var string   $file_url        Download URL.
- * @var string   $email_heading   Email heading.
- * @var bool     $sent_to_admin   Whether sent to admin.
- * @var bool     $is_comparison   Whether this is a comparison request.
- * @var int      $retention_hours Retention period in hours.
+ * @var string   $report_label  Report label.
+ * @var array    $params        Report parameters.
+ * @var string   $email_heading Email heading.
+ * @var bool     $sent_to_admin Whether sent to admin.
+ * @var bool     $is_comparison Whether this is a comparison request.
  *
  * @phan-file-suppress PhanUndeclaredGlobalVariable -- Template variables are provided by wc_get_template_html() via extract(); see the @var block above.
  */
@@ -24,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
 
 echo '= ' . esc_html( $email_heading ) . " =\n\n";
 
-esc_html_e( 'Your CSV export is ready for download!', 'jetpack-premium-analytics' );
+esc_html_e( 'Your CSV export is attached to this email.', 'jetpack-premium-analytics' );
 echo "\n\n";
 
 echo esc_html( $report_label ) . "\n\n";
@@ -45,11 +43,8 @@ if ( $is_comparison ) {
 	echo "\n\n";
 }
 
-echo esc_html__( 'Download your CSV file:', 'jetpack-premium-analytics' ) . "\n";
-echo esc_url( $file_url ) . "\n\n";
-
-/* translators: %d: Number of hours until link expires */
-echo esc_html( sprintf( _n( 'Note: This download link will expire in %d hour.', 'Note: This download link will expire in %d hours.', $retention_hours, 'jetpack-premium-analytics' ), $retention_hours ) ) . "\n\n";
+esc_html_e( 'The report is attached as a CSV file.', 'jetpack-premium-analytics' );
+echo "\n\n";
 
 echo "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n";
 

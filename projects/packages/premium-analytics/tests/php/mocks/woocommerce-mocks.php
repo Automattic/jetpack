@@ -4,9 +4,9 @@
  *
  * The package's PHPUnit env is WorDBless (no WooCommerce). These stubs provide just
  * enough of WooCommerce for the export classes to load and be exercised. They are
- * required from tests/php/bootstrap.php before Test_Environment::init(), and are
- * excluded from Phan (see .phan/config.php) so they don't clash with the WooCommerce
- * stubs Phan already loads.
+ * required from tests/php/bootstrap.php after Test_Environment::init() (so WordPress
+ * base classes exist for the stubs to extend), and are excluded from Phan (see
+ * .phan/config.php) so they don't clash with the WooCommerce stubs Phan already loads.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -50,12 +50,30 @@ if ( ! class_exists( 'WC_Email' ) ) {
 	 * Stub of WooCommerce's email base class (enough for CSVExportEmail to load).
 	 */
 	class WC_Email {
-		public $id        = '';
-		public $title     = '';
-		public $recipient = '';
+		public $id             = '';
+		public $title          = '';
+		public $description    = '';
+		public $template_html  = '';
+		public $template_plain = '';
+		public $template_base  = '';
+		public $recipient      = '';
+		public $sent_args      = null;
 		public function __construct() {}
 		public function get_option( $key, $default = '' ) {
 			return $default;
+		}
+		public function get_recipient() {
+			return $this->recipient;
+		}
+		public function get_content() {
+			return '';
+		}
+		public function get_headers() {
+			return '';
+		}
+		public function send( $to, $subject, $content, $headers, $attachments = array() ) {
+			$this->sent_args = compact( 'to', 'subject', 'attachments' );
+			return true;
 		}
 	}
 }
