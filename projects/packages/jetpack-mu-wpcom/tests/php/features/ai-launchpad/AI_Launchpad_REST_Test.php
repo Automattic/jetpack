@@ -1240,6 +1240,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$result = $this->call_api( 'POST', '/complete-task', array( 'task_id' => 'complete_profile' ) );
 		$this->assertSame( 403, $result->get_status() );
 
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'complete_profile' ) );
+		$this->assertSame( 403, $result->get_status() );
+
 		$result = $this->call_api( Requests::DELETE );
 		$this->assertSame( 403, $result->get_status() );
 
@@ -1427,6 +1430,110 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that POST /skip-task persists the skip and GET renders the task as skipped and completed, so a
+	 * skip survives reloads and counts toward completion.
+	 */
+	public function test_skip_task_persists_and_renders_completed() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data()['skipped'] );
+
+		$tasks = array();
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			$tasks[ $task['id'] ] = $task;
+		}
+
+		$this->assertTrue( $tasks['first_post_published']['skipped'] );
+		$this->assertTrue( $tasks['first_post_published']['completed'] );
+		$this->assertFalse( $tasks['site_launched']['skipped'] );
+		$this->assertFalse( $tasks['site_launched']['completed'] );
+		// The skip lives in its own option, never in the shared statuses (several catalog tasks
+		// recompute completion live and would ignore a status write).
+		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
+	}
+
+	/**
+	 * Test that skipping the same task twice stores it once.
+	 */
+	public function test_skip_task_is_idempotent() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+
+		$this->assertSame( array( 'first_post_published' ), get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+	}
+
+	/**
+	 * Test that the synthetic tasks (absent from the AI payload by design) are skippable too.
+	 */
+	public function test_skip_task_accepts_synthetic_gallery_task() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'portfolio', 'wildlife photography' );
+
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'add_gallery_page' ) );
+		$this->assertSame( 200, $result->get_status() );
+
+		$tasks = array();
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			$tasks[ $task['id'] ] = $task;
+		}
+
+		$this->assertTrue( $tasks['add_gallery_page']['skipped'] );
+		$this->assertTrue( $tasks['add_gallery_page']['completed'] );
+	}
+
+	/**
+	 * Test that POST /skip-task rejects a task that is neither on the site's AI list nor synthetic.
+	 */
+	public function test_skip_task_rejects_task_not_on_list() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'earn_money' ) );
+
+		$this->assertSame( 404, $result->get_status() );
+		$this->assertSame( 'ai_launchpad_task_not_skippable', $result->get_data()['code'] );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+	}
+
+	/**
+	 * Test that writing a fresh tailored list clears the previous list's skips.
+	 */
+	public function test_tailored_write_clears_skips() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$this->assertNotFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+
+		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload() );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+	}
+
+	/**
+	 * Test that the add_subscribe_block CTA is repointed to the editor surface where the Subscribe block
+	 * can actually be added (the catalog sends it to Newsletter settings, where it cannot). On the test
+	 * environment's classic theme that surface is the block-based widget editor.
+	 */
+	public function test_get_overrides_subscribe_block_cta() {
+		wp_set_current_user( $this->admin_id );
+
+		$paths = array();
+		foreach ( $this->call_api( Requests::GET, '', null, array( 'all_tasks' => '1' ) )->get_data()['tasks'] as $task ) {
+			$paths[ $task['id'] ] = $task['calypso_path'];
+		}
+
+		$this->assertSame( admin_url( 'widgets.php' ), $paths['add_subscribe_block'] );
+	}
+
+	/**
 	 * Test that DELETE removes the AI output, sets dismissed, and leaves statuses untouched.
 	 */
 	public function test_delete_dismisses_and_keeps_statuses() {
@@ -1443,12 +1550,14 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			false
 		);
 		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+		update_option( 'wpcom_ai_launchpad_skipped_tasks', array( 'site_title' ), false );
 
 		$result = $this->call_api( Requests::DELETE );
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( array( 'dismissed' => true ), $result->get_data() );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_ai_output' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
 		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_dismissed' ) );
 		$this->assertSame( array( 'first_post_published' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
 	}

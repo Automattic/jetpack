@@ -14,6 +14,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	const OPTION_WIZARD    = 'wpcom_ai_launchpad_wizard';
 	const OPTION_AI_OUTPUT = 'wpcom_ai_launchpad_ai_output';
 	const OPTION_DISMISSED = 'wpcom_ai_launchpad_dismissed';
+	const OPTION_SKIPPED   = 'wpcom_ai_launchpad_skipped_tasks';
 
 	const MIN_VALID_TASKS = 4;
 
@@ -33,6 +34,19 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		'site_monitoring_page',
 		'setup_ssh',
 		'share_site',
+	);
+
+	/**
+	 * Task ids the AI Launchpad synthesizes itself (never present in the AI payload): the sell goal's store-setup
+	 * lead tasks and the niche-gated gallery task. Skips must accept them alongside the AI-selected ids.
+	 *
+	 * Must list every id minted by build_store_tasks() / build_gallery_task() — a synthetic task missing here
+	 * renders with a Skip button whose write is rejected.
+	 */
+	const SYNTHETIC_TASK_IDS = array(
+		'install_woocommerce',
+		'setup_woocommerce_store',
+		'add_gallery_page',
 	);
 
 	/**
@@ -211,6 +225,26 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			$this->rest_base . '/skip-task',
+			array(
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $this, 'skip_task' ),
+					'permission_callback' => array( $this, 'can_write' ),
+					'args'                => array(
+						'task_id' => array(
+							'description'       => 'The task to skip.',
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_key',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			$this->rest_base . '/tailored',
 			array(
 				array(
@@ -327,6 +361,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				}
 			}
 		}
+
+		$tasks = $this->apply_skipped_tasks( $tasks );
 
 		// The membership tasks' completion is recomputed in build_tasks(), so overlay it to keep
 		// checklist_statuses consistent with tasks[].completed for them.
@@ -447,6 +483,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
 
+		// Skips belong to one tailored list: a fresh tailoring must not inherit stale skips from the previous one.
+		delete_option( self::OPTION_SKIPPED );
+
 		return array( 'ai_output' => $ai_output );
 	}
 
@@ -487,15 +526,82 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
+	 * Marks a task as skipped: it renders (and counts) as completed without its real completion signal ever firing.
+	 *
+	 * Restricted to tasks on the site's AI-selected list plus the synthetic ids the list adds itself. Persisted
+	 * separately from `launchpad_checklist_tasks_statuses` because several catalog tasks recompute completion live
+	 * (memberships, woo, domains) and would ignore a status write; the skip set is overlaid on read instead.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return array|WP_Error
+	 */
+	public function skip_task( $request ) {
+		$task_id = $request['task_id'];
+
+		$skippable = array_merge( wpcom_ai_launchpad_get_ai_task_ids(), self::SYNTHETIC_TASK_IDS );
+		if ( ! in_array( $task_id, $skippable, true ) ) {
+			return new WP_Error(
+				'ai_launchpad_task_not_skippable',
+				__( 'This task is not on the tailored list.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$skipped = $this->get_skipped_task_ids();
+		if ( ! in_array( $task_id, $skipped, true ) ) {
+			$skipped[] = $task_id;
+			update_option( self::OPTION_SKIPPED, $skipped, false );
+		}
+
+		return array(
+			'skipped' => true,
+			'task_id' => $task_id,
+		);
+	}
+
+	/**
 	 * Deletes the AI output and marks the AI Launchpad as dismissed.
 	 *
 	 * @return array
 	 */
 	public function dismiss() {
 		delete_option( self::OPTION_AI_OUTPUT );
+		delete_option( self::OPTION_SKIPPED );
 		update_option( self::OPTION_DISMISSED, true, true );
 
 		return array( 'dismissed' => true );
+	}
+
+	/**
+	 * The persisted skipped task ids, always as a clean string array.
+	 *
+	 * @return string[]
+	 */
+	private function get_skipped_task_ids() {
+		$skipped = get_option( self::OPTION_SKIPPED, array() );
+
+		return is_array( $skipped ) ? array_values( array_filter( $skipped, 'is_string' ) ) : array();
+	}
+
+	/**
+	 * Overlays the persisted skips onto the enriched tasks: a skipped task carries `skipped: true` and is coerced to
+	 * completed, so progress, auto-expand, and reloads all treat it as done (a skip must never pop back open).
+	 *
+	 * @param array $tasks The enriched task list.
+	 * @return array
+	 */
+	private function apply_skipped_tasks( $tasks ) {
+		$skipped = $this->get_skipped_task_ids();
+
+		foreach ( $tasks as &$task ) {
+			$task['skipped'] = in_array( $task['id'], $skipped, true );
+			if ( $task['skipped'] ) {
+				$task['completed'] = true;
+			}
+		}
+		unset( $task );
+
+		return $tasks;
 	}
 
 	/**
@@ -632,10 +738,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					: wpcom_launchpad_checklists()->is_task_complete( $definition );
 
 				$theme_showcase_path = $this->get_themes_showcase_path( $task['id'], $niche );
+				$cta_override        = $this->get_cta_override( $task['id'] );
 				if ( null !== $theme_showcase_path ) {
 					$calypso_path = $theme_showcase_path;
-				} elseif ( isset( self::CTA_OVERRIDES[ $task['id'] ] ) ) {
-					$calypso_path = admin_url( self::CTA_OVERRIDES[ $task['id'] ] );
+				} elseif ( null !== $cta_override ) {
+					$calypso_path = $cta_override;
 				} else {
 					$calypso_path = wpcom_launchpad_checklists()->load_calypso_path( $definition );
 				}
@@ -669,6 +776,29 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		return $built;
+	}
+
+	/**
+	 * The wp-admin CTA destination the AI Launchpad substitutes for a task's catalog path, or null to keep the catalog's.
+	 *
+	 * Static repoints live in CTA_OVERRIDES; `add_subscribe_block` is resolved here because its destination depends on
+	 * the active theme: the Site Editor is where a block theme adds the Subscribe block to a template (the action its
+	 * completion listener watches), and the block-based widget editor is the closest equivalent on a classic theme
+	 * (normally unreachable — the task's catalog visibility is FSE-only — but the theme can change after tailoring).
+	 *
+	 * @param string $task_id The catalog task id.
+	 * @return string|null
+	 */
+	private function get_cta_override( $task_id ) {
+		if ( 'add_subscribe_block' === $task_id ) {
+			return admin_url( wp_is_block_theme() ? 'site-editor.php' : 'widgets.php' );
+		}
+
+		if ( isset( self::CTA_OVERRIDES[ $task_id ] ) ) {
+			return admin_url( self::CTA_OVERRIDES[ $task_id ] );
+		}
+
+		return null;
 	}
 
 	/**
@@ -759,6 +889,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	/**
 	 * Builds the synthetic gallery-task entry, or null when it should not be offered.
 	 *
+	 * Its id is listed in SYNTHETIC_TASK_IDS so the task stays skippable.
+	 *
 	 * Completion is read from the status option (written by AI_Launchpad_Gallery_Page_Listener on publish); an
 	 * unpublished marker draft puts it in progress and reopens that draft.
 	 *
@@ -796,7 +928,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	/**
 	 * Builds the synthetic store-setup lead tasks for the sell goal: an "install WooCommerce" task and a "set up
-	 * your store" task.
+	 * your store" task. Their ids are listed in SYNTHETIC_TASK_IDS so the tasks stay skippable.
 	 *
 	 * Both are read live (installed/active/profiler options), so no marker or listener is needed. While WooCommerce
 	 * is inactive the setup task shows as a disabled preview, matching the disabled commerce tasks below it. Callers
