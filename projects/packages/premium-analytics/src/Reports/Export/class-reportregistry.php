@@ -185,7 +185,11 @@ class ReportRegistry {
 		if ( ! isset( $this->controllers[ $report_key ] ) ) {
 			return new \WP_Error(
 				'invalid_report_type',
-				sprintf( 'Invalid report type: %s', $report_key ),
+				sprintf(
+					/* translators: %s: Report type key. */
+					__( 'Invalid report type: %s', 'jetpack-premium-analytics' ),
+					$report_key
+				),
 				array( 'status' => 400 )
 			);
 		}

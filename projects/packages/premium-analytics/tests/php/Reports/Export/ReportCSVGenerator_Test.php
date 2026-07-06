@@ -177,20 +177,6 @@ class ReportCSVGenerator_Test extends TestCase {
 		$this->assertStringContainsString( 'report-export-', basename( $path ) );
 	}
 
-	public function test_get_file_url_maps_path_to_url_or_errors() {
-		$generator       = $this->generator();
-		$path            = $generator->generate( array( 'data' => array() ), self::COLUMNS, $this->formatter(), 'unit-test-url' );
-		$this->created[] = $path;
-
-		$url = $generator->get_file_url( $path );
-		$this->assertIsString( $url );
-		// Filename carries a random suffix, so match the prefix and extension.
-		$this->assertStringContainsString( 'unit-test-url-', $url );
-		$this->assertStringEndsWith( '.csv', $url );
-
-		$this->assertInstanceOf( \WP_Error::class, $generator->get_file_url( '/does/not/exist.csv' ) );
-	}
-
 	public function test_delete_file() {
 		$generator = $this->generator();
 		$path      = $generator->generate( array( 'data' => array() ), self::COLUMNS, $this->formatter(), 'unit-test-delete' );

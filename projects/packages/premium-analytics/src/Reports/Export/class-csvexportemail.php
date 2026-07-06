@@ -70,7 +70,7 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 	public function __construct( ?LoggerInterface $logger = null ) {
 		$this->id             = 'csv_export_ready';
 		$this->title          = __( 'CSV Export Ready', 'jetpack-premium-analytics' );
-		$this->description    = __( 'Email sent when a CSV export is ready for download.', 'jetpack-premium-analytics' );
+		$this->description    = __( 'Email sent, with the CSV attached, when a report export is ready.', 'jetpack-premium-analytics' );
 		$this->template_html  = 'csv-export-email.php';
 		$this->template_plain = 'csv-export-email-plain.php';
 		$this->template_base  = __DIR__ . '/templates/';

@@ -200,30 +200,6 @@ class ReportCSVGenerator {
 	}
 
 	/**
-	 * Get the URL for a generated CSV file.
-	 *
-	 * @param string $file_path The file path.
-	 * @return string|WP_Error The URL or error.
-	 */
-	public function get_file_url( string $file_path ) {
-		if ( ! file_exists( $file_path ) ) {
-			return new WP_Error(
-				'file_not_found',
-				__( 'CSV file not found.', 'jetpack-premium-analytics' )
-			);
-		}
-
-		$upload_dir = wp_upload_dir();
-		$base_dir   = trailingslashit( $upload_dir['basedir'] );
-		$base_url   = trailingslashit( $upload_dir['baseurl'] );
-
-		// Replace base directory with base URL.
-		$file_url = str_replace( $base_dir, $base_url, $file_path );
-
-		return $file_url;
-	}
-
-	/**
 	 * Delete a CSV file.
 	 *
 	 * @param string $file_path The file path.

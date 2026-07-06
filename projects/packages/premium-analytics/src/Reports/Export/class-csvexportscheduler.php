@@ -337,7 +337,7 @@ class CSVExportScheduler implements RegistrableInterface {
 	 * @return void
 	 */
 	public function schedule_cleanup(): void {
-		if ( ! function_exists( 'as_schedule_recurring_action' ) ) {
+		if ( ! function_exists( 'as_schedule_recurring_action' ) || ! function_exists( 'as_next_scheduled_action' ) ) {
 			return;
 		}
 
@@ -375,7 +375,12 @@ class CSVExportScheduler implements RegistrableInterface {
 		 */
 		$retention = apply_filters( 'jetpack_premium_analytics_csv_export_retention', self::DEFAULT_RETENTION_PERIOD );
 
-		$files   = glob( $export_dir . '/*.csv' );
+		// glob() can return false on error; normalize to an array before iterating.
+		$files = glob( $export_dir . '/*.csv' );
+		if ( ! is_array( $files ) ) {
+			$files = array();
+		}
+
 		$cutoff  = time() - $retention;
 		$deleted = 0;
 

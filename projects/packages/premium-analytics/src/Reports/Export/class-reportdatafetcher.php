@@ -248,7 +248,8 @@ class ReportDataFetcher {
 		$request = new WP_REST_Request( 'GET', $proxy_route );
 		$request->set_query_params( $params );
 
-		// Make internal REST API call.
+		// Make internal REST API call. rest_do_request() always returns a WP_REST_Response
+		// (never a WP_Error); proxy failures surface via $response->is_error() below.
 		$response = rest_do_request( $request );
 
 		// Check for errors.

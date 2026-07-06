@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Premium Analytics: add CSV export for analytics reports, with download and email delivery, available when WooCommerce is active and Jetpack is connected.
+Add CSV export for analytics reports, with download and email delivery, available when WooCommerce is active and Jetpack is connected.
