@@ -49,7 +49,7 @@ export default {
 		{
 			id: 'metric',
 			label: __( 'View by', 'jetpack-premium-analytics' ),
-			type: 'string',
+			type: 'text',
 			elements: [
 				{
 					label: __( 'Open rate', 'jetpack-premium-analytics' ),

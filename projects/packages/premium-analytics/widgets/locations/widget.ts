@@ -38,7 +38,7 @@ export default {
 		{
 			id: 'geoGranularity',
 			label: __( 'View by', 'jetpack-premium-analytics' ),
-			type: 'string',
+			type: 'text',
 			elements: [
 				{
 					label: __( 'Countries', 'jetpack-premium-analytics' ),

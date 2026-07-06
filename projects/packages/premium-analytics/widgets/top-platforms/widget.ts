@@ -36,7 +36,7 @@ export default {
 		{
 			id: 'platformDimension',
 			label: __( 'View by', 'jetpack-premium-analytics' ),
-			type: 'string',
+			type: 'text',
 			elements: [
 				{
 					label: __( 'Browser', 'jetpack-premium-analytics' ),

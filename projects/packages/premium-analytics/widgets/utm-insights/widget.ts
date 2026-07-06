@@ -37,7 +37,7 @@ export default {
 		{
 			id: 'utmDimension',
 			label: __( 'UTM parameter', 'jetpack-premium-analytics' ),
-			type: 'string',
+			type: 'text',
 			elements: [
 				{
 					label: __( 'Source / Medium', 'jetpack-premium-analytics' ),
