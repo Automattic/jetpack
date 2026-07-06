@@ -107,8 +107,6 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 
 		$relayed = $this->relay_response( $response );
 
-		// wpcom persists the verdict to its own copy of the option, but the
-		// dashboard reads this site's local option, so mirror it here too.
 		if ( $relayed instanceof WP_REST_Response ) {
 			$this->save_show_state( $relayed->get_data() );
 		}
@@ -129,8 +127,6 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 			return;
 		}
 
-		// Partial patch: the registered Settings sanitizer merges it into the
-		// stored map, so the other podcatchers survive. 'rejected' clears it.
 		update_option( 'podcasting_show_states', array( 'pocketcasts' => 'rejected' === $state ? '' : $state ) );
 
 		if ( 'active' === $state && ! empty( $data['share_link'] ) && is_string( $data['share_link'] ) ) {

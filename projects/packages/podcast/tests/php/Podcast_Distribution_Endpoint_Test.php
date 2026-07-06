@@ -107,6 +107,7 @@ class Podcast_Distribution_Endpoint_Test extends BaseTestCase {
 
 	/**
 	 * @param mixed $data Relay body that should not touch any option.
+	 * @dataProvider provide_noop_bodies
 	 */
 	#[DataProvider( 'provide_noop_bodies' )]
 	public function test_non_verdict_bodies_persist_nothing( $data ) {
@@ -118,10 +119,10 @@ class Podcast_Distribution_Endpoint_Test extends BaseTestCase {
 
 	public static function provide_noop_bodies(): array {
 		return array(
-			'missing state'   => array( array( 'share_link' => 'https://pca.st/x' ) ),
-			'unknown state'   => array( array( 'state' => 'unreachable' ) ),
-			'string body'     => array( 'Bad Gateway' ),
-			'null body'       => array( null ),
+			'missing state' => array( array( 'share_link' => 'https://pca.st/x' ) ),
+			'unknown state' => array( array( 'state' => 'unreachable' ) ),
+			'string body'   => array( 'Bad Gateway' ),
+			'null body'     => array( null ),
 		);
 	}
 }
