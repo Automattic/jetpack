@@ -101,12 +101,23 @@ const mockLongLabelRows: EmailRow[] = [
 ];
 
 /**
+ * Close-up canvas so the widget fills a real body area outside the dashboard
+ * grid — the loading overlay and empty state need a sized container to render in.
+ */
+const withWidgetCanvas: Decorator = Story => (
+	<div style={ { width: '100%', height: '320px' } }>
+		<Story />
+	</div>
+);
+
+/**
  * Default populated state — latest emails (newest first) with their open rate.
  */
 export const Default: Story = {
 	args: {
 		rows: mockRows,
 	},
+	decorators: [ withWidgetCanvas ],
 };
 
 /**
@@ -117,6 +128,7 @@ export const ByClickRate: Story = {
 		rows: mockRows,
 		initialMetric: 'clicks',
 	},
+	decorators: [ withWidgetCanvas ],
 };
 
 /**
@@ -127,6 +139,7 @@ export const Loading: Story = {
 		rows: [],
 		isLoading: true,
 	},
+	decorators: [ withWidgetCanvas ],
 };
 
 /**
@@ -136,6 +149,7 @@ export const Empty: Story = {
 	args: {
 		rows: [],
 	},
+	decorators: [ withWidgetCanvas ],
 };
 
 /**
@@ -145,6 +159,7 @@ export const ErrorState: Story = {
 	args: {
 		isError: true,
 	},
+	decorators: [ withWidgetCanvas ],
 };
 
 /**
@@ -154,6 +169,7 @@ export const LongLabels: Story = {
 	args: {
 		rows: mockLongLabelRows,
 	},
+	decorators: [ withWidgetCanvas ],
 };
 
 /**
@@ -217,8 +233,8 @@ function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
 				title: widgetDefinition.title,
 				icon: widgetDefinition.icon,
 				// Matches widget.json so the host hides its card title (full-bleed),
-				// exactly as it does on the real dashboard — only the widget's own
-				// "Latest emails sent" header shows, no duplicate title.
+				// exactly as it does on the real dashboard — the widget renders its
+				// own header with the title next to the metric selector.
 				presentation: 'full-bleed',
 			} }
 			renderModule={ EMAILS_RENDER_MODULE }

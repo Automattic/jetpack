@@ -2,6 +2,7 @@ import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { Page } from '@wordpress/admin-ui';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react';
+import type { ArgTypes } from '@storybook/react';
 import type {
 	ResolveWidgetModule,
 	WidgetRenderProps,
@@ -67,7 +68,7 @@ export const widgetDashboardWithWidgetArgTypes = {
 		control: 'select',
 		options: Object.keys( HOST_ROOT_FONT_SIZE ),
 	},
-};
+} satisfies Partial< ArgTypes< WidgetDashboardWithWidgetControls > >;
 
 type StoryWidgetMetadata = {
 	name: string;
@@ -180,9 +181,32 @@ export function WidgetDashboardWithWidget( {
 				 * off-screen. Containing the overflow here keeps the document at canvas
 				 * width so the drawer stays anchored to the visible viewport edge; the
 				 * wide layout remains inspectable by scrolling the box.
+				 *
+				 * Both boxes are flex columns with a bounded (viewport) height so the
+				 * `Page` inside resolves its `height: 100%` and its content area becomes
+				 * the internal scroll surface — matching how the real dashboard fills the
+				 * wp-admin viewport. Without a definite height the page collapses to its
+				 * content height and the fixed-row-height grid resizes it back on every
+				 * vertical widget resize, so the two oscillate and the grid flickers.
 				 */ }
-				<div style={ { width: '100%', overflowX: 'auto' } }>
-					<div style={ { width: dashboardWidth } }>
+				<div
+					style={ {
+						blockSize: '100vh',
+						display: 'flex',
+						flexDirection: 'column',
+						inlineSize: '100%',
+						overflowX: 'auto',
+					} }
+				>
+					<div
+						style={ {
+							display: 'flex',
+							flex: '1 1 auto',
+							flexDirection: 'column',
+							inlineSize: dashboardWidth,
+							minBlockSize: 0,
+						} }
+					>
 						<WidgetDashboard
 							layout={ layout }
 							onLayoutChange={ setLayout }

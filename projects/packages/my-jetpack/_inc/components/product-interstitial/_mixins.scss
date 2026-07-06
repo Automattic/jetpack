@@ -18,7 +18,6 @@
 	gap: calc(var(--spacing-base) * 6);
 
 	@media only screen and (max-width: 1366px) {
-		/* stylelint-disable-next-line no-invalid-position-declaration -- Ok in a sass mixin. */
 		padding-inline: calc(var(--spacing-base) * 3);
 	}
 }
@@ -30,7 +29,6 @@
 	flex: 1;
 
 	@media screen and (min-width: 960px) {
-		/* stylelint-disable-next-line no-invalid-position-declaration -- Ok in a sass mixin. */
 		max-width: 70%;
 	}
 
@@ -57,7 +55,6 @@
 	justify-content: flex-end;
 
 	@media only screen and (max-width: 430px) {
-		/* stylelint-disable-next-line no-invalid-position-declaration -- Ok in a sass mixin. */
 		flex: 1;
 	}
 }
@@ -75,14 +72,11 @@
 	width: 168px;
 
 	@media only screen and (max-width: 960px) {
-		/* stylelint-disable-next-line no-invalid-position-declaration -- Ok in a sass mixin. */
 		width: 30vw;
 	}
 
 	@media only screen and (max-width: 430px) {
-		/* stylelint-disable-next-line no-invalid-position-declaration -- Ok in a sass mixin. */
 		width: 100%;
-		/* stylelint-disable-next-line no-invalid-position-declaration -- Ok in a sass mixin. */
 		min-width: 168px;
 	}
 
@@ -130,9 +124,7 @@
 		padding-bottom: calc(var(--spacing-base) * 8);
 
 		@media only screen and (max-width: 960px) {
-			/* stylelint-disable-next-line no-invalid-position-declaration -- Ok in a sass mixin. */
 			padding-top: calc(var(--spacing-base) * 6);
-			/* stylelint-disable-next-line no-invalid-position-declaration -- Ok in a sass mixin. */
 			padding-bottom: calc(var(--spacing-base) * 6);
 		}
 	}
@@ -150,7 +142,6 @@
 	margin: 0 auto;
 
 	@media only screen and (max-width: 1366px) {
-		/* stylelint-disable-next-line no-invalid-position-declaration -- Ok in a sass mixin. */
 		padding-inline: calc(var(--spacing-base) * 3);
 	}
 }
@@ -163,7 +154,6 @@
 	margin: 0 auto;
 
 	@media only screen and (max-width: 1366px) {
-		/* stylelint-disable-next-line no-invalid-position-declaration -- Ok in a sass mixin. */
 		padding-inline: calc(var(--spacing-base) * 3);
 	}
 }

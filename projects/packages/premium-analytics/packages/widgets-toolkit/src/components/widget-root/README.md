@@ -56,7 +56,7 @@ export function MyWidget() {
 | -------------- | -------------------------------------- | --------------------------------------------------------------- |
 | `attributes`   | `Partial<ReportParamsFieldAttributes>` | Widget attributes, may include `reportParams`                   |
 | `children`     | `ReactNode`                            | Child components (widgets)                                      |
-| `options.from` | `string`                               | Router path for URL params (default: `/`)                       |
+| `options.from` | `string`                               | Deprecated/ignored — params are always read from the current matched route |
 
 ### useWidgetRootContext
 

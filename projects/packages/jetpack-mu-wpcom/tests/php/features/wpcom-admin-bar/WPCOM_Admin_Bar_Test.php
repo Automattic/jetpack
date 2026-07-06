@@ -142,4 +142,104 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 		}
 		$property->setValue( null, null );
 	}
+
+	/**
+	 * Builds an admin bar with a 'dashboard' child of 'site-name' (as core adds
+	 * on the front end) and fires `wp_before_admin_bar_render`, the hook our
+	 * Stats node listens on.
+	 */
+	private static function make_test_admin_bar_with_dashboard() {
+		global $wp_admin_bar;
+
+		$admin_bar = self::make_test_admin_bar();
+		$admin_bar->add_node(
+			array(
+				'id'    => 'site-name',
+				'title' => 'Test Site',
+			)
+		);
+		$admin_bar->add_node(
+			array(
+				'id'     => 'dashboard',
+				'parent' => 'site-name',
+				'title'  => 'Dashboard',
+				'href'   => 'https://example.com/wp-admin/',
+			)
+		);
+
+		$wp_admin_bar = $admin_bar;
+		do_action( 'wp_before_admin_bar_render' );
+
+		return $admin_bar;
+	}
+
+	/**
+	 * Clears the `$wp_admin_bar` global so it doesn't leak between tests.
+	 */
+	private static function reset_admin_bar_global(): void {
+		global $wp_admin_bar;
+		$wp_admin_bar = null;
+	}
+
+	/**
+	 * Forces `current_user_can( 'view_stats' )` to true for the test's duration.
+	 *
+	 * @param array $allcaps All capabilities of the user.
+	 * @return array
+	 */
+	public function grant_view_stats( $allcaps ) {
+		$allcaps['view_stats'] = true;
+		return $allcaps;
+	}
+
+	/**
+	 * Forces `current_user_can( 'view_stats' )` to false for the test's duration.
+	 *
+	 * @param array $allcaps All capabilities of the user.
+	 * @return array
+	 */
+	public function deny_view_stats( $allcaps ) {
+		$allcaps['view_stats'] = false;
+		return $allcaps;
+	}
+
+	public function test_stats_link_shown_when_user_can_view_stats() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$admin_bar = self::make_test_admin_bar_with_dashboard();
+		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
+		self::reset_admin_bar_global();
+
+		$this->assertNotNull( $stats_node );
+		$this->assertSame( 'site-name', $stats_node->parent );
+		$this->assertSame( 'Stats', $stats_node->title );
+		$this->assertSame( admin_url( 'admin.php?page=stats' ), $stats_node->href );
+	}
+
+	public function test_stats_link_hidden_when_user_cannot_view_stats() {
+		add_filter( 'user_has_cap', array( $this, 'deny_view_stats' ) );
+		$admin_bar = self::make_test_admin_bar_with_dashboard();
+		remove_filter( 'user_has_cap', array( $this, 'deny_view_stats' ) );
+
+		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
+		self::reset_admin_bar_global();
+
+		$this->assertNull( $stats_node );
+	}
+
+	public function test_stats_link_hidden_when_dashboard_node_absent() {
+		global $wp_admin_bar;
+
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$admin_bar    = self::make_test_admin_bar();
+		$wp_admin_bar = $admin_bar;
+		do_action( 'wp_before_admin_bar_render' );
+		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
+		self::reset_admin_bar_global();
+
+		$this->assertNull( $stats_node );
+	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove unused store selector and utility functions

@@ -80,6 +80,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_ai_enabled' );
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_active_modules' );
+		remove_all_filters( 'jetpack_disable_seo_tools' );
+		remove_all_filters( 'ai_seo_enhancer_enabled' );
 		Status_Cache::clear();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
@@ -693,25 +696,45 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
-		// generateFeedback and optimizeTitleSuggestion are in development: off outside testing environments.
+		// generateFeedback, optimizeTitleSuggestion and seoSuggestions are in development: off outside testing environments.
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['chatHistory'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['supportGuides'] );
 	}
 
 	/**
+	 * Activate the seo-tools module for the duration of the test. SEO suggestions
+	 * require it: the module registers the SEO meta fields the suggestions write to.
+	 */
+	private function activate_seo_tools_module(): void {
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $modules ) {
+				$modules   = is_array( $modules ) ? $modules : array();
+				$modules[] = 'seo-tools';
+				return array_values( array_unique( $modules ) );
+			}
+		);
+	}
+
+	/**
 	 * In an internal testing environment, the in-development suggestions (Generate
-	 * Feedback and Optimize Title) are exposed.
+	 * Feedback, Optimize Title and SEO suggestions) are exposed. The test plan
+	 * supports advanced-seo, and the seo-tools module is activated so the SEO
+	 * suggestions gate is satisfied.
 	 */
 	public function test_add_agents_manager_data_exposes_in_development_features_in_testing_environment() {
 		$this->set_block_editor_screen();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->activate_seo_tools_module();
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 	}
 
 	/**
@@ -725,6 +748,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			function ( $features ) {
 				$features['generateFeedback']        = true;
 				$features['optimizeTitleSuggestion'] = true;
+				$features['seoSuggestions']          = true;
 				return $features;
 			}
 		);
@@ -733,6 +757,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 	}
 
 	/**
@@ -753,6 +778,72 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+	}
+
+	/**
+	 * The generic preview features filter can still disable SEO suggestions inside a
+	 * testing environment (the gate raises the floor, not the ceiling).
+	 */
+	public function test_add_agents_manager_data_preview_features_filter_can_disable_seo_suggestions_in_testing_environment() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->activate_seo_tools_module();
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			function ( $features ) {
+				$features['seoSuggestions'] = false;
+				return $features;
+			}
+		);
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+	}
+
+	/**
+	 * SEO suggestions require the seo-tools module: hidden even in a testing
+	 * environment while the module is inactive, since the SEO meta fields the
+	 * suggestions write to are not registered.
+	 */
+	public function test_seo_suggestions_disabled_when_seo_tools_module_inactive() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+	}
+
+	/**
+	 * SEO suggestions respect the jetpack_disable_seo_tools kill switch — the same
+	 * filter the seo-tools module enables when a conflicting SEO plugin owns the
+	 * site's SEO.
+	 */
+	public function test_seo_suggestions_disabled_when_seo_tools_disabled_by_filter() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->activate_seo_tools_module();
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+	}
+
+	/**
+	 * SEO suggestions respect the ai_seo_enhancer_enabled kill switch that disables
+	 * the whole SEO Enhancer surface.
+	 */
+	public function test_seo_suggestions_disabled_when_seo_enhancer_disabled_by_filter() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->activate_seo_tools_module();
+		add_filter( 'ai_seo_enhancer_enabled', '__return_false' );
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 	}
 
 	/**

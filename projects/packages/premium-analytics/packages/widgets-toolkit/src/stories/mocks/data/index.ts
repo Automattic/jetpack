@@ -46,7 +46,13 @@ export {
 	mockSessionsByDeviceExtremeData,
 } from './sessions-by-device';
 
-export { mockCouponsData, mockCouponsComparisonData, mockCouponsEmptyData } from './coupons';
+export {
+	mockCouponsData,
+	mockCouponsComparisonData,
+	mockCouponsEmptyData,
+	mockCouponsByDateData,
+	mockCouponsByDateComparisonData,
+} from './coupons';
 
 export {
 	mockCustomersData,
@@ -55,3 +61,9 @@ export {
 	mockCustomersByDateData,
 	mockCustomersByDateComparisonData,
 } from './customers';
+
+export { mockSearchTermsData, mockSearchTermsComparisonData } from './search-terms';
+
+export { mockSiteSummary } from './site-summary';
+
+export { mockStatsInsightsData } from './insights';

@@ -385,16 +385,18 @@ function do_enqueue_assets() {
 	$locale       = determine_iso_639_locale();
 
 	if ( 'en' !== $locale ) {
-		// Load translations from widgets.wp.com.
+		// Shared handle with the Agents Manager package, which enqueues the same
+		// file. Both register it, so WordPress de-duplicates when both load and
+		// each still works on its own.
 		wp_enqueue_script(
-			'image-studio-translations',
+			'agents-manager-translations',
 			ASSET_TRANSLATIONS_URL . $locale . '-v1.js',
 			array( 'wp-i18n' ),
 			$version,
 			true
 		);
 
-		$dependencies[] = 'image-studio-translations';
+		$dependencies[] = 'agents-manager-translations';
 	}
 
 	wp_enqueue_script(

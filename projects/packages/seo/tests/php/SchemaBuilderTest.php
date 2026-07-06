@@ -279,7 +279,41 @@ class SchemaBuilderTest extends TestCase {
 		$this->assertIsArray( $article, 'Expected an Article node in the graph.' );
 		$this->assertSame( Schema_Node_Ids::organization(), $article['publisher']['@id'] );
 
+		// Site-level nodes live on the home page only, never duplicated onto a post.
 		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A post must not carry the Organization node.' );
+		$this->assertNull( $this->node_of_type( $doc, 'WebSite' ), 'A post must not carry the WebSite node.' );
+	}
+
+	/**
+	 * The home page includes the site-level WebSite node, referenced to the
+	 * Organization by `publisher`. Like Organization, it lives on the home page
+	 * only — never on posts.
+	 */
+	public function test_graph_includes_website_referenced_to_organization() {
+		$this->set_site_name( 'Acme Co' );
+
+		$doc = $this->emit_front_page_document();
+
+		$organization = $this->node_of_type( $doc, 'Organization' );
+		$website      = $this->node_of_type( $doc, 'WebSite' );
+		$this->assertIsArray( $organization, 'Expected an Organization node in the graph.' );
+		$this->assertIsArray( $website, 'Expected a WebSite node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::website(), $website['@id'] );
+		$this->assertSame( 'Acme Co', $website['name'] );
+		$this->assertSame( $organization['@id'], $website['publisher']['@id'] );
+		$this->assertSame( 'SearchAction', $website['potentialAction']['@type'] );
+	}
+
+	/**
+	 * Without a Site Title, neither site-level node is emitted on the home page, so
+	 * the home page graph is empty.
+	 */
+	public function test_graph_omits_site_level_nodes_without_site_name() {
+		$this->set_site_name( '' );
+
+		$doc = $this->emit_front_page_document();
+
+		$this->assertNull( $doc, 'An unnamed site emits no site-level nodes.' );
 	}
 
 	/**

@@ -4,17 +4,18 @@
  *
  * Serializes a Schema.org `@graph` document into the document `<head>`. The graph
  * is assembled from independent, condition-gated contributions: the site-level
- * Organization node, emitted on the home page only (Google treats it as a single
- * canonical site entity), and the page node (Article, or FAQPage when the post
- * uses `core/details` blocks) built by {@see Post_Schema_Node} on singular
- * requests. An Article references the home-page Organization as its `publisher`
- * by stable `@id` rather than duplicating the node. Emission is gated on
+ * Organization and WebSite nodes, emitted on the home page only (Google treats
+ * them as single canonical site entities), and the page node (Article, or
+ * FAQPage when the post uses `core/details` blocks) built by
+ * {@see Post_Schema_Node} on singular requests. An Article — and the WebSite
+ * node — reference the home-page Organization as their `publisher` by stable
+ * `@id` rather than duplicating the node. Emission is gated on
  * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()`.
  *
  * This class owns only the gating and serialization; the individual nodes and
  * their stable `@id`s live in their own builders ({@see Post_Schema_Node},
- * {@see Organization_Schema_Node}, {@see Schema_Node_Ids}) and are assembled by
- * {@see Schema_Graph}.
+ * {@see Organization_Schema_Node}, {@see Website_Schema_Node},
+ * {@see Schema_Node_Ids}) and are assembled by {@see Schema_Graph}.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -68,12 +69,12 @@ class Schema_Builder {
 	/**
 	 * Assemble the `@graph` document for the current request.
 	 *
-	 * The site-level Organization node and the singular page node are two
-	 * independent, condition-gated contributions to one graph:
+	 * The site-level nodes and the singular page node are two independent,
+	 * condition-gated contributions to one graph:
 	 *
-	 * - Organization is a single canonical site entity, so its full node is added
-	 *   on the home page only (Google's guidance). Other pages reference it by
-	 *   `@id` instead of duplicating it.
+	 * - Organization and WebSite are single canonical site entities, so their full
+	 *   nodes are added on the home page only (Google's guidance). Other pages
+	 *   reference the Organization by `@id` instead of duplicating it.
 	 * - The page node (Article/FAQPage) is added on singular requests. An Article
 	 *   points its `publisher` at the home-page Organization's stable `@id`.
 	 *
@@ -92,8 +93,20 @@ class Schema_Builder {
 		// it regardless so we know whether a publisher @id reference will resolve, but
 		// only add the full node on the home page.
 		$organization = Organization_Schema_Node::build( Schema_Settings::get_organization() );
-		if ( is_front_page() && null !== $organization ) {
-			$graph->add( $organization );
+
+		// Site-level nodes (Organization, WebSite) describe a single canonical
+		// entity, so they belong on the home page only (Google's guidance) — never
+		// duplicated onto every post. WebSite references the Organization by @id.
+		if ( is_front_page() ) {
+			if ( null !== $organization ) {
+				$graph->add( $organization );
+			}
+
+			$website = Website_Schema_Node::build();
+			if ( null !== $website && null !== $organization ) {
+				$website['publisher'] = array( '@id' => Schema_Node_Ids::organization() );
+			}
+			$graph->add( $website );
 		}
 
 		if ( is_singular() ) {

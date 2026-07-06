@@ -5,18 +5,12 @@ import { __ } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
 
 /**
- * The widget exposes no configurable attributes: granularity is in-body local
- * state and the date window is derived, not host-provided.
- */
-export type SubscribersChartAttributes = Record< string, never >;
-
-/**
  * Widget type definition.
  *
  * Ported from the Jetpack Stats `stats-subscribers-chart-section` card in
- * wp-calypso. The legacy interval segmented control becomes the in-body
- * "Group by" dropdown; granularity is local UI state rather than a persisted
- * attribute, so the widget declares no attributes.
+ * wp-calypso. The date range and previous-period comparison follow the
+ * dashboard picker; the legacy interval segmented control becomes the in-body
+ * "Group by" dropdown, which only chooses the bucket size within that range.
  */
 export default {
 	name: 'jpa/subscribers-chart',

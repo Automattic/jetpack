@@ -186,13 +186,13 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies.stylelint = pkg.peerDependencies.stylelint.replace( /^(?:\^|>=)?/, '>=' );
 	}
 
-	// Make sure @wordpress/stylelint-config gets whatever @wordpress/theme is installed.
+	// Make sure @wordpress/eslint-plugin and @wordpress/stylelint-config gets whatever @wordpress/theme is installed.
 	if (
-		pkg.name === '@wordpress/stylelint-config' &&
-		pkg.dependencies[ '@wordpress/theme' ]?.startsWith( '^' )
+		( pkg.name === '@wordpress/stylelint-config' || pkg.name === '@wordpress/eslint-plugin' ) &&
+		pkg.dependencies?.[ '@wordpress/theme' ]
 	) {
-		pkg.dependencies[ '@wordpress/theme' ] =
-			'>=' + pkg.dependencies[ '@wordpress/theme' ].substring( 1 );
+		delete pkg.dependencies[ '@wordpress/theme' ];
+		pkg.peerDependencies[ '@wordpress/theme' ] = '*';
 	}
 
 	// Update localtunnel axios dep to avoid CVE
@@ -305,13 +305,6 @@ async function fixDeps( pkg ) {
  * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
-	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
-	// @see https://github.com/mjeanroy/rollup-plugin-license/issues/2110
-	if ( pkg.name === 'rollup-plugin-license' ) {
-		pkg.peerDependenciesMeta ??= {};
-		pkg.peerDependenciesMeta.rollup = { optional: true };
-	}
-
 	// Indirect deps that still depend on React <18.
 	const reactOldPkgs = new Set( [
 		// Still on 16.
@@ -359,6 +352,20 @@ function fixPeerDeps( pkg ) {
 				pkg.peerDependencies[ p ] += ' || ^10';
 			}
 		}
+	}
+
+	// Apparently this for some reason includes a vite plugin, instead of that being a separate package.
+	// And it depends on the wrong version of vite. Since we mostly don't use vite anyway (just in storybook),
+	// it should be safe to broaden the dep.
+	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.vite ) {
+		pkg.peerDependencies.vite = '*';
+	}
+
+	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
+	// @see https://github.com/mjeanroy/rollup-plugin-license/issues/2110
+	if ( pkg.name === 'rollup-plugin-license' ) {
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta.rollup = { optional: true };
 	}
 
 	// It assumes hoisting to find its plugins. Sigh. Add peer deps for the plugins we use.
@@ -419,6 +426,11 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies?.stylelint?.startsWith( '^16.' )
 	) {
 		pkg.peerDependencies.stylelint = '^17';
+	}
+
+	// Having copies with and without the peer dep tends to break tests. So let's just make it non-optional.
+	if ( pkg.name === '@wordpress/data' ) {
+		delete pkg.peerDependenciesMeta?.[ '@types/react' ];
 	}
 
 	return pkg;

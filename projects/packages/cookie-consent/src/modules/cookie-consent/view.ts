@@ -10,14 +10,17 @@ import {
 	trackPrivacyBannerAccept,
 	trackPrivacyBannerCustomize,
 	trackPrivacyBannerReject,
+	trackPrivacyBannerView,
 	trackPrivacyManageOpen,
 	trackPrivacyPolicyOptOut,
 } from './tracks';
+import { ensureTracksLoaded } from './tracks-utils';
 import {
 	UNKNOWN_COUNTRY_CODE,
 	getCookie,
 	setCookie,
 	hasConsentSet,
+	hasAnalyticsConsent,
 	readConsentChoices,
 	saveConsentChoices,
 	isGdprCountry,
@@ -26,7 +29,7 @@ import {
 	getConsentChoices,
 	type GeoConfig,
 } from './utils';
-import type { ConsentEventChoices } from './types';
+import type { ConsentEvent, ConsentEventChoices } from './types';
 
 interface GeoState {
 	initialized: boolean;
@@ -62,6 +65,7 @@ interface StoreConfig {
 	cookiePolicyUrl: string;
 	gdprHonorsGpc: boolean;
 	forcePreview: boolean;
+	geoEnabled?: boolean;
 }
 
 interface GeoApiResponse {
@@ -87,6 +91,7 @@ let geoState: GeoState = {
 let openedFromFooter = false;
 let openModalFromFooter: ( () => void ) | null = null;
 let manageLinkConsentListenerRegistered = false;
+let tracksConsentListenerRegistered = false;
 const gdprManageLinkContexts = new Set< GdprManageLinkContext >();
 
 function shouldShowManagePreferencesLink( config: StoreConfig ): boolean {
@@ -140,6 +145,20 @@ function updateManageLinkContexts( config: StoreConfig ): void {
 	} );
 }
 
+function registerTracksConsentListener(): void {
+	if ( tracksConsentListenerRegistered ) {
+		return;
+	}
+
+	tracksConsentListenerRegistered = true;
+	window.addEventListener( 'wp_consent_saved', ( event: Event ) => {
+		const consentEvent = event as CustomEvent< ConsentEvent >;
+		if ( consentEvent.detail?.choices && hasAnalyticsConsent( consentEvent.detail.choices ) ) {
+			ensureTracksLoaded();
+		}
+	} );
+}
+
 const { actions } = store( 'jetpack/cookie-consent', {
 	state: {
 		// Cookie banner state
@@ -179,7 +198,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// Update context
 			setContextCategories( context, choices );
 
-			trackPrivacyBannerAccept( choices );
+			trackPrivacyBannerAccept( choices, hasAnalyticsConsent( choices ) );
 
 			// Save consent to WP Consent API (this will set the cookies)
 			saveConsentChoices( choices, 'accept_all' );
@@ -215,7 +234,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				...context.categories,
 			} );
 
-			trackPrivacyBannerAccept( choices );
+			trackPrivacyBannerAccept( choices, hasAnalyticsConsent( choices ) );
 
 			// Save consent to WP Consent API (this will set the cookies)
 			saveConsentChoices( choices, 'accept_selected' );
@@ -339,7 +358,11 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		openManagePreferences: withSyncEvent( ( event: MouseEvent ) => {
 			event.preventDefault();
 
-			trackPrivacyManageOpen();
+			const hasPriorConsent = hasConsentSet();
+			trackPrivacyManageOpen(
+				hasPriorConsent,
+				hasPriorConsent && hasAnalyticsConsent( readConsentChoices() )
+			);
 
 			openModalFromFooter?.();
 		} ),
@@ -424,6 +447,14 @@ const { actions } = store( 'jetpack/cookie-consent', {
 
 			// getConfig() is not typed, so we need to assert the type.
 			const config = getConfig() as unknown as StoreConfig;
+
+			// Geo-based rules are disabled: treat every visitor as unknown so the default
+			// (opt-in/show-banner) path applies, without ever calling the geolocation provider.
+			if ( config.geoEnabled === false ) {
+				geoState = { initialized: true, countryCode: UNKNOWN_COUNTRY_CODE, region: '' };
+				return geoState;
+			}
+
 			// PHP (class-cookie-consent.php) always emits a fully-normalized nested `geo`, so the
 			// store config is already the resolved GeoConfig; no client-side reconciliation needed.
 			const geoConfig = config.geo;
@@ -551,6 +582,8 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				| FooterLinksFallbackContext
 				| ( CookieBannerContext & CcpaContext );
 
+			registerTracksConsentListener();
+
 			// Initialize CCPA-specific context if present.
 			// The footer-links fallback context also exposes isCcpaRegion (to gate
 			// the "Do Not Sell" link) but has no snackbar; only touch those keys
@@ -589,11 +622,15 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				// Check for force preview mode
 				if ( config.forcePreview ) {
 					context.showBanner = true;
+					trackPrivacyBannerView();
 					return;
 				}
 
 				if ( hasConsentSet() ) {
 					// User already made a choice, read from WP Consent API
+					if ( hasAnalyticsConsent( readConsentChoices() ) ) {
+						ensureTracksLoaded();
+					}
 					return;
 				}
 			}

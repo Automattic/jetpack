@@ -69,13 +69,14 @@ export {
 	type StatsCommentsResponse,
 } from './use-stats-comments';
 export {
-	useStatsSubscribers,
 	useStatsSubscribersCounts,
+	useStatsSubscribersReport,
 	type StatsSubscribersCounts,
 	type StatsSubscribersCountsParams,
 	type StatsSubscribersCountsResponse,
 	type StatsSubscribersParams,
 	type StatsSubscribersResponse,
+	type StatsSubscribersUnit,
 } from './use-stats-subscribers';
 export {
 	useStatsStreak,
@@ -99,12 +100,7 @@ export { useStatsUtm, type StatsUtmParams, type StatsUtmResponse } from './use-s
 export { useStatsHighlights } from './use-stats-highlights';
 export type { StatsHighlightsParams, StatsHighlightsResponse } from './use-stats-highlights';
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './use-stats-tags';
-export {
-	useStatsDevices,
-	type StatsDevices,
-	type StatsDevicesDeviceParam,
-	type StatsDevicesParams,
-} from './use-stats-devices';
+export { useStatsDevices } from './use-stats-devices';
 export {
 	useStatsAppSiteHasNeverPublishedPost,
 	type StatsAppSiteHasNeverPublishedPostParams,

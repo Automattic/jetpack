@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import {
+	getPeriodsBetweenInclusive,
 	getStatsPeriodFromInterval,
 	reportParamsToStatsQueryParams,
 	statsQueryParamsToApiParams,
@@ -18,6 +19,22 @@ describe( 'getStatsPeriodFromInterval', () => {
 		[ undefined, 'day' ],
 	] )( 'maps %s to %s', ( interval, period ) => {
 		expect( getStatsPeriodFromInterval( interval ) ).toBe( period );
+	} );
+} );
+
+describe( 'getPeriodsBetweenInclusive', () => {
+	it.each( [
+		[ 'day', '2026-06-01', '2026-06-30', 30 ],
+		[ 'hour', '2026-06-01', '2026-06-02', 2 ],
+		[ 'week', '2026-06-01', '2026-06-28', 4 ],
+		[ 'month', '2026-01-15', '2026-06-15', 6 ],
+		[ 'year', '2024-03-01', '2026-03-01', 3 ],
+	] as const )( 'counts %s buckets inclusive of both ends', ( period, from, to, expected ) => {
+		expect( getPeriodsBetweenInclusive( period, from, to ) ).toBe( expected );
+	} );
+
+	it( 'falls back to one bucket for an inverted range', () => {
+		expect( getPeriodsBetweenInclusive( 'month', '2026-06-01', '2026-01-01' ) ).toBe( 1 );
 	} );
 } );
 
@@ -108,12 +125,12 @@ describe( 'reportParamsToStatsQueryParams', () => {
 			to: '2026-06-01',
 			geoMode: 'city',
 			utmParams: 'utm_source,utm_campaign',
-			deviceParam: 'browser',
+			deviceProperty: 'browser',
 		} );
 
 		expect( params ).not.toHaveProperty( 'geoMode' );
 		expect( params ).not.toHaveProperty( 'utmParams' );
-		expect( params ).not.toHaveProperty( 'deviceParam' );
+		expect( params ).not.toHaveProperty( 'deviceProperty' );
 	} );
 
 	it( 'does not forward unknown params to Stats endpoints', () => {

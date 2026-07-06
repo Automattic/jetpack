@@ -32,6 +32,15 @@ class Schema_Node_Ids {
 	}
 
 	/**
+	 * `@id` for the site-level WebSite node.
+	 *
+	 * @return string
+	 */
+	public static function website() {
+		return self::site_anchor( 'website' );
+	}
+
+	/**
 	 * Build a stable site-root `@id` from a fragment name.
 	 *
 	 * @param string $fragment Fragment identifier (without the leading `#`).

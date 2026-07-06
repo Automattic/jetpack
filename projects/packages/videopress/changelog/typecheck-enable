@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Internal: Enable real typechecking on the package.

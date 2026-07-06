@@ -18,7 +18,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './subscribers-list.module.css';
+import styles from './style.module.css';
 import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 

@@ -192,21 +192,12 @@ describe( 'Social store actions: connectionData', () => {
 	} );
 
 	describe( 'refreshConnectionTestResults', () => {
-		const refreshConnections = '/wpcom/v2/publicize/connection-test-results';
-		beforeAll( () => {
-			global.JetpackScriptData = {
-				social: {
-					api_paths: {
-						refreshConnections,
-					},
-				},
-			};
-		} );
+		const connectionsPath = '/wpcom/v2/publicize/connections';
 
 		it( 'should refresh connection test results', async () => {
 			// Mock apiFetch response.
 			apiFetch.setFetchHandler( async ( { path } ) => {
-				if ( path.startsWith( refreshConnections ) ) {
+				if ( path.startsWith( connectionsPath ) ) {
 					return connections.map( connection => ( {
 						...connection,
 						status: 'broken',
