@@ -49,6 +49,8 @@ export {
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
 	type StatsBreadcrumbsProps,
+	DownloadCsvButton,
+	type DownloadCsvButtonProps,
 } from './components';
 
 /**
@@ -86,6 +88,9 @@ export {
 	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
+	buildCsv,
+	saveCsv,
+	type CsvColumn,
 } from './helpers';
 
 /**

@@ -7,12 +7,14 @@ import {
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
 import {
+	DownloadCsvButton,
 	LeaderboardChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	calculateDelta,
 	formatLegendLabels,
 	useWidgetRootContext,
+	type CsvColumn,
 	type LeaderboardChartData,
 	type LegendLabels,
 	type ReportParamsFieldAttributes,
@@ -276,15 +278,38 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
+	// Serialize whatever the leaderboard has loaded, mirroring the Jetpack Stats
+	// client-side "Download CSV" (bounded to the rows already in the browser).
+	const csvColumns = useMemo< CsvColumn< ( typeof rows )[ number ] >[] >( () => {
+		const base: CsvColumn< ( typeof rows )[ number ] >[] = [
+			{ key: 'label', label: __( 'Title', 'jetpack-premium-analytics' ) },
+			{ key: 'value', label: __( 'Views', 'jetpack-premium-analytics' ) },
+			{ key: 'type', label: __( 'Type', 'jetpack-premium-analytics' ) },
+			{ key: 'href', label: __( 'URL', 'jetpack-premium-analytics' ) },
+		];
+		if ( withComparison ) {
+			base.splice( 2, 0, {
+				key: 'previousValue',
+				label: __( 'Previous views', 'jetpack-premium-analytics' ),
+			} );
+		}
+		return base;
+	}, [ withComparison ] );
+
 	return (
-		<TopPostsLeaderboard
-			rows={ rows }
-			isLoading={ isLoading }
-			isError={ isError }
-			withComparison={ withComparison }
-			showLegend={ withComparison }
-			legendLabels={ legendLabels }
-		/>
+		<>
+			<div className={ styles.exportRow }>
+				<DownloadCsvButton columns={ csvColumns } rows={ rows } filename="top-posts" />
+			</div>
+			<TopPostsLeaderboard
+				rows={ rows }
+				isLoading={ isLoading }
+				isError={ isError }
+				withComparison={ withComparison }
+				showLegend={ withComparison }
+				legendLabels={ legendLabels }
+			/>
+		</>
 	);
 }
 

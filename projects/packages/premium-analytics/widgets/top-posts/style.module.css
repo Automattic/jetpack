@@ -1,3 +1,9 @@
+.exportRow {
+	display: flex;
+	justify-content: flex-end;
+	margin-block-end: var(--wpds-dimension-gap-md, 12px);
+}
+
 .labelLink {
 	display: block;
 

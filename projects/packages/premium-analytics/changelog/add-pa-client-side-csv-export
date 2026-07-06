@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Premium Analytics: add client-side CSV export for the Top Posts widget, serializing the already-loaded rows in the browser (mirrors the Jetpack Stats "Download CSV").

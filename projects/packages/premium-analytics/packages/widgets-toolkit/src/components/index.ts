@@ -51,3 +51,4 @@ export {
 	type ReportPageTabsProps,
 	type StatsBreadcrumbsProps,
 } from './report-page';
+export { DownloadCsvButton, type DownloadCsvButtonProps } from './download-csv-button';
