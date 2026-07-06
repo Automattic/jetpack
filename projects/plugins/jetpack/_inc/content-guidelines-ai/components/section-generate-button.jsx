@@ -14,6 +14,14 @@ export default function SectionGenerateButton( { slug } ) {
 	const { startSectionLoading, stopSectionLoading, setSuggestion } = useDispatch( AI_STORE_NAME );
 	const { hasFeature } = useAiFeature();
 
+	// The plans store defaults hasFeature to true until its fetch resolves, so
+	// rendering before resolution would flash the button and then remove it on
+	// no-plan sites. Wait for the real answer instead.
+	const featureResolved = useSelect(
+		select => select( 'wordpress-com/plans' ).hasFinishedResolution( 'getAiAssistantFeature' ),
+		[]
+	);
+
 	const sectionLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
 		[ slug ]
@@ -55,11 +63,17 @@ export default function SectionGenerateButton( { slug } ) {
 		createErrorNotice,
 	] );
 
+	// Without an AI plan the sections carry no AI affordance at all — the
+	// header button and the upgrade notice are the single upsell entry point.
+	if ( ! featureResolved || ! hasFeature ) {
+		return null;
+	}
+
 	return (
 		<Button
 			variant="tertiary"
 			onClick={ handleClick }
-			disabled={ sectionLoading || ! hasFeature }
+			disabled={ sectionLoading }
 			accessibleWhenDisabled
 			className="jetpack-content-guidelines-ai__section-generate-button"
 		>

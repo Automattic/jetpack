@@ -16,6 +16,14 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 		useDispatch( AI_STORE_NAME );
 	const { hasFeature } = useAiFeature();
 
+	// The plans store defaults hasFeature to true until its fetch resolves, so
+	// rendering before resolution would flash the button and then remove it on
+	// no-plan sites. Wait for the real answer instead.
+	const featureResolved = useSelect(
+		select => select( 'wordpress-com/plans' ).hasFinishedResolution( 'getAiAssistantFeature' ),
+		[]
+	);
+
 	const blockLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( blockName ),
 		[ blockName ]
@@ -74,6 +82,13 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 		clearSuggestion( blockName );
 	}, [ blockName, clearSuggestion ] );
 
+	// Without an AI plan the modal carries no AI affordance — the header
+	// button and the upgrade notice on the page are the single upsell entry
+	// point, and a notice triggered from here would render behind the modal.
+	if ( ! featureResolved || ! hasFeature ) {
+		return null;
+	}
+
 	if ( suggestion ) {
 		return (
 			<div className="jetpack-content-guidelines-ai__suggestion-actions">
@@ -96,7 +111,7 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 			<Button
 				variant="secondary"
 				onClick={ handleGenerate }
-				disabled={ blockLoading || ! hasFeature }
+				disabled={ blockLoading }
 				accessibleWhenDisabled
 				className="jetpack-content-guidelines-ai__section-generate-button"
 			>
