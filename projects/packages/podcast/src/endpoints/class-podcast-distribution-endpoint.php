@@ -120,7 +120,7 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 	 *
 	 * @param mixed $data Decoded relay body.
 	 */
-	private function save_show_state( $data ): void {
+	protected function save_show_state( $data ): void {
 		$state = is_array( $data ) && isset( $data['state'] ) ? $data['state'] : '';
 
 		if ( ! in_array( $state, array( 'pending', 'active', 'rejected' ), true ) ) {

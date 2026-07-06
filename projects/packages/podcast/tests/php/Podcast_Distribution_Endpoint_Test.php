@@ -10,7 +10,6 @@ use Automattic\Jetpack\Podcast\Settings;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
-use ReflectionMethod;
 use WorDBless\BaseTestCase;
 
 /**
@@ -47,8 +46,12 @@ class Podcast_Distribution_Endpoint_Test extends BaseTestCase {
 	 * @param mixed $data Relay body.
 	 */
 	private function save( $data ): void {
-		$method = new ReflectionMethod( Podcast_Distribution_Endpoint::class, 'save_show_state' );
-		$method->invoke( new Podcast_Distribution_Endpoint(), $data );
+		$endpoint = new class() extends Podcast_Distribution_Endpoint {
+			public function save( $data ): void {
+				$this->save_show_state( $data );
+			}
+		};
+		$endpoint->save( $data );
 	}
 
 	public function test_active_persists_state_and_share_link() {
