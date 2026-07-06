@@ -6181,7 +6181,22 @@ async function savePost( postStatus, isAutosave = false ) {
 				// stores it hidden — prevents a flash of stale content if
 				// the user later presses Back.
 				document.documentElement.style.visibility = 'hidden';
-				window.location.href = post.link;
+
+				// On a Coming Soon site the published post is still private. Tag
+				// the redirect so the post-publish next-steps checklist (launch +
+				// share) surfaces on the post the author lands on. Public sites
+				// redirect to the bare permalink, unchanged.
+				let destination = post.link;
+				if ( state.isComingSoon ) {
+					try {
+						const url = new URL( post.link );
+						url.searchParams.set( state.publishedMarker || 'wpcom_write_published', '1' );
+						destination = url.href;
+					} catch {
+						// Fall back to the bare permalink if it can't be parsed.
+					}
+				}
+				window.location.href = destination;
 			}, 800 );
 		} else {
 			state.editPostId = post.id;

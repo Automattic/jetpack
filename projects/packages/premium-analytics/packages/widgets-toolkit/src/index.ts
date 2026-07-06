@@ -3,6 +3,7 @@
  */
 export {
 	MetricDelta,
+	MetricValue,
 	MetricWithComparison,
 	ComparativeLineChart,
 	DonutChart,
@@ -30,6 +31,8 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	WidgetBackLink,
+	type WidgetBackLinkProps,
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
@@ -83,6 +86,7 @@ export {
 	useSegmentStyles,
 	useSeriesStyles,
 	useWidgetError,
+	useWidgetDrillDown,
 } from './hooks';
 
 /**

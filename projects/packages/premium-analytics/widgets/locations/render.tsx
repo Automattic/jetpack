@@ -5,10 +5,12 @@ import { GeoChart } from '@automattic/charts';
 import {
 	LeaderboardChart,
 	LeaderboardLabel,
+	WidgetBackLink,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	calculateDelta,
 	flagUrl,
+	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -16,14 +18,14 @@ import {
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Icon, Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import useLocationViews, { type GeoMode } from './use-location-views';
-import widgetDefinition, { type LocationsAttributes } from './widget';
+import { type LocationsAttributes } from './widget';
 /**
  * Types
  */
@@ -32,15 +34,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type LocationsRenderAttributes = LocationsAttributes & Partial< ReportParamsFieldAttributes >;
 type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
-
-function LocationsHeaderTitle() {
-	return (
-		<span className={ styles.headerTitle }>
-			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
-			<span>{ __( 'Locations', 'jetpack-premium-analytics' ) }</span>
-		</span>
-	);
-}
 
 /**
  * Locations widget inner component. Reads report params from WidgetRoot context.
@@ -53,16 +46,19 @@ function LocationsInner( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const [ topMode, setTopMode ] = useState< 'country' | 'city' >( 'country' );
-	const [ selectedCountry, setSelectedCountry ] = useState< { code: string; name: string } | null >(
-		null
+	const {
+		drillDownItem: selectedCountry,
+		drillDown: selectCountry,
+		resetDrillDown: clearSelectedCountry,
+	} = useWidgetDrillDown< { code: string; name: string } >();
+
+	const handleModeChange = useCallback(
+		( value: string ) => {
+			setTopMode( value as 'country' | 'city' );
+			clearSelectedCountry();
+		},
+		[ clearSelectedCountry ]
 	);
-
-	const clearSelectedCountry = useCallback( () => setSelectedCountry( null ), [] );
-
-	const handleModeChange = useCallback( ( value: string ) => {
-		setTopMode( value as 'country' | 'city' );
-		setSelectedCountry( null );
-	}, [] );
 
 	// Drill-down (region) takes priority over topMode; city mode disables drill-down.
 	const geoMode: GeoMode = selectedCountry ? 'region' : topMode;
@@ -127,7 +123,7 @@ function LocationsInner( { max }: { max: number } ) {
 				...( geoMode === 'country' &&
 					location.countryCode && {
 						onClick: () =>
-							setSelectedCountry( { code: location.countryCode, name: location.countryFull } ),
+							selectCountry( { code: location.countryCode, name: location.countryFull } ),
 						// Without ariaLabel the button's accessible name is computed from
 						// its children: "Flag of X" (image alt) + "X" (visible label) →
 						// screen readers announce the country name twice. Provide a concise
@@ -140,29 +136,20 @@ function LocationsInner( { max }: { max: number } ) {
 					} ),
 			};
 		} ) as LeaderboardChartData;
-	}, [ comparisonData, data, geoMode, hasComparison ] );
+	}, [ comparisonData, data, geoMode, hasComparison, selectCountry ] );
 
-	const header = (
-		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
-			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
-				{ selectedCountry ? (
-					<>
-						<Button
-							variant="unstyled"
-							onClick={ clearSelectedCountry }
-							className={ styles.breadcrumbLink }
-						>
-							<LocationsHeaderTitle />
-						</Button>
-						<Text className={ styles.breadcrumbSeparator }>/</Text>
-						<Text className={ styles.breadcrumbCurrent }>{ selectedCountry.name }</Text>
-					</>
-				) : (
-					<Text className={ styles.breadcrumbTitle }>
-						<LocationsHeaderTitle />
-					</Text>
-				) }
-			</Stack>
+	const backLink = selectedCountry ? (
+		<WidgetBackLink
+			label={ __( 'All Locations', 'jetpack-premium-analytics' ) }
+			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics' ) }
+			onClick={ clearSelectedCountry }
+			className={ styles.backLink }
+		/>
+	) : null;
+
+	const bodyHeader = (
+		<Stack direction="row" align="center" className={ styles.bodyHeader }>
+			{ backLink }
 			<SelectControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
@@ -181,79 +168,70 @@ function LocationsInner( { max }: { max: number } ) {
 
 	if ( isLoading && data.length === 0 ) {
 		return (
-			<>
-				{ header }
-				<div className={ styles.content }>
-					<WidgetLoadingOverlay />
-				</div>
-			</>
+			<div className={ styles.content }>
+				{ bodyHeader }
+				<WidgetLoadingOverlay />
+			</div>
 		);
 	}
 
 	if ( isError ) {
 		return (
-			<>
-				{ header }
-				<div className={ styles.content }>
-					<Stack align="center" justify="center" className={ styles.placeholder }>
-						<Text>{ __( 'Could not load location data.', 'jetpack-premium-analytics' ) }</Text>
-					</Stack>
-				</div>
-			</>
+			<div className={ styles.content }>
+				{ bodyHeader }
+				<Stack align="center" justify="center" className={ styles.placeholder }>
+					<Text>{ __( 'Could not load location data.', 'jetpack-premium-analytics' ) }</Text>
+				</Stack>
+			</div>
 		);
 	}
 
 	// Explicit empty branch (rather than emptyStateText on LeaderboardChart) keeps the
-	// header breadcrumb and "View by" selector visible so users can switch mode or drill
-	// back up — consistent with the pattern used when chart chrome must remain interactive.
+	// header and "View by" selector visible so users can switch mode or drill back up.
 	if ( ! data.length ) {
 		return (
-			<>
-				{ header }
-				<div className={ styles.content }>
-					<Stack align="center" justify="center" className={ styles.placeholder }>
-						<Text>
-							{ __(
-								'Stats on where your visitors are viewing from will appear here.',
-								'jetpack-premium-analytics'
-							) }
-						</Text>
-					</Stack>
-				</div>
-			</>
+			<div className={ styles.content }>
+				{ bodyHeader }
+				<Stack align="center" justify="center" className={ styles.placeholder }>
+					<Text>
+						{ __(
+							'Stats on where your visitors are viewing from will appear here.',
+							'jetpack-premium-analytics'
+						) }
+					</Text>
+				</Stack>
+			</div>
 		);
 	}
 
 	return (
-		<>
-			{ header }
-			<div className={ styles.content }>
-				{ showLoading && <WidgetLoadingOverlay /> }
-				<div className={ clsx( styles.chartArea, geoMode === 'city' && styles.noMap ) }>
-					<LeaderboardChart
-						data={ leaderboardData }
-						withOverlayLabel
-						withComparison={ hasComparison }
-						showLegend={ false }
-						dataFormat={ {
-							type: 'number',
-							options: { useMultipliers: true, decimals: 0 },
-						} }
-						className={ styles.leaderboard }
-					/>
-					{ geoMode !== 'city' && (
-						<div className={ styles.geoChart }>
-							<GeoChart
-								data={ geoData }
-								resizeDebounceTime={ 100 }
-								region={ selectedCountry?.code ?? 'world' }
-								resolution={ selectedCountry ? 'provinces' : 'countries' }
-							/>
-						</div>
-					) }
-				</div>
+		<div className={ styles.content }>
+			{ bodyHeader }
+			{ showLoading && <WidgetLoadingOverlay /> }
+			<div className={ clsx( styles.chartArea, geoMode === 'city' && styles.noMap ) }>
+				<LeaderboardChart
+					data={ leaderboardData }
+					withOverlayLabel
+					withComparison={ hasComparison }
+					showLegend={ false }
+					dataFormat={ {
+						type: 'number',
+						options: { useMultipliers: true, decimals: 0 },
+					} }
+					className={ styles.leaderboard }
+				/>
+				{ geoMode !== 'city' && (
+					<div className={ styles.geoChart }>
+						<GeoChart
+							data={ geoData }
+							resizeDebounceTime={ 100 }
+							region={ selectedCountry?.code ?? 'world' }
+							resolution={ selectedCountry ? 'provinces' : 'countries' }
+						/>
+					</div>
+				) }
 			</div>
-		</>
+		</div>
 	);
 }
 
