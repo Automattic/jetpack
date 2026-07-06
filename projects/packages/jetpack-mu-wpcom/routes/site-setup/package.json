@@ -6,6 +6,6 @@
 	},
 	"route": {
 		"path": "/",
-		"page": "ai-launchpad"
+		"page": "site-setup"
 	}
 }

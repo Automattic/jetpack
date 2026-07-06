@@ -10,7 +10,7 @@
 		"@wordpress/primitives": "4.50.0"
 	},
 	"devDependencies": {
-		"@storybook/react": "10.3.6",
+		"@storybook/react": "10.4.6",
 		"@wordpress/ui": "0.13.0"
 	}
 }

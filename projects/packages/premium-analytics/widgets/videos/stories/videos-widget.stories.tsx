@@ -16,7 +16,7 @@ import VideosRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -68,7 +68,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< VideosStoryControls >;
+} satisfies Meta< ComponentProps< typeof VideosRender > & VideosStoryControls >;
 
 export default meta;
 

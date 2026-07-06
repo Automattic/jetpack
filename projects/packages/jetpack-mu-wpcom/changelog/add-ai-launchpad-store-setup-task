@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Launchpad: rework the "sell" goal to lead with install-WooCommerce and store-setup tasks, and show the commerce tasks as a disabled roadmap until WooCommerce is active, so the list no longer collapses on a fresh site.

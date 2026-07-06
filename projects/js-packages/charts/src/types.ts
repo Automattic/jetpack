@@ -252,8 +252,8 @@ export type GradientStop = {
 
 export type SeriesDataOptions = {
 	gradient?: {
-		from: string;
-		to: string;
+		from?: string;
+		to?: string;
 		fromOpacity?: number;
 		toOpacity?: number;
 		stops?: GradientStop[];

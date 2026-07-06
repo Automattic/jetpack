@@ -24,7 +24,7 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
-	presentation: 'full-bleed' as const,
+	presentation: 'framed' as const,
 };
 
 interface DevicesStoryControls {
@@ -45,7 +45,6 @@ function renderDevicesWidget( { withComparison }: DevicesStoryControls ) {
 	return (
 		<DevicesRender
 			attributes={ { max: 5, reportParams: getDefaultQueryParams( withComparison ) } }
-			showTitle={ false }
 		/>
 	);
 }
@@ -84,7 +83,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< DevicesStoryControls >;
+} satisfies Meta< ComponentProps< typeof DevicesRender > & DevicesStoryControls >;
 
 export default meta;
 

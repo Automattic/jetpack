@@ -15,90 +15,37 @@
 	text-align: center;
 }
 
-.widgetHeader {
-	flex-wrap: wrap;
-	gap: var(--wpds-dimension-gap-sm, 8px);
-	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
-	min-height: 32px;
-}
-
-.breadcrumb {
-	flex: 1 1 0;
-	min-inline-size: 0;
-	min-height: 32px;
-	font-size: 13px;
-	line-height: 20px;
-	font-weight: 500; /* design spec was 499; 500 is the nearest valid CSS value */
-	color: inherit;
-}
-
-.breadcrumb * {
-	font-weight: inherit;
-}
-
-.headerTitle {
-	display: inline-flex;
-	align-items: center;
-	min-inline-size: 0;
-	gap: var(--wpds-dimension-gap-xs, 4px);
-	line-height: inherit;
-}
-
-.headerIcon {
-	flex: 0 0 auto;
-}
-
-.breadcrumbTitle,
-.breadcrumbLink {
-	display: inline-flex;
-	align-items: center;
-	min-block-size: 20px;
-}
-
-.breadcrumbLink {
-	appearance: none;
-	background: none;
-	border: none;
-	padding: 0;
-	cursor: pointer;
-	color: inherit;
-	font: inherit;
-	text-decoration: none;
-}
-
-.breadcrumbLink:hover,
-.breadcrumbLink:focus {
-	color: var(--wp-admin-theme-color);
-	text-decoration: none;
-}
-
-.breadcrumbSeparator {
-	flex: 0 0 auto;
-	line-height: inherit;
-	color: var(--wpds-color-fg-content-neutral-weak);
-}
-
-.breadcrumbCurrent {
-	min-inline-size: 0;
-	line-height: inherit;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
 .modeSelect {
+	order: 2;
 	flex: 0 1 220px;
+	inline-size: min(100%, 220px);
 	max-inline-size: 100%;
 	min-inline-size: min(100%, 160px);
+}
+
+.backLink {
+	order: 1;
+	align-self: center;
+	min-inline-size: 0;
+	margin-inline-end: auto;
+	margin-block-end: 0;
 }
 
 .content {
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	padding: var(--wpds-dimension-padding-lg);
 	flex: 1 1 0;
 	min-height: 0;
+}
+
+.bodyHeader {
+	position: relative;
+	z-index: 2;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: var(--wpds-dimension-gap-sm, 8px) var(--wpds-dimension-gap-lg, 16px);
+	margin-block-end: var(--wpds-dimension-gap-md, 12px);
 }
 
 .chartArea {
@@ -154,22 +101,18 @@
  * the map. */
 @container (max-width: 431px) {
 
-	.widgetHeader {
+	.bodyHeader {
 		align-items: stretch;
 	}
 
-	.breadcrumb,
-	.modeSelect {
-		flex-basis: 100%;
-	}
-
-	.breadcrumb {
+	.backLink {
 		order: 2;
 	}
 
 	.modeSelect {
-		inline-size: 100%;
 		order: 1;
+		flex-basis: 100%;
+		inline-size: 100%;
 	}
 
 	.geoChart {

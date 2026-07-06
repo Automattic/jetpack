@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: warn admins and editors when a form isn't collecting responses (email and saving both off, no integration) in the editor, on the live form, and in the dashboard.

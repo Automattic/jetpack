@@ -348,7 +348,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 						<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
 							{ data.map( entry => {
 								const showComparisonColumn = withComparison && isComparisonVisible;
-								const showComparisonValue = showComparisonColumn && hasComparisonValue( entry );
+								const hasDeltaValue = hasComparisonValue( entry );
+								const showComparisonValue = showComparisonColumn && hasDeltaValue;
+								const showComparisonPlaceholder = showComparisonColumn && ! hasDeltaValue;
 								const colorIndex = showComparisonValue ? Math.sign( entry.delta ) + 1 : 1;
 								const deltaColor = deltaColors[ colorIndex ];
 
@@ -382,7 +384,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 												</Text>
 											) }
 
-											{ showComparisonColumn && ! showComparisonValue && (
+											{ showComparisonPlaceholder && (
 												<Text
 													className={ clsx( styles.deltaValue, styles.deltaPlaceholder ) }
 													style={ { color: deltaColor } }
