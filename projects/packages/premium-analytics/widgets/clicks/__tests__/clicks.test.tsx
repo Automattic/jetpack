@@ -7,7 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import ClicksWidget, { toClickRows } from '../render';
+import ClicksWidget, { toClickRows, toClickRowsWithComparison } from '../render';
 import type { StatsClicksItem, StatsNormalizedReport } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -197,5 +197,90 @@ describe( 'toClickRows', () => {
 				],
 			},
 		] );
+	} );
+
+	it( 'treats zero comparison values as overlapping click rows', () => {
+		const primary = {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-29',
+					date_start: '2026-06-29 00:00:00',
+					date_end: '2026-06-29 23:59:59',
+					items: [
+						{
+							label: 'wordpress.org',
+							views: 42,
+							link: null,
+							icon: null,
+							labelIcon: 'external',
+							children: [
+								{
+									label: '/plugins/jetpack-search',
+									views: 42,
+									link: 'https://wordpress.org/plugins/jetpack-search',
+									icon: null,
+									labelIcon: 'external',
+									children: null,
+								},
+							],
+						},
+					] satisfies StatsClicksItem[],
+				},
+			],
+		} satisfies StatsNormalizedReport< StatsClicksItem >;
+
+		const comparison = {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-22',
+					date_start: '2026-06-22 00:00:00',
+					date_end: '2026-06-22 23:59:59',
+					items: [
+						{
+							label: 'wordpress.org',
+							views: 0,
+							link: null,
+							icon: null,
+							labelIcon: 'external',
+							children: [
+								{
+									label: '/plugins/jetpack-search',
+									views: 0,
+									link: 'https://wordpress.org/plugins/jetpack-search',
+									icon: null,
+									labelIcon: 'external',
+									children: null,
+								},
+							],
+						},
+					] satisfies StatsClicksItem[],
+				},
+			],
+		} satisfies StatsNormalizedReport< StatsClicksItem >;
+
+		expect( toClickRowsWithComparison( primary, comparison, 10 ) ).toEqual( {
+			hasComparison: true,
+			rows: [
+				{
+					label: 'wordpress.org',
+					value: 42,
+					previousValue: 0,
+					icon: undefined,
+					childrenHaveComparison: true,
+					children: [
+						{
+							label: '/plugins/jetpack-search',
+							value: 42,
+							previousValue: 0,
+							href: 'https://wordpress.org/plugins/jetpack-search',
+							icon: undefined,
+							children: undefined,
+						},
+					],
+				},
+			],
+		} );
 	} );
 } );
