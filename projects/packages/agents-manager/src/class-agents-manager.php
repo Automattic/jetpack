@@ -269,11 +269,12 @@ class Agents_Manager {
 			}
 		}
 
-		// When Gutenberg's "admin bar in editor" (omnibar) experiment is active, expose the entry
-		// points in that editor admin bar (CIAB is excluded — it has its own Site Hub UI). The Help
-		// "?" dropdown shows only in the full unified experience (mirroring wp-admin); the Ask AI
-		// button shows whenever Agents Manager is enabled in this editor. The wp-calypso admin-bar
-		// integration wires both, so no frontend change is needed.
+		// When Gutenberg's admin-bar-in-editor experiment is active, register the editor omnibar
+		// entry points. CIAB is excluded because it has its own Site Hub UI. The Help dropdown
+		// shows only in the full unified experience, and the Ask AI button shows whenever Agents
+		// Manager is enabled here. They stay registered on the navigation view too, because the
+		// Site Editor toggles the canvas on the client without a reload, so the frontend controls
+		// visibility there.
 		if ( ! $is_ciab && ! $use_disconnected && self::is_admin_bar_in_editor() ) {
 			// Help "?" node + dropdown panel first, matching the wp-admin admin bar order.
 			if ( self::is_unified_experience() ) {
@@ -944,6 +945,23 @@ class Agents_Manager {
 			&& function_exists( 'gutenberg_is_experiment_enabled' )
 			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
 			&& \gutenberg_is_experiment_enabled( 'gutenberg-admin-bar-in-editor' );
+	}
+
+	/**
+	 * Whether the current request is the Site Editor navigation view, as opposed to
+	 * the editing canvas (`?canvas=edit`) where the chat can dock.
+	 *
+	 * @return bool
+	 */
+	public static function is_site_editor_navigation() {
+		if ( 'site-editor.php' !== ( $GLOBALS['pagenow'] ?? '' ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only layout hint; changes no state.
+		$canvas = isset( $_GET['canvas'] ) ? sanitize_text_field( wp_unslash( $_GET['canvas'] ) ) : '';
+
+		return 'edit' !== $canvas;
 	}
 
 	/**
