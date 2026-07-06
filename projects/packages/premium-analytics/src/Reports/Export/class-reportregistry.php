@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Report Registry class for managing report configurations.
  *
- * @since x.x.x
+ * @since $$next-version$$
  * @internal
  */
 class ReportRegistry {

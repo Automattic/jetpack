@@ -19,7 +19,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportControll
  * Handles CSV exports for the Visitors Over Time report, supporting both
  * single interval and comparison interval data.
  *
- * @since x.x.x
+ * @since $$next-version$$
  */
 class VisitorsOverTimeController extends AbstractCSVReportController {
 

@@ -20,7 +20,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportControll
  * Note: This is a ranked list report, not a time-series report,
  * so it does not support comparison mode.
  *
- * @since x.x.x
+ * @since $$next-version$$
  */
 class TopPerformingProductsController extends AbstractCSVReportController {
 

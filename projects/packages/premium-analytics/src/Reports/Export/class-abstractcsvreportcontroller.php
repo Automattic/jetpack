@@ -16,9 +16,6 @@ use Exception;
 /**
  * Abstract base class for CSV report controllers.
  *
- * NOTE: This is a proof-of-concept implementation. Future work will migrate
- * all export controllers to use this pattern.
- *
  * Each concrete controller should implement:
  * - get_report_key(): Unique identifier for the report
  * - get_report_label(): Human-readable name
@@ -35,7 +32,7 @@ use Exception;
  * - Automatic comparison field handling via format_row_with_comparison()
  * - Helper methods for common formatting tasks
  *
- * @since x.x.x
+ * @since $$next-version$$
  */
 abstract class AbstractCSVReportController implements CSVReportControllerInterface {
 

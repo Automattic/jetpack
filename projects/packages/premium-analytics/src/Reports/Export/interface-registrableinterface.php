@@ -12,9 +12,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Interface RegistrableInterface
- *
- * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export
+ * Interface RegistrableInterface.
  */
 interface RegistrableInterface {
 

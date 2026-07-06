@@ -2,10 +2,10 @@
 /**
  * Utilities trait.
  *
- * Trimmed for the Premium Analytics report-export port: only the two helpers the
- * export subsystem actually uses are kept. The original WooCommerce Analytics
- * trait carried asset/CDN, HPOS, and order-attribution helpers that pulled in
- * WooCommerce-internal classes; those are not needed here.
+ * Trimmed for the Premium Analytics report-export port: only the helper the export
+ * subsystem actually uses is kept. The original WooCommerce Analytics trait carried
+ * asset/CDN, HPOS, and order-attribution helpers that pulled in WooCommerce-internal
+ * classes; those are not needed here.
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support
  */
@@ -20,17 +20,6 @@ defined( 'ABSPATH' ) || exit;
  * Shared helpers for the report-export subsystem.
  */
 trait Utilities {
-
-	/**
-	 * Plugin slug used as the REST `rest_base` for the export controller and to
-	 * keep the route path stable for the existing frontend export hook
-	 * (`/wc/v3/woocommerce-analytics/reports/csv-export`).
-	 *
-	 * @return string
-	 */
-	public function get_plugin_slug(): string {
-		return 'woocommerce-analytics';
-	}
 
 	/**
 	 * Check if the given parameters indicate a comparison request.

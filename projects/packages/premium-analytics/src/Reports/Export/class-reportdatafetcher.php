@@ -22,7 +22,7 @@ use WP_REST_Request;
 /**
  * Data Fetcher class for retrieving report data.
  *
- * @since x.x.x
+ * @since $$next-version$$
  * @internal
  */
 class ReportDataFetcher {

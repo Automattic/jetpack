@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * must implement. It ensures consistent behavior across different
  * report types while allowing for flexible implementations.
  *
- * @since x.x.x
+ * @since $$next-version$$
  */
 interface CSVReportControllerInterface extends RegistrableInterface {
 
