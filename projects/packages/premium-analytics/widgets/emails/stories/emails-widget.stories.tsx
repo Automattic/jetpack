@@ -34,7 +34,7 @@ const meta: Meta< typeof EmailsLeaderboard > = {
 		docs: {
 			description: {
 				component:
-					'The "Emails" widget. Lists the most recently sent emails with a selector to switch between open rate and click rate, rendered as a leaderboard. The close-up stories drive the presentational `EmailsLeaderboard` with fixtures; `WidgetDashboardWithWidget` mounts the real dashboard with the data-connected widget (fed by a mocked `stats/emails/summary` response).',
+					'The "Emails" widget. Lists the most recently sent emails with their open or click rate, rendered as a leaderboard. The displayed rate is the `metric` attribute (`relevance: \'high\'`), exposed as a control by the widget host. The close-up stories drive the presentational `EmailsLeaderboard` with fixtures; `WidgetDashboardWithWidget` mounts the real dashboard with the data-connected widget (fed by a mocked `stats/emails/summary` response).',
 			},
 		},
 	},
@@ -121,12 +121,12 @@ export const Default: Story = {
 };
 
 /**
- * Click-rate view — the selector defaults to click rate instead of open rate.
+ * Click-rate view — the `metric` attribute set to click rate instead of open rate.
  */
 export const ByClickRate: Story = {
 	args: {
 		rows: mockRows,
-		initialMetric: 'clicks',
+		metric: 'clicks',
 	},
 	decorators: [ withWidgetCanvas ],
 };
@@ -232,14 +232,11 @@ function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
 				name: widgetDefinition.name,
 				title: widgetDefinition.title,
 				icon: widgetDefinition.icon,
-				// Matches widget.json so the host hides its card title (full-bleed),
-				// exactly as it does on the real dashboard — the widget renders its
-				// own header with the title next to the metric selector.
-				presentation: 'full-bleed',
+				presentation: 'framed',
 			} }
 			renderModule={ EMAILS_RENDER_MODULE }
 			renderComponent={ EmailsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 6 } }
+			attributes={ { max: 6, metric: 'opens' } }
 		/>
 	);
 }
