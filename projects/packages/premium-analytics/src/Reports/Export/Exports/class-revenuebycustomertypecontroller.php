@@ -110,7 +110,7 @@ class RevenueByCustomerTypeController extends AbstractCSVReportController {
 			'net_sales'           => self::format_amount( $item['net_sales'] ?? $defaults['net_sales'] ),
 			'orders_count'        => $item['orders_count'] ?? $defaults['orders_count'],
 			'average_order_value' => self::format_amount( $item['average_order_value'] ?? $defaults['average_order_value'] ),
-			'avg_items_per_order' => number_format( (float) ( $item['avg_items_per_order'] ?? $defaults['avg_items_per_order'] ), 2 ),
+			'avg_items_per_order' => number_format( (float) ( $item['avg_items_per_order'] ?? $defaults['avg_items_per_order'] ), 2, '.', '' ),
 		);
 	}
 

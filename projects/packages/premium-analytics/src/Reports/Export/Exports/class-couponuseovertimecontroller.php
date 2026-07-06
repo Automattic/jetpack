@@ -127,7 +127,7 @@ class CouponUseOverTimeController extends AbstractCSVReportController {
 			'gross_sales_without_coupon' => self::format_amount( $item['sales_without_coupon'] ?? $defaults['gross_sales_without_coupon'] ),
 			'coupons'                    => self::format_amount( $item['total_discount_amount'] ?? $defaults['coupons'] ),
 			'orders_value_net'           => self::format_amount( $item['net_sales_after_discount'] ?? $defaults['orders_value_net'] ),
-			'coupon_use_pct_of_sales'    => number_format( (float) ( $item['coupon_usage_percentage'] ?? $defaults['coupon_use_pct_of_sales'] ), 2 ) . '%',
+			'coupon_use_pct_of_sales'    => number_format( (float) ( $item['coupon_usage_percentage'] ?? $defaults['coupon_use_pct_of_sales'] ), 2, '.', '' ) . '%',
 		);
 	}
 

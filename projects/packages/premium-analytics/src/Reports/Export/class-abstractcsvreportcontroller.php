@@ -246,7 +246,7 @@ abstract class AbstractCSVReportController implements CSVReportControllerInterfa
 	 * Whether to include rows with empty identifying fields in the export.
 	 *
 	 * Calls should_include_empty_rows_by_default() and applies a filter for global control.
-	 * Filterable via 'woocommerce_analytics_csv_include_empty_rows' to globally
+	 * Filterable via 'jetpack_premium_analytics_csv_include_empty_rows' to globally
 	 * control empty row inclusion across all reports or specific reports.
 	 *
 	 * The result is cached per controller instance to avoid repeated filter calls
@@ -271,7 +271,7 @@ abstract class AbstractCSVReportController implements CSVReportControllerInterfa
 		 * @param string $report_key    The report key for this controller.
 		 * @param object $controller    The controller instance.
 		 */
-		$this->cached_include_empty_rows = apply_filters( 'woocommerce_analytics_csv_include_empty_rows', $default, $this->get_report_key(), $this );
+		$this->cached_include_empty_rows = apply_filters( 'jetpack_premium_analytics_csv_include_empty_rows', $default, $this->get_report_key(), $this );
 
 		return $this->cached_include_empty_rows;
 	}

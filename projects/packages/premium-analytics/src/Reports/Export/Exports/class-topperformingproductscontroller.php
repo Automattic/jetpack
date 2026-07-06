@@ -111,7 +111,7 @@ class TopPerformingProductsController extends AbstractCSVReportController {
 		if ( abs( $net_revenue_with_cogs ) > $epsilon ) {
 			$profit        = $net_revenue_with_cogs - $cogs_amount;
 			$row['profit'] = self::format_amount( $profit );
-			$row['margin'] = number_format( ( $profit / $net_revenue_with_cogs ) * 100, 2 );
+			$row['margin'] = number_format( ( $profit / $net_revenue_with_cogs ) * 100, 2, '.', '' );
 		} else {
 			$row['profit'] = self::COGS_NOT_AVAILABLE_PLACEHOLDER;
 			$row['margin'] = self::COGS_NOT_AVAILABLE_PLACEHOLDER;

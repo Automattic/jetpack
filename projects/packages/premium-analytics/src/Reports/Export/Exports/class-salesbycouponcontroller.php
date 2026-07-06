@@ -48,7 +48,7 @@ class SalesByCouponController extends AbstractCSVReportController {
 	 * @return string The data endpoint.
 	 */
 	public function get_data_endpoint(): string {
-		return 'reports/coupons/';
+		return 'reports/coupons';
 	}
 
 	/**
