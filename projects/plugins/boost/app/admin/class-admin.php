@@ -42,16 +42,21 @@ class Admin {
 		 *
 		 * @since   1.0.0
 		 */
-		$total_problems = apply_filters( 'jetpack_boost_total_problem_count', 0 );
-		\Automattic\Jetpack\Menu_Badges\Menu_Badges::init(); // idempotent; wires the renderer.
-		\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
-			'jetpack-boost',
-			array(
-				'menu_slug' => JETPACK_BOOST_SLUG,
-				'count'     => (int) $total_problems,
-				'type'      => 'count',
-			)
-		);
+		// Only report the count to users who can actually reach the Boost menu
+		// (added below with the 'manage_options' cap). Otherwise the central
+		// menu-badges total would include problems the current user can't see.
+		if ( current_user_can( 'manage_options' ) ) {
+			$total_problems = apply_filters( 'jetpack_boost_total_problem_count', 0 );
+			\Automattic\Jetpack\Menu_Badges\Menu_Badges::init(); // idempotent; wires the renderer.
+			\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
+				'jetpack-boost',
+				array(
+					'menu_slug' => JETPACK_BOOST_SLUG,
+					'count'     => (int) $total_problems,
+					'type'      => 'count',
+				)
+			);
+		}
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Boost - Settings', 'jetpack-boost' ),

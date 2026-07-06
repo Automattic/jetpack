@@ -22,6 +22,10 @@ class Admin_Test extends Base_TestCase {
 
 		Functions\when( '__' )->returnArg();
 
+		// Boost only reports its count to users who can reach the menu; default the
+		// capability to true so the registration path runs. Overridden per-test below.
+		Functions\when( 'current_user_can' )->justReturn( true );
+
 		// Start each test with a clean registry; other suites registering
 		// under different ids don't matter here since we only assert on
 		// the 'jetpack-boost' menu slug.
@@ -56,5 +60,15 @@ class Admin_Test extends Base_TestCase {
 		( new Admin() )->handle_admin_menu();
 
 		$this->assertSame( 3, Notification_Counts::get_for_menu( JETPACK_BOOST_SLUG ) );
+	}
+
+	public function test_skips_registration_for_users_without_manage_options() {
+		// A user who can't reach the Boost menu (added with 'manage_options') must not
+		// contribute to the central menu-badges total.
+		Functions\when( 'current_user_can' )->justReturn( false );
+
+		( new Admin() )->handle_admin_menu();
+
+		$this->assertSame( array(), Notification_Counts::all() );
 	}
 }
