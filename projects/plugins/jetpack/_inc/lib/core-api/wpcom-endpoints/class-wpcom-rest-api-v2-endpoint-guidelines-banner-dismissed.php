@@ -23,6 +23,10 @@ class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed extends WP_REST_Con
 	/**
 	 * User meta key storing the dismissed flag.
 	 *
+	 * Keep in sync with the literal in _inc/content-guidelines-ai.php, which
+	 * preloads the flag without loading this class (it is not available
+	 * during admin page loads on Simple sites).
+	 *
 	 * @var string
 	 */
 	const META_KEY = 'jetpack_content_guidelines_ai_banner_dismissed';
