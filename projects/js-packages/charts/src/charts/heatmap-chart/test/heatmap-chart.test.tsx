@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
+import { mixHexColors, getContrastRatio } from '../../../utils/color-utils';
 import HeatmapChart, { HeatmapChartUnresponsive } from '../heatmap-chart';
 import type { HeatmapColumn } from '../types';
 
@@ -69,6 +70,59 @@ describe( 'HeatmapChart', () => {
 			</GlobalChartsProvider>
 		);
 		expect( screen.getByText( /748\.5\s?K/i ) ).toBeInTheDocument();
+	} );
+
+	test( 'keeps tokenized in-cell value text AA-safe for purple mid-tone fills', () => {
+		const originalGetComputedStyle = window.getComputedStyle;
+		window.getComputedStyle = jest.fn( element => {
+			const computedStyle = originalGetComputedStyle( element );
+			return {
+				...computedStyle,
+				getPropertyValue: ( property: string ) => {
+					if ( property === '--heatmap-cell-value-text' ) {
+						return '#000000';
+					}
+					if ( property === '--heatmap-cell-value-text-inverse' ) {
+						return '#ffffff';
+					}
+					return computedStyle.getPropertyValue( property );
+				},
+			};
+		} ) as typeof window.getComputedStyle;
+
+		try {
+			renderChart( {
+				primaryColor: '#4a19ab',
+				data: [
+					{ label: 'Min', data: [ { value: 0 } ] },
+					{ label: 'Mid', data: [ { value: 550000 } ] },
+					{ label: 'Alert', data: [ { value: 651400 } ] },
+					{ label: 'Max', data: [ { value: 1000000 } ] },
+				],
+			} );
+
+			const midCell = screen.getByRole( 'gridcell', { name: 'Mid: 550,000' } );
+			const adjustedMidIntensity = Number( midCell.style.getPropertyValue( '--intensity' ) );
+			const adjustedMidPrimaryMix = 0.15 + 0.85 * adjustedMidIntensity;
+			const adjustedMidFill = mixHexColors( '#4a19ab', '#ffffff', 1 - adjustedMidPrimaryMix );
+
+			expect( within( midCell ).getByText( /550\s?K/i ) ).toBeInTheDocument();
+			expect( midCell ).not.toHaveClass( 'heatmap-chart__cell--inverse-text' );
+			expect( adjustedMidIntensity ).toBeCloseTo( 0.55 );
+			expect( getContrastRatio( '#000000', adjustedMidFill ) ).toBeGreaterThanOrEqual( 4.5 );
+
+			const alertCell = screen.getByRole( 'gridcell', { name: 'Alert: 651,400' } );
+			const alertIntensity = Number( alertCell.style.getPropertyValue( '--intensity' ) );
+			const alertPrimaryMix = 0.15 + 0.85 * alertIntensity;
+			const alertFill = mixHexColors( '#4a19ab', '#ffffff', 1 - alertPrimaryMix );
+
+			expect( within( alertCell ).getByText( /651\.4\s?K/i ) ).toBeInTheDocument();
+			expect( alertCell ).toHaveClass( 'heatmap-chart__cell--inverse-text' );
+			expect( alertIntensity ).toBeCloseTo( 0.6514 );
+			expect( getContrastRatio( '#ffffff', alertFill ) ).toBeGreaterThanOrEqual( 4.5 );
+		} finally {
+			window.getComputedStyle = originalGetComputedStyle;
+		}
 	} );
 
 	test( 'gives each cell an accessible name for screen readers', () => {

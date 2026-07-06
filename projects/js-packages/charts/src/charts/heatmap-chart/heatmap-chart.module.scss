@@ -13,6 +13,9 @@
 // Track template is set inline because CSS `repeat()` won't take a `var()`
 // count. ARIA rows are `display: contents` so their cells join this grid.
 .heatmap-chart__grid {
+	--heatmap-cell-value-text: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	--heatmap-cell-value-text-inverse: var(--wpds-color-fg-interactive-brand-strong, #fff);
+
 	display: grid;
 	gap: var(--heatmap-cell-gap, var(--wpds-dimension-gap-xs, 4px));
 	flex: 1 1 0;
@@ -85,14 +88,14 @@
 }
 
 .heatmap-chart__cell-value {
-	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	color: var(--heatmap-cell-value-text);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 }
 
-// Light text on fills dark enough to out-contrast dark text (decided in JS from
-// the blended fill luminance).
-.heatmap-chart__cell--strong .heatmap-chart__cell-value {
-	color: var(--wpds-color-fg-interactive-neutral-strong, #f0f0f0);
+// Inverse token on fills where it gives the strongest contrast; JS nudges
+// no-pass mid-tones so token colors stay AA-safe.
+.heatmap-chart__cell--inverse-text .heatmap-chart__cell-value {
+	color: var(--heatmap-cell-value-text-inverse);
 }
 
 .heatmap-chart__legend-swatch {

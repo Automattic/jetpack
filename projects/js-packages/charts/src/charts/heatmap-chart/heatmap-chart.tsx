@@ -22,7 +22,7 @@ import {
 	isValidHexColor,
 	mixHexColors,
 	normalizeColorToHex,
-	prefersLightText,
+	getContrastRatio,
 } from '../../utils/color-utils';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
@@ -45,6 +45,156 @@ import type { CSSProperties, FC } from 'react';
 // Mirrors the color-mix floor in heatmap-chart.module.scss (.heatmap-chart__cell--filled):
 // the rendered fill is the primary mixed over the chart background at 0.15 + 0.85 * intensity.
 const CELL_MIX_FLOOR = 0.15;
+const CELL_VALUE_MIN_CONTRAST = 4.5;
+const CELL_VALUE_TEXT_VAR = '--heatmap-cell-value-text';
+const CELL_VALUE_TEXT_INVERSE_VAR = '--heatmap-cell-value-text-inverse';
+const CONTRAST_SAFE_SEARCH_STEPS = 16;
+
+type CellPresentation = {
+	intensity: number;
+	hasLightText: boolean;
+};
+
+type CellPresentationCandidate = CellPresentation & {
+	contrast: number;
+	distance: number;
+};
+
+const getFillHex = ( primaryHex: string, backgroundHex: string, intensity: number ): string =>
+	mixHexColors(
+		primaryHex,
+		backgroundHex,
+		1 - ( CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity )
+	);
+
+const getTextContrast = (
+	fillHex: string,
+	darkTextHex: string,
+	lightTextHex: string
+): { contrast: number; hasLightText: boolean } => {
+	const darkContrast = getContrastRatio( darkTextHex, fillHex );
+	const lightContrast = getContrastRatio( lightTextHex, fillHex );
+	return lightContrast >= darkContrast
+		? { contrast: lightContrast, hasLightText: true }
+		: { contrast: darkContrast, hasLightText: false };
+};
+
+const getTextContrastAtIntensity = (
+	intensity: number,
+	primaryHex: string,
+	backgroundHex: string,
+	darkTextHex: string,
+	lightTextHex: string
+): { contrast: number; hasLightText: boolean } =>
+	getTextContrast( getFillHex( primaryHex, backgroundHex, intensity ), darkTextHex, lightTextHex );
+
+const getContrastSafeBoundary = (
+	intensity: number,
+	passingIntensity: number,
+	primaryHex: string,
+	backgroundHex: string,
+	darkTextHex: string,
+	lightTextHex: string
+): CellPresentationCandidate | null => {
+	const endpoint = getTextContrastAtIntensity(
+		passingIntensity,
+		primaryHex,
+		backgroundHex,
+		darkTextHex,
+		lightTextHex
+	);
+	if ( endpoint.contrast < CELL_VALUE_MIN_CONTRAST ) {
+		return null;
+	}
+
+	let passing = passingIntensity;
+	let failing = intensity;
+	for ( let step = 0; step < CONTRAST_SAFE_SEARCH_STEPS; step++ ) {
+		const midpoint = ( passing + failing ) / 2;
+		const candidate = getTextContrastAtIntensity(
+			midpoint,
+			primaryHex,
+			backgroundHex,
+			darkTextHex,
+			lightTextHex
+		);
+		if ( candidate.contrast >= CELL_VALUE_MIN_CONTRAST ) {
+			passing = midpoint;
+		} else {
+			failing = midpoint;
+		}
+	}
+
+	const candidate = getTextContrastAtIntensity(
+		passing,
+		primaryHex,
+		backgroundHex,
+		darkTextHex,
+		lightTextHex
+	);
+	return {
+		intensity: passing,
+		hasLightText: candidate.hasLightText,
+		contrast: candidate.contrast,
+		distance: Math.abs( passing - intensity ),
+	};
+};
+
+const pickClosestContrastSafeBoundary = (
+	current: CellPresentationCandidate | null,
+	candidate: CellPresentationCandidate | null
+): CellPresentationCandidate | null => {
+	if ( ! candidate ) {
+		return current;
+	}
+	if (
+		! current ||
+		candidate.distance < current.distance ||
+		( candidate.distance === current.distance && candidate.contrast > current.contrast )
+	) {
+		return candidate;
+	}
+	return current;
+};
+
+const getContrastSafeCellPresentation = (
+	intensity: number,
+	primaryHex: string,
+	backgroundHex: string,
+	darkTextHex: string,
+	lightTextHex: string
+): CellPresentation => {
+	const current = getTextContrast(
+		getFillHex( primaryHex, backgroundHex, intensity ),
+		darkTextHex,
+		lightTextHex
+	);
+	if ( current.contrast >= CELL_VALUE_MIN_CONTRAST ) {
+		return { intensity, hasLightText: current.hasLightText };
+	}
+
+	const lighterBoundary = getContrastSafeBoundary(
+		intensity,
+		0,
+		primaryHex,
+		backgroundHex,
+		darkTextHex,
+		lightTextHex
+	);
+	const darkerBoundary = getContrastSafeBoundary(
+		intensity,
+		1,
+		primaryHex,
+		backgroundHex,
+		darkTextHex,
+		lightTextHex
+	);
+	const best = pickClosestContrastSafeBoundary( lighterBoundary, darkerBoundary );
+
+	return best
+		? { intensity: best.intensity, hasLightText: best.hasLightText }
+		: { intensity, hasLightText: current.hasLightText };
+};
 
 const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	data,
@@ -93,31 +243,44 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
 	} );
 
-	// Resolve --heatmap-bg from the grid, where scoped theme tokens apply.
+	// Resolve tokens from the grid, where scoped theme variables apply.
 	// Use layout effect so visible values do not flash with the wrong contrast.
-	const [ chartBackgroundHex, setChartBackgroundHex ] = useState( '#ffffff' );
+	const [ chartColors, setChartColors ] = useState( {
+		backgroundHex: '#ffffff',
+		darkTextHex: '',
+		lightTextHex: '',
+	} );
 	useLayoutEffect( () => {
-		const resolved = normalizeColorToHex(
-			theme.backgroundColor,
-			gridRef.current,
-			resolveCssVariable
-		);
-		setChartBackgroundHex( isValidHexColor( resolved ) ? resolved : '#ffffff' );
+		const resolveTokenHex = ( value: string, fallback = '' ) => {
+			const resolved = normalizeColorToHex( value, gridRef.current, resolveCssVariable );
+			return isValidHexColor( resolved ) ? resolved : fallback;
+		};
+		setChartColors( {
+			backgroundHex: resolveTokenHex( theme.backgroundColor, '#ffffff' ),
+			darkTextHex: resolveTokenHex( CELL_VALUE_TEXT_VAR ),
+			lightTextHex: resolveTokenHex( CELL_VALUE_TEXT_INVERSE_VAR ),
+		} );
 	}, [ theme.backgroundColor ] );
 
-	// Choose text color from the blended fill, not the raw value.
-	// If either color cannot resolve to hex, keep dark text.
+	// Choose text token from the blended fill, nudging no-pass mid-tones when needed.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
-	const cellHasLightText = ( intensity: number ): boolean =>
-		isValidHexColor( primaryHex ) &&
-		isValidHexColor( chartBackgroundHex ) &&
-		prefersLightText(
-			mixHexColors(
-				primaryHex,
-				chartBackgroundHex,
-				1 - ( CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity )
-			)
+	const getCellPresentation = ( intensity: number ): CellPresentation => {
+		if (
+			! isValidHexColor( primaryHex ) ||
+			! isValidHexColor( chartColors.backgroundHex ) ||
+			! isValidHexColor( chartColors.darkTextHex ) ||
+			! isValidHexColor( chartColors.lightTextHex )
+		) {
+			return { intensity, hasLightText: false };
+		}
+		return getContrastSafeCellPresentation(
+			intensity,
+			primaryHex,
+			chartColors.backgroundHex,
+			chartColors.darkTextHex,
+			chartColors.lightTextHex
 		);
+	};
 
 	const extent = useMemo( () => getValueExtent( data ), [ data ] );
 	const heatmapContext = useMemo< HeatmapContextValue >(
@@ -348,6 +511,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 										const value = cell?.value ?? null;
 										const present = isPresent( value );
 										const normalized = present ? getNormalizedValue( value, extent ) : 0;
+										const cellPresentation = present
+											? getCellPresentation( normalized )
+											: { intensity: normalized, hasLightText: false };
 										const flatIndex = columnIndex * rows + rowIndex;
 										const info = buildTooltipData( columnIndex, rowIndex );
 										const accessibleName =
@@ -374,13 +540,15 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												data-row={ rowIndex }
 												className={ clsx( styles[ 'heatmap-chart__cell' ], {
 													[ styles[ 'heatmap-chart__cell--filled' ] ]: present,
-													[ styles[ 'heatmap-chart__cell--strong' ] ]:
-														present && cellHasLightText( normalized ),
+													[ styles[ 'heatmap-chart__cell--inverse-text' ] ]:
+														present && cellPresentation.hasLightText,
 													[ styles[ 'heatmap-chart__cell--selected' ] ]:
 														selectedIndex === flatIndex,
 												} ) }
 												style={
-													present ? ( { '--intensity': normalized } as CSSProperties ) : undefined
+													present
+														? ( { '--intensity': cellPresentation.intensity } as CSSProperties )
+														: undefined
 												}
 												onMouseMove={ handleCellMouseMove }
 												onMouseLeave={ handleCellMouseLeave }
