@@ -39,7 +39,7 @@
 		"@wordpress/dependency-extraction-webpack-plugin": "6.50.0",
 		"babel-loader": "10.0.0",
 		"babel-plugin-polyfill-corejs3": "0.14.0",
-		"browserslist": "4.28.2",
+		"browserslist": "4.28.4",
 		"core-js": "3.38.1",
 		"css-loader": "6.11.0",
 		"css-minimizer-webpack-plugin": "8.0.0",
