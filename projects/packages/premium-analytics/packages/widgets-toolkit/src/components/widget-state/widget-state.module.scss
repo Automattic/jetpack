@@ -1,0 +1,37 @@
+.state {
+	block-size: 100%;
+	min-block-size: 120px;
+	padding: var(--wpds-dimension-padding-md);
+	text-align: center;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+.errorIcon {
+	color: var(--wpds-color-fg-content-error);
+}
+
+.title {
+	font-weight: 600;
+}
+
+.description {
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+.actions {
+	margin-block-start: var(--wpds-dimension-gap-sm);
+}
+
+.ready {
+	position: relative;
+	block-size: 100%;
+}
+
+.busy {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	pointer-events: none;
+}
