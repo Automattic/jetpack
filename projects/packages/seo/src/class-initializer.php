@@ -193,9 +193,9 @@ class Initializer {
 		// `/wp/v2/settings` (the Jetpack settings endpoint only accepts Jetpack options).
 		// Writes are still capability-gated by the core settings controller.
 		if ( self::is_seo_tools_module_active() ) {
-			// Front-end JSON-LD schema (Article / FAQ). Self-hooks `wp_head`, so it only
-			// emits on front-end requests.
+			// Front-end JSON-LD schema output and author profile schema fields.
 			Schema_Builder::init();
+			Author_Schema_Node::init();
 			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );

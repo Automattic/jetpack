@@ -22,6 +22,13 @@ use WP_Post;
 class SchemaBuilderTest extends TestCase {
 
 	/**
+	 * Users created during the test.
+	 *
+	 * @var int[]
+	 */
+	private $user_ids = array();
+
+	/**
 	 * Reset the host-plugin stubs (see tests/php/bootstrap.php) before each test.
 	 *
 	 * @return void
@@ -43,6 +50,12 @@ class SchemaBuilderTest extends TestCase {
 		remove_all_filters( 'pre_option_show_on_front' );
 		remove_all_filters( 'home_url' );
 		delete_option( Schema_Settings::OPTION_NAME );
+		wp_set_current_user( 0 );
+		foreach ( $this->user_ids as $user_id ) {
+			if ( function_exists( 'wp_delete_user' ) ) {
+				wp_delete_user( $user_id );
+			}
+		}
 		parent::tearDown();
 	}
 
@@ -84,6 +97,31 @@ class SchemaBuilderTest extends TestCase {
 				$fields
 			)
 		);
+	}
+
+	/**
+	 * Create a WP user.
+	 *
+	 * @param array $overrides User field overrides.
+	 * @return \WP_User
+	 */
+	private function make_user( array $overrides = array() ) {
+		$suffix  = (string) wp_rand();
+		$user_id = wp_insert_user(
+			array_merge(
+				array(
+					'user_login'   => 'schema_author_' . $suffix,
+					'user_pass'    => 'password',
+					'user_email'   => 'schema_author_' . $suffix . '@example.test',
+					'display_name' => 'Jane Doe',
+				),
+				$overrides
+			)
+		);
+
+		$this->assertIsInt( $user_id );
+		$this->user_ids[] = $user_id;
+		return get_userdata( $user_id );
 	}
 
 	/**
@@ -139,6 +177,35 @@ class SchemaBuilderTest extends TestCase {
 	 * @return array|null
 	 */
 	private function capture_emitted_document() {
+		ob_start();
+		Schema_Builder::emit();
+		$html = (string) ob_get_clean();
+
+		if ( '' === $html ) {
+			return null;
+		}
+
+		$this->assertSame(
+			1,
+			preg_match( '#<script type="application/ld\+json">(.*)</script>#s', $html, $matches ),
+			'emit() output is not a single application/ld+json script block.'
+		);
+		return json_decode( $matches[1], true );
+	}
+
+	/**
+	 * Drive Schema_Builder::emit() against an author archive.
+	 *
+	 * @param \WP_User $user Queried author.
+	 * @return array|null Decoded JSON-LD document, or null when emit() outputs nothing.
+	 */
+	private function emit_author_document( $user ) {
+		global $wp_query;
+		$wp_query                    = new \WP_Query();
+		$wp_query->is_author         = true;
+		$wp_query->queried_object    = $user;
+		$wp_query->queried_object_id = $user->ID;
+
 		ob_start();
 		Schema_Builder::emit();
 		$html = (string) ob_get_clean();
@@ -314,6 +381,39 @@ class SchemaBuilderTest extends TestCase {
 		$doc = $this->emit_front_page_document();
 
 		$this->assertNull( $doc, 'An unnamed site emits no site-level nodes.' );
+	}
+
+	/**
+	 * Article author is a compact reference to the author archive, not a full
+	 * Person node duplicated onto every post.
+	 */
+	public function test_article_author_references_author_archive_without_person_node() {
+		$user = $this->make_user();
+
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+
+		$article = $this->node_of_type( $doc, 'Article' );
+		$this->assertSame( 'Person', $article['author']['@type'] );
+		$this->assertSame( Schema_Node_Ids::person( $user->ID, $user->user_nicename ), $article['author']['@id'] );
+		$this->assertSame( 'Jane Doe', $article['author']['name'] );
+		$this->assertSame( get_author_posts_url( $user->ID, $user->user_nicename ), $article['author']['url'] );
+		$this->assertNull( $this->node_of_type( $doc, 'Person' ) );
+	}
+
+	/**
+	 * Author archives emit ProfilePage and Person nodes linked by `mainEntity`.
+	 */
+	public function test_author_archive_emits_profile_page_wrapping_person() {
+		$user = $this->make_user();
+
+		$doc = $this->emit_author_document( $user );
+
+		$person       = $this->node_of_type( $doc, 'Person' );
+		$profile_page = $this->node_of_type( $doc, 'ProfilePage' );
+		$this->assertIsArray( $person, 'Expected a Person node in the graph.' );
+		$this->assertIsArray( $profile_page, 'Expected a ProfilePage node in the graph.' );
+		$this->assertSame( $person['@id'], $profile_page['mainEntity']['@id'] );
+		$this->assertArrayNotHasKey( 'worksFor', $person );
 	}
 
 	/**
