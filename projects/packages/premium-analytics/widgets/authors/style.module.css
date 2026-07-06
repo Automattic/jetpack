@@ -4,6 +4,7 @@
 	flex-direction: column;
 	height: 100%;
 	overflow: hidden;
+	position: relative;
 }
 
 /* Round the author avatar; a fixed size keeps the leaderboard row height
