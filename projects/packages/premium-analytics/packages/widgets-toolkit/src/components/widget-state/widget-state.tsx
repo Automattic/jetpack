@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { cautionFilled } from '@wordpress/icons';
+import { cautionFilled, chartBar } from '@wordpress/icons';
 import { Button, Icon, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -48,7 +48,8 @@ export interface WidgetStateProps {
  *
  * Priority: error → loading (first load) → empty → ready. During a background
  * refetch (`isFetching` with data) the children stay visible under a busy
- * overlay.
+ * overlay. The empty state defaults to a neutral `chartBar` glyph so it reads
+ * differently from the error state's caution icon.
  *
  * @param props               - Component props.
  * @param props.isLoading     - A fetch is in flight and there is no data yet.
@@ -56,7 +57,7 @@ export interface WidgetStateProps {
  * @param props.isError       - Whether the fetch failed.
  * @param props.isEmpty       - Resolved, but there is nothing meaningful to show.
  * @param props.error         - Error descriptor shown when `isError` is true.
- * @param props.empty         - Empty-state descriptor shown when `isEmpty` is true.
+ * @param props.empty         - Empty-state descriptor; its `icon` defaults to a neutral glyph.
  * @param props.renderLoading - Optional per-widget loading override.
  * @param props.children      - Success content, rendered only when the state is `ready`.
  * @return The rendered widget state.
@@ -108,7 +109,11 @@ export function WidgetState( {
 	if ( isEmpty ) {
 		return (
 			<ChartEmptyState
-				icon={ empty?.icon }
+				// Default to a neutral "no data" glyph so the empty state stays
+				// visually distinct from the error state. `ChartEmptyState`'s own
+				// default is `cautionFilled`, which would otherwise duplicate the
+				// error icon; callers can still override via `empty.icon`.
+				icon={ empty?.icon ?? chartBar }
 				text={
 					empty?.description ??
 					__( 'No data found for this date range.', 'jetpack-premium-analytics' )
