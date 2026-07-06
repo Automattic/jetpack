@@ -767,7 +767,18 @@ class Initializer {
 			$cached_alerts = Red_Bubble_Notifications::get_cached_alerts();
 
 			if ( false === $cached_alerts ) {
-				// No cache - fetch asynchronously via JS.
+				// No cache: warm it asynchronously via JS. Register a hidden zero-count
+				// placeholder so Menu_Renderer emits a `my-jetpack` badge element the
+				// warmer can reveal (see async-notification-bubble.ts) without a reload.
+				Menu_Badges::init(); // idempotent; wires the renderer.
+				Notification_Counts::register(
+					'my-jetpack',
+					array(
+						'menu_slug' => 'my-jetpack',
+						'count'     => 0,
+						'type'      => 'count',
+					)
+				);
 				add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_red_bubble_script' ) );
 				return;
 			}

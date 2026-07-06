@@ -230,6 +230,28 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 	}
 
 	/**
+	 * On a cold red-bubble cache (no transient) off the My Jetpack page, the alert
+	 * data is fetched asynchronously. maybe_show_red_bubble() must still register a
+	 * hidden zero-count 'my-jetpack' placeholder so Menu_Renderer emits a badge
+	 * element the async warmer (async-notification-bubble.ts) can reveal without a
+	 * reload, and it must enqueue that warmer script.
+	 */
+	public function test_cold_cache_registers_hidden_placeholder_and_enqueues_warmer() {
+		// No transient seeded in setUp(): get_cached_alerts() returns false -> cold path.
+		Initializer::maybe_show_red_bubble();
+
+		$entries = Notification_Counts::all();
+		$this->assertArrayHasKey( 'my-jetpack', $entries );
+		$this->assertSame( 'my-jetpack', $entries['my-jetpack']['menu_slug'] );
+		$this->assertSame( 0, Notification_Counts::get_for_menu( 'my-jetpack' ) );
+		$this->assertSame( 0, Notification_Counts::get_total() );
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts', array( Initializer::class, 'enqueue_red_bubble_script' ) ),
+			'The async warmer script should be enqueued on a cold cache.'
+		);
+	}
+
+	/**
 	 * Disconnected sites should not have anything registered.
 	 */
 	public function test_skips_registration_when_disconnected() {

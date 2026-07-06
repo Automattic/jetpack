@@ -2,25 +2,40 @@
  * My Jetpack Notification Bubble async loader.
  *
  * `Initializer::maybe_show_red_bubble()` enqueues this script only when the
- * red-bubble transient is cold, which also means it registered nothing with
- * the menu-badges `Notification_Counts` registry for this request. Menu_Renderer
- * has therefore already rendered the page's menu with a zero contribution from
- * My Jetpack, and no `[data-jp-menu-badge="my-jetpack"]` element exists on the
- * page for `window.jetpackMenuBadges.setCount()` to update.
+ * red-bubble transient is cold. On that path it registers a hidden zero-count
+ * placeholder with the menu-badges `Notification_Counts` registry, so
+ * Menu_Renderer emits a hidden `[data-jp-menu-badge="my-jetpack"]` element on
+ * the current page.
  *
- * This request's only job is to warm the red-bubble transient (the REST
- * callback recomputes and re-caches it, see
- * `Red_Bubble_Notifications::get_red_bubble_alerts()`) so the *next* page load
- * takes the cached-alerts path and registers My Jetpack's contribution with
- * the registry in time for Menu_Renderer to badge it. It intentionally does
- * not write any badge into the current page's DOM.
+ * This request warms the red-bubble transient (the REST callback recomputes and
+ * re-caches it, see `Red_Bubble_Notifications::get_red_bubble_alerts()`) and,
+ * with the fresh alerts it gets back, lights up that placeholder via
+ * `window.jetpackMenuBadges.setCount()` — so the badge appears on the current
+ * page without waiting for a reload. The next page load takes the cached-alerts
+ * path and re-registers the authoritative per-alert counts server-side.
  */
 import apiFetch from '@wordpress/api-fetch';
 
-apiFetch( {
+apiFetch< RedBubbleAlerts >( {
 	path: 'my-jetpack/v1/red-bubble-notifications',
 	method: 'POST',
-} ).catch( error => {
-	// eslint-disable-next-line no-console
-	console.log( '[Jetpack] Red bubble notification fetch failed:', error );
-} );
+} )
+	.then( alerts => {
+		if ( typeof window.jetpackMenuBadges?.setCount !== 'function' ) {
+			return;
+		}
+		// Count the alerts that would show a badge (server-side registration skips
+		// `is_silent` ones). This is a transient client-side estimate; the next page
+		// load re-registers the authoritative count server-side, which also handles
+		// the Protect-standalone de-dup this can't see.
+		const count = alerts
+			? Object.values( alerts ).filter(
+					alert => ! ( alert as { is_silent?: boolean } | null )?.is_silent
+			  ).length
+			: 0;
+		window.jetpackMenuBadges.setCount( 'my-jetpack', count );
+	} )
+	.catch( error => {
+		// eslint-disable-next-line no-console
+		console.log( '[Jetpack] Red bubble notification fetch failed:', error );
+	} );
