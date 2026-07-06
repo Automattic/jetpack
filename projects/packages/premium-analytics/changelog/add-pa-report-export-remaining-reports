@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add CSV export for the full set of analytics reports (orders, sales by channel/source/device/campaign/coupon, sessions, taxes, coupons, bookings, revenue by customer type, and more), ported from WooCommerce Analytics.
