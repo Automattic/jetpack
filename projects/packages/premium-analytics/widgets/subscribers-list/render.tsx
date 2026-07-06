@@ -145,14 +145,15 @@ type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListAttributes >
  *
  * Mirrors the other Stats widgets: attributes flow to the inner component via
  * props (the dashboard's WC-shaped `reportParams` context does not fit the
- * followers query), and `WidgetRoot` provides the analytics query client.
+ * followers query), and `WidgetRoot` provides the analytics query client and
+ * receives host attributes for the widget contract.
  *
  * @param {SubscribersListWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
 export default function SubscribersList( { attributes = {} }: SubscribersListWidgetProps ) {
 	return (
-		<WidgetRoot>
+		<WidgetRoot attributes={ attributes }>
 			<SubscribersReport attributes={ attributes } />
 		</WidgetRoot>
 	);
