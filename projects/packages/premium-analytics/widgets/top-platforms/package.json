@@ -6,8 +6,6 @@
 	"dependencies": {
 		"@jetpack-premium-analytics/data": "link:../../packages/data",
 		"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit",
-		"@wordpress/components": "36.1.0",
-		"@wordpress/element": "8.2.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
 		"@wordpress/ui": "0.17.0",
