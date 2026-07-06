@@ -60,6 +60,8 @@ export interface ConnectionErrorProps {
 	navigate?: ( url: string ) => void;
 	/** Optional feature-supplied context line rendered above the shared cause/action. */
 	context?: string | ReactElement;
+	/** Opt in to surfacing connection *health-check* failures. */
+	includeHealthErrors?: boolean;
 }
 
 /**

@@ -348,7 +348,10 @@ export default function ActivityLog() {
 	// instead of a generic "couldn't load" dead-end. Never runs on mount — only
 	// off a failure — so the multi-call probe stays off the happy path.
 	const { runConnectionHealthCheck } = useDispatch( CONNECTION_STORE_ID );
-	const { hasConnectionError } = useConnectionErrorNotice();
+	// Opt in to health-check errors: AL is the consumer that runs the probe, so it
+	// is the one that should surface its result. Other consumers of the shared
+	// hook default to `includeHealthErrors: false` and never inherit this slot.
+	const { hasConnectionError } = useConnectionErrorNotice( { includeHealthErrors: true } );
 	// Deliberately use a layout effect so the "generic" error notice never
 	// paints before we begin the connection health check. A regular
 	// useEffect produces a brief flash of the generic notice before it is
@@ -554,6 +557,11 @@ export default function ActivityLog() {
 				<div className="jp-activity-log__inner">
 					{ showConnectionError ? (
 						<ConnectionError
+							// `<ConnectionError>` re-runs `useConnectionErrorNotice`
+							// internally, so it needs the same opt-in as the gate above
+							// or it re-computes `hasConnectionError` as false and renders
+							// nothing.
+							includeHealthErrors
 							context={ __(
 								'Your activity log couldn’t load because your site isn’t fully connected to WordPress.com.',
 								'jetpack-activity-log'

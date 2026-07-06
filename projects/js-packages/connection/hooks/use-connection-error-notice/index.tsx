@@ -31,6 +31,7 @@ export default function useConnectionErrorNotice( {
 	customActions = null,
 	reconnectTrackingEvent,
 	navigate,
+	includeHealthErrors = false,
 }: ConnectionErrorProps = {} ): UseConnectionErrorNoticeResult {
 	const { connectionErrors, connectionHealthErrors } = useConnection( {} );
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
@@ -46,7 +47,11 @@ export default function useConnectionErrorNotice( {
 	// `connectionHealthErrors` is typed as a `ConnectionErrorMap` at the store
 	// boundary (selector defaults to `{}`, never an array), so no normalization
 	// is needed — just guard against a caller that never populated the slot.
-	const healthErrorMap: ConnectionErrorMap = connectionHealthErrors ?? {};
+	// Only consumers that opted in (i.e. actually ran the probe) inherit it; for
+	// everyone else the shared health slot is invisible.
+	const healthErrorMap: ConnectionErrorMap = includeHealthErrors
+		? connectionHealthErrors ?? {}
+		: {};
 
 	// Precedence: real WPCOM-reported store errors win; health-check failures are
 	// the fallback so a broken connection still surfaces when the store is empty.
