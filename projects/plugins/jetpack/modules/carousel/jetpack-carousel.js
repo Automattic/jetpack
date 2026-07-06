@@ -1674,7 +1674,7 @@
 			}
 
 			var parent = el.parentElement;
-			var grandparent = parent.parentElement;
+			var grandparent = parent ? parent.parentElement : null;
 
 			// If Gallery is made up of individual Image blocks check for custom link before
 			// loading carousel. The custom link may be the parent or could be a descendant
@@ -1692,21 +1692,26 @@
 
 			// If the link does not point to the attachment or media file then assume Image has
 			// a custom link so don't load the carousel.
-			if (
-				parentHref &&
-				parentHref.split( '?' )[ 0 ] !== el.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
-				parentHref !== el.getAttribute( 'data-permalink' )
-			) {
-				return false;
+			if ( parentHref ) {
+				var origFile = el.getAttribute( 'data-orig-file' ) || '';
+				var permalink = el.getAttribute( 'data-permalink' ) || '';
+
+				var cleanHref = parentHref.split( '?' )[ 0 ].replace( /\/$/, '' );
+				var cleanOrig = origFile.split( '?' )[ 0 ].replace( /\/$/, '' );
+				var cleanPerm = permalink.split( '?' )[ 0 ].replace( /\/$/, '' );
+
+				if ( cleanHref !== cleanOrig && cleanHref !== cleanPerm ) {
+					return false;
+				}
 			}
 
 			// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
-			if ( parent.classList.contains( 'gallery-caption' ) ) {
+			if ( parent && parent.classList.contains( 'gallery-caption' ) ) {
 				return false;
 			}
 
 			// Do not open the modal if we are looking at a caption of a gallery block, which may contain a link.
-			if ( domUtil.matches( parent, 'figcaption' ) ) {
+			if ( typeof domUtil !== 'undefined' && domUtil.matches( parent, 'figcaption' ) ) {
 				return false;
 			}
 
