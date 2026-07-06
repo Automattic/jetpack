@@ -853,7 +853,7 @@ importers:
         version: 8.0.3
       browserslist:
         specifier: ^4.17.6
-        version: 4.28.2
+        version: 4.28.4
       debug:
         specifier: ^4.3.2
         version: 4.4.3
@@ -1795,8 +1795,8 @@ importers:
         specifier: 0.14.0
         version: 0.14.0(@babel/core@7.29.7)
       browserslist:
-        specifier: 4.28.2
-        version: 4.28.2
+        specifier: 4.28.4
+        version: 4.28.4
       core-js:
         specifier: 3.38.1
         version: 3.38.1
@@ -2007,7 +2007,7 @@ importers:
         version: 6.50.0
       browserslist:
         specifier: ^4.24.0
-        version: 4.28.2
+        version: 4.28.4
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
@@ -2168,10 +2168,10 @@ importers:
         version: 6.50.0
       '@wordpress/build':
         specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
       browserslist:
         specifier: ^4.24.0
-        version: 4.28.2
+        version: 4.28.4
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
@@ -2820,7 +2820,7 @@ importers:
         version: 6.50.0
       '@wordpress/build':
         specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
       '@wordpress/date':
         specifier: 5.50.0
         version: 5.50.0
@@ -2829,7 +2829,7 @@ importers:
         version: 10.4.20(postcss@8.5.14)
       browserslist:
         specifier: ^4.24.0
-        version: 4.28.2
+        version: 4.28.4
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
@@ -3138,13 +3138,13 @@ importers:
         version: 7.0.0-dev.20260225.1
       '@wordpress/build':
         specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
       babel-plugin-transform-rename-properties:
         specifier: 0.1.0
         version: 0.1.0(@babel/core@7.29.7)
       browserslist:
         specifier: ^4.24.0
-        version: 4.28.2
+        version: 4.28.4
       c8:
         specifier: ^11.0.0
         version: 11.0.0
@@ -3543,10 +3543,10 @@ importers:
         version: 6.50.0
       '@wordpress/build':
         specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
       browserslist:
         specifier: ^4.24.0
-        version: 4.28.2
+        version: 4.28.4
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
@@ -3884,13 +3884,13 @@ importers:
         version: 6.50.0
       '@wordpress/build':
         specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
       '@wordpress/theme':
         specifier: 0.15.1
         version: 0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       browserslist:
         specifier: ^4.24.0
-        version: 4.28.2
+        version: 4.28.4
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
@@ -4086,10 +4086,10 @@ importers:
         version: 10.2.0
       '@wordpress/build':
         specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
       browserslist:
-        specifier: 4.28.2
-        version: 4.28.2
+        specifier: 4.28.4
+        version: 4.28.4
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -4292,7 +4292,7 @@ importers:
         version: 6.50.0
       '@wordpress/build':
         specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.14)
@@ -4301,7 +4301,7 @@ importers:
         version: 30.4.1(@babel/core@7.29.7)
       browserslist:
         specifier: ^4.24.0
-        version: 4.28.2
+        version: 4.28.4
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
@@ -4537,10 +4537,10 @@ importers:
         version: 6.50.0
       '@wordpress/build':
         specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
       browserslist:
         specifier: ^4.24.0
-        version: 4.28.2
+        version: 4.28.4
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -4863,13 +4863,13 @@ importers:
         version: 6.50.0
       '@wordpress/build':
         specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
       '@wordpress/theme':
         specifier: 0.15.1
         version: 0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       browserslist:
         specifier: ^4.24.0
-        version: 4.28.2
+        version: 4.28.4
       jest:
         specifier: 30.4.2
         version: 30.4.2(@types/node@24.13.1)
@@ -5081,13 +5081,13 @@ importers:
         version: 6.50.0
       '@wordpress/build':
         specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.14)
       browserslist:
         specifier: ^4.24.0
-        version: 4.28.2
+        version: 4.28.4
       concurrently:
         specifier: 10.0.3
         version: 10.0.3
@@ -5157,7 +5157,7 @@ importers:
         version: 6.50.0
       '@wordpress/build':
         specifier: 0.16.1
-        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
       '@wordpress/icons':
         specifier: ^13.0.0
         version: 13.1.0(@types/react@18.3.28)(react@18.3.1)
@@ -5181,7 +5181,7 @@ importers:
         version: 0.13.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       browserslist:
         specifier: ^4.24.0
-        version: 4.28.2
+        version: 4.28.4
       c8:
         specifier: ^11.0.0
         version: 11.0.0
@@ -12495,8 +12495,8 @@ packages:
     resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
     engines: {node: 18 || 20 || >=22}
 
-  baseline-browser-mapping@2.10.34:
-    resolution: {integrity: sha512-IMDedajPifLnHNY0X9n8hKxRTQ6/eTHwr5bDo04WnuqxyKw6LYtQywCuuqPZwhl3aBXMvQpJov42GLCwRRdQzw==}
+  baseline-browser-mapping@2.10.42:
+    resolution: {integrity: sha512-c/jurFrDLyui7o1J86yLkRu4LMsTYcBohveus7/I2Hzdn9KIP2bdJPTue/lR1KH46enoPbD77GKeSYNdyPoD3Q==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -12547,8 +12547,8 @@ packages:
     peerDependencies:
       browserslist: '*'
 
-  browserslist@4.28.2:
-    resolution: {integrity: sha512-48xSriZYYg+8qXna9kwqjIVzuQxi+KYWp2+5nCYnYKPTr0LvD89Jqk2Or5ogxz0NUMfIjhh2lIUX/LyX9B4oIg==}
+  browserslist@4.28.4:
+    resolution: {integrity: sha512-MTc8i/x9jBQd1iMw2CFGS+rwMa07eYjLR0CCTLDACl9xhxy+nIs3KeML/biicXtk9JrZ6dnnTatmc7ErPXIxqw==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
@@ -12635,8 +12635,8 @@ packages:
   caniuse-api@3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
 
-  caniuse-lite@1.0.30001797:
-    resolution: {integrity: sha512-l8xKG+gwAIExZGl9FrF7KUwuOmk6wbEPC9Xoy/RtnWv1XG0Q4LFlagaLpUv3Kiza3W/wm27zy0yWJEieYKAP6w==}
+  caniuse-lite@1.0.30001800:
+    resolution: {integrity: sha512-MMHtuAz9Ys840zAY5F4k6fV5GaivZ9sPk+nz0mY+GYVzRBnYkN0mpqkSR92oWRQ19yQWo4HvBV/FnC16AJX8MA==}
 
   canvas-confetti@1.9.4:
     resolution: {integrity: sha512-yxQbJkAVrFXWNbTUjPqjF7G+g6pDotOUHGbkZq2NELZUMDpiJ85rIEazVb8GTaAptNW2miJAXbs1BtioA251Pw==}
@@ -13436,8 +13436,8 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
-  electron-to-chromium@1.5.368:
-    resolution: {integrity: sha512-7RckJJK4uESJF9PxvfMWd3TGqIiieUTG4HxnKaKuIpGbcr+r2ZEB3g2gAhCP3Fqm42vJSzLfgab9eva/C4/XVw==}
+  electron-to-chromium@1.5.387:
+    resolution: {integrity: sha512-TaxwufTFDufvPEoXdhwVrA3UdFWBeWGkYoJ1K8ldF1xe6gKfth6iRNS5lTQ5JPNOHdGQm8PT1QYKUqFLCiUefQ==}
 
   elegant-spinner@1.0.1:
     resolution: {integrity: sha512-B+ZM+RXvRqQaAmkMlO/oSe5nMUOaUnyfGYCEHoR8wrXsZR2mA0XVibsxV1bvTwxdRWah1PkQqso2EzhILGHtEQ==}
@@ -15824,8 +15824,8 @@ packages:
     resolution: {integrity: sha512-RM5oyBy45cLEoHqCeh+MNuFAxO0vTFBLskvQbOKnEE7YTTSN4tbN8QWDIPQ6L+WvKsB/qLEGpYe2ZZ9d4W9OIQ==}
     engines: {node: '>=8'}
 
-  node-releases@2.0.47:
-    resolution: {integrity: sha512-Uzmd6LXpouKo8EUK68IjH4+E01w/hXyV3R3g/geCJo+rXLNfh1xucB+LOzYEOQPSiUK3h/xZf0cQGcSsmyL2Og==}
+  node-releases@2.0.50:
+    resolution: {integrity: sha512-J6l92tKHX6w8Jy5nO1Vuc01NoIiRGi/d6qBKVxh+IQ8Cr3b6HbVNfKiF8ZpFKufTwpwxMmce2W3iQZ861ZRyTg==}
     engines: {node: '>=18'}
 
   normalize-package-data@8.0.0:
@@ -19358,7 +19358,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.29.7
       '@babel/helper-validator-option': 7.29.7
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -24264,7 +24264,7 @@ snapshots:
       '@babel/preset-typescript': 7.29.7(@babel/core@7.29.7)
       '@wordpress/browserslist-config': 6.50.0
       '@wordpress/warning': 3.50.0
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       core-js: 3.38.1
       react: 18.3.1
     transitivePeerDependencies:
@@ -25144,12 +25144,12 @@ snapshots:
 
   '@wordpress/browserslist-config@6.50.0': {}
 
-  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       '@wordpress/style-runtime': 0.4.1
       autoprefixer: 10.5.0(postcss@8.5.14)
-      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.4)
       change-case: 4.1.2
       chokidar: 4.0.3
       cssnano: 7.1.9(postcss@8.5.14)
@@ -25172,12 +25172,12 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       '@wordpress/style-runtime': 0.4.1
       autoprefixer: 10.5.0(postcss@8.5.14)
-      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.4)
       change-case: 4.1.2
       chokidar: 4.0.3
       cssnano: 7.1.9(postcss@8.5.14)
@@ -25199,12 +25199,12 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       '@wordpress/style-runtime': 0.4.1
       autoprefixer: 10.5.0(postcss@8.5.14)
-      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.4)
       change-case: 4.1.2
       chokidar: 4.0.3
       cssnano: 7.1.9(postcss@8.5.14)
@@ -25227,12 +25227,12 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       '@wordpress/style-runtime': 0.4.1
       autoprefixer: 10.5.0(postcss@8.5.14)
-      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.4)
       change-case: 4.1.2
       chokidar: 4.0.3
       cssnano: 7.1.9(postcss@8.5.14)
@@ -25254,12 +25254,12 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/boot@0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.50.0)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       '@wordpress/style-runtime': 0.4.1
       autoprefixer: 10.5.0(postcss@8.5.14)
-      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.4)
       change-case: 4.1.2
       chokidar: 4.0.3
       cssnano: 7.1.9(postcss@8.5.14)
@@ -25282,12 +25282,12 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.16.1(@babel/core@7.29.7)(@wordpress/route@0.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       '@wordpress/style-runtime': 0.4.1
       autoprefixer: 10.5.0(postcss@8.5.14)
-      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.4)
       change-case: 4.1.2
       chokidar: 4.0.3
       cssnano: 7.1.9(postcss@8.5.14)
@@ -31275,8 +31275,8 @@ snapshots:
 
   autoprefixer@10.4.20(postcss@8.5.14):
     dependencies:
-      browserslist: 4.28.2
-      caniuse-lite: 1.0.30001797
+      browserslist: 4.28.4
+      caniuse-lite: 1.0.30001800
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -31285,8 +31285,8 @@ snapshots:
 
   autoprefixer@10.5.0(postcss@8.5.14):
     dependencies:
-      browserslist: 4.28.2
-      caniuse-lite: 1.0.30001797
+      browserslist: 4.28.4
+      caniuse-lite: 1.0.30001800
       fraction.js: 5.3.4
       picocolors: 1.1.1
       postcss: 8.5.14
@@ -31442,7 +31442,7 @@ snapshots:
 
   balanced-match@4.0.4: {}
 
-  baseline-browser-mapping@2.10.34: {}
+  baseline-browser-mapping@2.10.42: {}
 
   batch@0.6.1: {}
 
@@ -31497,18 +31497,18 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
-  browserslist-to-esbuild@2.1.1(browserslist@4.28.2):
+  browserslist-to-esbuild@2.1.1(browserslist@4.28.4):
     dependencies:
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       meow: 13.2.0
 
-  browserslist@4.28.2:
+  browserslist@4.28.4:
     dependencies:
-      baseline-browser-mapping: 2.10.34
-      caniuse-lite: 1.0.30001797
-      electron-to-chromium: 1.5.368
-      node-releases: 2.0.47
-      update-browserslist-db: 1.2.3(browserslist@4.28.2)
+      baseline-browser-mapping: 2.10.42
+      caniuse-lite: 1.0.30001800
+      electron-to-chromium: 1.5.387
+      node-releases: 2.0.50
+      update-browserslist-db: 1.2.3(browserslist@4.28.4)
 
   bser@2.1.1:
     dependencies:
@@ -31593,12 +31593,12 @@ snapshots:
 
   caniuse-api@3.0.0:
     dependencies:
-      browserslist: 4.28.2
-      caniuse-lite: 1.0.30001797
+      browserslist: 4.28.4
+      caniuse-lite: 1.0.30001800
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
 
-  caniuse-lite@1.0.30001797: {}
+  caniuse-lite@1.0.30001800: {}
 
   canvas-confetti@1.9.4: {}
 
@@ -31944,7 +31944,7 @@ snapshots:
 
   core-js-compat@3.49.0:
     dependencies:
-      browserslist: 4.28.2
+      browserslist: 4.28.4
 
   core-js-pure@3.49.0: {}
 
@@ -32071,7 +32071,7 @@ snapshots:
 
   cssnano-preset-default@7.0.17(postcss@8.5.14):
     dependencies:
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       css-declaration-sorter: 7.4.0(postcss@8.5.14)
       cssnano-utils: 5.0.3(postcss@8.5.14)
       postcss: 8.5.14
@@ -32429,7 +32429,7 @@ snapshots:
 
   ee-first@1.1.1: {}
 
-  electron-to-chromium@1.5.368: {}
+  electron-to-chromium@1.5.387: {}
 
   elegant-spinner@1.0.1: {}
 
@@ -35380,7 +35380,7 @@ snapshots:
     dependencies:
       process-on-spawn: 1.1.0
 
-  node-releases@2.0.47: {}
+  node-releases@2.0.50: {}
 
   normalize-package-data@8.0.0:
     dependencies:
@@ -35858,14 +35858,14 @@ snapshots:
   postcss-colormin@7.0.10(postcss@8.5.14):
     dependencies:
       '@colordx/core': 5.4.3
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       caniuse-api: 3.0.0
       postcss: 8.5.14
       postcss-value-parser: 4.2.0
 
   postcss-convert-values@7.0.12(postcss@8.5.14):
     dependencies:
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       postcss: 8.5.14
       postcss-value-parser: 4.2.0
 
@@ -35934,7 +35934,7 @@ snapshots:
 
   postcss-merge-rules@7.0.11(postcss@8.5.14):
     dependencies:
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       caniuse-api: 3.0.0
       cssnano-utils: 5.0.3(postcss@8.5.14)
       postcss: 8.5.14
@@ -35954,14 +35954,14 @@ snapshots:
 
   postcss-minify-params@7.0.9(postcss@8.5.14):
     dependencies:
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       cssnano-utils: 5.0.3(postcss@8.5.14)
       postcss: 8.5.14
       postcss-value-parser: 4.2.0
 
   postcss-minify-selectors@7.1.2(postcss@8.5.14):
     dependencies:
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       caniuse-api: 3.0.0
       cssesc: 3.0.0
       postcss: 8.5.14
@@ -36043,7 +36043,7 @@ snapshots:
 
   postcss-normalize-unicode@7.0.9(postcss@8.5.14):
     dependencies:
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       postcss: 8.5.14
       postcss-value-parser: 4.2.0
 
@@ -36069,7 +36069,7 @@ snapshots:
 
   postcss-reduce-initial@7.0.9(postcss@8.5.14):
     dependencies:
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       caniuse-api: 3.0.0
       postcss: 8.5.14
 
@@ -37514,7 +37514,7 @@ snapshots:
 
   stylehacks@7.0.11(postcss@8.5.14):
     dependencies:
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       postcss: 8.5.14
       postcss-selector-parser: 7.1.1
 
@@ -38190,9 +38190,9 @@ snapshots:
       '@unrs/resolver-binding-win32-ia32-msvc': 1.12.2
       '@unrs/resolver-binding-win32-x64-msvc': 1.12.2
 
-  update-browserslist-db@1.2.3(browserslist@4.28.2):
+  update-browserslist-db@1.2.3(browserslist@4.28.4):
     dependencies:
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       escalade: 3.2.0
       picocolors: 1.1.1
 
@@ -38515,7 +38515,7 @@ snapshots:
       '@webassemblyjs/wasm-parser': 1.14.1
       acorn: 8.16.0
       acorn-import-phases: 1.0.4(acorn@8.16.0)
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.23.0
       es-module-lexer: 2.1.0
@@ -38556,7 +38556,7 @@ snapshots:
       '@webassemblyjs/wasm-parser': 1.14.1
       acorn: 8.16.0
       acorn-import-phases: 1.0.4(acorn@8.16.0)
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.23.0
       es-module-lexer: 2.1.0
@@ -38597,7 +38597,7 @@ snapshots:
       '@webassemblyjs/wasm-parser': 1.14.1
       acorn: 8.16.0
       acorn-import-phases: 1.0.4(acorn@8.16.0)
-      browserslist: 4.28.2
+      browserslist: 4.28.4
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.23.0
       es-module-lexer: 2.1.0
