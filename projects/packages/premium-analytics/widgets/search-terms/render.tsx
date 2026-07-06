@@ -4,8 +4,8 @@
 import {
 	calculateDelta,
 	LeaderboardChart,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -54,43 +54,29 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 		} ) );
 	}, [ data, hasComparison ] );
 
-	if ( isError ) {
-		return (
-			<Stack className={ styles.root }>
-				<div className={ styles.content }>
-					<Stack align="center" justify="center" className={ styles.placeholder }>
-						<Text>{ __( 'Could not load search terms data.', 'jetpack-premium-analytics' ) }</Text>
-					</Stack>
-				</div>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && data.length === 0 ) {
-		return (
-			<Stack className={ styles.root }>
-				<div className={ styles.content }>
-					<WidgetLoadingOverlay />
-				</div>
-			</Stack>
-		);
-	}
-
 	return (
 		<Stack className={ styles.root }>
 			<div className={ styles.content }>
-				<LeaderboardChart
-					data={ leaderboardData }
-					loading={ isLoading }
-					withComparison={ hasComparison }
-					withOverlayLabel
-					showLegend={ false }
-					emptyStateText={ __( 'No search terms in this period.', 'jetpack-premium-analytics' ) }
-					dataFormat={ {
-						type: 'number',
-						options: { useMultipliers: true, decimals: 0 },
+				<WidgetState
+					isLoading={ isLoading }
+					isError={ isError }
+					isEmpty={ data.length === 0 }
+					empty={ {
+						description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ),
 					} }
-				/>
+				>
+					<LeaderboardChart
+						data={ leaderboardData }
+						loading={ isLoading }
+						withComparison={ hasComparison }
+						withOverlayLabel
+						showLegend={ false }
+						dataFormat={ {
+							type: 'number',
+							options: { useMultipliers: true, decimals: 0 },
+						} }
+					/>
+				</WidgetState>
 			</div>
 		</Stack>
 	);
