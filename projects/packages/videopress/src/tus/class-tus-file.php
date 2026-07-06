@@ -435,31 +435,47 @@ class Tus_File {
 			$this->close( $input );
 			$this->close( $output );
 
-			$meta = array( 'offset' => $this->offset );
+			$this->persist_upload_meta( $key, $md5_context, $total_bytes );
+		}
 
-			// Build the digest in its own guard so a hashing failure can never skip the offset write below.
-			if ( null !== $md5_context ) {
-				try {
-					if ( $this->offset === $total_bytes ) {
-						$meta['md5']       = hash_final( $md5_context );
-						$meta['md5_state'] = null;
-					} else {
-						// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize, WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-						$meta['md5_state'] = base64_encode( serialize( $md5_context ) );
-					}
-				} catch ( \Throwable $e ) {
-					Logger::log( 'error', $e );
-				}
-			}
+		return $this->offset;
+	}
 
+	/**
+	 * Persist the upload offset and, when hashing is active, the rolling or final MD5.
+	 *
+	 * Mirrors resume_md5_context(): that reads the rolling state at the start of a request, this writes
+	 * it back at the end. The digest is built inside its own guard so a hashing failure can never skip
+	 * the offset write below.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string            $key         The upload key.
+	 * @param \HashContext|null $md5_context The rolling MD5 context, or null when hashing is inactive.
+	 * @param int               $total_bytes The expected final size, used to detect completion.
+	 */
+	private function persist_upload_meta( $key, $md5_context, $total_bytes ) {
+		$meta = array( 'offset' => $this->offset );
+
+		if ( null !== $md5_context ) {
 			try {
-				$this->cache->set( $key, $meta );
+				if ( $this->offset === $total_bytes ) {
+					$meta['md5']       = hash_final( $md5_context );
+					$meta['md5_state'] = null;
+				} else {
+					// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize, WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+					$meta['md5_state'] = base64_encode( serialize( $md5_context ) );
+				}
 			} catch ( \Throwable $e ) {
 				Logger::log( 'error', $e );
 			}
 		}
 
-		return $this->offset;
+		try {
+			$this->cache->set( $key, $meta );
+		} catch ( \Throwable $e ) {
+			Logger::log( 'error', $e );
+		}
 	}
 
 	/**
