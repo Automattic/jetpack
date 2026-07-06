@@ -27,7 +27,7 @@ class Podcast_Episode_Block {
 	 * Front-end + editor shared style handle. Side-loaded by
 	 * `Assets::register_script` from the sibling `style.css` bundle.
 	 */
-	const STYLE_HANDLE = 'jetpack-podcast-episode-style';
+	const STYLE_HANDLE = 'jetpack-block-podcast-episode';
 
 	/**
 	 * Front-end view script handle. Enqueued from the render callback
