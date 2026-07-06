@@ -70,22 +70,45 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const containerBoundsRef = useRef( containerBounds );
 	containerBoundsRef.current = containerBounds;
 
+	// Mirror visx's callback ref into our own so the background-token resolution below can read
+	// the grid element's computed style (visx's containerRef is a callback ref, not an object).
+	const gridRef = useRef< HTMLDivElement | null >( null );
+	const setGridRef = useCallback(
+		( node: HTMLDivElement | null ) => {
+			gridRef.current = node;
+			( containerRef as ( el: HTMLElement | SVGElement | null ) => void )( node );
+		},
+		[ containerRef ]
+	);
+
 	const { color: primaryColorHex } = getElementStyles( {
 		index: 0,
 		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
 	} );
 
+	// Resolve the chart background against the grid element itself — the exact scope the CSS
+	// `--heatmap-bg` resolves in — so a consumer's scoped WPDS token (e.g. a dark surface) is
+	// seen. Resolving at the document root, or against the provider wrapper (which can sit outside
+	// the theme scope), would miss it and mis-pick the in-cell text color. Read in an effect since
+	// the grid ref is only populated after mount; defaults to the light-surface fallback first.
+	const [ chartBackgroundHex, setChartBackgroundHex ] = useState( '#ffffff' );
+	useEffect( () => {
+		const resolved = normalizeColorToHex(
+			theme.backgroundColor,
+			gridRef.current,
+			resolveCssVariable
+		);
+		setChartBackgroundHex( isValidHexColor( resolved ) ? resolved : '#ffffff' );
+	}, [ theme.backgroundColor ] );
+
 	// Pick the in-cell text color from the cell's actual blended fill luminance (not the data
 	// value), so light text is only used where it out-contrasts dark text. Falls back to dark
 	// text when either color isn't a resolvable hex (e.g. a bare CSS token).
 	//
-	// The fill is the primary mixed over the chart background — the exact opaque equivalent of
-	// the CSS `color-mix(primary, var(--heatmap-bg))`. Resolving the same WPDS background token
-	// the CSS uses keeps the text choice correct on any themed background, light or dark.
+	// The fill is the primary mixed over that resolved background — the exact opaque equivalent of
+	// the CSS `color-mix(primary, var(--heatmap-bg))` — so the text choice stays correct on any
+	// themed background, light or dark.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
-	const chartBackgroundHex = normalizeColorToHex(
-		resolveCssVariable( theme.backgroundColor ) ?? theme.backgroundColor
-	);
 	const cellHasLightText = ( intensity: number ): boolean =>
 		isValidHexColor( primaryHex ) &&
 		isValidHexColor( chartBackgroundHex ) &&
@@ -282,7 +305,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					data-chart-id={ `heatmap-chart-${ chartId }` }
 				>
 					<div
-						ref={ containerRef }
+						ref={ setGridRef }
 						role="grid"
 						aria-label={ __( 'Heatmap chart', 'jetpack-charts' ) }
 						aria-rowcount={ rows }
