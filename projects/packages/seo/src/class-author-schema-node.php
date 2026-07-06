@@ -130,7 +130,7 @@ class Author_Schema_Node {
 	 */
 	public static function build_profile_page( $user ) {
 		$user = self::get_user( $user );
-		if ( ! $user || null === self::build_person( $user ) ) {
+		if ( ! $user || '' === self::text( $user->display_name ) ) {
 			return null;
 		}
 
