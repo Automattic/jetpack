@@ -868,6 +868,10 @@ class Manager {
 		$transient_key    = "jetpack_connected_user_data_$user_id";
 		$cached_user_data = get_transient( $transient_key );
 
+		if ( 'error' === $cached_user_data ) {
+			return false;
+		}
+
 		if ( $cached_user_data ) {
 			return $cached_user_data;
 		}
@@ -884,6 +888,11 @@ class Manager {
 			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
 			return $user_data;
 		}
+
+		// Cache errors briefly so a failing remote request doesn't result in
+		// a blocking XML-RPC request on every call, e.g. on each admin page
+		// load via Initial_State::set_connection_script_data().
+		set_transient( $transient_key, 'error', 5 * MINUTE_IN_SECONDS );
 
 		return false;
 	}
