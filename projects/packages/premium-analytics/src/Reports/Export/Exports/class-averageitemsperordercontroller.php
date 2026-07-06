@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API Reports Visitors Over Time controller class.
+ * REST API Reports Average Items Per Order controller class.
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports
  */
@@ -14,14 +14,14 @@ defined( 'ABSPATH' ) || exit;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
 
 /**
- * Visitors Over Time CSV Export Controller.
+ * Average Items Per Order CSV Export Controller.
  *
- * Handles CSV exports for the Visitors Over Time report, supporting both
+ * Handles CSV exports for the Average Items Per Order report, supporting both
  * single interval and comparison interval data.
  *
  * @since $$next-version$$
  */
-class VisitorsOverTimeController extends AbstractCSVReportController {
+class AverageItemsPerOrderController extends AbstractCSVReportController {
 
 	/**
 	 * Get the report key for this controller.
@@ -29,7 +29,7 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 	 * @return string The report key.
 	 */
 	public function get_report_key(): string {
-		return 'visitorsovertime';
+		return 'averageitemsperorder';
 	}
 
 	/**
@@ -38,7 +38,7 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Visitors Over Time', 'jetpack-premium-analytics' );
+		return __( 'Average Items Per Order', 'jetpack-premium-analytics' );
 	}
 
 	/**
@@ -47,7 +47,7 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 	 * @return string The data endpoint.
 	 */
 	public function get_data_endpoint(): string {
-		return 'reports/sessions/by-date';
+		return 'reports/orders/by-date';
 	}
 
 	/**
@@ -59,18 +59,7 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval' => $this->get_interval_label( $interval ),
-			'visitors'      => __( 'Visitors', 'jetpack-premium-analytics' ),
-		);
-	}
-
-	/**
-	 * Get default values for missing data fields.
-	 *
-	 * @return array Array of field_name => default_value pairs.
-	 */
-	public function get_default_values(): array {
-		return array(
-			'visitors' => 0,
+			'avg_items'     => __( 'Avg items per order', 'jetpack-premium-analytics' ),
 		);
 	}
 
@@ -82,10 +71,23 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 	 * @return array The formatted row.
 	 */
 	public function format_row_for_csv( array $item, ?string $interval = null ): array {
-		$defaults = $this->get_default_values();
+		$defaults  = $this->get_default_values();
+		$avg_items = floatval( $item['avg_items'] ?? $defaults['avg_items'] );
+
 		return array(
 			'time_interval' => $this->format_time_interval( $item, $interval ),
-			'visitors'      => $item['visitors'] ?? $defaults['visitors'],
+			'avg_items'     => number_format( $avg_items, 2, '.', '' ),
+		);
+	}
+
+	/**
+	 * Get default values for missing data fields.
+	 *
+	 * @return array Array of field_name => default_value pairs.
+	 */
+	public function get_default_values(): array {
+		return array(
+			'avg_items' => 0,
 		);
 	}
 
@@ -98,7 +100,18 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 		// time_interval, date_start, and date_end are always returned by the
 		// API for time-series endpoints and do not need to be requested.
 		return array(
-			'visitors',
+			'avg_items',
+		);
+	}
+
+	/**
+	 * Get additional request parameters for data fetching.
+	 *
+	 * @return array Additional parameters to include in data requests.
+	 */
+	public function get_additional_params(): array {
+		return array(
+			'date_type' => self::DEFAULT_DATE_TYPE,
 		);
 	}
 }

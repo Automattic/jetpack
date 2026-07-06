@@ -17,7 +17,6 @@ defined( 'ABSPATH' ) || exit;
  * Report Registry class for managing report configurations.
  *
  * @since $$next-version$$
- * @internal
  */
 class ReportRegistry {
 
@@ -136,15 +135,19 @@ class ReportRegistry {
 	/**
 	 * Get row formatter for a report type.
 	 *
-	 * @param string $report_key The report key.
+	 * @param string      $report_key The report key.
+	 * @param string|null $interval   Optional time interval for formatting.
 	 * @return callable|\WP_Error The row formatter callback or error.
 	 */
-	public function get_row_formatter( string $report_key ) {
+	public function get_row_formatter( string $report_key, ?string $interval = null ) {
 		$controller = $this->get_controller( $report_key );
 		if ( \is_wp_error( $controller ) ) {
 			return $controller;
 		}
-		return array( $controller, 'format_row_with_comparison' );
+		// Return a closure that captures the interval to avoid race conditions.
+		return function ( $item ) use ( $controller, $interval ) {
+			return $controller->format_row_with_comparison( $item, $interval );
+		};
 	}
 
 	/**

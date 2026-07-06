@@ -14,13 +14,28 @@ declare( strict_types=1 );
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\AvgItemsPerOrderOverTimeController;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\AvgOrderValueOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\AverageItemsPerOrderController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\AverageOrderValueController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\BookingsOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\BookingStatusBreakdownController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\ConversionRateOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\CouponUseOverTimeController;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\GrossSalesOverTimeController;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\NetSalesOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersFulfilledOverTimeController;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\RefundsOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\RevenueByCustomerTypeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\SalesByCampaignController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\SalesByChannelController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\SalesByCouponController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\SalesByDeviceController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\SalesBySourceController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\SessionsByDeviceController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\SessionsByLocationController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\TaxesOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\TaxRateBreakdownController;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\TopPerformingProductsController;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\TotalSalesOverTimeController;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\VisitorsOverTimeController;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\DebugLogger;
 
@@ -81,15 +96,35 @@ class Export {
 		$email->register();
 
 		// Report-type controllers self-register into the ReportRegistry on register().
-		( new OrdersOverTimeController( $registry ) )->register();
-		( new TopPerformingProductsController( $registry ) )->register();
-		( new VisitorsOverTimeController( $registry ) )->register();
+		// Ported faithfully from woocommerce/woocommerce-analytics (develop).
+		$report_controllers = array(
+			AverageItemsPerOrderController::class,
+			AverageOrderValueController::class,
+			BookingsOverTimeController::class,
+			BookingStatusBreakdownController::class,
+			ConversionRateOverTimeController::class,
+			CouponUseOverTimeController::class,
+			GrossSalesOverTimeController::class,
+			NetSalesOverTimeController::class,
+			OrdersFulfilledOverTimeController::class,
+			OrdersOverTimeController::class,
+			RefundsOverTimeController::class,
+			RevenueByCustomerTypeController::class,
+			SalesByCampaignController::class,
+			SalesByChannelController::class,
+			SalesByCouponController::class,
+			SalesByDeviceController::class,
+			SalesBySourceController::class,
+			SessionsByDeviceController::class,
+			SessionsByLocationController::class,
+			TaxesOverTimeController::class,
+			TaxRateBreakdownController::class,
+			TopPerformingProductsController::class,
+			VisitorsOverTimeController::class,
+		);
 
-		// Additional orders/by-date time-series metrics (same endpoint, different value column).
-		( new AvgOrderValueOverTimeController( $registry ) )->register();
-		( new AvgItemsPerOrderOverTimeController( $registry ) )->register();
-		( new GrossSalesOverTimeController( $registry ) )->register();
-		( new NetSalesOverTimeController( $registry ) )->register();
-		( new TotalSalesOverTimeController( $registry ) )->register();
+		foreach ( $report_controllers as $report_controller ) {
+			( new $report_controller( $registry ) )->register();
+		}
 	}
 }

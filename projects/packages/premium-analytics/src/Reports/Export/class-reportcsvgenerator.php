@@ -22,7 +22,6 @@ use WP_Error;
  * CSV Generator class for creating CSV files from report data.
  *
  * @since $$next-version$$
- * @internal
  */
 class ReportCSVGenerator {
 

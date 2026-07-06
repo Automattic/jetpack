@@ -31,7 +31,6 @@ if ( ! class_exists( 'WC_Email', false ) && function_exists( 'WC' ) ) {
  * CSV Export Email class.
  *
  * @since $$next-version$$
- * @internal
  */
 class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 

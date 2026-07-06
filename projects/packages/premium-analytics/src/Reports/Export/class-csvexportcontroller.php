@@ -25,7 +25,6 @@ use WP_REST_Response;
  * CSV Export Controller class.
  *
  * @since $$next-version$$
- * @internal
  */
 class CSVExportController extends WC_REST_Controller implements RegistrableInterface {
 
@@ -429,12 +428,6 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 			return $controller;
 		}
 
-		// Get report data endpoint.
-		$data_endpoint = $this->registry->get_data_endpoint( $report_type );
-		if ( is_wp_error( $data_endpoint ) ) {
-			return $data_endpoint;
-		}
-
 		// Extract parameters.
 		$params = array(
 			'from'         => $request->get_param( 'from' ),
@@ -452,26 +445,25 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 			return $this->schedule_email_export( $report_type, $params );
 		}
 
-		return $this->generate_download_export( $report_type, $data_endpoint, $params );
+		return $this->generate_download_export( $report_type, $params );
 	}
 
 	/**
 	 * Generate and stream CSV for download.
 	 *
-	 * @param string $report_type  The report type.
-	 * @param string $data_endpoint The data endpoint.
-	 * @param array  $params       Request parameters.
+	 * @param string $report_type The report type.
+	 * @param array  $params      Request parameters.
 	 * @return WP_REST_Response|WP_Error Response or error.
 	 */
-	private function generate_download_export( string $report_type, string $data_endpoint, array $params ) {
-		// Get controller for default values.
+	private function generate_download_export( string $report_type, array $params ) {
+		// Controller drives the data endpoint, requested fields, and merge strategy.
 		$controller = $this->registry->get_controller( $report_type );
 		if ( is_wp_error( $controller ) ) {
-			$controller = null; // Fallback to null if controller not found.
+			return $controller;
 		}
 
 		// Fetch data.
-		$data = $this->data_fetcher->fetch( $params, $data_endpoint, $controller );
+		$data = $this->data_fetcher->fetch( $params, $controller );
 		if ( is_wp_error( $data ) ) {
 			return $data;
 		}
@@ -479,14 +471,17 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		// Determine if comparison mode.
 		$is_comparison = $this->is_comparison_request( $params );
 
+		// Interval drives time-series column labels and row formatting.
+		$interval = $params['interval'] ?? null;
+
 		// Get columns.
-		$columns = $this->registry->get_columns( $report_type, $is_comparison, $params['interval'] ?? null );
+		$columns = $this->registry->get_columns( $report_type, $is_comparison, $interval );
 		if ( is_wp_error( $columns ) ) {
 			return $columns;
 		}
 
 		// Get row formatter.
-		$formatter = $this->registry->get_row_formatter( $report_type );
+		$formatter = $this->registry->get_row_formatter( $report_type, $interval );
 		if ( is_wp_error( $formatter ) ) {
 			return $formatter;
 		}

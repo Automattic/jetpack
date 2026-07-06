@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API Reports Visitors Over Time controller class.
+ * REST API Reports Bookings Over Time controller class.
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports
  */
@@ -14,14 +14,17 @@ defined( 'ABSPATH' ) || exit;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
 
 /**
- * Visitors Over Time CSV Export Controller.
+ * Bookings Over Time CSV Export Controller.
  *
- * Handles CSV exports for the Visitors Over Time report, supporting both
+ * Handles CSV exports for the Bookings Over Time report, supporting both
  * single interval and comparison interval data.
+ *
+ * This controller automatically filters for booking product types:
+ * 'booking', 'bookable-event', and 'bookable-service'.
  *
  * @since $$next-version$$
  */
-class VisitorsOverTimeController extends AbstractCSVReportController {
+class BookingsOverTimeController extends AbstractCSVReportController {
 
 	/**
 	 * Get the report key for this controller.
@@ -29,7 +32,7 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 	 * @return string The report key.
 	 */
 	public function get_report_key(): string {
-		return 'visitorsovertime';
+		return 'bookingsovertime';
 	}
 
 	/**
@@ -38,7 +41,7 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Visitors Over Time', 'jetpack-premium-analytics' );
+		return __( 'Bookings Over Time', 'jetpack-premium-analytics' );
 	}
 
 	/**
@@ -47,7 +50,7 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 	 * @return string The data endpoint.
 	 */
 	public function get_data_endpoint(): string {
-		return 'reports/sessions/by-date';
+		return 'reports/orders-by-product-type/by-date';
 	}
 
 	/**
@@ -59,7 +62,7 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval' => $this->get_interval_label( $interval ),
-			'visitors'      => __( 'Visitors', 'jetpack-premium-analytics' ),
+			'orders_no'     => __( 'Bookings created', 'jetpack-premium-analytics' ),
 		);
 	}
 
@@ -70,7 +73,7 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 	 */
 	public function get_default_values(): array {
 		return array(
-			'visitors' => 0,
+			'orders_no' => 0,
 		);
 	}
 
@@ -85,7 +88,7 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 		$defaults = $this->get_default_values();
 		return array(
 			'time_interval' => $this->format_time_interval( $item, $interval ),
-			'visitors'      => $item['visitors'] ?? $defaults['visitors'],
+			'orders_no'     => isset( $item['orders_no'] ) ? (int) $item['orders_no'] : $defaults['orders_no'],
 		);
 	}
 
@@ -98,7 +101,27 @@ class VisitorsOverTimeController extends AbstractCSVReportController {
 		// time_interval, date_start, and date_end are always returned by the
 		// API for time-series endpoints and do not need to be requested.
 		return array(
-			'visitors',
+			'orders_no',
+		);
+	}
+
+	/**
+	 * Get additional request parameters for data fetching.
+	 *
+	 * Automatically filters for booking product types.
+	 *
+	 * @return array Additional parameters to include in data requests.
+	 */
+	public function get_additional_params(): array {
+		return array(
+			'date_type' => self::DEFAULT_DATE_TYPE,
+			'filters'   => array(
+				array(
+					'key'     => 'product_type',
+					'compare' => 'IN',
+					'value'   => array( 'booking', 'bookable-event', 'bookable-service' ),
+				),
+			),
 		);
 	}
 }

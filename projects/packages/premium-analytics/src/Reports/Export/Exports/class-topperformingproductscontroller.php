@@ -17,8 +17,8 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportControll
  * Top Performing Products CSV Export Controller.
  *
  * Handles CSV exports for the Top Performing Products report.
- * Note: This is a ranked list report, not a time-series report,
- * so it does not support comparison mode.
+ * Note: This is a ranked list report, not a time-series report.
+ * Comparison mode is supported using ID-based merging (matching by product_id).
  *
  * @since $$next-version$$
  */
@@ -64,7 +64,7 @@ class TopPerformingProductsController extends AbstractCSVReportController {
 	 * @param string|null $interval Optional time interval for dynamic headers.
 	 * @return array The column headers.
 	 */
-	public function get_column_headers( ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $interval is required by CSVReportControllerInterface; these headers are static.
+	public function get_column_headers( ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		return array(
 			'product'             => __( 'Product', 'jetpack-premium-analytics' ),
 			'gross_sales'         => __( 'Gross sales', 'jetpack-premium-analytics' ),
@@ -81,10 +81,11 @@ class TopPerformingProductsController extends AbstractCSVReportController {
 	/**
 	 * Format a row for CSV export.
 	 *
-	 * @param array $item The row data.
+	 * @param array       $item     The row data.
+	 * @param string|null $interval Optional time interval for formatting.
 	 * @return array The formatted row.
 	 */
-	public function format_row_for_csv( array $item ): array {
+	public function format_row_for_csv( array $item, ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		$defaults = $this->get_default_values();
 
 		$product_name = ! empty( $item['product_name'] )
@@ -148,9 +149,53 @@ class TopPerformingProductsController extends AbstractCSVReportController {
 	 */
 	public function get_additional_params(): array {
 		return array(
-			'orderby' => 'product_gross_revenue',
-			'order'   => 'desc',
-			'limit'   => 100,
+			'date_type' => self::DEFAULT_DATE_TYPE,
+			'orderby'   => 'product_gross_revenue',
+			'order'     => 'desc',
+			'limit'     => 100,
 		);
+	}
+
+	/**
+	 * Get the list of API fields needed for this report.
+	 *
+	 * @return array
+	 */
+	public function get_fields(): array {
+		return array(
+			'product_id',
+			'product_name',
+			'product_gross_revenue',
+			'discount',
+			'refunds',
+			'product_net_revenue',
+			'new_customer_count',
+			'returning_customer_count',
+			'net_revenue_with_cogs',
+			'cogs_amount',
+		);
+	}
+
+	/**
+	 * Get the matching field for comparison data alignment.
+	 *
+	 * Top Products is a ranked report, so comparison data should be matched by product_id.
+	 *
+	 * @return string|null
+	 */
+	public function get_matching_field(): ?string {
+		return 'product_id';
+	}
+
+	/**
+	 * Get the identifying fields that should be preserved in comparison data.
+	 *
+	 * When a product exists in the original period but not in the comparison period,
+	 * the product_name should still be shown for clarity.
+	 *
+	 * @return array Array of field names to preserve.
+	 */
+	public function get_identifying_fields(): array {
+		return array( 'product_name' );
 	}
 }

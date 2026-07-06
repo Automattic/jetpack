@@ -5,7 +5,11 @@
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports
  */
 
+declare( strict_types=1 );
+
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
+
+defined( 'ABSPATH' ) || exit;
 
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
 
@@ -73,14 +77,39 @@ class OrdersOverTimeController extends AbstractCSVReportController {
 	/**
 	 * Format a row for CSV export.
 	 *
-	 * @param array $item The row data.
+	 * @param array       $item     The row data.
+	 * @param string|null $interval Optional time interval for formatting.
 	 * @return array The formatted row.
 	 */
-	public function format_row_for_csv( array $item ): array {
+	public function format_row_for_csv( array $item, ?string $interval = null ): array {
 		$defaults = $this->get_default_values();
 		return array(
-			'time_interval' => $this->format_time_interval( $item ),
+			'time_interval' => $this->format_time_interval( $item, $interval ),
 			'orders_no'     => $item['orders_no'] ?? $defaults['orders_no'],
+		);
+	}
+
+	/**
+	 * Get the list of API fields needed for this report.
+	 *
+	 * @return array
+	 */
+	public function get_fields(): array {
+		// time_interval, date_start, and date_end are always returned by the
+		// API for time-series endpoints and do not need to be requested.
+		return array(
+			'orders_no',
+		);
+	}
+
+	/**
+	 * Get additional request parameters for data fetching.
+	 *
+	 * @return array Additional parameters to include in data requests.
+	 */
+	public function get_additional_params(): array {
+		return array(
+			'date_type' => self::DEFAULT_DATE_TYPE,
 		);
 	}
 }

@@ -61,10 +61,11 @@ interface CSVReportControllerInterface extends RegistrableInterface {
 	 * This method should return the base row data without comparison fields.
 	 * Comparison fields are automatically added by format_row_with_comparison().
 	 *
-	 * @param array $item The raw data item.
+	 * @param array       $item     The raw data item.
+	 * @param string|null $interval Optional time interval for formatting.
 	 * @return array The formatted row for CSV.
 	 */
-	public function format_row_for_csv( array $item ): array;
+	public function format_row_for_csv( array $item, ?string $interval = null ): array;
 
 	/**
 	 * Get default values for missing data fields.
@@ -84,20 +85,83 @@ interface CSVReportControllerInterface extends RegistrableInterface {
 	public function get_batch_limit(): int;
 
 	/**
+	 * Get the matching field for comparison data alignment.
+	 *
+	 * For ranked reports (top products, sales by coupon), return the field name
+	 * to use for matching rows between periods (e.g., 'product_id', 'coupon_code').
+	 * For time-series reports, return null to use index-based matching.
+	 *
+	 * @return string|null The field name for ID-based matching, or null for index-based.
+	 */
+	public function get_matching_field(): ?string;
+
+	/**
+	 * Get the identifying fields that should be preserved in comparison data.
+	 *
+	 * For ranked reports with ID-based matching, these fields (like 'product_name',
+	 * 'coupon_code') should be copied from the original period to comparison period
+	 * when comparison data is missing. This ensures the entity name is always shown
+	 * even when there was no activity in the comparison period.
+	 *
+	 * @return array Array of field names to preserve, or empty array for none.
+	 */
+	public function get_identifying_fields(): array;
+
+	/**
 	 * Format a row with automatic comparison field handling.
 	 *
 	 * This method wraps format_row_for_csv() and automatically adds
 	 * comparison fields if present in the data.
 	 *
-	 * @param array $item The raw data item.
+	 * @param array       $item     The raw data item.
+	 * @param string|null $interval Optional time interval for formatting.
 	 * @return array The formatted row with comparison fields.
 	 */
-	public function format_row_with_comparison( array $item ): array;
+	public function format_row_with_comparison( array $item, ?string $interval = null ): array;
 
 	/**
-	 * Get controller-specific additional query parameters for the data request.
+	 * Whether to use array format for filter values in IN filters.
 	 *
-	 * @return array Additional parameters, keyed by name (empty for most reports).
+	 * When true, filters are built as: filters[0][value][]=id1&filters[0][value][]=id2
+	 * When false (default), filters are built as: filters[0][value]=id1,id2 (more URL-efficient)
+	 *
+	 * Order-attribution endpoints require array format, while most other endpoints
+	 * accept comma-separated values which are more URL-efficient.
+	 *
+	 * @return bool True to use array format, false for comma-separated (default).
+	 */
+	public function use_array_filter_format(): bool;
+
+	/**
+	 * Whether to include rows with empty identifying fields in the export.
+	 *
+	 * When true, rows with empty identifying fields will be included in the export
+	 * with a custom label. When false (default), they will be skipped.
+	 *
+	 * This is used by ReportDataFetcher when building ID filters for comparison data
+	 * to ensure comparison data is fetched for empty rows when needed.
+	 *
+	 * @return bool True to include empty rows with custom label, false to skip them.
+	 */
+	public function should_include_empty_rows(): bool;
+
+	/**
+	 * Get the list of fields to request from the API.
+	 *
+	 * Return only the fields needed for this report to reduce API response
+	 * payload size. Return an empty array to request all fields (default).
+	 *
+	 * @return array Field names to request, or empty array for all fields.
+	 */
+	public function get_fields(): array;
+
+	/**
+	 * Get additional request parameters for data fetching.
+	 *
+	 * Controller-specific query parameters merged into every data request
+	 * (e.g. date_type, orderby, order, limit).
+	 *
+	 * @return array Additional parameters to include in data requests.
 	 */
 	public function get_additional_params(): array;
 }

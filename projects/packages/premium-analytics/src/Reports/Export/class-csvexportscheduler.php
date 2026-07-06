@@ -21,7 +21,6 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
  * CSV Export Scheduler class.
  *
  * @since $$next-version$$
- * @internal
  */
 class CSVExportScheduler implements RegistrableInterface {
 
@@ -204,20 +203,14 @@ class CSVExportScheduler implements RegistrableInterface {
 		\wp_set_current_user( $user_id );
 
 		try {
-			// Get report data endpoint.
-			$data_endpoint = $this->registry->get_data_endpoint( $report_type );
-			if ( is_wp_error( $data_endpoint ) ) {
-				throw new \Exception( $data_endpoint->get_error_message() );
-			}
-
-			// Get controller for default values.
+			// Controller drives the data endpoint, requested fields, and merge strategy.
 			$controller = $this->registry->get_controller( $report_type );
 			if ( is_wp_error( $controller ) ) {
-				$controller = null; // Fallback to null if controller not found.
+				throw new \Exception( $controller->get_error_message() );
 			}
 
 			// Fetch data.
-			$data = $this->data_fetcher->fetch( $params, $data_endpoint, $controller );
+			$data = $this->data_fetcher->fetch( $params, $controller );
 			if ( is_wp_error( $data ) ) {
 				throw new \Exception( $data->get_error_message() );
 			}
@@ -225,14 +218,17 @@ class CSVExportScheduler implements RegistrableInterface {
 			// Determine if comparison mode.
 			$is_comparison = $this->is_comparison_request( $params );
 
+			// Interval drives time-series column labels and row formatting.
+			$interval = $params['interval'] ?? null;
+
 			// Get columns.
-			$columns = $this->registry->get_columns( $report_type, $is_comparison, $params['interval'] ?? null );
+			$columns = $this->registry->get_columns( $report_type, $is_comparison, $interval );
 			if ( is_wp_error( $columns ) ) {
 				throw new \Exception( $columns->get_error_message() );
 			}
 
 			// Get row formatter.
-			$formatter = $this->registry->get_row_formatter( $report_type );
+			$formatter = $this->registry->get_row_formatter( $report_type, $interval );
 			if ( is_wp_error( $formatter ) ) {
 				throw new \Exception( $formatter->get_error_message() );
 			}
