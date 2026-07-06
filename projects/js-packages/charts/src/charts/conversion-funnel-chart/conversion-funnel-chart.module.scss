@@ -12,7 +12,7 @@
 
 .main-rate {
 	overflow: hidden;
-	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 	text-overflow: ellipsis;
 	font-size: var(--wpds-typography-font-size-xl, 18px);
 	font-style: normal;
@@ -54,7 +54,7 @@
 }
 
 .step-label {
-	color: var(--wpds-color-fg-content-neutral-weak, #707070);
+	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	font-size: var(--wpds-typography-font-size-sm, 12px);
 	font-weight: var(--wpds-typography-font-weight-regular, 400);
 	line-height: var(--wpds-typography-line-height-xs, 16px);
@@ -64,7 +64,7 @@
 }
 
 .step-rate {
-	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-weight: var(--wpds-typography-font-weight-medium, 499);
 	line-height: var(--wpds-typography-line-height-xs, 16px);
@@ -100,7 +100,7 @@
 }
 
 .tooltip-wrapper {
-	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+	background: var(--wpds-color-background-surface-neutral-strong, #fff);
 
 	// Override .visx-tooltip inline styles.
 	border-radius: var(--wpds-border-radius-md, 4px) !important;
@@ -110,7 +110,7 @@
 }
 
 .tooltip-title {
-	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 	font-size: var(--wpds-typography-font-size-sm, 12px);
 	font-style: normal;
 	font-weight: var(--wpds-typography-font-weight-regular, 400);
@@ -118,7 +118,7 @@
 }
 
 .tooltip-content {
-	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-style: normal;
 	font-weight: var(--wpds-typography-font-weight-medium, 499);
@@ -127,6 +127,6 @@
 
 .empty-state {
 	text-align: center;
-	color: var(--wpds-color-fg-content-neutral-weak, #707070);
+	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	font-size: var(--wpds-typography-font-size-lg, 16px);
 }

@@ -29,7 +29,7 @@
 }
 
 .navButton {
-	color: var(--wpds-color-fg-content-neutral);
+	color: var(--wpds-color-foreground-content-neutral);
 }
 
 /* Dim the arrow to signal the year-range boundary. The button stays focusable
@@ -38,7 +38,7 @@
 .navButton:disabled,
 .navButton[data-disabled],
 .navButton[aria-disabled="true"] {
-	color: var(--wpds-color-fg-content-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 .grid {
@@ -64,7 +64,7 @@
 	align-items: center;
 	gap: var(--wpds-dimension-gap-sm, 8px);
 	min-width: 0;
-	color: var(--wpds-color-fg-content-neutral);
+	color: var(--wpds-color-foreground-content-neutral);
 }
 
 .tileIcon {
@@ -72,7 +72,7 @@
 }
 
 .tileLabel {
-	color: var(--wpds-color-fg-content-neutral);
+	color: var(--wpds-color-foreground-content-neutral);
 }
 
 /* MetricValue emits the font-size token without a fallback, and the dashboard
@@ -88,7 +88,7 @@
 	align-items: center;
 	justify-content: center;
 	height: 100%;
-	color: var(--wpds-color-fg-content-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 	text-align: center;
 }
 
