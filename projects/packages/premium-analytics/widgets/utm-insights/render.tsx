@@ -125,26 +125,26 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 
 	if ( isError ) {
 		return (
-			<div className={ styles.content }>
+			<>
 				{ backLink }
 				<Stack align="center" justify="center" className={ styles.placeholder }>
 					<Text>{ __( 'Could not load UTM data.', 'jetpack-premium-analytics' ) }</Text>
 				</Stack>
-			</div>
+			</>
 		);
 	}
 
 	if ( isLoading && data.length === 0 ) {
 		return (
-			<div className={ styles.content }>
+			<>
 				{ backLink }
 				<WidgetLoadingOverlay />
-			</div>
+			</>
 		);
 	}
 
 	return (
-		<div className={ styles.content }>
+		<>
 			{ backLink }
 			<LeaderboardChart
 				data={ leaderboardData }
@@ -154,8 +154,9 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 				showLegend={ false }
 				emptyStateText={ __( 'No UTM data in this period.', 'jetpack-premium-analytics' ) }
 				dataFormat={ DATA_FORMAT }
+				className={ styles.leaderboard }
 			/>
-		</div>
+		</>
 	);
 }
 
