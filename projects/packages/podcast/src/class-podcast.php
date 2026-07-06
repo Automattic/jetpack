@@ -34,8 +34,6 @@ class Podcast {
 		}
 		self::$initialized = true;
 
-		$host = new Host();
-
 		Podcast_Episode_Block::register_hooks();
 
 		Podcast_Stats_Endpoint::init();
@@ -55,6 +53,7 @@ class Podcast {
 			New_Episode_Prefill::init();
 		}
 
+		$host = new Host();
 		if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
 			// Register the local REST routes before request-local rollout gates.
 			// Requests from public-api.wordpress.com may not satisfy those gates,
