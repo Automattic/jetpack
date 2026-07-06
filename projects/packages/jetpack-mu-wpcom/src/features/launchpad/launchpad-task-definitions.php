@@ -2681,7 +2681,7 @@ function wpcom_launchpad_is_add_subscribe_block_visible() {
 }
 
 /**
- * When any content is saved, check if the subscribe block is in the content.
+ * When a template or template part is saved, check if the subscribe block is in the content.
  *
  * @param int     $post_id The ID of the post being updated.
  * @param WP_Post $post The post object.
@@ -2694,24 +2694,12 @@ function wpcom_launchpad_add_subscribe_block_check( $post_id, $post ) {
 		return;
 	}
 
-	// Ensure that Headstart posts don't mark this as complete.
-	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+	// Check if it's a published template or template part.
+	if ( $post->post_status !== 'publish' || ( $post->post_type !== 'wp_template' && $post->post_type !== 'wp_template_part' ) ) {
 		return;
 	}
 
-	if ( $post->post_status !== 'publish' ) {
-		return;
-	}
-
-	// Only content that renders on the front end counts: templates and template parts (the Site
-	// Editor path) plus any viewable post type (posts, pages, public CPTs). Non-viewable types
-	// like synced patterns hold the block without putting a subscribe form on the site.
-	$is_template = 'wp_template' === $post->post_type || 'wp_template_part' === $post->post_type;
-	if ( ! $is_template && ! is_post_type_viewable( $post->post_type ) ) {
-		return;
-	}
-
-	// Check if our subscribe block is in the content.
+	// Check if our subscribe block is in the template or template part content.
 	if ( has_block( 'jetpack/subscriptions', $post->post_content ) ) {
 		// Run your specific function if the subscribe block is found.
 		wpcom_mark_launchpad_task_complete( 'add_subscribe_block' );
@@ -2720,37 +2708,6 @@ function wpcom_launchpad_add_subscribe_block_check( $post_id, $post ) {
 
 // Hook the function to the save_post action for all post types.
 add_action( 'save_post', 'wpcom_launchpad_add_subscribe_block_check', 10, 2 );
-
-/**
- * When the block-based widget editor saves, check if the subscribe block is in any widget.
- *
- * Widget saves never fire save_post (block widgets persist to the `widget_block` option), so this
- * covers adding the Subscribe block on classic themes, where the widget editor is the CTA target.
- *
- * @param mixed $old_value The previous option value (unused).
- * @param mixed $value The new `widget_block` option value.
- */
-function wpcom_launchpad_add_subscribe_block_widget_check( $old_value, $value ) {
-	if ( defined( 'HEADSTART' ) && HEADSTART ) {
-		return;
-	}
-
-	foreach ( (array) $value as $widget ) {
-		if ( is_array( $widget ) && isset( $widget['content'] ) && has_block( 'jetpack/subscriptions', $widget['content'] ) ) {
-			wpcom_mark_launchpad_task_complete( 'add_subscribe_block' );
-			return;
-		}
-	}
-}
-add_action( 'update_option_widget_block', 'wpcom_launchpad_add_subscribe_block_widget_check', 10, 2 );
-add_action(
-	'add_option_widget_block',
-	function ( $option, $value ) {
-		wpcom_launchpad_add_subscribe_block_widget_check( null, $value );
-	},
-	10,
-	2
-);
 
 /**
  * Returns if the site has domain or bundle purchases.
