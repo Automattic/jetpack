@@ -147,11 +147,7 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 	) : null;
 
 	if ( isLoading && data.length === 0 ) {
-		return (
-			<div className={ styles.content }>
-				<WidgetLoadingOverlay />
-			</div>
-		);
+		return <WidgetLoadingOverlay />;
 	}
 
 	if ( isError ) {
