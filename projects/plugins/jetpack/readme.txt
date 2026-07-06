@@ -326,20 +326,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.0-a.7 - 2026-06-29
+### 16.0-beta - 2026-07-06
 #### Enhancements
-- Donations Block: Render the block in emails with email-friendly CTA buttons.
+- AI Admin: Restructure MCP settings Read/Write pages to group tools by display group with collapsible per-group tool lists and a page-level Enable all toggle.
+- Forms: Warn admins and editors when a form isn't collecting responses (email and saving both off, no integration).
+- AI: Surface SEO Enhancer suggestions (SEO title and meta description) in the AI sidebar.
+- Newsletter: Link to the site visibility settings from the Coming Soon notice in the pre-publish panel.
+- VideoPress: Add presentation to the player iframe allow list to enable casting from embeds.
+- VideoPress: Make the VideoPress admin dashboard available in the Jetpack plugin (previously only in the standalone Jetpack VideoPress plugin).
 
 #### Bug fixes
-- AI Agent Access: Correct module references in Shortlinks and Related Posts ability descriptions.
-- Archives shortcode: Cap the `postbypost` type with a filterable default limit to prevent memory exhaustion on large sites.
-- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active along with other Jetpack standalone plugins.
-- Forms: Sign file download links with an expiring token so they work for any logged-in editor.
-- Memberships: Delegate the Payment Request API to the checkout iframe so Apple Pay, Google Pay, and Stripe Link can load and complete payments.
-- Podcast: Load the package outside Jetpack's connection-gated module loader so the podcast feed and dashboard keep working when the site is disconnected.
-- Tiled Gallery: Fix an infinite resize loop when the block is inside a Row or Stack block.
-- Tiled Gallery: Keep the mosaic layout stable and split rows evenly between galleries when the block is inside a Row or Stack.
-- WhatsApp Button block: Fix icon and text overlapping in RTL languages.
+- Content Guidelines AI: Place the suggestion badge to the left of the section chevron so chevrons stay aligned across sections with and without a badge.
+- Content Guidelines AI: Wrap the per-section Save/Clear/Generate button row so the buttons no longer overlap on narrow screens.
+- JSON API: Ensure error responses always serialize an HTTP error status (>= 400), never a non-integer or a 2xx that clients could interpret as success.
+- JSON API: Only default a missing or invalid error status to 400, and stop overwriting valid HTTP status codes below 400 that callers return via `WP_Error`.
+- Newsletter: Default the post access level to "everybody" when the stored meta is not a string, and sanitize non-string writes, so corrupt values can no longer cause a fatal error when rendering a post.
+- Prevent Slideshow block crash when converting from Gallery.
+- Tiled Gallery: Prevent editor crash when transforming a core gallery block.
 
 --------
 
