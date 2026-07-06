@@ -3,7 +3,7 @@
 import { Button, TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
-import { normalizeProfileUrl } from '../../../data/schema-settings-utils';
+import ProfileUrlList, { hasProfileUrlErrors } from './profile-url-list';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
 
@@ -31,32 +31,7 @@ interface Props {
 const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 	const { organization, defaults, isSaving, isDirty, setOrganizationField, save } = form;
 	const { name, description, sameAs, email } = organization;
-	const normalizedProfiles = sameAs.map( normalizeProfileUrl );
-	const profileErrors = sameAs.map( ( profile, index ) => {
-		const normalizedProfile = normalizedProfiles[ index ];
-		if ( ! profile.trim() ) {
-			return '';
-		}
-		if ( ! normalizedProfile ) {
-			return __( 'Enter a valid URL that starts with http:// or https://.', 'jetpack-seo' );
-		}
-		if ( normalizedProfiles.indexOf( normalizedProfile ) !== index ) {
-			return __( 'This profile URL is already listed.', 'jetpack-seo' );
-		}
-		return '';
-	} );
-	const hasProfileErrors = profileErrors.some( Boolean );
-
-	const setSameAs = ( index: number, value: string ) => {
-		const next = sameAs.slice();
-		next[ index ] = value;
-		setOrganizationField( { sameAs: next } );
-	};
-
-	const addProfile = () => setOrganizationField( { sameAs: [ ...sameAs, '' ] } );
-
-	const removeProfile = ( index: number ) =>
-		setOrganizationField( { sameAs: sameAs.filter( ( _, i ) => i !== index ) } );
+	const hasProfileErrors = hasProfileUrlErrors( sameAs );
 
 	return (
 		<Stack direction="column" gap="lg">
@@ -88,63 +63,16 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 				__nextHasNoMarginBottom
 			/>
 
-			<Stack direction="column" gap="sm">
-				<span className="jetpack-seo-settings__schema-field-label">
-					{ __( 'Social profiles', 'jetpack-seo' ) }
-				</span>
-				<span className="jetpack-seo-settings__title-tokens-label">
-					{ __(
-						'Links to official profiles for this organization (for example Facebook, X, LinkedIn).',
-						'jetpack-seo'
-					) }
-				</span>
-				{ sameAs.map( ( profile, index ) => {
-					const profileError = profileErrors[ index ];
-					return (
-						<Stack key={ index } direction="row" gap="sm" align="flex-start" wrap="wrap">
-							<div
-								className={
-									'jetpack-seo-settings__schema-profile-input' +
-									( profileError ? ' jetpack-seo-settings__schema-profile-input--error' : '' )
-								}
-							>
-								<TextControl
-									label={ __( 'Profile URL', 'jetpack-seo' ) }
-									hideLabelFromVision
-									type="url"
-									placeholder="https://"
-									value={ profile }
-									onChange={ next => setSameAs( index, next ) }
-									disabled={ isSaving }
-									help={ profileError || undefined }
-									aria-invalid={ Boolean( profileError ) }
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
-								/>
-							</div>
-							<Button
-								variant="tertiary"
-								isDestructive
-								onClick={ () => removeProfile( index ) }
-								disabled={ isSaving }
-								__next40pxDefaultSize
-							>
-								{ __( 'Remove profile', 'jetpack-seo' ) }
-							</Button>
-						</Stack>
-					);
-				} ) }
-				<div>
-					<Button
-						variant="secondary"
-						onClick={ addProfile }
-						disabled={ isSaving }
-						__next40pxDefaultSize
-					>
-						{ __( 'Add profile', 'jetpack-seo' ) }
-					</Button>
-				</div>
-			</Stack>
+			<ProfileUrlList
+				label={ __( 'Social profiles', 'jetpack-seo' ) }
+				help={ __(
+					'Links to official profiles for this organization (for example Facebook, X, LinkedIn).',
+					'jetpack-seo'
+				) }
+				urls={ sameAs }
+				onChange={ next => setOrganizationField( { sameAs: next } ) }
+				disabled={ isSaving }
+			/>
 
 			<TextControl
 				label={ __( 'Contact email', 'jetpack-seo' ) }

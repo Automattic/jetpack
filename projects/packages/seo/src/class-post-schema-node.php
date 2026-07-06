@@ -88,10 +88,6 @@ class Post_Schema_Node {
 				'@type' => 'WebPage',
 				'@id'   => get_permalink( $post ),
 			),
-			'author'           => array(
-				'@type' => 'Person',
-				'name'  => get_the_author_meta( 'display_name', (int) $post->post_author ),
-			),
 		);
 
 		$image = get_the_post_thumbnail_url( $post, 'full' );

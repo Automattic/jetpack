@@ -7,16 +7,17 @@
  * Organization and WebSite nodes, emitted on the home page only (Google treats
  * them as single canonical site entities), the page node (Article or FAQPage)
  * built by {@see Post_Schema_Node} on singular requests, and Person/ProfilePage
- * nodes on author archives. An Article — and the WebSite node — reference the
- * home-page Organization as their `publisher` by stable `@id` rather than
+ * nodes on author archives. An Article references its author's full Person node
+ * (added to the same graph) by `@id`, and — like the WebSite node — references
+ * the home-page Organization as its `publisher` by stable `@id` rather than
  * duplicating the node. Emission is gated on
  * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()`.
  *
  * This class owns only the gating and serialization; the individual nodes and
-	 * their stable `@id`s live in their own builders ({@see Post_Schema_Node},
-	 * {@see Organization_Schema_Node}, {@see Website_Schema_Node},
-	 * {@see Author_Schema_Node}, {@see Schema_Node_Ids}) and are assembled by
-	 * {@see Schema_Graph}.
+ * their stable `@id`s live in their own builders ({@see Post_Schema_Node},
+ * {@see Organization_Schema_Node}, {@see Website_Schema_Node},
+ * {@see Author_Schema_Node}, {@see Schema_Node_Ids}) and are assembled by
+ * {@see Schema_Graph}.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -76,8 +77,11 @@ class Schema_Builder {
 	 * - Organization and WebSite are single canonical site entities, so their full
 	 *   nodes are added on the home page only (Google's guidance). Other pages
 	 *   reference the Organization by `@id` instead of duplicating it.
+	 * - Author archives contribute the author's Person node and the ProfilePage
+	 *   wrapping it (`mainEntity` → Person `@id`).
 	 * - The page node (Article/FAQPage) is added on singular requests. An Article
-	 *   points its `publisher` at the home-page Organization's stable `@id`.
+	 *   points its `publisher` at the home-page Organization's stable `@id` and its
+	 *   `author` at the full Person node added to the same graph.
 	 *
 	 * Returns null when the graph ends up empty (non-author archives, 404, a page
 	 * with no node) so the caller emits nothing rather than an empty graph.
@@ -87,15 +91,12 @@ class Schema_Builder {
 	 * @return array|null
 	 */
 	private static function build_document() {
-		if ( is_author() ) {
-			return self::build_author_archive_document( get_queried_object() );
-		}
 		$graph = new Schema_Graph();
 
 		// Effective Organization settings (stored overrides merged over site identity);
 		// an unconfigured site still yields a valid node from site identity alone. Build
-		// it regardless so we know whether a publisher @id reference will resolve, but
-		// only add the full node on the home page.
+		// it regardless so we know whether `@id` references to it (publisher, worksFor)
+		// will resolve, but only add the full node on the home page.
 		$organization = Organization_Schema_Node::build( Schema_Settings::get_organization() );
 
 		// Site-level nodes (Organization, WebSite) describe a single canonical
@@ -113,19 +114,30 @@ class Schema_Builder {
 			$graph->add( $website );
 		}
 
+		if ( is_author() ) {
+			$person = self::build_person_node( get_queried_object(), null !== $organization );
+			if ( null !== $person ) {
+				$graph->add( $person );
+				$graph->add( Author_Schema_Node::build_profile_page( get_queried_object() ) );
+			}
+		}
+
 		if ( is_singular() ) {
 			$post      = get_queried_object();
 			$post_node = Post_Schema_Node::build( $post );
 			if ( null !== $post_node ) {
-				// Only the Article node carries a publisher; FAQPage does not. It
-				// references the home-page Organization by @id, never duplicating it.
-				if ( null !== $organization && 'Article' === ( $post_node['@type'] ?? '' ) ) {
-					$post_node['publisher'] = array( '@id' => Schema_Node_Ids::organization() );
-				}
+				// Only the Article node carries publisher/author; FAQPage does not.
+				// Both are @id references: publisher points at the home-page
+				// Organization (never duplicated), author points at the full Person
+				// node added to this page's graph.
 				if ( 'Article' === ( $post_node['@type'] ?? '' ) ) {
-					$author = Author_Schema_Node::build_article_author( $post->post_author );
-					if ( null !== $author ) {
-						$post_node['author'] = $author;
+					if ( null !== $organization ) {
+						$post_node['publisher'] = array( '@id' => Schema_Node_Ids::organization() );
+					}
+					$person = self::build_person_node( (int) $post->post_author, null !== $organization );
+					if ( null !== $person ) {
+						$post_node['author'] = array( '@id' => $person['@id'] );
+						$graph->add( $person );
 					}
 				}
 				$graph->add( $post_node );
@@ -136,22 +148,18 @@ class Schema_Builder {
 	}
 
 	/**
-	 * Assemble the `@graph` document for an author archive.
+	 * Build the author Person node, wiring `worksFor` to the site Organization's
+	 * stable `@id` when the Organization node resolves.
 	 *
-	 * @param mixed $queried_object The queried object (expected to be a WP_User).
+	 * @param \WP_User|int|null $user             User object or ID.
+	 * @param bool              $has_organization Whether the Organization node resolves.
 	 * @return array|null
 	 */
-	private static function build_author_archive_document( $queried_object ) {
-		$person       = Author_Schema_Node::build_person( $queried_object );
-		$profile_page = Author_Schema_Node::build_profile_page( $queried_object );
-		if ( null === $person || null === $profile_page ) {
-			return null;
+	private static function build_person_node( $user, $has_organization ) {
+		$person = Author_Schema_Node::build_person( $user );
+		if ( null !== $person && $has_organization ) {
+			$person['worksFor'] = array( '@id' => Schema_Node_Ids::organization() );
 		}
-
-		$graph = new Schema_Graph();
-		$graph->add( $person );
-		$graph->add( $profile_page );
-
-		return $graph->to_document();
+		return $person;
 	}
 }

@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import { useSchemaSettings } from '../../data/use-schema-settings';
+import AuthorProfileSection from './schema-settings/author-profile-section';
 import OrganizationBusinessSection from './schema-settings/organization-business-section';
 import type { SchemaSettings } from '../../data/schema-settings-types';
 import './style.scss';
@@ -11,9 +12,9 @@ const notSetLabel = __( 'Not set', 'jetpack-seo' );
  * Site-level Schema settings section.
  *
  * The container the per-schema site controls plug into. Today it holds the
- * Organization / Business info form (name, description, social profiles, contact
- * email); the BreadcrumbList toggle and other primary schema types
- * (LocalBusiness, Person / ProfilePage) ship in their own issues and land here.
+ * Organization / Business info form and the Author profile form; the
+ * BreadcrumbList toggle and other primary schema types ship in their own issues
+ * and land here.
  *
  * Collapsed by default and built from the shared `CollapsibleCard` compound,
  * matching the other Settings modules (Canonical URLs, Title structure, Site
@@ -68,7 +69,10 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<OrganizationBusinessSection form={ form } />
+				<Stack direction="column" gap="lg">
+					<OrganizationBusinessSection form={ form } />
+					<AuthorProfileSection />
+				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);

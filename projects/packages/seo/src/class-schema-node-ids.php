@@ -47,7 +47,7 @@ class Schema_Node_Ids {
 	 * @param string $user_nicename User nicename.
 	 * @return string
 	 */
-	public static function person( $user_id, $user_nicename = '' ) {
+	public static function person( $user_id, $user_nicename ) {
 		return self::author_anchor( $user_id, $user_nicename, 'person' );
 	}
 
@@ -58,7 +58,7 @@ class Schema_Node_Ids {
 	 * @param string $user_nicename User nicename.
 	 * @return string
 	 */
-	public static function profile_page( $user_id, $user_nicename = '' ) {
+	public static function profile_page( $user_id, $user_nicename ) {
 		return self::author_anchor( $user_id, $user_nicename, 'profilepage' );
 	}
 

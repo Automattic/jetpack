@@ -206,20 +206,7 @@ class SchemaBuilderTest extends TestCase {
 		$wp_query->queried_object    = $user;
 		$wp_query->queried_object_id = $user->ID;
 
-		ob_start();
-		Schema_Builder::emit();
-		$html = (string) ob_get_clean();
-
-		if ( '' === $html ) {
-			return null;
-		}
-
-		$this->assertSame(
-			1,
-			preg_match( '#<script type="application/ld\+json">(.*)</script>#s', $html, $matches ),
-			'emit() output is not a single application/ld+json script block.'
-		);
-		return json_decode( $matches[1], true );
+		return $this->capture_emitted_document();
 	}
 
 	/**
@@ -292,6 +279,7 @@ class SchemaBuilderTest extends TestCase {
 		$this->assertArrayHasKey( 'headline', $article );
 		$this->assertArrayHasKey( 'datePublished', $article );
 		$this->assertArrayHasKey( 'mainEntityOfPage', $article );
+		$this->assertArrayNotHasKey( 'author', $article, 'An unresolvable post author adds no author property.' );
 
 		// The full Organization node lives on the home page only; a post references
 		// it by @id (see test_post_references_publisher_by_id_without_organization_node).
@@ -384,26 +372,41 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
-	 * Article author is a compact reference to the author archive, not a full
-	 * Person node duplicated onto every post.
+	 * An Article references its author by `@id` only, resolving to the full Person
+	 * node in the same graph — never a duplicated inline author object.
 	 */
-	public function test_article_author_references_author_archive_without_person_node() {
+	public function test_article_author_resolves_to_person_node_by_id() {
+		$this->set_site_name( 'Acme Co' );
 		$user = $this->make_user();
+		update_user_meta( $user->ID, Author_Schema_Node::META_JOB_TITLE, 'Creator' );
 
 		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
 
 		$article = $this->node_of_type( $doc, 'Article' );
-		$this->assertSame( 'Person', $article['author']['@type'] );
-		$this->assertSame( Schema_Node_Ids::person( $user->ID, $user->user_nicename ), $article['author']['@id'] );
-		$this->assertSame( 'Jane Doe', $article['author']['name'] );
-		$this->assertSame( get_author_posts_url( $user->ID, $user->user_nicename ), $article['author']['url'] );
-		$this->assertNull( $this->node_of_type( $doc, 'Person' ) );
+		$this->assertIsArray( $article, 'Expected an Article node in the graph.' );
+		$this->assertSame(
+			array( '@id' => Schema_Node_Ids::person( $user->ID, $user->user_nicename ) ),
+			$article['author'],
+			'Article.author must be an @id-only reference.'
+		);
+
+		$person = $this->node_of_type( $doc, 'Person' );
+		$this->assertIsArray( $person, 'Expected the full Person node in the graph.' );
+		$this->assertSame( Schema_Node_Ids::person( $user->ID, $user->user_nicename ), $person['@id'] );
+		$this->assertSame( 'Jane Doe', $person['name'] );
+		$this->assertSame( 'Creator', $person['jobTitle'] );
+		$this->assertSame( array( '@id' => Schema_Node_Ids::organization() ), $person['worksFor'] );
+
+		// Site-level nodes still live on the home page only.
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A post must not carry the Organization node.' );
 	}
 
 	/**
-	 * Author archives emit ProfilePage and Person nodes linked by `mainEntity`.
+	 * Without an Organization, author archives emit ProfilePage and Person nodes
+	 * linked by `mainEntity`, with no `worksFor`.
 	 */
 	public function test_author_archive_emits_profile_page_wrapping_person() {
+		$this->set_site_name( '' );
 		$user = $this->make_user();
 
 		$doc = $this->emit_author_document( $user );
@@ -414,6 +417,22 @@ class SchemaBuilderTest extends TestCase {
 		$this->assertIsArray( $profile_page, 'Expected a ProfilePage node in the graph.' );
 		$this->assertSame( $person['@id'], $profile_page['mainEntity']['@id'] );
 		$this->assertArrayNotHasKey( 'worksFor', $person );
+	}
+
+	/**
+	 * With the Organization configured, the author-archive Person references it as
+	 * `worksFor` by `@id` — without duplicating the Organization node itself.
+	 */
+	public function test_author_archive_person_works_for_organization() {
+		$this->set_site_name( 'Acme Co' );
+		$user = $this->make_user();
+
+		$doc = $this->emit_author_document( $user );
+
+		$person = $this->node_of_type( $doc, 'Person' );
+		$this->assertIsArray( $person, 'Expected a Person node in the graph.' );
+		$this->assertSame( array( '@id' => Schema_Node_Ids::organization() ), $person['worksFor'] );
+		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'An author archive must not carry the Organization node.' );
 	}
 
 	/**

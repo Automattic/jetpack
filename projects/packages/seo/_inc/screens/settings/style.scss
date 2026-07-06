@@ -126,6 +126,23 @@
 	color: var(--wpds-color-fg-content-error, #d63638);
 }
 
+.jetpack-seo-settings__schema-author {
+	padding-block-start: var(--wpds-dimension-gap-lg, 16px);
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dadde1);
+}
+
+.jetpack-seo-settings__schema-avatar {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+
+	img {
+		inline-size: 48px;
+		block-size: 48px;
+		border-radius: 50%;
+	}
+}
+
 // Intro copy above the preview list.
 .jetpack-seo-settings__preview-intro {
 	margin: 0 0 var(--wpds-dimension-gap-xl, 24px);

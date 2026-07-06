@@ -106,7 +106,7 @@ class AuthorSchemaNodeTest extends TestCase {
 	}
 
 	/**
-	 * Empty optional user/profile fields are omitted.
+	 * Empty optional fields are omitted; url falls back to the author archive.
 	 */
 	public function test_person_omits_empty_optional_fields() {
 		$user = $this->make_user();
@@ -115,29 +115,16 @@ class AuthorSchemaNodeTest extends TestCase {
 
 		$this->assertSame( 'Jane Doe', $node['name'] );
 		$this->assertArrayNotHasKey( 'description', $node );
-		$this->assertArrayNotHasKey( 'url', $node );
+		$this->assertSame(
+			get_author_posts_url( $user->ID, $user->user_nicename ),
+			$node['url'],
+			'url falls back to the author archive when the Website field is empty.'
+		);
 		$this->assertArrayNotHasKey( 'givenName', $node );
 		$this->assertArrayNotHasKey( 'familyName', $node );
 		$this->assertArrayNotHasKey( 'jobTitle', $node );
 		$this->assertArrayNotHasKey( 'sameAs', $node );
 		$this->assertArrayNotHasKey( 'worksFor', $node );
-	}
-
-	/**
-	 * Article author references stay compact and point to the author archive.
-	 */
-	public function test_article_author_references_author_archive() {
-		$user = $this->make_user();
-
-		$author = Author_Schema_Node::build_article_author( $user );
-
-		$this->assertSame( 'Person', $author['@type'] );
-		$this->assertSame( Schema_Node_Ids::person( $user->ID, $user->user_nicename ), $author['@id'] );
-		$this->assertSame( 'Jane Doe', $author['name'] );
-		$this->assertSame( get_author_posts_url( $user->ID, $user->user_nicename ), $author['url'] );
-		$this->assertArrayNotHasKey( 'sameAs', $author );
-		$this->assertArrayNotHasKey( 'jobTitle', $author );
-		$this->assertArrayNotHasKey( 'worksFor', $author );
 	}
 
 	/**
@@ -176,9 +163,39 @@ class AuthorSchemaNodeTest extends TestCase {
 	}
 
 	/**
+	 * Author meta is registered on users so core's users REST endpoint can read
+	 * and write it.
+	 */
+	public function test_author_meta_is_registered_for_rest() {
+		Author_Schema_Node::init();
+		$user = $this->make_user();
+
+		$registered = get_registered_meta_keys( 'user' );
+
+		$this->assertSame( 'string', $registered[ Author_Schema_Node::META_JOB_TITLE ]['type'] );
+		$this->assertTrue( $registered[ Author_Schema_Node::META_JOB_TITLE ]['show_in_rest'] );
+		$this->assertSame( 'array', $registered[ Author_Schema_Node::META_SAME_AS ]['type'] );
+		$this->assertSame(
+			'array',
+			$registered[ Author_Schema_Node::META_SAME_AS ]['show_in_rest']['schema']['type']
+		);
+
+		update_user_meta(
+			$user->ID,
+			Author_Schema_Node::META_SAME_AS,
+			array( 'https://example.com/a', 'not a url', 'https://example.com/a' )
+		);
+		$this->assertSame(
+			array( 'https://example.com/a' ),
+			get_user_meta( $user->ID, Author_Schema_Node::META_SAME_AS, true )
+		);
+	}
+
+	/**
 	 * Profile saves sanitize, persist, and delete empty Jetpack SEO author meta.
 	 */
 	public function test_save_profile_fields_sanitizes_and_deletes_author_meta() {
+		Author_Schema_Node::init();
 		$admin = $this->make_user( array( 'role' => 'administrator' ) );
 		$user  = $this->make_user();
 		wp_set_current_user( $admin->ID );
@@ -204,6 +221,6 @@ class AuthorSchemaNodeTest extends TestCase {
 		Author_Schema_Node::save_profile_fields( $user->ID );
 
 		$this->assertSame( '', get_user_meta( $user->ID, Author_Schema_Node::META_JOB_TITLE, true ) );
-		$this->assertSame( '', get_user_meta( $user->ID, Author_Schema_Node::META_SAME_AS, true ) );
+		$this->assertSame( array(), get_user_meta( $user->ID, Author_Schema_Node::META_SAME_AS, true ) );
 	}
 }

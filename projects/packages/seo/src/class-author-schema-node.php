@@ -30,6 +30,37 @@ class Author_Schema_Node {
 	 * @return void
 	 */
 	public static function init() {
+		register_meta(
+			'user',
+			self::META_JOB_TITLE,
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+				'show_in_rest'      => true,
+			)
+		);
+		register_meta(
+			'user',
+			self::META_SAME_AS,
+			array(
+				'type'              => 'array',
+				'single'            => true,
+				'default'           => array(),
+				'sanitize_callback' => array( __CLASS__, 'sanitize_url_list' ),
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'   => 'string',
+							'format' => 'uri',
+						),
+					),
+				),
+			)
+		);
+
 		add_action( 'show_user_profile', array( __CLASS__, 'render_profile_fields' ) );
 		add_action( 'edit_user_profile', array( __CLASS__, 'render_profile_fields' ) );
 		add_action( 'personal_options_update', array( __CLASS__, 'save_profile_fields' ) );
@@ -69,10 +100,10 @@ class Author_Schema_Node {
 			$node['description'] = $description;
 		}
 
-		$url = self::url( $user->user_url );
-		if ( '' !== $url ) {
-			$node['url'] = $url;
-		}
+		// Prefer the user's Website field; fall back to the author archive so the
+		// Person always carries a URL identifying the author.
+		$url         = self::url( $user->user_url );
+		$node['url'] = '' !== $url ? $url : get_author_posts_url( $user->ID, $user->user_nicename );
 
 		$given_name = self::text( get_the_author_meta( 'first_name', $user->ID ) );
 		if ( '' !== $given_name ) {
@@ -95,31 +126,6 @@ class Author_Schema_Node {
 		}
 
 		return $node;
-	}
-
-	/**
-	 * Build the compact Article author reference for a WP user.
-	 *
-	 * @param WP_User|int|null $user User object or ID.
-	 * @return array|null
-	 */
-	public static function build_article_author( $user ) {
-		$user = self::get_user( $user );
-		if ( ! $user ) {
-			return null;
-		}
-
-		$name = self::text( $user->display_name );
-		if ( '' === $name ) {
-			return null;
-		}
-
-		return array(
-			'@type' => 'Person',
-			'@id'   => Schema_Node_Ids::person( $user->ID, $user->user_nicename ),
-			'name'  => $name,
-			'url'   => get_author_posts_url( $user->ID, $user->user_nicename ),
-		);
 	}
 
 	/**
