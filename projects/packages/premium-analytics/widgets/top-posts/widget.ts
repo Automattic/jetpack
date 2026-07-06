@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Configurable attributes for the Top posts & pages widget. Mirrors the
@@ -11,6 +12,9 @@ import { chartBar } from '@wordpress/icons';
  * dashboard picker and read from report params, not from attributes.
  */
 export type TopPostsAttributes = {
+	/**
+	 * Maximum number of posts to display.
+	 */
 	num?: number;
 	/**
 	 * Post type(s) to keep. When undefined or empty, all types are shown.
@@ -44,7 +48,7 @@ export default {
 				{ label: __( 'Pages', 'jetpack-premium-analytics' ), value: 'page' },
 			],
 		},
-	],
+	] as WidgetAttributeField< TopPostsAttributes >[],
 	example: {
 		attributes: {
 			num: 10,

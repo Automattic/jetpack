@@ -29,6 +29,7 @@ import { type ClicksAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type ClicksRenderAttributes = ClicksAttributes & Partial< ReportParamsFieldAttributes >;
+type ClicksWidgetProps = WidgetRenderProps< ClicksRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
@@ -175,7 +176,20 @@ export function toClickRows(
 	return sliced.map( toClickRow );
 }
 
-function ClickLabel( { row }: { row: ClickRow } ) {
+type ClickLabelProps = {
+	/**
+	 * The normalized click row whose favicon and label to render.
+	 */
+	row: ClickRow;
+};
+
+/**
+ * Renders a click row's favicon and label.
+ *
+ * @param {ClickLabelProps} props - The component props.
+ * @return The rendered label content.
+ */
+function ClickLabel( { row }: ClickLabelProps ) {
 	return (
 		<span className={ styles.labelContent }>
 			{ row.icon && <img src={ row.icon } alt="" className={ styles.labelIcon } /> }
@@ -242,22 +256,32 @@ function buildLeaderboardData(
 }
 
 export type ClicksLeaderboardProps = {
+	/**
+	 * Normalized click rows.
+	 */
 	rows?: ClickRow[];
+	/**
+	 * When true, show a loading overlay.
+	 */
 	isLoading?: boolean;
+	/**
+	 * When true, show an error message.
+	 */
 	isError?: boolean;
+	/**
+	 * When true, render comparison deltas.
+	 */
 	withComparison?: boolean;
+	/**
+	 * Callback fired when a row with child links is selected.
+	 */
 	onDrillDown?: ( row: ClickRow ) => void;
 };
 
 /**
  * Presentational leaderboard for the Clicks widget.
  *
- * @param props                - Component props.
- * @param props.rows           - Normalized click rows.
- * @param props.isLoading      - When true, show a loading overlay.
- * @param props.isError        - When true, show an error message.
- * @param props.withComparison - When true, render comparison deltas.
- * @param props.onDrillDown    - Callback fired when a row with child links is selected.
+ * @param {ClicksLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
 export function ClicksLeaderboard( {
@@ -292,7 +316,21 @@ export function ClicksLeaderboard( {
 	);
 }
 
-function ClicksInner( { max }: { max: number } ) {
+type ClicksInnerProps = {
+	/**
+	 * Maximum rows to display. 0 means all rows returned by the API.
+	 */
+	max: number;
+};
+
+/**
+ * Clicks widget inner component. Reads report params from WidgetRoot context
+ * and renders the leaderboard, with drill-down into a link's child clicks.
+ *
+ * @param {ClicksInnerProps} props - The component props.
+ * @return The rendered widget content.
+ */
+function ClicksInner( { max }: ClicksInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const {
 		drillDownItem: selectedClickLabel,
@@ -357,13 +395,10 @@ function ClicksInner( { max }: { max: number } ) {
  * Shows the most-clicked external links as a ranked leaderboard. Date range
  * comes from the shared dashboard date picker via WidgetRoot.
  *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
+ * @param {ClicksWidgetProps} props - The widget render props.
  * @return The rendered widget content.
  */
-export default function ClicksWidget( {
-	attributes = {},
-}: WidgetRenderProps< ClicksRenderAttributes > ) {
+export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
 	const max = attributes?.max ?? 10;
 
 	return (

@@ -136,14 +136,14 @@ const TOP_PERFORMING_BOOKINGS_RENDER_MODULE = 'storybook/top-performing-bookings
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type TopPerformingBookingsRenderProps = ComponentProps< typeof TopPerformingBookingsRender >;
+type TopPerformingBookingsWidgetProps = ComponentProps< typeof TopPerformingBookingsRender >;
 
 interface TopPerformingBookingsStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type TopPerformingBookingsStoryProps = TopPerformingBookingsRenderProps &
+type TopPerformingBookingsStoryProps = TopPerformingBookingsWidgetProps &
 	TopPerformingBookingsStoryControls;
 
 interface TopPerformingBookingsDashboardStoryProps
@@ -159,7 +159,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getTopPerformingBookingsAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): TopPerformingBookingsRenderProps[ 'attributes' ] {
+): TopPerformingBookingsWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

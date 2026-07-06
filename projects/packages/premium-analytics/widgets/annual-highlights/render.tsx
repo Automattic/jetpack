@@ -29,6 +29,12 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 // boundary (and Storybook may inject them) so the host contract holds.
 type AnnualHighlightsRenderAttributes = AnnualHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
+type AnnualHighlightsWidgetProps = WidgetRenderProps< AnnualHighlightsRenderAttributes >;
+
+/**
+ * The enabled-metric flags from widget attributes, with defaults applied.
+ */
+type AnnualHighlightsReportProps = Required< AnnualHighlightsAttributes >;
 
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
@@ -53,11 +59,7 @@ function sortYearsDescending( data?: StatsInsightsResponse ): StatsInsightsYear[
  * comparison period, so each tile shows a bare formatted count. Which tiles
  * appear is controlled by the per-metric visibility attributes.
  *
- * @param props              - The enabled-metric flags from widget attributes.
- * @param props.showPosts    - Whether the Posts tile is shown.
- * @param props.showWords    - Whether the Words tile is shown.
- * @param props.showLikes    - Whether the Likes tile is shown.
- * @param props.showComments - Whether the Comments tile is shown.
+ * @param {AnnualHighlightsReportProps} props - The component props.
  * @return The widget content.
  */
 function AnnualHighlightsReport( {
@@ -65,7 +67,7 @@ function AnnualHighlightsReport( {
 	showWords,
 	showLikes,
 	showComments,
-}: Required< AnnualHighlightsAttributes > ) {
+}: AnnualHighlightsReportProps ) {
 	const { data, isLoading, isError } = useStatsInsights();
 
 	const years = useMemo( () => sortYearsDescending( data ), [ data ] );
@@ -219,13 +221,10 @@ function AnnualHighlightsReport( {
  * inner report. Host attributes are forwarded so any injected report params are
  * preserved even though the insights endpoint is not period-scoped.
  *
- * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes.
+ * @param {AnnualHighlightsWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function AnnualHighlights( {
-	attributes = {},
-}: WidgetRenderProps< AnnualHighlightsRenderAttributes > ) {
+export default function AnnualHighlights( { attributes = {} }: AnnualHighlightsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<AnnualHighlightsReport

@@ -21,6 +21,7 @@ import widgetDefinition, { type EmailsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type EmailsRenderAttributes = EmailsAttributes & Partial< ReportParamsFieldAttributes >;
+type EmailsWidgetProps = WidgetRenderProps< EmailsRenderAttributes >;
 
 /**
  * Which rate the leaderboard displays. Rows stay in newest-first order
@@ -274,10 +275,10 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
  * Passes host attributes into `WidgetRoot` for the widget contract. The email
  * summary still reads `max` from props because it does not use report params.
  *
- * @param {WidgetRenderProps< EmailsRenderAttributes >} props - The render props supplied by the widget host.
+ * @param {EmailsWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function Emails( { attributes = {} }: WidgetRenderProps< EmailsRenderAttributes > ) {
+export default function Emails( { attributes = {} }: EmailsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<EmailsReport attributes={ attributes } />

@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { envelope } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Configurable attributes for the Emails widget. Mirrors the `attributes`
@@ -34,7 +35,7 @@ export default {
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
 			type: 'integer',
 		},
-	],
+	] as WidgetAttributeField< EmailsAttributes >[],
 	example: {
 		attributes: {
 			max: 10,

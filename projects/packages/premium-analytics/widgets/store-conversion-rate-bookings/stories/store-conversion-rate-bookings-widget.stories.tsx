@@ -24,7 +24,7 @@ const PRESET_OPTIONS = SELECTABLE_PRESETS;
 let conversionRateMocksRegistered = false;
 let conversionRateRequestCount = 0;
 
-type StoreConversionRateBookingsRenderProps = ComponentProps<
+type StoreConversionRateBookingsWidgetProps = ComponentProps<
 	typeof StoreConversionRateBookingsRender
 >;
 
@@ -33,7 +33,7 @@ interface StoreConversionRateBookingsStoryControls {
 	preset: SelectablePresetId;
 }
 
-type StoreConversionRateBookingsStoryProps = StoreConversionRateBookingsRenderProps &
+type StoreConversionRateBookingsStoryProps = StoreConversionRateBookingsWidgetProps &
 	StoreConversionRateBookingsStoryControls;
 
 interface StoreConversionRateBookingsDashboardStoryProps
@@ -104,7 +104,7 @@ function registerConversionRateMocks(): void {
 function getStoreConversionRateBookingsAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): StoreConversionRateBookingsRenderProps[ 'attributes' ] {
+): StoreConversionRateBookingsWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

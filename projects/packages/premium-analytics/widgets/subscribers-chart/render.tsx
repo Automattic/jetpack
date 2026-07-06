@@ -7,6 +7,7 @@ import {
 	useWidgetError,
 	useWidgetRootContext,
 	type MetricTab,
+	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -20,12 +21,17 @@ import useSubscribersChart, {
 	type SubscribersChartState,
 	type SubscribersPeriod,
 } from './use-subscribers-chart';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type SubscribersChartRenderProps = Pick<
-	ComponentProps< typeof WidgetRoot >,
-	'attributes' | 'setError'
->;
+// The widget has no own attributes; report params arrive from the host (or
+// WidgetRoot's URL fallback), so the render shape is host fields only.
+type SubscribersChartWidgetProps = WidgetRenderProps< Partial< ReportParamsFieldAttributes > > & {
+	/**
+	 * Host callback to surface a widget error in the dashboard frame.
+	 */
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+};
 
 const DATA_FORMAT = {
 	type: 'number' as const,
@@ -177,12 +183,10 @@ function SubscribersChartInner() {
  * `reportParams`; the inner component reads that range/comparison state and
  * layers its own granularity control on top.
  *
- * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes, carrying host-provided report params.
- * @param props.setError   - Host callback to surface a widget error in the dashboard frame.
+ * @param {SubscribersChartWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function SubscribersChart( { attributes, setError }: SubscribersChartRenderProps ) {
+export default function SubscribersChart( { attributes, setError }: SubscribersChartWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<SubscribersChartInner />

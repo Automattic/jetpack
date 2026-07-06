@@ -16,12 +16,18 @@ import { __ } from '@wordpress/i18n';
  */
 import styles from './style.module.css';
 import useTrafficChart, { type TrafficPeriod } from './use-traffic-chart';
+import type { TrafficChartAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
 // The widget has no own attributes; report params arrive from the host (or
 // WidgetRoot's URL fallback), so the render shape is host fields only.
-type TrafficChartRenderProps = WidgetRenderProps< Partial< ReportParamsFieldAttributes > > & {
+type TrafficChartWidgetProps = WidgetRenderProps<
+	TrafficChartAttributes & Partial< ReportParamsFieldAttributes >
+> & {
+	/**
+	 * Host callback to surface a widget error in the dashboard frame.
+	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -117,12 +123,10 @@ function TrafficChartInner() {
  * report params (date range + comparison); the inner component reads them from
  * context and fetches the traffic series.
  *
- * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes; the date range/comparison arrive here from the host.
- * @param props.setError   - Host callback to surface a widget error in the dashboard frame.
+ * @param {TrafficChartWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function TrafficChart( { attributes = {}, setError }: TrafficChartRenderProps ) {
+export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<TrafficChartInner />

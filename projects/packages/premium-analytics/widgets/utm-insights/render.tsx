@@ -29,6 +29,7 @@ import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
+type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
@@ -49,8 +50,17 @@ const UTM_PARAM_OPTIONS: { label: string; value: StatsUtmParam }[] = [
 ];
 
 type UtmInsightsInnerProps = {
+	/**
+	 * Active UTM dimension.
+	 */
 	utmParam: StatsUtmParam;
+	/**
+	 * Max rows to display.
+	 */
 	max: number;
+	/**
+	 * Optional widget attribute setter (persists utmParam selection).
+	 */
 	setAttributes?: NonNullable<
 		WidgetRenderProps< UtmInsightsRenderAttributes >[ 'setAttributes' ]
 	>;
@@ -59,10 +69,7 @@ type UtmInsightsInnerProps = {
 /**
  * Inner component — rendered inside WidgetRoot.
  *
- * @param props               - Props.
- * @param props.utmParam      - Active UTM dimension.
- * @param props.max           - Max rows to display.
- * @param props.setAttributes - Optional widget attribute setter (persists utmParam selection).
+ * @param {UtmInsightsInnerProps} props - The component props.
  * @return The rendered leaderboard or state placeholder.
  */
 function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerProps ) {
@@ -205,15 +212,13 @@ function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerPro
  * dimension (source/medium, campaign, etc.) is switched via a dropdown in the
  * widget header and persisted in widget attributes.
  *
- * @param props               - Render props.
- * @param props.attributes    - Widget attributes (utmParam, max).
- * @param props.setAttributes - Attribute setter.
+ * @param {UtmInsightsWidgetProps} props - The widget render props.
  * @return The rendered widget content.
  */
 export default function UtmInsightsWidget( {
 	attributes = {},
 	setAttributes,
-}: WidgetRenderProps< UtmInsightsRenderAttributes > ) {
+}: UtmInsightsWidgetProps ) {
 	const utmParam = attributes.utmParam ?? DEFAULT_UTM_PARAM;
 	const max = attributes.max ?? 10;
 

@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Widget attributes shape.
@@ -30,7 +31,7 @@ export default {
 			label: __( 'Max rows', 'jetpack-premium-analytics' ),
 			type: 'number',
 		},
-	],
+	] as WidgetAttributeField< TopPlatformsAttributes >[],
 	example: {
 		attributes: {
 			max: 10,

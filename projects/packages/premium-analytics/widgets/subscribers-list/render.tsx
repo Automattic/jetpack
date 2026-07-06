@@ -98,15 +98,21 @@ export const SubscribersRoster = ( {
 	);
 };
 
+type SubscribersReportProps = {
+	/**
+	 * Widget attributes.
+	 */
+	attributes?: SubscribersListAttributes;
+};
+
 /**
  * Fetches the latest subscribers through the designated `useStatsFollowers`
  * Stats hook and hands the normalized rows to the presentational roster.
  *
- * @param props            - Component props.
- * @param props.attributes - Widget attributes.
+ * @param {SubscribersReportProps} props - The component props.
  * @return The widget content.
  */
-function SubscribersReport( { attributes }: { attributes?: SubscribersListAttributes } ) {
+function SubscribersReport( { attributes }: SubscribersReportProps ) {
 	// Show six rows by default (matching the card design). A missing or
 	// non-positive setting falls back to that default — `?? 6` alone wouldn't,
 	// since an explicit `0` from the number field is not nullish.
@@ -132,6 +138,8 @@ function SubscribersReport( { attributes }: { attributes?: SubscribersListAttrib
 	);
 }
 
+type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListAttributes >;
+
 /**
  * Widget render entry point.
  *
@@ -139,13 +147,10 @@ function SubscribersReport( { attributes }: { attributes?: SubscribersListAttrib
  * props (the dashboard's WC-shaped `reportParams` context does not fit the
  * followers query), and `WidgetRoot` provides the analytics query client.
  *
- * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes.
+ * @param {SubscribersListWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function SubscribersList( {
-	attributes = {},
-}: WidgetRenderProps< SubscribersListAttributes > ) {
+export default function SubscribersList( { attributes = {} }: SubscribersListWidgetProps ) {
 	return (
 		<WidgetRoot>
 			<SubscribersReport attributes={ attributes } />

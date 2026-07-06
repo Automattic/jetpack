@@ -37,14 +37,20 @@ const MODE_OPTIONS = [
 
 type PlatformMode = 'browser' | 'platform';
 
+type TopPlatformsInnerProps = {
+	/**
+	 * Max rows to display.
+	 */
+	max: number;
+};
+
 /**
  * Inner component — rendered inside WidgetRoot.
  *
- * @param props     - Props.
- * @param props.max - Max rows to display.
+ * @param {TopPlatformsInnerProps} props - The component props.
  * @return The rendered leaderboard or state placeholder.
  */
-function TopPlatformsInner( { max }: { max: number } ) {
+function TopPlatformsInner( { max }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ mode, setMode ] = useState< PlatformMode >( 'browser' );
 
@@ -143,8 +149,7 @@ function TopPlatformsInner( { max }: { max: number } ) {
  * Shows browser or OS breakdown as a ranked leaderboard. The active
  * dimension is switched via a runtime dropdown in the widget body.
  *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes (max).
+ * @param {TopPlatformsWidgetProps} props - The widget render props.
  * @return The rendered widget content.
  */
 export default function TopPlatformsWidget( { attributes }: TopPlatformsWidgetProps ) {

@@ -19,14 +19,14 @@ const SALES_BY_DEVICE_RENDER_MODULE = 'storybook/sales-by-device';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type SalesByDeviceRenderProps = ComponentProps< typeof SalesByDeviceRender >;
+type SalesByDeviceWidgetProps = ComponentProps< typeof SalesByDeviceRender >;
 
 interface SalesByDeviceStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type SalesByDeviceStoryProps = SalesByDeviceRenderProps & SalesByDeviceStoryControls;
+type SalesByDeviceStoryProps = SalesByDeviceWidgetProps & SalesByDeviceStoryControls;
 
 interface SalesByDeviceDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -41,7 +41,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getSalesByDeviceAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): SalesByDeviceRenderProps[ 'attributes' ] {
+): SalesByDeviceWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
