@@ -3249,6 +3249,12 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.107.2)
 
+  projects/packages/menu-badges:
+    devDependencies:
+      jest:
+        specifier: 30.4.2
+        version: 30.4.2
+
   projects/packages/my-jetpack:
     dependencies:
       '@automattic/babel-plugin-replace-textdomain':
