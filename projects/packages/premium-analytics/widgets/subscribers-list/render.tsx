@@ -10,6 +10,7 @@ import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import {
 	SubscriberList,
 	WidgetRoot,
+	type ReportParamsFieldAttributes,
 	type SubscriberListItem,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -138,7 +139,9 @@ function SubscribersReport( { attributes }: SubscribersReportProps ) {
 	);
 }
 
-type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListAttributes >;
+type SubscribersListRenderAttributes = SubscribersListAttributes &
+	Partial< ReportParamsFieldAttributes >;
+type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListRenderAttributes >;
 
 /**
  * Widget render entry point.
