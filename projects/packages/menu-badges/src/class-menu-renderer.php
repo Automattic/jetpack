@@ -22,11 +22,17 @@ class Menu_Renderer {
 	 * @return string
 	 */
 	public static function badge_markup( $id, $count, $is_total = false ) {
-		$attrs = sprintf(
-			'class="menu-counter count-%1$d" data-jp-menu-badge="%2$s" data-jp-menu-count="%1$d"%3$s',
-			(int) $count,
+		$count = (int) $count;
+		// A zero-count badge still renders (so client live-updates have an element to
+		// target) but ships hidden. The inline style trails the data-jp-* attributes so
+		// strip()'s idempotency regex still matches; setBadgeCount() clears it to reveal.
+		$hidden = $count > 0 ? '' : ' style="display:none"';
+		$attrs  = sprintf(
+			'class="menu-counter count-%1$d" data-jp-menu-badge="%2$s" data-jp-menu-count="%1$d"%3$s%4$s',
+			$count,
 			esc_attr( $id ),
-			$is_total ? ' data-jp-menu-badge-total="1"' : ''
+			$is_total ? ' data-jp-menu-badge-total="1"' : '',
+			$hidden
 		);
 		return sprintf(
 			' <span %1$s><span class="count">%2$s</span></span>',
@@ -57,44 +63,78 @@ class Menu_Renderer {
 			return;
 		}
 
-		// Submenu badges: one per registered menu_slug with a positive count.
+		$entries = Notification_Counts::all();
+
+		// Submenu badges: one per registered menu_slug. A registered slug always gets a
+		// badge span — even at count 0 — so a later client live-update (0 -> positive)
+		// has an element to reveal. badge_markup() ships the zero case hidden.
 		if ( isset( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) ) {
 			foreach ( $submenu['jetpack'] as $i => $item ) {
 				if ( ! isset( $item[2] ) || ! isset( $item[0] ) ) {
 					continue;
 				}
 				$slug  = $item[2];
-				$count = Notification_Counts::get_for_menu( $slug );
 				$title = self::strip( $item[0] );
-				if ( $count > 0 ) {
-					$title .= self::badge_markup( $slug, $count );
+				if ( self::has_registered_slug( $entries, $slug ) ) {
+					$title .= self::badge_markup( $slug, Notification_Counts::get_for_menu( $slug ) );
 				}
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				$submenu['jetpack'][ $i ][0] = $title;
 			}
 		}
 
-		// Top-level total on the Jetpack parent. Match by menu slug (item[2]), which is
-		// portable across self-hosted, Atomic, and WP.com Simple — where jetpack-mu-wpcom
-		// builds the parent with a different capability, so the plugin's 'jetpack_admin_page'
-		// capability (kept as a fallback) is absent.
-		$total = Notification_Counts::get_total();
-		foreach ( $menu as $i => $item ) {
-			if (
-				isset( $item[0] )
-				&& (
-					( isset( $item[2] ) && 'jetpack' === $item[2] )
-					|| ( isset( $item[1] ) && 'jetpack_admin_page' === $item[1] )
-				)
-			) {
-				$title = self::strip( $item[0] );
-				if ( $total > 0 ) {
-					$title .= self::badge_markup( 'total', $total, true );
-				}
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$menu[ $i ][0] = $title;
-				break;
+		// Nothing registered: leave the Jetpack parent untouched (no badge to write or strip).
+		if ( empty( $entries ) ) {
+			return;
+		}
+
+		// Top-level total on the Jetpack parent. Rendered even at 0 (hidden) so a live
+		// update can reveal it without a reload.
+		$parent_index = self::find_parent_index( $menu );
+		if ( null === $parent_index ) {
+			return;
+		}
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$menu[ $parent_index ][0] = self::strip( $menu[ $parent_index ][0] ) . self::badge_markup( 'total', Notification_Counts::get_total(), true );
+	}
+
+	/**
+	 * Whether any registered entry badges the given submenu slug.
+	 *
+	 * @param array<string,array> $entries Registry entries (from Notification_Counts::all()).
+	 * @param string              $slug    Submenu slug.
+	 * @return bool
+	 */
+	private static function has_registered_slug( array $entries, $slug ) {
+		foreach ( $entries as $entry ) {
+			if ( isset( $entry['menu_slug'] ) && $entry['menu_slug'] === $slug ) {
+				return true;
 			}
 		}
+		return false;
+	}
+
+	/**
+	 * Locate the Jetpack top-level menu row to carry the total badge.
+	 *
+	 * Prefers the row whose slug (item[2]) is 'jetpack' — portable across self-hosted,
+	 * Atomic, and WP.com Simple, where jetpack-mu-wpcom builds the parent with a different
+	 * capability. Falls back to the plugin's 'jetpack_admin_page' capability (item[1]).
+	 *
+	 * @param array $menu The wp-admin $menu global.
+	 * @return int|string|null Matching key, or null when no Jetpack parent is present.
+	 */
+	private static function find_parent_index( array $menu ) {
+		foreach ( $menu as $i => $item ) {
+			if ( isset( $item[0] ) && isset( $item[2] ) && 'jetpack' === $item[2] ) {
+				return $i;
+			}
+		}
+		foreach ( $menu as $i => $item ) {
+			if ( isset( $item[0] ) && isset( $item[1] ) && 'jetpack_admin_page' === $item[1] ) {
+				return $i;
+			}
+		}
+		return null;
 	}
 }

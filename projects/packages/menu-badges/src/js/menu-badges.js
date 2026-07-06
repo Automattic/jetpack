@@ -23,6 +23,10 @@
 		if ( inner ) {
 			inner.textContent = String( count );
 		}
+		// Server-rendered zero-count badges ship hidden (inline display:none) so an element
+		// exists for this update. Reveal it when the count is positive, hide it again at zero;
+		// clearing the inline style hands display back to the stylesheet.
+		el.style.display = count > 0 ? '' : 'none';
 	}
 
 	/**

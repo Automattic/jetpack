@@ -9,9 +9,10 @@ require( '../../src/js/menu-badges.js' );
  * @return {string} The badge's HTML markup.
  */
 function badge( slug, count, isTotal ) {
+	const hidden = count > 0 ? '' : ' style="display:none"';
 	return `<span class="menu-counter count-${ count }" data-jp-menu-badge="${ slug }" data-jp-menu-count="${ count }"${
 		isTotal ? ' data-jp-menu-badge-total="1"' : ''
-	}><span class="count">${ count }</span></span>`;
+	}${ hidden }><span class="count">${ count }</span></span>`;
 }
 
 describe( 'jetpackMenuBadges.setCount', () => {
@@ -39,6 +40,42 @@ describe( 'jetpackMenuBadges.setCount', () => {
 
 		const total = document.querySelector( '[data-jp-menu-badge-total="1"]' );
 		expect( total.querySelector( '.count' ) ).toHaveTextContent( '1' ); // just protect
+	} );
+} );
+
+describe( 'jetpackMenuBadges.setCount reveals and hides zero-count badges', () => {
+	beforeEach( () => {
+		// Forms and the total start at 0, so they ship hidden from the server.
+		document.body.innerHTML =
+			`<div id="forms">${ badge( 'jetpack-forms-responses-wp-admin', 0 ) }</div>` +
+			`<div id="total">${ badge( 'total', 0, true ) }</div>`;
+	} );
+
+	it( 'reveals a hidden zero badge and its total when the count becomes positive', () => {
+		const forms = document.querySelector(
+			'[data-jp-menu-badge="jetpack-forms-responses-wp-admin"]'
+		);
+		const total = document.querySelector( '[data-jp-menu-badge-total="1"]' );
+		expect( forms ).toHaveStyle( 'display: none' );
+
+		window.jetpackMenuBadges.setCount( 'jetpack-forms-responses-wp-admin', 2 );
+
+		expect( forms ).toHaveAttribute( 'data-jp-menu-count', '2' );
+		expect( forms ).not.toHaveStyle( 'display: none' );
+		expect( total ).not.toHaveStyle( 'display: none' );
+		expect( total.querySelector( '.count' ) ).toHaveTextContent( '2' );
+	} );
+
+	it( 'hides a badge and total again when the count returns to zero', () => {
+		window.jetpackMenuBadges.setCount( 'jetpack-forms-responses-wp-admin', 2 );
+		window.jetpackMenuBadges.setCount( 'jetpack-forms-responses-wp-admin', 0 );
+
+		const forms = document.querySelector(
+			'[data-jp-menu-badge="jetpack-forms-responses-wp-admin"]'
+		);
+		const total = document.querySelector( '[data-jp-menu-badge-total="1"]' );
+		expect( forms ).toHaveStyle( 'display: none' );
+		expect( total ).toHaveStyle( 'display: none' );
 	} );
 } );
 
