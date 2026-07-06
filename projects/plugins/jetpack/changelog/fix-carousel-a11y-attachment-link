@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Normalize event target for Carousel on attachment links (#39926)
+Carousel: fix inconsistent behavior between keyboard and mouse for images linked to an attachment page.
