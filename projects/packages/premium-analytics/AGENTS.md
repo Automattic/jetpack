@@ -38,7 +38,7 @@ routes/                                 # lazy-loaded SPA pages; build/ is gener
 ```bash
 composer phpunit              # PHP tests
 pnpm run build / watch        # frontend build (one-off / on change)
-jetpack build -d packages/premium-analytics
+jetpack build --deps packages/premium-analytics
 ```
 
 `pnpm run build` bundles only this package: monorepo dependencies (charts,
