@@ -463,8 +463,7 @@ class Tus_File {
 					$meta['md5']       = hash_final( $md5_context );
 					$meta['md5_state'] = null;
 				} else {
-					// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize, WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-					$meta['md5_state'] = base64_encode( serialize( $md5_context ) );
+					$meta['md5_state'] = base64_encode( serialize( $md5_context ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions
 				}
 			} catch ( \Throwable $e ) {
 				Logger::log( 'error', $e );

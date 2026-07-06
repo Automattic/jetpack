@@ -18,6 +18,20 @@ require_once __DIR__ . '/class-out-of-range-exception.php';
 class Tus_File_Test extends BaseTestCase {
 
 	/**
+	 * Initialize the WordPress filesystem before each test.
+	 */
+	protected function set_up() {
+		global $wp_filesystem;
+
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		$this->assertTrue( WP_Filesystem() );
+		$this->assertInstanceOf( \WP_Filesystem_Base::class, $wp_filesystem );
+	}
+
+	/**
 	 * Tests that corrupt uploads throw the global third-party exception.
 	 */
 	public function test_upload_throws_global_out_of_range_exception_when_upload_exceeds_total_bytes() {
@@ -32,12 +46,6 @@ class Tus_File_Test extends BaseTestCase {
 			$this->assertNotFalse( $input_file );
 			$this->assertNotFalse( $output_file );
 
-			if ( ! function_exists( 'WP_Filesystem' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-			}
-
-			$this->assertTrue( WP_Filesystem() );
-			$this->assertInstanceOf( \WP_Filesystem_Base::class, $wp_filesystem );
 			$this->assertTrue( $wp_filesystem->put_contents( $input_file, 'test' ) );
 			set_transient( $cache->build_key( $key ), wp_json_encode( array(), JSON_UNESCAPED_SLASHES ) );
 
@@ -102,11 +110,6 @@ class Tus_File_Test extends BaseTestCase {
 			$this->assertNotFalse( $input_file );
 			$this->assertNotFalse( $output_file );
 
-			if ( ! function_exists( 'WP_Filesystem' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-			}
-
-			$this->assertTrue( WP_Filesystem() );
 			$this->assertTrue( $wp_filesystem->put_contents( $input_file, $contents ) );
 			set_transient( $cache->build_key( $key ), wp_json_encode( array(), JSON_UNESCAPED_SLASHES ) );
 
@@ -142,6 +145,8 @@ class Tus_File_Test extends BaseTestCase {
 	 * Tests that folding chunks in as they arrive yields the same digest as hashing the whole file.
 	 */
 	public function test_incremental_md5_matches_whole_file_digest() {
+		global $wp_filesystem;
+
 		if ( PHP_VERSION_ID < 80100 ) {
 			$this->markTestSkipped( 'Serializing a HashContext between requests requires PHP 8.1+.' );
 		}
@@ -154,7 +159,6 @@ class Tus_File_Test extends BaseTestCase {
 		$key         = 'test-incremental-md5';
 
 		try {
-			$this->prepare_filesystem();
 			$this->seed_rolling_md5( $cache, $key );
 
 			$offset = 0;
@@ -169,7 +173,7 @@ class Tus_File_Test extends BaseTestCase {
 				}
 			}
 
-			$this->assertSame( $contents, $this->read_file( $output_file ) );
+			$this->assertSame( $contents, $wp_filesystem->get_contents( $output_file ) );
 
 			$cached = $cache->get( $key );
 			$this->assertIsArray( $cached );
@@ -186,6 +190,8 @@ class Tus_File_Test extends BaseTestCase {
 	 * Tests that a single chunk larger than the read buffer is hashed across multiple read iterations.
 	 */
 	public function test_incremental_md5_handles_chunk_larger_than_read_buffer() {
+		global $wp_filesystem;
+
 		if ( PHP_VERSION_ID < 80100 ) {
 			$this->markTestSkipped( 'Serializing a HashContext between requests requires PHP 8.1+.' );
 		}
@@ -198,12 +204,11 @@ class Tus_File_Test extends BaseTestCase {
 		$key         = 'test-large-chunk-md5';
 
 		try {
-			$this->prepare_filesystem();
 			$this->seed_rolling_md5( $cache, $key );
 
 			$this->upload_chunk( $cache, $key, $output_file, $contents, 0, strlen( $contents ) );
 
-			$this->assertSame( $contents, $this->read_file( $output_file ) );
+			$this->assertSame( $contents, $wp_filesystem->get_contents( $output_file ) );
 
 			$cached = $cache->get( $key );
 			$this->assertIsArray( $cached );
@@ -225,7 +230,6 @@ class Tus_File_Test extends BaseTestCase {
 		$contents    = 'no hash please';
 
 		try {
-			$this->prepare_filesystem();
 			set_transient( $cache->build_key( $key ), wp_json_encode( array( 'offset' => 0 ), JSON_UNESCAPED_SLASHES ) );
 
 			$this->upload_chunk( $cache, $key, $output_file, $contents, 0, strlen( $contents ) );
@@ -245,14 +249,14 @@ class Tus_File_Test extends BaseTestCase {
 	 * Tests that an unusable rolling state is ignored and no digest is emitted.
 	 */
 	public function test_md5_falls_back_on_unusable_state() {
+		global $wp_filesystem;
+
 		$output_file = tempnam( sys_get_temp_dir(), 'videopress-tus-output-' );
 		$cache       = new Transient_Store( 1 );
 		$key         = 'test-md5-unusable';
 		$contents    = 'whole thing in one go';
 
 		try {
-			$this->prepare_filesystem();
-
 			// Well-formed payload that is not a HashContext, to exercise the guard without warnings.
 			$state = base64_encode( serialize( 'broken' ) );
 			set_transient( $cache->build_key( $key ), wp_json_encode( array( 'offset' => 0, 'md5_state' => $state ), JSON_UNESCAPED_SLASHES ) );
@@ -260,7 +264,7 @@ class Tus_File_Test extends BaseTestCase {
 			$offset = $this->upload_chunk( $cache, $key, $output_file, $contents, 0, strlen( $contents ) );
 
 			$this->assertSame( strlen( $contents ), $offset );
-			$this->assertSame( $contents, $this->read_file( $output_file ) );
+			$this->assertSame( $contents, $wp_filesystem->get_contents( $output_file ) );
 
 			$cached = $cache->get( $key );
 			$this->assertIsArray( $cached );
@@ -298,10 +302,12 @@ class Tus_File_Test extends BaseTestCase {
 	 * @return int The new offset after the chunk.
 	 */
 	private function upload_chunk( $cache, $key, $output_file, $chunk, $offset, $total ) {
+		global $wp_filesystem;
+
 		$input_file = tempnam( sys_get_temp_dir(), 'videopress-tus-input-' );
 
 		try {
-			$this->write_file( $input_file, $chunk );
+			$this->assertTrue( $wp_filesystem->put_contents( $input_file, $chunk ) );
 			Tus_File::set_input_stream( $input_file );
 
 			$file = new Tus_File( $key, $cache );
@@ -312,47 +318,6 @@ class Tus_File_Test extends BaseTestCase {
 		} finally {
 			$this->cleanup_file( $input_file );
 		}
-	}
-
-	/**
-	 * Ensure the WordPress filesystem is initialized for the test.
-	 *
-	 * @return void
-	 */
-	private function prepare_filesystem() {
-		global $wp_filesystem;
-
-		if ( ! function_exists( 'WP_Filesystem' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-
-		$this->assertTrue( WP_Filesystem() );
-		$this->assertInstanceOf( \WP_Filesystem_Base::class, $wp_filesystem );
-	}
-
-	/**
-	 * Write contents to a file via the WordPress filesystem.
-	 *
-	 * @param string $path     The file path.
-	 * @param string $contents The contents.
-	 *
-	 * @return void
-	 */
-	private function write_file( $path, $contents ) {
-		global $wp_filesystem;
-		$this->assertTrue( $wp_filesystem->put_contents( $path, $contents ) );
-	}
-
-	/**
-	 * Read a file via the WordPress filesystem.
-	 *
-	 * @param string $path The file path.
-	 *
-	 * @return string
-	 */
-	private function read_file( $path ) {
-		global $wp_filesystem;
-		return $wp_filesystem->get_contents( $path );
 	}
 
 	/**
