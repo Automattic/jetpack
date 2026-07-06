@@ -213,25 +213,14 @@ class Author_Schema_Node {
 	}
 
 	/**
-	 * Normalize a list of URLs: keep unique absolute http(s) URLs.
+	 * Normalize a list of URLs: keep unique absolute http(s) URLs. Delegates to
+	 * the shared {@see Schema_Settings::sanitize_url_list()} sanitizer.
 	 *
 	 * @param mixed $value Raw value.
 	 * @return array<int, string>
 	 */
 	public static function sanitize_url_list( $value ) {
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-
-		$urls = array();
-		foreach ( $value as $url ) {
-			$clean = self::url( $url );
-			if ( '' !== $clean ) {
-				$urls[] = $clean;
-			}
-		}
-
-		return array_values( array_unique( $urls ) );
+		return Schema_Settings::sanitize_url_list( $value );
 	}
 
 	/**
@@ -269,20 +258,7 @@ class Author_Schema_Node {
 	 * @return string
 	 */
 	private static function url( $value ) {
-		if ( ! is_string( $value ) ) {
-			return '';
-		}
-
-		$value = trim( $value );
-		if ( '' === $value ) {
-			return '';
-		}
-
-		$validated = wp_http_validate_url( $value );
-		if ( false === $validated ) {
-			return '';
-		}
-
-		return esc_url_raw( $validated, array( 'http', 'https' ) );
+		$list = Schema_Settings::sanitize_url_list( array( $value ) );
+		return $list[0] ?? '';
 	}
 }

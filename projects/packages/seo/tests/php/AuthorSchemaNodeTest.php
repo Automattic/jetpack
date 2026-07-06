@@ -128,11 +128,12 @@ class AuthorSchemaNodeTest extends TestCase {
 	}
 
 	/**
-	 * `sameAs` keeps only unique absolute http(s) URLs.
+	 * `sameAs` keeps only unique absolute http(s) URLs — without resolving DNS,
+	 * so a well-formed URL on an unresolvable host is kept.
 	 */
 	public function test_sanitize_url_list_drops_invalid_and_duplicate_urls() {
 		$this->assertSame(
-			array( 'https://twitter.com/jane', 'https://bsky.app/profile/jane.example' ),
+			array( 'https://twitter.com/jane', 'https://bsky.app/profile/jane.example', 'https://unresolvable-host.example/jane' ),
 			Author_Schema_Node::sanitize_url_list(
 				array(
 					'https://twitter.com/jane',
@@ -143,6 +144,7 @@ class AuthorSchemaNodeTest extends TestCase {
 					'mailto:jane@example.test',
 					'https://twitter.com/jane',
 					'https://bsky.app/profile/jane.example',
+					'https://unresolvable-host.example/jane',
 				)
 			)
 		);
