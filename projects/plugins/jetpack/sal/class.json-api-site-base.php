@@ -1520,6 +1520,31 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the DIFM Lite site options exposed to the frontend while a build is in progress.
+	 *
+	 * Returns null unless the site has an active DIFM Lite build and the code is
+	 * running on WordPress.com, where the DIFM Lite library exists.
+	 *
+	 * @return array|null
+	 */
+	public function get_difm_lite_site_options() {
+		if ( ! $this->is_difm_lite_in_progress() ) {
+			return null;
+		}
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM || ! function_exists( 'require_lib' ) ) {
+			return null;
+		}
+		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only function, guarded above.
+		require_lib( 'difm-lite' );
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
+		$difm_lite_options = new \DIFM_Lite_Options( $this->blog_id );
+		return array(
+			// @phan-suppress-next-line PhanUndeclaredClassProperty -- wpcom-only class, guarded above.
+			'is_website_content_submitted' => (bool) $difm_lite_options->is_website_content_submitted,
+		);
+	}
+
+	/**
 	 * Check if the site has the gating-business-q1 blog sticker.
 	 *
 	 * @return bool

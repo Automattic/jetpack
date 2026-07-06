@@ -222,6 +222,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_created_with_blank_canvas_design',
 		'videopress_storage_used',
 		'is_difm_lite_in_progress',
+		'difm_lite_site_options',
 		'is_gating_business_q1',
 		'site_intent',
 		'site_partner_bundle',
@@ -929,6 +930,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'is_difm_lite_in_progress':
 					$options[ $key ] = $site->is_difm_lite_in_progress();
+					break;
+				case 'difm_lite_site_options':
+					$difm_lite_site_options = $site->get_difm_lite_site_options();
+					if ( null !== $difm_lite_site_options ) {
+						$options[ $key ] = (object) $difm_lite_site_options;
+					}
 					break;
 				case 'is_gating_business_q1':
 					$options[ $key ] = $site->is_gating_business_q1();
