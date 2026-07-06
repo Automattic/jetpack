@@ -1575,7 +1575,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
 
 		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
-		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$repeat = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$this->assertSame( 200, $repeat->get_status(), 'skipping an already-skipped task still succeeds' );
 
 		$this->assertSame( array( 'first_post_published' ), get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
 	}
