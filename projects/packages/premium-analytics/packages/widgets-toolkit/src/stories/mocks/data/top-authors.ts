@@ -1,5 +1,13 @@
-const avatar = ( seed: string ) =>
-	`https://www.gravatar.com/avatar/${ encodeURIComponent( seed ) }?d=identicon&s=48`;
+// Inline SVG avatar so stories stay deterministic and offline (no network
+// request to Gravatar). A hue derived from the seed keeps each author distinct.
+const avatar = ( seed: string ) => {
+	let hue = 0;
+	for ( let i = 0; i < seed.length; i++ ) {
+		hue = ( hue * 31 + seed.charCodeAt( i ) ) % 360;
+	}
+	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><rect width="48" height="48" fill="hsl(${ hue } 55% 65%)"/></svg>`;
+	return `data:image/svg+xml,${ encodeURIComponent( svg ) }`;
+};
 
 const post = ( id: number, title: string, views: number ) => ( {
 	id,

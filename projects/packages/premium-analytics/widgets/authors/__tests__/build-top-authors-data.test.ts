@@ -97,7 +97,7 @@ describe( 'buildTopAuthorsData', () => {
 
 		expect( result ).toHaveLength( 1 );
 		expect( result[ 0 ] ).toMatchObject( {
-			id: 'Alice-0',
+			id: 'label:Alice|',
 			label: 'Alice',
 			currentValue: 10,
 			previousValue: 0,

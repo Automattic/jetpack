@@ -63,12 +63,16 @@ function getAuthorLabel( author: StatsTopAuthorsItem ) {
 	return label;
 }
 
-function getAuthorKey( author: StatsTopAuthorsItem, index: number ) {
+function getAuthorKey( author: StatsTopAuthorsItem ) {
 	if ( author.id != null ) {
 		return String( author.id );
 	}
 
-	return `${ getAuthorLabel( author ) }-${ index }`;
+	// No id from the endpoint: build a period-independent key so the same author
+	// aligns across the primary and comparison periods even when their rank (and
+	// thus array position) differs. The avatar keeps same-named authors distinct
+	// where one is available.
+	return `label:${ getAuthorLabel( author ) }|${ author.icon ?? '' }`;
 }
 
 type NormalizedAuthorPost = {
@@ -172,10 +176,11 @@ function toAuthorItems(
  * Builds leaderboard rows for the Authors widget.
  *
  * Transforms Jetpack Stats top-authors data into normalized rows, with
- * comparison values aligned by author display label (authors missing from the
- * comparison period count as zero). Each row also carries the author's avatar
- * and posts so the render layer can show a name + picture label and drill down
- * into the author's posts.
+ * comparison values aligned by a stable author key — the author id when the
+ * endpoint provides one, otherwise the display label plus avatar (authors
+ * missing from the comparison period count as zero). Each row also carries the
+ * author's avatar and posts so the render layer can show a name + picture label
+ * and drill down into the author's posts.
  *
  * @param primary    - Primary period top-authors report
  * @param comparison - Comparison period top-authors report
@@ -192,24 +197,21 @@ export function buildTopAuthorsData(
 	}
 
 	const comparisonAuthors = new Map(
-		toAuthorItems( comparison ).map( ( author, index ) => [
-			getAuthorKey( author, index ),
-			author,
-		] )
+		toAuthorItems( comparison ).map( author => [ getAuthorKey( author ), author ] )
 	);
 
 	// Share each value against the largest of either period so the overlay bars
 	// stay proportional; `1` guards against division by zero.
 	const maxValue = Math.max(
-		...authors.map( ( author, index ) =>
-			Math.max( author.views, comparisonAuthors.get( getAuthorKey( author, index ) )?.views ?? 0 )
+		...authors.map( author =>
+			Math.max( author.views, comparisonAuthors.get( getAuthorKey( author ) )?.views ?? 0 )
 		),
 		1
 	);
 
-	return authors.map( ( author, index ) => {
+	return authors.map( author => {
 		const label = getAuthorLabel( author );
-		const authorKey = getAuthorKey( author, index );
+		const authorKey = getAuthorKey( author );
 		const currentValue = author.views;
 		const comparisonAuthor = comparisonAuthors.get( authorKey );
 		const previousValue = comparisonAuthor?.views ?? 0;
