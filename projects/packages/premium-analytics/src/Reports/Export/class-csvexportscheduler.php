@@ -20,7 +20,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
 /**
  * CSV Export Scheduler class.
  *
- * @since x.x.x
+ * @since $$next-version$$
  * @internal
  */
 class CSVExportScheduler implements RegistrableInterface {
@@ -31,17 +31,17 @@ class CSVExportScheduler implements RegistrableInterface {
 	/**
 	 * Action hook name for CSV export jobs.
 	 */
-	const EXPORT_ACTION_HOOK = 'woocommerce_analytics_generate_csv_export';
+	const EXPORT_ACTION_HOOK = 'jetpack_premium_analytics_generate_csv_export';
 
 	/**
 	 * Action Scheduler group name.
 	 */
-	const ACTION_GROUP = 'woocommerce-analytics-csv-export';
+	const ACTION_GROUP = 'jetpack-premium-analytics-csv-export';
 
 	/**
 	 * Cleanup hook name.
 	 */
-	const CLEANUP_HOOK = 'woocommerce_analytics_cleanup_csv_exports';
+	const CLEANUP_HOOK = 'jetpack_premium_analytics_cleanup_csv_exports';
 
 	/**
 	 * Default retention period for CSV export files in seconds (48 hours).
@@ -200,7 +200,7 @@ class CSVExportScheduler implements RegistrableInterface {
 		);
 
 		// Set user context for REST API calls.
-		$previous_user = \wp_get_current_user();
+		$previous_user_id = \get_current_user_id();
 		\wp_set_current_user( $user_id );
 
 		try {
@@ -246,30 +246,25 @@ class CSVExportScheduler implements RegistrableInterface {
 				throw new \Exception( $file_path->get_error_message() );
 			}
 
-			// Get file URL.
-			$file_url = $this->csv_generator->get_file_url( $file_path );
-			if ( is_wp_error( $file_url ) ) {
-				throw new \Exception( $file_url->get_error_message() );
-			}
-
 			// Get report label.
 			$report_label = $this->registry->get_label( $report_type );
 			if ( is_wp_error( $report_label ) ) {
 				$report_label = $report_type;
 			}
 
-			// Send email with attachment.
+			// Send email with the CSV as an attachment (no public download URL is exposed).
 			$email_sent = $this->email_sender->send_export_email(
 				$user_email,
 				$report_label,
 				$params,
-				$file_path,
-				$file_url
+				$file_path
 			);
 
+			// The file has been attached and is no longer needed on disk; the daily cleanup is
+			// only a backstop.
+			$this->csv_generator->delete_file( $file_path );
+
 			if ( ! $email_sent ) {
-				// Clean up the file immediately since email failed.
-				$this->csv_generator->delete_file( $file_path );
 				throw new \Exception( 'Failed to send export email' );
 			}
 
@@ -281,25 +276,26 @@ class CSVExportScheduler implements RegistrableInterface {
 		} catch ( \Exception $e ) {
 			$this->logger->log_exception( $e, __METHOD__ );
 
-			// Try to send error notification email.
-			$this->send_error_email( $user_email, $report_type, $e->getMessage() );
+			// Notify the requester with a generic message (details are logged, not emailed).
+			$this->send_error_email( $user_email, $report_type );
+
+			// Rethrow so Action Scheduler records the action as failed rather than completed.
+			throw $e;
 		} finally {
-			// Restore previous user context if there was an authenticated user.
-			if ( $previous_user && $previous_user->ID ) {
-				\wp_set_current_user( $previous_user->ID );
-			}
+			// Always restore the prior user context, including the anonymous/system user (0),
+			// so later actions in the same cron batch do not run as the export requester.
+			\wp_set_current_user( $previous_user_id );
 		}
 	}
 
 	/**
-	 * Send error notification email.
+	 * Send a generic export-failure notification (error detail is logged, not emailed).
 	 *
 	 * @param string $user_email  User email.
 	 * @param string $report_type Report type.
-	 * @param string $error       Error message.
 	 * @return void
 	 */
-	private function send_error_email( string $user_email, string $report_type, string $error ): void {
+	private function send_error_email( string $user_email, string $report_type ): void {
 		$subject = sprintf(
 			/* translators: %s: Report type */
 			__( 'Export Failed: %s', 'jetpack-premium-analytics' ),
@@ -307,10 +303,9 @@ class CSVExportScheduler implements RegistrableInterface {
 		);
 
 		$message = sprintf(
-			/* translators: 1: Report type, 2: Error message */
-			__( 'Your export for "%1$s" failed with the following error: %2$s', 'jetpack-premium-analytics' ),
-			$report_type,
-			$error
+			/* translators: %s: Report type */
+			__( 'Your export for "%s" could not be completed. Please try again later.', 'jetpack-premium-analytics' ),
+			$report_type
 		);
 
 		wp_mail( $user_email, $subject, $message );
@@ -367,7 +362,7 @@ class CSVExportScheduler implements RegistrableInterface {
 	 */
 	public function cleanup_old_exports(): void {
 		$upload_dir = wp_upload_dir();
-		$export_dir = trailingslashit( $upload_dir['basedir'] ) . 'woocommerce-analytics-exports';
+		$export_dir = trailingslashit( $upload_dir['basedir'] ) . 'jetpack-premium-analytics-exports';
 
 		if ( ! is_dir( $export_dir ) ) {
 			return;
@@ -378,7 +373,7 @@ class CSVExportScheduler implements RegistrableInterface {
 		 *
 		 * @param int $retention_seconds Retention period in seconds. Default: 48 hours.
 		 */
-		$retention = apply_filters( 'woocommerce_analytics_csv_export_retention', self::DEFAULT_RETENTION_PERIOD );
+		$retention = apply_filters( 'jetpack_premium_analytics_csv_export_retention', self::DEFAULT_RETENTION_PERIOD );
 
 		$files   = glob( $export_dir . '/*.csv' );
 		$cutoff  = time() - $retention;
