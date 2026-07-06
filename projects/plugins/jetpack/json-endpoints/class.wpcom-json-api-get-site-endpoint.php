@@ -681,7 +681,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( $this->is_wpcom()
 					&& function_exists( 'get_jetpack_hosting_provider' )
 					&& is_array( $this->fields_to_include ) ) {
-					// @phan-suppress-next-line PhanUndeclaredFunction -- WPCOM-only helper guarded by function_exists().
 					$response[ $key ] = get_jetpack_hosting_provider( get_current_blog_id() );
 				}
 				break;
@@ -1118,7 +1117,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// fallback. See Linear STU-1944 / STU-1977.
 		if ( $this->is_wpcom() && $has_site_access && is_array( $this->fields_to_include ) ) {
 			if ( function_exists( 'get_jetpack_hosting_provider' ) && in_array( 'hosting_provider_guess', $this->fields_to_include, true ) ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction -- WPCOM-only helper guarded by function_exists().
 				$response->hosting_provider_guess = get_jetpack_hosting_provider( get_current_blog_id() );
 			}
 			if ( in_array( 'environment_type', $this->fields_to_include, true ) ) {
