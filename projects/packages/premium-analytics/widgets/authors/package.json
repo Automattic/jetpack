@@ -8,6 +8,7 @@
 		"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^13.0.0",
+		"@wordpress/ui": "0.13.0",
 		"@wordpress/widget-primitives": "next",
 		"react": "18.3.1"
 	}
