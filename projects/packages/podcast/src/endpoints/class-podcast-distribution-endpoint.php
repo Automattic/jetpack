@@ -117,25 +117,23 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * Mirror the Pocket Casts verdict from the relayed wpcom response onto the
-	 * local `podcasting_show_states` / `podcasting_show_urls` options.
-	 *
-	 * Writes raw partial patches keyed by `pocketcasts`; the registered
-	 * {@see Settings} sanitizers merge them into the stored maps without
-	 * disturbing the other podcatchers. `rejected` clears the entry.
+	 * Mirror the Pocket Casts verdict onto this site's local podcast options so
+	 * the dashboard reflects it (wpcom only persisted it to its own copy).
 	 *
 	 * @param mixed $data Decoded relay body.
 	 */
 	private function persist_distribution_state( $data ): void {
-		if ( ! is_array( $data ) || ! isset( $data['state'] )
-			|| ! in_array( $data['state'], array( 'pending', 'active', 'rejected' ), true ) ) {
+		$state = is_array( $data ) && isset( $data['state'] ) ? $data['state'] : '';
+
+		if ( ! in_array( $state, array( 'pending', 'active', 'rejected' ), true ) ) {
 			return;
 		}
 
-		$state = in_array( $data['state'], array( 'pending', 'active' ), true ) ? $data['state'] : '';
-		update_option( 'podcasting_show_states', array( 'pocketcasts' => $state ) );
+		// Partial patch: the registered Settings sanitizer merges it into the
+		// stored map, so the other podcatchers survive. 'rejected' clears it.
+		update_option( 'podcasting_show_states', array( 'pocketcasts' => 'rejected' === $state ? '' : $state ) );
 
-		if ( 'active' === $data['state'] && ! empty( $data['share_link'] ) && is_string( $data['share_link'] ) ) {
+		if ( 'active' === $state && ! empty( $data['share_link'] ) && is_string( $data['share_link'] ) ) {
 			update_option( 'podcasting_show_urls', array( 'pocketcasts' => $data['share_link'] ) );
 		}
 	}
