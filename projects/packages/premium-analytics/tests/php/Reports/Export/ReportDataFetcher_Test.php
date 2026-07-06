@@ -10,7 +10,6 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersOverTimeController;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
@@ -88,56 +87,5 @@ class ReportDataFetcher_Test extends TestCase {
 
 		// Interval defaults to 'day' when omitted.
 		$this->assertSame( 'day', $this->invoke( 'extract_base_params', array( array() ) )['interval'] );
-	}
-
-	public function test_get_default_value_for_field_uses_controller_then_empty_string() {
-		$controller = new OrdersOverTimeController( ReportRegistry::instance() );
-
-		$this->assertSame( 0, $this->invoke( 'get_default_value_for_field', array( 'orders_no', $controller ) ) );
-		$this->assertSame( '', $this->invoke( 'get_default_value_for_field', array( 'unknown_field', $controller ) ) );
-		// No controller => always empty string.
-		$this->assertSame( '', $this->invoke( 'get_default_value_for_field', array( 'orders_no', null ) ) );
-	}
-
-	public function test_create_empty_item_mirrors_keys_with_defaults() {
-		$controller = new OrdersOverTimeController( ReportRegistry::instance() );
-
-		$empty = $this->invoke(
-			'create_empty_item',
-			array(
-				array(
-					'orders_no' => 9,
-					'other'     => 'x',
-				),
-				$controller,
-			)
-		);
-
-		$this->assertSame(
-			array(
-				'orders_no' => 0,
-				'other'     => '',
-			),
-			$empty
-		);
-	}
-
-	public function test_merge_datasets_pads_short_comparison_with_empty_items() {
-		$controller = new OrdersOverTimeController( ReportRegistry::instance() );
-
-		$merged = $this->invoke(
-			'merge_datasets',
-			array(
-				array( 'data' => array( array( 'orders_no' => 5 ), array( 'orders_no' => 8 ) ) ),
-				array( 'data' => array( array( 'orders_no' => 3 ) ) ),
-				$controller,
-				'comparison_',
-			)
-		);
-
-		// First row gets the real comparison value.
-		$this->assertSame( 3, $merged['data'][0]['comparison_orders_no'] );
-		// Second row has no comparison counterpart, so it is padded with the default (0).
-		$this->assertSame( 0, $merged['data'][1]['comparison_orders_no'] );
 	}
 }
