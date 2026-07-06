@@ -13,6 +13,7 @@ import { ReportRecordsTable } from '../report-records-table';
 import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { Field } from '@wordpress/dataviews';
+import type { ComponentProps } from 'react';
 
 /**
  * Build a deterministic 30-day visits report fixture. `offsetDays` shifts the
@@ -168,7 +169,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< ReportPageStoryControls >;
+} satisfies Meta< ComponentProps< typeof ReportPageLayout > & ReportPageStoryControls >;
 
 export default meta;
 
