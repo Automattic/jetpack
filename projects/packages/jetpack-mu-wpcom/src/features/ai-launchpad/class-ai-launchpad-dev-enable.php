@@ -40,6 +40,7 @@ class AI_Launchpad_Dev_Enable {
 		AI_Launchpad_REST::OPTION_AI_OUTPUT,
 		AI_Launchpad_REST::OPTION_DISMISSED,
 		AI_Launchpad_REST::OPTION_SKIPPED,
+		AI_Launchpad_REST::OPTION_COMPLETED,
 		'launchpad_checklist_tasks_statuses', // Shared completion option; no dedicated constant.
 	);
 

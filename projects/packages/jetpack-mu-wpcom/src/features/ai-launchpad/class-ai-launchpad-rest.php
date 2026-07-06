@@ -15,6 +15,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	const OPTION_AI_OUTPUT = 'wpcom_ai_launchpad_ai_output';
 	const OPTION_DISMISSED = 'wpcom_ai_launchpad_dismissed';
 	const OPTION_SKIPPED   = 'wpcom_ai_launchpad_skipped_tasks';
+	// Latched "every task is done" flag, autoloaded so the menu gate reads it without rebuilding the task list.
+	// Set once; cleared only by an explicit reset (re-tailor, dismiss, reset).
+	const OPTION_COMPLETED = 'wpcom_ai_launchpad_completed';
 
 	const MIN_VALID_TASKS = 4;
 
@@ -320,49 +323,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		// Testing aid: ?all_tasks=1 renders the whole catalog, independent of the persisted tailored output.
 		if ( $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' ) ) {
-			$tasks = $this->build_all_catalog_tasks();
+			$tasks = $this->apply_skipped_tasks( $this->build_all_catalog_tasks() );
 		} else {
-			// Guard the nested payload: partial/failed writes may leave the option without payload.tasks.
-			$payload = is_array( $ai_output ) && isset( $ai_output['payload'] ) && is_array( $ai_output['payload'] )
-				? $ai_output['payload']
-				: array();
-			// Validate `inferred` as an array before reading from it, since a partial write could leave it non-array.
-			$inferred = isset( $payload['inferred'] ) && is_array( $payload['inferred'] ) ? $payload['inferred'] : array();
-			$niche    = isset( $inferred['niche'] ) && is_string( $inferred['niche'] )
-				? trim( $inferred['niche'] )
-				: '';
-
-			$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
-
-			if ( ! function_exists( 'is_plugin_active' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			}
-			$woo_active = is_plugin_active( 'woocommerce/woocommerce.php' );
-
-			// On a sell site without WooCommerce, keep the gated commerce tasks as a disabled preview of the store
-			// roadmap instead of dropping them (which would collapse the list to almost nothing).
-			$disable_hidden_woo = 'sell' === $goal && ! $woo_active;
-
-			$tasks = array();
-			if ( isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ) {
-				$tasks = $this->build_tasks( $payload['tasks'], false, $niche, $disable_hidden_woo );
-			}
-
-			// The sell goal leads with the store-setup task; every other goal may offer the gallery task. They are
-			// mutually exclusive so a sell site with a visual niche doesn't also get an off-target gallery task.
-			if ( 'sell' === $goal ) {
-				// The store-setup tasks lead the sell list. Their synthetic ids never appear in the AI payload, so a
-				// plain prepend is safe.
-				$tasks = array_merge( $this->build_store_tasks( $woo_active ), $tasks );
-			} else {
-				$gallery = $this->build_gallery_task( $inferred );
-				if ( null !== $gallery ) {
-					$tasks = $this->insert_before_launch_task( $tasks, $gallery );
-				}
-			}
+			$tasks = $this->get_current_tasks();
 		}
-
-		$tasks = $this->apply_skipped_tasks( $tasks );
 
 		// The membership tasks' completion is recomputed in build_tasks(), so overlay it to keep
 		// checklist_statuses consistent with tasks[].completed for them.
@@ -372,6 +336,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				$checklist_statuses[ $task['id'] ] = $task['completed'];
 			}
 		}
+
+		$this->maybe_mark_completed();
 
 		return array(
 			'wizard'             => is_array( $wizard ) ? $wizard : null,
@@ -389,6 +355,99 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				'edit_url'    => wp_is_block_theme() ? admin_url( 'site-editor.php' ) : admin_url( 'customize.php' ),
 			),
 		);
+	}
+
+	/**
+	 * The site's tailored task list (AI-selected + synthetic store/gallery tasks, skip overlay applied) — the tasks
+	 * GET renders, minus the ?all_tasks testing view. Shared by GET and the completion check.
+	 *
+	 * @return array
+	 */
+	public function get_current_tasks() {
+		$ai_output = get_option( self::OPTION_AI_OUTPUT );
+
+		// Guard the nested payload: partial/failed writes may leave the option without payload.tasks.
+		$payload = is_array( $ai_output ) && isset( $ai_output['payload'] ) && is_array( $ai_output['payload'] )
+			? $ai_output['payload']
+			: array();
+		// Validate `inferred` as an array before reading from it, since a partial write could leave it non-array.
+		$inferred = isset( $payload['inferred'] ) && is_array( $payload['inferred'] ) ? $payload['inferred'] : array();
+		$niche    = isset( $inferred['niche'] ) && is_string( $inferred['niche'] )
+			? trim( $inferred['niche'] )
+			: '';
+
+		$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
+
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$woo_active = is_plugin_active( 'woocommerce/woocommerce.php' );
+
+		// On a sell site without WooCommerce, keep the gated commerce tasks as a disabled preview of the store
+		// roadmap instead of dropping them (which would collapse the list to almost nothing).
+		$disable_hidden_woo = 'sell' === $goal && ! $woo_active;
+
+		$tasks = array();
+		if ( isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ) {
+			$tasks = $this->build_tasks( $payload['tasks'], false, $niche, $disable_hidden_woo );
+		}
+
+		// The sell goal leads with the store-setup task; every other goal may offer the gallery task. They are
+		// mutually exclusive so a sell site with a visual niche doesn't also get an off-target gallery task.
+		if ( 'sell' === $goal ) {
+			// The store-setup tasks lead the sell list. Their synthetic ids never appear in the AI payload, so a
+			// plain prepend is safe.
+			$tasks = array_merge( $this->build_store_tasks( $woo_active ), $tasks );
+		} else {
+			$gallery = $this->build_gallery_task( $inferred );
+			if ( null !== $gallery ) {
+				$tasks = $this->insert_before_launch_task( $tasks, $gallery );
+			}
+		}
+
+		return $this->apply_skipped_tasks( $tasks );
+	}
+
+	/**
+	 * Latches OPTION_COMPLETED the first time the list is fully done. Called on every path that can finish the last
+	 * task (read, skip, complete-on-click); the already-set check skips the rebuild once latched.
+	 *
+	 * @return void
+	 */
+	private function maybe_mark_completed() {
+		if ( get_option( self::OPTION_COMPLETED ) ) {
+			return;
+		}
+
+		if ( $this->compute_tasklist_complete() ) {
+			update_option( self::OPTION_COMPLETED, true, true );
+		}
+	}
+
+	/**
+	 * Whether every task on the tailored list is completed or skipped. An empty/absent list is not "complete" — the
+	 * wizard still needs to run.
+	 *
+	 * @return bool
+	 */
+	private function compute_tasklist_complete() {
+		if ( ! get_option( self::OPTION_AI_OUTPUT ) ) {
+			return false;
+		}
+
+		$tasks = $this->get_current_tasks();
+		if ( empty( $tasks ) ) {
+			return false;
+		}
+
+		foreach ( $tasks as $task ) {
+			// A skip coerces `completed` true; a disabled preview task stays incomplete until its prerequisite is met.
+			if ( empty( $task['completed'] ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -483,8 +542,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
 
-		// Skips belong to one tailored list: a fresh tailoring must not inherit stale skips from the previous one.
+		// A fresh list must not inherit the previous one's skips or "done" flag.
 		delete_option( self::OPTION_SKIPPED );
+		delete_option( self::OPTION_COMPLETED );
 
 		return array( 'ai_output' => $ai_output );
 	}
@@ -518,6 +578,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		wpcom_mark_launchpad_task_complete( $task_id );
+
+		// Latch now so completing the last task hides the menu on the next page load, not just on the next read.
+		$this->maybe_mark_completed();
 
 		return array(
 			'completed' => true,
@@ -553,6 +616,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			update_option( self::OPTION_SKIPPED, $skipped, false );
 		}
 
+		// Latch now so skipping the last task hides the menu on the next page load, not just on the next read.
+		$this->maybe_mark_completed();
+
 		return array(
 			'skipped' => true,
 			'task_id' => $task_id,
@@ -567,6 +633,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	public function dismiss() {
 		delete_option( self::OPTION_AI_OUTPUT );
 		delete_option( self::OPTION_SKIPPED );
+		delete_option( self::OPTION_COMPLETED );
 		update_option( self::OPTION_DISMISSED, true, true );
 
 		return array( 'dismissed' => true );

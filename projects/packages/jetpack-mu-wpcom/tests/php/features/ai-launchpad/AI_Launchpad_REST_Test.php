@@ -1457,6 +1457,63 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that reading the launchpad leaves the cached completion flag unset while any task is incomplete, so the
+	 * menu keeps showing.
+	 */
+	public function test_get_leaves_completed_flag_unset_while_incomplete() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$this->call_api( Requests::GET );
+
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
+	}
+
+	/**
+	 * Test that reading the launchpad sets the cached completion flag once every task is completed or skipped, so the
+	 * menu gate can hide the screen without rebuilding the list.
+	 */
+	public function test_get_sets_completed_flag_when_all_done() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		// Skipping every task coerces each to completed, so the list reads as done.
+		update_option( 'wpcom_ai_launchpad_skipped_tasks', array( 'first_post_published', 'site_launched' ), false );
+
+		$this->call_api( Requests::GET );
+
+		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ) );
+	}
+
+	/**
+	 * Test that the completion flag latches: once set, reading the launchpad keeps it set even if a task now reads
+	 * incomplete, so a task that un-completes does not bring the launchpad back (only an explicit reset does).
+	 */
+	public function test_completed_flag_is_latched() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		update_option( 'wpcom_ai_launchpad_completed', true, true );
+
+		$this->call_api( Requests::GET );
+
+		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ) );
+	}
+
+	/**
+	 * Test that skipping the final task refreshes the cached flag immediately, so the menu hides on the next page
+	 * load without waiting for another launchpad read.
+	 */
+	public function test_skip_final_task_sets_completed_flag() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ), 'still incomplete after one skip' );
+
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'site_launched' ) );
+		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ), 'complete after skipping the last task' );
+	}
+
+	/**
 	 * Test that skipping the same task twice stores it once.
 	 */
 	public function test_skip_task_is_idempotent() {
@@ -1503,18 +1560,21 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that writing a fresh tailored list clears the previous list's skips.
+	 * Test that writing a fresh tailored list clears the previous list's skips and the cached completion flag (a new
+	 * all-incomplete list is never done).
 	 */
-	public function test_tailored_write_clears_skips() {
+	public function test_tailored_write_clears_skips_and_completed_flag() {
 		wp_set_current_user( $this->admin_id );
 		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
 		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
 		$this->assertNotFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+		update_option( 'wpcom_ai_launchpad_completed', true, true );
 
 		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload() );
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
 	}
 
 	/**
@@ -1551,6 +1611,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		);
 		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
 		update_option( 'wpcom_ai_launchpad_skipped_tasks', array( 'site_title' ), false );
+		update_option( 'wpcom_ai_launchpad_completed', true, true );
 
 		$result = $this->call_api( Requests::DELETE );
 
@@ -1558,6 +1619,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( 'dismissed' => true ), $result->get_data() );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_ai_output' ) );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
 		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_dismissed' ) );
 		$this->assertSame( array( 'first_post_published' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
 	}

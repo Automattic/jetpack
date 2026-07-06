@@ -113,6 +113,12 @@ class AI_Launchpad {
 			return;
 		}
 
+		// Once every task is done, drop the launchpad from the sidebar. Separate from eligibility on purpose — the
+		// enable option stays set, so re-tailoring or a reset brings it back. Reads the latched flag, no rebuild.
+		if ( get_option( \AI_Launchpad_REST::OPTION_COMPLETED ) ) {
+			return;
+		}
+
 		// The render callback only exists once build/build.php is loaded, which happens on the AI Launchpad page itself.
 		$callback = function_exists( self::RENDER_CALLBACK )
 			? self::RENDER_CALLBACK
