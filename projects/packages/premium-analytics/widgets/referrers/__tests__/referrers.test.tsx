@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -114,6 +114,39 @@ describe( 'ReferrersWidget', () => {
 
 		await expect( screen.findByText( 'jetpack.com' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /all referrers/i } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'resets the drill-down to the top level when the date range changes', async () => {
+		const { rerender } = render(
+			<ReferrersWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		const groupButton = await screen.findByRole( 'button', {
+			name: /view referrers for search engines/i,
+		} );
+
+		fireEvent.click( groupButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		await expect(
+			screen.findByRole( 'button', { name: /view all referrers/i } )
+		).resolves.toBeInTheDocument();
+
+		// A new date range loads a different report; the stale drill path should clear.
+		rerender(
+			<ReferrersWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
+			/>
+		);
+
+		await waitFor( () =>
+			expect(
+				screen.queryByRole( 'button', { name: /view all referrers/i } )
+			).not.toBeInTheDocument()
+		);
+		await expect(
+			screen.findByRole( 'button', { name: /view referrers for search engines/i } )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders childless referrers as plain rows without outbound links', async () => {

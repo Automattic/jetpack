@@ -13,14 +13,12 @@ import {
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	calculateDelta,
-	formatLegendLabels,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
-	type LegendLabels,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 /**
@@ -243,8 +241,6 @@ export type ReferrersLeaderboardProps = {
 	isLoading?: boolean;
 	isError?: boolean;
 	withComparison?: boolean;
-	showLegend?: boolean;
-	legendLabels?: LegendLabels;
 	onDrillDown?: ( row: ReferrerRow ) => void;
 };
 
@@ -256,8 +252,6 @@ export type ReferrersLeaderboardProps = {
  * @param props.isLoading      - When true, show a loading overlay.
  * @param props.isError        - When true, show an error message.
  * @param props.withComparison - When true, render comparison deltas.
- * @param props.showLegend     - When true, show the period legend below the chart.
- * @param props.legendLabels   - Custom legend labels for the current/comparison periods.
  * @param props.onDrillDown    - Callback fired when a row with child referrers is selected.
  * @return The rendered leaderboard.
  */
@@ -266,8 +260,6 @@ export function ReferrersLeaderboard( {
 	isLoading = false,
 	isError = false,
 	withComparison = false,
-	showLegend = false,
-	legendLabels,
 	onDrillDown,
 }: ReferrersLeaderboardProps ) {
 	if ( isError ) {
@@ -288,8 +280,7 @@ export function ReferrersLeaderboard( {
 			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
-			showLegend={ showLegend }
-			legendLabels={ legendLabels }
+			showLegend={ false }
 			emptyStateText={ __( 'No referrers in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ DATA_FORMAT }
 		/>
@@ -328,6 +319,14 @@ function ReferrersInner( { max }: { max: number } ) {
 		drillDown: setDrillPath,
 		resetDrillDown,
 	} = useWidgetDrillDown< string[] >();
+
+	// Changing the dashboard date range loads a different set of referrers, so
+	// any drill-down path from the previous range no longer makes sense — return
+	// to the top-level list. Keyed on the range only, so background refetches and
+	// comparison toggles keep the current drill position.
+	useEffect( () => {
+		resetDrillDown();
+	}, [ reportParams.from, reportParams.to, resetDrillDown ] );
 
 	// Resolve the path against the current rows each render, so a refetch that
 	// drops a selected row falls back to the deepest level that still exists.
@@ -381,8 +380,6 @@ function ReferrersInner( { max }: { max: number } ) {
 		  )
 		: __( 'View all referrers', 'jetpack-premium-analytics' );
 
-	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
-
 	return (
 		<div className={ styles.content }>
 			{ trail.length > 0 && (
@@ -393,8 +390,6 @@ function ReferrersInner( { max }: { max: number } ) {
 				isLoading={ showLoading }
 				isError={ isError }
 				withComparison={ hasComparison }
-				showLegend={ hasComparison }
-				legendLabels={ legendLabels }
 				onDrillDown={ drillInto }
 			/>
 		</div>
