@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add CSV export for additional orders-over-time metrics: average order value, average items per order, and gross, net, and total sales.

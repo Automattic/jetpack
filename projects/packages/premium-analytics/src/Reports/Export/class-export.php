@@ -14,8 +14,13 @@ declare( strict_types=1 );
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\AvgItemsPerOrderOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\AvgOrderValueOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\GrossSalesOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\NetSalesOverTimeController;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersOverTimeController;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\TopPerformingProductsController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\TotalSalesOverTimeController;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\VisitorsOverTimeController;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\DebugLogger;
 
@@ -79,5 +84,12 @@ class Export {
 		( new OrdersOverTimeController( $registry ) )->register();
 		( new TopPerformingProductsController( $registry ) )->register();
 		( new VisitorsOverTimeController( $registry ) )->register();
+
+		// Additional orders/by-date time-series metrics (same endpoint, different value column).
+		( new AvgOrderValueOverTimeController( $registry ) )->register();
+		( new AvgItemsPerOrderOverTimeController( $registry ) )->register();
+		( new GrossSalesOverTimeController( $registry ) )->register();
+		( new NetSalesOverTimeController( $registry ) )->register();
+		( new TotalSalesOverTimeController( $registry ) )->register();
 	}
 }
