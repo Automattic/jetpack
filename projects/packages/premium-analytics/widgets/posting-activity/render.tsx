@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
-import { HeatmapChart, buildCalendarHeatmapData } from '@automattic/charts';
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
 import {
+	HeatmapChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
+	buildCalendarHeatmapData,
 	useWidgetRootContext,
+	type DataPointDate,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -17,7 +19,6 @@ import { useMemo } from 'react';
  */
 import styles from './style.module.css';
 import type { PostingActivityAttributes } from './widget';
-import type { DataPointDate } from '@automattic/charts';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // Report params are dashboard-driven — WidgetRoot resolves them from the date

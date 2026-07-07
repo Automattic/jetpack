@@ -9,6 +9,10 @@ permissions:
   # actions/checkout
   contents: read
 
+concurrency:
+  group: update-jetpack-staging-sites-all
+  cancel-in-progress: true
+
 jobs:
   run_shell_script:
     runs-on: ubuntu-latest

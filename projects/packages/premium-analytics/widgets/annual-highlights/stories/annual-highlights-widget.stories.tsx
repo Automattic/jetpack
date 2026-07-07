@@ -16,7 +16,7 @@ import AnnualHighlightsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -117,7 +117,7 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< AnnualHighlightsStoryControls >;
+} satisfies Meta< ComponentProps< typeof AnnualHighlightsRender > & AnnualHighlightsStoryControls >;
 
 export default meta;
 

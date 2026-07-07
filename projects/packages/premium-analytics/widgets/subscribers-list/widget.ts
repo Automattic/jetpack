@@ -30,7 +30,7 @@ export default {
 		{
 			id: 'num',
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
-			type: 'integer',
+			type: 'integer' as const,
 		},
 	],
 	example: {

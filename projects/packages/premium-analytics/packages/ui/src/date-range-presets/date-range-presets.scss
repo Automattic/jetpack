@@ -19,11 +19,11 @@
 	.date-range-presets__custom {
 
 		&[aria-disabled="true"] {
-			color: var(--wpds-color-fg-content-neutral-weak);
+			color: var(--wpds-color-foreground-content-neutral-weak);
 		}
 
 		&[aria-checked="true"] {
-			color: var(--wpds-color-fg-content-neutral);
+			color: var(--wpds-color-foreground-content-neutral);
 		}
 	}
 }

@@ -69,7 +69,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-seo/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.3.x-dev"
+			"dev-trunk": "0.4.x-dev"
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-initializer.php"

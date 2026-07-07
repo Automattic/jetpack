@@ -242,6 +242,12 @@ export const canUserManageConnection = createRegistrySelector(
 				return true;
 			}
 
+			const isEditorOrAbove = current_user.capabilities?.edit_others_posts;
+
+			if ( undefined !== isEditorOrAbove ) {
+				return isEditorOrAbove;
+			}
+
 			const { getUser } = select( coreStore );
 
 			// The user has to be at least an editor to manage the connection.

@@ -10,5 +10,6 @@
  33 | WARNING | [x] For compatibility with older PHPUnit versions, add annotation `@dataProvider` to match the `DataProviderExternal` attribute. (Jetpack.PHPUnit.Attributes.AttributeFoundMissingAnnotation)
  52 | ERROR   | [ ] Attribute `DataProviderExternal` is missing parameter `$className`. (Jetpack.PHPUnit.Attributes.AttributeMissingParameter)
  52 | ERROR   | [ ] Attribute `DataProviderExternal` is missing parameter `$methodName`. (Jetpack.PHPUnit.Attributes.AttributeMissingParameter)
+ 52 | ERROR   | [x] Parentheses not allowed when instantiating an attribute class without passing parameters (Universal.Attributes.DisallowAttributeParentheses.Found)
  53 | ERROR   | [ ] Attribute `DataProviderExternal` parameter `$className` should be a class name, specified with `::class` or as a constant single- or double-quoted string. (Jetpack.PHPUnit.Attributes.AttributeInvalidClassParameter)
  53 | ERROR   | [ ] Attribute `DataProviderExternal` parameter `$methodName` should be a constant single- or double-quoted string. (Jetpack.PHPUnit.Attributes.AttributeInvalidStringParameter)

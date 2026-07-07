@@ -12,38 +12,26 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import useSearchTermViews from './use-search-term-views';
-import widgetDefinition, { type SearchTermsAttributes } from './widget';
+import { type SearchTermsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type SearchTermsRenderAttributes = Partial< ReportParamsFieldAttributes > & SearchTermsAttributes;
-type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes > & {
-	showTitle?: boolean;
-};
-
-function SearchTermsHeaderTitle() {
-	return (
-		<span className={ styles.headerTitle }>
-			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
-			<span>{ __( 'Top Search Terms', 'jetpack-premium-analytics' ) }</span>
-		</span>
-	);
-}
+type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 
 /**
  * Search Terms widget inner component. Reads report params from WidgetRoot context.
  *
- * @param props           - Render props.
- * @param props.max       - Maximum number of rows to display.
- * @param props.showTitle - Whether to render the widget title inside the render module.
+ * @param props     - Render props.
+ * @param props.max - Maximum number of rows to display.
  * @return The rendered widget content.
  */
-function SearchTermsInner( { max = 10, showTitle }: { max?: number; showTitle: boolean } ) {
+function SearchTermsInner( { max = 10 }: { max?: number } ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const { data, isLoading, isError, hasComparison } = useSearchTermViews( { reportParams, max } );
@@ -67,18 +55,9 @@ function SearchTermsInner( { max = 10, showTitle }: { max?: number; showTitle: b
 		} ) );
 	}, [ data, hasComparison ] );
 
-	const header = showTitle ? (
-		<Stack direction="row" align="center" className={ styles.widgetHeader }>
-			<Text variant="heading-md" render={ <h3 /> }>
-				<SearchTermsHeaderTitle />
-			</Text>
-		</Stack>
-	) : null;
-
 	if ( isError ) {
 		return (
 			<Stack className={ styles.root }>
-				{ header }
 				<div className={ styles.content }>
 					<Stack align="center" justify="center" className={ styles.placeholder }>
 						<Text>{ __( 'Could not load search terms data.', 'jetpack-premium-analytics' ) }</Text>
@@ -91,7 +70,6 @@ function SearchTermsInner( { max = 10, showTitle }: { max?: number; showTitle: b
 	if ( isLoading && data.length === 0 ) {
 		return (
 			<Stack className={ styles.root }>
-				{ header }
 				<div className={ styles.content }>
 					<WidgetLoadingOverlay />
 				</div>
@@ -101,7 +79,6 @@ function SearchTermsInner( { max = 10, showTitle }: { max?: number; showTitle: b
 
 	return (
 		<Stack className={ styles.root }>
-			{ header }
 			<div className={ styles.content }>
 				<LeaderboardChart
 					data={ leaderboardData }
@@ -126,16 +103,12 @@ function SearchTermsInner( { max = 10, showTitle }: { max?: number; showTitle: b
  *
  * @param props            - Render props.
  * @param props.attributes - Widget attributes (max, reportParams).
- * @param props.showTitle  - Whether to render the widget title inside the render module.
  * @return The rendered Search Terms widget.
  */
-export default function SearchTerms( {
-	attributes = {},
-	showTitle = true,
-}: SearchTermsWidgetProps ) {
+export default function SearchTerms( { attributes = {} }: SearchTermsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SearchTermsInner max={ attributes.max } showTitle={ showTitle } />
+			<SearchTermsInner max={ attributes.max } />
 		</WidgetRoot>
 	);
 }

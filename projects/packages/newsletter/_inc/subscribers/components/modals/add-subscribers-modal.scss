@@ -25,7 +25,7 @@
 	border: var(--wpds-border-width-xs, 1px) dashed var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-md);
 	background: transparent;
-	color: var(--wpds-color-fg-content-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 	text-align: center;
 	cursor: pointer;
 	transition:
@@ -35,11 +35,11 @@
 
 	&:hover:not(:disabled) {
 		border-color: var(--wpds-color-stroke-interactive-neutral-strong);
-		background: var(--wpds-color-bg-surface-neutral-weak);
+		background: var(--wpds-color-background-surface-neutral-weak);
 	}
 
 	&:focus-visible {
-		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus-brand);
+		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus);
 		outline-offset: 2px;
 	}
 
@@ -47,7 +47,7 @@
 	// solid border.
 	&.has-file {
 		border-style: solid;
-		color: var(--wpds-color-fg-content-neutral);
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 
 	&:disabled {
