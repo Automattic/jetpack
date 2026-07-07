@@ -33,6 +33,7 @@ use Automattic\Jetpack\Newsletter\Reader_Link;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Deprecate;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
+use Automattic\Jetpack\Podcast\Podcast;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan_Page\Jetpack_Scan as Scan_Page_Init;
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
@@ -1035,7 +1036,10 @@ class Jetpack {
 		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
-		\Automattic\Jetpack\Podcast\Podcast::init();
+
+		if ( ( new Modules() )->is_active( 'podcast' ) ) {
+			Podcast::init();
+		}
 
 		/*
 		 * Initialize Boost Speed Score. It only does work on REST requests (the
@@ -2356,7 +2360,14 @@ class Jetpack {
 	 * @return array
 	 */
 	public function filter_available_modules_podcast( $modules ) {
-		/** This filter is documented in projects/packages/podcast/src/class-podcast.php */
+		/**
+		 * Expose the Podcast module to self-hosted sites. While false the module
+		 * is hidden from the available list, so it can't be activated.
+		 *
+		 * @since 16.0
+		 *
+		 * @param bool $enabled Whether to expose the Podcast module. Default false.
+		 */
 		if ( ! apply_filters( 'jetpack_podcast_for_the_world', false ) ) {
 			unset( $modules['podcast'] );
 		}

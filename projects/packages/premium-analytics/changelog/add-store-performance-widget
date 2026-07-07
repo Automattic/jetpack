@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Widgets: Add the Store performance widget; metric tabs collapse into a dropdown on narrow tiles and the chart degrades to a sparkline on short tiles.
