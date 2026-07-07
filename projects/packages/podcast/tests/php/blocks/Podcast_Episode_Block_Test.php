@@ -17,6 +17,7 @@ use WP_Block_Supports;
 // renderer leans on, so render_email() can run in the package test env.
 require_once __DIR__ . '/../mocks/class-mock-podcast-table-wrapper-helper.php';
 require_once __DIR__ . '/../mocks/class-mock-podcast-styles-helper.php';
+require_once __DIR__ . '/../mocks/class-mock-podcast-sync-settings.php';
 
 /**
  * Render-path coverage for Podcast_Episode_Block.
@@ -50,7 +51,19 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		delete_option( 'podcasting_image' );
 		delete_option( 'date_format' );
 		WP_Block_Supports::$block_to_render = null;
+		$this->set_syncing( false );
 		parent::tear_down();
+	}
+
+	/**
+	 * Toggle the Sync "is syncing" flag the render callback probes. Routed through
+	 * one helper so the optional jetpack-sync class reference is suppressed once.
+	 *
+	 * @param bool $syncing Whether to simulate a Sync content render.
+	 */
+	private function set_syncing( $syncing ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional jetpack-sync dependency; the test mock provides Settings.
+		\Automattic\Jetpack\Sync\Settings::set_is_syncing( $syncing );
 	}
 
 	private function create_episode_post( $title = 'Test Episode' ) {
@@ -103,6 +116,31 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		add_filter( 'jetpack_is_frontend', '__return_true' );
 
 		$this->assertSame( '<a href="x">Listen</a>', $result );
+	}
+
+	public function test_sync_render_returns_full_player_not_fallback() {
+		// On Atomic / self-hosted Jetpack the WPCOM Reader is served the HTML Sync
+		// pre-renders into post_content_filtered, so the block must emit the full
+		// player while syncing even though the sync pass is not a frontend request.
+		remove_filter( 'jetpack_is_frontend', '__return_true' );
+		add_filter( 'jetpack_is_frontend', '__return_false' );
+		$this->set_syncing( true );
+
+		$post_id = $this->create_episode_post();
+		$result  = Podcast_Episode_Block::render_block(
+			$this->default_attrs,
+			'<a class="jetpack-podcast-episode__direct-link" href="x">x</a>',
+			$this->block_ctx( $post_id )
+		);
+		wp_delete_post( $post_id, true );
+
+		$this->set_syncing( false );
+		remove_filter( 'jetpack_is_frontend', '__return_false' );
+		add_filter( 'jetpack_is_frontend', '__return_true' );
+
+		$this->assertStringContainsString( 'jetpack-podcast-episode__player', $result );
+		$this->assertStringContainsString( '<audio', $result );
+		$this->assertStringNotContainsString( 'jetpack-podcast-episode__direct-link', $result );
 	}
 
 	public function test_empty_media_url_returns_empty_string() {

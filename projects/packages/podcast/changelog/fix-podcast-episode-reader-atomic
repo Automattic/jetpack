@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast Episode: render the full player in the WPCOM Reader on Atomic and self-hosted Jetpack sites, not just Simple sites.

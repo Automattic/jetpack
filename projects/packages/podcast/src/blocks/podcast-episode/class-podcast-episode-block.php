@@ -198,15 +198,21 @@ class Podcast_Episode_Block {
 	 */
 	public static function render_block( $attributes, $content, $block = null ) {
 		// Outside the frontend, fall back to the saved direct link so RSS / email / REST export stays
-		// simple and predictable. The WPCOM Reader is the exception: it serves posts through the REST
-		// API but wants the full interactive player, so detect its render context and render normally.
-		$is_wpcom_reader = false;
+		// simple and predictable. The WPCOM Reader is the exception — it wants the full player. On WPCOM
+		// Simple the Reader renders the post live, so we detect the READER context directly. On Atomic /
+		// self-hosted Jetpack the Reader is instead served the HTML that Jetpack Sync pre-renders into
+		// post_content_filtered, so we render the player during that sync pass too. RSS still gets the
+		// simple link; the WPCOM-side Feedbag override defers to this synced player.
+		$is_reader_render = false;
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			require_once WP_CONTENT_DIR . '/lib/display-context.php';
-			$is_wpcom_reader = \A8C\Display_Context\READER === \A8C\Display_Context\get_current_context();
+			$is_reader_render = \A8C\Display_Context\READER === \A8C\Display_Context\get_current_context();
+		} elseif ( class_exists( '\Automattic\Jetpack\Sync\Settings' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional jetpack-sync dependency, checked with class_exists() above.
+			$is_reader_render = \Automattic\Jetpack\Sync\Settings::is_syncing();
 		}
 
-		if ( ! Request::is_frontend() && ! $is_wpcom_reader ) {
+		if ( ! Request::is_frontend() && ! $is_reader_render ) {
 			return $content;
 		}
 
