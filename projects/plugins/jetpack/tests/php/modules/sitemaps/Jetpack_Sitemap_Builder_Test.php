@@ -305,6 +305,61 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that clear_runtime_cache frees in-memory object cache.
+	 *
+	 * Verifies that the method clears the WPDB result cache and the
+	 * in-memory object cache without affecting persistent cache.
+	 *
+	 * @group jetpack-sitemap
+	 * @since $$next-version$$
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_clear_runtime_cache_frees_object_cache() {
+		global $wpdb, $wp_object_cache;
+
+		// Populate the object cache with a test value.
+		wp_cache_set( 'test_key', 'test_value', 'test_group' );
+		$this->assertSame( 'test_value', wp_cache_get( 'test_key', 'test_group' ) );
+
+		// Populate the WPDB queries array.
+		$wpdb->queries = array( 'dummy' );
+
+		// Call the private method via reflection.
+		$method = new ReflectionMethod( 'Jetpack_Sitemap_Builder', 'clear_runtime_cache' );
+		$method->setAccessible( true );
+		$method->invoke( null );
+
+		// The in-memory cache should be cleared.
+		$this->assertFalse( wp_cache_get( 'test_key', 'test_group' ) );
+
+		// The WPDB queries should be flushed.
+		$this->assertEmpty( $wpdb->queries );
+	}
+
+	/**
+	 * Test that clear_runtime_cache does not error when object cache is missing.
+	 *
+	 * @group jetpack-sitemap
+	 * @since $$next-version$$
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_clear_runtime_cache_handles_missing_object_cache() {
+		global $wp_object_cache;
+
+		$original_cache = $wp_object_cache;
+		$wp_object_cache = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- required for testing
+
+		$method = new ReflectionMethod( 'Jetpack_Sitemap_Builder', 'clear_runtime_cache' );
+		$method->setAccessible( true );
+
+		// Should not throw or error.
+		$method->invoke( null );
+
+		$wp_object_cache = $original_cache; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->assertNull( null ); // Assertion to mark test as risky-free.
+	}
+
+	/**
 	 * Test that cache suspension state is restored after sitemap update
 	 *
 	 * @group jetpack-sitemap

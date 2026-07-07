@@ -792,7 +792,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 
 		// Clear in-memory object cache (posts, terms, meta, etc.).
 		if ( is_object( $wp_object_cache ) ) {
-			$wp_object_cache->cache = array();
+			$wp_object_cache->cache     = array();
 			$wp_object_cache->group_ops = array(); // persistence-backed caches track groups here.
 		}
 
