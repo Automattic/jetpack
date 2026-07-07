@@ -20,7 +20,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Link, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -49,8 +49,8 @@ export type ReferrerRow = {
 	 */
 	previousValue?: number;
 	/**
-	 * External referrer URL. Kept for row identity and comparison matching;
-	 * the widget does not render outbound links.
+	 * External referrer URL. Used for row identity, comparison matching, and to
+	 * render leaf rows (no children) as an outbound link.
 	 */
 	href?: string;
 	/**
@@ -208,11 +208,21 @@ function buildLeaderboardData(
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue ?? 0;
 		const hasChildren = !! row.children?.length;
+		const shouldRenderLink = !! row.href && ! hasChildren;
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			// Rows are display-only: label and favicon, never an outbound link.
-			label: (
+			label: shouldRenderLink ? (
+				<Link
+					className={ styles.labelLink }
+					href={ row.href }
+					variant="unstyled"
+					openInNewTab
+					title={ row.label }
+				>
+					<ReferrerLabel row={ row } />
+				</Link>
+			) : (
 				<span className={ styles.labelText } title={ row.label }>
 					<ReferrerLabel row={ row } />
 				</span>

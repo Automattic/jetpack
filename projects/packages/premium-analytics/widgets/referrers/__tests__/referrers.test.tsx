@@ -149,15 +149,16 @@ describe( 'ReferrersWidget', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'renders childless referrers as plain rows without outbound links', async () => {
+	it( 'renders childless referrers with a URL as outbound links that open in a new tab', async () => {
 		render(
 			<ReferrersWidget
 				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
-		await expect( screen.findByText( 'jetpack.com' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		const link = await screen.findByRole( 'link', { name: /jetpack\.com/i } );
+		expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/' );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 } );
 
