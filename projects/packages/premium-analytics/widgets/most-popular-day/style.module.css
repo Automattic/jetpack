@@ -1,0 +1,29 @@
+.root {
+	container-type: inline-size;
+	justify-content: center;
+	height: 100%;
+	overflow: hidden;
+}
+
+.caption {
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+.placeholder {
+	margin: auto;
+	color: var(--wpds-color-fg-content-neutral-weak);
+	text-align: center;
+}
+
+/* Constrain the picker preview tile to a 4:3 aspect ratio. The picker's
+ * .preview wrapper uses height: 125% of an auto-height parent, so height: 100%
+ * on .root also resolves to auto, leaving aspect-ratio with no anchor. Setting
+ * height: auto here lets aspect-ratio derive the height from the known inline
+ * size and overflow: hidden clips the content. Targets only the picker
+ * (inert="") — not the edit-mode wrapper (inert="true") where the grid tile
+ * supplies a real height. */
+:global([inert]:not([inert="true"])) .root {
+	height: auto;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+}

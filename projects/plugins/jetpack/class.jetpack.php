@@ -807,7 +807,7 @@ class Jetpack {
 	 * flags, so it needs a hookable bootstrap callback. Preserve Config's
 	 * feature-enabled action for hook consumers.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.0
 	 *
 	 * @return void
 	 */

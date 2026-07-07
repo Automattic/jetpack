@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { createFirstPostDraft } from '../lib/first-post.ts';
 import { createPatternPage } from '../lib/pattern-page.ts';
-import { trackTaskClicked } from '../lib/tracks.ts';
+import { trackTaskClicked, trackTaskSkipped } from '../lib/tracks.ts';
 import { Layout } from './layout.tsx';
 import {
 	nextIncompleteId,
@@ -202,13 +202,15 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 				} ).catch( () => {} );
 			}
 			if ( url ) {
+				// Keep the button busy through the page unload; clearing it here would flash
+				// the label back before the browser navigates, making the flow look stalled.
 				navigate( url );
+				return;
 			}
 		} catch {
-			// The finally clears busy so a thrown CTA can't leave the card disabled.
-		} finally {
-			setBusyId( null );
+			// Fall through to clear busy so a thrown CTA can't leave the card disabled.
 		}
+		setBusyId( null );
 	};
 
 	// Complete-on-click tasks with no CTA destination offer "Mark as complete":
@@ -239,9 +241,18 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 		}
 	};
 
-	// Skipping marks a task complete (in memory) and expands the next incomplete
+	// Skipping persists server-side (so it survives reloads and counts toward
+	// completion), then marks the task complete and expands the next incomplete
 	// task. Compute the next id from the post-skip list so it's never re-opened.
-	const handleSkip = ( task: EnrichedTask ) => {
+	const handleSkip = async ( task: EnrichedTask ) => {
+		setBusyId( task.id );
+		trackTaskSkipped( { task_id: task.id } );
+		await apiFetch( {
+			path: '/wpcom/v2/ai-launchpad/skip-task',
+			method: 'POST',
+			data: { task_id: task.id },
+		} ).catch( () => {} );
+		setBusyId( null );
 		const nextSkipped = new Set( skippedIds ).add( task.id );
 		setSkippedIds( nextSkipped );
 		const afterSkip = ( tasks ?? [] ).map( t =>
@@ -263,6 +274,7 @@ export function TailoredList( { pendingTailor, initialData, site }: Props = {} )
 						key={ task.id }
 						task={ task }
 						isBusy={ busyId === task.id }
+						isLocked={ busyId !== null }
 						canStart={ isTaskActionable( task, output, siteUrl ) }
 						canMarkComplete={
 							isCompleteOnClickTask( task.id ) && ! isTaskActionable( task, output, siteUrl )

@@ -9,21 +9,23 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	WidgetBackLink,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	calculateDelta,
+	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Icon, Link, Stack, Text } from '@wordpress/ui';
+import { Link, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import widgetDefinition, { type ClicksAttributes } from './widget';
+import { type ClicksAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type ClicksRenderAttributes = ClicksAttributes & Partial< ReportParamsFieldAttributes >;
@@ -182,15 +184,6 @@ function ClickLabel( { row }: { row: ClickRow } ) {
 	);
 }
 
-function ClicksHeaderTitle() {
-	return (
-		<span className={ styles.headerTitle }>
-			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
-			<span>{ __( 'Clicks', 'jetpack-premium-analytics' ) }</span>
-		</span>
-	);
-}
-
 /**
  * Maps normalized click rows onto the shape `LeaderboardChart` expects.
  *
@@ -301,11 +294,11 @@ export function ClicksLeaderboard( {
 
 function ClicksInner( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
-	const [ selectedClickLabel, setSelectedClickLabel ] = useState< string | null >( null );
-	const clearSelectedClick = useCallback( () => setSelectedClickLabel( null ), [] );
-	const handleDrillDown = useCallback( ( row: ClickRow ) => {
-		setSelectedClickLabel( row.label );
-	}, [] );
+	const {
+		drillDownItem: selectedClickLabel,
+		drillDown: selectClick,
+		resetDrillDown: clearSelectedClick,
+	} = useWidgetDrillDown< string >();
 	const statsParams = {
 		...reportParams,
 		max,
@@ -329,44 +322,32 @@ function ClicksInner( { max }: { max: number } ) {
 	);
 	const isDrillDown = !! selectedClick?.children?.length;
 	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
-
-	const header = (
-		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
-			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
-				{ isDrillDown ? (
-					<>
-						<Button
-							variant="unstyled"
-							onClick={ clearSelectedClick }
-							className={ styles.breadcrumbLink }
-						>
-							<ClicksHeaderTitle />
-						</Button>
-						<Text className={ styles.breadcrumbSeparator }>/</Text>
-						<Text className={ styles.breadcrumbCurrent }>{ selectedClick?.label }</Text>
-					</>
-				) : (
-					<Text className={ styles.breadcrumbTitle }>
-						<ClicksHeaderTitle />
-					</Text>
-				) }
-			</Stack>
-		</Stack>
+	const handleDrillDown = useCallback(
+		( row: ClickRow ) => {
+			selectClick( row.label );
+		},
+		[ selectClick ]
 	);
 
+	const backLink = isDrillDown ? (
+		<WidgetBackLink
+			label={ __( 'All Clicks', 'jetpack-premium-analytics' ) }
+			ariaLabel={ __( 'View all clicks', 'jetpack-premium-analytics' ) }
+			onClick={ clearSelectedClick }
+		/>
+	) : null;
+
 	return (
-		<>
-			{ header }
-			<div className={ styles.content }>
-				<ClicksLeaderboard
-					rows={ activeRows }
-					isLoading={ showLoading }
-					isError={ isError }
-					withComparison={ hasComparison }
-					onDrillDown={ isDrillDown ? undefined : handleDrillDown }
-				/>
-			</div>
-		</>
+		<div className={ styles.content }>
+			{ backLink }
+			<ClicksLeaderboard
+				rows={ activeRows }
+				isLoading={ showLoading }
+				isError={ isError }
+				withComparison={ hasComparison }
+				onDrillDown={ isDrillDown ? undefined : handleDrillDown }
+			/>
+		</div>
 	);
 }
 

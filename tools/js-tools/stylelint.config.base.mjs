@@ -5,7 +5,16 @@ import { fileURLToPath } from 'node:url';
  */
 const baseConfig = {
 	extends: fileURLToPath( import.meta.resolve( '@wordpress/stylelint-config/scss-stylistic' ) ),
+	reportNeedlessDisables: true,
+	plugins: [
+		'@wordpress/theme/stylelint-plugins/no-unknown-ds-tokens',
+		'@wordpress/theme/stylelint-plugins/no-setting-wpds-custom-properties',
+		'@wordpress/theme/stylelint-plugins/no-token-fallback-values',
+	],
 	rules: {
+		'plugin-wpds/no-unknown-ds-tokens': true,
+		'plugin-wpds/no-setting-wpds-custom-properties': true,
+		'plugin-wpds/no-token-fallback-values': false, // Disabled because `@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks` is not configured yet.
 		// In addition to what `@wordpress/stylelint-config/scss-stylistic` does by default, also ignore comments containing /stylelint-disable/.
 		'@stylistic/max-line-length': [
 			80,

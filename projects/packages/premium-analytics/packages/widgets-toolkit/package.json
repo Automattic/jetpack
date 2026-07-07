@@ -4,6 +4,8 @@
 	"private": true,
 	"type": "module",
 	"main": "src/index.ts",
+	"module": "build-module/index.mjs",
+	"wpScriptModuleExports": "./build-module/index.mjs",
 	"types": "src/index.ts",
 	"sideEffects": [
 		"*.scss"
@@ -30,6 +32,6 @@
 		"react": "18.3.1"
 	},
 	"devDependencies": {
-		"@storybook/react": "10.3.6"
+		"@storybook/react": "10.4.6"
 	}
 }

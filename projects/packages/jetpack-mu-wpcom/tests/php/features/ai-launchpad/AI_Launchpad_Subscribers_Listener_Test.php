@@ -66,7 +66,7 @@ class AI_Launchpad_Subscribers_Listener_Test extends \WorDBless\BaseTestCase {
 		parent::set_up();
 		wpcom_register_default_launchpad_checklists();
 		AI_Launchpad_Subscribers_Listener_Test_Double::$count = null;
-		$_GET['page'] = 'ai-launchpad-wp-admin';
+		$_GET['page'] = 'site-setup-wp-admin';
 	}
 
 	/**
@@ -117,7 +117,7 @@ class AI_Launchpad_Subscribers_Listener_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $task_lists->is_task_id_complete( 'add_10_email_subscribers' ) );
 
 		// On-page, but the tasks are not AI-selected: still nothing.
-		$_GET['page'] = 'ai-launchpad-wp-admin';
+		$_GET['page'] = 'site-setup-wp-admin';
 		$this->seed_tasks( array( 'site_launched' ) );
 		AI_Launchpad_Subscribers_Listener_Test_Double::maybe_complete_subscriber_tasks();
 		$this->assertFalse( $task_lists->is_task_id_complete( 'subscribers_added' ) );

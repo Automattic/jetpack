@@ -38,8 +38,12 @@ routes/                                 # lazy-loaded SPA pages; build/ is gener
 ```bash
 composer phpunit              # PHP tests
 pnpm run build / watch        # frontend build (one-off / on change)
-jetpack build packages/premium-analytics
+jetpack build --deps packages/premium-analytics
 ```
+
+`pnpm run build` bundles only this package: monorepo dependencies (charts,
+wp-build-polyfills, assets) must already be built. `jetpack build --deps` builds
+them first — use it after merging trunk or when charts exports look stale.
 
 Add a route: create `routes/<name>/package.json` (with `route.path` + `route.page`) and a
 `stage.tsx` exporting `stage()`; rebuild — routes are auto-discovered.
@@ -258,7 +262,7 @@ import MyWidgetRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
@@ -296,7 +300,10 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< MyWidgetStoryControls >;
+	// The story args are the widget-specific controls, but `component` is the render
+	// component (host `WidgetRenderProps`). Intersect the two so `component` type-checks
+	// against the meta while the controls still drive `argTypes`/`args`.
+} satisfies Meta< ComponentProps< typeof MyWidgetRender > & MyWidgetStoryControls >;
 
 export default meta;
 
@@ -402,6 +409,10 @@ the state needs direct review.
   sizing when the style is not part of the shipped widget UI.
 - Reimplementing a utility that already exists in `widgets-toolkit` (e.g. `flagUrl`) — check
   `packages/widgets-toolkit/src/helpers/` before writing a new one.
+- Importing `@automattic/charts` directly from a widget — chart components must come through
+  `@jetpack-premium-analytics/widgets-toolkit` (a shared script module). A direct import
+  bundles the entire charting stack into that widget's render bundle; add a re-export to the
+  toolkit's "Charts passthrough" section instead.
 - Porting a Stats widget and forgetting to add its endpoint to `routeStatsReport()` in
   `register-report-mocks.ts` — stories will render an error state instead of mock data because
   the middleware only intercepts Woo analytics paths by default.
@@ -441,10 +452,10 @@ to the chart component so an in-place spinner appears without hiding the rows.
 
 Loading, empty, and error states should live in the same body/content wrapper as the normal
 widget content so padding and sizing stay consistent. If the widget has interactive body chrome
-such as a breadcrumb, dropdown, or view selector, keep that chrome available and replace only
-the content area with the state message. Composite widgets may use a custom placeholder instead
-of `LeaderboardChart`'s `emptyStateText`, but the state should still be centered inside the
-content area.
+such as a dropdown, view selector, or drill-down back link, keep that chrome available and
+replace only the content area with the state message. Composite widgets may use a custom
+placeholder instead of `LeaderboardChart`'s `emptyStateText`, but the state should still be
+centered inside the content area.
 
 **Comparison data**
 
@@ -470,10 +481,13 @@ Rows with children may be interactive and drill into a second-level leaderboard.
 children must not look like drill-down rows. If a row has an external `href` and no children,
 render it as a normal external link even when sibling rows drill down.
 
-When a leaderboard drills down, use a breadcrumb in the widget body header to navigate back to
-the parent list. The child list should show child labels only; do not repeat the selected parent
-label in every row if the breadcrumb already identifies that parent. Header controls such as
-dropdowns should wrap cleanly on narrow widget widths instead of colliding with the breadcrumb.
+When a leaderboard drills down, use `WidgetBackLink` from `widgets-toolkit` in the widget body
+to navigate back to the parent list. Keep the static widget title/icon in the framed widget host
+header, not in a body breadcrumb. The child list should show child labels only; do not repeat the
+selected parent label in every row when the back link already identifies the parent view. Body
+controls such as dropdowns should stay in normal flex flow with the back link; when they wrap on
+narrow widget widths, order the dropdown above the back link so the back link can sit directly
+above the leaderboard or chart content.
 
 **Storybook mocks for Stats endpoints**
 
@@ -485,7 +499,9 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
 
 **Visual conventions**
 
-- Widget title: `<Text variant="heading-md" render={ <h3 /> }>`
+- Widget title: use the framed widget host header via the widget definition/title/icon. Do not
+  add a second in-widget `<Text variant="heading-md" render={ <h3 /> }>` title for framed Stats
+  widgets.
 - View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`
 - Leaderboard row height: custom labels should produce a stable 36px row height. For the common
   `<Text>` label case, `padding: var(--wpds-dimension-padding-sm)` is enough when the text

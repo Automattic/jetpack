@@ -12,12 +12,12 @@ import {
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { EmailsAttributes } from './widget';
+import widgetDefinition, { type EmailsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type EmailsRenderAttributes = EmailsAttributes & Partial< ReportParamsFieldAttributes >;
@@ -89,6 +89,23 @@ function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): Leaderbo
 	} );
 }
 
+/**
+ * Widget header title: the envelope icon plus the "Emails" label. Rendered by
+ * the widget itself (not the host) because the widget is `full-bleed`, so the
+ * header sits on the same row as the metric selector — matching the Locations
+ * widget's layout.
+ *
+ * @return The header title.
+ */
+function EmailsHeaderTitle() {
+	return (
+		<span className={ styles.headerTitle }>
+			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
+			<span>{ __( 'Emails', 'jetpack-premium-analytics' ) }</span>
+		</span>
+	);
+}
+
 type EmailsLeaderboardProps = {
 	/**
 	 * Normalized email rows to render. When omitted, the empty state is shown
@@ -146,9 +163,9 @@ export const EmailsLeaderboard = ( {
 	let body;
 	if ( isError ) {
 		body = (
-			<Text className={ styles.placeholder }>
-				{ __( 'Unable to load email stats.', 'jetpack-premium-analytics' ) }
-			</Text>
+			<Stack align="center" justify="center" className={ styles.placeholder }>
+				<Text>{ __( 'Unable to load email stats.', 'jetpack-premium-analytics' ) }</Text>
+			</Stack>
 		);
 	} else if ( isLoading && rows.length === 0 ) {
 		body = <WidgetLoadingOverlay />;
@@ -175,7 +192,10 @@ export const EmailsLeaderboard = ( {
 
 	return (
 		<Stack className={ styles.root }>
-			<Stack direction="row" justify="flex-end" align="center" className={ styles.header }>
+			<Stack direction="row" justify="space-between" align="center" className={ styles.header }>
+				<Text className={ styles.title }>
+					<EmailsHeaderTitle />
+				</Text>
 				<SelectControl
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
@@ -190,7 +210,7 @@ export const EmailsLeaderboard = ( {
 					className={ styles.metricSelect }
 				/>
 			</Stack>
-			{ body }
+			<div className={ styles.content }>{ body }</div>
 		</Stack>
 	);
 };
