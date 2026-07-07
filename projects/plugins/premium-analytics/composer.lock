@@ -841,7 +841,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "2520bcc0d3875df8436b0fbef27888e00700b989"
+                "reference": "5f4200e2a8be37fb82bd948a19c6d40c719d52b9"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -854,6 +854,8 @@
                 "php": ">=7.2"
             },
             "require-dev": {
+                "automattic/block-delimiter": "@dev",
+                "automattic/jetpack-device-detection": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
