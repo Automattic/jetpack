@@ -659,12 +659,23 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the Agents Manager block-editor gate does not open in the page editor.
+	 * Test that the Agents Manager block-editor gate opens in the page editor provider surface.
 	 */
-	public function test_enable_agents_manager_in_post_editor_skips_page_editor() {
+	public function test_enable_agents_manager_in_post_editor_enables_page_editor_provider_surface() {
 		$this->set_page_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
-		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+	}
+
+	/**
+	 * Test that the Agents Manager block-editor gate opens in the site editor provider surface.
+	 */
+	public function test_enable_agents_manager_in_post_editor_enables_site_editor_provider_surface() {
+		$this->set_site_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
 	}
 
 	/**

@@ -59,8 +59,7 @@ class Jetpack_AI_Sidebar {
 
 		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( __CLASS__, 'add_agents_manager_data' ), 10, 1 );
 
-		// Ask the Agents Manager package to mount in the post editor on Jetpack
-		// AI Sidebar Preview surfaces.
+		// Ask the Agents Manager package to mount on Jetpack AI provider surfaces.
 		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_in_post_editor' ) );
 
 		// Enqueue the IIFE bundle in the preview post editor — it registers
@@ -595,7 +594,7 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Enable Agents Manager in the post editor when Jetpack AI Sidebar Preview is available.
+	 * Enable Agents Manager when the Jetpack AI provider can be exposed.
 	 *
 	 * @param mixed $enabled Existing Agents Manager block-editor gate value.
 	 * @return bool
@@ -605,7 +604,7 @@ class Jetpack_AI_Sidebar {
 			return true;
 		}
 
-		return self::should_expose_sidebar();
+		return self::should_expose_provider();
 	}
 
 	/**
