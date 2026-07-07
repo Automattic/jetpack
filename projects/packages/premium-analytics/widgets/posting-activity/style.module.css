@@ -31,7 +31,7 @@
 	min-block-size: 0;
 	inline-size: 100%;
 	min-height: 180px;
-	color: var(--wpds-color-foreground-content-neutral-weak);
+	color: var(--wpds-color-fg-content-neutral-weak);
 	text-align: center;
 }
 

@@ -18,7 +18,7 @@
 
 .name {
 	overflow: hidden;
-	color: var(--wpds-color-foreground-content-neutral);
+	color: var(--wpds-color-fg-content-neutral);
 	font-size: var(--wpds-typography-font-size-md);
 	white-space: nowrap;
 	text-overflow: ellipsis;
@@ -32,13 +32,13 @@ a.name:focus {
 
 .since {
 	flex-shrink: 0;
-	color: var(--wpds-color-foreground-content-neutral-weak);
+	color: var(--wpds-color-fg-content-neutral-weak);
 	font-size: var(--wpds-typography-font-size-sm);
 	white-space: nowrap;
 }
 
 .more {
 	padding-block: var(--wpds-dimension-padding-sm);
-	color: var(--wpds-color-foreground-content-neutral-weak);
+	color: var(--wpds-color-fg-content-neutral-weak);
 	font-size: var(--wpds-typography-font-size-sm);
 }

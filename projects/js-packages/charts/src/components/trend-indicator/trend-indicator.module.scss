@@ -9,15 +9,15 @@
 	// Trend colors use the documented --charts-trend-* override API, falling
 	// back to the accessible WPDS semantic tokens.
 	&--up {
-		color: var(--charts-trend-up-color, var(--wpds-color-foreground-content-success-weak, #008030));
+		color: var(--charts-trend-up-color, var(--wpds-color-fg-content-success-weak, #008030));
 	}
 
 	&--down {
-		color: var(--charts-trend-down-color, var(--wpds-color-foreground-content-error-weak, #cc1818));
+		color: var(--charts-trend-down-color, var(--wpds-color-fg-content-error-weak, #cc1818));
 	}
 
 	&--neutral {
-		color: var(--charts-trend-neutral-color, var(--wpds-color-foreground-content-neutral-weak, #707070));
+		color: var(--charts-trend-neutral-color, var(--wpds-color-fg-content-neutral-weak, #707070));
 	}
 
 	&__icon {

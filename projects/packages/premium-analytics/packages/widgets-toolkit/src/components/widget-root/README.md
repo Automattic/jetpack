@@ -130,7 +130,7 @@ Aligned with [Tailwind container query defaults](https://tailwindcss.com/docs/re
 
 	// >= 576px: add more spacing
 	@include widget-query( xl ) {
-		gap: var( --wpds-dimension-size-5xs );
+		gap: var( --wpds-dimension-base );
 	}
 }
 ```

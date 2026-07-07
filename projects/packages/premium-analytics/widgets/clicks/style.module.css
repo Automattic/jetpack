@@ -50,7 +50,7 @@
 	flex: 1 1 0;
 	inline-size: 100%;
 	min-block-size: 200px;
-	color: var(--wpds-color-foreground-content-neutral-weak);
+	color: var(--wpds-color-fg-content-neutral-weak);
 	text-align: center;
 }
 

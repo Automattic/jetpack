@@ -3,7 +3,6 @@
  */
 import { Spinner } from '@wordpress/components';
 import { Icon, cautionFilled as warning } from '@wordpress/icons';
-import { isValidElement } from 'react';
 /**
  * Types
  */
@@ -35,7 +34,7 @@ export default function BlockBanner( {
 }: BlockBannerProps ): ReactElement {
 	return (
 		<div className="block-banner">
-			{ isValidElement( icon ) && <Icon icon={ icon } /> }
+			{ icon && <Icon icon={ icon } /> }
 			<div className="block-banner__content">{ children }</div>
 			{ isLoading && <Spinner /> }
 			{ action && <div className="block-banner__action">{ action }</div> }

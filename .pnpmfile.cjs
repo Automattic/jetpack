@@ -1,57 +1,33 @@
 // Packages we need to copy versions from for `@wordpress/dataviews/wp`.
-const wpPkgs = [
-	[ '@wordpress/components', 'change-case' ],
-	[ '@wordpress/components', 'colord' ],
-	[ '@wordpress/components', 'date-fns' ],
-	[ '@wordpress/components', 'deepmerge' ],
-	[ '@wordpress/components', '@emotion/cache' ],
-	[ '@wordpress/components', '@emotion/css' ],
-	[ '@wordpress/components', '@emotion/react' ],
-	[ '@wordpress/components', '@emotion/styled' ],
-	[ '@wordpress/components', '@emotion/utils' ],
-	[ '@wordpress/components', 'fast-deep-equal' ],
-	[ '@wordpress/components', '@floating-ui/react-dom' ],
-	[ '@wordpress/components', 'framer-motion' ],
-	[ '@wordpress/components', 'highlight-words-core' ],
-	[ '@wordpress/components', 'is-plain-object' ],
-	[ '@wordpress/components', 'memize' ],
-	[ '@wordpress/components', '@use-gesture/react' ],
-	[ '@wordpress/components', 'uuid' ],
-	[ '@wordpress/components', '@wordpress/date' ],
-	[ '@wordpress/components', '@wordpress/hooks' ],
-	[ '@wordpress/components', 'react-colorful' ],
-	[ '@wordpress/components', 'react-day-picker' ],
-	[ '@wordpress/element', 'react-dom' ],
-	[ '@wordpress/data', 'use-memo-one' ],
-	[ '@wordpress/ui', '@base-ui/react' ],
-	[ '@wordpress/ui', '@wordpress/theme', 'colorjs.io' ],
-];
-const wpPkgFetches = {};
-const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
-	const [ dep, ...rest ] = deplist;
-
-	if ( ! wpPkgFetches[ fromPkg ] ) {
-		wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
-			r.json()
-		);
-	}
-	const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
-
-	if ( rest.length > 0 ) {
-		if ( deps[ dep ] === undefined ) {
-			// Old version of package lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
-			return;
-		}
-		const ver2 = deps[ dep ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
-		await addWpPkgDep( pkg, dep, ver2, rest );
-	} else {
-		if ( deps[ dep ] === undefined ) {
-			// prettier-ignore
-			throw new Error( `pnpmfile hack needs updating, ${ fromPkg } ${ ver } doesn't depend on ${ dep } anymore?` );
-		}
-		pkg.optionalDependencies[ dep ] = deps[ dep ];
-	}
+const wpPkgs = {
+	'@wordpress/components': [
+		'change-case',
+		'colord',
+		'date-fns',
+		'deepmerge',
+		'@emotion/cache',
+		'@emotion/css',
+		'@emotion/react',
+		'@emotion/styled',
+		'@emotion/utils',
+		'fast-deep-equal',
+		'@floating-ui/react-dom',
+		'framer-motion',
+		'highlight-words-core',
+		'is-plain-object',
+		'memize',
+		'@use-gesture/react',
+		'uuid',
+		'@wordpress/date',
+		'@wordpress/hooks',
+		'react-colorful',
+		'react-day-picker',
+	],
+	'@wordpress/element': [ 'react-dom' ],
+	'@wordpress/data': [ 'use-memo-one' ],
+	'@wordpress/ui': [ '@base-ui/react' ],
 };
+const wpPkgFetches = {};
 
 /**
  * Fix package dependencies.
@@ -112,14 +88,26 @@ async function fixDeps( pkg ) {
 	// the build fails when using pnpm with hoisting.
 	// @see https://github.com/WordPress/gutenberg/issues/67864
 	if ( pkg.name === '@wordpress/dataviews' ) {
-		for ( const deplist of wpPkgs ) {
-			const [ fromPkg, ...rest ] = deplist;
+		for ( const fromPkg of Object.keys( wpPkgs ) ) {
 			if ( ! pkg.dependencies[ fromPkg ] ) {
 				// Old version of dataviews lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
 				continue;
 			}
+
+			if ( ! wpPkgFetches[ fromPkg ] ) {
+				wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
+					r.json()
+				);
+			}
 			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
-			await addWpPkgDep( pkg, fromPkg, ver, rest );
+			const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
+			for ( const dep of wpPkgs[ fromPkg ] ) {
+				if ( deps[ dep ] === undefined ) {
+					// prettier-ignore
+					throw new Error( `pnpmfile hack needs updating, ${ fromPkg } ${ ver } doesn't depend on ${ dep } anymore?` );
+				}
+				pkg.optionalDependencies[ dep ] = deps[ dep ];
+			}
 		}
 	}
 
@@ -511,14 +499,11 @@ function afterAllResolved( lockfile, context ) {
 		}
 	}
 
-	for ( const deplist of wpPkgs ) {
-		for ( const dep of deplist.slice( 0, deplist.length - 1 ) ) {
-			if ( ! wpPkgFetches[ dep ] ) {
-				context.log(
-					// prettier-ignore
-					`pnpmfile hack needs updating: wpPkgs entry [ ${ deplist.join( ', ' ) } ] was not used. Is it obsolete?`
-				);
-			}
+	for ( const fromPkg of Object.keys( wpPkgs ) ) {
+		if ( ! wpPkgFetches[ fromPkg ] ) {
+			context.log(
+				`pnpmfile hack needs updating: wpPkgs['${ fromPkg }'] was not used. Is it obsolete?`
+			);
 		}
 	}
 

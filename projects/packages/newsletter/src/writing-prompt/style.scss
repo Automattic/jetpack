@@ -1,6 +1,6 @@
 
 .wpcom-daily-writing-prompt--prompt {
-	background-color: var(--wpds-color-background-surface-neutral-weak);
+	background-color: var(--wpds-color-bg-surface-neutral-weak);
 	padding: var(--wpds-dimension-padding-md);
 	border-radius: var(--wpds-border-radius-md);
 }
@@ -23,7 +23,7 @@
 	img {
 		vertical-align: middle;
 		border-radius: 50%;
-		border: var(--wpds-border-width-sm) solid var(--wpds-color-background-surface-neutral);
+		border: var(--wpds-border-width-sm) solid var(--wpds-color-bg-surface-neutral);
 		margin-inline-start: calc(-1 * (var(--wpds-dimension-gap-sm) + var(--wpds-border-width-sm)));
 	}
 

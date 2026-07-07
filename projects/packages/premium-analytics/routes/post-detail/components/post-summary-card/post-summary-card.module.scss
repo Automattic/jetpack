@@ -22,11 +22,11 @@
 	flex-direction: row;
 	align-items: center;
 	gap: var(--wpds-dimension-gap-xs, 4px);
-	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
 }
 
 .published {
-	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
 }
 
 .image {

@@ -17,7 +17,7 @@
 
 .icon {
 	flex-shrink: 0;
-	fill: var(--wpds-color-foreground-content-neutral);
+	fill: var(--wpds-color-fg-content-neutral);
 }
 
 .label {

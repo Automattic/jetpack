@@ -10,7 +10,7 @@
 		"@wordpress/element": "8.2.0",
 		"@wordpress/i18n": "6.23.0",
 		"@wordpress/route": "0.16.0",
-		"@wordpress/ui": "0.17.0"
+		"@wordpress/ui": "0.13.0"
 	},
 	"route": {
 		"path": "/settings",

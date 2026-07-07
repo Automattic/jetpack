@@ -12,7 +12,7 @@
 }
 
 .description {
-	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
 }
 
 .connection-list {
@@ -64,7 +64,7 @@
 	padding: var(--wpds-dimension-padding-xs, 4px);
 
 	&:focus-visible {
-		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus, #3858e9);
+		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus-brand, #3858e9);
 		outline-offset: 0;
 	}
 }
@@ -79,16 +79,16 @@
 // Size comes from the `body-lg` Text variant; keep the neutral colour and the
 // medium weight that the variant doesn't set.
 .connection-item-name {
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
 	font-weight: var(--wpds-typography-font-weight-medium, 499);
 }
 
 .connection-network {
-	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
 }
 
 .chevron {
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
 	flex-shrink: 0;
 
 	@media not (prefers-reduced-motion) {

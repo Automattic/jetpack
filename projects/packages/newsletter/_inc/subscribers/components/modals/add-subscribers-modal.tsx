@@ -75,7 +75,7 @@ function ImportConsentNotice(): JSX.Element {
 		<Stack
 			direction="column"
 			gap="xs"
-			style={ { color: 'var(--wpds-color-foreground-content-neutral-weak)' } }
+			style={ { color: 'var(--wpds-color-fg-content-neutral-weak)' } }
 		>
 			<Text variant="body-sm">
 				{ __(

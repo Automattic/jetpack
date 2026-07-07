@@ -11,6 +11,6 @@
 		"@wordpress/api-fetch": "7.50.0",
 		"@wordpress/boot": "0.17.0",
 		"@wordpress/data": "10.50.0",
-		"@wordpress/icons": "^15.0.0"
+		"@wordpress/icons": "^13.0.0"
 	}
 }

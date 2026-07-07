@@ -11,6 +11,6 @@
 	},
 	"devDependencies": {
 		"@storybook/react": "10.4.6",
-		"@wordpress/ui": "0.17.0"
+		"@wordpress/ui": "0.13.0"
 	}
 }

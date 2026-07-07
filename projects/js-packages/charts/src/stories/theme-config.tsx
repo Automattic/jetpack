@@ -8,11 +8,11 @@ export const DEFAULT_ACCENT_COLOR = '#4a19ab';
 
 /**
  * Custom theme using a CSS variable set by `ThemeProvider` for dynamic color generation.
- * The `--wpds-color-foreground-interactive-brand` token is set by wrapping
+ * The `--wpds-color-fg-interactive-brand` token is set by wrapping
  * the component tree in a WPDS `ThemeProvider` with a `color.primary` seed.
  */
 export const customTheme: ChartTheme = {
-	colors: [ 'var(--wpds-color-foreground-interactive-brand)' ],
+	colors: [ 'var(--wpds-color-fg-interactive-brand)' ],
 	seriesLineStyles: [
 		{},
 		{

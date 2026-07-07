@@ -12,15 +12,15 @@
 
 	img,
 	.avatar {
-		background-color: var(--wpds-color-background-surface-neutral-strong, #fff);
+		background-color: var(--wpds-color-bg-surface-neutral-strong, #fff);
 		block-size: 24px;
-		border: 2px solid var(--wpds-color-background-surface-neutral-strong, #fff);
+		border: 2px solid var(--wpds-color-bg-surface-neutral-strong, #fff);
 		border-radius: 50%;
 		inline-size: 24px;
 	}
 
 	.social-icon {
-		background-color: var(--wpds-color-background-surface-neutral-strong, #fff);
+		background-color: var(--wpds-color-bg-surface-neutral-strong, #fff);
 		block-size: 14px;
 		border-radius: var(--wpds-border-radius-sm, 2px);
 		inline-size: 14px;

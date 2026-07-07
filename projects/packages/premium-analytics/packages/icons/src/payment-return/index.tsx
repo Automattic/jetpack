@@ -7,7 +7,7 @@ export const paymentReturn = (
 	<SVG width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
 		<Path
 			d="M38.8891 30.1885V17.8108C38.8891 15.3441 37.4891 13.9663 35.0224 13.9663H12.978C10.5113 13.9663 9.11133 15.3441 9.11133 17.8108V30.1885C9.11133 32.6552 10.5113 34.033 12.978 34.033H35.0224C37.4891 34.033 38.8891 32.6552 38.8891 30.1885Z"
-			fill="var(--wpds-color-background-surface-neutral-weak, #F0F0F0)"
+			fill="var(--wpds-color-bg-surface-neutral-weak, #F0F0F0)"
 		/>
 		<Path
 			d="M38.8891 17.9883H9.11133V21.9438H38.8891V17.9883Z"

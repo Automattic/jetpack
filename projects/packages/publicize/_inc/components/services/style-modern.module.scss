@@ -35,13 +35,13 @@
 
 	// Size comes from the `body-lg` Text variant; keep the colour + medium weight.
 	.title {
-		color: var(--wpds-color-foreground-content-neutral, var(--jp-gray-80));
+		color: var(--wpds-color-fg-content-neutral, var(--jp-gray-80));
 		font-weight: var(--wpds-typography-font-weight-medium, 499);
 		line-height: 1.4;
 	}
 
 	.description {
-		color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+		color: var(--wpds-color-fg-content-neutral-weak, #757575);
 		font-size: var(--wpds-typography-font-size-md, 13px);
 	}
 
@@ -86,7 +86,7 @@
 	width: 100%;
 
 	&:focus-visible {
-		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus, #3858e9);
+		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus-brand, #3858e9);
 		outline-offset: calc(var(--wpds-border-width-focus, 2px) * -1);
 	}
 
@@ -103,7 +103,7 @@
 }
 
 .chevron {
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
 	flex-shrink: 0;
 
 	@media not (prefers-reduced-motion) {
