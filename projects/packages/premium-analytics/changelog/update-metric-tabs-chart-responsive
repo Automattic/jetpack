@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: Metric switcher tabs collapse into a dropdown on narrow tiles and the chart degrades to a sparkline on short tiles, so metrics never overflow into a horizontal scrollbar or get hidden.

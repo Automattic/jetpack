@@ -2,72 +2,10 @@
 	height: 100%;
 }
 
-.widgetBody {
-	height: 100%;
-	min-height: 0;
-}
-
-.metricTabsContainer {
-	min-height: 86px;
-	overflow-x: auto;
-	overflow-y: hidden;
-}
-
-.metricTabsList {
-	display: flex;
-	gap: 8px;
-	min-width: max-content;
-	padding-block: 4px 8px;
-}
-
-.metricTab {
-	flex: 0 0 140px;
-	min-height: 74px;
-	border: 1px solid #dcdcde;
-	border-radius: var(--wpds-border-radius-md, 4px);
-	background: #fff;
-	padding: 0;
-}
-
-.metricTab[data-active] {
-	background: var(--wpds-color-bg-surface-brand, #f0f6fc);
-	box-shadow: inset 0 0 0 1px var(--wpds-color-bg-interactive-brand-strong, #3858e9);
-}
-
-/* Hide the selection underline; the active-card fill shows selection instead.
- * Older `@wordpress/ui` renders it as a per-tab `<svg>`, newer versions as a
- * tablist-level presentation span. Hide whichever is present. */
-.metricTab > svg {
-	display: none;
-}
-
-.metricTabsList [role="presentation"] {
-	display: none;
-}
-
-.metricTabContent {
-	text-align: left;
-	padding: 12px;
-}
-
-.metricTabLabel {
-	color: var(--wpds-color-fg-content-neutral-weak, #646970);
-	font-size: 12px;
-	line-height: 16px;
-}
-
-.metricTabDescription {
-	max-width: 220px;
-}
-
-.chartPanel {
-	display: flex;
-	flex-direction: column;
-	flex: 1 1 0;
-	min-height: 0;
-}
-
 .emptyState {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	min-height: 250px;
 	color: var(--wpds-color-fg-content-neutral-weak, #646970);
 }

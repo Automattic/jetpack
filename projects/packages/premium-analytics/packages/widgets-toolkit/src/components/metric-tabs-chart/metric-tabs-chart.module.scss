@@ -1,3 +1,14 @@
+/* `@wordpress/ui` portals the select popup to <body> with
+ * `z-index: var(--wp-ui-select-z-index, initial)` — left unset it computes to
+ * `auto` and the popup paints behind `@wordpress/admin-ui`'s Page, which is a
+ * `z-index: 1` stacking context. The popup lives outside this component's
+ * subtree, so the variable must be global. 1000000 matches the wp-admin
+ * popover layer (classic `.components-popover` and the widget-dashboard
+ * menus), so later-opened overlays stack above earlier ones by DOM order. */
+:global(:root) {
+	--wp-ui-select-z-index: 1000000;
+}
+
 .root {
 	container-type: inline-size;
 	display: flex;
@@ -10,45 +21,55 @@
 .header {
 	display: flex;
 	flex-direction: row;
+	flex-wrap: wrap;
 	justify-content: space-between;
 	align-items: flex-start;
 	flex-shrink: 0;
 	gap: var(--wpds-dimension-gap-md, 16px);
 }
 
-/* The metric tab list: a row of cards that wrap (not a text tab bar). */
+/* The metric tab list: a row of cards that wrap (not a text tab bar). Override
+ * the toolkit tablist's horizontal scroll so a too-wide row never turns into a
+ * scrollbar (the narrow case collapses to the dropdown below instead). */
 .tabs {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--wpds-dimension-gap-sm, 8px);
 	min-width: 0;
+	overflow: visible;
 }
 
-/* On a narrow tile the metric cards squeeze into one cramped row. Stack the
- * header so the tabs get the full width, and lay the cards out in an even
- * two-column grid (a balanced 2 x 2 for the four-metric traffic chart). */
-@container (max-width: 420px) {
+/* Dropdown mode (narrow tiles): the whole selected-metric card (label + value +
+ * delta) becomes the SelectControl trigger, so collapsing the tabs keeps the
+ * same headline the tabs showed. */
+.picker {
+	display: flex;
+	flex: 1 1 auto;
+	min-width: 0;
+}
 
-	.header {
-		flex-direction: column;
-		align-items: stretch;
-	}
+.metricSelect {
+	flex: 1 1 auto;
+	min-width: 0;
+}
 
-	.tabs {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+/* The trigger is a fixed-height 40px single-line control by default. Unset
+ * the height and pad it like a card so the stacked label + value + delta fit
+ * without clipping. The height lives on the trigger wrapper, so target that
+ * (its rule is in a low-priority @layer, so this unlayered override wins). */
+.metricSelect [class*="trigger-wrapper"] {
+	height: auto;
+	padding-block: var(--wpds-dimension-padding-sm, 8px);
+}
 
-		/* The toolkit tab list is `fit-content`, which `align-items: stretch`
-		 * can't widen; force it to fill so the two columns split the row. */
-		width: 100%;
-	}
+.metricSelect button {
+	width: 100%;
+	text-align: left;
 }
 
 .tab {
 	height: auto;
-	padding:
-		var(--wpds-dimension-padding-sm, 8px)
-		var(--wpds-dimension-padding-md, 12px);
+	padding: var(--wpds-dimension-padding-sm, 8px) var(--wpds-dimension-padding-md, 12px);
 	border-radius: var(--wpds-border-radius-md, 4px);
 }
 

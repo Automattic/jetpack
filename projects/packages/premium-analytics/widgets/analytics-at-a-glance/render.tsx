@@ -6,22 +6,29 @@ import {
 	type ReportDataMap,
 } from '@jetpack-premium-analytics/data';
 import {
-	ComparativeLineChart,
 	DEFAULT_METRICS,
-	MetricWithComparison,
+	MetricTabsChart,
 	WidgetRoot,
 	WidgetLoadingOverlay,
 	buildTimeSeriesChartData,
 	getFormatByMetricKey,
-	useSeriesStyles,
 	useWidgetRootContext,
+	type MetricTab,
 	type ReportParamsFieldAttributes,
 	type TimeSeriesData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Stack, Tabs, Tooltip } from '@wordpress/ui';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import styles from './styles.module.scss';
+
+/**
+ * Fallback value/axis format for the chart when a metric doesn't set its own
+ * (each store metric supplies a per-metric format via `getFormatByMetricKey`).
+ */
+const DEFAULT_DATA_FORMAT = {
+	type: 'number' as const,
+	options: { useMultipliers: true, decimals: 0 },
+};
 
 type StorePerformanceMetric = ( typeof DEFAULT_METRICS )[ number ];
 
@@ -56,15 +63,6 @@ type DataSources = {
 		primary: ReturnType< typeof useReportCustomersByDate >[ 'primary' ];
 		comparison: ReturnType< typeof useReportCustomersByDate >[ 'comparison' ];
 	};
-};
-
-type MetricTabProps = {
-	id: string;
-	metricKey: StorePerformanceMetric[ 'metricKey' ];
-	value: number;
-	label: StorePerformanceMetric[ 'label' ];
-	previousValue?: number | null;
-	description?: StorePerformanceMetric[ 'description' ];
 };
 
 function getDefaultOrdersReportData(): OrdersByDateResponse {
@@ -200,37 +198,6 @@ function buildSeriesForMetric(
 		metricKey: metric.metricKey,
 		emptyDataFallback: 'empty-array',
 	} );
-}
-
-function MetricTab( { id, metricKey, label, value, previousValue, description }: MetricTabProps ) {
-	return (
-		<Tabs.Tab value={ id } className={ styles.metricTab }>
-			<Tooltip.Root>
-				<Tooltip.Trigger
-					render={
-						<Stack
-							direction="column"
-							gap="sm"
-							className={ styles.metricTabContent }
-							align="left"
-							justify="start"
-						>
-							<span className={ styles.metricTabLabel }>{ label }</span>
-
-							<MetricWithComparison
-								value={ value }
-								previousValue={ previousValue }
-								dataFormat={ getFormatByMetricKey( metricKey ) }
-							/>
-						</Stack>
-					}
-				/>
-				<Tooltip.Popup align="start" side="bottom" className={ styles.metricTabDescription }>
-					{ description }
-				</Tooltip.Popup>
-			</Tooltip.Root>
-		</Tabs.Tab>
-	);
 }
 
 function StorePerformanceContent( {
@@ -385,28 +352,48 @@ function StorePerformanceContent( {
 		]
 	);
 
-	const [ selectedMetricId, setSelectedMetricId ] = useState< string >();
-	const handleTabValueChange = useCallback( ( value: string ) => {
-		setSelectedMetricId( value );
-	}, [] );
-	const currentMetric =
-		enrichedMetrics.find( metric => metric.id === selectedMetricId ) ?? enrichedMetrics[ 0 ];
+	const dataSources: DataSources = useMemo(
+		() => ( {
+			general: { primary, comparison },
+			booking: { primary: bookingsPrimary, comparison: bookingsComparison },
+			visitors: { primary: visitorsPrimary, comparison: visitorsComparison },
+			conversion: { primary: conversionPrimary, comparison: conversionComparison },
+			customers: { primary: customersPrimary, comparison: customersComparison },
+		} ),
+		[
+			primary,
+			comparison,
+			bookingsPrimary,
+			bookingsComparison,
+			visitorsPrimary,
+			visitorsComparison,
+			conversionPrimary,
+			conversionComparison,
+			customersPrimary,
+			customersComparison,
+		]
+	);
 
-	const chartSeries = buildSeriesForMetric( currentMetric, {
-		general: { primary, comparison },
-		booking: { primary: bookingsPrimary, comparison: bookingsComparison },
-		visitors: { primary: visitorsPrimary, comparison: visitorsComparison },
-		conversion: {
-			primary: conversionPrimary,
-			comparison: conversionComparison,
-		},
-		customers: {
-			primary: customersPrimary,
-			comparison: customersComparison,
-		},
-	} );
-
-	const seriesStyles = useSeriesStyles( chartSeries );
+	// One tab per enabled metric, each with its current + previous series. The
+	// shared MetricTabsChart owns selection and the responsive tabs↔dropdown and
+	// chart↔sparkline switches.
+	const metricTabs: MetricTab[] = useMemo(
+		() =>
+			enrichedMetrics.map( metric => {
+				const series = buildSeriesForMetric( metric, dataSources );
+				return {
+					key: metric.id,
+					label: metric.label,
+					value: metric.primary,
+					previousValue: metric.comparison,
+					current: series[ 0 ]?.data ?? [],
+					previous: series[ 1 ]?.data,
+					dataFormat: getFormatByMetricKey( metric.metricKey ),
+					description: metric.description,
+				};
+			} ),
+		[ enrichedMetrics, dataSources ]
+	);
 
 	if ( isError ) {
 		return null;
@@ -418,64 +405,28 @@ function StorePerformanceContent( {
 		return <WidgetLoadingOverlay />;
 	}
 
+	if ( ! metricTabs.length ) {
+		return (
+			<div className={ styles.emptyState }>
+				{ __(
+					'No metric selected. Please select a metric from the metrics list.',
+					'jetpack-premium-analytics'
+				) }
+			</div>
+		);
+	}
+
 	const isRefetching = activeReports.some( report => report.isFetching && report.hasData );
 
 	return (
-		<Tabs.Root
-			defaultValue={ enrichedMetrics[ 0 ]?.id }
-			value={ currentMetric?.id }
-			className={ styles.widgetRoot }
-			onValueChange={ handleTabValueChange }
-		>
-			<Stack gap="lg" direction="column" justify="center" className={ styles.widgetBody }>
-				{ currentMetric && (
-					<div className={ styles.metricTabsContainer }>
-						<Tabs.List className={ styles.metricTabsList }>
-							{ enrichedMetrics.map( metric => (
-								<MetricTab
-									id={ metric.id }
-									key={ metric.id }
-									metricKey={ metric.metricKey }
-									label={ metric.label }
-									description={ metric.description }
-									value={ metric.primary }
-									previousValue={ metric.comparison }
-								/>
-							) ) }
-						</Tabs.List>
-					</div>
-				) }
-
-				{ enrichedMetrics.map( metric => (
-					<Tabs.Panel
-						key={ metric.id }
-						value={ metric.id }
-						focusable={ false }
-						className={ styles.chartPanel }
-					>
-						{ metric.id === currentMetric?.id && chartSeries.length > 0 && (
-							<ComparativeLineChart
-								series={ chartSeries }
-								styles={ seriesStyles }
-								dataFormat={ getFormatByMetricKey( currentMetric.metricKey ) }
-								compactWhenShort
-							/>
-						) }
-					</Tabs.Panel>
-				) ) }
-
-				{ isRefetching && <WidgetLoadingOverlay /> }
-
-				{ ! currentMetric && (
-					<Stack direction="column" align="center" justify="center" className={ styles.emptyState }>
-						{ __(
-							'No metric selected. Please select a metric from the metrics list.',
-							'jetpack-premium-analytics'
-						) }
-					</Stack>
-				) }
-			</Stack>
-		</Tabs.Root>
+		<div className={ styles.widgetRoot }>
+			<MetricTabsChart
+				metrics={ metricTabs }
+				dataFormat={ DEFAULT_DATA_FORMAT }
+				loading={ isRefetching }
+				groupLabel={ __( 'Store metric', 'jetpack-premium-analytics' ) }
+			/>
+		</div>
 	);
 }
 
