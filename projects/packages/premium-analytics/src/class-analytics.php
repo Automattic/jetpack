@@ -181,17 +181,8 @@ class Analytics {
 	}
 
 	/**
-	 * Remove the standalone Jetpack "Stats" top-level menu.
-	 *
-	 * Premium Analytics registers at the same position Stats used (2, right under
-	 * Dashboard) and replaces it, so the two do not sit side by side. Hooked on
-	 * admin_menu at priority 1001 — after Stats registers itself at priority 999 —
-	 * so the menu exists to be removed.
-	 *
-	 * Only removes the menu when it is actually registered: $admin_page_hooks has a
-	 * 'stats' entry only when the Stats module added its top-level page. This keeps
-	 * the replacement a no-op on sites where Stats is inactive and avoids touching
-	 * a menu Premium Analytics is not responsible for.
+	 * Remove the standalone Jetpack "Stats" top-level menu so Premium Analytics
+	 * replaces it, but only when Stats actually registered its menu.
 	 *
 	 * @return void
 	 */
