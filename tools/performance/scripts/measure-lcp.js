@@ -56,6 +56,10 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 	// measuring. Absent path/selector, targetPath stays null and the Dashboard flow is unchanged.
 	const targetPath = scenario.path || null;
 	const pageReadySelector = scenario.waitForSelector || null;
+	// A substring the final URL MUST contain (after any server redirect / client route). Guards
+	// against measuring the wrong page — e.g. a bare Forms URL redirecting to /forms instead of
+	// the responses inbox — which would populate this scenario's permanent keys from off-target.
+	const expectUrlIncludes = scenario.expectUrlIncludes || null;
 
 	console.log( `Measuring LCP for ${ url }${ targetPath || '' } (${ iterations } iterations)...` );
 
@@ -129,7 +133,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				// measured quantity and the default cap would collide exactly as the tracked
 				// regression worsens — past 250 the tail would drop and the decoded-bytes sum would
 				// silently under-count. (~79 resources today; this is headroom, not a live fix.)
-				performance.setResourceTimingBufferSize( 1e6 );
+				performance.setResourceTimingBufferSize( 10000 );
 
 				window.__lcpEntries = [];
 				window.__lcpObserver = new PerformanceObserver( list => {
@@ -179,6 +183,19 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 
 			// Additional short wait for any final rendering after network settles
 			await page.waitForTimeout( 500 );
+
+			// Refuse to measure the wrong page. If the scenario declares the route the final URL
+			// must contain, assert it here (after every redirect and the client route settle) so a
+			// mis-targeted or redirected page fails the iteration instead of posting off-target
+			// bytes to this scenario's permanent, no-rollback CodeVitals keys.
+			if ( expectUrlIncludes ) {
+				const finalUrl = decodeURIComponent( page.url() );
+				if ( ! finalUrl.includes( expectUrlIncludes ) ) {
+					throw new Error(
+						`Wrong page: expected URL to include "${ expectUrlIncludes }" but landed on "${ finalUrl }"`
+					);
+				}
+			}
 
 			// Collect all metrics
 			/* eslint-disable no-undef -- This runs in browser context via Playwright */

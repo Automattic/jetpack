@@ -41,23 +41,23 @@ Each scenario posts its metrics in a single CodeVitals call per run (one per `me
 
 ### `formsResponses` — Forms responses wp-build dashboard (simulated connection)
 
-`admin.php?page=jetpack-forms-responses-wp-admin`, measured on the same simulated-connection instance as the Dashboard.
+`admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox`, measured on the same simulated-connection instance as the Dashboard. The `p` route is pinned to the responses inbox: a bare page URL server-redirects to the default tab (`/forms`, the forms list, under Central Form Management), so the scenario asserts the final URL to avoid measuring the wrong page.
 
 | CodeVitals key                                          | Field            | Type             | Description                                             |
 | ------------------------------------------------------- | ---------------- | ---------------- | ------------------------------------------------------- |
 | `forms-responses-connection-sim-largestContentfulPaint` | `lcp`            | `lcp`            | Forms responses LCP                                     |
 | `forms-responses-connection-sim-timeToFirstByte`        | `ttfb`           | `ttfb`           | Forms responses TTFB                                    |
 | `forms-responses-connection-sim-firstContentfulPaint`   | `fcp`            | `fcp`            | Forms responses FCP                                     |
-| `forms-responses-connection-sim-decodedBodySize`        | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize` (KB) |
+| `forms-responses-connection-sim-decodedBytesKB`         | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
 
 #### Bundle size (`decodedBytesKB`) — what it measures, and why not build output
 
 `decodedBytesKB` is the sum of every resource's `decodedBodySize` on the measured page, in KB — the page's **runtime payload** (the JavaScript and CSS the browser actually downloads), aggregated in `measure-lcp.js`.
 
 - **Decoded bytes, not transfer size.** The measured load is a warm-cache `page.reload()`, where cached resources report `transferSize: 0`; and the Docker WordPress serves uncompressed, so `transferSize` would neither survive caching nor match production's gzipped bytes. `decodedBodySize` is cache- and compression-independent, so it stays stable however assets are served. It maps to the decoded (uncompressed) byte count, not the gzipped wire size — fine for a trend.
-- **Runtime payload, not build output.** The regression this watches is the wp-build `boot` shell statically pulling core `@wordpress/editor` into pages that never open an editor. Those are externalized `@wordpress/*` core modules, resolved through the wp-build import map as separate static files — not the plugin's own bundle — so a build-output size check (the CIAB approach) wouldn't move when they are lazy-loaded. Summing the resources the page actually downloads does, so the line falls when the fix lands and flags the next silent jump.
+- **Runtime payload, not build output.** The regression this watches is the wp-build `boot` shell statically pulling core `@wordpress/editor` into pages that never open an editor. Those are externalized `@wordpress/*` core modules, resolved through the wp-build import map as separate static files, not the plugin's own bundle, so a check against the built plugin's own file sizes wouldn't move when they are lazy-loaded. Summing the resources the page actually downloads does, so the line falls when the fix lands and flags the next silent jump.
 - **On the Forms responses page specifically.** It's a shipped wp-build dashboard that loads the boot shell's editor payload; the wp-admin Dashboard does not, so the bundle-size metric is posted only for `formsResponses`.
-- **Detects a jump, doesn't attribute it.** The value sums every resource on the page, not the editor payload alone (that payload is roughly 1.3 MB of the ~8.2 MB total). A trend move flags that page weight changed; confirming the cause means reading the per-resource breakdown in the saved `results.json`, not the dashboard line.
+- **Detects a jump, doesn't attribute it.** The value sums every resource on the page, not the editor payload alone (that payload is roughly 1.3 MB of the ~8.2 MB total, about 16%). The other ~84% is ordinary page weight, so on this actively-developed dashboard most trend moves will be routine Forms feature work rather than the editor payload the metric is meant to catch. A move flags that page weight changed; confirming the cause means reading the per-resource breakdown in the saved `results.json`, not the dashboard line.
 
 ## How It Works
 

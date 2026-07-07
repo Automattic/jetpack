@@ -69,12 +69,19 @@ export const SCENARIOS = [
 		// @wordpress/editor into a page that never opens an editor, so its runtime payload
 		// (decodedBytesKB) is the surface the bundle-size metric watches. measure-lcp.js
 		// navigates here after login and waits for the React root to hydrate.
-		path: '/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin',
+		//
+		// The `p` route is pinned to the responses inbox on purpose. Without it, class-dashboard.php
+		// server-redirects a bare page URL to the DEFAULT tab, which with Central Form Management
+		// (the live default) is `/forms` — the forms LIST, not the responses inbox. Measuring that
+		// would populate the `forms-responses-*` keys from the wrong page. `expectUrlIncludes` makes
+		// measure-lcp.js fail the run if a future redirect change moves us off the inbox.
+		path: '/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox',
 		waitForSelector: '#jetpack-forms-responses-wp-admin-app.boot-layout-container',
+		expectUrlIncludes: '/responses/inbox',
 		// These four post straight to PRODUCTION keys — the `-staging` window in the README
-		// Safeguards is deliberately waived here (owner decision). The substitute for that
-		// observation window is a proven-deterministic dry-run (decodedBytesKB stdDev 0) plus the
-		// SANITY_RANGES + all-or-nothing gate; the first live post is still held for sign-off.
+		// Safeguards is deliberately waived here (owner decision). The substitute for that window is
+		// the SANITY_RANGES + all-or-nothing gate plus manual sign-off before the first live post;
+		// the dry-run's stdDev-0 shows repeatability, not correctness, so it is not the safeguard.
 		metrics: [
 			{
 				field: 'lcp',
@@ -94,9 +101,11 @@ export const SCENARIOS = [
 			{
 				// The bundle-size metric: summed per-resource decodedBodySize in KB (see
 				// measure-lcp.js). A trend line that falls when the editor modules are
-				// lazy-loaded and flags the next silent jump.
+				// lazy-loaded and flags the next silent jump. The key suffix matches the field
+				// (decodedBytesKB) — a whole-page KB SUM — not the raw per-resource
+				// `decodedBodySize` property, which is a distinct nav-document value in measure-lcp.js.
 				field: 'decodedBytesKB',
-				codevitalsKey: 'forms-responses-connection-sim-decodedBodySize',
+				codevitalsKey: 'forms-responses-connection-sim-decodedBytesKB',
 				type: 'decodedBytesKB',
 			},
 		],

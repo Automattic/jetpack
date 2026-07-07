@@ -44,7 +44,7 @@ const FCP_KEY = 'wp-admin-dashboard-connection-sim-firstContentfulPaint';
 const FORMS_LCP_KEY = 'forms-responses-connection-sim-largestContentfulPaint';
 const FORMS_TTFB_KEY = 'forms-responses-connection-sim-timeToFirstByte';
 const FORMS_FCP_KEY = 'forms-responses-connection-sim-firstContentfulPaint';
-const FORMS_DECODED_KEY = 'forms-responses-connection-sim-decodedBodySize';
+const FORMS_DECODED_KEY = 'forms-responses-connection-sim-decodedBytesKB';
 
 /**
  * Build the nested per-field summary the multi-metric jetpackConnected scenario reads.
@@ -61,25 +61,40 @@ function jetpackSummary( { lcp = 120, ttfb = 150, fcp = 400 } = {} ) {
 }
 
 /**
+ * Build the nested per-field summary the formsResponses scenario reads: the same three timing
+ * fields plus the FORMS-704 bundle-size field (summary.decodedBytesKB.median). Defaults are
+ * in-range so all four post cleanly unless a test overrides one to exercise a rejection.
+ */
+function formsSummary( { lcp = 300, ttfb = 200, fcp = 500, decodedBytesKB = 8229 } = {} ) {
+	return {
+		median: lcp,
+		lcp: { median: lcp },
+		ttfb: { median: ttfb },
+		fcp: { median: fcp },
+		decodedBytesKB: { median: decodedBytesKB },
+	};
+}
+
+/**
  * Write a results fixture and return its path. `median` is the LCP median (kept as the
  * first positional arg so existing single-arg call sites read the same); TTFB and FCP
- * default to in-range values so the two new metrics post cleanly unless overridden.
+ * default to in-range values so the two new metrics post cleanly unless overridden. Pass
+ * `forms` (an object of field overrides) to also include a `formsResponses` measurement; omit
+ * it and only `jetpackConnected` is written, exactly as before.
  */
 function writeResults(
 	median,
-	{ ttfb = 150, fcp = 400, hash = 'testhash', branch = 'trunk' } = {}
+	{ ttfb = 150, fcp = 400, hash = 'testhash', branch = 'trunk', forms = null } = {}
 ) {
 	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-results-' ) );
 	const file = path.join( dir, 'results.json' );
-	fs.writeFileSync(
-		file,
-		JSON.stringify( {
-			git: { hash, branch },
-			measurements: {
-				jetpackConnected: { summary: jetpackSummary( { lcp: median, ttfb, fcp } ) },
-			},
-		} )
-	);
+	const measurements = {
+		jetpackConnected: { summary: jetpackSummary( { lcp: median, ttfb, fcp } ) },
+	};
+	if ( forms ) {
+		measurements.formsResponses = { summary: formsSummary( forms ) };
+	}
+	fs.writeFileSync( file, JSON.stringify( { git: { hash, branch }, measurements } ) );
 	return file;
 }
 
@@ -445,8 +460,16 @@ test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to prod
 		]
 	);
 	// The page-navigation contract measure-lcp.js reads: a target path + a hydration selector.
-	assert.equal( scenario.path, '/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin' );
+	// The path pins the responses-inbox route (`p=%2Fresponses%2Finbox`); without it a bare page
+	// URL server-redirects to the forms LIST, so this asserts the route stays on the inbox.
+	assert.equal(
+		scenario.path,
+		'/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox'
+	);
 	assert.ok( scenario.waitForSelector, 'formsResponses must declare a waitForSelector' );
+	// measure-lcp.js fails the run if the final URL does not contain this, so a redirect to the
+	// wrong tab cannot quietly populate the responses keys from the forms list.
+	assert.equal( scenario.expectUrlIncludes, '/responses/inbox' );
 } );
 
 // --- redactToken (keeps the token out of logs and errors) ---
@@ -475,6 +498,55 @@ test( 'dry-run posts all three scenario metrics into the payload, nothing reject
 	assert.equal( result.payload.metrics[ TTFB_KEY ], 150 );
 	assert.equal( result.payload.metrics[ FCP_KEY ], 400 );
 	assert.equal( Object.keys( result.payload.metrics ).length, 3 );
+} );
+
+test( 'dry-run with both scenarios present posts all 7 keys, including the Forms decoded-bytes key', async () => {
+	// The real automated run measures both scenarios, so the payload carries jetpackConnected's
+	// 3 timing keys AND formsResponses' 4 (timing + decodedBytesKB). This exercises the full
+	// posting loop for the Forms scenario — the config test pins the keys statically; this proves
+	// they actually reach the payload with the right values under the exact production key names.
+	const file = writeResults( 120, { forms: { decodedBytesKB: 8229 } } );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.validationFailed, false );
+	assert.equal( result.payload.metrics[ FORMS_LCP_KEY ], 300 );
+	assert.equal( result.payload.metrics[ FORMS_TTFB_KEY ], 200 );
+	assert.equal( result.payload.metrics[ FORMS_FCP_KEY ], 500 );
+	assert.equal( result.payload.metrics[ FORMS_DECODED_KEY ], 8229 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 7 );
+} );
+
+test( 'a live run with an out-of-range Forms decodedBytesKB posts nothing and never calls fetch', async () => {
+	// The append-only guarantee end to end: one out-of-range decoded value (52000 > max 51200)
+	// fails its sanity check, the per-run atomic gate commits to posting nothing, and fetch is
+	// never reached — so not even jetpackConnected's good timing metrics land. Proves the bad
+	// bundle size cannot reach the store, and documents that the gate is per-run (a Forms failure
+	// also withholds the Dashboard series for that commit).
+	const file = writeResults( 120, { forms: { decodedBytesKB: 52000 } } );
+	const origFetch = global.fetch;
+	let fetchCalled = false;
+	global.fetch = async () => {
+		fetchCalled = true;
+		return { ok: true, status: 200, json: async () => ( { ok: true } ), text: async () => '' };
+	};
+	let result;
+	try {
+		result = await silenced( () =>
+			postToCodeVitals( file, {
+				dryRun: false,
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok',
+			} )
+		);
+	} finally {
+		global.fetch = origFetch;
+	}
+	assert.equal(
+		fetchCalled,
+		false,
+		'an out-of-range decoded value must suppress the entire live POST'
+	);
+	assert.equal( result.posted, false );
+	assert.equal( result.validationFailed, true );
 } );
 
 test( 'per-type sanity: one out-of-range metric is rejected, the survivors stay visible in the dry-run payload', async () => {
