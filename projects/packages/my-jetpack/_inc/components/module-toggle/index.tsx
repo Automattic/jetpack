@@ -8,13 +8,20 @@ import { MyJetpackModule } from '../../types';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
 import { getSharingBlockEditorUrl } from '../../utils/sharing-block';
 import SecondaryButton from '../action-button/secondary-button';
+import { setPendingSuccessNotice } from '../my-jetpack-tab-panel/products/pending-notice';
 import { useProductFiltersContext } from '../my-jetpack-tab-panel/products/products-tracking-context';
+import { reloadPage } from '../my-jetpack-tab-panel/products/reload-page';
 import type { ChangeEvent } from 'react';
 
 export type ModuleToggleProps = {
 	module: MyJetpackModule;
 	describedby?: string;
 };
+
+// Modules that register a server-rendered wp-admin sidebar item. Toggling them
+// needs a full page reload for the sidebar to reflect the change; the success
+// notice is persisted so it survives the reload.
+const MODULES_REQUIRING_RELOAD = [ 'podcast' ];
 
 /**
  * Renders a toggle for a Jetpack module.
@@ -89,6 +96,20 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 				name: $module.module,
 				active,
 			} );
+
+			if ( success && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
+				setPendingSuccessNotice(
+					active
+						? getModuleActivationMessage( $module.module, $module.name )
+						: sprintf(
+								/* translators: %s is the module name */
+								__( '%s has been deactivated.', 'jetpack-my-jetpack' ),
+								$module.name
+						  )
+				);
+				reloadPage();
+				return;
+			}
 
 			await showToggleNotice( {
 				noticeType: success ? 'success' : 'error',

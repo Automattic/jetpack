@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: reload the page after toggling the Podcast module in My Jetpack so the wp-admin sidebar reflects the change, matching the Forms toggle behavior.
