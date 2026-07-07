@@ -16,6 +16,7 @@ import { useVideoDetailsForm } from '../../src/dashboard/components/video-detail
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
 import VideoNav from '../../src/dashboard/components/video-nav';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useVideo } from '../../src/dashboard/hooks/use-video';
 import { isStudioEnabled } from '../../src/dashboard/utils/studio';
@@ -150,6 +151,7 @@ const Editor = ( {
 			<div className="vp-video-details">
 				<ThumbnailCard video={ video } onAddToNewPost={ onAddToNewPost } />
 				<VideoDetailsCard
+					video={ video }
 					title={ values.title }
 					description={ values.description }
 					onChange={ update }
@@ -180,6 +182,7 @@ const deletingNoticeId = ( videoId: string ) => `vp-video-deleting-${ videoId }`
 const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
+	const { syncChapters } = useUpdateChapters();
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
@@ -205,6 +208,15 @@ const StageReady = ( { video }: StageReadyProps ) => {
 			// against the attachment being removed.
 			isSaving={ isSaving || isDeleting }
 			onSave={ ( values, reset ) => {
+				// The description is the single source of truth for the
+				// player's chapters VTT, so a description change must
+				// regenerate that track (the legacy dashboard did; without it
+				// the player's chapter menu silently de-syncs). Fire-and-notice:
+				// syncChapters never rejects — failures surface as a warning
+				// notice from the hook — so it can't block or fail the save.
+				if ( values.description !== video.description ) {
+					void syncChapters( video, values.description );
+				}
 				updateMeta(
 					{ id: video.id, patch: values },
 					{

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress Studio: structured chapters editor in video details — edit chapter times and titles as rows over the description, with validation and a guard for manually uploaded chapter files.
