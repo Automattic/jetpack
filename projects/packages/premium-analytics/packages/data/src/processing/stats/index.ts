@@ -8,7 +8,7 @@ export type { StatsComparisonRowContext } from './utils';
 export { sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
 export { sanitizeStatsReferrersResponse } from './referrers';
-export { sanitizeStatsClicksResponse } from './clicks';
+export { mergeStatsClicksComparisonRows, sanitizeStatsClicksResponse } from './clicks';
 export { sanitizeStatsSearchTermsResponse } from './search-terms';
 export { sanitizeStatsFileDownloadsResponse } from './file-downloads';
 export { sanitizeStatsTopAuthorsResponse } from './top-authors';
@@ -50,7 +50,7 @@ export type {
 	StatsPostYear,
 } from './post';
 export type { StatsReferrersItem } from './referrers';
-export type { StatsClicksItem } from './clicks';
+export type { StatsClicksComparisonItem, StatsClicksItem } from './clicks';
 export type { StatsSearchTermsItem } from './search-terms';
 export type { StatsFileDownloadsItem } from './file-downloads';
 export type { StatsTopAuthorsItem } from './top-authors';

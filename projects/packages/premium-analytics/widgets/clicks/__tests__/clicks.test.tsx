@@ -267,7 +267,7 @@ describe( 'toClickRows', () => {
 					label: 'wordpress.org',
 					value: 42,
 					previousValue: 0,
-					icon: undefined,
+					icon: null,
 					childrenHaveComparison: true,
 					children: [
 						{
@@ -275,7 +275,7 @@ describe( 'toClickRows', () => {
 							value: 42,
 							previousValue: 0,
 							href: 'https://wordpress.org/plugins/jetpack-search',
-							icon: undefined,
+							icon: null,
 							children: undefined,
 						},
 					],

@@ -2,8 +2,9 @@
  * External dependencies
  */
 import {
-	mergeStatsComparisonRows,
+	mergeStatsClicksComparisonRows,
 	useStatsClicks,
+	type StatsClicksComparisonItem,
 	type StatsClicksItem,
 	type StatsNormalizedReport,
 	type StatsReportParams,
@@ -67,89 +68,28 @@ export type ClickRow = {
 	childrenHaveComparison?: boolean;
 };
 
-function getItemLabel( item: StatsClicksItem, parentLabel?: string ): string {
+function getItemLabel( item: StatsClicksComparisonItem | StatsClicksItem ): string {
 	if ( typeof item.label === 'string' && item.label ) {
 		return item.label;
 	}
 
-	return item.link ?? parentLabel ?? '';
+	return item.link ?? '';
 }
 
-type NormalizedClickItem = {
-	key: string;
-	label: string;
-	value: number;
-	previousValue?: number;
-	href?: string;
-	icon?: string | null;
-	children?: NormalizedClickItem[];
-	childrenHaveComparison?: boolean;
-};
-
-function getItemKey( item: StatsClicksItem, parentLabel?: string ): string {
-	const label = getItemLabel( item, parentLabel );
-	return item.link ?? label;
-}
-
-function sortClickItems( items: NormalizedClickItem[] ): NormalizedClickItem[] {
-	return [ ...items ].sort( ( a, b ) => b.value - a.value );
-}
-
-function toClickRow( item: NormalizedClickItem ): ClickRow {
+function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 	return {
-		label: item.label,
-		value: item.value,
+		label: getItemLabel( item ),
+		value: item.views,
 		previousValue: item.previousValue,
-		...( item.href ? { href: item.href } : {} ),
+		...( item.link ? { href: item.link } : {} ),
 		icon: item.icon,
 		children: item.children?.map( toClickRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
 	};
 }
 
-function hasClickRowsComparison( rows: NormalizedClickItem[] ): boolean {
+function hasClickRowsComparison( rows: ClickRow[] ): boolean {
 	return rows.some( row => row.previousValue !== undefined );
-}
-
-function normalizeClickItems(
-	items: StatsClicksItem[],
-	comparisonItems: StatsClicksItem[],
-	parent?: { label: string; icon?: string | null }
-): { rows: NormalizedClickItem[]; hasComparison: boolean } {
-	const { rows, hasComparison } = mergeStatsComparisonRows( {
-		primaryRows: items,
-		comparisonRows: comparisonItems,
-		getPrimaryKey: item => getItemKey( item, parent?.label ),
-		getComparisonKey: item => getItemKey( item, parent?.label ),
-		getComparisonValue: item => item.views,
-		mapRow: ( item, { previousValue, comparisonItem } ) => {
-			const label = getItemLabel( item, parent?.label );
-			const { rows: children, hasComparison: childrenHaveComparison } = normalizeClickItems(
-				item.children ?? [],
-				comparisonItem?.children ?? [],
-				{ label, icon: item.icon ?? parent?.icon }
-			);
-
-			return {
-				key: getItemKey( item, parent?.label ),
-				label,
-				value: item.views,
-				previousValue,
-				href: item.link ?? undefined,
-				icon: item.icon ?? parent?.icon,
-				children: children.length ? children : undefined,
-				childrenHaveComparison,
-			};
-		},
-	} );
-
-	return { rows: sortClickItems( rows ), hasComparison };
-}
-
-function getItems(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined
-): StatsClicksItem[] {
-	return report?.data.flatMap( point => point.items ) ?? [];
 }
 
 /**
@@ -166,12 +106,13 @@ export function toClickRowsWithComparison(
 	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
 	max: number
 ): { rows: ClickRow[]; hasComparison: boolean } {
-	const { rows: sorted } = normalizeClickItems( getItems( report ), getItems( comparisonReport ) );
-	const sliced = max > 0 ? sorted.slice( 0, max ) : sorted;
+	const { rows } = mergeStatsClicksComparisonRows( report, comparisonReport );
+	const sliced = max > 0 ? rows.slice( 0, max ) : rows;
+	const clickRows = sliced.map( toClickRow );
 
 	return {
-		rows: sliced.map( toClickRow ),
-		hasComparison: hasClickRowsComparison( sliced ),
+		rows: clickRows,
+		hasComparison: hasClickRowsComparison( clickRows ),
 	};
 }
 
@@ -325,19 +266,20 @@ function ClicksInner( { max }: { max: number } ) {
 		...reportParams,
 		max,
 	} as StatsReportParams;
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
+	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError } =
 		useStatsClicks( statsParams );
 	const showLoading = isLoading || ( isFetching && hasData );
 
-	const { rows, hasComparison: hasOverlappingComparison } = useMemo(
-		() =>
-			toClickRowsWithComparison(
-				primary.data as StatsNormalizedReport< StatsClicksItem > | undefined,
-				comparison.data as StatsNormalizedReport< StatsClicksItem > | undefined,
-				max
-			),
-		[ primary.data, comparison.data, max ]
-	);
+	const { rows, hasComparison: hasOverlappingComparison } = useMemo( () => {
+		const sliced =
+			comparisonRows && max > 0 ? comparisonRows.rows.slice( 0, max ) : comparisonRows?.rows ?? [];
+		const clickRows = sliced.map( toClickRow );
+
+		return {
+			rows: clickRows,
+			hasComparison: hasClickRowsComparison( clickRows ),
+		};
+	}, [ comparisonRows, max ] );
 	const selectedClick = useMemo(
 		() => rows.find( row => row.label === selectedClickLabel ) ?? null,
 		[ rows, selectedClickLabel ]
