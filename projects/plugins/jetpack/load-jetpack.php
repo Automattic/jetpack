@@ -59,6 +59,9 @@ Jetpack_Connection_Status::init();
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-application-password-extras.php';
 Jetpack_Application_Password_Extras::init();
 
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
+Jetpack_AI_Settings::init();
+
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-recommendations.php';
 
 if ( is_admin() ) {

@@ -28,8 +28,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function register_block() {
 	if (
-		( new Host() )->is_wpcom_simple()
-		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
+		(
+			( new Host() )->is_wpcom_simple()
+			|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
+		)
+		&& apply_filters( 'jetpack_ai_enabled', true )
 	) {
 		Blocks::jetpack_register_block(
 			__DIR__,

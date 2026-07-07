@@ -305,12 +305,16 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * UI feature flag for the Optimize Title suggestion.
 	 *
-	 * Exposed only in internal testing environments while the feature is in development.
+	 * Exposed only in internal testing environments while the feature is in
+	 * development, and only while the writing assistant toggle on the AI
+	 * settings page is on — a switched-off feature must not surface suggestions
+	 * even when an external host (Big Sky, Woo) draws the sidebar.
 	 *
 	 * @return bool
 	 */
 	private static function is_optimize_title_suggestion_enabled(): bool {
-		return jetpack_is_internal_testing_environment();
+		return jetpack_is_internal_testing_environment()
+			&& \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' );
 	}
 
 	/**
@@ -318,12 +322,14 @@ class Jetpack_AI_Sidebar {
 	 *
 	 * Server-side permission checks still gate execution. This site-side flag
 	 * controls whether the Jetpack AI Sidebar exposes the Proofreader
-	 * suggestion. It follows Image Studio's internal rollout pattern.
+	 * suggestion. It follows Image Studio's internal rollout pattern, and also
+	 * honors the writing assistant toggle on the AI settings page.
 	 *
 	 * @return bool
 	 */
 	private static function is_proofread_content_enabled(): bool {
-		return jetpack_is_internal_testing_environment();
+		return jetpack_is_internal_testing_environment()
+			&& \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' );
 	}
 
 	/**
@@ -336,15 +342,17 @@ class Jetpack_AI_Sidebar {
 	 * SEO tools are usable on the site. Kept independent of the Optimize Title flag:
 	 * SEO suggestions target the SEO meta fields, not the visible post title.
 	 *
-	 * The user-facing ai_seo_enhancer_enabled *option* is deliberately not consulted —
-	 * it only governs automatic generation on publish, while these suggestions are
-	 * user-initiated.
+	 * The user-facing ai_seo_enhancer_enabled *option* is consulted since the AI
+	 * settings page surfaced it as the SEO feature toggle: a switched-off feature
+	 * must not offer suggestions, even user-initiated ones, and even when an
+	 * external host (Big Sky, Woo) draws the sidebar.
 	 *
 	 * @return bool
 	 */
 	private static function is_seo_suggestions_enabled(): bool {
 		return jetpack_is_internal_testing_environment()
 			&& (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
+			&& \Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' )
 			&& self::has_seo_feature()
 			&& self::is_seo_tools_usable();
 	}
@@ -352,14 +360,16 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * UI feature flag for the Generate Excerpt suggestion.
 	 *
-	 * Exposed only in internal testing environments while the feature is in development.
+	 * Exposed only in internal testing environments while the feature is in development,
+	 * and only while the excerpt toggle on the AI settings page is on.
 	 * No plan gate: the excerpt is a core editorial field, and the ability's own
 	 * permission callback (edit_posts) gates execution server-side.
 	 *
 	 * @return bool
 	 */
 	private static function is_excerpt_suggestion_enabled(): bool {
-		return jetpack_is_internal_testing_environment();
+		return jetpack_is_internal_testing_environment()
+			&& \Jetpack_AI_Settings::is_feature_enabled( 'excerpt' );
 	}
 
 	/**
