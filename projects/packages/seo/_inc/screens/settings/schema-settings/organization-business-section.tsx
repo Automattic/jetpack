@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, TextControl, TextareaControl } from '@wordpress/components';
+import { TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Button, Stack } from '@wordpress/ui';
 import { normalizeProfileUrl } from '../../../data/schema-settings-utils';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
@@ -123,11 +123,10 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 								/>
 							</div>
 							<Button
-								variant="tertiary"
-								isDestructive
+								variant="minimal"
+								tone="destructive"
 								onClick={ () => removeProfile( index ) }
 								disabled={ isSaving }
-								__next40pxDefaultSize
 							>
 								{ __( 'Remove profile', 'jetpack-seo' ) }
 							</Button>
@@ -135,12 +134,7 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 					);
 				} ) }
 				<div>
-					<Button
-						variant="secondary"
-						onClick={ addProfile }
-						disabled={ isSaving }
-						__next40pxDefaultSize
-					>
+					<Button variant="outline" tone="neutral" onClick={ addProfile } disabled={ isSaving }>
 						{ __( 'Add profile', 'jetpack-seo' ) }
 					</Button>
 				</div>
@@ -158,11 +152,7 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 			/>
 
 			<div className="jetpack-seo-settings__save">
-				<Button
-					variant="primary"
-					onClick={ save }
-					disabled={ isSaving || ! isDirty || hasProfileErrors }
-				>
+				<Button onClick={ save } disabled={ isSaving || ! isDirty || hasProfileErrors }>
 					{ saveLabel }
 				</Button>
 			</div>
