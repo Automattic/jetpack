@@ -25,7 +25,7 @@ class Status_Resolver {
 	 * @param Feature_Environment $env Bound platform adapter.
 	 * @return array{status:string,reason:string,facets:array}
 	 */
-	public function resolve( Feature $f, Feature_Environment $env ) {
+	public function resolve( Feature $f, Feature_Environment $env ): array {
 		$applicable     = $env->is_applicable( $f );
 		$entitled       = $env->is_entitled( $f->entitlement() );
 		$connection_req = $f->connection();

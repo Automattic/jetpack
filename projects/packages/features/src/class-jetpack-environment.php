@@ -89,7 +89,7 @@ class Jetpack_Environment implements Feature_Environment {
 	 * @param string $slug Entitlement slug.
 	 * @return bool True if plan supports entitlement.
 	 */
-	protected function plan_supports( $slug ): bool {
+	protected function plan_supports( string $slug ): bool {
 		return class_exists( Current_Plan::class ) && Current_Plan::supports( $slug );
 	}
 
@@ -99,7 +99,7 @@ class Jetpack_Environment implements Feature_Environment {
 	 * @param string $module Module slug.
 	 * @return bool True if module is active.
 	 */
-	protected function module_is_active( $module ): bool {
+	protected function module_is_active( string $module ): bool {
 		return class_exists( Modules::class ) && ( new Modules() )->is_active( $module );
 	}
 

@@ -75,6 +75,9 @@ final class StatusResolverTest extends PHPUnit\Framework\TestCase {
 	public function test_facets_reported() {
 		$env                 = new Fake_Environment();
 		$env->connection_met = false;
+		$env->entitled       = false;
+		$env->applicable     = true;
+		$env->active         = false;
 		$r                   = $this->resolve(
 			$env,
 			array(
@@ -85,5 +88,8 @@ final class StatusResolverTest extends PHPUnit\Framework\TestCase {
 		$this->assertSame( 'user', $r['facets']['connection_required'] );
 		$this->assertFalse( $r['facets']['connection_met'] );
 		$this->assertSame( 'connection_missing', $r['reason'] );
+		$this->assertFalse( $r['facets']['entitled'] );
+		$this->assertTrue( $r['facets']['applicable'] );
+		$this->assertFalse( $r['facets']['active'] );
 	}
 }

@@ -39,6 +39,7 @@ class CLI extends WP_CLI_Command {
 		$env      = $registry->environment();
 		if ( null === $env ) {
 			WP_CLI::error( 'No feature environment is bound.' );
+			return;
 		}
 		$resolver = new Status_Resolver();
 		$rows     = array();

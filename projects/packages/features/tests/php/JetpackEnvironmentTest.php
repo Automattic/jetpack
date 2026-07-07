@@ -35,6 +35,10 @@ final class JetpackEnvironmentTest extends PHPUnit\Framework\TestCase {
 		$this->assertTrue( ( new Stub_Jetpack_Environment() )->is_entitled( null ) );
 	}
 
+	public function test_empty_string_entitlement_is_free() {
+		$this->assertTrue( ( new Stub_Jetpack_Environment() )->is_entitled( '' ) );
+	}
+
 	public function test_entitlement_delegates_to_plan() {
 		$env       = new Stub_Jetpack_Environment();
 		$env->plan = true;
