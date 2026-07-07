@@ -2,11 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 16.0-beta - 2026-07-06
+## 16.0 - 2026-07-07
 ### Enhancements
+- AI: Surface SEO Enhancer suggestions (SEO title and meta description) in the AI sidebar. [#50042]
 - AI Admin: Restructure MCP settings Read/Write pages to group tools by display group with collapsible per-group tool lists and a page-level Enable all toggle. [#50045]
 - Forms: Warn admins and editors when a form isn't collecting responses (email and saving both off, no integration). [#49808]
-- AI: Surface SEO Enhancer suggestions (SEO title and meta description) in the AI sidebar. [#50042]
 - Newsletter: Link to the site visibility settings from the Coming Soon notice in the pre-publish panel. [#50073]
 - VideoPress: Add presentation to the player iframe allow list to enable casting from embeds. [#50215]
 - VideoPress: Make the VideoPress admin dashboard available in the Jetpack plugin (previously only in the standalone Jetpack VideoPress plugin). [#49696]
@@ -21,6 +21,7 @@
 - Tiled Gallery: Prevent editor crash when transforming a core gallery block. [#50025]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Crowdsignal shortcode: render rating settings as data rather than building markup from them.
 - Donations block: Update location of earnings link. [#50177]
 - Image Studio: Share the translation script handle with the Agents Manager package to avoid enqueuing the same file twice. [#50069]
 - Newsletter widget: Stop building the bundle twice, keeping only the build that is actually loaded. [#50087]
