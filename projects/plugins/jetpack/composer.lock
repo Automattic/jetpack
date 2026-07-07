@@ -2746,7 +2746,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "b8a52dce988b6970dd6e8012e6fa9642e0b1f60b"
+                "reference": "732b4c245ccd501c5f4bf1ce18fef9c9b1624e5a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2811,7 +2811,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Jetpack Podcast functionality (Simple and Atomic only).",
+            "description": "Jetpack Podcast: the wp-admin podcasting experience, REST settings, and RSS feed customization.",
             "transport-options": {
                 "relative": true
             }
