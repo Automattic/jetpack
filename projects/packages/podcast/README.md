@@ -37,4 +37,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-jetpack-podcast is licensed under [GNU General Public License v2 (or later)](https://www.gnu.org/licenses/gpl-2.0.html).
+jetpack-podcast is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
