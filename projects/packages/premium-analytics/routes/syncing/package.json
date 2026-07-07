@@ -12,6 +12,6 @@
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/route": "0.16.0",
 		"@wordpress/ui": "0.13.0",
-		"react": "18.3.1"
+		"react": "19.2.7"
 	}
 }

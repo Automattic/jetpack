@@ -41,7 +41,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@microsoft/fetch-event-source": "2.0.1",
 		"@types/jest": "30.0.0",
-		"@types/react": "18.3.28",
+		"@types/react": "19.2.17",
 		"@types/wordpress__block-editor": "15.0.6",
 		"@wordpress/api-fetch": "7.50.0",
 		"@wordpress/base-styles": "10.2.0",
@@ -61,8 +61,8 @@
 		"clsx": "2.1.1",
 		"debug": "4.4.3",
 		"markdown-it": "14.2.0",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"react": "19.2.7",
+		"react-dom": "19.2.7",
 		"turndown": "7.1.2"
 	},
 	"devDependencies": {

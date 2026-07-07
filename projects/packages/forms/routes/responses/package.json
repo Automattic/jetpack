@@ -7,7 +7,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@tanstack/react-router": ">=1.120.5 <1.121.0",
-		"@types/react": "18.3.28",
+		"@types/react": "19.2.17",
 		"@wordpress/admin-ui": "2.1.0",
 		"@wordpress/api-fetch": "7.50.0",
 		"@wordpress/block-editor": "15.23.0",

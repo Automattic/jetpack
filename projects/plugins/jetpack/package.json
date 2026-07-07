@@ -140,7 +140,7 @@
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",
 		"@types/jest": "30.0.0",
-		"@types/react": "18.3.28",
+		"@types/react": "19.2.17",
 		"@types/wordpress__block-editor": "15.0.6",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/api-fetch": "7.50.0",
@@ -167,7 +167,7 @@
 		"sass-loader": "16.0.5"
 	},
 	"optionalDependencies": {
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react": "19.2.7",
+		"react-dom": "19.2.7"
 	}
 }

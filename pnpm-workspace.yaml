@@ -9,6 +9,18 @@ packages:
   - tools/performance
   - .github/files/coverage-munger
 
+# React 19 migration: force a single React 19 across the whole tree. Our per-package
+# specs and the `.pnpmfile.cjs` widening only *permit* React 19; with
+# `dedupePeerDependents: false` a chunk of the `@wordpress/*` tree would otherwise
+# resolve back to React 18 (and the unpatched `@wordpress/element`). Pinning here is
+# the pnpm equivalent of Yarn `resolutions` (cf. wp-calypso). Bump these together with
+# the per-package versions. Drop/relax once React 18 support is no longer needed.
+overrides:
+  react: 19.2.7
+  react-dom: 19.2.7
+  '@types/react': 19.2.17
+  '@types/react-dom': 19.2.3
+
 engineStrict: true
 pmOnFail: ignore
 preferWorkspacePackages: true
@@ -73,6 +85,12 @@ ignoredOptionalDependencies:
 
 # Dependencies needing patching.
 patchedDependencies:
+
+  # React 19 migration: @wordpress/element still imports findDOMNode/render/hydrate/
+  # unmountComponentAtNode by name from react-dom, which React 19 removed. Polyfill them
+  # on top of createRoot/hydrateRoot (ported from Gutenberg's tools/react-19/react-polyfill.js,
+  # matching wp-calypso). Drop once a React-19-compatible @wordpress/element ships.
+  '@wordpress/element@8.2.0': .pnpm-patches/@wordpress__element@8.2.0.patch
 
   # Vite/esbuild doesn't like the `__esModule` + `exports["default"]` pattern, it winds up double-wrapping the default.
   # See also https://github.com/WordPress/gutenberg/issues/39619

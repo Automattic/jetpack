@@ -81,7 +81,35 @@ async function fixDeps( pkg ) {
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
-		pkg.peerDependencies.react = '^18';
+		pkg.peerDependencies.react = '^18 || ^19';
+	}
+
+	// React 19 migration: no published `@wordpress/*` yet ships a build that
+	// depends on React 19 (they pin `react`/`react-dom` to `^18.3.x`), but our
+	// monorepo is on React 19. Widen their `react`/`react-dom` *dependencies* so
+	// pnpm dedupes to the single React 19 we install rather than pulling in a
+	// second React 18 copy. Runtime is externalized to WordPress's `React` global
+	// anyway; this only matters for install/dedupe, tests, and type-checking.
+	// Drop this once `@wordpress/element` et al. ship React-19-compatible builds.
+	// See also the `@wordpress/element` patch in pnpm-workspace.yaml.
+	if ( pkg.name?.startsWith( '@wordpress/' ) ) {
+		for ( const p of [ 'react', 'react-dom' ] ) {
+			const ver = pkg.dependencies?.[ p ];
+			if (
+				ver &&
+				ver.match( /(?:^|\|\|\s*)(?:\^18|18\.x)/ ) &&
+				! ver.match( /(?:^|\|\|\s*)(?:\^19|19\.x)/ )
+			) {
+				pkg.dependencies[ p ] = ver + ' || ^19';
+			}
+		}
+		// Likewise their `@types/react*` pins, so we dedupe to the single React 19
+		// types the monorepo installs rather than a stray `@types/react@18`.
+		for ( const p of [ '@types/react', '@types/react-dom' ] ) {
+			if ( pkg.dependencies?.[ p ]?.match( /(?:^|\|\|\s*)(?:\^18|18\.x)/ ) ) {
+				pkg.dependencies[ p ] = '*';
+			}
+		}
 	}
 
 	// We need to add the missing deps for `@wordpress/dataviews` because
@@ -328,6 +356,20 @@ function fixPeerDeps( pkg ) {
 			) {
 				pkg.peerDependencies[ p ] += ' || ^18';
 			}
+		}
+	}
+
+	// React 19 migration: widen any third-party `react`/`react-dom`/`@types/react*`
+	// *peer* dep that accepts React 18 but not yet React 19, so it's satisfied by
+	// the React 19 we now install (strictPeerDependencies would otherwise hard-fail
+	// install). Match `18` in any form (`^18`, `18.x`, hyphen ranges like `15 - 18`)
+	// and skip anything already allowing 19. Forward-compatible: packages keep
+	// working under React 18 too. Remove once upstreams declare React 19 support.
+	// See the `@wordpress/element` patch and the `@wordpress/*` widening in fixDeps.
+	for ( const p of [ 'react', 'react-dom', '@types/react', '@types/react-dom' ] ) {
+		const ver = pkg.peerDependencies?.[ p ];
+		if ( ver && /(?:^|[^\d.])18(?:[.\s]|$)/.test( ver ) && ! /19/.test( ver ) ) {
+			pkg.peerDependencies[ p ] = ver + ' || ^19';
 		}
 	}
 

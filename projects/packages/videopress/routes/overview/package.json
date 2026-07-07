@@ -5,7 +5,7 @@
 		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@tanstack/react-query": "5.90.8",
-		"@types/react": "18.3.28",
+		"@types/react": "19.2.17",
 		"@wordpress/api-fetch": "7.50.0",
 		"@wordpress/components": "36.1.0",
 		"@wordpress/element": "8.2.0",

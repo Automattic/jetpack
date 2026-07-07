@@ -45,13 +45,13 @@
 		"clsx": "2.1.1",
 		"lodash": "4.18.1",
 		"moment": "2.30.1",
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react": "19.2.7",
+		"react-dom": "19.2.7"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@types/react": "18.3.28",
+		"@types/react": "19.2.17",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"jetpack-js-tools": "workspace:*",
 		"sass-embedded": "1.97.3",

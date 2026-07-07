@@ -38,14 +38,14 @@
 		"@wordpress/i18n": "6.23.0",
 		"@wordpress/icons": "13.1.0",
 		"@wordpress/plugins": "7.50.0",
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react": "19.2.7",
+		"react-dom": "19.2.7"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
 		"@babel/runtime": "7.29.7",
-		"@types/react": "18.3.28",
+		"@types/react": "19.2.17",
 		"@wordpress/browserslist-config": "6.50.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",

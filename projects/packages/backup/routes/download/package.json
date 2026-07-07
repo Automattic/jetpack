@@ -3,7 +3,7 @@
 	"private": true,
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
-		"@types/react": "18.3.28",
+		"@types/react": "19.2.17",
 		"@wordpress/admin-ui": "2.1.0",
 		"@wordpress/components": "36.1.0",
 		"@wordpress/date": "5.50.0",
