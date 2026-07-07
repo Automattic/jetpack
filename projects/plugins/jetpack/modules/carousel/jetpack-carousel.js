@@ -1668,9 +1668,13 @@
 			}
 		}
 
+		function normalizeUrl( url ) {
+			return ( url || '' ).split( '?' )[ 0 ].replace( /\/$/, '' );
+		}
+
 		function shouldOpenModal( el ) {
-			if ( el.tagName === 'A' && el.querySelector( 'img' ) ) {
-				el = el.querySelector( 'img' );
+			if ( el.tagName === 'A' ) {
+				el = el.querySelector( 'img' ) || el;
 			}
 
 			var parent = el.parentElement;
@@ -1693,12 +1697,9 @@
 			// If the link does not point to the attachment or media file then assume Image has
 			// a custom link so don't load the carousel.
 			if ( parentHref ) {
-				var origFile = el.getAttribute( 'data-orig-file' ) || '';
-				var permalink = el.getAttribute( 'data-permalink' ) || '';
-
-				var cleanHref = parentHref.split( '?' )[ 0 ].replace( /\/$/, '' );
-				var cleanOrig = origFile.split( '?' )[ 0 ].replace( /\/$/, '' );
-				var cleanPerm = permalink.split( '?' )[ 0 ].replace( /\/$/, '' );
+				var cleanHref = normalizeUrl( parentHref );
+				var cleanOrig = normalizeUrl( el.getAttribute( 'data-orig-file' ) );
+				var cleanPerm = normalizeUrl( el.getAttribute( 'data-permalink' ) );
 
 				if ( cleanHref !== cleanOrig && cleanHref !== cleanPerm ) {
 					return false;
@@ -1711,7 +1712,7 @@
 			}
 
 			// Do not open the modal if we are looking at a caption of a gallery block, which may contain a link.
-			if ( typeof domUtil !== 'undefined' && domUtil.matches( parent, 'figcaption' ) ) {
+			if ( domUtil.matches( parent, 'figcaption' ) ) {
 				return false;
 			}
 
