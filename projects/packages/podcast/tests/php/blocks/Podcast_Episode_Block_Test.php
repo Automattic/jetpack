@@ -93,16 +93,24 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		return $result;
 	}
 
-	public function test_non_frontend_returns_content_unchanged() {
+	public function test_renders_player_in_non_frontend_context() {
 		remove_filter( 'jetpack_is_frontend', '__return_true' );
 		add_filter( 'jetpack_is_frontend', '__return_false' );
 
-		$result = Podcast_Episode_Block::render_block( array(), '<a href="x">Listen</a>' );
+		$post_id = $this->create_episode_post();
+		$result  = Podcast_Episode_Block::render_block(
+			$this->default_attrs,
+			'<a class="jetpack-podcast-episode__direct-link" href="x">x</a>',
+			$this->block_ctx( $post_id )
+		);
+		wp_delete_post( $post_id, true );
 
 		remove_filter( 'jetpack_is_frontend', '__return_false' );
 		add_filter( 'jetpack_is_frontend', '__return_true' );
 
-		$this->assertSame( '<a href="x">Listen</a>', $result );
+		$this->assertStringContainsString( 'jetpack-podcast-episode__player', $result );
+		$this->assertStringContainsString( '<audio', $result );
+		$this->assertStringNotContainsString( '__direct-link', $result );
 	}
 
 	public function test_empty_media_url_returns_empty_string() {
