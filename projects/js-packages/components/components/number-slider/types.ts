@@ -1,9 +1,3 @@
-import type { HTMLProps, RefCallback, JSX } from 'react';
-
-interface HTMLPropsWithRefCallback< T > extends HTMLProps< T > {
-	ref: RefCallback< T >;
-}
-
 export type NumberSliderProps = {
 	/**
 	 * The wrapper class name of this NumberSlider component.
@@ -31,28 +25,14 @@ export type NumberSliderProps = {
 	step?: number;
 
 	/**
-	 * Callback called on every value change.
-	 * The function will be called with two arguments, the first being the new value(s) the second being thumb index.
+	 * Callback called on every value change while dragging.
+	 * The function will be called with the new value.
 	 */
 	onChange?: ( value: number ) => void;
 
 	/**
-	 * Callback called before starting to move a thumb. The callback will only be called if the action will result in a change.
-	 * The function will be called with two arguments, the first being the initial value(s) the second being thumb index.
-	 */
-	onBeforeChange?: ( value: number ) => void;
-
-	/**
-	 * Callback called only after moving a thumb has ended. The callback will only be called if the action resulted in a change.
-	 * The function will be called with two arguments, the first being the result value(s) the second being thumb index.
+	 * Callback called only after moving the thumb has ended.
+	 * The function will be called with the result value.
 	 */
 	onAfterChange?: ( value: number ) => void;
-
-	/**
-	 * Node to render on the slider.
-	 */
-	renderThumb?: (
-		props: HTMLPropsWithRefCallback< HTMLDivElement >,
-		state: { index: number; value: number | ReadonlyArray< number >; valueNow: number }
-	) => JSX.Element | null;
 };

@@ -15,17 +15,10 @@ const Template: StoryFn< typeof NumberSlider > = args => <NumberSlider { ...args
 // Export Default story
 export const _default = Template.bind( {} );
 
-// Export additional stories using chaning values
+// Export additional stories using changing values
 const TemplateWithChangingValue: StoryFn< typeof NumberSlider > = args => {
 	const [ value, setValue ] = useState( 10 );
 	const [ endValue, setEndValue ] = useState( 10 );
-	const renderThumb = ( props, state ) => {
-		return (
-			<div { ...props }>
-				{ state.valueNow } - { state.valueNow % 2 === 0 ? 'Even' : 'Odd' }
-			</div>
-		);
-	};
 
 	return (
 		<div>
@@ -34,7 +27,6 @@ const TemplateWithChangingValue: StoryFn< typeof NumberSlider > = args => {
 				value={ value }
 				onChange={ setValue }
 				onAfterChange={ setEndValue }
-				renderThumb={ renderThumb } // eslint-disable-line react/jsx-no-bind
 			/>
 			<div>{ `Value on changing: ${ value }` }</div>
 			<div>{ `Value on change ends: ${ endValue }` }</div>

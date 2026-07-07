@@ -589,9 +589,6 @@ importers:
       qrcode.react:
         specifier: 4.2.0
         version: 4.2.0(react@18.3.1)
-      react-slider:
-        specifier: 2.0.5
-        version: 2.0.5(@babel/runtime@7.29.7)(react@18.3.1)
       social-logos:
         specifier: workspace:*
         version: link:../social-logos
@@ -635,9 +632,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.28)
-      '@types/react-slider':
-        specifier: 1.3.6
-        version: 1.3.6
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -10480,9 +10474,6 @@ packages:
   '@types/react-redux@7.1.34':
     resolution: {integrity: sha512-GdFaVjEbYv4Fthm2ZLvj1VSCedV7TqE5y1kNwnjSdBOTXuRSgowux6J8TAct15T3CKBr63UMk+2CO7ilRhyrAQ==}
 
-  '@types/react-slider@1.3.6':
-    resolution: {integrity: sha512-RS8XN5O159YQ6tu3tGZIQz1/9StMLTg/FCIPxwqh2gwVixJnlfIodtVx+fpXVMZHe7A58lAX1Q4XTgAGOQaCQg==}
-
   '@types/react@18.3.28':
     resolution: {integrity: sha512-z9VXpC7MWrhfWipitjNdgCauoMLRdIILQsAEV+ZesIzBq/oUlxk0m3ApZuMFCXdnS4U7KrI+l3WRUEGQ8K1QKw==}
 
@@ -16492,12 +16483,6 @@ packages:
     peerDependenciesMeta:
       react-dom:
         optional: true
-
-  react-slider@2.0.5:
-    resolution: {integrity: sha512-MU5gaK1yYCKnbDDN3CMiVcgkKZwMvdqK2xUEW7fFU37NAzRgS1FZbF9N7vP08E3XXNVhiuZnwVzUa3PYQAZIMg==}
-    peerDependencies:
-      '@babel/runtime': ^7
-      react: ^16 || ^17 || ^18
 
   react-style-singleton@2.2.3:
     resolution: {integrity: sha512-b6jSvxvVnyptAiLjbkWLE/lOnR4lfTtDAl+eUC7RZy+QQWc6wRzIV2CE6xBuMmDxc2qIihtDCZD5NPOFl7fRBQ==}
@@ -22765,10 +22750,6 @@ snapshots:
       '@types/react': 18.3.28
       hoist-non-react-statics: 3.3.2
       redux: 4.2.1
-
-  '@types/react-slider@1.3.6':
-    dependencies:
-      '@types/react': 18.3.28
 
   '@types/react@18.3.28':
     dependencies:
@@ -35314,12 +35295,6 @@ snapshots:
       set-cookie-parser: 2.7.2
     optionalDependencies:
       react-dom: 18.3.1(react@18.3.1)
-
-  react-slider@2.0.5(@babel/runtime@7.29.7)(react@18.3.1):
-    dependencies:
-      '@babel/runtime': 7.29.7
-      prop-types: 15.8.1
-      react: 18.3.1
 
   react-style-singleton@2.2.3(@types/react@18.3.28)(react@18.3.1):
     dependencies:

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Number Slider: replace the react-slider dependency with the WordPress RangeControl component for React 19 compatibility.

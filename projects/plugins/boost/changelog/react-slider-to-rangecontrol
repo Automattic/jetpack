@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Image CDN: update the image quality slider to use the WordPress RangeControl component.

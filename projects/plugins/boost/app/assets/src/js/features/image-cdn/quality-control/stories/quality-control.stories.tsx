@@ -46,11 +46,14 @@ const Template = args => {
 
 	const props = {
 		label: args.label,
-		config,
+		quality: config.quality,
+		lossless: config.lossless,
+		setQuality: ( value ) => setConfig( current => ( { ...current, quality: value } ) ),
+		setLossless: ( value ) => setConfig( current => ( { ...current, lossless: value } ) ),
 		maxValue: args.maxValue,
 		minValue: args.minValue,
 	}
-	return <QualityControl { ...props } onChange={(newVal) => setConfig(newVal)} />
+	return <QualityControl { ...props } />
 };
 export const _default = Template.bind( {} );
 _default.args = defaultValues;
