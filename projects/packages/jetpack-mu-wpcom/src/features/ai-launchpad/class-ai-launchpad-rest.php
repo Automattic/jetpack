@@ -729,15 +729,17 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					),
 					true
 				);
-				// build_tasks runs per id here, so its own dedup can't see this collision: the catalog holds both
-				// `woo_launch_site` and `site_launched`, and the former is remapped onto the latter. Keep the first.
-				if ( ! empty( $one ) && ! in_array( $one[0]['id'], $seen_ids, true ) ) {
-					$seen_ids[] = $one[0]['id'];
-					$built[]    = $one[0];
-				}
 			} catch ( \Throwable $e ) {
 				continue;
 			}
+			// build_tasks runs per id here, so its own dedup can't see this collision: the catalog holds both
+			// `woo_launch_site` and `site_launched`, and the former is remapped onto the latter. Keep the first.
+			$card = $one[0] ?? null;
+			if ( null === $card || isset( $seen_ids[ $card['id'] ] ) ) {
+				continue;
+			}
+			$seen_ids[ $card['id'] ] = true;
+			$built[]                 = $card;
 		}
 		return $built;
 	}
@@ -770,9 +772,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			}
 
 			// The WooCommerce launch task deep-links into the WC onboarding task list, which renders blank when the
-			// guided setup was skipped, and only completes via a WC option that skip never writes. Normalize it to the
-			// canonical site-launch task, which reads the real launch signal and self-completes. The prompt no longer
-			// offers it, so this only catches a stray AI emission.
+			// guided setup was skipped, and only completes via a WC option the skipped-setup flow never writes. Normalize
+			// it to the canonical site-launch task, which reads the real launch signal and self-completes. The prompt no
+			// longer offers it, so this only catches a stray AI emission.
 			if ( 'woo_launch_site' === $task['id'] ) {
 				$task['id'] = 'site_launched';
 			}
@@ -784,7 +786,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// One card per id — the client keys cards by id. The woo_launch_site→site_launched remap above can collide
 			// with a real site_launched (notably the ?all_tasks=1 view, which enumerates every catalog id), so collapse
 			// any repeat to the first occurrence.
-			if ( in_array( $task['id'], $seen_ids, true ) ) {
+			if ( isset( $seen_ids[ $task['id'] ] ) ) {
 				continue;
 			}
 
@@ -855,8 +857,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// Title follows our precise in-progress signal so it, the icon, and the CTA agree.
 			$title = $this->get_task_title( $task['id'], $in_progress, $title );
 
-			$seen_ids[] = $task['id'];
-			$built[]    = array(
+			$seen_ids[ $task['id'] ] = true;
+			$built[]                 = array(
 				'id'           => $task['id'],
 				'subtitle'     => $task['subtitle'],
 				'title'        => $title,
