@@ -81,7 +81,7 @@ class SalesByDeviceController extends AbstractCSVReportController {
 	public function format_row_for_csv( array $item, ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		$defaults = $this->get_default_values();
 
-		$returning_customers = ( $item['total_customers'] ?? $defaults['total_customers'] ) - ( $item['new_customers'] ?? $defaults['new_customers'] );
+		$returning_customers = max( ( $item['total_customers'] ?? $defaults['total_customers'] ) - ( $item['new_customers'] ?? $defaults['new_customers'] ), 0 );
 
 		return array(
 			'device'              => $item['label'] ?? $item['device'] ?? $defaults['device'],

@@ -16,8 +16,8 @@ use Exception;
 /**
  * Abstract base class for CSV report controllers.
  *
- * NOTE: This is a proof-of-concept implementation. Future work will migrate
- * all export controllers to use this pattern.
+ * All report controllers extend this base, which centralizes comparison-period
+ * handling, empty-row logic, requested-field selection, and value formatting.
  *
  * Each concrete controller should implement:
  * - get_report_key(): Unique identifier for the report

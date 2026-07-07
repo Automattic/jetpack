@@ -422,13 +422,15 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		$report_type     = $request->get_param( 'report_type' );
 		$delivery_method = $request->get_param( 'delivery_method' );
 
-		// Get controller to access additional params.
+		// Validate the report type. Also enforced by validate_report_type() at the route
+		// layer; kept here as a guard for direct callers.
 		$controller = $this->registry->get_controller( $report_type );
 		if ( is_wp_error( $controller ) ) {
 			return $controller;
 		}
 
-		// Extract parameters.
+		// Extract request parameters. Controller-specific additional params (date_type,
+		// orderby, limit, etc.) are merged once in ReportDataFetcher::fetch().
 		$params = array(
 			'from'         => $request->get_param( 'from' ),
 			'to'           => $request->get_param( 'to' ),
@@ -436,9 +438,6 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 			'compare_from' => $request->get_param( 'compare_from' ),
 			'compare_to'   => $request->get_param( 'compare_to' ),
 		);
-
-		// Merge controller-specific additional parameters.
-		$params = array_merge( $params, $controller->get_additional_params() );
 
 		// Handle delivery method.
 		if ( 'email' === $delivery_method ) {
