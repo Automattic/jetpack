@@ -364,6 +364,133 @@ function buildVisitorsByDateResponse( query: URLSearchParams ) {
 }
 
 /**
+ * Per-day rows for customers/by-date. The real endpoint zero-fills every
+ * interval in the range, so the mock emits a dense daily series too — the
+ * static customers mocks only carry a summary, and an empty `data` array
+ * would blank the Store performance Customers chart.
+ *
+ * @param query        - Parsed query params.
+ * @param isComparison - Whether this request is the comparison period.
+ * @return Daily customers-by-date rows.
+ */
+function buildCustomersByDateRows( query: URLSearchParams, isComparison: boolean ) {
+	const params = getMockParams();
+	const fallbackTo = toDayEnd( new Date() );
+	const fallbackFrom = toDayStart( new Date( fallbackTo.getTime() - 29 * DAY_MS ) );
+	const from = toDayStart( parseDateParam( query.get( 'from' ), fallbackFrom ) );
+	const to = toDayStart( parseDateParam( query.get( 'to' ), fallbackTo ) );
+	const days = Math.max(
+		1,
+		Math.min( SPECTRUM_DAYS, Math.floor( ( to.getTime() - from.getTime() ) / DAY_MS ) + 1 )
+	);
+	const seed = params.seed + ( isComparison ? 10000 : 0 ) + from.getUTCDate();
+	const density = Math.max( 0.1, Math.min( 1, params.density ) );
+	const volume = Math.max( 1, params.volume * 60 );
+
+	return Array.from( { length: days }, ( _, index ) => {
+		const date = new Date( from.getTime() + index * DAY_MS );
+		const activeDay = ( ( index * 37 + seed ) % 100 ) / 100 <= density;
+		const wave = Math.sin( ( index + seed ) / 2.6 ) * volume * 0.35;
+		const totalCustomers = activeDay ? Math.max( 1, Math.round( volume + wave ) ) : 0;
+		const newCustomers = Math.round( totalCustomers * 0.2 );
+		const orders = Math.round( totalCustomers * 0.25 );
+		const newCustomerOrders = Math.round( orders * 0.2 );
+		const netSales = totalCustomers * 42;
+		const newCustomerNetSales = Math.round( netSales * 0.2 );
+
+		return {
+			time_interval: date.toISOString(),
+			date_start: date.toISOString(),
+			date_end: toDayEnd( date ).toISOString(),
+			total_customers: String( totalCustomers ),
+			new_customers: String( newCustomers ),
+			returning_customers: String( totalCustomers - newCustomers ),
+			orders_count: String( orders ),
+			new_customer_orders: String( newCustomerOrders ),
+			returning_customer_orders: String( orders - newCustomerOrders ),
+			net_sales: String( netSales ),
+			new_customer_net_sales: String( newCustomerNetSales ),
+			returning_customer_net_sales: String( netSales - newCustomerNetSales ),
+		};
+	} );
+}
+
+/**
+ * Builds the sessions/by-conversion-rate response — the daily session funnel
+ * (sessions → cart → checkout → completed). Mirrors the real endpoint, which
+ * zero-fills every interval in the range (`fill_missing_intervals()`), so the
+ * mock always emits one row per day too — consumers never see a sparse or
+ * empty `data` array.
+ *
+ * @param query - Parsed query params.
+ * @return Conversion-rate funnel report response.
+ */
+function buildConversionRateResponse( query: URLSearchParams ) {
+	const params = getMockParams();
+	const isComparison = nextIsComparison( 'sessions/by-conversion-rate' );
+	const fallbackTo = toDayEnd( new Date() );
+	const fallbackFrom = toDayStart( new Date( fallbackTo.getTime() - 29 * DAY_MS ) );
+	const from = toDayStart( parseDateParam( query.get( 'from' ), fallbackFrom ) );
+	const to = toDayStart( parseDateParam( query.get( 'to' ), fallbackTo ) );
+	const days = Math.max(
+		1,
+		Math.min( SPECTRUM_DAYS, Math.floor( ( to.getTime() - from.getTime() ) / DAY_MS ) + 1 )
+	);
+	const seed = params.seed + ( isComparison ? 10000 : 0 ) + from.getUTCDate();
+	const density = Math.max( 0.1, Math.min( 1, params.density ) );
+	const volume = Math.max( 1, params.volume * 100 );
+	const totals = {
+		active_sessions: 0,
+		visitors: 0,
+		with_cart_addition: 0,
+		reached_checkout: 0,
+		completed_checkout: 0,
+	};
+
+	const data = Array.from( { length: days }, ( _, index ) => {
+		const date = new Date( from.getTime() + index * DAY_MS );
+		const activeDay = ( ( index * 37 + seed ) % 100 ) / 100 <= density;
+		const trend = index * Math.max( 2, Math.round( volume / 120 ) );
+		const wave = Math.sin( ( index + seed ) / 2.6 ) * volume * 0.35;
+		const visitors = activeDay ? Math.max( 1, Math.round( volume + trend + wave ) ) : 0;
+		const activeSessions = Math.round( visitors * 0.78 );
+		const withCartAddition = Math.round( activeSessions * 0.32 );
+		const reachedCheckout = Math.round( activeSessions * 0.14 );
+		const completedCheckout = Math.round( activeSessions * 0.06 );
+
+		totals.visitors += visitors;
+		totals.active_sessions += activeSessions;
+		totals.with_cart_addition += withCartAddition;
+		totals.reached_checkout += reachedCheckout;
+		totals.completed_checkout += completedCheckout;
+
+		return {
+			date_start: date.toISOString(),
+			date_end: toDayEnd( date ).toISOString(),
+			time_interval: date.toISOString(),
+			active_sessions: String( activeSessions ),
+			visitors: String( visitors ),
+			with_cart_addition: String( withCartAddition ),
+			reached_checkout: String( reachedCheckout ),
+			completed_checkout: String( completedCheckout ),
+		};
+	} );
+
+	return {
+		summary: {
+			active_sessions: String( totals.active_sessions ),
+			visitors: String( totals.visitors ),
+			with_cart_addition: String( totals.with_cart_addition ),
+			reached_checkout: String( totals.reached_checkout ),
+			completed_checkout: String( totals.completed_checkout ),
+			date_start: from.toISOString(),
+			date_end: toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ).toISOString(),
+		},
+		data,
+	};
+}
+
+/**
  * Builds the sessions/by-location (visitors by location) response, detecting
  * comparison requests by tracking the distinct `from` values per request
  * signature (mirrors upstream).
@@ -463,6 +590,8 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 			return buildBookingsResponse( query );
 		case '/sessions/by-date':
 			return buildVisitorsByDateResponse( query );
+		case '/sessions/by-conversion-rate':
+			return buildConversionRateResponse( query );
 		case '/sessions/by-device':
 			return buildSessionsByDeviceResponse();
 		case '/sessions/by-location':
@@ -478,10 +607,11 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 			return nextIsComparison( 'customers/new-returning' )
 				? mockCustomersComparisonData
 				: mockCustomersData;
-		case '/customers/by-date':
-			return nextIsComparison( 'customers/by-date' )
-				? mockCustomersByDateComparisonData
-				: mockCustomersByDateData;
+		case '/customers/by-date': {
+			const isComparison = nextIsComparison( 'customers/by-date' );
+			const base = isComparison ? mockCustomersByDateComparisonData : mockCustomersByDateData;
+			return { ...base, data: buildCustomersByDateRows( query, isComparison ) };
+		}
 		default:
 			return null;
 	}
