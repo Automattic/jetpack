@@ -152,6 +152,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Non-array section arguments are ignored and defaults are retained.
 	 */
 	public function test_section_ignores_non_array_args() {
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Intentionally passing a non-array to exercise the defensive is_array() guard.
 		$section = new Dashboard_Section( 'example_dashboard', 'example/traffic', 'not-an-array' );
 
 		$this->assertSame( 'example/traffic', $section->label );
