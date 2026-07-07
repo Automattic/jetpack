@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { useCallback } from 'react';
+/**
  * Internal dependencies
  */
 import { mergeStatsVideoPlaysComparisonRows } from '../processing/stats';
@@ -18,6 +22,13 @@ type StatsVideoPlaysOptions = UseStatsOptions & {
 
 export function useStatsVideoPlays( params: StatsReportParams, options?: StatsVideoPlaysOptions ) {
 	const { maxRows, ...queryOptions } = options ?? {};
+	const mergeComparisonRows = useCallback(
+		(
+			primary?: StatsNormalizedReport< StatsVideoPlaysItem >,
+			comparison?: StatsNormalizedReport< StatsVideoPlaysItem >
+		) => mergeStatsVideoPlaysComparisonRows( primary, comparison, maxRows ),
+		[ maxRows ]
+	);
 
 	return useStatsReport<
 		StatsReportParams,
@@ -25,7 +36,6 @@ export function useStatsVideoPlays( params: StatsReportParams, options?: StatsVi
 		StatsVideoPlaysComparisonItem
 	>( statsVideoPlaysQuery, params, 'video-plays', {
 		...queryOptions,
-		mergeComparisonRows: ( primary, comparison ) =>
-			mergeStatsVideoPlaysComparisonRows( primary, comparison, maxRows ),
+		mergeComparisonRows,
 	} );
 }

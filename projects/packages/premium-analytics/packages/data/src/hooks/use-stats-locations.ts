@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { useCallback } from 'react';
+/**
  * Internal dependencies
  */
 import { mergeStatsLocationsComparisonRows } from '../processing/stats';
@@ -21,6 +25,13 @@ export function useStatsLocations(
 	options?: StatsLocationsOptions
 ) {
 	const { maxRows, ...queryOptions } = options ?? {};
+	const mergeComparisonRows = useCallback(
+		(
+			primary?: StatsNormalizedReport< StatsLocationsItem >,
+			comparison?: StatsNormalizedReport< StatsLocationsItem >
+		) => mergeStatsLocationsComparisonRows( primary, comparison, maxRows ),
+		[ maxRows ]
+	);
 
 	return useStatsReport<
 		StatsReportParams & { geoMode?: 'country' | 'region' | 'city' },
@@ -28,7 +39,6 @@ export function useStatsLocations(
 		StatsLocationsComparisonItem
 	>( statsLocationsQuery, params, 'locations', {
 		...queryOptions,
-		mergeComparisonRows: ( primary, comparison ) =>
-			mergeStatsLocationsComparisonRows( primary, comparison, maxRows ),
+		mergeComparisonRows,
 	} );
 }

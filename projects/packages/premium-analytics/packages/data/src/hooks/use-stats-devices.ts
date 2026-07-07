@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { useCallback } from 'react';
+/**
  * Internal dependencies
  */
 import { mergeStatsDevicesComparisonRows } from '../processing/stats';
@@ -21,6 +25,13 @@ type StatsDevicesOptions = UseStatsOptions & {
 
 export function useStatsDevices( params: StatsDevicesParams, options?: StatsDevicesOptions ) {
 	const { maxRows, ...queryOptions } = options ?? {};
+	const mergeComparisonRows = useCallback(
+		(
+			primary?: StatsNormalizedReport< StatsDevicesItem >,
+			comparison?: StatsNormalizedReport< StatsDevicesItem >
+		) => mergeStatsDevicesComparisonRows( primary, comparison, maxRows ),
+		[ maxRows ]
+	);
 
 	return useStatsReport<
 		StatsReportParams & { deviceProperty?: StatsDeviceProperty },
@@ -32,8 +43,7 @@ export function useStatsDevices( params: StatsDevicesParams, options?: StatsDevi
 		'devices',
 		{
 			...queryOptions,
-			mergeComparisonRows: ( primary, comparison ) =>
-				mergeStatsDevicesComparisonRows( primary, comparison, maxRows ),
+			mergeComparisonRows,
 		}
 	);
 }

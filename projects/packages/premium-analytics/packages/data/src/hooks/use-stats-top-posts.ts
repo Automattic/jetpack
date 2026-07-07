@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { useCallback } from 'react';
+/**
  * Internal dependencies
  */
 import { mergeStatsTopPostsComparisonRows } from '../processing/stats';
@@ -19,6 +23,13 @@ type StatsTopPostsOptions = UseStatsOptions & {
 
 export function useStatsTopPosts( params: StatsReportParams, options?: StatsTopPostsOptions ) {
 	const { maxRows, postTypes, ...queryOptions } = options ?? {};
+	const mergeComparisonRows = useCallback(
+		(
+			primary?: StatsNormalizedReport< StatsTopPostsItem >,
+			comparison?: StatsNormalizedReport< StatsTopPostsItem >
+		) => mergeStatsTopPostsComparisonRows( primary, comparison, { maxRows, postTypes } ),
+		[ maxRows, postTypes ]
+	);
 
 	return useStatsReport<
 		StatsReportParams,
@@ -26,7 +37,6 @@ export function useStatsTopPosts( params: StatsReportParams, options?: StatsTopP
 		StatsTopPostsComparisonItem
 	>( statsTopPostsQuery, params, 'top-posts', {
 		...queryOptions,
-		mergeComparisonRows: ( primary, comparison ) =>
-			mergeStatsTopPostsComparisonRows( primary, comparison, { maxRows, postTypes } ),
+		mergeComparisonRows,
 	} );
 }

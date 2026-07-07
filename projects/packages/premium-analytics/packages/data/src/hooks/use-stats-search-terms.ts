@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { useCallback } from 'react';
+/**
  * Internal dependencies
  */
 import { mergeStatsSearchTermsComparisonRows } from '../processing/stats';
@@ -21,6 +25,13 @@ export function useStatsSearchTerms(
 	options?: StatsSearchTermsOptions
 ) {
 	const { maxRows, ...queryOptions } = options ?? {};
+	const mergeComparisonRows = useCallback(
+		(
+			primary?: StatsNormalizedReport< StatsSearchTermsItem >,
+			comparison?: StatsNormalizedReport< StatsSearchTermsItem >
+		) => mergeStatsSearchTermsComparisonRows( primary, comparison, maxRows ),
+		[ maxRows ]
+	);
 
 	return useStatsReport<
 		StatsReportParams,
@@ -28,7 +39,6 @@ export function useStatsSearchTerms(
 		StatsSearchTermsComparisonItem
 	>( statsSearchTermsQuery, params, 'search-terms', {
 		...queryOptions,
-		mergeComparisonRows: ( primary, comparison ) =>
-			mergeStatsSearchTermsComparisonRows( primary, comparison, maxRows ),
+		mergeComparisonRows,
 	} );
 }

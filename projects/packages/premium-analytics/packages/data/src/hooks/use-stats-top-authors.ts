@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { useCallback } from 'react';
+/**
  * Internal dependencies
  */
 import { mergeStatsTopAuthorsComparisonRows } from '../processing/stats';
@@ -18,6 +22,13 @@ type StatsTopAuthorsOptions = UseStatsOptions & {
 
 export function useStatsTopAuthors( params: StatsReportParams, options?: StatsTopAuthorsOptions ) {
 	const { maxRows, ...queryOptions } = options ?? {};
+	const mergeComparisonRows = useCallback(
+		(
+			primary?: StatsNormalizedReport< StatsTopAuthorsItem >,
+			comparison?: StatsNormalizedReport< StatsTopAuthorsItem >
+		) => mergeStatsTopAuthorsComparisonRows( primary, comparison, maxRows ),
+		[ maxRows ]
+	);
 
 	return useStatsReport<
 		StatsReportParams,
@@ -25,7 +36,6 @@ export function useStatsTopAuthors( params: StatsReportParams, options?: StatsTo
 		StatsTopAuthorsComparisonItem
 	>( statsTopAuthorsQuery, params, 'top-authors', {
 		...queryOptions,
-		mergeComparisonRows: ( primary, comparison ) =>
-			mergeStatsTopAuthorsComparisonRows( primary, comparison, maxRows ),
+		mergeComparisonRows,
 	} );
 }

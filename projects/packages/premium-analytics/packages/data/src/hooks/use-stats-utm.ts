@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { useCallback } from 'react';
+/**
  * Internal dependencies
  */
 import { mergeStatsUtmComparisonRows } from '../processing/stats';
@@ -16,6 +20,11 @@ type StatsUtmOptions = UseStatsOptions & {
 
 export function useStatsUtm( params: StatsUtmParams, options?: StatsUtmOptions ) {
 	const { maxRows, ...queryOptions } = options ?? {};
+	const mergeComparisonRows = useCallback(
+		( primary?: StatsUtmResponse, comparison?: StatsUtmResponse ) =>
+			mergeStatsUtmComparisonRows( primary, comparison, maxRows ),
+		[ maxRows ]
+	);
 
 	return useStatsReport< StatsUtmParams, StatsUtmResponse, StatsUtmComparisonItem >(
 		statsUtmQuery,
@@ -23,8 +32,7 @@ export function useStatsUtm( params: StatsUtmParams, options?: StatsUtmOptions )
 		[ 'stats', 'utm', '__comparison__', 'disabled' ],
 		{
 			...queryOptions,
-			mergeComparisonRows: ( primary, comparison ) =>
-				mergeStatsUtmComparisonRows( primary, comparison, maxRows ),
+			mergeComparisonRows,
 		}
 	);
 }

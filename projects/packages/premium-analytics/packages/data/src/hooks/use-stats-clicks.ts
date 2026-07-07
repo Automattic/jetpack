@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { useCallback } from 'react';
+/**
  * Internal dependencies
  */
 import { mergeStatsClicksComparisonRows } from '../processing/stats';
@@ -18,6 +22,13 @@ type StatsClicksOptions = UseStatsOptions & {
 
 export function useStatsClicks( params: StatsReportParams, options?: StatsClicksOptions ) {
 	const { maxRows, ...queryOptions } = options ?? {};
+	const mergeComparisonRows = useCallback(
+		(
+			primary?: StatsNormalizedReport< StatsClicksItem >,
+			comparison?: StatsNormalizedReport< StatsClicksItem >
+		) => mergeStatsClicksComparisonRows( primary, comparison, maxRows ),
+		[ maxRows ]
+	);
 
 	return useStatsReport<
 		StatsReportParams,
@@ -25,7 +36,6 @@ export function useStatsClicks( params: StatsReportParams, options?: StatsClicks
 		StatsClicksComparisonItem
 	>( statsClicksQuery, params, 'clicks', {
 		...queryOptions,
-		mergeComparisonRows: ( primary, comparison ) =>
-			mergeStatsClicksComparisonRows( primary, comparison, maxRows ),
+		mergeComparisonRows,
 	} );
 }

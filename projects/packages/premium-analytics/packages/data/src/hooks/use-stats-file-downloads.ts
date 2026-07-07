@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { useCallback } from 'react';
+/**
  * Internal dependencies
  */
 import { mergeStatsFileDownloadsComparisonRows } from '../processing/stats';
@@ -21,6 +25,13 @@ export function useStatsFileDownloads(
 	options?: StatsFileDownloadsOptions
 ) {
 	const { maxRows, ...queryOptions } = options ?? {};
+	const mergeComparisonRows = useCallback(
+		(
+			primary?: StatsNormalizedReport< StatsFileDownloadsItem >,
+			comparison?: StatsNormalizedReport< StatsFileDownloadsItem >
+		) => mergeStatsFileDownloadsComparisonRows( primary, comparison, maxRows ),
+		[ maxRows ]
+	);
 
 	return useStatsReport<
 		StatsReportParams,
@@ -28,7 +39,6 @@ export function useStatsFileDownloads(
 		StatsFileDownloadsComparisonItem
 	>( statsFileDownloadsQuery, params, 'file-downloads', {
 		...queryOptions,
-		mergeComparisonRows: ( primary, comparison ) =>
-			mergeStatsFileDownloadsComparisonRows( primary, comparison, maxRows ),
+		mergeComparisonRows,
 	} );
 }
