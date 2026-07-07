@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: bugfix
 
 Stats: detect clicks on relocated upload directories (e.g. multisite /files/) by passing the effective uploads path to the tracker.

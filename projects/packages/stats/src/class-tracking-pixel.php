@@ -125,10 +125,11 @@ class Tracking_Pixel {
 
 		// Pass the effective uploads URL path so the click tracker can match
 		// relocated upload directories (e.g. multisite /files/).
-		$upload_dir  = wp_get_upload_dir();
-		$upload_path = $upload_dir['baseurl'] ?? '';
-		$upload_path = trailingslashit( $upload_path );
-		$upload_path = wp_parse_url( $upload_path, PHP_URL_PATH ) ?: '/wp-content/uploads/';
+		$upload_dir      = wp_get_upload_dir();
+		$upload_path     = $upload_dir['baseurl'] ?? '';
+		$upload_path     = trailingslashit( $upload_path );
+		$upload_url_path = wp_parse_url( $upload_path, PHP_URL_PATH );
+		$upload_path     = $upload_url_path ? $upload_url_path : '/wp-content/uploads/';
 		$view_data['nu'] = $upload_path;
 
 		return $view_data;
@@ -191,9 +192,10 @@ class Tracking_Pixel {
 
 		// Derive the site's uploads URL path so the click tracker can match
 		// relocated upload directories (e.g. multisite /files/).
-		$upload_path = wp_get_upload_dir()['baseurl'] ?? '';
-		$upload_path = trailingslashit( $upload_path );
-		$upload_path = wp_parse_url( $upload_path, PHP_URL_PATH ) ?: '/wp-content/uploads/';
+		$upload_baseurl = wp_get_upload_dir()['baseurl'] ?? '';
+		$upload_baseurl = trailingslashit( $upload_baseurl );
+		$upload_url     = wp_parse_url( $upload_baseurl, PHP_URL_PATH );
+		$upload_path    = $upload_url ? $upload_url : '/wp-content/uploads/';
 
 		$output = sprintf(
 			'_stq = window._stq || [];
@@ -209,18 +211,17 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 		// are still captured. The WPCOM tracker only matches /wp-content/uploads/
 		// by default, so we supplement it here via event delegation.
 		if ( '/wp-content/uploads/' !== $upload_path ) {
-			$escaped_path = esc_js( $upload_path );
 			$output .= sprintf(
 				"\n( function() {\n" .
-				"\tvar uploadUrl = '%1\$s';\n" .
+				"\tvar uploadUrl = %1\$s;\n" .
 				"\tdocument.addEventListener( 'click', function( e ) {\n" .
 				"\t\tvar el = e.target.closest( 'a' );\n" .
 				"\t\tif ( ! el || ! el.href ) return;\n" .
 				"\t\tif ( ! el.href.includes( uploadUrl ) ) return;\n" .
 				"\t\twindow._stq && _stq.push( [ 'click', { s: '2', u: el.href, r: document.referrer, b: '%2\$s', p: '%3\$s' } ] );\n" .
 				"\t} );\n" .
-				"} )();",
-				$escaped_path,
+				'}();',
+				wp_json_encode( $upload_path, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ),
 				$blog_id,
 				$post_id
 			);
