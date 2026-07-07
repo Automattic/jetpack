@@ -122,6 +122,34 @@ const orderAttributionMockMap: Record< string, object > = {
 const requestCounters: Record< string, number > = {};
 
 /**
+ * Forced response state for a request path fragment, so stories can exercise a
+ * widget's loading, error, and empty UI. `error` rejects the request; `loading`
+ * returns a promise that never settles; `empty` resolves with a valid response
+ * that has no rows.
+ */
+type ReportMockState = 'error' | 'loading' | 'empty';
+
+const mockStateOverrides = new Map< string, ReportMockState >();
+
+/**
+ * Force every request whose path contains `pathFragment` into a loading or error
+ * state, or clear the override with `null`. Intended for a story's `beforeEach`
+ * (set on enter, clear on cleanup). Because the override is keyed by path, scope
+ * stories that use it out of the shared autodocs page (`tags: [ '!autodocs' ]`)
+ * so it cannot bleed into sibling stories rendered alongside it.
+ *
+ * @param pathFragment - Substring matched against the request path (e.g. `stats/search-terms`).
+ * @param state        - The forced state, or `null` to clear.
+ */
+export function setReportMockState( pathFragment: string, state: ReportMockState | null ): void {
+	if ( state === null ) {
+		mockStateOverrides.delete( pathFragment );
+	} else {
+		mockStateOverrides.set( pathFragment, state );
+	}
+}
+
+/**
  * Returns true if the current request for the given endpoint key is the
  * comparison request (every other request), then advances the counter.
  *
@@ -942,6 +970,28 @@ function buildVideoPlaysResponse( requestPath: string ) {
 
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
+
+	for ( const [ fragment, state ] of mockStateOverrides ) {
+		if ( ! requestPath.includes( fragment ) ) {
+			continue;
+		}
+		if ( state === 'loading' ) {
+			// Never settles: the query stays in its loading state.
+			return new Promise< never >( () => {} );
+		}
+		if ( state === 'empty' ) {
+			// A valid response with no rows across the shapes report sanitizers read
+			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
+			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
+		}
+		// A 403 is not retried by `shouldRetryApiError`, so the error UI shows at
+		// once instead of after the query's retry backoff.
+		return Promise.reject( {
+			code: 'stats_mock_error',
+			message: 'Mocked error response for Storybook.',
+			data: { status: 403 },
+		} );
+	}
 
 	if ( requestPath.startsWith( WP_SETTINGS_PATH ) ) {
 		return coreSettingsMock;
