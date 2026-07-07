@@ -72,7 +72,7 @@ export type {
 	PieSemiCircleChartProps,
 	PieSemiCircleChartRenderTooltipParams,
 } from './charts/pie-semi-circle-chart';
-export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
+export type { GeoChartProps, GeoRegion, GeoResolution, GeoDisplayMode } from './charts/geo-chart';
 export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
