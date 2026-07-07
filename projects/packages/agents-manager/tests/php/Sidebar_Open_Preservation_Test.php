@@ -95,7 +95,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		if ( function_exists( 'set_current_screen' ) ) {
 			set_current_screen( 'front' );
 		}
-		unset( $GLOBALS['current_screen'], $GLOBALS['pagenow'] );
+		unset( $GLOBALS['current_screen'], $GLOBALS['pagenow'], $_GET['canvas'] );
 
 		parent::tear_down();
 	}
@@ -433,17 +433,40 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the shell is still pre-rendered on an editor screen when
-	 * fullscreen mode is on (the default), where the chat docks.
+	 * Tests that the shell is pre-rendered in the Site Editor editing canvas
+	 * (`?canvas=edit`), where the chat docks.
 	 */
-	public function test_pre_renders_on_fullscreen_editor() {
+	public function test_pre_renders_on_site_editor_canvas() {
 		$this->enable_preservation();
 		$this->cache_open_state( true );
 		$GLOBALS['pagenow'] = 'site-editor.php';
+		$_GET['canvas']     = 'edit';
 		$this->set_fullscreen_preference( 'core/edit-site', true );
 
 		$result = $this->preservation->add_preopen_body_classes( 'foo bar' );
 
 		$this->assertStringContainsString( self::SIDEBAR_OPEN_CLASS, $result );
+	}
+
+	/**
+	 * Tests that nothing is pre-rendered on the Site Editor navigation view (no
+	 * `?canvas=edit`), where the chat can't dock.
+	 */
+	public function test_does_not_pre_render_on_site_editor_navigation() {
+		$this->enable_preservation();
+		$this->cache_open_state( true );
+		$GLOBALS['pagenow'] = 'site-editor.php';
+
+		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
+
+		// Stub the gate script so the empty output proves the navigation-view gate
+		// suppresses it, not a missing build file.
+		$gate_script   = '/* gate */';
+		$expected_path = dirname( __DIR__, 2 ) . '/src/../build/sidebar-docking-gate.js';
+		$this->stub_filesystem( $gate_script, $expected_path );
+
+		ob_start();
+		$this->preservation->print_sidebar_docking_gate_script();
+		$this->assertSame( '', ob_get_clean() );
 	}
 }

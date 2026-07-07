@@ -23,6 +23,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WpOrg\Requests\Requests;
 
 /**
@@ -801,6 +803,58 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * On a Simple site, where the wp-admin plugin screens aren't reachable, both the install (not-installed) and
+	 * activate (installed-but-inactive) CTAs point at the Calypso WooCommerce plugin page. Runs in a separate
+	 * process so defining IS_WPCOM doesn't leak into the rest of the suite.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_woocommerce_ctas_target_calypso_on_simple() {
+		define( 'IS_WPCOM', true );
+		wp_set_current_user( $this->admin_id );
+		$calypso = '/plugins/woocommerce/' . rawurlencode( wpcom_get_site_slug() );
+
+		// Not installed: the install CTA routes to Calypso instead of plugin-install.php.
+		update_option( 'active_plugins', array() );
+		$install = $this->sell_tasks_by_id()['install_woocommerce'];
+		$this->assertFalse( $install['in_progress'] );
+		$this->assertSame( $calypso, $install['calypso_path'] );
+
+		// Installed but inactive: the activate CTA routes to Calypso instead of plugins.php.
+		wp_cache_set( 'plugins', array( '' => array( 'woocommerce/woocommerce.php' => array( 'Name' => 'WooCommerce' ) ) ), 'plugins' );
+		$install = $this->sell_tasks_by_id()['install_woocommerce'];
+		wp_cache_delete( 'plugins', 'plugins' );
+
+		$this->assertTrue( $install['in_progress'] );
+		$this->assertSame( $calypso, $install['calypso_path'] );
+	}
+
+	/**
+	 * Any catalog task whose CTA resolves to a wp-admin plugins screen is routed to the Calypso plugins page on
+	 * Simple. Uses `install_custom_plugin`, whose catalog path is `plugins.php` under the wp-admin interface.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_routes_catalog_plugin_ctas_to_calypso_on_simple() {
+		define( 'IS_WPCOM', true );
+		wp_set_current_user( $this->admin_id );
+		// Force the catalog's plugin task to resolve to plugins.php (its wp-admin-interface branch).
+		update_option( 'wpcom_admin_interface', 'wp-admin' );
+		$this->seed_ai_output_with_tasks( array( 'install_custom_plugin', 'site_launched' ) );
+
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		$this->assertArrayHasKey( 'install_custom_plugin', $tasks );
+		$this->assertSame( '/plugins/' . rawurlencode( wpcom_get_site_slug() ), $tasks['install_custom_plugin']['calypso_path'] );
+	}
+
+	/**
 	 * Once WooCommerce is active the install task shows complete and the setup task appears with the wizard CTA.
 	 */
 	public function test_get_completes_install_and_offers_setup_when_active() {
@@ -1240,6 +1294,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$result = $this->call_api( 'POST', '/complete-task', array( 'task_id' => 'complete_profile' ) );
 		$this->assertSame( 403, $result->get_status() );
 
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'complete_profile' ) );
+		$this->assertSame( 403, $result->get_status() );
+
 		$result = $this->call_api( Requests::DELETE );
 		$this->assertSame( 403, $result->get_status() );
 
@@ -1427,6 +1484,171 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that POST /skip-task persists the skip and GET renders the task as skipped and completed, so a
+	 * skip survives reloads and counts toward completion.
+	 */
+	public function test_skip_task_persists_and_renders_completed() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data()['skipped'] );
+
+		$tasks = array();
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			$tasks[ $task['id'] ] = $task;
+		}
+
+		$this->assertTrue( $tasks['first_post_published']['skipped'] );
+		$this->assertTrue( $tasks['first_post_published']['completed'] );
+		$this->assertFalse( $tasks['site_launched']['skipped'] );
+		$this->assertFalse( $tasks['site_launched']['completed'] );
+		// The skip lives in its own option, never in the shared statuses (several catalog tasks
+		// recompute completion live and would ignore a status write).
+		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
+	}
+
+	/**
+	 * Test that reading the launchpad leaves the cached completion flag unset while any task is incomplete, so the
+	 * menu keeps showing.
+	 */
+	public function test_get_leaves_completed_flag_unset_while_incomplete() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$this->call_api( Requests::GET );
+
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
+	}
+
+	/**
+	 * Test that reading the launchpad sets the cached completion flag once every task is completed or skipped, so the
+	 * menu gate can hide the screen without rebuilding the list.
+	 */
+	public function test_get_sets_completed_flag_when_all_done() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		// Skipping every task coerces each to completed, so the list reads as done.
+		update_option( 'wpcom_ai_launchpad_skipped_tasks', array( 'first_post_published', 'site_launched' ), false );
+
+		$this->call_api( Requests::GET );
+
+		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ) );
+	}
+
+	/**
+	 * Test that the completion flag latches: once set, reading the launchpad keeps it set even if a task now reads
+	 * incomplete, so a task that un-completes does not bring the launchpad back (only an explicit reset does).
+	 */
+	public function test_completed_flag_is_latched() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		update_option( 'wpcom_ai_launchpad_completed', true, true );
+
+		$this->call_api( Requests::GET );
+
+		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ) );
+	}
+
+	/**
+	 * Test that skipping the final task refreshes the cached flag immediately, so the menu hides on the next page
+	 * load without waiting for another launchpad read.
+	 */
+	public function test_skip_final_task_sets_completed_flag() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ), 'still incomplete after one skip' );
+
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'site_launched' ) );
+		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ), 'complete after skipping the last task' );
+	}
+
+	/**
+	 * Test that skipping the same task twice stores it once.
+	 */
+	public function test_skip_task_is_idempotent() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$repeat = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$this->assertSame( 200, $repeat->get_status(), 'skipping an already-skipped task still succeeds' );
+
+		$this->assertSame( array( 'first_post_published' ), get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+	}
+
+	/**
+	 * Test that the synthetic tasks (absent from the AI payload by design) are skippable too.
+	 */
+	public function test_skip_task_accepts_synthetic_gallery_task() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'portfolio', 'wildlife photography' );
+
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'add_gallery_page' ) );
+		$this->assertSame( 200, $result->get_status() );
+
+		$tasks = array();
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			$tasks[ $task['id'] ] = $task;
+		}
+
+		$this->assertTrue( $tasks['add_gallery_page']['skipped'] );
+		$this->assertTrue( $tasks['add_gallery_page']['completed'] );
+	}
+
+	/**
+	 * Test that POST /skip-task rejects a task that is neither on the site's AI list nor synthetic.
+	 */
+	public function test_skip_task_rejects_task_not_on_list() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'earn_money' ) );
+
+		$this->assertSame( 404, $result->get_status() );
+		$this->assertSame( 'ai_launchpad_task_not_skippable', $result->get_data()['code'] );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+	}
+
+	/**
+	 * Test that writing a fresh tailored list clears the previous list's skips and the cached completion flag (a new
+	 * all-incomplete list is never done).
+	 */
+	public function test_tailored_write_clears_skips_and_completed_flag() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$this->assertNotFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+		update_option( 'wpcom_ai_launchpad_completed', true, true );
+
+		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload() );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
+	}
+
+	/**
+	 * Test that the add_subscribe_block CTA is repointed to the editor surface where the Subscribe block
+	 * can actually be added (the catalog sends it to Newsletter settings, where it cannot). On the test
+	 * environment's classic theme that surface is the block-based widget editor.
+	 */
+	public function test_get_overrides_subscribe_block_cta() {
+		wp_set_current_user( $this->admin_id );
+
+		$paths = array();
+		foreach ( $this->call_api( Requests::GET, '', null, array( 'all_tasks' => '1' ) )->get_data()['tasks'] as $task ) {
+			$paths[ $task['id'] ] = $task['calypso_path'];
+		}
+
+		$this->assertSame( admin_url( 'widgets.php' ), $paths['add_subscribe_block'] );
+	}
+
+	/**
 	 * Test that DELETE removes the AI output, sets dismissed, and leaves statuses untouched.
 	 */
 	public function test_delete_dismisses_and_keeps_statuses() {
@@ -1443,12 +1665,16 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			false
 		);
 		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+		update_option( 'wpcom_ai_launchpad_skipped_tasks', array( 'site_title' ), false );
+		update_option( 'wpcom_ai_launchpad_completed', true, true );
 
 		$result = $this->call_api( Requests::DELETE );
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( array( 'dismissed' => true ), $result->get_data() );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_ai_output' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
 		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_dismissed' ) );
 		$this->assertSame( array( 'first_post_published' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
 	}

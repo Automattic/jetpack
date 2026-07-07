@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-podcast",
-	"description": "Jetpack Podcast functionality (Simple and Atomic only).",
+	"description": "Jetpack Podcast: the wp-admin podcasting experience, REST settings, and RSS feed customization.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {

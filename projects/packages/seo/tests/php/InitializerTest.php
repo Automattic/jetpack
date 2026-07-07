@@ -265,6 +265,9 @@ class InitializerTest extends TestCase {
 
 		$this->assertArrayHasKey( 'sitemap_active', $settings );
 		$this->assertArrayHasKey( 'canonical_active', $settings );
+		$this->assertArrayHasKey( 'schema', $settings );
+		$this->assertArrayHasKey( 'organization', $settings['schema'] );
+		$this->assertArrayHasKey( 'defaults', $settings['schema'] );
 		$this->assertTrue( $settings['sitemap_active'] );
 		$this->assertFalse( $settings['canonical_active'] );
 

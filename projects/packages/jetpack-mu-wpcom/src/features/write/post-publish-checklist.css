@@ -161,6 +161,43 @@
 	background: #2e49d9;
 }
 
+/* Secondary action in the confirm-your-email step: resend verification mail. */
+.wpcom-write-ppc__resend {
+	display: block;
+	width: 100%;
+	margin-top: 8px;
+	padding: 12px 16px;
+	border: 1px solid #3858e9;
+	border-radius: 4px;
+	background: transparent;
+	color: #3858e9;
+	font-size: 15px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.wpcom-write-ppc__resend:hover {
+	background: #f0f3ff;
+}
+
+.wpcom-write-ppc__launch:disabled,
+.wpcom-write-ppc__resend:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+/* Feedback line for resend / re-check outcomes in the confirm step. */
+.wpcom-write-ppc__status {
+	margin: 12px 0 0;
+	font-size: 13px;
+	line-height: 1.4;
+	color: #6d6d6d;
+}
+
+.wpcom-write-ppc__status:empty {
+	display: none;
+}
+
 .wpcom-write-ppc__dismiss {
 	display: block;
 	width: 100%;

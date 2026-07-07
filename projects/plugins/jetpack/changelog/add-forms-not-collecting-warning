@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Forms: warn admins and editors when a form isn't collecting responses (email and saving both off, no integration).

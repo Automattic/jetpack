@@ -11,7 +11,7 @@ export const payment = (
 		/>
 		<Path
 			d="M36.0623 22.0361H3.87319C1.39933 22.0361 0 23.4173 0 25.8798V44.1543C0 46.6168 1.40156 47.9979 3.87542 47.9979H36.0623C38.5361 47.9979 39.9355 46.6168 39.9355 44.1543V25.8798C39.9355 23.4173 38.5339 22.0361 36.0601 22.0361H36.0623Z"
-			fill="var(--wpds-color-bg-surface-neutral-weak, #F0F0F0)"
+			fill="var(--wpds-color-background-surface-neutral-weak, #F0F0F0)"
 		/>
 		<Path
 			d="M39.9355 28.0732H0V32.2433H39.9355V28.0732Z"
