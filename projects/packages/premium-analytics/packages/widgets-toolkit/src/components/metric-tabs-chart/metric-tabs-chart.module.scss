@@ -1,3 +1,11 @@
+/* The select popup portals to <body>, where it paints behind admin-ui's
+ * `z-index: 1` Page unless this consumer opt-in variable is set (globally —
+ * the popup is outside this component's subtree). 1000000 matches the
+ * wp-admin popover layer. */
+:global(:root) {
+	--wp-ui-select-z-index: 1000000;
+}
+
 .root {
 	container-type: inline-size;
 	display: flex;
@@ -10,45 +18,59 @@
 .header {
 	display: flex;
 	flex-direction: row;
+	flex-wrap: wrap;
 	justify-content: space-between;
 	align-items: flex-start;
 	flex-shrink: 0;
 	gap: var(--wpds-dimension-gap-md, 16px);
 }
 
-/* The metric tab list: a row of cards that wrap (not a text tab bar). */
+/* The metric tab list: a row of cards that wrap (not a text tab bar).
+ * `overflow: visible` overrides the toolkit tablist's horizontal scroll —
+ * the narrow case collapses to the dropdown instead. */
 .tabs {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--wpds-dimension-gap-sm, 8px);
 	min-width: 0;
+	overflow: visible;
 }
 
-/* On a narrow tile the metric cards squeeze into one cramped row. Stack the
- * header so the tabs get the full width, and lay the cards out in an even
- * two-column grid (a balanced 2 x 2 for the four-metric traffic chart). */
-@container (max-width: 420px) {
+/* Dropdown mode (narrow tiles): the selected-metric card is the trigger. */
+.picker {
+	display: flex;
+	flex: 1 1 auto;
+	min-width: 0;
+}
 
-	.header {
-		flex-direction: column;
-		align-items: stretch;
-	}
+.metricSelect {
+	flex: 1 1 auto;
+	min-width: 0;
+}
 
-	.tabs {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+/* Unset the trigger's fixed 40px height and pad it like a card so the stacked
+ * label + value + delta fit. The height lives on the trigger wrapper, whose
+ * rule sits in a low-priority @layer, so this unlayered override wins. */
+.metricSelect [class*="trigger-wrapper"] {
+	height: auto;
+	padding-block: var(--wpds-dimension-padding-sm, 8px);
+}
 
-		/* The toolkit tab list is `fit-content`, which `align-items: stretch`
-		 * can't widen; force it to fill so the two columns split the row. */
-		width: 100%;
-	}
+/* Draw the focus ring inside the card; the default outset ring gets clipped
+ * by the widget chrome's `overflow: auto`. */
+.tab,
+.metricSelect [class*="trigger-wrapper"] {
+	outline-offset: calc(-1 * var(--wpds-border-width-focus, 1.5px));
+}
+
+.metricSelect button {
+	width: 100%;
+	text-align: start;
 }
 
 .tab {
 	height: auto;
-	padding:
-		var(--wpds-dimension-padding-sm, 8px)
-		var(--wpds-dimension-padding-md, 12px);
+	padding: var(--wpds-dimension-padding-sm, 8px) var(--wpds-dimension-padding-md, 12px);
 	border-radius: var(--wpds-border-radius-md, 4px);
 }
 
@@ -84,9 +106,8 @@
 	color: var(--wpds-color-fg-content-neutral-weak);
 }
 
-/* Anchors the absolutely positioned loading overlay. The chart fills the room
- * left under the cards and shrinks with the tile (the component hides it once
- * the tile is too short), so it never overflows or clips. */
+/* Anchors the absolutely positioned loading overlay; fills the room left
+ * under the cards and shrinks with the tile. */
 .chart {
 	position: relative;
 	flex: 1 1 0;
