@@ -62,8 +62,9 @@ const withWidgetCanvas: Decorator = Story => (
 	<div
 		style={ {
 			width: '380px',
-			height: '480px',
+			height: '520px',
 			margin: '0 auto',
+			padding: '16px',
 			boxSizing: 'border-box',
 			background: '#fff',
 			border: '1px solid #e0e0e0',
