@@ -1,28 +1,20 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
-import { SelectControl, TextareaControl } from '@wordpress/components';
+import { TextareaControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Dialog, InputControl, Stack } from '@wordpress/ui';
 import { useCreatePlaylist } from '../../hooks/use-create-playlist';
-import { DEFAULT_PLAYLIST_TYPE } from '../../types/playlist';
 import { STUDIO_DIALOG_CLASS } from '../studio-dialog';
-import { PLAYLIST_TYPE_LABELS } from './fields';
-import type { PlaylistType } from '../../types/playlist';
 
 type Props = {
 	isOpen: boolean;
 	onClose: () => void;
 };
 
-const TYPE_OPTIONS = Object.entries( PLAYLIST_TYPE_LABELS ).map( ( [ value, label ] ) => ( {
-	value,
-	label,
-} ) );
-
 /**
- * Dialog for creating a playlist: required name, type select, and optional
- * description. Owns the create mutation; on success it notifies and closes,
- * and the playlists query invalidation refreshes the listing behind it.
+ * Dialog for creating a playlist: required name and optional description.
+ * Owns the create mutation; on success it notifies and closes, and the
+ * playlists query invalidation refreshes the listing behind it.
  *
  * @param props         - Component props.
  * @param props.isOpen  - Whether the dialog is open.
@@ -31,7 +23,6 @@ const TYPE_OPTIONS = Object.entries( PLAYLIST_TYPE_LABELS ).map( ( [ value, labe
  */
 export default function CreatePlaylistModal( { isOpen, onClose }: Props ) {
 	const [ name, setName ] = useState( '' );
-	const [ type, setType ] = useState< PlaylistType >( DEFAULT_PLAYLIST_TYPE );
 	const [ description, setDescription ] = useState( '' );
 	const { mutate: createPlaylist, isPending } = useCreatePlaylist();
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
@@ -41,7 +32,6 @@ export default function CreatePlaylistModal( { isOpen, onClose }: Props ) {
 	useEffect( () => {
 		if ( isOpen ) {
 			setName( '' );
-			setType( DEFAULT_PLAYLIST_TYPE );
 			setDescription( '' );
 		}
 	}, [ isOpen ] );
@@ -56,7 +46,6 @@ export default function CreatePlaylistModal( { isOpen, onClose }: Props ) {
 		createPlaylist(
 			{
 				name: name.trim(),
-				type,
 				...( trimmedDescription ? { description: trimmedDescription } : {} ),
 			},
 			{
@@ -97,14 +86,6 @@ export default function CreatePlaylistModal( { isOpen, onClose }: Props ) {
 							value={ name }
 							onValueChange={ next => setName( next ) }
 							required
-						/>
-						<SelectControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'Type', 'jetpack-videopress-pkg' ) }
-							value={ type }
-							options={ TYPE_OPTIONS }
-							onChange={ next => setType( next as PlaylistType ) }
 						/>
 						<TextareaControl
 							__nextHasNoMarginBottom

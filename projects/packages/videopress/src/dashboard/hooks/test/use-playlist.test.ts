@@ -15,7 +15,6 @@ describe( 'usePlaylist', () => {
 				count: 2,
 				meta: {
 					vps_playlist_artwork_id: 42,
-					vps_playlist_type: 'series',
 					vps_playlist_order: [ 5, 9 ],
 				},
 			};
@@ -31,7 +30,6 @@ describe( 'usePlaylist', () => {
 			description: 'How-to videos',
 			count: 2,
 			artworkId: 42,
-			type: 'series',
 			order: [ 5, 9 ],
 		} );
 	} );

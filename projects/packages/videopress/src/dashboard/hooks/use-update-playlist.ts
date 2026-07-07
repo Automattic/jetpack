@@ -4,22 +4,19 @@ import { toPlaylist } from '../types/playlist';
 import { PLAYLISTS_QUERY_KEY, PLAYLISTS_REST_PATH } from './use-playlists';
 import type { ApiPlaylistTerm, Playlist } from '../types/playlist';
 
-export type PlaylistPatch = Partial<
-	Pick< Playlist, 'name' | 'description' | 'type' | 'artworkId' >
->;
+export type PlaylistPatch = Partial< Pick< Playlist, 'name' | 'description' | 'artworkId' > >;
 
 type ApiPatch = {
 	name?: string;
 	description?: string;
 	meta?: {
-		vps_playlist_type?: string;
 		vps_playlist_artwork_id?: number;
 	};
 };
 
 /**
  * Convert a UI PlaylistPatch to the terms REST request body. Name and
- * description are core term fields; type and artwork ride in `meta`. A null
+ * description are core term fields; artwork rides in `meta`. A null
  * artworkId writes 0, which is the "no artwork" empty value for the
  * integer meta.
  *
@@ -35,9 +32,6 @@ export function patchToApi( patch: PlaylistPatch ): ApiPatch {
 		out.description = patch.description;
 	}
 	const meta: ApiPatch[ 'meta' ] = {};
-	if ( patch.type !== undefined ) {
-		meta.vps_playlist_type = patch.type;
-	}
 	if ( patch.artworkId !== undefined ) {
 		meta.vps_playlist_artwork_id = patch.artworkId ?? 0;
 	}
@@ -48,9 +42,9 @@ export function patchToApi( patch: PlaylistPatch ): ApiPatch {
 }
 
 /**
- * Return a mutation that updates a playlist's name, description, type, or
- * artwork via POST /wp/v2/videopress-playlists/{id}. Empty patches send no
- * request. The playlists cache is invalidated on settle.
+ * Return a mutation that updates a playlist's name, description, or artwork
+ * via POST /wp/v2/videopress-playlists/{id}. Empty patches send no request.
+ * The playlists cache is invalidated on settle.
  *
  * @return A TanStack Query mutation object resolving to the updated Playlist
  * (or undefined for an empty patch).

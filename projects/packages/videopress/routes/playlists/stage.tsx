@@ -16,7 +16,7 @@ import './style.scss';
 import type { Playlist } from '../../src/dashboard/types/playlist';
 import type { SupportedLayouts, View } from '@wordpress/dataviews';
 
-const TABLE_VISIBLE_FIELDS = [ 'type', 'count' ];
+const TABLE_VISIBLE_FIELDS = [ 'count' ];
 
 const DEFAULT_VIEW: View = {
 	type: 'table',

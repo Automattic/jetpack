@@ -1,13 +1,12 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { SelectControl, TextareaControl } from '@wordpress/components';
+import { TextareaControl } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Button, Card, EmptyState, InputControl, Stack, Text } from '@wordpress/ui';
 import { PlaylistDetailArtwork } from '../../src/dashboard/components/playlists/artwork-field';
-import { PLAYLIST_TYPE_LABELS } from '../../src/dashboard/components/playlists/fields';
 import SortableVideoList from '../../src/dashboard/components/playlists/sortable-video-list';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import { usePlaylist } from '../../src/dashboard/hooks/use-playlist';
@@ -19,12 +18,7 @@ import { isStudioEnabled } from '../../src/dashboard/utils/studio';
 import './style.scss';
 import type { PlaylistVideo } from '../../src/dashboard/hooks/use-playlist-videos';
 import type { PlaylistPatch } from '../../src/dashboard/hooks/use-update-playlist';
-import type { Playlist, PlaylistType } from '../../src/dashboard/types/playlist';
-
-const TYPE_OPTIONS = Object.entries( PLAYLIST_TYPE_LABELS ).map( ( [ value, label ] ) => ( {
-	value,
-	label,
-} ) );
+import type { Playlist } from '../../src/dashboard/types/playlist';
 
 // Rendered when the flag is off (deep-link on a stale client; the flag also
 // strips this route from the server-side registry) and when the term id
@@ -69,11 +63,10 @@ const Loading = () => (
 
 /**
  * Top section card, mirroring the video details screen's ThumbnailCard shape:
- * artwork on the left (with the overlaid update menu), editable name, type
- * select, and description on the right. Name and description commit on blur
- * when dirty; type commits on change. Failed saves revert the draft to the
- * server value and surface an error notice — no explicit Save button to keep
- * in sync.
+ * artwork on the left (with the overlaid update menu), editable name and
+ * description on the right. Name and description commit on blur when dirty.
+ * Failed saves revert the draft to the server value and surface an error
+ * notice — no explicit Save button to keep in sync.
  *
  * @param props               - Component props.
  * @param props.playlist      - The playlist being edited.
@@ -96,7 +89,6 @@ const PlaylistDetailsCard = ( {
 	const { mutate: updatePlaylist } = useUpdatePlaylist();
 	const { createErrorNotice } = useGlobalNotices();
 	const [ name, setName ] = useState( playlist.name );
-	const [ type, setType ] = useState< PlaylistType >( playlist.type );
 	const [ description, setDescription ] = useState( playlist.description );
 
 	// Re-baseline the drafts when navigating between playlists. Deliberately
@@ -104,7 +96,6 @@ const PlaylistDetailsCard = ( {
 	// in-progress edit.
 	useEffect( () => {
 		setName( playlist.name );
-		setType( playlist.type );
 		setDescription( playlist.description );
 	}, [ playlist.id ] );
 
@@ -139,14 +130,6 @@ const PlaylistDetailsCard = ( {
 		}
 	};
 
-	const onTypeChange = ( next: string ) => {
-		const nextType = next as PlaylistType;
-		setType( nextType );
-		if ( nextType !== playlist.type ) {
-			saveField( { type: nextType }, () => setType( playlist.type ) );
-		}
-	};
-
 	return (
 		<Card.Root>
 			<Card.Content>
@@ -165,14 +148,6 @@ const PlaylistDetailsCard = ( {
 							onValueChange={ next => setName( next ?? '' ) }
 							onBlur={ commitName }
 							required
-						/>
-						<SelectControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'Type', 'jetpack-videopress-pkg' ) }
-							value={ type }
-							options={ TYPE_OPTIONS }
-							onChange={ onTypeChange }
 						/>
 						<TextareaControl
 							__nextHasNoMarginBottom

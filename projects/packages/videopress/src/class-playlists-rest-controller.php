@@ -15,7 +15,7 @@ use WP_REST_Terms_Controller;
  *
  * Core's WP_REST_Terms_Controller allows anonymous view-context reads of any
  * `show_in_rest` taxonomy, which would let logged-out visitors list every
- * playlist's name, description, count, and term meta (type, artwork ID, the
+ * playlist's name, description, count, and term meta (artwork ID, the
  * ordered attachment IDs) despite the taxonomy being registered `public =>
  * false`. Playlists are internal dashboard data, so reads are gated on the
  * same `upload_files` capability the taxonomy's write capabilities map to;

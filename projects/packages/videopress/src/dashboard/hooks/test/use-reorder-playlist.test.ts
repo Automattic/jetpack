@@ -22,7 +22,6 @@ const playlist = ( id: number, order: number[] ): Playlist => ( {
 	description: '',
 	count: order.length,
 	artworkId: null,
-	type: 'collection',
 	order,
 } );
 

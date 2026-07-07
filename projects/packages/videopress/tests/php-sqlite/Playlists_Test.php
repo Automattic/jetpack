@@ -88,7 +88,7 @@ class Playlists_Test extends TestCase {
 		remove_action( 'delete_attachment', array( Playlists::class, 'prune_deleted_attachment_from_playlist_order' ) );
 		remove_action( 'delete_attachment', array( Playlists::class, 'prune_deleted_attachment_from_playlist_artwork' ) );
 
-		foreach ( array( Playlists::META_ARTWORK_ID, Playlists::META_TYPE, Playlists::META_ORDER ) as $meta_key ) {
+		foreach ( array( Playlists::META_ARTWORK_ID, Playlists::META_ORDER ) as $meta_key ) {
 			unregister_meta_key( 'term', $meta_key, Playlists::TAXONOMY );
 		}
 		if ( taxonomy_exists( Playlists::TAXONOMY ) ) {
@@ -213,7 +213,7 @@ class Playlists_Test extends TestCase {
 		$this->assertSame( 'upload_files', $taxonomy->cap->delete_terms );
 		$this->assertSame( 'upload_files', $taxonomy->cap->assign_terms );
 
-		foreach ( array( Playlists::META_ARTWORK_ID, Playlists::META_TYPE, Playlists::META_ORDER ) as $meta_key ) {
+		foreach ( array( Playlists::META_ARTWORK_ID, Playlists::META_ORDER ) as $meta_key ) {
 			$this->assertTrue( registered_meta_key_exists( 'term', $meta_key, Playlists::TAXONOMY ), "Meta key '{$meta_key}' should be registered." );
 		}
 	}
@@ -260,16 +260,6 @@ class Playlists_Test extends TestCase {
 		update_term_meta( $term_id, Playlists::META_ORDER, array( '7', 7, 0, -2, 4 ) );
 
 		$this->assertSame( array( 7, 4 ), get_term_meta( $term_id, Playlists::META_ORDER, true ) );
-	}
-
-	/** Tests the type meta sanitizer: allowlisted values pass, anything else coerces to the default. */
-	public function test_sanitize_playlist_type() {
-		foreach ( Playlists::PLAYLIST_TYPES as $type ) {
-			$this->assertSame( $type, Playlists::sanitize_playlist_type( $type ) );
-		}
-		$this->assertSame( Playlists::DEFAULT_PLAYLIST_TYPE, Playlists::sanitize_playlist_type( 'bogus' ) );
-		$this->assertSame( Playlists::DEFAULT_PLAYLIST_TYPE, Playlists::sanitize_playlist_type( 123 ) );
-		$this->assertSame( Playlists::DEFAULT_PLAYLIST_TYPE, Playlists::sanitize_playlist_type( null ) );
 	}
 
 	/** Tests that deleting an attachment prunes it from every playlist's order meta. */
@@ -380,7 +370,7 @@ class Playlists_Test extends TestCase {
 		$this->assertTrue( current_user_can( 'edit_term_meta', $term_id, Playlists::META_ORDER ) );
 
 		wp_set_current_user( $this->create_user_with_role( 'administrator' ) );
-		$this->assertTrue( current_user_can( 'edit_term_meta', $term_id, Playlists::META_TYPE ) );
+		$this->assertTrue( current_user_can( 'edit_term_meta', $term_id, Playlists::META_ORDER ) );
 	}
 
 	/**

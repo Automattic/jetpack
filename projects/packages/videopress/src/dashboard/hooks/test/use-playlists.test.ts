@@ -16,7 +16,6 @@ describe( 'usePlaylists', () => {
 					count: 3,
 					meta: {
 						vps_playlist_artwork_id: 42,
-						vps_playlist_type: 'series',
 						vps_playlist_order: [ 5, 9 ],
 					},
 				},
@@ -29,7 +28,6 @@ describe( 'usePlaylists', () => {
 					// value for its type: 0 / '' / [].
 					meta: {
 						vps_playlist_artwork_id: 0,
-						vps_playlist_type: '',
 						vps_playlist_order: [],
 					},
 				},
@@ -52,7 +50,6 @@ describe( 'usePlaylists', () => {
 				description: 'How-to videos',
 				count: 3,
 				artworkId: 42,
-				type: 'series',
 				order: [ 5, 9 ],
 			},
 			{
@@ -61,17 +58,13 @@ describe( 'usePlaylists', () => {
 				description: '',
 				count: 0,
 				artworkId: null,
-				type: 'collection',
 				order: [],
 			},
 		] );
 	} );
 
-	it( 'coerces missing meta and unknown types to safe defaults', async () => {
-		mockApiFetch( async () => [
-			{ id: 3, name: 'Misc' },
-			{ id: 4, name: 'Odd', meta: { vps_playlist_type: 'mixtape' } },
-		] );
+	it( 'coerces missing meta to safe defaults', async () => {
+		mockApiFetch( async () => [ { id: 3, name: 'Misc' } ] );
 
 		const { result } = renderHook( () => usePlaylists(), { wrapper: createTestWrapper() } );
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
@@ -82,10 +75,8 @@ describe( 'usePlaylists', () => {
 			description: '',
 			count: 0,
 			artworkId: null,
-			type: 'collection',
 			order: [],
 		} );
-		expect( result.current.playlists[ 1 ].type ).toBe( 'collection' );
 	} );
 
 	it( 'reports errors instead of throwing', async () => {

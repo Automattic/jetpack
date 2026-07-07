@@ -56,32 +56,11 @@ class Playlists {
 	const META_ARTWORK_ID = 'vps_playlist_artwork_id';
 
 	/**
-	 * Term meta key holding the playlist type.
-	 *
-	 * @var string
-	 */
-	const META_TYPE = 'vps_playlist_type';
-
-	/**
 	 * Term meta key holding the ordered attachment IDs of the playlist.
 	 *
 	 * @var string
 	 */
 	const META_ORDER = 'vps_playlist_order';
-
-	/**
-	 * Allowed values for the playlist type meta.
-	 *
-	 * @var string[]
-	 */
-	const PLAYLIST_TYPES = array( 'collection', 'series', 'course', 'season' );
-
-	/**
-	 * Playlist type used when an invalid value is written outside REST.
-	 *
-	 * @var string
-	 */
-	const DEFAULT_PLAYLIST_TYPE = 'collection';
 
 	/**
 	 * Initializer.
@@ -210,24 +189,6 @@ class Playlists {
 
 		register_term_meta(
 			self::TAXONOMY,
-			self::META_TYPE,
-			array(
-				'type'              => 'string',
-				'description'       => __( 'Type of the playlist.', 'jetpack-videopress-pkg' ),
-				'single'            => true,
-				'sanitize_callback' => array( __CLASS__, 'sanitize_playlist_type' ),
-				'auth_callback'     => array( __CLASS__, 'auth_playlist_meta' ),
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type' => 'string',
-						'enum' => self::PLAYLIST_TYPES,
-					),
-				),
-			)
-		);
-
-		register_term_meta(
-			self::TAXONOMY,
 			self::META_ORDER,
 			array(
 				'type'              => 'array',
@@ -246,27 +207,6 @@ class Playlists {
 				),
 			)
 		);
-	}
-
-	/**
-	 * Sanitizes the playlist type meta value.
-	 *
-	 * Invalid values are coerced to the default type rather than rejected:
-	 * `sanitize_meta()` has no error channel, so returning anything other
-	 * than a valid value would either store garbage or silently turn the
-	 * write into a delete. REST writes are additionally validated against the
-	 * schema enum before this runs, so a 400 response still happens there;
-	 * this callback is the safety net for direct `update_term_meta()` calls.
-	 *
-	 * @param mixed $value Meta value to sanitize.
-	 * @return string One of the allowed playlist types.
-	 */
-	public static function sanitize_playlist_type( $value ) {
-		if ( is_string( $value ) && in_array( $value, self::PLAYLIST_TYPES, true ) ) {
-			return $value;
-		}
-
-		return self::DEFAULT_PLAYLIST_TYPE;
 	}
 
 	/**

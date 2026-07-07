@@ -22,7 +22,6 @@ const makePlaylist = ( overrides: Partial< Playlist > = {} ): Playlist => ( {
 	description: '',
 	count: 0,
 	artworkId: null,
-	type: 'collection',
 	order: [],
 	...overrides,
 } );

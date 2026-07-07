@@ -61,12 +61,12 @@ describe( 'CreatePlaylistModal', () => {
 		expect( calls ).toHaveLength( 0 );
 	} );
 
-	it( 'creates a playlist with trimmed name, type, and description, then closes', async () => {
+	it( 'creates a playlist with trimmed name and description, then closes', async () => {
 		const calls: { path?: string; method?: string; data?: unknown }[] = [];
 		mockApiFetch( async ( { path, method, data } ) => {
 			if ( method === 'POST' ) {
 				calls.push( { path, method, data } );
-				return { id: 12, name: 'Course videos', meta: { vps_playlist_type: 'course' } };
+				return { id: 12, name: 'Course videos' };
 			}
 			return [];
 		} );
@@ -77,7 +77,6 @@ describe( 'CreatePlaylistModal', () => {
 		} );
 
 		await userEvent.type( screen.getByLabelText( 'Name' ), '  Course videos  ' );
-		await userEvent.selectOptions( screen.getByLabelText( 'Type' ), 'course' );
 		await userEvent.type( screen.getByLabelText( 'Description' ), 'All course content' );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Create playlist' } ) );
 
@@ -88,7 +87,6 @@ describe( 'CreatePlaylistModal', () => {
 			data: {
 				name: 'Course videos',
 				description: 'All course content',
-				meta: { vps_playlist_type: 'course' },
 			},
 		} );
 		await waitFor( () => expect( onClose ).toHaveBeenCalled() );
@@ -113,10 +111,7 @@ describe( 'CreatePlaylistModal', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Create playlist' } ) );
 
 		await waitFor( () => expect( calls ).toHaveLength( 1 ) );
-		expect( calls[ 0 ].data ).toEqual( {
-			name: 'Shorts',
-			meta: { vps_playlist_type: 'collection' },
-		} );
+		expect( calls[ 0 ].data ).toEqual( { name: 'Shorts' } );
 	} );
 
 	it( 'surfaces an error notice and stays open when creation fails', async () => {
