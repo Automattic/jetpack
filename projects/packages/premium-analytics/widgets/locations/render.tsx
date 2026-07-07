@@ -18,7 +18,7 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useEffect, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 /**
@@ -35,29 +35,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type LocationsRenderAttributes = LocationsAttributes & Partial< ReportParamsFieldAttributes >;
 type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
 
-// Google GeoChart does not provide province-level maps for every country/territory.
-// Keep this list conservative so unsupported country maps fall back to highlighting
-// the selected country on the world map instead of rendering a chart error.
-const SUPPORTED_PROVINCE_MAP_COUNTRY_CODES = new Set( [
-	'AU',
-	'BR',
-	'CA',
-	'CN',
-	'DE',
-	'ES',
-	'FR',
-	'GB',
-	'IN',
-	'IT',
-	'JP',
-	'MX',
-	'RU',
-	'US',
-] );
-
-function supportsProvinceMap( countryCode?: string ) {
-	return !! countryCode && SUPPORTED_PROVINCE_MAP_COUNTRY_CODES.has( countryCode.toUpperCase() );
-}
+const MISSING_MAP_ERROR_MESSAGE = 'Requested map does not exist';
 
 /**
  * Locations widget inner component. Reads report params from WidgetRoot context.
@@ -69,6 +47,9 @@ function supportsProvinceMap( countryCode?: string ) {
  */
 function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | 'city' } ) {
 	const { reportParams } = useWidgetRootContext();
+	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
+		Set< string >
+	>( () => new Set() );
 
 	const {
 		drillDownItem: selectedCountry,
@@ -93,9 +74,38 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 			countryFilter: selectedCountry?.code,
 		} );
 	const showLoading = isLoading || ( isFetching && hasData );
-	const useProvinceMap = geoMode === 'region' && supportsProvinceMap( selectedCountry?.code );
+	const selectedCountryCode = selectedCountry?.code.toUpperCase();
+	const useProvinceMap =
+		geoMode === 'region' &&
+		!! selectedCountryCode &&
+		! unsupportedProvinceMapCountries.has( selectedCountryCode );
 	const useCountryFallbackMap = geoMode === 'region' && !! selectedCountry && ! useProvinceMap;
 	const useMarkerMap = geoMode === 'city';
+
+	const handleGeoChartError = useCallback(
+		( error: { message?: string; detailedMessage?: string } ) => {
+			if ( ! selectedCountryCode || ! useProvinceMap ) {
+				return;
+			}
+
+			const message = `${ error.message ?? '' } ${ error.detailedMessage ?? '' }`;
+
+			if ( ! message.includes( MISSING_MAP_ERROR_MESSAGE ) ) {
+				return;
+			}
+
+			setUnsupportedProvinceMapCountries( previous => {
+				if ( previous.has( selectedCountryCode ) ) {
+					return previous;
+				}
+
+				const next = new Set( previous );
+				next.add( selectedCountryCode );
+				return next;
+			} );
+		},
+		[ selectedCountryCode, useProvinceMap ]
+	);
 
 	const geoData = useMemo( (): GeoData => {
 		const useLocationHeader =
@@ -256,6 +266,7 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 						region={ useProvinceMap ? selectedCountry?.code ?? 'world' : 'world' }
 						resolution={ useProvinceMap ? 'provinces' : 'countries' }
 						displayMode={ useMarkerMap ? 'markers' : undefined }
+						onError={ handleGeoChartError }
 					/>
 				</div>
 			</div>

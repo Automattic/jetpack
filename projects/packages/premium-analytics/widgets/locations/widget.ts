@@ -21,7 +21,7 @@ export type LocationsAttributes = {
  * picker).
  *
  * Known limitation: Google GeoChart `provinces` resolution is unavailable for
- * some countries/territories (e.g. Singapore, Taiwan); those fall back to
+ * some countries/territories; unsupported region maps fall back at runtime to
  * highlighting the country on the world map.
  */
 export default {
