@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Feature Catalog: register_feature(), Registry, Status_Resolver, Jetpack_Environment, and a flag-gated WP-CLI command.

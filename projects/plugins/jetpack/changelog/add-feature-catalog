@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add the Feature Catalog (behind the jetpack_features_catalog_enabled flag).
