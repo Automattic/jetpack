@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 16.0-a.7
+Stable tag: 16.0
 Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.0-beta - 2026-07-06
+### 16.0 - 2026-07-07
 #### Enhancements
 - Add AI-powered "Generate/Improve with Jetpack" buttons to the Content Guidelines admin page.
 - AI: Surface SEO Enhancer suggestions (SEO title and meta description) in the AI sidebar.
@@ -338,10 +338,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Newsletter: Allow setting a custom description for the free tier and hiding it from the subscriber plan selector.
 - Newsletter: Link to the site visibility settings from the Coming Soon notice in the pre-publish panel.
 - Render the unified Jetpack admin header and footer on Akismet's admin pages.
-- SEO: Add a per-post schema type control and SEO columns (schema, meta description, search visibility) to post-list tables.
-- SEO: Auto-discover the new SEO surface on fresh installs (opt-in on existing sites), and add an opt-in banner to the legacy Traffic > SEO settings page.
-- SEO: Hide the legacy Traffic-page SEO and Sitemaps sections once a site is on the new SEO dashboard (fresh install, opted-in, or WordPress.com); existing self-hosted installs that haven't opted in keep the legacy sections.
-- SEO: Surface SEO Tools as a Plugin Search Hint when users search the plugin directory for SEO-related terms.
 - Subscriptions: Replace the Subscribers menu link with a transitional announcement page when the Newsletter modernization filter is enabled.
 - Subscriptions Block: Customize the Subscribe modal heading site-wide via a new Newsletter setting.
 - VideoPress: Add presentation to the player iframe allow list to enable casting from embeds.
@@ -357,6 +353,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Blaze: Warn users with active campaigns before disabling the Blaze module.
 - Content Guidelines AI: Place the suggestion badge to the left of the section chevron so chevrons stay aligned across sections with and without a badge.
 - Content Guidelines AI: Wrap the per-section Save/Clear/Generate button row so the buttons no longer overlap on narrow screens.
+- Crowdsignal shortcode: Render rating settings as data rather than building markup from them.
 - Daily Writing Prompt: Defer the connection-readiness check to Dashboard setup to avoid a fatal error on Atomic sites.
 - Donations Form: Prevent the editor from flickering when hovering the block as an inserter preview.
 - Fix fatal error on My Jetpack when the current stable Jetpack plugin is active along with other Jetpack standalone plugins.
@@ -371,7 +368,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Paid Content Block: Prevent lockout after a subscription renewal.
 - Podcast: Load the package outside Jetpack's connection-gated module loader so the podcast feed and dashboard keep working when the site is disconnected.
 - Prevent Slideshow block crash when converting from Gallery.
-- SEO: Default the Schema, Meta description, and Search post-list columns to hidden in Screen Options.
 - Social: Prevent errors in the post-publish sharing status panel from crashing the editor.
 - Subscriptions: Prevent a duplicate Subscribers menu entry on WordPress.com (Atomic) sites.
 - Tiled Gallery: Fix an infinite resize loop when the block is inside a Row or Stack block.
