@@ -496,6 +496,35 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the image editor toggle from the AI settings page wins over every
+	 * environment-based enable: off must mean off even when Big Sky would turn
+	 * Image Studio on.
+	 */
+	public function test_image_editor_toggle_off_disables_image_studio() {
+		$this->enable_big_sky();
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+
+		ImageStudio\register_plugin();
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
+
+		delete_option( 'jetpack_ai_image_editor_enabled' );
+	}
+
+	/**
+	 * Test that the AI master switch option disables Image Studio outside
+	 * Big Sky/CIAB environments (it flows through the jetpack_ai_enabled filter).
+	 */
+	public function test_master_option_off_disables_image_studio() {
+		update_option( 'jetpack_ai_enabled', 0 );
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+
+		delete_option( 'jetpack_ai_enabled' );
+	}
+
+	/**
 	 * Test that register_plugin registers unconditionally regardless of screen.
 	 *
 	 * Screen-level gating happens at enqueue time, not registration.
