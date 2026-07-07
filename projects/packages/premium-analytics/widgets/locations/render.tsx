@@ -34,8 +34,21 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type LocationsRenderAttributes = LocationsAttributes & Partial< ReportParamsFieldAttributes >;
 type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
+type DrillDownCountry = { code: string; name: string };
+type RenderLocationState = {
+	geoMode: GeoMode;
+	selectedCountry?: DrillDownCountry;
+};
 
 const MISSING_MAP_ERROR_MESSAGE = 'Requested map does not exist';
+
+function getGeoChartCountryId( countryCode: string ): string {
+	if ( countryCode.toUpperCase() === 'TW' ) {
+		return 'Taiwan';
+	}
+
+	return countryCode.toUpperCase();
+}
 
 /**
  * Locations widget inner component. Reads report params from WidgetRoot context.
@@ -55,7 +68,7 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 		drillDownItem: selectedCountry,
 		drillDown: selectCountry,
 		resetDrillDown: clearSelectedCountry,
-	} = useWidgetDrillDown< { code: string; name: string } >();
+	} = useWidgetDrillDown< DrillDownCountry >();
 
 	useEffect( () => {
 		if ( topMode === 'city' ) {
@@ -64,24 +77,73 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 	}, [ clearSelectedCountry, topMode ] );
 
 	// Drill-down (region) takes priority over topMode; city mode disables drill-down.
-	const geoMode: GeoMode = topMode === 'country' && selectedCountry ? 'region' : topMode;
+	const activeSelectedCountry = topMode === 'country' ? selectedCountry : undefined;
+	const geoMode: GeoMode = topMode === 'country' && activeSelectedCountry ? 'region' : topMode;
 
-	const { data, comparisonData, hasComparison, isLoading, isFetching, hasData, isError } =
+	const {
+		data,
+		comparisonData,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		isError,
+		isPlaceholderData,
+	} =
 		useLocationViews( {
 			reportParams,
 			max,
 			geoMode,
-			countryFilter: selectedCountry?.code,
+			countryFilter: geoMode === 'region' ? activeSelectedCountry?.code : undefined,
 		} );
 	const showLoading = isLoading || ( isFetching && hasData );
-	const selectedCountryCode = selectedCountry?.code.toUpperCase();
+	const [ renderLocationState, setRenderLocationState ] = useState< RenderLocationState >( {
+		geoMode,
+		selectedCountry: activeSelectedCountry,
+	} );
+
+	useEffect( () => {
+		if ( isPlaceholderData ) {
+			return;
+		}
+
+		setRenderLocationState( { geoMode, selectedCountry: activeSelectedCountry } );
+	}, [ activeSelectedCountry, geoMode, isPlaceholderData ] );
+
+	const renderGeoMode = isPlaceholderData ? renderLocationState.geoMode : geoMode;
+	const renderSelectedCountry = isPlaceholderData
+		? renderLocationState.selectedCountry
+		: activeSelectedCountry;
+	const selectedCountryCode = renderSelectedCountry?.code.toUpperCase();
 	const useProvinceMap =
-		geoMode === 'region' &&
+		renderGeoMode === 'region' &&
 		!! selectedCountryCode &&
 		! unsupportedProvinceMapCountries.has( selectedCountryCode );
-	const useCountryFallbackMap = geoMode === 'region' && !! selectedCountry && ! useProvinceMap;
-	const useMarkerMap = geoMode === 'city';
+	const useCountryFallbackMap =
+		renderGeoMode === 'region' && !! renderSelectedCountry && ! useProvinceMap;
+	const fallbackCountry =
+		geoMode === 'region' ? activeSelectedCountry ?? renderSelectedCountry : undefined;
+	const useSelectedCountryFallbackMap =
+		!! fallbackCountry && ( isPlaceholderData || useCountryFallbackMap );
+	const useCityCountryMap = renderGeoMode === 'city';
+	const cityCountryRows = useMemo( () => {
+		const countryRows = new Map< string, { countryFull: string; value: number } >();
 
+		if ( ! useCityCountryMap ) {
+			return [];
+		}
+
+		data.forEach( location => {
+			const countryCode = location.countryCode.toUpperCase();
+			const current = countryRows.get( countryCode );
+			countryRows.set( countryCode, {
+				countryFull: location.countryFull,
+				value: ( current?.value ?? 0 ) + location.value,
+			} );
+		} );
+
+		return Array.from( countryRows.entries() );
+	}, [ data, useCityCountryMap ] );
 	const handleGeoChartError = useCallback(
 		( error: { message?: string; detailedMessage?: string } ) => {
 			if ( ! selectedCountryCode || ! useProvinceMap ) {
@@ -109,7 +171,7 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 
 	const geoData = useMemo( (): GeoData => {
 		const useLocationHeader =
-			( geoMode === 'region' && ! useCountryFallbackMap ) || geoMode === 'city';
+			renderGeoMode === 'region' && ! useCountryFallbackMap && ! useSelectedCountryFallbackMap;
 		const header: GoogleDataTableColumn[] = [
 			useLocationHeader
 				? __( 'Location', 'jetpack-premium-analytics' )
@@ -117,21 +179,53 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 			__( 'Views', 'jetpack-premium-analytics' ),
 		];
 
-		if ( useCountryFallbackMap && selectedCountry ) {
-			const value = data.reduce( ( total, location ) => total + location.value, 0 );
-			const countryCode = selectedCountry.code.toUpperCase();
+		if ( useSelectedCountryFallbackMap && fallbackCountry ) {
+			const countryCode = fallbackCountry.code.toUpperCase();
+			const value = data
+				.filter( location => location.countryCode.toUpperCase() === countryCode )
+				.reduce( ( total, location ) => total + location.value, 0 );
+
 			return [
 				header,
-				[ { v: countryCode, f: selectedCountry.name }, value ],
+				[
+					{
+						v: getGeoChartCountryId( countryCode ),
+						f: fallbackCountry.name,
+					},
+					value,
+				],
+			];
+		}
+
+		if ( useCityCountryMap ) {
+			return [
+				header,
+				...cityCountryRows.map(
+					( [ countryCode, location ] ): GoogleDataTableRow => [
+						{
+							v: getGeoChartCountryId( countryCode ),
+							f: location.countryFull,
+						},
+						location.value,
+					]
+				),
 			];
 		}
 
 		const rows: GoogleDataTableRow[] = data.map( location => [
-			useMarkerMap ? `${ location.label }, ${ location.countryFull }` : location.label,
+			location.label,
 			location.value,
 		] );
 		return [ header, ...rows ];
-	}, [ data, geoMode, selectedCountry, useCountryFallbackMap, useMarkerMap ] );
+	}, [
+		cityCountryRows,
+		data,
+		fallbackCountry,
+		renderGeoMode,
+		useCityCountryMap,
+		useCountryFallbackMap,
+		useSelectedCountryFallbackMap,
+	] );
 
 	const leaderboardData = useMemo( () => {
 		const maxValue = Math.max( ...data.map( l => l.value ), 0 );
@@ -170,10 +264,13 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 				delta: hasComparison ? calculateDelta( location.value, previousValue ) : 0,
 				// Country mode: click to drill into regions.
 				// Region/city mode: rows are not interactive.
-				...( geoMode === 'country' &&
+				...( renderGeoMode === 'country' &&
 					location.countryCode && {
 						onClick: () =>
-							selectCountry( { code: location.countryCode, name: location.countryFull } ),
+							selectCountry( {
+								code: location.countryCode,
+								name: location.countryFull,
+							} ),
 						// Without ariaLabel the button's accessible name is computed from
 						// its children: "Flag of X" (image alt) + "X" (visible label) →
 						// screen readers announce the country name twice. Provide a concise
@@ -186,9 +283,9 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 					} ),
 			};
 		} ) as LeaderboardChartData;
-	}, [ comparisonData, data, geoMode, hasComparison, selectCountry ] );
+	}, [ comparisonData, data, renderGeoMode, hasComparison, selectCountry ] );
 
-	const backLink = selectedCountry ? (
+	const backLink = renderSelectedCountry ? (
 		<WidgetBackLink
 			label={ __( 'All Locations', 'jetpack-premium-analytics' ) }
 			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics' ) }
@@ -263,9 +360,16 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 					<GeoChart
 						data={ geoData }
 						resizeDebounceTime={ 100 }
-						region={ useProvinceMap ? selectedCountry?.code ?? 'world' : 'world' }
-						resolution={ useProvinceMap ? 'provinces' : 'countries' }
-						displayMode={ useMarkerMap ? 'markers' : undefined }
+						region={
+							useProvinceMap && ! useSelectedCountryFallbackMap
+								? renderSelectedCountry?.code ?? 'world'
+								: 'world'
+						}
+						resolution={
+							useProvinceMap && ! useSelectedCountryFallbackMap
+								? 'provinces'
+								: 'countries'
+						}
 						onError={ handleGeoChartError }
 					/>
 				</div>
