@@ -48,7 +48,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		$this->tear_down_rest_parity();
 		parent::tear_down();
-		WPCOM_JSON_API::init()->query = array();
+		WPCOM_JSON_API::init()->query         = array();
+		WPCOM_JSON_API::init()->token_details = array();
 		delete_option( 'jetpack_callable_wp_get_environment_type' );
 	}
 
@@ -105,6 +106,34 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 
 		$this->assertSame( get_jetpack_hosting_provider( $blog_id ), $response['hosting_provider_guess'] );
 		$this->assertSame( 'local', $response['environment_type'] );
+	}
+
+	/**
+	 * Test that WordPress.com platform fields are only returned when explicitly requested.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_wpcom_platform_fields_are_not_rendered_without_explicit_fields() {
+		global $blog_id;
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		update_option( 'jetpack_callable_wp_get_environment_type', 'local' );
+		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => $blog_id );
+
+		$endpoint = $this->get_wpcom_endpoint();
+
+		WPCOM_JSON_API::init()->query = array();
+		$response                     = $endpoint->callback( '/sites/%s', $blog_id );
+
+		$this->assertArrayNotHasKey( 'hosting_provider_guess', $response );
+		$this->assertArrayNotHasKey( 'environment_type', $response );
+
+		WPCOM_JSON_API::init()->query = array( 'fields' => 'ID,name' );
+		$response                     = $endpoint->callback( '/sites/%s', $blog_id );
+
+		$this->assertArrayNotHasKey( 'hosting_provider_guess', $response );
+		$this->assertArrayNotHasKey( 'environment_type', $response );
 	}
 
 	/**
