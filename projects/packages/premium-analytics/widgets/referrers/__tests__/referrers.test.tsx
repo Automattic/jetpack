@@ -99,8 +99,8 @@ describe( 'ReferrersWidget', () => {
 
 		fireEvent.click( sourceButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 
-		// Third level: leaf domains render as plain text and the back link is
-		// labelled after the parent list.
+		// Third level: URL-backed leaf domains render as outbound links and the
+		// back link is labelled after the parent list.
 		await expect( screen.findByText( 'google.com' ) ).resolves.toBeInTheDocument();
 
 		fireEvent.click( screen.getByRole( 'button', { name: /search engines/i } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.

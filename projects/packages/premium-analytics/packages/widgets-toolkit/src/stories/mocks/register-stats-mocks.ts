@@ -218,8 +218,9 @@ const MOCK_CLICKS_COMPARISON = {
 
 // Exercises every referrer shape the widget renders: a multi-source group that
 // drills down twice (group → source → domain), a single-result group (which the
-// normalizer flattens into the result itself), and childless domains that
-// render as display-only rows (label + favicon, no outbound links).
+// normalizer flattens into the result itself), and childless domains with URLs
+// that render as outbound links (label + favicon), while rows with children
+// drill down.
 const MOCK_REFERRERS = {
 	date: '2026-06-29',
 	period: 'day',
