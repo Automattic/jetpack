@@ -35,8 +35,12 @@ class Features {
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'register_features' ), 20 );
 
-		if ( self::is_enabled() && defined( 'WP_CLI' ) && \WP_CLI ) {
-			\WP_CLI::add_command( 'jetpack features', __NAMESPACE__ . '\\CLI' );
+		if ( self::is_enabled() ) {
+			Dashboard::register();
+
+			if ( defined( 'WP_CLI' ) && \WP_CLI ) {
+				\WP_CLI::add_command( 'jetpack features', __NAMESPACE__ . '\\CLI' );
+			}
 		}
 	}
 
