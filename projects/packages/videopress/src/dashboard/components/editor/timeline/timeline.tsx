@@ -4,11 +4,16 @@
  * all tracks (trim handles, shrouds, cut segments), and a 1px playhead line.
  *
  * Geometry: the full master duration maps onto `viewportWidth * zoom` pixels
- * of content inside an `overflow-x` scroller (zoom 1 = fit). Zoom is capped
- * at the filmstrip's native tile density (getFilmstripZoomMax) so tiles can
- * never be upscaled; the cap is re-derived — and the effective zoom
- * re-clamped — every render, so it self-heals when the strip resolves
- * asynchronously or the viewport resizes. Zooming — via the toolbar slider
+ * of content inside an `overflow-x` scroller (zoom 1 = fit). That one
+ * product — `contentWidth`, and the `pxPerMs` derived with it — is the only
+ * horizontal scale: the content strip, the ruler and filmstrip track rows,
+ * the playhead transform, and the trim/cut overlay all take their width or
+ * positions from it, so no track can render on a different scale than the
+ * times above it. Zoom is capped at the filmstrip's native tile density
+ * (getFilmstripZoomMax) so tiles can never be upscaled; the cap is
+ * re-derived — and the effective zoom re-clamped — every render, so it
+ * self-heals when the strip resolves asynchronously or the viewport
+ * resizes. Zooming — via the toolbar slider
  * or modifier+wheel — keeps the time under the playhead stationary on
  * screen by compensating `scrollLeft`; a plain vertical wheel scrolls the
  * strip. Pointer-down/drag on empty ruler/track area scrubs the
@@ -134,6 +139,21 @@ export default function StudioEditorTimeline( {
 
 	const pxPerMs = getPxPerMs( viewportWidth, effectiveZoom, durationMs );
 	const contentWidth = viewportWidth > 0 ? viewportWidth * effectiveZoom : 0;
+
+	// One timeline scale: every horizontally scaled box — the content strip
+	// AND each track row — takes its width from this single number. The
+	// tracks must not size themselves from their parent box: the content
+	// element can legitimately render wider than `contentWidth` (its
+	// `min-width: 100%` fallback, an ancestor stretching it while the
+	// measured viewport is stale between a layout change and the
+	// ResizeObserver's next delivery), and a track that fills that box would
+	// put the filmstrip tiles on a different horizontal scale than the
+	// ruler ticks, playhead, and trim/cut overlay, which all derive from
+	// `pxPerMs`. Pinning the rows here makes that divergence structurally
+	// impossible: worst case everything is off together and self-heals on
+	// the next measurement. `undefined` while unmeasured keeps the initial
+	// placeholder render fluid.
+	const scaledWidthStyle = contentWidth > 0 ? { width: `${ contentWidth }px` } : undefined;
 
 	const scrollerRef = useCallback(
 		( element: HTMLDivElement | null ) => {
@@ -286,7 +306,7 @@ export default function StudioEditorTimeline( {
 					className="vp-studio-timeline__content"
 					data-testid="studio-timeline-content"
 					ref={ contentRef }
-					style={ contentWidth > 0 ? { width: `${ contentWidth }px` } : undefined }
+					style={ scaledWidthStyle }
 					onPointerDown={ scrub.onPointerDown }
 					onPointerMove={ scrub.onPointerMove }
 					onPointerUp={ scrub.onPointerUp }
@@ -297,6 +317,7 @@ export default function StudioEditorTimeline( {
 							key={ track.id }
 							className={ `vp-studio-timeline__track vp-studio-timeline__track--${ track.id }` }
 							data-testid={ `studio-timeline-track-${ track.id }` }
+							style={ scaledWidthStyle }
 						>
 							{ track.element }
 						</div>

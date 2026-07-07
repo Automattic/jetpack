@@ -127,6 +127,107 @@ describe( 'StudioEditorTimeline', () => {
 		expect( screen.getAllByTestId( 'studio-timeline-ruler-tick' ) ).toHaveLength( 11 );
 	} );
 
+	describe( 'one timeline scale', () => {
+		/**
+		 * Assert the single-scale invariant: the content element and every
+		 * track row render at exactly the same explicit width, so ruler
+		 * ticks and filmstrip tiles cannot sit on different horizontal
+		 * scales.
+		 *
+		 * @param width - Expected CSS width, e.g. '1000px'.
+		 */
+		function expectOneScale( width: string ) {
+			expect( screen.getByTestId( 'studio-timeline-content' ) ).toHaveStyle( { width } );
+			expect( screen.getByTestId( 'studio-timeline-track-ruler' ) ).toHaveStyle( { width } );
+			expect( screen.getByTestId( 'studio-timeline-track-filmstrip' ) ).toHaveStyle( {
+				width,
+			} );
+		}
+
+		it( 'renders the ruler and filmstrip rows at exactly the content width, at fit and zoomed', () => {
+			renderTimeline( { filmstrip: storyboardFilmstrip( 50 ) } );
+			expectOneScale( '1000px' );
+
+			fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
+				target: { value: '100' },
+			} );
+			expectOneScale( '6400px' );
+
+			// The ruler's last tick (the full duration, at the 200ms step the
+			// zoomed pxPerMs of 0.64 selects) lands exactly on the shared
+			// width — the tick field spans the same box the tiles fill.
+			const ticks = screen.getAllByTestId( 'studio-timeline-ruler-tick' );
+			const lastTick = ticks[ ticks.length - 1 ];
+			expect( lastTick ).toHaveStyle( { transform: 'translateX(6400px)' } );
+			expect( lastTick ).toHaveTextContent( '0:00:10.0' );
+		} );
+
+		it( 'regression: a 91s video with a 91-tile storyboard renders fit on one scale', () => {
+			// The reported canary case: real 91s video, the wpcom storyboard
+			// endpoint's 10×10 sheet (one tile per second), timeline at the
+			// default state.
+			mockViewportWidth = 910;
+			renderTimeline( {
+				session: createEditSession( 91000 ),
+				filmstrip: {
+					status: 'storyboard',
+					storyboard: {
+						url: 'https://example.com/sprite.jpg',
+						tile_width: 160,
+						tile_height: 90,
+						tiles: 91,
+						columns: 10,
+						rows: 10,
+						interval_ms: 1000,
+					},
+				},
+			} );
+
+			// Strip fills exactly the fit content width: every row at 910px.
+			expectOneScale( '910px' );
+
+			// 91 tiles whose cover-crop math uses tileWidth = 910 / 91 = 10px
+			// (scale = 64/90, one drawn cell 113.78×64px, 10×10 sheet):
+			// tileWidth × tiles ≡ the shared content width.
+			const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
+			expect( tiles ).toHaveLength( 91 );
+			expect( tiles[ 0 ] ).toHaveStyle( {
+				backgroundSize: '1138px 640px',
+				backgroundPosition: '-52px 0px',
+			} );
+
+			// The ruler spans the full duration inside the same box: fit
+			// pxPerMs 0.01 picks the 10s step, so the last tick is 0:01:30 at
+			// 900px — within one step of the 91s duration, not clipped at a
+			// third of it.
+			const ticks = screen.getAllByTestId( 'studio-timeline-ruler-tick' );
+			expect( ticks ).toHaveLength( 10 );
+			const lastTick = ticks[ ticks.length - 1 ];
+			expect( lastTick ).toHaveTextContent( '0:01:30.0' );
+			expect( lastTick ).toHaveStyle( { transform: 'translateX(900px)' } );
+
+			// And the zoom control agrees this is fit: slider at the leftmost
+			// stop with real travel available (cap ≈ 11.4).
+			const slider = screen.getByRole< HTMLInputElement >( 'slider', {
+				name: 'Timeline zoom',
+			} );
+			expect( slider.value ).toBe( '0' );
+			expect( slider ).toBeEnabled();
+		} );
+
+		it( 'keeps the rows fluid while the viewport is unmeasured', () => {
+			mockViewportWidth = 0;
+			renderTimeline( { filmstrip: storyboardFilmstrip( 5 ) } );
+			// No inline width anywhere: the content and rows fall back to the
+			// stylesheet's fluid sizing until the viewport reports a width.
+			expect( screen.getByTestId( 'studio-timeline-content' ) ).not.toHaveAttribute( 'style' );
+			expect( screen.getByTestId( 'studio-timeline-track-ruler' ) ).not.toHaveAttribute( 'style' );
+			expect( screen.getByTestId( 'studio-timeline-track-filmstrip' ) ).not.toHaveAttribute(
+				'style'
+			);
+		} );
+	} );
+
 	it( 'positions the playhead from currentMs', () => {
 		renderTimeline( { currentMs: 2500 } );
 		expect( screen.getByTestId( 'studio-timeline-playhead' ) ).toHaveStyle( {

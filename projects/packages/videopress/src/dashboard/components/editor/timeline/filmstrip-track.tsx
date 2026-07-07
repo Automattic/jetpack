@@ -13,7 +13,11 @@
  * The cover-crop math only needs to KNOW each tile's rendered width — which
  * is exactly `trackWidth / tiles` under that layout — so the timeline passes
  * its zoomed content width down instead of the track measuring or sizing
- * anything itself.
+ * anything itself. The timeline also pins the track's row box to that same
+ * `trackWidth`, which is what makes the equality hold: a row that instead
+ * filled its parent could render wider or narrower than `trackWidth`
+ * (stale viewport measurements, `min-width: 100%` stretch) and would put
+ * the tiles on a different horizontal scale than the ruler.
  *
  * Purely presentational and decorative (aria-hidden). Pointer events bubble
  * to the timeline content's scrub surface, exactly like the placeholder the
