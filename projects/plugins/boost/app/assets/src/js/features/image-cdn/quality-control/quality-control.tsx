@@ -34,6 +34,7 @@ const QualityControl = ( {
 			<div className={ clsx( styles.slider, { [ styles.disabled ]: lossless } ) }>
 				<NumberSlider
 					value={ value }
+					disabled={ lossless }
 					onAfterChange={ updatedValue => {
 						setValue( updatedValue );
 						setQuality( updatedValue );

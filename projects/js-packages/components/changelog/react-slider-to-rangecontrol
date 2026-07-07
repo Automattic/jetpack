@@ -1,4 +1,4 @@
-Significance: minor
+Significance: major
 Type: changed
 
-Number Slider: replace the react-slider dependency with the WordPress RangeControl component for React 19 compatibility.
+Number Slider: replace the react-slider dependency with the WordPress RangeControl component for React 19 compatibility. The `renderThumb` and `onBeforeChange` props have been removed, and a `disabled` prop has been added.

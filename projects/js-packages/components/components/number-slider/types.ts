@@ -5,6 +5,11 @@ export type NumberSliderProps = {
 	className?: string;
 
 	/**
+	 * Whether the slider is disabled (non-interactive).
+	 */
+	disabled?: boolean;
+
+	/**
 	 * The maximum value of the slider.
 	 */
 	maxValue?: number;
