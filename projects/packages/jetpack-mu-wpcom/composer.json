@@ -19,6 +19,7 @@
 		"automattic/jetpack-google-analytics": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
 		"automattic/jetpack-podcast": "@dev",
+		"automattic/jetpack-premium-analytics": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-rtc": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",

@@ -47,6 +47,33 @@ class Analytics {
 	 * @return void
 	 */
 	public static function init( $options = array() ) {
+		self::boot( $options, true );
+	}
+
+	/**
+	 * Initialize the Analytics app on WordPress.com Simple.
+	 *
+	 * Simple serves the dashboard from WPCOM and uses WPCOM's wp-admin apiFetch bridge to reach
+	 * public-api.wordpress.com directly, so it does not register the local proxy, notices, or sync
+	 * bootstrap surfaces used by connected Jetpack sites.
+	 *
+	 * @param array $options Optional configuration options.
+	 *                       Supported keys:
+	 *                       - menu_title (string): Admin menu label.
+	 * @return void
+	 */
+	public static function init_wpcom_simple( $options = array() ) {
+		self::boot( $options, false );
+	}
+
+	/**
+	 * Shared package bootstrap.
+	 *
+	 * @param array $options Optional configuration options.
+	 * @param bool  $register_local_services Whether to register connected-site local services.
+	 * @return void
+	 */
+	private static function boot( $options = array(), $register_local_services = true ) {
 		if ( self::$initialized ) {
 			return;
 		}
@@ -57,22 +84,26 @@ class Analytics {
 			self::$menu_title = $options['menu_title'];
 		}
 
-		// Keep the shared connection available when another connection-owning plugin is deactivated.
-		Connection_Configuration::configure();
+		// Connected-site services self-gate on their own hooks; Simple reaches
+		// WPCOM APIs directly through the WPCOM wp-admin apiFetch bridge.
+		if ( $register_local_services ) {
+			// Keep the shared connection available when another connection-owning plugin is deactivated.
+			Connection_Configuration::configure();
 
-		// Always on: sync runs in cron; REST routes + registry serve REST requests
-		// (is_admin() false). REST_REQUEST isn't defined this early, so they
-		// self-gate on their own rest_api_init / init hooks.
-		Sync_Status_Tracker::configure();
+			// Always on: sync runs in cron; REST routes + registry serve REST requests
+			// (is_admin() false). REST_REQUEST isn't defined this early, so they
+			// self-gate on their own rest_api_init / init hooks.
+			Sync_Status_Tracker::configure();
 
-		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
-		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
-		Sync_Configuration::register();
-		Api_Proxy_Controller::register();
-		Notices_Controller::register();
+			// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
+			// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
+			Sync_Configuration::register();
+			Api_Proxy_Controller::register();
+			Notices_Controller::register();
 
-		// Emit front-end page views into the Jetpack Stats pipeline.
-		Jetpack_Stats_Tracker::configure();
+			// Piggybacks on the Jetpack Stats module; checks Jetpack connection state.
+			Jetpack_Stats_Tracker::configure();
+		}
 
 		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
 		WooCommerce_Analytics_Tracker::configure();
