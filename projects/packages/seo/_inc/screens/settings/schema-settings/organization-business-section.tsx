@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { TextControl, TextareaControl } from '@wordpress/components';
+import { Button as WPButton, TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import { normalizeProfileUrl } from '../../../data/schema-settings-utils';
@@ -122,14 +122,15 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 									__nextHasNoMarginBottom
 								/>
 							</div>
-							<Button
-								variant="minimal"
-								tone="destructive"
+							<WPButton
+								variant="tertiary"
+								isDestructive
 								onClick={ () => removeProfile( index ) }
 								disabled={ isSaving }
+								__next40pxDefaultSize
 							>
 								{ __( 'Remove profile', 'jetpack-seo' ) }
-							</Button>
+							</WPButton>
 						</Stack>
 					);
 				} ) }
