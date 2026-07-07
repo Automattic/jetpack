@@ -45,7 +45,12 @@ not a bespoke page per module.
   and reports selection upward; panel children render inside the same `Tabs.Root`
   so the tablist and content share one tab/panel relationship. Generic over the
   tab-id string type; pair it with `defineReportTabs` / `useSectionTab` from
-  `@jetpack-premium-analytics/routing` for the URL-backed tab state.
+  `@jetpack-premium-analytics/routing` for the URL-backed tab state. Panels in
+  the children MUST use `ReportPageTabPanel`, not `Tabs.Panel` from
+  `@wordpress/ui`: routes and this toolkit each bundle their own `@wordpress/ui`
+  copy, and Base UI's tabs context does not cross bundle copies — a route's
+  `Tabs.Panel` throws `TabsRootContext is missing` at runtime even though the
+  JSX nesting looks right.
 - **`StatsBreadcrumbs`** — the `Stats / <title>` breadcrumb for the header
   `breadcrumbs` slot. The leading crumb links back to the dashboard, carrying the
   shared date range and comparison so Back returns to the same view.

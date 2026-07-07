@@ -1,13 +1,16 @@
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { ReportPageTabs, StatsBreadcrumbs } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	ReportPageTabPanel,
+	ReportPageTabs,
+	StatsBreadcrumbs,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { useParams } from '@wordpress/route';
-import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
 // Grid settings are intentionally shared across analytics dashboards (see the
@@ -124,14 +127,14 @@ function PostDetail(): JSX.Element {
 							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
 						</div>
 						{ tabs.map( tab => (
-							<Tabs.Panel key={ tab.id } value={ tab.id } className={ styles.content }>
+							<ReportPageTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
 								{ activeTab === tab.id ? (
 									<>
 										<WidgetDashboard.NoWidgetsState />
 										<WidgetDashboard.Widgets />
 									</>
 								) : null }
-							</Tabs.Panel>
+							</ReportPageTabPanel>
 						) ) }
 					</ReportPageTabs>
 

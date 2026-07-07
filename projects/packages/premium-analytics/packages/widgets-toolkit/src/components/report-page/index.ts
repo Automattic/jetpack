@@ -9,7 +9,13 @@ export {
 	type ReportPerformanceChartProps,
 } from './report-performance-chart';
 export { ReportRecordsTable, type ReportRecordsTableProps } from './report-records-table';
-export { ReportPageTabs, type ReportPageTab, type ReportPageTabsProps } from './report-page-tabs';
+export {
+	ReportPageTabPanel,
+	ReportPageTabs,
+	type ReportPageTab,
+	type ReportPageTabPanelProps,
+	type ReportPageTabsProps,
+} from './report-page-tabs';
 export { StatsBreadcrumbs, type StatsBreadcrumbsProps } from './stats-breadcrumbs';
 export { buildReportMetricSeries } from './utils/build-report-metric-series';
 export type { ReportChartMetric } from './types';

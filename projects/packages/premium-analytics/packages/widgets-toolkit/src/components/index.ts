@@ -39,6 +39,7 @@ export {
 export {
 	ReportPageLayout,
 	ReportPageSection,
+	ReportPageTabPanel,
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
@@ -48,6 +49,7 @@ export {
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
 	type ReportPageTab,
+	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,

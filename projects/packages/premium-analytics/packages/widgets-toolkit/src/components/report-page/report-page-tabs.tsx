@@ -83,3 +83,48 @@ export function ReportPageTabs< TabId extends string = string >( {
 		</Tabs.Root>
 	);
 }
+
+export interface ReportPageTabPanelProps< TabId extends string = string > {
+	/**
+	 * The tab this panel belongs to.
+	 */
+	value: TabId;
+
+	/**
+	 * The panel content.
+	 */
+	children?: ReactNode;
+
+	/**
+	 * Optional class applied to the panel element.
+	 */
+	className?: string;
+}
+
+/**
+ * A tab panel for `ReportPageTabs` children.
+ *
+ * Pages must use this instead of `Tabs.Panel` from `@wordpress/ui`: routes and
+ * this toolkit each bundle their own copy of `@wordpress/ui`, and Base UI's
+ * tabs context does not cross bundle copies — a `Tabs.Panel` imported by a
+ * route cannot see the `Tabs.Root` this module renders. Exporting the panel
+ * from the same module as the root guarantees both share one instance (the
+ * same reason charts are re-exported through the toolkit).
+ *
+ * @param props           - Component props.
+ * @param props.value     - The tab this panel belongs to.
+ * @param props.children  - The panel content.
+ * @param props.className - Optional class applied to the panel element.
+ * @return The tab panel element.
+ */
+export function ReportPageTabPanel< TabId extends string = string >( {
+	value,
+	children,
+	className,
+}: ReportPageTabPanelProps< TabId > ) {
+	return (
+		<Tabs.Panel value={ value } className={ className }>
+			{ children }
+		</Tabs.Panel>
+	);
+}
