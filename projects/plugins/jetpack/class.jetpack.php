@@ -1005,6 +1005,7 @@ class Jetpack {
 		// Feature Catalog.
 		if ( class_exists( \Automattic\Jetpack\Features\Features::class ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'features.php';
+			require_once JETPACK__PLUGIN_DIR . 'features-granular.php'; // Exploratory stress-test set; see file header.
 			\Automattic\Jetpack\Features\Features::init();
 		}
 	}
