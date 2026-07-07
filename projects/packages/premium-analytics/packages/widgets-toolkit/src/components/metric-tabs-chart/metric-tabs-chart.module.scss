@@ -86,11 +86,11 @@
 }
 
 .tab:hover {
-	background-color: var(--wpds-color-bg-interactive-neutral-weak);
+	background-color: var(--wpds-color-background-interactive-neutral-weak);
 }
 
 .tab[aria-selected="true"] {
-	background-color: var(--wpds-color-bg-interactive-neutral-weak-active);
+	background-color: var(--wpds-color-background-interactive-neutral-weak-active);
 }
 
 /* Each tab's content: label stacked over the value + delta, left-aligned. */
@@ -103,7 +103,7 @@
 }
 
 .tabLabel {
-	color: var(--wpds-color-fg-content-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 /* Anchors the absolutely positioned loading overlay; fills the room left
