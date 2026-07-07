@@ -2,6 +2,12 @@
 /**
  * Self-hosted Jetpack platform adapter.
  *
+ * The Modules / Current_Plan / Connection\Manager classes are optional runtime
+ * dependencies (the package requires only PHP and guards every use with class_exists),
+ * so Phan cannot see them from this package in isolation.
+ *
+ * @phan-file-suppress PhanUndeclaredClassMethod, PhanUndeclaredClassReference
+ *
  * @package automattic/jetpack-features
  */
 

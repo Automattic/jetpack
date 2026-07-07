@@ -59,7 +59,7 @@ class Feature {
 
 		if ( ! in_array( $args['connection'], self::CONNECTION_LEVELS, true ) ) {
 			throw new InvalidArgumentException(
-				sprintf( 'Invalid connection level "%s" for feature "%s".', $args['connection'], $slug )
+				sprintf( 'Invalid connection level "%s" for feature "%s".', (string) $args['connection'], $slug )
 			);
 		}
 

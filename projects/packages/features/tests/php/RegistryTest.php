@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Features\Feature;
 use Automattic\Jetpack\Features\Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
+use function Automattic\Jetpack\Features\register_feature;
 
 /**
  * @covers \Automattic\Jetpack\Features\Registry
@@ -34,7 +35,7 @@ final class RegistryTest extends PHPUnit\Framework\TestCase {
 		$this->assertSame( 'second', Registry::instance()->get( 'a' )->title() );
 	}
 
-	public function test_global_register_feature_delegates() {
+	public function test_namespaced_register_feature_delegates() {
 		register_feature( 'c', array( 'title' => 'C' ) );
 		$this->assertSame( 'C', Registry::instance()->get( 'c' )->title() );
 	}

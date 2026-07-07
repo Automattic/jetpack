@@ -61,7 +61,7 @@ class Registry {
 	 * @return Feature|null
 	 */
 	public function get( $slug ) {
-		return isset( $this->features[ $slug ] ) ? $this->features[ $slug ] : null;
+		return $this->features[ $slug ] ?? null;
 	}
 
 	/**

@@ -1,14 +1,13 @@
 <?php
 /**
- * Global helper functions for the Jetpack Feature Catalog.
+ * Namespaced helper functions for the Jetpack Feature Catalog.
  *
  * @package automattic/jetpack-features
  */
 
-use Automattic\Jetpack\Features\Feature;
-use Automattic\Jetpack\Features\Registry;
+namespace Automattic\Jetpack\Features;
 
-if ( ! function_exists( 'register_feature' ) ) {
+if ( ! function_exists( __NAMESPACE__ . '\register_feature' ) ) {
 	/**
 	 * Declare a feature in the catalog. Side-effect-free: registers metadata only.
 	 *

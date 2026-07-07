@@ -8,10 +8,12 @@
  * @package automattic/jetpack
  */
 
+use function Automattic\Jetpack\Features\register_feature;
+
 add_action(
 	'jetpack_features_register',
 	function () {
-		if ( ! function_exists( 'register_feature' ) ) {
+		if ( ! function_exists( 'Automattic\Jetpack\Features\register_feature' ) ) {
 			return;
 		}
 

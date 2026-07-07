@@ -52,11 +52,13 @@ final class FeatureTest extends PHPUnit\Framework\TestCase {
 
 	public function test_empty_slug_throws() {
 		$this->expectException( InvalidArgumentException::class );
+		// @phan-suppress-next-line PhanNoopNew -- Constructing to assert it throws.
 		new Feature( '' );
 	}
 
 	public function test_invalid_connection_throws() {
 		$this->expectException( InvalidArgumentException::class );
+		// @phan-suppress-next-line PhanNoopNew -- Constructing to assert it throws.
 		new Feature( 'x', array( 'connection' => 'account' ) );
 	}
 }
