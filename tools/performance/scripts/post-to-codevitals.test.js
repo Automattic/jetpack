@@ -17,7 +17,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { inspect } from 'node:util';
-import { buildSummary, resolveResultsGit } from './measure-lcp.js';
+import { buildSummary, resolveResultsGit, assertCaptureComplete } from './measure-lcp.js';
 import {
 	checkSanityRange,
 	exitCodeForError,
@@ -470,6 +470,11 @@ test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to prod
 	// measure-lcp.js fails the run if the final URL does not contain this, so a redirect to the
 	// wrong tab cannot quietly populate the responses keys from the forms list.
 	assert.equal( scenario.expectUrlIncludes, '/responses/inbox' );
+	// A resource-count floor so a partial capture can't post an undercounted decodedBytesKB.
+	assert.ok(
+		scenario.minResourceCount > 0 && scenario.minResourceCount < 80,
+		'formsResponses must declare a resource-count floor below the real ~80-resource load'
+	);
 } );
 
 // --- redactToken (keeps the token out of logs and errors) ---
@@ -1491,6 +1496,32 @@ test( 'a dry-run payload is stamped with the commit time from the results file',
 	} finally {
 		fs.rmSync( dir, { recursive: true, force: true } );
 	}
+} );
+
+// --- assertCaptureComplete (content-completeness guard for the bundle-size capture) ---
+
+test( 'assertCaptureComplete throws when the resource count is below the scenario floor', () => {
+	// A partial/truncated capture (here 12 resources against a floor of 40) must fail the
+	// iteration so its undercounted decodedBytesKB never reaches the append-only key.
+	assert.throws(
+		() => assertCaptureComplete( { totalRequests: 12 }, { minResourceCount: 40 } ),
+		/Incomplete capture: 12 resources < expected minimum 40/
+	);
+} );
+
+test( 'assertCaptureComplete passes at and above the floor', () => {
+	// Inclusive floor (== is fine), and the real ~80-resource load clears it comfortably.
+	assert.doesNotThrow( () =>
+		assertCaptureComplete( { totalRequests: 40 }, { minResourceCount: 40 } )
+	);
+	assert.doesNotThrow( () =>
+		assertCaptureComplete( { totalRequests: 81 }, { minResourceCount: 40 } )
+	);
+} );
+
+test( 'assertCaptureComplete is a no-op for a scenario without a floor (e.g. the Dashboard)', () => {
+	// The Dashboard scenario declares no minResourceCount, so the guard never fires for it.
+	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 3 }, {} ) );
 } );
 
 // --- buildSummary (measure-lcp per-field aggregation; the load-bearing FORMS-707 change) ---

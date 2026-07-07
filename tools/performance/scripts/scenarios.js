@@ -78,6 +78,11 @@ export const SCENARIOS = [
 		path: '/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox',
 		waitForSelector: '#jetpack-forms-responses-wp-admin-app.boot-layout-container',
 		expectUrlIncludes: '/responses/inbox',
+		// A healthy load of this page fetches ~80 resources; measure-lcp.js fails the run if it
+		// captures fewer than this, so a truncated/partial capture can't post an in-range but
+		// undercounted decodedBytesKB. Kept well below the real count (2x margin) and count-based,
+		// not editor-asset-based, so it never clips the legitimate drop when the editor lazy-loads.
+		minResourceCount: 40,
 		// These four post straight to PRODUCTION keys — the `-staging` window in the README
 		// Safeguards is deliberately waived here (owner decision). The substitute for that window is
 		// the SANITY_RANGES + all-or-nothing gate plus manual sign-off before the first live post;

@@ -1,6 +1,7 @@
 /**
- * Measure Largest Contentful Paint (LCP) for WordPress wp-admin dashboard.
- * Logs in, refreshes dashboard, and captures LCP via PerformanceObserver.
+ * Measure page performance for a WordPress wp-admin scenario: LCP (via PerformanceObserver),
+ * TTFB, FCP, and the summed runtime bundle size (decodedBytesKB). Logs in, then reloads either
+ * the wp-admin Dashboard (default) or a scenario's targeted admin page, and captures the metrics.
  */
 
 import fs from 'fs';
@@ -298,6 +299,9 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				);
 			}
 
+			// Refuse a partial capture before its bundle size can reach a permanent key.
+			assertCaptureComplete( resourceStats, scenario );
+
 			results.push( {
 				iteration: i + 1,
 				lcp: metrics.lcp,
@@ -443,6 +447,30 @@ function buildSummary( validResults, iterations, fields = SUMMARY_FIELDS ) {
 	};
 }
 
+/**
+ * Content-completeness guard for the bundle-size metric. When a scenario declares the minimum
+ * resource count a healthy load produces (`minResourceCount`), throw if the capture returned
+ * fewer — a hydrated-but-partial page, or a `networkidle` window that settled in a gap before
+ * async resources finished, would otherwise post an in-range-but-undercounted `decodedBytesKB`
+ * to a permanent, no-rollback key.
+ *
+ * A COUNT floor is deliberate, NOT an "editor asset is present" assertion: the metric is meant
+ * to fall when the editor payload is lazy-loaded, and that removes a few large files rather than
+ * the bulk of the count, so this catches a broken capture without clipping the very improvement
+ * it exists to record. A scenario with no `minResourceCount` (e.g. the Dashboard) is unaffected.
+ *
+ * @param {{totalRequests:number}}     resourceStats - The per-iteration resource stats.
+ * @param {{minResourceCount?:number}} scenario      - The scenario config.
+ * @throws {Error} When the captured resource count is below the scenario's floor.
+ */
+function assertCaptureComplete( resourceStats, scenario ) {
+	if ( scenario.minResourceCount && resourceStats.totalRequests < scenario.minResourceCount ) {
+		throw new Error(
+			`Incomplete capture: ${ resourceStats.totalRequests } resources < expected minimum ${ scenario.minResourceCount } — refusing to post a partial page's bundle size`
+		);
+	}
+}
+
 async function main() {
 	const username = process.env.WP_ADMIN_USER || 'admin';
 	const password = process.env.WP_ADMIN_PASS || 'password';
@@ -473,8 +501,10 @@ async function main() {
 
 	console.log( 'Methodology:' );
 	console.log( '  1. Log in to WordPress' );
-	console.log( '  2. Refresh dashboard (clean page load)' );
-	console.log( '  3. Measure LCP of the fresh dashboard' );
+	console.log(
+		'  2. Reload the scenario page (Dashboard, or a targeted admin page) for a clean load'
+	);
+	console.log( '  3. Measure LCP, TTFB, FCP, and the summed bundle size' );
 	console.log( '' );
 	console.log( 'Configuration:' );
 	for ( const scenario of SCENARIOS ) {
@@ -598,4 +628,4 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 	} );
 }
 
-export { measureLCP, resolveResultsGit, buildSummary };
+export { measureLCP, resolveResultsGit, buildSummary, assertCaptureComplete };
