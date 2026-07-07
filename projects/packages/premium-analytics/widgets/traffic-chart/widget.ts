@@ -65,7 +65,7 @@ export default {
 					value: 'month',
 				},
 			],
-			relevance: 'high'
+			relevance: 'high',
 		},
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
