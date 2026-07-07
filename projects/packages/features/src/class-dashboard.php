@@ -106,6 +106,7 @@ class Dashboard {
 			__( 'Connection', 'jetpack-features' ),
 			__( 'Entitlement', 'jetpack-features' ),
 			__( 'Category', 'jetpack-features' ),
+			__( 'Module', 'jetpack-features' ),
 			__( 'Since', 'jetpack-features' ),
 			__( 'Docs', 'jetpack-features' ),
 		) as $heading ) {
@@ -147,6 +148,10 @@ class Dashboard {
 
 			// Category.
 			echo '<td>' . ( '' === $feature->category() ? '<span class="jpfeat-muted">&mdash;</span>' : esc_html( $feature->category() ) ) . '</td>';
+
+			// Module the feature belongs to.
+			$module = $feature->module();
+			echo '<td>' . ( null === $module || '' === $module ? '<span class="jpfeat-muted">&mdash;</span>' : '<code>' . esc_html( $module ) . '</code>' ) . '</td>';
 
 			// Available since (per-platform map).
 			echo '<td>';
