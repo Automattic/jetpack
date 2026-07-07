@@ -92,6 +92,12 @@ describe( 'validateAgainstSchema', () => {
 		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
 	} );
 
+	it( 'accepts an inferred theme_keyword', () => {
+		const out = validOutput();
+		( out.inferred as Record< string, unknown > ).theme_keyword = 'hiking';
+		assert.deepEqual( validateAgainstSchema( out, fileSchema ), [] );
+	} );
+
 	it( 'rejects an unknown goal enum value', () => {
 		const out = validOutput();
 		( out.inferred as { goal: string } ).goal = 'cook';

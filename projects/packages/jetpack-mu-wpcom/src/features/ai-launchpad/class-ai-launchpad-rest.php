@@ -377,6 +377,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			? trim( $inferred['niche'] )
 			: '';
 
+		// The AI's dedicated theme-search word beats the first-word-of-niche heuristic; outputs
+		// persisted before the field existed fall back to the niche.
+		$theme_keyword = isset( $inferred['theme_keyword'] ) && is_string( $inferred['theme_keyword'] )
+			? trim( $inferred['theme_keyword'] )
+			: '';
+		$theme_search  = '' !== $theme_keyword ? $theme_keyword : $niche;
+
 		$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
 
 		if ( ! function_exists( 'is_plugin_active' ) ) {
@@ -390,7 +397,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		$tasks = array();
 		if ( isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ) {
-			$tasks = $this->build_tasks( $payload['tasks'], false, $niche, $disable_hidden_woo );
+			$tasks = $this->build_tasks( $payload['tasks'], false, $theme_search, $disable_hidden_woo );
 		}
 
 		// The sell goal leads with the store-setup task; every other goal may offer the gallery task. They are
@@ -749,12 +756,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 *
 	 * @param array  $tasks              The persisted `payload.tasks` array.
 	 * @param bool   $bypass_visibility  Skip the catalog visibility gate (for the all-tasks testing view).
-	 * @param string $niche              The AI-inferred niche, used to pre-filter the theme-picker CTAs.
+	 * @param string $theme_search       The AI's theme_keyword (or the inferred niche as fallback), used to
+	 *                                   pre-filter the theme-picker CTAs.
 	 * @param bool   $disable_hidden_woo Keep WOO_TASK_IDS that fail the visibility gate as disabled preview cards
 	 *                                   instead of dropping them (sell goal while WooCommerce is inactive).
 	 * @return array
 	 */
-	private function build_tasks( $tasks, $bypass_visibility = false, $niche = '', $disable_hidden_woo = false ) {
+	private function build_tasks( $tasks, $bypass_visibility = false, $theme_search = '', $disable_hidden_woo = false ) {
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$built       = array();
 		$seen_ids    = array();
@@ -827,7 +835,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
 					: wpcom_launchpad_checklists()->is_task_complete( $definition );
 
-				$theme_showcase_path = $this->get_themes_showcase_path( $task['id'], $niche );
+				$theme_showcase_path = $this->get_themes_showcase_path( $task['id'], $theme_search );
 				$cta_override        = $this->get_cta_override( $task['id'] );
 				if ( null !== $theme_showcase_path ) {
 					$calypso_path = $theme_showcase_path;
@@ -920,22 +928,22 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * The wordpress.com themes-showcase path for a theme-picker task, pre-filtered by the inferred niche.
+	 * The wordpress.com themes-showcase path for a theme-picker task, pre-filtered by the AI's theme search term.
 	 *
-	 * Returns null for non-theme tasks or when no niche was inferred, so the caller falls back to the task's
-	 * default CTA. The niche is passed as the showcase's free-text search term (`?s=`), and the client's
+	 * Returns null for non-theme tasks or when nothing was inferred to search by, so the caller falls back to the
+	 * task's default CTA. The term is passed as the showcase's free-text search term (`?s=`), and the client's
 	 * `toNavigableUrl` resolves the relative path against wordpress.com.
 	 *
 	 * @param string $task_id The catalog task id.
-	 * @param string $niche   The AI-inferred niche.
+	 * @param string $search  The AI's theme_keyword, or the inferred niche as fallback.
 	 * @return string|null
 	 */
-	private function get_themes_showcase_path( $task_id, $niche ) {
-		if ( '' === $niche || ! in_array( $task_id, self::THEME_TASK_IDS, true ) ) {
+	private function get_themes_showcase_path( $task_id, $search ) {
+		if ( '' === $search || ! in_array( $task_id, self::THEME_TASK_IDS, true ) ) {
 			return null;
 		}
 
-		return '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $this->niche_to_search_term( $niche ) );
+		return '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $this->niche_to_search_term( $search ) );
 	}
 
 	/**

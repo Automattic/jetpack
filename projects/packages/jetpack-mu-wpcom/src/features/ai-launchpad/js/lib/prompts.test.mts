@@ -33,4 +33,12 @@ describe( 'buildTailorPrompt', () => {
 		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
 		assert.ok( /return only a json object/i.test( prompt ) );
 	} );
+
+	it( 'asks for a theme_keyword naming the core subject, not an incidental word', () => {
+		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
+		assert.ok( prompt.includes( '"theme_keyword"' ), 'theme_keyword missing from prompt' );
+		// The instruction must steer the model toward the subject ("hiking") over
+		// incidental modifiers ("weekend"), which is the whole point of the field.
+		assert.ok( /weekend hiking/i.test( prompt ), 'guiding example missing from prompt' );
+	} );
 } );

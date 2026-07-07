@@ -505,11 +505,54 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			$paths[ $task['id'] ] = $task['calypso_path'];
 		}
 
-		$expected = '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '?s=ceramics';
+		$expected = '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=ceramics';
 		$this->assertSame( $expected, $paths['site_theme_selected'] );
 		$this->assertSame( $expected, $paths['design_selected'] );
 		// A non-theme task is untouched by the niche filter.
 		$this->assertNull( $paths['site_launched'] );
+	}
+
+	/**
+	 * Test that when the AI supplied a dedicated theme_keyword, the theme CTAs search
+	 * by it instead of the first-word niche heuristic — "weekend hiking trips" should
+	 * surface hiking themes, not "weekend" ones.
+	 */
+	public function test_get_prefers_inferred_theme_keyword_for_theme_ctas() {
+		wp_set_current_user( $this->admin_id );
+
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'site_theme_selected',
+							'subtitle' => 'Pick a theme.',
+						),
+						array(
+							'id'       => 'site_launched',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array(
+						'goal'          => 'write',
+						'niche'         => 'weekend hiking trips',
+						'theme_keyword' => 'hiking',
+					),
+				),
+			),
+			false
+		);
+
+		$paths = array();
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			$paths[ $task['id'] ] = $task['calypso_path'];
+		}
+
+		$this->assertSame( '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=hiking', $paths['site_theme_selected'] );
 	}
 
 	/**
@@ -559,7 +602,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			}
 		}
 
-		$this->assertSame( '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $expected ), $path );
+		$this->assertSame( '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $expected ), $path );
 	}
 
 	/**
