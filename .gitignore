@@ -68,4 +68,3 @@ phpcs.xml
 
 .pnpm-debug.log
 .pnpm-error.log
-.gstack/
