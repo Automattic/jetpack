@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Admin-menu REST endpoint now surfaces notification counts from the central menu-badges registry, so Calypso/Simple sidebars get authoritative Jetpack menu counts.

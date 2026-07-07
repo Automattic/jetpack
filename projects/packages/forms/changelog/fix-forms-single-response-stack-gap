@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix an invalid Stack "gap" value ("s" -> "sm") in the single-response actions bar, surfaced as a type error by the @wordpress/ui update.
