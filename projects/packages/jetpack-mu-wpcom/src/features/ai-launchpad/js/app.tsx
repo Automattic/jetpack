@@ -45,8 +45,13 @@ export function App() {
 			<Wizard
 				initialSiteName={ initialData?.site?.title }
 				initialIntent={ initialData?.site?.description }
-				onComplete={ ( _input, tailoring ) => {
+				onComplete={ ( input, tailoring ) => {
 					setPendingTailor( () => tailoring );
+					// The wizard wrote the entered Name to blogname; keep the preview
+					// card's title in sync without refetching.
+					setInitialData( data =>
+						data?.site ? { ...data, site: { ...data.site, title: input.site_name } } : data
+					);
 					setView( 'list' );
 				} }
 			/>

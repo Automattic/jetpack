@@ -79,6 +79,15 @@ export function Wizard( {
 			method: 'PUT',
 			data: payload,
 		} ).catch( () => {} );
+
+		// The PUT above writes the entered Name to blogname, but the admin bar is
+		// server-rendered, so reflect the new title in place. A reload instead would
+		// re-show the wizard: the tailored output is not persisted yet at this point.
+		const adminBarSiteName = document.querySelector( '#wp-admin-bar-site-name > a' );
+		if ( adminBarSiteName && payload.site_name ) {
+			adminBarSiteName.textContent = payload.site_name;
+		}
+
 		const tailoring = getPrewarmedTailor( payload );
 		trackWizardCompleted();
 		onComplete?.( payload, tailoring );
