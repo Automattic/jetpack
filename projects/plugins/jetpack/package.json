@@ -60,7 +60,7 @@
 		"@automattic/popup-monitor": "1.0.2",
 		"@automattic/social-previews": "workspace:*",
 		"@automattic/viewport": "1.0.0",
-		"@react-spring/web": "9.7.5",
+		"@react-spring/web": "10.1.1",
 		"@visx/curve": "4.0.0",
 		"@visx/legend": "^4.0.0",
 		"@visx/responsive": "4.0.0",
