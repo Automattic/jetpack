@@ -3,33 +3,47 @@
 import { Button, TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
-import { useAuthorProfile } from '../../../data/use-author-profile';
 import ProfileUrlList, { hasProfileUrlErrors } from './profile-url-list';
+import type { AuthorProfileForm } from '../../../data/use-author-profile';
 import type { FC } from 'react';
 
 const saveLabel = __( 'Save', 'jetpack-seo' );
 
-const AuthorProfileSection: FC = () => {
+interface Props {
+	/** The author-profile form controller, owned by the Author profile card. */
+	form: AuthorProfileForm;
+}
+
+/**
+ * The form inside the Author profile card. Edits the signed-in user's Person
+ * schema source: name, bio, and website write back to the WordPress profile
+ * through core's users REST endpoint; job title and social profiles (`sameAs`)
+ * are Jetpack SEO user meta.
+ *
+ * Presentational: the Author profile card owns the {@link useAuthorProfile}
+ * controller (so the header badge and this form share one state) and passes it
+ * in via `form`.
+ *
+ * @param props      - Component props.
+ * @param props.form - The author-profile form controller from the card.
+ * @return The Author profile form.
+ */
+const AuthorProfileSection: FC< Props > = ( { form } ) => {
 	const { profile, avatarUrl, isLoading, hasLoadError, isSaving, isDirty, setProfileField, save } =
-		useAuthorProfile();
+		form;
 	const { name, description, url, jobTitle, sameAs } = profile;
 	const disabled = isLoading || isSaving || hasLoadError;
 	const hasNameError = ! isLoading && ! hasLoadError && '' === name.trim();
 	const hasProfileErrors = hasProfileUrlErrors( sameAs );
 
 	return (
-		<Stack className="jetpack-seo-settings__schema-author" direction="column" gap="lg">
-			<Stack direction="column" gap="xs">
-				<span className="jetpack-seo-settings__schema-field-label">
-					{ __( 'Author profile', 'jetpack-seo' ) }
-				</span>
-				<span className="jetpack-seo-settings__title-tokens-label">
-					{ __(
-						'Shown as Person schema on your articles and author archive. Name, bio, and website update your WordPress profile.',
-						'jetpack-seo'
-					) }
-				</span>
-			</Stack>
+		<Stack direction="column" gap="lg">
+			<span className="jetpack-seo-settings__title-tokens-label">
+				{ __(
+					'Shown as Person schema on your articles and author archive. Name, bio, and website update your WordPress profile.',
+					'jetpack-seo'
+				) }
+			</span>
 
 			<TextControl
 				label={ __( 'Name', 'jetpack-seo' ) }
@@ -69,7 +83,7 @@ const AuthorProfileSection: FC = () => {
 					{ avatarUrl ? (
 						<img src={ avatarUrl } alt={ __( 'Author avatar', 'jetpack-seo' ) } />
 					) : null }
-					<a href="https://gravatar.com/profile" target="_blank" rel="noreferrer">
+					<a href="https://gravatar.com/profile" target="_blank" rel="noopener noreferrer">
 						{ __( 'Change your photo on Gravatar', 'jetpack-seo' ) }
 					</a>
 				</div>
