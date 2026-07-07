@@ -4553,9 +4553,6 @@ importers:
 
   projects/packages/search:
     dependencies:
-      '@automattic/calypso-color-schemes':
-        specifier: 4.0.0
-        version: 4.0.0
       '@automattic/color-studio':
         specifier: 4.1.0
         version: 4.1.0
@@ -4689,9 +4686,6 @@ importers:
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
-      '@csstools/postcss-global-data':
-        specifier: 4.0.0
-        version: 4.0.0(postcss@8.5.14)
       '@size-limit/file':
         specifier: ^12.1.0
         version: 12.1.0(size-limit@12.1.0)
@@ -4737,9 +4731,6 @@ importers:
       postcss:
         specifier: 8.5.14
         version: 8.5.14
-      postcss-custom-properties:
-        specifier: 12.1.11
-        version: 12.1.11(postcss@8.5.14)
       postcss-loader:
         specifier: 8.2.0
         version: 8.2.0(postcss@8.5.14)(webpack@5.107.2)
