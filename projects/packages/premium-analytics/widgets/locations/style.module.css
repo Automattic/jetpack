@@ -15,14 +15,6 @@
 	text-align: center;
 }
 
-.modeSelect {
-	order: 2;
-	flex: 0 1 220px;
-	inline-size: min(100%, 220px);
-	max-inline-size: 100%;
-	min-inline-size: min(100%, 160px);
-}
-
 .backLink {
 	order: 1;
 	align-self: center;
@@ -59,8 +51,17 @@
 	min-height: 0;
 }
 
+.leaderboardPanel {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	min-height: 0;
+	align-self: stretch;
+}
+
 .leaderboard {
-	align-self: start;
+	flex: 1 1 0;
+	align-self: stretch;
 	min-width: 0;
 	min-height: 0;
 	overflow: hidden;
@@ -83,10 +84,6 @@
 	white-space: nowrap;
 }
 
-.noMap {
-	grid-template-columns: 1fr;
-}
-
 .geoChart {
 	min-width: 0;
 	height: 100%;
@@ -107,12 +104,6 @@
 
 	.backLink {
 		order: 2;
-	}
-
-	.modeSelect {
-		order: 1;
-		flex-basis: 100%;
-		inline-size: 100%;
 	}
 
 	.geoChart {

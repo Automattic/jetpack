@@ -18,11 +18,9 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { SelectControl } from '@wordpress/components';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -37,33 +35,55 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type LocationsRenderAttributes = LocationsAttributes & Partial< ReportParamsFieldAttributes >;
 type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
 
+// Google GeoChart does not provide province-level maps for every country/territory.
+// Keep this list conservative so unsupported country maps fall back to highlighting
+// the selected country on the world map instead of rendering a chart error.
+const SUPPORTED_PROVINCE_MAP_COUNTRY_CODES = new Set( [
+	'AU',
+	'BR',
+	'CA',
+	'CN',
+	'DE',
+	'ES',
+	'FR',
+	'GB',
+	'IN',
+	'IT',
+	'JP',
+	'MX',
+	'RU',
+	'US',
+] );
+
+function supportsProvinceMap( countryCode?: string ) {
+	return !! countryCode && SUPPORTED_PROVINCE_MAP_COUNTRY_CODES.has( countryCode.toUpperCase() );
+}
+
 /**
  * Locations widget inner component. Reads report params from WidgetRoot context.
  *
- * @param root0     - Component props.
- * @param root0.max - Maximum rows to display.
+ * @param root0         - Component props.
+ * @param root0.max     - Maximum rows to display.
+ * @param root0.topMode - Top-level location mode selected by the host toolbar.
  * @return The rendered widget content.
  */
-function LocationsInner( { max }: { max: number } ) {
+function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | 'city' } ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const [ topMode, setTopMode ] = useState< 'country' | 'city' >( 'country' );
 	const {
 		drillDownItem: selectedCountry,
 		drillDown: selectCountry,
 		resetDrillDown: clearSelectedCountry,
 	} = useWidgetDrillDown< { code: string; name: string } >();
 
-	const handleModeChange = useCallback(
-		( value: string ) => {
-			setTopMode( value as 'country' | 'city' );
+	useEffect( () => {
+		if ( topMode === 'city' ) {
 			clearSelectedCountry();
-		},
-		[ clearSelectedCountry ]
-	);
+		}
+	}, [ clearSelectedCountry, topMode ] );
 
 	// Drill-down (region) takes priority over topMode; city mode disables drill-down.
-	const geoMode: GeoMode = selectedCountry ? 'region' : topMode;
+	const geoMode: GeoMode = topMode === 'country' && selectedCountry ? 'region' : topMode;
 
 	const { data, comparisonData, hasComparison, isLoading, isFetching, hasData, isError } =
 		useLocationViews( {
@@ -73,17 +93,35 @@ function LocationsInner( { max }: { max: number } ) {
 			countryFilter: selectedCountry?.code,
 		} );
 	const showLoading = isLoading || ( isFetching && hasData );
+	const useProvinceMap = geoMode === 'region' && supportsProvinceMap( selectedCountry?.code );
+	const useCountryFallbackMap = geoMode === 'region' && !! selectedCountry && ! useProvinceMap;
+	const useMarkerMap = geoMode === 'city';
 
 	const geoData = useMemo( (): GeoData => {
+		const useLocationHeader =
+			( geoMode === 'region' && ! useCountryFallbackMap ) || geoMode === 'city';
 		const header: GoogleDataTableColumn[] = [
-			geoMode === 'region' || geoMode === 'city'
+			useLocationHeader
 				? __( 'Location', 'jetpack-premium-analytics' )
 				: __( 'Country', 'jetpack-premium-analytics' ),
 			__( 'Views', 'jetpack-premium-analytics' ),
 		];
-		const rows: GoogleDataTableRow[] = data.map( location => [ location.label, location.value ] );
+
+		if ( useCountryFallbackMap && selectedCountry ) {
+			const value = data.reduce( ( total, location ) => total + location.value, 0 );
+			const countryCode = selectedCountry.code.toUpperCase();
+			return [
+				header,
+				[ { v: countryCode, f: selectedCountry.name }, value ],
+			];
+		}
+
+		const rows: GoogleDataTableRow[] = data.map( location => [
+			useMarkerMap ? `${ location.label }, ${ location.countryFull }` : location.label,
+			location.value,
+		] );
 		return [ header, ...rows ];
-	}, [ data, geoMode ] );
+	}, [ data, geoMode, selectedCountry, useCountryFallbackMap, useMarkerMap ] );
 
 	const leaderboardData = useMemo( () => {
 		const maxValue = Math.max( ...data.map( l => l.value ), 0 );
@@ -149,24 +187,11 @@ function LocationsInner( { max }: { max: number } ) {
 		/>
 	) : null;
 
-	const bodyHeader = (
+	const bodyHeader = backLink ? (
 		<Stack direction="row" align="center" className={ styles.bodyHeader }>
 			{ backLink }
-			<SelectControl
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
-				label={ __( 'View by', 'jetpack-premium-analytics' ) }
-				hideLabelFromVision
-				value={ topMode }
-				options={ [
-					{ label: __( 'Countries', 'jetpack-premium-analytics' ), value: 'country' },
-					{ label: __( 'Cities', 'jetpack-premium-analytics' ), value: 'city' },
-				] }
-				onChange={ handleModeChange }
-				className={ styles.modeSelect }
-			/>
 		</Stack>
-	);
+	) : null;
 
 	if ( isLoading && data.length === 0 ) {
 		return (
@@ -189,7 +214,7 @@ function LocationsInner( { max }: { max: number } ) {
 	}
 
 	// Explicit empty branch (rather than emptyStateText on LeaderboardChart) keeps the
-	// header and "View by" selector visible so users can switch mode or drill back up.
+	// breadcrumb visible so users can drill back up.
 	if ( ! data.length ) {
 		return (
 			<div className={ styles.content }>
@@ -208,51 +233,53 @@ function LocationsInner( { max }: { max: number } ) {
 
 	return (
 		<div className={ styles.content }>
-			{ bodyHeader }
 			{ showLoading && <WidgetLoadingOverlay /> }
-			<div className={ clsx( styles.chartArea, geoMode === 'city' && styles.noMap ) }>
-				<LeaderboardChart
-					data={ leaderboardData }
-					withOverlayLabel
-					withComparison={ hasComparison }
-					showLegend={ false }
-					dataFormat={ {
-						type: 'number',
-						options: { useMultipliers: true, decimals: 0 },
-					} }
-					className={ styles.leaderboard }
-				/>
-				{ geoMode !== 'city' && (
-					<div className={ styles.geoChart }>
-						<GeoChart
-							data={ geoData }
-							resizeDebounceTime={ 100 }
-							region={ selectedCountry?.code ?? 'world' }
-							resolution={ selectedCountry ? 'provinces' : 'countries' }
-						/>
-					</div>
-				) }
+			<div className={ styles.chartArea }>
+				<div className={ styles.leaderboardPanel }>
+					{ bodyHeader }
+					<LeaderboardChart
+						data={ leaderboardData }
+						withOverlayLabel
+						withComparison={ hasComparison }
+						showLegend={ false }
+						dataFormat={ {
+							type: 'number',
+							options: { useMultipliers: true, decimals: 0 },
+						} }
+						className={ styles.leaderboard }
+					/>
+				</div>
+				<div className={ styles.geoChart }>
+					<GeoChart
+						data={ geoData }
+						resizeDebounceTime={ 100 }
+						region={ useProvinceMap ? selectedCountry?.code ?? 'world' : 'world' }
+						resolution={ useProvinceMap ? 'provinces' : 'countries' }
+						displayMode={ useMarkerMap ? 'markers' : undefined }
+					/>
+				</div>
 			</div>
 		</div>
 	);
 }
 
 /**
- * Locations widget: visitor views by country/region, as a world map plus a
+ * Locations widget: visitor views by country/region/city, as a map plus a
  * leaderboard. Click a country to drill into its regions. Ported from the
  * Jetpack Stats Locations module.
  *
  * @param root0            - Render props.
- * @param root0.attributes - Widget attributes (max).
+ * @param root0.attributes - Widget attributes.
  * @return The rendered Locations widget.
  */
 export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	const max = attributes?.max ?? 10;
+	const topMode = attributes?.geoMode === 'city' ? 'city' : 'country';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<LocationsInner max={ max } />
+				<LocationsInner max={ max } topMode={ topMode } />
 			</div>
 		</WidgetRoot>
 	);

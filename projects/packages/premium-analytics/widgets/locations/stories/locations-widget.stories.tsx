@@ -10,7 +10,7 @@ import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/storie
 import LocationsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
@@ -22,6 +22,8 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
+	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
+	example: widgetDefinition.example,
 	presentation: 'framed' as const,
 };
 
@@ -43,6 +45,7 @@ function getLocationsAttributes(
 	withComparison = false
 ): ComponentProps< typeof LocationsRender >[ 'attributes' ] {
 	return {
+		geoMode: 'country',
 		max: 10,
 		reportParams: getDefaultQueryParams( withComparison ),
 	};
