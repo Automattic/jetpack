@@ -186,11 +186,20 @@ class Analytics {
 	 * Premium Analytics registers at the same position Stats used (2, right under
 	 * Dashboard) and replaces it, so the two do not sit side by side. Hooked on
 	 * admin_menu at priority 1001 — after Stats registers itself at priority 999 —
-	 * so the menu exists to be removed. No-op when Stats is not present.
+	 * so the menu exists to be removed.
+	 *
+	 * Only removes the menu when it is actually registered: $admin_page_hooks has a
+	 * 'stats' entry only when the Stats module added its top-level page. This keeps
+	 * the replacement a no-op on sites where Stats is inactive and avoids touching
+	 * a menu Premium Analytics is not responsible for.
 	 *
 	 * @return void
 	 */
 	public static function remove_stats_menu() {
+		if ( ! isset( $GLOBALS['admin_page_hooks']['stats'] ) ) {
+			return;
+		}
+
 		remove_menu_page( 'stats' );
 	}
 
