@@ -107,16 +107,6 @@ export default defineConfig(
 		},
 	},
 	{
-		// The icons port renders themed SVG fills with `@wordpress/theme` 0.17
-		// token names (e.g. --wpds-color-background-surface-neutral-weak) that
-		// are ahead of the repo-wide token list. Temporary — remove once the
-		// bundled @wordpress/* renovate group lands the 0.17 token list.
-		files: [ 'packages/icons/**' ],
-		rules: {
-			'@wordpress/no-unknown-ds-tokens': 'off',
-		},
-	},
-	{
 		// Ported widget wrappers and stories keep the upstream JSDoc style, and
 		// import internal link packages whose deps are declared on the parent
 		// manifest.
