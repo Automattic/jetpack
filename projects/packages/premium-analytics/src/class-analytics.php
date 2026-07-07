@@ -118,6 +118,9 @@ class Analytics {
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
+		// Remove the standalone Jetpack "Stats" menu so Premium Analytics takes its
+		// place. Runs after Stats registers itself (admin_menu priority 999).
+		add_action( 'admin_menu', array( static::class, 'remove_stats_menu' ), 1001 );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
 	}
@@ -173,8 +176,22 @@ class Analytics {
 			'jetpack-premium-analytics-wp-admin',
 			$render_callback,
 			'dashicons-chart-bar',
-			30
+			2
 		);
+	}
+
+	/**
+	 * Remove the standalone Jetpack "Stats" top-level menu.
+	 *
+	 * Premium Analytics registers at the same position Stats used (2, right under
+	 * Dashboard) and replaces it, so the two do not sit side by side. Hooked on
+	 * admin_menu at priority 1001 — after Stats registers itself at priority 999 —
+	 * so the menu exists to be removed. No-op when Stats is not present.
+	 *
+	 * @return void
+	 */
+	public static function remove_stats_menu() {
+		remove_menu_page( 'stats' );
 	}
 
 	/**
