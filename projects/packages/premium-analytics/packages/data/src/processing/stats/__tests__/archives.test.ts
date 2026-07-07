@@ -26,6 +26,49 @@ describe( 'Stats archives normalizer', () => {
 		] );
 	} );
 
+	it( 'keeps non-summarized bucket dates scoped to each bucket', () => {
+		const result = sanitizeStatsArchivesResponse(
+			{
+				days: {
+					'2026-06-01': archivesFixture.days[ '2026-06-16' ],
+					'2026-06-08': {
+						home: [
+							{
+								value: 'home',
+								href: 'https://example.com/',
+								views: '5',
+							},
+						],
+					},
+				},
+			},
+			{
+				period: 'week',
+				start_date: '2026-06-01',
+				end_date: '2026-07-04',
+			}
+		);
+
+		expect(
+			result.data.map( ( { time_interval, date_start, date_end } ) => ( {
+				time_interval,
+				date_start,
+				date_end,
+			} ) )
+		).toEqual( [
+			{
+				time_interval: '2026-06-01',
+				date_start: '2026-06-01T00:00:00+00:00',
+				date_end: '2026-06-07T23:59:59+00:00',
+			},
+			{
+				time_interval: '2026-06-08',
+				date_start: '2026-06-08T00:00:00+00:00',
+				date_end: '2026-06-14T23:59:59+00:00',
+			},
+		] );
+	} );
+
 	it( 'normalizes summarized archives from the backend summary payload', () => {
 		const result = sanitizeStatsArchivesResponse( archivesSummaryFixture, {
 			period: 'day',
