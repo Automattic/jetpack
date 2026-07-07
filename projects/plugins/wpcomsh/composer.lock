@@ -1708,7 +1708,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "732b4c245ccd501c5f4bf1ce18fef9c9b1624e5a"
+                "reference": "4a4164ed41061de59140dd0b12a91234508aebf7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1721,6 +1721,7 @@
                 "php": ">=7.2"
             },
             "require-dev": {
+                "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
