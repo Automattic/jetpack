@@ -45,6 +45,8 @@ describe( 'useSearchTermViews', () => {
 			primary: queryResult( { isError: true } ),
 			comparison: queryResult( {} ),
 			hasComparison: false,
+			isFetching: false,
+			refetch: jest.fn(),
 		} as unknown as ReturnType< typeof useStatsSearchTerms > );
 
 		const { result } = renderHook( () =>
@@ -61,6 +63,8 @@ describe( 'useSearchTermViews', () => {
 			primary: queryResult( { data: report( [ [ 'coffee', 42 ] ] ), isError: true } ),
 			comparison: queryResult( {} ),
 			hasComparison: false,
+			isFetching: false,
+			refetch: jest.fn(),
 		} as unknown as ReturnType< typeof useStatsSearchTerms > );
 
 		const { result } = renderHook( () =>
@@ -71,13 +75,17 @@ describe( 'useSearchTermViews', () => {
 		expect( result.current.data ).toEqual( [ { label: 'coffee', views: 42, previousViews: 0 } ] );
 	} );
 
-	it( 'refetches both primary and comparison when comparison is active', () => {
-		const primaryRefetch = jest.fn();
-		const comparisonRefetch = jest.fn();
+	it( 'forwards the data layer combined refetch and isFetching', () => {
+		// The data layer's refetch already awaits both queries and skips the
+		// comparison query when comparison is disabled — the hook must forward
+		// it rather than re-derive the fan-out.
+		const refetch = jest.fn();
 		mockUseStatsSearchTerms.mockReturnValue( {
-			primary: queryResult( { data: report( [] ), refetch: primaryRefetch } ),
-			comparison: queryResult( { data: report( [] ), refetch: comparisonRefetch } ),
+			primary: queryResult( { data: report( [] ) } ),
+			comparison: queryResult( { data: report( [] ) } ),
 			hasComparison: true,
+			isFetching: true,
+			refetch,
 		} as unknown as ReturnType< typeof useStatsSearchTerms > );
 
 		const { result } = renderHook( () =>
@@ -85,7 +93,7 @@ describe( 'useSearchTermViews', () => {
 		);
 		result.current.refetch();
 
-		expect( primaryRefetch ).toHaveBeenCalledTimes( 1 );
-		expect( comparisonRefetch ).toHaveBeenCalledTimes( 1 );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.isFetching ).toBe( true );
 	} );
 } );

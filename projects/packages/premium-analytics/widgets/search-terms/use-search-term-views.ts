@@ -28,6 +28,7 @@ interface UseSearchTermViewsArgs {
 interface SearchTermViewsState {
 	data: SearchTermView[];
 	isLoading: boolean;
+	isFetching: boolean;
 	isError: boolean;
 	hasComparison: boolean;
 	refetch: () => void;
@@ -51,7 +52,7 @@ export default function useSearchTermViews( {
 	reportParams,
 	max,
 }: UseSearchTermViewsArgs ): SearchTermViewsState {
-	const { primary, comparison, hasComparison } = useStatsSearchTerms(
+	const { primary, comparison, hasComparison, isFetching, refetch } = useStatsSearchTerms(
 		reportParams as Parameters< typeof useStatsSearchTerms >[ 0 ]
 	);
 
@@ -75,17 +76,15 @@ export default function useSearchTermViews( {
 	return {
 		data: items,
 		isLoading: primary.isLoading || ( hasComparison && comparison.isLoading ),
+		isFetching,
 		// The Stats queries carry `placeholderData: previousData => previousData`, so a
 		// failed range change keeps the prior period's rows in `data` while `isError`
 		// flips true. Only surface the error when there's nothing to show, so a transient
 		// refetch failure doesn't replace populated rows with the error state.
 		isError: items.length === 0 && ( primary.isError || ( hasComparison && comparison.isError ) ),
 		hasComparison,
-		refetch: () => {
-			void primary.refetch();
-			if ( hasComparison ) {
-				void comparison.refetch();
-			}
-		},
+		// The data layer's combined refetch: memoized, awaits both queries, and
+		// skips the comparison query when comparison is disabled.
+		refetch,
 	};
 }

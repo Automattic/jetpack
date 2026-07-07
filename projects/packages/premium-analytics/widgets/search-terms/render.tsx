@@ -34,7 +34,7 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, isLoading, isError, hasComparison, refetch } = useSearchTermViews( {
+	const { data, isLoading, isFetching, isError, hasComparison, refetch } = useSearchTermViews( {
 		reportParams,
 		max,
 	} );
@@ -63,6 +63,7 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 			<div className={ styles.content }>
 				<WidgetState
 					isLoading={ isLoading }
+					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
 					error={ {
@@ -79,7 +80,6 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 				>
 					<LeaderboardChart
 						data={ leaderboardData }
-						loading={ isLoading }
 						withComparison={ hasComparison }
 						withOverlayLabel
 						showLegend={ false }
