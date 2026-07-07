@@ -208,8 +208,7 @@ class Podcast_Episode_Block {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			require_once WP_CONTENT_DIR . '/lib/display-context.php';
 			$is_reader_render = \A8C\Display_Context\READER === \A8C\Display_Context\get_current_context();
-		} elseif ( class_exists( '\Automattic\Jetpack\Sync\Settings' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional jetpack-sync dependency, checked with class_exists() above.
+		} elseif ( class_exists( Sync_Settings::class ) ) {
 			$is_reader_render = Sync_Settings::is_syncing();
 		}
 

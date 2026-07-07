@@ -18,7 +18,6 @@ use WP_Block_Supports;
 // renderer leans on, so render_email() can run in the package test env.
 require_once __DIR__ . '/../mocks/class-mock-podcast-table-wrapper-helper.php';
 require_once __DIR__ . '/../mocks/class-mock-podcast-styles-helper.php';
-require_once __DIR__ . '/../mocks/class-mock-podcast-sync-settings.php';
 
 /**
  * Render-path coverage for Podcast_Episode_Block.
@@ -57,13 +56,11 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Toggle the Sync "is syncing" flag the render callback probes. Routed through
-	 * one helper so the optional jetpack-sync class reference is suppressed once.
+	 * Toggle the Sync "is syncing" flag the render callback probes.
 	 *
 	 * @param bool $syncing Whether to simulate a Sync content render.
 	 */
 	private function set_syncing( $syncing ) {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional jetpack-sync dependency; the test mock provides Settings.
 		Sync_Settings::set_is_syncing( $syncing );
 	}
 
