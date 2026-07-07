@@ -7,6 +7,9 @@
 		"php": ">=7.2"
 	},
 	"require-dev": {
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-plans": "@dev",
+		"automattic/jetpack-status": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/phpunit-select-config": "@dev"
 	},
