@@ -30,7 +30,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.1';
+	const PACKAGE_VERSION = '0.4.0';
 
 	/**
 	 * Filter name that gates the entire Jetpack SEO surface.

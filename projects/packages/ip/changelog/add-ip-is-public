@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Utils::ip_is_public() to check whether an IP address is a safe, globally-routable public destination (rejects private, reserved, and special-use ranges including cloud-metadata addresses).

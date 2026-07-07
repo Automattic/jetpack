@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Disable the block visibility control on form field, input, and choice/option blocks, where the per-viewport "Hide on…" option was not honored on the frontend. Fields still honor a saved "Hide everywhere" (removing the field entirely, which keeps required fields safe) regardless of WordPress version. Labels keep their visibility support and now honor the per-viewport "Hide on…" option too, and fields whose label is hidden keep an accessible name.

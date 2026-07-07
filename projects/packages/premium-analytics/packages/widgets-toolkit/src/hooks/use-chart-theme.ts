@@ -28,13 +28,13 @@ export function useChartTheme(): WooChartTheme {
 		// color token, otherwise use the default analytics theme colors.
 		const colors =
 			preferences.interfaceTheme === 'custom'
-				? [ '--wpds-color-fg-interactive-brand' ]
+				? [ '--wpds-color-foreground-interactive-brand' ]
 				: WOO_COLORS;
 
 		return {
-			backgroundColor: 'var(--wpds-color-bg-surface-neutral-strong)',
-			labelBackgroundColor: 'var(--wpds-color-bg-interactive-neutral-weak)',
-			labelTextColor: 'var(--wpds-color-fg-interactive-neutral-strong)',
+			backgroundColor: 'var(--wpds-color-background-surface-neutral-strong)',
+			labelBackgroundColor: 'var(--wpds-color-background-interactive-neutral-weak)',
+			labelTextColor: 'var(--wpds-color-foreground-interactive-neutral-strong)',
 			colors,
 			gridStyles: {
 				stroke: 'var(--wpds-color-stroke-surface-neutral)',
@@ -44,7 +44,7 @@ export function useChartTheme(): WooChartTheme {
 			gridColor: '',
 			gridColorDark: '',
 			svgLabelSmall: {
-				fill: 'var(--wpds-color-fg-content-neutral-weak)',
+				fill: 'var(--wpds-color-foreground-content-neutral-weak)',
 			},
 			xTickLineStyles: { stroke: '' },
 			xAxisLineStyles: {
@@ -55,7 +55,7 @@ export function useChartTheme(): WooChartTheme {
 				labelStyles: {
 					fontSize: 'var(--wpds-typography-font-size-sm)',
 					fontWeight: 400,
-					color: 'var(--wpds-color-fg-content-neutral)',
+					color: 'var(--wpds-color-foreground-content-neutral)',
 				},
 				containerStyles: {
 					rowGap: 'var( --wpds-dimension-padding-sm )',
@@ -77,15 +77,15 @@ export function useChartTheme(): WooChartTheme {
 				labelSpacing: 'xs',
 				barBorderRadius: 'var(--wpds-border-radius-md)',
 				deltaColors: [
-					'var(--wpds-color-fg-content-error-weak)',
-					'var(--wpds-color-fg-content-neutral)',
-					'var(--wpds-color-fg-content-success-weak)',
+					'var(--wpds-color-stroke-surface-error-strong)',
+					'var(--wpds-color-foreground-content-neutral-weak)',
+					'var(--wpds-color-stroke-surface-success-strong)',
 				] as [ string, string, string ], // [ negative, neutral, positive ]
 			},
 			conversionFunnelChart: {
-				backgroundColor: 'var(--wpds-color-bg-surface-brand)',
-				positiveChangeColor: 'var(--wpds-color-fg-content-success-weak)',
-				negativeChangeColor: 'var(--wpds-color-fg-content-error-weak)',
+				backgroundColor: 'var(--wpds-color-background-surface-brand)',
+				positiveChangeColor: 'var(--wpds-color-foreground-content-success-weak)',
+				negativeChangeColor: 'var(--wpds-color-foreground-content-error-weak)',
 			},
 			lineChart: {
 				lineStyles: {

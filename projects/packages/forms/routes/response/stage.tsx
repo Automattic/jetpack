@@ -230,7 +230,7 @@ function Stage(): React.JSX.Element {
 			actions={
 				<Stack
 					direction="row"
-					gap="s"
+					gap="sm"
 					justify="end"
 					wrap="wrap"
 					className="jp-forms__single-response-actions"

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Image Studio: share the translation script handle with the Agents Manager package to avoid enqueuing the same file twice.

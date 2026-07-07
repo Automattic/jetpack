@@ -140,7 +140,7 @@ export function fetchSubscriberDetails( params: IndividualParams ): Promise< Sub
  */
 export function fetchSubscriberStats( params: IndividualParams ): Promise< SubscriberStats > {
 	return apiFetch< SubscriberStats >( {
-		path: addQueryArgs( '/wpcom/v2/subscribers/stats', {
+		path: addQueryArgs( '/wpcom/v2/subscribers/individual-stats', {
 			subscription_id: params.subscription_id ?? 0,
 			user_id: params.user_id ?? 0,
 		} ),

@@ -696,10 +696,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
-		// generateFeedback, optimizeTitleSuggestion and seoSuggestions are in development: off outside testing environments.
+		// generateFeedback, proofreadContent, optimizeTitleSuggestion, seoSuggestions and excerptSuggestion are in development: off outside testing environments.
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['generateFeedback'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['proofreadContent'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['chatHistory'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['supportGuides'] );
 	}
@@ -721,9 +723,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * In an internal testing environment, the in-development suggestions (Generate
-	 * Feedback, Optimize Title and SEO suggestions) are exposed. The test plan
-	 * supports advanced-seo, and the seo-tools module is activated so the SEO
-	 * suggestions gate is satisfied.
+	 * Feedback, Proofreader, Optimize Title, SEO suggestions and the excerpt
+	 * suggestion) are exposed. The test plan supports advanced-seo, and the
+	 * seo-tools module is activated so the SEO suggestions gate is satisfied.
 	 */
 	public function test_add_agents_manager_data_exposes_in_development_features_in_testing_environment() {
 		$this->set_block_editor_screen();
@@ -733,8 +735,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['generateFeedback'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['proofreadContent'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
 	}
 
 	/**
@@ -747,8 +751,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			'jetpack_ai_sidebar_preview_features',
 			function ( $features ) {
 				$features['generateFeedback']        = true;
+				$features['proofreadContent']        = true;
 				$features['optimizeTitleSuggestion'] = true;
 				$features['seoSuggestions']          = true;
+				$features['excerptSuggestion']       = true;
 				return $features;
 			}
 		);
@@ -756,8 +762,30 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['generateFeedback'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['proofreadContent'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
+	}
+
+	/**
+	 * The generic preview features filter can still disable the excerpt suggestion
+	 * inside a testing environment (the gate raises the floor, not the ceiling).
+	 */
+	public function test_add_agents_manager_data_preview_features_filter_can_disable_excerpt_suggestion_in_testing_environment() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			function ( $features ) {
+				$features['excerptSuggestion'] = false;
+				return $features;
+			}
+		);
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
 	}
 
 	/**

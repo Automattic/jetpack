@@ -51,8 +51,8 @@ class AnnotationsTest extends TestCase {
 		UsedClass::foo();
 	}
 
-	#[ExcludeGlobalVariableFromBackup()]
-	#[ExcludeStaticPropertyFromBackup()]
+	#[ExcludeGlobalVariableFromBackup]
+	#[ExcludeStaticPropertyFromBackup]
 	#[ExcludeStaticPropertyFromBackup( \RootClass::class )]
 	#[ExcludeStaticPropertyFromBackup( 42, 'var' )]
 	#[ExcludeStaticPropertyFromBackup( self::class, 'var' )]

@@ -360,7 +360,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Keep this in sync with the JS helper `isCollectingResponses()` in
 	 * blocks/contact-form/util/is-collecting-responses.ts.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.23.0
 	 *
 	 * @param mixed $attributes Raw contact-form block attributes. Non-arrays are
 	 *                          treated as collecting (no warning).
@@ -407,7 +407,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Toggle attributes arrive as JS booleans from the editor but are persisted
 	 * as `'yes'`/`'no'` strings in some contexts, so both forms must be handled.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.23.0
 	 *
 	 * @param array  $attributes Block attributes.
 	 * @param string $key        Attribute name.
@@ -438,7 +438,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Shown on the live front-end form and in form previews, but only to users
 	 * who can manage forms (`edit_pages`) — never to visitors.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.23.0
 	 *
 	 * @param array $attributes Raw contact-form block attributes.
 	 * @return string Notice HTML, or an empty string.
