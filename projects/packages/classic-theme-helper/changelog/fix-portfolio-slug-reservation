@@ -1,4 +1,4 @@
-Significance: minor
-Type: bugfix
+Significance: patch
+Type: fixed
 
-Portfolio/Testimonial: unregister post type before flushing rewrite rules on disable to free up the slug for existing pages.
+Portfolio/Testimonial: flush rewrite rules on the next request after toggling the option, so the slug is correctly freed or reserved.

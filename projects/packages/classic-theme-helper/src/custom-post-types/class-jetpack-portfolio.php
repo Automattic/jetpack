@@ -315,35 +315,30 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		}
 
 		/**
-		 * Flush permalinks when CPT option is turned on/off
+		 * Flush permalinks when CPT option is added.
 		 */
 		public function flush_rules_on_enable() {
 			flush_rewrite_rules();
 		}
 
 		/**
-		 * Flush permalinks on option change, handling disable properly.
+		 * Schedule a rewrite-rule flush on option change.
 		 *
-		 * When the Portfolio option is disabled, the post type is still
-		 * registered on the current request, so a naive flush would preserve
-		 * the old rewrite rules including the /portfolio/ slug. We must
-		 * unregister the post type before flushing to ensure the slug is
-		 * freed up for existing pages.
+		 * When the Portfolio option is toggled (enable or disable), the post
+		 * type is still registered based on the previous option value during
+		 * the current request. Calling flush_rewrite_rules() now would
+		 * generate stale rules. Instead, delete the rewrite_rules option so
+		 * WordPress regenerates them on the next request, when the post type
+		 * is correctly registered (or not) based on the new option value.
 		 *
-		 * @param string|array $old_value The old option value.
-		 * @param string|array $new_value The new option value.
+		 * @param string $old_value The old option value.
+		 * @param int    $new_value The new option value.
 		 */
 		public function flush_rules_on_option_change( $old_value, $new_value ) {
-			$was_enabled = '1' === strval( $old_value );
-			$now_enabled = '1' === strval( $new_value );
-
-			if ( $was_enabled && ! $now_enabled ) {
-				// Portfolio was disabled — unregister the post type so rewrite
-				// rules are regenerated without the /portfolio/ slug.
-				unregister_post_type( self::CUSTOM_POST_TYPE );
+			if ( strval( $old_value ) === strval( $new_value ) ) {
+				return;
 			}
-
-			flush_rewrite_rules();
+			delete_option( 'rewrite_rules' );
 		}
 
 		/**
