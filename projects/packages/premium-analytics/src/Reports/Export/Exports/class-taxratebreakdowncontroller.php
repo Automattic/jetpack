@@ -218,24 +218,27 @@ class TaxRateBreakdownController extends AbstractCSVReportController {
 	 * Get the identifying fields that should be preserved in comparison data.
 	 *
 	 * When a tax rate exists in the original period but not in the comparison period,
-	 * these fields should still be shown for clarity to maintain the tax code.
+	 * the tax code should still be shown for clarity. tax_rate_code is the field the
+	 * taxes/breakdown endpoint actually returns (name/country/state/priority are not
+	 * part of its schema).
 	 *
 	 * @return array Array of field names to preserve.
 	 */
 	public function get_identifying_fields(): array {
-		return array( 'country', 'state', 'name', 'priority' );
+		return array( 'tax_rate_code' );
 	}
 
 	/**
 	 * Get the field name to check for emptiness.
 	 *
-	 * Enables parent empty row handling: rows with empty name are either skipped
-	 * or included with the customizable empty row label (e.g. "Unassigned").
+	 * Enables parent empty row handling: rows with an empty tax code are either skipped
+	 * or included with the customizable empty row label (e.g. "Unassigned"). Uses
+	 * tax_rate_code, the field the endpoint returns and the one displayed as the tax code.
 	 *
 	 * @return array The field names to check.
 	 */
 	public function get_empty_row_check_field() {
-		return array( 'name' );
+		return array( 'tax_rate_code' );
 	}
 
 	/**
