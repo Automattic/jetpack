@@ -75,14 +75,14 @@ describe( 'useShareButtonText', () => {
 	it( 'renders the WPCOM-rendered message and leaks no template tokens (regression)', () => {
 		mockSiteHasFeature.mockReturnValue( true );
 		mockEditor();
-		const rendered = `Image Test 3\n\nFocal point test\n\n${ LINK }\n\n- Adnan Haque`;
-		mockUseManualShareMessage.mockReturnValue( { message: rendered, isLoading: false } );
+		// The raw template is still in post meta; it must never reach the output.
+		mockUsePostMeta.mockReturnValue( { shareMessage: '{title} {excerpt} {url} {author}' } );
+		mockUseManualShareMessage.mockReturnValue( { message: 'Hello world', isLoading: false } );
 
 		const { result } = renderHook( () => useShareButtonText() );
 		const output = result.current( CLIPBOARD_TEMPLATE, false );
 
-		expect( output ).toContain( 'Image Test 3' );
-		expect( output ).toContain( '- Adnan Haque' );
+		expect( output ).toContain( 'Hello world' );
 		expect( output ).not.toMatch( TOKEN_RE );
 	} );
 
