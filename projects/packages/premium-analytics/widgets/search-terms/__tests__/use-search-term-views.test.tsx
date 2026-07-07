@@ -75,6 +75,26 @@ describe( 'useSearchTermViews', () => {
 		expect( result.current.data ).toEqual( [ { label: 'coffee', views: 42, previousViews: 0 } ] );
 	} );
 
+	it( 'drops to a non-comparison view when the comparison query fails but primary has rows', () => {
+		// A comparison-only failure must not render period-over-period deltas from a
+		// `previousViews` of 0. The primary rows still show, without comparison.
+		mockUseStatsSearchTerms.mockReturnValue( {
+			primary: queryResult( { data: report( [ [ 'coffee', 42 ] ] ) } ),
+			comparison: queryResult( { data: report( [ [ 'coffee', 30 ] ] ), isError: true } ),
+			hasComparison: true,
+			isFetching: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsSearchTerms > );
+
+		const { result } = renderHook( () =>
+			useSearchTermViews( { reportParams: REPORT_PARAMS, max: 10 } )
+		);
+
+		expect( result.current.isError ).toBe( false );
+		expect( result.current.hasComparison ).toBe( false );
+		expect( result.current.data ).toEqual( [ { label: 'coffee', views: 42, previousViews: 0 } ] );
+	} );
+
 	it( 'forwards the data layer combined refetch and isFetching', () => {
 		// The data layer's refetch already awaits both queries and skips the
 		// comparison query when comparison is disabled — the hook must forward

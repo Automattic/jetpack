@@ -124,6 +124,8 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.getByText( 'Failed.' ) ).toBeInTheDocument();
+		// The error state is announced to assistive tech via role="alert".
+		expect( screen.getByRole( 'alert' ) ).toBeInTheDocument();
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( onClick ).toHaveBeenCalledTimes( 1 );
