@@ -24,6 +24,8 @@ interface Props {
 	initialSiteName?: string;
 	// Existing site tagline (blogdescription). Pre-fills the Brief description.
 	initialIntent?: string;
+	// The site's front-end URL, used to key the Calypso My Home URL on Skip.
+	siteUrl?: string;
 	// User locale, forwarded to the wizard payload and the AI call.
 	locale?: string;
 	// Fired once Finish completes, with the persisted input and the in-flight
@@ -38,6 +40,7 @@ interface Props {
  * @param props                 - Component props.
  * @param props.initialSiteName - Existing site title used to pre-fill Name.
  * @param props.initialIntent   - Existing site tagline used to pre-fill the description.
+ * @param props.siteUrl         - The site's front-end URL (for the Skip redirect).
  * @param props.locale          - User locale forwarded to the payload.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
@@ -45,6 +48,7 @@ interface Props {
 export function Wizard( {
 	initialSiteName = '',
 	initialIntent = '',
+	siteUrl,
 	locale = 'en',
 	onComplete,
 }: Props ) {
@@ -74,19 +78,22 @@ export function Wizard( {
 		}
 		const payload = buildWizardPayload( goal, state );
 		// Persist in the background, best-effort so a failed save isn't an unhandled rejection.
+		// Once it lands, reflect the new title in the server-rendered admin bar in place —
+		// a reload instead would re-show the wizard (the tailored output isn't persisted yet).
+		// Mirrors the server's guard: an empty/whitespace Name never writes blogname.
 		apiFetch( {
 			path: '/wpcom/v2/ai-launchpad/wizard',
 			method: 'PUT',
 			data: payload,
-		} ).catch( () => {} );
-
-		// The PUT above writes the entered Name to blogname, but the admin bar is
-		// server-rendered, so reflect the new title in place. A reload instead would
-		// re-show the wizard: the tailored output is not persisted yet at this point.
-		const adminBarSiteName = document.querySelector( '#wp-admin-bar-site-name > a' );
-		if ( adminBarSiteName && payload.site_name ) {
-			adminBarSiteName.textContent = payload.site_name;
-		}
+		} )
+			.then( () => {
+				const adminBarSiteName = document.querySelector( '#wp-admin-bar-site-name > a' );
+				const savedName = payload.site_name.trim();
+				if ( adminBarSiteName && savedName ) {
+					adminBarSiteName.textContent = savedName;
+				}
+			} )
+			.catch( () => {} );
 
 		const tailoring = getPrewarmedTailor( payload );
 		trackWizardCompleted();
@@ -100,7 +107,8 @@ export function Wizard( {
 	};
 
 	// Skipping opts out of the AI Launchpad entirely: dismiss it server-side (which reverts
-	// the site to the regular launchpad surfaces) and leave for Calypso My Home.
+	// the site to the regular launchpad surfaces) and leave for Calypso My Home. Calypso keys
+	// sites by their front-end host, so prefer the site URL over the wp-admin request host.
 	const handleSkip = async () => {
 		setSkipping( true );
 		trackWizardSkipped();
@@ -109,7 +117,13 @@ export function Wizard( {
 		} catch {
 			// Still navigate away: a failed dismiss write must not trap the user in the wizard.
 		}
-		window.location.href = 'https://wordpress.com/home/' + window.location.hostname;
+		let siteHost = window.location.hostname;
+		try {
+			siteHost = siteUrl ? new URL( siteUrl ).host : siteHost;
+		} catch {
+			// Malformed site URL: keep the request host.
+		}
+		window.location.href = 'https://wordpress.com/home/' + siteHost;
 	};
 
 	return (

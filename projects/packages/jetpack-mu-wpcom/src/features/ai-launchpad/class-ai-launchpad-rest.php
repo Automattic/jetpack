@@ -407,9 +407,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		if ( 'sell' === $goal ) {
 			// The store-setup tasks lead the sell list. Their synthetic ids never appear in the AI payload, so a
 			// plain prepend is safe. The theme task then follows them, wherever the AI ranked it: pick the
-			// store's look once the store exists.
+			// store's look once the store exists. Reversed so multiple theme tasks keep their THEME_TASK_IDS order.
 			$tasks = array_merge( $this->build_store_tasks( $woo_active ), $tasks );
-			$tasks = $this->move_task_after( $tasks, 'site_theme_selected', 'setup_woocommerce_store' );
+			foreach ( array_reverse( self::THEME_TASK_IDS ) as $theme_task_id ) {
+				$tasks = $this->move_task_after( $tasks, $theme_task_id, 'setup_woocommerce_store' );
+			}
 		} else {
 			$gallery = $this->build_gallery_task( $inferred );
 			if ( null !== $gallery ) {
@@ -652,14 +654,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * The persisted skipped task ids, always as a clean string array.
+	 * The persisted skipped task ids, always as a clean string array, remapped onto the
+	 * ids the launchpad renders — a skip recorded under a task's raw id before that id
+	 * was remapped must keep applying to the card it renders as now.
 	 *
 	 * @return string[]
 	 */
 	private function get_skipped_task_ids() {
 		$skipped = get_option( self::OPTION_SKIPPED, array() );
+		if ( ! is_array( $skipped ) ) {
+			return array();
+		}
 
-		return is_array( $skipped ) ? array_values( array_filter( $skipped, 'is_string' ) ) : array();
+		$skipped = array_map( 'wpcom_ai_launchpad_remap_task_id', array_filter( $skipped, 'is_string' ) );
+
+		return array_values( array_unique( $skipped ) );
 	}
 
 	/**
@@ -960,12 +969,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * @return array
 	 */
 	private function move_task_after( $tasks, $move_id, $after_id ) {
-		$ids = array_column( $tasks, 'id' );
-		if ( false === array_search( $move_id, $ids, true ) || false === array_search( $after_id, $ids, true ) ) {
+		$ids  = array_column( $tasks, 'id' );
+		$from = array_search( $move_id, $ids, true );
+		if ( false === $from || false === array_search( $after_id, $ids, true ) ) {
 			return $tasks;
 		}
 
-		$moved = array_splice( $tasks, array_search( $move_id, $ids, true ), 1 );
+		$moved = array_splice( $tasks, $from, 1 );
 		// Recompute the anchor: extracting an earlier element shifts it left by one.
 		$to = array_search( $after_id, array_column( $tasks, 'id' ), true );
 		array_splice( $tasks, $to + 1, 0, $moved );

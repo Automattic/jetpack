@@ -1568,6 +1568,66 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the sell reorder covers every theme-picker task id, not just
+	 * site_theme_selected — an output whose theme task is design_selected must
+	 * also land right after the store-setup lead tasks.
+	 */
+	public function test_get_sell_moves_design_selected_after_store_setup() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'woo_products',
+							'subtitle' => 'Add products.',
+						),
+						array(
+							'id'       => 'design_selected',
+							'subtitle' => 'Pick a look.',
+						),
+						array(
+							'id'       => 'site_launched',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array( 'goal' => 'sell' ),
+				),
+			),
+			false
+		);
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertSame(
+			array( 'install_woocommerce', 'setup_woocommerce_store', 'design_selected' ),
+			array_slice( $ids, 0, 3 )
+		);
+	}
+
+	/**
+	 * Test that a skip recorded under a task's raw id before the id was remapped
+	 * still applies to the card the id now renders as — a skip must never pop
+	 * back open after a deploy.
+	 */
+	public function test_get_applies_pre_remap_skips_to_remapped_task() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'post_sharing_enabled', 'site_launched' ) );
+		// As written by skip_task() before the remap existed.
+		update_option( 'wpcom_ai_launchpad_skipped_tasks', array( 'post_sharing_enabled' ), false );
+
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		$this->assertTrue( $tasks['connect_social_media']['skipped'] );
+		$this->assertTrue( $tasks['connect_social_media']['completed'] );
+	}
+
+	/**
 	 * Test that POST /complete-task marks an allowlisted acknowledgment task complete.
 	 */
 	public function test_complete_task_marks_acknowledgment_task() {

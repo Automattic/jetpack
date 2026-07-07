@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-AI Launchpad: second-pass design feedback — AI-picked theme-search keyword, wizard Skip (reverts to the regular launchpad), live site-title update, replace the born-completed post-sharing task, store-first sell theme picker, design polish
+AI Launchpad: apply the second pass of design feedback — let the AI pick the theme-search keyword, add a wizard Skip that reverts to the regular launchpad, update the site title without a reload, replace the born-completed post-sharing task, lead sell sites to store themes after store setup, and polish the preview card and wizard icons.
