@@ -12,7 +12,6 @@ export {
 	shouldRetryApiError,
 } from './api-error';
 export type { StatsPlanErrorReason } from './api-error';
-export { describeError, type WidgetErrorDescriptor } from './describe-error';
 export { ensureCoreSettingsReady } from './ensure-core-settings';
 export { getDefaultIntervalForPeriod } from './interval';
 export { safeParseInt, safeParseFloat } from './parsing';

@@ -206,9 +206,7 @@ export {
 	getApiErrorStatus,
 	getStatsPlanErrorReason,
 	shouldRetryApiError,
-	describeError,
 } from './utils';
-export type { WidgetErrorDescriptor } from './utils';
 export type { StatsPlanErrorReason } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';
