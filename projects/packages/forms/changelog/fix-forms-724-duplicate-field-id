@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Forms: prevent duplicate field Name/IDs (from duplicating or copy/pasting a field) from collapsing into one another, which dropped fields from stored responses and email notifications.
