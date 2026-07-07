@@ -104,7 +104,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 				return;
 			}
 			add_action( sprintf( 'add_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_enable' ), 10 );
-			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_enable' ), 10 );
+			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_option_change' ), 10, 2 );
 			add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE ), array( $this, 'flush_rules_on_first_project' ) );
 			add_action( 'after_switch_theme', array( $this, 'flush_rules_on_switch' ) );
 
@@ -318,6 +318,31 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		 * Flush permalinks when CPT option is turned on/off
 		 */
 		public function flush_rules_on_enable() {
+			flush_rewrite_rules();
+		}
+
+		/**
+		 * Flush permalinks on option change, handling disable properly.
+		 *
+		 * When the Portfolio option is disabled, the post type is still
+		 * registered on the current request, so a naive flush would preserve
+		 * the old rewrite rules including the /portfolio/ slug. We must
+		 * unregister the post type before flushing to ensure the slug is
+		 * freed up for existing pages.
+		 *
+		 * @param string|array $old_value The old option value.
+		 * @param string|array $new_value The new option value.
+		 */
+		public function flush_rules_on_option_change( $old_value, $new_value ) {
+			$was_enabled = '1' === strval( $old_value );
+			$now_enabled = '1' === strval( $new_value );
+
+			if ( $was_enabled && ! $now_enabled ) {
+				// Portfolio was disabled — unregister the post type so rewrite
+				// rules are regenerated without the /portfolio/ slug.
+				unregister_post_type( self::CUSTOM_POST_TYPE );
+			}
+
 			flush_rewrite_rules();
 		}
 
