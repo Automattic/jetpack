@@ -1110,7 +1110,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		// WordPress.com-only fields are not part of proxied Jetpack responses;
+		// WordPress.com platform fields are not part of proxied Jetpack responses;
 		// add them only when explicitly requested.
 		if ( $this->is_wpcom() && $has_site_access && is_array( $this->fields_to_include ) ) {
 			if ( function_exists( 'get_jetpack_hosting_provider' ) && in_array( 'hosting_provider_guess', $this->fields_to_include, true ) ) {
@@ -1126,12 +1126,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Whether this request is running on WordPress.com.
+	 * Whether this request is running on the WordPress.com platform.
 	 *
 	 * @return bool
 	 */
 	protected function is_wpcom() {
-		return ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple();
+		return ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform();
 	}
 }
 
