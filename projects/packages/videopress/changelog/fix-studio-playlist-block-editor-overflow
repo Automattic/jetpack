@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress Studio: contain the playlist block's editor preview within the block bounds — own the box model instead of relying on the frontend button's UA border-box sizing, cap posters to their tiles, and drop the never-emitted style.css handle from block.json.

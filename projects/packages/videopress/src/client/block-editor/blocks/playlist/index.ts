@@ -7,8 +7,10 @@ import { registerBlockType } from '@wordpress/blocks';
  */
 import { VideoPressIcon as icon } from '../video/components/icons';
 import metadata from './block.json';
-import Edit from './edit';
+// Shared block structure, imported before ./edit so the editor-only rules
+// that editor.scss (imported by ./edit) layers on top win the cascade.
 import './style.scss';
+import Edit from './edit';
 /**
  * Types
  */

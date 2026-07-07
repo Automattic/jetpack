@@ -1,12 +1,25 @@
-// Shared playlist block structure, loaded on the frontend and in the editor
-// (block.json `style`). The class names match the server render in
-// src/class-playlist-block.php and the static editor preview in edit.tsx.
+// Shared playlist block structure. Reaches the frontend through view.scss
+// (`@use "style"` -> view.css) and the editor through index.ts's import
+// (-> index.css, the block.json `editorStyle`). The class names match the
+// server render in src/class-playlist-block.php and the static editor
+// preview in edit.tsx.
 
 .wp-block-videopress-playlist {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
 	margin: 0;
+
+	// The editor preview mirrors the frontend markup with non-interactive
+	// stand-ins (a div where the frontend renders a button). Buttons get
+	// border-box sizing from the UA stylesheet, divs do not — and this sheet
+	// sizes `.wp-block-videopress-playlist__item-button` with `width: 100%`
+	// plus padding, which overflows the grid tracks under content-box. Own
+	// the box model instead of inheriting it from the markup.
+	&,
+	* {
+		box-sizing: border-box;
+	}
 
 	.wp-block-videopress-playlist__header {
 		display: flex;
@@ -46,12 +59,20 @@
 		position: relative;
 		aspect-ratio: 16 / 9;
 		background: rgba(0, 0, 0, 0.05);
+		// Hard containment: neither the frontend iframe nor the editor
+		// preview's poster image may escape the 16:9 player box.
+		overflow: hidden;
 
-		iframe {
+		iframe,
+		img {
 			display: block;
 			width: 100%;
 			height: 100%;
 			border: 0;
+		}
+
+		img {
+			object-fit: cover;
 		}
 	}
 
@@ -66,6 +87,10 @@
 
 	.wp-block-videopress-playlist__item {
 		margin: 0;
+		// Grid items refuse to shrink below their content's min-content size
+		// by default; a full-resolution poster would blow the auto-fill
+		// tracks out of the block wrapper.
+		min-width: 0;
 	}
 
 	.wp-block-videopress-playlist__item-button {
@@ -101,6 +126,10 @@
 
 	.wp-block-videopress-playlist__item-poster {
 		width: 96px;
+		// Never let the poster's intrinsic (full-resolution) size win over
+		// the layout: cap it to the tile and let the ratio derive the height.
+		max-width: 100%;
+		height: auto;
 		aspect-ratio: 16 / 9;
 		object-fit: cover;
 		border-radius: 2px;
