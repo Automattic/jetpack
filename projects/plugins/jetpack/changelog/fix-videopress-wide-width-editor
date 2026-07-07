@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: bugfix
 
 VideoPress: ensure "Wide width" and "Full" alignments render correctly in the editor when the VideoPress block replaces the core video block.
