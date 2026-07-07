@@ -176,6 +176,22 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks extends \WP_REST_Cont
 	}
 
 	/**
+	 * The caption-track ID from the request's URL path, if any.
+	 *
+	 * Only the `(?P<id>\d+)` item routes supply one. Reading it from the URL
+	 * params rather than `get_param()` — which also exposes query-string and body
+	 * values regardless of a route's declared args — stops a spoofed `?id=` on the
+	 * list/create routes from re-targeting the request at another video's track.
+	 *
+	 * @param \WP_REST_Request $request Incoming request.
+	 * @return int Track ID, or 0 when the route path has none.
+	 */
+	private static function url_track_id( \WP_REST_Request $request ) {
+		$url_params = $request->get_url_params();
+		return isset( $url_params['id'] ) ? (int) $url_params['id'] : 0;
+	}
+
+	/**
 	 * REST permission callback for the caption track routes.
 	 *
 	 * Authorizes against the video the request targets: an existing track is
@@ -186,7 +202,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks extends \WP_REST_Cont
 	 * @return bool
 	 */
 	public static function rest_permission_check( \WP_REST_Request $request ) {
-		$track_id = (int) $request->get_param( 'id' );
+		$track_id = self::url_track_id( $request );
 		if ( $track_id ) {
 			$existing = get_post( $track_id );
 			if ( $existing instanceof \WP_Post && Caption_Tracks::POST_TYPE === $existing->post_type ) {
@@ -255,7 +271,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks extends \WP_REST_Cont
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public static function rest_save_track( \WP_REST_Request $request ) {
-		$track_id = (int) $request->get_param( 'id' );
+		$track_id = self::url_track_id( $request );
 		$existing = $track_id ? get_post( $track_id ) : null;
 
 		if ( $track_id && ( ! $existing || Caption_Tracks::POST_TYPE !== $existing->post_type ) ) {
@@ -359,7 +375,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks extends \WP_REST_Cont
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public static function rest_delete_track( \WP_REST_Request $request ) {
-		$track_id = (int) $request->get_param( 'id' );
+		$track_id = self::url_track_id( $request );
 		$existing = $track_id ? get_post( $track_id ) : null;
 
 		if ( ! $existing || Caption_Tracks::POST_TYPE !== $existing->post_type ) {

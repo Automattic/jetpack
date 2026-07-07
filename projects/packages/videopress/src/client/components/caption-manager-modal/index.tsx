@@ -574,6 +574,11 @@ function CaptionManagerModalInner( {
 			return;
 		}
 
+		// A late-resolving upload must not wipe an editor the user has since started.
+		if ( ! isCurrentWorkspace( workspace.requestId ) ) {
+			return;
+		}
+
 		concludeTrackFlow(
 			outcome === 'cleanup-failed',
 			__( 'Subtitle track uploaded.', 'jetpack-videopress-pkg' ),
@@ -582,7 +587,7 @@ function CaptionManagerModalInner( {
 				'jetpack-videopress-pkg'
 			)
 		);
-	}, [ concludeTrackFlow, managedTracks, uploadSubtitleFile, workspace ] );
+	}, [ concludeTrackFlow, isCurrentWorkspace, managedTracks, uploadSubtitleFile, workspace ] );
 
 	const saveDraft = useCallback( async () => {
 		if ( workspace.view !== 'manual' ) {

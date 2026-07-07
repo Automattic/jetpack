@@ -742,13 +742,14 @@ class Caption_Tracks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Tests that a POST to the collection route with a body ID updates that track.
+	 * Tests that a body-supplied ID on the collection POST route is ignored.
 	 *
-	 * The `id` param follows core REST param resolution, so a body-supplied ID
-	 * turns a collection POST into an update of that track. Authorization
-	 * resolves the same param, so the permission check covers the same track.
+	 * Only the item routes' URL path carries a track ID; the handler reads it
+	 * from the URL params, not `get_param()`. A collection POST that smuggles an
+	 * `id` in its body therefore creates a new track rather than updating the
+	 * referenced one, so a request can't re-target another track through the body.
 	 */
-	public function test_collection_post_with_body_id_updates_existing_track() {
+	public function test_collection_post_ignores_body_id() {
 		$this->create_videopress_attachment( 'abcd1234', $this->admin_id );
 		wp_set_current_user( $this->admin_id );
 
@@ -766,8 +767,44 @@ class Caption_Tracks_Test extends BaseTestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( $created['id'], $response->get_data()['id'] );
-		$this->assertSame( 'Renamed track', get_post( $created['id'] )->post_title );
+		// A new track is created; the referenced track is left untouched.
+		$this->assertNotSame( $created['id'], $response->get_data()['id'] );
+		$this->assertNotSame( 'Renamed track', get_post( $created['id'] )->post_title );
+	}
+
+	/**
+	 * Tests that a query-string ID can't lift the list route past its GUID check.
+	 *
+	 * The list route authorizes against its `guid`. A caller who owns some track
+	 * must not be able to enumerate another video's captions by smuggling that
+	 * track's id into `?id=`; the permission check only trusts a path (URL) id.
+	 */
+	public function test_list_tracks_ignores_query_id_for_authorization() {
+		// The victim's video, owned by another user.
+		$victim_guid = 'vid05678';
+		$this->create_videopress_attachment( $victim_guid, $this->author_id );
+
+		// The caller owns their own video and a caption track on it.
+		$attacker_guid = 'atkr0000';
+		$this->create_videopress_attachment( $attacker_guid, $this->other_author_id );
+		wp_set_current_user( $this->other_author_id );
+
+		$create = new WP_REST_Request( 'POST', '/wpcom/v2/videopress/caption-tracks' );
+		$create->set_body_params( $this->track_payload_for_guid( $attacker_guid ) );
+		$own_track = $this->server->dispatch( $create )->get_data();
+
+		// Listing the victim's captions with the caller's own track id must be denied.
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/videopress/caption-tracks' );
+		$request->set_query_params(
+			array(
+				'guid' => $victim_guid,
+				'id'   => $own_track['id'],
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
 	}
 
 	/**
