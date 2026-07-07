@@ -807,21 +807,51 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	/**
 	 * In an internal testing environment, the in-development suggestions (Generate
 	 * Feedback, Proofreader, Optimize Title, SEO suggestions and the excerpt
-	 * suggestion) are exposed. The test plan supports advanced-seo, and the
-	 * seo-tools module is activated so the SEO suggestions gate is satisfied.
+	 * suggestion) are exposed. The test plan supports advanced-seo, the seo-tools
+	 * module is activated, and the SEO enhancer toggle from the AI settings page
+	 * is switched on (it defaults off) so the SEO suggestions gate is satisfied.
 	 */
 	public function test_add_agents_manager_data_exposes_in_development_features_in_testing_environment() {
 		$this->set_block_editor_screen();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		$this->activate_seo_tools_module();
+		update_option( 'ai_seo_enhancer_enabled', 1 );
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		delete_option( 'ai_seo_enhancer_enabled' );
 
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['proofreadContent'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
+	}
+
+	/**
+	 * The per-feature toggles from the AI settings page win over the internal
+	 * testing environment: a switched-off feature must not surface suggestions
+	 * even when an external host draws the sidebar. Writing assistant off kills
+	 * the writing suggestions (Proofreader, Optimize Title); excerpt off kills
+	 * the excerpt suggestion; the SEO suggestions follow the SEO enhancer toggle,
+	 * which defaults off.
+	 */
+	public function test_add_agents_manager_data_honors_feature_toggles() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->activate_seo_tools_module();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'jetpack_ai_excerpt_enabled', 0 );
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'jetpack_ai_excerpt_enabled' );
+
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['proofreadContent'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 	}
 
 	/**

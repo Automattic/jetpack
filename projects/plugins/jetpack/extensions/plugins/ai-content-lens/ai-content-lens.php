@@ -26,10 +26,15 @@ const FEATURE_NAME = 'ai-content-lens';
  * @return void
  */
 function register_plugin() {
-	// Connection check.
+	// Connection check, plus the AI master switch and the excerpt generator's
+	// own toggle on the AI settings page.
 	if (
-		( new Host() )->is_wpcom_simple()
-		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
+		(
+			( new Host() )->is_wpcom_simple()
+			|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
+		)
+		&& apply_filters( 'jetpack_ai_enabled', true )
+		&& \Jetpack_AI_Settings::is_feature_enabled( 'excerpt' )
 	) {
 		// Register AI Content lens plugin.
 		\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );
