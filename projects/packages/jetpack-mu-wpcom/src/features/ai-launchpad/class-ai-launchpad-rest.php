@@ -89,9 +89,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
-	 * Theme-picker tasks. When the AI infers a niche, these point at the wordpress.com themes showcase
-	 * pre-filtered by that niche, so the theme list feels relevant to what the user is building (instead of
-	 * plain themes.php, which only filters already-installed themes). Falls back to the paths above when no niche.
+	 * Theme-picker tasks. These point at the wordpress.com themes showcase pre-filtered for the site — the Store
+	 * category on sell sites, the AI's theme keyword elsewhere — so the theme list feels relevant to what the user
+	 * is building (instead of plain themes.php, which only filters already-installed themes). Falls back to the
+	 * paths above when there is nothing to filter by.
 	 */
 	const THEME_TASK_IDS = array(
 		'site_theme_selected',
@@ -394,17 +395,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		// roadmap instead of dropping them (which would collapse the list to almost nothing).
 		$disable_hidden_woo = 'sell' === $goal && ! $woo_active;
 
+		$theme_cta = $this->get_themes_showcase_path( $goal, $theme_search );
+
 		$tasks = array();
 		if ( isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ) {
-			$tasks = $this->build_tasks( $payload['tasks'], false, $theme_search, $disable_hidden_woo );
+			$tasks = $this->build_tasks( $payload['tasks'], false, $theme_cta, $disable_hidden_woo );
 		}
 
 		// The sell goal leads with the store-setup task; every other goal may offer the gallery task. They are
 		// mutually exclusive so a sell site with a visual niche doesn't also get an off-target gallery task.
 		if ( 'sell' === $goal ) {
 			// The store-setup tasks lead the sell list. Their synthetic ids never appear in the AI payload, so a
-			// plain prepend is safe.
+			// plain prepend is safe. The theme task then follows them, wherever the AI ranked it: pick the
+			// store's look once the store exists.
 			$tasks = array_merge( $this->build_store_tasks( $woo_active ), $tasks );
+			$tasks = $this->move_task_after( $tasks, 'site_theme_selected', 'setup_woocommerce_store' );
 		} else {
 			$gallery = $this->build_gallery_task( $inferred );
 			if ( null !== $gallery ) {
@@ -753,15 +758,15 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	/**
 	 * Enriches the persisted tasks with title, completion state, and CTA path from the catalog.
 	 *
-	 * @param array  $tasks              The persisted `payload.tasks` array.
-	 * @param bool   $bypass_visibility  Skip the catalog visibility gate (for the all-tasks testing view).
-	 * @param string $theme_search       The AI's theme_keyword (or the inferred niche as fallback), used to
-	 *                                   pre-filter the theme-picker CTAs.
-	 * @param bool   $disable_hidden_woo Keep WOO_TASK_IDS that fail the visibility gate as disabled preview cards
-	 *                                   instead of dropping them (sell goal while WooCommerce is inactive).
+	 * @param array       $tasks              The persisted `payload.tasks` array.
+	 * @param bool        $bypass_visibility  Skip the catalog visibility gate (for the all-tasks testing view).
+	 * @param string|null $theme_cta          The resolved themes-showcase path for the theme-picker tasks, or
+	 *                                        null to keep their default CTAs.
+	 * @param bool        $disable_hidden_woo Keep WOO_TASK_IDS that fail the visibility gate as disabled preview
+	 *                                        cards instead of dropping them (sell goal while WooCommerce is inactive).
 	 * @return array
 	 */
-	private function build_tasks( $tasks, $bypass_visibility = false, $theme_search = '', $disable_hidden_woo = false ) {
+	private function build_tasks( $tasks, $bypass_visibility = false, $theme_cta = null, $disable_hidden_woo = false ) {
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$built       = array();
 		$seen_ids    = array();
@@ -829,7 +834,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
 					: wpcom_launchpad_checklists()->is_task_complete( $definition );
 
-				$theme_showcase_path = $this->get_themes_showcase_path( $task['id'], $theme_search );
+				$theme_showcase_path = in_array( $task['id'], self::THEME_TASK_IDS, true ) ? $theme_cta : null;
 				$cta_override        = $this->get_cta_override( $task['id'] );
 				if ( null !== $theme_showcase_path ) {
 					$calypso_path = $theme_showcase_path;
@@ -922,22 +927,50 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * The wordpress.com themes-showcase path for a theme-picker task, pre-filtered by the AI's theme search term.
+	 * The wordpress.com themes-showcase path the theme-picker tasks should point at.
 	 *
-	 * Returns null for non-theme tasks or when nothing was inferred to search by, so the caller falls back to the
-	 * task's default CTA. The term is passed as the showcase's free-text search term (`?s=`), and the client's
-	 * `toNavigableUrl` resolves the relative path against wordpress.com.
+	 * Sell sites always land on the showcase's Store category so shop-ready templates lead; other goals get the
+	 * showcase pre-filtered by the AI's theme search term (as the free-text `?s=`), and null when nothing was
+	 * inferred to search by, so the caller falls back to the task's default CTA. The client's `toNavigableUrl`
+	 * resolves the relative path against wordpress.com.
 	 *
-	 * @param string $task_id The catalog task id.
-	 * @param string $search  The AI's theme_keyword, or the inferred niche as fallback.
+	 * @param string $goal   The inferred goal.
+	 * @param string $search The AI's theme_keyword, or the inferred niche as fallback.
 	 * @return string|null
 	 */
-	private function get_themes_showcase_path( $task_id, $search ) {
-		if ( '' === $search || ! in_array( $task_id, self::THEME_TASK_IDS, true ) ) {
+	private function get_themes_showcase_path( $goal, $search ) {
+		if ( 'sell' === $goal ) {
+			return '/themes/filter/store/' . rawurlencode( wpcom_get_site_slug() );
+		}
+
+		if ( '' === $search ) {
 			return null;
 		}
 
 		return '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $this->niche_to_search_term( $search ) );
+	}
+
+	/**
+	 * Moves the task with the given id to immediately after another task. The list is returned unchanged
+	 * unless both ids are present.
+	 *
+	 * @param array  $tasks    The built task list.
+	 * @param string $move_id  The id of the task to move.
+	 * @param string $after_id The id of the task to place it after.
+	 * @return array
+	 */
+	private function move_task_after( $tasks, $move_id, $after_id ) {
+		$ids = array_column( $tasks, 'id' );
+		if ( false === array_search( $move_id, $ids, true ) || false === array_search( $after_id, $ids, true ) ) {
+			return $tasks;
+		}
+
+		$moved = array_splice( $tasks, array_search( $move_id, $ids, true ), 1 );
+		// Recompute the anchor: extracting an earlier element shifts it left by one.
+		$to = array_search( $after_id, array_column( $tasks, 'id' ), true );
+		array_splice( $tasks, $to + 1, 0, $moved );
+
+		return $tasks;
 	}
 
 	/**

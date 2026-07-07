@@ -1534,6 +1534,40 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the sell list places the theme task right after the store-setup lead
+	 * tasks, wherever the AI ranked it: pick the store's look once the store exists.
+	 */
+	public function test_get_sell_moves_theme_task_after_store_setup() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		$this->seed_sell_output_with_commerce_tasks();
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertSame(
+			array( 'install_woocommerce', 'setup_woocommerce_store', 'site_theme_selected' ),
+			array_slice( $ids, 0, 3 )
+		);
+	}
+
+	/**
+	 * Test that on a sell site the theme CTAs point at the showcase's Store category
+	 * instead of the niche search, so users land on shop-ready templates.
+	 */
+	public function test_get_sell_theme_cta_uses_store_filter() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		$this->seed_sell_output_with_commerce_tasks();
+
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		$this->assertSame(
+			'/themes/filter/store/' . rawurlencode( wpcom_get_site_slug() ),
+			$tasks['site_theme_selected']['calypso_path']
+		);
+	}
+
+	/**
 	 * Test that POST /complete-task marks an allowlisted acknowledgment task complete.
 	 */
 	public function test_complete_task_marks_acknowledgment_task() {
