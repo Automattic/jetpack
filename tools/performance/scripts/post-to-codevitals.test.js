@@ -41,6 +41,10 @@ const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
 const LCP_KEY = 'wp-admin-dashboard-connection-sim-largestContentfulPaint';
 const TTFB_KEY = 'wp-admin-dashboard-connection-sim-timeToFirstByte';
 const FCP_KEY = 'wp-admin-dashboard-connection-sim-firstContentfulPaint';
+const FORMS_LCP_KEY = 'forms-responses-connection-sim-largestContentfulPaint';
+const FORMS_TTFB_KEY = 'forms-responses-connection-sim-timeToFirstByte';
+const FORMS_FCP_KEY = 'forms-responses-connection-sim-firstContentfulPaint';
+const FORMS_DECODED_KEY = 'forms-responses-connection-sim-decodedBodySize';
 
 /**
  * Build the nested per-field summary the multi-metric jetpackConnected scenario reads.
@@ -406,6 +410,32 @@ test( 'the jetpackConnected scenario posts LCP, TTFB and FCP to their production
 			{ field: 'fcp', codevitalsKey: FCP_KEY, type: 'fcp' },
 		]
 	);
+} );
+
+test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to production keys', () => {
+	// Pins the FORMS-704 config: the Forms responses wp-build page carries the bundle-size
+	// metric (summary.decodedBytesKB.median) alongside the timing metrics, each on its own
+	// production key. A dropped/renamed key, or a decoded metric with no type (which would
+	// post unchecked), fails here rather than silently in the append-only store.
+	const scenario = SCENARIOS.find( s => s.key === 'formsResponses' );
+	assert.ok( scenario, 'formsResponses scenario must exist' );
+	assert.ok( Array.isArray( scenario.metrics ), 'formsResponses must use the metrics array' );
+	assert.deepEqual(
+		scenario.metrics.map( m => ( {
+			field: m.field,
+			codevitalsKey: m.codevitalsKey,
+			type: m.type,
+		} ) ),
+		[
+			{ field: 'lcp', codevitalsKey: FORMS_LCP_KEY, type: 'lcp' },
+			{ field: 'ttfb', codevitalsKey: FORMS_TTFB_KEY, type: 'ttfb' },
+			{ field: 'fcp', codevitalsKey: FORMS_FCP_KEY, type: 'fcp' },
+			{ field: 'decodedBytesKB', codevitalsKey: FORMS_DECODED_KEY, type: 'decodedBytesKB' },
+		]
+	);
+	// The page-navigation contract measure-lcp.js reads: a target path + a hydration selector.
+	assert.equal( scenario.path, '/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin' );
+	assert.ok( scenario.waitForSelector, 'formsResponses must declare a waitForSelector' );
 } );
 
 // --- redactToken (keeps the token out of logs and errors) ---
@@ -1490,6 +1520,41 @@ test( 'buildSummary strict-majority floor: even-count 1-of-2 is omitted, but sin
 		'1 of 1 finite TTFB → kept (single-iteration runs work)'
 	);
 	assert.equal( oneSummary.median, 150, 'single-iteration LCP still mirrored flat' );
+} );
+
+test( 'buildSummary aggregates decodedBytesKB from the per-iteration metrics block', () => {
+	// FORMS-704: measure-lcp.js folds the summed per-resource decodedBodySize into each
+	// iteration's metrics as decodedBytesKB, and SUMMARY_FIELDS now includes it, so buildSummary
+	// produces summary.decodedBytesKB.median for the poster to read. Decoded bytes are
+	// deterministic, so the median is exact.
+	const results = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: 50, fcp: 200, decodedBytesKB: 5600 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: 70, fcp: 400, decodedBytesKB: 5602 } },
+		{ lcp: 300, metrics: { lcp: 300, ttfb: 90, fcp: 600, decodedBytesKB: 5601 } },
+	];
+	const summary = buildSummary( results, 3 );
+	assert.deepEqual( summary.decodedBytesKB, {
+		median: 5601,
+		mean: 5601,
+		min: 5600,
+		max: 5602,
+		stdDev: 1,
+	} );
+	// The timing fields and the flat LCP mirror are unaffected by the added field.
+	assert.equal( summary.lcp.median, 200 );
+	assert.equal( summary.median, 200 );
+} );
+
+test( 'buildSummary omits decodedBytesKB when no iteration captured it (fail closed)', () => {
+	// A run where the resource payload was never captured (all undefined) must omit the field,
+	// not fabricate a 0, so the poster's sanity check rejects it rather than posting a bogus
+	// bundle size to the append-only store.
+	const results = [
+		{ lcp: 100, metrics: { lcp: 100, ttfb: 50, fcp: 200 } },
+		{ lcp: 200, metrics: { lcp: 200, ttfb: 70, fcp: 400 } },
+	];
+	const summary = buildSummary( results, 2 );
+	assert.equal( summary.decodedBytesKB, undefined, 'no decoded sample → omitted, not 0' );
 } );
 
 // --- commit-time plumbing: getGitInfo reads the producer side (real temp git repo) ---

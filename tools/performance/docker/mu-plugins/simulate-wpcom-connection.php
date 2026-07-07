@@ -55,6 +55,7 @@ class Jetpack_WPCom_Connection_Simulator {
 		'seo-tools',     // SEO meta tags - fully local
 		'widget-visibility', // Widget visibility rules - fully local
 		'custom-content-types', // Custom post types (Portfolios, Testimonials) - fully local
+		'contact-form',  // Jetpack Forms - registers the wp-build Forms responses dashboard (measured by the formsResponses scenario); works locally.
 	);
 
 	/**

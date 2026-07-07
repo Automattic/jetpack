@@ -1,6 +1,6 @@
 # Jetpack Performance Testing
 
-Measures wp-admin dashboard LCP (Largest Contentful Paint) for Jetpack with simulated WordPress.com connection.
+Measures Jetpack admin-page performance (LCP, TTFB, FCP, and runtime bundle size) with a simulated WordPress.com connection, and posts the results to CodeVitals to track them over time.
 
 ## CI Usage
 
@@ -29,7 +29,9 @@ The test suite is designed to run in TeamCity. See `TEAMCITY-SETUP.md` for detai
 
 ## Metrics
 
-The `jetpackConnected` scenario posts three metrics per run, all in a single CodeVitals call (one per `metrics` entry in `scenarios.js`):
+Each scenario posts its metrics in a single CodeVitals call per run (one per `metrics` entry in `scenarios.js`). Each metric reads its value from `summary.<field>.median` and is range-checked against its `type` in `SANITY_RANGES` before posting.
+
+### `jetpackConnected` — wp-admin Dashboard (simulated connection)
 
 | CodeVitals key                                             | Field  | Type   | Description                                     |
 | ---------------------------------------------------------- | ------ | ------ | ----------------------------------------------- |
@@ -37,7 +39,24 @@ The `jetpackConnected` scenario posts three metrics per run, all in a single Cod
 | `wp-admin-dashboard-connection-sim-timeToFirstByte`        | `ttfb` | `ttfb` | Dashboard TTFB (navigation `responseStart`)     |
 | `wp-admin-dashboard-connection-sim-firstContentfulPaint`   | `fcp`  | `fcp`  | Dashboard FCP (first-contentful-paint)          |
 
-Each metric reads its value from `summary.<field>.median` and is range-checked against its `type` in `SANITY_RANGES` before posting.
+### `formsResponses` — Forms responses wp-build dashboard (simulated connection)
+
+`admin.php?page=jetpack-forms-responses-wp-admin`, measured on the same simulated-connection instance as the Dashboard.
+
+| CodeVitals key                                          | Field            | Type             | Description                                             |
+| ------------------------------------------------------- | ---------------- | ---------------- | ------------------------------------------------------- |
+| `forms-responses-connection-sim-largestContentfulPaint` | `lcp`            | `lcp`            | Forms responses LCP                                     |
+| `forms-responses-connection-sim-timeToFirstByte`        | `ttfb`           | `ttfb`           | Forms responses TTFB                                    |
+| `forms-responses-connection-sim-firstContentfulPaint`   | `fcp`            | `fcp`            | Forms responses FCP                                     |
+| `forms-responses-connection-sim-decodedBodySize`        | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize` (KB) |
+
+#### Bundle size (`decodedBytesKB`) — what it measures, and why not build output
+
+`decodedBytesKB` is the sum of every resource's `decodedBodySize` on the measured page, in KB — the page's **runtime payload** (the JavaScript and CSS the browser actually downloads), aggregated in `measure-lcp.js`.
+
+- **Decoded bytes, not transfer size.** The measured load is a warm-cache `page.reload()`, where cached resources report `transferSize: 0`; and the Docker WordPress serves uncompressed, so `transferSize` would neither survive caching nor match production's gzipped bytes. `decodedBodySize` is cache- and compression-independent, so it stays stable however assets are served. It maps to the decoded (uncompressed) byte count, not the gzipped wire size — fine for a trend.
+- **Runtime payload, not build output.** The regression this watches is the wp-build `boot` shell statically pulling core `@wordpress/editor` into pages that never open an editor. Those are externalized `@wordpress/*` core modules, resolved through the wp-build import map as separate static files — not the plugin's own bundle — so a build-output size check (the CIAB approach) wouldn't move when they are lazy-loaded. Summing the resources the page actually downloads does, so the line falls when the fix lands and flags the next silent jump.
+- **On the Forms responses page specifically.** It's a shipped wp-build dashboard that loads the boot shell's editor payload; the wp-admin Dashboard does not, so the bundle-size metric is posted only for `formsResponses`.
 
 ## How It Works
 
@@ -71,13 +90,14 @@ CodeVitals is an **append-only** store with no self-service rollback. Once a bad
 
 `post-to-codevitals.js` checks every typed metric against `SANITY_RANGES` in `scenarios.js` before posting. A value outside its range is logged and rejected, and the script exits non-zero so CI surfaces the failure. Live posting is all-or-nothing per run: any sanity failure suppresses the entire POST, so nothing lands and retrying the red build posts the full set exactly once. (That guarantee covers the validation-failure retry only — re-running a green build appends duplicate points unless opt-in cross-commit dedup is enabled.) A dry run still prints the surviving metrics, if any, for diagnostics.
 
-| Metric | Min | Max   |
-| ------ | --- | ----- |
-| `lcp`  | 100 | 60000 |
-| `ttfb` | 10  | 10000 |
-| `fcp`  | 50  | 30000 |
-| `tbt`  | 0   | 10000 |
-| `cls`  | 0   | 5     |
+| Metric           | Min  | Max   | Unit |
+| ---------------- | ---- | ----- | ---- |
+| `lcp`            | 100  | 60000 | ms   |
+| `ttfb`           | 10   | 10000 | ms   |
+| `fcp`            | 50   | 30000 | ms   |
+| `tbt`            | 0    | 10000 | ms   |
+| `cls`            | 0    | 5     | —    |
+| `decodedBytesKB` | 1000 | 51200 | KB   |
 
 Add a row when a new metric type starts being posted, and set the `type` on the metric so the check applies to it — either `type` on a `metrics[]` entry (the multi-metric shape) or the scenario-level `metricType` (the legacy single-key shape). A keyed metric with no type is refused (never posted unchecked).
 

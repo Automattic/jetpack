@@ -33,11 +33,31 @@ function loadCalibration() {
 // Load calibration at module init
 const calibration = loadCalibration();
 
-/** Measure LCP for the wp-admin dashboard. */
-async function measureLCP( url, username, password, iterations = 5 ) {
+/**
+ * Measure LCP (and the other summary fields) for a scenario's page.
+ *
+ * Defaults to the wp-admin Dashboard flow (log in, reload, measure). When the scenario
+ * targets a specific admin page, `scenario.path` + `scenario.waitForSelector` steer it to
+ * that page after login and wait for the page's own ready signal (SPA hydration included)
+ * before measuring. Absent path/selector, the Dashboard flow is unchanged.
+ *
+ * @param {string} url        - Base site URL (no trailing path).
+ * @param {string} username   - wp-admin username.
+ * @param {string} password   - wp-admin password.
+ * @param {number} iterations - Number of measurement iterations.
+ * @param {object} [scenario] - Scenario config; reads optional `path` + `waitForSelector`.
+ * @return {Promise<object>} { summary, results, url }.
+ */
+async function measureLCP( url, username, password, iterations = 5, scenario = {} ) {
 	const results = [];
 
-	console.log( `Measuring LCP for ${ url } (${ iterations } iterations)...` );
+	// Optional page navigation: when a scenario targets a specific admin page (not the wp-admin
+	// Dashboard default), go there after login and wait for its own ready selector before
+	// measuring. Absent path/selector, targetPath stays null and the Dashboard flow is unchanged.
+	const targetPath = scenario.path || null;
+	const pageReadySelector = scenario.waitForSelector || null;
+
+	console.log( `Measuring LCP for ${ url }${ targetPath || '' } (${ iterations } iterations)...` );
 
 	for ( let i = 0; i < iterations; i++ ) {
 		const browser = await chromium.launch( {
@@ -85,8 +105,18 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 				page.click( '#wp-submit', { timeout: 60000 } ),
 			] );
 
-			// Verify we're on the dashboard
+			// Confirm login landed in wp-admin (the Dashboard is the post-login screen).
 			await page.waitForSelector( '#dashboard-widgets, #wpbody', { timeout: 30000 } );
+
+			// Step 1b: For a page-targeted scenario, navigate to that page and wait for its own
+			// ready selector before measuring. The Dashboard scenario has no path and skips this.
+			if ( targetPath ) {
+				await page.goto( `${ url }${ targetPath }`, {
+					waitUntil: 'networkidle',
+					timeout: 60000,
+				} );
+				await page.waitForSelector( pageReadySelector, { timeout: 30000 } );
+			}
 
 			// Step 2: Set up LCP capture using addInitScript
 			// This injects code that runs BEFORE any page script on every navigation
@@ -109,11 +139,30 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 			} );
 			/* eslint-enable no-undef */
 
-			// Step 3: Refresh the dashboard for a clean LCP measurement
+			// Step 3: Reload for a clean measurement of the current page — the Dashboard, or the
+			// page navigated to above.
 			await page.reload( { waitUntil: 'networkidle', timeout: 60000 } );
 
-			// Wait for dashboard content to be visible
-			await page.waitForSelector( '#dashboard-widgets, #wpbody-content', { timeout: 30000 } );
+			// Wait for the measured page's content to be present after reload.
+			if ( pageReadySelector ) {
+				await page.waitForSelector( pageReadySelector, { timeout: 30000 } );
+				// A wp-build SPA mounts its root element before React fills it, so "exists" isn't
+				// "rendered". Wait for the root to actually hydrate (gain children) so LCP and the
+				// resource payload reflect the rendered page, not an empty shell.
+				/* eslint-disable no-undef -- This runs in browser context via Playwright */
+				await page.waitForFunction(
+					sel => {
+						const el = document.querySelector( sel );
+						return el && el.childElementCount > 0;
+					},
+					pageReadySelector,
+					{ timeout: 30000 }
+				);
+				/* eslint-enable no-undef */
+			} else {
+				// Dashboard: wait for content to be visible (unchanged).
+				await page.waitForSelector( '#dashboard-widgets, #wpbody-content', { timeout: 30000 } );
+			}
 
 			// Wait for network to settle and LCP to finalize
 			// LCP stops updating after user input or visibility change
@@ -190,16 +239,26 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 				const resources = performance.getEntriesByType( 'resource' );
 				const byType = {};
 				let totalTransferSize = 0;
+				let totalDecodedBodySize = 0;
 
 				resources.forEach( r => {
 					const type = r.initiatorType || 'other';
 					byType[ type ] = ( byType[ type ] || 0 ) + 1;
 					totalTransferSize += r.transferSize || 0;
+					// Sum the DECODED (uncompressed) size of every resource, not transferSize.
+					// The measured load is a warm-cache page.reload(), where cached resources
+					// report transferSize:0; and the Docker WordPress serves uncompressed, so
+					// transferSize would neither survive caching nor match real gzipped bytes.
+					// decodedBodySize is cache- and compression-independent, so it stays stable
+					// however assets are served — the right denominator for the runtime-payload
+					// (downloaded-but-unexecuted @wordpress/editor) regression this metric tracks.
+					totalDecodedBodySize += r.decodedBodySize || 0;
 				} );
 
 				return {
 					totalRequests: resources.length,
 					totalTransferSizeKB: Math.round( totalTransferSize / 1024 ),
+					totalDecodedBodySizeKB: Math.round( totalDecodedBodySize / 1024 ),
 					byType,
 				};
 			} );
@@ -215,7 +274,10 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 			results.push( {
 				iteration: i + 1,
 				lcp: metrics.lcp,
-				metrics,
+				// Fold the summed decoded payload into the per-iteration metrics block (as KB) so
+				// readIterationField/buildSummary aggregate it alongside lcp/ttfb/fcp. It lives on
+				// resourceStats too (the `resources` block below) for the saved results file.
+				metrics: { ...metrics, decodedBytesKB: resourceStats.totalDecodedBodySizeKB },
 				resources: resourceStats,
 				timestamp: new Date().toISOString(),
 			} );
@@ -263,8 +325,12 @@ async function measureLCP( url, username, password, iterations = 5 ) {
  * value (unchanged), and it also populates the flat top-level summary for backward-compat.
  * TTFB and FCP are already captured per iteration (see the page.evaluate block above);
  * this is where they finally get aggregated into the summary.
+ *
+ * `decodedBytesKB` is the summed per-resource decodedBodySize (folded into the per-iteration
+ * metrics block above): the page's runtime payload in KB. Unlike the timing fields it is
+ * deterministic — throttle- and noise-independent — so the median across iterations is exact.
  */
-const SUMMARY_FIELDS = [ 'lcp', 'ttfb', 'fcp' ];
+const SUMMARY_FIELDS = [ 'lcp', 'ttfb', 'fcp', 'decodedBytesKB' ];
 
 /**
  * Read one metric field from a single iteration's result.
@@ -407,7 +473,13 @@ async function main() {
 		console.log( '-'.repeat( scenario.header.length ) );
 
 		try {
-			measurements[ scenario.key ] = await measureLCP( url, username, password, iterations );
+			measurements[ scenario.key ] = await measureLCP(
+				url,
+				username,
+				password,
+				iterations,
+				scenario
+			);
 			console.log(
 				`✓ ${ scenario.name } median LCP: ${ measurements[ scenario.key ].summary.median }ms\n`
 			);
