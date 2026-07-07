@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "64a7e3f6111300cfc62f31285fa1fff3",
+    "content-hash": "06ec9af9bbca88f337e8be346dcf6fb5",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -1638,6 +1638,66 @@
                 "GPL-2.0-or-later"
             ],
             "description": "The external media feature allows users to select and import photos from external media",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-features",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/features",
+                "reference": "15fa89faa10f7ba5d6975053a066a088fac83c8c"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-features",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-features/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-features",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-features.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ],
+                "files": [
+                    "src/functions.php"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Feature Catalog: register and resolve granular Jetpack features across platforms.",
             "transport-options": {
                 "relative": true
             }
@@ -6122,6 +6182,7 @@
         "automattic/jetpack-error": 20,
         "automattic/jetpack-external-connections": 20,
         "automattic/jetpack-external-media": 20,
+        "automattic/jetpack-features": 20,
         "automattic/jetpack-forms": 20,
         "automattic/jetpack-image-cdn": 20,
         "automattic/jetpack-import": 20,
