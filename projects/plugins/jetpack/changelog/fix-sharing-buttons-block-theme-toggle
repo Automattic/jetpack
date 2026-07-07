@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sharing: ensure legacy sharing settings remain accessible on block themes so users can disable sharing buttons appended to content.

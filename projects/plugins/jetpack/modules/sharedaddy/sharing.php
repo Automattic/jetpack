@@ -367,9 +367,13 @@ class Sharing_Admin {
 			$is_simple_site     = defined( 'IS_WPCOM' ) && IS_WPCOM;
 			$show_block_message = $this->should_use_site_editor() && ! $is_simple_site;
 
-			// We either show old services config or the sharing block message.
+			// Show the block theme message (if applicable) and always show
+			// the services config so users can manage/disable legacy sharing.
 		if ( current_user_can( 'manage_options' ) ) :
-			$show_block_message ? $this->sharing_block_display() : $this->services_config_display();
+			if ( $show_block_message ) :
+				$this->sharing_block_display();
+			endif;
+			$this->services_config_display();
 			endif;
 		?>
 	</div>
