@@ -19,6 +19,7 @@ class Wpcom_Simple_Premium_Analytics_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'jetpack_premium_analytics_wpcom_simple_enabled' );
+		\Mockery::close();
 
 		parent::tear_down();
 	}
@@ -37,6 +38,40 @@ class Wpcom_Simple_Premium_Analytics_Test extends \WorDBless\BaseTestCase {
 		add_filter( 'jetpack_premium_analytics_wpcom_simple_enabled', '__return_true' );
 
 		$this->assertTrue( Jetpack_Mu_Wpcom::should_load_wpcom_simple_premium_analytics() );
+	}
+
+	/**
+	 * The Simple loader returns before bootstrapping Premium Analytics when gated off.
+	 */
+	public function test_wpcom_simple_premium_analytics_loader_returns_when_gate_is_disabled() {
+		Jetpack_Mu_Wpcom::load_wpcom_simple_premium_analytics();
+
+		$this->assertFalse( class_exists( \Automattic\Jetpack\PremiumAnalytics\Analytics::class, false ) );
+	}
+
+	/**
+	 * The Simple loader boots Premium Analytics when the rollout gate is enabled.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_wpcom_simple_premium_analytics_loader_boots_premium_analytics_when_enabled() {
+		add_filter( 'jetpack_premium_analytics_wpcom_simple_enabled', '__return_true' );
+
+		\Mockery::mock( 'alias:' . \Automattic\Jetpack\PremiumAnalytics\Analytics::class )
+			->shouldReceive( 'init_wpcom_simple' )
+			->once()
+			->with(
+				array(
+					'menu_title' => 'Premium Analytics',
+				)
+			);
+
+		Jetpack_Mu_Wpcom::load_wpcom_simple_premium_analytics();
+
+		$this->addToAssertionCount( 1 );
 	}
 
 	/**
