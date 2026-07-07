@@ -60,6 +60,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'srv'        => 'example.org',
 			'utm_id'     => 'some_id',
 			'utm_source' => 'a_source',
+			'nu'          => '/wp-content/uploads/',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
@@ -80,6 +81,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_id'     => 'some_id',
 			'utm_source' => 'a_source',
 			'arch_home'  => '1',
+			'nu'          => '/wp-content/uploads/',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
@@ -104,6 +106,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_source'   => 'a_source',
 			'arch_author'  => 'some_author',
 			'arch_results' => 0,
+			'nu'          => '/wp-content/uploads/',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 
@@ -122,6 +125,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_source'   => 'a_source',
 			'arch_date'    => '2019/12/31',
 			'arch_results' => 0,
+			'nu'          => '/wp-content/uploads/',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 
@@ -140,6 +144,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_source'   => 'a_source',
 			'arch_cat'     => 'testcategory',
 			'arch_results' => 0,
+			'nu'          => '/wp-content/uploads/',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 
@@ -158,6 +163,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_source'   => 'a_source',
 			'arch_tag'     => 'testtag',
 			'arch_results' => 0,
+			'nu'          => '/wp-content/uploads/',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 
@@ -177,6 +183,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_source'       => 'a_source',
 			'arch_tax_testtax' => 'testterm',
 			'arch_results'     => 3,
+			'nu'          => '/wp-content/uploads/',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
@@ -197,6 +204,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_id'     => 'some_id',
 			'utm_source' => 'a_source',
 			'arch_err'   => $_SERVER['REQUEST_URI'],
+			'nu'          => '/wp-content/uploads/',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
@@ -215,6 +223,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_id'     => 'some_id',
 			'utm_source' => 'a_source',
 			'arch_other' => $_SERVER['REQUEST_URI'],
+			'nu'          => '/wp-content/uploads/',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
@@ -240,6 +249,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'arch_search'  => 'term',
 			'arch_filters' => 'posts_per_page=10&paged=2&orderby=date&order=ASC&author_name=author&terms=' . wp_json_encode( array( 'testtax' => array( 'testterm' ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
 			'arch_results' => 2,
+			'nu'          => '/wp-content/uploads/',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 
@@ -259,6 +269,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'arch_search'  => 'term',
 			'arch_filters' => 'posts_per_page=10&paged=2&orderby=date&order=ASC',
 			'arch_results' => 3,
+			'nu'          => '/wp-content/uploads/',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
@@ -278,6 +289,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_id'     => 'some_id',
 			'utm_source' => 'a_source',
 			'arch_other' => $_SERVER['REQUEST_URI'],
+			'nu'          => '/wp-content/uploads/',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
@@ -408,6 +420,86 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		);
 		$this->assertNotContains( '//stats.wp.com', $resource_hints );
 		$this->assertContains( '//example.com', $resource_hints );
+	}
+
+	/**
+	 * Test that build_view_data includes the uploads URL path.
+	 */
+	public function test_build_view_data_includes_uploads_path() {
+		global $wp_the_query;
+		$wp_the_query->is_home = true;
+		$view_data             = Tracking_Pixel::build_view_data();
+
+		$this->assertArrayHasKey( 'nu', $view_data );
+		$this->assertNotEmpty( $view_data['nu'] );
+	}
+
+	/**
+	 * Test that build_stats_details does not add inline click handler
+	 * when the uploads path is the default /wp-content/uploads/.
+	 */
+	public function test_build_stats_details_no_inline_handler_for_default_uploads() {
+		$data = array(
+			'v'    => 'ext',
+			'blog' => 1234,
+			'post' => 0,
+			'tz'   => false,
+			'srv'  => 'example.org',
+		);
+
+		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_stats_details' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$output = $method->invoke( new Tracking_Pixel(), $data );
+
+		// The default uploads path should not produce an inline click handler.
+		$this->assertStringNotContainsString( 'uploadUrl', $output );
+		$this->assertStringNotContainsString( 'addEventListener', $output );
+	}
+
+	/**
+	 * Test that build_stats_details adds inline click handler
+	 * when the uploads path differs from the default.
+	 */
+	public function test_build_stats_details_adds_inline_handler_for_custom_uploads() {
+		// Simulate a custom uploads path (e.g. multisite /files/).
+		add_filter( 'upload_dir', array( $this, 'filter_custom_upload_dir' ) );
+
+		$data = array(
+			'v'    => 'ext',
+			'blog' => 1234,
+			'post' => 0,
+			'tz'   => false,
+			'srv'  => 'example.org',
+		);
+
+		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_stats_details' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$output = $method->invoke( new Tracking_Pixel(), $data );
+
+		remove_filter( 'upload_dir', array( $this, 'filter_custom_upload_dir' ) );
+
+		// The custom uploads path should produce an inline click handler.
+		$this->assertStringContainsString( 'uploadUrl', $output );
+		$this->assertStringContainsString( 'addEventListener', $output );
+		$this->assertStringContainsString( "/files/", $output );
+	}
+
+	/**
+	 * Filter callback to simulate a custom uploads directory.
+	 *
+	 * @param array $uploads Upload directory data.
+	 * @return array
+	 */
+	public function filter_custom_upload_dir( $uploads ) {
+		$uploads['baseurl'] = 'http://example.org/files';
+		$uploads['basedir'] = '/tmp/files';
+		$uploads['url']     = 'http://example.org/files';
+		$uploads['path']    = '/tmp/files';
+		return $uploads;
 	}
 
 	/**
