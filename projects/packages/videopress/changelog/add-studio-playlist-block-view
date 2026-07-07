@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the VideoPress playlist block frontend view script: click-to-swap player, aria-current tracking, and origin-filtered autoplay-next.
