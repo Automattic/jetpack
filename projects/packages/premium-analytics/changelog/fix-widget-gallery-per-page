@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show every widget in the "Add widget" gallery. The dashboard fetched widget types with core-data's default query, which caps results at 10 per page, so any widget registered past the tenth was silently hidden. Fetch the full set with per_page: -1.

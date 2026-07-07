@@ -1,11 +1,13 @@
 /**
- * Shoppers Privacy Controls Logger Integration
+ * Cookie Consent Controls Logger Integration
  *
- * Listens to consent events from the shoppers privacy controls and logs them via REST API.
+ * Listens to consent events from the cookie consent controls and logs them via REST API.
  * This file should only be loaded when consent logging is enabled.
  *
  */
 
+import { getCategoryPreferenceKey } from './category-preferences';
+import { getConsentCategories } from './utils';
 import type { ConsentEventType, ConsentTypes, ConsentEvent } from './types';
 
 interface ConsentLogResponse {
@@ -24,12 +26,20 @@ async function logConsentEvent(
 		return;
 	}
 
+	const headers: Record< string, string > = {
+		'Content-Type': 'application/json',
+	};
+	// Send the REST nonce when present (logged-in visitors only) so the request
+	// authenticates and the consent row records the real user_id instead of 0.
+	const nonce = window.jetpackCookieConsentConfig?.nonce;
+	if ( nonce ) {
+		headers[ 'X-WP-Nonce' ] = nonce;
+	}
+
 	try {
 		const response = await fetch( apiUrl, {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
+			headers,
 			body: JSON.stringify( {
 				event_type: eventType,
 				url: window.location.href,
@@ -57,11 +67,11 @@ async function logConsentEvent(
 }
 
 function mapConsentTypes( choices: ConsentEvent[ 'choices' ] ): ConsentTypes {
-	return {
-		functional: true, // Always true
-		analytics: choices.analytics || false,
-		marketing: choices.advertising || false,
-	};
+	return getConsentCategories().reduce< ConsentTypes >( ( consentTypes, category ) => {
+		const preferenceKey = getCategoryPreferenceKey( category );
+		consentTypes[ category.key ] = category.required ? true : choices[ preferenceKey ] === true;
+		return consentTypes;
+	}, {} );
 }
 
 async function handleConsentSaved( event: CustomEvent< ConsentEvent > ): Promise< void > {

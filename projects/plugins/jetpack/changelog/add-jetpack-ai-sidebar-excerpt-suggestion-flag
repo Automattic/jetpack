@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Add the excerptSuggestion feature flag for the AI sidebar Generate Excerpt suggestion (FORNO-309). Exposed in internal testing environments only; no user-facing change, so the changelog entry is intentionally empty.

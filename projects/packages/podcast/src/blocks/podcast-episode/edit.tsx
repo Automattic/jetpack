@@ -454,7 +454,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 											aria-label={
 												coverArt?.url
 													? __( 'Replace cover art', 'jetpack-podcast' )
-													: __( 'Set episode cover art', 'jetpack-podcast' )
+													: _x( 'Set episode cover art', '', 'jetpack-podcast' )
 											}
 										>
 											{ coverArtUrl ? (

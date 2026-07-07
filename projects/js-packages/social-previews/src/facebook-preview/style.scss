@@ -27,7 +27,6 @@
 
 	color: vars.$facebook-preview-text-color;
 
-	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.9375rem; // 15px
 	line-height: 1.33;
 	overflow-wrap: break-word;
@@ -78,7 +77,6 @@
 
 	color: vars.$facebook-preview-light-text-color;
 
-	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.8125rem; // 13px
 	line-height: 1;
 	text-transform: uppercase;
@@ -87,7 +85,6 @@
 .facebook-preview__title {
 	margin: 0.25rem 0 0.125rem;
 
-	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.9444rem; // 17px
 	font-weight: 600;
 	line-height: 1.18;
@@ -96,7 +93,6 @@
 .facebook-preview__description {
 	color: vars.$facebook-preview-light-text-color;
 
-	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.9375rem; // 15px
 	line-height: 1.33;
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Render the Premium Analytics admin page inside the native wp-admin shell (sidebar and header) instead of taking over the full screen.

@@ -67,8 +67,19 @@ class Analytics {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
 
-		// Hydrate the widget type registry from the build manifest at init.
+		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
+		WooCommerce_Analytics_Tracker::configure();
+
+		// Load the widget type registry: hydration routine, registry-time and
+		// runtime filters, and the registry accessors.
 		require_once __DIR__ . '/widget-types.php';
+
+		// Apply Premium Analytics' availability policy: hooks the registry-time
+		// filter to keep developer-only types out of production.
+		require_once __DIR__ . '/widget-availability.php';
+
+		// Hydrate the registry with the availability filter in place.
+		bootstrap_widget_types();
 
 		// Expose dashboard widget modules over REST and wire them into the
 		// page import map for dynamic import() on the client.
@@ -107,6 +118,9 @@ class Analytics {
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
+		// Remove the standalone Jetpack "Stats" menu so Premium Analytics takes its
+		// place. Runs after Stats registers itself (admin_menu priority 999).
+		add_action( 'admin_menu', array( static::class, 'remove_stats_menu' ), 1001 );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
 	}
@@ -143,22 +157,41 @@ class Analytics {
 	/**
 	 * Register the admin menu page.
 	 *
-	 * The callback is __return_null because the wp-build interceptor
-	 * renders the full-page app on admin_init and calls exit() before
-	 * WordPress can invoke this callback.
+	 * Uses the wp-build "wp-admin integrated" variant (`-wp-admin` slug) so the
+	 * dashboard renders inside the native wp-admin shell, not the full-page
+	 * variant that takes over the screen via admin_init. The render callback
+	 * comes from the generated build, with a no-op fallback when it is absent.
 	 *
 	 * @return void
 	 */
 	public static function register_admin_menu() {
+		$render_callback = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' )
+			? 'jpa_jetpack_premium_analytics_wp_admin_render_page'
+			: '__return_null';
+
 		add_menu_page(
 			esc_html( self::$menu_title ),
 			esc_html( self::$menu_title ),
 			'manage_options',
-			'jetpack-premium-analytics',
-			'__return_null',
+			'jetpack-premium-analytics-wp-admin',
+			$render_callback,
 			'dashicons-chart-bar',
-			30
+			2
 		);
+	}
+
+	/**
+	 * Remove the standalone Jetpack "Stats" top-level menu so Premium Analytics
+	 * replaces it, but only when Stats actually registered its menu.
+	 *
+	 * @return void
+	 */
+	public static function remove_stats_menu() {
+		if ( ! isset( $GLOBALS['admin_page_hooks']['stats'] ) ) {
+			return;
+		}
+
+		remove_menu_page( 'stats' );
 	}
 
 	/**

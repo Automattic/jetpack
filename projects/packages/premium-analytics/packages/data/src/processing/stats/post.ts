@@ -41,28 +41,46 @@ type StatsPostRawWeek = {
 	change?: StatsPostRawNumeric;
 };
 
+/**
+ * The `post` field of the Stats post response is the site's raw post row, so it
+ * uses WordPress column names (`post_title`, `post_type`, `post_date_gmt`) — not
+ * the WP REST `title`/`type` shape. Only the fields the dashboard consumes are
+ * modeled; the endpoint returns more.
+ */
+export type StatsPostMeta = {
+	ID?: number;
+	post_title?: string;
+	post_type?: string;
+	post_date?: string;
+	post_date_gmt?: string;
+	post_status?: string;
+	comment_count?: StatsPostRawNumeric;
+};
+
 export type StatsPostRawResponse = {
 	date?: string;
 	views?: StatsPostRawNumeric;
+	like_count?: StatsPostRawNumeric;
 	years?: Record< string, StatsPostRawYear >;
 	averages?: Record< string, StatsPostRawYear >;
 	weeks?: StatsPostRawWeek[];
 	highest_month?: StatsPostRawNumeric;
 	highest_day_average?: StatsPostRawNumeric;
 	highest_week_average?: StatsPostRawNumeric;
-	post?: unknown;
+	post?: StatsPostMeta;
 };
 
 export type StatsPostResponse = {
 	date?: string;
 	views?: number;
+	like_count?: number;
 	years?: Record< string, StatsPostYear >;
 	averages?: Record< string, StatsPostYear >;
 	weeks?: StatsPostWeek[];
 	highest_month?: number;
 	highest_day_average?: number;
 	highest_week_average?: number;
-	post?: unknown;
+	post?: StatsPostMeta;
 };
 
 function normalizeStatsPostYear( value: unknown ): StatsPostYear {
@@ -114,6 +132,9 @@ export function sanitizeStatsPostResponse( response: unknown ): StatsPostRespons
 	return {
 		...( typeof payload.date === 'string' ? { date: payload.date } : {} ),
 		...( payload.views !== undefined ? { views: safeParseFloat( payload.views ) } : {} ),
+		...( payload.like_count !== undefined
+			? { like_count: safeParseFloat( payload.like_count ) }
+			: {} ),
 		...( payload.years !== undefined ? { years: normalizeStatsPostYears( payload.years ) } : {} ),
 		...( payload.averages !== undefined
 			? { averages: normalizeStatsPostYears( payload.averages ) }
@@ -130,6 +151,6 @@ export function sanitizeStatsPostResponse( response: unknown ): StatsPostRespons
 		...( payload.highest_week_average !== undefined
 			? { highest_week_average: safeParseFloat( payload.highest_week_average ) }
 			: {} ),
-		...( payload.post !== undefined ? { post: payload.post } : {} ),
+		...( payload.post !== undefined ? { post: payload.post as StatsPostMeta } : {} ),
 	};
 }

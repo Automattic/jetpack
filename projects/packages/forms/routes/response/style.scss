@@ -1,0 +1,117 @@
+/**
+ * Standalone single response page (wp-build route) styles.
+ */
+
+.jp-forms__single-response {
+	// `width: 100%` keeps the column a constant width regardless of each
+	// response's content. The page content area is a flex column, and an item
+	// with only `max-width` + auto inline margins shrink-wraps to its content
+	// (so width jumped per response); a definite width clamped by max-width
+	// pins it at a consistent, readable measure.
+	width: 100%;
+	max-width: 768px;
+	margin-inline: auto;
+	padding-block: 24px;
+	padding-inline: 16px;
+}
+
+// Centered wrapper for the loading / not-found message. Uses text-align rather
+// than the WPDS `Stack` so centering doesn't depend on that component's
+// stylesheet loading (which could briefly leave the message left-aligned).
+.jp-forms__single-response-message {
+	padding: 40px;
+	text-align: center;
+}
+
+// Breadcrumb trail in the page header. Hand-rolled (see breadcrumbs.tsx) so the
+// form crumb can carry a search param. Link color/weight + underline come from
+// the shared wp-build dashboard stylesheet (`nav[aria-label="Breadcrumbs"] a`),
+// so this only owns the trail layout, the separators, and the current crumb.
+.jp-forms__single-response-breadcrumbs {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+
+	&__link {
+		font-size: var(--wpds-typography-font-size-lg, 15px);
+		line-height: var(--wpds-typography-line-height-md, 24px);
+	}
+
+	&__sep {
+		color: var(--jp-gray-20, #dbdbdb);
+		margin-inline: 8px;
+		user-select: none;
+	}
+
+	&__current {
+		margin: 0;
+		font-family: var(--wpds-typography-font-family-heading, -apple-system, system-ui, "Segoe UI", "Roboto", sans-serif);
+		font-size: var(--wpds-typography-font-size-lg, 15px);
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		line-height: var(--wpds-typography-line-height-sm, 20px);
+		// Match the page-title color used on the other dashboard headers.
+		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	}
+}
+
+.jp-forms__single-response-card {
+	background-color: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	// The meta header carries its own top padding, so the card adds none of its
+	// own at the top (avoids the doubled gap above the avatar). `overflow: hidden`
+	// keeps the meta's background within the card's rounded corners.
+	overflow: hidden;
+
+	.jp-forms__inbox-response-meta,
+	.jp-forms__inbox-response-data {
+		padding-inline: 24px;
+	}
+
+	// The last field already supplies the bottom spacing; drop its separator so
+	// it doesn't double up with the card's own bottom border.
+	.jp-forms__inbox-response-data.is-collection-format .jp-forms__field-preview:last-child {
+		border-block-end: none;
+	}
+}
+
+// Prev/next navigation in the page header. The inbox defines these styles in
+// the inspector stylesheet (not loaded in this route bundle), so the relevant
+// flex bits are repeated here. No close button on the standalone page, so the
+// inbox's trailing separator is intentionally omitted.
+.jp-forms-response-navigation {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	.jp-forms-response-navigation__arrows {
+		display: flex;
+		align-items: center;
+	}
+}
+
+// Mobile: drop the outer card frame for an edge-to-edge layout, and hide the
+// prev/next arrows (navigation is via the dropdown/keyboard). Internal
+// separators (the meta border and field separators, minus the last field) are
+// kept so the fields stay visually delineated.
+@media (max-width: 782px) {
+
+	.jp-forms__single-response {
+		padding-inline: 0;
+	}
+
+	.jp-forms__single-response-card {
+		border: none;
+		border-radius: 0;
+
+		// Edge-to-edge mobile: clear the meta header's off-white background so the
+		// card reads as one uniform color (desktop keeps the original two-tone).
+		.jp-forms__inbox-response-meta {
+			background-color: transparent;
+		}
+	}
+
+	.jp-forms__single-response-actions .jp-forms-response-navigation {
+		display: none;
+	}
+}

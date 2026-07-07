@@ -7,11 +7,11 @@ export {
 	BookingsRevenueByCustomerTypeWidget,
 } from './revenue-by-customer-type';
 export { NewVsReturningCustomerWidget } from './new-vs-returning-customer';
-export { SalesByDeviceWidget, BookingsByDeviceWidget } from './sales-by-device';
+export { SalesByDeviceWidget } from './sales-by-device';
+export { SalesByUtmWidget } from './sales-by-utm';
 export { SessionsByDeviceWidget } from './sessions-by-device';
 export { BookingsByAttendanceWidget } from './bookings-by-attendance';
 export { TotalReturnsWidget } from './total-returns';
-export { SalesByUtmWidget } from './sales-by-utm';
 export {
 	TopPerformingProductLeaderboardWidget,
 	type TopPerformingProductLeaderboardWidgetProps,

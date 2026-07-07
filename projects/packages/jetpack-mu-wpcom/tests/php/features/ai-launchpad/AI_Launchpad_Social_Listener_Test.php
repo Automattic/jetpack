@@ -33,7 +33,7 @@ class AI_Launchpad_Social_Listener_Test extends \WorDBless\BaseTestCase {
 		wpcom_register_default_launchpad_checklists();
 		Publicize_Utils::$active = false;
 		Connections::$all        = array();
-		$_GET['page']            = 'ai-launchpad-wp-admin';
+		$_GET['page']            = 'site-setup-wp-admin';
 	}
 
 	/**
@@ -90,7 +90,7 @@ class AI_Launchpad_Social_Listener_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $task_lists->is_task_id_complete( 'connect_social_media' ) );
 
 		// Signalled + on-page, but the tasks are not AI-selected: still nothing.
-		$_GET['page'] = 'ai-launchpad-wp-admin';
+		$_GET['page'] = 'site-setup-wp-admin';
 		$this->seed_tasks( array( 'site_launched' ) );
 		AI_Launchpad_Social_Listener::maybe_complete_social_tasks();
 		$this->assertFalse( $task_lists->is_task_id_complete( 'post_sharing_enabled' ) );

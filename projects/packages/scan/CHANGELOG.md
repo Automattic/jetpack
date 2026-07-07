@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.9] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [0.1.8] - 2026-06-29
+### Changed
+- Update package dependencies. [#49271]
+
+### Fixed
+- Admin: Align Text, Notice and Tabs.Panel props with the `@wordpress/ui` 0.15 API. [#49796]
+
 ## [0.1.7] - 2026-06-25
 ### Changed
 - Update dependencies. [#49857]
@@ -66,6 +77,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
+[0.1.9]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.8...v0.1.9
+[0.1.8]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.4...v0.1.5

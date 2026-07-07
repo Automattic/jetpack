@@ -97,7 +97,7 @@ class PhpunitAttributesReverseTest extends TestCase {
 	public function disabledStuff() {
 	}
 
-	#[TestDox()]
+	#[TestDox]
 	#[TestDox( 42 )]
 	#[TestDox( "interpolated $var" )]
 	#[PreserveGlobalState]

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Widgets Toolkit: add the reusable MetricTabsChart component (metric cards + comparative line chart with previous-period overlay), shared by the subscribers and traffic charts.

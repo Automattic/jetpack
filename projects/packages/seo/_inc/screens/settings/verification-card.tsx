@@ -58,7 +58,7 @@ const VerificationCard: FC< Props > = ( {
 						{ verifiedCount > 0
 							? sprintf(
 									/* translators: %d: number of verification services configured */
-									_n( '%d verified', '%d verified', verifiedCount, 'jetpack-seo' ),
+									_n( '%d set', '%d set', verifiedCount, 'jetpack-seo' ),
 									verifiedCount
 							  )
 							: notSetLabel }

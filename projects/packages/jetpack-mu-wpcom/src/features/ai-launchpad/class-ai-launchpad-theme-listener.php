@@ -6,13 +6,9 @@
  */
 
 /**
- * Marks the `site_theme_selected` task complete on `switch_theme` when the AI
- * Launchpad selected it.
+ * Marks the `site_theme_selected` task complete on `switch_theme` when the AI Launchpad selected it.
  *
- * The catalog's `site_theme_selected` task has no `add_listener_callback`, so
- * AI_Launchpad_Listeners does not register completion for it - it completes only
- * via `is_complete_callback` polling. This listener fills that gap by writing the
- * completion directly when the user activates a new theme.
+ * The catalog's task has no `add_listener_callback`, so this listener writes completion directly on theme activation.
  */
 class AI_Launchpad_Theme_Listener {
 
@@ -28,9 +24,8 @@ class AI_Launchpad_Theme_Listener {
 	/**
 	 * Marks `site_theme_selected` complete when it is among the AI-selected tasks.
 	 *
-	 * Writes the completion directly (ungated) rather than through the
-	 * `*_if_active` path: the AI-selected task may not be in the site's legacy
-	 * site_intent task list, which the `*_if_active` path would silently no-op on.
+	 * Writes directly rather than through the `*_if_active` path, which would no-op when the task is absent from
+	 * the site's legacy site_intent list.
 	 *
 	 * @return void
 	 */

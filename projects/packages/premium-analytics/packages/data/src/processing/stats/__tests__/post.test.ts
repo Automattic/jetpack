@@ -8,6 +8,7 @@ describe( 'Stats post normalizer', () => {
 		expect( result ).toEqual( {
 			date: '2026-06-22',
 			views: 128,
+			like_count: 24,
 			years: {
 				'2026': {
 					total: 128,
@@ -51,8 +52,12 @@ describe( 'Stats post normalizer', () => {
 			highest_week_average: 85,
 			post: {
 				ID: 41,
-				title: 'Hello world',
-				type: 'post',
+				post_title: 'Hello world',
+				post_type: 'post',
+				post_date: '2026-06-22 10:00:00',
+				post_date_gmt: '2026-06-22 18:00:00',
+				post_status: 'publish',
+				comment_count: 8,
 			},
 		} );
 	} );

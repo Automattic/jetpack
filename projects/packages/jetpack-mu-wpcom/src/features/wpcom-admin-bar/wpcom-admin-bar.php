@@ -495,3 +495,28 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 	}
 }
 add_action( 'admin_bar_menu', 'wpcom_add_site_badges_and_plan', 35 );
+
+/**
+ * Adds a "Stats" link to the site-name submenu, alongside "Dashboard" (STATS-287).
+ *
+ * Hooks `wp_before_admin_bar_render`, the last point before WP_Admin_Bar builds
+ * its render tree, so core's `dashboard` node (added during `admin_bar_menu`) is
+ * guaranteed to exist.
+ */
+function wpcom_add_stats_to_site_menu() {
+	global $wp_admin_bar;
+
+	if ( ! is_object( $wp_admin_bar ) || ! $wp_admin_bar->get_node( 'dashboard' ) || ! current_user_can( 'view_stats' ) ) {
+		return;
+	}
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'site-name',
+			'id'     => 'wpcom-stats',
+			'title'  => __( 'Stats', 'jetpack-mu-wpcom' ),
+			'href'   => admin_url( 'admin.php?page=stats' ),
+		)
+	);
+}
+add_action( 'wp_before_admin_bar_render', 'wpcom_add_stats_to_site_menu' );

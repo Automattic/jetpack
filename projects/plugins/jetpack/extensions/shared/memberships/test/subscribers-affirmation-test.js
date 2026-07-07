@@ -8,6 +8,7 @@ import {
 	shouldShowWontResendMessage,
 	getSentCopyLine,
 	getJetpackEmailStatsLink,
+	getSiteVisibilitySettingsLink,
 } from '../subscribers-affirmation';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -372,5 +373,18 @@ describe( 'getJetpackEmailStatsLink', () => {
 		expect( result ).toBe(
 			'https://admin.example.com/admin.php?page=stats#!/stats/email/opens/day/456/123'
 		);
+	} );
+} );
+
+describe( 'getSiteVisibilitySettingsLink', () => {
+	beforeEach( () => {
+		getAdminUrl.mockClear();
+	} );
+
+	test( 'links to the Reading settings page where site visibility is changed', () => {
+		const result = getSiteVisibilitySettingsLink();
+
+		expect( getAdminUrl ).toHaveBeenCalledWith( 'options-reading.php' );
+		expect( result ).toBe( 'https://admin.example.com/options-reading.php' );
 	} );
 } );

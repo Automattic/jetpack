@@ -99,7 +99,7 @@ class Jetpack_Activity_Log {
 			'manage_options',
 			self::PAGE_SLUG,
 			array( __CLASS__, 'render_page' ),
-			14
+			12
 		);
 
 		if ( $page_suffix ) {

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
@@ -29,10 +30,10 @@ class Admin_Page {
 	/**
 	 * Where the Podcast item sits in the Jetpack submenu on self-hosted.
 	 *
-	 * Placed after Subscribers (15) and Newsletter (10) to mirror the order
-	 * `wpcom-admin-menu.php` uses on Simple/Atomic.
+	 * Placed after content/product items like Newsletter and Search (10), and
+	 * above Activity Log (12) so Activity Log stays immediately before Settings (13).
 	 */
-	const MENU_POSITION = 16;
+	const MENU_POSITION = 11;
 
 	/**
 	 * Slug emitted by `@wordpress/build`. wp-build's auto-generated enqueue
@@ -142,6 +143,15 @@ class Admin_Page {
 			$data = array();
 		}
 
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
+
+		if ( ! $is_wpcom && empty( $data['site']['wpcom']['blog_id'] ) ) {
+			$blog_id = (int) Connection_Manager::get_site_id( true );
+			if ( $blog_id > 0 ) {
+				$data['site']['wpcom']['blog_id'] = $blog_id;
+			}
+		}
+
 		// A buyer returning from checkout carries the purchase marker; bust the
 		// cached purchases lookup so the gate re-reads `/upgrades` and unlocks
 		// the paid surfaces now instead of after the transient expires.
@@ -153,10 +163,9 @@ class Admin_Page {
 		// Self-hosted upsells the Growth plan; WordPress.com keeps Premium.
 		// `product_slug` is fed straight to the checkout URL; `plan_name` is a
 		// product name shown in the locked-preview copy (not translated).
-		$is_wpcom = ( new Host() )->is_wpcom_platform();
-
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
+			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
 			// Settings only: categories rejects per_page=-1 server-side, stats is a live relay.

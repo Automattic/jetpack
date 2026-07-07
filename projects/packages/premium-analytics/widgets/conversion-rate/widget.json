@@ -1,0 +1,6 @@
+{
+	"name": "jpa/conversion-rate",
+	"title": "Store conversion rate",
+	"description": "Store conversion rate over the selected time period.",
+	"category": "store"
+}

@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -44,7 +43,6 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 *
-	 * @param bool $has_paid_plan    Whether the site owns a bundle purchase.
 	 * @param bool $was_ai_onboarded Whether the site already went through AI onboarding.
 	 * @param bool $enabled          Whether the site has the wpcom_ai_launchpad_enabled option set.
 	 * @param bool $expected         Expected eligibility result.
@@ -52,11 +50,7 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	#[DataProvider( 'provide_eligibility_inputs' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_is_eligible( $has_paid_plan, $was_ai_onboarded, $enabled, $expected ) {
-		Functions\when( 'wpcom_get_site_purchases' )->justReturn(
-			$has_paid_plan ? array( (object) array( 'product_type' => 'bundle' ) ) : array()
-		);
-
+	public function test_is_eligible( $was_ai_onboarded, $enabled, $expected ) {
 		if ( $was_ai_onboarded ) {
 			update_option( 'site_intent', 'ai-assembler' );
 		}
@@ -70,14 +64,16 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Data provider for test_is_eligible.
 	 *
+	 * The paid-plan requirement is temporarily lifted, so eligibility depends only on
+	 * the per-site enabled option and the site not already being AI-onboarded.
+	 *
 	 * @return array
 	 */
 	public static function provide_eligibility_inputs() {
 		return array(
-			'paid + enabled'       => array( true, false, true, true ),
-			'paid + not enabled'   => array( true, false, false, false ),
-			'enabled but not paid' => array( false, false, true, false ),
-			'onboarded blocks'     => array( true, true, true, false ),
+			'enabled'          => array( false, true, true ),
+			'not enabled'      => array( false, false, false ),
+			'onboarded blocks' => array( true, true, false ),
 		);
 	}
 }

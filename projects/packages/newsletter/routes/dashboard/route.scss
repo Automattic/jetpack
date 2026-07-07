@@ -5,7 +5,7 @@
 // TODO: drop the manual color override once a design-system "muted text" tone
 // lands on `Text` (see https://github.com/WordPress/gutenberg/issues/77391).
 .jetpack-newsletter__identity-email {
-	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
+	color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
 }
 
 // Inline avatar in the identity cell — keep it circular and prevent the
@@ -40,7 +40,7 @@
 // TODO: replace with `Text` "muted" tone once available
 // (see https://github.com/WordPress/gutenberg/issues/77391).
 .jetpack-newsletter__detail-email {
-	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
+	color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
 }
 
 // Stat row — Emails sent / Open rate / Click rate.
@@ -65,7 +65,7 @@
 // Grouped sections — Card already provides the outer border, so rows just sit
 // in a column with the design-system gap.
 .jetpack-newsletter__detail-row-label {
-	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
+	color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
 }
 
 .jetpack-newsletter__detail-link {

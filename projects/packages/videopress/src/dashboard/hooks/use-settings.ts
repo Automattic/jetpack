@@ -3,17 +3,21 @@ import apiFetch from '@wordpress/api-fetch';
 
 type ApiSettings = {
 	videopress_videos_private_for_site: boolean;
+	videopress_auto_subtitles_disabled: boolean;
 	site_is_private: boolean;
 	site_type: string;
 };
 
 export type Settings = {
 	videoPressVideosPrivateForSite: boolean;
+	videoPressAutoSubtitlesDisabled: boolean;
 	siteIsPrivate: boolean;
 	siteType: string;
 };
 
-export type SettingsPatch = Partial< Pick< Settings, 'videoPressVideosPrivateForSite' > >;
+export type SettingsPatch = Partial<
+	Pick< Settings, 'videoPressVideosPrivateForSite' | 'videoPressAutoSubtitlesDisabled' >
+>;
 
 const QUERY_KEY = [ 'jetpack-videopress-settings' ] as const;
 
@@ -26,6 +30,7 @@ const QUERY_KEY = [ 'jetpack-videopress-settings' ] as const;
 function fromApi( raw: ApiSettings ): Settings {
 	return {
 		videoPressVideosPrivateForSite: raw.videopress_videos_private_for_site,
+		videoPressAutoSubtitlesDisabled: raw.videopress_auto_subtitles_disabled,
 		siteIsPrivate: raw.site_is_private,
 		siteType: raw.site_type,
 	};
@@ -57,13 +62,25 @@ export function useUpdateSettings() {
 	const client = useQueryClient();
 	return useMutation< void, Error, SettingsPatch, { previous?: Settings } >( {
 		mutationFn: async patch => {
-			if ( patch.videoPressVideosPrivateForSite === undefined ) {
+			const data: Partial<
+				Pick<
+					ApiSettings,
+					'videopress_videos_private_for_site' | 'videopress_auto_subtitles_disabled'
+				>
+			> = {};
+			if ( patch.videoPressVideosPrivateForSite !== undefined ) {
+				data.videopress_videos_private_for_site = patch.videoPressVideosPrivateForSite;
+			}
+			if ( patch.videoPressAutoSubtitlesDisabled !== undefined ) {
+				data.videopress_auto_subtitles_disabled = patch.videoPressAutoSubtitlesDisabled;
+			}
+			if ( Object.keys( data ).length === 0 ) {
 				return;
 			}
 			await apiFetch( {
 				path: '/videopress/v1/settings',
 				method: 'POST',
-				data: { videopress_videos_private_for_site: patch.videoPressVideosPrivateForSite },
+				data,
 			} );
 		},
 		onMutate: async patch => {
