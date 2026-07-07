@@ -1,0 +1,25 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "videopress/playlist",
+	"title": "VideoPress Playlist",
+	"category": "media",
+	"description": "Test fixture mirroring the playlist block metadata, minus the file: script entries (their built assets do not exist in the test environment).",
+	"attributes": {
+		"playlistId": {
+			"type": "number"
+		},
+		"layout": {
+			"type": "string",
+			"default": "list"
+		},
+		"showHeader": {
+			"type": "boolean",
+			"default": true
+		},
+		"autoplayNext": {
+			"type": "boolean",
+			"default": true
+		}
+	}
+}
