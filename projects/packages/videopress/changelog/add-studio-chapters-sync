@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress Studio: regenerate the chapters VTT track when video details are saved, so editing a description in Studio no longer de-syncs the player's chapter menu.
