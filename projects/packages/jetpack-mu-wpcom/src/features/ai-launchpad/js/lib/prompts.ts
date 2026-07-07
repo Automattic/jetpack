@@ -13,8 +13,6 @@ export const TASK_MENU: readonly string[] = [
 	'update_about_page',
 	'edit_page',
 	'design_edited',
-	'design_completed',
-	'design_selected',
 	'domain_claim',
 	'domain_upsell',
 	'domain_customize',

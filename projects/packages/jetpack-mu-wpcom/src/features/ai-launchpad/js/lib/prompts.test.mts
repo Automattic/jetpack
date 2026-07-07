@@ -29,6 +29,14 @@ describe( 'buildTailorPrompt', () => {
 		}
 	} );
 
+	it( 'offers only the actionable theme task, not the legacy design tasks', () => {
+		// design_selected is always-complete and design_completed has no wp-admin
+		// completion path; both are consolidated onto site_theme_selected.
+		assert.ok( TASK_MENU.includes( 'site_theme_selected' ) );
+		assert.ok( ! TASK_MENU.includes( 'design_selected' ) );
+		assert.ok( ! TASK_MENU.includes( 'design_completed' ) );
+	} );
+
 	it( 'instructs the model to return only JSON', () => {
 		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
 		assert.ok( /return only a json object/i.test( prompt ) );

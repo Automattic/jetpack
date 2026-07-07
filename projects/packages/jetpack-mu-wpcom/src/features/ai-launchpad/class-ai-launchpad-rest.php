@@ -84,20 +84,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 */
 	const CTA_OVERRIDES = array(
 		'connect_social_media' => 'admin.php?page=jetpack-social',
-		'design_completed'     => 'themes.php',
-		'design_selected'      => 'themes.php',
-	);
-
-	/**
-	 * Theme-picker tasks. These point at the wordpress.com themes showcase pre-filtered for the site — the Store
-	 * category on sell sites, the AI's theme keyword elsewhere — so the theme list feels relevant to what the user
-	 * is building (instead of plain themes.php, which only filters already-installed themes). Falls back to the
-	 * paths above when there is nothing to filter by.
-	 */
-	const THEME_TASK_IDS = array(
-		'site_theme_selected',
-		'design_selected',
-		'design_completed',
 	);
 
 	/**
@@ -397,21 +383,23 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		$theme_cta = $this->get_themes_showcase_path( $goal, $theme_search );
 
-		$tasks = array();
-		if ( isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ) {
-			$tasks = $this->build_tasks( $payload['tasks'], false, $theme_cta, $disable_hidden_woo );
+		$ai_tasks = isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ? $payload['tasks'] : array();
+
+		// A store needs a theme, so the sell list always offers "Choose a theme" — the AI is not required to pick
+		// one. Add it when absent so build_tasks enriches it like any catalog task (get_ai_task_ids mirrors this).
+		if ( 'sell' === $goal ) {
+			$ai_tasks = $this->ensure_theme_task( $ai_tasks );
 		}
+
+		$tasks = empty( $ai_tasks ) ? array() : $this->build_tasks( $ai_tasks, false, $theme_cta, $disable_hidden_woo );
 
 		// The sell goal leads with the store-setup task; every other goal may offer the gallery task. They are
 		// mutually exclusive so a sell site with a visual niche doesn't also get an off-target gallery task.
 		if ( 'sell' === $goal ) {
 			// The store-setup tasks lead the sell list. Their synthetic ids never appear in the AI payload, so a
-			// plain prepend is safe. The theme task then follows them, wherever the AI ranked it: pick the
-			// store's look once the store exists. Reversed so multiple theme tasks keep their THEME_TASK_IDS order.
+			// plain prepend is safe. The theme task then follows them: pick the store's look once the store exists.
 			$tasks = array_merge( $this->build_store_tasks( $woo_active ), $tasks );
-			foreach ( array_reverse( self::THEME_TASK_IDS ) as $theme_task_id ) {
-				$tasks = $this->move_task_after( $tasks, $theme_task_id, 'setup_woocommerce_store' );
-			}
+			$tasks = $this->move_task_after( $tasks, 'site_theme_selected', 'setup_woocommerce_store' );
 		} else {
 			$gallery = $this->build_gallery_task( $inferred );
 			if ( null !== $gallery ) {
@@ -843,7 +831,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					? AI_Launchpad_Memberships::is_task_complete( $task['id'] )
 					: wpcom_launchpad_checklists()->is_task_complete( $definition );
 
-				$theme_showcase_path = in_array( $task['id'], self::THEME_TASK_IDS, true ) ? $theme_cta : null;
+				// The theme-picker task points at the showcase pre-filtered for the site (Store category on sell,
+				// the AI's theme keyword elsewhere) instead of plain themes.php. The legacy design_selected/
+				// design_completed ids consolidate onto site_theme_selected via wpcom_ai_launchpad_remap_task_id().
+				$theme_showcase_path = 'site_theme_selected' === $task['id'] ? $theme_cta : null;
 				$cta_override        = $this->get_cta_override( $task['id'] );
 				if ( null !== $theme_showcase_path ) {
 					$calypso_path = $theme_showcase_path;
@@ -957,6 +948,30 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		return '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $this->niche_to_search_term( $search ) );
+	}
+
+	/**
+	 * Ensures the persisted task list contains the theme-picker task, appending `site_theme_selected` when no
+	 * task already resolves to it. A design task that remaps onto it (via wpcom_ai_launchpad_remap_task_id)
+	 * counts as present, so a theme card is never duplicated.
+	 *
+	 * @param array $tasks The persisted `payload.tasks` array.
+	 * @return array
+	 */
+	private function ensure_theme_task( $tasks ) {
+		foreach ( $tasks as $task ) {
+			if ( is_array( $task ) && isset( $task['id'] ) && is_string( $task['id'] )
+				&& 'site_theme_selected' === wpcom_ai_launchpad_remap_task_id( $task['id'] ) ) {
+				return $tasks;
+			}
+		}
+
+		$tasks[] = array(
+			'id'       => 'site_theme_selected',
+			'subtitle' => __( 'Choose a theme that fits your store.', 'jetpack-mu-wpcom' ),
+		);
+
+		return $tasks;
 	}
 
 	/**

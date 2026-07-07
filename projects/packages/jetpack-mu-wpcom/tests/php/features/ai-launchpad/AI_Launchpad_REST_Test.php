@@ -436,14 +436,14 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that GET repoints the social/design CTAs to wp-admin targets, since the
-	 * catalog sends them to Calypso flows that are a poor fit for the wp-admin AI
+	 * Test that GET repoints the connect-social CTA to its wp-admin target, since the
+	 * catalog sends it to a Calypso flow that is a poor fit for the wp-admin AI
 	 * Launchpad (and connect_social_media completes on the wp-admin Jetpack Social
 	 * page, where its CTA should land).
 	 */
 	public function test_get_overrides_calypso_ctas_with_wp_admin_targets() {
 		wp_set_current_user( $this->admin_id );
-		$this->seed_ai_output_with_tasks( array( 'connect_social_media', 'design_selected', 'site_launched' ) );
+		$this->seed_ai_output_with_tasks( array( 'connect_social_media', 'first_post_published', 'site_launched' ) );
 
 		$paths = array();
 		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
@@ -451,7 +451,6 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		}
 
 		$this->assertSame( admin_url( 'admin.php?page=jetpack-social' ), $paths['connect_social_media'] );
-		$this->assertSame( admin_url( 'themes.php' ), $paths['design_selected'] );
 		// A task without an override keeps its catalog path unchanged (null for the
 		// launch task, which routes to the wordpress.com launch flow client-side).
 		$this->assertArrayHasKey( 'site_launched', $paths );
@@ -459,7 +458,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that GET points the theme tasks at the Calypso themes showcase pre-filtered
+	 * Test that GET points the theme task at the Calypso themes showcase pre-filtered
 	 * by the AI-inferred niche, so the theme list feels relevant to what the user is
 	 * building. This overrides the plain wp-admin themes.php target, which can only
 	 * filter already-installed themes.
@@ -483,10 +482,6 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 							'subtitle' => 'Pick a gallery-style theme.',
 						),
 						array(
-							'id'       => 'design_selected',
-							'subtitle' => 'Make it yours.',
-						),
-						array(
 							'id'       => 'site_launched',
 							'subtitle' => 'Go live.',
 						),
@@ -507,7 +502,6 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$expected = '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=ceramics';
 		$this->assertSame( $expected, $paths['site_theme_selected'] );
-		$this->assertSame( $expected, $paths['design_selected'] );
 		// A non-theme task is untouched by the niche filter.
 		$this->assertNull( $paths['site_launched'] );
 	}
@@ -622,21 +616,19 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that without an inferred niche the theme CTAs keep their existing targets
-	 * (the wp-admin override for design_selected), so the filter is purely additive.
+	 * Test that without an inferred niche the theme task keeps its catalog target, so
+	 * the showcase filter is purely additive.
 	 */
 	public function test_get_leaves_theme_ctas_unfiltered_without_niche() {
 		wp_set_current_user( $this->admin_id );
 		// seed_ai_output_with_tasks writes no `inferred` block, so there is no niche.
-		$this->seed_ai_output_with_tasks( array( 'site_theme_selected', 'design_selected', 'site_launched' ) );
+		$this->seed_ai_output_with_tasks( array( 'site_theme_selected', 'site_launched' ) );
 
 		$paths = array();
 		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
 			$paths[ $task['id'] ] = $task['calypso_path'];
 		}
 
-		// The CTA_OVERRIDES branch keeps its wp-admin target.
-		$this->assertSame( admin_url( 'themes.php' ), $paths['design_selected'] );
 		// The load_calypso_path branch keeps the catalog's default theme path.
 		$this->assertSame( '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '#theme-selected', $paths['site_theme_selected'] );
 	}
@@ -1434,8 +1426,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 * wpcom_ai_launchpad_get_ai_task_ids() reports them as on the site's list.
 	 *
 	 * @param string[] $task_ids The task IDs to seed.
+	 * @param string   $goal     Optional inferred goal to record (drives sell-specific behavior).
 	 */
-	private function seed_ai_output_with_tasks( array $task_ids ) {
+	private function seed_ai_output_with_tasks( array $task_ids, $goal = '' ) {
 		$tasks = array();
 		foreach ( $task_ids as $id ) {
 			$tasks[] = array(
@@ -1443,13 +1436,17 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'subtitle' => 'Subtitle for ' . $id . '.',
 			);
 		}
+		$payload = array( 'tasks' => $tasks );
+		if ( '' !== $goal ) {
+			$payload['inferred'] = array( 'goal' => $goal );
+		}
 		update_option(
 			'wpcom_ai_launchpad_ai_output',
 			array(
 				'version'      => 1,
 				'source'       => 'ai',
 				'generated_at' => 1717000000,
-				'payload'      => array( 'tasks' => $tasks ),
+				'payload'      => $payload,
 			),
 			false
 		);
@@ -1568,11 +1565,12 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that the sell reorder covers every theme-picker task id, not just
-	 * site_theme_selected — an output whose theme task is design_selected must
-	 * also land right after the store-setup lead tasks.
+	 * Test that a persisted design_selected task renders as the actionable
+	 * site_theme_selected and is repositioned after the store-setup lead tasks:
+	 * the legacy "Select a design" task is always-complete and has no wp-admin
+	 * completion path, so it is consolidated onto the theme task.
 	 */
-	public function test_get_sell_moves_design_selected_after_store_setup() {
+	public function test_get_sell_remaps_and_repositions_design_selected() {
 		wp_set_current_user( $this->admin_id );
 		update_option( 'active_plugins', array() );
 		update_option(
@@ -1604,10 +1602,100 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 
+		$this->assertNotContains( 'design_selected', $ids );
 		$this->assertSame(
-			array( 'install_woocommerce', 'setup_woocommerce_store', 'design_selected' ),
+			array( 'install_woocommerce', 'setup_woocommerce_store', 'site_theme_selected' ),
 			array_slice( $ids, 0, 3 )
 		);
+	}
+
+	/**
+	 * Test that the legacy design tasks are consolidated onto site_theme_selected on
+	 * read: both remap to the one actionable theme task (deduped), and it is not the
+	 * always-complete "Select a design" card.
+	 */
+	public function test_get_remaps_design_tasks_to_site_theme_selected() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'design_selected', 'design_completed', 'site_launched' ), 'build' );
+
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		$this->assertArrayNotHasKey( 'design_selected', $tasks );
+		$this->assertArrayNotHasKey( 'design_completed', $tasks );
+		$this->assertArrayHasKey( 'site_theme_selected', $tasks );
+		// site_theme_selected reads a real signal, so it is not born-complete like design_selected was.
+		$this->assertFalse( $tasks['site_theme_selected']['completed'] );
+	}
+
+	/**
+	 * Test that a sell list always includes a Choose-a-theme task even when the AI
+	 * did not pick one, positioned right after the store-setup lead tasks and
+	 * pointed at the showcase Store category.
+	 */
+	public function test_get_guarantees_theme_task_on_sell() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'woo_products',
+							'subtitle' => 'Add products.',
+						),
+						array(
+							'id'       => 'woo_marketing',
+							'subtitle' => 'Promote it.',
+						),
+						array(
+							'id'       => 'site_launched',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array( 'goal' => 'sell' ),
+				),
+			),
+			false
+		);
+
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		$this->assertArrayHasKey( 'site_theme_selected', $tasks );
+		$ids = array_keys( $tasks );
+		$this->assertSame(
+			array( 'install_woocommerce', 'setup_woocommerce_store', 'site_theme_selected' ),
+			array_slice( $ids, 0, 3 )
+		);
+		$this->assertSame(
+			'/themes/filter/store/' . rawurlencode( wpcom_get_site_slug() ),
+			$tasks['site_theme_selected']['calypso_path']
+		);
+	}
+
+	/**
+	 * Test that a non-sell list is not given a theme task it did not ask for.
+	 */
+	public function test_get_does_not_inject_theme_task_for_non_sell() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ), 'write' );
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertNotContains( 'site_theme_selected', $ids );
+	}
+
+	/**
+	 * Test that the AI-selected id list counts the sell theme guarantee, so the
+	 * switch_theme listener and skip validation see the card the site renders.
+	 */
+	public function test_ai_task_ids_include_guaranteed_sell_theme() {
+		$this->seed_ai_output_with_tasks( array( 'woo_products', 'site_launched' ), 'sell' );
+
+		$this->assertContains( 'site_theme_selected', wpcom_ai_launchpad_get_ai_task_ids() );
 	}
 
 	/**
