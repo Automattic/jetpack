@@ -26,6 +26,19 @@
 	display: none;
 }
 
+// Ensure wide and full alignments render correctly in the editor
+// when VideoPress wraps the video in a ResizableBox.
+.wp-block-video {
+
+	&.alignwide,
+	&.alignfull {
+
+		.wp-block-embed__wrapper {
+			width: 100%;
+		}
+	}
+}
+
 .seekbar-color-settings__panel {
 
 	.components-panel__body.is-opened {
