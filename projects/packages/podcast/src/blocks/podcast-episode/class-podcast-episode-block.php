@@ -13,8 +13,6 @@ use Automattic\Jetpack\Status\Request;
 
 /**
  * Registers and renders the Podcast Episode block.
- *
- * The caller (Podcast::init()) is responsible for the host gate.
  */
 class Podcast_Episode_Block {
 
