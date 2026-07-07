@@ -198,12 +198,9 @@ class Podcast_Episode_Block {
 	 * @return string
 	 */
 	public static function render_block( $attributes, $content, $block = null ) {
-		// Outside the frontend, fall back to the saved direct link so RSS / email / REST export stays
-		// simple and predictable. The WPCOM Reader is the exception — it wants the full player. On WPCOM
-		// Simple the Reader renders the post live, so we detect the READER context directly. On Atomic /
-		// self-hosted Jetpack the Reader is instead served the HTML that Jetpack Sync pre-renders into
-		// post_content_filtered, so we render the player during that sync pass too. RSS still gets the
-		// simple link; the WPCOM-side Feedbag override defers to this synced player.
+		// Off the frontend we fall back to the direct link (RSS, email, export). The Reader is the
+		// exception: Simple renders it live (READER context); Atomic/Jetpack get the player Sync bakes
+		// into post_content_filtered.
 		$is_reader_render = false;
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			require_once WP_CONTENT_DIR . '/lib/display-context.php';

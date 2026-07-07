@@ -55,11 +55,6 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		parent::tear_down();
 	}
 
-	/**
-	 * Toggle the Sync "is syncing" flag the render callback probes.
-	 *
-	 * @param bool $syncing Whether to simulate a Sync content render.
-	 */
 	private function set_syncing( $syncing ) {
 		Sync_Settings::set_is_syncing( $syncing );
 	}
@@ -117,9 +112,7 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 	}
 
 	public function test_sync_render_returns_full_player_not_fallback() {
-		// On Atomic / self-hosted Jetpack the WPCOM Reader is served the HTML Sync
-		// pre-renders into post_content_filtered, so the block must emit the full
-		// player while syncing even though the sync pass is not a frontend request.
+		// Sync renders (not frontend) must still emit the player — it's what the Reader serves on Atomic/Jetpack.
 		remove_filter( 'jetpack_is_frontend', '__return_true' );
 		add_filter( 'jetpack_is_frontend', '__return_false' );
 		$this->set_syncing( true );
