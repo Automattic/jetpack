@@ -17,9 +17,9 @@
 		"@wordpress/components": "36.1.0",
 		"@wordpress/compose": "8.3.0",
 		"@wordpress/i18n": "^6.9.0",
-		"@wordpress/icons": "^13.0.0",
+		"@wordpress/icons": "^15.0.0",
 		"@wordpress/private-apis": "1.50.0",
-		"@wordpress/ui": "0.13.0",
+		"@wordpress/ui": "0.17.0",
 		"clsx": "2.1.1",
 		"react": "18.3.1"
 	},

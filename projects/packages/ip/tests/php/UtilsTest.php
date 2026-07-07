@@ -275,6 +275,70 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * Test `ip_is_public`.
+	 */
+	public function test_ip_is_public() {
+		$public_ips = array(
+			'1.2.3.4',
+			'8.8.8.8',
+			'128.0.0.0',
+			'100.63.255.255',                 // Just below the CGNAT range.
+			'100.128.0.0',                    // Just above the CGNAT range.
+			'2606:4700:4700::1111',           // Global IPv6 unicast.
+			'2001:4860:4860::8888',           // Global IPv6 unicast.
+			'::ffff:8.8.8.8',                 // IPv4-mapped IPv6 of a public address.
+			'64:ff9b::808:808',               // NAT64 embedding a public IPv4 (8.8.8.8).
+		);
+		foreach ( $public_ips as $public_ip ) {
+			$this->assertTrue( Utils::ip_is_public( $public_ip ), "$public_ip should be public" );
+		}
+
+		$non_public_ips = array(
+			// Private / loopback (also covered by ip_is_private()).
+			'10.1.2.3',
+			'172.16.5.5',
+			'192.168.1.1',
+			'127.0.0.1',
+			// Reserved / special-use ranges the plain filter leaves open.
+			'169.254.169.254',                // Link-local cloud metadata.
+			'169.254.1.1',
+			'168.63.129.16',                  // Azure metadata "Wire Server".
+			'100.64.0.1',                     // CGNAT.
+			'100.127.255.255',                // CGNAT.
+			'192.0.0.1',                      // IETF protocol assignments.
+			'192.88.99.1',                    // 6to4 relay anycast.
+			'198.18.0.1',                     // Benchmarking.
+			'198.19.255.255',                 // Benchmarking.
+			'224.0.0.1',                      // Multicast.
+			'239.255.255.255',                // Multicast.
+			// IPv6 loopback / link-local / unique-local / site-local.
+			'::1',
+			'fe80::1',
+			'fc00::1',
+			'fd00::1',
+			'fec0::1',
+			'fe80::1%eth0',                   // Zone identifier is ignored, still link-local.
+			// IPv4-mapped IPv6 pointing at internal addresses.
+			'::ffff:169.254.169.254',
+			'::ffff:10.0.0.1',
+			// Other IPv6 forms embedding an internal IPv4.
+			'64:ff9b::a9fe:a9fe',             // NAT64 embedding cloud metadata (169.254.169.254).
+			'64:ff9b::a00:1',                 // NAT64 embedding a private IPv4 (10.0.0.1).
+			'2002:a9fe:a9fe::',               // 6to4 embedding cloud metadata (169.254.169.254).
+			'::7f00:1',                       // IPv4-compatible IPv6 embedding loopback (127.0.0.1).
+			// Invalid input.
+			'',
+			'not-an-ip',
+			'999.999.999.999',
+			'8.8.8.8%foo',                    // Zone identifier is only valid on IPv6; malformed on IPv4.
+			'8.8.8.8%eth0',
+		);
+		foreach ( $non_public_ips as $non_public_ip ) {
+			$this->assertFalse( Utils::ip_is_public( $non_public_ip ), "$non_public_ip should not be public" );
+		}
+	}
+
+	/**
 	 * Test `convert_ip_address`.
 	 */
 	public function test_convert_ip_address() {

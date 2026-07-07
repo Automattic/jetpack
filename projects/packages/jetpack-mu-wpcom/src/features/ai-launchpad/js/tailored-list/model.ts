@@ -19,6 +19,10 @@ export interface EnrichedTask {
 	// commerce tasks before WooCommerce is active): it renders muted, expands to its
 	// subtitle, but offers no CTA or Skip until its prerequisite is met.
 	disabled: boolean;
+	// True when the user skipped the task (persisted server-side). A skipped task
+	// arrives with `completed` already coerced to true; the flag is here so the UI
+	// can distinguish skipped from genuinely done if it ever wants to.
+	skipped?: boolean;
 	calypso_path: string | null;
 }
 
