@@ -101,8 +101,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'garden_is_provisioned'       => '(bool) If the Garden site is provisioned.',
 		'is_wpcom_flex'               => '(bool) If the site is a Flex site',
 		'big_sky_enabled'             => '(bool) Whether the Big Sky AI assistant is enabled for this site.',
-		'hosting_provider_guess'      => '(string) Guess of the hosting provider. WordPress.com-only; only returned when explicitly requested via the fields parameter.',
-		'environment_type'            => '(string) The WP_ENVIRONMENT_TYPE of the site as synced by Jetpack. WordPress.com-only; only returned when explicitly requested via the fields parameter.',
+		'hosting_provider_guess'      => '(string) Guess of the hosting provider. WordPress.com platform only; only returned when explicitly requested via the fields parameter.',
+		'environment_type'            => '(string) The WP_ENVIRONMENT_TYPE of the site as synced by Jetpack. WordPress.com platform only; only returned when explicitly requested via the fields parameter.',
 	);
 
 	/**
@@ -676,7 +676,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->is_big_sky_enabled();
 				break;
 			case 'hosting_provider_guess':
-				// WordPress.com-only decoration, computed only when explicitly requested
+				// WordPress.com platform decoration, computed only when explicitly requested
 				// via `fields` so default `_all` responses are unchanged.
 				if ( $this->is_wpcom()
 					&& function_exists( 'get_jetpack_hosting_provider' )
@@ -685,10 +685,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				}
 				break;
 			case 'environment_type':
-				// WordPress.com-only decoration, computed only when explicitly requested
+				// WordPress.com platform decoration, computed only when explicitly requested
 				// via `fields` so default `_all` responses are unchanged.
 				if ( $this->is_wpcom() && is_array( $this->fields_to_include ) ) {
-					$response[ $key ] = get_blog_option( get_current_blog_id(), 'jetpack_callable_wp_get_environment_type', null );
+					$response[ $key ] = $this->get_site_environment_type();
 				}
 				break;
 		}
@@ -1117,7 +1117,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response->hosting_provider_guess = get_jetpack_hosting_provider( get_current_blog_id() );
 			}
 			if ( in_array( 'environment_type', $this->fields_to_include, true ) ) {
-				$response->environment_type = get_blog_option( get_current_blog_id(), 'jetpack_callable_wp_get_environment_type', null );
+				$response->environment_type = $this->get_site_environment_type();
 			}
 		}
 
@@ -1132,6 +1132,19 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	protected function is_wpcom() {
 		return ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform();
+	}
+
+	/**
+	 * Get the site's synced WP_ENVIRONMENT_TYPE.
+	 *
+	 * @return string|null
+	 */
+	protected function get_site_environment_type() {
+		if ( function_exists( 'get_blog_option' ) ) {
+			return get_blog_option( get_current_blog_id(), 'jetpack_callable_wp_get_environment_type', null );
+		}
+
+		return get_option( 'jetpack_callable_wp_get_environment_type', null );
 	}
 }
 

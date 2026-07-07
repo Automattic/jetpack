@@ -108,6 +108,29 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that WordPress.com platform fields are returned for v1.2 site responses when explicitly requested.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_requested_wpcom_platform_fields_are_rendered_for_v1_2_site_response() {
+		global $blog_id;
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		update_option( 'jetpack_callable_wp_get_environment_type', 'staging' );
+		WPCOM_JSON_API::init()->query         = array( 'fields' => 'ID,hosting_provider_guess,environment_type' );
+		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => $blog_id );
+
+		$endpoint = $this->get_wpcom_v1_2_endpoint();
+		$response = $endpoint->callback( '/sites/%s', $blog_id );
+
+		remove_filter( 'sites_site_format', array( $endpoint, 'site_format' ) );
+
+		$this->assertSame( get_jetpack_hosting_provider( $blog_id ), $response['hosting_provider_guess'] );
+		$this->assertSame( 'staging', $response['environment_type'] );
+	}
+
+	/**
 	 * Test that WordPress.com-only decorations are added to Jetpack responses when explicitly requested.
 	 *
 	 * @group json-api
@@ -208,6 +231,30 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 				'example_request'                      => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/',
 			)
 		) extends WPCOM_JSON_API_GET_Site_Endpoint {
+			/**
+			 * Whether this request is running on WordPress.com.
+			 *
+			 * @return bool
+			 */
+			protected function is_wpcom() {
+				return true;
+			}
+		};
+	}
+
+	/**
+	 * Get a v1.2 test endpoint that behaves as if it is running on WordPress.com.
+	 *
+	 * @return WPCOM_JSON_API_GET_Site_V1_2_Endpoint
+	 */
+	private function get_wpcom_v1_2_endpoint() {
+		return new class(
+			array(
+				'method'          => 'GET',
+				'path'            => '/sites/%s',
+				'response_format' => WPCOM_JSON_API_GET_Site_V1_2_Endpoint::$site_format,
+			)
+		) extends WPCOM_JSON_API_GET_Site_V1_2_Endpoint {
 			/**
 			 * Whether this request is running on WordPress.com.
 			 *
