@@ -14,7 +14,8 @@ export type LocationsAttributes = {
  *
  * Ported from the Jetpack Stats "Locations" module. v1 ships Countries mode
  * (with region drill-down) and Cities mode via the `location-views/{geoMode}`
- * endpoint. Cities are shown as marker locations on the map.
+ * endpoint. City rows are listed in the leaderboard and summarized on the map
+ * by country.
  *
  * Data: fetched via the PA proxy at `stats/location-views/{country|region|city}`.
  * Date range comes from WidgetRoot's reportParams (the shared dashboard date
