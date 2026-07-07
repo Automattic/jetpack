@@ -84,6 +84,20 @@ const baseConfig = {
 			},
 		],
 	},
+
+	overrides: [
+		{
+			// Premium Analytics already uses the renamed @wordpress/theme 0.17
+			// token names, ahead of the 0.15 token list the rest of the repo
+			// lints against. Remove this exemption when the bundled
+			// @wordpress/* renovate group lands the repo-wide theme bump and
+			// token renames.
+			files: [ '**/projects/packages/premium-analytics/**/*' ],
+			rules: {
+				'plugin-wpds/no-unknown-ds-tokens': null,
+			},
+		},
+	],
 };
 
 export default baseConfig;
