@@ -1,0 +1,18 @@
+@import "@wordpress/dataviews/build-style/style.css";
+
+/* DataViews brings its own paddings for the toolbar, table, and footer; the
+ * section card only needs to stop them doubling up with the card padding. */
+.root {
+	padding: var(--wpds-dimension-padding-md, 12px) var(--wpds-dimension-padding-2xl, 24px);
+}
+
+/* DataViews is built to fill a fixed-height parent: its layout container is a
+ * zero-basis flex child, which collapses to 0px inside this auto-height card.
+ * Let the card grow with the table instead. */
+.root :global(.dataviews-wrapper) {
+	height: auto;
+}
+
+.root :global(.dataviews-layout__container) {
+	flex: 1 1 auto;
+}
