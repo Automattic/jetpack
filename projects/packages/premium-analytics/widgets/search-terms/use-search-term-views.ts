@@ -30,6 +30,7 @@ interface SearchTermViewsState {
 	isLoading: boolean;
 	isError: boolean;
 	hasComparison: boolean;
+	refetch: () => void;
 }
 
 function itemLabel( item: StatsSearchTermsItem ): string {
@@ -76,5 +77,11 @@ export default function useSearchTermViews( {
 		isLoading: primary.isLoading || ( hasComparison && comparison.isLoading ),
 		isError: primary.isError || ( hasComparison && comparison.isError ),
 		hasComparison,
+		refetch: () => {
+			primary.refetch();
+			if ( hasComparison ) {
+				comparison.refetch();
+			}
+		},
 	};
 }

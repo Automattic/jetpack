@@ -33,7 +33,10 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, isLoading, isError, hasComparison } = useSearchTermViews( { reportParams, max } );
+	const { data, isLoading, isError, hasComparison, refetch } = useSearchTermViews( {
+		reportParams,
+		max,
+	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...data.map( t => t.views ), 0 );
@@ -61,6 +64,13 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 					isLoading={ isLoading }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load search terms. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					} }
 					empty={ {
 						description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ),
 					} }
