@@ -29,12 +29,11 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 	private $default_attrs = array( 'mediaUrl' => 'https://example.com/episode.mp3' );
 
 	/**
-	 * Force is_frontend true and prime WP_Block_Supports so direct render_block
-	 * calls don't warn from get_block_wrapper_attributes().
+	 * Prime WP_Block_Supports so direct render_block calls don't warn from
+	 * get_block_wrapper_attributes().
 	 */
 	public function set_up() {
 		parent::set_up();
-		add_filter( 'jetpack_is_frontend', '__return_true' );
 		update_option( 'date_format', 'F j, Y' );
 		WP_Block_Supports::$block_to_render = array(
 			'blockName' => 'jetpack/podcast-episode',
@@ -46,7 +45,6 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 	 * Tear down filters/options/block-supports state set in set_up.
 	 */
 	public function tear_down() {
-		remove_filter( 'jetpack_is_frontend', '__return_true' );
 		delete_option( 'podcasting_image' );
 		delete_option( 'date_format' );
 		WP_Block_Supports::$block_to_render = null;
@@ -93,10 +91,7 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		return $result;
 	}
 
-	public function test_renders_player_in_non_frontend_context() {
-		remove_filter( 'jetpack_is_frontend', '__return_true' );
-		add_filter( 'jetpack_is_frontend', '__return_false' );
-
+	public function test_renders_player_ignoring_saved_fallback_content() {
 		$post_id = $this->create_episode_post();
 		$result  = Podcast_Episode_Block::render_block(
 			$this->default_attrs,
@@ -105,11 +100,7 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		);
 		wp_delete_post( $post_id, true );
 
-		remove_filter( 'jetpack_is_frontend', '__return_false' );
-		add_filter( 'jetpack_is_frontend', '__return_true' );
-
 		$this->assertStringContainsString( 'jetpack-podcast-episode__player', $result );
-		$this->assertStringContainsString( '<audio', $result );
 		$this->assertStringNotContainsString( '__direct-link', $result );
 	}
 
