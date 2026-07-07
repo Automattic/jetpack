@@ -102,7 +102,11 @@ export function WidgetState( {
 		);
 	}
 
-	if ( isEmpty && ( isLoading || isFetching ) ) {
+	// `isLoading` blocks unconditionally — it means "no data yet", so there is
+	// nothing to keep visible regardless of how the caller derived `isEmpty`.
+	// `isFetching` only blocks when the resolved data is empty; with rows shown
+	// it falls through to the ready branch's non-blocking busy overlay.
+	if ( isLoading || ( isEmpty && isFetching ) ) {
 		return <>{ renderLoading ?? <WidgetLoadingOverlay /> }</>;
 	}
 

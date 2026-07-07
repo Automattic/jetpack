@@ -37,13 +37,14 @@ function iconPathOf( element: ReactElement ): string | null {
 }
 
 describe( 'WidgetState', () => {
-	it( 'renders children when ready', () => {
+	it( 'renders children when ready, with no spinner', () => {
 		render(
 			<WidgetState isLoading={ false } isError={ false } isEmpty={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the loading state on first load even when empty', () => {
@@ -54,6 +55,45 @@ describe( 'WidgetState', () => {
 		);
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toBeInTheDocument(); // spinner wrapper
+	} );
+
+	it( 'renders the loading state whenever isLoading, regardless of the caller-derived isEmpty', () => {
+		// `isEmpty` is derived by the caller and can be false during first load
+		// (e.g. `data?.rows.length === 0` while data is still undefined); loading
+		// must still block rendering children against absent data.
+		render(
+			<WidgetState isLoading isError={ false } isEmpty={ false }>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows loading, not the empty state, while refetching over an empty result', () => {
+		render(
+			<WidgetState
+				isLoading={ false }
+				isFetching
+				isError={ false }
+				isEmpty
+				empty={ { description: 'No posts here.' } }
+			>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.queryByText( 'No posts here.' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the caller loading override instead of the default spinner', () => {
+		render(
+			<WidgetState isLoading isError={ false } isEmpty renderLoading={ <div>skeleton</div> }>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.getByText( 'skeleton' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the empty state (not error) when resolved with no rows', () => {
@@ -138,12 +178,27 @@ describe( 'WidgetState', () => {
 		expect( svgPathOf( errorContainer ) ).toBe( errorGlyphPath );
 	} );
 
-	it( 'keeps children visible during a background refetch (busy)', () => {
+	it( 'overlays a spinner on visible children during a background refetch (busy)', () => {
 		render(
 			<WidgetState isLoading={ false } isFetching isError={ false } isEmpty={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toBeInTheDocument();
+	} );
+
+	it( 'error wins over loading and empty (retry in flight after a failed fetch)', () => {
+		// The production shape on a failed fetch: isError with isEmpty derived
+		// true, plus loading signals while a retry is in flight. The priority
+		// contract (error → loading → empty → ready) must hold.
+		render(
+			<WidgetState isLoading isFetching isError isEmpty error={ { description: 'Failed.' } }>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.getByText( 'Failed.' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 } );
