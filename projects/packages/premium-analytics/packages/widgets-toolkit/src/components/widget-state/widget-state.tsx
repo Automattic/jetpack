@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
 import { Button, Icon, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -111,11 +110,12 @@ export function WidgetState( {
 	if ( isEmpty ) {
 		return (
 			<ChartEmptyState
-				// Default to a neutral "no data" glyph so the empty state stays
-				// visually distinct from the error state. `ChartEmptyState`'s own
-				// default is `cautionFilled`, which would otherwise duplicate the
-				// error icon; callers can still override via `empty.icon`.
-				icon={ empty?.icon ?? chartBar }
+				// No default icon: the caller opts in via `empty.icon`. Keeping the
+				// component icon-agnostic avoids a domain-specific default (e.g. a
+				// chart glyph on a non-chart widget) and stays visually distinct from
+				// the error state, which always carries its own glyph. `null`
+				// suppresses `ChartEmptyState`'s own `cautionFilled` default.
+				icon={ empty?.icon ?? null }
 				text={
 					empty?.description ??
 					__( 'No data found for this date range.', 'jetpack-premium-analytics' )

@@ -89,13 +89,14 @@ describe( 'WidgetState', () => {
 		expect( onClick ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'uses a neutral empty icon, distinct from the error icon', () => {
-		const emptyGlyphPath = iconPathOf( <>{ chartBar }</> );
+	it( 'renders no empty icon by default, but honors a caller icon distinct from the error icon', () => {
+		const providedGlyphPath = iconPathOf( <>{ chartBar }</> );
 		const errorGlyphPath = iconPathOf( errorStateIcon );
-		// Sanity: the empty and error source glyphs really are different.
-		expect( emptyGlyphPath ).not.toBe( errorGlyphPath );
+		// Sanity: the sample and error source glyphs really are different.
+		expect( providedGlyphPath ).not.toBe( errorGlyphPath );
 
-		const { container: emptyContainer, unmount: unmountEmpty } = render(
+		// Default empty state carries no icon — no domain-specific default glyph.
+		const { container: bareEmpty, unmount: unmountBare } = render(
 			<WidgetState
 				isLoading={ false }
 				isError={ false }
@@ -105,8 +106,22 @@ describe( 'WidgetState', () => {
 				{ CONTENT }
 			</WidgetState>
 		);
+		expect( svgPathOf( bareEmpty ) ).toBeNull();
+		unmountBare();
+
+		// A caller-provided icon renders and stays distinct from the error glyph.
+		const { container: emptyContainer, unmount: unmountEmpty } = render(
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ { icon: chartBar, description: 'No posts here.' } }
+			>
+				{ CONTENT }
+			</WidgetState>
+		);
 		const emptyIcon = svgPathOf( emptyContainer );
-		expect( emptyIcon ).toBe( emptyGlyphPath );
+		expect( emptyIcon ).toBe( providedGlyphPath );
 		expect( emptyIcon ).not.toBe( errorGlyphPath );
 		unmountEmpty();
 

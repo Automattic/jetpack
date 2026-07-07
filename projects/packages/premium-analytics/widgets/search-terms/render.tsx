@@ -10,6 +10,7 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { search } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
@@ -72,6 +73,7 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 					} }
 					empty={ {
+						icon: search,
 						description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ),
 					} }
 				>
