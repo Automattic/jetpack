@@ -105,7 +105,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	const SOCIAL_PAGE_TASK_IDS = array(
 		'connect_social_media',
 		'drive_traffic',
-		'post_sharing_enabled',
 	);
 
 	/**
@@ -779,21 +778,16 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				continue;
 			}
 
-			// The WooCommerce launch task deep-links into the WC onboarding task list, which renders blank when the
-			// guided setup was skipped, and only completes via a WC option the skipped-setup flow never writes. Normalize
-			// it to the canonical site-launch task, which reads the real launch signal and self-completes. The prompt no
-			// longer offers it, so this only catches a stray AI emission.
-			if ( 'woo_launch_site' === $task['id'] ) {
-				$task['id'] = 'site_launched';
-			}
+			// Broken/meaningless-in-context ids render as their working equivalent (see the helper for the why).
+			$task['id'] = wpcom_ai_launchpad_remap_task_id( $task['id'] );
 
 			if ( ! isset( $definitions[ $task['id'] ] ) ) {
 				continue;
 			}
 
-			// One card per id — the client keys cards by id. The woo_launch_site→site_launched remap above can collide
-			// with a real site_launched (notably the ?all_tasks=1 view, which enumerates every catalog id), so collapse
-			// any repeat to the first occurrence.
+			// One card per id — the client keys cards by id. The remap above can collide with the target id already
+			// being present (notably the ?all_tasks=1 view, which enumerates every catalog id), so collapse any
+			// repeat to the first occurrence.
 			if ( isset( $seen_ids[ $task['id'] ] ) ) {
 				continue;
 			}

@@ -1037,7 +1037,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	public function test_get_hides_social_tasks_on_private_site() {
 		wp_set_current_user( $this->admin_id );
 		$this->seed_ai_output_with_tasks(
-			array( 'connect_social_media', 'drive_traffic', 'post_sharing_enabled', 'first_post_published', 'site_launched' )
+			array( 'connect_social_media', 'drive_traffic', 'first_post_published', 'site_launched' )
 		);
 
 		$ids = function () {
@@ -1049,17 +1049,48 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$public_ids = $ids();
 		$this->assertContains( 'connect_social_media', $public_ids );
 		$this->assertContains( 'drive_traffic', $public_ids );
-		$this->assertContains( 'post_sharing_enabled', $public_ids );
 
 		// Private site: the Social tasks are gone, the rest remain.
 		update_option( 'blog_public', '-1' );
 		$private_ids = $ids();
 		$this->assertNotContains( 'connect_social_media', $private_ids );
 		$this->assertNotContains( 'drive_traffic', $private_ids );
-		$this->assertNotContains( 'post_sharing_enabled', $private_ids );
 		$this->assertContains( 'first_post_published', $private_ids );
 
 		update_option( 'blog_public', '1' );
+	}
+
+	/**
+	 * Test that a persisted post_sharing_enabled task renders as connect_social_media.
+	 * The sharing module is active by default on wpcom, so the original task was born
+	 * completed; the connection task is the meaningful version of the same intent. A
+	 * payload holding both collapses to one card.
+	 */
+	public function test_get_remaps_post_sharing_enabled_to_connect_social_media() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks(
+			array( 'post_sharing_enabled', 'connect_social_media', 'first_post_published', 'site_launched' )
+		);
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertNotContains( 'post_sharing_enabled', $ids );
+		$this->assertSame( 1, array_count_values( $ids )['connect_social_media'] );
+	}
+
+	/**
+	 * Test that the rendered id of a remapped task is skippable: an output persisted
+	 * before the post_sharing_enabled remap renders a connect_social_media card, and
+	 * skipping that card must validate against the remapped ids, not the raw payload.
+	 */
+	public function test_skip_task_accepts_remapped_task_id() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'post_sharing_enabled', 'site_launched' ) );
+
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'connect_social_media' ) );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data()['skipped'] );
 	}
 
 	/**
