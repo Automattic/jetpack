@@ -20,14 +20,24 @@ add_action(
 			return;
 		}
 
-		$f = static function ( $slug, $title, $args = array() ) {
-			register_feature( $slug, array_merge( array( 'title' => $title ), $args ) );
+		$f = static function ( $slug, $title, $description, $args = array() ) {
+			register_feature(
+				$slug,
+				array_merge(
+					array(
+						'title'       => $title,
+						'description' => $description,
+					),
+					$args
+				)
+			);
 		};
 
 		// --- Forms: many sub-features, ONE shared module (contact-form). Probes coarse is_active. ---
 		$f(
 			'forms-webhooks',
 			'Form webhooks',
+			'Send form submissions to any URL as a webhook.',
 			array(
 				'category'    => 'writing',
 				'connection'  => 'none',
@@ -38,6 +48,7 @@ add_action(
 		$f(
 			'forms-salesforce',
 			'Salesforce integration',
+			'Send form submissions to Salesforce as new leads.',
 			array(
 				'category'    => 'writing',
 				'connection'  => 'user',
@@ -48,6 +59,7 @@ add_action(
 		$f(
 			'forms-google-sheets',
 			'Export to Google Sheets',
+			'Export form responses to a connected Google Sheet.',
 			array(
 				'category'   => 'writing',
 				'connection' => 'user',
@@ -57,6 +69,7 @@ add_action(
 		$f(
 			'forms-crm',
 			'Jetpack CRM integration',
+			'Sync form submissions into Jetpack CRM contacts.',
 			array(
 				'category'   => 'writing',
 				'connection' => 'none',
@@ -66,6 +79,7 @@ add_action(
 		$f(
 			'forms-akismet',
 			'Akismet spam filtering',
+			'Automatically filter spam out of form submissions with Akismet.',
 			array(
 				'category'    => 'writing',
 				'connection'  => 'site',
@@ -76,6 +90,7 @@ add_action(
 		$f(
 			'forms-ai-generation',
 			'AI form generation',
+			'Generate a ready-to-use form from a text prompt.',
 			array(
 				'category'    => 'writing',
 				'connection'  => 'none',
@@ -88,6 +103,7 @@ add_action(
 		$f(
 			'social-image-generator',
 			'Social Image Generator',
+			'Automatically create share images for your posts.',
 			array(
 				'category'    => 'engagement',
 				'connection'  => 'user',
@@ -98,6 +114,7 @@ add_action(
 		$f(
 			'social-image-focal-point',
 			'Social image focal point',
+			'Choose the focal point used in auto-generated social images.',
 			array(
 				'category'    => 'engagement',
 				'connection'  => 'user',
@@ -108,6 +125,7 @@ add_action(
 		$f(
 			'social-message-templates',
 			'Message templates',
+			'Save and reuse templates for your social messages.',
 			array(
 				'category'    => 'engagement',
 				'connection'  => 'user',
@@ -118,6 +136,7 @@ add_action(
 		$f(
 			'social-share-scheduling',
 			'Share scheduling',
+			'Schedule social shares to publish at a future time.',
 			array(
 				'category'    => 'engagement',
 				'connection'  => 'user',
@@ -130,6 +149,7 @@ add_action(
 		$f(
 			'search-instant',
 			'Instant Search',
+			'Show results instantly as visitors type, with filtering and sorting.',
 			array(
 				'category'    => 'search',
 				'connection'  => 'site',
@@ -142,6 +162,7 @@ add_action(
 		$f(
 			'videopress-block',
 			'VideoPress block',
+			'Embed ad-free, high-quality video with the block editor.',
 			array(
 				'category'   => 'writing',
 				'connection' => 'none',
@@ -151,6 +172,7 @@ add_action(
 		$f(
 			'videopress-1tb-storage',
 			'1 TB video storage',
+			'Store up to 1 TB of uploaded video.',
 			array(
 				'category'    => 'writing',
 				'connection'  => 'site',
@@ -163,6 +185,7 @@ add_action(
 		$f(
 			'newsletter-paid',
 			'Paid newsletter / content gating',
+			'Charge for subscriptions and gate content behind a paywall.',
 			array(
 				'category'    => 'engagement',
 				'connection'  => 'user',
@@ -173,6 +196,7 @@ add_action(
 		$f(
 			'newsletter-reader',
 			'Reader distribution',
+			'Distribute your newsletter through the WordPress.com Reader.',
 			array(
 				'category'   => 'engagement',
 				'connection' => 'user',
@@ -184,6 +208,7 @@ add_action(
 		$f(
 			'stats-commercial',
 			'Commercial Stats',
+			'Advanced, commercial-grade traffic analytics.',
 			array(
 				'category'    => 'engagement',
 				'connection'  => 'site',
@@ -196,6 +221,7 @@ add_action(
 		$f(
 			'ai-content-assistant',
 			'AI content assistant',
+			'Draft and improve content with an AI writing assistant.',
 			array(
 				'category'    => 'ai',
 				'connection'  => 'site',
@@ -205,6 +231,7 @@ add_action(
 		$f(
 			'ai-seo-enhancer',
 			'AI SEO enhancer',
+			'Generate SEO titles and meta descriptions with AI.',
 			array(
 				'category'    => 'ai',
 				'connection'  => 'site',
@@ -214,6 +241,7 @@ add_action(
 		$f(
 			'ai-image-generator',
 			'AI image generator',
+			'Create images from text prompts with AI.',
 			array(
 				'category'    => 'ai',
 				'connection'  => 'site',
@@ -223,6 +251,7 @@ add_action(
 		$f(
 			'backup-realtime',
 			'Real-time backups',
+			'Continuously back up every change to your site.',
 			array(
 				'category'    => 'security',
 				'connection'  => 'site',
@@ -232,6 +261,7 @@ add_action(
 		$f(
 			'backup-activity-log',
 			'Full activity log',
+			'See a complete record of every change and action on your site.',
 			array(
 				'category'    => 'security',
 				'connection'  => 'site',
@@ -241,6 +271,7 @@ add_action(
 		$f(
 			'backup-restore',
 			'One-click restore',
+			'Restore your site to any previous point with one click.',
 			array(
 				'category'    => 'security',
 				'connection'  => 'site',
@@ -250,6 +281,7 @@ add_action(
 		$f(
 			'scan-malware',
 			'Malware scanning',
+			'Automatically scan your site for malware and vulnerabilities.',
 			array(
 				'category'    => 'security',
 				'connection'  => 'site',
@@ -259,6 +291,7 @@ add_action(
 		$f(
 			'scan-autofix',
 			'Auto-fix threats',
+			'Resolve detected security threats with one click.',
 			array(
 				'category'    => 'security',
 				'connection'  => 'site',
@@ -270,6 +303,7 @@ add_action(
 		$f(
 			'boost-image-cdn',
 			'Boost: Image CDN',
+			'Serve resized, optimized images from a global CDN.',
 			array(
 				'category'   => 'performance',
 				'connection' => 'none',
@@ -279,6 +313,7 @@ add_action(
 		$f(
 			'boost-critical-css',
 			'Boost: Critical CSS',
+			'Generate critical CSS in the cloud to speed up rendering.',
 			array(
 				'category'    => 'performance',
 				'connection'  => 'site',
@@ -289,6 +324,7 @@ add_action(
 		$f(
 			'boost-defer-js',
 			'Boost: Defer JS',
+			'Defer non-essential JavaScript to improve load times.',
 			array(
 				'category'   => 'performance',
 				'connection' => 'none',
@@ -298,6 +334,7 @@ add_action(
 		$f(
 			'protect-scan-history',
 			'Protect: scan history',
+			'Review the history of security scans and detected threats.',
 			array(
 				'category'    => 'security',
 				'connection'  => 'site',
@@ -310,6 +347,7 @@ add_action(
 		$f(
 			'wpcom-staging-site',
 			'Staging site',
+			'Create a staging copy of your site to test changes safely.',
 			array(
 				'category'    => 'general',
 				'connection'  => 'site',
@@ -319,6 +357,7 @@ add_action(
 		$f(
 			'wpcom-sftp-access',
 			'SFTP/SSH access',
+			'Access your site files and database over SFTP and SSH.',
 			array(
 				'category'    => 'general',
 				'connection'  => 'none',
@@ -328,6 +367,7 @@ add_action(
 		$f(
 			'wpcom-github-deployments',
 			'GitHub deployments',
+			'Deploy code to your site automatically from GitHub.',
 			array(
 				'category'    => 'general',
 				'connection'  => 'site',
@@ -339,6 +379,7 @@ add_action(
 		$f(
 			'made-up-feature',
 			'A feature with a bogus entitlement',
+			'A probe with a deliberately invalid entitlement slug, to show unknown slugs degrade silently.',
 			array(
 				'category'    => 'other',
 				'connection'  => 'none',
