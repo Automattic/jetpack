@@ -3,7 +3,7 @@ import { Modal, Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getPrewarmedTailor, usePrewarm } from '../lib/prewarm.ts';
-import { trackViewed, trackWizardCompleted } from '../lib/tracks.ts';
+import { trackViewed, trackWizardCompleted, trackWizardSkipped } from '../lib/tracks.ts';
 import DetailsStep from './details-step.tsx';
 import GoalsStep from './goals-step.tsx';
 import {
@@ -52,6 +52,7 @@ export function Wizard( {
 	const [ goal, setGoal ] = useState< GoalSlug | null >( null );
 	const [ siteName, setSiteName ] = useState< string >( initialSiteName );
 	const [ intent, setIntent ] = useState< string >( initialIntent );
+	const [ skipping, setSkipping ] = useState( false );
 
 	const state: WizardState = { goal, siteName, intent, locale };
 
@@ -89,6 +90,19 @@ export function Wizard( {
 		}
 	};
 
+	// Skipping opts out of the AI Launchpad entirely: dismiss it server-side (which reverts
+	// the site to the regular launchpad surfaces) and leave for Calypso My Home.
+	const handleSkip = async () => {
+		setSkipping( true );
+		trackWizardSkipped();
+		try {
+			await apiFetch( { path: '/wpcom/v2/ai-launchpad', method: 'DELETE' } );
+		} catch {
+			// Still navigate away: a failed dismiss write must not trap the user in the wizard.
+		}
+		window.location.href = 'https://wordpress.com/home/' + window.location.hostname;
+	};
+
 	return (
 		<Modal
 			title=""
@@ -117,16 +131,19 @@ export function Wizard( {
 			) }
 
 			<footer className="ai-launchpad-wizard__footer">
+				<Button variant="link" onClick={ handleSkip } disabled={ skipping }>
+					{ __( 'Skip', 'jetpack-mu-wpcom' ) }
+				</Button>
 				<div className="ai-launchpad-wizard__footer-right">
 					{ step > 0 && (
-						<Button variant="secondary" onClick={ handleBack }>
+						<Button variant="secondary" onClick={ handleBack } disabled={ skipping }>
 							{ __( 'Back', 'jetpack-mu-wpcom' ) }
 						</Button>
 					) }
 					<Button
 						variant="primary"
 						onClick={ handleNext }
-						disabled={ ! canContinue( step, state ) }
+						disabled={ skipping || ! canContinue( step, state ) }
 					>
 						{ isLastStep( step )
 							? __( 'Finish', 'jetpack-mu-wpcom' )
