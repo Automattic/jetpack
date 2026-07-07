@@ -115,6 +115,33 @@ class Dashboard_Layout_Test extends TestCase {
 	}
 
 	/**
+	 * The Premium Analytics dashboard receives the Top posts & pages widget.
+	 */
+	public function test_seed_default_dashboard_layout_adds_top_posts_widget() {
+		$layout                = seed_default_dashboard_layout( array(), DASHBOARD_NAME );
+		$layout_by_uuid        = array_column( $layout, null, 'uuid' );
+		$top_posts_widget_uuid = 'default-top-posts-widget-instance';
+
+		$this->assertArrayHasKey( $top_posts_widget_uuid, $layout_by_uuid );
+
+		$this->assertSame(
+			array(
+				'uuid'       => $top_posts_widget_uuid,
+				'type'       => 'jpa/stats-top-posts',
+				'attributes' => array(
+					'num' => 10,
+				),
+				'placement'  => array(
+					'width'  => 1,
+					'height' => 2,
+					'order'  => 8,
+				),
+			),
+			$layout_by_uuid[ $top_posts_widget_uuid ]
+		);
+	}
+
+	/**
 	 * An existing UTM Insights default instance is not duplicated.
 	 */
 	public function test_seed_default_dashboard_layout_does_not_duplicate_utm_insights_widget() {
@@ -179,5 +206,32 @@ class Dashboard_Layout_Test extends TestCase {
 		);
 
 		$this->assertCount( 1, $clicks_widgets );
+	}
+
+	/**
+	 * An existing Top posts & pages default instance is not duplicated.
+	 */
+	public function test_seed_default_dashboard_layout_does_not_duplicate_top_posts_widget() {
+		$existing_top_posts_widget = array(
+			'uuid'       => 'default-top-posts-widget-instance',
+			'type'       => 'jpa/stats-top-posts',
+			'attributes' => array( 'num' => 5 ),
+			'placement'  => array(
+				'width'  => 2,
+				'height' => 1,
+				'order'  => 9,
+			),
+		);
+
+		$layout            = seed_default_dashboard_layout( array( $existing_top_posts_widget ), DASHBOARD_NAME );
+		$top_posts_widgets = array_filter(
+			$layout,
+			static function ( $widget ) {
+				return 'default-top-posts-widget-instance' === $widget['uuid'];
+			}
+		);
+
+		$this->assertCount( 1, $top_posts_widgets );
+		$this->assertSame( $existing_top_posts_widget, reset( $top_posts_widgets ) );
 	}
 }

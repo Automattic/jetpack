@@ -216,6 +216,133 @@ const MOCK_CLICKS_COMPARISON = {
 	},
 };
 
+const MOCK_TOP_POSTS_POSTVIEWS = [
+	{
+		id: 1,
+		href: 'https://example.com/hello-world/',
+		date: '2026-06-01',
+		title: 'Hello World Post',
+		type: 'post',
+		status: 'publish',
+		public: true,
+		views: 4210,
+		video_play: false,
+	},
+	{
+		id: 2,
+		href: 'https://example.com/about/',
+		date: null,
+		title: 'About Page',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 3180,
+		video_play: false,
+	},
+	{
+		id: 3,
+		href: 'https://example.com/pricing/',
+		date: '2026-06-12',
+		title: 'Pricing',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 1840,
+		video_play: false,
+	},
+	{
+		id: 4,
+		href: 'https://example.com/build-times/',
+		date: '2026-06-18',
+		title: 'How we cut our build times in half',
+		type: 'post',
+		status: 'publish',
+		public: true,
+		views: 1260,
+		video_play: false,
+	},
+	{
+		id: 5,
+		href: 'https://example.com/changelog/',
+		date: '2026-06-22',
+		title: 'Changelog',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 940,
+		video_play: false,
+	},
+];
+
+const MOCK_TOP_POSTS_COMPARISON_POSTVIEWS = [
+	{
+		id: 1,
+		href: 'https://example.com/hello-world/',
+		date: '2026-05-01',
+		title: 'Hello World Post',
+		type: 'post',
+		status: 'publish',
+		public: true,
+		views: 3980,
+		video_play: false,
+	},
+	{
+		id: 2,
+		href: 'https://example.com/about/',
+		date: null,
+		title: 'About Page',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 3510,
+		video_play: false,
+	},
+	{
+		id: 3,
+		href: 'https://example.com/pricing/',
+		date: '2026-05-12',
+		title: 'Pricing',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 1640,
+		video_play: false,
+	},
+	{
+		id: 4,
+		href: 'https://example.com/build-times/',
+		date: '2026-05-18',
+		title: 'How we cut our build times in half',
+		type: 'post',
+		status: 'publish',
+		public: true,
+		views: 880,
+		video_play: false,
+	},
+];
+
+const MOCK_TOP_POSTS = {
+	date: '2026-06-29',
+	period: 'day',
+	days: {},
+	summary: {
+		postviews: MOCK_TOP_POSTS_POSTVIEWS,
+		total_views: 11430,
+		dropped_ids: [],
+	},
+};
+
+const MOCK_TOP_POSTS_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	days: {},
+	summary: {
+		postviews: MOCK_TOP_POSTS_COMPARISON_POSTVIEWS,
+		total_views: 10010,
+		dropped_ids: [],
+	},
+};
+
 const MOCK_FILE_DOWNLOADS_FILES = [
 	{
 		relative_url: '/annual-report-2025.pdf',
@@ -775,6 +902,10 @@ function getStatsMock( path: string ): unknown | null {
 
 	if ( subPath.startsWith( '/clicks' ) ) {
 		return isComparison ? MOCK_CLICKS_COMPARISON : MOCK_CLICKS;
+	}
+
+	if ( subPath.startsWith( '/top-posts' ) ) {
+		return isComparison ? MOCK_TOP_POSTS_COMPARISON : MOCK_TOP_POSTS;
 	}
 
 	if ( subPath.startsWith( '/file-downloads' ) ) {

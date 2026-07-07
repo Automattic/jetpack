@@ -11,14 +11,12 @@ import {
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	calculateDelta,
-	formatLegendLabels,
 	useWidgetRootContext,
 	type LeaderboardChartData,
-	type LegendLabels,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Link, Text } from '@wordpress/ui';
+import { Link, Stack, Text } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -29,8 +27,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 /**
  * A single normalized top-posts row, flattened from the designated
- * `useStatsTopPosts` report into the shape the leaderboard renders. Exported so
- * Storybook can build fixtures for `TopPostsLeaderboard`.
+ * `useStatsTopPosts` report into the shape the leaderboard renders.
  */
 export type TopPostRow = {
 	/**
@@ -62,6 +59,7 @@ export type TopPostRow = {
 type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
 
 type TopPostsReportProps = Pick< TopPostsAttributes, 'num' | 'postType' >;
+const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
@@ -129,15 +127,6 @@ type TopPostsLeaderboardProps = {
 	 * comparison mode of the toolkit's `LeaderboardChart`.
 	 */
 	withComparison?: boolean;
-	/**
-	 * When `true`, show the period legend below the chart. Requires
-	 * `legendLabels` to be meaningful.
-	 */
-	showLegend?: boolean;
-	/**
-	 * Custom legend labels for the current/comparison periods.
-	 */
-	legendLabels?: LegendLabels;
 };
 
 /**
@@ -146,9 +135,7 @@ type TopPostsLeaderboardProps = {
  * published content.
  *
  * Takes already-fetched rows via props and is responsible only for the
- * loading, error, empty, and populated states. Exported so Storybook can
- * exercise those states with fixture rows (there is no analytics backend in
- * Storybook, so the data-connected entry point would only ever show chrome).
+ * loading, error, empty, and populated states.
  *
  * @param {TopPostsLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
@@ -158,11 +145,13 @@ export const TopPostsLeaderboard = ( {
 	isLoading = false,
 	isError = false,
 	withComparison = false,
-	showLegend = false,
-	legendLabels,
 }: TopPostsLeaderboardProps ) => {
 	if ( isError ) {
-		return <Text>{ __( 'Unable to load top posts.', 'jetpack-premium-analytics' ) }</Text>;
+		return (
+			<Stack align="center" justify="center" className={ styles.placeholder }>
+				<Text>{ __( 'Unable to load top posts.', 'jetpack-premium-analytics' ) }</Text>
+			</Stack>
+		);
 	}
 
 	if ( isLoading && ( ! rows || rows.length === 0 ) ) {
@@ -175,10 +164,9 @@ export const TopPostsLeaderboard = ( {
 			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
-			showLegend={ showLegend }
-			legendLabels={ legendLabels }
+			showLegend={ false }
 			emptyStateText={ __( 'No views in this period.', 'jetpack-premium-analytics' ) }
-			dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
+			dataFormat={ DATA_FORMAT }
 		/>
 	);
 };
@@ -229,8 +217,9 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 	// date range is owned by the dashboard picker and carried in `reportParams`.
 	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
 
-	const { primary, comparison, hasComparison, isLoading, isError } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
 		useStatsTopPosts( statsParams );
+	const showLoading = isLoading || ( isFetching && hasData );
 
 	const allowedTypes = useMemo( () => {
 		if ( postType === undefined || postType === '' ) {
@@ -275,17 +264,15 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 		[ primaryRows, previousViewsByHref, withComparison ]
 	);
 
-	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
-
 	return (
-		<TopPostsLeaderboard
-			rows={ rows }
-			isLoading={ isLoading }
-			isError={ isError }
-			withComparison={ withComparison }
-			showLegend={ withComparison }
-			legendLabels={ legendLabels }
-		/>
+		<div className={ styles.content }>
+			<TopPostsLeaderboard
+				rows={ rows }
+				isLoading={ showLoading }
+				isError={ isError }
+				withComparison={ withComparison }
+			/>
+		</div>
 	);
 }
 
@@ -306,7 +293,9 @@ export default function TopPosts( {
 }: WidgetRenderProps< TopPostsRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<TopPostsReport num={ attributes.num } postType={ attributes.postType } />
+			<div className={ styles.root }>
+				<TopPostsReport num={ attributes.num } postType={ attributes.postType } />
+			</div>
 		</WidgetRoot>
 	);
 }

@@ -294,6 +294,21 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 		);
 	}
 
+	if ( ! in_array( 'default-top-posts-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'       => 'default-top-posts-widget-instance',
+			'type'       => 'jpa/stats-top-posts',
+			'attributes' => array(
+				'num' => 10,
+			),
+			'placement'  => array(
+				'width'  => 1,
+				'height' => 2,
+				'order'  => 8,
+			),
+		);
+	}
+
 	return $dashboard_layout;
 }
 add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\seed_default_dashboard_layout', 10, 2 );

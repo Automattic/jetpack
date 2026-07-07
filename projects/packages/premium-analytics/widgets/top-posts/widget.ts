@@ -26,7 +26,7 @@ export type TopPostsAttributes = {
  */
 export default {
 	name: 'jpa/stats-top-posts',
-	title: __( 'Top pages by views', 'jetpack-premium-analytics' ),
+	title: __( 'Top posts & pages', 'jetpack-premium-analytics' ),
 	icon: chartBar,
 	attributes: [
 		{
