@@ -1,8 +1,7 @@
 /**
  * Neutral error-state glyph: a soft circle with an exclamation mark, tinted with
- * neutral Design System tokens rather than an alarming red. Mirrors the
- * `WidgetError` icon from `@automattic/dashboard` (CIAB Admin) so the widget
- * error state matches the dashboard's visual language.
+ * neutral Design System tokens rather than an alarming red, so the widget error
+ * state reads as recoverable rather than alarming.
  */
 export const errorStateIcon = (
 	<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">

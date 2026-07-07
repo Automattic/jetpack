@@ -37,8 +37,6 @@ export {
 	type WidgetStateEmpty,
 	WidgetBackLink,
 	type WidgetBackLinkProps,
-	ReportWidget,
-	type ReportWidgetProps,
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
