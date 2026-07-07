@@ -28,6 +28,8 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 			)
 		);
 		wp_set_current_user( $user_id );
+
+		add_action( 'wp_before_admin_bar_render', 'stats_add_link_to_admin_bar_site_menu' );
 	}
 
 	/**
@@ -35,6 +37,7 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		self::reset_admin_bar_global();
+		remove_action( 'wp_before_admin_bar_render', 'stats_add_link_to_admin_bar_site_menu' );
 		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		remove_filter( 'user_has_cap', array( $this, 'deny_view_stats' ) );
 		Constants::clear_constants();
@@ -73,7 +76,7 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		$admin_bar = self::make_test_admin_bar_with_dashboard();
 
-		stats_add_link_to_admin_bar_site_menu();
+		do_action( 'wp_before_admin_bar_render' );
 
 		$stats_node = $admin_bar->get_node( 'jetpack-stats' );
 
@@ -90,7 +93,7 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 		add_filter( 'user_has_cap', array( $this, 'deny_view_stats' ) );
 		$admin_bar = self::make_test_admin_bar_with_dashboard();
 
-		stats_add_link_to_admin_bar_site_menu();
+		do_action( 'wp_before_admin_bar_render' );
 
 		$stats_node = $admin_bar->get_node( 'jetpack-stats' );
 
@@ -104,7 +107,7 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		$admin_bar = self::make_test_admin_bar();
 
-		stats_add_link_to_admin_bar_site_menu();
+		do_action( 'wp_before_admin_bar_render' );
 
 		$stats_node = $admin_bar->get_node( 'jetpack-stats' );
 
@@ -119,7 +122,7 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$admin_bar = self::make_test_admin_bar_with_dashboard();
 
-		stats_add_link_to_admin_bar_site_menu();
+		do_action( 'wp_before_admin_bar_render' );
 
 		$stats_node = $admin_bar->get_node( 'jetpack-stats' );
 
