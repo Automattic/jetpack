@@ -9,6 +9,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
+require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
 
 /**
  * Test class for Jetpack Stats admin bar links.
