@@ -285,7 +285,7 @@ class ReportDataFetcher {
 
 		$data = $error->get_error_data();
 
-		return isset( $data['params']['fields'] );
+		return is_array( $data ) && isset( $data['params']['fields'] );
 	}
 
 	/**
