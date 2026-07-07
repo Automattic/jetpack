@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Update @wordpress/build to 0.18.0 and the widget packages (@wordpress/widget-primitives, @wordpress/widget-dashboard) from next snapshots to stable 0.2.0.
