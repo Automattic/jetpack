@@ -29,6 +29,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Jetpack;
 use WP_Error;
 
@@ -248,6 +249,29 @@ class Initializer {
 	}
 
 	/**
+	 * Register polyfills for the wp-notices / wp-private-apis / wp-theme handles the
+	 * My Jetpack app bundle depends on but WP < 7.0 does not ship (or ships with an
+	 * incomplete allowlist) when the Gutenberg plugin is not active.
+	 *
+	 * Without this, `my_jetpack_main_app` is enqueued with an unregistered `wp-theme`
+	 * dependency, so WP silently drops the script (no console error) and the My Jetpack
+	 * app — plus any consumer that hard-depends on it, such as Jetpack Boost — renders
+	 * a blank page. Only the handles the bundle actually uses are requested.
+	 *
+	 * @return void
+	 */
+	public static function register_wp_build_polyfills() {
+		if ( ! class_exists( WP_Build_Polyfills::class ) ) {
+			return;
+		}
+
+		WP_Build_Polyfills::register(
+			'my-jetpack',
+			array( 'wp-notices', 'wp-private-apis', 'wp-theme' )
+		);
+	}
+
+	/**
 	 * Enqueue admin page assets.
 	 *
 	 * @return void
@@ -260,6 +284,7 @@ class Initializer {
 		 * @since 4.35.7
 		 */
 		do_action( 'myjetpack_enqueue_scripts' );
+		self::register_wp_build_polyfills();
 		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',

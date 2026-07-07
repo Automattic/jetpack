@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Register the wp-build-polyfills shim so the My Jetpack app loads on WordPress installs without the Gutenberg plugin active, where the wp-theme script handle is otherwise unregistered.
