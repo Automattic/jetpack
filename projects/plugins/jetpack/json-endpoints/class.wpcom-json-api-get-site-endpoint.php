@@ -1110,11 +1110,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		// WordPress.com-only decorations for Jetpack sites. Not part of the proxied
-		// site response, so they are only added when explicitly requested via the
-		// `fields` parameter, mirroring /me/sites. Lets WordPress Studio classify
-		// connected sites (e.g. Pressable) fetched one at a time as a pagination
-		// fallback. See Linear STU-1944 / STU-1977.
+		// WordPress.com-only fields are not part of proxied Jetpack responses;
+		// add them only when explicitly requested.
 		if ( $this->is_wpcom() && $has_site_access && is_array( $this->fields_to_include ) ) {
 			if ( function_exists( 'get_jetpack_hosting_provider' ) && in_array( 'hosting_provider_guess', $this->fields_to_include, true ) ) {
 				$response->hosting_provider_guess = get_jetpack_hosting_provider( get_current_blog_id() );
@@ -1134,7 +1131,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return bool
 	 */
 	protected function is_wpcom() {
-		return defined( 'IS_WPCOM' ) && IS_WPCOM;
+		return ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple();
 	}
 }
 
