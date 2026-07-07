@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Authorize private-video playback for playlist block embeds via playlist membership.

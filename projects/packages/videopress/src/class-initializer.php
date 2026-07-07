@@ -270,6 +270,9 @@ class Initializer {
 	public static function register_videopress_blocks() {
 		// Register VideoPress Video block.
 		self::register_videopress_video_block();
+
+		// Register the VideoPress Playlist block (Studio-gated inside register()).
+		Playlist_Block::register();
 	}
 
 	/**

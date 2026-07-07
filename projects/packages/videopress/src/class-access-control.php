@@ -264,31 +264,110 @@ class Access_Control {
 	 * are enumerable via the media REST route and would otherwise provide a second path around
 	 * this check whenever the attachment has no parent and falls back to the `read` capability.
 	 *
-	 * @param int    $embedded_post_id The post id claimed as the embedding context.
-	 * @param string $guid             The video guid.
+	 * @param int                $embedded_post_id The post id claimed as the embedding context.
+	 * @param string             $guid             The video guid.
+	 * @param WP_Post|false|null $attachment       The video's attachment post, as already
+	 *                                             resolved from the guid by the caller. Only
+	 *                                             the playlist branch needs it: a playlist
+	 *                                             block carries no guid, so the binding is
+	 *                                             the attachment's own term membership.
 	 *
 	 * @return bool
 	 */
-	private function post_embeds_videopress_guid( $embedded_post_id, $guid ) {
+	private function post_embeds_videopress_guid( $embedded_post_id, $guid, $attachment = null ) {
 		$post = get_post( $embedded_post_id );
 		if ( ! $post instanceof WP_Post || empty( $post->post_content ) ) {
 			return false;
 		}
 
-		// If the guid is nowhere in the content, neither the block nor the shortcode scan can match.
-		if ( false === strpos( $post->post_content, $guid ) ) {
+		// The block, shortcode and URL forms all carry the guid literally, so a quick
+		// substring check gates those scans. The playlist branch below must still run
+		// when it fails: playlist blocks store only a playlistId, never a guid.
+		if ( false !== strpos( $post->post_content, $guid ) ) {
+			if ( $this->post_content_has_videopress_block( $post->post_content, $guid ) ) {
+				return true;
+			}
+
+			if ( $this->post_content_has_videopress_shortcode( $post->post_content, $guid ) ) {
+				return true;
+			}
+
+			if ( $this->post_content_has_videopress_url( $post->post_content, $guid ) ) {
+				return true;
+			}
+		}
+
+		return $this->post_content_has_playlist_containing_video( $post->post_content, $attachment );
+	}
+
+	/**
+	 * Determines whether the post content contains a videopress/playlist block whose
+	 * playlist actually contains the given video.
+	 *
+	 * The playlist block stores only a playlistId, so mere block presence must not
+	 * satisfy the binding: the video's attachment has to carry one of the referenced
+	 * playlist terms. Requiring membership preserves the anti-enumeration property
+	 * documented on post_embeds_videopress_guid() — a forged post id only ever
+	 * unlocks videos its playlists legitimately include. Downstream restriction
+	 * checks (read_post, memberships) flow unchanged.
+	 *
+	 * @param string             $post_content The post content to scan.
+	 * @param WP_Post|false|null $attachment   The requested video's attachment post.
+	 *
+	 * @return bool
+	 */
+	private function post_content_has_playlist_containing_video( $post_content, $attachment ) {
+		if ( false === strpos( $post_content, 'wp:videopress/playlist' ) ) {
 			return false;
 		}
 
-		if ( $this->post_content_has_videopress_block( $post->post_content, $guid ) ) {
-			return true;
+		if ( ! $attachment instanceof WP_Post ) {
+			return false;
 		}
 
-		if ( $this->post_content_has_videopress_shortcode( $post->post_content, $guid ) ) {
-			return true;
+		// With the Studio flag off the taxonomy never registers and the block renders nothing.
+		if ( ! taxonomy_exists( Playlists::TAXONOMY ) ) {
+			return false;
 		}
 
-		return $this->post_content_has_videopress_url( $post->post_content, $guid );
+		$playlist_ids = $this->collect_playlist_block_ids( parse_blocks( $post_content ) );
+		if ( array() === $playlist_ids ) {
+			return false;
+		}
+
+		return has_term( $playlist_ids, Playlists::TAXONOMY, $attachment );
+	}
+
+	/**
+	 * Recursively collects the playlistId attributes of every videopress/playlist
+	 * block in a parsed block tree.
+	 *
+	 * Malformed attributes (missing, non-numeric, non-positive) are skipped rather
+	 * than coerced, so garbage in a forged or corrupted block comment can never
+	 * accidentally match a real term.
+	 *
+	 * @param array $blocks Parsed blocks (as returned by parse_blocks() or an innerBlocks array).
+	 *
+	 * @return int[] The referenced playlist term ids.
+	 */
+	private function collect_playlist_block_ids( $blocks ) {
+		$playlist_ids = array();
+
+		foreach ( $blocks as $block ) {
+			if (
+				isset( $block['blockName'] ) && Playlist_Block::BLOCK_NAME === $block['blockName']
+				&& isset( $block['attrs']['playlistId'] ) && is_numeric( $block['attrs']['playlistId'] )
+				&& (int) $block['attrs']['playlistId'] > 0
+			) {
+				$playlist_ids[] = (int) $block['attrs']['playlistId'];
+			}
+
+			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+				$playlist_ids = array_merge( $playlist_ids, $this->collect_playlist_block_ids( $block['innerBlocks'] ) );
+			}
+		}
+
+		return $playlist_ids;
 	}
 
 	/**
@@ -437,7 +516,7 @@ class Access_Control {
 		if (
 			$embedded_post_id
 			&& VIDEOPRESS_PRIVACY::IS_PUBLIC !== $privacy_setting
-			&& ! $this->post_embeds_videopress_guid( $embedded_post_id, $guid )
+			&& ! $this->post_embeds_videopress_guid( $embedded_post_id, $guid, $attachment )
 		) {
 			$embedded_post_id = 0;
 		}

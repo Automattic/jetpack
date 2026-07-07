@@ -1,0 +1,42 @@
+// Editor-only styles for the playlist block. The shared block structure lives
+// in style.scss; this file only adjusts the static preview and placeholder.
+
+.wp-block-videopress-playlist {
+
+	// The preview rows mirror the frontend structure but are not interactive.
+	.wp-block-videopress-playlist__item-button {
+		cursor: default;
+	}
+
+	// Static stand-in for the main player iframe (no live player in v1).
+	.wp-block-videopress-playlist__player--preview {
+
+		.wp-block-videopress-playlist__player-poster {
+			display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+	}
+
+	> .components-placeholder {
+		min-height: 170px;
+	}
+}
+
+.is-videopress-playlist-placeholder {
+
+	.components-placeholder__fieldset {
+		min-height: 82px;
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.wp-block-videopress-playlist__picker {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		width: 100%;
+		max-width: 400px;
+	}
+}

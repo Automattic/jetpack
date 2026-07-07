@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the VideoPress playlist block's server registration and render pipeline behind the Studio feature flag.

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useMemo } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
+import { orderPlaylistVideos } from '../../client/lib/playlist-order';
 import { PLAYLISTS_QUERY_KEY } from './use-playlists';
 import type { Playlist } from '../types/playlist';
 
@@ -39,33 +40,6 @@ type ApiMediaItem = {
 };
 
 /**
- * Drop stale entries from a stored order list and append members it misses.
- *
- * `vps_playlist_order` is presentation-only and can drift from the real term
- * relationships (videos removed from the playlist, or added without an order
- * write). This reconciles the two: order entries whose ID is no longer a
- * member are dropped, members absent from the order are appended in the
- * sequence `memberIds` arrives in (the fetch orders by date, so appends are
- * stable by date), and duplicates keep their first position.
- *
- * @param order     - The stored `vps_playlist_order` attachment IDs.
- * @param memberIds - IDs of the attachments actually carrying the term.
- * @return The reconciled, fully-covering ordered ID list.
- */
-export function resolveOrderedIds( order: number[], memberIds: number[] ): number[] {
-	const members = new Set( memberIds );
-	const seen = new Set< number >();
-	const ordered: number[] = [];
-	for ( const id of [ ...order, ...memberIds ] ) {
-		if ( members.has( id ) && ! seen.has( id ) ) {
-			ordered.push( id );
-			seen.add( id );
-		}
-	}
-	return ordered;
-}
-
-/**
  * Return a copy of `list` with the item at `from` moved to `to`.
  *
  * `to` is clamped to the list bounds so "move up" on the first row and "move
@@ -90,22 +64,6 @@ export function moveItem< T >( list: T[], from: number, to: number ): T[] {
 	const [ moved ] = next.splice( from, 1 );
 	next.splice( clampedTo, 0, moved );
 	return next;
-}
-
-/**
- * Apply a stored order to the fetched members: reconcile the ID lists with
- * resolveOrderedIds(), then materialize the videos in that sequence.
- *
- * @param videos - The fetched playlist members.
- * @param order  - The stored `vps_playlist_order` attachment IDs.
- * @return The members sorted for display.
- */
-export function orderPlaylistVideos( videos: PlaylistVideo[], order: number[] ): PlaylistVideo[] {
-	const byId = new Map( videos.map( video => [ video.id, video ] ) );
-	return resolveOrderedIds(
-		order,
-		videos.map( video => video.id )
-	).map( id => byId.get( id ) as PlaylistVideo );
 }
 
 /**
@@ -134,8 +92,9 @@ function toPlaylistVideo( raw: ApiMediaItem ): PlaylistVideo {
  *
  * Membership is the term relationship (filtered via the taxonomy rest_base
  * query arg); `playlist.order` only decides presentation. The two are
- * reconciled client-side by orderPlaylistVideos(), so stale order entries
- * disappear and unlisted members still show up (newest first).
+ * reconciled client-side by orderPlaylistVideos() (shared with the playlist
+ * block via client/lib/playlist-order), so stale order entries disappear and
+ * unlisted members still show up (newest first).
  * TODO: paginate via X-WP-TotalPages once a playlist can exceed the API's
  * per_page cap of 100 members.
  *
