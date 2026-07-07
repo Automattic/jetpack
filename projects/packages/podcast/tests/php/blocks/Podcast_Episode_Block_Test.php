@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Podcast\Podcast_Episode_Block;
+use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_Block;
@@ -63,7 +64,7 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 	 */
 	private function set_syncing( $syncing ) {
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional jetpack-sync dependency; the test mock provides Settings.
-		\Automattic\Jetpack\Sync\Settings::set_is_syncing( $syncing );
+		Sync_Settings::set_is_syncing( $syncing );
 	}
 
 	private function create_episode_post( $title = 'Test Episode' ) {

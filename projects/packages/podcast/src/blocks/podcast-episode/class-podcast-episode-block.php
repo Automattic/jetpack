@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Podcast;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status\Request;
+use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
  * Registers and renders the Podcast Episode block.
@@ -209,7 +210,7 @@ class Podcast_Episode_Block {
 			$is_reader_render = \A8C\Display_Context\READER === \A8C\Display_Context\get_current_context();
 		} elseif ( class_exists( '\Automattic\Jetpack\Sync\Settings' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional jetpack-sync dependency, checked with class_exists() above.
-			$is_reader_render = \Automattic\Jetpack\Sync\Settings::is_syncing();
+			$is_reader_render = Sync_Settings::is_syncing();
 		}
 
 		if ( ! Request::is_frontend() && ! $is_reader_render ) {
