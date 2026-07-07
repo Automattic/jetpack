@@ -1648,12 +1648,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/features",
-                "reference": "15fa89faa10f7ba5d6975053a066a088fac83c8c"
+                "reference": "bbd510edf3833f3d1a350850fe51c9d1006441fa"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-plans": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
