@@ -1,12 +1,8 @@
 /**
  * Internal dependencies
  */
-import { mergeStatsComparisonRows, useStatsSearchTerms } from '@jetpack-premium-analytics/data';
-import type {
-	ReportParams,
-	StatsNormalizedReport,
-	StatsSearchTermsItem,
-} from '@jetpack-premium-analytics/data';
+import { useStatsSearchTerms } from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsSearchTermsComparisonItem } from '@jetpack-premium-analytics/data';
 
 export interface SearchTermView {
 	label: string;
@@ -26,10 +22,6 @@ interface SearchTermViewsState {
 	hasComparison: boolean;
 }
 
-function itemLabel( item: StatsSearchTermsItem ): string {
-	return typeof item.label === 'string' ? item.label : String( item.label );
-}
-
 /**
  * Fetch search term views for the Search Terms widget via the shared Stats data layer.
  *
@@ -46,35 +38,21 @@ export default function useSearchTermViews( {
 	reportParams,
 	max,
 }: UseSearchTermViewsArgs ): SearchTermViewsState {
-	const { primary, comparison, hasComparison } = useStatsSearchTerms(
-		reportParams as Parameters< typeof useStatsSearchTerms >[ 0 ]
+	const { comparisonRows, hasComparison, isLoading, isError } = useStatsSearchTerms(
+		reportParams as Parameters< typeof useStatsSearchTerms >[ 0 ],
+		{ maxRows: max }
 	);
 
-	const primaryReport = primary.data as StatsNormalizedReport< StatsSearchTermsItem > | undefined;
-	const rawItems = primaryReport?.data?.[ 0 ]?.items ?? [];
-
-	const comparisonReport = comparison.data as
-		| StatsNormalizedReport< StatsSearchTermsItem >
-		| undefined;
-	const comparisonItems = hasComparison ? comparisonReport?.data?.[ 0 ]?.items ?? [] : [];
-	const visibleItems = rawItems.slice( 0, max > 0 ? max : undefined );
-	const { rows, hasComparison: hasOverlappingComparison } = mergeStatsComparisonRows( {
-		primaryRows: visibleItems,
-		comparisonRows: comparisonItems,
-		getPrimaryKey: itemLabel,
-		getComparisonKey: itemLabel,
-		getComparisonValue: item => item.views,
-		mapRow: ( item, { previousValue } ) => ( {
-			label: itemLabel( item ),
-			views: item.views,
-			previousViews: previousValue,
-		} ),
-	} );
+	const rows = ( comparisonRows?.rows ?? [] ).map( ( item: StatsSearchTermsComparisonItem ) => ( {
+		label: typeof item.label === 'string' ? item.label : String( item.label ),
+		views: item.views,
+		previousViews: item.previousViews,
+	} ) );
 
 	return {
 		data: rows,
-		isLoading: primary.isLoading || ( hasComparison && comparison.isLoading ),
-		isError: primary.isError || ( hasComparison && comparison.isError ),
-		hasComparison: hasComparison && hasOverlappingComparison,
+		isLoading,
+		isError,
+		hasComparison,
 	};
 }

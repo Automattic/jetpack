@@ -5,17 +5,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import {
-	getStatsPlanErrorReason,
-	mergeStatsComparisonRows,
-	useStatsDevices,
-} from '@jetpack-premium-analytics/data';
+import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
-import type {
-	ReportParams,
-	StatsDevicesItem,
-	StatsNormalizedReport,
-} from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsDevicesComparisonItem } from '@jetpack-premium-analytics/data';
 
 export interface PlatformView {
 	key: string;
@@ -67,7 +59,7 @@ const PLATFORM_LABELS: Record< string, string > = {
 };
 
 function toPlatformView(
-	item: StatsDevicesItem,
+	item: StatsDevicesComparisonItem,
 	deviceProperty: 'browser' | 'platform'
 ): PlatformView {
 	const key = String( item.label ?? '' );
@@ -77,6 +69,7 @@ function toPlatformView(
 		key,
 		label: formatDisplayLabel( key, labels ),
 		views: item.value,
+		previousViews: item.previousValue,
 	};
 }
 
@@ -99,33 +92,17 @@ export default function usePlatformViews( {
 		deviceProperty,
 	};
 
-	const { primary, comparison, hasComparison, isLoading, isError, error } =
-		useStatsDevices( statsParams );
+	const { comparisonRows, hasComparison, isLoading, isError, error } = useStatsDevices(
+		statsParams,
+		{ maxRows: max }
+	);
 	const errorReason = getStatsPlanErrorReason( error );
 
-	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems
-		.map( item => toPlatformView( item, deviceProperty ) )
-		.slice( 0, max > 0 ? max : undefined );
-
-	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const comparisonRawItems = hasComparison ? comparisonReport?.data?.[ 0 ]?.items ?? [] : [];
-	const { rows, hasComparison: hasOverlappingComparison } = mergeStatsComparisonRows( {
-		primaryRows: items,
-		comparisonRows: comparisonRawItems.map( item => toPlatformView( item, deviceProperty ) ),
-		getPrimaryKey: item => item.key,
-		getComparisonKey: item => item.key,
-		getComparisonValue: item => item.views,
-		mapRow: ( item, { previousValue } ) => ( {
-			...item,
-			previousViews: previousValue,
-		} ),
-	} );
+	const rows = ( comparisonRows?.rows ?? [] ).map( item => toPlatformView( item, deviceProperty ) );
 
 	return {
 		data: rows,
-		hasComparison: hasComparison && hasOverlappingComparison,
+		hasComparison,
 		isLoading,
 		isError,
 		errorReason,

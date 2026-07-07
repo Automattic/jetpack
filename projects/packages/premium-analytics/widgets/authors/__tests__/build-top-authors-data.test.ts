@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { buildTopAuthorsData, buildTopAuthorsDataWithComparison } from '../build-top-authors-data';
+import { mergeStatsTopAuthorsComparisonRows } from '@jetpack-premium-analytics/data';
 import type { StatsNormalizedReport, StatsTopAuthorsItem } from '@jetpack-premium-analytics/data';
 
 type AuthorSeed = {
@@ -50,20 +51,33 @@ function makeReport( authors: AuthorSeed[] ): StatsNormalizedReport< StatsTopAut
 	};
 }
 
+function buildData(
+	primary?: StatsNormalizedReport< StatsTopAuthorsItem >,
+	comparison?: StatsNormalizedReport< StatsTopAuthorsItem >
+) {
+	return buildTopAuthorsData( mergeStatsTopAuthorsComparisonRows( primary, comparison ).rows );
+}
+
+function buildDataWithComparison(
+	primary?: StatsNormalizedReport< StatsTopAuthorsItem >,
+	comparison?: StatsNormalizedReport< StatsTopAuthorsItem >
+) {
+	return buildTopAuthorsDataWithComparison(
+		mergeStatsTopAuthorsComparisonRows( primary, comparison ).rows
+	);
+}
+
 describe( 'buildTopAuthorsData', () => {
 	it( 'returns an empty array when the primary report is undefined', () => {
-		expect( buildTopAuthorsData( undefined, undefined ) ).toEqual( [] );
+		expect( buildData( undefined, undefined ) ).toEqual( [] );
 	} );
 
 	it( 'returns an empty array when the primary report has no authors', () => {
-		expect( buildTopAuthorsData( makeReport( [] ), undefined ) ).toEqual( [] );
+		expect( buildData( makeReport( [] ), undefined ) ).toEqual( [] );
 	} );
 
 	it( 'maps a single author into leaderboard data', () => {
-		const result = buildTopAuthorsData(
-			makeReport( [ { label: 'Alice', views: 10 } ] ),
-			undefined
-		);
+		const result = buildData( makeReport( [ { label: 'Alice', views: 10 } ] ), undefined );
 
 		expect( result ).toHaveLength( 1 );
 		expect( result[ 0 ] ).toMatchObject( {
@@ -78,7 +92,7 @@ describe( 'buildTopAuthorsData', () => {
 	} );
 
 	it( 'preserves the order the API returns authors in', () => {
-		const result = buildTopAuthorsData(
+		const result = buildData(
 			makeReport( [
 				{ label: 'Bob', views: 20 },
 				{ label: 'Carol', views: 12 },
@@ -91,7 +105,7 @@ describe( 'buildTopAuthorsData', () => {
 	} );
 
 	it( 'aligns comparison values by author label', () => {
-		const result = buildTopAuthorsData(
+		const result = buildData(
 			makeReport( [ { label: 'Alice', views: 150 } ] ),
 			makeReport( [ { label: 'Alice', views: 100 } ] )
 		);
@@ -105,7 +119,7 @@ describe( 'buildTopAuthorsData', () => {
 
 	it( 'detects when at least one primary author overlaps the comparison period', () => {
 		expect(
-			buildTopAuthorsDataWithComparison(
+			buildDataWithComparison(
 				makeReport( [
 					{ label: 'Alice', views: 10 },
 					{ label: 'Bob', views: 8 },
@@ -117,7 +131,7 @@ describe( 'buildTopAuthorsData', () => {
 
 	it( 'does not detect comparison rows when authors do not overlap', () => {
 		expect(
-			buildTopAuthorsDataWithComparison(
+			buildDataWithComparison(
 				makeReport( [ { label: 'Alice', views: 10 } ] ),
 				makeReport( [ { label: 'Carol', views: 5 } ] )
 			).hasComparison
@@ -125,7 +139,7 @@ describe( 'buildTopAuthorsData', () => {
 	} );
 
 	it( 'does not fabricate comparison values for authors missing from the comparison period', () => {
-		const result = buildTopAuthorsData(
+		const result = buildData(
 			makeReport( [
 				{ label: 'Alice', views: 10 },
 				{ label: 'Bob', views: 8 },
@@ -139,7 +153,7 @@ describe( 'buildTopAuthorsData', () => {
 	} );
 
 	it( 'localizes the untracked-authors sentinel produced by the sanitizer', () => {
-		const result = buildTopAuthorsData(
+		const result = buildData(
 			makeReport( [ { label: 'Untracked Authors', views: 5 } ] ),
 			undefined
 		);

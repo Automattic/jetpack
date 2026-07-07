@@ -10,6 +10,7 @@ import {
 	LeaderboardChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
+	sharePercentage,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -29,19 +30,6 @@ type TopPlatformsRenderAttributes = TopPlatformsAttributes & Partial< ReportPara
 type TopPlatformsWidgetProps = WidgetRenderProps< TopPlatformsRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
-
-/**
- * A value's share of a maximum, as a percentage. Returns 0 instead of NaN
- * when the maximum is 0, so a row with a real (defined) comparison value
- * always gets a defined `previousShare`, matching `delta`.
- *
- * @param value - The value to share against the maximum.
- * @param max   - The maximum value in the comparison set.
- * @return The value's share of the maximum, as a percentage.
- */
-function sharePercentage( value: number, max: number ): number {
-	return max > 0 ? ( value / max ) * 100 : 0;
-}
 
 const MODE_OPTIONS = [
 	{ label: __( 'Browser', 'jetpack-premium-analytics' ), value: 'browser' },

@@ -1,6 +1,7 @@
 import { safeParseFloat } from '../../utils/parsing';
 import {
 	coerceStatsArray,
+	limitStatsRows,
 	mapNestedItems,
 	mapStatsReportDataPoints,
 	mergeStatsComparisonRows,
@@ -91,12 +92,20 @@ function getStatsClicksItems(
 
 export function mergeStatsClicksComparisonRows(
 	primaryReport: StatsNormalizedReport< StatsClicksItem > | undefined,
-	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined
+	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
+	maxRows?: number
 ): { rows: StatsClicksComparisonItem[]; hasComparison: boolean } {
-	return mergeStatsClicksComparisonItems(
+	const { rows } = mergeStatsClicksComparisonItems(
 		getStatsClicksItems( primaryReport ),
 		getStatsClicksItems( comparisonReport )
 	);
+
+	const visibleRows = limitStatsRows( rows, maxRows );
+
+	return {
+		rows: visibleRows,
+		hasComparison: visibleRows.some( row => row.previousValue !== undefined ),
+	};
 }
 
 export function sanitizeStatsClicksResponse(

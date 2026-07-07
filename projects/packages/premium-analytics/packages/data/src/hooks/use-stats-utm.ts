@@ -1,18 +1,30 @@
 /**
  * Internal dependencies
  */
+import { mergeStatsUtmComparisonRows } from '../processing/stats';
 import { statsUtmQuery } from '../queries/stats-utm-query';
 import { useStatsReport } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
+import type { StatsUtmComparisonItem } from '../processing/stats';
 import type { StatsUtmParams, StatsUtmResponse } from '../queries/stats-utm-query';
 
 export type { StatsUtmParams, StatsUtmResponse } from '../queries/stats-utm-query';
 
-export function useStatsUtm( params: StatsUtmParams, options?: UseStatsOptions ) {
-	return useStatsReport< StatsUtmParams, StatsUtmResponse >(
+type StatsUtmOptions = UseStatsOptions & {
+	maxRows?: number;
+};
+
+export function useStatsUtm( params: StatsUtmParams, options?: StatsUtmOptions ) {
+	const { maxRows, ...queryOptions } = options ?? {};
+
+	return useStatsReport< StatsUtmParams, StatsUtmResponse, StatsUtmComparisonItem >(
 		statsUtmQuery,
 		params,
 		[ 'stats', 'utm', '__comparison__', 'disabled' ],
-		options
+		{
+			...queryOptions,
+			mergeComparisonRows: ( primary, comparison ) =>
+				mergeStatsUtmComparisonRows( primary, comparison, maxRows ),
+		}
 	);
 }

@@ -127,7 +127,7 @@ function VideosReport( { max }: { max: number } ) {
 
 	const {
 		primary,
-		comparison,
+		comparisonRows,
 		hasComparison,
 		isLoading,
 		isFetching,
@@ -135,20 +135,18 @@ function VideosReport( { max }: { max: number } ) {
 		isError,
 		error,
 		refetch,
-	} = useStatsVideoPlays( statsParams );
+	} = useStatsVideoPlays( statsParams, { maxRows: max } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
 	const isRefetching = isFetching && hasData;
-	const primaryData = primary.data;
-	const comparisonData = comparison.data;
 
-	const { data: chartData, hasComparison: hasOverlappingComparison } = useMemo(
-		() => buildVideoPlaysDataWithComparison( primaryData, comparisonData ),
-		[ primaryData, comparisonData ]
+	const { data: chartData } = useMemo(
+		() => buildVideoPlaysDataWithComparison( comparisonRows?.rows ?? [] ),
+		[ comparisonRows ]
 	);
-	const withComparison = hasComparison && hasOverlappingComparison;
+	const withComparison = hasComparison;
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 

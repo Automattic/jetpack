@@ -6,8 +6,7 @@ import {
 	type LeaderboardChartData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { mergeStatsComparisonRows } from '@jetpack-premium-analytics/data';
-import type { StatsNormalizedReport, StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
+import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 
 /**
  * Resolve a display label for a video, falling back to a translated
@@ -16,7 +15,7 @@ import type { StatsNormalizedReport, StatsVideoPlaysItem } from '@jetpack-premiu
  * @param video - The video-plays item.
  * @return The video's display label.
  */
-function getVideoLabel( video: StatsVideoPlaysItem ) {
+function getVideoLabel( video: StatsVideoPlaysComparisonItem ) {
 	return typeof video.label === 'string' && video.label
 		? video.label
 		: __( 'Untitled video', 'jetpack-premium-analytics' );
@@ -31,28 +30,12 @@ function getVideoLabel( video: StatsVideoPlaysItem ) {
  * @param video - The video-plays item.
  * @return The alignment key.
  */
-function getVideoKey( video: StatsVideoPlaysItem ) {
+function getVideoKey( video: StatsVideoPlaysComparisonItem ) {
 	if ( video.id != null ) {
 		return String( video.id );
 	}
 
 	return video.link || getVideoLabel( video );
-}
-
-/**
- * Flatten a normalized video-plays report into its per-video items. The Stats
- * query layer summarizes multi-day ranges server-side and the endpoint returns
- * videos already ranked and limited by `max`, so the report carries a single
- * data point of per-video totals — mirroring how the Authors widget reads its
- * report.
- *
- * @param report - The normalized video-plays report, or undefined while loading.
- * @return The per-video items for the period.
- */
-function toVideoItems(
-	report: StatsNormalizedReport< StatsVideoPlaysItem > | undefined
-): StatsVideoPlaysItem[] {
-	return report?.data.flatMap( point => point.items ) ?? [];
 }
 
 export type VideoPlaysDataResult = {
@@ -63,52 +46,39 @@ export type VideoPlaysDataResult = {
 /**
  * Builds leaderboard chart data for the Videos widget.
  *
- * Transforms Jetpack Stats video-plays data into the format required by
- * LeaderboardChart, with comparison values aligned by video. The render layer
- * decides whether comparison UI is enabled based on visible row overlap.
+ * Transforms already-merged Jetpack Stats video-plays rows into the format
+ * required by LeaderboardChart.
  *
- * @param primary    - Primary period video-plays report
- * @param comparison - Comparison period video-plays report
+ * @param videos - Merged video-plays rows from the Stats data layer.
  * @return Processed data ready for the LeaderboardChart component
  */
 export function buildVideoPlaysData(
-	primary: StatsNormalizedReport< StatsVideoPlaysItem > | undefined,
-	comparison: StatsNormalizedReport< StatsVideoPlaysItem > | undefined
+	videos: StatsVideoPlaysComparisonItem[] = []
 ): LeaderboardChartData {
-	return buildVideoPlaysDataWithComparison( primary, comparison ).data;
+	return buildVideoPlaysDataWithComparison( videos ).data;
 }
 
 /**
- * Builds leaderboard chart data and reports whether any visible video has a
- * matching comparison-period row.
+ * Builds leaderboard chart data and reports whether any visible video has
+ * comparison-period data.
  *
- * @param primary    - Primary period video-plays report
- * @param comparison - Comparison period video-plays report
+ * @param videos - Merged video-plays rows from the Stats data layer.
  * @return Processed data and row-overlap comparison state.
  */
 export function buildVideoPlaysDataWithComparison(
-	primary: StatsNormalizedReport< StatsVideoPlaysItem > | undefined,
-	comparison: StatsNormalizedReport< StatsVideoPlaysItem > | undefined
+	videos: StatsVideoPlaysComparisonItem[] = []
 ): VideoPlaysDataResult {
-	const videos = toVideoItems( primary );
-
 	if ( videos.length === 0 ) {
 		return { data: [], hasComparison: false };
 	}
 
-	const { rows, hasComparison } = mergeStatsComparisonRows( {
-		primaryRows: videos,
-		comparisonRows: toVideoItems( comparison ),
-		getPrimaryKey: getVideoKey,
-		getComparisonKey: getVideoKey,
-		getComparisonValue: video => video.plays,
-		mapRow: ( video, { previousValue } ) => ( {
-			id: getVideoKey( video ),
-			label: getVideoLabel( video ),
-			currentValue: video.plays,
-			previousValue,
-		} ),
-	} );
+	const rows = videos.map( video => ( {
+		id: getVideoKey( video ),
+		label: getVideoLabel( video ),
+		currentValue: video.plays,
+		previousValue: video.previousPlays,
+	} ) );
+	const hasComparison = rows.some( video => video.previousValue !== undefined );
 
 	// Share each value against the largest of either period so the overlay bars
 	// stay proportional; `1` guards against division by zero.

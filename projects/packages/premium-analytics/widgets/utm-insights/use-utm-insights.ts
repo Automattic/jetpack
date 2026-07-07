@@ -1,11 +1,12 @@
 /**
  * Internal dependencies
  */
-import { mergeStatsComparisonRows, useStatsUtm } from '@jetpack-premium-analytics/data';
+import { useStatsUtm } from '@jetpack-premium-analytics/data';
 import type {
 	ReportParams,
+	StatsUtmComparisonItem,
+	StatsUtmComparisonTopPostItem,
 	StatsUtmParam,
-	StatsUtmTopPostItem,
 } from '@jetpack-premium-analytics/data';
 
 export interface UtmInsightsChildRow {
@@ -42,8 +43,23 @@ function getLabel( item: { label: unknown } ): string {
 	return typeof item.label === 'string' ? item.label : String( item.label );
 }
 
-function getChildKey( item: StatsUtmTopPostItem ): string {
-	return item.href ?? getLabel( item );
+function toChildRow( item: StatsUtmComparisonTopPostItem ): UtmInsightsChildRow {
+	return {
+		label: getLabel( item ),
+		value: item.value,
+		previousValue: item.previousValue,
+		href: item.href,
+	};
+}
+
+function toUtmRow( item: StatsUtmComparisonItem ): UtmInsightsRow {
+	return {
+		label: getLabel( item ),
+		value: item.value,
+		previousValue: item.previousValue,
+		children: item.children?.map( toChildRow ),
+		childrenHaveComparison: item.childrenHaveComparison,
+	};
 }
 
 /**
@@ -61,55 +77,15 @@ export default function useUtmInsights( {
 	max,
 }: UseUtmInsightsArgs ): UtmInsightsState {
 	const params = { ...reportParams, utmParam, max } as Parameters< typeof useStatsUtm >[ 0 ];
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
-		useStatsUtm( params );
+	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError } = useStatsUtm(
+		params,
+		{ maxRows: max }
+	);
+	const rows = ( comparisonRows?.rows ?? [] ).map( toUtmRow );
 
-	const rawItems = ( primary.data?.data?.[ 0 ]?.items ?? [] ) as StatsUtmTopPostItem[];
-	const comparisonItems = hasComparison
-		? ( ( comparison.data?.data?.[ 0 ]?.items ?? [] ) as StatsUtmTopPostItem[] )
-		: [];
-	const visibleItems = rawItems.slice( 0, max > 0 ? max : undefined );
-	const { rows, hasComparison: hasOverlappingComparison } = mergeStatsComparisonRows<
-		StatsUtmTopPostItem,
-		StatsUtmTopPostItem,
-		UtmInsightsRow
-	>( {
-		primaryRows: visibleItems,
-		comparisonRows: comparisonItems,
-		getPrimaryKey: getLabel,
-		getComparisonKey: getLabel,
-		getComparisonValue: item => item.value,
-		mapRow: ( item, { previousValue, comparisonItem } ) => {
-			const { rows: children, hasComparison: childrenHaveComparison } = mergeStatsComparisonRows<
-				StatsUtmTopPostItem,
-				StatsUtmTopPostItem,
-				UtmInsightsChildRow
-			>( {
-				primaryRows: item.children ?? [],
-				comparisonRows: comparisonItem?.children ?? [],
-				getPrimaryKey: getChildKey,
-				getComparisonKey: getChildKey,
-				getComparisonValue: child => child.value,
-				mapRow: ( child, { previousValue: childPreviousValue } ) => ( {
-					label: getLabel( child ),
-					value: child.value,
-					previousValue: childPreviousValue,
-					href: child.href,
-				} ),
-			} );
-
-			return {
-				label: getLabel( item ),
-				value: item.value,
-				previousValue,
-				children,
-				childrenHaveComparison,
-			};
-		},
-	} );
 	return {
 		data: rows,
-		hasComparison: hasComparison && hasOverlappingComparison,
+		hasComparison,
 		isLoading,
 		isFetching,
 		hasData,

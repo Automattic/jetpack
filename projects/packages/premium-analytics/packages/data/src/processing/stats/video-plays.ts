@@ -3,9 +3,12 @@ import {
 	createStatsSummaryDataPoint,
 	getStatsArrayFromKeys,
 	coerceStatsRecord,
+	getStatsReportItems,
 	getStatsSummaryIntervalFields,
 	getStatsTopLevelDataDate,
+	limitStatsRows,
 	mapStatsReportDataPoints,
+	mergeStatsComparisonRows,
 	normalizeStatsSummary,
 } from './utils';
 import type {
@@ -27,6 +30,20 @@ export type StatsVideoPlaysItem = StatsNormalizedItemBase & {
 	actions?: StatsItemAction[];
 	children: null;
 };
+
+export type StatsVideoPlaysComparisonItem = StatsVideoPlaysItem & {
+	previousPlays?: number;
+};
+
+function getVideoKey( video: StatsVideoPlaysItem ): string {
+	if ( video.id != null ) {
+		return String( video.id );
+	}
+
+	const label = typeof video.label === 'string' ? video.label : '';
+
+	return video.link || label;
+}
 
 export function sanitizeStatsVideoPlaysResponse(
 	response: unknown,
@@ -80,4 +97,26 @@ export function sanitizeStatsVideoPlaysResponse(
 			? summaryData
 			: mapStatsReportDataPoints( response, query, videoDataKeys, parse ),
 	};
+}
+
+export function mergeStatsVideoPlaysComparisonRows(
+	primaryReport?: StatsNormalizedReport< StatsVideoPlaysItem >,
+	comparisonReport?: StatsNormalizedReport< StatsVideoPlaysItem >,
+	maxRows?: number
+) {
+	return mergeStatsComparisonRows<
+		StatsVideoPlaysItem,
+		StatsVideoPlaysItem,
+		StatsVideoPlaysComparisonItem
+	>( {
+		primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
+		comparisonRows: getStatsReportItems( comparisonReport ),
+		getPrimaryKey: getVideoKey,
+		getComparisonKey: getVideoKey,
+		getComparisonValue: video => video.plays,
+		mapRow: ( video, { previousValue } ) => ( {
+			...video,
+			previousPlays: previousValue,
+		} ),
+	} );
 }

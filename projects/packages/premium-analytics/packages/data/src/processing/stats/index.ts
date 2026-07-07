@@ -5,16 +5,22 @@ export {
 	sanitizeStatsSiteResponse,
 } from './utils';
 export type { StatsComparisonRowContext } from './utils';
-export { sanitizeStatsTopPostsResponse } from './top-posts';
+export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
 export { sanitizeStatsReferrersResponse } from './referrers';
 export { mergeStatsClicksComparisonRows, sanitizeStatsClicksResponse } from './clicks';
-export { sanitizeStatsSearchTermsResponse } from './search-terms';
-export { sanitizeStatsFileDownloadsResponse } from './file-downloads';
-export { sanitizeStatsTopAuthorsResponse } from './top-authors';
+export {
+	mergeStatsSearchTermsComparisonRows,
+	sanitizeStatsSearchTermsResponse,
+} from './search-terms';
+export {
+	mergeStatsFileDownloadsComparisonRows,
+	sanitizeStatsFileDownloadsResponse,
+} from './file-downloads';
+export { mergeStatsTopAuthorsComparisonRows, sanitizeStatsTopAuthorsResponse } from './top-authors';
 export { sanitizeStatsHighlightsResponse } from './highlights';
-export { sanitizeStatsLocationsResponse } from './locations';
-export { sanitizeStatsVideoPlaysResponse } from './video-plays';
+export { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from './locations';
+export { mergeStatsVideoPlaysComparisonRows, sanitizeStatsVideoPlaysResponse } from './video-plays';
 export {
 	isStatsTimeSeriesPayload,
 	sanitizeStatsTimeSeriesResponse,
@@ -22,7 +28,7 @@ export {
 } from './time-series';
 export { sanitizeStatsVisitsResponse } from './visits';
 export { sanitizeStatsInsightsResponse } from './insights';
-export { sanitizeStatsUtmResponse } from './utm';
+export { mergeStatsUtmComparisonRows, sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
 export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
 export { sanitizeStatsArchivesResponse } from './archives';
@@ -35,11 +41,11 @@ export {
 } from './subscribers';
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
-export { sanitizeStatsDevicesResponse } from './devices';
+export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
 export { sanitizeStatsPublicizeResponse } from './publicize';
 export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
-export type { StatsTopPostsItem } from './top-posts';
+export type { StatsTopPostsComparisonItem, StatsTopPostsItem } from './top-posts';
 export type {
 	StatsPostMeta,
 	StatsPostMonthValues,
@@ -51,9 +57,9 @@ export type {
 } from './post';
 export type { StatsReferrersItem } from './referrers';
 export type { StatsClicksComparisonItem, StatsClicksItem } from './clicks';
-export type { StatsSearchTermsItem } from './search-terms';
-export type { StatsFileDownloadsItem } from './file-downloads';
-export type { StatsTopAuthorsItem } from './top-authors';
+export type { StatsSearchTermsComparisonItem, StatsSearchTermsItem } from './search-terms';
+export type { StatsFileDownloadsComparisonItem, StatsFileDownloadsItem } from './file-downloads';
+export type { StatsTopAuthorsComparisonItem, StatsTopAuthorsItem } from './top-authors';
 export type {
 	StatsHighlightsPeriod,
 	StatsHighlightsRange,
@@ -62,14 +68,20 @@ export type {
 	StatsHighlightsRawResponse,
 	StatsHighlightsResponse,
 } from './highlights';
-export type { StatsLocationsItem } from './locations';
-export type { StatsVideoPlaysItem } from './video-plays';
+export type { StatsLocationsComparisonItem, StatsLocationsItem } from './locations';
+export type { StatsVideoPlaysComparisonItem, StatsVideoPlaysItem } from './video-plays';
 export type {
 	StatsInsightsHourlyViews,
 	StatsInsightsResponse,
 	StatsInsightsYear,
 } from './insights';
-export type { StatsUtmItem, StatsUtmParam, StatsUtmTopPostItem } from './utm';
+export type {
+	StatsUtmComparisonItem,
+	StatsUtmComparisonTopPostItem,
+	StatsUtmItem,
+	StatsUtmParam,
+	StatsUtmTopPostItem,
+} from './utm';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';
@@ -85,7 +97,7 @@ export type {
 	StatsCommentFollowersRawPost,
 	StatsCommentFollowersRawResponse,
 } from './comment-followers';
-export type { StatsDevicesItem } from './devices';
+export type { StatsDevicesComparisonItem, StatsDevicesItem } from './devices';
 export type {
 	StatsPublicizeApiResponse,
 	StatsPublicizeItem,

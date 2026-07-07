@@ -12,13 +12,20 @@ import type {
 } from '../processing/stats';
 import type { StatsReportParams } from '../queries/stats-query';
 
-export function useStatsClicks( params: StatsReportParams, options?: UseStatsOptions ) {
+type StatsClicksOptions = UseStatsOptions & {
+	maxRows?: number;
+};
+
+export function useStatsClicks( params: StatsReportParams, options?: StatsClicksOptions ) {
+	const { maxRows, ...queryOptions } = options ?? {};
+
 	return useStatsReport<
 		StatsReportParams,
 		StatsNormalizedReport< StatsClicksItem >,
 		StatsClicksComparisonItem
 	>( statsClicksQuery, params, 'clicks', {
-		...options,
-		mergeComparisonRows: mergeStatsClicksComparisonRows,
+		...queryOptions,
+		mergeComparisonRows: ( primary, comparison ) =>
+			mergeStatsClicksComparisonRows( primary, comparison, maxRows ),
 	} );
 }

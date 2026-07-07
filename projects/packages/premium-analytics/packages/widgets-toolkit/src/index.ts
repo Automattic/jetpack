@@ -75,6 +75,7 @@ export {
 	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
+	sharePercentage,
 } from './helpers';
 
 /**

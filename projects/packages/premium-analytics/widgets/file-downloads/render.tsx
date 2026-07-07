@@ -2,10 +2,8 @@
  * External dependencies
  */
 import {
-	mergeStatsComparisonRows,
 	useStatsFileDownloads,
-	type StatsFileDownloadsItem,
-	type StatsNormalizedReport,
+	type StatsFileDownloadsComparisonItem,
 	type StatsReportParams,
 } from '@jetpack-premium-analytics/data';
 /**
@@ -190,40 +188,19 @@ function buildLeaderboardData(
 	} );
 }
 
-function getFileDownloadItemKey( item: StatsFileDownloadsItem ) {
-	return item.link ?? String( item.label ?? item.shortLabel ?? '' );
-}
-
 /**
- * Flattens a normalized file-downloads report into `FileDownloadRow[]`.
+ * Flattens data-layer file-downloads rows into `FileDownloadRow[]`.
  *
- * @param report           - Normalized report from the data layer, or undefined while loading.
- * @param max              - Maximum rows to keep (0 = all).
- * @param comparisonReport - Optional normalized comparison report.
+ * @param items - Merged file-download rows from the data layer.
  * @return Normalized rows ready for the leaderboard.
  */
-function toFileDownloadRows(
-	report: StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
-	max: number,
-	comparisonReport?: StatsNormalizedReport< StatsFileDownloadsItem >
-): { rows: FileDownloadRow[]; hasComparison: boolean } {
-	const items = report?.data.flatMap( point => point.items ) ?? [];
-	const sliced = max > 0 ? items.slice( 0, max ) : items;
-	const comparisonItems = comparisonReport?.data.flatMap( point => point.items ) ?? [];
-
-	return mergeStatsComparisonRows( {
-		primaryRows: sliced,
-		comparisonRows: comparisonItems,
-		getPrimaryKey: getFileDownloadItemKey,
-		getComparisonKey: getFileDownloadItemKey,
-		getComparisonValue: item => item.downloads,
-		mapRow: ( item, { previousValue } ) => ( {
-			label: item.shortLabel ?? String( item.label ?? '' ),
-			value: item.downloads,
-			previousValue,
-			href: item.link,
-		} ),
-	} );
+function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDownloadRow[] {
+	return items.map( item => ( {
+		label: item.shortLabel ?? String( item.label ?? '' ),
+		value: item.downloads,
+		previousValue: item.previousDownloads,
+		href: item.link,
+	} ) );
 }
 
 /**
@@ -296,23 +273,16 @@ export function FileDownloadsLeaderboard( {
  */
 function FileDownloadsInner( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error } =
-		useStatsFileDownloads( reportParams as StatsReportParams );
+	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, error } =
+		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: max } );
 	const showLoading = isLoading || ( isFetching && hasData );
 	const errorMessage = getFileDownloadsErrorMessage( error );
 
-	const { rows, hasComparison: hasOverlappingComparison } = useMemo(
-		() =>
-			toFileDownloadRows(
-				primary.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined,
-				max,
-				hasComparison
-					? ( comparison.data as StatsNormalizedReport< StatsFileDownloadsItem > | undefined )
-					: undefined
-			),
-		[ primary.data, max, hasComparison, comparison.data ]
+	const rows = useMemo(
+		() => toFileDownloadRows( comparisonRows?.rows ?? [] ),
+		[ comparisonRows ]
 	);
-	const withComparison = hasComparison && hasOverlappingComparison;
+	const withComparison = hasComparison;
 
 	return (
 		<div className={ styles.content }>

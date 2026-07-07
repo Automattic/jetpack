@@ -88,10 +88,6 @@ function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 	};
 }
 
-function hasClickRowsComparison( rows: ClickRow[] ): boolean {
-	return rows.some( row => row.previousValue !== undefined );
-}
-
 /**
  * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
  * comparison values when a comparison report is present.
@@ -106,13 +102,12 @@ export function toClickRowsWithComparison(
 	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
 	max: number
 ): { rows: ClickRow[]; hasComparison: boolean } {
-	const { rows } = mergeStatsClicksComparisonRows( report, comparisonReport );
-	const sliced = max > 0 ? rows.slice( 0, max ) : rows;
-	const clickRows = sliced.map( toClickRow );
+	const { rows, hasComparison } = mergeStatsClicksComparisonRows( report, comparisonReport, max );
+	const clickRows = rows.map( toClickRow );
 
 	return {
 		rows: clickRows,
-		hasComparison: hasClickRowsComparison( clickRows ),
+		hasComparison,
 	};
 }
 
@@ -266,29 +261,23 @@ function ClicksInner( { max }: { max: number } ) {
 		...reportParams,
 		max,
 	} as StatsReportParams;
-	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError } =
-		useStatsClicks( statsParams );
+	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError } = useStatsClicks(
+		statsParams,
+		{ maxRows: max }
+	);
 	const showLoading = isLoading || ( isFetching && hasData );
 
-	const { rows, hasComparison: hasOverlappingComparison } = useMemo( () => {
-		const sliced =
-			comparisonRows && max > 0 ? comparisonRows.rows.slice( 0, max ) : comparisonRows?.rows ?? [];
-		const clickRows = sliced.map( toClickRow );
-
-		return {
-			rows: clickRows,
-			hasComparison: hasClickRowsComparison( clickRows ),
-		};
-	}, [ comparisonRows, max ] );
+	const rows = useMemo(
+		() => ( comparisonRows?.rows ?? [] ).map( toClickRow ),
+		[ comparisonRows ]
+	);
 	const selectedClick = useMemo(
 		() => rows.find( row => row.label === selectedClickLabel ) ?? null,
 		[ rows, selectedClickLabel ]
 	);
 	const isDrillDown = !! selectedClick?.children?.length;
 	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
-	const withComparison = isDrillDown
-		? !! selectedClick?.childrenHaveComparison
-		: hasComparison && hasOverlappingComparison;
+	const withComparison = isDrillDown ? !! selectedClick?.childrenHaveComparison : hasComparison;
 
 	const handleDrillDown = useCallback(
 		( row: ClickRow ) => {

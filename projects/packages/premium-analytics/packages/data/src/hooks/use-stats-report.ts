@@ -58,6 +58,9 @@ export function useStatsReport<
 
 	return {
 		...report,
+		hasComparison: comparisonRows
+			? report.hasComparison && comparisonRows.hasComparison
+			: report.hasComparison,
 		comparisonRows,
 	};
 }

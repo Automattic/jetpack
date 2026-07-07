@@ -1,11 +1,34 @@
 /**
  * Internal dependencies
  */
+import { mergeStatsSearchTermsComparisonRows } from '../processing/stats';
 import { statsSearchTermsQuery } from '../queries/stats-search-terms-query';
 import { useStatsReport } from './use-stats-report';
 import type { UseStatsOptions } from './use-stats-report';
+import type {
+	StatsNormalizedReport,
+	StatsSearchTermsComparisonItem,
+	StatsSearchTermsItem,
+} from '../processing/stats';
 import type { StatsReportParams } from '../queries/stats-query';
 
-export function useStatsSearchTerms( params: StatsReportParams, options?: UseStatsOptions ) {
-	return useStatsReport( statsSearchTermsQuery, params, 'search-terms', options );
+type StatsSearchTermsOptions = UseStatsOptions & {
+	maxRows?: number;
+};
+
+export function useStatsSearchTerms(
+	params: StatsReportParams,
+	options?: StatsSearchTermsOptions
+) {
+	const { maxRows, ...queryOptions } = options ?? {};
+
+	return useStatsReport<
+		StatsReportParams,
+		StatsNormalizedReport< StatsSearchTermsItem >,
+		StatsSearchTermsComparisonItem
+	>( statsSearchTermsQuery, params, 'search-terms', {
+		...queryOptions,
+		mergeComparisonRows: ( primary, comparison ) =>
+			mergeStatsSearchTermsComparisonRows( primary, comparison, maxRows ),
+	} );
 }

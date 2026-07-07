@@ -1,8 +1,11 @@
 import { safeParseFloat } from '../../utils/parsing';
 import {
 	coerceStatsArray,
+	getStatsReportItems,
+	limitStatsRows,
 	mapNestedItems,
 	mapStatsReportDataPoints,
+	mergeStatsComparisonRows,
 	normalizeStatsReportSummary,
 } from './utils';
 import type { StatsTopPostsItem } from './top-posts';
@@ -15,6 +18,14 @@ export type StatsTopAuthorsItem = StatsNormalizedItemBase< StatsTopPostsItem > &
 	iconClassName?: string;
 	className?: string | null;
 };
+
+export type StatsTopAuthorsComparisonItem = StatsTopAuthorsItem & {
+	previousViews?: number;
+};
+
+function getAuthorKey( author: StatsTopAuthorsItem ): string {
+	return typeof author.label === 'string' ? author.label : '';
+}
 
 export function sanitizeStatsTopAuthorsResponse(
 	response: unknown,
@@ -39,4 +50,26 @@ export function sanitizeStatsTopAuthorsResponse(
 			} ) ),
 		} ) ),
 	};
+}
+
+export function mergeStatsTopAuthorsComparisonRows(
+	primaryReport?: StatsNormalizedReport< StatsTopAuthorsItem >,
+	comparisonReport?: StatsNormalizedReport< StatsTopAuthorsItem >,
+	maxRows?: number
+) {
+	return mergeStatsComparisonRows<
+		StatsTopAuthorsItem,
+		StatsTopAuthorsItem,
+		StatsTopAuthorsComparisonItem
+	>( {
+		primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
+		comparisonRows: getStatsReportItems( comparisonReport ),
+		getPrimaryKey: getAuthorKey,
+		getComparisonKey: getAuthorKey,
+		getComparisonValue: author => author.views,
+		mapRow: ( author, { previousValue } ) => ( {
+			...author,
+			previousViews: previousValue,
+		} ),
+	} );
 }

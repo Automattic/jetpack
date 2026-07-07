@@ -5,16 +5,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import {
-	getStatsPlanErrorReason,
-	mergeStatsComparisonRows,
-	useStatsDevices,
-} from '@jetpack-premium-analytics/data';
+import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
-	StatsDevicesItem,
-	StatsNormalizedReport,
+	StatsDevicesComparisonItem,
 	StatsDeviceProperty,
 } from '@jetpack-premium-analytics/data';
 
@@ -57,12 +52,13 @@ const DEVICE_LABELS: Record< string, string > = {
  * @param item - Normalized device item from the data layer.
  * @return DeviceView with a human-readable display label.
  */
-function toDeviceView( item: StatsDevicesItem ): DeviceView {
+function toDeviceView( item: StatsDevicesComparisonItem ): DeviceView {
 	const key = typeof item.label === 'string' ? item.label : String( item.label );
 	return {
 		label: key,
 		displayLabel: formatDisplayLabel( key, DEVICE_LABELS ),
 		percentage: item.value,
+		previousPercentage: item.previousValue,
 	};
 }
 
@@ -85,31 +81,17 @@ export default function useDeviceViews( {
 		deviceProperty,
 	};
 
-	const { primary, comparison, hasComparison, isLoading, isError, error } =
-		useStatsDevices( statsParams );
+	const { comparisonRows, hasComparison, isLoading, isError, error } = useStatsDevices(
+		statsParams,
+		{ maxRows: max }
+	);
 	const errorReason = getStatsPlanErrorReason( error );
 
-	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems.map( toDeviceView ).slice( 0, max > 0 ? max : undefined );
-
-	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const comparisonRawItems = hasComparison ? comparisonReport?.data?.[ 0 ]?.items ?? [] : [];
-	const { rows, hasComparison: hasOverlappingComparison } = mergeStatsComparisonRows( {
-		primaryRows: items,
-		comparisonRows: comparisonRawItems.map( toDeviceView ),
-		getPrimaryKey: item => item.label,
-		getComparisonKey: item => item.label,
-		getComparisonValue: item => item.percentage,
-		mapRow: ( item, { previousValue } ) => ( {
-			...item,
-			previousPercentage: previousValue,
-		} ),
-	} );
+	const rows = ( comparisonRows?.rows ?? [] ).map( toDeviceView );
 
 	return {
 		data: rows,
-		hasComparison: hasComparison && hasOverlappingComparison,
+		hasComparison,
 		isLoading,
 		isError,
 		errorReason,

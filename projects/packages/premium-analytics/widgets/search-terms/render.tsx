@@ -6,6 +6,7 @@ import {
 	LeaderboardChart,
 	WidgetLoadingOverlay,
 	WidgetRoot,
+	sharePercentage,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -23,19 +24,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type SearchTermsRenderAttributes = Partial< ReportParamsFieldAttributes > & SearchTermsAttributes;
 type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
-
-/**
- * A value's share of a maximum, as a percentage. Returns 0 instead of NaN
- * when the maximum is 0, so a row with a real (defined) comparison value
- * always gets a defined `previousShare`, matching `delta`.
- *
- * @param value - The value to share against the maximum.
- * @param max   - The maximum value in the comparison set.
- * @return The value's share of the maximum, as a percentage.
- */
-function sharePercentage( value: number, max: number ): number {
-	return max > 0 ? ( value / max ) * 100 : 0;
-}
 
 /**
  * Search Terms widget inner component. Reads report params from WidgetRoot context.

@@ -72,6 +72,16 @@ export function getStatsLabel( value: unknown ): string {
 	return '';
 }
 
+export function getStatsReportItems< TItem extends StatsNormalizedItem >(
+	report?: StatsNormalizedReport< TItem >
+): TItem[] {
+	return report?.data.flatMap( point => point.items ) ?? [];
+}
+
+export function limitStatsRows< TRow >( rows: TRow[], maxRows?: number ): TRow[] {
+	return maxRows && maxRows > 0 ? rows.slice( 0, maxRows ) : rows;
+}
+
 export function mergeStatsComparisonRows< TPrimary, TComparison = TPrimary, TMapped = TPrimary >( {
 	primaryRows,
 	comparisonRows = [],
