@@ -1,24 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestWrapper } from '../../test-utils/query-client-wrapper';
-import {
-	moveItem,
-	orderPlaylistVideos,
-	resolveOrderedIds,
-	usePlaylistVideos,
-} from '../use-playlist-videos';
+import { moveItem, usePlaylistVideos } from '../use-playlist-videos';
 import type { Playlist } from '../../types/playlist';
-import type { PlaylistVideo } from '../use-playlist-videos';
 
-const video = ( id: number, extra: Partial< PlaylistVideo > = {} ): PlaylistVideo => ( {
-	id,
-	title: `Video ${ id }`,
-	thumbnailUrl: null,
-	durationSeconds: 0,
-	uploadDate: '',
-	playlistIds: [],
-	...extra,
-} );
+// resolveOrderedIds()/orderPlaylistVideos() are covered where they live now:
+// src/client/lib/playlist-order/test. This file keeps the hook-owned pieces.
 
 const playlist = ( id: number, order: number[] ): Playlist => ( {
 	id,
@@ -27,36 +14,6 @@ const playlist = ( id: number, order: number[] ): Playlist => ( {
 	count: 0,
 	artworkId: null,
 	order,
-} );
-
-describe( 'resolveOrderedIds', () => {
-	it( 'keeps the stored order for ids that are still members', () => {
-		expect( resolveOrderedIds( [ 3, 1, 2 ], [ 1, 2, 3 ] ) ).toEqual( [ 3, 1, 2 ] );
-	} );
-
-	it( 'drops order entries that are no longer members', () => {
-		expect( resolveOrderedIds( [ 9, 3, 8, 1 ], [ 1, 3 ] ) ).toEqual( [ 3, 1 ] );
-	} );
-
-	it( 'appends members missing from the order, in member (date) sequence', () => {
-		expect( resolveOrderedIds( [ 2 ], [ 5, 4, 2, 6 ] ) ).toEqual( [ 2, 5, 4, 6 ] );
-	} );
-
-	it( 'drops stale entries and appends missing members in one pass', () => {
-		expect( resolveOrderedIds( [ 9, 2, 7 ], [ 5, 2, 6 ] ) ).toEqual( [ 2, 5, 6 ] );
-	} );
-
-	it( 'dedupes repeated order entries keeping the first position', () => {
-		expect( resolveOrderedIds( [ 2, 1, 2, 1 ], [ 1, 2 ] ) ).toEqual( [ 2, 1 ] );
-	} );
-
-	it( 'returns members as-is when there is no stored order', () => {
-		expect( resolveOrderedIds( [], [ 4, 2, 3 ] ) ).toEqual( [ 4, 2, 3 ] );
-	} );
-
-	it( 'returns empty when there are no members', () => {
-		expect( resolveOrderedIds( [ 1, 2, 3 ], [] ) ).toEqual( [] );
-	} );
 } );
 
 describe( 'moveItem', () => {
@@ -93,17 +50,6 @@ describe( 'moveItem', () => {
 		const list = [ 1, 2, 3 ];
 		moveItem( list, 0, 2 );
 		expect( list ).toEqual( [ 1, 2, 3 ] );
-	} );
-} );
-
-describe( 'orderPlaylistVideos', () => {
-	it( 'materializes videos in the reconciled order', () => {
-		const videos = [ video( 1 ), video( 2 ), video( 3 ) ];
-		expect( orderPlaylistVideos( videos, [ 3, 9, 1 ] ).map( v => v.id ) ).toEqual( [ 3, 1, 2 ] );
-	} );
-
-	it( 'passes empty inputs through', () => {
-		expect( orderPlaylistVideos( [], [ 1, 2 ] ) ).toEqual( [] );
 	} );
 } );
 
