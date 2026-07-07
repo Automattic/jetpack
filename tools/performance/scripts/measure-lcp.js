@@ -185,18 +185,10 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			// Additional short wait for any final rendering after network settles
 			await page.waitForTimeout( 500 );
 
-			// Refuse to measure the wrong page. If the scenario declares the route the final URL
-			// must contain, assert it here (after every redirect and the client route settle) so a
-			// mis-targeted or redirected page fails the iteration instead of posting off-target
-			// bytes to this scenario's permanent, no-rollback CodeVitals keys.
-			if ( expectUrlIncludes ) {
-				const finalUrl = decodeURIComponent( page.url() );
-				if ( ! finalUrl.includes( expectUrlIncludes ) ) {
-					throw new Error(
-						`Wrong page: expected URL to include "${ expectUrlIncludes }" but landed on "${ finalUrl }"`
-					);
-				}
-			}
+			// Refuse to measure the wrong page. Asserted here (after every redirect and the client
+			// route settle) so a mis-targeted or redirected page fails the iteration instead of
+			// posting off-target bytes to this scenario's permanent, no-rollback CodeVitals keys.
+			assertExpectedUrl( page.url(), expectUrlIncludes );
 
 			// Collect all metrics
 			/* eslint-disable no-undef -- This runs in browser context via Playwright */
@@ -471,6 +463,44 @@ function assertCaptureComplete( resourceStats, scenario ) {
 	}
 }
 
+/**
+ * Refuse to measure the wrong page.
+ *
+ * Scope, on purpose: this catches a page whose FINAL URL no longer contains the expected route —
+ * the concrete threat here is class-dashboard.php server-redirecting a bare page URL to the forms
+ * LIST, which strips the pinned `p=/responses/inbox` from the URL, so this fires. It does NOT prove
+ * the SPA client-rendered the inbox: a client-side route divergence that keeps the URL would pass.
+ * That is a deliberate trade — a stricter DOM-selector assertion would throw on every iteration if
+ * the guessed selector is wrong or the markup shifts, which blackholes the scenario's whole series
+ * on the append-only store. The URL check defends the real redirect without that failure mode.
+ *
+ * decodeURIComponent can throw on a malformed URL; we catch and re-throw as a mis-target so the
+ * iteration fails closed (no post) with a clear message rather than an opaque URIError.
+ *
+ * @param {string}      currentUrl        - The page's final URL (page.url()).
+ * @param {string|null} expectUrlIncludes - Substring the final URL must contain, or null to skip.
+ * @throws {Error} When the final URL does not contain the expected route (or cannot be decoded).
+ */
+function assertExpectedUrl( currentUrl, expectUrlIncludes ) {
+	if ( ! expectUrlIncludes ) {
+		return;
+	}
+	let finalUrl;
+	try {
+		finalUrl = decodeURIComponent( currentUrl );
+	} catch ( e ) {
+		throw new Error(
+			`Wrong page: could not decode final URL "${ currentUrl }" to check for "${ expectUrlIncludes }" (${ e.message })`,
+			{ cause: e }
+		);
+	}
+	if ( ! finalUrl.includes( expectUrlIncludes ) ) {
+		throw new Error(
+			`Wrong page: expected URL to include "${ expectUrlIncludes }" but landed on "${ finalUrl }"`
+		);
+	}
+}
+
 async function main() {
 	const username = process.env.WP_ADMIN_USER || 'admin';
 	const password = process.env.WP_ADMIN_PASS || 'password';
@@ -628,4 +658,4 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 	} );
 }
 
-export { measureLCP, resolveResultsGit, buildSummary, assertCaptureComplete };
+export { measureLCP, resolveResultsGit, buildSummary, assertCaptureComplete, assertExpectedUrl };

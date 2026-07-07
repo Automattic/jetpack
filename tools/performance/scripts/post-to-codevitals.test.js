@@ -17,7 +17,12 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { inspect } from 'node:util';
-import { buildSummary, resolveResultsGit, assertCaptureComplete } from './measure-lcp.js';
+import {
+	buildSummary,
+	resolveResultsGit,
+	assertCaptureComplete,
+	assertExpectedUrl,
+} from './measure-lcp.js';
 import {
 	checkSanityRange,
 	exitCodeForError,
@@ -471,9 +476,12 @@ test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to prod
 	// wrong tab cannot quietly populate the responses keys from the forms list.
 	assert.equal( scenario.expectUrlIncludes, '/responses/inbox' );
 	// A resource-count floor so a partial capture can't post an undercounted decodedBytesKB.
+	// Lower bound is 40 (not 1): a degenerate floor of a handful of resources would pass the old
+	// `> 0` check while catching nothing. Upper bound stays below the real ~80-resource load so the
+	// floor keeps its 2x margin and never clips the legitimate editor-lazy-load drop.
 	assert.ok(
-		scenario.minResourceCount > 0 && scenario.minResourceCount < 80,
-		'formsResponses must declare a resource-count floor below the real ~80-resource load'
+		scenario.minResourceCount >= 40 && scenario.minResourceCount < 80,
+		'formsResponses must declare a resource-count floor of >=40 and below the real ~80-resource load'
 	);
 } );
 
@@ -1522,6 +1530,59 @@ test( 'assertCaptureComplete passes at and above the floor', () => {
 test( 'assertCaptureComplete is a no-op for a scenario without a floor (e.g. the Dashboard)', () => {
 	// The Dashboard scenario declares no minResourceCount, so the guard never fires for it.
 	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 3 }, {} ) );
+} );
+
+// --- assertExpectedUrl (wrong-page guard for a targeted scenario) ---
+
+test( 'assertExpectedUrl passes when the final URL contains the expected route', () => {
+	// The pinned inbox route survives, so the iteration proceeds and posts to the responses keys.
+	assert.doesNotThrow( () =>
+		assertExpectedUrl(
+			'http://localhost:8083/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=/responses/inbox',
+			'/responses/inbox'
+		)
+	);
+} );
+
+test( 'assertExpectedUrl decodes a percent-encoded route before matching', () => {
+	// page.url() often returns the route still percent-encoded (%2F). The guard decodes first, so
+	// the encoded form must match the same way the decoded form does.
+	assert.doesNotThrow( () =>
+		assertExpectedUrl(
+			'http://localhost:8083/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox',
+			'/responses/inbox'
+		)
+	);
+} );
+
+test( 'assertExpectedUrl throws when a redirect strips the expected route', () => {
+	// The concrete threat: class-dashboard.php redirects the bare page URL to the forms LIST, which
+	// drops the pinned `p`. The final URL no longer contains the inbox route, so the run fails
+	// closed instead of posting forms-list bytes to the responses-inbox keys.
+	assert.throws(
+		() =>
+			assertExpectedUrl(
+				'http://localhost:8083/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin',
+				'/responses/inbox'
+			),
+		/Wrong page: expected URL to include "\/responses\/inbox"/
+	);
+} );
+
+test( 'assertExpectedUrl fails closed on an undecodable URL rather than throwing an opaque URIError', () => {
+	// A malformed percent-sequence (%E0%A4%A) makes decodeURIComponent throw. The guard catches it
+	// and re-throws as a wrong-page error, so the iteration still fails closed (no post) with a
+	// message that names the URL instead of an opaque URIError.
+	assert.throws(
+		() => assertExpectedUrl( 'http://localhost:8083/x?p=%E0%A4%A', '/responses/inbox' ),
+		/Wrong page: could not decode final URL/
+	);
+} );
+
+test( 'assertExpectedUrl is a no-op when the scenario declares no expected route', () => {
+	// The Dashboard scenario declares no expectUrlIncludes, so the guard never fires for it —
+	// even a totally unrelated URL is accepted.
+	assert.doesNotThrow( () => assertExpectedUrl( 'http://localhost:8083/anything', null ) );
 } );
 
 // --- buildSummary (measure-lcp per-field aggregation; the load-bearing FORMS-707 change) ---
