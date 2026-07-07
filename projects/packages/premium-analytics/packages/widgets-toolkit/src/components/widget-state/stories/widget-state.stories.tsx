@@ -4,6 +4,44 @@ import { WidgetState } from '../widget-state';
 import type { BarChartData, BarChartStyle } from '../../chart-bar';
 import type { Meta, StoryObj } from '@storybook/react';
 
+/**
+ * Widget card wrapper, simulating a dashboard widget container so each state is
+ * shown within typical widget dimensions.
+ */
+const WidgetCard = ( { title, children }: { title: string; children: React.ReactNode } ) => (
+	<div
+		style={ {
+			width: '360px',
+			height: '320px',
+			border: '1px solid var(--wpds-color-stroke-surface-neutral-weaker, #e0e0e0)',
+			borderRadius: 'var(--wpds-border-radius-md, 8px)',
+			background: 'var(--wpds-color-bg-surface-primary, #fff)',
+			display: 'flex',
+			flexDirection: 'column',
+			overflow: 'hidden',
+		} }
+	>
+		<div
+			style={ {
+				padding: 'var(--wpds-dimension-gap-lg, 16px)',
+				borderBottom: '1px solid var(--wpds-color-stroke-surface-neutral-weaker, #e0e0e0)',
+				fontWeight: 600,
+				fontSize: 'var(--wpds-font-size-sm, 14px)',
+				color: 'var(--wpds-color-fg-content-neutral, #1e1e1e)',
+			} }
+		>
+			{ title }
+		</div>
+		<div style={ { position: 'relative', flex: 1, minHeight: 0 } }>{ children }</div>
+	</div>
+);
+
+const withWidgetCard = ( Story: React.ComponentType ) => (
+	<WidgetCard title="Traffic by source">
+		<Story />
+	</WidgetCard>
+);
+
 const meta: Meta< typeof WidgetState > = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/WidgetState',
 	component: WidgetState,
@@ -17,9 +55,10 @@ const meta: Meta< typeof WidgetState > = {
 			},
 		},
 	},
-	// Supplies the charts context so the mock `BarChart` renders, mirroring what
+	// Every story renders inside the mock widget card; `withChartTheme` supplies
+	// the charts context so the mock `BarChart` renders, mirroring what
 	// `WidgetRoot` provides at the top of the widget tree in the app.
-	decorators: [ withChartTheme ],
+	decorators: [ withWidgetCard, withChartTheme ],
 };
 
 export default meta;
@@ -59,38 +98,6 @@ const MockChart = () => (
 );
 
 /**
- * Widget card wrapper, simulating a dashboard widget container so each state is
- * shown within typical widget dimensions.
- */
-const WidgetCard = ( { title, children }: { title: string; children: React.ReactNode } ) => (
-	<div
-		style={ {
-			width: '360px',
-			height: '320px',
-			border: '1px solid var(--wpds-color-stroke-surface-neutral-weaker, #e0e0e0)',
-			borderRadius: 'var(--wpds-border-radius-md, 8px)',
-			background: 'var(--wpds-color-bg-surface-primary, #fff)',
-			display: 'flex',
-			flexDirection: 'column',
-			overflow: 'hidden',
-		} }
-	>
-		<div
-			style={ {
-				padding: 'var(--wpds-dimension-gap-lg, 16px)',
-				borderBottom: '1px solid var(--wpds-color-stroke-surface-neutral-weaker, #e0e0e0)',
-				fontWeight: 600,
-				fontSize: 'var(--wpds-font-size-sm, 14px)',
-				color: 'var(--wpds-color-fg-content-neutral, #1e1e1e)',
-			} }
-		>
-			{ title }
-		</div>
-		<div style={ { position: 'relative', flex: 1, minHeight: 0 } }>{ children }</div>
-	</div>
-);
-
-/**
  * First load: a fetch is in flight and there is no data yet, so the loading
  * overlay is shown instead of the children.
  */
@@ -101,13 +108,6 @@ export const Loading: Story = {
 		isEmpty: true,
 		children: <MockChart />,
 	},
-	decorators: [
-		Story => (
-			<WidgetCard title="Traffic by source">
-				<Story />
-			</WidgetCard>
-		),
-	],
 };
 
 /**
@@ -125,18 +125,11 @@ export const Error: Story = {
 		},
 		children: <MockChart />,
 	},
-	decorators: [
-		Story => (
-			<WidgetCard title="Traffic by source">
-				<Story />
-			</WidgetCard>
-		),
-	],
 };
 
 /**
- * Resolved with no rows. Uses a neutral glyph so it reads differently from the
- * error state.
+ * Resolved with no rows. Renders no icon by default — a widget opts in via
+ * `empty.icon` with its own neutral glyph, distinct from the error state.
  */
 export const Empty: Story = {
 	args: {
@@ -146,13 +139,6 @@ export const Empty: Story = {
 		empty: { description: 'No traffic recorded for this period.' },
 		children: <MockChart />,
 	},
-	decorators: [
-		Story => (
-			<WidgetCard title="Traffic by source">
-				<Story />
-			</WidgetCard>
-		),
-	],
 };
 
 /**
@@ -165,13 +151,6 @@ export const Ready: Story = {
 		isEmpty: false,
 		children: <MockChart />,
 	},
-	decorators: [
-		Story => (
-			<WidgetCard title="Traffic by source">
-				<Story />
-			</WidgetCard>
-		),
-	],
 };
 
 /**
@@ -186,11 +165,4 @@ export const Busy: Story = {
 		isEmpty: false,
 		children: <MockChart />,
 	},
-	decorators: [
-		Story => (
-			<WidgetCard title="Traffic by source">
-				<Story />
-			</WidgetCard>
-		),
-	],
 };
