@@ -15,10 +15,7 @@ import * as React from 'react';
  */
 import { notSpam, spam } from '../../src/dashboard/icons';
 import { defaultView } from '../../src/dashboard/inbox/stage/views.js';
-import {
-	updateMenuCounter,
-	updateMenuCounterOptimistically,
-} from '../../src/dashboard/inbox/utils';
+import { getFormsMenuBadgeSlug, getMenuBadgeCount } from '../../src/dashboard/inbox/utils';
 import { store as dashboardStore } from '../../src/dashboard/store';
 /**
  * Types
@@ -1028,7 +1025,10 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 						// Immediately update menu counters optimistically to avoid delays, but only for inbox
 						if ( status === 'publish' ) {
-							updateMenuCounterOptimistically( -1 );
+							window.jetpackMenuBadges?.setCount(
+								getFormsMenuBadgeSlug(),
+								getMenuBadgeCount() - 1
+							);
 						}
 					}
 
@@ -1041,7 +1041,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 						.then( ( response: unknown ) => {
 							const { count } = response as { count: number };
 							// Update menu counter with accurate count from server.
-							updateMenuCounter( count );
+							window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), count );
 						} )
 						.catch( () => {
 							// Revert the change in the store if the server update fails.
@@ -1052,7 +1052,10 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 								// Revert the optimistic change in the sidebar.
 								if ( status === 'publish' ) {
-									updateMenuCounterOptimistically( 1 );
+									window.jetpackMenuBadges?.setCount(
+										getFormsMenuBadgeSlug(),
+										getMenuBadgeCount() + 1
+									);
 								}
 							}
 
@@ -1144,7 +1147,10 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 						// Immediately update menu counters optimistically to avoid delays, but only for inbox
 						if ( status === 'publish' ) {
-							updateMenuCounterOptimistically( 1 );
+							window.jetpackMenuBadges?.setCount(
+								getFormsMenuBadgeSlug(),
+								getMenuBadgeCount() + 1
+							);
 						}
 					}
 
@@ -1157,7 +1163,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 						.then( ( response: unknown ) => {
 							const { count } = response as { count: number };
 							// Update menu counter with accurate count from server.
-							updateMenuCounter( count );
+							window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), count );
 						} )
 						.catch( () => {
 							// Revert the change in the store if the server update fails.
@@ -1168,7 +1174,10 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 								// Revert the optimistic change in the sidebar.
 								if ( status === 'publish' ) {
-									updateMenuCounterOptimistically( -1 );
+									window.jetpackMenuBadges?.setCount(
+										getFormsMenuBadgeSlug(),
+										getMenuBadgeCount() - 1
+									);
 								}
 							}
 

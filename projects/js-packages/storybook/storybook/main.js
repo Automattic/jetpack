@@ -11,6 +11,10 @@ import jetpackConfig from './jetpackConfig.js';
 import { projects } from './projects.js';
 
 const __dirname = import.meta.dirname;
+const premiumAnalyticsPackagesDir = path.join(
+	__dirname,
+	'../../../packages/premium-analytics/packages'
+);
 
 const storiesSearch = '*.@(mdx|@(story|stories).@(js|jsx|ts|tsx))';
 const stories = [ process.env.NODE_ENV !== 'test' && `./stories/**/${ storiesSearch }` ]
@@ -52,6 +56,27 @@ const sbconfig = {
 						if ( ! id.includes( 'node_modules' ) && /\.[cm]?js$/.test( id ) ) {
 							return transformWithOxc( code, id, { lang: 'jsx' } );
 						}
+					},
+				},
+
+				// Premium Analytics internal packages point `module` to ignored build artifacts.
+				// In Storybook, resolve bare package imports to TS source so local stale builds
+				// cannot diverge from the code being edited.
+				{
+					name: 'premium-analytics-source-package-imports',
+					enforce: 'pre',
+					async resolveId( id, importer ) {
+						const match = id.match( /^@jetpack-premium-analytics\/([^/]+)$/ );
+
+						if ( ! match ) {
+							return;
+						}
+
+						return this.resolve(
+							path.join( premiumAnalyticsPackagesDir, match[ 1 ], 'src/index.ts' ),
+							importer,
+							{ skipSelf: true }
+						);
 					},
 				},
 
@@ -143,13 +168,9 @@ const sbconfig = {
 				alias: {
 					...config.resolve?.alias,
 
-					// Premium Analytics internal packages. At build time wp-build maps
-					// `@jetpack-premium-analytics/<dir>` to `packages/<dir>`; mirror that here
-					// (each package's `main` points at its TS source).
-					'@jetpack-premium-analytics': path.join(
-						__dirname,
-						'../../../packages/premium-analytics/packages'
-					),
+					// Premium Analytics internal subpath imports. Bare package imports are
+					// resolved to TS source by the plugin above.
+					'@jetpack-premium-analytics': premiumAnalyticsPackagesDir,
 
 					// Boost-specific aliases
 					$lib: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/lib' ),

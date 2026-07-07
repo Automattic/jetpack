@@ -4,27 +4,57 @@
 import { buildTopAuthorsData } from '../build-top-authors-data';
 import type { StatsNormalizedReport, StatsTopAuthorsItem } from '@jetpack-premium-analytics/data';
 
+type PostSeed = {
+	id?: string | number;
+	title: string;
+	views: number;
+	link?: string | null;
+};
+
 type AuthorSeed = {
+	id?: string | number;
 	label?: string;
 	views: number;
+	avatar?: string | null;
+	posts?: PostSeed[];
 };
 
 /**
  * Builds a single normalized top-authors item from a compact seed.
  *
- * @param seed       - The author seed.
- * @param seed.label - Display label (defaults to `Author`).
- * @param seed.views - View count for the period.
+ * @param seed        - The author seed.
+ * @param seed.id     - Stable author id.
+ * @param seed.label  - Display label (defaults to `Author`).
+ * @param seed.views  - View count for the period.
+ * @param seed.avatar - Avatar URL (defaults to none).
+ * @param seed.posts  - The author's posts (defaults to none).
  * @return A normalized top-authors item.
  */
-function makeAuthor( { label = 'Author', views }: AuthorSeed ): StatsTopAuthorsItem {
+function makeAuthor( {
+	id,
+	label = 'Author',
+	views,
+	avatar = null,
+	posts,
+}: AuthorSeed ): StatsTopAuthorsItem {
 	return {
+		id,
 		label,
 		views,
-		icon: null,
+		icon: avatar,
 		iconClassName: 'avatar-user',
 		className: 'module-content-list-item-large',
-		children: null,
+		children: posts
+			? posts.map( post => ( {
+					id: post.id,
+					label: post.title,
+					views: post.views,
+					link: post.link ?? null,
+					page: null,
+					actions: [],
+					children: null,
+			  } ) )
+			: null,
 	};
 }
 
@@ -67,7 +97,7 @@ describe( 'buildTopAuthorsData', () => {
 
 		expect( result ).toHaveLength( 1 );
 		expect( result[ 0 ] ).toMatchObject( {
-			id: 'Alice',
+			id: 'label:Alice|',
 			label: 'Alice',
 			currentValue: 10,
 			previousValue: 0,
@@ -91,10 +121,10 @@ describe( 'buildTopAuthorsData', () => {
 		expect( result.map( author => author.label ) ).toEqual( [ 'Bob', 'Carol', 'Alice' ] );
 	} );
 
-	it( 'aligns comparison values by author label', () => {
+	it( 'aligns comparison values by author id', () => {
 		const result = buildTopAuthorsData(
-			makeReport( [ { label: 'Alice', views: 150 } ] ),
-			makeReport( [ { label: 'Alice', views: 100 } ] )
+			makeReport( [ { id: 1, label: 'Alice', views: 150 } ] ),
+			makeReport( [ { id: 1, label: 'Alice', views: 100 } ] )
 		);
 
 		expect( result[ 0 ] ).toMatchObject( {
@@ -107,10 +137,10 @@ describe( 'buildTopAuthorsData', () => {
 	it( 'treats authors missing from the comparison period as zero', () => {
 		const result = buildTopAuthorsData(
 			makeReport( [
-				{ label: 'Alice', views: 10 },
-				{ label: 'Bob', views: 8 },
+				{ id: 1, label: 'Alice', views: 10 },
+				{ id: 2, label: 'Bob', views: 8 },
 			] ),
-			makeReport( [ { label: 'Alice', views: 5 } ] )
+			makeReport( [ { id: 1, label: 'Alice', views: 5 } ] )
 		);
 
 		const bob = result.find( author => author.label === 'Bob' );
@@ -124,5 +154,164 @@ describe( 'buildTopAuthorsData', () => {
 		);
 
 		expect( result[ 0 ].label ).toBe( 'Untracked authors' );
+	} );
+
+	it( 'carries the author avatar and an empty posts list when there are no children', () => {
+		const result = buildTopAuthorsData(
+			makeReport( [ { label: 'Alice', views: 10, avatar: 'https://example.com/a.png' } ] ),
+			undefined
+		);
+
+		expect( result[ 0 ] ).toMatchObject( {
+			avatarUrl: 'https://example.com/a.png',
+			posts: [],
+		} );
+	} );
+
+	it( 'maps the author children into drill-down posts', () => {
+		const result = buildTopAuthorsData(
+			makeReport( [
+				{
+					label: 'Alice',
+					views: 30,
+					posts: [
+						{ id: 12, title: 'Hello world', views: 20, link: 'https://example.com/hello' },
+						{ title: 'Second post', views: 10 },
+					],
+				},
+			] ),
+			undefined
+		);
+
+		expect( result[ 0 ].posts ).toEqual( [
+			{
+				id: '12',
+				title: 'Hello world',
+				link: 'https://example.com/hello',
+				currentValue: 20,
+				previousValue: 0,
+				currentShare: 100,
+				previousShare: 0,
+				delta: 100,
+			},
+			{
+				id: 'title:Second post',
+				title: 'Second post',
+				link: null,
+				currentValue: 10,
+				previousValue: 0,
+				currentShare: 50,
+				previousShare: 0,
+				delta: 100,
+			},
+		] );
+	} );
+
+	it( 'uses author ids to keep same-name authors distinct', () => {
+		const result = buildTopAuthorsData(
+			makeReport( [
+				{
+					id: 1,
+					label: 'Alex',
+					views: 30,
+					posts: [ { id: 101, title: 'First Alex post', views: 30 } ],
+				},
+				{
+					id: 2,
+					label: 'Alex',
+					views: 20,
+					posts: [ { id: 201, title: 'Second Alex post', views: 20 } ],
+				},
+			] ),
+			makeReport( [
+				{
+					id: 1,
+					label: 'Alex',
+					views: 10,
+					posts: [ { id: 101, title: 'First Alex post', views: 10 } ],
+				},
+				{
+					id: 2,
+					label: 'Alex',
+					views: 15,
+					posts: [ { id: 201, title: 'Second Alex post', views: 15 } ],
+				},
+			] )
+		);
+
+		expect(
+			result.map( author => ( { id: author.id, previousValue: author.previousValue } ) )
+		).toEqual( [
+			{ id: '1', previousValue: 10 },
+			{ id: '2', previousValue: 15 },
+		] );
+		expect( result[ 0 ].posts[ 0 ] ).toMatchObject( {
+			id: '101',
+			title: 'First Alex post',
+			previousValue: 10,
+		} );
+		expect( result[ 1 ].posts[ 0 ] ).toMatchObject( {
+			id: '201',
+			title: 'Second Alex post',
+			previousValue: 15,
+		} );
+	} );
+
+	it( 'aligns author posts across comparison periods and includes dropped posts', () => {
+		const result = buildTopAuthorsData(
+			makeReport( [
+				{
+					label: 'Alice',
+					views: 30,
+					posts: [
+						{ id: 1, title: 'Still popular', views: 20 },
+						{ id: 2, title: 'New post', views: 10 },
+					],
+				},
+			] ),
+			makeReport( [
+				{
+					label: 'Alice',
+					views: 40,
+					posts: [
+						{ id: 1, title: 'Still popular', views: 30 },
+						{ id: 3, title: 'Dropped post', views: 10 },
+					],
+				},
+			] )
+		);
+
+		expect( result[ 0 ].posts ).toEqual( [
+			{
+				id: '1',
+				title: 'Still popular',
+				link: null,
+				currentValue: 20,
+				previousValue: 30,
+				currentShare: 66.66666666666666,
+				previousShare: 100,
+				delta: -33.33333333333333,
+			},
+			{
+				id: '2',
+				title: 'New post',
+				link: null,
+				currentValue: 10,
+				previousValue: 0,
+				currentShare: 33.33333333333333,
+				previousShare: 0,
+				delta: 100,
+			},
+			{
+				id: '3',
+				title: 'Dropped post',
+				link: null,
+				currentValue: 0,
+				previousValue: 10,
+				currentShare: 0,
+				previousShare: 33.33333333333333,
+				delta: -100,
+			},
+		] );
 	} );
 } );

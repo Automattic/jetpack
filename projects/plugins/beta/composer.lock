@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b35c8f741ab239d96006476386767f79",
+    "content-hash": "d9f810f2520f06fd6b983f22d2eb6d50",
     "packages": [
         {
             "name": "automattic/jetpack-admin-ui",
@@ -515,7 +515,8 @@
     "stability-flags": {
         "automattic/jetpack-admin-ui": 20,
         "automattic/jetpack-autoloader": 20,
-        "automattic/jetpack-logo": 20
+        "automattic/jetpack-logo": 20,
+        "automattic/jetpack-redirect": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

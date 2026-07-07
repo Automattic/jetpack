@@ -1,5 +1,7 @@
 .leaderboardChart {
-	transition: opacity 0.3s ease-in-out;
+	transition:
+		opacity var(--wpds-motion-duration-lg, 300ms)
+		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 
 	&--responsive {
 		height: 100%;
@@ -56,7 +58,9 @@
 			transform-origin: left;
 			transform-box: fill-box;
 			transform: scaleX(0);
-			animation: stretch 1s ease-out forwards;
+			animation:
+				stretch var(--wpds-motion-duration-xl, 400ms)
+				var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
 		}
 
 		@keyframes stretch {
@@ -79,7 +83,7 @@
 .emptyState {
 	padding: var(--wpds-dimension-padding-3xl, 32px) var(--wpds-dimension-padding-lg, 16px);
 	text-align: center;
-	color: #666;
+	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-style: italic;
 }
@@ -118,11 +122,17 @@
 	// a grid item aligned to the inline start, so its inset mirrors in RTL; the
 	// value slide is given an RTL override below. No row background.
 	.bar {
-		transition: opacity 0.15s ease, width 0.15s ease;
+		transition:
+			opacity var(--wpds-motion-duration-sm, 100ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1)),
+			width var(--wpds-motion-duration-sm, 100ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	}
 
 	.valueContainer {
-		transition: transform 0.15s ease;
+		transition:
+			transform var(--wpds-motion-duration-sm, 100ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	}
 
 	&:hover,
@@ -155,7 +165,7 @@
 		border-radius: var(--wpds-border-radius-sm, 2px);
 		outline:
 			var(--focus-ring-width) solid
-			var(--wpds-color-stroke-focus-brand, var(--wp-admin-theme-color, #3858e9));
+			var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
 		// Inset by its own width so the outer edge hugs the row boundary: the
 		// outline then sits in the row's padding (also a ring width), clear of the
 		// bar, and stays inside the overflow:auto container that would clip an
@@ -171,8 +181,10 @@
 	bottom: 0;
 	margin-block: auto;
 	opacity: 0;
-	color: var(--wpds-color-fg-content-neutral-weak, #707070);
-	transition: opacity 0.15s ease;
+	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	transition:
+		opacity var(--wpds-motion-duration-sm, 100ms)
+		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	pointer-events: none;
 
 	// The glyph points toward the inline end, so flip it to point left in RTL.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+VideoPress: Resumable video uploads are now verified as they arrive, instead of re-reading the whole file once the upload completes.

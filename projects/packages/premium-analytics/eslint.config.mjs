@@ -122,5 +122,26 @@ export default defineConfig(
 			'jsdoc/escape-inline-tags': 'off',
 			'import/no-extraneous-dependencies': 'off',
 		},
+	},
+	{
+		// Widgets must reach chart components through the widgets-toolkit
+		// shared script module: a direct `@automattic/charts` import gets
+		// silently inlined into that widget's render bundle, dragging the
+		// whole charting stack (charts, visx, react-spring) along with it.
+		files: [ 'widgets/**', 'projects/packages/premium-analytics/widgets/**' ],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							group: [ '@automattic/charts', '@automattic/charts/*' ],
+							message:
+								'Import chart components from @jetpack-premium-analytics/widgets-toolkit instead: it is a shared script module, so charts is bundled once for the whole dashboard. Missing a component? Re-export it from the toolkit "Charts passthrough" section.',
+						},
+					],
+				},
+			],
+		},
 	}
 );

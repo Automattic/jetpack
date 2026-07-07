@@ -68,30 +68,23 @@ class Settings {
 	);
 
 	/**
-	 * Whether `register()` has wired its hooks.
-	 *
-	 * @var bool
-	 */
-	private static $registered = false;
-
-	/**
-	 * Wire option registrations + Jetpack Sync opt-in. Idempotent.
+	 * Wire option registrations + Jetpack Sync opt-in. Idempotent: every
+	 * callback is named, so WordPress dedupes repeat calls.
 	 */
 	public static function register() {
-		if ( self::$registered ) {
-			return;
-		}
-		self::$registered = true;
-
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_settings' ) );
+		add_filter( 'jetpack_sync_options_whitelist', array( __CLASS__, 'add_to_sync_whitelist' ) );
+	}
 
-		add_filter(
-			'jetpack_sync_options_whitelist',
-			static function ( $options ) {
-				return array_merge( $options, self::OPTION_NAMES );
-			}
-		);
+	/**
+	 * Add the podcast options to the Jetpack Sync whitelist.
+	 *
+	 * @param string[] $options Whitelisted option names.
+	 * @return string[]
+	 */
+	public static function add_to_sync_whitelist( $options ) {
+		return array_merge( $options, self::OPTION_NAMES );
 	}
 
 	/**

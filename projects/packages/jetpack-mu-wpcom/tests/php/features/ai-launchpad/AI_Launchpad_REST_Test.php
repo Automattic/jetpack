@@ -13,9 +13,18 @@ require_once __DIR__ . '/fixtures/memberships-stubs.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-memberships.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-about-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-gallery-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-first-post-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-rest.php';
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WpOrg\Requests\Requests;
 
 /**
@@ -193,13 +202,113 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'Share your first trail story.', $first_task['subtitle'] );
 		$this->assertSame( 'Write your first post', $first_task['title'] );
 		$this->assertTrue( $first_task['completed'] );
+		$this->assertFalse( $first_task['in_progress'] );
 		$this->assertSame( admin_url( 'post-new.php' ), $first_task['calypso_path'] );
 
 		$last_task = $data['tasks'][5];
 		$this->assertSame( 'site_launched', $last_task['id'] );
 		$this->assertSame( 'Launch your site', $last_task['title'] );
 		$this->assertFalse( $last_task['completed'] );
+		$this->assertFalse( $last_task['in_progress'] );
 		$this->assertNull( $last_task['calypso_path'] );
+	}
+
+	/**
+	 * Test that an unpublished, AI-created About page draft puts the add_about_page task "in progress": the task
+	 * surfaces the `in_progress` flag, a "Continue…" title, and a calypso_path that reopens the existing draft rather
+	 * than creating a new one.
+	 *
+	 * The marker-meta draft lookup runs through WP_Query, which WorDBless can't execute, so it's short-circuited with
+	 * core's `posts_pre_query` filter to return the seeded draft id.
+	 */
+	public function test_get_marks_about_page_in_progress_with_unpublished_draft() {
+		wp_set_current_user( $this->admin_id );
+
+		// add_about_page's catalog visibility gate requires this meta to be registered on pages (as on WoA).
+		register_post_meta( 'page', '_wpcom_template_layout_category', array( 'show_in_rest' => true ) );
+
+		$this->seed_ai_output_with_tasks( array( 'add_about_page', 'site_launched' ) );
+
+		$get_about = function () {
+			foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+				if ( 'add_about_page' === $task['id'] ) {
+					return $task;
+				}
+			}
+			return null;
+		};
+
+		// No draft yet: the task renders in its plain, not-started state.
+		$before = $get_about();
+		$this->assertNotNull( $before );
+		$this->assertFalse( $before['in_progress'] );
+		$this->assertSame( 'Add your About page', $before['title'] );
+
+		// Stand in for a saved-but-unpublished AI About page draft by short-circuiting its marker-meta lookup.
+		$draft_id = 4242;
+		add_filter(
+			'posts_pre_query',
+			static function ( $posts, $query ) use ( $draft_id ) {
+				if ( AI_Launchpad_About_Page_Listener::META_KEY === $query->get( 'meta_key' ) ) {
+					return array( $draft_id );
+				}
+				return $posts;
+			},
+			10,
+			2
+		);
+
+		$after = $get_about();
+		$this->assertNotNull( $after );
+		$this->assertTrue( $after['in_progress'] );
+		$this->assertSame( 'Continue working on the About page', $after['title'] );
+		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $after['calypso_path'] );
+	}
+
+	/**
+	 * Test that an unpublished AI-created first-post draft puts the newsletter first-post task "in progress": it's
+	 * detected through the first-post marker meta (not any latest draft), gets the drafts-aware "Continue writing"
+	 * title override, and reopens that draft. The marker query is short-circuited via `posts_pre_query` (WorDBless
+	 * can't run WP_Query).
+	 */
+	public function test_get_marks_first_post_in_progress_with_marked_draft() {
+		wp_set_current_user( $this->admin_id );
+
+		$this->seed_ai_output_with_tasks( array( 'first_post_published_newsletter', 'site_launched' ) );
+
+		$get_first_post = function () {
+			foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+				if ( 'first_post_published_newsletter' === $task['id'] ) {
+					return $task;
+				}
+			}
+			return null;
+		};
+
+		// No marked draft: the task renders in its plain, not-started state.
+		$before = $get_first_post();
+		$this->assertNotNull( $before );
+		$this->assertFalse( $before['in_progress'] );
+
+		// Stand in for the AI-created first-post draft by short-circuiting its marker-meta lookup.
+		$draft_id = 5151;
+		add_filter(
+			'posts_pre_query',
+			static function ( $posts, $query ) use ( $draft_id ) {
+				if ( AI_Launchpad_First_Post_Listener::META_KEY === $query->get( 'meta_key' ) ) {
+					return array( $draft_id );
+				}
+				return $posts;
+			},
+			10,
+			2
+		);
+
+		$after = $get_first_post();
+		$this->assertNotNull( $after );
+		$this->assertTrue( $after['in_progress'] );
+		$this->assertSame( 'Continue writing your first post', $after['title'] );
+		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $after['calypso_path'] );
 	}
 
 	/**
@@ -347,6 +456,467 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// launch task, which routes to the wordpress.com launch flow client-side).
 		$this->assertArrayHasKey( 'site_launched', $paths );
 		$this->assertNull( $paths['site_launched'] );
+	}
+
+	/**
+	 * Test that GET points the theme tasks at the Calypso themes showcase pre-filtered
+	 * by the AI-inferred niche, so the theme list feels relevant to what the user is
+	 * building. This overrides the plain wp-admin themes.php target, which can only
+	 * filter already-installed themes.
+	 *
+	 * The showcase search ANDs its terms, so a multi-word niche is reduced to its first
+	 * keyword — 'ceramics and pottery' matches no theme, but 'ceramics' does.
+	 */
+	public function test_get_filters_theme_ctas_by_inferred_niche() {
+		wp_set_current_user( $this->admin_id );
+
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'site_theme_selected',
+							'subtitle' => 'Pick a gallery-style theme.',
+						),
+						array(
+							'id'       => 'design_selected',
+							'subtitle' => 'Make it yours.',
+						),
+						array(
+							'id'       => 'site_launched',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array(
+						'goal'  => 'build',
+						'niche' => 'ceramics and pottery',
+					),
+				),
+			),
+			false
+		);
+
+		$paths = array();
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			$paths[ $task['id'] ] = $task['calypso_path'];
+		}
+
+		$expected = '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '?s=ceramics';
+		$this->assertSame( $expected, $paths['site_theme_selected'] );
+		$this->assertSame( $expected, $paths['design_selected'] );
+		// A non-theme task is untouched by the niche filter.
+		$this->assertNull( $paths['site_launched'] );
+	}
+
+	/**
+	 * Test that a multi-word niche is reduced to a single search keyword: connective
+	 * words are dropped and the first meaningful keyword is kept, so the showcase's
+	 * term-ANDing search still returns matching themes.
+	 *
+	 * @dataProvider provider_niche_search_terms
+	 *
+	 * @param string $niche    The inferred niche.
+	 * @param string $expected The expected `?s=` search term.
+	 */
+	#[DataProvider( 'provider_niche_search_terms' )]
+	public function test_get_reduces_multiword_niche_to_single_keyword( $niche, $expected ) {
+		wp_set_current_user( $this->admin_id );
+
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'site_theme_selected',
+							'subtitle' => 'Pick a theme.',
+						),
+						array(
+							'id'       => 'site_launched',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array(
+						'goal'  => 'build',
+						'niche' => $niche,
+					),
+				),
+			),
+			false
+		);
+
+		$path = null;
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			if ( 'site_theme_selected' === $task['id'] ) {
+				$path = $task['calypso_path'];
+			}
+		}
+
+		$this->assertSame( '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $expected ), $path );
+	}
+
+	/**
+	 * Niche → single search keyword expectations.
+	 *
+	 * @return array
+	 */
+	public static function provider_niche_search_terms() {
+		return array(
+			'strips "and" connective'      => array( 'ceramics and pottery', 'ceramics' ),
+			'keeps first of two subjects'  => array( 'photography and travel', 'photography' ),
+			'drops leading adjective-only' => array( 'handmade ceramics', 'handmade' ),
+			'drops ampersand connective'   => array( 'arts & crafts', 'arts' ),
+			'single word is unchanged'     => array( 'cooking', 'cooking' ),
+			'skips leading stop word'      => array( 'the great outdoors', 'great' ),
+		);
+	}
+
+	/**
+	 * Test that without an inferred niche the theme CTAs keep their existing targets
+	 * (the wp-admin override for design_selected), so the filter is purely additive.
+	 */
+	public function test_get_leaves_theme_ctas_unfiltered_without_niche() {
+		wp_set_current_user( $this->admin_id );
+		// seed_ai_output_with_tasks writes no `inferred` block, so there is no niche.
+		$this->seed_ai_output_with_tasks( array( 'site_theme_selected', 'design_selected', 'site_launched' ) );
+
+		$paths = array();
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			$paths[ $task['id'] ] = $task['calypso_path'];
+		}
+
+		// The CTA_OVERRIDES branch keeps its wp-admin target.
+		$this->assertSame( admin_url( 'themes.php' ), $paths['design_selected'] );
+		// The load_calypso_path branch keeps the catalog's default theme path.
+		$this->assertSame( '/themes/' . rawurlencode( wpcom_get_site_slug() ) . '#theme-selected', $paths['site_theme_selected'] );
+	}
+
+	/**
+	 * The gallery task is injected before the launch task for a portfolio goal, defaulting to todo.
+	 */
+	public function test_get_injects_gallery_task_for_portfolio_goal() {
+		wp_set_current_user( $this->admin_id );
+		// seed_gallery_output seeds [ site_title, site_launched ] — both reliably visible in the test env
+		// (unlike add_about_page, whose visibility gate needs extra meta registered).
+		$this->seed_gallery_output( 'portfolio', 'freelance work' );
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertContains( 'add_gallery_page', $ids );
+		// Injected immediately before the launch task.
+		$this->assertSame( array( 'site_title', 'add_gallery_page', 'site_launched' ), $ids );
+
+		$gallery = null;
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			if ( 'add_gallery_page' === $task['id'] ) {
+				$gallery = $task;
+			}
+		}
+		$this->assertSame( 'Create your first gallery', $gallery['title'] );
+		$this->assertFalse( $gallery['completed'] );
+		$this->assertFalse( $gallery['in_progress'] );
+	}
+
+	/**
+	 * The gallery task is injected for a photo/visual niche even when the goal is not portfolio.
+	 */
+	public function test_get_injects_gallery_task_for_photo_niche() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'build', 'wedding photography' );
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertContains( 'add_gallery_page', $ids );
+	}
+
+	/**
+	 * A hyphenated/compound niche still matches on its keyword tokens.
+	 */
+	public function test_get_injects_gallery_task_for_hyphenated_niche() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'build', 'wildlife-photography' );
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertContains( 'add_gallery_page', $ids );
+	}
+
+	/**
+	 * The gallery task is NOT injected for an unrelated goal + niche.
+	 */
+	public function test_get_omits_gallery_task_for_unrelated_site() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'sell', 'organic coffee beans' );
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertNotContains( 'add_gallery_page', $ids );
+	}
+
+	/**
+	 * A completed gallery page marks the injected task done.
+	 */
+	public function test_get_marks_gallery_task_complete_from_status_option() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'portfolio', 'sculpture' );
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'add_gallery_page' => true ) );
+
+		$gallery = null;
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			if ( 'add_gallery_page' === $task['id'] ) {
+				$gallery = $task;
+			}
+		}
+		$this->assertTrue( $gallery['completed'] );
+	}
+
+	/**
+	 * An unpublished gallery draft puts the injected task in progress and reopens that draft.
+	 */
+	public function test_get_marks_gallery_task_in_progress_with_draft() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'portfolio', 'sculpture' );
+
+		// The marker-meta draft lookup runs through WP_Query, which WorDBless can't execute, so short-circuit it with
+		// core's posts_pre_query filter to return a seeded draft id (mirrors the About-page in-progress test).
+		$draft_id = 4343;
+		add_filter(
+			'posts_pre_query',
+			static function ( $posts, $query ) use ( $draft_id ) {
+				if ( AI_Launchpad_Gallery_Page_Listener::META_KEY === $query->get( 'meta_key' ) ) {
+					return array( $draft_id );
+				}
+				return $posts;
+			},
+			10,
+			2
+		);
+
+		$gallery = null;
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			if ( 'add_gallery_page' === $task['id'] ) {
+				$gallery = $task;
+			}
+		}
+		$this->assertTrue( $gallery['in_progress'] );
+		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $gallery['calypso_path'] );
+	}
+
+	/**
+	 * Returns the sell task list keyed by id (WooCommerce state controlled by the caller beforehand).
+	 *
+	 * @param string $niche The inferred niche.
+	 * @return array<string, array> Tasks keyed by id.
+	 */
+	private function sell_tasks_by_id( $niche = 'organic coffee beans' ) {
+		$this->seed_gallery_output( 'sell', $niche );
+		$tasks = $this->call_api( Requests::GET )->get_data()['tasks'];
+		return array_column( $tasks, null, 'id' );
+	}
+
+	/**
+	 * With WooCommerce missing, the install task leads with the plugin-install CTA and stays actionable, while the
+	 * setup task follows as a disabled preview.
+	 */
+	public function test_get_leads_sell_with_install_task_when_woocommerce_missing() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+
+		$tasks = $this->sell_tasks_by_id();
+		$this->assertSame( 'install_woocommerce', array_key_first( $tasks ) );
+
+		$install = $tasks['install_woocommerce'];
+		$this->assertFalse( $install['completed'] );
+		$this->assertFalse( $install['in_progress'] );
+		$this->assertFalse( $install['disabled'] );
+		$this->assertStringContainsString( 'Add the WooCommerce plugin', $install['subtitle'] );
+		$this->assertStringContainsString( 'plugin-install.php?s=woocommerce', $install['calypso_path'] );
+
+		// The setup task is still listed, but as a disabled preview with no CTA until WooCommerce is active.
+		$this->assertArrayHasKey( 'setup_woocommerce_store', $tasks );
+		$setup = $tasks['setup_woocommerce_store'];
+		$this->assertTrue( $setup['disabled'] );
+		$this->assertFalse( $setup['completed'] );
+		$this->assertNull( $setup['calypso_path'] );
+	}
+
+	/**
+	 * On a fresh sell site the gated commerce tasks are kept as disabled previews (with no CTA) instead of being
+	 * dropped, so the full store roadmap is visible.
+	 */
+	public function test_get_keeps_commerce_tasks_disabled_when_woocommerce_inactive() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+
+		$this->seed_sell_output_with_commerce_tasks();
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		foreach ( array( 'woo_customize_store', 'woo_products', 'set_up_payments', 'woo_launch_site' ) as $id ) {
+			$this->assertArrayHasKey( $id, $tasks, "$id should be kept as a disabled preview" );
+			$this->assertTrue( $tasks[ $id ]['disabled'], "$id should be disabled" );
+			$this->assertNull( $tasks[ $id ]['calypso_path'], "$id should have no CTA" );
+		}
+
+		// A non-commerce task in the same list stays actionable, not swept into the disabled treatment.
+		$this->assertArrayHasKey( 'site_theme_selected', $tasks );
+		$this->assertFalse( $tasks['site_theme_selected']['disabled'] );
+	}
+
+	/**
+	 * A commerce task previously completed in WooCommerce renders as a disabled preview (not "done") while
+	 * WooCommerce is inactive, and building the list must not persist a launchpad completion as a side effect.
+	 */
+	public function test_get_disabled_commerce_task_is_not_completed_and_does_not_write_status() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		// Simulate a task WooCommerce recorded as complete during a prior active period.
+		update_option( 'woocommerce_task_list_tracked_completed_tasks', array( 'products' ) );
+		delete_option( 'launchpad_checklist_tasks_statuses' );
+
+		$this->seed_sell_output_with_commerce_tasks();
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		$this->assertTrue( $tasks['woo_products']['disabled'] );
+		$this->assertFalse( $tasks['woo_products']['completed'] );
+
+		// The completion callback (which writes launchpad status) must not have fired for the disabled preview.
+		$statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+		$this->assertArrayNotHasKey( 'woo_products', $statuses );
+	}
+
+	/**
+	 * With WooCommerce installed but not active, the install task is in progress and points at the plugins screen.
+	 */
+	public function test_get_marks_install_task_in_progress_when_inactive() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+		wp_cache_set( 'plugins', array( '' => array( 'woocommerce/woocommerce.php' => array( 'Name' => 'WooCommerce' ) ) ), 'plugins' );
+
+		$install = $this->sell_tasks_by_id()['install_woocommerce'];
+		wp_cache_delete( 'plugins', 'plugins' );
+
+		$this->assertTrue( $install['in_progress'] );
+		$this->assertFalse( $install['completed'] );
+		$this->assertStringContainsString( 'Activate the WooCommerce plugin', $install['subtitle'] );
+		$this->assertStringContainsString( 'plugins.php?plugin_status=inactive', $install['calypso_path'] );
+	}
+
+	/**
+	 * On a Simple site, where the wp-admin plugin screens aren't reachable, both the install (not-installed) and
+	 * activate (installed-but-inactive) CTAs point at the Calypso WooCommerce plugin page. Runs in a separate
+	 * process so defining IS_WPCOM doesn't leak into the rest of the suite.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_woocommerce_ctas_target_calypso_on_simple() {
+		define( 'IS_WPCOM', true );
+		wp_set_current_user( $this->admin_id );
+		$calypso = '/plugins/woocommerce/' . rawurlencode( wpcom_get_site_slug() );
+
+		// Not installed: the install CTA routes to Calypso instead of plugin-install.php.
+		update_option( 'active_plugins', array() );
+		$install = $this->sell_tasks_by_id()['install_woocommerce'];
+		$this->assertFalse( $install['in_progress'] );
+		$this->assertSame( $calypso, $install['calypso_path'] );
+
+		// Installed but inactive: the activate CTA routes to Calypso instead of plugins.php.
+		wp_cache_set( 'plugins', array( '' => array( 'woocommerce/woocommerce.php' => array( 'Name' => 'WooCommerce' ) ) ), 'plugins' );
+		$install = $this->sell_tasks_by_id()['install_woocommerce'];
+		wp_cache_delete( 'plugins', 'plugins' );
+
+		$this->assertTrue( $install['in_progress'] );
+		$this->assertSame( $calypso, $install['calypso_path'] );
+	}
+
+	/**
+	 * Any catalog task whose CTA resolves to a wp-admin plugins screen is routed to the Calypso plugins page on
+	 * Simple. Uses `install_custom_plugin`, whose catalog path is `plugins.php` under the wp-admin interface.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_routes_catalog_plugin_ctas_to_calypso_on_simple() {
+		define( 'IS_WPCOM', true );
+		wp_set_current_user( $this->admin_id );
+		// Force the catalog's plugin task to resolve to plugins.php (its wp-admin-interface branch).
+		update_option( 'wpcom_admin_interface', 'wp-admin' );
+		$this->seed_ai_output_with_tasks( array( 'install_custom_plugin', 'site_launched' ) );
+
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		$this->assertArrayHasKey( 'install_custom_plugin', $tasks );
+		$this->assertSame( '/plugins/' . rawurlencode( wpcom_get_site_slug() ), $tasks['install_custom_plugin']['calypso_path'] );
+	}
+
+	/**
+	 * Once WooCommerce is active the install task shows complete and the setup task appears with the wizard CTA.
+	 */
+	public function test_get_completes_install_and_offers_setup_when_active() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php' ) );
+
+		$tasks = $this->sell_tasks_by_id();
+		update_option( 'active_plugins', array() );
+
+		$this->assertTrue( $tasks['install_woocommerce']['completed'] );
+		$this->assertArrayHasKey( 'setup_woocommerce_store', $tasks );
+		$setup = $tasks['setup_woocommerce_store'];
+		$this->assertFalse( $setup['completed'] );
+		$this->assertStringContainsString( 'page=wc-admin&path=%2Fsetup-wizard', $setup['calypso_path'] );
+	}
+
+	/**
+	 * The setup task completes once the WooCommerce core profiler is completed or skipped.
+	 */
+	public function test_get_completes_setup_when_profiler_done() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php' ) );
+		update_option( 'woocommerce_onboarding_profile', array( 'skipped' => true ) );
+
+		$setup = $this->sell_tasks_by_id()['setup_woocommerce_store'];
+		update_option( 'active_plugins', array() );
+
+		$this->assertTrue( $setup['completed'] );
+		$this->assertNull( $setup['calypso_path'] );
+	}
+
+	/**
+	 * The store tasks are not injected for a non-sell goal.
+	 */
+	public function test_get_omits_store_tasks_for_non_sell_goal() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'build', 'organic coffee beans' );
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertNotContains( 'install_woocommerce', $ids );
+		$this->assertNotContains( 'setup_woocommerce_store', $ids );
+	}
+
+	/**
+	 * A sell site whose niche matches a gallery keyword gets the store tasks, not the off-target gallery task.
+	 */
+	public function test_get_prefers_store_over_gallery_for_sell_goal() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'active_plugins', array() );
+
+		$ids = array_keys( $this->sell_tasks_by_id( 'handmade art' ) );
+		$this->assertContains( 'install_woocommerce', $ids );
+		$this->assertNotContains( 'add_gallery_page', $ids );
+	}
+
+	/**
+	 * The gallery task is not injected on the ?all_tasks=1 catalog view.
+	 */
+	public function test_get_all_tasks_param_omits_gallery_task() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'portfolio', 'sculpture' );
+		$ids = array_column( $this->call_api( Requests::GET, '', null, array( 'all_tasks' => '1' ) )->get_data()['tasks'], 'id' );
+		$this->assertNotContains( 'add_gallery_page', $ids );
 	}
 
 	/**
@@ -724,6 +1294,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$result = $this->call_api( 'POST', '/complete-task', array( 'task_id' => 'complete_profile' ) );
 		$this->assertSame( 403, $result->get_status() );
 
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'complete_profile' ) );
+		$this->assertSame( 403, $result->get_status() );
+
 		$result = $this->call_api( Requests::DELETE );
 		$this->assertSame( 403, $result->get_status() );
 
@@ -755,6 +1328,84 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'source'       => 'ai',
 				'generated_at' => 1717000000,
 				'payload'      => array( 'tasks' => $tasks ),
+			),
+			false
+		);
+	}
+
+	/**
+	 * Seed an AI output whose tasks end on a launch task, with the given inferred goal/niche.
+	 *
+	 * @param string $goal  The inferred goal.
+	 * @param string $niche The inferred niche.
+	 */
+	private function seed_gallery_output( $goal, $niche ) {
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'site_title',
+							'subtitle' => 'Name it.',
+						),
+						array(
+							'id'       => 'site_launched',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array(
+						'goal'  => $goal,
+						'niche' => $niche,
+					),
+				),
+			),
+			false
+		);
+	}
+
+	/**
+	 * Seeds a sell payload whose tasks include the WooCommerce-gated commerce tasks plus a non-commerce task, so the
+	 * disabled-preview behavior can be asserted.
+	 */
+	private function seed_sell_output_with_commerce_tasks() {
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'woo_customize_store',
+							'subtitle' => 'Make it yours.',
+						),
+						array(
+							'id'       => 'woo_products',
+							'subtitle' => 'Add products.',
+						),
+						array(
+							'id'       => 'set_up_payments',
+							'subtitle' => 'Get paid.',
+						),
+						array(
+							'id'       => 'site_theme_selected',
+							'subtitle' => 'Pick a theme.',
+						),
+						array(
+							'id'       => 'woo_launch_site',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array(
+						'goal'  => 'sell',
+						'niche' => 'organic coffee beans',
+					),
+				),
 			),
 			false
 		);
@@ -833,6 +1484,171 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that POST /skip-task persists the skip and GET renders the task as skipped and completed, so a
+	 * skip survives reloads and counts toward completion.
+	 */
+	public function test_skip_task_persists_and_renders_completed() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data()['skipped'] );
+
+		$tasks = array();
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			$tasks[ $task['id'] ] = $task;
+		}
+
+		$this->assertTrue( $tasks['first_post_published']['skipped'] );
+		$this->assertTrue( $tasks['first_post_published']['completed'] );
+		$this->assertFalse( $tasks['site_launched']['skipped'] );
+		$this->assertFalse( $tasks['site_launched']['completed'] );
+		// The skip lives in its own option, never in the shared statuses (several catalog tasks
+		// recompute completion live and would ignore a status write).
+		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
+	}
+
+	/**
+	 * Test that reading the launchpad leaves the cached completion flag unset while any task is incomplete, so the
+	 * menu keeps showing.
+	 */
+	public function test_get_leaves_completed_flag_unset_while_incomplete() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$this->call_api( Requests::GET );
+
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
+	}
+
+	/**
+	 * Test that reading the launchpad sets the cached completion flag once every task is completed or skipped, so the
+	 * menu gate can hide the screen without rebuilding the list.
+	 */
+	public function test_get_sets_completed_flag_when_all_done() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		// Skipping every task coerces each to completed, so the list reads as done.
+		update_option( 'wpcom_ai_launchpad_skipped_tasks', array( 'first_post_published', 'site_launched' ), false );
+
+		$this->call_api( Requests::GET );
+
+		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ) );
+	}
+
+	/**
+	 * Test that the completion flag latches: once set, reading the launchpad keeps it set even if a task now reads
+	 * incomplete, so a task that un-completes does not bring the launchpad back (only an explicit reset does).
+	 */
+	public function test_completed_flag_is_latched() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		update_option( 'wpcom_ai_launchpad_completed', true, true );
+
+		$this->call_api( Requests::GET );
+
+		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ) );
+	}
+
+	/**
+	 * Test that skipping the final task refreshes the cached flag immediately, so the menu hides on the next page
+	 * load without waiting for another launchpad read.
+	 */
+	public function test_skip_final_task_sets_completed_flag() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ), 'still incomplete after one skip' );
+
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'site_launched' ) );
+		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ), 'complete after skipping the last task' );
+	}
+
+	/**
+	 * Test that skipping the same task twice stores it once.
+	 */
+	public function test_skip_task_is_idempotent() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$repeat = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$this->assertSame( 200, $repeat->get_status(), 'skipping an already-skipped task still succeeds' );
+
+		$this->assertSame( array( 'first_post_published' ), get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+	}
+
+	/**
+	 * Test that the synthetic tasks (absent from the AI payload by design) are skippable too.
+	 */
+	public function test_skip_task_accepts_synthetic_gallery_task() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_gallery_output( 'portfolio', 'wildlife photography' );
+
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'add_gallery_page' ) );
+		$this->assertSame( 200, $result->get_status() );
+
+		$tasks = array();
+		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
+			$tasks[ $task['id'] ] = $task;
+		}
+
+		$this->assertTrue( $tasks['add_gallery_page']['skipped'] );
+		$this->assertTrue( $tasks['add_gallery_page']['completed'] );
+	}
+
+	/**
+	 * Test that POST /skip-task rejects a task that is neither on the site's AI list nor synthetic.
+	 */
+	public function test_skip_task_rejects_task_not_on_list() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'earn_money' ) );
+
+		$this->assertSame( 404, $result->get_status() );
+		$this->assertSame( 'ai_launchpad_task_not_skippable', $result->get_data()['code'] );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+	}
+
+	/**
+	 * Test that writing a fresh tailored list clears the previous list's skips and the cached completion flag (a new
+	 * all-incomplete list is never done).
+	 */
+	public function test_tailored_write_clears_skips_and_completed_flag() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
+		$this->assertNotFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+		update_option( 'wpcom_ai_launchpad_completed', true, true );
+
+		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload() );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
+	}
+
+	/**
+	 * Test that the add_subscribe_block CTA is repointed to the editor surface where the Subscribe block
+	 * can actually be added (the catalog sends it to Newsletter settings, where it cannot). On the test
+	 * environment's classic theme that surface is the block-based widget editor.
+	 */
+	public function test_get_overrides_subscribe_block_cta() {
+		wp_set_current_user( $this->admin_id );
+
+		$paths = array();
+		foreach ( $this->call_api( Requests::GET, '', null, array( 'all_tasks' => '1' ) )->get_data()['tasks'] as $task ) {
+			$paths[ $task['id'] ] = $task['calypso_path'];
+		}
+
+		$this->assertSame( admin_url( 'widgets.php' ), $paths['add_subscribe_block'] );
+	}
+
+	/**
 	 * Test that DELETE removes the AI output, sets dismissed, and leaves statuses untouched.
 	 */
 	public function test_delete_dismisses_and_keeps_statuses() {
@@ -849,12 +1665,16 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			false
 		);
 		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
+		update_option( 'wpcom_ai_launchpad_skipped_tasks', array( 'site_title' ), false );
+		update_option( 'wpcom_ai_launchpad_completed', true, true );
 
 		$result = $this->call_api( Requests::DELETE );
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( array( 'dismissed' => true ), $result->get_data() );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_ai_output' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
 		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_dismissed' ) );
 		$this->assertSame( array( 'first_post_published' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
 	}

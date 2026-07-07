@@ -80,7 +80,12 @@ export default function ContentCreationCard(): JSX.Element {
 					{ isEnabled && (
 						<>
 							<Stack direction="row" gap="md" className="jetpack-social-settings__card-actions">
-								<Button variant="outline" size="compact" render={ <a href={ newNoteUrl } /> }>
+								<Button
+									variant="outline"
+									size="compact"
+									nativeButton={ false }
+									render={ <a href={ newNoteUrl } /> }
+								>
 									{ __( 'Create a note', 'jetpack-publicize-pkg' ) }
 								</Button>
 							</Stack>

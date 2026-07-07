@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.40.5] - 2026-07-06
+### Changed
+- Consume the resolved actions from the Connection package instead of duplicating the action-resolution logic. [#50081]
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+### Fixed
+- De-duplicate search results so a product no longer appears twice (e.g. Forms, VideoPress). [#50056]
+- Products: Keep product search result order stable while typing a category name. [#50058]
+
 ## [5.40.4] - 2026-06-29
 ### Changed
 - Update dependencies. [#46951]
@@ -2754,6 +2763,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.40.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.4...5.40.5
 [5.40.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.3...5.40.4
 [5.40.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.2...5.40.3
 [5.40.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.1...5.40.2

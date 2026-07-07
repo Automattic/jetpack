@@ -1,0 +1,116 @@
+/* The select popup portals to <body>, where it paints behind admin-ui's
+ * `z-index: 1` Page unless this consumer opt-in variable is set (globally —
+ * the popup is outside this component's subtree). 1000000 matches the
+ * wp-admin popover layer. */
+:global(:root) {
+	--wp-ui-select-z-index: 1000000;
+}
+
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md, 16px);
+	height: 100%;
+	min-height: 0;
+}
+
+.header {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: flex-start;
+	flex-shrink: 0;
+	gap: var(--wpds-dimension-gap-md, 16px);
+}
+
+/* The metric tab list: a row of cards that wrap (not a text tab bar).
+ * `overflow: visible` overrides the toolkit tablist's horizontal scroll —
+ * the narrow case collapses to the dropdown instead. */
+.tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	min-width: 0;
+	overflow: visible;
+}
+
+/* Dropdown mode (narrow tiles): the selected-metric card is the trigger. */
+.picker {
+	display: flex;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.metricSelect {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+/* Unset the trigger's fixed 40px height and pad it like a card so the stacked
+ * label + value + delta fit. The height lives on the trigger wrapper, whose
+ * rule sits in a low-priority @layer, so this unlayered override wins. */
+.metricSelect [class*="trigger-wrapper"] {
+	height: auto;
+	padding-block: var(--wpds-dimension-padding-sm, 8px);
+}
+
+/* Draw the focus ring inside the card; the default outset ring gets clipped
+ * by the widget chrome's `overflow: auto`. */
+.tab,
+.metricSelect [class*="trigger-wrapper"] {
+	outline-offset: calc(-1 * var(--wpds-border-width-focus, 1.5px));
+}
+
+.metricSelect button {
+	width: 100%;
+	text-align: start;
+}
+
+.tab {
+	height: auto;
+	padding: var(--wpds-dimension-padding-sm, 8px) var(--wpds-dimension-padding-md, 12px);
+	border-radius: var(--wpds-border-radius-md, 4px);
+}
+
+/* Hide the selection underline; the card fill shows selection instead. Older
+ * `@wordpress/ui` rendered the indicator as a per-tab `<svg>`; newer versions
+ * render it as a tablist-level presentation span. Hide whichever is present. */
+.tab > svg {
+	display: none;
+}
+
+.root [role="tablist"] [role="presentation"] {
+	display: none;
+}
+
+.tab:hover {
+	background-color: var(--wpds-color-background-interactive-neutral-weak);
+}
+
+.tab[aria-selected="true"] {
+	background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+}
+
+/* Each tab's content: label stacked over the value + delta, left-aligned. */
+.tabContent {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	align-items: flex-start;
+	text-align: left;
+}
+
+.tabLabel {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+/* Anchors the absolutely positioned loading overlay; fills the room left
+ * under the cards and shrinks with the tile. */
+.chart {
+	position: relative;
+	flex: 1 1 0;
+	min-width: 0;
+	min-height: 0;
+}

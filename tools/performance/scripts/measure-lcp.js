@@ -6,6 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { chromium } from 'playwright';
+import { isDirectInvocation, pairedCommitTimestampMs } from './post-to-codevitals.js';
 import { SCENARIOS, getScenarioUrl } from './scenarios.js';
 import { median as calcMedian, mean as calcMean, stdDev as calcStdDev } from './stats.js';
 
@@ -250,27 +251,102 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 		);
 	}
 
-	const lcpValues = validResults.map( r => r.lcp );
-
-	// Calculate statistics using shared utilities
-	const median = calcMedian( lcpValues );
-	const mean = calcMean( lcpValues );
-	const stdDev = calcStdDev( lcpValues );
-	const min = Math.min( ...lcpValues );
-	const max = Math.max( ...lcpValues );
-
 	return {
-		summary: {
-			median: Math.round( median ),
-			mean: Math.round( mean ),
-			min: Math.round( min ),
-			max: Math.round( max ),
-			stdDev: Math.round( stdDev ),
-			successfulIterations: validResults.length,
-			totalIterations: iterations,
-		},
+		summary: buildSummary( validResults, iterations ),
 		results,
 		url,
+	};
+}
+
+/**
+ * Metric fields aggregated into the summary. LCP stays first: it is the load-bearing
+ * value (unchanged), and it also populates the flat top-level summary for backward-compat.
+ * TTFB and FCP are already captured per iteration (see the page.evaluate block above);
+ * this is where they finally get aggregated into the summary.
+ */
+const SUMMARY_FIELDS = [ 'lcp', 'ttfb', 'fcp' ];
+
+/**
+ * Read one metric field from a single iteration's result.
+ *
+ * LCP lives at the top level (r.lcp) exactly as before, so its value source is byte-for-byte
+ * unchanged; the other Core Web Vitals come from the captured per-iteration `metrics` block.
+ *
+ * @param {object} result - One entry from the measureLCP results array.
+ * @param {string} field  - Metric field name (e.g. 'lcp', 'ttfb', 'fcp').
+ * @return {number|null|undefined} The raw value, or null/undefined when the browser had none.
+ */
+function readIterationField( result, field ) {
+	if ( field === 'lcp' ) {
+		return result.lcp;
+	}
+	return result.metrics ? result.metrics[ field ] : null;
+}
+
+/**
+ * Summary stats for one field across the valid iterations, rounded to whole ms to match
+ * the original LCP-only summary. Non-finite samples (a browser that reported null for a
+ * field on some iteration) are dropped before aggregating. A field whose finite samples do
+ * not cover a MAJORITY of the valid iterations returns null so the caller omits it and the
+ * poster fails closed on the missing field rather than posting a fabricated 0 — or, worse, a
+ * thin value (e.g. a field captured on 1 of 5 runs) as a full "median" with stdDev 0, a
+ * low-confidence point indistinguishable from a real full-sample median in the append-only store.
+ *
+ * @param {Array<number|null|undefined>} values - Raw per-iteration values for the field.
+ * @return {{median:number,mean:number,min:number,max:number,stdDev:number}|null} Rounded stats, or null.
+ */
+function summarizeField( values ) {
+	const finite = values.filter( v => typeof v === 'number' && Number.isFinite( v ) );
+	// Require a STRICT majority of the valid iterations to have produced a finite sample:
+	// finite*2 > n. This keeps single-iteration runs working (1 of 1) while rejecting a thin
+	// field that would otherwise post a lone/minority sample as a trend point — including the
+	// even-count edge (1 of 2, 2 of 4) that a ceil(n/2) floor would let slip through. n=0 also
+	// falls through to null (0 > 0 is false). LCP is unaffected in practice: it is finite on
+	// every valid iteration by construction (validResults already filtered out null LCP).
+	if ( finite.length * 2 <= values.length ) {
+		return null;
+	}
+	return {
+		median: Math.round( calcMedian( finite ) ),
+		mean: Math.round( calcMean( finite ) ),
+		min: Math.round( Math.min( ...finite ) ),
+		max: Math.round( Math.max( ...finite ) ),
+		stdDev: Math.round( calcStdDev( finite ) ),
+	};
+}
+
+/**
+ * Build the measurement summary from the per-iteration results.
+ *
+ * Produces a nested `summary.<field>` block ({ median, mean, min, max, stdDev }) for every
+ * field with finite samples, AND mirrors the LCP block's stats flat on the summary root for
+ * backward-compat: the poster's legacy `metricKey` path and older dashboards read
+ * `summary.median` directly, and it must keep returning the same LCP number as before.
+ *
+ * @param {Array}    validResults - Iteration results already filtered to successful runs.
+ * @param {number}   iterations   - Total iterations attempted (for the summary counters).
+ * @param {string[]} [fields]     - Metric fields to aggregate (defaults to SUMMARY_FIELDS).
+ * @return {object} The summary object.
+ */
+function buildSummary( validResults, iterations, fields = SUMMARY_FIELDS ) {
+	const perField = {};
+	for ( const field of fields ) {
+		const stats = summarizeField( validResults.map( r => readIterationField( r, field ) ) );
+		if ( stats ) {
+			perField[ field ] = stats;
+		}
+	}
+	return {
+		// Flat top-level LCP stats, mirrored for backward-compat (legacy metricKey path +
+		// older readers of summary.median). Nothing above enforces a FINITE LCP (the
+		// validResults filter only drops null/undefined), so in the degenerate case where
+		// every LCP sample is non-finite, perField.lcp is absent: the flat mirror is
+		// simply omitted and the poster fails closed on the missing field.
+		...( perField.lcp ?? {} ),
+		successfulIterations: validResults.length,
+		totalIterations: iterations,
+		// Per-field nested blocks for the multi-metric poster path (reads summary.<field>.median).
+		...perField,
 	};
 }
 
@@ -382,10 +458,7 @@ async function main() {
 				: { enabled: false },
 		},
 		measurements,
-		git: {
-			hash: process.env.GIT_COMMIT || 'unknown',
-			branch: process.env.GIT_BRANCH || 'unknown',
-		},
+		git: resolveResultsGit( process.env ),
 	};
 
 	fs.writeFileSync( outputPath, JSON.stringify( output, null, 2 ) );
@@ -395,9 +468,35 @@ async function main() {
 	process.exit( hasFailures ? 1 : 0 );
 }
 
-main().catch( error => {
-	console.error( 'Fatal error:', error );
-	process.exit( 1 );
-} );
+/**
+ * Build the `git` block written into the results file from the environment.
+ *
+ * The commit time is stamped ONLY when paired with a GIT_COMMIT hash, via the shared
+ * pairedCommitTimestampMs rule (mirrors the runner's resolveCommitTimestampEnv and the
+ * poster's config gate). This is the DOMINANT timestamp channel: the poster PREFERS this
+ * results.git.timestamp over its own env fallback, so a lone/stale inherited
+ * GIT_COMMIT_TIMESTAMP_MS written here would backdate the append-only trend regardless of
+ * the poster-side guard. A lone value is dropped to undefined (JSON.stringify omits it);
+ * the poster then warns and falls back to build time.
+ *
+ * @param {object} env - Environment object (process.env or a test double).
+ * @return {{hash: string, branch: string, timestamp: (number|undefined)}} The results git block.
+ */
+function resolveResultsGit( env ) {
+	return {
+		hash: env.GIT_COMMIT || 'unknown',
+		branch: env.GIT_BRANCH || 'unknown',
+		timestamp: Number( pairedCommitTimestampMs( env ) ) || undefined,
+	};
+}
 
-export { measureLCP };
+// Run only when executed directly (node measure-lcp.js / pnpm measure), not when imported
+// by the unit tests, so importing resolveResultsGit never launches a browser via main().
+if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
+	main().catch( error => {
+		console.error( 'Fatal error:', error );
+		process.exit( 1 );
+	} );
+}
+
+export { measureLCP, resolveResultsGit, buildSummary };

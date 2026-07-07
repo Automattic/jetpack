@@ -4,6 +4,10 @@
 import { __ } from '@wordpress/i18n';
 import { mapMarker } from '@wordpress/icons';
 
+export type LocationsAttributes = {
+	max?: number;
+};
+
 /**
  * Widget type definition.
  *
@@ -15,9 +19,9 @@ import { mapMarker } from '@wordpress/icons';
  * Date range comes from WidgetRoot's reportParams (the shared dashboard date
  * picker).
  *
- * Known limitations: delta/comparison rows all show 0 (follow-up). Google
- * GeoChart `provinces` resolution is unavailable for some territories (e.g.
- * Taiwan); those fall back to the world map without regional detail.
+ * Known limitation: Google GeoChart `provinces` resolution is unavailable for
+ * some territories (e.g. Taiwan); those fall back to the world map without
+ * regional detail.
  */
 export default {
 	name: 'jpa/locations',

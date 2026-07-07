@@ -124,7 +124,7 @@ class Jetpack_Gutenberg {
 	 * When in doubt, leave it out: omitted blocks simply keep their current eager
 	 * behavior.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.0
 	 * @var string[] Block feature names (directory names, without the `jetpack/` prefix).
 	 */
 	private static $lazy_blocks = array(
@@ -157,7 +157,7 @@ class Jetpack_Gutenberg {
 	 * Blocks that were deferred on the current request and still need to be
 	 * registered just-in-time when first rendered. Keyed by block feature name.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.0
 	 * @var array<string,bool>
 	 */
 	private static $deferred_blocks = array();
@@ -943,7 +943,7 @@ class Jetpack_Gutenberg {
 	 * We will look for such modules in the extensions/ directory.
 	 *
 	 * @since 7.1.0
-	 * @since $$next-version$$ Pure display blocks are deferred on front-end requests and registered on first render.
+	 * @since 16.0 Pure display blocks are deferred on front-end requests and registered on first render.
 	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
@@ -1021,7 +1021,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Recursively register any deferred Jetpack blocks found in a parsed block subtree.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.0
 	 *
 	 * @param array $parsed_block A parsed block (with optional `innerBlocks`).
 	 * @param array $seen_refs    Reusable-block IDs already visited, to guard against cycles.
@@ -1089,7 +1089,7 @@ class Jetpack_Gutenberg {
 	 * Only blocks in self::$lazy_blocks reach this path, and each adds exactly its
 	 * own registration callback to `init`, so this runs that single registration.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.0
 	 *
 	 * @param string $feature Block feature name (directory name without the `jetpack/` prefix).
 	 *
@@ -1137,7 +1137,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Surface lazy-registration mistakes during debugging without adding front-end noise.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.0
 	 *
 	 * @param string $feature Block feature name (directory name without the `jetpack/` prefix).
 	 * @param string $reason  Short reason for the failure.
@@ -1174,7 +1174,7 @@ class Jetpack_Gutenberg {
 	 * REST_REQUEST during parse_request, so REST requests are detected from the
 	 * request URL instead of the constant.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.0
 	 *
 	 * @return bool True for block-editor (non-front-end) contexts, false for plain front-end requests.
 	 */

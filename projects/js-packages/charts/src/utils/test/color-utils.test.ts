@@ -8,6 +8,8 @@ import {
 	parseHslString,
 	parseRgbString,
 	normalizeColorToHex,
+	relativeLuminance,
+	prefersLightText,
 } from '../color-utils';
 
 // Helper to convert hex to HSL tuple using d3-color
@@ -879,5 +881,36 @@ describe( 'normalizeColorToHex', () => {
 		it( 'handles invalid HSL string', () => {
 			expect( normalizeColorToHex( 'hsl(abc, def, ghi)' ) ).toBe( 'hsl(abc, def, ghi)' );
 		} );
+	} );
+} );
+
+describe( 'relativeLuminance', () => {
+	it( 'returns 0 for black and 1 for white', () => {
+		expect( relativeLuminance( '#000000' ) ).toBeCloseTo( 0, 5 );
+		expect( relativeLuminance( '#ffffff' ) ).toBeCloseTo( 1, 5 );
+	} );
+
+	it( 'returns a higher luminance for a lighter color', () => {
+		expect( relativeLuminance( '#98c8df' ) ).toBeGreaterThan( relativeLuminance( '#006dab' ) );
+	} );
+
+	it( 'throws on a malformed hex', () => {
+		expect( () => relativeLuminance( 'not-a-color' ) ).toThrow();
+	} );
+} );
+
+describe( 'prefersLightText', () => {
+	it( 'prefers dark text on light backgrounds', () => {
+		expect( prefersLightText( '#ffffff' ) ).toBe( false );
+		expect( prefersLightText( '#98c8df' ) ).toBe( false );
+	} );
+
+	it( 'prefers light text on dark backgrounds', () => {
+		expect( prefersLightText( '#000000' ) ).toBe( true );
+		expect( prefersLightText( '#006dab' ) ).toBe( true );
+	} );
+
+	it( 'falls back to dark text for malformed colors', () => {
+		expect( prefersLightText( 'var(--token)' ) ).toBe( false );
 	} );
 } );

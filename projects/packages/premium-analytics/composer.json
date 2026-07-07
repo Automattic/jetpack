@@ -10,10 +10,13 @@
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-wp-build-polyfills": "@dev"
+		"automattic/jetpack-wp-build-polyfills": "@dev",
+		"automattic/woocommerce-analytics": "^0.16"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/block-delimiter": "@dev",
+		"automattic/jetpack-device-detection": "@dev",
 		"automattic/phpunit-select-config": "@dev",
 		"automattic/jetpack-test-environment": "@dev"
 	},

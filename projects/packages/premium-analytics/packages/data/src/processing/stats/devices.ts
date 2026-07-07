@@ -1,56 +1,76 @@
+/**
+ * Internal dependencies
+ */
 import { safeParseFloat } from '../../utils/parsing';
-import { coerceStatsRecord, createStatsListDataPoint, emptyStatsReport } from './utils';
+import { coerceStatsRecord, createStatsListDataPoint, normalizeStatsReportSummary } from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
-export type StatsDevicesResponseItem = number;
-
-export type StatsDevicesTopValues = Record< string, StatsDevicesResponseItem > | [];
-
-export type StatsDevicesResponse = {
-	top_values: StatsDevicesTopValues;
-};
-
-export interface StatsDevicesItem extends StatsNormalizedItemBase< null > {
+/**
+ * A single normalized devices row.
+ *
+ * `label` is the raw device key returned by the API (e.g. 'desktop',
+ * 'mobile', 'tablet', or a browser/OS name); callers are responsible
+ * for mapping to display strings and formatting the value for the
+ * requested property.
+ */
+export interface StatsDevicesItem extends StatsNormalizedItemBase {
+	label: string;
 	value: number;
-	key: string;
-	[ key: string ]: unknown;
+	children: null;
 }
 
-function formatStatsDeviceLabel( key: string ) {
-	if ( [ 'iphone', 'ios', 'ipad' ].includes( key ) ) {
-		return key.charAt( 0 ) + key.charAt( 1 ).toUpperCase() + key.slice( 2 );
-	}
-
-	if ( key === 'ie' ) {
-		return key.toUpperCase();
-	}
-
-	return key.charAt( 0 ).toUpperCase() + key.slice( 1 );
+/**
+ * Parse the `top_values` object returned by `stats/devices/{property}`.
+ *
+ * The API returns a plain object where each key is a device type and
+ * the value depends on the requested property. For example, `screensize`
+ * returns percentage shares while `browser` and `platform` return counts:
+ * ```json
+ * { "desktop": 85.9, "mobile": 13.5, "tablet": 0.5 }
+ * ```
+ *
+ * Items are sorted descending by value.
+ *
+ * @param topValues - Raw top_values object from the API.
+ * @return Normalized device items.
+ */
+function parseTopValues( topValues: Record< string, unknown > ): StatsDevicesItem[] {
+	return Object.entries( topValues )
+		.map( ( [ key, value ] ) => ( {
+			label: key,
+			value: safeParseFloat( value ),
+			children: null as null,
+		} ) )
+		.filter( item => item.label )
+		.sort( ( a, b ) => b.value - a.value );
 }
 
+/**
+ * Normalize a `stats/devices/{property}` response into the shared
+ * `StatsNormalizedReport` shape.
+ *
+ * Actual API shape:
+ * ```json
+ * { "top_values": { "desktop": 85.9, "mobile": 13.5, "tablet": 0.5 } }
+ * ```
+ *
+ * `top_values` is a plain object (dict), not an array.
+ *
+ * @param response - Raw WPCOM Stats API response.
+ * @param query    - Stats query params (used to detect summarize mode).
+ * @return Normalized report.
+ */
 export function sanitizeStatsDevicesResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsDevicesItem > {
 	const payload = coerceStatsRecord( response );
 	const topValues = coerceStatsRecord( payload.top_values );
+	const items = parseTopValues( topValues );
 
-	if ( Object.keys( topValues ).length ) {
-		const items = Object.entries( topValues ).map( ( [ key, value ] ) => ( {
-			key,
-			label: formatStatsDeviceLabel( key ),
-			value: safeParseFloat( value ),
-			children: null,
-		} ) );
-
-		return {
-			summary: {
-				total: items.reduce( ( total, item ) => total + item.value, 0 ),
-			},
-			data: [ createStatsListDataPoint( response, query, items ) ],
-		};
-	}
-
-	return emptyStatsReport< StatsDevicesItem >();
+	return {
+		summary: normalizeStatsReportSummary( response, query ),
+		data: items.length ? [ createStatsListDataPoint( response, query, items ) ] : [],
+	};
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Launchpad: point the theme-picker tasks at the themes showcase pre-filtered by the AI-inferred niche, so the theme list feels relevant to what the user is building.

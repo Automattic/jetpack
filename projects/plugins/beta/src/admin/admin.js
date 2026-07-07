@@ -23,7 +23,7 @@
 		hide( element );
 		element.querySelector( '.activate-branch' ).setAttribute( 'data-index', index );
 		pr_index[ index ] = {
-			header: element.querySelector( '.branch-card-header' ).textContent,
+			header: element.querySelector( '.branch-card-version' ).textContent,
 			key: element.getAttribute( 'data-pr' ),
 			element: element,
 		};
@@ -34,7 +34,7 @@
 		hide( element );
 		element.querySelector( '.activate-branch' ).setAttribute( 'data-index', index );
 		release_index[ index ] = {
-			header: element.querySelector( '.branch-card-header' ).textContent,
+			header: element.querySelector( '.branch-card-version' ).textContent,
 			key: element.getAttribute( 'data-release' ),
 			element: element,
 		};
@@ -93,7 +93,7 @@
 	function show_found( search_for, section, found ) {
 		const element = found.element;
 		const header_text = /^ *[0-9]+ *$/.test( search_for ) ? `${ found.key }` : found.header;
-		const class_selector = '.branch-card-header';
+		const class_selector = '.branch-card-version';
 
 		const found_position = header_text.toLowerCase().indexOf( search_for.toLowerCase() );
 		if ( -1 === found_position ) {
