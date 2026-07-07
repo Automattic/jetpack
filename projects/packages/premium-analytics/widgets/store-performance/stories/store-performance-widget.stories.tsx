@@ -1,6 +1,5 @@
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
-import { DEFAULT_METRICS } from '@jetpack-premium-analytics/widgets-toolkit';
 import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
@@ -48,7 +47,6 @@ function getStorePerformanceAttributes(
 ): StorePerformanceRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
-		metrics: DEFAULT_METRICS,
 	};
 }
 
@@ -72,12 +70,10 @@ function getDefaultQueryParamsSource( {
 
 function getStorePerformanceSource( args: Partial< StorePerformanceStoryControls > ) {
 	return `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import { DEFAULT_METRICS } from '@jetpack-premium-analytics/widgets-toolkit';
 
 <StorePerformanceRender
 \tattributes={ {
 \t\treportParams: ${ getDefaultQueryParamsSource( args ) },
-\t\tmetrics: DEFAULT_METRICS,
 \t} }
 />`;
 }
@@ -209,7 +205,6 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 		docs: {
 			source: {
 				code: `import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import { DEFAULT_METRICS } from '@jetpack-premium-analytics/widgets-toolkit';
 
 <WidgetDashboardWithWidget
 \twidgetType={ widgetDefinition }
@@ -217,7 +212,6 @@ import { DEFAULT_METRICS } from '@jetpack-premium-analytics/widgets-toolkit';
 \trenderComponent={ StorePerformanceRender }
 \tattributes={ {
 \t\treportParams: getDefaultQueryParams( true ),
-\t\tmetrics: DEFAULT_METRICS,
 \t} }
 />`,
 			},

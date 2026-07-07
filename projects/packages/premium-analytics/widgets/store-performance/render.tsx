@@ -12,15 +12,17 @@ import {
 	WidgetLoadingOverlay,
 	buildTimeSeriesChartData,
 	getFormatByMetricKey,
+	useWidgetError,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
 	type TimeSeriesData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import styles from './styles.module.scss';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps } from 'react';
 
 /** Fallback chart format; each metric supplies its own via `getFormatByMetricKey`. */
 const DEFAULT_DATA_FORMAT = {
@@ -30,38 +32,26 @@ const DEFAULT_DATA_FORMAT = {
 
 type StorePerformanceMetric = ( typeof DEFAULT_METRICS )[ number ];
 
-type StorePerformanceAttributes = Partial< ReportParamsFieldAttributes > & {
-	metrics?: StorePerformanceMetric[];
+// Report params (date range + comparison) arrive from the host via WidgetRoot;
+// the widget persists no own attributes. `setError` surfaces load failures in
+// the dashboard frame, matching the other analytics widgets.
+type StorePerformanceRenderProps = WidgetRenderProps< Partial< ReportParamsFieldAttributes > > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-type StorePerformanceRenderProps = WidgetRenderProps< StorePerformanceAttributes >;
-
-type OrdersByDateResponse = ReportDataMap[ 'orders' ];
+/** The `{ primary, comparison }` pair every report hook returns. */
+type ReportPair< H extends ( ...args: never[] ) => { primary: unknown; comparison: unknown } > =
+	Pick< ReturnType< H >, 'primary' | 'comparison' >;
 
 type DataSources = {
-	general: {
-		primary: ReturnType< typeof useReportOrders >[ 'primary' ];
-		comparison: ReturnType< typeof useReportOrders >[ 'comparison' ];
-	};
-	booking: {
-		primary: ReturnType< typeof useReportOrders >[ 'primary' ];
-		comparison: ReturnType< typeof useReportOrders >[ 'comparison' ];
-	};
-	visitors: {
-		primary: ReturnType< typeof useReportVisitors >[ 'primary' ];
-		comparison: ReturnType< typeof useReportVisitors >[ 'comparison' ];
-	};
-	conversion: {
-		primary: ReturnType< typeof useReportConversionRate >[ 'primary' ];
-		comparison: ReturnType< typeof useReportConversionRate >[ 'comparison' ];
-	};
-	customers: {
-		primary: ReturnType< typeof useReportCustomersByDate >[ 'primary' ];
-		comparison: ReturnType< typeof useReportCustomersByDate >[ 'comparison' ];
-	};
+	general: ReportPair< typeof useReportOrders >;
+	booking: ReportPair< typeof useReportOrders >;
+	visitors: ReportPair< typeof useReportVisitors >;
+	conversion: ReportPair< typeof useReportConversionRate >;
+	customers: ReportPair< typeof useReportCustomersByDate >;
 };
 
-function getDefaultOrdersReportData(): OrdersByDateResponse {
+function getDefaultOrdersReportData(): ReportDataMap[ 'orders' ] {
 	return {
 		summary: {
 			date_start: '',
@@ -201,7 +191,7 @@ function StorePerformanceContent( {
 }: {
 	metrics?: StorePerformanceMetric[];
 } ) {
-	const { reportParams, setError } = useWidgetRootContext();
+	const { reportParams } = useWidgetRootContext();
 
 	const enabledMetrics = useMemo( () => metrics.filter( metric => metric.enabled ), [ metrics ] );
 	const metricTypes = useMemo(
@@ -265,31 +255,15 @@ function StorePerformanceContent( {
 		]
 	);
 	const isError = activeReports.some( report => report.isError );
+	const error = activeReports.map( report => report.error ).find( Boolean ) ?? null;
 	const refetch = useCallback(
 		() => Promise.all( activeReports.map( report => report.refetch() ) ),
 		[ activeReports ]
 	);
 
-	useEffect( () => {
-		if ( ! isError ) {
-			setError?.( null );
-			return;
-		}
-
-		setError?.( {
-			message: __(
-				"We couldn't load this data. Please try again in a moment.",
-				'jetpack-premium-analytics'
-			),
-			action: {
-				label: __( 'Retry', 'jetpack-premium-analytics' ),
-				onClick: () => {
-					setError?.( null );
-					void refetch();
-				},
-			},
-		} );
-	}, [ isError, setError, refetch ] );
+	// Surfaces load failures in the dashboard frame (notice + Retry) and logs the
+	// underlying error; shared with every other analytics widget.
+	const hasError = useWidgetError( isError, error, refetch );
 
 	const enrichedMetrics = useMemo(
 		() =>
@@ -390,8 +364,8 @@ function StorePerformanceContent( {
 		[ enrichedMetrics, dataSources ]
 	);
 
-	if ( isError ) {
-		return null;
+	if ( hasError ) {
+		return null; // Dashboard shows error UI via WidgetErrorBoundary.
 	}
 
 	const isInitialLoading = activeReports.some( report => report.isLoading && ! report.hasData );
@@ -432,10 +406,13 @@ function StorePerformanceContent( {
  * the query client, chart theme, and resolved report params; the local content
  * component renders selectable metrics with a comparison line chart.
  */
-export default function StorePerformanceRender( { attributes = {} }: StorePerformanceRenderProps ) {
+export default function StorePerformanceRender( {
+	attributes = {},
+	setError,
+}: StorePerformanceRenderProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
-			<StorePerformanceContent metrics={ attributes.metrics } />
+		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
+			<StorePerformanceContent />
 		</WidgetRoot>
 	);
 }
