@@ -1001,6 +1001,12 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
 			add_action( 'rest_api_init', array( $this, 'maybe_initialize_rest_jsonapi' ) );
 		}
+
+		// Feature Catalog (Slice 1).
+		if ( class_exists( \Automattic\Jetpack\Features\Features::class ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'features-probes.php';
+			\Automattic\Jetpack\Features\Features::init();
+		}
 	}
 
 	/**
