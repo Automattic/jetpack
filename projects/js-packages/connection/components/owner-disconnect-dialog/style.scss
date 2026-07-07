@@ -13,4 +13,24 @@
 		flex-direction: column;
 		height: 100%;
 	}
+
+	// The @wordpress/ui Card renders as an anchor (the class sits on the <a>
+	// itself). Its own styles live in an `@layer`, which wp-admin's unlayered
+	// global `a` rules override — so restore the prior card-headline styling here.
+	// Font props + color inherit down into the Stack/title.
+	.jp-connection__manage-dialog__action-card {
+		--wp-ui-card-padding: 0;
+
+		font-size: var(--font-body);
+		font-weight: 600;
+		line-height: calc(var(--spacing-base) * 3);
+
+		&,
+		&:hover,
+		&:focus,
+		&:active {
+			color: var(--jp-black);
+			text-decoration: none;
+		}
+	}
 }

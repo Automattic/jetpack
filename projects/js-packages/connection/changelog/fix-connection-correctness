@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix correctness issues in the connection components: resolve a message-listener leak, activate disconnect survey prop validation, and give the disconnect dialog a unique heading id.
