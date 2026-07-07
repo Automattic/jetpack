@@ -39,7 +39,7 @@
 		"@wordpress/element": "8.2.0",
 		"@wordpress/hooks": "4.50.0",
 		"@wordpress/i18n": "6.23.0",
-		"@wordpress/icons": "13.1.0",
+		"@wordpress/icons": "15.1.0",
 		"@wordpress/keycodes": "4.50.0",
 		"@wordpress/url": "4.50.0",
 		"clsx": "2.1.1",

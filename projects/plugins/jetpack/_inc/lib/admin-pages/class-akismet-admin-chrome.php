@@ -189,9 +189,9 @@ class Akismet_Admin_Chrome {
 			.jetpack-admin-page #dolly {
 				float: none;
 				text-align: end;
-				background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+				background: var(--wpds-color-background-surface-neutral-strong, #fff);
 				font-style: italic;
-				color: var(--wpds-color-fg-content-neutral-weak, #87a6bc);
+				color: var(--wpds-color-foreground-content-neutral-weak, #87a6bc);
 				border-bottom: none;
 			}
 			@media (max-width: 659px) {
