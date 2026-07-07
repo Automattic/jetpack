@@ -130,7 +130,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/subscribers/stats',
+			'/subscribers/individual-stats',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
