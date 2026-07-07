@@ -23,17 +23,16 @@ registerReportMocks();
 const ANNUAL_HIGHLIGHTS_RENDER_MODULE = 'storybook/annual-highlights';
 
 // Carry the widget's metadata, including the metric-visibility attribute schema
-// so the dashboard story's settings drawer renders the real checkboxes, and
-// surface the full-bleed presentation so it renders edge-to-edge with its own
-// header instead of inside the host's framed chrome. The attribute schema is
-// typed loosely on the widget definition, so it is cast to the WidgetType shape.
+// so the dashboard story's settings drawer renders the real checkboxes.
+// Presentation is left unset so the host frames the widget and renders its
+// identity (title + icon), matching widget.json. The attribute schema is typed
+// loosely on the widget definition, so it is cast to the WidgetType shape.
 const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
 	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
 	example: widgetDefinition.example,
-	presentation: 'full-bleed' as const,
 };
 
 interface AnnualHighlightsStoryControls {
