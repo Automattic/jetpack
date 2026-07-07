@@ -40,7 +40,7 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 		self::reset_admin_bar_global();
 		remove_action( 'wp_before_admin_bar_render', 'stats_add_link_to_admin_bar_site_menu' );
 		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-		remove_filter( 'user_has_cap', array( $this, 'deny_view_stats' ) );
+		remove_role( 'jetpack_no_stats' );
 		Constants::clear_constants();
 		Status_Cache::clear();
 		wp_set_current_user( 0 );
@@ -56,17 +56,6 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 	 */
 	public function grant_view_stats( $allcaps ) {
 		$allcaps['view_stats'] = true;
-		return $allcaps;
-	}
-
-	/**
-	 * Forces current_user_can( 'view_stats' ) to false for the test.
-	 *
-	 * @param array $allcaps All capabilities of the user.
-	 * @return array
-	 */
-	public function deny_view_stats( $allcaps ) {
-		$allcaps['view_stats'] = false;
 		return $allcaps;
 	}
 
@@ -91,13 +80,21 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 	 * Tests that the Stats link is hidden when the user cannot view Stats.
 	 */
 	public function test_stats_link_hidden_when_user_cannot_view_stats() {
-		add_filter( 'user_has_cap', array( $this, 'deny_view_stats' ) );
+		add_role( 'jetpack_no_stats', 'No Stats', array( 'read' => true ) );
+		$user_id = self::factory()->user->create(
+			array(
+				'role' => 'jetpack_no_stats',
+			)
+		);
+		wp_set_current_user( $user_id );
+
 		$admin_bar = self::make_test_admin_bar_with_dashboard();
 
 		do_action( 'wp_before_admin_bar_render' );
 
 		$stats_node = $admin_bar->get_node( 'jetpack-stats' );
 
+		$this->assertFalse( current_user_can( 'view_stats' ) );
 		$this->assertNull( $stats_node );
 	}
 
