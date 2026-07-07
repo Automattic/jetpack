@@ -108,8 +108,10 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 	background: repeating-linear-gradient(90deg, #e8e8e8 0, #e8e8e8 47px, #d4d4d4 47px, #d4d4d4 48px);
 }
 
-// The filmstrip proper: equal-width tiles flex-stretched across the content
-// width, so zooming stretches them with no re-extraction.
+// The filmstrip proper: equal-width tiles flexed across the content width.
+// Each tile paints a pixel-based cover-crop of its sprite cell (or an
+// object-fit: cover <img> in extraction mode), so zooming widens the crop
+// window — pixels are never stretched or upscaled.
 .vp-studio-timeline__filmstrip {
 	display: flex;
 	height: 100%;

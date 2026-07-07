@@ -4,10 +4,14 @@
  * all tracks (trim handles, shrouds, cut segments), and a 1px playhead line.
  *
  * Geometry: the full master duration maps onto `viewportWidth * zoom` pixels
- * of content inside an `overflow-x` scroller (zoom 1 = fit). Zooming — via
- * the toolbar slider or modifier+wheel — keeps the time under the playhead
- * stationary on screen by compensating `scrollLeft`; a plain vertical wheel
- * scrolls the strip. Pointer-down/drag on empty ruler/track area scrubs the
+ * of content inside an `overflow-x` scroller (zoom 1 = fit). Zoom is capped
+ * at the filmstrip's native tile density (getFilmstripZoomMax) so tiles can
+ * never be upscaled; the cap is re-derived — and the effective zoom
+ * re-clamped — every render, so it self-heals when the strip resolves
+ * asynchronously or the viewport resizes. Zooming — via the toolbar slider
+ * or modifier+wheel — keeps the time under the playhead stationary on
+ * screen by compensating `scrollLeft`; a plain vertical wheel scrolls the
+ * strip. Pointer-down/drag on empty ruler/track area scrubs the
  * playhead (paused seeks are unconstrained on the master, by design — that's
  * how handles get placed outside the current trim window).
  *
@@ -22,13 +26,12 @@ import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { formatTimecode, getPxPerMs, msToPx } from '../state/time-utils';
 import StudioEditorEditOverlay from './edit-overlay';
-import StudioEditorFilmstripTrack from './filmstrip-track';
+import StudioEditorFilmstripTrack, { getFilmstripZoomMax } from './filmstrip-track';
 import StudioEditorTimeRuler from './time-ruler';
 import StudioEditorTimelineToolbar from './toolbar';
 import { useElementWidth } from './use-element-width';
 import { NUDGE_LARGE_MS, NUDGE_MS, useKeyboardShortcuts } from './use-keyboard-shortcuts';
 import { useTimelinePointerDrag } from './use-pointer-drag';
-import { MAX_ZOOM } from './zoom-control';
 import './style.scss';
 import type { FilmstripState } from '../../../hooks/use-filmstrip';
 import type { EditSession, EditSessionAction } from '../state/edit-session';
@@ -113,17 +116,24 @@ export default function StudioEditorTimeline( {
 	const [ scrollerEl, setScrollerEl ] = useState< HTMLDivElement | null >( null );
 	const contentRef = useRef< HTMLDivElement | null >( null );
 
+	// The filmstrip's native tile density is the zoom ceiling. Derived (not
+	// stored) and clamped at derivation, so a `zoom` state that overshoots —
+	// the storyboard resolving mid-session, the viewport growing — heals on
+	// the next render with no state-sync effect.
+	const zoomMax = getFilmstripZoomMax( filmstrip, durationMs, viewportWidth );
+	const effectiveZoom = Math.min( zoom, zoomMax );
+
 	// Refs mirroring live values, so the zoom math and the non-passive wheel
 	// listener never work from stale closures.
 	const currentMsRef = useRef( currentMs );
 	currentMsRef.current = currentMs;
-	const zoomRef = useRef( zoom );
-	zoomRef.current = zoom;
+	const zoomRef = useRef( effectiveZoom );
+	zoomRef.current = effectiveZoom;
 	// scrollLeft to apply after the content re-renders at the new width.
 	const pendingScrollRef = useRef< number | null >( null );
 
-	const pxPerMs = getPxPerMs( viewportWidth, zoom, durationMs );
-	const contentWidth = viewportWidth > 0 ? viewportWidth * zoom : 0;
+	const pxPerMs = getPxPerMs( viewportWidth, effectiveZoom, durationMs );
+	const contentWidth = viewportWidth > 0 ? viewportWidth * effectiveZoom : 0;
 
 	const scrollerRef = useCallback(
 		( element: HTMLDivElement | null ) => {
@@ -138,13 +148,16 @@ export default function StudioEditorTimeline( {
 	// solve for the scrollLeft that reproduces it at the new one.
 	const applyZoom = useCallback(
 		( requested: number ) => {
-			const next = Math.min( MAX_ZOOM, Math.max( 1, requested ) );
+			const next = Math.min( zoomMax, Math.max( 1, requested ) );
 			setZoom( previous => {
 				if ( next === previous ) {
 					return previous;
 				}
 				if ( scrollerEl && viewportWidth > 0 && durationMs > 0 ) {
-					const oldPx = getPxPerMs( viewportWidth, previous, durationMs );
+					// The playhead anchor must be measured at the zoom actually
+					// on screen, which is the cap whenever `previous` overshoots
+					// it (the render clamps the same way).
+					const oldPx = getPxPerMs( viewportWidth, Math.min( previous, zoomMax ), durationMs );
 					const newPx = getPxPerMs( viewportWidth, next, durationMs );
 					const screenX = msToPx( currentMsRef.current, oldPx ) - scrollerEl.scrollLeft;
 					pendingScrollRef.current = msToPx( currentMsRef.current, newPx ) - screenX;
@@ -152,7 +165,7 @@ export default function StudioEditorTimeline( {
 				return next;
 			} );
 		},
-		[ scrollerEl, viewportWidth, durationMs ]
+		[ scrollerEl, viewportWidth, durationMs, zoomMax ]
 	);
 	const applyZoomRef = useRef( applyZoom );
 	applyZoomRef.current = applyZoom;
@@ -246,7 +259,7 @@ export default function StudioEditorTimeline( {
 		},
 		{
 			id: 'filmstrip',
-			element: <StudioEditorFilmstripTrack filmstrip={ filmstrip } />,
+			element: <StudioEditorFilmstripTrack filmstrip={ filmstrip } trackWidth={ contentWidth } />,
 		},
 	];
 
@@ -259,7 +272,8 @@ export default function StudioEditorTimeline( {
 				canAddCut={ currentMs >= session.trimStartMs && currentMs <= session.trimEndMs }
 				onAddCut={ () => dispatch( { type: 'ADD_CUT', atMs: currentMs } ) }
 				onSeek={ seekClamped }
-				zoom={ zoom }
+				zoom={ effectiveZoom }
+				zoomMax={ zoomMax }
 				onZoomChange={ applyZoom }
 				onFit={ () => applyZoom( 1 ) }
 			/>

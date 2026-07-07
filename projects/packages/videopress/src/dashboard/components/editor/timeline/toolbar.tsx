@@ -19,6 +19,8 @@ type Props = {
 	onSeek: ( ms: number ) => void;
 	/** Current zoom factor (1 = fit). */
 	zoom: number;
+	/** Maximum zoom factor (the filmstrip's native-density ceiling). */
+	zoomMax: number;
 	/** Called with the requested zoom factor. */
 	onZoomChange: ( zoom: number ) => void;
 	/** Called when the user asks to fit the whole duration in the viewport. */
@@ -34,6 +36,7 @@ type Props = {
  * @param props.onAddCut     - Called when "New cut" is pressed.
  * @param props.onSeek       - Called with the parsed timecode position in ms.
  * @param props.zoom         - Current zoom factor.
+ * @param props.zoomMax      - Maximum zoom factor.
  * @param props.onZoomChange - Called with the requested zoom factor.
  * @param props.onFit        - Called when "Fit" is pressed.
  * @return The toolbar element.
@@ -44,6 +47,7 @@ export default function StudioEditorTimelineToolbar( {
 	onAddCut,
 	onSeek,
 	zoom,
+	zoomMax,
 	onZoomChange,
 	onFit,
 }: Props ): ReactElement {
@@ -59,7 +63,12 @@ export default function StudioEditorTimelineToolbar( {
 				{ __( 'New cut', 'jetpack-videopress-pkg' ) }
 			</Button>
 			<StudioEditorTimecodeBox valueMs={ currentMs } onSeek={ onSeek } />
-			<StudioEditorZoomControl zoom={ zoom } onZoomChange={ onZoomChange } onFit={ onFit } />
+			<StudioEditorZoomControl
+				zoom={ zoom }
+				zoomMax={ zoomMax }
+				onZoomChange={ onZoomChange }
+				onFit={ onFit }
+			/>
 		</div>
 	);
 }

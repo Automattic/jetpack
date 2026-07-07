@@ -3,13 +3,16 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createEditSession, editSessionReducer } from '../../state/edit-session';
 import StudioEditorTimeline from '../timeline';
+import type { FilmstripState } from '../../../../hooks/use-filmstrip';
 import type { EditSession } from '../../state/edit-session';
 import type { StudioEditorTimelineProps } from '../timeline';
 
-// jsdom reports zero layout, so inject a fixed 1000px viewport: with the 10s
-// sessions below, zoom 1 gives pxPerMs 0.1 (1px = 10ms).
+// jsdom reports zero layout, so inject the viewport width: with the 10s
+// sessions below at the default 1000px, zoom 1 gives pxPerMs 0.1
+// (1px = 10ms). Mutable so resize tests can re-render at a new width.
+let mockViewportWidth = 1000;
 jest.mock( '../use-element-width', () => ( {
-	useElementWidth: () => ( { ref: () => {}, width: 1000 } ),
+	useElementWidth: () => ( { ref: () => {}, width: mockViewportWidth } ),
 } ) );
 
 // jsdom (27) ships PointerEvent but not the pointer-capture element APIs the
@@ -20,6 +23,10 @@ beforeAll( () => {
 		releasePointerCapture: () => {},
 		hasPointerCapture: () => false,
 	} );
+} );
+
+beforeEach( () => {
+	mockViewportWidth = 1000;
 } );
 
 /**
@@ -49,10 +56,33 @@ function sessionWithCut(): EditSession {
 }
 
 /**
+ * A storyboard filmstrip whose 160×80 tiles give a round zoom cap: each
+ * cell renders 128px wide at the 64px row, so the cap is
+ * `tiles × 128 / viewport`.
+ *
+ * @param tiles - Total sprite tile count.
+ * @return The storyboard filmstrip state.
+ */
+function storyboardFilmstrip( tiles: number ): FilmstripState {
+	return {
+		status: 'storyboard',
+		storyboard: {
+			url: 'https://example.com/sprite.jpg',
+			tile_width: 160,
+			tile_height: 80,
+			tiles,
+			columns: 10,
+			rows: Math.max( 1, Math.ceil( tiles / 10 ) ),
+			interval_ms: 1000,
+		},
+	};
+}
+
+/**
  * Render the timeline with spy collaborators.
  *
  * @param overrides - Prop overrides for this test.
- * @return The spies.
+ * @return The spies and a same-props rerender helper.
  */
 function renderTimeline( overrides: Partial< StudioEditorTimelineProps > = {} ) {
 	const dispatch = jest.fn();
@@ -66,8 +96,13 @@ function renderTimeline( overrides: Partial< StudioEditorTimelineProps > = {} ) 
 		onTogglePlay,
 		...overrides,
 	};
-	render( <StudioEditorTimeline { ...props } /> );
-	return { dispatch, onSeek, onTogglePlay };
+	const view = render( <StudioEditorTimeline { ...props } /> );
+	return {
+		dispatch,
+		onSeek,
+		onTogglePlay,
+		rerender: () => view.rerender( <StudioEditorTimeline { ...props } /> ),
+	};
 }
 
 describe( 'StudioEditorTimeline', () => {
@@ -152,22 +187,23 @@ describe( 'StudioEditorTimeline', () => {
 		);
 	} );
 
-	it( 'zooms via the slider and restores fit', () => {
-		renderTimeline();
+	it( 'zooms via the slider up to the filmstrip cap and restores fit', () => {
+		// 50 storyboard tiles × 128px native width / 1000px viewport → cap 6.4.
+		renderTimeline( { filmstrip: storyboardFilmstrip( 50 ) } );
 		const content = screen.getByTestId( 'studio-timeline-content' );
 
-		// Slider midpoint on the log scale = zoom 10 → 10× the fit width.
+		// Full slider travel lands exactly on the cap, not the old fixed 100×.
 		fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
-			target: { value: '50' },
+			target: { value: '100' },
 		} );
-		expect( content ).toHaveStyle( { width: '10000px' } );
+		expect( content ).toHaveStyle( { width: '6400px' } );
 
 		fireEvent.click( screen.getByRole( 'button', { name: 'Fit' } ) );
 		expect( content ).toHaveStyle( { width: '1000px' } );
 	} );
 
 	it( 'zooms with modifier+wheel and scrolls with a plain wheel', () => {
-		renderTimeline();
+		renderTimeline( { filmstrip: storyboardFilmstrip( 50 ) } );
 		const content = screen.getByTestId( 'studio-timeline-content' );
 		const scroller = screen.getByTestId( 'studio-timeline-scroller' );
 
@@ -180,6 +216,79 @@ describe( 'StudioEditorTimeline', () => {
 		expect( scroller.scrollLeft ).toBe( 60 );
 		// Plain wheel must not zoom.
 		expect( parseFloat( content.style.width ) ).toBe( zoomedWidth );
+	} );
+
+	describe( 'zoom cap', () => {
+		it( 'clamps modifier+wheel zoom at the filmstrip cap', () => {
+			renderTimeline( { filmstrip: storyboardFilmstrip( 50 ) } );
+			const scroller = screen.getByTestId( 'studio-timeline-scroller' );
+
+			// exp(20) ≈ 4.9e8 — astronomically past the 6.4 cap.
+			fireEvent.wheel( scroller, { ctrlKey: true, deltaY: -10000 } );
+			expect( screen.getByTestId( 'studio-timeline-content' ) ).toHaveStyle( {
+				width: '6400px',
+			} );
+		} );
+
+		it( 'caps zoom from the duration while the filmstrip is loading', () => {
+			// No dimensions yet: assume 1s-per-tile 16:9 cells, so a 10s video
+			// caps at 10 × (64 × 16/9) / 1000 ≈ 1.138.
+			renderTimeline( { filmstrip: { status: 'loading' } } );
+
+			fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
+				target: { value: '100' },
+			} );
+			const width = parseFloat( screen.getByTestId( 'studio-timeline-content' ).style.width );
+			expect( width ).toBeCloseTo( ( 10 * 64 * 16 ) / 9, 6 );
+		} );
+
+		it( 'derives the cap from the frame count in frames mode', () => {
+			// 30 extracted frames at the 16:9 assumption → cap ≈ 3.413.
+			renderTimeline( {
+				filmstrip: {
+					status: 'frames',
+					frames: Array.from( { length: 30 }, ( _, index ) => `blob:frame-${ index }` ),
+				},
+			} );
+
+			fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
+				target: { value: '100' },
+			} );
+			const width = parseFloat( screen.getByTestId( 'studio-timeline-content' ).style.width );
+			expect( width ).toBeCloseTo( ( 30 * 64 * 16 ) / 9, 6 );
+		} );
+
+		it( 'disables the slider and ignores wheel zoom when the strip already fits', () => {
+			// 5 tiles × 128px = 640px < viewport: no upscale-free zoom range.
+			renderTimeline( { filmstrip: storyboardFilmstrip( 5 ) } );
+			const content = screen.getByTestId( 'studio-timeline-content' );
+
+			expect( screen.getByRole( 'slider', { name: 'Timeline zoom' } ) ).toBeDisabled();
+
+			fireEvent.wheel( screen.getByTestId( 'studio-timeline-scroller' ), {
+				ctrlKey: true,
+				deltaY: -100,
+			} );
+			expect( content ).toHaveStyle( { width: '1000px' } );
+		} );
+
+		it( 're-clamps the effective zoom when the viewport grows', () => {
+			const { rerender } = renderTimeline( { filmstrip: storyboardFilmstrip( 50 ) } );
+			const content = screen.getByTestId( 'studio-timeline-content' );
+
+			fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
+				target: { value: '100' },
+			} );
+			expect( content ).toHaveStyle( { width: '6400px' } );
+
+			// Doubling the viewport halves the cap (6.4 → 3.2). The stored zoom
+			// (6.4) now overshoots; the effective zoom must re-clamp so the
+			// strip tops out at tiles × native width — 6400px — instead of the
+			// unclamped 2000 × 6.4 = 12800px.
+			mockViewportWidth = 2000;
+			rerender();
+			expect( content ).toHaveStyle( { width: '6400px' } );
+		} );
 	} );
 
 	it( 'seeks from the toolbar timecode box', async () => {

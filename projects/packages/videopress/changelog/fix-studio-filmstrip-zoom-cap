@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Cap the Studio timeline zoom at the filmstrip's native tile density and cover-crop storyboard tiles instead of stretching them.
