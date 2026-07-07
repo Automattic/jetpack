@@ -108,10 +108,24 @@
 	font-size: 11px;
 }
 
-// Chapters helper hint reads as supporting copy, not body text.
-.vp-video-details__chapters-hint {
+// Chapters editor: compact time column, full-width titles; guidance and
+// validation issues read as supporting copy, not body text.
+.vp-chapters-editor__time {
+	flex: 0 0 96px;
+}
+
+.vp-chapters-editor__title {
+	flex: 1 1 auto;
+}
+
+.vp-chapters-editor__manual-notice,
+.vp-chapters-editor__issues {
 	color: var(--jp-gray-50, #646970);
-	margin: 0;
+
+	ul {
+		margin: 4px 0 0;
+		padding-left: 20px;
+	}
 }
 
 // Mobile: stack the Thumbnail card's two columns vertically. With the
