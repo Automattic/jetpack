@@ -477,13 +477,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "74e1711653df3561aadf672c5228cb2a2479d0d4"
+                "reference": "ce362d9d8bf97228d5267f8d4a9b05379ff98aa2"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-roles": "@dev",
                 "automattic/jetpack-status": "@dev",
@@ -840,7 +841,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "2520bcc0d3875df8436b0fbef27888e00700b989"
+                "reference": "5f4200e2a8be37fb82bd948a19c6d40c719d52b9"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -853,6 +854,8 @@
                 "php": ">=7.2"
             },
             "require-dev": {
+                "automattic/block-delimiter": "@dev",
+                "automattic/jetpack-device-detection": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"

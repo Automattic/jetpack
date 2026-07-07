@@ -25,7 +25,7 @@ class Jetpack_Premium_Analytics {
 	 * Constructor.
 	 */
 	public function __construct() {
-		Analytics::init( array( 'menu_title' => 'Premium Analytics' ) );
+		Analytics::init( array( 'menu_title' => 'Stats' ) );
 		Cookie_Consent::init();
 	}
 }

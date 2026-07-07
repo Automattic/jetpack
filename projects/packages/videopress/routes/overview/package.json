@@ -10,10 +10,10 @@
 		"@wordpress/components": "36.1.0",
 		"@wordpress/element": "8.2.0",
 		"@wordpress/i18n": "6.23.0",
-		"@wordpress/icons": "13.1.0",
+		"@wordpress/icons": "15.1.0",
 		"@wordpress/route": "0.16.0",
-		"@wordpress/theme": "0.15.1",
-		"@wordpress/ui": "0.13.0",
+		"@wordpress/theme": "0.17.0",
+		"@wordpress/ui": "0.17.0",
 		"@wordpress/url": "4.50.0"
 	},
 	"route": {

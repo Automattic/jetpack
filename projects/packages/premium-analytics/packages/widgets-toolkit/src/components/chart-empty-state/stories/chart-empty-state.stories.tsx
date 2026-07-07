@@ -52,9 +52,9 @@ const WidgetCard = ( {
 		style={ {
 			width,
 			height,
-			border: '1px solid var(--wpds-color-stroke-surface-neutral-weaker, #e0e0e0)',
+			border: '1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0)',
 			borderRadius: 'var(--wpds-border-radius-md, 8px)',
-			background: 'var(--wpds-color-bg-surface-primary, #fff)',
+			background: 'var(--wpds-color-background-surface-neutral-strong, #fff)',
 			display: 'flex',
 			flexDirection: 'column',
 			overflow: 'hidden',
@@ -63,10 +63,10 @@ const WidgetCard = ( {
 		<div
 			style={ {
 				padding: 'var(--wpds-dimension-gap-lg, 16px)',
-				borderBottom: '1px solid var(--wpds-color-stroke-surface-neutral-weaker, #e0e0e0)',
+				borderBottom: '1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0)',
 				fontWeight: 600,
-				fontSize: 'var(--wpds-font-size-sm, 14px)',
-				color: 'var(--wpds-color-fg-content-neutral, #1e1e1e)',
+				fontSize: 'var(--wpds-typography-font-size-sm, 14px)',
+				color: 'var(--wpds-color-foreground-content-neutral, #1e1e1e)',
 			} }
 		>
 			{ title }

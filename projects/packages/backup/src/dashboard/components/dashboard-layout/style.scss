@@ -20,5 +20,5 @@
 // prop, so the dimmed treatment lives here and is applied via className
 // alongside `variant="body-sm"`.
 .jpb-text-muted {
-	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
 }

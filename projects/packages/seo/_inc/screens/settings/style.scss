@@ -32,7 +32,7 @@
 }
 
 .jetpack-seo-settings__sitemap-hint {
-	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
+	color: var(--wpds-color-foreground-content-neutral-weak, #787c82);
 	font-size: 12px;
 }
 
@@ -63,7 +63,7 @@
 
 .jetpack-seo-settings__title-tokens-label {
 	font-size: 12px;
-	color: var(--wpds-color-fg-content-neutral-weak, #787c82);
+	color: var(--wpds-color-foreground-content-neutral-weak, #787c82);
 }
 
 // Right-align the per-section / per-row Save buttons, matching the Newsletter
@@ -112,7 +112,7 @@
 	font-size: 11px;
 	font-weight: 500;
 	text-transform: uppercase;
-	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 }
 
 // The URL input in a Social profiles row takes the remaining width so the
@@ -123,7 +123,7 @@
 }
 
 .jetpack-seo-settings__schema-profile-input--error .components-base-control__help {
-	color: var(--wpds-color-fg-content-error, #d63638);
+	color: var(--wpds-color-foreground-content-error, #d63638);
 }
 
 // Intro copy above the preview list.
@@ -166,7 +166,7 @@
 }
 
 .jetpack-seo-preview__desc {
-	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
 }
 
 // Google search result — bordered around the preview itself (it has none
@@ -216,7 +216,7 @@
 
 	.jetpack-seo-preview__image {
 		block-size: 240px;
-		background-color: var(--wpds-color-bg-surface-neutral, #f0f2f5);
+		background-color: var(--wpds-color-background-surface-neutral, #f0f2f5);
 		background-position: center;
 		background-size: cover;
 	}
@@ -228,13 +228,13 @@
 		// `bg-surface-neutral`, so reusing that token here would read as the same
 		// surface — step down to the weaker surface instead. The preview image
 		// above keeps `bg-surface-neutral`.
-		background: var(--wpds-color-bg-surface-neutral-weak, #f4f4f4);
+		background: var(--wpds-color-background-surface-neutral-weak, #f4f4f4);
 	}
 
 	.jetpack-seo-preview__card-domain {
 		font-size: 12px;
 		text-transform: uppercase;
-		color: var(--wpds-color-fg-content-neutral-weak, #757575);
+		color: var(--wpds-color-foreground-content-neutral-weak, #757575);
 	}
 
 	.jetpack-seo-preview__card-title {
