@@ -12,7 +12,7 @@
 
 		&:any-link,
 		&[role="button"] {
-			color: var(--wpds-color-fg-interactive-neutral-weak);
+			color: var(--wpds-color-foreground-interactive-neutral-weak);
 			cursor: pointer;
 			text-decoration: none;
 		}
@@ -44,6 +44,6 @@ a.jetpack-footer__a8c {
 	}
 
 	svg {
-		fill: var(--wpds-color-fg-interactive-neutral-weak);
+		fill: var(--wpds-color-foreground-interactive-neutral-weak);
 	}
 }
