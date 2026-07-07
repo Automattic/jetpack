@@ -20,11 +20,9 @@ import {
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo } from 'react';
 import styles from './styles.module.scss';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-/**
- * Fallback value/axis format for the chart when a metric doesn't set its own
- * (each store metric supplies a per-metric format via `getFormatByMetricKey`).
- */
+/** Fallback chart format; each metric supplies its own via `getFormatByMetricKey`. */
 const DEFAULT_DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
@@ -36,9 +34,7 @@ type StorePerformanceAttributes = Partial< ReportParamsFieldAttributes > & {
 	metrics?: StorePerformanceMetric[];
 };
 
-type StorePerformanceRenderProps = {
-	attributes?: StorePerformanceAttributes;
-};
+type StorePerformanceRenderProps = WidgetRenderProps< StorePerformanceAttributes >;
 
 type OrdersByDateResponse = ReportDataMap[ 'orders' ];
 
@@ -374,9 +370,8 @@ function StorePerformanceContent( {
 		]
 	);
 
-	// One tab per enabled metric, each with its current + previous series. The
-	// shared MetricTabsChart owns selection and the responsive tabs↔dropdown and
-	// chart↔sparkline switches.
+	// One tab per enabled metric; MetricTabsChart owns selection and the
+	// responsive tabs↔dropdown and chart↔sparkline switches.
 	const metricTabs: MetricTab[] = useMemo(
 		() =>
 			enrichedMetrics.map( metric => {
@@ -437,10 +432,10 @@ function StorePerformanceContent( {
  * the query client, chart theme, and resolved report params; the local content
  * component renders selectable metrics with a comparison line chart.
  */
-export default function StorePerformanceRender( { attributes }: StorePerformanceRenderProps ) {
+export default function StorePerformanceRender( { attributes = {} }: StorePerformanceRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
-			<StorePerformanceContent metrics={ attributes?.metrics } />
+			<StorePerformanceContent metrics={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }

@@ -16,7 +16,7 @@ import { store } from '@wordpress/icons';
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/at-a-glance',
+	name: 'jpa/store-performance',
 	title: __( 'Store performance', 'jetpack-premium-analytics' ),
 	description: __(
 		'Shows key store performance metrics at a glance.',

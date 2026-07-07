@@ -1,5 +1,5 @@
 {
-	"name": "@automattic/jetpack-premium-analytics-widget-analytics-at-a-glance",
+	"name": "@automattic/jetpack-premium-analytics-widget-store-performance",
 	"version": "0.1.0-alpha",
 	"private": true,
 	"type": "module",
