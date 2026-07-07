@@ -21,7 +21,7 @@ export type ModuleToggleProps = {
 // Modules that register a server-rendered wp-admin sidebar item. Toggling them
 // needs a full page reload for the sidebar to reflect the change; the success
 // notice is persisted so it survives the reload.
-const MODULES_REQUIRING_RELOAD = [ 'podcast' ];
+const MODULES_REQUIRING_RELOAD = [ 'podcast', 'subscriptions', 'wpcom-reader' ];
 
 /**
  * Renders a toggle for a Jetpack module.

@@ -139,12 +139,16 @@ describe( 'ModuleToggle', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	it( 'reloads the page after toggling a menu-registering module (Podcast)', async () => {
-		render( <ModuleToggle module={ buildModule() } /> );
+	it.each( [
+		[ 'podcast', 'Podcast' ],
+		[ 'subscriptions', 'Newsletter' ],
+		[ 'wpcom-reader', 'WordPress.com Reader' ],
+	] )( 'reloads the page after toggling the menu-registering %s module', async ( slug, name ) => {
+		render( <ModuleToggle module={ buildModule( { module: slug, name } ) } /> );
 
 		await userEvent.click( screen.getByRole( 'checkbox' ) );
 
-		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'podcast', active: false } );
+		expect( mockToggleModule ).toHaveBeenCalledWith( { name: slug, active: false } );
 		// Persists a notice so it survives the reload, then reloads. No inline notice.
 		expect( setPendingSuccessNotice ).toHaveBeenCalledWith(
 			expect.stringContaining( 'deactivated' )

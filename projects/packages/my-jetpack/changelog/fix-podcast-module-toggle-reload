@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Podcast: reload the page after toggling the Podcast module in My Jetpack so the wp-admin sidebar reflects the change, matching the Forms toggle behavior.
+Reload the page after toggling a menu-registering module (Podcast, Newsletter, Reader) in My Jetpack so the wp-admin sidebar reflects the change, matching the Forms toggle behavior.
