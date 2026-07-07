@@ -593,5 +593,33 @@ add_action(
 				'docs'            => array( 'jetpack' => 'https://jetpack.com/redirect/?source=jetpack-support-wpcom-reader' ),
 			)
 		);
+
+		// Sub-module granularity examples: Forms features beyond the base contact-form module.
+		register_feature(
+			'forms-multistep',
+			array(
+				'title'           => __( 'Multi-step forms', 'jetpack' ),
+				'description'     => __( 'Break long forms into multiple steps for a better completion rate.', 'jetpack' ),
+				'category'        => 'writing',
+				'connection'      => 'none',
+				'module'          => 'contact-form',
+				'available_since' => array( 'jetpack' => '14.2' ),
+				'recommend'       => array( 'high_content_volume' ),
+				'docs'            => array( 'jetpack' => 'https://jetpack.com/redirect/?source=jetpack-support-contact-form' ),
+			)
+		);
+
+		register_feature(
+			'forms-file-uploads',
+			array(
+				'title'       => __( 'File upload field', 'jetpack' ),
+				'description' => __( 'Let visitors attach files to their form submissions.', 'jetpack' ),
+				'category'    => 'writing',
+				'entitlement' => 'field-file',
+				'connection'  => 'user',
+				'module'      => 'contact-form',
+				'docs'        => array( 'jetpack' => 'https://jetpack.com/redirect/?source=jetpack-support-contact-form-export' ),
+			)
+		);
 	}
 );
