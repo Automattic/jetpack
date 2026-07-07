@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Crowdsignal shortcode: render rating settings as data rather than building markup from them.
