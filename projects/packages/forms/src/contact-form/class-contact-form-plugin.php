@@ -237,7 +237,9 @@ class Contact_Form_Plugin {
 			add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-		add_action( 'current_screen', array( $this, 'unread_count' ) );
+		// Priority 1000: after Dashboard::add_admin_submenu() (999) registers the Forms submenu,
+		// but well before the menu-badges renderer (100000) reads the registry.
+		add_action( 'admin_menu', array( $this, 'unread_count' ), 1000 );
 		add_action( 'current_screen', array( $this, 'redirect_edit_feedback_to_jetpack_forms' ) );
 
 		add_filter( 'use_block_editor_for_post_type', array( $this, 'use_block_editor_for_post_type' ), 10, 2 );
@@ -1530,83 +1532,25 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Display the count of new feedback entries received. It's reset when user visits the Feedback screen.
+	 * Report the count of new feedback entries received to the central menu-badges
+	 * registry. It's reset when the user visits the Feedback screen.
 	 *
 	 * @since 4.1.0
 	 */
 	public function unread_count() {
-
-		global $submenu, $menu;
-		if ( current_user_can( 'edit_pages' ) ) {
-			// show the count on Jetpack and Jetpack → Forms
-			$unread = self::get_unread_count();
-
-			if ( isset( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) && ! empty( $submenu['jetpack'] ) ) {
-				$forms_unread_count_tag = $this->get_unread_count_badge_markup( $unread );
-				$jetpack_badge_count    = $unread;
-
-				// Main menu entries
-				foreach ( $menu as $index => $main_menu_item ) {
-					if ( isset( $main_menu_item[1] ) && 'jetpack_admin_page' === $main_menu_item[1] ) {
-						// Parse the menu item
-						$jetpack_menu_item = $this->parse_menu_item( $menu[ $index ][0] );
-
-						if ( isset( $jetpack_menu_item['badge'] ) && is_numeric( $jetpack_menu_item['badge'] ) && intval( $jetpack_menu_item['badge'] ) ) {
-							$jetpack_badge_count += intval( $jetpack_menu_item['badge'] );
-						}
-
-						if ( isset( $jetpack_menu_item['count'] ) && is_numeric( $jetpack_menu_item['count'] ) && intval( $jetpack_menu_item['count'] ) ) {
-							$jetpack_badge_count += intval( $jetpack_menu_item['count'] );
-						}
-
-						if ( $unread > 0 ) {
-							$jetpack_unread_tag = $this->get_unread_count_badge_markup(
-								$jetpack_badge_count,
-								$jetpack_badge_count - $unread
-							);
-
-							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-							$menu[ $index ][0] = $jetpack_menu_item['title'] . ' ' . $jetpack_unread_tag;
-						}
-					}
-				}
-
-				// Jetpack submenu entries
-				if ( $unread > 0 ) {
-					foreach ( $submenu['jetpack'] as $index => $menu_item ) {
-						/** This filter is documented in class-dashboard.php::init */
-						$admin_slug = apply_filters( 'jetpack_forms_alpha', true ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
-						if ( $admin_slug === $menu_item[2] ) {
-							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-							$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
-						}
-					}
-				}
-			}
+		if ( ! current_user_can( 'edit_pages' ) ) {
 			return;
 		}
-	}
-
-	/**
-	 * Build the admin menu unread count badge markup.
-	 *
-	 * Uses the `menu-counter` markup expected by admin color schemes so bubble
-	 * colors render correctly in the sidebar.
-	 *
-	 * @since 7.21.3
-	 *
-	 * @param int      $count         Badge count to display.
-	 * @param int|null $unread_diff   Optional diff for combined Jetpack menu badges.
-	 * @return string Badge HTML.
-	 */
-	private function get_unread_count_badge_markup( $count, $unread_diff = null ) {
-		$attributes = "class='menu-counter jp-feedback-unread-counter count-" . (int) $count . "'";
-
-		if ( null !== $unread_diff ) {
-			$attributes = "data-unread-diff='" . (int) $unread_diff . "' " . $attributes;
-		}
-
-		return " <span {$attributes}><span class='count'>" . number_format_i18n( $count ) . '</span></span>';
+		\Automattic\Jetpack\Menu_Badges\Menu_Badges::init(); // idempotent; wires the renderer.
+		$slug = apply_filters( 'jetpack_forms_alpha', true ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
+		\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
+			'jetpack-forms',
+			array(
+				'menu_slug' => $slug,
+				'count'     => self::get_unread_count(),
+				'type'      => 'count',
+			)
+		);
 	}
 
 	/**
@@ -3936,71 +3880,6 @@ class Contact_Form_Plugin {
 		$should_enable_tracking = $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 
 		return $is_wpcom || $should_enable_tracking;
-	}
-
-	/**
-	 * Jetpack menu item might have a count badge when there are updates available.
-	 * This method parses that information, removes the associated markup and adds it to the response.
-	 * Copied verbatim from WPCOM_REST_API_V2_Endpoint_Admin_Menu::prepare_menu_item.
-	 *
-	 * Also sanitizes the titles from remaining unexpected markup.
-	 *
-	 * @param string $title Title to parse.
-	 * @return array
-	 */
-	private function parse_menu_item( $title ) {
-		$item = array();
-
-		if (
-			str_contains( $title, 'count-' )
-			&& preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches )
-		) {
-
-			$count = (int) ( $matches[1] );
-			if ( $count > 0 ) {
-				// Keep the counter in the item array.
-				$item['count'] = $count;
-			}
-
-			// Finally remove the markup.
-			$title = trim( str_replace( $matches[0], '', $title ) );
-		}
-
-		if (
-			str_contains( $title, 'inline-text' )
-			&& preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches )
-		) {
-
-			$text = $matches[1];
-			if ( $text ) {
-				// Keep the text in the item array.
-				$item['inlineText'] = $text;
-			}
-
-			// Finally remove the markup.
-			$title = trim( str_replace( $matches[0], '', $title ) );
-		}
-
-		if (
-			str_contains( $title, 'awaiting-mod' )
-			&& preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches )
-		) {
-
-			$text = $matches[1];
-			if ( $text ) {
-				// Keep the text in the item array.
-				$item['badge'] = $text;
-			}
-
-			// Finally remove the markup.
-			$title = trim( str_replace( $matches[0], '', $title ) );
-		}
-
-		// It's important we sanitize the title after parsing data to remove any unexpected markup but keep the content.
-		// We are also capitalizing the first letter in case there was a counter (now parsed) in front of the title.
-		$item['title'] = ucfirst( wp_strip_all_tags( $title ) );
-
-		return $item;
 	}
 
 	/**

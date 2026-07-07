@@ -37,6 +37,85 @@ function isAnon() {
 	return typeof window !== 'undefined' && window.wpcomWriteIsAnon === true;
 }
 
+// Approximates the anon editor open — the module loads immediately after the
+// server rendered the page (and fired `wpcom_write_editor_open`). Used as the
+// baseline for `time_to_publish_ms` on the anon publish-click event.
+const ANON_EDITOR_OPENED_AT = typeof Date !== 'undefined' ? Date.now() : 0;
+
+// Guards `wpcom_write_editor_anon_write_start` to once per session.
+let anonWriteStartTracked = false;
+
+/**
+ * Fire a client-side Tracks event via the `_tkq` queue. Anon callers share the
+ * `tk_ai` cookie, so these stitch to the eventual user at signup completion.
+ *
+ * @param {string} name    - Tracks event name.
+ * @param {object} [props] - Optional event properties.
+ */
+function recordTracksEvent( name, props ) {
+	try {
+		window._tkq = window._tkq || [];
+		window._tkq.push( [ 'recordEvent', name, props || {} ] );
+	} catch {
+		// Tracks unavailable — nothing useful to do; swallow.
+	}
+}
+
+// How long to let a Tracks pixel leave the browser before a redirect. wpcom's
+// Tracks client sends via `new Image()`, and the browser cancels in-flight
+// image GETs on unload — so an event fired immediately before navigation can be
+// dropped. 250ms is imperceptible ahead of a full-page handoff to the signup
+// flow, and well within the round-trip a fire-and-forget pixel needs.
+const TRACKS_BEACON_FLUSH_MS = 250;
+
+/**
+ * Fire a Tracks event, then resolve once the pixel has had time to leave the
+ * browser — for events recorded immediately before navigating away (e.g. the
+ * anon publish handoff), where a synchronous redirect would otherwise cancel
+ * the in-flight `new Image()` beacon. Best-effort and bounded: if the Tracks
+ * client hasn't upgraded the queue (nothing will send), it resolves at once so
+ * the handoff is never delayed for a beacon that won't fire.
+ *
+ * @param {string} name    - Tracks event name.
+ * @param {object} [props] - Optional event properties.
+ * @return {Promise<void>} Resolves when it is safe to navigate.
+ */
+function recordTracksEventBeforeUnload( name, props ) {
+	recordTracksEvent( name, props );
+
+	// The real Tracks client replaces `_tkq.push`; until it does, pushes just
+	// pile up in a plain array and no pixel is sent, so there's nothing to wait
+	// for. (This is exactly the pre-loader state we saw on the anon surface.)
+	const tracksActive =
+		typeof window !== 'undefined' && !! window._tkq && window._tkq.push !== Array.prototype.push;
+
+	if ( ! tracksActive || typeof setTimeout === 'undefined' ) {
+		return Promise.resolve();
+	}
+
+	return new Promise( resolve => {
+		setTimeout( resolve, TRACKS_BEACON_FLUSH_MS );
+	} );
+}
+
+/**
+ * Fire `wpcom_write_editor_anon_write_start` once, the first time an anon
+ * visitor types real content. Keeps the funnel's write-through step honest —
+ * an empty editor that's opened and abandoned shouldn't count as a write.
+ *
+ * @param {string} text - Current plain-text content of the editor.
+ */
+function maybeTrackAnonWriteStart( text ) {
+	if ( anonWriteStartTracked || ! isAnon() ) {
+		return;
+	}
+	if ( ! text || ! text.trim() ) {
+		return;
+	}
+	anonWriteStartTracked = true;
+	recordTracksEvent( 'wpcom_write_editor_anon_write_start' );
+}
+
 /**
  * Persist the current draft snapshot to localStorage under the anon key.
  *
@@ -3458,6 +3537,13 @@ const { state } = store( 'wpcom-write', {
 			el.ref.style.height = 'auto';
 			el.ref.style.height = el.ref.scrollHeight + 'px';
 
+			// Typing a title counts as the first anon write too — the title field
+			// binds to this action rather than repairStructure, so hook it here so
+			// a title-only author still registers a write-start before publish.
+			if ( isAnon() && ! anonWriteStartTracked ) {
+				maybeTrackAnonWriteStart( state.title );
+			}
+
 			// Dismiss the recovery banner once the user starts editing.
 			if ( state.showRecoveryBanner ) {
 				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
@@ -3673,6 +3759,12 @@ const { state } = store( 'wpcom-write', {
 			promoteGapAtCursor();
 			ensureBlockStructure();
 			pushToUndoHistoryDebounced();
+
+			// First real keystroke in the anon funnel — fires once per session.
+			if ( isAnon() && ! anonWriteStartTracked ) {
+				const contentEl = getContent();
+				maybeTrackAnonWriteStart( contentEl ? contentEl.textContent : '' );
+			}
 		},
 
 		undo() {
@@ -5782,6 +5874,16 @@ const { state } = store( 'wpcom-write', {
 
 		async publish() {
 			if ( isAnon() ) {
+				// The publish-intent event — the moment an anon visitor hits the
+				// signup wall. Captured before navigating away so it isn't lost to
+				// the handoff. word_count / draft_size_bytes size the draft; the
+				// server open event and this share the tk_ai identity for stitching.
+				const contentEl = getContent();
+				const rawHtml = contentEl ? contentEl.innerHTML : '';
+				const plainText = contentEl ? contentEl.textContent || '' : '';
+				const words = plainText.trim() ? plainText.trim().split( /\s+/ ).length : 0;
+				const draftContent = rawHtml ? convertToBlocks( rawHtml ) : '';
+
 				// Flush the latest draft snapshot before navigating — autosave is
 				// on a 30s tick, and a fast typer-then-clicker would otherwise
 				// hand off stale (or no) content to the signup flow.
@@ -5790,6 +5892,18 @@ const { state } = store( 'wpcom-write', {
 				// Suppress the dirty-state leave prompt the way every other
 				// internal navigation in this file does (cf. openInBlockEditor).
 				allowLeave = true;
+
+				// Record publish-intent and let the pixel dispatch before the
+				// redirect. wpcom Tracks beacons via `new Image()`, whose in-flight
+				// GET the browser cancels on unload — so a synchronous navigate
+				// would drop this event. The wait is bounded (and skipped entirely
+				// when Tracks isn't loaded) so the handoff is never stalled.
+				await recordTracksEventBeforeUnload( 'wpcom_write_editor_anon_publish_click', {
+					word_count: words,
+					time_to_publish_ms: Date.now() - ANON_EDITOR_OPENED_AT,
+					draft_size_bytes:
+						typeof Blob !== 'undefined' ? new Blob( [ draftContent ] ).size : draftContent.length,
+				} );
 
 				// Anon visitors hand off to the signup flow, which reads the draft
 				// from localStorage and publishes after signup completes.

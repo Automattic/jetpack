@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { updateMenuCounter, updateMenuCounterOptimistically } from './utils';
+import { getFormsMenuBadgeSlug, getMenuBadgeCount } from './utils';
 import type { DispatchActions } from './stage/types';
 import type { FormResponse } from '../../types';
 
@@ -13,9 +13,10 @@ type EditEntityRecord = DispatchActions[ 'editEntityRecord' ];
 
 /**
  * Marks a single feedback response as read, both on the server and in the store,
- * and keeps the admin-menu unread counter in sync: it optimistically decrements
- * the sidebar badge, then reconciles with the authoritative server count, and
- * reverts both the store edit and the badge if the request fails.
+ * and keeps the admin-menu unread counter in sync via the shared menu-badges
+ * client: it optimistically decrements the sidebar badge, then reconciles with
+ * the authoritative server count, and reverts both the store edit and the badge
+ * if the request fails.
  *
  * Used by both inbox inspectors (via `useMarkAsReadOnView`) so the "mark as read
  * on view" behaviour cannot drift between the wp-build and legacy dashboards —
@@ -42,7 +43,7 @@ export function markResponseAsRead(
 	// Optimistically decrement the sidebar unread counter so it updates without
 	// waiting for the server (inbox/published responses only).
 	if ( status === 'publish' ) {
-		updateMenuCounterOptimistically( -1 );
+		window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), getMenuBadgeCount() - 1 );
 	}
 
 	return apiFetch< { count: number } >( {
@@ -52,7 +53,7 @@ export function markResponseAsRead(
 	} )
 		.then( ( { count } ) => {
 			// Sync the sidebar counter with the authoritative server count.
-			updateMenuCounter( count );
+			window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), count );
 			onSuccess?.( id );
 		} )
 		.catch( () => {
@@ -61,7 +62,7 @@ export function markResponseAsRead(
 
 			// Revert the optimistic sidebar decrement.
 			if ( status === 'publish' ) {
-				updateMenuCounterOptimistically( 1 );
+				window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), getMenuBadgeCount() + 1 );
 			}
 		} );
 }

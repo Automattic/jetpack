@@ -1030,18 +1030,6 @@ class Jetpack_Subscriptions {
 	 */
 	public function add_subscribers_menu() {
 		/*
-		 * Staged-rollout default for both modernization filters: on for
-		 * Automatticians and for the percentage cohort (currently 0%, bucketed by
-		 * the stable wpcom blog ID), off everywhere else. Delegated to the canonical
-		 * Newsletter\Settings::is_modernization_rollout_enabled() so the cohort math
-		 * has a single source of truth; guarded with method_exists so this bootstrap
-		 * path stays safe if the packaged Newsletter Settings class is an older copy
-		 * that doesn't expose the helper yet.
-		 */
-		$modernization_rollout_default = method_exists( '\Automattic\Jetpack\Newsletter\Settings', 'is_modernization_rollout_enabled' )
-			&& \Automattic\Jetpack\Newsletter\Settings::is_modernization_rollout_enabled();
-
-		/*
 		 * Once the Newsletter modernization filter is on, the unified Newsletter
 		 * page owns the Subscribers tab and this standalone Calypso shortcut is
 		 * retired. In its place, a transitional announcement page tells people
@@ -1061,7 +1049,7 @@ class Jetpack_Subscriptions {
 		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
 		 * not expose the constant yet.
 		 */
-		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', $modernization_rollout_default ) ) {
+		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
 			if (
 				! ( new Host() )->is_wpcom_platform()
 				&& class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' )
@@ -1097,11 +1085,10 @@ class Jetpack_Subscriptions {
 		 *
 		 * @since 9.5.0
 		 *
-		 * @param bool If the new dashboard is enabled. Defaults to the staged-rollout
-		 *             cohort: true for Automatticians and the percentage cohort
-		 *             (currently 0%), false elsewhere.
+		 * @param bool If the new dashboard is enabled. Defaults on for every site; hosts
+		 *             can opt out with this filter.
 		 */
-		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', $modernization_rollout_default ) ) {
+		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true ) ) {
 			return;
 		}
 
