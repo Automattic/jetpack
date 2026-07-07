@@ -19,9 +19,8 @@ import type { ComparativeLineChartSeries } from '../chart-comparative-line/types
 import type { ReactNode } from 'react';
 
 /**
- * Widget width (px) budgeted per metric tab. Below `metrics.length` times this,
- * the tab strip would cramp, so the tabs collapse into a single dropdown — the
- * metrics stay one tap away instead of overflowing into a horizontal scrollbar.
+ * Width (px) budgeted per metric tab; below `metrics.length` times this the
+ * tabs collapse into a dropdown instead of overflowing into a scrollbar.
  */
 const MIN_TAB_WIDTH = 120;
 
@@ -164,11 +163,8 @@ function MetricChart( {
  * chart, traffic chart) — the consumer supplies the per-metric data and headline
  * values; this owns selection, series building, and layout.
  *
- * The layout adapts to the tile in two independent ways:
- * - Too narrow for the tab strip → the tabs collapse into a single
- *   `SelectControl` dropdown (the selected metric's headline card as the
- *   trigger), so metrics never overflow into a horizontal scrollbar.
- * - Too short for the chart → the chart degrades to a sparkline (see `MetricChart`).
+ * Responsive: on narrow tiles the tabs collapse into a dropdown whose trigger
+ * is the selected metric's card; on short tiles the chart degrades to a sparkline.
  *
  * @param {MetricTabsChartProps} props - The component props.
  * @return The metric tabs + chart.
@@ -184,25 +180,15 @@ export function MetricTabsChart( {
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
-	// Control the dropdown's open state ourselves. In the dashboard each widget
-	// sits inside a focusable drag-sortable wrapper whose focus churn makes the
-	// select's popup close (reason 'none') right after opening — even with
-	// pointer-down propagation stopped. So: open on click, swallow 'none'
-	// closes, and close explicitly on selection (`onValueChange`); real closes
+	// Controlled open state: the dashboard's focusable drag-sortable wrapper
+	// closes the popup (reason 'none') right after it opens, so we open on
+	// click, drop 'none' closes, and close explicitly on selection. Real closes
 	// (outside press, Escape) carry a specific reason and pass through.
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 
-	// Collapse the tabs into a dropdown once the tile is too narrow to lay them
-	// out without cramping. `undefined` until the first measure, so we default to
-	// the roomier tabs rather than flashing the dropdown on mount.
-	//
-	// The flip is debounced: while the tile is drag-resized its width sweeps
-	// across the threshold continuously, and each flip remounts the whole
-	// header + chart subtree. Un-debounced, hovering the resize handle around
-	// a grid snap boundary alternates the modes several times a second, which
-	// can freeze the page and abort the resize gesture mid-drag. Committing
-	// only a width that survives 150ms keeps the drag smooth; normal resizes
-	// settle well within that.
+	// Tabs↔dropdown flips are debounced: each flip remounts the header + chart
+	// subtree, and during a drag-resize the width oscillates around grid snap
+	// boundaries fast enough to freeze the page and abort the gesture.
 	const [ width, setWidth ] = useState< number >();
 	const hasMeasuredRef = useRef( false );
 	const flipTimerRef = useRef< ReturnType< typeof setTimeout > >();
@@ -211,8 +197,7 @@ export function MetricTabsChart( {
 		if ( ! rect ) {
 			return;
 		}
-		// Apply the mount measure immediately so a narrow tile doesn't flash
-		// the tabs before settling on the dropdown.
+		// Apply the mount measure immediately so a narrow tile doesn't flash tabs.
 		if ( ! hasMeasuredRef.current ) {
 			hasMeasuredRef.current = true;
 			setWidth( rect.width );
@@ -235,41 +220,33 @@ export function MetricTabsChart( {
 		[ onMetricChange ]
 	);
 
-	// The dropdown's option items. Memoised so the underlying select keeps a
-	// stable `items`/`value` identity across renders — rebuilding them every
-	// render makes the select re-initialise and the popup close as it opens.
+	// Memoised: an unstable `items` identity makes the select re-initialise and
+	// close its popup as it opens.
 	const metricItems = useMemo(
 		() => metrics.map( metric => ( { label: metric.label, value: metric.key } ) ),
 		[ metrics ]
 	);
 
 	if ( useDropdown ) {
-		// The dropdown trigger is the selected metric's full card (label + value +
-		// delta), so collapsing the tabs keeps the same headline the tabs showed.
-		// `value` is a reference into `metricItems` so the primitive select matches it.
+		// `value` must be a reference into `metricItems` for the select to match it.
 		const activeItem =
 			metricItems.find( item => item.value === activeMetric?.key ) ?? metricItems[ 0 ];
 
 		return (
 			<div ref={ measureRef } className={ styles.root }>
 				<div className={ styles.header }>
-					{ /* Open the select on click ourselves (see `isDropdownOpen`), and stop
-					     the pointer-down from reaching the drag-sortable wrapper so pressing
-					     the control never starts a widget drag. The div adds no interaction
-					     of its own — the SelectControl is the control. */ }
-					{ /* Keyboard users open the select through the trigger button itself;
-					     this click handler is a mouse-only supplement, so the a11y rules for
-					     interactive divs don't apply. */ }
+					{ /* Stops pointer-down from starting a widget drag and opens the select
+					     on click (see `isDropdownOpen`). Mouse-only supplement — keyboard
+					     users open the select through the trigger button itself. */ }
 					{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */ }
 					<div
 						className={ styles.picker }
 						onPointerDown={ event => event.stopPropagation() }
 						onMouseDown={ event => event.stopPropagation() }
 						onClick={ event => {
-							// The popup is portaled, but React still bubbles its events through
-							// the component tree — so option clicks land here too. Only clicks
-							// physically inside the trigger wrapper are open requests;
-							// reopening on an option click would undo the close-on-select.
+							// React bubbles portaled popup events through the component tree,
+							// so option clicks land here too; reopening on them would undo the
+							// close-on-select. Only treat clicks inside the wrapper as opens.
 							if ( event.currentTarget.contains( event.target as Node ) ) {
 								setIsDropdownOpen( true );
 							}
@@ -281,9 +258,8 @@ export function MetricTabsChart( {
 							hideLabelFromVision
 							open={ isDropdownOpen }
 							onOpenChange={ ( nextOpen, details ) => {
-								// The wrapper's focus churn closes the popup with reason 'none'
-								// right after it opens; selection closes are handled explicitly
-								// in `onValueChange`, so 'none' closes are safe to drop.
+								// Drop the wrapper focus churn's 'none' closes; selection closes
+								// are handled in `onValueChange`.
 								if ( ! nextOpen && details?.reason === 'none' ) {
 									return;
 								}

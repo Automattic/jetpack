@@ -366,10 +366,8 @@ function buildVisitorsByDateResponse( query: URLSearchParams ) {
 }
 
 /**
- * Per-day rows for customers/by-date. The real endpoint zero-fills every
- * interval in the range, so the mock emits a dense daily series too — the
- * static customers mocks only carry a summary, and an empty `data` array
- * would blank the Store performance Customers chart.
+ * Per-day rows for customers/by-date. Dense like the real endpoint, which
+ * zero-fills every interval in the range.
  *
  * @param query        - Parsed query params.
  * @param isComparison - Whether this request is the comparison period.
@@ -418,11 +416,9 @@ function buildCustomersByDateRows( query: URLSearchParams, isComparison: boolean
 }
 
 /**
- * Builds the sessions/by-conversion-rate response — the daily session funnel
- * (sessions → cart → checkout → completed). Mirrors the real endpoint, which
- * zero-fills every interval in the range (`fill_missing_intervals()`), so the
- * mock always emits one row per day too — consumers never see a sparse or
- * empty `data` array.
+ * The sessions/by-conversion-rate response: a daily session funnel
+ * (sessions → cart → checkout → completed). Dense like the real endpoint,
+ * which zero-fills every interval in the range.
  *
  * @param query - Parsed query params.
  * @return Conversion-rate funnel report response.

@@ -58,9 +58,8 @@ function resolveSeriesStyles(
 const DEFAULT_MARGIN = { right: 0 };
 
 /**
- * Chart-area height (px) below which `compactWhenShort` drops the y-axis, grid,
- * and legend so the line degrades to a readable sparkline instead of squashing
- * its axis labels on top of each other.
+ * Chart-area height (px) below which `compactWhenShort` degrades the chart to
+ * a sparkline (no y-axis, grid, or legend).
  */
 const COMPACT_CHART_HEIGHT = 140;
 
@@ -138,9 +137,8 @@ export type ComparativeLineChartProps = {
 	tickFormat?: string;
 
 	/**
-	 * When true, the chart drops its y-axis, grid, and legend once the available
-	 * height falls below a readable threshold, degrading to a compact sparkline
-	 * rather than overlapping its axis labels. Defaults to false (always full).
+	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
+	 * is too short for readable axis labels. Defaults to false.
 	 */
 	compactWhenShort?: boolean;
 } & Omit<
@@ -165,9 +163,8 @@ export function ComparativeLineChart( {
 	maxWidth = Infinity,
 	compactWhenShort = false,
 }: ComparativeLineChartProps ) {
-	// Track the rendered chart-area height so we can collapse to a sparkline on
-	// short tiles. The measured Stack fills its container (flex), so its height is
-	// independent of whether the axis/legend are shown — no measure/hide feedback.
+	// The measured Stack fills its container (flex), so its height is independent
+	// of whether the axis/legend are shown — no measure/hide feedback loop.
 	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
 	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
 		const rect = entries[ 0 ]?.contentRect;
@@ -358,7 +355,6 @@ export function ComparativeLineChart( {
 				// With the y-axis hidden, reclaim its reserved left margin for the line.
 				margin={ isCompact ? { ...margin, left: 0 } : margin }
 				maxWidth={ maxWidth }
-				// Drop the grid on short tiles so the compact sparkline stays clean.
 				gridVisibility={ isCompact ? 'none' : undefined }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 				withLegendGlyph={ false }
@@ -368,8 +364,7 @@ export function ComparativeLineChart( {
 				withTooltips={ !! renderTooltip && ! isEmptyData }
 				renderTooltip={ renderTooltip }
 			>
-				{ /* Hide the legend on short tiles; the solid/dashed lines and the
-				     selected metric card already convey current vs previous period. */ }
+				{ /* The solid/dashed lines already convey current vs previous period. */ }
 				{ ! isCompact && (
 					<LineChart.Legend
 						shape="line"
