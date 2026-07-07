@@ -1,4 +1,5 @@
 import { Tabs } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './report-page-tabs.module.scss';
 import type { ReactNode } from 'react';
@@ -31,6 +32,13 @@ export interface ReportPageTabsProps< TabId extends string = string > {
 	 * Tab panel content.
 	 */
 	children?: ReactNode;
+
+	/**
+	 * Optional class applied to the tab list wrapper. This component does not
+	 * own any horizontal page-gutter padding itself, so callers that render the
+	 * tab bar full-bleed (e.g. outside a padded content container) supply it here.
+	 */
+	className?: string;
 }
 
 /**
@@ -40,11 +48,12 @@ export interface ReportPageTabsProps< TabId extends string = string > {
  * changes upward. Panel children render inside the same Tabs.Root so the
  * tablist and tab content share a complete tab/panel relationship.
  *
- * @param props          - Component props.
- * @param props.tabs     - The tabs to render, in order.
- * @param props.value    - The currently active tab ID.
- * @param props.onChange - Called with the new tab ID when the user selects a different tab.
- * @param props.children - Tab panel content.
+ * @param props           - Component props.
+ * @param props.tabs      - The tabs to render, in order.
+ * @param props.value     - The currently active tab ID.
+ * @param props.onChange  - Called with the new tab ID when the user selects a different tab.
+ * @param props.children  - Tab panel content.
+ * @param props.className - Optional class applied to the tab list wrapper.
  * @return The tab bar element.
  */
 export function ReportPageTabs< TabId extends string = string >( {
@@ -52,6 +61,7 @@ export function ReportPageTabs< TabId extends string = string >( {
 	value,
 	onChange,
 	children,
+	className,
 }: ReportPageTabsProps< TabId > ) {
 	const handleValueChange = useCallback(
 		( tabId: string ) => onChange( tabId as TabId ),
@@ -60,7 +70,7 @@ export function ReportPageTabs< TabId extends string = string >( {
 
 	return (
 		<Tabs.Root value={ value } onValueChange={ handleValueChange }>
-			<div className={ styles.tabList }>
+			<div className={ clsx( styles.tabList, className ) }>
 				<Tabs.List variant="minimal">
 					{ tabs.map( tab => (
 						<Tabs.Tab key={ tab.id } value={ tab.id }>

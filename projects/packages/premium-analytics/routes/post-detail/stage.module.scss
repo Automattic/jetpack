@@ -2,6 +2,13 @@
 	min-block-size: 0;
 }
 
+.tabs {
+	// The shared tab bar renders full-bleed and doesn't own page-gutter padding
+	// itself, so pad it inline here to match the page's other horizontal
+	// gutters (summary, date filters, widget grid).
+	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+}
+
 .content {
 	flex: 1 1 auto;
 	min-block-size: 0;

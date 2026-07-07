@@ -102,7 +102,12 @@ function PostDetail(): JSX.Element {
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.page }
 				>
-					<ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange }>
+					<ReportPageTabs
+						tabs={ tabs }
+						value={ activeTab }
+						onChange={ handleTabChange }
+						className={ styles.tabs }
+					>
 						{ /*
 						 * The summary card and date filters are shared by every tab
 						 * (same post, same date range), so they render once below the
