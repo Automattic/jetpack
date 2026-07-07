@@ -331,7 +331,13 @@ class Podcast_Episode_Block {
 					<?php endif; ?>
 
 					<?php if ( $title ) : ?>
-						<h3 class="jetpack-podcast-episode__title" itemprop="name"><?php echo esc_html( $title ); ?></h3>
+						<h3 class="jetpack-podcast-episode__title" itemprop="name">
+							<?php if ( $episode_url ) : ?>
+								<a href="<?php echo esc_url( $episode_url ); ?>"><?php echo esc_html( $title ); ?></a>
+							<?php else : ?>
+								<?php echo esc_html( $title ); ?>
+							<?php endif; ?>
+						</h3>
 					<?php endif; ?>
 
 					<?php if ( $author_name || $publish_date || $duration ) : ?>
@@ -389,7 +395,7 @@ class Podcast_Episode_Block {
 								if ( $mime_type ) :
 									?>
 									data-mime="<?php echo esc_attr( $mime_type ); ?>"<?php endif; ?>
-							></video>
+							><a href="<?php echo esc_url( $media_url ); ?>"><?php esc_html_e( 'Watch the episode', 'jetpack-podcast' ); ?></a></video>
 						<?php else : ?>
 							<audio
 								class="jetpack-podcast-episode__audio"
@@ -400,7 +406,7 @@ class Podcast_Episode_Block {
 								if ( $mime_type ) :
 									?>
 									data-mime="<?php echo esc_attr( $mime_type ); ?>"<?php endif; ?>
-							></audio>
+							><a href="<?php echo esc_url( $media_url ); ?>"><?php esc_html_e( 'Listen to the episode', 'jetpack-podcast' ); ?></a></audio>
 						<?php endif; ?>
 					</div>
 

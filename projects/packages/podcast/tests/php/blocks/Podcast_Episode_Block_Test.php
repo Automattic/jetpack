@@ -168,12 +168,13 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 			)
 		);
 
-		$result = Podcast_Episode_Block::render_block( $this->default_attrs, '', $this->block_ctx( $post_id ) );
+		$result    = Podcast_Episode_Block::render_block( $this->default_attrs, '', $this->block_ctx( $post_id ) );
+		$permalink = get_permalink( $post_id );
 
 		wp_delete_post( $post_id, true );
 		wp_delete_user( $user_id );
 
-		$this->assertStringContainsString( 'Episode 7: The Renderer', $result );
+		$this->assertStringContainsString( '<a href="' . esc_url( $permalink ) . '">Episode 7: The Renderer</a>', $result );
 		$this->assertStringContainsString( 'Jane Host', $result );
 		$this->assertStringContainsString( 'itemprop="author" itemscope itemtype="https://schema.org/Person"', $result );
 		$this->assertStringContainsString( 'datetime="2026-04-15', $result );
@@ -189,12 +190,14 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( '<video', $result );
 		$this->assertStringContainsString( 'https://example.com/episode.mp4', $result );
+		$this->assertStringContainsString( 'Watch the episode</a></video>', $result );
 		$this->assertStringNotContainsString( '<audio', $result );
 	}
 
 	public function test_audio_media_type_renders_audio_element() {
 		$result = $this->render( array() );
 		$this->assertStringContainsString( '<audio', $result );
+		$this->assertStringContainsString( 'Listen to the episode</a></audio>', $result );
 		$this->assertStringNotContainsString( '<video', $result );
 	}
 
