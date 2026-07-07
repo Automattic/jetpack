@@ -1,51 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import { ARTWORK_MEDIA_FIELDS, artworkUrlFromMedia } from '../../client/lib/playlist-artwork';
 import { PLAYLISTS_QUERY_KEY } from './use-playlists';
+import type { ArtworkMedia } from '../../client/lib/playlist-artwork';
 import type { Playlist } from '../types/playlist';
 
-/** The slice of a /wp/v2/media item that artwork resolution reads. */
-export type ArtworkMedia = {
-	id: number;
-	/** 'image' for images; video attachments arrive as 'file'. */
-	media_type?: string;
-	mime_type?: string;
-	source_url?: string;
-	media_details?: {
-		sizes?: Record< string, { source_url?: string } >;
-		videopress?: { poster?: string };
-	};
-};
+// Resolution logic lives in the shared lib so the block editor preview uses
+// the exact same rules; re-exported here for existing consumers.
+export { artworkUrlFromMedia };
+export type { ArtworkMedia };
 
-// Only the fields artworkUrlFromMedia() consumes — media_details carries the
-// image sizes and the VideoPress poster.
-const MEDIA_FIELDS = 'id,media_type,mime_type,source_url,media_details';
+const MEDIA_FIELDS = ARTWORK_MEDIA_FIELDS;
 
 // /wp/v2/media caps per_page at 100, so an include batch larger than that
 // must be split across requests.
 const MEDIA_BATCH_LIMIT = 100;
-
-/**
- * Resolve a fetched media attachment to a displayable artwork URL.
- *
- * `vps_playlist_artwork_id` may reference either an uploaded IMAGE or a
- * VIDEO chosen from the playlist, so both are handled: images resolve to
- * their medium size (falling back to the original), videos to their
- * VideoPress poster. Anything else — including a deleted attachment
- * (null/undefined input) — resolves to null, which renders the placeholder.
- *
- * @param media - The fetched media item, or null/undefined when missing.
- * @return The artwork image URL, or null when none can be derived.
- */
-export function artworkUrlFromMedia( media: ArtworkMedia | null | undefined ): string | null {
-	if ( ! media ) {
-		return null;
-	}
-	if ( media.media_type === 'image' || media.mime_type?.startsWith( 'image/' ) ) {
-		return media.media_details?.sizes?.medium?.source_url ?? media.source_url ?? null;
-	}
-	return media.media_details?.videopress?.poster ?? null;
-}
 
 type PendingLookup = {
 	id: number;

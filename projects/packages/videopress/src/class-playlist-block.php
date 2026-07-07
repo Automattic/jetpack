@@ -251,6 +251,15 @@ class Playlist_Block {
 
 		if ( $artwork_id > 0 ) {
 			$artwork_url = (string) wp_get_attachment_image_url( $artwork_id, 'medium' );
+
+			// The artwork may be a VIDEO chosen from the playlist, which has
+			// no image sizes — use its VideoPress poster, never the file URL.
+			if ( '' === $artwork_url ) {
+				$artwork_meta = wp_get_attachment_metadata( $artwork_id );
+				if ( isset( $artwork_meta['videopress']['poster'] ) && is_string( $artwork_meta['videopress']['poster'] ) ) {
+					$artwork_url = $artwork_meta['videopress']['poster'];
+				}
+			}
 		}
 
 		// Fall back to the first video's poster when no artwork is set (or it was deleted).

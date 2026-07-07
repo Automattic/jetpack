@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getApiFetchMock, mockApiFetch } from '../../../../../dashboard/test-utils/mock-api-fetch';
 import PlaylistEdit from '../edit';
@@ -81,6 +81,13 @@ const rawPlaylists = [
 		meta: { vps_playlist_artwork_id: 55, vps_playlist_order: [] },
 	},
 	{ id: 9, name: 'Tutorials', description: '', count: 0, meta: {} },
+	{
+		id: 10,
+		name: 'Video artwork',
+		description: '',
+		count: 2,
+		meta: { vps_playlist_artwork_id: 56, vps_playlist_order: [] },
+	},
 ];
 
 // Raw /wp/v2/media members for playlist 7, in the request's date-desc order.
@@ -103,9 +110,23 @@ const rawMedia = [
 ];
 
 const rawArtwork = {
+	id: 55,
+	media_type: 'image',
 	source_url: 'https://example.com/artwork-full.jpg',
 	media_details: {
 		sizes: { medium: { source_url: 'https://example.com/artwork-medium.jpg' } },
+	},
+};
+
+// A VIDEO chosen as artwork: no image sizes; resolution must use its
+// VideoPress poster, never source_url (the video file itself).
+const rawVideoArtwork = {
+	id: 56,
+	media_type: 'file',
+	mime_type: 'video/videopress',
+	source_url: 'https://videos.files.wordpress.com/abc123/video.mov',
+	media_details: {
+		videopress: { poster: 'https://example.com/video-artwork-poster.jpg' },
 	},
 };
 
@@ -123,10 +144,13 @@ function mockRoutes() {
 			const playlistId = new URLSearchParams( path.split( '?' )[ 1 ] ).get(
 				'videopress-playlists'
 			);
-			return playlistId === '7' || playlistId === '8' ? rawMedia : [];
+			return [ '7', '8', '10' ].includes( playlistId ?? '' ) ? rawMedia : [];
 		}
 		if ( path === '/wp/v2/media/55' ) {
 			return rawArtwork;
+		}
+		if ( path === '/wp/v2/media/56' ) {
+			return rawVideoArtwork;
 		}
 		throw new Error( `Unexpected path: ${ path }` );
 	} );
@@ -251,6 +275,23 @@ describe( 'PlaylistEdit', () => {
 			'https://example.com/artwork-medium.jpg'
 		);
 		expect( getApiFetchMock() ).toHaveBeenCalledWith( { path: '/wp/v2/media/55' } );
+	} );
+
+	it( 'resolves a video artwork attachment to its poster, never the file URL', async () => {
+		mockRoutes();
+
+		renderEdit( { playlistId: 10 } );
+
+		// Wait for the member rows too, so every pending fetch has settled
+		// before the test ends (avoids un-act()ed late state updates).
+		await expect( screen.findByText( 'Newest video' ) ).resolves.toBeInTheDocument();
+		await waitFor( () => {
+			const decorativeImages = screen.getAllByRole( 'presentation' );
+			expect( decorativeImages[ 0 ] ).toHaveAttribute(
+				'src',
+				'https://example.com/video-artwork-poster.jpg'
+			);
+		} );
 	} );
 
 	it( 'hides the header when showHeader is off', async () => {

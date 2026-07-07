@@ -18,6 +18,7 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import { toPlaylist } from '../../../../dashboard/types/playlist';
+import { artworkUrlFromMedia } from '../../../lib/playlist-artwork';
 import { orderPlaylistVideos } from '../../../lib/playlist-order';
 import { VideoPressIcon } from '../video/components/icons';
 import PlaylistPicker from './components/playlist-picker';
@@ -26,6 +27,7 @@ import './editor.scss';
  * Types
  */
 import type { ApiPlaylistTerm, Playlist } from '../../../../dashboard/types/playlist';
+import type { ArtworkMedia } from '../../../lib/playlist-artwork';
 import type { ReactNode } from 'react';
 
 export type PlaylistBlockAttributes = {
@@ -237,13 +239,13 @@ export default function PlaylistEdit( {
 		let isCancelled = false;
 		setArtworkUrl( '' );
 
-		apiFetch< {
-			source_url?: string;
-			media_details?: { sizes?: Record< string, { source_url?: string } > };
-		} >( { path: `/wp/v2/media/${ artworkId }` } )
+		apiFetch< ArtworkMedia >( { path: `/wp/v2/media/${ artworkId }` } )
 			.then( media => {
 				if ( ! isCancelled ) {
-					setArtworkUrl( media.media_details?.sizes?.medium?.source_url ?? media.source_url ?? '' );
+					// Shared resolver: images → medium/original URL, videos
+					// chosen as artwork → their VideoPress poster (never the
+					// video file itself).
+					setArtworkUrl( artworkUrlFromMedia( media ) ?? '' );
 				}
 			} )
 			.catch( () => {
