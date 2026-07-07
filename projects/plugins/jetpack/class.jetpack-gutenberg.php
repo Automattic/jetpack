@@ -1253,6 +1253,8 @@ class Jetpack_Gutenberg {
 		'extended-blocks' => array(
 			// Registers the videopress/video block on `init`, required to render it on the front end.
 			'videopress-video',
+			// Registers the videopress/playlist block on `init`, required to render it on the front end.
+			'videopress-playlist',
 			// Registers the `premium-content/container` plan availability that the Premium Content
 			// block's front-end render reads via required_plan_checks(); skipping it breaks the paywall.
 			'premium-content-container',
