@@ -1,58 +1,60 @@
 /**
  * Filmstrip track for the Studio editor timeline.
  *
- * Renders per filmstrip mode: storyboard shows equal-width tiles cut from
- * the server sprite via pixel-based cover-crop backgrounds — the sheet is
- * only ever drawn at or below its natural size, so zooming widens each
- * tile's crop window instead of stretching pixels; frames shows one <img>
- * per client-extracted frame (object URLs) with the equivalent
- * `object-fit: cover` — no re-extraction on zoom in v1; loading,
- * unavailable, and an absent prop all keep the neutral gradient placeholder.
+ * Renders per filmstrip mode: storyboard shows tiles cut from the server
+ * sprite via pixel-based cover-crop backgrounds; frames shows one <img> per
+ * client-extracted frame (object URLs) with the equivalent
+ * `object-fit: cover`; loading, unavailable, and an absent prop all keep
+ * the neutral gradient placeholder.
  *
- * Layout: tiles keep the original `flex: 1 1 0` equal-width flex layout.
- * The cover-crop math only needs to KNOW each tile's rendered width — which
- * is exactly `trackWidth / tiles` under that layout — so the timeline passes
- * its zoomed content width down instead of the track measuring or sizing
- * anything itself. The timeline also pins the track's row box to that same
- * `trackWidth`, which is what makes the equality hold: a row that instead
- * filled its parent could render wider or narrower than `trackWidth`
- * (stale viewport measurements, `min-width: 100%` stretch) and would put
- * the tiles on a different horizontal scale than the ruler.
+ * Sampling: instead of stretching every source tile across the zoomed
+ * width, the track re-samples. The quantizer (filmstrip-geometry) picks a
+ * power-of-two number of source tiles per rendered tile from the current
+ * px-per-ms scale, so rendered tiles stay near their native-aspect width at
+ * ANY zoom — including the continuous zooms the wheel produces between the
+ * slider's discrete stops. The base time unit is the source's real
+ * interval: the storyboard's `interval_ms` (the wpcom endpoint serves one
+ * adaptive sheet — its interval grows with duration and is not always 1s)
+ * or `durationMs / frames.length` in extraction mode.
+ *
+ * Layout: tiles are `flex: 0 0 auto` boxes with explicit widths from
+ * sampleWidths — interior boundaries on whole px, last tile takes the
+ * remainder — so the widths sum to exactly `trackWidth`. The timeline pins
+ * the track's row box to that same `trackWidth`, which keeps the tiles on
+ * the one shared horizontal scale: a row that instead sized itself from
+ * its parent could render wider or narrower than `trackWidth` (stale
+ * viewport measurements, `min-width: 100%` stretch) and would put the
+ * tiles on a different scale than the ruler.
  *
  * Purely presentational and decorative (aria-hidden). Pointer events bubble
  * to the timeline content's scrub surface, exactly like the placeholder the
  * track replaces.
  */
+import {
+	cellWidth,
+	FILMSTRIP_ROW_HEIGHT,
+	quantizeDensity,
+	sampleIndices,
+	sampleWidths,
+	tileBackgroundStyle,
+} from './filmstrip-geometry';
 import type { FilmstripState } from '../../../hooks/use-filmstrip';
-import type { Storyboard } from '../../../types/edits';
-import type { CSSProperties, ReactElement } from 'react';
-
-/**
- * The filmstrip track row height, in px. Must match
- * `.vp-studio-timeline__track--filmstrip` in style.scss.
- */
-export const FILMSTRIP_ROW_HEIGHT = 64;
-
-/**
- * Tile aspect ratio assumed when the filmstrip carries no dimensions
- * (frames mode and the loading/unavailable placeholders).
- */
-const FALLBACK_TILE_ASPECT = 16 / 9;
+import type { ReactElement } from 'react';
 
 /**
  * The maximum useful timeline zoom for a filmstrip: the zoom at which its
  * tiles render at native aspect in the {@link FILMSTRIP_ROW_HEIGHT} row
- * (`tiles × cellWidth / viewportWidth`, cellWidth = rowHeight × aspect).
- * Past it the strip could only upscale, so the timeline uses this as the
- * hard zoom ceiling.
+ * (`tiles × cellWidth / viewportWidth`). Past it the strip could only
+ * upscale, so the timeline uses this as the hard zoom ceiling.
  *
  * Tile count and aspect come from the resolved strip: the storyboard's
- * `tiles` and `tile_width/tile_height` in storyboard mode, the frame count
- * (at the {@link FALLBACK_TILE_ASPECT} assumption — extracted frames carry
- * no dimensions) in frames mode. While the strip is loading or unavailable
- * the count falls back to the one-tile-per-second density a client
- * extraction would produce, `ceil(durationMs / 1000)`, so the cap is
- * duration-scaled rather than arbitrary.
+ * `tiles` (the sprite's real tile count — the cap is interval-independent)
+ * and `tile_width/tile_height` in storyboard mode, the frame count (at the
+ * 16:9 fallback aspect — extracted frames carry no dimensions) in frames
+ * mode. While the strip is loading or unavailable the count falls back to
+ * the one-tile-per-second density a client extraction would produce,
+ * `ceil(durationMs / 1000)`, so the cap is duration-scaled rather than
+ * arbitrary.
  *
  * @param filmstrip     - Filmstrip state; absent behaves like 'unavailable'.
  * @param durationMs    - Master duration in ms (the loading/unavailable fallback).
@@ -69,19 +71,16 @@ export function getFilmstripZoomMax(
 	}
 	const state: FilmstripState = filmstrip ?? { status: 'unavailable' };
 	let tiles: number;
-	let aspect = FALLBACK_TILE_ASPECT;
+	let cellW = cellWidth();
 	if ( state.status === 'storyboard' ) {
 		tiles = state.storyboard.tiles;
-		if ( state.storyboard.tile_width > 0 && state.storyboard.tile_height > 0 ) {
-			aspect = state.storyboard.tile_width / state.storyboard.tile_height;
-		}
+		cellW = cellWidth( state.storyboard.tile_width, state.storyboard.tile_height );
 	} else if ( state.status === 'frames' ) {
 		tiles = state.frames.length;
 	} else {
 		tiles = Math.ceil( durationMs / 1000 );
 	}
-	const cellWidth = FILMSTRIP_ROW_HEIGHT * aspect;
-	return Math.max( 1, ( tiles * cellWidth ) / viewportWidth );
+	return Math.max( 1, ( tiles * cellW ) / viewportWidth );
 }
 
 type Props = {
@@ -89,62 +88,56 @@ type Props = {
 	filmstrip?: FilmstripState;
 	/**
 	 * Rendered width of the whole track (the timeline's zoomed content
-	 * width), in px. Storyboard tiles need it to size their cover-crop;
-	 * 0 or absent (an unmeasured viewport) paints no tile backgrounds.
+	 * width), in px. Sampled tile widths always sum to exactly this value;
+	 * 0 or absent (an unmeasured viewport) renders every source tile with
+	 * no explicit geometry.
 	 */
 	trackWidth?: number;
+	/**
+	 * Master duration in ms. With `trackWidth` it fixes the px-per-ms scale
+	 * the quantizer samples against; 0 or absent renders every source tile
+	 * at an equal share of the track.
+	 */
+	durationMs?: number;
+};
+
+type SampleLayout = {
+	/** Source-tile indices to render, ascending. */
+	indices: number[];
+	/** One width per rendered tile (sums to trackWidth), or null when unmeasured. */
+	widths: number[] | null;
 };
 
 /**
- * Compute one storyboard tile's cover-crop background style.
+ * Sample a source strip against the current timeline scale: quantize the
+ * density, pick the nested start-anchored subset, and pin the rendered
+ * widths to the track width.
  *
- * The sheet is drawn at `scale = min(1, max(w/tileW, rowH/tileH))` — the
- * classic cover factor, clamped at 1 so upscaling is structurally
- * impossible — and positioned so the tile's sprite cell is centered in the
- * box. Narrow boxes therefore show a centered crop of the frame (matching
- * frames-mode `object-fit: cover`) rather than a squeezed one, and wide
- * boxes can never smear pixels. Whole-px rounding avoids hairline seams.
- *
- * @param storyboard - The storyboard descriptor.
- * @param index      - Tile index (row-major within the sprite).
- * @param tileWidth  - The tile box's rendered width, in px.
- * @return The tile's CSS properties.
+ * @param sourceCount    - Total source tiles (sprite tiles or frames).
+ * @param baseIntervalMs - Time span of one source tile, in ms.
+ * @param cellW          - Native-aspect cell width for this strip.
+ * @param trackWidth     - Rendered track width in px.
+ * @param durationMs     - Master duration in ms.
+ * @return The sampled indices and their rendered widths.
  */
-function storyboardTileStyle(
-	storyboard: Storyboard,
-	index: number,
-	tileWidth: number
-): CSSProperties {
-	const { tile_width: tileW, tile_height: tileH } = storyboard;
-	if ( tileWidth <= 0 || tileW <= 0 || tileH <= 0 ) {
-		// Unmeasured viewport or degenerate sprite geometry: paint nothing
-		// rather than a mis-cropped sheet.
-		return {};
+function sampleLayout(
+	sourceCount: number,
+	baseIntervalMs: number,
+	cellW: number,
+	trackWidth: number,
+	durationMs: number
+): SampleLayout {
+	const pxPerMs = trackWidth > 0 && durationMs > 0 ? trackWidth / durationMs : 0;
+	const density = quantizeDensity( pxPerMs, baseIntervalMs, cellW );
+	const indices = sampleIndices( sourceCount, density );
+	if ( trackWidth <= 0 || indices.length === 0 ) {
+		return { indices, widths: null };
 	}
-	// Prefer the sprite's real row count: the sheet is a fixed columns x rows
-	// cell grid padded with blank cells past `tiles`, so ceil(tiles/columns)
-	// under-counts the rows, mis-sizes the drawn sheet, and bleeds the blank
-	// padding into every tile. Fall back to the derivation only when the
-	// backend omits `rows`.
-	const rows =
-		storyboard.rows && storyboard.rows > 0
-			? storyboard.rows
-			: Math.max( 1, Math.ceil( storyboard.tiles / storyboard.columns ) );
-	const column = index % storyboard.columns;
-	const row = Math.floor( index / storyboard.columns );
-	const scale = Math.min( 1, Math.max( tileWidth / tileW, FILMSTRIP_ROW_HEIGHT / tileH ) );
-	const cellW = tileW * scale;
-	const cellH = tileH * scale;
-	return {
-		// Quoted, so URLs containing CSS-significant characters stay intact.
-		backgroundImage: `url("${ storyboard.url }")`,
-		backgroundSize: `${ Math.round( storyboard.columns * cellW ) }px ${ Math.round(
-			rows * cellH
-		) }px`,
-		backgroundPosition: `${ Math.round(
-			( tileWidth - cellW ) / 2 - column * cellW
-		) }px ${ Math.round( ( FILMSTRIP_ROW_HEIGHT - cellH ) / 2 - row * cellH ) }px`,
-	};
+	// Without a usable duration the scale is unknowable; fall back to an
+	// equal split so the strip still fills the measured track.
+	const pxPerSample =
+		pxPerMs > 0 ? density * baseIntervalMs * pxPerMs : trackWidth / indices.length;
+	return { indices, widths: sampleWidths( indices.length, pxPerSample, trackWidth ) };
 }
 
 /**
@@ -153,17 +146,25 @@ function storyboardTileStyle(
  * @param props            - Component props.
  * @param props.filmstrip  - Filmstrip state from useFilmstrip.
  * @param props.trackWidth - Rendered track width in px (the zoomed content width).
+ * @param props.durationMs - Master duration in ms.
  * @return The track element.
  */
 export default function StudioEditorFilmstripTrack( {
 	filmstrip,
 	trackWidth = 0,
+	durationMs = 0,
 }: Props ): ReactElement {
 	const state: FilmstripState = filmstrip ?? { status: 'unavailable' };
 
 	if ( state.status === 'storyboard' ) {
 		const { storyboard } = state;
-		const tileWidth = storyboard.tiles > 0 ? trackWidth / storyboard.tiles : 0;
+		const { indices, widths } = sampleLayout(
+			storyboard.tiles,
+			storyboard.interval_ms,
+			cellWidth( storyboard.tile_width, storyboard.tile_height ),
+			trackWidth,
+			durationMs
+		);
 		return (
 			<div
 				className="vp-studio-timeline__filmstrip"
@@ -171,19 +172,41 @@ export default function StudioEditorFilmstripTrack( {
 				data-mode="storyboard"
 				aria-hidden="true"
 			>
-				{ Array.from( { length: storyboard.tiles }, ( _, index ) => (
-					<div
-						key={ index }
-						className="vp-studio-timeline__filmstrip-tile"
-						data-testid="studio-timeline-filmstrip-tile"
-						style={ storyboardTileStyle( storyboard, index, tileWidth ) }
-					/>
-				) ) }
+				{ indices.map( ( spriteIndex, position ) => {
+					const width = widths?.[ position ];
+					return (
+						<div
+							// Sprite index, not position: the start-anchored samples
+							// nest across densities, so tiles keep their identity
+							// (and loaded backgrounds) when the zoom steps.
+							key={ spriteIndex }
+							className="vp-studio-timeline__filmstrip-tile"
+							data-testid="studio-timeline-filmstrip-tile"
+							data-index={ spriteIndex }
+							style={
+								width === undefined
+									? undefined
+									: {
+											width: `${ width }px`,
+											...tileBackgroundStyle( storyboard, spriteIndex, width ),
+									  }
+							}
+						/>
+					);
+				} ) }
 			</div>
 		);
 	}
 
 	if ( state.status === 'frames' ) {
+		const { frames } = state;
+		const { indices, widths } = sampleLayout(
+			frames.length,
+			frames.length > 0 ? durationMs / frames.length : 0,
+			cellWidth(),
+			trackWidth,
+			durationMs
+		);
 		return (
 			<div
 				className="vp-studio-timeline__filmstrip"
@@ -191,16 +214,21 @@ export default function StudioEditorFilmstripTrack( {
 				data-mode="frames"
 				aria-hidden="true"
 			>
-				{ state.frames.map( frame => (
-					<img
-						key={ frame }
-						className="vp-studio-timeline__filmstrip-tile"
-						data-testid="studio-timeline-filmstrip-tile"
-						src={ frame }
-						alt=""
-						draggable={ false }
-					/>
-				) ) }
+				{ indices.map( ( frameIndex, position ) => {
+					const width = widths?.[ position ];
+					return (
+						<img
+							key={ frames[ frameIndex ] }
+							className="vp-studio-timeline__filmstrip-tile"
+							data-testid="studio-timeline-filmstrip-tile"
+							data-index={ frameIndex }
+							src={ frames[ frameIndex ] }
+							style={ width === undefined ? undefined : { width: `${ width }px` } }
+							alt=""
+							draggable={ false }
+						/>
+					);
+				} ) }
 			</div>
 		);
 	}

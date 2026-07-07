@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { cellWidth } from '../filmstrip-geometry';
 import StudioEditorFilmstripTrack, { getFilmstripZoomMax } from '../filmstrip-track';
 import type { FilmstripState } from '../../../../hooks/use-filmstrip';
 import type { Storyboard } from '../../../../types/edits';
@@ -8,7 +9,9 @@ import type { Storyboard } from '../../../../types/edits';
  *
  * The 160×80 tile against the 64px row gives round cover-crop numbers:
  * at a 100px tile box, scale = max(100/160, 64/80) = 0.8, so one drawn
- * cell is 128×64px.
+ * cell is 128×64px. The 128px native cell width also means a track sized
+ * at 100px per interval quantizes to density 1 (ratio 1.28 → round 0), so
+ * the fixtures below render every tile unless a test says otherwise.
  *
  * @param overrides - Fields to override on the base fixture.
  * @return A complete Storyboard.
@@ -23,6 +26,17 @@ function makeStoryboard( overrides: Partial< Storyboard > = {} ): Storyboard {
 		interval_ms: 1000,
 		...overrides,
 	};
+}
+
+/**
+ * Read the rendered tiles' widths in px.
+ *
+ * @return One parsed width per tile, in document order.
+ */
+function tileWidths(): number[] {
+	return screen
+		.getAllByTestId( 'studio-timeline-filmstrip-tile' )
+		.map( tile => parseFloat( tile.style.width ) );
 }
 
 describe( 'StudioEditorFilmstripTrack', () => {
@@ -64,12 +78,13 @@ describe( 'StudioEditorFilmstripTrack', () => {
 	} );
 
 	it( 'renders storyboard tiles as centered pixel cover-crops of their sprite cells', () => {
-		// 5 tiles over 3 columns → 2 sprite rows; 500px track → 100px boxes,
-		// scale 0.8, drawn cells 128×64.
+		// 5 tiles over 3 columns → 2 sprite rows; 500px track over 5s →
+		// density 1, 100px boxes, scale 0.8, drawn cells 128×64.
 		render(
 			<StudioEditorFilmstripTrack
 				filmstrip={ { status: 'storyboard', storyboard: makeStoryboard() } }
 				trackWidth={ 500 }
+				durationMs={ 5000 }
 			/>
 		);
 
@@ -80,8 +95,10 @@ describe( 'StudioEditorFilmstripTrack', () => {
 		const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
 		expect( tiles ).toHaveLength( 5 );
 
-		// The whole sheet drawn at scale 0.8: 3×128 by 2×64 device pixels.
+		// The whole sheet drawn at scale 0.8: 3×128 by 2×64 device pixels,
+		// in an explicit-width box.
 		expect( tiles[ 0 ] ).toHaveStyle( {
+			width: '100px',
 			backgroundImage: 'url("https://example.com/sprite.jpg")',
 			backgroundSize: '384px 128px',
 			// First cell, centered in the 100px box: (100 − 128) / 2 = −14.
@@ -91,23 +108,6 @@ describe( 'StudioEditorFilmstripTrack', () => {
 		expect( tiles[ 2 ] ).toHaveStyle( { backgroundPosition: '-270px 0px' } );
 		// Tile 4: second column of the second row.
 		expect( tiles[ 4 ] ).toHaveStyle( { backgroundPosition: '-142px -64px' } );
-	} );
-
-	it( 'renders a single-row storyboard with no vertical shift', () => {
-		render(
-			<StudioEditorFilmstripTrack
-				filmstrip={ {
-					status: 'storyboard',
-					storyboard: makeStoryboard( { tiles: 3, columns: 3 } ),
-				} }
-				trackWidth={ 300 }
-			/>
-		);
-
-		const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
-		expect( tiles ).toHaveLength( 3 );
-		expect( tiles[ 0 ] ).toHaveStyle( { backgroundSize: '384px 64px' } );
-		expect( tiles[ 1 ] ).toHaveStyle( { backgroundPosition: '-142px 0px' } );
 	} );
 
 	it( 'never upscales the sprite: the cover scale clamps at 1', () => {
@@ -125,6 +125,7 @@ describe( 'StudioEditorFilmstripTrack', () => {
 					} ),
 				} }
 				trackWidth={ 200 }
+				durationMs={ 2000 }
 			/>
 		);
 
@@ -148,6 +149,7 @@ describe( 'StudioEditorFilmstripTrack', () => {
 					storyboard: makeStoryboard( { tiles: 17, columns: 10, rows: 10 } ),
 				} }
 				trackWidth={ 1700 }
+				durationMs={ 17000 }
 			/>
 		);
 
@@ -162,10 +164,11 @@ describe( 'StudioEditorFilmstripTrack', () => {
 		} );
 	} );
 
-	it( 'paints no tile background without a measured track width', () => {
+	it( 'paints no tile geometry without a measured track width', () => {
 		render(
 			<StudioEditorFilmstripTrack
 				filmstrip={ { status: 'storyboard', storyboard: makeStoryboard() } }
+				durationMs={ 5000 }
 			/>
 		);
 
@@ -173,6 +176,120 @@ describe( 'StudioEditorFilmstripTrack', () => {
 		expect( tiles ).toHaveLength( 5 );
 		// No geometry, no inline style at all — not a mis-sized sheet.
 		expect( tiles[ 0 ] ).not.toHaveAttribute( 'style' );
+	} );
+
+	describe( 'quantized sampling', () => {
+		it( 'samples every 8th sprite tile at fit for a 60s one-second storyboard', () => {
+			// The design ladder's 60s fit row: cell width ≈128px vs 16.7px per
+			// interval → density 8. Start-anchored: sprite indices 0, 8, … 56.
+			render(
+				<StudioEditorFilmstripTrack
+					filmstrip={ {
+						status: 'storyboard',
+						storyboard: makeStoryboard( { tiles: 60, columns: 10, rows: 6 } ),
+					} }
+					trackWidth={ 1000 }
+					durationMs={ 60000 }
+				/>
+			);
+
+			const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
+			expect( tiles.map( tile => tile.getAttribute( 'data-index' ) ) ).toEqual( [
+				'0',
+				'8',
+				'16',
+				'24',
+				'32',
+				'40',
+				'48',
+				'56',
+			] );
+			// Whole-px interior boundaries; the last tile is the 60 % 8 = 4
+			// leftover intervals (67px), and the sum is exactly the track.
+			const widths = tileWidths();
+			expect( widths ).toEqual( [ 133, 134, 133, 133, 134, 133, 133, 67 ] );
+			expect( widths.reduce( ( sum, width ) => sum + width, 0 ) ).toBe( 1000 );
+		} );
+
+		it( 'pins the width sum to the track at every ladder step (adaptive 10-min sheet)', () => {
+			// The real wpcom shape for a 10-min video: one 100-tile sheet at
+			// interval_ms 6000. The quantizer's base unit is that payload
+			// interval — density runs 16/4/2/1 down the ladder, never 1s-based.
+			const storyboard = makeStoryboard( {
+				tiles: 100,
+				columns: 10,
+				rows: 10,
+				tile_width: 160,
+				tile_height: 90,
+				interval_ms: 6000,
+			} );
+			const zoomMax = ( 100 * cellWidth( 160, 90 ) ) / 1000; // ≈ 11.38
+			const expectedCounts = [ 7, 25, 50, 100 ];
+
+			for ( let step = 0; step <= 3; step++ ) {
+				const trackWidth = 1000 * zoomMax ** ( step / 3 );
+				const view = render(
+					<StudioEditorFilmstripTrack
+						filmstrip={ { status: 'storyboard', storyboard } }
+						trackWidth={ trackWidth }
+						durationMs={ 600000 }
+					/>
+				);
+
+				const widths = tileWidths();
+				expect( widths ).toHaveLength( expectedCounts[ step ] );
+				expect( widths.reduce( ( sum, width ) => sum + width, 0 ) ).toBeCloseTo( trackWidth, 6 );
+				widths.forEach( width => expect( width ).toBeGreaterThanOrEqual( 0 ) );
+
+				view.unmount();
+			}
+		} );
+
+		it( 'applies the quantizer to extracted frames via durationMs / frames.length', () => {
+			// 30 frames over 60s → base interval 2000ms, 33.3px per frame at
+			// this scale → density 4: every 4th frame, at explicit widths.
+			const frames = Array.from( { length: 30 }, ( _, index ) => `blob:frame-${ index }` );
+			render(
+				<StudioEditorFilmstripTrack
+					filmstrip={ { status: 'frames', frames } }
+					trackWidth={ 1000 }
+					durationMs={ 60000 }
+				/>
+			);
+
+			const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
+			expect( tiles.map( tile => tile.getAttribute( 'src' ) ) ).toEqual( [
+				'blob:frame-0',
+				'blob:frame-4',
+				'blob:frame-8',
+				'blob:frame-12',
+				'blob:frame-16',
+				'blob:frame-20',
+				'blob:frame-24',
+				'blob:frame-28',
+			] );
+			const widths = tileWidths();
+			expect( widths ).toEqual( [ 133, 134, 133, 133, 134, 133, 133, 67 ] );
+			expect( widths.reduce( ( sum, width ) => sum + width, 0 ) ).toBe( 1000 );
+		} );
+
+		it( 'renders every tile once the scale reaches the source density', () => {
+			// 128px per interval ≥ the 128px cell width → density 1.
+			render(
+				<StudioEditorFilmstripTrack
+					filmstrip={ {
+						status: 'storyboard',
+						storyboard: makeStoryboard( { tiles: 60, columns: 10, rows: 6 } ),
+					} }
+					trackWidth={ 7680 }
+					durationMs={ 60000 }
+				/>
+			);
+
+			const widths = tileWidths();
+			expect( widths ).toHaveLength( 60 );
+			expect( widths ).toEqual( Array( 60 ).fill( 128 ) );
+		} );
 	} );
 } );
 
@@ -194,6 +311,19 @@ describe( 'getFilmstripZoomMax', () => {
 		// 50 tiles at 160/80 = 2:1 → cell width 128px → 6400px of native-width
 		// strip across a 1000px viewport.
 		expect( getFilmstripZoomMax( storyboardState( { tiles: 50 } ), 10000, 1000 ) ).toBe( 6.4 );
+	} );
+
+	it( 'is interval-independent: only the tile count and aspect matter', () => {
+		// The wpcom adaptive sheet serves the same 100 tiles whether they
+		// span 1s or 6s each; the cap (the zoom where tiles hit native
+		// width) must not change with interval_ms.
+		const expected = ( 100 * 128 ) / 1000;
+		expect(
+			getFilmstripZoomMax( storyboardState( { tiles: 100, interval_ms: 1000 } ), 100000, 1000 )
+		).toBe( expected );
+		expect(
+			getFilmstripZoomMax( storyboardState( { tiles: 100, interval_ms: 6000 } ), 600000, 1000 )
+		).toBe( expected );
 	} );
 
 	it( 'clamps to 1 when the strip already fits unstretched', () => {

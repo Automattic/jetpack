@@ -113,10 +113,10 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 	background: repeating-linear-gradient(90deg, #e8e8e8 0, #e8e8e8 47px, #d4d4d4 47px, #d4d4d4 48px);
 }
 
-// The filmstrip proper: equal-width tiles flexed across the content width.
-// Each tile paints a pixel-based cover-crop of its sprite cell (or an
-// object-fit: cover <img> in extraction mode), so zooming widens the crop
-// window — pixels are never stretched or upscaled.
+// The filmstrip proper: sampled tiles laid out at the explicit widths the
+// component computes (they sum to exactly the row width). Each tile paints
+// a pixel-based cover-crop of its sprite cell (or an object-fit: cover
+// <img> in extraction mode) — pixels are never stretched or upscaled.
 .vp-studio-timeline__filmstrip {
 	display: flex;
 	height: 100%;
@@ -124,8 +124,9 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 }
 
 .vp-studio-timeline__filmstrip-tile {
-	flex: 1 1 0;
-	min-width: 0;
+	// Explicit widths from the sampler; tiles must not grow or shrink, or
+	// they'd drift off the timeline's shared horizontal scale.
+	flex: 0 0 auto;
 	height: 100%;
 	background-repeat: no-repeat;
 	// Extraction-mode <img> tiles; ignored by storyboard background tiles.

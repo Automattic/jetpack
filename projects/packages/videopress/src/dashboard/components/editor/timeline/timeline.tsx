@@ -13,10 +13,13 @@
  * (getFilmstripZoomMax) so tiles can never be upscaled; the cap is
  * re-derived — and the effective zoom re-clamped — every render, so it
  * self-heals when the strip resolves asynchronously or the viewport
- * resizes. Zooming — via the toolbar slider
- * or modifier+wheel — keeps the time under the playhead stationary on
- * screen by compensating `scrollLeft`; a plain vertical wheel scrolls the
- * strip. Pointer-down/drag on empty ruler/track area scrubs the
+ * resizes. Zoom state stays a continuous number: the toolbar slider is a
+ * discrete four-stop view of it (zoomMax^(k/3)), while modifier+wheel
+ * moves it continuously — the filmstrip re-samples itself from `pxPerMs`
+ * (see filmstrip-geometry), so any in-between zoom still renders
+ * unstretched tiles. Both paths keep the time under the playhead
+ * stationary on screen by compensating `scrollLeft`; a plain vertical
+ * wheel scrolls the strip. Pointer-down/drag on empty ruler/track area scrubs the
  * playhead (paused seeks are unconstrained on the master, by design — that's
  * how handles get placed outside the current trim window).
  *
@@ -279,7 +282,13 @@ export default function StudioEditorTimeline( {
 		},
 		{
 			id: 'filmstrip',
-			element: <StudioEditorFilmstripTrack filmstrip={ filmstrip } trackWidth={ contentWidth } />,
+			element: (
+				<StudioEditorFilmstripTrack
+					filmstrip={ filmstrip }
+					trackWidth={ contentWidth }
+					durationMs={ durationMs }
+				/>
+			),
 		},
 	];
 

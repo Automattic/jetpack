@@ -79,6 +79,28 @@ function storyboardFilmstrip( tiles: number ): FilmstripState {
 }
 
 /**
+ * The reported canary fixture: a real 91s video with the wpcom storyboard
+ * endpoint's 10×10 sheet — 91 one-second 160×90 tiles (cell width ≈113.8px,
+ * zoom cap ≈11.38 at the 910px viewport the tests pair it with).
+ *
+ * @return The storyboard filmstrip state.
+ */
+function storyboard91s(): FilmstripState {
+	return {
+		status: 'storyboard',
+		storyboard: {
+			url: 'https://example.com/sprite.jpg',
+			tile_width: 160,
+			tile_height: 90,
+			tiles: 91,
+			columns: 10,
+			rows: 10,
+			interval_ms: 1000,
+		},
+	};
+}
+
+/**
  * Render the timeline with spy collaborators.
  *
  * @param overrides - Prop overrides for this test.
@@ -149,7 +171,7 @@ describe( 'StudioEditorTimeline', () => {
 			expectOneScale( '1000px' );
 
 			fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
-				target: { value: '100' },
+				target: { value: '3' },
 			} );
 			expectOneScale( '6400px' );
 
@@ -169,31 +191,34 @@ describe( 'StudioEditorTimeline', () => {
 			mockViewportWidth = 910;
 			renderTimeline( {
 				session: createEditSession( 91000 ),
-				filmstrip: {
-					status: 'storyboard',
-					storyboard: {
-						url: 'https://example.com/sprite.jpg',
-						tile_width: 160,
-						tile_height: 90,
-						tiles: 91,
-						columns: 10,
-						rows: 10,
-						interval_ms: 1000,
-					},
-				},
+				filmstrip: storyboard91s(),
 			} );
 
 			// Strip fills exactly the fit content width: every row at 910px.
 			expectOneScale( '910px' );
 
-			// 91 tiles whose cover-crop math uses tileWidth = 910 / 91 = 10px
-			// (scale = 64/90, one drawn cell 113.78×64px, 10×10 sheet):
-			// tileWidth × tiles ≡ the shared content width.
+			// At fit the quantizer samples every 16th sprite tile (10px per
+			// interval against the ≈113.8px cell → density 16): 6 rendered
+			// tiles at 160px, the last taking the 110px remainder, summing to
+			// exactly the shared content width.
 			const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
-			expect( tiles ).toHaveLength( 91 );
+			expect( tiles ).toHaveLength( 6 );
+			expect( tiles.map( tile => tile.getAttribute( 'data-index' ) ) ).toEqual( [
+				'0',
+				'16',
+				'32',
+				'48',
+				'64',
+				'80',
+			] );
+			expect( tiles.map( tile => parseFloat( tile.style.width ) ) ).toEqual( [
+				160, 160, 160, 160, 160, 110,
+			] );
+			// A 160px box covers the 160×90 cell at scale 1 — pixel-exact, no
+			// upscale: the 10×10 sheet paints at its natural 1600×900.
 			expect( tiles[ 0 ] ).toHaveStyle( {
-				backgroundSize: '1138px 640px',
-				backgroundPosition: '-52px 0px',
+				backgroundSize: '1600px 900px',
+				backgroundPosition: '0px -13px',
 			} );
 
 			// The ruler spans the full duration inside the same box: fit
@@ -293,9 +318,9 @@ describe( 'StudioEditorTimeline', () => {
 		renderTimeline( { filmstrip: storyboardFilmstrip( 50 ) } );
 		const content = screen.getByTestId( 'studio-timeline-content' );
 
-		// Full slider travel lands exactly on the cap, not the old fixed 100×.
+		// The top stop lands exactly on the cap, not some fixed multiplier.
 		fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
-			target: { value: '100' },
+			target: { value: '3' },
 		} );
 		expect( content ).toHaveStyle( { width: '6400px' } );
 
@@ -337,7 +362,7 @@ describe( 'StudioEditorTimeline', () => {
 			renderTimeline( { filmstrip: { status: 'loading' } } );
 
 			fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
-				target: { value: '100' },
+				target: { value: '3' },
 			} );
 			const width = parseFloat( screen.getByTestId( 'studio-timeline-content' ).style.width );
 			expect( width ).toBeCloseTo( ( 10 * 64 * 16 ) / 9, 6 );
@@ -353,7 +378,7 @@ describe( 'StudioEditorTimeline', () => {
 			} );
 
 			fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
-				target: { value: '100' },
+				target: { value: '3' },
 			} );
 			const width = parseFloat( screen.getByTestId( 'studio-timeline-content' ).style.width );
 			expect( width ).toBeCloseTo( ( 30 * 64 * 16 ) / 9, 6 );
@@ -378,7 +403,7 @@ describe( 'StudioEditorTimeline', () => {
 			const content = screen.getByTestId( 'studio-timeline-content' );
 
 			fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
-				target: { value: '100' },
+				target: { value: '3' },
 			} );
 			expect( content ).toHaveStyle( { width: '6400px' } );
 
@@ -389,6 +414,69 @@ describe( 'StudioEditorTimeline', () => {
 			mockViewportWidth = 2000;
 			rerender();
 			expect( content ).toHaveStyle( { width: '6400px' } );
+		} );
+	} );
+
+	describe( 'discrete zoom ladder', () => {
+		it( 'renders the filmstrip through the quantizer at wheel zooms between stops', () => {
+			// The wheel path stays continuous: one ctrl+wheel notch lands at
+			// zoom e^0.2 ≈ 1.221, between stops 0 and 1 of the 91s fixture's
+			// ladder (cap ≈11.38).
+			mockViewportWidth = 910;
+			renderTimeline( {
+				session: createEditSession( 91000 ),
+				filmstrip: storyboard91s(),
+			} );
+
+			fireEvent.wheel( screen.getByTestId( 'studio-timeline-scroller' ), {
+				ctrlKey: true,
+				deltaY: -100,
+			} );
+
+			// ≈12.2px per interval against the ≈113.8px cell → density 8:
+			// 12 sampled tiles whose widths still sum to the exact zoomed
+			// content width — no seams at off-stop zooms.
+			const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
+			expect( tiles ).toHaveLength( 12 );
+			const contentWidth = parseFloat(
+				screen.getByTestId( 'studio-timeline-content' ).style.width
+			);
+			expect( contentWidth ).toBeCloseTo( 910 * Math.exp( 0.2 ), 6 );
+			const sum = tiles.reduce( ( total, tile ) => total + parseFloat( tile.style.width ), 0 );
+			expect( sum ).toBeCloseTo( contentWidth, 6 );
+
+			// The slider shows the nearest stop without snapping the state.
+			expect(
+				screen.getByRole< HTMLInputElement >( 'slider', { name: 'Timeline zoom' } ).value
+			).toBe( '0' );
+		} );
+
+		it( 'keeps the playhead stationary across a discrete zoom jump', () => {
+			// 100 one-second tiles at 128px native width → cap 12.8. Playhead
+			// mid-video sits at 500px on screen at fit.
+			renderTimeline( {
+				session: createEditSession( 100000 ),
+				filmstrip: storyboardFilmstrip( 100 ),
+				currentMs: 50000,
+			} );
+			const scroller = screen.getByTestId( 'studio-timeline-scroller' );
+			// jsdom has no layout: give the scroller the post-zoom geometry so
+			// the compensation isn't clamped into a zero scroll range.
+			Object.defineProperties( scroller, {
+				scrollWidth: { value: 12800, configurable: true },
+				clientWidth: { value: 1000, configurable: true },
+			} );
+
+			// Jump from fit straight to the top stop (zoom 12.8) — the
+			// playhead-anchored compensation is zoom-delta-agnostic, so the
+			// discrete jump rides the same path as small wheel deltas.
+			fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
+				target: { value: '3' },
+			} );
+
+			// The playhead lands at 50000ms × 0.128px/ms = 6400px; keeping it
+			// at its old 500px screen offset needs scrollLeft 5900.
+			expect( scroller.scrollLeft ).toBeCloseTo( 5900, 6 );
 		} );
 	} );
 

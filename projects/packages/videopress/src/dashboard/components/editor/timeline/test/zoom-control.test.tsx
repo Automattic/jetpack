@@ -26,16 +26,54 @@ function renderControl( zoom: number, zoomMax: number ) {
 }
 
 describe( 'StudioEditorZoomControl', () => {
-	it( 'maps zoom onto the slider logarithmically over [1, zoomMax]', () => {
-		// log(4) / log(16) = 0.5 → the geometric midpoint sits mid-travel.
-		const { onZoomChange, slider } = renderControl( 4, 16 );
-		expect( slider.value ).toBe( '50' );
+	it( 'offers four discrete stops with fit pinned at the left', () => {
+		const { slider } = renderControl( 1, 8 );
+		expect( slider ).toHaveAttribute( 'min', '0' );
+		expect( slider ).toHaveAttribute( 'max', '3' );
+		expect( slider ).toHaveAttribute( 'step', '1' );
+		expect( slider.value ).toBe( '0' );
+	} );
 
-		fireEvent.change( slider, { target: { value: '100' } } );
-		expect( onZoomChange ).toHaveBeenLastCalledWith( 16 );
+	it( 'maps stops onto geometric zoom factors: zoom(k) = zoomMax^(k/3)', () => {
+		// zoomMax 8 makes the ladder exact powers of two: 1, 2, 4, 8. Render
+		// mid-ladder (zoom 4 → stop 2) so every other stop is a real change —
+		// React swallows change events that match the controlled value.
+		const { onZoomChange, slider } = renderControl( 4, 8 );
+		expect( slider.value ).toBe( '2' );
+
+		fireEvent.change( slider, { target: { value: '3' } } );
+		expect( onZoomChange ).toHaveBeenLastCalledWith( 8 );
+
+		fireEvent.change( slider, { target: { value: '1' } } );
+		expect( onZoomChange.mock.calls[ 1 ][ 0 ] ).toBeCloseTo( 2, 12 );
 
 		fireEvent.change( slider, { target: { value: '0' } } );
 		expect( onZoomChange ).toHaveBeenLastCalledWith( 1 );
+	} );
+
+	it( 'displays the nearest stop for in-between zooms without snapping the state', () => {
+		// The wheel path keeps zoom continuous; the slider is only a discrete
+		// view of it. zoom 3 with zoomMax 8 sits at 1.585 stops → shown as 2.
+		const { slider } = renderControl( 3, 8 );
+		expect( slider.value ).toBe( '2' );
+	} );
+
+	it( 'shows fit for zooms barely above 1', () => {
+		// One wheel notch up (≈1.22) rounds back to stop 0.
+		const { slider } = renderControl( 1.22, 11.38 );
+		expect( slider.value ).toBe( '0' );
+	} );
+
+	it( 'clamps an overshooting zoom to the top stop', () => {
+		// A stale zoom past the cap (e.g. the viewport grew) must not push
+		// the input out of range.
+		const { slider } = renderControl( 20, 8 );
+		expect( slider.value ).toBe( '3' );
+	} );
+
+	it( 'announces the 1-based level via aria-valuetext', () => {
+		const { slider } = renderControl( 4, 8 );
+		expect( slider ).toHaveAttribute( 'aria-valuetext', 'Zoom level 3 of 4' );
 	} );
 
 	it( 'disables the slider and pins it left when there is no zoom range', () => {
@@ -44,6 +82,7 @@ describe( 'StudioEditorZoomControl', () => {
 		const { slider } = renderControl( 1, 1 );
 		expect( slider ).toBeDisabled();
 		expect( slider.value ).toBe( '0' );
+		expect( slider ).toHaveAttribute( 'aria-valuetext', 'Zoom level 1 of 4' );
 	} );
 
 	it( 'disables the slider for a cap too close to 1 to be useful travel', () => {
