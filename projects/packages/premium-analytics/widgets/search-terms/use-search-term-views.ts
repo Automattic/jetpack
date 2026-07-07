@@ -75,12 +75,16 @@ export default function useSearchTermViews( {
 	return {
 		data: items,
 		isLoading: primary.isLoading || ( hasComparison && comparison.isLoading ),
-		isError: primary.isError || ( hasComparison && comparison.isError ),
+		// The Stats queries carry `placeholderData: previousData => previousData`, so a
+		// failed range change keeps the prior period's rows in `data` while `isError`
+		// flips true. Only surface the error when there's nothing to show, so a transient
+		// refetch failure doesn't replace populated rows with the error state.
+		isError: items.length === 0 && ( primary.isError || ( hasComparison && comparison.isError ) ),
 		hasComparison,
 		refetch: () => {
-			primary.refetch();
+			void primary.refetch();
 			if ( hasComparison ) {
-				comparison.refetch();
+				void comparison.refetch();
 			}
 		},
 	};
