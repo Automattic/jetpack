@@ -13,6 +13,7 @@
 		"automattic/jetpack-explat": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-licensing": "@dev",
+		"automattic/jetpack-menu-badges": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-constants": "@dev",

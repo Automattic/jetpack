@@ -315,6 +315,19 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * UI feature flag for Proofreader (spelling and grammar).
+	 *
+	 * Server-side permission checks still gate execution. This site-side flag
+	 * controls whether the Jetpack AI Sidebar exposes the Proofreader
+	 * suggestion. It follows Image Studio's internal rollout pattern.
+	 *
+	 * @return bool
+	 */
+	private static function is_proofread_content_enabled(): bool {
+		return jetpack_is_internal_testing_environment();
+	}
+
+	/**
 	 * UI feature flag for the SEO Enhancer suggestions (SEO title and meta description).
 	 *
 	 * Exposed only in internal testing environments while the feature is in development,
@@ -335,6 +348,19 @@ class Jetpack_AI_Sidebar {
 			&& (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
 			&& self::has_seo_feature()
 			&& self::is_seo_tools_usable();
+	}
+
+	/**
+	 * UI feature flag for the Generate Excerpt suggestion.
+	 *
+	 * Exposed only in internal testing environments while the feature is in development.
+	 * No plan gate: the excerpt is a core editorial field, and the ability's own
+	 * permission callback (edit_posts) gates execution server-side.
+	 *
+	 * @return bool
+	 */
+	private static function is_excerpt_suggestion_enabled(): bool {
+		return jetpack_is_internal_testing_environment();
 	}
 
 	/**
@@ -421,10 +447,12 @@ class Jetpack_AI_Sidebar {
 		$features = array(
 			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
 			'generateFeedback'        => self::is_generate_feedback_enabled(),
+			'proofreadContent'        => self::is_proofread_content_enabled(),
 			'blockTransformations'    => true,
 			'blockToolbarButton'      => false,
 			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
 			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
+			'excerptSuggestion'       => self::is_excerpt_suggestion_enabled(),
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
@@ -440,8 +468,10 @@ class Jetpack_AI_Sidebar {
 		// Re-assert the testing-environment gates so the generic features filter cannot
 		// expose in-development suggestions outside internal testing environments.
 		$features['generateFeedback']        = self::is_generate_feedback_enabled();
+		$features['proofreadContent']        = self::is_proofread_content_enabled();
 		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && self::is_optimize_title_suggestion_enabled();
 		$features['seoSuggestions']          = (bool) $features['seoSuggestions'] && self::is_seo_suggestions_enabled();
+		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'] && self::is_excerpt_suggestion_enabled();
 
 		return array(
 			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),

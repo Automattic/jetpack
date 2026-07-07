@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { GeoChart } from '@automattic/charts';
 import {
+	GeoChart,
 	LeaderboardChart,
 	LeaderboardLabel,
 	WidgetBackLink,
@@ -12,6 +12,9 @@ import {
 	flagUrl,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	type GeoData,
+	type GoogleDataTableColumn,
+	type GoogleDataTableRow,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -29,7 +32,6 @@ import { type LocationsAttributes } from './widget';
 /**
  * Types
  */
-import type { GeoData, GoogleDataTableColumn, GoogleDataTableRow } from '@automattic/charts';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type LocationsRenderAttributes = LocationsAttributes & Partial< ReportParamsFieldAttributes >;

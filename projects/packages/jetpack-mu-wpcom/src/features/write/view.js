@@ -37,6 +37,85 @@ function isAnon() {
 	return typeof window !== 'undefined' && window.wpcomWriteIsAnon === true;
 }
 
+// Approximates the anon editor open — the module loads immediately after the
+// server rendered the page (and fired `wpcom_write_editor_open`). Used as the
+// baseline for `time_to_publish_ms` on the anon publish-click event.
+const ANON_EDITOR_OPENED_AT = typeof Date !== 'undefined' ? Date.now() : 0;
+
+// Guards `wpcom_write_editor_anon_write_start` to once per session.
+let anonWriteStartTracked = false;
+
+/**
+ * Fire a client-side Tracks event via the `_tkq` queue. Anon callers share the
+ * `tk_ai` cookie, so these stitch to the eventual user at signup completion.
+ *
+ * @param {string} name    - Tracks event name.
+ * @param {object} [props] - Optional event properties.
+ */
+function recordTracksEvent( name, props ) {
+	try {
+		window._tkq = window._tkq || [];
+		window._tkq.push( [ 'recordEvent', name, props || {} ] );
+	} catch {
+		// Tracks unavailable — nothing useful to do; swallow.
+	}
+}
+
+// How long to let a Tracks pixel leave the browser before a redirect. wpcom's
+// Tracks client sends via `new Image()`, and the browser cancels in-flight
+// image GETs on unload — so an event fired immediately before navigation can be
+// dropped. 250ms is imperceptible ahead of a full-page handoff to the signup
+// flow, and well within the round-trip a fire-and-forget pixel needs.
+const TRACKS_BEACON_FLUSH_MS = 250;
+
+/**
+ * Fire a Tracks event, then resolve once the pixel has had time to leave the
+ * browser — for events recorded immediately before navigating away (e.g. the
+ * anon publish handoff), where a synchronous redirect would otherwise cancel
+ * the in-flight `new Image()` beacon. Best-effort and bounded: if the Tracks
+ * client hasn't upgraded the queue (nothing will send), it resolves at once so
+ * the handoff is never delayed for a beacon that won't fire.
+ *
+ * @param {string} name    - Tracks event name.
+ * @param {object} [props] - Optional event properties.
+ * @return {Promise<void>} Resolves when it is safe to navigate.
+ */
+function recordTracksEventBeforeUnload( name, props ) {
+	recordTracksEvent( name, props );
+
+	// The real Tracks client replaces `_tkq.push`; until it does, pushes just
+	// pile up in a plain array and no pixel is sent, so there's nothing to wait
+	// for. (This is exactly the pre-loader state we saw on the anon surface.)
+	const tracksActive =
+		typeof window !== 'undefined' && !! window._tkq && window._tkq.push !== Array.prototype.push;
+
+	if ( ! tracksActive || typeof setTimeout === 'undefined' ) {
+		return Promise.resolve();
+	}
+
+	return new Promise( resolve => {
+		setTimeout( resolve, TRACKS_BEACON_FLUSH_MS );
+	} );
+}
+
+/**
+ * Fire `wpcom_write_editor_anon_write_start` once, the first time an anon
+ * visitor types real content. Keeps the funnel's write-through step honest —
+ * an empty editor that's opened and abandoned shouldn't count as a write.
+ *
+ * @param {string} text - Current plain-text content of the editor.
+ */
+function maybeTrackAnonWriteStart( text ) {
+	if ( anonWriteStartTracked || ! isAnon() ) {
+		return;
+	}
+	if ( ! text || ! text.trim() ) {
+		return;
+	}
+	anonWriteStartTracked = true;
+	recordTracksEvent( 'wpcom_write_editor_anon_write_start' );
+}
+
 /**
  * Persist the current draft snapshot to localStorage under the anon key.
  *
@@ -3458,6 +3537,13 @@ const { state } = store( 'wpcom-write', {
 			el.ref.style.height = 'auto';
 			el.ref.style.height = el.ref.scrollHeight + 'px';
 
+			// Typing a title counts as the first anon write too — the title field
+			// binds to this action rather than repairStructure, so hook it here so
+			// a title-only author still registers a write-start before publish.
+			if ( isAnon() && ! anonWriteStartTracked ) {
+				maybeTrackAnonWriteStart( state.title );
+			}
+
 			// Dismiss the recovery banner once the user starts editing.
 			if ( state.showRecoveryBanner ) {
 				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
@@ -3673,6 +3759,12 @@ const { state } = store( 'wpcom-write', {
 			promoteGapAtCursor();
 			ensureBlockStructure();
 			pushToUndoHistoryDebounced();
+
+			// First real keystroke in the anon funnel — fires once per session.
+			if ( isAnon() && ! anonWriteStartTracked ) {
+				const contentEl = getContent();
+				maybeTrackAnonWriteStart( contentEl ? contentEl.textContent : '' );
+			}
 		},
 
 		undo() {
@@ -5782,6 +5874,16 @@ const { state } = store( 'wpcom-write', {
 
 		async publish() {
 			if ( isAnon() ) {
+				// The publish-intent event — the moment an anon visitor hits the
+				// signup wall. Captured before navigating away so it isn't lost to
+				// the handoff. word_count / draft_size_bytes size the draft; the
+				// server open event and this share the tk_ai identity for stitching.
+				const contentEl = getContent();
+				const rawHtml = contentEl ? contentEl.innerHTML : '';
+				const plainText = contentEl ? contentEl.textContent || '' : '';
+				const words = plainText.trim() ? plainText.trim().split( /\s+/ ).length : 0;
+				const draftContent = rawHtml ? convertToBlocks( rawHtml ) : '';
+
 				// Flush the latest draft snapshot before navigating — autosave is
 				// on a 30s tick, and a fast typer-then-clicker would otherwise
 				// hand off stale (or no) content to the signup flow.
@@ -5790,6 +5892,18 @@ const { state } = store( 'wpcom-write', {
 				// Suppress the dirty-state leave prompt the way every other
 				// internal navigation in this file does (cf. openInBlockEditor).
 				allowLeave = true;
+
+				// Record publish-intent and let the pixel dispatch before the
+				// redirect. wpcom Tracks beacons via `new Image()`, whose in-flight
+				// GET the browser cancels on unload — so a synchronous navigate
+				// would drop this event. The wait is bounded (and skipped entirely
+				// when Tracks isn't loaded) so the handoff is never stalled.
+				await recordTracksEventBeforeUnload( 'wpcom_write_editor_anon_publish_click', {
+					word_count: words,
+					time_to_publish_ms: Date.now() - ANON_EDITOR_OPENED_AT,
+					draft_size_bytes:
+						typeof Blob !== 'undefined' ? new Blob( [ draftContent ] ).size : draftContent.length,
+				} );
 
 				// Anon visitors hand off to the signup flow, which reads the draft
 				// from localStorage and publishes after signup completes.
@@ -5978,13 +6092,143 @@ function showPostPickerModal() {
 	} );
 }
 
+// --- Save failure telemetry (RSM-4323) ---
+//
+// Diagnostic Tracks events for save/publish failures. Today a throw during
+// content preparation, or a request stalled by a proxy/VPN/ad blocker, leaves
+// the Publish and Save buttons disabled with no error surfaced and nothing in
+// Tracks — so we can't see it happening. These events add observability only;
+// they intentionally do not change the save behavior. view.js is served
+// unminified, so error_code + error_message read against real line numbers,
+// and `phase` localizes which stage failed without needing a full stack trace.
+
+// Report a save that has neither resolved nor rejected within this window.
+const SAVE_STALL_THRESHOLD_MS = 30000;
+// Cap free-text error strings so a pathological message can't bloat the payload.
+const MAX_ERROR_MESSAGE_LENGTH = 200;
+
+/**
+ * Normalize an unknown thrown value into a small, Tracks-friendly descriptor.
+ *
+ * Handles the shapes `wp.apiFetch` actually rejects with: WP REST errors
+ * ( `{ code, message, data: { status } }` ), native/AbortError ( `{ name,
+ * message }` ), and non-object throws as a last resort.
+ *
+ * @param {*} err - The thrown value.
+ * @return {{ code: string, status: (number|null), message: string }} Descriptor.
+ */
+function describeSaveError( err ) {
+	if ( ! err || typeof err !== 'object' ) {
+		const raw = err === undefined ? '' : String( err );
+		return { code: 'unknown', status: null, message: raw.slice( 0, MAX_ERROR_MESSAGE_LENGTH ) };
+	}
+	// Prefer the specific REST `code`; fall back to `name` ('AbortError', 'TypeError', …).
+	const code = err.code || err.name || 'unknown';
+	const status = err.data && typeof err.data.status === 'number' ? err.data.status : null;
+	const message = String( err.message || '' ).slice( 0, MAX_ERROR_MESSAGE_LENGTH );
+	return { code: String( code ), status, message };
+}
+
+/**
+ * Fire the `wpcom_write_editor_save_failed` Tracks event.
+ *
+ * @param {*}       err                - The thrown value.
+ * @param {object}  context            - Save context.
+ * @param {string}  context.postStatus - The attempted status ('publish' or 'draft').
+ * @param {boolean} context.isAutosave - Whether the failed save was a periodic autosave.
+ * @param {boolean} context.isUpdate   - Whether this was an update to a published post.
+ * @param {boolean} context.isEditing  - Whether an existing post was being edited.
+ * @param {string}  context.phase      - Stage that failed ('prepare' | 'save_request').
+ */
+function recordSaveFailed( err, { postStatus, isAutosave, isUpdate, isEditing, phase } ) {
+	const { code, status, message } = describeSaveError( err );
+	window._tkq = window._tkq || [];
+	window._tkq.push( [
+		'recordEvent',
+		'wpcom_write_editor_save_failed',
+		{
+			post_status: postStatus,
+			is_autosave: !! isAutosave,
+			is_update: !! isUpdate,
+			is_new_post: ! isEditing,
+			phase,
+			error_code: code,
+			error_status: status,
+			error_message: message,
+		},
+	] );
+}
+
+/**
+ * Fire the `wpcom_write_editor_save_stalled` Tracks event for a save request
+ * that never settled within the watchdog window.
+ *
+ * @param {object}  context            - Save context.
+ * @param {string}  context.postStatus - The attempted status ('publish' or 'draft').
+ * @param {boolean} context.isAutosave - Whether the stalled save was a periodic autosave.
+ * @param {boolean} context.isUpdate   - Whether this was an update to a published post.
+ * @param {boolean} context.isEditing  - Whether an existing post was being edited.
+ * @param {string}  context.phase      - Stage that stalled ('prepare' | 'save_request').
+ * @param {number}  context.elapsedMs  - The watchdog threshold that elapsed, in ms.
+ */
+function recordSaveStalled( { postStatus, isAutosave, isUpdate, isEditing, phase, elapsedMs } ) {
+	window._tkq = window._tkq || [];
+	window._tkq.push( [
+		'recordEvent',
+		'wpcom_write_editor_save_stalled',
+		{
+			post_status: postStatus,
+			is_autosave: !! isAutosave,
+			is_update: !! isUpdate,
+			is_new_post: ! isEditing,
+			phase,
+			elapsed_ms: elapsedMs,
+		},
+	] );
+}
+
 /**
  * Save or publish the current post via the REST API.
+ *
+ * Thin wrapper around performSave() that reports any throw during content
+ * preparation or tag resolution — code that runs before the save request's own
+ * try/catch and today surfaces as a silent unhandled rejection. It re-throws to
+ * preserve current behavior; this is an observability-only change (RSM-4323).
  *
  * @param {string}  postStatus - The desired post status ('publish' or 'draft').
  * @param {boolean} isAutosave - Whether this is a periodic autosave (quieter UX).
  */
 async function savePost( postStatus, isAutosave = false ) {
+	// Shared with performSave so a prep-stage throw here can clear the stall
+	// watchdog performSave armed — otherwise it would fire a spurious
+	// save_stalled ~30s after a save that already failed.
+	const saveCtx = {};
+	try {
+		await performSave( postStatus, isAutosave, saveCtx );
+	} catch ( err ) {
+		// Save-request failures are handled inside performSave; anything caught
+		// here threw during content prep / tag resolution. Report, then re-throw
+		// so behavior is unchanged.
+		clearTimeout( saveCtx.stallWatchdog );
+		recordSaveFailed( err, {
+			postStatus,
+			isAutosave,
+			isUpdate: state.editPostId > 0 && state.postStatus === 'publish',
+			isEditing: state.editPostId > 0,
+			phase: 'prepare',
+		} );
+		throw err;
+	}
+}
+
+/**
+ * Perform the save/publish request. See savePost() for the failure-telemetry wrapper.
+ *
+ * @param {string}  postStatus - The desired post status ('publish' or 'draft').
+ * @param {boolean} isAutosave - Whether this is a periodic autosave (quieter UX).
+ * @param {object}  saveCtx    - Cross-call scratch; receives the stall watchdog handle.
+ */
+async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 	if ( ! isAutosave ) {
 		// Use textContent rather than innerHTML so structural-only markup
 		// (e.g. <p><br></p> left over from clearing the editor) doesn't
@@ -6012,6 +6256,24 @@ async function savePost( postStatus, isAutosave = false ) {
 		}
 		state.message = savingMessage;
 	}
+
+	// Watchdog: report (without aborting) a save that neither resolves nor rejects
+	// within the threshold — e.g. one held open by a proxy, VPN, or ad blocker.
+	// Armed here, before the pre-save awaits below (media-size swaps, tag
+	// resolution), so a hang in either of those is caught too — not just a hang
+	// in the main save request. `stallPhase` narrows the report to prep vs. the
+	// request. Cleared as soon as the flow settles or early-returns.
+	let stallPhase = 'prepare';
+	const stallWatchdog = ( saveCtx.stallWatchdog = setTimeout( () => {
+		recordSaveStalled( {
+			postStatus,
+			isAutosave,
+			isUpdate,
+			isEditing,
+			phase: stallPhase,
+			elapsedMs: SAVE_STALL_THRESHOLD_MS,
+		} );
+	}, SAVE_STALL_THRESHOLD_MS ) );
 
 	// Wait for any in-flight image size swaps to finish so the saved
 	// content's img.src matches its size-* class. Without this, a save
@@ -6065,6 +6327,7 @@ async function savePost( postStatus, isAutosave = false ) {
 	// Safety net: if stripping editor-only elements left the clone
 	// empty, treat it the same as no content.
 	if ( ! clone.innerHTML.trim() ) {
+		clearTimeout( stallWatchdog );
 		state.message = i18n.pleaseWriteSomething || 'Please write something';
 		state.isSaving = false;
 		setTimeout( () => {
@@ -6125,6 +6388,9 @@ async function savePost( postStatus, isAutosave = false ) {
 	// If editing, PUT to the existing post. If new, POST to create.
 	const path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
 
+	// Prep is done; a stall from here on is the main save request itself.
+	stallPhase = 'save_request';
+
 	try {
 		const post = await window.wp.apiFetch( {
 			path,
@@ -6139,6 +6405,7 @@ async function savePost( postStatus, isAutosave = false ) {
 				wpcom_write_editor_used: true,
 			},
 		} );
+		clearTimeout( stallWatchdog );
 
 		// Store the post ID so subsequent saves update the same post.
 		if ( ! isEditing ) {
@@ -6217,6 +6484,8 @@ async function savePost( postStatus, isAutosave = false ) {
 			}, 2500 );
 		}
 	} catch ( err ) {
+		clearTimeout( stallWatchdog );
+		recordSaveFailed( err, { postStatus, isAutosave, isUpdate, isEditing, phase: 'save_request' } );
 		state.isSaving = false;
 		if ( ! isAutosave ) {
 			state.message = ( i18n.error || 'Error: %s' ).replace( '%s', err.message );

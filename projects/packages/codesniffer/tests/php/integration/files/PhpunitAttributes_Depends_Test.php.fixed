@@ -130,12 +130,12 @@ class AnnotationsTest extends TestCase {
 		UsedClass::x();
 	}
 
-	#[Depends()]
+	#[Depends]
 	#[Depends( 42 )]
 	#[Depends( Foo::class )]
-	#[DependsExternal()]
+	#[DependsExternal]
 	#[DependsExternal( 42, 42 )]
-	#[DependsOnClass()]
+	#[DependsOnClass]
 	#[DependsOnClass( 42 )]
 	#[DependsOnClass( self::class )]
 	public function bad() {

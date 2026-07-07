@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Podcast: make the module active-state the single load gate. The module no longer requires a Jetpack connection (its core feed/settings/block are local), and it loads from late_initialization whenever active, so the podcast feed keeps serving even while disconnected.

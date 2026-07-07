@@ -19,6 +19,7 @@ require_once __DIR__ . '/class-ai-launchpad-listeners.php';
 require_once __DIR__ . '/class-ai-launchpad-theme-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-social-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-subscribers-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-subscribe-block-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-about-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-gallery-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-first-post-listener.php';
@@ -67,7 +68,8 @@ class AI_Launchpad {
 	/**
 	 * Whether the current site is eligible for the AI Launchpad.
 	 *
-	 * Gate: paid plan, not already AI-onboarded, and explicitly enabled for the site via the `wpcom_ai_launchpad_enabled` option.
+	 * Gate: not already AI-onboarded, and explicitly enabled for the site via the `wpcom_ai_launchpad_enabled` option.
+	 * The paid-plan requirement is temporarily lifted (see below).
 	 *
 	 * @return bool
 	 */
@@ -75,28 +77,13 @@ class AI_Launchpad {
 		static $eligible = null;
 
 		if ( null === $eligible ) {
-			// Cheapest gate first: the per-site option disqualifies most sites before the more expensive purchases lookup.
+			// TEMPORARY: the paid-plan gate is lifted so the AI Launchpad is available on all plans, including free.
+			// Revert this commit to re-require a paid bundle (the removed has_paid_plan() check).
 			$eligible = self::is_enabled_for_site()
-				&& ! self::was_ai_onboarded()
-				&& self::has_paid_plan();
+				&& ! self::was_ai_onboarded();
 		}
 
 		return $eligible;
-	}
-
-	/**
-	 * Whether the site has a paid plan (bundle purchase).
-	 *
-	 * @return bool
-	 */
-	private static function has_paid_plan() {
-		if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
-			return false;
-		}
-
-		$bundles = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
-
-		return ! empty( $bundles );
 	}
 
 	/**
@@ -124,6 +111,12 @@ class AI_Launchpad {
 	 */
 	public static function register_menu() {
 		if ( ! self::is_eligible() ) {
+			return;
+		}
+
+		// Once every task is done, drop the launchpad from the sidebar. Separate from eligibility on purpose — the
+		// enable option stays set, so re-tailoring or a reset brings it back. Reads the latched flag, no rebuild.
+		if ( get_option( \AI_Launchpad_REST::OPTION_COMPLETED ) ) {
 			return;
 		}
 

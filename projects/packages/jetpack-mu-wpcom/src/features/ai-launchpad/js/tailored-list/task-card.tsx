@@ -7,6 +7,7 @@ import { ctaKind, type EnrichedTask } from './model.ts';
 interface Props {
 	task: EnrichedTask;
 	isBusy: boolean;
+	isLocked: boolean;
 	canStart: boolean;
 	canMarkComplete: boolean;
 	isOpen: boolean;
@@ -84,7 +85,9 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
  *
  * @param props                 - The component props.
  * @param props.task            - The enriched task to render.
- * @param props.isBusy          - Whether the primary action is in flight.
+ * @param props.isBusy          - Whether this card's action is in flight (spinner).
+ * @param props.isLocked        - Whether any card's action is in flight; disables all
+ *                              actions so concurrent writes can't interleave.
  * @param props.canStart        - Whether the task has an actionable CTA destination.
  * @param props.canMarkComplete - Whether the task offers a "Mark as complete" button
  *                              (a complete-on-click task with no CTA destination).
@@ -99,6 +102,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 export function TaskCard( {
 	task,
 	isBusy,
+	isLocked,
 	canStart,
 	canMarkComplete,
 	isOpen,
@@ -170,7 +174,12 @@ export function TaskCard( {
 				<p className="ai-launchpad-tailored-list__subtitle">{ task.subtitle }</p>
 				<div className="ai-launchpad-tailored-list__actions">
 					{ canStart && (
-						<Button variant="solid" onClick={ onGetStarted } loading={ isBusy } disabled={ isBusy }>
+						<Button
+							variant="solid"
+							onClick={ onGetStarted }
+							loading={ isBusy }
+							disabled={ isLocked }
+						>
 							{ getCtaLabel( task.id, task.in_progress ) }
 						</Button>
 					) }
@@ -179,12 +188,13 @@ export function TaskCard( {
 							variant="solid"
 							onClick={ onMarkComplete }
 							loading={ isBusy }
-							disabled={ isBusy }
+							disabled={ isLocked }
 						>
 							{ __( 'Mark as complete', 'jetpack-mu-wpcom' ) }
 						</Button>
 					) }
-					<Button variant="minimal" tone="neutral" onClick={ onSkip }>
+					{ /* Skip persists a server write too, so it shares the lock with the primary action. */ }
+					<Button variant="minimal" tone="neutral" onClick={ onSkip } disabled={ isLocked }>
 						{ __( 'Skip', 'jetpack-mu-wpcom' ) }
 					</Button>
 				</div>
