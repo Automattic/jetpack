@@ -1,12 +1,16 @@
 import { render, screen } from '@testing-library/react';
+import { Chart } from 'react-google-charts';
 import { GlobalChartsProvider } from '../../../providers';
 import GeoChart, { GeoChartUnresponsive } from '../geo-chart';
 
 // Mock react-google-charts
 jest.mock( 'react-google-charts', () => ( {
-	Chart: jest.fn( ( { chartPackages, data, options, width, height } ) => {
+	Chart: jest.fn( ( { chartEvents, chartPackages, data, options, width, height } ) => {
 		return (
 			<div data-testid="google-chart-mock" data-width={ width } data-height={ height }>
+				<div data-testid="chart-events">
+					{ JSON.stringify( chartEvents?.map( event => event.eventName ) ?? [] ) }
+				</div>
 				<div data-testid="chart-packages">{ JSON.stringify( chartPackages ) }</div>
 				<div data-testid="chart-data">{ JSON.stringify( data ) }</div>
 				<div data-testid="chart-options">{ JSON.stringify( options ) }</div>
@@ -16,6 +20,8 @@ jest.mock( 'react-google-charts', () => ( {
 } ) );
 
 describe( 'GeoChart', () => {
+	const ChartMock = Chart as jest.Mock;
+
 	const defaultProps = {
 		width: 800,
 		height: 400,
@@ -264,6 +270,45 @@ describe( 'GeoChart', () => {
 
 			expect( options.region ).toBe( 'US' );
 			expect( options.resolution ).toBe( 'provinces' );
+		} );
+	} );
+
+	describe( 'Chart Events', () => {
+		test( 'does not pass chart events when onError is omitted', () => {
+			renderWithTheme();
+
+			const chartEvents = screen.getByTestId( 'chart-events' );
+			const events = JSON.parse( chartEvents.textContent || '[]' );
+
+			expect( events ).toEqual( [] );
+		} );
+
+		test( 'calls onError when Google Charts emits an error', () => {
+			const onError = jest.fn();
+			renderWithTheme( { onError } );
+
+			const chartProps = ChartMock.mock.calls[ ChartMock.mock.calls.length - 1 ]?.[ 0 ];
+			const errorEvent = chartProps.chartEvents.find(
+				( event: { eventName: string } ) => event.eventName === 'error'
+			);
+
+			errorEvent.callback( {
+				eventArgs: [
+					{
+						id: 'map-error',
+						message: 'Requested map does not exist.',
+						detailedMessage: 'The requested map is not available.',
+						options: { region: 'SG', resolution: 'provinces' },
+					},
+				],
+			} );
+
+			expect( onError ).toHaveBeenCalledWith( {
+				id: 'map-error',
+				message: 'Requested map does not exist.',
+				detailedMessage: 'The requested map is not available.',
+				options: { region: 'SG', resolution: 'provinces' },
+			} );
 		} );
 	} );
 

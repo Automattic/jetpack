@@ -4,7 +4,11 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { FC, useContext, useMemo } from 'react';
-import { Chart, type GoogleChartPackages } from 'react-google-charts';
+import {
+	Chart,
+	type GoogleChartPackages,
+	type ReactGoogleChartEvent,
+} from 'react-google-charts';
 /**
  * Internal dependencies
  */
@@ -15,7 +19,7 @@ import { sanitizeHtml } from '../../utils/sanitize-html';
 import { Center } from '../private/center';
 import { withResponsive } from '../private/with-responsive';
 import styles from './geo-chart.module.scss';
-import { GeoChartProps } from './types';
+import type { GeoChartError, GeoChartProps } from './types';
 
 const DEFAULT_FEATURE_FILL_COLOR = '#ffffff';
 const DEFAULT_BACKGROUND_COLOR = '#ffffff';
@@ -25,6 +29,31 @@ const DEFAULT_BACKGROUND_COLOR = '#ffffff';
 const GEO_CHART_PACKAGES: GoogleChartPackages[] = [ 'corechart', 'controls', 'geochart' ];
 
 type GoogleChartOptions = Record< string, unknown >;
+type GoogleChartErrorPayload = {
+	id?: unknown;
+	message?: unknown;
+	detailedMessage?: unknown;
+	options?: unknown;
+};
+
+function normalizeGeoChartError( eventArgs: unknown ): GeoChartError {
+	const payload = Array.isArray( eventArgs ) ? eventArgs[ 0 ] : eventArgs;
+
+	if ( ! payload || typeof payload !== 'object' ) {
+		return {};
+	}
+
+	const { id, message, detailedMessage, options } = payload as GoogleChartErrorPayload;
+
+	return {
+		...( typeof id === 'string' && { id } ),
+		...( typeof message === 'string' && { message } ),
+		...( typeof detailedMessage === 'string' && { detailedMessage } ),
+		...( options &&
+			typeof options === 'object' &&
+			! Array.isArray( options ) && { options: options as Record< string, unknown > } ),
+	};
+}
 
 /**
  * Renders a geographical chart using Google Charts GeoChart to visualize data.
@@ -42,6 +71,7 @@ type GoogleChartOptions = Record< string, unknown >;
  * @param props.region            - Region to display ('world', 'US', or ISO 3166-1 alpha-2 code)
  * @param props.resolution        - Resolution level ('countries', 'provinces', or 'metros')
  * @param props.displayMode       - Display mode ('auto', 'regions', 'markers', or 'text')
+ * @param props.onError           - Optional callback for Google Charts errors
  * @param props.className         - Additional CSS class name for the chart container
  * @param props.renderPlaceholder - Optional render function for the loading placeholder
  * @return A React component displaying an interactive map with data visualization
@@ -54,6 +84,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	region = 'world',
 	resolution = 'countries',
 	displayMode,
+	onError,
 	renderPlaceholder,
 } ) => {
 	const {
@@ -154,6 +185,21 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		]
 	);
 
+	const chartEvents = useMemo< ReactGoogleChartEvent[] | undefined >( () => {
+		if ( ! onError ) {
+			return undefined;
+		}
+
+		return [
+			{
+				eventName: 'error',
+				callback: ( { eventArgs } ) => {
+					onError( normalizeGeoChartError( eventArgs ) );
+				},
+			},
+		];
+	}, [ onError ] );
+
 	return (
 		<Center
 			className={ clsx( 'geo-chart', styles.container, className ) }
@@ -167,6 +213,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 				height={ height }
 				data={ sanitizedData.data }
 				options={ options }
+				chartEvents={ chartEvents }
 				loader={ loadingPlaceholder }
 			/>
 		</Center>
