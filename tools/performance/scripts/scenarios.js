@@ -7,9 +7,12 @@
  * - run-performance-tests.js (WordPress instance checks)
  *
  * To add a new scenario:
- * 1. Add an entry to SCENARIOS array below
- * 2. Add corresponding Docker service in docker/docker-compose.yml
- * 3. Add setup in docker/setup-wordpress.sh
+ * 1. Add an entry to the SCENARIOS array below.
+ * 2. To measure another PAGE on an existing WordPress instance, reuse that instance's
+ * dockerService/wpPath/envVar/defaultUrl and set `path` + `waitForSelector` (see formsResponses);
+ * no new Docker service or setup is needed.
+ * 3. Only when introducing a NEW WordPress instance, add the Docker service in
+ * docker/docker-compose.yml and its setup in docker/setup-wordpress.sh.
  */
 
 export const SCENARIOS = [
@@ -68,6 +71,10 @@ export const SCENARIOS = [
 		// navigates here after login and waits for the React root to hydrate.
 		path: '/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin',
 		waitForSelector: '#jetpack-forms-responses-wp-admin-app.boot-layout-container',
+		// These four post straight to PRODUCTION keys — the `-staging` window in the README
+		// Safeguards is deliberately waived here (owner decision). The substitute for that
+		// observation window is a proven-deterministic dry-run (decodedBytesKB stdDev 0) plus the
+		// SANITY_RANGES + all-or-nothing gate; the first live post is still held for sign-off.
 		metrics: [
 			{
 				field: 'lcp',

@@ -123,6 +123,14 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			/* eslint-disable no-undef -- This runs in browser context via Playwright */
 			await context.addInitScript( () => {
 				// This runs in the browser context before page load
+
+				// Raise the Resource Timing buffer well above the default 250 entries. This metric
+				// exists to watch a GROWING count of @wordpress/* editor module files, so the
+				// measured quantity and the default cap would collide exactly as the tracked
+				// regression worsens — past 250 the tail would drop and the decoded-bytes sum would
+				// silently under-count. (~79 resources today; this is headroom, not a live fix.)
+				performance.setResourceTimingBufferSize( 1e6 );
+
 				window.__lcpEntries = [];
 				window.__lcpObserver = new PerformanceObserver( list => {
 					const entries = list.getEntries();
@@ -227,7 +235,9 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 					domInteractive: navigation ? navigation.domInteractive : null,
 					ttfb: navigation ? navigation.responseStart : null,
 
-					// Size metrics
+					// Size metrics for the NAVIGATION DOCUMENT ONLY (the HTML response). This
+					// decodedBodySize is NOT the bundle-size metric — that one (decodedBytesKB) is
+					// the sum across every resource, computed in the resourceStats block below.
 					transferSize: navigation ? navigation.transferSize : null,
 					encodedBodySize: navigation ? navigation.encodedBodySize : null,
 					decodedBodySize: navigation ? navigation.decodedBodySize : null,

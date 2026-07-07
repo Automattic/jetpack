@@ -112,6 +112,17 @@ test( 'out-of-range value is rejected', () => {
 	assert.equal( checkSanityRange( 'lcp', 60001 ).ok, false ); // above max
 } );
 
+test( 'decodedBytesKB range is enforced at its boundaries', () => {
+	// The range VALUES (1000/51200) are data, not shared logic: a transposed or mistyped bound
+	// passes every field-agnostic checkSanityRange test above yet ships silently to the
+	// append-only store. Pin this metric's own boundaries so a wrong bound fails a test instead.
+	assert.equal( checkSanityRange( 'decodedBytesKB', 1000 ).ok, true ); // min, inclusive
+	assert.equal( checkSanityRange( 'decodedBytesKB', 51200 ).ok, true ); // max, inclusive
+	assert.equal( checkSanityRange( 'decodedBytesKB', 999 ).ok, false ); // below min
+	assert.equal( checkSanityRange( 'decodedBytesKB', 51201 ).ok, false ); // above max
+	assert.equal( checkSanityRange( 'decodedBytesKB', 8229 ).ok, true ); // the measured value
+} );
+
 test( 'a typed metric with no range row fails closed (typo / forgotten row)', () => {
 	assert.equal( checkSanityRange( 'lcpp', 120 ).ok, false ); // typo
 	assert.equal( checkSanityRange( 'LCP', 120 ).ok, false ); // case mismatch, lookup is exact
