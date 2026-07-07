@@ -24,7 +24,6 @@ export const TASK_MENU: readonly string[] = [
 	'setup_general',
 	'site_launched',
 	'blog_launched',
-	'woo_launch_site',
 	'link_in_bio_launched',
 	'set_up_payments',
 	'stripe_connected',
@@ -101,7 +100,7 @@ HARD RULES (do not break - the server rejects output that violates these):
 - Every "id" MUST come from the menu below, verbatim. Never invent IDs. Drop any task you cannot map to a menu ID.
 - Return exactly 6 tasks.
 - At least one task must create content (e.g. "first_post_published", "first_post_published_newsletter", "woo_products", or "add_about_page").
-- The 6th and final task MUST be a launch task: one of "site_launched" (canonical), "blog_launched", "woo_launch_site", or "link_in_bio_launched".
+- The 6th and final task MUST be a launch task: one of "site_launched" (canonical), "blog_launched", or "link_in_bio_launched".
 - Only include "woo_products", "woo_customize_store", "set_up_payments", "stripe_connected", or "woo_woocommerce_payments" if the goal is sell OR the user explicitly mentions selling, products, store, shop, or commerce.
 - For the sell goal, order the commerce tasks store-first: "woo_customize_store", then "woo_products", then "set_up_payments", keeping the launch task last. Installing WooCommerce is added automatically as the first step, so do not include a task for it.
 - Only include "add_10_email_subscribers", "subscribers_added", "newsletter_plan_created", or "import_subscribers" if the goal is newsletter OR the user explicitly mentions email subscribers or a newsletter.

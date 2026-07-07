@@ -21,6 +21,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	const MIN_VALID_TASKS = 4;
 
+	// `woo_launch_site` stays a valid launch task so a stray AI emission passes PUT validation and is normalized to
+	// `site_launched` on read (see build_tasks), rather than failing the whole list into the deterministic fallback.
 	const LAUNCH_TASK_IDS = array( 'site_launched', 'blog_launched', 'woo_launch_site', 'link_in_bio_launched', 'videopress_launched' );
 
 	/**
@@ -72,7 +74,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		'woo_customize_store',
 		'woo_products',
 		'set_up_payments',
-		'woo_launch_site',
 	);
 
 	/**
@@ -715,7 +716,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * @return array
 	 */
 	private function build_all_catalog_tasks() {
-		$built = array();
+		$built    = array();
+		$seen_ids = array();
 		foreach ( array_keys( wpcom_launchpad_get_task_definitions() ) as $task_id ) {
 			try {
 				$one = $this->build_tasks(
@@ -727,8 +729,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					),
 					true
 				);
-				if ( ! empty( $one ) ) {
-					$built[] = $one[0];
+				// build_tasks runs per id here, so its own dedup can't see this collision: the catalog holds both
+				// `woo_launch_site` and `site_launched`, and the former is remapped onto the latter. Keep the first.
+				if ( ! empty( $one ) && ! in_array( $one[0]['id'], $seen_ids, true ) ) {
+					$seen_ids[] = $one[0]['id'];
+					$built[]    = $one[0];
 				}
 			} catch ( \Throwable $e ) {
 				continue;
@@ -750,6 +755,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	private function build_tasks( $tasks, $bypass_visibility = false, $niche = '', $disable_hidden_woo = false ) {
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$built       = array();
+		$seen_ids    = array();
 
 		// Some catalog visibility callbacks call is_plugin_active(), which is not loaded during a REST request.
 		if ( ! function_exists( 'is_plugin_active' ) ) {
@@ -763,7 +769,22 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				continue;
 			}
 
+			// The WooCommerce launch task deep-links into the WC onboarding task list, which renders blank when the
+			// guided setup was skipped, and only completes via a WC option that skip never writes. Normalize it to the
+			// canonical site-launch task, which reads the real launch signal and self-completes. The prompt no longer
+			// offers it, so this only catches a stray AI emission.
+			if ( 'woo_launch_site' === $task['id'] ) {
+				$task['id'] = 'site_launched';
+			}
+
 			if ( ! isset( $definitions[ $task['id'] ] ) ) {
+				continue;
+			}
+
+			// One card per id — the client keys cards by id. The woo_launch_site→site_launched remap above can collide
+			// with a real site_launched (notably the ?all_tasks=1 view, which enumerates every catalog id), so collapse
+			// any repeat to the first occurrence.
+			if ( in_array( $task['id'], $seen_ids, true ) ) {
 				continue;
 			}
 
@@ -834,7 +855,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// Title follows our precise in-progress signal so it, the icon, and the CTA agree.
 			$title = $this->get_task_title( $task['id'], $in_progress, $title );
 
-			$built[] = array(
+			$seen_ids[] = $task['id'];
+			$built[]    = array(
 				'id'           => $task['id'],
 				'subtitle'     => $task['subtitle'],
 				'title'        => $title,
