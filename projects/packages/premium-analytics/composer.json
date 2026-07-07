@@ -71,12 +71,6 @@
 		},
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
-		},
-		"dependencies": {
-			"build": [
-				"packages/block-delimiter",
-				"packages/device-detection"
-			]
 		}
 	}
 }

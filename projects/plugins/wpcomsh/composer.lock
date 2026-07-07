@@ -1908,7 +1908,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "d81dd55f9d407692783082e8284dfcafb1c9c873"
+                "reference": "1b3067feb4367b82e67cde8076b9199bcbe44fb3"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1938,12 +1938,6 @@
                 },
                 "branch-alias": {
                     "dev-trunk": "0.1.x-dev"
-                },
-                "dependencies": {
-                    "build": [
-                        "packages/block-delimiter",
-                        "packages/device-detection"
-                    ]
                 }
             },
             "autoload": {
