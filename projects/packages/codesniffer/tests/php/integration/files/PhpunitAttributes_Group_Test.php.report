@@ -23,6 +23,7 @@
  46 | WARNING | [x] For compatibility with older PHPUnit versions, add annotation `@medium` to match the `Group` attribute. (Jetpack.PHPUnit.Attributes.AttributeFoundMissingAnnotation)
  47 | WARNING | [x] For compatibility with older PHPUnit versions, add annotation `@large` to match the `Group` attribute. (Jetpack.PHPUnit.Attributes.AttributeFoundMissingAnnotation)
  51 | ERROR   | [ ] Attribute `Group` is missing parameter `$name`. (Jetpack.PHPUnit.Attributes.AttributeMissingParameter)
+ 51 | ERROR   | [x] Parentheses not allowed when instantiating an attribute class without passing parameters (Universal.Attributes.DisallowAttributeParentheses.Found)
  52 | ERROR   | [ ] Attribute `Ticket` parameter `$text` should be a constant single- or double-quoted string. (Jetpack.PHPUnit.Attributes.AttributeInvalidStringParameter)
  80 | WARNING | [x] Annotation `@ticket` is deprecated in PHPUnit 11 and removed in PHPUnit 12. Add attribute `Ticket` for compatibility with those versions. (Jetpack.PHPUnit.Attributes.AnnotationFoundMissingAttribute)
  81 | WARNING | [x] Annotation `@ticket` is deprecated in PHPUnit 11 and removed in PHPUnit 12. Add attribute `Ticket` for compatibility with those versions. (Jetpack.PHPUnit.Attributes.AnnotationFoundMissingAttribute)

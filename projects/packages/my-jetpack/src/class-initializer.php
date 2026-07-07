@@ -20,6 +20,8 @@ use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\ExPlat;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Menu_Badges\Menu_Badges;
+use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
@@ -40,7 +42,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.40.4';
+	const PACKAGE_VERSION = '5.40.5';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -96,8 +98,9 @@ class Initializer {
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
-		// This is later than the admin-ui package, which runs on 1000
-		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
+		// Registered on admin_menu (not admin_init) and well before priority 100000, so the
+		// counts it registers exist before the menu-badges renderer runs on admin_menu 100000.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_show_red_bubble' ), 30 );
 
 		// Set up the ExPlat package endpoints
 		ExPlat::init();
@@ -735,7 +738,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function maybe_show_red_bubble() {
-		global $menu, $pagenow;
+		global $pagenow;
 
 		// Don't show red bubble alerts for non-admin users
 		// These alerts are generally only actionable for admins
@@ -764,7 +767,18 @@ class Initializer {
 			$cached_alerts = Red_Bubble_Notifications::get_cached_alerts();
 
 			if ( false === $cached_alerts ) {
-				// No cache - fetch asynchronously via JS.
+				// No cache: warm it asynchronously via JS. Register a hidden zero-count
+				// placeholder so Menu_Renderer emits a `my-jetpack` badge element the
+				// warmer can reveal (see async-notification-bubble.ts) without a reload.
+				Menu_Badges::init(); // idempotent; wires the renderer.
+				Notification_Counts::register(
+					'my-jetpack',
+					array(
+						'menu_slug' => 'my-jetpack',
+						'count'     => 0,
+						'type'      => 'count',
+					)
+				);
 				add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_red_bubble_script' ) );
 				return;
 			}
@@ -780,14 +794,24 @@ class Initializer {
 			}
 		);
 
-		// The Jetpack menu item should be on index 3
-		if (
-			! empty( $red_bubble_alerts ) &&
-			isset( $menu[3] ) &&
-			$menu[3][0] === 'Jetpack'
-		) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$menu[3][0] .= sprintf( ' <span class="awaiting-mod">%d</span>', count( $red_bubble_alerts ) );
+		// Report each non-silent alert to the central menu-badges registry as an
+		// attention entry (count 1). The registry + renderer own the badge.
+		Menu_Badges::init(); // idempotent; wires the renderer.
+		foreach ( array_keys( $red_bubble_alerts ) as $slug ) {
+			// Protect reports its own count directly to the registry, but only when its
+			// standalone plugin is active (see class-jetpack-protect.php::admin_page_init()).
+			// If the standalone plugin isn't active, nobody else registers this count, so we
+			// must not skip it here or the alert silently disappears from the menu total.
+			if ( 'protect_has_threats' === $slug && Products\Protect::is_standalone_plugin_active() ) {
+				continue;
+			}
+			Notification_Counts::register(
+				'my-jetpack-' . $slug,
+				array(
+					'menu_slug' => 'my-jetpack',
+					'type'      => 'attention',
+				)
+			);
 		}
 	}
 

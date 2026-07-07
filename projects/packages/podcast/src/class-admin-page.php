@@ -30,10 +30,10 @@ class Admin_Page {
 	/**
 	 * Where the Podcast item sits in the Jetpack submenu on self-hosted.
 	 *
-	 * Placed after content/product items like Newsletter and Search (10), but
-	 * before Settings (13).
+	 * Placed after content/product items like Newsletter and Search (10), and
+	 * above Activity Log (12) so Activity Log stays immediately before Settings (13).
 	 */
-	const MENU_POSITION = 12;
+	const MENU_POSITION = 11;
 
 	/**
 	 * Slug emitted by `@wordpress/build`. wp-build's auto-generated enqueue
