@@ -2,7 +2,7 @@
 /**
  * CSV Export Email Template (HTML)
  *
- * This template can be overridden by copying it to yourtheme/woocommerce/emails/csv-export-email.php.
+ * This template can be overridden by copying it to yourtheme/woocommerce/csv-export-email.php.
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export
  *
