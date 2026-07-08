@@ -104,7 +104,7 @@ function storyboard91s(): FilmstripState {
  * Render the timeline with spy collaborators.
  *
  * @param overrides - Prop overrides for this test.
- * @return The spies and a same-props rerender helper.
+ * @return The spies and a rerender helper (same props, optionally overridden).
  */
 function renderTimeline( overrides: Partial< StudioEditorTimelineProps > = {} ) {
 	const dispatch = jest.fn();
@@ -124,7 +124,8 @@ function renderTimeline( overrides: Partial< StudioEditorTimelineProps > = {} ) 
 		dispatch,
 		onSeek,
 		onTogglePlay,
-		rerender: () => view.rerender( <StudioEditorTimeline { ...props } /> ),
+		rerender: ( next: Partial< StudioEditorTimelineProps > = {} ) =>
+			view.rerender( <StudioEditorTimeline { ...props } { ...next } /> ),
 	};
 }
 
@@ -148,6 +149,18 @@ describe( 'StudioEditorTimeline', () => {
 		expect( screen.getByTestId( 'studio-timeline-content' ) ).toHaveStyle( { width: '1000px' } );
 		// pxPerMs 0.1 → 1000ms step → 11 ticks for 10s.
 		expect( screen.getAllByTestId( 'studio-timeline-ruler-tick' ) ).toHaveLength( 11 );
+	} );
+
+	it( 'draws a full-height gridline under every ruler tick, on the same scale', () => {
+		renderTimeline();
+		const ticks = screen.getAllByTestId( 'studio-timeline-ruler-tick' );
+		const gridlines = screen.getAllByTestId( 'studio-timeline-gridline' );
+		expect( gridlines ).toHaveLength( ticks.length );
+		// Same pxPerMs on both layers: every gridline shares its tick's
+		// translateX, so lines and labels cannot drift apart across zooms.
+		gridlines.forEach( ( gridline, index ) => {
+			expect( gridline.style.transform ).toBe( ticks[ index ].style.transform );
+		} );
 	} );
 
 	describe( 'one timeline scale', () => {
@@ -478,6 +491,79 @@ describe( 'StudioEditorTimeline', () => {
 			// The playhead lands at 50000ms × 0.128px/ms = 6400px; keeping it
 			// at its old 500px screen offset needs scrollLeft 5900.
 			expect( scroller.scrollLeft ).toBeCloseTo( 5900, 6 );
+		} );
+	} );
+
+	describe( 'auto-follow while playing', () => {
+		/**
+		 * Render a 100s session zoomed to the top stop (content 12800px in a
+		 * 1000px viewport, pxPerMs 0.128) with jsdom's zero layout patched to
+		 * the post-zoom scroller geometry, so the follow window is real.
+		 *
+		 * @param overrides - Prop overrides (e.g. playing).
+		 * @return The render utils plus the scroller element.
+		 */
+		function renderZoomed( overrides: Partial< StudioEditorTimelineProps > = {} ) {
+			const utils = renderTimeline( {
+				session: createEditSession( 100000 ),
+				filmstrip: storyboardFilmstrip( 100 ),
+				playing: true,
+				...overrides,
+			} );
+			const scroller = screen.getByTestId( 'studio-timeline-scroller' );
+			Object.defineProperties( scroller, {
+				scrollWidth: { value: 12800, configurable: true },
+				clientWidth: { value: 1000, configurable: true },
+			} );
+			fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
+				target: { value: '3' },
+			} );
+			return { ...utils, scroller };
+		}
+
+		it( 'chases scrollLeft to keep the playhead inside the follow window', () => {
+			const { rerender, scroller } = renderZoomed();
+			expect( scroller.scrollLeft ).toBe( 0 );
+
+			// Playhead at 10s → 1280px, past the right bound (0 + 1000 − 80):
+			// scrollLeft chases so the playhead sits exactly on the bound.
+			rerender( { currentMs: 10000 } );
+			expect( scroller.scrollLeft ).toBe( 360 );
+
+			// Jump back before the left bound (360 + 40): the chase re-anchors
+			// the playhead 40px from the left edge.
+			rerender( { currentMs: 1000 } );
+			expect( scroller.scrollLeft ).toBe( 88 );
+		} );
+
+		it( 'clamps the chase to the scrollable range', () => {
+			const { rerender, scroller } = renderZoomed();
+			// Playhead at the very end → 12800px wants scrollLeft 11880, but
+			// the range tops out at scrollWidth − clientWidth.
+			rerender( { currentMs: 100000 } );
+			expect( scroller.scrollLeft ).toBe( 11800 );
+		} );
+
+		it( 'does not follow while paused', () => {
+			const { rerender, scroller } = renderZoomed( { playing: false } );
+			rerender( { currentMs: 10000 } );
+			expect( scroller.scrollLeft ).toBe( 0 );
+		} );
+
+		it( 'suppresses the chase during a drag gesture and resumes after', () => {
+			const { rerender, scroller } = renderZoomed();
+			const content = screen.getByTestId( 'studio-timeline-content' );
+
+			// Mid-gesture (pointer down, no up yet): playhead updates must not
+			// scroll the ground out from under the drag.
+			fireEvent.pointerDown( content, { button: 0, pointerId: 1, clientX: 100 } );
+			rerender( { currentMs: 10000 } );
+			expect( scroller.scrollLeft ).toBe( 0 );
+
+			// Gesture over: the next playhead update chases again.
+			fireEvent.pointerUp( content, { pointerId: 1 } );
+			rerender( { currentMs: 20000 } );
+			expect( scroller.scrollLeft ).toBe( 1640 );
 		} );
 	} );
 

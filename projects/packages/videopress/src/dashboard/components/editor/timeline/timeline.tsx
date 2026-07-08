@@ -128,6 +128,7 @@ export default function StudioEditorTimeline( {
 		<StudioTimelineShell
 			durationMs={ durationMs }
 			currentMs={ currentMs }
+			playing={ playing }
 			locked={ locked }
 			getZoomMax={ viewportWidth => getFilmstripZoomMax( filmstrip, durationMs, viewportWidth ) }
 			onSeek={ onSeek }

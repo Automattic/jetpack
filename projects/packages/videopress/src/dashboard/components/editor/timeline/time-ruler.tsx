@@ -1,12 +1,13 @@
 /**
  * Time ruler track for the Studio editor timeline.
  *
- * Renders labelled ticks at an adaptive step ({@link pickRulerStep}) so labels
- * keep readable spacing at every zoom level. Purely presentational — pointer
- * handling (scrubbing) lives on the timeline's content wrapper.
+ * Renders a mono label at each adaptive tick ({@link useRulerTicks});
+ * the matching full-height gridlines are drawn by the timeline shell from
+ * the same tick positions. Purely presentational — pointer handling
+ * (scrubbing) lives on the timeline's content wrapper.
  */
-import { useMemo } from 'react';
-import { formatTimecode, msToPx, pickRulerStep } from '../state/time-utils';
+import { formatTimecode, msToPx } from '../state/time-utils';
+import { useRulerTicks } from './use-ruler-ticks';
 import type { ReactElement } from 'react';
 
 type Props = {
@@ -25,17 +26,7 @@ type Props = {
  * @return The ruler element.
  */
 export default function StudioEditorTimeRuler( { durationMs, pxPerMs }: Props ): ReactElement {
-	const ticks = useMemo( () => {
-		if ( durationMs <= 0 || pxPerMs <= 0 ) {
-			return [];
-		}
-		const step = pickRulerStep( pxPerMs );
-		const result: number[] = [];
-		for ( let ms = 0; ms <= durationMs; ms += step ) {
-			result.push( ms );
-		}
-		return result;
-	}, [ durationMs, pxPerMs ] );
+	const ticks = useRulerTicks( durationMs, pxPerMs );
 
 	return (
 		<div className="vp-studio-timeline__ruler" data-testid="studio-timeline-ruler">

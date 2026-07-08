@@ -1,10 +1,20 @@
 // Studio editor timeline: toolbar row on top, then a horizontally scrollable
 // strip. Inside the strip a scaled content element stacks the tracks (ruler,
-// filmstrip) with the edit overlay and the playhead absolutely positioned
-// across the full track height.
+// filmstrip) with the gridline layer, the edit overlay, and the playhead
+// absolutely positioned across the full track height.
+// Strip grammar (editor redesign): the top 24px is the tick zone (mono
+// labels over full-height 1px gridlines); everything below is the
+// filmstrip. Trim handles and cut segments span from just under the tick
+// zone (top: 25px) to just above the bottom border (bottom: 1px); their
+// grab affordances are slim 4px bars centered in 10px hit areas — alert red
+// for cut edges, admin accent for trim.
 
 $vp-timeline-handle-width: 10px;
-$vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
+$vp-timeline-bar-width: 4px;
+$vp-timeline-bar-height: 24px;
+$vp-timeline-accent: var(--vp-accent, var(--wp-admin-theme-color, #3858e9));
+$vp-timeline-alert-red: var(--vp-alert-red, #cc1818);
+$vp-timeline-segment-top: 25px;
 
 .vp-studio-timeline {
 	display: flex;
@@ -107,8 +117,8 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 .vp-studio-timeline__scroller {
 	overflow-x: auto;
 	overflow-y: hidden;
-	border: 1px solid #ddd;
-	border-radius: 4px;
+	border: 1px solid var(--vp-gray-300, #ddd);
+	border-radius: var(--vp-radius-medium, 4px);
 	background: #fff;
 	// Zoomed content must scroll HERE, never widen the page: without
 	// inline-size containment the scroller's max-content size grows with the
@@ -142,6 +152,8 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 	user-select: none;
 }
 
+// The 24px tick zone: mono labels only — the vertical lines under them are
+// the shell's full-height gridline layer, not per-tick borders.
 .vp-studio-timeline__track--ruler {
 	height: 24px;
 }
@@ -149,7 +161,7 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 .vp-studio-timeline__ruler {
 	position: relative;
 	height: 100%;
-	border-bottom: 1px solid #e0e0e0;
+	border-bottom: 1px solid var(--vp-gray-200, #e0e0e0);
 	overflow: hidden;
 }
 
@@ -158,17 +170,36 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 	top: 0;
 	bottom: 0;
 	left: 0;
-	border-left: 1px solid #ccc;
-	padding-left: 4px;
-	display: flex;
-	align-items: center;
 }
 
 .vp-studio-timeline__ruler-label {
-	font-size: 10px;
-	color: #757575;
+	position: absolute;
+	top: 4px;
+	left: 5px;
+	font-family: var(--vp-font-mono, Menlo, Consolas, monaco, monospace);
+	font-size: 11px;
+	line-height: 1;
+	color: var(--vp-gray-700, #757575);
 	font-variant-numeric: tabular-nums;
 	white-space: nowrap;
+}
+
+// Full-height gridlines under the ruler labels: a pointer-transparent sheet
+// spanning every track, one 1px vertical per tick at the same pxPerMs as
+// the labels above it.
+.vp-studio-timeline__gridlines {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.vp-studio-timeline__gridline {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 1px;
+	background: rgba(0, 0, 0, 0.07);
 }
 
 .vp-studio-timeline__track--filmstrip {
@@ -209,25 +240,45 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 	pointer-events: none;
 }
 
+// Lightened for the white strip: the old near-black wash drowned the
+// thumbnails; a soft dim still reads as "outside the kept range".
 .vp-studio-timeline__shroud {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	background: rgba(0, 0, 0, 0.35);
+	background: rgba(0, 0, 0, 0.15);
+}
+
+// A slim grab bar (drawn as a ::before) centered in an invisible hit area,
+// shared grammar between the trim handles (accent) and cut edges (alert red).
+@mixin vp-timeline-grab-bar($color) {
+	content: "";
+	position: absolute;
+	top: 50%;
+	width: $vp-timeline-bar-width;
+	height: $vp-timeline-bar-height;
+	transform: translateY(-50%);
+	border-radius: var(--vp-radius-small, 2px);
+	background: $color;
 }
 
 .vp-studio-timeline__trim-handle {
 	position: absolute;
-	top: 0;
-	bottom: 0;
+	top: $vp-timeline-segment-top;
+	bottom: 1px;
 	width: $vp-timeline-handle-width;
-	background: $vp-timeline-accent;
-	border-radius: 2px;
 	cursor: ew-resize;
 	pointer-events: auto;
 
 	// Center the grip on its time; translateX positions the left edge.
 	margin-left: -($vp-timeline-handle-width * 0.5);
+
+	&::before {
+
+		@include vp-timeline-grab-bar($vp-timeline-accent);
+
+		left: ($vp-timeline-handle-width - $vp-timeline-bar-width) * 0.5;
+	}
 
 	&:focus-visible {
 		outline: 2px solid $vp-timeline-accent;
@@ -237,33 +288,48 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 
 .vp-studio-timeline__cut {
 	position: absolute;
-	top: 0;
-	bottom: 0;
-	background: repeating-linear-gradient(-45deg, rgba(214, 54, 56, 0.35) 0, rgba(214, 54, 56, 0.35) 6px, rgba(214, 54, 56, 0.15) 6px, rgba(214, 54, 56, 0.15) 12px);
-	border: 1px solid rgba(214, 54, 56, 0.8);
+	top: $vp-timeline-segment-top;
+	bottom: 1px;
+	border-radius: var(--vp-radius-small, 2px);
+	background: repeating-linear-gradient(45deg, rgba(204, 24, 24, 0.16) 0, rgba(204, 24, 24, 0.16) 5px, rgba(204, 24, 24, 0.06) 5px, rgba(204, 24, 24, 0.06) 10px);
+	// Rings are box-shadows, not borders: a border would eat into the
+	// segment's box and shift its edges off the times they represent.
+	box-shadow: inset 0 0 0 1px rgba(204, 24, 24, 0.5);
 	pointer-events: auto;
 
 	&--selected {
-		border-color: $vp-timeline-accent;
-		border-width: 2px;
-		box-shadow: 0 0 0 1px $vp-timeline-accent;
+		box-shadow: inset 0 0 0 1px $vp-timeline-alert-red, 0 0 0 2px $vp-timeline-accent;
 	}
 }
 
+// 10px hit areas overhanging the segment by 4px, with the 4px alert-red bar
+// sitting exactly on the cut boundary.
 .vp-studio-timeline__cut-edge {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	width: 8px;
+	width: $vp-timeline-handle-width;
 	cursor: ew-resize;
-	background: rgba(214, 54, 56, 0.9);
+
+	&::before {
+
+		@include vp-timeline-grab-bar($vp-timeline-alert-red);
+	}
 
 	&--start {
 		left: -4px;
+
+		&::before {
+			left: 2px;
+		}
 	}
 
 	&--end {
 		right: -4px;
+
+		&::before {
+			right: 2px;
+		}
 	}
 
 	&:focus-visible {
@@ -272,12 +338,18 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 	}
 }
 
-.vp-studio-timeline__cut-remove {
+.vp-studio-timeline__cut-remove.components-button {
 	position: absolute;
-	top: 2px;
-	right: 6px;
+	top: 4px;
+	right: 4px;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	justify-content: center;
 	background: #fff;
-	border-radius: 2px;
+	color: var(--vp-gray-900, #1e1e1e);
+	border-radius: var(--vp-radius-small, 2px);
+	box-shadow: var(--vp-elevation-small, 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 3px rgba(0, 0, 0, 0.04), 0 6px 6px rgba(0, 0, 0, 0.03), 0 8px 8px rgba(0, 0, 0, 0.02));
 
 	// Survive very narrow cuts: the button may overflow the segment.
 	min-width: 0;
@@ -288,10 +360,24 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 	top: 0;
 	bottom: 0;
 	left: 0;
-	width: 1px;
-	background: #d63638;
+	width: 2px;
+	margin-left: -1px;
+	background: var(--vp-gray-900, #1e1e1e);
 	// Never block scrubbing; keyboard focus still works via Tab.
 	pointer-events: none;
+
+	// The grab cap: a rounded-bottom lozenge hanging from the strip top.
+	&::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 50%;
+		width: 10px;
+		height: 12px;
+		transform: translateX(-50%);
+		border-radius: 2px 2px 5px 5px;
+		background: var(--vp-gray-900, #1e1e1e);
+	}
 
 	&:focus-visible {
 		outline: 2px solid $vp-timeline-accent;

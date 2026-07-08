@@ -31,13 +31,21 @@
  * `role="slider"` with arrow-key nudging. Pointer-down/drag on empty
  * ruler/track area scrubs the playhead (paused seeks are unconstrained on
  * the master, by design — that's how handles get placed outside the current
- * trim window).
+ * trim window). While `playing` is true the shell auto-follows: it chases
+ * `scrollLeft` to keep the playhead inside the follow window, suppressed
+ * during any pointer gesture on the strip so a drag never fights the chase.
+ *
+ * The shell also draws the pointer-transparent gridline layer: one 1px
+ * full-height vertical per ruler tick, positioned from the same
+ * {@link useRulerTicks}/`pxPerMs` pair as the ruler labels so lines and
+ * labels cannot drift apart.
  */
 import { __ } from '@wordpress/i18n';
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { formatTimecode, msToPx } from '../state/time-utils';
 import { NUDGE_LARGE_MS, NUDGE_MS } from './use-keyboard-shortcuts';
 import { useTimelinePointerDrag } from './use-pointer-drag';
+import { useRulerTicks } from './use-ruler-ticks';
 import { useTimelineGeometry } from './use-timeline-geometry';
 import type {
 	KeyboardEvent as ReactKeyboardEvent,
@@ -45,6 +53,13 @@ import type {
 	ReactNode,
 	RefObject,
 } from 'react';
+
+/**
+ * Auto-follow margins: while playing, the playhead is kept at least this far
+ * from the scroller's left/right edges by chasing `scrollLeft`.
+ */
+const FOLLOW_MARGIN_LEFT_PX = 40;
+const FOLLOW_MARGIN_RIGHT_PX = 80;
 
 /**
  * Clamp a time to the master duration.
@@ -93,6 +108,11 @@ type Props = {
 	/** Live playhead position in master-timeline ms. */
 	currentMs: number;
 	/**
+	 * Whether preview playback is running. While true the shell auto-follows
+	 * the playhead by chasing `scrollLeft`.
+	 */
+	playing?: boolean;
+	/**
 	 * True while a processing job locks editing. Only the scroller region
 	 * blocks pointer interaction (the toolbar stays usable); the parent's
 	 * guarded dispatch drops edit dispatches either way, and it also owns
@@ -121,6 +141,7 @@ type Props = {
  * @param props              - Component props.
  * @param props.durationMs   - Master duration in ms.
  * @param props.currentMs    - Live playhead position in ms.
+ * @param props.playing      - Whether preview playback is running.
  * @param props.locked       - Whether a processing job locks the strip.
  * @param props.getZoomMax   - The zoom ceiling for a given viewport width.
  * @param props.onSeek       - Seek the preview player.
@@ -134,6 +155,7 @@ type Props = {
 export default function StudioTimelineShell( {
 	durationMs,
 	currentMs,
+	playing = false,
 	locked = false,
 	getZoomMax,
 	onSeek,
@@ -147,6 +169,16 @@ export default function StudioTimelineShell( {
 	const geometry = useTimelineGeometry( { durationMs, currentMs, getZoomMax } );
 	const { pxPerMs, contentWidth, viewportWidth, zoom, zoomMax, applyZoom, scaledWidthStyle } =
 		geometry;
+	const ticks = useRulerTicks( durationMs, pxPerMs );
+
+	// True between any pointer-down and pointer-up/cancel on the strip. Set
+	// in the capture phase so it also covers overlay children (trim handles,
+	// cut edges) that stopPropagation their bubbling pointer-downs; with
+	// pointer capture their up/cancel events still retarget through this
+	// ancestor's capture phase, so the flag always clears. A plain ref, not
+	// state: the auto-follow effect only reads it when `currentMs` next
+	// changes, and re-rendering mid-gesture would buy nothing.
+	const gestureRef = useRef( false );
 
 	const seekClamped = useCallback(
 		( ms: number ) => onSeek( clampToDuration( ms, durationMs ) ),
@@ -190,6 +222,35 @@ export default function StudioTimelineShell( {
 	};
 
 	const playheadMs = clampToDuration( currentMs, durationMs );
+	const playheadPx = msToPx( playheadMs, pxPerMs );
+
+	// Auto-follow: while playing, chase scrollLeft minimally so the playhead
+	// stays inside [scrollLeft + left margin, scrollLeft + clientWidth −
+	// right margin]. Suppressed during any drag gesture on the strip — the
+	// user's pointer→ms math must not have the ground scrolled out from
+	// under it mid-drag. Driven by the `currentMs`-derived playheadPx, which
+	// the parent updates from the player's rAF state, so the chase advances
+	// with playback at no extra animation loop.
+	const { scrollerEl } = geometry;
+	useEffect( () => {
+		if ( ! playing || gestureRef.current || ! scrollerEl ) {
+			return;
+		}
+		const clientWidth = scrollerEl.clientWidth;
+		if ( clientWidth <= 0 ) {
+			return;
+		}
+		let next: number | null = null;
+		if ( playheadPx < scrollerEl.scrollLeft + FOLLOW_MARGIN_LEFT_PX ) {
+			next = playheadPx - FOLLOW_MARGIN_LEFT_PX;
+		} else if ( playheadPx > scrollerEl.scrollLeft + clientWidth - FOLLOW_MARGIN_RIGHT_PX ) {
+			next = playheadPx - ( clientWidth - FOLLOW_MARGIN_RIGHT_PX );
+		}
+		if ( next !== null ) {
+			const maxScroll = Math.max( 0, scrollerEl.scrollWidth - clientWidth );
+			scrollerEl.scrollLeft = Math.min( maxScroll, Math.max( 0, next ) );
+		}
+	}, [ playing, playheadPx, scrollerEl ] );
 
 	return (
 		<div className="vp-studio-timeline" data-testid="studio-timeline">
@@ -206,6 +267,15 @@ export default function StudioTimelineShell( {
 					data-testid="studio-timeline-content"
 					ref={ contentRef }
 					style={ scaledWidthStyle }
+					onPointerDownCapture={ () => {
+						gestureRef.current = true;
+					} }
+					onPointerUpCapture={ () => {
+						gestureRef.current = false;
+					} }
+					onPointerCancelCapture={ () => {
+						gestureRef.current = false;
+					} }
 					onPointerDown={ scrub.onPointerDown }
 					onPointerMove={ scrub.onPointerMove }
 					onPointerUp={ scrub.onPointerUp }
@@ -221,6 +291,20 @@ export default function StudioTimelineShell( {
 							{ track.element }
 						</div>
 					) ) }
+					<div
+						className="vp-studio-timeline__gridlines"
+						data-testid="studio-timeline-gridlines"
+						aria-hidden="true"
+					>
+						{ ticks.map( ms => (
+							<div
+								key={ ms }
+								className="vp-studio-timeline__gridline"
+								data-testid="studio-timeline-gridline"
+								style={ { transform: `translateX(${ msToPx( ms, pxPerMs ) }px)` } }
+							/>
+						) ) }
+					</div>
 					{ overlay?.( context ) }
 					<div
 						className="vp-studio-timeline__playhead"
