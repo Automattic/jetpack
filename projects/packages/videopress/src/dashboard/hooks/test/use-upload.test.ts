@@ -8,7 +8,7 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
-import { useUpload, __resetUploadStoreForTests } from '../use-upload';
+import { useUpload, removeUpload, __resetUploadStoreForTests } from '../use-upload';
 
 const mockUploadHandler = jest.fn();
 let lastCallbacks: {
@@ -99,6 +99,37 @@ describe( 'useUpload', () => {
 		expect( mockUploadHandler ).not.toHaveBeenCalled();
 	} );
 
+	it( 'stamps the origin option onto the queue item', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		act( () => {
+			result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ), undefined, {
+				origin: 'attach',
+			} );
+		} );
+		expect( result.current.uploadQueue[ 0 ].origin ).toBe( 'attach' );
+	} );
+
+	it( 'removeUpload drops the item and its settlers from the shared store', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const onError = jest.fn();
+		let id = '';
+		act( () => {
+			id = result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ), {
+				onError,
+			} );
+		} );
+		act( () => {
+			removeUpload( id );
+		} );
+		expect( result.current.uploadQueue ).toEqual( [] );
+		// A retry of the removed id is a no-op, and no settler ever fires.
+		act( () => {
+			result.current.retryUpload( id );
+		} );
+		expect( result.current.uploadQueue ).toEqual( [] );
+		expect( onError ).not.toHaveBeenCalled();
+	} );
+
 	it( 'shares the upload queue across separate useUpload instances backed by the same QueryClient', () => {
 		const client = createTestQueryClient();
 		const wrapper = createTestWrapper( client );
@@ -164,6 +195,54 @@ describe( 'useUpload', () => {
 		} finally {
 			jest.useRealTimers();
 		}
+	} );
+
+	it( 'invokes the onSuccess settler with the uploaded media', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const onSuccess = jest.fn();
+		act( () => {
+			result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ), {
+				onSuccess,
+			} );
+		} );
+		act( () => {
+			lastCallbacks.onSuccess?.( { id: 42, guid: 'guid-42', src: 'https://v/42.mp4' } );
+		} );
+		expect( onSuccess ).toHaveBeenCalledWith( {
+			id: 42,
+			guid: 'guid-42',
+			src: 'https://v/42.mp4',
+		} );
+		expect( result.current.uploadQueue[ 0 ].status ).toBe( 'success' );
+	} );
+
+	it( 'settlers are one-shot: onError fires once and a later retry settles silently', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const onSuccess = jest.fn();
+		const onError = jest.fn();
+		let id: string | undefined;
+		act( () => {
+			id = result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ), {
+				onSuccess,
+				onError,
+			} );
+		} );
+		act( () => {
+			lastCallbacks.onError?.( new Error( 'boom' ) );
+		} );
+		expect( onError ).toHaveBeenCalledWith( 'boom' );
+
+		act( () => {
+			result.current.retryUpload( id! );
+		} );
+		act( () => {
+			lastCallbacks.onSuccess?.( { id: 42, guid: 'guid-42', src: 'https://v/42.mp4' } );
+		} );
+		// The settlers were consumed by the failure; the retry's success
+		// updates the queue but fires no callbacks.
+		expect( onSuccess ).not.toHaveBeenCalled();
+		expect( onError ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.uploadQueue[ 0 ].status ).toBe( 'success' );
 	} );
 
 	it( 'dispatches the next queued upload after the active one fails', () => {

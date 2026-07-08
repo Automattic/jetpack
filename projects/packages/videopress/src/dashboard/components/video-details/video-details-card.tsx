@@ -1,10 +1,12 @@
 import { TextareaControl } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, InputControl, Link, Stack } from '@wordpress/ui';
+import { Card, InputControl, Stack } from '@wordpress/ui';
+import ChaptersSummary from './chapters-summary';
+import type { LibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
 
 type Props = {
+	video: Pick< LibraryItem, 'id' >;
 	title: string;
 	description: string;
 	onChange: ( partial: { title?: string; description?: string } ) => void;
@@ -12,10 +14,13 @@ type Props = {
 };
 
 /**
- * Form card for the editable text fields: title and description.
- * Renders a footer hint that opens the Chapters help modal.
+ * Form card for the editable text fields: title and description, plus the
+ * compact chapters summary (count derived from the description, a deep link
+ * into the Studio editor's Chapters tool, and the Chapters help modal link —
+ * see chapters-summary.tsx).
  *
  * @param props                - Component props.
+ * @param props.video          - The video (id for the chapters editor deep link).
  * @param props.title          - Current title value.
  * @param props.description    - Current description value.
  * @param props.onChange       - Partial-update handler from the form hook.
@@ -23,6 +28,7 @@ type Props = {
  * @return The card element.
  */
 export default function VideoDetailsCard( {
+	video,
 	title,
 	description,
 	onChange,
@@ -47,25 +53,11 @@ export default function VideoDetailsCard( {
 						onChange={ next => onChange( { description: next } ) }
 						rows={ 5 }
 					/>
-					<p className="vp-video-details__chapters-hint">
-						{ createInterpolateElement(
-							__(
-								'Did you know you can now add Chapters to your videos? <link>Learn how</link>',
-								'jetpack-videopress-pkg'
-							),
-							{
-								link: (
-									<Link
-										href="#"
-										onClick={ event => {
-											event.preventDefault();
-											onOpenChapters();
-										} }
-									/>
-								),
-							}
-						) }
-					</p>
+					<ChaptersSummary
+						video={ video }
+						description={ description }
+						onOpenHelp={ onOpenChapters }
+					/>
 				</Stack>
 			</Card.Content>
 		</Card.Root>

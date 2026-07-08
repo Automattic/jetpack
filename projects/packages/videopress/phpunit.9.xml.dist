@@ -13,5 +13,9 @@
 		<testsuite name="main">
 			<directory suffix="Test.php">tests/php</directory>
 		</testsuite>
+		<!-- Needs real DB tables; run via composer phpunit, which passes the tests/php-sqlite/bootstrap.php bootstrap. -->
+		<testsuite name="sqlite">
+			<directory suffix="Test.php">tests/php-sqlite</directory>
+		</testsuite>
 	</testsuites>
 </phpunit>

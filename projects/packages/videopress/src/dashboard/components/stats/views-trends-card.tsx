@@ -5,6 +5,7 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Stack } from '@wordpress/ui';
 import { formatWatchTime } from '../../utils/format';
+import './style.scss';
 import type { ActiveMetric, ChartCompare, Granularity, StatsSeriesPoint } from '../../types/stats';
 import type { LineChartProps } from '@automattic/charts';
 import type { ReactElement, ReactNode } from 'react';

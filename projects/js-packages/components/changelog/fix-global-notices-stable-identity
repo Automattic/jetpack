@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Make useGlobalNotices return referentially stable action creators, preventing effect loops in store-subscribed consumers.

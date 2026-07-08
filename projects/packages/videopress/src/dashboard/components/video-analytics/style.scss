@@ -1,0 +1,151 @@
+// Styles for the per-video Analytics screen components (KpiCardsRow,
+// RetentionPanel, PagesCard, ChannelAverageCard). Page-level layout
+// (container, bottom two-column grid) lives in
+// `routes/video-analytics/style.scss`; shared KPI/skeleton/tooltip rules
+// come from `components/stats/style.scss`.
+.vp-video-analytics {
+
+	&__kpi-row {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 24px;
+
+		// Cards in this row are tabs (role="tab") that select what the
+		// trends panel shows. Same 3px bottom indicator as the Overview's
+		// KPI row (see `routes/overview/style.scss`).
+		> [role="tab"] {
+			cursor: pointer;
+			position: relative;
+
+			&::after {
+				content: "";
+				position: absolute;
+				inset-inline: 0;
+				bottom: 0;
+				height: 3px;
+				background: var(--wpds-color-stroke-interactive-neutral-strong, #1d35b4);
+				border-end-start-radius: inherit;
+				border-end-end-radius: inherit;
+				opacity: 0;
+				transition: opacity 0.15s ease;
+			}
+
+			&[aria-selected="true"]::after {
+				opacity: 1;
+			}
+
+			// Subtle preview of the indicator on hover so the affordance
+			// is discoverable.
+			&:not([aria-selected="true"]):hover::after {
+				opacity: 0.3;
+			}
+
+			&:focus-visible {
+				outline: 2px solid var(--wpds-color-stroke-focus-brand, #1d35b4);
+				outline-offset: -2px;
+			}
+		}
+
+		@media (max-width: 960px) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		@media (max-width: 600px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	// Retention tabpanel body. Matches the chart card's reserved 240px
+	// canvas so switching between the chart and this state doesn't
+	// reflow the page.
+	&__panel-empty {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 240px;
+		padding: 0 24px;
+		text-align: center;
+		color: #646970;
+	}
+
+	// Single-column list used by the "Posts featuring this video" card.
+	// Same rhythm as the Overview's ranking rows, minus the value column
+	// and percentage bar (no per-page counts upstream).
+	&__list {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	&__list-head {
+		padding: 0 12px 4px;
+		color: #646970;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-size: 11px;
+		font-weight: 600;
+	}
+
+	&__list-row {
+		display: flex;
+		align-items: center;
+		min-height: 32px;
+		line-height: 20px;
+		padding: 6px 12px;
+		border-radius: 4px;
+		overflow-wrap: anywhere;
+
+		&:hover {
+			background: #f0f4ff;
+		}
+	}
+
+	&__list-empty {
+		display: block;
+		padding: 24px 12px;
+		text-align: center;
+		color: #646970;
+	}
+
+	// Three-column metric table for the "Compared to channel average"
+	// card: label | this video | channel average.
+	&__compare {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	&__compare-head,
+	&__compare-row {
+		display: grid;
+		grid-template-columns: 1fr auto auto;
+		gap: 24px;
+		align-items: center;
+		padding: 6px 12px;
+	}
+
+	&__compare-head {
+		padding-bottom: 4px;
+		color: #646970;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-size: 11px;
+		font-weight: 600;
+	}
+
+	&__compare-row {
+		min-height: 32px;
+		line-height: 20px;
+		border-radius: 4px;
+
+		&:hover {
+			background: #f0f4ff;
+		}
+	}
+
+	&__compare-value {
+		min-width: 88px;
+		text-align: right;
+		font-variant-numeric: tabular-nums;
+	}
+}

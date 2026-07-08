@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add feature-flagged scaffolding for upcoming video library management dashboard surfaces (playlists, per-video analytics/editor routes).

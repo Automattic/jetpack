@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Studio editor filmstrip mis-cropping storyboard sprites by using the sprite's physical row count.

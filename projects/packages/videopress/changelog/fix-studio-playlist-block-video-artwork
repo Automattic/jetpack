@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress Studio: resolve video-attachment playlist artwork to its poster instead of the video file URL, in both the block render and the editor preview.

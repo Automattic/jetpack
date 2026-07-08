@@ -31,4 +31,39 @@ describe( 'useVideo', () => {
 		expect( result.current.video?.privacy ).toBe( 'private' );
 		expect( result.current.video?.displayEmbed ).toBe( true );
 	} );
+
+	it( 'maps an import placeholder to a draft item with import-sourced fields', async () => {
+		mockApiFetch( async ( { path } ) => {
+			if ( path === '/wp/v2/media/51' ) {
+				return {
+					id: 51,
+					title: { rendered: 'Placeholder' },
+					mime_type: 'video/videopress-draft',
+					jetpack_videopress_import: {
+						source: 'youtube',
+						external_id: 'Zt8vWy2RbQ4',
+						title: 'Sunrise Timelapse',
+						description: 'Three hours in three minutes.',
+						duration_seconds: 187,
+						thumbnail_url: 'https://example.com/uploads/hqdefault.jpg',
+						thumbnail_attachment_id: 12,
+						status: 'awaiting_media',
+					},
+				};
+			}
+			throw new Error( `unexpected path: ${ path }` );
+		} );
+
+		const { result } = renderHook( () => useVideo( 51 ), { wrapper: createTestWrapper() } );
+
+		await waitFor( () => expect( result.current.video ).toBeDefined() );
+		expect( result.current.video?.type ).toBe( 'draft' );
+		expect( result.current.video?.title ).toBe( 'Sunrise Timelapse' );
+		expect( result.current.video?.description ).toBe( 'Three hours in three minutes.' );
+		expect( result.current.video?.durationSeconds ).toBe( 187 );
+		expect( result.current.video?.thumbnailUrl ).toBe(
+			'https://example.com/uploads/hqdefault.jpg'
+		);
+		expect( result.current.video?.guid ).toBe( '' );
+	} );
 } );

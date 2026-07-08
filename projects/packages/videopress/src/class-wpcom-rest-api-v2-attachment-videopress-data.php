@@ -108,6 +108,18 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 				'key'     => 'videopress_guid',
 				'compare' => 'NOT EXISTS',
 			);
+
+			/*
+			 * Studio import draft placeholders have no guid either, but they
+			 * are not local videos: without this clause the library's
+			 * Type=Local filter would surface rows it renders with a Draft
+			 * label. Keyed on the import status meta so it also hides drafts
+			 * stranded by a disabled Studio flag.
+			 */
+			$args['meta_query'][] = array(
+				'key'     => Import_Rest_Controller::META_IMPORT_STATUS,
+				'compare' => 'NOT EXISTS',
+			);
 		}
 
 		/*

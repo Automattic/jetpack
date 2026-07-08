@@ -7,17 +7,20 @@ import { useNavigate } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
-import { libraryFields } from '../../src/dashboard/components/library/fields';
+import AttachMediaModal from '../../src/dashboard/components/library/attach-media-modal';
+import { buildLibraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
+import { usePlaylists } from '../../src/dashboard/hooks/use-playlists';
 import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import { isStudioEnabled } from '../../src/dashboard/utils/studio';
 import { planVideoDrop } from './upload-drop';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
@@ -71,8 +74,17 @@ const StageInner = () => {
 	// rows get a "Deleting…" state (thumbnail overlay in grid, title pill in
 	// table) until the post-delete refetch removes them from the listing.
 	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
+	// The import draft the "Attach video file" dialog is open for. A snapshot
+	// of the row (not an id): the attach flow's refetches remove the draft
+	// from the listing while the dialog still needs its title.
+	const [ attachDraft, setAttachDraft ] = useState< LibraryItem | null >( null );
 
 	const { items, isLoading, paginationInfo } = useLibrary( view );
+	// Playlists back the Studio-gated playlists field (cell render + filter
+	// elements). With the flag off the query never fires — the terms route
+	// isn't registered — and buildLibraryFields() returns the ungated fields.
+	const { playlists } = usePlaylists( { enabled: isStudioEnabled() } );
+	const fields = useMemo( () => buildLibraryFields( { playlists } ), [ playlists ] );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
@@ -117,9 +129,20 @@ const StageInner = () => {
 
 	const navigate = useNavigate();
 
+	const openImport = useCallback( () => {
+		navigate( { href: '/import' } );
+	}, [ navigate ] );
+
 	const openVideoDetails = useCallback(
 		( id: string ) => {
 			navigate( { href: `/video/${ id }` } );
+		},
+		[ navigate ]
+	);
+
+	const openVideoAnalytics = useCallback(
+		( id: string ) => {
+			navigate( { href: `/video/${ id }/analytics` } );
 		},
 		[ navigate ]
 	);
@@ -220,6 +243,10 @@ const StageInner = () => {
 				promoteLocal,
 				retryUpload,
 				openVideoDetails,
+				openVideoAnalytics,
+				// State setters are referentially stable, so this doesn't
+				// need to appear in the memo's dependency list.
+				attachMedia: setAttachDraft,
 				deleteItems: async ( ids: string[] ) => {
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// The row overlay/pill is purely visual; this notice is what
@@ -353,6 +380,7 @@ const StageInner = () => {
 			deleteVideo,
 			setPrivacyAsync,
 			openVideoDetails,
+			openVideoAnalytics,
 			createSuccessNotice,
 			createErrorNotice,
 			createInfoNotice,
@@ -360,10 +388,17 @@ const StageInner = () => {
 	);
 
 	// Splice in-flight uploads at the top of the listing so the user sees
-	// their upload immediately, before the next server refetch.
+	// their upload immediately, before the next server refetch. Attach-flow
+	// items (origin 'attach') are excluded: their progress and failure UI
+	// live in the attach dialog, and the generic Retry affordances here
+	// would re-upload the file without the attach orchestration.
 	const renderedItems = useMemo< LibraryItem[] >( () => {
 		const inFlight: LibraryItem[] = uploadQueue
-			.filter( u => u.status === 'pending' || u.status === 'uploading' || u.status === 'failed' )
+			.filter(
+				u =>
+					u.origin !== 'attach' &&
+					( u.status === 'pending' || u.status === 'uploading' || u.status === 'failed' )
+			)
 			.map( u => ( {
 				id: u.id,
 				guid: '',
@@ -386,6 +421,7 @@ const StageInner = () => {
 				allowDownloads: false,
 				shortcode: '',
 				isProcessing: false,
+				playlistIds: [],
 			} ) );
 		// Overlay an in-flight state on items currently being promoted from
 		// local-storage to VideoPress or being deleted, so the title-cell
@@ -418,6 +454,16 @@ const StageInner = () => {
 						style={ { display: 'none' } }
 						onChange={ onFilePicked }
 					/>
+					{ isStudioEnabled() && (
+						<Button
+							className="vp-library__import-button"
+							variant="outline"
+							size="compact"
+							onClick={ openImport }
+						>
+							{ __( 'Import', 'jetpack-videopress-pkg' ) }
+						</Button>
+					) }
 					<Tooltip
 						text={
 							isAtLimit
@@ -448,7 +494,7 @@ const StageInner = () => {
 					/>
 					<DataViews< LibraryItem >
 						data={ renderedItems }
-						fields={ libraryFields }
+						fields={ fields }
 						actions={ actions }
 						view={ view }
 						onChangeView={ onChangeView }
@@ -461,6 +507,9 @@ const StageInner = () => {
 					/>
 				</div>
 			</UploadActionsProvider>
+			{ attachDraft && (
+				<AttachMediaModal draft={ attachDraft } onClose={ () => setAttachDraft( null ) } />
+			) }
 		</DashboardLayout>
 	);
 };

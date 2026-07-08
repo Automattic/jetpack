@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress Studio: playlist block polish — decode HTML entities in editor-preview titles and playlist names, share one video-count string between the PHP render and the editor preview, ignore non-string className/align/anchor attributes in the server render, and drop the video block's never-emitted style.css handle.

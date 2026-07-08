@@ -1,0 +1,7 @@
+// Route-level styles for the per-video editor: only the flag-off NotFound
+// fallback. The editor's own layout lives with the component in
+// src/dashboard/components/editor/style.scss.
+.vp-video-editor__not-found {
+	padding: 48px 24px;
+	text-align: center;
+}

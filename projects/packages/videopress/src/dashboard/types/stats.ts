@@ -2,6 +2,13 @@ export type DateRange = 'last_7_days' | 'last_30_days' | 'last_90_days' | 'last_
 export type Granularity = 'days' | 'weeks' | 'months';
 export type ActiveMetric = 'views' | 'impressions' | 'watch_time';
 
+// KPI selectable on the per-video Analytics screen. Superset of
+// `ActiveMetric`: retention is a KPI tab there, but it has no time
+// series upstream, so it never becomes an `ActiveMetric` for the
+// trends chart — the screen swaps the chart panel for an explanatory
+// state when it is selected.
+export type VideoMetric = ActiveMetric | 'retention';
+
 // Compare values are metric-agnostic. "secondary" means "the other
 // daily-count metric" — Impressions when Views is active, Views when
 // Impressions is active. Watch time has no meaningful secondary, so the
@@ -37,6 +44,39 @@ export interface OverviewStats {
 	series: StatsSeriesPoint[];
 	topVideos: TopVideo[];
 	topVideosByWatchTime: TopVideo[];
+}
+
+// Per-video stats for the Analytics screen. Same series/KPI shapes as
+// the Overview so the shared components/stats widgets render unchanged;
+// `retentionRate` (a percentage, views-weighted mean of the daily
+// retention_rate values WPCOM reports per video) is the one addition.
+export interface VideoStats {
+	views: KpiSummary;
+	impressions: KpiSummary;
+	watchTimeSeconds: KpiSummary;
+	retentionRate: KpiSummary;
+	series: StatsSeriesPoint[];
+}
+
+// Sanitized shape of the per-video `stats/video/{post_id}` proxy
+// (`/jetpack/v4/videopress/stats/video/{post_id}`). WPCOM returns
+// `{ data: [ [ date, plays ], ... ], pages: [ url, ... ] }`, but only
+// the embedding-page URLs have a consumer (the "Posts featuring this
+// video" card); the daily-plays tuples are dropped during sanitization.
+export interface VideoPages {
+	pages: string[];
+}
+
+// Per-video means across every video with a `data[]` row in one
+// video-plays window ("channel average"). Count metrics are plain means
+// (window total ÷ distinct videos); `retentionRate` is the views-weighted
+// mean across every row, mirroring the per-video retention KPI.
+export interface ChannelAverages {
+	videoCount: number;
+	views: number;
+	impressions: number;
+	watchTimeSeconds: number;
+	retentionRate: number;
 }
 
 export const DATE_RANGE_DAYS: Record< DateRange, number > = {

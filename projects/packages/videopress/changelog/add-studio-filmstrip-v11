@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress Studio: discrete four-stop timeline zoom with quantized filmstrip re-sampling, so tiles render near native width at every zoom.

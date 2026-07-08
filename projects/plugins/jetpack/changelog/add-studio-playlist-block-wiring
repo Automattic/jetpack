@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+VideoPress: wire the videopress/playlist block into the Jetpack plugin (beta, Studio-gated).

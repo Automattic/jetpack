@@ -1,0 +1,25 @@
+// Design tokens for the Studio editor surface, per the approved editor
+// redesign (project_docs/videopress_studio/editor_redesign_design.md).
+// Values are the standard Gutenberg palette. Only --wp-admin-theme-color is
+// a real custom property in wp-admin; everything else gets a literal
+// fallback here — do NOT reference --wp-gray-* at runtime.
+.vp-studio-editor,
+.vp-studio-editor-tokens {
+	--vp-accent: var(--wp-admin-theme-color, #3858e9);
+	--vp-accent-darker: #2145e6;
+	--vp-alert-red: #cc1818;
+	--vp-gray-900: #1e1e1e;
+	--vp-gray-700: #757575;
+	--vp-gray-600: #949494;
+	--vp-gray-300: #ddd;
+	--vp-gray-200: #e0e0e0;
+	--vp-gray-100: #f0f0f0;
+	--vp-radius-small: 2px;
+	--vp-radius-medium: 4px;
+	--vp-elevation-small:
+		0 1px 2px rgba(0, 0, 0, 0.05),
+		0 2px 3px rgba(0, 0, 0, 0.04),
+		0 6px 6px rgba(0, 0, 0, 0.03),
+		0 8px 8px rgba(0, 0, 0, 0.02);
+	--vp-font-mono: Menlo, Consolas, monaco, monospace;
+}

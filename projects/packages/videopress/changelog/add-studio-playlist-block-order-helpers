@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add shared playlist-order resolution helpers (JS lib and PHP port) as groundwork for the VideoPress playlist block.

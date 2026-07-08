@@ -1,0 +1,44 @@
+// Page-level layout for the per-video Analytics screen. Card-internal
+// rules (KPI row grid + tab indicator, pages list, comparison table)
+// live in `src/dashboard/components/video-analytics/style.scss`,
+// imported by the components themselves; shared KPI/skeleton/chart
+// rules come from `src/dashboard/components/stats/style.scss`.
+.vp-video-analytics {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 1344px;
+	margin-inline: auto;
+	padding-block: 24px;
+
+	// Constant inline gutter so the page never reads flush to
+	// `#wpbody-content`'s edges — same rationale as the Overview.
+	padding-inline: 24px;
+
+	&__row--bottom {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 24px;
+
+		@media (max-width: 782px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	&__processing {
+		padding: 48px 24px;
+		text-align: center;
+		color: #646970;
+	}
+
+	&__not-found {
+		padding: 48px 24px;
+		text-align: center;
+	}
+
+	&__loading {
+		min-height: 240px;
+	}
+}

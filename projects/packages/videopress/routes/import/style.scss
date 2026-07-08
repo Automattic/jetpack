@@ -1,0 +1,101 @@
+@use "sass:meta";
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+.vp-import {
+
+	// Flag-off deep-link fallback (see NotFound in stage.tsx).
+	&__not-found {
+		padding: 48px 24px;
+		text-align: center;
+	}
+
+	// Loading / error placeholders for the connection query.
+	&__state {
+		padding: 48px 24px;
+	}
+
+	&__connect {
+		padding: 48px 24px;
+	}
+
+	&__toolbar {
+		padding: 8px 0;
+	}
+
+	&__viewport {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		min-height: 0;
+
+		// Flex-grow the single DataViews child inside this viewport so its
+		// pagination footer lands at the bottom (same trick as the Library
+		// viewport; targets `> *` to avoid DataViews' internal class names).
+		> * {
+			flex: 1;
+			min-height: 0;
+		}
+	}
+
+	&__thumbnail {
+		position: relative;
+		width: 64px;
+		height: 36px;
+		overflow: hidden;
+		border-radius: 2px;
+		background: #1e1e1e;
+	}
+
+	// Override wp-build's `.boot-layout-container .boot-layout img { height:
+	// auto }` reset without referencing wp-build's class names — same
+	// specificity trick as the Library thumbnail image.
+	&__viewport &__thumbnail &__thumbnail-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	&__thumbnail-placeholder {
+		position: absolute;
+		inset: 0;
+		background: #f0f0f0;
+	}
+
+	&__title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__queue {
+		max-width: 720px;
+		padding: 24px 0;
+	}
+
+	&__queue-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	&__queue-item {
+		padding: 12px 0;
+		border-bottom: 1px solid #f0f0f0;
+
+		&:last-child {
+			border-bottom: 0;
+		}
+	}
+
+	&__queue-title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__queue-error {
+		margin-top: 4px;
+		color: #cc1818;
+	}
+}

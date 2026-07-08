@@ -1,4 +1,8 @@
-export type LibraryItemType = 'videopress' | 'local';
+// 'draft' rows are import placeholders (post_mime_type video/videopress-draft)
+// still awaiting their media file: they carry metadata imported from an
+// external service (YouTube) but no VideoPress guid, so every flow that
+// assumes one (details, editor, analytics, video actions) must exclude them.
+export type LibraryItemType = 'videopress' | 'local' | 'draft';
 export type LibraryItemPrivacy = 'public' | 'private' | 'site-default';
 // `upload.status` doubles as the row's single in-flight-operation slot:
 // 'deleting' isn't an upload state, but riding this channel means every
@@ -31,7 +35,20 @@ export interface LibraryItem {
 	allowDownloads: boolean;
 	shortcode: string;
 	sourceUrl?: string;
+	/**
+	 * Browser-playable URL: the best transcoded H.264 MP4 rendition
+	 * (hd → dvd → std). `sourceUrl` points at the ORIGINAL upload, which for
+	 * e.g. iPhone HEVC .mov files most browsers refuse to decode — playback
+	 * surfaces should prefer this and fall back to `sourceUrl`.
+	 */
+	playbackUrl?: string;
 	isProcessing: boolean;
+	/**
+	 * Playlist term IDs assigned to this attachment (the `videopress-playlists`
+	 * taxonomy). Empty when the Studio flag is off — the taxonomy isn't
+	 * registered then, so /wp/v2/media omits the property entirely.
+	 */
+	playlistIds: number[];
 }
 
 export type VideoDetailsPatch = Partial<

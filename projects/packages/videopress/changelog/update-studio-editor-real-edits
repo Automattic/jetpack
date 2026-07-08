@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Route the Studio editor's edits and storyboard endpoints to WPCOM, keeping the development mock behind an opt-in filter.

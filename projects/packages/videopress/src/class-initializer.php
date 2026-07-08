@@ -87,6 +87,16 @@ class Initializer {
 		Module_Control::init();
 
 		/*
+		 * Deleting a Studio import draft placeholder must cascade to its
+		 * sideloaded thumbnail attachment, whichever surface deletes it (the
+		 * import completion endpoint, the Studio library's REST delete, or
+		 * wp-admin's Media Library) — and even when the Studio flag has since
+		 * been turned off, because placeholders can outlive the flag. Cheap:
+		 * one mime comparison per attachment delete.
+		 */
+		add_action( 'delete_attachment', array( Import_Rest_Controller::class, 'cleanup_draft_thumbnail' ), 10, 2 );
+
+		/*
 		 * The WPCOM REST API v2 endpoints only register routes/fields on REST
 		 * init, so defer constructing them (and autoloading their classes) until
 		 * a REST request is actually served. Registered on both REST init hooks
@@ -102,6 +112,41 @@ class Initializer {
 			new WPCOM_REST_API_V2_Endpoint_VideoPress();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+
+			/*
+			 * Studio edits/storyboard endpoints: served by the WPCOM proxy by
+			 * default, or by the local development mock when it is opted into
+			 * via the `videopress_studio_mock_edits` filter. The two classes
+			 * register identical routes and are mutually exclusive — each
+			 * re-checks the Studio flag and the mock filter inside its own
+			 * should_register() at REST time.
+			 */
+			if ( VideoPress_Studio_Mock_Edits::should_register() ) {
+				new VideoPress_Studio_Mock_Edits();
+			} elseif ( WPCOM_REST_API_V2_Endpoint_VideoPress_Edits::should_register() ) {
+				new WPCOM_REST_API_V2_Endpoint_VideoPress_Edits();
+			}
+
+			/*
+			 * Studio YouTube import endpoints (jetpack/v4/videopress/import/*):
+			 * gated on the same Studio flag as the routes above, and currently
+			 * served from bundled fixtures while the `videopress_import_mock_mode`
+			 * filter (default true) is on. The class re-checks the flag inside
+			 * its own should_register() at REST time.
+			 */
+			if ( Import_Rest_Controller::should_register() ) {
+				new Import_Rest_Controller();
+			}
+
+			/*
+			 * Draft placeholders created by the import controller are exposed
+			 * on /wp/v2/media through the jetpack_videopress_import field —
+			 * gated on the same Studio flag, re-checked inside its own
+			 * should_register() at REST time.
+			 */
+			if ( WPCOM_REST_API_V2_Attachment_VideoPress_Import_Data::should_register() ) {
+				new WPCOM_REST_API_V2_Attachment_VideoPress_Import_Data();
+			}
 		};
 		add_action( 'rest_api_init', $register_rest_api_v2_endpoints, 0 );
 		add_action( 'restapi_theme_init', $register_rest_api_v2_endpoints, 0 );
@@ -140,6 +185,17 @@ class Initializer {
 		Initial_State::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
+
+		/*
+		 * Playlists back the Studio expansion of the dashboard and are gated
+		 * on the same filter as the Studio routes — but not here: this runs
+		 * at plugins_loaded, before e.g. a theme's functions.php can add the
+		 * filter, and gating here would leave the Studio UI on with its REST
+		 * routes missing. Playlists::init() only wires cheap hooks and
+		 * re-evaluates the flag on `init`, the same request stage where the
+		 * routes and initial state read it.
+		 */
+		Playlists::init();
 
 		/*
 		 * These endpoints only add their routes on REST init, so defer calling
@@ -214,6 +270,9 @@ class Initializer {
 	public static function register_videopress_blocks() {
 		// Register VideoPress Video block.
 		self::register_videopress_video_block();
+
+		// Register the VideoPress Playlist block (Studio-gated inside register()).
+		Playlist_Block::register();
 	}
 
 	/**

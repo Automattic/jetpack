@@ -87,7 +87,8 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-list-to-table-transform"
+		"ai-list-to-table-transform",
+		"videopress/playlist"
 	],
 	"experimental": [],
 	"no-post-editor": [

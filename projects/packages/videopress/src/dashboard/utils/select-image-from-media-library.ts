@@ -1,5 +1,12 @@
 import { __ } from '@wordpress/i18n';
 
+type SelectImageLabels = {
+	/** Media frame title. Defaults to the thumbnail-picker copy. */
+	title?: string;
+	/** Confirm-button text. Defaults to the thumbnail-picker copy. */
+	buttonText?: string;
+};
+
 /**
  * Open the WordPress media library picker and prompt the user to select a
  * single image. Resolves with the chosen attachment's `id` and `url`, or
@@ -7,9 +14,16 @@ import { __ } from '@wordpress/i18n';
  * Rejects if `window.wp.media` is unavailable (i.e. the classic-editor media
  * library script has not been enqueued).
  *
+ * @param labels            - Optional frame copy overrides; the defaults suit
+ *                          the video-thumbnail context this util was built for.
+ * @param labels.title      - Media frame title.
+ * @param labels.buttonText - Confirm-button text.
  * @return A Promise that resolves to the selected `{ id, url }` attachment, or `null` if the user closed the frame without selecting.
  */
-export async function selectImageFromMediaLibrary(): Promise< WpMediaAttachment | null > {
+export async function selectImageFromMediaLibrary( {
+	title = __( 'Select thumbnail', 'jetpack-videopress-pkg' ),
+	buttonText = __( 'Use this image as thumbnail', 'jetpack-videopress-pkg' ),
+}: SelectImageLabels = {} ): Promise< WpMediaAttachment | null > {
 	const mediaFactory = ( window.wp as WpGlobal | undefined )?.media as
 		| ( ( opts: {
 				title: string;
@@ -23,10 +37,10 @@ export async function selectImageFromMediaLibrary(): Promise< WpMediaAttachment 
 		throw new Error( 'wp.media is not available' );
 	}
 	const frame = mediaFactory( {
-		title: __( 'Select thumbnail', 'jetpack-videopress-pkg' ),
+		title,
 		multiple: false,
 		library: { type: 'image' },
-		button: { text: __( 'Use this image as thumbnail', 'jetpack-videopress-pkg' ) },
+		button: { text: buttonText },
 	} );
 
 	return new Promise( resolve => {

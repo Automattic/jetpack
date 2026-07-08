@@ -14,9 +14,12 @@ import RatingCard from '../../src/dashboard/components/video-details/rating-card
 import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
 import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
+import VideoNav from '../../src/dashboard/components/video-nav';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useVideo } from '../../src/dashboard/hooks/use-video';
+import { isStudioEnabled } from '../../src/dashboard/utils/studio';
 import './style.scss';
 import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
 
@@ -90,6 +93,7 @@ type EditorProps = {
 	onAddToNewPost: () => void;
 	chaptersOpen: boolean;
 	setChaptersOpen: ( open: boolean ) => void;
+	showVideoNav: boolean;
 };
 
 const Editor = ( {
@@ -101,6 +105,7 @@ const Editor = ( {
 	onAddToNewPost,
 	chaptersOpen,
 	setChaptersOpen,
+	showVideoNav,
 }: EditorProps ) => {
 	const { values, update, isDirty, reset } = useVideoDetailsForm( video );
 
@@ -142,9 +147,11 @@ const Editor = ( {
 				/>
 			}
 		>
+			{ showVideoNav && <VideoNav videoId={ video.id } activeTab="details" /> }
 			<div className="vp-video-details">
 				<ThumbnailCard video={ video } onAddToNewPost={ onAddToNewPost } />
 				<VideoDetailsCard
+					video={ video }
 					title={ values.title }
 					description={ values.description }
 					onChange={ update }
@@ -175,9 +182,13 @@ const deletingNoticeId = ( videoId: string ) => `vp-video-deleting-${ videoId }`
 const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
+	const { syncChapters } = useUpdateChapters();
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
+	// Read once per render: the flag comes from the server-inlined initial
+	// state, which can't change without a full page load.
+	const showVideoNav = isStudioEnabled();
 	// Deletes keep running after an unmount (the user can navigate away via
 	// the breadcrumb mid-flight). The notice cleanup below must still happen
 	// then, but we shouldn't yank them to the Library if they've moved on.
@@ -197,6 +208,15 @@ const StageReady = ( { video }: StageReadyProps ) => {
 			// against the attachment being removed.
 			isSaving={ isSaving || isDeleting }
 			onSave={ ( values, reset ) => {
+				// The description is the single source of truth for the
+				// player's chapters VTT, so a description change must
+				// regenerate that track (the legacy dashboard did; without it
+				// the player's chapter menu silently de-syncs). Fire-and-notice:
+				// syncChapters never rejects — failures surface as a warning
+				// notice from the hook — so it can't block or fail the save.
+				if ( values.description !== video.description ) {
+					void syncChapters( video, values.description );
+				}
 				updateMeta(
 					{ id: video.id, patch: values },
 					{
@@ -261,6 +281,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 			} }
 			chaptersOpen={ chaptersOpen }
 			setChaptersOpen={ setChaptersOpen }
+			showVideoNav={ showVideoNav }
 		/>
 	);
 };

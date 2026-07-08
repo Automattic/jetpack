@@ -17,6 +17,10 @@
 		"@wordpress/ui": "0.17.0",
 		"@wordpress/url": "4.50.0"
 	},
+	"devDependencies": {
+		"@testing-library/react": "16.3.2",
+		"@testing-library/user-event": "^14.5.2"
+	},
 	"route": {
 		"path": "/video/$id",
 		"page": "jetpack-videopress-dashboard"

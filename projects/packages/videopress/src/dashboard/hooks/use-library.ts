@@ -2,10 +2,14 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { buildShortcode } from '../utils/format';
-import type { LibraryItem, LibraryItemPrivacy } from '../types/library';
+import type { LibraryItem, LibraryItemPrivacy, LibraryItemType } from '../types/library';
 import type { View } from '@wordpress/dataviews';
 
 const REST_PATH = '/wp/v2/media';
+
+// Reserved mime type of import draft placeholders — see
+// Import_Rest_Controller::DRAFT_MIME_TYPE for why it is not video/videopress.
+export const DRAFT_MIME_TYPE = 'video/videopress-draft';
 
 type ApiMediaItem = {
 	id: number;
@@ -31,6 +35,28 @@ type ApiMediaItem = {
 		description?: string;
 		caption?: string;
 	};
+	// Playlist term IDs, exposed under the taxonomy rest_base. Absent when
+	// the Studio flag is off (the taxonomy isn't registered then).
+	'videopress-playlists'?: number[];
+	// Studio import metadata. Only present on draft placeholder attachments
+	// (the field is registered behind the Studio flag and stripped from
+	// non-draft responses). thumbnail_url is resolved server-side to the
+	// sideloaded local copy when one exists, else the remote source URL.
+	jetpack_videopress_import?: ImportMeta;
+};
+
+export type ImportMeta = {
+	source?: string;
+	external_id?: string;
+	title?: string;
+	description?: string;
+	tags?: string[];
+	duration_seconds?: number;
+	privacy?: string;
+	published_at?: string;
+	thumbnail_url?: string;
+	thumbnail_attachment_id?: number;
+	status?: string;
 };
 
 type PaginationInfo = { totalItems: number; totalPages: number };
@@ -56,6 +82,18 @@ const PRIVACY_FROM_INT: Record< 0 | 1 | 2, LibraryItemPrivacy > = {
 	0: 'public',
 	1: 'private',
 	2: 'site-default',
+};
+
+// YouTube privacy → VideoPress privacy. "unlisted" (anyone with the link) has
+// no VideoPress equivalent; it maps to private so nothing becomes more
+// visible than it was on YouTube — the user can loosen it afterwards.
+// Shared by the library's draft-row overlay (applyImportDraft) and the attach
+// flow's metadata patch (use-attach-import-media), so the Privacy column
+// shows exactly what attaching the media file will apply.
+export const PRIVACY_FROM_IMPORT: Record< string, LibraryItemPrivacy > = {
+	public: 'public',
+	private: 'private',
+	unlisted: 'private',
 };
 
 /**
@@ -133,6 +171,15 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 			} else if ( filter.value === 'local' ) {
 				args.no_videopress = 1;
 			}
+		} else if ( filter.field === 'playlists' ) {
+			// Term filter on the playlists taxonomy. The arg name is the
+			// taxonomy's rest_base, handled by core's attachments controller
+			// (it accepts a scalar or an array of term IDs; the `is` operator
+			// only ever produces a scalar here).
+			const termId = Number( filter.value );
+			if ( ! Number.isNaN( termId ) ) {
+				args[ 'videopress-playlists' ] = termId;
+			}
 		} else if ( filter.field === 'uploadDate' ) {
 			// DataViews emits the value from <input type=datetime-local>
 			// as a local-time string; convert to UTC ISO8601 for the WP
@@ -154,6 +201,65 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 }
 
 /**
+ * Overlay import-draft data on a mapped LibraryItem when the raw response
+ * carries the `jetpack_videopress_import` field with an unfinished import.
+ * There is no media file yet, so the imported metadata is the source of
+ * truth for what the row shows; the guid stays empty, which keeps drafts out
+ * of every flow that assumes a VideoPress video.
+ *
+ * Shared by use-library.ts and use-video.ts so their otherwise-duplicated
+ * toLibraryItem mappings stay in lockstep for drafts.
+ *
+ * @param importMeta - The raw item's `jetpack_videopress_import` field, if any.
+ * @param item       - The already-mapped LibraryItem.
+ * @return The item, converted to a draft when the import meta says so.
+ */
+export function applyImportDraft(
+	importMeta: ImportMeta | undefined,
+	item: LibraryItem
+): LibraryItem {
+	if ( importMeta?.status !== 'awaiting_media' ) {
+		return item;
+	}
+	return {
+		...item,
+		type: 'draft',
+		title: importMeta.title || item.title,
+		description: importMeta.description ?? '',
+		durationSeconds: importMeta.duration_seconds ?? 0,
+		thumbnailUrl: importMeta.thumbnail_url || null,
+		// The imported privacy is what attaching will apply; without this
+		// the Privacy column would claim "Site default" for a video the
+		// import captured as private. Unknown values keep the item default.
+		privacy: PRIVACY_FROM_IMPORT[ importMeta.privacy ?? '' ] ?? item.privacy,
+	};
+}
+
+/**
+ * Resolve a raw media item's library type. Drafts are identified by their
+ * reserved mime type rather than by the jetpack_videopress_import field:
+ * the Studio flag strips that field from responses, but placeholders can
+ * outlive the flag, and typing them 'local' would offer an
+ * "Upload to VideoPress" action that cannot work on a fileless placeholder
+ * (while hiding the Delete affordance that can clean them up).
+ *
+ * Shared by use-library.ts and use-video.ts.
+ *
+ * @param isVideoPress - Whether the item carries a VideoPress guid.
+ * @param mimeType     - The raw item's mime_type.
+ * @return The LibraryItem type.
+ */
+export function resolveLibraryItemType(
+	isVideoPress: boolean,
+	mimeType: string | undefined
+): LibraryItemType {
+	if ( isVideoPress ) {
+		return 'videopress';
+	}
+	return mimeType === DRAFT_MIME_TYPE ? 'draft' : 'local';
+}
+
+/**
  * Transform a raw /wp/v2/media API item into a LibraryItem.
  *
  * @param raw - The raw media item from the REST API response.
@@ -168,10 +274,10 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 	const poster = raw.media_details?.videopress?.poster;
 	const finished = raw.media_details?.videopress?.finished;
 	const isProcessing = isVideoPress && ( ! poster || finished === false );
-	return {
+	return applyImportDraft( raw.jetpack_videopress_import, {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
-		type: isVideoPress ? 'videopress' : 'local',
+		type: resolveLibraryItemType( isVideoPress, raw.mime_type ),
 		title: raw.title?.rendered ?? raw.slug ?? '',
 		filename: raw.source_url?.split( '/' ).pop() ?? '',
 		thumbnailUrl: poster ?? null,
@@ -188,7 +294,8 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
 		isProcessing,
-	};
+		playlistIds: raw[ 'videopress-playlists' ] ?? [],
+	} );
 }
 
 /**

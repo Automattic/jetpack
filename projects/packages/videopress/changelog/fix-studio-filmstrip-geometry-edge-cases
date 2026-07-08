@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress Studio: harden filmstrip geometry edge cases — equal-split widths for a degenerate storyboard interval, and flush-left cell anchoring when a tile box outgrows its drawn sprite cell.

@@ -2,9 +2,11 @@ import { getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Stack, Text } from '@wordpress/ui';
 import { formatBytes, formatDuration } from '../../utils/format';
+import { isStudioEnabled } from '../../utils/studio';
 import ThumbnailField from './thumbnail-field';
 import { useUploadActions } from './upload-actions-context';
 import type { LibraryItem } from '../../types/library';
+import type { Playlist } from '../../types/playlist';
 import type { Field, Operator } from '@wordpress/dataviews';
 
 const dateSettings = getDateSettings();
@@ -90,6 +92,11 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 			intent: 'informational',
 			label: __( 'Processing', 'jetpack-videopress-pkg' ),
 		};
+	} else if ( type === 'draft' ) {
+		pill = {
+			intent: 'informational',
+			label: __( 'Imported from YouTube — attach video file', 'jetpack-videopress-pkg' ),
+		};
 	} else if ( type === 'local' ) {
 		pill = {
 			intent: 'none',
@@ -108,7 +115,10 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 	);
 };
 
-export const libraryFields: Field< LibraryItem >[] = [
+// The static fields shared by every configuration. The Studio-gated playlists
+// field is appended by buildLibraryFields() because its filter elements come
+// from fetched data.
+const baseLibraryFields: Field< LibraryItem >[] = [
 	{
 		id: 'thumbnail',
 		label: __( 'Thumbnail', 'jetpack-videopress-pkg' ),
@@ -139,8 +149,18 @@ export const libraryFields: Field< LibraryItem >[] = [
 		id: 'type',
 		label: __( 'Type', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.type,
-		render: ( { item } ) =>
-			item.type === 'videopress' ? 'VideoPress' : __( 'Local', 'jetpack-videopress-pkg' ),
+		render: ( { item } ) => {
+			if ( item.type === 'videopress' ) {
+				return 'VideoPress';
+			}
+			if ( item.type === 'draft' ) {
+				return __( 'Draft', 'jetpack-videopress-pkg' );
+			}
+			return __( 'Local', 'jetpack-videopress-pkg' );
+		},
+		// No 'draft' filter element: drafts only exist behind the Studio flag
+		// and there's no server-side type=draft filter mapping (yet); the cell
+		// render above still labels them correctly wherever they appear.
 		elements: [
 			{ value: 'videopress', label: 'VideoPress' },
 			{ value: 'local', label: __( 'Local', 'jetpack-videopress-pkg' ) },
@@ -189,3 +209,52 @@ export const libraryFields: Field< LibraryItem >[] = [
 		enableSorting: false,
 	},
 ];
+
+/**
+ * Build the Studio-gated playlists field. Filtering is server-side (see
+ * viewToQueryArgs in use-library.ts, which maps the filter to the taxonomy's
+ * `videopress-playlists` query arg), so `elements` only drives the filter UI.
+ *
+ * @param playlists - The playlists used for the cell render and filter elements.
+ * @return The playlists field definition.
+ */
+const buildPlaylistsField = ( playlists: Playlist[] ): Field< LibraryItem > => {
+	const nameById = new Map( playlists.map( playlist => [ playlist.id, playlist.name ] ) );
+	return {
+		id: 'playlists',
+		label: __( 'Playlists', 'jetpack-videopress-pkg' ),
+		getValue: ( { item } ) => item.playlistIds,
+		render: ( { item } ) =>
+			item.playlistIds
+				// Drop IDs the playlists fetch doesn't know about (a term
+				// deleted between fetches) rather than render a blank name.
+				.map( id => nameById.get( id ) )
+				.filter( ( name ): name is string => Boolean( name ) )
+				.join( ', ' ),
+		elements: playlists.map( playlist => ( { value: playlist.id, label: playlist.name } ) ),
+		filterBy: { operators: [ 'is' ] as Operator[] },
+		enableSorting: false,
+	};
+};
+
+/**
+ * Build the DataViews fields array for the Library tab.
+ *
+ * With the Studio flag off this returns exactly the static field list the
+ * library has always used. With the flag on, a playlists field (cell render +
+ * `is` filter) is appended, with filter elements derived from the fetched
+ * playlists.
+ *
+ * @param options           - Factory options.
+ * @param options.playlists - Playlists backing the playlists field; ignored
+ *                          when the Studio flag is off.
+ * @return The fields array for `<DataViews>`.
+ */
+export function buildLibraryFields(
+	options: { playlists?: Playlist[] } = {}
+): Field< LibraryItem >[] {
+	if ( ! isStudioEnabled() ) {
+		return [ ...baseLibraryFields ];
+	}
+	return [ ...baseLibraryFields, buildPlaylistsField( options.playlists ?? [] ) ];
+}

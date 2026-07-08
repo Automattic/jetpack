@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Pin the Studio timeline's ruler and filmstrip rows to the zoomed content width so both always render on one horizontal scale.

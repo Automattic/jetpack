@@ -108,12 +108,6 @@
 	font-size: 11px;
 }
 
-// Chapters helper hint reads as supporting copy, not body text.
-.vp-video-details__chapters-hint {
-	color: var(--jp-gray-50, #646970);
-	margin: 0;
-}
-
 // Mobile: stack the Thumbnail card's two columns vertically. With the
 // meta column hosting full-width copy fields + the primary action,
 // anything narrower than ~600px squashes the meta into a barely-readable

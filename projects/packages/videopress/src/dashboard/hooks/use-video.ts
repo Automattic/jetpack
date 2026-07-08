@@ -1,7 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { buildShortcode } from '../utils/format';
-import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY, privacyIntToString } from './use-library';
+import {
+	applyImportDraft,
+	LIBRARY_ITEM_QUERY_SEGMENT,
+	LIBRARY_QUERY_KEY,
+	privacyIntToString,
+	resolveLibraryItemType,
+} from './use-library';
+import type { ImportMeta } from './use-library';
 import type { LibraryItem } from '../types/library';
 
 type ApiMediaItem = {
@@ -9,12 +16,19 @@ type ApiMediaItem = {
 	title?: { rendered?: string };
 	source_url?: string;
 	date?: string;
+	mime_type?: string;
 	media_details?: {
 		length?: number;
 		filesize?: number;
 		width?: number;
 		height?: number;
-		videopress?: { poster?: string; duration?: number; finished?: boolean };
+		videopress?: {
+			poster?: string;
+			duration?: number;
+			finished?: boolean;
+			file_url_base?: { https?: string };
+			files?: Record< string, { mp4?: string } >;
+		};
 	};
 	jetpack_videopress?: {
 		guid?: string;
@@ -25,7 +39,44 @@ type ApiMediaItem = {
 		is_private?: boolean;
 		description?: string;
 	};
+	// Playlist term IDs, exposed under the taxonomy rest_base. Absent when
+	// the Studio flag is off (the taxonomy isn't registered then).
+	'videopress-playlists'?: number[];
+	// Studio import metadata. Only present on draft placeholder attachments
+	// (the field is registered behind the Studio flag and stripped from
+	// non-draft responses).
+	jetpack_videopress_import?: ImportMeta;
 };
+
+/**
+ * Pick the best browser-playable MP4 rendition for an item.
+ *
+ * The original upload (`source_url`) may be an HEVC .mov most browsers can't
+ * decode; VideoPress always transcodes an H.264 ladder, so prefer hd → dvd →
+ * std under the HTTPS file URL base.
+ *
+ * @param vp                     - The `media_details.videopress` block from the REST response.
+ * @param vp.file_url_base       - Per-scheme base URLs for the video's files.
+ * @param vp.file_url_base.https - The HTTPS base URL.
+ * @param vp.files               - Rendition descriptors keyed by size (std/dvd/hd/…).
+ * @return The rendition URL, or undefined when none is available yet.
+ */
+function pickPlaybackUrl( vp?: {
+	file_url_base?: { https?: string };
+	files?: Record< string, { mp4?: string } >;
+} ): string | undefined {
+	const base = vp?.file_url_base?.https;
+	if ( ! base || ! vp?.files ) {
+		return undefined;
+	}
+	for ( const rendition of [ 'hd', 'dvd', 'std' ] ) {
+		const mp4 = vp.files[ rendition ]?.mp4;
+		if ( mp4 ) {
+			return base + mp4;
+		}
+	}
+	return undefined;
+}
 
 /**
  * Transform a raw /wp/v2/media API item into a LibraryItem.
@@ -42,10 +93,10 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 	const poster = raw.media_details?.videopress?.poster;
 	const finished = raw.media_details?.videopress?.finished;
 	const isProcessing = isVideoPress && ( ! poster || finished === false );
-	return {
+	return applyImportDraft( raw.jetpack_videopress_import, {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
-		type: isVideoPress ? 'videopress' : 'local',
+		type: resolveLibraryItemType( isVideoPress, raw.mime_type ),
 		title: raw.title?.rendered ?? '',
 		filename: raw.source_url?.split( '/' ).pop() ?? '',
 		thumbnailUrl: poster ?? null,
@@ -61,8 +112,10 @@ function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 		allowDownloads: Boolean( vp?.allow_download ),
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
+		playbackUrl: pickPlaybackUrl( raw.media_details?.videopress ),
 		isProcessing,
-	};
+		playlistIds: raw[ 'videopress-playlists' ] ?? [],
+	} );
 }
 
 /**

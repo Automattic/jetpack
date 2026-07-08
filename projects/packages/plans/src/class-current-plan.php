@@ -58,6 +58,7 @@ class Current_Plan {
 				'social-previews',
 				'videopress',
 				'videopress/video',
+				'videopress/playlist',
 				'v6-video-frame-poster',
 
 				'core/video',

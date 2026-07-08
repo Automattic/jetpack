@@ -1,0 +1,133 @@
+// Styles for the shared stats components (KpiCard, ViewsTrendsCard).
+// Extracted verbatim from `routes/overview/style.scss` so routes other
+// than Overview (e.g. the per-video analytics screen) can reuse the
+// components without pulling in the Overview page stylesheet. The
+// `vp-overview` block name is kept so the compiled selectors — and the
+// rendered page — stay byte-identical to the pre-extraction output.
+.vp-overview {
+
+	&__kpi-label {
+		color: #646970;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-size: 11px;
+	}
+
+	// Figma shows the metric value as a hero number, larger than the
+	// `heading-2xl` typography token. Override the @wordpress/ui Text
+	// inline so the value dominates the card.
+	&__kpi-value {
+		font-size: 36px;
+		font-weight: 500;
+		line-height: 1.1;
+		font-variant-numeric: tabular-nums;
+	}
+
+	// Up / down delta indicator. @wordpress/ui Badge's `intent` vocabulary
+	// (low/medium/high/...) doesn't include success/error semantics, so
+	// the green/red palette lives here. The icon fill defaults to black
+	// (the @wordpress/primitives SVG doesn't set fill="currentColor"), so
+	// force inheritance.
+	&__kpi-delta {
+		display: inline-flex;
+		align-items: center;
+		gap: 2px;
+		padding: 2px 6px;
+		border-radius: 2px;
+		font-size: 12px;
+		font-weight: 500;
+		font-variant-numeric: tabular-nums;
+		width: fit-content;
+
+		svg {
+			fill: currentColor;
+		}
+
+		&--up {
+			color: #006100;
+			background: #e6f4ea;
+		}
+
+		&--down {
+			color: #b32d2e;
+			background: #fce8e6;
+		}
+	}
+
+	&__chart-frame {
+		width: 100%;
+	}
+
+	// Loading-state placeholder block. No animation — quiet until data arrives.
+	// The base block and `--narrow` modifier are also consumed by the
+	// Overview ranking cards (`components/overview/ranking-card.tsx`).
+	&__skeleton-block {
+		display: inline-block;
+		background: #f0f0f0;
+		width: 60%;
+		height: 1em;
+		border-radius: 2px;
+
+		&--narrow {
+			width: 40%;
+		}
+
+		// Sized to fill the KPI hero-number slot (matches the 36px font-size
+		// + line-height: 1.1 of `.vp-overview__kpi-value`).
+		&--kpi-value {
+			width: 96px;
+			height: 40px;
+			border-radius: 4px;
+		}
+	}
+
+	// Centers the chart's loading Spinner inside the reserved 240px canvas.
+	&__chart-spinner {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+	}
+
+	// Custom tooltip body. Mirrors the WordPress DS dark tooltip palette
+	// (see `@automattic/charts`' BaseTooltip module SCSS) so the chart
+	// surface reads as part of the design-system tooltip family rather
+	// than the LineChart's default light card. The chart's visx-tooltip
+	// system handles positioning; we only style the inner content.
+	&__chart-tooltip {
+		padding: var(--wpds-dimension-padding-sm, 8px);
+		background-color: rgba(0, 0, 0, 0.85);
+		color: #fff;
+		border-radius: var(--wpds-border-radius-md, 4px);
+		font-size: var(--wpds-typography-font-size-md, 13px);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+	}
+
+	&__chart-tooltip-date {
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		padding-bottom: var(--wpds-dimension-padding-md, 12px);
+	}
+
+	&__chart-tooltip-row {
+		padding: var(--wpds-dimension-padding-xs, 4px) 0;
+	}
+
+	&__chart-tooltip-label {
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		padding-right: var(--wpds-dimension-padding-lg, 16px);
+	}
+}
+
+// Quiet failure state rendered in place of the KPI row + trends chart
+// when the video-plays queries fail (see `stats-error-card.tsx`, shared
+// by the Overview and per-video Analytics screens). Matches the chart
+// card's reserved 240px canvas so the swap doesn't reflow the page.
+.vp-stats-error-card__body {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 240px;
+	padding: 0 24px;
+	text-align: center;
+	color: #646970;
+}

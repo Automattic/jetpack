@@ -1,10 +1,11 @@
-import { queryOptions, useQueries } from '@tanstack/react-query';
+import { queryOptions, useQueries, useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 import { DATE_RANGE_DAYS } from '../types/stats';
 import type {
 	ActiveMetric,
+	ChannelAverages,
 	ChartCompare,
 	DateRange,
 	Granularity,
@@ -12,6 +13,7 @@ import type {
 	OverviewStats,
 	StatsSeriesPoint,
 	TopVideo,
+	VideoStats,
 } from '../types/stats';
 
 // Raw WPCOM `sites/{id}/stats/video-plays?complete_stats=true` shape.
@@ -60,6 +62,22 @@ const EMPTY_STATS: OverviewStats = {
 	series: [],
 	topVideos: [],
 	topVideosByWatchTime: [],
+};
+
+const EMPTY_VIDEO_STATS: VideoStats = {
+	views: ZERO_SUMMARY,
+	impressions: ZERO_SUMMARY,
+	watchTimeSeconds: ZERO_SUMMARY,
+	retentionRate: ZERO_SUMMARY,
+	series: [],
+};
+
+const EMPTY_CHANNEL_AVERAGES: ChannelAverages = {
+	videoCount: 0,
+	views: 0,
+	impressions: 0,
+	watchTimeSeconds: 0,
+	retentionRate: 0,
 };
 
 const DEFAULTS = {
@@ -341,6 +359,196 @@ export function transformVideoPlays(
 }
 
 /**
+ * Rewrite a `stats/video-plays` response so each day's `total` block
+ * reflects a single video's per-day `data[]` row instead of the
+ * site-wide totals. Days where the video has no row are kept with
+ * zeroed totals — dropping them would shift the ordinal previous-window
+ * alignment `buildSeries` relies on. Rows lacking a `post_id` can never
+ * be attributed to a video, so they are skipped rather than matched by
+ * title.
+ *
+ * @param response - One `stats/video-plays` response, or undefined.
+ * @param postId   - Video (attachment) post ID to isolate.
+ * @return A response of the same shape scoped to that video.
+ */
+export function filterResponseToVideo(
+	response: VideoPlaysResponse | undefined,
+	postId: number | string
+): VideoPlaysResponse | undefined {
+	if ( ! response?.days ) {
+		return response;
+	}
+	const id = String( postId );
+	const days: Record< string, DayEntry > = {};
+	for ( const [ date, day ] of Object.entries( response.days ) ) {
+		const entry = day.data?.find(
+			row => row.post_id !== undefined && String( row.post_id ) === id
+		);
+		days[ date ] = {
+			total: {
+				views: entry?.views ?? 0,
+				impressions: entry?.impressions ?? 0,
+				watch_time: entry?.watch_time ?? 0,
+			},
+			data: entry ? [ entry ] : [],
+		};
+	}
+	return { ...response, days };
+}
+
+/**
+ * Views-weighted mean of the per-day `retention_rate` values in a
+ * response (expects a response already filtered to one video, so each
+ * day carries at most one row). Days without a numeric retention_rate
+ * are excluded from both numerator and denominator — counting their
+ * views would dilute the mean with unobserved days. Zero total weight
+ * yields 0 rather than NaN.
+ *
+ * @param response - A filtered `stats/video-plays` response, or undefined.
+ * @return Weighted mean retention rate (same percentage unit WPCOM reports).
+ */
+function weightedRetentionRate( response: VideoPlaysResponse | undefined ): number {
+	if ( ! response?.days ) {
+		return 0;
+	}
+	let weightedSum = 0;
+	let totalViews = 0;
+	for ( const day of Object.values( response.days ) ) {
+		for ( const row of day.data ?? [] ) {
+			if ( typeof row.retention_rate !== 'number' ) {
+				continue;
+			}
+			const views = row.views ?? 0;
+			weightedSum += row.retention_rate * views;
+			totalViews += views;
+		}
+	}
+	return totalViews > 0 ? weightedSum / totalViews : 0;
+}
+
+/**
+ * Per-video counterpart of `transformVideoPlays`: scopes both windows
+ * to one video via `filterResponseToVideo`, reuses the shared
+ * totals/series pipeline, and adds a retention KPI (views-weighted mean
+ * of the daily `retention_rate` — WPCOM does not expose a per-period
+ * retention aggregate, so the client derives one). Top-video lists are
+ * meaningless for a single video and are omitted.
+ *
+ * @param current     - Current-window response, if loaded.
+ * @param previous    - Previous-window response, if loaded.
+ * @param granularity - Active series bucketing.
+ * @param postId      - Video (attachment) post ID to isolate.
+ * @return Per-video stats payload, or `EMPTY_VIDEO_STATS` when both responses are missing.
+ */
+export function transformVideoPlaysForVideo(
+	current: VideoPlaysResponse | undefined,
+	previous: VideoPlaysResponse | undefined,
+	granularity: Granularity,
+	postId: number | string
+): VideoStats {
+	if ( ! current && ! previous ) {
+		return EMPTY_VIDEO_STATS;
+	}
+
+	const filteredCurrent = filterResponseToVideo( current, postId );
+	const filteredPrevious = filterResponseToVideo( previous, postId );
+	const base = transformVideoPlays( filteredCurrent, filteredPrevious, granularity );
+
+	return {
+		views: base.views,
+		impressions: base.impressions,
+		watchTimeSeconds: base.watchTimeSeconds,
+		retentionRate: {
+			current: weightedRetentionRate( filteredCurrent ),
+			previousPeriod: weightedRetentionRate( filteredPrevious ),
+		},
+		series: base.series,
+	};
+}
+
+/**
+ * Per-video means across every video appearing in one video-plays
+ * window ("channel average"). Videos are keyed like
+ * `aggregateTopVideos` (post_id, falling back to title) so the two
+ * aggregations agree on what counts as a video. Count metrics are the
+ * window totals divided by the number of distinct videos; retention is
+ * the views-weighted mean across every row that reports a numeric
+ * `retention_rate` (same exclusion rule as `weightedRetentionRate`).
+ * No rows → all-zero averages, never NaN.
+ *
+ * @param response - One `stats/video-plays` response, or undefined.
+ * @return Channel-wide per-video averages for the window.
+ */
+export function computeChannelAverages(
+	response: VideoPlaysResponse | undefined
+): ChannelAverages {
+	if ( ! response?.days ) {
+		return EMPTY_CHANNEL_AVERAGES;
+	}
+	const videoKeys = new Set< string >();
+	let views = 0;
+	let impressions = 0;
+	let watchTimeHours = 0;
+	let weightedRetention = 0;
+	let retentionViews = 0;
+	for ( const day of Object.values( response.days ) ) {
+		for ( const row of day.data ?? [] ) {
+			const key = String( row.post_id ?? row.title ?? '' );
+			if ( ! key ) {
+				continue;
+			}
+			videoKeys.add( key );
+			views += row.views ?? 0;
+			impressions += row.impressions ?? 0;
+			watchTimeHours += row.watch_time ?? 0;
+			if ( typeof row.retention_rate === 'number' ) {
+				weightedRetention += row.retention_rate * ( row.views ?? 0 );
+				retentionViews += row.views ?? 0;
+			}
+		}
+	}
+	const videoCount = videoKeys.size;
+	if ( videoCount === 0 ) {
+		return EMPTY_CHANNEL_AVERAGES;
+	}
+	return {
+		videoCount,
+		views: views / videoCount,
+		impressions: impressions / videoCount,
+		watchTimeSeconds: ( watchTimeHours * 3600 ) / videoCount,
+		retentionRate: retentionViews > 0 ? weightedRetention / retentionViews : 0,
+	};
+}
+
+/**
+ * Channel-average hook for the per-video Analytics screen's comparison
+ * card. Issues the identical current-window query as `useVideoStats`
+ * (same `videoPlaysQueryOptions` key), so when both hooks are mounted —
+ * as they are on that screen — the response is fetched once and shared
+ * through the cache; this hook adds no request of its own.
+ *
+ * @param dateRange - Active range; must match the range passed to `useVideoStats`.
+ * @return Channel averages for the current window plus loading/error state.
+ */
+export function useChannelAverages( dateRange: DateRange = DEFAULTS.dateRange ) {
+	const rangeDays = DATE_RANGE_DAYS[ dateRange ];
+	const windows = useMemo( () => computeWindows( rangeDays ), [ rangeDays ] );
+
+	const query = useQuery( videoPlaysQueryOptions( windows.current ) );
+
+	const averages = useMemo( () => computeChannelAverages( query.data ), [ query.data ] );
+
+	return {
+		averages,
+		isLoading: query.isLoading,
+		// Surfaced so consumers can distinguish "failed to load" from
+		// genuinely all-zero averages (which EMPTY_CHANNEL_AVERAGES would
+		// otherwise silently mimic).
+		isError: query.isError,
+	};
+}
+
+/**
  * Live-data hook for the Overview tab. Settings live in local React
  * state; data is fetched as two `useQuery` calls (current + previous
  * window) coordinated via `useQueries`.
@@ -381,6 +589,9 @@ export function useStats() {
 	return {
 		stats,
 		isLoading: currentQuery.isLoading || previousQuery.isLoading,
+		// Either window failing means the KPI deltas/series are wrong or
+		// misleadingly zero, so the whole payload is flagged.
+		isError: currentQuery.isError || previousQuery.isError,
 		dateRange,
 		granularity,
 		activeMetric,
@@ -389,5 +600,48 @@ export function useStats() {
 		setGranularity,
 		setActiveMetric,
 		setCompare,
+	};
+}
+
+/**
+ * Live-data hook for the per-video Analytics screen. Issues the same
+ * two window queries as `useStats` — identical `videoPlaysQueryOptions`
+ * keys, so the cache is shared with the Overview and no extra request
+ * fires when both screens are visited — and derives the per-video shape
+ * with `transformVideoPlaysForVideo`. UI state (date range, metric,
+ * compare) is owned by the caller, unlike `useStats`.
+ *
+ * @param postId      - Video (attachment) post ID to isolate.
+ * @param dateRange   - Active range; defaults to the Overview default.
+ * @param granularity - Active series bucketing; defaults to days.
+ * @return Per-video stats plus loading/error state.
+ */
+export function useVideoStats(
+	postId: number | string,
+	dateRange: DateRange = DEFAULTS.dateRange,
+	granularity: Granularity = DEFAULTS.granularity
+) {
+	const rangeDays = DATE_RANGE_DAYS[ dateRange ];
+	const windows = useMemo( () => computeWindows( rangeDays ), [ rangeDays ] );
+
+	const [ currentQuery, previousQuery ] = useQueries( {
+		queries: [
+			videoPlaysQueryOptions( windows.current ),
+			videoPlaysQueryOptions( windows.previous ),
+		],
+	} );
+
+	const stats = useMemo(
+		() => transformVideoPlaysForVideo( currentQuery.data, previousQuery.data, granularity, postId ),
+		[ currentQuery.data, previousQuery.data, granularity, postId ]
+	);
+
+	return {
+		stats,
+		isLoading: currentQuery.isLoading || previousQuery.isLoading,
+		// On failure `stats` degrades to zeros, which is indistinguishable
+		// from a genuinely zero-view video — consumers must check this flag
+		// and show an error affordance instead of the zeroed KPIs.
+		isError: currentQuery.isError || previousQuery.isError,
 	};
 }

@@ -1,0 +1,182 @@
+// Shared playlist block structure. Reaches the frontend through view.scss
+// (`@use "style"` -> view.css) and the editor through index.ts's import
+// (-> index.css, the block.json `editorStyle`). The class names match the
+// server render in src/class-playlist-block.php and the static editor
+// preview in edit.tsx.
+
+.wp-block-videopress-playlist {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	margin: 0;
+
+	// The editor preview mirrors the frontend markup with non-interactive
+	// stand-ins (a div where the frontend renders a button). Buttons get
+	// border-box sizing from the UA stylesheet, divs do not — and this sheet
+	// sizes `.wp-block-videopress-playlist__item-button` with `width: 100%`
+	// plus padding, which overflows the grid tracks under content-box. Own
+	// the box model instead of inheriting it from the markup.
+	&,
+	* {
+		box-sizing: border-box;
+	}
+
+	.wp-block-videopress-playlist__header {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+	}
+
+	.wp-block-videopress-playlist__artwork {
+		width: 96px;
+		height: 96px;
+		object-fit: cover;
+		border-radius: 4px;
+		flex-shrink: 0;
+	}
+
+	.wp-block-videopress-playlist__header-text {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		min-width: 0;
+	}
+
+	.wp-block-videopress-playlist__name {
+		font-weight: 600;
+	}
+
+	.wp-block-videopress-playlist__description {
+		font-size: 0.875em;
+	}
+
+	.wp-block-videopress-playlist__count {
+		font-size: 0.875em;
+		opacity: 0.75;
+	}
+
+	.wp-block-videopress-playlist__player {
+		position: relative;
+		aspect-ratio: 16 / 9;
+		background: rgba(0, 0, 0, 0.05);
+		// Hard containment: neither the frontend iframe nor the editor
+		// preview's poster image may escape the 16:9 player box.
+		overflow: hidden;
+
+		iframe,
+		img {
+			display: block;
+			width: 100%;
+			height: 100%;
+			border: 0;
+		}
+
+		img {
+			object-fit: cover;
+		}
+	}
+
+	.wp-block-videopress-playlist__items {
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		margin: 0;
+		padding: 0;
+	}
+
+	.wp-block-videopress-playlist__item {
+		margin: 0;
+		// Grid items refuse to shrink below their content's min-content size
+		// by default; a full-resolution poster would blow the auto-fill
+		// tracks out of the block wrapper.
+		min-width: 0;
+	}
+
+	.wp-block-videopress-playlist__item-button {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		width: 100%;
+		padding: 8px;
+		border: 0;
+		border-radius: 4px;
+		background: transparent;
+		font: inherit;
+		color: inherit;
+		text-align: inherit;
+		cursor: pointer;
+
+		&:hover,
+		&:focus-visible {
+			background: rgba(0, 0, 0, 0.05);
+		}
+
+		&[aria-current="true"] {
+			background: rgba(0, 0, 0, 0.08);
+		}
+	}
+
+	.wp-block-videopress-playlist__item-index {
+		min-width: 1.5em;
+		text-align: center;
+		font-variant-numeric: tabular-nums;
+		opacity: 0.75;
+	}
+
+	.wp-block-videopress-playlist__item-poster {
+		width: 96px;
+		// Never let the poster's intrinsic (full-resolution) size win over
+		// the layout: cap it to the tile and let the ratio derive the height.
+		max-width: 100%;
+		height: auto;
+		aspect-ratio: 16 / 9;
+		object-fit: cover;
+		border-radius: 2px;
+		background: rgba(0, 0, 0, 0.1);
+		flex-shrink: 0;
+
+		&.wp-block-videopress-playlist__item-poster--empty {
+			display: block;
+		}
+	}
+
+	.wp-block-videopress-playlist__item-title {
+		flex-grow: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.wp-block-videopress-playlist__item-duration {
+		font-variant-numeric: tabular-nums;
+		opacity: 0.75;
+	}
+
+	&.wp-block-videopress-playlist--grid {
+
+		.wp-block-videopress-playlist__items {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+			gap: 12px;
+		}
+
+		.wp-block-videopress-playlist__item-button {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.wp-block-videopress-playlist__item-poster {
+			width: 100%;
+		}
+
+		.wp-block-videopress-playlist__item-index {
+			display: none;
+		}
+
+		.wp-block-videopress-playlist__item-title {
+			white-space: normal;
+		}
+	}
+}

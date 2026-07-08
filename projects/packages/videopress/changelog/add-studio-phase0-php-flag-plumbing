@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress Dashboard: add a feature-gate filter and route gating for upcoming dashboard routes (disabled by default).

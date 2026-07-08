@@ -1,0 +1,138 @@
+// Studio editor screen layout, per the editor redesign: an optional status
+// banner on top, then a bordered card holding the tools rail beside the main
+// column (gray canvas with the centered preview, timeline docked below).
+@use "./tokens";
+
+.vp-studio-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.vp-studio-editor__loading,
+.vp-studio-editor__processing,
+.vp-studio-editor__not-found {
+	padding: 48px 24px;
+	text-align: center;
+}
+
+.vp-studio-editor__body {
+	display: flex;
+	align-items: stretch;
+	border: 1px solid var(--vp-gray-300);
+	border-radius: var(--vp-radius-medium);
+	background: #fff;
+	overflow: hidden;
+}
+
+.vp-studio-editor__operations {
+	flex: none;
+	width: 224px;
+	padding: 16px 12px;
+	border-right: 1px solid var(--vp-gray-200);
+}
+
+.vp-studio-editor__operations-heading {
+	padding: 0 10px 8px;
+	color: var(--vp-gray-700);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.2px;
+	margin: 0;
+}
+
+.vp-studio-editor__operations-list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.vp-studio-editor__operation {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	height: 36px;
+	padding: 0 10px;
+	border: 0;
+	border-radius: var(--vp-radius-small);
+	background: transparent;
+	color: var(--vp-gray-900);
+	font-size: 13px;
+	text-align: left;
+	cursor: pointer;
+
+	svg {
+		flex: none;
+		fill: currentColor;
+	}
+
+	&:hover {
+		background: var(--vp-gray-100);
+	}
+
+	&--active,
+	&--active:hover {
+		background: var(--vp-accent);
+		color: #fff;
+	}
+}
+
+.vp-studio-editor__main {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+// The gray stage area: the preview player centered on a neutral canvas.
+.vp-studio-editor__canvas {
+	background: var(--vp-gray-100);
+	padding: 32px;
+
+	.vp-studio-editor-preview {
+		margin-inline: auto;
+		max-width: min(640px, calc(var(--vp-editor-stage-max-height, 612px) * 16 / 9));
+	}
+}
+
+// The timeline docked below the canvas, full width.
+.vp-studio-editor__timeline-section {
+	border-top: 1px solid var(--vp-gray-200);
+	padding: 16px 24px 20px;
+}
+
+.vp-studio-editor__header-divider {
+	width: 1px;
+	height: 24px;
+	background: var(--vp-gray-300, #ddd);
+}
+
+// A processing job locks editing. The wrapper keeps the --locked marker
+// class (plus the aria-busy announcement and the stable lock testid), but
+// the pointer-events block is scoped INSIDE the timeline to the strip's
+// scroller only (.vp-studio-timeline__scroller--locked in timeline/style.scss)
+// so the relocated transport and the zoom control stay usable while a job
+// runs; keyboard-driven dispatches are dropped by the screen's guarded
+// dispatch.
+
+.vp-studio-editor__banner {
+	padding: 12px 16px;
+	border-radius: 4px;
+	border: 1px solid #ddd;
+	background: #f6f7f7;
+
+	&--failed,
+	&--conflict {
+		border-color: #d63638;
+		background: #fcf0f1;
+	}
+}
+
+.vp-studio-editor__banner-progress {
+	width: 160px;
+}

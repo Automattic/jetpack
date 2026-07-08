@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { makeLibraryItem as item } from '../../../test-utils/library-item';
-import { libraryFields } from '../fields';
+import { buildLibraryFields } from '../fields';
 import ThumbnailField from '../thumbnail-field';
 import { UploadActionsProvider, type UploadActions } from '../upload-actions-context';
 import type { LibraryItem } from '../../../types/library';
@@ -23,6 +23,7 @@ const renderField = ( ui: React.ReactNode, actions: UploadActions ) =>
 	render( <UploadActionsProvider value={ actions }>{ ui }</UploadActionsProvider> );
 
 // The cell renders are whatever the exported field declarations provide.
+const libraryFields = buildLibraryFields();
 const TitleCellRender = ( libraryFields.find( f => f.id === 'title' ) as Field< LibraryItem > )
 	.render as ( args: { item: LibraryItem } ) => React.ReactNode;
 const FilenameRender = ( libraryFields.find( f => f.id === 'filename' ) as Field< LibraryItem > )
@@ -141,5 +142,33 @@ describe( 'TitleCell — grid Details access', () => {
 		const longName = 'a-very-long-filename-that-needs-truncation-in-the-table-layout.mov';
 		renderField( <FilenameRender item={ item( { filename: longName } ) } />, makeActions() );
 		expect( screen.getByText( longName ) ).toHaveAttribute( 'title', longName );
+	} );
+} );
+
+describe( 'import draft rows', () => {
+	const draft = ( overrides: Partial< LibraryItem > = {} ) =>
+		item( { type: 'draft', guid: '', title: 'Sunrise Timelapse', ...overrides } );
+
+	it( 'shows the imported-from-YouTube badge on the title cell', () => {
+		renderField( <TitleCellRender item={ draft() } />, makeActions() );
+		expect( screen.getByText( 'Imported from YouTube — attach video file' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the draft title as plain text — no details navigation without a video', async () => {
+		const actions = makeActions();
+		renderField( <TitleCellRender item={ draft() } />, actions );
+
+		expect( screen.getByText( 'Sunrise Timelapse', { selector: 'span' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Sunrise Timelapse' } ) ).not.toBeInTheDocument();
+		expect( actions.openVideoDetails ).not.toHaveBeenCalled();
+	} );
+
+	it( 'offers neither Edit details nor Upload to VideoPress on the draft thumbnail', () => {
+		renderField( <ThumbnailField item={ draft() } />, makeActions() );
+
+		expect( screen.queryByRole( 'button', { name: /Edit details/ } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'Upload to VideoPress' } )
+		).not.toBeInTheDocument();
 	} );
 } );

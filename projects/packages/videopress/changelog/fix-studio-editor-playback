@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Studio editor preview playback: drive state imperatively (dropped media events), prefer transcoded MP4 renditions, surface playback errors, fit the editor in the viewport, and contain timeline zoom overflow.

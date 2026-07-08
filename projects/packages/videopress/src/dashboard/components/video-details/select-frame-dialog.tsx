@@ -2,6 +2,7 @@ import { RangeControl, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Dialog } from '@wordpress/ui';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
+import { STUDIO_DIALOG_CLASS } from '../studio-dialog';
 
 // Exported for unit testing.
 export const END_GUARD_SECONDS = 0.05;
@@ -165,14 +166,21 @@ export default function SelectFrameDialog( {
 				}
 			} }
 		>
-			<Dialog.Popup size="large">
+			<Dialog.Popup className={ STUDIO_DIALOG_CLASS } size="large">
 				<Dialog.Header>
 					<Dialog.Title>
 						{ __( 'Select thumbnail from video', 'jetpack-videopress-pkg' ) }
 					</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
 				</Dialog.Header>
-				{ isOpen && <FrameScrubber src={ src } onChange={ setSelectedMs } /> }
+				{ /*
+				 * Dialog.Popup is an unpadded flex column; body padding comes
+				 * from the Dialog.Content region, which also owns scrolling
+				 * when the scrubber outgrows the popup.
+				 */ }
+				<Dialog.Content>
+					{ isOpen && <FrameScrubber src={ src } onChange={ setSelectedMs } /> }
+				</Dialog.Content>
 				<Dialog.Footer>
 					<Dialog.Action render={ <Button variant="outline" /> }>
 						{ __( 'Cancel', 'jetpack-videopress-pkg' ) }

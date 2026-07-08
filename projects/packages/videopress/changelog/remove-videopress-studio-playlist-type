@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the Studio playlist Type field (collection/series/course/season) from the create dialog, listing fields, hooks, and term meta registration.

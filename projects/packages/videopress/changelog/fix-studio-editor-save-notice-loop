@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix an infinite update loop after saving video edits by decoupling the completion notice from the baseline-sync effect.
