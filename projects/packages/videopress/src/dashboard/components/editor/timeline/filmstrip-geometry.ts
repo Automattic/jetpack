@@ -383,7 +383,10 @@ export function sampleWidths( count: number, pxPerSample: number, trackWidth: nu
  * impossible — and positioned so the tile's sprite cell is centered in the
  * box. Narrow boxes therefore show a centered crop of the frame (matching
  * frames-mode `object-fit: cover`) rather than a squeezed one, and wide
- * boxes can never smear pixels. Whole-px rounding avoids hairline seams.
+ * boxes can never smear pixels. A box wider than the drawn cell (possible
+ * only where the scale clamps at 1) anchors the cell flush with the box
+ * start instead, so adjacent sheet content can never bleed into the tile's
+ * leading edge. Whole-px rounding avoids hairline seams.
  *
  * @param storyboard - The storyboard descriptor.
  * @param index      - Sprite tile index (row-major within the sprite).
@@ -417,6 +420,15 @@ export function tileBackgroundStyle(
 	const scale = Math.min( 1, Math.max( tileWidth / tileW, rowHeight / tileH ) );
 	const cellW = tileW * scale;
 	const cellH = tileH * scale;
+	// Position against the drawn cell when the box outgrows it — which only
+	// happens where the cover scale clamps at 1 (a wheel-zoom sliver: rendered
+	// widths in (tileW, cellW·√2]). Centering there would shift the sheet
+	// right and bleed the PREVIOUS sprite cell (or an unpainted stripe, in
+	// the first column) into the tile's leading edge. Anchored flush with the
+	// tile start, the leading edge always lands on the cell's own first
+	// pixel; any trailing overflow shows the temporally adjacent cell,
+	// contiguous with the strip's content.
+	const positionWidth = Math.min( tileWidth, cellW );
 	return {
 		// Quoted, so URLs containing CSS-significant characters stay intact.
 		backgroundImage: `url("${ storyboard.url }")`,
@@ -424,7 +436,7 @@ export function tileBackgroundStyle(
 			rows * cellH
 		) }px`,
 		backgroundPosition: `${ Math.round(
-			( tileWidth - cellW ) / 2 - column * cellW
+			( positionWidth - cellW ) / 2 - column * cellW
 		) }px ${ Math.round( ( rowHeight - cellH ) / 2 - row * cellH ) }px`,
 	};
 }

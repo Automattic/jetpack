@@ -180,7 +180,7 @@ describe( 'StudioEditorFilmstripTrack', () => {
 
 	it( 'never upscales the sprite: the cover scale clamps at 1', () => {
 		// A 32×32 sprite cell in a 100px-wide box wants scale 3.125 to cover;
-		// the clamp draws it at natural size, centered, instead of smearing it.
+		// the clamp draws it at natural size instead of smearing it.
 		render(
 			<StudioEditorFilmstripTrack
 				filmstrip={ {
@@ -201,8 +201,9 @@ describe( 'StudioEditorFilmstripTrack', () => {
 		expect( tiles[ 0 ] ).toHaveStyle( {
 			// Natural sheet size: 2×32 by 1×32 — not inflated to the boxes.
 			backgroundSize: '64px 32px',
-			// Centered: (100 − 32) / 2 = 34, (64 − 32) / 2 = 16.
-			backgroundPosition: '34px 16px',
+			// Flush-left horizontally (no adjacent-cell bleed at the leading
+			// edge); centered vertically: (64 − 32) / 2 = 16.
+			backgroundPosition: '0px 16px',
 		} );
 	} );
 
@@ -245,6 +246,30 @@ describe( 'StudioEditorFilmstripTrack', () => {
 		// No geometry, no inline style at all — not a mis-sized sheet.
 		expect( tiles[ 0 ] ).not.toHaveAttribute( 'style' );
 	} );
+
+	it.each( [ 0, -1000 ] )(
+		'splits the track equally when the storyboard interval is degenerate (%ims)',
+		intervalMs => {
+			// The API validation rejects interval_ms ≤ 0, but internal callers
+			// are guarded too: a degenerate interval alongside a measured scale
+			// would make the ideal tile width 0 (or negative) and collapse the
+			// widths to [0, …, 0, trackWidth]. The layout falls back to an
+			// equal split instead. (The strict console setup also asserts the
+			// collapsed all-zero times don't produce duplicate React keys.)
+			render(
+				<StudioEditorFilmstripTrack
+					filmstrip={ {
+						status: 'storyboard',
+						storyboard: makeStoryboard( { interval_ms: intervalMs } ),
+					} }
+					trackWidth={ 500 }
+					durationMs={ 5000 }
+				/>
+			);
+
+			expect( tileWidths() ).toEqual( [ 100, 100, 100, 100, 100 ] );
+		}
+	);
 
 	describe( 'quantized sampling', () => {
 		it( 'samples every 8th sprite tile at fit for a 60s one-second storyboard', () => {

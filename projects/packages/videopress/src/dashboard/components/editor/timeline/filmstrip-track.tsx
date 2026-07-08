@@ -210,9 +210,13 @@ function storyboardLayout(
 	if ( trackWidth <= 0 || tiles.length === 0 ) {
 		return { tiles, widths: null, spanMs, pxPerMs };
 	}
-	// Without a usable duration the scale is unknowable; fall back to an
-	// equal split so the strip still fills the measured track.
-	const pxPerSample = pxPerMs > 0 ? spanMs * pxPerMs : trackWidth / tiles.length;
+	// Without a usable duration the scale is unknowable — and a degenerate
+	// source interval (≤ 0: rejected by the API validation, guarded for
+	// internal callers) would zero or invert the ideal width, collapsing
+	// every tile but the last. Either way, fall back to an equal split so
+	// the strip still fills the measured track.
+	const pxPerSample =
+		pxPerMs > 0 && storyboard.interval_ms > 0 ? spanMs * pxPerMs : trackWidth / tiles.length;
 	return { tiles, widths: sampleWidths( tiles.length, pxPerSample, trackWidth ), spanMs, pxPerMs };
 }
 
@@ -357,8 +361,13 @@ function frameLayout(
 	if ( trackWidth <= 0 || indices.length === 0 ) {
 		return { indices, widths: null };
 	}
+	// Same degenerate-interval guard as the storyboard path (symmetry only:
+	// a frames-mode base interval is durationMs / frames.length, positive
+	// whenever pxPerMs is).
 	const pxPerSample =
-		pxPerMs > 0 ? density * baseIntervalMs * pxPerMs : trackWidth / indices.length;
+		pxPerMs > 0 && baseIntervalMs > 0
+			? density * baseIntervalMs * pxPerMs
+			: trackWidth / indices.length;
 	return { indices, widths: sampleWidths( indices.length, pxPerSample, trackWidth ) };
 }
 
@@ -400,15 +409,19 @@ export default function StudioEditorFilmstripTrack( {
 			>
 				{ tiles.map( ( tile, position ) => {
 					const width = widths?.[ position ];
-					// Start-anchored times nest across densities, so keying by
-					// time keeps every tile's identity (and loaded background/
-					// frame) in place when the zoom steps.
+					// Keys carry each tile's cross-density identity, so tiles
+					// (and their loaded backgrounds/frames) stay in place when
+					// the zoom steps: the sprite cell for on-grid tiles, the
+					// start-anchored time (times nest across densities) for
+					// off-grid ones. The prefixes keep the two key spaces
+					// disjoint — and keep keys unique even when a degenerate
+					// interval collapses every sampled time to 0.
 					if ( tile.spriteIndex === null ) {
 						const url = extracted.get( tile.timeMs );
 						if ( url !== undefined ) {
 							return (
 								<img
-									key={ tile.timeMs }
+									key={ `t${ tile.timeMs }` }
 									className="vp-studio-timeline__filmstrip-tile"
 									data-testid="studio-timeline-filmstrip-tile"
 									data-time={ tile.timeMs }
@@ -423,7 +436,7 @@ export default function StudioEditorFilmstripTrack( {
 						// tile stands in, cover-cropped like any other tile.
 						return (
 							<div
-								key={ tile.timeMs }
+								key={ `t${ tile.timeMs }` }
 								className="vp-studio-timeline__filmstrip-tile"
 								data-testid="studio-timeline-filmstrip-tile"
 								data-time={ tile.timeMs }
@@ -441,7 +454,7 @@ export default function StudioEditorFilmstripTrack( {
 					}
 					return (
 						<div
-							key={ tile.timeMs }
+							key={ `s${ tile.spriteIndex }` }
 							className="vp-studio-timeline__filmstrip-tile"
 							data-testid="studio-timeline-filmstrip-tile"
 							data-index={ tile.spriteIndex }

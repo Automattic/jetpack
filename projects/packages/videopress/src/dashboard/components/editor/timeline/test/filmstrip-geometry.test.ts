@@ -435,15 +435,38 @@ describe( 'tileBackgroundStyle', () => {
 
 	it( 'never upscales: the cover scale clamps at 1', () => {
 		// A 32×32 sprite cell in a 100px-wide box wants scale 3.125 to cover;
-		// the clamp draws it at natural size, centered, instead of smearing it.
+		// the clamp draws it at natural size instead of smearing it.
 		const storyboard = makeStoryboard( { tile_width: 32, tile_height: 32, tiles: 2, columns: 2 } );
 		expect( tileBackgroundStyle( storyboard, 0, 100 ) ).toEqual( {
 			backgroundImage: 'url("https://example.com/sprite.jpg")',
 			// Natural sheet size: 2×32 by 1×32 — not inflated to the boxes.
 			backgroundSize: '64px 32px',
-			// Centered: (100 − 32) / 2 = 34, (64 − 32) / 2 = 16.
-			backgroundPosition: '34px 16px',
+			// The box outgrew the drawn cell, so the cell anchors flush with
+			// the tile start; vertically it stays centered: (64 − 32) / 2 = 16.
+			backgroundPosition: '0px 16px',
 		} );
+	} );
+
+	it( 'anchors the cell flush with the tile start when the box outgrows the drawn cell', () => {
+		// The wheel-zoom sliver: a 16:9 sprite cell (160×90) in a 161px box —
+		// reachable because sampleWidths rounds boundaries, so rendered widths
+		// can hit cellW·√2 ≈ 160.9 rounded up to 161. The cover scale clamps
+		// at 1 (never upscale), leaving the drawn cell 1px narrower than the
+		// box. Centering would shift the sheet right by a rounded 1px: an
+		// unpainted stripe on the first column and the previous cell's
+		// trailing pixel on every other. The positioning clamp anchors the
+		// cell at the tile start instead.
+		const storyboard = makeStoryboard( { tile_width: 160, tile_height: 90 } );
+		// Column 0: no positive x offset — the cell starts exactly at the box.
+		expect( tileBackgroundStyle( storyboard, 0, 161 ) ).toEqual( {
+			backgroundImage: 'url("https://example.com/sprite.jpg")',
+			backgroundSize: '480px 180px',
+			backgroundPosition: '0px -13px',
+		} );
+		// Column 1: an exact drawn-cell multiple — not the −159px a centered
+		// (rounded) position would produce, which paints cell 0's last pixel
+		// column at this tile's leading edge.
+		expect( tileBackgroundStyle( storyboard, 1, 161 ).backgroundPosition ).toBe( '-160px -13px' );
 	} );
 
 	it( 'sizes the drawn sheet from the sprite physical row count for a padded grid', () => {
