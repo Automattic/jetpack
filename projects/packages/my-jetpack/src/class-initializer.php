@@ -251,12 +251,7 @@ class Initializer {
 	/**
 	 * Register polyfills for the wp-notices / wp-private-apis / wp-theme handles the
 	 * My Jetpack app bundle depends on but WP < 7.0 does not ship (or ships with an
-	 * incomplete allowlist) when the Gutenberg plugin is not active.
-	 *
-	 * Without this, `my_jetpack_main_app` is enqueued with an unregistered `wp-theme`
-	 * dependency, so WP silently drops the script (no console error) and the My Jetpack
-	 * app — plus any consumer that hard-depends on it, such as Jetpack Boost — renders
-	 * a blank page. Only the handles the bundle actually uses are requested.
+	 * incomplete allowlist).
 	 *
 	 * @return void
 	 */

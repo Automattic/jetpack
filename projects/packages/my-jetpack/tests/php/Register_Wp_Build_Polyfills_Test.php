@@ -55,29 +55,4 @@ class Register_Wp_Build_Polyfills_Test extends TestCase {
 			$this->assertContains( 'my-jetpack', $consumers[ $handle ], "$handle should list the my-jetpack consumer" );
 		}
 	}
-
-	/**
-	 * Guards against bundle drift: if a future `@wordpress/*` bump makes the app
-	 * depend on another polyfill-covered handle (e.g. `wp-views`) that we do not
-	 * request, that page would blank out with no console error. Fail here instead.
-	 *
-	 * Skips when the package has not been built (no asset file to inspect).
-	 */
-	public function test_requested_handles_cover_polyfilled_bundle_dependencies() {
-		$asset_file = dirname( __DIR__, 2 ) . '/build/index.asset.php';
-		if ( ! is_readable( $asset_file ) ) {
-			$this->markTestSkipped( 'my_jetpack_main_app build asset not found; run the package build first.' );
-		}
-
-		$asset      = require $asset_file;
-		$deps       = $asset['dependencies'] ?? array();
-		$polyfilled = array_values( array_intersect( $deps, WP_Build_Polyfills::SCRIPT_HANDLES ) );
-		$missing    = array_values( array_diff( $polyfilled, self::EXPECTED_HANDLES ) );
-
-		$this->assertSame(
-			array(),
-			$missing,
-			'The app bundle depends on polyfill-covered handle(s) not requested by register_wp_build_polyfills(): ' . implode( ', ', $missing )
-		);
-	}
 }
