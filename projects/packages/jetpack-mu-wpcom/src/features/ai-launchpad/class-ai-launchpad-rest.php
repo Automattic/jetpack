@@ -407,7 +407,73 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			}
 		}
 
+		// Restore the list toward six after the visibility gate has dropped tasks (before skips, which are the
+		// user's own removals). No-op on an empty list so the wizard still runs when there is no AI output.
+		$tasks = $this->backfill_to_minimum( $tasks, $theme_cta, $disable_hidden_woo );
+
 		return $this->apply_skipped_tasks( $tasks );
+	}
+
+	/**
+	 * Tops a short rendered list back up toward the six tasks the AI is asked to return.
+	 *
+	 * The catalog visibility gate in build_tasks() drops any task it hides on this site (e.g. add_about_page needs a
+	 * page-template meta key that is absent during a REST request) with no replacement, so a gate-heavy AI pick can
+	 * collapse the list to two or three cards. This backfills from a small pool of broadly-useful tasks and keeps the
+	 * launch task last. The pool is run through build_tasks() in one pass, which gates and dedups it, so a pool task
+	 * the site hides simply does not appear. Backfilled cards are skippable (see skip_task); a fuller, AI-ranked
+	 * overflow pool is the eventual replacement.
+	 *
+	 * @param array  $tasks              The rendered task list, already gated, launch task last.
+	 * @param string $theme_cta          Pre-resolved themes-showcase CTA passed through to build_tasks().
+	 * @param bool   $disable_hidden_woo Whether hidden commerce tasks render as a disabled preview.
+	 * @return array
+	 */
+	private function backfill_to_minimum( $tasks, $theme_cta, $disable_hidden_woo ) {
+		$target = 6;
+		if ( count( $tasks ) >= $target || empty( $tasks ) ) {
+			return $tasks;
+		}
+
+		$present    = array_column( $tasks, 'id' );
+		$candidates = array();
+		foreach ( $this->backfill_pool() as $id => $subtitle ) {
+			if ( ! in_array( $id, $present, true ) ) {
+				$candidates[] = array(
+					'id'       => $id,
+					'subtitle' => $subtitle,
+				);
+			}
+		}
+
+		// One build over every candidate: build_tasks() drops the gated ones and dedups, preserving pool order.
+		$built = $this->build_tasks( $candidates, false, $theme_cta, $disable_hidden_woo );
+		foreach ( $built as $task ) {
+			if ( count( $tasks ) >= $target ) {
+				break;
+			}
+			$tasks = $this->insert_before_launch_task( $tasks, $task );
+		}
+
+		return $tasks;
+	}
+
+	/**
+	 * The ordered id => subtitle pool the short-list backfill draws from: broadly-useful tasks that render on most
+	 * sites and are skippable, most-broadly-applicable first. Each has a distinct card title, and none duplicate work
+	 * the wizard already did (e.g. no site-title task — the wizard captured the name). Excludes tasks whose completion
+	 * depends on the AI-task list (the theme/social listeners, the complete-on-click route), since a backfilled card is
+	 * not on that list. skip_task() reads the ids here to keep every backfilled card skippable, so the set lives here.
+	 *
+	 * @return array<string, string>
+	 */
+	private function backfill_pool() {
+		return array(
+			'design_edited'        => __( 'Make the design your own.', 'jetpack-mu-wpcom' ),
+			'add_new_page'         => __( 'Add a page your visitors will want, like About or Contact.', 'jetpack-mu-wpcom' ),
+			'connect_social_media' => __( 'Connect your social accounts to reach more people.', 'jetpack-mu-wpcom' ),
+			'drive_traffic'        => __( 'Help people discover your site.', 'jetpack-mu-wpcom' ),
+		);
 	}
 
 	/**
@@ -593,9 +659,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	/**
 	 * Marks a task as skipped: it renders (and counts) as completed without its real completion signal ever firing.
 	 *
-	 * Restricted to tasks on the site's AI-selected list plus the synthetic ids the list adds itself. Persisted
-	 * separately from `launchpad_checklist_tasks_statuses` because several catalog tasks recompute completion live
-	 * (memberships, woo, domains) and would ignore a status write; the skip set is overlaid on read instead.
+	 * Restricted to tasks on the site's AI-selected list, the synthetic ids the list adds itself, and the short-list
+	 * backfill pool — so every rendered card (AI, synthetic, or filler) is skippable. Persisted separately from
+	 * `launchpad_checklist_tasks_statuses` because several catalog tasks recompute completion live (memberships, woo,
+	 * domains) and would ignore a status write; the skip set is overlaid on read instead.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return array|WP_Error
@@ -603,7 +670,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	public function skip_task( $request ) {
 		$task_id = $request['task_id'];
 
-		$skippable = array_merge( wpcom_ai_launchpad_get_ai_task_ids(), self::SYNTHETIC_TASK_IDS );
+		$skippable = array_merge( wpcom_ai_launchpad_get_ai_task_ids(), self::SYNTHETIC_TASK_IDS, array_keys( $this->backfill_pool() ) );
 		if ( ! in_array( $task_id, $skippable, true ) ) {
 			return new WP_Error(
 				'ai_launchpad_task_not_skippable',

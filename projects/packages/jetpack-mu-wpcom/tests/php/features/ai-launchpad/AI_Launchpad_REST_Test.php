@@ -357,6 +357,47 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The catalog visibility gate can hide several AI-picked tasks on a given site (e.g. add_about_page needs a
+	 * page-template meta key that is not registered during a REST request), which collapses the rendered list.
+	 * A short list is topped back up toward six from a pool of broadly-useful tasks, keeping the launch task last.
+	 */
+	public function test_get_backfills_a_short_list_to_six_with_launch_last() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ), 'write' );
+
+		$tasks = $this->call_api( Requests::GET )->get_data()['tasks'];
+		$ids   = array_column( $tasks, 'id' );
+
+		$this->assertCount( 6, $tasks, 'a two-task list is backfilled to six' );
+		$this->assertSame( 'first_post_published', $ids[0], 'the AI tasks keep their lead position' );
+		$this->assertSame( 'site_launched', end( $ids ), 'the launch task stays last' );
+		$this->assertSame( array_values( array_unique( $ids ) ), $ids, 'no duplicate task cards' );
+	}
+
+	/**
+	 * A backfilled filler card must be skippable so it can never strand the launchpad, and GET must stay a read: it
+	 * must not rewrite the persisted AI output. The skip route accepts a backfilled id (via the pool allowlist), and
+	 * the persisted payload is untouched by the read.
+	 */
+	public function test_backfilled_task_is_skippable_and_get_does_not_mutate_ai_output() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ), 'write' );
+		$before = get_option( 'wpcom_ai_launchpad_ai_output' );
+
+		$rendered = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+		$this->assertCount( 6, $rendered, 'the short list is backfilled to six' );
+
+		// GET is a pure read: the persisted AI output is unchanged.
+		$this->assertSame( $before, get_option( 'wpcom_ai_launchpad_ai_output' ) );
+
+		// A backfilled filler card (one not in the seeded AI list) can be skipped.
+		$backfilled = array_values( array_diff( $rendered, array( 'first_post_published', 'site_launched' ) ) );
+		$this->assertNotEmpty( $backfilled );
+		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => $backfilled[0] ) );
+		$this->assertSame( 200, $result->get_status(), $backfilled[0] . ' is skippable' );
+	}
+
+	/**
 	 * Test that GET keeps add_10_email_subscribers even though its catalog
 	 * visibility callback (wpcom_launchpad_are_newsletter_subscriber_counts_available)
 	 * is false off WordPress.com: the AI Launchpad retrieves the subscriber count
@@ -645,8 +686,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 
 		$this->assertContains( 'add_gallery_page', $ids );
-		// Injected immediately before the launch task.
-		$this->assertSame( array( 'site_title', 'add_gallery_page', 'site_launched' ), $ids );
+		// Injected immediately after the AI task and before the launch task; any backfill filler follows it.
+		$this->assertSame( array( 'site_title', 'add_gallery_page' ), array_slice( $ids, 0, 2 ), 'gallery follows the AI task' );
+		$this->assertSame( 'site_launched', end( $ids ), 'launch stays last' );
 
 		$gallery = null;
 		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
@@ -1681,6 +1723,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_does_not_inject_theme_task_for_non_sell() {
 		wp_set_current_user( $this->admin_id );
+		// The theme task is sell-only (ensure_theme_task) and is not in the short-list backfill pool, so even a short
+		// non-sell list never gains one.
 		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ), 'write' );
 
 		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
@@ -1833,9 +1877,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_sets_completed_flag_when_all_done() {
 		wp_set_current_user( $this->admin_id );
-		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		// A full six-task list so the short-list backfill does not add tasks that would keep it incomplete.
+		$ids = array( 'first_post_published', 'design_edited', 'site_title', 'setup_general', 'site_theme_selected', 'site_launched' );
+		$this->seed_ai_output_with_tasks( $ids );
 		// Skipping every task coerces each to completed, so the list reads as done.
-		update_option( 'wpcom_ai_launchpad_skipped_tasks', array( 'first_post_published', 'site_launched' ), false );
+		update_option( 'wpcom_ai_launchpad_skipped_tasks', $ids, false );
 
 		$this->call_api( Requests::GET );
 
@@ -1862,10 +1908,14 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_skip_final_task_sets_completed_flag() {
 		wp_set_current_user( $this->admin_id );
-		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+		// A full six-task list so the short-list backfill does not add tasks beyond the ones skipped below.
+		$non_launch = array( 'first_post_published', 'design_edited', 'site_title', 'setup_general', 'site_theme_selected' );
+		$this->seed_ai_output_with_tasks( array_merge( $non_launch, array( 'site_launched' ) ) );
 
-		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'first_post_published' ) );
-		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ), 'still incomplete after one skip' );
+		foreach ( $non_launch as $id ) {
+			$this->call_api( 'POST', '/skip-task', array( 'task_id' => $id ) );
+		}
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ), 'still incomplete while the launch task remains' );
 
 		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'site_launched' ) );
 		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ), 'complete after skipping the last task' );
