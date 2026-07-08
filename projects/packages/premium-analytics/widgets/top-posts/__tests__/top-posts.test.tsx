@@ -214,10 +214,10 @@ describe( 'TopPostsWidget', () => {
 
 		render( <TopPostsWidget attributes={ { num: 10, contentView: 'archives' } } /> );
 
-		await expect( screen.findByText( 'Home page' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Search results' ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Searches' ) ).toBeInTheDocument();
 		// Aggregate rows have no URL, so they must not render as links.
-		expect( screen.queryByRole( 'link', { name: /Home page/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Homepage/ } ) ).not.toBeInTheDocument();
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'archives' );
@@ -262,7 +262,7 @@ describe( 'TopPostsWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByText( 'Home page' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 } );

@@ -285,22 +285,37 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
  * @return The display label for the archive type.
  */
 function archiveTypeLabel( archiveType: string ): string {
+	// Same labels as the Calypso Stats "Most viewed" card's Archives tab
+	// (`getArchiveKeyLabel` in calypso/state/stats/lists/utils.js), so both
+	// surfaces name archive categories identically. `post_type` is a PA
+	// addition — Calypso falls through to capitalization for it.
 	switch ( archiveType ) {
-		case 'home':
-			return __( 'Home page', 'jetpack-premium-analytics' );
-		case 'search':
-			return __( 'Search results', 'jetpack-premium-analytics' );
-		case 'post_type':
-			return __( 'Post type archives', 'jetpack-premium-analytics' );
-		case 'tax':
-		case 'cat':
-			return __( 'Taxonomy archives', 'jetpack-premium-analytics' );
 		case 'author':
-			return __( 'Author archives', 'jetpack-premium-analytics' );
+			return __( 'Authors', 'jetpack-premium-analytics' );
+		case 'cat':
+			return __( 'Categories', 'jetpack-premium-analytics' );
+		case 'err':
+			return __( 'Error', 'jetpack-premium-analytics' );
+		case 'home':
+			// The homepage set to Latest posts lives under Archives, not in the
+			// Posts & pages list (which requests `skip_archives=1`).
+			return __( 'Homepage (Latest posts)', 'jetpack-premium-analytics' );
+		case 'search':
+			return __( 'Searches', 'jetpack-premium-analytics' );
+		case 'tag':
+			return __( 'Tags', 'jetpack-premium-analytics' );
+		case 'tax':
+			return __( 'Taxonomies', 'jetpack-premium-analytics' );
 		case 'date':
-			return __( 'Date archives', 'jetpack-premium-analytics' );
+			return __( 'Dates', 'jetpack-premium-analytics' );
+		case 'multiple':
+			return __( 'Aggregated', 'jetpack-premium-analytics' );
+		case 'other':
+			return __( 'Others', 'jetpack-premium-analytics' );
+		case 'post_type':
+			return __( 'Post types', 'jetpack-premium-analytics' );
 		default:
-			return archiveType;
+			return archiveType.charAt( 0 ).toUpperCase() + archiveType.slice( 1 ).toLowerCase();
 	}
 }
 
