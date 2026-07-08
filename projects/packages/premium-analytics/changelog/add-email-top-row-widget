@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the Email top row Stats widget showing a single email's send, open, and click totals.
