@@ -280,8 +280,8 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 
 	// Serialize whatever the leaderboard has loaded, mirroring the Jetpack Stats
 	// client-side "Download CSV" (bounded to the rows already in the browser).
-	const csvColumns = useMemo< CsvColumn< ( typeof rows )[ number ] >[] >( () => {
-		const base: CsvColumn< ( typeof rows )[ number ] >[] = [
+	const csvColumns = useMemo< CsvColumn< TopPostRow >[] >( () => {
+		const base: CsvColumn< TopPostRow >[] = [
 			{ key: 'label', label: __( 'Title', 'jetpack-premium-analytics' ) },
 			{ key: 'value', label: __( 'Views', 'jetpack-premium-analytics' ) },
 			{ key: 'type', label: __( 'Type', 'jetpack-premium-analytics' ) },
@@ -296,11 +296,19 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 		return base;
 	}, [ withComparison ] );
 
+	// Date-stamp the download so exports of different periods don't collide.
+	const csvFilename = `top-posts-${ reportParams.from.slice( 0, 10 ) }_${ reportParams.to.slice(
+		0,
+		10
+	) }`;
+
 	return (
 		<>
-			<div className={ styles.exportRow }>
-				<DownloadCsvButton columns={ csvColumns } rows={ rows } filename="top-posts" />
-			</div>
+			{ rows.length > 0 && (
+				<div className={ styles.exportRow }>
+					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
+				</div>
+			) }
 			<TopPostsLeaderboard
 				rows={ rows }
 				isLoading={ isLoading }
