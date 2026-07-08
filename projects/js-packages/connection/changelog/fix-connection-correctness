@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix correctness issues in the connection components: activate disconnect survey prop validation, and give the disconnect dialog a unique heading id. Use @wordpress/ui for buttons and convert to TSX as well.
+Disconnect UI: Fix owner disconnect dialog heading labeling and improve disconnect survey reliability.
