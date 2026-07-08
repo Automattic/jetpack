@@ -342,6 +342,55 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'public-api.wordpress.com', $result );
 	}
 
+	/**
+	 * Core `rss_enclosure()` emits one `<enclosure>` per `enclosure` post-meta
+	 * row, and posts accumulate several as the source URL drifts across saves.
+	 * All rows rewrite to the same post-ID-keyed stats URL, so the second and
+	 * subsequent rows must be dropped — a valid podcast item has exactly one.
+	 */
+	public function test_rewrite_enclosure_drops_repeated_rows_that_collapse_to_same_stats_url() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'        => 4242,
+				'post_type' => 'post',
+			)
+		);
+
+		add_filter(
+			'wpcom_podcasting_tracked_blog_id',
+			static function () {
+				return 555;
+			}
+		);
+
+		// Two distinct source URLs — a re-upload / CDN-host drift — both
+		// resolve to real attachments and both rewrite to `.../4242.mp3`.
+		add_filter(
+			'pre_attachment_url_to_postid',
+			static function ( $pre, $url ) {
+				if ( 'https://i0.wp.com/example.com/episode.mp3' === $url ) {
+					return 8001;
+				}
+				if ( 'https://i1.wp.com/example.com/episode.mp3' === $url ) {
+					return 8002;
+				}
+				return $pre;
+			},
+			10,
+			2
+		);
+
+		$first  = Customize_Feed::rewrite_enclosure( '<enclosure url="https://i0.wp.com/example.com/episode.mp3" length="123" type="audio/mpeg" />' );
+		$second = Customize_Feed::rewrite_enclosure( '<enclosure url="https://i1.wp.com/example.com/episode.mp3" length="123" type="audio/mpeg" />' );
+
+		$this->assertStringContainsString(
+			'url="https://public-api.wordpress.com/wpcom/v2/sites/555/podcast-play/4242.mp3"',
+			$first
+		);
+		$this->assertSame( '', $second );
+	}
+
 	public function test_resolve_category_id_prefers_numeric_id_over_archive_slug() {
 		$this->seed_category_term( 17 );
 		update_option( 'podcasting_category_id', 17 );

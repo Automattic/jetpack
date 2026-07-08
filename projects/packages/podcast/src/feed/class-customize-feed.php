@@ -242,6 +242,13 @@ class Customize_Feed {
 	 * `<itunes:duration>` when resolvable. Duration is looked up against the
 	 * *original* attachment URL — the stats URL is synthetic.
 	 *
+	 * A podcast item is only valid with a single `<enclosure>`, but core
+	 * `rss_enclosure()` emits one per `enclosure` post-meta row and posts
+	 * routinely accumulate several (URL drift across re-uploads / CDN hosts
+	 * that `do_enclose()`'s dedup treats as distinct). Rewriting keys on
+	 * post ID, so those rows all collapse to the same stats URL — we track
+	 * emitted URLs per item and drop repeats so the feed carries exactly one.
+	 *
 	 * @param string $enclosure Generated enclosure markup.
 	 * @return string
 	 */
@@ -304,6 +311,10 @@ class Customize_Feed {
 			}
 		}
 
+		if ( self::is_duplicate_enclosure( $post_obj, $enclosure ) ) {
+			return '';
+		}
+
 		if ( 0 === $attachment_id ) {
 			return $enclosure;
 		}
@@ -314,6 +325,33 @@ class Customize_Feed {
 		return 0 === $duration
 			? $enclosure
 			: $enclosure . '<itunes:duration>' . $duration . "</itunes:duration>\n";
+	}
+
+	/**
+	 * Whether this enclosure URL was already emitted for the current item.
+	 * Keyed per post so each item starts fresh, and by the final (rewritten)
+	 * URL so genuinely-distinct enclosures survive while repeats are dropped.
+	 *
+	 * @param WP_Post|null $post_obj  Post being rendered.
+	 * @param string       $enclosure Final enclosure markup.
+	 * @return bool
+	 */
+	private static function is_duplicate_enclosure( $post_obj, string $enclosure ): bool {
+		static $seen = array();
+
+		if ( ! preg_match( '/url="([^"]*)"/i', $enclosure, $match ) ) {
+			return false;
+		}
+
+		$post_id = $post_obj instanceof WP_Post ? (int) $post_obj->ID : 0;
+		$url     = $match[1];
+
+		if ( isset( $seen[ $post_id ][ $url ] ) ) {
+			return true;
+		}
+
+		$seen[ $post_id ][ $url ] = true;
+		return false;
 	}
 
 	/**
