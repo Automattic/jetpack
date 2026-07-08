@@ -87,8 +87,9 @@ function formsSummary( { lcp = 300, ttfb = 200, fcp = 500, decodedBytesKB = 8229
 
 /**
  * Build the nested per-field summary the myJetpack scenario reads: the same shape as
- * formsSummary (three timing fields + the bundle-size field), with defaults in the
- * observed My Jetpack magnitude so all four post cleanly unless a test overrides one.
+ * formsSummary (three timing fields + the bundle-size field). LCP (~640) and decodedBytesKB
+ * (~5860) track the observed local medians; ttfb/fcp are plausible in-range fillers. All four
+ * sit inside SANITY_RANGES so they post cleanly unless a test overrides one.
  */
 function myJetpackSummary( { lcp = 640, ttfb = 220, fcp = 560, decodedBytesKB = 5860 } = {} ) {
 	return {
@@ -541,15 +542,21 @@ test( 'the myJetpack scenario posts LCP, TTFB, FCP and decodedBytes to productio
 	// into the (initially empty) container, so a run measures the rendered app, not the shell.
 	assert.equal( scenario.path, '/wp-admin/admin.php?page=my-jetpack' );
 	assert.equal( scenario.waitForSelector, '#my-jetpack-container .jp-admin-page' );
-	// measure-lcp.js fails the run if the final URL does not contain this, so a redirect off the
-	// page (e.g. to the onboarding step) cannot quietly populate the My Jetpack keys.
+	// A weak guard on its own: My Jetpack is a single-slug SPA, so every view keeps
+	// `page=my-jetpack` — even the not-connected redirect to `&step=onboarding`. What actually
+	// stops a wrong-view post is the `.jp-admin-page` selector above (OnboardingScreen renders
+	// without AdminPage, so it never matches). expectUrlIncludes only catches a redirect that
+	// leaves My Jetpack entirely.
 	assert.equal( scenario.expectUrlIncludes, 'page=my-jetpack' );
 	// A resource-count floor so a partial capture can't post an undercounted decodedBytesKB.
 	// Pin the exact value (siblings pin every field by equality) so a later edit toward the
 	// ~90-resource load can't erode the margin silently, and exercise the real guard at the
 	// boundary: one below the floor must throw, the floor itself must not.
 	assert.equal( scenario.minResourceCount, 64 );
-	assert.throws( () => assertCaptureComplete( { totalRequests: 63 }, scenario ) );
+	assert.throws(
+		() => assertCaptureComplete( { totalRequests: 63 }, scenario ),
+		/Incomplete capture: 63 resources < expected minimum 64/
+	);
 	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 64 }, scenario ) );
 } );
 

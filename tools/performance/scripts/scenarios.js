@@ -132,10 +132,11 @@ export const SCENARIOS = [
 		// `<div id="my-jetpack-container">` and React (createRoot) renders MyJetpackScreen into
 		// it, so measure-lcp.js waits for the AdminPage frame (`.jp-admin-page`, a non-hashed
 		// class from @automattic/jetpack-components) to appear so a run measures the rendered app,
-		// not the empty shell. The load-bearing completeness gate is the networkidle wait that
-		// follows (the async product cards land after the frame), not the frame selector itself:
-		// `.jp-admin-page` renders with its children in one commit, so its presence is not a proxy
-		// for the bundle having finished loading.
+		// not the empty shell. Capture completeness then rests on the networkidle wait plus the
+		// stable resource count, not the frame selector (`.jp-admin-page` renders with its children
+		// in one commit, so its presence is not a load-finished proxy) and not networkidle alone
+		// (the async product cards can settle after a quiet gap). The minResourceCount floor below
+		// is the backstop against gross truncation.
 		//
 		// Requires offline mode OFF (Status::is_offline_mode() gates
 		// Initializer::should_initialize(); localhost has no dot so the fixture is "local" =
@@ -144,7 +145,7 @@ export const SCENARIOS = [
 		path: '/wp-admin/admin.php?page=my-jetpack',
 		waitForSelector: '#my-jetpack-container .jp-admin-page',
 		expectUrlIncludes: 'page=my-jetpack',
-		// A healthy load of this page fetches ~92 resources (dead-stable across iterations locally);
+		// A healthy load of this page fetches ~92 resources (stable across iterations locally);
 		// measure-lcp.js fails the run if it captures fewer than this floor, so a truncated/partial
 		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the observed
 		// count (count-based, not asset-based) so it only catches gross capture truncation.
