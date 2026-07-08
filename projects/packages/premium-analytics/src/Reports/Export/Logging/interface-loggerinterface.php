@@ -13,6 +13,11 @@ defined( 'ABSPATH' ) || exit;
 
 use Exception;
 
+/**
+ * Logger contract for the report-export subsystem.
+ *
+ * @since $$next-version$$
+ */
 interface LoggerInterface {
 	/**
 	 * Log an exception.

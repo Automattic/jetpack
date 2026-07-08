@@ -15,6 +15,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Trait LoggerTrait
+ *
+ * @since $$next-version$$
  */
 trait LoggerTrait {
 

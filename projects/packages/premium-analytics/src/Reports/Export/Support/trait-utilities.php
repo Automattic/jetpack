@@ -18,6 +18,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Shared helpers for the report-export subsystem.
+ *
+ * @since $$next-version$$
  */
 trait Utilities {
 

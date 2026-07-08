@@ -18,6 +18,8 @@ use WC_Logger_Interface;
 
 /**
  * Class DebugLogger
+ *
+ * @since $$next-version$$
  */
 class DebugLogger implements LoggerInterface {
 
