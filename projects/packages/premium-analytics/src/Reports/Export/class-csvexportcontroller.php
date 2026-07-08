@@ -273,7 +273,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 
 		// Check that the date is not beyond today (compare at day level, not time level).
 		$to_date_only    = gmdate( 'Y-m-d', $to_timestamp );
-		$today_date_only = gmdate( 'Y-m-d', time() );
+		$today_date_only = current_datetime()->format( 'Y-m-d' );
 
 		if ( $to_date_only > $today_date_only ) {
 			return new WP_Error(
@@ -348,7 +348,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 
 		// Check that the date is not beyond today (compare at day level, not time level).
 		$compare_to_date_only = gmdate( 'Y-m-d', $compare_to_timestamp );
-		$today_date_only      = gmdate( 'Y-m-d', time() );
+		$today_date_only      = current_datetime()->format( 'Y-m-d' );
 
 		if ( $compare_to_date_only > $today_date_only ) {
 			return new WP_Error(
