@@ -248,14 +248,21 @@ export function createChaptersSession( durationMs: number ): ChaptersSession {
 /**
  * The whole second (in ms) ADD_AT would add a chapter at: the playhead
  * clamped to the video, rounded to the nearest whole second, capped at the
- * last whole second of the video.
+ * last whole second at or before `durationMs − CHAPTER_MIN_GAP_MS`. The cap
+ * mirrors the upper bound MOVE_START enforces for the last chapter, so a
+ * chapter added at the very end of the video still starts inside its own
+ * drag window instead of ON the video end (which would render zero-width
+ * and save a zero-length final cue).
  *
  * @param durationMs - Video duration in ms.
  * @param atMs       - Playhead position in ms.
  * @return The candidate chapter start.
  */
 function addTargetMs( durationMs: number, atMs: number ): number {
-	const wholeSecondCap = Math.max( 0, Math.floor( durationMs / 1000 ) * 1000 );
+	const wholeSecondCap = Math.max(
+		0,
+		Math.floor( ( durationMs - CHAPTER_MIN_GAP_MS ) / 1000 ) * 1000
+	);
 	const clamped = Math.min( Math.max( 0, atMs ), Math.max( 0, durationMs ) );
 	return Math.min( roundToWholeSecondMs( clamped ), wholeSecondCap );
 }

@@ -212,10 +212,17 @@ describe( 'ADD_AT', () => {
 		expect( reduce( midDrag, { type: 'ADD_AT', atMs: 11400 } ) ).toBe( midDrag );
 	} );
 
-	it( 'caps the target at the last whole second of the video', () => {
-		const base = load( [ { startAtSeconds: 0, title: 'A' } ], 60400 );
-		const session = reduce( base, { type: 'ADD_AT', atMs: 60400 } );
-		expect( session.chapters[ 1 ].startMs ).toBe( 60000 );
+	it( 'caps the target inside the last-chapter window MOVE_START enforces', () => {
+		// Whole-second duration: adding at the End must not land ON the
+		// video end (zero-width segment, zero-length final cue).
+		const wholeSecond = load( [ { startAtSeconds: 0, title: 'A' } ], 60000 );
+		const atEnd = reduce( wholeSecond, { type: 'ADD_AT', atMs: 60000 } );
+		expect( atEnd.chapters[ 1 ].startMs ).toBe( 60000 - CHAPTER_MIN_GAP_MS );
+
+		// Fractional duration: duration − gap floors to a whole second.
+		const fractional = load( [ { startAtSeconds: 0, title: 'A' } ], 60400 );
+		const session = reduce( fractional, { type: 'ADD_AT', atMs: 60400 } );
+		expect( session.chapters[ 1 ].startMs ).toBe( 59000 );
 	} );
 
 	it( 'canAddChapterAt mirrors the dedupe rules', () => {
