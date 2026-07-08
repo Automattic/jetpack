@@ -142,7 +142,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "34c28243fe1b82bec808b44208ca33bb69a7ab51"
+                "reference": "7214a03808294ae652164b2495dc4e8a09c54e89"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -167,7 +167,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.3.x-dev"
+                    "dev-trunk": "4.4.x-dev"
                 }
             },
             "autoload": {
@@ -414,13 +414,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "74e1711653df3561aadf672c5228cb2a2479d0d4"
+                "reference": "ce362d9d8bf97228d5267f8d4a9b05379ff98aa2"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-roles": "@dev",
                 "automattic/jetpack-status": "@dev",
@@ -545,6 +546,64 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A wrapper for defining constants in a more testable way.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-ip",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/ip",
+                "reference": "83c25c578ff27f736d3e5c8b94dd3456eb43ba01"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
+                "brain/monkey": "^2.6.2",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-ip",
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.4.x-dev"
+                },
+                "textdomain": "jetpack-ip",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-utils.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Utilities for working with IP addresses.",
             "transport-options": {
                 "relative": true
             }

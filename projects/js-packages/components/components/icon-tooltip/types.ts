@@ -1,5 +1,5 @@
-import type { IconType } from '@wordpress/components';
-import type { ReactNode } from 'react';
+import type { Icon } from '@wordpress/icons';
+import type { ComponentProps, ReactNode } from 'react';
 
 export type Placement = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
@@ -40,7 +40,7 @@ export type IconTooltipProps = {
 	/**
 	 * The icon to display. Accepts icon components from `@wordpress/icons`.
 	 */
-	iconCode?: IconType;
+	iconCode?: ComponentProps< typeof Icon >[ 'icon' ];
 
 	/**
 	 * The title of Popover.

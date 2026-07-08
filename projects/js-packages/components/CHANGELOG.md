@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.12.14] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+## [1.12.13] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [1.12.12] - 2026-06-25
+### Fixed
+- Icon tooltip: Type `iconCode` as `ReactElement` so it matches the `@wordpress/icons` Icon and `@wordpress/ui` 0.15 type definitions. [#49795]
+
+## [1.12.11] - 2026-06-24
+### Removed
+- Remove deprecated Spinner component. Use Spinner from @wordpress/components instead. [#49856]
+
+## [1.12.10] - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+## [1.12.9] - 2026-06-22
+### Changed
+- Update package dependencies. [#49691] [#49757]
+
 ## [1.12.8] - 2026-06-15
 ### Changed
 - Update package dependencies. [#49631]
@@ -1844,6 +1868,12 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.12.14]: https://github.com/Automattic/jetpack-components/compare/1.12.13...1.12.14
+[1.12.13]: https://github.com/Automattic/jetpack-components/compare/1.12.12...1.12.13
+[1.12.12]: https://github.com/Automattic/jetpack-components/compare/1.12.11...1.12.12
+[1.12.11]: https://github.com/Automattic/jetpack-components/compare/1.12.10...1.12.11
+[1.12.10]: https://github.com/Automattic/jetpack-components/compare/1.12.9...1.12.10
+[1.12.9]: https://github.com/Automattic/jetpack-components/compare/1.12.8...1.12.9
 [1.12.8]: https://github.com/Automattic/jetpack-components/compare/1.12.7...1.12.8
 [1.12.7]: https://github.com/Automattic/jetpack-components/compare/1.12.6...1.12.7
 [1.12.6]: https://github.com/Automattic/jetpack-components/compare/1.12.5...1.12.6

@@ -5,6 +5,7 @@
  * API format: /jetpack-premium-analytics/v1/proxy/v2/analytics/reports/order-attribution/:view/summary
  * Values are strings (the sanitizer converts them to numbers)
  */
+import type { OrderAttributionByProductResponse } from '../../../../../data/src/api/report-order-attribution-by-product-fetch/report-order-attribution-by-product-fetch';
 import type { fetchReportOrderAttributionSummary } from '../../../../../data/src/api/report-order-attribution-summary-fetch/report-order-attribution-summary-fetch';
 
 /**
@@ -62,6 +63,57 @@ export const mockOrderAttributionDeviceData: OrderAttributionSummaryResponse = {
 		},
 	],
 };
+
+/**
+ * Order Attribution by Product mock data for booking-filtered device requests.
+ *
+ * The filtered by-product endpoint returns a flat shape and is normalized by
+ * the data package before widgets consume it.
+ */
+export const mockOrderAttributionByProductDeviceData: OrderAttributionByProductResponse = {
+	view: 'device',
+	order_by: 'net_sales',
+	data: [
+		{
+			item: 'Desktop Browser',
+			value: '52842.10',
+			intervals: [],
+		},
+		{
+			item: 'Mobile App',
+			value: '41795.50',
+			intervals: [],
+		},
+		{
+			item: 'Tablet Safari',
+			value: '16240.75',
+			intervals: [],
+		},
+	],
+};
+
+export const mockOrderAttributionByProductDeviceComparisonData: OrderAttributionByProductResponse =
+	{
+		view: 'device',
+		order_by: 'net_sales',
+		data: [
+			{
+				item: 'Desktop Browser',
+				value: '47182.40',
+				intervals: [],
+			},
+			{
+				item: 'Mobile App',
+				value: '44320.20',
+				intervals: [],
+			},
+			{
+				item: 'Tablet Safari',
+				value: '13780.50',
+				intervals: [],
+			},
+		],
+	};
 
 /**
  * Order Attribution by Channel mock data

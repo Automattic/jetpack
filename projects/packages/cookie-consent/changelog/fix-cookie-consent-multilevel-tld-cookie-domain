@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Set host-only cookies instead of deriving a cross-subdomain domain, which browsers reject on multi-level TLDs such as .co.uk and .com.br.

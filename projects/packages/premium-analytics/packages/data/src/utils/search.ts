@@ -48,6 +48,7 @@ export type ReportParams = {
 	filters?: FilterCondition[];
 	section?: string;
 	date_type?: DateType; // For filtering by different date fields (created, paid, completed)
+	post_id?: string | number; // Scopes a report to a single post/page (detail page). String from the URL; numeric at the query layer.
 };
 
 type PartialComparisonFields = Partial<
@@ -114,6 +115,10 @@ export function normalizeReportParams(
 	// Calculate the interval from the resolved date range.
 	const interval = getDefaultIntervalForPeriod( undefined, from, to );
 
+	// A valid single-resource scope is a positive integer post/page ID.
+	const postIdNumber = Number( search?.post_id );
+	const postId = Number.isInteger( postIdNumber ) && postIdNumber > 0 ? postIdNumber : undefined;
+
 	// Params from `search`, or fallback to defaults.
 	const normalized: ReportParams = {
 		from,
@@ -121,6 +126,11 @@ export function normalizeReportParams(
 		interval: interval ?? defaults.interval,
 		preset,
 		date_type: search?.date_type ?? 'created',
+		// Preserve the single-resource scope so detail-page widgets stay bound to
+		// their post/page. Coerce to a positive integer and drop anything else
+		// (non-numeric, zero, negative) so a hand-edited deep link can't push a
+		// malformed post_id into downstream Stats requests.
+		...( postId !== undefined ? { post_id: postId } : {} ),
 	};
 
 	// Add comparison params from search if enabled

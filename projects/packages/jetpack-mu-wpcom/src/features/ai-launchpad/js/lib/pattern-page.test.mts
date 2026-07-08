@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { pickPattern, type PtkPattern } from './pattern-page.ts';
+import { pickPattern, selectPatternPage, type PtkPattern } from './pattern-page.ts';
 import type { TailoredInferred } from './types.ts';
 
 const inferred: TailoredInferred = {
@@ -46,5 +46,61 @@ describe( 'pickPattern', () => {
 
 	it( 'returns null when no pattern has HTML', () => {
 		assert.equal( pickPattern( [ { title: 'x' }, { title: 'y' } ], inferred ), null );
+	} );
+} );
+
+describe( 'selectPatternPage', () => {
+	const galleryPattern: PtkPattern = {
+		title: 'Gallery Page 1',
+		html: '<!-- wp:gallery --><figure></figure><!-- /wp:gallery -->',
+		categories: { c1: { slug: 'gallery', title: 'Gallery' } },
+	};
+	const aboutPattern: PtkPattern = {
+		title: 'About Hero',
+		html: '<p>about</p>',
+		categories: { c2: { slug: 'about', title: 'About' } },
+	};
+
+	it( 'gallery variant filters to the gallery category and sets the gallery marker', () => {
+		const result = selectPatternPage( [ aboutPattern, galleryPattern ], inferred, 'gallery' );
+		assert.equal( result.content, galleryPattern.html );
+		assert.equal( result.markerMeta, '_wpcom_ai_launchpad_gallery_page' );
+		// The title is fixed, not the matched pattern's name.
+		assert.equal( result.title, 'Gallery' );
+	} );
+
+	it( 'gallery variant falls back to a bare gallery block when no gallery pattern exists', () => {
+		const result = selectPatternPage( [ aboutPattern ], inferred, 'gallery' );
+		assert.match( result.content, /wp:gallery/ );
+		assert.equal( result.markerMeta, '_wpcom_ai_launchpad_gallery_page' );
+		assert.equal( result.title, 'Gallery' );
+	} );
+
+	it( 'gallery variant strips an in-pattern heading that repeats the title', () => {
+		const withHeading: PtkPattern = {
+			title: 'Gallery Page 2',
+			html: '<!-- wp:heading --><h2 class="wp-block-heading">Gallery</h2><!-- /wp:heading -->\n<!-- wp:image --><figure></figure><!-- /wp:image -->',
+			categories: { c1: { slug: 'gallery', title: 'Gallery' } },
+		};
+		const result = selectPatternPage( [ withHeading ], inferred, 'gallery' );
+		assert.equal( result.title, 'Gallery' );
+		assert.ok( ! /wp:heading/.test( result.content ), 'redundant heading removed' );
+		assert.ok( /wp:image/.test( result.content ), 'other blocks kept' );
+	} );
+
+	it( 'gallery variant keeps a heading whose text differs from the title', () => {
+		const withHeading: PtkPattern = {
+			title: 'Gallery Page 3',
+			html: '<!-- wp:heading --><h2 class="wp-block-heading">Featured work</h2><!-- /wp:heading -->',
+			categories: { c1: { slug: 'gallery', title: 'Gallery' } },
+		};
+		const result = selectPatternPage( [ withHeading ], inferred, 'gallery' );
+		assert.ok( /Featured work/.test( result.content ), 'non-matching heading kept' );
+	} );
+
+	it( 'about variant is unfiltered and sets the about marker', () => {
+		const result = selectPatternPage( [ aboutPattern, galleryPattern ], inferred, 'about' );
+		assert.equal( result.markerMeta, '_wpcom_ai_launchpad_about_page' );
+		assert.equal( result.content, aboutPattern.html );
 	} );
 } );

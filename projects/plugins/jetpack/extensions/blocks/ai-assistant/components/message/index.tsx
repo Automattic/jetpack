@@ -53,7 +53,9 @@ export default function Message( {
 }: MessageProps ): ReactElement {
 	return (
 		<div className="jetpack-ai-assistant__message">
-			{ ( severity || icon ) && <Icon icon={ messageIconsMap[ severity ] || icon } /> }
+			{ ( severity || icon ) && (
+				<Icon icon={ ( messageIconsMap[ severity ] || icon ) as ReactElement } />
+			) }
 			<div className="jetpack-ai-assistant__message-content">{ children }</div>
 		</div>
 	);

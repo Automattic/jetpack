@@ -64,11 +64,12 @@ $matrix = array();
 // Add PHP tests.
 foreach ( array( '7.2', '7.3' ) as $php ) {
 	$matrix[] = array(
-		'name'    => "PHP tests: PHP $php WP previous",
-		'script'  => 'test-php',
-		'php'     => $php,
-		'wp'      => 'previous',
-		'timeout' => 20, // 2025-11-06: Successful runs seem to take ~7 minutes.
+		'name'                => "PHP tests: PHP $php WP previous",
+		'script'              => 'test-php',
+		'php'                 => $php,
+		'wp'                  => 'previous',
+		'force-package-tests' => true,
+		'timeout'             => 20, // 2025-11-06: Successful runs seem to take ~7 minutes.
 	);
 }
 foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {

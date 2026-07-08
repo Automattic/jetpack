@@ -72,6 +72,20 @@ describe( 'withResponsive', () => {
 			const wrapper = screen.getByTestId( 'responsive-wrapper' );
 			expect( wrapper ).toHaveStyle( { width: '100%', height: 'auto' } );
 		} );
+
+		test( 'wrapper expresses aspectRatio in CSS and caps at maxWidth', () => {
+			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.5 } maxWidth={ 800 } /> );
+			const wrapper = screen.getByTestId( 'responsive-wrapper' );
+			// CSS aspect-ratio is width/height, so 1 / 0.5 = 2.
+			expect( wrapper ).toHaveStyle( { aspectRatio: '2', maxWidth: '800px' } );
+		} );
+
+		test( 'wrapper omits the maxWidth cap when an explicit width is set', () => {
+			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.5 } width={ 300 } /> );
+			const wrapper = screen.getByTestId( 'responsive-wrapper' );
+			expect( wrapper ).toHaveStyle( { aspectRatio: '2', width: '300px' } );
+			expect( wrapper ).not.toHaveStyle( { maxWidth: '1200px' } );
+		} );
 	} );
 
 	describe( 'configuration', () => {

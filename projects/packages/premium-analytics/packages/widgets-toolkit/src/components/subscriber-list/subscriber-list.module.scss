@@ -1,0 +1,44 @@
+.row {
+	padding-block: var(--wpds-dimension-padding-sm);
+}
+
+/* flex:1 + min-width:0 lets the name ellipsis, not push "since" off-row. */
+.person {
+	flex: 1;
+	min-width: 0;
+}
+
+.avatar {
+	flex-shrink: 0;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.name {
+	overflow: hidden;
+	color: var(--wpds-color-foreground-content-neutral);
+	font-size: var(--wpds-typography-font-size-md);
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	text-decoration: none;
+}
+
+a.name:hover,
+a.name:focus {
+	text-decoration: underline;
+}
+
+.since {
+	flex-shrink: 0;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-sm);
+	white-space: nowrap;
+}
+
+.more {
+	padding-block: var(--wpds-dimension-padding-sm);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-sm);
+}

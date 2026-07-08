@@ -35,6 +35,7 @@
 		<exclude name="PHPCompatibility.Constants.NewConstants.curlopt_proxy_sslkey_blobFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.curlopt_sslcert_blobFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.curlopt_sslkey_blobFound" />
+		<exclude name="PHPCompatibility.Constants.NewConstants.imagetype_avifFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.img_avifFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.img_webp_losslessFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.mhash_murmur3aFound" />

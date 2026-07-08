@@ -19,7 +19,12 @@ test( 'Jetpack Social connection', async ( { page, admin, requestUtils } ) => {
 	} );
 
 	await test.step( 'Verify connection in Jetpack Social page', async () => {
-		await expect( page.getByRole( 'button', { name: 'Connect accounts' } ) ).toBeVisible();
-		await expect( page.getByRole( 'button', { name: 'Write a post' } ) ).toBeVisible();
+		// The modernized dashboard lands on the Overview tab with no social
+		// accounts connected yet, so assert on its empty state and the
+		// "Add account" header CTA (rendered twice — header + empty state).
+		await expect(
+			page.getByRole( 'heading', { name: 'No accounts connected yet' } )
+		).toBeVisible();
+		await expect( page.getByRole( 'button', { name: 'Add account' } ).first() ).toBeVisible();
 	} );
 } );

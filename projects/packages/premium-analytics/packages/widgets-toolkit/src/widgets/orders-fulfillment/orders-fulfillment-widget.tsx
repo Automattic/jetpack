@@ -115,6 +115,7 @@ export function OrdersFulfillmentWidget() {
 						type: 'number',
 						options: { useMultipliers: true, decimals: 0 },
 					} }
+					maxSize={ null }
 					emptyStateIcon={ reports }
 					withTooltips
 				/>

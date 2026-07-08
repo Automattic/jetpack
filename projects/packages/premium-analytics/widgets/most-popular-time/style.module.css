@@ -1,0 +1,22 @@
+.root {
+	height: 100%;
+	overflow: hidden;
+}
+
+.label {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.value {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.caption {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.placeholder {
+	margin: auto;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+}

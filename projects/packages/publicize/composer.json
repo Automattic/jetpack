@@ -10,6 +10,7 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-post-media": "@dev",
@@ -75,7 +76,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.81.x-dev"
+			"dev-trunk": "0.83.x-dev"
 		}
 	},
 	"config": {

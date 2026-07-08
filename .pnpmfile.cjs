@@ -1,33 +1,57 @@
 // Packages we need to copy versions from for `@wordpress/dataviews/wp`.
-const wpPkgs = {
-	'@wordpress/components': [
-		'change-case',
-		'colord',
-		'date-fns',
-		'deepmerge',
-		'@emotion/cache',
-		'@emotion/css',
-		'@emotion/react',
-		'@emotion/styled',
-		'@emotion/utils',
-		'fast-deep-equal',
-		'@floating-ui/react-dom',
-		'framer-motion',
-		'highlight-words-core',
-		'is-plain-object',
-		'memize',
-		'@use-gesture/react',
-		'uuid',
-		'@wordpress/date',
-		'@wordpress/hooks',
-		'react-colorful',
-		'react-day-picker',
-	],
-	'@wordpress/element': [ 'react-dom' ],
-	'@wordpress/data': [ 'use-memo-one' ],
-	'@wordpress/ui': [ '@base-ui/react' ],
-};
+const wpPkgs = [
+	[ '@wordpress/components', 'change-case' ],
+	[ '@wordpress/components', 'colord' ],
+	[ '@wordpress/components', 'date-fns' ],
+	[ '@wordpress/components', 'deepmerge' ],
+	[ '@wordpress/components', '@emotion/cache' ],
+	[ '@wordpress/components', '@emotion/css' ],
+	[ '@wordpress/components', '@emotion/react' ],
+	[ '@wordpress/components', '@emotion/styled' ],
+	[ '@wordpress/components', '@emotion/utils' ],
+	[ '@wordpress/components', 'fast-deep-equal' ],
+	[ '@wordpress/components', '@floating-ui/react-dom' ],
+	[ '@wordpress/components', 'framer-motion' ],
+	[ '@wordpress/components', 'highlight-words-core' ],
+	[ '@wordpress/components', 'is-plain-object' ],
+	[ '@wordpress/components', 'memize' ],
+	[ '@wordpress/components', '@use-gesture/react' ],
+	[ '@wordpress/components', 'uuid' ],
+	[ '@wordpress/components', '@wordpress/date' ],
+	[ '@wordpress/components', '@wordpress/hooks' ],
+	[ '@wordpress/components', 'react-colorful' ],
+	[ '@wordpress/components', 'react-day-picker' ],
+	[ '@wordpress/element', 'react-dom' ],
+	[ '@wordpress/data', 'use-memo-one' ],
+	[ '@wordpress/ui', '@base-ui/react' ],
+	[ '@wordpress/ui', '@wordpress/theme', 'colorjs.io' ],
+];
 const wpPkgFetches = {};
+const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
+	const [ dep, ...rest ] = deplist;
+
+	if ( ! wpPkgFetches[ fromPkg ] ) {
+		wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
+			r.json()
+		);
+	}
+	const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
+
+	if ( rest.length > 0 ) {
+		if ( deps[ dep ] === undefined ) {
+			// Old version of package lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
+			return;
+		}
+		const ver2 = deps[ dep ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
+		await addWpPkgDep( pkg, dep, ver2, rest );
+	} else {
+		if ( deps[ dep ] === undefined ) {
+			// prettier-ignore
+			throw new Error( `pnpmfile hack needs updating, ${ fromPkg } ${ ver } doesn't depend on ${ dep } anymore?` );
+		}
+		pkg.optionalDependencies[ dep ] = deps[ dep ];
+	}
+};
 
 /**
  * Fix package dependencies.
@@ -88,26 +112,14 @@ async function fixDeps( pkg ) {
 	// the build fails when using pnpm with hoisting.
 	// @see https://github.com/WordPress/gutenberg/issues/67864
 	if ( pkg.name === '@wordpress/dataviews' ) {
-		for ( const fromPkg of Object.keys( wpPkgs ) ) {
+		for ( const deplist of wpPkgs ) {
+			const [ fromPkg, ...rest ] = deplist;
 			if ( ! pkg.dependencies[ fromPkg ] ) {
 				// Old version of dataviews lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
 				continue;
 			}
-
-			if ( ! wpPkgFetches[ fromPkg ] ) {
-				wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
-					r.json()
-				);
-			}
 			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
-			const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
-			for ( const dep of wpPkgs[ fromPkg ] ) {
-				if ( deps[ dep ] === undefined ) {
-					// prettier-ignore
-					throw new Error( `pnpmfile hack needs updating, ${ fromPkg } ${ ver } doesn't depend on ${ dep } anymore?` );
-				}
-				pkg.optionalDependencies[ dep ] = deps[ dep ];
-			}
+			await addWpPkgDep( pkg, fromPkg, ver, rest );
 		}
 	}
 
@@ -184,6 +196,15 @@ async function fixDeps( pkg ) {
 	}
 	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.stylelint ) {
 		pkg.peerDependencies.stylelint = pkg.peerDependencies.stylelint.replace( /^(?:\^|>=)?/, '>=' );
+	}
+
+	// Make sure @wordpress/eslint-plugin and @wordpress/stylelint-config gets whatever @wordpress/theme is installed.
+	if (
+		( pkg.name === '@wordpress/stylelint-config' || pkg.name === '@wordpress/eslint-plugin' ) &&
+		pkg.dependencies?.[ '@wordpress/theme' ]
+	) {
+		delete pkg.dependencies[ '@wordpress/theme' ];
+		pkg.peerDependencies[ '@wordpress/theme' ] = '*';
 	}
 
 	// Update localtunnel axios dep to avoid CVE
@@ -296,13 +317,6 @@ async function fixDeps( pkg ) {
  * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
-	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
-	// @see https://github.com/mjeanroy/rollup-plugin-license/issues/2110
-	if ( pkg.name === 'rollup-plugin-license' ) {
-		pkg.peerDependenciesMeta ??= {};
-		pkg.peerDependenciesMeta.rollup = { optional: true };
-	}
-
 	// Indirect deps that still depend on React <18.
 	const reactOldPkgs = new Set( [
 		// Still on 16.
@@ -350,6 +364,20 @@ function fixPeerDeps( pkg ) {
 				pkg.peerDependencies[ p ] += ' || ^10';
 			}
 		}
+	}
+
+	// Apparently this for some reason includes a vite plugin, instead of that being a separate package.
+	// And it depends on the wrong version of vite. Since we mostly don't use vite anyway (just in storybook),
+	// it should be safe to broaden the dep.
+	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.vite ) {
+		pkg.peerDependencies.vite = '*';
+	}
+
+	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
+	// @see https://github.com/mjeanroy/rollup-plugin-license/issues/2110
+	if ( pkg.name === 'rollup-plugin-license' ) {
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta.rollup = { optional: true };
 	}
 
 	// It assumes hoisting to find its plugins. Sigh. Add peer deps for the plugins we use.
@@ -410,6 +438,11 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies?.stylelint?.startsWith( '^16.' )
 	) {
 		pkg.peerDependencies.stylelint = '^17';
+	}
+
+	// Having copies with and without the peer dep tends to break tests. So let's just make it non-optional.
+	if ( pkg.name === '@wordpress/data' ) {
+		delete pkg.peerDependenciesMeta?.[ '@types/react' ];
 	}
 
 	return pkg;
@@ -478,11 +511,14 @@ function afterAllResolved( lockfile, context ) {
 		}
 	}
 
-	for ( const fromPkg of Object.keys( wpPkgs ) ) {
-		if ( ! wpPkgFetches[ fromPkg ] ) {
-			context.log(
-				`pnpmfile hack needs updating: wpPkgs['${ fromPkg }'] was not used. Is it obsolete?`
-			);
+	for ( const deplist of wpPkgs ) {
+		for ( const dep of deplist.slice( 0, deplist.length - 1 ) ) {
+			if ( ! wpPkgFetches[ dep ] ) {
+				context.log(
+					// prettier-ignore
+					`pnpmfile hack needs updating: wpPkgs entry [ ${ deplist.join( ', ' ) } ] was not used. Is it obsolete?`
+				);
+			}
 		}
 	}
 

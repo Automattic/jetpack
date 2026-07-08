@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, useBreakpointMatch, Text } from '@automattic/jetpack-components';
+import { Button, Text } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { Icon, captureVideo } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -21,7 +22,7 @@ import { VideoUploadAreaProps } from './types';
  * @return - VideoUploadArea react component.
  */
 const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) => {
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 	const { inputRef, handleFileInputChangeEvent } = useSelectVideoFiles( { onSelectFiles } );
 	const { hasVideoPressPurchase } = usePlan();
 

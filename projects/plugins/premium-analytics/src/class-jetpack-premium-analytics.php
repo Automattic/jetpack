@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+use Automattic\Jetpack\CookieConsent\Cookie_Consent;
 use Automattic\Jetpack\PremiumAnalytics\Analytics;
 
 /**
@@ -24,6 +25,7 @@ class Jetpack_Premium_Analytics {
 	 * Constructor.
 	 */
 	public function __construct() {
-		Analytics::init( array( 'menu_title' => 'Premium Analytics' ) );
+		Analytics::init( array( 'menu_title' => 'Stats' ) );
+		Cookie_Consent::init();
 	}
 }

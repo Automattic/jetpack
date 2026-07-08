@@ -167,6 +167,7 @@ class Defaults {
 		'uploads_use_yearmonth_folders',
 		'users_can_register',
 		'verification_services_codes',
+		'videopress_auto_subtitles_disabled',
 		'videopress_private_enabled_for_site',
 		'wordads_ccpa_enabled',
 		'wordads_ccpa_privacy_policy_url',
@@ -781,6 +782,7 @@ class Defaults {
 		'_wpas_customize_per_network',
 		'_wpas_mess',
 		'_wpas_options',
+		'_jetpack_social_image_focal_point', // Publicize_Base::ATTACHMENT_IMAGE_FOCAL_POINT.
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
 		'content_width',
 		'custom_css_add',

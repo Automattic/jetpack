@@ -1,0 +1,7 @@
+{
+	"name": "jpa/sales-by-coupon-usage",
+	"title": "Sales by coupon usage",
+	"description": "Sales by coupon usage over the selected time period.",
+	"category": "coupons",
+	"presentation": "framed"
+}

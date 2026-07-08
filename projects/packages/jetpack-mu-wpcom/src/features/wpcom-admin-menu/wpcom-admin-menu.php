@@ -92,6 +92,15 @@ function wpcom_add_my_home_menu() {
 		return;
 	}
 
+	// Site Setup (manage_options) replaces My Home only for users who can see it; others keep My Home.
+	if (
+		current_user_can( 'manage_options' )
+		&& function_exists( 'wpcom_ai_launchpad_is_eligible' )
+		&& wpcom_ai_launchpad_is_eligible()
+	) {
+		return;
+	}
+
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	add_menu_page( __( 'My Home', 'jetpack-mu-wpcom' ), __( 'My Home', 'jetpack-mu-wpcom' ), 'read', 'https://wordpress.com/home/' . $domain, null, 'dashicons-admin-home', 2.01 ); // The 2.01 position is to ensure it's above the VIP menu on P2 sites.'
@@ -390,21 +399,18 @@ function wpcom_add_jetpack_submenu() {
 	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 
-	// Once the Newsletter modernization filter is on, the unified Newsletter
-	// page owns the Subscribers tab and the legacy Calypso "Subscribers" submenu
-	// is retired, replaced by a transitional announcement page that points there.
-	// While the filter is off (the default) we keep the legacy Calypso submenu.
-	// (The wp-admin subscriber-management variant was removed with the
-	// subscribers-dashboard package and isn't restored.)
+	// The unified Newsletter page now owns the Subscribers tab on every site: the
+	// legacy Calypso "Subscribers" submenu is retired and replaced by a transitional
+	// announcement page that points there. (The wp-admin subscriber-management variant
+	// was removed with the subscribers-dashboard package and isn't restored.) Hosts
+	// (and a11ns who want the legacy view back) can still force the old submenu back
+	// with add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' ).
 	//
 	// On WordPress.com (Simple and WoA) this menu is the canonical owner of the
 	// Subscribers entry, so the announcement page is registered here for both
 	// platforms; the standalone plugin's subscriptions module defers to it on
-	// wpcom to avoid a duplicate. Referenced as a string literal (mirrors
-	// Newsletter\Settings::MODERNIZATION_FILTER): the newsletter package isn't a
-	// dependency of jetpack-mu-wpcom, and the filter runs unconditionally — ahead
-	// of the class_exists-guarded Subscribers_Announcement use.
-	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
+	// wpcom to avoid a duplicate.
+	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
 		add_submenu_page(
 			'jetpack',
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),
