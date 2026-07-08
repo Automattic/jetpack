@@ -81,6 +81,10 @@ describe( 'TopPostsWidget', () => {
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'start_date=2026-03-01' );
 		expect( requestedPath ).toContain( 'date=2026-03-10' );
+		// List reports are day-bucketed regardless of the dashboard chart interval,
+		// and the post list excludes archive pages (they have their own view).
+		expect( requestedPath ).toContain( 'period=day' );
+		expect( requestedPath ).toContain( 'skip_archives=1' );
 	} );
 
 	it( 'requests the comparison window and aligns previous views by post URL', async () => {
