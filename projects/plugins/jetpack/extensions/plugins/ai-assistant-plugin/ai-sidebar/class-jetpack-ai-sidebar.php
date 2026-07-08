@@ -281,7 +281,9 @@ class Jetpack_AI_Sidebar {
 	 *
 	 * Server-side permission checks still gate execution. This site-side flag
 	 * controls whether the sidebar suggestion is exposed, while keeping a
-	 * feature-specific filter available as a kill switch.
+	 * feature-specific filter available as a kill switch. It also follows the
+	 * writing assistant toggle on the AI settings page: editorial review is a
+	 * writing suggestion, so writing off must switch it off too.
 	 *
 	 * @return bool
 	 */
@@ -289,18 +291,21 @@ class Jetpack_AI_Sidebar {
 		return (bool) apply_filters(
 			'jetpack_ai_editorial_review_enabled',
 			true
-		);
+		) && \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' );
 	}
 
 	/**
 	 * UI feature flag for the Generate Feedback suggestion.
 	 *
-	 * Exposed only in internal testing environments while the feature is in development.
+	 * Exposed only in internal testing environments while the feature is in
+	 * development, and only while the writing assistant toggle on the AI
+	 * settings page is on — feedback on a draft is a writing suggestion.
 	 *
 	 * @return bool
 	 */
 	private static function is_generate_feedback_enabled(): bool {
-		return jetpack_is_internal_testing_environment();
+		return jetpack_is_internal_testing_environment()
+			&& \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' );
 	}
 
 	/**
