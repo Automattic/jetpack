@@ -22,7 +22,7 @@
 		border-radius: var(--wpds-border-radius-sm, 2px);
 		outline:
 			var(--wpds-border-width-focus) solid
-			var(--wpds-color-stroke-focus-brand, var(--wp-admin-theme-color, #3858e9));
+			var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
 		outline-offset: calc(-1 * var(--wpds-border-width-focus));
 	}
 
