@@ -19,14 +19,14 @@ const SESSIONS_BY_DEVICE_RENDER_MODULE = 'storybook/sessions-by-device';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type SessionsByDeviceRenderProps = ComponentProps< typeof SessionsByDeviceRender >;
+type SessionsByDeviceWidgetProps = ComponentProps< typeof SessionsByDeviceRender >;
 
 interface SessionsByDeviceStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type SessionsByDeviceStoryProps = SessionsByDeviceRenderProps & SessionsByDeviceStoryControls;
+type SessionsByDeviceStoryProps = SessionsByDeviceWidgetProps & SessionsByDeviceStoryControls;
 
 interface SessionsByDeviceDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -41,7 +41,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getSessionsByDeviceAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): SessionsByDeviceRenderProps[ 'attributes' ] {
+): SessionsByDeviceWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

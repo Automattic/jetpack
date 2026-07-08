@@ -3,9 +3,11 @@
  */
 import { __ } from '@wordpress/i18n';
 import { mapMarker } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 export type LocationsAttributes = {
 	max?: number;
+	geoGranularity?: 'country' | 'city';
 };
 
 /**
@@ -33,10 +35,27 @@ export default {
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
 			type: 'integer',
 		},
-	],
+		{
+			id: 'geoGranularity',
+			label: __( 'View by', 'jetpack-premium-analytics' ),
+			type: 'text',
+			elements: [
+				{
+					label: __( 'Countries', 'jetpack-premium-analytics' ),
+					value: 'country',
+				},
+				{
+					label: __( 'Cities', 'jetpack-premium-analytics' ),
+					value: 'city',
+				},
+			],
+			relevance: 'high',
+		},
+	] as WidgetAttributeField< LocationsAttributes >[],
 	example: {
 		attributes: {
 			max: 10,
+			geoGranularity: 'country',
 		},
 	},
 };

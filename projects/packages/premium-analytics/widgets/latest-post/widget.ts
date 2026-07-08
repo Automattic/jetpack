@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { postList } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * The Latest post widget has no configurable attributes: it always shows the
@@ -24,7 +25,7 @@ export default {
 	name: 'jpa/latest-post',
 	title: __( 'Latest post', 'jetpack-premium-analytics' ),
 	icon: postList,
-	attributes: [],
+	attributes: [] as WidgetAttributeField< LatestPostAttributes >[],
 	example: {
 		attributes: {},
 	},

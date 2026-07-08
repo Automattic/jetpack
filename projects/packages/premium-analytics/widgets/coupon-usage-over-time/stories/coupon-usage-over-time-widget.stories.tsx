@@ -19,14 +19,14 @@ const COUPON_USAGE_OVER_TIME_RENDER_MODULE = 'storybook/coupon-usage-over-time';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type CouponUsageOverTimeRenderProps = ComponentProps< typeof CouponUsageOverTimeRender >;
+type CouponUsageOverTimeWidgetProps = ComponentProps< typeof CouponUsageOverTimeRender >;
 
 interface CouponUsageOverTimeStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type CouponUsageOverTimeStoryProps = CouponUsageOverTimeRenderProps &
+type CouponUsageOverTimeStoryProps = CouponUsageOverTimeWidgetProps &
 	CouponUsageOverTimeStoryControls;
 
 interface CouponUsageOverTimeDashboardStoryProps
@@ -42,7 +42,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getCouponUsageOverTimeAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): CouponUsageOverTimeRenderProps[ 'attributes' ] {
+): CouponUsageOverTimeWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
