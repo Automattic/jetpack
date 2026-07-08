@@ -52,6 +52,7 @@ import {
 	mockSiteSummary,
 	mockStatsInsightsData,
 	mockStatsSubscribersCountsData,
+	mockPlanUsageData,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -69,6 +70,9 @@ const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/su
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
+// Plan usage is served off the v2 base (not under /v1.1/stats), so it needs its
+// own path branch rather than a `routeStatsReport()` case.
+const STATS_PLAN_USAGE_PATH = '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/usage';
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -1029,6 +1033,10 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_VIDEO_PLAYS_PATH ) ) {
 		return buildVideoPlaysResponse( requestPath );
+	}
+
+	if ( requestPath.startsWith( STATS_PLAN_USAGE_PATH ) ) {
+		return mockPlanUsageData;
 	}
 
 	if ( requestPath.startsWith( STATS_API_BASE ) ) {

@@ -1,0 +1,26 @@
+.root {
+	height: 100%;
+	overflow: hidden;
+}
+
+.captions {
+	text-align: center;
+}
+
+.usage {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.caption {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.warning {
+	color: var(--wpds-color-foreground-content-error-weak);
+}
+
+.placeholder {
+	margin: auto;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+}

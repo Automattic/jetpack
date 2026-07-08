@@ -70,3 +70,5 @@ export { mockSiteSummary } from './site-summary';
 export { mockStatsInsightsData } from './insights';
 
 export { mockStatsSubscribersCountsData } from './subscriber-counts';
+
+export { mockPlanUsageData } from './plan-usage';
