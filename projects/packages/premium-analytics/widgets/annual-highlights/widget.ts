@@ -3,7 +3,6 @@
  */
 import { __ } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Configurable attributes for the Annual highlights widget: one visibility
@@ -13,21 +12,9 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * endpoint is not period-scoped.
  */
 export type AnnualHighlightsAttributes = {
-	/**
-	 * Whether the Posts tile is shown.
-	 */
 	showPosts?: boolean;
-	/**
-	 * Whether the Words tile is shown.
-	 */
 	showWords?: boolean;
-	/**
-	 * Whether the Likes tile is shown.
-	 */
 	showLikes?: boolean;
-	/**
-	 * Whether the Comments tile is shown.
-	 */
 	showComments?: boolean;
 };
 
@@ -70,7 +57,7 @@ export default {
 			type: 'boolean',
 			getValue: ( { item }: { item: AnnualHighlightsAttributes } ) => item.showComments ?? true,
 		},
-	] as WidgetAttributeField< AnnualHighlightsAttributes >[],
+	],
 	example: {
 		attributes: {
 			showPosts: true,

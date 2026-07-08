@@ -19,14 +19,14 @@ const SALES_BY_UTM_SOURCE_RENDER_MODULE = 'storybook/sales-by-utm-source';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type SalesByUtmSourceWidgetProps = ComponentProps< typeof SalesByUtmSourceRender >;
+type SalesByUtmSourceRenderProps = ComponentProps< typeof SalesByUtmSourceRender >;
 
 interface SalesByUtmSourceStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type SalesByUtmSourceStoryProps = SalesByUtmSourceWidgetProps & SalesByUtmSourceStoryControls;
+type SalesByUtmSourceStoryProps = SalesByUtmSourceRenderProps & SalesByUtmSourceStoryControls;
 
 interface SalesByUtmSourceDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -41,7 +41,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getSalesByUtmSourceAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): SalesByUtmSourceWidgetProps[ 'attributes' ] {
+): SalesByUtmSourceRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

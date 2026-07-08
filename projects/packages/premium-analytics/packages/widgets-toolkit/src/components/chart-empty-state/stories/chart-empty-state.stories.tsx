@@ -54,7 +54,7 @@ const WidgetCard = ( {
 			height,
 			border: '1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0)',
 			borderRadius: 'var(--wpds-border-radius-md, 8px)',
-			background: 'var(--wpds-color-background-surface-neutral, #fff)',
+			background: 'var(--wpds-color-background-surface-neutral-strong, #fff)',
 			display: 'flex',
 			flexDirection: 'column',
 			overflow: 'hidden',

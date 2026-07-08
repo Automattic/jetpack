@@ -25,7 +25,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 // picker — but the host (and Storybook) may also inject them via `attributes`.
 type PostingActivityRenderAttributes = PostingActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
-type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttributes >;
 
 /**
  * Fetches the posting-activity streak through the designated `useStatsStreak`
@@ -114,10 +113,13 @@ function PostingActivityInner() {
  * via context, the same way the other Stats widgets read them. This widget has
  * no own settings, so nothing is forwarded to the inner component.
  *
- * @param {PostingActivityWidgetProps} props - The widget render props.
+ * @param props            - Render props supplied by the widget host.
+ * @param props.attributes - Widget attributes.
  * @return The rendered widget.
  */
-export default function PostingActivity( { attributes = {} }: PostingActivityWidgetProps ) {
+export default function PostingActivity( {
+	attributes = {},
+}: WidgetRenderProps< PostingActivityRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>

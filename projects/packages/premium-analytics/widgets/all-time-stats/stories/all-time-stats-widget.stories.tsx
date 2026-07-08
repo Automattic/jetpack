@@ -32,9 +32,6 @@ registerReportMocks();
 const ALL_TIME_STATS_RENDER_MODULE = 'storybook/all-time-stats';
 
 interface AllTimeStatsStoryControls {
-	/**
-	 * Whether to include comparison report params.
-	 */
 	withComparison: boolean;
 }
 
@@ -42,7 +39,8 @@ interface AllTimeStatsStoryControls {
  * Renders the data-connected widget with report params derived from the
  * date-range picker preset.
  *
- * @param {AllTimeStatsStoryControls} props - The story controls.
+ * @param props                - The story controls.
+ * @param props.withComparison - Whether to include comparison report params.
  * @return The rendered widget.
  */
 function renderAllTimeStats( { withComparison }: AllTimeStatsStoryControls ) {
@@ -107,7 +105,8 @@ interface AllTimeStatsDashboardStoryProps
  * Renders the data-connected widget through the shared dashboard harness, so it
  * appears exactly as it does in product (framed card, sizing, edit mode).
  *
- * @param {AllTimeStatsDashboardStoryProps} props - The dashboard story controls.
+ * @param props                - The dashboard story controls.
+ * @param props.withComparison - Whether to include comparison report params.
  * @return The widget mounted inside the real `WidgetDashboard`.
  */
 function AllTimeStatsDashboardStory( {

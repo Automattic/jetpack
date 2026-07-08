@@ -12,32 +12,22 @@ type PostSeed = {
 };
 
 type AuthorSeed = {
-	/**
-	 * Stable author id.
-	 */
 	id?: string | number;
-	/**
-	 * Display label (defaults to `Author`).
-	 */
 	label?: string;
-	/**
-	 * View count for the period.
-	 */
 	views: number;
-	/**
-	 * Avatar URL (defaults to none).
-	 */
 	avatar?: string | null;
-	/**
-	 * The author's posts (defaults to none).
-	 */
 	posts?: PostSeed[];
 };
 
 /**
  * Builds a single normalized top-authors item from a compact seed.
  *
- * @param {AuthorSeed} seed - The author seed.
+ * @param seed        - The author seed.
+ * @param seed.id     - Stable author id.
+ * @param seed.label  - Display label (defaults to `Author`).
+ * @param seed.views  - View count for the period.
+ * @param seed.avatar - Avatar URL (defaults to none).
+ * @param seed.posts  - The author's posts (defaults to none).
  * @return A normalized top-authors item.
  */
 function makeAuthor( {

@@ -3,7 +3,6 @@
  */
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Configurable attributes for the Clicks widget.
@@ -29,9 +28,9 @@ export default {
 		{
 			id: 'max',
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
-			type: 'integer',
+			type: 'integer' as const,
 		},
-	] as WidgetAttributeField< ClicksAttributes >[],
+	],
 	example: {
 		attributes: {
 			max: 10,

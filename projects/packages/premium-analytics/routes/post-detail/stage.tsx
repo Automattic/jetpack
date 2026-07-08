@@ -37,7 +37,7 @@ function PostDetail(): JSX.Element {
 	const tabs = useMemo( () => getPostDetailTabs(), [] );
 	const [ activeTab, setActiveTab ] = useActiveTab();
 	const [ layout, setLayout, resetLayout ] = usePostDetailTabLayout( activeTab );
-	const [ gridSettings ] = useDashboardGridSettings();
+	const [ gridSettings, setGridSettings ] = useDashboardGridSettings();
 
 	const summary = usePostSummary( postId );
 
@@ -92,6 +92,7 @@ function PostDetail(): JSX.Element {
 				onLayoutChange={ setLayout }
 				onLayoutReset={ resetLayout }
 				gridSettings={ gridSettings }
+				onGridSettingsChange={ setGridSettings }
 				editMode={ editMode }
 				onEditChange={ setEditMode }
 			>

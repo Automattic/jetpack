@@ -19,14 +19,14 @@ const SALES_BY_COUPON_USAGE_RENDER_MODULE = 'storybook/sales-by-coupon-usage';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type SalesByCouponUsageWidgetProps = ComponentProps< typeof SalesByCouponUsageRender >;
+type SalesByCouponUsageRenderProps = ComponentProps< typeof SalesByCouponUsageRender >;
 
 interface SalesByCouponUsageStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type SalesByCouponUsageStoryProps = SalesByCouponUsageWidgetProps & SalesByCouponUsageStoryControls;
+type SalesByCouponUsageStoryProps = SalesByCouponUsageRenderProps & SalesByCouponUsageStoryControls;
 
 interface SalesByCouponUsageDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -41,7 +41,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getSalesByCouponUsageAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): SalesByCouponUsageWidgetProps[ 'attributes' ] {
+): SalesByCouponUsageRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

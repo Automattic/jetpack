@@ -10,7 +10,6 @@ import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import {
 	SubscriberList,
 	WidgetRoot,
-	type ReportParamsFieldAttributes,
 	type SubscriberListItem,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -99,21 +98,15 @@ export const SubscribersRoster = ( {
 	);
 };
 
-type SubscribersReportProps = {
-	/**
-	 * Widget attributes.
-	 */
-	attributes?: SubscribersListAttributes;
-};
-
 /**
  * Fetches the latest subscribers through the designated `useStatsFollowers`
  * Stats hook and hands the normalized rows to the presentational roster.
  *
- * @param {SubscribersReportProps} props - The component props.
+ * @param props            - Component props.
+ * @param props.attributes - Widget attributes.
  * @return The widget content.
  */
-function SubscribersReport( { attributes }: SubscribersReportProps ) {
+function SubscribersReport( { attributes }: { attributes?: SubscribersListAttributes } ) {
 	// Show six rows by default (matching the card design). A missing or
 	// non-positive setting falls back to that default — `?? 6` alone wouldn't,
 	// since an explicit `0` from the number field is not nullish.
@@ -139,24 +132,22 @@ function SubscribersReport( { attributes }: SubscribersReportProps ) {
 	);
 }
 
-type SubscribersListRenderAttributes = SubscribersListAttributes &
-	Partial< ReportParamsFieldAttributes >;
-type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListRenderAttributes >;
-
 /**
  * Widget render entry point.
  *
  * Mirrors the other Stats widgets: attributes flow to the inner component via
  * props (the dashboard's WC-shaped `reportParams` context does not fit the
- * followers query), and `WidgetRoot` provides the analytics query client and
- * receives host attributes for the widget contract.
+ * followers query), and `WidgetRoot` provides the analytics query client.
  *
- * @param {SubscribersListWidgetProps} props - The widget render props.
+ * @param props            - Render props supplied by the widget host.
+ * @param props.attributes - Widget attributes.
  * @return The rendered widget.
  */
-export default function SubscribersList( { attributes = {} }: SubscribersListWidgetProps ) {
+export default function SubscribersList( {
+	attributes = {},
+}: WidgetRenderProps< SubscribersListAttributes > ) {
 	return (
-		<WidgetRoot attributes={ attributes }>
+		<WidgetRoot>
 			<SubscribersReport attributes={ attributes } />
 		</WidgetRoot>
 	);

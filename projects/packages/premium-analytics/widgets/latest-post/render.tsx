@@ -22,7 +22,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 // Report params are dashboard-driven, but this widget reports lifetime totals
 // and ignores the date range; the host (and Storybook) may still inject them.
 type LatestPostRenderAttributes = LatestPostAttributes & Partial< ReportParamsFieldAttributes >;
-type LatestPostWidgetProps = WidgetRenderProps< LatestPostRenderAttributes >;
 
 const METRIC_FORMAT: DataFormat = {
 	type: 'number',
@@ -197,10 +196,12 @@ function LatestPostReport() {
  * relies on. This widget has no own attributes and ignores the dashboard date
  * range, but host attributes are still passed through for the widget contract.
  *
- * @param {LatestPostWidgetProps} props - The widget render props.
+ * @param {WidgetRenderProps< LatestPostRenderAttributes >} props - The render props supplied by the widget host.
  * @return The rendered widget.
  */
-export default function LatestPost( { attributes = {} }: LatestPostWidgetProps ) {
+export default function LatestPost( {
+	attributes = {},
+}: WidgetRenderProps< LatestPostRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<LatestPostReport />

@@ -22,15 +22,15 @@ const PRESET_OPTIONS = SELECTABLE_PRESETS;
 // Static Storybook builds need this source import before ComparativeLineChart reads LineChart.Legend.
 const ensureLineChartComposition = () => LineChart.Legend;
 
-type VisitorsOverTimeWidgetProps = ComponentProps< typeof VisitorsOverTimeRender >;
-const noopSetError: VisitorsOverTimeWidgetProps[ 'setError' ] = () => {};
+type VisitorsOverTimeRenderProps = ComponentProps< typeof VisitorsOverTimeRender >;
+const noopSetError: VisitorsOverTimeRenderProps[ 'setError' ] = () => {};
 
 interface VisitorsOverTimeStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type VisitorsOverTimeStoryProps = VisitorsOverTimeWidgetProps & VisitorsOverTimeStoryControls;
+type VisitorsOverTimeStoryProps = VisitorsOverTimeRenderProps & VisitorsOverTimeStoryControls;
 
 interface VisitorsOverTimeDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -45,7 +45,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getVisitorsOverTimeAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): VisitorsOverTimeWidgetProps[ 'attributes' ] {
+): VisitorsOverTimeRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

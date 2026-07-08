@@ -22,14 +22,14 @@ const PRESET_OPTIONS = SELECTABLE_PRESETS;
 // Static Storybook builds need this source import before ComparativeLineChart reads LineChart.Legend.
 const ensureLineChartComposition = () => LineChart.Legend;
 
-type NetSalesOverTimeWidgetProps = ComponentProps< typeof NetSalesOverTimeRender >;
+type NetSalesOverTimeRenderProps = ComponentProps< typeof NetSalesOverTimeRender >;
 
 interface NetSalesOverTimeStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type NetSalesOverTimeStoryProps = NetSalesOverTimeWidgetProps & NetSalesOverTimeStoryControls;
+type NetSalesOverTimeStoryProps = NetSalesOverTimeRenderProps & NetSalesOverTimeStoryControls;
 
 interface NetSalesOverTimeDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -44,7 +44,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getNetSalesOverTimeAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): NetSalesOverTimeWidgetProps[ 'attributes' ] {
+): NetSalesOverTimeRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

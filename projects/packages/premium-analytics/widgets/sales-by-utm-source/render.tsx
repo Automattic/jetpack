@@ -18,7 +18,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type SalesByUtmSourceRenderAttributes = SalesByUtmSourceAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type SalesByUtmSourceWidgetProps = WidgetRenderProps< SalesByUtmSourceRenderAttributes > & {
+type SalesByUtmSourceRenderProps = WidgetRenderProps< SalesByUtmSourceRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -27,14 +27,11 @@ type SalesByUtmSourceWidgetProps = WidgetRenderProps< SalesByUtmSourceRenderAttr
  *
  * WidgetRoot provides the query client, chart theme, and resolved report params;
  * the shared SalesByUtmWidget renders the source leaderboard.
- *
- * @param {SalesByUtmSourceWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function SalesByUtmSourceRender( {
 	attributes = {},
 	setError,
-}: SalesByUtmSourceWidgetProps ) {
+}: SalesByUtmSourceRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<SalesByUtmWidget view="source" />
