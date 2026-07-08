@@ -38,11 +38,6 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 	use Utilities;
 
 	/**
-	 * Email key used in WooCommerce emails registry.
-	 */
-	const EMAIL_KEY = 'WC_Email_CSV_Export';
-
-	/**
 	 * Maximum file size for email attachments in bytes (10MB).
 	 */
 	const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
@@ -92,18 +87,9 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 	 * @return void
 	 */
 	public function register(): void {
-		add_filter( 'woocommerce_email_classes', array( $this, 'register_email_class' ) );
-	}
-
-	/**
-	 * Register email class with WooCommerce.
-	 *
-	 * @param array $emails Existing email classes.
-	 * @return array Modified email classes.
-	 */
-	public function register_email_class( array $emails ): array {
-		$emails[ self::EMAIL_KEY ] = $this;
-		return $emails;
+		// Intentionally not hooked into woocommerce_email_classes. This is a transactional export
+		// email sent directly via send_export_email(), not an admin-configurable WooCommerce email,
+		// so it should not appear as a settings row under WooCommerce > Settings > Emails.
 	}
 
 	/**
