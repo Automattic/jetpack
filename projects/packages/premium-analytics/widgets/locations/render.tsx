@@ -50,6 +50,7 @@ type GoogleChartsWindow = Window & {
 };
 
 const MISSING_MAP_ERROR_MESSAGE = 'Requested map does not exist';
+const KNOWN_UNSUPPORTED_PROVINCE_MAP_COUNTRIES = [ 'TW' ];
 
 function getGeoChartCountryId( countryCode: string ): string {
 	if ( countryCode.toUpperCase() === 'TW' ) {
@@ -69,7 +70,7 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
 		Set< string >
-	>( () => new Set() );
+	>( () => new Set( KNOWN_UNSUPPORTED_PROVINCE_MAP_COUNTRIES ) );
 
 	const {
 		drillDownItem: selectedCountry,
