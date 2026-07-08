@@ -76,7 +76,7 @@ The simplest geo chart requires data, width, and height. The `data` prop uses Go
 **Map Scope & Display:**
 - **`region`**: Region to display — `'world'` (default) or an ISO 3166-1 alpha-2 country code (e.g., `'US'`)
 - **`resolution`**: Map resolution — `'countries'` (default), `'provinces'` (use with a specific region), or `'metros'` (US only)
-- **`displayMode`**: How data is rendered — `'auto'` (default), `'regions'`, `'markers'`, or `'text'`
+- **`displayMode`**: How data is rendered — `'auto'` (default), `'regions'`, `'markers'`, or `'text'`. In markers/text mode, identify locations by latitude/longitude columns; named locations require Google Maps geocoding (a `mapsApiKey`), which is not configured
 
 **Styling & Customization:**
 - **`className`**: Additional CSS class name for custom styling

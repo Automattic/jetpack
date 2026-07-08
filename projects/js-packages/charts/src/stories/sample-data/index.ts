@@ -1017,6 +1017,35 @@ export const viewsByEuropeanCountry: GeoData = [
 ];
 
 /**
+ * European cities views data with coordinates
+ *
+ * Views by European city for geo chart marker visualization
+ * - Category: categorical
+ * - Data points: 8
+ * - Suitable for: GeoChart with displayMode='markers' and region='150' (Europe)
+ *
+ * Locations are latitude/longitude pairs: named locations in markers mode
+ * require Google Maps geocoding (a `mapsApiKey` in the charts loader), which
+ * the package does not configure; coordinates render without it.
+ */
+export const viewsByEuropeanCity: GeoData = [
+	[
+		{ type: 'number', label: 'Latitude' },
+		{ type: 'number', label: 'Longitude' },
+		{ type: 'string', label: 'City' },
+		{ type: 'number', label: 'Views' },
+	],
+	[ 51.5074, -0.1278, 'London', 1500 ],
+	[ 48.8566, 2.3522, 'Paris', 1000 ],
+	[ 52.52, 13.405, 'Berlin', 800 ],
+	[ 41.9028, 12.4964, 'Rome', 600 ],
+	[ 40.4168, -3.7038, 'Madrid', 500 ],
+	[ 38.7223, -9.1393, 'Lisbon', 400 ],
+	[ 37.9838, 23.7275, 'Athens', 300 ],
+	[ 52.3676, 4.9041, 'Amsterdam', 250 ],
+];
+
+/**
  * Activity matrix for the heatmap chart (12 columns × 7 rows)
  *
  * Weekday-by-week grid with quarter labels and scattered empty cells.

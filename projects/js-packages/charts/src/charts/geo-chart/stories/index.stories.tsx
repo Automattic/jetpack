@@ -1,4 +1,8 @@
-import { viewsByEuropeanCountry, viewsByUSState } from '../../../stories/sample-data';
+import {
+	viewsByEuropeanCity,
+	viewsByEuropeanCountry,
+	viewsByUSState,
+} from '../../../stories/sample-data';
 import GeoChart from '../geo-chart';
 import { geoChartMetaArgs, geoChartStoryArgs } from './config';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -68,12 +72,14 @@ export const EuropeanCountries: Story = {
 	},
 };
 
+// Markers need latitude/longitude data: named locations would require Google
+// Maps geocoding (a `mapsApiKey` in the charts loader), which is not configured.
 export const MarkersDisplayMode: Story = {
 	args: {
 		...Default.args,
 		region: '150',
 		resolution: 'countries',
 		displayMode: 'markers',
-		data: viewsByEuropeanCountry,
+		data: viewsByEuropeanCity,
 	},
 };

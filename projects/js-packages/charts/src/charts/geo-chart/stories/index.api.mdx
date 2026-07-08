@@ -17,7 +17,7 @@ Main component for rendering geographical data on an interactive world map using
 | `height` | `number` | - | **Required.** Height of the chart in pixels |
 | `region` | `GeoRegion` | `'world'` | Region to display. Use `'world'` for a global view or any ISO 3166-1 alpha-2 country code (e.g., `'US'`) |
 | `resolution` | `GeoResolution` | `'countries'` | Map resolution: `'countries'`, `'provinces'` (state/province level, use with a specific region), or `'metros'` (US only) |
-| `displayMode` | `GeoDisplayMode` | `'auto'` | How data is rendered: `'regions'` shades areas, `'markers'` places sized markers, `'text'` places text labels, `'auto'` lets Google Charts infer the mode from the data |
+| `displayMode` | `GeoDisplayMode` | `'auto'` | How data is rendered: `'regions'` shades areas, `'markers'` places sized markers, `'text'` places text labels, `'auto'` lets Google Charts infer the mode from the data. In `'markers'`/`'text'` mode, identify locations by latitude/longitude columns — named locations require Google Maps geocoding (a `mapsApiKey` in the charts loader), which this package does not configure, so named markers render nothing |
 | `onError` | `(error: GeoChartError) => void` | - | Callback fired when Google Charts emits a chart error, including draw errors Google renders into the chart container (e.g. a missing map file) |
 | `className` | `string` | - | Additional CSS class name for the chart container |
 | `chartId` | `string` | - | Custom chart identifier for accessibility |
