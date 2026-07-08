@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Register Boost's features into the Jetpack Feature Catalog when present.

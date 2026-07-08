@@ -157,6 +157,9 @@ if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 
 require plugin_dir_path( __FILE__ ) . 'app/class-jetpack-boost.php';
 
+// Feature Catalog: Boost registers its own features (harmless no-op if Jetpack's catalog is absent).
+require_once plugin_dir_path( __FILE__ ) . 'features.php';
+
 /**
  * Begins execution of the plugin.
  *
