@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Podcast: turn the Jetpack Podcast module on for Atomic sites (default-on, user-toggleable) by exposing it and seeding it into existing sites' active modules.
+Podcast: opt Atomic sites into the module via jetpack_podcast_for_the_world and, while opted in, force it active so each site hydrates its stored module setting (becomes user-toggleable when the opt-in is removed at go-live).
