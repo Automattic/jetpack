@@ -19,18 +19,18 @@ This package provides those missing or updated packages so that plugins using `@
 |-------------------|------------------------|-----------------|
 | `wp-notices`      | `@wordpress/notices`    | Yes on WP < 7.0 — missing component exports |
 | `wp-private-apis` | `@wordpress/private-apis` | Yes on WP < 7.1 unless Gutenberg >= 23.5.0 is active — incomplete allowlist |
-| `wp-theme`        | `@wordpress/theme`      | No — only registered if absent |
+| `wp-theme`        | `@wordpress/theme`      | Yes on WP < 7.1 unless Gutenberg >= 23.5.0 is active — Core 7.0 only exports `privateApis`; polyfill boot needs public `ThemeProvider` |
 | `wp-views`        | `@wordpress/views`      | No — only registered if absent |
 
 ### Script modules (ESM)
 
 | Module ID          | Source package       |
 |--------------------|----------------------|
-| `@wordpress/boot`  | `@wordpress/boot`    |
+| `@wordpress/boot`  | `@wordpress/boot`    | Yes on WP < 7.1 unless Gutenberg >= 23.5.0 is active — Core 7.0 `initSinglePage()` ignores `initModules` |
 | `@wordpress/route` | `@wordpress/route`   |
 | `@wordpress/a11y`  | `@wordpress/a11y`    |
 
-Script modules use "first-wins" semantics — if Core or Gutenberg already registered the module, the polyfill is silently ignored.
+Script modules other than `@wordpress/boot` use "first-wins" semantics — if Core or Gutenberg already registered the module, the polyfill is silently ignored. `@wordpress/boot` and `wp-theme` are force-replaced under the same WP/Gutenberg guard as `wp-private-apis` so page init modules run and boot can import public `ThemeProvider`.
 
 ## How it works
 

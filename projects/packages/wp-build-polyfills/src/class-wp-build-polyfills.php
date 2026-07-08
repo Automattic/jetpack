@@ -107,7 +107,7 @@ class WP_Build_Polyfills {
 		// handles and module IDs being available regardless of init order.
 		if ( did_action( 'wp_default_scripts' ) ) {
 			self::register_scripts( wp_scripts(), $build_dir, $base_file, self::$wp_version_threshold );
-			self::register_modules( $build_dir, $base_file );
+			self::register_modules( $build_dir, $base_file, self::$wp_version_threshold );
 			return;
 		}
 
@@ -115,7 +115,7 @@ class WP_Build_Polyfills {
 			'wp_default_scripts',
 			function ( $scripts ) use ( $build_dir, $base_file ) {
 				self::register_scripts( $scripts, $build_dir, $base_file, self::$wp_version_threshold );
-				self::register_modules( $build_dir, $base_file );
+				self::register_modules( $build_dir, $base_file, self::$wp_version_threshold );
 			},
 			20
 		);
@@ -162,7 +162,12 @@ class WP_Build_Polyfills {
 				// dashboard packages too.
 			),
 			'wp-theme'        => array(
-				'path' => 'theme',
+				'path'                  => 'theme',
+				'force_threshold'       => '7.1',
+				'gutenberg_min_version' => self::GUTENBERG_PRIVATE_APIS_MIN_VERSION,
+				// WP 7.0 ships wp-theme with ThemeProvider locked in privateApis
+				// only. Polyfill @wordpress/boot imports ThemeProvider as a public
+				// wp.theme export, so boot must be paired with polyfill theme.
 			),
 			'wp-views'        => array(
 				'path' => 'views',
@@ -231,20 +236,32 @@ class WP_Build_Polyfills {
 	/**
 	 * Register polyfill script modules.
 	 *
-	 * Call to wp_register_script_module() silently ignores duplicate registrations (first wins),
-	 * so no explicit is_registered check is needed.
+	 * Most modules use first-wins semantics. `@wordpress/boot` is force-replaced on
+	 * WP versions below 7.1 when Gutenberg is inactive or too old, because Core 7.0
+	 * ships a boot module whose `initSinglePage()` ignores `initModules` — page init
+	 * hooks never run even though wp-build passes them through.
 	 *
-	 * @param string $build_dir Absolute path to the build directory.
-	 * @param string $base_file File path for plugins_url() computation.
+	 * @param string $build_dir             Absolute path to the build directory.
+	 * @param string $base_file             File path for plugins_url() computation.
+	 * @param string $wp_version_threshold  WP version below which force-replacements apply.
 	 */
-	private static function register_modules( $build_dir, $base_file ) {
+	private static function register_modules( $build_dir, $base_file, $wp_version_threshold ) {
 		if ( ! function_exists( 'wp_register_script_module' ) ) {
 			return;
 		}
 
-		$modules = array( 'boot', 'route', 'a11y' );
+		$gutenberg_version = defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null;
 
-		foreach ( $modules as $name ) {
+		$modules = array(
+			'boot'  => array(
+				'force_threshold'       => '7.1',
+				'gutenberg_min_version' => self::GUTENBERG_PRIVATE_APIS_MIN_VERSION,
+			),
+			'route' => array(),
+			'a11y'  => array(),
+		);
+
+		foreach ( $modules as $name => $data ) {
 			$module_id = '@wordpress/' . $name;
 
 			if ( ! isset( self::$requested[ $module_id ] ) ) {
@@ -255,6 +272,27 @@ class WP_Build_Polyfills {
 
 			if ( ! file_exists( $asset_file ) ) {
 				continue;
+			}
+
+			$force_threshold = $data['force_threshold'] ?? null;
+			if ( null !== $force_threshold && version_compare( $wp_version_threshold, $force_threshold, '>' ) ) {
+				$force_threshold = $wp_version_threshold;
+			}
+
+			$force = null !== $force_threshold
+				&& ! self::is_gutenberg_version_safe( $data['gutenberg_min_version'] ?? null, $gutenberg_version )
+				&& version_compare( $GLOBALS['wp_version'] ?? '0', $force_threshold, '<' );
+
+			if ( ! $force ) {
+				$modules_registry = wp_script_modules();
+				if ( method_exists( $modules_registry, 'get_registered' )
+					&& null !== $modules_registry->get_registered( $module_id ) ) {
+					continue;
+				}
+			}
+
+			if ( $force ) {
+				wp_deregister_script_module( $module_id );
 			}
 
 			$asset = require $asset_file;

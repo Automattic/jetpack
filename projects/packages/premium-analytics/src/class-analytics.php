@@ -121,8 +121,11 @@ class Analytics {
 		// Remove the standalone Jetpack "Stats" menu so Premium Analytics takes its
 		// place. Runs after Stats registers itself (admin_menu priority 999).
 		add_action( 'admin_menu', array( static::class, 'remove_stats_menu' ), 1001 );
+		// Full-page mode (page.php interceptor, slug jetpack-premium-analytics).
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
+		// wp-admin integrated mode (page-wp-admin.php, slug jetpack-premium-analytics-wp-admin).
+		add_action( 'jetpack-premium-analytics-wp-admin_init', array( static::class, 'ensure_script_data' ) );
 	}
 
 	/**

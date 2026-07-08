@@ -188,15 +188,17 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 	/**
 	 * Invoke the private register_modules method.
+	 *
+	 * @param string $wp_version_threshold WP version below which force-replacements apply.
 	 */
-	private function invoke_register_modules() {
+	private function invoke_register_modules( $wp_version_threshold = '7.0' ) {
 		$this->request_polyfills( WP_Build_Polyfills::MODULE_IDS );
 
 		$method = new \ReflectionMethod( WP_Build_Polyfills::class, 'register_modules' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
-		$method->invoke( null, $this->build_dir, __FILE__ );
+		$method->invoke( null, $this->build_dir, __FILE__, $wp_version_threshold );
 	}
 
 	/**
@@ -299,9 +301,10 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that wp-theme (non-force) keeps existing registration.
+	 * Test that wp-theme keeps existing registration on WP >= 7.1.
 	 */
 	public function test_register_scripts_skips_wp_theme_when_already_registered() {
+		$GLOBALS['wp_version'] = '7.1';
 		$this->create_asset_file( 'scripts/theme/index.asset.php', array(), '2.0.0' );
 
 		$scripts = $this->create_clean_scripts();
@@ -312,6 +315,23 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$registered = $scripts->query( 'wp-theme', 'registered' );
 		$this->assertNotFalse( $registered );
 		$this->assertSame( '1.0.0-original', $registered->ver );
+	}
+
+	/**
+	 * Test that wp-theme is force-replaced on WP 7.0 when Core registered it first.
+	 */
+	public function test_register_scripts_force_replaces_wp_theme_on_wp_7_0() {
+		$GLOBALS['wp_version'] = '7.0';
+		$this->create_asset_file( 'scripts/theme/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-theme', 'https://example.com/core-theme.js', array(), '1.0.0-core' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$registered = $scripts->query( 'wp-theme', 'registered' );
+		$this->assertNotFalse( $registered );
+		$this->assertSame( '9.9.9', $registered->ver );
 	}
 
 	/**
@@ -560,11 +580,34 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that pre-registered modules are not replaced (first-wins semantics).
+	 * Test that pre-registered non-boot modules are not replaced (first-wins semantics).
 	 */
 	public function test_register_modules_does_not_replace_existing() {
+		$GLOBALS['wp_version']        = '7.1';
 		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
-		// Pre-register @wordpress/boot.
+		// Pre-register @wordpress/route (boot is force-replaced on WP < 7.1).
+		wp_register_script_module( '@wordpress/route', 'https://example.com/core-route.js', array(), '1.0.0-core' );
+
+		$this->create_asset_file(
+			'modules/route/index.asset.php',
+			array(),
+			'9.9.9',
+			array( 'module_dependencies' => array() )
+		);
+
+		$this->invoke_register_modules( '7.1' );
+
+		$module = $this->get_module_data( '@wordpress/route' );
+		$this->assertNotNull( $module );
+		$this->assertSame( '1.0.0-core', $module['version'] );
+	}
+
+	/**
+	 * Test that @wordpress/boot is force-replaced on WP 7.0 when Core registered it first.
+	 */
+	public function test_register_modules_force_replaces_boot_on_wp_7_0() {
+		$GLOBALS['wp_version']        = '7.0';
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
 		wp_register_script_module( '@wordpress/boot', 'https://example.com/core-boot.js', array(), '1.0.0-core' );
 
 		$this->create_asset_file(
@@ -574,11 +617,11 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 			array( 'module_dependencies' => array() )
 		);
 
-		$this->invoke_register_modules();
+		$this->invoke_register_modules( '7.0' );
 
 		$module = $this->get_module_data( '@wordpress/boot' );
 		$this->assertNotNull( $module );
-		$this->assertSame( '1.0.0-core', $module['version'] );
+		$this->assertSame( '9.9.9', $module['version'] );
 	}
 
 	/**

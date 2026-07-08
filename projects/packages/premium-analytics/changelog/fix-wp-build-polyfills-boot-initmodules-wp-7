@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Analytics: Emit JetpackScriptData on the wp-admin integrated dashboard page.
