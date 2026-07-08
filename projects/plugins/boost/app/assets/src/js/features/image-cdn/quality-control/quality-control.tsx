@@ -1,6 +1,7 @@
-import { NumberSlider } from '@automattic/jetpack-components';
+import { RangeControl } from '@wordpress/components';
 import clsx from 'clsx';
 import { __ } from '@wordpress/i18n';
+import { useDebouncedCallback } from 'use-debounce';
 import styles from './quality-control.module.scss';
 import { useEffect, useId, useState } from 'react';
 
@@ -13,6 +14,12 @@ type QualityControlProps = {
 	maxValue: number;
 	minValue?: number;
 };
+
+/*
+ * RangeControl fires onChange on every step, so the quality value is persisted
+ * (debounced) once the slider stops moving rather than on every tick.
+ */
+const SAVE_DEBOUNCE_MS = 200;
 
 const QualityControl = ( {
 	label,
@@ -28,19 +35,30 @@ const QualityControl = ( {
 	useEffect( () => {
 		setValue( quality );
 	}, [ quality ] );
+
+	const debouncedSetQuality = useDebouncedCallback( ( newValue: number ) => {
+		setQuality( newValue );
+	}, SAVE_DEBOUNCE_MS );
+
 	return (
 		<div className={ styles[ 'quality-control' ] }>
 			<div className={ styles.label }>{ label }</div>
 			<div className={ clsx( styles.slider, { [ styles.disabled ]: lossless } ) }>
-				<NumberSlider
+				<RangeControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
 					value={ value }
 					disabled={ lossless }
-					onAfterChange={ updatedValue => {
-						setValue( updatedValue );
-						setQuality( updatedValue );
+					min={ minValue }
+					max={ maxValue }
+					step={ 1 }
+					onChange={ newValue => {
+						if ( typeof newValue !== 'number' ) {
+							return;
+						}
+						setValue( newValue );
+						debouncedSetQuality( newValue );
 					} }
-					minValue={ minValue }
-					maxValue={ maxValue }
 				/>
 			</div>
 			<label className={ styles.lossless } htmlFor={ checkboxId }>
