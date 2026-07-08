@@ -260,7 +260,7 @@ describe( 'StudioEditorScreen', () => {
 
 		expect( screen.getByTestId( 'studio-timeline' ) ).toBeInTheDocument();
 		expect( isButtonDisabled( 'Save' ) ).toBe( true );
-		expect( isButtonDisabled( 'Discard' ) ).toBe( true );
+		expect( isButtonDisabled( 'Discard changes' ) ).toBe( true );
 		expect( isButtonDisabled( 'Undo' ) ).toBe( true );
 	} );
 

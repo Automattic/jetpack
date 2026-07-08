@@ -53,9 +53,8 @@ export default function StudioEditorHeaderActions( {
 	onRestoreOriginal,
 }: Props ): ReactElement {
 	return (
-		<Stack direction="row" gap="sm" align="center">
+		<Stack direction="row" gap="sm" align="center" className="vp-studio-editor-tokens">
 			<IconButton
-				size="compact"
 				icon={ undoIcon }
 				label={ __( 'Undo', 'jetpack-videopress-pkg' ) }
 				disabled={ ! canUndo }
@@ -63,24 +62,23 @@ export default function StudioEditorHeaderActions( {
 				onClick={ onUndo }
 			/>
 			<IconButton
-				size="compact"
 				icon={ redoIcon }
 				label={ __( 'Redo', 'jetpack-videopress-pkg' ) }
 				disabled={ ! canRedo }
 				accessibleWhenDisabled
 				onClick={ onRedo }
 			/>
-			<Button size="compact" variant="outline" disabled={ ! canDiscard } onClick={ onDiscard }>
-				{ __( 'Discard', 'jetpack-videopress-pkg' ) }
+			<span className="vp-studio-editor__header-divider" aria-hidden="true" />
+			<Button variant="outline" disabled={ ! canDiscard } onClick={ onDiscard }>
+				{ __( 'Discard changes', 'jetpack-videopress-pkg' ) }
 			</Button>
-			<Button size="compact" disabled={ ! canSave } onClick={ onSave }>
+			<Button disabled={ ! canSave } onClick={ onSave }>
 				{ __( 'Save', 'jetpack-videopress-pkg' ) }
 			</Button>
 			{ canRestoreOriginal && (
 				<DropdownMenu
 					icon={ moreVertical }
 					label={ __( 'More actions', 'jetpack-videopress-pkg' ) }
-					toggleProps={ { size: 'compact' } }
 				>
 					{ ( { onClose } ) => (
 						<MenuGroup>

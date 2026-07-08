@@ -2,6 +2,13 @@
 // underneath. The stage letterboxes the video against a dark background like
 // a normal player surface; the transport row inherits admin chrome.
 .vp-studio-editor-preview {
+	// Keep the whole editor (preview + timeline) inside the viewport on wide
+	// windows: cap the stage height against the viewport (minus admin chrome
+	// and timeline) and derive a matching 16:9 width, centered, so the
+	// timeline never falls below the fold. Declared here (not on the stage)
+	// so the canvas layout can compose it into the preview's max-width.
+	--vp-editor-stage-max-height: clamp(204px, calc((100vh - 420px) * 0.85), 612px);
+
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
@@ -9,17 +16,16 @@
 }
 
 .vp-studio-editor-preview__stage {
-	// Keep the whole editor (preview + transport + timeline) inside the
-	// viewport on wide windows: cap the stage height against the viewport
-	// (minus admin chrome, transport, and timeline) and derive a matching
-	// 16:9 width, centered, so the timeline never falls below the fold.
-	--vp-editor-stage-max-height: clamp(204px, calc((100vh - 420px) * 0.85), 612px);
-
 	position: relative;
 	aspect-ratio: 16 / 9;
 	background: #000;
-	border-radius: 4px;
+	border-radius: 2px;
 	overflow: hidden;
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.05),
+		0 2px 3px rgba(0, 0, 0, 0.04),
+		0 6px 6px rgba(0, 0, 0, 0.03),
+		0 8px 8px rgba(0, 0, 0, 0.02);
 	max-height: var(--vp-editor-stage-max-height);
 	max-width: calc(var(--vp-editor-stage-max-height) * 16 / 9);
 	margin-inline: auto;

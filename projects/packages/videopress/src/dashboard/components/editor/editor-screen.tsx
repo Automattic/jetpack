@@ -38,6 +38,7 @@ import StudioEditorPreviewPlayer from './preview/preview-player';
 import { createEditSession, editSessionReducer, sessionEditsEqual } from './state/edit-session';
 import { canRedo, canUndo, createHistory, withHistory } from './state/history';
 import { isDirty as isSessionDirty, sessionToOperations } from './state/serialize';
+import { initialToolFromLocation } from './state/tools';
 import StudioEditorStatusBanner from './status-banner';
 import StudioEditorTimeline from './timeline/timeline';
 import './style.scss';
@@ -85,6 +86,7 @@ type ChromeProps = {
 	videoId: string;
 	confirmNavigation?: () => boolean;
 	actions?: ReactNode;
+	breadcrumbLabel?: string;
 	children: ReactNode;
 };
 
@@ -95,15 +97,24 @@ type ChromeProps = {
  * @param props.videoId           - The video's attachment id.
  * @param props.confirmNavigation - Optional sub-nav navigation guard.
  * @param props.actions           - Optional header actions.
+ * @param props.breadcrumbLabel   - Breadcrumb leaf; the ready screen passes
+ *                                the video title per the redesign, states
+ *                                without one fall back to "Editor".
  * @param props.children          - Body content.
  * @return The wrapped page element.
  */
-function EditorChrome( { videoId, confirmNavigation, actions, children }: ChromeProps ) {
+function EditorChrome( {
+	videoId,
+	confirmNavigation,
+	actions,
+	breadcrumbLabel,
+	children,
+}: ChromeProps ) {
 	return (
 		<VideoLayout
 			videoId={ videoId }
 			activeTab="editor"
-			breadcrumbLabel={ __( 'Editor', 'jetpack-videopress-pkg' ) }
+			breadcrumbLabel={ breadcrumbLabel ?? __( 'Editor', 'jetpack-videopress-pkg' ) }
 			actions={ actions }
 			confirmNavigation={ confirmNavigation }
 		>
@@ -152,6 +163,9 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	sessionRef.current = session;
 
 	const [ currentMs, setCurrentMs ] = useState( 0 );
+	// Rail selection; initialized once from the ?tool= deep link (the Details
+	// tab links its chapters summary at ?tool=chapters).
+	const [ activeTool, setActiveTool ] = useState( initialToolFromLocation );
 	const [ conflict, setConflict ] = useState( false );
 	// Kind of the just-completed job whose success notice is pending (see the
 	// notice effect below for why this is decoupled from the baseline sync).
@@ -548,6 +562,7 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 		<div style={ { display: 'contents' } } onClickCapture={ guardLinkClick }>
 			<EditorChrome
 				videoId={ video.id }
+				breadcrumbLabel={ video.title }
 				confirmNavigation={ confirmNavigation }
 				actions={
 					<StudioEditorHeaderActions
@@ -572,18 +587,20 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 						onReloadLatest={ onReloadLatest }
 					/>
 					<div className="vp-studio-editor__body">
-						<StudioEditorOperationsPanel />
+						<StudioEditorOperationsPanel activeTool={ activeTool } onSelect={ setActiveTool } />
 						<div className="vp-studio-editor__main">
-							<StudioEditorPreviewPlayer
-								ref={ playerRef }
-								video={ video }
-								session={ session }
-								onTimeUpdate={ onTimeUpdate }
-								onDurationChange={ onDurationChange }
-							/>
+							<div className="vp-studio-editor__canvas">
+								<StudioEditorPreviewPlayer
+									ref={ playerRef }
+									video={ video }
+									session={ session }
+									onTimeUpdate={ onTimeUpdate }
+									onDurationChange={ onDurationChange }
+								/>
+							</div>
 							<div
 								className={
-									'vp-studio-editor__timeline' +
+									'vp-studio-editor__timeline-section vp-studio-editor__timeline' +
 									( locked ? ' vp-studio-editor__timeline--locked' : '' )
 								}
 								data-testid="studio-editor-timeline-lock"
