@@ -1,0 +1,66 @@
+/* No outer padding: the host frames the widget and owns the padding. */
+.root {
+	position: relative;
+	container-type: inline-size;
+	height: 100%;
+	min-height: 120px;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--wpds-dimension-gap-md, 12px);
+}
+
+.tile {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	padding: var(--wpds-dimension-padding-md, 12px) var(--wpds-dimension-padding-lg, 16px);
+	border: var(--wpds-border-width-xs, 1px) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg, 8px);
+}
+
+.tileHeader {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	min-width: 0;
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.tileIcon {
+	flex: 0 0 auto;
+	fill: var(--wpds-color-foreground-content-neutral);
+}
+
+.tileLabel {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+/* MetricValue emits the font-size token without a fallback, and the dashboard
+ * runtime does not always inject the WPDS typography tokens, so pin the metric
+ * total here with explicit fallbacks. */
+.tileValue span {
+	font-size: var(--wpds-typography-font-size-xl, 20px);
+	line-height: var(--wpds-typography-line-height-xl, 32px);
+}
+
+.state {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 120px;
+	height: 100%;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+}
+
+/* Wide widths: lay the four tiles out in a single row. */
+@container (min-width: 640px) {
+
+	.grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}

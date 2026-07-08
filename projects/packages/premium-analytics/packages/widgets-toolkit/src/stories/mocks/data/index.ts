@@ -69,4 +69,6 @@ export { mockSiteSummary } from './site-summary';
 
 export { mockStatsInsightsData } from './insights';
 
+export { mockSiteOverviewData, mockSiteOverviewComparisonData } from './site-overview';
+
 export { mockStatsSubscribersCountsData } from './subscriber-counts';
