@@ -6,7 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { reportsPath } from '../constants';
+import { getReportsPath } from '../constants';
 import type { BaseReportParams } from '../../utils/types';
 
 export const ORDER_ATTRIBUTION_VIEWS = [
@@ -79,7 +79,10 @@ export async function fetchReportOrderAttributionSummary(
 		date_type,
 	};
 
-	const path = addQueryArgs( `${ reportsPath }/order-attribution/${ view }/summary`, queryParams );
+	const path = addQueryArgs(
+		`${ getReportsPath() }/order-attribution/${ view }/summary`,
+		queryParams
+	);
 
 	return apiFetch< OrderAttributionSummaryResponse >( { path } );
 }

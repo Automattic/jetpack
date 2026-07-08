@@ -53,9 +53,24 @@ jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
+function setSimpleScriptData() {
+	Object.defineProperty( window, 'JetpackScriptData', {
+		configurable: true,
+		value: {
+			site: {
+				host: 'wpcom',
+			},
+		},
+	} );
+}
+
 describe( 'Stats query factories', () => {
 	beforeEach( () => {
 		mockApiFetch.mockReset();
+	} );
+
+	afterEach( () => {
+		delete window.JetpackScriptData;
 	} );
 
 	it( 'disables report queries until a date range is available', () => {
@@ -636,6 +651,25 @@ describe( 'Stats query factories', () => {
 				id: 'opt_in_new_stats',
 				status: 'postponed',
 				postponed_for: 300,
+			},
+		} );
+	} );
+
+	it( 'updates app notices through the WPCOM Stats endpoint on Simple', async () => {
+		setSimpleScriptData();
+		mockApiFetch.mockResolvedValue( { opt_in_new_stats: false } );
+
+		await updateStatsAppNotice( {
+			id: 'opt_in_new_stats',
+			status: 'dismissed',
+		} );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/jetpack-stats-dashboard/notices',
+			method: 'POST',
+			data: {
+				id: 'opt_in_new_stats',
+				status: 'dismissed',
 			},
 		} );
 	} );

@@ -6,7 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { reportsPath } from '../constants';
+import { getReportsPath } from '../constants';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 import type { ORDER_ATTRIBUTION_VIEWS } from '../report-order-attribution-summary-fetch/report-order-attribution-summary-fetch';
@@ -68,7 +68,7 @@ export async function fetchReportOrderAttributionByProduct(
 	}
 
 	const path = addQueryArgs(
-		`${ reportsPath }/order-attribution-by-product/${ view }/summary`,
+		`${ getReportsPath() }/order-attribution-by-product/${ view }/summary`,
 		queryParams
 	);
 

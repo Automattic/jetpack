@@ -6,7 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { statsProxyPath } from './constants';
+import { getWpcomBlogId, isWpcomSimpleSite, statsProxyPath } from './constants';
 
 export type StatsProxyVersion = '1.1' | '1.2' | '2';
 
@@ -41,13 +41,46 @@ function cleanQueryParams( params?: StatsProxyParams ) {
 	return Object.keys( cleaned ).length ? cleaned : undefined;
 }
 
+function isGlobalWpcomSimpleEndpoint( endpoint: string ) {
+	return normalizeEndpoint( endpoint ) === 'upgrades';
+}
+
+function getBasePath( version: StatsProxyVersion ) {
+	if ( ! isWpcomSimpleSite() ) {
+		return `${ statsProxyPath }/v${ version }`;
+	}
+
+	return version === '2' ? '/wpcom/v2' : `/rest/v${ version }`;
+}
+
+function addWpcomSimpleSiteQuery(
+	params: StatsProxyParams | undefined
+): StatsProxyParams | undefined {
+	if ( ! isWpcomSimpleSite() ) {
+		return params;
+	}
+
+	const blogId = getWpcomBlogId();
+	if ( ! blogId || params?.site ) {
+		return params;
+	}
+
+	return {
+		...params,
+		site: blogId,
+	};
+}
+
 export function getStatsProxyPath( {
 	version,
 	endpoint,
 	params,
 }: Pick< StatsProxyFetchParams, 'version' | 'endpoint' | 'params' > ) {
-	const path = `${ statsProxyPath }/v${ version }/${ normalizeEndpoint( endpoint ) }`;
-	const queryParams = cleanQueryParams( params );
+	const normalizedEndpoint = normalizeEndpoint( endpoint );
+	const path = `${ getBasePath( version ) }/${ normalizedEndpoint }`;
+	const queryParams = cleanQueryParams(
+		isGlobalWpcomSimpleEndpoint( normalizedEndpoint ) ? addWpcomSimpleSiteQuery( params ) : params
+	);
 
 	return queryParams ? addQueryArgs( path, queryParams ) : path;
 }
@@ -60,10 +93,12 @@ export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
 	body,
 }: StatsProxyFetchParams< TBody > ): Promise< TResponse > {
 	const path = getStatsProxyPath( { version, endpoint, params } );
-
-	return apiFetch< TResponse >( {
+	const fetchOptions = {
 		path,
 		method,
 		...( method === 'POST' ? { data: body } : {} ),
-	} );
+		...( isWpcomSimpleSite() && isGlobalWpcomSimpleEndpoint( endpoint ) ? { global: true } : {} ),
+	};
+
+	return apiFetch< TResponse >( fetchOptions );
 }

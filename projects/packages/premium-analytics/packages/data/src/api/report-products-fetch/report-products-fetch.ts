@@ -7,7 +7,7 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies
  */
 import { BaseReportParams } from '../../utils/types';
-import { reportsPath } from '../constants';
+import { getReportsPath } from '../constants';
 import type { FilterCondition } from '../../types/filter-condition';
 
 export type RequestReportProductsParams = Omit< BaseReportParams, 'interval' > & {
@@ -67,6 +67,6 @@ export async function fetchReportProducts(
 	}
 
 	return apiFetch< ReportProductsResponse >( {
-		path: addQueryArgs( `${ reportsPath }/products`, queryArgs ),
+		path: addQueryArgs( `${ getReportsPath() }/products`, queryArgs ),
 	} );
 }

@@ -6,7 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { reportsPath } from '../constants';
+import { getReportsPath } from '../constants';
 import type { BaseReportParams } from '../../utils/types';
 
 /**
@@ -51,7 +51,7 @@ export async function fetchReportSessionsByDevice( {
 	from,
 	to,
 }: RequestReportSessionsByDeviceParams ): Promise< ReportsSessionsByDeviceResponse > {
-	const path = addQueryArgs( `${ reportsPath }/sessions/by-device`, {
+	const path = addQueryArgs( `${ getReportsPath() }/sessions/by-device`, {
 		from,
 		to,
 	} );

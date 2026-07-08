@@ -7,7 +7,7 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies
  */
 import { hasProductFilters } from '../../utils/product-filters';
-import { reportsPath } from '../constants';
+import { getReportsPath } from '../constants';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 
@@ -53,8 +53,8 @@ export async function fetchReportOrders( {
 }: RequestReportOrdersParams ): Promise< ReportsOrdersByDateResponse > {
 	const hasProductFiltersValue = hasProductFilters( filters );
 	const apiUrl = hasProductFiltersValue
-		? `${ reportsPath }/orders-by-product-type/by-date`
-		: `${ reportsPath }/orders/by-date`;
+		? `${ getReportsPath() }/orders-by-product-type/by-date`
+		: `${ getReportsPath() }/orders/by-date`;
 
 	const path = addQueryArgs( apiUrl, {
 		from,

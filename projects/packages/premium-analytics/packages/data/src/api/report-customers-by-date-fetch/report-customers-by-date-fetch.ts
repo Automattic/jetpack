@@ -6,7 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { reportsPath } from '../constants';
+import { getReportsPath } from '../constants';
 import type { BaseReportParams } from '../../utils/types';
 
 type ReportsCustomersByDateSummary = {
@@ -66,7 +66,7 @@ export async function fetchReportCustomersByDate( {
 	interval,
 	date_type,
 }: RequestReportCustomersByDateParams ): Promise< ReportsCustomersByDateResponse > {
-	const path = addQueryArgs( `${ reportsPath }/customers/by-date`, {
+	const path = addQueryArgs( `${ getReportsPath() }/customers/by-date`, {
 		from,
 		to,
 		interval,

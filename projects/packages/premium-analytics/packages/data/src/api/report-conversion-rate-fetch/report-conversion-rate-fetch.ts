@@ -6,7 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { reportsPath } from '../constants';
+import { getReportsPath } from '../constants';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 
@@ -45,7 +45,7 @@ export async function fetchReportConversionRate( {
 	interval,
 	filters,
 }: RequestReportConversionRateParams ): Promise< ReportsConversionRateByDateResponse > {
-	const path = addQueryArgs( `${ reportsPath }/sessions/by-conversion-rate`, {
+	const path = addQueryArgs( `${ getReportsPath() }/sessions/by-conversion-rate`, {
 		from,
 		to,
 		interval,

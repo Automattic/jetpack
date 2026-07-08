@@ -6,7 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { reportsPath } from '../constants';
+import { getReportsPath } from '../constants';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 
@@ -40,7 +40,7 @@ export async function fetchReportCustomers( {
 	filters,
 	date_type,
 }: RequestReportCustomersParams ): Promise< ReportsCustomersNewReturningResponse > {
-	const path = addQueryArgs( `${ reportsPath }/customers/new-returning`, {
+	const path = addQueryArgs( `${ getReportsPath() }/customers/new-returning`, {
 		from,
 		to,
 		filters,
