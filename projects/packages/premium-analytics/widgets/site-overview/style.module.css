@@ -8,14 +8,16 @@
 
 .grid {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: var(--wpds-dimension-gap-md, 12px);
+	grid-template-columns: 1fr;
+	gap: var(--wpds-dimension-gap-sm, 8px);
 }
 
 .tile {
 	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-sm, 8px);
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-md, 12px);
 	padding: var(--wpds-dimension-padding-md, 12px) var(--wpds-dimension-padding-lg, 16px);
 	border: var(--wpds-border-width-xs, 1px) solid var(--wpds-color-stroke-surface-neutral-weak);
 	border-radius: var(--wpds-border-radius-lg, 8px);
@@ -57,10 +59,23 @@
 	text-align: center;
 }
 
-/* Wide widths: lay the four tiles out in a single row. */
+/* Wide widths: lay the tiles out four across with the value stacked below the
+ * icon and label. */
 @container (min-width: 640px) {
 
 	.grid {
 		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.tile {
+		flex-direction: column;
+		align-items: flex-start;
+		justify-content: flex-start;
+		gap: var(--wpds-dimension-gap-lg, 16px);
+	}
+
+	.tileHeader {
+		flex-direction: column;
+		align-items: flex-start;
 	}
 }
