@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, TextControl } from '@wordpress/components';
+import { Button as WPButton, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { normalizeProfileUrl } from '../../../data/schema-settings-utils';
 import type { FC } from 'react';
@@ -74,7 +74,7 @@ const ProfileUrlList: FC< Props > = ( { label, help, urls, onChange, disabled } 
 								__nextHasNoMarginBottom
 							/>
 						</div>
-						<Button
+						<WPButton
 							variant="tertiary"
 							isDestructive
 							onClick={ () => removeProfile( index ) }
@@ -82,17 +82,12 @@ const ProfileUrlList: FC< Props > = ( { label, help, urls, onChange, disabled } 
 							__next40pxDefaultSize
 						>
 							{ __( 'Remove profile', 'jetpack-seo' ) }
-						</Button>
+						</WPButton>
 					</Stack>
 				);
 			} ) }
 			<div>
-				<Button
-					variant="secondary"
-					onClick={ addProfile }
-					disabled={ disabled }
-					__next40pxDefaultSize
-				>
+				<Button variant="outline" tone="neutral" onClick={ addProfile } disabled={ disabled }>
 					{ __( 'Add profile', 'jetpack-seo' ) }
 				</Button>
 			</div>

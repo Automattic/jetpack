@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, TextControl, TextareaControl } from '@wordpress/components';
+import { TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Button, Stack } from '@wordpress/ui';
 import ProfileUrlList, { hasProfileUrlErrors } from './profile-url-list';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
@@ -86,11 +86,7 @@ const OrganizationBusinessSection: FC< Props > = ( { form } ) => {
 			/>
 
 			<div className="jetpack-seo-settings__save">
-				<Button
-					variant="primary"
-					onClick={ save }
-					disabled={ isSaving || ! isDirty || hasProfileErrors }
-				>
+				<Button onClick={ save } disabled={ isSaving || ! isDirty || hasProfileErrors }>
 					{ saveLabel }
 				</Button>
 			</div>

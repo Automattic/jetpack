@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, TextControl, TextareaControl } from '@wordpress/components';
+import { TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Button, Stack } from '@wordpress/ui';
 import ProfileUrlList, { hasProfileUrlErrors } from './profile-url-list';
 import type { AuthorProfileForm } from '../../../data/use-author-profile';
 import type { FC } from 'react';
@@ -111,7 +111,6 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 
 			<div className="jetpack-seo-settings__save">
 				<Button
-					variant="primary"
 					onClick={ save }
 					disabled={ disabled || ! isDirty || hasNameError || hasProfileErrors }
 					aria-label={ __( 'Save author profile', 'jetpack-seo' ) }
