@@ -104,6 +104,12 @@ describe( 'SiteOverviewWidget', () => {
 		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
 		expect( requestedPaths.some( path => path.includes( 'date=2026-03-10' ) ) ).toBe( true );
 		expect( requestedPaths.some( path => path.includes( 'date=2026-02-10' ) ) ).toBe( true );
+
+		// Each tile derives its delta from the same metric in the comparison
+		// response, so distinct metrics show distinct period-over-period changes
+		// rather than one shared value: views 420 vs 300 rises, likes 48 vs 60 falls.
+		await expect( screen.findByText( '+40%' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( '-20%' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the stale tiles and overlays a spinner while a new date range loads', async () => {
