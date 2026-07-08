@@ -140,8 +140,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 		! unsupportedProvinceMapCountries.has( selectedCountryCode );
 	const useCountryFallbackMap =
 		renderGeoMode === 'region' && !! renderSelectedCountry && ! useProvinceMap;
-	const fallbackCountry = renderGeoMode === 'region' ? renderSelectedCountry : undefined;
-	const useSelectedCountryFallbackMap = !! fallbackCountry && useCountryFallbackMap;
+	const fallbackCountry = useCountryFallbackMap ? renderSelectedCountry : undefined;
 	const useCityCountryMap = renderGeoMode === 'city';
 	const cityCountryRows = useMemo( () => {
 		const countryRows = new Map< string, { countryFull: string; value: number } >();
@@ -201,8 +200,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	);
 
 	const geoData = useMemo( (): GeoData => {
-		const useLocationHeader =
-			renderGeoMode === 'region' && ! useCountryFallbackMap && ! useSelectedCountryFallbackMap;
+		const useLocationHeader = renderGeoMode === 'region' && ! useCountryFallbackMap;
 		const header: GoogleDataTableColumn[] = [
 			useLocationHeader
 				? __( 'Location', 'jetpack-premium-analytics' )
@@ -210,7 +208,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 			__( 'Views', 'jetpack-premium-analytics' ),
 		];
 
-		if ( useSelectedCountryFallbackMap && fallbackCountry ) {
+		if ( fallbackCountry ) {
 			const countryCode = fallbackCountry.code.toUpperCase();
 			const value = data
 				.filter( location => location.countryCode.toUpperCase() === countryCode )
@@ -252,7 +250,6 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 		renderGeoMode,
 		useCityCountryMap,
 		useCountryFallbackMap,
-		useSelectedCountryFallbackMap,
 	] );
 
 	const leaderboardData = useMemo( () => {
@@ -388,14 +385,8 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 					<GeoChart
 						data={ geoData }
 						resizeDebounceTime={ 100 }
-						region={
-							useProvinceMap && ! useSelectedCountryFallbackMap
-								? renderSelectedCountry?.code ?? 'world'
-								: 'world'
-						}
-						resolution={
-							useProvinceMap && ! useSelectedCountryFallbackMap ? 'provinces' : 'countries'
-						}
+						region={ useProvinceMap ? renderSelectedCountry?.code ?? 'world' : 'world' }
+						resolution={ useProvinceMap ? 'provinces' : 'countries' }
 						onError={ handleGeoChartError }
 					/>
 				</div>
