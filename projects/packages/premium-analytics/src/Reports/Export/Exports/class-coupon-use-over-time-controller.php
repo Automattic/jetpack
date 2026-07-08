@@ -9,7 +9,7 @@ declare( strict_types=1 );
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since $$next-version$$
  */
-class CouponUseOverTimeController extends AbstractCSVReportController {
+class Coupon_Use_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 
 	/**
 	 * Get the report key for this controller.

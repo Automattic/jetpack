@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller;
 
 /**
  * Average Order Value CSV Export Controller.
@@ -21,7 +21,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportControll
  *
  * @since $$next-version$$
  */
-class AverageOrderValueController extends AbstractCSVReportController {
+class Average_Order_Value_Controller extends Abstract_Csv_Report_Controller {
 
 	/**
 	 * Get the report key for this controller.

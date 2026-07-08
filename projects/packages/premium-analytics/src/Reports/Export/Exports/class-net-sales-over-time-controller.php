@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API Reports Taxes Over Time controller class.
+ * REST API Reports Net Sales Over Time controller class.
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports
  */
@@ -11,17 +11,17 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller;
 
 /**
- * Taxes Over Time CSV Export Controller.
+ * Net Sales Over Time CSV Export Controller.
  *
- * Handles CSV exports for the Taxes Over Time report, supporting both
+ * Handles CSV exports for the Net Sales Over Time report, supporting both
  * single interval and comparison interval data.
  *
  * @since $$next-version$$
  */
-class TaxesOverTimeController extends AbstractCSVReportController {
+class Net_Sales_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 
 	/**
 	 * Get the report key for this controller.
@@ -29,7 +29,7 @@ class TaxesOverTimeController extends AbstractCSVReportController {
 	 * @return string The report key.
 	 */
 	public function get_report_key(): string {
-		return 'taxesovertime';
+		return 'netsalesovertime';
 	}
 
 	/**
@@ -38,7 +38,7 @@ class TaxesOverTimeController extends AbstractCSVReportController {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Taxes Over Time', 'jetpack-premium-analytics' );
+		return __( 'Net Sales Over Time', 'jetpack-premium-analytics' );
 	}
 
 	/**
@@ -47,7 +47,7 @@ class TaxesOverTimeController extends AbstractCSVReportController {
 	 * @return string The data endpoint.
 	 */
 	public function get_data_endpoint(): string {
-		return 'reports/taxes/by-date';
+		return 'reports/orders/by-date';
 	}
 
 	/**
@@ -59,10 +59,8 @@ class TaxesOverTimeController extends AbstractCSVReportController {
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval' => $this->get_interval_label( $interval ),
-			'orders_count'  => __( 'Orders', 'jetpack-premium-analytics' ),
-			'order_tax'     => __( 'Order tax', 'jetpack-premium-analytics' ),
-			'shipping_tax'  => __( 'Shipping tax', 'jetpack-premium-analytics' ),
-			'total_tax'     => __( 'Total tax', 'jetpack-premium-analytics' ),
+			'orders_no'     => __( 'Orders', 'jetpack-premium-analytics' ),
+			'net_sales'     => __( 'Net sales', 'jetpack-premium-analytics' ),
 		);
 	}
 
@@ -73,10 +71,8 @@ class TaxesOverTimeController extends AbstractCSVReportController {
 	 */
 	public function get_default_values(): array {
 		return array(
-			'orders_count' => 0,
-			'order_tax'    => 0,
-			'shipping_tax' => 0,
-			'total_tax'    => 0,
+			'orders_no'        => 0,
+			'orders_value_net' => 0,
 		);
 	}
 
@@ -91,21 +87,8 @@ class TaxesOverTimeController extends AbstractCSVReportController {
 		$defaults = $this->get_default_values();
 		return array(
 			'time_interval' => $this->format_time_interval( $item, $interval ),
-			'orders_count'  => $item['orders_count'] ?? $defaults['orders_count'],
-			'order_tax'     => self::format_amount( $item['order_tax'] ?? $defaults['order_tax'] ),
-			'shipping_tax'  => self::format_amount( $item['shipping_tax'] ?? $defaults['shipping_tax'] ),
-			'total_tax'     => self::format_amount( $item['total_tax'] ?? $defaults['total_tax'] ),
-		);
-	}
-
-	/**
-	 * Get additional request parameters for data fetching.
-	 *
-	 * @return array Additional parameters to include in data requests.
-	 */
-	public function get_additional_params(): array {
-		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
+			'orders_no'     => $item['orders_no'] ?? $defaults['orders_no'],
+			'net_sales'     => self::format_amount( $item['orders_value_net'] ?? $defaults['orders_value_net'] ),
 		);
 	}
 
@@ -118,10 +101,19 @@ class TaxesOverTimeController extends AbstractCSVReportController {
 		// time_interval, date_start, and date_end are always returned by the
 		// API for time-series endpoints and do not need to be requested.
 		return array(
-			'orders_count',
-			'order_tax',
-			'shipping_tax',
-			'total_tax',
+			'orders_no',
+			'orders_value_net',
+		);
+	}
+
+	/**
+	 * Get additional request parameters for data fetching.
+	 *
+	 * @return array Additional parameters to include in data requests.
+	 */
+	public function get_additional_params(): array {
+		return array(
+			'date_type' => self::DEFAULT_DATE_TYPE,
 		);
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API Reports Net Sales Over Time controller class.
+ * REST API Reports Visitors Over Time controller class.
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports
  */
@@ -11,17 +11,17 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller;
 
 /**
- * Net Sales Over Time CSV Export Controller.
+ * Visitors Over Time CSV Export Controller.
  *
- * Handles CSV exports for the Net Sales Over Time report, supporting both
+ * Handles CSV exports for the Visitors Over Time report, supporting both
  * single interval and comparison interval data.
  *
  * @since $$next-version$$
  */
-class NetSalesOverTimeController extends AbstractCSVReportController {
+class Visitors_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 
 	/**
 	 * Get the report key for this controller.
@@ -29,7 +29,7 @@ class NetSalesOverTimeController extends AbstractCSVReportController {
 	 * @return string The report key.
 	 */
 	public function get_report_key(): string {
-		return 'netsalesovertime';
+		return 'visitorsovertime';
 	}
 
 	/**
@@ -38,7 +38,7 @@ class NetSalesOverTimeController extends AbstractCSVReportController {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Net Sales Over Time', 'jetpack-premium-analytics' );
+		return __( 'Visitors Over Time', 'jetpack-premium-analytics' );
 	}
 
 	/**
@@ -47,7 +47,7 @@ class NetSalesOverTimeController extends AbstractCSVReportController {
 	 * @return string The data endpoint.
 	 */
 	public function get_data_endpoint(): string {
-		return 'reports/orders/by-date';
+		return 'reports/sessions/by-date';
 	}
 
 	/**
@@ -59,8 +59,7 @@ class NetSalesOverTimeController extends AbstractCSVReportController {
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval' => $this->get_interval_label( $interval ),
-			'orders_no'     => __( 'Orders', 'jetpack-premium-analytics' ),
-			'net_sales'     => __( 'Net sales', 'jetpack-premium-analytics' ),
+			'visitors'      => __( 'Visitors', 'jetpack-premium-analytics' ),
 		);
 	}
 
@@ -71,8 +70,7 @@ class NetSalesOverTimeController extends AbstractCSVReportController {
 	 */
 	public function get_default_values(): array {
 		return array(
-			'orders_no'        => 0,
-			'orders_value_net' => 0,
+			'visitors' => 0,
 		);
 	}
 
@@ -87,8 +85,7 @@ class NetSalesOverTimeController extends AbstractCSVReportController {
 		$defaults = $this->get_default_values();
 		return array(
 			'time_interval' => $this->format_time_interval( $item, $interval ),
-			'orders_no'     => $item['orders_no'] ?? $defaults['orders_no'],
-			'net_sales'     => self::format_amount( $item['orders_value_net'] ?? $defaults['orders_value_net'] ),
+			'visitors'      => $item['visitors'] ?? $defaults['visitors'],
 		);
 	}
 
@@ -101,19 +98,7 @@ class NetSalesOverTimeController extends AbstractCSVReportController {
 		// time_interval, date_start, and date_end are always returned by the
 		// API for time-series endpoints and do not need to be requested.
 		return array(
-			'orders_no',
-			'orders_value_net',
-		);
-	}
-
-	/**
-	 * Get additional request parameters for data fetching.
-	 *
-	 * @return array Additional parameters to include in data requests.
-	 */
-	public function get_additional_params(): array {
-		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
+			'visitors',
 		);
 	}
 }

@@ -11,8 +11,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\CSVReportControllerInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\ReportRegistry;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Csv_Report_Controller_Interface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Report_Registry;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -25,17 +25,17 @@ class AllControllers_Test extends TestCase {
 	 */
 	public static function controller_provider(): array {
 		$classes = array(
-			AverageItemsPerOrderController::class,
-			AverageOrderValueController::class,
-			ConversionRateOverTimeController::class,
-			CouponUseOverTimeController::class,
-			GrossSalesOverTimeController::class,
-			NetSalesOverTimeController::class,
-			OrdersFulfilledOverTimeController::class,
-			OrdersOverTimeController::class,
-			RefundsOverTimeController::class,
-			TaxesOverTimeController::class,
-			VisitorsOverTimeController::class,
+			Average_Items_Per_Order_Controller::class,
+			Average_Order_Value_Controller::class,
+			Conversion_Rate_Over_Time_Controller::class,
+			Coupon_Use_Over_Time_Controller::class,
+			Gross_Sales_Over_Time_Controller::class,
+			Net_Sales_Over_Time_Controller::class,
+			Orders_Fulfilled_Over_Time_Controller::class,
+			Orders_Over_Time_Controller::class,
+			Refunds_Over_Time_Controller::class,
+			Taxes_Over_Time_Controller::class,
+			Visitors_Over_Time_Controller::class,
 		);
 
 		$cases = array();
@@ -45,8 +45,8 @@ class AllControllers_Test extends TestCase {
 		return $cases;
 	}
 
-	private function make( string $class ): CSVReportControllerInterface {
-		return new $class( ReportRegistry::instance() );
+	private function make( string $class ): Csv_Report_Controller_Interface {
+		return new $class( Report_Registry::instance() );
 	}
 
 	/**
