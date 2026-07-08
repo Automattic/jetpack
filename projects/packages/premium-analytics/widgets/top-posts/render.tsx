@@ -62,7 +62,7 @@ export type TopPostRow = {
 type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
 type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
-type TopPostsReportProps = Pick< TopPostsAttributes, 'postType' > & { num: number };
+type TopPostsReportProps = { num: number };
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
@@ -187,16 +187,13 @@ export const TopPostsLeaderboard = ( {
 
 /**
  * Flatten the designated `useStatsTopPosts` report into the `{ label, value,
- * href, type }` rows the leaderboard renders, dropping rows without a link and
- * (optionally) filtering by post type.
+ * href, type }` rows the leaderboard renders, dropping rows without a link.
  *
- * @param report       - The normalized top-posts report, or undefined while loading.
- * @param allowedTypes - Post types to keep, or null to keep all.
+ * @param report - The normalized top-posts report, or undefined while loading.
  * @return The normalized top-posts rows.
  */
 function toTopPostRows(
-	report: StatsNormalizedReport< StatsTopPostsItem > | undefined,
-	allowedTypes: string[] | null
+	report: StatsNormalizedReport< StatsTopPostsItem > | undefined
 ): TopPostRow[] {
 	const items = report?.data.flatMap( point => point.items ) ?? [];
 
@@ -209,8 +206,7 @@ function toTopPostRows(
 			value: item.views,
 			href: item.link,
 			type: String( item.type ?? '' ),
-		} ) )
-		.filter( row => ! allowedTypes || allowedTypes.includes( row.type ) );
+		} ) );
 }
 
 /**
@@ -222,7 +218,7 @@ function toTopPostRows(
  * @param {TopPostsReportProps} props - The component props.
  * @return The widget content.
  */
-function TopPostsReport( { num, postType }: TopPostsReportProps ) {
+function TopPostsReport( { num }: TopPostsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
@@ -233,16 +229,9 @@ function TopPostsReport( { num, postType }: TopPostsReportProps ) {
 		useStatsTopPosts( statsParams );
 	const showLoading = isLoading || ( isFetching && hasData );
 
-	const allowedTypes = useMemo( () => {
-		if ( postType === undefined || postType === '' ) {
-			return null;
-		}
-		return Array.isArray( postType ) ? postType : [ postType ];
-	}, [ postType ] );
-
 	const primaryRows = useMemo(
-		() => toTopPostRows( primary.data as StatsNormalizedReport< StatsTopPostsItem >, allowedTypes ),
-		[ primary.data, allowedTypes ]
+		() => toTopPostRows( primary.data as StatsNormalizedReport< StatsTopPostsItem > ),
+		[ primary.data ]
 	);
 
 	// Comparison-period views keyed by the same post URL the primary rows use.
@@ -252,12 +241,12 @@ function TopPostsReport( { num, postType }: TopPostsReportProps ) {
 			return new Map< string, number >();
 		}
 		return new Map(
-			toTopPostRows(
-				comparison.data as StatsNormalizedReport< StatsTopPostsItem >,
-				allowedTypes
-			).map( row => [ row.href, row.value ] )
+			toTopPostRows( comparison.data as StatsNormalizedReport< StatsTopPostsItem > ).map( row => [
+				row.href,
+				row.value,
+			] )
 		);
-	}, [ comparison.data, allowedTypes, hasComparison ] );
+	}, [ comparison.data, hasComparison ] );
 
 	// Only render comparison UI when at least one primary row actually overlaps
 	// the comparison period; otherwise unmatched rows would fall to a placeholder
@@ -425,7 +414,7 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 				{ contentView === 'archives' ? (
 					<ArchivesReport num={ num } />
 				) : (
-					<TopPostsReport num={ num } postType={ attributes.postType } />
+					<TopPostsReport num={ num } />
 				) }
 			</div>
 		</WidgetRoot>

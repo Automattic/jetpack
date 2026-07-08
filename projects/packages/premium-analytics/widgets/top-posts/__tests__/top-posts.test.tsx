@@ -67,13 +67,6 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
 	} );
 
-	it( 'filters rows by post type when the postType attribute is set', async () => {
-		render( <TopPostsWidget attributes={ { num: 10, postType: 'page' } } /> );
-
-		await expect( screen.findByText( 'About Page' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Hello World Post' ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'requests the dashboard date range from report params', async () => {
 		render(
 			<TopPostsWidget

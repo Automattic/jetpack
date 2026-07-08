@@ -17,11 +17,6 @@ export type TopPostsAttributes = {
 	 */
 	num?: number;
 	/**
-	 * Post type(s) to keep in the Posts & pages view. When undefined or empty,
-	 * all types are shown. Has no effect on the Archives view.
-	 */
-	postType?: string | string[];
-	/**
 	 * Which report the widget shows: published posts and pages, or archive
 	 * pages (home, taxonomy, post-type, search, and date archives).
 	 */
@@ -37,8 +32,7 @@ export type TopPostsAttributes = {
  * renders its control in the frame header.
  *
  * `example.attributes` doubles as the defaults applied to new instances: ten
- * rows, all post types, Posts & pages view. The date range comes from the
- * dashboard picker.
+ * rows, Posts & pages view. The date range comes from the dashboard picker.
  */
 export default {
 	name: 'jpa/stats-top-posts',
@@ -49,16 +43,6 @@ export default {
 			id: 'num',
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
 			type: 'integer',
-		},
-		{
-			id: 'postType',
-			label: __( 'Post type', 'jetpack-premium-analytics' ),
-			type: 'text',
-			elements: [
-				{ label: __( 'All', 'jetpack-premium-analytics' ), value: '' },
-				{ label: __( 'Posts', 'jetpack-premium-analytics' ), value: 'post' },
-				{ label: __( 'Pages', 'jetpack-premium-analytics' ), value: 'page' },
-			],
 		},
 		{
 			id: 'contentView',
