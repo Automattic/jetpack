@@ -90,6 +90,18 @@ class ReportDataFetcher {
 	 * @return array|\WP_Error Merged report data or error.
 	 */
 	private function fetch_comparison_data( array $params, CSVReportControllerInterface $controller ) {
+		// fetch() is public library API; the REST layer marks these required, but guard here too.
+		foreach ( array( 'from', 'to', 'compare_from', 'compare_to' ) as $required ) {
+			if ( empty( $params[ $required ] ) ) {
+				return new WP_Error(
+					'missing_comparison_param',
+					/* translators: %s: parameter name. */
+					sprintf( __( 'Missing required comparison parameter: %s', 'jetpack-premium-analytics' ), $required ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
 		// Build parameters for both periods.
 		$base_params = $this->extract_base_params( $params );
 
