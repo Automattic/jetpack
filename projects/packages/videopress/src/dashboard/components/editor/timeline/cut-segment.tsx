@@ -2,18 +2,31 @@
  * One cut range on the edit overlay: a striped segment with an edge-drag
  * handle on each side and a remove (✕) affordance.
  *
- * Pointer-down on the body selects the cut; dragging an edge selects it too
- * (as part of the same gesture) and dispatches TRANSIENT UPDATE_CUT moves
- * with a COMMIT on release, so the whole drag is one undo entry. Edge
- * snapping targets the playhead, the trim edges, and other cuts' edges — not
- * the cut's own edges, which would make small cuts sticky against
- * themselves. Edge handles are focusable `role="slider"` elements with
- * arrow-key nudging (±100ms, ±1s with Shift).
+ * Dragging the BODY moves the whole cut (width-preserving MOVE_CUT, snapped
+ * on whichever candidate edge lands closest to a target); dragging an EDGE
+ * resizes it (UPDATE_CUT). Both gestures select the cut as a transient and
+ * dispatch TRANSIENT moves with a COMMIT on release, so a whole drag is one
+ * undo entry — and a body click that never moves just selects, without
+ * consuming one. Snapping targets the playhead, the trim edges, and other
+ * cuts' edges — not the cut's own edges, which would make small cuts sticky
+ * against themselves. Edge handles are focusable `role="slider"` elements
+ * with arrow-key nudging (±100ms, ±1s with Shift).
+ *
+ * Body moves are `fromBase` transients replayed against the gesture's base
+ * state, with the snap inputs frozen at grab time: mid-gesture the session
+ * shows the PREVIEW, and a cut that merged with a touched neighbor reports
+ * the merged (earlier, wider) range there. Reducing the next move from that
+ * preview would compound the merge — the pointer keeps tracking the original
+ * grab, so the cut would inflate to the merged width and teleport. Replaying
+ * from the base keeps every move a pure function of the grab state and the
+ * pointer, makes the merge a live preview that dragging away un-does, and
+ * commits exactly what is on screen at release.
  */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
-import { formatTimecode, msToPx, snapMs } from '../state/time-utils';
+import { useRef } from 'react';
+import { formatTimecode, msToPx, snapMoveMs, snapMs } from '../state/time-utils';
 import { NUDGE_LARGE_MS, NUDGE_MS } from './use-keyboard-shortcuts';
 import { useTimelinePointerDrag } from './use-pointer-drag';
 import type { CutRange, EditSession, EditSessionAction } from '../state/edit-session';
@@ -38,6 +51,24 @@ type Props = {
 type Edge = 'start' | 'end';
 
 /**
+ * The snap edges shared by the edge and body drags: the trim edges and every
+ * OTHER cut's edges (never the dragged cut's own).
+ *
+ * @param session - The edit session.
+ * @param cut     - The cut being dragged.
+ * @return Edge positions in ms, for a {@link snapMs} / {@link snapMoveMs} context.
+ */
+function cutSnapEdges( session: EditSession, cut: CutRange ): number[] {
+	return [
+		session.trimStartMs,
+		session.trimEndMs,
+		...session.cuts
+			.filter( other => other.id !== cut.id )
+			.flatMap( other => [ other.startMs, other.endMs ] ),
+	];
+}
+
+/**
  * One draggable cut edge.
  *
  * @param props      - The parent segment's props plus the edge to move.
@@ -58,13 +89,7 @@ function StudioEditorCutEdge( { edge, ...props }: Props & { edge: Edge } ): Reac
 			pxPerMs,
 			durationMs: session.durationMs,
 			playheadMs: currentMs,
-			edgesMs: [
-				session.trimStartMs,
-				session.trimEndMs,
-				...session.cuts
-					.filter( other => other.id !== cut.id )
-					.flatMap( other => [ other.startMs, other.endMs ] ),
-			],
+			edgesMs: cutSnapEdges( session, cut ),
 		} );
 
 	const drag = useTimelinePointerDrag( {
@@ -124,16 +149,60 @@ function StudioEditorCutEdge( { edge, ...props }: Props & { edge: Edge } ): Reac
 }
 
 /**
- * A cut segment: striped body, two edge handles, remove button.
+ * A cut segment: striped draggable body, two edge handles, remove button.
  *
  * @param props - Component props (see the Props type).
  * @return The segment element.
  */
 export default function StudioEditorCutSegment( props: Props ): ReactElement {
-	const { cut, session, pxPerMs, dispatch } = props;
+	const { cut, session, currentMs, pxPerMs, contentRef, dispatch } = props;
 	const selected = session.selectedCutId === cut.id;
 	const leftPx = msToPx( cut.startMs, pxPerMs );
 	const widthPx = msToPx( cut.endMs - cut.startMs, pxPerMs );
+
+	// Gesture-start snapshot for the body drag. `startMs` gates snapping (a
+	// drag position equal to it means the pointer has not moved the cut, so a
+	// plain click can never nudge a cut toward a nearby target); `widthMs` and
+	// `edgesMs` freeze the snap inputs, because mid-gesture the live props
+	// describe the preview — after a merge, the merged width and a swallowed
+	// neighbor's missing edges (see the file docblock).
+	const grabRef = useRef( { startMs: 0, widthMs: 0, edgesMs: [] as number[] } );
+
+	const bodyDrag = useTimelinePointerDrag( {
+		contentRef,
+		pxPerMs,
+		getAnchorMs: () => cut.startMs,
+		// Selection joins the gesture as a transient, so COMMIT folds the
+		// select + every move into a single undo entry — and a click that
+		// never moves selects without consuming one (selection alone is not
+		// history-relevant to the wrapper's equality).
+		onDragStart: () => {
+			grabRef.current = {
+				startMs: cut.startMs,
+				widthMs: cut.endMs - cut.startMs,
+				edgesMs: cutSnapEdges( session, cut ),
+			};
+			dispatch( { type: 'TRANSIENT', action: { type: 'SELECT_CUT', id: cut.id } } );
+		},
+		onDragMove: ms => {
+			const { startMs: grabStartMs, widthMs, edgesMs } = grabRef.current;
+			const startMs =
+				ms === grabStartMs
+					? ms
+					: snapMoveMs( ms, widthMs, {
+							pxPerMs,
+							durationMs: session.durationMs,
+							playheadMs: currentMs,
+							edgesMs,
+					  } );
+			dispatch( {
+				type: 'TRANSIENT',
+				fromBase: true,
+				action: { type: 'MOVE_CUT', id: cut.id, startMs },
+			} );
+		},
+		onDragEnd: () => dispatch( { type: 'COMMIT' } ),
+	} );
 
 	const classes = [ 'vp-studio-timeline__cut', selected ? 'vp-studio-timeline__cut--selected' : '' ]
 		.filter( Boolean )
@@ -145,10 +214,15 @@ export default function StudioEditorCutSegment( props: Props ): ReactElement {
 			data-testid={ `studio-timeline-cut-${ cut.id }` }
 			style={ { left: `${ leftPx }px`, width: `${ widthPx }px` } }
 			onPointerDown={ event => {
-				// Select without starting a scrub on the surface underneath.
+				// A body grab must not also start a scrub on the surface
+				// underneath (the shell still sees the gesture in its capture
+				// phase, which is what suppresses auto-follow during drags).
 				event.stopPropagation();
-				dispatch( { type: 'SELECT_CUT', id: cut.id } );
+				bodyDrag.onPointerDown( event );
 			} }
+			onPointerMove={ bodyDrag.onPointerMove }
+			onPointerUp={ bodyDrag.onPointerUp }
+			onPointerCancel={ bodyDrag.onPointerCancel }
 		>
 			<StudioEditorCutEdge edge="start" { ...props } />
 			<Button

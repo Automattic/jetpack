@@ -97,6 +97,18 @@ export interface SnapContext {
 }
 
 /**
+ * The full target list of a snap context: 0 and the duration always, plus
+ * the playhead and any segment edges provided.
+ *
+ * @param context - Snap targets and scale.
+ * @return The snap targets in ms.
+ */
+function snapTargets( context: SnapContext ): number[] {
+	const { durationMs, playheadMs, edgesMs = [] } = context;
+	return [ 0, durationMs, ...( playheadMs !== undefined ? [ playheadMs ] : [] ), ...edgesMs ];
+}
+
+/**
  * Snap a time to the nearest target — 0, the duration, the playhead, or a
  * segment edge — when it lies within the pixel threshold on screen. Returns
  * the (rounded) input unchanged when nothing is close enough.
@@ -107,25 +119,53 @@ export interface SnapContext {
  */
 export function snapMs( ms: number, context: SnapContext ): number {
 	const rounded = Math.round( ms );
-	const { pxPerMs, durationMs, playheadMs, edgesMs = [], thresholdPx } = context;
+	const { pxPerMs, thresholdPx } = context;
 	if ( pxPerMs <= 0 ) {
 		return rounded;
 	}
 	const thresholdMs = ( thresholdPx ?? DEFAULT_SNAP_THRESHOLD_PX ) / pxPerMs;
 
-	const targets = [
-		0,
-		durationMs,
-		...( playheadMs !== undefined ? [ playheadMs ] : [] ),
-		...edgesMs,
-	];
 	let best: number | null = null;
 	let bestDistance = Infinity;
-	for ( const target of targets ) {
+	for ( const target of snapTargets( context ) ) {
 		const distance = Math.abs( rounded - target );
 		if ( distance <= thresholdMs && distance < bestDistance ) {
 			best = target;
 			bestDistance = distance;
+		}
+	}
+	return best === null ? rounded : Math.round( best );
+}
+
+/**
+ * Snap a width-preserving range move: each target is evaluated against BOTH
+ * candidate edges — landing the range's start on it, or landing its end on
+ * it (start = target − width) — and the smallest on-screen adjustment wins.
+ * Returns the (rounded) requested start unchanged when neither edge comes
+ * within the threshold of any target.
+ *
+ * @param startMs - Requested start of the moving range, in ms.
+ * @param widthMs - Width of the moving range, in ms (preserved by the move).
+ * @param context - Snap targets and scale (same shape as {@link snapMs}).
+ * @return The snapped integer start.
+ */
+export function snapMoveMs( startMs: number, widthMs: number, context: SnapContext ): number {
+	const rounded = Math.round( startMs );
+	const { pxPerMs, thresholdPx } = context;
+	if ( pxPerMs <= 0 ) {
+		return rounded;
+	}
+	const thresholdMs = ( thresholdPx ?? DEFAULT_SNAP_THRESHOLD_PX ) / pxPerMs;
+
+	let best: number | null = null;
+	let bestDistance = Infinity;
+	for ( const target of snapTargets( context ) ) {
+		for ( const candidate of [ target, target - widthMs ] ) {
+			const distance = Math.abs( rounded - candidate );
+			if ( distance <= thresholdMs && distance < bestDistance ) {
+				best = candidate;
+				bestDistance = distance;
+			}
 		}
 	}
 	return best === null ? rounded : Math.round( best );

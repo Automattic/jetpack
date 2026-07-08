@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event -- Drag gestures need raw pointer events carrying clientX/pointerId (userEvent has no pointer-capture drag primitive), the shortcuts under test listen for raw keydowns on document, and range inputs only take fireEvent.change. */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createEditSession, editSessionReducer } from '../../state/edit-session';
 import StudioEditorTimeline from '../timeline';
@@ -104,7 +104,7 @@ function storyboard91s(): FilmstripState {
  * Render the timeline with spy collaborators.
  *
  * @param overrides - Prop overrides for this test.
- * @return The spies and a same-props rerender helper.
+ * @return The spies and a rerender helper (same props, optionally overridden).
  */
 function renderTimeline( overrides: Partial< StudioEditorTimelineProps > = {} ) {
 	const dispatch = jest.fn();
@@ -116,6 +116,7 @@ function renderTimeline( overrides: Partial< StudioEditorTimelineProps > = {} ) 
 		currentMs: 0,
 		onSeek,
 		onTogglePlay,
+		playing: false,
 		...overrides,
 	};
 	const view = render( <StudioEditorTimeline { ...props } /> );
@@ -123,7 +124,8 @@ function renderTimeline( overrides: Partial< StudioEditorTimelineProps > = {} ) 
 		dispatch,
 		onSeek,
 		onTogglePlay,
-		rerender: () => view.rerender( <StudioEditorTimeline { ...props } /> ),
+		rerender: ( next: Partial< StudioEditorTimelineProps > = {} ) =>
+			view.rerender( <StudioEditorTimeline { ...props } { ...next } /> ),
 	};
 }
 
@@ -147,6 +149,18 @@ describe( 'StudioEditorTimeline', () => {
 		expect( screen.getByTestId( 'studio-timeline-content' ) ).toHaveStyle( { width: '1000px' } );
 		// pxPerMs 0.1 → 1000ms step → 11 ticks for 10s.
 		expect( screen.getAllByTestId( 'studio-timeline-ruler-tick' ) ).toHaveLength( 11 );
+	} );
+
+	it( 'draws a full-height gridline under every ruler tick, on the same scale', () => {
+		renderTimeline();
+		const ticks = screen.getAllByTestId( 'studio-timeline-ruler-tick' );
+		const gridlines = screen.getAllByTestId( 'studio-timeline-gridline' );
+		expect( gridlines ).toHaveLength( ticks.length );
+		// Same pxPerMs on both layers: every gridline shares its tick's
+		// translateX, so lines and labels cannot drift apart across zooms.
+		gridlines.forEach( ( gridline, index ) => {
+			expect( gridline.style.transform ).toBe( ticks[ index ].style.transform );
+		} );
 	} );
 
 	describe( 'one timeline scale', () => {
@@ -311,6 +325,30 @@ describe( 'StudioEditorTimeline', () => {
 			'aria-disabled',
 			'true'
 		);
+	} );
+
+	describe( 'selected-cut chip', () => {
+		it( 'describes the selected cut: swatch, mono range, removed time', () => {
+			renderTimeline( { session: sessionWithCut() } );
+			const chip = screen.getByTestId( 'studio-timeline-cut-chip' );
+			expect( chip ).toHaveTextContent( '0:00:04.0 – 0:00:06.0' );
+			expect( chip ).toHaveTextContent( '2.0s removed' );
+		} );
+
+		it( 'is absent while no cut is selected', () => {
+			const session = editSessionReducer( sessionWithCut(), { type: 'SELECT_CUT', id: null } );
+			renderTimeline( { session } );
+			expect( screen.queryByTestId( 'studio-timeline-cut-chip' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'removes the selected cut from the chip trash button', async () => {
+			const { dispatch } = renderTimeline( { session: sessionWithCut() } );
+			// Scope to the chip: the cut segment in the strip has its own
+			// identically-labeled remove button.
+			const chip = screen.getByTestId( 'studio-timeline-cut-chip' );
+			await userEvent.click( within( chip ).getByRole( 'button', { name: 'Remove cut' } ) );
+			expect( dispatch ).toHaveBeenCalledWith( { type: 'REMOVE_CUT', id: 'cut-a' } );
+		} );
 	} );
 
 	it( 'zooms via the slider up to the filmstrip cap and restores fit', () => {
@@ -480,12 +518,146 @@ describe( 'StudioEditorTimeline', () => {
 		} );
 	} );
 
-	it( 'seeks from the toolbar timecode box', async () => {
-		const { onSeek } = renderTimeline();
-		const input = screen.getByRole( 'textbox', { name: 'Playhead time' } );
-		await userEvent.clear( input );
-		await userEvent.type( input, '3{Enter}' );
-		expect( onSeek ).toHaveBeenCalledWith( 3000 );
+	describe( 'auto-follow while playing', () => {
+		/**
+		 * Render a 100s session zoomed to the top stop (content 12800px in a
+		 * 1000px viewport, pxPerMs 0.128) with jsdom's zero layout patched to
+		 * the post-zoom scroller geometry, so the follow window is real.
+		 *
+		 * @param overrides - Prop overrides (e.g. playing).
+		 * @return The render utils plus the scroller element.
+		 */
+		function renderZoomed( overrides: Partial< StudioEditorTimelineProps > = {} ) {
+			const utils = renderTimeline( {
+				session: createEditSession( 100000 ),
+				filmstrip: storyboardFilmstrip( 100 ),
+				playing: true,
+				...overrides,
+			} );
+			const scroller = screen.getByTestId( 'studio-timeline-scroller' );
+			Object.defineProperties( scroller, {
+				scrollWidth: { value: 12800, configurable: true },
+				clientWidth: { value: 1000, configurable: true },
+			} );
+			fireEvent.change( screen.getByRole( 'slider', { name: 'Timeline zoom' } ), {
+				target: { value: '3' },
+			} );
+			return { ...utils, scroller };
+		}
+
+		it( 'chases scrollLeft to keep the playhead inside the follow window', () => {
+			const { rerender, scroller } = renderZoomed();
+			expect( scroller.scrollLeft ).toBe( 0 );
+
+			// Playhead at 10s → 1280px, past the right bound (0 + 1000 − 80):
+			// scrollLeft chases so the playhead sits exactly on the bound.
+			rerender( { currentMs: 10000 } );
+			expect( scroller.scrollLeft ).toBe( 360 );
+
+			// Jump back before the left bound (360 + 40): the chase re-anchors
+			// the playhead 40px from the left edge.
+			rerender( { currentMs: 1000 } );
+			expect( scroller.scrollLeft ).toBe( 88 );
+		} );
+
+		it( 'clamps the chase to the scrollable range', () => {
+			const { rerender, scroller } = renderZoomed();
+			// Playhead at the very end → 12800px wants scrollLeft 11880, but
+			// the range tops out at scrollWidth − clientWidth.
+			rerender( { currentMs: 100000 } );
+			expect( scroller.scrollLeft ).toBe( 11800 );
+		} );
+
+		it( 'does not follow while paused', () => {
+			const { rerender, scroller } = renderZoomed( { playing: false } );
+			rerender( { currentMs: 10000 } );
+			expect( scroller.scrollLeft ).toBe( 0 );
+		} );
+
+		it( 'suppresses the chase during a drag gesture and resumes after', () => {
+			const { rerender, scroller } = renderZoomed();
+			const content = screen.getByTestId( 'studio-timeline-content' );
+
+			// Mid-gesture (pointer down, no up yet): playhead updates must not
+			// scroll the ground out from under the drag.
+			fireEvent.pointerDown( content, { button: 0, pointerId: 1, clientX: 100 } );
+			rerender( { currentMs: 10000 } );
+			expect( scroller.scrollLeft ).toBe( 0 );
+
+			// Gesture over: the next playhead update chases again.
+			fireEvent.pointerUp( content, { pointerId: 1 } );
+			rerender( { currentMs: 20000 } );
+			expect( scroller.scrollLeft ).toBe( 1640 );
+		} );
+	} );
+
+	describe( 'transport (relocated from the preview player)', () => {
+		it( 'toggles playback from the transport button', async () => {
+			const { onTogglePlay } = renderTimeline();
+			const button = screen.getByTestId( 'studio-timeline-transport-play' );
+			expect( button ).toHaveAccessibleName( 'Play' );
+			await userEvent.click( button );
+			expect( onTogglePlay ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'shows the pause affordance while playing', () => {
+			renderTimeline( { playing: true } );
+			expect( screen.getByTestId( 'studio-timeline-transport-play' ) ).toHaveAccessibleName(
+				'Pause'
+			);
+		} );
+
+		it( 'shows the session duration next to the timecode box', () => {
+			renderTimeline();
+			expect( screen.getByText( '/ 0:00:10.0' ) ).toBeInTheDocument();
+		} );
+
+		it( 'seeks from the toolbar timecode box', async () => {
+			const { onSeek } = renderTimeline();
+			const input = screen.getByRole( 'textbox', { name: 'Playhead time' } );
+			await userEvent.clear( input );
+			await userEvent.type( input, '3{Enter}' );
+			expect( onSeek ).toHaveBeenCalledWith( 3000 );
+		} );
+
+		it( 'reverts a draft timecode on Escape', async () => {
+			const { onSeek } = renderTimeline();
+			const input = screen.getByRole( 'textbox', { name: 'Playhead time' } );
+			await userEvent.clear( input );
+			await userEvent.type( input, '5{Escape}' );
+			expect( input ).toHaveValue( '0:00:00.0' );
+			expect( onSeek ).not.toHaveBeenCalled();
+		} );
+
+		it( 'ignores an unparseable timecode on blur', async () => {
+			const { onSeek } = renderTimeline();
+			const input = screen.getByRole( 'textbox', { name: 'Playhead time' } );
+			await userEvent.clear( input );
+			await userEvent.type( input, 'not a time' );
+			await userEvent.tab();
+			expect( input ).toHaveValue( '0:00:00.0' );
+			expect( onSeek ).not.toHaveBeenCalled();
+		} );
+	} );
+
+	describe( 'processing lock', () => {
+		it( 'scopes the locked modifier to the scroller, keeping the toolbar usable', async () => {
+			const { onTogglePlay } = renderTimeline( { locked: true } );
+			// The pointer-events block targets the scroller region only; the
+			// toolbar (transport, zoom) sits outside it and stays interactive.
+			expect( screen.getByTestId( 'studio-timeline-scroller' ) ).toHaveClass(
+				'vp-studio-timeline__scroller--locked'
+			);
+			await userEvent.click( screen.getByTestId( 'studio-timeline-transport-play' ) );
+			expect( onTogglePlay ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'leaves the scroller unlocked by default', () => {
+			renderTimeline();
+			expect( screen.getByTestId( 'studio-timeline-scroller' ) ).not.toHaveClass(
+				'vp-studio-timeline__scroller--locked'
+			);
+		} );
 	} );
 
 	describe( 'document-level shortcuts', () => {

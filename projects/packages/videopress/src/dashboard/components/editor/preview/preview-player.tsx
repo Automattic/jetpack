@@ -1,11 +1,14 @@
 /**
  * Preview player for the Studio TRIM & CUT editor.
  *
- * Renders a plain <video> on the attachment's `sourceUrl` (signed with a
- * `metadata_token` playback JWT for private videos) plus a transport row:
- * play/pause, an editable current timecode, and the total duration. Playback
- * state lives in `usePreviewPlayback`, which always runs the edit session's
- * skip engine while playing (the preview shows the edited result).
+ * Renders a plain <video> stage on the attachment's `sourceUrl` (signed with
+ * a `metadata_token` playback JWT for private videos). Per the editor
+ * redesign the transport controls live in the timeline toolbar; this
+ * component owns only the stage and reports playback state upward
+ * (onTimeUpdate/onDurationChange/onPlayingChange) while exposing an
+ * imperative handle for the timeline to drive. Playback state lives in
+ * `usePreviewPlayback`, which always runs the edit session's skip engine
+ * while playing (the preview shows the edited result).
  *
  * MASTER ASSUMPTION (v1): this player treats `sourceUrl` as the ORIGINAL
  * master file, which is true today because no edit pipeline exists — every
@@ -14,105 +17,16 @@
  * so the edits REST contract will need to expose an explicit master playback
  * URL for the editor. Deliberately not solved here.
  */
-import { Button, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { Text } from '@wordpress/ui';
+import { forwardRef, useEffect, useImperativeHandle } from 'react';
 import { usePlaybackToken } from '../../../hooks/use-poster-url';
-import { formatTimecode } from '../state/time-utils';
-import { parseTimecode } from './parse-timecode';
 import { usePreviewPlayback } from './use-preview-playback';
 import './style.scss';
 import type { LibraryItem } from '../../../types/library';
 import type { EditSession } from '../state/edit-session';
 import type { ReactElement } from 'react';
-
-const playIcon = (
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		viewBox="0 0 24 24"
-		width="24"
-		height="24"
-		aria-hidden="true"
-		focusable="false"
-	>
-		<path d="M8 5v14l11-7z" fill="currentColor" />
-	</svg>
-);
-
-const pauseIcon = (
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		viewBox="0 0 24 24"
-		width="24"
-		height="24"
-		aria-hidden="true"
-		focusable="false"
-	>
-		<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor" />
-	</svg>
-);
-
-type TimecodeFieldProps = {
-	valueMs: number;
-	onCommit: ( ms: number ) => void;
-};
-
-/**
- * Editable current-time field. Shows the live timecode while idle; typing
- * starts a draft that commits on Enter or blur (when it parses) and reverts
- * on Escape.
- *
- * @param props          - Component props.
- * @param props.valueMs  - Live playhead position in ms.
- * @param props.onCommit - Called with the parsed position in ms.
- * @return The input element.
- */
-function StudioEditorTimecodeField( { valueMs, onCommit }: TimecodeFieldProps ): ReactElement {
-	const [ draft, setDraft ] = useState< string | null >( null );
-	// Enter/Escape blur the field after already handling the draft; this flag
-	// stops the blur handler from committing a second time (or committing a
-	// draft Escape just discarded — state updates haven't flushed yet).
-	const skipBlurCommitRef = useRef( false );
-
-	const commit = () => {
-		if ( draft !== null ) {
-			const parsed = parseTimecode( draft );
-			if ( parsed !== null ) {
-				onCommit( parsed );
-			}
-		}
-		setDraft( null );
-	};
-
-	return (
-		<input
-			className="vp-studio-editor-preview__timecode"
-			type="text"
-			aria-label={ __( 'Current time', 'jetpack-videopress-pkg' ) }
-			value={ draft ?? formatTimecode( valueMs ) }
-			onChange={ event => setDraft( event.target.value ) }
-			onBlur={ () => {
-				if ( skipBlurCommitRef.current ) {
-					skipBlurCommitRef.current = false;
-					return;
-				}
-				commit();
-			} }
-			onKeyDown={ event => {
-				if ( event.key === 'Enter' ) {
-					commit();
-					skipBlurCommitRef.current = true;
-					event.currentTarget.blur();
-				} else if ( event.key === 'Escape' ) {
-					setDraft( null );
-					skipBlurCommitRef.current = true;
-					event.currentTarget.blur();
-				}
-			} }
-		/>
-	);
-}
 
 /**
  * Imperative surface exposed via ref, for the timeline to drive the player.
@@ -139,10 +53,15 @@ type Props = {
 	onTimeUpdate?: ( currentMs: number ) => void;
 	/** Master duration in ms, reported when known (metadata or fallback). */
 	onDurationChange?: ( durationMs: number ) => void;
+	/**
+	 * Whether playback is running, once per change. The editor screen mirrors
+	 * this into state for the timeline toolbar's transport button.
+	 */
+	onPlayingChange?: ( playing: boolean ) => void;
 };
 
 /**
- * The Studio editor's preview player: <video> stage + transport row.
+ * The Studio editor's preview player: a bare <video> stage.
  *
  * @param props - Component props (see {@link Props}).
  * @param ref   - Imperative handle with seekTo/play/pause.
@@ -150,7 +69,7 @@ type Props = {
  */
 const StudioEditorPreviewPlayer = forwardRef< StudioEditorPreviewPlayerHandle, Props >(
 	function StudioEditorPreviewPlayerInner(
-		{ video, session, onTimeUpdate, onDurationChange },
+		{ video, session, onTimeUpdate, onDurationChange, onPlayingChange },
 		ref
 	): ReactElement {
 		// Prefer the transcoded H.264 rendition: the original upload may be an
@@ -192,6 +111,10 @@ const StudioEditorPreviewPlayer = forwardRef< StudioEditorPreviewPlayerHandle, P
 			}
 		}, [ durationMs, onDurationChange ] );
 
+		useEffect( () => {
+			onPlayingChange?.( playing );
+		}, [ playing, onPlayingChange ] );
+
 		// Private videos 403 without a playback JWT, so hold the element back
 		// until the token arrives rather than firing a doomed request.
 		let src: string | null = null;
@@ -226,29 +149,11 @@ const StudioEditorPreviewPlayer = forwardRef< StudioEditorPreviewPlayerHandle, P
 							) }
 						</div>
 					) }
-				</div>
-				<div className="vp-studio-editor-preview__transport">
-					<Stack direction="row" gap="sm" align="center">
-						<Button
-							size="compact"
-							icon={ playing ? pauseIcon : playIcon }
-							label={
-								playing
-									? __( 'Pause', 'jetpack-videopress-pkg' )
-									: __( 'Play', 'jetpack-videopress-pkg' )
-							}
-							onClick={ togglePlay }
-						/>
-						<StudioEditorTimecodeField valueMs={ currentMs } onCommit={ seekTo } />
-						<Text className="vp-studio-editor-preview__duration">
-							{ `/ ${ formatTimecode( durationMs ) }` }
+					{ playbackError && (
+						<Text className="vp-studio-editor-preview__error" role="alert">
+							{ playbackError }
 						</Text>
-						{ playbackError && (
-							<Text className="vp-studio-editor-preview__error" role="alert">
-								{ playbackError }
-							</Text>
-						) }
-					</Stack>
+					) }
 				</div>
 			</div>
 		);

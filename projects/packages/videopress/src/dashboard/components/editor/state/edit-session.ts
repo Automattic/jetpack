@@ -91,6 +91,7 @@ export type EditSessionAction =
 	| { type: 'SET_TRIM_END'; ms: number }
 	| { type: 'ADD_CUT'; atMs: number; halfSpanMs?: number; id?: string }
 	| { type: 'UPDATE_CUT'; id: string; startMs?: number; endMs?: number }
+	| { type: 'MOVE_CUT'; id: string; startMs: number }
 	| { type: 'REMOVE_CUT'; id: string }
 	| { type: 'SELECT_CUT'; id: string | null }
 	| { type: 'LOAD'; operations: EditOperation[]; durationMs: number }
@@ -610,6 +611,49 @@ function updateCut(
 }
 
 /**
+ * Move a whole cut, preserving its width. The start is clamped so the cut
+ * stays inside the trim window; overlapping/touching neighbors are merged
+ * into the dragged cut (which keeps its id). The moved cut becomes the
+ * selection: the only way to move one is to grab it, and body-drag moves are
+ * replayed from the gesture's base state, whose pre-gesture selection must
+ * not reassert itself mid-drag.
+ *
+ * No minimum-output clamp is needed: a width-preserving move can only SHRINK
+ * the removed union — the moved cut removes exactly as much as before unless
+ * it lands on another cut, in which case the union loses the overlap — so
+ * the output duration never decreases.
+ *
+ * @param state   - Current session.
+ * @param id      - Id of the cut being moved.
+ * @param startMs - Requested new start; the end follows at start + width.
+ * @return Next session.
+ */
+function moveCut( state: EditSession, id: string, startMs: number ): EditSession {
+	const cut = state.cuts.find( c => c.id === id );
+	if ( ! cut ) {
+		return state;
+	}
+	const width = cut.endMs - cut.startMs;
+	// Cuts are contained in the trim window, so width <= trimEnd - trimStart
+	// and this clamp range is never inverted.
+	const nextStart = clampInt( startMs, state.trimStartMs, state.trimEndMs - width );
+
+	const others = state.cuts.filter( c => c.id !== id );
+	const chooseId = ( memberIds: string[] ) => ( memberIds.includes( id ) ? id : memberIds[ 0 ] );
+	const cuts = mergeCuts(
+		[ ...others, { id, startMs: nextStart, endMs: nextStart + width } ],
+		chooseId
+	);
+	// The moved cut always survives a merge (its group's chooseId keeps it),
+	// so selecting it unconditionally never dangles.
+	return {
+		...state,
+		cuts,
+		selectedCutId: id,
+	};
+}
+
+/**
  * The edit-session reducer. Enforces every invariant documented on
  * {@link EditSession}; returns the previous state reference for no-ops.
  *
@@ -635,6 +679,10 @@ export function editSessionReducer( state: EditSession, action: EditSessionActio
 
 		case 'UPDATE_CUT':
 			next = updateCut( state, action.id, action.startMs, action.endMs );
+			break;
+
+		case 'MOVE_CUT':
+			next = moveCut( state, action.id, action.startMs );
 			break;
 
 		case 'REMOVE_CUT': {

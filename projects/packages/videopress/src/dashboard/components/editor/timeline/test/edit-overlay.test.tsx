@@ -35,19 +35,39 @@ function sessionWithCut(): EditSession {
 }
 
 /**
+ * A 10s session with two cuts: cut-a [1000, 2000] and cut-b [4000, 6000].
+ *
+ * @return The session.
+ */
+function sessionWithTwoCuts(): EditSession {
+	const withA = editSessionReducer( createEditSession( 10000 ), {
+		type: 'ADD_CUT',
+		atMs: 1500,
+		halfSpanMs: 500,
+		id: 'cut-a',
+	} );
+	return editSessionReducer( withA, {
+		type: 'ADD_CUT',
+		atMs: 5000,
+		halfSpanMs: 1000,
+		id: 'cut-b',
+	} );
+}
+
+/**
  * Render the overlay against a detached content element.
  *
  * @param session   - The session to render.
  * @param currentMs - Playhead position (snap target for cut edges).
- * @return The dispatch and onSeek spies.
+ * @return The dispatch and onSeek spies, plus a session re-render helper.
  */
 function renderOverlay( session: EditSession, currentMs = 0 ) {
 	const dispatch = jest.fn();
 	const onSeek = jest.fn();
 	const contentRef = { current: document.createElement( 'div' ) };
-	render(
+	const overlay = ( s: EditSession ) => (
 		<StudioEditorEditOverlay
-			session={ session }
+			session={ s }
 			currentMs={ currentMs }
 			pxPerMs={ PX_PER_MS }
 			contentRef={ contentRef }
@@ -55,7 +75,8 @@ function renderOverlay( session: EditSession, currentMs = 0 ) {
 			onSeek={ onSeek }
 		/>
 	);
-	return { dispatch, onSeek };
+	const { rerender } = render( overlay( session ) );
+	return { dispatch, onSeek, rerenderSession: ( s: EditSession ) => rerender( overlay( s ) ) };
 }
 
 /**
@@ -66,6 +87,17 @@ function renderOverlay( session: EditSession, currentMs = 0 ) {
  */
 function transient( action: EditSessionAction ) {
 	return { type: 'TRANSIENT', action };
+}
+
+/**
+ * Shorthand for a from-base TRANSIENT-wrapped session action (body moves
+ * replay against the gesture's base state).
+ *
+ * @param action - The inner action.
+ * @return The wrapped action.
+ */
+function transientFromBase( action: EditSessionAction ) {
+	return { type: 'TRANSIENT', fromBase: true, action };
 }
 
 describe( 'StudioEditorTrimHandles', () => {
@@ -208,14 +240,121 @@ describe( 'StudioEditorCutSegment', () => {
 		);
 	} );
 
-	it( 'selects the cut on pointer-down on its body', () => {
+	it( 'drags the cut body: selection joins the gesture, width-preserving moves, one commit', () => {
 		const { dispatch } = renderOverlay( sessionWithCut() );
-		fireEvent.pointerDown( screen.getByTestId( 'studio-timeline-cut-cut-a' ), {
-			button: 0,
-			pointerId: 1,
-			clientX: 500,
+		const body = screen.getByTestId( 'studio-timeline-cut-cut-a' );
+
+		// Grab 500ms into the cut: moves report where the START should land,
+		// preserving the grab offset.
+		fireEvent.pointerDown( body, { button: 0, pointerId: 1, clientX: 450 } );
+		fireEvent.pointerMove( body, { pointerId: 1, clientX: 250 } );
+		fireEvent.pointerMove( body, { pointerId: 1, clientX: 260 } );
+		fireEvent.pointerUp( body, { pointerId: 1 } );
+
+		expect( dispatch.mock.calls.map( call => call[ 0 ] ) ).toEqual( [
+			transient( { type: 'SELECT_CUT', id: 'cut-a' } ),
+			transientFromBase( { type: 'MOVE_CUT', id: 'cut-a', startMs: 4000 } ),
+			transientFromBase( { type: 'MOVE_CUT', id: 'cut-a', startMs: 2000 } ),
+			transientFromBase( { type: 'MOVE_CUT', id: 'cut-a', startMs: 2100 } ),
+			{ type: 'COMMIT' },
+		] );
+	} );
+
+	it( 'selects on a no-move body click, dispatching only no-op moves', () => {
+		const { dispatch } = renderOverlay( sessionWithCut(), 4050 );
+		const body = screen.getByTestId( 'studio-timeline-cut-cut-a' );
+
+		fireEvent.pointerDown( body, { button: 0, pointerId: 1, clientX: 500 } );
+		fireEvent.pointerUp( body, { pointerId: 1 } );
+
+		// The playhead at 4050 is within snap range of the un-moved start, but
+		// a click must never nudge the cut: snapping only engages once the
+		// pointer actually moves it. The reducer treats the same-position move
+		// as a no-op and the history wrapper commits no undo entry (selection
+		// is not history-relevant).
+		expect( dispatch.mock.calls.map( call => call[ 0 ] ) ).toEqual( [
+			transient( { type: 'SELECT_CUT', id: 'cut-a' } ),
+			transientFromBase( { type: 'MOVE_CUT', id: 'cut-a', startMs: 4000 } ),
+			{ type: 'COMMIT' },
+		] );
+	} );
+
+	it( 'snaps a body move on its leading edge', () => {
+		const { dispatch } = renderOverlay( sessionWithCut(), 3000 );
+		const body = screen.getByTestId( 'studio-timeline-cut-cut-a' );
+
+		fireEvent.pointerDown( body, { button: 0, pointerId: 1, clientX: 450 } );
+		// Raw start 3050 is within the 80ms radius of the playhead at 3000.
+		fireEvent.pointerMove( body, { pointerId: 1, clientX: 355 } );
+
+		expect( dispatch ).toHaveBeenLastCalledWith(
+			transientFromBase( { type: 'MOVE_CUT', id: 'cut-a', startMs: 3000 } )
+		);
+	} );
+
+	it( 'snaps a body move on its trailing edge when that is the closer candidate', () => {
+		// A second cut at [7000, 7500] provides the trailing-edge target.
+		const session = editSessionReducer( sessionWithCut(), {
+			type: 'ADD_CUT',
+			atMs: 7250,
+			halfSpanMs: 250,
+			id: 'cut-b',
 		} );
-		expect( dispatch.mock.calls ).toEqual( [ [ { type: 'SELECT_CUT', id: 'cut-a' } ] ] );
+		const { dispatch } = renderOverlay( session );
+		const body = screen.getByTestId( 'studio-timeline-cut-cut-a' );
+
+		fireEvent.pointerDown( body, { button: 0, pointerId: 1, clientX: 450 } );
+		// Raw start 4960 → raw end 6960: 40ms from cut-b's start (in range),
+		// while no target is near the leading edge — the end snap wins and the
+		// start lands at 7000 − width.
+		fireEvent.pointerMove( body, { pointerId: 1, clientX: 546 } );
+
+		expect( dispatch ).toHaveBeenLastCalledWith(
+			transientFromBase( { type: 'MOVE_CUT', id: 'cut-a', startMs: 5000 } )
+		);
+	} );
+
+	it( 'keeps snapping to a swallowed neighbor edge after a mid-drag merge preview', () => {
+		const session = sessionWithTwoCuts();
+		const { dispatch, rerenderSession } = renderOverlay( session );
+		const body = screen.getByTestId( 'studio-timeline-cut-cut-b' );
+
+		fireEvent.pointerDown( body, { button: 0, pointerId: 1, clientX: 450 } );
+		// Mid-gesture the session shows the merge PREVIEW: cut-b has swallowed
+		// cut-a and spans [1000, 6000] — so cut-a's edges only exist in the
+		// gesture-start snapshot.
+		rerenderSession( {
+			...session,
+			cuts: [ { id: 'cut-b', startMs: 1000, endMs: 6000 } ],
+			selectedCutId: 'cut-b',
+		} );
+
+		// Raw start 2050 is within the 80ms radius of cut-a's end at 2000.
+		fireEvent.pointerMove( body, { pointerId: 1, clientX: 255 } );
+		expect( dispatch ).toHaveBeenLastCalledWith(
+			transientFromBase( { type: 'MOVE_CUT', id: 'cut-b', startMs: 2000 } )
+		);
+	} );
+
+	it( 'keeps the grab-time width for trailing-edge snaps after a mid-drag merge preview', () => {
+		const session = sessionWithTwoCuts();
+		const { dispatch, rerenderSession } = renderOverlay( session, 7000 );
+		const body = screen.getByTestId( 'studio-timeline-cut-cut-b' );
+
+		fireEvent.pointerDown( body, { button: 0, pointerId: 1, clientX: 450 } );
+		rerenderSession( {
+			...session,
+			cuts: [ { id: 'cut-b', startMs: 1000, endMs: 6000 } ],
+			selectedCutId: 'cut-b',
+		} );
+
+		// Raw start 4960 → raw end 6960 with the grab-time 2000ms width: 40ms
+		// from the playhead at 7000. The merged preview's 5000ms width would
+		// find no snap target at all.
+		fireEvent.pointerMove( body, { pointerId: 1, clientX: 546 } );
+		expect( dispatch ).toHaveBeenLastCalledWith(
+			transientFromBase( { type: 'MOVE_CUT', id: 'cut-b', startMs: 5000 } )
+		);
 	} );
 
 	it( 'marks the selected cut', () => {
