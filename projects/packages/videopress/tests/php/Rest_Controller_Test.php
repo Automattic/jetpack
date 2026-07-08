@@ -157,9 +157,9 @@ class Rest_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that whitelisted params are forwarded and empty ones are omitted.
+	 * Test that allowed params are forwarded and empty ones are omitted.
 	 */
-	public function test_forwards_whitelisted_params() {
+	public function test_forwards_allowed_params() {
 		$this->get_video_plays(
 			array(
 				'period' => 'week',

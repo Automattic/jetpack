@@ -60,9 +60,9 @@ class Rest_Controller {
 
 	/**
 	 * Query params accepted by the video-plays proxy. Forwarded verbatim
-	 * to WPCOM after permission and shape validation; `complete_stats` is
-	 * always forced to `true` (the only mode the Overview cares about)
-	 * and is therefore not exposed as an incoming param.
+	 * to WPCOM after permission and shape validation. `complete_stats` and
+	 * `check_stats_module` are always forced by the callback and are
+	 * therefore not exposed as incoming params.
 	 *
 	 * @return array
 	 */
@@ -106,7 +106,7 @@ class Rest_Controller {
 	/**
 	 * Proxy the video-plays stats endpoint.
 	 *
-	 * Forwards the whitelisted query params to WPCOM (REST v1.1, blog-signed
+	 * Forwards the allowed query params to WPCOM (REST v1.1, blog-signed
 	 * — matching the existing `Stats::fetch_video_plays` path) and forces
 	 * `complete_stats=true`. `check_stats_module=false` is also forced so the
 	 * report loads for standalone VideoPress sites without the Jetpack Stats
