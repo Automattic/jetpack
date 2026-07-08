@@ -136,10 +136,8 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 		! unsupportedProvinceMapCountries.has( selectedCountryCode );
 	const useCountryFallbackMap =
 		renderGeoMode === 'region' && !! renderSelectedCountry && ! useProvinceMap;
-	const fallbackCountry =
-		geoMode === 'region' ? activeSelectedCountry ?? renderSelectedCountry : undefined;
-	const useSelectedCountryFallbackMap =
-		!! fallbackCountry && ( isPlaceholderData || useCountryFallbackMap );
+	const fallbackCountry = renderGeoMode === 'region' ? renderSelectedCountry : undefined;
+	const useSelectedCountryFallbackMap = !! fallbackCountry && useCountryFallbackMap;
 	const useCityCountryMap = renderGeoMode === 'city';
 	const cityCountryRows = useMemo( () => {
 		const countryRows = new Map< string, { countryFull: string; value: number } >();
