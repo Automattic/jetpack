@@ -59,6 +59,41 @@ Each scenario posts its metrics in a single CodeVitals call per run (one per `me
 - **On the Forms responses page specifically.** It's a shipped wp-build dashboard that loads the boot shell's editor payload; the wp-admin Dashboard does not, so the bundle-size metric is posted only for `formsResponses`.
 - **Detects a jump, doesn't attribute it.** The value sums every resource on the page, not the editor payload alone (that payload is roughly 1.3 MB of the ~8.2 MB total, about 16%). The other ~84% is ordinary page weight, so on this actively-developed dashboard most trend moves will be routine Forms feature work rather than the editor payload the metric is meant to catch. A move flags that page weight changed; confirming the cause means reading the per-resource breakdown in the saved `results.json`, not the dashboard line.
 
+### `myJetpack` — My Jetpack admin page (simulated connection)
+
+`admin.php?page=my-jetpack`, measured on the same simulated-connection instance as the Dashboard and Forms scenarios. My Jetpack is the heaviest Jetpack admin bundle (its own ~1.3 MB JS + CSS on top of core script handles), so it is the page where a bundle regression is most damaging — hence the `decodedBytesKB` metric is posted here too.
+
+The page mounts a React app: PHP emits an empty `<div id="my-jetpack-container">` and `createRoot` renders `MyJetpackScreen` into it. The scenario waits for `#my-jetpack-container .jp-admin-page` (a non-hashed class from `@automattic/jetpack-components` `AdminPage`, present only after React renders) and for the container to hydrate before measuring, so LCP and the resource payload reflect the rendered page, not the empty shell.
+
+| CodeVitals key                                         | Field            | Type             | Description                                               |
+| ------------------------------------------------------ | ---------------- | ---------------- | --------------------------------------------------------- |
+| `my-jetpack-connection-sim-largestContentfulPaint`     | `lcp`            | `lcp`            | My Jetpack LCP                                            |
+| `my-jetpack-connection-sim-timeToFirstByte`            | `ttfb`           | `ttfb`           | My Jetpack TTFB                                           |
+| `my-jetpack-connection-sim-firstContentfulPaint`       | `fcp`            | `fcp`            | My Jetpack FCP                                            |
+| `my-jetpack-connection-sim-decodedBytesKB`             | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+
+These four post straight to production keys under the same owner waiver as the Dashboard and Forms keys (see Safeguards → Staging keys).
+
+#### Requires offline mode OFF (and mirror PR [#50291](https://github.com/Automattic/jetpack/pull/50291))
+
+Two conditions must hold for My Jetpack to render in the fixture:
+
+1. **Offline mode off.** The fixture's site URL (`http://localhost:<port>`) has no dot, so `Status::is_local_site()` treats it as a local site and Jetpack enters offline mode, which makes `Initializer::should_initialize()` return false — My Jetpack never registers (no menu, no assets; the page is the generic "invalid page" admin shell). The `simulate-wpcom-connection` mu-plugin flips this with `add_filter( 'jetpack_offline_mode', '__return_false' )`. This is **install-wide** — see the attribution note below.
+2. **`wp-theme` registered.** On trunk (Jetpack 16.1+), `my_jetpack_main_app` gained a `wp-theme` script dependency via the `@wordpress/*` bump (DataViews 17.x → `@wordpress/ui` ThemeProvider → `@wordpress/theme`). WordPress < 7.0 without the Gutenberg plugin does not register `wp-theme`, so WP silently drops the app script and the container stays empty (no console error). [PR #50291](https://github.com/Automattic/jetpack/pull/50291) fixes this in `My_Jetpack\Initializer` by registering the `WP_Build_Polyfills` shim (as Forms/Social/VideoPress already do). **This scenario only measures once #50291 is in the `jetpack-production` mirror** the fixture clones; until then the My Jetpack page renders empty and the run fails its `waitForSelector`.
+
+### Offline-mode flip — attribution note
+
+This tooling flips `jetpack_offline_mode` off install-wide (required for My Jetpack, condition 1 above). Because one WordPress install serves every scenario, this shifts what the **existing** `wp-admin-dashboard-connection-sim-*` and `forms-responses-connection-sim-*` trends measure at the commit it lands: Jetpack runs more code paths when it is not offline. Locally measured before/after on the Dashboard scenario (the one existing scenario that measures cleanly here — see the Forms note below) was small: LCP 140→140 ms, TTFB 57→60 ms, FCP 140→140 ms, decodedBytesKB 4098→4205, resources 89→98. The timing metrics move within noise; the real signal is +9 resources / +107 KB decoded (the extra non-offline code paths). Expect a one-commit step of that order on those trends, not a level shift.
+
+The `forms-responses-*` trends could not be measured before/after locally: on the pinned mirror the Forms responses page's `GET /wp/v2/settings` REST request hangs server-side (>60 s, `networkidle` never settles), so every iteration times out. This is a pre-existing fixture issue on this mirror, independent of the offline flip (it hangs with offline on or off) and unrelated to this change — the Forms scenario shipped in a prior PR. Flagged here so a Forms-trend gap around this commit is not mistaken for a regression.
+
+### Known fixture behavior on the My Jetpack page
+
+Accepted as-is (mock realism is tracked in BOOST-456, not fixed here):
+
+- The page's `wpcom/v2/jetpack-partners` call falls through to the mu-plugin's generic `{"success":true}` fallback and logs a `[WPCom Simulator] Unhandled endpoint (using fallback response): …/jetpack-partners` line each load. This is expected fixture noise, not an error.
+- Calls scoped under `/sites/{id}/...` (stats, protect scan, videopress) are shadowed by the mock's `/sites/123456789` site-info branch (it precedes the `/stats/*` branches in the first-match chain) and receive site-info-shaped 200s — semantically wrong, so those cards render empty. Deterministic; fine for trend tracking.
+
 ## How It Works
 
 1. **Plugin Source**: Uses pre-built plugin from [jetpack-production](https://github.com/Automattic/jetpack-production) mirror (auto-cloned for local dev)
@@ -106,7 +141,7 @@ Add a row when a new metric type starts being posted, and set the `type` on the 
 
 Post a new metric to a `-staging` CodeVitals key first (e.g. `…-timeToFirstByte-staging`) for 2-3 builds. Inspect the values in the CodeVitals UI, then rename to the production key. This gives a safety window before a new metric reaches production.
 
-**Waiving the staging window (owner decision).** A scenario may post straight to production keys when the build owner accepts the risk, as the `formsResponses` metrics do. The waiver is not automatic — it requires all of: the `SANITY_RANGES` row + the all-or-nothing gate as the substitute guardrail, manual sign-off before the first live post, and the PR that introduces the keys listing them and naming the waiver so the impact is visible in review. A dry run's `stdDev: 0` shows repeatability, not correctness, so it is not the safeguard. The per-scenario comment in `scenarios.js` records where a waiver is in effect.
+**Waiving the staging window (owner decision).** A scenario may post straight to production keys when the build owner accepts the risk, as the `formsResponses` and `myJetpack` metrics do. The waiver is not automatic — it requires all of: the `SANITY_RANGES` row + the all-or-nothing gate as the substitute guardrail, manual sign-off before the first live post, and the PR that introduces the keys listing them and naming the waiver so the impact is visible in review. A dry run's `stdDev: 0` shows repeatability, not correctness, so it is not the safeguard. The per-scenario comment in `scenarios.js` records where a waiver is in effect.
 
 ### Capture guards for targeted-page scenarios
 

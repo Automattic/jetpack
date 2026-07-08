@@ -117,6 +117,68 @@ export const SCENARIOS = [
 		postToCodeVitals: true,
 		isBaseline: false,
 	},
+	{
+		key: 'myJetpack',
+		name: 'My Jetpack (connection sim)',
+		cliName: 'my-jetpack',
+		// Same WordPress instance as the Dashboard and Forms scenarios — just a different page —
+		// so no new Docker service is needed; only `path`/`waitForSelector` below differ.
+		dockerService: 'wordpress-jetpack-connected',
+		wpPath: '/var/www/html/jetpack-connected',
+		envVar: 'WP_JETPACK_CONNECTED_URL',
+		defaultUrl: 'http://localhost:8083',
+		header: 'My Jetpack (simulated WP.com connection)',
+		// The My Jetpack admin page — the heaviest Jetpack admin bundle. PHP emits an empty
+		// `<div id="my-jetpack-container">` and React (createRoot) renders MyJetpackScreen into
+		// it, so measure-lcp.js waits for the AdminPage frame (`.jp-admin-page`, a non-hashed
+		// class from @automattic/jetpack-components) to appear AND the container to hydrate
+		// (gain children) before measuring — the empty shell would otherwise mismeasure LCP and
+		// undercount the bundle payload.
+		//
+		// Requires offline mode OFF (Status::is_offline_mode() gates
+		// Initializer::should_initialize(); localhost has no dot so the fixture is "local" =
+		// offline by default): the simulate-wpcom-connection mu-plugin flips it. See the README
+		// offline-mode attribution note.
+		path: '/wp-admin/admin.php?page=my-jetpack',
+		waitForSelector: '#my-jetpack-container .jp-admin-page',
+		expectUrlIncludes: 'page=my-jetpack',
+		// A healthy load of this page fetches ~92 resources (dead-stable across iterations locally);
+		// measure-lcp.js fails the run if it captures fewer than this floor, so a truncated/partial
+		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the observed
+		// count (count-based, not asset-based) so it only catches gross capture truncation.
+		minResourceCount: 64,
+		// These four post straight to PRODUCTION keys — the `-staging` window in the README
+		// Safeguards is deliberately waived here (owner decision, Liam 2026-07-08), same rationale
+		// and substitute guardrails (SANITY_RANGES + all-or-nothing gate + manual sign-off) as the
+		// wp-admin-dashboard and forms-responses keys.
+		metrics: [
+			{
+				field: 'lcp',
+				codevitalsKey: 'my-jetpack-connection-sim-largestContentfulPaint',
+				type: 'lcp',
+			},
+			{
+				field: 'ttfb',
+				codevitalsKey: 'my-jetpack-connection-sim-timeToFirstByte',
+				type: 'ttfb',
+			},
+			{
+				field: 'fcp',
+				codevitalsKey: 'my-jetpack-connection-sim-firstContentfulPaint',
+				type: 'fcp',
+			},
+			{
+				// The bundle-size metric: summed per-resource decodedBodySize in KB (see
+				// measure-lcp.js). My Jetpack is the heaviest Jetpack admin bundle, so this is
+				// the surface a bundle regression is most damaging on.
+				field: 'decodedBytesKB',
+				codevitalsKey: 'my-jetpack-connection-sim-decodedBytesKB',
+				type: 'decodedBytesKB',
+			},
+		],
+		postToCodeVitals: true,
+		isBaseline: false,
+	},
 ];
 
 /**

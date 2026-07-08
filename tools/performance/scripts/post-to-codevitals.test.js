@@ -51,6 +51,10 @@ const FORMS_LCP_KEY = 'forms-responses-connection-sim-largestContentfulPaint';
 const FORMS_TTFB_KEY = 'forms-responses-connection-sim-timeToFirstByte';
 const FORMS_FCP_KEY = 'forms-responses-connection-sim-firstContentfulPaint';
 const FORMS_DECODED_KEY = 'forms-responses-connection-sim-decodedBytesKB';
+const MJ_LCP_KEY = 'my-jetpack-connection-sim-largestContentfulPaint';
+const MJ_TTFB_KEY = 'my-jetpack-connection-sim-timeToFirstByte';
+const MJ_FCP_KEY = 'my-jetpack-connection-sim-firstContentfulPaint';
+const MJ_DECODED_KEY = 'my-jetpack-connection-sim-decodedBytesKB';
 
 /**
  * Build the nested per-field summary the multi-metric jetpackConnected scenario reads.
@@ -483,6 +487,43 @@ test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to prod
 	assert.ok(
 		scenario.minResourceCount >= 40 && scenario.minResourceCount < 80,
 		'formsResponses must declare a resource-count floor of >=40 and below the real ~80-resource load'
+	);
+} );
+
+test( 'the myJetpack scenario posts LCP, TTFB, FCP and decodedBytes to production keys', () => {
+	// Pins the FORMS-717 config: the My Jetpack admin page (the heaviest Jetpack admin bundle)
+	// carries the bundle-size metric (summary.decodedBytesKB.median) alongside the timing metrics,
+	// each on its own production key. A dropped/renamed key, or a decoded metric with no type
+	// (which would post unchecked), fails here rather than silently in the append-only store.
+	const scenario = SCENARIOS.find( s => s.key === 'myJetpack' );
+	assert.ok( scenario, 'myJetpack scenario must exist' );
+	assert.ok( Array.isArray( scenario.metrics ), 'myJetpack must use the metrics array' );
+	assert.deepEqual(
+		scenario.metrics.map( m => ( {
+			field: m.field,
+			codevitalsKey: m.codevitalsKey,
+			type: m.type,
+		} ) ),
+		[
+			{ field: 'lcp', codevitalsKey: MJ_LCP_KEY, type: 'lcp' },
+			{ field: 'ttfb', codevitalsKey: MJ_TTFB_KEY, type: 'ttfb' },
+			{ field: 'fcp', codevitalsKey: MJ_FCP_KEY, type: 'fcp' },
+			{ field: 'decodedBytesKB', codevitalsKey: MJ_DECODED_KEY, type: 'decodedBytesKB' },
+		]
+	);
+	// The page-navigation contract measure-lcp.js reads: a target path + a hydration selector.
+	// The selector is the AdminPage frame that appears only after React renders MyJetpackScreen
+	// into the (initially empty) container, so a run measures the rendered app, not the shell.
+	assert.equal( scenario.path, '/wp-admin/admin.php?page=my-jetpack' );
+	assert.equal( scenario.waitForSelector, '#my-jetpack-container .jp-admin-page' );
+	// measure-lcp.js fails the run if the final URL does not contain this, so a redirect off the
+	// page (e.g. to the onboarding step) cannot quietly populate the My Jetpack keys.
+	assert.equal( scenario.expectUrlIncludes, 'page=my-jetpack' );
+	// A resource-count floor so a partial capture can't post an undercounted decodedBytesKB.
+	// Kept below the typical ~90-resource load so it never clips a legitimate bundle drop.
+	assert.ok(
+		scenario.minResourceCount >= 40 && scenario.minResourceCount < 90,
+		'myJetpack must declare a resource-count floor of >=40 and below the typical ~90-resource load'
 	);
 } );
 
