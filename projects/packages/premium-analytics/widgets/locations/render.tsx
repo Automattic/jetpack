@@ -50,11 +50,12 @@ type GoogleChartsWindow = Window & {
 };
 
 const MISSING_MAP_ERROR_MESSAGE = 'Requested map does not exist';
-// Google GeoChart has no `provinces` map file for these countries. Unknown
-// countries are detected at runtime via the GeoChart `onError` callback and
-// fall back the same way; listing a country here is just a fast path that
-// skips the failed draw (and its brief error flash) entirely.
-const KNOWN_UNSUPPORTED_PROVINCE_MAP_COUNTRIES = [ 'SG', 'TW' ];
+// Google GeoChart has no `provinces` map file for some countries (e.g. TW, SG).
+// There is no upstream list of them; each is learned at runtime when its
+// provinces draw fails, via the GeoChart `onError` callback. This module-level
+// cache carries what was learned across widget remounts, so within one page
+// load each country pays the failed draw (a brief error flash) at most once.
+const runtimeUnsupportedProvinceMapCountries = new Set< string >();
 
 function getGeoChartCountryId( countryCode: string ): string {
 	if ( countryCode.toUpperCase() === 'TW' ) {
@@ -74,7 +75,7 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
 		Set< string >
-	>( () => new Set( KNOWN_UNSUPPORTED_PROVINCE_MAP_COUNTRIES ) );
+	>( () => new Set( runtimeUnsupportedProvinceMapCountries ) );
 
 	const {
 		drillDownItem: selectedCountry,
@@ -182,6 +183,7 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 				return;
 			}
 
+			runtimeUnsupportedProvinceMapCountries.add( selectedCountryCode );
 			setUnsupportedProvinceMapCountries( previous => {
 				if ( previous.has( selectedCountryCode ) ) {
 					return previous;
