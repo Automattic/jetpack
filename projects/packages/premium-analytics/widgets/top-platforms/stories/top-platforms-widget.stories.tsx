@@ -10,7 +10,7 @@ import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/storie
 import TopPlatformsRender from '../render';
 import widgetDefinition, { type TopPlatformsAttributes } from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
@@ -22,6 +22,10 @@ const storyWidgetType = {
 	name: widgetDefinition.name,
 	title: widgetDefinition.title,
 	icon: widgetDefinition.icon,
+	// attributes/example let the dashboard host render the real "View by"
+	// toolbar control for the `relevance: 'high'` attribute, as in Locations.
+	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
+	example: widgetDefinition.example,
 	presentation: 'framed' as const,
 };
 
