@@ -1,18 +1,14 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-// True-ESM Jest (`--experimental-vm-modules`): stub the REST/notices edge with
+// True-ESM Jest (`--experimental-vm-modules`): stub the core-data/notices edge with
 // `jest.unstable_mockModule`, then import the card dynamically. The card owns
-// the useAuthorProfile hook, which reads and writes the current user through
-// core's users endpoint — mocked here so the tests exercise the real hook,
+// the useAuthorProfile hook, which reads and writes the current user through the
+// core-data user entity — mocked here so the tests exercise the real hook,
 // section, and card UI without a network.
-const mockApiFetch = jest.fn< ( options: unknown ) => Promise< unknown > >();
-const createInfoNotice = jest.fn();
-const createSuccessNotice = jest.fn();
-const createErrorNotice = jest.fn();
-
 const AUTHOR_RESPONSE = {
+	id: 123,
 	name: 'Jane Doe',
 	description: 'Writes about search.',
 	url: 'https://example.com/jane/',
@@ -23,33 +19,51 @@ const AUTHOR_RESPONSE = {
 	},
 };
 
-const mockAuthorApi = () => {
-	mockApiFetch.mockImplementation( options => {
-		const request = options as { path?: string; method?: string; data?: Record< string, unknown > };
-		if ( '/wp/v2/users/me?context=edit' === request.path ) {
-			return Promise.resolve( AUTHOR_RESPONSE );
-		}
-		if ( '/wp/v2/users/me' === request.path && 'POST' === request.method ) {
-			const data = request.data ?? {};
-			return Promise.resolve( {
-				...AUTHOR_RESPONSE,
-				name: data.name,
-				description: data.description,
-				url: data.url,
-				meta: data.meta,
-			} );
-		}
-		return Promise.resolve( {} );
-	} );
+const saveEntityRecord =
+	jest.fn<
+		( kind: string, name: string, record: unknown, options: unknown ) => Promise< unknown >
+	>();
+const useEntityRecord = jest.fn();
+const createInfoNotice = jest.fn();
+const createSuccessNotice = jest.fn();
+const createErrorNotice = jest.fn();
+let currentUser: { id?: number } | undefined;
+let currentUserResolutionStatus: 'resolving' | 'finished' | 'error';
+let entityRecord: typeof AUTHOR_RESPONSE | null;
+let entityHasResolved: boolean;
+let entityIsResolving: boolean;
+let entityStatus: 'IDLE' | 'RESOLVING' | 'SUCCESS' | 'ERROR';
+
+const mockAuthorEntity = () => {
+	currentUser = { id: AUTHOR_RESPONSE.id };
+	currentUserResolutionStatus = 'finished';
+	entityRecord = AUTHOR_RESPONSE;
+	entityHasResolved = true;
+	entityIsResolving = false;
+	entityStatus = 'SUCCESS';
+	saveEntityRecord.mockImplementation( ( _kind, _name, record ) =>
+		Promise.resolve( { ...AUTHOR_RESPONSE, ...( record as Record< string, unknown > ) } )
+	);
 };
 
-jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: mockApiFetch } ) );
+jest.unstable_mockModule( '@wordpress/core-data', () => ( {
+	store: 'core',
+	useEntityRecord,
+} ) );
 jest.unstable_mockModule( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.unstable_mockModule( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' ) as object;
 	return {
 		...actual,
-		useDispatch: () => ( { createInfoNotice, createSuccessNotice, createErrorNotice } ),
+		useDispatch: ( store: string ) =>
+			'core' === store
+				? { saveEntityRecord }
+				: { createInfoNotice, createSuccessNotice, createErrorNotice },
+		useSelect: ( callback: ( select: ( store: string ) => unknown ) => unknown ) =>
+			callback( () => ( {
+				getCurrentUser: () => currentUser,
+				getResolutionState: () => ( { status: currentUserResolutionStatus } ),
+			} ) ),
 	};
 } );
 
@@ -64,8 +78,19 @@ const expand = () =>
 describe( 'AuthorProfileCard', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		// Default: a fetch that never settles, so tests of the loading state are stable.
-		mockApiFetch.mockImplementation( () => new Promise( () => {} ) );
+		currentUser = undefined;
+		currentUserResolutionStatus = 'resolving';
+		entityRecord = null;
+		entityHasResolved = false;
+		entityIsResolving = false;
+		entityStatus = 'IDLE';
+		useEntityRecord.mockImplementation( () => ( {
+			record: entityRecord,
+			isResolving: entityIsResolving,
+			hasResolved: entityHasResolved,
+			status: entityStatus,
+		} ) );
+		saveEntityRecord.mockImplementation( () => new Promise( () => {} ) );
 	} );
 
 	it( 'renders collapsed by default, without a badge while loading', () => {
@@ -78,8 +103,16 @@ describe( 'AuthorProfileCard', () => {
 		expect( screen.queryByText( 'Not set' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'keeps loading when core-data returns the initial empty current user', () => {
+		currentUser = {};
+		renderCard();
+
+		expect( screen.queryByText( 'Not set' ) ).not.toBeInTheDocument();
+		expect( createErrorNotice ).not.toHaveBeenCalled();
+	} );
+
 	it( 'renders the fields from the current user and counts them in the header badge', async () => {
-		mockAuthorApi();
+		mockAuthorEntity();
 		renderCard();
 		expand();
 
@@ -96,8 +129,8 @@ describe( 'AuthorProfileCard', () => {
 		expect( screen.getByText( '4 of 4 set' ) ).toBeInTheDocument();
 	} );
 
-	it( 'saves changes through core users REST', async () => {
-		mockAuthorApi();
+	it( 'saves changes through the core user entity', async () => {
+		mockAuthorEntity();
 		renderCard();
 		expand();
 
@@ -107,19 +140,15 @@ describe( 'AuthorProfileCard', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
 		fireEvent.click( screen.getByRole( 'button', { name: /Save author profile/ } ) );
 
-		const post = await waitFor( () => {
-			const found = mockApiFetch.mock.calls.find(
-				( [ options ] ) =>
-					( options as { path?: string; method?: string } ).path === '/wp/v2/users/me' &&
-					( options as { path?: string; method?: string } ).method === 'POST'
-			);
-			expect( found ).toBeDefined();
-			return found;
+		const save = await waitFor( () => {
+			expect( saveEntityRecord ).toHaveBeenCalled();
+			return saveEntityRecord.mock.calls[ 0 ];
 		} );
-		expect( post?.[ 0 ] ).toMatchObject( {
-			path: '/wp/v2/users/me',
-			method: 'POST',
-			data: {
+		expect( save ).toEqual( [
+			'root',
+			'user',
+			{
+				id: AUTHOR_RESPONSE.id,
 				name: 'Jane Doe',
 				description: 'Writes about search.',
 				url: 'https://example.com/jane/',
@@ -128,6 +157,36 @@ describe( 'AuthorProfileCard', () => {
 					jetpack_seo_same_as: [ 'https://x.com/jane' ],
 				},
 			},
+			{ throwOnError: true },
+		] );
+	} );
+
+	it( 'does not update state after unmounting during save', async () => {
+		mockAuthorEntity();
+		let resolveSave: ( value: unknown ) => void = () => {};
+		saveEntityRecord.mockImplementation(
+			() =>
+				new Promise( resolve => {
+					resolveSave = resolve;
+				} )
+		);
+		const { unmount } = renderCard();
+		expand();
+
+		const jobTitle = await screen.findByRole( 'textbox', { name: /Job title/ } );
+		// eslint-disable-next-line testing-library/prefer-user-event -- single change; see note above.
+		fireEvent.change( jobTitle, { target: { value: 'Lead Creator' } } );
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'button', { name: /Save author profile/ } ) );
+		expect( saveEntityRecord ).toHaveBeenCalled();
+
+		unmount();
+		await act( async () => {
+			resolveSave( AUTHOR_RESPONSE );
+			await Promise.resolve();
 		} );
+
+		expect( createSuccessNotice ).not.toHaveBeenCalled();
+		expect( createErrorNotice ).not.toHaveBeenCalled();
 	} );
 } );

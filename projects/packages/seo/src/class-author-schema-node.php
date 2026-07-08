@@ -155,25 +155,35 @@ class Author_Schema_Node {
 	 * @return void
 	 */
 	public static function render_profile_fields( WP_User $user ) {
-		$same_as = self::sanitize_url_list( get_user_meta( $user->ID, self::META_SAME_AS, true ) );
-		?>
-		<h2><?php esc_html_e( 'Jetpack SEO author schema', 'jetpack-seo' ); ?></h2>
-		<table class="form-table" role="presentation">
-			<tr>
-				<th><label for="<?php echo esc_attr( self::META_JOB_TITLE ); ?>"><?php esc_html_e( 'Job title', 'jetpack-seo' ); ?></label></th>
-				<td>
-					<input type="text" class="regular-text" name="<?php echo esc_attr( self::META_JOB_TITLE ); ?>" id="<?php echo esc_attr( self::META_JOB_TITLE ); ?>" value="<?php echo esc_attr( get_user_meta( $user->ID, self::META_JOB_TITLE, true ) ); ?>" />
-				</td>
-			</tr>
-			<tr>
-				<th><label for="<?php echo esc_attr( self::META_SAME_AS ); ?>"><?php esc_html_e( 'Profile links', 'jetpack-seo' ); ?></label></th>
-				<td>
-					<textarea class="large-text code" rows="5" name="<?php echo esc_attr( self::META_SAME_AS ); ?>" id="<?php echo esc_attr( self::META_SAME_AS ); ?>"><?php echo esc_textarea( implode( "\n", $same_as ) ); ?></textarea>
-					<p class="description"><?php esc_html_e( 'One public profile URL per line.', 'jetpack-seo' ); ?></p>
-				</td>
-			</tr>
-		</table>
-		<?php
+		$job_field   = self::META_JOB_TITLE;
+		$links_field = self::META_SAME_AS;
+		$job_title   = get_user_meta( $user->ID, $job_field, true );
+		$same_as     = self::sanitize_url_list( get_user_meta( $user->ID, $links_field, true ) );
+
+		printf(
+			'<h2>%1$s</h2>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th><label for="%2$s">%3$s</label></th>
+					<td><input type="text" class="regular-text" name="%2$s" id="%2$s" value="%4$s" /></td>
+				</tr>
+				<tr>
+					<th><label for="%5$s">%6$s</label></th>
+					<td>
+						<textarea class="large-text code" rows="5" name="%5$s" id="%5$s">%7$s</textarea>
+						<p class="description">%8$s</p>
+					</td>
+				</tr>
+			</table>',
+			esc_html__( 'Jetpack SEO author schema', 'jetpack-seo' ),
+			esc_attr( $job_field ),
+			esc_html__( 'Job title', 'jetpack-seo' ),
+			esc_attr( $job_title ),
+			esc_attr( $links_field ),
+			esc_html__( 'Profile links', 'jetpack-seo' ),
+			esc_textarea( implode( "\n", $same_as ) ),
+			esc_html__( 'One public profile URL per line.', 'jetpack-seo' )
+		);
 	}
 
 	/**

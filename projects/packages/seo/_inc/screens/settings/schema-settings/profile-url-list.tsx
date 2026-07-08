@@ -3,6 +3,7 @@
 import { Button, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
+import clsx from 'clsx';
 import { normalizeProfileUrl } from '../../../data/schema-settings-utils';
 import type { FC } from 'react';
 
@@ -55,10 +56,9 @@ const ProfileUrlList: FC< Props > = ( { label, help, urls, onChange, disabled } 
 				return (
 					<Stack key={ index } direction="row" gap="sm" align="flex-start" wrap="wrap">
 						<div
-							className={
-								'jetpack-seo-settings__schema-profile-input' +
-								( profileError ? ' jetpack-seo-settings__schema-profile-input--error' : '' )
-							}
+							className={ clsx( 'jetpack-seo-settings__schema-profile-input', {
+								'jetpack-seo-settings__schema-profile-input--error': profileError,
+							} ) }
 						>
 							<TextControl
 								label={ __( 'Profile URL', 'jetpack-seo' ) }

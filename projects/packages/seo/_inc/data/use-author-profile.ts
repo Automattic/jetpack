@@ -1,12 +1,10 @@
-import apiFetch from '@wordpress/api-fetch';
-import { useDispatch } from '@wordpress/data';
+import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { cleanProfileUrls } from './schema-settings-utils';
 
-const ENDPOINT = '/wp/v2/users/me';
-const EDIT_ENDPOINT = `${ ENDPOINT }?context=edit`;
 const NOTICE_ID = 'jetpack-seo-author-profile';
 
 export interface AuthorProfile {
@@ -28,7 +26,8 @@ export interface AuthorProfileForm {
 	save: () => void;
 }
 
-interface UserMeResponse {
+interface UserRecord {
+	id?: number;
 	name?: string;
 	description?: string;
 	url?: string;
@@ -37,6 +36,20 @@ interface UserMeResponse {
 		jetpack_seo_job_title?: string;
 		jetpack_seo_same_as?: unknown;
 	};
+}
+
+interface CoreDataSelect {
+	getCurrentUser: () => { id?: number } | undefined;
+	getResolutionState: ( selectorName: string, args: unknown[] ) => { status?: string } | undefined;
+}
+
+interface CoreDataDispatch {
+	saveEntityRecord: (
+		kind: string,
+		name: string,
+		record: UserRecord,
+		options: { throwOnError: boolean }
+	) => Promise< UserRecord | undefined >;
 }
 
 const EMPTY_PROFILE: AuthorProfile = {
@@ -52,7 +65,7 @@ const stringsFromMeta = ( value: unknown ): string[] =>
 		? value.filter( ( item ): item is string => typeof item === 'string' )
 		: [];
 
-const fromUser = ( user: UserMeResponse ): { profile: AuthorProfile; avatarUrl: string } => ( {
+const fromUser = ( user: UserRecord ): { profile: AuthorProfile; avatarUrl: string } => ( {
 	profile: {
 		name: user.name ?? '',
 		description: user.description ?? '',
@@ -73,54 +86,78 @@ const cleanAuthorProfile = ( profile: AuthorProfile ): AuthorProfile => ( {
 
 /**
  * Owns the Author profile form in the Schema settings card. Values read/write
- * the current WordPress user through core's users REST endpoint.
+ * the current WordPress user through core-data's user entity.
  *
  * @return The Author profile form controller.
  */
 export function useAuthorProfile(): AuthorProfileForm {
 	const [ profile, setProfile ] = useState< AuthorProfile >( EMPTY_PROFILE );
 	const [ avatarUrl, setAvatarUrl ] = useState( '' );
-	const [ isLoading, setIsLoading ] = useState( true );
-	const [ hasLoadError, setHasLoadError ] = useState( false );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ isDirty, setIsDirty ] = useState( false );
+	const { saveEntityRecord } = useDispatch( coreStore ) as CoreDataDispatch;
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const baselineRef = useRef< AuthorProfile >( EMPTY_PROFILE );
+	const isMountedRef = useRef( false );
+	const loadErrorNoticedRef = useRef( false );
+
+	const { currentUserId, currentUserHasResolved, currentUserHasLoadError } = useSelect( select => {
+		const core = select( coreStore ) as CoreDataSelect;
+		const currentUser = core.getCurrentUser();
+		const status = core.getResolutionState( 'getCurrentUser', [] )?.status;
+		return {
+			currentUserId: currentUser?.id ?? 0,
+			currentUserHasResolved: !! currentUser?.id || 'finished' === status || 'error' === status,
+			currentUserHasLoadError: 'error' === status,
+		};
+	}, [] );
+
+	const userEntity = useEntityRecord< UserRecord >( 'root', 'user', currentUserId, {
+		enabled: !! currentUserId,
+	} );
+	const hasLoadError =
+		currentUserHasLoadError ||
+		( currentUserHasResolved && ! currentUserId ) ||
+		'ERROR' === userEntity.status ||
+		( userEntity.hasResolved && ! userEntity.record );
+	const isLoading =
+		! hasLoadError &&
+		( ! currentUserHasResolved ||
+			userEntity.isResolving ||
+			( !! currentUserId && ! userEntity.hasResolved && ! userEntity.record ) );
 
 	useEffect( () => {
-		let isMounted = true;
-		apiFetch< UserMeResponse >( { path: EDIT_ENDPOINT } )
-			.then( user => {
-				if ( ! isMounted ) {
-					return;
-				}
-				const next = fromUser( user );
-				baselineRef.current = cleanAuthorProfile( next.profile );
-				setProfile( next.profile );
-				setAvatarUrl( next.avatarUrl );
-				setIsDirty( false );
-				setHasLoadError( false );
-			} )
-			.catch( ( error: { message?: string } ) => {
-				if ( ! isMounted ) {
-					return;
-				}
-				setHasLoadError( true );
-				createErrorNotice(
-					error?.message ??
-						__( 'Could not load author profile settings. Please try again.', 'jetpack-seo' ),
-					{ id: NOTICE_ID, type: 'snackbar' }
-				);
-			} )
-			.finally( () => {
-				if ( isMounted ) {
-					setIsLoading( false );
-				}
-			} );
+		isMountedRef.current = true;
 		return () => {
-			isMounted = false;
+			isMountedRef.current = false;
 		};
-	}, [ createErrorNotice ] );
+	}, [] );
+
+	useEffect( () => {
+		if ( ! userEntity.record ) {
+			return;
+		}
+		const next = fromUser( userEntity.record );
+		baselineRef.current = cleanAuthorProfile( next.profile );
+		setProfile( next.profile );
+		setAvatarUrl( next.avatarUrl );
+		setIsDirty( false );
+		loadErrorNoticedRef.current = false;
+	}, [ userEntity.record ] );
+
+	useEffect( () => {
+		if ( ! hasLoadError || isLoading || loadErrorNoticedRef.current ) {
+			return;
+		}
+		loadErrorNoticedRef.current = true;
+		createErrorNotice(
+			__( 'Could not load author profile settings. Please try again.', 'jetpack-seo' ),
+			{
+				id: NOTICE_ID,
+				type: 'snackbar',
+			}
+		);
+	}, [ hasLoadError, isLoading, createErrorNotice ] );
 
 	const setProfileField = useCallback( ( patch: Partial< AuthorProfile > ) => {
 		setProfile( current => {
@@ -133,7 +170,7 @@ export function useAuthorProfile(): AuthorProfileForm {
 	}, [] );
 
 	const save = useCallback( () => {
-		if ( isSaving ) {
+		if ( isSaving || hasLoadError || ! currentUserId ) {
 			return;
 		}
 
@@ -152,10 +189,11 @@ export function useAuthorProfile(): AuthorProfileForm {
 			type: 'snackbar',
 			isDismissible: false,
 		} );
-		apiFetch< UserMeResponse >( {
-			path: ENDPOINT,
-			method: 'POST',
-			data: {
+		saveEntityRecord(
+			'root',
+			'user',
+			{
+				id: currentUserId,
 				name: clean.name,
 				description: clean.description,
 				url: clean.url,
@@ -164,8 +202,17 @@ export function useAuthorProfile(): AuthorProfileForm {
 					jetpack_seo_same_as: clean.sameAs,
 				},
 			},
-		} )
+			{ throwOnError: true }
+		)
 			.then( user => {
+				if ( ! isMountedRef.current ) {
+					return;
+				}
+				if ( ! user ) {
+					throw new Error(
+						__( 'Could not save author profile. Please try again.', 'jetpack-seo' )
+					);
+				}
 				const next = fromUser( user );
 				baselineRef.current = cleanAuthorProfile( next.profile );
 				setProfile( next.profile );
@@ -177,13 +224,29 @@ export function useAuthorProfile(): AuthorProfileForm {
 				} );
 			} )
 			.catch( ( error: { message?: string } ) => {
+				if ( ! isMountedRef.current ) {
+					return;
+				}
 				createErrorNotice(
 					error?.message ?? __( 'Could not save author profile. Please try again.', 'jetpack-seo' ),
 					{ id: NOTICE_ID, type: 'snackbar' }
 				);
 			} )
-			.finally( () => setIsSaving( false ) );
-	}, [ profile, isSaving, createInfoNotice, createSuccessNotice, createErrorNotice ] );
+			.finally( () => {
+				if ( isMountedRef.current ) {
+					setIsSaving( false );
+				}
+			} );
+	}, [
+		profile,
+		isSaving,
+		hasLoadError,
+		currentUserId,
+		saveEntityRecord,
+		createInfoNotice,
+		createSuccessNotice,
+		createErrorNotice,
+	] );
 
 	return {
 		profile,
