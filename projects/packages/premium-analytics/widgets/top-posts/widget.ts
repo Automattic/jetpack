@@ -13,11 +13,18 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  */
 export type TopPostsAttributes = {
 	/**
-	 * Maximum number of posts to display.
+	 * Maximum number of rows to display.
 	 */
 	num?: number;
 	/**
-	 * Post type(s) to keep. When undefined or empty, all types are shown.
+	 * Which top-pages source to display.
+	 */
+	contentType?: 'posts-pages' | 'archive';
+	/**
+	 * Post type(s) to keep. When undefined or empty, posts and pages are shown.
+	 *
+	 * @deprecated Use `contentType`. Kept so existing widget instances that
+	 * filtered to posts or pages continue to render as saved.
 	 */
 	postType?: string | string[];
 };
@@ -26,7 +33,7 @@ export type TopPostsAttributes = {
  * Widget type definition.
  *
  * `example.attributes` doubles as the defaults applied to new instances: ten
- * posts, all post types. The date range comes from the dashboard picker.
+ * rows, posts and pages. The date range comes from the dashboard picker.
  */
 export default {
 	name: 'jpa/stats-top-posts',
@@ -39,19 +46,26 @@ export default {
 			type: 'integer',
 		},
 		{
-			id: 'postType',
-			label: __( 'Post type', 'jetpack-premium-analytics' ),
+			id: 'contentType',
+			label: __( 'View by', 'jetpack-premium-analytics' ),
 			type: 'text',
 			elements: [
-				{ label: __( 'All', 'jetpack-premium-analytics' ), value: '' },
-				{ label: __( 'Posts', 'jetpack-premium-analytics' ), value: 'post' },
-				{ label: __( 'Pages', 'jetpack-premium-analytics' ), value: 'page' },
+				{
+					label: __( 'Posts & Pages', 'jetpack-premium-analytics' ),
+					value: 'posts-pages',
+				},
+				{
+					label: __( 'Archive', 'jetpack-premium-analytics' ),
+					value: 'archive',
+				},
 			],
+			relevance: 'high',
 		},
 	] as WidgetAttributeField< TopPostsAttributes >[],
 	example: {
 		attributes: {
 			num: 10,
+			contentType: 'posts-pages',
 		},
 	},
 };

@@ -1,4 +1,5 @@
-.labelLink {
+.labelLink,
+.labelText {
 	display: block;
 
 	/* Vertical padding sets the overlay bar height — the bar fills the row,

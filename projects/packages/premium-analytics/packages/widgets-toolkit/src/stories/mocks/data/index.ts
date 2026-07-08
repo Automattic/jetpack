@@ -64,6 +64,12 @@ export {
 
 export { mockSearchTermsData, mockSearchTermsComparisonData } from './search-terms';
 export { mockTopAuthorsData, mockTopAuthorsComparisonData } from './top-authors';
+export {
+	mockArchivesComparisonData,
+	mockArchivesData,
+	mockTopPostsComparisonData,
+	mockTopPostsData,
+} from './top-posts';
 
 export { mockSiteSummary } from './site-summary';
 

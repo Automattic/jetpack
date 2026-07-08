@@ -49,6 +49,10 @@ import {
 	mockSearchTermsComparisonData,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
+	mockArchivesComparisonData,
+	mockArchivesData,
+	mockTopPostsComparisonData,
+	mockTopPostsData,
 	mockSiteSummary,
 	mockStatsInsightsData,
 } from './data';
@@ -853,6 +857,10 @@ function routeStatsReport( subPath: string ): unknown {
 			return nextIsComparison( 'stats/top-authors' )
 				? mockTopAuthorsComparisonData
 				: mockTopAuthorsData;
+		case '/top-posts':
+			return nextIsComparison( 'stats/top-posts' ) ? mockTopPostsComparisonData : mockTopPostsData;
+		case '/archives':
+			return nextIsComparison( 'stats/archives' ) ? mockArchivesComparisonData : mockArchivesData;
 		case '/insights':
 			return mockStatsInsightsData;
 		default:

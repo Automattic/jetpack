@@ -43,8 +43,44 @@ const TOP_POSTS_RESPONSE = {
 				type: 'page',
 				views: 7,
 			},
+			{
+				id: 0,
+				href: 'https://example.com/',
+				date: null,
+				title: 'Home page / Archives',
+				type: 'homepage',
+				views: 5,
+			},
 		],
-		total_views: 49,
+		total_views: 54,
+	},
+};
+
+const ARCHIVES_RESPONSE = {
+	date: '2026-06-10',
+	days: {},
+	summary: {
+		cat: [
+			{
+				href: 'https://example.com/category/news/',
+				value: 'News',
+				views: 31,
+			},
+		],
+		date: [
+			{
+				href: 'https://example.com/2026/06/',
+				value: '2026/06',
+				views: 12,
+			},
+		],
+		home: [
+			{
+				href: 'https://example.com/',
+				value: 'home',
+				views: 5,
+			},
+		],
 	},
 };
 
@@ -65,6 +101,7 @@ describe( 'TopPostsWidget', () => {
 		const link = await screen.findByRole( 'link', { name: /Hello World Post/ } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Home page / Archives' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'filters rows by post type when the postType attribute is set', async () => {
@@ -72,6 +109,25 @@ describe( 'TopPostsWidget', () => {
 
 		await expect( screen.findByText( 'About Page' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Hello World Post' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders archive rows when the contentType attribute is set to archive', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve( path.includes( 'stats/archives' ) ? ARCHIVES_RESPONSE : TOP_POSTS_RESPONSE )
+		);
+
+		render( <TopPostsWidget attributes={ { num: 10, contentType: 'archive' } } /> );
+
+		const archiveLink = await screen.findByRole( 'link', { name: /News/ } );
+		expect( archiveLink ).toHaveAttribute( 'href', 'https://example.com/category/news/' );
+		expect( screen.getByText( '2026/06' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Home page / Archives' ) ).toBeInTheDocument();
+
+		const requestedPaths = mockApiFetch.mock.calls.map(
+			( [ { path } ]: [ { path: string } ] ) => path
+		);
+		expect( requestedPaths.some( p => p.includes( 'stats/archives' ) ) ).toBe( true );
+		expect( requestedPaths.some( p => p.includes( 'stats/top-posts' ) ) ).toBe( false );
 	} );
 
 	it( 'requests the dashboard date range from report params', async () => {
@@ -146,6 +202,71 @@ describe( 'TopPostsWidget', () => {
 		expect(
 			requestedPaths.some(
 				p => p.includes( 'start_date=2026-02-01' ) && p.includes( 'date=2026-02-10' )
+			)
+		).toBe( true );
+	} );
+
+	it( 'requests archive comparison data and aligns previous views by archive URL', async () => {
+		const comparisonArchivesResponse = {
+			date: '2026-02-10',
+			days: {},
+			summary: {
+				cat: [
+					{
+						href: 'https://example.com/category/news/',
+						value: 'News',
+						views: 18,
+					},
+				],
+			},
+		};
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+			if ( path.includes( 'stats/archives' ) && path.includes( 'date=2026-02-10' ) ) {
+				return Promise.resolve( comparisonArchivesResponse );
+			}
+
+			if ( path.includes( 'stats/archives' ) ) {
+				return Promise.resolve( ARCHIVES_RESPONSE );
+			}
+
+			return Promise.resolve( TOP_POSTS_RESPONSE );
+		} );
+
+		render(
+			<TopPostsWidget
+				attributes={ {
+					num: 10,
+					contentType: 'archive',
+					reportParams: {
+						from: '2026-03-01',
+						to: '2026-03-10',
+						comp: '1',
+						compare_from: '2026-02-01',
+						compare_to: '2026-02-10',
+					},
+				} }
+			/>
+		);
+
+		await expect( screen.findByRole( 'link', { name: /News/ } ) ).resolves.toBeInTheDocument();
+
+		const requestedPaths = mockApiFetch.mock.calls.map(
+			( [ { path } ]: [ { path: string } ] ) => path
+		);
+		expect(
+			requestedPaths.some(
+				p =>
+					p.includes( 'stats/archives' ) &&
+					p.includes( 'start_date=2026-03-01' ) &&
+					p.includes( 'date=2026-03-10' )
+			)
+		).toBe( true );
+		expect(
+			requestedPaths.some(
+				p =>
+					p.includes( 'stats/archives' ) &&
+					p.includes( 'start_date=2026-02-01' ) &&
+					p.includes( 'date=2026-02-10' )
 			)
 		).toBe( true );
 	} );
