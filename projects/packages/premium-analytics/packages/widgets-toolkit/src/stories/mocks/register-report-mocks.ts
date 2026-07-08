@@ -47,6 +47,7 @@ import {
 	mockCustomersByDateComparisonData,
 	mockSearchTermsData,
 	mockSearchTermsComparisonData,
+	mockSingleVideoData,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
@@ -873,6 +874,11 @@ function buildEmailSummaryResponse() {
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeStatsReport( subPath: string ): unknown {
+	// Single-video detail: `/video/{postId}` (drives the "Video embeds" widget).
+	if ( /^\/video\/\d+$/.test( subPath ) ) {
+		return mockSingleVideoData;
+	}
+
 	switch ( subPath ) {
 		case '':
 			// Site summary — the bare `/stats` endpoint (all-time totals).

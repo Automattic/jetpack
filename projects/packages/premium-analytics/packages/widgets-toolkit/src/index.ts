@@ -31,6 +31,8 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	ChartEmptyState,
+	type ChartEmptyStateProps,
 	WidgetState,
 	type WidgetStateProps,
 	type WidgetStateError,
