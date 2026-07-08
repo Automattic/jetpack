@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Redesign the VideoPress Studio editor: restyled chrome and timeline, transport relocated into the timeline toolbar, and a Chapters tool.
+Redesign the VideoPress Studio editor: restyled chrome and timeline, transport relocated into the timeline toolbar, and a Chapters tool; video details now summarizes chapters and links to that tool instead of embedding its own editor.
