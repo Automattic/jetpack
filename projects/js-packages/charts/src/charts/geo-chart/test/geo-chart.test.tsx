@@ -326,6 +326,28 @@ describe( 'GeoChart', () => {
 			);
 		} );
 
+		test( 'reports error elements nested inside an added plain node', async () => {
+			const onError = jest.fn();
+			renderWithTheme( { onError } );
+
+			// The observer filters mutation records by the added node; an error
+			// element arriving inside a plain wrapper must still be found.
+			const container = screen.getByTestId( 'geo-chart' );
+			const plainWrapper = document.createElement( 'div' );
+			const errorSpan = document.createElement( 'span' );
+			errorSpan.id = 'google-visualization-errors-9';
+			errorSpan.textContent = 'Requested map does not exist.';
+			plainWrapper.appendChild( errorSpan );
+			container.appendChild( plainWrapper );
+
+			await waitFor( () =>
+				expect( onError ).toHaveBeenCalledWith( {
+					id: 'google-visualization-errors-9',
+					message: 'Requested map does not exist.',
+				} )
+			);
+		} );
+
 		test( 'reports each rendered error element only once', async () => {
 			const onError = jest.fn();
 			renderWithTheme( { onError } );

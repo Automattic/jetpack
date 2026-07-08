@@ -62,6 +62,29 @@ function collectRenderedGeoChartErrors(
 }
 
 /**
+ * Whether a node added to the chart container is — or contains — a Google
+ * Charts error element. Also matches text appended into an existing error
+ * span, in case Google fills the message after inserting the element.
+ *
+ * @param node - The added DOM node to inspect.
+ * @return Whether the node involves a Google Charts error element.
+ */
+function involvesGeoChartErrorElement( node: Node ): boolean {
+	if ( node.nodeType === Node.TEXT_NODE ) {
+		return !! node.parentElement?.id.startsWith( GOOGLE_CHARTS_ERROR_ID_PREFIX );
+	}
+
+	if ( ! ( node instanceof HTMLElement ) ) {
+		return false;
+	}
+
+	return (
+		node.id.startsWith( GOOGLE_CHARTS_ERROR_ID_PREFIX ) ||
+		node.querySelector( `[id^="${ GOOGLE_CHARTS_ERROR_ID_PREFIX }"]` ) !== null
+	);
+}
+
+/**
  * Normalizes the raw Google Charts error event into the GeoChart error shape.
  *
  * @param eventArgs - Error event payload from react-google-charts.
@@ -149,7 +172,17 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			}
 		};
 
-		const observer = new MutationObserver( reportRenderedErrors );
+		// GeoChart mutates the container heavily while drawing and resizing;
+		// only rescan when an added node involves a Google error element.
+		const observer = new MutationObserver( records => {
+			const hasErrorNodes = records.some( record =>
+				Array.from( record.addedNodes ).some( involvesGeoChartErrorElement )
+			);
+
+			if ( hasErrorNodes ) {
+				reportRenderedErrors();
+			}
+		} );
 		observer.observe( container, { childList: true, subtree: true } );
 		// Report errors already rendered before the observer attached.
 		reportRenderedErrors();
