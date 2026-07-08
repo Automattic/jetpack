@@ -164,13 +164,21 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 		( error: GeoChartError ) => {
 			const message = `${ error.message ?? '' } ${ error.detailedMessage ?? '' }`;
 			// Any error during a provinces draw means this country's map is unusable —
-			// fall back regardless of the message text, which Google may localize. The
-			// message match only handles late duplicate events: a failing draw can fire
-			// several errors (resize and drill-down layout shifts each redraw), and the
-			// stragglers arrive after the widget already switched to the fallback map.
+			// fall back regardless of the message text, which Google may localize.
+			// Stragglers from that failed draw keep arriving after the widget already
+			// switched to the fallback map (resize and drill-down layout shifts each
+			// redraw), so a selected country already learned as unsupported also
+			// qualifies without depending on the message. The English message match
+			// stays only as a last resort for errors arriving outside those states.
 			const isProvinceDrawError = !! selectedCountryCode && useProvinceMap;
+			const isKnownUnsupportedProvinceDraw =
+				!! selectedCountryCode && runtimeUnsupportedProvinceMapCountries.has( selectedCountryCode );
 
-			if ( ! isProvinceDrawError && ! message.includes( MISSING_MAP_ERROR_MESSAGE ) ) {
+			if (
+				! isProvinceDrawError &&
+				! isKnownUnsupportedProvinceDraw &&
+				! message.includes( MISSING_MAP_ERROR_MESSAGE )
+			) {
 				return;
 			}
 
