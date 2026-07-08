@@ -1,4 +1,11 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 :global {
+
+	body.jetpack_page_jetpack-social {
+
+		@include jetpack-admin-page-layout;
+	}
 
 	#wpbody-content {
 
@@ -22,4 +29,21 @@
 
 .notice {
 	grid-column: 1 / -1;
+}
+
+.connection-error-col {
+	margin-top: 25px;
+}
+
+// The shared admin-page-layout mixin makes the wrapping `<Col>` a flex
+// column so DataViews-style consumers can fill the bounded slot. With
+// multiple direct children — `<AdminSectionHero>` (overflow: hidden, so
+// its automatic flex `min-height` resolves to 0) and a tall
+// `<AdminSection>` — flex shrinks the heroes to nothing and the column
+// can't scroll out of it. Wrapping the page sections in a single block
+// child gives Col one flow item with `min-height: auto` (overflow
+// visible), so siblings stack at content size and overflow falls back
+// to the middle's `overflow: auto`.
+.content {
+	display: block;
 }

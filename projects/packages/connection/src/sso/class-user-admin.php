@@ -982,18 +982,6 @@ class User_Admin extends Base_Admin {
 	}
 
 	/**
-	 * Deprecated method. Adds a column in the user admin table to display user connection status and actions.
-	 *
-	 * @param array $columns User list table columns.
-	 * @return array
-	 * @deprecated 6.5.0
-	 */
-	public function jetpack_user_connected_th( $columns ) {
-		_deprecated_function( __METHOD__, 'package-6.5.0' );
-		return $columns;
-	}
-
-	/**
 	 * Executed when our WP_User_Query instance is set, and we don't have cached invites.
 	 * This function uses the user emails and the 'are-users-invited' endpoint to build the cache.
 	 *
@@ -1191,10 +1179,10 @@ class User_Admin extends Base_Admin {
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 			return sprintf(
 				'<span tabindex="0" role="tooltip" aria-label="%4$s: %3$s" class="jetpack-sso-invitation-tooltip-icon sso-disconnected-user">
-					<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a>
 					<span class="sso-disconnected-user-icon dashicons dashicons-warning">
 						<span class="jetpack-sso-invitation-tooltip jetpack-sso-td-tooltip">%3$s</span>
 					</span>
+					<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a>
 				</span>',
 				add_query_arg(
 					array(
@@ -1264,7 +1252,6 @@ class User_Admin extends Base_Admin {
 		}
 
 		.sso-disconnected-user-icon {
-			margin-left: 4px;
 			cursor: pointer;
 			background: gray;
 			border-radius: 10px;
@@ -1280,6 +1267,9 @@ class User_Admin extends Base_Admin {
 		.jetpack-sso-invitation-tooltip-icon{
 			position: relative;
 			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			column-gap: 6px;
 		}
 		.jetpack-sso-td-tooltip {
 			left: -256px;

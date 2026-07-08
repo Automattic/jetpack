@@ -1,21 +1,16 @@
 .pie-semi-circle-chart {
-	display: flex;
-	flex-direction: column;
-	text-align: center;
-	gap: 20px;
-
-	&--legend-top {
-		flex-direction: column-reverse;
+	// Fill parent when no explicit width/height provided
+	&--responsive {
+		height: 100%;
+		width: 100%;
 	}
 
 	.label {
-		margin-bottom: 0; // Add space between label and pie chart
-		font-weight: 600; // Make label more prominent than note
-		font-size: 16px; // Set explicit font size
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		font-size: var(--wpds-typography-font-size-lg, 16px);
 	}
 
 	.note {
-		margin-top: 0; // Add space between pie chart and note
-		font-size: 14px; // Slightly smaller text for hierarchy
+		font-size: var(--wpds-typography-font-size-md, 13px);
 	}
 }

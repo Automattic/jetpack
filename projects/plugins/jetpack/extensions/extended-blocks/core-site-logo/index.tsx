@@ -181,11 +181,13 @@ function canExtendBlock( name: string ): boolean {
 	/*
 	 * Do not extend if the AI Assistant block is hidden,
 	 * as a way for the user to hide the extension.
-	 * TODO: the `editPostStore` is undefined for P2 sites.
-	 * Let's find a way to check if the block is hidden there.
+	 * Note: `select( 'core/edit-post' )` returns null on P2 sites (no post editor),
+	 * so we fall back to an empty array, which allows the extension to load.
 	 */
-	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
-	const hiddenBlocks = getHiddenBlockTypes?.() || []; // It will extend the block if the function is undefined
+	const hiddenBlocks =
+		(
+			select( 'core/edit-post' ) as null | { getHiddenBlockTypes?: () => string[] }
+		 )?.getHiddenBlockTypes?.() ?? [];
 
 	if ( hiddenBlocks.includes( 'jetpack/ai-assistant' ) ) {
 		return false;

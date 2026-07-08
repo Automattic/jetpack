@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the internal fields package: DataForm field controls for widgets, delivered as a script module so styled editors stay out of widget metadata bundles. Includes the ReportParamsField date-range editor.

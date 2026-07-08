@@ -12,9 +12,7 @@ import sveltePreprocess from 'svelte-preprocess';
 
 const production = process.env.NODE_ENV === 'production';
 
-const exportConditions = process.env.npm_config_jetpack_webpack_config_resolve_conditions
-	? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
-	: [];
+const exportConditions = [ 'jetpack:src' ];
 
 /**
  *
@@ -92,7 +90,13 @@ export default {
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
-		production && terser(),
+		production &&
+			terser( {
+				mangle: {
+					// Preserve WP i18n methods.
+					reserved: [ '__', '_n', '_nx', '_x' ],
+				},
+			} ),
 	],
 
 	watch: {

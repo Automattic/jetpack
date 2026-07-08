@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.10] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [3.0.9] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [3.0.8] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [3.0.7] - 2026-04-13
+### Changed
+- Internal updates.
+
 ## [3.0.6] - 2025-08-25
 ### Changed
 - Internal updates.
@@ -176,6 +192,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a jetpack-error package
 
+[3.0.10]: https://github.com/Automattic/jetpack-error/compare/v3.0.9...v3.0.10
+[3.0.9]: https://github.com/Automattic/jetpack-error/compare/v3.0.8...v3.0.9
+[3.0.8]: https://github.com/Automattic/jetpack-error/compare/v3.0.7...v3.0.8
+[3.0.7]: https://github.com/Automattic/jetpack-error/compare/v3.0.6...v3.0.7
 [3.0.6]: https://github.com/Automattic/jetpack-error/compare/v3.0.5...v3.0.6
 [3.0.5]: https://github.com/Automattic/jetpack-error/compare/v3.0.4...v3.0.5
 [3.0.4]: https://github.com/Automattic/jetpack-error/compare/v3.0.3...v3.0.4

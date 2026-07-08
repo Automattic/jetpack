@@ -45,6 +45,19 @@ class REST_Controller {
 	}
 
 	/**
+	 * Registers the REST routes on the `rest_api_init` hook.
+	 *
+	 * Instantiated here, rather than eagerly, so the controller class only loads
+	 * on requests that reach `rest_api_init`. Static so the callback can be
+	 * unregistered.
+	 *
+	 * @access public
+	 */
+	public static function register() {
+		( new self() )->register_rest_routes();
+	}
+
+	/**
 	 * Registers the REST routes for Odyssey Stats.
 	 *
 	 * Odyssey Stats is built from `wp-calypso`, which leverages the `public-api.wordpress.com` API.
@@ -252,6 +265,17 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_notice_status' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
+		// Get referrer spam list.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/stats/referrers/spam', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_referrer_spam_list' ),
 				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
@@ -573,7 +597,7 @@ class REST_Controller {
 		if ( 200 !== $response_code ) {
 			return new WP_Error(
 				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				$response_body['message'] ?? 'unknown remote error',
 				array( 'status' => $response_code )
 			);
 		}
@@ -674,7 +698,7 @@ class REST_Controller {
 		if ( 200 !== $response_code ) {
 			return new WP_Error(
 				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				$response_body['message'] ?? 'unknown remote error',
 				array( 'status' => $response_code )
 			);
 		}
@@ -1023,6 +1047,25 @@ class REST_Controller {
 	}
 
 	/**
+	 * Get the list of spam referrers.
+	 *
+	 * @return array
+	 */
+	public function get_referrer_spam_list() {
+		return WPCOM_Client::request_as_blog(
+			sprintf(
+				'/sites/%d/stats/referrers/spam',
+				Jetpack_Options::get_option( 'id' )
+			),
+			'v1.1',
+			array(
+				'timeout' => 5,
+				'method'  => 'GET',
+			)
+		);
+	}
+
+	/**
 	 * Mark a referrer as spam.
 	 *
 	 * @param WP_REST_Request $req The request object.
@@ -1211,13 +1254,13 @@ class REST_Controller {
 	public function get_site_purchases( $req ) {
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
-				'/sites/%d/purchases?%s',
+				'/upgrades?site=%d&%s',
 				Jetpack_Options::get_option( 'id' ),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
 			),
-			'v1.1',
+			'v1.2',
 			array( 'timeout' => 10 ),
 			null,
 			'rest',

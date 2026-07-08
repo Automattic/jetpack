@@ -1,11 +1,5 @@
 .container {
 
-	a,
-	a:active,
-	a:hover {
-		color: var(--jp-black);
-	}
-
 	h3 {
 		font-size: 1rem;
 		line-height: 20px;
@@ -27,6 +21,12 @@
 }
 
 .plan-container {
+
+	a,
+	a:active,
+	a:hover {
+		color: var(--jp-black);
+	}
 
 	h4 {
 		margin-top: 0;

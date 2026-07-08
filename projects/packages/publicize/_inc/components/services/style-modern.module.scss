@@ -1,0 +1,245 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.services {
+	display: flex;
+	flex-direction: column;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+
+	// Rows after the first get a top border so the dividers between
+	// them read as one continuous list. The first row sits flush with
+	// the Card.Root's own top edge — adding a border-top there would
+	// double up against the card's own border line.
+	.service-list-item {
+		margin: 0;
+
+		&:not(:first-child) {
+			border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
+		}
+	}
+
+	.service-basics {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs, 4px);
+		min-width: 0;
+	}
+
+	.heading {
+		align-items: center;
+		display: flex;
+		gap: var(--wpds-dimension-gap-lg, 16px);
+	}
+
+	// Size comes from the `body-lg` Text variant; keep the colour + medium weight.
+	.title {
+		color: var(--wpds-color-foreground-content-neutral, var(--jp-gray-80));
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		line-height: 1.4;
+	}
+
+	.description {
+		color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+		font-size: var(--wpds-typography-font-size-md, 13px);
+	}
+
+	.actions {
+		display: flex;
+		gap: var(--wpds-dimension-gap-sm, 8px);
+	}
+
+	.active-connection {
+		color: var(--jp-green-50);
+		white-space: nowrap;
+	}
+
+	.broken-connection-alert {
+		margin-block: 0;
+		font-size: var(--font-body-small);
+	}
+
+	.service-connection-list {
+		border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
+		padding-top: 1rem;
+
+		li:not(:last-child) {
+			margin-bottom: 1rem;
+		}
+
+		*[inert="true"] {
+			opacity: 0.7;
+		}
+	}
+}
+
+// Flat clickable row used as the `Collapsible.Trigger` for each service.
+// Layout mirrors `.connection-row` in connection-management so the modal
+// and the chassis Overview share the same visual language.
+.service-row {
+	align-items: center;
+	cursor: var(--wpds-cursor-control, pointer);
+	display: flex;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	padding: var(--wpds-dimension-padding-lg, 16px) var(--wpds-dimension-padding-2xl, 24px);
+	width: 100%;
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus, #3858e9);
+		outline-offset: calc(var(--wpds-border-width-focus, 2px) * -1);
+	}
+
+	&[data-panel-open] {
+
+		.chevron {
+			rotate: 180deg;
+		}
+	}
+}
+
+.service-row-icon {
+	flex-shrink: 0;
+}
+
+.chevron {
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	flex-shrink: 0;
+
+	@media not (prefers-reduced-motion) {
+		transition: rotate var(--wpds-motion-duration-md, 0.15s) var(--wpds-motion-easing-balanced, ease-out);
+	}
+}
+
+// Collapsible.Panel — height transition driven by `--collapsible-panel-height`
+// set by Base UI. Mirrors the WPDS CollapsibleCard.Content rule so the
+// services panels animate in/out at the same cadence.
+.service-panel {
+	height: var(--collapsible-panel-height);
+	overflow: hidden;
+
+	&[hidden]:not([hidden="until-found"]) {
+		display: none;
+	}
+
+	&[data-ending-style],
+	&[data-starting-style] {
+		height: 0;
+	}
+
+	@media not (prefers-reduced-motion) {
+		transition: all var(--wpds-motion-duration-md, 0.15s) var(--wpds-motion-easing-balanced, ease-out);
+	}
+}
+
+.service-panel-inner {
+	padding: 0 var(--wpds-dimension-padding-2xl, 24px) var(--wpds-dimension-padding-xl, 20px);
+}
+
+.example-wrapper {
+	display: grid;
+	grid-auto-columns: minmax(0, 1fr);
+	grid-auto-flow: column;
+	font-size: 15px;
+	margin-top: 0.4rem;
+
+	&.small {
+		grid-auto-flow: row;
+		gap: 2rem;
+		height: auto;
+		min-height: unset;
+	}
+
+	img {
+		max-height: 520px;
+		max-width: 100%;
+	}
+
+	>div {
+		padding: 0.4rem;
+
+		&:has(img) {
+			margin-inline-start: auto;
+			margin-inline-end: auto;
+		}
+	}
+}
+
+// The connection row + its detail column are laid out with the WPDS Stack
+// component; only the flexible detail column and the avatar sizing remain.
+.connection-details {
+	flex: 1;
+}
+
+.profile-pic {
+
+	&,
+	img {
+		width: 38px;
+		height: 38px;
+	}
+}
+
+.connect-form-wrapper {
+	margin-top: 2rem;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.connect-form {
+	display: flex;
+	gap: 1.5rem;
+	flex-direction: column;
+	justify-content: flex-end;
+	width: 100%;
+
+	.fields-wrapper {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		gap: 1rem;
+
+		&.input {
+			justify-content: flex-start;
+		}
+
+		@include gb.break-medium {
+			flex-direction: row;
+		}
+	}
+
+	.fields-item {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		flex-basis: 100%;
+		min-width: 220px;
+
+		@include gb.break-medium {
+			flex-basis: 50%;
+		}
+
+		@include gb.break-small {
+
+			button {
+				align-self: start;
+			}
+		}
+	}
+}
+
+.error-text.error-text {
+	color: var(--jp-red);
+	font-style: italic;
+}
+
+// When a field fails validation the wrapper gets `.fields-item-error`. Mirror
+// the legacy CustomInputs affordance by painting the InputControl border red so
+// the field itself signals the error, not just the help text below it.
+.fields-item-error {
+
+	:global(.components-input-control__backdrop) {
+		border-color: var(--jp-red) !important;
+		box-shadow: 0 0 0 1px var(--jp-red);
+	}
+}

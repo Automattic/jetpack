@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Expose the analytics initial-full-sync milestone (initial_full_sync_finished) on Jetpack's sync status REST response so the dashboard can read it live on every poll, not just at page load.

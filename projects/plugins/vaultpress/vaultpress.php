@@ -3,7 +3,7 @@
  * Plugin Name: VaultPress
  * Plugin URI: http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * Description: Protect your content, themes, plugins, and settings with <strong>realtime backup</strong> and <strong>automated security scanning</strong> from <a href="http://vaultpress.com/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">VaultPress</a>. Activate, enter your registration key, and never worry again. <a href="http://vaultpress.com/help/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">Need some help?</a>
- * Version: 4.0.6
+ * Version: 4.0.7
  * Author: Automattic
  * Author URI: http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * License: GPL2+
@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || die( 0 );
 
 define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.2' );
-define( 'VAULTPRESS__VERSION', '4.0.6' );
+define( 'VAULTPRESS__VERSION', '4.0.7' );
 define( 'VAULTPRESS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
@@ -436,16 +436,29 @@ class VaultPress {
 		}
 	}
 
-	// get any messages from the VP servers
+	/**
+	 * Get messages from the VP servers
+	 *
+	 * @param bool $force_reload Whether to force a reload of the messages.
+	 * @return array The messages.
+	 */
 	function get_messages( $force_reload = false ) {
 		$last_contact = $this->get_option( 'messages_last_contact' );
 
 		// only run the messages check every 30 minutes
-		if ( ( time() - (int)$last_contact ) > 1800 || $force_reload ) {
-			$messages = base64_decode( $this->contact_service( 'messages', array() ) );
-			$messages = unserialize( $messages );
-			$this->update_option( 'messages_last_contact', time() );
-			$this->update_option( 'messages', $messages );
+		if ( ( time() - (int) $last_contact ) > 1800 || $force_reload ) {
+			$response = $this->contact_service( 'messages', array() );
+
+			// Only process if we got a valid string response
+			if ( is_string( $response ) && ! empty( $response ) ) {
+				$messages = base64_decode( $response ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+				$messages = unserialize( $messages ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+				$this->update_option( 'messages_last_contact', time() );
+				$this->update_option( 'messages', $messages );
+			} else {
+				// If we got an error (array) or false/empty, fall back to cached messages
+				$messages = $this->get_option( 'messages' );
+			}
 		} else {
 			$messages = $this->get_option( 'messages' );
 		}
@@ -1495,7 +1508,7 @@ class VaultPress {
 		$protocol = 'https';
 		do {
 			--$retry;
-			$args['sslverify'] = 'https' == $protocol ? true : false;
+			$args['sslverify'] = 'https' === $protocol;
 			$r = wp_remote_get( $url=sprintf( "%s://%s/%s?cidr_ranges=1", $protocol, $hostname, $path ), $args );
 			if ( 200 == wp_remote_retrieve_response_code( $r ) ) {
 				if ( 99 == $this->get_option( 'connection_error_code' ) )
@@ -2073,7 +2086,7 @@ JS;
 					$where = null;
 
 				if ( isset( $_POST['table'] ) ) {
-					$parse_create_table = isset( $_POST['use_new_hash'] ) && $_POST['use_new_hash'] ? true : false;
+					$parse_create_table = isset( $_POST['use_new_hash'] ) && $_POST['use_new_hash']; //phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 					$bdb->attach( base64_decode( $_POST['table'] ), $parse_create_table );
 				}
 
@@ -2239,6 +2252,17 @@ JS;
 		return false;
 	}
 
+	/**
+	 * Contact the VaultPress service.
+	 *
+	 * @param string $action The action to perform.
+	 * @param array  $args   Optional. Arguments to pass to the service. Default empty array.
+	 * @return string|array|false The service response. Returns:
+	 *                           - A string containing the base64-encoded response on success
+	 *                           - An array with 'faultCode' and 'faultString' keys on XML-RPC error
+	 *                           - An empty string if the client message is empty
+	 *                           - false if connection check fails
+	 */
 	function contact_service( $action, $args = array() ) {
 		if ( 'test' != $action && 'register' != $action && !$this->check_connection() )
 			return false;
@@ -2268,9 +2292,9 @@ JS;
 			$args['cause_user_id'] = -1;
 			$args['cause_user_login'] = '';
 		}
-		$args['cause_ip'] = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null ;
-		$args['cause_uri'] = isset( $_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null;
-		$args['cause_method'] = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : null;
+		$args['cause_ip']     = $_SERVER['REMOTE_ADDR'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$args['cause_uri']    = $_SERVER['REQUEST_URI'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$args['cause_method'] = $_SERVER['REQUEST_METHOD'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		// End audit trail breadcrumbs
 
 		$args['version']   = $this->plugin_version;

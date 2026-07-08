@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Firewall: add accessible names to the Brute force protection, Block IP addresses, and Trusted IP addresses toggles.

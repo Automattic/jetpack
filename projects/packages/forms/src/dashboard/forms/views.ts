@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { useSearchParams } from 'react-router';
+import { useDashboardSearchParams } from '../router/dashboard-search-params-context.tsx';
 import type { View } from '@wordpress/dataviews/wp';
 
 const LAYOUT_TABLE = 'table';
@@ -7,10 +7,11 @@ const LAYOUT_TABLE = 'table';
 export const defaultView: View = {
 	type: LAYOUT_TABLE,
 	search: '',
-	filters: [],
+	filters: [ { field: 'status', operator: 'is', value: 'all' } ],
 	page: 1,
 	perPage: 20,
-	fields: [ 'title', 'entries', 'status', 'modified' ],
+	titleField: 'title',
+	fields: [ 'entries', 'status', 'modified' ],
 };
 
 export const defaultLayouts = {
@@ -23,7 +24,7 @@ export const defaultLayouts = {
  * @return {[typeof defaultView, (newView: typeof defaultView) => void]} The current DataViews view and a setter that updates the URL.
  */
 export function useView() {
-	const [ searchParams, setSearchParams ] = useSearchParams();
+	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
 	const urlSearch = searchParams.get( 'search' );
 
 	const [ view, setView ] = useState( () => ( {

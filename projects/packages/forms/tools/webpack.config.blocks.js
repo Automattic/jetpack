@@ -3,13 +3,11 @@
  */
 
 import path from 'path';
-import { fileURLToPath } from 'url';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 import autoprefixer from 'autoprefixer';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
+const __dirname = import.meta.dirname;
 
 /**
  * Internal variables
@@ -19,6 +17,10 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		editor: './src/blocks/contact-form/editor.ts',
+		'ai-form-plugin': {
+			import: './src/blocks/contact-form/plugins/ai-form-generation.ts',
+			dependOn: 'editor',
+		},
 		view: './src/blocks/contact-form/view.ts',
 		'form-progress-indicator/style': './src/blocks/form-progress-indicator/style.scss',
 		'form-step-navigation/style': './src/blocks/form-step-navigation/style.scss',
@@ -29,6 +31,8 @@ const sharedWebpackConfig = {
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '../dist/blocks' ),
+		// We need a more unique uniqueName here so ai-form-plugin's `dependOn` doesn't get confused with modules from other builds in the package.
+		uniqueName: jetpackWebpackConfig.output.uniqueName + '/blocks',
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
@@ -65,6 +69,9 @@ const sharedWebpackConfig = {
 				],
 			} ),
 
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
@@ -80,8 +87,18 @@ const sharedWebpackConfig = {
 				],
 			} ),
 
-			// Handle images.
-			jetpackWebpackConfig.FileRule(),
+			// Allow importing .svg files as raw HTML strings via `?raw` query.
+			{
+				test: /\.svg$/i,
+				resourceQuery: /raw/,
+				type: 'asset/source',
+			},
+
+			// Handle images (exclude ?raw SVG imports).
+			{
+				...jetpackWebpackConfig.FileRule(),
+				resourceQuery: { not: [ /raw/ ] },
+			},
 		],
 	},
 	watchOptions: {

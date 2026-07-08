@@ -1,4 +1,4 @@
-import { executeWpDbQuery } from '_jetpack-e2e-commons/utils/cli';
+import { executeWpDbQuery } from '@automattic/_jetpack-e2e-commons/utils/cli';
 import { test, expect } from '../../lib/fixtures/test';
 
 test.describe( 'Common tests', () => {
@@ -40,6 +40,7 @@ test.describe( 'Common tests', () => {
 
 	test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommendation notice option', async ( {
 		boostUtils,
+		jetpackBoostPage,
 		admin,
 		page,
 	} ) => {
@@ -52,15 +53,25 @@ test.describe( 'Common tests', () => {
 		} );
 
 		await test.step( 'Navigate to Boost settings and verify Critical CSS generation', async () => {
+			/*
+			 * page.waitForResponse() only matches responses that arrive after it is
+			 * attached, so start listening before the navigation that kicks off
+			 * generation. This is a cold generation (fresh environment + module
+			 * activation), so use the 240s ceiling rather than the 60s default; the
+			 * wait still resolves as soon as the terminal state arrives — the ceiling
+			 * only guards against flakiness on slow CI runners.
+			 */
+			const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration( 240000 );
 			await admin.visitAdminPage( 'admin.php', 'page=jetpack-boost' );
 			await expect(
 				page.locator( '.jb-critical-css-progress' ),
 				'Critical CSS generation progress indicator should be visible'
 			).toBeVisible();
+			await criticalCssGenerated;
 			await expect(
 				page.getByTestId( 'critical-css-meta' ),
 				'Critical CSS meta information should be visible'
-			).toBeVisible( { timeout: 4 * 60 * 1000 } );
+			).toBeVisible();
 		} );
 
 		await test.step( 'Deactivate Jetpack Boost plugin', async () => {
@@ -77,16 +88,16 @@ test.describe( 'Common tests', () => {
 				'SELECT ID FROM wp_posts WHERE post_type LIKE "%jb_store_%"',
 				[ '--skip-column-names' ]
 			);
-			expect( posts.length, 'No jb_store_ posts DB records are found' ).toBe( 0 );
+			expect( posts, 'No jb_store_ posts DB records are found' ).toHaveLength( 0 );
 
 			const options = await executeWpDbQuery(
 				'SELECT option_id FROM wp_options WHERE option_name = "jb-critical-css-dismissed-recommendations"',
 				[ '--skip-column-names' ]
 			);
 			expect(
-				options.length,
+				options,
 				'jb-critical-css-dismissed-recommendations option is not found in DB'
-			).toBe( 0 );
+			).toHaveLength( 0 );
 		} );
 	} );
 } );

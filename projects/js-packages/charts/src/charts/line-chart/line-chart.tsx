@@ -1,19 +1,24 @@
 import { formatNumberCompact, formatNumber } from '@automattic/number-formatters';
-import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
-import { scaleTime } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { differenceInHours, differenceInYears } from 'date-fns';
-import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
+import {
+	useMemo,
+	useContext,
+	forwardRef,
+	useImperativeHandle,
+	useState,
+	useRef,
+	useCallback,
+} from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
 	useChartMargin,
-	useElementHeight,
 	usePrefersReducedMotion,
 } from '../../hooks';
 import {
@@ -24,21 +29,24 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
-import { attachSubComponents } from '../../utils';
+import { attachSubComponents, resolveCssVariable } from '../../utils';
+import { useChartChildren } from '../private/chart-composition';
+import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
 import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
+import { SvgEmptyState } from '../private/svg-empty-state';
+import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
+import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
-import type { CurveType, RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
+import type { RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
 import type { DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
+import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
-import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, Ref } from 'react';
-
-const X_TICK_WIDTH = 60;
 
 const defaultRenderGlyph = < Datum extends object >( props: RenderLineGlyphProps< Datum > ) => {
 	return <DefaultGlyph { ...props } key={ props.key } />;
@@ -50,32 +58,14 @@ const toNumber = ( val?: number | string | null ): number | undefined => {
 };
 
 /**
- * Determines the curve type for the line chart based on the provided type and smoothing parameters
+ * Default visx-tooltip render that prints the hovered date as a heading and
+ * one row per visible series (label + formatted value), sorted descending by
+ * value. Reused by AreaChart, which has the same multi-series shape.
  *
- * @param {CurveType} type      - The explicit curve type to use
- * @param {boolean}   smoothing - Legacy smoothing parameter
- * @return The curve function to use for the line
+ * @param params - visx `RenderTooltipParams< DataPointDate >`.
+ * @return Tooltip JSX, or `null` when no datum is hovered.
  */
-const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
-	// If no type specified, use legacy smoothing behavior
-	if ( ! type ) {
-		return smoothing ? curveCatmullRom : curveLinear;
-	}
-
-	// Handle explicit curve types
-	switch ( type ) {
-		case 'smooth':
-			return curveCatmullRom;
-		case 'monotone':
-			return curveMonotoneX;
-		case 'linear':
-			return curveLinear;
-		default:
-			return curveLinear;
-	}
-};
-
-const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
+export const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
 	const { tooltipData } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
 	if ( ! nearestDatum ) return null;
@@ -93,103 +83,21 @@ const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) =>
 				{ nearestDatum.date?.toLocaleDateString() }
 			</div>
 			{ tooltipPoints.map( point => (
-				<div key={ point.key } className={ styles[ 'line-chart__tooltip-row' ] }>
+				<Stack
+					key={ point.key }
+					direction="row"
+					align="center"
+					justify="space-between"
+					className={ styles[ 'line-chart__tooltip-row' ] }
+				>
 					<span className={ styles[ 'line-chart__tooltip-label' ] }>{ point.key }:</span>
 					<span className={ styles[ 'line-chart__tooltip-value' ] }>
 						{ formatNumber( point.value ) }
 					</span>
-				</div>
+				</Stack>
 			) ) }
 		</div>
 	);
-};
-
-const formatYearTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, {
-		year: 'numeric',
-	} );
-};
-
-const formatDateTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, {
-		month: 'short',
-		day: 'numeric',
-	} );
-};
-
-const formatHourTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleTimeString( undefined, {
-		hour: 'numeric',
-		hour12: true,
-	} );
-};
-
-const getFormatter = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
-	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
-	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
-
-	const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
-	if ( diffInHours <= 24 ) {
-		return formatHourTick;
-	}
-
-	const diffInYears = Math.abs( differenceInYears( maxX, minX ) );
-	if ( diffInYears <= 1 ) {
-		return formatDateTick;
-	}
-
-	return formatYearTick;
-};
-
-const guessOptimalNumTicks = (
-	data: ReturnType< typeof useChartDataTransform >,
-	chartWidth: number,
-	tickFormatter: ( timestamp: number, index?: number, values?: unknown ) => string
-) => {
-	const minX = Math.min( ...data.map( datom => datom.data.at( 0 )?.date ) );
-	const maxX = Math.max( ...data.map( datom => datom.data.at( -1 )?.date ) );
-	const xScale = scaleTime( { domain: [ minX, maxX ] } );
-
-	// Calculate upper bound of tick numbers based on data points and chart width
-	const upperBound = Math.min(
-		data[ 0 ]?.data.length || 3, // A sane fallback to avoid NaN when no data is present
-		Math.ceil( chartWidth / X_TICK_WIDTH )
-	);
-	let secondBestGuess = 1; // a tick number that's no greater than upperBound
-
-	for ( let numTicks = upperBound; numTicks > 1; --numTicks ) {
-		const ticks = xScale.ticks( numTicks ).map( d => tickFormatter( d.getTime() ) );
-
-		// The .ticks() function doesn't properly respect the requested number of ticks, so we need to check the length
-		if ( ticks.length > upperBound ) {
-			continue;
-		}
-
-		secondBestGuess = Math.max( secondBestGuess, ticks.length );
-
-		const uniqueTicks = Array.from( new Set( ticks ) );
-		if ( uniqueTicks.length === 1 ) {
-			// All ticks are the same, so skip further processing
-			return 1;
-		}
-
-		// Example: OCT 1 JAN 1 APR 1 JUL 1 OCT 1
-		// Here, the two OCTs are not duplicates as they represent October of two different years.
-		const hasConsecutiveDuplicate = ticks.some(
-			( tick, idx ) => idx > 0 && tick === ticks[ idx - 1 ]
-		);
-
-		if ( hasConsecutiveDuplicate ) {
-			continue;
-		}
-
-		return ticks.length;
-	}
-
-	return secondBestGuess;
 };
 
 const validateData = ( data: SeriesData[] ) => {
@@ -254,15 +162,9 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			withTooltips = true,
 			withTooltipCrosshairs,
 			showLegend = false,
-			legendOrientation = 'horizontal',
-			legendAlignment = 'center',
-			legendPosition = 'bottom',
-			legendMaxWidth,
-			legendTextOverflow = 'wrap',
-			legendItemClassName,
+			legend = {},
 			renderGlyph = defaultRenderGlyph,
 			glyphStyle = {},
-			legendShape = 'line',
 			withLegendGlyph = false,
 			withGradientFill = false,
 			smoothing = true,
@@ -270,26 +172,54 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			renderTooltip = renderDefaultTooltip,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
-			legendInteractive = false,
 			animation,
 			options = {},
 			onPointerDown = undefined,
 			onPointerUp = undefined,
 			onPointerMove = undefined,
 			onPointerOut = undefined,
+			zoomable = false,
 			children,
 			gridVisibility,
+			gap = 'md',
 		},
 		ref
 	) => {
+		const legendInteractive = legend.interactive ?? false;
+		const legendShape = legend.shape ?? 'line';
+		const legendPosition = legend.position ?? 'bottom';
+
 		const providerTheme = useGlobalChartsTheme();
+		// Gradient stops apply this as an SVG attribute, where CSS var() cannot
+		// resolve, so resolve the WPDS token to a concrete value first.
+		const resolvedBackgroundColor =
+			resolveCssVariable( providerTheme.backgroundColor ) ?? providerTheme.backgroundColor;
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
-		const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
 		const internalChartRef = useRef< SingleChartRef >( null );
+
+		const zoom = useXZoom< Date >( {
+			enabled: zoomable,
+			chartRef: internalChartRef,
+			userHandlers: { onPointerDown, onPointerMove, onPointerUp },
+		} );
+
+		// Process children for composition API (Legend, etc.)
+		const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LineChart' );
+		const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
+
+		// Callback for ChartLayout to notify us when the measured content height changes.
+		// We compute chartHeight the same way the render prop does so the context stays in sync.
+		const handleContentHeightChange = useCallback(
+			( contentHeight: number ) => {
+				const chartHeight = contentHeight > 0 ? contentHeight : height;
+				setMeasuredChartHeight( chartHeight );
+			},
+			[ height ]
+		);
 
 		// Forward the external ref to the internal ref
 		useImperativeHandle(
@@ -355,6 +285,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 				xScale: {
 					type: 'time' as const,
 					...options?.xScale,
+					...( zoom.domain ? { domain: zoom.domain } : {} ),
 				},
 				yScale: {
 					type: 'linear' as const,
@@ -363,7 +294,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width ] );
+		}, [ options, dataSorted, width, zoom.domain ] );
 
 		const tooltipRenderGlyph = useMemo( () => {
 			return ( props: GlyphProps< DataPointDate > ) => {
@@ -439,205 +370,221 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 		}
 
+		const legendElement = showLegend && (
+			<Legend
+				orientation={ legend.orientation ?? 'horizontal' }
+				alignment={ legend.alignment ?? 'center' }
+				position={ legendPosition }
+				labelStyles={ legend.labelStyles }
+				itemClassName={ legend.itemClassName }
+				itemStyles={ legend.itemStyles }
+				shapeStyles={ legend.shapeStyles }
+				className={ styles[ 'line-chart__legend' ] }
+				shape={ legendShape }
+				chartId={ chartId }
+				interactive={ legendInteractive }
+			/>
+		);
+
 		return (
 			<SingleChartContext.Provider
 				value={ {
 					chartId,
 					chartRef: internalChartRef,
 					chartWidth: width,
-					chartHeight: height - ( showLegend ? legendHeight : 0 ),
+					chartHeight: measuredChartHeight || 0,
 				} }
 			>
-				<div
+				<ChartLayout
+					legendPosition={ legendPosition }
+					legendElement={ legendElement }
+					legendChildren={ legendChildren }
+					gap={ gap }
 					className={ clsx(
 						'line-chart',
 						styles[ 'line-chart' ],
 						{ [ styles[ 'line-chart--animated' ] ]: animation && ! prefersReducedMotion },
-						{ [ styles[ 'line-chart--legend-top' ] ]: showLegend && legendPosition === 'top' },
 						className
 					) }
+					style={ { width, height } }
 					data-testid="line-chart"
-					style={ {
-						width,
-						height,
-					} }
+					trailingContent={ nonLegendChildren }
+					onContentHeightChange={ handleContentHeightChange }
 				>
-					<div
-						role="grid"
-						aria-label={ __( 'Line chart', 'jetpack-charts' ) }
-						tabIndex={ 0 }
-						onKeyDown={ onChartKeyDown }
-						onFocus={ onChartFocus }
-						onBlur={ onChartBlur }
-						ref={ chartRef }
-					>
-						<XYChart
-							theme={ theme }
-							width={ width }
-							height={ height - ( showLegend ? legendHeight : 0 ) }
-							margin={ {
-								...defaultMargin,
-								...margin,
-								...( showLegend && legendPosition === 'top'
-									? { top: ( defaultMargin.top || 0 ) + legendHeight }
-									: {} ),
-							} }
-							// xScale and yScale could be set in Axis as well, but they are `scale` props there.
-							xScale={ chartOptions.xScale }
-							yScale={ chartOptions.yScale }
-							onPointerDown={ onPointerDown }
-							onPointerUp={ onPointerUp }
-							onPointerMove={ onPointerMove }
-							onPointerOut={ onPointerOut }
-							pointerEventsDataKey="nearest"
-						>
-							{ gridVisibility !== 'none' && <Grid columns={ false } numTicks={ 4 } /> }
-							{ chartOptions.axis.x.display && <Axis { ...chartOptions.axis.x } /> }
-							{ chartOptions.axis.y.display && <Axis { ...chartOptions.axis.y } /> }
+					{ ( { contentHeight } ) => {
+						// Use the measured height, falling back to the passed height if provided.
+						const chartHeight = contentHeight > 0 ? contentHeight : height;
 
-							{ allSeriesHidden ? (
-								<text
-									x={ width / 2 }
-									y={ ( height - ( showLegend ? legendHeight : 0 ) ) / 2 }
-									textAnchor="middle"
-									fill={ providerTheme.gridStyles?.stroke || '#ccc' }
-									fontSize="14"
-									fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
-								>
-									{ __(
-										'All series are hidden. Click legend items to show data.',
-										'jetpack-charts'
-									) }
-								</text>
-							) : null }
+						return (
+							<div
+								role="grid"
+								aria-label={ __( 'Line chart', 'jetpack-charts' ) }
+								tabIndex={ 0 }
+								onKeyDown={ onChartKeyDown }
+								onFocus={ onChartFocus }
+								onBlur={ onChartBlur }
+							>
+								{ chartHeight > 0 && (
+									<div ref={ chartRef } style={ { position: 'relative' } }>
+										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
+										<XYChart
+											theme={ theme }
+											width={ width }
+											height={ chartHeight }
+											margin={ {
+												...defaultMargin,
+												...margin,
+											} }
+											// xScale and yScale could be set in Axis as well, but they are `scale` props there.
+											xScale={ chartOptions.xScale }
+											yScale={ chartOptions.yScale }
+											onPointerDown={ zoom.handlers.onPointerDown }
+											onPointerUp={ zoom.handlers.onPointerUp }
+											onPointerMove={ zoom.handlers.onPointerMove }
+											onPointerOut={ onPointerOut }
+											pointerEventsDataKey="nearest"
+										>
+											{ gridVisibility !== 'none' && <Grid columns={ false } numTicks={ 4 } /> }
+											{ chartOptions.axis.x.display && <Axis { ...chartOptions.axis.x } /> }
+											{ chartOptions.axis.y.display && <Axis { ...chartOptions.axis.y } /> }
 
-							{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
-								// Skip rendering invisible series
-								if ( ! isVisible ) {
-									return null;
-								}
+											{ allSeriesHidden ? (
+												<SvgEmptyState
+													x={ width / 2 }
+													y={ chartHeight / 2 }
+													width={ width }
+													height={ chartHeight }
+												>
+													{ __(
+														'All series are hidden. Click legend items to show data.',
+														'jetpack-charts'
+													) }
+												</SvgEmptyState>
+											) : null }
 
-								const { color, lineStyles, glyph } = getElementStyles( {
-									data: seriesData,
-									index,
-								} );
+											{ /* Line is not animated, so clip only while zoomed; its edge glyphs sit on the plot border and must not be clipped. */ }
+											<ZoomClip active={ zoomable && !! zoom.domain } chartId={ chartId }>
+												{ seriesWithVisibility.map(
+													( { series: seriesData, index, isVisible } ) => {
+														// Skip rendering invisible series
+														if ( ! isVisible ) {
+															return null;
+														}
 
-								const lineProps = {
-									stroke: color,
-									...lineStyles,
-								};
+														const { color, lineStyles, glyph } = getElementStyles( {
+															data: seriesData,
+															index,
+														} );
 
-								return (
-									<g key={ seriesData?.label || index }>
-										{ withGradientFill && (
-											<LinearGradient
-												id={ `area-gradient-${ chartId }-${ index + 1 }` }
-												from={ color }
-												fromOpacity={ 0.4 }
-												toOpacity={ 0.1 }
-												to={ providerTheme.backgroundColor }
-												{ ...seriesData.options?.gradient }
-												data-testid="line-gradient"
-											>
-												{ seriesData.options?.gradient?.stops?.map( ( stop, stopIndex ) => (
-													<stop
-														key={ `${ stop.offset }-${ stop.color || color }` }
-														offset={ stop.offset }
-														stopColor={ stop.color || color }
-														stopOpacity={ stop.opacity ?? 1 }
-														data-testid={ `line-gradient-stop-${ chartId }-${ index }-${ stopIndex }` }
-													/>
-												) ) }
-											</LinearGradient>
-										) }
-										<AreaSeries
-											key={ seriesData?.label }
-											dataKey={ seriesData?.label }
-											data={ seriesData.data as DataPointDate[] }
-											{ ...accessors }
-											fill={
-												withGradientFill
-													? `url(#area-gradient-${ chartId }-${ index + 1 })`
-													: 'transparent'
-											}
-											renderLine={ true }
-											curve={ getCurveType( curveType, smoothing ) }
-											lineProps={ lineProps }
-										/>
+														const lineProps = {
+															stroke: color,
+															...lineStyles,
+														};
 
-										{ withStartGlyphs && (
-											<LineChartGlyph
-												index={ index }
-												data={ seriesData }
-												color={ color }
-												renderGlyph={ glyph ?? renderGlyph }
-												accessors={ accessors }
-												glyphStyle={ glyphStyle }
-												position="start"
+														return (
+															<g key={ seriesData?.label || index }>
+																{ withGradientFill && (
+																	<LinearGradient
+																		id={ `area-gradient-${ chartId }-${ index + 1 }` }
+																		from={ color }
+																		fromOpacity={ 0.4 }
+																		toOpacity={ 0.1 }
+																		to={ resolvedBackgroundColor }
+																		{ ...seriesData.options?.gradient }
+																		data-testid="line-gradient"
+																	>
+																		{ seriesData.options?.gradient?.stops?.map(
+																			( stop, stopIndex ) => (
+																				<stop
+																					key={ `${ stop.offset }-${ stop.color || color }` }
+																					offset={ stop.offset }
+																					stopColor={ stop.color || color }
+																					stopOpacity={ stop.opacity ?? 1 }
+																					data-testid={ `line-gradient-stop-${ chartId }-${ index }-${ stopIndex }` }
+																				/>
+																			)
+																		) }
+																	</LinearGradient>
+																) }
+																<AreaSeries
+																	key={ seriesData?.label }
+																	dataKey={ seriesData?.label }
+																	data={ seriesData.data as DataPointDate[] }
+																	{ ...accessors }
+																	fill={
+																		withGradientFill
+																			? `url(#area-gradient-${ chartId }-${ index + 1 })`
+																			: 'transparent'
+																	}
+																	renderLine={ true }
+																	curve={ getCurveType( curveType, smoothing ) }
+																	lineProps={ lineProps }
+																/>
+
+																{ withStartGlyphs && (
+																	<LineChartGlyph
+																		index={ index }
+																		data={ seriesData }
+																		color={ color }
+																		renderGlyph={ glyph ?? renderGlyph }
+																		accessors={ accessors }
+																		glyphStyle={ glyphStyle }
+																		position="start"
+																	/>
+																) }
+
+																{ withEndGlyphs && (
+																	<LineChartGlyph
+																		index={ index }
+																		data={ seriesData }
+																		color={ color }
+																		renderGlyph={ glyph ?? renderGlyph }
+																		accessors={ accessors }
+																		glyphStyle={ glyphStyle }
+																		position="end"
+																	/>
+																) }
+															</g>
+														);
+													}
+												) }
+											</ZoomClip>
+
+											{ withTooltips && (
+												<AccessibleTooltip
+													detectBounds
+													snapTooltipToDatumX
+													snapTooltipToDatumY
+													showSeriesGlyphs
+													renderTooltip={ renderTooltip }
+													renderGlyph={ tooltipRenderGlyph }
+													glyphStyle={ glyphStyle }
+													showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
+													showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
+													selectedIndex={ selectedIndex }
+													tooltipRef={ tooltipRef }
+													keyboardFocusedClassName={
+														styles[ 'line-chart__tooltip--keyboard-focused' ]
+													}
+													series={ dataSorted }
+												/>
+											) }
+
+											{ /* Component to expose scale data via ref */ }
+											<LineChartScalesRef
+												chartRef={ internalChartRef }
+												width={ width }
+												height={ height }
+												margin={ margin }
 											/>
-										) }
-
-										{ withEndGlyphs && (
-											<LineChartGlyph
-												index={ index }
-												data={ seriesData }
-												color={ color }
-												renderGlyph={ glyph ?? renderGlyph }
-												accessors={ accessors }
-												glyphStyle={ glyphStyle }
-												position="end"
-											/>
-										) }
-									</g>
-								);
-							} ) }
-
-							{ withTooltips && (
-								<AccessibleTooltip
-									detectBounds
-									snapTooltipToDatumX
-									snapTooltipToDatumY
-									showSeriesGlyphs
-									renderTooltip={ renderTooltip }
-									renderGlyph={ tooltipRenderGlyph }
-									glyphStyle={ glyphStyle }
-									showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
-									showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
-									selectedIndex={ selectedIndex }
-									tooltipRef={ tooltipRef }
-									keyboardFocusedClassName={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
-									series={ dataSorted }
-								/>
-							) }
-
-							{ /* Component to expose scale data via ref */ }
-							<LineChartScalesRef
-								chartRef={ internalChartRef }
-								width={ width }
-								height={ height }
-								margin={ margin }
-							/>
-						</XYChart>
-					</div>
-
-					{ showLegend && (
-						<Legend
-							orientation={ legendOrientation }
-							alignment={ legendAlignment }
-							position={ legendPosition }
-							maxWidth={ legendMaxWidth }
-							textOverflow={ legendTextOverflow }
-							legendItemClassName={ legendItemClassName }
-							className={ styles[ 'line-chart-legend' ] }
-							shape={ legendShape }
-							chartId={ chartId }
-							interactive={ legendInteractive }
-							ref={ legendRef }
-						/>
-					) }
-
-					{ children }
-				</div>
+											{ zoomable && <ZoomSelectionRect drag={ zoom.drag } /> }
+										</XYChart>
+									</div>
+								) }
+							</div>
+						);
+					} }
+				</ChartLayout>
 			</SingleChartContext.Provider>
 		);
 	}

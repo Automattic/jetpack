@@ -2,14 +2,20 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 8.0.0
+ * Version: 9.0.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '8.0.0' );
+define( 'WPCOMSH_VERSION', '9.0.0' );
+
+// Loaded first: fatal-error screen filter + one-shot plugin-deactivation endpoint.
+// The deactivator also needs to load before any regular plugin, so in production
+// a stub in wp-content/mu-plugins/ should re-include fatal-plugin-deactivator.php
+// directly (see wpcom-fatal-error/mu-plugin-stub.php).
+require_once __DIR__ . '/wpcom-fatal-error/load.php';
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -116,7 +122,6 @@ if ( is_readable( $jetpack_autoloader ) ) {
 
 	return;
 }
-require_once __DIR__ . '/vendor/automattic/at-pressable-podcasting/podcasting.php';
 require_once __DIR__ . '/vendor/automattic/custom-fonts/custom-fonts.php';
 require_once __DIR__ . '/vendor/automattic/custom-fonts-typekit/custom-fonts-typekit.php';
 require_once __DIR__ . '/vendor/automattic/text-media-widget-styles/text-media-widget-styles.php';
@@ -125,10 +130,12 @@ require_once __DIR__ . '/vendor/automattic/text-media-widget-styles/text-media-w
 require_once __DIR__ . '/endpoints/rest-api.php';
 
 // Load feature plugins.
+require_once __DIR__ . '/feature-plugins/activitypub.php';
 require_once __DIR__ . '/feature-plugins/additional-css.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
+require_once __DIR__ . '/feature-plugins/crowdsignal.php';
 require_once __DIR__ . '/feature-plugins/full-site-editing.php';
 require_once __DIR__ . '/feature-plugins/google-fonts.php';
 require_once __DIR__ . '/feature-plugins/gutenberg-mods.php';
@@ -142,12 +149,15 @@ require_once __DIR__ . '/feature-plugins/masterbar.php';
 require_once __DIR__ . '/feature-plugins/migrate-guru-canary.php';
 require_once __DIR__ . '/feature-plugins/nav-redesign.php';
 require_once __DIR__ . '/feature-plugins/post-list.php';
+require_once __DIR__ . '/feature-plugins/class-wpcomsh-recovery-mode-sync.php';
 require_once __DIR__ . '/feature-plugins/sensei-pro-mods.php';
 require_once __DIR__ . '/feature-plugins/smtp-email-priority.php';
 require_once __DIR__ . '/feature-plugins/staging-sites.php';
 require_once __DIR__ . '/feature-plugins/stats.php';
 require_once __DIR__ . '/feature-plugins/woocommerce.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
+require_once __DIR__ . '/feature-plugins/wpcom-reader-link.php';
+require_once __DIR__ . '/feature-plugins/reprint-exporter-api.php';
 require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
 /**
@@ -420,110 +430,39 @@ add_filter( 'allowed_redirect_hosts', 'wpcomsh_allowed_redirect_hosts', 11 );
 /**
  * WP.com make clickable
  *
- * Converts all plain-text HTTP URLs in post_content to links on display
+ * Converts all plain-text HTTP URLs in post_content to links on display.
+ * Uses WP_HTML_Tag_Processor for proper HTML tokenization that won't be confused by
+ * content inside tags (e.g., JavaScript comparison operators in script tags).
  *
  * @param string $content The content.
- *
+ * @return string Modified content with linkified URLs.
  * @uses make_clickable()
  * @since 20121125
  */
 function wpcomsh_make_content_clickable( $content ) {
-	// make_clickable() is expensive, check if plain-text URLs exist before running it
-	// don't look inside HTML tags
-	// don't look in <a></a>, <pre></pre>, <script></script> and <style></style>
-	// use <div class="skip-make-clickable"> in support docs where linkifying
-	// breaks shortcodes, etc.
-	$_split  = preg_split( '/(<[^>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
-	$end     = '';
-	$out     = '';
-	$combine = '';
-	$split   = array();
+	// Fast path: no URL-shaped substring, no work to do. Avoids loading the
+	// linkifier and walking the tokenizer for the common case.
+	if ( false === stripos( $content, 'http' ) && false === stripos( $content, 'www.' ) ) {
+		return $content;
+	}
 
-	// Defines a set of rules for the wpcomsh_make_content_clickable() function to ignore matching html elements.
-	$make_clickable_rules = array(
-		array(
-			'match' => array( '<a ' ),
-			'end'   => '</a>',
-		),
-		array(
-			'match' => array( '<pre ', '<pre>' ),
-			'end'   => '</pre>',
-		),
-		array(
-			'match' => array( '<code ', '<code>' ),
-			'end'   => '</code>',
-		),
-		array(
-			'match' => array( '<script ', '<script>' ),
-			'end'   => '</script>',
-		),
-		array(
-			'match' => array( '<style ', '<style>' ),
-			'end'   => '</style>',
-		),
-		array(
-			'match' => array( '<textarea ', '<textarea>' ),
-			'end'   => '</textarea>',
-		),
-		array(
-			'match' => array( '<div class="skip-make-clickable' ),
-			'end'   => '</div>',
-		),
+	if ( ! method_exists( 'WP_HTML_Tag_Processor', 'next_token' ) ) {
+		if ( function_exists( 'bump_stats_extras' ) ) {
+			bump_stats_extras( 'wpcomsh-make-content-clickable', 'skipped-no-html-api' );
+		}
+		return $content;
+	}
+
+	require_once __DIR__ . '/class-wpcomsh-html-linkifier.php';
+
+	return Wpcomsh_HTML_Linkifier::modify_raw_text_nodes(
+		$content,
+		static function ( $raw_text ) {
+			return 1 === preg_match( '~https?://|www\.~', $raw_text )
+				? make_clickable( $raw_text )
+				: $raw_text;
+		}
 	);
-
-	// filter the array and combine <a></a>, <pre></pre>, <script></script> and <style></style> into one
-	// (none of these tags can be nested so when we see the opening tag, we grab everything untill we reach the closing tag).
-	foreach ( $_split as $chunk ) {
-		if ( '' === $chunk ) {
-			continue;
-		}
-
-		if ( $end ) {
-			$combine .= $chunk;
-
-			if ( $end === strtolower( str_replace( array( "\t", ' ', "\r", "\n" ), '', $chunk ) ) ) {
-				$split[] = $combine;
-				$end     = '';
-				$combine = '';
-			}
-			continue;
-		}
-
-		$found = false;
-		foreach ( $make_clickable_rules as $rule ) {
-			foreach ( $rule['match'] as $match ) {
-				if ( stripos( $chunk, $match ) === 0 ) {
-					$combine .= $chunk;
-					$end      = $rule['end'];
-					$found    = true;
-
-					break 2;
-				}
-			}
-		}
-
-		if ( ! $found ) {
-			$split[] = $chunk;
-		}
-	}
-
-	foreach ( $split as $chunk ) {
-		// if $chunk is white space or a tag (or a combined tag), add it and continue.
-		if ( preg_match( '/^\s+$/', $chunk ) || ( '<' === $chunk[0] && '>' === $chunk[ strlen( $chunk ) - 1 ] ) ) {
-			$out .= $chunk;
-			continue;
-		}
-
-		// three strpos() are faster than one preg_match() here. If we need to check for more protocols, preg_match() would probably be better.
-		if ( strpos( $chunk, 'http://' ) !== false || strpos( $chunk, 'https://' ) !== false || strpos( $chunk, 'www.' ) !== false ) {
-			// looks like there is a plain-text url.
-			$out .= make_clickable( $chunk );
-		} else {
-			$out .= $chunk;
-		}
-	}
-
-	return $out;
 }
 add_filter( 'the_content', 'wpcomsh_make_content_clickable', 120 );
 add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );

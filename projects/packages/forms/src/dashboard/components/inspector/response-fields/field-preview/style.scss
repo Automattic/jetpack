@@ -1,0 +1,49 @@
+.jp-forms__inbox-response-data {
+	padding: 0 16px;
+	overflow-wrap: break-word;
+
+	&.is-collection-format {
+
+		.jp-forms__field-preview {
+			padding-top: 24px;
+			padding-bottom: 24px;
+			// Multiple variables as fallback until style tokens are fully available.
+			border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, var(--jp-forms-border-color, #e0e0e0));
+		}
+
+		.jp-forms__field-preview-icon {
+			flex-shrink: 0;
+		}
+
+		.jp-forms__field-preview-content {
+			min-width: 0; // Prevents flex item from overflowing
+			overflow-wrap: break-word;
+			line-height: var(--wpds-typography-line-height-sm, 20px);
+		}
+
+		// Value needed for positioning with the icon in case label is missing.
+		.jp-forms__field-preview-label,
+		.jp-forms__field-preview-value {
+			// Align first line centrally with the 24px icon.
+			margin-top: calc((24px - var(--wpds-typography-line-height-sm, 20px)) / 2);
+		}
+	}
+
+	// Old field format renders without .jp-forms__field-preview.
+	&:not(.is-collection-format) {
+		display: flex;
+		flex-direction: column;
+		row-gap: 24px;
+		padding-top: 24px;
+		padding-bottom: 24px;
+	}
+}
+
+.jp-forms__field-preview-label {
+	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	font-weight: 300;
+}
+
+.jp-forms__inbox-response-data-value {
+	white-space: pre-wrap;
+}

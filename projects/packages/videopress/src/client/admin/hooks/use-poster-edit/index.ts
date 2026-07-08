@@ -26,9 +26,9 @@ const usePosterEdit = ( { video } ) => {
 		} );
 	};
 
-	const selectAttachmentFromLibrary = (): Promise< { id: number; url: string } | null > => {
+	const selectAttachmentFromLibrary = (): Promise< WpMediaAttachment | null > => {
 		return new Promise( resolve => {
-			const mediaFrame = window.wp.media( {
+			const mediaFrame = ( window.wp as Required< WpGlobal > ).media( {
 				title: __( 'Select Thumbnail', 'jetpack-videopress-pkg' ),
 				multiple: false,
 				library: {

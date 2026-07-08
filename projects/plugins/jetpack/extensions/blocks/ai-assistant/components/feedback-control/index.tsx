@@ -2,8 +2,10 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { BaseControl, ExternalLink } from '@wordpress/components';
+import { BaseControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
+
 /**
  * Internal dependencies
  */
@@ -22,7 +24,9 @@ function FeedbackControl() {
 						'jetpack'
 					) }
 				</p>
-				<ExternalLink href={ feedbackURL }>{ __( 'Share your feedback', 'jetpack' ) }</ExternalLink>
+				<Link openInNewTab href={ feedbackURL }>
+					{ __( 'Share your feedback', 'jetpack' ) }
+				</Link>
 			</BaseControl>
 		</div>
 	);

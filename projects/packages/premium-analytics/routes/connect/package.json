@@ -1,0 +1,14 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-premium-analytics-connect-route",
+	"route": {
+		"path": "/connect",
+		"page": "jetpack-premium-analytics"
+	},
+	"dependencies": {
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/route": "0.16.0",
+		"@wordpress/ui": "0.17.0"
+	}
+}

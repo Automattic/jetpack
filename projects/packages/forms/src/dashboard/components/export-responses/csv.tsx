@@ -2,9 +2,10 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Path, SVG } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Path, SVG } from '@wordpress/primitives';
 import clsx from 'clsx';
 
 const CSVExport = ( { onExport } ) => {

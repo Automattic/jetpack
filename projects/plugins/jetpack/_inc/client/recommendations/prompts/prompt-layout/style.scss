@@ -29,14 +29,11 @@
 .jp-recommendations-question__progress-bar-wrap {
 	display: flex;
 	align-items: center;
+	gap: 1rem;
 	margin: 32px 32px 0 32px;
 
 	@include breakpoints.breakpoint( "<480px" ) {
 		margin: 16px 16px 32px 16px;
-	}
-
-	.jp-recommendations__new-badge {
-		margin-right: 1rem;
 	}
 }
 
@@ -126,13 +123,6 @@
 	@include breakpoints.breakpoint( "<1040px" ) {
 		display: none;
 	}
-}
-
-.jp-recommendations-question__illustration-picture {
-	display: flex;
-	justify-content: center;
-
-	width: 100%;
 }
 
 .jp-recommendations-question__sidebar-card {

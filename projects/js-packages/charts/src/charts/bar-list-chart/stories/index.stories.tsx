@@ -39,8 +39,21 @@ export const Default: Story = {
 		...sharedThemeArgs,
 		withTooltips: true,
 		data: salesByProduct,
-		containerWidth: '600px',
-		containerHeight: '332px',
+	},
+};
+
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 600,
+		height: 300,
+	},
+};
+
+export const AspectRatio: Story = {
+	args: {
+		...Default.args,
+		aspectRatio: 0.3,
 	},
 };
 

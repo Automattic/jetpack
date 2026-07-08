@@ -14,17 +14,19 @@ import {
 	usePlanType,
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
-import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl, Button, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import {
 	PluginPrePublishPanel,
 	PluginDocumentSettingPanel,
 	store as editorStore,
 } from '@wordpress/editor';
+import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import debugFactory from 'debug';
-import { ComponentType } from 'react';
+import { ComponentType, useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -83,6 +85,47 @@ const JetpackAndSettingsContent = ( {
 	const { productPageUrl } = useAiProductPage();
 	const isBreveAvailable = getBreveAvailability();
 	const isPostEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
+	const { editPost } = useDispatch( editorStore );
+
+	const onImageSelect = useCallback(
+		( image: { id: number; url: string; mime?: string } ) => {
+			editPost( { featured_media: image.id } );
+		},
+		[ editPost ]
+	);
+
+	/**
+	 * Filters the image generation handler for AI-powered image creation entry points.
+	 *
+	 * Allows external plugins (e.g. Image Studio) to provide a custom handler that
+	 * replaces the default image generation UI. When a handler is returned, it is
+	 * called to open the external image generation flow instead of the built-in one.
+	 *
+	 * @param {Function|null} handler                 - The handler function, or null if no handler is registered.
+	 * @param {object}        options                 - Options describing the entry point context.
+	 * @param {string}        options.entryPoint      - Identifies the UI location (e.g. 'featured-image').
+	 * @param {Function}      options.onImageSelect   - Callback invoked with the selected image ({ id, url, mime? }).
+	 * @param {object}        options.extra           - Additional context for the handler.
+	 * @param {string}        options.extra.placement - The placement identifier for the entry point.
+	 * @param {boolean}       options.extra.disabled  - Whether the handler should be disabled (e.g. upgrade required).
+	 * @return {Function|null} A function to invoke the image generation flow, or null to use the default behavior.
+	 *
+	 * @example
+	 * // Register a custom image generation handler from an external plugin.
+	 * import { addFilter } from '@wordpress/hooks';
+	 *
+	 * addFilter( 'jetpack.ai.imageGenerationHandler', 'my-plugin/image-studio', ( handler, options ) => {
+	 *     return () => openImageStudio( options.entryPoint, options.onImageSelect );
+	 * } );
+	 */
+	const imageGenerationHandler = useMemo( () => {
+		const result = applyFilters( 'jetpack.ai.imageGenerationHandler', null, {
+			entryPoint: 'featured-image',
+			onImageSelect,
+			extra: { placement, disabled: requireUpgrade },
+		} );
+		return typeof result === 'function' ? ( result as () => void ) : null;
+	}, [ onImageSelect, placement, requireUpgrade ] );
 
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
@@ -99,7 +142,6 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-
 			{ isPostEmpty && (
 				<PanelRow className="jetpack-ai-sidebar__warning-content">
 					<Notice isDismissible={ false } status="warning">
@@ -107,7 +149,6 @@ const JetpackAndSettingsContent = ( {
 					</Notice>
 				</PanelRow>
 			) }
-
 			{ canWriteBriefBeEnabled() && isBreveAvailable && (
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
@@ -118,7 +159,6 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
@@ -127,25 +167,32 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-
-			{ isAIFeaturedImageAvailable && (
+			{ ( imageGenerationHandler || isAIFeaturedImageAvailable ) && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
 							{ __( 'Get Featured Image', 'jetpack' ) }
 						</BaseControl.VisualLabel>
-						<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
+						{ imageGenerationHandler ? (
+							<Button
+								onClick={ imageGenerationHandler }
+								variant="secondary"
+								disabled={ requireUpgrade }
+							>
+								{ __( 'Generate image', 'jetpack' ) }
+							</Button>
+						) : (
+							<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
+						) }
 					</BaseControl>
 				</PanelRow>
 			) }
-
 			<PanelRow className="jetpack-ai-sidebar__feature-section">
 				<BaseControl __nextHasNoMarginBottom={ true }>
 					<BaseControl.VisualLabel>{ __( 'Get Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
 					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
-
 			{ requireUpgrade && ! isUsagePanelAvailable && (
 				<PanelRow>
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
@@ -156,24 +203,31 @@ const JetpackAndSettingsContent = ( {
 					<UsagePanel placement={ placement } />
 				</PanelRow>
 			) }
-
 			<PanelRow className="jetpack-ai-sidebar__external-link">
-				<ExternalLink href={ productPageUrl }>
+				<Link openInNewTab href={ productPageUrl }>
 					{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</PanelRow>
-
 			<PanelRow className="jetpack-ai-sidebar__external-link">
-				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
+				<Link openInNewTab href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
 					{ __( 'Give us feedback', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</PanelRow>
-
 			<PanelRow className="jetpack-ai-sidebar__external-link">
-				<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
+				<Link openInNewTab href="https://jetpack.com/redirect/?source=ai-guidelines">
 					{ __( 'AI guidelines', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</PanelRow>
+			{ canWriteBriefBeEnabled() && ! isBreveAvailable && (
+				<PanelRow className="jetpack-ai-sidebar__external-link">
+					<Link
+						openInNewTab
+						href="https://jetpack.com/support/publish-better-content-with-write-brief-with-ai/"
+					>
+						{ __( 'Update on Write Brief (Beta)', 'jetpack' ) }
+					</Link>
+				</PanelRow>
+			) }
 		</>
 	);
 };
@@ -233,9 +287,9 @@ export default function AiAssistantPluginSidebar() {
 			</JetpackPluginSidebar>
 
 			<DocumentPanel
-				icon={ <JetpackEditorPanelLogo /> }
 				title={ title }
 				name="jetpack-ai-assistant"
+				icon={ <JetpackEditorPanelLogo /> }
 			>
 				<JetpackAndSettingsContent
 					placement={ PLACEMENT_DOCUMENT_SETTINGS }

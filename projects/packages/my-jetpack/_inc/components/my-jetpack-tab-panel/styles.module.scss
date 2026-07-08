@@ -5,28 +5,15 @@
 	max-width: var(--max-container-width);
 	margin: 0 auto;
 
-	// Make all the links green
-	a,
-	:global(.components-external-link),
-	:global(.components-button.is-link) {
-		color: var(--jp-green-60);
-	}
-
 	:global(.components-tab-panel__tabs) {
 		position: relative;
 		z-index: 1;
-		padding-inline-start: 2rem;
+		padding-inline-start: 24px;
 		margin-block-end: -1px;
 
 		@media (max-width: gb.$break-medium ) {
 			padding-inline-start: 0.5rem;
 		}
-	}
-
-	// Make all the toggles green
-	:global(.components-form-toggle.is-checked) :global(.components-form-toggle__track) {
-		background-color: var(--jp-green-50);
-		border-color: var(--jp-green-50);
 	}
 }
 
@@ -48,10 +35,6 @@
 
 .full-width-separator {
 	border-top: 1px solid var(--jp-gray);
-	width: 100vw;
-	position: relative;
-	inset-inline-start: 50%;
-	margin-inline-start: -50vw;
 }
 
 @mixin full-width-container {
@@ -60,13 +43,19 @@
 }
 
 .my-jetpack-tab-panel--full-width {
+
 	width: 100%;
 	max-width: none;
 	margin: 0;
 
 	:global(.components-tab-panel__tabs) {
+		// @TODO: remove this once we can keep tabs consistent looking with core
+		// colors.
+		--wp-admin-theme-color: var(--jp-black);
+		--wp-admin-theme-color-darker-10: var(--jp-black-80);
+		--wp-admin-theme-color-darker-20: var(--jp-black-80);
 
-		@include full-width-container;
+		padding-inline-start: 24px;
 	}
 
 	:global(.components-tab-panel__tab-content) {

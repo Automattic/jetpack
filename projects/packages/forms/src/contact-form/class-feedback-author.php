@@ -74,8 +74,8 @@ class Feedback_Author {
 	 * @return Feedback_Author The Feedback_Author instance.
 	 */
 	public static function from_submission( $post_data, $form ) {
-		$first = isset( $post_data['first-name'] ) ? wp_unslash( $post_data['first-name'] ) : '';
-		$last  = isset( $post_data['last-name'] ) ? wp_unslash( $post_data['last-name'] ) : '';
+		$first = isset( $post_data['first-name'] ) ? sanitize_text_field( wp_unslash( $post_data['first-name'] ) ) : '';
+		$last  = isset( $post_data['last-name'] ) ? sanitize_text_field( wp_unslash( $post_data['last-name'] ) ) : '';
 		return new self(
 			self::get_computed_author_info( $post_data, 'name', 'pre_comment_author_name', $form ),
 			self::get_computed_author_info( $post_data, 'email', 'pre_comment_author_email', $form ),
@@ -134,12 +134,27 @@ class Feedback_Author {
 	/**
 	 * Get the avatar URL of the author.
 	 *
-	 * If the email is not set, it will return an empty string.
+	 * Uses Gravatar's "initials" default so that users without a Gravatar
+	 * get a colored circle with their initials — matching the dashboard.
+	 *
+	 * @see https://docs.gravatar.com/api/avatars/images/#default-image
 	 *
 	 * @return string The avatar URL of the author.
 	 */
 	public function get_avatar_url(): string {
-		return ! empty( $this->email ) ? get_avatar_url( $this->email ) : '';
+		if ( empty( $this->email ) ) {
+			return '';
+		}
+
+		$hash = md5( strtolower( trim( $this->email ) ) );
+		$name = $this->get_name();
+
+		if ( empty( $name ) ) {
+			// Use the email prefix as a fallback for initials.
+			$name = strstr( $this->email, '@', true );
+		}
+
+		return "https://gravatar.com/avatar/{$hash}?d=initials&name=" . rawurlencode( $name ) . '&s=96';
 	}
 
 	/**

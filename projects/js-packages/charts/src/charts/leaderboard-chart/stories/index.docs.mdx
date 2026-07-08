@@ -5,17 +5,18 @@ import * as LeaderboardChartStories from './index.stories';
 
 # Leaderboard Chart
 
-A flexible and accessible leaderboard chart component for displaying ranked data with WordPress ProgressBar components and optional comparison values.
+A flexible and accessible leaderboard chart component for displaying ranked data with optional comparison values and legend support.
 
 <Canvas of={ LeaderboardChartStories.Default } />
 
 ## Overview
 
-The Leaderboard Chart component provides a clean, responsive visualization for displaying ranked data with optional comparison values. Built with WordPress components, it supports customizable colors, flexible formatting, and comprehensive accessibility features:
+The Leaderboard Chart component provides a clean, responsive visualization for displaying ranked data with optional comparison values. Built with WordPress components, it supports customizable colors, flexible formatting, and accessibility-friendly defaults.
 
 <Source
 	language="tsx"
 	code={ `import { LeaderboardChart } from '@automattic/charts';
+import '@automattic/charts/style.css';
 
 	<LeaderboardChart
 		data={data}
@@ -83,6 +84,8 @@ The simplest leaderboard chart requires only a `data` prop with pre-processed le
 - **`loading`**: Whether the chart is in loading state - `false` by default
 - **`className`**: Additional CSS class name for the chart container
 - **`style`**: Custom styling including CSS custom properties for border radius
+- **`width` / `height`**: Optional fixed chart container dimensions
+- **`gap`**: Spacing between legend and chart content (Stack gap token/value)
 
 For detailed prop information, type definitions, and examples, see the [Leaderboard Chart API Reference](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart-api-reference--docs).
 
@@ -101,12 +104,6 @@ Display both current and previous period data with delta indicators:
 		withComparison={true}
 	/>` }
 />
-
-### Without Comparison
-
-Focus on current period data only:
-
-<Canvas of={ LeaderboardChartStories.WithoutComparison } />
 
 ### Negative Growth Handling
 
@@ -207,127 +204,25 @@ Handle different value ranges with conditional formatting:
 	/>` }
 />
 
-## Visual Customization
+## Interactive Items
 
-### Custom Colors
+Any entry with an `onClick` field becomes a clickable, keyboard-accessible row. The row renders as a `<button>` (activatable with Enter or Space) and reveals a chevron on hover or focus. Rows without `onClick` remain inert.
 
-Override default theme colors with custom primary and secondary colors:
+By default the button's accessible name is derived from its rendered content (the label plus the formatted value). For an image-only JSX label whose text content doesn't yield a clean name, set the optional `ariaLabel` field on the entry to give assistive tech a deterministic name.
 
-<Canvas of={ LeaderboardChartStories.CustomColors } />
+Configuring what happens on click — for example, drilling down into a sub-view — is the consumer's responsibility, not the chart's:
 
-<Source
-	language="tsx"
-	code={ `<LeaderboardChart
-		data={data}
-		withComparison={true}
-		primaryColor="red"
-		secondaryColor="green"
-	/>` }
-/>
-
-### Custom Labels
-
-Use React components as labels for rich content display:
-
-<Canvas of={ LeaderboardChartStories.CustomLabel } />
-
-<Source
-	language="tsx"
-	code={ `const CustomLabelComponent = ({ label, imageColor }) => (
-		<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-			<img
-				src={\`data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><rect width='50' height='50' fill='\${encodeURIComponent(imageColor)}'/></svg>\`}
-				alt="icon"
-				style={{ width: '28px', height: '28px', borderRadius: '4px' }}
-			/>
-			<span>{label}</span>
-		</div>
-	);
-
-	<LeaderboardChart
-		data={dataWithImages.map(entry => ({
-			...entry,
-			label: <CustomLabelComponent label={entry.label} imageColor={entry.imageColor} />
-		}))}
-	/>` }
-/>
-
-### Overlay Labels
-
-Position labels on top of bars for a more compact display:
-
-<Canvas of={ LeaderboardChartStories.WithOverlayLabel } />
+<Canvas of={ LeaderboardChartStories.Interactive } />
 
 <Source
 	language="tsx"
 	code={ `<LeaderboardChart
-		data={data}
-		withOverlayLabel={true}
-	/>` }
+	data={ data.map( d => ( {
+		...d,
+		onClick: () => drillDown( d.id ),
+	} ) ) }
+/>` }
 />
-
-### Advanced Overlay Styling
-
-Combine overlay labels with custom styling and transparent colors:
-
-<Canvas of={ LeaderboardChartStories.OverlayLabelWithImage } />
-
-<Source
-	language="tsx"
-	code={ `<LeaderboardChart
-		data={richLabelData}
-		withComparison={true}
-		withOverlayLabel={true}
-		primaryColor="rgba(56, 88, 233, 0.08)" // Semi-transparent
-		style={{
-			'--a8c--charts--leaderboard--bar--border-radius': '4px',
-			fontFamily: '"SF Pro Text", sans-serif',
-		}}
-	/>` }
-/>
-
-## Legend Configuration
-
-### Basic Legend
-
-Display a legend to help users understand the data visualization:
-
-<Canvas of={ LeaderboardChartStories.WithLegend } />
-
-<Source
-	language="tsx"
-	code={ `<LeaderboardChart
-		data={data}
-		withComparison={true}
-		showLegend={true}
-	/>` }
-/>
-
-### Custom Legend Labels
-
-Customize legend labels with specific date ranges or descriptive text:
-
-<Canvas of={ LeaderboardChartStories.CustomLegendLabels } />
-
-<Source
-	language="tsx"
-	code={ `<LeaderboardChart
-		data={data}
-		withComparison={true}
-		showLegend={true}
-		legendLabels={{
-			primary: 'Aug 11-Sep 9, 2025',
-			comparison: 'Jul 11-Aug 11, 2025',
-		}}
-	/>` }
-/>
-
-**Legend Configuration Options:**
-- Control legend positioning, alignment, and visual appearance
-- Customize legend shapes and sizes
-- Add custom labels for different time periods or data series
-
-See the [API Reference](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart-api-reference--docs) for detailed prop information.
 
 ## Data States
 
@@ -358,6 +253,12 @@ Gracefully handle empty data arrays:
 		withComparison={true}
 	/>` }
 />
+
+### Empty Data with Children
+
+Children passed to the composition API still render in empty-data state:
+
+<Canvas of={ LeaderboardChartStories.EmptyDataWithChildren } />
 
 ### Small Datasets
 
@@ -434,7 +335,115 @@ Calculate the `currentShare` and `previousShare` values to determine bar widths:
 	}));` }
 />
 
+## Legends
+
+Use the composition API to add a legend by placing `<LeaderboardChart.Legend />` as a child:
+
+<Canvas of={ LeaderboardChartStories.WithCompositionLegend } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart data={data} withComparison={true}>
+		<LeaderboardChart.Legend />
+	</LeaderboardChart>` }
+/>
+
+Use `legendLabels` to show descriptive labels (e.g. date ranges) for the primary and comparison series:
+
+<Canvas of={ LeaderboardChartStories.WithLegendLabels } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withComparison={true}
+		showLegend={true}
+		legendLabels={{
+			primary: 'Aug 11-Sep 9, 2025',
+			comparison: 'Jul 11-Aug 11, 2025',
+		}}
+	/>` }
+/>
+
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
+
 ## Styling and Customization
+
+### Custom Colors
+
+Override default theme colors with custom primary and secondary colors:
+
+<Canvas of={ LeaderboardChartStories.CustomColors } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withComparison={true}
+		primaryColor="red"
+		secondaryColor="green"
+	/>` }
+/>
+
+### Custom Labels
+
+Use React components as labels for rich content display:
+
+<Canvas of={ LeaderboardChartStories.CustomLabel } />
+
+<Source
+	language="tsx"
+	code={ `const CustomLabelComponent = ({ label, imageColor }) => (
+		<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+			<img
+				src={\`data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><rect width='50' height='50' fill='\${encodeURIComponent(imageColor)}'/></svg>\`}
+				alt="icon"
+				style={{ width: '28px', height: '28px', borderRadius: '4px' }}
+			/>
+			<span>{label}</span>
+		</div>
+	);
+
+	<LeaderboardChart
+		data={dataWithImages.map(entry => ({
+			...entry,
+			label: <CustomLabelComponent label={entry.label} imageColor={entry.imageColor} />
+		}))}
+	/>` }
+/>
+
+### Overlay Labels
+
+Position labels on top of bars for a more compact display:
+
+<Canvas of={ LeaderboardChartStories.WithOverlayLabel } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withOverlayLabel={true}
+	/>` }
+/>
+
+### Advanced Overlay Styling
+
+Combine overlay labels with custom styling and transparent colors:
+
+<Canvas of={ LeaderboardChartStories.OverlayLabelWithImage } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={richLabelData}
+		withComparison={true}
+		withOverlayLabel={true}
+		primaryColor="rgba(56, 88, 233, 0.08)" // Semi-transparent
+		style={{
+			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+		}}
+	/>` }
+/>
 
 ### CSS Custom Properties
 
@@ -455,7 +464,6 @@ The component supports CSS custom properties for advanced styling:
 	language="css"
 	code={ `.myCustomChart {
 		--a8c--charts--leaderboard--bar--border-radius: 8px;
-		font-family: "Custom Font", sans-serif;
 	}` }
 />
 
@@ -475,6 +483,30 @@ Leaderboard Charts integrate seamlessly with the chart theming system. The defau
 		<LeaderboardChart data={data} />
 	</GlobalChartsProvider>` }
 />
+
+## Responsive Behavior
+
+By default, leaderboard charts fill their parent container dimensions. The parent must provide an explicit height for constrained layouts:
+
+<Source
+	language="tsx"
+	code={ `// Responsive by default (fills parent container)
+		<div style={{ width: '100%', height: '320px' }}>
+			<LeaderboardChart data={ data } showLegend={ true } />
+		</div>
+
+		// Fixed-size exception
+		<LeaderboardChart
+			data={ data }
+			width={ 300 }
+			height={ 400 }
+			showLegend={ true }
+		/>` }
+/>
+
+When content is taller than the available area, the content region scrolls and the legend remains visible without overlap.
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
 
@@ -499,24 +531,7 @@ The Leaderboard Chart component supports an optional entry animation that create
 
 **Note**: The animation plays once when the chart initially renders and does not repeat.
 
-## Accessibility
-
-- Built with semantic WordPress components (`Grid`, `VStack`, `Text`)
-- Screen reader accessible through proper text content
-- Color information supplemented with text values (not color-dependent)
-- Responsive design that adapts to system font size preferences
-- No interactive elements - functions as a display-only component
-
-## Browser Compatibility
-
-Supports all modern browsers with CSS Grid and ES6+ features:
-- **Chrome**: 57+, **Firefox**: 52+, **Safari**: 10.1+, **Edge**: 16+
-- Relies on WordPress Gutenberg component browser support
-- Internet Explorer not supported
-- Mobile-friendly with responsive design
-
-
-## Examples
+## Advanced Usage
 
 ### E-commerce Sales Channels
 
@@ -542,3 +557,23 @@ Supports all modern browsers with CSS Grid and ES6+ features:
 
 	<LeaderboardChart data={trafficData} withComparison={true} />
 ` } />
+
+## Accessibility
+
+### Keyboard Navigation
+
+- Interactive legends are keyboard accessible when `legend.interactive` is enabled.
+- Legend items can be toggled via keyboard using standard button interaction.
+- Rows with `onClick` render as native `<button>` elements and are activatable with Enter or Space.
+- An interactive row's accessible name comes from its content (label + value); set the entry's `ariaLabel` to override it for image-only labels.
+
+### Screen Reader Support
+
+- Uses semantic text content for labels and values.
+- Legend items expose visible labels and state when interactive.
+- Value and delta text supplement color-based feedback.
+
+### Focus Management
+
+- Interactive legend items use standard focus behavior and visible focus indicators from the shared legend component.
+- The chart content area scrolls in constrained layouts, keeping focused legend controls visible and non-overlapping.

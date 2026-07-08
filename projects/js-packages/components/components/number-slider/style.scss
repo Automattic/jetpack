@@ -5,7 +5,7 @@ $track-height: 8px;
 
 @mixin adjust-track-rail-styles {
 	height: $track-height;
-	border-radius: 8px; /* stylelint-disable-line scales/radii */
+	border-radius: 8px;
 }
 
 // On holding thumb styling

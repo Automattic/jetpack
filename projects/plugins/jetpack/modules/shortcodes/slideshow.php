@@ -206,9 +206,11 @@ class Jetpack_Slideshow_Shortcode {
 			/*
 			 * Blocks can be disabled in Jetpack Settings.
 			 * If that's the case, we need to include the slideshow block manually.
+			 * render_amp() lives in the block's render.php, which is loaded lazily,
+			 * so make sure it is available before calling it.
 			 */
-			if ( ! class_exists( 'Automattic\Jetpack\Extensions\Slideshow' ) ) {
-				require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/slideshow.php';
+			if ( ! function_exists( 'Automattic\Jetpack\Extensions\Slideshow\render_amp' ) ) {
+				require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/render.php';
 			}
 
 			return Slideshow\render_amp( $amp_args );
@@ -287,6 +289,7 @@ class Jetpack_Slideshow_Shortcode {
 		);
 		wp_style_add_data( 'jetpack-slideshow', 'rtl', 'replace' );
 
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-spinner.php';
 		wp_localize_script(
 			'jetpack-slideshow',
 			'jetpackSlideshowSettings',
@@ -308,7 +311,7 @@ class Jetpack_Slideshow_Shortcode {
 			apply_filters(
 				'jetpack_js_slideshow_settings',
 				array(
-					'spinner'    => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
+					'spinner'    => 'data:image/svg+xml,' . rawurlencode( Jetpack_Spinner::render( 24 ) ),
 					'speed'      => '4000',
 					'label_prev' => __( 'Previous Slide', 'jetpack' ),
 					'label_stop' => __( 'Pause Slideshow', 'jetpack' ),

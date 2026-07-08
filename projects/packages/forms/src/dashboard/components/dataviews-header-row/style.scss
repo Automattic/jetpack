@@ -1,0 +1,91 @@
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/variables";
+
+/**
+ * DataViewsHeaderRow styles
+ *
+ * Patterned after `dashboard/inbox/style.scss` so the header row behaves
+ * the same:
+ * - sticky row
+ * - tabs on the left
+ * - DataViews controls on the right
+ * - optional filters "pills" row that only takes space when non-empty
+ */
+
+.jp-forms-view-actions {
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	padding-inline: variables.$grid-unit * 2.5;
+	overflow-x: auto;
+	width: 100%;
+	box-sizing: border-box;
+	display: flex;
+	container-type: inline-size;
+	flex-shrink: 0;
+
+	// Jetpack Forms specific additions (match Inbox).
+	position: sticky;
+	left: 0;
+	background: var(--wpds-color-background-surface-neutral-strong, #fff);
+	justify-content: space-between;
+	gap: 8px;
+	flex-direction: column;
+	align-items: flex-start;
+
+	> div:not(:empty) {
+		min-height: 48px;
+		width: 100%;
+	}
+
+	@media (min-width: #{ (breakpoints.$break-small + 1) }) {
+
+		& {
+			flex-direction: row;
+			align-items: center;
+		}
+
+		> div:not(:empty) {
+			min-height: 0;
+		}
+	}
+
+	// Tab styling (match Inbox).
+	button[role="tab"] {
+		margin: 0;
+		padding: 12px 0;
+		color: var(--wpds-color-foreground-interactive-neutral);
+
+		&[data-active="true"] {
+			color: var(--wpds-color-foreground-interactive-neutral-active);
+		}
+
+		&:hover:not([data-active="true"]) {
+			color: var(--wpds-color-foreground-interactive-neutral-active);
+		}
+	}
+}
+
+.jp-forms-view-actions__controls {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+}
+
+// Match the old Inbox behavior: when the header row is narrow,
+// don't force the controls to the right.
+@container (max-width: 599px) {
+
+	.jp-forms-view-actions__controls {
+		justify-content: flex-start;
+	}
+}
+
+// Filters "pills" row: collapse when empty (match Inbox behavior).
+.jp-forms-filters-container,
+.jp-forms-filters-container:not(:empty) {
+	padding: 0;
+}
+
+.jp-forms-filters-container:not(:empty) {
+	padding-inline: variables.$grid-unit * 2.5;
+	padding-block: variables.$grid-unit * 1.5;
+}

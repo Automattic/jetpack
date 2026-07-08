@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add /connect and /syncing routes with connection-aware route guards: /connect detects the connection state and shows a "site not connected" screen, and /syncing shows initial-sync progress. Emit window.JetpackScriptData on the boot-rendered admin page so the connection data the guards read is available.

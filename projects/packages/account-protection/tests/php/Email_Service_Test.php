@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 
 namespace Automattic\Jetpack\Account_Protection;
 
@@ -77,6 +77,56 @@ class Email_Service_Test extends BaseTestCase {
 		$new_transient = get_transient( Config::PREFIX . "_{$my_token}" );
 		$this->assertSame( 1, $new_transient['requests'], 'Resend attempts should be 1.' );
 		$this->assertMatchesRegularExpression( '/^[0-9]{6}$/', $new_transient['auth_code'], 'Auth code should be 6 digits.' );
+	}
+
+	public function test_api_send_auth_email_skips_api_call_when_filter_returns_truthy(): void {
+		$sut      = new Email_Service();
+		$user     = new \WP_User();
+		$user->ID = 1;
+
+		$filter_args = array(
+			'handled'   => null,
+			'user_id'   => null,
+			'auth_code' => null,
+			'blog_id'   => null,
+		);
+		$callback    = function ( $handled, $user_id, $auth_code, $blog_id ) use ( &$filter_args ) {
+			$filter_args = compact( 'handled', 'user_id', 'auth_code', 'blog_id' );
+			return true;
+		};
+
+		add_filter( 'jetpack_account_protection_send_auth_email', $callback, 10, 4 );
+
+		$result = $sut->api_send_auth_email( $user->ID, '123456' );
+
+		remove_filter( 'jetpack_account_protection_send_auth_email', $callback, 10 );
+
+		$this->assertTrue( $result, 'api_send_auth_email should return true when the filter short-circuits.' );
+		$this->assertNotEmpty( $filter_args, 'Filter callback should have been called.' );
+		$this->assertFalse( $filter_args['handled'], 'Default handled value should be false.' );
+		$this->assertSame( 1, $filter_args['user_id'], 'Filter should receive the user ID.' );
+		$this->assertSame( '123456', $filter_args['auth_code'], 'Filter should receive the auth code.' );
+	}
+
+	public function test_api_send_auth_email_proceeds_normally_when_filter_returns_falsy(): void {
+		Jetpack_Options::delete_option( 'id' );
+		$sut      = new Email_Service();
+		$user     = new \WP_User();
+		$user->ID = 1;
+
+		$callback = function () {
+			return false;
+		};
+
+		add_filter( 'jetpack_account_protection_send_auth_email', $callback, 10, 4 );
+
+		$result = $sut->api_send_auth_email( $user->ID, '123456' );
+
+		remove_filter( 'jetpack_account_protection_send_auth_email', $callback, 10 );
+
+		// Should continue to the normal flow and fail because blog_id is not set
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'jetpack_connection_error', $result->get_error_code() );
 	}
 
 	public function test_api_send_auth_email_returns_error_if_blog_id_not_available(): void {

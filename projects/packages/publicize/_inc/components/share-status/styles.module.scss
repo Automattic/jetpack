@@ -10,16 +10,6 @@
 	justify-content: center;
 }
 
-.wrapper {
-	margin-top: 1rem;
-	padding-block: 1rem;
-}
-
-.modal {
-	width: 60rem;
-	min-height: 20rem;
-}
-
 .share-item-name-wrapper {
 	display: flex;
 	flex-direction: column;
@@ -62,7 +52,7 @@
 }
 
 .tooltip-text {
-	word-break: break-word;
+	overflow-wrap: break-word;
 }
 
 .share-status-icon {

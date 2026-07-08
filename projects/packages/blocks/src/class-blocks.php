@@ -155,7 +155,7 @@ class Blocks {
 			}
 		}
 
-		return isset( $metadata ) ? $metadata : array();
+		return $metadata ?? array();
 	}
 
 	/**
@@ -470,8 +470,19 @@ class Blocks {
 	 */
 	public static function get_path_to_block_metadata( $block_src_dir, $package_dist_dir = '' ) {
 		$dir       = basename( $block_src_dir );
-		$dist_path = empty( $package_dist_dir ) ? dirname( Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ) . '/_inc/blocks' : $package_dist_dir;
-		$result    = realpath( "$dist_path/$dir" );
+		$dist_path = $package_dist_dir;
+
+		if ( empty( $dist_path ) ) {
+			$plugin_file = Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' );
+			// Guard against strange situations where JETPACK__PLUGIN_FILE is undefined.
+			if ( empty( $plugin_file ) ) {
+				return $block_src_dir;
+			}
+
+			$dist_path = dirname( $plugin_file ) . '/_inc/blocks';
+		}
+
+		$result = realpath( "$dist_path/$dir" );
 
 		return false === $result ? $block_src_dir : $result;
 	}

@@ -1,10 +1,11 @@
-import { ActionButton, TermsOfService, getRedirectUrl } from '@automattic/jetpack-components';
+import { TermsOfService, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import ConnectScreenLayout from '../layout';
 import type { Props as ConnectScreenProps } from '../basic';
 import type { WithRequired } from '../types';
-import type { FC } from 'react';
+import type { FC, SyntheticEvent } from 'react';
 import './style.scss';
 
 type SharedProps = Pick<
@@ -22,7 +23,7 @@ type OwnProps = {
 	// Whether the connection status is still loading
 	isLoading?: boolean;
 	// Callback to be called on button click
-	handleButtonClick?: ( e: MouseEvent ) => void;
+	handleButtonClick?: ( e?: Event | SyntheticEvent ) => void;
 	// Whether the error message appears or not
 	displayButtonError?: boolean;
 	// The connection error code
@@ -44,7 +45,7 @@ const getErrorMessage = ( errorCode, isOfflineMode ) => {
 		case 'fail_subdomain_wpcom':
 		case 'siteurl_private_ip':
 			return __(
-				'Your site host is on a private network. Jetpack can only connect to public sites.',
+				'Your site host is on a private network. Sites can connect to WordPress.com only on public sites.',
 				'jetpack-connection-js'
 			);
 		case 'connection_disabled':
@@ -102,14 +103,20 @@ const ConnectScreenVisual: FC< Props > = ( {
 			<div className="jp-connection__connect-screen__tos">
 				<TermsOfService agreeButtonLabel={ buttonLabel } />
 			</div>
-			<ActionButton
-				label={ buttonLabel }
+			<Button
+				className="jp-connection__connect-screen__action-button"
 				onClick={ handleButtonClick }
-				displayError={ displayButtonError || isOfflineMode }
-				errorMessage={ getErrorMessage( errorCode, isOfflineMode ) }
-				isLoading={ buttonIsLoading }
-				isDisabled={ isOfflineMode }
-			/>
+				loading={ buttonIsLoading }
+				disabled={ isOfflineMode }
+			>
+				{ buttonLabel }
+			</Button>
+			{ ( displayButtonError || isOfflineMode ) && (
+				<p className="jp-connection__connect-screen__error">
+					{ getErrorMessage( errorCode, isOfflineMode ) ||
+						__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
+				</p>
+			) }
 			<span className="jp-connection__connect-screen__loading-message" role="status">
 				{ buttonIsLoading ? loadingLabel || __( 'Loading', 'jetpack-connection-js' ) : '' }
 			</span>

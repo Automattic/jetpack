@@ -29,8 +29,6 @@ export default {
 
 export const Readme = {
 	render: Template.bind( {} ),
-	name: 'Readme',
-
 	args: {
 		isTwoSections: true,
 	},

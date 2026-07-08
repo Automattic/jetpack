@@ -1,4 +1,4 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
+import { test, expect } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
 import {
 	getAccountProtectionAuthCodeFromTransient,
 	getAccountProtectionTokenFromUrl,
@@ -25,13 +25,13 @@ test.beforeAll( async ( { testUtils } ) => {
 	await insertTestUsers();
 } );
 
-test.afterAll( async () => {
-	await deleteTestUsers();
-} );
-
 test.beforeEach( async ( { page } ) => {
 	await page.context().clearCookies();
 	await page.goto( '/wp-login.php' );
+} );
+
+test.afterAll( async () => {
+	await deleteTestUsers();
 } );
 
 test.describe.parallel( 'Compromised Password Detection', () => {

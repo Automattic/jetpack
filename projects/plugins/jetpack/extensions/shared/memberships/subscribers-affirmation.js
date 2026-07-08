@@ -4,24 +4,31 @@ import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
-import { sprintf, __, _n } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from '../../shared/memberships/constants';
-import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
 import { store as membershipProductsStore } from '../../store/membership-products';
 
 /**
  * Get the formatted list of categories for a post.
- * @param {Array} postCategories       - list of category IDs for the post
- * @param {Array} newsletterCategories - list of the site's newsletter categories
+ * @param {Array}   postCategories                 - list of category IDs for the post (from editor or stats_on_send)
+ * @param {Array}   newsletterCategories           - list of the site's newsletter categories
+ * @param {boolean} [fallbackToUncategorized=true] - if false and empty, return ''; if true, treat empty as [1]
  * @return {string} - formatted list of categories
  */
-const getFormattedCategories = ( postCategories, newsletterCategories ) => {
+export const getFormattedCategories = (
+	postCategories,
+	newsletterCategories,
+	fallbackToUncategorized = true
+) => {
+	if ( ! fallbackToUncategorized && ! postCategories?.length ) return '';
+
 	// If the post has no categories, then it's going to have the 'Uncategorized' category
-	const updatedPostCategories = postCategories.length ? postCategories : [ 1 ];
+	const updatedPostCategories = postCategories?.length ? postCategories : [ 1 ];
 
 	// If the post has a non newsletter category, then it's going to be sent to 'All content' subscribers
 	const hasNonNewsletterCategory = updatedPostCategories.some( postCategory => {
@@ -42,7 +49,7 @@ const getFormattedCategories = ( postCategories, newsletterCategories ) => {
 	const formattedCategoriesArray = categoryNames.map(
 		categoryName => `<strong>${ categoryName }</strong>`
 	);
-	let formattedCategories = '';
+	let formattedCategories;
 
 	if ( formattedCategoriesArray.length === 1 ) {
 		formattedCategories = formattedCategoriesArray[ 0 ];
@@ -64,105 +71,216 @@ const getFormattedCategories = ( postCategories, newsletterCategories ) => {
 	return formattedCategories;
 };
 
-const getCopyForCategorySubscribers = ( {
-	futureTense,
-	newsletterCategories,
-	postCategories,
-	reachCount,
-} ) => {
-	const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
-	// This needs a more elegant solution, but for now it stops the crash when the count is undefined.
-	const reachCountString = undefined === reachCount ? '0' : reachCount.toLocaleString();
+const SENDING_IN_PROGRESS_WINDOW_MS = 15 * 60 * 1000;
 
-	if ( futureTense ) {
-		return sprintf(
-			// translators: %1s is the list of categories, %2d is subscriptions count
-			_n(
-				'This post will be sent to everyone subscribed to %1$s (%2$s subscriber).',
-				'This post will be sent to everyone subscribed to %1$s (%2$s subscribers).',
-				reachCount ?? 0,
-				'jetpack'
-			),
-			formattedCategoryNames,
-			reachCountString
-		);
+/**
+ * Get access level label for display. Accepts base access level and optional tier name.
+ *
+ * @param {string}      accessLevel - Base key e.g. 'everybody', 'subscribers', 'paid_subscribers'.
+ * @param {string|null} [tierName]  - Optional tier name for paid subscribers (e.g. "Premium").
+ * @return {string} Access level label for display (e.g. "all subscribers", "paid subscribers (Premium)").
+ */
+export function getAccessLevelLabel( accessLevel, tierName = null ) {
+	if ( ! accessLevel ) return __( 'all subscribers', 'jetpack' );
+
+	let label;
+	switch ( accessLevel ) {
+		case 'everybody':
+			label = __( 'all subscribers', 'jetpack' );
+			break;
+		case 'subscribers':
+			label = __( 'all subscribers', 'jetpack' );
+			break;
+		case 'paid_subscribers':
+			label = __( 'paid subscribers', 'jetpack' );
+			break;
+		default:
+			label = __( 'all subscribers', 'jetpack' );
 	}
 
-	return sprintf(
-		// translators: %1s is the list of categories, %2d is subscriptions count
-		_n(
-			'This post was sent to everyone subscribed to %1$s (<link>%2$s subscriber</link>).',
-			'This post was sent to everyone subscribed to %1$s (<link>%2$s subscribers</link>).',
-			reachCount ?? 0,
-			'jetpack'
-		),
-		formattedCategoryNames,
-		reachCountString
-	);
-};
+	if ( tierName && accessLevel === 'paid_subscribers' ) {
+		return sprintf(
+			// translators: %1$s: access level label (e.g. "paid subscribers"), %2$s: tier name (e.g. "Premium")
+			__( '%1$s (%2$s)', 'jetpack' ),
+			label,
+			tierName
+		);
+	}
+	return label;
+}
 
-// Determines copy to show in post-publish panel to confirm number and type of subscribers who received the post as email, or will receive in case of scheduled post.
-export const getCopyForSubscribers = ( {
-	futureTense,
-	isPaidPost,
-	postHasPaywallBlock,
-	reachCount,
-} ) => {
-	const reachCountString = reachCount.toLocaleString();
+/**
+ * Get access label for affirmation copy, accounting for paywall.
+ * When paid_subscribers post has a paywall block, email goes to all subscribers.
+ *
+ * @param {string}      accessLevel           - Base key e.g. 'paid_subscribers'.
+ * @param {string|null} [tierName]            - Optional tier name.
+ * @param {boolean}     [postHasPaywallBlock] - Whether the post contains a paywall block.
+ * @return {string} Access level label for display.
+ */
+export function getAccessLabelForCopy( accessLevel, tierName = null, postHasPaywallBlock = false ) {
+	if ( accessLevel === 'paid_subscribers' && postHasPaywallBlock ) {
+		return __( 'all subscribers', 'jetpack' );
+	}
+	return getAccessLevelLabel( accessLevel, tierName );
+}
 
-	// Schedulled post
-	if ( futureTense ) {
-		// Paid post without paywall: sent only to paid subscribers
-		if ( isPaidPost && ! postHasPaywallBlock ) {
+/**
+ * Get the current tier name from editor post meta and tier products.
+ *
+ * @param {string} accessLevel  - Current access level (e.g. 'paid_subscribers').
+ * @param {object} postMeta     - Post meta including tier ID.
+ * @param {Array}  tierProducts - Newsletter tier products.
+ * @return {string|null} Tier name when paid subscribers with a tier is selected, null otherwise.
+ */
+export function getCurrentTierName( accessLevel, postMeta, tierProducts ) {
+	const tierId = postMeta?.[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
+	return accessLevel === accessOptions.paid_subscribers.key && tierId
+		? tierProducts?.find( p => String( p.id ) === String( tierId ) )?.title ?? null
+		: null;
+}
+
+/**
+ * Determine if we should show the "won't resend" message for an already-sent post.
+ * Returns true when the post was modified in-session, we're in pre-publish view,
+ * or access/category settings no longer match what was used when the email was sent.
+ *
+ * @param {object}  opts                                  - Options.
+ * @param {object}  opts.statsOnSend                      - Stats from when the email was sent.
+ * @param {object}  opts.postMeta                         - Current post meta.
+ * @param {string}  opts.accessLevel                      - Current access level.
+ * @param {Array}   opts.tierProducts                     - Tier products for matching.
+ * @param {Array}   opts.postCategories                   - Current post categories.
+ * @param {boolean} opts.alreadySentPostModifiedInSession - Whether post was modified since send.
+ * @param {boolean} opts.prePublish                       - Whether we're in pre-publish context.
+ * @return {boolean} True if the "won't resend" message should be shown.
+ */
+export function shouldShowWontResendMessage( {
+	statsOnSend,
+	postMeta,
+	accessLevel,
+	tierProducts,
+	postCategories,
+	alreadySentPostModifiedInSession,
+	prePublish,
+} ) {
+	const statsBase = statsOnSend?.access_level;
+	const statsTierName = statsOnSend?.paid_tier ?? null;
+	const statsCats = statsOnSend?.post_categories ?? [];
+	const currentTierName = getCurrentTierName( accessLevel, postMeta, tierProducts );
+
+	const baseMatches = ! statsBase || statsBase === accessLevel;
+	const tierMatches =
+		( ! statsTierName && ! currentTierName ) ||
+		( statsTierName && currentTierName && statsTierName === currentTierName );
+	const accessMatches = baseMatches && tierMatches;
+
+	const categoriesMatch =
+		! statsOnSend?.has_newsletter_categories ||
+		( Array.isArray( postCategories ) &&
+			statsCats.length === postCategories.length &&
+			statsCats.every( id => postCategories.includes( id ) ) );
+
+	return alreadySentPostModifiedInSession || prePublish || ! accessMatches || ! categoriesMatch;
+}
+
+/**
+ * Build "was sent", "is being sent", or "will be sent" copy for access + categories.
+ *
+ * @param {object} opts               - Options object.
+ * @param {string} opts.accessLabel   - "all subscribers" or "paid subscribers" (may be empty for date-only case).
+ * @param {string} opts.categoryNames - Formatted category list (or empty).
+ * @param {string} opts.tense         - 'past' | 'present' | 'future'.
+ * @param {string} opts.dateStr       - For past tense only.
+ * @return {string} Formatted sentence for "was sent", "is being sent", or "will be sent" copy.
+ */
+export function getSentCopyLine( { accessLabel, categoryNames, tense, dateStr } ) {
+	const isPast = tense === 'past';
+	const isFuture = tense === 'future';
+
+	if ( isPast && dateStr && ! accessLabel ) {
+		return sprintf(
+			/* translators: %s: formatted date */
+			__( 'This post was emailed on %s. View <link>delivery details</link>.', 'jetpack' ),
+			dateStr
+		);
+	}
+	if ( categoryNames ) {
+		if ( isPast ) {
+			if ( dateStr ) {
+				return sprintf(
+					/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list, %3$s: date */
+					__(
+						'This post was emailed to %1$s of %2$s on %3$s. View <link>delivery details</link>.',
+						'jetpack'
+					),
+					accessLabel,
+					categoryNames,
+					dateStr
+				);
+			}
 			return sprintf(
-				/* translators: %s is the number of subscribers */
-				_n(
-					'This post will be sent to <strong>%s paid subscriber</strong>.',
-					'This post will be sent to <strong>%s paid subscribers</strong>.',
-					reachCount,
+				/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list */
+				__(
+					'This post was emailed to %1$s of %2$s. View <link>delivery details</link>.',
 					'jetpack'
 				),
-				reachCountString
+				accessLabel,
+				categoryNames
 			);
 		}
-		// Paid post with paywall or Free post, sent to all subscribers
+		if ( isFuture ) {
+			return sprintf(
+				/* translators: %1$s: access, %2$s: category list */
+				__( 'This post will be emailed to %1$s of %2$s.', 'jetpack' ),
+				accessLabel,
+				categoryNames
+			);
+		}
 		return sprintf(
-			/* translators: %s is the number of subscribers */
-			_n(
-				'This post will be sent to <strong>%s subscriber</strong>.',
-				'This post will be sent to <strong>%s subscribers</strong>.',
-				reachCount,
+			/* translators: %1$s: access, %2$s: category list */
+			__(
+				'This post is being emailed to %1$s of %2$s. <link>Delivery details</link> will be available shortly.',
 				'jetpack'
 			),
-			reachCountString
+			accessLabel,
+			categoryNames
 		);
 	}
-	// Paid post without paywall: sent only to paid subscribers
-	if ( isPaidPost && ! postHasPaywallBlock ) {
+	if ( isPast ) {
+		if ( dateStr ) {
+			return sprintf(
+				/* translators: %1$s: access, %2$s: date */
+				__(
+					'This post was emailed to %1$s on %2$s. View <link>delivery details</link>.',
+					'jetpack'
+				),
+				accessLabel,
+				dateStr
+			);
+		}
 		return sprintf(
-			/* translators: %s is the number of subscribers */
-			_n(
-				'This post was sent to <link>%s paid subscriber</link>.',
-				'This post was sent to <link>%s paid subscribers</link>.',
-				reachCount,
-				'jetpack'
-			),
-			reachCountString
+			/* translators: %s: access */
+			__( 'This post was emailed to %s. View <link>delivery details</link>.', 'jetpack' ),
+			accessLabel
 		);
 	}
-
-	// Paid post with paywall or Free post, sent to all subscribers, post is already published
+	if ( isFuture ) {
+		return sprintf(
+			/* translators: %s: access level */
+			__( 'This post will be emailed to %s.', 'jetpack' ),
+			accessLabel
+		);
+	}
 	return sprintf(
-		/* translators: %s is the number of subscribers */
-		_n(
-			'This post was sent to <link>%s subscriber</link>.',
-			'This post was sent to <link>%s subscribers</link>.',
-			reachCount,
+		/* translators: %s: access level */
+		__(
+			'This post is being emailed to %s. Delivery details can be seen on <link>your email stats page</link> shortly.',
 			'jetpack'
 		),
-		reachCountString
+		accessLabel
 	);
-};
+}
 
 /*
  * Determines copy to show in pre/post-publish panels to confirm number and type of subscribers receiving the post as email.
@@ -174,20 +292,22 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			.some( block => block.name === paywallBlockMetadata.name )
 	);
 
-	const { isScheduledPost, isPostOlderThanADay, postCategories, postId, postMeta } = useSelect(
+	const { isScheduledPost, postCategories, postId, postMeta, publishDate, status } = useSelect(
 		select => {
 			const { isCurrentPostScheduled, getEditedPostAttribute, getCurrentPost } =
 				select( editorStore );
-			const status = getCurrentPost()?.status;
-			const publishTime = new Date( getCurrentPost()?.date );
-			const time24HoursAgo = new Date( Date.now() - 24 * 60 * 60 * 1000 );
+			const post = getCurrentPost();
+			const statusVal = post?.status;
+			const dateVal = post?.date;
+			const publishTime = dateVal ? new Date( dateVal ) : null;
 
 			return {
 				isScheduledPost: isCurrentPostScheduled(),
-				isPostOlderThanADay: status === 'publish' && publishTime < time24HoursAgo,
 				postCategories: getEditedPostAttribute( 'categories' ),
-				postId: getCurrentPost()?.id,
+				postId: post?.id,
 				postMeta: getEditedPostAttribute( 'meta' ),
+				publishDate: publishTime,
+				status: statusVal,
 			};
 		}
 	);
@@ -199,41 +319,66 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	const blogId = window.Jetpack_Editor_Initial_State?.wpcomBlogId;
 	const {
-		emailSubscribersCount,
 		hasFinishedLoading,
 		newsletterCategories,
 		newsletterCategoriesEnabled,
-		newsletterCategorySubscriberCount,
-		paidSubscribersCount,
-		totalEmailsSentCount, // To display stats from Jetpack. It is necessary to provide the accurate count for historical posts.
-	} = useSelect( select => {
-		const {
-			getNewsletterCategories,
-			getNewsletterCategoriesEnabled,
-			getNewsletterCategoriesSubscriptionsCount,
-			getSubscriberCounts,
-			getTotalEmailsSentCount,
-			hasFinishedResolution,
-		} = select( membershipProductsStore );
+		postEmailSentState,
+		tierProducts,
+		totalEmailsSentCount,
+		alreadySentPostModifiedInSession,
+		publishedWithEmailEnabledInSession,
+	} = useSelect(
+		select => {
+			const {
+				getNewsletterCategories,
+				getNewsletterCategoriesEnabled,
+				getNewsletterTierProducts,
+				getPostEmailSentState,
+				getPublishedWithEmailEnabledInSession,
+				getAlreadySentPostModifiedInSession,
+				getTotalEmailsSentCount,
+				hasFinishedResolution,
+			} = select( membershipProductsStore );
 
-		// Free and paid subscriber counts
-		const { emailSubscribers, paidSubscribers } = getSubscriberCounts();
+			// Trigger fetch when we have a postId so we have email_sent_at / stats_on_send (including for draft)
+			if ( postId ) {
+				getPostEmailSentState( postId );
+			}
 
-		return {
-			hasFinishedLoading: [
-				// getNewsletterCategoriesEnabled state is set by getNewsletterCategories so no need to check for it here.
-				hasFinishedResolution( 'getSubscriberCounts' ),
-				hasFinishedResolution( 'getNewsletterCategories' ),
-				hasFinishedResolution( 'getNewsletterCategoriesSubscriptionsCount' ),
-			].every( Boolean ),
-			emailSubscribersCount: emailSubscribers,
-			newsletterCategories: getNewsletterCategories(),
-			newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
-			newsletterCategorySubscriberCount: getNewsletterCategoriesSubscriptionsCount(),
-			paidSubscribersCount: paidSubscribers,
-			totalEmailsSentCount: isPostOlderThanADay ? getTotalEmailsSentCount( blogId, postId ) : null,
-		};
-	} );
+			const postEmailResolved =
+				! postId || hasFinishedResolution( 'getPostEmailSentState', [ postId ] );
+
+			const _postEmailSentState = postId ? getPostEmailSentState( postId ) : null;
+			const emailSentAt = _postEmailSentState?.email_sent_at ?? null;
+			// Only fetch email open stats for already-published posts. Drafts,
+			// auto-drafts, pending, and scheduled posts have never been emailed,
+			// so the WPCOM stats/opens/emails request would be a guaranteed miss
+			// (and can time out on large sites). See NL-578.
+			const shouldFetchTotalEmails =
+				postId && blogId && postEmailResolved && emailSentAt == null && status === 'publish';
+
+			return {
+				hasFinishedLoading: [
+					hasFinishedResolution( 'getNewsletterCategories' ),
+					postEmailResolved,
+				].every( Boolean ),
+				newsletterCategories: getNewsletterCategories(),
+				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
+				postEmailSentState: _postEmailSentState,
+				alreadySentPostModifiedInSession: postId
+					? getAlreadySentPostModifiedInSession( postId )
+					: false,
+				publishedWithEmailEnabledInSession: postId
+					? getPublishedWithEmailEnabledInSession( postId )
+					: false,
+				tierProducts: getNewsletterTierProducts(),
+				totalEmailsSentCount: shouldFetchTotalEmails
+					? getTotalEmailsSentCount( blogId, postId )
+					: null,
+			};
+		},
+		[ postId, blogId, status ]
+	);
 
 	if ( ! hasFinishedLoading ) {
 		return (
@@ -247,52 +392,124 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		);
 	}
 
-	const isPaidPost = accessLevel === accessOptions.paid_subscribers.key;
+	const isPrepublishOrScheduled = prePublish || isScheduledPost;
 
-	// Show all copy in future tense
-	const futureTense = prePublish || isScheduledPost;
+	const emailSentAt = postEmailSentState?.email_sent_at ?? null;
+	const statsOnSend = postEmailSentState?.stats_on_send ?? null;
 
-	const reachForAccessLevel = getReachForAccessLevelKey( {
+	const dateStr =
+		postEmailSentState?.email_sent_at ?? postEmailSentState?.stats_on_send?.timestamp ?? '';
+
+	const sentAccessLabel = statsOnSend
+		? getAccessLabelForCopy(
+				statsOnSend.access_level,
+				statsOnSend.paid_tier ?? null,
+				statsOnSend.has_paywall_block === true
+		  )
+		: '';
+	const sentCategoryNames = statsOnSend
+		? getFormattedCategories( statsOnSend.post_categories, newsletterCategories, false )
+		: '';
+	const currentTierName = getCurrentTierName( accessLevel, postMeta, tierProducts );
+	const accessLabelFromSettings = getAccessLabelForCopy(
 		accessLevel,
-		subscribers: isPostOlderThanADay ? totalEmailsSentCount : emailSubscribersCount,
-		paidSubscribers: paidSubscribersCount,
-		postHasPaywallBlock,
-	} );
+		currentTierName,
+		postHasPaywallBlock
+	);
+	const categoryNamesFromSettings =
+		newsletterCategoriesEnabled && newsletterCategories?.length && postCategories?.length
+			? getFormattedCategories( postCategories, newsletterCategories )
+			: '';
+
+	const isAlreadySent = emailSentAt != null || statsOnSend;
+	const isStatsOnlyFallback = ! isAlreadySent && ( totalEmailsSentCount ?? 0 ) > 0;
+	const isSendingInProgress =
+		status === 'publish' &&
+		isSendEmailEnabled() &&
+		// emailSentAt (email_notification meta) is what prevents duplicate sends, regardless of statsOnSend or stats count fallbacks.
+		emailSentAt == null &&
+		( publishedWithEmailEnabledInSession ||
+			( publishDate && publishDate.getTime() >= Date.now() - SENDING_IN_PROGRESS_WINDOW_MS ) );
+	const isPublishedWithoutEmail =
+		status === 'publish' && emailSentAt == null && ! isSendingInProgress;
 
 	let text;
+	let showWontResendMessage = false;
 
-	if ( ! isSendEmailEnabled() ) {
-		text = __( 'Not sent via email.', 'jetpack' );
-	} else if ( isComingSoon() ) {
+	if ( isAlreadySent ) {
+		text = getSentCopyLine( {
+			accessLabel: sentAccessLabel,
+			categoryNames: sentCategoryNames,
+			tense: 'past',
+			dateStr,
+		} );
+
+		if ( isSendEmailEnabled() && emailSentAt !== null ) {
+			showWontResendMessage = shouldShowWontResendMessage( {
+				statsOnSend,
+				postMeta,
+				accessLevel,
+				tierProducts,
+				postCategories,
+				alreadySentPostModifiedInSession,
+				prePublish,
+			} );
+		}
+	} else if ( isStatsOnlyFallback ) {
 		text = __(
-			'Your site is in Coming Soon mode. Emails are sent only when your site is public.',
+			'This post was emailed to subscribers. View <link>delivery details</link>.',
 			'jetpack'
 		);
-	} else if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
-		// Get newsletter category copy & count separately, unless post is paid
-		text = getCopyForCategorySubscribers( {
-			futureTense,
-			isPaidPost,
-			newsletterCategories,
-			postCategories,
-			reachCount: isPostOlderThanADay ? totalEmailsSentCount : newsletterCategorySubscriberCount,
+	} else if ( isComingSoon() ) {
+		text = __(
+			'Your site is in Coming Soon mode. Emails are sent only when your site is public. <visibilityLink>Update your site visibility</visibilityLink>.',
+			'jetpack'
+		);
+	} else if ( isSendingInProgress ) {
+		text = getSentCopyLine( {
+			accessLabel: accessLabelFromSettings,
+			categoryNames: categoryNamesFromSettings,
+			tense: 'present',
+			dateStr: '',
 		} );
+	} else if ( isPublishedWithoutEmail ) {
+		text = __(
+			"This post was published without sending an email. To send, move the post to draft, enable 'Post and email,' and republish.",
+			'jetpack'
+		);
+	} else if ( ! isSendEmailEnabled() ) {
+		text = __( 'Not sent via email.', 'jetpack' );
 	} else {
-		text = getCopyForSubscribers( {
-			futureTense,
-			isPaidPost,
-			postHasPaywallBlock,
-			reachCount: reachForAccessLevel,
+		// Pre-send (prepublish/scheduled) — unified access + categories
+		text = getSentCopyLine( {
+			accessLabel: accessLabelFromSettings,
+			categoryNames: categoryNamesFromSettings,
+			tense: isPrepublishOrScheduled ? 'future' : 'present',
+			dateStr: '',
 		} );
 	}
 
 	return (
-		<p>
-			{ createInterpolateElement( text, {
-				strong: <strong />,
-				link: <a href={ getJetpackEmailStatsLink( blogId, postId ) } />,
-			} ) }
-		</p>
+		<>
+			<p>
+				{ createInterpolateElement( text, {
+					strong: <strong />,
+					link: <a href={ getJetpackEmailStatsLink( blogId, postId ) } />,
+					visibilityLink: <a href={ getSiteVisibilitySettingsLink() } />,
+				} ) }
+			</p>
+			{ showWontResendMessage && (
+				<p>
+					{ createInterpolateElement(
+						__(
+							"Updating, republishing, or changing access settings <strong>won't</strong> resend the email.",
+							'jetpack'
+						),
+						{ strong: <strong /> }
+					) }
+				</p>
+			) }
+		</>
 	);
 }
 
@@ -304,8 +521,19 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
  *
  * @return {string} - The Jetpack email stats link for the given post.
  */
-function getJetpackEmailStatsLink( blogId, postId ) {
+export function getJetpackEmailStatsLink( blogId, postId ) {
 	return getAdminUrl( `admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ blogId }` );
+}
+
+/**
+ * Get the link to the site visibility settings, where a user can take their site
+ * out of Coming Soon mode. The Coming Soon / privacy controls live on the Reading
+ * settings page (see the `blog_privacy_selector` hook).
+ *
+ * @return {string} - The admin URL for the Reading settings page.
+ */
+export function getSiteVisibilitySettingsLink() {
+	return getAdminUrl( 'options-reading.php' );
 }
 
 export default SubscribersAffirmation;

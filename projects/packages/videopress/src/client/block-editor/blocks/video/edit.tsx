@@ -44,13 +44,34 @@ import PosterPanel from './components/poster-panel';
 import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import ReplaceControl from './components/replace-control';
 import TracksControl from './components/tracks-control';
-import VideoPressUploader from './components/videopress-uploader';
+import VideoPressUploaderRaw from './components/videopress-uploader';
 import { description, title } from '.';
 /**
  * Types
  */
 import type { VideoBlockAttributes } from './types';
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
+
+type PlaceholderWrapperProps = {
+	children?: ReactNode;
+	className?: string;
+	disableInstructions?: boolean;
+	errorMessage?: string;
+	instructions?: ReactNode;
+	onNoticeRemove?: ( ...args: unknown[] ) => unknown;
+};
+
+type VideoPressUploaderProps = {
+	attributes: VideoBlockAttributes;
+	setAttributes: ( attrs: Partial< VideoBlockAttributes > ) => void;
+	handleDoneUpload: ( newVideoData: VideoBlockAttributes ) => void;
+	fileToUpload: File | null;
+	isReplacing?: boolean;
+	onReplaceCancel: () => void;
+	isActive: boolean;
+};
+
+const VideoPressUploader = VideoPressUploaderRaw as ComponentType< VideoPressUploaderProps >;
 
 import './editor.scss';
 
@@ -96,7 +117,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 			{ children }
 		</Placeholder>
 	);
-} );
+} ) as ComponentType< PlaceholderWrapperProps >;
 
 /**
  * VideoPress block Edit react components
@@ -231,7 +252,7 @@ export default function VideoPressEdit( {
 	 */
 	const [ generatingPreviewCounter, setGeneratingPreviewCounter ] = useState( 0 );
 
-	const rePreviewAttemptTimer = useRef< NodeJS.Timeout | void >();
+	const rePreviewAttemptTimer = useRef< ReturnType< typeof setTimeout > | void >();
 
 	/**
 	 * Clean the generating process timer.
@@ -390,8 +411,16 @@ export default function VideoPressEdit( {
 					...newVideoData,
 				};
 
-				// Delete attributes that are not needed.
-				delete newBlockAttributes.poster;
+				// Remove the old video's poster unless a new one was selected during
+				// upload. Only delete if it still matches the poster from before the
+				// replacement started, so we don't drop a poster that was set via
+				// setAttributes during upload but not included in newVideoData.
+				if (
+					! newVideoData.poster &&
+					( ! attributes.poster || attributes.poster === isReplacingFile.prevAttrs?.poster )
+				) {
+					delete newBlockAttributes.poster;
+				}
 
 				setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
 				replaceBlock( clientId, createBlock( 'videopress/video', newBlockAttributes ) );
@@ -466,10 +495,10 @@ export default function VideoPressEdit( {
 						'Impossible to get a video preview after ten attempts.',
 						'jetpack-videopress-pkg'
 					) }
-					onNoticeRemove={ invalidateResolution }
+					onNoticeRemove={ invalidateCachedEmbedPreview }
 				>
 					<div className="videopress-uploader__error-actions">
-						<Button variant="primary" onClick={ invalidateResolution }>
+						<Button variant="primary" onClick={ invalidateCachedEmbedPreview }>
 							{ __( 'Try again', 'jetpack-videopress-pkg' ) }
 						</Button>
 						<Button

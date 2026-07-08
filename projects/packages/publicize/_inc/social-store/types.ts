@@ -1,18 +1,37 @@
+import { ConnectionService } from '../types';
+import { AttachedMedia, MediaSourceValue, SHARING_ACTIVITY_TABS } from '../utils';
+
 export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
 
-export type Connection = {
+/**
+ * Connection object in the block editor
+ */
+export interface EditorConnection {
+	enabled: boolean;
+	// Customization fields
+	message?: string;
+	attached_media?: Array< AttachedMedia >;
+	media_source?: MediaSourceValue;
+}
+
+export type Connection = Partial< EditorConnection > & {
 	connection_id: string;
 	display_name: string;
-	enabled: boolean;
 	external_handle: string;
 	external_id: string;
 	profile_link: string;
 	profile_picture: string;
 	service_label: string;
-	service_name: string;
+	service_name: ConnectionService[ 'id' ];
 	shared: boolean;
 	status: ConnectionStatus;
+	template?: string;
 	wpcom_user_id: number;
+};
+
+export type KeyringResponse = {
+	code: 'success' | ( string & {} );
+	data: KeyringResult | null;
 };
 
 export type ConnectionData = {
@@ -21,6 +40,10 @@ export type ConnectionData = {
 	updatingConnections?: Array< number | string >;
 	reconnectingAccount?: Connection;
 	keyringResult?: KeyringResult;
+	/**
+	 * Whether the keyring result for an auth_flow=v2 connect request is being fetched.
+	 */
+	fetchingKeyringResult?: boolean;
 	abortControllers?: Record< string, Array< AbortController > >;
 	isConnectionsModalOpen?: boolean;
 };
@@ -56,12 +79,10 @@ export type PostShareStatus = {
 };
 
 export type ShareStatus = {
-	isModalOpen?: boolean;
 	[ PostId: number ]: PostShareStatus;
 };
 
 export type SharePost = {
-	isModalOpen?: boolean;
 	isSharingCurrentPost?: boolean;
 };
 
@@ -69,13 +90,89 @@ export type ScheduledShares = {
 	isScheduling?: boolean;
 };
 
+export type UnifiedModalData = {
+	sharingActivity?: {
+		initialTab?: ( typeof SHARING_ACTIVITY_TABS )[ keyof typeof SHARING_ACTIVITY_TABS ];
+	};
+	socialPreview?: {
+		initialTab?: string;
+	};
+};
+
 export type UnifiedModalState = {
 	isOpen?: boolean;
 	initialPath?: string;
 	isScreenLocked?: boolean;
+	data?: UnifiedModalData;
 };
 
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };
+
+/**
+ * One rendered batch, indexed by per-connection result. The batch is wrapped in
+ * a `RenderedMessageEntry` and keyed in `RenderedMessages` by
+ * `${postId}|${hashRenderItems(items)}` so each unique input shape gets its
+ * own slot — reverting to a previously-seen shape reads back the original
+ * response without refetching.
+ */
+export type RenderedMessageBatch = {
+	[ ConnectionId: string ]: {
+		rendered_message?: string;
+		error?: { code: string; message: string };
+	};
+};
+
+/**
+ * Per-cache-key entry. `isLoading` is set true by the resolver before the fetch
+ * fires and cleared on either success (with `items` populated) or failure
+ * (preserving any prior `items`).
+ */
+export type RenderedMessageEntry = {
+	isLoading: boolean;
+	items?: RenderedMessageBatch;
+};
+
+export type RenderedMessages = {
+	[ Key: string ]: RenderedMessageEntry;
+};
+
+/**
+ * One row in the per-day referrer payload. Shape mirrors what the
+ * `stats-app/sites/{id}/stats/referrers` endpoint returns: a `name`
+ * (display label), an optional `url` (when the row is a direct
+ * referrer rather than a group container), and `total` (the count).
+ * Field name is `total` (not `views`) — confirmed by the regression
+ * guard in `Stats_Abilities_Test::test_get_top_content_referrers_normalizes_groups_shape`.
+ */
+export type TrafficReferrerRow = {
+	name?: string;
+	url?: string;
+	total?: number;
+	results?: TrafficReferrerRow[];
+};
+
+/**
+ * Per-day referrer payload. `groups` carries the referrer rows we
+ * bucket into per-service series; the timestamp is the local date
+ * string the endpoint emits (e.g. `2026-05-15`).
+ */
+export type TrafficReferrerDay = {
+	groups?: TrafficReferrerRow[];
+	other_views?: number;
+	total_views?: number;
+};
+
+export type TrafficInterval = 7 | 30 | 90;
+
+export type TrafficStatsState = {
+	interval: TrafficInterval;
+	byInterval?: Partial<
+		Record<
+			TrafficInterval,
+			{ loading?: boolean; error?: boolean; days?: Record< string, TrafficReferrerDay > }
+		>
+	>;
+};
 
 export type SocialStoreState = {
 	connectionData: ConnectionData;
@@ -84,6 +181,8 @@ export type SocialStoreState = {
 	scheduledShares?: ScheduledShares;
 	unifiedModal?: UnifiedModalState;
 	renderCount?: RenderCount;
+	renderedMessages?: RenderedMessages;
+	trafficStats?: TrafficStatsState;
 };
 
 export interface KeyringAdditionalUser {
@@ -133,6 +232,7 @@ export type SocialSettingsFields = {
 	[ 'jetpack-social-note' ]: boolean;
 	jetpack_social_notes_config: SocialNotesConfig;
 	[ 'jetpack-social_show_pricing_page' ]: boolean;
+	jetpack_social_message_template: string;
 };
 
 export type ScheduledShare = {

@@ -91,8 +91,9 @@ function checkpkg {
 	fi
 
 	debug "Checking version numbers $SLUG"
-	local PRERELEASE=$(alpha_tag composer.json 0)
-	local VER=$(changelogger version current --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
+	local PRERELEASE VER
+	PRERELEASE=$(alpha_tag composer.json 0)
+	VER=$(changelogger version current --default-first-version --prerelease=$PRERELEASE) || { err "$DIR: $VER"; return 1; }
 	if ! $BASE/tools/project-version.sh "${ARGS2[@]}" $CHECK_OR_UPDATE "$VER" "$SLUG"; then
 		return 1
 	fi
@@ -117,7 +118,7 @@ for FILE in projects/*/*/composer.json; do
 		if ! wait -fn -p P "${!PIDS[@]}"; then
 			EXIT=1
 		fi
-		unset PIDS[$P]
+		unset "PIDS[$P]"
 	fi
 
 	checkpkg "$FILE" &
@@ -129,7 +130,7 @@ while [[ ${#PIDS[@]} -gt 0 ]]; do
 	if ! wait -fn -p P "${!PIDS[@]}"; then
 		EXIT=1
 	fi
-	unset PIDS[$P]
+	unset "PIDS[$P]"
 done
 
 spinclear

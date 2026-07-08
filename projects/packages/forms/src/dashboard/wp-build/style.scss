@@ -1,0 +1,102 @@
+/**
+ * Holds shared styling for the wp-build routes.
+ */
+
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "@wordpress/base-styles/breakpoints";
+
+body.jetpack_page_jetpack-forms-responses-wp-admin,
+body.jetpack-forms-responses {
+
+	// The wp-build dashboard mounts `@wordpress/admin-ui` 2.x chrome via the
+	// local `FormsPage` wrapper (`.jp-admin-page` root + `<Page
+	// className="jp-admin-page__page">` + `<JetpackFooter>`). The shared mixin
+	// owns the viewport-pinned layout (fixed content column, scrolling middle,
+	// pinned footer) and resets the wp-admin globals — notably `ul li {
+	// margin-bottom }` — that otherwise inflate the breadcrumb list and push the
+	// header logo below the title baseline.
+	@include jetpack-admin-page-layout-wp-build;
+
+	// admin-ui's header `visual` slot is a 24px grid cell that does not center
+	// its contents, and its header content row doesn't center its items — so the
+	// JetpackLogo pins to the top and looks misaligned vs. the title. The shared
+	// <AdminPage> wrapper fixes this in its stylesheet, but the Forms wp-build
+	// dashboard uses a thin FormsPage shell that doesn't load it. Mirror the two
+	// AdminPage overrides here. (See js-packages/components admin-page style.)
+	.jp-admin-page__page > :first-child [aria-hidden="true"] {
+		place-items: center;
+	}
+
+	.jp-admin-page__page > :first-child > div:has([aria-hidden="true"]) {
+		min-block-size: 40px;
+		align-items: center;
+	}
+
+	// Match the breadcrumb link color/weight to the Jetpack Forms design. The
+	// mixin already handles the margin reset and the underline behavior; this
+	// only adds the color treatment the mixin intentionally leaves alone.
+	nav[aria-label="Breadcrumbs"] a {
+		color: var(--wp-components-color-foreground, #1e1e1e);
+		font-weight: 600;
+	}
+
+	.dataviews-search .components-base-control__field {
+		margin-bottom: 0;
+	}
+
+	// DataViews owns its own internal vertical layout: `.dataviews-wrapper` is a
+	// `display: flex; flex-direction: column` surface whose toolbar, filters row
+	// and pagination footer are `flex-shrink: 0` (natural height, pinned
+	// top/bottom) while the results/empty area is the only `flex-grow: 1` child.
+	// Here `.dataviews-wrapper` is the *direct* scrollable middle of the page
+	// (`.jp-admin-page__page > :not(:first-child)`), unlike Newsletter where it
+	// sits a few wrappers deeper inside a tab panel. The layout mixin blanket-
+	// styles that middle's direct children with `flex: 1 1 auto; display: flex`
+	// to bridge `<AdminPage>`'s `Container > Col` grid — but here those "direct
+	// children" ARE the wrapper's own toolbar/results/footer, so the blanket
+	// would stretch the toolbar (its custom `jp-forms-dataviews__view-actions`
+	// class never picked up DataViews' native `flex-shrink: 0`) and push it into
+	// the middle of the page. Restore DataViews' intended per-child flex roles:
+	// the wrapper grows and scrolls, the toolbar + filters + footer stay natural
+	// height where they belong, and only the results area absorbs the leftover
+	// space so the JetpackFooter pins to the viewport bottom in every data state.
+	.jp-admin-page:has(.dataviews-wrapper) {
+
+		.dataviews-wrapper {
+			flex: 1 1 auto;
+			min-block-size: 0;
+
+			.jp-forms-dataviews__view-actions,
+			.jp-forms-dataviews-filters__container,
+			.dataviews-footer {
+				flex: 0 0 auto;
+				min-block-size: 0;
+			}
+
+			// The layout mixin above blanket-sets `flex-direction: column` on
+			// the scrollable middle's direct children (its `> *` rule). That
+			// column is only wanted on narrow screens; the toolbar is a Stack
+			// that owns its own axis with tabs on the left and the
+			// search/settings controls on the right. Above the small breakpoint
+			// drop the mixin's forced column (back to the default row) so the
+			// two groups sit on a single line; below it the mixin's column
+			// keeps them stacked across multiple lines.
+			.jp-forms-dataviews__view-actions {
+				align-items: flex-start;
+				gap: 8px;
+
+				@media (min-width: #{ (breakpoints.$break-small + 1) }) {
+					flex-direction: unset;
+					align-items: center;
+				}
+			}
+
+			.dataviews-layout__container,
+			.dataviews-no-results,
+			.dataviews-loading {
+				flex: 1 1 auto;
+				min-block-size: 0;
+			}
+		}
+	}
+}

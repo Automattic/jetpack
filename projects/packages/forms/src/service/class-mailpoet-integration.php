@@ -49,7 +49,7 @@ class MailPoet_Integration {
 			try {
 				$lists = $mailpoet_api->getLists();
 				foreach ( $lists as $list ) {
-					if ( $list['id'] === $list_id && empty( $list['deleted_at'] ) ) {
+					if ( (string) $list['id'] === (string) $list_id && empty( $list['deleted_at'] ) ) {
 						return $list['id'];
 					}
 				}
@@ -148,7 +148,7 @@ class MailPoet_Integration {
 		// Subscriber does not exist, so add new subscriber to list and send confirmation email.
 		try {
 			return $mailpoet_api->addSubscriber( $subscriber_data, array( $list_id ) );
-		} catch ( \Exception $e ) { // phpcs:ignore Squiz.PHP.EmptyCatchComment
+		} catch ( \Exception $e ) {
 			return null;
 		}
 	}
@@ -175,8 +175,9 @@ class MailPoet_Integration {
 
 		$subscriber_data = array();
 		foreach ( $form->fields as $field ) {
-			$id    = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'id' ) ) );
-			$label = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'label' ) ) );
+			$type  = strtolower( (string) $field->get_attribute( 'type' ) );
+			$id    = strtolower( str_replace( array( ' ', '_' ), '', (string) $field->get_attribute( 'id' ) ) );
+			$label = strtolower( str_replace( array( ' ', '_' ), '', (string) $field->get_attribute( 'label' ) ) );
 
 			// If value is not a string, we already know it's not a valid name or email.
 			if ( ! is_string( $field->value ) ) {
@@ -185,7 +186,7 @@ class MailPoet_Integration {
 
 			$value = trim( $field->value );
 
-			if ( ( $id === 'email' || $label === 'email' ) && ! empty( $value ) ) {
+			if ( ( $type === 'email' || $id === 'email' || $label === 'email' ) && ! empty( $value ) ) {
 				$subscriber_data['email'] = $value;
 			} elseif ( ( $id === 'firstname' || $label === 'firstname' ) && ! empty( $value ) ) {
 				$subscriber_data['first_name'] = $value;

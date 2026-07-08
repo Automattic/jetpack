@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Sync\Activity_Log_Event;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
@@ -46,6 +47,15 @@ class Posts extends Module {
 	 * @var callable
 	 */
 	private $action_handler;
+
+	/**
+	 * Mark posts that are deleted in the current request.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private static $deleted_posts_in_request = array();
 
 	/**
 	 * Import end.
@@ -144,6 +154,7 @@ class Posts extends Module {
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
 
+		add_action( 'before_delete_post', array( $this, 'mark_post_is_being_deleted' ), 0, 1 );
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 11, 3 );
 		add_action( 'wp_after_insert_post', array( $this, 'wp_after_insert_post' ), 11, 2 );
 		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
@@ -156,9 +167,9 @@ class Posts extends Module {
 
 		// Listen for meta changes.
 		$this->init_listeners_for_meta_type( 'post', $callable );
-		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
-
-		add_filter( 'jetpack_sync_before_enqueue_updated_post_meta', array( $this, 'on_before_enqueue_updated_attachment_metadata' ), 1 );
+		add_filter( 'jetpack_sync_before_enqueue_added_post_meta', array( $this, 'filter_meta' ) );
+		add_filter( 'jetpack_sync_before_enqueue_updated_post_meta', array( $this, 'filter_updated_post_meta' ) );
+		add_filter( 'jetpack_sync_before_enqueue_deleted_post_meta', array( $this, 'filter_deleted_post_meta' ) );
 
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_sync_save_post' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_published_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_published_post' ) );
@@ -166,6 +177,8 @@ class Posts extends Module {
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
 		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
 		add_action( 'jetpack_post_meta_batch_delete', $callable, 10, 2 );
+
+		add_action( 'deleted_post', array( $this, 'unmark_post_being_deleted' ), 11, 1 );
 	}
 
 	/**
@@ -372,6 +385,40 @@ class Posts extends Module {
 	}
 
 	/**
+	 * Mark a post as being deleted in the current request.
+	 *
+	 * @param int $post_id ID of the post being deleted.
+	 */
+	public function mark_post_is_being_deleted( $post_id ) {
+		self::$deleted_posts_in_request[ (int) $post_id ] = true;
+	}
+
+	/**
+	 * Enqueue-time per-request dedupe for deleted post metadata, if the post itself is being deleted.
+	 *
+	 * @param array $args [ $meta_id, $post_id, $meta_key, $meta_value ].
+	 * @return array|false
+	 */
+	public function maybe_skip_deleted_post_meta( $args ) {
+		if ( is_array( $args ) && isset( $args[1] ) && is_numeric( $args[1] ) ) {
+			$post_id = (int) $args[1];
+			if ( isset( self::$deleted_posts_in_request[ $post_id ] ) ) {
+				return false;
+			}
+		}
+		return $args;
+	}
+
+	/**
+	 * Unmark a post as being deleted in the current request, to clean up.
+	 *
+	 * @param int $post_id ID of the post.
+	 */
+	public function unmark_post_being_deleted( $post_id ) {
+		unset( self::$deleted_posts_in_request[ (int) $post_id ] );
+	}
+
+	/**
 	 * Enqueue-time per-request dedupe for updated attachment metadata.
 	 *
 	 * @param array $args [ $meta_id, $object_id, $meta_key, $meta_value ].
@@ -427,6 +474,16 @@ class Posts extends Module {
 			return false;
 		}
 
+		// During incremental sync, skip posts whose type is not registered (e.g. CPT unregistered before sync).
+		// Full sync may have already sent them; we simply don't enqueue incremental updates for them.
+		if ( ! get_post_type_object( $post->post_type ) ) {
+			return false;
+		}
+
+		if ( Activity_Log_Event::POST_TYPE === $post->post_type && ! Activity_Log_Event::is_valid_post( $post ) ) {
+			return false;
+		}
+
 		return array( (int) $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
 
@@ -447,6 +504,11 @@ class Posts extends Module {
 		}
 
 		list( $post_id, $flags, $post ) = $args;
+
+		if ( Activity_Log_Event::POST_TYPE === $post->post_type && ! Activity_Log_Event::is_valid_post( $post ) ) {
+			return false;
+		}
+
 		return array( (int) $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
 	}
 
@@ -476,17 +538,75 @@ class Posts extends Module {
 	 * @return array|false Hook arguments, or false if meta was filtered.
 	 */
 	public function filter_meta( $args ) {
-		if ( ! is_array( $args ) || count( $args ) < 3 ) {
+		if ( ! $this->has_valid_meta_args( $args ) || ! is_numeric( $args[1] ) ) {
 			return false;
-		}
-		if ( ! is_numeric( $args[1] ) || ! is_string( $args[2] ) ) {
-			return false;
-		}
-		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
-			return $args;
 		}
 
-		return false;
+		return $this->is_allowed_post_meta( $args[1], $args[2] ) ? $args : false;
+	}
+
+	/**
+	 * Filter updated post meta that is not whitelisted, is stored for a disallowed post type,
+	 * or is duplicate attachment metadata.
+	 *
+	 * @param array|false $args Hook arguments.
+	 * @return array|false Hook arguments, or false if meta was filtered.
+	 */
+	public function filter_updated_post_meta( $args ) {
+		$args = $this->on_before_enqueue_updated_attachment_metadata( $args );
+		if ( false === $args ) {
+			return false;
+		}
+
+		return $this->filter_meta( $args );
+	}
+
+	/**
+	 * Filter deleted post meta that is not whitelisted, or is stored for a disallowed post type.
+	 *
+	 * @param array|false $args Hook arguments.
+	 * @return array|false Hook arguments, or false if meta was filtered.
+	 */
+	public function filter_deleted_post_meta( $args ) {
+		if ( ! $this->has_valid_meta_args( $args ) ) {
+			return false;
+		}
+		// Core uses post ID 0 on this hook for delete-all metadata operations. Only mirror value-constrained deletes.
+		if ( 0 === $args[1] ) {
+			if ( ! array_key_exists( 3, $args ) || '' === $args[3] || null === $args[3] || false === $args[3] ) {
+				return false;
+			}
+
+			return $this->is_whitelisted_post_meta( $args[2] ) ? $args : false;
+		}
+
+		$args = $this->filter_meta( $args );
+		if ( false === $args ) {
+			return false;
+		}
+
+		return $this->maybe_skip_deleted_post_meta( $args );
+	}
+
+	/**
+	 * Whether metadata hook arguments include a meta key.
+	 *
+	 * @param array|false $args Hook arguments.
+	 * @return bool Whether metadata hook arguments include a meta key.
+	 */
+	private function has_valid_meta_args( $args ) {
+		return is_array( $args ) && array_key_exists( 1, $args ) && array_key_exists( 2, $args ) && is_string( $args[2] );
+	}
+
+	/**
+	 * Whether post metadata is allowed to sync.
+	 *
+	 * @param int|string $object_id Post ID.
+	 * @param string     $meta_key  Meta key.
+	 * @return bool Whether post metadata is allowed to sync.
+	 */
+	private function is_allowed_post_meta( $object_id, $meta_key ) {
+		return $this->is_post_type_allowed( $object_id ) && $this->is_whitelisted_post_meta( $meta_key );
 	}
 
 	/**
@@ -749,9 +869,9 @@ class Posts extends Module {
 			$post = get_post( $post_ID );
 		}
 
-		$previous_status = isset( $this->previous_status[ $post_ID ] ) ? $this->previous_status[ $post_ID ] : self::DEFAULT_PREVIOUS_STATE;
+		$previous_status = $this->previous_status[ $post_ID ] ?? self::DEFAULT_PREVIOUS_STATE;
 
-		$just_published = isset( $this->just_published[ $post_ID ] ) ? $this->just_published[ $post_ID ] : false;
+		$just_published = $this->just_published[ $post_ID ] ?? false;
 
 		$state = array(
 			'is_auto_save'                 => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),

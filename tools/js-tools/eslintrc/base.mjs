@@ -13,27 +13,21 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fixupConfigRules, fixupPluginRules } from '@eslint/compat';
-import { FlatCompat } from '@eslint/eslintrc';
+import { fixupPluginRules } from '@eslint/compat';
 import eslintJs from '@eslint/js';
 import eslintJson from '@eslint/json';
 import tanstackEslintPluginQuery from '@tanstack/eslint-plugin-query';
+import wordpressEslintPlugin from '@wordpress/eslint-plugin';
 import makeDebug from 'debug';
 import { defineConfig, globalIgnores } from 'eslint/config';
-import {
-	defaultConditionNames,
-	defaultExtensions,
-	defaultExtensionAlias,
-	defaultMainFields,
-} from 'eslint-import-resolver-typescript';
-// @todo Remove use of eslint-json-compat-utils (and jsonc-eslint-parser) once https://github.com/JoshuaKGoldberg/eslint-plugin-package-json/issues/655 is fixed.
-import { toCompatPlugin as jsonToCompatPlugin } from 'eslint-json-compat-utils';
+import { defaultConditionNames } from 'eslint-import-resolver-typescript';
 import eslintPluginImport from 'eslint-plugin-import';
 import eslintPluginLodash from 'eslint-plugin-lodash';
 import eslintPluginN from 'eslint-plugin-n';
-import eslintPluginPackageJson from 'eslint-plugin-package-json';
+import eslintPluginPackageJson from 'eslint-plugin-package-json/experimental';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import eslintPluginStorybook from 'eslint-plugin-storybook';
 import eslintPluginYouDontNeedLodashUnderscore from 'eslint-plugin-you-dont-need-lodash-underscore';
 import { glob } from 'glob';
 import globals from 'globals';
@@ -72,11 +66,6 @@ const restrictedPaths = [
  */
 export function makeBaseConfig( configurl, opts = {} ) {
 	const basedir = path.dirname( fileURLToPath( configurl ) );
-
-	const compat = new FlatCompat( {
-		baseDirectory: basedir,
-		resolvePluginsRelativeTo: fileURLToPath( import.meta.url ),
-	} );
 
 	let m;
 	if (
@@ -131,8 +120,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 		}
 	}
 
-	const envConditionNames =
-		process.env.npm_config_jetpack_webpack_config_resolve_conditions?.split( ',' ) ?? [];
+	const envConditionNames = [ 'jetpack:src' ];
 
 	const jsPackageJsons = glob
 		.sync( path.join( rootdir, 'projects/js-packages/*/package.json' ) )
@@ -146,26 +134,61 @@ export function makeBaseConfig( configurl, opts = {} ) {
 		}
 	} );
 
+	const storybookMainJs = path.relative(
+		basedir,
+		path.join( rootdir, 'projects/js-packages/storybook/storybook/main.js' )
+	);
+
 	return defineConfig(
 		globalIgnores( loadIgnorePatterns( basedir ) ),
-
-		// Gutenberg stopped publishing the `.native.js` files in their packages, so we can't effectively lint them anymore.
-		globalIgnores( [ '**/*.native.[jt]s' ] ),
 
 		// Extended configs.
 		{
 			files: javascriptFiles,
 			extends: [
 				eslintJs.configs.recommended,
-				// Can't just `@wordpress/recommended-with-formatting` because that includes React too and we only want that with opts.react.
-				fixupConfigRules(
-					compat.extends(
-						'plugin:@wordpress/jsx-a11y',
-						'plugin:@wordpress/custom',
-						'plugin:@wordpress/esnext',
-						'plugin:@wordpress/i18n'
-					)
-				),
+
+				eslintPluginStorybook.configs[ 'flat/recommended' ].map( v => {
+					// We don't have a `.storybook/` dir at the repo root like the config expects.
+					if ( Array.isArray( v.files ) ) {
+						v.files = v.files.map( s =>
+							s.startsWith( '.storybook/main.' ) ? storybookMainJs : s
+						);
+					}
+					return v;
+				} ),
+				{
+					name: 'Storybook overrides',
+					files: [ '**/*.stories.@(ts|tsx|js|jsx|mjs|cjs)' ],
+					rules: {
+						'storybook/csf-component': 'warn',
+
+						// Our Storybook uses vite while our builds use webpack. Easier to stick with the generic package.
+						'storybook/no-renderer-packages': 'off',
+					},
+				},
+				{
+					name: 'Storybook config overrides',
+					files: [ storybookMainJs ],
+					rules: {
+						'storybook/no-uninstalled-addons': [
+							'error',
+							{
+								packageJsonLocation: path.join(
+									rootdir,
+									'projects/js-packages/storybook/package.json'
+								),
+							},
+						],
+					},
+				},
+
+				// Can't just `wordpressEslintPlugin.configs["recommended-with-formatting"]` because that includes React too and we only want that with opts.react.
+				wordpressEslintPlugin.configs[ 'jsx-a11y' ],
+				wordpressEslintPlugin.configs.custom,
+				wordpressEslintPlugin.configs.esnext,
+				wordpressEslintPlugin.configs.i18n,
+
 				{
 					plugins: {
 						'you-dont-need-lodash-underscore': fixupPluginRules(
@@ -197,7 +220,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			name: 'Monorepo base config',
 			files: javascriptFiles,
 			plugins: {
-				import: eslintPluginImport,
+				import: fixupPluginRules( eslintPluginImport ), // https://github.com/import-js/eslint-plugin-import/issues/3227
 				lodash: eslintPluginLodash,
 				n: eslintPluginN,
 				'@typescript-eslint': typescriptEslint.plugin,
@@ -360,41 +383,6 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			},
 		},
 
-		// React Native files need adjustments to the import plugin configuration.
-		{
-			name: 'React native overrides',
-			files: [ '**/*.native.[jt]s' ],
-			settings: {
-				'import/resolver': {
-					typescript: {
-						extensions: [ '.native.ts', '.native.js', ...defaultExtensions ],
-						extensionAlias: {
-							'.scss': [ '.native.scss', '.scss' ],
-							...Object.fromEntries(
-								Object.entries( defaultExtensionAlias ).map( ( [ k, v ] ) => [
-									k,
-									[ ...v, ...v.map( vv => '.native' + vv ) ],
-								] )
-							),
-						},
-						conditionNames: [ ...envConditionNames, 'react-native', ...defaultConditionNames ],
-						mainFields: [ 'react-native', ...defaultMainFields ],
-					},
-				},
-			},
-			rules: {
-				'import/no-unresolved': [
-					'error',
-					{
-						ignore: [
-							// Since we don't build React Native, we don't include these deps.
-							'^(react-native|@react-navigation/native|@wordpress/react-native-bridge)$',
-						],
-					},
-				],
-			},
-		},
-
 		// Allow commonjs globals in .js and .cjs files.
 		// (unfortunately we can't easily determine if any particular nested directory has `"type":"module"` or not)
 		{
@@ -474,15 +462,19 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			name: 'Package.json - base',
 			files: [ '**/package.json' ],
 			plugins: {
-				'package-json': jsonToCompatPlugin( eslintPluginPackageJson ),
+				'package-json': eslintPluginPackageJson,
 			},
 			rules: {
 				...eslintPluginPackageJson.configs.recommended.rules,
+
+				// Our mirror repo publishing setup makes `files` pointless.
+				'package-json/require-files': 'off',
 
 				// Empty browserslist does something.
 				'package-json/no-empty-fields': [ 'error', { ignoreProperties: [ 'browserslist' ] } ],
 
 				// Maybe someday, but not yet.
+				'package-json/require-sideEffects': 'off',
 				'package-json/require-type': 'off',
 			},
 		},

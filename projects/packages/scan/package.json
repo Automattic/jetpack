@@ -1,0 +1,88 @@
+{
+	"name": "@automattic/jetpack-scan-page",
+	"private": true,
+	"description": "Scan UI for the Jetpack plugin in wp-admin.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/scan/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Scan"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/scan"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build:wp-build && pnpm run build:boot-asset",
+		"build:boot-asset": "provide-boot-asset-file",
+		"build:strip-unminified-prod": "strip-unminified-prod",
+		"build:wp-build": "wp-build",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run build:strip-unminified-prod && pnpm run validate",
+		"clean": "rm -rf build/",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.js",
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsgo --noEmit",
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
+		"watch": "wp-build --watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-scan": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
+		"@tanstack/react-query": "5.90.8",
+		"@wordpress/admin-ui": "2.5.0",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/base-styles": "10.2.0",
+		"@wordpress/boot": "0.17.0",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/compose": "8.3.0",
+		"@wordpress/data": "10.50.0",
+		"@wordpress/dataviews": "17.1.0",
+		"@wordpress/date": "5.50.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/i18n": "6.23.0",
+		"@wordpress/icons": "15.1.0",
+		"@wordpress/notices": "5.50.0",
+		"@wordpress/route": "0.16.0",
+		"@wordpress/theme": "0.17.0",
+		"@wordpress/ui": "0.17.0",
+		"@wordpress/url": "4.50.0"
+	},
+	"devDependencies": {
+		"@babel/core": "7.29.7",
+		"@testing-library/dom": "10.4.1",
+		"@testing-library/react": "16.3.2",
+		"@types/jest": "30.0.0",
+		"@types/react": "18.3.28",
+		"@types/react-dom": "18.3.7",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@wordpress/browserslist-config": "6.50.0",
+		"@wordpress/build": "0.18.0",
+		"browserslist": "^4.24.0",
+		"jest": "30.4.2",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	},
+	"wpPlugin": {
+		"name": "jetpack_scan",
+		"scriptGlobal": "jetpackScan",
+		"packageNamespace": "jetpack-scan",
+		"handlePrefix": "jetpack-scan",
+		"pages": [
+			"jetpack-scan"
+		]
+	}
+}

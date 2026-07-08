@@ -1,0 +1,28 @@
+// Tab-specific overrides on top of the page-level admin-page-layout
+// invocation that lives in `src/dashboard/admin-shell.scss` (enqueued as
+// a separate stylesheet by class-admin-ui.php, so every route gets the
+// scrollable chrome regardless of whether it uses DashboardLayout).
+body.jetpack_page_jetpack-videopress {
+
+	// Propagate the admin page's flex column through @wordpress/ui's Tabs
+	// primitives, which default to display:block and break the chain. Lets
+	// DataViews-based tabs (Library) flex-grow into the available area and
+	// pin their pagination to the visible bottom. Scoped to the dashboard
+	// Tabs.Root via a stable class so we don't reach into nested tabpanels
+	// inside individual routes (e.g. the Overview screen's KPI tablist /
+	// chart tabpanel).
+	.vp-dashboard-tabs {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 0;
+		min-height: 0;
+
+		> [role="tabpanel"] {
+			display: flex;
+			flex-direction: column;
+			flex: 1 1 0;
+			min-height: 0;
+		}
+	}
+
+}

@@ -4,6 +4,7 @@ import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
+import { defaultTheme } from '../themes';
 import type { BaseLegendItem } from '../../../components/legend';
 import type { ChartTheme, SeriesData } from '../../../types';
 import type { GlobalChartsContextValue } from '../types';
@@ -45,6 +46,57 @@ describe( 'ChartContext', () => {
 			expect( contextValue.unregisterChart ).toBeInstanceOf( Function );
 			expect( contextValue.getChartData ).toBeInstanceOf( Function );
 			expect( contextValue.charts ).toBeInstanceOf( Map );
+		} );
+
+		it( 'exposes isColorPaletteResolved as true after render', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// After render and effects, isColorPaletteResolved should be true
+			expect( contextValue.isColorPaletteResolved ).toBe( true );
+		} );
+
+		it( 'resolves palette again after theme change', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const theme1: Partial< ChartTheme > = {
+				colors: [ '#006DAB', '#1F9828' ],
+			};
+			const theme2: Partial< ChartTheme > = {
+				colors: [ '#FF0000', '#00FF00' ],
+			};
+
+			const { rerender } = render(
+				<GlobalChartsProvider theme={ theme1 }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			expect( contextValue.isColorPaletteResolved ).toBe( true );
+
+			rerender(
+				<GlobalChartsProvider theme={ theme2 }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// After theme change, palette should re-resolve to true
+			expect( contextValue.isColorPaletteResolved ).toBe( true );
 		} );
 
 		it( 'throws error when useGlobalChartsContext is used outside provider', () => {
@@ -987,10 +1039,12 @@ describe( 'ChartContext', () => {
 
 			const extendedTheme = {
 				...mockTheme,
-				legendShapeStyles: [
-					{ fill: '#LEGEND1', stroke: '#BORDER1' },
-					{ fill: '#LEGEND2', strokeWidth: 3 },
-				],
+				legend: {
+					shapeStyles: [
+						{ fill: '#LEGEND1', stroke: '#BORDER1' },
+						{ fill: '#LEGEND2', strokeWidth: 3 },
+					],
+				},
 			};
 
 			render(
@@ -1087,7 +1141,9 @@ describe( 'ChartContext', () => {
 						},
 					},
 				},
-				legendShapeStyles: [ { fill: '#LEGEND1', stroke: '#BORDER1' } ],
+				legend: {
+					shapeStyles: [ { fill: '#LEGEND1', stroke: '#BORDER1' } ],
+				},
 			};
 
 			render(
@@ -1110,10 +1166,12 @@ describe( 'ChartContext', () => {
 				legendShape: 'rect',
 			} );
 
-			// Should get theme legend shape styles, not line styles
+			// Should get theme legend shape styles (not line styles), with the comparison bar
+			// opacity layered on so the swatch matches the translucent comparison bar.
 			expect( styles.shapeStyles ).toEqual( {
 				fill: '#LEGEND1',
 				stroke: '#BORDER1',
+				opacity: 0.5,
 			} );
 		} );
 	} );
@@ -1234,7 +1292,9 @@ describe( 'ChartContext', () => {
 				...mockTheme,
 				glyphs: [ mockGlyph ],
 				seriesLineStyles: [ { strokeWidth: 2 } ],
-				legendShapeStyles: [ { fill: '#SHAPE1' } ],
+				legend: {
+					shapeStyles: [ { fill: '#SHAPE1' } ],
+				},
 			};
 
 			render(
@@ -1901,7 +1961,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const cssVarTheme: ChartTheme = {
-					colors: [ '--rgb-color', '#ff0000' ],
+					colors: [ '--rgb-color', '#00ff00' ],
 				} as ChartTheme;
 
 				render(
@@ -1910,13 +1970,134 @@ describe( 'ChartContext', () => {
 					</GlobalChartsProvider>
 				);
 
-				// Non-hex colors are currently skipped, should use second color
+				// RGB colors should now be converted to hex and used
 				const color = contextValue.getElementStyles( {
 					data: undefined,
 					index: 0,
 				} ).color;
 
 				expect( color ).toBe( '#ff0000' );
+			} );
+
+			it( 'handles CSS variables resolving to HSL colors', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--hsl-color' ) {
+							return 'hsl(120, 100%, 50%)'; // HSL format (green)
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--hsl-color', '#ff0000' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// HSL colors should be converted to hex and used
+				const color = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				expect( color ).toBe( '#00ff00' );
+			} );
+
+			it( 'handles CSS variables resolving to RGBA colors', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--rgba-color' ) {
+							return 'rgba(0, 0, 255, 0.5)'; // RGBA format (blue with transparency)
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--rgba-color', '#ff0000' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// RGBA colors are converted to hex (alpha is stripped)
+				const color = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				expect( color ).toBe( '#0000ff' );
+			} );
+
+			it( 'handles mix of RGB, HSL, and hex in theme colors', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--rgb-red' ) {
+							return 'rgb(255, 0, 0)';
+						}
+						if ( prop === '--hsl-green' ) {
+							return 'hsl(120, 100%, 50%)';
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--rgb-red', '--hsl-green', '#0000ff' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// All color formats should be properly converted
+				const color1 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+				const color2 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 1,
+				} ).color;
+				const color3 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 2,
+				} ).color;
+
+				expect( color1 ).toBe( '#ff0000' ); // RGB red
+				expect( color2 ).toBe( '#00ff00' ); // HSL green
+				expect( color3 ).toBe( '#0000ff' ); // Hex blue
 			} );
 		} );
 
@@ -2052,7 +2233,7 @@ describe( 'ChartContext', () => {
 				} ).color;
 
 				expect( color1 ).toBe( '#ff0000' );
-				expect( color2 ).toBe( '#bad' ); // Invalid color is still in palette
+				expect( color2 ).toBe( '#bbaadd' ); // #bad is expanded to #bbaadd by normalizeColorToHex
 				expect( color3 ).toBe( '#0000ff' );
 			} );
 		} );
@@ -2353,6 +2534,15 @@ describe( 'ChartContext', () => {
 				// Colors should remain stable
 				expect( afterRerenderColor ).toBe( initialColor );
 				expect( afterRerenderColor ).toBe( '#ff0000' );
+			} );
+		} );
+	} );
+
+	describe( 'defaultTheme', () => {
+		it( 'exposes default barChart comparison styles', () => {
+			expect( defaultTheme.barChart.barStyles.comparison ).toEqual( {
+				widthFactor: 1.5,
+				opacity: 0.5,
 			} );
 		} );
 	} );

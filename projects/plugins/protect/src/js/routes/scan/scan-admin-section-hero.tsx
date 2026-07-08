@@ -1,4 +1,5 @@
-import { Text, Status, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
@@ -15,7 +16,7 @@ import type { FC } from 'react';
 
 const ScanAdminSectionHero: FC = () => {
 	const { hasPlan } = usePlan();
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 	const {
 		counts: {
 			current: { threats: numThreats },
@@ -51,7 +52,10 @@ const ScanAdminSectionHero: FC = () => {
 		<AdminSectionHero
 			main={
 				<>
-					<Status status={ 'active' } label={ __( 'Active', 'jetpack-protect' ) } />
+					<AdminSectionHero.StatusIndicator
+						status="active"
+						label={ __( 'Active', 'jetpack-protect' ) }
+					/>
 					<AdminSectionHero.Heading showIcon>
 						{ numThreats > 0
 							? sprintf(

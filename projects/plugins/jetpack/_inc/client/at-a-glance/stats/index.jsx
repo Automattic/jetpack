@@ -1,9 +1,10 @@
 import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
-import { ExternalLink, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
@@ -258,7 +259,8 @@ export class DashStats extends Component {
 								),
 								{
 									a1: (
-										<ExternalLink
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
 											target="_blank"
 											rel="noopener noreferrer"
@@ -358,7 +360,11 @@ export class DashStats extends Component {
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
 			return (
 				<div>
-					<ModuleOverriddenBanner moduleName={ __( 'Jetpack Stats', 'jetpack' ) } />
+					<ModuleOverriddenBanner
+						moduleName={
+							'Jetpack Stats' /** "Jetpack Stats" is a product name, do not translate. */
+						}
+					/>
 				</div>
 			);
 		}

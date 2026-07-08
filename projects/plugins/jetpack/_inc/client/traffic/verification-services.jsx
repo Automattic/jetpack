@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { Component } from 'react';
 import { FormFieldset, FormLabel } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
@@ -95,7 +95,6 @@ class VerificationServicesComponent extends Component {
 					<ModuleToggle
 						slug={ verification.module }
 						activated={ isVerificationActive }
-						toggling={ this.props.isSavingAnyOption( [ verification.module ] ) }
 						disabled={ this.props.isSavingAnyOption( [ verification.module ] ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
@@ -114,28 +113,36 @@ class VerificationServicesComponent extends Component {
 								b: <strong />,
 								support: <a href={ getRedirectUrl( 'jetpack-support-site-verification-tools' ) } />,
 								google: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										rel="noopener noreferrer"
 										href="https://www.google.com/webmasters/tools/"
 									/>
 								),
 								bing: (
-									<ExternalLink rel="noopener noreferrer" href="https://www.bing.com/webmaster/" />
+									<Link
+										openInNewTab
+										rel="noopener noreferrer"
+										href="https://www.bing.com/webmaster/"
+									/>
 								),
 								pinterest: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										rel="noopener noreferrer"
 										href="https://pinterest.com/website/verify/"
 									/>
 								),
 								yandex: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										rel="noopener noreferrer"
 										href="https://webmaster.yandex.com/sites/"
 									/>
 								),
 								facebook: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										rel="noopener noreferrer"
 										href="https://business.facebook.com/settings/"
 									/>

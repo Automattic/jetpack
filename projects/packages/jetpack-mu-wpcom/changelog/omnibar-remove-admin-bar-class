@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Omnibar: delete the orphaned admin-bar endpoint class file. Endpoint now lives in the Jetpack plugin.

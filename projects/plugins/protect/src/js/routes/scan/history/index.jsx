@@ -2,7 +2,6 @@ import { AdminSection, Container, Col, H3, Text, Title } from '@automattic/jetpa
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { Navigate, useParams } from 'react-router';
-import AdminPage from '../../../components/admin-page';
 import ProtectCheck from '../../../components/protect-check-icon';
 import ThreatsNavigation from '../../../components/threats-list/navigation';
 import PaidList from '../../../components/threats-list/paid-list';
@@ -239,7 +238,7 @@ const ScanHistoryRoute = () => {
 	}
 
 	return (
-		<AdminPage>
+		<>
 			<HistoryAdminSectionHero />
 			{ ( ! error || numAllThreats ) && (
 				<AdminSection>
@@ -294,7 +293,7 @@ const ScanHistoryRoute = () => {
 				</AdminSection>
 			) }
 			<ScanFooter />
-		</AdminPage>
+		</>
 	);
 };
 

@@ -15,26 +15,64 @@ jest.mock( '@wordpress/data', () => {
 	} );
 } );
 
-const mockUseDispatch = useDispatch as jest.MockedFunction< typeof useDispatch >;
-const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
+// Mock useFeaturedImage to avoid nested useSelect calls
+jest.mock( '../../use-featured-image', () => jest.fn( () => null ) );
+
+// Mock useMediaDetails to avoid nested useSelect calls
+jest.mock( '../../use-media-details', () => jest.fn( () => [ null ] ) );
+
+// Mock usePostMeta to avoid nested hook calls
+jest.mock( '../../use-post-meta', () => ( {
+	usePostMeta: jest.fn( () => ( {
+		attachedMedia: [],
+		imageGeneratorSettings: { enabled: false },
+		mediaSource: undefined,
+		shareMessage: '',
+	} ) ),
+} ) );
+
+// Mock useAnalytics to avoid deep dependency chain
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+	useAnalytics: jest.fn( () => ( { recordEvent: jest.fn() } ) ),
+} ) );
+
+// Mock hasSocialPaidFeatures to return true by default
+jest.mock( '../../../utils', () => {
+	const actual = jest.requireActual( '../../../utils' );
+	return {
+		...actual,
+		hasSocialPaidFeatures: jest.fn( () => true ),
+	};
+} );
+
+const mockUseDispatch = useDispatch as jest.Mock;
+const mockUseSelect = useSelect as jest.Mock;
+
+const createMockSelect = ( meta: Record< string, unknown > = {} ) => {
+	return () => ( {
+		getEditedPostAttribute: jest.fn().mockReturnValue( meta ),
+		getConnections: jest.fn().mockReturnValue( [] ),
+		getEnabledConnections: jest.fn().mockReturnValue( [] ),
+		getDisabledConnections: jest.fn().mockReturnValue( [] ),
+	} );
+};
 
 describe( 'usePerNetworkCustomization', () => {
 	const mockEditPost = jest.fn();
+	const mockCustomizeConnectionById = jest.fn();
 
 	beforeEach( () => {
 		jest.clearAllMocks();
 
 		mockUseDispatch.mockReturnValue( {
 			editPost: mockEditPost,
+			customizeConnectionById: mockCustomizeConnectionById,
 		} );
 	} );
 
 	it( 'should return isEnabled as false when meta key is not set', () => {
 		mockUseSelect.mockImplementation( ( selector: ( select: unknown ) => unknown ) => {
-			const mockSelect = () => ( {
-				getEditedPostAttribute: jest.fn().mockReturnValue( {} ),
-			} );
-			return selector( mockSelect );
+			return selector( createMockSelect( {} ) );
 		} );
 
 		const { result } = renderHook( () => usePerNetworkCustomization() );
@@ -44,12 +82,11 @@ describe( 'usePerNetworkCustomization', () => {
 
 	it( 'should return isEnabled as true when meta key is true', () => {
 		mockUseSelect.mockImplementation( ( selector: ( select: unknown ) => unknown ) => {
-			const mockSelect = () => ( {
-				getEditedPostAttribute: jest.fn().mockReturnValue( {
+			return selector(
+				createMockSelect( {
 					_wpas_customize_per_network: true,
-				} ),
-			} );
-			return selector( mockSelect );
+				} )
+			);
 		} );
 
 		const { result } = renderHook( () => usePerNetworkCustomization() );
@@ -59,12 +96,11 @@ describe( 'usePerNetworkCustomization', () => {
 
 	it( 'should toggle the meta value when toggle is called', () => {
 		mockUseSelect.mockImplementation( ( selector: ( select: unknown ) => unknown ) => {
-			const mockSelect = () => ( {
-				getEditedPostAttribute: jest.fn().mockReturnValue( {
+			return selector(
+				createMockSelect( {
 					_wpas_customize_per_network: false,
-				} ),
-			} );
-			return selector( mockSelect );
+				} )
+			);
 		} );
 
 		const { result } = renderHook( () => usePerNetworkCustomization() );

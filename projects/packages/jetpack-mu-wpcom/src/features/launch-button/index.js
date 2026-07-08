@@ -1,11 +1,18 @@
-import { wpcomTrackEvent } from '../../common/tracks';
+import { createRoot } from 'react-dom/client';
+import { LaunchButton } from './launch-button';
 
-document.addEventListener( 'DOMContentLoaded', () => {
+/**
+ * Renders the launch button.
+ * @return {Promise<void>}
+ */
+async function renderLaunchButton() {
 	const launchButton = document.querySelector( '#wpadminbar .launch-site' );
 	if ( ! launchButton ) {
 		return;
 	}
-	launchButton.addEventListener( 'click', () => {
-		wpcomTrackEvent( 'wpcom_adminbar_launch_site' );
-	} );
-} );
+
+	const root = createRoot( launchButton );
+	root.render( <LaunchButton /> );
+}
+
+document.addEventListener( 'DOMContentLoaded', renderLaunchButton, { once: true } );

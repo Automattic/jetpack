@@ -61,7 +61,7 @@ class XMLRPC {
 	 *
 	 * @return array
 	 */
-	public function xmlrpc_methods( $methods, $core_methods, $user ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function xmlrpc_methods( $methods, $core_methods, $user ) {
 		if ( $user && $user instanceof WP_User ) {
 			$this->current_user = $user;
 		}
@@ -89,7 +89,7 @@ class XMLRPC {
 
 		foreach ( $media as & $media_item ) {
 			$title = sanitize_title( basename( $media_item['url'] ) );
-			$guid  = isset( $media['guid'] ) ? $media['guid'] : null;
+			$guid  = $media['guid'] ?? null;
 
 			$media_id = videopress_create_new_media_item( $title, $guid );
 

@@ -238,6 +238,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_excluded_extensions'                  => 'pineapple',
 			'jetpack-memberships-has-connected-account'    => true,
 			'jetpack_publicize_options'                    => array(),
+			'jetpack_social_message_template'              => array(),
 			'jetpack_social_notes_config'                  => array(),
 			'jetpack_social_utm_settings'                  => array(),
 			'jetpack_social_settings'                      => array( 'image' => true ),
@@ -252,12 +253,14 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'ce4wp_referred_by'                            => array(),
 			'wpcom_is_fse_activated'                       => '1',
 			'videopress_private_enabled_for_site'          => false,
+			'videopress_auto_subtitles_disabled'           => true,
 			'wpcom_featured_image_in_email'                => false,
 			'jetpack_gravatar_in_email'                    => false,
 			'jetpack_author_in_email'                      => false,
 			'jetpack_post_date_in_email'                   => false,
 			'wpcom_newsletter_categories'                  => array(),
 			'wpcom_newsletter_categories_enabled'          => false,
+			'wpcom_newsletter_send_default'                => true,
 			'wpcom_gifting_subscription'                   => true,
 			'launch-status'                                => 'unlaunched',
 			'wpcom_subscription_emails_use_excerpt'        => false,
@@ -270,6 +273,8 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_verbum_subscription_modal'            => true,
 			'jetpack_blocks_disabled'                      => false,
 			'wpcom_ai_site_prompt'                         => '',
+			'reader_chat'                                  => false,
+			'jetpack_ai_agents_enabled'                    => false,
 			'wpcom_classic_early_release'                  => true,
 			'jetpack_newsletters_publishing_default_frequency' => 'weekly',
 			'jetpack_scheduled_plugins_update'             => array(),
@@ -281,6 +286,21 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_waf_share_data'                       => true,
 			'jetpack_waf_share_debug_data'                 => false,
 			'jetpack_waf_automatic_rules_last_updated_timestamp' => 0,
+			'jetpack_search_ai_prompt_override'            => 'pineapple',
+			'jetpack_search_color_theme'                   => 'pineapple',
+			'jetpack_search_result_format'                 => 'pineapple',
+			'jetpack_search_default_sort'                  => 'pineapple',
+			'jetpack_search_overlay_trigger'               => 'pineapple',
+			'jetpack_search_excluded_post_types'           => 'pineapple',
+			'jetpack_search_highlight_color'               => 'pineapple',
+			'jetpack_search_enable_sort'                   => true,
+			'jetpack_search_inf_scroll'                    => true,
+			'jetpack_search_show_powered_by'               => true,
+			'jetpack_search_experience'                    => 'pineapple',
+			'jetpack_search_ai_answers_enabled'            => true,
+			'jetpack_search_suggestions_enabled'           => true,
+			'jetpack_search_override_woocommerce_search_template' => true,
+			'instant_search_enabled'                       => true,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
@@ -341,6 +361,18 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			$contentless_options_difference,
 			'Some contentless options don\'t have a test: ' . print_r( $contentless_options_difference, 1 )
 		);
+	}
+
+	public function test_don_t_sync_jetpack_options_if_changed_key_is_blacklisted() {
+		$this->setSyncClientDefaults();
+
+		$this->server_replica_storage->reset();
+
+		Jetpack_Options::update_option( 'last_heartbeat', microtime( true ) );
+
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_replica_storage->get_option( 'jetpack_options' ) );
 	}
 
 	public function assertOptionIsSynced( $option_name, $value ) {

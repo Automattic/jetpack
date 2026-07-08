@@ -49,11 +49,11 @@ p.jp-recommendations-sidebar-mobile__qr-code-body {
 
 	font-size: typography.$font-body-extra-small;
 	padding: 0 1rem 0 1.5rem;
-	word-wrap: break-word;
+	overflow-wrap: break-word;
 
 	a {
 		color: var(--jp-green-50);
-		word-wrap: break-word;
+		overflow-wrap: break-word;
 	}
 }
 

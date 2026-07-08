@@ -2,12 +2,13 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/../.. && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
 source "$BASE/tools/includes/check-osx-bash-version.sh"
 source "$BASE/tools/includes/chalk-lite.sh"
 
 TMPDIR="${TMPDIR:-/tmp}"
-export WORK_DIR=$(mktemp -d "${TMPDIR%/}/update-stubs.XXXXXXXX")
+WORK_DIR=$(mktemp -d "${TMPDIR%/}/update-stubs.XXXXXXXX")
+export WORK_DIR
 trap 'rm -rf "$WORK_DIR"' EXIT
 
 info 'Preparing stub-generator'
@@ -21,9 +22,9 @@ composer update
 # $WORK_DIR - Working directory.
 function fetch_plugin {
 	local slug=$1
-	local url line
+	local url line json
 
-	local json=$(curl -L --fail --url "https://api.wordpress.org/plugins/info/1.0/$slug.json")
+	json=$(curl -L --fail --url "https://api.wordpress.org/plugins/info/1.0/$slug.json")
 	if jq -e --arg slug "$slug" '.slug == $slug' <<<"$json" &>/dev/null; then
 		url="$(jq -r '.download_link // ""' <<<"$json")"
 		if [[ -z "$url" ]]; then
@@ -64,7 +65,8 @@ function fetch_plugin {
 function fetch_repo {
 	local repo=$1
 
-	local json=$(gh api "/repos/$repo/releases/latest")
+	local json
+	json=$(gh api "/repos/$repo/releases/latest")
 
 	if ! jq -e '.tag_name // ""' <<<"$json" &>/dev/null; then
 		error "Unexpected response from GitHub API for $repo"
@@ -72,7 +74,8 @@ function fetch_repo {
 		return 1
 	fi
 
-	local tag=$( jq -r '.tag_name // ""' <<<"$json" )
+	local tag
+	tag=$( jq -r '.tag_name // ""' <<<"$json" )
 	mkdir -p "$WORK_DIR/$repo"
 	git clone --branch "$tag" --depth 1 "https://github.com/$repo.git" "$WORK_DIR/$repo"
 }
@@ -144,3 +147,14 @@ echo
 info 'Extracting Gutenberg stubs'
 "$BASE/projects/packages/stub-generator/vendor/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/gutenberg-stubs.php" "$BASE/tools/stubs/gutenberg-stub-defs.php"
 
+echo
+info 'Downloading Jetpack CRM'
+fetch_plugin zero-bs-crm
+
+echo
+info 'Extracting Jetpack CRM stubs'
+"$BASE/projects/packages/stub-generator/vendor/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/zero-bs-crm-stubs.php" "$BASE/tools/stubs/zero-bs-crm-stub-defs.php"
+
+echo
+info 'Updating composer stub packages'
+COMPOSER_ROOT_VERSION=dev-trunk composer --working-dir="$BASE" update --no-install --no-audit --ignore-platform-reqs 'php-stubs/*'

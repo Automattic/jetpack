@@ -228,55 +228,38 @@ class Queue_Storage_Table {
 	 * Fetch items from the queue.
 	 *
 	 * @param int|null $item_count How many items to fetch from the queue.
-	 *                             The parameter is null-able, if no limit on the amount of items.
+	 *                             Null for no limit.
+	 * @param string   $order      Sort direction for the items. Accepts 'ASC' or 'DESC'.
+	 *                             Any other value will be treated as 'ASC'.
 	 *
-	 * @return object[]|null
+	 * @return array|object|null Array of result objects on success, or null on failure.
 	 */
-	public function fetch_items( $item_count ) {
+	public function fetch_items( $item_count, $order = 'ASC' ) {
 		global $wpdb;
 
-		/**
-		 * Ignoring the linting warning, as there's still no placeholder replacement for DB field name,
-		 * in this case this is `$this->table_name`
-		 */
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$order     = ( 'DESC' === $order ) ? 'DESC' : 'ASC';
+		$sql_order = "ORDER BY event_id {$order}";
 
-		// TODO make it more simple for the $item_count
+		$sql = "
+			SELECT
+				event_id AS id,
+				event_payload AS value
+			FROM {$this->table_name}
+			WHERE queue_id LIKE %s
+			{$sql_order}
+		";
+
+		$params = array( $this->queue_id );
+
 		if ( $item_count ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$items = $wpdb->get_results(
-				$wpdb->prepare(
-					"
-						SELECT
-	                        event_id AS id,
-	                        event_payload AS value
-						FROM {$this->table_name}
-							WHERE queue_id LIKE %s
-						ORDER BY event_id ASC
-						LIMIT %d
-					",
-					$this->queue_id,
-					$item_count
-				)
-			);
-		} else {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$items = $wpdb->get_results(
-				$wpdb->prepare(
-					"
-						SELECT
-	                        event_id AS id,
-	                        event_payload AS value
-						FROM {$this->table_name}
-							WHERE queue_id LIKE %s
-						ORDER BY event_id ASC
-					",
-					$this->queue_id
-				)
-			);
+			$sql     .= ' LIMIT %d';
+			$params[] = $item_count;
 		}
 
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$items = $wpdb->get_results(
+			$wpdb->prepare( $sql, $params ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		);
 
 		return $items;
 	}

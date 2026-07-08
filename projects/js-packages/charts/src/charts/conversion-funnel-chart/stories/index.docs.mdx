@@ -25,6 +25,7 @@ The ConversionFunnelChart component provides a specialized visualization for tra
 <Source
 	language="tsx"
 	code={ `import { ConversionFunnelChart } from '@automattic/charts';
+import '@automattic/charts/style.css';
 
 	const funnelData = [
 		{ id: 'sessions', label: 'Sessions', rate: 100, count: 10000 },
@@ -70,6 +71,7 @@ The most basic implementation requires only the main conversion rate and steps d
 
 - **`changeIndicator`**: Change indicator text (e.g., "+2%", "-1.5%")
 - **`loading`**: Whether the chart is in loading state
+- **`height`**: Height of the chart container. Accepts a number (pixels) or CSS string. Falls back to `style.height` if set, otherwise defaults to `"100%"`
 - **`className`**: Additional CSS class name for styling
 - **`chartId`**: Optional unique identifier for the chart
 - **`style`**: Custom styling for the chart container
@@ -225,7 +227,25 @@ Return `null` from render props to disable specific parts:
 	/>` }
 />
 
-## Styling and Theming
+## Styling and Customization
+
+### Custom Container Styling
+
+Use the `style` prop or `className` prop to customize the chart container:
+
+<Source
+	language="tsx"
+	code={ `<ConversionFunnelChart
+		mainRate={10.3}
+		steps={funnelData}
+		className="my-custom-funnel"
+		style={{
+			backgroundColor: '#f8f9fa',
+			padding: '20px',
+			borderRadius: '8px'
+		}}
+	/>` }
+/>
 
 ## Theming Integration
 
@@ -244,23 +264,31 @@ Conversion Funnel Charts integrate seamlessly with the chart theming system. The
 	</GlobalChartsProvider>` }
 />
 
-### Custom Styling
+## Responsive Behavior
 
-Use the `style` prop or `className` prop for custom styling:
+By default, the chart fills its parent container's height (`height="100%"`), consistent with other chart components in the library. The parent container must have an explicit height for this to take effect. To use a fixed height, pass the `height` prop:
+
+<Canvas of={ ConversionFunnelChartStories.FixedDimensions } />
 
 <Source
 	language="tsx"
-	code={ `<ConversionFunnelChart
+	code={ `{/* Fixed height */}
+	<ConversionFunnelChart
 		mainRate={10.3}
+		changeIndicator="+2%"
 		steps={funnelData}
-		className="my-custom-funnel"
-		style={{
-			backgroundColor: '#f8f9fa',
-			padding: '20px',
-			borderRadius: '8px'
-		}}
+		height="200px"
+	/>
+
+	{/* Fill parent container (default) */}
+	<ConversionFunnelChart
+		mainRate={10.3}
+		changeIndicator="+2%"
+		steps={funnelData}
 	/>` }
 />
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
 

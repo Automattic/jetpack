@@ -7,7 +7,7 @@ on:
       - Build
 concurrency:
   # Cancel concurrent jobs on pull_request but not push, by including the run_id in the concurrency group for the latter.
-  group: post-build-${{ github.event.workflow_run.event == 'push' && github.run_id || 'pr' }}-${{ github.event.workflow_run.head_branch }}
+  group: post-build-${{ case( github.event.workflow_run.event == 'push', github.run_id, 'pr' ) }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 env:
@@ -45,7 +45,7 @@ jobs:
         run: |
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Get token
         id: get_token
@@ -85,7 +85,7 @@ jobs:
     if: github.event.workflow_run.conclusion != 'success'
     timeout-minutes: 2  # 2025-11-20: Seems like it should be fast.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Get token
         id: get_token
@@ -125,10 +125,11 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
     timeout-minutes: 2  # 2025-11-20: Takes a few seconds.
     outputs:
-      zip_url: ${{ steps.run.outputs.zip_url }}
+      artifact_name: ${{ steps.run.outputs.artifact_name }}
+      artifact_filename: ${{ steps.run.outputs.artifact_filename }}
       any_plugins: ${{ steps.run.outputs.any_plugins }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Find artifact
         id: run
@@ -136,6 +137,8 @@ jobs:
           TOKEN: ${{ github.token }}
           URL: ${{ github.event.workflow_run.artifacts_url }}
         run: |
+          ARTIFACT_NAME=
+          ARTIFACT_FILENAME=
           for (( i=1; i<=5; i++ )); do
             [[ $i -gt 1 ]] && sleep 10
             echo "::group::Fetch list of artifacts (attempt $i/5)"
@@ -145,15 +148,25 @@ jobs:
             )"
             echo "$JSON"
             echo "::endgroup::"
-            ZIPURL="$(jq -r '.artifacts | map( select( .name == "jetpack-build" ) ) | sort_by( .created_at ) | last | .archive_download_url // empty' <<<"$JSON")"
+
             PLUGINS="$(jq -r '.artifacts[] | select( .name == "plugins.tsv" )' <<<"$JSON")"
-            if [[ -n "$ZIPURL" ]]; then
+
+            # 2026-03-02: Temporarily look for both old and new artifacts.
+            if jq -e '.artifacts[] | select( .name == "jetpack-build.tar.xz" )' <<<"$JSON" &>/dev/null; then
+              ARTIFACT_NAME=jetpack-build.tar.xz
+              ARTIFACT_FILENAME=jetpack-build.tar.xz
+              break
+            fi
+            if jq -e '.artifacts[] | select( .name == "jetpack-build" )' <<<"$JSON" &>/dev/null; then
+              ARTIFACT_NAME=jetpack-build
+              ARTIFACT_FILENAME=build.tar.xz
               break
             fi
           done
-          [[ -z "$ZIPURL" ]] && { echo "::error::Failed to find artifact."; exit 1; }
-          echo "Zip URL: $ZIPURL"
-          echo "zip_url=${ZIPURL}" >> "$GITHUB_OUTPUT"
+          [[ -z "$ARTIFACT_NAME" ]] && { echo "::error::Failed to find artifact."; exit 1; }
+          echo "Artifact name: $ARTIFACT_NAME"
+          echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
+          echo "artifact_filename=${ARTIFACT_FILENAME}" >> "$GITHUB_OUTPUT"
           if [[ -z "$PLUGINS" ]]; then
             echo "Any plugins? No"
             echo "any_plugins=false" >> "$GITHUB_OUTPUT"
@@ -201,7 +214,7 @@ jobs:
     if: needs.find_artifact.outputs.any_plugins == 'false'
     timeout-minutes: 2  # 2025-11-20: Takes a few seconds.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Get token
         id: get_token
@@ -244,7 +257,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-20: Takes a few seconds.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Get token
         id: get_token
@@ -269,26 +282,18 @@ jobs:
           token: ${{ steps.get_token.outputs.token }}
 
       - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.find_artifact.outputs.artifact_name }}
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: ${{ runner.temp }}/artifact/
+
+      - name: Extract build artifact
         env:
-          TOKEN: ${{ github.token }}
-          ZIPURL: ${{ needs.find_artifact.outputs.zip_url }}
+          ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
-        run: |
-          for (( i=1; i<=2; i++ )); do
-            [[ $i -gt 1 ]] && sleep 10
-            echo "::group::Downloading artifact (attempt $i/2)"
-            curl -v -L --get \
-              --header "Authorization: token $TOKEN" \
-              --url "$ZIPURL" \
-              --output "artifact.zip"
-            echo "::endgroup::"
-            if [[ -e "artifact.zip" ]] && zipinfo artifact.zip &>/dev/null; then
-              break
-            fi
-          done
-          [[ ! -e "artifact.zip" ]] && { echo "::error::Failed to download artifact."; exit 1; }
-          unzip artifact.zip
-          tar --xz -xvvf build.tar.xz build/plugins.tsv
+        run: tar --xz -xvvf "$ARTIFACT_FILENAME" build/plugins.tsv
 
       - name: Prepare matrix
         id: matrix
@@ -336,35 +341,32 @@ jobs:
         - 80:80
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           path: trunk
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: ${{ github.event.workflow_run.head_commit.id }}
           path: commit
+          allow-unsafe-pr-checkout: true
+          # .github/files/test-plugin-update/prepare-zips.sh needs just this one file.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            ${{ env.PLUGIN_SRC }}/composer.json
 
       - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.find_artifact.outputs.artifact_name }}
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: ${{ runner.temp }}/artifact/
+
+      - name: Extract build artifact
         env:
-          TOKEN: ${{ github.token }}
-          ZIPURL: ${{ needs.find_artifact.outputs.zip_url }}
+          ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
-        run: |
-          for (( i=1; i<=2; i++ )); do
-            [[ $i -gt 1 ]] && sleep 10
-            echo "::group::Downloading artifact (attempt $i/2)"
-            curl -v -L --get \
-              --header "Authorization: token $TOKEN" \
-              --url "$ZIPURL" \
-              --output "artifact.zip"
-            echo "::endgroup::"
-            if [[ -e "artifact.zip" ]] && zipinfo artifact.zip &>/dev/null; then
-              break
-            fi
-          done
-          [[ ! -e "artifact.zip" ]] && { echo "::error::Failed to download artifact."; exit 1; }
-          unzip artifact.zip
-          tar --xz -xvvf build.tar.xz build
+        run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
 
       - name: Setup WordPress
         run: trunk/.github/files/test-plugin-update/setup.sh
@@ -383,7 +385,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-20: Takes a few seconds.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Get token
         id: get_token
@@ -400,7 +402,7 @@ jobs:
         with:
           id: ${{ needs.setup.outputs.upgrade_check }}
           conclusion: ${{ needs.upgrade_test.result }}
-          title: ${{ needs.upgrade_test.result == 'success' && 'Tests passed' || needs.upgrade_test.result == 'cancelled' && 'Cancelled' || 'Tests failed' }}
+          title: ${{ case( needs.upgrade_test.result == 'success', 'Tests passed', needs.upgrade_test.result == 'cancelled', 'Cancelled', 'Tests failed' ) }}
           summary: |
             ${{ env.SUMMARY }}
 
@@ -414,13 +416,20 @@ jobs:
     if: needs.find_artifact.outputs.any_plugins == 'true'
     timeout-minutes: 15  # 2025-11-20: Less than a minute, but leave time for the downloads.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           path: trunk
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           ref: ${{ github.event.workflow_run.head_commit.id }}
           path: commit
+          allow-unsafe-pr-checkout: true
+          # We don't need any files for this check, just the tree. A non-cone sparse checkout with a custom filter does the trick.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: .
+          filter: 'tree:0'
+          # We do need all the commits, but `fetch-depth: 0` wants to fetch all branches and tags rather than just the one we want, sigh.
+          fetch-depth: 2147483647
 
       - name: Get token
         id: get_token
@@ -442,26 +451,18 @@ jobs:
           token: ${{ steps.get_token.outputs.token }}
 
       - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.find_artifact.outputs.artifact_name }}
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: ${{ runner.temp }}/artifact/
+
+      - name: Extract build artifact
         env:
-          TOKEN: ${{ github.token }}
-          ZIPURL: ${{ needs.find_artifact.outputs.zip_url }}
+          ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
-        run: |
-          for (( i=1; i<=2; i++ )); do
-            [[ $i -gt 1 ]] && sleep 10
-            echo "::group::Downloading artifact (attempt $i/2)"
-            curl -v -L --get \
-              --header "Authorization: token $TOKEN" \
-              --url "$ZIPURL" \
-              --output "artifact.zip"
-            echo "::endgroup::"
-            if [[ -e "artifact.zip" ]] && zipinfo artifact.zip &>/dev/null; then
-              break
-            fi
-          done
-          [[ ! -e "artifact.zip" ]] && { echo "::error::Failed to download artifact."; exit 1; }
-          unzip artifact.zip
-          tar --xz -xvvf build.tar.xz build
+        run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
 
       - name: Test filename restrictions
         id: tests
@@ -473,7 +474,7 @@ jobs:
         with:
           id: ${{ needs.setup.outputs.wpcom_filename_check }}
           conclusion: ${{ job.status }}
-          title: ${{ job.status == 'success' && 'Tests passed' || job.status == 'cancelled' && 'Cancelled' || 'Tests failed' }}
+          title: ${{ case( job.status == 'success', 'Tests passed', job.status == 'cancelled', 'Cancelled', 'Tests failed' ) }}
           summary: |
             ${{ env.SUMMARY }}
 

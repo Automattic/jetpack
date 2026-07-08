@@ -9,12 +9,16 @@ permissions:
   # actions/checkout
   contents: read
 
+concurrency:
+  group: update-jetpack-staging-sites-all
+  cancel-in-progress: true
+
 jobs:
   run_shell_script:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Env config
         env:
@@ -35,13 +39,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup K6
-        uses: grafana/setup-k6-action@v1
+        uses: grafana/setup-k6-action@db07bd9765aac508ef18982e52ab937fe633a065 # v1.2.1
 
       - name: Run k6 frontend tests
-        uses: grafana/run-k6-action@v1
+        uses: grafana/run-k6-action@de51a7390bdf0ac85a3bef493691bd71d4c7c158 # v1.4.0
         with:
           path: .github/files/jetpack-staging-sites/k6-frontend.js
         env:
@@ -49,7 +53,7 @@ jobs:
           JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}
 
       - name: Run k6 backend tests
-        uses: grafana/run-k6-action@v1
+        uses: grafana/run-k6-action@de51a7390bdf0ac85a3bef493691bd71d4c7c158 # v1.4.0
         with:
           path: .github/files/jetpack-staging-sites/k6-backend.js
         env:
@@ -61,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Execute shell script
         shell: bash

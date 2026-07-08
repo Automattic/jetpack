@@ -36,8 +36,7 @@ const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
 				if ( typeof juxtapose !== 'undefined' && juxtapose.sliders ) {
 					// only update for *this* slide
 					juxtapose.sliders.forEach( elem => {
-						const parentElem = elem.wrapper.parentElement;
-						if ( parentElem.id === clientId ) {
+						if ( elem.wrapper.id === clientId ) {
 							elem.optimizeWrapper( sz );
 						}
 					} );
@@ -64,11 +63,16 @@ const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
 	}, [ align, imageBefore, imageAfter, orientation, setElement ] );
 
 	return (
-		<figure { ...blockProps } id={ clientId }>
+		<figure { ...blockProps }>
 			<InspectorControls key="controls">
 				<ImageCompareControls { ...{ attributes, setAttributes } } />
 			</InspectorControls>
-			<div ref={ juxtaposeRef } className={ classes } data-mode={ orientation || 'horizontal' }>
+			<div
+				ref={ juxtaposeRef }
+				id={ clientId }
+				className={ classes }
+				data-mode={ orientation || 'horizontal' }
+			>
 				<Placeholder label={ null }>
 					<div className="image-compare__image-before">
 						<ImgUpload

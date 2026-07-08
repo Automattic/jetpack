@@ -11,7 +11,6 @@ import {
 	unregisterBlockStyle,
 } from '@wordpress/blocks';
 import {
-	ExternalLink,
 	PanelBody,
 	Placeholder,
 	SelectControl,
@@ -20,6 +19,7 @@ import {
 } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { isEmpty, isEqual } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
@@ -238,10 +238,12 @@ function OpenTableEdit( {
 		>
 			<RestaurantPicker rids={ rid } onSubmit={ onPickerSubmit } />
 			<div className={ `${ defaultClassName }-placeholder-links` }>
-				<ExternalLink href="https://restaurant.opentable.com/get-started/">
+				<Link openInNewTab href="https://restaurant.opentable.com/get-started/">
 					{ __( 'Sign up for OpenTable', 'jetpack' ) }
-				</ExternalLink>
-				<ExternalLink href={ supportLink }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
+				</Link>
+				<Link openInNewTab href={ supportLink }>
+					{ __( 'Learn more', 'jetpack' ) }
+				</Link>
 			</div>
 		</Placeholder>
 	);

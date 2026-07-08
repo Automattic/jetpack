@@ -1,7 +1,8 @@
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useMemo } from '@wordpress/element';
-import { useShareMessageMaxLength } from '../../utils';
+import { useCallback, useMemo, useRef } from '@wordpress/element';
+import { features, useShareMessageMaxLength } from '../../utils';
 
 /**
  * This is to avoid creating a new empty array each time the value is requested.
@@ -33,10 +34,11 @@ export function usePostMeta() {
 			const mediaSource = jetpackSocialOptions.media_source;
 			const isPostAlreadyShared = meta.jetpack_social_post_already_shared ?? false;
 
-			const shareMessage = `${ meta.jetpack_publicize_message || '' }`.substring(
-				0,
-				maxCharacterLength
-			);
+			let shareMessage = meta.jetpack_publicize_message || '';
+
+			if ( ! siteHasFeature( features.MESSAGE_TEMPLATES ) ) {
+				shareMessage = shareMessage.substring( 0, maxCharacterLength );
+			}
 
 			return {
 				isPublicizeEnabled,
@@ -66,18 +68,24 @@ export function usePostMeta() {
 		updateMeta( 'jetpack_publicize_feature_enabled', ! metaValues.isPublicizeEnabled );
 	}, [ metaValues.isPublicizeEnabled, updateMeta ] );
 
+	// Use a ref to always have the latest jetpackSocialOptions value
+	// This prevents stale closure issues when async operations (like SIG token fetch)
+	// call updateJetpackSocialOptions after user has made other changes
+	const jetpackSocialOptionsRef = useRef( metaValues.jetpackSocialOptions );
+	jetpackSocialOptionsRef.current = metaValues.jetpackSocialOptions;
+
 	const updateJetpackSocialOptions = useCallback(
 		( keyOrUpdates, value ) => {
 			// Support both single key-value and object of updates
 			const updates = typeof keyOrUpdates === 'string' ? { [ keyOrUpdates ]: value } : keyOrUpdates;
 
 			updateMeta( 'jetpack_social_options', {
-				...metaValues.jetpackSocialOptions,
+				...jetpackSocialOptionsRef.current,
 				...updates,
 				version: 2,
 			} );
 		},
-		[ metaValues.jetpackSocialOptions, updateMeta ]
+		[ updateMeta ]
 	);
 
 	return useMemo(

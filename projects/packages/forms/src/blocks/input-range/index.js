@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import edit from './edit.js';
-import RangeIcon from './icon.js';
+import RangeIcon from './icon.jsx';
 import save from './save.js';
 
 const name = 'input-range';
@@ -29,6 +29,9 @@ const settings = {
 	supports: {
 		reusable: false,
 		html: false,
+		// FORMS-694: inputs are inert for visibility (output discarded by the
+		// field renderer); disable the control like the standard input block.
+		visibility: false,
 		color: {
 			text: true,
 			background: false,

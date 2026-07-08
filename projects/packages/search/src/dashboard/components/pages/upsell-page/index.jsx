@@ -12,26 +12,23 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 	IconTooltip,
-	Button,
+	Button as JetpackButton,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
+import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import Loading from 'components/loading';
 import Price from 'components/price';
 import SearchPromotionBlock from 'components/search-promotion';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import { STORE_ID } from 'store';
-import Header from './header';
 
 import './styles.scss';
-
-const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
 
 /**
  * defines UpsellPage.
@@ -44,11 +41,14 @@ export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
+	const activateLicenseUrl = useSelect(
+		select => `${ select( STORE_ID ).getSiteAdminUrl() }admin.php?page=my-jetpack#/add-license`
+	);
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
-	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback( () => {
@@ -94,13 +94,32 @@ export default function UpsellPage( { isLoading = false } ) {
 		<>
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
-				<div className="jp-search-dashboard-upsell-page">
-					<AdminPage
-						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
-						header={ <Header /> }
-						moduleNameHref={ JETPACK_SEARCH__LINK }
-						useInternalLinks={ shouldUseInternalLinks() }
-					>
+				<AdminPage
+					title={ 'Search' /** "Search" is a product name, do not translate. */ }
+					subTitle={ __(
+						'Help your visitors find exactly what they are looking for.',
+						'jetpack-search-pkg'
+					) }
+					actions={
+						! isWpcom && (
+							<Button size="compact" variant="secondary" href={ activateLicenseUrl }>
+								{ __( 'Use license key', 'jetpack-search-pkg' ) }
+							</Button>
+						)
+					}
+				>
+					{ /*
+					 * `<AdminSectionHero>` has `overflow: hidden` (BFC for margin
+					 * collapse), which under the shared admin-page-layout mixin's
+					 * flex chain resolves its `min-height: auto` to 0 and lets
+					 * flex shrink it past its content — clipping the pricing rows
+					 * at the footer line and starving the middle's `overflow:
+					 * auto` of any overflow to engage. The block-level wrapper
+					 * exits the flex chain so the inner content sizes to its
+					 * natural height. See `.jp-search-upsell-page-content` rule
+					 * + comment in styles.scss for full reasoning.
+					 */ }
+					<div className="jp-search-upsell-page-content">
 						<AdminSectionHero>
 							{ isNewPricing ? (
 								<NewPricingComponent
@@ -111,8 +130,8 @@ export default function UpsellPage( { isLoading = false } ) {
 								<OldPricingComponent sendToCart={ sendToCartPaid } />
 							) }
 						</AdminSectionHero>
-					</AdminPage>
-				</div>
+					</div>
+				</AdminPage>
 			) }
 		</>
 	);
@@ -170,6 +189,23 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
+	const isSearchBlocksEnabled = useSelect(
+		select => select( STORE_ID ).isSearchBlocksEnabled(),
+		[]
+	);
+	const pricingArgs = useMemo( () => {
+		const baseItems = [ ...newPricingArgs.items ];
+		const prioritySupportIndex = baseItems.findIndex(
+			item => item.name === __( 'Priority support', 'jetpack-search-pkg' )
+		);
+		const insertAt = prioritySupportIndex === -1 ? baseItems.length : prioritySupportIndex;
+		baseItems.splice( insertAt, 0, ...aiAnswersPricingItems );
+		return {
+			...newPricingArgs,
+			items: [ ...baseItems, ...( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ) ],
+		};
+	}, [ isSearchBlocksEnabled ] );
+
 	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
 	const paidRecordsLimit = new Intl.NumberFormat( localeSlug, {
 		notation: 'compact',
@@ -194,7 +230,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	} ).format( unitQuantityRaw );
 
 	return (
-		<Container horizontalSpacing={ 8 }>
+		<Container horizontalSpacing={ 8 } className="jp-search-upsell-container">
 			{ hasConnectionError && (
 				<Col lg={ 12 } md={ 12 } sm={ 12 }>
 					<ConnectionError />
@@ -203,7 +239,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 
 			<Col lg={ 12 } md={ 12 } sm={ 12 }>
 				<ThemeProvider>
-					<PricingTable { ...newPricingArgs }>
+					<PricingTable { ...pricingArgs }>
 						<PricingTableColumn primary>
 							<PricingTableHeader>
 								<ProductPrice
@@ -258,9 +294,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 										</IconTooltip>
 									</div>
 								</ProductPrice>
-								<Button onClick={ sendToCartPaid } fullWidth>
+								<JetpackButton onClick={ sendToCartPaid } fullWidth>
 									{ __( 'Get Search', 'jetpack-search-pkg' ) }
-								</Button>
+								</JetpackButton>
 							</PricingTableHeader>
 							<PricingTableItem
 								isIncluded={ true }
@@ -290,11 +326,18 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								isIncluded={ true }
 								label={ __( 'Branding removed', 'jetpack-search-pkg' ) }
 							/>
+							{ aiAnswersPricingItems.map( item => (
+								<PricingTableItem key={ item.id } isIncluded={ true } />
+							) ) }
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
+							{ ( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ).map( item => (
+								<PricingTableItem key={ item.id } isIncluded={ true } />
+							) ) }
 						</PricingTableColumn>
 						<PricingTableColumn>
 							<PricingTableHeader>
@@ -304,9 +347,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 									currency={ priceCurrencyCode }
 									hidePriceFraction
 								/>
-								<Button onClick={ sendToCartFree } variant="secondary" fullWidth>
+								<JetpackButton onClick={ sendToCartFree } variant="secondary" fullWidth>
 									{ __( 'Start for free', 'jetpack-search-pkg' ) }
-								</Button>
+								</JetpackButton>
 							</PricingTableHeader>
 							<PricingTableItem
 								isIncluded={ true }
@@ -376,11 +419,18 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								isIncluded={ false }
 								label={ __( 'Shows Jetpack logo', 'jetpack-search-pkg' ) }
 							/>
+							{ aiAnswersPricingItems.map( item => (
+								<PricingTableItem key={ item.id } isIncluded={ false } />
+							) ) }
 							<PricingTableItem isIncluded={ false } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
+							{ ( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ).map( item => (
+								<PricingTableItem key={ item.id } isIncluded={ true } />
+							) ) }
 						</PricingTableColumn>
 					</PricingTable>
 				</ThemeProvider>
@@ -477,5 +527,47 @@ const newPricingArgs = {
 				'jetpack-search-pkg'
 			),
 		},
+		{
+			name: __( 'Autocomplete', 'jetpack-search-pkg' ),
+			tooltipInfo: __(
+				'Suggest search queries as your visitors type, so they can find what they need faster and reach results in a single click.',
+				'jetpack-search-pkg'
+			),
+		},
 	],
 };
+
+// Rows gated behind the `jetpack_search_blocks_enabled` flag (mirrored to the
+// dashboard as `searchBlocksEnabled`), so the pricing table advertises the
+// Search blocks features only when the blocks themselves are registered.
+const searchBlocksPricingItems = [
+	{
+		id: 'search-blocks',
+		name: __( 'Jetpack Search blocks', 'jetpack-search-pkg' ),
+		tooltipInfo: __(
+			'Design your own search experience in the block editor. Drop in dedicated search, filtering, and sorting blocks to build a results page that matches your site — no code required.',
+			'jetpack-search-pkg'
+		),
+	},
+	{
+		id: 'embedded-search-page',
+		name: __( 'Embedded search page', 'jetpack-search-pkg' ),
+		tooltipInfo: __(
+			"Don't want to build one yourself? Enable the ready-made Jetpack Search template in a single click for a polished, fully featured search page right out of the box.",
+			'jetpack-search-pkg'
+		),
+	},
+];
+
+// Paid-only feature: advertised on the paid plan column only — the free plan
+// does not include AI Answers.
+const aiAnswersPricingItems = [
+	{
+		id: 'ai-answers',
+		name: __( 'AI Answers (Preview)', 'jetpack-search-pkg' ),
+		tooltipInfo: __(
+			'Let visitors ask a question and get an instant, AI-generated answer drawn from your own content — right at the top of the search results.',
+			'jetpack-search-pkg'
+		),
+	},
+];

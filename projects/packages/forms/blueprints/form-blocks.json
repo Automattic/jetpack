@@ -1,0 +1,12 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"landingPage": "/wp-admin/admin.php?page=jetpack-forms",
+	"steps": [
+		{
+			"step": "setSiteOptions",
+			"options": {
+				"jetpack_active_modules": [ "contact-form", "blocks" ]
+			}
+		}
+	]
+}

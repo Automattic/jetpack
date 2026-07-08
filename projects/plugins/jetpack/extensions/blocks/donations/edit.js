@@ -1,7 +1,9 @@
-import { Spinner } from '@automattic/jetpack-components';
-import { useBlockProps } from '@wordpress/block-editor';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
+import { Icon, Spinner } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useEffect } from '@wordpress/element';
+import { useCallback, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import ConnectBanner from '../../shared/components/connect-banner';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
@@ -10,22 +12,78 @@ import getConnectUrl from '../../shared/get-connect-url';
 import useIsUserConnected from '../../shared/use-is-user-connected';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
+import buildCustomStyles from './build-custom-styles';
+import Controls from './controls';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
 import FirstTimeModal from './first-time-modal';
+import { TRIGGER_ICONS } from './icons';
 import './first-time-modal.scss';
 import LoadingError from './loading-error';
+import StyleControls from './style-controls';
 import Tabs from './tabs';
 
-const Edit = props => {
-	const { attributes, setAttributes } = props;
-	const { currency } = attributes;
+// Dedupe block_loaded event firings across React re-mounts within the same editor session.
+const blockLoadedFiredClientIds = new Set();
 
-	const blockProps = useBlockProps();
+const Edit = props => {
+	const { attributes, setAttributes, clientId } = props;
+	const {
+		currency,
+		tabsAppearance,
+		className,
+		displayMode,
+		triggerButtonText,
+		triggerIcon,
+		triggerSticky,
+	} = attributes;
+	const { tracks } = useAnalytics();
+
+	// Migrate legacy blocks that used the block-style variation
+	// (`is-style-buttons` saved into `className`) over to the new
+	// `tabsAppearance` attribute. Strips the class so the toggle in the
+	// Appearance control reflects reality and can switch back to "Tabs".
+	useEffect( () => {
+		if ( typeof className === 'string' && className.split( ' ' ).includes( 'is-style-buttons' ) ) {
+			const cleaned = className
+				.split( ' ' )
+				.filter( c => c !== 'is-style-buttons' )
+				.join( ' ' )
+				.trim();
+			setAttributes( {
+				tabsAppearance: 'buttons',
+				className: cleaned || undefined,
+			} );
+		}
+	}, [ className, setAttributes ] );
+
+	const instanceId = useInstanceId( Edit, 'jp-donations' );
+	const customStyles = buildCustomStyles( attributes, `.${ instanceId }` );
+
+	const wrapperClassName = [
+		instanceId,
+		tabsAppearance === 'buttons' && 'is-style-buttons',
+		displayMode === 'modal' && 'is-display-modal',
+		displayMode === 'modal' && triggerSticky && 'is-sticky',
+	]
+		.filter( Boolean )
+		.join( ' ' );
+	const blockProps = useBlockProps( { className: wrapperClassName } );
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
 	const [ showFirstTimeModal, setShowFirstTimeModal ] = useState( false );
 	const isUserConnected = useIsUserConnected();
+
+	// When the inserter renders this block as an example/preview (it declares
+	// `"example": {}` in block.json), Gutenberg mounts this Edit component inside
+	// a BlockPreview with `isPreviewMode` set. We use this flag to skip all editor
+	// side effects (Stripe status fetch, post-saving lock, first-time modal,
+	// analytics) so hovering the block in the inserter doesn't flicker the screen,
+	// lock post saving, or fire tracking events. Mirrors the `map` block.
+	const isPreviewMode = useSelect(
+		select => select( blockEditorStore ).getSettings().isPreviewMode,
+		[]
+	);
 
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const { getEntityRecord, getCurrentUser } = useSelect( 'core' );
@@ -48,6 +106,34 @@ const Edit = props => {
 	const stripeDefaultCurrency = useSelect( select =>
 		select( MEMBERSHIPS_PRODUCTS_STORE ).getConnectedAccountDefaultCurrency()
 	);
+
+	// Fire jetpack_donations_block_loaded once per clientId per session.
+	// Wait until either Stripe state has resolved (stripeConnectUrl OR
+	// stripeDefaultCurrency populated) or the user is not Jetpack-connected,
+	// so the stripe_connected snapshot is accurate.
+	useEffect( () => {
+		if ( isPreviewMode || ! clientId || blockLoadedFiredClientIds.has( clientId ) ) {
+			return;
+		}
+		const stripeStateResolved = !! stripeConnectUrl || !! stripeDefaultCurrency;
+		if ( isUserConnected && ! stripeStateResolved ) {
+			return;
+		}
+		blockLoadedFiredClientIds.add( clientId );
+		tracks.recordEvent( 'jetpack_donations_block_loaded', {
+			feature: 'donations',
+			surface: 'block_editor',
+			is_user_connected: !! isUserConnected,
+			stripe_connected: isUserConnected ? ! stripeConnectUrl : null,
+		} );
+	}, [
+		clientId,
+		isUserConnected,
+		stripeConnectUrl,
+		stripeDefaultCurrency,
+		tracks,
+		isPreviewMode,
+	] );
 
 	useEffect( () => {
 		if ( ! currency && stripeDefaultCurrency && ! isPostSavingLocked ) {
@@ -95,12 +181,19 @@ const Edit = props => {
 
 	// Show the modal if the user has not dismissed the warning
 	useEffect( () => {
+		if ( isPreviewMode ) {
+			return;
+		}
 		if ( currentUser?.id && hasDismissedDonationWarning === false ) {
 			setShowFirstTimeModal( true );
 		}
-	}, [ currentUser, hasDismissedDonationWarning ] );
+	}, [ currentUser, hasDismissedDonationWarning, isPreviewMode ] );
 
 	useEffect( () => {
+		if ( isPreviewMode ) {
+			return;
+		}
+
 		lockPostSaving( 'donations' );
 
 		const filterProducts = productList =>
@@ -161,31 +254,60 @@ const Edit = props => {
 		setConnectUrl,
 		setConnectedAccountDefaultCurrency,
 		unlockPostSaving,
+		isPreviewMode,
 	] );
+
+	// In preview/example mode the Stripe status fetch is skipped, so fall back to
+	// placeholder products and a valid currency to render a representative form
+	// rather than a perpetual spinner or a "connect Stripe" nudge.
+	const previewProducts = { 'one-time': -1, '1 month': -1, '1 year': -1 };
+	const effectiveProducts = isPreviewMode ? previewProducts : products;
+	const effectiveProps =
+		isPreviewMode && ! currency
+			? { ...props, attributes: { ...attributes, currency: 'USD' } }
+			: props;
 
 	let content;
 
-	if ( ! isUserConnected ) {
+	if ( ! isPreviewMode && ! isUserConnected ) {
 		content = (
 			<ConnectBanner
 				block="Donations Form"
 				explanation={ __( 'Connect your WordPress.com account to enable donations.', 'jetpack' ) }
 			/>
 		);
-	} else if ( loadingError ) {
+	} else if ( ! isPreviewMode && loadingError ) {
 		content = <LoadingError error={ loadingError } />;
-	} else if ( stripeConnectUrl ) {
+	} else if ( ! isPreviewMode && stripeConnectUrl ) {
 		// Need to connect Stripe first
 		content = <StripeNudge blockName="donations" />;
-	} else if ( ! currency ) {
+	} else if ( ! isPreviewMode && ! currency ) {
 		// Memberships settings are still loading
-		content = <Spinner color="black" />;
+		content = <Spinner />;
+	} else if ( displayMode === 'modal' ) {
+		const triggerIconEntry = TRIGGER_ICONS.find( ( { key } ) => key === triggerIcon );
+		const triggerLabel = triggerButtonText || __( 'Donate', 'jetpack' );
+		content = (
+			<>
+				<Controls { ...props } />
+				<button
+					className="donations__trigger-button wp-block-button__link"
+					tabIndex={ -1 }
+					aria-hidden="true"
+				>
+					{ triggerIconEntry && triggerIcon !== 'none' && (
+						<Icon className="donations__trigger-icon" icon={ triggerIconEntry.icon } size={ 20 } />
+					) }
+					{ triggerLabel }
+				</button>
+			</>
+		);
 	} else {
-		content = <Tabs { ...props } products={ products } />;
+		content = <Tabs { ...effectiveProps } products={ effectiveProducts } />;
 	}
 
 	// When the first time modal is closed, update the user meta to mark the donation warning as dismissed
-	const handleModalClose = async () => {
+	const handleModalClose = useCallback( async () => {
 		setShowFirstTimeModal( false );
 
 		if ( ! currentUser?.id ) {
@@ -205,10 +327,12 @@ const Edit = props => {
 			// eslint-disable-next-line no-console
 			console.error( 'Failed to update user meta:', error );
 		}
-	};
+	}, [ currentUser, editEntityRecord, saveEditedEntityRecord ] );
 
 	return (
 		<div { ...blockProps }>
+			<StyleControls attributes={ attributes } setAttributes={ setAttributes } />
+			{ customStyles && <style>{ customStyles }</style> }
 			{ content }
 			{ showFirstTimeModal && <FirstTimeModal onClose={ handleModalClose } /> }
 		</div>

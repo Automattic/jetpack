@@ -1,0 +1,86 @@
+/**
+ * Podcast Episode block — editor-only styles.
+ *
+ * These rules target sidebar controls (InspectorControls) which Gutenberg
+ * portals out of the block tree, so they cannot be nested under the block
+ * wrapper class. Class names are uniquely prefixed `jetpack-podcast-episode__`
+ * to keep root-level selectors collision-safe.
+ */
+
+.jetpack-podcast-episode__person-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	box-sizing: border-box;
+	width: 100%;
+	padding: 12px;
+	margin-bottom: 12px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+// Alternate the row background so a stack of person editors reads as
+// distinct cards instead of merging visually.
+.jetpack-podcast-episode__person-editor--alt {
+	background: #f6f7f7;
+}
+
+// Featured-image-style cover picker: full-width clickable preview that
+// opens the media library, with Replace / Remove links underneath.
+.jetpack-podcast-episode__cover-picker {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-bottom: 8px;
+	width: 100%;
+}
+
+// `<Button>` defaults to `display: inline-flex; height: 36px;` which makes
+// the image overflow the bounds when we drop it inside. Force the button to
+// act as a block container that grows to wrap whatever it holds.
+.jetpack-podcast-episode__cover-button {
+	box-sizing: border-box;
+	display: block;
+	width: 100%;
+	height: auto;
+	min-height: 0;
+	padding: 0;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background: transparent;
+	overflow: hidden;
+	cursor: pointer;
+
+	&:hover,
+	&:focus-visible {
+		border-color: var(--wp-admin-theme-color, #007cba);
+	}
+
+	// Mirror what the feed serves: Photon center-crops the cover to a square,
+	// so the picker preview does too (via aspect-ratio + object-fit) to avoid
+	// the editor showing one composition and the feed showing another.
+	img {
+		display: block;
+		width: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
+	}
+}
+
+.jetpack-podcast-episode__cover-button--empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 92px;
+	border-style: dashed;
+
+	span {
+		color: var(--wp-admin-theme-color, #007cba);
+		font-weight: 500;
+	}
+}
+
+.jetpack-podcast-episode__cover-actions {
+	display: flex;
+	gap: 12px;
+}

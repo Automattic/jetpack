@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { LinkPreviewModalWithTrigger } from '@automattic/jetpack-publicize/link-preview';
 import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	useModuleStatus,
@@ -12,6 +13,7 @@ import { PanelBody, PanelRow } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, select as globalSelect, useDispatch } from '@wordpress/data';
 import {
+	PluginDocumentSettingPanel,
 	PluginPrePublishPanel,
 	PluginPostPublishPanel,
 	store as editorStore,
@@ -32,6 +34,7 @@ import { SeoSkeletonLoader } from './components/skeleton-loader';
 import UpsellNotice from './components/upsell';
 import SeoDescriptionPanel from './description-panel';
 import SeoNoindexPanel from './noindex-panel';
+import SeoSchemaPanel from './schema-panel';
 import { showSeoSection } from './show-seo-section';
 import SeoTitlePanel from './title-panel';
 import './editor.scss';
@@ -98,46 +101,60 @@ const Seo = () => {
 	const canShowUpsell = isWpcomPlatformSite();
 	const hasRequiredPlanForEnhancer = ! getRequiredPlan( 'ai-seo-enhancer' );
 
-	const jetpackSeoPanelProps = {
-		title: __( 'Optimize SEO', 'jetpack' ),
-	};
-
 	if ( canShowUpsell && requiredPlan !== false ) {
 		return (
 			<>
 				<JetpackPluginSidebar>
 					<PanelBody
-						className="jetpack-seo-panel"
-						{ ...jetpackSeoPanelProps }
+						title={ __( 'Optimize SEO', 'jetpack' ) }
 						initialOpen={ false }
+						className="jetpack-seo-panel"
 					>
 						<UpsellNotice requiredPlan={ requiredPlan } />
 					</PanelBody>
 				</JetpackPluginSidebar>
+				<PluginDocumentSettingPanel
+					className="jetpack-seo-panel"
+					title={ __( 'Optimize SEO', 'jetpack' ) }
+					name="jetpack-seo"
+					icon={ <JetpackEditorPanelLogo /> }
+				>
+					<UpsellNotice requiredPlan={ requiredPlan } />
+				</PluginDocumentSettingPanel>
 			</>
 		);
 	}
 
 	if ( ! isModuleActive ) {
+		const moduleInactiveContent = isLoadingModules ? (
+			<SeoSkeletonLoader />
+		) : (
+			<SeoPlaceholder
+				changeStatus={ changeStatus }
+				isModuleActive={ isModuleActive }
+				isLoading={ isChangingStatus }
+			/>
+		);
+
 		return (
 			<>
 				<JetpackPluginSidebar>
 					<PanelBody
-						className="jetpack-seo-panel"
-						{ ...jetpackSeoPanelProps }
+						title={ __( 'Optimize SEO', 'jetpack' ) }
 						initialOpen={ false }
+						className="jetpack-seo-panel"
 					>
-						{ isLoadingModules ? (
-							<SeoSkeletonLoader />
-						) : (
-							<SeoPlaceholder
-								changeStatus={ changeStatus }
-								isModuleActive={ isModuleActive }
-								isLoading={ isChangingStatus }
-							/>
-						) }
+						{ moduleInactiveContent }
 					</PanelBody>
 				</JetpackPluginSidebar>
+				<PluginDocumentSettingPanel
+					className="jetpack-seo-panel"
+					title={ __( 'Optimize SEO', 'jetpack' ) }
+					name="jetpack-seo"
+					icon={ <JetpackEditorPanelLogo /> }
+				>
+					{ moduleInactiveContent }
+				</PluginDocumentSettingPanel>
 			</>
 		);
 	}
@@ -152,33 +169,63 @@ const Seo = () => {
 	return (
 		<>
 			<JetpackPluginSidebar>
-				<PanelBody className="jetpack-seo-panel" { ...jetpackSeoPanelProps }>
+				<PanelBody title={ __( 'Optimize SEO', 'jetpack' ) } className="jetpack-seo-panel">
 					{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
 						<SeoEnhancer placement="jetpack-sidebar" disableAutoEnhance={ ! canHaveAutoEnhance } />
 					) }
 					<PanelRow
-						className={ clsx( {
-							'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled,
-						} ) }
+						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
 					>
 						<SeoTitlePanel />
 					</PanelRow>
 					<PanelRow
-						className={ clsx( {
-							'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled,
-						} ) }
+						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
 					>
 						<SeoDescriptionPanel />
 					</PanelRow>
 					<PanelRow
-						className={ clsx( {
-							'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled,
-						} ) }
+						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
+					>
+						<LinkPreviewModalWithTrigger />
+					</PanelRow>
+					<PanelRow
+						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
 					>
 						<SeoNoindexPanel />
 					</PanelRow>
+					<PanelRow
+						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
+					>
+						<SeoSchemaPanel />
+					</PanelRow>
 				</PanelBody>
 			</JetpackPluginSidebar>
+
+			<PluginDocumentSettingPanel
+				className="jetpack-seo-panel"
+				title={ __( 'Optimize SEO', 'jetpack' ) }
+				name="jetpack-seo"
+				icon={ <JetpackEditorPanelLogo /> }
+			>
+				{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
+					<SeoEnhancer placement="document-settings" disableAutoEnhance={ ! canHaveAutoEnhance } />
+				) }
+				<PanelRow>
+					<SeoTitlePanel />
+				</PanelRow>
+				<PanelRow>
+					<SeoDescriptionPanel />
+				</PanelRow>
+				<PanelRow>
+					<LinkPreviewModalWithTrigger />
+				</PanelRow>
+				<PanelRow>
+					<SeoNoindexPanel />
+				</PanelRow>
+				<PanelRow>
+					<SeoSchemaPanel />
+				</PanelRow>
+			</PluginDocumentSettingPanel>
 
 			<PluginPrePublishPanel { ...jetpackSeoPublishPanelsProps }>
 				<div className="jetpack-seo-panel">
@@ -195,7 +242,13 @@ const Seo = () => {
 						<SeoDescriptionPanel />
 					</PanelRow>
 					<PanelRow>
+						<LinkPreviewModalWithTrigger />
+					</PanelRow>
+					<PanelRow>
 						<SeoNoindexPanel />
+					</PanelRow>
+					<PanelRow>
+						<SeoSchemaPanel />
 					</PanelRow>
 				</div>
 			</PluginPrePublishPanel>

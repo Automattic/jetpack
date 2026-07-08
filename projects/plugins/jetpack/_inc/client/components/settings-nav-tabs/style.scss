@@ -1,0 +1,77 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+// --spacing-base is provided by admin-ui's ThemeProvider in some contexts,
+// but not guaranteed here. Define a local fallback.
+$spacing-base: var(--spacing-base, 8px);
+
+// AdminPage uses margin-left: -20px to neutralize #wpcontent's default 20px
+// padding. But Jetpack's own CSS zeros out that padding (admin-static.scss,
+// _main.scss), so the -20px just shifts everything into the sidebar. Reset it.
+// Double class for specificity over the CSS module rule.
+.jp-settings-admin-page.jp-settings-admin-page {
+	margin-left: 0;
+
+	// Override AdminPage's --jp-white background with the
+	// admin-ui token equivalent (#fcfcfc) and fill the viewport
+	// so the wp-admin beige body doesn't bleed through.
+	&:global(.background) {
+		background-color: #fcfcfc;
+		// 32px = wpadminbar height, 32px = wp-admin footer estimate
+		min-height: calc(100vh - 32px);
+	}
+}
+
+// Outer container: flex row with tabs + search side by side.
+.jp-settings-nav {
+	display: flex;
+	align-items: center;
+	position: relative;
+	border-bottom: 1px solid gb.$gray-100;
+	padding-inline: calc(#{$spacing-base} * 3); // 24px — matches admin-ui header
+	background-color: #fff;
+
+	// Search: position absolutely so it doesn't shrink the tab area.
+	// On mobile this prevents the search icon from stealing tab scroll space.
+	.dops-search.is-expanded-to-container {
+		position: absolute;
+		inset-inline-end: calc(#{$spacing-base} * 3);
+		inset-block: 0;
+		display: flex;
+		align-items: center;
+
+		@media (max-width: 660px) {
+			inset-inline-end: calc(#{$spacing-base} * 2);
+		}
+
+		&.is-open {
+			inset-inline-start: calc(#{$spacing-base} * 3);
+			width: auto;
+
+			@media (max-width: 660px) {
+				z-index: 1;
+				background-color: #fff;
+			}
+		}
+	}
+}
+
+// Tabs.Root: fills the available flex space and clips the TabList so the
+// component's built-in overflow detection (scrollWidth > clientWidth) works.
+.jp-settings-nav__tabs-root {
+	// let there be scroll
+	overflow: hidden;
+	// Reserve space for the absolutely-positioned search icon.
+	padding-inline-end: 50px;
+}
+
+// TabList: override the component's fit-content default to fill the parent,
+// enabling its built-in overflow detection (scrollWidth > clientWidth) and
+// horizontal scroll with gradient fade indicators.
+.jp-settings-nav__tabs[role="tablist"][data-orientation="horizontal"] {
+	width: 100%;
+}
+
+// Tabs: size to content instead of stretching to fill the row.
+.jp-settings-nav__tab {
+	flex: 0 0 auto;
+}

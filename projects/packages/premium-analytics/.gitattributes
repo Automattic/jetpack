@@ -1,0 +1,12 @@
+# Files to include in the mirror repo, but excluded via gitignore
+# Remember to end all directories with `/**` to properly tag every file.
+/build/**         production-include
+
+# Files to exclude from the mirror repo, but included in the monorepo.
+# (see also entries in the monorepo root .gitattributes)
+# Remember to end all directories with `/**` to properly tag every file.
+routes/**         production-exclude
+packages/**       production-exclude
+shims/**          production-exclude
+types/**          production-exclude
+widgets/**        production-exclude

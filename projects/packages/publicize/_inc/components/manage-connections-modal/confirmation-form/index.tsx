@@ -1,14 +1,9 @@
-import { Button, useGlobalNotices, getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	BaseControl,
-	FlexBlock,
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	ExternalLink,
-	Notice,
-} from '@wordpress/components';
+import { getRedirectUrl, useGlobalNotices } from '@automattic/jetpack-components';
+import { CheckboxControl, Notice, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
 import { useSupportedServices } from '../../services/use-supported-services';
@@ -46,6 +41,8 @@ function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
 	);
 }
 
+const noop = () => {};
+
 /**
  * Connection confirmation component
  *
@@ -80,7 +77,7 @@ export function ConfirmationForm( {
 					connection.service_name === service?.id && connection.external_id === externalID
 			);
 		},
-		[ existingConnections, service.id ]
+		[ existingConnections, service?.id ]
 	);
 
 	const accounts = useMemo( () => {
@@ -211,12 +208,13 @@ export function ConfirmationForm( {
 									'jetpack-publicize-pkg'
 								) }
 								&nbsp;
-								<ExternalLink
+								<Link
+									openInNewTab
 									key="linkedin-api-documentaion"
 									href={ getRedirectUrl( 'jetpack-linkedin-permissions-warning' ) }
 								>
 									{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-								</ExternalLink>
+								</Link>
 							</p>
 						</Notice>
 					) }
@@ -266,30 +264,28 @@ export function ConfirmationForm( {
 						</div>
 
 						{ canMarkAsShared ? (
-							<BaseControl
-								__nextHasNoMarginBottom={ true }
-								id="mark-connection-as-shared"
+							<CheckboxControl
+								name="shared"
+								value="1"
+								label={ __( 'Mark the connection as shared', 'jetpack-publicize-pkg' ) }
 								help={ `${ __(
 									'If enabled, the connection will be available to all administrators, editors, and authors.',
 									'jetpack-publicize-pkg'
 								) } ${ __( 'You can change this later.', 'jetpack-publicize-pkg' ) }` }
-							>
-								<HStack justify="flex-start" spacing={ 3 }>
-									<span>
-										<input type="checkbox" id="mark-connection-as-shared" name="shared" value="1" />
-									</span>
-									<FlexBlock as="label" htmlFor="mark-connection-as-shared">
-										{ __( 'Mark the connection as shared', 'jetpack-publicize-pkg' ) }
-									</FlexBlock>
-								</HStack>
-							</BaseControl>
+								// Since we allow editors and above to mark connections as shared, we enable it by default.
+								defaultChecked
+								/**
+								 * It's sad that we still can't live without this prop
+								 * @see https://github.com/WordPress/gutenberg/issues/57004
+								 */
+								onChange={ noop }
+							/>
 						) : null }
 
 						<input type="hidden" name="keyring_connection_ID" value={ keyringResult.ID } />
 					</form>
 				</div>
 			) }
-
 			{ accounts.connected.length ? (
 				<section>
 					<h3>{ __( 'Already connected', 'jetpack-publicize-pkg' ) }</h3>
@@ -305,13 +301,12 @@ export function ConfirmationForm( {
 					</ul>
 				</section>
 			) : null }
-
 			<div className={ styles[ 'submit-wrap' ] }>
 				<Button variant="secondary" onClick={ onComplete }>
 					{ __( 'Cancel', 'jetpack-publicize-pkg' ) }
 				</Button>
 				{ accounts.not_connected.length ? (
-					<Button form="connection-confirmation-form" type="submit">
+					<Button form="connection-confirmation-form" type="submit" variant="primary">
 						{ __( 'Confirm', 'jetpack-publicize-pkg' ) }
 					</Button>
 				) : null }

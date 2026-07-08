@@ -10,13 +10,11 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredClassMethod : 65+ occurrences
-    // PhanPluginSimplifyExpressionBool : 9 occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanUndeclaredClassStaticProperty : 4 occurrences
-    // PhanTypeMismatchArgument : 3 occurrences
     // PhanUndeclaredClassConstant : 3 occurrences
     // PhanUndeclaredConstantOfClass : 3 occurrences
     // PhanUndeclaredMethod : 3 occurrences
+    // PhanTypeMismatchArgument : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanUndeclaredClass : 2 occurrences
     // PhanEmptyForeach : 1 occurrence
@@ -30,16 +28,16 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'modules/class-autoloader-debug-helper.php' => ['PhanEmptyForeach', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstantOfClass', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeReturnType'],
+        'modules/class-autoloader-debug-helper.php' => ['PhanEmptyForeach', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstantOfClass', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeReturnType'],
         'modules/class-broken-token.php' => ['PhanUndeclaredClassMethod'],
         'modules/class-cookie-state.php' => ['PhanUndeclaredClassMethod'],
-        'modules/class-idc-simulator.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanUndeclaredClassMethod'],
+        'modules/class-idc-simulator.php' => ['PhanUndeclaredClassMethod'],
         'modules/class-jetpack-sync-debug-helper.php' => ['PhanNonClassMethodCall'],
         'modules/class-modules-helper.php' => ['PhanUndeclaredClassMethod'],
-        'modules/class-protect-helper.php' => ['PhanPluginSimplifyExpressionBool', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty'],
+        'modules/class-protect-helper.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty'],
         'modules/class-scan-helper.php' => ['PhanSuspiciousValueComparison', 'PhanTypeConversionFromArray', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/class-sync-data-settings-tester.php' => ['PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClass'],
-        'modules/class-waf-helper.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
+        'modules/class-waf-helper.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
         'modules/class-wpcom-api-request-faker-module.php' => ['PhanUndeclaredClassMethod'],
         'modules/class-wpcom-api-request-tracker-module.php' => ['PhanTypeMismatchArgument'],
         'modules/class-xmlrpc-logger.php' => ['PhanUndeclaredFunction'],

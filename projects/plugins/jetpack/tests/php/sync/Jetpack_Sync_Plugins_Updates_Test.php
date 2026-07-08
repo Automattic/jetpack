@@ -108,9 +108,14 @@ class Jetpack_Sync_Plugins_Updates_Test extends Jetpack_Sync_TestBase {
 		$this->set_error();
 		$this->update_bulk_plugins( new Silent_Upgrader_Skin() );
 		$this->remove_error();
+		$plugins_module = Modules::get_module( 'plugins' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Plugins $plugins_module';
+		$plugins_module->sync_plugins_update_failed();
+		$has_action = has_action( 'shutdown', array( $plugins_module, 'sync_plugins_update_failed' ) );
 		$this->sender->do_sync();
 		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugin_update_failed' );
 		$this->assertEquals( 'the/the.php', $updated_plugin->args[0]['slug'], 'Silent_Upgrader_Skin Wasn\'t able to sync failed login attempt' );
+		$this->assertTrue( (bool) $has_action );
 		$this->server_event_storage->reset();
 	}
 
@@ -120,9 +125,14 @@ class Jetpack_Sync_Plugins_Updates_Test extends Jetpack_Sync_TestBase {
 		$this->set_error();
 		$this->update_bulk_plugins( new Silent_Upgrader_Skin() );
 		$this->remove_error();
+		$plugins_module = Modules::get_module( 'plugins' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Plugins $plugins_module';
+		$plugins_module->sync_plugins_update_failed();
+		$has_action = has_action( 'shutdown', array( $plugins_module, 'sync_plugins_update_failed' ) );
 		$this->sender->do_sync();
 		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugin_update_failed' );
 		$this->assertTrue( $updated_plugin->args[3]['is_autoupdate'] );
+		$this->assertTrue( (bool) $has_action );
 		$this->server_event_storage->reset();
 	}
 

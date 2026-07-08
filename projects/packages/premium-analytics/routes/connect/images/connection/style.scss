@@ -1,0 +1,14 @@
+.jetpack-premium-analytics-connection {
+
+	&__shape--strong {
+		fill: var(--wpds-color-stroke-surface-brand-strong);
+	}
+
+	&__shape--light {
+		fill: var(--wpds-color-stroke-surface-brand);
+	}
+
+	&__shape--dark {
+		fill: var(--wpds-color-background-interactive-brand-strong-active);
+	}
+}

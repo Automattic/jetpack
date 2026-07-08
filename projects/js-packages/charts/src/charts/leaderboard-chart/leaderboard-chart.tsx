@@ -1,11 +1,9 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
-import {
-	__experimentalVStack as VStack,
-	__experimentalGrid as Grid,
-	__experimentalText as Text,
-} from '@wordpress/components';
+import { __experimentalGrid as Grid } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Icon, chevronRight } from '@wordpress/icons';
+import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useContext, useMemo, type FC } from 'react';
 import { Legend } from '../../components/legend';
@@ -20,6 +18,7 @@ import {
 } from '../../providers';
 import { formatMetricValue, attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import { useLeaderboardLegendItems } from './hooks';
@@ -53,7 +52,20 @@ const defaultDeltaFormatter = ( value: number ): string => {
 	} );
 };
 
-const BarLabel = ( { label }: { label: string | JSX.Element } ) => (
+/**
+ * Build a bar's width. A hover-inset CSS variable (0 by default) is subtracted
+ * on hover, scaled by the bar's share so the pull-back is proportional to its
+ * length: the full-length (100%) bar — the one that reaches the value — pulls
+ * back the whole inset to keep its gap with the value, while shorter bars pull
+ * back proportionally less, down to ~0 for a very short bar.
+ *
+ * @param share - The bar's share of the row width, as a percentage.
+ * @return A CSS width value.
+ */
+const getBarWidth = ( share: number ): string =>
+	`calc(${ share }% - var(--a8c--charts--leaderboard--bar--hover-inset, 0px) * ${ share } / 100)`;
+
+const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
 );
 
@@ -89,7 +101,7 @@ const BarWithLabel = ( {
 					[ styles[ 'bar--animated' ] ]: animation,
 				} ) }
 				style={ {
-					width: entry.currentShare + '%',
+					width: getBarWidth( entry.currentShare ),
 					backgroundColor: primaryColor,
 				} }
 			></div>
@@ -101,7 +113,7 @@ const BarWithLabel = ( {
 					[ styles[ 'bar--animated' ] ]: animation,
 				} ) }
 				style={ {
-					width: entry.previousShare + '%',
+					width: getBarWidth( entry.previousShare ),
 					backgroundColor: secondaryColor,
 				} }
 			></div>
@@ -113,34 +125,33 @@ const BarWithLabel = ( {
  * LeaderboardChart component displays a ranked list of data with progress bars
  * and optional comparison values.
  *
- * @param props                   - Component props
- * @param props.data              - Array of leaderboard entries to display
- * @param props.chartId           - Optional unique identifier for the chart
- * @param props.withComparison    - Whether to show comparison data
- * @param props.withOverlayLabel  - Whether to overlay the label on top of the bar
- * @param props.primaryColor      - Primary color for current period bars
- * @param props.secondaryColor    - Secondary color for comparison period bars
- * @param props.valueFormatter    - Custom formatter for values
- * @param props.deltaFormatter    - Custom formatter for delta values
- * @param props.loading           - Whether the chart is in loading state
- * @param props.animation         - Whether the chart should animate on load
- * @param props.showLegend        - Whether to show legend
- * @param props.legendOrientation - Legend orientation
- * @param props.legendPosition    - Legend position
- * @param props.legendAlignment   - Legend alignment
- * @param props.legendShape       - Legend shape
- * @param props.legendShapeWidth  - Width of legend shapes in pixels
- * @param props.legendShapeHeight - Height of legend shapes in pixels
- * @param props.legendLabels      - Custom labels for legend items
- * @param props.legendInteractive - Whether legend items are interactive (clickable to toggle series visibility)
- * @param props.children          - Child components for composition API
- * @param props.className         - Additional CSS class name
- * @param props.style             - Custom styling for the chart container
+ * @param props                  - Component props
+ * @param props.data             - Array of leaderboard entries to display
+ * @param props.chartId          - Optional unique identifier for the chart
+ * @param props.width            - Optional width of the chart container in pixels
+ * @param props.height           - Optional height of the chart container in pixels
+ * @param props.withComparison   - Whether to show comparison data
+ * @param props.withOverlayLabel - Whether to overlay the label on top of the bar
+ * @param props.primaryColor     - Primary color for current period bars
+ * @param props.secondaryColor   - Secondary color for comparison period bars
+ * @param props.valueFormatter   - Custom formatter for values
+ * @param props.deltaFormatter   - Custom formatter for delta values
+ * @param props.loading          - Whether the chart is in loading state
+ * @param props.animation        - Whether the chart should animate on load
+ * @param props.showLegend       - Whether to show legend
+ * @param props.legend           - Legend configuration (orientation, position, alignment, shape, shapeStyles, interactive)
+ * @param props.legendLabels     - Custom labels for legend items
+ * @param props.gap              - Spacing between legend and chart content
+ * @param props.children         - Child components for composition API
+ * @param props.className        - Additional CSS class name
+ * @param props.style            - Custom styling for the chart container
  * @return JSX element representing the leaderboard chart
  */
 const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	data,
 	chartId: providedChartId,
+	width: propWidth,
+	height: propHeight,
 	withComparison = false,
 	withOverlayLabel = false,
 	primaryColor,
@@ -150,23 +161,22 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	animation,
 	loading = false,
 	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendPosition = 'bottom',
-	legendAlignment = 'center',
-	legendShape = 'circle',
-	legendShapeWidth = 8,
-	legendShapeHeight = 8,
+	legend = {},
 	legendLabels,
-	legendInteractive = false,
+	gap = 'md',
 	className,
 	style,
 	children,
 } ) => {
+	const legendInteractive = legend.interactive ?? false;
+	const legendPosition = legend.position ?? 'bottom';
+
 	const chartId = useChartId( providedChartId );
 	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
+	const legendShapeStyles = { width: 8, height: 8, ...legend.shapeStyles };
 
 	// Process children to extract compound components
-	const { otherChildren } = useChartChildren( children, 'LeaderboardChart' );
+	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LeaderboardChart' );
 	const {
 		labelSpacing,
 		rowGap,
@@ -251,111 +261,137 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
-			<SingleChartContext.Provider
-				value={ {
-					chartId,
-					chartWidth: 0, // LeaderboardChart doesn't need specific dimensions
-					chartHeight: 0,
-				} }
-			>
-				<div
+			<SingleChartContext.Provider value={ { chartId } }>
+				<ChartLayout
+					legendPosition={ legendPosition }
+					legendElement={ false }
+					legendChildren={ legendChildren }
 					className={ clsx(
 						styles.leaderboardChart,
-						{ [ styles[ 'leaderboardChart--loading' ] ]: loading },
+						{
+							[ styles[ 'leaderboardChart--responsive' ] ]: ! propWidth && ! propHeight,
+							[ styles[ 'leaderboardChart--loading' ] ]: loading,
+						},
 						className
 					) }
-					style={ style }
+					gap={ gap }
+					style={ { ...style, width: propWidth || undefined, height: propHeight || undefined } }
+					data-testid="leaderboard-chart-container"
+					trailingContent={ nonLegendChildren }
 				>
 					<div className={ styles.emptyState }>
 						{ loading
 							? __( 'Loading…', 'jetpack-charts' )
 							: __( 'No data available', 'jetpack-charts' ) }
 					</div>
-					{ /* Render children from composition API */ }
-					{ otherChildren }
-				</div>
+				</ChartLayout>
 			</SingleChartContext.Provider>
 		);
 	}
 
+	const legendElement = showLegend && (
+		<Legend
+			orientation={ legend.orientation ?? 'horizontal' }
+			position={ legendPosition }
+			alignment={ legend.alignment ?? 'center' }
+			labelStyles={ legend.labelStyles }
+			itemClassName={ legend.itemClassName }
+			itemStyles={ legend.itemStyles }
+			shape={ legend.shape ?? 'circle' }
+			shapeStyles={ legendShapeStyles }
+			chartId={ chartId }
+			interactive={ legendInteractive }
+		/>
+	);
+
 	return (
-		<SingleChartContext.Provider
-			value={ {
-				chartId,
-				chartWidth: 0, // LeaderboardChart doesn't need specific dimensions
-				chartHeight: 0,
-			} }
-		>
-			<div
+		<SingleChartContext.Provider value={ { chartId } }>
+			<ChartLayout
+				legendPosition={ legendPosition }
+				legendElement={ legendElement }
+				legendChildren={ legendChildren }
 				className={ clsx(
 					styles.leaderboardChart,
 					{
+						[ styles[ 'leaderboardChart--responsive' ] ]: ! propWidth && ! propHeight,
 						[ styles[ 'leaderboardChart--loading' ] ]: loading,
-						[ styles[ 'leaderboardChart--with-legend' ] ]: showLegend,
-						[ styles[ 'leaderboardChart--legend-top' ] ]: showLegend && legendPosition === 'top',
 					},
 					className
 				) }
-				style={ style }
+				gap={ gap }
+				style={ {
+					...style,
+					width: propWidth || undefined,
+					height: propHeight || undefined,
+				} }
+				data-testid="leaderboard-chart-container"
+				trailingContent={ nonLegendChildren }
 			>
-				{ allSeriesHidden ? (
-					<div className={ styles.emptyState }>
-						{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
-					</div>
-				) : (
-					<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
-						{ data.map( entry => {
-							const colorIndex = Math.sign( entry.delta ) + 1;
-							const deltaColor = deltaColors[ colorIndex ];
+				<div className={ styles.leaderboardChart__content }>
+					{ allSeriesHidden ? (
+						<div className={ styles.emptyState }>
+							{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
+						</div>
+					) : (
+						<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
+							{ data.map( entry => {
+								const colorIndex = Math.sign( entry.delta ) + 1;
+								const deltaColor = deltaColors[ colorIndex ];
 
-							return (
-								<Fragment key={ entry.id }>
-									<VStack spacing={ labelSpacing }>
-										<BarWithLabel
-											entry={ entry }
-											withComparison={ withComparison }
-											withOverlayLabel={ withOverlayLabel }
-											primaryColor={ resolvedPrimaryColor }
-											secondaryColor={ resolvedSecondaryColor }
-											isPrimaryVisible={ isPrimaryVisible }
-											isComparisonVisible={ isComparisonVisible }
-											animation={ animation && ! loading && ! prefersReducedMotion }
-										/>
-									</VStack>
+								const rowCells = (
+									<>
+										<Stack direction="column" gap={ labelSpacing }>
+											<BarWithLabel
+												entry={ entry }
+												withComparison={ withComparison }
+												withOverlayLabel={ withOverlayLabel }
+												primaryColor={ resolvedPrimaryColor }
+												secondaryColor={ resolvedSecondaryColor }
+												isPrimaryVisible={ isPrimaryVisible }
+												isComparisonVisible={ isComparisonVisible }
+												animation={ animation && ! loading && ! prefersReducedMotion }
+											/>
+										</Stack>
 
-									<div
-										className={ clsx( styles.valueContainer, {
-											[ styles.overlayLabel ]: withOverlayLabel,
-										} ) }
-									>
-										{ isPrimaryVisible && <Text>{ valueFormatter( entry.currentValue ) }</Text> }
+										<Stack
+											direction="row"
+											gap="xs"
+											className={ clsx( styles.valueContainer, {
+												[ styles.overlayLabel ]: withOverlayLabel,
+											} ) }
+										>
+											{ isPrimaryVisible && <Text>{ valueFormatter( entry.currentValue ) }</Text> }
 
-										{ withComparison && isComparisonVisible && (
-											<Text style={ { color: deltaColor } }>{ deltaFormatter( entry.delta ) }</Text>
-										) }
-									</div>
-								</Fragment>
-							);
-						} ) }
-					</Grid>
-				) }
+											{ withComparison && isComparisonVisible && (
+												<Text style={ { color: deltaColor } }>
+													{ deltaFormatter( entry.delta ) }
+												</Text>
+											) }
+										</Stack>
+									</>
+								);
 
-				{ showLegend && (
-					<Legend
-						orientation={ legendOrientation }
-						position={ legendPosition }
-						alignment={ legendAlignment }
-						shape={ legendShape }
-						shapeWidth={ legendShapeWidth }
-						shapeHeight={ legendShapeHeight }
-						chartId={ chartId }
-						interactive={ legendInteractive }
-					/>
-				) }
+								if ( entry.onClick ) {
+									return (
+										<button
+											key={ entry.id }
+											type="button"
+											className={ styles.interactiveRow }
+											onClick={ entry.onClick }
+											aria-label={ entry.ariaLabel }
+										>
+											{ rowCells }
+											<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
+										</button>
+									);
+								}
 
-				{ /* Render children from composition API */ }
-				{ otherChildren }
-			</div>
+								return <Fragment key={ entry.id }>{ rowCells }</Fragment>;
+							} ) }
+						</Grid>
+					) }
+				</div>
+			</ChartLayout>
 		</SingleChartContext.Provider>
 	);
 };

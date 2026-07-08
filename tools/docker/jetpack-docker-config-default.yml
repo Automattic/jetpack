@@ -31,7 +31,6 @@ dev:
       ## https://mailpit.axllent.org/
       mailpit:
         image: axllent/mailpit
-        container_name: mailpit
         ports:
           - '${PORT_INBOX:-1080}:8025'
           - '${PORT_SMTP:-25}:1025'
@@ -74,5 +73,4 @@ e2e:
     projects/plugins/boost/tests/e2e/plugins/e2e-critical-css-force-errors.php: /var/www/html/wp-content/plugins/e2e-critical-css-force-errors.php
     tools/e2e-commons/plugins/e2e-search-test-helper.php: /var/www/html/wp-content/plugins/e2e-search-test-helper.php
     tools/e2e-commons/plugins/e2e-wpcom-request-interceptor.php: /var/www/html/wp-content/plugins/e2e-wpcom-request-interceptor.php
-    tools/e2e-commons/plugins/e2e-social-config.php: /var/www/html/wp-content/plugins/e2e-social-config.php
     tools/e2e-commons/plugins/e2e-plan-helper.php: /var/www/html/wp-content/plugins/e2e-plan-helper.php

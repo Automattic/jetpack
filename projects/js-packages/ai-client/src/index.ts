@@ -55,8 +55,3 @@ export * from './constants.ts';
  * Logo Generator
  */
 export * from './logo-generator/index.ts';
-
-/**
- * Chrome AI
- */
-export * from './chrome-ai/index.ts';

@@ -46,7 +46,11 @@
 		// Handle element
 		this.handle = document.createElement( 'div' );
 		this.handle.setAttribute( 'id', 'infinite-handle' );
-		this.handle.innerHTML = '<span><button>' + text.replace( '\\', '' ) + '</button></span>';
+		var span = document.createElement( 'span' );
+		var button = document.createElement( 'button' );
+		button.textContent = text;
+		span.appendChild( button );
+		this.handle.appendChild( span );
 
 		// Footer settings
 		this.footer = {
@@ -324,7 +328,7 @@
 				loader.classList.add( 'infinite-loader' );
 				loader.setAttribute( 'role', 'progress' );
 				loader.innerHTML =
-					'<div class="spinner"><div class="spinner-inner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>';
+					'<svg class="jetpack-spinner infinite-loader-spinner spinner" width="28" height="28" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><circle cx="50" cy="50" r="46" fill="none" stroke="#ddd" stroke-width="8"/><path d="M 50 4 A 46 46 0 0 1 96 50" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" dur="1.4s" from="0 50 50" to="360 50 50" repeatCount="indefinite"/></path></svg>';
 			}
 			this.element.appendChild( loader );
 		}

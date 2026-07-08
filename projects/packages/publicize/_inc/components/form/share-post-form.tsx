@@ -1,19 +1,14 @@
-import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { Disabled, useNavigator } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, type FC } from 'react';
-import { usePostCanUseSig } from '../../hooks/use-post-can-use-sig';
+import { useCallback, type FC, type ReactNode } from 'react';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { store as socialStore } from '../../social-store';
 import { hasSocialPaidFeatures } from '../../utils';
-import { features } from '../../utils/constants';
 import { useIsSocialNote } from '../../utils/use-is-social-note';
-import MediaSection from '../media-section';
 import MediaSectionV2 from '../media-section-v2';
 import MessageBoxControl from '../message-box-control';
-import SocialImageGeneratorPanel from '../social-image-generator/panel';
 import styles from './styles.module.scss';
 import { UpgradeNotice } from './upgrade-notice';
 import type { AttachedMedia, JetpackSocialOptions, SIGSettings } from '../../utils/types';
@@ -43,6 +38,16 @@ export type SharePostFormProps = {
 	onMessageChange?: ( message: string ) => void;
 
 	/**
+	 * Optional placeholder for the message field.
+	 */
+	messagePlaceholder?: string;
+
+	/**
+	 * Optional help text for the message field.
+	 */
+	messageHelp?: ReactNode;
+
+	/**
 	 * Optional attached media array. In controlled mode (when `onMediaChange` is provided),
 	 * this value is passed to child components instead of fetching from the store.
 	 */
@@ -70,6 +75,19 @@ export type SharePostFormProps = {
 	 * Whether the form is disabled.
 	 */
 	disabled?: boolean;
+
+	/**
+	 * Controls the "Share as attachment" toggle inside the media section.
+	 * 'visible' (default): toggle is rendered and user-controlled.
+	 * 'hidden': toggle is not rendered; attachment mode is implied by the selected source.
+	 * Per-network customization passes 'hidden' so the dropdown alone decides media behavior.
+	 */
+	attachmentToggleMode?: 'visible' | 'hidden';
+
+	/**
+	 * Optional upgrade notice depending on where the form is rendered.
+	 */
+	upgradeNotice?: React.ReactNode;
 };
 
 /**
@@ -83,11 +101,15 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 	isInsideNavigatorModal,
 	message: messageProp,
 	onMessageChange,
+	messagePlaceholder,
+	messageHelp,
 	attachedMedia,
 	imageGeneratorSettings,
 	mediaSource,
 	onMediaChange,
 	disabled = false,
+	attachmentToggleMode,
+	upgradeNotice,
 } ) => {
 	const {
 		message: storeMessage,
@@ -95,7 +117,7 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 		maxLength,
 	} = useSocialMediaMessage();
 	const isSocialNote = useIsSocialNote();
-	const postCanUseSig = usePostCanUseSig();
+	const hasPaidFeatures = hasSocialPaidFeatures();
 
 	// Use props if provided, otherwise fall back to store values
 	const message = messageProp !== undefined ? messageProp : storeMessage;
@@ -127,48 +149,33 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 						maxLength={ maxLength }
 						onChange={ updateMessage }
 						message={ message }
+						placeholder={ messagePlaceholder }
+						help={ messageHelp }
 						analyticsData={ analyticsData }
 						disabled={ disabled }
 					/>
 				) }
-				{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
-					<div
-						className={ clsx( {
-							[ styles[ 'share-post-form-disabled' ] ]: disabled,
-						} ) }
-					>
-						{ ! hasSocialPaidFeatures() ? (
-							<UpgradeNotice />
-						) : (
-							<MediaSectionV2
-								analyticsData={ analyticsData }
-								onEditTemplate={ onEditTemplate }
-								{ ...( isMediaControlled && {
-									attachedMedia,
-									imageGeneratorSettings,
-									mediaSource,
-									onMediaChange,
-								} ) }
-							/>
-						) }
-					</div>
-				) : (
-					<>
-						{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
-							<div>
-								<MediaSection
-									analyticsData={ analyticsData }
-									{ ...( isMediaControlled && {
-										attachedMedia,
-										onMediaChange,
-									} ) }
-								/>
-							</div>
-						) }
-						{ /* Social Image Generator panel - only shown when not using unified UI */ }
-						{ postCanUseSig && <SocialImageGeneratorPanel /> }
-					</>
-				) }
+				<div
+					className={ clsx( {
+						[ styles[ 'share-post-form-disabled' ] ]: disabled,
+					} ) }
+				>
+					{ ! hasPaidFeatures ? (
+						upgradeNotice ?? <UpgradeNotice />
+					) : (
+						<MediaSectionV2
+							analyticsData={ analyticsData }
+							onEditTemplate={ onEditTemplate }
+							attachmentToggleMode={ attachmentToggleMode }
+							{ ...( isMediaControlled && {
+								attachedMedia,
+								imageGeneratorSettings,
+								mediaSource,
+								onMediaChange,
+							} ) }
+						/>
+					) }
+				</div>
 			</div>
 		</Disabled>
 	);

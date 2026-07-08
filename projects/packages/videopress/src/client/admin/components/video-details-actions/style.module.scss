@@ -1,5 +1,11 @@
 .dropdown {
 
+	button,
+	a {
+		width: 100%;
+		justify-content: flex-start;
+	}
+
 	.separator {
 		margin: var(--spacing-base) 0;
 	}

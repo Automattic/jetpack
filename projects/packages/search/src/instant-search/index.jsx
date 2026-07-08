@@ -21,7 +21,7 @@ const injectSearchApp = () => {
 					...window[ SERVER_OBJECT_NAME ].widgets,
 					...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
 				] ) }
-				enableAnalytics
+				enableAnalytics={ ! window[ SERVER_OBJECT_NAME ].disableTracking }
 				hasOverlayWidgets={ !! window[ SERVER_OBJECT_NAME ].hasOverlayWidgets }
 				initialHref={ window.location.href }
 				// NOTE: initialIsVisible is only used in the customizer. See lib/customize.js.

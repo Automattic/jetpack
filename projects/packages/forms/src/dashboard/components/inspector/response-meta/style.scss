@@ -1,0 +1,45 @@
+
+@use "@wordpress/base-styles/variables";
+
+.jp-forms__inbox-response-meta {
+	background-color: #fcfcfc;
+	padding: variables.$grid-unit-30 variables.$grid-unit-20;
+
+	// Multiple variables as fallback until style tokens are available everywhere.
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, var(--jp-forms-border-color, #e0e0e0));
+}
+
+.jp-forms__inbox-response-meta-from {
+	min-height: 48px; // Same as avatar to middle-align single lines
+	overflow-wrap: break-word;
+}
+
+// Reset margins and padding for response header elements
+.jp-forms__inbox-response-meta-from-name,
+.jp-forms__inbox-response-meta-from-email {
+	margin: 0;
+	padding: 0;
+}
+
+.jp-forms__inbox-response-meta-table {
+	color: var(--jp-gray-80, #2c3338);
+	font-size: 13px;
+	padding-top: 16px;
+	text-align: left;
+	width: fit-content;
+
+	td,
+	th {
+		margin: 0;
+		padding: 0 0 6px 0;
+		overflow-wrap: break-word;
+	}
+
+	th {
+		font-weight: 400;
+		padding-right: variables.$grid-unit-20;
+		vertical-align: top;
+		white-space: nowrap;
+		color: var(--jp-gray-50, #646970);
+	}
+}

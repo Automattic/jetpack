@@ -4,13 +4,17 @@ packages:
   - projects/plugins/*/tests/e2e
   - tools/cli
   - tools/e2e-commons
+  - tools/e2e-commons/no-lighthouse
   - tools/js-tools
   - tools/performance
   - .github/files/coverage-munger
 
 engineStrict: true
-managePackageManagerVersions: false
+pmOnFail: ignore
 preferWorkspacePackages: true
+
+# Feature is buggy in pnpm 11.5, e.g. https://github.com/pnpm/pnpm/issues/12100.
+optimisticRepeatInstall: false
 
 # Be strict about peer deps
 autoInstallPeers: false
@@ -35,27 +39,10 @@ trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
   - chokidar@4.0.3
 
-  # Don't know why 5.1.0 had provenance but 5.1.1 doesn't. But both are over a year old and there's nothing suspicious in the diff. 🤷
-  - reselect@5.1.1
-
   # Packages where newer majors have provenance but we're still on an older one.
-  - '@octokit/endpoint@9.0.6'
-  - '@octokit/plugin-paginate-rest@9.2.2'
-  - '@oxc-parser/binding-darwin-arm64@0.78.0'
-  - '@oxc-parser/binding-darwin-x64@0.78.0'
-  - '@oxc-parser/binding-linux-arm64-gnu@0.78.0'
-  - '@oxc-parser/binding-linux-arm64-musl@0.78.0'
-  - '@oxc-parser/binding-linux-arm-gnueabihf@0.78.0'
-  - '@oxc-parser/binding-linux-x64-gnu@0.78.0'
-  - '@oxc-parser/binding-linux-x64-musl@0.78.0'
-  - '@oxc-parser/binding-wasm32-wasi@0.78.0'
-  - '@oxc-parser/binding-win32-arm64-msvc@0.78.0'
-  - '@oxc-parser/binding-win32-x64-msvc@0.78.0'
+  - rollup@3.30.0
   - rxjs@7.8.2
   - semver@6.3.1
-  - svelte@4.2.19
-  - undici@5.29.0
-  - undici-types@6.21.0
 
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true
@@ -65,10 +52,13 @@ allowBuilds:
   '@swc/core': false
   esbuild: false
   unrs-resolver: false
+  # Tries to rebuild its bundled libs if a newer version of libvips-dev is installed, which probably isn't.
+  sharp: false
   # Attempt to show "remember to install other stuff" spam.
   svelte-preprocess: false
   # Attempt to show "support me" spam.
   core-js: false
+  core-js-pure: false
   print-this: false
 
 # Package compromise avoidance: Block odd protocols in subdeps
@@ -76,15 +66,17 @@ blockExoticSubdeps: true
 
 # Some optional dependencies we don't actually need.
 ignoredOptionalDependencies:
-  - sass-embedded-all-unknown
-  - sass-embedded-unknown-all
+  - '@oxc-parser/binding-wasm32-wasi' # https://github.com/oxc-project/oxc/issues/21038
+  - '@rolldown/binding-wasm32-wasi' # https://github.com/rolldown/rolldown/issues/8974
+  - sass-embedded-all-unknown # Brings in `sass`; platforms we support should have a binary package instead of this.
+  - sass-embedded-unknown-all # Brings in `sass`; platforms we support should have a binary package instead of this.
 
 # Dependencies needing patching.
 patchedDependencies:
 
-  # Old versions of Gutenberg packages all have their ESM files flagged as CommonJS.
-  "@wordpress/components@<32.0.0": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/dataviews@<11.2.0": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
+  # Vite/esbuild doesn't like the `__esModule` + `exports["default"]` pattern, it winds up double-wrapping the default.
+  # See also https://github.com/WordPress/gutenberg/issues/39619
+  react-autosize-textarea: .pnpm-patches/react-autosize-textarea.patch
 
   # uuid up to v11 had CommonJS files with ESM content too.
   # No bug report, because it's already fixed in the latest versions.

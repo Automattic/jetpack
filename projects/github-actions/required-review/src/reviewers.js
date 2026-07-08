@@ -1,13 +1,13 @@
-const core = require( '@actions/core' );
-const github = require( '@actions/github' );
-const { WError } = require( 'error' );
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { WError } from 'error';
 
 /**
  * Fetch the reviewers approving the current PR.
  *
  * @return {string[]} Reviewers.
  */
-async function fetchReviewers() {
+export async function fetchReviewers() {
 	const octokit = github.getOctokit( core.getInput( 'token', { required: true } ) );
 	const owner = github.context.payload.repository.owner.login;
 	const repo = github.context.payload.repository.name;
@@ -41,5 +41,3 @@ async function fetchReviewers() {
 
 	return [ ...reviewers ].sort();
 }
-
-module.exports = fetchReviewers;

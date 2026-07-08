@@ -197,33 +197,43 @@ var JetpackPSH = {};
 					JetpackPSH.ajaxActivateModule( $( this ).data( 'module' ) );
 				} )
 				.on( 'click', '.jetpack-plugin-search__primary', function ( event ) {
-					event.preventDefault();
 					var $this = $( this );
+					var opensInNewTab = '_blank' === $this.attr( 'target' );
+					if ( ! opensInNewTab ) {
+						event.preventDefault();
+					}
 					if ( $this.data( 'track' ) ) {
 						// This catches Purchase, Configure, and Get started. Feature activation is tracked when it ends successfully, in its callback.
 						JetpackPSH.trackEvent(
 							'wpa_plugin_search_' + $this.data( 'track' ),
 							$this.data( 'module' ),
-							$this.get( 0 )
+							// only redirect if not opening in a new tab
+							opensInNewTab ? undefined : $this.get( 0 )
 						);
 					}
 				} )
 				.on( 'click', '.jetpack-plugin-search__learn-more', function ( event ) {
-					event.preventDefault();
 					var $this = $( this );
+					var opensInNewTab = '_blank' === $this.attr( 'target' );
+					if ( ! opensInNewTab ) {
+						event.preventDefault();
+					}
 					JetpackPSH.trackEvent(
 						'wpa_plugin_search_learn_more',
 						$this.data( 'module' ),
-						$this.get( 0 )
+						opensInNewTab ? undefined : $this.get( 0 )
 					);
 				} )
 				.on( 'click', '.jetpack-plugin-search__support_link', function ( event ) {
-					event.preventDefault();
 					var $this = $( this );
+					var opensInNewTab = '_blank' === $this.attr( 'target' );
+					if ( ! opensInNewTab ) {
+						event.preventDefault();
+					}
 					JetpackPSH.trackEvent(
 						'wpa_plugin_search_support_link',
 						$this.data( 'module' ),
-						$this.get( 0 )
+						opensInNewTab ? undefined : $this.get( 0 )
 					);
 				} );
 		},

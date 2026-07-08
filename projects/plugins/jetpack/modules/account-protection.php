@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Account protection
+ * Module Name: Account Protection
  * Module Description: Shield your login page with rate‑limiting and secure authentication safeguards.
  * Sort Order: 4
  * First Introduced: 14.5

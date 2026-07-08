@@ -84,7 +84,7 @@ export async function fetchVideoItem( {
 
 		if ( updatedRetries > 2 ) {
 			debug( 'Too many attempts to get video. Aborting.' );
-			throw new Error( errorData?.message ?? errorData );
+			throw new Error( errorData?.message ?? errorData, { cause: errorData } );
 		}
 
 		/*
@@ -115,6 +115,6 @@ export async function fetchVideoItem( {
 			} );
 		}
 
-		throw new Error( errorData?.message ?? errorData );
+		throw new Error( errorData?.message ?? errorData, { cause: errorData } );
 	}
 }

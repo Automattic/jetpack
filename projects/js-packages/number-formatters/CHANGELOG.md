@@ -4,6 +4,85 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.2.5] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [1.2.4] - 2026-06-22
+### Changed
+- Update package dependencies. [#49757]
+
+## [1.2.3] - 2026-06-15
+### Changed
+- Update package dependencies. [#49631]
+
+## [1.2.2] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.2.1] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [1.2.0] - 2026-05-25
+### Added
+- Currency formatting: Add `setCurrencyOverrides` for installing a dynamic per-currency override map (e.g. from the WordPress.com currencies endpoint). Falls back to the hard-coded smallest-unit exponent overrides when not called. [#49016]
+
+## [1.1.10] - 2026-05-21
+### Changed
+- Update package dependencies. [#49012]
+
+## [1.1.9] - 2026-05-19
+### Fixed
+- Currency formatting: use ISO 4217 minor-unit exponent for smallest-unit conversion to correctly format IDR and other currencies where browser ICU disagrees with ISO 4217. [#48967]
+
+## [1.1.8] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [1.1.7] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [1.1.6] - 2026-04-15
+### Changed
+- Internal updates.
+
+## [1.1.5] - 2026-04-09
+### Changed
+- Internal updates.
+
+## [1.1.4] - 2026-04-06
+### Changed
+- Update package dependencies. [#47887]
+
+### Fixed
+- Access wp.date settings directly. [#47812]
+
+## [1.1.3] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [1.1.2] - 2026-03-16
+### Changed
+- Tests: Disable test incompatible with newer Node versions (22.22.1+). [#47588]
+
+## [1.1.1] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+## [1.1.0] - 2026-02-23
+### Added
+- `getCurrencyObject`: Add `floatValue` property to currency object. [#47203]
+
+## [1.0.18] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [1.0.17] - 2026-02-12
+### Changed
+- Update package dependencies. [#47099]
+
 ## [1.0.16] - 2026-01-14
 ### Changed
 - Internal updates.
@@ -97,6 +176,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release
 - Basic number formatting functionality
 
+[1.2.5]: https://github.com/Automattic/number-formatters/compare/1.2.4...1.2.5
+[1.2.4]: https://github.com/Automattic/number-formatters/compare/1.2.3...1.2.4
+[1.2.3]: https://github.com/Automattic/number-formatters/compare/1.2.2...1.2.3
+[1.2.2]: https://github.com/Automattic/number-formatters/compare/1.2.1...1.2.2
+[1.2.1]: https://github.com/Automattic/number-formatters/compare/1.2.0...1.2.1
+[1.2.0]: https://github.com/Automattic/number-formatters/compare/1.1.10...1.2.0
+[1.1.10]: https://github.com/Automattic/number-formatters/compare/1.1.9...1.1.10
+[1.1.9]: https://github.com/Automattic/number-formatters/compare/1.1.8...1.1.9
+[1.1.8]: https://github.com/Automattic/number-formatters/compare/1.1.7...1.1.8
+[1.1.7]: https://github.com/Automattic/number-formatters/compare/1.1.6...1.1.7
+[1.1.6]: https://github.com/Automattic/number-formatters/compare/1.1.5...1.1.6
+[1.1.5]: https://github.com/Automattic/number-formatters/compare/1.1.4...1.1.5
+[1.1.4]: https://github.com/Automattic/number-formatters/compare/1.1.3...1.1.4
+[1.1.3]: https://github.com/Automattic/number-formatters/compare/1.1.2...1.1.3
+[1.1.2]: https://github.com/Automattic/number-formatters/compare/1.1.1...1.1.2
+[1.1.1]: https://github.com/Automattic/number-formatters/compare/1.1.0...1.1.1
+[1.1.0]: https://github.com/Automattic/number-formatters/compare/1.0.18...1.1.0
+[1.0.18]: https://github.com/Automattic/number-formatters/compare/1.0.17...1.0.18
+[1.0.17]: https://github.com/Automattic/number-formatters/compare/1.0.16...1.0.17
 [1.0.16]: https://github.com/Automattic/number-formatters/compare/1.0.15...1.0.16
 [1.0.15]: https://github.com/Automattic/number-formatters/compare/1.0.14...1.0.15
 [1.0.14]: https://github.com/Automattic/number-formatters/compare/1.0.13...1.0.14

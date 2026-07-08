@@ -17,10 +17,16 @@ let preventCloseFlag = false;
 
 import './style.scss';
 
+/**
+ * Prevents any modals from closing until {@link allowClose} is called.
+ */
 function preventClose() {
 	preventCloseFlag = true;
 }
 
+/**
+ * Allows modals to close again after {@link preventClose} was called.
+ */
 function allowClose() {
 	preventCloseFlag = false;
 }

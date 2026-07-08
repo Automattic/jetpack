@@ -1,5 +1,5 @@
-import { ActionButton } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import useConnection from '../use-connection';
 
@@ -39,12 +39,16 @@ const ConnectButton = props => {
 	return (
 		<>
 			{ ( ! isRegistered || ! isUserConnected ) && (
-				<ActionButton
-					label={ connectLabel }
-					onClick={ handleRegisterSite }
-					displayError={ registrationError ? true : false }
-					isLoading={ siteIsRegistering || userIsConnecting }
-				/>
+				<>
+					<Button onClick={ handleRegisterSite } loading={ siteIsRegistering || userIsConnecting }>
+						{ connectLabel }
+					</Button>
+					{ registrationError && (
+						<p className="jp-action-button__error">
+							{ __( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
+						</p>
+					) }
+				</>
 			) }
 		</>
 	);

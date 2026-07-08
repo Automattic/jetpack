@@ -53,8 +53,10 @@
 		"source.fixAll.eslint": "explicit",
 		"source.fixAll.stylelint": "explicit"
 	},
-	// Use this wp-prettier from this path.
+	// Use Prettier from this path.
 	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs",
+	// Use ESLint from this path.
+	"eslint.nodePath": "tools/js-tools/node_modules",
 
 	// Set to the target minimum PHP version for the codebase. Unrelated to the monorepo tooling.
 	"intelephense.environment.phpVersion": "7.2.24",
@@ -62,5 +64,9 @@
 		"editor.formatOnSave": false,
 		"editor.defaultFormatter": "stylelint.vscode-stylelint"
 	},
-	"stylelint.validate": [ "css", "scss" ]
+	// Use Stylelint from this path.
+	"stylelint.stylelintPath": "tools/js-tools/node_modules/stylelint",
+	"stylelint.validate": [ "css", "scss" ],
+	// Use Native TypeScript
+	"js/ts.experimental.useTsgo": true
 }

@@ -4,6 +4,7 @@
 		"exit",
 		"extension_loaded",
 		"fprintf",
+		"ini_get",
 		"ini_get_all",
 		"pcntl_exec",
 		"php_sapi_name"

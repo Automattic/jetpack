@@ -1,0 +1,24 @@
+{
+	"version": "1.0.0",
+	"private": true,
+	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
+		"@tanstack/react-query": "5.90.8",
+		"@types/react": "18.3.28",
+		"@wordpress/admin-ui": "2.5.0",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/compose": "8.3.0",
+		"@wordpress/date": "5.50.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/i18n": "6.23.0",
+		"@wordpress/icons": "15.1.0",
+		"@wordpress/route": "0.16.0",
+		"@wordpress/ui": "0.17.0",
+		"@wordpress/url": "4.50.0"
+	},
+	"route": {
+		"path": "/video/$id",
+		"page": "jetpack-videopress-dashboard"
+	}
+}

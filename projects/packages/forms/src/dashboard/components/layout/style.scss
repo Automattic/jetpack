@@ -1,7 +1,7 @@
 @use "../../mixins";
 @use "@wordpress/base-styles/variables";
 @use "@wordpress/base-styles/mixins" as wp-mixins;
-@import "../../design-tokens.css";
+@use "../../design-tokens";
 
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
@@ -15,7 +15,7 @@ body.jetpack_page_jetpack-forms-admin {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
-	color: var(--wpds-color-fg-content-neutral);
+	color: var(--wpds-color-foreground-content-neutral);
 
 	// Create an separate stacking context for Base UI portal rendering.
 	// See: https://base-ui.com/react/overview/quick-start#set-up-portals
@@ -37,6 +37,19 @@ body.jetpack_page_jetpack-forms-admin {
 
 	@include mixins.flex-center;
 	gap: 8px;
+
+	&__link {
+		font: inherit;
+		color: inherit;
+
+		&:hover {
+			text-decoration: underline;
+		}
+
+		&:focus-visible {
+			text-decoration: underline;
+		}
+	}
 }
 
 .jp-forms-layout__surface {
@@ -53,8 +66,8 @@ body.jetpack_page_jetpack-forms-admin {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	color: var(--wpds-color-fg-content-neutral);
-	background: var(--wpds-color-bg-surface-neutral);
+	color: var(--wpds-color-foreground-content-neutral);
+	background: var(--wpds-color-background-surface-neutral);
 
 	&.is-inspector {
 		z-index: 3; // Medium surface priority

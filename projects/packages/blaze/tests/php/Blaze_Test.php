@@ -64,6 +64,8 @@ class Blaze_Test extends BaseTestCase {
 		wp_dequeue_script( Blaze::SCRIPT_HANDLE );
 		wp_deregister_script( Blaze::SCRIPT_HANDLE );
 		wp_set_current_user( 0 );
+		remove_all_filters( 'pre_http_request' );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
 	}
 
 	/**
@@ -240,6 +242,234 @@ class Blaze_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test the active campaign status check.
+	 *
+	 * @dataProvider get_active_campaign_status_responses
+	 *
+	 * @param array $response_details The mocked remote response.
+	 * @param array $expected_status  The expected status response.
+	 */
+	#[DataProvider( 'get_active_campaign_status_responses' )]
+	public function test_get_active_campaigns_status( $response_details, $expected_status ) {
+		$request_url   = '';
+		$request_count = 0;
+
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+
+		if ( isset( $response_details['body'] ) ) {
+			$response_details['body'] = wp_json_encode( $response_details['body'], JSON_UNESCAPED_SLASHES );
+		}
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $response_details, &$request_url, &$request_count ) {
+				if ( false !== strpos( $url, '/sites/123/wordads/dsp/api/v1/search/campaigns/site/123' ) ) {
+					$request_url = $url;
+					++$request_count;
+
+					return $response_details;
+				}
+
+				return $preempt;
+			},
+			10,
+			3
+		);
+
+		$status = Blaze::get_active_campaigns_status( 123 );
+
+		$this->assertSame( $expected_status, $status );
+		$this->assertSame( 1, $request_count );
+		$this->assertStringContainsString( 'status=active', $request_url );
+		$this->assertStringContainsString( 'limit=1', $request_url );
+
+		delete_transient( 'jetpack_blaze_active_campaigns_status_123' );
+	}
+
+	/**
+	 * Test that active status responses use the transient cache.
+	 */
+	public function test_get_active_campaigns_status_uses_active_cache() {
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+
+		set_transient(
+			'jetpack_blaze_active_campaigns_status_123',
+			array(
+				'has_active_campaigns' => true,
+				'status'               => 'active',
+			),
+			HOUR_IN_SECONDS
+		);
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				$this->fail( 'The remote active campaigns request should not run when active status is cached.' );
+			}
+		);
+
+		$this->assertSame(
+			array(
+				'has_active_campaigns' => true,
+				'status'               => 'active',
+			),
+			Blaze::get_active_campaigns_status( 123 )
+		);
+
+		delete_transient( 'jetpack_blaze_active_campaigns_status_123' );
+	}
+
+	/**
+	 * Test that unknown status responses use a transient cache.
+	 */
+	public function test_get_active_campaigns_status_uses_unknown_cache() {
+		$request_count = 0;
+		$expected      = array(
+			'has_active_campaigns' => false,
+			'status'               => 'unknown',
+		);
+
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$request_count ) {
+				if ( false !== strpos( $url, '/sites/123/wordads/dsp/api/v1/search/campaigns/site/123' ) ) {
+					++$request_count;
+
+					return array(
+						'response' => array( 'code' => 500 ),
+						'body'     => wp_json_encode( array( 'error' => 'server_error' ), JSON_UNESCAPED_SLASHES ),
+					);
+				}
+
+				return $preempt;
+			},
+			10,
+			3
+		);
+
+		$first_status  = Blaze::get_active_campaigns_status( 123 );
+		$second_status = Blaze::get_active_campaigns_status( 123 );
+
+		$this->assertSame( $expected, $first_status );
+		$this->assertSame( $expected, $second_status );
+		$this->assertSame( 1, $request_count );
+
+		delete_transient( 'jetpack_blaze_active_campaigns_status_123' );
+	}
+
+	/**
+	 * Test that statuses without active campaigns are not cached.
+	 */
+	public function test_get_active_campaigns_status_does_not_cache_none_status() {
+		$request_count = 0;
+		$responses     = array(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'campaigns' => array() ), JSON_UNESCAPED_SLASHES ),
+			),
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode(
+					array(
+						'campaigns' => array(
+							array(
+								'campaign_id' => 1,
+								'status'      => 'active',
+							),
+						),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			),
+		);
+
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$request_count, $responses ) {
+				if ( false !== strpos( $url, '/sites/123/wordads/dsp/api/v1/search/campaigns/site/123' ) ) {
+					$response_index = min( $request_count, count( $responses ) - 1 );
+					$response       = $responses[ $response_index ];
+					++$request_count;
+
+					return $response;
+				}
+
+				return $preempt;
+			},
+			10,
+			3
+		);
+
+		$this->assertSame(
+			array(
+				'has_active_campaigns' => false,
+				'status'               => 'none',
+			),
+			Blaze::get_active_campaigns_status( 123 )
+		);
+		$this->assertSame(
+			array(
+				'has_active_campaigns' => true,
+				'status'               => 'active',
+			),
+			Blaze::get_active_campaigns_status( 123 )
+		);
+		$this->assertSame( 2, $request_count );
+
+		delete_transient( 'jetpack_blaze_active_campaigns_status_123' );
+	}
+
+	/**
+	 * Test that empty blog IDs return an unknown status.
+	 */
+	public function test_get_active_campaigns_status_returns_unknown_without_blog_id() {
+		$this->assertSame(
+			array(
+				'has_active_campaigns' => false,
+				'status'               => 'unknown',
+			),
+			Blaze::get_active_campaigns_status( 0 )
+		);
+	}
+
+	/**
+	 * Mock Jetpack site ID and tokens for API requests.
+	 *
+	 * @param mixed  $value The option value.
+	 * @param string $name  The option name.
+	 * @return mixed
+	 */
+	public function mock_jetpack_site_connection_options( $value, $name ) {
+		switch ( $name ) {
+			case 'blog_token':
+				return 'blog.token.123';
+			case 'id':
+				return 123;
+			case 'user_tokens':
+				$current_user_id = get_current_user_id();
+				if ( $current_user_id ) {
+					return array(
+						$current_user_id => sprintf( 'token%d.secret%d.%d', $current_user_id, $current_user_id, $current_user_id ),
+					);
+				}
+		}
+
+		return $value;
+	}
+
+	/**
 	 * Different scenarios (pages, Blaze eligibility) to test if Blaze js is enqueued in the editor.
 	 *
 	 * @return array
@@ -332,6 +562,65 @@ class Blaze_Test extends BaseTestCase {
 					'transient' => array( 'approved' => false ),
 				),
 				false,
+			),
+		);
+	}
+
+	/**
+	 * Different potential responses from the active campaign status check.
+	 *
+	 * @return array[]
+	 */
+	public static function get_active_campaign_status_responses() {
+		return array(
+			'active campaign exists'    => array(
+				array(
+					'response' => array( 'code' => 200 ),
+					'body'     => array(
+						'campaigns' => array(
+							array(
+								'campaign_id' => 1,
+								'status'      => 'active',
+							),
+						),
+					),
+				),
+				array(
+					'has_active_campaigns' => true,
+					'status'               => 'active',
+				),
+			),
+			'no active campaigns exist' => array(
+				array(
+					'response' => array( 'code' => 200 ),
+					'body'     => array(
+						'campaigns' => array(),
+					),
+				),
+				array(
+					'has_active_campaigns' => false,
+					'status'               => 'none',
+				),
+			),
+			'remote request fails'      => array(
+				array(
+					'response' => array( 'code' => 500 ),
+					'body'     => array( 'error' => 'server_error' ),
+				),
+				array(
+					'has_active_campaigns' => false,
+					'status'               => 'unknown',
+				),
+			),
+			'malformed response'        => array(
+				array(
+					'response' => array( 'code' => 200 ),
+					'body'     => array( 'unexpected' => 'shape' ),
+				),
+				array(
+					'has_active_campaigns' => false,
+					'status'               => 'unknown',
+				),
 			),
 		);
 	}

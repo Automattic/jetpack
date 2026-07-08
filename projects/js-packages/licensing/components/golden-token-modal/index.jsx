@@ -23,7 +23,7 @@ const onModalCloseDefault = event => {
  *
  * @param {object}   props                - Component props.
  * @param {Function} [props.redeemClick]  - Callback function to handle redeem click.
- * @param {object}   props.displayName    - Connected user data.
+ * @param {string}   props.displayName    - Connected user display name.
  * @param {Function} [props.onModalClose] - Callback function to handle module closure.
  * @param {boolean}  props.tokenRedeemed  - If their token is already redeemed.
  * @return {import('react').ReactNode} - GoldenToken component.

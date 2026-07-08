@@ -1,0 +1,48 @@
+.x-zoom {
+
+	// The translucent rgba overlay colors (selection fill/stroke, reset
+	// background/border) have no WPDS equivalent and stay as-is; only the
+	// opaque foreground and focus colors are tokenized.
+	&__selection {
+		fill: var(--charts-zoom-selection-fill, rgba(56, 88, 233, 0.16));
+		stroke: var(--charts-zoom-selection-stroke, rgba(56, 88, 233, 0.65));
+		stroke-width: var(--wpds-border-width-xs, 1px);
+		pointer-events: none;
+	}
+
+	&__reset {
+		position: absolute;
+		top: var(--wpds-dimension-gap-sm, 8px);
+		right: var(--wpds-dimension-gap-sm, 8px);
+		z-index: 2;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		padding: 0;
+		background: var(--charts-zoom-reset-bg, rgba(255, 255, 255, 0.92));
+		color: var(--charts-zoom-reset-fg, var(--wpds-color-foreground-content-neutral, #1e1e1e));
+		border:
+			var(--wpds-border-width-xs, 1px) solid
+			var(--charts-zoom-reset-border, rgba(0, 0, 0, 0.16));
+		border-radius: var(--wpds-border-radius-md, 4px);
+		cursor: pointer;
+		box-shadow: var(--wpds-elevation-xs, 0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003);
+
+		&:hover {
+			background: var(--charts-zoom-reset-bg-hover, rgba(255, 255, 255, 1));
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--charts-zoom-reset-focus, var(--wpds-color-stroke-focus, #3858e9));
+			outline-offset: 1px;
+		}
+	}
+
+	&__reset-icon {
+		width: 16px;
+		height: 16px;
+		flex-shrink: 0;
+	}
+}

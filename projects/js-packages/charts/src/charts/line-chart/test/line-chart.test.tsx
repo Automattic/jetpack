@@ -8,6 +8,37 @@ import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
 import type { SingleChartRef } from '../../private/single-chart-context';
 
+// Mock useElementSize to return non-zero dimensions in jsdom so charts render
+const mockRefCallback = jest.fn();
+jest.mock( '../../../hooks/use-element-size', () => ( {
+	useElementSize: () => [ mockRefCallback, 500, 300 ],
+} ) );
+
+// Drive the zoom state directly so we can assert the clip-path behaviour without
+// simulating a pointer drag (svgPoint geometry is unavailable in jsdom). The rest
+// of the x-zoom module (ZoomClipPath, getZoomClipPathId, etc.) stays real.
+const mockUseXZoom = jest.fn();
+jest.mock( '../../private/x-zoom', () => {
+	const actual = jest.requireActual( '../../private/x-zoom' );
+	return {
+		__esModule: true,
+		...actual,
+		useXZoom: ( ...args: unknown[] ) => mockUseXZoom( ...args ),
+	};
+} );
+
+const passthroughZoom = () => ( {
+	domain: null,
+	drag: null,
+	reset: jest.fn(),
+	handlers: { onPointerDown: jest.fn(), onPointerMove: jest.fn(), onPointerUp: jest.fn() },
+} );
+
+beforeEach( () => {
+	mockUseXZoom.mockReset();
+	mockUseXZoom.mockImplementation( passthroughZoom );
+} );
+
 const customTheme = {
 	...defaultTheme,
 	glyphs: [
@@ -47,13 +78,15 @@ describe( 'LineChart', () => {
 		],
 	};
 
-	const renderWithTheme = ( props = {}, themeName = 'default' ) => {
+	const renderWithTheme = ( props = {}, themeName = 'default', children = undefined ) => {
 		const theme = THEME_MAP[ themeName ];
 
 		return render(
 			<GlobalChartsProvider theme={ theme }>
 				{ /* @ts-expect-error TODO Fix the missing props */ }
-				<LineChart { ...defaultProps } { ...props } />
+				<LineChart { ...defaultProps } { ...props }>
+					{ children }
+				</LineChart>
 			</GlobalChartsProvider>
 		);
 	};
@@ -124,35 +157,55 @@ describe( 'LineChart', () => {
 	} );
 
 	describe( 'Legend', () => {
+		const multiSeriesData = [
+			{
+				label: 'Series A',
+				data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+			},
+			{
+				label: 'Series B',
+				data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+			},
+		];
+
 		test( 'shows legend when showLegend is true', () => {
-			renderWithTheme( {
-				showLegend: true,
-				data: [
-					{
-						label: 'Series A',
-						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
-					},
-					{
-						label: 'Series B',
-						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
-					},
-				],
-			} );
+			renderWithTheme( { showLegend: true, data: multiSeriesData } );
 			expect( screen.getByText( 'Series A' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Series B' ) ).toBeInTheDocument();
 		} );
 
 		test( 'hides legend when showLegend is false', () => {
-			renderWithTheme( {
-				showLegend: false,
-				data: [
-					{
-						label: 'Series A',
-						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
-					},
-				],
-			} );
+			renderWithTheme( { showLegend: false, data: multiSeriesData } );
 			expect( screen.queryByText( 'Series A' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'renders composition legend as child component', () => {
+			renderWithTheme( { data: multiSeriesData }, 'default', <LineChart.Legend /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			expect( screen.getByText( 'Series A' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Series B' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders composition legend regardless of showLegend value', () => {
+			renderWithTheme(
+				{ data: multiSeriesData, showLegend: false },
+				'default',
+				<LineChart.Legend />
+			);
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+		} );
+
+		test( 'renders composition legend in top position', () => {
+			renderWithTheme( { data: multiSeriesData }, 'default', <LineChart.Legend position="top" /> );
+
+			// Legend should appear before the chart content in DOM order
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			const html = document.body.innerHTML;
+			expect( html.indexOf( 'data-testid="legend-horizontal"' ) ).toBeLessThan(
+				html.indexOf( 'role="grid"' )
+			);
 		} );
 	} );
 
@@ -1172,7 +1225,7 @@ describe( 'LineChart', () => {
 						{ ...defaultProps }
 						withGradientFill={ false }
 						showLegend={ true }
-						legendInteractive={ true }
+						legend={ { interactive: true } }
 						chartId="test-interactive-chart"
 					/>
 				</GlobalChartsProvider>
@@ -1194,7 +1247,7 @@ describe( 'LineChart', () => {
 						{ ...defaultProps }
 						withGradientFill={ false }
 						showLegend={ true }
-						legendInteractive={ false }
+						legend={ { interactive: false } }
 						chartId="test-non-interactive-chart"
 					/>
 				</GlobalChartsProvider>
@@ -1212,7 +1265,7 @@ describe( 'LineChart', () => {
 						{ ...defaultProps }
 						withGradientFill={ false }
 						showLegend={ true }
-						legendInteractive={ true }
+						legend={ { interactive: true } }
 						// No chartId provided
 					/>
 				</GlobalChartsProvider>
@@ -1224,5 +1277,21 @@ describe( 'LineChart', () => {
 				expect( item ).toHaveAttribute( 'aria-pressed', 'true' );
 			} );
 		} );
+	} );
+
+	// The line is not animated, so it clips only while actually zoomed.
+	test( 'clips the series to the plot when zoomed', () => {
+		mockUseXZoom.mockImplementation( () => ( {
+			domain: [ new Date( '2024-01-01' ), new Date( '2024-01-02' ) ],
+			drag: null,
+			reset: jest.fn(),
+			handlers: { onPointerDown: jest.fn(), onPointerMove: jest.fn(), onPointerUp: jest.fn() },
+		} ) );
+		renderUnwrappedWithTheme( { zoomable: true, chartId: 'zoomtest' } );
+
+		expect( screen.getByTestId( 'chart-series-clip-group' ) ).toHaveAttribute(
+			'clip-path',
+			'url(#chart-zoom-clip-zoomtest)'
+		);
 	} );
 } );

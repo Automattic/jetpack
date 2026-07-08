@@ -5,6 +5,110 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.35] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [0.14.34] - 2026-06-29
+### Changed
+- Update dependencies. [#50001]
+
+## [0.14.33] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
+## [0.14.32] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+## [0.14.31] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273]
+
+## [0.14.30] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+
+## [0.14.29] - 2026-06-01
+### Fixed
+- Prevent various PHP warnings. [#49293]
+
+## [0.14.28] - 2026-05-25
+### Changed
+- Update package dependencies. [#48405]
+
+## [0.14.27] - 2026-05-19
+### Changed
+- Update package dependencies. [#48695]
+
+## [0.14.26] - 2026-05-11
+### Changed
+- Update dependencies. [#46383]
+
+## [0.14.25] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.14.24] - 2026-04-27
+### Changed
+- Update package dependencies. [#48302]
+
+## [0.14.23] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [0.14.22] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
+## [0.14.21] - 2026-04-06
+### Changed
+- Update dependencies. [#46383]
+
+## [0.14.20] - 2026-03-30
+### Changed
+- Update package dependencies. [#47818]
+
+## [0.14.19] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [0.14.18] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [0.14.17] - 2026-03-09
+### Changed
+- Update package dependencies. [#47496]
+
+## [0.14.16] - 2026-02-26
+### Changed
+- Update package dependencies. [#47288] [#47300]
+- Use the new `Post_Media` `Images` class instead of `Jetpack_PostImages` for featured image fallbacks. [#47249]
+
+## [0.14.15] - 2026-02-23
+### Changed
+- Update package dependencies. [#47173]
+
+### Fixed
+- Social Menu: Remove Pocket sharing button. [#46879]
+
+## [0.14.14] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## [0.14.13] - 2026-02-10
+### Changed
+- Update package dependencies. [#46936] [#47002]
+
+## [0.14.12] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.14.11] - 2026-01-26
+### Changed
+- Update dependencies. [#46383]
+
 ## [0.14.10] - 2026-01-19
 ### Changed
 - Update package dependencies. [#46552] [#46647]
@@ -441,6 +545,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.14.35]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.34...v0.14.35
+[0.14.34]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.33...v0.14.34
+[0.14.33]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.32...v0.14.33
+[0.14.32]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.31...v0.14.32
+[0.14.31]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.30...v0.14.31
+[0.14.30]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.29...v0.14.30
+[0.14.29]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.28...v0.14.29
+[0.14.28]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.27...v0.14.28
+[0.14.27]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.26...v0.14.27
+[0.14.26]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.25...v0.14.26
+[0.14.25]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.24...v0.14.25
+[0.14.24]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.23...v0.14.24
+[0.14.23]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.22...v0.14.23
+[0.14.22]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.21...v0.14.22
+[0.14.21]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.20...v0.14.21
+[0.14.20]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.19...v0.14.20
+[0.14.19]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.18...v0.14.19
+[0.14.18]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.17...v0.14.18
+[0.14.17]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.16...v0.14.17
+[0.14.16]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.15...v0.14.16
+[0.14.15]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.14...v0.14.15
+[0.14.14]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.13...v0.14.14
+[0.14.13]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.12...v0.14.13
+[0.14.12]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.11...v0.14.12
+[0.14.11]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.10...v0.14.11
 [0.14.10]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.9...v0.14.10
 [0.14.9]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.8...v0.14.9
 [0.14.8]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.7...v0.14.8

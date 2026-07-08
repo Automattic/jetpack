@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "1.4.27",
+	"version": "1.5.0",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/connection"
+		"url": "git+https://github.com/Automattic/jetpack-connection-js.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -20,12 +19,15 @@
 	],
 	"type": "module",
 	"exports": {
-		".": "./index.jsx"
+		".": "./index.jsx",
+		"./hooks/use-product-checkout-workflow": "./hooks/use-product-checkout-workflow/index.tsx",
+		"./use-connection": "./components/use-connection/index.ts",
+		"./use-connection-error-notice": "./hooks/use-connection-error-notice/index.tsx"
 	},
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
@@ -33,31 +35,32 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-config": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
-		"@wordpress/base-styles": "6.14.0",
-		"@wordpress/browserslist-config": "6.38.0",
-		"@wordpress/components": "32.0.0",
-		"@wordpress/data": "10.38.0",
-		"@wordpress/element": "6.38.0",
-		"@wordpress/i18n": "6.11.0",
-		"@wordpress/icons": "11.5.0",
-		"@wordpress/url": "4.38.0",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/base-styles": "10.2.0",
+		"@wordpress/browserslist-config": "6.50.0",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/data": "10.50.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/i18n": "6.23.0",
+		"@wordpress/icons": "15.1.0",
+		"@wordpress/ui": "0.17.0",
+		"@wordpress/url": "4.50.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.28.4",
-		"@babel/preset-react": "7.27.1",
+		"@babel/core": "7.29.7",
 		"@testing-library/dom": "10.4.1",
-		"@testing-library/react": "16.3.0",
+		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",
-		"@types/react": "18.3.26",
-		"jest": "30.2.0",
+		"@types/react": "18.3.28",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"jest": "30.4.2",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"storybook": "10.1.10",
-		"typescript": "5.9.3"
+		"storybook": "10.4.6"
 	},
 	"peerDependencies": {
 		"react": "^18.0.0",

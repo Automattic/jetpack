@@ -5,6 +5,278 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2026-07-06
+### Added
+- Add HeatmapChart for matrix and calendar/contribution-style data, with a compact mode and a composition color-scale legend. [#50065]
+
+### Changed
+- Bar Chart: Declare a local process type so the comparison-bars module type-checks when imported as source by other packages. [#49205]
+- Replace hardcoded surface, foreground, and UI colors with WPDS design tokens. [#49946]
+- Tokenize box-shadow, transition, and animation values with WPDS elevation and motion tokens, making elevation and motion themeable. [#49947]
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+### Fixed
+- Conversion Funnel Chart: Let the funnel shrink to fit height-constrained cards instead of enforcing a 200px minimum that forced a scrollbar. [#50163]
+- GeoChart: Load the required Google Charts package explicitly. [#50018]
+- Line Chart: Fix typing on `.gradient.from` and `.gradient.to` to better match behavior and documentation. [#50212]
+
+## [1.8.1] - 2026-06-26
+### Fixed
+- Fix Bar Chart comparison mode — pair the keyboard tooltip with the focused bar, keep the value axis zero-based, and make the tooltip label/value separator translatable. [#49959]
+
+## [1.8.0] - 2026-06-24
+### Added
+- Add comparison mode to the Bar Chart — a translucent shadow bar (standard slot width, 50% opacity) rendered behind each primary bar, paired by group. Primary bars are narrowed to 1/widthFactor of the slot (default widthFactor 1.5 → ~67% width, centered), with widthFactor as the single control. [#49676]
+
+### Changed
+- Add an internal Center layout primitive and use it for centered chart wrappers. [#49164]
+
+## [1.7.0] - 2026-06-23
+### Added
+- Leaderboard interactive rows gain an opt-in `ariaLabel` for image-only labels, and the hover affordance now shrinks each bar in proportion to its length so small-share rows stay consistent. [#49812]
+
+### Changed
+- Add React 19 compatibility for consumers. [#49661]
+- Type `leaderboardChart.labelSpacing` as a WPDS `GapSize` token instead of `number` (the numeric value was silently ignored by `@wordpress/ui`'s Stack) to fix `@wordpress/ui` 0.15 type errors. [#49797]
+
+## [1.6.0] - 2026-06-22
+### Added
+- Allow Leaderboard items to be made interactive via a per-entry onClick, rendering the row as a keyboard-accessible button with a hover chevron. [#49733]
+
+### Changed
+- Update package dependencies. [#49594] [#49631] [#49691] [#49757]
+
+## [1.5.3] - 2026-06-10
+### Changed
+- Update package dependencies. [#49273]
+
+## [1.5.2] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.5.1] - 2026-06-05
+### Changed
+- Charts: clip zoomable LineChart/AreaChart series to the plot area so zoomed views don't paint outside the axes. [#49357]
+- Update dependencies. [#49354]
+
+## [1.5.0] - 2026-06-01
+### Added
+- Charts: Optional zoomable X-axis on LineChart and AreaChart. Pass `zoomable` to enable drag-to-zoom; a reset button appears in the top-right while zoomed. [#49167]
+
+### Changed
+- Charts: AreaChart Y-axis now rescales to the visible series when interactive legends toggle items off. Pass `rescaleYOnLegendToggle={ false }` to restore the previous pinned-extent behavior. [#49241]
+- Update package dependencies. [#48404]
+
+## [1.4.3] - 2026-05-25
+### Changed
+- Update dependencies. [#43811]
+
+## [1.4.2] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## [1.4.1] - 2026-05-19
+### Changed
+- Keep stacked area chart paths mounted on legend toggle so only the hidden series animates down and the y-axis stays fixed. [#48804]
+
+## [1.4.0] - 2026-05-14
+### Changed
+- Charts: Expose a source-side `./style.css` alias so monorepo consumers can resolve the import without a prior build. [#48682]
+- Charts: Expose tickValues on AxisOptions and nice on ScaleOptions so callers can force exact axis ticks. [#48722]
+- Update package dependencies. [#48695] [#48696]
+
+### Removed
+- Charts: Remove the `useTooltipPortalRelocator` hook and the `portalContainer` prop on `GlobalChartsProvider`. The relocator (added in #47118 / 0.56.4) caused tooltip glyphs and the tooltip box to drift away from the chart line by exactly the page scroll offset on scrolled pages. [#48617]
+
+## [1.3.1] - 2026-05-11
+### Changed
+- Update dependencies. [#43811]
+
+## [1.3.0] - 2026-05-04
+### Added
+- Charts: Add AreaChart component for stacked and overlapping area visualisations. [#48388]
+
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [1.2.1] - 2026-04-27
+### Changed
+- Update package dependencies. [#48302]
+
+## [1.2.0] - 2026-04-20
+### Changed
+- Charts: Replace hard-coded spacing and border values in module SCSS with WPDS dimension and border design tokens. [#48019]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+## [1.1.1] - 2026-04-15
+### Changed
+- Charts: Document WordPress UI + Theme integration defaults. [#48020]
+- Charts: Replace ad-hoc flexbox layouts with @wordpress/ui Stack across legend, conversion funnel, line chart, geo chart, conversion funnel tooltip, and donut story. [#47981]
+- Update package dependencies. [#47907]
+
+## [1.1.0] - 2026-04-10
+### Changed
+- Replace hardcoded typography values with WPDS design tokens for font family, size, weight, and line height. [#47989]
+- Replace __experimentalText from @wordpress/components with stable Text from @wordpress/ui. [#47894]
+- Update package dependencies. [#47890] [#47998]
+
+### Fixed
+- Fix Line Chart Annotations Custom and Alert story errors in Storybook by replacing the CJS-only gridicons dependency with @wordpress/icons. [#47990]
+- Storybook: Replace manual design-system token override with real WPDS ThemeProvider. [#47983]
+
+## [1.0.2] - 2026-04-06
+### Changed
+- Conversion Funnel Chart: Rename non-BEM classnames to BEM modifiers. [#47854]
+- Update package dependencies. [#47870] [#47886]
+
+### Fixed
+- Fix conversion funnel chart color flicker on initial render by deferring CSS transitions until the color palette is resolved. [#47851]
+
+## [1.0.1] - 2026-03-30
+### Security
+- Sanitize GeoChart HTML tooltip content with DOMPurify. [#47789]
+
+### Changed
+- Bump minimum Node version to 20.11. [#47770]
+- Support all CSS color formats (HSL, HSLA, RGB, RGBA, named colors) in theme colors. [#46349]
+- Update package dependencies. [#47799]
+
+### Fixed
+- ChartLayout: Display SVG as block to avoid unexpected resizing in certain browser environments. [#47802]
+
+## [1.0.0] - 2026-03-24
+### Changed
+- Internal updates. [#43811]
+
+## [0.59.0] - 2026-03-23
+### Added
+- ChartLayout: Add component for shared chart and legend layout. [#47554]
+
+### Changed
+- Move tooltip portal containerRef from ChartLayout to inner svg-wrapper in pie charts. [#47619]
+- Remove internal hooks, utilities, and types from public exports to reduce API surface. [#47703]
+- Remove `percentage` from DataPointPercentage interface. [#47668]
+- Standardize legend stories and documentation across all chart types. [#47545]
+- Update package dependencies. [#47684] [#47719]
+
+### Removed
+- Remove individual chart entry point exports in favor of the main package entry point for v1. [#47673]
+
+### Fixed
+- Derive default legend shape from chart type in composition API. [#47671]
+- Fix broken story references and simplify legend sections in Storybook docs. [#47663]
+- Fix empty-state text wrapping when all legend items are hidden. [#47620]
+
+## [0.58.0] - 2026-03-16
+### Security
+- Fix ReDoS vulnerability in date parsing timezone detection. [#47524]
+
+### Changed
+- Breaking: Consolidate flat legend props into a nested legend configuration object on BaseChartProps. [#47506]
+- Charts: Fix Legend position prop in the composition API so that legends render in the correct top or bottom slot. [#47478]
+- Remove useHasLegendChild hook from @automattic/charts/hooks (charts now derive legend presence from useChartChildren). [#47478]
+- Update dependencies. [#47472]
+
+### Fixed
+- Bundle fast-deep-equal as a non-external dependency to fix compatibility with webpack strict ESM mode. [#47372]
+
+## [0.57.0] - 2026-03-09
+### Added
+- Add identity-obj-proxy to enable CSS module class assertions in tests. [#47476]
+
+### Changed
+- BREAKING: Legend: Replace individual visx styling props with itemStyles, labelStyles, shapeStyles objects, rename legendItemClassName to itemClassName, add labelClassName, and move maxWidth/textOverflow into labelStyles. LeaderboardChart: replace legendShapeWidth/legendShapeHeight with legendShapeStyles. [#47454]
+- Breaking: Legend theme properties (`legendShapeStyles`, `legendLabelStyles`, `legendContainerStyles`) are now nested under a `legend` object (`legend.shapeStyles`, `legend.labelStyles`, `legend.containerStyles`) in `ChartTheme`. [#47439]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Fix leaderboard chart height calculation to include legend layout and keep responsive sizing by default. [#47369]
+- Fix zero-value bars not visible in small chart heights by ensuring minimum pixel-based value. [#47477]
+- Legend: Fix value rendering for falsy values (e.g. 0), guard against empty string spans, make value optional in types, and use index-based lookup for better performance. [#47459]
+
+## [0.56.7] - 2026-03-02
+### Changed
+- Improve AI agent documentation and validation workflow for chart development. [#47334]
+- Standardize chart documentation structure: add Responsive Behavior and Legends as standard sections, remove Browser Compatibility and Performance Considerations sections, and align all chart docs to established template. [#47363]
+
+## [0.56.6] - 2026-02-26
+### Changed
+- Simplify relocated portal positioning with CSS inset shorthand. [#47220]
+- Update package dependencies. [#47285] [#47300] [#47309]
+
+### Fixed
+- Fix chart height and size calculations for Pie Chart and variants. [#47074]
+- Fix `PieSemiCircleChart` height and size calculations to be responsive by default, maintaining 2:1 width-to-height ratio. [#47312]
+- Tooltip: Prevent flash at origin before visx calculates correct position. [#47189]
+
+## [0.56.5] - 2026-02-23
+### Changed
+- Add dynamic x‑axis margin in `LineChart` to prevent crowded/clipped tick labels. [#45815]
+
+## [0.56.4] - 2026-02-19
+### Changed
+- Build: strip data-testid attributes from production builds to reduce bundle size and keep the DOM cleaner. [#47185]
+
+### Fixed
+- ConversionFunnelChart: Default to filling the parent container height and add a height prop for explicit sizing. [#47119]
+- Relocate visx tooltip portals from document.body into the chart container to fix z-index stacking issues with sticky headers and other positioned elements. [#47118]
+
+## [0.56.3] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [0.56.2] - 2026-02-16
+### Changed
+- Internal updates.
+
+## [0.56.1] - 2026-02-12
+### Changed
+- Remove redundant moduleNameMapper from jest config. [#46962]
+- Update package dependencies. [#47099]
+
+### Fixed
+- Allow responsive wrapper to shrink properly in flex layouts by adding min-width and min-height CSS properties. [#47070]
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [0.56.0] - 2026-02-10
+### Added
+- Add `renderTooltip` prop for custom tooltip rendering in pie charts. [#46971]
+
+### Changed
+- Responsive charts now fill parent container by default instead of using a fixed aspect ratio. [#46846]
+
+### Fixed
+- Bundle `@wordpress/ui` into dist output to prevent runtime errors in consumers using wp-build. [#47004]
+- Fix tooltip positioning when container moves without triggering containerBounds refresh. [#46963]
+
+## [0.55.0] - 2026-02-04
+### Changed
+- Update package dependencies. [#46933]
+
+### Fixed
+- Fix Sparkline component export paths in package.json and update documentation to include GeoChart, Sparkline, and TrendIndicator components. [#46842]
+
+## [0.54.3] - 2026-02-03
+### Changed
+- Update package dependencies. [#46905]
+
+### Fixed
+- Add missing stories referenced by Storybook MDX docs. [#46883]
+
+## [0.54.2] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.54.1] - 2026-01-26
+### Changed
+- Update dependencies. [#43811]
+
+## [0.54.0] - 2026-01-21
+### Added
+- Add labelOverflow ellipsis option to truncate long axis labels for bar chart. [#46656]
+
 ## [0.53.4] - 2026-01-19
 ### Changed
 - Update package dependencies. [#46647]
@@ -632,6 +904,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[1.9.0]: https://github.com/Automattic/charts/compare/v1.8.1...v1.9.0
+[1.8.1]: https://github.com/Automattic/charts/compare/v1.8.0...v1.8.1
+[1.8.0]: https://github.com/Automattic/charts/compare/v1.7.0...v1.8.0
+[1.7.0]: https://github.com/Automattic/charts/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/Automattic/charts/compare/v1.5.3...v1.6.0
+[1.5.3]: https://github.com/Automattic/charts/compare/v1.5.2...v1.5.3
+[1.5.2]: https://github.com/Automattic/charts/compare/v1.5.1...v1.5.2
+[1.5.1]: https://github.com/Automattic/charts/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/Automattic/charts/compare/v1.4.3...v1.5.0
+[1.4.3]: https://github.com/Automattic/charts/compare/v1.4.2...v1.4.3
+[1.4.2]: https://github.com/Automattic/charts/compare/v1.4.1...v1.4.2
+[1.4.1]: https://github.com/Automattic/charts/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/Automattic/charts/compare/v1.3.1...v1.4.0
+[1.3.1]: https://github.com/Automattic/charts/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/Automattic/charts/compare/v1.2.1...v1.3.0
+[1.2.1]: https://github.com/Automattic/charts/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Automattic/charts/compare/v1.1.1...v1.2.0
+[1.1.1]: https://github.com/Automattic/charts/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/Automattic/charts/compare/v1.0.2...v1.1.0
+[1.0.2]: https://github.com/Automattic/charts/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/Automattic/charts/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/Automattic/charts/compare/v0.59.0...v1.0.0
+[0.59.0]: https://github.com/Automattic/charts/compare/v0.58.0...v0.59.0
+[0.58.0]: https://github.com/Automattic/charts/compare/v0.57.0...v0.58.0
+[0.57.0]: https://github.com/Automattic/charts/compare/v0.56.7...v0.57.0
+[0.56.7]: https://github.com/Automattic/charts/compare/v0.56.6...v0.56.7
+[0.56.6]: https://github.com/Automattic/charts/compare/v0.56.5...v0.56.6
+[0.56.5]: https://github.com/Automattic/charts/compare/v0.56.4...v0.56.5
+[0.56.4]: https://github.com/Automattic/charts/compare/v0.56.3...v0.56.4
+[0.56.3]: https://github.com/Automattic/charts/compare/v0.56.2...v0.56.3
+[0.56.2]: https://github.com/Automattic/charts/compare/v0.56.1...v0.56.2
+[0.56.1]: https://github.com/Automattic/charts/compare/v0.56.0...v0.56.1
+[0.56.0]: https://github.com/Automattic/charts/compare/v0.55.0...v0.56.0
+[0.55.0]: https://github.com/Automattic/charts/compare/v0.54.3...v0.55.0
+[0.54.3]: https://github.com/Automattic/charts/compare/v0.54.2...v0.54.3
+[0.54.2]: https://github.com/Automattic/charts/compare/v0.54.1...v0.54.2
+[0.54.1]: https://github.com/Automattic/charts/compare/v0.54.0...v0.54.1
+[0.54.0]: https://github.com/Automattic/charts/compare/v0.53.4...v0.54.0
 [0.53.4]: https://github.com/Automattic/charts/compare/v0.53.3...v0.53.4
 [0.53.3]: https://github.com/Automattic/charts/compare/v0.53.2...v0.53.3
 [0.53.2]: https://github.com/Automattic/charts/compare/v0.53.1...v0.53.2

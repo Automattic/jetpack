@@ -25,7 +25,7 @@ function wpcomImporterEntry( width ) {
 		'<td class="desc">' +
 		'<span class="importer-desc">' +
 		wp.i18n.__(
-			'Effortless WordPress migrations, plus content imports from platforms like Medium and Squarespace - no plugins or technical setup required.',
+			'Move any WordPress site, including all content, themes, plugins, and users to WordPress.com.',
 			'jetpack-mu-wpcom'
 		) +
 		'</span>' +

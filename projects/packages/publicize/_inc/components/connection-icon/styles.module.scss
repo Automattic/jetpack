@@ -1,32 +1,54 @@
 .wrapper {
-	position: relative;
-	width: 28px;
-	height: 28px;
-	display: flex;
-	justify-content: flex-start;
 	align-items: center;
+	block-size: 28px;
+	display: flex;
+	inline-size: 28px;
+	justify-content: center;
+	position: relative;
 
 	&.disabled {
 		opacity: 0.4;
 	}
 
-	&.has-picture {
+	img,
+	.avatar {
+		background-color: var(--wpds-color-background-surface-neutral-strong, #fff);
+		block-size: 24px;
+		border: 2px solid var(--wpds-color-background-surface-neutral-strong, #fff);
+		border-radius: 50%;
+		inline-size: 24px;
+	}
 
-		img {
-			border-radius: 50%;
-			border: 1px solid #fff;
-			width: 24px;
-			height: 24px;
+	.social-icon {
+		background-color: var(--wpds-color-background-surface-neutral-strong, #fff);
+		block-size: 14px;
+		border-radius: var(--wpds-border-radius-sm, 2px);
+		inline-size: 14px;
+		inset-block-end: 0;
+		inset-inline-end: 0;
+		position: absolute;
+	}
+
+	// Roomier variant for the chassis Overview "Connected accounts" list.
+	// Default (`size="small"`) is the 28/24/14 set above so any consumer
+	// that drops the prop — or that lands in a bundle context where the
+	// CSS-modules-scoped `.small` class doesn't reach the element (e.g.
+	// the block editor's `<Button icon={...}>` slot) — still renders at
+	// a sensible avatar size.
+	&.medium {
+		block-size: 32px;
+		inline-size: 32px;
+
+		img,
+		.avatar {
+			block-size: 32px;
+			border: 0;
+			inline-size: 32px;
 		}
 
 		.social-icon {
-			position: absolute;
-			inset-block-end: 0;
-			inset-inline-end: 0;
-			width: 14px;
-			height: 14px;
-			border-radius: 2px;
-			background-color: #fff;
+			block-size: 16px;
+			inline-size: 16px;
 		}
 	}
 }

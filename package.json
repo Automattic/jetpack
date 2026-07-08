@@ -1,5 +1,5 @@
 {
-	"name": "@automattic/Jetpack_Monorepo",
+	"name": "@automattic/_jetpack_monorepo",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a set of WordPress plugins that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -17,8 +17,8 @@
 		"cli-setup": "pnpm install && jetpack cli link",
 		"cli-unlink": "jetpack cli unlink",
 		"lint": "pnpm run lint-file .",
-		"lint-changed": "eslint-changed --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte --eslint-options flags='[\"v10_config_lookup_from_file\"]' --git",
-		"lint-file": "eslint --flag v10_config_lookup_from_file",
+		"lint-changed": "eslint-changed --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte --git",
+		"lint-file": "eslint",
 		"lint-required": "ESLINT_IGNORE_REQUIRED=1 pnpm run lint --max-warnings=0",
 		"lint-style": "stylelint --allow-empty-input --globby-options '{\"gitignore\":true,\"ignore\":[\"tools/docker/data\",\"**/vendor/**\",\"**/jetpack_vendor/**\"]}'",
 		"php:autofix": "composer phpcs:fix",
@@ -30,15 +30,18 @@
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
-		"eslint": "9.39.1",
 		"husky": "9.1.7",
 		"jetpack-cli": "workspace:*",
-		"jetpack-js-tools": "workspace:*",
-		"stylelint": "16.26.1"
+		"jetpack-js-tools": "workspace:*"
 	},
-	"packageManager": "pnpm@10.27.0",
+	"devEngines": {
+		"packageManager": {
+			"name": "pnpm",
+			"version": "^11.5.0"
+		}
+	},
 	"engines": {
-		"node": "^22.19.0",
-		"pnpm": "^10.27.0"
+		"node": "^24.15.0",
+		"pnpm": "^11.5.0"
 	}
 }

@@ -10,13 +10,15 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-plans": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-post-media": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
@@ -36,16 +38,10 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
-			"pnpm run test-coverage"
-		],
-		"test-js": [
-			"pnpm run test"
-		],
-		"test-php": [
-			"@composer phpunit"
-		],
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage",
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"build-development": [
 			"pnpm run build"
 		],
@@ -53,8 +49,12 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
 		],
+		"watch-hot": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch:hot"
+		],
 		"build-production": [
-			"pnpm run build-production-concurrently"
+			"pnpm run build-production"
 		]
 	},
 	"repositories": [
@@ -76,7 +76,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.71.x-dev"
+			"dev-trunk": "0.83.x-dev"
 		}
 	},
 	"config": {

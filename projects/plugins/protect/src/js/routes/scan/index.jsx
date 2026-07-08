@@ -1,5 +1,4 @@
 import { AdminSection, Container, Col } from '@automattic/jetpack-components';
-import AdminPage from '../../components/admin-page';
 import ThreatsList from '../../components/threats-list';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -47,19 +46,17 @@ const ScanPage = () => {
 
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
-			<AdminPage>
-				<ScanAdminSectionHero />
-				{ ( ! status.error || numThreats ) && (
-					<AdminSection>
-						<Container horizontalSpacing={ 7 } horizontalGap={ 4 }>
-							<Col>
-								<ThreatsList />
-							</Col>
-						</Container>
-					</AdminSection>
-				) }
-				<ScanFooter />
-			</AdminPage>
+			<ScanAdminSectionHero />
+			{ ( ! status.error || numThreats ) && (
+				<AdminSection>
+					<Container horizontalSpacing={ 7 } horizontalGap={ 4 }>
+						<Col>
+							<ThreatsList />
+						</Col>
+					</Container>
+				</AdminSection>
+			) }
+			<ScanFooter />
 		</OnboardingContext.Provider>
 	);
 };

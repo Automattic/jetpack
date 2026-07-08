@@ -12,7 +12,6 @@
 # Ignore CSS copied in from elsewhere
 projects/packages/jetpack-mu-wpcom/src/features/custom-css/custom-css/css/blank.css
 projects/packages/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks
-projects/plugins/crm/css/lib
 projects/plugins/jetpack/scss/cleanslate.scss
 
 # Ignore test-related CSS files that need further investigation

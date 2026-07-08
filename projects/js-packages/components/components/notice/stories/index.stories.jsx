@@ -1,5 +1,5 @@
 /* eslint-disable no-alert -- ok for demo */
-import { ExternalLink } from '@wordpress/components';
+import { Link } from '@wordpress/ui';
 import Button from '../../button/index.tsx';
 import Notice from '../index.tsx';
 
@@ -34,15 +34,15 @@ _default.args = {
 		<Button key="install" isPrimary>
 			Install now
 		</Button>,
-		<ExternalLink key="learn-more" href="https://en.wikipedia.org/wiki/Hovercraft">
+		<Link openInNewTab key="learn-more" href="https://en.wikipedia.org/wiki/Hovercraft">
 			Learn more
-		</ExternalLink>,
+		</Link>,
 	],
 	hideCloseButton: false,
 };
 
-export const warning = Template.bind( {} );
-warning.args = {
+export const Warning = Template.bind( {} );
+Warning.args = {
 	level: 'warning',
 	title: 'Your hovercraft is full of eels.',
 	children: (
@@ -54,15 +54,15 @@ warning.args = {
 		<Button key="bail" isPrimary>
 			Start Bailing
 		</Button>,
-		<ExternalLink key="learn-more" href="https://en.wikipedia.org/wiki/Hovercraft">
+		<Link openInNewTab key="learn-more" href="https://en.wikipedia.org/wiki/Hovercraft">
 			Learn more
-		</ExternalLink>,
+		</Link>,
 	],
 	hideCloseButton: false,
 };
 
-export const success = Template.bind( {} );
-success.args = {
+export const Success = Template.bind( {} );
+Success.args = {
 	level: 'success',
 	title: 'Your hovercraft has been upgraded.',
 	children: 'Please enjoy your newer, cooler hovercraft.',
@@ -75,17 +75,17 @@ success.args = {
 	hideCloseButton: false,
 };
 
-export const error = Template.bind( {} );
-error.args = {
+export const Error = Template.bind( {} );
+Error.args = {
 	level: 'error',
 	title: 'The eels have stolen your hovercraft.',
 	children:
 		'We were unable to remove the eels from your hovercraft. Please contact the authorities, as the eels are armed and dangerous.',
 	onClose: () => alert( 'Close clicked' ),
 	actions: [
-		<ExternalLink key="learn-more" href="https://en.wikipedia.org/wiki/Eel">
+		<Link openInNewTab key="learn-more" href="https://en.wikipedia.org/wiki/Eel">
 			Learn more
-		</ExternalLink>,
+		</Link>,
 	],
 	hideCloseButton: false,
 };

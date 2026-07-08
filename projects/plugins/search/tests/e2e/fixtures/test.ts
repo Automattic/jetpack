@@ -1,5 +1,5 @@
-import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test';
-import logger from '_jetpack-e2e-commons/logger';
+import { test as baseTest, expect } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
+import logger from '@automattic/_jetpack-e2e-commons/logger';
 import { SearchUtils } from '../utils/index';
 
 export const SEARCH_API_PATTERN =
@@ -400,13 +400,13 @@ const test = baseTest.extend< object, { searchUtils: SearchUtils } >( {
 
 			if ( category ) {
 				body.results = body.results.filter(
-					( v: { categories: string | string[] } ) => v?.categories?.includes( category )
+					( v: { categories?: string | string[] } ) => v?.categories?.includes( category )
 				);
 			}
 
 			if ( tag ) {
 				body.results = body.results.filter(
-					( v: { tags: string | string[] } ) => v?.tags?.includes( tag )
+					( v: { tags?: string | string[] } ) => v?.tags?.includes( tag )
 				);
 			}
 

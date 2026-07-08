@@ -47,7 +47,7 @@
 			context.filter = 'blur(20px) ';
 			context.drawImage( imgEl, 0, 0 );
 			var url = canvas.toDataURL( 'image/png' );
-			canvas = null;
+			canvas = null; // eslint-disable-line no-useless-assignment -- Verify this isn't needed to free memory or something.
 
 			return url;
 		}
@@ -272,7 +272,9 @@
 		}
 
 		function stripHTML( text ) {
-			return text.replace( /<[^>]*>?/gm, '' );
+			var tmp = document.createElement( 'div' );
+			tmp.innerHTML = text.replace( /<[^>]*>?/gm, '' );
+			return tmp.textContent;
 		}
 
 		return {
@@ -915,7 +917,7 @@
 				return args.origFile;
 			}
 
-			if ( typeof args.mediumFile === 'undefined' || typeof args.largeFile === 'undefined' ) {
+			if ( typeof args.largeFile === 'undefined' ) {
 				return args.origFile;
 			}
 
@@ -942,14 +944,6 @@
 
 			if ( largeWidth >= args.maxWidth || largeHeight >= args.maxHeight ) {
 				return args.largeFile;
-			}
-
-			var mediumSizeParts = getImageSizeParts( args.mediumFile, args.origWidth, isPhotonUrl );
-			var mediumWidth = parseInt( mediumSizeParts[ 0 ], 10 );
-			var mediumHeight = parseInt( mediumSizeParts[ 1 ], 10 );
-
-			if ( mediumWidth >= args.maxWidth || mediumHeight >= args.maxHeight ) {
-				return args.mediumFile;
 			}
 
 			if ( isPhotonUrl ) {
@@ -1035,9 +1029,9 @@
 		}
 
 		function updateTitleCaptionAndDesc( data ) {
-			var caption = '';
-			var title = '';
-			var desc = '';
+			var caption;
+			var title;
+			var desc;
 			var captionMainElement;
 			var captionInfoExtraElement;
 			var titleElement;
@@ -1084,18 +1078,18 @@
 					domUtil.show( descriptionElement );
 
 					if ( ! title && ! caption ) {
-						captionMainElement.innerHTML = domUtil.stripHTML( desc );
+						captionMainElement.textContent = domUtil.stripHTML( desc );
 						domUtil.show( captionMainElement );
 					}
 				}
 
 				if ( title ) {
 					var plainTitle = domUtil.stripHTML( title );
-					titleElement.innerHTML = plainTitle;
+					titleElement.textContent = plainTitle;
 
 					if ( ! caption ) {
-						captionMainElement.innerHTML = plainTitle;
-						captionInfoExtraElement.innerHTML = plainTitle;
+						captionMainElement.textContent = plainTitle;
+						captionInfoExtraElement.textContent = plainTitle;
 
 						domUtil.show( captionMainElement );
 					}
@@ -1430,7 +1424,6 @@
 					imageMeta: domUtil.getJSONAttribute( item, 'data-image-meta' ) || {},
 					title: item.getAttribute( 'data-image-title' ) || '',
 					desc: item.getAttribute( 'data-image-description' ) || '',
-					mediumFile: item.getAttribute( 'data-medium-file' ) || '',
 					largeFile: item.getAttribute( 'data-large-file' ) || '',
 					origFile: origFile || '',
 					thumbSize: { width: item.naturalWidth, height: item.naturalHeight },
@@ -1461,7 +1454,6 @@
 						origHeight: attrs.origHeight,
 						maxWidth: max.width,
 						maxHeight: max.height,
-						mediumFile: attrs.mediumFile,
 						largeFile: attrs.largeFile,
 					} );
 				}
@@ -1676,9 +1668,17 @@
 			}
 		}
 
+		function normalizeUrl( url ) {
+			return ( url || '' ).split( '?' )[ 0 ].replace( /\/$/, '' );
+		}
+
 		function shouldOpenModal( el ) {
+			if ( el.tagName === 'A' ) {
+				el = el.querySelector( 'img' ) || el;
+			}
+
 			var parent = el.parentElement;
-			var grandparent = parent.parentElement;
+			var grandparent = parent ? parent.parentElement : null;
 
 			// If Gallery is made up of individual Image blocks check for custom link before
 			// loading carousel. The custom link may be the parent or could be a descendant
@@ -1696,16 +1696,18 @@
 
 			// If the link does not point to the attachment or media file then assume Image has
 			// a custom link so don't load the carousel.
-			if (
-				parentHref &&
-				parentHref.split( '?' )[ 0 ] !== el.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
-				parentHref !== el.getAttribute( 'data-permalink' )
-			) {
-				return false;
+			if ( parentHref ) {
+				var cleanHref = normalizeUrl( parentHref );
+				var cleanOrig = normalizeUrl( el.getAttribute( 'data-orig-file' ) );
+				var cleanPerm = normalizeUrl( el.getAttribute( 'data-permalink' ) );
+
+				if ( cleanHref !== cleanOrig && cleanHref !== cleanPerm ) {
+					return false;
+				}
 			}
 
 			// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
-			if ( parent.classList.contains( 'gallery-caption' ) ) {
+			if ( parent && parent.classList.contains( 'gallery-caption' ) ) {
 				return false;
 			}
 

@@ -24,9 +24,9 @@
 	.jp-static-block {
 		display: block;
 		margin-top: 24px;
-		background: colors.$white;
-		box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
-		border-radius: 4px;
+		background: var(--wpds-color-background-surface-neutral-strong, #fff);
+		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
+		border-radius: var(--wpds-border-radius-lg, 8px);
 
 		.jp-static-block-body {
 			padding: 0 24px 20px;
@@ -199,19 +199,4 @@
 
 #jp-plugin-container .wrap .jetpack-wrap-container {
 	margin-top: 1em;
-}
-
-.wp-admin #dolly {
-	float: none;
-	position: relative;
-	right: 0;
-	left: 0;
-	top: 0;
-	padding: 0.625rem;
-	text-align: right;
-	background: #fff;
-	font-size: 0.75rem;
-	font-style: italic;
-	color: #87a6bc;
-	border-bottom: 1px #e9eff3 solid;
 }

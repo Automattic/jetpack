@@ -19,12 +19,17 @@ const TranspileRule = ( options = {} ) => {
 		babelrc: false,
 		cacheDirectory: path.resolve( '.cache/babel' ),
 		cacheCompression: true,
+		// Include WEBPACK_SERVE in cache key to avoid stale cache when switching between dev server and watch mode
+		cacheIdentifier: `babel-cache-${ process.env.NODE_ENV || 'development' }-${
+			process.env.WEBPACK_SERVE || 'false'
+		}`,
 	};
 
 	const configFile = path.resolve( 'babel.config.js' );
 	if ( fs.existsSync( configFile ) ) {
 		babelDefaults.configFile = configFile;
 	} else {
+		babelDefaults.targets = require( '../targets.js' );
 		babelDefaults.presets = [ require.resolve( '../babel-preset.js' ) ];
 	}
 

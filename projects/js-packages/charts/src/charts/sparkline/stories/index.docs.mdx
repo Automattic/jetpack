@@ -24,7 +24,7 @@ For full control over axes, tooltips, and other features, use LineChart directly
 <Source
 	language="jsx"
 	code={ `import { Sparkline } from '@automattic/charts';
-	import '@automattic/charts/sparkline/style.css';
+	import '@automattic/charts/style.css';
 
 	<Sparkline
 		data={ [10, 15, 12, 18, 22, 25, 23, 28] }
@@ -62,14 +62,20 @@ The simplest sparkline requires only a `data` prop with an array of numeric valu
 
 ### Optional Props
 
+**Layout & Dimensions:**
 - **`width`** (default: `100`): Width of the sparkline in pixels
 - **`height`** (default: `40`): Height of the sparkline in pixels
+- **`margin`** (default: `{2,2,2,2}`): Margin around the chart
+- **`aspectRatio`**: Height as a fraction of width. When omitted, fills parent container height
+- **`maxWidth`** (default: `1200`): Maximum width constraint for responsive charts
+- **`resizeDebounceTime`** (default: `300`): Debounce delay for resize events in ms
+
+**Visual Styling:**
 - **`color`**: Color for the line stroke (defaults to theme color)
 - **`strokeWidth`** (default: `1.5`): Line stroke width in pixels
 - **`withGradientFill`** (default: `true`): Whether to render gradient fill beneath the line
 - **`gradient`**: Custom gradient configuration (from, to, fromOpacity, toOpacity)
 - **`className`**: Additional CSS class name
-- **`margin`** (default: `{2,2,2,2}`): Margin around the chart
 
 For detailed prop information and type definitions, see the [Sparkline API Reference](./?path=/docs/js-packages-charts-library-charts-sparkline-api-reference--docs).
 
@@ -104,60 +110,6 @@ For more control, you can use LineChart with minimal chrome. This is what Sparkl
 		width={120}
 		height={48}
 	/>` }
-/>
-
-## Visual Customization
-
-### Trend Colors
-
-Use colors to indicate trend direction - green for positive, red for negative:
-
-<Source
-	language="jsx"
-	code={ `// Positive trend
-	<Sparkline data={[10, 15, 18, 22, 28]} color="#4CAF50" />
-
-	// Negative trend
-	<Sparkline data={[28, 22, 18, 15, 10]} color="#F44336" />` }
-/>
-
-### Gradient Control
-
-Disable the gradient for a cleaner line-only appearance, or customize it:
-
-<Source
-	language="jsx"
-	code={ `// No gradient fill
-	<Sparkline data={data} color="#2196F3" withGradientFill={false} />
-
-	// Custom gradient
-	<Sparkline
-		data={data}
-		color="#00BCD4"
-		gradient={{
-			from: "#00BCD4",
-			to: "#ffffff",
-			fromOpacity: 0.8,
-			toOpacity: 0.1,
-		}}
-	/>` }
-/>
-
-### Responsive Sparkline
-
-The default `Sparkline` export includes responsive behavior. Wrap in a container and use `aspectRatio`:
-
-<Canvas of={ SparklineStories.Responsive } />
-
-<Source
-	language="jsx"
-	code={ `<div style={{ width: '100%', maxWidth: '200px' }}>
-		<Sparkline
-			data={[10, 15, 12, 18, 22, 25]}
-			color="#9C27B0"
-			aspectRatio={0.3}
-		/>
-	</div>` }
 />
 
 ## Dashboard Integration
@@ -196,6 +148,43 @@ Sparklines work great alongside metrics in dashboard cards:
 	);` }
 />
 
+## Styling and Customization
+
+### Trend Colors
+
+Use colors to indicate trend direction - green for positive, red for negative:
+
+<Source
+	language="jsx"
+	code={ `// Positive trend
+	<Sparkline data={[10, 15, 18, 22, 28]} color="#4CAF50" />
+
+	// Negative trend
+	<Sparkline data={[28, 22, 18, 15, 10]} color="#F44336" />` }
+/>
+
+### Gradient Control
+
+Disable the gradient for a cleaner line-only appearance, or customize it:
+
+<Source
+	language="jsx"
+	code={ `// No gradient fill
+	<Sparkline data={data} color="#2196F3" withGradientFill={false} />
+
+	// Custom gradient
+	<Sparkline
+		data={data}
+		color="#00BCD4"
+		gradient={{
+			from: "#00BCD4",
+			to: "#ffffff",
+			fromOpacity: 0.8,
+			toOpacity: 0.1,
+		}}
+	/>` }
+/>
+
 ## Theming Integration
 
 Sparklines integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
@@ -212,6 +201,27 @@ Sparklines integrate seamlessly with the chart theming system. The default theme
 		<Sparkline data={[10, 15, 12, 18]} />
 	</GlobalChartsProvider>` }
 />
+
+## Responsive Behavior
+
+The default `Sparkline` export includes responsive behavior. By default, it **fills its parent container's dimensions**:
+
+<Canvas of={ SparklineStories.Responsive } />
+
+<Source
+	language="jsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '200px', height: '60px' }}>
+		<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" />
+	</div>
+
+	// Use aspect ratio - height calculated from width
+	<div style={{ width: '100%', maxWidth: '200px' }}>
+		<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" aspectRatio={0.3} />
+	</div>` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
 
@@ -296,24 +306,3 @@ Sparklines are decorative visualizations. For accessibility, ensure the parent c
 - Provide `aria-label` describing the trend and current value
 - Add `aria-hidden="true"` to the sparkline itself
 - Always show the actual metric value as text alongside the sparkline
-
-## Browser Compatibility
-
-Sparkline charts are compatible with all modern browsers:
-- Chrome/Edge (latest)
-- Firefox (latest)
-- Safari (latest)
-- Mobile browsers (iOS Safari, Chrome Mobile)
-
-## Performance
-
-Sparklines are optimized for performance with:
-- Built on LineChart's optimized rendering engine
-- Memoized data transformation from `number[]` to series format
-- No axes, grid, or tooltip overhead
-- Efficient gradient and theme integration
-
-**Performance Tips:**
-- Keep data arrays reasonably sized (under 100 points for sparklines)
-- Use the responsive variant only when needed
-- Reuse theme objects to prevent unnecessary recalculations

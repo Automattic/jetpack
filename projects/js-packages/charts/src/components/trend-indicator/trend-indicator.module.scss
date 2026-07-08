@@ -2,20 +2,22 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 0.125em;
-	font-size: 0.875rem;
-	font-weight: 500;
+	font-size: var(--wpds-typography-font-size-md, 13px);
+	font-weight: var(--wpds-typography-font-weight-medium, 499);
 	line-height: 1;
 
+	// Trend colors use the documented --charts-trend-* override API, falling
+	// back to the accessible WPDS semantic tokens.
 	&--up {
-		color: var(--charts-trend-up-color, #1a8917);
+		color: var(--charts-trend-up-color, var(--wpds-color-foreground-content-success-weak, #008030));
 	}
 
 	&--down {
-		color: var(--charts-trend-down-color, #d63638);
+		color: var(--charts-trend-down-color, var(--wpds-color-foreground-content-error-weak, #cc1818));
 	}
 
 	&--neutral {
-		color: var(--charts-trend-neutral-color, #646970);
+		color: var(--charts-trend-neutral-color, var(--wpds-color-foreground-content-neutral-weak, #707070));
 	}
 
 	&__icon {

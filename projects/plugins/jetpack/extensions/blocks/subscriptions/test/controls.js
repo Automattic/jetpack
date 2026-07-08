@@ -47,11 +47,13 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	} ),
 } ) );
 
-// Mock @automattic/jetpack-script-data functions to allow isSimpleSite to be correctly used.
+// Mock @automattic/jetpack-script-data functions used by the controls.
 jest.mock( '@automattic/jetpack-script-data', () => {
 	const isSimpleSite = jest.fn().mockReturnValue( false );
+	const getAdminUrl = jest.fn( path => `https://admin.example.com/${ path }` );
 	return {
 		isSimpleSite,
+		getAdminUrl,
 	};
 } );
 
@@ -436,6 +438,33 @@ describe( 'Inspector controls', () => {
 					selectedNewsletterCategoryIds: [],
 					preselectNewsletterCategories: false,
 				} );
+			} );
+		} );
+
+		describe( 'Subscribe popup heading link', () => {
+			test( 'is not rendered when isButtonOnlyStyle is false', async () => {
+				const user = userEvent.setup();
+				render(
+					<SubscriptionsInspectorControls { ...defaultProps } isButtonOnlyStyle={ false } />
+				);
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				expect(
+					screen.queryByRole( 'link', { name: /Newsletter settings page/i } )
+				).not.toBeInTheDocument();
+			} );
+
+			test( 'is rendered with the wp-admin newsletter URL when isButtonOnlyStyle is true', async () => {
+				const user = userEvent.setup();
+				render( <SubscriptionsInspectorControls { ...defaultProps } isButtonOnlyStyle={ true } /> );
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				const link = screen.getByRole( 'link', { name: /Newsletter settings page/i } );
+				expect( link ).toBeInTheDocument();
+				expect( link ).toHaveAttribute(
+					'href',
+					'https://admin.example.com/admin.php?page=jetpack-newsletter'
+				);
 			} );
 		} );
 	} );

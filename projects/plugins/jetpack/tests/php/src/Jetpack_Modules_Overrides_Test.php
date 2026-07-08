@@ -116,12 +116,6 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 			'photon-cdn' => 'active',
 		);
 
-		// @phan-suppress-next-line PhanUndeclaredFunction -- Checked before being called.
-		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && ! ( function_exists( 'is_global_styles_on_personal_plan' ) && is_global_styles_on_personal_plan() ) ) {
-			// Atomic only registers an override if is_global_styles_on_personal_plan() is missing or returns false.
-			// See `projects/plugins/wpcomsh/feature-plugins/additional-css.php`.
-			$expected = array();
-		}
 		$this->assertSame( $expected, $this->instance->get_overrides() );
 
 		add_filter( $filter_name, array( $this, 'force_inactive_module' ) );

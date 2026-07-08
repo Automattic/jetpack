@@ -6,6 +6,7 @@ import { dispatch, select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import { store as breveStore } from '../store';
 import getContainer from './container';
 import { LONG_SENTENCES } from './long-sentences';
 import features from './index';
@@ -52,7 +53,7 @@ async function handleMouseEnter( e: MouseEvent ) {
 	clearTimeout( highlightTimeout );
 	clearTimeout( anchorTimeout );
 
-	const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
+	const breveSelect = select( breveStore ) as unknown as BreveSelect;
 
 	anchorTimeout = setTimeout( () => {
 		const isPopoverHover = breveSelect.isPopoverHover();

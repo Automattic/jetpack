@@ -4,22 +4,26 @@ import {
 	sharedThemeArgs,
 	ChartStoryArgs,
 	legendArgTypes,
+	extractLegendConfig,
 	medalCountsData,
 	largeValuesData,
 	trafficData,
 	themeArgTypes,
+	type LegendStoryControls,
 } from '../../../stories';
 import BarChart from '../bar-chart';
+import type { ChartLegendConfig, SeriesData } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * Story-specific args that provide convenient Storybook controls.
  * These don't map directly to component props but control how data/state is manipulated in stories.
  */
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > > & {
-	/** Controls how many data series to display: 'single' (1 series), 'multiple' (3 series), or 'many' (all series) */
-	seriesCount?: 'single' | 'multiple' | 'many';
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > > &
+	LegendStoryControls & {
+		/** Controls how many data series to display: 'single' (1 series), 'multiple' (3 series), or 'many' (all series) */
+		seriesCount?: 'single' | 'multiple' | 'many';
+	};
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts Library/Charts/Bar Chart',
@@ -58,6 +62,7 @@ const meta: Meta< StoryArgs > = {
 	},
 	render: args => {
 		const { seriesCount, ...chartProps } = args;
+		const legend = extractLegendConfig< ChartLegendConfig< SeriesData[] > >( args );
 
 		// Determine data based on seriesCount control
 		let data = chartProps.data;
@@ -69,7 +74,7 @@ const meta: Meta< StoryArgs > = {
 			data = medalCountsData;
 		}
 
-		return <BarChart { ...chartProps } data={ data } />;
+		return <BarChart { ...chartProps } legend={ legend } data={ data } />;
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -85,8 +90,22 @@ export const Default: Story = {
 		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ], // limit to 3 series for better readability
 		gridVisibility: 'x',
 		maxWidth: 1200,
-		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
+	},
+};
+
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 600,
+		height: 300,
+	},
+};
+
+export const AspectRatio: Story = {
+	args: {
+		...Default.args,
+		aspectRatio: 0.3,
 	},
 };
 
@@ -144,37 +163,6 @@ export const TimeSeries: Story = {
 	},
 };
 
-// Story without tooltip
-export const ManyDataSeries: Story = {
-	args: {
-		...Default.args,
-		data: medalCountsData,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with many data series.',
-			},
-		},
-	},
-};
-
-export const FixedDimensions: Story = {
-	args: {
-		...Default.args,
-		width: 800,
-		height: 400,
-		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with fixed dimensions that override the responsive behavior.',
-			},
-		},
-	},
-};
-
 export const WithPatterns: Story = {
 	args: {
 		...Default.args,
@@ -195,7 +183,7 @@ export const Animation: Story = {
 	},
 };
 
-export const ErrorStates: StoryObj< typeof BarChart > = {
+export const ErrorStates: Story = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '20px' } }>
 			<div>
@@ -253,79 +241,44 @@ SmartFormatting.parameters = {
 	},
 };
 
-export const WithInteractiveLegend: Story = {
+export const WithLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		legendInteractive: true,
-		chartId: 'bar-chart-with-interactive-legend',
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Bar chart with interactive legend. Click on legend items to toggle series visibility. When all series are hidden, a message will be displayed prompting you to click legend items to show data again.',
+					'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
 			},
 		},
 	},
 };
 
 // Story demonstrating composition API
-export const WithCompositionLegend: StoryObj< typeof BarChart > = {
-	render: args => (
-		<div style={ { width: '800px' } }>
+export const WithCompositionLegend: Story = {
+	render: args => {
+		const legend = extractLegendConfig< ChartLegendConfig< SeriesData[] > >( args );
+		return (
 			<BarChart
-				data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
-				withTooltips={ true }
-				gridVisibility="x"
-				maxWidth={ 1200 }
-				aspectRatio={ 0.5 }
+				{ ...Default.args }
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-bar-chart"
 			>
-				<BarChart.Legend
-					orientation={ args.legendOrientation || 'horizontal' }
-					alignment={ args.legendAlignment || 'center' }
-					position={ args.legendPosition || 'bottom' }
-					maxWidth={ args.legendMaxWidth }
-					textOverflow={ args.legendTextOverflow || 'wrap' }
-				/>
+				<BarChart.Legend { ...legend } />
 			</BarChart>
-		</div>
-	),
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
+		);
 	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Demonstrates using the composition API with `<BarChart.Legend />` as a child component. This provides the same functionality as the `showLegend` prop but allows for more flexible composition patterns.',
-			},
-		},
-	},
-};
-
-// Story showcasing legend customization controls
-export const CustomLegendPositioning: Story = {
 	args: {
-		withTooltips: true,
-		data: medalCountsData.slice( 0, 3 ), // Use first 3 series for cleaner legend
-		gridVisibility: 'x',
-		maxWidth: 1200,
-		aspectRatio: 0.5,
-		resizeDebounceTime: 300,
-		// showLegend defaults to false, explicitly enabling for demonstration
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'start',
-		legendPosition: 'top',
+		...Default.args,
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Bar chart with top-left positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities.',
+					'Composition API using `<BarChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},
@@ -375,7 +328,7 @@ const dataWithZeroValues = [
 		],
 	},
 ];
-export const ZeroValueComparison: StoryObj< typeof BarChart > = {
+export const ZeroValueComparison: Story = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '40px' } }>
 			<div>
@@ -408,13 +361,32 @@ export const ZeroValueComparison: StoryObj< typeof BarChart > = {
 					/>
 				</div>
 			</div>
+
+			<div>
+				<h3>Small Chart Height (100px)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Zero-value bars remain visible even in small charts. The minimum pixel height ensures bars
+					are at least 2 pixels tall regardless of chart dimensions.
+				</p>
+				<div style={ { width: '600px', height: '100px', border: '1px solid #e0e0e0' } }>
+					<BarChart
+						data={ dataWithZeroValues }
+						showZeroValues={ true }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
 		</div>
 	),
+	args: {
+		containerHeight: '1600px', // Extra height to demonstrate zero-value bars in small chart height scenario
+	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights.',
+					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights. Zero-value bars remain visible even in small chart heights.',
 			},
 		},
 	},
@@ -436,7 +408,116 @@ const longLabelData = [
 	},
 ];
 
-export const LabelOverflowEllipsis: StoryObj< typeof BarChart > = {
+// Comparison mode: one primary series + one shadow series sharing the same group.
+// The shadow renders as a translucent bar (150% width, 50% opacity) centered behind
+// the primary bar, making it easy to compare the current period against a previous one.
+export const Comparison: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		data: [
+			{
+				label: 'This period',
+				group: 'views',
+				data: [
+					{ label: 'Mon', value: 420 },
+					{ label: 'Tue', value: 580 },
+					{ label: 'Wed', value: 310 },
+					{ label: 'Thu', value: 750 },
+					{ label: 'Fri', value: 640 },
+				],
+			},
+			{
+				label: 'Previous period',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [
+					{ label: 'Mon', value: 510 },
+					{ label: 'Tue', value: 490 },
+					{ label: 'Wed', value: 430 },
+					{ label: 'Thu', value: 620 },
+					{ label: 'Fri', value: 700 },
+				],
+			},
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'One primary series paired with a `type: "comparison"` series sharing the same `group`. The comparison series renders as a translucent (50% opacity) shadow bar at the standard slot width, behind a primary bar narrowed to 60% — so it reads as a shadow peeking around the current period.',
+			},
+		},
+	},
+};
+
+// Comparison mode with multiple groups side by side.
+// Each group has its own primary series and its own shadow series,
+// demonstrating that comparison mode works correctly across grouped bar layouts.
+export const ComparisonGroups: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		data: [
+			{
+				label: 'Views — this period',
+				group: 'views',
+				data: [
+					{ label: 'Mon', value: 420 },
+					{ label: 'Tue', value: 580 },
+					{ label: 'Wed', value: 310 },
+					{ label: 'Thu', value: 750 },
+					{ label: 'Fri', value: 640 },
+				],
+			},
+			{
+				label: 'Views — previous period',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [
+					{ label: 'Mon', value: 510 },
+					{ label: 'Tue', value: 490 },
+					{ label: 'Wed', value: 430 },
+					{ label: 'Thu', value: 620 },
+					{ label: 'Fri', value: 700 },
+				],
+			},
+			{
+				label: 'Visitors — this period',
+				group: 'visitors',
+				data: [
+					{ label: 'Mon', value: 280 },
+					{ label: 'Tue', value: 390 },
+					{ label: 'Wed', value: 220 },
+					{ label: 'Thu', value: 500 },
+					{ label: 'Fri', value: 430 },
+				],
+			},
+			{
+				label: 'Visitors — previous period',
+				group: 'visitors',
+				options: { type: 'comparison' as const },
+				data: [
+					{ label: 'Mon', value: 340 },
+					{ label: 'Tue', value: 320 },
+					{ label: 'Wed', value: 290 },
+					{ label: 'Thu', value: 410 },
+					{ label: 'Fri', value: 460 },
+				],
+			},
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width shadow bar sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts.',
+			},
+		},
+	},
+};
+
+export const LabelOverflowEllipsis: Story = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '40px' } }>
 			<div>

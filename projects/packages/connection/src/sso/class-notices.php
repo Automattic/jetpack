@@ -213,37 +213,6 @@ class Notices {
 	/**
 	 * Error message that is displayed when the current site is in an identity crisis and SSO cannot be used.
 	 *
-	 * @since jetpack-4.4.0
-	 * @deprecated since 2.10.0
-	 *
-	 * @param string $message Error message.
-	 *
-	 * @return string
-	 */
-	public static function sso_not_allowed_in_staging( $message ) {
-		_deprecated_function( __FUNCTION__, '2.10.0', 'sso_not_allowed_in_safe_mode' );
-		$error = __(
-			'Logging in with WordPress.com is disabled for sites that are in staging mode.',
-			'jetpack-connection'
-		);
-
-		/**
-		 * Filters the disallowed notice for staging sites attempting SSO.
-		 *
-		 * @module sso
-		 *
-		 * @since jetpack-10.5.0
-		 *
-		 * @param string $error Error text.
-		 */
-		$error    = apply_filters_deprecated( 'jetpack_sso_disallowed_staging_notice', array( $error ), '2.9.1', 'jetpack_sso_disallowed_safe_mode_notice' );
-		$message .= sprintf( '<p class="message">%s</p>', esc_html( $error ) );
-		return $message;
-	}
-
-	/**
-	 * Error message that is displayed when the current site is in an identity crisis and SSO cannot be used.
-	 *
 	 * @since 2.10.0
 	 *
 	 * @param string $message Error message.

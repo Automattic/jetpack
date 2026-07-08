@@ -1,9 +1,10 @@
-import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useReducer, useRef } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
+import { Button } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
@@ -26,7 +27,7 @@ export function ServiceItem( {
 	serviceConnections,
 	isPanelDefaultOpen,
 }: ServicesItemProps ) {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, isPanelDefaultOpen );
 	const panelRef = useRef< HTMLDivElement >( null );
@@ -52,6 +53,13 @@ export function ServiceItem( {
 		[ brokenConnections ]
 	);
 
+	// While reconnecting a credential-based service (e.g. Bluesky), show its input form even
+	// though it has a broken connection, so the user can re-enter credentials in place.
+	const isReconnectingThisService = useSelect(
+		select => select( socialStore ).getReconnectingAccount()?.service_name === service.id,
+		[ service.id ]
+	);
+
 	const hideInitialConnectForm =
 		// For services with custom inputs, the initial Connect button opens the panel,
 		// so we don't want to show it if the panel is already open
@@ -74,13 +82,6 @@ export function ServiceItem( {
 				<div className={ styles[ 'service-basics' ] }>
 					<div className={ styles.heading }>
 						<span className={ styles.title }>{ service.label }</span>
-						{ service.badges?.length ? (
-							<div className={ styles.badges }>
-								{ service.badges.map( ( badge, index ) => (
-									<span key={ index }>{ badge }</span>
-								) ) }
-							</div>
-						) : null }
 					</div>
 					{ ! isSmall && ! serviceConnections.length ? (
 						<span className={ styles.description }>{ service.description }</span>
@@ -106,7 +107,7 @@ export function ServiceItem( {
 					<Button
 						size={ 'small' }
 						className={ styles[ 'learn-more' ] }
-						variant="tertiary"
+						variant="minimal"
 						onClick={ togglePanel }
 						aria-label={ __( 'Learn more', 'jetpack-publicize-pkg' ) }
 					>
@@ -119,9 +120,11 @@ export function ServiceItem( {
 				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
 					{
-						// Connect form for services that need custom inputs
-						// should be shown only if there are no broken connections
-						service.needsCustomInputs && ! hasOwnBrokenConnections ? (
+						// Connect form for services that need custom inputs. Normally hidden when a
+						// connection is broken (the "Fix connection" flow handles those), but shown
+						// while reconnecting this service so its credentials can be re-entered.
+						service.needsCustomInputs &&
+						( ! hasOwnBrokenConnections || isReconnectingThisService ) ? (
 							<div className={ styles[ 'connect-form-wrapper' ] }>
 								<ConnectForm
 									service={ service }

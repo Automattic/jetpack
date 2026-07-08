@@ -1,5 +1,5 @@
 /**
- * These restrictions were updated on: November 18, 2022.
+ * These restrictions were updated on: March 13, 2026.
  *
  * Image and video size is in MB.
  * Video length is in seconds.
@@ -94,20 +94,30 @@ export const DEFAULT_RESTRICTIONS = {
 };
 
 export const RESTRICTIONS = {
-	twitter: {
-		allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS ] ),
+	// https://docs.bsky.app/docs/advanced-guides/posts#images-and-media
+	bluesky: {
+		allowedMediaTypes: allowedImageTypes.concat( [
+			MP4,
+			VIDEOPRESS,
+			MOV,
+			'video/webm',
+			'video/mpeg',
+		] ),
 		image: {
-			maxSize: 5,
+			maxSize: 1,
 		},
 		video: {
-			maxSize: 512,
-			maxLength: 140,
+			maxSize: 10000,
+			maxLength: 60,
 		},
+		charLimit: 300,
 	},
+	// https://developers.facebook.com/docs/graph-api/reference/photo/
+	// https://developers.facebook.com/docs/video-api/guides/publishing
 	facebook: {
 		allowedMediaTypes: facebookImageTypes.concat( [ VIDEOPRESS, ...facebookVideoTypes ] ),
 		image: {
-			maxSize: 8,
+			maxSize: 10,
 		},
 		video: {
 			maxSize: 10000,
@@ -115,30 +125,7 @@ export const RESTRICTIONS = {
 		},
 		charLimit: 10000,
 	},
-	tumblr: {
-		allowedMediaTypes: allowedImageTypes.concat( [ MP4, MOV, VIDEOPRESS ] ),
-		image: {
-			maxSize: 20,
-		},
-		video: {
-			maxSize: 500,
-			maxLength: 600,
-		},
-		charLimit: 4096,
-	},
-	linkedin: {
-		allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS ] ),
-		image: {
-			maxSize: 20,
-		},
-		video: {
-			minSize: 0.075,
-			maxSize: 200,
-			maxLength: 600,
-			minLength: 3,
-		},
-		charLimit: 3000,
-	},
+	// https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/content-publishing
 	'instagram-business': {
 		requiresMedia: true,
 		allowedMediaTypes: [ 'image/jpg', 'image/jpeg', MP4, MOV, VIDEOPRESS ],
@@ -163,16 +150,39 @@ export const RESTRICTIONS = {
 		},
 		charLimit: 2200,
 	},
-	mastodon: {
-		allowedMediaTypes: mastodonImageTypes.concat( [ ...mastodonVideoTypes, MP4, VIDEOPRESS ] ),
+	// https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/images-api
+	// https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/videos-api
+	linkedin: {
+		allowedMediaTypes: allowedImageTypes.concat( [ 'image/gif', MP4, VIDEOPRESS ] ),
 		image: {
-			maxSize: 10,
+			maxSize: 20,
 		},
 		video: {
-			maxSize: 40,
+			minSize: 0.075,
+			maxSize: 500,
+			maxLength: 1800,
+			minLength: 3,
+		},
+		charLimit: 3000,
+	},
+	// https://docs.joinmastodon.org/user/posting/#media
+	mastodon: {
+		allowedMediaTypes: mastodonImageTypes.concat( [
+			...mastodonVideoTypes,
+			MP4,
+			'video/m4v',
+			MOV,
+			VIDEOPRESS,
+		] ),
+		image: {
+			maxSize: 16,
+		},
+		video: {
+			maxSize: 99,
 		},
 		charLimit: 500,
 	},
+	// https://developer.nextdoor.com/reference/media-upload
 	nextdoor: {
 		allowedMediaTypes: nextdoorImageTypes.concat( [ ...nextdoorVideoTypes, MP4, VIDEOPRESS ] ),
 		image: {
@@ -183,22 +193,17 @@ export const RESTRICTIONS = {
 		},
 		charLimit: 10000,
 	},
-	bluesky: {
-		allowedMediaTypes: allowedImageTypes.concat( [
-			MP4,
-			VIDEOPRESS,
-			MOV,
-			'video/webm',
-			'video/mpeg',
-		] ),
+	// https://www.tumblr.com/docs/en/api/v2
+	tumblr: {
+		allowedMediaTypes: allowedImageTypes.concat( [ MP4, MOV, VIDEOPRESS ] ),
 		image: {
-			maxSize: 1,
+			maxSize: 20,
 		},
 		video: {
-			maxSize: 10000,
-			maxLength: 60,
+			maxSize: 500,
+			maxLength: 600,
 		},
-		charLimit: 300,
+		charLimit: 4096,
 	},
 };
 

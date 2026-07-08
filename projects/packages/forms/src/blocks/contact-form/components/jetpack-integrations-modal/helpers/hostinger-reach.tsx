@@ -1,11 +1,11 @@
 import {
 	Button,
-	ExternalLink,
 	TextControl,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import HostingerReachIcon from '../../../../../icons/hostinger-reach.tsx';
 import type { CardItem, CardBuilderProps } from './types.ts';
 import type { Integration } from '../../../../../types/index.ts';
@@ -49,7 +49,15 @@ export function buildHostingerReachCard( {
 					'Add powerful email marketing to your forms with <a>Hostinger Reach</a>. Simply install the plugin to start sending emails.',
 					'jetpack-forms'
 				),
-				{ a: <ExternalLink href={ ( integration.marketingUrl as string ) || '' } /> }
+				{
+					a: (
+						<Link
+							openInNewTab
+							href={ ( integration.marketingUrl as string ) || '' }
+							children={ null }
+						/>
+					),
+				}
 			),
 			notActivatedMessage: __(
 				'Hostinger Reach is installed. Just activate the plugin to start sending emails.',
@@ -61,12 +69,12 @@ export function buildHostingerReachCard( {
 		body: ! isConnected ? (
 			<>
 				<p className="integration-card__description">
-					<ExternalLink href={ settingsUrl }>
+					<Link openInNewTab href={ settingsUrl }>
 						{ __(
 							'Hostinger Reach is active. There is one step left. Please complete Hostinger Reach setup.',
 							'jetpack-forms'
 						) }
-					</ExternalLink>
+					</Link>
 				</p>
 				<HStack spacing="3" justify="start">
 					<Button
@@ -107,11 +115,13 @@ export function buildHostingerReachCard( {
 					</div>
 				) }
 				{ context === 'block-editor' && ConsentToggle && <ConsentToggle /> }
-				<p className="integration-card__description">
-					<ExternalLink href={ settingsUrl }>
-						{ __( 'View Hostinger Reach dashboard', 'jetpack-forms' ) }
-					</ExternalLink>
-				</p>
+				{ settingsUrl && (
+					<p className="integration-card__description">
+						<Link openInNewTab href={ settingsUrl }>
+							{ __( 'View Hostinger Reach dashboard', 'jetpack-forms' ) }
+						</Link>
+					</p>
+				) }
 			</>
 		),
 	};

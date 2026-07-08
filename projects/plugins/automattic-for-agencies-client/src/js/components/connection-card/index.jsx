@@ -1,8 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectButton } from '@automattic/jetpack-connection';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useState } from 'react';
 import BrandedCard from '../branded-card';
@@ -67,7 +67,8 @@ function ConnectionContent( { onShowSharingDetailsClick } ) {
 						{
 							strong: <strong />,
 							tosLink: (
-								<ExternalLink
+								<Link
+									openInNewTab
 									className={ styles[ 'terms-of-service__link' ] }
 									href={ getRedirectUrl( 'wpcom-tos' ) }
 								/>

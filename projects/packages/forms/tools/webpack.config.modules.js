@@ -3,17 +3,15 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 import autoprefixer from 'autoprefixer';
 import { glob } from 'glob';
 
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
+const __dirname = import.meta.dirname;
 
 const moduleSrcDir = path.join( __dirname, '../src/modules' );
 
-let moduleWebpackConfig = {};
+let moduleWebpackConfig;
 
 // Check if modules directory exists
 if ( ! fs.existsSync( moduleSrcDir ) ) {
@@ -99,10 +97,18 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 						],
 					} ),
 
-					// Handle assets
+					// Allow importing .svg files as raw HTML strings via `?raw` query.
+					{
+						test: /\.svg$/i,
+						resourceQuery: /raw/,
+						type: 'asset/source',
+					},
+
+					// Handle assets (exclude ?raw SVG imports).
 					{
 						test: /\.(eot|ttf|woff|png|svg)$/i,
 						type: 'asset/resource',
+						resourceQuery: { not: [ /raw/ ] },
 						generator: {
 							emit: false,
 							filename: '[file]',

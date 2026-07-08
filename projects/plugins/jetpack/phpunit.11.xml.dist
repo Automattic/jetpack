@@ -78,6 +78,9 @@
 		<testsuite name="sitemaps">
 			<directory suffix="Test.php">tests/php/modules/sitemaps</directory>
 		</testsuite>
+		<testsuite name="stats">
+			<directory suffix="Test.php">tests/php/modules/stats</directory>
+		</testsuite>
 		<testsuite name="subscriptions">
 			<directory suffix="Test.php">tests/php/modules/subscriptions</directory>
 		</testsuite>
@@ -114,6 +117,9 @@
 		<testsuite name="carousel">
 			<directory suffix="Test.php">tests/php/modules/carousel</directory>
 		</testsuite>
+		<testsuite name="copy-post">
+			<directory suffix="Test.php">tests/php/modules/copy-post</directory>
+		</testsuite>
 		<testsuite name="deprecation">
 			<file>tests/php/Jetpack_Deprecation_Test.php</file>
 		</testsuite>
@@ -123,6 +129,9 @@
 		<testsuite name="seo-tools">
 			<directory suffix="Test.php">tests/php/modules/seo-tools</directory>
 		</testsuite>
+		<testsuite name="canonical-urls">
+			<directory suffix="Test.php">tests/php/modules/canonical-urls</directory>
+		</testsuite>
 		<testsuite name="compatfunctions">
 			<file>tests/php/Jetpack_Compat_Functions_Test.php</file>
 		</testsuite>
@@ -131,6 +140,14 @@
 		</testsuite>
 		<testsuite name="autoloaded">
 			<directory suffix="Test.php">tests/php/src</directory>
+		</testsuite>
+		<testsuite name="seo-module-migration">
+			<file>tests/php/SEO_Sitemap_Migration_Test.php</file>
+			<file>tests/php/SEO_Canonical_URLs_Migration_Test.php</file>
+		</testsuite>
+		<testsuite name="seo-discoverability">
+			<file>tests/php/SEO_Visibility_Cohort_Test.php</file>
+			<file>tests/php/SEO_Optin_Test.php</file>
 		</testsuite>
 	</testsuites>
 

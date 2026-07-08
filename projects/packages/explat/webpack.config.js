@@ -3,9 +3,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 
 module.exports = [
 	{
-		entry: {
-			index: './src/client/index.ts',
-		},
+		entry: './src/client/index.ts',
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
 		output: {
@@ -19,7 +17,12 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				// Generate `.d.ts` files per tsconfig settings.
+				ForkTSCheckerPlugin: {},
+			} ),
+		],
 		module: {
 			strictExportPresence: true,
 			rules: [

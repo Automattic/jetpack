@@ -1,0 +1,67 @@
+// CSV upload drop area for the Add Subscribers modal. Replaces the bare file
+// input with a clickable box (click to open the picker) and lets core's
+// `<DropZone>` own the drag-and-drop — the same primitive the modernized
+// VideoPress Library uses. The wrapper is the DropZone's positioning context.
+.jetpack-newsletter__csv-dropzone-wrap {
+	position: relative;
+
+	// Round the core DropZone overlay to match the box it covers. The
+	// `.components-drop-zone` class is a stable @wordpress/components class
+	// (not a hashed one), so it is safe to target.
+	.components-drop-zone {
+		border-radius: var(--wpds-border-radius-md);
+	}
+}
+
+.jetpack-newsletter__csv-dropzone {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wpds-dimension-gap-sm);
+	width: 100%;
+	min-height: 140px;
+	padding: var(--wpds-dimension-padding-2xl);
+	border: var(--wpds-border-width-xs, 1px) dashed var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+	background: transparent;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+	cursor: pointer;
+	transition:
+		border-color 0.1s ease-in-out,
+		background-color 0.1s ease-in-out,
+		color 0.1s ease-in-out;
+
+	&:hover:not(:disabled) {
+		border-color: var(--wpds-color-stroke-interactive-neutral-strong);
+		background: var(--wpds-color-background-surface-neutral-weak);
+	}
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus);
+		outline-offset: 2px;
+	}
+
+	// Once a file is chosen the box keeps its shape but switches to a settled,
+	// solid border.
+	&.has-file {
+		border-style: solid;
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+
+	&:disabled {
+		cursor: default;
+		opacity: 0.6;
+	}
+}
+
+.jetpack-newsletter__csv-dropzone-icon {
+	fill: currentColor;
+}
+
+// The real <input type="file"> lives next to the box and is driven via a ref;
+// keep it out of the layout entirely so it adds no gap inside the Stack.
+.jetpack-newsletter__csv-dropzone-input {
+	display: none;
+}

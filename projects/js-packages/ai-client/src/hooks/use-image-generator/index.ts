@@ -157,7 +157,7 @@ const useImageGenerator = () => {
 	const executeImageGeneration = async function (
 		parameters: object
 	): Promise< ImageGenerationResponse > {
-		let token = '';
+		let token;
 
 		try {
 			token = ( await requestJwt() ).token;

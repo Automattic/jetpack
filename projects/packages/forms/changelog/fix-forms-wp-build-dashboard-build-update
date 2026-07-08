@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix wp-build dashboard rendering after wp-build dependency update and prefix functions to avoid conflicts with Gutenberg.

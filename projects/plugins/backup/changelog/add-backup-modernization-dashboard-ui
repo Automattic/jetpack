@@ -1,0 +1,3 @@
+Significance: patch
+Type: added
+Comment: Backup: flesh out the modernized dashboard behind `rsm_jetpack_ui_modernization_backup` — overview list, two-pane backup detail with file browser + preview, and narrow Restore + Download forms. UI only with mocked data; no-op when the modernization filter is off.

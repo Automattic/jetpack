@@ -1,0 +1,57 @@
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
+
+
+.jp-forms__image-select-preview-wrapper {
+	padding-block-start: variables.$grid-unit-10;
+}
+
+.jp-forms__image-select-preview {
+	--jp-forms--image-select-border-color: rgba(0, 0, 0, 0.1);
+
+	// Without display: block, image/svg will display a blank space.
+	img,
+	svg {
+		display: block;
+	}
+
+	&.has-image {
+		cursor: pointer;
+
+		&:hover {
+			background-color: var(--jp-forms--image-select-border-color);
+		}
+	}
+
+	.jp-forms__image-select-preview-image-wrapper {
+		padding: 8px;
+
+		.jp-forms__image-select-preview-image {
+			object-fit: cover;
+			min-height: 144px;
+		}
+	}
+
+	.jp-forms__image-select-preview-label-wrapper {
+		max-width: 138px; // Same as the image width
+		align-items: baseline;
+
+		.jp-forms__image-select-preview-selected {
+			flex-shrink: 0;
+			box-shadow: 0 0 0 1px var(--jp-forms--image-select-border-color);
+			border-radius: 2px;
+			padding: 4px;
+			min-width: 1em;
+			text-align: center;
+			background-color: colors.$white;
+			color: colors.$black;
+		}
+
+		.jp-forms__image-select-preview-label {
+			flex-grow: 1;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
+}

@@ -1,0 +1,13 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		// Resolve cross-package imports between internal `packages/*` modules
+		// (`@jetpack-premium-analytics/<dir>`) to their TypeScript source for
+		// type-checking + IDE. At build time, wp-build maps the same specifier to
+		// the script module it bundles from `packages/<dir>`, keeping the two in sync.
+		"paths": {
+			"@jetpack-premium-analytics/*": [ "./packages/*/src" ]
+		}
+	},
+	"include": [ "routes/**/*", "packages/**/*", "types/**/*", "widgets/**/*" ]
+}

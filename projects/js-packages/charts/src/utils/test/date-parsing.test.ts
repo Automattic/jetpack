@@ -268,6 +268,18 @@ describe( 'parseAsLocalDate', () => {
 		} );
 	} );
 
+	describe( 'ReDoS resilience', () => {
+		test( 'should handle adversarial input without catastrophic backtracking', () => {
+			const malicious = 'T' + 'a'.repeat( 8000000 ) + 'X';
+			const start = performance.now();
+			const result = parseAsLocalDate( malicious );
+			const elapsed = performance.now() - start;
+
+			expect( isNaN( result.getTime() ) ).toBe( true );
+			expect( elapsed ).toBeLessThan( 50 );
+		} );
+	} );
+
 	describe( 'Performance and consistency', () => {
 		test( 'should consistently parse the same input', () => {
 			const dateString = '2025-01-15T14:30:45Z';

@@ -3,6 +3,7 @@ import { useContext, useRef, useState } from 'preact/hooks';
 import { translate } from '../i18n';
 import { VerbumSignals } from '../state';
 import { hasSubscriptionOptionsVisible } from '../utils';
+import type { GravatarQuickEditorCore } from '@gravatar-com/quick-editor';
 
 interface SettingsButtonProps {
 	expanded: boolean;
@@ -19,8 +20,8 @@ export const SettingsButton = ( { expanded, toggleSubscriptionTray }: SettingsBu
 
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ cacheBuster, setCacheBuster ] = useState( new Date().getTime() );
-	const timerRef = useRef( null );
-	const quickEditorRef = useRef( null );
+	const timerRef = useRef< ReturnType< typeof setTimeout > | null >( null );
+	const quickEditorRef = useRef< GravatarQuickEditorCore | null >( null );
 
 	const handleOnClick = ( event: MouseEvent ) => {
 		if ( subscriptionOptionsVisible ) {
@@ -28,7 +29,7 @@ export const SettingsButton = ( { expanded, toggleSubscriptionTray }: SettingsBu
 		}
 	};
 
-	const openEditor = async ev => {
+	const openEditor = async ( ev: MouseEvent ) => {
 		ev.preventDefault();
 
 		if ( ! quickEditorRef.current ) {
@@ -37,14 +38,14 @@ export const SettingsButton = ( { expanded, toggleSubscriptionTray }: SettingsBu
 			);
 
 			quickEditorRef.current = getQuickEditor(
-				userInfo.value?.email,
+				userInfo.value?.email ?? '',
 				setIsLoading,
 				setCacheBuster,
 				timerRef.current
 			);
 		}
 
-		quickEditorRef.current.open();
+		quickEditorRef.current?.open();
 	};
 
 	return (
@@ -57,7 +58,7 @@ export const SettingsButton = ( { expanded, toggleSubscriptionTray }: SettingsBu
 					className={ clsx( 'verbum-form__profile', isLoading && 'loading' ) }
 				>
 					<img
-						src={ getAvatarUrl( userInfo.value?.avatar, cacheBuster ) }
+						src={ getAvatarUrl( userInfo.value?.avatar ?? '', cacheBuster ) }
 						alt={ userInfo.value?.name }
 						className={ userInfo.value?.avatar_classes }
 						loading="lazy"

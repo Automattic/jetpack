@@ -1,9 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
-import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
@@ -110,25 +110,23 @@ class DashStatsBottom extends Component {
 						}
 						{ this.props.isLinked &&
 							! this.props.isOdysseyStatsEnabled && // Only show if Odyssey Stats is disabled
-							createInterpolateElement(
-								__( '<ExternalLink>View on WordPress.com</ExternalLink>', 'jetpack' ),
-								{
-									ExternalLink: (
-										<ExternalLink
-											onClick={ this.trackViewWpcomStats }
-											href={ getRedirectUrl( 'calypso-stats-insights', {
-												site: this.props.siteRawUrl,
-											} ) }
-											rel="noopener noreferrer"
-											target="_blank"
-											className={ clsx(
-												'jp-at-a-glance__stats-ctas-wpcom-stats',
-												this.props.className
-											) }
-										/>
-									),
-								}
-							) }
+							createInterpolateElement( __( '<Link>View on WordPress.com</Link>', 'jetpack' ), {
+								Link: (
+									<Link
+										openInNewTab
+										onClick={ this.trackViewWpcomStats }
+										href={ getRedirectUrl( 'calypso-stats-insights', {
+											site: this.props.siteRawUrl,
+										} ) }
+										rel="noopener noreferrer"
+										target="_blank"
+										className={ clsx(
+											'jp-at-a-glance__stats-ctas-wpcom-stats',
+											this.props.className
+										) }
+									/>
+								),
+							} ) }
 					</div>
 				</div>
 			</div>

@@ -74,17 +74,17 @@ export default function ThreatModal( {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
 
+	// Cast title to string
+	// TODO: This should not be done. If needed, we should render the modal with hideHeader={true} and then use our own header inside.
+	const modalTitle = (
+		<div className={ styles.title }>
+			<Text variant="title-small">{ threat.title }</Text>
+			{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+		</div>
+	 ) as unknown as string;
+
 	return (
-		<Modal
-			title={
-				<div className={ styles.title }>
-					<Text variant="title-small">{ threat.title }</Text>
-					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-				</div>
-			}
-			size="large"
-			{ ...modalProps }
-		>
+		<Modal title={ modalTitle } size="large" { ...modalProps }>
 			<div className={ styles[ 'threat-details' ] }>
 				<ThreatModalContext.Provider
 					value={ {

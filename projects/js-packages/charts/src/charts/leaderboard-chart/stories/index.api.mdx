@@ -22,29 +22,31 @@ Main chart component for displaying ranked data with optional comparison values.
 | `loading` | `boolean` | `false` | Whether the chart is in loading state |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Bars stretch from left to right. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showLegend` | `boolean` | `false` | Whether to display the legend |
-| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Position of the legend |
-| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Alignment within position |
-| `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Layout direction of legend items |
-| `legendShape` | `LegendShape` | `'circle'` | Shape of legend markers |
-| `legendShapeWidth` | `number` | `8` | Width of legend shapes in pixels |
-| `legendShapeHeight` | `number` | `8` | Height of legend shapes in pixels |
+| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type). Supports `shapeStyles` for controlling legend shape dimensions. When `interactive` is enabled, legend items are clickable to toggle series visibility. **Note:** For props-based legends, use `showLegend={true}`. For composition API, render an interactive legend child (for example, `<LeaderboardChart.Legend interactive />`) so it can use chart context. |
 | `legendLabels` | `{ primary?: string; comparison?: string }` | `undefined` | Custom labels for legend items |
-| `legendInteractive` | `boolean` | `false` | Whether legend items are interactive (clickable to toggle series visibility). **Note:** Only works with props-based legends (`showLegend={true}`), not with composition API (`<LeaderboardChart.Legend />`) |
+| `width` | `number` | `undefined` | Optional fixed width of the chart container in pixels |
+| `height` | `number` | `undefined` | Optional fixed height of the chart container in pixels |
+| `gap` | `GapSize` | `'md'` | Spacing between legend and chart content, using the WordPress `GapSize` scale |
 | `className` | `string` | `undefined` | Additional CSS class name for the chart container |
 | `style` | `React.CSSProperties & CustomProperties` | `undefined` | Custom styling for the chart container |
+| `children` | `ReactNode` | `undefined` | Child components for composition API (for example, `LeaderboardChart.Legend`) |
 
 ## LeaderboardEntry Type
 
 ```typescript
+import type { ReactElement } from 'react';
+
 interface LeaderboardEntry {
 	id: string;                  // Unique identifier
-	label: string | JSX.Element; // Display name or React component
+	label: string | ReactElement; // Display name or React component
 	currentValue: number;        // Current period value
 	previousValue: number;       // Previous period value
 	currentShare: number;        // Current bar width (0-100)
 	previousShare: number;       // Previous bar width (0-100)
 	delta: number;               // Percentage change
 	imageColor?: string;         // Optional color for the entry's image/icon
+	onClick?: ( event: MouseEvent ) => void; // Optional. Makes the whole row an interactive button (click + keyboard); the consumer supplies the action.
+	ariaLabel?: string;          // Optional. Accessible name for the row button when onClick is set; use for image-only JSX labels.
 }
 ```
 
@@ -56,3 +58,18 @@ type CustomProperties = {
 };
 ```
 
+## ChartLegendConfig Type
+
+```typescript
+type ChartLegendConfig = {
+	orientation?: 'horizontal' | 'vertical';
+	position?: 'top' | 'bottom';
+	alignment?: 'start' | 'center' | 'end';
+	shape?: LegendShape;
+	interactive?: boolean;
+	itemClassName?: string;
+	itemStyles?: LegendItemStyles;
+	labelStyles?: LegendLabelStyles;
+	shapeStyles?: LegendShapeStyles;
+};
+```

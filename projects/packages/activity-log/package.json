@@ -1,0 +1,64 @@
+{
+	"private": true,
+	"description": "Activity Log UI for the Jetpack plugin in wp-admin.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/activity-log/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Activity Log"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/activity-log"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "webpack",
+		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"clean": "rm -rf build/",
+		"typecheck": "tsgo --noEmit",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build && webpack watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/ui": "1.0.2",
+		"@tanstack/react-query": "^5.90.8",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/compose": "8.3.0",
+		"@wordpress/data": "10.50.0",
+		"@wordpress/dataviews": "17.1.0",
+		"@wordpress/date": "5.50.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/i18n": "6.23.0",
+		"@wordpress/icons": "15.1.0",
+		"@wordpress/ui": "0.17.0",
+		"@wordpress/url": "4.50.0",
+		"date-fns": "4.1.0",
+		"fast-deep-equal": "3.1.3",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	},
+	"devDependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.29.7",
+		"@babel/runtime": "7.29.7",
+		"@types/react": "18.3.28",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@wordpress/browserslist-config": "6.50.0",
+		"concurrently": "10.0.3",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "16.0.5",
+		"webpack": "5.107.2",
+		"webpack-cli": "6.0.1"
+	}
+}

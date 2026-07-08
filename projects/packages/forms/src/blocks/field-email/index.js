@@ -6,8 +6,13 @@ import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-email';
-const settings = {
+export const name = 'field-email';
+
+export const form_editor = {
+	category: 'contact-info',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Email field', 'jetpack-forms' ),
 	keywords: [ __( 'e-mail', 'jetpack-forms' ), __( 'mail', 'jetpack-forms' ), 'email' ],
@@ -39,4 +44,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

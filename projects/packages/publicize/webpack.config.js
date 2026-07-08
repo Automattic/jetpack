@@ -1,5 +1,6 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 
 const socialWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
@@ -15,7 +16,23 @@ const socialWebpackConfig = {
 		...jetpackWebpackConfig.resolve,
 	},
 	node: false,
-	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+	plugins: [
+		...jetpackWebpackConfig.StandardPlugins(),
+		// Service-walkthrough illustrations referenced by
+		// `_inc/components/services/utils.tsx` via runtime URLs (so the
+		// chassis esbuild pipeline, which doesn't configure a binary
+		// loader, can consume them too). Copy them verbatim into the
+		// shared `build/assets/` directory; both bundlers resolve via
+		// `JetpackScriptData.social.assets_url + 'assets/<file>'`.
+		new CopyWebpackPlugin( {
+			patterns: [
+				{
+					from: path.resolve( __dirname, '_inc/assets' ),
+					to: 'assets',
+				},
+			],
+		} ),
+	],
 	module: {
 		strictExportPresence: true,
 		rules: [
@@ -24,10 +41,14 @@ const socialWebpackConfig = {
 				exclude: /node_modules\//,
 			} ),
 
-			// Transpile @automattic/* in node_modules too.
+			// Transpile @automattic/jetpack-* in node_modules too.
 			jetpackWebpackConfig.TranspileRule( {
-				includeNodeModules: [ '@automattic/' ],
+				includeNodeModules: [ '@automattic/jetpack-' ],
 			} ),
+
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
@@ -68,5 +89,8 @@ module.exports = [
 			'block-editor-jetpack': './_inc/entry-points/block-editor-jetpack.tsx',
 			'block-editor-social': './_inc/entry-points/block-editor-social.tsx',
 		},
+		devServer: jetpackWebpackConfig.DevServer( {
+			static: { directory: path.resolve( './build' ) },
+		} ),
 	},
 ];

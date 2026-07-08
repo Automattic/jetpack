@@ -2,24 +2,37 @@
  * External dependencies
  */
 import { JetpackLogo } from '@automattic/jetpack-components';
+import apiFetch from '@wordpress/api-fetch';
+import {
+	Button,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
+import { Badge, EmptyState, Stack, Tooltip } from '@wordpress/ui';
 import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
+import { icon as formBlockIcon } from '../../blocks/contact-form/icon.jsx';
+import { getEmbedCode, getShortcode } from '../../blocks/shared/util/embed-codes';
 import useConfigValue from '../../hooks/use-config-value.ts';
 import CreateFormButton from '../components/create-form-button/index.tsx';
-import { EmptyWrapper } from '../components/empty-responses/index.tsx';
-import FormsResponsesTabs from '../components/forms-responses-tabs/index.tsx';
+import DataViewsHeaderRow from '../components/dataviews-header-row/index.tsx';
 import Page from '../components/page/index.tsx';
+import { NON_TRASH_FORM_STATUSES } from '../constants.ts';
 import useDeleteForm from '../hooks/use-delete-form.ts';
 import useFormsData from '../hooks/use-forms-data.ts';
+import { getFormEditUrl } from '../utils.ts';
+import FormsHelpModal from '../wp-build/components/forms-help-modal/index.tsx';
 import { defaultLayouts, useView } from './views.ts';
-import './style.scss';
 import type { FormListItem } from '../hooks/use-forms-data.ts';
+import type { Action, Operator } from '@wordpress/dataviews/wp';
 
 /**
  * Forms dashboard "Forms" route.
@@ -28,27 +41,108 @@ import type { FormListItem } from '../hooks/use-forms-data.ts';
  */
 export default function FormsDashboardForms(): JSX.Element | null {
 	const navigate = useNavigate();
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 	const isCentralFormManagementDisabled = isCentralFormManagementEnabled === false;
+	const hasClassicForms = useConfigValue( 'hasClassicForms' );
+
+	const [ isFormsHelpModalOpen, setIsFormsHelpModalOpen ] = useState( false );
+	const openFormsHelpModal = useCallback( () => setIsFormsHelpModalOpen( true ), [] );
+	const closeFormsHelpModal = useCallback( () => setIsFormsHelpModalOpen( false ), [] );
 
 	const dateSettings = getDateSettings();
 	const [ view, setView ] = useView();
+
+	const statusQuery = useMemo( () => {
+		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
+
+		// Default: show all non-trash forms (matches WP core list behavior).
+		if ( ! statusFilterValue ) {
+			return NON_TRASH_FORM_STATUSES;
+		}
+
+		if ( statusFilterValue === 'all' ) {
+			return NON_TRASH_FORM_STATUSES;
+		}
+
+		return statusFilterValue;
+	}, [ view.filters ] );
+
+	const isViewingTrash = useMemo( () => {
+		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
+		return statusFilterValue === 'trash';
+	}, [ view.filters ] );
+
+	const hasResponsesQuery = useMemo( () => {
+		const entriesFilterValue = view.filters?.find( filter => filter.field === 'entries' )?.value;
+		if ( entriesFilterValue === 'has_responses' ) {
+			return 'true';
+		}
+		if ( entriesFilterValue === 'no_responses' ) {
+			return 'false';
+		}
+		return undefined;
+	}, [ view.filters ] );
+
 	const { records, isLoading, totalItems, totalPages } = useFormsData(
 		view.page,
 		view.perPage,
-		view.search
+		view.search,
+		statusQuery,
+		hasResponsesQuery
 	);
-	const { isDeleting, trashForm } = useDeleteForm( {
+	const {
+		isDeleting,
+		trashForms,
+		restoreForms,
+		isPermanentDeleteConfirmOpen,
+		openPermanentDeleteConfirm,
+		closePermanentDeleteConfirm,
+		confirmPermanentDelete,
+	} = useDeleteForm( {
 		view,
 		setView,
 		recordsLength: records?.length ?? 0,
+		statusQuery,
 	} );
+
+	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
+
+	const [ selection, setSelection ] = useState< string[] >( [] );
+	const [ pendingPermanentDeleteCount, setPendingPermanentDeleteCount ] = useState( 0 );
 
 	useEffect( () => {
 		if ( isCentralFormManagementDisabled ) {
 			navigate( '/responses', { replace: true } );
 		}
 	}, [ isCentralFormManagementDisabled, navigate ] );
+
+	// Selection is local (non-URL) state. Clear selection whenever the view changes (page/perPage/search/filters).
+	useEffect( () => {
+		setSelection( [] );
+	}, [ view.page, view.perPage, view.search, view.filters ] );
+
+	const onOpenPermanentDeleteConfirm = useCallback(
+		( items: FormListItem[] ) => {
+			setPendingPermanentDeleteCount( items?.length ?? 0 );
+			openPermanentDeleteConfirm( items );
+		},
+		[ openPermanentDeleteConfirm ]
+	);
+
+	const onClosePermanentDeleteConfirm = useCallback( () => {
+		setPendingPermanentDeleteCount( 0 );
+		closePermanentDeleteConfirm();
+	}, [ closePermanentDeleteConfirm ] );
+
+	const onConfirmPermanentDelete = useCallback( async () => {
+		setPendingPermanentDeleteCount( 0 );
+		try {
+			await confirmPermanentDelete();
+		} finally {
+			setSelection( [] );
+		}
+	}, [ confirmPermanentDelete ] );
 
 	const statusLabel = useCallback( ( status: string ) => {
 		switch ( status ) {
@@ -73,16 +167,45 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				id: 'title',
 				label: __( 'Form name', 'jetpack-forms' ),
 				getValue: ( { item }: { item: FormListItem } ) => item.title,
-				render: ( { item }: { item: FormListItem } ) =>
-					item.title || __( '(no title)', 'jetpack-forms' ),
+				render: ( { item }: { item: FormListItem } ) => {
+					const title = item.title || __( '(no title)', 'jetpack-forms' );
+					if ( item.isCollectingResponses ) {
+						return title;
+					}
+					return (
+						<Stack direction="row" gap="sm" align="center" justify="flex-start">
+							<span>{ title }</span>
+							<Tooltip.Root>
+								<Tooltip.Trigger
+									className="jetpack-forms__not-collecting-badge"
+									aria-label={ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
+								>
+									<Badge intent="high">{ __( 'Not collecting', 'jetpack-forms' ) }</Badge>
+								</Tooltip.Trigger>
+								<Tooltip.Popup>
+									{ __(
+										'Turn on email notifications or response storage in form settings.',
+										'jetpack-forms'
+									) }
+								</Tooltip.Popup>
+							</Tooltip.Root>
+						</Stack>
+					);
+				},
 				enableSorting: false,
 				enableHiding: false,
 			},
 			{
 				id: 'entries',
 				label: __( 'Entries', 'jetpack-forms' ),
-				getValue: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
+				getValue: ( { item }: { item: FormListItem } ) =>
+					( item.entriesCount ?? 0 ) > 0 ? 'has_responses' : 'no_responses',
 				render: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
+				elements: [
+					{ label: __( 'Has responses', 'jetpack-forms' ), value: 'has_responses' },
+					{ label: __( 'No responses', 'jetpack-forms' ), value: 'no_responses' },
+				],
+				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
 			{
@@ -90,6 +213,18 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				label: __( 'Status', 'jetpack-forms' ),
 				getValue: ( { item }: { item: FormListItem } ) => item.status,
 				render: ( { item }: { item: FormListItem } ) => statusLabel( item.status ),
+				elements: [
+					{ label: __( 'All', 'jetpack-forms' ), value: 'all' },
+					{ label: __( 'Published', 'jetpack-forms' ), value: 'publish' },
+					{ label: __( 'Draft', 'jetpack-forms' ), value: 'draft' },
+					{ label: __( 'Pending review', 'jetpack-forms' ), value: 'pending' },
+					{ label: __( 'Scheduled', 'jetpack-forms' ), value: 'future' },
+					{ label: __( 'Private', 'jetpack-forms' ), value: 'private' },
+					{ label: __( 'Trash', 'jetpack-forms' ), value: 'trash' },
+				],
+				// Mark as primary so the filter UI (and its pill) is visible by default on load.
+				// DataViews expects `operators` to be typed as a known operator union; keep this narrowly typed.
+				filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
 				enableSorting: false,
 			},
 			{
@@ -104,8 +239,21 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		[ dateSettings.formats.datetime, statusLabel ]
 	);
 
-	const actions = useMemo(
-		() => [
+	const actions = useMemo( () => {
+		const actionsList: Action< FormListItem >[] = [
+			{
+				id: 'view-responses',
+				isPrimary: false,
+				label: __( 'View responses', 'jetpack-forms' ),
+				supportsBulk: false,
+				callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+					navigate( `/forms/${ item.id }/responses` );
+				},
+			},
 			{
 				id: 'edit-form',
 				isPrimary: false,
@@ -116,31 +264,152 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					if ( ! item ) {
 						return;
 					}
-					const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
-					const editUrl = item.editUrl || fallbackEditUrl;
-					const url = new URL( editUrl, window.location.origin );
-					window.location.href = url.toString();
+					const editUrl = item.editUrl || getFormEditUrl( item.id, adminUrl );
+					window.location.href = editUrl;
 				},
 			},
 			{
-				id: 'delete-form',
+				id: 'preview-form',
 				isPrimary: false,
-				label: __( 'Trash', 'jetpack-forms' ),
+				label: __( 'Preview', 'jetpack-forms' ),
 				supportsBulk: false,
-				callback( items: FormListItem[] ) {
-					if ( isDeleting ) {
-						return;
-					}
+				async callback( items: FormListItem[] ) {
 					const [ item ] = items;
 					if ( ! item ) {
 						return;
 					}
-					trashForm( item );
+
+					try {
+						const response = await apiFetch< { preview_url: string } >( {
+							path: `/wp/v2/jetpack-forms/${ item.id }/preview-url`,
+						} );
+						window.open( response.preview_url, '_blank' );
+					} catch ( error ) {
+						createErrorNotice(
+							__( 'Failed to generate preview URL. Please try again.', 'jetpack-forms' ),
+							{ type: 'snackbar' }
+						);
+						// eslint-disable-next-line no-console
+						console.error( 'Failed to get preview URL:', error );
+					}
 				},
 			},
-		],
-		[ isDeleting, trashForm ]
-	);
+			{
+				id: 'copy-embed',
+				isPrimary: false,
+				label: __( 'Copy embed', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+
+					const embedCode = getEmbedCode( item.id );
+					try {
+						await navigator.clipboard.writeText( embedCode );
+						createSuccessNotice( __( 'Embed code copied to clipboard.', 'jetpack-forms' ), {
+							type: 'snackbar',
+						} );
+					} catch {
+						createErrorNotice(
+							__( 'Failed to copy embed code. Please try again.', 'jetpack-forms' ),
+							{ type: 'snackbar' }
+						);
+					}
+				},
+			},
+			{
+				id: 'copy-shortcode',
+				isPrimary: false,
+				label: __( 'Copy shortcode', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+
+					const embedCode = getShortcode( item.id );
+					try {
+						await navigator.clipboard.writeText( embedCode );
+						createSuccessNotice( __( 'Shortcode copied to clipboard.', 'jetpack-forms' ), {
+							type: 'snackbar',
+						} );
+					} catch {
+						createErrorNotice(
+							__( 'Failed to copy shortcode. Please try again.', 'jetpack-forms' ),
+							{ type: 'snackbar' }
+						);
+					}
+				},
+			},
+		];
+
+		if ( isViewingTrash ) {
+			actionsList.push( {
+				id: 'restore-form',
+				isPrimary: false,
+				label: __( 'Restore', 'jetpack-forms' ),
+				supportsBulk: true,
+				async callback( items: FormListItem[] ) {
+					if ( isDeleting ) {
+						return;
+					}
+					try {
+						await restoreForms( items );
+					} finally {
+						setSelection( [] );
+					}
+				},
+			} );
+			actionsList.push( {
+				id: 'delete-form-permanently',
+				isPrimary: false,
+				label: __( 'Delete permanently', 'jetpack-forms' ),
+				supportsBulk: true,
+				async callback( items: FormListItem[] ) {
+					if ( isDeleting ) {
+						return;
+					}
+					if ( ! items?.length ) {
+						return;
+					}
+					onOpenPermanentDeleteConfirm( items );
+				},
+			} );
+			return actionsList;
+		}
+
+		actionsList.push( {
+			id: 'trash-form',
+			isPrimary: false,
+			label: __( 'Trash', 'jetpack-forms' ),
+			supportsBulk: true,
+			async callback( items: FormListItem[] ) {
+				if ( isDeleting ) {
+					return;
+				}
+				try {
+					await trashForms( items );
+				} finally {
+					setSelection( [] );
+				}
+			},
+		} );
+
+		return actionsList;
+	}, [
+		adminUrl,
+		createErrorNotice,
+		createSuccessNotice,
+		isDeleting,
+		isViewingTrash,
+		navigate,
+		onOpenPermanentDeleteConfirm,
+		restoreForms,
+		trashForms,
+	] );
 
 	const paginationInfo = useMemo(
 		() => ( {
@@ -152,8 +421,14 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 	const onChangeView = useCallback( newView => setView( newView ), [ setView ] );
 
-	const headerActions = useMemo( () => [ <CreateFormButton key="create" /> ], [] );
+	const headerActions = useMemo( () => [ <CreateFormButton key="create" showNameModal /> ], [] );
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
+	const onClickItem = useCallback(
+		( item: FormListItem ) => {
+			navigate( `/forms/${ item.id }/responses` );
+		},
+		[ navigate ]
+	);
 
 	// Avoid rendering if the flag is off (we'll redirect).
 	if ( isCentralFormManagementDisabled ) {
@@ -169,8 +444,18 @@ export default function FormsDashboardForms(): JSX.Element | null {
 						{ __( 'Forms', 'jetpack-forms' ) }
 					</div>
 				}
-				subTitle={ __( 'View and manage all your forms in one place.', 'jetpack-forms' ) }
-				tabs={ <FormsResponsesTabs /> }
+				subTitle={
+					hasClassicForms ? (
+						<>
+							{ __( 'View and manage all your forms.', 'jetpack-forms' ) }{ ' ' }
+							<Button variant="link" onClick={ openFormsHelpModal }>
+								{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+							</Button>
+						</>
+					) : (
+						__( 'View and manage all your forms in one place.', 'jetpack-forms' )
+					)
+				}
 				actions={ headerActions }
 				hasPadding={ false }
 			>
@@ -181,41 +466,71 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					data={ records || [] }
 					isLoading={ isLoading }
 					empty={
-						<EmptyWrapper
-							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
-							body={ __(
-								'Create a shared form pattern to manage and reuse it across your site.',
-								'jetpack-forms'
-							) }
-							actions={
-								<CreateFormButton
-									label={ __( 'Create a new form', 'jetpack-forms' ) }
-									variant="primary"
-								/>
-							}
-						/>
+						<EmptyState.Root>
+							<EmptyState.Icon icon={ formBlockIcon } />
+							<EmptyState.Title>
+								{ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
+							</EmptyState.Title>
+							<EmptyState.Description>
+								{ __( 'Create a form to manage and reuse it across your site.', 'jetpack-forms' ) }
+							</EmptyState.Description>
+							<EmptyState.Actions>
+								<HStack justify="center" spacing="2">
+									<CreateFormButton
+										label={ __( 'Create a new form', 'jetpack-forms' ) }
+										variant="primary"
+										showNameModal
+									/>
+									{ hasClassicForms && (
+										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+										</Button>
+									) }
+								</HStack>
+							</EmptyState.Actions>
+						</EmptyState.Root>
 					}
 					view={ view }
 					onChangeView={ onChangeView }
+					selection={ selection }
+					onChangeSelection={ setSelection }
+					onClickItem={ onClickItem }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
 				>
-					<div className="jp-forms-filters-bar">
-						<div className="jp-forms-filters-bar__chips">
-							<DataViews.FiltersToggled className="jp-forms-filters-container" />
-						</div>
-						<div className="jp-forms-filters-bar__controls">
-							<DataViews.Search />
-							<DataViews.FiltersToggle />
-							<DataViews.ViewConfig />
-						</div>
-					</div>
+					<ConfirmDialog
+						onCancel={ onClosePermanentDeleteConfirm }
+						onConfirm={ onConfirmPermanentDelete }
+						isOpen={ isPermanentDeleteConfirmOpen }
+						confirmButtonText={ __( 'Delete permanently', 'jetpack-forms' ) }
+					>
+						<h3>{ __( 'Delete permanently', 'jetpack-forms' ) }</h3>
+						<p>
+							{ pendingPermanentDeleteCount === 1
+								? __(
+										'This will permanently delete this form. This action cannot be undone.',
+										'jetpack-forms'
+								  )
+								: sprintf(
+										/* translators: %d: number of forms */
+										_n(
+											'This will permanently delete %d form. This action cannot be undone.',
+											'This will permanently delete %d forms. This action cannot be undone.',
+											pendingPermanentDeleteCount,
+											'jetpack-forms'
+										),
+										pendingPermanentDeleteCount
+								  ) }
+						</p>
+					</ConfirmDialog>
+					<DataViewsHeaderRow />
 					<div className="jp-forms-dataviews-layout-container">
 						<DataViews.Layout />
 						<DataViews.Footer />
 					</div>
 				</DataViews>
 			</Page>
+			<FormsHelpModal isOpen={ isFormsHelpModalOpen } onClose={ closeFormsHelpModal } />
 		</div>
 	);
 }

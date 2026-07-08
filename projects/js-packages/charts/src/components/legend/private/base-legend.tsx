@@ -1,6 +1,7 @@
 import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import {
 	type RefAttributes,
@@ -16,10 +17,11 @@ import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '.
 import styles from './base-legend.module.scss';
 import type { BaseLegendProps } from '../types';
 
-const orientationToFlexDirection = {
-	horizontal: 'row' as const,
-	vertical: 'column' as const,
-};
+const ALIGNMENT_TO_FLEX = {
+	start: 'flex-start',
+	center: 'center',
+	end: 'flex-end',
+} as const;
 
 // Component for legend text with truncation detection
 // Moved outside BaseLegend to prevent recreation on every render
@@ -67,32 +69,37 @@ export const BaseLegend: ForwardRefExoticComponent<
 			items,
 			className,
 			orientation = 'horizontal',
-			position = 'bottom',
 			alignment = 'center',
-			maxWidth,
-			textOverflow = 'wrap',
 			shape = 'rect',
 			fill = valueOrIdentityString,
 			size = valueOrIdentityString,
 			labelFormat = valueOrIdentity,
 			labelTransform = labelTransformFactory,
-			shapeWidth = 16,
-			shapeHeight = 16,
-			shapeMargin = '2px 4px 2px 0',
-			labelAlign = 'left',
-			labelFlex = '0 0 auto', // Use natural width instead of expanding to fill space
-			labelMargin = '0 4px',
-			itemMargin = '0',
-			itemDirection = 'row',
-			legendLabelProps,
-			legendItemClassName,
+			itemStyles,
+			itemClassName,
+			labelStyles,
+			labelClassName,
+			shapeStyles,
 			render,
 			interactive = false,
 			chartId,
-			...legendItemProps
 		},
 		ref
 	) => {
+		const { margin: itemMargin = '0', flexDirection: itemDirection = 'row' } = itemStyles ?? {};
+		const {
+			justifyContent: labelJustifyContent = 'flex-start',
+			flex: labelFlex = '0 0 auto',
+			margin: labelMargin = '0 4px',
+			maxWidth,
+			textOverflow = 'wrap',
+		} = labelStyles ?? {};
+		const {
+			width: shapeWidth = 16,
+			height: shapeHeight = 16,
+			margin: shapeMargin = '2px 4px 2px 0',
+		} = shapeStyles ?? {};
+
 		const theme = useGlobalChartsTheme();
 		const context = useContext( GlobalChartsContext );
 
@@ -154,6 +161,8 @@ export const BaseLegend: ForwardRefExoticComponent<
 			[ interactive, handleLegendClick ]
 		);
 
+		const flexAlignment = ALIGNMENT_TO_FLEX[ alignment ] ?? 'center';
+
 		return render ? (
 			render( items )
 		) : (
@@ -163,26 +172,23 @@ export const BaseLegend: ForwardRefExoticComponent<
 				labelTransform={ labelTransform }
 			>
 				{ labels => (
-					<div
+					<Stack
 						ref={ ref }
+						direction={ orientation === 'vertical' ? 'column' : 'row' }
+						gap={ orientation === 'vertical' ? 'sm' : 'lg' }
+						align={ orientation === 'vertical' ? flexAlignment : undefined }
+						justify={ orientation === 'horizontal' ? flexAlignment : undefined }
+						wrap={ orientation === 'horizontal' ? 'wrap' : undefined }
 						role="list"
 						data-testid={ `legend-${ orientation }` }
-						className={ clsx(
-							styles.legend,
-							styles[ `legend--${ orientation }` ],
-							styles[ `legend--alignment-${ alignment }` ],
-							styles[ `legend--position-${ position }` ],
-							className
-						) }
-						style={ {
-							flexDirection: orientationToFlexDirection[ orientation ],
-							...theme.legendContainerStyles,
-						} }
+						className={ clsx( styles.legend, className ) }
+						style={ theme.legend?.containerStyles }
 					>
 						{ labels.map( ( label, i ) => {
 							const visible = isSeriesVisible( label.text );
 							const handleClick = createClickHandler( label.text );
 							const handleKeyDown = createKeyDownHandler( label.text );
+							const matchedItem = items[ i ];
 
 							return (
 								<LegendItem
@@ -191,7 +197,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 										styles[ 'legend-item' ],
 										interactive && styles[ 'legend-item--interactive' ],
 										! visible && styles[ 'legend-item--inactive' ],
-										legendItemClassName
+										itemClassName
 									) }
 									data-testid="legend-item"
 									key={ `legend-${ label.text }-${ i }` }
@@ -211,7 +217,6 @@ export const BaseLegend: ForwardRefExoticComponent<
 											? `${ label.text }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.`
 											: undefined
 									}
-									{ ...legendItemProps }
 								>
 									{ items[ i ]?.renderGlyph ? (
 										<svg
@@ -246,31 +251,36 @@ export const BaseLegend: ForwardRefExoticComponent<
 										/>
 									) }
 									<LegendLabel
-										className={ clsx( 'visx-legend-label', styles[ 'legend-item-label' ] ) }
+										data-testid="legend-label"
+										className={ clsx(
+											'visx-legend-label',
+											styles[ 'legend-item-label' ],
+											labelClassName
+										) }
 										style={ {
-											justifyContent: labelAlign,
 											flex: labelFlex,
 											margin: labelMargin,
-											...theme.legendLabelStyles,
+											...theme.legend?.labelStyles,
 										} }
-										{ ...legendLabelProps }
 									>
-										<LegendText
-											text={ label.text }
-											textOverflow={ textOverflow }
-											maxWidth={ maxWidth }
-										/>
-										{ items.find( item => item.label === label.text )?.value && (
-											<span className={ styles[ 'legend-item-value' ] }>
-												{ '\u00A0' }
-												{ items.find( item => item.label === label.text )?.value }
-											</span>
-										) }
+										<Stack align="center" gap="sm" justify={ labelJustifyContent }>
+											<LegendText
+												text={ label.text }
+												textOverflow={ textOverflow }
+												maxWidth={ maxWidth }
+											/>
+											{ matchedItem?.value != null && matchedItem.value !== '' && (
+												<span className={ styles[ 'legend-item-value' ] }>
+													{ '\u00A0' }
+													{ matchedItem.value }
+												</span>
+											) }
+										</Stack>
 									</LegendLabel>
 								</LegendItem>
 							);
 						} ) }
-					</div>
+					</Stack>
 				) }
 			</LegendOrdinal>
 		);

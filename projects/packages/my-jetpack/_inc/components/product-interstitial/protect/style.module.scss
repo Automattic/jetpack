@@ -1,0 +1,130 @@
+@use "../mixins";
+
+/* Protect Product Page Styles */
+.product-interstitial__hero-section {
+
+	@include mixins.hero-section;
+
+	.product-interstitial__hero-content {
+
+		@include mixins.hero-content;
+	}
+
+	.product-interstitial__hero-side {
+
+		@include mixins.hero-side;
+	}
+
+	.stats-card {
+
+		@include mixins.stats-card;
+	}
+}
+
+.product-interstitial__section {
+
+	@include mixins.section-base;
+
+	.product-interstitial__section-wrapper {
+
+		@include mixins.section-wrapper;
+	}
+
+	.product-interstitial__section-wrapper-wide {
+
+		@include mixins.section-wrapper-wide;
+	}
+
+	.product-interstitial__section-heading {
+
+		@include mixins.section-heading;
+	}
+
+	.product-interstitial__section-sub-heading {
+
+		@include mixins.section-sub-heading;
+	}
+}
+
+/* Features List */
+.product-interstitial__features-list {
+	display: flex;
+	flex-direction: column;
+	gap: calc(var(--spacing-base) * 4);
+	margin-top: calc(var(--spacing-base) * 4);
+}
+
+.product-interstitial__feature-item {
+	display: flex;
+	gap: calc(var(--spacing-base) * 2);
+	align-items: flex-start;
+
+	.feature-icon {
+		fill: var(--jp-green);
+		flex-shrink: 0;
+		margin-top: 2px;
+	}
+
+	strong {
+		display: block;
+		font-size: 18px;
+		margin-bottom: calc(var(--spacing-base) / 2);
+	}
+
+	p {
+		margin: 0 0 calc(var(--spacing-base)) 0;
+		color: var(--jp-gray-60);
+	}
+}
+
+/* Status indicators */
+.status-active {
+	display: inline-block;
+	color: var(--jp-green-40);
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.status-inactive {
+	display: inline-block;
+	color: var(--jp-gray-40);
+	font-size: 14px;
+	font-weight: 500;
+}
+
+/* Comparison section */
+.product-interstitial__comparison {
+	display: flex;
+	gap: calc(var(--spacing-base) * 4);
+	margin: calc(var(--spacing-base) * 4) 0;
+	flex-wrap: wrap;
+
+	.product-interstitial__comparison-item {
+		flex: 1;
+		min-width: 280px;
+		padding: calc(var(--spacing-base) * 3);
+		background-color: var(--jp-white);
+		border: 1px solid var(--jp-gray-5);
+		border-radius: 8px;
+
+		h3 {
+			font-size: 18px;
+			font-weight: 500;
+			margin: 0 0 calc(var(--spacing-base) * 2) 0;
+		}
+
+		p {
+			margin: 0 0 calc(var(--spacing-base) * 2) 0;
+			color: var(--jp-gray-60);
+		}
+	}
+}
+
+/* CTA buttons */
+.product-interstitial__cta-buttons {
+	display: flex;
+	gap: calc(var(--spacing-base) * 3);
+	align-items: center;
+	flex-wrap: wrap;
+	margin-top: calc(var(--spacing-base) * 4);
+}

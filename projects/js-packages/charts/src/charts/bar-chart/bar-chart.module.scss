@@ -1,24 +1,16 @@
 .bar-chart {
-	display: flex;
-	flex-direction: column;
-
-	&--legend-top {
-		flex-direction: column-reverse;
-	}
 
 	svg {
 		overflow: visible;
-	}
-
-	&-legend {
-		margin-top: 1rem;
 	}
 
 	&--animated rect {
 		transform-origin: bottom;
 		transform-box: fill-box;
 		transform: scaleY(0);
-		animation: rise 1s ease-out forwards;
+		animation:
+			rise var(--wpds-motion-duration-xl, 400ms)
+			var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
 	}
 
 	@keyframes rise {
@@ -32,7 +24,9 @@
 		transform-origin: left;
 		transform-box: fill-box;
 		transform: scaleX(0);
-		animation: stretch 1s ease-out forwards;
+		animation:
+			stretch var(--wpds-motion-duration-xl, 400ms)
+			var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
 	}
 
 	@keyframes stretch {

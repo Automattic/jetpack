@@ -1,14 +1,15 @@
 import { __ } from '@wordpress/i18n';
+import { AvatarWithFallback } from '../avatar-with-fallback';
 import { preparePreviewText } from '../helpers';
+import { ExpandableText } from '../shared/expandable-text';
+import { MediaImage } from '../shared/media-image';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import { Bookmark as BookmarkIcon } from './icons/bookmark';
 import { Comment as CommentIcon } from './icons/comment';
-import { DefaultAvatar } from './icons/default-avatar';
 import { Heart as HeartIcon } from './icons/heart';
 import { Menu as MenuIcon } from './icons/menu';
 import { Share as ShareIcon } from './icons/share';
 import { InstagramPreviewProps } from './types';
-
 import './style.scss';
 
 /**
@@ -20,11 +21,11 @@ import './style.scss';
  */
 export function InstagramPostPreview( {
 	image,
+	imageFocalPoint,
 	media,
 	name,
 	profileImage,
 	caption,
-	url,
 }: InstagramPreviewProps ) {
 	const username = name || 'username';
 
@@ -35,7 +36,7 @@ export function InstagramPostPreview( {
 			<section className="instagram-preview__container">
 				<div className="instagram-preview__header">
 					<div className="instagram-preview__header--avatar">
-						{ profileImage ? <img src={ profileImage } alt="" /> : <DefaultAvatar /> }
+						<AvatarWithFallback src={ profileImage } />
 					</div>
 					<div className="instagram-preview__header--profile">
 						<div className="instagram-preview__header--profile-name">{ username }</div>
@@ -56,7 +57,12 @@ export function InstagramPostPreview( {
 							) }
 						</div>
 					) : (
-						<img className="instagram-preview__media--image" src={ image } alt="" />
+						<MediaImage
+							className="instagram-preview__media--image"
+							src={ image }
+							alt=""
+							focalPoint={ imageFocalPoint }
+						/>
 					) }
 				</div>
 				<div className="instagram-preview__content">
@@ -75,17 +81,14 @@ export function InstagramPostPreview( {
 						&nbsp;
 						{ caption ? (
 							<div className="instagram-preview__content--text">
-								{ preparePreviewText( caption, {
-									platform: 'instagram',
-									maxChars: FEED_TEXT_MAX_LENGTH,
-								} ) }
-								{ media && url && (
-									<>
-										<br />
-										<br />
-										{ url }
-									</>
-								) }
+								<ExpandableText text={ caption }>
+									{ visibleText =>
+										preparePreviewText( visibleText, {
+											platform: 'instagram',
+											maxChars: FEED_TEXT_MAX_LENGTH,
+										} )
+									}
+								</ExpandableText>
 							</div>
 						) : null }
 					</div>

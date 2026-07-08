@@ -52,8 +52,8 @@ function load_assets( $attr ) {
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	$ask_button_label = isset( $attr['askButtonLabel'] ) ? $attr['askButtonLabel'] : __( 'Ask', 'jetpack' );
-	$placeholder      = isset( $attr['placeholder'] ) ? $attr['placeholder'] : __( 'Ask a question about this site.', 'jetpack' );
+	$ask_button_label = $attr['askButtonLabel'] ?? __( 'Ask', 'jetpack' );
+	$placeholder      = $attr['placeholder'] ?? __( 'Ask a question about this site.', 'jetpack' );
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$blog_id = get_current_blog_id();
@@ -88,6 +88,11 @@ function add_ai_chat_block_data() {
 	$plan          = new Search_Plan();
 	$initial_state = array(
 		'jetpackSettings' => array(
+			// `module_active` reflects whether the Jetpack Search module is on, which is
+			// what controls site indexing — independent of the chosen front-end experience
+			// (Overlay / Theme / Inline / Embedded). The AI Chat block only needs the
+			// index, so it gates on this rather than on `instant_search_enabled`.
+			'module_active'          => $search->is_active(),
 			'instant_search_enabled' => $search->is_instant_search_enabled(),
 			'plan_supports_search'   => $plan->supports_instant_search(),
 		),

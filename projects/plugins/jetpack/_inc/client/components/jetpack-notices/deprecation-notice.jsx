@@ -1,5 +1,5 @@
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import SimpleNotice from 'components/notice';
 
@@ -12,7 +12,11 @@ const DeprecationNotice = ( { dismissNotice, message, link, linkText, title } ) 
 		>
 			{ title && <div style={ { fontWeight: 600 } }>{ title }</div> }
 			<div>{ message }</div>
-			{ link && <ExternalLink href={ link }>{ linkText }</ExternalLink> }
+			{ link && (
+				<Link openInNewTab href={ link }>
+					{ linkText }
+				</Link>
+			) }
 		</SimpleNotice>
 	);
 };

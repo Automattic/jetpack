@@ -50,10 +50,12 @@ class VideoPress_Rest_Api_V1_Settings {
 					},
 					'args'                => array(
 						'videopress_videos_private_for_site' => array(
-							'description'       => __( 'If the VideoPress videos should be private by default', 'jetpack-videopress-pkg' ),
-							'type'              => 'boolean',
-							'required'          => true,
-							'sanitize_callback' => 'rest_sanitize_boolean',
+							'description' => __( 'If the VideoPress videos should be private by default', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
+						'videopress_auto_subtitles_disabled' => array(
+							'description' => __( 'If auto-generated subtitles should be skipped for new videos', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
 						),
 					),
 				),
@@ -125,10 +127,16 @@ class VideoPress_Rest_Api_V1_Settings {
 			);
 		}
 
-		$json_params = $request->get_json_params();
+		$private_for_site        = $request->get_param( 'videopress_videos_private_for_site' );
+		$auto_subtitles_disabled = $request->get_param( 'videopress_auto_subtitles_disabled' );
 
-		// We are sure that the param is set because it's required by the request
-		update_option( 'videopress_private_enabled_for_site', boolval( $json_params['videopress_videos_private_for_site'] ) );
+		if ( null !== $private_for_site ) {
+			update_option( 'videopress_private_enabled_for_site', $private_for_site );
+		}
+
+		if ( null !== $auto_subtitles_disabled ) {
+			update_option( 'videopress_auto_subtitles_disabled', $auto_subtitles_disabled );
+		}
 
 		return rest_ensure_response(
 			array(

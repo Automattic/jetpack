@@ -1,0 +1,16 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-widget-subscribers-list",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@jetpack-premium-analytics/data": "link:../../packages/data",
+		"@jetpack-premium-analytics/datetime": "link:../../packages/datetime",
+		"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/icons": "^15.0.0",
+		"@wordpress/ui": "0.17.0",
+		"@wordpress/widget-primitives": "0.2.0",
+		"react": "18.3.1"
+	}
+}

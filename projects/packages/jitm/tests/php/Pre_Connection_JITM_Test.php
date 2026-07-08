@@ -77,7 +77,7 @@ class Pre_Connection_JITM_Test extends TestCase {
 			->with( array() )
 			->andReturn( $this->test_jitms );
 
-		$this->assertEmpty( $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', '', false ) );
+		$this->assertEmpty( $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', array(), false ) );
 	}
 
 	/**
@@ -94,7 +94,7 @@ class Pre_Connection_JITM_Test extends TestCase {
 			->once()
 			->with( array() );
 
-		$this->assertEmpty( $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', '', false ) );
+		$this->assertEmpty( $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', array(), false ) );
 	}
 
 	/**
@@ -112,7 +112,7 @@ class Pre_Connection_JITM_Test extends TestCase {
 			->with( array() )
 			->andReturn( 'a string intead of an array' );
 
-		$this->assertEmpty( $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', '', false ) );
+		$this->assertEmpty( $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', array(), false ) );
 	}
 
 	/**
@@ -126,7 +126,7 @@ class Pre_Connection_JITM_Test extends TestCase {
 			->with( array() )
 			->andReturn( $this->test_jitms );
 
-		$messages = $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', '', false );
+		$messages = $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', array(), false );
 		$this->assertSame( $this->test_jitms[0]['id'], $messages[0]->id );
 	}
 
@@ -143,7 +143,7 @@ class Pre_Connection_JITM_Test extends TestCase {
 			->with( array() )
 			->andReturn( $this->test_jitms );
 
-		$this->assertEmpty( $this->jitm_instance->get_messages( '/wp:edit-comments:admin_notices/', '', false ) );
+		$this->assertEmpty( $this->jitm_instance->get_messages( '/wp:edit-comments:admin_notices/', array(), false ) );
 	}
 
 	/**
@@ -160,7 +160,7 @@ class Pre_Connection_JITM_Test extends TestCase {
 			->with( array() )
 			->andReturn( $this->test_jitms );
 
-		$this->assertEmpty( $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', '', false ) );
+		$this->assertEmpty( $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', array(), false ) );
 	}
 
 	/**
@@ -176,7 +176,7 @@ class Pre_Connection_JITM_Test extends TestCase {
 			->with( array() )
 			->andReturn( $this->test_jitms );
 
-		$messages = $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', '', false );
+		$messages = $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', array(), false );
 		// @phan-suppress-next-line PhanTypeInvalidDimOffset -- It's confused by the assignment above.
 		$this->assertSame( $this->test_jitms[0]['id'], $messages[0]->id );
 	}
@@ -209,7 +209,7 @@ class Pre_Connection_JITM_Test extends TestCase {
 			->once()
 			->with( $expected_icon, false );
 
-		$jitm->get_messages( '/wp:plugins:admin_notices/', '', false );
+		$jitm->get_messages( '/wp:plugins:admin_notices/', array(), false );
 	}
 
 	/**

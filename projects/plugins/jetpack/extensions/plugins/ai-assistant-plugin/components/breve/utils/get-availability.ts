@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
+import { wordpressPlansStore } from '@automattic/jetpack-shared-stores';
 import { select } from '@wordpress/data';
+import { store as editPostStore } from '@wordpress/edit-post';
 /**
  * Internal dependencies
  */
@@ -12,7 +14,9 @@ import { getFeatureAvailability } from '../../../../../blocks/ai-assistant/lib/u
 import type { FeatureControl, PlansSelect } from '../types';
 
 function getAiAssistantFeature() {
-	const { getAiAssistantFeature: getFeature } = select( 'wordpress-com/plans' ) as PlansSelect;
+	const { getAiAssistantFeature: getFeature } = select(
+		wordpressPlansStore
+	) as unknown as PlansSelect;
 
 	return getFeature();
 }
@@ -33,8 +37,7 @@ export function getBreveAvailability() {
 	// 	return false;
 	// }
 
-	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
-	const hiddenBlocks = getHiddenBlockTypes?.() || []; // It will assume the block is not hidden if the function is undefined.
+	const hiddenBlocks = select( editPostStore ).getHiddenBlockTypes?.() ?? [];
 
 	// Not enabled if the AI Assistant block is hidden.
 	if ( hiddenBlocks.includes( 'jetpack/ai-assistant' ) ) {

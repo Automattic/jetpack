@@ -1,17 +1,22 @@
 import { GlyphStar } from '@visx/glyph';
 import { useGlobalChartsTheme, GlobalChartsProvider } from '../../../providers';
-import { ChartStoryArgs, CHART_THEME_MAP, themeArgTypes } from '../../../stories';
+import { CHART_THEME_MAP, themeArgTypes } from '../../../stories';
 import LineChart from '../line-chart';
-import { lineChartMetaArgs, lineChartStoryArgs, glyphTheme } from './config';
+import {
+	lineChartMetaArgs,
+	lineChartStoryArgs,
+	glyphTheme,
+	type StoryArgs as BaseStoryArgs,
+} from './config';
 import type { DataPointDate } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { Meta, StoryFn, StoryObj, Decorator } from '@storybook/react';
-import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 
 /**
  * Story-specific args that provide convenient Storybook controls.
  * These don't map directly to component props but control how glyphs are rendered in stories.
  */
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
+type StoryArgs = BaseStoryArgs & {
 	/** Type of glyph to render: 'default' (circle), 'star', or 'heart' (custom) */
 	glyphType?: 'default' | 'star' | 'heart';
 	/** Size of the glyph in pixels (radius for circle glyphs) */
@@ -26,7 +31,8 @@ const GLYPH_THEME_MAP = {
 
 // Custom decorator for glyph stories that includes the glyph theme
 const glyphChartDecorator: Decorator = ( Story, { args } ) => {
-	const themeName = ( args as unknown as StoryArgs ).themeName;
+	const storyArgs = args as unknown as StoryArgs;
+	const themeName = storyArgs.themeName;
 	const theme = GLYPH_THEME_MAP[ themeName || 'default' ];
 
 	return (
@@ -37,6 +43,7 @@ const glyphChartDecorator: Decorator = ( Story, { args } ) => {
 					overflow: 'auto',
 					padding: '2rem',
 					width: '800px',
+					height: storyArgs.containerHeight || '400px',
 					maxWidth: '1200px',
 					border: '1px dashed #ccc',
 					display: 'inline-block',
@@ -51,6 +58,7 @@ const glyphChartDecorator: Decorator = ( Story, { args } ) => {
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Line Chart/Glyphs',
+	component: lineChartMetaArgs.component, // Make eslint happy.
 	decorators: [ glyphChartDecorator ],
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
@@ -115,7 +123,7 @@ const CustomHeartGlyph = ( { color, size, x, y } ) => {
 	);
 };
 
-const Template: StoryFn< typeof LineChart > = args => {
+const Template: StoryFn< StoryArgs > = args => {
 	const { glyphType, glyphSize, ...chartProps } = args;
 
 	// Determine renderGlyph based on glyphType control

@@ -8,6 +8,9 @@ jest.mock( '../../connection-management/connection-name', () => ( {
 jest.mock( '../../connection-management/connection-status', () => ( {
 	ConnectionStatus: ( { connection } ) => <div>Status: { connection.status }</div>,
 } ) );
+jest.mock( '../../connection-management/connection-template', () => ( {
+	ConnectionTemplateEditor: () => null,
+} ) );
 jest.mock( '../../connection-management/disconnect', () => ( {
 	Disconnect: ( { connection } ) => <button>Disconnect { connection.display_name }</button>,
 } ) );
@@ -25,10 +28,6 @@ describe( 'ServiceConnectionInfo', () => {
 		status: 'connected',
 	};
 
-	const service = {
-		icon: () => <svg aria-label="test-svg"></svg>,
-	};
-
 	beforeAll( () => {
 		global.JetpackScriptData = {
 			user: {
@@ -43,7 +42,7 @@ describe( 'ServiceConnectionInfo', () => {
 		render(
 			<ServiceConnectionInfo
 				connection={ { ...connection, ...connOverrides } }
-				service={ { ...service, ...serviceOverrides } }
+				service={ { ...serviceOverrides } }
 				{ ...props }
 			/>
 		);
@@ -58,12 +57,6 @@ describe( 'ServiceConnectionInfo', () => {
 		const profilePic = screen.getByAltText( 'Example User' );
 		expect( profilePic ).toBeInTheDocument();
 		expect( profilePic ).toHaveAttribute( 'src', 'https://example.com/profile.jpg' );
-	} );
-
-	test( 'renders service icon if profile picture is not available', () => {
-		renderComponent( { profile_picture: null } );
-		const serviceIcon = screen.getByLabelText( 'test-svg' );
-		expect( serviceIcon ).toBeInTheDocument();
 	} );
 
 	test( 'displays ConnectionName', () => {

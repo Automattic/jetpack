@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
@@ -68,7 +68,7 @@ class MyPlanHeader extends Component {
 					purchaseID={ purchase.ID }
 				/>
 			);
-			if ( purchase.active === '1' ) {
+			if ( 'active' === purchase.subscription_status ) {
 				// Purchases might not have an expiration date, so we need to check
 				// for their existence (e.g.: lifetime plan like Golden Token).
 				if ( purchase.expiry_status === 'expired' && purchase.expiry_date !== null ) {
@@ -587,9 +587,9 @@ class MyPlanHeader extends Component {
 					>
 						{ showPurchasesLink && (
 							<Button onClick={ this.trackAllPurchasesClick } compact rna>
-								<ExternalLink href={ getRedirectUrl( 'calypso-purchases' ) }>
+								<Link openInNewTab href={ getRedirectUrl( 'calypso-purchases' ) }>
 									{ __( 'View all purchases', 'jetpack' ) }
-								</ExternalLink>
+								</Link>
 							</Button>
 						) }
 

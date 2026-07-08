@@ -7,13 +7,44 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Tracking;
+use Jetpack_Options;
+use Jetpack_Tracks_Client;
+
 /**
  * This class offers a wrapper to add_submenu_page and makes sure stand-alone plugin's menu items are always added under the Jetpack top level menu.
  * If the Jetpack top level was not previously registered by other plugin, it will be registered here.
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.5.11';
+	const PACKAGE_VERSION = '0.9.7';
+
+	/**
+	 * Slug used for the upgrade menu item and redirect URL.
+	 *
+	 * Keep the slug in sync with `$upgrade-menu-slug` at admin-ui-upgrade-menu.scss
+	 *
+	 * @var string
+	 */
+	const UPGRADE_MENU_SLUG = 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item';
+
+	/**
+	 * Fallback upgrade URL when the Redirect class is unavailable.
+	 *
+	 * @var string
+	 */
+	const UPGRADE_MENU_FALLBACK_URL = 'https://jetpack.com/upgrade/';
+
+	/**
+	 * Handle for the shared, token-only WPDS design-tokens stylesheet.
+	 *
+	 * Registered once and enqueued on every Jetpack admin page so that
+	 * `var(--wpds-*)` values resolve at runtime instead of falling back to
+	 * their hand-written hex defaults.
+	 *
+	 * @var string
+	 */
+	const DESIGN_TOKENS_HANDLE = 'jetpack-admin-ui-design-tokens';
 
 	/**
 	 * Whether this class has been initialized
@@ -30,6 +61,22 @@ class Admin_Menu {
 	private static $menu_items = array();
 
 	/**
+	 * Hook suffixes of the pages registered through this class.
+	 *
+	 * Used to scope the design-tokens stylesheet to Jetpack admin pages.
+	 *
+	 * @var array
+	 */
+	private static $page_hooks = array();
+
+	/**
+	 * Optional connection manager dependency.
+	 *
+	 * @var object|null
+	 */
+	private static $connection_manager = null;
+
+	/**
 	 * Initialize the class and set up the main hook
 	 *
 	 * @return void
@@ -40,6 +87,8 @@ class Admin_Menu {
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'add_upgrade_menu_item_styles' ) );
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_design_tokens' ) );
 		}
 	}
 
@@ -140,6 +189,8 @@ class Admin_Menu {
 		if ( ! $can_see_toplevel_menu ) {
 			remove_menu_page( 'jetpack' );
 		}
+
+		self::maybe_add_upgrade_menu_item();
 	}
 
 	/**
@@ -170,7 +221,51 @@ class Admin_Menu {
 		 * We know all pages will be under Jetpack top level menu page, so we can hardcode the first part of the string.
 		 * Using get_plugin_page_hookname here won't work because the top level page is not registered yet.
 		 */
-		return 'jetpack_page_' . $menu_slug;
+		$hook = 'jetpack_page_' . $menu_slug;
+
+		// Track the page hook so the design-tokens stylesheet can be scoped to it.
+		self::$page_hooks[] = $hook;
+
+		// Hide WordPress core admin notices on this Jetpack page. The load-<hook>
+		// action only fires when the matching screen is being rendered, so this
+		// stays scoped to Jetpack pages and reaches every page registered here.
+		add_action( 'load-' . $hook, array( __CLASS__, 'hide_core_admin_notices' ) );
+		add_action( 'load-' . $hook . '-network', array( __CLASS__, 'hide_core_admin_notices' ) );
+
+		return $hook;
+	}
+
+	/**
+	 * Queues an inline style that hides WordPress core admin notices on the current Jetpack page.
+	 *
+	 * Hooked from the page's load-<hook> action so it only runs on Jetpack screens.
+	 *
+	 * @return void
+	 */
+	public static function hide_core_admin_notices() {
+		add_action( 'admin_print_styles', array( __CLASS__, 'print_hide_core_admin_notices_style' ) );
+	}
+
+	/**
+	 * Prints the inline style that hides WordPress core admin notices.
+	 *
+	 * We only target direct children of #wpbody-content (where core renders notices via the
+	 * admin_notices / all_admin_notices hooks). This intentionally leaves JITMs untouched —
+	 * they output `.jetpack-jitm-message`, not `.notice` — and leaves in-app/React notices
+	 * untouched, since those render deeper inside `.wrap`. An inline style is used (rather than
+	 * an enqueued build asset) so it also works on older Jetpack pages that ship no stylesheet.
+	 *
+	 * @return void
+	 */
+	public static function print_hide_core_admin_notices_style() {
+		?>
+		<style id="jetpack-admin-ui-hide-core-notices">
+			#wpbody-content > .notice,
+			#wpbody-content > .update-nag,
+			#wpbody-content > .updated,
+			#wpbody-content > .error { display: none !important; }
+		</style>
+		<?php
 	}
 
 	/**
@@ -224,5 +319,283 @@ class Admin_Menu {
 
 		$url = $fallback ? $fallback : admin_url();
 		return $url;
+	}
+
+	/**
+	 * Checks whether the current site should show the upgrade menu item.
+	 *
+	 * The upgrade menu is only shown to administrators on free-plan sites
+	 * that are not hosted on WordPress.com.
+	 *
+	 * @return bool True if the upgrade menu should be shown.
+	 */
+	private static function should_show_upgrade_menu() {
+
+		// Only show to administrators.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		// Don't show upsells on WordPress.com platform.
+		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) ) {
+			$host = new \Automattic\Jetpack\Status\Host();
+			if ( $host->is_wpcom_platform() ) {
+				return false;
+			}
+		}
+
+		// Don't show upsells in offline/development mode.
+		if ( class_exists( '\Automattic\Jetpack\Status' ) ) {
+			$status = new \Automattic\Jetpack\Status();
+			if ( $status->is_offline_mode() ) {
+				return false;
+			}
+		}
+
+		// Only show after the site and current user are connected.
+		if ( ! self::is_site_and_user_connected() ) {
+			return false;
+		}
+
+		// Only show to free-plan sites.
+		return self::is_free_plan();
+	}
+
+	/**
+	 * Checks whether the site and current user are connected to WordPress.com.
+	 *
+	 * @return bool True if site and current user are connected.
+	 */
+	private static function is_site_and_user_connected() {
+		$connection_manager = self::$connection_manager;
+		if ( ! $connection_manager && class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
+			$connection_manager       = new \Automattic\Jetpack\Connection\Manager();
+			self::$connection_manager = $connection_manager;
+		}
+
+		if (
+			$connection_manager
+			&& is_callable( array( $connection_manager, 'is_connected' ) )
+			&& is_callable( array( $connection_manager, 'is_user_connected' ) )
+		) {
+			return (bool) $connection_manager->is_connected()
+				&& (bool) $connection_manager->is_user_connected( get_current_user_id() );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Sets the connection manager dependency; used by tests.
+	 *
+	 * @param object|null $connection_manager Connection manager object.
+	 * @return void
+	 */
+	public static function set_connection_manager( $connection_manager ) {
+		self::$connection_manager = $connection_manager;
+	}
+
+	/**
+	 * Checks whether the current site is on a free Jetpack plan with no active paid license.
+	 *
+	 * @return bool True if the site has no paid plan.
+	 */
+	private static function is_free_plan() {
+		// Check the active plan - use the is_free field or product_slug.
+		$plan = get_option( 'jetpack_active_plan', array() );
+
+		// Back-compat: older plan payloads use class to indicate paid plans.
+		if ( isset( $plan['class'] ) && 'free' !== $plan['class'] ) {
+			return false;
+		}
+
+		// If the plan explicitly says it's not free, trust that.
+		if ( isset( $plan['is_free'] ) && false === $plan['is_free'] ) {
+			return false;
+		}
+
+		// Check if the product slug indicates a paid plan.
+		if ( isset( $plan['product_slug'] ) && 'jetpack_free' !== $plan['product_slug'] ) {
+			return false;
+		}
+
+		// Also check for site products (licenses can add products without changing plan).
+		$products = get_option( 'jetpack_site_products', array() );
+		if ( ! empty( $products ) && is_array( $products ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Conditionally adds an "Upgrade Jetpack" submenu item for free-plan sites.
+	 *
+	 * Only shown to users with manage_options capability on self-hosted sites without a paid Jetpack plan or license.
+	 *
+	 * @return void
+	 */
+	private static function maybe_add_upgrade_menu_item() {
+		if ( ! self::should_show_upgrade_menu() ) {
+			return;
+		}
+
+		$upgrade_url = class_exists( '\Automattic\Jetpack\Redirect' )
+			? \Automattic\Jetpack\Redirect::get_url( self::UPGRADE_MENU_SLUG )
+			: self::UPGRADE_MENU_FALLBACK_URL;
+
+		$menu_title = esc_html__( 'Upgrade Jetpack', 'jetpack-admin-ui' );
+
+		add_submenu_page(
+			'jetpack',
+			$menu_title,
+			$menu_title,
+			'manage_options',
+			esc_url( $upgrade_url ),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+			999
+		);
+
+		// Add a CSS class to the <li> element so styles can target it precisely.
+		global $submenu;
+		if ( ! empty( $submenu['jetpack'] ) ) {
+			foreach ( $submenu['jetpack'] as $index => $item ) {
+				if ( isset( $item[2] ) && false !== strpos( $item[2], self::UPGRADE_MENU_SLUG ) ) {
+					// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+					$submenu['jetpack'][ $index ][4] = ( ! empty( $item[4] ) ? $item[4] . ' ' : '' ) . self::UPGRADE_MENU_SLUG;
+					break;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Enqueues admin styles for the "Upgrade Jetpack" menu item.
+	 *
+	 * The sidebar menu is visible on every admin page, so styles load globally.
+	 * Only enqueues for free-plan sites on self-hosted installs.
+	 *
+	 * @return void
+	 */
+	public static function add_upgrade_menu_item_styles() {
+		if ( ! self::should_show_upgrade_menu() ) {
+			return;
+		}
+
+		$asset_file = dirname( __DIR__ ) . '/build/admin-ui-upgrade-menu.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array();
+
+		wp_enqueue_style(
+			'jetpack-admin-ui-upgrade-menu',
+			plugins_url( '../build/admin-ui-upgrade-menu.css', __FILE__ ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? self::PACKAGE_VERSION
+		);
+
+		self::enqueue_upgrade_menu_tracks_script( $asset );
+	}
+
+	/**
+	 * Enqueues the shared, token-only WPDS design-tokens stylesheet.
+	 *
+	 * Single entry point for any consumer that needs WPDS `var(--wpds-*)` values
+	 * to resolve at runtime on a Jetpack admin page. Registers the handle on
+	 * first use (idempotent) and enqueues it; the caller is responsible for
+	 * scoping the call to the right page(s). Since admin-ui is a dependency of
+	 * the Jetpack plugin and the modernized packages, both the plugin's
+	 * legacy/wrap_ui gate and this package's own dashboards call through here,
+	 * so the handle has a single owner and there is no duplicated enqueue logic.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_design_tokens() {
+		self::register_design_tokens_style();
+		wp_enqueue_style( self::DESIGN_TOKENS_HANDLE );
+	}
+
+	/**
+	 * Registers the shared, token-only WPDS design-tokens stylesheet.
+	 *
+	 * The stylesheet only defines `:root{--wpds-*}` custom properties (no
+	 * component or class styles), giving every Jetpack admin page a single
+	 * runtime source for design tokens. It is safe to call repeatedly:
+	 * wp_register_style() is a no-op once the handle is registered.
+	 *
+	 * @return void
+	 */
+	private static function register_design_tokens_style() {
+		if ( wp_style_is( self::DESIGN_TOKENS_HANDLE, 'registered' ) ) {
+			return;
+		}
+
+		$asset_file = dirname( __DIR__ ) . '/build/design-tokens.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array();
+
+		wp_register_style(
+			self::DESIGN_TOKENS_HANDLE,
+			plugins_url( '../build/design-tokens.css', __FILE__ ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? self::PACKAGE_VERSION
+		);
+	}
+
+	/**
+	 * Enqueues the design tokens on the pages registered through this class.
+	 *
+	 * This is the admin_enqueue_scripts callback for the modernized Jetpack
+	 * dashboards. Scoped to self::$page_hooks so the tokens load wherever a
+	 * modernized dashboard renders, regardless of plan or connection state; the
+	 * actual enqueue is delegated to the reusable enqueue_design_tokens() API.
+	 *
+	 * @param string $hook_suffix The current admin page's hook suffix.
+	 * @return void
+	 */
+	public static function maybe_enqueue_design_tokens( $hook_suffix ) {
+		if ( ! in_array( $hook_suffix, self::$page_hooks, true ) ) {
+			return;
+		}
+
+		self::enqueue_design_tokens();
+	}
+
+	/**
+	 * Enqueues Tracks for the upgrade submenu item.
+	 *
+	 * @param array $asset Parsed contents of admin-ui-upgrade-menu.asset.php.
+	 * @return void
+	 */
+	private static function enqueue_upgrade_menu_tracks_script( $asset ) {
+		if ( ! class_exists( '\Automattic\Jetpack\Tracking' ) ) {
+			return;
+		}
+
+		Tracking::register_tracks_functions_scripts( true );
+
+		wp_enqueue_script(
+			'jetpack-admin-ui-upgrade-menu-tracking',
+			plugins_url( '../build/admin-ui-upgrade-menu-tracking.js', __FILE__ ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? self::PACKAGE_VERSION,
+			true
+		);
+
+		$current_screen   = get_current_screen();
+		$is_admin         = current_user_can( 'jetpack_disconnect' );
+		$site_id          = class_exists( 'Jetpack_Options' ) ? Jetpack_Options::get_option( 'id' ) : null;
+		$tracks_user_data = class_exists( 'Jetpack_Tracks_Client' ) ? Jetpack_Tracks_Client::get_connected_user_tracks_identity() : null;
+
+		wp_localize_script(
+			'jetpack-admin-ui-upgrade-menu-tracking',
+			'jetpackAdminUiUpgradeMenu',
+			array(
+				'menuItemClass'   => self::UPGRADE_MENU_SLUG,
+				'tracksUserData'  => $tracks_user_data,
+				'tracksEventData' => array(
+					'is_admin'       => $is_admin,
+					'current_screen' => $current_screen ? $current_screen->id : false,
+					'blog_id'        => $site_id,
+				),
+			)
+		);
 	}
 }

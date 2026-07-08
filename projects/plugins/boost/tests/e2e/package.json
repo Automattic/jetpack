@@ -3,9 +3,9 @@
 	"type": "module",
 	"scripts": {
 		"allure-report": "allure generate --clean --output ./output/allure-report ./output/allure-results && allure open ./output/allure-report",
-		"build": "pnpm jetpack build plugins/jetpack plugins/boost js-packages/image-guide js-packages/critical-css-gen packages/plugin-deactivation packages/connection packages/jitm packages/my-jetpack packages/assets -v --no-pnpm-install --production",
+		"build": "pnpm jetpack build plugins/jetpack plugins/boost js-packages/image-guide js-packages/critical-css-gen js-packages/social-logos packages/plugin-deactivation packages/connection packages/jitm packages/my-jetpack packages/assets -v --no-pnpm-install --production",
 		"clean": "rm -rf output",
-		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -d -pass env:CONFIG_KEY -in ./node_modules/_jetpack-e2e-commons/config/encrypted.enc -out ./config/local.cjs",
+		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -d -pass env:CONFIG_KEY -in ./node_modules/@automattic/_jetpack-e2e-commons/config/encrypted.enc -out ./config/local.cjs",
 		"distclean": "rm -rf node_modules",
 		"env:down": "e2e-env stop",
 		"env:reset": "e2e-env reset --activate-plugins jetpack-boost",
@@ -16,17 +16,17 @@
 		"tunnel:down": "tunnel down",
 		"tunnel:reset": "tunnel reset",
 		"tunnel:up": "tunnel up",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsgo --noEmit"
 	},
 	"browserslist": [],
 	"devDependencies": {
-		"@playwright/test": "1.55.1",
-		"@types/node": "^20.4.2",
-		"_jetpack-e2e-commons": "workspace:*",
+		"@automattic/_jetpack-e2e-commons": "workspace:*",
+		"@playwright/test": "1.60.0",
+		"@types/node": "^24.12.0",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"allure-playwright": "2.15.1",
-		"config": "4.1.1",
-		"playwright-ctrf-json-reporter": "^0.0.26",
-		"typescript": "5.9.3"
+		"config": "4.4.1",
+		"playwright-ctrf-json-reporter": "^0.0.26"
 	},
 	"ci": {
 		"pluginSlug": "jetpack-boost",

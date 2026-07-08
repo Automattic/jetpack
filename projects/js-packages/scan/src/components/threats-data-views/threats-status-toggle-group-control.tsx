@@ -123,6 +123,7 @@ export default function ThreatsStatusToggleGroupControl( {
 			<div>
 				<div className={ styles[ 'toggle-group-control' ] }>
 					<ToggleGroupControl
+						label={ __( 'Filter threats by status', 'jetpack-scan' ) }
 						value={ selectedValue }
 						onChange={ onStatusFilterChange }
 						isBlock

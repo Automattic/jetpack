@@ -1,0 +1,7 @@
+{
+	"name": "jpa/store-conversion-rate-bookings",
+	"title": "Store conversion rate - Bookings",
+	"description": "Store conversion rate for booking products over the selected time period.",
+	"category": "bookings",
+	"presentation": "framed"
+}

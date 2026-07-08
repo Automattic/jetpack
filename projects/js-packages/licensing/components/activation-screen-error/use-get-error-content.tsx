@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { LICENSE_ERRORS } from './constants';
 
 type LicenseErrorKeysType = keyof typeof LICENSE_ERRORS;
@@ -19,10 +19,12 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 		__( 'Need help? <a>Get in touch</a>.', 'jetpack-licensing' ),
 		{
 			a: (
-				<ExternalLink
+				<Link
+					openInNewTab
 					href={ getRedirectUrl( 'jetpack-support-license-activation' ) }
 					rel="noopener noreferrer"
-				></ExternalLink>
+					children={ null }
+				/>
 			),
 		}
 	);
@@ -41,12 +43,14 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 								__( 'Follow these <a>steps</a> to resolve it.', 'jetpack-licensing' ),
 								{
 									a: (
-										<ExternalLink
+										<Link
+											openInNewTab
 											rel="noopener noreferrer"
 											href={ getRedirectUrl( 'jetpack-support-activate-license', {
 												anchor: 'different-user',
 											} ) }
-										></ExternalLink>
+											children={ null }
+										/>
 									),
 								}
 							) }
@@ -86,10 +90,12 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 								),
 								{
 									a: (
-										<ExternalLink
+										<Link
+											openInNewTab
 											rel="noopener noreferrer"
 											href={ getRedirectUrl( 'jetpack-support-license-activation' ) }
-										></ExternalLink>
+											children={ null }
+										/>
 									),
 								}
 							) }
@@ -102,10 +108,12 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 								),
 								{
 									a: (
-										<ExternalLink
+										<Link
+											openInNewTab
 											rel="noopener noreferrer"
 											href={ getRedirectUrl( 'my-jetpack-my-plans-purchase-no-site' ) }
-										></ExternalLink>
+											children={ null }
+										/>
 									),
 								}
 							) }

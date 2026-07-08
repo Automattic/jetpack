@@ -17,6 +17,10 @@ The Global Charts Context system consists of three main parts:
 2. **GlobalChartsContext** - The underlying React context that manages shared state
 3. **Context hooks** - Utilities for accessing theme and registration functionality
 
+## API Reference
+
+For detailed information about provider props, context values, and type definitions, see the [API Reference](?path=/docs/js-packages-charts-library-global-context-api-reference--docs).
+
 ## Basic Usage
 
 ### Setting Up the Provider
@@ -108,33 +112,40 @@ The Global Charts Context uses a comprehensive theme system that controls all vi
 		// Core colors used for data visualization
 		colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 
-		// Chart background and labels
-		backgroundColor: '#FFFFFF',
+    	// Chart background and labels
+		backgroundColor: 'var(--wpds-color-background-surface-neutral-strong, #fff)',
 		labelBackgroundColor: 'transparent',
 		labelTextColor: '#FFFFFF',
 
 		// Grid and axis styling
 		gridStyles: {
-			stroke: '#DCDCDE',
+			stroke: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)',
 			strokeWidth: 1,
 		},
-		xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
+		xAxisLineStyles: { stroke: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)', strokeWidth: 1 },
 
 		// Legend appearance
-		legendLabelStyles: {
-			color: 'var(--jp-gray-80, #2c3338)',
+		legend: {
+			labelStyles: {
+				color: 'var(--wpds-color-foreground-content-neutral, #1e1e1e)',
+			},
 		},
 
 		// Chart-specific theming
 		leaderboardChart: {
 			primaryColor: '#006DAB',
 			secondaryColor: '#98C8DF',
-			deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
+			// [negative, neutral, positive]
+			deltaColors: [
+				'var(--wpds-color-foreground-content-error-weak, #cc1818)',
+				'var(--wpds-color-foreground-content-neutral-weak, #707070)',
+				'var(--wpds-color-foreground-content-success-weak, #008030)',
+			],
 		},
 
 		conversionFunnelChart: {
 			primaryColor: '#006DAB',
-			backgroundColor: '#F3F4F6',
+			backgroundColor: 'var(--wpds-color-background-surface-neutral-weak, #f4f4f4)',
 		}
 	};
 
@@ -232,7 +243,7 @@ Access just the theme when you only need styling information:
 		return (
 			<div style={ {
 				backgroundColor: theme.backgroundColor,
-				color: theme.legendLabelStyles?.color
+				color: theme.legend?.labelStyles?.color
 			} }>
 				Styled using global chart theme
 			</div>
@@ -368,58 +379,6 @@ When charts register with a `chartId`, their legend data becomes available to st
 - **Flexible Layouts** - Create complex dashboard designs with legends positioned anywhere
 - **Automatic Updates** - Legend data updates automatically when chart data changes
 - **No Prop Drilling** - No need to pass legend data through component hierarchies
-
-## API Reference
-
-### GlobalChartsProvider
-
-The main provider component that enables chart context functionality.
-
-**Props:**
-
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `theme` | `Partial<ChartTheme>` | `defaultTheme` | Custom theme object that gets merged with the default theme |
-| `children` | `ReactNode` | - | **Required.** Chart components and other React elements |
-
-### GlobalChartsContextValue
-
-The context value shape provided by `useGlobalChartsContext`:
-
-```typescript
-interface GlobalChartsContextValue {
-	// Chart registry
-	charts: Map<string, ChartRegistration>;
-	registerChart: (id: string, data: ChartRegistration) => void;
-	unregisterChart: (id: string) => void;
-	getChartData: (id: string) => ChartRegistration | undefined;
-
-	// Theme and styling
-	theme: CompleteChartTheme;
-	getElementStyles: (params: GetElementStylesParams) => ElementStyles;
-}
-```
-
-### ChartRegistration Type
-
-```typescript
-interface ChartRegistration {
-	legendItems: BaseLegendItem[];
-	chartType: string;
-	metadata?: Record<string, unknown>;
-}
-```
-
-### ElementStyles Type
-
-```typescript
-interface ElementStyles {
-	color: string;
-	lineStyles: CSSProperties & LineStyles;
-	glyph?: (props: GlyphProps) => ReactNode;
-	shapeStyles: CSSProperties & LineStyles;
-}
-```
 
 ## Accessibility
 

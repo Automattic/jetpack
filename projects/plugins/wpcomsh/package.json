@@ -1,6 +1,7 @@
 {
+	"private": true,
 	"name": "@automattic/jetpack-wpcomsh",
-	"version": "8.0.0",
+	"version": "9.0.0",
 	"description": "A helper for connecting WordPress.com sites to external host infrastructure.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -20,13 +21,12 @@
 		"build-production-js": "echo 'Not implemented.'",
 		"clean": "true",
 		"test": "jest --bail --ci --verbose --config=tests/jest.config.cjs",
-		"test-coverage": "pnpm run test --coverage",
-		"test:watch": "jest --verbose --watchAll --config=tests/jest.config.cjs"
+		"test:watch": "jest --verbose --watchAll --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.5.5",
-		"@babel/preset-env": "^7.5.5",
-		"jest": "30.2.0",
-		"lodash": "^4.17.15"
+		"jest": "30.4.2",
+		"lodash": "^4.18.1"
 	}
 }

@@ -1,0 +1,81 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Apply the shared Jetpack admin-page layout so `<AdminPage>` owns the page
+// chrome: fixed header, scrollable middle, pinned footer. We use the
+// `-wp-build` variant because this is a wp-build dashboard: it's a superset
+// of the base mixin that adds `<Breadcrumbs>` resets — a no-op until a tab
+// renders breadcrumbs, so it's forward-compatible for the follow-up tabs.
+// Both menu placements are targeted because Admin_Menu may register the page as
+// a top-level menu or as a Jetpack submenu depending on the environment.
+body.jetpack_page_jetpack-seo,
+body.toplevel_page_jetpack-seo {
+
+	// Canvas color for the modernized SEO dashboard. Bound here so the rule
+	// below references a real token (no silent `var(... , #fcfcfc)` fallback)
+	// and future tweaks have one place to land. `#fcfcfc` matches the off-white
+	// canvas adopted by the other modernized pages (Newsletter, Social,
+	// VideoPress) so the product stays consistent.
+	--jetpack-seo-page-bg-canvas: #fcfcfc;
+
+	@include jetpack-admin-page-layout-wp-build;
+
+	// Off-white canvas so the white settings cards stand out against the
+	// background. Three layers paint here: the body (the page outside the
+	// admin-ui chrome), `.jp-admin-page` (AdminPage's outer wrapper, white by
+	// default via `showBackground`), and `.jp-admin-page__page` (the
+	// `@wordpress/admin-ui` `<Page>` shell, which also defaults to white and is
+	// what a color-picker on the page surface reads). All three need overriding
+	// so every SEO tab shares the canvas without each one having to opt out.
+	&,
+	.jp-admin-page,
+	.jp-admin-page__page {
+		background-color: var(--jetpack-seo-page-bg-canvas);
+	}
+}
+
+// The route content is rendered inside `Tabs.Root` (`.jetpack-seo-tabs`), so
+// the sticky tab strip (`.jp-admin-page-tabs`) has a full-height containing
+// block and stays pinned while the content scrolls. Mirrors Newsletter.
+// Continue the page's flex column through `Tabs.Root`: size it to its full
+// content height (`flex: 0 0 auto`) so the strip stays stuck the whole way
+// down — capping it to the viewport would shrink the containing block to one
+// screen and drop the strip after the first scroll.
+.jetpack-seo-tabs {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+}
+
+// The full-bleed Content (DataViews) tab opts out of the `0 0 auto` sizing:
+// it used to be a direct flex child of the page column and so inherited the
+// layout mixin's fill treatment (`flex: 1 1 auto; min-height: 0; display:
+// flex; flex-direction: column`). Now that it lives inside `Tabs.Root`, let
+// `Tabs.Root` fill and re-apply that same treatment to the content div, so
+// the Content tab's layout is unchanged. Nothing below the content div is
+// touched — the original chain stopped here (`.jetpack-seo-content` keeps its
+// own sizing), so the DataViews surface behaves exactly as it does today.
+.jetpack-seo-tabs:has(.jetpack-seo-page-content--flush) {
+	flex: 1 1 auto;
+	min-block-size: 0;
+
+	.jetpack-seo-page-content--flush {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
+		min-block-size: 0;
+	}
+}
+
+// `<AdminPage>` renders content with `horizontalSpacing={0}` and no
+// `hasPadding`, so the content area gets no padding from admin-ui or the layout
+// mixin — only the header does (at `padding-inline: 2xl`). Pad our content to
+// align with the header and clear it (the consumer-side job Scan/Podcast own).
+.jetpack-seo-page-content {
+	padding: var(--wpds-dimension-padding-2xl);
+}
+
+// Full-bleed DataViews tabs (e.g. Content) own their own spacing and pinned
+// pagination, so they drop the shared content padding.
+.jetpack-seo-page-content--flush {
+	padding: 0;
+}

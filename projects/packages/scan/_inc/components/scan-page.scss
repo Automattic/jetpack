@@ -1,0 +1,18 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Apply the shared Jetpack admin-page layout mixin so `<AdminPage>` controls
+// the full content area (fixed header, scrollable middle, pinned footer) and
+// the `.jp-admin-page-tabs` strip gets its sticky positioning, hairline, and
+// header-aligned inline padding.
+body.jetpack_page_jetpack-scan,
+body.toplevel_page_jetpack-scan {
+
+	@include jetpack-admin-page-layout;
+}
+
+// De-emphasized caption/label text. `@wordpress/ui`'s `Text` has no muted/color
+// prop, so the dimmed treatment lives here and is applied via className
+// alongside the chosen Text variant.
+.jp-scan-text-muted {
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+}

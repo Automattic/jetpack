@@ -1,0 +1,91 @@
+{
+	"name": "@automattic/jetpack-seo",
+	"version": "0.4.0",
+	"private": true,
+	"description": "Jetpack SEO — the visibility command center for WordPress sites in the agentic web.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/seo/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] SEO"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/seo"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build:wp-build && pnpm run build:boot-asset",
+		"build:boot-asset": "provide-boot-asset-file",
+		"build:strip-unminified-prod": "strip-unminified-prod",
+		"build:wp-build": "wp-build",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run build:strip-unminified-prod && pnpm run validate",
+		"clean": "rm -rf build/",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.js --passWithNoTests",
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsgo --noEmit",
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
+		"watch": "wp-build --watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
+		"@automattic/request-external-access": "1.0.1",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/core-data": "7.50.0",
+		"@wordpress/data": "10.50.0",
+		"@wordpress/dataviews": "17.1.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/html-entities": "4.50.0",
+		"@wordpress/i18n": "6.23.0",
+		"@wordpress/icons": "15.1.0",
+		"@wordpress/notices": "5.50.0",
+		"@wordpress/route": "0.16.0",
+		"@wordpress/ui": "0.17.0",
+		"@wordpress/url": "4.50.0",
+		"clsx": "2.1.1"
+	},
+	"devDependencies": {
+		"@babel/core": "7.29.7",
+		"@jest/globals": "30.4.1",
+		"@testing-library/dom": "10.4.1",
+		"@testing-library/jest-dom": "6.9.1",
+		"@testing-library/react": "16.3.2",
+		"@types/jest": "30.0.0",
+		"@types/node": "^24.12.0",
+		"@types/react": "18.3.28",
+		"@types/react-dom": "18.3.7",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@wordpress/base-styles": "10.2.0",
+		"@wordpress/browserslist-config": "6.50.0",
+		"@wordpress/build": "0.18.0",
+		"@wordpress/theme": "0.17.0",
+		"browserslist": "^4.24.0",
+		"jest": "30.4.2",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "16.0.5",
+		"typescript": "5.9.3"
+	},
+	"wpPlugin": {
+		"name": "jetpack_seo",
+		"scriptGlobal": "jetpackSeo",
+		"packageNamespace": "jetpack-seo",
+		"handlePrefix": "jetpack-seo",
+		"pages": [
+			"jetpack-seo-dashboard"
+		]
+	}
+}

@@ -1,4 +1,3 @@
-import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
@@ -7,7 +6,11 @@ import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
-import { useElementHeight, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
+import {
+	useDataWithPercentages,
+	useInteractiveLegendData,
+	usePrefersReducedMotion,
+} from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -16,17 +19,46 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
-import { attachSubComponents } from '../../utils';
+import { attachSubComponents, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
+import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { SingleChartContext } from '../private/single-chart-context';
+import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
 import styles from './pie-chart.module.scss';
 import type { LegendValueDisplay } from '../../components/legend';
-import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
+import type {
+	BaseChartProps,
+	DataPointPercentage,
+	DataPointPercentageCalculated,
+	Optional,
+} from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
+
+/**
+ * Parameters passed to the renderTooltip function for pie charts.
+ */
+export type PieChartRenderTooltipParams = {
+	/**
+	 * The data point being hovered, including label, value, and calculated percentage.
+	 */
+	tooltipData: DataPointPercentageCalculated;
+};
+
+/**
+ * Default tooltip renderer for pie charts.
+ * Renders a BaseTooltip with the hovered segment's data.
+ *
+ * @param {PieChartRenderTooltipParams} params - The tooltip parameters containing the hovered data point
+ * @return {ReactNode} The rendered tooltip content
+ */
+const renderDefaultPieTooltip = ( { tooltipData }: PieChartRenderTooltipParams ): ReactNode => {
+	return <BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />;
+};
 
 export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -73,13 +105,6 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	legendValueDisplay?: LegendValueDisplay;
 
 	/**
-	 * Enable interactive legend items that can toggle segment visibility.
-	 * Requires chartId and GlobalChartsProvider.
-	 * When segments are hidden, percentages are recalculated so visible segments total 100%.
-	 */
-	legendInteractive?: boolean;
-
-	/**
 	 * Use the children prop to render additional elements on the chart.
 	 */
 	children?: ReactNode;
@@ -93,6 +118,12 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	 * Vertical offset for tooltip positioning in pixels (default: -15)
 	 */
 	tooltipOffsetY?: number;
+
+	/**
+	 * Custom render function for tooltip content.
+	 * When provided, replaces the default BaseTooltip with custom content.
+	 */
+	renderTooltip?: ( params: PieChartRenderTooltipParams ) => ReactNode;
 }
 
 // Base props type with optional responsive properties
@@ -115,16 +146,15 @@ const validateData = ( data: DataPointPercentage[] ) => {
 	}
 
 	// Check for negative values
-	const hasNegativeValues = data.some( item => item.percentage < 0 || item.value < 0 );
+	const hasNegativeValues = data.some( item => item.value < 0 );
 	if ( hasNegativeValues ) {
 		return { isValid: false, message: 'Invalid data: Negative values are not allowed' };
 	}
 
-	// Validate total percentage
-	const totalPercentage = data.reduce( ( sum, item ) => sum + item.percentage, 0 );
-	if ( Math.abs( totalPercentage - 100 ) > 0.01 ) {
-		// Using small epsilon for floating point comparison
-		return { isValid: false, message: 'Invalid percentage total: Must equal 100' };
+	// Validate total value is greater than 0
+	const totalValue = data.reduce( ( sum, item ) => sum + item.value, 0 );
+	if ( totalValue <= 0 ) {
+		return { isValid: false, message: 'Invalid data: Total value must be greater than 0' };
 	}
 
 	return { isValid: true, message: '' };
@@ -142,13 +172,9 @@ const PieChartInternal = ( {
 	withTooltips = false,
 	className,
 	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendPosition = 'bottom',
-	legendAlignment = 'center',
-	legendMaxWidth,
-	legendTextOverflow = 'wrap',
-	legendItemClassName,
-	legendShape = 'circle',
+	legend = {},
+	width: propWidth,
+	height: propHeight,
 	size,
 	animation,
 	thickness = 1,
@@ -157,19 +183,23 @@ const PieChartInternal = ( {
 	cornerScale = 0,
 	showLabels = true,
 	legendValueDisplay = 'percentage',
-	legendInteractive = false,
 	children = null,
 	tooltipOffsetX = 0,
 	tooltipOffsetY = -15,
+	renderTooltip = renderDefaultPieTooltip,
+	gap = 'md',
 }: PieChartProps ) => {
+	const legendInteractive = legend.interactive ?? false;
+	const legendPosition = legend.position ?? 'bottom';
+
 	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
-	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
-		useTooltip< DataPointPercentage >();
+		useTooltip< DataPointPercentageCalculated >();
 
 	// Set up portal tooltip for better z-index handling
-	const { containerRef, TooltipInPortal } = useTooltipInPortal( {
+	// We get containerBounds to cancel out stale offsets in the position calculation
+	const { containerRef, TooltipInPortal, containerBounds } = useTooltipInPortal( {
 		detectBounds: true,
 		scroll: true,
 		debounce: 0,
@@ -184,9 +214,12 @@ const PieChartInternal = ( {
 
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
+	// Calculate percentages from values (single source of truth)
+	const dataWithPercentages = useDataWithPercentages( data );
+
 	// Filter and recalculate data for interactive legends
 	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
-		data,
+		data: dataWithPercentages,
 		chartId,
 		legendInteractive,
 		isSeriesVisible,
@@ -204,7 +237,10 @@ const PieChartInternal = ( {
 	const { isValid, message } = validateData( data );
 
 	// Process children to extract compound components
-	const { svgChildren, htmlChildren, otherChildren } = useChartChildren( children, 'PieChart' );
+	const { svgChildren, htmlChildren, legendChildren, otherChildren } = useChartChildren(
+		children,
+		'PieChart'
+	);
 
 	// Memoize metadata to prevent unnecessary re-registration
 	const chartMetadata = useMemo(
@@ -235,25 +271,8 @@ const PieChartInternal = ( {
 		);
 	}
 
-	const width = size;
-	const height = size;
-	const adjustedHeight = showLegend && legendPosition === 'top' ? height - legendHeight : height;
-
-	// Calculate radius based on width/height
-	const radius = Math.min( width, adjustedHeight ) / 2;
-
-	// Center the chart in the available space
-	const centerX = width / 2;
-	const centerY = adjustedHeight / 2;
-
 	// Calculate the angle between each (use original data length for consistent spacing)
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
-
-	const outerRadius = radius - padding;
-	const innerRadius = thickness === 0 ? 0 : outerRadius * ( 1 - thickness );
-
-	const maxCornerRadius = ( outerRadius - innerRadius ) / 2;
-	const cornerRadius = cornerScale ? Math.min( cornerScale * outerRadius, maxCornerRadius ) : 0;
 
 	// Map the data to include index for color assignment
 	// When interactive, we need to find the original index to maintain consistent colors
@@ -266,184 +285,213 @@ const PieChartInternal = ( {
 	} );
 
 	const accessors = {
-		value: ( d: DataPointPercentage ) => d.value,
-		fill: ( d: DataPointPercentage & { index: number } ) => {
+		value: ( d: DataPointPercentageCalculated ) => d.value,
+		fill: ( d: DataPointPercentageCalculated & { index: number } ) => {
 			return getElementStyles( { data: d, index: d.index } ).color;
 		},
 	};
 
+	const legendElement = showLegend && (
+		<Legend
+			orientation={ legend.orientation ?? 'horizontal' }
+			position={ legendPosition }
+			alignment={ legend.alignment ?? 'center' }
+			labelStyles={ legend.labelStyles }
+			itemClassName={ legend.itemClassName }
+			itemStyles={ legend.itemStyles }
+			shapeStyles={ legend.shapeStyles }
+			shape={ legend.shape ?? 'circle' }
+			chartId={ chartId }
+			interactive={ legendInteractive }
+		/>
+	);
+
 	return (
-		<SingleChartContext.Provider
-			value={ {
-				chartId,
-				chartWidth: width,
-				chartHeight: adjustedHeight,
-			} }
-		>
-			<div
-				ref={ containerRef }
+		<SingleChartContext.Provider value={ { chartId } }>
+			<ChartLayout
+				legendPosition={ legendPosition }
+				legendElement={ legendElement }
+				legendChildren={ legendChildren }
+				gap={ gap }
 				className={ clsx(
 					'pie-chart',
 					styles[ 'pie-chart' ],
-					{ [ styles[ 'pie-chart--legend-top' ] ]: showLegend && legendPosition === 'top' },
+					// Fill parent when no explicit dimensions provided
+					{ [ styles[ 'pie-chart--responsive' ] ]: ! propWidth && ! propHeight },
 					className
 				) }
-			>
-				<svg
-					viewBox={ `0 0 ${ width } ${ adjustedHeight }` }
-					preserveAspectRatio="xMidYMid meet"
-					width={ width }
-					height={ adjustedHeight }
-				>
-					<defs>
-						<RadialWipeAnimation
-							id={ `radial-wipe-${ chartId }` }
-							radius={ outerRadius }
-							innerRadius={ innerRadius }
-						/>
-					</defs>
-
-					<Group
-						top={ centerY }
-						left={ centerX }
-						mask={ animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null }
-					>
-						{ allSegmentsHidden ? (
-							<text
-								textAnchor="middle"
-								dy=".33em"
-								fill={ providerTheme.gridColor || '#ccc' }
-								fontSize="14"
-								fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
-							>
-								{ __(
-									'All segments are hidden. Click legend items to show data.',
-									'jetpack-charts'
-								) }
-							</text>
-						) : (
-							<Pie< DataPointPercentage & { index: number } >
-								data={ dataWithIndex }
-								pieValue={ accessors.value }
-								outerRadius={ outerRadius }
-								innerRadius={ innerRadius }
-								padAngle={ padAngle }
-								cornerRadius={ cornerRadius }
-							>
-								{ pie => {
-									return pie.arcs.map( ( arc, index ) => {
-										const [ centroidX, centroidY ] = pie.path.centroid( arc );
-										const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.25;
-										const handleMouseMove = ( event: MouseEvent< SVGElement > ) => {
-											if ( ! withTooltips ) {
-												return;
-											}
-
-											// Get coordinates relative to the current target element
-											const coords = localPoint( event );
-											if ( coords ) {
-												// Account for legend offset when legend is on top
-												const legendOffset =
-													showLegend && legendPosition === 'top' ? legendHeight : 0;
-												showTooltip( {
-													tooltipData: arc.data,
-													tooltipLeft: coords.x + tooltipOffsetX,
-													tooltipTop: coords.y + legendOffset + tooltipOffsetY,
-												} );
-											}
-										};
-
-										const pathProps: SVGProps< SVGPathElement > & { 'data-testid'?: string } = {
-											d: pie.path( arc ) || '',
-											fill: accessors.fill( arc.data ),
-											'data-testid': 'pie-segment',
-										};
-
-										const groupProps: SVGProps< SVGGElement > = {};
-										if ( withTooltips ) {
-											groupProps.onMouseMove = handleMouseMove;
-											groupProps.onMouseLeave = onMouseLeave;
-										}
-
-										// Estimate text width more accurately for background sizing
-										const fontSize = 12;
-										const estimatedTextWidth = getStringWidth( arc.data.label, { fontSize } );
-										const labelPadding = 6;
-										const backgroundWidth = estimatedTextWidth + labelPadding * 2;
-										const backgroundHeight = fontSize + labelPadding * 2;
-
-										return (
-											<g key={ `arc-${ index }` } { ...groupProps }>
-												<path { ...pathProps } />
-												{ showLabels && hasSpaceForLabel && (
-													<g>
-														{ providerTheme.labelBackgroundColor && (
-															<rect
-																x={ centroidX - backgroundWidth / 2 }
-																y={ centroidY - backgroundHeight / 2 }
-																width={ backgroundWidth }
-																height={ backgroundHeight }
-																fill={ providerTheme.labelBackgroundColor }
-																rx={ 4 }
-																ry={ 4 }
-																pointerEvents="none"
-															/>
-														) }
-														<text
-															x={ centroidX }
-															y={ centroidY }
-															dy=".33em"
-															fill={ providerTheme.labelTextColor || '#333' }
-															fontSize={ fontSize }
-															textAnchor="middle"
-															pointerEvents="none"
-														>
-															{ arc.data.label }
-														</text>
-													</g>
-												) }
-											</g>
-										);
-									} );
-								} }
-							</Pie>
+				style={ {
+					width: propWidth || undefined,
+					height: propHeight || undefined,
+				} }
+				trailingContent={
+					<>
+						{ withTooltips && tooltipOpen && tooltipData && (
+							<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+								<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
+							</TooltipInPortal>
 						) }
+						{ htmlChildren }
+						{ otherChildren }
+					</>
+				}
+			>
+				{ ( { contentWidth, contentHeight } ) => {
+					const availableWidth = contentWidth > 0 ? contentWidth : 300;
+					const availableHeight = contentHeight > 0 ? contentHeight : 300;
+					const availableSize = Math.min( availableWidth, availableHeight );
+					const actualSize = size ? Math.min( size, availableSize ) : availableSize;
 
-						{ /* Render SVG children (like Group, Text) inside the SVG */ }
-						{ ! allSegmentsHidden && svgChildren }
-					</Group>
-				</svg>
+					const width = actualSize;
+					const height = actualSize;
 
-				{ showLegend && (
-					<Legend
-						orientation={ legendOrientation }
-						position={ legendPosition }
-						alignment={ legendAlignment }
-						maxWidth={ legendMaxWidth }
-						textOverflow={ legendTextOverflow }
-						legendItemClassName={ legendItemClassName }
-						className={ styles[ 'pie-chart-legend' ] }
-						shape={ legendShape }
-						ref={ legendRef }
-						chartId={ chartId }
-						interactive={ legendInteractive }
-					/>
-				) }
+					const radius = Math.min( width, height ) / 2;
+					const centerX = width / 2;
+					const centerY = height / 2;
 
-				{ withTooltips && tooltipOpen && tooltipData && (
-					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-						<div role="tooltip">
-							<BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />
-						</div>
-					</TooltipInPortal>
-				) }
+					const outerRadius = radius - padding;
+					const innerRadius = thickness === 0 ? 0 : outerRadius * ( 1 - thickness );
 
-				{ /* Render HTML component children from PieChart.HTML */ }
-				{ htmlChildren }
+					const maxCornerRadius = ( outerRadius - innerRadius ) / 2;
+					const cornerRadius = cornerScale
+						? Math.min( cornerScale * outerRadius, maxCornerRadius )
+						: 0;
 
-				{ /* Render other React children for backward compatibility */ }
-				{ otherChildren }
-			</div>
+					return (
+						<Center ref={ containerRef }>
+							<svg
+								viewBox={ `0 0 ${ width } ${ height }` }
+								preserveAspectRatio="xMidYMid meet"
+								width={ width }
+								height={ height }
+							>
+								<defs>
+									<RadialWipeAnimation
+										id={ `radial-wipe-${ chartId }` }
+										radius={ outerRadius }
+										innerRadius={ innerRadius }
+									/>
+								</defs>
+
+								<Group
+									top={ centerY }
+									left={ centerX }
+									mask={
+										animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null
+									}
+								>
+									{ allSegmentsHidden ? (
+										<SvgEmptyState x={ 0 } y={ 0 } width={ width } height={ height }>
+											{ __(
+												'All segments are hidden. Click legend items to show data.',
+												'jetpack-charts'
+											) }
+										</SvgEmptyState>
+									) : (
+										<Pie< DataPointPercentageCalculated & { index: number } >
+											data={ dataWithIndex }
+											pieValue={ accessors.value }
+											outerRadius={ outerRadius }
+											innerRadius={ innerRadius }
+											padAngle={ padAngle }
+											cornerRadius={ cornerRadius }
+										>
+											{ pie => {
+												return pie.arcs.map( ( arc, index ) => {
+													const [ centroidX, centroidY ] = pie.path.centroid( arc );
+													const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.25;
+													const handleMouseMove = ( event: MouseEvent< SVGElement > ) => {
+														if ( ! withTooltips ) {
+															return;
+														}
+
+														// Don't show tooltip until container bounds are measured
+														if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+															return;
+														}
+
+														// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
+														// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
+														// By passing (clientX - containerBounds.left), we get:
+														// (clientX - containerBounds.left) + containerBounds.left + scrollX = clientX + scrollX
+														// This gives correct page coordinates regardless of stale bounds.
+														showTooltip( {
+															tooltipData: arc.data,
+															tooltipLeft: event.clientX - containerBounds.left + tooltipOffsetX,
+															tooltipTop: event.clientY - containerBounds.top + tooltipOffsetY,
+														} );
+													};
+
+													const pathProps: SVGProps< SVGPathElement > & {
+														'data-testid'?: string;
+													} = {
+														d: pie.path( arc ) || '',
+														fill: accessors.fill( arc.data ),
+														'data-testid': 'pie-segment',
+													};
+
+													const groupProps: SVGProps< SVGGElement > = {};
+													if ( withTooltips ) {
+														groupProps.onMouseMove = handleMouseMove;
+														groupProps.onMouseLeave = onMouseLeave;
+													}
+
+													const svgLabelSmall = providerTheme.svgLabelSmall;
+													const fontSize = resolveFontSize( svgLabelSmall?.fontSize ) ?? 12;
+													const estimatedTextWidth = getStringWidth( arc.data.label, {
+														fontSize,
+														fontFamily: svgLabelSmall?.fontFamily,
+														fontWeight: svgLabelSmall?.fontWeight,
+													} );
+													const labelPadding = 6;
+													const backgroundWidth = estimatedTextWidth + labelPadding * 2;
+													const backgroundHeight = fontSize + labelPadding * 2;
+
+													return (
+														<g key={ `arc-${ index }` } { ...groupProps }>
+															<path { ...pathProps } />
+															{ showLabels && hasSpaceForLabel && (
+																<g>
+																	{ providerTheme.labelBackgroundColor && (
+																		<rect
+																			x={ centroidX - backgroundWidth / 2 }
+																			y={ centroidY - backgroundHeight / 2 }
+																			width={ backgroundWidth }
+																			height={ backgroundHeight }
+																			fill={ providerTheme.labelBackgroundColor }
+																			rx={ 4 }
+																			ry={ 4 }
+																			pointerEvents="none"
+																		/>
+																	) }
+																	<text
+																		x={ centroidX }
+																		y={ centroidY }
+																		dy=".33em"
+																		fill={ providerTheme.labelTextColor || '#333' }
+																		fontSize={ fontSize }
+																		textAnchor="middle"
+																		pointerEvents="none"
+																	>
+																		{ arc.data.label }
+																	</text>
+																</g>
+															) }
+														</g>
+													);
+												} );
+											} }
+										</Pie>
+									) }
+
+									{ /* Render SVG children (like Group, Text) inside the SVG */ }
+									{ ! allSegmentsHidden && svgChildren }
+								</Group>
+							</svg>
+						</Center>
+					);
+				} }
+			</ChartLayout>
 		</SingleChartContext.Provider>
 	);
 };

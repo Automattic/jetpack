@@ -1,0 +1,47 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/filter-checkbox",
+	"version": "0.1.0",
+	"title": "Checkbox Filter",
+	"category": "jetpack-search",
+	"description": "Checkbox filter. Use a variation (Category, Tag, Post Type, Author, Product Category, Product Tag, Product Brand, Custom Taxonomy) or configure manually. Powered by Jetpack Search.",
+	"supports": {
+		"html": false,
+		"interactivity": true
+	},
+	"usesContext": [ "jetpack-search/inInteractiveScope" ],
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"filterType": {
+			"type": "string",
+			"default": "taxonomy",
+			"enum": [ "taxonomy", "post_type", "author" ]
+		},
+		"taxonomy": {
+			"type": "string",
+			"default": "category"
+		},
+		"label": { "type": "string", "default": "" },
+		"displayStyle": {
+			"type": "string",
+			"default": "checkbox-list",
+			"enum": [ "checkbox-list", "chips" ]
+		},
+		"showCount": { "type": "boolean", "default": true },
+		"maxItems": { "type": "integer", "default": 10 },
+		"bucketSortOrder": {
+			"type": "string",
+			"default": "count",
+			"enum": [ "count", "alpha" ]
+		},
+		"queryType": {
+			"type": "string",
+			"default": "or",
+			"enum": [ "or", "and" ]
+		}
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/filter-checkbox.js",
+	"style": "file:../../../../build/search-blocks/filter-checkbox.css"
+}

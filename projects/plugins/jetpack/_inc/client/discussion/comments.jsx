@@ -1,4 +1,5 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { FormFieldset, FormLabel, FormSelect } from 'components/forms';
@@ -83,9 +84,10 @@ class CommentsComponent extends Component {
 						<ModuleToggle
 							slug="comments"
 							compact
-							disabled={ commentsUnavailableInOfflineMode }
+							disabled={
+								commentsUnavailableInOfflineMode || this.props.isSavingAnyOption( 'comments' )
+							}
 							activated={ this.props.getOptionValue( 'comments' ) }
-							toggling={ this.props.isSavingAnyOption( 'comments' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">{ comments.description }</span>
@@ -139,8 +141,8 @@ class CommentsComponent extends Component {
 									<ModuleToggle
 										slug="gravatar-hovercards"
 										compact
+										disabled={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
 										activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
-										toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
 										toggleModule={ this.props.toggleModuleNow }
 									>
 										<span className="jp-form-toggle-explanation">{ gravatar.description }</span>
@@ -167,15 +169,13 @@ class CommentsComponent extends Component {
 											this.props.isSavingAnyOption( [ 'markdown' ] ) ||
 											'inactive' === this.props.getModuleOverride( 'markdown' )
 										}
-										toggling={ this.props.isSavingAnyOption( [
-											'wpcom_publish_comments_with_markdown',
-										] ) }
 										onChange={ this.handleMarkdownCommentsToggle }
 										label={
 											<span className="jp-form-toggle-explanation">
 												{ __( 'Enable Markdown use for comments.', 'jetpack' ) }
 											</span>
 										}
+										__nextHasNoMarginBottom={ true }
 									/>
 								</FormFieldset>
 								<SupportInfo
@@ -191,9 +191,10 @@ class CommentsComponent extends Component {
 									<ModuleToggle
 										slug="comment-likes"
 										compact
-										disabled={ commentLikesUnavailable }
+										disabled={
+											commentLikesUnavailable || this.props.isSavingAnyOption( 'comment-likes' )
+										}
 										activated={ commentLikesActive }
-										toggling={ this.props.isSavingAnyOption( 'comment-likes' ) }
 										toggleModule={ this.props.toggleModuleNow }
 									>
 										<span className="jp-form-toggle-explanation">

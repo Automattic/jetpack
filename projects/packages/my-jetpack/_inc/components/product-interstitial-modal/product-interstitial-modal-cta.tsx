@@ -1,11 +1,10 @@
-import { Button } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
-import styles from './style.module.scss';
 
 interface ProductInterstitialModalCtaProps {
 	slug: string;
@@ -74,17 +73,41 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 			useBlogIdSuffix: true,
 		} );
 
+	const isDisabled = disabled || isProductLoading;
+	const isLoading = isProductLoading || hasMainCheckoutStarted;
+	const label = buttonLabel || __( 'Upgrade', 'jetpack-my-jetpack' );
+
+	if ( href ) {
+		return (
+			<Button
+				variant="solid"
+				loading={ isLoading }
+				onClick={ mainCheckoutRedirect }
+				disabled={ isDisabled }
+				nativeButton={ false }
+				render={
+					<a
+						href={ href }
+						{ ...( isExternalLink && {
+							target: '_blank',
+							rel: 'noopener noreferrer',
+						} ) }
+					/>
+				}
+			>
+				{ label }
+			</Button>
+		);
+	}
+
 	return (
 		<Button
-			variant="primary"
-			className={ styles[ 'action-button' ] }
-			isLoading={ isProductLoading || hasMainCheckoutStarted }
+			variant="solid"
+			loading={ isLoading }
 			onClick={ mainCheckoutRedirect }
-			isExternalLink={ isExternalLink }
-			href={ href }
-			disabled={ disabled || isProductLoading }
+			disabled={ isDisabled }
 		>
-			{ buttonLabel || __( 'Upgrade', 'jetpack-my-jetpack' ) }
+			{ label }
 		</Button>
 	);
 };

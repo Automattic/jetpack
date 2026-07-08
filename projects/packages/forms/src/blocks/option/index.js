@@ -1,6 +1,5 @@
-import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import { Path, SVG } from '@wordpress/primitives';
 import edit from './edit.js';
 import save from './save.js';
 
@@ -11,12 +10,19 @@ const settings = {
 	description: __( 'An option for a form choice field', 'jetpack-forms' ),
 	category: 'contact-form',
 	icon: {
-		src: renderMaterialIcon( <Path d="M5 11.25H19V12.75H5V11.25Z" /> ),
+		src: (
+			<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<Path d="M5 11.25H19V12.75H5V11.25Z" />
+			</SVG>
+		),
 	},
 	parent: [ 'jetpack/field-checkbox', 'jetpack/field-consent', 'jetpack/options' ],
 	supports: {
 		reusable: false,
 		html: false,
+		// FORMS-694: choice/option blocks flatten through the field shortcode
+		// like inputs — visibility is inert; disable the control.
+		visibility: false,
 		splitting: true,
 		color: {
 			text: true,
@@ -62,6 +68,14 @@ const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		isOther: {
+			type: 'boolean',
+			default: false,
+		},
+		otherPlaceholder: {
+			type: 'string',
+			default: __( 'Please specify…', 'jetpack-forms' ),
+		},
 	},
 	usesContext: [
 		'jetpack/field-default-value',
@@ -71,6 +85,11 @@ const settings = {
 	],
 	edit,
 	save,
+	__experimentalLabel: ( { isOther: isOtherOption } ) => {
+		const otherLabel = __( 'Option (other)', 'jetpack-forms' );
+		const defaultLabel = __( 'Option', 'jetpack-forms' );
+		return isOtherOption ? otherLabel : defaultLabel;
+	},
 };
 
 export default {

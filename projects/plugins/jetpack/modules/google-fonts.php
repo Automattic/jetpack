@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Google Fonts (Beta)
- * Module Description: Customize your site's typography with a selection of Google Fonts.
+ * Module Description: This feature is now supported natively in WordPress when using any block theme. To use Google Fonts, refer to the WordPress.org Font Library documentation.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 10.8.0

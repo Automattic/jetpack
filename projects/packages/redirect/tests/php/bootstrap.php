@@ -1,4 +1,4 @@
-<?php //phpcs:ignore Squiz.Commenting.FileComment.Missing
+<?php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 

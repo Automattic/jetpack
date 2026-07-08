@@ -1,0 +1,12 @@
+.jpb-restore-checklist {
+
+	// Helper text under a row: indented to line up with the checkbox label
+	// and rendered in a muted gray. `@wordpress/ui` Text's `variant="muted"`
+	// doesn't take inside our Card.Root (wp-admin's unlayered global
+	// `color: #1e1e1e` wins over the layered token), so set the color
+	// explicitly here.
+	&__desc {
+		padding-left: 28px;
+		color: var(--wp-components-color-foreground-muted, #757575);
+	}
+}

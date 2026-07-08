@@ -181,7 +181,7 @@ class Helper {
 					$widget_filter['name'] = self::generate_widget_filter_name( $widget_filter );
 				}
 
-				$type = ( isset( $widget_filter['type'] ) ) ? $widget_filter['type'] : '';
+				$type = $widget_filter['type'] ?? '';
 
 				// If this is a product_attribute filter with no specific attribute, expand it to all global attributes.
 				if ( 'product_attribute' === $type && empty( $widget_filter['attribute'] ) ) {
@@ -917,6 +917,10 @@ class Helper {
 				// These options require kicking off a new search.
 				'defaultSort'                 => get_option( $prefix . 'default_sort', 'relevance' ),
 				'excludedPostTypes'           => $excluded_post_types,
+
+				// Fallback image options
+				'fallbackImageUrl'            => get_option( $prefix . 'fallback_image_url', '' ),
+				'enableFallbackImage'         => get_option( $prefix . 'enable_fallback_image', '0' ) === '1',
 			),
 
 			// core config.
@@ -924,6 +928,7 @@ class Helper {
 			'locale'                      => str_replace( '_', '-', self::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
 			'postsPerPage'                => $posts_per_page,
 			'siteId'                      => self::get_wpcom_site_id(),
+			'searchSuggestionsEnabled'    => (bool) get_option( 'jetpack_search_suggestions_enabled', false ),
 			'postTypes'                   => $post_type_labels,
 			'webpackPublicPath'           => plugins_url( '/build/instant-search/', __DIR__ ),
 			'isPhotonEnabled'             => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
@@ -950,6 +955,23 @@ class Helper {
 			 * @param bool Prevent cookie reset for automattic sites as default value.
 			 */
 			'preventTrackingCookiesReset' => apply_filters( 'jetpack_instant_search_prevent_tracking_cookies_reset', function_exists( 'is_automattic' ) && is_automattic() ),
+
+			/**
+			 * Whether to disable Tracks and TrainTracks analytics.
+			 *
+			 * This can be enabled via URL parameter (?disable_tracking=1) for testing,
+			 * or via the filter for permanent configuration. Useful for debugging issues
+			 * where tracking may interfere with search functionality, such as Safari's
+			 * advanced tracking protection.
+			 *
+			 * @module search
+			 *
+			 * @since 0.56.0
+			 *
+			 * @param bool $disable_tracking Whether to disable tracking. Default false.
+			 */
+			'disableTracking'             => self::is_tracking_disabled() || apply_filters( 'jetpack_instant_search_disable_tracking', false ),
+			'aiAnswersEnabled'            => AI_Answers::is_enabled(),
 		);
 
 		/**
@@ -1036,5 +1058,27 @@ class Helper {
 		$referrer = wp_get_referer();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		return ( isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'] ) || $referrer && strpos( $referrer, 'new_pricing_202208=1' ) !== false;
+	}
+
+	/**
+	 * Returns true if tracking should be disabled via URL parameter, which is used for testing purposes.
+	 *
+	 * @since 0.56.0
+	 *
+	 * @return bool
+	 */
+	public static function is_tracking_disabled() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		return isset( $_GET['disable_tracking'] ) && $_GET['disable_tracking'];
+	}
+
+	/**
+	 * Enqueue the WordPress.com Tracks library that drains `window._tkq` and
+	 * sends the queued events. Shared by Instant Search and the Search blocks so
+	 * the handle, src, and cache-busting version live in one place. Callers own
+	 * the decision of whether to load it (e.g. the `is_tracking_disabled()` gate).
+	 */
+	public static function enqueue_tracks_script() {
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 }

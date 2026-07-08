@@ -1,6 +1,10 @@
 // Map of eslint-plugin-es-x rules to MDN compat-data paths.
 // Values are either a path, an array of paths, true to always enable the rule, or false to always disable it.
 module.exports = {
+	// ES2027
+	'no-temporal': 'javascript.builtins.Temporal',
+	'no-date-prototype-totemporalinstant': 'javascript.builtins.Date.toTemporalInstant',
+
 	// ES2026
 	'no-array-fromasync': 'javascript.builtins.Array.fromAsync',
 	'no-asyncdisposablestack': 'javascript.builtins.AsyncDisposableStack.AsyncDisposableStack',
@@ -15,11 +19,19 @@ module.exports = {
 	'no-intl-locale-prototype-gettextinfo': 'javascript.builtins.Intl.Locale.getTextInfo',
 	'no-intl-locale-prototype-gettimezones': 'javascript.builtins.Intl.Locale.getTimeZones',
 	'no-intl-locale-prototype-getweekinfo': 'javascript.builtins.Intl.Locale.getWeekInfo',
-	'no-iterator-concat': false, // No compat data yet.
+	'no-iterator-concat': 'javascript.builtins.Iterator.concat',
+	'no-json-israwjson': 'javascript.builtins.JSON.isRawJSON',
+	'no-json-parse-reviver-context-parameter':
+		'javascript.builtins.JSON.parse.reviver_parameter_context_argument',
+	'no-json-rawjson': 'javascript.builtins.JSON.rawJSON',
+	'no-map-prototype-getorinsert': 'javascript.builtins.Map.getOrInsert',
+	'no-map-prototype-getorinsertcomputed': 'javascript.builtins.Map.getOrInsertComputed',
 	'no-suppressederror': 'javascript.builtins.SuppressedError.SuppressedError',
 	'no-symbol-asyncdispose': 'javascript.builtins.Symbol.asyncDispose',
 	'no-symbol-dispose': 'javascript.builtins.Symbol.dispose',
 	'no-using-declarations': 'javascript.statements.using',
+	'no-weakmap-prototype-getorinsert': 'javascript.builtins.WeakMap.getOrInsert',
+	'no-weakmap-prototype-getorinsertcomputed': 'javascript.builtins.WeakMap.getOrInsertComputed',
 
 	// ES2025
 	'no-dataview-prototype-getfloat16-setfloat16': [
@@ -419,6 +431,7 @@ module.exports = {
 
 	// "No nonstandard properties" rules.
 	// No compat data for any of these, as far as I can tell.
+	'no-nonstandard-temporal-zoneddatetime-prototype-properties': false,
 	'no-nonstandard-array-properties': false,
 	'no-nonstandard-array-prototype-properties': false,
 	'no-nonstandard-arraybuffer-properties': false,
@@ -484,6 +497,7 @@ module.exports = {
 	'no-nonstandard-string-prototype-properties': false,
 	'no-nonstandard-symbol-properties': false,
 	'no-nonstandard-symbol-prototype-properties': false,
+	'no-nonstandard-temporal-duration-properties': false,
 	'no-nonstandard-typed-array-properties': false,
 	'no-nonstandard-typed-array-prototype-properties': false,
 	'no-nonstandard-weakmap-properties': false,
@@ -492,4 +506,20 @@ module.exports = {
 	'no-nonstandard-weakref-prototype-properties': false,
 	'no-nonstandard-weakset-properties': false,
 	'no-nonstandard-weakset-prototype-properties': false,
+	'no-nonstandard-temporal-duration-prototype-properties': false,
+	'no-nonstandard-temporal-instant-properties': false,
+	'no-nonstandard-temporal-instant-prototype-properties': false,
+	'no-nonstandard-temporal-now-properties': false,
+	'no-nonstandard-temporal-plaindate-properties': false,
+	'no-nonstandard-temporal-plaindate-prototype-properties': false,
+	'no-nonstandard-temporal-plaindatetime-properties': false,
+	'no-nonstandard-temporal-plaindatetime-prototype-properties': false,
+	'no-nonstandard-temporal-plainmonthday-properties': false,
+	'no-nonstandard-temporal-plainmonthday-prototype-properties': false,
+	'no-nonstandard-temporal-plaintime-properties': false,
+	'no-nonstandard-temporal-plaintime-prototype-properties': false,
+	'no-nonstandard-temporal-plainyearmonth-properties': false,
+	'no-nonstandard-temporal-plainyearmonth-prototype-properties': false,
+	'no-nonstandard-temporal-properties': false,
+	'no-nonstandard-temporal-zoneddatetime-properties': false,
 };

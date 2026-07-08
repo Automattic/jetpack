@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a `wpcomsh php83-plugin-patch mega_main_menu` CLI command that removes the duplicate `static $theme_option_file` declaration triggering a "Duplicate declaration of static variable" fatal error under PHP 8.3+.

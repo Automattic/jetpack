@@ -1,0 +1,69 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "@wordpress/dataviews/build-style/style.css";
+
+body.jetpack_page_jetpack-podcast {
+
+	@include jetpack-admin-page-layout;
+}
+
+.podcast__loading {
+	display: flex;
+	justify-content: center;
+	padding: 48px 0;
+}
+
+// The header CTA is a WP UI solid Button rendered as an `<a>`. wp-admin's
+// unlayered `a`/`a:hover` color beats the button's layered foreground, so
+// re-pin its own color across states with enough specificity to win out. A
+// solid Button keeps one foreground color throughout.
+.podcast__header-cta,
+.podcast__header-cta:hover,
+.podcast__header-cta:focus,
+.podcast__header-cta:active {
+	color: var(--wp-ui-button-foreground-color);
+}
+
+.podcast__tab-content {
+	box-sizing: border-box;
+}
+
+// Form-style panels (Settings, Distribution, Welcome) sit in a centered column
+// with shared outer spacing. DataView-backed tabs keep their own layout.
+.podcast__tab-content--narrow,
+.podcast__tab-content--wide {
+	padding-block: 32px;
+	padding-inline: clamp(16px, 3vw, 32px);
+}
+
+.podcast__tab-content--narrow {
+	margin-inline: auto;
+	max-inline-size: 744px;
+}
+
+.podcast__tab-content--wide {
+	margin-inline: auto;
+	max-inline-size: 1024px;
+}
+
+// Wider variant for tabs whose content benefits from extra horizontal
+// breathing room (Stats: side-by-side chart + tile row, map + country list).
+.podcast__tab-content--xwide {
+	margin-inline: auto;
+	max-inline-size: 1280px;
+}
+
+.podcast__section-heading {
+	margin: 0;
+	font-size: 24px;
+	font-weight: 400;
+	line-height: 1.2;
+	color: #1e1e1e;
+}
+
+// Used by both Settings ("Finish setting up") and Distribution ("Almost ready
+// to submit") notice lists.
+.podcast__settings-issues {
+	margin: 4px 0 0;
+	padding-inline-start: 18px;
+	list-style: disc;
+}

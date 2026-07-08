@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-boost-score-api",
-	"version": "1.0.25",
+	"version": "1.0.52",
 	"description": "A package to get the Jetpack Boost score of a site",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/boost-score-api/#readme",
 	"bugs": {
@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/boost-score-api"
+		"url": "git+https://github.com/Automattic/jetpack-boost-score-api.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -27,18 +26,18 @@
 		"clean": "rm -rf build/",
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsc --noEmit",
+		"typecheck": "tsgo --noEmit",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {
-		"@wordpress/i18n": "6.11.0",
+		"@wordpress/i18n": "6.23.0",
 		"zod": "3.25.76"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"jest": "30.2.0",
-		"typescript": "5.9.3",
-		"webpack": "5.101.3",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"jest": "30.4.2",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	}
 }

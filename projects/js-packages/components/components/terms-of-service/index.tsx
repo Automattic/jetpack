@@ -1,8 +1,12 @@
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
-import { getRedirectUrl } from '../../index.ts';
+// Deep import rather than the package barrel (`../../index.ts`): the barrel
+// pulls in heavy, asset-importing components (e.g. boost-score-graph) that the
+// wp-build esbuild pipeline can't bundle, which breaks any wp-build dashboard
+// that deep-imports pricing-table (which renders TermsOfService).
+import getRedirectUrl from '../../tools/jp-redirect/index.ts';
 import Text from '../text/index.tsx';
 import type { TermsOfServiceProps } from './types.ts';
 import type { FC, ReactNode } from 'react';
@@ -46,8 +50,8 @@ const MultipleButtonsText = ( { multipleButtonsLabels } ) => {
 			),
 			{
 				strong: <strong />,
-				tosLink: <Link slug="wpcom-tos" />,
-				shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+				tosLink: <TosLink slug="wpcom-tos" />,
+				shareDetailsLink: <TosLink slug="jetpack-support-what-data-does-jetpack-sync" />,
 			}
 		);
 	}
@@ -58,8 +62,8 @@ const MultipleButtonsText = ( { multipleButtonsLabels } ) => {
 			'jetpack-components'
 		),
 		{
-			tosLink: <Link slug="wpcom-tos" />,
-			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+			tosLink: <TosLink slug="wpcom-tos" />,
+			shareDetailsLink: <TosLink slug="jetpack-support-what-data-does-jetpack-sync" />,
 		}
 	);
 };
@@ -76,8 +80,8 @@ const SingleButtonText = ( { agreeButtonLabel } ) =>
 		),
 		{
 			strong: <strong />,
-			tosLink: <Link slug="wpcom-tos" />,
-			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+			tosLink: <TosLink slug="wpcom-tos" />,
+			shareDetailsLink: <TosLink slug="jetpack-support-what-data-does-jetpack-sync" />,
 		}
 	);
 
@@ -88,15 +92,15 @@ const TermsOfServiceTextOnly = () =>
 			'jetpack-components'
 		),
 		{
-			tosLink: <Link slug="wpcom-tos" />,
-			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+			tosLink: <TosLink slug="wpcom-tos" />,
+			shareDetailsLink: <TosLink slug="jetpack-support-what-data-does-jetpack-sync" />,
 		}
 	);
 
-const Link: FC< { slug: string; children?: ReactNode } > = ( { slug, children } ) => (
-	<ExternalLink className="terms-of-service__link" href={ getRedirectUrl( slug ) }>
+const TosLink: FC< { slug: string; children?: ReactNode } > = ( { slug, children } ) => (
+	<Link openInNewTab className="terms-of-service__link" href={ getRedirectUrl( slug ) }>
 		{ children }
-	</ExternalLink>
+	</Link>
 );
 
 export default TermsOfService;

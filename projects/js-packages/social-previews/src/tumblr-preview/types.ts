@@ -7,5 +7,4 @@ export type TumblrUser = {
 
 export type TumblrPreviewProps = SocialPreviewBaseProps & {
 	user?: TumblrUser;
-	customText?: string;
 };

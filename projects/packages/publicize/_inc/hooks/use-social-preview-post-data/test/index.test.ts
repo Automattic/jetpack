@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import { useSocialPreviewPostData } from '../';
+import { useLinkPreviewPostData } from '../../use-link-preview-post-data';
+import { getMediaSourceUrl } from '../../use-link-preview-post-data/utils';
 import { usePostMeta } from '../../use-post-meta';
-import { getSigImageUrl } from '../../use-sig-preview/utils';
-import { getMediaSourceUrl, getPostImageUrl } from '../utils';
 
 jest.mock( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' );
@@ -21,22 +21,23 @@ jest.mock( '../../use-post-meta', () => ( {
 	usePostMeta: jest.fn(),
 } ) );
 
-jest.mock( '../../use-sig-preview/utils', () => ( {
-	getSigImageUrl: jest.fn(),
+jest.mock( '../../use-link-preview-post-data', () => ( {
+	useLinkPreviewPostData: jest.fn(),
 } ) );
 
-jest.mock( '../utils', () => ( {
+jest.mock( '../../use-link-preview-post-data/utils', () => ( {
 	getMediaSourceUrl: jest.fn(),
-	getPostImageUrl: jest.fn(),
 } ) );
 
 const mockUsePostMeta = usePostMeta as jest.MockedFunction< typeof usePostMeta >;
-const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
-const mockGetSigImageUrl = getSigImageUrl as jest.MockedFunction< typeof getSigImageUrl >;
+const mockUseSelect = useSelect as jest.Mock;
+const mockUseLinkPreviewPostData = useLinkPreviewPostData as jest.MockedFunction<
+	typeof useLinkPreviewPostData
+>;
 const mockGetMediaSourceUrl = getMediaSourceUrl as jest.MockedFunction< typeof getMediaSourceUrl >;
-const mockGetPostImageUrl = getPostImageUrl as jest.MockedFunction< typeof getPostImageUrl >;
 
 const mockGetEditedPostAttribute = jest.fn();
+const mockGetEditedPostContent = jest.fn( () => '' );
 
 const getDefaultMockPostMeta = () => ( {
 	attachedMedia: [] as Array< { id: number; type: string; url: string } >,
@@ -54,148 +55,87 @@ const getDefaultMockPostMeta = () => ( {
 	updateJetpackSocialOptions: jest.fn(),
 } );
 
+const getDefaultLinkPreviewData = () => ( {
+	title: 'Test Post Title',
+	description: 'Test description',
+	image: '',
+	siteTitle: 'Test Site',
+	url: 'https://example.com/test-post',
+} );
+
 describe( 'useSocialPreviewPostData', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 
 		mockUsePostMeta.mockReturnValue( getDefaultMockPostMeta() );
-
-		mockGetSigImageUrl.mockReturnValue( '' );
+		mockUseLinkPreviewPostData.mockReturnValue( getDefaultLinkPreviewData() );
 		mockGetMediaSourceUrl.mockReturnValue( '' );
-		mockGetPostImageUrl.mockReturnValue( null );
 
-		// Default mock for useSelect
+		mockGetEditedPostAttribute.mockImplementation( ( attr: string ) => {
+			const attributes: Record< string, unknown > = {
+				excerpt: 'Test excerpt',
+				content: 'Test content',
+			};
+			return attributes[ attr ];
+		} );
+
 		mockUseSelect.mockImplementation( ( selectorOrMapper: unknown ) => {
-			// Handle callback-style useSelect
 			if ( typeof selectorOrMapper === 'function' ) {
 				const mockSelect = () => ( {
 					getEntityRecords: jest.fn().mockReturnValue( [] ),
-					getEntityRecord: jest.fn().mockReturnValue( null ),
 					getEditedPostAttribute: mockGetEditedPostAttribute,
-					getEditedPostContent: jest.fn().mockReturnValue( '' ),
+					getEditedPostContent: mockGetEditedPostContent,
 				} );
 				return selectorOrMapper( mockSelect );
 			}
 
 			return { getEditedPostAttribute: mockGetEditedPostAttribute };
 		} );
-
-		mockGetEditedPostAttribute.mockImplementation( ( attr: string ) => {
-			const attributes: Record< string, unknown > = {
-				title: 'Test Post Title',
-				excerpt: 'Test excerpt',
-				content: 'Test content',
-				link: 'https://example.com/test-post',
-				featured_media: 0,
-				meta: {},
-			};
-			return attributes[ attr ];
-		} );
 	} );
 
-	it( 'should return basic post data', () => {
+	it( 'should spread link preview data into the result', () => {
+		const linkPreviewData = {
+			title: 'Link Preview Title',
+			description: 'Link Preview Description',
+			image: 'https://example.com/image.jpg',
+			siteTitle: 'Link Preview Site',
+			url: 'https://example.com/link-preview',
+		};
+		mockUseLinkPreviewPostData.mockReturnValue( linkPreviewData );
+
 		const { result } = renderHook( () => useSocialPreviewPostData() );
 
-		expect( result.current.title ).toBe( 'Test Post Title' );
+		expect( result.current.title ).toBe( 'Link Preview Title' );
+		expect( result.current.description ).toBe( 'Link Preview Description' );
+		expect( result.current.image ).toBe( 'https://example.com/image.jpg' );
+		expect( result.current.siteTitle ).toBe( 'Link Preview Site' );
+		expect( result.current.url ).toBe( 'https://example.com/link-preview' );
+	} );
+
+	it( 'should return excerpt from post attributes', () => {
+		const { result } = renderHook( () => useSocialPreviewPostData() );
+
 		expect( result.current.excerpt ).toBe( 'Test excerpt' );
-		expect( result.current.url ).toBe( 'https://example.com/test-post' );
-		expect( result.current.media ).toEqual( [] );
-	} );
-
-	it( 'should use SEO title when available', () => {
-		mockGetEditedPostAttribute.mockImplementation( ( attr: string ) => {
-			const attributes: Record< string, unknown > = {
-				title: 'Regular Title',
-				excerpt: '',
-				content: '',
-				link: 'https://example.com/test-post',
-				featured_media: 0,
-				meta: {
-					jetpack_seo_html_title: 'SEO Title',
-				},
-			};
-			return attributes[ attr ];
-		} );
-
-		const { result } = renderHook( () => useSocialPreviewPostData() );
-
-		expect( result.current.title ).toBe( 'SEO Title' );
-	} );
-
-	it( 'should use advanced SEO description when available', () => {
-		mockGetEditedPostAttribute.mockImplementation( ( attr: string ) => {
-			const attributes: Record< string, unknown > = {
-				title: 'Test Title',
-				excerpt: 'Regular excerpt',
-				content: 'Test content',
-				link: 'https://example.com/test-post',
-				featured_media: 0,
-				meta: {
-					advanced_seo_description: 'SEO Description',
-				},
-			};
-			return attributes[ attr ];
-		} );
-
-		const { result } = renderHook( () => useSocialPreviewPostData() );
-
-		expect( result.current.description ).toBe( 'SEO Description' );
-	} );
-
-	it( 'should fall back to excerpt for description', () => {
-		mockGetEditedPostAttribute.mockImplementation( ( attr: string ) => {
-			const attributes: Record< string, unknown > = {
-				title: 'Test Title',
-				excerpt: 'Post excerpt',
-				content: 'Test content',
-				link: 'https://example.com/test-post',
-				featured_media: 0,
-				meta: {},
-			};
-			return attributes[ attr ];
-		} );
-
-		const { result } = renderHook( () => useSocialPreviewPostData() );
-
-		expect( result.current.description ).toBe( 'Post excerpt' );
 	} );
 
 	it( 'should use content before more tag when no excerpt', () => {
 		mockGetEditedPostAttribute.mockImplementation( ( attr: string ) => {
 			const attributes: Record< string, unknown > = {
-				title: 'Test Title',
 				excerpt: '',
 				content: 'Content before more<!--more-->Content after more',
-				link: 'https://example.com/test-post',
-				featured_media: 0,
-				meta: {},
 			};
 			return attributes[ attr ];
 		} );
 
 		const { result } = renderHook( () => useSocialPreviewPostData() );
 
-		expect( result.current.description ).toBe( 'Content before more' );
 		expect( result.current.excerpt ).toBe( 'Content before more' );
 	} );
 
-	it( 'should trim whitespace from title and description', () => {
-		mockGetEditedPostAttribute.mockImplementation( ( attr: string ) => {
-			const attributes: Record< string, unknown > = {
-				title: '  Title with spaces  ',
-				excerpt: '  Excerpt with spaces  ',
-				content: '',
-				link: 'https://example.com/test-post',
-				featured_media: 0,
-				meta: {},
-			};
-			return attributes[ attr ];
-		} );
-
+	it( 'should return empty media when no attached media', () => {
 		const { result } = renderHook( () => useSocialPreviewPostData() );
 
-		expect( result.current.title ).toBe( 'Title with spaces' );
-		expect( result.current.description ).toBe( 'Excerpt with spaces' );
+		expect( result.current.media ).toEqual( [] );
 	} );
 
 	it( 'should return attached media with URLs from SIG images', () => {
@@ -263,9 +203,8 @@ describe( 'useSocialPreviewPostData', () => {
 			if ( typeof selectorOrMapper === 'function' ) {
 				const mockSelect = () => ( {
 					getEntityRecords: jest.fn().mockReturnValue( [ mockMediaItem ] ),
-					getEntityRecord: jest.fn().mockReturnValue( null ),
 					getEditedPostAttribute: mockGetEditedPostAttribute,
-					getEditedPostContent: jest.fn().mockReturnValue( '' ),
+					getEditedPostContent: mockGetEditedPostContent,
 				} );
 				return selectorOrMapper( mockSelect );
 			}
@@ -283,117 +222,6 @@ describe( 'useSocialPreviewPostData', () => {
 		] );
 	} );
 
-	it( 'should use SIG image URL when enabled', () => {
-		mockUsePostMeta.mockReturnValue( {
-			...getDefaultMockPostMeta(),
-			imageGeneratorSettings: {
-				enabled: true,
-				token: 'test-token',
-			},
-		} );
-
-		mockGetSigImageUrl.mockReturnValue( 'https://example.com/sig-generated.jpg' );
-
-		mockUseSelect.mockImplementation( ( selectorOrMapper: unknown ) => {
-			if ( typeof selectorOrMapper === 'function' ) {
-				const mockSelect = () => ( {
-					getEntityRecords: jest.fn().mockReturnValue( [] ),
-					getEntityRecord: jest.fn().mockReturnValue( null ),
-					getEditedPostAttribute: mockGetEditedPostAttribute,
-					getEditedPostContent: jest.fn().mockReturnValue( '' ),
-				} );
-				return selectorOrMapper( mockSelect );
-			}
-			return { getEditedPostAttribute: mockGetEditedPostAttribute };
-		} );
-
-		const { result } = renderHook( () => useSocialPreviewPostData() );
-
-		expect( result.current.image ).toBe( 'https://example.com/sig-generated.jpg' );
-	} );
-
-	it( 'should use featured image when no SIG', () => {
-		const mockFeaturedMedia = {
-			id: 456,
-			source_url: 'https://example.com/featured.jpg',
-		};
-
-		mockGetEditedPostAttribute.mockImplementation( ( attr: string ) => {
-			const attributes: Record< string, unknown > = {
-				title: 'Test Title',
-				excerpt: '',
-				content: '',
-				link: 'https://example.com/test-post',
-				featured_media: 456,
-				meta: {},
-			};
-			return attributes[ attr ];
-		} );
-
-		mockGetMediaSourceUrl.mockReturnValue( 'https://example.com/featured.jpg' );
-
-		mockUseSelect.mockImplementation( ( selectorOrMapper: unknown ) => {
-			if ( typeof selectorOrMapper === 'function' ) {
-				const mockSelect = () => ( {
-					getEntityRecords: jest.fn().mockReturnValue( [] ),
-					getEntityRecord: jest.fn().mockReturnValue( mockFeaturedMedia ),
-					getEditedPostAttribute: mockGetEditedPostAttribute,
-					getEditedPostContent: jest.fn().mockReturnValue( '' ),
-				} );
-				return selectorOrMapper( mockSelect );
-			}
-			return { getEditedPostAttribute: mockGetEditedPostAttribute };
-		} );
-
-		const { result } = renderHook( () => useSocialPreviewPostData() );
-
-		expect( result.current.image ).toBe( 'https://example.com/featured.jpg' );
-	} );
-
-	it( 'should extract image from post content when no featured image', () => {
-		mockGetPostImageUrl.mockReturnValue( 'https://example.com/content-image.jpg' );
-
-		mockUseSelect.mockImplementation( ( selectorOrMapper: unknown ) => {
-			if ( typeof selectorOrMapper === 'function' ) {
-				const mockSelect = () => ( {
-					getEntityRecords: jest.fn().mockReturnValue( [] ),
-					getEntityRecord: jest.fn().mockReturnValue( null ),
-					getEditedPostAttribute: mockGetEditedPostAttribute,
-					getEditedPostContent: jest
-						.fn()
-						.mockReturnValue( '<img src="https://example.com/content-image.jpg">' ),
-				} );
-				return selectorOrMapper( mockSelect );
-			}
-			return { getEditedPostAttribute: mockGetEditedPostAttribute };
-		} );
-
-		const { result } = renderHook( () => useSocialPreviewPostData() );
-
-		expect( result.current.image ).toBe( 'https://example.com/content-image.jpg' );
-	} );
-
-	it( 'should return empty string for image when none available', () => {
-		mockUseSelect.mockImplementation( ( selectorOrMapper: unknown ) => {
-			if ( typeof selectorOrMapper === 'function' ) {
-				const mockSelect = () => ( {
-					getEntityRecords: jest.fn().mockReturnValue( [] ),
-					getEntityRecord: jest.fn().mockReturnValue( null ),
-					getEditedPostAttribute: mockGetEditedPostAttribute,
-					getEditedPostContent: jest.fn().mockReturnValue( '' ),
-				} );
-				return selectorOrMapper( mockSelect );
-			}
-			return { getEditedPostAttribute: mockGetEditedPostAttribute };
-		} );
-
-		mockGetPostImageUrl.mockReturnValue( null );
-
-		const { result } = renderHook( () => useSocialPreviewPostData() );
-
-		expect( result.current.image ).toBe( '' );
-	} );
-
 	it( 'should not fetch media when there are no attached media IDs', () => {
 		mockUsePostMeta.mockReturnValue( getDefaultMockPostMeta() );
 
@@ -403,9 +231,8 @@ describe( 'useSocialPreviewPostData', () => {
 			if ( typeof selectorOrMapper === 'function' ) {
 				const mockSelect = () => ( {
 					getEntityRecords: mockGetEntityRecords,
-					getEntityRecord: jest.fn().mockReturnValue( null ),
 					getEditedPostAttribute: mockGetEditedPostAttribute,
-					getEditedPostContent: jest.fn().mockReturnValue( '' ),
+					getEditedPostContent: mockGetEditedPostContent,
 				} );
 				return selectorOrMapper( mockSelect );
 			}

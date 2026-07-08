@@ -1,8 +1,9 @@
-import { UnifiedModalState } from '../types';
+import { UnifiedModalData, UnifiedModalState } from '../types';
 import {
 	TOGGLE_UNIFIED_MODAL,
 	SET_UNIFIED_MODAL_INITIAL_PATH,
 	SET_UNIFIED_MODAL_SCREEN_LOCK,
+	SET_UNIFIED_MODAL_DATA,
 } from './constants';
 
 type ToggleOptions = Omit< UnifiedModalState, 'isOpen' >;
@@ -68,5 +69,19 @@ export function setUnifiedModalScreenLock( isLocked: boolean ) {
 	return {
 		type: SET_UNIFIED_MODAL_SCREEN_LOCK,
 		isLocked,
+	};
+}
+
+/**
+ * Sets the data for the unified modal.
+ *
+ * @param {UnifiedModalData} data - The modal data.
+ *
+ * @return An action object.
+ */
+export function setUnifiedModalData( data: UnifiedModalData ) {
+	return {
+		type: SET_UNIFIED_MODAL_DATA,
+		data,
 	};
 }

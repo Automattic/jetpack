@@ -5,13 +5,33 @@ import { fileURLToPath } from 'node:url';
  */
 const baseConfig = {
 	extends: fileURLToPath( import.meta.resolve( '@wordpress/stylelint-config/scss-stylistic' ) ),
+	reportNeedlessDisables: true,
+	plugins: [
+		'@wordpress/theme/stylelint-plugins/no-unknown-ds-tokens',
+		'@wordpress/theme/stylelint-plugins/no-setting-wpds-custom-properties',
+		'@wordpress/theme/stylelint-plugins/no-token-fallback-values',
+	],
 	rules: {
+		'plugin-wpds/no-unknown-ds-tokens': true,
+		'plugin-wpds/no-setting-wpds-custom-properties': true,
+		'plugin-wpds/no-token-fallback-values': null, // Disabled because `@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks` is not configured yet.
+		// In addition to what `@wordpress/stylelint-config/scss-stylistic` does by default, also ignore comments containing /stylelint-disable/.
+		'@stylistic/max-line-length': [
+			80,
+			{
+				ignore: 'non-comments',
+				ignorePattern: [
+					'/(https?://[0-9,a-z]*.*)|(^description:.+)|(^tags:.+)/i',
+					'/stylelint-disable/',
+				],
+			},
+		],
+
 		'font-family-no-missing-generic-family-keyword': [
 			true,
 			{
 				ignoreFontFamilies: [
 					'dashicons', // https://github.com/WordPress/dashicons
-					'FontAwesome', // https://fontawesome.com/icons, used by CRM
 					'Genericons', // https://github.com/Automattic/genericons
 					'Noticons', // WordPress.com internal font
 					'social-logos', // see js-packages/social-logos
@@ -40,7 +60,6 @@ const baseConfig = {
 			true,
 			{
 				ignoreSelectors: [ ':export' ], // Ignore selector used by CSS Modules.
-				ignoreProperties: [ 'shadow-color' ], // Ignore property used by React Native.
 			},
 		],
 

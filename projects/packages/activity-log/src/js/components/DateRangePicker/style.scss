@@ -1,0 +1,76 @@
+// Port of Calypso's `date-range-picker/style.scss`, with Calypso's
+// base-style SCSS variables resolved to either literal values or the
+// matching `--wpds-*` tokens we adopted in style.scss.
+
+.daterange-popover .components-popover__content {
+	overflow: visible;
+	width: auto;
+	max-width: calc(100vw - 48px);
+}
+
+.daterange-inputs {
+	margin-bottom: 12px;
+}
+
+.daterange-input {
+
+	&__field {
+
+		&.components-button {
+			background: #fff;
+			padding: 4px 4px 4px 8px;
+			box-shadow: none;
+			border-radius: 2px;
+			border: 1px solid var(--wpds-color-stroke-surface-neutral, #949494);
+		}
+
+		svg {
+			color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+			padding: 4px;
+		}
+	}
+
+	&__text {
+		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+		padding: 0 4px;
+	}
+}
+
+@media (max-width: 600px) {
+
+	.daterange-calendar {
+		display: flex;
+		justify-content: center;
+		width: 100%;
+	}
+}
+
+@media (min-width: 601px) and (max-width: 899px) {
+
+	.daterange-body {
+		justify-content: space-between !important;
+	}
+}
+
+@media (min-width: 601px) {
+
+	.daterange-presets {
+		min-width: 240px;
+	}
+}
+
+.preset-listbox__item .components-button {
+	width: 100%;
+	justify-content: flex-start;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.daterange-inputs input[type="date"]::-webkit-calendar-picker-indicator {
+	display: none;
+}
+
+.daterange-inputs input[type="date"]::-webkit-clear-button {
+	display: none;
+}

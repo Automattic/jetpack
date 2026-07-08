@@ -870,7 +870,9 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
 
 		$this->assertTrue( isset( $this->full_sync_end_checksum ) );
@@ -884,7 +886,9 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
 
 		$this->assertTrue( isset( $this->full_sync_end_range ) );
@@ -1153,7 +1157,9 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 		$this->full_sync->start( array( 'users' => true ) );
 
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
 
 		$full_sync_status = $this->full_sync->get_status();
@@ -1402,5 +1408,331 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 
 	public function count_before_module_sync_start() {
 		$this->before_module_sync_count += 1;
+	}
+
+	/**
+	 * Test that get_last_item result is stored in module progress status
+	 * and reused across subsequent full sync invocations.
+	 */
+	public function test_full_sync_stores_last_item_in_status() {
+		self::factory()->post->create_many( 5 );
+
+		// Use chunk_size=1, max_chunks=1 so the sync needs multiple rounds.
+		$limits          = \Automattic\Jetpack\Sync\Defaults::$default_full_sync_limits;
+		$limits['posts'] = array(
+			'chunk_size' => 1,
+			'max_chunks' => 1,
+		);
+		Settings::update_settings( array( 'full_sync_limits' => $limits ) );
+
+		$this->full_sync->start( array( 'posts' => true ) );
+		$this->sender->do_full_sync();
+
+		$status_after_first = $this->full_sync->get_status();
+		$this->assertArrayHasKey( 'last_item', $status_after_first['progress']['posts'], 'last_item should be stored in progress after first sync round.' );
+
+		$stored_last_item = $status_after_first['progress']['posts']['last_item'];
+		$this->assertNotNull( $stored_last_item, 'last_item should not be null.' );
+
+		// Run another round — last_item should be reused, not re-queried.
+		$this->full_sync->continue_sending();
+		$this->sender->do_full_sync();
+
+		$status_after_second = $this->full_sync->get_status();
+		$this->assertSame(
+			$stored_last_item,
+			$status_after_second['progress']['posts']['last_item'],
+			'last_item should remain the same across sync rounds (stored).'
+		);
+	}
+
+	/**
+	 * Helper: build the transient key used by adjust_chunk_size_if_stuck.
+	 *
+	 * @param string $module_name The module name (e.g. 'posts').
+	 * @param int    $started     The full sync started timestamp.
+	 * @return string Transient key.
+	 */
+	private function get_stuck_transient_key( $module_name, $started ) {
+		return 'jetpack_sync_last_sent_' . $module_name . '_' . $started;
+	}
+
+	/**
+	 * Test that the adjusted chunk size is preserved across invocations when stuck.
+	 *
+	 * Previously, adjusted_chunk_size was reset to the default on every invocation,
+	 * so a reduced chunk size (e.g. 50) would be lost and revert to 100.
+	 */
+	public function test_stuck_sync_preserves_adjusted_chunk_size() {
+		self::factory()->post->create_many( 3 );
+
+		$this->full_sync->start( array( 'posts' => true ) );
+		$started = $this->full_sync->get_status()['started'];
+
+		// Simulate a stuck state: last_sent hasn't advanced, chunk was already halved to 50,
+		// but the 10-minute threshold has NOT passed yet (only 5 minutes).
+		$transient_key = $this->get_stuck_transient_key( 'posts', $started );
+		set_transient(
+			$transient_key,
+			array(
+				'last_sent'           => '~0',
+				'timestamp'           => time() - 5 * MINUTE_IN_SECONDS, // Only 5 min — not enough for another adjustment.
+				'stuck_count'         => 1,
+				'adjusted_chunk_size' => 50,
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->sender->do_full_sync();
+
+		// The transient should still have chunk_size 50 (preserved, not reset to default).
+		$stuck_data = get_transient( $transient_key );
+		$this->assertSame( 50, $stuck_data['adjusted_chunk_size'], 'Adjusted chunk size should be preserved when stuck but before the 10-minute threshold.' );
+		$this->assertSame( 1, $stuck_data['stuck_count'], 'Stuck count should be preserved.' );
+	}
+
+	/**
+	 * Test that chunk size is halved after being stuck for 10+ minutes.
+	 */
+	public function test_stuck_sync_halves_chunk_size_after_10_minutes() {
+		self::factory()->post->create_many( 3 );
+
+		$limits          = \Automattic\Jetpack\Sync\Defaults::$default_full_sync_limits;
+		$limits['posts'] = array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		);
+		Settings::update_settings( array( 'full_sync_limits' => $limits ) );
+
+		$this->full_sync->start( array( 'posts' => true ) );
+		$started = $this->full_sync->get_status()['started'];
+
+		// Simulate stuck for over 10 minutes with the configured chunk size.
+		$transient_key = $this->get_stuck_transient_key( 'posts', $started );
+		set_transient(
+			$transient_key,
+			array(
+				'last_sent'           => '~0',
+				'timestamp'           => time() - 11 * MINUTE_IN_SECONDS,
+				'stuck_count'         => 0,
+				'adjusted_chunk_size' => 100,
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->sender->do_full_sync();
+
+		$stuck_data = get_transient( $transient_key );
+		$this->assertSame( 50, $stuck_data['adjusted_chunk_size'], 'Chunk size should be halved after 10 minutes stuck.' );
+		$this->assertSame( 1, $stuck_data['stuck_count'], 'Stuck count should be incremented.' );
+	}
+
+	/**
+	 * Test that timestamp is reset after a chunk size adjustment so
+	 * each new chunk size gets a 10-minute window before halving further.
+	 */
+	public function test_stuck_sync_resets_timestamp_after_adjustment() {
+		self::factory()->post->create_many( 3 );
+
+		$limits          = \Automattic\Jetpack\Sync\Defaults::$default_full_sync_limits;
+		$limits['posts'] = array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		);
+		Settings::update_settings( array( 'full_sync_limits' => $limits ) );
+
+		$this->full_sync->start( array( 'posts' => true ) );
+		$started = $this->full_sync->get_status()['started'];
+
+		$old_timestamp = time() - 11 * MINUTE_IN_SECONDS;
+		$transient_key = $this->get_stuck_transient_key( 'posts', $started );
+		set_transient(
+			$transient_key,
+			array(
+				'last_sent'           => '~0',
+				'timestamp'           => $old_timestamp,
+				'stuck_count'         => 0,
+				'adjusted_chunk_size' => 100,
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->sender->do_full_sync();
+
+		$stuck_data = get_transient( $transient_key );
+		$this->assertGreaterThan(
+			$old_timestamp,
+			$stuck_data['timestamp'],
+			'Timestamp should be reset after an adjustment so the new chunk size gets a fresh 10-minute window.'
+		);
+	}
+
+	/**
+	 * Test that timestamp is preserved when stuck but no adjustment is made
+	 * (still waiting for the 10-minute threshold).
+	 */
+	public function test_stuck_sync_preserves_timestamp_when_no_adjustment() {
+		self::factory()->post->create_many( 3 );
+
+		$this->full_sync->start( array( 'posts' => true ) );
+		$started = $this->full_sync->get_status()['started'];
+
+		$original_timestamp = time() - 5 * MINUTE_IN_SECONDS;
+		$transient_key      = $this->get_stuck_transient_key( 'posts', $started );
+		set_transient(
+			$transient_key,
+			array(
+				'last_sent'           => '~0',
+				'timestamp'           => $original_timestamp,
+				'stuck_count'         => 1,
+				'adjusted_chunk_size' => 50,
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->sender->do_full_sync();
+
+		$stuck_data = get_transient( $transient_key );
+		$this->assertSame(
+			$original_timestamp,
+			$stuck_data['timestamp'],
+			'Timestamp should be preserved when stuck but no adjustment is made.'
+		);
+	}
+
+	/**
+	 * Test that send_action is only fired when chunk size reaches the minimum (1),
+	 * not on intermediate cascade steps.
+	 */
+	public function test_stuck_sync_sends_action_only_at_minimum_chunk_size() {
+		self::factory()->post->create_many( 3 );
+
+		$limits          = \Automattic\Jetpack\Sync\Defaults::$default_full_sync_limits;
+		$limits['posts'] = array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		);
+		Settings::update_settings( array( 'full_sync_limits' => $limits ) );
+
+		$this->full_sync->start( array( 'posts' => true ) );
+		$started = $this->full_sync->get_status()['started'];
+
+		// Simulate stuck at chunk_size 50 for over 10 minutes — should halve to 25, no send_action.
+		$transient_key = $this->get_stuck_transient_key( 'posts', $started );
+		set_transient(
+			$transient_key,
+			array(
+				'last_sent'           => '~0',
+				'timestamp'           => time() - 11 * MINUTE_IN_SECONDS,
+				'stuck_count'         => 1,
+				'adjusted_chunk_size' => 50,
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->server_event_storage->reset();
+		$this->sender->do_full_sync();
+
+		$stuck_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_stuck_adjustment' );
+		$this->assertFalse( $stuck_event, 'send_action should NOT fire on intermediate cascade steps (50 -> 25).' );
+
+		// Now simulate stuck at chunk_size 2 for over 10 minutes — should reach 1 and fire send_action.
+		// Need to restart since the sync likely finished.
+		$this->full_sync->reset_data();
+		$this->full_sync->start( array( 'posts' => true ) );
+		$started = $this->full_sync->get_status()['started'];
+
+		$transient_key = $this->get_stuck_transient_key( 'posts', $started );
+		set_transient(
+			$transient_key,
+			array(
+				'last_sent'           => '~0',
+				'timestamp'           => time() - 11 * MINUTE_IN_SECONDS,
+				'stuck_count'         => 6, // default 100 / 2^7 = 0, clamped to 1.
+				'adjusted_chunk_size' => 2,
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->server_event_storage->reset();
+		$this->sender->do_full_sync();
+
+		$stuck_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_stuck_adjustment' );
+		$this->assertNotFalse( $stuck_event, 'send_action should fire when chunk size reaches minimum (1).' );
+
+		// Verify the event data is a flat associative array, not nested in an extra wrapper.
+		$event_data = $stuck_event->args;
+		$this->assertArrayHasKey( 'module', $event_data, 'Event data should contain module key at the top level.' );
+		$this->assertArrayHasKey( 'adjusted_chunk_size', $event_data, 'Event data should contain adjusted_chunk_size key at the top level.' );
+		$this->assertSame( 'posts', $event_data['module'] );
+		$this->assertSame( 1, $event_data['adjusted_chunk_size'] );
+	}
+
+	/**
+	 * Test that transient TTL is refreshed when already stuck at minimum chunk size,
+	 * preventing expiry-driven reset cycles.
+	 */
+	public function test_stuck_sync_refreshes_transient_ttl_at_minimum() {
+		self::factory()->post->create_many( 3 );
+
+		$this->full_sync->start( array( 'posts' => true ) );
+		$started = $this->full_sync->get_status()['started'];
+
+		$transient_key = $this->get_stuck_transient_key( 'posts', $started );
+		set_transient(
+			$transient_key,
+			array(
+				'last_sent'           => '~0',
+				'timestamp'           => time() - 30 * MINUTE_IN_SECONDS,
+				'stuck_count'         => 7,
+				'adjusted_chunk_size' => 1,
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->sender->do_full_sync();
+
+		// The transient should still exist (TTL refreshed) and data should be unchanged.
+		$stuck_data = get_transient( $transient_key );
+		$this->assertNotFalse( $stuck_data, 'Transient should still exist after TTL refresh.' );
+		$this->assertSame( 1, $stuck_data['adjusted_chunk_size'], 'Chunk size should remain at minimum.' );
+		$this->assertSame( 7, $stuck_data['stuck_count'], 'Stuck count should not be incremented further at minimum.' );
+	}
+
+	/**
+	 * Test that stuck state resets when sync makes progress (last_sent advances).
+	 */
+	public function test_stuck_sync_resets_when_progress_is_made() {
+		self::factory()->post->create_many( 3 );
+
+		$limits          = \Automattic\Jetpack\Sync\Defaults::$default_full_sync_limits;
+		$limits['posts'] = array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		);
+		Settings::update_settings( array( 'full_sync_limits' => $limits ) );
+
+		$this->full_sync->start( array( 'posts' => true ) );
+		$started = $this->full_sync->get_status()['started'];
+
+		// Simulate stuck at a reduced chunk size, but with a last_sent that
+		// will NOT match the current status (sync has made progress).
+		$transient_key = $this->get_stuck_transient_key( 'posts', $started );
+		set_transient(
+			$transient_key,
+			array(
+				'last_sent'           => '999999', // Different from '~0' — not stuck.
+				'timestamp'           => time() - 20 * MINUTE_IN_SECONDS,
+				'stuck_count'         => 3,
+				'adjusted_chunk_size' => 12,
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->sender->do_full_sync();
+
+		$stuck_data = get_transient( $transient_key );
+		$this->assertSame( 0, $stuck_data['stuck_count'], 'Stuck count should reset to 0 when progress is made.' );
+		$this->assertSame( 100, $stuck_data['adjusted_chunk_size'], 'Chunk size should return to default when progress is made.' );
 	}
 }

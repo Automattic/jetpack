@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import logo from '../logos/jetpack-ai-logo';
 import { ProductConfig } from '../types';
 import { getTranslatableFeatureLabels, COMPLETE, COMPLETE_SLUG } from './shared-labels';
@@ -35,9 +35,9 @@ export function getJetpackAiConfig(): ProductConfig {
 					<>
 						{ __( 'Monthly usage quota for AI requests.', 'jetpack-my-jetpack' ) }
 						&nbsp;
-						<ExternalLink href={ getRedirectUrl( 'jetpack-support-ai' ) }>
+						<Link openInNewTab href={ getRedirectUrl( 'jetpack-support-ai' ) }>
 							{ __( 'Learn more', 'jetpack-my-jetpack' ) }
-						</ExternalLink>
+						</Link>
 					</>
 				),
 				free: { included: true, label: __( '20 requests', 'jetpack-my-jetpack' ) },

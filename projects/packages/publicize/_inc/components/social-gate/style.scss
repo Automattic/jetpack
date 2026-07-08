@@ -1,0 +1,66 @@
+.jetpack-social-gate {
+	display: flex;
+	justify-content: center;
+	padding: 32px 16px;
+
+	&__card {
+		max-width: 480px;
+		text-align: center;
+	}
+
+	&__illustration {
+		max-width: 200px;
+		height: auto;
+		margin-bottom: 16px;
+	}
+
+	&__title {
+		margin: 0 0 8px;
+	}
+
+	&__subtitle {
+		margin: 0 0 24px;
+		color: var(--wpds-color-foreground-content-neutral, #50575e);
+	}
+
+	&__error {
+		color: var(--wpds-color-foreground-content-error, #d63638);
+		margin-bottom: 16px;
+	}
+
+	&__tos {
+		margin-top: 16px;
+		font-size: 12px;
+		color: var(--wpds-color-foreground-content-neutral, #50575e);
+	}
+
+	&__price {
+		margin-bottom: 16px;
+	}
+
+	&__price-was {
+		text-decoration: line-through;
+		color: var(--wpds-color-foreground-content-neutral, #50575e);
+	}
+
+	&__price-legend {
+		display: block;
+		font-size: 12px;
+		color: var(--wpds-color-foreground-content-neutral, #50575e);
+	}
+
+	&__features {
+		// `Stack` sets `display: flex` from a `@layer`; this unlayered rule wins,
+		// keeping the list shrink-wrapped and centered, rows left-aligned.
+		display: inline-flex;
+		list-style: none;
+		margin: 0 0 24px;
+		padding: 0;
+		text-align: start;
+	}
+
+	&__feature svg {
+		// Keep the checkmark from shrinking when a feature label wraps to two lines.
+		flex-shrink: 0;
+	}
+}

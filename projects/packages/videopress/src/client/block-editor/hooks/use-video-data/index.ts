@@ -120,7 +120,7 @@ export default function useVideoData( {
 				}
 			} catch ( errorData ) {
 				setIsRequestingVideoData( false );
-				throw new Error( errorData?.message ?? errorData );
+				throw new Error( errorData?.message ?? errorData, { cause: errorData } );
 			}
 		}
 

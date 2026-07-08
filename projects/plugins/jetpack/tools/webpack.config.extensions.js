@@ -107,6 +107,7 @@ const editorNoPostEditorScript = [
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
+	cache: jetpackWebpackConfig.cache( __filename ),
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '../_inc/blocks' ),
@@ -173,6 +174,9 @@ const sharedWebpackConfig = {
 				],
 			} ),
 
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
@@ -186,14 +190,6 @@ const sharedWebpackConfig = {
 					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
 				],
 			} ),
-
-			// Allow importing .svg files as React components by appending `?component` to the import, e.g. `import Logo from './logo.svg?component';`
-			{
-				test: /\.svg$/i,
-				issuer: /\.[jt]sx?$/,
-				resourceQuery: /component/,
-				use: [ '@svgr/webpack' ],
-			},
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),

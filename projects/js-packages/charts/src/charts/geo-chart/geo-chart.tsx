@@ -4,19 +4,27 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { FC, useContext, useMemo } from 'react';
-import { Chart, type GoogleChartOptions } from 'react-google-charts';
+import { Chart, type GoogleChartPackages } from 'react-google-charts';
 /**
  * Internal dependencies
  */
 import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
 import { lightenHexColor, normalizeColorToHex } from '../../utils/color-utils';
 import { resolveCssVariable } from '../../utils/resolve-css-var';
+import { sanitizeHtml } from '../../utils/sanitize-html';
+import { Center } from '../private/center';
 import { withResponsive } from '../private/with-responsive';
 import styles from './geo-chart.module.scss';
 import { GeoChartProps } from './types';
 
 const DEFAULT_FEATURE_FILL_COLOR = '#ffffff';
 const DEFAULT_BACKGROUND_COLOR = '#ffffff';
+// `chartPackages` replaces (not extends) react-google-charts' default `[ 'corechart', 'controls' ]`,
+// so we restate the defaults and add `geochart`. Without it the loader backfills the geochart package
+// late, which can clash with another Google Charts version already loaded on the page.
+const GEO_CHART_PACKAGES: GoogleChartPackages[] = [ 'corechart', 'controls', 'geochart' ];
+
+type GoogleChartOptions = Record< string, unknown >;
 
 /**
  * Renders a geographical chart using Google Charts GeoChart to visualize data.
@@ -56,13 +64,13 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 
 	// Render loading placeholder
 	const loadingPlaceholder = (
-		<div
+		<Center
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart-loading"
 			style={ { width, height } }
 		>
 			{ renderPlaceholder ? renderPlaceholder() : __( 'Loading map', 'jetpack-charts' ) }
-		</div>
+		</Center>
 	);
 
 	// Google charts doesn't accept CSS variables, so we need to convert them to hex colors
@@ -74,24 +82,50 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	const defaultFillColorHex =
 		normalizeColorToHex( featureFillColor, null, resolveCssVariable ) || DEFAULT_FEATURE_FILL_COLOR;
 
-	// Check if data has HTML tooltips (column with role: 'tooltip' and p.html: true)
-	const hasHtmlTooltips = useMemo(
-		() =>
-			data.length > 0 &&
-			data[ 0 ].some(
-				col =>
-					typeof col === 'object' &&
-					col !== null &&
-					'role' in col &&
-					col.role === 'tooltip' &&
-					'p' in col &&
-					typeof col.p === 'object' &&
-					col.p !== null &&
-					'html' in col.p &&
-					col.p.html === true
-			),
-		[ data ]
-	);
+	// Identify HTML tooltip column indices and sanitize their content to prevent XSS.
+	const sanitizedData = useMemo( () => {
+		if ( data.length === 0 ) {
+			return { data, hasHtmlTooltips: false };
+		}
+
+		const htmlTooltipIndices: number[] = [];
+		for ( let i = 0; i < data[ 0 ].length; i++ ) {
+			const col = data[ 0 ][ i ];
+			if (
+				typeof col === 'object' &&
+				col !== null &&
+				'role' in col &&
+				col.role === 'tooltip' &&
+				'p' in col &&
+				typeof col.p === 'object' &&
+				col.p !== null &&
+				'html' in col.p &&
+				col.p.html === true
+			) {
+				htmlTooltipIndices.push( i );
+			}
+		}
+
+		if ( htmlTooltipIndices.length === 0 ) {
+			return { data, hasHtmlTooltips: false };
+		}
+
+		// Sanitize HTML content in tooltip columns for data rows (skip header row)
+		const sanitizedRows = data.slice( 1 ).map( row => {
+			const newRow = [ ...row ];
+			for ( const colIndex of htmlTooltipIndices ) {
+				if ( typeof newRow[ colIndex ] === 'string' ) {
+					newRow[ colIndex ] = sanitizeHtml( newRow[ colIndex ] as string );
+				}
+			}
+			return newRow;
+		} );
+
+		return {
+			data: [ data[ 0 ], ...sanitizedRows ] as typeof data,
+			hasHtmlTooltips: true,
+		};
+	}, [ data ] );
 
 	const options: GoogleChartOptions = useMemo(
 		() => ( {
@@ -101,7 +135,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			backgroundColor: backgroundColorHex,
 			datalessRegionColor: defaultFillColorHex,
 			defaultColor: defaultFillColorHex,
-			tooltip: { trigger: 'focus', isHtml: hasHtmlTooltips },
+			tooltip: { trigger: 'focus', isHtml: sanitizedData.hasHtmlTooltips },
 			legend: 'none',
 			keepAspectRatio: true,
 		} ),
@@ -112,25 +146,26 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			fullColorHex,
 			backgroundColorHex,
 			defaultFillColorHex,
-			hasHtmlTooltips,
+			sanitizedData.hasHtmlTooltips,
 		]
 	);
 
 	return (
-		<div
+		<Center
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart"
 			style={ { width, height, backgroundColor } }
 		>
 			<Chart
 				chartType="GeoChart"
+				chartPackages={ GEO_CHART_PACKAGES }
 				width={ width }
 				height={ height }
-				data={ data }
+				data={ sanitizedData.data }
 				options={ options }
 				loader={ loadingPlaceholder }
 			/>
-		</div>
+		</Center>
 	);
 };
 

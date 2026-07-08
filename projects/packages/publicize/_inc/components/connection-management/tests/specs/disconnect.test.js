@@ -25,6 +25,18 @@ describe( 'Disconnecting a connection', () => {
 		expect( stubDeleteConnectionById ).toHaveBeenCalledWith( { connectionId: '2' } );
 	} );
 
+	test( 'cancelling the confirmation should not disconnect', async () => {
+		const { stubDeleteConnectionById } = setup();
+		const management = getManagementPageObject();
+
+		const facebookPanel = management.connectionPanels[ 0 ];
+
+		await facebookPanel.open();
+		await facebookPanel.cancelDisconnect();
+
+		expect( stubDeleteConnectionById ).not.toHaveBeenCalled();
+	} );
+
 	test( 'panel is disabled while updating', async () => {
 		setup( { getDeletingConnections: [ '2' ] } );
 		const management = getManagementPageObject();
@@ -47,6 +59,6 @@ describe( 'Disconnecting a connection', () => {
 		);
 
 		const button = screen.getByRole( 'button', { name: 'Disconnecting…' } );
-		expect( button ).toBeDisabled();
+		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 } );

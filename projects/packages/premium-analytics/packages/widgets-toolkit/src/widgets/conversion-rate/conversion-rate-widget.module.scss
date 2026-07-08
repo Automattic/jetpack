@@ -1,0 +1,11 @@
+.container {
+	height: 100%;
+	min-height: 0;
+}
+
+.conversionFunnelChart {
+	--funnel-font-family: var(--wpds-typography-font-family-body);
+	--step-font-family: var(--wpds-typography-font-family-body);
+	flex: 1;
+	min-height: 0;
+}

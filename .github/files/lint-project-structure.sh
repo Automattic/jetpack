@@ -3,7 +3,7 @@
 set -eo pipefail
 shopt -s dotglob
 
-cd $(dirname "${BASH_SOURCE[0]}")/../..
+cd "$(dirname "${BASH_SOURCE[0]}")"/../..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
@@ -49,11 +49,11 @@ function check_composer_no_dev_deps {
 		RE='^(@dev(#.*)?|dev-.*|[^@# ]*-dev([@# ].*)?)$'
 		WHAT="a release version"
 	fi
-	local PKG VER
-	local TMP="$(jq -r --arg which "$WHICH" --arg re "$RE" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in($packages) | not ) | select( .value | test( $re ) ) | [ .key, .value ] | @tsv' "$FILE")"
+	local PKG VER TMP LINE
+	TMP="$(jq -r --arg which "$WHICH" --arg re "$RE" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in($packages) | not ) | select( .value | test( $re ) ) | [ .key, .value ] | @tsv' "$FILE")"
 	[[ -n "$TMP" ]] || return 0
 	while IFS=$'\t' read -r PKG VER; do
-		local LINE=$(jq --stream --arg which "$WHICH" --arg pkg "$PKG" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$which,$pkg] then input_line_number else empty end' "$FILE" | head -n 1)
+		LINE=$(jq --stream --arg which "$WHICH" --arg pkg "$PKG" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$which,$pkg] then input_line_number else empty end' "$FILE" | head -n 1)
 		EXIT=1
 		echo "::error file=$FILE,line=$LINE::$SLUG must depend on $WHAT of \`$PKG\`, not \`$VER\`, to avoid lock file errors every time $PKG is updated."
 	done <<<"$TMP"
@@ -87,12 +87,6 @@ for PROJECT in projects/*/*; do
 	fi
 
 	debug "Checking project $SLUG"
-
-	# - .github/ must be export-ignored for packages.
-	if [[ "$TYPE" == "packages" && "$(git check-attr export-ignore -- $PROJECT/.github/)" != *": export-ignore: set" ]]; then
-		EXIT=1
-		echo "::error file=$PROJECT/.gitattributes::$PROJECT/.github/ should have git attribute export-ignore."
-	fi
 
 	# - package.json for js modules should look like a library to renovate.
 	if [[ "$PROJECT" == projects/js-packages/* && -e "$PROJECT/package.json" ]]; then
@@ -165,16 +159,39 @@ for PROJECT in projects/*/*; do
 			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.type\` to \"git\", as the monorepo is a git repository."
 		fi
 		URL="$(jq -r '.url' <<<"$JSON")"
-		if [[ "$URL" != "https://github.com/Automattic/jetpack.git" && "$URL" != "https://github.com/Automattic/jetpack" ]]; then
+
+		# Published packages need to point to the mirror repo. Unpublished packages can point to mirror or monorepo.
+		declare -A OKURLS=()
+		MIRROR=$( jq -r '.extra["mirror-repo"]' "$PROJECT/composer.json" )
+		OKURLS["git+https://github.com/$MIRROR.git"]=''
+		if jq -e '.extra["npmjs-autopublish"]' "$PROJECT/composer.json" >/dev/null; then
+			ERR1="Set \`.repository.url\` for published packages to point to the mirror repo in npm's canonical format, i.e. \"git+https://github.com/$MIRROR.git\"."
+		else
+			OKURLS["https://github.com/$MIRROR"]=''
+			OKURLS["https://github.com/$MIRROR.git"]=''
+			OKURLS["https://github.com/Automattic/jetpack"]="$PROJECT"
+			OKURLS["https://github.com/Automattic/jetpack.git"]="$PROJECT"
+			OKURLS["git+https://github.com/Automattic/jetpack.git"]="$PROJECT"
+			ERR1="Set \`.repository.url\` to point to the monorepo or mirror repo, e.g. \"https://github.com/Automattic/jetpack\" or \"git+https://github.com/$MIRROR.git\"."
+		fi
+
+		if [[ ! -v OKURLS["$URL"] ]]; then
 			EXIT=1
 			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
-			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.url\` to point to the monorepo, i.e. \"https://github.com/Automattic/jetpack\"."
-		fi
-		TMP="$(jq -r '.directory' <<<"$JSON")"
-		if [[ "$TMP" != "$PROJECT" ]]; then
-			EXIT=1
-			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","directory"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
-			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.directory\` to point to the project's path within the monorepo, i.e. \"$PROJECT\"."
+			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::$ERR1"
+		elif [[ -z "${OKURLS["$URL"]}" ]]; then
+			if jq -e 'has( "directory" )' <<<"$JSON" &>/dev/null; then
+				EXIT=1
+				LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","directory"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+				echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::When \`.repository.url\` is set to the mirror repo, \`.repository.directory\` should not be set."
+			fi
+		else
+			TMP="$(jq -r '.directory' <<<"$JSON")"
+			if [[ "$TMP" != "${OKURLS["$URL"]}" ]]; then
+				EXIT=1
+				LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","directory"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+				echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.directory\` to point to the project's path within the specified repo, i.e. \"${OKURLS["$URL"]}\"."
+			fi
 		fi
 	fi
 
@@ -190,7 +207,7 @@ for PROJECT in projects/*/*; do
 	if [[ -e "$PROJECT/package.json" ]] && jq -e '.dependencies["ts-loader"] // .devDependencies["ts-loader"] // .optionalDependencies["ts-loader"]' "$PROJECT/package.json" >/dev/null; then
 		EXIT=1
 		LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["dependencies","ts-loader"] or . == ["devDependencies","ts-loader"] or . == ["optionalDependencies","ts-loader"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json" | head -1)
-		echo "::error file=$PROJECT/package.json${LINE}::For consistency we've settled on using \`@babel/preset-typescript\` (and \`fork-ts-checker-webpack-plugin\` or \`tsc\` for definition files) rather than \`ts-loader\`. Please switch to that."
+		echo "::error file=$PROJECT/package.json${LINE}::For consistency we've settled on using \`@babel/preset-typescript\` (and \`fork-ts-checker-webpack-plugin\` or \`tsgo\` for definition files) rather than \`ts-loader\`. Please switch to that."
 	fi
 
 	# - certain tsconfig options should not be used directly.
@@ -244,22 +261,16 @@ for PROJECT in projects/*/*; do
 		echo "::error file=$PROJECT/composer.json::$PROJECT/composer.json should have a \`repositories\` entry pointing to \`../../packages/*\`."
 	fi
 
-	# - composer.json must require-dev (or just require) changelogger.
 	# - Changelogger's changes-dir must have a .gitkeep.
 	# - Changelogger's changes-dir must be production-excluded.
-	if [[ "$SLUG" != "packages/changelogger" ]] && ! jq -e '.require["automattic/changelogger"] // .["require-dev"]["automattic/jetpack-changelogger"]' "$PROJECT/composer.json" >/dev/null; then
+	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' "$PROJECT/composer.json")"
+	if [[ ! -e "$PROJECT/$CHANGES_DIR/.gitkeep" ]]; then
 		EXIT=1
-		echo "::error file=$PROJECT/composer.json::Project $SLUG should include automattic/jetpack-changelogger in \`require-dev\`."
-	else
-		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' "$PROJECT/composer.json")"
-		if [[ ! -e "$PROJECT/$CHANGES_DIR/.gitkeep" ]]; then
-			EXIT=1
-			echo "::error file=$PROJECT/$CHANGES_DIR/.gitkeep::Project $SLUG should have a file at $CHANGES_DIR/.gitkeep so that $CHANGES_DIR does not get removed when releasing."
-		fi
-		if [[ "$(git check-attr production-exclude -- $PROJECT/$CHANGES_DIR/file)" != *": production-exclude: set" ]]; then
-			EXIT=1
-			echo "::error file=$PROJECT/.gitattributes::Files in $PROJECT/$CHANGES_DIR/ must have git attribute production-exclude."
-		fi
+		echo "::error file=$PROJECT/$CHANGES_DIR/.gitkeep::Project $SLUG should have a file at $CHANGES_DIR/.gitkeep so that $CHANGES_DIR does not get removed when releasing."
+	fi
+	if [[ "$(git check-attr production-exclude -- $PROJECT/$CHANGES_DIR/file)" != *": production-exclude: set" ]]; then
+		EXIT=1
+		echo "::error file=$PROJECT/.gitattributes::Files in $PROJECT/$CHANGES_DIR/ must have git attribute production-exclude."
 	fi
 
 	# - Packages must have a dev-trunk branch-alias.
@@ -371,6 +382,7 @@ for PROJECT in projects/*/*; do
 
 	# - If a package is published (i.e. it has a mirror-repo), all its non-dev deps should also be published.
 	if [[ "$TYPE" == "packages" ]] && jq -e '.extra["mirror-repo"]' "$PROJECT/composer.json" >/dev/null; then
+		# shellcheck disable=SC2043
 		for WHICH in require; do
 			TMP=$(jq -r --arg which "$WHICH" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in( $packages ) ) | select( $packages[.key] | not ) | [ .key ] | @tsv' "$PROJECT/composer.json")
 			if [[ -n "$TMP" ]]; then
@@ -385,6 +397,7 @@ for PROJECT in projects/*/*; do
 
 	# - Plugins can only depend on published packages.
 	if [[ "$TYPE" == "plugins" ]]; then
+		# shellcheck disable=SC2043
 		for WHICH in require; do
 			TMP=$(jq -r --arg which "$WHICH" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in( $packages ) ) | select( $packages[.key] | not ) | [ .key ] | @tsv' "$PROJECT/composer.json")
 			if [[ -n "$TMP" ]]; then
@@ -471,6 +484,16 @@ for PROJECT in projects/*/*; do
 			EXIT=1
 			echo "::error file=$PROJECT/composer.json,line=${LINE}::Do not use \`automattic/wordbless\` directly; use \`automattic/jetpack-test-environment\` instead. See #41057 for details."
 		done < <( jq --stream -r 'if length == 2 and ( .[0] == ["require","automattic/wordbless"] or .[0] == ["require-dev","automattic/wordbless"] ) then [input_line_number] | @tsv else empty end' "$PROJECT/composer.json" )
+	fi
+
+	# - Must use yoast/phpunit-polyfills with automattic/phpunit-select-config.
+	if jq -e '.require["automattic/phpunit-select-config"] // .["require-dev"]["automattic/phpunit-select-config"]' "$PROJECT/composer.json" >/dev/null &&
+		! jq -e '.require["yoast/phpunit-polyfills"] // .["require-dev"]["yoast/phpunit-polyfills"]' "$PROJECT/composer.json" >/dev/null
+	then
+		while IFS=$'\t' read -r LINE; do
+			EXIT=1
+			echo "::error file=$PROJECT/composer.json,line=${LINE}::We require \`yoast/phpunit-polyfills\` to get the correct version of PHPUnit. Please add it, or remove other PHPUnit-related packages if you're not using PHPUnit for testing."
+		done < <( jq --stream -r 'if length == 2 and ( .[0] == ["require","automattic/phpunit-select-config"] or .[0] == ["require-dev","automattic/phpunit-select-config"] ) then [input_line_number] | @tsv else empty end' "$PROJECT/composer.json" )
 	fi
 
 	# - Plugins shouldn't have redundant wp-plugin-slug and beta-plugin-slug.
@@ -663,10 +686,22 @@ if ! pnpm semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","pnpm"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
 fi
-if ! jq -e --arg v "pnpm@$PNPM_VERSION" '.packageManager == $v' package.json &>/dev/null; then
+if jq -e 'has( "packageManager" )' package.json &>/dev/null; then
 	EXIT=1
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["packageManager"] then input_line_number - 1 else empty end' package.json)
-	echo "::error file=package.json,line=$LINE::Version in package.json packageManager must be \"pnpm@$PNPM_VERSION\", to match .github/versions.sh."
+	echo "::error file=package.json,line=$LINE::package.json .packageManager is replaced by .devEngines.packageManager. Please do not re-add it."
+fi
+if ! jq -e '.devEngines.packageManager.name == "pnpm" and .devEngines.packageManager.version' package.json &>/dev/null; then
+	EXIT=1
+	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["devEngines","packageManager"] then input_line_number - 1 else empty end' package.json)
+	echo "::error file=package.json,line=$LINE::package.json .devEngines.packageManager should be set to a pnpm version compatible with \"$PNPM_VERSION\"."
+else
+	RANGE="$(jq -r '.devEngines.packageManager.version' package.json)"
+	if ! pnpm semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
+		EXIT=1
+		LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["devEngines","packageManager"] then input_line_number - 1 else empty end' package.json)
+		echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
+	fi
 fi
 
 # - Check for incorrect next-version tokens.
@@ -693,7 +728,11 @@ done < <( git -c core.quotepath=off grep -l '\(random\|unique-id\)\s*(' '*.sass'
 
 # - package.json name fields must be prefixed or already registered.
 debug "Checking for bad package.json names"
+mapfile -t pkg_json_files < <(git -c core.quotepath=off ls-files package.json '*/package.json')
 while IFS=$'\t' read -r FILE NAME; do
+	# Ignore this one
+	[[ "$FILE" == "tools/cli/skeletons/common/package.json" ]] && continue
+
 	LINE=$(grep --line-number --max-count=1 '^	"name":' "$FILE" || true)
 	if [[ -n "$LINE" ]]; then
 		LINE=",line=${LINE%%:*}"
@@ -702,12 +741,12 @@ while IFS=$'\t' read -r FILE NAME; do
 	J=$( curl -sS "https://registry.npmjs.com/$( jq -rn --arg V "$NAME" '$V | @uri' )" )
 	if ! jq -e '.maintainers' <<<"$J" &>/dev/null; then
 		EXIT=1
-		echo "::error file=$FILE$LINE::Name $NAME is not published and not scoped. If it is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\" or \"_$NAME\" or manually publish a dummy version. If it will be published, rename it like \"@automattic/$NAME\" or manually publish a dummy version."
+		echo "::error file=$FILE$LINE::Name $NAME is not published and not scoped. If it is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\" or manually publish a dummy version. If it will be published, rename it like \"@automattic/$NAME\" or manually publish a dummy version."
 	elif ! jq -e '.maintainers[] | select( .name == "matticbot" or .name == "npm" )' <<<"$J" &>/dev/null; then
 		EXIT=1
-		echo "::error file=$FILE$LINE::Name $NAME is not owned by us (\`matticbot\`) or the NPM security account (\`npm\`). If this is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\" or \"_$NAME\". If it will be published, either add \`matticbot\` as a maintainer if we can or you'll have to rename (e.g. like \"@automattic/$NAME\")."
+		echo "::error file=$FILE$LINE::Name $NAME is not owned by us (\`matticbot\`) or the NPM security account (\`npm\`). If this is not supposed to be published to npmjs, then if possible omit the \"name\" field entirely or otherwise rename it like \"@automattic/$NAME\". If it will be published, either add \`matticbot\` as a maintainer if we can or you'll have to rename (e.g. like \"@automattic/$NAME\")."
 	fi
-done < <( jq -r '.name // empty | select( startswith( "@automattic/" ) or startswith( "_" ) | not ) | [ input_filename, . ] | @tsv' $( git ls-files package.json '*/package.json' ) )
+done < <( jq -r '.name // empty | select( startswith( "@automattic/" ) | not ) | [ input_filename, . ] | @tsv' "${pkg_json_files[@]}" )
 
 # - Check for old GPL text.
 debug "Checking for references to the FSF's old addresses"
@@ -742,5 +781,18 @@ if [[ -d node_modules/.pnpm/node_modules ]]; then
 	EXIT=1
 	echo '::error::Packages are unexpectedly hoisted into node_modules/.pnpm/node_modules. This is likely to lead to phantom dependencies! Whatever you did that resulted in this is probably wrong. Ask for help in Slack #jetpack-monorepo.'
 fi
+
+# - Obsolete pnpm trustPolicyExclude.
+debug "Checking for obsolete pnpm trustPolicyExclude"
+"$BASE/tools/js-tools/check-obsolete-pnpm-trust-policy-exclude.mjs" || EXIT=1
+
+# - pnpm lockfile bug: https://github.com/pnpm/pnpm/issues/12228
+debug "Checking for pnpm lockfile bug https://github.com/pnpm/pnpm/issues/12228"
+if grep -q '@pnpm/exe' "$BASE/pnpm-lock.yaml"; then
+	EXIT=1
+	echo '::error file=pnpm-lock.yaml::Please regenerate the pnpm lockfile (e.g. `git checkout $( git merge-base HEAD trunk ) pnpm-lock.yaml && pnpm dedupe`) to avoid [a bug in pnpm](https://href.li/?https://github.com/pnpm/pnpm/issues/12228).'
+fi
+
+debug "Finished"
 
 exit $EXIT

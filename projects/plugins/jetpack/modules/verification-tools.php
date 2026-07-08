@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Site verification
+ * Module Name: Site Verification
  * Module Description: Verify your site with search engines and social platforms in a couple of clicks.
  * First Introduced: 3.0
  * Sort Order: 33

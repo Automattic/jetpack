@@ -1,11 +1,11 @@
-import { Button, IconTooltip, Notice, getRedirectUrl } from '@automattic/jetpack-components';
+import { Button, IconTooltip, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Notice, Link as WPLink } from '@wordpress/ui';
 import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
 import { useEffect, useState } from 'react';
 import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
-import { Link } from 'react-router';
 import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
@@ -13,7 +13,6 @@ import ErrorBoundary from '$features/error-boundary/error-boundary';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
-import { ExternalLink } from '@wordpress/components';
 import type { ChangeEvent, ReactNode } from 'react';
 
 const Meta = () => {
@@ -33,6 +32,7 @@ const Meta = () => {
 
 	const handleSeeLogsClick = () => {
 		recordBoostEvent( 'page_cache_see_logs_clicked', {} );
+		window.scrollTo( 0, 0 );
 	};
 
 	const totalBypassPatterns = bypassPatterns?.length || 0;
@@ -128,13 +128,9 @@ const Meta = () => {
 					{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
 				</label>
 				{ logging && (
-					<Link
-						onClick={ handleSeeLogsClick }
-						className={ styles[ 'see-logs-link' ] }
-						to="/cache-debug-log"
-					>
+					<WPLink href="#/cache-debug-log" onClick={ handleSeeLogsClick }>
 						{ __( 'See Logs', 'jetpack-boost' ) }
-					</Link>
+					</WPLink>
 				) }
 				<div className={ styles.clearfix } />
 			</div>
@@ -237,18 +233,21 @@ const BypassPatterns = ( {
 					__( '<help>See an example</help> or <link>learn more</link>.', 'jetpack-boost' ),
 					{
 						help: <BypassPatternsExample />, // children are passed after the interpolation.
-						link: <ExternalLink href={ exclusionsLink } />,
+						link: <WPLink openInNewTab href={ exclusionsLink } />,
 					}
 				) }
 			</div>
 			{ showNotice && (
-				<Notice
-					level="error"
-					title={ __( 'Error: Unable to save changes.', 'jetpack-boost' ) }
-					onClose={ () => setShowNotice( false ) }
-				>
-					{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
-				</Notice>
+				<Notice.Root intent="error">
+					<Notice.Title>{ __( 'Error: Unable to save changes.', 'jetpack-boost' ) }</Notice.Title>
+					<Notice.Description>
+						{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
+					</Notice.Description>
+					<Notice.CloseIcon
+						onClick={ () => setShowNotice( false ) }
+						label={ __( 'Dismiss', 'jetpack-boost' ) }
+					/>
+				</Notice.Root>
 			) }
 			<Button
 				disabled={ patterns === inputValue || inputInvalid }

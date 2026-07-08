@@ -1,0 +1,16 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-premium-analytics-init",
+	"version": "0.1.0",
+	"type": "module",
+	"wpScript": true,
+	"module": "build-module/index.mjs",
+	"wpScriptModuleExports": "./build-module/index.mjs",
+	"dependencies": {
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/boot": "0.17.0",
+		"@wordpress/data": "10.50.0",
+		"@wordpress/icons": "^15.0.0"
+	}
+}

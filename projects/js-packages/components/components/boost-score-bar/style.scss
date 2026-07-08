@@ -46,7 +46,7 @@ $no_boost_score_size: 28px;
 		@extend %score-pill;
 		display: grid;
 		grid-template-columns: 24px 1fr;
-		grid-column-gap: 10px;
+		column-gap: 10px;
 		justify-content: center;
 		font-size: 14px;
 		position: relative;

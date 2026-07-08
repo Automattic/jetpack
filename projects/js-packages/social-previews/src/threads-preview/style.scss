@@ -1,4 +1,3 @@
-/* stylelint-disable scales/radii */
 @use "./variables" as vars;
 
 .threads-preview {
@@ -83,14 +82,14 @@
 
 		.threads-preview__text {
 			white-space: pre-wrap;
-			word-break: break-word;
+			overflow-wrap: break-word;
 		}
 
 		.threads-preview__media {
 			border-radius: 15px;
 			overflow: hidden;
 			display: grid;
-			grid-gap: 2px;
+			gap: 2px;
 			grid-template-areas: "a";
 			height: 300px;
 			margin-top: 12px;

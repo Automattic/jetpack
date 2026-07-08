@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-critical-css-gen",
-	"version": "1.0.24",
+	"version": "2.0.4",
 	"description": "A flexible Critical CSS Generator that supports multiple URLs and viewports, with both server-side and client-side generation capabilities.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/critical-css-gen/#readme",
 	"bugs": {
@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/critical-css-gen"
+		"url": "git+https://github.com/Automattic/jetpack-critical-css-gen.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -28,14 +27,14 @@
 	},
 	"main": "./build/browser.js",
 	"scripts": {
-		"build": "pnpm run clean && tsc",
+		"build": "pnpm run clean && tsgo",
 		"build:test": "pnpm run clean:test && webpack --config tests/data/webpack.config.cjs",
 		"clean": "rm -rf build/",
 		"clean:test": "rm -rf tests/build/",
 		"test": "pnpm build && pnpm build:test && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsc --noEmit",
-		"watch": "tsc --watch"
+		"typecheck": "tsgo --noEmit",
+		"watch": "tsgo --watch"
 	},
 	"dependencies": {
 		"clean-css": "^5.3.1",
@@ -43,23 +42,22 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.28.4",
-		"@babel/preset-env": "7.28.3",
-		"@babel/preset-typescript": "7.27.1",
+		"@babel/core": "7.29.7",
+		"@babel/preset-env": "7.29.7",
 		"@types/clean-css": "4.2.11",
 		"@types/css-tree": "2.3.11",
-		"@types/node": "^20.4.2",
-		"express": "4.22.0",
-		"jest": "30.2.0",
+		"@types/node": "^24.12.0",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"express": "4.22.2",
+		"jest": "30.4.2",
 		"path-browserify": "1.0.1",
-		"playwright": "1.55.1",
+		"playwright": "1.60.0",
 		"playwright-core": "^1.45.1",
 		"process": "0.11.10",
 		"source-map": "0.7.4",
 		"source-map-js": "1.2.0",
 		"tslib": "2.8.1",
-		"typescript": "5.9.3",
-		"webpack": "5.101.3",
+		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"
 	},
 	"peerDependencies": {
@@ -71,6 +69,6 @@
 		}
 	},
 	"engines": {
-		"node": ">=18.0.0"
+		"node": ">=20.11.0"
 	}
 }

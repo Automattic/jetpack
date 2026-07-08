@@ -476,4 +476,479 @@ class Feedback_Field_Test extends BaseTestCase {
 		$field = new Feedback_Field( 'text_key', 'Text', '+44 7911 123456', 'text' );
 		$this->assertEquals( '+44 7911 123456', $field->get_render_value( 'web' ) );
 	}
+
+	/**
+	 * Test phone field with non-string array input renders safely in web context.
+	 */
+	public function test_phone_field_with_array_value_renders_safely_in_web_context() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', array( '+44 7911', '+1 555' ), 'phone' );
+
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsString( $value );
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Test phone field with non-string array input renders safely in email context.
+	 */
+	public function test_phone_field_with_array_value_renders_safely_in_email_context() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', array( '+44', '+1' ), 'phone' );
+
+		$value = $field->get_render_value( 'email' );
+
+		$this->assertIsString( $value );
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Test phone field with non-string array input renders safely in email_html context.
+	 */
+	public function test_phone_field_with_array_value_renders_safely_in_email_html_context() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', array( '+44', '+1' ), 'phone' );
+
+		$value = $field->get_render_value( 'email_html' );
+
+		$this->assertIsString( $value );
+		$this->assertStringContainsString( '&mdash;', $value );
+		$this->assertStringNotContainsString( 'tel:', $value );
+	}
+
+	/**
+	 * Test telephone alias also handles non-string array input safely.
+	 */
+	public function test_telephone_field_with_array_value_renders_safely() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', array( '+44' ), 'telephone' );
+
+		$this->assertSame( '', $field->get_render_value( 'web' ) );
+		$this->assertSame( '', $field->get_render_value( 'email' ) );
+		$this->assertStringContainsString( '&mdash;', $field->get_render_value( 'email_html' ) );
+	}
+
+	/**
+	 * Test rating field returns structured array for web context.
+	 */
+	public function test_rating_field_returns_structured_array_for_web() {
+		$field = new Feedback_Field(
+			'rating_key',
+			'Rating',
+			'3/5',
+			'rating',
+			array(
+				'iconStyle' => 'stars',
+				'maxRating' => 5,
+			)
+		);
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertEquals( 'rating', $value['type'] );
+		$this->assertEquals( 3, $value['rating'] );
+		$this->assertEquals( 5, $value['maxRating'] );
+		$this->assertEquals( 'stars', $value['iconStyle'] );
+		$this->assertEquals( '3/5', $value['displayValue'] );
+	}
+
+	/**
+	 * Test rating field with hearts icon style.
+	 */
+	public function test_rating_field_with_hearts_icon_style() {
+		$field = new Feedback_Field(
+			'rating_key',
+			'Rating',
+			'4/5',
+			'rating',
+			array(
+				'iconStyle' => 'hearts',
+				'maxRating' => 5,
+			)
+		);
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertEquals( 'hearts', $value['iconStyle'] );
+		$this->assertEquals( 4, $value['rating'] );
+	}
+
+	/**
+	 * Test rating field with custom max rating.
+	 */
+	public function test_rating_field_with_custom_max_rating() {
+		$field = new Feedback_Field(
+			'rating_key',
+			'Rating',
+			'7/10',
+			'rating',
+			array(
+				'iconStyle' => 'stars',
+				'maxRating' => 10,
+			)
+		);
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertEquals( 7, $value['rating'] );
+		$this->assertEquals( 10, $value['maxRating'] );
+		$this->assertEquals( '7/10', $value['displayValue'] );
+	}
+
+	/**
+	 * Test rating field defaults to stars when no icon style provided.
+	 */
+	public function test_rating_field_defaults_to_stars() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '2/5', 'rating' );
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertEquals( 'stars', $value['iconStyle'] );
+	}
+
+	/**
+	 * Test rating field with empty value returns empty string.
+	 */
+	public function test_rating_field_with_empty_value() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '', 'rating' );
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Test rating field with invalid format returns original value.
+	 */
+	public function test_rating_field_with_invalid_format() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', 'invalid', 'rating' );
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertEquals( 'invalid', $value );
+	}
+
+	/**
+	 * Test rating field with zero rating.
+	 */
+	public function test_rating_field_with_zero_rating() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '0/5', 'rating', array( 'iconStyle' => 'stars' ) );
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertSame( 0, $value['rating'] );
+		$this->assertEquals( 5, $value['maxRating'] );
+	}
+
+	/**
+	 * Test rating field with non-string array input renders safely in web context.
+	 */
+	public function test_rating_field_with_array_value_renders_safely_in_web_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', array( '1/5', '2/5' ), 'rating' );
+
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsString( $value );
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Test rating field with non-string array input renders safely in email context.
+	 */
+	public function test_rating_field_with_array_value_renders_safely_in_email_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', array( '3/5' ), 'rating' );
+
+		$value = $field->get_render_value( 'email' );
+
+		$this->assertIsString( $value );
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Regression pin for the email_html rating path. render_email_rating() already
+	 * guards non-string input; this test exists to keep that safe path safe.
+	 */
+	public function test_rating_field_with_array_value_renders_safely_in_email_html_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', array( '3/5' ), 'rating' );
+
+		$value = $field->get_render_value( 'email_html' );
+
+		$this->assertIsString( $value );
+		$this->assertStringNotContainsString( '&#9733;', $value );
+	}
+
+	// ─── Email HTML rendering tests ───
+
+	/**
+	 * Test get_icon_name_for_type maps known types and falls back to field-text.
+	 */
+	public function test_get_icon_name_for_type() {
+		$this->assertSame( 'field-text', Feedback_Field::get_icon_name_for_type( 'text' ) );
+		$this->assertSame( 'field-email', Feedback_Field::get_icon_name_for_type( 'email' ) );
+		$this->assertSame( 'field-telephone', Feedback_Field::get_icon_name_for_type( 'phone' ) );
+		$this->assertSame( 'field-telephone', Feedback_Field::get_icon_name_for_type( 'telephone' ) );
+		$this->assertSame( 'field-single-choice', Feedback_Field::get_icon_name_for_type( 'radio' ) );
+		$this->assertSame( 'field-multiple-choice', Feedback_Field::get_icon_name_for_type( 'checkbox-multiple' ) );
+		$this->assertSame( 'field-rating', Feedback_Field::get_icon_name_for_type( 'rating' ) );
+		$this->assertSame( 'field-file', Feedback_Field::get_icon_name_for_type( 'file' ) );
+		// Unknown type falls back to field-text.
+		$this->assertSame( 'field-text', Feedback_Field::get_icon_name_for_type( 'nonexistent' ) );
+	}
+
+	/**
+	 * Test email_html renders plain text for a basic text field.
+	 */
+	public function test_email_html_text_field() {
+		$field  = new Feedback_Field( 'k', 'Label', 'Hello world', 'text' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Hello world', $result );
+	}
+
+	/**
+	 * Test email_html renders empty value dash for empty text field.
+	 */
+	public function test_email_html_empty_text_field() {
+		$field  = new Feedback_Field( 'k', 'Label', '', 'text' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '&mdash;', $result );
+	}
+
+	/**
+	 * Test email_html renders chips for select field.
+	 */
+	public function test_email_html_select_field() {
+		$field  = new Feedback_Field( 'k', 'Label', 'Option A', 'select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Option A', $result );
+		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
+	}
+
+	/**
+	 * Test email_html renders multiple chips for checkbox-multiple field.
+	 */
+	public function test_email_html_checkbox_multiple_field() {
+		$field  = new Feedback_Field( 'k', 'Label', array( 'Red', 'Blue' ), 'checkbox-multiple' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Red', $result );
+		$this->assertStringContainsString( 'Blue', $result );
+		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
+	}
+
+	/**
+	 * Test email_html renders Yes for consent field with truthy value.
+	 */
+	public function test_email_html_consent_yes() {
+		$field  = new Feedback_Field( 'k', 'Consent', '1', 'consent' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Yes', $result );
+	}
+
+	/**
+	 * Test email_html renders No for consent field with empty value.
+	 */
+	public function test_email_html_consent_no() {
+		$field  = new Feedback_Field( 'k', 'Consent', '', 'consent' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'No', $result );
+	}
+
+	/**
+	 * Test email_html renders tel: link for phone field.
+	 */
+	public function test_email_html_phone_field() {
+		$field  = new Feedback_Field( 'k', 'Phone', '+1 555 123 4567', 'phone' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'tel:', $result );
+		$this->assertStringContainsString( '+1 555 123 4567', $result );
+	}
+
+	/**
+	 * Test email_html renders clickable link for URL field.
+	 */
+	public function test_email_html_url_field() {
+		$field  = new Feedback_Field( 'k', 'Website', 'https://example.com', 'url' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'href="https://example.com"', $result );
+		$this->assertStringContainsString( 'https://example.com', $result );
+	}
+
+	/**
+	 * Test email_html renders stars for rating field.
+	 */
+	public function test_email_html_rating_field() {
+		$field  = new Feedback_Field( 'k', 'Rating', '3/5', 'rating' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// 3 gold + 2 gray stars.
+		$this->assertSame( 3, substr_count( $result, '#e6a117' ) );
+		$this->assertSame( 2, substr_count( $result, '#cccccc' ) );
+	}
+
+	/**
+	 * Test email_html renders dash for empty chips.
+	 */
+	public function test_email_html_select_empty() {
+		$field  = new Feedback_Field( 'k', 'Label', '', 'select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '&mdash;', $result );
+	}
+
+	/**
+	 * Test email_html renders image-select field with thumbnails and letter codes.
+	 */
+	public function test_email_html_image_select_field() {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(
+				array(
+					'perceived'  => 'A',
+					'selected'   => 'A',
+					'label'      => 'Shoes',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => null,
+						'src' => 'https://example.com/shoes.jpg',
+					),
+				),
+				array(
+					'perceived'  => 'B',
+					'selected'   => 'C',
+					'label'      => 'Bags',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => null,
+						'src' => 'https://example.com/bags.jpg',
+					),
+				),
+			),
+		);
+
+		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// Should contain images.
+		$this->assertStringContainsString( 'https://example.com/shoes.jpg', $result );
+		$this->assertStringContainsString( 'https://example.com/bags.jpg', $result );
+		// Should contain letter codes.
+		$this->assertStringContainsString( '>A</span>', $result );
+		$this->assertStringContainsString( '>C</span>', $result );
+		// Should contain labels.
+		$this->assertStringContainsString( 'Shoes', $result );
+		$this->assertStringContainsString( 'Bags', $result );
+		// Should use img tags.
+		$this->assertSame( 2, substr_count( $result, '<img ' ) );
+		// Cards should have outline border and fixed width.
+		$this->assertStringContainsString( 'border: 1px solid #dcdcde', $result );
+		$this->assertStringContainsString( 'width: 154px', $result );
+		// Caption should have text truncation styles.
+		$this->assertStringContainsString( 'text-overflow: ellipsis', $result );
+	}
+
+	/**
+	 * Test email_html renders image-select field without labels when showLabels is false.
+	 */
+	public function test_email_html_image_select_no_labels() {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(
+				array(
+					'perceived'  => 'A',
+					'selected'   => 'A',
+					'label'      => 'Shoes',
+					'showLabels' => false,
+					'image'      => array(
+						'id'  => null,
+						'src' => 'https://example.com/shoes.jpg',
+					),
+				),
+			),
+		);
+
+		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// Should contain letter code but not label text as a separate span.
+		$this->assertStringContainsString( '>A</span>', $result );
+		$this->assertStringNotContainsString( '>Shoes</span>', $result );
+	}
+
+	/**
+	 * Test email_html renders dash for empty image-select.
+	 */
+	public function test_email_html_image_select_empty() {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(),
+		);
+
+		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '&mdash;', $result );
+	}
+
+	/**
+	 * Test email_html renders image-select without image src gracefully.
+	 */
+	public function test_email_html_image_select_no_image() {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(
+				array(
+					'perceived'  => 'A',
+					'selected'   => 'B',
+					'label'      => 'Option',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => null,
+						'src' => '',
+					),
+				),
+			),
+		);
+
+		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// Placeholder should render with gray background and icon.
+		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
+		$this->assertStringContainsString( 'field-image-select@2x.png', $result );
+		// Letter code and label should still render.
+		$this->assertStringContainsString( '>B</span>', $result );
+		$this->assertStringContainsString( 'Option', $result );
+	}
+
+	/**
+	 * Regression test: URL field with array value must not trigger preg_match TypeError.
+	 *
+	 * @see https://linear.app/a8c/issue/FORMS-687
+	 */
+	public function test_url_field_with_array_value_renders_safely_in_email_html_context() {
+		$field  = new Feedback_Field( 'url_key', 'Website', array( 'https://example.com' ), 'url' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertIsString( $result );
+		$this->assertStringContainsString( '&mdash;', $result );
+		$this->assertStringNotContainsString( 'href=', $result );
+	}
+
+	/**
+	 * Test get_admin_theme_color returns a hex color.
+	 */
+	public function test_get_admin_theme_color() {
+		// Reset cached value so it runs through the method.
+		$reflection = new \ReflectionClass( Feedback_Field::class );
+		$prop       = $reflection->getProperty( 'admin_theme_color' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		$prop->setValue( null, null );
+
+		$color = Feedback_Field::get_admin_theme_color();
+		$this->assertMatchesRegularExpression( '/^#[0-9a-f]{6}$/i', $color );
+	}
 }

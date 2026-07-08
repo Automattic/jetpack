@@ -69,7 +69,7 @@ class Waf_Runtime {
 	 *
 	 * @var array
 	 */
-	public $matched_var_names = array();
+	public $matched_vars_names = array();
 	/**
 	 * Matched var name.
 	 *
@@ -203,7 +203,7 @@ class Waf_Runtime {
 				} else {
 					// otherwise just mark single props to ignore.
 					$targets[ $name ]['except'] = array_merge(
-						isset( $targets[ $name ]['except'] ) ? $targets[ $name ]['except'] : array(),
+						$targets[ $name ]['except'] ?? array(),
 						$props
 					);
 				}
@@ -224,11 +224,7 @@ class Waf_Runtime {
 	 * @return bool
 	 */
 	public function match_targets( $transforms, $targets, $match_operator, $match_value, $match_not, $capture = false ) {
-		$this->matched_vars      = array();
-		$this->matched_var_names = array();
-		$this->matched_var       = '';
-		$this->matched_var_name  = '';
-		$match_found             = false;
+		$match_found = false;
 
 		// get values.
 		$values = $this->normalize_targets( $targets );
@@ -251,12 +247,12 @@ class Waf_Runtime {
 				// - rule is negated ("not" flag set) and the target was not matched
 				// - rule not negated and the target was matched
 				// then this is considered a match.
-				$match_found               = true;
-				$this->matched_var_names[] = $v['source'];
-				$this->matched_vars[]      = $v['value'];
-				$this->matched_var_name    = end( $this->matched_var_names );
-				$this->matched_var         = end( $this->matched_vars );
-				$matched[]                 = array( $v, $match );
+				$match_found                = true;
+				$this->matched_vars_names[] = $v['name'];
+				$this->matched_vars[]       = $v['value'];
+				$this->matched_var_name     = end( $this->matched_vars_names );
+				$this->matched_var          = end( $this->matched_vars );
+				$matched[]                  = array( $v, $match );
 				// Set any captured matches into state if the rule has the "capture" flag.
 				if ( $capture ) {
 					$captures = is_array( $match ) ? $match : array( $match );
@@ -401,9 +397,7 @@ class Waf_Runtime {
 	 * @param string $key Key.
 	 */
 	public function get_var( $key ) {
-		return isset( $this->state[ $key ] )
-			? $this->state[ $key ]
-			: '';
+		return $this->state[ $key ] ?? '';
 	}
 
 	/**
@@ -531,6 +525,18 @@ class Waf_Runtime {
 				case 'files_names':
 					$value = $this->args_names( $this->meta( 'files' ) );
 					break;
+				case 'matched_vars':
+					$value = array_combine( $this->matched_vars_names, $this->matched_vars );
+					break;
+				case 'matched_var':
+					$value = array( $this->matched_var_name => $this->matched_var );
+					break;
+				case 'matched_vars_names':
+					$value = $this->matched_vars_names;
+					break;
+				case 'matched_var_name':
+					$value = array( $this->matched_var_name );
+					break;
 			}
 			$this->metadata[ $key ] = $value;
 		}
@@ -612,8 +618,8 @@ class Waf_Runtime {
 		$return = array();
 		foreach ( $targets as $k => $v ) {
 			$count_only = isset( $v['count'] ) ? self::NORMALIZE_ARRAY_COUNT : 0;
-			$only       = isset( $v['only'] ) ? $v['only'] : array();
-			$except     = isset( $v['except'] ) ? $v['except'] : array();
+			$only       = $v['only'] ?? array();
+			$except     = $v['except'] ?? array();
 			$_k         = strtolower( $k );
 			switch ( $_k ) {
 				case 'request_headers':
@@ -667,6 +673,22 @@ class Waf_Runtime {
 					);
 					$this->normalize_array_target( $data, $only, $except, $k, $return, $count_only | self::NORMALIZE_ARRAY_MATCH_VALUES );
 					continue 2;
+				case 'matched_var':
+					$this->normalize_array_target( $this->meta( $k ), $only, $except, $k, $return, $count_only );
+					continue 2;
+
+				case 'matched_var_name':
+					$this->normalize_array_target( $this->meta( $k ), $only, $except, $k, $return, $count_only | self::NORMALIZE_ARRAY_MATCH_VALUES );
+					continue 2;
+
+				case 'matched_vars':
+					$this->normalize_array_target( $this->meta( $k ), $only, $except, $k, $return, $count_only );
+					continue 2;
+
+				case 'matched_vars_names':
+					$this->normalize_array_target( $this->meta( $k ), $only, $except, $k, $return, $count_only | self::NORMALIZE_ARRAY_MATCH_VALUES );
+					continue 2;
+
 				default:
 					var_dump( 'Unknown target', $k, $v );
 					exit( 0 );
@@ -679,6 +701,24 @@ class Waf_Runtime {
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Reset matched vars after processing a rule.
+	 *
+	 * @return void
+	 */
+	public function reset_matched_vars() {
+			$this->matched_vars       = array();
+			$this->matched_vars_names = array();
+			$this->matched_var        = '';
+			$this->matched_var_name   = '';
+			unset(
+				$this->metadata['matched_var'],
+				$this->metadata['matched_vars'],
+				$this->metadata['matched_vars_names'],
+				$this->metadata['matched_var_name']
+			);
 	}
 
 	/**

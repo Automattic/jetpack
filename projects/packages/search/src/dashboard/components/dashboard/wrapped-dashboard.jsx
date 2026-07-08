@@ -1,6 +1,5 @@
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, select as syncSelect } from '@wordpress/data';
 import { useMemo } from 'react';
 import SearchConnectionPage from 'components/pages/connection-page';
@@ -68,13 +67,18 @@ function WrappedDashboard202208() {
 }
 
 /**
- * Returns SearchDashboardPage component if supports search otherwise UpsellPage component
+ * Returns SearchDashboardPage component if instant search is supported, otherwise UpsellPage.
+ *
+ * Gated on `supportsInstantSearch` rather than `supportsSearch` so that hosts
+ * which surface classic search "for free" — notably Atomic, where the
+ * Instant Search toggle is forced-disabled — land on the pricing page
+ * instead of the SearchDashboardPage's mocked-only Overview tab.
  *
  * @return {import('react').Component} AfterConnectionPage component.
  */
 function AfterConnectionPage() {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
-	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
+	const supportsInstantSearch = useSelect( select => select( STORE_ID ).supportsInstantSearch() );
 
 	const isPageLoading = useSelect(
 		select =>
@@ -84,13 +88,8 @@ function AfterConnectionPage() {
 
 	return (
 		<>
-			{ supportsSearch && (
-				<SearchDashboardPage
-					isLoading={ isPageLoading }
-					useInternalLinks={ shouldUseInternalLinks() }
-				/>
-			) }
-			{ ! supportsSearch && <UpsellPage isLoading={ isPageLoading } /> }
+			{ supportsInstantSearch && <SearchDashboardPage isLoading={ isPageLoading } /> }
+			{ ! supportsInstantSearch && <UpsellPage isLoading={ isPageLoading } /> }
 		</>
 	);
 }

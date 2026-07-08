@@ -10,6 +10,7 @@ import v1 from '../deprecated/v1/attributes';
 // in innerBlocks within the block under test, with the generated fixtures
 // preserving the markup in the parsed JSON and serialized HTML.
 const fakeParagraphBlockSettings = {
+	apiVersion: 3,
 	attributes: {
 		content: {
 			type: 'string',

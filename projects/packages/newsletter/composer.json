@@ -7,11 +7,15 @@
 		"php": ">=7.2",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-plans": "@dev",
+		"automattic/jetpack-redirect": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {
@@ -29,10 +33,10 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
-		"test-php": [
-			"@composer phpunit"
-		],
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage",
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"typecheck": "pnpm run typecheck"
 	},
 	"repositories": [
@@ -51,7 +55,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-newsletter",
 		"branch-alias": {
-			"dev-trunk": "0.2.x-dev"
+			"dev-trunk": "0.11.x-dev"
 		},
 		"textdomain": "jetpack-newsletter",
 		"version-constants": {

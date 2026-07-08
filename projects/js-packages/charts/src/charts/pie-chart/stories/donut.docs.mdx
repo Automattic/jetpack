@@ -9,7 +9,7 @@ Donut Charts are circular charts with a hollow center, perfect for displaying pr
 
 **Important:** There is no separate DonutChart component. Donuts are created by configuring the PieChart component with `thickness < 1`. This means all PieChart props, features, and styling options are available for donut charts.
 
-<Canvas of={ DonutStories.Doughnut } />
+<Canvas of={ DonutStories.Default } />
 
 ## API Reference
 
@@ -28,15 +28,17 @@ Create a donut chart by setting the `thickness` prop to a value between 0 and 1:
 <Source
 	language="jsx"
 	code={ `<PieChart
-		size={ 400 }
-		thickness={ 0.4 }
+		thickness={ 0.5 }
+		gapScale={ 0.03 }
+		cornerScale={ 0.03 }
+		withTooltips={ true }
 		data={[
 			{ label: 'Active Users', value: 65000, percentage: 65 },
 			{ label: 'Inactive Users', value: 35000, percentage: 35 },
 		]}
 	>
 		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 }>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
 				User Activity
 			</Text>
 			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
@@ -60,126 +62,6 @@ All optional props from [PieChart](./?path=/docs/js-packages-charts-library-char
 - **Hollow center**: Provides space for additional content by setting `thickness` < 1
 - **Thickness control**: Adjustable ring thickness determines the size of the hollow center
 - **Center content**: Support for custom content in the center area using `children` prop
-
-## Donut Variations
-
-### Thin Ring Donut
-
-Create a thin ring by using a low thickness value:
-
-<Canvas of={ DonutStories.Thin } />
-
-<Source
-	language="jsx"
-	code={ `<PieChart
-		thickness={ 0.2 }
-		data={ data }
-	>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 32 } fontWeight="bold">
-				85%
-			</Text>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 20 }>
-				Completion Rate
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
-
-### Thick Donut
-
-Use a higher thickness value for more substantial donut rings:
-
-<Canvas of={ DonutStories.Default } />
-
-<Source
-	language="jsx"
-	code={ `<PieChart
-		thickness={ 0.8 }
-		data={ data }
-	>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 }>
-				Summary
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
-
-### Styled Donut with Gaps
-
-Combine thickness with gaps and rounded corners for modern appearance:
-
-<Canvas of={ DonutStories.Doughnut } />
-
-<Source
-	language="jsx"
-	code={ `<PieChart
-		size={ 400 }
-		thickness={ 0.6 }
-		gapScale={ 0.05 }
-		cornerScale={ 0.1 }
-		data={ data }
-	>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } fontWeight="bold">
-				$1.2M
-			</Text>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ 20 }>
-				Total Revenue
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
-
-## Interactive Features
-
-### Donut with Tooltips
-
-Tooltips work seamlessly with donut charts:
-
-<Canvas of={ DonutStories.WithTooltipsDoughnut } />
-
-<Source
-	language="jsx"
-	code={ `<PieChart
-		thickness={ 0.5 }
-		withTooltips={ true }
-		data={ data }
-	>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle">
-				Hover segments
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
-
-### Donut with Legend
-
-Combine legends with donut charts for comprehensive data presentation:
-
-<Canvas of={ DonutStories.CustomLegendPositioning } />
-
-<Source
-	language="jsx"
-	code={ `<PieChart
-		thickness={ 0.4 }
-		showLegend={ true }
-		legendOrientation="vertical"
-		legendAlignment="start"
-		legendPosition="top"
-		data={ data }
-	>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 }>
-				Distribution
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
-
-## Styling and Best Practices
 
 ### Thickness Guidelines
 
@@ -207,7 +89,7 @@ Choose thickness values based on your content needs:
 - Use abbreviations for large numbers (e.g., "1.2M" instead of "1,200,000")
 - Break long labels into multiple lines
 
-### Responsive Considerations
+### Responsive Center Content
 
 Donut charts with center content need special attention for responsiveness:
 
@@ -233,7 +115,119 @@ Donut charts with center content need special attention for responsiveness:
 	};` }
 />
 
-### Responsive Behavior
+## Donut Variations
+
+### Thin Ring Donut
+
+Create a thin ring by using a low thickness value:
+
+<Canvas of={ DonutStories.Thin } />
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		thickness={ 0.2 }
+		gapScale={ 0.01 }
+		showLabels={ false }
+		data={ data }
+	>
+		<Group>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+				Thin Donut
+			</Text>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+				Thickness: 20%
+			</Text>
+		</Group>
+	</PieChart>` }
+/>
+
+## Interactive Features
+
+### Donut with Tooltips
+
+Tooltips work seamlessly with donut charts:
+
+<Canvas of={ DonutStories.WithTooltips } />
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		thickness={ 0.5 }
+		gapScale={ 0.03 }
+		cornerScale={ 0.03 }
+		showLabels={ false }
+		withTooltips={ true }
+		data={ data }
+	>
+		<Group>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ -10 }>
+				Hover over segments
+			</Text>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 10 }>
+				to see tooltips
+			</Text>
+		</Group>
+	</PieChart>` }
+/>
+
+## Legends
+
+Use the composition API to add a legend by placing `<PieChart.Legend />` as a child:
+
+<Canvas of={ DonutStories.WithCompositionLegend } />
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		data={ data }
+		thickness={ 0.5 }
+		gapScale={ 0.03 }
+		cornerScale={ 0.03 }
+		withTooltips={ true }
+	>
+		<Group>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+				User Activity
+			</Text>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+				Total: 100K Users
+			</Text>
+		</Group>
+		<PieChart.Legend />
+	</PieChart>` }
+/>
+
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
+
+### Data Validation and Error Handling
+
+Donut charts inherit the same robust data validation from PieChart:
+
+<Source
+	language="jsx"
+	code={ `// The chart validates:
+	// - Empty data: Shows appropriate message when no data is provided
+	// - Percentage totals: Ensures percentages sum to 100%
+	// - Negative values: Prevents invalid negative values
+	// - Single data points: Handles edge cases gracefully
+
+	// Invalid data example - will show error message
+	const invalidData = [
+		{ label: 'A', value: 50, percentage: 60 }, // Percentages don't sum to 100
+		{ label: 'B', value: 30, percentage: 30 },
+	];
+
+	<PieChart thickness={ 0.4 } data={ invalidData }>
+		<Group>
+			<Text textAnchor="middle" verticalAnchor="middle">
+				This won't render
+			</Text>
+		</Group>
+	</PieChart>` }
+/>
+
+## Responsive Behavior
 
 The donut chart supports responsive sizing by omitting the `size` prop:
 
@@ -267,32 +261,7 @@ The donut chart supports responsive sizing by omitting the `size` prop:
 	</PieChart>` }
 />
 
-### Data Validation and Error Handling
-
-Donut charts inherit the same robust data validation from PieChart:
-
-<Source
-	language="jsx"
-	code={ `// The chart validates:
-	// - Empty data: Shows appropriate message when no data is provided
-	// - Percentage totals: Ensures percentages sum to 100%
-	// - Negative values: Prevents invalid negative values
-	// - Single data points: Handles edge cases gracefully
-
-	// Invalid data example - will show error message
-	const invalidData = [
-		{ label: 'A', value: 50, percentage: 60 }, // Percentages don't sum to 100
-		{ label: 'B', value: 30, percentage: 30 },
-	];
-
-	<PieChart thickness={ 0.4 } data={ invalidData }>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle">
-				This won't render
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
 
@@ -303,14 +272,19 @@ Donut charts support an optional entry animation that creates a smooth reveal ef
 <Source
 	language="jsx"
 	code={ `<PieChart
-		size={ 400 }
-		thickness={ 0.4 }
+		thickness={ 0.5 }
+		gapScale={ 0.03 }
+		cornerScale={ 0.03 }
+		withTooltips={ true }
 		data={ data }
 		animation={ true }
 	>
 		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 }>
-				Animated Donut
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+				User Activity
+			</Text>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+				Total: 100K Users
 			</Text>
 		</Group>
 	</PieChart>` }
@@ -324,28 +298,6 @@ Donut charts support an optional entry animation that creates a smooth reveal ef
 - **Duration**: 1000ms (1 second)
 
 **Note**: The animation plays once when the chart initially renders and does not repeat. Since donuts are created using PieChart, they use the same animation system.
-
-## Accessibility Considerations
-
-### Screen Reader Support
-
-Center content in donut charts should be properly announced:
-
-<Source
-	language="jsx"
-	code={ `<PieChart thickness={ 0.5 } data={ data }>
-		<Group>
-			<Text
-				textAnchor="middle"
-				verticalAnchor="middle"
-				role="img"
-				aria-label="Total users: 100,000"
-			>
-				100K
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
 
 ## Common Use Cases
 
@@ -398,6 +350,28 @@ Display resource distribution with totals:
 			</Text>
 			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 20 }>
 				Total Budget
+			</Text>
+		</Group>
+	</PieChart>` }
+/>
+
+## Accessibility
+
+### Screen Reader Support
+
+Center content in donut charts should be properly announced:
+
+<Source
+	language="jsx"
+	code={ `<PieChart thickness={ 0.5 } data={ data }>
+		<Group>
+			<Text
+				textAnchor="middle"
+				verticalAnchor="middle"
+				role="img"
+				aria-label="Total users: 100,000"
+			>
+				100K
 			</Text>
 		</Group>
 	</PieChart>` }

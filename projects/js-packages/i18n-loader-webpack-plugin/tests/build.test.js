@@ -106,8 +106,8 @@ describe.each( configFixtures )( 'Webpack `%s`', fixture => {
 				const content = fs.readFileSync( path.join( builddir, file ), { encoding: 'utf8' } );
 				data.jpI18nState = extractSection(
 					content,
-					'/***/ "@wordpress/jp-i18n-loader":\n',
-					'/***/ })'
+					'/***/ "@wordpress/jp-i18n-loader"\n',
+					'/***/ }'
 				);
 				data.loader = extractSection(
 					content,

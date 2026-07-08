@@ -1,0 +1,58 @@
+{
+	"name": "@automattic/jetpack-rtc",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Real-time collaboration websocket transport support using WordPress.com infrastructure",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/rtc/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Rtc"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/rtc"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && webpack",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build",
+		"clean": "rm -rf build/",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverage",
+		"watch": "pnpm run build && webpack watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@wordpress/api-fetch": "7.50.0",
+		"@wordpress/components": "36.1.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/hooks": "4.50.0",
+		"@wordpress/i18n": "6.23.0",
+		"@wordpress/plugins": "7.50.0",
+		"clsx": "2.1.1",
+		"lib0": "0.2.99",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"y-protocols": "^1.0.7",
+		"yjs": "13.6.29"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.29.7",
+		"@jest/globals": "30.4.1",
+		"@types/jest": "30.0.0",
+		"@types/react": "18.3.28",
+		"@wordpress/base-styles": "10.2.0",
+		"@wordpress/browserslist-config": "6.50.0",
+		"jest": "30.4.2",
+		"jetpack-js-tools": "workspace:*",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "16.0.5",
+		"webpack": "5.107.2",
+		"webpack-cli": "6.0.1"
+	}
+}

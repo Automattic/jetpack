@@ -1,0 +1,147 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.tab-panel-wrapper {
+	min-height: 0;
+	overflow-y: auto;
+
+	@include gb.break-medium() {
+		display: grid;
+		overflow-y: unset;
+
+		&[data-variant="global"] {
+			grid-template-columns: clamp(200px, 33.33%, 350px) minmax(0, 1fr);
+		}
+	}
+
+	&[data-plan="paid"] {
+		border-top: 1px solid gb.$gray-200;
+
+		@include gb.break-medium() {
+			overflow: hidden;
+		}
+	}
+
+	[role="tablist"] {
+		padding: gb.$grid-unit-10; // 8px
+		border-block: 1px solid gb.$gray-200;
+
+		@include gb.break-medium() {
+			border-block-start: none;
+		}
+	}
+
+	&[data-variant="per-network"] [role="tablist"] {
+		border-block-start: none;
+	}
+}
+
+.tab-panel {
+
+	display: grid;
+	min-height: 0;
+
+	@include gb.break-medium() {
+		grid-template-rows: auto 1fr;
+		height: 100%;
+	}
+
+	:global(.components-tab-panel__tab-content) {
+		min-height: 0;
+	}
+
+	:global(.components-tab-panel__tabs-item) {
+		padding: 0;
+		height: 40px !important; // Core uses !important for tab height.
+
+		&:global(.is-active) {
+			background: gb.$gray-900;
+			border-radius: gb.$radius-medium;
+
+			// Hide the default active tab underline.
+			&::after {
+				display: none;
+			}
+		}
+	}
+}
+
+.enabled-connection {
+
+	// Add a dot indicator for enabled connections
+	&::after {
+		content: "";
+		display: block;
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		border: 2px solid gb.$white;
+		position: absolute;
+		inset-block-start: 0;
+		inset-inline-start: 0;
+		background-color: var(--wp-admin-theme-color, #3858e9);
+	}
+}
+
+.tab-content {
+	display: grid;
+	grid-template-columns: 1fr;
+	height: 100%;
+
+	@include gb.break-medium() {
+		overflow: hidden;
+	}
+
+	// On mobile per-network mode,
+	// move connection toggle above customization section
+	&[data-variant="per-network"] {
+
+		.preview-wrapper {
+			display: contents;
+		}
+
+		.connection-toggle-wrapper {
+			order: -1;
+			background-color: gb.$white;
+		}
+	}
+
+	@include gb.break-medium() {
+		// Ensure that it takes full height
+		grid-template-rows: 1fr;
+
+
+		&[data-variant="per-network"] {
+			// Make the sidebar and preview take appropriate space
+			grid-template-columns: clamp(200px, 33.33%, 350px) minmax(0, 1fr);
+
+			.preview-wrapper {
+				// Reset from mobile's `display: contents`
+				display: flex;
+			}
+
+			.connection-toggle-wrapper {
+				order: unset;
+				background: gb.$gray-100;
+			}
+		}
+	}
+}
+
+.preview-wrapper {
+	display: flex;
+	flex-direction: column;
+
+	@include gb.break-medium() {
+		overflow-y: auto;
+	}
+
+	// Make the preview section fill remaining space
+	> :last-child {
+		flex: 1;
+	}
+}
+
+.connection-toggle-wrapper {
+	background: gb.$gray-100;
+	padding: 1rem;
+}

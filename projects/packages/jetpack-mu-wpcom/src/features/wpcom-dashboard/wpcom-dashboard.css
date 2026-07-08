@@ -1,0 +1,26 @@
+#dashboard-widgets.columns-2 {
+	display: flex;
+	flex-wrap: wrap;
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+#dashboard-widgets.columns-2 #postbox-container-1,
+#dashboard-widgets.columns-2 #postbox-container-2 {
+	float: none;
+	width: auto;
+	min-width: 350px;
+}
+
+#dashboard-widgets.columns-2 #postbox-container-1 {
+	flex: 2 1 350px;
+}
+
+#dashboard-widgets.columns-2 #postbox-container-2 {
+	flex: 0 1 350px;
+}
+
+#dashboard-widgets.columns-2 #postbox-container-3,
+#dashboard-widgets.columns-2 #postbox-container-4 {
+	display: none;
+}

@@ -1,0 +1,26 @@
+.tooltip {
+	color: var(--wpds-color-foreground-content-neutral);
+	padding: var(--wpds-dimension-padding-sm);
+	margin: 0;
+	box-shadow: var(--wpds-elevation-sm);
+	min-width: 200px;
+}
+
+.item {
+	font-weight: 400;
+	line-height: var(--wpds-typography-line-height-xs);
+}
+
+.label {
+	flex: 1;
+}
+
+// Override visx-tooltip ONLY when our custom tooltip components are used.
+// This applies to ChartTooltip (line/bar) and PieChartTooltip
+// (pie/semi-circle).
+:global(.visx-tooltip):has(.tooltip) {
+	max-width: none !important;
+	box-shadow: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}

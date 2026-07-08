@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove header border-bottom from the admin page for a cleaner unified header appearance.

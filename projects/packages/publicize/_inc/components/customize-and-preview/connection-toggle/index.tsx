@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
 import { Connection } from '../../../social-store/types';
 import { useConnectionState } from '../../form/use-connection-state';
+import styles from './styles.module.scss';
 
 export type ConnectionToggleProps = {
 	connection: Connection;
@@ -44,10 +45,12 @@ export function ConnectionToggle( { connection }: ConnectionToggleProps ) {
 		<ToggleControl
 			__nextHasNoMarginBottom
 			label={ sprintf(
-				/* translators: %s: social media account title */
-				__( 'Share to %s', 'jetpack-publicize-pkg' ),
-				connection.display_name
+				/* translators: %1$s: social media account name, %2$s: social media platform name (e.g. Facebook, LinkedIn) */
+				__( 'Share to %1$s on %2$s', 'jetpack-publicize-pkg' ),
+				connection.display_name,
+				connection.service_label
 			) }
+			className={ styles[ 'connection-toggle' ] }
 			checked={ isEnabled }
 			onChange={ onClickConnectionToggle }
 			disabled={ isDisabled }

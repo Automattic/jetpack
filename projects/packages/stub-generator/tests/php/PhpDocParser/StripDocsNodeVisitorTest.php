@@ -38,11 +38,12 @@ class StripDocsNodeVisitorTest extends TestCase {
 	 * @dataProvider provideIntegration
 	 * @param string $input Input doc block.
 	 * @param string $expect Expected output doc block.
+	 * @param bool   $keepTags  Whether to keep tags.
 	 * @param int    $verbosity Output verbosity.
 	 * @param string $expectOutput Expected console output.
 	 */
 	#[DataProvider( 'provideIntegration' )]
-	public function testIntegration( string $input, string $expect, int $verbosity = BufferedOutput::VERBOSITY_NORMAL, string $expectOutput = '' ) {
+	public function testIntegration( string $input, string $expect, bool $keepTags = false, int $verbosity = BufferedOutput::VERBOSITY_NORMAL, string $expectOutput = '' ) {
 		$output = new BufferedOutput( $verbosity );
 
 		$config          = new ParserConfig(
@@ -55,7 +56,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 		$constExprParser = new ConstExprParser( $config );
 		$typeParser      = new TypeParser( $config, $constExprParser );
 		$parser          = new PhpDocParser( $config, $typeParser, $constExprParser );
-		$traverser       = new NodeTraverser( array( new CloningVisitor(), new StripDocsNodeVisitor( $output ) ) );
+		$traverser       = new NodeTraverser( array( new CloningVisitor(), new StripDocsNodeVisitor( $output, $keepTags ) ) );
 		$printer         = new Printer();
 
 		$tokens         = new TokenIterator( $lexer->tokenize( $input ) );
@@ -63,6 +64,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 		list( $newDoc ) = $traverser->traverse( array( $oldDoc ) );
 		'@phan-var \PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode $newDoc';
 		$actual = $printer->printFormatPreserving( $newDoc, $oldDoc, $tokens );
+		$actual = preg_replace( '/[ \t]+\n/', "\n", $actual );
 
 		$this->assertSame( $expect, $actual );
 		$this->assertSame( $expectOutput, $output->fetch() );
@@ -73,7 +75,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 	 */
 	public static function provideIntegration() {
 		return array(
-			'Simple doc comment'                     => array(
+			'Simple doc comment'                      => array(
 				<<<'PHPDOC'
 				/** Something */
 				PHPDOC,
@@ -81,7 +83,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				/**  */
 				PHPDOC,
 			),
-			'Summary and description'                => array(
+			'Summary and description'                 => array(
 				<<<'PHPDOC'
 				/**
 				 * This is a summary.
@@ -95,7 +97,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@param'                                 => array(
+			'@param'                                  => array(
 				<<<'PHPDOC'
 				/**
 				 * @param string $param This is a parameter.
@@ -107,7 +109,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@param with complex type'               => array(
+			'@param with complex type'                => array(
 				<<<'PHPDOC'
 				/**
 				 * @param string|int|ClassName|array{key:array<string,?mixed>} $param This is a parameter with complex types.
@@ -120,7 +122,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@param with no type'                    => array(
+			'@param with no type'                     => array(
 				<<<'PHPDOC'
 				/**
 				 * @param $param This is a parameter.
@@ -132,7 +134,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@param with reference type'             => array(
+			'@param with reference type'              => array(
 				<<<'PHPDOC'
 				/**
 				 * @param string &$param This is a parameter. @phan-output-reference
@@ -146,7 +148,42 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@var'                                   => array(
+			'@unused-param'                           => array(
+				<<<'PHPDOC'
+				/**
+				 * @unused-param string $param This is a parameter.
+				 */
+				PHPDOC,
+				<<<'PHPDOC'
+				/**
+				 * @unused-param string $param
+				 */
+				PHPDOC,
+			),
+			'@unused-param with no type'              => array(
+				<<<'PHPDOC'
+				/**
+				 * @unused-param $param This is a parameter.
+				 */
+				PHPDOC,
+				<<<'PHPDOC'
+				/**
+				 * @unused-param $param
+				 */
+				PHPDOC,
+			),
+			'@unused-param (invalid)'                 => array(
+				<<<'PHPDOC'
+				/**
+				 * @unused-param Bogus.
+				 */
+				PHPDOC,
+				<<<'PHPDOC'
+				/**
+				 */
+				PHPDOC,
+			),
+			'@var'                                    => array(
 				<<<'PHPDOC'
 				/**
 				 * @var string $var A variable.
@@ -158,7 +195,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@var with no variable name'             => array(
+			'@var with no variable name'              => array(
 				<<<'PHPDOC'
 				/**
 				 * @var string A variable.
@@ -170,7 +207,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@return'                                => array(
+			'@return'                                 => array(
 				<<<'PHPDOC'
 				/**
 				 * @return string Some string.
@@ -182,7 +219,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@return with complex type'              => array(
+			'@return with complex type'               => array(
 				<<<'PHPDOC'
 				/**
 				 * @return string|int|ClassName|array{key:array<string,?mixed>} This is a parameter with complex types.
@@ -195,7 +232,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@throws'                                => array(
+			'@throws'                                 => array(
 				<<<'PHPDOC'
 				/**
 				 * @throws Exception When it feels like it.
@@ -207,7 +244,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@deprecated'                            => array(
+			'@deprecated'                             => array(
 				<<<'PHPDOC'
 				/**
 				 * @deprecated
@@ -219,7 +256,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@deprecated with details'               => array(
+			'@deprecated with details'                => array(
 				<<<'PHPDOC'
 				/**
 				 * @deprecated 1.2.3 Some replacement message.
@@ -227,11 +264,23 @@ class StripDocsNodeVisitorTest extends TestCase {
 				PHPDOC,
 				<<<'PHPDOC'
 				/**
-				 * @deprecated 
+				 * @deprecated
 				 */
 				PHPDOC,
 			),
-			'@property'                              => array(
+			'@extends'                                => array(
+				<<<'PHPDOC'
+				/**
+				 * @extends FooBar<X> Some doc.
+				 */
+				PHPDOC,
+				<<<'PHPDOC'
+				/**
+				 * @extends FooBar<X>
+				 */
+				PHPDOC,
+			),
+			'@property'                               => array(
 				<<<'PHPDOC'
 				/**
 				 * @property int $magic_prop comment can go here
@@ -243,7 +292,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@method'                                => array(
+			'@method'                                 => array(
 				<<<'PHPDOC'
 				/**
 				 * Various examples from https://github.com/phan/phan/wiki/Annotating-Your-Source-Code#method
@@ -277,7 +326,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@template'                              => array(
+			'@template'                               => array(
 				<<<'PHPDOC'
 				/**
 				 * @template T Some comment.
@@ -289,8 +338,20 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
+			'@mixin'                                  => array(
+				<<<'PHPDOC'
+				/**
+				 * @mixin FooBar Some doc.
+				 */
+				PHPDOC,
+				<<<'PHPDOC'
+				/**
+				 * @mixin FooBar
+				 */
+				PHPDOC,
+			),
 
-			'@var with no type (invalid)'            => array(
+			'@var with no type (invalid)'             => array(
 				<<<'PHPDOC'
 				/**
 				 * @var $var A variable
@@ -301,7 +362,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'@var with no type (invalid), verbose'   => array(
+			'@var with no type (invalid), verbose'    => array(
 				<<<'PHPDOC'
 				/**
 				 * @var $var A variable
@@ -311,33 +372,52 @@ class StripDocsNodeVisitorTest extends TestCase {
 				/**
 				 */
 				PHPDOC,
+				false,
 				BufferedOutput::VERBOSITY_DEBUG,
 				<<<'OUTPUT'
 				Ignoring invalid tag `@var $var A variable`
 				OUTPUT . "\n",
 			),
-			'Various other generic recognized props' => array(
+
+			'Various other generic recognized props'  => array(
 				<<<'PHPDOC'
 				/**
+				 * @inherits FooBar
+				 * @phan-closure-scope FooBar
+				 * @phanclosurescope FooBar
+				 *
+				 * @abstract Some text.
 				 * @internal Some text.
+				 * @no-named-arguments Some text.
 				 * @phan-read-only Some text.
 				 * @phan-write-only Some text.
 				 * @phan-immutable Some text.
 				 * @phan-side-effect-free Some text.
+				 * @readonly Some text.
+				 * @seal-methods Some text.
+				 * @seal-properties Some text.
 				 */
 				PHPDOC,
 				<<<'PHPDOC'
 				/**
-				 * @internal 
-				 * @phan-read-only 
-				 * @phan-write-only 
-				 * @phan-immutable 
-				 * @phan-side-effect-free 
+				 * @inherits FooBar
+				 * @phan-closure-scope FooBar
+				 * @phanclosurescope FooBar
+				 * @abstract
+				 * @internal
+				 * @no-named-arguments
+				 * @phan-read-only
+				 * @phan-write-only
+				 * @phan-immutable
+				 * @phan-side-effect-free
+				 * @readonly
+				 * @seal-methods
+				 * @seal-properties
 				 */
 				PHPDOC,
 			),
 
-			'Arbitrary unhandled tag'                => array(
+			'Arbitrary unhandled tag'                 => array(
 				<<<'PHPDOC'
 				/**
 				 * @since 1.2.3 Some description
@@ -348,7 +428,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 				 */
 				PHPDOC,
 			),
-			'Arbitrary unhandled tag, verbose'       => array(
+			'Arbitrary unhandled tag, verbose'        => array(
 				<<<'PHPDOC'
 				/**
 				 * @since 1.2.3 Some description
@@ -358,9 +438,30 @@ class StripDocsNodeVisitorTest extends TestCase {
 				/**
 				 */
 				PHPDOC,
+				false,
 				BufferedOutput::VERBOSITY_DEBUG,
 				<<<'OUTPUT'
 				Ignoring unrecognized tag `@since`
+				OUTPUT . "\n",
+			),
+			'Arbitrary unhandled tag, with keep-tags' => array(
+				<<<'PHPDOC'
+				/**
+				 * @since 1.2.3 Some description
+				 * @phpstan-self-out self<X> Some text
+				 */
+				PHPDOC,
+				<<<'PHPDOC'
+				/**
+				 * @since 1.2.3 Some description
+				 * @phpstan-self-out self<X>
+				 */
+				PHPDOC,
+				true,
+				BufferedOutput::VERBOSITY_DEBUG,
+				<<<'OUTPUT'
+				Keeping unrecognized tag `@since`
+				Keeping unrecognized tag `@phpstan-self-out`
 				OUTPUT . "\n",
 			),
 		);

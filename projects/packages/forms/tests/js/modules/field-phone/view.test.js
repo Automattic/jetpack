@@ -6,7 +6,6 @@ const mockGetContext = jest.fn();
 const mockGetConfig = jest.fn();
 const mockGetElement = jest.fn();
 const mockWithSyncEvent = jest.fn( callback => callback );
-const mockWithScope = jest.fn( callback => callback );
 
 await jest.unstable_mockModule( '@wordpress/interactivity', () => ( {
 	store: mockStore,
@@ -14,13 +13,12 @@ await jest.unstable_mockModule( '@wordpress/interactivity', () => ( {
 	getConfig: mockGetConfig,
 	getElement: mockGetElement,
 	withSyncEvent: mockWithSyncEvent,
-	withScope: mockWithScope,
 } ) );
 
 // Mock libphonenumber-js
 const mockParsePhoneNumber = jest.fn();
 const mockAsYouType = jest.fn();
-await jest.unstable_mockModule( 'libphonenumber-js', () => ( {
+await jest.unstable_mockModule( 'libphonenumber-js/min/es6', () => ( {
 	__esModule: true,
 	default: mockParsePhoneNumber,
 	AsYouType: mockAsYouType,
@@ -254,7 +252,7 @@ describe( 'Phone Field View', () => {
 			expect( mockContext.fullPhoneNumber ).toBe( '555-123-4567' );
 		} );
 
-		test( 'calls actions correctly with country selector enabled', () => {
+		test( 'self-heals initialization when called with country selector enabled', () => {
 			mockContext.showCountrySelector = true;
 			mockContext.fieldId = 'test-phone';
 
@@ -266,11 +264,12 @@ describe( 'Phone Field View', () => {
 			const mockUpdateField = jest.fn();
 			storeConfig.actions.updateField = mockUpdateField;
 
-			// This will throw because internal refs aren't set up, but that's expected behavior
-			// In real usage, the callback would have been called first
-			expect( () => {
-				storeConfig.actions.phoneNumberInputHandler( mockEvent );
-			} ).toThrow();
+			// With ensureInitialized, the handler should self-heal by querying
+			// the DOM for refs and initializing, rather than throwing.
+			storeConfig.actions.phoneNumberInputHandler( mockEvent );
+
+			expect( mockAsYouType ).toHaveBeenCalledWith( 'US' );
+			expect( mockUpdateField ).toHaveBeenCalledWith( 'test-phone', '555-123-4567' );
 		} );
 	} );
 
@@ -488,111 +487,51 @@ describe( 'Phone Field View', () => {
 			expect( mockGetConfig ).not.toHaveBeenCalled();
 		} );
 
-		test( 'initializes phone field with country selector', () => {
+		test( 'initializes phone field with country selector via DOM query', () => {
 			mockContext.showCountrySelector = true;
+			mockContext.fieldId = 'init-test-phone';
 
-			// Mock the element querySelector methods
-			const mockParentElement = {
-				querySelector: jest
-					.fn()
-					.mockReturnValueOnce( document.querySelector( '.jetpack-combobox-search' ) )
-					.mockReturnValueOnce( document.querySelector( '.jetpack-combobox-options' ) ),
-			};
-
-			const mockPhoneInput = {
-				parentElement: mockParentElement,
-			};
-
-			mockGetElement.mockReturnValue( { ref: mockPhoneInput } );
+			// Point getElement to the tel input inside the DOM structure
+			const phoneInput = document.querySelector( '.jetpack-field__input-element' );
+			mockGetElement.mockReturnValue( { ref: phoneInput } );
 
 			storeConfig.callbacks.initializePhoneFieldCustomComboBox();
 
 			expect( mockGetConfig ).toHaveBeenCalledWith( 'jetpack/field-phone' );
+			expect( mockAsYouType ).toHaveBeenCalledWith( 'US' );
+			expect( mockContext.allCountries ).toHaveLength( 3 );
+			expect( mockContext.selectedCountry.code ).toBe( 'US' );
 		} );
 
-		test( 'uses delayed initialization when internal refs are not set up', () => {
-			// Use a fresh fieldId that hasn't been initialized yet
+		test( 'skips initialization if wrapper is not found', () => {
 			mockContext.showCountrySelector = true;
-			mockContext.fieldId = 'fresh-phone-field';
+			mockContext.fieldId = 'orphan-field';
 
-			// Mock setTimeout to capture the delayed callback
-			const originalSetTimeout = global.setTimeout;
-			const mockSetTimeout = jest.fn();
-			global.setTimeout = mockSetTimeout;
+			// Element not inside the expected wrapper
+			const orphanElement = document.createElement( 'input' );
+			document.body.appendChild( orphanElement );
+			mockGetElement.mockReturnValue( { ref: orphanElement } );
 
-			// Mock element for delayed initialization
-			const mockPhoneInput = document.querySelector( '.jetpack-field__input-element' );
-			const mockParentElement = {
-				querySelector: jest
-					.fn()
-					.mockReturnValueOnce( document.querySelector( '.jetpack-combobox-search' ) )
-					.mockReturnValueOnce( document.querySelector( '.jetpack-combobox-options' ) ),
-			};
-
-			// Mock a proper element structure
-			Object.defineProperty( mockPhoneInput, 'parentElement', {
-				value: mockParentElement,
-				writable: true,
-			} );
-
-			mockGetElement.mockReturnValue( { ref: mockPhoneInput } );
-
-			// First call - should trigger delayed initialization since refs aren't set up
 			storeConfig.callbacks.initializePhoneFieldCustomComboBox();
 
-			// Verify setTimeout was called with 100ms delay
-			expect( mockSetTimeout ).toHaveBeenCalledWith( expect.any( Function ), 100 );
-
-			// Verify mockWithScope was called (for scoping the delayed callback)
-			expect( mockWithScope ).toHaveBeenCalled();
-
-			// Should not have called getConfig yet since it's delayed
 			expect( mockGetConfig ).not.toHaveBeenCalled();
-
-			// Restore original setTimeout to execute the delayed callback
-			global.setTimeout = originalSetTimeout;
-
-			// Now simulate the delayed execution by calling the setTimeout callback
-			const delayedCallback = mockSetTimeout.mock.calls[ 0 ][ 0 ];
-			delayedCallback();
-
-			// Now it should have called getConfig
-			expect( mockGetConfig ).toHaveBeenCalledWith( 'jetpack/field-phone' );
+			expect( mockAsYouType ).not.toHaveBeenCalled();
 		} );
 
-		test( 'handles recursive delayed initialization pattern', () => {
-			// Use a different fresh fieldId
+		test( 'does not re-initialize if already initialized', () => {
 			mockContext.showCountrySelector = true;
-			mockContext.fieldId = 'another-fresh-field';
+			mockContext.fieldId = 'reinit-test-phone';
 
-			// Mock setTimeout to capture multiple delayed callbacks
-			const mockSetTimeout = jest.fn();
-			global.setTimeout = mockSetTimeout;
+			const phoneInput = document.querySelector( '.jetpack-field__input-element' );
+			mockGetElement.mockReturnValue( { ref: phoneInput } );
 
-			// Mock element structure
-			const mockPhoneInput = document.querySelector( '.jetpack-field__input-element' );
-			const mockParentElement = {
-				querySelector: jest
-					.fn()
-					.mockReturnValue( document.querySelector( '.jetpack-combobox-search' ) ),
-			};
-
-			Object.defineProperty( mockPhoneInput, 'parentElement', {
-				value: mockParentElement,
-				writable: true,
-			} );
-
-			mockGetElement.mockReturnValue( { ref: mockPhoneInput } );
-
-			// First call - should trigger delayed initialization
+			// First initialization
 			storeConfig.callbacks.initializePhoneFieldCustomComboBox();
+			expect( mockAsYouType ).toHaveBeenCalledTimes( 1 );
 
-			expect( mockSetTimeout ).toHaveBeenCalledTimes( 1 );
-
-			// Verify the delayed pattern is set up correctly
-			expect( mockSetTimeout ).toHaveBeenCalledWith( expect.any( Function ), 100 );
-
-			// Should not have called getConfig yet since it's delayed
+			// Second call should be a no-op (fast path)
+			mockGetConfig.mockClear();
+			storeConfig.callbacks.initializePhoneFieldCustomComboBox();
 			expect( mockGetConfig ).not.toHaveBeenCalled();
 		} );
 	} );

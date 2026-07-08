@@ -64,8 +64,8 @@ class Admin_Post_List_Column {
 	public function stats_load_admin_css() {
 		?>
 		<style type="text/css">
-			.fixed .column-stats {
-				width: 5em;
+			.wp-list-table.fixed .column-stats {
+				width: 9em;
 				white-space: nowrap;
 			}
 		</style>
@@ -166,6 +166,17 @@ class Admin_Post_List_Column {
 	 * @return mixed
 	 */
 	public function add_stats_post_table( $columns ) {
+		// Skip stats column for non-public post types when screen info is available.
+		if ( function_exists( 'get_current_screen' ) ) {
+			$screen = get_current_screen();
+			if ( $screen && $screen->post_type ) {
+				$post_type_object = get_post_type_object( $screen->post_type );
+				if ( $post_type_object && ! $post_type_object->public ) {
+					return $columns;
+				}
+			}
+		}
+
 		/**
 		 * The manage_options capability is a fallback for Simple.
 		 * This should be updated with a proper fix. Implemented based on this PR: https://github.com/Automattic/jetpack/pull/41549.
@@ -202,13 +213,13 @@ class Admin_Post_List_Column {
 		// If comments position is 0, then prepend the element at the beginning of the array.
 		if ( 0 === $pos ) {
 			return array_merge(
-				array( 'stats' => esc_html__( 'Stats', 'jetpack-stats-admin' ) ),
+				array( 'stats' => esc_html__( 'Views: 30 days', 'jetpack-stats-admin' ) ),
 				$columns
 			);
 		}
 
 		$chunks             = array_chunk( $columns, $pos, true );
-		$chunks[0]['stats'] = esc_html__( 'Stats', 'jetpack-stats-admin' );
+		$chunks[0]['stats'] = esc_html__( 'Views: 30 days', 'jetpack-stats-admin' );
 
 		return call_user_func_array( 'array_merge', $chunks );
 	}

@@ -4,9 +4,10 @@ import GeoChart, { GeoChartUnresponsive } from '../geo-chart';
 
 // Mock react-google-charts
 jest.mock( 'react-google-charts', () => ( {
-	Chart: jest.fn( ( { data, options, width, height } ) => {
+	Chart: jest.fn( ( { chartPackages, data, options, width, height } ) => {
 		return (
 			<div data-testid="google-chart-mock" data-width={ width } data-height={ height }>
+				<div data-testid="chart-packages">{ JSON.stringify( chartPackages ) }</div>
 				<div data-testid="chart-data">{ JSON.stringify( data ) }</div>
 				<div data-testid="chart-options">{ JSON.stringify( options ) }</div>
 			</div>
@@ -64,26 +65,73 @@ describe( 'GeoChart', () => {
 			expect( chart ).toHaveAttribute( 'data-width', '1200' );
 			expect( chart ).toHaveAttribute( 'data-height', '600' );
 		} );
+
+		test( 'loads the GeoChart package explicitly', () => {
+			renderWithTheme();
+
+			const chartPackages = screen.getByTestId( 'chart-packages' );
+			const packages = JSON.parse( chartPackages.textContent || '[]' );
+
+			expect( packages ).toEqual( [ 'corechart', 'controls', 'geochart' ] );
+		} );
 	} );
 
 	describe( 'Data Handling', () => {
-		test( 'passes data directly to Google Charts without modification', () => {
-			// Test with complex data including plain values, formatted values, and tooltip columns
-			const testData: [
-				( string | object )[],
-				...[ string, number | { v: number; f: string }, string ][],
-			] = [
-				[ 'Country', 'Revenue', { type: 'string', role: 'tooltip', p: { html: true } } ],
-				[ 'US', { v: 1234567, f: '$1.23M' }, '<b>United States</b>' ],
-				[ 'CA', 543210, '<b>Canada</b>' ],
+		test( 'passes non-tooltip data without modification', () => {
+			const testData: [ string[], ...[ string, number ][] ] = [
+				[ 'Country', 'Revenue' ],
+				[ 'US', 1234567 ],
+				[ 'CA', 543210 ],
 			];
 			renderWithTheme( { data: testData } );
 
 			const chartData = screen.getByTestId( 'chart-data' );
 			const data = JSON.parse( chartData.textContent || '[]' );
 
-			// Data should be passed through exactly as provided
 			expect( data ).toEqual( testData );
+		} );
+
+		test( 'sanitizes HTML tooltip content to prevent XSS', () => {
+			const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
+				[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
+				[ 'US', 100, '<b>United States</b><script>alert("xss")</script>' ],
+				[ 'CA', 50, '<b>Canada</b><img src=x onerror="alert(1)">' ],
+			];
+			renderWithTheme( { data: testData } );
+
+			const chartData = screen.getByTestId( 'chart-data' );
+			const data = JSON.parse( chartData.textContent || '[]' );
+
+			// Script tags and img (not in allowlist) should be stripped
+			expect( data[ 1 ][ 2 ] ).toBe( '<b>United States</b>' );
+			expect( data[ 2 ][ 2 ] ).toBe( '<b>Canada</b>' );
+		} );
+
+		test( 'handles header-only data with HTML tooltip column and no data rows', () => {
+			const testData: [ ( string | object )[] ] = [
+				[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
+			];
+			renderWithTheme( { data: testData } );
+
+			const chartData = screen.getByTestId( 'chart-data' );
+			const data = JSON.parse( chartData.textContent || '[]' );
+
+			// Header row should be preserved as-is
+			expect( data ).toHaveLength( 1 );
+			expect( data[ 0 ][ 0 ] ).toBe( 'Country' );
+		} );
+
+		test( 'preserves safe HTML in tooltip content', () => {
+			const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
+				[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
+				[ 'US', 100, '<b>United States</b><br>100 orders' ],
+			];
+			renderWithTheme( { data: testData } );
+
+			const chartData = screen.getByTestId( 'chart-data' );
+			const data = JSON.parse( chartData.textContent || '[]' );
+
+			expect( data[ 1 ][ 2 ] ).toBe( '<b>United States</b><br>100 orders' );
 		} );
 	} );
 

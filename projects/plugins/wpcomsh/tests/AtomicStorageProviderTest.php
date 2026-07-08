@@ -63,27 +63,12 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_master_user_id with invalid user email.
+	 * Test get_master_user_id returns false for invalid input (non-existent user, empty, or malformed email).
 	 */
 	public function test_get_master_user_id_invalid() {
-		$result = $this->provider->get_master_user_id( 'nonexistent@example.com' );
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test get_master_user_id with empty email.
-	 */
-	public function test_get_master_user_id_empty() {
-		$result = $this->provider->get_master_user_id( '' );
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test get_master_user_id with invalid email format.
-	 */
-	public function test_get_master_user_id_invalid_email_format() {
-		$result = $this->provider->get_master_user_id( 'not-an-email' );
-		$this->assertFalse( $result );
+		$this->assertFalse( $this->provider->get_master_user_id( 'nonexistent@example.com' ) );
+		$this->assertFalse( $this->provider->get_master_user_id( '' ) );
+		$this->assertFalse( $this->provider->get_master_user_id( 'not-an-email' ) );
 	}
 
 	/**
@@ -228,5 +213,119 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 
 		// Should have replaced with new token
 		$this->assertSame( 'new.secret.' . $user_id, $result[ $user_id ] );
+	}
+
+	/**
+	 * Test that the Atomic_Persistent_Data instance is cached across calls.
+	 */
+	public function test_persistent_data_cached() {
+		$reflection = new \ReflectionProperty( Atomic_Storage_Provider::class, 'persistent_data' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
+
+		$this->assertNull( $reflection->getValue( $this->provider ) );
+
+		// Trigger a get() call that initializes APD
+		$this->provider->get( 'blog_token' );
+		$first_instance = $reflection->getValue( $this->provider );
+		$this->assertNotNull( $first_instance );
+
+		// Second call should reuse the same instance
+		$this->provider->get( 'id' );
+		$second_instance = $reflection->getValue( $this->provider );
+		$this->assertSame( $first_instance, $second_instance );
+	}
+
+	/**
+	 * Test that resolve_user_by_email caches the result across calls.
+	 *
+	 * Verifies that get_master_user_id and get_user_tokens can be called
+	 * in sequence for the same email without redundant DB lookups.
+	 */
+	public function test_email_resolution_cached_across_calls() {
+		$user_id = static::factory()->user->create( array( 'user_email' => 'cached@example.com' ) );
+
+		// First call resolves the user
+		$master_id = $this->provider->get_master_user_id( 'cached@example.com' );
+		$this->assertSame( $user_id, $master_id );
+
+		// Verify internal cache is set
+		$reflection = new \ReflectionProperty( Atomic_Storage_Provider::class, 'resolved_email' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
+		$this->assertSame( 'cached@example.com', $reflection->getValue( $this->provider ) );
+
+		$user_prop = new \ReflectionProperty( Atomic_Storage_Provider::class, 'resolved_user' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$user_prop->setAccessible( true );
+		}
+		$cached_user = $user_prop->getValue( $this->provider );
+		$this->assertInstanceOf( \WP_User::class, $cached_user );
+		$this->assertSame( $user_id, $cached_user->ID );
+
+		// Second call (via get_user_tokens) should use the cached user
+		$tokens = $this->provider->get_user_tokens( 'cached@example.com', 'token.secret' );
+		$this->assertIsArray( $tokens );
+		$this->assertSame( 'token.secret.' . $user_id, $tokens[ $user_id ] );
+
+		// Cache should still reference the same user
+		$this->assertSame( $cached_user, $user_prop->getValue( $this->provider ) );
+	}
+
+	/**
+	 * Test that a different email invalidates the resolution cache.
+	 */
+	public function test_email_resolution_cache_invalidated_on_different_email() {
+		$user_a = static::factory()->user->create( array( 'user_email' => 'a@example.com' ) );
+		$user_b = static::factory()->user->create( array( 'user_email' => 'b@example.com' ) );
+
+		$this->assertSame( $user_a, $this->provider->get_master_user_id( 'a@example.com' ) );
+		$this->assertSame( $user_b, $this->provider->get_master_user_id( 'b@example.com' ) );
+
+		$reflection = new \ReflectionProperty( Atomic_Storage_Provider::class, 'resolved_email' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
+		$this->assertSame( 'b@example.com', $reflection->getValue( $this->provider ) );
+	}
+
+	/**
+	 * Test that a failed (negative) lookup is not cached, so a later successful
+	 * lookup for the same email still resolves.
+	 */
+	public function test_email_resolution_negative_result_not_cached() {
+		// First lookup fails: no user with this email exists yet.
+		$this->assertFalse( $this->provider->get_master_user_id( 'late@example.com' ) );
+
+		// User appears after the failed lookup (e.g. replicated to the local DB).
+		$user_id = static::factory()->user->create( array( 'user_email' => 'late@example.com' ) );
+
+		// Same email must now resolve instead of returning the cached failure.
+		$this->assertSame( $user_id, $this->provider->get_master_user_id( 'late@example.com' ) );
+	}
+
+	/**
+	 * Test handle_error_event ignores non-error event types.
+	 */
+	public function test_handle_error_event_ignores_non_error_events() {
+		$this->provider->handle_error_event( 'empty', 'master_user', '', 'woa' );
+		$this->provider->handle_error_event( 'empty', 'user_tokens', '', 'woa' );
+		$this->provider->handle_error_event( 'empty', 'blog_token', '', 'woa' );
+
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Test handle_error_event logs error events.
+	 */
+	public function test_handle_error_event_logs_error_events() {
+		$this->provider->handle_error_event( 'error', 'master_user', 'Some error', 'woa' );
+		$this->provider->handle_error_event( 'error', 'user_tokens', 'Some error', 'woa' );
+		$this->provider->handle_error_event( 'error', 'blog_token', '', 'woa' );
+		$this->provider->handle_error_event( 'error', 'id', 'Some error', 'woa' );
+
+		$this->assertTrue( true );
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+RTC: Require Gutenberg before enabling real-time collaboration.

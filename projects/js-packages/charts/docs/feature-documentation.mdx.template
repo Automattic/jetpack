@@ -95,6 +95,52 @@ For detailed information about all optional props, see the [[Component] [Feature
 
 <Canvas of={ [FeatureName]Stories.Mixed } />
 
+## Interactive Features
+
+[Only include this section if the chart supports interactive features such as tooltips or pointer events. Remove this section entirely if the chart has no interactive capabilities.]
+
+### Tooltips
+
+Enable interactive tooltips that display data information on hover:
+
+<Source
+	language="tsx"
+	code={ `<[Component]
+		data={ data }
+		withTooltips={ true }
+		renderTooltip={ ({ datum, color }) => (
+			<div>
+				<div>{ datum.label }: { datum.value }</div>
+			</div>
+		) }
+	/>` }
+/>
+
+### Keyboard Navigation
+
+Charts are fully keyboard accessible:
+- **Tab**: Focus the chart
+- **Arrow Keys**: Navigate between data points
+- **Enter/Space**: Activate tooltips
+- **Escape**: Close active tooltips
+
+## Legends
+
+[Only include this section if the chart supports legends. Remove this section entirely if the chart has no legend capabilities.]
+
+[Brief description of the legend for this chart type]:
+
+<Canvas of={ [FeatureName]Stories.WithCompositionLegend } />
+
+<Source
+	language="tsx"
+	code={ `<[Component] data={ data }>
+		<[Component].Legend />
+	</[Component]>` }
+/>
+
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
+
 ## Styling and Customization
 
 ### Custom [Styling Aspect]
@@ -150,6 +196,28 @@ Controls [what this affects]:
 		<[Component] data={data} />
 	</GlobalChartsProvider>` }
 />
+
+## Responsive Behavior
+
+By default, charts **fill their parent container's dimensions**. The parent must have an explicit height:
+
+<Source
+	language="tsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+		<div style={{ width: '100%', height: '400px' }}>
+			<[Component] data={ data } />
+		</div>
+
+		// Use aspect ratio - height calculated from width
+		<div style={{ width: '100%' }}>
+			<[Component] data={ data } aspectRatio={ 0.5 } />
+		</div>
+
+		// Fixed dimensions
+		<[Component] data={ data } width={ 800 } height={ 400 } />` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
 

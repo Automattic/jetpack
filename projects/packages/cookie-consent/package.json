@@ -1,0 +1,50 @@
+{
+	"name": "@automattic/jetpack-cookie-consent",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"description": "GDPR cookie-consent banner, CCPA opt-out, and consent logging for WordPress.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/cookie-consent/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Cookie Consent"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/cookie-consent"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"type": "module",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run module:build",
+		"build-production": "NODE_ENV=production pnpm run build",
+		"clean": "rm -rf build/",
+		"module:build": "webpack --config ./tools/webpack.config.modules.js",
+		"module:watch": "webpack --watch --config ./tools/webpack.config.modules.js",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsgo --noEmit",
+		"watch": "pnpm run module:watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@wordpress/interactivity": "6.50.0"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@wordpress/base-styles": "10.2.0",
+		"@wordpress/browserslist-config": "6.50.0",
+		"autoprefixer": "10.4.20",
+		"jest": "30.4.2",
+		"postcss": "8.5.14",
+		"postcss-loader": "8.2.0",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "16.0.5",
+		"typescript": "5.9.3",
+		"webpack": "5.107.2",
+		"webpack-cli": "6.0.1"
+	}
+}

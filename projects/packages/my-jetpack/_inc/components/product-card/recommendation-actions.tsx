@@ -1,4 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import styles from './style.module.scss';
 import usePricingData from './use-pricing-data';
@@ -20,7 +20,7 @@ const RecommendationActions = ( { slug }: { slug: string } ) => {
 					</Button>
 				) }
 				{ secondaryAction && (
-					<Button size="small" variant="secondary" disabled={ isActivating } { ...secondaryAction }>
+					<Button size="small" variant="outline" disabled={ isActivating } { ...secondaryAction }>
 						{ secondaryAction.label }
 					</Button>
 				) }

@@ -471,7 +471,7 @@ class Functions {
 			if ( $plugin_file_singular === null ) {
 				return $plugins_action_links;
 			}
-			return ( isset( $plugins_action_links[ $plugin_file_singular ] ) ? $plugins_action_links[ $plugin_file_singular ] : null );
+			return ( $plugins_action_links[ $plugin_file_singular ] ?? null );
 		}
 		return array();
 	}
@@ -609,11 +609,9 @@ class Functions {
 			// WordPress 6.9 introduced lazy-loading of WP_User `roles`, `caps`, and `allcaps` properties.
 			// It also made said properties protected, so we need to access them and set them as keys manually.
 			if ( $any instanceof \WP_User ) {
-				$roles   = $any->roles;
-				$caps    = $any->caps;
-				$allcaps = $any->allcaps;
-
-				// For WordPress <6.8 the below are redundant. :shrug:
+				$roles            = $any->roles;
+				$caps             = $any->caps;
+				$allcaps          = $any->allcaps;
 				$input['roles']   = $roles;
 				$input['caps']    = $caps;
 				$input['allcaps'] = $allcaps;

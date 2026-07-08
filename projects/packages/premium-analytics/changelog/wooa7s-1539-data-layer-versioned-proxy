@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Data layer: point report requests at the endpoint-agnostic proxy route (proxy/v2/analytics/reports) after the per-endpoint proxy route was removed.

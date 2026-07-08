@@ -1,0 +1,62 @@
+.podcast__pocketcasts-modal .components-modal__content {
+	max-width: 520px;
+}
+
+.podcast__pocketcasts-feed-url {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding: 8px 12px;
+	font-family: ui-monospace, SFMono-Regular, monospace;
+	font-size: 13px;
+	color: #1e1e1e;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
+
+.podcast__pocketcasts-errors {
+	margin: 8px 0 0;
+	padding-inline-start: 20px;
+}
+
+// State-driven submit button. Override the primary fill for pending/active so
+// the colour matches the verdict; idle keeps the default theme primary.
+.podcast__pocketcasts-button {
+	text-align: center;
+
+	&.components-button.has-icon {
+		justify-content: center;
+	}
+
+	&--pending {
+
+		&,
+		&:hover:not(:disabled),
+		&:focus:not(:disabled),
+		&[disabled],
+		&[aria-disabled="true"] {
+			background: #dba617; // wp-admin warning
+			color: #1e1e1e;
+			box-shadow: none;
+		}
+	}
+
+	&--active {
+
+		&,
+		&:hover:not(:disabled),
+		&:focus:not(:disabled),
+		&[disabled],
+		&[aria-disabled="true"] {
+			background: #00a32a; // wp-admin success
+			color: #fff;
+			box-shadow: none;
+			opacity: 1;
+		}
+
+		svg {
+			fill: currentColor;
+		}
+	}
+}

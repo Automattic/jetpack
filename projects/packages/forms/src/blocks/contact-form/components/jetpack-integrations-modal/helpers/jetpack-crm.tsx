@@ -1,8 +1,9 @@
 import colorStudio from '@automattic/color-studio';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import semver from 'semver';
 import type { CardItem, CardBuilderProps } from './types.ts';
 
@@ -59,14 +60,7 @@ export function buildJetpackCrmCard( {
 								'jetpack-forms'
 							),
 							{
-								a: (
-									<Button
-										variant="link"
-										href={ settingsUrl }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
+								a: <Link openInNewTab href={ settingsUrl } />,
 							}
 						) }
 					</p>
@@ -98,9 +92,11 @@ export function buildJetpackCrmCard( {
 				<p className="integration-card__description">
 					{ context === 'block-editor' ? connectedMsgEditor : connectedMsgDashboard }
 				</p>
-				<ExternalLink href={ settingsUrl }>
-					{ __( 'Open Jetpack CRM settings', 'jetpack-forms' ) }
-				</ExternalLink>
+				{ settingsUrl && (
+					<Link openInNewTab href={ settingsUrl }>
+						{ __( 'Open Jetpack CRM settings', 'jetpack-forms' ) }
+					</Link>
+				) }
 			</div>
 		);
 	};
@@ -128,7 +124,7 @@ export function buildJetpackCrmCard( {
 					'You can save your form contacts in <a>Jetpack CRM</a>. To get started, please install the plugin.',
 					'jetpack-forms'
 				),
-				{ a: <ExternalLink href={ marketingUrl } /> }
+				{ a: <Link openInNewTab href={ marketingUrl } children={ null } /> }
 			),
 			notActivatedMessage: __(
 				'Jetpack CRM is installed. To start saving contacts, simply activate the plugin.',

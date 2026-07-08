@@ -5,8 +5,10 @@ import JetpackFooter from '../index.tsx';
 
 describe( 'JetpackFooter', () => {
 	const className = 'sample-classname';
-	const moduleName = 'Test module';
-	const moduleNameHref = 'https://jetpack.com/path/to-some-page';
+
+	afterEach( () => {
+		delete window.JetpackNetworkAdminData;
+	} );
 
 	describe( 'Render the component', () => {
 		const menu = [
@@ -15,14 +17,8 @@ describe( 'JetpackFooter', () => {
 				href: '/',
 			},
 			{
-				label: 'External link',
-				href: '/',
-				target: '_blank',
-			},
-			{
 				label: 'Button link',
-				href: '/',
-				role: 'button',
+				onClick: () => {},
 			},
 		];
 
@@ -50,20 +46,10 @@ describe( 'JetpackFooter', () => {
 			expect( element ).toBeInTheDocument();
 		} );
 
-		it( 'should render the module name as a link', () => {
-			render( <JetpackFooter moduleName={ moduleName } moduleNameHref={ moduleNameHref } /> );
+		it( 'should render Jetpack as regular text', () => {
+			render( <JetpackFooter /> );
 
-			const element = screen.getByText( moduleName );
-
-			expect( element ).toBeInTheDocument();
-			expect( element ).toBeInstanceOf( HTMLAnchorElement );
-			expect( element ).toHaveAttribute( 'href', moduleNameHref );
-		} );
-
-		it( 'should render the module name as regular text', () => {
-			render( <JetpackFooter moduleName={ moduleName } moduleNameHref={ null } /> );
-
-			const element = screen.getByText( moduleName );
+			const element = screen.getByText( 'Jetpack' );
 
 			expect( element ).toBeInTheDocument();
 			expect( element ).not.toBeInstanceOf( HTMLAnchorElement );
@@ -72,49 +58,38 @@ describe( 'JetpackFooter', () => {
 		it( 'should render the Automattic logo', () => {
 			render( <JetpackFooter /> );
 
-			const element = screen.getByLabelText( 'An Automattic Airline', { selector: 'a' } );
+			const element = screen.getByText( 'An Automattic Airline', {
+				selector: '#jp-automattic-byline-logo-title',
+			} );
 
 			expect( element ).toBeInTheDocument();
-		} );
-
-		it( 'should render a list', () => {
-			render( <JetpackFooter menu={ menu } /> );
-
-			const element = screen.getByRole( 'list' );
-
-			expect( element ).toBeInTheDocument();
-			// eslint-disable-next-line testing-library/no-node-access
-			expect( element.children ).toHaveLength( 2 + 3 + menu.length ); // 2 logos, 3 generic links
 		} );
 
 		it( 'should render the links', () => {
 			render( <JetpackFooter menu={ menu } /> );
-			const externalLinkLabel = menu[ 1 ].label + '(opens in a new tab)';
 
 			const link = screen.getByRole( 'link', { name: menu[ 0 ].label } );
-			const externalLink = screen.getByRole( 'link', { name: externalLinkLabel } );
-			const button = screen.getByRole( 'button', { name: menu[ 2 ].label } );
+			const button = screen.getByRole( 'button', { name: menu[ 1 ].label } );
 
 			expect( link ).toBeInTheDocument();
-
-			expect( externalLink ).toBeInTheDocument();
-			expect( externalLink ).toHaveAttribute( 'target', '_blank' );
-			expect( externalLink ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-			expect( externalLink ).toContainHTML( 'svg' );
-
 			expect( button ).toBeInTheDocument();
 			expect( button ).toHaveAttribute( 'tabindex', '0' );
 		} );
 
+		it( 'should hide default links when JetpackNetworkAdminData is present', () => {
+			window.JetpackNetworkAdminData = {
+				sitesUrl: '/',
+				settingsUrl: '/',
+			};
+
+			render( <JetpackFooter /> );
+
+			expect( screen.queryByRole( 'link', { name: 'Products' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
+		} );
+
 		it( 'should match the snapshot', () => {
-			const { container } = render(
-				<JetpackFooter
-					className={ className }
-					moduleName={ moduleName }
-					moduleNameHref={ moduleNameHref }
-					menu={ menu }
-				/>
-			);
+			const { container } = render( <JetpackFooter className={ className } menu={ menu } /> );
 			expect( container ).toMatchSnapshot( 'all props' );
 		} );
 	} );

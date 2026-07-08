@@ -8,21 +8,30 @@ import {
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { ExternalLink } from '@wordpress/components';
-import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
+import { Button } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import {
+	createInterpolateElement,
+	useState,
+	useEffect,
+	useCallback,
+	useMemo,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import useAnalytics from '../../hooks/useAnalytics';
 import useBackupsState from '../../hooks/useBackupsState';
 import useCapabilities from '../../hooks/useCapabilities';
 import useConnection from '../../hooks/useConnection';
+import { STORE_ID } from '../../store';
 import { Backups, Loading as BackupsLoadingPlaceholder } from '../Backups';
+import { useShowBackUpNow } from '../back-up-now/hooks';
+import { BackupNowButton } from '../back-up-now/index';
 import { BackupConnectionScreen } from '../backup-connection-screen';
 import { BackupSecondaryAdminConnectionScreen } from '../backup-connection-screen/secondary-admin';
 import BackupStorageSpace from '../backup-storage-space';
 import ReviewRequest from '../review-request';
-import Header from './header';
 import {
 	useIsFullyConnected,
 	useIsSecondaryAdminNotConnected,
@@ -51,11 +60,43 @@ const Admin = () => {
 
 	const { capabilities, capabilitiesError, capabilitiesLoaded, hasBackupPlan } = useCapabilities();
 
+	const showActivateLicenseLink = useShowActivateLicenseLink();
+	const showBackUpNowButton = useShowBackUpNow();
+
+	const activateLicenseUrl = useSelect( select => {
+		const wpAdminUrl = select( STORE_ID ).getSiteData().adminUrl;
+		return `${ wpAdminUrl }admin.php?page=my-jetpack#/add-license`;
+	}, [] );
+
+	const headerActions = useMemo( () => {
+		const buttons = [];
+
+		if ( showActivateLicenseLink ) {
+			buttons.push(
+				<Button
+					key="activate-license"
+					size="compact"
+					variant="secondary"
+					href={ activateLicenseUrl }
+				>
+					{ __( 'Use license key', 'jetpack-backup-pkg' ) }
+				</Button>
+			);
+		}
+
+		if ( showBackUpNowButton ) {
+			buttons.push(
+				<BackupNowButton key="backup-now" tracksEventName="jetpack_backup_plugin_backup_now">
+					{ __( 'Back up now', 'jetpack-backup-pkg' ) }
+				</BackupNowButton>
+			);
+		}
+
+		return buttons.length > 0 ? <>{ buttons }</> : null;
+	}, [ showBackUpNowButton, showActivateLicenseLink, activateLicenseUrl ] );
+
 	// If the user is a secondary admin not connected and the site has a backup product,
 	// let's show the login screen.
-	// @TODO: Review the use case where the site is fully connected but the backup product expires and
-	// a secondary admin is not connected. Currently it will display the default `Site backups are
-	// managed by the owner of this site's Jetpack connection.` message.
 	if ( secondaryAdminNotConnected ) {
 		if ( isLoadingBackupProduct ) {
 			return (
@@ -76,11 +117,13 @@ const Admin = () => {
 
 	return (
 		<AdminPage
-			showHeader
 			showFooter
-			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
-			header={ <Header /> }
-			useInternalLinks={ shouldUseInternalLinks() }
+			title={ 'Backup' /** "Backup" is a product name, do not translate. */ }
+			subTitle={ __(
+				'Save changes and restore quickly with one-click recovery.',
+				'jetpack-backup-pkg'
+			) }
+			actions={ headerActions }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">
@@ -125,33 +168,12 @@ const BackupSegments = ( { hasBackupPlan, connectionLoaded } ) => {
 	const connectionStatus = useConnection();
 	const { tracks } = useAnalytics();
 
-	const trackLearnMoreClick = useCallback( () => {
-		tracks.recordEvent( 'jetpack_backup_learn_more_click' );
-	}, [ tracks ] );
-
 	const trackLearnBackupBrowserClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_learn_file_browser_click' );
 	}, [ tracks ] );
 
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 } className="backup-segments">
-			<Col lg={ 6 } md={ 6 }>
-				<h2>{ __( 'Restore points created with every edit', 'jetpack-backup-pkg' ) }</h2>
-				<p>
-					{ __(
-						'No need to run a manual backup before you make changes to your site.',
-						'jetpack-backup-pkg'
-					) }
-				</p>
-				<p>
-					<ExternalLink
-						href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
-						onClick={ trackLearnMoreClick }
-					>
-						{ __( 'Learn about real-time backups', 'jetpack-backup-pkg' ) }
-					</ExternalLink>
-				</p>
-			</Col>
 			{ hasBackupPlan && connectionStatus.isUserConnected && (
 				<>
 					<Col lg={ 1 } md={ 1 } />
@@ -169,12 +191,13 @@ const BackupSegments = ( { hasBackupPlan, connectionLoaded } ) => {
 					) }
 				</p>
 				<p>
-					<ExternalLink
+					<Link
+						openInNewTab
 						href={ getRedirectUrl( 'jetpack-blog-backup-file-browser' ) }
 						onClick={ trackLearnBackupBrowserClick }
 					>
 						{ __( 'Learn about the file browser', 'jetpack-backup-pkg' ) }
-					</ExternalLink>
+					</Link>
 				</p>
 			</Col>
 			<ReviewMessage connectionLoaded={ connectionLoaded } />
@@ -403,11 +426,34 @@ const LoadedState = ( {
 };
 
 const SecondaryAdminConnectionLayout = ( { children } ) => (
-	<AdminPage showHeader={ false } moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }>
+	<AdminPage showHeader={ false }>
 		<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 			<Col>{ children }</Col>
 		</Container>
 	</AdminPage>
 );
+
+const useShowActivateLicenseLink = () => {
+	const connectionStatus = useConnection();
+	const isFullyConnected = useIsFullyConnected();
+	const { capabilitiesLoaded, hasBackupPlan } = useCapabilities();
+
+	return useMemo( () => {
+		const connectionLoaded = Object.keys( connectionStatus ).length > 0;
+		if ( ! connectionLoaded ) {
+			return false;
+		}
+
+		if ( ! isFullyConnected ) {
+			return true;
+		}
+
+		if ( ! capabilitiesLoaded ) {
+			return false;
+		}
+
+		return ! hasBackupPlan;
+	}, [ connectionStatus, isFullyConnected, hasBackupPlan, capabilitiesLoaded ] );
+};
 
 export default Admin;

@@ -1,0 +1,96 @@
+// PlacementCard — selected / hover / focus states layered on top of the
+// `Card.Root` primitive. The card surface itself (border, radius, background,
+// overflow:clip, flex column) comes from `Card.Root`; this file only carries
+// the interactive-state colours and the absolute checkbox positioning.
+
+.jetpack-newsletter-placements-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	// Tighter horizontal gap between the two columns; more breathing room
+	// between rows so the second row reads as a separate band.
+	column-gap: var(--wpds-dimension-gap-md, 16px);
+	row-gap: var(--wpds-dimension-gap-2xl, 32px);
+
+	@media (max-width: 720px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.jetpack-newsletter-placement__card {
+	// Position context for the absolute-positioned checkbox below.
+	position: relative;
+
+	// Selected state: brand-toned active stroke (the WPDS primary blue).
+	&[data-checked="true"] {
+		border-color: var(--wpds-color-stroke-interactive-brand-active);
+	}
+
+	&:hover:not([data-checked="true"]) {
+		border-color: var(--wpds-color-stroke-surface-neutral-strong, #b0b0b0);
+	}
+
+	// Focus ring on the card itself (not the checkbox input), using the
+	// canonical brand focus token.
+	&:has(input:focus-visible) {
+		outline:
+			var(--wpds-border-width-focus, 2px) solid
+			var(--wpds-color-stroke-focus);
+		outline-offset: 2px;
+	}
+
+	// Only animate the border-color when the user hasn't asked to reduce
+	// motion — respects `prefers-reduced-motion: reduce`.
+	@media (prefers-reduced-motion: no-preference) {
+		transition: border-color 0.15s ease-out;
+	}
+}
+
+.jetpack-newsletter-placement__surface {
+	display: block;
+	cursor: var(--wpds-cursor-control, pointer);
+}
+
+.jetpack-newsletter-placement__illustration {
+	// Match the v2 SVG's intrinsic 294×192 aspect so the wireframe
+	// fills the card surface edge-to-edge.
+	aspect-ratio: 294 / 192;
+	background: var(--wpds-color-background-surface-neutral-weak, #f7f7f7);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+
+	> svg {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+	}
+}
+
+.jetpack-newsletter-placement__checkbox {
+	position: absolute;
+	inset-block-start: var(--wpds-dimension-padding-md, 12px);
+	inset-inline-start: var(--wpds-dimension-padding-md, 12px);
+
+	// CheckboxControl from `@wordpress/components` wraps the native input in
+	// BaseControl chrome (margin/padding from `__field` + `__input-container`).
+	// `@wordpress/ui` doesn't yet ship a Form.Checkbox primitive, so until it
+	// does we zero the chrome here. Revisit once WP UI exposes a checkbox.
+	.components-base-control,
+	.components-base-control__field,
+	.components-checkbox-control,
+	.components-checkbox-control__input-container {
+		margin: 0;
+		padding: 0;
+	}
+
+	.components-checkbox-control__input {
+		margin: 0;
+	}
+
+	// The empty fallback <label> CheckboxControl renders is hidden — the
+	// visible title sits below the card.
+	.components-checkbox-control__label {
+		display: none;
+	}
+}

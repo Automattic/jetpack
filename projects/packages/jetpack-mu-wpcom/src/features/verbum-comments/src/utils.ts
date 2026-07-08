@@ -190,9 +190,9 @@ export const setUserInfoCookie = ( userData: UserInfo ) => {
 		} ),
 		...( userData?.uid && { uid: userData.uid.toString() } ),
 		...( userData?.url && { url: encodeURIComponent( userData.url ) } ),
-	} ).toString();
+	} as Record< string, string > ).toString();
 
-	document.cookie = `${ cookieName }=${ cookieData }; path=/; SameSite=None; Secure=True;${ addWordPressDomain }`;
+	document.cookie = `${ cookieName! }=${ cookieData }; path=/; SameSite=None; Secure=True;${ addWordPressDomain }`;
 };
 
 /**
@@ -217,12 +217,14 @@ export const getUserInfoCookie = () => {
 			}
 
 			const data = cookie.slice( 8 );
-			userData = data && {
-				service: serviceName,
-				...Object.fromEntries( new URLSearchParams( decodeURIComponent( data ) ) ),
-			};
+			if ( data ) {
+				userData = {
+					service: serviceName,
+					...Object.fromEntries( new URLSearchParams( decodeURIComponent( data ) ) ),
+				};
+			}
 
-			if ( serviceName === 'wordpress' ) {
+			if ( serviceName === 'wordpress' && userData.avatar ) {
 				const avatarUrl = new URL( userData.avatar );
 				userData.avatar = avatarUrl.origin + avatarUrl.pathname + '?s=64';
 			}

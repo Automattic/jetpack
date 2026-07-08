@@ -1,10 +1,12 @@
-const path = require( 'path' );
-const coverageConfig = require( 'jetpack-js-tools/jest/config.coverage.js' );
+import { fileURLToPath } from 'url';
+import coverageConfig from 'jetpack-js-tools/jest/config.coverage.js';
 
-module.exports = {
+export default {
 	...coverageConfig,
-	rootDir: path.resolve( __dirname, '..' ),
+	rootDir: fileURLToPath( new URL( '..', import.meta.url ) ),
 	roots: [ '<rootDir>/src/', '<rootDir>/tests/' ],
-	resolver: require.resolve( 'jetpack-js-tools/jest/jest-resolver.js' ),
-	setupFilesAfterEnv: [ require.resolve( 'jetpack-js-tools/jest/setup-console.js' ) ],
+	resolver: fileURLToPath( import.meta.resolve( 'jetpack-js-tools/jest/jest-resolver.js' ) ),
+	setupFilesAfterEnv: [
+		fileURLToPath( import.meta.resolve( 'jetpack-js-tools/jest/setup-console.js' ) ),
+	],
 };

@@ -111,13 +111,15 @@ export const parseHslString = ( hslString: string ): [ number, number, number ] 
 /**
  * Parse an RGB string like 'rgb(255, 0, 0)' into a hex color.
  *
- * @param rgbString - RGB color string
- * @return hex color string or null if invalid
+ * @deprecated    Use normalizeColorToHex() instead, which handles all color formats including rgb() and rgba().
+ * @param      rgbString - RGB color string (not RGBA)
+ * @return        hex color string or null if invalid
  */
 export const parseRgbString = ( rgbString: string ): string | null => {
 	const lower = rgbString.toLowerCase().trim();
 
 	// Check prefix - only handle rgb(), not rgba()
+	// This is intentional - use normalizeColorToHex for rgba() support
 	if ( ! lower.startsWith( 'rgb(' ) || lower.startsWith( 'rgba(' ) ) {
 		return null;
 	}
@@ -135,17 +137,19 @@ export const parseRgbString = ( rgbString: string ): string | null => {
 
 /**
  * Normalize any CSS color value to a hex color string.
- * Handles hex colors, HSL strings, RGB strings, and CSS variables.
+ * Handles hex, HSL, HSLA, RGB, RGBA, named CSS colors, and CSS variables.
  *
  * @param color      - Any CSS color value
  * @param element    - Optional DOM element for resolving CSS variables
  * @param resolveCss - Function to resolve CSS variables (injected for testability)
+ * @param _depth     - Internal recursion depth counter to prevent infinite loops
  * @return hex color string, or the original value if conversion fails
  */
 export const normalizeColorToHex = (
 	color: string,
 	element?: HTMLElement | null,
-	resolveCss?: ( value: string, el?: HTMLElement | null ) => string | null
+	resolveCss?: ( value: string, el?: HTMLElement | null ) => string | null,
+	_depth = 0
 ): string => {
 	if ( ! color || typeof color !== 'string' ) {
 		return '';
@@ -170,26 +174,33 @@ export const normalizeColorToHex = (
 	if ( trimmed.startsWith( '--' ) || trimmed.startsWith( 'var(' ) ) {
 		if ( resolveCss ) {
 			const resolved = resolveCss( color, element );
-			if ( resolved ) {
+			if ( resolved && resolved !== color && _depth < 10 ) {
 				// Recursively normalize the resolved value
-				return normalizeColorToHex( resolved, element, resolveCss );
+				return normalizeColorToHex( resolved, element, resolveCss, _depth + 1 );
 			}
 		}
 		// Can't resolve CSS variable, return original
 		return color;
 	}
 
-	// Handle HSL and RGB strings using d3-color
-	if ( trimmed.startsWith( 'hsl(' ) || trimmed.startsWith( 'rgb(' ) ) {
-		// Reject rgba() - we only handle rgb()
-		if ( trimmed.startsWith( 'rgba(' ) ) {
-			return color;
-		}
+	// Handle HSL, HSLA, RGB, and RGBA strings using d3-color
+	if (
+		trimmed.startsWith( 'hsl(' ) ||
+		trimmed.startsWith( 'hsla(' ) ||
+		trimmed.startsWith( 'rgb(' ) ||
+		trimmed.startsWith( 'rgba(' )
+	) {
 		const parsed = d3Color( trimmed );
 		if ( parsed ) {
 			return parsed.formatHex();
 		}
 		return color;
+	}
+
+	// Attempt d3-color for any remaining format (e.g. named CSS colors like "steelblue")
+	const parsed = d3Color( trimmed );
+	if ( parsed ) {
+		return parsed.formatHex();
 	}
 
 	// Unknown format, return as-is
@@ -220,4 +231,40 @@ export const lightenHexColor = ( hex: string, blend: number ): string => {
 	return `#${ newR.toString( 16 ).padStart( 2, '0' ) }${ newG
 		.toString( 16 )
 		.padStart( 2, '0' ) }${ newB.toString( 16 ).padStart( 2, '0' ) }`;
+};
+
+/**
+ * WCAG relative luminance of a hex color (0 = black, 1 = white).
+ *
+ * @param  hex - Hex color string (e.g., '#98C8DF')
+ * @return Relative luminance in the range [0, 1]
+ * @throws {Error} if hex string is malformed
+ */
+export const relativeLuminance = ( hex: string ): number => {
+	validateHexColor( hex );
+
+	const toLinear = ( value: number ): number => {
+		const channel = value / 255;
+		return channel <= 0.03928 ? channel / 12.92 : Math.pow( ( channel + 0.055 ) / 1.055, 2.4 );
+	};
+
+	const r = toLinear( parseInt( hex.slice( 1, 3 ), 16 ) );
+	const g = toLinear( parseInt( hex.slice( 3, 5 ), 16 ) );
+	const b = toLinear( parseInt( hex.slice( 5, 7 ), 16 ) );
+
+	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+/**
+ * Whether light text reads better than dark text on the given background, using the W3C
+ * luminance threshold (0.179) that maximizes contrast against black vs white.
+ *
+ * @param backgroundHex - Hex background color
+ * @return true if light text should be used; false (dark text) for malformed colors
+ */
+export const prefersLightText = ( backgroundHex: string ): boolean => {
+	if ( ! isValidHexColor( backgroundHex ) ) {
+		return false;
+	}
+	return relativeLuminance( backgroundHex ) <= 0.179;
 };

@@ -5,17 +5,21 @@ import { useNavigate, useParams } from 'react-router';
 import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import { MY_JETPACK_SECTION_OVERVIEW } from './constants';
+import { FullWidthSeparator } from './full-width-separator';
 import styles from './styles.module.scss';
 import { TabContent } from './tab-content';
 import { MyJetpackSection } from './types';
 import { getMyJetpackSections, isValidMyJetpackSection } from './utils';
+import type { ReactNode } from 'react';
 
 /**
  * My Jetpack Tab panel component.
  *
+ * @param {object}    root0               - Component props.
+ * @param {ReactNode} root0.beforeContent - Content to render between the tab separator and tab content.
  * @return The rendered component.
  */
-export function MyJetpackTabPanel() {
+export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNode } ) {
 	const params = useParams();
 	const navigate = useNavigate();
 	const { recordEvent } = useAnalytics();
@@ -55,9 +59,18 @@ export function MyJetpackTabPanel() {
 		[ navigate, params.section, recordEvent, isNewUser ]
 	);
 
-	const tabRenderer = useCallback( ( tab: { name: string } ) => {
-		return <TabContent name={ tab.name as MyJetpackSection } />;
-	}, [] );
+	const tabRenderer = useCallback(
+		( tab: { name: string } ) => {
+			return (
+				<>
+					<FullWidthSeparator />
+					{ beforeContent }
+					<TabContent name={ tab.name as MyJetpackSection } />
+				</>
+			);
+		},
+		[ beforeContent ]
+	);
 
 	// Handle external navigation (URL changes not from tab clicks)
 	useEffect( () => {

@@ -54,8 +54,9 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function add_hooks() {
-		// Register REST routes.
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		// Register REST routes. Use a static callable so the controller class is not
+		// loaded into memory/opcache on requests that never reach `rest_api_init`.
+		add_action( 'rest_api_init', array( REST_Controller::class, 'register_rest_routes' ) );
 	}
 
 	/**
@@ -238,8 +239,12 @@ class Waf_Runner {
 		// like PHP's prepend_file setting (yay!).
 		define( 'JETPACK_WAF_RUN', defined( 'ABSPATH' ) ? 'plugin' : 'preload' );
 
-		// if the WAF is being run before a command line script, don't try to execute rules (there's no request).
-		if ( PHP_SAPI === 'cli' ) {
+		// If the WAF is being run before a command line script, or in any other non-HTTP
+		// context (e.g. server-side cron executed via a PHP wrapper that does not report
+		// PHP_SAPI as 'cli'), there is no HTTP request to evaluate. Skip rule execution so
+		// HTTP-specific rules (e.g. rule 911100, which checks the request method) don't
+		// produce a false-positive 403 block.
+		if ( PHP_SAPI === 'cli' || ! isset( $_SERVER['REQUEST_METHOD'] ) ) {
 			return;
 		}
 
@@ -259,7 +264,6 @@ class Waf_Runner {
 			// execute waf rules.
 			$rules_file_path = self::get_waf_file_path( JETPACK_WAF_ENTRYPOINT );
 			if ( file_exists( $rules_file_path ) ) {
-				// phpcs:ignore
 				include $rules_file_path;
 			}
 		} catch ( \Exception $err ) { // phpcs:ignore

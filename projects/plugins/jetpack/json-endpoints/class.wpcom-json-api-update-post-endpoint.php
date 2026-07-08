@@ -344,7 +344,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				$input['status'] = 'pending';
 			}
 			$last_status = $post->post_status;
-			$new_status  = isset( $input['status'] ) ? $input['status'] : $last_status;
+			$new_status  = $input['status'] ?? $last_status;
 
 			// Make sure that drafts get the current date when transitioning to publish if not supplied in the post.
 			$date_in_past = ( strtotime( $post->post_date_gmt ) < time() );
@@ -482,10 +482,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			unset( $input['menu_order'] );
 		}
 
-		$publicize = isset( $input['publicize'] ) ? $input['publicize'] : null;
+		$publicize = $input['publicize'] ?? null;
 		unset( $input['publicize'] );
 
-		$publicize_custom_message = isset( $input['publicize_message'] ) ? $input['publicize_message'] : null;
+		$publicize_custom_message = $input['publicize_message'] ?? null;
 		unset( $input['publicize_message'] );
 
 		if ( isset( $input['featured_image'] ) ) {
@@ -494,16 +494,16 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			unset( $input['featured_image'] );
 		}
 
-		$metadata = isset( $input['metadata'] ) ? $input['metadata'] : null;
+		$metadata = $input['metadata'] ?? null;
 		unset( $input['metadata'] );
 
-		$likes = isset( $input['likes_enabled'] ) ? $input['likes_enabled'] : null;
+		$likes = $input['likes_enabled'] ?? null;
 		unset( $input['likes_enabled'] );
 
-		$sharing = isset( $input['sharing_enabled'] ) ? $input['sharing_enabled'] : null;
+		$sharing = $input['sharing_enabled'] ?? null;
 		unset( $input['sharing_enabled'] );
 
-		$sticky = isset( $input['sticky'] ) ? $input['sticky'] : null;
+		$sticky = $input['sticky'] ?? null;
 		unset( $input['sticky'] );
 
 		foreach ( $input as $key => $value ) {
@@ -625,7 +625,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		// Set sharing status of the post.
 		if ( $new ) {
 			$sharing_enabled = isset( $sharing ) ? (bool) $sharing : true;
-			if ( false === $sharing_enabled ) {
+			if ( ! $sharing_enabled ) {
 				update_post_meta( $post_id, 'sharing_disabled', 1 );
 			}
 		} elseif ( isset( $sharing ) && true === $sharing ) {
@@ -757,7 +757,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				$meta = (object) $meta;
 
 				if (
-					in_array( isset( $meta->key ) ? $meta->key : null, Jetpack_SEO_Posts::POST_META_KEYS_ARRAY, true ) &&
+					in_array( $meta->key ?? null, Jetpack_SEO_Posts::POST_META_KEYS_ARRAY, true ) &&
 					! Jetpack_SEO_Utils::is_enabled_jetpack_seo()
 				) {
 					return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );

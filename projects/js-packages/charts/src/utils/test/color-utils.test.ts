@@ -8,6 +8,8 @@ import {
 	parseHslString,
 	parseRgbString,
 	normalizeColorToHex,
+	relativeLuminance,
+	prefersLightText,
 } from '../color-utils';
 
 // Helper to convert hex to HSL tuple using d3-color
@@ -716,6 +718,21 @@ describe( 'normalizeColorToHex', () => {
 		} );
 	} );
 
+	describe( 'HSLA strings', () => {
+		it( 'converts hsla(0, 100%, 50%, 1) to #ff0000', () => {
+			expect( normalizeColorToHex( 'hsla(0, 100%, 50%, 1)' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'converts hsla(120, 100%, 50%, 0.5) to #00ff00', () => {
+			expect( normalizeColorToHex( 'hsla(120, 100%, 50%, 0.5)' ) ).toBe( '#00ff00' );
+		} );
+
+		it( 'converts fully transparent hsla to #000000', () => {
+			// d3-color converts fully transparent colors (alpha=0) to black
+			expect( normalizeColorToHex( 'hsla(240, 100%, 50%, 0)' ) ).toBe( '#000000' );
+		} );
+	} );
+
 	describe( 'RGB strings', () => {
 		it( 'converts rgb(255, 0, 0) to #ff0000', () => {
 			expect( normalizeColorToHex( 'rgb(255, 0, 0)' ) ).toBe( '#ff0000' );
@@ -723,6 +740,36 @@ describe( 'normalizeColorToHex', () => {
 
 		it( 'converts rgb(0, 128, 0) to #008000', () => {
 			expect( normalizeColorToHex( 'rgb(0, 128, 0)' ) ).toBe( '#008000' );
+		} );
+	} );
+
+	describe( 'RGBA strings', () => {
+		it( 'converts rgba(255, 0, 0, 1) to #ff0000', () => {
+			expect( normalizeColorToHex( 'rgba(255, 0, 0, 1)' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'converts rgba(0, 0, 255, 0.5) to #0000ff', () => {
+			// Alpha channel is stripped in hex conversion
+			expect( normalizeColorToHex( 'rgba(0, 0, 255, 0.5)' ) ).toBe( '#0000ff' );
+		} );
+
+		it( 'converts fully transparent rgba to #000000', () => {
+			// d3-color converts fully transparent colors (alpha=0) to black
+			expect( normalizeColorToHex( 'rgba(128, 128, 128, 0)' ) ).toBe( '#000000' );
+		} );
+	} );
+
+	describe( 'Named CSS colors', () => {
+		it( 'converts steelblue to hex', () => {
+			expect( normalizeColorToHex( 'steelblue' ) ).toBe( '#4682b4' );
+		} );
+
+		it( 'converts red to hex', () => {
+			expect( normalizeColorToHex( 'red' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'returns unknown strings as-is', () => {
+			expect( normalizeColorToHex( 'notacolor' ) ).toBe( 'notacolor' );
 		} );
 	} );
 
@@ -755,6 +802,71 @@ describe( 'normalizeColorToHex', () => {
 			const mockResolve = jest.fn().mockReturnValue( null );
 			expect( normalizeColorToHex( '--my-color', null, mockResolve ) ).toBe( '--my-color' );
 		} );
+
+		it( 'returns original when CSS variable resolves to itself', () => {
+			const mockResolve = jest.fn().mockImplementation( ( v: string ) => v );
+			expect( normalizeColorToHex( '--loop', null, mockResolve ) ).toBe( '--loop' );
+		} );
+
+		it( 'returns original when CSS variable resolves to empty string', () => {
+			const mockResolve = jest.fn().mockReturnValue( '' );
+			expect( normalizeColorToHex( '--empty', null, mockResolve ) ).toBe( '--empty' );
+		} );
+
+		it( 'does not infinite loop on indirect CSS variable cycle', () => {
+			const mockResolve = jest.fn().mockImplementation( ( v: string ) => {
+				if ( v === '--a' ) return 'var(--b)';
+				if ( v === 'var(--b)' ) return '--a';
+
+				return null;
+			} );
+
+			expect( () => normalizeColorToHex( '--a', null, mockResolve ) ).not.toThrow();
+		} );
+
+		it( 'resolves multi-hop CSS variable chain', () => {
+			const mockResolve = jest.fn().mockImplementation( ( v: string ) => {
+				if ( v === '--a' ) return 'var(--b)';
+				if ( v === 'var(--b)' ) return 'hsl(0, 100%, 50%)';
+
+				return null;
+			} );
+
+			expect( normalizeColorToHex( '--a', null, mockResolve ) ).toBe( '#ff0000' );
+		} );
+	} );
+
+	describe( 'Whitespace handling', () => {
+		it( 'trims leading and trailing spaces from hex', () => {
+			expect( normalizeColorToHex( '  #ff0000  ' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'trims spaces from HSL string', () => {
+			expect( normalizeColorToHex( '  hsl(0, 100%, 50%)  ' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'trims spaces from named color', () => {
+			expect( normalizeColorToHex( '  red  ' ) ).toBe( '#ff0000' );
+		} );
+	} );
+
+	describe( 'Case insensitivity', () => {
+		it( 'converts uppercase HSL', () => {
+			expect( normalizeColorToHex( 'HSL(0, 100%, 50%)' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'converts uppercase RGB', () => {
+			expect( normalizeColorToHex( 'RGB(255, 0, 0)' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'converts uppercase RGBA', () => {
+			expect( normalizeColorToHex( 'RGBA(0, 0, 255, 1)' ) ).toBe( '#0000ff' );
+		} );
+
+		it( 'handles uppercase VAR() syntax', () => {
+			const mockResolve = jest.fn().mockReturnValue( '#ff0000' );
+			expect( normalizeColorToHex( 'VAR(--my-color)', null, mockResolve ) ).toBe( '#ff0000' );
+		} );
 	} );
 
 	describe( 'Invalid inputs', () => {
@@ -769,5 +881,36 @@ describe( 'normalizeColorToHex', () => {
 		it( 'handles invalid HSL string', () => {
 			expect( normalizeColorToHex( 'hsl(abc, def, ghi)' ) ).toBe( 'hsl(abc, def, ghi)' );
 		} );
+	} );
+} );
+
+describe( 'relativeLuminance', () => {
+	it( 'returns 0 for black and 1 for white', () => {
+		expect( relativeLuminance( '#000000' ) ).toBeCloseTo( 0, 5 );
+		expect( relativeLuminance( '#ffffff' ) ).toBeCloseTo( 1, 5 );
+	} );
+
+	it( 'returns a higher luminance for a lighter color', () => {
+		expect( relativeLuminance( '#98c8df' ) ).toBeGreaterThan( relativeLuminance( '#006dab' ) );
+	} );
+
+	it( 'throws on a malformed hex', () => {
+		expect( () => relativeLuminance( 'not-a-color' ) ).toThrow();
+	} );
+} );
+
+describe( 'prefersLightText', () => {
+	it( 'prefers dark text on light backgrounds', () => {
+		expect( prefersLightText( '#ffffff' ) ).toBe( false );
+		expect( prefersLightText( '#98c8df' ) ).toBe( false );
+	} );
+
+	it( 'prefers light text on dark backgrounds', () => {
+		expect( prefersLightText( '#000000' ) ).toBe( true );
+		expect( prefersLightText( '#006dab' ) ).toBe( true );
+	} );
+
+	it( 'falls back to dark text for malformed colors', () => {
+		expect( prefersLightText( 'var(--token)' ) ).toBe( false );
 	} );
 } );

@@ -155,7 +155,7 @@ class Instant_Search extends Classic_Search {
 	 * Loads scripts for Tracks analytics library
 	 */
 	public function load_and_initialize_tracks() {
-		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		Helper::enqueue_tracks_script();
 	}
 
 	/**
@@ -579,7 +579,7 @@ class Instant_Search extends Classic_Search {
 			$registry = WP_Block_Patterns_Registry::get_instance();
 			if ( $registry->is_registered( $slug ) ) {
 				$pattern = $registry->get_registered( $slug );
-				return $pattern['content'];
+				return $pattern['content'] ?? '';
 			}
 		}
 		return $block_pattern;

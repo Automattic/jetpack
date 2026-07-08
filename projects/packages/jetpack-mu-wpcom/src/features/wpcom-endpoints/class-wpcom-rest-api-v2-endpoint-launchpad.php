@@ -173,12 +173,10 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			$switched_locale = switch_to_locale( $locale );
 		}
 
-		$checklist_slug = isset( $request['checklist_slug'] ) ? $request['checklist_slug'] : get_option( 'site_intent' );
-		$use_goals      = isset( $request['use_goals'] ) ? $request['use_goals'] : false;
+		$checklist_slug = $request['checklist_slug'] ?? get_option( 'site_intent' );
+		$use_goals      = $request['use_goals'] ?? false;
 
-		$launchpad_context = isset( $request['launchpad_context'] )
-			? $request['launchpad_context']
-			: null;
+		$launchpad_context = $request['launchpad_context'] ?? null;
 
 		if ( $use_goals ) {
 			// The user must be part of a cohort which should deterine which checklist to show soley on
@@ -239,7 +237,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 
 				case 'is_checklist_dismissed':
 					$checklist_slug  = $value['slug'];
-					$is_dismissed    = isset( $value['is_dismissed'] ) ? $value['is_dismissed'] : false;
+					$is_dismissed    = $value['is_dismissed'] ?? false;
 					$dismissed_until = isset( $value['dismiss_by'] ) ? $this->parse_relative_date( $value['dismiss_by'] ) : null;
 
 					wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed, $dismissed_until );

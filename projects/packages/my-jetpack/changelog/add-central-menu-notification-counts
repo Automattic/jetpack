@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack now reports its red-bubble alerts to the central menu-badges registry instead of writing admin-menu markup directly; the Protect alert is skipped there since Protect reports its own count.

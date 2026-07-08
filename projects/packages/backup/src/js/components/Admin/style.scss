@@ -1,5 +1,11 @@
 @use "@automattic/jetpack-base-styles/style" as jpbs;
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @use "../masthead/calypso-mixins";
+
+body.jetpack_page_jetpack-backup {
+
+	@include jetpack-admin-page-layout;
+}
 
 .jp-header,
 .jp-footer {
@@ -150,9 +156,6 @@
 	}
 }
 
-.jp-dashboard-footer {
-	padding: 40px 0;
-}
 
 .jp-connection-status-card--status {
 	margin: 30px 0;
@@ -173,16 +176,4 @@
 
 .jetpack-connection-verified-error {
 	margin: 25px 0;
-}
-
-.jetpack-admin-page__header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: calc(var(--horizontal-spacing) * 3);
-
-	.jetpack-admin-page__logo {
-		flex-shrink: 0;
-	}
 }

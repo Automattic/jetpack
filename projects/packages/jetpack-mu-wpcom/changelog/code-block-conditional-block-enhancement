@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-jetpack-mu-wpcom: Only enhance code block when content attribute is registered.

@@ -1403,7 +1403,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 			);
 			$args['taxonomy'] = self::MENU_TAX;
 
-			$terms = get_terms( $args ); // @phan-suppress-current-line PhanAccessMethodInternal
+			$terms = get_terms( $args );
 			if ( ! $terms || is_wp_error( $terms ) ) {
 				return array();
 			}

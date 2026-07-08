@@ -1,0 +1,276 @@
+// Shared color tokens for AI suggestion UI.
+// Jetpack ThemeProvider doesn't wrap this page,
+// so we define fallback values here.
+$cg-green: #069e08;
+$cg-green-light: rgba(0, 135, 0, 0.08);
+$cg-diff-added: #d4edda;
+$cg-diff-removed: #f8d7da;
+
+.jetpack-content-guidelines-ai__header-container {
+	display: inline-flex;
+}
+
+.jetpack-content-guidelines-ai__suggest-all-button .jetpack-logo {
+	width: 18px;
+	height: 18px;
+}
+
+// Empty state banner.
+.jetpack-content-guidelines-ai__banner {
+	position: relative;
+	background: #003010;
+	border-radius: 8px;
+	padding: 32px;
+	overflow: hidden;
+	min-height: 220px;
+	display: flex;
+	align-items: flex-start;
+	width: min(680px, 100%);
+	box-sizing: border-box;
+	margin: 0 auto 24px;
+}
+
+.jetpack-content-guidelines-ai__banner-content {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	max-width: 520px;
+
+	h2 {
+		color: #daffdc;
+		font-size: 32px;
+		line-height: 40px;
+		font-weight: 500;
+		margin: 0 0 12px;
+	}
+
+	p {
+		color: #daffdc;
+		font-size: 13px;
+		line-height: 20px;
+		margin: 0 0 64px;
+	}
+}
+
+.jetpack-content-guidelines-ai__banner-actions {
+	display: flex;
+	gap: 8px;
+}
+
+.jetpack-content-guidelines-ai__banner-cta {
+	background-color: #48ff50 !important;
+	color: #003010 !important;
+	border-color: #48ff50 !important;
+
+	&:hover {
+		background-color: #3de046 !important;
+		border-color: #3de046 !important;
+	}
+}
+
+.jetpack-content-guidelines-ai__banner-close-text {
+	color: #48ff50 !important;
+
+	&:hover {
+		color: #3de046 !important;
+	}
+}
+
+.jetpack-content-guidelines-ai__banner-close {
+	position: absolute;
+	inset-block-start: 8px;
+	inset-inline-end: 8px;
+	z-index: 1;
+	color: #fff !important;
+
+	&:hover {
+		color: #daffdc !important;
+	}
+}
+
+.jetpack-content-guidelines-ai__banner-orb {
+	position: absolute;
+	border-radius: 50%;
+	pointer-events: none;
+	width: 180px;
+	height: 180px;
+	background: linear-gradient(to right, #04c, #48ff50);
+	// Shared by both orbs so the top glow and the bottom sphere line up
+	// on the same vertical axis.
+	inset-inline-end: 56px;
+
+	&--top {
+		inset-block-start: -96px;
+		filter: blur(25px);
+	}
+
+	&--bottom {
+		inset-block-end: -96px;
+	}
+}
+
+// Badge in accordion headers.
+// Hide badge when the accordion is expanded — the Accept/Dismiss
+// buttons inside already communicate the suggestion state. The badge is
+// injected inside the CollapsibleCard trigger, which carries aria-expanded.
+[aria-expanded="true"] .jetpack-content-guidelines-ai__badge-container {
+	display: none;
+}
+
+// Jetpack CSS custom properties are normally set by
+// ThemeProvider, which doesn't wrap this page. Define
+// the tokens our Badge component needs as fallbacks.
+.jetpack-content-guidelines-ai__badge-container {
+	--jp-green-5: #d0e6b8;
+	--jp-green-50: #008710;
+
+	display: inline-flex;
+	align-items: center;
+}
+
+.jetpack-content-guidelines-ai__badge--loading .components-spinner {
+	margin: 0;
+	width: 16px;
+	height: 16px;
+}
+
+// Suggestion preview inside accordion.
+// Match the VStack spacing={4} (16px gap) used by the Gutenberg form.
+.jetpack-content-guidelines-ai__suggestion {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+// Word-level diff display.
+// Styled to match the Gutenberg textarea — green border indicates
+// a suggestion is active. Clicking anywhere accepts the suggestion.
+.jetpack-content-guidelines-ai__diff {
+	padding: 9px 11px;
+	border: 1px solid var(--jp-green-40, $cg-green);
+	border-radius: 2px;
+	background: #fff;
+	font-size: 13px;
+	line-height: 20px;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+	overflow-y: auto;
+	resize: vertical;
+	cursor: text;
+	box-sizing: border-box;
+}
+
+.jetpack-content-guidelines-ai__diff-added {
+	background: $cg-diff-added;
+	text-decoration: none;
+}
+
+.jetpack-content-guidelines-ai__diff-removed {
+	background: $cg-diff-removed;
+	text-decoration: line-through;
+}
+
+.jetpack-content-guidelines-ai__suggestion-actions {
+	display: flex;
+	gap: 8px;
+}
+
+// Green shimmer overlay on the textarea during AI generation.
+// We make the textarea wrapper positioned so the ::after overlay works.
+.is-jetpack-loading .components-textarea-control {
+	position: relative;
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		border-radius: 4px;
+		background: linear-gradient(90deg, transparent 0%, $cg-green-light 50%, transparent 100%);
+		background-size: 200% 100%;
+		animation: jetpack-cg-shimmer 1.5s infinite;
+		z-index: 1;
+	}
+}
+
+.is-jetpack-loading textarea {
+	border-color: var(--jp-green-40, $cg-green) !important;
+	pointer-events: none;
+}
+
+@keyframes jetpack-cg-shimmer {
+
+	0% {
+		background-position: -200% 0;
+	}
+
+	100% {
+		background-position: 200% 0;
+	}
+}
+
+// Hide Gutenberg's DataForm and Save/Clear when a suggestion is active.
+// Also hide the per-section generate button since Accept/Dismiss replaces it.
+.has-jetpack-suggestion:not(.block-guideline-modal) > :first-child > :not(.jetpack-content-guidelines-ai__actions-container) {
+	display: none;
+}
+
+// Injected containers should not affect layout when their content is empty.
+// React root inside means :empty won't work,
+// so we use display:contents when not active.
+.jetpack-content-guidelines-ai__actions-container,
+.jetpack-content-guidelines-ai__section-button-container {
+	display: contents;
+}
+
+// Per-section generate button.
+.jetpack-content-guidelines-ai__section-generate-button {
+	display: inline-flex;
+}
+
+// The per-section Generate/Improve button is injected as a third control into
+// the form's Save/Clear row — a Gutenberg HStack laid out for two buttons and
+// set not to wrap. On narrow viewports the extra button overflows and, because
+// flex items shrink by default, the button labels overlap. Let that row wrap
+// onto multiple lines instead. Scoped through the injected container (a direct
+// child of the HStack) so only the rows we add a button to are affected.
+.guidelines__list-item form :has(> .jetpack-content-guidelines-ai__section-button-container) {
+	flex-wrap: wrap;
+}
+
+// Upgrade notice.
+.jetpack-content-guidelines-ai__upgrade-notice-container {
+	display: contents;
+}
+
+.jetpack-content-guidelines-ai__upgrade-notice {
+	width: min(680px, 100%);
+	margin: 0 auto 16px;
+	box-sizing: border-box;
+}
+
+// Block guideline modal — hide only the textarea input
+// when suggestion is active, keeping the label visible.
+.block-guideline-modal.has-jetpack-suggestion .components-textarea-control__input {
+	display: none;
+}
+
+// Block modal — shimmer only on the textarea,
+// not the label wrapper. Suppress the ::after overlay
+// and apply shimmer as a background on the textarea.
+.block-guideline-modal.is-jetpack-loading .components-textarea-control::after {
+	content: none;
+}
+
+.block-guideline-modal.is-jetpack-loading .components-textarea-control__input {
+	background: linear-gradient(90deg, transparent 0%, $cg-green-light 50%, transparent 100%);
+	background-size: 200% 100%;
+	animation: jetpack-cg-shimmer 1.5s infinite;
+}
+
+// Block modal injected containers — collapse when empty.
+.jetpack-content-guidelines-ai__block-actions-container,
+.jetpack-content-guidelines-ai__block-suggestion-buttons-container {
+	display: contents;
+}

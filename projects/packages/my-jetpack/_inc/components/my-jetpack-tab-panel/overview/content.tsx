@@ -1,14 +1,13 @@
-import { Col, Container } from '@automattic/jetpack-components';
 import { currentUserCan } from '@automattic/jetpack-script-data';
-import ConnectionsSection from '../../connections-section';
-import PlansSection from '../../plans-section';
 import ProductCardsSection from '../../product-cards-section';
-import { FullWidthSeparator } from '../full-width-separator';
+import SeoOptInCard from '../../seo-opt-in-card';
 import { A4AUpsell } from './a4a-upsell';
 import styles from './styles.module.scss';
 
 /**
- * The Overview content component.
+ * The Overview content component. The full-width footer band (Plans +
+ * Connection) lives in `OverviewFooter`, rendered by `TabContent` outside the
+ * centered inner container so its background spans the full width.
  *
  * @return The rendered component.
  */
@@ -20,25 +19,15 @@ export function OverviewContent() {
 			</div>
 
 			{ currentUserCan( 'manage_options' ) ? (
-				<div className={ styles[ 'jetpack-manage-upsell' ] }>
-					<A4AUpsell />
-				</div>
+				<>
+					<div className={ styles[ 'jetpack-manage-upsell' ] }>
+						<SeoOptInCard />
+					</div>
+					<div className={ styles[ 'jetpack-manage-upsell' ] }>
+						<A4AUpsell />
+					</div>
+				</>
 			) : null }
-
-			<FullWidthSeparator />
-			<div className={ styles.footer }>
-				{ /* Needed to show different background colour */ }
-				<div className={ styles[ 'footer-inner' ] }>
-					<Container horizontalSpacing={ 0 } className={ styles[ 'footer-container' ] }>
-						<Col sm={ 4 } md={ 4 } lg={ 6 }>
-							<PlansSection />
-						</Col>
-						<Col sm={ 4 } md={ 4 } lg={ 6 }>
-							<ConnectionsSection />
-						</Col>
-					</Container>
-				</div>
-			</div>
 		</div>
 	);
 }

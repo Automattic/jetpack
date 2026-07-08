@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Port the components package (date range/comparison filter UI components and SCSS) from next-woocommerce-analytics as the internal `ui` package.

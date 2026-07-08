@@ -7,6 +7,7 @@
 
 namespace Automattic\JetpackBeta;
 
+use Automattic\Jetpack\Assets\Logo;
 use Jetpack;
 use Language_Pack_Upgrader;
 use Plugin_Upgrader;
@@ -56,6 +57,8 @@ class Hooks {
 		add_filter( 'network_admin_plugin_action_links', array( $this, 'remove_activate_link' ), 10, 2 );
 
 		add_filter( 'all_plugins', array( $this, 'update_all_plugins' ) );
+
+		add_action( 'deleted_plugin', array( $this, 'maybe_delete_dev_plugin_too' ), 10, 2 );
 
 		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
 
@@ -206,7 +209,7 @@ class Hooks {
 	 */
 	public function update_all_plugins( $plugins ) {
 		foreach ( Plugin::get_plugin_file_map() as $nondev => $dev ) {
-			// WP.com requests away show regular plugin.
+			// WP.com requests always show regular plugin.
 			if ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) {
 				// Ensure that it reports the version it's using on account of the Jetpack Beta plugin to Calypso.
 				if ( is_plugin_active( $dev ) ) {
@@ -215,11 +218,43 @@ class Hooks {
 				unset( $plugins[ $dev ] );
 			} elseif ( is_plugin_active( $dev ) ) {
 				unset( $plugins[ $nondev ] );
-			} else {
+			} elseif ( isset( $plugins[ $dev ] ) && isset( $plugins[ $nondev ] ) ) {
 				unset( $plugins[ $dev ] );
 			}
 		}
 		return $plugins;
+	}
+
+	/**
+	 * Action: Delete dev plugin when non-dev version is deleted.
+	 *
+	 * Handler for 'deleted_plugin' action.
+	 *
+	 * @param string $plugin_file Deleted plugin.
+	 * @param bool   $deleted Whether the deletion was successful.
+	 */
+	public function maybe_delete_dev_plugin_too( $plugin_file, $deleted ) {
+		if ( ! $deleted ) {
+			return;
+		}
+		$plugin = Plugin::get_plugin( dirname( $plugin_file ) );
+		if ( ! $plugin ) {
+			return;
+		}
+		// If somehow the non-dev got deleted while the dev is active, don't delete the dev.
+		if ( $plugin->is_active( 'dev' ) ) {
+			return;
+		}
+
+		// $wp_filesystem should already be functional thanks to Core just deleting the non-dev plugin. But check it just in case.
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			return;
+		}
+		$working_dir = dirname( $plugin->dev_plugin_path() );
+		if ( $wp_filesystem->is_dir( $working_dir ) ) {
+			$wp_filesystem->delete( $working_dir, true );
+		}
 	}
 
 	/**
@@ -354,7 +389,7 @@ class Hooks {
 		// Add the main menu.
 		$args = array(
 			'id'     => 'jetpack-beta_admin_bar',
-			'title'  => 'Jetpack Beta',
+			'title'  => '<span class="jpbeta-logo">' . ( new Logo() )->get_jp_emblem() . '</span><span class="screen-reader-text">Jetpack </span>Beta',
 			'parent' => 'top-secondary',
 			'href'   => current_user_can( 'update_plugins' ) ? Utils::admin_url() : '',
 		);
@@ -430,6 +465,9 @@ class Hooks {
 			}
 		}
 
+		// Output styles for the logo in the admin bar.
+		echo '<style>#wpadminbar .jpbeta-logo svg { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; position: relative; top: -1px; } #wpadminbar .jpbeta-logo svg path { fill: currentColor; }</style>';
+
 		// Highlight the menu if you are running the BETA Versions..
 		if ( $any_dev ) {
 			$wp_admin_bar->add_node(
@@ -439,8 +477,8 @@ class Hooks {
 				)
 			);
 			// Use Jetpack Green 50 rather than 40 for accessibility, per pcdRpT-if-p2.
-			echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar.jpbeta-highlight, #wpadminbar #wp-admin-bar-jetpack-beta_admin_bar .jpbeta-highlight { background: #008710; }\n";
-			echo '#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar.jpbeta-highlight > .ab-item, #wpadminbar #wp-admin-bar-jetpack-beta_admin_bar .jpbeta-highlight > .ab-item { color: white; }</style>';
+			echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar.jpbeta-highlight:not(.hover), #wpadminbar #wp-admin-bar-jetpack-beta_admin_bar .jpbeta-highlight:not(.hover) { background: #008710; }\n";
+			echo '#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar.jpbeta-highlight:not(.hover) > .ab-item, #wpadminbar #wp-admin-bar-jetpack-beta_admin_bar .jpbeta-highlight:not(.hover) > .ab-item { color: white; }</style>';
 		}
 	}
 

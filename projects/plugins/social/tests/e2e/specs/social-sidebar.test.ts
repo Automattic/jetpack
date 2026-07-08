@@ -1,5 +1,5 @@
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
-import { connect } from '../helpers/index';
+import { expect, test } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
+import { Onboarding } from '../helpers/onboarding';
 
 test.beforeAll( async ( { testUtils } ) => {
 	await testUtils.disconnect();
@@ -8,9 +8,14 @@ test.beforeAll( async ( { testUtils } ) => {
 	await testUtils.requestUtils.activatePlugin( 'jetpack-social' );
 } );
 
-test( 'Jetpack Social sidebar', async ( { page, admin, editor } ) => {
+test( 'Jetpack Social sidebar', async ( { page, admin, editor, requestUtils } ) => {
+	const onboarding = new Onboarding( page );
+
 	await test.step( 'Connect wordpress.com account', async () => {
-		await connect( page );
+		await onboarding.connect( {
+			admin,
+			baseURL: requestUtils.baseURL!,
+		} );
 	} );
 
 	await test.step( 'Goto post edit page and create a new post', async () => {

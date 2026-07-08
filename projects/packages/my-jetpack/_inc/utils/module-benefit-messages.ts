@@ -27,6 +27,10 @@ function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 			'Your editor now has custom Jetpack blocks for rich content and layout options.',
 			'jetpack-my-jetpack'
 		),
+		'canonical-urls': __(
+			'Your archive pages now have canonical URLs to prevent duplicate content in search engines.',
+			'jetpack-my-jetpack'
+		),
 		carousel: __(
 			'Your image galleries now display as immersive, full-screen slideshows.',
 			'jetpack-my-jetpack'
@@ -83,6 +87,10 @@ function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 			'Your site now loads images faster with automatic resizing from our global CDN.',
 			'jetpack-my-jetpack'
 		),
+		podcast: __(
+			'You can now publish, manage, and grow your podcast right from your site.',
+			'jetpack-my-jetpack'
+		),
 		'post-by-email': __(
 			'You can now publish blog posts by sending an email.',
 			'jetpack-my-jetpack'
@@ -97,6 +105,10 @@ function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 		),
 		publicize: __(
 			'Your posts now auto-share to social networks and track engagement in one place.',
+			'jetpack-my-jetpack'
+		),
+		'wpcom-reader': __(
+			'You can now reach the WordPress.com Reader from your site, and join a community of creators and bloggers.',
 			'jetpack-my-jetpack'
 		),
 		'related-posts': __(

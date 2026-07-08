@@ -1,5 +1,5 @@
 const FileRule = ( options = {} ) => {
-	const exts = options.extensions || [ 'gif', 'jpg', 'jpeg', 'png', 'svg' ];
+	const exts = options.extensions || [ 'gif', 'jpg', 'jpeg', 'png', 'svg', 'webp' ];
 
 	let type;
 	if ( options.maxInlineSize > 0 ) {
@@ -21,8 +21,6 @@ const FileRule = ( options = {} ) => {
 			'i'
 		),
 		...type,
-		// Allow loading svg files as components, rather than a url, by appending `?component` to the import.
-		resourceQuery: { not: [ /component/ ] },
 		generator: {
 			filename: options.filename || 'images/[name]-[contenthash][ext]',
 		},

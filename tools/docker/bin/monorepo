@@ -9,6 +9,27 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MONOREPO_ROOT="$( cd "$SCRIPT_DIR/../../.." && pwd )"
 
+# Detect git worktree
+GIT_COMMON_DIR="$(cd "$MONOREPO_ROOT" && cd "$(git rev-parse --git-common-dir 2>/dev/null)" && pwd)"
+GIT_ABS_DIR="$(git -C "$MONOREPO_ROOT" rev-parse --absolute-git-dir 2>/dev/null)"
+IS_WORKTREE=0
+
+if [[ -n "$GIT_COMMON_DIR" && -n "$GIT_ABS_DIR" && "$GIT_COMMON_DIR" != "$GIT_ABS_DIR" ]]; then
+    IS_WORKTREE=1
+    # Main repo's .git directory (e.g. /Users/me/code/jetpack/.git)
+    MAIN_GIT_DIR="$GIT_COMMON_DIR"
+    # Main repo root (parent of .git)
+    MAIN_REPO_ROOT="$(dirname "$MAIN_GIT_DIR")"
+    # Worktree name (last path component of the worktree git dir)
+    WORKTREE_NAME="$(basename "$GIT_ABS_DIR")"
+
+    if [[ "${DEBUG:-}" = "1" ]]; then
+        echo "[worktree] main .git dir: $MAIN_GIT_DIR"
+        echo "[worktree] main repo root: $MAIN_REPO_ROOT"
+        echo "[worktree] worktree name: $WORKTREE_NAME"
+    fi
+fi
+
 echo "Running command in monorepo container: $*"
 
 # Source the versions file
@@ -88,10 +109,56 @@ fi
   GIT_USER_NAME=$(git config user.name 2>/dev/null || echo "")
   GIT_USER_EMAIL=$(git config user.email 2>/dev/null || echo "")
 
+  # Mount rsync proxy socket if set (for SSH proxy via Unix domain socket)
+  RSYNC_ENV=()
+  if [[ -n "${RSYNC_PROXY_SOCKET:-}" ]]; then
+      RSYNC_ENV=( -v "$RSYNC_PROXY_SOCKET:/var/run/jp-rsync-socket" -e RSYNC_PROXY_SOCKET=/var/run/jp-rsync-socket -e RSYNC_PROXY_SECRET )
+      if [[ -z "${RSYNC_PROXY_SECRET:-}" ]]; then
+          echo "RSYNC_PROXY_SECRET is not set. Update your copy of @automattic/jetpack-cli." >&2
+          exit 1
+      fi
+  fi
+
+  # Worktree-specific Docker args
+  WORKTREE_DOCKER_ARGS=()
+  if [[ "$IS_WORKTREE" = "1" ]]; then
+      # Share the main repo's Docker data dir (ssh keys, composer/npm/pnpm caches)
+      DOCKER_DATA_DIR="$MAIN_REPO_ROOT/tools/docker/data/monorepo"
+      # Mount main .git/ so git operations work inside the container
+      WORKTREE_DOCKER_ARGS+=(
+          -v "$MAIN_GIT_DIR:/repo-git:ro"
+          -v "$MAIN_GIT_DIR/objects:/repo-git/objects"
+          -v "$MAIN_GIT_DIR/worktrees/$WORKTREE_NAME:/repo-git/worktrees/$WORKTREE_NAME"
+          -e "GIT_DIR=/repo-git/worktrees/$WORKTREE_NAME"
+          -e "GIT_WORK_TREE=/workspace"
+      )
+  else
+      DOCKER_DATA_DIR="$MONOREPO_ROOT/tools/docker/data/monorepo"
+  fi
+
+  # Set pnpm store directory.
+  # For worktrees: use /root/.pnpm-store (shared across all worktrees via DOCKER_DATA_DIR).
+  # For non-worktrees: use /workspace/.pnpm-store (same mount as node_modules, preserves hardlinks).
+  if [[ "$IS_WORKTREE" = "1" ]]; then
+      PNPM_STORE_DIR_CONTAINER="/root/.pnpm-store"
+  else
+      PNPM_STORE_DIR_CONTAINER="/workspace/.pnpm-store"
+  fi
+
+  if [[ "${DEBUG:-}" = "1" ]]; then
+      echo "[pnpm] store dir (container): $PNPM_STORE_DIR_CONTAINER"
+      if [[ "$IS_WORKTREE" = "1" ]]; then
+          echo "[pnpm] store dir (host): $DOCKER_DATA_DIR/.pnpm-store"
+      fi
+  fi
+
+  mkdir -p "$DOCKER_DATA_DIR"
+
   docker run --rm $TTY_FLAG \
     -v "$MONOREPO_ROOT:/workspace" \
-    -v "$MONOREPO_ROOT/tools/docker/data/monorepo:/root" \
+    -v "$DOCKER_DATA_DIR:/root" \
     -v /var/run/docker.sock:/var/run/docker.sock \
+    "${WORKTREE_DOCKER_ARGS[@]}" \
     -w /workspace \
     -e TERM=$TERM \
     -e COLORTERM=$COLORTERM \
@@ -104,10 +171,11 @@ fi
     -e NPM_CONFIG_USERCONFIG=/root/.npmrc \
     -e NPM_CONFIG_CACHE=/root/.npm \
     -e PNPM_HOME=/root/.local/share/pnpm \
-    -e PNPM_STORE_DIR=/root/.pnpm-store \
+    -e pnpm_config_store_dir="$PNPM_STORE_DIR_CONTAINER" \
     -e GIT_AUTHOR_NAME="${GIT_USER_NAME}" \
     -e GIT_AUTHOR_EMAIL="${GIT_USER_EMAIL}" \
     -e GIT_COMMITTER_NAME="${GIT_USER_NAME}" \
     -e GIT_COMMITTER_EMAIL="${GIT_USER_EMAIL}" \
+    "${RSYNC_ENV[@]}" \
     jetpack-monorepo:latest \
     "$@"

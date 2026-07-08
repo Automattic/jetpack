@@ -61,15 +61,12 @@ class Jetpack_Stats_Dashboard_Widget {
 		if ( Jetpack::is_connection_ready() && Jetpack::is_module_active( 'stats' ) ) {
 			add_action( 'admin_head', array( static::class, 'admin_head' ) );
 
-			$widget_title = sprintf(
-				__( 'Jetpack Stats', 'jetpack' )
-			);
-
 			// New widget implemented in Odyssey Stats.
 			$stats_widget = new Dashboard_Stats_Widget();
 			wp_add_dashboard_widget(
 				Dashboard_Stats_Widget::DASHBOARD_WIDGET_ID,
-				$widget_title,
+				/** "Stats" is a product name, do not translate. */
+				'Jetpack Stats',
 				array( $stats_widget, 'render' )
 			);
 			// Only load scripts when the widget is not hidden

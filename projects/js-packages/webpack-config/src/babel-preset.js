@@ -1,20 +1,14 @@
 const path = require( 'path' );
 
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = ! isProduction;
+
 module.exports = ( api, opts = {} ) => {
 	const ret = {
 		sourceType: opts.sourceType || 'unambiguous',
 		presets: [],
 		plugins: [],
 	};
-
-	let targets = opts.targets;
-	if ( ! targets ) {
-		const browserslist = require( 'browserslist' );
-		const localBrowserslistConfig = browserslist.findConfig( '.' ) || {};
-		targets = browserslist(
-			localBrowserslistConfig.defaults || require( '@wordpress/browserslist-config' )
-		);
-	}
 
 	if ( opts.autoWpPolyfill !== false ) {
 		if ( opts.presetEnv?.useBuiltIns ) {
@@ -32,7 +26,6 @@ module.exports = ( api, opts = {} ) => {
 					method: 'usage-global',
 					version: require( 'core-js/package.json' ).version,
 					absoluteImports: importDir,
-					targets: opts.autoWpPolyfill?.targets ?? targets,
 					exclude: opts.autoWpPolyfill?.exclude ?? [
 						// Ignore excessively strict polyfilling of `Array.prototype.push` to work
 						// around an obscure bug involving non-writable arrays.
@@ -59,7 +52,7 @@ module.exports = ( api, opts = {} ) => {
 		ret.presets.push( [
 			require.resolve( '@babel/preset-env' ),
 			{
-				targets,
+				bugfixes: true,
 				// Exclude transforms that make all code slower, see https://github.com/facebook/create-react-app/pull/5278
 				exclude: [ 'transform-typeof-symbol' ],
 				...opts.presetEnv,
@@ -73,7 +66,10 @@ module.exports = ( api, opts = {} ) => {
 		] );
 	}
 	if ( opts.presetTypescript !== false ) {
-		ret.presets.push( [ require.resolve( '@babel/preset-typescript' ), opts.presetTypescript ] );
+		ret.presets.push( [
+			require.resolve( '@babel/preset-typescript' ),
+			opts.presetTypescript ?? { allowDeclareFields: true },
+		] );
 	}
 
 	if ( opts.pluginReplaceTextdomain ) {
@@ -104,6 +100,15 @@ module.exports = ( api, opts = {} ) => {
 			require.resolve( '@automattic/babel-plugin-preserve-i18n' ),
 			opts.pluginPreserveI18n,
 		] );
+	}
+
+	// React Fast Refresh - only in development mode when explicitly enabled
+	if (
+		isDevelopment &&
+		opts.pluginReactRefresh !== false &&
+		process.env.WEBPACK_SERVE === 'true'
+	) {
+		ret.plugins.push( [ require.resolve( 'react-refresh/babel' ), opts.pluginReactRefresh ] );
 	}
 
 	return ret;

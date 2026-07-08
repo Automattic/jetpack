@@ -6,13 +6,16 @@ jest.mock( '@wordpress/components', () => {
 	const actualModule = jest.requireActual( '@wordpress/components' );
 	const mockModule = {
 		Icon: jest.fn( () => null ),
-		ExternalLink: jest.fn( ( { href, children } ) => <a href={ href }>{ children }</a> ),
 	};
 
 	return new Proxy( actualModule, {
 		get: ( target, property ) => mockModule[ property ] ?? target[ property ],
 	} );
 } );
+
+jest.mock( '@wordpress/ui', () => ( {
+	Link: jest.fn( ( { href, children } ) => <a href={ href }>{ children }</a> ),
+} ) );
 
 jest.mock( '@wordpress/icons', () => ( {
 	envelope: 'envelope-icon-mock',
@@ -36,6 +39,7 @@ describe( 'NewsletterWidget', () => {
 		},
 		showHeader: true,
 		showChart: true,
+		newsletterSettingsUrl: 'https://wordpress.com/settings/newsletter/example.com',
 	};
 
 	it( 'renders', () => {
@@ -60,7 +64,8 @@ describe( 'NewsletterWidget', () => {
 
 	it( 'renders correct quick links when hosted on WordPress.com', () => {
 		const redirectDomain = 'wordpress.com';
-		render( <NewsletterWidget { ...defaultProps } /> );
+		const newsletterUrl = 'https://wordpress.com/settings/newsletter/example.com';
+		render( <NewsletterWidget { ...defaultProps } newsletterSettingsUrl={ newsletterUrl } /> );
 
 		const expectedLinks = [
 			{
@@ -91,9 +96,7 @@ describe( 'NewsletterWidget', () => {
 			},
 			{
 				text: 'Newsletter settings',
-				href: getRedirectUrl(
-					`https://${ redirectDomain }/settings/newsletter/${ defaultProps.site }`
-				),
+				href: newsletterUrl,
 			},
 		];
 
@@ -106,8 +109,14 @@ describe( 'NewsletterWidget', () => {
 
 	it( 'renders correct quick links when self-hosted (and stats module is active)', () => {
 		const redirectDomain = 'cloud.jetpack.com';
+		const selfHostedNewsletterUrl = `https://${ defaultProps.site }/wp-admin/admin.php?page=jetpack#/newsletter`;
 		render(
-			<NewsletterWidget { ...defaultProps } isWpcomSite={ false } isStatsModuleActive={ true } />
+			<NewsletterWidget
+				{ ...defaultProps }
+				isWpcomSite={ false }
+				isStatsModuleActive={ true }
+				newsletterSettingsUrl={ selfHostedNewsletterUrl }
+			/>
 		);
 
 		const expectedLinks = [
@@ -139,7 +148,7 @@ describe( 'NewsletterWidget', () => {
 			},
 			{
 				text: 'Newsletter settings',
-				href: `https://${ defaultProps.site }/wp-admin/admin.php?page=jetpack#newsletter`,
+				href: selfHostedNewsletterUrl,
 			},
 		];
 
@@ -148,6 +157,22 @@ describe( 'NewsletterWidget', () => {
 			expect( link ).toBeInTheDocument();
 			expect( link ).toHaveAttribute( 'href', href );
 		} );
+	} );
+
+	it( 'renders newsletter settings link with provided URL', () => {
+		const customNewsletterUrl = 'https://example.com/wp-admin/admin.php?page=jetpack-newsletter';
+		render(
+			<NewsletterWidget { ...defaultProps } newsletterSettingsUrl={ customNewsletterUrl } />
+		);
+
+		const link = screen.getByText( 'Newsletter settings' );
+		expect( link ).toHaveAttribute( 'href', customNewsletterUrl );
+	} );
+
+	it( 'does not render newsletter settings link when URL is not provided', () => {
+		render( <NewsletterWidget { ...defaultProps } newsletterSettingsUrl={ undefined } /> );
+
+		expect( screen.queryByText( 'Newsletter settings' ) ).not.toBeInTheDocument();
 	} );
 
 	describe( 'Stats display conditions', () => {

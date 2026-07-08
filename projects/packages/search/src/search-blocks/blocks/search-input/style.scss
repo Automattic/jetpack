@@ -1,0 +1,164 @@
+// Inside the Compact Search pattern's toolbar, the input grows to fill the
+// remaining row width so the filter / sort triggers sit right next to it.
+.jetpack-search-compact-toolbar > .wp-block-jetpack-search-search-input {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.wp-block-jetpack-search-search-input {
+
+	// Bottom hairline tracks the same 15%-currentColor mix used by the sidebar
+	// left-divider and the overlay header hairline, so all three surfaces read
+	// as one family across experiences. `transparent` is the fallback on UAs
+	// without color-mix support — divider disappears rather than reverting to
+	// a hard full-strength rule.
+	.jetpack-search-input__inside-wrapper {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0;
+		border-bottom: 1px solid transparent;
+
+		@supports (border-color: color-mix(in sRGB, black 50%, white)) {
+			border-bottom-color: color-mix(in sRGB, currentColor 15%, transparent);
+		}
+	}
+
+	.jetpack-search-input__icon {
+		flex: 0 0 auto;
+		width: 1.5rem;
+		height: 1.5rem;
+		fill: currentColor;
+		opacity: 0.6;
+	}
+
+	.jetpack-search-input__field {
+		flex: 1 1 auto;
+		min-width: 0;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		font-size: 1.25rem;
+		line-height: 1.4;
+		color: inherit;
+
+		// Hide browser-default search clear — we ship our own button.
+		&::-webkit-search-cancel-button,
+		&::-webkit-search-decoration {
+			appearance: none;
+		}
+
+		&::placeholder {
+			color: inherit;
+			opacity: 0.5;
+		}
+
+		&:focus {
+			outline: none;
+		}
+	}
+
+	.jetpack-search-input__clear {
+		flex: 0 0 auto;
+		padding: 0.25rem 0.5rem;
+		background: none;
+		border: 0;
+		cursor: pointer;
+		color: inherit;
+		opacity: 0.6;
+		font-size: 1rem;
+		line-height: 1;
+
+		&[hidden] {
+			display: none;
+		}
+
+		&:hover,
+		&:focus-visible {
+			opacity: 1;
+		}
+	}
+
+	// Autocomplete dropdown — only present when the block author enabled
+	// `enableSuggestions`. Positioned absolutely against `.__inside-wrapper`
+	// (which is already `position: relative`) so the dropdown overlays the
+	// page below the input without disrupting layout. The visual treatment
+	// matches the `filters-popover` / `results-sort` menus: `base`/`contrast`
+	// theme tokens for the surface (so it inverts cleanly on dark themes
+	// instead of flashing as a white rectangle) and `color-mix` against
+	// `currentColor` for borders, hover, and the active highlight. Sharing
+	// the popover family's vocabulary makes the dropdown read as part of
+	// the same block set rather than a one-off WP-admin-styled panel.
+	.jetpack-search-input__suggestions {
+		position: absolute;
+		top: calc(100% + 4px);
+		left: 0;
+		right: 0;
+		z-index: 20;
+		margin: 0;
+		padding: 4px 0;
+		max-height: 60vh;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		// `background-color` longhand (not shorthand) — `background:` collapses
+		// to `transparent` when the var resolves to nothing.
+		background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
+		// Reset the inherited theme base size so option text tracks the
+		// other block surfaces (sort menu, filters popover) at 1rem instead
+		// of the host theme's oversized default.
+		font-size: 1rem;
+		border: 1px solid;
+		border-color: color-mix(in sRGB, currentColor 15%, transparent);
+		border-radius: 4px;
+		box-shadow: 0 4px 16px color-mix(in sRGB, currentColor 12%, transparent);
+		list-style: none;
+
+		&[hidden] {
+			display: none;
+		}
+
+		@media (max-width: 480px) {
+			max-height: 50vh;
+		}
+	}
+
+	.jetpack-search-input__suggestions-label {
+		// Muted relative to the inherited ink so the group label reads as a
+		// section heading without being a hard-coded grey. ~55% alpha against
+		// the surface color is the same level used by the active-filters
+		// heading and the results-sort label.
+		color: color-mix(in sRGB, currentColor 55%, transparent);
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		padding: 8px 12px 4px;
+		text-transform: uppercase;
+	}
+
+	.jetpack-search-input__suggestions-option {
+		cursor: pointer;
+		font: inherit;
+		line-height: 1.4;
+		color: inherit;
+		padding: 8px 12px;
+		border-radius: 2px;
+
+		@media (max-width: 480px) {
+			padding: 12px 12px;
+		}
+
+		// Hover and keyboard-active states use the same currentColor mix the
+		// sort menu uses for its items, just at a slightly stronger ratio
+		// for the keyboard-highlighted row so the active row is unambiguous
+		// even when the pointer is also hovering a different one.
+		&:hover {
+			background: color-mix(in sRGB, currentColor 8%, transparent);
+		}
+
+		&.is-active {
+			background: color-mix(in sRGB, currentColor 14%, transparent);
+		}
+	}
+}

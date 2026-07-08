@@ -2,6 +2,163 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 1.0.82 - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## 1.0.81 - 2026-06-26
+### Changed
+- Internal updates.
+
+## 1.0.80 - 2026-06-25
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.79 - 2026-06-24
+### Changed
+- Internal updates.
+
+## 1.0.78 - 2026-06-23
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.77 - 2026-06-22
+### Changed
+- Update package dependencies. [#49691] [#49757]
+
+## 1.0.76 - 2026-06-15
+### Changed
+- Update package dependencies. [#49631]
+
+## 1.0.75 - 2026-06-15
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.74 - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## 1.0.73 - 2026-06-08
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.72 - 2026-06-08
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.71 - 2026-06-03
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.70 - 2026-06-02
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.69 - 2026-06-01
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.68 - 2026-05-25
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.67 - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+
+## 1.0.66 - 2026-05-19
+### Changed
+- Internal updates.
+
+## 1.0.65 - 2026-05-14
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.64 - 2026-05-11
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.63 - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+
+## 1.0.62 - 2026-04-27
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.61 - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## 1.0.60 - 2026-04-15
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.59 - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
+## 1.0.58 - 2026-04-06
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.57 - 2026-03-30
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.56 - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## 1.0.55 - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## 1.0.54 - 2026-03-09
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.53 - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## 1.0.52 - 2026-02-23
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.51 - 2026-02-18
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.50 - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## 1.0.49 - 2026-02-10
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.48 - 2026-02-04
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.47 - 2026-02-03
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.46 - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## 1.0.45 - 2026-01-26
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.44 - 2026-01-23
+### Changed
+- Update dependencies. [#46035]
+
 ## 1.0.43 - 2026-01-19
 ### Changed
 - Update package dependencies. [#46647]

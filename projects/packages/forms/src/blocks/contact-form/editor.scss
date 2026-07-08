@@ -1,5 +1,36 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
+:where(.jetpack-contact-form) {
+	border-width: 0;
+}
+
+:where(.is-classic-layout) .jetpack-contact-form,
+.jetpack-contact-form.has-no-jetpack-form-layout {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	gap: var(--wp--style--block-gap, 1.5rem);
+
+	.wp-block {
+		flex: 0 0 100%;
+		margin-top: 0;
+		margin-bottom: 0;
+		max-width: 100%;
+	}
+
+	> div {
+		flex: 1 1 100%;
+	}
+
+	&.is-nowrap {
+		flex-wrap: nowrap;
+	}
+
+	.wp-block-jetpack-button {
+		align-self: flex-end;
+	}
+}
+
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
 
@@ -44,18 +75,11 @@
 
 	.jetpack-contact-form,
 	[class*="wp-block-jetpack-field-option"] {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: flex-start;
-		flex-direction: row;
-		gap: var(--wp--style--block-gap, 1.5rem);
 
-		> div {
-			flex: 1 1 100%;
-		}
+		// not horizontal or vertical means a form created
+		// before layout support was added
 
 		.wp-block {
-			flex: 0 0 100%;
 			margin-top: 0;
 			margin-bottom: 0;
 			max-width: 100%;
@@ -64,12 +88,13 @@
 			&.wp-block-jetpack-button {
 				flex: 0 0 auto;
 				min-height: var(--jetpack--contact-form--input-height, auto);
-				align-self: flex-end;
 				line-height: 1;
 				margin-block: 0;
 
 				.wp-block-button__link {
 					min-height: var(--jetpack--contact-form--input-height, auto);
+					padding-top: var(--jetpack--contact-form--input-padding-top);
+					padding-bottom: var(--jetpack--contact-form--input-padding-top);
 				}
 			}
 
@@ -84,7 +109,9 @@
 			&.jetpack-field__width-25,
 			&.jetpack-field__width-33,
 			&.jetpack-field__width-50,
-			&.jetpack-field__width-75 {
+			&.jetpack-field__width-75,
+			&.jetpack-field__width-100,
+			&.jetpack-field__width-auto {
 				box-sizing: border-box;
 			}
 
@@ -111,12 +138,13 @@
 				max-width: 75%;
 			}
 
-			&.wp-block-button__width-100 {
+			&.wp-block-button__width-100,
+			&.jetpack-field__width-100 {
 				flex: 1 1 100%;
 				max-width: 100%;
 			}
 
-			&.wp-block-button.has-custom-width {
+			&.wp-block-button {
 
 				.wp-block-button__link {
 					width: 100%;
@@ -141,11 +169,6 @@
 						width: 100%;
 					}
 				}
-			}
-
-			&[data-type="jetpack/field-checkbox"],
-			&[data-type="jetpack/field-consent"] {
-				align-self: center;
 			}
 
 			&:where(.wp-block-jetpack-contact-form .wp-block-separator) {
@@ -186,6 +209,7 @@
 			margin: unset;
 		}
 	}
+
 }
 
 .jetpack-contact-form .components-placeholder {
@@ -231,17 +255,17 @@
 
 	.block-editor-block-variation-picker__variation {
 
-		svg path:not(.icon-filler) {
+		svg path:not([fill="none"]) {
 			fill: currentColor;
 		}
 	}
 
-	.form-placeholder__footer {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		width: 100%;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	.form-placeholder__shell {
+		text-align: center;
+
+		.components-select-control {
+			text-align: left;
+		}
 	}
 }
 
@@ -357,7 +381,6 @@
 	.required {
 		word-break: normal;
 		color: unset;
-		opacity: 0.6;
 		font-size: 72%;
 		margin-inline-start: 0.25em;
 		font-weight: 400;
@@ -841,10 +864,6 @@
 				border-radius: unset !important;
 				padding: 0 4px;
 				transition: border 150ms linear;
-				// For some reason, when keeping the rule below together with the above
-				// selector, on production builds, the attributes are being reordered,
-				// causing side-effects.
-				// stylelint-disable-next-line no-duplicate-selectors
 				border-left: none !important;
 				border-right: none !important;
 				box-sizing: content-box;
@@ -1224,4 +1243,21 @@
 			}
 		}
 	}
+}
+
+/* Status notice for synced forms with non-publish status */
+.jetpack-contact-form__status-notice {
+	margin-bottom: 16px;
+}
+
+/* Inline warning shown in the form settings sidebar when the form isn't
+   collecting responses. It renders outside a panel body, so give it the same
+   16px spacing a panel body would have. */
+.jetpack-contact-form__not-collecting-notice {
+	margin: 16px;
+}
+
+/* "Other" option text input styles */
+.jetpack-other-text-input-wrapper {
+	margin-left: 1.5em;
 }

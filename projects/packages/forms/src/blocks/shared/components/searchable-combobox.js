@@ -1,6 +1,7 @@
-import { KeyboardShortcuts, SVG, Path } from '@wordpress/components';
+import { KeyboardShortcuts } from '@wordpress/components';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Path, SVG } from '@wordpress/primitives';
 import clsx from 'clsx';
 
 const downArrowIcon = () => {

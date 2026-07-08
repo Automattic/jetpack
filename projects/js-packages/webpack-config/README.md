@@ -45,6 +45,9 @@ module.exports = {
 				includeNodeModules: [ '@automattic/jetpack-' ],
 			} ),
 
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule(),
 
@@ -58,6 +61,7 @@ module.exports = {
 In a babel.config.js, you might do something like this.
 ```js
 module.exports = {
+	targets: require( '@automattic/jetpack-webpack-config/targets' ),
 	presets: [
 		[ '@automattic/jetpack-webpack-config/babel/preset', { /* options */ } ],
 	],
@@ -67,6 +71,10 @@ module.exports = {
 ## Available "pieces"
 
 `@automattic/jetpack-webpack-config` returns an object with two members, `webpackConfig` and `babelConfig`. You may also access these by requiring `@automattic/jetpack-webpack-config/webpack` and `@automattic/jetpack-webpack-config/babel` directly.
+
+The babel configuration may be accessed as a preset via `@automattic/jetpack-webpack-config/babel/preset`.
+
+Standard browserslist targets may be accessed via `@automattic/jetpack-webpack-config/targets`. In the absence of other configuration, this defaults to `@wordpress/browserslist-config` rather than browserslist's own defaults.
 
 ### Webpack
 
@@ -133,13 +141,53 @@ This provides an instance of [css-minimizer-webpack-plugin](https://www.npmjs.co
 This is an object suitable for spreading some defaults into Webpack's `resolve` setting.
 
 * For `extensions`, we add `.jsx`, `.ts`, and `.tsx` to Webpack's defaults.
-* If `npm_config_jetpack_webpack_config_resolve_conditions` is set in the environment (e.g. by setting `jetpack-webpack-config-resolve-conditions` in `.npmrc`), [`conditionNames`](https://webpack.js.org/configuration/resolve/#resolveconditionnames) will be set to add the values (comma-separated) to Webpack's defaults.
+* [`conditionNames`](https://webpack.js.org/configuration/resolve/#resolveconditionnames) will be set to add "jetpack:src" before Webpack's defaults.
 
 #### `watchOptions`
 
 `watchOptions` is an object suitable for spreading some defaults into Webpack's `watchOptions` setting. It sets the following:
 
 * `ignored`: `[ '**/node_modules', '**/dist', '**/vendor' ]`.
+
+#### `cache( configFile )`
+
+`cache` is a function returning an object suitable for use as Webpack's [`cache`](https://webpack.js.org/configuration/cache/) setting, enabling Webpack's filesystem cache scoped per consumer project.
+
+```js
+cache: jetpackWebpackConfig.cache( __filename ), // or `import.meta.filename` in ESM
+```
+
+It returns:
+
+* `type`: `'filesystem'`.
+* `cacheDirectory`: `path.resolve( process.cwd(), '.cache/webpack', <configFile basename> )` — namespaced by the config file so a project's multiple configs (some built concurrently) don't share, and clobber, a single cache pack.
+* `store`: `'pack'`.
+* `buildDependencies.config`: `[ configFile ]` — so the cache invalidates when your config file changes.
+
+The cache also invalidates on Webpack version change. It is disabled (returns `undefined`) when `process.env.CI` is set, since CI runs don't preserve the cache between builds. To force-invalidate manually, delete the project's `.cache/webpack/` directory.
+
+#### `DevServer( options )`
+
+Creates a webpack `devServer` configuration for Hot Module Replacement (HMR). Returns `undefined` when not running `webpack serve`, so you can use it directly without conditional checks. Requires `webpack-dev-server` as a dev dependency.
+
+```js
+// webpack.config.js
+module.exports = {
+	devServer: jetpackWebpackConfig.DevServer( {
+		static: { directory: path.resolve( './build' ) },
+	} ),
+};
+```
+
+Options:
+- `hot`: true
+- `liveReload`: false
+- `writeToDisk`: true (for PHP compatibility)
+
+The following environment variables may be set to configure the dev server at runtime:
+- `JETPACK_WEBPACK_DEV_SERVER_HOST`: Host to listen on. Default 'localhost'.
+- `JETPACK_WEBPACK_DEV_SERVER_PORT`: Port to listen on. Default is 'auto', which will have webpack-dev-server select a free port.
+- `JETPACK_WEBPACK_DEV_SERVER_CLIENT_URL`: String for [`devServer.client.webSocketURL`](https://webpack.js.org/configuration/dev-server/#websocketurl), in case you are proxying the dev server.
 
 #### Plugins
 
@@ -177,6 +225,7 @@ This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](h
 By default, the following additional dependencies are extracted:
 - `@automattic/jetpack-script-data`: Handle `jetpack-script-data` provided by PHP package [automattic/jetpack-assets](https://packagist.org/packages/automattic/jetpack-assets).
 - `@automattic/jetpack-connection`: Handle `jetpack-connection` provided by PHP package [automattic/jetpack-connection](https://packagist.org/packages/automattic/jetpack-connection).
+- `@automattic/jetpack-shared-stores`: Handle `jetpack-shared-stores` provided by PHP package [automattic/jetpack-assets](https://packagist.org/packages/automattic/jetpack-assets). The shared data stores resolve to one externalized bundle so they register only once.
 
 One additional option is recognized:
 
@@ -237,9 +286,15 @@ This provides an slightly modified instance of Webpack's built-in DeterministicM
 
 This provides an instance of [@automattic/webpack-rtl-plugin](https://www.npmjs.com/package/@automattic/webpack-rtl-plugin). The `options` are passed to the plugin.
 
+##### `ReactRefreshWebpackPlugin`
+
+Re-export of [@pmmmwh/react-refresh-webpack-plugin](https://www.npmjs.com/package/@pmmmwh/react-refresh-webpack-plugin) for React Fast Refresh. Automatically included in `StandardPlugins()` when `WEBPACK_SERVE=true` in development mode. Set `ReactRefreshWebpackPlugin: false` to disable.
+
+Requires WordPress's `wp-react-refresh-runtime` script to be enqueued.
+
 #### Module rules and loaders
 
-Note all rule sets are provided as factory functions returning a single rule.
+Note all rule sets (except `BundledWpPkgsTranspileRules`) are provided as factory functions returning a single rule.
 
 ##### `TranspileRule( options )`
 
@@ -255,6 +310,15 @@ Options are:
   - `cacheDirectory`: `path.resolve( '.cache/babel` )`.
   - `cacheCompression`: `true`.
   - If `path.resolve( 'babel.config.js' )` exists, `configFile` will default to that. Otherwise, `presets` will default to set some appropriate defaults (which will require the peer dependencies on [@babel/core](https://www.npmjs.com/package/@babel/core) and [@babel/runtime](https://www.npmjs.com/package/@babel/runtime)).
+
+##### `BundledWpPkgsTranspileRules( options )`
+
+This provides two instances of `TranspileRule` configured to handle known `@wordpress/*` packages that aren't extracted by `@wordpress/dependency-extraction-webpack-plugin`.
+
+If you're not using the relevant packages, there's no need to use this.
+
+Options are:
+- `textdomain`: Text domain for [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain). Defaults to reading the domain from `composer.json`.
 
 ##### `CssRule( options )`
 
@@ -277,7 +341,7 @@ This is a simple [asset module](https://webpack.js.org/guides/asset-modules/) ru
 
 Options are:
 - `filename`: Output filename pattern. Default is `images/[name]-[contenthash][ext]`.
-- `extensions`: Array of extensions to handle. Default is `[ 'gif', 'jpg', 'jpeg', 'png', 'svg' ]`.
+- `extensions`: Array of extensions to handle. Default is `[ 'gif', 'jpg', 'jpeg', 'png', 'svg', 'webp' ]`.
 - `maxInlineSize`: If set to a number greater than 0, files will be inlined if they are smaller than this. Default is 0.
 
 ### Babel
@@ -304,17 +368,14 @@ The options passed to the preset allow you to exclude (by passing false) or amen
 
 The options and corresponding components are:
 
-- `targets`: Set targets for various plugins. Default is your browserslist config if available, otherwise [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
 - `autoWpPolyfill`: Set false to disable use of [babel-plugin-polyfill-corejs3](https://www.npmjs.com/package/babel-plugin-polyfill-corejs3) to produce magic `/* wp:polyfill */` comments that [@wordpress/dependency-extraction-webpack-plugin](https://www.npmjs.com/package/@wordpress/dependency-extraction-webpack-plugin) will use to add a dep on `wp-polyfill`.
 
   Options include:
   - `exclude`: Core-js polyfills to ignore. Defaults to exclude 'es.array.push' and 'web.immediate'.
-  - `targets`: Override top-level `targets`.
 - `presetEnv`: Corresponds to [@babel/preset-env](https://www.npmjs.com/package/@babel/preset-env).
 
   Note the following options that are different from `@babel/preset-env`'s defaults:
   - `exclude`: Set to `[ 'transform-typeof-symbol' ]`, as that [apparently makes all code slower](https://github.com/facebook/create-react-app/pull/5278).
-  - `targets`: Set based on top-level `targets`.
 - `presetReact`: Corresponds to [@babel/preset-react](https://www.npmjs.com/package/@babel/preset-react). Defaults to `{ runtime: 'automatic' }` if undefined.
 - `presetTypescript`: Corresponds to [@babel/preset-typescript](https://www.npmjs.com/package/@babel/preset-typescript).
 - `pluginReplaceTextdomain`: Corresponds to [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain).
@@ -327,3 +388,4 @@ The options and corresponding components are:
   - `absoluteRuntime`: Set true, as otherwise transpilation of code symlinked in node_modules (i.e. everything when using pnpm) breaks.
   - `version`: Set to the version from `@babel/runtime`.
 - `pluginPreserveI18n`: Corresponds to [@automattic/babel-plugin-preserve-i18n](https://www.npmjs.com/package/@automattic/babel-plugin-preserve-i18n).
+- `pluginReactRefresh`: Corresponds to [react-refresh/babel](https://www.npmjs.com/package/react-refresh). Only included when `WEBPACK_SERVE=true` in development mode. Set to false to disable.

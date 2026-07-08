@@ -5,6 +5,110 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.6.3] - 2026-06-26
+### Changed
+- Update dependencies. [#49962]
+
+### Fixed
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+
+## [4.6.2] - 2026-06-24
+### Added
+- Concatenate JS/CSS: allow administrators to test additional exclude handles per-request via jb-minify-js-excludes / jb-minify-css-excludes GET parameters, without changing saved settings. The parameters are ignored for non-administrators. [#49555]
+- Defer JS: add an exclusion list so specific pages can be excluded by URL pattern without disabling the feature site-wide. [#49556]
+
+### Changed
+- Migrate ToggleControl to @wordpress/components [#49694]
+- Update package dependencies. [#49631] [#49638] [#49691] [#49757] [#49831]
+
+### Fixed
+- Critical CSS: continue generating for remaining providers when one provider fails unexpectedly, instead of failing the whole run. [#49554]
+- Critical CSS: stop stripping inline SVG markup and double quotes from valid CSS values while still preventing style-tag breakout. [#49547]
+- Defer JS: keep position-dependent inline scripts (document.write) in place instead of moving them after the footer. [#49545]
+- Page Cache: more reliably remove the boost-cache directory on uninstall, and avoid cleanup hanging or timing out on very large caches. [#49546]
+
+## [4.6.1] - 2026-06-10
+### Changed
+- Update dependencies. [#49464]
+- Update package dependencies. [#49273] [#49448] [#49492]
+- My Jetpack: Fix fatal error being logged when My Jetpack page is loaded. [#49479]
+
+## [4.6.0] - 2026-06-09
+### Added
+- Concatenate JS: Add a `jetpack_boost_js_minify_fallback` action that fires when JS minification is skipped in favor of the original bundle, so logging plugins can observe how often (and why) the safety net engages. [#49399]
+- Register Jetpack Boost abilities via the WordPress Abilities API (modules read/toggle, latest speed score, and page cache flush) for AI agents on WordPress 6.9+. [#48328]
+
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Boost admin pages. Drops inline JetpackFooter renders and `showFooter={false}` overrides so AdminPage's built-in footer lives inside the flex column that the mixin pins. [#48109]
+- Boost: Remove translation wrappers from the "Boost" product name. [#48520]
+- Componentry: align Boost UI with the WordPress admin color scheme to match the rest of Jetpack. [#48463]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Internal: migrate Notice component usages to @wordpress/ui. [#48171]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Remove Beta label from the Optimize LCP Images module. [#48174]
+- Remove Jetpack color overrides on core components, allowing them to use native WordPress admin theme colors. [#47317]
+- Remove the per-page Hello Dolly rule; its content is now covered by the centralized normalize rule shipped with `@automattic/jetpack-components`'s AdminPage component. [#48472]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+- Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Tested up to WordPress 7.0. [#48114]
+- Update composer.lock files. [#49415]
+- Updated package dependencies. [#48735] [#48064] [#48106] [#48126] [#48302] [#48404][#48405] [#48683] [#48695] [#48696] [#49012] [#49218] [#49379]
+
+### Fixed
+- Cache debug log: remove the duplicate Jetpack logo and restyle the header breadcrumbs to match the design system, and modernize the "Copy to clipboard" and "See Logs" links. The TanStack Query debugger no longer renders. [#49280]
+- Concatenate JS: Fix pages breaking with an "Unexpected end of input" error when Concatenate JS is enabled on sites that use modern JavaScript under specific conditions. [#49399]
+- Fix Critical CSS progress bar backward jumps and incomplete fill to 100%. [#49244]
+- Fixed a duplicate scrollbar on the Boost dashboard by removing an obsolete full-height override. [#49316]
+- Include blog_id in frontend Tracks events. [#48096]
+- LCP: Fix Cornerstone Page analysis errors on some sites. [#48871]
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+- Render Blocking JS: Fix is_opened_script() regex interpolation and counting asymmetry so unclosed scripts are correctly detected when ignored scripts are present. [#47847]
+
+## [4.5.9] - 2026-04-13
+### Changed
+- Update package dependencies. [#47505] [#47684] [#47719] [#47799] [#47825] [#47870] [#47890] [#47998]
+
+### Fixed
+- Image Guide: Fix script errors when JavaScript concatenation is enabled under certain conditions. [#47918]
+
+## [4.5.8-beta] - 2026-03-09
+### Changed
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Replace the large Jetpack Boost logo header with a compact unified header pattern (Jetpack icon + title + subtitle) for consistent product identity. [#47313]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Fix Hello Dolly banner background color and clear floats in admin layout. [#47313]
+- Fix TS errors detected by tsgo. [#47426]
+- I18N: Fix translatable strings extraction. [#47432]
+
+## [4.5.7] - 2026-02-04
+### Added
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+
+### Changed
+- Update package dependencies. [#46785] [#46854] [#46905]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Compatibility: Disable JS concatenation in Beaver Builder editor to prevent script execution order issues. [#46827]
+
+## [4.5.6] - 2026-01-28
+### Changed
+- My Jetpack: Check red bubble notification async when cache is not available. [#46396]
+- Update composer.lock. [#46686]
+- Update package dependencies. [#46512] [#46552] [#46647]
+
+### Fixed
+- LCP: Skip image optimizations that would break responsive backgrounds or custom focal points under specific configurations. [#46683]
+
 ## [4.5.5] - 2026-01-08
 ### Added
 - Connection: Add revalidation for IDCs. [#46268]
@@ -621,7 +725,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
 - General: Updated checklist spacing and button font size and line height. [#31098]
 - Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
-- Minify CSS: Moved the default URL base of minified CSS files to /_jb_static, and added a constant to override it. [#31631]
+- Minify CSS: Moved the default URL base of minified CSS files to /\_jb_static, and added a constant to override it. [#31631]
 - Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
 - General: Updated checklist spacing and button font size and line height. [#31098]
 - Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
@@ -880,6 +984,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.6.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.2...4.6.3
+[4.6.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.1...4.6.2
+[4.6.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.0...4.6.1
+[4.6.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.9...4.6.0
+[4.5.9]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.8-beta...4.5.9
+[4.5.8-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.7...4.5.8-beta
+[4.5.7]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.6...4.5.7
+[4.5.6]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.5...4.5.6
 [4.5.5]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.4...4.5.5
 [4.5.4]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.3...4.5.4
 [4.5.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.2...4.5.3

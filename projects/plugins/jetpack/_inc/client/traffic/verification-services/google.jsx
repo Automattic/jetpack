@@ -1,6 +1,6 @@
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -236,7 +236,6 @@ class GoogleVerificationServiceComponent extends Component {
 							{ __( 'Edit', 'jetpack' ) }
 						</Button>
 					</div>
-
 					{ this.props.isOwner && (
 						<div className="jp-form-input-with-prefix-bottom-message">
 							<div className="jp-form-setting-explanation">
@@ -248,7 +247,8 @@ class GoogleVerificationServiceComponent extends Component {
 										),
 										{
 											a: (
-												<ExternalLink
+												<Link
+													openInNewTab
 													rel="noopener noreferrer"
 													href={ this.props.googleSearchConsoleUrl }
 												/>
@@ -263,13 +263,15 @@ class GoogleVerificationServiceComponent extends Component {
 										),
 										{
 											a1: (
-												<ExternalLink
+												<Link
+													openInNewTab
 													rel="noopener noreferrer"
 													href={ 'https://developers.google.com/web/fundamentals/security/hacked/' }
 												/>
 											),
 											a2: (
-												<ExternalLink
+												<Link
+													openInNewTab
 													rel="noopener noreferrer"
 													href={
 														'https://www.google.com/insidesearch/howsearchworks/crawling-indexing.html'

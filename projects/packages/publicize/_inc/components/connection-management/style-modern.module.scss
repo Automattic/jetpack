@@ -1,0 +1,147 @@
+.wrapper {
+	align-items: start;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xl, 24px);
+	padding-top: var(--wpds-dimension-padding-lg, 16px);
+	width: 100%;
+
+	> h3 {
+		margin-block: 0;
+	}
+}
+
+.description {
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+}
+
+.connection-list {
+	display: flex;
+	flex-direction: column;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+
+	*[inert="true"] {
+		opacity: 0.7;
+	}
+
+	// Every row gets a top border so the first row also sits below a
+	// divider line that separates it from the surrounding Card.Header
+	// (or whatever chrome wraps the list).
+	.connection-list-item {
+		border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
+		margin: 0;
+	}
+}
+
+// Flat row holding the connection identity. It is a plain container — only the
+// chevron (`.panel-toggle`) is the Collapsible.Trigger — so the
+// profile/Reconnect links inside don't end up nested in a role="button".
+.connection-row {
+	align-items: center;
+	display: flex;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	padding: var(--wpds-dimension-padding-lg, 16px) var(--wpds-dimension-padding-2xl, 24px);
+	width: 100%;
+}
+
+// The disclosure trigger: an unstyled button wrapping just the chevron. Base UI
+// renders a native <button>, so reset its chrome and supply the focus ring the
+// row used to carry.
+.panel-toggle {
+	align-items: center;
+	appearance: none;
+	background: none;
+	border: 0;
+	border-radius: var(--wpds-border-radius-sm, 2px);
+	color: inherit;
+	cursor: var(--wpds-cursor-control, pointer);
+	display: inline-flex;
+	flex-shrink: 0;
+	margin: 0;
+	padding: var(--wpds-dimension-padding-xs, 4px);
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus, #3858e9);
+		outline-offset: 0;
+	}
+}
+
+// Stack supplies the column layout + gap; this keeps the row child flexible
+// so long names truncate instead of pushing the chevron off the row.
+.connection-name-wrapper {
+	flex: 1;
+	min-width: 0;
+}
+
+// Size comes from the `body-lg` Text variant; keep the neutral colour and the
+// medium weight that the variant doesn't set.
+.connection-item-name {
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	font-weight: var(--wpds-typography-font-weight-medium, 499);
+}
+
+.connection-network {
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+}
+
+.chevron {
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	flex-shrink: 0;
+
+	@media not (prefers-reduced-motion) {
+		transition: rotate var(--wpds-motion-duration-md, 0.15s) var(--wpds-motion-easing-balanced, ease-out);
+	}
+}
+
+.panel-toggle[data-panel-open] {
+
+	.chevron {
+		rotate: 180deg;
+	}
+}
+
+// Collapsible.Panel — collapses to height 0 with a smooth height transition.
+// `--collapsible-panel-height` is supplied by Base UI so we mirror what the
+// WPDS CollapsibleCard.Content rule does.
+.connection-panel {
+	height: var(--collapsible-panel-height);
+	overflow: hidden;
+
+	&[hidden]:not([hidden="until-found"]) {
+		display: none;
+	}
+
+	&[data-ending-style],
+	&[data-starting-style] {
+		height: 0;
+	}
+
+	@media not (prefers-reduced-motion) {
+		transition: all var(--wpds-motion-duration-md, 0.15s) var(--wpds-motion-easing-balanced, ease-out);
+	}
+}
+
+.connection-panel-inner {
+	// Panel keeps `overflow: hidden` for the collapse animation, so the top
+	// padding doubles as clearance for the focus ring of the first focusable
+	// child (e.g. the mark-as-shared info button) — without it the ring's top
+	// edge is clipped by the panel.
+	padding: var(--wpds-dimension-padding-xs, 4px) var(--wpds-dimension-padding-2xl, 24px) var(--wpds-dimension-padding-xl, 20px);
+}
+
+// Stack supplies the row layout (align + gap); only the trailing spacing
+// below the toggle is left here.
+.mark-shared-wrap {
+	padding-bottom: var(--wpds-dimension-padding-lg, 16px);
+}
+
+.connection-template-wrap {
+	margin-bottom: var(--wpds-dimension-gap-xl, 24px);
+
+	&:empty {
+		margin-bottom: 0;
+	}
+}

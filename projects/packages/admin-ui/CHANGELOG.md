@@ -5,6 +5,101 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.7] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [0.9.6] - 2026-06-26
+### Changed
+- Update dependencies. [#48834]
+
+## [0.9.5] - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+## [0.9.4] - 2026-06-22
+### Changed
+- Update package dependencies. [#49691]
+
+## [0.9.3] - 2026-06-15
+### Changed
+- Update dependencies. [#48834]
+
+## [0.9.2] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## [0.9.1] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [0.9.0] - 2026-06-05
+### Added
+- Add a shared, token-only WPDS design-tokens stylesheet and enqueue it on Jetpack admin pages so `var(--wpds-*)` values resolve at runtime. [#49345]
+
+## [0.8.9] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [0.8.8] - 2026-06-02
+### Changed
+- Update dependencies. [#48834]
+
+## [0.8.7] - 2026-06-01
+### Added
+- Hide WordPress core admin notices on Jetpack admin pages. [#49237]
+
+## [0.8.6] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+
+## [0.8.5] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [0.8.4] - 2026-05-14
+### Changed
+- Update dependencies. [#48778]
+
+## [0.8.3] - 2026-05-11
+### Changed
+- Update dependencies.
+
+## [0.8.2] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.8.1] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [0.8.0] - 2026-04-10
+### Changed
+- Hide the sidebar upsell when the site is not connected to Jetpack or is in offline mode. [#47967]
+
+## [0.7.1] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
+## [0.7.0] - 2026-04-06
+### Added
+- Add "Upgrade Jetpack" menu item for free users in the Jetpack admin menu. [#47418]
+- Admin: Record Tracks when the Jetpack sidebar "Upgrade Jetpack" link is clicked. [#47937]
+
+### Changed
+- Update design of the sidebar upsell. [#47909]
+
+### Fixed
+- Fix upgrade menu item color on problematic admin color schemes and add build pipeline for CSS assets. [#47903]
+
+## [0.6.0] - 2026-03-30
+### Changed
+- Sidebar: Change "Anti-spam" to "Akismet Anti-spam". [#47834]
+
+## [0.5.12] - 2026-03-09
+### Changed
+- Simplify Akismet admin menu title from 'Akismet Anti-spam' to 'Anti-spam'. [#47417]
+
 ## [0.5.11] - 2025-08-04
 ### Changed
 - Internal updates.
@@ -212,6 +307,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing menu visibility issues.
 
+[0.9.7]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.6...0.9.7
+[0.9.6]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.5...0.9.6
+[0.9.5]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.4...0.9.5
+[0.9.4]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.3...0.9.4
+[0.9.3]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.2...0.9.3
+[0.9.2]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.1...0.9.2
+[0.9.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.0...0.9.1
+[0.9.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.8.9...0.9.0
+[0.8.9]: https://github.com/Automattic/jetpack-admin-ui/compare/0.8.8...0.8.9
+[0.8.8]: https://github.com/Automattic/jetpack-admin-ui/compare/0.8.7...0.8.8
+[0.8.7]: https://github.com/Automattic/jetpack-admin-ui/compare/0.8.6...0.8.7
+[0.8.6]: https://github.com/Automattic/jetpack-admin-ui/compare/0.8.5...0.8.6
+[0.8.5]: https://github.com/Automattic/jetpack-admin-ui/compare/0.8.4...0.8.5
+[0.8.4]: https://github.com/Automattic/jetpack-admin-ui/compare/0.8.3...0.8.4
+[0.8.3]: https://github.com/Automattic/jetpack-admin-ui/compare/0.8.2...0.8.3
+[0.8.2]: https://github.com/Automattic/jetpack-admin-ui/compare/0.8.1...0.8.2
+[0.8.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.8.0...0.8.1
+[0.8.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.7.1...0.8.0
+[0.7.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.7.0...0.7.1
+[0.7.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.6.0...0.7.0
+[0.6.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.12...0.6.0
+[0.5.12]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.11...0.5.12
 [0.5.11]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.10...0.5.11
 [0.5.10]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.9...0.5.10
 [0.5.9]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.8...0.5.9

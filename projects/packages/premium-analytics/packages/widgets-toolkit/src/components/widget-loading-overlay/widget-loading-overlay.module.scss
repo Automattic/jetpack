@@ -1,0 +1,7 @@
+.overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	height: 100%;
+	background: color-mix(in sRGB, var(--wpds-color-background-surface-neutral-strong) 60%, transparent);
+}

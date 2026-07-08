@@ -2,7 +2,12 @@
 
 A comprehensive charting library for displaying interactive data visualizations within Automattic products. Built on top of modern libraries like `@visx/xychart` and designed for accessibility, responsiveness, and ease of use.
 
-Explore the available charts and their documentation in [Storybook](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts).
+Explore the available charts and their documentation in [Storybook](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts-library-introduction--docs).
+
+## Requirements
+
+- **Node.js**: >= 20.11.0
+- **React**: 18.x or 19.x
 
 ## Quick Start
 
@@ -18,72 +23,36 @@ yarn add @automattic/charts
 
 ### Importing Components
 
-You can import charts from the package in several ways depending on your needs:
-
-#### Option 1: Import everything from the main entry (includes all styles)
+Import chart components from the main entry point:
 
 ```javascript
 import { LineChart, BarChart, PieChart } from '@automattic/charts';
-import '@automattic/charts/style.css'; // Import all styles
+import '@automattic/charts/style.css';
 ```
 
-#### Option 2: Import individual components (tree-shaking friendly)
+Modern bundlers tree-shake unused JavaScript automatically, so only the chart components you import are included in your bundle. Note that `style.css` includes styles for all charts.
 
-For better bundle optimization, you can import components individually:
+#### Additional Entry Points
 
-```javascript
-// Import individual components
-import { LineChart } from '@automattic/charts/line-chart';
-import { BarChart } from '@automattic/charts/bar-chart';
-import { PieChart } from '@automattic/charts/pie-chart';
+For utilities and auxiliary components, separate entry points are available:
 
-// Import individual component styles
-import '@automattic/charts/line-chart/style.css';
-import '@automattic/charts/bar-chart/style.css';
-import '@automattic/charts/pie-chart/style.css';
-```
-
-Individual entry exports also provide easier access to chart-specific types and helpers when available. This makes it simpler to find and leverage TypeScript types, utility functions, and other chart-specific tools that are exported alongside the main component.
-
-#### Available Components and Entry Points
-
-The following components can be imported individually:
-
-- `@automattic/charts/bar-chart` - Bar Chart component
-- `@automattic/charts/bar-list-chart` - Bar List Chart component
-- `@automattic/charts/conversion-funnel-chart` - Conversion Funnel Chart component
-- `@automattic/charts/leaderboard-chart` - Leaderboard Chart component
-- `@automattic/charts/legend` - Legend component
-- `@automattic/charts/line-chart` - Line Chart component
-- `@automattic/charts/pie-chart` - Pie Chart component
-- `@automattic/charts/pie-semi-circle-chart` - Pie Semi-Circle Chart component
-- `@automattic/charts/tooltip` - Tooltip component
 - `@automattic/charts/hooks` - React hooks
 - `@automattic/charts/providers` - Context providers
+- `@automattic/charts/utils` - Shared chart utility functions
 - `@automattic/charts/visx/group` - Visx group utilities
 - `@automattic/charts/visx/legend` - Visx legend utilities
 - `@automattic/charts/visx/text` - Visx text utilities
 
 #### Available Style Imports
 
-Each component has its own CSS file that can be imported individually:
-
-- `@automattic/charts/bar-chart/style.css`
-- `@automattic/charts/bar-list-chart/style.css`
-- `@automattic/charts/conversion-funnel-chart/style.css`
-- `@automattic/charts/leaderboard-chart/style.css`
-- `@automattic/charts/legend/style.css`
-- `@automattic/charts/line-chart/style.css`
-- `@automattic/charts/pie-chart/style.css`
-- `@automattic/charts/pie-semi-circle-chart/style.css`
-- `@automattic/charts/tooltip/style.css`
+- `@automattic/charts/style.css` - All chart styles
 
 ### Basic Usage Example
 
 ```javascript
 import React from 'react';
 import { LineChart } from '@automattic/charts';
-import '@automattic/charts/line-chart/style.css';
+import '@automattic/charts/style.css';
 
 const data = [
 	{ date: new Date( '2024-01-01' ), value: 10 },

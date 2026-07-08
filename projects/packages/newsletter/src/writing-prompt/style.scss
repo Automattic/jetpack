@@ -1,0 +1,33 @@
+
+.wpcom-daily-writing-prompt--prompt {
+	background-color: var(--wpds-color-background-surface-neutral-weak);
+	padding: var(--wpds-dimension-padding-md);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.wpcom-daily-writing-prompt--branding {
+	padding-block-start: var(--wpds-dimension-padding-md);
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+}
+
+.wpcom-daily-writing-prompt--answered-users {
+
+	// The "View responses" secondary button renders as an anchor, so it
+	// inherits wp-admin's unlayered `a { color: #2271b1 }` rule, which would
+	// otherwise beat @wordpress/ui's layered button color. Re-apply the button's
+	// own foreground color. See settings/sections/paid-newsletter-section.tsx.
+	a {
+		color: var(--wp-ui-button-foreground-color);
+	}
+
+	img {
+		vertical-align: middle;
+		border-radius: 50%;
+		border: var(--wpds-border-width-sm) solid var(--wpds-color-background-surface-neutral);
+		margin-inline-start: calc(-1 * (var(--wpds-dimension-gap-sm) + var(--wpds-border-width-sm)));
+	}
+
+	img:first-child {
+		margin-inline-start: 0;
+	}
+}

@@ -6,8 +6,6 @@
 		"target": "es2021",
 		"strict": true,
 		"types": [],
-		"baseUrl": ".",
-		"paths": {},
 		"verbatimModuleSyntax": true
 	}
 }

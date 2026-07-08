@@ -23,19 +23,44 @@ export default function MediaSourceMenu( {
 	onMediaLibraryClick,
 	onAiImageClick,
 	disabled = false,
+	featuredImageId,
+	includeDefaultOption = false,
 	children,
 }: MediaSourceMenuProps ) {
 	// Get options from function to ensure translations are loaded
 	const options = useMemo( () => getMediaSourceOptions(), [] );
 
-	// Group options by category
+	/*
+	 * Group options for display:
+	 * - Hide "Featured image" when no featured image exists.
+	 * - Hide "Default" unless the caller opts in (per-network customization only).
+	 * - In per-network mode, SIG and Featured image are always attached (no toggle to make
+	 *   them link-preview-only), so they're surfaced under "Attachment". Default is the only
+	 *   link-preview option.
+	 */
 	const linkPreviewOptions = useMemo(
-		() => options.filter( opt => opt.group === 'link-preview' ),
-		[ options ]
+		() =>
+			options.filter( opt => {
+				if ( opt.id === 'featured-image' && ! featuredImageId ) return false;
+				if ( includeDefaultOption ) {
+					return opt.id === null;
+				}
+				if ( opt.id === null ) return false;
+				return opt.group === 'link-preview';
+			} ),
+		[ options, featuredImageId, includeDefaultOption ]
 	);
 	const attachmentOptions = useMemo(
-		() => options.filter( opt => opt.group === 'attachment' ),
-		[ options ]
+		() =>
+			options.filter( opt => {
+				if ( opt.id === null ) return false;
+				if ( opt.id === 'featured-image' && ! featuredImageId ) return false;
+				if ( includeDefaultOption ) {
+					return true;
+				}
+				return opt.group === 'attachment';
+			} ),
+		[ options, featuredImageId, includeDefaultOption ]
 	);
 
 	const renderToggle = useCallback(
@@ -43,6 +68,7 @@ export default function MediaSourceMenu( {
 			<>
 				{ ! children && (
 					<Button
+						__next40pxDefaultSize
 						className={ styles.selectButton }
 						variant="secondary"
 						onClick={ onToggle }
@@ -63,14 +89,14 @@ export default function MediaSourceMenu( {
 			<>
 				<MenuGroup
 					label={ _x(
-						'For link preview',
+						'Link preview',
 						'The image source to use for post link preview on social media.',
 						'jetpack-publicize-pkg'
 					) }
 				>
 					{ linkPreviewOptions.map( option => (
 						<MediaSourceMenuItem
-							key={ option.id }
+							key={ option.id ?? 'default' }
 							option={ option }
 							isSelected={ currentSource === option.id }
 							onSelect={ onSelect }
@@ -80,14 +106,14 @@ export default function MediaSourceMenu( {
 				</MenuGroup>
 				<MenuGroup
 					label={ _x(
-						'For attachment',
+						'Attachment',
 						'The media source to use for post attachment on social media.',
 						'jetpack-publicize-pkg'
 					) }
 				>
 					{ attachmentOptions.map( option => (
 						<MediaSourceMenuItem
-							key={ option.id }
+							key={ option.id ?? 'default' }
 							option={ option }
 							isSelected={ currentSource === option.id }
 							onSelect={ onSelect }

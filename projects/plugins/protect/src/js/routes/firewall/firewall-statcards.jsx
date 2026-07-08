@@ -1,4 +1,5 @@
-import { Text, useBreakpointMatch, StatCard } from '@automattic/jetpack-components';
+import { Text, StatCard } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, shield, chartBar } from '@wordpress/icons';
 import { useCallback, useMemo } from 'react';
@@ -14,14 +15,13 @@ const FirewallStatCards = () => {
 		wafSupported,
 		stats,
 	} = useWafData();
-	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	const isSupportedWafFeatureEnabled = wafSupported
 		? isWafModuleEnabled
 		: isBruteForceModuleEnabled;
-	const { currentDay: currentDayBlockCount, thirtyDays: thirtyDayBlockCounts } = stats
-		? stats.blockedRequests
-		: { currentDay: 0, thirtyDays: 0 };
+	const { currentDay: currentDayBlockCount, thirtyDays: thirtyDayBlockCounts } =
+		stats?.blockedRequests || { currentDay: 0, thirtyDays: 0 };
 	const isFeatureDisabled = ! isSupportedWafFeatureEnabled || ! hasPlan;
 
 	const defaultArgs = useMemo(

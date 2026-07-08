@@ -2,12 +2,17 @@
  * Types for the unified media section component
  */
 
-import type { AttachedMedia, JetpackSocialOptions, SIGSettings } from '../../utils/types';
+import type {
+	AttachedMedia,
+	FocalPoint,
+	JetpackSocialOptions,
+	SIGSettings,
+} from '../../utils/types';
 
 /**
  * Media source types
  */
-export type MediaSourceType = 'featured-image' | 'media-library' | 'sig' | null;
+export type MediaSourceType = 'featured-image' | 'media-library' | 'upload-video' | 'sig' | null;
 
 /**
  * Menu option IDs - includes all menu items including 'ai-image' which is handled specially
@@ -93,6 +98,14 @@ export interface MediaSectionV2Props {
 	 * operates in "controlled" mode and uses the media props above instead of fetching from the store.
 	 */
 	onMediaChange?: ( updates: Partial< JetpackSocialOptions > ) => void;
+
+	/**
+	 * Controls the "Share as attachment" toggle.
+	 * 'visible' (default): toggle is rendered and user-controlled.
+	 * 'hidden': toggle is not rendered; attachment mode is implied by the selected source.
+	 * Per-network customization passes 'hidden' so the dropdown alone decides media behavior.
+	 */
+	attachmentToggleMode?: 'visible' | 'hidden';
 }
 
 /**
@@ -125,9 +138,47 @@ export interface MediaSourceMenuProps {
 	disabled?: boolean;
 
 	/**
+	 * Featured image ID - used to disable "Use featured image" option when not available
+	 */
+	featuredImageId?: number;
+
+	/**
+	 * Whether to surface the "Default" option in the dropdown. Only used by per-network
+	 * customization, where the attachment toggle is hidden and the dropdown alone decides
+	 * media behavior — Default is the link-preview-only choice.
+	 */
+	includeDefaultOption?: boolean;
+
+	/**
 	 * Optional children render function that receives open function
 	 */
 	children?: ( { open }: { open: () => void } ) => React.ReactNode;
+}
+
+/**
+ * Props for MediaFocalPoint component
+ */
+export interface MediaFocalPointProps {
+	/**
+	 * URL of the image to pick the focal point on
+	 */
+	url: string;
+
+	/**
+	 * The current focal point (both axes 0-1).
+	 */
+	value: FocalPoint;
+
+	/**
+	 * Called with the rounded focal point when the user commits it (release,
+	 * click, or keyboard).
+	 */
+	onChange: ( point: FocalPoint ) => void;
+
+	/**
+	 * Called with the rounded focal point while dragging, before it is committed.
+	 */
+	onDrag?: ( point: FocalPoint ) => void;
 }
 
 /**
@@ -143,19 +194,4 @@ export interface MediaPreviewProps {
 	 * Whether the preview is in loading state
 	 */
 	isLoading?: boolean;
-
-	/**
-	 * Callback to replace the media
-	 */
-	onReplace?: () => void;
-
-	/**
-	 * Callback to remove the media
-	 */
-	onRemove?: () => void;
-
-	/**
-	 * Whether the actions are disabled
-	 */
-	disabled?: boolean;
 }

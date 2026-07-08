@@ -11,13 +11,24 @@ Instructions:
    - If no changelog exists, run `/jetpack-changelog` first to create one
    - If changes are only to .claude/, docs, or non-project files, skip changelog check
 3. Ensure the branch is pushed to remote (push if needed)
-4. Prepare the PR content using the sections from .github/PULL_REQUEST_TEMPLATE.md:
-   - Title: Clear summary of changes
-   - Fixes #: Link to issue if applicable (or remove if none)
+4. CRITICAL: Read the file `.github/PULL_REQUEST_TEMPLATE.md` using the Read tool. You MUST read this file every time — do not rely on memory for the template structure.
+5. Prepare the PR title and body following the EXACT section structure from the template you just read:
+   - Title (for `--title`, NOT included in the body file): Clear summary of changes
+   - Fixes #: Link to issue if applicable, or leave blank / "N/A" if none
    - Proposed changes: Bullet points of functional changes
    - Testing instructions: Step-by-step how to test the changes
-5. Create the PR using `gh pr create`, providing the prepared content for the title and body (e.g., with `--title` and `--body` flags)
-6. Add required labels:
+   - Include all sections from the template, filling in what's relevant and leaving defaults for the rest
+6. Create the PR using `gh pr create`:
+   - IMPORTANT: To avoid bash escaping issues, ALWAYS use `--body-file` instead of `--body`
+   - Write the PR body to a temporary file using a heredoc, then pass it to `gh`. Use a safe, non-hardcoded path (e.g., `mktemp` or a project-local temp file) — avoid fixed paths in shared directories like `/tmp`.
+     ```bash
+     BODY_FILE="$(mktemp)"
+     cat > "$BODY_FILE" << 'EOF'
+     [PR body content here]
+     EOF
+     gh pr create --title "..." --body-file "$BODY_FILE" --label "..." --assignee @me
+     ```
+7. Add required labels:
    - `[Status] *` - use `[Status] In Progress` by default, or `[Status] Needs Review` if ready for review
 
-When using `--title` and `--body` with `gh pr create`, the template is not auto-filled; you must format the PR body to match the template structure yourself. Alternatively, omit `--body` to open an editor with the template pre-filled. Deduce all information from git history and code changes - do not ask the user for input.
+Deduce all information from git history and code changes - do not ask the user for input.

@@ -10,3 +10,5 @@ export * from './threads-preview';
 export * from './constants';
 export * from './instagram-preview';
 export * from './types';
+export { parseHyperlinks } from './helpers';
+export type { Hyperlink } from './helpers';
