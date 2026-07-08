@@ -4,11 +4,11 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Modal, Button } from '@wordpress/components';
+import { Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
-import { Card, Link, Stack } from '@wordpress/ui';
+import { Button, Card, Link, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useState, useEffect } from 'react';
 import type { MouseEvent, ReactNode } from 'react';
@@ -166,17 +166,14 @@ const OwnerDisconnectDialog = ( {
 						</div>
 						<div className="jp-connection__disconnect-dialog__button-wrap lg-col-span-4 md-col-span-7 sm-col-span-4">
 							<Button
-								variant="primary"
 								onClick={ handleStayConnected }
 								className="jp-connection__disconnect-dialog__btn-dismiss"
 							>
 								{ __( 'Stay Connected', 'jetpack-connection-js' ) }
 							</Button>
 							<Button
-								variant="primary"
 								onClick={ handleDisconnectAnyway }
 								className="jp-connection__disconnect-dialog__btn-disconnect"
-								isDestructive
 								disabled={ isDisconnecting }
 							>
 								{ isDisconnecting ? disconnectingText : disconnectText }

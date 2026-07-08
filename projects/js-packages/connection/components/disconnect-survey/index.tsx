@@ -1,5 +1,5 @@
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { Fragment, useCallback, useState } from 'react';
 import SurveyChoiceComponent from './survey-choice';
 import type { ChangeEvent, ComponentType, KeyboardEvent, ReactNode } from 'react';
@@ -179,7 +179,6 @@ const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 			<p>
 				<Button
 					disabled={ ! selectedAnswer || isSubmittingFeedback }
-					variant="primary"
 					onClick={ handleSurveySubmit }
 					className="jp-connection__disconnect-dialog__btn-back-to-wp"
 				>
