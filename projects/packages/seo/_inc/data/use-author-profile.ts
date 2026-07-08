@@ -1,6 +1,6 @@
 import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { cleanProfileUrls } from './schema-settings-utils';
@@ -41,24 +41,8 @@ interface UserRecord {
 interface CoreDataSelect {
 	getCurrentUser: () => { id?: number } | undefined;
 	getResolutionState: ( selectorName: string, args: unknown[] ) => { status?: string } | undefined;
+	isSavingEntityRecord: ( kind: string, name: string, recordId: number ) => boolean;
 }
-
-interface CoreDataDispatch {
-	saveEntityRecord: (
-		kind: string,
-		name: string,
-		record: UserRecord,
-		options: { throwOnError: boolean }
-	) => Promise< UserRecord | undefined >;
-}
-
-const EMPTY_PROFILE: AuthorProfile = {
-	name: '',
-	description: '',
-	url: '',
-	jobTitle: '',
-	sameAs: [],
-};
 
 const stringsFromMeta = ( value: unknown ): string[] =>
 	Array.isArray( value )
@@ -85,20 +69,49 @@ const cleanAuthorProfile = ( profile: AuthorProfile ): AuthorProfile => ( {
 } );
 
 /**
- * Owns the Author profile form in the Schema settings card. Values read/write
- * the current WordPress user through core-data's user entity.
+ * Maps an `AuthorProfile` patch to a core-data user-entity edit. `name`,
+ * `description`, and `url` pass through; `jobTitle`/`sameAs` become the two
+ * Jetpack meta keys. The user entity has no `mergedEdits` for `meta`, so a meta
+ * edit replaces the previous one — both keys ride every meta edit, seeding the
+ * untouched key from the current edited profile.
+ *
+ * @param patch   - The requested profile changes.
+ * @param current - The current edited profile, source for untouched meta keys.
+ * @return The equivalent user-entity edit.
+ */
+const toUserEdit = (
+	patch: Partial< AuthorProfile >,
+	current: AuthorProfile
+): Partial< UserRecord > => {
+	const edit: Partial< UserRecord > = {};
+	if ( 'name' in patch ) {
+		edit.name = patch.name;
+	}
+	if ( 'description' in patch ) {
+		edit.description = patch.description;
+	}
+	if ( 'url' in patch ) {
+		edit.url = patch.url;
+	}
+	if ( 'jobTitle' in patch || 'sameAs' in patch ) {
+		edit.meta = {
+			jetpack_seo_job_title: patch.jobTitle ?? current.jobTitle,
+			jetpack_seo_same_as: patch.sameAs ?? current.sameAs,
+		};
+	}
+	return edit;
+};
+
+/**
+ * Owns the Author profile form in the Schema settings card. The core-data user
+ * entity is the single source of truth: values are derived from its edited
+ * record, edits write straight back through `edit()`, and `save()` persists
+ * them — no local mirror of the profile state.
  *
  * @return The Author profile form controller.
  */
 export function useAuthorProfile(): AuthorProfileForm {
-	const [ profile, setProfile ] = useState< AuthorProfile >( EMPTY_PROFILE );
-	const [ avatarUrl, setAvatarUrl ] = useState( '' );
-	const [ isSaving, setIsSaving ] = useState( false );
-	const [ isDirty, setIsDirty ] = useState( false );
-	const { saveEntityRecord } = useDispatch( coreStore ) as CoreDataDispatch;
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const baselineRef = useRef< AuthorProfile >( EMPTY_PROFILE );
-	const isMountedRef = useRef( false );
 	const loadErrorNoticedRef = useRef( false );
 
 	const { currentUserId, currentUserHasResolved, currentUserHasLoadError } = useSelect( select => {
@@ -115,6 +128,21 @@ export function useAuthorProfile(): AuthorProfileForm {
 	const userEntity = useEntityRecord< UserRecord >( 'root', 'user', currentUserId, {
 		enabled: !! currentUserId,
 	} );
+	const { editedRecord, edit, save: saveEntity, hasEdits } = userEntity;
+
+	const isSaving = useSelect(
+		select =>
+			!! currentUserId &&
+			( select( coreStore ) as CoreDataSelect ).isSavingEntityRecord(
+				'root',
+				'user',
+				currentUserId
+			),
+		[ currentUserId ]
+	);
+
+	const { profile, avatarUrl } = useMemo( () => fromUser( editedRecord ?? {} ), [ editedRecord ] );
+
 	const hasLoadError =
 		currentUserHasLoadError ||
 		( currentUserHasResolved && ! currentUserId ) ||
@@ -125,25 +153,6 @@ export function useAuthorProfile(): AuthorProfileForm {
 		( ! currentUserHasResolved ||
 			userEntity.isResolving ||
 			( !! currentUserId && ! userEntity.hasResolved && ! userEntity.record ) );
-
-	useEffect( () => {
-		isMountedRef.current = true;
-		return () => {
-			isMountedRef.current = false;
-		};
-	}, [] );
-
-	useEffect( () => {
-		if ( ! userEntity.record ) {
-			return;
-		}
-		const next = fromUser( userEntity.record );
-		baselineRef.current = cleanAuthorProfile( next.profile );
-		setProfile( next.profile );
-		setAvatarUrl( next.avatarUrl );
-		setIsDirty( false );
-		loadErrorNoticedRef.current = false;
-	}, [ userEntity.record ] );
 
 	useEffect( () => {
 		if ( ! hasLoadError || isLoading || loadErrorNoticedRef.current ) {
@@ -159,17 +168,12 @@ export function useAuthorProfile(): AuthorProfileForm {
 		);
 	}, [ hasLoadError, isLoading, createErrorNotice ] );
 
-	const setProfileField = useCallback( ( patch: Partial< AuthorProfile > ) => {
-		setProfile( current => {
-			const next = { ...current, ...patch };
-			setIsDirty(
-				JSON.stringify( cleanAuthorProfile( next ) ) !== JSON.stringify( baselineRef.current )
-			);
-			return next;
-		} );
-	}, [] );
+	const setProfileField = useCallback(
+		( patch: Partial< AuthorProfile > ) => edit( toUserEdit( patch, profile ) ),
+		[ edit, profile ]
+	);
 
-	const save = useCallback( () => {
+	const save = useCallback( async () => {
 		if ( isSaving || hasLoadError || ! currentUserId ) {
 			return;
 		}
@@ -183,17 +187,16 @@ export function useAuthorProfile(): AuthorProfileForm {
 			return;
 		}
 
-		setIsSaving( true );
 		createInfoNotice( __( 'Saving author profile…', 'jetpack-seo' ), {
 			id: NOTICE_ID,
 			type: 'snackbar',
 			isDismissible: false,
 		} );
-		saveEntityRecord(
-			'root',
-			'user',
-			{
-				id: currentUserId,
+
+		try {
+			// Stage the cleaned values (same pattern as seo-inspector), then persist.
+			// Both meta keys ride the edit since the user entity replaces meta edits.
+			edit( {
 				name: clean.name,
 				description: clean.description,
 				url: clean.url,
@@ -201,48 +204,26 @@ export function useAuthorProfile(): AuthorProfileForm {
 					jetpack_seo_job_title: clean.jobTitle,
 					jetpack_seo_same_as: clean.sameAs,
 				},
-			},
-			{ throwOnError: true }
-		)
-			.then( user => {
-				if ( ! isMountedRef.current ) {
-					return;
-				}
-				if ( ! user ) {
-					throw new Error(
-						__( 'Could not save author profile. Please try again.', 'jetpack-seo' )
-					);
-				}
-				const next = fromUser( user );
-				baselineRef.current = cleanAuthorProfile( next.profile );
-				setProfile( next.profile );
-				setAvatarUrl( next.avatarUrl );
-				setIsDirty( false );
-				createSuccessNotice( __( 'Author profile saved.', 'jetpack-seo' ), {
-					id: NOTICE_ID,
-					type: 'snackbar',
-				} );
-			} )
-			.catch( ( error: { message?: string } ) => {
-				if ( ! isMountedRef.current ) {
-					return;
-				}
-				createErrorNotice(
-					error?.message ?? __( 'Could not save author profile. Please try again.', 'jetpack-seo' ),
-					{ id: NOTICE_ID, type: 'snackbar' }
-				);
-			} )
-			.finally( () => {
-				if ( isMountedRef.current ) {
-					setIsSaving( false );
-				}
 			} );
+			await saveEntity();
+			createSuccessNotice( __( 'Author profile saved.', 'jetpack-seo' ), {
+				id: NOTICE_ID,
+				type: 'snackbar',
+			} );
+		} catch ( error ) {
+			createErrorNotice(
+				( error as { message?: string } )?.message ??
+					__( 'Could not save author profile. Please try again.', 'jetpack-seo' ),
+				{ id: NOTICE_ID, type: 'snackbar' }
+			);
+		}
 	}, [
 		profile,
 		isSaving,
 		hasLoadError,
 		currentUserId,
-		saveEntityRecord,
+		edit,
+		saveEntity,
 		createInfoNotice,
 		createSuccessNotice,
 		createErrorNotice,
@@ -254,7 +235,7 @@ export function useAuthorProfile(): AuthorProfileForm {
 		isLoading,
 		hasLoadError,
 		isSaving,
-		isDirty,
+		isDirty: hasEdits,
 		setProfileField,
 		save,
 	};

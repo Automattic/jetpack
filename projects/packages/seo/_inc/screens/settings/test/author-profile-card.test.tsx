@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 // True-ESM Jest (`--experimental-vm-modules`): stub the core-data/notices edge with
 // `jest.unstable_mockModule`, then import the card dynamically. The card owns
@@ -19,17 +19,21 @@ const AUTHOR_RESPONSE = {
 	},
 };
 
-const saveEntityRecord =
-	jest.fn<
-		( kind: string, name: string, record: unknown, options: unknown ) => Promise< unknown >
-	>();
 const useEntityRecord = jest.fn();
+const editEntity = jest.fn( ( patch: Record< string, unknown > ) => {
+	edits = { ...edits, ...patch };
+} );
+const saveEntity = jest.fn( () => Promise.resolve() );
 const createInfoNotice = jest.fn();
 const createSuccessNotice = jest.fn();
 const createErrorNotice = jest.fn();
 let currentUser: { id?: number } | undefined;
 let currentUserResolutionStatus: 'resolving' | 'finished' | 'error';
 let entityRecord: typeof AUTHOR_RESPONSE | null;
+// Local (in-browser) edits the mock replays into `editedRecord`; the store's
+// single source of truth. Meta is replaced (not merged) — the user entity has
+// no `mergedEdits`, matching the real behavior the hook relies on.
+let edits: Record< string, unknown >;
 let entityHasResolved: boolean;
 let entityIsResolving: boolean;
 let entityStatus: 'IDLE' | 'RESOLVING' | 'SUCCESS' | 'ERROR';
@@ -41,9 +45,6 @@ const mockAuthorEntity = () => {
 	entityHasResolved = true;
 	entityIsResolving = false;
 	entityStatus = 'SUCCESS';
-	saveEntityRecord.mockImplementation( ( _kind, _name, record ) =>
-		Promise.resolve( { ...AUTHOR_RESPONSE, ...( record as Record< string, unknown > ) } )
-	);
 };
 
 jest.unstable_mockModule( '@wordpress/core-data', () => ( {
@@ -55,14 +56,12 @@ jest.unstable_mockModule( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' ) as object;
 	return {
 		...actual,
-		useDispatch: ( store: string ) =>
-			'core' === store
-				? { saveEntityRecord }
-				: { createInfoNotice, createSuccessNotice, createErrorNotice },
+		useDispatch: () => ( { createInfoNotice, createSuccessNotice, createErrorNotice } ),
 		useSelect: ( callback: ( select: ( store: string ) => unknown ) => unknown ) =>
 			callback( () => ( {
 				getCurrentUser: () => currentUser,
 				getResolutionState: () => ( { status: currentUserResolutionStatus } ),
+				isSavingEntityRecord: () => false,
 			} ) ),
 	};
 } );
@@ -81,16 +80,24 @@ describe( 'AuthorProfileCard', () => {
 		currentUser = undefined;
 		currentUserResolutionStatus = 'resolving';
 		entityRecord = null;
+		edits = {};
 		entityHasResolved = false;
 		entityIsResolving = false;
 		entityStatus = 'IDLE';
+		// The user entity is the single source of truth: `editedRecord` is the
+		// persisted record with local edits replayed on top, `hasEdits` tracks
+		// dirtiness. No store subscription in the mock, so tests `rerender()` to
+		// flow a new edited state into the controlled inputs.
 		useEntityRecord.mockImplementation( () => ( {
 			record: entityRecord,
+			editedRecord: { ...( entityRecord ?? {} ), ...edits },
+			edit: editEntity,
+			save: saveEntity,
+			hasEdits: Object.keys( edits ).length > 0,
 			isResolving: entityIsResolving,
 			hasResolved: entityHasResolved,
 			status: entityStatus,
 		} ) );
-		saveEntityRecord.mockImplementation( () => new Promise( () => {} ) );
 	} );
 
 	it( 'renders collapsed by default, without a badge while loading', () => {
@@ -131,62 +138,31 @@ describe( 'AuthorProfileCard', () => {
 
 	it( 'saves changes through the core user entity', async () => {
 		mockAuthorEntity();
-		renderCard();
+		const { rerender } = renderCard();
 		expand();
 
 		const jobTitle = await screen.findByRole( 'textbox', { name: /Job title/ } );
 		// eslint-disable-next-line testing-library/prefer-user-event -- single change; see note above.
 		fireEvent.change( jobTitle, { target: { value: 'Lead Creator' } } );
+		// The mock has no store subscription; rerender so the staged edit flows
+		// into the controlled inputs and enables the (dirty) Save button.
+		rerender( <AuthorProfileCard /> );
+
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
 		fireEvent.click( screen.getByRole( 'button', { name: /Save author profile/ } ) );
 
-		const save = await waitFor( () => {
-			expect( saveEntityRecord ).toHaveBeenCalled();
-			return saveEntityRecord.mock.calls[ 0 ];
-		} );
-		expect( save ).toEqual( [
-			'root',
-			'user',
-			{
-				id: AUTHOR_RESPONSE.id,
-				name: 'Jane Doe',
-				description: 'Writes about search.',
-				url: 'https://example.com/jane/',
-				meta: {
-					jetpack_seo_job_title: 'Lead Creator',
-					jetpack_seo_same_as: [ 'https://x.com/jane' ],
-				},
+		await waitFor( () => expect( saveEntity ).toHaveBeenCalled() );
+		// Save stages the full cleaned record. The user entity replaces meta edits,
+		// so both Jetpack keys ride the edit — the edited job title plus the
+		// untouched social profile.
+		expect( editEntity ).toHaveBeenLastCalledWith( {
+			name: 'Jane Doe',
+			description: 'Writes about search.',
+			url: 'https://example.com/jane/',
+			meta: {
+				jetpack_seo_job_title: 'Lead Creator',
+				jetpack_seo_same_as: [ 'https://x.com/jane' ],
 			},
-			{ throwOnError: true },
-		] );
-	} );
-
-	it( 'does not update state after unmounting during save', async () => {
-		mockAuthorEntity();
-		let resolveSave: ( value: unknown ) => void = () => {};
-		saveEntityRecord.mockImplementation(
-			() =>
-				new Promise( resolve => {
-					resolveSave = resolve;
-				} )
-		);
-		const { unmount } = renderCard();
-		expand();
-
-		const jobTitle = await screen.findByRole( 'textbox', { name: /Job title/ } );
-		// eslint-disable-next-line testing-library/prefer-user-event -- single change; see note above.
-		fireEvent.change( jobTitle, { target: { value: 'Lead Creator' } } );
-		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
-		fireEvent.click( screen.getByRole( 'button', { name: /Save author profile/ } ) );
-		expect( saveEntityRecord ).toHaveBeenCalled();
-
-		unmount();
-		await act( async () => {
-			resolveSave( AUTHOR_RESPONSE );
-			await Promise.resolve();
 		} );
-
-		expect( createSuccessNotice ).not.toHaveBeenCalled();
-		expect( createErrorNotice ).not.toHaveBeenCalled();
 	} );
 } );
