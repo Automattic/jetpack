@@ -6,8 +6,6 @@ PLUGIN_SLUG="jetpack-premium-analytics"
 PACKAGE_REPO_URL="${PACKAGE_REPO_URL:-https://github.com/Automattic/jetpack-premium-analytics.git}"
 PACKAGE_REF="trunk"
 PACKAGE_PATH=""
-OUTPUT_PATH=""
-KEEP_WORKDIR=0
 
 SCRIPT_DIR="$(
 	cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -17,7 +15,7 @@ PLUGIN_DIR="$(
 	cd "$SCRIPT_DIR/.."
 	pwd -P
 )"
-INITIAL_CWD="$(pwd -P)"
+OUTPUT_PATH="$PLUGIN_DIR/${PLUGIN_SLUG}.zip"
 
 usage() {
 	cat <<EOF
@@ -30,8 +28,6 @@ Usage:
 Options:
   --package-ref <ref>      Branch, tag, or SHA to fetch from the package mirror. Default: trunk
   --package-path <path>    Use a local Premium Analytics package checkout instead of cloning.
-  --output <path>          Zip file to create. Default: build/${PLUGIN_SLUG}.zip
-  --keep-workdir           Keep the temporary staging directory for debugging.
   -h, --help               Show this help text.
 
 Environment:
@@ -65,16 +61,6 @@ absolute_dir() {
 		cd "$path"
 		pwd -P
 	)
-}
-
-resolve_output_path() {
-	local path="$1"
-
-	if [[ "$path" == /* ]]; then
-		printf '%s\n' "$path"
-	else
-		printf '%s/%s\n' "$INITIAL_CWD" "$path"
-	fi
 }
 
 fetch_package_source() {
@@ -183,19 +169,6 @@ while [[ $# -gt 0 ]]; do
 			PACKAGE_PATH="${1#*=}"
 			shift
 			;;
-		--output)
-			[[ $# -ge 2 ]] || error "--output requires a value"
-			OUTPUT_PATH="$2"
-			shift 2
-			;;
-		--output=*)
-			OUTPUT_PATH="${1#*=}"
-			shift
-			;;
-		--keep-workdir)
-			KEEP_WORKDIR=1
-			shift
-			;;
 		-h|--help)
 			usage
 			exit 0
@@ -214,22 +187,11 @@ if [[ -z "$PACKAGE_PATH" ]]; then
 	require_command git
 fi
 
-if [[ -z "$OUTPUT_PATH" ]]; then
-	OUTPUT_PATH="$PLUGIN_DIR/build/${PLUGIN_SLUG}.zip"
-else
-	OUTPUT_PATH="$(resolve_output_path "$OUTPUT_PATH")"
-fi
-
 WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/${PLUGIN_SLUG}-zip.XXXXXX")"
 PACKAGE_SOURCE="$WORK_DIR/package-source"
 PLUGIN_STAGE="$WORK_DIR/$PLUGIN_SLUG"
 
 cleanup() {
-	if [[ "$KEEP_WORKDIR" -eq 1 ]]; then
-		log "Keeping work directory: $WORK_DIR"
-		return
-	fi
-
 	rm -rf "$WORK_DIR"
 }
 trap cleanup EXIT

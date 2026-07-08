@@ -20,14 +20,13 @@ composer build-zip
 
 By default, the script clones `trunk` from
 `https://github.com/Automattic/jetpack-premium-analytics.git` and writes the zip
-to `build/jetpack-premium-analytics.zip`.
+to `jetpack-premium-analytics.zip` in this plugin directory.
 
 Useful options:
 
 ```bash
 composer build-zip -- --package-ref <branch|tag|sha>
 composer build-zip -- --package-path /path/to/jetpack-premium-analytics
-composer build-zip -- --output /path/to/jetpack-premium-analytics.zip
 ```
 
 The package source must already contain the `build/build.php` output generated
