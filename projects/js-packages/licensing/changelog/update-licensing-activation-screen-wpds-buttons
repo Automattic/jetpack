@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Activation screen: migrate the license activation buttons and support links to @wordpress/ui primitives.

@@ -1,8 +1,9 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { Button, TextControl, SelectControl, Spinner } from '@wordpress/components';
+import { TextControl, SelectControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import ActivationScreenError from '../activation-screen-error';
@@ -213,9 +214,11 @@ const ActivationScreenControls = props => {
 				<Button
 					className="jp-license-activation-screen-controls--button"
 					onClick={ activateLicense }
-					disabled={ ! license }
+					disabled={ ! license || isActivating }
+					loading={ isActivating }
+					loadingAnnouncement={ __( 'Activating license…', 'jetpack-licensing' ) }
 				>
-					{ isActivating ? <Spinner /> : __( 'Activate', 'jetpack-licensing' ) }
+					{ __( 'Activate', 'jetpack-licensing' ) }
 				</Button>
 			</div>
 		</div>

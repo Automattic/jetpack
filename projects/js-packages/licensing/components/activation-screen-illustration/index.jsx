@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 
 import './style.scss';
@@ -25,7 +26,14 @@ const ActivationScreenIllustration = props => {
 					{ createInterpolateElement(
 						__( 'Do you need help? <a>Contact us.</a>', 'jetpack-licensing' ),
 						{
-							a: <a href={ getRedirectUrl( 'jetpack-support-license-activation' ) } />,
+							a: (
+								<Link
+									openInNewTab
+									href={ getRedirectUrl( 'jetpack-support-license-activation' ) }
+									rel="noopener noreferrer"
+									children={ null }
+								/>
+							),
 						}
 					) }
 				</p>
