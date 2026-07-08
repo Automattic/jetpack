@@ -35,10 +35,7 @@ const DEFAULT_MAX = 7;
 // also pass them via `attributes`. Compose the render-only shape to cover both.
 type AuthorsRenderAttributes = AuthorsAttributes & Partial< ReportParamsFieldAttributes >;
 
-type AuthorsWidgetProps = WidgetRenderProps< AuthorsRenderAttributes > & {
-	/**
-	 * Dashboard error handler.
-	 */
+type AuthorsRenderProps = WidgetRenderProps< AuthorsRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -90,7 +87,12 @@ export type AuthorsLeaderboardProps = {
  * is no Stats backend in Storybook, so the data-connected entry point would
  * only ever show chrome.
  *
- * @param {AuthorsLeaderboardProps} props - The component props.
+ * @param props                - Component props.
+ * @param props.rows           - Author rows to render.
+ * @param props.isLoading      - Whether to render the initial loading overlay.
+ * @param props.isRefetching   - Whether to layer a loading overlay over the chart.
+ * @param props.withComparison - Whether to render previous-period deltas.
+ * @param props.legendLabels   - Custom labels for the current/comparison periods.
  * @return The rendered leaderboard.
  */
 export function AuthorsLeaderboard( {
@@ -239,21 +241,15 @@ export function AuthorsLeaderboard( {
 	);
 }
 
-type AuthorsReportProps = {
-	/**
-	 * Maximum number of authors to display.
-	 */
-	max: number;
-};
-
 /**
  * Fetches the top-authors report through the Jetpack Stats hook, builds the
  * leaderboard rows, and hands them to the presentational `AuthorsLeaderboard`.
  *
- * @param {AuthorsReportProps} props - The component props.
+ * @param props     - Component props.
+ * @param props.max - Maximum number of authors to display.
  * @return The widget content.
  */
-function AuthorsReport( { max }: AuthorsReportProps ) {
+function AuthorsReport( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
@@ -308,10 +304,12 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
  * `attributes.reportParams` directly. The widget's own `max` is forwarded to
  * the inner component.
  *
- * @param {AuthorsWidgetProps} props - The widget render props.
+ * @param props            - Render props.
+ * @param props.attributes - Widget attributes.
+ * @param props.setError   - Dashboard error handler.
  * @return The rendered Authors widget.
  */
-export default function Authors( { attributes = {}, setError }: AuthorsWidgetProps ) {
+export default function Authors( { attributes = {}, setError }: AuthorsRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
 			<div className={ styles.root }>

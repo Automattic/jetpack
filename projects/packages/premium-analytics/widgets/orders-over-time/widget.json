@@ -2,6 +2,5 @@
 	"name": "jpa/orders-over-time",
 	"title": "Orders over time",
 	"description": "See a breakdown of when orders are placed to identify peak selling periods.",
-	"category": "orders",
-	"presentation": "framed"
+	"category": "orders"
 }

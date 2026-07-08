@@ -220,25 +220,10 @@ function toFileDownloadRows(
  * Props for `FileDownloadsLeaderboard`.
  */
 export type FileDownloadsLeaderboardProps = {
-	/**
-	 * Normalized download rows to render.
-	 */
 	rows?: FileDownloadRow[];
-	/**
-	 * When true, show a loading overlay.
-	 */
 	isLoading?: boolean;
-	/**
-	 * When true, show an error message.
-	 */
 	isError?: boolean;
-	/**
-	 * When true, render previous-period deltas.
-	 */
 	withComparison?: boolean;
-	/**
-	 * Custom error message to show when `isError` is true.
-	 */
 	errorMessage?: string;
 };
 
@@ -249,7 +234,12 @@ export type FileDownloadsLeaderboardProps = {
  * populated states. Exported so Storybook can exercise those states with
  * fixture rows without needing a live WordPress backend.
  *
- * @param {FileDownloadsLeaderboardProps} props - The component props.
+ * @param props                - Component props.
+ * @param props.rows           - Normalized download rows to render.
+ * @param props.isLoading      - When true, show a loading overlay.
+ * @param props.isError        - When true, show an error message.
+ * @param props.withComparison - When true, render previous-period deltas.
+ * @param props.errorMessage   - Custom error message to show when `isError` is true.
  * @return The rendered leaderboard.
  */
 export function FileDownloadsLeaderboard( {
@@ -287,20 +277,14 @@ export function FileDownloadsLeaderboard( {
 	);
 }
 
-type FileDownloadsInnerProps = {
-	/**
-	 * Max rows to display.
-	 */
-	max: number;
-};
-
 /**
  * Inner component — rendered inside WidgetRoot, reads dashboard context.
  *
- * @param {FileDownloadsInnerProps} props - The component props.
+ * @param props     - Props.
+ * @param props.max - Max rows to display.
  * @return The rendered leaderboard or state placeholder.
  */
-function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
+function FileDownloadsInner( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
 	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error } =
 		useStatsFileDownloads( reportParams as StatsReportParams );
@@ -339,7 +323,8 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
  * Shows the most-downloaded files as a ranked leaderboard. Date range comes
  * from the shared dashboard date picker via WidgetRoot.
  *
- * @param {FileDownloadsWidgetProps} props - The widget render props.
+ * @param props            - Render props.
+ * @param props.attributes - Widget attributes (max).
  * @return The rendered widget content.
  */
 export default function FileDownloadsWidget( { attributes = {} }: FileDownloadsWidgetProps ) {

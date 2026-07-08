@@ -18,7 +18,7 @@ import type { ComponentProps } from 'react';
 type TopPerformingBookingsRenderAttributes = TopPerformingBookingsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type TopPerformingBookingsWidgetProps =
+type TopPerformingBookingsRenderProps =
 	WidgetRenderProps< TopPerformingBookingsRenderAttributes > & {
 		setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 	};
@@ -29,14 +29,11 @@ type TopPerformingBookingsWidgetProps =
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; TopPerformingBookingsWidget
  * fetches booking product data and renders a revenue leaderboard.
- *
- * @param {TopPerformingBookingsWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function TopPerformingBookingsRender( {
 	attributes = {},
 	setError,
-}: TopPerformingBookingsWidgetProps ) {
+}: TopPerformingBookingsRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<TopPerformingBookingsWidget limit={ 5 } />

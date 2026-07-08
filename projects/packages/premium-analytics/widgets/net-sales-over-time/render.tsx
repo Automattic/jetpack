@@ -18,7 +18,7 @@ import type { ComponentProps } from 'react';
 type NetSalesOverTimeRenderAttributes = NetSalesOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type NetSalesOverTimeWidgetProps = WidgetRenderProps< NetSalesOverTimeRenderAttributes > & {
+type NetSalesOverTimeRenderProps = WidgetRenderProps< NetSalesOverTimeRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -28,14 +28,11 @@ type NetSalesOverTimeWidgetProps = WidgetRenderProps< NetSalesOverTimeRenderAttr
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; OrderMetricWidget fetches
  * the orders report and renders the net sales metric over time.
- *
- * @param {NetSalesOverTimeWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function NetSalesOverTimeRender( {
 	attributes = {},
 	setError,
-}: NetSalesOverTimeWidgetProps ) {
+}: NetSalesOverTimeRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget metricKey="orders_value_net" />

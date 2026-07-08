@@ -19,14 +19,14 @@ const PAYMENT_STATUS_RENDER_MODULE = 'storybook/payment-status';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type PaymentStatusWidgetProps = ComponentProps< typeof PaymentStatusRender >;
+type PaymentStatusRenderProps = ComponentProps< typeof PaymentStatusRender >;
 
 interface PaymentStatusStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type PaymentStatusStoryProps = PaymentStatusWidgetProps & PaymentStatusStoryControls;
+type PaymentStatusStoryProps = PaymentStatusRenderProps & PaymentStatusStoryControls;
 
 interface PaymentStatusDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -41,7 +41,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getPaymentStatusAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): PaymentStatusWidgetProps[ 'attributes' ] {
+): PaymentStatusRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

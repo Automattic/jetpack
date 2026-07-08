@@ -18,7 +18,7 @@ import type { ComponentProps } from 'react';
 type ConversionRateRenderAttributes = ConversionRateAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type ConversionRateWidgetProps = WidgetRenderProps< ConversionRateRenderAttributes > & {
+type ConversionRateRenderProps = WidgetRenderProps< ConversionRateRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -28,14 +28,11 @@ type ConversionRateWidgetProps = WidgetRenderProps< ConversionRateRenderAttribut
  * Thin composition over WidgetRoot: WidgetRoot provides the query client,
  * chart theme, and resolved report params; ConversionRateWidget fetches the
  * conversion-rate report and renders the funnel.
- *
- * @param {ConversionRateWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function ConversionRateRender( {
 	attributes = {},
 	setError,
-}: ConversionRateWidgetProps ) {
+}: ConversionRateRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<ConversionRateWidget />

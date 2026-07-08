@@ -136,15 +136,15 @@ const TOP_PERFORMING_PRODUCTS_RENDER_MODULE = 'storybook/top-performing-products
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type TopPerformingProductsWidgetProps = ComponentProps< typeof TopPerformingProductsRender >;
-const noopSetError: TopPerformingProductsWidgetProps[ 'setError' ] = () => undefined;
+type TopPerformingProductsRenderProps = ComponentProps< typeof TopPerformingProductsRender >;
+const noopSetError: TopPerformingProductsRenderProps[ 'setError' ] = () => undefined;
 
 interface TopPerformingProductsStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type TopPerformingProductsStoryProps = TopPerformingProductsWidgetProps &
+type TopPerformingProductsStoryProps = TopPerformingProductsRenderProps &
 	TopPerformingProductsStoryControls;
 
 interface TopPerformingProductsDashboardStoryProps
@@ -160,7 +160,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getTopPerformingProductsAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): TopPerformingProductsWidgetProps[ 'attributes' ] {
+): TopPerformingProductsRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

@@ -23,7 +23,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 // totals are all-time: the summary query takes no date params, so the picker's
 // range and comparison state do not change what this widget shows.
 type AllTimeStatsRenderAttributes = AllTimeStatsAttributes & Partial< ReportParamsFieldAttributes >;
-type AllTimeStatsWidgetProps = WidgetRenderProps< AllTimeStatsRenderAttributes >;
 
 /**
  * The all-time summary carries dynamic WPCOM keys (`views`, `visitors`,
@@ -131,10 +130,13 @@ function AllTimeStatsReport() {
  * range; report params still flow into WidgetRoot for parity with the other
  * Stats widgets.
  *
- * @param {AllTimeStatsWidgetProps} props - The widget render props.
+ * @param props            - Render props supplied by the widget host.
+ * @param props.attributes - Widget attributes.
  * @return The rendered widget.
  */
-export default function AllTimeStats( { attributes = {} }: AllTimeStatsWidgetProps ) {
+export default function AllTimeStats( {
+	attributes = {},
+}: WidgetRenderProps< AllTimeStatsRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<AllTimeStatsReport />

@@ -31,7 +31,7 @@ function Dashboard(): JSX.Element {
 		DASHBOARD_NAME,
 		activeSection
 	);
-	const [ gridSettings ] = useDashboardGridSettings();
+	const [ gridSettings, setGridSettings ] = useDashboardGridSettings();
 
 	const widgetModules = useSelect(
 		select =>
@@ -74,6 +74,7 @@ function Dashboard(): JSX.Element {
 				onLayoutChange={ setLayout }
 				onLayoutReset={ resetLayout }
 				gridSettings={ gridSettings }
+				onGridSettingsChange={ setGridSettings }
 				editMode={ editMode }
 				onEditChange={ setEditMode }
 			>

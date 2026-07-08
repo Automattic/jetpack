@@ -19,14 +19,14 @@ const NEW_VS_RETURNING_CUSTOMER_RENDER_MODULE = 'storybook/new-vs-returning-cust
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type NewVsReturningCustomerWidgetProps = ComponentProps< typeof NewVsReturningCustomerRender >;
+type NewVsReturningCustomerRenderProps = ComponentProps< typeof NewVsReturningCustomerRender >;
 
 interface NewVsReturningCustomerStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type NewVsReturningCustomerStoryProps = NewVsReturningCustomerWidgetProps &
+type NewVsReturningCustomerStoryProps = NewVsReturningCustomerRenderProps &
 	NewVsReturningCustomerStoryControls;
 
 interface NewVsReturningCustomerDashboardStoryProps
@@ -42,7 +42,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getNewVsReturningCustomerAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): NewVsReturningCustomerWidgetProps[ 'attributes' ] {
+): NewVsReturningCustomerRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

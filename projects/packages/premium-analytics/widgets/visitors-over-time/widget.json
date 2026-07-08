@@ -2,6 +2,5 @@
 	"name": "jpa/visitors-over-time",
 	"title": "Visitors over time",
 	"description": "Track website visitor trends and monitor traffic patterns over time.",
-	"category": "visitors",
-	"presentation": "framed"
+	"category": "visitors"
 }

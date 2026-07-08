@@ -23,7 +23,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 // Storybook) may still inject them via `attributes`, so accept them here.
 type MostPopularDayRenderAttributes = MostPopularDayAttributes &
 	Partial< ReportParamsFieldAttributes >;
-type MostPopularDayWidgetProps = WidgetRenderProps< MostPopularDayRenderAttributes >;
 
 type MostPopularDayHighlightProps = {
 	/**
@@ -199,10 +198,12 @@ function MostPopularDayReport() {
  * attributes are passed through for the widget contract even though this
  * highlight ignores report params.
  *
- * @param {MostPopularDayWidgetProps} props - The widget render props.
+ * @param {WidgetRenderProps< MostPopularDayRenderAttributes >} props - The render props supplied by the widget host.
  * @return The rendered widget.
  */
-export default function MostPopularDay( { attributes = {} }: MostPopularDayWidgetProps ) {
+export default function MostPopularDay( {
+	attributes = {},
+}: WidgetRenderProps< MostPopularDayRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<MostPopularDayReport />

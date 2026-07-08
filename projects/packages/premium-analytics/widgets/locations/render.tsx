@@ -18,7 +18,8 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useEffect, useMemo } from '@wordpress/element';
+import { SelectControl } from '@wordpress/components';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -39,28 +40,30 @@ type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
 /**
  * Locations widget inner component. Reads report params from WidgetRoot context.
  *
- * @param {LocationsAttributes} attributes - The widget attributes.
+ * @param root0     - Component props.
+ * @param root0.max - Maximum rows to display.
  * @return The rendered widget content.
  */
-function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
+function LocationsInner( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
 
+	const [ topMode, setTopMode ] = useState< 'country' | 'city' >( 'country' );
 	const {
 		drillDownItem: selectedCountry,
 		drillDown: selectCountry,
 		resetDrillDown: clearSelectedCountry,
 	} = useWidgetDrillDown< { code: string; name: string } >();
 
-	// The "View by" control lives in the widget host header (the
-	// `relevance: 'high'` attribute); changing it resets any drill-down.
-	useEffect( () => {
-		clearSelectedCountry();
-	}, [ geoGranularity, clearSelectedCountry ] );
+	const handleModeChange = useCallback(
+		( value: string ) => {
+			setTopMode( value as 'country' | 'city' );
+			clearSelectedCountry();
+		},
+		[ clearSelectedCountry ]
+	);
 
-	// City mode disables drill-down; in country mode a selected country switches
-	// the report to its regions. City wins while the reset effect above settles.
-	const drillMode: GeoMode = selectedCountry ? 'region' : 'country';
-	const geoMode: GeoMode = geoGranularity === 'city' ? 'city' : drillMode;
+	// Drill-down (region) takes priority over topMode; city mode disables drill-down.
+	const geoMode: GeoMode = selectedCountry ? 'region' : topMode;
 
 	const { data, comparisonData, hasComparison, isLoading, isFetching, hasData, isError } =
 		useLocationViews( {
@@ -73,7 +76,7 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 
 	const geoData = useMemo( (): GeoData => {
 		const header: GoogleDataTableColumn[] = [
-			geoMode === 'city'
+			geoMode === 'region' || geoMode === 'city'
 				? __( 'Location', 'jetpack-premium-analytics' )
 				: __( 'Country', 'jetpack-premium-analytics' ),
 			__( 'Views', 'jetpack-premium-analytics' ),
@@ -146,27 +149,51 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 		/>
 	) : null;
 
+	const bodyHeader = (
+		<Stack direction="row" align="center" className={ styles.bodyHeader }>
+			{ backLink }
+			<SelectControl
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+				label={ __( 'View by', 'jetpack-premium-analytics' ) }
+				hideLabelFromVision
+				value={ topMode }
+				options={ [
+					{ label: __( 'Countries', 'jetpack-premium-analytics' ), value: 'country' },
+					{ label: __( 'Cities', 'jetpack-premium-analytics' ), value: 'city' },
+				] }
+				onChange={ handleModeChange }
+				className={ styles.modeSelect }
+			/>
+		</Stack>
+	);
+
 	if ( isLoading && data.length === 0 ) {
-		return <WidgetLoadingOverlay />;
+		return (
+			<div className={ styles.content }>
+				{ bodyHeader }
+				<WidgetLoadingOverlay />
+			</div>
+		);
 	}
 
 	if ( isError ) {
 		return (
-			<>
-				{ backLink }
+			<div className={ styles.content }>
+				{ bodyHeader }
 				<Stack align="center" justify="center" className={ styles.placeholder }>
 					<Text>{ __( 'Could not load location data.', 'jetpack-premium-analytics' ) }</Text>
 				</Stack>
-			</>
+			</div>
 		);
 	}
 
 	// Explicit empty branch (rather than emptyStateText on LeaderboardChart) keeps the
-	// back link visible so users can drill back up from an empty region view.
+	// header and "View by" selector visible so users can switch mode or drill back up.
 	if ( ! data.length ) {
 		return (
-			<>
-				{ backLink }
+			<div className={ styles.content }>
+				{ bodyHeader }
 				<Stack align="center" justify="center" className={ styles.placeholder }>
 					<Text>
 						{ __(
@@ -175,14 +202,14 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 						) }
 					</Text>
 				</Stack>
-			</>
+			</div>
 		);
 	}
 
 	return (
-		<>
+		<div className={ styles.content }>
+			{ bodyHeader }
 			{ showLoading && <WidgetLoadingOverlay /> }
-			{ backLink }
 			<div className={ clsx( styles.chartArea, geoMode === 'city' && styles.noMap ) }>
 				<LeaderboardChart
 					data={ leaderboardData }
@@ -195,7 +222,6 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 					} }
 					className={ styles.leaderboard }
 				/>
-
 				{ geoMode !== 'city' && (
 					<div className={ styles.geoChart }>
 						<GeoChart
@@ -207,7 +233,7 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 					</div>
 				) }
 			</div>
-		</>
+		</div>
 	);
 }
 
@@ -216,17 +242,17 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
  * leaderboard. Click a country to drill into its regions. Ported from the
  * Jetpack Stats Locations module.
  *
- * @param {LocationsWidgetProps} props - The widget render props.
+ * @param root0            - Render props.
+ * @param root0.attributes - Widget attributes (max).
  * @return The rendered Locations widget.
  */
 export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	const max = attributes?.max ?? 10;
-	const geoGranularity = attributes?.geoGranularity ?? 'country';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<LocationsInner max={ max } geoGranularity={ geoGranularity } />
+				<LocationsInner max={ max } />
 			</div>
 		</WidgetRoot>
 	);

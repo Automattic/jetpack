@@ -3,7 +3,6 @@
  */
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Configurable attributes for the Videos widget. Mirrors the `attributes`
@@ -30,9 +29,9 @@ export default {
 		{
 			id: 'max',
 			label: __( 'Maximum videos', 'jetpack-premium-analytics' ),
-			type: 'integer',
+			type: 'integer' as const,
 		},
-	] as WidgetAttributeField< VideosAttributes >[],
+	],
 	example: {
 		attributes: {
 			max: 7,

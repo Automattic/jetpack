@@ -20,17 +20,8 @@ export interface PlatformView {
 }
 
 interface UsePlatformViewsArgs {
-	/**
-	 * PA ReportParams from WidgetRoot context.
-	 */
 	reportParams: ReportParams;
-	/**
-	 * Maximum rows to display (0 = all).
-	 */
 	max: number;
-	/**
-	 * 'browser' or 'platform' (OS).
-	 */
 	deviceProperty: 'browser' | 'platform';
 }
 
@@ -88,7 +79,10 @@ function toPlatformView(
 /**
  * Fetch platform views (browser or OS) via the shared Stats data layer.
  *
- * @param {UsePlatformViewsArgs} args - Hook arguments.
+ * @param args                - Hook arguments.
+ * @param args.reportParams   - PA ReportParams from WidgetRoot context.
+ * @param args.max            - Maximum rows to display (0 = all).
+ * @param args.deviceProperty - 'browser' or 'platform' (OS).
  * @return The current data/loading/error state.
  */
 export default function usePlatformViews( {

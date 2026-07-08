@@ -18,7 +18,7 @@ import type { ComponentProps } from 'react';
 type GrossSalesOverTimeRenderAttributes = GrossSalesOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type GrossSalesOverTimeWidgetProps = WidgetRenderProps< GrossSalesOverTimeRenderAttributes > & {
+type GrossSalesOverTimeRenderProps = WidgetRenderProps< GrossSalesOverTimeRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -28,14 +28,11 @@ type GrossSalesOverTimeWidgetProps = WidgetRenderProps< GrossSalesOverTimeRender
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; OrderMetricWidget fetches
  * the orders report and renders the gross sales metric over time.
- *
- * @param {GrossSalesOverTimeWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function GrossSalesOverTimeRender( {
 	attributes = {},
 	setError,
-}: GrossSalesOverTimeWidgetProps ) {
+}: GrossSalesOverTimeRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget metricKey="orders_value_gross" />

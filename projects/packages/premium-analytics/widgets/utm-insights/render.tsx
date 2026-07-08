@@ -1,7 +1,8 @@
 /**
  * WordPress dependencies
  */
-import { useEffect, useMemo } from '@wordpress/element';
+import { SelectControl } from '@wordpress/components';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import {
@@ -28,49 +29,71 @@ import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
-type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
-const DEFAULT_UTM_DIMENSION: StatsUtmParam = 'utm_source,utm_medium';
+const DEFAULT_UTM_PARAM: StatsUtmParam = 'utm_source,utm_medium';
+
+const UTM_PARAM_OPTIONS: { label: string; value: StatsUtmParam }[] = [
+	{
+		label: __( 'Source / Medium', 'jetpack-premium-analytics' ),
+		value: 'utm_source,utm_medium',
+	},
+	{
+		label: __( 'Campaign / Source / Medium', 'jetpack-premium-analytics' ),
+		value: 'utm_campaign,utm_source,utm_medium',
+	},
+	{ label: __( 'Source', 'jetpack-premium-analytics' ), value: 'utm_source' },
+	{ label: __( 'Medium', 'jetpack-premium-analytics' ), value: 'utm_medium' },
+	{ label: __( 'Campaign', 'jetpack-premium-analytics' ), value: 'utm_campaign' },
+];
 
 type UtmInsightsInnerProps = {
-	/**
-	 * Active UTM dimension.
-	 */
-	utmDimension: StatsUtmParam;
-	/**
-	 * Max rows to display.
-	 */
+	utmParam: StatsUtmParam;
 	max: number;
+	setAttributes?: NonNullable<
+		WidgetRenderProps< UtmInsightsRenderAttributes >[ 'setAttributes' ]
+	>;
 };
 
 /**
  * Inner component — rendered inside WidgetRoot.
  *
- * @param {UtmInsightsInnerProps} props - The component props.
+ * @param props               - Props.
+ * @param props.utmParam      - Active UTM dimension.
+ * @param props.max           - Max rows to display.
+ * @param props.setAttributes - Optional widget attribute setter (persists utmParam selection).
  * @return The rendered leaderboard or state placeholder.
  */
-function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
+function UtmInsightsInner( { utmParam, max, setAttributes }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
+	const [ activeUtmParam, setActiveUtmParam ] = useState< StatsUtmParam >( utmParam );
 	const {
 		drillDownItem: selectedUtmLabel,
 		drillDown: selectUtmLabel,
 		resetDrillDown: clearSelectedUtm,
 	} = useWidgetDrillDown< string >();
 
-	// The "UTM parameter" control lives in the widget host header (the
-	// `relevance: 'high'` attribute); changing it resets any drill-down.
 	useEffect( () => {
+		setActiveUtmParam( utmParam );
 		clearSelectedUtm();
-	}, [ clearSelectedUtm, utmDimension ] );
+	}, [ clearSelectedUtm, utmParam ] );
+
+	const handleParamChange = useCallback(
+		( value: string ) => {
+			const nextUtmParam = value as StatsUtmParam;
+			clearSelectedUtm();
+			setActiveUtmParam( nextUtmParam );
+			setAttributes?.( { utmParam: nextUtmParam } );
+		},
+		[ clearSelectedUtm, setAttributes ]
+	);
 
 	const { data, hasComparison, isLoading, isFetching, hasData, isError } = useUtmInsights( {
 		reportParams,
-		utmParam: utmDimension,
+		utmParam: activeUtmParam,
 		max,
 	} );
-
 	const showLoading = isLoading || ( isFetching && hasData );
 	const selectedUtm = useMemo(
 		() => data.find( item => item.label === selectedUtmLabel ) ?? null,
@@ -123,29 +146,45 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 		/>
 	) : null;
 
+	const bodyHeader = (
+		<Stack direction="row" align="center" className={ styles.bodyHeader }>
+			{ backLink }
+			<SelectControl
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+				label={ __( 'UTM parameter', 'jetpack-premium-analytics' ) }
+				hideLabelFromVision
+				value={ activeUtmParam }
+				options={ UTM_PARAM_OPTIONS }
+				onChange={ handleParamChange }
+				className={ styles.paramSelect }
+			/>
+		</Stack>
+	);
+
 	if ( isError ) {
 		return (
-			<>
-				{ backLink }
+			<div className={ styles.content }>
+				{ bodyHeader }
 				<Stack align="center" justify="center" className={ styles.placeholder }>
 					<Text>{ __( 'Could not load UTM data.', 'jetpack-premium-analytics' ) }</Text>
 				</Stack>
-			</>
+			</div>
 		);
 	}
 
 	if ( isLoading && data.length === 0 ) {
 		return (
-			<>
-				{ backLink }
+			<div className={ styles.content }>
+				{ bodyHeader }
 				<WidgetLoadingOverlay />
-			</>
+			</div>
 		);
 	}
 
 	return (
-		<>
-			{ backLink }
+		<div className={ styles.content }>
+			{ bodyHeader }
 			<LeaderboardChart
 				data={ leaderboardData }
 				loading={ showLoading }
@@ -154,9 +193,8 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 				showLegend={ false }
 				emptyStateText={ __( 'No UTM data in this period.', 'jetpack-premium-analytics' ) }
 				dataFormat={ DATA_FORMAT }
-				className={ styles.leaderboard }
 			/>
-		</>
+		</div>
 	);
 }
 
@@ -164,20 +202,25 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
  * UTM Insights widget render component.
  *
  * Shows traffic breakdown by UTM parameter as a ranked leaderboard. The active
- * dimension (source/medium, campaign, etc.) is the `utmDimension` attribute
- * (`relevance: 'high'`), exposed as a control by the widget host.
+ * dimension (source/medium, campaign, etc.) is switched via a dropdown in the
+ * widget header and persisted in widget attributes.
  *
- * @param {UtmInsightsWidgetProps} props - The widget render props.
+ * @param props               - Render props.
+ * @param props.attributes    - Widget attributes (utmParam, max).
+ * @param props.setAttributes - Attribute setter.
  * @return The rendered widget content.
  */
-export default function UtmInsightsWidget( { attributes = {} }: UtmInsightsWidgetProps ) {
-	const utmDimension = attributes.utmDimension ?? DEFAULT_UTM_DIMENSION;
+export default function UtmInsightsWidget( {
+	attributes = {},
+	setAttributes,
+}: WidgetRenderProps< UtmInsightsRenderAttributes > ) {
+	const utmParam = attributes.utmParam ?? DEFAULT_UTM_PARAM;
 	const max = attributes.max ?? 10;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<UtmInsightsInner utmDimension={ utmDimension } max={ max } />
+				<UtmInsightsInner utmParam={ utmParam } max={ max } setAttributes={ setAttributes } />
 			</div>
 		</WidgetRoot>
 	);

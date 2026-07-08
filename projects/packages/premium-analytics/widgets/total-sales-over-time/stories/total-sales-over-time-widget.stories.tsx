@@ -22,14 +22,14 @@ const ensureLineChartComposition = () => LineChart.Legend;
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type TotalSalesOverTimeWidgetProps = ComponentProps< typeof TotalSalesOverTimeRender >;
+type TotalSalesOverTimeRenderProps = ComponentProps< typeof TotalSalesOverTimeRender >;
 
 interface TotalSalesOverTimeStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type TotalSalesOverTimeStoryProps = TotalSalesOverTimeWidgetProps & TotalSalesOverTimeStoryControls;
+type TotalSalesOverTimeStoryProps = TotalSalesOverTimeRenderProps & TotalSalesOverTimeStoryControls;
 
 interface TotalSalesOverTimeDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -44,7 +44,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getTotalSalesOverTimeAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): TotalSalesOverTimeWidgetProps[ 'attributes' ] {
+): TotalSalesOverTimeRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

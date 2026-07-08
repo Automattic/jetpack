@@ -18,7 +18,7 @@ import type { ComponentProps } from 'react';
 type PaymentStatusRenderAttributes = PaymentStatusAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type PaymentStatusWidgetProps = WidgetRenderProps< PaymentStatusRenderAttributes > & {
+type PaymentStatusRenderProps = WidgetRenderProps< PaymentStatusRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -28,14 +28,11 @@ type PaymentStatusWidgetProps = WidgetRenderProps< PaymentStatusRenderAttributes
  * Thin composition over WidgetRoot: WidgetRoot provides the query client,
  * chart theme, and resolved report params; PaymentStatusWidget renders the
  * paid vs unpaid order revenue donut chart.
- *
- * @param {PaymentStatusWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function PaymentStatusRender( {
 	attributes = {},
 	setError,
-}: PaymentStatusWidgetProps ) {
+}: PaymentStatusRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<PaymentStatusWidget />

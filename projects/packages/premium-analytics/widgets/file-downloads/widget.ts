@@ -3,15 +3,13 @@
  */
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Configurable attributes for the File downloads widget.
+ *
+ * @property max - Maximum rows to display (0 = all). Defaults to 10.
  */
 export type FileDownloadsAttributes = {
-	/**
-	 * Maximum rows to display (0 = all). Defaults to 10.
-	 */
 	max?: number;
 };
 
@@ -32,7 +30,7 @@ export default {
 			label: __( 'Max rows', 'jetpack-premium-analytics' ),
 			type: 'number',
 		},
-	] as WidgetAttributeField< FileDownloadsAttributes >[],
+	],
 	example: {
 		attributes: {
 			max: 10,

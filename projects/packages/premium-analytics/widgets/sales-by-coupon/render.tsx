@@ -18,7 +18,7 @@ import type { ComponentProps } from 'react';
 type SalesByCouponRenderAttributes = SalesByCouponAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type SalesByCouponWidgetProps = WidgetRenderProps< SalesByCouponRenderAttributes > & {
+type SalesByCouponRenderProps = WidgetRenderProps< SalesByCouponRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -28,14 +28,11 @@ type SalesByCouponWidgetProps = WidgetRenderProps< SalesByCouponRenderAttributes
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; SalesByCouponWidget fetches
  * the coupons report and renders the coupon revenue breakdown.
- *
- * @param {SalesByCouponWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function SalesByCouponRender( {
 	attributes = {},
 	setError,
-}: SalesByCouponWidgetProps ) {
+}: SalesByCouponRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<SalesByCouponWidget />

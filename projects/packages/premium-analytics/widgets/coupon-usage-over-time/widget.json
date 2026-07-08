@@ -2,6 +2,5 @@
 	"name": "jpa/coupon-usage-over-time",
 	"title": "Coupon usage over time",
 	"description": "Coupon usage over the selected time period.",
-	"category": "coupons",
-	"presentation": "framed"
+	"category": "coupons"
 }

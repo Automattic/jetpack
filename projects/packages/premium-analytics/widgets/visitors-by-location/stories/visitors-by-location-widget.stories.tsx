@@ -19,14 +19,14 @@ const VISITORS_BY_LOCATION_RENDER_MODULE = 'storybook/visitors-by-location';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type VisitorsByLocationWidgetProps = ComponentProps< typeof VisitorsByLocationRender >;
+type VisitorsByLocationRenderProps = ComponentProps< typeof VisitorsByLocationRender >;
 
 interface VisitorsByLocationStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type VisitorsByLocationStoryProps = VisitorsByLocationWidgetProps & VisitorsByLocationStoryControls;
+type VisitorsByLocationStoryProps = VisitorsByLocationRenderProps & VisitorsByLocationStoryControls;
 
 interface VisitorsByLocationDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -43,7 +43,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getVisitorsByLocationAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): VisitorsByLocationWidgetProps[ 'attributes' ] {
+): VisitorsByLocationRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

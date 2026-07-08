@@ -18,7 +18,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type SalesByUtmCampaignRenderAttributes = SalesByUtmCampaignAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type SalesByUtmCampaignWidgetProps = WidgetRenderProps< SalesByUtmCampaignRenderAttributes > & {
+type SalesByUtmCampaignRenderProps = WidgetRenderProps< SalesByUtmCampaignRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -27,14 +27,11 @@ type SalesByUtmCampaignWidgetProps = WidgetRenderProps< SalesByUtmCampaignRender
  *
  * WidgetRoot provides the query client, chart theme, and resolved report params;
  * the shared SalesByUtmWidget renders the campaign leaderboard.
- *
- * @param {SalesByUtmCampaignWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function SalesByUtmCampaignRender( {
 	attributes = {},
 	setError,
-}: SalesByUtmCampaignWidgetProps ) {
+}: SalesByUtmCampaignRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<SalesByUtmWidget view="campaign" />

@@ -15,10 +15,7 @@ import type { ComponentProps } from 'react';
 type AverageOrderValueRenderAttributes = AverageOrderValueAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type AverageOrderValueWidgetProps = WidgetRenderProps< AverageOrderValueRenderAttributes > & {
-	/**
-	 * Dashboard error handler.
-	 */
+type AverageOrderValueRenderProps = WidgetRenderProps< AverageOrderValueRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -29,14 +26,11 @@ type AverageOrderValueWidgetProps = WidgetRenderProps< AverageOrderValueRenderAt
  * client, chart theme, and resolved report params; OrderMetricWidget fetches
  * the orders report and renders the average_order_value metric with a
  * comparison delta and sparkline.
- *
- * @param {AverageOrderValueWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function AverageOrderValueRender( {
 	attributes = {},
 	setError,
-}: AverageOrderValueWidgetProps ) {
+}: AverageOrderValueRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget metricKey="average_order_value" />

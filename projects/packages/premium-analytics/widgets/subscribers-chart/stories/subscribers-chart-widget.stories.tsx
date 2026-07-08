@@ -52,7 +52,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Subscriber growth over time. The date range and previous-period comparison follow the dashboard picker; the "Group by" control is the `granularity` attribute (`relevance: \'high\'`), exposed by the widget host, and chooses the bucket size (day/week/month) within that range. When comparison is on, the previous period is overlaid as a same-colour dashed line and the headline shows the period-over-period delta. Paid subscribers render as a second line when present. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.',
+					'Subscriber growth over time. The date range and previous-period comparison follow the dashboard picker; the in-body "Group by" dropdown chooses the bucket size (day/week/month) within that range. When comparison is on, the previous period is overlaid as a same-colour dashed line and the headline shows the period-over-period delta. Paid subscribers render as a second line when present. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.',
 			},
 		},
 	},

@@ -5,28 +5,20 @@ import { buildVideoPlaysData } from '../build-video-plays-data';
 import type { StatsNormalizedReport, StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 
 type VideoSeed = {
-	/**
-	 * Stable post ID (omitted when testing the link/label fallback).
-	 */
 	id?: string | number;
-	/**
-	 * Display label (defaults to `Video`).
-	 */
 	label?: string;
-	/**
-	 * Play count for the period.
-	 */
 	plays: number;
-	/**
-	 * Video URL (used as the alignment key when `id` is absent).
-	 */
 	link?: string | null;
 };
 
 /**
  * Builds a single normalized video-plays item from a compact seed.
  *
- * @param {VideoSeed} seed - The video seed.
+ * @param seed       - The video seed.
+ * @param seed.id    - Stable post ID (omitted when testing the link/label fallback).
+ * @param seed.label - Display label (defaults to `Video`).
+ * @param seed.plays - Play count for the period.
+ * @param seed.link  - Video URL (used as the alignment key when `id` is absent).
  * @return A normalized video-plays item.
  */
 function makeVideo( { id, label = 'Video', plays, link = null }: VideoSeed ): StatsVideoPlaysItem {

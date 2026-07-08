@@ -19,14 +19,14 @@ const ORDERS_FULFILLMENT_RENDER_MODULE = 'storybook/orders-fulfillment';
 const DEFAULT_PRESET = 'last-30-days' satisfies SelectablePresetId;
 const PRESET_OPTIONS = SELECTABLE_PRESETS;
 
-type OrdersFulfillmentWidgetProps = ComponentProps< typeof OrdersFulfillmentRender >;
+type OrdersFulfillmentRenderProps = ComponentProps< typeof OrdersFulfillmentRender >;
 
 interface OrdersFulfillmentStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type OrdersFulfillmentStoryProps = OrdersFulfillmentWidgetProps & OrdersFulfillmentStoryControls;
+type OrdersFulfillmentStoryProps = OrdersFulfillmentRenderProps & OrdersFulfillmentStoryControls;
 
 interface OrdersFulfillmentDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
@@ -41,7 +41,7 @@ const withWidgetCanvas: Decorator = Story => (
 function getOrdersFulfillmentAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): OrdersFulfillmentWidgetProps[ 'attributes' ] {
+): OrdersFulfillmentRenderProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};

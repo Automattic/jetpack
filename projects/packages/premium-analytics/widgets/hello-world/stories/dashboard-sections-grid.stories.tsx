@@ -15,8 +15,6 @@ type StoryWidgetAttributes = {
 	title: string;
 };
 
-type StoryWidgetProps = WidgetRenderProps< StoryWidgetAttributes >;
-
 const widgetTypes: WidgetType< StoryWidgetAttributes >[] = [
 	{
 		apiVersion: 1,
@@ -62,10 +60,11 @@ const initialLayout: DashboardWidget[] = [
 /**
  * Story-only widget renderer.
  *
- * @param {StoryWidgetProps} props - Widget render props.
+ * @param props            - Widget render props.
+ * @param props.attributes - Story widget attributes.
  * @return Rendered story widget.
  */
-function StoryWidget( { attributes }: StoryWidgetProps ) {
+function StoryWidget( { attributes }: WidgetRenderProps< StoryWidgetAttributes > ) {
 	return (
 		<div
 			style={ {

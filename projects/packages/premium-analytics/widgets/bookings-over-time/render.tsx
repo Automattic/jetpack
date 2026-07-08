@@ -18,10 +18,7 @@ import type { ComponentProps } from 'react';
 type BookingsOverTimeRenderAttributes = BookingsOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type BookingsOverTimeWidgetProps = WidgetRenderProps< BookingsOverTimeRenderAttributes > & {
-	/**
-	 * Dashboard error handler.
-	 */
+type BookingsOverTimeRenderProps = WidgetRenderProps< BookingsOverTimeRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -31,14 +28,11 @@ type BookingsOverTimeWidgetProps = WidgetRenderProps< BookingsOverTimeRenderAttr
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; BookingOrderMetricWidget
  * fetches the bookings report and renders the order count metric over time.
- *
- * @param {BookingsOverTimeWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function BookingsOverTimeRender( {
 	attributes = {},
 	setError,
-}: BookingsOverTimeWidgetProps ) {
+}: BookingsOverTimeRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<BookingOrderMetricWidget metricKey="orders_no" />
