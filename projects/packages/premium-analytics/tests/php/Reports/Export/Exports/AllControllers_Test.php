@@ -11,8 +11,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Csv_Report_Controller_Interface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Report_Registry;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\CSVReportControllerInterface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\ReportRegistry;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -25,7 +25,17 @@ class AllControllers_Test extends TestCase {
 	 */
 	public static function controller_provider(): array {
 		$classes = array(
-			Orders_Over_Time_Controller::class,
+			AverageItemsPerOrderController::class,
+			AverageOrderValueController::class,
+			ConversionRateOverTimeController::class,
+			CouponUseOverTimeController::class,
+			GrossSalesOverTimeController::class,
+			NetSalesOverTimeController::class,
+			OrdersFulfilledOverTimeController::class,
+			OrdersOverTimeController::class,
+			RefundsOverTimeController::class,
+			TaxesOverTimeController::class,
+			VisitorsOverTimeController::class,
 		);
 
 		$cases = array();
@@ -35,8 +45,8 @@ class AllControllers_Test extends TestCase {
 		return $cases;
 	}
 
-	private function make( string $class ): Csv_Report_Controller_Interface {
-		return new $class( new Report_Registry() );
+	private function make( string $class ): CSVReportControllerInterface {
+		return new $class( ReportRegistry::instance() );
 	}
 
 	/**
@@ -83,6 +93,6 @@ class AllControllers_Test extends TestCase {
 		}
 
 		$this->assertSame( $keys, array_unique( $keys ), 'report keys must be unique across controllers' );
-		$this->assertCount( 1, $keys );
+		$this->assertCount( 11, $keys );
 	}
 }

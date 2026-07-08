@@ -4,7 +4,7 @@
  *
  * Hand-wires the CSV export subsystem (no DI container) and registers it, gated on
  * WooCommerce being active and Jetpack being connected. The data source is the package's
- * own analytics proxy (see Report_Data_Fetcher).
+ * own analytics proxy (see ReportDataFetcher).
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export
  */
@@ -14,8 +14,18 @@ declare( strict_types=1 );
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Debug_Logger;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\AverageItemsPerOrderController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\AverageOrderValueController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\ConversionRateOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\CouponUseOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\GrossSalesOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\NetSalesOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersFulfilledOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\RefundsOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\TaxesOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\VisitorsOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\DebugLogger;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -62,24 +72,34 @@ class Export {
 
 		self::$initialized = true;
 
-		$logger     = new Debug_Logger( \wc_get_logger() );
-		$registry   = new Report_Registry();
-		$fetcher    = new Report_Data_Fetcher( $logger );
-		$generator  = new Report_Csv_Generator( $logger );
-		$email      = new Csv_Export_Email( $logger );
-		$scheduler  = new Csv_Export_Scheduler( $registry, $fetcher, $generator, $email, $logger );
-		$controller = new Csv_Export_Controller( $registry, $fetcher, $generator, $scheduler, $logger );
+		$logger     = new DebugLogger( \wc_get_logger() );
+		$registry   = ReportRegistry::instance();
+		$fetcher    = new ReportDataFetcher( $logger );
+		$generator  = new ReportCSVGenerator( $logger );
+		$email      = new CSVExportEmail( $logger );
+		$scheduler  = new CSVExportScheduler( $registry, $fetcher, $generator, $email, $logger );
+		$controller = new CSVExportController( $registry, $fetcher, $generator, $scheduler, $logger );
 
-		// Registrable_Interface implementers: hook their routes / actions / email class.
+		// RegistrableInterface implementers: hook their routes / actions / email class.
 		$controller->register();
 		$scheduler->register();
 		$email->register();
 
-		// Report-type controllers self-register into the Report_Registry on register().
+		// Report-type controllers self-register into the ReportRegistry on register().
 		// Ported faithfully from woocommerce/woocommerce-analytics (develop). Additional
 		// report controllers are registered here as they land in follow-up changes.
 		$report_controllers = array(
-			Orders_Over_Time_Controller::class,
+			AverageItemsPerOrderController::class,
+			AverageOrderValueController::class,
+			ConversionRateOverTimeController::class,
+			CouponUseOverTimeController::class,
+			GrossSalesOverTimeController::class,
+			NetSalesOverTimeController::class,
+			OrdersFulfilledOverTimeController::class,
+			OrdersOverTimeController::class,
+			RefundsOverTimeController::class,
+			TaxesOverTimeController::class,
+			VisitorsOverTimeController::class,
 		);
 
 		foreach ( $report_controllers as $report_controller ) {

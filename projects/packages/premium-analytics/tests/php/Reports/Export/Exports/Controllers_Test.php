@@ -10,20 +10,27 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\VisitorsOverTimeController;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersOverTimeController
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\VisitorsOverTimeController
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController
  */
-#[CoversClass( Orders_Over_Time_Controller::class )]
-#[CoversClass( Abstract_Csv_Report_Controller::class )]
+#[CoversClass( OrdersOverTimeController::class )]
+#[CoversClass( VisitorsOverTimeController::class )]
+#[CoversClass( AbstractCSVReportController::class )]
 class Controllers_Test extends TestCase {
 
-	private function orders(): Orders_Over_Time_Controller {
-		return new Orders_Over_Time_Controller( new Report_Registry() );
+	private function orders(): OrdersOverTimeController {
+		return new OrdersOverTimeController( ReportRegistry::instance() );
+	}
+
+	private function visitors(): VisitorsOverTimeController {
+		return new VisitorsOverTimeController( ReportRegistry::instance() );
 	}
 
 	public function test_orders_metadata() {
@@ -83,5 +90,16 @@ class Controllers_Test extends TestCase {
 		// No comparison data => no comparison keys added.
 		$plain = $c->format_row_with_comparison( array( 'orders_no' => 5 ) );
 		$this->assertArrayNotHasKey( 'comparison_orders_no', $plain );
+	}
+
+	public function test_visitors_metadata_and_format() {
+		$c = $this->visitors();
+		$this->assertSame( 'visitorsovertime', $c->get_report_key() );
+		$this->assertSame( 'reports/sessions/by-date', $c->get_data_endpoint() );
+		$this->assertSame( array( 'time_interval', 'visitors' ), array_keys( $c->get_column_headers() ) );
+
+		$row = $c->format_row_for_csv( array( 'date_start' => '2026-01-02 00:00:00' ) );
+		$this->assertSame( '2026-01-02', $row['time_interval'] );
+		$this->assertSame( 0, $row['visitors'] );
 	}
 }
