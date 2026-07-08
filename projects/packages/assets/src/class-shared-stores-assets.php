@@ -35,8 +35,11 @@ class Shared_Stores_Assets {
 			__FILE__,
 			array(
 				'in_footer'  => true,
-				// The bundle's strings are rewritten to the jetpack-assets textdomain at
-				// build time (see webpack.config.js), so load translations from it.
+
+				/*
+				 * The bundle's strings are rewritten to the jetpack-assets textdomain at
+				 * build time (see webpack.config.js), so load translations from it.
+				 */
 				'textdomain' => 'jetpack-assets',
 			)
 		);

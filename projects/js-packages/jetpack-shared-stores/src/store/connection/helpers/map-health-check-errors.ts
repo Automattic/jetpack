@@ -10,10 +10,13 @@
 import { __ } from '@wordpress/i18n';
 
 /*
- * The connection-error shapes the store stores. These mirror the types the
- * connection package's `use-connection-error-notice` UI consumes; they're
- * inlined here (rather than imported) so this store helper doesn't depend on
- * the connection package, which depends on this bundle.
+ * The connection-error shapes the store stores. These are a structural subset of
+ * the canonical types in the connection package
+ * (js-packages/connection/hooks/use-connection-error-notice/types.ts); they're
+ * inlined here (rather than imported) so this store helper doesn't depend on the
+ * connection package, which depends on this bundle. Only the fields this helper
+ * actually produces are declared; keep them assignable to the canonical types if
+ * either side changes.
  */
 interface ConnectionErrorData {
 	action_url?: string;

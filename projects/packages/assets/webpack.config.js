@@ -1,8 +1,10 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
-// Babel options that rewrite every bundled string's textdomain to jetpack-assets
-// (see the shared-stores entry below for why).
+/*
+ * Babel options that rewrite every bundled string's textdomain to jetpack-assets
+ * (see the shared-stores entry below for why).
+ */
 const sharedStoresBabelOpts = {
 	presets: [
 		[
