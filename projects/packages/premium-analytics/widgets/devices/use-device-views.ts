@@ -21,8 +21,17 @@ export interface DeviceView {
 }
 
 interface UseDeviceViewsArgs {
+	/**
+	 * PA ReportParams injected by the host via attributes.
+	 */
 	reportParams: ReportParams;
+	/**
+	 * Maximum rows to display (0 = all).
+	 */
 	max: number;
+	/**
+	 * Device dimension to break down by.
+	 */
 	deviceProperty?: StatsDeviceProperty;
 }
 
@@ -65,10 +74,7 @@ function toDeviceView( item: StatsDevicesItem ): DeviceView {
 /**
  * Fetch device percentages for the Devices widget via the shared Stats data layer.
  *
- * @param args                - Hook arguments.
- * @param args.reportParams   - PA ReportParams injected by the host via attributes.
- * @param args.max            - Maximum rows to display (0 = all).
- * @param args.deviceProperty - Device dimension to break down by.
+ * @param {UseDeviceViewsArgs} args - Hook arguments.
  * @return The current data/loading/error state.
  */
 export default function useDeviceViews( {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Paid content: preserve non-ASCII characters (emoji, Chinese, etc.) in the post URL when a subscriber logs in via "Already a paid subscriber?", so they are redirected back to the correct post instead of a 404.
