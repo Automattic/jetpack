@@ -2,6 +2,7 @@ import {
 	BASE_ZOOM_STEPS,
 	cellWidth,
 	FILMSTRIP_ROW_HEIGHT,
+	frameBackgroundStyle,
 	ladderMaxZoom,
 	ladderStepCount,
 	ladderStepForZoom,
@@ -493,5 +494,47 @@ describe( 'tileBackgroundStyle', () => {
 		expect( tileBackgroundStyle( makeStoryboard(), 0, 0 ) ).toEqual( {} );
 		expect( tileBackgroundStyle( makeStoryboard( { tile_width: 0 } ), 0, 100 ) ).toEqual( {} );
 		expect( tileBackgroundStyle( makeStoryboard( { tile_height: 0 } ), 0, 100 ) ).toEqual( {} );
+	} );
+} );
+
+describe( 'frameBackgroundStyle', () => {
+	it( 'centers the extracted frame in the box as a pixel cover-crop', () => {
+		// A 160×80 frame in a 128px box: scale = max(128/160, 64/80) = 0.8, so
+		// the frame is drawn 128×64 and fills the box exactly (no offset).
+		expect( frameBackgroundStyle( 'blob:frame', 160, 80, 128 ) ).toEqual( {
+			backgroundImage: 'url("blob:frame")',
+			backgroundSize: '128px 64px',
+			backgroundPosition: '0px 0px',
+		} );
+	} );
+
+	it( 'centers a narrower box as a crop, not a squeeze', () => {
+		// A 160×90 frame in a 100px box: scale = max(100/160, 64/90) = 0.711,
+		// drawn 114×64; horizontally centered: (100 − 114) / 2 = −7.
+		expect( frameBackgroundStyle( 'blob:frame', 160, 90, 100 ) ).toEqual( {
+			backgroundImage: 'url("blob:frame")',
+			backgroundSize: '114px 64px',
+			backgroundPosition: '-7px 0px',
+		} );
+	} );
+
+	it( 'never upscales: the cover scale clamps at 1', () => {
+		// A box wider AND taller than the native frame (160×90) wants scale
+		// > 1 to cover; the clamp draws it at native size and anchors it flush
+		// with the tile start (a single frame has no adjacent cell to bleed).
+		expect( frameBackgroundStyle( 'blob:frame', 160, 90, 200, 100 ) ).toEqual( {
+			backgroundImage: 'url("blob:frame")',
+			backgroundSize: '160px 90px',
+			// Box (200px) outgrows the drawn frame (160px): flush-left, not the
+			// −20px a centered position would give. Vertically centered:
+			// (100 − 90) / 2 = 5.
+			backgroundPosition: '0px 5px',
+		} );
+	} );
+
+	it( 'paints nothing on degenerate geometry', () => {
+		expect( frameBackgroundStyle( 'blob:frame', 160, 90, 0 ) ).toEqual( {} );
+		expect( frameBackgroundStyle( 'blob:frame', 0, 90, 100 ) ).toEqual( {} );
+		expect( frameBackgroundStyle( 'blob:frame', 160, 0, 100 ) ).toEqual( {} );
 	} );
 } );

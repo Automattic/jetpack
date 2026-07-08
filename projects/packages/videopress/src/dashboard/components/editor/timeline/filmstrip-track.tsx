@@ -24,12 +24,14 @@
  * on-grid ones still render straight from the sprite (dyadic subset
  * property), while the off-grid ones are lazily client-extracted through
  * the frame-extraction pool — but ONLY for the visible window (the scroller
- * viewport ± one viewport width; scrolling re-derives the window and the
- * pool seeks the newest request first). Until an extracted frame lands (and
- * for every off-window tile) the tile renders its dyadic parent — the
- * coarser sprite tile whose span contains its time — as a cover-crop
- * placeholder: never blank, never stretched, and by the same clamped cover
- * math, never upscaled.
+ * viewport ± one viewport width; scrolling re-derives the window, cancels
+ * the seeks that scrolled out of it, and the pool seeks the newest request
+ * first). Until an extracted frame lands (and for every off-window tile) the
+ * tile renders its dyadic parent — the coarser sprite tile whose span
+ * contains its time — as a cover-crop placeholder: never blank, never
+ * stretched, never upscaled. The landed frame (FRAME_WIDTH px wide natively)
+ * is drawn with the same clamped cover-crop (frameBackgroundStyle), so it too
+ * never upscales and swaps in over its placeholder without a jump.
  *
  * Layout: tiles are `flex: 0 0 auto` boxes with explicit widths from
  * sampleWidths — interior boundaries on whole px, last tile takes the
@@ -46,9 +48,11 @@
  * track replaces.
  */
 import { useEffect, useMemo, useState } from 'react';
+import { FRAME_WIDTH } from '../../../hooks/video-frame-grabber';
 import {
 	cellWidth,
 	FILMSTRIP_ROW_HEIGHT,
+	frameBackgroundStyle,
 	quantizeDensity,
 	sampleIndices,
 	sampleTiles,
@@ -302,6 +306,15 @@ function useExtractedFrames(
 					scrollerEl.clientWidth,
 					pxPerMs
 				);
+				// Drop the times that scrolled out of the window before queuing
+				// the new ones. Without this, scanning a long strip accumulates a
+				// backlog of off-window seeks that drains for minutes; because the
+				// on-screen frames settled first they are the LRU-oldest, so the
+				// backlog's settles evict and revoke them and the visible tiles
+				// regress to placeholders. cancelFrames leaves in-flight and
+				// already-settled (cached) frames untouched — only the queue shrinks.
+				const inWindow = new Set( windowTimes );
+				pool.cancelFrames( offGridTimes.filter( timeMs => ! inWindow.has( timeMs ) ) );
 				if ( windowTimes.length > 0 ) {
 					pool.requestFrames( windowTimes );
 				}
@@ -419,16 +432,33 @@ export default function StudioEditorFilmstripTrack( {
 					if ( tile.spriteIndex === null ) {
 						const url = extracted.get( tile.timeMs );
 						if ( url !== undefined ) {
+							// Draw the extracted frame with the same clamped cover-crop
+							// as the sprite tiles, not an `object-fit: cover` <img>:
+							// the frame is FRAME_WIDTH px wide natively, so a plain
+							// <img> would upscale it once the tile box outgrows it,
+							// breaking the never-upscale invariant the sprite path
+							// enforces. A <div> also reconciles in place with the
+							// placeholder <div> below — no element-type swap when the
+							// frame lands.
 							return (
-								<img
+								<div
 									key={ `t${ tile.timeMs }` }
 									className="vp-studio-timeline__filmstrip-tile"
 									data-testid="studio-timeline-filmstrip-tile"
 									data-time={ tile.timeMs }
-									src={ url }
-									style={ width === undefined ? undefined : { width: `${ width }px` } }
-									alt=""
-									draggable={ false }
+									style={
+										width === undefined
+											? undefined
+											: {
+													width: `${ width }px`,
+													...frameBackgroundStyle(
+														url,
+														FRAME_WIDTH,
+														( FRAME_WIDTH * storyboard.tile_height ) / storyboard.tile_width,
+														width
+													),
+											  }
+									}
 								/>
 							);
 						}

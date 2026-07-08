@@ -479,13 +479,24 @@ describe( 'StudioEditorFilmstripTrack', () => {
 			act( () => fake.land( 3000, 'blob:densified-3000' ) );
 
 			const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
-			expect( tiles[ 1 ].tagName ).toBe( 'IMG' );
-			expect( tiles[ 1 ] ).toHaveAttribute( 'src', 'blob:densified-3000' );
+			// Drawn as a clamped cover-crop background (never an object-fit
+			// <img> that could upscale the 160px-native frame), reconciled in
+			// place with the placeholder div. The 160×80 frame in a 128px box →
+			// scale 0.8 → drawn 128×64, filling the box exactly.
+			expect( tiles[ 1 ].tagName ).toBe( 'DIV' );
 			expect( tiles[ 1 ] ).toHaveAttribute( 'data-time', '3000' );
-			expect( tiles[ 1 ] ).toHaveAttribute( 'alt', '' );
-			expect( tiles[ 1 ] ).toHaveStyle( { width: '128px' } );
-			// The neighbors still wait on their own frames.
-			expect( tiles[ 3 ].tagName ).toBe( 'DIV' );
+			expect( tiles[ 1 ] ).not.toHaveAttribute( 'data-placeholder-index' );
+			expect( tiles[ 1 ] ).toHaveStyle( {
+				width: '128px',
+				backgroundImage: 'url("blob:densified-3000")',
+				backgroundSize: '128px 64px',
+				backgroundPosition: '0px 0px',
+			} );
+			// The neighbors still wait on their own frames — the sprite placeholder.
+			expect( tiles[ 3 ] ).toHaveAttribute( 'data-placeholder-index', '1' );
+			expect( tiles[ 3 ] ).toHaveStyle( {
+				backgroundImage: 'url("https://example.com/sprite.jpg")',
+			} );
 		} );
 
 		it( 'renders cached frames immediately on mount', () => {
@@ -495,8 +506,11 @@ describe( 'StudioEditorFilmstripTrack', () => {
 			renderDensified( fake.pool, makeScroller( 1000 ) );
 
 			const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
-			expect( tiles[ 3 ].tagName ).toBe( 'IMG' );
-			expect( tiles[ 3 ] ).toHaveAttribute( 'src', 'blob:cached-9000' );
+			expect( tiles[ 3 ].tagName ).toBe( 'DIV' );
+			expect( tiles[ 3 ] ).not.toHaveAttribute( 'data-placeholder-index' );
+			expect( tiles[ 3 ] ).toHaveStyle( {
+				backgroundImage: 'url("blob:cached-9000")',
+			} );
 		} );
 
 		it( 're-derives and re-requests the window on (throttled) scroll', () => {
@@ -520,6 +534,31 @@ describe( 'StudioEditorFilmstripTrack', () => {
 				expect( fake.requests[ 1 ] ).toEqual( [
 					15000, 21000, 27000, 33000, 39000, 45000, 51000, 57000,
 				] );
+			} finally {
+				jest.useRealTimers();
+			}
+		} );
+
+		it( 'cancels the off-window backlog so the queue never outgrows the viewport', () => {
+			jest.useFakeTimers();
+			try {
+				const fake = makeFakePool();
+				const scroller = makeScroller( 1000 );
+				renderDensified( fake.pool, scroller );
+				// Mount drops the times already past the window (51000, 57000)
+				// rather than queuing the whole strip.
+				expect( fake.pool.cancelFrames ).toHaveBeenCalledWith( [ 51000, 57000 ] );
+
+				// Scroll to the far end: the two times that fell out behind us are
+				// cancelled, not left to drain and evict the on-screen frames
+				// (which, having settled first, are the LRU-oldest).
+				scroller.scrollLeft = 1560;
+				scroller.dispatchEvent( new Event( 'scroll' ) );
+				act( () => {
+					jest.advanceTimersByTime( SCROLL_SYNC_DELAY_MS );
+				} );
+
+				expect( fake.pool.cancelFrames ).toHaveBeenCalledWith( [ 3000, 9000 ] );
 			} finally {
 				jest.useRealTimers();
 			}

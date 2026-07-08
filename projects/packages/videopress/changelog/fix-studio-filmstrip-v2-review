@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress Studio: filmstrip v2 review fixes — draw densified extracted frames with the same clamped cover-crop as sprite tiles so a 160px-native frame is never upscaled, and cancel off-window extraction seeks as the strip scrolls so the queue can't backlog and evict the on-screen frames.

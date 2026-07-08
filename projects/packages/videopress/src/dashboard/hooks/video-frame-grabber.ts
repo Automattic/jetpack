@@ -10,8 +10,12 @@
  * file stays a thin adapter over the real media/canvas APIs.
  */
 
-/** Rendered tile width; height follows the source aspect ratio. */
-const FRAME_WIDTH = 160;
+/**
+ * The native width extracted frames are captured at; height follows the
+ * source aspect ratio. Exported so the filmstrip can cover-crop an extracted
+ * frame without ever drawing it wider than this (the never-upscale invariant).
+ */
+export const FRAME_WIDTH = 160;
 
 /** Height/width fallback (16:9 → 160×90) when the metadata reports no size. */
 const FALLBACK_ASPECT = 9 / 16;

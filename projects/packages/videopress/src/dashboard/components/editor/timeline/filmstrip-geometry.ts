@@ -440,3 +440,56 @@ export function tileBackgroundStyle(
 		) }px ${ Math.round( ( rowHeight - cellH ) / 2 - row * cellH ) }px`,
 	};
 }
+
+/**
+ * Cover-crop background style for one client-extracted frame — the same
+ * clamped, flush-anchored pixel math as {@link tileBackgroundStyle} applied
+ * to a standalone image rather than a sprite cell.
+ *
+ * The frame grabber captures each frame at a fixed native width with the
+ * source aspect. Drawing it at `scale = min(1, max(boxWidth / frameWidth,
+ * rowHeight / frameHeight))` keeps the load-bearing never-upscale invariant:
+ * an `object-fit: cover` <img> smears the frame past its native resolution
+ * once the tile box outgrows it — between densified stops a wheel zoom drives
+ * tile widths up to cellWidth·√2, and sources wider than the frame's native
+ * width upscale even at the discrete stops. Rendering it this way also
+ * matches its dyadic-parent placeholder exactly, so a landed frame crops and
+ * anchors identically to the tile it replaces — no visual jump.
+ *
+ * @param url         - The extracted frame's object URL.
+ * @param frameWidth  - The frame's native capture width in px (FRAME_WIDTH).
+ * @param frameHeight - The frame's native height in px (frameWidth ÷ source aspect).
+ * @param boxWidth    - The tile box's rendered width, in px.
+ * @param rowHeight   - The tile box's rendered height, in px.
+ * @return The tile's CSS properties; empty on degenerate geometry.
+ */
+export function frameBackgroundStyle(
+	url: string,
+	frameWidth: number,
+	frameHeight: number,
+	boxWidth: number,
+	rowHeight: number = FILMSTRIP_ROW_HEIGHT
+): CSSProperties {
+	if ( boxWidth <= 0 || frameWidth <= 0 || frameHeight <= 0 ) {
+		// Unmeasured box or unknown frame geometry: paint nothing rather than a
+		// mis-scaled frame.
+		return {};
+	}
+	const scale = Math.min( 1, Math.max( boxWidth / frameWidth, rowHeight / frameHeight ) );
+	const drawnW = frameWidth * scale;
+	const drawnH = frameHeight * scale;
+	// Anchor flush with the tile start when the box outgrows the drawn frame
+	// (only where the cover scale clamps at 1): a single frame has no adjacent
+	// content, so centering would split an unpainted sliver across both edges
+	// instead of leaving the leading edge on the frame's first pixel — where
+	// the placeholder's leading edge sits too.
+	const positionWidth = Math.min( boxWidth, drawnW );
+	return {
+		// Quoted, so blob URLs with CSS-significant characters stay intact.
+		backgroundImage: `url("${ url }")`,
+		backgroundSize: `${ Math.round( drawnW ) }px ${ Math.round( drawnH ) }px`,
+		backgroundPosition: `${ Math.round( ( positionWidth - drawnW ) / 2 ) }px ${ Math.round(
+			( rowHeight - drawnH ) / 2
+		) }px`,
+	};
+}
