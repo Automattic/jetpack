@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Point fetchSubscriberStats at the renamed subscribers/individual-stats route (JETPACK-1774). Flag-gated; no user-facing change.
+
+

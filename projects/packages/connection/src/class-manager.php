@@ -2452,14 +2452,14 @@ class Manager {
 		$domain = preg_replace( '#^https?://#', '', untrailingslashit( $domain ) );
 
 		if ( filter_var( $domain, FILTER_VALIDATE_IP )
-			&& ! filter_var( $domain, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
+			&& ! \Automattic\Jetpack\IP\Utils::ip_is_public( $domain )
 		) {
 			return new \WP_Error(
 				'fail_ip_forbidden',
 				sprintf(
 					/* translators: %1$s is a domain name. */
 					__(
-						'IP address `%1$s` just failed is_usable_domain check as it is in the private network.',
+						'IP address `%1$s` just failed is_usable_domain check as it is not a public IP address.',
 						'jetpack-connection'
 					),
 					$domain

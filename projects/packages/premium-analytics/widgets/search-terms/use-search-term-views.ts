@@ -11,7 +11,13 @@ export interface SearchTermView {
 }
 
 interface UseSearchTermViewsArgs {
+	/**
+	 * PA ReportParams from WidgetRoot context.
+	 */
 	reportParams: ReportParams;
+	/**
+	 * Maximum rows to display.
+	 */
 	max: number;
 }
 
@@ -29,9 +35,7 @@ interface SearchTermViewsState {
  * `@jetpack-premium-analytics/data`. When comparison params are present, the hook
  * fetches both periods and pairs each primary term with its comparison view count.
  *
- * @param args              - Hook arguments.
- * @param args.reportParams - PA ReportParams from WidgetRoot context.
- * @param args.max          - Maximum rows to display.
+ * @param {UseSearchTermViewsArgs} args - Hook arguments.
  * @return The current data/loading/error state.
  */
 export default function useSearchTermViews( {

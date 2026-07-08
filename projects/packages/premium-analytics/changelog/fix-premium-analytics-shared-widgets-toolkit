@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Bundle widgets-toolkit once as a shared script module instead of into every widget, fixing CI memory exhaustion during the widgets build phase. Stopped rebuilding the assets package from the build scripts.

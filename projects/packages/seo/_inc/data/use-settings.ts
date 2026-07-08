@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { buildCorePayload, buildJetpackPayload } from './build-payload';
 import { settingsStore } from './settings-store';
+import type { SchemaSettings } from './schema-settings-types';
 import type { SettingsResponse, VerificationKey } from './settings-types';
 
 // Single snackbar id reused across a save so "Updating settings…" is replaced
@@ -17,6 +18,8 @@ export interface SettingsForm {
 	isSaving: boolean;
 	/** Update local state only — for controlled typing; persisted by a per-section save. */
 	setField: ( patch: Partial< SettingsResponse > ) => void;
+	/** Replace the saved schema snapshot after the schema-specific route succeeds. */
+	setSchemaSettings: ( schema: SchemaSettings ) => void;
 	/** Update a verification code locally — persisted via `commitFields(['verification'])` on blur. */
 	setVerification: ( key: VerificationKey, value: string ) => void;
 	/**
@@ -141,6 +144,24 @@ export function useSettingsForm(): SettingsForm {
 		[]
 	);
 
+	const setSchemaSettings = useCallback(
+		( schema: SchemaSettings ) => {
+			const current = localRef.current;
+			const baseline = baselineRef.current;
+			if ( ! current || ! baseline ) {
+				return;
+			}
+
+			const nextBaseline = { ...baseline, schema };
+			const nextLocal = { ...current, schema };
+			baselineRef.current = nextBaseline;
+			localRef.current = nextLocal;
+			setLocal( nextLocal );
+			setSettings( nextBaseline );
+		},
+		[ setSettings ]
+	);
+
 	const commit = useCallback(
 		( patch: Partial< SettingsResponse > ) => {
 			const current = localRef.current;
@@ -233,6 +254,7 @@ export function useSettingsForm(): SettingsForm {
 		local,
 		isSaving,
 		setField,
+		setSchemaSettings,
 		setVerification,
 		commit,
 		commitFields,

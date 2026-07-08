@@ -281,6 +281,7 @@ export type {
 	StatsTimeSeriesReport,
 	StatsTopAuthorsComparisonItem,
 	StatsTopAuthorsItem,
+	StatsTopAuthorsPostComparisonItem,
 	StatsTopPostsComparisonItem,
 	StatsTopPostsItem,
 	StatsUtmComparisonItem,

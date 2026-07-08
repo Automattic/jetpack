@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Multistep forms: Fix navigation buttons floating and the button gap collapsing on the frontend when a button width is set.

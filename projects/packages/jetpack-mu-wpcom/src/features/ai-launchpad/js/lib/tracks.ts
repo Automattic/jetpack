@@ -53,6 +53,16 @@ export function trackTaskClicked( props: { task_id: string } ): void {
 }
 
 /**
+ * Records the task-skipped event.
+ *
+ * @param props         - The event properties.
+ * @param props.task_id - The id of the skipped task.
+ */
+export function trackTaskSkipped( props: { task_id: string } ): void {
+	record( 'jetpack_ai_launchpad_task_skipped', props );
+}
+
+/**
  * Records the launched event. Intentionally unwired in the MVP: launch completes
  * server-side, so there is no reliable client-side trigger here.
  */

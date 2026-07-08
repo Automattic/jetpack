@@ -2,99 +2,89 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 16.0-a.7 - 2026-06-29
+## 16.0 - 2026-07-07
 ### Enhancements
+- Add AI-powered "Generate/Improve with Jetpack" buttons to the Content Guidelines admin page. [#47959]
+- AI: Surface SEO Enhancer suggestions (SEO title and meta description) in the AI sidebar. [#50042]
+- AI Admin: Restructure MCP settings Read/Write pages to group tools by display group with collapsible per-group tool lists and a page-level Enable all toggle. [#50045]
+- AI Sidebar: Enable Optimize Title suggestions. [#49722]
+- Daily Writing Prompt: Load the Dashboard widget on connected self-hosted Jetpack sites. [#49491]
 - Donations Block: Render the block in emails with email-friendly CTA buttons. [#49963]
+- Forms: Warn admins and editors when a form isn't collecting responses (email and saving both off, no integration). [#49808]
+- Newsletter: Allow setting a custom description for the free tier and hiding it from the subscriber plan selector. [#49585]
+- Newsletter: Link to the site visibility settings from the Coming Soon notice in the pre-publish panel. [#50073]
+- Render the unified Jetpack admin header and footer on Akismet's admin pages. [#49593]
+- Subscriptions: Replace the Subscribers menu link with a transitional announcement page when the Newsletter modernization filter is enabled. [#49496]
+- Subscriptions Block: Customize the Subscribe modal heading site-wide via a new Newsletter setting. [#49171]
+- VideoPress: Add presentation to the player iframe allow list to enable casting from embeds. [#50215]
+- VideoPress: Make the VideoPress admin dashboard available in the Jetpack plugin (previously only in the standalone Jetpack VideoPress plugin). [#49696]
 
 ### Bug fixes
 - AI Agent Access: Correct module references in Shortlinks and Related Posts ability descriptions. [#49957]
+- AI Assistant: Hide legacy block toolbar controls when Jetpack AI Sidebar content editing is enabled. [#49219]
+- AI Chat block: Stop prompting to enable Jetpack Search when the Search module is active in a non-Instant Search experience (Theme, Inline, or Embedded). [#49870]
+- Akismet: Hide the empty `#screen-meta-links` container so it no longer reserves a blank slot above the Jetpack header (notably on WordPress.com Simple sites). [#49658]
+- Akismet: Show the Akismet logo (instead of the Jetpack logo) in the unified admin header. [#49837]
 - Archives shortcode: Cap the `postbypost` type with a filterable default limit to prevent memory exhaustion on large sites. [#49927]
+- Blaze: Warn users with active campaigns before disabling the Blaze module. [#49610]
+- Content Guidelines AI: Place the suggestion badge to the left of the section chevron so chevrons stay aligned across sections with and without a badge. [#50083]
+- Content Guidelines AI: Wrap the per-section Save/Clear/Generate button row so the buttons no longer overlap on narrow screens. [#50101]
+- Crowdsignal shortcode: Render rating settings as data rather than building markup from them.
+- Daily Writing Prompt: Defer the connection-readiness check to Dashboard setup to avoid a fatal error on Atomic sites. [#49525]
+- Donations Form: Prevent the editor from flickering when hovering the block as an inserter preview. [#49792]
 - Fix fatal error on My Jetpack when the current stable Jetpack plugin is active along with other Jetpack standalone plugins. [#49994]
 - Forms: Sign file download links with an expiring token so they work for any logged-in editor. [#49868]
+- JSON API: Ensure error responses always serialize an HTTP error status (>= 400), never a non-integer or a 2xx that clients could interpret as success. [#50077]
+- JSON API: Only default a missing or invalid error status to 400, and stop overwriting valid HTTP status codes below 400 that callers return via `WP_Error`. [#50173]
 - Memberships: Delegate the Payment Request API to the checkout iframe so Apple Pay, Google Pay, and Stripe Link can load and complete payments. [#49622]
+- Newsletter: Default the post access level to "everybody" when the stored meta is not a string, and sanitize non-string writes, so corrupt values can no longer cause a fatal error when rendering a post. [#50090]
+- Newsletter: Fix "Sorry, you are not allowed to do this" error for Contributors on the first Submit for Review when the Subscriptions module is active. [#49813]
+- Newsletter: When setting up paid subscriptions, only prompt for the steps that are actually missing (Stripe connection and/or a newsletter tier). [#49673]
+- Paid Content: Ensure paid subscribers on Atomic-hosted sites retain access to gated content. [#48857]
+- Paid Content Block: Prevent lockout after a subscription renewal. [#48008]
 - Podcast: Load the package outside Jetpack's connection-gated module loader so the podcast feed and dashboard keep working when the site is disconnected. [#49989]
+- Prevent Slideshow block crash when converting from Gallery. [#50035]
+- Social: Prevent errors in the post-publish sharing status panel from crashing the editor. [#49823]
+- Subscriptions: Prevent a duplicate Subscribers menu entry on WordPress.com (Atomic) sites. [#49675]
 - Tiled Gallery: Fix an infinite resize loop when the block is inside a Row or Stack block. [#50016]
 - Tiled Gallery: Keep the mosaic layout stable and split rows evenly between galleries when the block is inside a Row or Stack. [#50016]
+- Tiled Gallery: Prevent editor crash when transforming a core gallery block. [#50025]
+- Top Posts & Pages: Use the live post permalink so links reflect the current site URL. [#49802]
+- VideoPress: Fix the player overflowing the page on the non-iframe embed path. [#49716]
+- VideoPress: Load player scripts only once when a page contains multiple videos. [#49716]
 - WhatsApp Button block: Fix icon and text overlapping in RTL languages. [#49983]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- AI Sidebar: Source the AI Editorial Review flag only from `features.aiEditorialReview`; drop the redundant top-level `aiEditorialReviewEnabled` field. [#49971]
-- Content Guidelines AI: Persist the empty-state dismissal (banner and upgrade notice) per-user across devices instead of in browser `localStorage`, and allow dismissing the upgrade notice from its close icon. [#49392]
-- Defer the `wpcom/v2` Search and AI REST endpoint wrappers from loading their controller and helper classes until `rest_api_init`, so those classes are not loaded on front-end, cron, and login requests. [#49805]
-
-## 16.0-a.5 - 2026-06-25
-### Enhancements
-- SEO: Hide the legacy Traffic-page SEO and Sitemaps sections once a site is on the new SEO dashboard (fresh install, opted-in, or WordPress.com); existing self-hosted installs that haven't opted in keep the legacy sections. [#49697]
-
-### Bug fixes
-- AI Assistant: Hide legacy block toolbar controls when Jetpack AI Sidebar content editing is enabled. [#49219]
-- AI Chat block: Stop prompting to enable Jetpack Search when the Search module is active in a non-Instant Search experience (Theme, Inline, or Embedded). [#49870]
-- Akismet: Show the Akismet logo (instead of the Jetpack logo) in the unified admin header. [#49837]
-- Newsletter: Fix "Sorry, you are not allowed to do this" error for Contributors on the first Submit for Review when the Subscriptions module is active. [#49813]
-- Paid Content: Ensure paid subscribers on Atomic-hosted sites retain access to gated content. [#48857]
-- SEO: Default the Schema, Meta description, and Search post-list columns to hidden in Screen Options. [#49862]
-- Social: Prevent errors in the post-publish sharing status panel from crashing the editor. [#49823]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Sidebar: Gate the Generate Feedback suggestion behind the preview feature flag. [#49437]
 - AI Sidebar: Load the Agents Manager through the `jetpack-agents-manager` Composer package instead of a self-contained CDN loader. [#49603]
+- AI Sidebar: Source the AI Editorial Review flag only from `features.aiEditorialReview`; drop the redundant top-level `aiEditorialReviewEnabled` field. [#49971]
+- Akismet: Make the admin header/footer chrome registration idempotent so it can't render twice if wired from more than one entry point. [#49658]
 - Content Guidelines: Align the empty-state banner orbs on the same axis and reduce their size. [#49760]
+- Content Guidelines AI: Fix the AI controls not appearing after recent Gutenberg Guidelines markup changes. [#47959]
+- Content Guidelines AI: Persist the empty-state dismissal (banner and upgrade notice) per-user across devices instead of in browser `localStorage`, and allow dismissing the upgrade notice from its close icon. [#49392]
 - Defer loading Boost Speed Score classes until a REST request or Boost lifecycle action fires, reducing the per-request PHP/opcache footprint. [#49806]
+- Defer the `wpcom/v2` Search and AI REST endpoint wrappers from loading their controller and helper classes until `rest_api_init`, so those classes are not loaded on front-end, cron, and login requests. [#49805]
+- Donations block: Update location of earnings link. [#50177]
+- Editor: Load the shared data stores through the externalized `jetpack-shared-stores` bundle to avoid duplicate store registration warnings. [#49494]
 - Fix `@wordpress/ui` 0.15 type errors in the mobile-app recommendation and the AI Assistant message icon. [#49800]
 - Heartbeat: Provide connection owner and XML-RPC error stats from the Connection package. [#49922]
+- Image Studio: Share the translation script handle with the Agents Manager package to avoid enqueuing the same file twice. [#50069]
 - JSON API: Require Jetpack 15.9 or later to dispatch the posts, users, site, and plugins endpoints over REST. [#49819]
 - Load block render code only when a block is present, and skip editor-only extensions on front-end requests, to reduce per-request PHP/opcache footprint. [#49807]
+- Media Summary: Allow callers to opt out of URL stripping via a new `preserve_urls` argument. [#49397]
 - Newsletter: Begin a staged rollout of the modernized Newsletter dashboard and WP Admin subscriber management, off by default. Opt in or out with the `rsm_jetpack_ui_modernization_newsletter` and `jetpack_wp_admin_subscriber_management_enabled` filters. [#49036]
+- Newsletter: Register the `description` field for the memberships endpoint to support paid tier descriptions. [#49413]
+- Newsletter widget: Stop building the bundle twice, keeping only the build that is actually loaded. [#50087]
+- Notifications: Let users opt into the v3 notifications panel via the `notifications=v3` query parameter. [#49514]
+- Performance: Reduce front-end PHP loaded for My Jetpack and Import on page views where they are not used. [#49936]
+- Performance: Register pure display blocks lazily on first render instead of on every front-end request, to reduce per-request PHP/opcache footprint. [#49840]
+- Performance: Skip loading the Stats and Stats Admin packages on plain front-end page views when the Stats module is off, to reduce the per-request PHP footprint. [#49839]
+- Podcast: Add a Jetpack module that loads the Podcast package, gated behind the default-off `jetpack_podcast_for_the_world` filter. [#49790]
 - Sync: Add test coverage for refreshing the plugin list callable when a plugin is deleted. [#49913]
 - Sync: Append an order's total (total, currency) to the synced `woocommerce_new_order` and `woocommerce_order_status_changed` actions when the order reaches a paid status, so WordPress.com can aggregate revenue. [#49689]
 - Update composer.lock for the Podcast package's new `jetpack-admin-ui` dependency. [#49918]
-- Update package dependencies. [#49793] [#49831]
-
-## 16.0-a.3 - 2026-06-22
-### Enhancements
-- Add AI-powered "Generate/Improve with Jetpack" buttons to the Content Guidelines admin page. [#47959]
-- AI Sidebar: Enable Optimize Title suggestions. [#49722]
-- Newsletter: Allow setting a custom description for the free tier and hiding it from the subscriber plan selector. [#49585]
-- Render the unified Jetpack admin header and footer on Akismet's admin pages. [#49593]
-- SEO: Add a per-post schema type control and SEO columns (schema, meta description, search visibility) to post-list tables. [#49351]
-- SEO: Auto-discover the new SEO surface on fresh installs (opt-in on existing sites), and add an opt-in banner to the legacy Traffic > SEO settings page. [#49672]
-- SEO: Surface SEO Tools as a Plugin Search Hint when users search the plugin directory for SEO-related terms. [#49586]
-- Subscriptions: Replace the Subscribers menu link with a transitional announcement page when the Newsletter modernization filter is enabled. [#49496]
-
-### Bug fixes
-- Akismet: Hide the empty `#screen-meta-links` container so it no longer reserves a blank slot above the Jetpack header (notably on WordPress.com Simple sites). [#49658]
-- Blaze: Warn users with active campaigns before disabling the Blaze module. [#49610]
-- Donations Form: Prevent the editor from flickering when hovering the block as an inserter preview. [#49792]
-- Newsletter: When setting up paid subscriptions, only prompt for the steps that are actually missing (Stripe connection and/or a newsletter tier). [#49673]
-- Subscriptions: Prevent a duplicate Subscribers menu entry on WordPress.com (Atomic) sites. [#49675]
-- Top Posts & Pages: Use the live post permalink so links reflect the current site URL. [#49802]
-- VideoPress: Load player scripts only once when a page contains multiple videos. [#49716]
-- VideoPress: Fix the player overflowing the page on the non-iframe embed path. [#49716]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- AI Sidebar: Gate the Generate Feedback suggestion behind the preview feature flag. [#49437]
-- Akismet: Make the admin header/footer chrome registration idempotent so it can't render twice if wired from more than one entry point. [#49658]
-- Content Guidelines AI: Fix the AI controls not appearing after recent Gutenberg Guidelines markup changes. [#47959]
-- Editor: Load the shared data stores through the externalized `jetpack-shared-stores` bundle to avoid duplicate store registration warnings. [#49494]
-- Podcast: Add a Jetpack module that loads the Podcast package, gated behind the default-off `jetpack_podcast_for_the_world` filter. [#49790]
-- SEO: Seed and keep a durable `jetpack_seo_canonical_urls_enabled` option in sync with the Canonical URLs module's active state. [#49407]
-- SEO: Seed and keep a durable `jetpack_seo_sitemap_enabled` option in sync with the Sitemaps module's active state. [#49407]
+- Update package dependencies. [#49273] [#49448] [#49492] [#49631] [#49638] [#49639] [#49691] [#49757] [#49793] [#49831] [#50097] [#50183]
 - Update the WooCommerce Analytics package to version 0.16.6. [#49686]
-- Update package dependencies. [#49631] [#49638] [#49639] [#49691] [#49757]
-
-## 16.0-a.1 - 2026-06-15
-### Enhancements
-- Daily Writing Prompt: Load the Dashboard widget on connected self-hosted Jetpack sites. [#49491]
-- Subscriptions Block: Customize the Subscribe modal heading site-wide via a new Newsletter setting. [#49171]
-
-### Bug fixes
-- Daily Writing Prompt: Defer the connection-readiness check to Dashboard setup to avoid a fatal error on Atomic sites. [#49525]
-- Paid Content Block: Prevent lockout after a subscription renewal. [#48008]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Media Summary: Allow callers to opt out of URL stripping via a new `preserve_urls` argument. [#49397]
-- Newsletter: Register the `description` field for the memberships endpoint to support paid tier descriptions. [#49413]
-- Notifications: Let users opt into the v3 notifications panel via the `notifications=v3` query parameter. [#49514]
-- Update package dependencies. [#49273] [#49448] [#49492]
 
 ## 15.9.1 - 2026-06-24
 ### Bug fixes

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast distribution: mirror the Pocket Casts submission verdict onto the local site options so the dashboard reflects show state on Jetpack/Atomic sites.

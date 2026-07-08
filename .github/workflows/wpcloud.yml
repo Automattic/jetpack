@@ -85,9 +85,15 @@ jobs:
         with:
           name: wpcomsh.tar.xz
 
-      - name: Configure Github to be able to SSH to the WP Cloud site
+      - name: Extract wpcomsh build
         run: |
-          echo "::group::Initializing"
+          tar -xvvf wpcomsh.tar.xz wpcomsh
+
+      - name: Configure Github to be able to SSH to the WP Cloud site
+        env:
+          SSH_KEY: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KNOWN_HOSTS }}
+        run: |
           mkdir -vp ~/.ssh/
           chmod -v 700 ~/.ssh
 
@@ -106,51 +112,41 @@ jobs:
           echo "  User wpcom-jetpackisbestpack-default-237778992" >> ~/.ssh/config
           echo "  IdentityFile ~/.ssh/id_site" >> ~/.ssh/config
           echo "  IdentitiesOnly yes" >> ~/.ssh/config
-          echo "::endgroup::"
 
-          echo "::group::Extract wpcomsh build"
-          tar -xvvf wpcomsh.tar.xz wpcomsh
-          echo "::endgroup::"
-
-          echo "::group::Transferring wpcomsh to the testing server"
+      - name: Transfer wpcomsh to the testing server
+        run: |
           # This can give errors if the previous state was broken, so ignore them
           ssh jpwpcomsh "wp --skip-plugins --skip-themes dereferenced freshen > /dev/null 2>&1" || echo "wp dereferenced freshen has exited with code $?"
           ssh jpwpcomsh "rm -rf /tmp/old-* > /dev/null 2>&1"
           rsync -azKPv --prune-empty-dirs --delete --delete-after --delete-excluded --copy-links wpcomsh/. jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/.
-          echo "::endgroup::"
 
+      - name: Smoke test
+        run: |
           # Do a basic check to verify the site is loading
-          echo "::group::Verify things load"
           CODE=0
           SITE_URL=$(ssh jpwpcomsh "wp option get siteurl" 2>/dev/null) || CODE=$?
           if [[ $CODE -ne 0 ]]; then
-            echo 'Unable to run a basic `wp` command! Something is wrong with the site.'
+            echo '::error::Unable to run a basic `wp` command! Something is wrong with the site.'
+            exit 1
           elif [[ ! "$SITE_URL" =~ ^https?://[a-z0-9_.-]+$ ]]; then
-            echo 'Site URL retrieved does not seem to be a URL.'
-            CODE=1
+            echo '::error::Site URL retrieved does not seem to be a URL.'
+            exit 1
           else
             echo 'No issues using a simple command in WP-CLI.'
             curl -s --fail "$SITE_URL" > /dev/null || CODE=$?
             if [[ $CODE -ne 0 ]]; then
-              echo 'Unable to load site! Something is wrong with the site.'
+              echo '::error::Unable to load site! Something is wrong with the site.'
+              CODE=1
             else
               echo 'No issues slurping site with `curl`.'
             fi
           fi
-          echo "::endgroup::"
 
-          # Proceed with tests if all seems well
-          if [[ $CODE -eq 0 ]]; then
-            echo "::group::Run PHPUnit tests"
-            ssh jpwpcomsh "/srv/htdocs/wp-content/mu-plugins/wpcomsh/bin/run-phpunit-tests.sh" || CODE=$?
-            echo "::endgroup::"
-          fi
+      - name: Run PHPUnit tests
+        run: |
+          ssh jpwpcomsh "/srv/htdocs/wp-content/mu-plugins/wpcomsh/bin/run-phpunit-tests.sh"
 
-          echo "::group::teardown"
+      - name: Cleanup
+        if: always()
+        run: |
           rm -rvf ~/.ssh/
-          echo "::endgroup::"
-          echo "Exiting with exit code $CODE"
-          exit $CODE
-        env:
-          SSH_KEY: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KEY }}
-          SSH_KNOWN_HOSTS: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KNOWN_HOSTS }}

@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Configurable attributes for the Latest Subscribers widget. Mirrors the
@@ -30,9 +31,9 @@ export default {
 		{
 			id: 'num',
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
-			type: 'integer' as const,
+			type: 'integer',
 		},
-	],
+	] as WidgetAttributeField< SubscribersListAttributes >[],
 	example: {
 		attributes: {
 			num: 6,

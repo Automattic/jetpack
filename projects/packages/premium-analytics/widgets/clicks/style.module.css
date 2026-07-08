@@ -50,7 +50,7 @@
 	flex: 1 1 0;
 	inline-size: 100%;
 	min-block-size: 200px;
-	color: var(--wpds-color-fg-content-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 	text-align: center;
 }
 
@@ -69,10 +69,4 @@
 	flex-direction: column;
 	flex: 1 1 0;
 	min-height: 0;
-}
-
-:global([inert]:not([inert="true"])) .root {
-	height: auto;
-	aspect-ratio: 4 / 3;
-	overflow: hidden;
 }

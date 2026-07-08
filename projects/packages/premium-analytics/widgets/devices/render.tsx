@@ -41,14 +41,20 @@ function toRatio( percentage: number ) {
 	return percentage / 100;
 }
 
+type DevicesInnerProps = {
+	/**
+	 * Max rows to display.
+	 */
+	max: number;
+};
+
 /**
  * Inner component — rendered inside WidgetRoot.
  *
- * @param props     - Props.
- * @param props.max - Max rows to display.
+ * @param {DevicesInnerProps} props - The component props.
  * @return The rendered semi-circle chart or state placeholder.
  */
-function DevicesInner( { max }: { max: number } ) {
+function DevicesInner( { max }: DevicesInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const { data, hasComparison, isLoading, isError, errorReason } = useDeviceViews( {
 		reportParams,
@@ -140,8 +146,7 @@ function DevicesInner( { max }: { max: number } ) {
  *
  * Shows screen size breakdown (Desktop / Mobile / Tablet) as a semi-circle chart.
  *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes (max).
+ * @param {DevicesWidgetProps} props - The widget render props.
  * @return The rendered widget content.
  */
 export default function DevicesWidget( { attributes = {} }: DevicesWidgetProps ) {

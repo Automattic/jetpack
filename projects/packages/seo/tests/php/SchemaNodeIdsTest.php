@@ -42,6 +42,20 @@ class SchemaNodeIdsTest extends TestCase {
 	}
 
 	/**
+	 * The WebSite id is the site root plus a stable `#website` fragment.
+	 */
+	public function test_website_id_anchors_to_the_site_root() {
+		add_filter(
+			'home_url',
+			static function () {
+				return 'https://example.test/';
+			}
+		);
+
+		$this->assertSame( 'https://example.test/#website', Schema_Node_Ids::website() );
+	}
+
+	/**
 	 * The id is stable across calls — it must not vary per request, or the cross-node
 	 * `@id` references (e.g. the Article publisher) would not resolve.
 	 */

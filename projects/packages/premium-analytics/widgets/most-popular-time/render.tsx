@@ -21,18 +21,31 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 // comparison period), but WidgetRoot still expects them on `attributes`.
 type MostPopularTimeRenderAttributes = MostPopularTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
+type MostPopularTimeWidgetProps = WidgetRenderProps< MostPopularTimeRenderAttributes >;
+
+type HighlightProps = {
+	/**
+	 * The highlight label (e.g. "Best day").
+	 */
+	label: string;
+	/**
+	 * The peak value (e.g. "Tuesday" or "3:00 PM").
+	 */
+	value: string;
+	/**
+	 * The value's share of total views, as a whole percent.
+	 */
+	percent: number;
+};
 
 /**
  * A single "best day" / "best hour" highlight: a label, the peak value rendered
  * as a large display figure, and its share of total views.
  *
- * @param props         - The highlight props.
- * @param props.label   - The highlight label (e.g. "Best day").
- * @param props.value   - The peak value (e.g. "Tuesday" or "3:00 PM").
- * @param props.percent - The value's share of total views, as a whole percent.
+ * @param {HighlightProps} props - The component props.
  * @return The highlight block.
  */
-function Highlight( { label, value, percent }: { label: string; value: string; percent: number } ) {
+function Highlight( { label, value, percent }: HighlightProps ) {
 	return (
 		<Stack direction="column" gap="xs">
 			<Text variant="heading-md" render={ <h4 /> } className={ styles.label }>
@@ -109,12 +122,10 @@ function MostPopularTimeReport() {
  * report takes no parameters, so the inner component reads nothing from
  * `attributes`.
  *
- * @param {WidgetRenderProps< MostPopularTimeRenderAttributes >} props - The render props supplied by the widget host.
+ * @param {MostPopularTimeWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function MostPopularTime( {
-	attributes = {},
-}: WidgetRenderProps< MostPopularTimeRenderAttributes > ) {
+export default function MostPopularTime( { attributes = {} }: MostPopularTimeWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<MostPopularTimeReport />

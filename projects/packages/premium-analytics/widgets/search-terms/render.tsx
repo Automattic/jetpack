@@ -28,11 +28,10 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 /**
  * Search Terms widget inner component. Reads report params from WidgetRoot context.
  *
- * @param props     - Render props.
- * @param props.max - Maximum number of rows to display.
+ * @param {SearchTermsAttributes} attributes - The widget attributes.
  * @return The rendered widget content.
  */
-function SearchTermsInner( { max = 10 }: { max?: number } ) {
+function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const { data, isLoading, isError, hasComparison } = useSearchTermViews( { reportParams, max } );
@@ -113,8 +112,7 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
  * Search Terms widget: the top search queries visitors used to reach the site,
  * ranked by view count. Ported from the Jetpack Stats "Search Terms" module.
  *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes (max, reportParams).
+ * @param {SearchTermsWidgetProps} props - The widget render props.
  * @return The rendered Search Terms widget.
  */
 export default function SearchTerms( { attributes = {} }: SearchTermsWidgetProps ) {

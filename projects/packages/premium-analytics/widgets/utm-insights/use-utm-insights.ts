@@ -25,8 +25,17 @@ export interface UtmInsightsRow {
 }
 
 interface UseUtmInsightsArgs {
+	/**
+	 * PA ReportParams injected by the host via attributes.
+	 */
 	reportParams: ReportParams;
+	/**
+	 * UTM dimension to break down by.
+	 */
 	utmParam: StatsUtmParam;
+	/**
+	 * Maximum rows to display (0 = all).
+	 */
 	max: number;
 }
 
@@ -65,10 +74,7 @@ function toUtmRow( item: StatsUtmComparisonItem ): UtmInsightsRow {
 /**
  * Fetch UTM insights for the UTM Insights widget via the shared Stats data layer.
  *
- * @param args              - Hook arguments.
- * @param args.reportParams - PA ReportParams injected by the host via attributes.
- * @param args.utmParam     - UTM dimension to break down by.
- * @param args.max          - Maximum rows to display (0 = all).
+ * @param {UseUtmInsightsArgs} args - Hook arguments.
  * @return The current data/loading/error state.
  */
 export default function useUtmInsights( {

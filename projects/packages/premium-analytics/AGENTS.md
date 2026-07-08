@@ -38,8 +38,12 @@ routes/                                 # lazy-loaded SPA pages; build/ is gener
 ```bash
 composer phpunit              # PHP tests
 pnpm run build / watch        # frontend build (one-off / on change)
-jetpack build packages/premium-analytics
+jetpack build --deps packages/premium-analytics
 ```
+
+`pnpm run build` bundles only this package: monorepo dependencies (charts,
+wp-build-polyfills, assets) must already be built. `jetpack build --deps` builds
+them first — use it after merging trunk or when charts exports look stale.
 
 Add a route: create `routes/<name>/package.json` (with `route.path` + `route.page`) and a
 `stage.tsx` exporting `stage()`; rebuild — routes are auto-discovered.
@@ -405,6 +409,10 @@ the state needs direct review.
   sizing when the style is not part of the shipped widget UI.
 - Reimplementing a utility that already exists in `widgets-toolkit` (e.g. `flagUrl`) — check
   `packages/widgets-toolkit/src/helpers/` before writing a new one.
+- Importing `@automattic/charts` directly from a widget — chart components must come through
+  `@jetpack-premium-analytics/widgets-toolkit` (a shared script module). A direct import
+  bundles the entire charting stack into that widget's render bundle; add a re-export to the
+  toolkit's "Charts passthrough" section instead.
 - Porting a Stats widget and forgetting to add its endpoint to `routeStatsReport()` in
   `register-report-mocks.ts` — stories will render an error state instead of mock data because
   the middleware only intercepts Woo analytics paths by default.
@@ -507,13 +515,3 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
 - Empty state: pass `emptyStateText` to `LeaderboardChart` — do not add a separate
   `data.length === 0` render branch in the widget, unless the widget has a composite layout
   that needs to preserve body chrome or replace a non-leaderboard chart area.
-- Widget picker preview: add this to the CSS Module so the preview tile renders at a
-  sensible aspect ratio instead of collapsing:
-
-```css
-:global( [inert]:not( [inert='true'] ) ) .root {
-	height: auto;
-	aspect-ratio: 4 / 3;
-	overflow: hidden;
-}
-```

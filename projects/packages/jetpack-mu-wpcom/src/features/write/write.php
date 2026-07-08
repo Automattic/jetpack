@@ -817,6 +817,11 @@ function wpcom_write_render_admin_page() {
 		$event_props = array(
 			'is_new_post' => (int) ( 0 === $edit_post_id ),
 			'source'      => $source,
+			// Anon entry is the only logged-out render of this editor (the wp-admin
+			// page requires auth), so logged-out is a reliable proxy for the anon
+			// fake-door funnel. Lets the funnel scope its top-of-funnel denominator
+			// to anon traffic without depending on the client-only wpcomWriteIsAnon flag.
+			'is_anon'     => (int) ! is_user_logged_in(),
 		);
 
 		if ( $edit_post_id > 0 ) {
