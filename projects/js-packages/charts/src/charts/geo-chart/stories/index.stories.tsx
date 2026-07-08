@@ -67,3 +67,13 @@ export const EuropeanCountries: Story = {
 		data: viewsByEuropeanCountry,
 	},
 };
+
+export const MarkersDisplayMode: Story = {
+	args: {
+		...Default.args,
+		region: '150',
+		resolution: 'countries',
+		displayMode: 'markers',
+		data: viewsByEuropeanCountry,
+	},
+};
