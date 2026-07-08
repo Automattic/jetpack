@@ -77,7 +77,8 @@ class DebugLogger implements LoggerInterface {
 	 */
 	public function log_response( $response, string $method ): void {
 		$message = wp_json_encode( $response, JSON_PRETTY_PRINT );
-		$this->log( $message, $method );
+		// wp_json_encode() returns false on failure; keep log() (string, strict_types) safe.
+		$this->log( false === $message ? '' : $message, $method );
 	}
 
 	/**
