@@ -35,14 +35,16 @@ export type StatsVideoPlaysComparisonItem = StatsVideoPlaysItem & {
 	previousPlays?: number;
 };
 
-function getVideoKey( video: StatsVideoPlaysItem ): string {
+// Returns null when the video has no stable identifier at all, so unrelated
+// untitled rows never match each other in the comparison merge.
+function getVideoKey( video: StatsVideoPlaysItem ): string | null {
 	if ( video.id != null ) {
 		return String( video.id );
 	}
 
 	const label = typeof video.label === 'string' ? video.label : '';
 
-	return video.link || label;
+	return video.link || label || null;
 }
 
 export function sanitizeStatsVideoPlaysResponse(

@@ -89,6 +89,7 @@ export default function useLocationViews( {
 	const statsParams = {
 		...reportParams,
 		geoMode,
+		max,
 		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
 	} as Parameters< typeof useStatsLocations >[ 0 ];
 
