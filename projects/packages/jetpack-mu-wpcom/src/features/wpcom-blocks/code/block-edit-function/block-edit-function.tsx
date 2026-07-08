@@ -35,10 +35,8 @@ function EditCodeMirror( props: EditBlockProps ) {
 	const { attributes, isSelected, setAttributes, insertBlocksAfter, onRemove } = props;
 
 	const ref: React.RefObject< HTMLDivElement > = React.useRef( null );
-	const viewRef: React.MutableRefObject< import('@codemirror/view').EditorView | undefined > =
-		React.useRef( undefined );
-	const currentLanguageRef: React.MutableRefObject< LanguageSupport | undefined > =
-		React.useRef( undefined );
+	const viewRef = React.useRef< import('@codemirror/view').EditorView >( undefined );
+	const currentLanguageRef = React.useRef< LanguageSupport >( undefined );
 	const trailingNewlineCounterRef = React.useRef( 0 );
 
 	const { getBlockOrder } = useSelect( blockEditorStore, [] );
