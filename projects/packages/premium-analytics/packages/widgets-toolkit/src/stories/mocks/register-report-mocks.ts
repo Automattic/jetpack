@@ -56,6 +56,10 @@ import {
 	mockStatsSummaryComparisonData,
 	mockStatsSubscribersCountsData,
 	buildEmailRateResponse,
+	mockEmailCountryBreakdown,
+	mockEmailDeviceBreakdown,
+	mockEmailClientBreakdown,
+	mockEmailLinkBreakdown,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -73,6 +77,8 @@ const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/su
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
+const STATS_EMAIL_OPENS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/opens/emails';
+const STATS_EMAIL_CLICKS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/clicks/emails';
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -871,6 +877,32 @@ function buildEmailSummaryResponse() {
 }
 
 /**
+ * Builds a mock email breakdown response for the "Email breakdown" widget. The
+ * request path ends with the breakdown dimension
+ * (`.../stats/opens|clicks/emails/{id}/{breakdown}`), so the trailing segment
+ * selects the matching fieldless fixture. The endpoints have no comparison period.
+ *
+ * @param requestPath - The request path, used to read the breakdown dimension.
+ * @return Raw email breakdown response.
+ */
+function buildEmailBreakdownResponse( requestPath: string ): unknown {
+	const breakdown = requestPath.split( '?' )[ 0 ].split( '/' ).pop() ?? '';
+
+	switch ( breakdown ) {
+		case 'country':
+			return mockEmailCountryBreakdown;
+		case 'device':
+			return mockEmailDeviceBreakdown;
+		case 'client':
+			return mockEmailClientBreakdown;
+		case 'user-content-link':
+			return mockEmailLinkBreakdown;
+		default:
+			return {};
+	}
+}
+
+/**
  * Routes a Stats sub-path to the matching mock generator.
  *
  * @param subPath - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
@@ -1046,6 +1078,13 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_EMAIL_SUMMARY_PATH ) ) {
 		return buildEmailSummaryResponse();
+	}
+
+	if (
+		requestPath.startsWith( STATS_EMAIL_OPENS_PATH ) ||
+		requestPath.startsWith( STATS_EMAIL_CLICKS_PATH )
+	) {
+		return buildEmailBreakdownResponse( requestPath );
 	}
 
 	if ( requestPath.startsWith( STATS_VIDEO_PLAYS_PATH ) ) {
