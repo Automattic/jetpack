@@ -58,18 +58,37 @@ describe( 'PlanUsageWidget', () => {
 		expect( requestedPath ).toContain( '/proxy/v2/jetpack-stats/usage' );
 	} );
 
-	it( 'shows the over-limit warning when recent cycles exceeded the limit', async () => {
-		mockApiFetch.mockResolvedValue( {
-			...PLAN_USAGE_RESPONSE,
-			current_usage: { ...PLAN_USAGE_RESPONSE.current_usage, views_count: 12000 },
-			over_limit_months: 2,
-		} );
+	// The warning is driven solely by `over_limit_months`, independent of the
+	// current cycle's usage.
+	it( 'shows the multi-cycle warning when over the limit for two or more periods', async () => {
+		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, over_limit_months: 2 } );
 
 		render( <PlanUsageWidget attributes={ {} } /> );
 
 		await expect(
 			screen.findByText( "You've surpassed your limit for two consecutive periods already." )
 		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'shows the single-cycle warning when over the limit for one period', async () => {
+		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, over_limit_months: 1 } );
+
+		render( <PlanUsageWidget attributes={ {} } /> );
+
+		await expect(
+			screen.findByText( "You've surpassed your limit the past month." )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'renders no over-limit warning when the site is within its limit', async () => {
+		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, over_limit_months: 0 } );
+
+		render( <PlanUsageWidget attributes={ {} } /> );
+
+		await expect(
+			screen.findByText( '6,200 / 10,000 billable views' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /surpassed your limit/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders an unavailable state when the plan reports no limit', async () => {

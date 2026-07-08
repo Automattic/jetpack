@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useStatsAppPlanUsage } from '@jetpack-premium-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	SemiCircleChart,
 	WidgetLoadingOverlay,
@@ -152,8 +153,8 @@ function PlanUsageGauge( {
 					{ sprintf(
 						/* translators: 1: billable views used, 2: the plan's billable views limit. */
 						__( '%1$s / %2$s billable views', 'jetpack-premium-analytics' ),
-						usageValue.toLocaleString(),
-						limitValue.toLocaleString()
+						formatMetricValue( usageValue, 'number', { decimals: 0 } ),
+						formatMetricValue( limitValue, 'number', { decimals: 0 } )
 					) }
 				</Text>
 				{ daysToReset !== undefined && (
