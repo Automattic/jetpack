@@ -14,13 +14,12 @@
 add_filter( 'jetpack_podcast_for_the_world', '__return_true' );
 
 /**
- * Seed the Podcast module into existing sites' active modules, once.
+ * Activate Podcast on existing sites, once.
  *
- * `Auto Activate` only reaches new installs, so existing Atomic sites need a
- * one-time nudge to turn Podcast on. We add it to the stored active-modules
- * option (rather than forcing it via a filter) so the module stays on but
- * remains user-toggleable. A per-site flag guards the seed, so a later manual
- * deactivation sticks — we never re-add it.
+ * Mirrors how wpcomsh activates other modules (see blaze.php,
+ * wpcom-reader-link.php), but guarded by a one-time flag instead of
+ * re-activating on every request — so a later manual deactivation sticks and
+ * the module stays user-toggleable. `Auto Activate` covers new installs.
  *
  * @return void
  */
@@ -29,20 +28,14 @@ function wpcomsh_seed_podcast_module() {
 		return;
 	}
 
-	if ( ! class_exists( 'Jetpack_Options' ) ) {
+	if ( ! defined( 'JETPACK__VERSION' ) || ! class_exists( 'Jetpack' ) ) {
 		return;
 	}
 
-	$active = Jetpack_Options::get_option( 'active_modules', array() );
-	if ( ! is_array( $active ) ) {
-		$active = array();
+	// Set the flag only once Podcast is confirmed active, so a transient
+	// activation failure retries on the next request rather than seeding never.
+	if ( Jetpack::is_module_active( 'podcast' ) || Jetpack::activate_module( 'podcast', false, false ) ) {
+		update_option( 'wpcomsh_podcast_module_seeded', 1 );
 	}
-
-	if ( ! in_array( 'podcast', $active, true ) ) {
-		$active[] = 'podcast';
-		Jetpack_Options::update_option( 'active_modules', $active );
-	}
-
-	update_option( 'wpcomsh_podcast_module_seeded', 1 );
 }
-add_action( 'jetpack_loaded', 'wpcomsh_seed_podcast_module' );
+add_action( 'init', 'wpcomsh_seed_podcast_module' );
