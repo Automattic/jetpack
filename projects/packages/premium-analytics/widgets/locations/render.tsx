@@ -39,6 +39,15 @@ type RenderLocationState = {
 	geoMode: GeoMode;
 	selectedCountry?: DrillDownCountry;
 };
+type GoogleChartsWindow = Window & {
+	google?: {
+		visualization?: {
+			errors?: {
+				removeError?: ( errorId: string ) => void;
+			};
+		};
+	};
+};
 
 const MISSING_MAP_ERROR_MESSAGE = 'Requested map does not exist';
 
@@ -144,7 +153,7 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 		return Array.from( countryRows.entries() );
 	}, [ data, useCityCountryMap ] );
 	const handleGeoChartError = useCallback(
-		( error: { message?: string; detailedMessage?: string } ) => {
+		( error: { id?: string; message?: string; detailedMessage?: string } ) => {
 			if ( ! selectedCountryCode || ! useProvinceMap ) {
 				return;
 			}
@@ -153,6 +162,10 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 
 			if ( ! message.includes( MISSING_MAP_ERROR_MESSAGE ) ) {
 				return;
+			}
+
+			if ( error.id && typeof window !== 'undefined' ) {
+				( window as GoogleChartsWindow ).google?.visualization?.errors?.removeError?.( error.id );
 			}
 
 			setUnsupportedProvinceMapCountries( previous => {
