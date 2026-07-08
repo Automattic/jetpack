@@ -282,6 +282,7 @@ class Atomic_Admin_Menu_Test extends TestCase {
 			'Commerce monthly' => array( 'ecommerce-bundle-monthly' ),
 			'Commerce 2y'      => array( 'ecommerce-bundle-2y' ),
 			'Commerce 3y'      => array( 'ecommerce-bundle-3y' ),
+			'Commerce trial'   => array( 'ecommerce-trial-bundle-monthly' ),
 		);
 	}
 

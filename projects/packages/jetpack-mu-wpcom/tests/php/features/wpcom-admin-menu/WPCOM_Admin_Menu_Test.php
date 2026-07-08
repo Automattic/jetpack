@@ -306,6 +306,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			'Commerce monthly' => array( 'ecommerce-bundle-monthly' ),
 			'Commerce 2y'      => array( 'ecommerce-bundle-2y' ),
 			'Commerce 3y'      => array( 'ecommerce-bundle-3y' ),
+			'Commerce trial'   => array( 'ecommerce-trial-bundle-monthly' ),
 		);
 	}
 
@@ -317,7 +318,6 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	public static function provide_non_commerce_plan_slugs() {
 		return array(
 			'Business'          => array( 'business-bundle' ),
-			'eCommerce trial'   => array( 'ecommerce-trial-bundle-monthly' ),
 			'WooExpress small'  => array( 'wooexpress-small-bundle-yearly' ),
 			'WooExpress medium' => array( 'wooexpress-medium-bundle-monthly' ),
 		);

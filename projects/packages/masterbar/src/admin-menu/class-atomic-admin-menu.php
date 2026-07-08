@@ -101,7 +101,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Whether the current site is on a Commerce plan.
+	 * Whether the current site is on a Commerce plan (including the Commerce trial).
 	 *
 	 * Legacy Woo Express plans are intentionally excluded: those users chose a Woo-branded
 	 * product, so they keep the "WooCommerce" label.
@@ -134,12 +134,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Commerce plan slugs for which the WooCommerce menu item is relabeled.
+	 * Commerce plan slugs (including the Commerce trial) for which the WooCommerce menu item
+	 * is relabeled.
 	 *
-	 * Derived from the canonical plan list so a new ecommerce-bundle-* variant is picked up
+	 * Derived from the canonical plan list so new ecommerce-* variants are picked up
 	 * automatically. The "business" group also holds Woo Express and other business plans,
-	 * so it's narrowed to the ecommerce-bundle family (this also excludes the eCommerce trial,
-	 * ecommerce-trial-bundle-monthly).
+	 * so it's narrowed to the ecommerce- family (ecommerce-bundle* plus the
+	 * ecommerce-trial-bundle-monthly trial); Woo Express (wooexpress-*) is excluded.
 	 *
 	 * @return string[]
 	 */
@@ -148,7 +149,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			array_filter(
 				Current_Plan::PLAN_DATA['business']['plans'],
 				static function ( $slug ) {
-					return str_starts_with( $slug, 'ecommerce-bundle' );
+					return str_starts_with( $slug, 'ecommerce-' );
 				}
 			)
 		);

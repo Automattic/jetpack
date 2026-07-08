@@ -278,10 +278,11 @@ function wpcom_get_current_plan_name() {
 }
 
 /**
- * Whether the current site is on a Commerce plan (any ecommerce-bundle term).
+ * Whether the current site is on a Commerce plan, including the Commerce trial.
  *
- * Legacy Woo Express plans are intentionally excluded: those users chose a Woo-branded
- * product, so they keep the "WooCommerce" label.
+ * Matches the ecommerce- family (ecommerce-bundle* plus ecommerce-trial-bundle-monthly).
+ * Legacy Woo Express plans (wooexpress-*) are intentionally excluded: those users chose a
+ * Woo-branded product, so they keep the "WooCommerce" label.
  *
  * @return bool
  */
@@ -291,7 +292,7 @@ function wpcom_is_commerce_plan() {
 	}
 
 	foreach ( wpcom_get_site_purchases() as $purchase ) {
-		if ( isset( $purchase->product_slug ) && str_starts_with( $purchase->product_slug, 'ecommerce-bundle' ) ) {
+		if ( isset( $purchase->product_slug ) && str_starts_with( $purchase->product_slug, 'ecommerce-' ) ) {
 			return true;
 		}
 	}
