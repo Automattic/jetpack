@@ -34,7 +34,10 @@ class Shared_Stores_Assets {
 			'../build/jetpack-shared-stores.js',
 			__FILE__,
 			array(
-				'in_footer' => true,
+				'in_footer'  => true,
+				// The bundle's strings are rewritten to the jetpack-assets textdomain at
+				// build time (see webpack.config.js), so load translations from it.
+				'textdomain' => 'jetpack-assets',
 			)
 		);
 	}
