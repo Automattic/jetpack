@@ -108,7 +108,10 @@ class Rest_Controller {
 	 *
 	 * Forwards the whitelisted query params to WPCOM (REST v1.1, blog-signed
 	 * — matching the existing `Stats::fetch_video_plays` path) and forces
-	 * `complete_stats=true`. In complete-stats mode, each day entry carries
+	 * `complete_stats=true`. `check_stats_module=false` is also forced so the
+	 * report loads for standalone VideoPress sites without the Jetpack Stats
+	 * module active, matching `Stats::fetch_video_plays`. In complete-stats
+	 * mode, each day entry carries
 	 * `total.views`, `total.impressions`, and `total.watch_time` (in hours)
 	 * plus a per-video `data[]` array whose entries have `post_id`, `title`,
 	 * `views`, `impressions`, `watch_time` (hours), and `retention_rate`.
@@ -127,7 +130,10 @@ class Rest_Controller {
 			);
 		}
 
-		$params = array( 'complete_stats' => 'true' );
+		$params = array(
+			'complete_stats'     => 'true',
+			'check_stats_module' => 'false',
+		);
 		foreach ( array_keys( self::stats_video_plays_args() ) as $key ) {
 			$value = $request->get_param( $key );
 			if ( $value !== null && $value !== '' ) {
