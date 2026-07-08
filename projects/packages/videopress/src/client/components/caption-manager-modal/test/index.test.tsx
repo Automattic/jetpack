@@ -861,8 +861,9 @@ describe( 'CaptionManagerModal', () => {
 		const user = userEvent.setup();
 		render( <CaptionManagerModal { ...defaultProps } tracks={ [] } /> );
 
-		await user.click( screen.getByText( 'Add track' ) );
-		await user.click( screen.getByText( 'Paste text' ) );
+		// A brand-new track hides the toolbar "Paste text"; "Paste transcript" is
+		// the list's dedicated entry into the same paste flow.
+		await user.click( screen.getByText( 'Paste transcript' ) );
 		await user.type( screen.getByLabelText( 'Subtitle text' ), 'Trail closed.\nTrail open.' );
 		await user.click( screen.getByText( 'Create cues' ) );
 

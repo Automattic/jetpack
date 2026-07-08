@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Button } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { download, pencil, replace, trash } from '@wordpress/icons';
 /**
@@ -90,6 +91,10 @@ export default function TrackList( {
 	onEditDraft,
 	onDeleteDraft,
 }: TrackListProps ): ReactElement {
+	// Below the modal's mobile breakpoint the row actions render icon-only (with
+	// a tooltip/aria-label) so all four fit one full-width row instead of wrapping.
+	const isCompact = useViewportMatch( 'large', '<' );
+
 	if ( ! rows.length ) {
 		return (
 			<div className="videopress-caption-manager__empty">
@@ -119,20 +124,24 @@ export default function TrackList( {
 								<Button
 									variant="link"
 									icon={ pencil }
+									label={ __( 'Edit', 'jetpack-videopress-pkg' ) }
+									showTooltip={ isCompact }
 									onClick={ () => onEditDraft( row.captionTrack ) }
 									disabled={ isBusy }
 								>
-									{ __( 'Edit', 'jetpack-videopress-pkg' ) }
+									{ isCompact ? null : __( 'Edit', 'jetpack-videopress-pkg' ) }
 								</Button>
 								<Button
 									variant="link"
 									icon={ trash }
+									label={ __( 'Delete', 'jetpack-videopress-pkg' ) }
+									showTooltip={ isCompact }
 									isDestructive
 									isBusy={ isDeleting }
 									disabled={ isBusy }
 									onClick={ () => onDeleteDraft( row.captionTrack ) }
 								>
-									{ __( 'Delete', 'jetpack-videopress-pkg' ) }
+									{ isCompact ? null : __( 'Delete', 'jetpack-videopress-pkg' ) }
 								</Button>
 							</div>
 						</div>
@@ -151,37 +160,45 @@ export default function TrackList( {
 							<Button
 								variant="link"
 								icon={ pencil }
+								label={ __( 'Edit', 'jetpack-videopress-pkg' ) }
+								showTooltip={ isCompact }
 								onClick={ () => onEditManaged( row.track ) }
 								disabled={ isBusy || ! row.isReady }
 							>
-								{ __( 'Edit', 'jetpack-videopress-pkg' ) }
+								{ isCompact ? null : __( 'Edit', 'jetpack-videopress-pkg' ) }
 							</Button>
 							<Button
 								variant="link"
 								icon={ replace }
+								label={ __( 'Replace file', 'jetpack-videopress-pkg' ) }
+								showTooltip={ isCompact }
 								onClick={ () => onReplaceManaged( row.track ) }
 								disabled={ isBusy || ! row.isReady || row.isGenerated }
 							>
-								{ __( 'Replace file', 'jetpack-videopress-pkg' ) }
+								{ isCompact ? null : __( 'Replace file', 'jetpack-videopress-pkg' ) }
 							</Button>
 							<Button
 								variant="link"
 								icon={ download }
+								label={ __( 'Download', 'jetpack-videopress-pkg' ) }
+								showTooltip={ isCompact }
 								isBusy={ isDownloading }
 								onClick={ () => onDownloadManaged( row.track ) }
 								disabled={ isBusy || ! row.isReady }
 							>
-								{ __( 'Download', 'jetpack-videopress-pkg' ) }
+								{ isCompact ? null : __( 'Download', 'jetpack-videopress-pkg' ) }
 							</Button>
 							<Button
 								variant="link"
 								icon={ trash }
+								label={ __( 'Delete', 'jetpack-videopress-pkg' ) }
+								showTooltip={ isCompact }
 								isDestructive
 								isBusy={ isDeleting }
 								disabled={ isBusy }
 								onClick={ () => onDeleteManaged( row.track ) }
 							>
-								{ __( 'Delete', 'jetpack-videopress-pkg' ) }
+								{ isCompact ? null : __( 'Delete', 'jetpack-videopress-pkg' ) }
 							</Button>
 						</div>
 					</div>

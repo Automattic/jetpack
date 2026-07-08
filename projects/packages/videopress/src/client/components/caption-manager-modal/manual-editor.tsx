@@ -3,7 +3,7 @@
  */
 import { BlockEditorProvider, BlockList } from '@wordpress/block-editor';
 import { Button, TextareaControl } from '@wordpress/components';
-import { useFocusOnMount } from '@wordpress/compose';
+import { useFocusOnMount, useViewportMatch } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { plus } from '@wordpress/icons';
@@ -98,6 +98,10 @@ export default function ManualEditor( {
 	 * keyboard shortcuts work right away.
 	 */
 	const focusOnMountRef = useFocusOnMount( true );
+	// The video preview is dropped below the modal's mobile breakpoint: it doesn't
+	// fit alongside cue editing on a phone, so skip mounting the player entirely
+	// (no VideoPress iframe/video load) rather than just hiding it with CSS.
+	const isCompact = useViewportMatch( 'large', '<' );
 	const cueEditorRef = useRef< HTMLDivElement >( null );
 	const shouldScrollCueEditorToEndRef = useRef( false );
 
@@ -233,9 +237,18 @@ export default function ManualEditor( {
 
 	const addCue = useCallback( () => {
 		shouldScrollCueEditorToEndRef.current = true;
-		const block = createCueAtPlayhead( playerRef.current?.getCurrentTime() ?? 0 );
+		const currentBlocks = cueBlocksRef.current;
+		/*
+		 * With no mounted player (mobile), fall back to the last cue's end time so
+		 * appended cues follow on from each other instead of stacking at zero.
+		 */
+		const lastCue = currentBlocks[ currentBlocks.length - 1 ];
+		const fallbackStart = lastCue
+			? parseTimestampToSeconds( String( lastCue.attributes?.endTime ?? '' ) ) ?? 0
+			: 0;
+		const block = createCueAtPlayhead( playerRef.current?.getCurrentTime() ?? fallbackStart );
 		pendingFocusClientIdRef.current = block.clientId;
-		applyCueBlocksChange( [ ...cueBlocksRef.current, block ] );
+		applyCueBlocksChange( [ ...currentBlocks, block ] );
 	}, [ applyCueBlocksChange, cueBlocksRef, pendingFocusClientIdRef, playerRef ] );
 
 	const seekToAdjacentCue = useCallback(
@@ -416,11 +429,22 @@ export default function ManualEditor( {
 								</Button>
 							</div>
 						) }
+						{ /* Touch devices have no hover to reveal the between-cue insert buttons
+						     and no keyboard shortcut, so offer a persistent way to append a cue. */ }
+						{ isCompact && !! cueBlocks.length && (
+							<div className="videopress-caption-manager__cue-add">
+								<Button variant="secondary" icon={ plus } onClick={ addCue }>
+									{ __( 'Add subtitle', 'jetpack-videopress-pkg' ) }
+								</Button>
+							</div>
+						) }
 					</div>
 				) }
 			</div>
 
-			<CaptionPreviewPlayer ref={ playerRef } { ...preview } cueRanges={ cueRanges } />
+			{ ! isCompact && (
+				<CaptionPreviewPlayer ref={ playerRef } { ...preview } cueRanges={ cueRanges } />
+			) }
 		</div>
 	);
 }

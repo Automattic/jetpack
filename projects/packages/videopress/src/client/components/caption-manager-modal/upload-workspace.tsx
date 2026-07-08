@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Button, FormFileUpload } from '@wordpress/components';
-import { useFocusOnMount } from '@wordpress/compose';
+import { useFocusOnMount, useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
 /**
@@ -72,6 +72,8 @@ export default function UploadWorkspace( {
 	 * entering the view never grabs the close button or the picker.
 	 */
 	const focusOnMountRef = useFocusOnMount( true );
+	// Match the manual editor: no video preview on mobile (don't mount the player).
+	const isCompact = useViewportMatch( 'large', '<' );
 
 	return (
 		<div
@@ -137,7 +139,7 @@ export default function UploadWorkspace( {
 					</Button>
 				</div>
 			</div>
-			<CaptionPreviewPlayer { ...preview } />
+			{ ! isCompact && <CaptionPreviewPlayer { ...preview } /> }
 		</div>
 	);
 }

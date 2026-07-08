@@ -917,16 +917,20 @@ function CaptionManagerModalInner( {
 									</Button>
 									{ workspace.view === 'manual' && (
 										<>
-											{ ! workspace.isTextImportOpen && (
-												<Button
-													variant="secondary"
-													onClick={ () =>
-														dispatchAndClearNotice( { type: 'SET_TEXT_IMPORT_OPEN', isOpen: true } )
-													}
-												>
-													{ __( 'Paste text', 'jetpack-videopress-pkg' ) }
-												</Button>
-											) }
+											{ ! workspace.isTextImportOpen &&
+												Boolean( workspace.sourceTrack || workspace.captionTrackId ) && (
+													<Button
+														variant="secondary"
+														onClick={ () =>
+															dispatchAndClearNotice( {
+																type: 'SET_TEXT_IMPORT_OPEN',
+																isOpen: true,
+															} )
+														}
+													>
+														{ __( 'Paste text', 'jetpack-videopress-pkg' ) }
+													</Button>
+												) }
 											{ ! isUpdatingPublishedTrack && (
 												<Button
 													variant="secondary"

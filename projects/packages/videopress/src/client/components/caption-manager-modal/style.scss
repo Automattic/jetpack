@@ -269,6 +269,12 @@
 	padding: 24px 16px;
 }
 
+.videopress-caption-manager__cue-add {
+	display: flex;
+	justify-content: center;
+	padding-block-end: 16px;
+}
+
 .videopress-caption-manager__cue-editor .block-editor-block-list__layout {
 	display: flex;
 	flex-direction: column;
@@ -467,16 +473,47 @@
 @media ( max-width: 960px ) {
 
 	.videopress-caption-manager.components-modal__frame {
-		width: calc(100vw - 24px);
-		height: calc(100vh - 24px);
+		width: 100vw;
+		// The frame is top-anchored ~40px down (below the wp-admin bar), so cap its
+		// height to the remaining space or its bottom falls past the viewport.
+		height: calc(100vh - 40px);
 	}
 
 	.videopress-caption-manager__action-bar,
-	.videopress-caption-manager__editor-body,
 	.videopress-caption-manager__manual-meta,
-	.videopress-caption-manager__track,
+	.videopress-caption-manager__form-grid,
 	.videopress-caption-cue__body {
 		grid-template-columns: 1fr;
+	}
+
+	// Larger touch targets for the cue toolbar's icon-only controls on mobile.
+	// Match WordPress's `.is-small.has-icon` specificity to win the cascade.
+	.videopress-caption-cue__actions .components-button.is-small.has-icon {
+		min-width: 40px;
+		width: 40px;
+		height: 40px;
+	}
+
+	// The editor is a fixed-height two-column grid on desktop; on mobile the
+	// preview is dropped, so let it flow as a single content-sized column that
+	// the workspace scrolls, rather than a height-constrained grid that clips.
+	.videopress-caption-manager__editor,
+	.videopress-caption-manager__editor-body {
+		overflow: visible;
+	}
+
+	.videopress-caption-manager__editor-body {
+		display: flex;
+		flex-direction: column;
+	}
+
+	// Size the editor panels to their content on mobile so the workspace scrolls
+	// the whole column — with the panels' own padding as bottom breathing room —
+	// instead of flex-constraining them and letting the last control spill past
+	// the fold where it can't be scrolled fully into view.
+	.videopress-caption-manager__manual-main,
+	.videopress-caption-manager__cue-editor {
+		flex: none;
 	}
 
 	.videopress-caption-manager__text-import-actions {
@@ -488,6 +525,18 @@
 		align-items: flex-start;
 	}
 
+	// The modal title already names the current view, so the in-body heading and
+	// status line are redundant on mobile — hide them to reclaim vertical space.
+	.videopress-caption-manager__action-bar-start {
+		display: none;
+	}
+
+	// The icon-only actions stay grouped on the row's trailing edge, beside the
+	// title, rather than spreading across their own line.
+	.videopress-caption-manager__track-actions {
+		gap: 4px;
+	}
+
 	.videopress-caption-manager__workspace {
 		overflow-y: auto;
 	}
@@ -496,6 +545,9 @@
 		overflow: visible;
 	}
 
+	// Let the whole workspace be the single scroll container on mobile rather
+	// than nesting a short scroll area inside it, which reads as "won't scroll".
+	.videopress-caption-manager__track-list,
 	.videopress-caption-manager__upload-panel,
 	.videopress-caption-manager__manual-main,
 	.videopress-caption-manager__cue-editor,
@@ -506,6 +558,13 @@
 	.videopress-caption-manager__preview {
 		border-inline-start: 0;
 		border-block-start: 1px solid #dcdcde;
+	}
+
+	// The dashboard's footer sits at the bottom of the viewport and shows
+	// through beneath the full-height modal on narrow screens; hide it while a
+	// modal is open (WordPress sets `modal-open` on the body for the duration).
+	body.modal-open .jetpack-footer {
+		display: none;
 	}
 }
 
