@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import { GlobalChartsProvider, useChartTheme } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useMemo } from '@wordpress/element';
 import { useParams } from '@wordpress/route';
@@ -11,6 +13,7 @@ import { Stack } from '@wordpress/ui';
 import { route } from './package.json';
 import { getReportDefinition } from './registry';
 import styles from './stage.module.scss';
+import type { ReactNode } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -70,10 +73,35 @@ function ReportDispatcher(): JSX.Element {
 }
 
 /**
+ * The report surface's provider stack, mounted once here so every report page
+ * composes data hooks and chart components directly (`useSeriesStyles` +
+ * `ComparativeLineChart`, same as widgets) without mounting its own providers.
+ *
+ * @param {object}    props          - The component props.
+ * @param {ReactNode} props.children - The report page.
+ * @return {JSX.Element} The wrapped report page.
+ */
+function ReportProviders( { children }: { children: ReactNode } ): JSX.Element {
+	const chartTheme = useChartTheme();
+
+	return (
+		<AnalyticsQueryClientProvider>
+			<GlobalErrorProvider>
+				<GlobalChartsProvider theme={ chartTheme }>{ children }</GlobalChartsProvider>
+			</GlobalErrorProvider>
+		</AnalyticsQueryClientProvider>
+	);
+}
+
+/**
  * Premium Analytics dynamic report page stage.
  *
  * @return {JSX.Element} The report page.
  */
 export function stage(): JSX.Element {
-	return <ReportDispatcher />;
+	return (
+		<ReportProviders>
+			<ReportDispatcher />
+		</ReportProviders>
+	);
 }

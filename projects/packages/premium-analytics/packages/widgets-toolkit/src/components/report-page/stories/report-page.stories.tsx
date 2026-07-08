@@ -1,19 +1,21 @@
 /**
  * External dependencies
  */
+import { GlobalChartsProvider } from '@automattic/charts';
 import { Button } from '@wordpress/components';
 import { Text } from '@wordpress/ui';
 import { useState } from 'react';
 /**
  * Internal dependencies
  */
+import { useChartTheme } from '../../../hooks';
 import { ReportPageLayout } from '../report-page-layout';
 import { ReportPerformanceChart } from '../report-performance-chart';
 import { ReportRecordsTable } from '../report-records-table';
 import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { Field } from '@wordpress/dataviews';
-import type { ComponentProps } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
 /**
  * Build a deterministic 30-day visits report fixture. `offsetDays` shifts the
@@ -110,6 +112,26 @@ interface ReportPageStoryControls {
 }
 
 /**
+ * In product the `/reports/$report` stage mounts the chart theme provider once
+ * for every report page; stories stand in for the stage here.
+ *
+ * @param {object}    props          - The component props.
+ * @param {ReactNode} props.children - The story content.
+ * @return The themed story content.
+ */
+function StoryChartProviders( { children }: { children: ReactNode } ) {
+	const chartTheme = useChartTheme();
+
+	return <GlobalChartsProvider theme={ chartTheme }>{ children }</GlobalChartsProvider>;
+}
+
+const withChartProviders: Decorator = Story => (
+	<StoryChartProviders>
+		<Story />
+	</StoryChartProviders>
+);
+
+/**
  * The full second-level report page as PR 2 will compose it: breadcrumb header
  * with a Download action slot, the filters row (placeholder here — the real
  * page passes `DateFiltersPanel`), the multi-metric performance chart, and the
@@ -160,6 +182,7 @@ const meta = {
 		withComparison: { control: 'boolean' },
 		isLoading: { control: 'boolean' },
 	},
+	decorators: [ withChartProviders ],
 	parameters: {
 		layout: 'padded',
 		docs: {

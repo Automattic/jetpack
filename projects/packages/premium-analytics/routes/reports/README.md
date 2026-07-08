@@ -33,6 +33,14 @@ definition and lazily renders that report's page component. Adding a report does
 That's it. The report is reachable at `/reports/<id>`. An unknown or missing
 `$report` redirects to the dashboard (`route.ts`).
 
+## Providers the stage mounts for every report
+
+The stage wraps every report page in `AnalyticsQueryClientProvider` (React
+Query), `GlobalErrorProvider`, and `GlobalChartsProvider` with the shared chart
+theme. Report pages therefore call data hooks and compose chart components
+directly (`useSeriesStyles` + `ComparativeLineChart`, exactly like widgets do)
+without mounting any providers of their own.
+
 ## URL contract a report inherits
 
 `route.ts` seeds and normalizes the shared report-window params, so every report

@@ -58,3 +58,10 @@ not a bespoke page per module.
 These components do not fetch: the page owns the data hooks and the
 `reportParams` derived from the URL (`useReportDateFilters`), and passes
 results in as props.
+
+They also mount no providers. The `/reports/$report` stage provides the
+surface's context once — React Query, global errors, and the chart theme
+(`GlobalChartsProvider`). That is why a page can compose a chart the same way a
+widget does: `useSeriesStyles` plus `ComparativeLineChart`, nothing else.
+Outside the stage (Storybook), mount `GlobalChartsProvider` with
+`useChartTheme()` yourself — see `stories/report-page.stories.tsx`.

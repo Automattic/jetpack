@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { GlobalChartsProvider } from '@automattic/charts';
 import { Button, DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { check, moreVertical } from '@wordpress/icons';
@@ -10,7 +9,7 @@ import { useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { useChartTheme, useSeriesStyles } from '../../hooks';
+import { useSeriesStyles } from '../../hooks';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { WidgetLoadingOverlay } from '../widget-loading-overlay';
 import { ReportPageSection } from './report-page-layout';
@@ -18,7 +17,6 @@ import styles from './report-performance-chart.module.scss';
 import { buildReportMetricSeries } from './utils/build-report-metric-series';
 import type { ReportChartMetric } from './types';
 import type { DataFormat } from '../../types';
-import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
 import type { LegendLabels } from '../chart-leaderboard';
 import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
@@ -82,34 +80,14 @@ export interface ReportPerformanceChartProps {
 }
 
 /**
- * The chart body. Split out so `useSeriesStyles` runs under the
- * `GlobalChartsProvider` mounted by the section (there is no `WidgetRoot`
- * above report-page components).
- *
- * @param {object}                       props            - The component props.
- * @param {ComparativeLineChartSeries[]} props.series     - The series to draw.
- * @param {DataFormat}                   props.dataFormat - Value/axis format.
- * @return The chart.
- */
-function ChartCanvas( {
-	series,
-	dataFormat,
-}: {
-	series: ComparativeLineChartSeries[];
-	dataFormat: DataFormat;
-} ) {
-	const seriesStyles = useSeriesStyles( series );
-
-	return (
-		<ComparativeLineChart series={ series } styles={ seriesStyles } dataFormat={ dataFormat } />
-	);
-}
-
-/**
  * The report page's multi-metric performance section: a card with the
  * Views/Visitors/Comments/Likes series drawn together, a metric show/hide
  * menu, the time-bucket selector, and a chart collapse toggle. The page owns
  * data fetching (`useStatsVisits`) and the interval, and passes the reports in.
+ *
+ * Chart theming comes from the `GlobalChartsProvider` mounted once by the
+ * `/reports/$report` stage, so this component must render under that stage —
+ * or under a provider of its own in isolated contexts like Storybook.
  *
  * With a single visible metric and comparison data present, the previous
  * period renders as a dashed overlay (see `buildReportMetricSeries`).
@@ -130,7 +108,6 @@ export function ReportPerformanceChart( {
 	legendLabels,
 	controls,
 }: ReportPerformanceChartProps ) {
-	const chartTheme = useChartTheme();
 	const allMetrics = useMemo( () => metrics ?? getDefaultMetrics(), [ metrics ] );
 	const [ hiddenMetricKeys, setHiddenMetricKeys ] = useState< string[] >( [] );
 	const [ isChartHidden, setIsChartHidden ] = useState( false );
@@ -144,6 +121,7 @@ export function ReportPerformanceChart( {
 		() => buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics, legendLabels } ),
 		[ primary, comparison, visibleMetrics, legendLabels ]
 	);
+	const seriesStyles = useSeriesStyles( series );
 
 	const toggleMetric = ( key: string ) => {
 		setHiddenMetricKeys( current => {
@@ -208,9 +186,11 @@ export function ReportPerformanceChart( {
 			</div>
 			{ ! isChartHidden && (
 				<div className={ styles.chart }>
-					<GlobalChartsProvider theme={ chartTheme }>
-						<ChartCanvas series={ series } dataFormat={ dataFormat } />
-					</GlobalChartsProvider>
+					<ComparativeLineChart
+						series={ series }
+						styles={ seriesStyles }
+						dataFormat={ dataFormat }
+					/>
 					{ isLoading && <WidgetLoadingOverlay /> }
 				</div>
 			) }
