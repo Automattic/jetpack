@@ -247,5 +247,5 @@ The heatmap chart is designed for full keyboard and screen reader access:
 - Each cell has an `aria-label` containing the cell name and value (or "No data"). An `aria-label` is used rather than a native `title` so no duplicate browser tooltip appears. Axis labels are decorative (`aria-hidden`) because the cell label already carries that text.
 - **Keyboard navigation**: Tab focuses the chart; arrow keys navigate between cells; the focused cell receives a visible highlight ring, and (when `withTooltips` is set) its tooltip. Escape clears the selection.
 - Color alone is never the sole indicator of value — every cell exposes its value via its accessible label, and `showValues` can render numeric labels inside cells.
-- **In-cell text contrast**: when values are shown, each cell chooses light or dark text from the luminance of its blended fill rather than the raw value, so the number stays legible across the whole scale and with any primary color.
+- **In-cell text contrast**: when values are shown, each cell chooses light or dark text from the luminance of its blended fill rather than the raw value, so the number stays legible across the whole scale — with any primary color and against a themed (including dark) chart background.
 - The component does not use animations by default, and no `prefers-reduced-motion` opt-out is required.
