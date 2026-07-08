@@ -110,14 +110,18 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	/**
 	 * Simulate a connected Jetpack owner so has_jetpack_ai_features() returns true.
 	 *
-	 * Called in set_up() so every test starts with AI features available.
-	 * Tests that need AI features off should use disable_ai_features() instead.
+	 * Called in set_up() so every test starts with AI features available and the
+	 * current user connected (Image Studio gates on the current user's own
+	 * connection). Tests that need AI features off should use disable_ai_features(),
+	 * and tests that need a non-connected or different current user should override
+	 * with wp_set_current_user().
 	 */
 	private function simulate_connected_owner() {
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+		wp_set_current_user( $user_id );
 	}
 
 	/**
@@ -314,6 +318,65 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function test_is_not_enabled_when_ai_features_disabled() {
 		$this->disable_ai_features();
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Site-level enablement stays true even when the current user is not
+	 * connected. It drives the Big Sky stand-down signal and the suppression of
+	 * the legacy AI image extensions, so it must not depend on the visitor;
+	 * per-user gating happens at asset-load time instead.
+	 */
+	public function test_is_enabled_at_site_level_regardless_of_user_connection() {
+		$non_connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $non_connected_admin );
+
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\is_current_user_connected() );
+	}
+
+	/**
+	 * Editor assets are not enqueued for a user who has not connected their own
+	 * WordPress.com account, even though the site offers Image Studio.
+	 */
+	public function test_assets_not_enqueued_when_current_user_not_connected() {
+		$this->enable_big_sky();
+		$this->set_block_editor_screen();
+		set_transient(
+			ImageStudio\ASSET_TRANSIENT,
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$non_connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $non_connected_admin );
+
+		ImageStudio\enqueue_image_studio();
+
+		$this->assertFalse( wp_script_is( ImageStudio\FEATURE_NAME, 'enqueued' ) );
+	}
+
+	/**
+	 * Editor assets are enqueued when the current user is connected.
+	 */
+	public function test_assets_enqueued_when_current_user_connected() {
+		// set_up() connects an owner and acts as them.
+		$this->enable_big_sky();
+		$this->set_block_editor_screen();
+		set_transient(
+			ImageStudio\ASSET_TRANSIENT,
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		ImageStudio\enqueue_image_studio();
+
+		$this->assertTrue( wp_script_is( ImageStudio\FEATURE_NAME, 'enqueued' ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -1782,6 +1845,23 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		$this->assertSame( $original_actions, $actions );
 		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * The "Edit with AI" row action is not registered for a user who has not
+	 * connected their own WordPress.com account.
+	 */
+	public function test_row_action_not_registered_when_current_user_not_connected() {
+		$callback = 'Automattic\\Jetpack\\Extensions\\ImageStudio\\add_image_studio_row_action';
+
+		$non_connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $non_connected_admin );
+		$this->set_media_library_screen();
+		remove_filter( 'media_row_actions', $callback, 10 );
+
+		ImageStudio\register_row_action();
+
+		$this->assertFalse( has_filter( 'media_row_actions', $callback ) );
 	}
 
 	// -------------------------------------------------------------------------
