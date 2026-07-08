@@ -3,13 +3,17 @@
  * with Undo/Redo/Discard/Save header actions and the save/restore flows
  * against the /wpcom/v2/videopress/{guid}/edits contract.
  *
- * State model: one history-wrapped edit-session reducer is the single store.
- * The server baseline (GET …/edits) is LOADed into the session on first
- * fetch; afterwards a revision change re-baselines automatically when it is
- * expected (our own save/restore job completing) or when the session is
- * clean, and raises the conflict banner otherwise. `isDirty` against the
- * latest baseline drives Save/Discard enablement, the beforeunload guard,
- * and the in-app navigation guards (sub-nav, links, browser back/forward).
+ * State model: one history-wrapped edit-session reducer is the trim/cut
+ * store, and a SECOND history-wrapped chapters store (use-chapters-store)
+ * backs the Chapters tool — undo/redo is per tool, and the header buttons
+ * and mod+Z act on the active tool's history. The server baseline
+ * (GET …/edits) is LOADed into the trim session on first fetch; afterwards
+ * a revision change re-baselines automatically when it is expected (our own
+ * save/restore job completing) or when the session is clean, and raises the
+ * conflict banner otherwise. `isDirty` against the latest baseline drives
+ * Save/Discard enablement; the beforeunload guard and the in-app navigation
+ * guards (sub-nav, links, browser back/forward) arm when EITHER store is
+ * dirty.
  *
  * Timestamps everywhere are integer milliseconds on the ORIGINAL master
  * timeline. The session's duration prefers the server's
@@ -29,18 +33,22 @@ import { useRestoreOriginal } from '../../hooks/use-restore-original';
 import { EditsConflictError, useSaveVideoEdits } from '../../hooks/use-save-video-edits';
 import { useVideo } from '../../hooks/use-video';
 import { EDITS_QUERY_KEY, useVideoEdits } from '../../hooks/use-video-edits';
+import { probeManualTrack } from '../../utils/chapters-probe';
 import VideoLayout from '../video-layout';
 import { videoTabPath } from '../video-nav';
+import StudioChaptersTimeline from './chapters/chapters-timeline';
 import StudioEditorConfirmDialog from './confirm-dialog';
 import StudioEditorHeaderActions from './header-actions';
 import StudioEditorOperationsPanel from './operations-panel';
 import StudioEditorPreviewPlayer from './preview/preview-player';
+import { chaptersEditsEqual } from './state/chapters-session';
 import { createEditSession, editSessionReducer, sessionEditsEqual } from './state/edit-session';
 import { canRedo, canUndo, createHistory, withHistory } from './state/history';
 import { isDirty as isSessionDirty, sessionToOperations } from './state/serialize';
 import { initialToolFromLocation } from './state/tools';
 import StudioEditorStatusBanner from './status-banner';
 import StudioEditorTimeline from './timeline/timeline';
+import { useChaptersStore } from './use-chapters-store';
 import './style.scss';
 import type { StudioEditorPreviewPlayerHandle } from './preview/preview-player';
 import type { EditOperation, EditSession, EditSessionAction } from './state/edit-session';
@@ -214,6 +222,42 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	const lockedRef = useRef( locked );
 	lockedRef.current = locked;
 
+	// The Chapters tool's store: a second history instance so undo/redo is
+	// per tool. Chapters live on the OUTPUT video, so its duration is the
+	// attachment's (not the trim session's original master duration).
+	const chapters = useChaptersStore( {
+		description: video.description,
+		durationMs: Math.round( video.durationSeconds * 1000 ),
+		locked,
+	} );
+	const chaptersActive = activeTool === 'chapters';
+
+	// Manual-VTT probe, once per mount on the chapters tool's first
+	// activation: a manually uploaded chapters track must never be edited
+	// here, so 'manual' turns the tool read-only. Fails open ('editable') —
+	// the save-time sync re-checks the guard authoritatively.
+	const [ chaptersProbe, setChaptersProbe ] = useState< 'unprobed' | 'manual' | 'editable' >(
+		'unprobed'
+	);
+	const chaptersProbeStarted = useRef( false );
+	const videoRef = useRef( video );
+	videoRef.current = video;
+	useEffect( () => {
+		if ( activeTool !== 'chapters' || chaptersProbeStarted.current ) {
+			return;
+		}
+		chaptersProbeStarted.current = true;
+		// No cancellation: setState after unmount is a safe no-op, and the
+		// result must survive tool switches during the probe.
+		probeManualTrack( videoRef.current ).then( setChaptersProbe );
+	}, [ activeTool ] );
+
+	// EITHER store dirty arms the navigation guards; Save/Discard stay on the
+	// trim session's dirtiness until the save flow learns about chapters.
+	const anyDirty = dirty || chapters.chaptersDirty;
+	const anyDirtyRef = useRef( anyDirty );
+	anyDirtyRef.current = anyDirty;
+
 	/**
 	 * Session duration for a (re)baseline: the server's master duration,
 	 * shrunk to the element's metadata when the media is physically shorter.
@@ -307,7 +351,7 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 
 	// Dirty guard, half one: warn on tab close / full navigation.
 	useEffect( () => {
-		if ( ! dirty ) {
+		if ( ! anyDirty ) {
 			return;
 		}
 		const onBeforeUnload = ( event: BeforeUnloadEvent ) => {
@@ -317,12 +361,12 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 		};
 		window.addEventListener( 'beforeunload', onBeforeUnload );
 		return () => window.removeEventListener( 'beforeunload', onBeforeUnload );
-	}, [ dirty ] );
+	}, [ anyDirty ] );
 
 	// Dirty guard, half two: confirm in-app navigation via the sub-nav.
 	const confirmNavigation = useCallback( () => {
 		return (
-			! dirtyRef.current ||
+			! anyDirtyRef.current ||
 			// eslint-disable-next-line no-alert -- deliberate synchronous guard; the sub-nav navigation can't await a custom dialog.
 			window.confirm(
 				__( 'You have unsaved edits. Leave the editor and discard them?', 'jetpack-videopress-pkg' )
@@ -369,7 +413,7 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	// the same render batch, keeping this component (and the dirty session)
 	// mounted throughout.
 	useEffect( () => {
-		if ( ! dirty ) {
+		if ( ! anyDirty ) {
 			return;
 		}
 		const onPopState = () => {
@@ -383,7 +427,7 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 		};
 		window.addEventListener( 'popstate', onPopState );
 		return () => window.removeEventListener( 'popstate', onPopState );
-	}, [ dirty, navigate, video.id ] );
+	}, [ anyDirty, navigate, video.id ] );
 
 	// While a job is processing the timeline is locked: pointer events are
 	// blocked by CSS, and this guard drops the document-level keyboard
@@ -569,10 +613,28 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 				confirmNavigation={ confirmNavigation }
 				actions={
 					<StudioEditorHeaderActions
-						canUndo={ ! locked && canUndo( history, sessionEditsEqual ) }
-						canRedo={ ! locked && canRedo( history ) }
-						onUndo={ () => guardedDispatch( { type: 'UNDO' } ) }
-						onRedo={ () => guardedDispatch( { type: 'REDO' } ) }
+						// Undo/redo is PER TOOL: the header buttons (like mod+Z,
+						// which the mounted tool's shortcuts instance handles) act
+						// on the active tool's history.
+						canUndo={
+							! locked &&
+							( chaptersActive
+								? canUndo( chapters.history, chaptersEditsEqual )
+								: canUndo( history, sessionEditsEqual ) )
+						}
+						canRedo={
+							! locked && ( chaptersActive ? canRedo( chapters.history ) : canRedo( history ) )
+						}
+						onUndo={ () =>
+							chaptersActive
+								? chapters.dispatch( { type: 'UNDO' } )
+								: guardedDispatch( { type: 'UNDO' } )
+						}
+						onRedo={ () =>
+							chaptersActive
+								? chapters.dispatch( { type: 'REDO' } )
+								: guardedDispatch( { type: 'REDO' } )
+						}
 						canDiscard={ dirty && ! locked }
 						onDiscard={ () => setConfirmAction( 'discard' ) }
 						canSave={ dirty && ! locked && ! conflict && baseline !== null }
@@ -610,19 +672,41 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 								data-testid="studio-editor-timeline-lock"
 								aria-busy={ locked || undefined }
 							>
-								<StudioEditorTimeline
-									session={ session }
-									dispatch={ guardedDispatch }
-									currentMs={ currentMs }
-									onSeek={ onSeek }
-									onTogglePlay={ onTogglePlay }
-									playing={ playing }
-									locked={ locked }
-									onScrubStart={ onScrubStart }
-									onScrubEnd={ onScrubEnd }
-									shortcutsEnabled={ confirmAction === null }
-									filmstrip={ filmstrip }
-								/>
+								{ /* The active tool swaps only this timeline area; the
+								     preview player above stays mounted. Each timeline owns
+								     its own document-level shortcuts instance, so mounting
+								     exactly one also multiplexes space/arrows/Delete/mod+Z
+								     onto the active tool. */ }
+								{ chaptersActive ? (
+									<StudioChaptersTimeline
+										session={ chapters.session }
+										dispatch={ chapters.dispatch }
+										currentMs={ currentMs }
+										onSeek={ onSeek }
+										onTogglePlay={ onTogglePlay }
+										playing={ playing }
+										locked={ locked }
+										onScrubStart={ onScrubStart }
+										onScrubEnd={ onScrubEnd }
+										shortcutsEnabled={ confirmAction === null }
+										filmstrip={ filmstrip }
+										readOnly={ chaptersProbe === 'manual' }
+									/>
+								) : (
+									<StudioEditorTimeline
+										session={ session }
+										dispatch={ guardedDispatch }
+										currentMs={ currentMs }
+										onSeek={ onSeek }
+										onTogglePlay={ onTogglePlay }
+										playing={ playing }
+										locked={ locked }
+										onScrubStart={ onScrubStart }
+										onScrubEnd={ onScrubEnd }
+										shortcutsEnabled={ confirmAction === null }
+										filmstrip={ filmstrip }
+									/>
+								) }
 							</div>
 						</div>
 					</div>

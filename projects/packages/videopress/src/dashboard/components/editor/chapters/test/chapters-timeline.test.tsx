@@ -1,0 +1,397 @@
+/* eslint-disable testing-library/prefer-user-event -- Drag gestures need raw pointer events carrying clientX/pointerId (userEvent has no pointer-capture drag primitive), and the shortcuts under test listen for raw keydowns on document. */
+import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useReducer } from 'react';
+import {
+	chaptersEditsEqual,
+	chaptersSessionReducer,
+	createChaptersSession,
+} from '../../state/chapters-session';
+import { canUndo, createHistory, withHistory } from '../../state/history';
+import StudioChaptersTimeline from '../chapters-timeline';
+import type { ChapterRow } from '../../../../utils/chapters';
+import type { ChaptersSession, ChaptersSessionAction } from '../../state/chapters-session';
+import type { StudioChaptersTimelineProps } from '../chapters-timeline';
+import type { ReactElement } from 'react';
+
+// jsdom reports zero layout, so inject the viewport width: with the 60s
+// sessions below at 1000px, zoom 1 gives pxPerMs 1/60 (clientX × 60 = ms).
+jest.mock( '../../timeline/use-element-width', () => ( {
+	useElementWidth: () => ( { ref: () => {}, width: 1000 } ),
+} ) );
+
+// jsdom (27) ships PointerEvent but not the pointer-capture element APIs the
+// drag hook calls; stub them so pointerdown handlers run.
+beforeAll( () => {
+	Object.assign( Element.prototype, {
+		setPointerCapture: () => {},
+		releasePointerCapture: () => {},
+		hasPointerCapture: () => false,
+	} );
+} );
+
+const historyReducer = withHistory< ChaptersSession, ChaptersSessionAction >(
+	chaptersSessionReducer,
+	{
+		clearOn: action => action.type === 'LOAD',
+		equals: chaptersEditsEqual,
+	}
+);
+
+/**
+ * The default fixture: three chapters at 0/10/30s on a 60s video.
+ *
+ * @return The chapter rows.
+ */
+function defaultRows(): ChapterRow[] {
+	return [
+		{ startAtSeconds: 0, title: 'Intro' },
+		{ startAtSeconds: 10, title: 'Middle' },
+		{ startAtSeconds: 30, title: 'End' },
+	];
+}
+
+type HarnessProps = Partial< StudioChaptersTimelineProps > & {
+	rows?: ChapterRow[];
+	durationMs?: number;
+};
+
+/**
+ * The timeline under a REAL history-wrapped store, so gestures, coalescing,
+ * and undo semantics are exercised end to end. An extra harness button
+ * dispatches UNDO and a probe span reports canUndo.
+ *
+ * @param props            - Timeline prop overrides plus the initial rows/duration.
+ * @param props.rows       - Rows LOADed into the store at mount.
+ * @param props.durationMs - Video duration in ms.
+ * @return The harness element.
+ */
+function Harness( { rows, durationMs = 60000, ...overrides }: HarnessProps ): ReactElement {
+	const [ history, dispatch ] = useReducer( historyReducer, undefined, () =>
+		createHistory(
+			chaptersSessionReducer( createChaptersSession( durationMs ), {
+				type: 'LOAD',
+				rows: rows ?? defaultRows(),
+				durationMs,
+			} )
+		)
+	);
+	return (
+		<>
+			<StudioChaptersTimeline
+				session={ history.present }
+				dispatch={ dispatch }
+				currentMs={ 0 }
+				onSeek={ () => {} }
+				onTogglePlay={ () => {} }
+				playing={ false }
+				{ ...overrides }
+			/>
+			<button data-testid="harness-undo" onClick={ () => dispatch( { type: 'UNDO' } ) }>
+				harness undo
+			</button>
+			<span data-testid="harness-can-undo">
+				{ String( canUndo( history, chaptersEditsEqual ) ) }
+			</span>
+		</>
+	);
+}
+
+/**
+ * Render the harness.
+ *
+ * @param props - Harness props.
+ * @return A rerender helper bound to the same harness (state survives).
+ */
+function renderChapters( props: HarnessProps = {} ) {
+	const view = render( <Harness { ...props } /> );
+	return {
+		rerender: ( next: HarnessProps = {} ) => view.rerender( <Harness { ...props } { ...next } /> ),
+	};
+}
+
+const segments = () => screen.getAllByTestId( /^studio-chapters-segment-/ );
+const markers = () => screen.queryAllByTestId( /^studio-chapters-marker-/ );
+const addButton = () => screen.getByRole( 'button', { name: 'Add chapter at playhead' } );
+const isAriaDisabled = ( el: HTMLElement ) => el.getAttribute( 'aria-disabled' ) === 'true';
+
+describe( 'StudioChaptersTimeline', () => {
+	describe( 'strip', () => {
+		it( 'renders segments spanning start → next start, the last running to the video end', () => {
+			renderChapters();
+			const [ intro, middle, end ] = segments();
+			// pxPerMs 1/60: 10000ms ≈ 166.67px, 30000ms = 500px.
+			expect( parseFloat( intro.style.left ) ).toBeCloseTo( 0 );
+			expect( parseFloat( intro.style.width ) ).toBeCloseTo( 10000 / 60 );
+			expect( parseFloat( middle.style.left ) ).toBeCloseTo( 10000 / 60 );
+			expect( parseFloat( middle.style.width ) ).toBeCloseTo( 20000 / 60 );
+			expect( parseFloat( end.style.left ) ).toBeCloseTo( 500 );
+			expect( parseFloat( end.style.width ) ).toBeCloseTo( 500 );
+			expect( intro ).toHaveTextContent( 'Intro' );
+			expect( middle ).toHaveTextContent( 'Middle' );
+			expect( end ).toHaveTextContent( 'End' );
+		} );
+
+		it( 'draws a marker for every chapter except the pinned first', () => {
+			renderChapters();
+			const found = markers();
+			expect( found ).toHaveLength( 2 );
+			expect( found[ 0 ] ).toHaveAttribute( 'aria-valuenow', '10000' );
+			expect( found[ 1 ] ).toHaveAttribute( 'aria-valuenow', '30000' );
+			// Clamp windows: prev+1s … next−1s; the last is capped at duration−1s.
+			expect( found[ 0 ] ).toHaveAttribute( 'aria-valuemin', '1000' );
+			expect( found[ 0 ] ).toHaveAttribute( 'aria-valuemax', '29000' );
+			expect( found[ 1 ] ).toHaveAttribute( 'aria-valuemin', '11000' );
+			expect( found[ 1 ] ).toHaveAttribute( 'aria-valuemax', '59000' );
+		} );
+
+		it( 'selects a chapter on segment pointer-down and lets the press bubble to the scrub surface', () => {
+			const onSeek = jest.fn();
+			renderChapters( { onSeek } );
+			const middle = segments()[ 1 ];
+
+			fireEvent.pointerDown( middle, { button: 0, pointerId: 1, clientX: 200 } );
+
+			expect( middle.className ).toContain( 'vp-studio-chapters__segment--selected' );
+			// The same press scrubbed the playhead to the click (200px → 12000ms).
+			expect( onSeek ).toHaveBeenCalledWith( 12000 );
+		} );
+	} );
+
+	describe( 'marker drags', () => {
+		it( 'moves a start clamped to the neighbor gap and coalesces the drag into one undo entry', () => {
+			renderChapters();
+			const marker = markers()[ 0 ];
+
+			fireEvent.pointerDown( marker, { button: 0, pointerId: 1, clientX: 100 } );
+			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 205 } );
+			// 800px → pointer 48000ms + 4000ms grab offset → 52000, clamped to
+			// next−1s = 29000.
+			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 800 } );
+			fireEvent.pointerUp( marker, { pointerId: 1 } );
+
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '29000' );
+			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'true' );
+
+			// ONE undo entry for the whole gesture: straight back to 10s, and
+			// nothing older to undo.
+			fireEvent.click( screen.getByTestId( 'harness-undo' ) );
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
+		} );
+
+		it( 'quantizes the commit to a whole second while the drag tracks raw ms', () => {
+			renderChapters();
+			const marker = markers()[ 0 ];
+
+			fireEvent.pointerDown( marker, { button: 0, pointerId: 1, clientX: 100 } );
+			// 205px → pointer 12300ms + 4000ms grab offset → raw 16300 mid-drag.
+			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 205 } );
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '16300' );
+
+			fireEvent.pointerUp( marker, { pointerId: 1 } );
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '16000' );
+		} );
+
+		it( 'commits nothing for a drag that returns to its start', () => {
+			renderChapters();
+			const marker = markers()[ 0 ];
+
+			fireEvent.pointerDown( marker, { button: 0, pointerId: 1, clientX: 100 } );
+			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 205 } );
+			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 100 } );
+			fireEvent.pointerUp( marker, { pointerId: 1 } );
+
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
+		} );
+
+		it( 'nudges a start by whole seconds with arrow keys', () => {
+			renderChapters();
+			const marker = markers()[ 0 ];
+
+			fireEvent.keyDown( marker, { key: 'ArrowLeft' } );
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '9000' );
+			fireEvent.keyDown( marker, { key: 'ArrowRight' } );
+			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+		} );
+	} );
+
+	describe( 'add chapter at playhead', () => {
+		it( 'is inert on a taken second and inside the dedupe radius of an existing start', () => {
+			const { rerender } = renderChapters( { currentMs: 0 } );
+			expect( isAriaDisabled( addButton() ) ).toBe( true );
+
+			rerender( { currentMs: 400 } );
+			expect( isAriaDisabled( addButton() ) ).toBe( true );
+
+			rerender( { currentMs: 10200 } );
+			expect( isAriaDisabled( addButton() ) ).toBe( true );
+
+			rerender( { currentMs: 5000 } );
+			expect( isAriaDisabled( addButton() ) ).toBe( false );
+		} );
+
+		it( 'adds a default-titled chapter at the playhead second and selects it', async () => {
+			const user = userEvent.setup();
+			renderChapters( { currentMs: 5400 } );
+
+			await user.click( addButton() );
+
+			expect( segments() ).toHaveLength( 4 );
+			const added = segments()[ 1 ];
+			expect( added ).toHaveTextContent( 'Chapter 4' );
+			expect( added.className ).toContain( 'vp-studio-chapters__segment--selected' );
+			// Whole-second rounding: 5400 → 5000.
+			expect( markers()[ 0 ] ).toHaveAttribute( 'aria-valuenow', '5000' );
+		} );
+	} );
+
+	describe( 'rows list', () => {
+		it( 'commits a title draft on blur, not per keystroke, and undoes as one entry', () => {
+			renderChapters();
+			const input = screen.getByLabelText( 'Chapter 1 title' );
+
+			fireEvent.change( input, { target: { value: 'Updated intro' } } );
+			// Draft only: the session still has the old title.
+			expect( segments()[ 0 ] ).toHaveTextContent( 'Intro' );
+			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
+
+			fireEvent.blur( input );
+			expect( segments()[ 0 ] ).toHaveTextContent( 'Updated intro' );
+
+			fireEvent.click( screen.getByTestId( 'harness-undo' ) );
+			expect( segments()[ 0 ] ).toHaveTextContent( 'Intro' );
+			expect( input ).toHaveValue( 'Intro' );
+		} );
+
+		it( 'commits a title draft on Enter', () => {
+			renderChapters();
+			const input = screen.getByLabelText( 'Chapter 2 title' );
+
+			fireEvent.change( input, { target: { value: 'Second act' } } );
+			fireEvent.keyDown( input, { key: 'Enter' } );
+
+			expect( segments()[ 1 ] ).toHaveTextContent( 'Second act' );
+		} );
+
+		it( 'shows index, start time, and duration per row and seeks from the time button', async () => {
+			const onSeek = jest.fn();
+			const user = userEvent.setup();
+			renderChapters( { onSeek } );
+
+			const rows = screen.getAllByTestId( /^studio-chapters-row-chapter/ );
+			expect( rows[ 0 ] ).toHaveTextContent( '01' );
+			expect( rows[ 2 ] ).toHaveTextContent( '03' );
+			// Durations: next start − start; the last runs to the video end.
+			expect( rows[ 0 ] ).toHaveTextContent( '10s' );
+			expect( rows[ 1 ] ).toHaveTextContent( '20s' );
+			expect( rows[ 2 ] ).toHaveTextContent( '30s' );
+
+			const timeButtons = screen.getAllByTestId( /^studio-chapters-row-time-/ );
+			expect( timeButtons[ 2 ] ).toHaveTextContent( '0:00:30.0' );
+			await user.click( timeButtons[ 2 ] );
+			expect( onSeek ).toHaveBeenCalledWith( 30000 );
+		} );
+
+		it( 're-pins the new first chapter to 0 when the first is removed', async () => {
+			const user = userEvent.setup();
+			renderChapters();
+
+			await user.click( screen.getByRole( 'button', { name: 'Remove chapter 1' } ) );
+
+			expect( segments() ).toHaveLength( 2 );
+			expect( segments()[ 0 ] ).toHaveTextContent( 'Middle' );
+			// Middle was re-pinned to 0: it is the first chapter now, no marker.
+			expect( markers() ).toHaveLength( 1 );
+			expect( screen.getAllByTestId( /^studio-chapters-row-time-/ )[ 0 ] ).toHaveTextContent(
+				'0:00:00.0'
+			);
+		} );
+
+		it( 'keeps the remove button inert at a single chapter', async () => {
+			const user = userEvent.setup();
+			renderChapters( { rows: [ { startAtSeconds: 0, title: 'Only' } ] } );
+
+			const remove = screen.getByRole( 'button', { name: 'Remove chapter 1' } );
+			expect( isAriaDisabled( remove ) ).toBe( true );
+			await user.click( remove );
+			expect( segments() ).toHaveLength( 1 );
+		} );
+
+		it( 'shows the footer helptext', () => {
+			renderChapters();
+			expect(
+				screen.getByText(
+					'Chapters appear in the player timeline and help viewers jump to a section. The first chapter always starts at 0:00:00.0.'
+				)
+			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'toolbar', () => {
+		it( 'shows the transport and the Now indicator for the chapter under the playhead', () => {
+			const { rerender } = renderChapters( { currentMs: 0 } );
+			expect( screen.getByTestId( 'studio-timeline-transport-play' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'studio-chapters-now' ) ).toHaveTextContent( 'Now: Intro' );
+
+			rerender( { currentMs: 15000 } );
+			expect( screen.getByTestId( 'studio-chapters-now' ) ).toHaveTextContent( 'Now: Middle' );
+
+			rerender( { currentMs: 45000 } );
+			expect( screen.getByTestId( 'studio-chapters-now' ) ).toHaveTextContent( 'Now: End' );
+		} );
+	} );
+
+	describe( 'keyboard shortcuts', () => {
+		it( 'removes the selected chapter with Delete, flooring at one chapter', () => {
+			renderChapters();
+			fireEvent.pointerDown( segments()[ 2 ], { button: 0, pointerId: 1, clientX: 600 } );
+
+			fireEvent.keyDown( document.body, { key: 'Delete' } );
+			expect( segments() ).toHaveLength( 2 );
+
+			// Nothing selected anymore: Delete is a no-op.
+			fireEvent.keyDown( document.body, { key: 'Delete' } );
+			expect( segments() ).toHaveLength( 2 );
+		} );
+
+		it( 'toggles playback with space and seeks Home/End to the video bounds', () => {
+			const onTogglePlay = jest.fn();
+			const onSeek = jest.fn();
+			renderChapters( { onTogglePlay, onSeek } );
+
+			fireEvent.keyDown( document.body, { key: ' ' } );
+			expect( onTogglePlay ).toHaveBeenCalledTimes( 1 );
+
+			fireEvent.keyDown( document.body, { key: 'Home' } );
+			expect( onSeek ).toHaveBeenLastCalledWith( 0 );
+			fireEvent.keyDown( document.body, { key: 'End' } );
+			expect( onSeek ).toHaveBeenLastCalledWith( 60000 );
+		} );
+	} );
+
+	describe( 'read-only (manual VTT)', () => {
+		it( 'keeps the strip as a visualization and replaces every edit affordance with a notice', () => {
+			renderChapters( { readOnly: true, currentMs: 5000 } );
+
+			// Segments still visualize; markers, rows, and add are gone/inert.
+			expect( segments() ).toHaveLength( 3 );
+			expect( markers() ).toHaveLength( 0 );
+			expect( screen.queryByTestId( 'studio-chapters-rows' ) ).not.toBeInTheDocument();
+			expect( isAriaDisabled( addButton() ) ).toBe( true );
+			expect( screen.getByRole( 'status' ) ).toHaveTextContent(
+				'Chapters for this video are managed by an uploaded VTT file, so they can’t be edited here.'
+			);
+		} );
+
+		it( 'drops the Delete shortcut', () => {
+			renderChapters( { readOnly: true } );
+			// Selection can still happen via a segment press…
+			fireEvent.pointerDown( segments()[ 2 ], { button: 0, pointerId: 1, clientX: 600 } );
+			// …but Delete must not edit a manually-managed track.
+			fireEvent.keyDown( document.body, { key: 'Delete' } );
+			expect( segments() ).toHaveLength( 3 );
+		} );
+	} );
+} );

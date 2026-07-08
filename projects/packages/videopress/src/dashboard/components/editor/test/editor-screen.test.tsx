@@ -67,6 +67,13 @@ jest.mock( '../timeline/use-element-width', () => ( {
 	useElementWidth: () => ( { ref: () => {}, width: 1000 } ),
 } ) );
 
+// The manual-VTT probe hits the public video API; stub it (default:
+// 'editable', set in beforeEach) and let tests flip it to 'manual'.
+const mockProbeManualTrack = jest.fn();
+jest.mock( '../../../utils/chapters-probe', () => ( {
+	probeManualTrack: ( ...args: unknown[] ) => mockProbeManualTrack( ...args ),
+} ) );
+
 // The filmstrip resolves via the storyboard endpoint plus <video> frame
 // extraction, neither of which works in jsdom; keep the track on its neutral
 // placeholder here. The hook has its own dedicated tests.
@@ -107,6 +114,23 @@ function makeRawMedia( overrides: Record< string, unknown > = {} ) {
 		jetpack_videopress: { guid: GUID, privacy_setting: 0, is_private: false },
 		...overrides,
 	};
+}
+
+/**
+ * Build a raw media item whose description carries two chapter lines
+ * (0:00 Intro, 0:30 Middle) for the Chapters tool tests.
+ *
+ * @return A raw media item.
+ */
+function makeChapteredMedia() {
+	return makeRawMedia( {
+		jetpack_videopress: {
+			guid: GUID,
+			privacy_setting: 0,
+			is_private: false,
+			description: '00:00 Intro\n00:30 Middle',
+		},
+	} );
 }
 
 /**
@@ -204,6 +228,7 @@ describe( 'StudioEditorScreen', () => {
 		jest.clearAllMocks();
 		navigate = jest.fn();
 		mockUseNavigate.mockReturnValue( navigate );
+		mockProbeManualTrack.mockResolvedValue( 'editable' );
 		// jsdom's media element implements neither play() nor pause(); stub
 		// them so the preview hook's state machine can run.
 		jest.spyOn( window.HTMLMediaElement.prototype, 'play' ).mockImplementation( function (
@@ -746,5 +771,137 @@ describe( 'StudioEditorScreen', () => {
 
 		await expect( screen.findByTestId( 'studio-timeline' ) ).resolves.toBeInTheDocument();
 		expect( isButtonDisabled( 'Save' ) ).toBe( true );
+	} );
+
+	describe( 'Chapters tool', () => {
+		/**
+		 * Activate the Chapters tool via the rail and flush the manual-VTT
+		 * probe (fired on first activation) inside act.
+		 *
+		 * @param user - The userEvent instance.
+		 */
+		async function switchToChapters( user: ReturnType< typeof userEvent.setup > ) {
+			await user.click( screen.getByTestId( 'studio-editor-tool-chapters' ) );
+			await waitFor( () => expect( mockProbeManualTrack ).toHaveBeenCalled() );
+		}
+
+		it( 'switches tools with per-tool histories preserved, keeping the preview mounted', async () => {
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await addCut( user );
+			expect( isButtonDisabled( 'Undo' ) ).toBe( false );
+
+			await switchToChapters( user );
+			expect( screen.getByTestId( 'studio-chapters' ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'New cut' } ) ).not.toBeInTheDocument();
+			// The tool swap covers the timeline area only.
+			expect( screen.getByTestId( 'studio-editor-preview-video' ) ).toBeInTheDocument();
+			// Header undo now reflects the ACTIVE tool: chapters history is empty
+			// even though the trim history has the cut.
+			expect( isButtonDisabled( 'Undo' ) ).toBe( true );
+
+			// Rename chapter 1 (draft commits on blur).
+			const title = () => screen.getByLabelText( 'Chapter 1 title' );
+			await user.clear( title() );
+			await user.type( title(), 'Renamed' );
+			fireEvent.blur( title() );
+			expect( isButtonDisabled( 'Undo' ) ).toBe( false );
+
+			// Header Undo/Redo act on the chapters history.
+			await user.click( screen.getByRole( 'button', { name: 'Undo' } ) );
+			expect( title() ).toHaveValue( 'Intro' );
+			expect( isButtonDisabled( 'Redo' ) ).toBe( false );
+			await user.click( screen.getByRole( 'button', { name: 'Redo' } ) );
+			expect( title() ).toHaveValue( 'Renamed' );
+
+			// Back on trim & cut: its history is intact and undo removes the cut.
+			await user.click( screen.getByTestId( 'studio-editor-tool-trim-cut' ) );
+			expect( screen.getAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 1 );
+			expect( isButtonDisabled( 'Undo' ) ).toBe( false );
+			await user.click( screen.getByRole( 'button', { name: 'Undo' } ) );
+			expect( screen.queryAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 0 );
+
+			// The chapters store survived the tool unmount.
+			await user.click( screen.getByTestId( 'studio-editor-tool-chapters' ) );
+			expect( title() ).toHaveValue( 'Renamed' );
+		} );
+
+		it( 'multiplexes mod+Z onto the active tool', async () => {
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await addCut( user );
+
+			await switchToChapters( user );
+			const title = () => screen.getByLabelText( 'Chapter 1 title' );
+			await user.clear( title() );
+			await user.type( title(), 'Renamed' );
+			fireEvent.blur( title() );
+
+			// mod+Z with the chapters tool active undoes the RENAME…
+			// eslint-disable-next-line testing-library/prefer-user-event -- the shortcut under test listens for raw keydowns on document.
+			fireEvent.keyDown( document.body, { key: 'z', ctrlKey: true } );
+			expect( title() ).toHaveValue( 'Intro' );
+
+			// …and the trim history was untouched: the cut is still there.
+			await user.click( screen.getByTestId( 'studio-editor-tool-trim-cut' ) );
+			expect( screen.getAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 1 );
+		} );
+
+		it( 'arms the navigation guards when only the chapters session is dirty', async () => {
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await switchToChapters( user );
+
+			const cleanEvent = new Event( 'beforeunload', { cancelable: true } );
+			window.dispatchEvent( cleanEvent );
+			expect( cleanEvent.defaultPrevented ).toBe( false );
+
+			const title = () => screen.getByLabelText( 'Chapter 1 title' );
+			await user.clear( title() );
+			await user.type( title(), 'Renamed' );
+			fireEvent.blur( title() );
+
+			const dirtyEvent = new Event( 'beforeunload', { cancelable: true } );
+			window.dispatchEvent( dirtyEvent );
+			expect( dirtyEvent.defaultPrevented ).toBe( true );
+			// Save/Discard stay on the trim session until the save flow learns
+			// about chapters (next stage).
+			expect( isButtonDisabled( 'Save' ) ).toBe( true );
+		} );
+
+		it( 'turns the tool read-only when the probe reports a manual VTT, probing once', async () => {
+			mockProbeManualTrack.mockResolvedValue( 'manual' );
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await switchToChapters( user );
+
+			await expect(
+				screen.findByText(
+					'Chapters for this video are managed by an uploaded VTT file, so they can’t be edited here.'
+				)
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTestId( 'studio-chapters-rows' ) ).not.toBeInTheDocument();
+			expect( screen.queryAllByTestId( /^studio-chapters-marker-/ ) ).toHaveLength( 0 );
+			expect( mockProbeManualTrack ).toHaveBeenCalledWith(
+				expect.objectContaining( { guid: GUID, isPrivate: false } )
+			);
+
+			// Switching away and back must not re-probe.
+			await user.click( screen.getByTestId( 'studio-editor-tool-trim-cut' ) );
+			await user.click( screen.getByTestId( 'studio-editor-tool-chapters' ) );
+			expect( mockProbeManualTrack ).toHaveBeenCalledTimes( 1 );
+		} );
 	} );
 } );
