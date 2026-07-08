@@ -437,11 +437,12 @@ class ReportDataFetcher {
 			return $error_data;
 		}
 
-		// Get response data and ensure it's an array.
+		// Get response data and fully normalize to associative arrays. A top-level object OR a
+		// top-level list whose items are stdClass both need converting, otherwise stdClass rows
+		// would reach format_row_with_comparison( array $item ) and throw a TypeError.
 		$data = $response->get_data();
 
-		// Convert to array if it's an object.
-		if ( is_object( $data ) ) {
+		if ( is_object( $data ) || is_array( $data ) ) {
 			$data = json_decode( wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), true );
 		}
 
