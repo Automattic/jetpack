@@ -74,16 +74,8 @@ class Customize_Feed {
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
 
-		// Prune RSS chrome that podcatchers don't read. Cuts payload size and
-		// keeps incidental post data (body content, gravatar URLs, image EXIF,
-		// comments metadata) out of a feed whose only job is to deliver
-		// podcast episode metadata + the audio enclosure.
-		//
-		// - option_rss_use_excerpt -> suppresses content:encoded (full post body, incl. EXIF in image attrs).
-		// - comments_open + get_comments_number -> together suppress per-item comments / wfw:commentRss / slash:comments.
-		// - the_category_rss -> suppresses per-item category tags (channel itunes:category is the podcatcher signal).
-		// - removing wpcom mrss.php hooks -> suppresses media:content for author gravatar + post images.
-		add_filter( 'option_rss_use_excerpt', '__return_true' );
+		add_filter( 'option_rss_use_excerpt', '__return_false' );
+		add_filter( 'render_block', array( __CLASS__, 'suppress_feed_chrome_block' ), 10, 2 );
 		add_filter( 'comments_open', '__return_false' );
 		add_filter( 'get_comments_number', '__return_zero' );
 		add_filter( 'the_category_rss', '__return_empty_string' );
@@ -221,6 +213,26 @@ class Customize_Feed {
 		if ( ! empty( $attrs ) ) {
 			Episode_Block_Tags::render_from_attrs( $attrs );
 		}
+	}
+
+	/**
+	 * Strip feed-chrome blocks (episode/feed player, subscribe form) from
+	 * `<content:encoded>`, leaving the surrounding show-note prose.
+	 *
+	 * @param string $block_content Rendered block HTML.
+	 * @param array  $block         Parsed block, including its `blockName`.
+	 * @return string
+	 */
+	public static function suppress_feed_chrome_block( $block_content, $block ) {
+		static $chrome = array(
+			'jetpack/podcast-episode',
+			'jetpack/podcast-player',
+			'jetpack/subscriptions',
+		);
+		if ( isset( $block['blockName'] ) && in_array( $block['blockName'], $chrome, true ) ) {
+			return '';
+		}
+		return $block_content;
 	}
 
 	/**

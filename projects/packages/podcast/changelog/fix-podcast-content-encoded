@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast feed: always emit `<content:encoded>` so podcatchers that read show notes from it stop displaying blank episodes.
