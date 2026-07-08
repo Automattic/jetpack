@@ -15,37 +15,10 @@
 	text-align: center;
 }
 
-.modeSelect {
-	order: 2;
-	flex: 0 1 220px;
-	inline-size: min(100%, 220px);
-	max-inline-size: 100%;
-	min-inline-size: min(100%, 160px);
-}
-
 .backLink {
-	order: 1;
-	align-self: center;
+	align-self: flex-start;
 	min-inline-size: 0;
-	margin-inline-end: auto;
 	margin-block-end: 0;
-}
-
-.content {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	flex: 1 1 0;
-	min-height: 0;
-}
-
-.bodyHeader {
-	position: relative;
-	z-index: 2;
-	flex-wrap: wrap;
-	justify-content: flex-end;
-	gap: var(--wpds-dimension-gap-sm, 8px) var(--wpds-dimension-gap-lg, 16px);
-	margin-block-end: var(--wpds-dimension-gap-md, 12px);
 }
 
 .chartArea {
@@ -100,20 +73,6 @@
  * four-column dashboard width, so the default Locations widget still shows
  * the map. */
 @container (max-width: 431px) {
-
-	.bodyHeader {
-		align-items: stretch;
-	}
-
-	.backLink {
-		order: 2;
-	}
-
-	.modeSelect {
-		order: 1;
-		flex-basis: 100%;
-		inline-size: 100%;
-	}
 
 	.geoChart {
 		display: none;
