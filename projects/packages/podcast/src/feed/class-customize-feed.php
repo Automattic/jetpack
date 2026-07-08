@@ -75,6 +75,8 @@ class Customize_Feed {
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
 
 		add_filter( 'option_rss_use_excerpt', '__return_false' );
+		// Request-scoped to the feed: only the queried episodes render here, so
+		// this never touches block output outside the podcast feed response.
 		add_filter( 'render_block', array( __CLASS__, 'strip_block_from_feed' ), 10, 2 );
 		add_filter( 'comments_open', '__return_false' );
 		add_filter( 'get_comments_number', '__return_zero' );
