@@ -75,7 +75,7 @@ class Customize_Feed {
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
 
 		add_filter( 'option_rss_use_excerpt', '__return_false' );
-		add_filter( 'render_block', array( __CLASS__, 'suppress_feed_chrome_block' ), 10, 2 );
+		add_filter( 'render_block', array( __CLASS__, 'strip_block_from_feed' ), 10, 2 );
 		add_filter( 'comments_open', '__return_false' );
 		add_filter( 'get_comments_number', '__return_zero' );
 		add_filter( 'the_category_rss', '__return_empty_string' );
@@ -216,14 +216,14 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Strip feed-chrome blocks (episode/feed player, subscribe form) from
+	 * Strip the episode, feed-player, and subscribe blocks from
 	 * `<content:encoded>`, leaving the surrounding show-note prose.
 	 *
 	 * @param string $block_content Rendered block HTML.
 	 * @param array  $block         Parsed block, including its `blockName`.
 	 * @return string
 	 */
-	public static function suppress_feed_chrome_block( $block_content, $block ) {
+	public static function strip_block_from_feed( $block_content, $block ) {
 		static $chrome = array(
 			'jetpack/podcast-episode',
 			'jetpack/podcast-player',

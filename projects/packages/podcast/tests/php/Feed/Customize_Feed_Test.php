@@ -613,39 +613,39 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'example.com/ep.mp3', $output );
 	}
 
-	public function test_suppress_feed_chrome_block_strips_episode_block() {
+	public function test_strip_block_from_feed_strips_episode_block() {
 		$this->assertSame(
 			'',
-			Customize_Feed::suppress_feed_chrome_block(
+			Customize_Feed::strip_block_from_feed(
 				'<figure class="wp-block-jetpack-podcast-episode">player widget</figure>',
 				array( 'blockName' => 'jetpack/podcast-episode' )
 			)
 		);
 	}
 
-	public function test_suppress_feed_chrome_block_strips_player_and_subscribe_blocks() {
+	public function test_strip_block_from_feed_strips_player_and_subscribe_blocks() {
 		foreach ( array( 'jetpack/podcast-player', 'jetpack/subscriptions' ) as $block_name ) {
 			$this->assertSame(
 				'',
-				Customize_Feed::suppress_feed_chrome_block( 'rendered widget', array( 'blockName' => $block_name ) ),
+				Customize_Feed::strip_block_from_feed( 'rendered widget', array( 'blockName' => $block_name ) ),
 				"Expected {$block_name} to be stripped from the feed body."
 			);
 		}
 	}
 
-	public function test_suppress_feed_chrome_block_keeps_prose_blocks() {
+	public function test_strip_block_from_feed_keeps_prose_blocks() {
 		$html = '<p>Real show notes prose listeners should see.</p>';
 		$this->assertSame(
 			$html,
-			Customize_Feed::suppress_feed_chrome_block( $html, array( 'blockName' => 'core/paragraph' ) )
+			Customize_Feed::strip_block_from_feed( $html, array( 'blockName' => 'core/paragraph' ) )
 		);
 	}
 
-	public function test_suppress_feed_chrome_block_keeps_classic_freeform_content() {
+	public function test_strip_block_from_feed_keeps_classic_freeform_content() {
 		$html = '<p>Classic editor content.</p>';
 		$this->assertSame(
 			$html,
-			Customize_Feed::suppress_feed_chrome_block( $html, array( 'blockName' => null ) )
+			Customize_Feed::strip_block_from_feed( $html, array( 'blockName' => null ) )
 		);
 	}
 }
