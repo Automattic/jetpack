@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Post detail: adopt the shared @wordpress/admin-ui Breadcrumbs component in place of the custom one.
