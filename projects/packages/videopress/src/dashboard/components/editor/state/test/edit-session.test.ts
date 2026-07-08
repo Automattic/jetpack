@@ -455,6 +455,15 @@ describe( 'MOVE_CUT', () => {
 		expect( s.selectedCutId ).toBe( 'c1' );
 	} );
 
+	it( 'selects the moved cut regardless of the prior selection', () => {
+		expect( base.selectedCutId ).toBe( 'c2' );
+		// A clear-air move: body-drag moves are replayed from the gesture's
+		// base state, so the selection must come from the move itself, not
+		// from whatever the base happened to have selected.
+		const s = reduce( base, { type: 'MOVE_CUT', id: 'c1', startMs: 7000 } );
+		expect( s.selectedCutId ).toBe( 'c1' );
+	} );
+
 	it( 'only shrinks the removed union: output never drops on a move', () => {
 		const before = getOutputDurationMs( base ); // 18000 - 3000 = 15000
 		expect( before ).toBe( 15000 );
@@ -486,8 +495,14 @@ describe( 'MOVE_CUT', () => {
 		expect( reduce( base, { type: 'MOVE_CUT', id: 'nope', startMs: 7000 } ) ).toBe( base );
 	} );
 
-	it( 'returns the same reference for a same-position move', () => {
-		expect( reduce( base, { type: 'MOVE_CUT', id: 'c1', startMs: 4000 } ) ).toBe( base );
+	it( 'returns the same reference for a same-position move of the selected cut', () => {
+		expect( reduce( base, { type: 'MOVE_CUT', id: 'c2', startMs: 9500 } ) ).toBe( base );
+	} );
+
+	it( 'a same-position move of an unselected cut only changes the selection', () => {
+		const s = reduce( base, { type: 'MOVE_CUT', id: 'c1', startMs: 4000 } );
+		expect( s.cuts ).toEqual( base.cuts );
+		expect( s.selectedCutId ).toBe( 'c1' );
 	} );
 } );
 

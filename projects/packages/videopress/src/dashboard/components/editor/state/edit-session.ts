@@ -613,7 +613,10 @@ function updateCut(
 /**
  * Move a whole cut, preserving its width. The start is clamped so the cut
  * stays inside the trim window; overlapping/touching neighbors are merged
- * into the dragged cut (which keeps its id).
+ * into the dragged cut (which keeps its id). The moved cut becomes the
+ * selection: the only way to move one is to grab it, and body-drag moves are
+ * replayed from the gesture's base state, whose pre-gesture selection must
+ * not reassert itself mid-drag.
  *
  * No minimum-output clamp is needed: a width-preserving move can only SHRINK
  * the removed union — the moved cut removes exactly as much as before unless
@@ -641,10 +644,12 @@ function moveCut( state: EditSession, id: string, startMs: number ): EditSession
 		[ ...others, { id, startMs: nextStart, endMs: nextStart + width } ],
 		chooseId
 	);
+	// The moved cut always survives a merge (its group's chooseId keeps it),
+	// so selecting it unconditionally never dangles.
 	return {
 		...state,
 		cuts,
-		selectedCutId: normalizeSelection( cuts, state.selectedCutId, id ),
+		selectedCutId: id,
 	};
 }
 

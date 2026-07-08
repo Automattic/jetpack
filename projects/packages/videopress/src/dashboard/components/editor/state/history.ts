@@ -7,6 +7,14 @@
  * `{ type: 'COMMIT' }`, which pushes exactly ONE undo entry — the state from
  * before the gesture started — no matter how many transient updates ran.
  *
+ * Transient updates normally reduce from the current present, so moves within
+ * a gesture compound. A transient dispatched with `fromBase: true` instead
+ * REPLAYS against the gesture's base snapshot, so each move replaces the
+ * gesture's whole effect. That is the correct semantics when an intermediate
+ * state is destructive — a drag preview that merges two ranges, say — and a
+ * later move reduced from it would compound the destruction instead of
+ * revising the preview.
+ *
  * Plain (unwrapped) actions push one undo entry each. Actions matching
  * `options.clearOn` (e.g. LOAD/RESET) apply and wipe both stacks. The past
  * stack is capped (oldest entries dropped) at `options.limit`, default
@@ -49,7 +57,7 @@ export type HistoryAction< A extends { type: string } > =
 	| { type: 'UNDO' }
 	| { type: 'REDO' }
 	| { type: 'COMMIT' }
-	| { type: 'TRANSIENT'; action: A }
+	| { type: 'TRANSIENT'; action: A; fromBase?: boolean }
 	| A;
 
 /**
@@ -192,11 +200,19 @@ export function withHistory< S, A extends { type: string } >(
 				return commitPending( state );
 
 			case 'TRANSIENT': {
-				const inner = ( action as { type: 'TRANSIENT'; action: A } ).action;
+				const { action: inner, fromBase } = action as {
+					type: 'TRANSIENT';
+					action: A;
+					fromBase?: boolean;
+				};
 				if ( clearOn && clearOn( inner ) ) {
 					return applyCleared( state, inner );
 				}
-				const present = reducer( state.present, inner );
+				// A from-base transient replays against the gesture's snapshot
+				// (falling back to the present when no gesture is in flight yet),
+				// so destructive intermediate previews never compound.
+				const base = fromBase ? state.transientBase ?? state.present : state.present;
+				const present = reducer( base, inner );
 				if ( present === state.present ) {
 					return state;
 				}

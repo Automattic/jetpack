@@ -240,6 +240,41 @@ describe( 'TRANSIENT / COMMIT gestures', () => {
 		expect( h.present ).toEqual( { value: 5 } );
 		expect( h.transientBase ).toBeNull();
 	} );
+
+	it( 'from-base transients replay against the gesture base, not the previous transient', () => {
+		let h = start();
+		h = reducer( h, { type: 'TRANSIENT', fromBase: true, action: { type: 'INC' } } );
+		h = reducer( h, { type: 'TRANSIENT', fromBase: true, action: { type: 'INC' } } );
+		// Each INC replays from the base {0}: the present stays 1, not 2.
+		expect( h.present ).toEqual( { value: 1 } );
+		expect( h.transientBase ).toEqual( { value: 0 } );
+		expect( h.past ).toEqual( [] );
+
+		h = reducer( h, { type: 'COMMIT' } );
+		expect( h.past ).toEqual( [ { value: 0 } ] );
+		expect( h.present ).toEqual( { value: 1 } );
+	} );
+
+	it( 'a from-base transient before any gesture reduces from the present', () => {
+		let h = start();
+		h = reducer( h, { type: 'SET', value: 4 } );
+		h = reducer( h, { type: 'TRANSIENT', fromBase: true, action: { type: 'INC' } } );
+		expect( h.present ).toEqual( { value: 5 } );
+		expect( h.transientBase ).toEqual( { value: 4 } );
+	} );
+
+	it( 'a from-base transient landing on the base parks the present there and commits nothing', () => {
+		let h = start();
+		h = reducer( h, { type: 'TRANSIENT', fromBase: true, action: { type: 'SET', value: 5 } } );
+		h = reducer( h, { type: 'TRANSIENT', fromBase: true, action: { type: 'SET', value: 0 } } );
+		// SET 0 replayed from the base {0} is a reducer no-op, so the present
+		// returns to the exact base reference.
+		expect( h.present ).toBe( h.transientBase );
+
+		h = reducer( h, { type: 'COMMIT' } );
+		expect( h.past ).toEqual( [] );
+		expect( h.transientBase ).toBeNull();
+	} );
 } );
 
 describe( 'structural equality (options.equals)', () => {
@@ -407,6 +442,54 @@ describe( 'integration with the edit-session reducer', () => {
 		expect( h.past ).toHaveLength( 1 );
 		expect( h.future ).toHaveLength( 1 );
 		expect( h.present.cuts ).toEqual( [ { id: 'c1', startMs: 2000, endMs: 4000 } ] );
+	} );
+
+	it( 'a body drag that merges mid-gesture never compounds the merge', () => {
+		let h = createHistory( createEditSession( 50000 ) );
+		h = editorReducer( h, { type: 'ADD_CUT', atMs: 15000, halfSpanMs: 5000, id: 'a' } ); // [10000, 20000]
+		h = editorReducer( h, { type: 'ADD_CUT', atMs: 35000, halfSpanMs: 5000, id: 'b' } ); // [30000, 40000]
+
+		// Grab b's body and drag left. A snap lands b's start exactly on a's
+		// end: the preview merges them into one cut (the dragged id survives).
+		h = editorReducer( h, { type: 'TRANSIENT', action: { type: 'SELECT_CUT', id: 'b' } } );
+		h = editorReducer( h, {
+			type: 'TRANSIENT',
+			fromBase: true,
+			action: { type: 'MOVE_CUT', id: 'b', startMs: 20000 },
+		} );
+		expect( h.present.cuts ).toEqual( [ { id: 'b', startMs: 10000, endMs: 30000 } ] );
+
+		// The pointer keeps tracking the PRE-merge grab. Replayed from the
+		// gesture base, b stays 10s wide and slides to overlap a — instead of
+		// the merged 20s cut teleporting to [19900, 39900].
+		h = editorReducer( h, {
+			type: 'TRANSIENT',
+			fromBase: true,
+			action: { type: 'MOVE_CUT', id: 'b', startMs: 19900 },
+		} );
+		expect( h.present.cuts ).toEqual( [ { id: 'b', startMs: 10000, endMs: 29900 } ] );
+
+		// Dragging back to clear air un-does the merge preview entirely.
+		h = editorReducer( h, {
+			type: 'TRANSIENT',
+			fromBase: true,
+			action: { type: 'MOVE_CUT', id: 'b', startMs: 25000 },
+		} );
+		expect( h.present.cuts ).toEqual( [
+			{ id: 'a', startMs: 10000, endMs: 20000 },
+			{ id: 'b', startMs: 25000, endMs: 35000 },
+		] );
+
+		// The whole gesture is still one undo entry, and the moved cut is
+		// selected in the committed state.
+		h = editorReducer( h, { type: 'COMMIT' } );
+		expect( h.past ).toHaveLength( 3 );
+		expect( h.present.selectedCutId ).toBe( 'b' );
+		h = editorReducer( h, { type: 'UNDO' } );
+		expect( h.present.cuts ).toEqual( [
+			{ id: 'a', startMs: 10000, endMs: 20000 },
+			{ id: 'b', startMs: 30000, endMs: 40000 },
+		] );
 	} );
 
 	it( 'selection changes never consume undo entries or clear redo', () => {

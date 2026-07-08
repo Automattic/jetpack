@@ -11,6 +11,16 @@
  * cuts' edges — not the cut's own edges, which would make small cuts sticky
  * against themselves. Edge handles are focusable `role="slider"` elements
  * with arrow-key nudging (±100ms, ±1s with Shift).
+ *
+ * Body moves are `fromBase` transients replayed against the gesture's base
+ * state, with the snap inputs frozen at grab time: mid-gesture the session
+ * shows the PREVIEW, and a cut that merged with a touched neighbor reports
+ * the merged (earlier, wider) range there. Reducing the next move from that
+ * preview would compound the merge — the pointer keeps tracking the original
+ * grab, so the cut would inflate to the merged width and teleport. Replaying
+ * from the base keeps every move a pure function of the grab state and the
+ * pointer, makes the merge a live preview that dragging away un-does, and
+ * commits exactly what is on screen at release.
  */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -41,28 +51,21 @@ type Props = {
 type Edge = 'start' | 'end';
 
 /**
- * The snap context shared by the edge and body drags: the trim edges, the
- * playhead, and every OTHER cut's edges (never the dragged cut's own).
+ * The snap edges shared by the edge and body drags: the trim edges and every
+ * OTHER cut's edges (never the dragged cut's own).
  *
- * @param session   - The edit session.
- * @param cut       - The cut being dragged.
- * @param currentMs - Live playhead position in ms.
- * @param pxPerMs   - Scale from `getPxPerMs`.
- * @return A context for {@link snapMs} / {@link snapMoveMs}.
+ * @param session - The edit session.
+ * @param cut     - The cut being dragged.
+ * @return Edge positions in ms, for a {@link snapMs} / {@link snapMoveMs} context.
  */
-function cutSnapContext( session: EditSession, cut: CutRange, currentMs: number, pxPerMs: number ) {
-	return {
-		pxPerMs,
-		durationMs: session.durationMs,
-		playheadMs: currentMs,
-		edgesMs: [
-			session.trimStartMs,
-			session.trimEndMs,
-			...session.cuts
-				.filter( other => other.id !== cut.id )
-				.flatMap( other => [ other.startMs, other.endMs ] ),
-		],
-	};
+function cutSnapEdges( session: EditSession, cut: CutRange ): number[] {
+	return [
+		session.trimStartMs,
+		session.trimEndMs,
+		...session.cuts
+			.filter( other => other.id !== cut.id )
+			.flatMap( other => [ other.startMs, other.endMs ] ),
+	];
 }
 
 /**
@@ -82,7 +85,12 @@ function StudioEditorCutEdge( { edge, ...props }: Props & { edge: Edge } ): Reac
 			: { type: 'UPDATE_CUT', id: cut.id, endMs: ms };
 
 	const snapEdge = ( ms: number ) =>
-		snapMs( ms, cutSnapContext( session, cut, currentMs, pxPerMs ) );
+		snapMs( ms, {
+			pxPerMs,
+			durationMs: session.durationMs,
+			playheadMs: currentMs,
+			edgesMs: cutSnapEdges( session, cut ),
+		} );
 
 	const drag = useTimelinePointerDrag( {
 		contentRef,
@@ -152,10 +160,13 @@ export default function StudioEditorCutSegment( props: Props ): ReactElement {
 	const leftPx = msToPx( cut.startMs, pxPerMs );
 	const widthPx = msToPx( cut.endMs - cut.startMs, pxPerMs );
 
-	// The cut's start when the body grab began. A drag position equal to it
-	// means the pointer has not moved the cut; snapping is skipped there so a
-	// plain click can never nudge a cut toward a nearby target.
-	const grabStartMsRef = useRef( 0 );
+	// Gesture-start snapshot for the body drag. `startMs` gates snapping (a
+	// drag position equal to it means the pointer has not moved the cut, so a
+	// plain click can never nudge a cut toward a nearby target); `widthMs` and
+	// `edgesMs` freeze the snap inputs, because mid-gesture the live props
+	// describe the preview — after a merge, the merged width and a swallowed
+	// neighbor's missing edges (see the file docblock).
+	const grabRef = useRef( { startMs: 0, widthMs: 0, edgesMs: [] as number[] } );
 
 	const bodyDrag = useTimelinePointerDrag( {
 		contentRef,
@@ -166,19 +177,29 @@ export default function StudioEditorCutSegment( props: Props ): ReactElement {
 		// never moves selects without consuming one (selection alone is not
 		// history-relevant to the wrapper's equality).
 		onDragStart: () => {
-			grabStartMsRef.current = cut.startMs;
+			grabRef.current = {
+				startMs: cut.startMs,
+				widthMs: cut.endMs - cut.startMs,
+				edgesMs: cutSnapEdges( session, cut ),
+			};
 			dispatch( { type: 'TRANSIENT', action: { type: 'SELECT_CUT', id: cut.id } } );
 		},
 		onDragMove: ms => {
+			const { startMs: grabStartMs, widthMs, edgesMs } = grabRef.current;
 			const startMs =
-				ms === grabStartMsRef.current
+				ms === grabStartMs
 					? ms
-					: snapMoveMs(
-							ms,
-							cut.endMs - cut.startMs,
-							cutSnapContext( session, cut, currentMs, pxPerMs )
-					  );
-			dispatch( { type: 'TRANSIENT', action: { type: 'MOVE_CUT', id: cut.id, startMs } } );
+					: snapMoveMs( ms, widthMs, {
+							pxPerMs,
+							durationMs: session.durationMs,
+							playheadMs: currentMs,
+							edgesMs,
+					  } );
+			dispatch( {
+				type: 'TRANSIENT',
+				fromBase: true,
+				action: { type: 'MOVE_CUT', id: cut.id, startMs },
+			} );
 		},
 		onDragEnd: () => dispatch( { type: 'COMMIT' } ),
 	} );
