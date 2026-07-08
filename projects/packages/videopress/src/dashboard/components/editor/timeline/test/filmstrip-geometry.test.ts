@@ -1,12 +1,22 @@
 import {
+	BASE_ZOOM_STEPS,
 	cellWidth,
 	FILMSTRIP_ROW_HEIGHT,
+	ladderMaxZoom,
+	ladderStepCount,
+	ladderStepForZoom,
+	ladderZoomForStep,
+	MIN_DENSIFIED_INTERVAL_MS,
 	quantizeDensity,
 	sampleIndices,
+	sampleTiles,
 	sampleWidths,
+	subIntervalStops,
 	tileBackgroundStyle,
+	visibleWindowTimes,
 } from '../filmstrip-geometry';
 import type { Storyboard } from '../../../../types/edits';
+import type { ZoomLadder } from '../filmstrip-geometry';
 
 describe( 'cellWidth', () => {
 	it( 'is the native-aspect width at the filmstrip row height', () => {
@@ -93,6 +103,119 @@ describe( 'quantizeDensity', () => {
 		expect( quantizeDensity( 0.1, 1000, 0 ) ).toBe( 1 );
 		expect( quantizeDensity( NaN, 1000, 128 ) ).toBe( 1 );
 	} );
+
+	describe( 'densified floor (minDensity < 1)', () => {
+		it( 'returns fractional densities below the source density', () => {
+			// px per interval double the cell width → each source interval
+			// splits in two; quadruple → in four.
+			expect( quantizeDensity( 0.256, 1000, 128, 0.25 ) ).toBe( 0.5 );
+			expect( quantizeDensity( 0.512, 1000, 128, 0.25 ) ).toBe( 0.25 );
+		} );
+
+		it( 'floors at minDensity: zooms past the last densified stop widen tiles', () => {
+			expect( quantizeDensity( 2.048, 1000, 128, 0.25 ) ).toBe( 0.25 );
+		} );
+
+		it( 'keeps the classic floor for a degenerate minDensity', () => {
+			expect( quantizeDensity( 0.256, 1000, 128, 0 ) ).toBe( 1 );
+			expect( quantizeDensity( 0.256, 1000, 128, 4 ) ).toBe( 1 );
+			expect( quantizeDensity( 0.256, 1000, 128, NaN ) ).toBe( 1 );
+		} );
+	} );
+} );
+
+describe( 'subIntervalStops', () => {
+	it.each( [
+		// interval_ms, densified stops (halvings that stay ≥ 1000ms)
+		[ 1000, 0 ], // ≤100s videos: sub-second stays deferred.
+		[ 1999, 0 ],
+		[ 2000, 1 ],
+		[ 6000, 2 ], // 10-min adaptive sheet → 3000ms and 1500ms stops.
+		[ 18000, 4 ], // 30-min adaptive sheet → 9000/4500/2250/1125ms stops.
+	] )( 'interval %ims supports %i densified stops', ( intervalMs, stops ) => {
+		expect( subIntervalStops( intervalMs ) ).toBe( stops );
+		// The floor is the whole point: the finest effective interval the
+		// stops reach must stay at or above the minimum.
+		expect( intervalMs / 2 ** stops ).toBeGreaterThanOrEqual( MIN_DENSIFIED_INTERVAL_MS );
+		expect( intervalMs / 2 ** ( stops + 1 ) ).toBeLessThan( MIN_DENSIFIED_INTERVAL_MS );
+	} );
+
+	it( 'returns 0 on degenerate input', () => {
+		expect( subIntervalStops( 0 ) ).toBe( 0 );
+		expect( subIntervalStops( -6000 ) ).toBe( 0 );
+		expect( subIntervalStops( NaN ) ).toBe( 0 );
+		expect( subIntervalStops( 6000, 0 ) ).toBe( 0 );
+	} );
+
+	it( 'honors a custom minimum interval', () => {
+		expect( subIntervalStops( 6000, 500 ) ).toBe( 3 );
+	} );
+} );
+
+describe( 'zoom ladder', () => {
+	// The real 10-min shape: 100-tile adaptive sheet at interval_ms 6000,
+	// 16:9 tiles, 1000px viewport → sourceZoom ≈ 11.38 and two densified
+	// stops (3000ms, then 1500ms per tile).
+	const tenMinute: ZoomLadder = {
+		sourceZoom: ( 100 * cellWidth() ) / 1000,
+		extraStops: 2,
+	};
+	// A 60s 1s-interval sheet gets no densified stops: the classic ladder.
+	const flat: ZoomLadder = { sourceZoom: ( 60 * cellWidth() ) / 1000, extraStops: 0 };
+
+	it( 'counts BASE_ZOOM_STEPS plus one stop per interval halving', () => {
+		expect( ladderStepCount( flat ) ).toBe( BASE_ZOOM_STEPS );
+		expect( ladderStepCount( tenMinute ) ).toBe( BASE_ZOOM_STEPS + 2 );
+	} );
+
+	it( 'doubles the ceiling once per densified stop', () => {
+		expect( ladderMaxZoom( flat ) ).toBe( flat.sourceZoom );
+		expect( ladderMaxZoom( tenMinute ) ).toBeCloseTo( tenMinute.sourceZoom * 4, 10 );
+	} );
+
+	it( 'spaces the base tier geometrically and the densified tier by doubling', () => {
+		// Base tier: zoom(k) = sourceZoom^(k/3), the pre-densification ladder.
+		for ( let step = 0; step <= BASE_ZOOM_STEPS; step++ ) {
+			expect( ladderZoomForStep( step, tenMinute ) ).toBeCloseTo(
+				tenMinute.sourceZoom ** ( step / BASE_ZOOM_STEPS ),
+				10
+			);
+		}
+		// Densified tier: each stop doubles — i.e. halves the effective
+		// interval (6000 → 3000 → 1500ms per tile).
+		expect( ladderZoomForStep( 4, tenMinute ) ).toBeCloseTo( tenMinute.sourceZoom * 2, 10 );
+		expect( ladderZoomForStep( 5, tenMinute ) ).toBeCloseTo( tenMinute.sourceZoom * 4, 10 );
+	} );
+
+	it( 'clamps out-of-range steps to the ladder ends', () => {
+		expect( ladderZoomForStep( -2, tenMinute ) ).toBe( 1 );
+		expect( ladderZoomForStep( 99, tenMinute ) ).toBe( ladderMaxZoom( tenMinute ) );
+	} );
+
+	it( 'round-trips every stop through ladderStepForZoom', () => {
+		for ( const ladder of [ flat, tenMinute ] ) {
+			for ( let step = 0; step <= ladderStepCount( ladder ); step++ ) {
+				expect( ladderStepForZoom( ladderZoomForStep( step, ladder ), ladder ) ).toBe( step );
+			}
+		}
+	} );
+
+	it( 'maps in-between and out-of-range zooms to the nearest stop', () => {
+		expect( ladderStepForZoom( 1, tenMinute ) ).toBe( 0 );
+		expect( ladderStepForZoom( 0.5, tenMinute ) ).toBe( 0 );
+		expect( ladderStepForZoom( 1e9, tenMinute ) ).toBe( ladderStepCount( tenMinute ) );
+		// Between the source stop (≈11.38) and the first densified stop
+		// (≈22.76), the log-nearest boundary is ≈16.1.
+		expect( ladderStepForZoom( 15, tenMinute ) ).toBe( BASE_ZOOM_STEPS );
+		expect( ladderStepForZoom( 17, tenMinute ) ).toBe( BASE_ZOOM_STEPS + 1 );
+	} );
+
+	it( 'degrades to a single stop when the strip already fits', () => {
+		const fits: ZoomLadder = { sourceZoom: 0.8, extraStops: 0 };
+		expect( ladderMaxZoom( fits ) ).toBe( 1 );
+		expect( ladderZoomForStep( 3, fits ) ).toBe( 1 );
+		expect( ladderStepForZoom( 1, fits ) ).toBe( 0 );
+	} );
 } );
 
 describe( 'sampleIndices', () => {
@@ -121,6 +244,104 @@ describe( 'sampleIndices', () => {
 				}
 			}
 		}
+	} );
+} );
+
+describe( 'sampleTiles', () => {
+	it( 'matches sampleIndices at integer densities, with on-grid times', () => {
+		expect( sampleTiles( 10, 6000, 4 ) ).toEqual( [
+			{ timeMs: 0, spriteIndex: 0, parentIndex: 0 },
+			{ timeMs: 24000, spriteIndex: 4, parentIndex: 4 },
+			{ timeMs: 48000, spriteIndex: 8, parentIndex: 8 },
+		] );
+	} );
+
+	it( 'splits each source interval at density 1/2: on-grid, off-grid, alternating', () => {
+		const tiles = sampleTiles( 3, 6000, 0.5 );
+		expect( tiles ).toEqual( [
+			{ timeMs: 0, spriteIndex: 0, parentIndex: 0 },
+			{ timeMs: 3000, spriteIndex: null, parentIndex: 0 },
+			{ timeMs: 6000, spriteIndex: 1, parentIndex: 1 },
+			{ timeMs: 9000, spriteIndex: null, parentIndex: 1 },
+			{ timeMs: 12000, spriteIndex: 2, parentIndex: 2 },
+			{ timeMs: 15000, spriteIndex: null, parentIndex: 2 },
+		] );
+	} );
+
+	it( 'names the dyadic parent (the containing sprite tile) at every depth', () => {
+		// Density 1/4: three extracted tiles per interval, all parented by the
+		// sprite tile whose span contains them — the placeholder rule.
+		const tiles = sampleTiles( 2, 6000, 0.25 );
+		expect( tiles.map( tile => tile.parentIndex ) ).toEqual( [ 0, 0, 0, 0, 1, 1, 1, 1 ] );
+		expect( tiles.map( tile => tile.spriteIndex ) ).toEqual( [
+			0,
+			null,
+			null,
+			null,
+			1,
+			null,
+			null,
+			null,
+		] );
+		expect( tiles.map( tile => tile.timeMs ) ).toEqual( [
+			0, 1500, 3000, 4500, 6000, 7500, 9000, 10500,
+		] );
+	} );
+
+	it( 'nests times dyadically: every coarser time reappears at the finer density', () => {
+		// Frame-cache keys and React keys ride on this: stepping the zoom must
+		// reuse the extracted frames grabbed at the coarser stop.
+		const coarse = sampleTiles( 10, 6000, 0.5 ).map( tile => tile.timeMs );
+		const fine = new Set( sampleTiles( 10, 6000, 0.25 ).map( tile => tile.timeMs ) );
+		for ( const timeMs of coarse ) {
+			expect( fine ).toContain( timeMs );
+		}
+	} );
+
+	it( 'rounds a non-integer split to whole-ms times without changing identity', () => {
+		// interval 4500ms at density 1/4 → 1125ms steps (the 30-min sheet's
+		// deepest stop lands on fractions like this after two halvings).
+		const tiles = sampleTiles( 1, 4500, 0.25 );
+		expect( tiles.map( tile => tile.timeMs ) ).toEqual( [ 0, 1125, 2250, 3375 ] );
+	} );
+
+	it( 'returns empty for an empty source and treats degenerate densities as 1', () => {
+		expect( sampleTiles( 0, 6000, 0.5 ) ).toEqual( [] );
+		expect( sampleTiles( 3, 6000, 0 ) ).toHaveLength( 3 );
+		expect( sampleTiles( 3, 6000, NaN ) ).toHaveLength( 3 );
+	} );
+} );
+
+describe( 'visibleWindowTimes', () => {
+	// A densified 10-min strip: off-grid times every 6000ms starting at 3000
+	// (density 1/2 on a 6000ms sheet), 0.1 px/ms scale.
+	const offGrid = Array.from( { length: 10 }, ( _, index ) => 3000 + index * 6000 );
+
+	it( 'keeps the times whose tiles intersect scrollLeft ± one viewport', () => {
+		// Viewport 600px at scrollLeft 1200: visible [1200px, 1800px], padded
+		// one viewport each side → [600px, 2400px] → [6000ms, 24000ms]. Tiles
+		// span 3000ms, so 3000 (ends exactly at 6000, exclusive) is out;
+		// 9000–21000 are in; 27000 starts past the window.
+		expect( visibleWindowTimes( offGrid, 3000, 1200, 600, 0.1 ) ).toEqual( [ 9000, 15000, 21000 ] );
+	} );
+
+	it( 'includes partially visible tiles on both edges', () => {
+		// Window [6000ms, 24000ms]: a tile starting just before the start but
+		// spanning into it stays, one starting exactly at the end is out.
+		expect( visibleWindowTimes( [ 5999, 23999, 24000 ], 3000, 1200, 600, 0.1 ) ).toEqual( [
+			5999, 23999,
+		] );
+	} );
+
+	it( 'pads a leftmost window only to the right', () => {
+		// scrollLeft 0 → window [-600px, 1200px] → up to 12000ms.
+		expect( visibleWindowTimes( offGrid, 3000, 0, 600, 0.1 ) ).toEqual( [ 3000, 9000 ] );
+	} );
+
+	it( 'returns empty on degenerate geometry rather than requesting everything', () => {
+		expect( visibleWindowTimes( offGrid, 3000, 0, 0, 0.1 ) ).toEqual( [] );
+		expect( visibleWindowTimes( offGrid, 3000, 0, 600, 0 ) ).toEqual( [] );
+		expect( visibleWindowTimes( offGrid, 0, 0, 600, 0.1 ) ).toEqual( [] );
 	} );
 } );
 

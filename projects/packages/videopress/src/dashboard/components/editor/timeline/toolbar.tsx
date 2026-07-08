@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
 import StudioEditorCutChip from './cut-chip';
 import StudioTimelineTransport from './transport';
 import StudioEditorZoomControl from './zoom-control';
+import type { ZoomLadder } from './filmstrip-geometry';
 import type { CutRange } from '../state/edit-session';
 import type { ReactElement } from 'react';
 
@@ -33,8 +34,8 @@ type Props = {
 	onSeek: ( ms: number ) => void;
 	/** Current zoom factor (1 = fit). */
 	zoom: number;
-	/** Maximum zoom factor (the filmstrip's native-density ceiling). */
-	zoomMax: number;
+	/** The filmstrip's zoom ladder (native-density anchor + densified stops). */
+	zoomLadder: ZoomLadder;
 	/** Called with the requested zoom factor. */
 	onZoomChange: ( zoom: number ) => void;
 	/** Called when the user asks to fit the whole duration in the viewport. */
@@ -55,7 +56,7 @@ type Props = {
  * @param props.onRemoveCut  - Called with a cut id to remove it.
  * @param props.onSeek       - Called with the parsed timecode position in ms.
  * @param props.zoom         - Current zoom factor.
- * @param props.zoomMax      - Maximum zoom factor.
+ * @param props.zoomLadder   - The filmstrip's zoom ladder.
  * @param props.onZoomChange - Called with the requested zoom factor.
  * @param props.onFit        - Called when "Fit" is pressed.
  * @return The toolbar element.
@@ -71,7 +72,7 @@ export default function StudioEditorTimelineToolbar( {
 	onRemoveCut,
 	onSeek,
 	zoom,
-	zoomMax,
+	zoomLadder,
 	onZoomChange,
 	onFit,
 }: Props ): ReactElement {
@@ -99,7 +100,7 @@ export default function StudioEditorTimelineToolbar( {
 			) }
 			<StudioEditorZoomControl
 				zoom={ zoom }
-				zoomMax={ zoomMax }
+				ladder={ zoomLadder }
 				onZoomChange={ onZoomChange }
 				onFit={ onFit }
 			/>

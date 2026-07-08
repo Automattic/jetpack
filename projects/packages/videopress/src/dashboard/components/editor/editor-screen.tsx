@@ -34,7 +34,7 @@ import { __ } from '@wordpress/i18n';
 import { Link, useNavigate } from '@wordpress/route';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { useFilmstrip } from '../../hooks/use-filmstrip';
+import { useFilmstrip, useFrameExtractionPool } from '../../hooks/use-filmstrip';
 import { LIBRARY_QUERY_KEY } from '../../hooks/use-library';
 import { useRestoreOriginal } from '../../hooks/use-restore-original';
 import { EditsConflictError, useSaveVideoEdits } from '../../hooks/use-save-video-edits';
@@ -176,6 +176,9 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	// Storyboard/extracted thumbnails for the timeline's filmstrip track;
 	// resolves to 'unavailable' (neutral placeholder) when neither works.
 	const filmstrip = useFilmstrip( video );
+	// On-demand frame extraction for the filmstrip's densified zoom stops
+	// (below the storyboard's interval); inert until the track requests.
+	const extractionPool = useFrameExtractionPool( video );
 
 	const [ history, dispatch ] = useReducer( historyReducer, video, v =>
 		createHistory( createEditSession( v.durationSeconds * 1000 ) )
@@ -826,6 +829,7 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 										onScrubEnd={ onScrubEnd }
 										shortcutsEnabled={ confirmAction === null }
 										filmstrip={ filmstrip }
+										extractionPool={ extractionPool }
 									/>
 								) }
 							</div>

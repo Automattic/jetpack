@@ -2,21 +2,25 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import StudioEditorZoomControl from '../zoom-control';
+import type { ZoomLadder } from '../filmstrip-geometry';
 
 /**
  * Render the control with spy collaborators.
  *
- * @param zoom    - Current zoom factor.
- * @param zoomMax - Maximum zoom factor.
+ * @param zoom   - Current zoom factor.
+ * @param ladder - The strip's zoom ladder; a bare number means a flat
+ *               (no densified stops) ladder with that source zoom.
  * @return The spies and the slider element.
  */
-function renderControl( zoom: number, zoomMax: number ) {
+function renderControl( zoom: number, ladder: number | ZoomLadder ) {
 	const onZoomChange = jest.fn();
 	const onFit = jest.fn();
+	const resolved: ZoomLadder =
+		typeof ladder === 'number' ? { sourceZoom: ladder, extraStops: 0 } : ladder;
 	render(
 		<StudioEditorZoomControl
 			zoom={ zoom }
-			zoomMax={ zoomMax }
+			ladder={ resolved }
 			onZoomChange={ onZoomChange }
 			onFit={ onFit }
 		/>
@@ -34,8 +38,8 @@ describe( 'StudioEditorZoomControl', () => {
 		expect( slider.value ).toBe( '0' );
 	} );
 
-	it( 'maps stops onto geometric zoom factors: zoom(k) = zoomMax^(k/3)', () => {
-		// zoomMax 8 makes the ladder exact powers of two: 1, 2, 4, 8. Render
+	it( 'maps stops onto geometric zoom factors: zoom(k) = sourceZoom^(k/3)', () => {
+		// sourceZoom 8 makes the ladder exact powers of two: 1, 2, 4, 8. Render
 		// mid-ladder (zoom 4 → stop 2) so every other stop is a real change —
 		// React swallows change events that match the controlled value.
 		const { onZoomChange, slider } = renderControl( 4, 8 );
@@ -53,7 +57,7 @@ describe( 'StudioEditorZoomControl', () => {
 
 	it( 'displays the nearest stop for in-between zooms without snapping the state', () => {
 		// The wheel path keeps zoom continuous; the slider is only a discrete
-		// view of it. zoom 3 with zoomMax 8 sits at 1.585 stops → shown as 2.
+		// view of it. zoom 3 with sourceZoom 8 sits at 1.585 stops → shown as 2.
 		const { slider } = renderControl( 3, 8 );
 		expect( slider.value ).toBe( '2' );
 	} );
@@ -76,9 +80,45 @@ describe( 'StudioEditorZoomControl', () => {
 		expect( slider ).toHaveAttribute( 'aria-valuetext', 'Zoom level 3 of 4' );
 	} );
 
+	describe( 'densified stops (extraStops > 0)', () => {
+		// A long-video adaptive sheet: sourceZoom 8 with two interval-halving
+		// stops → six stops total, ceiling 32.
+		const ladder: ZoomLadder = { sourceZoom: 8, extraStops: 2 };
+
+		it( 'extends the slider by one stop per interval halving', () => {
+			const { slider } = renderControl( 1, ladder );
+			expect( slider ).toHaveAttribute( 'min', '0' );
+			expect( slider ).toHaveAttribute( 'max', '5' );
+			expect( slider ).toHaveAttribute( 'step', '1' );
+		} );
+
+		it( 'doubles the zoom per densified stop past the source-density stop', () => {
+			const { onZoomChange, slider } = renderControl( 8, ladder );
+			expect( slider.value ).toBe( '3' );
+
+			fireEvent.change( slider, { target: { value: '4' } } );
+			expect( onZoomChange ).toHaveBeenLastCalledWith( 16 );
+
+			fireEvent.change( slider, { target: { value: '5' } } );
+			expect( onZoomChange ).toHaveBeenLastCalledWith( 32 );
+		} );
+
+		it( 'shows the top densified stop for the ceiling zoom and announces the total', () => {
+			const { slider } = renderControl( 32, ladder );
+			expect( slider.value ).toBe( '5' );
+			expect( slider ).toHaveAttribute( 'aria-valuetext', 'Zoom level 6 of 6' );
+		} );
+
+		it( 'maps in-between densified zooms to the nearest stop', () => {
+			// zoom 20 sits between stops 4 (16) and 5 (32); log-nearest is 4.
+			const { slider } = renderControl( 20, ladder );
+			expect( slider.value ).toBe( '4' );
+		} );
+	} );
+
 	it( 'disables the slider and pins it left when there is no zoom range', () => {
-		// zoomMax 1 also exercises the log(1) = 0 guard: the position must be
-		// 0, not NaN.
+		// sourceZoom 1 also exercises the log(1) = 0 guard: the position must
+		// be 0, not NaN.
 		const { slider } = renderControl( 1, 1 );
 		expect( slider ).toBeDisabled();
 		expect( slider.value ).toBe( '0' );

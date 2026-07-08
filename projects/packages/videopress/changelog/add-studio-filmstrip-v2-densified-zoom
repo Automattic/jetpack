@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress Studio: extend the timeline zoom ladder past the storyboard's tile interval — extra doubling stops per interval halving (down to 1s), sprite-aligned tiles straight from the sheet, off-grid tiles lazily extracted for the visible window with the coarser sprite tile as placeholder.

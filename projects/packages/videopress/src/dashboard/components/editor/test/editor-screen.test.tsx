@@ -88,6 +88,7 @@ jest.mock( '../../../hooks/use-update-chapters', () => ( {
 // placeholder here. The hook has its own dedicated tests.
 jest.mock( '../../../hooks/use-filmstrip', () => ( {
 	useFilmstrip: () => ( { status: 'unavailable' } ),
+	useFrameExtractionPool: () => null,
 } ) );
 
 const mockUseNavigate = useNavigate as jest.Mock;

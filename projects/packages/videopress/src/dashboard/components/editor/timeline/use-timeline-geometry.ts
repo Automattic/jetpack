@@ -9,21 +9,24 @@
  * transform, and the trim/cut overlay all take their width or positions from
  * it, so no track can render on a different scale than the times above it.
  *
- * Zoom is capped by the caller-provided ceiling (the filmstrip's native tile
- * density via getFilmstripZoomMax); the cap is re-derived — and the effective
+ * Zoom is capped by the caller-provided ladder's ceiling (the filmstrip's
+ * native tile density via getFilmstripZoomLadder, doubled once per densified
+ * stop the strip supports); the ladder is re-derived — and the effective
  * zoom re-clamped — every render, so it self-heals when the strip resolves
  * asynchronously or the viewport resizes. Zoom state stays a continuous
- * number: the toolbar slider is a discrete four-stop view of it
- * (zoomMax^(k/3)), while modifier+wheel moves it continuously. Both paths
- * keep the time under the playhead stationary on screen by compensating
- * `scrollLeft`; a plain vertical wheel scrolls the strip. The wheel listener
- * is attached manually because React wheel listeners are passive and
- * preventDefault (needed to suppress browser page-zoom/page-scroll) requires
- * a non-passive subscription.
+ * number: the toolbar slider is a discrete view of the ladder's stops, while
+ * modifier+wheel moves it continuously. Both paths keep the time under the
+ * playhead stationary on screen by compensating `scrollLeft`; a plain
+ * vertical wheel scrolls the strip. The wheel listener is attached manually
+ * because React wheel listeners are passive and preventDefault (needed to
+ * suppress browser page-zoom/page-scroll) requires a non-passive
+ * subscription.
  */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { getPxPerMs, msToPx } from '../state/time-utils';
+import { ladderMaxZoom } from './filmstrip-geometry';
 import { useElementWidth } from './use-element-width';
+import type { ZoomLadder } from './filmstrip-geometry';
 import type { CSSProperties } from 'react';
 
 /**
@@ -41,10 +44,12 @@ export interface TimelineGeometryOptions {
 	/** Live playhead position in ms — the anchor for zoom compensation. */
 	currentMs: number;
 	/**
-	 * The zoom ceiling for the current viewport width (e.g. the filmstrip's
-	 * native tile density via getFilmstripZoomMax). Called during render.
+	 * The zoom ladder for the current viewport width (e.g. the filmstrip's
+	 * native tile density plus its densified stops via
+	 * getFilmstripZoomLadder). Called during render; the ceiling is its
+	 * ladderMaxZoom.
 	 */
-	getZoomMax: ( viewportWidth: number ) => number;
+	getZoomLadder: ( viewportWidth: number ) => ZoomLadder;
 }
 
 /**
@@ -53,8 +58,10 @@ export interface TimelineGeometryOptions {
 export interface TimelineGeometry {
 	/** Effective (cap-clamped) zoom factor; 1 = fit. */
 	zoom: number;
-	/** Current zoom ceiling. */
+	/** Current zoom ceiling (the ladder's ladderMaxZoom). */
 	zoomMax: number;
+	/** Current zoom ladder (the slider's stop descriptor). */
+	zoomLadder: ZoomLadder;
 	/** Measured scroller width in px; 0 until it reports one. */
 	viewportWidth: number;
 	/** Scale from `getPxPerMs` at the effective zoom. */
@@ -79,20 +86,22 @@ export interface TimelineGeometry {
 /**
  * Own the timeline's zoom/scale state and the scroller wiring.
  *
- * @param options - Duration, playhead anchor, and the zoom ceiling.
+ * @param options - Duration, playhead anchor, and the zoom ladder.
  * @return The derived geometry plus the zoom and scroller controls.
  */
 export function useTimelineGeometry( options: TimelineGeometryOptions ): TimelineGeometry {
-	const { durationMs, currentMs, getZoomMax } = options;
+	const { durationMs, currentMs, getZoomLadder } = options;
 	const [ zoom, setZoom ] = useState( 1 );
 	const { ref: widthRef, width: viewportWidth } = useElementWidth();
 	const [ scrollerEl, setScrollerEl ] = useState< HTMLDivElement | null >( null );
 
-	// The caller's ceiling (e.g. the filmstrip's native tile density) is the
-	// zoom cap. Derived (not stored) and clamped at derivation, so a `zoom`
-	// state that overshoots — the storyboard resolving mid-session, the
-	// viewport growing — heals on the next render with no state-sync effect.
-	const zoomMax = getZoomMax( viewportWidth );
+	// The caller's ladder ceiling (the strip's native tile density times its
+	// densified stops) is the zoom cap. Derived (not stored) and clamped at
+	// derivation, so a `zoom` state that overshoots — the storyboard
+	// resolving mid-session, the viewport growing — heals on the next render
+	// with no state-sync effect.
+	const zoomLadder = getZoomLadder( viewportWidth );
+	const zoomMax = ladderMaxZoom( zoomLadder );
 	const effectiveZoom = Math.min( zoom, zoomMax );
 
 	// Refs mirroring live values, so the zoom math and the non-passive wheel
@@ -173,6 +182,7 @@ export function useTimelineGeometry( options: TimelineGeometryOptions ): Timelin
 	return {
 		zoom: effectiveZoom,
 		zoomMax,
+		zoomLadder,
 		viewportWidth,
 		pxPerMs,
 		contentWidth,

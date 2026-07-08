@@ -9,18 +9,19 @@
  * selected cut), and the document-level shortcuts (space, arrows, Home/End,
  * Delete, mod+Z) that attach while the timeline is mounted. Geometry — zoom,
  * the one shared horizontal scale, wheel handling — lives in the shell's
- * useTimelineGeometry hook; the zoom cap is the filmstrip's native tile
- * density (getFilmstripZoomMax), so tiles can never be upscaled.
+ * useTimelineGeometry hook; the zoom ladder is the filmstrip's
+ * (getFilmstripZoomLadder): capped at the strip's native tile density, plus
+ * the densified stops its interval supports — tiles can never be upscaled.
  */
 import { useCallback } from 'react';
 import StudioEditorEditOverlay from './edit-overlay';
-import StudioEditorFilmstripTrack, { getFilmstripZoomMax } from './filmstrip-track';
+import StudioEditorFilmstripTrack, { getFilmstripZoomLadder } from './filmstrip-track';
 import StudioEditorTimeRuler from './time-ruler';
 import StudioTimelineShell, { clampToDuration } from './timeline-shell';
 import StudioEditorTimelineToolbar from './toolbar';
 import { useKeyboardShortcuts } from './use-keyboard-shortcuts';
 import './style.scss';
-import type { FilmstripState } from '../../../hooks/use-filmstrip';
+import type { FilmstripState, FrameExtractionPool } from '../../../hooks/use-filmstrip';
 import type { EditSession, EditSessionAction } from '../state/edit-session';
 import type { HistoryAction } from '../state/history';
 import type { ReactElement } from 'react';
@@ -61,6 +62,12 @@ export type StudioEditorTimelineProps = {
 	shortcutsEnabled?: boolean;
 	/** Filmstrip data for the strip track; absent renders the placeholder. */
 	filmstrip?: FilmstripState;
+	/**
+	 * Frame-extraction pool for the filmstrip's densified zoom stops
+	 * (useFrameExtractionPool); absent, densified tiles keep their
+	 * sprite-parent placeholders.
+	 */
+	extractionPool?: FrameExtractionPool | null;
 };
 
 /**
@@ -78,6 +85,7 @@ export type StudioEditorTimelineProps = {
  * @param props.onScrubEnd       - The scrub gesture ended.
  * @param props.shortcutsEnabled - Whether the document-level shortcuts attach.
  * @param props.filmstrip        - Filmstrip data for the strip track.
+ * @param props.extractionPool   - Frame-extraction pool for densified stops.
  * @return The timeline element.
  */
 export default function StudioEditorTimeline( {
@@ -92,6 +100,7 @@ export default function StudioEditorTimeline( {
 	onScrubEnd,
 	shortcutsEnabled = true,
 	filmstrip,
+	extractionPool = null,
 }: StudioEditorTimelineProps ): ReactElement {
 	const durationMs = session.durationMs;
 
@@ -130,11 +139,13 @@ export default function StudioEditorTimeline( {
 			currentMs={ currentMs }
 			playing={ playing }
 			locked={ locked }
-			getZoomMax={ viewportWidth => getFilmstripZoomMax( filmstrip, durationMs, viewportWidth ) }
+			getZoomLadder={ viewportWidth =>
+				getFilmstripZoomLadder( filmstrip, durationMs, viewportWidth )
+			}
 			onSeek={ onSeek }
 			onScrubStart={ handleScrubStart }
 			onScrubEnd={ onScrubEnd }
-			toolbar={ ( { zoom, zoomMax, applyZoom } ) => (
+			toolbar={ ( { zoom, zoomLadder, applyZoom } ) => (
 				<StudioEditorTimelineToolbar
 					playing={ playing }
 					onTogglePlay={ onTogglePlay }
@@ -146,12 +157,12 @@ export default function StudioEditorTimeline( {
 					onRemoveCut={ id => dispatch( { type: 'REMOVE_CUT', id } ) }
 					onSeek={ seekClamped }
 					zoom={ zoom }
-					zoomMax={ zoomMax }
+					zoomLadder={ zoomLadder }
 					onZoomChange={ applyZoom }
 					onFit={ () => applyZoom( 1 ) }
 				/>
 			) }
-			tracks={ ( { pxPerMs, contentWidth } ) => [
+			tracks={ ( { pxPerMs, contentWidth, scrollerEl } ) => [
 				{
 					id: 'ruler',
 					element: <StudioEditorTimeRuler durationMs={ durationMs } pxPerMs={ pxPerMs } />,
@@ -163,6 +174,8 @@ export default function StudioEditorTimeline( {
 							filmstrip={ filmstrip }
 							trackWidth={ contentWidth }
 							durationMs={ durationMs }
+							extractionPool={ extractionPool }
+							scrollerEl={ scrollerEl }
 						/>
 					),
 				},

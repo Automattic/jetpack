@@ -22,7 +22,7 @@
  */
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createFrameExtractionPool } from './frame-extraction-pool';
 import { usePlaybackToken } from './use-poster-url';
 import { createVideoFrameGrabber } from './video-frame-grabber';
@@ -241,6 +241,67 @@ export type UseFilmstripOptions = {
 	/** Frame-grabber factory; injectable for tests (jsdom media is inert). */
 	createGrabber?: ( src: string ) => FrameGrabber;
 };
+
+/**
+ * A standing frame-extraction pool for a video, for consumers that grab
+ * frames on demand rather than in one batch — the timeline filmstrip's
+ * densified zoom stops. Distinct from useFilmstrip's internal batch pool on
+ * purpose: in storyboard mode (the only mode that densifies) that pool is
+ * never created, and the batch path's take-and-detach ownership would fight
+ * an incremental consumer.
+ *
+ * The pool object is cheap — its grabber (and hidden <video>) only exists
+ * once the first frame is requested — so it is created as soon as a usable
+ * source is known and destroyed (revoking every cached frame) on unmount or
+ * when the video/source changes. Private videos wait for the playback JWT;
+ * until then (or with no usable source at all) the hook returns null and
+ * callers simply don't extract.
+ *
+ * @param video   - The video to extract frames from.
+ * @param options - Optional overrides (test seam).
+ * @return The pool, or null while there is no usable source.
+ */
+export function useFrameExtractionPool(
+	video: LibraryItem,
+	options: UseFilmstripOptions = {}
+): FrameExtractionPool | null {
+	// Prefer the transcoded H.264 rendition, exactly like the batch path: the
+	// original upload may be an HEVC .mov the browser can't decode.
+	const { guid, isPrivate } = video;
+	const sourceUrl = video.playbackUrl ?? video.sourceUrl;
+	const token = usePlaybackToken( guid, isPrivate );
+	const { createGrabber = createVideoFrameGrabber } = options;
+	const createGrabberRef = useRef( createGrabber );
+	createGrabberRef.current = createGrabber;
+
+	let src: string | null = null;
+	if ( sourceUrl && Boolean( guid ) ) {
+		if ( ! isPrivate ) {
+			src = sourceUrl;
+		} else if ( token ) {
+			src = `${ sourceUrl }?metadata_token=${ token }`;
+		}
+	}
+
+	// The pool flows through state (not a ref) so consumers' effects re-run
+	// when it appears — e.g. a private video's pool arriving after the JWT.
+	const [ pool, setPool ] = useState< FrameExtractionPool | null >( null );
+	useEffect( () => {
+		if ( ! src ) {
+			setPool( null );
+			return;
+		}
+		const next = createFrameExtractionPool( {
+			createGrabber: () => createGrabberRef.current( src ),
+		} );
+		setPool( next );
+		return () => {
+			next.destroy();
+		};
+	}, [ guid, src ] );
+
+	return pool;
+}
 
 /**
  * Resolve filmstrip data for a video: server storyboard first, client-side

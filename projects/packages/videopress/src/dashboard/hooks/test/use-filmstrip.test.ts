@@ -10,6 +10,7 @@ import {
 	MAX_FILMSTRIP_FRAMES,
 	pickFrameTimes,
 	useFilmstrip,
+	useFrameExtractionPool,
 } from '../use-filmstrip';
 import type { Storyboard } from '../../types/edits';
 import type { FrameExtractionPool } from '../use-filmstrip';
@@ -403,5 +404,96 @@ describe( 'useFilmstrip', () => {
 		);
 		// The third frame was never attempted.
 		expect( grabber.log.filter( entry => entry.startsWith( 'grab:' ) ) ).toHaveLength( 2 );
+	} );
+} );
+
+describe( 'useFrameExtractionPool', () => {
+	it( 'serves a standing pool whose grabber uses the raw source for public videos', async () => {
+		const grabber = makeFakeGrabber();
+		const createGrabber = jest.fn( () => grabber );
+		const { wrapper } = makeWrapper();
+		const video = makeLibraryItem( {
+			durationSeconds: 60,
+			sourceUrl: 'https://example.com/clip.mp4',
+		} );
+
+		const { result } = renderHook( () => useFrameExtractionPool( video, { createGrabber } ), {
+			wrapper,
+		} );
+
+		await waitFor( () => expect( result.current ).not.toBeNull() );
+		// The pool is inert until the first request — no hidden <video> yet.
+		expect( createGrabber ).not.toHaveBeenCalled();
+
+		result.current?.requestFrames( [ 1500 ] );
+		await waitFor( () =>
+			expect( result.current?.peekFrames( [ 1500 ] ).get( 1500 )?.status ).toBe( 'ready' )
+		);
+		expect( createGrabber ).toHaveBeenCalledWith( 'https://example.com/clip.mp4' );
+	} );
+
+	it( 'destroys the pool (and its grabber) on unmount', async () => {
+		const grabber = makeFakeGrabber();
+		const { wrapper } = makeWrapper();
+		const video = makeLibraryItem( {
+			durationSeconds: 60,
+			sourceUrl: 'https://example.com/clip.mp4',
+		} );
+
+		const { result, unmount } = renderHook(
+			() => useFrameExtractionPool( video, { createGrabber: () => grabber } ),
+			{ wrapper }
+		);
+		await waitFor( () => expect( result.current ).not.toBeNull() );
+		result.current?.requestFrames( [ 1500 ] );
+		await waitFor( () =>
+			expect( result.current?.peekFrames( [ 1500 ] ).get( 1500 )?.status ).toBe( 'ready' )
+		);
+
+		unmount();
+		expect( grabber.log ).toContain( 'destroy' );
+		expect( revokeObjectURL ).toHaveBeenCalledWith( 'blob:frame-0' );
+	} );
+
+	it( 'waits for the playback token and signs the source for private videos', async () => {
+		mockedApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {
+			if ( path.startsWith( '/wpcom/v2/videopress/playback-jwt/' ) ) {
+				return Promise.resolve( { playback_token: 'JWT' } );
+			}
+			return Promise.reject( { code: 'storyboard_unavailable' } );
+		} );
+		const grabber = makeFakeGrabber();
+		const createGrabber = jest.fn( () => grabber );
+		const { wrapper } = makeWrapper();
+		const video = makeLibraryItem( {
+			isPrivate: true,
+			durationSeconds: 60,
+			sourceUrl: 'https://example.com/clip.mp4',
+		} );
+
+		const { result } = renderHook( () => useFrameExtractionPool( video, { createGrabber } ), {
+			wrapper,
+		} );
+
+		// Null until the JWT lands — a request now would just 403.
+		expect( result.current ).toBeNull();
+		await waitFor( () => expect( result.current ).not.toBeNull() );
+
+		result.current?.requestFrames( [ 1500 ] );
+		await waitFor( () =>
+			expect( result.current?.peekFrames( [ 1500 ] ).get( 1500 )?.status ).toBe( 'ready' )
+		);
+		expect( createGrabber ).toHaveBeenCalledWith(
+			'https://example.com/clip.mp4?metadata_token=JWT'
+		);
+	} );
+
+	it( 'returns null when the video has no usable source', () => {
+		const { wrapper } = makeWrapper();
+		const video = makeLibraryItem( { durationSeconds: 60, sourceUrl: undefined } );
+
+		const { result } = renderHook( () => useFrameExtractionPool( video ), { wrapper } );
+
+		expect( result.current ).toBeNull();
 	} );
 } );

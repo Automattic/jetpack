@@ -1,7 +1,15 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { cellWidth } from '../filmstrip-geometry';
-import StudioEditorFilmstripTrack, { getFilmstripZoomMax } from '../filmstrip-track';
-import type { FilmstripState } from '../../../../hooks/use-filmstrip';
+import StudioEditorFilmstripTrack, {
+	getFilmstripZoomLadder,
+	getFilmstripZoomMax,
+	SCROLL_SYNC_DELAY_MS,
+} from '../filmstrip-track';
+import type {
+	FilmstripState,
+	FrameExtractionPool,
+	FrameSlot,
+} from '../../../../hooks/use-filmstrip';
 import type { Storyboard } from '../../../../types/edits';
 
 /**
@@ -37,6 +45,66 @@ function tileWidths(): number[] {
 	return screen
 		.getAllByTestId( 'studio-timeline-filmstrip-tile' )
 		.map( tile => parseFloat( tile.style.width ) );
+}
+
+type FakePool = {
+	/** The pool the track consumes. */
+	pool: FrameExtractionPool;
+	/** Every requestFrames batch, in call order. */
+	requests: number[][];
+	/** Resolve a time to a URL and notify subscribers (wrap in act). */
+	land: ( ms: number, url: string ) => void;
+};
+
+/**
+ * Build a scriptable in-memory FrameExtractionPool: records every request
+ * batch, serves 'pending' until a test lands a frame, then 'ready'.
+ *
+ * @return The fake pool and its scripting handles.
+ */
+function makeFakePool(): FakePool {
+	const requests: number[][] = [];
+	const ready = new Map< number, string >();
+	const listeners = new Set< () => void >();
+	const slotOf = ( ms: number ): FrameSlot => {
+		const url = ready.get( ms );
+		return url === undefined ? { status: 'pending' } : { status: 'ready', url };
+	};
+	const peekFrames = ( timesMs: number[] ) => new Map( timesMs.map( ms => [ ms, slotOf( ms ) ] ) );
+	return {
+		pool: {
+			requestFrames: jest.fn( ( timesMs: number[] ) => {
+				requests.push( [ ...timesMs ] );
+				return peekFrames( timesMs );
+			} ),
+			peekFrames,
+			cancelFrames: jest.fn(),
+			takeFrames: () => null,
+			subscribe: listener => {
+				listeners.add( listener );
+				return () => listeners.delete( listener );
+			},
+			destroy: () => {},
+		},
+		requests,
+		land: ( ms, url ) => {
+			ready.set( ms, url );
+			[ ...listeners ].forEach( listener => listener() );
+		},
+	};
+}
+
+/**
+ * Build a detached scroller element with a scriptable clientWidth (jsdom
+ * reports zero layout); scrollLeft is natively settable.
+ *
+ * @param clientWidth - The visible width to report.
+ * @return The scroller element.
+ */
+function makeScroller( clientWidth: number ): HTMLDivElement {
+	const scroller = document.createElement( 'div' );
+	Object.defineProperty( scroller, 'clientWidth', { configurable: true, value: clientWidth } );
+	return scroller;
 }
 
 describe( 'StudioEditorFilmstripTrack', () => {
@@ -291,6 +359,169 @@ describe( 'StudioEditorFilmstripTrack', () => {
 			expect( widths ).toEqual( Array( 60 ).fill( 128 ) );
 		} );
 	} );
+
+	describe( 'densified stops (below the sprite floor)', () => {
+		// A long-video adaptive sheet in miniature: 10 tiles at interval_ms
+		// 6000 over 60s, one 10×1 sheet, 128px cells. Two densified stops
+		// (3000ms, 1500ms). At trackWidth 2560 (double the sprite floor's
+		// 1280) the quantizer picks density 1/2: 20 tiles à 128px, on-grid
+		// and off-grid alternating; off-grid times 3000, 9000, …, 57000.
+		const storyboard = makeStoryboard( { tiles: 10, columns: 10, rows: 1, interval_ms: 6000 } );
+
+		/**
+		 * Render the densified fixture.
+		 *
+		 * @param pool     - The extraction pool, if any.
+		 * @param scroller - The scroller element, if any.
+		 * @return The render result.
+		 */
+		function renderDensified( pool?: FrameExtractionPool, scroller?: HTMLElement ) {
+			return render(
+				<StudioEditorFilmstripTrack
+					filmstrip={ { status: 'storyboard', storyboard } }
+					trackWidth={ 2560 }
+					durationMs={ 60000 }
+					extractionPool={ pool }
+					scrollerEl={ scroller }
+				/>
+			);
+		}
+
+		it( 'interleaves sprite-aligned tiles with placeholders, widths still pinned to the track', () => {
+			renderDensified();
+
+			const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
+			expect( tiles ).toHaveLength( 20 );
+			// Even positions are on the sprite grid (dyadic subset property),
+			// odd ones await extraction.
+			expect( tiles[ 0 ] ).toHaveAttribute( 'data-index', '0' );
+			expect( tiles[ 1 ] ).toHaveAttribute( 'data-time', '3000' );
+			expect( tiles[ 2 ] ).toHaveAttribute( 'data-index', '1' );
+			expect( tiles[ 3 ] ).toHaveAttribute( 'data-time', '9000' );
+			// One-scale invariant: the 20 widths sum exactly to the track.
+			const widths = tileWidths();
+			expect( widths ).toEqual( Array( 20 ).fill( 128 ) );
+			expect( widths.reduce( ( sum, width ) => sum + width, 0 ) ).toBe( 2560 );
+		} );
+
+		it( 'renders the dyadic parent sprite tile as the placeholder — never blank', () => {
+			renderDensified();
+
+			const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
+			// Tile at 3000ms sits inside sprite tile 0's span; at 9000ms,
+			// tile 1's. Same cover-crop math as the real tiles: scale 0.8 →
+			// 128×64 cells across the 10×1 sheet.
+			expect( tiles[ 1 ] ).toHaveAttribute( 'data-placeholder-index', '0' );
+			expect( tiles[ 1 ] ).toHaveStyle( {
+				backgroundImage: 'url("https://example.com/sprite.jpg")',
+				backgroundSize: '1280px 64px',
+				backgroundPosition: '0px 0px',
+			} );
+			expect( tiles[ 3 ] ).toHaveAttribute( 'data-placeholder-index', '1' );
+			expect( tiles[ 3 ] ).toHaveStyle( { backgroundPosition: '-128px 0px' } );
+		} );
+
+		it( 'requests only visible-window off-grid times — sprite-aligned times never hit the pool', () => {
+			const fake = makeFakePool();
+			// 1000px viewport at scrollLeft 0: window [-1000px, 2000px] →
+			// times below 46875ms; 51000 and 57000 stay unrequested.
+			renderDensified( fake.pool, makeScroller( 1000 ) );
+
+			expect( fake.requests ).toEqual( [
+				[ 3000, 9000, 15000, 21000, 27000, 33000, 39000, 45000 ],
+			] );
+			// Nothing on the sprite grid is ever extracted.
+			for ( const batch of fake.requests ) {
+				for ( const ms of batch ) {
+					expect( ms % 6000 ).not.toBe( 0 );
+				}
+			}
+		} );
+
+		it( 'requests nothing without a scroller to derive the window from', () => {
+			const fake = makeFakePool();
+			renderDensified( fake.pool );
+
+			expect( fake.requests ).toEqual( [] );
+			// The tiles still render — as placeholders.
+			expect( screen.getAllByTestId( 'studio-timeline-filmstrip-tile' ) ).toHaveLength( 20 );
+		} );
+
+		it( 'swaps a placeholder for the extracted frame when it lands', () => {
+			const fake = makeFakePool();
+			renderDensified( fake.pool, makeScroller( 1000 ) );
+
+			act( () => fake.land( 3000, 'blob:densified-3000' ) );
+
+			const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
+			expect( tiles[ 1 ].tagName ).toBe( 'IMG' );
+			expect( tiles[ 1 ] ).toHaveAttribute( 'src', 'blob:densified-3000' );
+			expect( tiles[ 1 ] ).toHaveAttribute( 'data-time', '3000' );
+			expect( tiles[ 1 ] ).toHaveAttribute( 'alt', '' );
+			expect( tiles[ 1 ] ).toHaveStyle( { width: '128px' } );
+			// The neighbors still wait on their own frames.
+			expect( tiles[ 3 ].tagName ).toBe( 'DIV' );
+		} );
+
+		it( 'renders cached frames immediately on mount', () => {
+			const fake = makeFakePool();
+			fake.land( 9000, 'blob:cached-9000' );
+
+			renderDensified( fake.pool, makeScroller( 1000 ) );
+
+			const tiles = screen.getAllByTestId( 'studio-timeline-filmstrip-tile' );
+			expect( tiles[ 3 ].tagName ).toBe( 'IMG' );
+			expect( tiles[ 3 ] ).toHaveAttribute( 'src', 'blob:cached-9000' );
+		} );
+
+		it( 're-derives and re-requests the window on (throttled) scroll', () => {
+			jest.useFakeTimers();
+			try {
+				const fake = makeFakePool();
+				const scroller = makeScroller( 1000 );
+				renderDensified( fake.pool, scroller );
+				expect( fake.requests ).toHaveLength( 1 );
+
+				// Scroll to the far end: [560px, 3560px] → 15000ms onward.
+				scroller.scrollLeft = 1560;
+				scroller.dispatchEvent( new Event( 'scroll' ) );
+				// Throttled: nothing until the trailing edge fires.
+				expect( fake.requests ).toHaveLength( 1 );
+				act( () => {
+					jest.advanceTimersByTime( SCROLL_SYNC_DELAY_MS );
+				} );
+
+				expect( fake.requests ).toHaveLength( 2 );
+				expect( fake.requests[ 1 ] ).toEqual( [
+					15000, 21000, 27000, 33000, 39000, 45000, 51000, 57000,
+				] );
+			} finally {
+				jest.useRealTimers();
+			}
+		} );
+
+		it( 'cancels its queued times when the layout leaves the densified stop', () => {
+			const fake = makeFakePool();
+			const scroller = makeScroller( 1000 );
+			const view = renderDensified( fake.pool, scroller );
+
+			// Back to the sprite floor: density 1, no off-grid tiles.
+			view.rerender(
+				<StudioEditorFilmstripTrack
+					filmstrip={ { status: 'storyboard', storyboard } }
+					trackWidth={ 1280 }
+					durationMs={ 60000 }
+					extractionPool={ fake.pool }
+					scrollerEl={ scroller }
+				/>
+			);
+
+			expect( fake.pool.cancelFrames ).toHaveBeenCalledWith( [
+				3000, 9000, 15000, 21000, 27000, 33000, 39000, 45000, 51000, 57000,
+			] );
+			expect( screen.getAllByTestId( 'studio-timeline-filmstrip-tile' ) ).toHaveLength( 10 );
+		} );
+	} );
 } );
 
 describe( 'getFilmstripZoomMax', () => {
@@ -358,5 +589,30 @@ describe( 'getFilmstripZoomMax', () => {
 	it( 'returns 1 for an unmeasured viewport or a degenerate duration', () => {
 		expect( getFilmstripZoomMax( { status: 'loading' }, 60000, 0 ) ).toBe( 1 );
 		expect( getFilmstripZoomMax( undefined, 0, 1000 ) ).toBe( 1 );
+	} );
+
+	describe( 'getFilmstripZoomLadder', () => {
+		it( 'anchors at the cap and adds one densified stop per interval halving', () => {
+			// The 10-min adaptive sheet: 100 tiles at 6000ms → the interval can
+			// halve twice (3000, 1500ms) before crossing the 1000ms floor.
+			expect(
+				getFilmstripZoomLadder( storyboardState( { tiles: 100, interval_ms: 6000 } ), 600000, 1000 )
+			).toEqual( { sourceZoom: ( 100 * 128 ) / 1000, extraStops: 2 } );
+		} );
+
+		it( 'offers no densified stops for a one-second sheet (sub-second stays deferred)', () => {
+			expect(
+				getFilmstripZoomLadder( storyboardState( { tiles: 60, interval_ms: 1000 } ), 60000, 1000 )
+			).toEqual( { sourceZoom: ( 60 * 128 ) / 1000, extraStops: 0 } );
+		} );
+
+		it( 'never densifies frames mode or unresolved strips', () => {
+			const frames = Array.from( { length: 30 }, ( _, index ) => `blob:frame-${ index }` );
+			expect( getFilmstripZoomLadder( { status: 'frames', frames }, 60000, 1000 ).extraStops ).toBe(
+				0
+			);
+			expect( getFilmstripZoomLadder( { status: 'loading' }, 600000, 1000 ).extraStops ).toBe( 0 );
+			expect( getFilmstripZoomLadder( undefined, 600000, 1000 ).extraStops ).toBe( 0 );
+		} );
 	} );
 } );

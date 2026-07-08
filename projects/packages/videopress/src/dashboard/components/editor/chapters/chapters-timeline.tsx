@@ -9,10 +9,10 @@
  * predicate), the "Now: {chapter}" indicator, and the document-level
  * shortcuts instance that attaches while THIS tool is mounted (space,
  * arrows, Home/End to the video bounds, Delete removes the selected chapter
- * — the reducer floors removal at one). The zoom ceiling is the SAME
- * filmstrip cap as the trim tool ({@link getFilmstripZoomMax}) even though
- * this strip draws no tiles, so both tools share one four-stop zoom ladder
- * and switching tools never re-scales the strip.
+ * — the reducer floors removal at one). The zoom ladder is the SAME
+ * filmstrip ladder as the trim tool ({@link getFilmstripZoomLadder}) even
+ * though this strip draws no tiles, so both tools share one set of zoom
+ * stops and switching tools never re-scales the strip.
  *
  * `readOnly` (a manually uploaded chapters VTT exists) keeps the strip as a
  * visualization — segments render, the playhead scrubs — but removes every
@@ -23,7 +23,7 @@ import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { canAddChapterAt } from '../state/chapters-session';
-import { getFilmstripZoomMax } from '../timeline/filmstrip-track';
+import { getFilmstripZoomLadder } from '../timeline/filmstrip-track';
 import StudioEditorTimeRuler from '../timeline/time-ruler';
 import StudioTimelineShell, { clampToDuration } from '../timeline/timeline-shell';
 import StudioTimelineTransport from '../timeline/transport';
@@ -69,7 +69,7 @@ export type StudioChaptersTimelineProps = {
 	shortcutsEnabled?: boolean;
 	/**
 	 * Filmstrip data. This strip draws no tiles; the filmstrip only fixes the
-	 * zoom ceiling so both tools share the same four-stop ladder.
+	 * zoom ladder so both tools share the same stops.
 	 */
 	filmstrip?: FilmstripState;
 	/**
@@ -162,11 +162,13 @@ export default function StudioChaptersTimeline( {
 				currentMs={ currentMs }
 				playing={ playing }
 				locked={ locked }
-				getZoomMax={ viewportWidth => getFilmstripZoomMax( filmstrip, durationMs, viewportWidth ) }
+				getZoomLadder={ viewportWidth =>
+					getFilmstripZoomLadder( filmstrip, durationMs, viewportWidth )
+				}
 				onSeek={ onSeek }
 				onScrubStart={ onScrubStart }
 				onScrubEnd={ onScrubEnd }
-				toolbar={ ( { zoom, zoomMax, applyZoom } ) => (
+				toolbar={ ( { zoom, zoomLadder, applyZoom } ) => (
 					<div className="vp-studio-timeline__toolbar">
 						<StudioTimelineTransport
 							playing={ playing }
@@ -194,7 +196,7 @@ export default function StudioChaptersTimeline( {
 						</span>
 						<StudioEditorZoomControl
 							zoom={ zoom }
-							zoomMax={ zoomMax }
+							ladder={ zoomLadder }
 							onZoomChange={ applyZoom }
 							onFit={ () => applyZoom( 1 ) }
 						/>

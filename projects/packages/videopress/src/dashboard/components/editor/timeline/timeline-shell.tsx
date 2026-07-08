@@ -47,6 +47,7 @@ import { NUDGE_LARGE_MS, NUDGE_MS } from './use-keyboard-shortcuts';
 import { useTimelinePointerDrag } from './use-pointer-drag';
 import { useRulerTicks } from './use-ruler-ticks';
 import { useTimelineGeometry } from './use-timeline-geometry';
+import type { ZoomLadder } from './filmstrip-geometry';
 import type {
 	KeyboardEvent as ReactKeyboardEvent,
 	ReactElement,
@@ -94,12 +95,21 @@ export interface TimelineShellContext {
 	viewportWidth: number;
 	/** Effective (cap-clamped) zoom factor; 1 = fit. */
 	zoom: number;
-	/** Current zoom ceiling. */
+	/** Current zoom ceiling (the ladder's ladderMaxZoom). */
 	zoomMax: number;
+	/** Current zoom ladder (the slider's stop descriptor). */
+	zoomLadder: ZoomLadder;
 	/** Request a zoom change (clamped; playhead-anchored scroll follows). */
 	applyZoom: ( requested: number ) => void;
 	/** The scaled content element, for pointer→ms math in drag hooks. */
 	contentRef: RefObject< HTMLDivElement | null >;
+	/**
+	 * The horizontal scroller element, or null before mount — tracks that
+	 * lazy-load by scroll position (the densified filmstrip's visible-window
+	 * extraction) read scrollLeft/clientWidth from it and subscribe to its
+	 * scroll events.
+	 */
+	scrollerEl: HTMLDivElement | null;
 }
 
 type Props = {
@@ -119,8 +129,8 @@ type Props = {
 	 * the aria-busy announcement.
 	 */
 	locked?: boolean;
-	/** The zoom ceiling for a given viewport width. Called during render. */
-	getZoomMax: ( viewportWidth: number ) => number;
+	/** The zoom ladder for a given viewport width. Called during render. */
+	getZoomLadder: ( viewportWidth: number ) => ZoomLadder;
 	/** Seek the preview player (clamped to the duration by the shell). */
 	onSeek: ( ms: number ) => void;
 	/** A scrub gesture started (pointer-down on empty track area). */
@@ -138,18 +148,18 @@ type Props = {
 /**
  * The shared timeline strip chrome.
  *
- * @param props              - Component props.
- * @param props.durationMs   - Master duration in ms.
- * @param props.currentMs    - Live playhead position in ms.
- * @param props.playing      - Whether preview playback is running.
- * @param props.locked       - Whether a processing job locks the strip.
- * @param props.getZoomMax   - The zoom ceiling for a given viewport width.
- * @param props.onSeek       - Seek the preview player.
- * @param props.onScrubStart - A scrub gesture started.
- * @param props.onScrubEnd   - The scrub gesture ended.
- * @param props.toolbar      - Toolbar row above the scroller.
- * @param props.tracks       - Ordered track rows.
- * @param props.overlay      - Overlay sheet above the tracks.
+ * @param props               - Component props.
+ * @param props.durationMs    - Master duration in ms.
+ * @param props.currentMs     - Live playhead position in ms.
+ * @param props.playing       - Whether preview playback is running.
+ * @param props.locked        - Whether a processing job locks the strip.
+ * @param props.getZoomLadder - The zoom ladder for a given viewport width.
+ * @param props.onSeek        - Seek the preview player.
+ * @param props.onScrubStart  - A scrub gesture started.
+ * @param props.onScrubEnd    - The scrub gesture ended.
+ * @param props.toolbar       - Toolbar row above the scroller.
+ * @param props.tracks        - Ordered track rows.
+ * @param props.overlay       - Overlay sheet above the tracks.
  * @return The timeline shell element.
  */
 export default function StudioTimelineShell( {
@@ -157,7 +167,7 @@ export default function StudioTimelineShell( {
 	currentMs,
 	playing = false,
 	locked = false,
-	getZoomMax,
+	getZoomLadder,
 	onSeek,
 	onScrubStart,
 	onScrubEnd,
@@ -166,9 +176,17 @@ export default function StudioTimelineShell( {
 	overlay,
 }: Props ): ReactElement {
 	const contentRef = useRef< HTMLDivElement | null >( null );
-	const geometry = useTimelineGeometry( { durationMs, currentMs, getZoomMax } );
-	const { pxPerMs, contentWidth, viewportWidth, zoom, zoomMax, applyZoom, scaledWidthStyle } =
-		geometry;
+	const geometry = useTimelineGeometry( { durationMs, currentMs, getZoomLadder } );
+	const {
+		pxPerMs,
+		contentWidth,
+		viewportWidth,
+		zoom,
+		zoomMax,
+		zoomLadder,
+		applyZoom,
+		scaledWidthStyle,
+	} = geometry;
 	const ticks = useRulerTicks( durationMs, pxPerMs );
 
 	// True between any pointer-down and pointer-up/cancel on the strip. Set
@@ -217,8 +235,10 @@ export default function StudioTimelineShell( {
 		viewportWidth,
 		zoom,
 		zoomMax,
+		zoomLadder,
 		applyZoom,
 		contentRef,
+		scrollerEl: geometry.scrollerEl,
 	};
 
 	const playheadMs = clampToDuration( currentMs, durationMs );
