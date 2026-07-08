@@ -72,14 +72,16 @@ describe( 'OwnerDisconnectDialog', () => {
 		} );
 
 		it( 'calls onClose when "Stay Connected" is clicked', async () => {
+			const user = userEvent.setup();
 			render( <OwnerDisconnectDialog { ...testProps } /> );
-			await userEvent.click( screen.getByRole( 'button', { name: 'Stay Connected' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Stay Connected' } ) );
 			expect( testProps.onClose ).toHaveBeenCalledTimes( 1 );
 		} );
 	} );
 
 	describe( 'disconnect flow', () => {
 		it( 'unlinks and fires success callbacks on Disconnect', async () => {
+			const user = userEvent.setup();
 			const onDisconnected = jest.fn();
 			const onUnlinked = jest.fn();
 			render(
@@ -90,7 +92,7 @@ describe( 'OwnerDisconnectDialog', () => {
 				/>
 			);
 
-			await userEvent.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
 
 			expect( mockUnlinkUser ).toHaveBeenCalledWith( true, { disconnectAllUsers: true } );
 			await waitFor( () => expect( onDisconnected ).toHaveBeenCalledTimes( 1 ) );
@@ -98,10 +100,11 @@ describe( 'OwnerDisconnectDialog', () => {
 		} );
 
 		it( 'shows an error and re-enables the button when unlink fails', async () => {
+			const user = userEvent.setup();
 			mockUnlinkUser.mockRejectedValueOnce( new Error( 'nope' ) );
 			render( <OwnerDisconnectDialog { ...testProps } /> );
 
-			await userEvent.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
 
 			await expect(
 				screen.findByText( /There was a problem disconnecting your account/ )
