@@ -544,15 +544,18 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				return;
 			}
 
-			// The banner markup also renders on footer-links-only sites (to back the
-			// manage-preferences modal), so gate the region-driven auto-show on the banner
-			// feature — otherwise it would pop for a GDPR visitor on a site that disabled it.
-			if ( 'showBanner' in context && isFeatureEnabled( 'banner' ) ) {
+			// Always resolve region-driven consent (CCPA auto-grant, non-regulated implied
+			// consent, GDPR+GPC opt-out) — that's independent of the banner. The banner
+			// feature only controls whether the banner itself is surfaced; its markup may
+			// still render on a banner-disabled site to back the footer modal, so we pass
+			// the flag down rather than skipping the whole call.
+			if ( 'showBanner' in context ) {
 				handleConsentByRegion(
 					geoData.countryCode || UNKNOWN_COUNTRY_CODE,
 					geoData.region || '',
 					config,
-					context as CookieBannerContext
+					context as CookieBannerContext,
+					isFeatureEnabled( 'banner' )
 				);
 			}
 
