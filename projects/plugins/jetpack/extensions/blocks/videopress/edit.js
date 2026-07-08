@@ -1105,6 +1105,8 @@ export const VpBlock = props => {
 		setAttributes( { maxWidth: newMaxWidth } );
 	};
 
+	const isAligned = align === 'wide' || align === 'full';
+
 	return (
 		<figure { ...blockProps }>
 			<div className="wp-block-embed__wrapper">
@@ -1112,11 +1114,11 @@ export const VpBlock = props => {
 					enable={ {
 						top: false,
 						bottom: false,
-						left: true,
-						right: true,
+						left: ! isAligned,
+						right: ! isAligned,
 					} }
 					maxWidth="100%"
-					size={ { width: maxWidth } }
+					size={ { width: isAligned ? '100%' : maxWidth } }
 					style={ { margin: 'auto' } }
 					onResizeStop={ onBlockResize }
 				>
