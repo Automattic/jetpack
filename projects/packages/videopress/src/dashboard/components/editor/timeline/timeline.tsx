@@ -142,6 +142,8 @@ export default function StudioEditorTimeline( {
 					durationMs={ durationMs }
 					canAddCut={ currentMs >= session.trimStartMs && currentMs <= session.trimEndMs }
 					onAddCut={ () => dispatch( { type: 'ADD_CUT', atMs: currentMs } ) }
+					selectedCut={ session.cuts.find( cut => cut.id === session.selectedCutId ) ?? null }
+					onRemoveCut={ id => dispatch( { type: 'REMOVE_CUT', id } ) }
 					onSeek={ seekClamped }
 					zoom={ zoom }
 					zoomMax={ zoomMax }

@@ -416,6 +416,81 @@ describe( 'UPDATE_CUT', () => {
 	} );
 } );
 
+describe( 'MOVE_CUT', () => {
+	const base = reduceAll( createEditSession( 20000 ), [
+		{ type: 'SET_TRIM_START', ms: 1000 },
+		{ type: 'SET_TRIM_END', ms: 19000 },
+		{ type: 'ADD_CUT', atMs: 5000, halfSpanMs: 1000, id: 'c1' }, // [4000, 6000]
+		{ type: 'ADD_CUT', atMs: 10000, halfSpanMs: 500, id: 'c2' }, // [9500, 10500]
+	] );
+
+	it( 'moves the cut to the requested start, preserving its width', () => {
+		const s = reduce( base, { type: 'MOVE_CUT', id: 'c1', startMs: 7000 } );
+		expect( s.cuts ).toEqual( [
+			{ id: 'c1', startMs: 7000, endMs: 9000 },
+			{ id: 'c2', startMs: 9500, endMs: 10500 },
+		] );
+	} );
+
+	it( 'rounds fractional input', () => {
+		const s = reduce( base, { type: 'MOVE_CUT', id: 'c1', startMs: 6999.6 } );
+		expect( s.cuts[ 0 ] ).toEqual( { id: 'c1', startMs: 7000, endMs: 9000 } );
+	} );
+
+	it( 'clamps to the trim start', () => {
+		const s = reduce( base, { type: 'MOVE_CUT', id: 'c1', startMs: 200 } );
+		expect( s.cuts[ 0 ] ).toEqual( { id: 'c1', startMs: 1000, endMs: 3000 } );
+	} );
+
+	it( 'clamps so the far end stays inside the trim window', () => {
+		const s = reduce( base, { type: 'MOVE_CUT', id: 'c2', startMs: 18800 } );
+		expect( s.cuts[ 1 ] ).toEqual( { id: 'c2', startMs: 18000, endMs: 19000 } );
+	} );
+
+	it( 'merges into an overlapped cut, keeps the dragged id, and moves the selection with it', () => {
+		expect( base.selectedCutId ).toBe( 'c2' );
+		// c1 lands on [9000, 11000], swallowing the selected c2 [9500, 10500].
+		const s = reduce( base, { type: 'MOVE_CUT', id: 'c1', startMs: 9000 } );
+		expect( s.cuts ).toEqual( [ { id: 'c1', startMs: 9000, endMs: 11000 } ] );
+		expect( s.selectedCutId ).toBe( 'c1' );
+	} );
+
+	it( 'only shrinks the removed union: output never drops on a move', () => {
+		const before = getOutputDurationMs( base ); // 18000 - 3000 = 15000
+		expect( before ).toBe( 15000 );
+
+		// A clear-air move removes exactly as much as before.
+		const moved = reduce( base, { type: 'MOVE_CUT', id: 'c1', startMs: 7000 } );
+		expect( getOutputDurationMs( moved ) ).toBe( before );
+
+		// A merging move loses the overlap from the union, GROWING the output.
+		const merged = reduce( base, { type: 'MOVE_CUT', id: 'c1', startMs: 9000 } );
+		expect( getOutputDurationMs( merged ) ).toBe( 16000 );
+	} );
+
+	it( 'never violates the minimum output, even from a session already at it', () => {
+		const atMinimum = reduce( createEditSession( 10000 ), {
+			type: 'ADD_CUT',
+			atMs: 5000,
+			halfSpanMs: 4500,
+			id: 'c1',
+		} ); // [500, 9500], output exactly 1000
+		expect( getOutputDurationMs( atMinimum ) ).toBe( MIN_OUTPUT_MS );
+
+		const s = reduce( atMinimum, { type: 'MOVE_CUT', id: 'c1', startMs: 0 } );
+		expect( s.cuts ).toEqual( [ { id: 'c1', startMs: 0, endMs: 9000 } ] );
+		expect( getOutputDurationMs( s ) ).toBe( MIN_OUTPUT_MS );
+	} );
+
+	it( 'is a no-op for an unknown id', () => {
+		expect( reduce( base, { type: 'MOVE_CUT', id: 'nope', startMs: 7000 } ) ).toBe( base );
+	} );
+
+	it( 'returns the same reference for a same-position move', () => {
+		expect( reduce( base, { type: 'MOVE_CUT', id: 'c1', startMs: 4000 } ) ).toBe( base );
+	} );
+} );
+
 describe( 'REMOVE_CUT', () => {
 	const withCuts = reduceAll( createEditSession( 20000 ), [
 		{ type: 'ADD_CUT', atMs: 2500, halfSpanMs: 500, id: 'c1' },
@@ -637,13 +712,20 @@ describe( 'invariants under random action sequences', () => {
 					halfSpanMs: rand() * 3000,
 					id: `r${ idCounter }`,
 				};
-			} else if ( roll < 0.8 && s.cuts.length > 0 ) {
+			} else if ( roll < 0.75 && s.cuts.length > 0 ) {
 				const cut = s.cuts[ Math.floor( rand() * s.cuts.length ) ];
 				action = {
 					type: 'UPDATE_CUT',
 					id: cut.id,
 					...( rand() < 0.7 ? { startMs: rand() * duration * 1.1 - 3000 } : {} ),
 					...( rand() < 0.7 ? { endMs: rand() * duration * 1.1 - 3000 } : {} ),
+				};
+			} else if ( roll < 0.85 && s.cuts.length > 0 ) {
+				const cut = s.cuts[ Math.floor( rand() * s.cuts.length ) ];
+				action = {
+					type: 'MOVE_CUT',
+					id: cut.id,
+					startMs: rand() * duration * 1.2 - 3000,
 				};
 			} else if ( roll < 0.9 && s.cuts.length > 0 ) {
 				action = {

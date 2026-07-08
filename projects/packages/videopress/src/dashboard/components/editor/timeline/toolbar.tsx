@@ -1,14 +1,16 @@
 /**
  * Toolbar row above the Studio editor timeline, per the editor redesign:
  * the relocated transport (play/pause icon button + editable timecode +
- * duration) and the "New cut" action on the left, the zoom control (Fit +
- * four-stop slider) on the right.
+ * duration), the "New cut" action, and the selected-cut chip on the left,
+ * the zoom control (Fit + four-stop slider) on the right.
  */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { formatTimecode } from '../state/time-utils';
+import StudioEditorCutChip from './cut-chip';
 import StudioEditorTimecodeBox from './timecode-box';
 import StudioEditorZoomControl from './zoom-control';
+import type { CutRange } from '../state/edit-session';
 import type { ReactElement } from 'react';
 
 const playIcon = (
@@ -50,6 +52,10 @@ type Props = {
 	canAddCut: boolean;
 	/** Called when "New cut" is pressed. */
 	onAddCut: () => void;
+	/** The selected cut, shown as the removable chip; null hides the chip. */
+	selectedCut: CutRange | null;
+	/** Called with a cut id when the chip's trash button is pressed. */
+	onRemoveCut: ( id: string ) => void;
 	/** Called with the parsed timecode position in ms. */
 	onSeek: ( ms: number ) => void;
 	/** Current zoom factor (1 = fit). */
@@ -72,6 +78,8 @@ type Props = {
  * @param props.durationMs   - Master duration in ms.
  * @param props.canAddCut    - Whether "New cut" is actionable.
  * @param props.onAddCut     - Called when "New cut" is pressed.
+ * @param props.selectedCut  - The selected cut, shown as the removable chip.
+ * @param props.onRemoveCut  - Called with a cut id to remove it.
  * @param props.onSeek       - Called with the parsed timecode position in ms.
  * @param props.zoom         - Current zoom factor.
  * @param props.zoomMax      - Maximum zoom factor.
@@ -86,6 +94,8 @@ export default function StudioEditorTimelineToolbar( {
 	durationMs,
 	canAddCut,
 	onAddCut,
+	selectedCut,
+	onRemoveCut,
 	onSeek,
 	zoom,
 	zoomMax,
@@ -121,6 +131,9 @@ export default function StudioEditorTimelineToolbar( {
 			>
 				{ __( 'New cut', 'jetpack-videopress-pkg' ) }
 			</Button>
+			{ selectedCut && (
+				<StudioEditorCutChip cut={ selectedCut } onRemove={ () => onRemoveCut( selectedCut.id ) } />
+			) }
 			<StudioEditorZoomControl
 				zoom={ zoom }
 				zoomMax={ zoomMax }

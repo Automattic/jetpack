@@ -5,6 +5,7 @@ import {
 	msToPx,
 	pickRulerStep,
 	pxToMs,
+	snapMoveMs,
 	snapMs,
 	DEFAULT_SNAP_THRESHOLD_PX,
 	MIN_TICK_SPACING_PX,
@@ -129,6 +130,40 @@ describe( 'snapMs', () => {
 
 	it( 'exposes the default threshold constant', () => {
 		expect( DEFAULT_SNAP_THRESHOLD_PX ).toBe( 8 );
+	} );
+} );
+
+describe( 'snapMoveMs', () => {
+	// 0.1 px/ms with the default 8px threshold → 80ms snap radius. All moves
+	// below shift a 2000ms-wide range.
+	const context = { pxPerMs: 0.1, durationMs: 10000 };
+
+	it( 'snaps the leading edge to a target', () => {
+		expect( snapMoveMs( 2950, 2000, { ...context, playheadMs: 3000 } ) ).toBe( 3000 );
+	} );
+
+	it( 'snaps the trailing edge to a target the leading edge cannot reach', () => {
+		// Start 4950 is nowhere near 7000, but end 6950 is: start = 7000 − 2000.
+		expect( snapMoveMs( 4950, 2000, { ...context, playheadMs: 7000 } ) ).toBe( 5000 );
+	} );
+
+	it( 'picks the edge with the smaller adjustment when both are in range', () => {
+		// Start 4960 vs edge 4900 (60ms) — end 6960 vs edge 7000 (40ms): end wins.
+		expect( snapMoveMs( 4960, 2000, { ...context, edgesMs: [ 4900, 7000 ] } ) ).toBe( 5000 );
+		// Mirrored deltas: start 4940 vs 4900 (40ms) beats end 6940 vs 7000 (60ms).
+		expect( snapMoveMs( 4940, 2000, { ...context, edgesMs: [ 4900, 7000 ] } ) ).toBe( 4900 );
+	} );
+
+	it( 'snaps the trailing edge to the duration', () => {
+		expect( snapMoveMs( 7950, 2000, context ) ).toBe( 8000 );
+	} );
+
+	it( 'returns the rounded input when neither edge is near a target', () => {
+		expect( snapMoveMs( 4444.6, 2000, { ...context, playheadMs: 7000 } ) ).toBe( 4445 );
+	} );
+
+	it( 'returns the rounded input when snapping is disabled', () => {
+		expect( snapMoveMs( 40.4, 2000, { pxPerMs: 0, durationMs: 10000 } ) ).toBe( 40 );
 	} );
 } );
 

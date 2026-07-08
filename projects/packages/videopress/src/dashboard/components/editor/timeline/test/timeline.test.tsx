@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event -- Drag gestures need raw pointer events carrying clientX/pointerId (userEvent has no pointer-capture drag primitive), the shortcuts under test listen for raw keydowns on document, and range inputs only take fireEvent.change. */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createEditSession, editSessionReducer } from '../../state/edit-session';
 import StudioEditorTimeline from '../timeline';
@@ -325,6 +325,30 @@ describe( 'StudioEditorTimeline', () => {
 			'aria-disabled',
 			'true'
 		);
+	} );
+
+	describe( 'selected-cut chip', () => {
+		it( 'describes the selected cut: swatch, mono range, removed time', () => {
+			renderTimeline( { session: sessionWithCut() } );
+			const chip = screen.getByTestId( 'studio-timeline-cut-chip' );
+			expect( chip ).toHaveTextContent( '0:00:04.0 – 0:00:06.0' );
+			expect( chip ).toHaveTextContent( '2.0s removed' );
+		} );
+
+		it( 'is absent while no cut is selected', () => {
+			const session = editSessionReducer( sessionWithCut(), { type: 'SELECT_CUT', id: null } );
+			renderTimeline( { session } );
+			expect( screen.queryByTestId( 'studio-timeline-cut-chip' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'removes the selected cut from the chip trash button', async () => {
+			const { dispatch } = renderTimeline( { session: sessionWithCut() } );
+			// Scope to the chip: the cut segment in the strip has its own
+			// identically-labeled remove button.
+			const chip = screen.getByTestId( 'studio-timeline-cut-chip' );
+			await userEvent.click( within( chip ).getByRole( 'button', { name: 'Remove cut' } ) );
+			expect( dispatch ).toHaveBeenCalledWith( { type: 'REMOVE_CUT', id: 'cut-a' } );
+		} );
 	} );
 
 	it( 'zooms via the slider up to the filmstrip cap and restores fit', () => {

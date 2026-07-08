@@ -76,6 +76,16 @@ jest.mock( '../../../hooks/use-filmstrip', () => ( {
 
 const mockUseNavigate = useNavigate as jest.Mock;
 
+// jsdom (27) ships PointerEvent but not the pointer-capture element APIs the
+// timeline drag hook calls; stub them so pointerdown handlers run.
+beforeAll( () => {
+	Object.assign( Element.prototype, {
+		setPointerCapture: () => {},
+		releasePointerCapture: () => {},
+		hasPointerCapture: () => false,
+	} );
+} );
+
 const GUID = 'abc123';
 const EDITS_PATH = `/wpcom/v2/videopress/${ GUID }/edits`;
 
@@ -282,6 +292,40 @@ describe( 'StudioEditorScreen', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Redo' } ) );
 		expect( isButtonDisabled( 'Save' ) ).toBe( false );
+	} );
+
+	it( 'coalesces a whole cut-body drag into a single undo entry', async () => {
+		const api: ApiState = { media: makeRawMedia(), edits: makeEdits(), posts: [] };
+		installApi( api );
+		const user = userEvent.setup();
+
+		await renderReadyEditor();
+		// One undo entry: the cut lands at [0, 2000] on the 60s master
+		// (viewport 1000px → pxPerMs 1/60, so clientX × 60 = ms).
+		await addCut( user );
+		const cut = screen.getByTestId( /^studio-timeline-cut-cut-\d+$/ );
+		expect( cut ).toHaveStyle( { left: '0px' } );
+
+		// Drag the body across two moves; TRANSIENT + COMMIT must fold the
+		// whole gesture into exactly one more undo entry.
+		// eslint-disable-next-line testing-library/prefer-user-event -- drag gestures need raw pointer events carrying clientX/pointerId.
+		fireEvent.pointerDown( cut, { button: 0, pointerId: 1, clientX: 10 } );
+		// eslint-disable-next-line testing-library/prefer-user-event -- drag gestures need raw pointer events carrying clientX/pointerId.
+		fireEvent.pointerMove( cut, { pointerId: 1, clientX: 60 } );
+		// eslint-disable-next-line testing-library/prefer-user-event -- drag gestures need raw pointer events carrying clientX/pointerId.
+		fireEvent.pointerMove( cut, { pointerId: 1, clientX: 110 } );
+		// eslint-disable-next-line testing-library/prefer-user-event -- drag gestures need raw pointer events carrying clientX/pointerId.
+		fireEvent.pointerUp( cut, { pointerId: 1 } );
+		// clientX 110 → pointer 6600ms, minus the 600ms grab offset → [6000, 8000].
+		expect( cut ).toHaveStyle( { left: '100px' } );
+
+		// First undo: back to the pre-drag position — NOT some mid-drag state.
+		await user.click( screen.getByRole( 'button', { name: 'Undo' } ) );
+		expect( cut ).toHaveStyle( { left: '0px' } );
+
+		// Second undo: the cut itself goes; the drag really was one entry.
+		await user.click( screen.getByRole( 'button', { name: 'Undo' } ) );
+		expect( screen.queryAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 0 );
 	} );
 
 	it( 'saves through the confirm dialog and re-baselines when the job completes', async () => {
