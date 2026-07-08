@@ -1,9 +1,9 @@
 .popover {
-	min-inline-size: 12rem;
+	min-inline-size: var(--wpds-dimension-surface-width-xs);
 }
 
 .trigger {
-	max-inline-size: 14rem;
+	max-inline-size: var(--wpds-dimension-surface-width-xs);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

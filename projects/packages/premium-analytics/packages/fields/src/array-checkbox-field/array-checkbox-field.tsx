@@ -73,29 +73,6 @@ function normalizeSelectedValues( value: unknown ): string[] {
 	return Array.isArray( value ) ? value.map( String ) : [];
 }
 
-type GetTriggerLabelParams = {
-	label: string | undefined;
-	selectedValues: string[];
-	elements: Option[];
-};
-
-function getTriggerLabel( { label, selectedValues, elements }: GetTriggerLabelParams ): string {
-	if ( selectedValues.length === 0 ) {
-		return label ?? '';
-	}
-
-	if ( selectedValues.length === elements.length && label ) {
-		return label;
-	}
-
-	return selectedValues
-		.map( value => {
-			const element = elements.find( option => String( option.value ) === value );
-			return element?.label ?? value;
-		} )
-		.join( ', ' );
-}
-
 /**
  * Edit control for `type: 'array'` fields with `elements`.
  */
@@ -113,11 +90,6 @@ export default function ArrayCheckboxField< Item extends Record< string, string[
 		elements: field.elements,
 		getElements: field.getElements,
 	} );
-
-	const triggerLabel = useMemo(
-		() => getTriggerLabel( { label, selectedValues, elements } ),
-		[ label, selectedValues, elements ]
-	);
 
 	const updateValues = useCallback(
 		( nextValues: string[] ) => {
@@ -192,7 +164,7 @@ export default function ArrayCheckboxField< Item extends Record< string, string[
 					/>
 				}
 			>
-				{ triggerLabel }
+				{ label }
 			</Menu.TriggerButton>
 
 			<Menu.Popover className={ styles.popover }>
