@@ -59,11 +59,20 @@ const METRICS = [
 function SiteOverviewReport() {
 	const { reportParams } = useWidgetRootContext();
 
-	const { primary, comparison, hasComparison, isLoading, isError } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, isError } =
 		useStatsSummary( reportParams );
 
 	const summary = primary.data as StatsSummaryResponse | undefined;
 	const comparisonSummary = comparison.data as StatsSummaryResponse | undefined;
+
+	// The summary response is a flat object, so `useReport`'s generic `hasData`
+	// (which looks for `.summary`/`.data`/`.steps`) never matches it — gate on the
+	// summary directly. Cover the widget only on the cold load; once a period's
+	// totals are on screen, a date-range change refetches in the background and we
+	// layer the overlay over the stale tiles instead of blanking them.
+	const hasSummary = !! summary;
+	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasSummary;
+	const isRefetching = isFetching && hasSummary;
 
 	// Only wire comparison values when the comparison period actually returned a
 	// summary; otherwise the tiles render as bare current-period totals rather
@@ -85,7 +94,7 @@ function SiteOverviewReport() {
 				<Text>{ __( 'Unable to load site overview.', 'jetpack-premium-analytics' ) }</Text>
 			</div>
 		);
-	} else if ( isLoading && ! summary ) {
+	} else if ( isInitialLoading ) {
 		content = <WidgetLoadingOverlay />;
 	} else if ( ! summary ) {
 		content = (
@@ -116,8 +125,14 @@ function SiteOverviewReport() {
 	}
 
 	// The states share the `.root` body wrapper so sizing stays consistent
-	// whether data, a spinner, or a message shows.
-	return <div className={ styles.root }>{ content }</div>;
+	// whether data, a spinner, or a message shows. `.root` is positioned, so the
+	// refetch overlay layers over the tiles while a new period loads.
+	return (
+		<div className={ styles.root }>
+			{ content }
+			{ isRefetching && <WidgetLoadingOverlay /> }
+		</div>
+	);
 }
 
 /**

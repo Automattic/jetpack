@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -104,5 +104,50 @@ describe( 'SiteOverviewWidget', () => {
 		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
 		expect( requestedPaths.some( path => path.includes( 'date=2026-03-10' ) ) ).toBe( true );
 		expect( requestedPaths.some( path => path.includes( 'date=2026-02-10' ) ) ).toBe( true );
+	} );
+
+	it( 'keeps the stale tiles and overlays a spinner while a new date range loads', async () => {
+		// Hold the second period's fetch open so the refetch state is observable.
+		let resolveNextPeriod: ( () => void ) | undefined;
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+			if ( path.includes( 'date=2026-03-10' ) ) {
+				return Promise.resolve( SUMMARY_RESPONSE );
+			}
+			return new Promise( resolve => {
+				resolveNextPeriod = () => resolve( { ...SUMMARY_RESPONSE, views: 999 } );
+			} );
+		} );
+
+		const { container, rerender } = render(
+			<SiteOverviewWidget
+				attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
+			/>
+		);
+
+		await expect( screen.findByText( '420' ) ).resolves.toBeInTheDocument();
+
+		// The overlay's spinner is decorative (`role="presentation"`), so there is
+		// no accessible role/text to query — assert on its stable class instead.
+		const hasOverlaySpinner = () =>
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- decorative spinner, no accessible query target
+			container.querySelector( '.components-spinner' ) !== null;
+
+		// Switch the date range: the new fetch is in flight but not yet resolved.
+		rerender(
+			<SiteOverviewWidget
+				attributes={ { reportParams: { from: '2026-04-01', to: '2026-04-10' } } }
+			/>
+		);
+
+		// The previous period's tiles stay put rather than blanking to a spinner…
+		expect( screen.getByText( '420' ) ).toBeInTheDocument();
+		// …and the refetch overlay spinner is layered on top.
+		await waitFor( () => expect( hasOverlaySpinner() ).toBe( true ) );
+
+		// Once the new period resolves, its totals replace the stale ones and the
+		// overlay clears.
+		resolveNextPeriod?.();
+		await expect( screen.findByText( '999' ) ).resolves.toBeInTheDocument();
+		expect( hasOverlaySpinner() ).toBe( false );
 	} );
 } );
