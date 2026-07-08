@@ -4,11 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { FC, useContext, useMemo } from 'react';
-import {
-	Chart,
-	type GoogleChartPackages,
-	type ReactGoogleChartEvent,
-} from 'react-google-charts';
+import { Chart, type GoogleChartPackages, type ReactGoogleChartEvent } from 'react-google-charts';
 /**
  * Internal dependencies
  */
@@ -36,6 +32,12 @@ type GoogleChartErrorPayload = {
 	options?: unknown;
 };
 
+/**
+ * Normalizes the raw Google Charts error event into the GeoChart error shape.
+ *
+ * @param eventArgs - Error event payload from react-google-charts.
+ * @return Normalized GeoChart error.
+ */
 function normalizeGeoChartError( eventArgs: unknown ): GeoChartError {
 	const payload = Array.isArray( eventArgs ) ? eventArgs[ 0 ] : eventArgs;
 

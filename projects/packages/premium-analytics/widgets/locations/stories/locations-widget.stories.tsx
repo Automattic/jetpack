@@ -45,7 +45,7 @@ function getLocationsAttributes(
 	withComparison = false
 ): ComponentProps< typeof LocationsRender >[ 'attributes' ] {
 	return {
-		geoMode: 'country',
+		geoGranularity: 'country',
 		max: 10,
 		reportParams: getDefaultQueryParams( withComparison ),
 	};
