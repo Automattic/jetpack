@@ -9,7 +9,7 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
-import { attachSubComponents, resolveCssVariable } from '../../utils';
+import { attachSubComponents } from '../../utils';
 import {
 	isValidHexColor,
 	mixHexColors,
@@ -54,7 +54,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
-	const { getElementStyles, theme } = useGlobalChartsContext();
+	const { getElementStyles, resolveThemeColor, theme } = useGlobalChartsContext();
 	const { heatmapChart: heatmapChartSettings } = theme;
 	const { nonLegendChildren } = useChartChildren( children, 'HeatmapChart' );
 
@@ -75,17 +75,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
 	} );
 
-	// Pick the in-cell text color from the cell's actual blended fill luminance (not the data
-	// value), so light text is only used where it out-contrasts dark text. Falls back to dark
-	// text when either color isn't a resolvable hex (e.g. a bare CSS token).
-	//
-	// The fill is the primary mixed over the chart background — the exact opaque equivalent of
-	// the CSS `color-mix(primary, var(--heatmap-bg))`. Resolving the same WPDS background token
-	// the CSS uses keeps the text choice correct on any themed background, light or dark.
+	// Resolve the background in the provider's theme scope so the blended-fill text
+	// color tracks a themed (e.g. dark) background.
+	const chartBackgroundHex = resolveThemeColor( theme.backgroundColor );
+
+	// Choose text color from the blended fill, not the raw value.
+	// If either color cannot resolve to hex, keep dark text.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
-	const chartBackgroundHex = normalizeColorToHex(
-		resolveCssVariable( theme.backgroundColor ) ?? theme.backgroundColor
-	);
 	const cellHasLightText = ( intensity: number ): boolean =>
 		isValidHexColor( primaryHex ) &&
 		isValidHexColor( chartBackgroundHex ) &&
@@ -296,9 +292,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>
-						{ /* Corner gutter + column labels wrapped in a row so the grid keeps a strict
-						grid → row structure. aria-hidden, since each data cell's label already
-						carries this text. */ }
+						{ /* Header row preserves the grid structure; cell aria-labels include this text. */ }
 						<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
 							<span />
 							{ data.map( ( column, columnIndex ) => (
@@ -367,7 +361,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 											>
 												{ drawValues && present && (
 													<span className={ styles[ 'heatmap-chart__cell-value' ] }>
-														{ /* Compact so large values fit the cell; tooltip + aria-label keep full precision. */ }
+														{ /* Compact display; tooltip and aria-label keep full precision. */ }
 														{ formatNumberCompact( value ) }
 													</span>
 												) }

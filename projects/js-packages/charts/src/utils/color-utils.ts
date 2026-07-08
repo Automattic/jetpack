@@ -234,12 +234,11 @@ export const lightenHexColor = ( hex: string, blend: number ): string => {
 };
 
 /**
- * Blend one hex color toward another, per-channel in sRGB — the opaque equivalent of a
- * CSS `color-mix(fromHex (1 - blend)%, toHex)`.
+ * Blend one hex color toward another, per-channel in sRGB.
  *
- * @param  fromHex - Starting hex color, returned when blend = 0
- * @param  toHex   - Target hex color, returned when blend = 1
- * @param  blend   - Blend amount toward toHex, clamped to [0, 1]
+ * @param  fromHex - Starting hex color, returned when blend is 0
+ * @param  toHex   - Target hex color, returned when blend is 1
+ * @param  blend   - Amount toward toHex, clamped to [0, 1]
  * @return Blended hex color string
  * @throws {Error} if either hex string is malformed
  */
