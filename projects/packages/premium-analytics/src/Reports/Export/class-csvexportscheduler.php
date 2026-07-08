@@ -239,7 +239,7 @@ class CSVExportScheduler implements RegistrableInterface {
 			}
 
 			// Generate filename.
-			$filename = $this->generate_filename( $report_type, $params );
+			$filename = $this->registry->build_filename( $report_type, $params );
 
 			// Generate CSV file.
 			$file_path = $this->csv_generator->generate( $data, $columns, $formatter, $filename );
@@ -315,26 +315,6 @@ class CSVExportScheduler implements RegistrableInterface {
 		);
 
 		wp_mail( $user_email, $subject, $message );
-	}
-
-	/**
-	 * Generate filename for export.
-	 *
-	 * @param string $report_type The report type.
-	 * @param array  $params      Request parameters.
-	 * @return string The filename (without extension).
-	 */
-	private function generate_filename( string $report_type, array $params ): string {
-		$label = $this->registry->get_label( $report_type );
-		if ( is_wp_error( $label ) ) {
-			$label = $report_type;
-		}
-
-		$safe_label = sanitize_title( $label );
-		$from_date  = gmdate( 'Y-m-d', strtotime( $params['from'] ) );
-		$to_date    = gmdate( 'Y-m-d', strtotime( $params['to'] ) );
-
-		return sprintf( '%s-%s-to-%s', $safe_label, $from_date, $to_date );
 	}
 
 	/**

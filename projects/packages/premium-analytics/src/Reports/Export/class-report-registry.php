@@ -144,6 +144,30 @@ class Report_Registry {
 	}
 
 	/**
+	 * Build a filename base (no extension) for a report export: "<label>-<from>-to-<to>".
+	 *
+	 * @param string $report_key The report key.
+	 * @param array  $params     Request parameters (reads 'from' and 'to').
+	 * @return string The sanitized filename base.
+	 */
+	public function build_filename( string $report_key, array $params ): string {
+		$label = $this->get_label( $report_key );
+		if ( \is_wp_error( $label ) ) {
+			$label = $report_key;
+		}
+
+		$from_ts = empty( $params['from'] ) ? false : strtotime( $params['from'] );
+		$to_ts   = empty( $params['to'] ) ? false : strtotime( $params['to'] );
+
+		return sprintf(
+			'%s-%s-to-%s',
+			sanitize_title( $label ),
+			false === $from_ts ? '' : gmdate( 'Y-m-d', $from_ts ),
+			false === $to_ts ? '' : gmdate( 'Y-m-d', $to_ts )
+		);
+	}
+
+	/**
 	 * Get batch limit for a report type.
 	 *
 	 * @param string $report_key The report key.
