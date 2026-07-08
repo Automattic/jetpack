@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { FC, useContext, useMemo } from 'react';
+import { FC, useContext, useEffect, useMemo, useRef } from 'react';
 import { Chart, type GoogleChartPackages, type ReactGoogleChartEvent } from 'react-google-charts';
 /**
  * Internal dependencies
@@ -31,6 +31,35 @@ type GoogleChartErrorPayload = {
 	detailedMessage?: unknown;
 	options?: unknown;
 };
+
+// Google Charts renders draw errors as DOM elements injected into the chart
+// container: a wrapper `<div id="google-visualization-errors-all-N">` holding
+// one `<span id="google-visualization-errors-N">` per error. The span id is the
+// error id accepted by `google.visualization.errors.removeError()`.
+const GOOGLE_CHARTS_ERROR_ID_PREFIX = 'google-visualization-errors-';
+const GOOGLE_CHARTS_ERROR_WRAPPER_INFIX = '-all-';
+
+/**
+ * Collects Google Charts error elements rendered inside a chart container.
+ *
+ * @param container - The chart container element to scan.
+ * @return Errors found in the container, one per error span.
+ */
+function collectRenderedGeoChartErrors(
+	container: HTMLElement
+): Required< Pick< GeoChartError, 'id' | 'message' > >[] {
+	const elements = container.querySelectorAll< HTMLElement >(
+		`[id^="${ GOOGLE_CHARTS_ERROR_ID_PREFIX }"]`
+	);
+
+	return Array.from( elements )
+		.filter( element => ! element.id.includes( GOOGLE_CHARTS_ERROR_WRAPPER_INFIX ) )
+		.map( element => ( {
+			id: element.id,
+			message: element.textContent?.trim() ?? '',
+		} ) )
+		.filter( error => error.message.length > 0 );
+}
 
 /**
  * Normalizes the raw Google Charts error event into the GeoChart error shape.
@@ -96,6 +125,39 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			backgroundColor,
 		},
 	} = useGlobalChartsContext();
+	const containerRef = useRef< HTMLDivElement >( null );
+	const reportedErrorIdsRef = useRef< Set< string > >( new Set() );
+
+	// The ChartWrapper `error` event does not fire for every draw failure —
+	// notably not when GeoChart's asynchronous map-file load fails (e.g.
+	// `resolution: 'provinces'` for a country without a provinces map). Those
+	// errors only surface as DOM elements Google injects into the container, so
+	// watch the container and report them through the same `onError` callback.
+	useEffect( () => {
+		const container = containerRef.current;
+
+		if ( ! onError || ! container || typeof MutationObserver === 'undefined' ) {
+			return undefined;
+		}
+
+		const reportRenderedErrors = () => {
+			for ( const error of collectRenderedGeoChartErrors( container ) ) {
+				if ( reportedErrorIdsRef.current.has( error.id ) ) {
+					continue;
+				}
+
+				reportedErrorIdsRef.current.add( error.id );
+				onError( error );
+			}
+		};
+
+		const observer = new MutationObserver( reportRenderedErrors );
+		observer.observe( container, { childList: true, subtree: true } );
+		// Report errors already rendered before the observer attached.
+		reportRenderedErrors();
+
+		return () => observer.disconnect();
+	}, [ onError ] );
 
 	// Render loading placeholder
 	const loadingPlaceholder = (
@@ -204,6 +266,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 
 	return (
 		<Center
+			ref={ containerRef }
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart"
 			style={ { width, height, backgroundColor } }

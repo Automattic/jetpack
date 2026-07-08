@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { Chart } from 'react-google-charts';
 import { GlobalChartsProvider } from '../../../providers';
 import GeoChart, { GeoChartUnresponsive } from '../geo-chart';
@@ -309,6 +309,59 @@ describe( 'GeoChart', () => {
 				detailedMessage: 'The requested map is not available.',
 				options: { region: 'SG', resolution: 'provinces' },
 			} );
+		} );
+
+		test( 'reports error elements Google injects into the chart container', async () => {
+			const onError = jest.fn();
+			renderWithTheme( { onError } );
+
+			// Simulate Google Charts rendering a draw error into the container,
+			// as happens when an async map-file load fails without firing the
+			// ChartWrapper error event.
+			const container = screen.getByTestId( 'geo-chart' );
+			const errorWrapper = document.createElement( 'div' );
+			errorWrapper.id = 'google-visualization-errors-all-1';
+			const errorSpan = document.createElement( 'span' );
+			errorSpan.id = 'google-visualization-errors-1';
+			errorSpan.textContent = 'Requested map does not exist.';
+			errorWrapper.appendChild( errorSpan );
+			container.appendChild( errorWrapper );
+
+			await waitFor( () =>
+				expect( onError ).toHaveBeenCalledWith( {
+					id: 'google-visualization-errors-1',
+					message: 'Requested map does not exist.',
+				} )
+			);
+		} );
+
+		test( 'reports each rendered error element only once', async () => {
+			const onError = jest.fn();
+			renderWithTheme( { onError } );
+
+			const container = screen.getByTestId( 'geo-chart' );
+			const errorSpan = document.createElement( 'span' );
+			errorSpan.id = 'google-visualization-errors-2';
+			errorSpan.textContent = 'Requested map does not exist.';
+			container.appendChild( errorSpan );
+
+			await waitFor( () => expect( onError ).toHaveBeenCalledTimes( 1 ) );
+
+			// A later mutation makes the observer re-scan the container; the first
+			// error is seen again but must not be re-reported. The second error
+			// being reported proves the re-scan happened.
+			const secondErrorSpan = document.createElement( 'span' );
+			secondErrorSpan.id = 'google-visualization-errors-3';
+			secondErrorSpan.textContent = 'Requested map does not exist.';
+			container.appendChild( secondErrorSpan );
+
+			await waitFor( () =>
+				expect( onError ).toHaveBeenCalledWith( {
+					id: 'google-visualization-errors-3',
+					message: 'Requested map does not exist.',
+				} )
+			);
+			expect( onError ).toHaveBeenCalledTimes( 2 );
 		} );
 	} );
 
