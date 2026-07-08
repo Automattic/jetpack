@@ -1,56 +1,29 @@
 /**
- * The Studio editor timeline: a horizontally scrollable strip with an ordered
- * stack of tracks (time ruler + filmstrip), an edit-overlay layer spanning
- * all tracks (trim handles, shrouds, cut segments), and a 1px playhead line.
+ * The Studio editor timeline for the trim & cut tool: the shared
+ * {@link StudioTimelineShell} (toolbar slot, scaled scrub surface, playhead)
+ * composed with the tool's tracks (time ruler + filmstrip) and its edit
+ * overlay (trim handles, shrouds, cut segments).
  *
- * Geometry: the full master duration maps onto `viewportWidth * zoom` pixels
- * of content inside an `overflow-x` scroller (zoom 1 = fit). That one
- * product — `contentWidth`, and the `pxPerMs` derived with it — is the only
- * horizontal scale: the content strip, the ruler and filmstrip track rows,
- * the playhead transform, and the trim/cut overlay all take their width or
- * positions from it, so no track can render on a different scale than the
- * times above it. Zoom is capped at the filmstrip's native tile density
- * (getFilmstripZoomMax) so tiles can never be upscaled; the cap is
- * re-derived — and the effective zoom re-clamped — every render, so it
- * self-heals when the strip resolves asynchronously or the viewport
- * resizes. Zoom state stays a continuous number: the toolbar slider is a
- * discrete four-stop view of it (zoomMax^(k/3)), while modifier+wheel
- * moves it continuously — the filmstrip re-samples itself from `pxPerMs`
- * (see filmstrip-geometry), so any in-between zoom still renders
- * unstretched tiles. Both paths keep the time under the playhead
- * stationary on screen by compensating `scrollLeft`; a plain vertical
- * wheel scrolls the strip. Pointer-down/drag on empty ruler/track area scrubs the
- * playhead (paused seeks are unconstrained on the master, by design — that's
- * how handles get placed outside the current trim window).
- *
- * The playhead renders as `transform: translateX(...)` straight from the
- * `currentMs` prop, which the parent feeds from the preview player's
- * rAF-driven state — no internal animation loop here. It is also a focusable
- * `role="slider"` with arrow-key nudging, and document-level shortcuts
- * (space, arrows, Home/End, Delete, mod+Z) attach while the timeline is
- * mounted.
+ * This module owns everything trim/cut-specific: the toolbar's transport and
+ * "New cut" wiring, the session-aware scrub start (a scrub deselects the
+ * selected cut), and the document-level shortcuts (space, arrows, Home/End,
+ * Delete, mod+Z) that attach while the timeline is mounted. Geometry — zoom,
+ * the one shared horizontal scale, wheel handling — lives in the shell's
+ * useTimelineGeometry hook; the zoom cap is the filmstrip's native tile
+ * density (getFilmstripZoomMax), so tiles can never be upscaled.
  */
-import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { formatTimecode, getPxPerMs, msToPx } from '../state/time-utils';
+import { useCallback } from 'react';
 import StudioEditorEditOverlay from './edit-overlay';
 import StudioEditorFilmstripTrack, { getFilmstripZoomMax } from './filmstrip-track';
 import StudioEditorTimeRuler from './time-ruler';
+import StudioTimelineShell, { clampToDuration } from './timeline-shell';
 import StudioEditorTimelineToolbar from './toolbar';
-import { useElementWidth } from './use-element-width';
-import { NUDGE_LARGE_MS, NUDGE_MS, useKeyboardShortcuts } from './use-keyboard-shortcuts';
-import { useTimelinePointerDrag } from './use-pointer-drag';
+import { useKeyboardShortcuts } from './use-keyboard-shortcuts';
 import './style.scss';
 import type { FilmstripState } from '../../../hooks/use-filmstrip';
 import type { EditSession, EditSessionAction } from '../state/edit-session';
 import type { HistoryAction } from '../state/history';
-import type { KeyboardEvent as ReactKeyboardEvent, ReactElement } from 'react';
-
-/**
- * Multiplier applied per wheel-delta unit while zooming with a modifier key.
- * `exp( -deltaY * factor )` gives smooth, symmetric zoom in both directions.
- */
-const WHEEL_ZOOM_FACTOR = 0.002;
+import type { ReactElement } from 'react';
 
 export type StudioEditorTimelineProps = {
 	/** The edit session. */
@@ -91,18 +64,7 @@ export type StudioEditorTimelineProps = {
 };
 
 /**
- * Clamp a time to the master duration.
- *
- * @param ms         - Candidate time in ms.
- * @param durationMs - Master duration in ms.
- * @return The clamped integer time.
- */
-function clampToDuration( ms: number, durationMs: number ): number {
-	return Math.min( durationMs, Math.max( 0, Math.round( ms ) ) );
-}
-
-/**
- * The timeline strip.
+ * The trim & cut timeline.
  *
  * @param props                  - Component props.
  * @param props.session          - The edit session.
@@ -132,130 +94,20 @@ export default function StudioEditorTimeline( {
 	filmstrip,
 }: StudioEditorTimelineProps ): ReactElement {
 	const durationMs = session.durationMs;
-	const [ zoom, setZoom ] = useState( 1 );
-	const { ref: widthRef, width: viewportWidth } = useElementWidth();
-	const [ scrollerEl, setScrollerEl ] = useState< HTMLDivElement | null >( null );
-	const contentRef = useRef< HTMLDivElement | null >( null );
-
-	// The filmstrip's native tile density is the zoom ceiling. Derived (not
-	// stored) and clamped at derivation, so a `zoom` state that overshoots —
-	// the storyboard resolving mid-session, the viewport growing — heals on
-	// the next render with no state-sync effect.
-	const zoomMax = getFilmstripZoomMax( filmstrip, durationMs, viewportWidth );
-	const effectiveZoom = Math.min( zoom, zoomMax );
-
-	// Refs mirroring live values, so the zoom math and the non-passive wheel
-	// listener never work from stale closures.
-	const currentMsRef = useRef( currentMs );
-	currentMsRef.current = currentMs;
-	const zoomRef = useRef( effectiveZoom );
-	zoomRef.current = effectiveZoom;
-	// scrollLeft to apply after the content re-renders at the new width.
-	const pendingScrollRef = useRef< number | null >( null );
-
-	const pxPerMs = getPxPerMs( viewportWidth, effectiveZoom, durationMs );
-	const contentWidth = viewportWidth > 0 ? viewportWidth * effectiveZoom : 0;
-
-	// One timeline scale: every horizontally scaled box — the content strip
-	// AND each track row — takes its width from this single number. The
-	// tracks must not size themselves from their parent box: the content
-	// element can legitimately render wider than `contentWidth` (its
-	// `min-width: 100%` fallback, an ancestor stretching it while the
-	// measured viewport is stale between a layout change and the
-	// ResizeObserver's next delivery), and a track that fills that box would
-	// put the filmstrip tiles on a different horizontal scale than the
-	// ruler ticks, playhead, and trim/cut overlay, which all derive from
-	// `pxPerMs`. Pinning the rows here makes that divergence structurally
-	// impossible: worst case everything is off together and self-heals on
-	// the next measurement. `undefined` while unmeasured keeps the initial
-	// placeholder render fluid.
-	const scaledWidthStyle = contentWidth > 0 ? { width: `${ contentWidth }px` } : undefined;
-
-	const scrollerRef = useCallback(
-		( element: HTMLDivElement | null ) => {
-			widthRef( element );
-			setScrollerEl( element );
-		},
-		[ widthRef ]
-	);
-
-	// Change zoom while keeping the time under the playhead at the same
-	// on-screen x: record the playhead's screen offset at the old scale and
-	// solve for the scrollLeft that reproduces it at the new one.
-	const applyZoom = useCallback(
-		( requested: number ) => {
-			const next = Math.min( zoomMax, Math.max( 1, requested ) );
-			setZoom( previous => {
-				if ( next === previous ) {
-					return previous;
-				}
-				if ( scrollerEl && viewportWidth > 0 && durationMs > 0 ) {
-					// The playhead anchor must be measured at the zoom actually
-					// on screen, which is the cap whenever `previous` overshoots
-					// it (the render clamps the same way).
-					const oldPx = getPxPerMs( viewportWidth, Math.min( previous, zoomMax ), durationMs );
-					const newPx = getPxPerMs( viewportWidth, next, durationMs );
-					const screenX = msToPx( currentMsRef.current, oldPx ) - scrollerEl.scrollLeft;
-					pendingScrollRef.current = msToPx( currentMsRef.current, newPx ) - screenX;
-				}
-				return next;
-			} );
-		},
-		[ scrollerEl, viewportWidth, durationMs, zoomMax ]
-	);
-	const applyZoomRef = useRef( applyZoom );
-	applyZoomRef.current = applyZoom;
-
-	useLayoutEffect( () => {
-		if ( pendingScrollRef.current === null || ! scrollerEl ) {
-			return;
-		}
-		const max = Math.max( 0, scrollerEl.scrollWidth - scrollerEl.clientWidth );
-		scrollerEl.scrollLeft = Math.min( max, Math.max( 0, pendingScrollRef.current ) );
-		pendingScrollRef.current = null;
-	}, [ zoom, scrollerEl ] );
-
-	// Modifier+wheel zooms, plain vertical wheel scrolls the strip. Attached
-	// manually because React wheel listeners are passive — preventDefault
-	// (needed to suppress browser page-zoom and page-scroll) requires a
-	// non-passive subscription.
-	useEffect( () => {
-		if ( ! scrollerEl ) {
-			return;
-		}
-		const onWheel = ( event: WheelEvent ) => {
-			if ( event.ctrlKey || event.metaKey ) {
-				event.preventDefault();
-				applyZoomRef.current( zoomRef.current * Math.exp( -event.deltaY * WHEEL_ZOOM_FACTOR ) );
-			} else if ( event.deltaY !== 0 && event.deltaX === 0 ) {
-				event.preventDefault();
-				scrollerEl.scrollLeft += event.deltaY;
-			}
-		};
-		scrollerEl.addEventListener( 'wheel', onWheel, { passive: false } );
-		return () => scrollerEl.removeEventListener( 'wheel', onWheel );
-	}, [ scrollerEl ] );
 
 	const seekClamped = useCallback(
 		( ms: number ) => onSeek( clampToDuration( ms, durationMs ) ),
 		[ onSeek, durationMs ]
 	);
 
-	// Scrubbing: pointer-down/drag on empty ruler/track area moves the
-	// playhead. Handles and cut segments stopPropagation their own
-	// pointer-downs, so only genuinely empty areas reach this surface.
-	const scrub = useTimelinePointerDrag( {
-		contentRef,
-		pxPerMs,
-		onDragStart: () => {
-			onScrubStart?.();
-			if ( session.selectedCutId !== null ) {
-				dispatch( { type: 'SELECT_CUT', id: null } );
-			}
-		},
-		onDragMove: seekClamped,
-		onDragEnd: onScrubEnd,
-	} );
+	// A scrub also deselects the selected cut — clicking empty strip both
+	// moves the playhead and clears the selection, like any canvas app.
+	const handleScrubStart = useCallback( () => {
+		onScrubStart?.();
+		if ( session.selectedCutId !== null ) {
+			dispatch( { type: 'SELECT_CUT', id: null } );
+		}
+	}, [ onScrubStart, session.selectedCutId, dispatch ] );
 
 	useKeyboardShortcuts( {
 		enabled: shortcutsEnabled,
@@ -272,107 +124,56 @@ export default function StudioEditorTimeline( {
 		onRedo: () => dispatch( { type: 'REDO' } ),
 	} );
 
-	const onPlayheadKeyDown = ( event: ReactKeyboardEvent< HTMLElement > ) => {
-		let delta: number;
-		if ( event.key === 'ArrowLeft' ) {
-			delta = event.shiftKey ? -NUDGE_LARGE_MS : -NUDGE_MS;
-		} else if ( event.key === 'ArrowRight' ) {
-			delta = event.shiftKey ? NUDGE_LARGE_MS : NUDGE_MS;
-		} else {
-			return;
-		}
-		// Handled here; keep the document-level shortcuts from double-nudging.
-		event.preventDefault();
-		event.stopPropagation();
-		seekClamped( currentMs + delta );
-	};
-
-	// Ordered track stack.
-	const tracks: { id: string; element: ReactElement }[] = [
-		{
-			id: 'ruler',
-			element: <StudioEditorTimeRuler durationMs={ durationMs } pxPerMs={ pxPerMs } />,
-		},
-		{
-			id: 'filmstrip',
-			element: (
-				<StudioEditorFilmstripTrack
-					filmstrip={ filmstrip }
-					trackWidth={ contentWidth }
-					durationMs={ durationMs }
-				/>
-			),
-		},
-	];
-
-	const playheadMs = clampToDuration( currentMs, durationMs );
-
 	return (
-		<div className="vp-studio-timeline" data-testid="studio-timeline">
-			<StudioEditorTimelineToolbar
-				playing={ playing }
-				onTogglePlay={ onTogglePlay }
-				currentMs={ currentMs }
-				durationMs={ durationMs }
-				canAddCut={ currentMs >= session.trimStartMs && currentMs <= session.trimEndMs }
-				onAddCut={ () => dispatch( { type: 'ADD_CUT', atMs: currentMs } ) }
-				onSeek={ seekClamped }
-				zoom={ effectiveZoom }
-				zoomMax={ zoomMax }
-				onZoomChange={ applyZoom }
-				onFit={ () => applyZoom( 1 ) }
-			/>
-			<div
-				className={
-					'vp-studio-timeline__scroller' + ( locked ? ' vp-studio-timeline__scroller--locked' : '' )
-				}
-				data-testid="studio-timeline-scroller"
-				ref={ scrollerRef }
-			>
-				<div
-					className="vp-studio-timeline__content"
-					data-testid="studio-timeline-content"
-					ref={ contentRef }
-					style={ scaledWidthStyle }
-					onPointerDown={ scrub.onPointerDown }
-					onPointerMove={ scrub.onPointerMove }
-					onPointerUp={ scrub.onPointerUp }
-					onPointerCancel={ scrub.onPointerCancel }
-				>
-					{ tracks.map( track => (
-						<div
-							key={ track.id }
-							className={ `vp-studio-timeline__track vp-studio-timeline__track--${ track.id }` }
-							data-testid={ `studio-timeline-track-${ track.id }` }
-							style={ scaledWidthStyle }
-						>
-							{ track.element }
-						</div>
-					) ) }
-					<StudioEditorEditOverlay
-						session={ session }
-						currentMs={ currentMs }
-						pxPerMs={ pxPerMs }
-						contentRef={ contentRef }
-						dispatch={ dispatch }
-						onSeek={ seekClamped }
-					/>
-					<div
-						className="vp-studio-timeline__playhead"
-						data-testid="studio-timeline-playhead"
-						role="slider"
-						tabIndex={ 0 }
-						aria-label={ __( 'Playhead', 'jetpack-videopress-pkg' ) }
-						aria-orientation="horizontal"
-						aria-valuemin={ 0 }
-						aria-valuemax={ durationMs }
-						aria-valuenow={ playheadMs }
-						aria-valuetext={ formatTimecode( playheadMs ) }
-						style={ { transform: `translateX(${ msToPx( playheadMs, pxPerMs ) }px)` } }
-						onKeyDown={ onPlayheadKeyDown }
-					/>
-				</div>
-			</div>
-		</div>
+		<StudioTimelineShell
+			durationMs={ durationMs }
+			currentMs={ currentMs }
+			locked={ locked }
+			getZoomMax={ viewportWidth => getFilmstripZoomMax( filmstrip, durationMs, viewportWidth ) }
+			onSeek={ onSeek }
+			onScrubStart={ handleScrubStart }
+			onScrubEnd={ onScrubEnd }
+			toolbar={ ( { zoom, zoomMax, applyZoom } ) => (
+				<StudioEditorTimelineToolbar
+					playing={ playing }
+					onTogglePlay={ onTogglePlay }
+					currentMs={ currentMs }
+					durationMs={ durationMs }
+					canAddCut={ currentMs >= session.trimStartMs && currentMs <= session.trimEndMs }
+					onAddCut={ () => dispatch( { type: 'ADD_CUT', atMs: currentMs } ) }
+					onSeek={ seekClamped }
+					zoom={ zoom }
+					zoomMax={ zoomMax }
+					onZoomChange={ applyZoom }
+					onFit={ () => applyZoom( 1 ) }
+				/>
+			) }
+			tracks={ ( { pxPerMs, contentWidth } ) => [
+				{
+					id: 'ruler',
+					element: <StudioEditorTimeRuler durationMs={ durationMs } pxPerMs={ pxPerMs } />,
+				},
+				{
+					id: 'filmstrip',
+					element: (
+						<StudioEditorFilmstripTrack
+							filmstrip={ filmstrip }
+							trackWidth={ contentWidth }
+							durationMs={ durationMs }
+						/>
+					),
+				},
+			] }
+			overlay={ ( { pxPerMs, contentRef } ) => (
+				<StudioEditorEditOverlay
+					session={ session }
+					currentMs={ currentMs }
+					pxPerMs={ pxPerMs }
+					contentRef={ contentRef }
+					dispatch={ dispatch }
+					onSeek={ seekClamped }
+				/>
+			) }
+		/>
 	);
 }
