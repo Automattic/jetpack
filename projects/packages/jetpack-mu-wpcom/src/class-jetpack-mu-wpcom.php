@@ -440,15 +440,6 @@ class Jetpack_Mu_Wpcom {
 
 		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
-
-		// On Atomic the standalone Jetpack plugin loads Podcast through the module
-		// system (Jetpack::late_initialization). Simple's bundled Jetpack has no
-		// such path, so initialize it directly there. Done here rather than in
-		// load_wpcom_user_features so feed-customization hooks register for
-		// anonymous requests too (Apple/Spotify crawlers).
-		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
-			\Automattic\Jetpack\Podcast\Podcast::init();
-		}
 	}
 
 	/**
