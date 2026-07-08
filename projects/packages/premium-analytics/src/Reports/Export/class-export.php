@@ -63,7 +63,7 @@ class Export {
 		self::$initialized = true;
 
 		$logger     = new Debug_Logger( \wc_get_logger() );
-		$registry   = Report_Registry::instance();
+		$registry   = new Report_Registry();
 		$fetcher    = new Report_Data_Fetcher( $logger );
 		$generator  = new Report_Csv_Generator( $logger );
 		$email      = new Csv_Export_Email( $logger );

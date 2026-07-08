@@ -15,7 +15,6 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 use WP_REST_Request;
 
 require_once __DIR__ . '/fixtures/class-spy-logger.php';
@@ -48,13 +47,7 @@ class CSVExportController_Test extends TestCase {
 	 */
 	#[Before]
 	public function set_up_controller() {
-		$prop = new ReflectionProperty( Report_Registry::class, 'instance' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$prop->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
-		}
-		$prop->setValue( null, null );
-
-		$registry = Report_Registry::instance();
+		$registry = new Report_Registry();
 		$registry->register_controller( new Orders_Over_Time_Controller( $registry ) );
 
 		$logger           = new Spy_Logger();

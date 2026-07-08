@@ -14,7 +14,6 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 
 require_once __DIR__ . '/fixtures/class-spy-logger.php';
 require_once __DIR__ . '/fixtures/class-fake-email.php';
@@ -41,13 +40,7 @@ class CSVExportScheduler_Test extends TestCase {
 	 */
 	#[Before]
 	public function set_up_scheduler() {
-		$prop = new ReflectionProperty( Report_Registry::class, 'instance' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$prop->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
-		}
-		$prop->setValue( null, null );
-
-		$registry = Report_Registry::instance();
+		$registry = new Report_Registry();
 		$registry->register_controller( new Orders_Over_Time_Controller( $registry ) );
 
 		$logger          = new Spy_Logger();
@@ -85,7 +78,8 @@ class CSVExportScheduler_Test extends TestCase {
 	 * @return Csv_Export_Scheduler
 	 */
 	private function scheduler_with_fake_fetcher( $fetch_result, Fake_Email $email ): Csv_Export_Scheduler {
-		$registry        = Report_Registry::instance(); // Orders Over Time registered in set_up_scheduler().
+		$registry = new Report_Registry();
+		$registry->register_controller( new Orders_Over_Time_Controller( $registry ) );
 		$logger          = new Spy_Logger();
 		$fetcher         = new Fake_Fetcher( $logger );
 		$fetcher->result = $fetch_result;

@@ -36,7 +36,7 @@ class AllControllers_Test extends TestCase {
 	}
 
 	private function make( string $class ): Csv_Report_Controller_Interface {
-		return new $class( Report_Registry::instance() );
+		return new $class( new Report_Registry() );
 	}
 
 	/**
