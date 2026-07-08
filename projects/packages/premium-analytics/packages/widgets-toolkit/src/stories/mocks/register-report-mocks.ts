@@ -51,6 +51,7 @@ import {
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
 	mockStatsInsightsData,
+	mockStatsPublicizeData,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -855,6 +856,8 @@ function routeStatsReport( subPath: string ): unknown {
 				: mockTopAuthorsData;
 		case '/insights':
 			return mockStatsInsightsData;
+		case '/publicize':
+			return mockStatsPublicizeData;
 		default:
 			return null;
 	}
