@@ -201,7 +201,9 @@ describe( 'TopPostsWidget', () => {
 	it( 'exposes the CSV export once the fetched rows are on screen', async () => {
 		render( <TopPostsWidget attributes={ { num: 10 } } /> );
 
-		await screen.findByRole( 'link', { name: /Hello World Post/ } );
+		await expect(
+			screen.findByRole( 'link', { name: /Hello World Post/ } )
+		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
 	} );
 
@@ -216,9 +218,7 @@ describe( 'TopPostsWidget', () => {
 			resolveSecond = resolve;
 		} );
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-			path.includes( 'start_date=2026-05-01' )
-				? secondFetch
-				: Promise.resolve( TOP_POSTS_RESPONSE )
+			path.includes( 'start_date=2026-05-01' ) ? secondFetch : Promise.resolve( TOP_POSTS_RESPONSE )
 		);
 
 		const { rerender } = render(
@@ -228,7 +228,9 @@ describe( 'TopPostsWidget', () => {
 		);
 
 		// First range settles: rows and the export are both present.
-		await screen.findByRole( 'link', { name: /Hello World Post/ } );
+		await expect(
+			screen.findByRole( 'link', { name: /Hello World Post/ } )
+		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
 
 		// Switch date range on the same tree; the new fetch is still pending.
@@ -247,7 +249,9 @@ describe( 'TopPostsWidget', () => {
 
 		// Once the new range settles, the export returns.
 		resolveSecond( TOP_POSTS_RESPONSE );
-		await screen.findByRole( 'button', { name: /Download CSV/ } );
+		await expect(
+			screen.findByRole( 'button', { name: /Download CSV/ } )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders the empty state when there are no views', async () => {
