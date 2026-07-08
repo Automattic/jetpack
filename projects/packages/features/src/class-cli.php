@@ -35,6 +35,7 @@ class CLI extends WP_CLI_Command {
 	 * @param array $assoc_args Flags.
 	 */
 	public function list( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		Features::ensure_registered();
 		$registry = Registry::instance();
 		$env      = $registry->environment();
 		if ( null === $env ) {
