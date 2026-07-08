@@ -7,10 +7,10 @@
 # linked git worktree, several checkouts therefore collide: they share one set of containers
 # and the bind-mounts get re-pointed at whichever worktree ran `up` last.
 #
-# This script seeds the worktree's tools/docker/.env with a unique project name (derived from
-# the worktree's name) plus a free set of host ports that avoid the primary instance and every
-# other worktree. After running it once, a bare `jp docker up -d` brings up an isolated instance
-# for this worktree. It is:
+# This script seeds the worktree's tools/docker/.env with a unique project name (derived from git's
+# worktree id — fixed when the worktree was created, not the current folder name) plus a free set of
+# host ports that avoid the primary instance and every other worktree. After running it once, a bare
+# `jp docker up -d` brings up an isolated instance for this worktree. It is:
 #   - host-only (run it on your machine, not inside the container),
 #   - idempotent (it only fills the keys that are missing; a no-op once fully configured), and
 #   - a no-op in the primary checkout, which keeps using `jetpack_dev`.
@@ -70,20 +70,61 @@ alloc_port() {
 	ALLOCATED="$port"
 }
 
-# Normalize a raw .env value the way a dotenv parser would: drop an inline ` # comment`, trim
-# surrounding whitespace, and strip one layer of surrounding single or double quotes.
-clean_scalar() {
-	printf '%s' "$1" | sed -E "s/[[:space:]]+#.*\$//; s/^[[:space:]]+//; s/[[:space:]]+\$//; s/^\"(.*)\"\$/\\1/; s/^'(.*)'\$/\\1/"
+# jp parses tools/docker/.env with the `envfile` npm package (tools/cli/commands/docker.js
+# readEnvFile → envfile.parse). Its parser is one regex per line: /^([^=:#]+?)[=:](.*)/ with
+# key = match[1].trim() and value = match[2].trim() then ALL quote characters removed. So it:
+#   - splits on the first `=` OR `:`,
+#   - drops a line whose key part contains `#` (a `#`-led comment never matches),
+#   - strips surrounding (and any) single/double quotes from the value,
+#   - does NOT understand a leading `export` (the key becomes `export KEY`, i.e. unreadable),
+#   - does NOT strip an inline ` # comment` from the value.
+# envfile_parse() below is the single source of truth mirroring exactly that, so every guard here
+# agrees with what `jp docker up` will actually load: a key envfile can't read counts as absent,
+# and we append a clean line rather than no-op behind a value the CLI would drop and then fall
+# back to the primary jetpack_dev instance's name and ports for.
+
+# Trim leading and trailing whitespace (bash 3.2 parameter expansion, no external process). Also
+# strips a leading UTF-8 BOM, which JS `String.prototype.trim()` (what envfile uses) removes but
+# `[[:space:]]` does not — otherwise a BOM-prefixed first line would read as a different key.
+trim() {
+	local s="$1"
+	s="${s#$'\xEF\xBB\xBF'}"
+	s="${s#"${s%%[![:space:]]*}"}"
+	s="${s%"${s##*[![:space:]]}"}"
+	printf '%s' "$s"
 }
 
-# Echo the current value of key $1 in $ENV_FILE (last assignment wins, matching dotenv), or
-# nothing when the key is absent. Tolerates a leading `export ` / indentation. `|| true` keeps a
-# no-match grep (non-zero under pipefail) from aborting the script when captured in an assignment.
+# Parse one .env line the way envfile.parse does. On a readable assignment, set EF_KEY / EF_VAL
+# and return 0; otherwise return 1. Keep this the ONLY place the parser shape lives.
+EF_KEY=""
+EF_VAL=""
+ENVFILE_RE='^([^=:#]+)[=:](.*)$'
+envfile_parse() {
+	[[ $1 =~ $ENVFILE_RE ]] || return 1
+	EF_KEY="$( trim "${BASH_REMATCH[1]}" )"
+	EF_VAL="$( trim "${BASH_REMATCH[2]}" )"
+	EF_VAL="${EF_VAL//\"/}"   # envfile removes all quote chars
+	EF_VAL="${EF_VAL//\'/}"
+	return 0
+}
+
+# Is key $1 assigned anywhere envfile can read it in $ENV_FILE? (Present-but-empty counts.)
+env_has_key() {
+	local line
+	while IFS= read -r line || [ -n "$line" ]; do
+		if envfile_parse "$line" && [ "$EF_KEY" = "$1" ]; then return 0; fi
+	done < "$ENV_FILE"
+	return 1
+}
+
+# Echo the envfile value of key $1 in $ENV_FILE (last assignment wins, matching envfile), or
+# nothing when the key is absent or written in a shape envfile can't read.
 env_value() {
-	local raw
-	raw="$( { grep -E "^[[:space:]]*(export[[:space:]]+)?$1[[:space:]]*=" "$ENV_FILE" | tail -n1 \
-		| sed -E "s/^[[:space:]]*(export[[:space:]]+)?$1[[:space:]]*=//"; } || true )"
-	clean_scalar "$raw"
+	local line val=""
+	while IFS= read -r line || [ -n "$line" ]; do
+		if envfile_parse "$line" && [ "$EF_KEY" = "$1" ]; then val="$EF_VAL"; fi
+	done < "$ENV_FILE"
+	printf '%s' "$val"
 }
 
 # Sanitize a raw name to the Compose project-name charset. Result is empty or starts with [a-z0-9].
@@ -136,26 +177,30 @@ while IFS= read -r line; do
 			# `-r` (not `-f`): an existing-but-unreadable sibling should be skipped, not abort.
 			sibling="${line#worktree }/tools/docker/.env"
 			[ -r "$sibling" ] || continue
+			# Skip our own .env (git worktree list includes this worktree): assign_port reserves
+			# our ports below, and counting our own name into CLAIMED_NAMES would make the
+			# collision guard reject us on every re-run. `-ef` compares device+inode, so it holds
+			# across symlinked or relative worktree paths.
+			if [ "$sibling" -ef "$ENV_FILE" ]; then continue; fi
 			# `|| [ -n "$kv" ]` so a final line with no trailing newline is still processed —
 			# otherwise that sibling's last PORT_ would be missed and could be re-allocated.
 			while IFS= read -r kv || [ -n "$kv" ]; do
-				# Tolerate indentation and an optional `export ` so the keys still match.
-				kv="${kv#"${kv%%[![:space:]]*}"}"
-				kv="${kv#export }"
-				case "$kv" in
-					PORT_*=* )
-						val="$( clean_scalar "${kv#*=}" )"
-						case "$val" in
-							'' | *[!0-9]* ) ;;  # not a plain number — skip
+				# Read the line exactly as jp will (quotes/`:`/`export`/`#` handled by
+				# envfile_parse). A key envfile can't read — e.g. `export PORT_…` — is skipped;
+				# that sibling then falls back to a primary default port already reserved above.
+				envfile_parse "$kv" || continue
+				case "$EF_KEY" in
+					PORT_* )
+						case "$EF_VAL" in
+							'' | *[!0-9]* ) ;;  # not a plain number — envfile passes it to compose, which falls back to a reserved default
 							* )
-								val="$(( 10#$val ))"  # normalize so `08080` matches `8080`
+								val="$(( 10#$EF_VAL ))"  # normalize so `08080` matches `8080`
 								is_claimed "$val" || CLAIMED="${CLAIMED}${val} "
 								;;
 						esac
 						;;
-					COMPOSE_PROJECT_NAME=* )
-						nm="$( clean_scalar "${kv#*=}" )"
-						[ -n "$nm" ] && CLAIMED_NAMES="${CLAIMED_NAMES}${nm} "
+					COMPOSE_PROJECT_NAME )
+						[ -n "$EF_VAL" ] && CLAIMED_NAMES="${CLAIMED_NAMES}${EF_VAL} "
 						;;
 				esac
 			done < "$sibling"
@@ -167,11 +212,33 @@ done <<< "$WORKTREES"
 
 # Keep an existing COMPOSE_PROJECT_NAME untouched (respect `up --name`, hand edits, or a prior
 # run); only derive and write a slug when none is set yet.
-if grep -qE '^[[:space:]]*(export[[:space:]]+)?COMPOSE_PROJECT_NAME[[:space:]]*=' "$ENV_FILE"; then
+if env_has_key COMPOSE_PROJECT_NAME; then
 	NAME_PRESENT=1
 	INSTANCE="$( env_value COMPOSE_PROJECT_NAME )"
+
+	# Trusting the existing name blindly is the one way this backfill lands two worktrees on one
+	# instance behind a success message. jp docker up (augmentArgvFromEnvFile) only honors a name
+	# shaped `jetpack_<x>` with <x> neither 'dev' nor 'e2e'; anything else — empty, a bare slug,
+	# jetpack_dev/e2e — is ignored and silently drives the primary jetpack_dev containers and DB.
+	# And a name another worktree already claimed would share that worktree's containers and DB.
+	# Refuse both rather than seed ports around a name that was never going to isolate anything.
+	suffix="${INSTANCE#jetpack_}"
+	if [ "$suffix" = "$INSTANCE" ] || [ -z "$suffix" ] || [ "$suffix" = dev ] || [ "$suffix" = e2e ]; then
+		echo "tools/docker/.env sets COMPOSE_PROJECT_NAME='${INSTANCE}', which jp docker up does not honor —" >&2
+		echo "it would fall back to the primary jetpack_dev instance. Use jetpack_<unique>, or delete the line to re-derive one." >&2
+		exit 1
+	fi
+	case "$CLAIMED_NAMES" in
+		*" $INSTANCE "* )
+			echo "tools/docker/.env sets COMPOSE_PROJECT_NAME='${INSTANCE}', but another worktree already uses that name." >&2
+			echo "Two worktrees sharing a project name drive the same containers and DB. Pick a unique name, or delete the line to re-derive one." >&2
+			exit 1
+			;;
+	esac
 else
 	NAME_PRESENT=0
+	# GIT_ABS_DIR is …/worktrees/<id>, so this is git's worktree id (frozen at creation, and
+	# already unique among worktrees), not the current folder name.
 	RAW_NAME="$( basename "$GIT_ABS_DIR" )"
 	SLUG="$( slugify "$RAW_NAME" )"
 	case "$SLUG" in
@@ -226,7 +293,8 @@ if [ "$NAME_PRESENT" = 0 ]; then add_kv COMPOSE_PROJECT_NAME "jetpack_${SLUG}"; 
 
 if [ -z "$BLOCK" ]; then
 	echo "tools/docker/.env already fully configured for '${INSTANCE}' — nothing to add."
-	grep -E '^[[:space:]]*(export[[:space:]]+)?(COMPOSE_PROJECT_NAME|PORT_)' "$ENV_FILE" | sed 's/^/  /'
+	# Display only; `|| true` so a zero-match grep can't abort under pipefail before `exit 0`.
+	{ grep -E '^[[:space:]]*(COMPOSE_PROJECT_NAME|PORT_[A-Z]+)[[:space:]]*[=:]' "$ENV_FILE" | sed 's/^/  /'; } || true
 	exit 0
 fi
 

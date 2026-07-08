@@ -163,13 +163,13 @@ To avoid that, seed the worktree's `.env` once:
 tools/docker/bin/seed-worktree-env.sh
 ```
 
-This writes a unique `COMPOSE_PROJECT_NAME` (derived from the worktree's name, e.g. `jetpack_<name>`) plus a free set of host ports that avoid the primary instance and every other worktree. Ports are allocated as the first free value at or above a per-service base — `8080` (WordPress), `8282` (phpMyAdmin), `1180` (inbox), `2525` (SMTP), `2222` (SFTP) — so the values that land in `.env` are predictable. After that, a bare `jetpack docker up -d` brings up an isolated instance for this worktree, and subsequent `up`s are stable. The script is:
+This writes a unique `COMPOSE_PROJECT_NAME` (derived from git's worktree id — fixed when the worktree was created, not the current folder name — e.g. `jetpack_<id>`) plus a free set of host ports that avoid the primary instance and every other worktree. Ports are allocated as the first free value at or above a per-service base — `8080` (WordPress), `8282` (phpMyAdmin), `1180` (inbox), `2525` (SMTP), `2222` (SFTP) — so the values that land in `.env` are predictable. After that, a bare `jetpack docker up -d` brings up an isolated instance for this worktree, and subsequent `up`s are stable. The script is:
 
 - **host-only** — run it on your machine, not inside the container;
 - **idempotent** — it only fills in the keys that are missing (so it also backfills ports for a name-only `.env` left by `up --name`) and is a no-op once fully configured, so it's safe to run before every `up`;
 - **a no-op in the primary checkout** — that always stays `jetpack_dev` on the default ports.
 
-It reserves ports already recorded in other worktrees' `.env` files and the primary defaults, but does not probe for live-bound host ports — if a non-Jetpack process already holds a chosen port, `jetpack docker up` will report `address already in use`; edit the port in `.env` and retry.
+It reserves ports already recorded in other worktrees' `.env` files and the primary defaults, but does not probe for live-bound host ports, and does not lock against another worktree seeding at the same instant — so two worktrees seeded in parallel can, in principle, pick the same port. Either way a genuine clash surfaces when `jetpack docker up` reports `address already in use`; edit the port in `.env` and retry.
 
 To undo it, delete the seeded lines from `tools/docker/.env` (the file is git-ignored and removed with the worktree). To set the name/ports yourself instead, edit `.env` by hand or use the manual flags below.
 
