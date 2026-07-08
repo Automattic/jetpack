@@ -690,7 +690,7 @@ class Jetpack_AI_Sidebar {
 	 * Check whether AI features are available.
 	 *
 	 * - wpcom simple: available when Jetpack AI is enabled.
-	 * - Atomic/self-hosted: requires a connected owner with AI not disabled.
+	 * - Atomic/self-hosted: requires Jetpack AI enabled, a connected owner, and non-offline mode.
 	 *
 	 * @return bool
 	 */
