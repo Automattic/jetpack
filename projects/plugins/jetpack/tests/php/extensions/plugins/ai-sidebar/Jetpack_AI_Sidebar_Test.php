@@ -832,9 +832,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * The per-feature toggles from the AI settings page win over the internal
 	 * testing environment: a switched-off feature must not surface suggestions
 	 * even when an external host draws the sidebar. Writing assistant off kills
-	 * the writing suggestions (Proofreader, Optimize Title); excerpt off kills
-	 * the excerpt suggestion; the SEO suggestions follow the SEO enhancer toggle,
-	 * which defaults off.
+	 * every writing suggestion (Proofreader, Optimize Title, Generate Feedback,
+	 * AI Editorial Review); excerpt off kills the excerpt suggestion; the SEO
+	 * suggestions follow the SEO enhancer toggle, which defaults off.
 	 */
 	public function test_add_agents_manager_data_honors_feature_toggles() {
 		$this->set_block_editor_screen();
@@ -850,6 +850,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['proofreadContent'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['generateFeedback'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 	}
