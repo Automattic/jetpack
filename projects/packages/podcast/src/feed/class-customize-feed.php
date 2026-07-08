@@ -322,9 +322,14 @@ class Customize_Feed {
 			}
 		}
 
-		if ( self::is_duplicate_enclosure( $post_obj, $final_url ) ) {
+		// Drop repeats: rows keyed per post, by final URL, so distinct enclosures
+		// survive while the duplicate stats URLs collapse to one. Registry is
+		// cleared per render — see `reset_enclosure_dedup()`.
+		$post_id = null !== $post_obj ? (int) $post_obj->ID : 0;
+		if ( isset( self::$seen_enclosures[ $post_id ][ $final_url ] ) ) {
 			return '';
 		}
+		self::$seen_enclosures[ $post_id ][ $final_url ] = true;
 
 		if ( 0 === $attachment_id ) {
 			return $enclosure;
@@ -346,26 +351,6 @@ class Customize_Feed {
 	 */
 	public static function reset_enclosure_dedup() {
 		self::$seen_enclosures = array();
-	}
-
-	/**
-	 * Whether this enclosure URL was already emitted for the current item.
-	 * Keyed per post so each item starts fresh, and by the final (rewritten)
-	 * URL so genuinely-distinct enclosures survive while repeats are dropped.
-	 *
-	 * @param WP_Post|null $post_obj Post being rendered.
-	 * @param string       $url      Final (rewritten) enclosure URL.
-	 * @return bool
-	 */
-	private static function is_duplicate_enclosure( $post_obj, string $url ): bool {
-		$post_id = $post_obj instanceof WP_Post ? (int) $post_obj->ID : 0;
-
-		if ( isset( self::$seen_enclosures[ $post_id ][ $url ] ) ) {
-			return true;
-		}
-
-		self::$seen_enclosures[ $post_id ][ $url ] = true;
-		return false;
 	}
 
 	/**
