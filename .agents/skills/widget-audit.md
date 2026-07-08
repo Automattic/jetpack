@@ -83,7 +83,12 @@ assume: namespace, text domain, and the dependency versions the package resolves
 - Props are a named `type`/`interface` with each field documented on the type,
   not echoed in `@param`. A component takes one typed tag
   (`@param {Props} props - The component props.`) — never `@param props.<field>`
-  blocks; plain functions keep positional `@param`s.
+  blocks.
+- The same one-typed-tag rule applies to ANY function taking an object argument
+  (hooks, story helpers, test builders): `@param {UseXArgs} args - Hook
+  arguments.` with fields documented on the args type — never `@param
+  args.<field>` / `@param root0.<field>` blocks. Only scalar positional
+  parameters keep plain per-param tags (`@param interval - The interval.`).
 - Descriptions track the code: referenced symbols still exist, terminology is
   consistent (`widget.json` ↔ `widget.ts` ↔ rendered strings), `@return` is accurate.
 - Verify, don't guess: `jsdoc/require-param` is satisfied by that single typed

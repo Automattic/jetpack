@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Pin @wordpress/build to 0.19.1-next and the widget packages (@wordpress/widget-primitives, @wordpress/widget-dashboard) to 0.3.1-next development snapshots, scoped to this package.

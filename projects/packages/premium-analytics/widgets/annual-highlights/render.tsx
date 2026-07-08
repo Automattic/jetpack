@@ -13,7 +13,7 @@ import {
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { arrowLeft, arrowRight, comment, paragraph, postList, starEmpty } from '@wordpress/icons';
 import { Button, Icon, Text } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
@@ -29,6 +29,12 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 // boundary (and Storybook may inject them) so the host contract holds.
 type AnnualHighlightsRenderAttributes = AnnualHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
+type AnnualHighlightsWidgetProps = WidgetRenderProps< AnnualHighlightsRenderAttributes >;
+
+/**
+ * The enabled-metric flags from widget attributes, with defaults applied.
+ */
+type AnnualHighlightsReportProps = Required< AnnualHighlightsAttributes >;
 
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
@@ -53,11 +59,7 @@ function sortYearsDescending( data?: StatsInsightsResponse ): StatsInsightsYear[
  * comparison period, so each tile shows a bare formatted count. Which tiles
  * appear is controlled by the per-metric visibility attributes.
  *
- * @param props              - The enabled-metric flags from widget attributes.
- * @param props.showPosts    - Whether the Posts tile is shown.
- * @param props.showWords    - Whether the Words tile is shown.
- * @param props.showLikes    - Whether the Likes tile is shown.
- * @param props.showComments - Whether the Comments tile is shown.
+ * @param {AnnualHighlightsReportProps} props - The component props.
  * @return The widget content.
  */
 function AnnualHighlightsReport( {
@@ -65,7 +67,7 @@ function AnnualHighlightsReport( {
 	showWords,
 	showLikes,
 	showComments,
-}: Required< AnnualHighlightsAttributes > ) {
+}: AnnualHighlightsReportProps ) {
 	const { data, isLoading, isError } = useStatsInsights();
 
 	const years = useMemo( () => sortYearsDescending( data ), [ data ] );
@@ -151,40 +153,34 @@ function AnnualHighlightsReport( {
 
 	return (
 		<div className={ styles.root }>
-			<div className={ styles.header }>
-				<Text variant="heading-lg" render={ <h3 /> } className={ styles.title }>
-					{ sprintf(
-						/* translators: %s is a calendar year, e.g. "2026". */
-						__( '%s in review', 'jetpack-premium-analytics' ),
-						year.year
-					) }
-				</Text>
-				<div className={ styles.yearNav }>
-					<Button
-						type="button"
-						variant="minimal"
-						tone="neutral"
-						size="small"
-						className={ styles.navButton }
-						onClick={ showOlderYear }
-						disabled={ ! canShowOlder }
-						aria-label={ __( 'Previous year', 'jetpack-premium-analytics' ) }
-					>
-						<Button.Icon icon={ arrowLeft } size={ 16 } />
-					</Button>
-					<Button
-						type="button"
-						variant="minimal"
-						tone="neutral"
-						size="small"
-						className={ styles.navButton }
-						onClick={ showNewerYear }
-						disabled={ ! canShowNewer }
-						aria-label={ __( 'Next year', 'jetpack-premium-analytics' ) }
-					>
-						<Button.Icon icon={ arrowRight } size={ 16 } />
-					</Button>
-				</div>
+			<div className={ styles.yearNav }>
+				<Button
+					type="button"
+					variant="minimal"
+					tone="neutral"
+					size="small"
+					className={ styles.navButton }
+					onClick={ showOlderYear }
+					disabled={ ! canShowOlder }
+					aria-label={ __( 'Previous year', 'jetpack-premium-analytics' ) }
+				>
+					<Button.Icon icon={ arrowLeft } size={ 16 } />
+				</Button>
+
+				<Text className={ styles.yearLabel }>{ year.year }</Text>
+
+				<Button
+					type="button"
+					variant="minimal"
+					tone="neutral"
+					size="small"
+					className={ styles.navButton }
+					onClick={ showNewerYear }
+					disabled={ ! canShowNewer }
+					aria-label={ __( 'Next year', 'jetpack-premium-analytics' ) }
+				>
+					<Button.Icon icon={ arrowRight } size={ 16 } />
+				</Button>
 			</div>
 			{ tiles.length === 0 ? (
 				<Text className={ styles.placeholder }>
@@ -219,13 +215,10 @@ function AnnualHighlightsReport( {
  * inner report. Host attributes are forwarded so any injected report params are
  * preserved even though the insights endpoint is not period-scoped.
  *
- * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes.
+ * @param {AnnualHighlightsWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function AnnualHighlights( {
-	attributes = {},
-}: WidgetRenderProps< AnnualHighlightsRenderAttributes > ) {
+export default function AnnualHighlights( { attributes = {} }: AnnualHighlightsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<AnnualHighlightsReport
