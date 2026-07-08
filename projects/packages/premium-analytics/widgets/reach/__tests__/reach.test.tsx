@@ -91,4 +91,22 @@ describe( 'ReachWidget', () => {
 
 		await expect( screen.findByText( 'No subscribers yet.' ) ).resolves.toBeInTheDocument();
 	} );
+
+	it( 'still renders followers reach when the Publicize request fails', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+			if ( path.includes( 'stats/publicize' ) ) {
+				// A 401/403 rejection resolves deterministically (no retry), matching a
+				// plan- or permission-gated Publicize endpoint.
+				return Promise.reject( { status: 403 } );
+			}
+			return Promise.resolve( FOLLOWERS_RESPONSE );
+		} );
+
+		render( <ReachWidget attributes={ {} } /> );
+
+		// The supplementary Publicize failure must not hide the WordPress.com / email reach.
+		await expect( screen.findByText( 'Email' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'WordPress.com' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Unable to load your reach.' ) ).not.toBeInTheDocument();
+	} );
 } );

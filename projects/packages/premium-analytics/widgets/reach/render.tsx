@@ -188,7 +188,9 @@ function toReachRows(
  * @return The widget content.
  */
 function ReachReport() {
-	const followers = useStatsFollowers();
+	// Only the wpcom/email summary totals are used, so skip fetching the
+	// subscriber list the endpoint would otherwise return.
+	const followers = useStatsFollowers( { max: 1 } );
 	const publicize = useStatsPublicize();
 
 	const rows = useMemo(
@@ -200,7 +202,9 @@ function ReachReport() {
 		<ReachLeaderboard
 			rows={ rows }
 			isLoading={ followers.isLoading || publicize.isLoading }
-			isError={ followers.isError || publicize.isError }
+			// Publicize is a supplementary channel: when only it fails, still show
+			// the WordPress.com and email reach instead of erroring the whole widget.
+			isError={ followers.isError }
 		/>
 	);
 }
