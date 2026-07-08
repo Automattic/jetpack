@@ -343,6 +343,40 @@ const MOCK_TOP_POSTS_COMPARISON = {
 	},
 };
 
+// `stats/archives` groups archive-page views by archive type; the widget's
+// Archives view renders one aggregate row per type.
+const MOCK_ARCHIVES = {
+	date: '2026-06-29',
+	period: 'day',
+	summary: {
+		home: [ { value: 'home', href: 'https://example.com/', views: '2140' } ],
+		tax: {
+			category: [
+				{ value: 'News', href: 'https://example.com/category/news/', views: '430' },
+				{ value: 'Guides', href: 'https://example.com/category/guides/', views: '180' },
+			],
+			post_tag: [ { value: 'release', href: 'https://example.com/tag/release/', views: '120' } ],
+		},
+		post_type: [ { value: 'post', href: 'https://example.com/type/post/', views: '460' } ],
+		search: [
+			{ value: 'pricing', href: 'https://example.com/?s=pricing', views: '210' },
+			{ value: 'changelog', href: 'https://example.com/?s=changelog', views: '90' },
+		],
+	},
+};
+
+const MOCK_ARCHIVES_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	summary: {
+		home: [ { value: 'home', href: 'https://example.com/', views: '1890' } ],
+		tax: {
+			category: [ { value: 'News', href: 'https://example.com/category/news/', views: '510' } ],
+		},
+		search: [ { value: 'pricing', href: 'https://example.com/?s=pricing', views: '260' } ],
+	},
+};
+
 const MOCK_FILE_DOWNLOADS_FILES = [
 	{
 		relative_url: '/annual-report-2025.pdf',
@@ -906,6 +940,10 @@ function getStatsMock( path: string ): unknown | null {
 
 	if ( subPath.startsWith( '/top-posts' ) ) {
 		return isComparison ? MOCK_TOP_POSTS_COMPARISON : MOCK_TOP_POSTS;
+	}
+
+	if ( subPath.startsWith( '/archives' ) ) {
+		return isComparison ? MOCK_ARCHIVES_COMPARISON : MOCK_ARCHIVES;
 	}
 
 	if ( subPath.startsWith( '/file-downloads' ) ) {

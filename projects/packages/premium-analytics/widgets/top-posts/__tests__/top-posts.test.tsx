@@ -205,4 +205,67 @@ describe( 'TopPostsWidget', () => {
 
 		await expect( screen.findByText( 'No views in this period.' ) ).resolves.toBeInTheDocument();
 	} );
+
+	it( 'renders aggregate archive rows when contentView is archives', async () => {
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-10',
+			summary: {
+				home: [ { value: 'home', href: 'https://example.com/', views: '12' } ],
+				search: [ { value: 'pricing', href: 'https://example.com/?s=pricing', views: '3' } ],
+			},
+		} );
+
+		render( <TopPostsWidget attributes={ { num: 10, contentView: 'archives' } } /> );
+
+		await expect( screen.findByText( 'Home page' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Search results' ) ).toBeInTheDocument();
+		// Aggregate rows have no URL, so they must not render as links.
+		expect( screen.queryByRole( 'link', { name: /Home page/ } ) ).not.toBeInTheDocument();
+
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'archives' );
+	} );
+
+	it( 'gates archive comparison UI on overlapping archive types', async () => {
+		// Comparison period has archive views, but for a type absent from the
+		// primary period — the comparison UI must stay off.
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve(
+				path.includes( 'date=2026-02-10' )
+					? {
+							date: '2026-02-10',
+							summary: {
+								post_type: [
+									{ value: 'post', href: 'https://example.com/type/post/', views: '9' },
+								],
+							},
+					  }
+					: {
+							date: '2026-06-10',
+							summary: {
+								home: [ { value: 'home', href: 'https://example.com/', views: '12' } ],
+							},
+					  }
+			)
+		);
+
+		render(
+			<TopPostsWidget
+				attributes={ {
+					num: 10,
+					contentView: 'archives',
+					reportParams: {
+						from: '2026-03-01',
+						to: '2026-03-10',
+						comp: '1',
+						compare_from: '2026-02-01',
+						compare_to: '2026-02-10',
+					},
+				} }
+			/>
+		);
+
+		await expect( screen.findByText( 'Home page' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
+	} );
 } );

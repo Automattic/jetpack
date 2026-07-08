@@ -38,11 +38,21 @@
 	text-decoration: underline;
 }
 
+/* Same row-height-setting layout as .labelLink, for rows that have no URL to
+   link to (the Archives view's aggregate rows). */
+.labelText {
+	display: block;
+	padding-block: var(--wpds-dimension-padding-md, 12px);
+	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .placeholder {
 	flex: 1 1 0;
 	inline-size: 100%;
 	min-block-size: 200px;
-	color: var(--wpds-color-fg-content-neutral-weak);
 	text-align: center;
 }
 

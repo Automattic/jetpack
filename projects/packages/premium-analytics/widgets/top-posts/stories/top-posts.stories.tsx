@@ -33,6 +33,7 @@ const storyWidgetType = {
 
 interface TopPostsStoryControls {
 	withComparison: boolean;
+	contentView: 'posts' | 'archives';
 }
 
 interface TopPostsDashboardStoryProps
@@ -45,16 +46,21 @@ const withWidgetCanvas: Decorator = Story => (
 	</div>
 );
 
-function renderTopPostsWidget( { withComparison }: TopPostsStoryControls ) {
+function renderTopPostsWidget( { withComparison, contentView }: TopPostsStoryControls ) {
 	return (
 		<TopPostsRender
-			attributes={ { num: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ {
+				num: 10,
+				contentView,
+				reportParams: getDefaultQueryParams( withComparison ),
+			} }
 		/>
 	);
 }
 
 function TopPostsDashboardStory( {
 	withComparison,
+	contentView,
 	...dashboardArgs
 }: TopPostsDashboardStoryProps ) {
 	return (
@@ -63,7 +69,11 @@ function TopPostsDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ TOP_POSTS_RENDER_MODULE }
 			renderComponent={ TopPostsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { num: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ {
+				num: 10,
+				contentView,
+				reportParams: getDefaultQueryParams( withComparison ),
+			} }
 		/>
 	);
 }
@@ -77,12 +87,18 @@ const meta = {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params and deltas.',
 		},
+		contentView: {
+			control: 'inline-radio',
+			options: [ 'posts', 'archives' ],
+			description:
+				'Which report the widget shows: posts & pages, or aggregate archive-page views. Rendered as an inline control in the widget frame header by the host.',
+		},
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Top posts & pages" widget. Shows the most-viewed posts and pages as a ranked leaderboard, using the global dashboard date range. Each row links to the published content.',
+					'The "Most viewed" widget. Shows the most-viewed posts and pages as a ranked leaderboard, using the global dashboard date range; each row links to the published content. The `contentView` attribute switches to aggregate archive-page views (home, taxonomy, post-type, search, and date archives).',
 			},
 		},
 	},
@@ -95,14 +111,28 @@ type DashboardStory = StoryObj< TopPostsDashboardStoryProps >;
 
 export const Default: Story = {
 	render: renderTopPostsWidget,
-	args: { withComparison: false },
+	args: { withComparison: false, contentView: 'posts' },
 	decorators: [ withWidgetCanvas ],
 };
 
 export const WithComparison: Story = {
 	render: renderTopPostsWidget,
-	args: { withComparison: true },
+	args: { withComparison: true, contentView: 'posts' },
 	decorators: [ withWidgetCanvas ],
+};
+
+export const Archives: Story = {
+	render: renderTopPostsWidget,
+	args: { withComparison: true, contentView: 'archives' },
+	decorators: [ withWidgetCanvas ],
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The Archives view: one aggregate row per archive type (home page, taxonomy, post-type, and search archives), with comparison deltas when the previous period overlaps.',
+			},
+		},
+	},
 };
 
 export const WidgetDashboardWithWidget: DashboardStory = {
@@ -110,6 +140,7 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		withComparison: true,
+		contentView: 'posts',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,

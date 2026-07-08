@@ -2,7 +2,9 @@
  * External dependencies
  */
 import {
+	useStatsArchives,
 	useStatsTopPosts,
+	type StatsArchivesItem,
 	type StatsNormalizedReport,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
@@ -31,7 +33,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
  */
 export type TopPostRow = {
 	/**
-	 * Post or page title.
+	 * Post or page title, or an archive-type label in the Archives view.
 	 */
 	label: string;
 	/**
@@ -45,9 +47,10 @@ export type TopPostRow = {
 	 */
 	previousValue?: number;
 	/**
-	 * URL of the published post/page.
+	 * URL of the published post/page. Rows without one (the Archives view's
+	 * aggregate rows) render a plain label instead of a link.
 	 */
-	href: string;
+	href?: string;
 	/**
 	 * Post type, e.g. `post` or `page`.
 	 */
@@ -59,7 +62,7 @@ export type TopPostRow = {
 type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
 type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
-type TopPostsReportProps = Pick< TopPostsAttributes, 'num' | 'postType' >;
+type TopPostsReportProps = Pick< TopPostsAttributes, 'postType' > & { num: number };
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
@@ -86,8 +89,8 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 		const previousValue = row.previousValue ?? 0;
 
 		return {
-			id: `${ index }-${ row.href }`,
-			label: (
+			id: `${ index }-${ row.href ?? row.label }`,
+			label: row.href ? (
 				<Link
 					className={ styles.labelLink }
 					href={ row.href }
@@ -97,6 +100,10 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 				>
 					{ row.label }
 				</Link>
+			) : (
+				<Text className={ styles.labelText } title={ row.label }>
+					{ row.label }
+				</Text>
 			),
 			currentValue: row.value,
 			currentShare: ( row.value / maxCurrentViews ) * 100,
@@ -128,6 +135,11 @@ type TopPostsLeaderboardProps = {
 	 * comparison mode of the toolkit's `LeaderboardChart`.
 	 */
 	withComparison?: boolean;
+	/**
+	 * Message rendered when `isError` is set. Defaults to the Posts & pages
+	 * copy; the Archives view passes its own.
+	 */
+	errorText?: string;
 };
 
 /**
@@ -146,11 +158,12 @@ export const TopPostsLeaderboard = ( {
 	isLoading = false,
 	isError = false,
 	withComparison = false,
+	errorText,
 }: TopPostsLeaderboardProps ) => {
 	if ( isError ) {
 		return (
 			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ __( 'Unable to load top posts.', 'jetpack-premium-analytics' ) }</Text>
+				<Text>{ errorText ?? __( 'Unable to load top posts.', 'jetpack-premium-analytics' ) }</Text>
 			</Stack>
 		);
 	}
@@ -209,7 +222,7 @@ function toTopPostRows(
  * @param {TopPostsReportProps} props - The component props.
  * @return The widget content.
  */
-function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
+function TopPostsReport( { num, postType }: TopPostsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
@@ -276,21 +289,144 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 }
 
 /**
+ * Human-readable labels for the archive-type keys the WPCOM `stats/archives`
+ * report groups by. Types the API may add later fall back to the raw key.
+ *
+ * @param archiveType - The raw archive-type key from the report.
+ * @return The display label for the archive type.
+ */
+function archiveTypeLabel( archiveType: string ): string {
+	switch ( archiveType ) {
+		case 'home':
+			return __( 'Home page', 'jetpack-premium-analytics' );
+		case 'search':
+			return __( 'Search results', 'jetpack-premium-analytics' );
+		case 'post_type':
+			return __( 'Post type archives', 'jetpack-premium-analytics' );
+		case 'tax':
+		case 'cat':
+			return __( 'Taxonomy archives', 'jetpack-premium-analytics' );
+		case 'author':
+			return __( 'Author archives', 'jetpack-premium-analytics' );
+		case 'date':
+			return __( 'Date archives', 'jetpack-premium-analytics' );
+		default:
+			return archiveType;
+	}
+}
+
+/**
+ * Flatten the normalized `stats/archives` report into keyed rows: one row per
+ * archive type present in the period, with the views of its individual archive
+ * pages already summed by the data layer.
+ *
+ * @param report - The normalized archives report, or undefined while loading.
+ * @return The keyed archive rows.
+ */
+function toArchiveRows(
+	report: StatsNormalizedReport< StatsArchivesItem > | undefined
+): Array< { key: string; label: string; value: number } > {
+	const items = report?.data.flatMap( point => point.items ) ?? [];
+
+	return items.map( item => {
+		const key = String( item.label ?? '' );
+
+		return { key, label: archiveTypeLabel( key ), value: item.value };
+	} );
+}
+
+/**
+ * The Archives view: views of archive pages (home, taxonomy, post-type,
+ * search, and date archives) as one aggregate row per archive type, through
+ * the designated `useStatsArchives` Stats traffic hook. Mirrors
+ * `TopPostsReport`: the date range and comparison period come from the
+ * dashboard picker via `reportParams`, and comparison UI is gated on real
+ * row overlap between the two periods.
+ *
+ * @param props     - The component props.
+ * @param props.num - Maximum number of rows to display.
+ * @return The widget content.
+ */
+function ArchivesReport( { num }: { num: number } ) {
+	const { reportParams } = useWidgetRootContext();
+
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
+		useStatsArchives( reportParams );
+	const showLoading = isLoading || ( isFetching && hasData );
+
+	const primaryRows = useMemo(
+		() => toArchiveRows( primary.data as StatsNormalizedReport< StatsArchivesItem > ),
+		[ primary.data ]
+	);
+
+	const previousViewsByKey = useMemo( () => {
+		if ( ! hasComparison ) {
+			return new Map< string, number >();
+		}
+		return new Map(
+			toArchiveRows( comparison.data as StatsNormalizedReport< StatsArchivesItem > ).map( row => [
+				row.key,
+				row.value,
+			] )
+		);
+	}, [ comparison.data, hasComparison ] );
+
+	// Same overlap gating as the Posts & pages view: no comparison UI unless a
+	// visible row has a real comparison-period match (see AGENTS.md).
+	const withComparison =
+		hasComparison && primaryRows.some( row => previousViewsByKey.has( row.key ) );
+
+	const rows = useMemo(
+		() =>
+			primaryRows.slice( 0, num ).map( row => ( {
+				label: row.label,
+				value: row.value,
+				type: 'archive',
+				...( withComparison ? { previousValue: previousViewsByKey.get( row.key ) ?? 0 } : {} ),
+			} ) ),
+		[ primaryRows, previousViewsByKey, withComparison, num ]
+	);
+
+	return (
+		<div className={ styles.content }>
+			<TopPostsLeaderboard
+				rows={ rows }
+				isLoading={ showLoading }
+				isError={ isError }
+				withComparison={ withComparison }
+				errorText={ __( 'Unable to load archives.', 'jetpack-premium-analytics' ) }
+			/>
+		</div>
+	);
+}
+
+/**
  * Widget render entry point.
  *
  * WidgetRoot provides the analytics query client, chart theme, and the report
  * params consumed by the inner leaderboard — resolved from the dashboard date
- * range via context, the same way the other Stats widgets read them. The
- * widget's own `num`/`postType` settings are forwarded to the inner component.
+ * range via context, the same way the other Stats widgets read them.
+ *
+ * The `contentView` attribute (`relevance: 'high'`, so the widget host renders
+ * its control in the frame header) switches between the Posts & pages and
+ * Archives views. Attribute defaults are applied here, in exactly one place,
+ * before the inner components receive them.
  *
  * @param {TopPostsWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
 export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
+	const num = attributes.num ?? 10;
+	const contentView = attributes.contentView ?? 'posts';
+
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<TopPostsReport num={ attributes.num } postType={ attributes.postType } />
+				{ contentView === 'archives' ? (
+					<ArchivesReport num={ num } />
+				) : (
+					<TopPostsReport num={ num } postType={ attributes.postType } />
+				) }
 			</div>
 		</WidgetRoot>
 	);
