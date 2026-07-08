@@ -16,6 +16,10 @@
  * Dispatches are guarded the same way as the trim session's: dropped while
  * the editor is locked (processing job, in-flight save), so keyboard-driven
  * edits can't slip in while the strip's pointer events are blocked.
+ *
+ * The header Save re-baselines through `markSaved( savedDescription )` once
+ * its meta POST succeeds, and Discard drops unsaved edits via `discard()` —
+ * both re-LOAD (which clears the tool's history) and move the baseline.
  */
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { parseDescription } from '../../utils/chapters';
@@ -92,6 +96,10 @@ export interface ChaptersStore {
 	chaptersDirty: boolean;
 	/** The normalized rows of the loaded baseline. */
 	baselineRows: ChapterRow[];
+	/** Re-baseline on a just-saved description: LOAD it and clear history. */
+	markSaved: ( description: string ) => void;
+	/** Reset the session to the loaded baseline (unsaved edits are dropped). */
+	discard: () => void;
 }
 
 /**
@@ -151,5 +159,46 @@ export function useChaptersStore( options: ChaptersStoreOptions ): ChaptersStore
 		}
 	}, [] );
 
-	return { history, session, dispatch, chaptersDirty, baselineRows: baseline.rows };
+	// Refs for the stable baseline movers below, so their identities never
+	// change (the save flow captures them in its own callbacks).
+	const durationRef = useRef( durationMs );
+	durationRef.current = durationMs;
+	const baselineRef = useRef( baseline );
+	baselineRef.current = baseline;
+
+	// LOAD a description and make it the new baseline; the history clears via
+	// the wrapper's clearOn. Deliberately NOT guarded on `locked`: the save
+	// flow re-baselines while its own save still counts toward the lock, and
+	// a baseline sync is not a user edit.
+	const rebaseline = useCallback( ( nextDescription: string ) => {
+		const nextDurationMs = durationRef.current;
+		rawDispatch( {
+			type: 'LOAD',
+			rows: parseDescription( nextDescription ).rows,
+			durationMs: nextDurationMs,
+		} );
+		setBaseline( {
+			description: nextDescription,
+			durationMs: nextDurationMs,
+			rows: chaptersToRows( loadSession( nextDescription, nextDurationMs ) ),
+		} );
+	}, [] );
+
+	// Discard re-LOADs the baseline's own description. If the source of truth
+	// moved while the session was dirty (the store's re-LOAD effect held the
+	// old baseline so local edits would win), the now-clean session converges
+	// on the newer description through that same effect right after.
+	const discard = useCallback( () => {
+		rebaseline( baselineRef.current.description );
+	}, [ rebaseline ] );
+
+	return {
+		history,
+		session,
+		dispatch,
+		chaptersDirty,
+		baselineRows: baseline.rows,
+		markSaved: rebaseline,
+		discard,
+	};
 }
