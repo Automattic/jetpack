@@ -216,7 +216,7 @@ const ContentScreen: FC = () => {
 			},
 			{
 				id: 'editAction',
-				label: __( 'Actions', 'jetpack-seo' ),
+				label: editSeoLabel,
 				enableSorting: false,
 				enableHiding: false,
 				getValue: () => '',
