@@ -474,7 +474,7 @@ class Password_Detection_Test extends BaseTestCase {
 			->method( 'exit' );
 
 		$sentence = htmlentities(
-			'We\'ve noticed that your current password may have been compromised in a public leak. To keep your account safe, we\'ve added an extra layer of security.',
+			'This security feature was automatically activated with a recent Jetpack update to help keep your account safe. We\'ve added an extra layer of security to your login.',
 			ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
 		);
 
