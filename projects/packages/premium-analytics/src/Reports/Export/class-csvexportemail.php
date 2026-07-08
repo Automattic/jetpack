@@ -264,22 +264,4 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 			$this->template_base
 		);
 	}
-
-	/**
-	 * Format date range for email.
-	 *
-	 * @param array $params Report parameters.
-	 * @return string Formatted date range.
-	 */
-	protected function format_date_range( array $params ): string {
-		$from = gmdate( 'F j, Y', strtotime( $params['from'] ) );
-		$to   = gmdate( 'F j, Y', strtotime( $params['to'] ) );
-
-		return sprintf(
-			/* translators: 1: Start date, 2: End date */
-			__( '%1$s to %2$s', 'jetpack-premium-analytics' ),
-			$from,
-			$to
-		);
-	}
 }
