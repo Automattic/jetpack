@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast: remove the redundant direct init; the module now loads through the Jetpack module system on WordPress.com.
