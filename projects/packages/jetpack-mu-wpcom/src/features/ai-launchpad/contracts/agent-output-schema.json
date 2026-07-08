@@ -51,6 +51,11 @@
 					"type": "string",
 					"maxLength": 120
 				},
+				"theme_keyword": {
+					"type": "string",
+					"maxLength": 40,
+					"description": "The single word that best captures the site's subject, used to pre-filter the theme showcase. The prompt steers it toward the core topic (\"hiking\") over incidental modifiers (\"weekend\")."
+				},
 				"vibe": {
 					"type": "string",
 					"maxLength": 120

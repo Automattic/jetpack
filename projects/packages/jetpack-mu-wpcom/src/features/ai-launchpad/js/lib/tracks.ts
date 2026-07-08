@@ -28,6 +28,11 @@ export function trackWizardCompleted(): void {
 	record( 'jetpack_ai_launchpad_wizard_completed' );
 }
 
+/** Records the wizard-skipped event. */
+export function trackWizardSkipped(): void {
+	record( 'jetpack_ai_launchpad_wizard_skipped' );
+}
+
 /**
  * Records the AI-response-received event.
  *
