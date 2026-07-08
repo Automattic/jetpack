@@ -15,7 +15,6 @@ defined( 'ABSPATH' ) || exit;
 
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
-use Exception;
 use WP_Error;
 
 /**
@@ -106,12 +105,14 @@ class ReportCSVGenerator {
 
 			return $file_path;
 
-		} catch ( Exception $e ) {
+		} catch ( \Throwable $e ) {
 			// Remove any partially written file so it does not linger in the exports dir.
 			if ( isset( $file_path ) && is_string( $file_path ) && file_exists( $file_path ) ) {
 				wp_delete_file( $file_path );
 			}
-			$this->logger->log_exception( $e, __METHOD__ );
+			// Catch Throwable (not just Exception) so a formatter TypeError still returns WP_Error
+			// and cleans up; log_error keeps within the logger's Exception-typed log_exception().
+			$this->logger->log_error( $e->getMessage(), __METHOD__ );
 			return new WP_Error(
 				'csv_generation_failed',
 				__( 'Failed to generate CSV file.', 'jetpack-premium-analytics' ),
