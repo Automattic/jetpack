@@ -1,0 +1,10 @@
+.popover {
+	min-inline-size: 12rem;
+}
+
+.trigger {
+	max-inline-size: 14rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
