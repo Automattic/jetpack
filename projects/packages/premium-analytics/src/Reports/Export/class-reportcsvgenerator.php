@@ -201,7 +201,9 @@ class ReportCSVGenerator {
 
 		$htaccess = trailingslashit( $export_dir ) . '.htaccess';
 		if ( ! file_exists( $htaccess ) ) {
-			@file_put_contents( $htaccess, "Require all denied\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+			// Dual syntax so it denies on both Apache 2.4 (mod_authz_core) and 2.2, and is inert on nginx.
+			$rules = "<IfModule mod_authz_core.c>\n\tRequire all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n\tOrder allow,deny\n\tDeny from all\n</IfModule>\n";
+			@file_put_contents( $htaccess, $rules ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 		}
 	}
 
@@ -252,6 +254,7 @@ class ReportCSVGenerator {
 
 		// Set headers for file download.
 		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'X-Content-Type-Options: nosniff' );
 		// Strip path + CR/LF/quotes so the filename cannot inject additional headers.
 		$safe_filename = str_replace( array( "\r", "\n", '"' ), '', basename( $filename ) );
 		header( 'Content-Disposition: attachment; filename="' . $safe_filename . '"' );
