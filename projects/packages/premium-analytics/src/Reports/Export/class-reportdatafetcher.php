@@ -66,9 +66,8 @@ class ReportDataFetcher {
 	 */
 	public function fetch( array $params, CSVReportControllerInterface $controller ) {
 		// Merge controller-specific additional parameters (controller defaults first, user params override).
-		if ( $controller instanceof AbstractCSVReportController ) {
-			$params = array_merge( $controller->get_additional_params(), $params );
-		}
+		// get_additional_params() is part of the interface, so this applies to any implementation.
+		$params = array_merge( $controller->get_additional_params(), $params );
 
 		$fields = $controller->get_fields();
 		if ( ! empty( $fields ) ) {
