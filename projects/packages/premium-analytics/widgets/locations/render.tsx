@@ -66,13 +66,17 @@ function getGeoChartCountryId( countryCode: string ): string {
 	return countryCode.toUpperCase();
 }
 
+type LocationsInnerProps = Required< Pick< LocationsAttributes, 'max' | 'geoGranularity' > >;
+
 /**
- * Locations widget inner component. Reads report params from WidgetRoot context.
+ * Locations widget inner component. Reads report params from WidgetRoot
+ * context. Attributes arrive already normalized by the outer component, so
+ * defaults are applied in exactly one place.
  *
- * @param {LocationsAttributes} attributes - The widget attributes.
+ * @param {LocationsInnerProps} props - The normalized widget attributes.
  * @return The rendered widget content.
  */
-function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
+function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
 		Set< string >
@@ -94,7 +98,7 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 
 	const activeSelectedCountry = geoGranularity === 'country' ? selectedCountry : undefined;
 	const geoMode: GeoMode =
-		geoGranularity === 'country' && activeSelectedCountry ? 'region' : geoGranularity ?? 'country';
+		geoGranularity === 'country' && activeSelectedCountry ? 'region' : geoGranularity;
 
 	const {
 		data,
@@ -107,7 +111,7 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 		isPlaceholderData,
 	} = useLocationViews( {
 		reportParams,
-		max: max ?? 10,
+		max,
 		geoMode,
 		countryFilter: geoMode === 'region' ? activeSelectedCountry?.code : undefined,
 	} );
