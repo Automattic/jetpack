@@ -29,6 +29,15 @@ class Customize_Feed {
 	private static $registered = false;
 
 	/**
+	 * Enclosure URLs already emitted in the current feed render, keyed by post
+	 * ID then URL. Reset on `rss2_head` so each feed starts clean — see
+	 * {@see self::is_duplicate_enclosure()}.
+	 *
+	 * @var array<int, array<string, true>>
+	 */
+	private static $seen_enclosures = array();
+
+	/**
 	 * Wire the late-binding `wp` action that decides whether to register the
 	 * feed-modification hooks for this request. Idempotent.
 	 */
@@ -70,6 +79,7 @@ class Customize_Feed {
 		add_action( 'rss2_ns', array( __CLASS__, 'output_namespaces' ) );
 		add_filter( 'wp_title_rss', array( __CLASS__, 'feed_title' ) );
 		add_filter( 'bloginfo_rss', array( __CLASS__, 'feed_description' ), 10, 2 );
+		add_action( 'rss2_head', array( __CLASS__, 'reset_enclosure_dedup' ), 0 );
 		add_action( 'rss2_head', array( __CLASS__, 'output_channel_tags' ) );
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
@@ -242,6 +252,13 @@ class Customize_Feed {
 	 * `<itunes:duration>` when resolvable. Duration is looked up against the
 	 * *original* attachment URL — the stats URL is synthetic.
 	 *
+	 * A podcast item is only valid with a single `<enclosure>`, but core
+	 * `rss_enclosure()` emits one per `enclosure` post-meta row and posts
+	 * routinely accumulate several (URL drift across re-uploads / CDN hosts
+	 * that `do_enclose()`'s dedup treats as distinct). Rewriting keys on
+	 * post ID, so those rows all collapse to the same stats URL — we track
+	 * emitted URLs per item and drop repeats so the feed carries exactly one.
+	 *
 	 * @param string $enclosure Generated enclosure markup.
 	 * @return string
 	 */
@@ -253,6 +270,7 @@ class Customize_Feed {
 		}
 
 		$original_url = $match[1];
+		$final_url    = $original_url;
 		$post_obj     = $post instanceof WP_Post ? $post : null;
 
 		/**
@@ -283,7 +301,7 @@ class Customize_Feed {
 
 			// Bail when we can't resolve a real blog ID — emit the original URL rather than a guaranteed-404 stats URL.
 			if ( $blog_id > 0 ) {
-				$stats_url = self::build_stats_url( $blog_id, (int) $post_obj->ID, $original_url );
+				$final_url = esc_url( self::build_stats_url( $blog_id, (int) $post_obj->ID, $original_url ) );
 				$enclosure = preg_replace_callback(
 					'/url="[^"]*"/i',
 					/**
@@ -294,15 +312,24 @@ class Customize_Feed {
 					 * @param array $matches Regex matches.
 					 * @return string
 					 */
-					static function ( array $matches ) use ( $stats_url ) {
+					static function ( array $matches ) use ( $final_url ) {
 						unset( $matches );
-						return 'url="' . esc_url( $stats_url ) . '"';
+						return 'url="' . $final_url . '"';
 					},
 					$enclosure,
 					1
 				);
 			}
 		}
+
+		// Drop repeats: rows keyed per post, by final URL, so distinct enclosures
+		// survive while the duplicate stats URLs collapse to one. Registry is
+		// cleared per render — see `reset_enclosure_dedup()`.
+		$post_id = null !== $post_obj ? (int) $post_obj->ID : 0;
+		if ( isset( self::$seen_enclosures[ $post_id ][ $final_url ] ) ) {
+			return '';
+		}
+		self::$seen_enclosures[ $post_id ][ $final_url ] = true;
 
 		if ( 0 === $attachment_id ) {
 			return $enclosure;
@@ -314,6 +341,16 @@ class Customize_Feed {
 		return 0 === $duration
 			? $enclosure
 			: $enclosure . '<itunes:duration>' . $duration . "</itunes:duration>\n";
+	}
+
+	/**
+	 * Clear the per-render enclosure dedup registry. Hooked on `rss2_head` (at
+	 * priority 0, before any item renders) so re-generating a feed within a
+	 * single long-lived process — WP-CLI, a warm worker — starts fresh instead
+	 * of dropping every enclosure as already-seen.
+	 */
+	public static function reset_enclosure_dedup() {
+		self::$seen_enclosures = array();
 	}
 
 	/**

@@ -38,6 +38,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
 		Jetpack_Options::delete_option( 'id' );
+		Customize_Feed::reset_enclosure_dedup();
 		wp_cache_flush();
 		unset( $GLOBALS['post'] );
 		parent::tearDown();
@@ -340,6 +341,81 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', $result );
 		$this->assertStringNotContainsString( 'public-api.wordpress.com', $result );
+	}
+
+	/**
+	 * Core `rss_enclosure()` emits one `<enclosure>` per `enclosure` post-meta
+	 * row, and posts accumulate several as the source URL drifts across saves.
+	 * All rows rewrite to the same post-ID-keyed stats URL, so the second and
+	 * subsequent rows must be dropped — a valid podcast item has exactly one.
+	 */
+	public function test_rewrite_enclosure_drops_repeated_rows_that_collapse_to_same_stats_url() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'        => 4242,
+				'post_type' => 'post',
+			)
+		);
+
+		add_filter(
+			'wpcom_podcasting_tracked_blog_id',
+			static function () {
+				return 555;
+			}
+		);
+
+		// Two distinct source URLs — a re-upload / CDN-host drift — both
+		// resolve to real attachments and both rewrite to `.../4242.mp3`.
+		add_filter(
+			'pre_attachment_url_to_postid',
+			static function ( $pre, $url ) {
+				if ( 'https://i0.wp.com/example.com/episode.mp3' === $url ) {
+					return 8001;
+				}
+				if ( 'https://i1.wp.com/example.com/episode.mp3' === $url ) {
+					return 8002;
+				}
+				return $pre;
+			},
+			10,
+			2
+		);
+
+		$first  = Customize_Feed::rewrite_enclosure( '<enclosure url="https://i0.wp.com/example.com/episode.mp3" length="123" type="audio/mpeg" />' );
+		$second = Customize_Feed::rewrite_enclosure( '<enclosure url="https://i1.wp.com/example.com/episode.mp3" length="123" type="audio/mpeg" />' );
+
+		$this->assertStringContainsString(
+			'url="https://public-api.wordpress.com/wpcom/v2/sites/555/podcast-play/4242.mp3"',
+			$first
+		);
+		$this->assertSame( '', $second );
+	}
+
+	/**
+	 * The dedup registry is per feed render: `reset_enclosure_dedup()` (hooked
+	 * on `rss2_head`) clears it so re-generating the same feed within one
+	 * long-lived process emits enclosures again instead of dropping them all.
+	 */
+	public function test_reset_enclosure_dedup_lets_the_same_url_emit_on_a_fresh_render() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'        => 4242,
+				'post_type' => 'post',
+			)
+		);
+
+		add_filter( 'wpcom_podcasting_enable_play_tracking', '__return_false' );
+
+		$markup = '<enclosure url="https://example.com/episode.mp3" length="123" type="audio/mpeg" />';
+
+		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', Customize_Feed::rewrite_enclosure( $markup ) );
+		$this->assertSame( '', Customize_Feed::rewrite_enclosure( $markup ) );
+
+		Customize_Feed::reset_enclosure_dedup();
+
+		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', Customize_Feed::rewrite_enclosure( $markup ) );
 	}
 
 	public function test_resolve_category_id_prefers_numeric_id_over_archive_slug() {
