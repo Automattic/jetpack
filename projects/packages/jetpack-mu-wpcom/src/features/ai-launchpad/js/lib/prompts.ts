@@ -60,11 +60,22 @@ export const TASK_MENU: readonly string[] = [
  * inferred blob, task list, and first-post draft in one JSON response. Hard rules
  * mirror the server-side validation so valid output is not rejected.
  *
- * @param input - The collected wizard input.
+ * @param input            - The collected wizard input.
+ * @param availableTaskIds - Task ids that will render on this site+goal; the menu is filtered to these. Optional; the full menu is used when omitted or empty.
  * @return The prompt string.
  */
-export function buildTailorPrompt( input: WizardInput ): string {
+export function buildTailorPrompt(
+	input: WizardInput,
+	availableTaskIds?: readonly string[]
+): string {
 	const { goal, site_name, description } = input;
+
+	// Offer only tasks that will actually render on this site+goal, so the model never spends a pick on a task the
+	// server would drop. Falls back to the full menu when availability is unknown (e.g. the lookup failed).
+	const menu =
+		availableTaskIds && availableTaskIds.length
+			? TASK_MENU.filter( id => availableTaskIds.includes( id ) )
+			: TASK_MENU;
 
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
 
@@ -115,7 +126,7 @@ Write a friendly starter blog post the user can edit and publish.
 Treat the "Site name:" value above as THE ONLY brand/name to use anywhere - in the title, subtitle, paragraphs, and inferred.brand_name. It overrides any name mentioned inside the user description. If the description names a different brand, ignore it and use the "Site name:" value.
 
 ============ available task menu ============
-${ TASK_MENU.map( id => '- ' + id ).join( '\n' ) }
+${ menu.map( id => '- ' + id ).join( '\n' ) }
 
 ============ format ============
 Return only a JSON object matching this schema. Do not include prose, code fences, or commentary. The first character MUST be "{".

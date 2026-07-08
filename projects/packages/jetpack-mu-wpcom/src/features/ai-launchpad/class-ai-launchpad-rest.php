@@ -55,13 +55,16 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	);
 
 	/**
-	 * Tasks whose catalog visibility gate encodes an `IS_WPCOM`-only assumption the AI Launchpad overrides.
+	 * Tasks whose catalog visibility gate is a false negative in this read path, so the AI Launchpad overrides it.
 	 *
 	 * `add_10_email_subscribers` is gated off WordPress.com, but AI_Launchpad_Subscribers_Listener reads the count on
-	 * Atomic, so the task must still render and its visibility gate is skipped here.
+	 * Atomic, so the task must still render. `add_about_page` is gated on the `_wpcom_template_layout_category`
+	 * page-meta key being registered, which does not happen during a REST request, so the task is wrongly hidden even
+	 * though its "add a page" CTA works — force it visible so tailoring can offer this genuinely useful task.
 	 */
 	const FORCE_VISIBLE_TASK_IDS = array(
 		'add_10_email_subscribers',
+		'add_about_page',
 	);
 
 	/**
@@ -187,6 +190,26 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 							'type'              => 'string',
 							'default'           => 'en',
 							'sanitize_callback' => 'sanitize_text_field',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/available-tasks',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_available_tasks' ),
+					'permission_callback' => array( $this, 'can_read' ),
+					'args'                => array(
+						'goal' => array(
+							'description'       => 'The selected goal; sell keeps commerce tasks as available previews.',
+							'type'              => 'string',
+							'default'           => '',
+							'sanitize_callback' => 'sanitize_key',
 						),
 					),
 				),
@@ -784,13 +807,47 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Builds the enriched task list for every catalog task, bypassing the visibility gate (backs `?all_tasks=1`).
+	 * Read endpoint backing the client's availability-aware tailoring: the task ids that will render for the given
+	 * goal. Fetched before the AI call (which the wizard prewarms), so the prompt offers only renderable tasks.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return array
+	 */
+	public function get_available_tasks( $request ) {
+		return array( 'available_task_ids' => $this->available_task_ids( (string) $request['goal'] ) );
+	}
+
+	/**
+	 * The task ids that will actually render on this site for the given goal — the menu tailoring should choose from.
+	 *
+	 * Built by running the whole catalog through the real gate (visibility + force-visible overrides, and the sell
+	 * goal's woo-preview mode), so a task the AI could pick but the site would drop is never offered. The client
+	 * intersects this with its own TASK_MENU. Computed once per wizard submit.
+	 *
+	 * @param string $goal The inferred/selected goal.
+	 * @return string[]
+	 */
+	private function available_task_ids( $goal ) {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		// Sell keeps the commerce tasks as a disabled preview until WooCommerce is active, so they count as available.
+		$disable_hidden_woo = 'sell' === $goal && ! is_plugin_active( 'woocommerce/woocommerce.php' );
+
+		return array_column( $this->build_all_catalog_tasks( false, $disable_hidden_woo ), 'id' );
+	}
+
+	/**
+	 * Builds the enriched task list for every catalog task (backs `?all_tasks=1` when the gate is bypassed, and
+	 * available_task_ids() when it is not).
 	 *
 	 * Each task is enriched in isolation so one that can't be built is skipped rather than breaking the whole view.
 	 *
+	 * @param bool $bypass_visibility  Whether to skip the catalog visibility gate (the testing view does).
+	 * @param bool $disable_hidden_woo Whether hidden commerce tasks render as a disabled preview instead of dropping.
 	 * @return array
 	 */
-	private function build_all_catalog_tasks() {
+	private function build_all_catalog_tasks( $bypass_visibility = true, $disable_hidden_woo = false ) {
 		$built    = array();
 		$seen_ids = array();
 		foreach ( array_keys( wpcom_launchpad_get_task_definitions() ) as $task_id ) {
@@ -802,7 +859,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 							'subtitle' => $task_id,
 						),
 					),
-					true
+					$bypass_visibility,
+					null,
+					$disable_hidden_woo
 				);
 			} catch ( \Throwable $e ) {
 				continue;

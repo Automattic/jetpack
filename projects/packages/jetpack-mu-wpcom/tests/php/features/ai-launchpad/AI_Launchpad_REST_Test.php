@@ -398,6 +398,35 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The available-tasks endpoint advertises the tasks that will actually render on this site+goal, so tailoring can
+	 * pick only from renderable tasks. Woo tasks are gated off without WooCommerce, so a write list excludes them,
+	 * while a sell list keeps them (as previews) and so lists them as available.
+	 */
+	public function test_available_tasks_endpoint_is_goal_aware() {
+		wp_set_current_user( $this->admin_id );
+
+		$write = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'write' ) )->get_data();
+		$this->assertArrayHasKey( 'available_task_ids', $write );
+		$this->assertContains( 'first_post_published', $write['available_task_ids'] );
+		$this->assertNotContains( 'woo_products', $write['available_task_ids'], 'woo tasks are not available without a store on a write site' );
+
+		$sell = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'sell' ) )->get_data();
+		$this->assertContains( 'woo_products', $sell['available_task_ids'], 'sell keeps woo tasks as previews, so they are available' );
+	}
+
+	/**
+	 * The add_about_page task is hidden only by a REST-context quirk (its gate needs a page-template meta key that is
+	 * not registered during the request). It is force-visible, so it is offered as available.
+	 */
+	public function test_available_tasks_include_rescued_add_about_page() {
+		wp_set_current_user( $this->admin_id );
+
+		$data = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'write' ) )->get_data();
+
+		$this->assertContains( 'add_about_page', $data['available_task_ids'] );
+	}
+
+	/**
 	 * Test that GET keeps add_10_email_subscribers even though its catalog
 	 * visibility callback (wpcom_launchpad_are_newsletter_subscriber_counts_available)
 	 * is false off WordPress.com: the AI Launchpad retrieves the subscriber count
