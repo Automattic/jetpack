@@ -66,6 +66,43 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.getByText( '17' ) ).toBeInTheDocument();
 	} );
 
+	it( 'hides a metric tile toggled off in the widget settings', async () => {
+		render(
+			<SiteOverviewWidget
+				attributes={ {
+					reportParams: { from: '2026-03-01', to: '2026-03-10' },
+					showLikes: false,
+				} }
+			/>
+		);
+
+		await expect( screen.findByText( 'Views' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Visitors' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Comments' ) ).toBeInTheDocument();
+		// The Likes tile is toggled off, so neither its label nor its value renders.
+		expect( screen.queryByText( 'Likes' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '48' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'prompts to pick a metric when all tiles are toggled off', async () => {
+		render(
+			<SiteOverviewWidget
+				attributes={ {
+					reportParams: { from: '2026-03-01', to: '2026-03-10' },
+					showViews: false,
+					showVisitors: false,
+					showLikes: false,
+					showComments: false,
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'Select at least one metric to display.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Views' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'requests the dashboard date range from report params', async () => {
 		render(
 			<SiteOverviewWidget

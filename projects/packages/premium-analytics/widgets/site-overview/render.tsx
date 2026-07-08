@@ -26,6 +26,11 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type SiteOverviewRenderAttributes = SiteOverviewAttributes & Partial< ReportParamsFieldAttributes >;
 type SiteOverviewWidgetProps = WidgetRenderProps< SiteOverviewRenderAttributes >;
 
+/**
+ * The per-metric visibility flags from widget attributes, with defaults applied.
+ */
+type SiteOverviewReportProps = Required< SiteOverviewAttributes >;
+
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
 	options: { useMultipliers: true, decimals: 0 },
@@ -52,11 +57,18 @@ const METRICS = [
  *
  * When a comparison period is requested and returns data, each tile shows its
  * period-over-period change; the comparison total is looked up per metric so a
- * primary metric is never paired with a fabricated previous value.
+ * primary metric is never paired with a fabricated previous value. Which tiles
+ * appear is controlled by the per-metric visibility attributes.
  *
+ * @param {SiteOverviewReportProps} props - The component props.
  * @return The widget content.
  */
-function SiteOverviewReport() {
+function SiteOverviewReport( {
+	showViews,
+	showVisitors,
+	showLikes,
+	showComments,
+}: SiteOverviewReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const { primary, comparison, hasComparison, isLoading, isFetching, isError } =
@@ -87,6 +99,16 @@ function SiteOverviewReport() {
 		return map;
 	}, [ hasComparison, comparisonSummary ] );
 
+	// Drop tiles the user has toggled off in the widget settings, keeping the
+	// declared display order.
+	const enabledByKey: Record< string, boolean > = {
+		views: showViews,
+		visitors: showVisitors,
+		likes: showLikes,
+		comments: showComments,
+	};
+	const visibleMetrics = METRICS.filter( metric => enabledByKey[ metric.key ] );
+
 	let content;
 	if ( isError ) {
 		content = (
@@ -102,10 +124,16 @@ function SiteOverviewReport() {
 				<Text>{ __( 'No stats recorded for this period.', 'jetpack-premium-analytics' ) }</Text>
 			</div>
 		);
+	} else if ( visibleMetrics.length === 0 ) {
+		content = (
+			<div className={ styles.state }>
+				<Text>{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }</Text>
+			</div>
+		);
 	} else {
 		content = (
 			<div className={ styles.grid }>
-				{ METRICS.map( metric => (
+				{ visibleMetrics.map( metric => (
 					<div key={ metric.key } className={ styles.tile }>
 						<div className={ styles.tileHeader }>
 							<Icon className={ styles.tileIcon } icon={ metric.icon } size={ 24 } />
@@ -149,7 +177,12 @@ function SiteOverviewReport() {
 export default function SiteOverview( { attributes = {} }: SiteOverviewWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SiteOverviewReport />
+			<SiteOverviewReport
+				showViews={ attributes.showViews ?? true }
+				showVisitors={ attributes.showVisitors ?? true }
+				showLikes={ attributes.showLikes ?? true }
+				showComments={ attributes.showComments ?? true }
+			/>
 		</WidgetRoot>
 	);
 }
