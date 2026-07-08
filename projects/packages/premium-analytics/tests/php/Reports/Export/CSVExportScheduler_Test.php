@@ -10,7 +10,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -22,15 +22,15 @@ require_once __DIR__ . '/fixtures/class-fake-fetcher.php';
 require_once __DIR__ . '/fixtures/class-fake-generator.php';
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\CSVExportScheduler
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Csv_Export_Scheduler
  */
-#[CoversClass( CSVExportScheduler::class )]
+#[CoversClass( Csv_Export_Scheduler::class )]
 class CSVExportScheduler_Test extends TestCase {
 
 	/**
 	 * Scheduler under test.
 	 *
-	 * @var CSVExportScheduler
+	 * @var Csv_Export_Scheduler
 	 */
 	private $scheduler;
 
@@ -41,20 +41,20 @@ class CSVExportScheduler_Test extends TestCase {
 	 */
 	#[Before]
 	public function set_up_scheduler() {
-		$prop = new ReflectionProperty( ReportRegistry::class, 'instance' );
+		$prop = new ReflectionProperty( Report_Registry::class, 'instance' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$prop->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
 		}
 		$prop->setValue( null, null );
 
-		$registry = ReportRegistry::instance();
-		$registry->register_controller( new OrdersOverTimeController( $registry ) );
+		$registry = Report_Registry::instance();
+		$registry->register_controller( new Orders_Over_Time_Controller( $registry ) );
 
 		$logger          = new Spy_Logger();
-		$this->scheduler = new CSVExportScheduler(
+		$this->scheduler = new Csv_Export_Scheduler(
 			$registry,
-			new ReportDataFetcher( $logger ),
-			new ReportCSVGenerator( $logger ),
+			new Report_Data_Fetcher( $logger ),
+			new Report_Csv_Generator( $logger ),
 			new Fake_Email(),
 			$logger
 		);
@@ -82,14 +82,14 @@ class CSVExportScheduler_Test extends TestCase {
 	 *
 	 * @param mixed      $fetch_result The value the fake fetcher returns (array or WP_Error).
 	 * @param Fake_Email $email        The recording email double.
-	 * @return CSVExportScheduler
+	 * @return Csv_Export_Scheduler
 	 */
-	private function scheduler_with_fake_fetcher( $fetch_result, Fake_Email $email ): CSVExportScheduler {
-		$registry        = ReportRegistry::instance(); // Orders Over Time registered in set_up_scheduler().
+	private function scheduler_with_fake_fetcher( $fetch_result, Fake_Email $email ): Csv_Export_Scheduler {
+		$registry        = Report_Registry::instance(); // Orders Over Time registered in set_up_scheduler().
 		$logger          = new Spy_Logger();
 		$fetcher         = new Fake_Fetcher( $logger );
 		$fetcher->result = $fetch_result;
-		return new CSVExportScheduler( $registry, $fetcher, new Fake_Generator( $logger ), $email, $logger );
+		return new Csv_Export_Scheduler( $registry, $fetcher, new Fake_Generator( $logger ), $email, $logger );
 	}
 
 	public function test_process_export_job_emails_attachment_and_restores_user() {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for CSVExportEmail::send_export_email (attachment-only delivery).
+ * Tests for Csv_Export_Email::send_export_email (attachment-only delivery).
  *
  * @package automattic/jetpack-premium-analytics
  *
@@ -14,9 +14,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\CSVExportEmail
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Csv_Export_Email
  */
-#[CoversClass( CSVExportEmail::class )]
+#[CoversClass( Csv_Export_Email::class )]
 class CSVExportEmail_Test extends TestCase {
 
 	/**
@@ -43,7 +43,7 @@ class CSVExportEmail_Test extends TestCase {
 	}
 
 	public function test_send_attaches_csv_and_reports_success() {
-		$email = new CSVExportEmail();
+		$email = new Csv_Export_Email();
 		$path  = $this->make_file( "Month,Orders\n2026-01-01,5\n" );
 
 		$sent = $email->send_export_email(
@@ -63,7 +63,7 @@ class CSVExportEmail_Test extends TestCase {
 	}
 
 	public function test_send_fails_when_file_missing_and_does_not_email() {
-		$email = new CSVExportEmail();
+		$email = new Csv_Export_Email();
 
 		$sent = $email->send_export_email( 'admin@example.com', 'Orders', array(), '/does/not/exist.csv' );
 

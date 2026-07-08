@@ -4,7 +4,7 @@
  *
  * Hand-wires the CSV export subsystem (no DI container) and registers it, gated on
  * WooCommerce being active and Jetpack being connected. The data source is the package's
- * own analytics proxy (see ReportDataFetcher).
+ * own analytics proxy (see Report_Data_Fetcher).
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export
  */
@@ -14,8 +14,8 @@ declare( strict_types=1 );
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersOverTimeController;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\DebugLogger;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Debug_Logger;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -62,24 +62,24 @@ class Export {
 
 		self::$initialized = true;
 
-		$logger     = new DebugLogger( \wc_get_logger() );
-		$registry   = ReportRegistry::instance();
-		$fetcher    = new ReportDataFetcher( $logger );
-		$generator  = new ReportCSVGenerator( $logger );
-		$email      = new CSVExportEmail( $logger );
-		$scheduler  = new CSVExportScheduler( $registry, $fetcher, $generator, $email, $logger );
-		$controller = new CSVExportController( $registry, $fetcher, $generator, $scheduler, $logger );
+		$logger     = new Debug_Logger( \wc_get_logger() );
+		$registry   = Report_Registry::instance();
+		$fetcher    = new Report_Data_Fetcher( $logger );
+		$generator  = new Report_Csv_Generator( $logger );
+		$email      = new Csv_Export_Email( $logger );
+		$scheduler  = new Csv_Export_Scheduler( $registry, $fetcher, $generator, $email, $logger );
+		$controller = new Csv_Export_Controller( $registry, $fetcher, $generator, $scheduler, $logger );
 
-		// RegistrableInterface implementers: hook their routes / actions / email class.
+		// Registrable_Interface implementers: hook their routes / actions / email class.
 		$controller->register();
 		$scheduler->register();
 		$email->register();
 
-		// Report-type controllers self-register into the ReportRegistry on register().
+		// Report-type controllers self-register into the Report_Registry on register().
 		// Ported faithfully from woocommerce/woocommerce-analytics (develop). Additional
 		// report controllers are registered here as they land in follow-up changes.
 		$report_controllers = array(
-			OrdersOverTimeController::class,
+			Orders_Over_Time_Controller::class,
 		);
 
 		foreach ( $report_controllers as $report_controller ) {

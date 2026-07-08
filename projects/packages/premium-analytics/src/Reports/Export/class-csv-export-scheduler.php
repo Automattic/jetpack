@@ -13,8 +13,8 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
 
 /**
@@ -22,9 +22,9 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
  *
  * @since $$next-version$$
  */
-class CSVExportScheduler implements RegistrableInterface {
+class Csv_Export_Scheduler implements Registrable_Interface {
 
-	use LoggerTrait;
+	use Logger_Trait;
 	use Utilities;
 
 	/**
@@ -50,46 +50,46 @@ class CSVExportScheduler implements RegistrableInterface {
 	/**
 	 * Report registry instance.
 	 *
-	 * @var ReportRegistry
+	 * @var Report_Registry
 	 */
 	private $registry;
 
 	/**
 	 * Data fetcher instance.
 	 *
-	 * @var ReportDataFetcher
+	 * @var Report_Data_Fetcher
 	 */
 	private $data_fetcher;
 
 	/**
 	 * CSV generator instance.
 	 *
-	 * @var ReportCSVGenerator
+	 * @var Report_Csv_Generator
 	 */
 	private $csv_generator;
 
 	/**
 	 * Email sender instance.
 	 *
-	 * @var CSVExportEmail
+	 * @var Csv_Export_Email
 	 */
 	private $email_sender;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param ReportRegistry     $registry      The report registry.
-	 * @param ReportDataFetcher  $data_fetcher  The data fetcher.
-	 * @param ReportCSVGenerator $csv_generator The CSV generator.
-	 * @param CSVExportEmail     $email_sender  The email sender.
-	 * @param LoggerInterface    $logger        The logger.
+	 * @param Report_Registry      $registry      The report registry.
+	 * @param Report_Data_Fetcher  $data_fetcher  The data fetcher.
+	 * @param Report_Csv_Generator $csv_generator The CSV generator.
+	 * @param Csv_Export_Email     $email_sender  The email sender.
+	 * @param Logger_Interface     $logger        The logger.
 	 */
 	public function __construct(
-		ReportRegistry $registry,
-		ReportDataFetcher $data_fetcher,
-		ReportCSVGenerator $csv_generator,
-		CSVExportEmail $email_sender,
-		LoggerInterface $logger
+		Report_Registry $registry,
+		Report_Data_Fetcher $data_fetcher,
+		Report_Csv_Generator $csv_generator,
+		Csv_Export_Email $email_sender,
+		Logger_Interface $logger
 	) {
 		$this->registry      = $registry;
 		$this->data_fetcher  = $data_fetcher;

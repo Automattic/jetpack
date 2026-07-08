@@ -13,8 +13,8 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
 
 /**
@@ -32,9 +32,9 @@ if ( ! class_exists( 'WC_Email', false ) && function_exists( 'WC' ) ) {
  *
  * @since $$next-version$$
  */
-class CSVExportEmail extends \WC_Email implements RegistrableInterface {
+class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 
-	use LoggerTrait;
+	use Logger_Trait;
 	use Utilities;
 
 	/**
@@ -59,9 +59,9 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 	/**
 	 * Constructor.
 	 *
-	 * @param LoggerInterface|null $logger The logger instance.
+	 * @param Logger_Interface|null $logger The logger instance.
 	 */
-	public function __construct( ?LoggerInterface $logger = null ) {
+	public function __construct( ?Logger_Interface $logger = null ) {
 		$this->id             = 'csv_export_ready';
 		$this->title          = __( 'CSV Export Ready', 'jetpack-premium-analytics' );
 		$this->description    = __( 'Email sent, with the CSV attached, when a report export is ready.', 'jetpack-premium-analytics' );

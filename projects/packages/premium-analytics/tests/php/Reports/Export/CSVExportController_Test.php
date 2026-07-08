@@ -10,7 +10,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -22,15 +22,15 @@ require_once __DIR__ . '/fixtures/class-spy-logger.php';
 require_once __DIR__ . '/fixtures/class-fake-scheduler.php';
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\CSVExportController
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Csv_Export_Controller
  */
-#[CoversClass( CSVExportController::class )]
+#[CoversClass( Csv_Export_Controller::class )]
 class CSVExportController_Test extends TestCase {
 
 	/**
 	 * Controller under test.
 	 *
-	 * @var CSVExportController
+	 * @var Csv_Export_Controller
 	 */
 	private $controller;
 
@@ -48,21 +48,21 @@ class CSVExportController_Test extends TestCase {
 	 */
 	#[Before]
 	public function set_up_controller() {
-		$prop = new ReflectionProperty( ReportRegistry::class, 'instance' );
+		$prop = new ReflectionProperty( Report_Registry::class, 'instance' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$prop->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
 		}
 		$prop->setValue( null, null );
 
-		$registry = ReportRegistry::instance();
-		$registry->register_controller( new OrdersOverTimeController( $registry ) );
+		$registry = Report_Registry::instance();
+		$registry->register_controller( new Orders_Over_Time_Controller( $registry ) );
 
 		$logger           = new Spy_Logger();
 		$this->scheduler  = new Fake_Scheduler();
-		$this->controller = new CSVExportController(
+		$this->controller = new Csv_Export_Controller(
 			$registry,
-			new ReportDataFetcher( $logger ),
-			new ReportCSVGenerator( $logger ),
+			new Report_Data_Fetcher( $logger ),
+			new Report_Csv_Generator( $logger ),
 			$this->scheduler,
 			$logger
 		);

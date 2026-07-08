@@ -11,8 +11,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\CSVReportControllerInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\ReportRegistry;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Csv_Report_Controller_Interface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Report_Registry;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -25,7 +25,7 @@ class AllControllers_Test extends TestCase {
 	 */
 	public static function controller_provider(): array {
 		$classes = array(
-			OrdersOverTimeController::class,
+			Orders_Over_Time_Controller::class,
 		);
 
 		$cases = array();
@@ -35,8 +35,8 @@ class AllControllers_Test extends TestCase {
 		return $cases;
 	}
 
-	private function make( string $class ): CSVReportControllerInterface {
-		return new $class( ReportRegistry::instance() );
+	private function make( string $class ): Csv_Report_Controller_Interface {
+		return new $class( Report_Registry::instance() );
 	}
 
 	/**

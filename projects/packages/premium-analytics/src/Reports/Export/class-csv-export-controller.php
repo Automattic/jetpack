@@ -13,8 +13,8 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
 use WC_REST_Controller;
 use WP_Error;
@@ -26,9 +26,9 @@ use WP_REST_Response;
  *
  * @since $$next-version$$
  */
-class CSVExportController extends WC_REST_Controller implements RegistrableInterface {
+class Csv_Export_Controller extends WC_REST_Controller implements Registrable_Interface {
 
-	use LoggerTrait;
+	use Logger_Trait;
 	use Utilities;
 
 	/**
@@ -53,46 +53,46 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 	/**
 	 * Report registry instance.
 	 *
-	 * @var ReportRegistry
+	 * @var Report_Registry
 	 */
 	private $registry;
 
 	/**
 	 * Data fetcher instance.
 	 *
-	 * @var ReportDataFetcher
+	 * @var Report_Data_Fetcher
 	 */
 	private $data_fetcher;
 
 	/**
 	 * CSV generator instance.
 	 *
-	 * @var ReportCSVGenerator
+	 * @var Report_Csv_Generator
 	 */
 	private $csv_generator;
 
 	/**
 	 * Export scheduler instance.
 	 *
-	 * @var CSVExportScheduler
+	 * @var Csv_Export_Scheduler
 	 */
 	private $scheduler;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param ReportRegistry     $registry      The report registry.
-	 * @param ReportDataFetcher  $data_fetcher  The data fetcher.
-	 * @param ReportCSVGenerator $csv_generator The CSV generator.
-	 * @param CSVExportScheduler $scheduler     The export scheduler.
-	 * @param LoggerInterface    $logger        The logger.
+	 * @param Report_Registry      $registry      The report registry.
+	 * @param Report_Data_Fetcher  $data_fetcher  The data fetcher.
+	 * @param Report_Csv_Generator $csv_generator The CSV generator.
+	 * @param Csv_Export_Scheduler $scheduler     The export scheduler.
+	 * @param Logger_Interface     $logger        The logger.
 	 */
 	public function __construct(
-		ReportRegistry $registry,
-		ReportDataFetcher $data_fetcher,
-		ReportCSVGenerator $csv_generator,
-		CSVExportScheduler $scheduler,
-		LoggerInterface $logger
+		Report_Registry $registry,
+		Report_Data_Fetcher $data_fetcher,
+		Report_Csv_Generator $csv_generator,
+		Csv_Export_Scheduler $scheduler,
+		Logger_Interface $logger
 	) {
 		$this->namespace     = self::SLUG . '/v1';
 		$this->rest_base     = 'reports/csv-export';
@@ -417,7 +417,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		}
 
 		// Extract request parameters. Controller-specific additional params (date_type,
-		// orderby, limit, etc.) are merged once in ReportDataFetcher::fetch().
+		// orderby, limit, etc.) are merged once in Report_Data_Fetcher::fetch().
 		$params = array(
 			'from'         => $request->get_param( 'from' ),
 			'to'           => $request->get_param( 'to' ),

@@ -10,20 +10,20 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersOverTimeController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\OrdersOverTimeController
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller
  */
-#[CoversClass( OrdersOverTimeController::class )]
-#[CoversClass( AbstractCSVReportController::class )]
+#[CoversClass( Orders_Over_Time_Controller::class )]
+#[CoversClass( Abstract_Csv_Report_Controller::class )]
 class Controllers_Test extends TestCase {
 
-	private function orders(): OrdersOverTimeController {
-		return new OrdersOverTimeController( ReportRegistry::instance() );
+	private function orders(): Orders_Over_Time_Controller {
+		return new Orders_Over_Time_Controller( Report_Registry::instance() );
 	}
 
 	public function test_orders_metadata() {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Test double for CSVExportScheduler that records scheduled jobs without Action Scheduler.
+ * Test double for Csv_Export_Scheduler that records scheduled jobs without Action Scheduler.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
  * Fake scheduler: bypasses the parent constructor (and its dependencies) and
  * returns a canned job id (or WP_Error) so the controller's email path is testable.
  */
-class Fake_Scheduler extends CSVExportScheduler {
+class Fake_Scheduler extends Csv_Export_Scheduler {
 
 	/**
 	 * Recorded schedule_export() calls.
