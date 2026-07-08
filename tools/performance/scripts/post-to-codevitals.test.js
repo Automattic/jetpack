@@ -86,15 +86,37 @@ function formsSummary( { lcp = 300, ttfb = 200, fcp = 500, decodedBytesKB = 8229
 }
 
 /**
+ * Build the nested per-field summary the myJetpack scenario reads: the same shape as
+ * formsSummary (three timing fields + the bundle-size field), with defaults in the
+ * observed My Jetpack magnitude so all four post cleanly unless a test overrides one.
+ */
+function myJetpackSummary( { lcp = 640, ttfb = 220, fcp = 560, decodedBytesKB = 5860 } = {} ) {
+	return {
+		median: lcp,
+		lcp: { median: lcp },
+		ttfb: { median: ttfb },
+		fcp: { median: fcp },
+		decodedBytesKB: { median: decodedBytesKB },
+	};
+}
+
+/**
  * Write a results fixture and return its path. `median` is the LCP median (kept as the
  * first positional arg so existing single-arg call sites read the same); TTFB and FCP
  * default to in-range values so the two new metrics post cleanly unless overridden. Pass
- * `forms` (an object of field overrides) to also include a `formsResponses` measurement; omit
- * it and only `jetpackConnected` is written, exactly as before.
+ * `forms` and/or `myJetpack` (objects of field overrides) to also include those measurements;
+ * omit both and only `jetpackConnected` is written, exactly as before.
  */
 function writeResults(
 	median,
-	{ ttfb = 150, fcp = 400, hash = 'testhash', branch = 'trunk', forms = null } = {}
+	{
+		ttfb = 150,
+		fcp = 400,
+		hash = 'testhash',
+		branch = 'trunk',
+		forms = null,
+		myJetpack = null,
+	} = {}
 ) {
 	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-results-' ) );
 	const file = path.join( dir, 'results.json' );
@@ -103,6 +125,9 @@ function writeResults(
 	};
 	if ( forms ) {
 		measurements.formsResponses = { summary: formsSummary( forms ) };
+	}
+	if ( myJetpack ) {
+		measurements.myJetpack = { summary: myJetpackSummary( myJetpack ) };
 	}
 	fs.writeFileSync( file, JSON.stringify( { git: { hash, branch }, measurements } ) );
 	return file;
@@ -520,11 +545,12 @@ test( 'the myJetpack scenario posts LCP, TTFB, FCP and decodedBytes to productio
 	// page (e.g. to the onboarding step) cannot quietly populate the My Jetpack keys.
 	assert.equal( scenario.expectUrlIncludes, 'page=my-jetpack' );
 	// A resource-count floor so a partial capture can't post an undercounted decodedBytesKB.
-	// Kept below the typical ~90-resource load so it never clips a legitimate bundle drop.
-	assert.ok(
-		scenario.minResourceCount >= 40 && scenario.minResourceCount < 90,
-		'myJetpack must declare a resource-count floor of >=40 and below the typical ~90-resource load'
-	);
+	// Pin the exact value (siblings pin every field by equality) so a later edit toward the
+	// ~90-resource load can't erode the margin silently, and exercise the real guard at the
+	// boundary: one below the floor must throw, the floor itself must not.
+	assert.equal( scenario.minResourceCount, 64 );
+	assert.throws( () => assertCaptureComplete( { totalRequests: 63 }, scenario ) );
+	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 64 }, scenario ) );
 } );
 
 // --- redactToken (keeps the token out of logs and errors) ---
@@ -568,6 +594,25 @@ test( 'dry-run with both scenarios present posts all 7 keys, including the Forms
 	assert.equal( result.payload.metrics[ FORMS_FCP_KEY ], 500 );
 	assert.equal( result.payload.metrics[ FORMS_DECODED_KEY ], 8229 );
 	assert.equal( Object.keys( result.payload.metrics ).length, 7 );
+} );
+
+test( 'dry-run with all three scenarios present posts all 11 keys, including the My Jetpack decoded-bytes key', async () => {
+	// The full automated run measures all three scenarios, so the payload carries jetpackConnected's
+	// 3 timing keys, formsResponses' 4, AND myJetpack's 4 (timing + decodedBytesKB). The config test
+	// pins the myJetpack keys statically; this proves they reach the payload with the right values
+	// under the exact production key names, so a wiring regression in the scenario-agnostic loop
+	// (a dropped/renamed myJetpack metric) fails here rather than silently in the append-only store.
+	const file = writeResults( 120, {
+		forms: { decodedBytesKB: 8229 },
+		myJetpack: { lcp: 640, ttfb: 220, fcp: 560, decodedBytesKB: 5860 },
+	} );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.validationFailed, false );
+	assert.equal( result.payload.metrics[ MJ_LCP_KEY ], 640 );
+	assert.equal( result.payload.metrics[ MJ_TTFB_KEY ], 220 );
+	assert.equal( result.payload.metrics[ MJ_FCP_KEY ], 560 );
+	assert.equal( result.payload.metrics[ MJ_DECODED_KEY ], 5860 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 11 );
 } );
 
 test( 'a live run with an out-of-range Forms decodedBytesKB posts nothing and never calls fetch', async () => {

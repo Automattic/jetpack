@@ -128,12 +128,14 @@ export const SCENARIOS = [
 		envVar: 'WP_JETPACK_CONNECTED_URL',
 		defaultUrl: 'http://localhost:8083',
 		header: 'My Jetpack (simulated WP.com connection)',
-		// The My Jetpack admin page — the heaviest Jetpack admin bundle. PHP emits an empty
+		// The My Jetpack admin page - the heaviest Jetpack admin bundle. PHP emits an empty
 		// `<div id="my-jetpack-container">` and React (createRoot) renders MyJetpackScreen into
 		// it, so measure-lcp.js waits for the AdminPage frame (`.jp-admin-page`, a non-hashed
-		// class from @automattic/jetpack-components) to appear AND the container to hydrate
-		// (gain children) before measuring — the empty shell would otherwise mismeasure LCP and
-		// undercount the bundle payload.
+		// class from @automattic/jetpack-components) to appear so a run measures the rendered app,
+		// not the empty shell. The load-bearing completeness gate is the networkidle wait that
+		// follows (the async product cards land after the frame), not the frame selector itself:
+		// `.jp-admin-page` renders with its children in one commit, so its presence is not a proxy
+		// for the bundle having finished loading.
 		//
 		// Requires offline mode OFF (Status::is_offline_mode() gates
 		// Initializer::should_initialize(); localhost has no dot so the fixture is "local" =
