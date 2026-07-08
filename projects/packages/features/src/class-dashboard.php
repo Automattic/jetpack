@@ -70,6 +70,8 @@ class Dashboard {
 			wp_die( esc_html__( 'You do not have permission to view this page.', 'jetpack-features' ) );
 		}
 
+		Features::ensure_registered();
+
 		$registry = Registry::instance();
 		$env      = $registry->environment();
 		$resolver = new Status_Resolver();
