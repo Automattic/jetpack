@@ -8,7 +8,6 @@
  */
 
 use Automattic\Jetpack\Publicize\Connections;
-use Automattic\Jetpack\Publicize\Publicize_Utils;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once __DIR__ . '/fixtures/social-stubs.php';
@@ -31,9 +30,8 @@ class AI_Launchpad_Social_Listener_Test extends \WorDBless\BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 		wpcom_register_default_launchpad_checklists();
-		Publicize_Utils::$active = false;
-		Connections::$all        = array();
-		$_GET['page']            = 'site-setup-wp-admin';
+		Connections::$all = array();
+		$_GET['page']     = 'site-setup-wp-admin';
 	}
 
 	/**
@@ -107,10 +105,10 @@ class AI_Launchpad_Social_Listener_Test extends \WorDBless\BaseTestCase {
 	public function test_pre_remap_post_sharing_output_completes_connection_task() {
 		$task_lists = wpcom_launchpad_checklists();
 
-		// The sharing module is active (the wpcom default) but no connection exists:
-		// nothing may complete — post_sharing_enabled used to be born-completed here.
+		// A pre-remap output that selected post_sharing_enabled, but no connection exists:
+		// nothing may complete — post_sharing_enabled used to be born-completed here off the
+		// always-on module-active signal, which the listener no longer consults.
 		$this->seed_tasks( array( 'post_sharing_enabled' ) );
-		Publicize_Utils::$active = true;
 		AI_Launchpad_Social_Listener::maybe_complete_social_tasks();
 		$this->assertFalse( $task_lists->is_task_id_complete( 'post_sharing_enabled' ) );
 		$this->assertFalse( $task_lists->is_task_id_complete( 'connect_social_media' ) );

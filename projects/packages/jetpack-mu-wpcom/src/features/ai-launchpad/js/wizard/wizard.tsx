@@ -119,7 +119,7 @@ export function Wizard( {
 		}
 		let siteHost = window.location.hostname;
 		try {
-			siteHost = siteUrl ? new URL( siteUrl ).host : siteHost;
+			siteHost = siteUrl ? new URL( siteUrl ).hostname : siteHost;
 		} catch {
 			// Malformed site URL: keep the request host.
 		}
