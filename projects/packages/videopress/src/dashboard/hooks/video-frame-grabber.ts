@@ -35,9 +35,12 @@ export interface FrameGrabber {
 /**
  * Create a FrameGrabber over a hidden <video> element.
  *
- * Known v1 limitation: there is no per-step timeout, so a seek the browser
- * never answers keeps the element alive until its promise settles (the
- * orchestrator only observes cancellation between steps).
+ * There is deliberately no timeout at this layer: the extraction pool
+ * (frame-extraction-pool.ts) races every load/seek against its per-seek
+ * timeout, fails that one frame, and revokes any URL a late-settling grab
+ * produces afterwards. A superseding grabFrame call re-assigns currentTime,
+ * which per the media spec cancels the abandoned seek; its stale 'seeked'
+ * waiter resolves on the new seek's event and self-removes.
  *
  * @param src - The video source URL (already token-signed when private).
  * @return The grabber.

@@ -4,29 +4,41 @@
  * Resolution order: GET /wpcom/v2/videopress/{guid}/storyboard first — a
  * server-generated tile sprite (the local mock always 404s today; the shape
  * is future-proofed in types/edits.ts). Client-side extraction second — a
- * hidden <video> on the (token-signed when private) sourceUrl is seeked
- * sequentially through evenly spaced midpoints; each frame is drawn onto one
- * reused small canvas, encoded to a JPEG blob, and kept as an object URL.
- * Anything failing along the way (no playable source, media error,
- * CORS-tainted canvas) resolves to { status: 'unavailable' } — never a
- * thrown error — and the timeline keeps its neutral placeholder.
+ * per-video frame-extraction pool (frame-extraction-pool.ts) seeks a hidden
+ * <video> on the (token-signed when private) sourceUrl through evenly spaced
+ * midpoints, one seek at a time; each frame is drawn onto one reused small
+ * canvas, encoded to a JPEG blob, and kept as an object URL. Anything
+ * failing along the way (no playable source, media error, CORS-tainted
+ * canvas, hung seeks) resolves to { status: 'unavailable' } — never a thrown
+ * error — and the timeline keeps its neutral placeholder.
  *
- * Results are cached per guid with staleTime Infinity, so the strip survives
- * remounts for the whole session. Extraction frames' object URLs are revoked
- * when their cache entry is dropped; a partial extraction cancelled by
- * unmount revokes whatever it had grabbed and caches nothing.
+ * Ownership: the pool lives for the hook's lifetime (destroyed on unmount or
+ * guid change, revoking whatever it still holds). A COMPLETED batch is
+ * detached from the pool and handed to the react-query cache — cached per
+ * guid with staleTime Infinity, so the strip survives remounts for the whole
+ * session; those object URLs are revoked when their cache entry is dropped.
+ * A partial extraction cancelled by unmount caches nothing and its frames
+ * die with the pool.
  */
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { createFrameExtractionPool } from './frame-extraction-pool';
 import { usePlaybackToken } from './use-poster-url';
 import { createVideoFrameGrabber } from './video-frame-grabber';
+import type { FrameExtractionPool } from './frame-extraction-pool';
 import type { FrameGrabber } from './video-frame-grabber';
 import type { Storyboard } from '../types/edits';
 import type { LibraryItem } from '../types/library';
 import type { QueryClient } from '@tanstack/react-query';
 
 export type { FrameGrabber } from './video-frame-grabber';
+export { createFrameExtractionPool } from './frame-extraction-pool';
+export type {
+	FrameExtractionPool,
+	FrameExtractionPoolOptions,
+	FrameSlot,
+} from './frame-extraction-pool';
 
 /** Root query key for the per-video filmstrip. */
 export const FILMSTRIP_QUERY_KEY = 'vp-filmstrip';
@@ -74,50 +86,101 @@ function revokeFrames( frames: string[] ): void {
 }
 
 /**
- * Run a full extraction against a grabber: load the media, then grab every
- * requested time sequentially (earliest first — the strip fills left to
- * right). Returns null — after revoking any partial frames — when the
- * grabber fails at any step; re-throws only when `signal` aborted, so a
- * cancellation is never cached as 'unavailable'. The grabber is always
- * destroyed.
+ * Throw the abort reason (or a fresh AbortError) when the signal is aborted.
  *
- * @param grabber - The frame grabber.
+ * @param signal - The cancellation signal, if any.
+ */
+function throwIfAborted( signal?: AbortSignal ): void {
+	if ( signal?.aborted ) {
+		throw signal.reason instanceof Error
+			? signal.reason
+			: new DOMException( 'The filmstrip extraction was cancelled.', 'AbortError' );
+	}
+}
+
+/**
+ * Run a full batch extraction against a pool: request every time (the pool
+ * seeks strictly sequentially, earliest first — the strip fills left to
+ * right) and wait for all of them to settle. On full success the URLs are
+ * DETACHED from the pool — ownership passes to the caller (the react-query
+ * cache and its drop listener). Resolves null when any frame fails,
+ * cancelling whatever is still queued; partial frames stay pooled and die
+ * with the pool. Rejects only when `signal` aborts, so a cancellation is
+ * never cached as 'unavailable'.
+ *
+ * @param pool    - The frame-extraction pool.
  * @param timesMs - Frame times in ms, in the order they should be grabbed.
  * @param signal  - Optional cancellation signal (react-query's queryFn signal).
  * @return Object URLs in `timesMs` order, or null when extraction failed.
  */
 export async function extractFilmstripFrames(
-	grabber: FrameGrabber,
+	pool: FrameExtractionPool,
 	timesMs: number[],
 	signal?: AbortSignal
 ): Promise< string[] | null > {
-	const throwIfAborted = () => {
-		if ( signal?.aborted ) {
-			throw signal.reason instanceof Error
-				? signal.reason
-				: new DOMException( 'The filmstrip extraction was cancelled.', 'AbortError' );
-		}
-	};
-	const frames: string[] = [];
-	try {
-		throwIfAborted();
-		await grabber.load();
-		for ( const timeMs of timesMs ) {
-			throwIfAborted();
-			// Sequential on purpose: one shared <video> can only sit on one
-			// seek position at a time.
-			frames.push( await grabber.grabFrame( timeMs ) );
-		}
-		return frames;
-	} catch ( error ) {
-		revokeFrames( frames );
-		if ( signal?.aborted ) {
-			throw error;
-		}
-		return null;
-	} finally {
-		grabber.destroy();
-	}
+	throwIfAborted( signal );
+
+	return new Promise< string[] | null >( ( resolve, reject ) => {
+		let settled = false;
+		let unsubscribe = () => {};
+		const finish = () => {
+			settled = true;
+			unsubscribe();
+			signal?.removeEventListener( 'abort', onAbort );
+		};
+		const pendingTimes = () => {
+			const pending: number[] = [];
+			pool.peekFrames( timesMs ).forEach( ( slot, ms ) => {
+				if ( slot.status === 'pending' ) {
+					pending.push( ms );
+				}
+			} );
+			return pending;
+		};
+		const onAbort = () => {
+			if ( settled ) {
+				return;
+			}
+			// Stop seeking times nobody will consume; frames already grabbed
+			// stay pooled and are revoked when the pool is destroyed.
+			pool.cancelFrames( pendingTimes() );
+			finish();
+			try {
+				throwIfAborted( signal );
+			} catch ( error ) {
+				reject( error );
+			}
+		};
+		const check = () => {
+			if ( settled ) {
+				return;
+			}
+			const slots = pool.peekFrames( timesMs );
+			const pending: number[] = [];
+			let failed = false;
+			slots.forEach( ( slot, ms ) => {
+				if ( slot.status === 'pending' ) {
+					pending.push( ms );
+				} else if ( slot.status === 'failed' ) {
+					failed = true;
+				}
+			} );
+			if ( failed ) {
+				pool.cancelFrames( pending );
+				finish();
+				resolve( null );
+				return;
+			}
+			if ( pending.length === 0 ) {
+				finish();
+				resolve( pool.takeFrames( timesMs ) );
+			}
+		};
+		unsubscribe = pool.subscribe( check );
+		signal?.addEventListener( 'abort', onAbort );
+		pool.requestFrames( timesMs );
+		check();
+	} );
 }
 
 /**
@@ -206,6 +269,40 @@ export function useFilmstrip(
 
 	useEffect( () => attachRevokeOnCacheDrop( queryClient ), [ queryClient ] );
 
+	// One extraction pool (and thus one hidden <video>) per mounted hook,
+	// created lazily by the first extraction and destroyed — revoking every
+	// frame it still owns — on unmount or guid change.
+	const poolRef = useRef< { guid: string; pool: FrameExtractionPool } | null >( null );
+	useEffect( () => {
+		return () => {
+			poolRef.current?.pool.destroy();
+			poolRef.current = null;
+		};
+	}, [ guid ] );
+
+	/**
+	 * Return this video's pool, creating it on first use. Only reachable from
+	 * a live queryFn (stale ones throw on their aborted signal first), so a
+	 * ref entry for another guid is a leftover the cleanup effect is about to
+	 * drop anyway — replace it defensively.
+	 *
+	 * @param src - The (token-signed when private) extraction source URL.
+	 * @return The pool.
+	 */
+	const getPool = ( src: string ): FrameExtractionPool => {
+		if ( poolRef.current && poolRef.current.guid !== guid ) {
+			poolRef.current.pool.destroy();
+			poolRef.current = null;
+		}
+		if ( ! poolRef.current ) {
+			poolRef.current = {
+				guid,
+				pool: createFrameExtractionPool( { createGrabber: () => createGrabber( src ) } ),
+			};
+		}
+		return poolRef.current.pool;
+	};
+
 	// eslint-disable-next-line @tanstack/query/exhaustive-deps -- the guid fully identifies the filmstrip; source URL, token, and duration are transport details of the same video and must not fork or refetch the cached strip.
 	const query = useQuery< Filmstrip >( {
 		queryKey: [ FILMSTRIP_QUERY_KEY, guid ],
@@ -236,8 +333,10 @@ export function useFilmstrip(
 				return UNAVAILABLE;
 			}
 			const src = isPrivate ? `${ sourceUrl }?metadata_token=${ token }` : sourceUrl;
+			// A cancelled query must not create a pool nothing will destroy.
+			throwIfAborted( signal );
 			const frames = await extractFilmstripFrames(
-				createGrabber( src ),
+				getPool( src ),
 				pickFrameTimes( durationMs ),
 				signal
 			);

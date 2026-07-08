@@ -4,6 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
 import { makeLibraryItem } from '../../test-utils/library-item';
 import {
+	createFrameExtractionPool,
 	extractFilmstripFrames,
 	FILMSTRIP_QUERY_KEY,
 	MAX_FILMSTRIP_FRAMES,
@@ -11,6 +12,7 @@ import {
 	useFilmstrip,
 } from '../use-filmstrip';
 import type { Storyboard } from '../../types/edits';
+import type { FrameExtractionPool } from '../use-filmstrip';
 import type { FrameGrabber } from '../video-frame-grabber';
 
 jest.mock( '@wordpress/api-fetch', () => ( {
@@ -95,6 +97,27 @@ function makeStoryboard( overrides: Partial< Storyboard > = {} ): Storyboard {
 }
 
 /**
+ * Wrap a fake grabber in a single-use extraction pool, the shape
+ * extractFilmstripFrames consumes.
+ *
+ * @param grabber - The fake grabber the pool should drive.
+ * @return The pool.
+ */
+function makePool( grabber: FrameGrabber ): FrameExtractionPool {
+	return createFrameExtractionPool( { createGrabber: () => grabber } );
+}
+
+/**
+ * Drain chained promise continuations (the pool settles frames over several
+ * microtask turns).
+ */
+async function flushMicrotasks(): Promise< void > {
+	for ( let i = 0; i < 20; i++ ) {
+		await Promise.resolve();
+	}
+}
+
+/**
  * Create an isolated QueryClient and a React wrapper component for renderHook.
  *
  * @return An object containing the client and wrapper component.
@@ -127,41 +150,58 @@ describe( 'pickFrameTimes', () => {
 } );
 
 describe( 'extractFilmstripFrames', () => {
-	it( 'loads, grabs every time sequentially, destroys, and returns ordered URLs', async () => {
+	it( 'loads, grabs every time sequentially, keeps the grabber, and returns ordered URLs', async () => {
 		const grabber = makeFakeGrabber();
+		const pool = makePool( grabber );
 
-		const frames = await extractFilmstripFrames( grabber, [ 500, 1500, 2500 ] );
+		const frames = await extractFilmstripFrames( pool, [ 500, 1500, 2500 ] );
 
 		expect( frames ).toEqual( [ 'blob:frame-0', 'blob:frame-1', 'blob:frame-2' ] );
-		expect( grabber.log ).toEqual( [ 'load', 'grab:500', 'grab:1500', 'grab:2500', 'destroy' ] );
+		// The grabber survives the batch — it is the pool's to destroy.
+		expect( grabber.log ).toEqual( [ 'load', 'grab:500', 'grab:1500', 'grab:2500' ] );
+		expect( revokeObjectURL ).not.toHaveBeenCalled();
+
+		// A completed batch is detached from the pool (ownership moved to the
+		// caller), so destroying the pool releases the grabber but revokes
+		// none of the returned URLs.
+		pool.destroy();
+		expect( grabber.log ).toContain( 'destroy' );
 		expect( revokeObjectURL ).not.toHaveBeenCalled();
 	} );
 
-	it( 'returns null, revokes partial frames, and destroys when a grab fails', async () => {
+	it( 'returns null and stops grabbing when a grab fails; partials die with the pool', async () => {
 		const grabber = makeFakeGrabber( { failAtIndex: 2 } );
+		const pool = makePool( grabber );
 
-		const frames = await extractFilmstripFrames( grabber, [ 100, 200, 300, 400 ] );
+		const frames = await extractFilmstripFrames( pool, [ 100, 200, 300, 400 ] );
 
 		expect( frames ).toBeNull();
+		// The failure cancelled the still-queued time.
+		expect( grabber.log ).not.toContain( 'grab:400' );
+		// Partial frames stay pooled (reusable) until the pool is destroyed.
+		expect( revokeObjectURL ).not.toHaveBeenCalled();
+		pool.destroy();
 		expect( revokeObjectURL.mock.calls.map( call => call[ 0 ] ) ).toEqual( [
 			'blob:frame-0',
 			'blob:frame-1',
 		] );
-		expect( grabber.log ).not.toContain( 'grab:400' );
 		expect( grabber.log ).toContain( 'destroy' );
 	} );
 
 	it( 'returns null without grabbing when the media fails to load', async () => {
 		const grabber = makeFakeGrabber( { failLoad: true } );
+		const pool = makePool( grabber );
 
-		const frames = await extractFilmstripFrames( grabber, [ 100, 200 ] );
+		const frames = await extractFilmstripFrames( pool, [ 100, 200 ] );
 
 		expect( frames ).toBeNull();
+		// A grabber whose media never loads is torn down so a later request
+		// can retry with a fresh one.
 		expect( grabber.log ).toEqual( [ 'load', 'destroy' ] );
 		expect( revokeObjectURL ).not.toHaveBeenCalled();
 	} );
 
-	it( 'stops at the abort point, revokes grabbed frames, and re-throws', async () => {
+	it( 'stops at the abort point and re-throws; grabbed frames die with the pool', async () => {
 		const controller = new AbortController();
 		const grabber = makeFakeGrabber( {
 			onGrab: ( _timeMs, index ) => {
@@ -170,15 +210,19 @@ describe( 'extractFilmstripFrames', () => {
 				}
 			},
 		} );
+		const pool = makePool( grabber );
 
 		await expect(
-			extractFilmstripFrames( grabber, [ 100, 200, 300 ], controller.signal )
+			extractFilmstripFrames( pool, [ 100, 200, 300 ], controller.signal )
 		).rejects.toThrow();
 
-		// The first grab completed before the abort was observed; it is revoked
-		// and the remaining times are never attempted.
-		expect( revokeObjectURL ).toHaveBeenCalledWith( 'blob:frame-0' );
+		// The abort cancelled the queued times; the in-flight grab settles
+		// into the pool and is revoked when the pool is destroyed.
+		await flushMicrotasks();
 		expect( grabber.log ).not.toContain( 'grab:200' );
+		expect( revokeObjectURL ).not.toHaveBeenCalled();
+		pool.destroy();
+		expect( revokeObjectURL ).toHaveBeenCalledWith( 'blob:frame-0' );
 		expect( grabber.log ).toContain( 'destroy' );
 	} );
 } );
@@ -344,16 +388,19 @@ describe( 'useFilmstrip', () => {
 		} );
 		await waitFor( () => expect( release ).toBeDefined() );
 
-		// Unmount aborts the consumed query signal; the orchestrator observes
-		// it after the gated grab settles.
+		// Unmount destroys the pool (revoking the frame it holds and releasing
+		// the grabber) and aborts the consumed query signal; the gated grab
+		// settles afterwards and its URL is revoked instead of leaking.
 		unmount();
+		expect( grabber.log ).toContain( 'destroy' );
 		release?.();
 
-		await waitFor( () => expect( grabber.log ).toContain( 'destroy' ) );
-		expect( revokeObjectURL.mock.calls.map( call => call[ 0 ] ) ).toEqual( [
-			'blob:frame-0',
-			'blob:frame-1',
-		] );
+		await waitFor( () =>
+			expect( revokeObjectURL.mock.calls.map( call => call[ 0 ] ) ).toEqual( [
+				'blob:frame-0',
+				'blob:frame-1',
+			] )
+		);
 		// The third frame was never attempted.
 		expect( grabber.log.filter( entry => entry.startsWith( 'grab:' ) ) ).toHaveLength( 2 );
 	} );

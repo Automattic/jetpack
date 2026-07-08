@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress Studio: rebuild timeline frame extraction on a persistent per-video pool — one reused hidden video with a prioritized sequential seek queue, per-seek timeouts, and an LRU object-URL cache — groundwork for sub-interval filmstrip zoom.
