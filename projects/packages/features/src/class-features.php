@@ -22,8 +22,16 @@ class Features {
 	private static $did_init = false;
 
 	/**
-	 * Bind the Jetpack environment, trigger feature registration, and (flag-gated) register CLI.
-	 * Safe to call more than once.
+	 * Whether feature registration has already run.
+	 *
+	 * @var bool
+	 */
+	private static $did_register = false;
+
+	/**
+	 * Bind the Jetpack environment and (flag-gated) register the CLI command and dashboard.
+	 * Feature registration itself is deferred to first use — see ensure_registered() — so
+	 * requests that never read the catalog do no catalog work. Safe to call more than once.
 	 */
 	public static function init() {
 		if ( self::$did_init ) {
@@ -32,8 +40,6 @@ class Features {
 		self::$did_init = true;
 
 		Registry::instance()->set_environment( new Jetpack_Environment() );
-
-		add_action( 'plugins_loaded', array( __CLASS__, 'register_features' ), 20 );
 
 		if ( self::is_enabled() ) {
 			Dashboard::register();
@@ -45,9 +51,16 @@ class Features {
 	}
 
 	/**
-	 * Fire the registration hook so each owner can require its features.php.
+	 * Register all features on first use. Idempotent — a consumer (CLI, dashboard, REST)
+	 * calls this immediately before it reads the catalog, so registration only happens when
+	 * the catalog is actually looked at, never on plain page loads.
 	 */
-	public static function register_features() {
+	public static function ensure_registered() {
+		if ( self::$did_register ) {
+			return;
+		}
+		self::$did_register = true;
+
 		/**
 		 * Register features into the catalog. Handlers should only call register_feature().
 		 */
