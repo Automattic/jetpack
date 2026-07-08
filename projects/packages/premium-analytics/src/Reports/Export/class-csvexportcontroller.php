@@ -318,7 +318,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		// Check if compare_to date is provided and validate the relationship.
 		$compare_to = $request->get_param( 'compare_to' );
 		if ( $compare_to ) {
-			return $this->validate_compare_period( $value, $compare_to, $request );
+			return $this->validate_compare_period( $value, $compare_to );
 		}
 
 		// If compare_from is provided but compare_to is not, return error.
@@ -361,7 +361,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		// Check if compare_from date is provided and validate the relationship.
 		$compare_from = $request->get_param( 'compare_from' );
 		if ( $compare_from ) {
-			return $this->validate_compare_period( $compare_from, $value, $request );
+			return $this->validate_compare_period( $compare_from, $value );
 		}
 
 		// If compare_to is provided but compare_from is not, return error.
@@ -373,14 +373,18 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 	}
 
 	/**
-	 * Validate comparison period dates and duration.
+	 * Validate the comparison period date order.
 	 *
-	 * @param string          $compare_from The compare_from date.
-	 * @param string          $compare_to   The compare_to date.
-	 * @param WP_REST_Request $request      The request object.
+	 * The comparison window does not need to match the original period length: the merge
+	 * strategies align by position (time-series) or matching field (ranked) and pad any
+	 * gap, so uneven windows are handled downstream without a strict length check (which
+	 * also mis-rejected DST-crossing ranges compared by raw seconds).
+	 *
+	 * @param string $compare_from The compare_from date.
+	 * @param string $compare_to   The compare_to date.
 	 * @return bool|WP_Error True if valid, WP_Error otherwise.
 	 */
-	private function validate_compare_period( string $compare_from, string $compare_to, WP_REST_Request $request ) {
+	private function validate_compare_period( string $compare_from, string $compare_to ) {
 		$compare_from_timestamp = strtotime( $compare_from );
 		$compare_to_timestamp   = strtotime( $compare_to );
 
@@ -390,23 +394,6 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 				__( 'The "compare_from" date must be before the "compare_to" date.', 'jetpack-premium-analytics' ),
 				array( 'status' => 400 )
 			);
-		}
-
-		// Validate that comparison period length matches original period length.
-		$from_date = $request->get_param( 'from' );
-		$to_date   = $request->get_param( 'to' );
-
-		if ( $from_date && $to_date ) {
-			$original_duration = strtotime( $to_date ) - strtotime( $from_date );
-			$compare_duration  = $compare_to_timestamp - $compare_from_timestamp;
-
-			if ( $original_duration !== $compare_duration ) {
-				return new WP_Error(
-					'invalid_compare_period_length',
-					__( 'The comparison period length must match the original period length.', 'jetpack-premium-analytics' ),
-					array( 'status' => 400 )
-				);
-			}
 		}
 
 		return true;
