@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Podcast: only init the module directly on Simple (which doesn't load the Jetpack class that boots it); Atomic loads it through the Jetpack module system.
+Podcast: remove the direct init; the module now loads through the Jetpack module system on Atomic (Simple loads it from the wpcom platform).
