@@ -2,8 +2,6 @@
  * External dependencies
  */
 import {
-	AnalyticsQueryClientProvider,
-	GlobalErrorProvider,
 	normalizeReportParams,
 	useStatsArchives,
 	useStatsTopPosts,
@@ -229,78 +227,71 @@ function PostsReport(): JSX.Element {
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	return (
-		<GlobalErrorProvider>
-			<Page
-				breadcrumbs={
-					<StatsBreadcrumbs title={ __( 'Posts & Pages', 'jetpack-premium-analytics' ) } />
-				}
-				subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ) }
-				className={ styles.page }
-			>
-				<div className={ styles.content }>
-					<ReportPageLayout
-						tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-						filters={
-							<div ref={ setContainerElement } className={ styles.dateFilters }>
-								<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-							</div>
-						}
-					>
-						<ReportPerformanceChart
-							primary={ chartPrimary }
-							comparison={ activeReport.hasComparison ? chartComparison : undefined }
-							isLoading={ activeReport.isLoading }
-							metrics={ chartMetrics }
-							interval={ chartPeriod }
-							onIntervalChange={ handleIntervalChange }
-							legendLabels={ chartLegendLabels }
+		<Page
+			breadcrumbs={
+				<StatsBreadcrumbs title={ __( 'Posts & Pages', 'jetpack-premium-analytics' ) } />
+			}
+			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ) }
+			className={ styles.page }
+		>
+			<div className={ styles.content }>
+				<ReportPageLayout
+					tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
+					filters={
+						<div ref={ setContainerElement } className={ styles.dateFilters }>
+							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+						</div>
+					}
+				>
+					<ReportPerformanceChart
+						primary={ chartPrimary }
+						comparison={ activeReport.hasComparison ? chartComparison : undefined }
+						isLoading={ activeReport.isLoading }
+						metrics={ chartMetrics }
+						interval={ chartPeriod }
+						onIntervalChange={ handleIntervalChange }
+						legendLabels={ chartLegendLabels }
+					/>
+					{ /*
+					 * Keyed by tab so the table's internal view state (sort,
+					 * search, page) resets when the records set changes.
+					 */ }
+					{ activeTab === 'posts-pages' ? (
+						<ReportRecordsTable< StatsTopPostsItem >
+							key="posts-pages"
+							data={ postRows }
+							fields={ postsFields }
+							getItemId={ getPostRowId }
+							isLoading={ posts.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
 						/>
-						{ /*
-						 * Keyed by tab so the table's internal view state (sort,
-						 * search, page) resets when the records set changes.
-						 */ }
-						{ activeTab === 'posts-pages' ? (
-							<ReportRecordsTable< StatsTopPostsItem >
-								key="posts-pages"
-								data={ postRows }
-								fields={ postsFields }
-								getItemId={ getPostRowId }
-								isLoading={ posts.isLoading }
-								initialView={ RECORDS_VIEW }
-								searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
-							/>
-						) : (
-							<ReportRecordsTable
-								key="archives"
-								data={ archiveRows }
-								fields={ archivesFields }
-								getItemId={ getArchiveRowId }
-								isLoading={ archives.isLoading }
-								initialView={ RECORDS_VIEW }
-								searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
-							/>
-						) }
-					</ReportPageLayout>
-				</div>
-			</Page>
-		</GlobalErrorProvider>
+					) : (
+						<ReportRecordsTable
+							key="archives"
+							data={ archiveRows }
+							fields={ archivesFields }
+							getItemId={ getArchiveRowId }
+							isLoading={ archives.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
+						/>
+					) }
+				</ReportPageLayout>
+			</div>
+		</Page>
 	);
 }
 
 /**
  * Posts & Pages report page (default export for the report registry).
  *
- * The chart and table fetch through React Query at the page level, so the page
- * mounts its own AnalyticsQueryClientProvider above the components that read
- * it — same as the post-detail route. The `/reports/$report` stage renders this
- * lazily via the registry's `load`.
+ * React Query, global errors, and the chart theme are provided by the
+ * `/reports/$report` stage, which renders this lazily via the registry's
+ * `load` — the page mounts no providers of its own.
  *
  * @return {JSX.Element} The Posts & Pages report page.
  */
 export default function PostsReportPage(): JSX.Element {
-	return (
-		<AnalyticsQueryClientProvider>
-			<PostsReport />
-		</AnalyticsQueryClientProvider>
-	);
+	return <PostsReport />;
 }
