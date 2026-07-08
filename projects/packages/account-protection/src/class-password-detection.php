@@ -324,15 +324,27 @@ class Password_Detection {
 							?>
 						</p>
 					<?php else : ?>
-						<p><?php esc_html_e( 'We\'ve noticed that your current password may have been compromised in a public leak. To keep your account safe, we\'ve added an extra layer of security.', 'jetpack-account-protection' ); ?></p>
+						<p>
+							<?php
+								printf(
+									/* translators: %s: Jetpack Account Protection link */
+									esc_html__( '%s has flagged that your password may appear in a known data breach.', 'jetpack-account-protection' ),
+									'<a class="how-it-works-link" href="' . esc_url( Config::SUPPORT_LINK . '#how-account-protection-works' ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Jetpack Account Protection', 'jetpack-account-protection' ) . '</a>'
+								);
+							?>
+						</p>
+						<p><?php esc_html_e( 'This security feature was automatically activated with a recent Jetpack update to help keep your account safe. We\'ve added an extra layer of security to your login.', 'jetpack-account-protection' ); ?></p>
 						<p>
 							<?php
 								printf(
 									/* translators: %s: Masked email address */
-									esc_html__( 'We\'ve sent a code to %s. Please check your inbox and enter the code below to verify it\'s really you.', 'jetpack-account-protection' ),
+									esc_html__( 'We\'ve sent a verification code to your WordPress admin email (%s). ', 'jetpack-account-protection' ),
 									esc_html( $this->email_service->mask_email_address( $user->user_email ) )
 								);
 							?>
+						</p>
+						<p>
+							<?php esc_html_e( 'Please check your inbox and enter the code below to complete your login:', 'jetpack-account-protection' ); ?>
 						</p>
 						<div class="actions">
 							<form method="post">
@@ -364,12 +376,22 @@ class Password_Detection {
 							</p>
 						<?php else : ?>
 							<p class="email-status">
-								<span><?php esc_html_e( "Didn't get the code?", 'jetpack-account-protection' ); ?> </span>
+								<span><?php esc_html_e( "Didn't get the code? Check your spam folder or ", 'jetpack-account-protection' ); ?> </span>
 								<a class="resend-email-link" href="<?php echo esc_url( $this->get_redirect_url( $token ) . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ); ?>">
 									<?php esc_html_e( 'Resend email', 'jetpack-account-protection' ); ?>
 								</a>
 							</p>
+							<p class="email-status">
+								<?php
+									printf(
+										/* translators: %s: Contact Jetpack Support link */
+										esc_html__( 'No longer have access to your WordPress admin email address or need additional help? %s.', 'jetpack-account-protection' ),
+										'<a class="contact-support-link" href="' . esc_url( 'https://jetpack.com/contact-support/?rel=support' ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Contact Jetpack Support', 'jetpack-account-protection' ) . '</a>'
+									);
+								?>
+							</p>
 						<?php endif; ?>
+				
 					<?php endif; ?>
 				</div>
 				<?php wp_footer(); ?>
