@@ -33,7 +33,9 @@ export type CsvColumn< Row > = {
  * Strings starting with `=`, `+`, `-`, `@`, tab, or CR are prefixed with a
  * single quote so spreadsheet apps render them as text instead of executing
  * them as formulas (CSV formula injection; titles and URLs are content data).
- * Actual numbers are exempt so numeric cells stay parseable.
+ * Finite numbers and bigints are exempt so numeric cells stay parseable;
+ * non-finite numbers (`Infinity`, `NaN`) fall through to neutralization so a
+ * leading `-` is never left unescaped.
  *
  * @param value - The raw cell value.
  * @return The quoted, escaped field.
@@ -41,7 +43,9 @@ export type CsvColumn< Row > = {
 function escapeField( value: unknown ): string {
 	let str = String( value ?? '' );
 
-	if ( typeof value !== 'number' && /^[=+\-@\t\r]/.test( str ) ) {
+	const isNumeric =
+		( typeof value === 'number' && Number.isFinite( value ) ) || typeof value === 'bigint';
+	if ( ! isNumeric && /^[=+\-@\t\r]/.test( str ) ) {
 		str = `'${ str }`;
 	}
 
@@ -83,8 +87,10 @@ export function saveCsv( filename: string, csv: string ): void {
 	const url = window.URL.createObjectURL( blob );
 	const link = document.createElement( 'a' );
 	// Replace path separators, control characters, and Windows-reserved characters.
+	// Fall back to a generic name so an empty (or fully-stripped) input can't
+	// produce a hidden `.csv` dotfile.
 	// eslint-disable-next-line no-control-regex
-	const safeName = filename.replace( /[\x00-\x1f/\\:*?"<>|]/g, '-' );
+	const safeName = filename.replace( /[\x00-\x1f/\\:*?"<>|]/g, '-' ) || 'export';
 
 	link.href = url;
 	link.download = safeName.toLowerCase().endsWith( '.csv' ) ? safeName : `${ safeName }.csv`;

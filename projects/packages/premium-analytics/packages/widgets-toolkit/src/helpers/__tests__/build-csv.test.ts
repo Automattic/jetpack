@@ -62,6 +62,16 @@ describe( 'buildCsv', () => {
 		const csv = buildCsv( [ { key: 'a', label: 'A' } ], [ { a: -12 } ] );
 		expect( csv.split( '\n' )[ 1 ] ).toBe( '"-12"' );
 	} );
+
+	it( 'does not prefix negative bigints', () => {
+		const csv = buildCsv( [ { key: 'a', label: 'A' } ], [ { a: -12n } ] );
+		expect( csv.split( '\n' )[ 1 ] ).toBe( '"-12"' );
+	} );
+
+	it( 'neutralizes non-finite numbers that start with a sign', () => {
+		const csv = buildCsv( [ { key: 'a', label: 'A' } ], [ { a: -Infinity } ] );
+		expect( csv.split( '\n' )[ 1 ] ).toBe( '"\'-Infinity"' );
+	} );
 } );
 
 describe( 'saveCsv', () => {
@@ -121,6 +131,17 @@ describe( 'saveCsv', () => {
 	it( 'replaces path separators and reserved characters in the filename', () => {
 		saveCsv( 'a/b:c', '"A"' );
 		expect( downloads ).toEqual( [ 'a-b-c.csv' ] );
+	} );
+
+	it( 'falls back to export.csv when the filename is empty', () => {
+		saveCsv( '', '"A"' );
+		expect( downloads ).toEqual( [ 'export.csv' ] );
+	} );
+
+	it( 'marks the blob as UTF-8 CSV', () => {
+		saveCsv( 'report', '"A"' );
+		const blob = createObjectURL.mock.calls[ 0 ][ 0 ] as Blob;
+		expect( blob.type ).toBe( 'text/csv;charset=utf-8' );
 	} );
 
 	it( 'revokes the object URL on the next tick, not synchronously', () => {
