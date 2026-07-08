@@ -49,6 +49,7 @@ interface LocationViewsState {
 	isFetching: boolean;
 	hasData: boolean;
 	isError: boolean;
+	isPlaceholderData: boolean;
 }
 
 /**
@@ -98,6 +99,7 @@ export default function useLocationViews( {
 
 	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
 		useStatsLocations( statsParams );
+	const isPlaceholderData = primary.isPlaceholderData || comparison.isPlaceholderData;
 
 	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
 	const comparisonReport = comparison.data as
@@ -122,5 +124,6 @@ export default function useLocationViews( {
 		isFetching,
 		hasData,
 		isError,
+		isPlaceholderData,
 	};
 }
