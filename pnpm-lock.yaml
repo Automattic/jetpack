@@ -16888,11 +16888,6 @@ packages:
   redux-saga@1.5.0:
     resolution: {integrity: sha512-IdnDBfgt/XuBhSwWMGwjtcOOQAmiqOc1nRGxNst2MWP9yLN0zOvaPpinm8rtKoL00kMZgczZFPNNQgy2hoBIBw==}
 
-  redux-thunk@2.3.0:
-    resolution: {integrity: sha512-km6dclyFnmcvxhAcrQV2AkZmPQjzPDjgVlQtR0EQjxZPyJ0BnMf3in1ryuR8A2qU0HldVRfxYXbFSKlI3N7Slw==}
-    peerDependencies:
-      redux: ^4.0.0
-
   redux-thunk@3.1.0:
     resolution: {integrity: sha512-NW2r5T6ksUKXCabzhL9z+h206HQw/NJkcLm1GPImRQ8IzfXwRGqjVhKJGauHirT0DAuyy6hjdnMZaRoAcy0Klw==}
     peerDependencies:
@@ -36198,10 +36193,6 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.7
       '@redux-saga/core': 1.5.0
-
-  redux-thunk@2.3.0(redux@4.2.1):
-    dependencies:
-      redux: 4.2.1
 
   redux-thunk@3.1.0(redux@5.0.1):
     dependencies:
