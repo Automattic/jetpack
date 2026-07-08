@@ -11,7 +11,6 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
 use Exception;
 use WC_Log_Levels;
 use WC_Logger_Interface;
@@ -22,8 +21,6 @@ use WC_Logger_Interface;
  * @since $$next-version$$
  */
 class DebugLogger implements LoggerInterface {
-
-	use Utilities;
 
 	/**
 	 * WooCommerce logger class instance.
