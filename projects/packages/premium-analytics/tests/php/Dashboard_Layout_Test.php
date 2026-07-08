@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\TestCase;
+use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-layout.php';
 
@@ -15,6 +16,37 @@ require_once __DIR__ . '/../../src/dashboard-layout.php';
  * Tests for Premium Analytics dashboard layout defaults.
  */
 class Dashboard_Layout_Test extends TestCase {
+
+	const ROUTE        = '/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout';
+	const LEGACY_ROUTE = '/jetpack/v4/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout';
+
+	/**
+	 * Reset REST globals after route registration tests.
+	 */
+	protected function tearDown(): void {
+		global $wp_rest_server;
+		$wp_rest_server = null;
+		parent::tearDown();
+	}
+
+	/**
+	 * The default-layout route uses the WPCOM namespace.
+	 */
+	public function test_default_layout_route_uses_wpcom_v2_namespace() {
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+
+		if ( false === has_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+			add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' );
+		}
+
+		do_action( 'rest_api_init' );
+
+		$routes = rest_get_server()->get_routes();
+
+		$this->assertArrayHasKey( self::ROUTE, $routes );
+		$this->assertArrayNotHasKey( self::LEGACY_ROUTE, $routes );
+	}
 
 	/**
 	 * Non-Premium-Analytics dashboards are left untouched.

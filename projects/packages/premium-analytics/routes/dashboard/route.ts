@@ -37,6 +37,8 @@ type DashboardSearch = Record< string, string | undefined >;
  * so the stage's `getEntityRecords` read resolves and feeds the records to
  * `useWidgetTypes`. Premium Analytics serves the records from its own namespace
  * (see `src/widget-modules.php`), independent of core's `wp/v2` endpoint.
+ * The route is registered under `wpcom/v2` so WPCOM can expose it through the
+ * site-scoped public-api path for Simple sites.
  * Guarded for idempotency: beforeLoad re-runs on every navigation and preload.
  *
  * That registration is one-time bootstrap setup that could move to the page's

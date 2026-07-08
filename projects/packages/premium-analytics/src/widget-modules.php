@@ -4,7 +4,7 @@
  *
  * Reads get_available_widget_types() (the registry filtered by
  * widget-availability.php) and exposes it two ways: the
- * `/jetpack/v4/widget-modules` REST list, and the page import map, where each
+ * `/wpcom/v2/widget-modules` REST list, and the page import map, where each
  * widget's render and metadata modules are registered for dynamic `import()`.
  *
  * @package automattic/jetpack-premium-analytics
@@ -12,14 +12,16 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+require_once __DIR__ . '/rest-namespace.php';
+
 /**
- * Register the `/jetpack/v4/widget-modules` REST route.
+ * Register the `/wpcom/v2/widget-modules` REST route.
  *
  * @return void
  */
 function register_widget_modules_rest_route() {
 	register_rest_route(
-		'jetpack/v4',
+		DASHBOARD_REST_NAMESPACE,
 		'/widget-modules',
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
