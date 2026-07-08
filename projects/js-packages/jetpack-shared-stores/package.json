@@ -26,7 +26,8 @@
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@wordpress/api-fetch": "7.50.0",
-		"@wordpress/data": "10.50.0"
+		"@wordpress/data": "10.50.0",
+		"@wordpress/i18n": "6.23.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",

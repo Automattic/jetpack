@@ -1,24 +1,22 @@
-import { jest } from '@jest/globals';
-
 // Mock the transport so we can drive the endpoint's success/failure responses.
-const apiFetch = jest.fn();
-jest.unstable_mockModule( '@wordpress/api-fetch', () => ( {
+const mockApiFetch = jest.fn();
+jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
-	default: apiFetch,
+	default: ( ...args ) => mockApiFetch( ...args ),
 } ) );
 
-const { default: actions, SET_CONNECTION_HEALTH_ERRORS } = await import( '../actions' );
+import actions, { SET_CONNECTION_HEALTH_ERRORS } from '../actions';
 
 describe( 'runConnectionHealthCheck thunk', () => {
 	afterEach( () => jest.clearAllMocks() );
 
 	it( 'clears health errors when all checks pass', async () => {
-		apiFetch.mockResolvedValue( { code: 'success' } );
+		mockApiFetch.mockResolvedValue( { code: 'success' } );
 		const dispatch = jest.fn();
 
 		const result = await actions.runConnectionHealthCheck()( { dispatch } );
 
-		expect( apiFetch ).toHaveBeenCalledWith( { path: '/jetpack/v4/connection/test' } );
+		expect( mockApiFetch ).toHaveBeenCalledWith( { path: '/jetpack/v4/connection/test' } );
 		expect( dispatch ).toHaveBeenCalledWith( {
 			type: SET_CONNECTION_HEALTH_ERRORS,
 			connectionHealthErrors: {},
@@ -27,7 +25,7 @@ describe( 'runConnectionHealthCheck thunk', () => {
 	} );
 
 	it( 'maps and stores failed checks from the rejected response body', async () => {
-		apiFetch.mockRejectedValue( {
+		mockApiFetch.mockRejectedValue( {
 			code: 'failed_test__connection_token_health',
 			message: 'The site token used to authenticate with WordPress.com could not be validated.',
 			data: { resolution: 'Reconnect now :https://example.com/reconnect' },
