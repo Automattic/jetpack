@@ -230,7 +230,7 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 	// date range is owned by the dashboard picker and carried in `reportParams`.
 	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
 
-	const { primary, comparison, hasComparison, isLoading, isError } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, isError } =
 		useStatsTopPosts( statsParams );
 
 	const allowedTypes = useMemo( () => {
@@ -297,14 +297,21 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 	}, [ withComparison ] );
 
 	// Date-stamp the download so exports of different periods don't collide.
-	const csvFilename = `top-posts-${ reportParams.from.slice( 0, 10 ) }_${ reportParams.to.slice(
-		0,
-		10
-	) }`;
+	// `from`/`to` are coerced because the router JSON-parses search params, so a
+	// hand-edited numeric `?from=123` would otherwise throw on `.slice`.
+	const csvFilename = `top-posts-${ String( reportParams.from ).slice( 0, 10 ) }_${ String(
+		reportParams.to
+	).slice( 0, 10 ) }`;
+
+	// Only expose the export once the query has settled on data for the current
+	// params. Stats queries keep the previous period's rows as placeholder data
+	// while a refetch is in flight, so exporting mid-fetch (or after an error)
+	// could hand the user stale rows under the new-period `csvFilename`.
+	const canExport = rows.length > 0 && ! isFetching && ! isError;
 
 	return (
 		<>
-			{ rows.length > 0 && (
+			{ canExport && (
 				<div className={ styles.exportRow }>
 					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
 				</div>

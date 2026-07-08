@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -196,6 +196,58 @@ describe( 'TopPostsWidget', () => {
 		).resolves.toBeInTheDocument();
 		// No fabricated per-row delta from placeholder zeros.
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'exposes the CSV export once the fetched rows are on screen', async () => {
+		render( <TopPostsWidget attributes={ { num: 10 } } /> );
+
+		await screen.findByRole( 'link', { name: /Hello World Post/ } );
+		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the export while a new date range is still fetching, then restores it', async () => {
+		// Hold the second range's fetch open so we can observe the in-flight
+		// window. During it the stats query keeps the prior period's rows as
+		// placeholder data, so `rows.length > 0` stays true while `isFetching`
+		// is true. That is the exact state that used to let stale rows download
+		// under the new-period filename.
+		let resolveSecond: ( value: unknown ) => void = () => {};
+		const secondFetch = new Promise( resolve => {
+			resolveSecond = resolve;
+		} );
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			path.includes( 'start_date=2026-05-01' )
+				? secondFetch
+				: Promise.resolve( TOP_POSTS_RESPONSE )
+		);
+
+		const { rerender } = render(
+			<TopPostsWidget
+				attributes={ { num: 10, reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
+			/>
+		);
+
+		// First range settles: rows and the export are both present.
+		await screen.findByRole( 'link', { name: /Hello World Post/ } );
+		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+
+		// Switch date range on the same tree; the new fetch is still pending.
+		rerender(
+			<TopPostsWidget
+				attributes={ { num: 10, reportParams: { from: '2026-05-01', to: '2026-05-10' } } }
+			/>
+		);
+
+		// Placeholder data keeps the prior rows visible, but the export must be
+		// gated off while the active query is fetching.
+		await waitFor( () =>
+			expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument()
+		);
+		expect( screen.getByRole( 'link', { name: /Hello World Post/ } ) ).toBeInTheDocument();
+
+		// Once the new range settles, the export returns.
+		resolveSecond( TOP_POSTS_RESPONSE );
+		await screen.findByRole( 'button', { name: /Download CSV/ } );
 	} );
 
 	it( 'renders the empty state when there are no views', async () => {
