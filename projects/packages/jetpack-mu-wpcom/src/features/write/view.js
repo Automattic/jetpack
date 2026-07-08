@@ -518,6 +518,13 @@ function stripRuntimeFigureControls( root ) {
 	root
 		.querySelectorAll( '.bw-img-delete, .bw-img-caption-btn, .bw-img-edit' )
 		.forEach( el => el.remove() );
+	// Drop the in-flight upload treatment (pulsing skeleton class + the inline
+	// aspect-ratio that reserves the placeholder box) so a save or undo capture
+	// taken mid-upload never bakes the runtime-only styling into stored HTML.
+	root.querySelectorAll( '.bw-image-uploading' ).forEach( fig => {
+		fig.classList.remove( 'bw-image-uploading' );
+		fig.style.removeProperty( 'aspect-ratio' );
+	} );
 }
 
 /**
@@ -3354,6 +3361,23 @@ function uploadAndInsertImage( file ) {
 	figure.className = 'bw-image-figure bw-image-uploading size-large';
 	const img = document.createElement( 'img' );
 	const localUrl = URL.createObjectURL( file );
+	// Reserve the image's box up-front so the pulsing placeholder is the right
+	// size before (or even without) the local preview decoding, and so the
+	// figure doesn't reflow when the uploaded URL swaps in. Start from a 3:2
+	// fallback, then refine to the real proportions once the preview reports
+	// its natural dimensions. Some formats (e.g. HEIC) never decode in-browser,
+	// in which case the fallback box stands in and the user still sees a
+	// correctly-sized, pulsing placeholder instead of nothing.
+	figure.style.aspectRatio = '3 / 2';
+	img.addEventListener(
+		'load',
+		() => {
+			if ( img.naturalWidth && img.naturalHeight ) {
+				figure.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
+			}
+		},
+		{ once: true }
+	);
 	img.src = localUrl;
 	img.alt = '';
 	figure.appendChild( img );
@@ -3384,6 +3408,10 @@ function uploadAndInsertImage( file ) {
 			img.alt = media.alt_text || '';
 			img.className = 'wp-image-' + media.id;
 			figure.className = 'bw-image-figure size-large';
+			// Release the reserved placeholder box — the swapped-in image now
+			// dictates the figure height. It shares the preview's aspect ratio,
+			// so clearing this produces no visible reflow.
+			figure.style.aspectRatio = '';
 			mediaSizesCache.set( media.id, media.media_details?.sizes || null );
 			// The figure was decorated by addDeleteButtons() before upload,
 			// so it's missing the Size button (that branch is gated on
