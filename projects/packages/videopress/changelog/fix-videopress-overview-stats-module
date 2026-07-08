@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-VideoPress: load Overview stats without requiring the Jetpack Stats module, matching the standalone VideoPress stats helper.
+VideoPress: load Overview stats even when the Jetpack Stats module is inactive.
