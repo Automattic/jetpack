@@ -69,9 +69,13 @@ describe( 'saveCsv', () => {
 	let revokeObjectURL: jest.Mock;
 	let clickSpy: jest.SpyInstance;
 	let downloads: string[];
+		let originalCreateObjectURL: typeof window.URL.createObjectURL;
+		let originalRevokeObjectURL: typeof window.URL.revokeObjectURL;
 
 	beforeEach( () => {
 		jest.useFakeTimers();
+			originalCreateObjectURL = window.URL.createObjectURL;
+			originalRevokeObjectURL = window.URL.revokeObjectURL;
 		createObjectURL = jest.fn( () => 'blob:mock' );
 		revokeObjectURL = jest.fn();
 		window.URL.createObjectURL = createObjectURL;
@@ -87,6 +91,9 @@ describe( 'saveCsv', () => {
 
 	afterEach( () => {
 		clickSpy.mockRestore();
+			window.URL.createObjectURL = originalCreateObjectURL;
+			window.URL.revokeObjectURL = originalRevokeObjectURL;
+			jest.clearAllTimers();
 		jest.useRealTimers();
 	} );
 
