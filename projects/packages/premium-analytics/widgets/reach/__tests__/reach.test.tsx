@@ -57,12 +57,19 @@ describe( 'ReachWidget', () => {
 	it( 'ranks every subscriber channel by follower count', async () => {
 		render( <ReachWidget attributes={ {} } /> );
 
-		// Highest count first: Facebook (24), Email (18), Twitter (15),
-		// WordPress.com (12).
 		await expect( screen.findByText( 'Facebook' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Email' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Twitter' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'WordPress.com' ) ).toBeInTheDocument();
+
+		// Assert the rendered order, not just presence: highest count first —
+		// Facebook (24), Email (18), Twitter (15), WordPress.com (12). Comparing the
+		// DOM-ordered labels against the expected sequence catches a sort regression
+		// that a presence-only check would miss.
+		const rankedLabels = screen.getAllByText( /^(Facebook|Email|Twitter|WordPress\.com)$/ );
+		expect( rankedLabels ).toEqual( [
+			screen.getByText( 'Facebook' ),
+			screen.getByText( 'Email' ),
+			screen.getByText( 'Twitter' ),
+			screen.getByText( 'WordPress.com' ),
+		] );
 	} );
 
 	it( 'omits channels with no followers', async () => {
