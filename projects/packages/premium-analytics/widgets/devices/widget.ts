@@ -3,13 +3,15 @@
  */
 import { __ } from '@wordpress/i18n';
 import { desktop } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Widget attributes shape.
- *
- * @property max - Maximum rows to display (0 = all). Defaults to 5.
  */
 export type DevicesAttributes = {
+	/**
+	 * Maximum rows to display (0 = all). Defaults to 5.
+	 */
 	max?: number;
 };
 
@@ -30,7 +32,7 @@ export default {
 			label: __( 'Max rows', 'jetpack-premium-analytics' ),
 			type: 'number',
 		},
-	],
+	] as WidgetAttributeField< DevicesAttributes >[],
 	example: {
 		attributes: {
 			max: 5,

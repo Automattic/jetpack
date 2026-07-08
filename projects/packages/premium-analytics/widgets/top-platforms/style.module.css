@@ -10,28 +10,8 @@
 	flex: 1 1 0;
 	min-block-size: 0;
 	inline-size: 100%;
-	color: var(--wpds-color-fg-content-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 	text-align: center;
-}
-
-.modeSelect {
-	flex-shrink: 0;
-}
-
-.content {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	flex: 1 1 0;
-	min-height: 0;
-}
-
-.bodyHeader {
-	position: relative;
-	z-index: 2;
-	flex-wrap: wrap;
-	gap: var(--wpds-dimension-gap-sm, 8px);
-	margin-block-end: var(--wpds-dimension-gap-md, 12px);
 }
 
 .itemLabel {

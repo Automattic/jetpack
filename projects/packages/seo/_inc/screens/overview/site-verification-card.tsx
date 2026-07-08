@@ -13,7 +13,7 @@ interface Props {
 
 // Module-scope so the production minifier can't fold an adjacent ternary
 // `__()` into `__(cond ? A : B)`. See feedback_i18n_ternary_minifier_fold.
-const verifiedLabel = __( 'Verified', 'jetpack-seo' );
+const setLabel = __( 'Set', 'jetpack-seo' );
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
 
 const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => (
@@ -25,7 +25,7 @@ const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => (
 			{ VERIFICATION_SERVICES.map( ( { key, label } ) => (
 				<div key={ key } className="jetpack-seo-overview__stat-row">
 					<StatusDot status={ data[ key ] ? 'ok' : 'warn' } label={ label } />
-					<span>{ data[ key ] ? verifiedLabel : notSetLabel }</span>
+					<span>{ data[ key ] ? setLabel : notSetLabel }</span>
 				</div>
 			) ) }
 			<div className="jetpack-seo-overview__card-footer">

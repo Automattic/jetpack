@@ -53,12 +53,10 @@ function getGeoChartCountryId( countryCode: string ): string {
 /**
  * Locations widget inner component. Reads report params from WidgetRoot context.
  *
- * @param root0         - Component props.
- * @param root0.max     - Maximum rows to display.
- * @param root0.topMode - Top-level location mode selected by the host toolbar.
+ * @param {LocationsAttributes} attributes - The widget attributes.
  * @return The rendered widget content.
  */
-function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | 'city' } ) {
+function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
 		Set< string >
@@ -70,15 +68,17 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 		resetDrillDown: clearSelectedCountry,
 	} = useWidgetDrillDown< DrillDownCountry >();
 
+	// The "View by" control lives in the widget host header (the
+	// `relevance: 'high'` attribute). City mode disables country drill-down.
 	useEffect( () => {
-		if ( topMode === 'city' ) {
+		if ( geoGranularity === 'city' ) {
 			clearSelectedCountry();
 		}
-	}, [ clearSelectedCountry, topMode ] );
+	}, [ clearSelectedCountry, geoGranularity ] );
 
-	// Drill-down (region) takes priority over topMode; city mode disables drill-down.
-	const activeSelectedCountry = topMode === 'country' ? selectedCountry : undefined;
-	const geoMode: GeoMode = topMode === 'country' && activeSelectedCountry ? 'region' : topMode;
+	const activeSelectedCountry = geoGranularity === 'country' ? selectedCountry : undefined;
+	const geoMode: GeoMode =
+		geoGranularity === 'country' && activeSelectedCountry ? 'region' : geoGranularity ?? 'country';
 
 	const {
 		data,
@@ -89,13 +89,12 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 		hasData,
 		isError,
 		isPlaceholderData,
-	} =
-		useLocationViews( {
-			reportParams,
-			max,
-			geoMode,
-			countryFilter: geoMode === 'region' ? activeSelectedCountry?.code : undefined,
-		} );
+	} = useLocationViews( {
+		reportParams,
+		max: max ?? 10,
+		geoMode,
+		countryFilter: geoMode === 'region' ? activeSelectedCountry?.code : undefined,
+	} );
 	const showLoading = isLoading || ( isFetching && hasData );
 	const [ renderLocationState, setRenderLocationState ] = useState< RenderLocationState >( {
 		geoMode,
@@ -212,10 +211,7 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 			];
 		}
 
-		const rows: GoogleDataTableRow[] = data.map( location => [
-			location.label,
-			location.value,
-		] );
+		const rows: GoogleDataTableRow[] = data.map( location => [ location.label, location.value ] );
 		return [ header, ...rows ];
 	}, [
 		cityCountryRows,
@@ -272,7 +268,7 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 								name: location.countryFull,
 							} ),
 						// Without ariaLabel the button's accessible name is computed from
-						// its children: "Flag of X" (image alt) + "X" (visible label) →
+						// its children: "Flag of X" (image alt) + "X" (visible label) ->
 						// screen readers announce the country name twice. Provide a concise
 						// action label that replaces the computed name.
 						ariaLabel: sprintf(
@@ -321,7 +317,7 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 	}
 
 	// Explicit empty branch (rather than emptyStateText on LeaderboardChart) keeps the
-	// breadcrumb visible so users can drill back up.
+	// back link visible so users can drill back up from an empty region view.
 	if ( ! data.length ) {
 		return (
 			<div className={ styles.content }>
@@ -366,9 +362,7 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
 								: 'world'
 						}
 						resolution={
-							useProvinceMap && ! useSelectedCountryFallbackMap
-								? 'provinces'
-								: 'countries'
+							useProvinceMap && ! useSelectedCountryFallbackMap ? 'provinces' : 'countries'
 						}
 						onError={ handleGeoChartError }
 					/>
@@ -383,18 +377,17 @@ function LocationsInner( { max, topMode }: { max: number; topMode: 'country' | '
  * leaderboard. Click a country to drill into its regions. Ported from the
  * Jetpack Stats Locations module.
  *
- * @param root0            - Render props.
- * @param root0.attributes - Widget attributes.
+ * @param {LocationsWidgetProps} props - The widget render props.
  * @return The rendered Locations widget.
  */
 export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	const max = attributes?.max ?? 10;
-	const topMode = attributes?.geoMode === 'city' ? 'city' : 'country';
+	const geoGranularity = attributes?.geoGranularity ?? 'country';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<LocationsInner max={ max } topMode={ topMode } />
+				<LocationsInner max={ max } geoGranularity={ geoGranularity } />
 			</div>
 		</WidgetRoot>
 	);
