@@ -1,10 +1,16 @@
 /**
- * The close-up stories exercise the presentational `EmailsLeaderboard` with
+ * Most close-up stories exercise the presentational `EmailsLeaderboard` with
  * fixtures so each state (populated, loading, empty, error) renders without a
- * backend. `WidgetDashboardWithWidget` mounts the real dashboard with the
+ * backend. `WithComparison` and `WidgetDashboardWithWidget` instead mount the
  * data-connected widget; `registerReportMocks` supplies a mock
- * `stats/emails/summary` response so it renders populated in product context.
+ * `stats/emails/summary` response so they render populated in product context.
+ * The summary endpoint has no comparison period, so `WithComparison` renders
+ * identically to `Default` with no deltas.
  */
+/**
+ * External dependencies
+ */
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -117,6 +123,19 @@ export const Default: Story = {
 	args: {
 		rows: mockRows,
 	},
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * Comparison view — drives the data-connected widget with comparison `reportParams`
+ * from the date range picker (`getDefaultQueryParams( true )`), backed by the mocked
+ * `stats/emails/summary` response. The email summary endpoint reports across the
+ * whole lifetime of the site and returns no comparison rows, so this renders
+ * identically to `Default` with no period-over-period deltas — expected for a module
+ * with no comparison data to display.
+ */
+export const WithComparison: StoryObj< typeof EmailsRender > = {
+	render: () => <EmailsRender attributes={ { reportParams: getDefaultQueryParams( true ) } } />,
 	decorators: [ withWidgetCanvas ],
 };
 
