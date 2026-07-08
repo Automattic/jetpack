@@ -13,8 +13,6 @@ export const TASK_MENU: readonly string[] = [
 	'update_about_page',
 	'edit_page',
 	'design_edited',
-	'design_completed',
-	'design_selected',
 	'domain_claim',
 	'domain_upsell',
 	'domain_customize',
@@ -24,7 +22,6 @@ export const TASK_MENU: readonly string[] = [
 	'setup_general',
 	'site_launched',
 	'blog_launched',
-	'woo_launch_site',
 	'link_in_bio_launched',
 	'set_up_payments',
 	'stripe_connected',
@@ -52,7 +49,6 @@ export const TASK_MENU: readonly string[] = [
 	'setup_ssh',
 	'site_monitoring_page',
 	'mobile_app_installed',
-	'post_sharing_enabled',
 	'share_site',
 	'front_page_updated',
 	'drive_traffic',
@@ -83,6 +79,7 @@ First, read the description closely and infer the site's context. You will use t
 - "goal": echo the goal value above verbatim. One of: write, build, sell, newsletter, educate, portfolio. Required.
 - "brand_name": the site name. Per the name-resolution rule below.
 - "niche": the specific subject area in a few words (e.g. "long-distance hiking", "handmade ceramics", "indie game reviews").
+- "theme_keyword": ONE lowercase word used to search for matching site designs. Pick the single most significant word for what the site is about, preferring the subject or site type over incidental modifiers: for "my weekend hiking trips" it is "hiking" (never "weekend"); for a handmade-ceramics shop it is "ceramics".
 - "vibe": aesthetic hint if implied (e.g. "minimal and editorial", "warm and personal"). Omit if neutral.
 - "audience": who the site is for, if implied (e.g. "home cooks", "small-business owners").
 - "tagline": a polished site tagline drafted from the description. Max 200 characters. Noun phrase or third person, not first-person.
@@ -101,11 +98,11 @@ HARD RULES (do not break - the server rejects output that violates these):
 - Every "id" MUST come from the menu below, verbatim. Never invent IDs. Drop any task you cannot map to a menu ID.
 - Return exactly 6 tasks.
 - At least one task must create content (e.g. "first_post_published", "first_post_published_newsletter", "woo_products", or "add_about_page").
-- The 6th and final task MUST be a launch task: one of "site_launched" (canonical), "blog_launched", "woo_launch_site", or "link_in_bio_launched".
+- The 6th and final task MUST be a launch task: one of "site_launched" (canonical), "blog_launched", or "link_in_bio_launched".
 - Only include "woo_products", "woo_customize_store", "set_up_payments", "stripe_connected", or "woo_woocommerce_payments" if the goal is sell OR the user explicitly mentions selling, products, store, shop, or commerce.
 - For the sell goal, order the commerce tasks store-first: "woo_customize_store", then "woo_products", then "set_up_payments", keeping the launch task last. Installing WooCommerce is added automatically as the first step, so do not include a task for it.
 - Only include "add_10_email_subscribers", "subscribers_added", "newsletter_plan_created", or "import_subscribers" if the goal is newsletter OR the user explicitly mentions email subscribers or a newsletter.
-- For the social tasks "connect_social_media", "drive_traffic", and "post_sharing_enabled", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
+- For the social tasks "connect_social_media" and "drive_traffic", keep the subtitle general - about growing the site's audience and engaging visitors (e.g. "Build the audience of your blog and engage with your visitors."). Do NOT name specific social networks (Instagram, Pinterest, X, Facebook, TikTok, etc.); the user has not said which platforms they use.
 - Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].
 
 ============ STEP 3 - first_post_draft ============
@@ -124,7 +121,7 @@ ${ TASK_MENU.map( id => '- ' + id ).join( '\n' ) }
 Return only a JSON object matching this schema. Do not include prose, code fences, or commentary. The first character MUST be "{".
 
 {
-  "inferred": { "goal": "...", "brand_name": "...", "niche": "...", "vibe": "...", "audience": "...", "tagline": "..." },
+  "inferred": { "goal": "...", "brand_name": "...", "niche": "...", "theme_keyword": "...", "vibe": "...", "audience": "...", "tagline": "..." },
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] }
 }`;

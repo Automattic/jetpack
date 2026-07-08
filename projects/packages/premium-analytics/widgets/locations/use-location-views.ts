@@ -23,9 +23,21 @@ export interface LocationView {
 }
 
 interface UseLocationViewsArgs {
+	/**
+	 * PA ReportParams from WidgetRoot context.
+	 */
 	reportParams: ReportParams;
+	/**
+	 * Maximum rows to display.
+	 */
 	max: number;
+	/**
+	 * 'country' (default), 'region', or 'city'.
+	 */
 	geoMode?: GeoMode;
+	/**
+	 * ISO country code to filter regions by (region mode).
+	 */
 	countryFilter?: string;
 }
 
@@ -37,6 +49,7 @@ interface LocationViewsState {
 	isFetching: boolean;
 	hasData: boolean;
 	isError: boolean;
+	isPlaceholderData: boolean;
 }
 
 /**
@@ -68,11 +81,7 @@ function toLocationView( item: StatsLocationsItem ): LocationView | null {
  * Delegates fetching, caching, and normalization to `useStatsLocations` from
  * `@jetpack-premium-analytics/data`.
  *
- * @param args               - Hook arguments.
- * @param args.reportParams  - PA ReportParams from WidgetRoot context.
- * @param args.max           - Maximum rows to display.
- * @param args.geoMode       - 'country' (default), 'region', or 'city'.
- * @param args.countryFilter - ISO country code to filter regions by (region mode).
+ * @param {UseLocationViewsArgs} args - Hook arguments.
  * @return The current data/loading/error state.
  */
 export default function useLocationViews( {
@@ -90,6 +99,7 @@ export default function useLocationViews( {
 
 	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
 		useStatsLocations( statsParams );
+	const isPlaceholderData = primary.isPlaceholderData || comparison.isPlaceholderData;
 
 	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
 	const comparisonReport = comparison.data as
@@ -114,5 +124,6 @@ export default function useLocationViews( {
 		isFetching,
 		hasData,
 		isError,
+		isPlaceholderData,
 	};
 }
