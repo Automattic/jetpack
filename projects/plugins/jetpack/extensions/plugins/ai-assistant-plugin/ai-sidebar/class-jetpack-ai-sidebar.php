@@ -60,9 +60,9 @@ class Jetpack_AI_Sidebar {
 		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( __CLASS__, 'add_agents_manager_data' ), 10, 1 );
 
 		// Ask the Agents Manager package to mount on Jetpack AI provider surfaces.
-		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_in_post_editor' ) );
+		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_on_provider_surfaces' ) );
 
-		// Enqueue the IIFE bundle in the preview post editor — it registers
+		// Enqueue the IIFE bundle on supported editor surfaces — it registers
 		// Jetpack AI abilities via @wordpress/abilities, which Big Sky or the
 		// Agents Manager can discover regardless of which provider system is active.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_abilities_script' ), 201 );
@@ -428,22 +428,12 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Whether the sidebar surface should be exposed for this request.
-	 *
-	 * @return bool
-	 */
-	private static function should_expose_sidebar(): bool {
-		return self::is_post_editor() && self::should_expose_provider();
-	}
-
-	/**
 	 * Whether the Jetpack AI provider bundle should be exposed for this request.
 	 *
-	 * This is intentionally broader than the sidebar data gate: page/site editor
-	 * can consume Jetpack AI tools through another host/agent, without Jetpack AI
-	 * setting the active Agents Manager agent ID. It still stays scoped to the same
-	 * internal rollout gate as Generate Feedback: preview enabled, internal
-	 * testing environment, and AI features available.
+	 * This is scoped to the supported editor surfaces: post editor, page editor,
+	 * and site editor. It stays behind the same internal rollout gate as Generate
+	 * Feedback: preview enabled, internal testing environment, and AI features
+	 * available.
 	 *
 	 * @return bool
 	 */
@@ -503,7 +493,7 @@ class Jetpack_AI_Sidebar {
 	public static function is_toolbar_button_enabled(): bool {
 		$preview_config = self::get_jetpack_ai_sidebar_preview_config();
 
-		return self::should_expose_sidebar()
+		return self::should_expose_provider()
 			&& true === ( $preview_config['features']['blockToolbarButton'] ?? false );
 	}
 
@@ -535,7 +525,7 @@ class Jetpack_AI_Sidebar {
 			return $data;
 		}
 
-		$fields = self::get_agents_manager_data_fields();
+		$fields = self::get_agents_manager_data_fields( $data );
 		if ( ! $fields ) {
 			return $data;
 		}
@@ -551,46 +541,23 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Fields Jetpack contributes when Jetpack AI Sidebar owns the post editor.
-	 *
-	 * @return array
-	 */
-	private static function get_sidebar_am_fields(): array {
-		$fields            = self::get_provider_am_fields();
-		$fields['agentId'] = AI_SIDEBAR_AGENT_ID;
-
-		return $fields;
-	}
-
-	/**
-	 * Fields Jetpack contributes when another host owns Agents Manager.
-	 *
-	 * The page/site editor can consume Jetpack provider suggestions and tools, but
-	 * must keep the host-selected agent ID (for example Dolly).
-	 *
-	 * @return array
-	 */
-	private static function get_provider_am_fields(): array {
-		return array(
-			'jetpackAiSidebar' => self::get_jetpack_ai_sidebar_preview_config(),
-		);
-	}
-
-	/**
 	 * Fields Jetpack should add to `agentsManagerData` for the current screen.
 	 *
+	 * @param array $data Existing Agents Manager data.
 	 * @return array
 	 */
-	private static function get_agents_manager_data_fields(): array {
+	private static function get_agents_manager_data_fields( array $data = array() ): array {
 		if ( ! self::should_expose_provider() ) {
 			return array();
 		}
 
-		if ( self::should_expose_sidebar() ) {
-			return self::get_sidebar_am_fields();
+		$fields = array();
+		if ( empty( $data['agentId'] ) ) {
+			$fields['agentId'] = AI_SIDEBAR_AGENT_ID;
 		}
+		$fields['jetpackAiSidebar'] = self::get_jetpack_ai_sidebar_preview_config();
 
-		return self::get_provider_am_fields();
+		return $fields;
 	}
 
 	/**
@@ -599,7 +566,7 @@ class Jetpack_AI_Sidebar {
 	 * @param mixed $enabled Existing Agents Manager block-editor gate value.
 	 * @return bool
 	 */
-	public static function enable_agents_manager_in_post_editor( $enabled ): bool {
+	public static function enable_agents_manager_on_provider_surfaces( $enabled ): bool {
 		if ( $enabled ) {
 			return true;
 		}
@@ -639,7 +606,8 @@ class Jetpack_AI_Sidebar {
 		}
 
 		// Build the assignments from the same field source as the data filter so the
-		// two emit paths cannot drift.
+		// two emit paths cannot drift. agentId is guarded client-side because the
+		// externally emitted payload may already define the active agent.
 		$fields = self::get_agents_manager_data_fields();
 		if ( ! $fields ) {
 			return;
@@ -648,6 +616,11 @@ class Jetpack_AI_Sidebar {
 		$assignments = '';
 		foreach ( $fields as $key => $value ) {
 			$assignment_value = wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+
+			if ( 'agentId' === $key ) {
+				$assignments .= ' if ( ! agentsManagerData.agentId ) { agentsManagerData.agentId = ' . $assignment_value . '; }';
+				continue;
+			}
 
 			$assignments .= ' agentsManagerData.' . $key . ' = ' . $assignment_value . ';';
 		}
@@ -687,22 +660,6 @@ class Jetpack_AI_Sidebar {
 
 		$screen = get_current_screen();
 		return $screen && $screen->is_block_editor();
-	}
-
-	/**
-	 * Check if the current screen is the post block editor.
-	 *
-	 * @return bool
-	 */
-	private static function is_post_editor(): bool {
-		if ( ! self::is_block_editor() ) {
-			return false;
-		}
-
-		$screen = get_current_screen();
-		return $screen instanceof \WP_Screen
-			&& 'post' === $screen->base
-			&& 'post' === $screen->post_type;
 	}
 
 	/**
