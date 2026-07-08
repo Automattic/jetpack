@@ -1,25 +1,13 @@
 <?php
 /**
- * Force-activate the Jetpack Podcast module on Atomic sites.
+ * Expose the Jetpack Podcast module on Atomic sites.
  *
  * @package wpcomsh
  */
 
-/**
- * Add the Podcast module to Jetpack's active modules.
- *
- * The filter runs after Jetpack intersects active with available modules, so
- * this keeps Podcast active even while it stays hidden from the available list.
- *
- * @param array $modules The current Jetpack active modules.
- *
- * @return array
- */
-function wpcomsh_activate_podcast_module( $modules ) {
-	if ( ! in_array( 'podcast', $modules, true ) ) {
-		$modules[] = 'podcast';
-	}
-
-	return $modules;
-}
-add_filter( 'jetpack_active_modules', 'wpcomsh_activate_podcast_module' );
+// Opt Atomic sites into the Podcast module. Jetpack hides it behind this filter
+// until go-live; flipping it true lets the module's `Auto Activate` header turn
+// it on by default, and it stays user-toggleable like any other Jetpack module.
+// Simple sites are intentionally left out (wpcomsh doesn't run there): the module
+// stays hidden and always-on via the IS_WPCOM active-state, so it can't be toggled off.
+add_filter( 'jetpack_podcast_for_the_world', '__return_true' );
