@@ -1,9 +1,6 @@
 <?php
 /**
- * Detailed tests for the concrete CSV export report controllers and the shared abstract helpers.
- *
- * Each report PR adds its controller's assertions here. This PR covers the reference
- * report (Orders Over Time).
+ * Tests for the concrete CSV export report controllers and the shared abstract helpers.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -12,6 +9,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Conversion_Rate_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Top_Performing_Products_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Visitors_Over_Time_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -20,11 +18,13 @@ use PHPUnit\Framework\TestCase;
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Conversion_Rate_Over_Time_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Visitors_Over_Time_Controller
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Top_Performing_Products_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller
  */
 #[CoversClass( Orders_Over_Time_Controller::class )]
 #[CoversClass( Conversion_Rate_Over_Time_Controller::class )]
 #[CoversClass( Visitors_Over_Time_Controller::class )]
+#[CoversClass( Top_Performing_Products_Controller::class )]
 #[CoversClass( Abstract_Csv_Report_Controller::class )]
 class Controllers_Test extends TestCase {
 
@@ -38,6 +38,10 @@ class Controllers_Test extends TestCase {
 
 	private function conversion_rate(): Conversion_Rate_Over_Time_Controller {
 		return new Conversion_Rate_Over_Time_Controller( new Report_Registry() );
+	}
+
+	private function products(): Top_Performing_Products_Controller {
+		return new Top_Performing_Products_Controller( new Report_Registry() );
 	}
 
 	public function test_orders_metadata() {
@@ -132,5 +136,56 @@ class Controllers_Test extends TestCase {
 
 		$row = $c->format_row_for_csv( array( 'active_sessions' => 0 ) );
 		$this->assertSame( '0.00%', $row['store_conversion_rate'] );
+	}
+
+	public function test_products_metadata() {
+		$c = $this->products();
+		$this->assertSame( 'topperformingproducts', $c->get_report_key() );
+		$this->assertSame( 'reports/products', $c->get_data_endpoint() );
+		$this->assertSame(
+			array(
+				'date_type' => 'created',
+				'orderby'   => 'product_gross_revenue',
+				'order'     => 'desc',
+				'limit'     => 100,
+			),
+			$c->get_additional_params()
+		);
+	}
+
+	public function test_products_row_uses_name_or_id_fallback_and_formats_amounts() {
+		$c = $this->products();
+
+		$named = $c->format_row_for_csv(
+			array(
+				'product_name'          => 'Widget',
+				'product_gross_revenue' => 1234.5,
+				'discount'              => 0,
+			)
+		);
+		$this->assertSame( 'Widget', $named['product'] );
+		$this->assertSame( '1234.50', $named['gross_sales'] );
+		$this->assertSame( '0.00', $named['discounts'] );
+
+		// No name => "Product #<id>" fallback.
+		$this->assertSame( 'Product #7', $c->format_row_for_csv( array( 'product_id' => 7 ) )['product'] );
+	}
+
+	public function test_products_profit_and_margin() {
+		$c = $this->products();
+
+		$with_cogs = $c->format_row_for_csv(
+			array(
+				'net_revenue_with_cogs' => 100,
+				'cogs_amount'           => 40,
+			)
+		);
+		$this->assertSame( '60.00', $with_cogs['profit'] );
+		$this->assertSame( '60.00', $with_cogs['margin'] );
+
+		// No COGS => placeholder.
+		$without = $c->format_row_for_csv( array() );
+		$this->assertSame( 'N/A', $without['profit'] );
+		$this->assertSame( 'N/A', $without['margin'] );
 	}
 }
