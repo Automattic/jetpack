@@ -52,6 +52,11 @@ type PlanUsageGaugeProps = {
 	 */
 	isLoading?: boolean;
 	/**
+	 * When `true`, a loading overlay is layered over the gauge while data
+	 * refetches in the background (stale figures stay visible underneath).
+	 */
+	isRefetching?: boolean;
+	/**
 	 * When `true`, the report failed to load.
 	 */
 	isError?: boolean;
@@ -91,6 +96,7 @@ function PlanUsageGauge( {
 	daysToReset,
 	overLimitMonths,
 	isLoading = false,
+	isRefetching = false,
 	isError = false,
 }: PlanUsageGaugeProps ) {
 	const usageValue = usage ?? 0;
@@ -132,50 +138,53 @@ function PlanUsageGauge( {
 	}
 
 	return (
-		<Stack
-			className={ styles.root }
-			direction="column"
-			align="center"
-			justify="safe center"
-			gap="md"
-		>
-			<SemiCircleChart
-				chartData={ chartData }
-				value={ usageValue }
-				styles={ segmentStyles }
-				showLegend={ false }
-				emptyStateIcon={ percent }
-				emptyStateText={ __( 'No billable views yet.', 'jetpack-premium-analytics' ) }
-				dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
-			/>
-			<Stack className={ styles.captions } direction="column" align="center" gap="xs">
-				<Text className={ styles.usage }>
-					{ sprintf(
-						/* translators: 1: billable views used, 2: the plan's billable views limit. */
-						__( '%1$s / %2$s billable views', 'jetpack-premium-analytics' ),
-						formatMetricValue( usageValue, 'number', { decimals: 0 } ),
-						formatMetricValue( limitValue, 'number', { decimals: 0 } )
-					) }
-				</Text>
-				{ daysToReset !== undefined && (
-					<Text className={ styles.caption }>
+		<div className={ styles.container }>
+			<Stack
+				className={ styles.root }
+				direction="column"
+				align="center"
+				justify="safe center"
+				gap="md"
+			>
+				<SemiCircleChart
+					chartData={ chartData }
+					value={ usageValue }
+					styles={ segmentStyles }
+					showLegend={ false }
+					emptyStateIcon={ percent }
+					emptyStateText={ __( 'No billable views yet.', 'jetpack-premium-analytics' ) }
+					dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
+				/>
+				<Stack className={ styles.captions } direction="column" align="center" gap="xs">
+					<Text className={ styles.usage }>
 						{ sprintf(
-							/* translators: %d: number of days until the billing cycle resets. */
-							_n(
-								'Restarts in %d day',
-								'Restarts in %d days',
-								daysToReset,
-								'jetpack-premium-analytics'
-							),
-							daysToReset
+							/* translators: 1: billable views used, 2: the plan's billable views limit. */
+							__( '%1$s / %2$s billable views', 'jetpack-premium-analytics' ),
+							formatMetricValue( usageValue, 'number', { decimals: 0 } ),
+							formatMetricValue( limitValue, 'number', { decimals: 0 } )
 						) }
 					</Text>
-				) }
-				{ overLimitMonths ? (
-					<Text className={ styles.warning }>{ overLimitMessage( overLimitMonths ) }</Text>
-				) : null }
+					{ daysToReset !== undefined && (
+						<Text className={ styles.caption }>
+							{ sprintf(
+								/* translators: %d: number of days until the billing cycle resets. */
+								_n(
+									'Restarts in %d day',
+									'Restarts in %d days',
+									daysToReset,
+									'jetpack-premium-analytics'
+								),
+								daysToReset
+							) }
+						</Text>
+					) }
+					{ overLimitMonths ? (
+						<Text className={ styles.warning }>{ overLimitMessage( overLimitMonths ) }</Text>
+					) : null }
+				</Stack>
 			</Stack>
-		</Stack>
+			{ isRefetching && <WidgetLoadingOverlay /> }
+		</div>
 	);
 }
 
@@ -187,7 +196,12 @@ function PlanUsageGauge( {
  * @return The widget content.
  */
 function PlanUsageReport() {
-	const { data, isLoading, isError } = useStatsAppPlanUsage();
+	const { data, isLoading, isFetching, isError } = useStatsAppPlanUsage();
+
+	// Keep the stale gauge visible and layer the overlay when a background
+	// refetch runs after the first response has arrived.
+	const hasData = data !== undefined;
+	const isRefetching = isFetching && hasData;
 
 	return (
 		<PlanUsageGauge
@@ -196,6 +210,7 @@ function PlanUsageReport() {
 			daysToReset={ data?.current_usage?.days_to_reset }
 			overLimitMonths={ data?.over_limit_months }
 			isLoading={ isLoading }
+			isRefetching={ isRefetching }
 			isError={ isError }
 		/>
 	);

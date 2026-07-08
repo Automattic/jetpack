@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -89,6 +89,53 @@ describe( 'PlanUsageWidget', () => {
 			screen.findByText( '6,200 / 10,000 billable views' )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /surpassed your limit/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not render the refetch overlay on the first populated render', async () => {
+		render( <PlanUsageWidget attributes={ {} } /> );
+
+		await expect(
+			screen.findByText( '6,200 / 10,000 billable views' )
+		).resolves.toBeInTheDocument();
+		// The initial-load overlay is gone and no background refetch is running.
+		// The overlay's spinner is the only `presentation`-role element on screen.
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'layers the loading overlay over the gauge during a background refetch', async () => {
+		let resolveRefetch: ( value: unknown ) => void = () => {};
+		// First call populates the gauge; the background refetch stays pending so
+		// the overlay is observable while stale figures remain visible.
+		mockApiFetch.mockResolvedValueOnce( PLAN_USAGE_RESPONSE ).mockImplementationOnce(
+			() =>
+				new Promise( resolve => {
+					resolveRefetch = resolve;
+				} )
+		);
+
+		render( <PlanUsageWidget attributes={ {} } /> );
+
+		await expect(
+			screen.findByText( '6,200 / 10,000 billable views' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
+
+		// Kick off a background refetch; placeholderData keeps the stale gauge mounted.
+		await act( async () => {
+			queryClient.refetchQueries();
+		} );
+
+		// The overlay spinner (role="presentation") layers over the gauge.
+		await expect(
+			screen.findByRole( 'presentation', { hidden: true } )
+		).resolves.toBeInTheDocument();
+		// The stale figures stay visible beneath the overlay.
+		expect( screen.getByText( '6,200 / 10,000 billable views' ) ).toBeInTheDocument();
+
+		// Settle the pending refetch so the query resolves and the overlay clears.
+		await act( async () => {
+			resolveRefetch( PLAN_USAGE_RESPONSE );
+		} );
 	} );
 
 	it( 'renders an unavailable state when the plan reports no limit', async () => {
