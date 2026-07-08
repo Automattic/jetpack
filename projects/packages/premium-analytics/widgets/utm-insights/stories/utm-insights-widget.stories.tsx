@@ -68,7 +68,7 @@ export const Default: Story = {
 	render: ( { withComparison } ) => (
 		<UtmInsightsRender
 			attributes={ {
-				utmParam: 'utm_source,utm_medium',
+				utmDimension: 'utm_source,utm_medium',
 				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
@@ -82,7 +82,7 @@ export const WithComparison: Story = {
 	render: ( { withComparison } ) => (
 		<UtmInsightsRender
 			attributes={ {
-				utmParam: 'utm_source,utm_medium',
+				utmDimension: 'utm_source,utm_medium',
 				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
@@ -97,7 +97,7 @@ export const ByCampaign: Story = {
 	render: ( { withComparison } ) => (
 		<UtmInsightsRender
 			attributes={ {
-				utmParam: 'utm_campaign',
+				utmDimension: 'utm_campaign',
 				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
@@ -120,7 +120,7 @@ function UtmInsightsDashboardStory( {
 			renderModule={ UTM_INSIGHTS_RENDER_MODULE }
 			renderComponent={ UtmInsightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				utmParam: 'utm_source,utm_medium',
+				utmDimension: 'utm_source,utm_medium',
 				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }

@@ -89,6 +89,9 @@ class Analytics {
 		// injection and the REST route the "reset to default" action reads.
 		require_once __DIR__ . '/dashboard-layout.php';
 
+		// Register dashboard sections and expose section metadata/defaults over REST.
+		require_once __DIR__ . '/dashboard-sections.php';
+
 		// Load wp-build output (interceptor, modules, routes, page render).
 		// Must stay above the is_admin() gate: build/widgets.php defines the
 		// manifest the widget registry reads, and the registry serves REST

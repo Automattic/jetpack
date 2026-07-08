@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { postAuthor } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Configurable attributes for the Authors widget. Mirrors the `attributes`
@@ -29,7 +30,7 @@ export default {
 			label: __( 'Maximum authors', 'jetpack-premium-analytics' ),
 			type: 'integer',
 		},
-	],
+	] as WidgetAttributeField< AuthorsAttributes >[],
 	example: {
 		attributes: {
 			max: 7,
