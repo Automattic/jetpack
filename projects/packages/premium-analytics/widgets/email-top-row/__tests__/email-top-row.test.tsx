@@ -73,12 +73,20 @@ describe( 'EmailTopRowWidget', () => {
 		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the empty state when the selected email is not in the summary', async () => {
+	it( 'shows the unavailable message when the selected email is not in the summary', async () => {
 		render(
 			<EmailTopRowWidget
 				attributes={ { postId: 9999, reportParams: getDefaultQueryParams( false ) } }
 			/>
 		);
+
+		await expect(
+			screen.findByText( /this email's stats aren't available yet/i )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'prompts to select an email when no post is selected', async () => {
+		render( <EmailTopRowWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } /> );
 
 		await expect(
 			screen.findByText( 'Select an email to see its opens and clicks.' )

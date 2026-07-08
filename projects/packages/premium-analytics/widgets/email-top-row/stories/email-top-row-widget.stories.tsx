@@ -56,7 +56,7 @@ const withWidgetCanvas: Decorator = Story => (
 );
 
 const meta = {
-	title: 'Packages/Premium Analytics/Widgets/Email top row',
+	title: 'Packages/Premium Analytics/Widgets/EmailTopRow',
 	component: EmailTopRowRender,
 	tags: [ 'autodocs' ],
 	argTypes: {

@@ -154,6 +154,12 @@ type EmailTopRowTilesProps = {
 	 */
 	metrics?: EmailTopRowMetric[];
 	/**
+	 * Whether an email is selected. Drives which empty-state message is shown when
+	 * there are no metrics: prompt to select an email when `false`, or an
+	 * "unavailable" message when `true` (the selected email is not in the summary).
+	 */
+	hasSelection?: boolean;
+	/**
 	 * When `true` and there is no data yet, the full loading overlay is shown.
 	 */
 	isLoading?: boolean;
@@ -180,6 +186,7 @@ type EmailTopRowTilesProps = {
  */
 export const EmailTopRowTiles = ( {
 	metrics,
+	hasSelection = false,
 	isLoading = false,
 	isFetching = false,
 	isError = false,
@@ -203,11 +210,16 @@ export const EmailTopRowTiles = ( {
 	}
 
 	if ( ! metrics ) {
+		const message = hasSelection
+			? __(
+					"This email's stats aren't available yet — it may be older than your most recent sent emails.",
+					'jetpack-premium-analytics'
+			  )
+			: __( 'Select an email to see its opens and clicks.', 'jetpack-premium-analytics' );
+
 		return (
 			<div className={ styles.root }>
-				<Text className={ styles.placeholder }>
-					{ __( 'Select an email to see its opens and clicks.', 'jetpack-premium-analytics' ) }
-				</Text>
+				<Text className={ styles.placeholder }>{ message }</Text>
 			</div>
 		);
 	}
@@ -262,6 +274,7 @@ function EmailTopRowReport( { postId }: EmailTopRowReportProps ) {
 	return (
 		<EmailTopRowTiles
 			metrics={ metrics }
+			hasSelection={ Boolean( postId ) }
 			isLoading={ isLoading }
 			isFetching={ isFetching }
 			isError={ isError }
