@@ -752,15 +752,63 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->seed_sell_output_with_commerce_tasks();
 		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
 
-		foreach ( array( 'woo_customize_store', 'woo_products', 'set_up_payments', 'woo_launch_site' ) as $id ) {
+		foreach ( array( 'woo_customize_store', 'woo_products', 'set_up_payments' ) as $id ) {
 			$this->assertArrayHasKey( $id, $tasks, "$id should be kept as a disabled preview" );
 			$this->assertTrue( $tasks[ $id ]['disabled'], "$id should be disabled" );
 			$this->assertNull( $tasks[ $id ]['calypso_path'], "$id should have no CTA" );
 		}
 
+		// The WooCommerce launch task is normalized to the canonical site-launch task, which is not WooCommerce-gated.
+		$this->assertArrayNotHasKey( 'woo_launch_site', $tasks );
+		$this->assertArrayHasKey( 'site_launched', $tasks );
+		$this->assertFalse( $tasks['site_launched']['disabled'] );
+
 		// A non-commerce task in the same list stays actionable, not swept into the disabled treatment.
 		$this->assertArrayHasKey( 'site_theme_selected', $tasks );
 		$this->assertFalse( $tasks['site_theme_selected']['disabled'] );
+	}
+
+	/**
+	 * A stray `woo_launch_site` (whose CTA dead-ends in the WC onboarding task list and whose completion depends on a
+	 * WC option the skipped setup never writes) is normalized on read to the canonical `site_launched` launch task.
+	 */
+	public function test_get_remaps_woo_launch_site_to_site_launched() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'site_theme_selected', 'woo_launch_site' ) );
+
+		$tasks = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], null, 'id' );
+
+		$this->assertArrayNotHasKey( 'woo_launch_site', $tasks );
+		$this->assertArrayHasKey( 'site_launched', $tasks );
+		// The canonical launch task has no wc-admin deeplink CTA.
+		$this->assertStringNotContainsString( 'wc-admin', (string) $tasks['site_launched']['calypso_path'] );
+	}
+
+	/**
+	 * The remap must not produce two `site_launched` cards when a list already carries it alongside a stray
+	 * `woo_launch_site`: the tailored list keys cards by id, so a repeat has to collapse to a single card.
+	 */
+	public function test_get_dedupes_site_launched_when_remap_collides() {
+		wp_set_current_user( $this->admin_id );
+		$this->seed_ai_output_with_tasks( array( 'woo_launch_site', 'site_theme_selected', 'site_launched' ) );
+
+		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
+
+		$this->assertCount( 1, array_keys( $ids, 'site_launched', true ), 'exactly one site_launched card' );
+		$this->assertNotContains( 'woo_launch_site', $ids );
+	}
+
+	/**
+	 * The full-catalog testing view (?all_tasks=1) enumerates every id, so it builds both `site_launched` and the
+	 * remapped `woo_launch_site`. The result must still contain a single `site_launched` card.
+	 */
+	public function test_all_tasks_view_has_single_site_launched_despite_remap() {
+		wp_set_current_user( $this->admin_id );
+
+		$ids = array_column( $this->call_api( Requests::GET, '', null, array( 'all_tasks' => '1' ) )->get_data()['tasks'], 'id' );
+
+		$this->assertCount( 1, array_keys( $ids, 'site_launched', true ), 'exactly one site_launched card' );
+		$this->assertNotContains( 'woo_launch_site', $ids );
 	}
 
 	/**
