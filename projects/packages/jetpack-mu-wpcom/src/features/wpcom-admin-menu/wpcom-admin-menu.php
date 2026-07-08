@@ -278,39 +278,18 @@ function wpcom_get_current_plan_name() {
 }
 
 /**
- * Whether the current site is on a Commerce plan, including the Commerce trial.
- *
- * Matches the ecommerce- family (ecommerce-bundle* plus ecommerce-trial-bundle-monthly).
- * Legacy Woo Express plans (wooexpress-*) are intentionally excluded: those users chose a
- * Woo-branded product, so they keep the "WooCommerce" label.
- *
- * @return bool
- */
-function wpcom_is_commerce_plan() {
-	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
-		return false;
-	}
-
-	foreach ( wpcom_get_site_purchases() as $purchase ) {
-		if ( isset( $purchase->product_slug ) && str_starts_with( $purchase->product_slug, 'ecommerce-' ) ) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-/**
  * Relabels the WooCommerce menu item to "Store setup" on Commerce-plan sites.
  *
- * Only the sidebar label is changed; the page title is left untouched. This mirrors the
- * relabel that Atomic_Admin_Menu applies on the nav-unified interface, so Commerce users
- * see the same label on the classic wp-admin sidebar.
+ * Only the sidebar label is changed; the page title is left untouched. This builds the
+ * classic wp-admin sidebar; the nav-unified interface is handled by Atomic_Admin_Menu in
+ * jetpack-masterbar. Both share Store_Plan::is_commerce_plan() so their scope stays in sync.
+ * On a nav-unified Atomic site both relabelers run (harmless — both idempotently set "Store
+ * setup"; this one runs last, so the jetpack-mu-wpcom text domain wins, same English string).
  */
 function wpcom_relabel_woocommerce_menu() {
 	global $menu;
 
-	if ( ! is_array( $menu ) || ! wpcom_is_commerce_plan() ) {
+	if ( ! is_array( $menu ) || ! class_exists( \Automattic\Jetpack\Masterbar\Store_Plan::class ) || ! \Automattic\Jetpack\Masterbar\Store_Plan::is_commerce_plan() ) {
 		return;
 	}
 

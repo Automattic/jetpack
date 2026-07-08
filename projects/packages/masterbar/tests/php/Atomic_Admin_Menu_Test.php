@@ -194,18 +194,13 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Builds an Atomic_Admin_Menu whose site purchases are stubbed with the given plan slugs.
+	 * Builds an Atomic_Admin_Menu whose site purchases are stubbed with the given plan slug.
 	 *
-	 * @param string[] $product_slugs Product slugs to expose as site purchases.
+	 * @param string $product_slug Product slug to expose as a site purchase.
 	 * @return Atomic_Admin_Menu
 	 */
-	private function admin_menu_with_purchases( array $product_slugs ) {
-		$purchases = array();
-		foreach ( $product_slugs as $slug ) {
-			$purchases[] = (object) array( 'product_slug' => $slug );
-		}
-
-		return new class( $purchases ) extends Atomic_Admin_Menu {
+	private function admin_menu_with_purchase( $product_slug ) {
+		return new class( array( (object) array( 'product_slug' => $product_slug ) ) ) extends Atomic_Admin_Menu {
 			/**
 			 * Stubbed site purchases.
 			 *
@@ -242,7 +237,7 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 		$this->add_woocommerce_menu_item();
 
-		$this->admin_menu_with_purchases( array( $product_slug ) )->relabel_woocommerce_menu();
+		$this->admin_menu_with_purchase( $product_slug )->relabel_woocommerce_menu();
 
 		$this->assertSame( 'Store setup', $menu[56][0] );
 		// The slug is preserved so the menu still points at WooCommerce.
@@ -266,7 +261,7 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 		$this->add_woocommerce_menu_item();
 
-		$this->admin_menu_with_purchases( array( $product_slug ) )->relabel_woocommerce_menu();
+		$this->admin_menu_with_purchase( $product_slug )->relabel_woocommerce_menu();
 
 		$this->assertSame( 'WooCommerce', $menu[56][0] );
 	}

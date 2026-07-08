@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Modules;
 
@@ -82,17 +81,20 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	/**
 	 * Relabels the WooCommerce menu item to "Store setup" on Commerce-plan sites.
 	 *
-	 * Only the sidebar label is changed; the page title is left untouched.
+	 * Only the sidebar label is changed; the page title is left untouched. On Atomic sites
+	 * using the classic wp-admin interface this class doesn't load and jetpack-mu-wpcom
+	 * relabels instead; on the nav-unified interface both run (harmless, both idempotently
+	 * set "Store setup") — see wpcom_relabel_woocommerce_menu() in jetpack-mu-wpcom.
 	 */
 	public function relabel_woocommerce_menu() {
 		global $menu;
 
-		if ( ! $this->is_ecommerce_plan() ) {
+		if ( ! Store_Plan::purchases_include_commerce_plan( $this->get_site_purchases() ) ) {
 			return;
 		}
 
 		foreach ( $menu as $position => $item ) {
-			if ( 'woocommerce' === $item[2] ) {
+			if ( isset( $item[2] ) && 'woocommerce' === $item[2] ) {
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				$menu[ $position ][0] = __( 'Store setup', 'jetpack-masterbar' );
 				break;
@@ -101,27 +103,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Whether the current site is on a Commerce plan (including the Commerce trial).
-	 *
-	 * Legacy Woo Express plans are intentionally excluded: those users chose a Woo-branded
-	 * product, so they keep the "WooCommerce" label.
-	 *
-	 * @return bool
-	 */
-	protected function is_ecommerce_plan() {
-		$commerce_slugs = $this->get_commerce_plan_slugs();
-
-		foreach ( $this->get_site_purchases() as $purchase ) {
-			if ( isset( $purchase->product_slug ) && in_array( $purchase->product_slug, $commerce_slugs, true ) ) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
 	 * The site's purchases, or an empty array when the WoA helper is unavailable.
+	 *
+	 * Exists as an overridable seam so tests can inject purchases without the WoA helper.
 	 *
 	 * @return array Product objects, each with at least a product_slug property.
 	 */
@@ -131,28 +115,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		return wpcom_get_site_purchases();
-	}
-
-	/**
-	 * Commerce plan slugs (including the Commerce trial) for which the WooCommerce menu item
-	 * is relabeled.
-	 *
-	 * Derived from the canonical plan list so new ecommerce-* variants are picked up
-	 * automatically. The "business" group also holds Woo Express and other business plans,
-	 * so it's narrowed to the ecommerce- family (ecommerce-bundle* plus the
-	 * ecommerce-trial-bundle-monthly trial); Woo Express (wooexpress-*) is excluded.
-	 *
-	 * @return string[]
-	 */
-	protected function get_commerce_plan_slugs() {
-		return array_values(
-			array_filter(
-				Current_Plan::PLAN_DATA['business']['plans'],
-				static function ( $slug ) {
-					return str_starts_with( $slug, 'ecommerce-' );
-				}
-			)
-		);
 	}
 
 	/**
