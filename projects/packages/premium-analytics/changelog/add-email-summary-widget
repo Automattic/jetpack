@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Document that the Emails widget is the port of the Stats email summary surface (stats/emails/summary).

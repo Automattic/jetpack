@@ -30,11 +30,15 @@ export type EmailsAttributes = {
 /**
  * Widget type definition.
  *
- * Ported from the Jetpack Stats "Emails" module. Lists the most recently sent
- * emails with their open and click rates. The displayed rate is the `metric`
- * attribute (`relevance: 'high'`), so the widget host renders its control.
- * The summary endpoint reports across the whole lifetime of the site, so
- * there is no date range or comparison period.
+ * Ported from the Jetpack Stats "Emails" module — the calypso
+ * `stats-email-summary` "Stats for Emails" summary surface
+ * (`statType: 'statsEmailsSummary'`, endpoint `stats/emails/summary`). Lists the
+ * most recently sent emails with their open and click rates. Where calypso shows
+ * the open and click rates as two columns at once, the dashboard tile exposes a
+ * `metric` attribute (`relevance: 'high'`) so the host renders a control to
+ * switch the leaderboard between the two rates. The summary endpoint reports
+ * across the whole lifetime of the site, so there is no date range or comparison
+ * period.
  */
 export default {
 	name: 'jpa/stats-emails',

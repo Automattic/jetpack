@@ -34,7 +34,7 @@ const meta: Meta< typeof EmailsLeaderboard > = {
 		docs: {
 			description: {
 				component:
-					'The "Emails" widget. Lists the most recently sent emails with their open or click rate, rendered as a leaderboard. The displayed rate is the `metric` attribute (`relevance: \'high\'`), exposed as a control by the widget host. The close-up stories drive the presentational `EmailsLeaderboard` with fixtures; `WidgetDashboardWithWidget` mounts the real dashboard with the data-connected widget (fed by a mocked `stats/emails/summary` response).',
+					"The \"Emails\" widget — the port of calypso's `stats-email-summary` \"Stats for Emails\" surface (`statType: 'statsEmailsSummary'`, endpoint `stats/emails/summary`). Lists the most recently sent emails with their open or click rate, rendered as a leaderboard. Where calypso shows both rates as columns, the tile exposes a `metric` attribute (`relevance: 'high'`), exposed as a control by the widget host, to switch between them. The summary endpoint has no comparison period, so there is no comparison/delta state. The close-up stories drive the presentational `EmailsLeaderboard` with fixtures; `WidgetDashboardWithWidget` mounts the real dashboard with the data-connected widget (fed by a mocked `stats/emails/summary` response).",
 			},
 		},
 	},
