@@ -1,6 +1,6 @@
 <?php
 /**
- * Spy WooCommerce logger recording log() calls for DebugLogger assertions.
+ * Spy WooCommerce logger recording log() calls for Debug_Logger assertions.
  *
  * Implements the full WC_Logger_Interface surface (Phan resolves the real interface
  * from the WooCommerce stubs); only log() is used by the code under test.

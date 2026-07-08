@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the CSV export ReportDataFetcher pure helpers (merge/normalize logic).
+ * Tests for the CSV export Report_Data_Fetcher pure helpers (merge/normalize logic).
  *
  * The network methods fetch()/make_proxy_request() are exercised against the live site
  * (they call the WPCom proxy); these tests cover the data-shaping methods that need no network.
@@ -17,21 +17,21 @@ use ReflectionMethod;
 require_once __DIR__ . '/fixtures/class-spy-logger.php';
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\ReportDataFetcher
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Report_Data_Fetcher
  */
-#[CoversClass( ReportDataFetcher::class )]
+#[CoversClass( Report_Data_Fetcher::class )]
 class ReportDataFetcher_Test extends TestCase {
 
 	/**
 	 * Fetcher under test.
 	 *
-	 * @var ReportDataFetcher
+	 * @var Report_Data_Fetcher
 	 */
 	private $fetcher;
 
 	protected function setUp(): void {
 		parent::setUp();
-		$this->fetcher = new ReportDataFetcher( new Spy_Logger() );
+		$this->fetcher = new Report_Data_Fetcher( new Spy_Logger() );
 	}
 
 	/**
@@ -42,7 +42,7 @@ class ReportDataFetcher_Test extends TestCase {
 	 * @return mixed
 	 */
 	private function invoke( string $method, array $args ) {
-		$ref = new ReflectionMethod( ReportDataFetcher::class, $method );
+		$ref = new ReflectionMethod( Report_Data_Fetcher::class, $method );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$ref->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
 		}

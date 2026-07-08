@@ -3,7 +3,7 @@
  * Abstract CSV Report Controller
  *
  * Base class for CSV export report controllers. Provides common functionality
- * for formatting and exporting report data to CSV via the new ReportRegistry system.
+ * for formatting and exporting report data to CSV via the new Report_Registry system.
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export
  */
@@ -35,13 +35,13 @@ use Exception;
  * - get_additional_params(): Additional parameters to include in data requests (e.g., filters)
  *
  * The parent class handles:
- * - Auto-registration with ReportRegistry in constructor
+ * - Auto-registration with Report_Registry in constructor
  * - Automatic comparison field handling via format_row_with_comparison()
  * - Helper methods for common formatting tasks
  *
  * @since $$next-version$$
  */
-abstract class AbstractCSVReportController implements CSVReportControllerInterface {
+abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_Interface {
 
 	/**
 	 * Default batch limit for time-based reports (1000 items).
@@ -56,7 +56,7 @@ abstract class AbstractCSVReportController implements CSVReportControllerInterfa
 	/**
 	 * Report registry instance.
 	 *
-	 * @var ReportRegistry
+	 * @var Report_Registry
 	 */
 	protected $registry;
 
@@ -70,9 +70,9 @@ abstract class AbstractCSVReportController implements CSVReportControllerInterfa
 	/**
 	 * Constructor.
 	 *
-	 * @param ReportRegistry $registry Registry instance (injected by DI).
+	 * @param Report_Registry $registry Registry instance (injected by DI).
 	 */
-	public function __construct( ReportRegistry $registry ) {
+	public function __construct( Report_Registry $registry ) {
 		$this->registry = $registry;
 	}
 
@@ -96,7 +96,7 @@ abstract class AbstractCSVReportController implements CSVReportControllerInterfa
 	 * @return array The formatted row with comparison fields.
 	 */
 	public function format_row_with_comparison( array $item, ?string $interval = null ): array {
-		$prefix = ReportDataFetcher::COMPARISON_INDEX_PREFIX;
+		$prefix = Report_Data_Fetcher::COMPARISON_INDEX_PREFIX;
 
 		// Extract original data (fields without comparison_ prefix) to check for empty values.
 		// Note: We format the full $item, not the extracted subset, to preserve all data.
@@ -525,7 +525,7 @@ abstract class AbstractCSVReportController implements CSVReportControllerInterfa
 	 * @return array The row with comparison fields added.
 	 */
 	protected function add_comparison_fields( array $row, array $item, ?string $interval = null ): array {
-		$prefix = ReportDataFetcher::COMPARISON_INDEX_PREFIX;
+		$prefix = Report_Data_Fetcher::COMPARISON_INDEX_PREFIX;
 
 		// Check if comparison data exists by looking for any comparison_ prefixed field.
 		$has_comparison_data = false;

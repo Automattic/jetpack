@@ -13,9 +13,9 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\CSVReportControllerInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Csv_Report_Controller_Interface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
 
 /**
  * ID-based merge strategy for ranked reports.
@@ -29,9 +29,9 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
  *
  * @since $$next-version$$
  */
-class IdBasedMergeStrategy extends AbstractMergeStrategy {
+class Id_Based_Merge_Strategy extends Abstract_Merge_Strategy {
 
-	use LoggerTrait;
+	use Logger_Trait;
 
 	/**
 	 * The matching field name (e.g., 'product_id').
@@ -43,10 +43,10 @@ class IdBasedMergeStrategy extends AbstractMergeStrategy {
 	/**
 	 * Constructor.
 	 *
-	 * @param string          $matching_field The field to match on.
-	 * @param LoggerInterface $logger         Logger instance.
+	 * @param string           $matching_field The field to match on.
+	 * @param Logger_Interface $logger         Logger instance.
 	 */
-	public function __construct( string $matching_field, LoggerInterface $logger ) {
+	public function __construct( string $matching_field, Logger_Interface $logger ) {
 		$this->matching_field = $matching_field;
 		$this->logger         = $logger;
 	}
@@ -54,13 +54,13 @@ class IdBasedMergeStrategy extends AbstractMergeStrategy {
 	/**
 	 * Merge original and comparison data by matching field value.
 	 *
-	 * @param array                        $original_items   Items from original period.
-	 * @param array                        $comparison_items Items from comparison period.
-	 * @param string                       $prefix           Prefix for comparison field names.
-	 * @param CSVReportControllerInterface $controller       Controller for defaults and identifying fields.
+	 * @param array                           $original_items   Items from original period.
+	 * @param array                           $comparison_items Items from comparison period.
+	 * @param string                          $prefix           Prefix for comparison field names.
+	 * @param Csv_Report_Controller_Interface $controller       Controller for defaults and identifying fields.
 	 * @return array Merged items with comparison data.
 	 */
-	public function merge( array $original_items, array $comparison_items, string $prefix, CSVReportControllerInterface $controller ): array {
+	public function merge( array $original_items, array $comparison_items, string $prefix, Csv_Report_Controller_Interface $controller ): array {
 		// Build lookup: matching_field value => comparison item.
 		// Normalize keys to strings to avoid type mismatch issues (e.g., integer 19 vs string "19").
 		// Empty strings are normalized to "" to allow matching empty rows.
@@ -148,13 +148,13 @@ class IdBasedMergeStrategy extends AbstractMergeStrategy {
 	 * (e.g., 'channel', 'device') and identifying fields (e.g., 'label') should be preserved
 	 * even when comparison data is missing.
 	 *
-	 * @param array                        $merged_item   The merged item (modified in place).
-	 * @param array                        $original_item The original item to copy from.
-	 * @param string                       $prefix        The prefix for comparison fields.
-	 * @param CSVReportControllerInterface $controller    Controller specifying which fields to preserve.
+	 * @param array                           $merged_item   The merged item (modified in place).
+	 * @param array                           $original_item The original item to copy from.
+	 * @param string                          $prefix        The prefix for comparison fields.
+	 * @param Csv_Report_Controller_Interface $controller    Controller specifying which fields to preserve.
 	 * @return void
 	 */
-	private function copy_matching_and_identifying_fields( array &$merged_item, array $original_item, string $prefix, CSVReportControllerInterface $controller ): void {
+	private function copy_matching_and_identifying_fields( array &$merged_item, array $original_item, string $prefix, Csv_Report_Controller_Interface $controller ): void {
 		// Build list of fields to copy: matching field + identifying fields.
 		$fields_to_copy     = array( $this->matching_field );
 		$identifying_fields = $controller->get_identifying_fields();

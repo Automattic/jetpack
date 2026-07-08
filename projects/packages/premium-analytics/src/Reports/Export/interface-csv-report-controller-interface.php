@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since $$next-version$$
  */
-interface CSVReportControllerInterface extends RegistrableInterface {
+interface Csv_Report_Controller_Interface extends Registrable_Interface {
 
 	/**
 	 * Get the report key (unique identifier).
@@ -138,7 +138,7 @@ interface CSVReportControllerInterface extends RegistrableInterface {
 	 * When true, rows with empty identifying fields will be included in the export
 	 * with a custom label. When false (default), they will be skipped.
 	 *
-	 * This is used by ReportDataFetcher when building ID filters for comparison data
+	 * This is used by Report_Data_Fetcher when building ID filters for comparison data
 	 * to ensure comparison data is fetched for empty rows when needed.
 	 *
 	 * @return bool True to include empty rows with custom label, false to skip them.

@@ -18,19 +18,19 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since $$next-version$$
  */
-class ReportRegistry {
+class Report_Registry {
 
 	/**
 	 * Singleton instance.
 	 *
-	 * @var ReportRegistry|null
+	 * @var Report_Registry|null
 	 */
 	private static $instance = null;
 
 	/**
 	 * Registered controller instances.
 	 *
-	 * @var array<string, CSVReportControllerInterface>
+	 * @var array<string, Csv_Report_Controller_Interface>
 	 */
 	private $controllers = array();
 
@@ -43,9 +43,9 @@ class ReportRegistry {
 	/**
 	 * Get singleton instance.
 	 *
-	 * @return ReportRegistry
+	 * @return Report_Registry
 	 */
-	public static function instance(): ReportRegistry {
+	public static function instance(): Report_Registry {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
@@ -55,10 +55,10 @@ class ReportRegistry {
 	/**
 	 * Register a controller instance.
 	 *
-	 * @param CSVReportControllerInterface $controller The controller instance.
+	 * @param Csv_Report_Controller_Interface $controller The controller instance.
 	 * @return bool True on success, false if already registered.
 	 */
-	public function register_controller( CSVReportControllerInterface $controller ): bool {
+	public function register_controller( Csv_Report_Controller_Interface $controller ): bool {
 		$report_key = $controller->get_report_key();
 
 		if ( isset( $this->controllers[ $report_key ] ) ) {
@@ -124,7 +124,7 @@ class ReportRegistry {
 		if ( $include_comparison ) {
 			$comparison_columns = array();
 			foreach ( $columns as $key => $label ) {
-				$comparison_columns[ ReportDataFetcher::COMPARISON_INDEX_PREFIX . $key ] = sprintf(
+				$comparison_columns[ Report_Data_Fetcher::COMPARISON_INDEX_PREFIX . $key ] = sprintf(
 					/* translators: %s: the column label, e.g. "Orders". */
 					__( '%s (Previous Period)', 'jetpack-premium-analytics' ),
 					$label
@@ -186,7 +186,7 @@ class ReportRegistry {
 	 * Get controller instance for a report type.
 	 *
 	 * @param string $report_key The report key.
-	 * @return CSVReportControllerInterface|\WP_Error The controller instance or error.
+	 * @return Csv_Report_Controller_Interface|\WP_Error The controller instance or error.
 	 */
 	public function get_controller( string $report_key ) {
 		if ( ! isset( $this->controllers[ $report_key ] ) ) {

@@ -1,19 +1,19 @@
 <?php
 /**
- * Test double implementing the export LoggerInterface.
+ * Test double implementing the export Logger_Interface.
  *
  * @package automattic/jetpack-premium-analytics
  */
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
 use Exception;
 
 /**
  * No-op logger that records the messages it was given, for assertions in tests.
  */
-class Spy_Logger implements LoggerInterface {
+class Spy_Logger implements Logger_Interface {
 
 	/**
 	 * Recorded log calls, each as [ 'level' => string, 'message' => string ].

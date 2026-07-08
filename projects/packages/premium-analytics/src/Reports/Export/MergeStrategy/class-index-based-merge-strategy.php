@@ -13,9 +13,9 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\CSVReportControllerInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Csv_Report_Controller_Interface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
 
 /**
  * Index-based merge strategy for time-series reports.
@@ -28,29 +28,29 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
  *
  * @since $$next-version$$
  */
-class IndexBasedMergeStrategy extends AbstractMergeStrategy {
+class Index_Based_Merge_Strategy extends Abstract_Merge_Strategy {
 
-	use LoggerTrait;
+	use Logger_Trait;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param LoggerInterface $logger Logger instance.
+	 * @param Logger_Interface $logger Logger instance.
 	 */
-	public function __construct( LoggerInterface $logger ) {
+	public function __construct( Logger_Interface $logger ) {
 		$this->logger = $logger;
 	}
 
 	/**
 	 * Merge original and comparison data by array index.
 	 *
-	 * @param array                        $original_items   Items from original period.
-	 * @param array                        $comparison_items Items from comparison period.
-	 * @param string                       $prefix           Prefix for comparison field names.
-	 * @param CSVReportControllerInterface $controller       Controller (not used for index-based).
+	 * @param array                           $original_items   Items from original period.
+	 * @param array                           $comparison_items Items from comparison period.
+	 * @param string                          $prefix           Prefix for comparison field names.
+	 * @param Csv_Report_Controller_Interface $controller       Controller (not used for index-based).
 	 * @return array Merged items with comparison data.
 	 */
-	public function merge( array $original_items, array $comparison_items, string $prefix, CSVReportControllerInterface $controller ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the merge strategy interface; index-based merging aligns by position, not by controller.
+	public function merge( array $original_items, array $comparison_items, string $prefix, Csv_Report_Controller_Interface $controller ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the merge strategy interface; index-based merging aligns by position, not by controller.
 		// Get template items for creating empty rows.
 		$original_template   = ! empty( $original_items ) ? $original_items[0] : array();
 		$comparison_template = ! empty( $comparison_items ) ? $comparison_items[0] : array();

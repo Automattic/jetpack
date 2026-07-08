@@ -1,6 +1,6 @@
 <?php
 /**
- * Direct tests for AbstractCSVReportController's shared formatting/empty-row helpers,
+ * Direct tests for Abstract_Csv_Report_Controller's shared formatting/empty-row helpers,
  * exercised through a fixture controller (the concrete report controllers live in later PRs).
  *
  * @package automattic/jetpack-premium-analytics
@@ -15,13 +15,13 @@ use ReflectionMethod;
 require_once __DIR__ . '/fixtures/class-fake-merge-controller.php';
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller
  */
-#[CoversClass( AbstractCSVReportController::class )]
+#[CoversClass( Abstract_Csv_Report_Controller::class )]
 class AbstractController_Test extends TestCase {
 
 	private function controller(): Fake_Merge_Controller {
-		return new Fake_Merge_Controller( ReportRegistry::instance() );
+		return new Fake_Merge_Controller( Report_Registry::instance() );
 	}
 
 	/**
@@ -32,7 +32,7 @@ class AbstractController_Test extends TestCase {
 	 * @return mixed
 	 */
 	private function invoke( string $method, array $args ) {
-		$ref = new ReflectionMethod( AbstractCSVReportController::class, $method );
+		$ref = new ReflectionMethod( Abstract_Csv_Report_Controller::class, $method );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$ref->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
 		}

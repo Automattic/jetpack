@@ -13,7 +13,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy;
 
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Fake_Merge_Controller;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\ReportRegistry;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Report_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Spy_Logger;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -23,17 +23,17 @@ require_once __DIR__ . '/../fixtures/class-spy-logger.php';
 require_once __DIR__ . '/../fixtures/class-fake-merge-controller.php';
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy\IndexBasedMergeStrategy
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy\IdBasedMergeStrategy
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy\AbstractMergeStrategy
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy\Index_Based_Merge_Strategy
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy\Id_Based_Merge_Strategy
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy\Abstract_Merge_Strategy
  */
-#[CoversClass( IndexBasedMergeStrategy::class )]
-#[CoversClass( IdBasedMergeStrategy::class )]
-#[CoversClass( AbstractMergeStrategy::class )]
+#[CoversClass( Index_Based_Merge_Strategy::class )]
+#[CoversClass( Id_Based_Merge_Strategy::class )]
+#[CoversClass( Abstract_Merge_Strategy::class )]
 class MergeStrategy_Test extends TestCase {
 
 	private function controller(): Fake_Merge_Controller {
-		return new Fake_Merge_Controller( ReportRegistry::instance() );
+		return new Fake_Merge_Controller( Report_Registry::instance() );
 	}
 
 	/**
@@ -53,7 +53,7 @@ class MergeStrategy_Test extends TestCase {
 	}
 
 	public function test_index_based_merges_by_position() {
-		$strategy = new IndexBasedMergeStrategy( new Spy_Logger() );
+		$strategy = new Index_Based_Merge_Strategy( new Spy_Logger() );
 
 		$merged = $strategy->merge(
 			array( array( 'orders_no' => 5 ), array( 'orders_no' => 8 ) ),
@@ -73,7 +73,7 @@ class MergeStrategy_Test extends TestCase {
 	}
 
 	public function test_id_based_matches_by_field_and_pads_with_defaults() {
-		$strategy = new IdBasedMergeStrategy( 'product_id', new Spy_Logger() );
+		$strategy = new Id_Based_Merge_Strategy( 'product_id', new Spy_Logger() );
 
 		$merged = $strategy->merge(
 			array(
@@ -111,7 +111,7 @@ class MergeStrategy_Test extends TestCase {
 	}
 
 	public function test_id_based_normalizes_int_and_string_keys() {
-		$strategy = new IdBasedMergeStrategy( 'product_id', new Spy_Logger() );
+		$strategy = new Id_Based_Merge_Strategy( 'product_id', new Spy_Logger() );
 
 		// Original uses an int id; comparison uses the string equivalent.
 		$merged = $strategy->merge(
@@ -135,7 +135,7 @@ class MergeStrategy_Test extends TestCase {
 	}
 
 	public function test_create_empty_item_uses_controller_defaults_then_empty_string() {
-		$strategy   = new IndexBasedMergeStrategy( new Spy_Logger() );
+		$strategy   = new Index_Based_Merge_Strategy( new Spy_Logger() );
 		$controller = $this->controller();
 
 		$empty = $this->invoke(
@@ -165,7 +165,7 @@ class MergeStrategy_Test extends TestCase {
 	}
 
 	public function test_get_default_value_for_field() {
-		$strategy   = new IndexBasedMergeStrategy( new Spy_Logger() );
+		$strategy   = new Index_Based_Merge_Strategy( new Spy_Logger() );
 		$controller = $this->controller();
 
 		$this->assertSame( 0, $this->invoke( $strategy, 'get_default_value_for_field', array( 'sales', $controller ) ) );

@@ -9,41 +9,41 @@ declare( strict_types=1 );
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Trait LoggerTrait
+ * Trait Logger_Trait
  *
  * @since $$next-version$$
  */
-trait LoggerTrait {
+trait Logger_Trait {
 
 	/**
 	 * Logger instance.
 	 *
-	 * @var LoggerInterface|null
+	 * @var Logger_Interface|null
 	 */
 	private $logger = null;
 
 	/**
 	 * Set the logger object.
 	 *
-	 * @param LoggerInterface $logger The logger object.
+	 * @param Logger_Interface $logger The logger object.
 	 *
 	 * @return void
 	 */
-	public function set_logger( LoggerInterface $logger ): void {
+	public function set_logger( Logger_Interface $logger ): void {
 		$this->logger = $logger;
 	}
 
 	/**
 	 * Get the logger object.
 	 *
-	 * @return LoggerInterface|null
+	 * @return Logger_Interface|null
 	 */
-	public function get_logger(): ?LoggerInterface {
+	public function get_logger(): ?Logger_Interface {
 		return $this->logger;
 	}
 }

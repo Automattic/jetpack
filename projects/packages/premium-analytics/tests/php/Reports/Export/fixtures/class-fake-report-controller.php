@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 /**
  * Deterministic controller double with simple two-column output.
  */
-class Fake_Report_Controller extends AbstractCSVReportController {
+class Fake_Report_Controller extends Abstract_Csv_Report_Controller {
 
 	public function get_report_key(): string {
 		return 'fakereport';

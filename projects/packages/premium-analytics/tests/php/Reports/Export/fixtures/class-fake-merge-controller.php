@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 /**
  * Deterministic controller double for merge-strategy tests.
  */
-class Fake_Merge_Controller extends AbstractCSVReportController {
+class Fake_Merge_Controller extends Abstract_Csv_Report_Controller {
 
 	public function get_report_key(): string {
 		return 'fakemerge';

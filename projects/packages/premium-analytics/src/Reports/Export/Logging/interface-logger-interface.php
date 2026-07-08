@@ -18,7 +18,7 @@ use Exception;
  *
  * @since $$next-version$$
  */
-interface LoggerInterface {
+interface Logger_Interface {
 	/**
 	 * Log an exception.
 	 *

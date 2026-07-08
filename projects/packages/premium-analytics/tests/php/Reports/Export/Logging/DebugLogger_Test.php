@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the CSV export DebugLogger.
+ * Tests for the CSV export Debug_Logger.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -16,9 +16,9 @@ use WC_Log_Levels;
 require_once __DIR__ . '/../fixtures/class-spy-wc-logger.php';
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\DebugLogger
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Debug_Logger
  */
-#[CoversClass( DebugLogger::class )]
+#[CoversClass( Debug_Logger::class )]
 class DebugLogger_Test extends TestCase {
 
 	/**
@@ -31,14 +31,14 @@ class DebugLogger_Test extends TestCase {
 	/**
 	 * Logger under test.
 	 *
-	 * @var DebugLogger
+	 * @var Debug_Logger
 	 */
 	private $logger;
 
 	protected function setUp(): void {
 		parent::setUp();
 		$this->wc_logger = new Spy_WC_Logger();
-		$this->logger    = new DebugLogger( $this->wc_logger );
+		$this->logger    = new Debug_Logger( $this->wc_logger );
 	}
 
 	public function test_log_message_uses_debug_level_and_prefixes_method() {

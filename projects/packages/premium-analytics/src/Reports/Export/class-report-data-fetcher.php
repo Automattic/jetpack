@@ -13,10 +13,10 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy\IdBasedMergeStrategy;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy\IndexBasedMergeStrategy;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy\Id_Based_Merge_Strategy;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\MergeStrategy\Index_Based_Merge_Strategy;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
 use WP_Error;
 use WP_REST_Request;
@@ -26,9 +26,9 @@ use WP_REST_Request;
  *
  * @since $$next-version$$
  */
-class ReportDataFetcher {
+class Report_Data_Fetcher {
 
-	use LoggerTrait;
+	use Logger_Trait;
 	use Utilities;
 
 	/**
@@ -51,20 +51,20 @@ class ReportDataFetcher {
 	/**
 	 * Constructor.
 	 *
-	 * @param LoggerInterface $logger The logger instance.
+	 * @param Logger_Interface $logger The logger instance.
 	 */
-	public function __construct( LoggerInterface $logger ) {
+	public function __construct( Logger_Interface $logger ) {
 		$this->logger = $logger;
 	}
 
 	/**
 	 * Fetch report data based on parameters.
 	 *
-	 * @param array                        $params     Request parameters.
-	 * @param CSVReportControllerInterface $controller Controller for endpoint and matching field context.
+	 * @param array                           $params     Request parameters.
+	 * @param Csv_Report_Controller_Interface $controller Controller for endpoint and matching field context.
 	 * @return array|\WP_Error Report data array or error.
 	 */
-	public function fetch( array $params, CSVReportControllerInterface $controller ) {
+	public function fetch( array $params, Csv_Report_Controller_Interface $controller ) {
 		// Merge controller-specific additional parameters (controller defaults first, user params override).
 		// get_additional_params() is part of the interface, so this applies to any implementation.
 		$params = array_merge( $controller->get_additional_params(), $params );
@@ -85,11 +85,11 @@ class ReportDataFetcher {
 	/**
 	 * Fetch and merge comparison data.
 	 *
-	 * @param array                        $params     Request parameters.
-	 * @param CSVReportControllerInterface $controller Controller for endpoint and matching field context.
+	 * @param array                           $params     Request parameters.
+	 * @param Csv_Report_Controller_Interface $controller Controller for endpoint and matching field context.
 	 * @return array|\WP_Error Merged report data or error.
 	 */
-	private function fetch_comparison_data( array $params, CSVReportControllerInterface $controller ) {
+	private function fetch_comparison_data( array $params, Csv_Report_Controller_Interface $controller ) {
 		// fetch() is public library API; the REST layer marks these required, but guard here too.
 		foreach ( array( 'from', 'to', 'compare_from', 'compare_to' ) as $required ) {
 			if ( empty( $params[ $required ] ) ) {
@@ -220,12 +220,12 @@ class ReportDataFetcher {
 	 * Checks if the controller has a custom fetch_data() method and uses that if available,
 	 * otherwise falls back to the standard proxy request.
 	 *
-	 * @param array                        $params      Query parameters.
-	 * @param string                       $period_name Human-readable period name for logging.
-	 * @param CSVReportControllerInterface $controller  The controller for endpoint and custom fetch.
+	 * @param array                           $params      Query parameters.
+	 * @param string                          $period_name Human-readable period name for logging.
+	 * @param Csv_Report_Controller_Interface $controller  The controller for endpoint and custom fetch.
 	 * @return array|\WP_Error Report data or error.
 	 */
-	private function fetch_period_data( array $params, string $period_name, CSVReportControllerInterface $controller ) {
+	private function fetch_period_data( array $params, string $period_name, Csv_Report_Controller_Interface $controller ) {
 		$endpoint = $controller->get_data_endpoint();
 
 		$response = $this->request_endpoint_data( $endpoint, $params, $controller );
@@ -265,15 +265,15 @@ class ReportDataFetcher {
 	/**
 	 * Request endpoint data using controller override when available.
 	 *
-	 * @param string                       $endpoint   Endpoint to request.
-	 * @param array                        $params     Query parameters.
-	 * @param CSVReportControllerInterface $controller The active report controller.
+	 * @param string                          $endpoint   Endpoint to request.
+	 * @param array                           $params     Query parameters.
+	 * @param Csv_Report_Controller_Interface $controller The active report controller.
 	 * @return array|\WP_Error Response data or error.
 	 */
 	private function request_endpoint_data(
 		string $endpoint,
 		array $params,
-		CSVReportControllerInterface $controller
+		Csv_Report_Controller_Interface $controller
 	) {
 		if ( method_exists( $controller, 'fetch_data' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- Optional hook, guarded by method_exists() above; not part of the interface.
@@ -306,11 +306,11 @@ class ReportDataFetcher {
 	 * 1. Index-based (default): Merges by position (row 0 with row 0)
 	 * 2. ID-based: Merges by matching field (product_id, coupon_code, etc.)
 	 *
-	 * @param array                        $original_data   Original report data.
-	 * @param array                        $comparison_data Comparison report data.
-	 * @param string                       $prefix          Prefix for comparison keys.
-	 * @param string|null                  $matching_field  Field to match on, or null for index.
-	 * @param CSVReportControllerInterface $controller      Controller for default values.
+	 * @param array                           $original_data   Original report data.
+	 * @param array                           $comparison_data Comparison report data.
+	 * @param string                          $prefix          Prefix for comparison keys.
+	 * @param string|null                     $matching_field  Field to match on, or null for index.
+	 * @param Csv_Report_Controller_Interface $controller      Controller for default values.
 	 * @return array Merged data with comparison columns.
 	 */
 	private function merge_datasets(
@@ -318,16 +318,16 @@ class ReportDataFetcher {
 		array $comparison_data,
 		string $prefix,
 		?string $matching_field,
-		CSVReportControllerInterface $controller
+		Csv_Report_Controller_Interface $controller
 	): array {
 		$original_items   = $original_data['data'] ?? array();
 		$comparison_items = $comparison_data['data'] ?? array();
 
 		// Select appropriate merge strategy based on matching field.
 		if ( $matching_field ) {
-			$strategy = new IdBasedMergeStrategy( $matching_field, $this->logger );
+			$strategy = new Id_Based_Merge_Strategy( $matching_field, $this->logger );
 		} else {
-			$strategy = new IndexBasedMergeStrategy( $this->logger );
+			$strategy = new Index_Based_Merge_Strategy( $this->logger );
 		}
 
 		// Delegate to strategy.
@@ -340,12 +340,12 @@ class ReportDataFetcher {
 	/**
 	 * Extract IDs from data array using specified field.
 	 *
-	 * @param array                        $data       The data to extract IDs from.
-	 * @param string                       $field      The field name containing the ID.
-	 * @param CSVReportControllerInterface $controller Controller to check empty row handling.
+	 * @param array                           $data       The data to extract IDs from.
+	 * @param string                          $field      The field name containing the ID.
+	 * @param Csv_Report_Controller_Interface $controller Controller to check empty row handling.
 	 * @return array Array of unique IDs.
 	 */
-	private function extract_ids_from_data( array $data, string $field, CSVReportControllerInterface $controller ): array {
+	private function extract_ids_from_data( array $data, string $field, Csv_Report_Controller_Interface $controller ): array {
 		$ids = array();
 		foreach ( $data as $item ) {
 			if ( isset( $item[ $field ] ) && '' !== $item[ $field ] ) {
@@ -369,13 +369,13 @@ class ReportDataFetcher {
 	 * Note: Caller should ensure ID count doesn't exceed MAX_ID_FILTER_COUNT to avoid
 	 * URL length issues (typically 2048 chars).
 	 *
-	 * @param array                        $params     Parameters array.
-	 * @param string                       $field      Field name to filter on.
-	 * @param array                        $ids        Array of IDs to include.
-	 * @param CSVReportControllerInterface $controller Controller for format preference.
+	 * @param array                           $params     Parameters array.
+	 * @param string                          $field      Field name to filter on.
+	 * @param array                           $ids        Array of IDs to include.
+	 * @param Csv_Report_Controller_Interface $controller Controller for format preference.
 	 * @return array Modified params with filter added.
 	 */
-	private function add_id_filter( array $params, string $field, array $ids, CSVReportControllerInterface $controller ): array {
+	private function add_id_filter( array $params, string $field, array $ids, Csv_Report_Controller_Interface $controller ): array {
 		// Find next available filter index.
 		$filter_index = 0;
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the CSV export ReportCSVGenerator.
+ * Tests for the CSV export Report_Csv_Generator.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -15,9 +15,9 @@ use PHPUnit\Framework\TestCase;
 require_once __DIR__ . '/fixtures/class-spy-logger.php';
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\ReportCSVGenerator
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Report_Csv_Generator
  */
-#[CoversClass( ReportCSVGenerator::class )]
+#[CoversClass( Report_Csv_Generator::class )]
 class ReportCSVGenerator_Test extends TestCase {
 
 	/**
@@ -85,8 +85,8 @@ class ReportCSVGenerator_Test extends TestCase {
 		};
 	}
 
-	private function generator(): ReportCSVGenerator {
-		return new ReportCSVGenerator( new Spy_Logger() );
+	private function generator(): Report_Csv_Generator {
+		return new Report_Csv_Generator( new Spy_Logger() );
 	}
 
 	/**
@@ -105,7 +105,7 @@ class ReportCSVGenerator_Test extends TestCase {
 
 	public function test_generate_writes_bom_header_and_rows() {
 		$logger    = new Spy_Logger();
-		$generator = new ReportCSVGenerator( $logger );
+		$generator = new Report_Csv_Generator( $logger );
 
 		$data = array(
 			'data' => array(

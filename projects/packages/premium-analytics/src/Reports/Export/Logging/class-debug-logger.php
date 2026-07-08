@@ -16,11 +16,11 @@ use WC_Log_Levels;
 use WC_Logger_Interface;
 
 /**
- * Class DebugLogger
+ * Class Debug_Logger
  *
  * @since $$next-version$$
  */
-class DebugLogger implements LoggerInterface {
+class Debug_Logger implements Logger_Interface {
 
 	/**
 	 * WooCommerce logger class instance.

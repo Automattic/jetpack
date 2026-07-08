@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the CSV export ReportRegistry.
+ * Tests for the CSV export Report_Registry.
  *
  * Uses fixture controllers rather than concrete report controllers so the registry
  * (part of the export pipeline library) can be tested on its own.
@@ -19,15 +19,15 @@ require_once __DIR__ . '/fixtures/class-fake-report-controller.php';
 require_once __DIR__ . '/fixtures/class-fake-merge-controller.php';
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\ReportRegistry
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Report_Registry
  */
-#[CoversClass( ReportRegistry::class )]
+#[CoversClass( Report_Registry::class )]
 class ReportRegistry_Test extends TestCase {
 
 	/**
 	 * A fresh registry for each test.
 	 *
-	 * @var ReportRegistry
+	 * @var Report_Registry
 	 */
 	private $registry;
 
@@ -38,16 +38,16 @@ class ReportRegistry_Test extends TestCase {
 	 */
 	#[Before]
 	public function reset_registry() {
-		$prop = new ReflectionProperty( ReportRegistry::class, 'instance' );
+		$prop = new ReflectionProperty( Report_Registry::class, 'instance' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$prop->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
 		}
 		$prop->setValue( null, null );
-		$this->registry = ReportRegistry::instance();
+		$this->registry = Report_Registry::instance();
 	}
 
 	public function test_instance_is_singleton() {
-		$this->assertSame( ReportRegistry::instance(), ReportRegistry::instance() );
+		$this->assertSame( Report_Registry::instance(), Report_Registry::instance() );
 	}
 
 	public function test_register_controller_is_idempotent() {

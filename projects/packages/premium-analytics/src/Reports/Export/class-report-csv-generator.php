@@ -13,8 +13,8 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\LoggerInterface;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\LoggerTrait;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
 use WP_Error;
 
 /**
@@ -22,16 +22,16 @@ use WP_Error;
  *
  * @since $$next-version$$
  */
-class ReportCSVGenerator {
+class Report_Csv_Generator {
 
-	use LoggerTrait;
+	use Logger_Trait;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param LoggerInterface $logger The logger instance.
+	 * @param Logger_Interface $logger The logger instance.
 	 */
-	public function __construct( LoggerInterface $logger ) {
+	public function __construct( Logger_Interface $logger ) {
 		$this->logger = $logger;
 	}
 
