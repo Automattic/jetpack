@@ -21,7 +21,11 @@ import { useCallback, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { AnnualHighlightsAttributes } from './widget';
+import {
+	DEFAULT_ANNUAL_HIGHLIGHT_METRICS,
+	type AnnualHighlightMetric,
+	type AnnualHighlightsAttributes,
+} from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // The insights endpoint is not period-scoped, so the widget ignores the
@@ -30,11 +34,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type AnnualHighlightsRenderAttributes = AnnualHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type AnnualHighlightsWidgetProps = WidgetRenderProps< AnnualHighlightsRenderAttributes >;
-
-/**
- * The enabled-metric flags from widget attributes, with defaults applied.
- */
-type AnnualHighlightsReportProps = Required< AnnualHighlightsAttributes >;
 
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
@@ -57,18 +56,14 @@ function sortYearsDescending( data?: StatsInsightsResponse ): StatsInsightsYear[
  * hook and renders one year's totals as a grid of metric tiles. The year arrows
  * step between the years the site has published in; the insights module has no
  * comparison period, so each tile shows a bare formatted count. Which tiles
- * appear is controlled by the per-metric visibility attributes.
+ * appear is controlled by the `metrics` attribute.
  *
- * @param {AnnualHighlightsReportProps} props - The component props.
+ * @param {AnnualHighlightMetric[]} metrics - Enabled metric tile ids.
  * @return The widget content.
  */
-function AnnualHighlightsReport( {
-	showPosts,
-	showWords,
-	showLikes,
-	showComments,
-}: AnnualHighlightsReportProps ) {
+function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[] } ) {
 	const { data, isLoading, isError } = useStatsInsights();
+	const enabledMetrics = useMemo( () => new Set( metrics ), [ metrics ] );
 
 	const years = useMemo( () => sortYearsDescending( data ), [ data ] );
 	const [ selectedIndex, setSelectedIndex ] = useState( 0 );
@@ -126,28 +121,28 @@ function AnnualHighlightsReport( {
 			icon: postList,
 			label: __( 'Posts', 'jetpack-premium-analytics' ),
 			value: year.total_posts,
-			enabled: showPosts,
+			enabled: enabledMetrics.has( 'posts' ),
 		},
 		{
 			key: 'words',
 			icon: paragraph,
 			label: __( 'Words', 'jetpack-premium-analytics' ),
 			value: year.total_words,
-			enabled: showWords,
+			enabled: enabledMetrics.has( 'words' ),
 		},
 		{
 			key: 'likes',
 			icon: starEmpty,
 			label: __( 'Likes', 'jetpack-premium-analytics' ),
 			value: year.total_likes,
-			enabled: showLikes,
+			enabled: enabledMetrics.has( 'likes' ),
 		},
 		{
 			key: 'comments',
 			icon: comment,
 			label: __( 'Comments', 'jetpack-premium-analytics' ),
 			value: year.total_comments,
-			enabled: showComments,
+			enabled: enabledMetrics.has( 'comments' ),
 		},
 	].filter( tile => tile.enabled );
 
@@ -221,12 +216,7 @@ function AnnualHighlightsReport( {
 export default function AnnualHighlights( { attributes = {} }: AnnualHighlightsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<AnnualHighlightsReport
-				showPosts={ attributes.showPosts ?? true }
-				showWords={ attributes.showWords ?? true }
-				showLikes={ attributes.showLikes ?? true }
-				showComments={ attributes.showComments ?? true }
-			/>
+			<AnnualHighlightsReport metrics={ attributes.metrics ?? DEFAULT_ANNUAL_HIGHLIGHT_METRICS } />
 		</WidgetRoot>
 	);
 }

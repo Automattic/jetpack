@@ -13,7 +13,10 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AnnualHighlightsRender from '../render';
-import widgetDefinition from '../widget';
+import widgetDefinition, {
+	DEFAULT_ANNUAL_HIGHLIGHT_METRICS,
+	type AnnualHighlightMetric,
+} from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -41,66 +44,46 @@ interface AnnualHighlightsStoryControls {
 	 */
 	withComparison: boolean;
 	/**
-	 * Whether the Posts tile is shown.
+	 * Metric tiles to show in the widget body.
 	 */
-	showPosts: boolean;
-	/**
-	 * Whether the Words tile is shown.
-	 */
-	showWords: boolean;
-	/**
-	 * Whether the Likes tile is shown.
-	 */
-	showLikes: boolean;
-	/**
-	 * Whether the Comments tile is shown.
-	 */
-	showComments: boolean;
+	metrics: AnnualHighlightMetric[];
 }
 
 /**
  * Renders the data-connected widget with report params derived from the
- * comparison toggle and the per-metric visibility toggles. The insights endpoint
- * is not period-scoped, so toggling comparison does not change what the widget
- * shows — it is wired through only to prove the widget renders unchanged when the
- * host injects comparison params. The metric toggles mirror the widget's
- * checkbox settings and hide/show the matching tile.
+ * comparison toggle and the selected metrics. The insights endpoint is not
+ * period-scoped, so toggling comparison does not change what the widget shows
+ * — it is wired through only to prove the widget renders unchanged when the
+ * host injects comparison params.
  *
  * @param {AnnualHighlightsStoryControls} props - Story controls.
  * @return The rendered widget.
  */
-function renderAnnualHighlights( {
-	withComparison,
-	showPosts,
-	showWords,
-	showLikes,
-	showComments,
-}: AnnualHighlightsStoryControls ) {
+function renderAnnualHighlights( { withComparison, metrics }: AnnualHighlightsStoryControls ) {
 	return (
 		<AnnualHighlightsRender
 			attributes={ {
 				reportParams: getDefaultQueryParams( withComparison ),
-				showPosts,
-				showWords,
-				showLikes,
-				showComments,
+				metrics,
 			} }
 		/>
 	);
 }
 
+const METRIC_OPTIONS = DEFAULT_ANNUAL_HIGHLIGHT_METRICS.map( metric => ( {
+	value: metric,
+	label: metric.charAt( 0 ).toUpperCase() + metric.slice( 1 ),
+} ) );
+
 const METRIC_ARG_TYPES = {
-	showPosts: { control: 'boolean' },
-	showWords: { control: 'boolean' },
-	showLikes: { control: 'boolean' },
-	showComments: { control: 'boolean' },
+	metrics: {
+		control: 'check',
+		options: METRIC_OPTIONS.map( option => option.value ),
+	},
 } as const;
 
 const ALL_METRICS_ARGS = {
-	showPosts: true,
-	showWords: true,
-	showLikes: true,
-	showComments: true,
+	metrics: DEFAULT_ANNUAL_HIGHLIGHT_METRICS,
 } as const;
 
 // Close-up canvas so the grid fills the frame outside the dashboard grid.
@@ -122,7 +105,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Annual highlights" widget. Shows one year\'s totals — posts, words, likes, and comments — as a grid of metric tiles, with year arrows to step through the years the site has published in. Each metric tile can be toggled off via the widget\'s checkbox settings (the `show*` controls here). Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts and the `WithComparison` story renders identically to `Default`.',
+					"The \"Annual highlights\" widget. Shows one year's totals — posts, words, likes, and comments — as a grid of metric tiles, with year arrows to step through the years the site has published in. Which tiles appear is controlled by the `metrics` attribute (`relevance: 'high'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts and the `WithComparison` story renders identically to `Default`.",
 			},
 		},
 	},
@@ -164,10 +147,7 @@ interface AnnualHighlightsDashboardStoryProps
  */
 function AnnualHighlightsDashboardStory( {
 	withComparison,
-	showPosts,
-	showWords,
-	showLikes,
-	showComments,
+	metrics,
 	...dashboardArgs
 }: AnnualHighlightsDashboardStoryProps ) {
 	return (
@@ -178,10 +158,7 @@ function AnnualHighlightsDashboardStory( {
 			renderComponent={ AnnualHighlightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
 				reportParams: getDefaultQueryParams( withComparison ),
-				showPosts,
-				showWords,
-				showLikes,
-				showComments,
+				metrics,
 			} }
 		/>
 	);
