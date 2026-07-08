@@ -234,6 +234,22 @@ class WP_Build_Polyfills {
 	}
 
 	/**
+	 * Check whether a script module is already registered.
+	 *
+	 * @param string $module_id Script module identifier (e.g. '@wordpress/boot').
+	 * @return bool True when the module is registered.
+	 */
+	private static function is_script_module_registered( $module_id ) {
+		$modules_registry = wp_script_modules();
+		if ( ! method_exists( $modules_registry, 'get_registered' ) ) {
+			return false;
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredMethod -- Added in WP 6.9+; guarded by method_exists().
+		return null !== $modules_registry->get_registered( $module_id );
+	}
+
+	/**
 	 * Register polyfill script modules.
 	 *
 	 * Most modules use first-wins semantics. `@wordpress/boot` is force-replaced on
@@ -283,12 +299,8 @@ class WP_Build_Polyfills {
 				&& ! self::is_gutenberg_version_safe( $data['gutenberg_min_version'] ?? null, $gutenberg_version )
 				&& version_compare( $GLOBALS['wp_version'] ?? '0', $force_threshold, '<' );
 
-			if ( ! $force ) {
-				$modules_registry = wp_script_modules();
-				if ( method_exists( $modules_registry, 'get_registered' )
-					&& null !== $modules_registry->get_registered( $module_id ) ) {
-					continue;
-				}
+			if ( ! $force && self::is_script_module_registered( $module_id ) ) {
+				continue;
 			}
 
 			if ( $force ) {
