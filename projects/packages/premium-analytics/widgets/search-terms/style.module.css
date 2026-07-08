@@ -15,7 +15,7 @@
 }
 
 .itemLabel {
-	padding: var( --wpds-dimension-padding-sm );
+	padding: var(--wpds-dimension-padding-sm);
 	min-width: 0;
 	overflow: hidden;
 }
@@ -27,7 +27,7 @@
 }
 
 /* Constrain the picker preview tile to a 4:3 aspect ratio. */
-:global( [inert]:not( [inert='true'] ) ) .root {
+:global([inert]:not([inert="true"])) .root {
 	height: auto;
 	aspect-ratio: 4 / 3;
 	overflow: hidden;
