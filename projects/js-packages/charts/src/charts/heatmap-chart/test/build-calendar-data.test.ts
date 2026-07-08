@@ -45,9 +45,7 @@ describe( 'buildCalendarHeatmapData', () => {
 	} );
 
 	test( 'suppresses a partial first month label so it cannot collide with the next', () => {
-		// Grid starts on Mon 2024-01-29 (tail of January), so January is a single
-		// partial column. Its label would sit under February's and overlap, so it
-		// is dropped and February becomes the first visible label.
+		// Jan 29 is the only January column; February should be the first visible label.
 		const partialFirstMonth: DataPointDate[] = [
 			{ dateString: '2024-01-29', value: 1 },
 			{ dateString: '2024-02-05', value: 1 },
@@ -58,8 +56,7 @@ describe( 'buildCalendarHeatmapData', () => {
 	} );
 
 	test( 'keeps the first month label when the range never reaches a second month', () => {
-		// A single week entirely within January: there is no later month label to
-		// collide with, so the only month label must stay for context.
+		// Single-month ranges keep their lone month label.
 		const singleMonth: DataPointDate[] = [
 			{ dateString: '2024-01-01', value: 1 },
 			{ dateString: '2024-01-03', value: 2 },

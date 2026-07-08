@@ -6,9 +6,5 @@ export type HeatmapContextValue = {
 	primaryColorHex: string;
 };
 
-/**
- * Shared between the chart and its legend. Kept in its own module (rather than
- * exported from `heatmap-chart.tsx`) so the legend can consume it without an
- * import cycle back to the chart component.
- */
+/** Shared by the chart and legend without importing back from `heatmap-chart.tsx`. */
 export const HeatmapContext = createContext< HeatmapContextValue | null >( null );

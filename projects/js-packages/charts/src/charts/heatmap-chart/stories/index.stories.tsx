@@ -69,10 +69,7 @@ export const Calendar: StoryObj< StoryArgs & { weekStartsOn: 0 | 1 } > = {
 	},
 };
 
-// A year of data that starts late in June, so the calendar's first column is a
-// single-week (partial) June. In compact mode the ~11px cells make month labels
-// far wider than a column, so the partial month's label would collide with the
-// next — this story guards that the partial first-month label is suppressed.
+// Regression story for a one-column first month label in compact mode.
 export const CompactCalendarPartialMonth: StoryObj< StoryArgs & { weekStartsOn: 0 | 1 } > = {
 	render: ( { weekStartsOn, ...args } ) => {
 		const { data, rowLabels } = buildCalendarHeatmapData( heatmapPartialMonthCalendarSeries, {
