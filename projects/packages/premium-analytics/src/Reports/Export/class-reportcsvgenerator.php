@@ -133,7 +133,9 @@ class ReportCSVGenerator {
 	private static function escape_csv_value( $value ): string {
 		$value = (string) $value;
 
-		if ( '' !== $value && in_array( $value[0], array( '=', '+', '-', '@', "\t", "\r" ), true ) ) {
+		// Leave legitimate numbers (including negatives like -12.00) untouched; only neutralize
+		// values that begin with a formula trigger and are not numeric.
+		if ( '' !== $value && ! is_numeric( $value ) && in_array( $value[0], array( '=', '+', '-', '@', "\t", "\r" ), true ) ) {
 			return "'" . $value;
 		}
 
