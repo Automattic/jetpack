@@ -32,6 +32,9 @@
 }
 
 .bodyHeader {
+
+	/* Above WidgetLoadingOverlay (z-index: 1): body chrome like the back link
+	 * stays usable during refetches, per the widget loading-state convention. */
 	position: relative;
 	z-index: 2;
 	flex-wrap: wrap;
