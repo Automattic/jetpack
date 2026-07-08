@@ -41,7 +41,7 @@ export default {
 	attributes: [
 		{
 			id: 'postId',
-			label: __( 'Email', 'jetpack-premium-analytics' ),
+			label: __( 'Email ID', 'jetpack-premium-analytics' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< EmailTopRowAttributes >[],
