@@ -24,6 +24,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+if ( class_exists( 'Jetpack_AI_Settings' ) ) {
+	return;
+}
+
 /**
  * Registers the Jetpack AI master switch and per-feature toggle options, and
  * enforces the host (WP_AI_SUPPORT) and master gates on the AI filters.
@@ -118,7 +122,7 @@ class Jetpack_AI_Settings {
 		$show_in_rest = ! ( new Host() )->is_wpcom_simple();
 
 		$options = array(
-			self::MASTER_OPTION => __( 'Whether Jetpack AI is enabled on this site.', 'jetpack' ),
+			self::MASTER_OPTION                        => __( 'Whether Jetpack AI is enabled on this site.', 'jetpack' ),
 			self::FEATURE_OPTIONS['writing_assistant'] => __( 'Whether the Jetpack AI writing assistant is enabled.', 'jetpack' ),
 			self::FEATURE_OPTIONS['image_editor']      => __( 'Whether the Jetpack AI image editor is enabled.', 'jetpack' ),
 			self::FEATURE_OPTIONS['image_label']       => __( 'Whether images generated with Jetpack AI are marked as AI-generated.', 'jetpack' ),
@@ -248,3 +252,11 @@ class Jetpack_AI_Settings {
 		return $enabled;
 	}
 }
+
+// Self-initialize on load. The consuming AI extension files require this file
+// directly (__DIR__-relative) because on WordPress.com Simple the plugin's
+// extension files load through wpcom's own loader and load-jetpack.php never
+// runs — a bootstrap-only init would leave the class missing and the gate
+// filters unattached there. init() is idempotent, so the additional
+// bootstrap call from load-jetpack.php on other platforms is harmless.
+Jetpack_AI_Settings::init();

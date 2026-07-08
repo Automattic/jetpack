@@ -21,6 +21,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// Required directly rather than relying on the plugin bootstrap: on
+// WordPress.com Simple the extension files load through wpcom's own loader
+// and load-jetpack.php never runs. Without it the jetpack_ai_enabled master
+// gate below would silently no-op there.
+require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
+
 /**
  * Registers our block for use in Gutenberg
  * This is done via an action so that we can disable

@@ -15,6 +15,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// Required directly rather than relying on the plugin bootstrap: on
+// WordPress.com Simple the extension files load through wpcom's own loader
+// and load-jetpack.php never runs.
+require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
+
 // Feature name.
 const FEATURE_NAME = 'ai-content-lens';
 
