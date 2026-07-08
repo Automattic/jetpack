@@ -46,7 +46,8 @@ const calibration = loadCalibration();
  * @param {string} username   - wp-admin username.
  * @param {string} password   - wp-admin password.
  * @param {number} iterations - Number of measurement iterations.
- * @param {object} [scenario] - Scenario config; reads optional `path` + `waitForSelector`.
+ * @param {object} [scenario] - Scenario config; reads optional `path`, `waitForSelector`,
+ *                            `expectUrlIncludes`, and `minResourceCount`.
  * @return {Promise<object>} { summary, results, url }.
  */
 async function measureLCP( url, username, password, iterations = 5, scenario = {} ) {
@@ -254,35 +255,19 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				};
 			} );
 
-			// Get resource stats
-			const resourceStats = await page.evaluate( () => {
-				const resources = performance.getEntriesByType( 'resource' );
-				const byType = {};
-				let totalTransferSize = 0;
-				let totalDecodedBodySize = 0;
-
-				resources.forEach( r => {
-					const type = r.initiatorType || 'other';
-					byType[ type ] = ( byType[ type ] || 0 ) + 1;
-					totalTransferSize += r.transferSize || 0;
-					// Sum the DECODED (uncompressed) size of every resource, not transferSize.
-					// The measured load is a warm-cache page.reload(), where cached resources
-					// report transferSize:0; and the Docker WordPress serves uncompressed, so
-					// transferSize would neither survive caching nor match real gzipped bytes.
-					// decodedBodySize is cache- and compression-independent, so it stays stable
-					// however assets are served — the right denominator for the runtime-payload
-					// (downloaded-but-unexecuted @wordpress/editor) regression this metric tracks.
-					totalDecodedBodySize += r.decodedBodySize || 0;
-				} );
-
-				return {
-					totalRequests: resources.length,
-					totalTransferSizeKB: Math.round( totalTransferSize / 1024 ),
-					totalDecodedBodySizeKB: Math.round( totalDecodedBodySize / 1024 ),
-					byType,
-				};
-			} );
+			// Gather the raw per-resource timing entries in the browser, then sum them in Node via
+			// summarizeResources() so the bundle-size arithmetic (the load-bearing decodedBodySize
+			// fold) is a pure, unit-tested function instead of untested inline browser code. Only the
+			// three fields the summary reads cross the CDP boundary.
+			const rawResources = await page.evaluate( () =>
+				performance.getEntriesByType( 'resource' ).map( r => ( {
+					initiatorType: r.initiatorType,
+					transferSize: r.transferSize,
+					decodedBodySize: r.decodedBodySize,
+				} ) )
+			);
 			/* eslint-enable no-undef */
+			const resourceStats = summarizeResources( rawResources );
 
 			// Validate we got an LCP value
 			if ( metrics.lcp === null || metrics.lcp === undefined ) {
@@ -436,6 +421,43 @@ function buildSummary( validResults, iterations, fields = SUMMARY_FIELDS ) {
 		totalIterations: iterations,
 		// Per-field nested blocks for the multi-metric poster path (reads summary.<field>.median).
 		...perField,
+	};
+}
+
+/**
+ * Sum a page's resource-timing entries into the bundle-size stats.
+ *
+ * This is the load-bearing arithmetic behind the decodedBytesKB metric, lifted out of the browser
+ * capture so it is unit-testable in Node. It sums the DECODED (uncompressed) size of every resource,
+ * NOT transferSize: the measured load is a warm-cache page.reload(), where cached resources report
+ * transferSize:0, and the Docker WordPress serves uncompressed, so transferSize would neither survive
+ * caching nor match real gzipped bytes. decodedBodySize is cache- and compression-independent, so it
+ * stays stable however assets are served — the right denominator for the runtime-payload
+ * (downloaded-but-unexecuted `@wordpress/editor`) regression this metric tracks. A missing/undefined
+ * size counts as 0 and a missing initiatorType buckets as 'other', matching the browser's behavior.
+ *
+ * @param {Array<object>} resources - Raw resource-timing entries; each may carry `initiatorType`,
+ *                                  `transferSize`, and `decodedBodySize` (all optional — the only three fields the summary reads).
+ * @return {object} Aggregated stats: `totalRequests`, `totalTransferSizeKB`, `totalDecodedBodySizeKB`,
+ * and `byType` (request count per initiatorType). decodedBytesKB is folded from totalDecodedBodySizeKB.
+ */
+function summarizeResources( resources ) {
+	const byType = {};
+	let totalTransferSize = 0;
+	let totalDecodedBodySize = 0;
+
+	resources.forEach( r => {
+		const type = r.initiatorType || 'other';
+		byType[ type ] = ( byType[ type ] || 0 ) + 1;
+		totalTransferSize += r.transferSize || 0;
+		totalDecodedBodySize += r.decodedBodySize || 0;
+	} );
+
+	return {
+		totalRequests: resources.length,
+		totalTransferSizeKB: Math.round( totalTransferSize / 1024 ),
+		totalDecodedBodySizeKB: Math.round( totalDecodedBodySize / 1024 ),
+		byType,
 	};
 }
 
@@ -658,4 +680,11 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 	} );
 }
 
-export { measureLCP, resolveResultsGit, buildSummary, assertCaptureComplete, assertExpectedUrl };
+export {
+	measureLCP,
+	resolveResultsGit,
+	buildSummary,
+	assertCaptureComplete,
+	assertExpectedUrl,
+	summarizeResources,
+};

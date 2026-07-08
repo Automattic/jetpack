@@ -22,6 +22,7 @@ import {
 	resolveResultsGit,
 	assertCaptureComplete,
 	assertExpectedUrl,
+	summarizeResources,
 } from './measure-lcp.js';
 import {
 	checkSanityRange,
@@ -1583,6 +1584,61 @@ test( 'assertExpectedUrl is a no-op when the scenario declares no expected route
 	// The Dashboard scenario declares no expectUrlIncludes, so the guard never fires for it —
 	// even a totally unrelated URL is accepted.
 	assert.doesNotThrow( () => assertExpectedUrl( 'http://localhost:8083/anything', null ) );
+} );
+
+// --- summarizeResources (the decodedBytesKB source aggregation) ---
+
+test( 'summarizeResources sums decodedBodySize across every resource, including warm-cache zero-transfer ones', () => {
+	// The core contract of the whole metric: a cached resource reports transferSize 0 but keeps its
+	// real decodedBodySize, and it MUST still count toward the bundle size — that is the entire
+	// reason the metric reads decoded bytes instead of transfer size.
+	const stats = summarizeResources( [
+		{ initiatorType: 'script', transferSize: 0, decodedBodySize: 900 * 1024 },
+		{ initiatorType: 'script', transferSize: 5 * 1024, decodedBodySize: 100 * 1024 },
+	] );
+	assert.equal( stats.totalDecodedBodySizeKB, 1000 ); // 900 + 100, cache-independent
+	assert.equal( stats.totalTransferSizeKB, 5 ); // only the uncached transfer counts
+	assert.equal( stats.totalRequests, 2 );
+} );
+
+test( 'summarizeResources treats missing/zero sizes as 0 and a missing initiatorType as "other"', () => {
+	// Cross-origin resources without Timing-Allow-Origin report 0 sizes, and entries can arrive with
+	// fields absent. Both must contribute 0 bytes (never NaN) and bucket under 'other'.
+	const stats = summarizeResources( [
+		{ initiatorType: 'link', transferSize: 0, decodedBodySize: 0 },
+		{}, // no fields at all
+	] );
+	assert.equal( stats.totalDecodedBodySizeKB, 0 );
+	assert.equal( stats.totalTransferSizeKB, 0 );
+	assert.equal( stats.totalRequests, 2 );
+	assert.equal( stats.byType.link, 1 );
+	assert.equal( stats.byType.other, 1 );
+} );
+
+test( 'summarizeResources buckets requests by initiatorType', () => {
+	const stats = summarizeResources( [
+		{ initiatorType: 'script', decodedBodySize: 1024 },
+		{ initiatorType: 'script', decodedBodySize: 1024 },
+		{ initiatorType: 'css', decodedBodySize: 1024 },
+	] );
+	assert.deepEqual( stats.byType, { script: 2, css: 1 } );
+} );
+
+test( 'summarizeResources rounds KB to the nearest integer', () => {
+	// 1536 bytes = 1.5 KB rounds to 2; the posted metric is whole KB.
+	const stats = summarizeResources( [ { initiatorType: 'img', decodedBodySize: 1536 } ] );
+	assert.equal( stats.totalDecodedBodySizeKB, 2 );
+} );
+
+test( 'summarizeResources returns coherent zeros for an empty capture (never NaN)', () => {
+	// An empty resource list is the degenerate capture the minResourceCount floor rejects; the
+	// summariser itself must still return zeros, not NaN, so the floor is what fails the iteration.
+	assert.deepEqual( summarizeResources( [] ), {
+		totalRequests: 0,
+		totalTransferSizeKB: 0,
+		totalDecodedBodySizeKB: 0,
+		byType: {},
+	} );
 } );
 
 // --- buildSummary (measure-lcp per-field aggregation; the load-bearing FORMS-707 change) ---
