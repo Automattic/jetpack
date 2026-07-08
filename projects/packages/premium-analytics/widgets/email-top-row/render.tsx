@@ -3,7 +3,7 @@
  */
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
 import {
-	MetricValue,
+	MetricWithComparison,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	type DataFormat,
@@ -11,13 +11,15 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { chartBar, link, people, percent, seen, send } from '@wordpress/icons';
+import { Icon, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import { type EmailTopRowAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps } from 'react';
 
 // Report params are dashboard-driven, but this widget reads the all-time
 // `stats/emails/summary` endpoint and ignores the date range. The host (and
@@ -27,6 +29,8 @@ type EmailTopRowWidgetProps = WidgetRenderProps< EmailTopRowRenderAttributes >;
 
 // A single row from the emails summary report, holding one email's all-time totals.
 type EmailSummaryRow = StatsEmailSummary[ 'data' ][ number ][ 'items' ][ number ];
+
+type TileIcon = ComponentProps< typeof Icon >[ 'icon' ];
 
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
@@ -39,7 +43,7 @@ const RATE_FORMAT: DataFormat = {
 };
 
 /**
- * A single top-row tile: the metric value with a caption beneath it.
+ * A single top-row tile: an icon, a label, and the formatted metric value.
  */
 export type EmailTopRowMetric = {
 	/**
@@ -47,7 +51,11 @@ export type EmailTopRowMetric = {
 	 */
 	key: string;
 	/**
-	 * Caption shown beneath the value (e.g. "Total opens").
+	 * Icon shown alongside the label.
+	 */
+	icon: TileIcon;
+	/**
+	 * Label shown next to the icon (e.g. "Total opens").
 	 */
 	label: string;
 	/**
@@ -73,36 +81,42 @@ export function toEmailTopRowMetrics( row: EmailSummaryRow ): EmailTopRowMetric[
 	return [
 		{
 			key: 'total_sends',
+			icon: send,
 			label: __( 'Total sends', 'jetpack-premium-analytics' ),
 			value: row.total_sends,
 			dataFormat: COUNT_FORMAT,
 		},
 		{
 			key: 'opens',
+			icon: seen,
 			label: __( 'Total opens', 'jetpack-premium-analytics' ),
 			value: row.opens,
 			dataFormat: COUNT_FORMAT,
 		},
 		{
 			key: 'unique_opens',
+			icon: people,
 			label: __( 'Unique opens', 'jetpack-premium-analytics' ),
 			value: row.unique_opens,
 			dataFormat: COUNT_FORMAT,
 		},
 		{
 			key: 'opens_rate',
+			icon: percent,
 			label: __( 'Open rate', 'jetpack-premium-analytics' ),
 			value: row.opens_rate / 100,
 			dataFormat: RATE_FORMAT,
 		},
 		{
 			key: 'clicks',
+			icon: link,
 			label: __( 'Total clicks', 'jetpack-premium-analytics' ),
 			value: row.clicks,
 			dataFormat: COUNT_FORMAT,
 		},
 		{
 			key: 'clicks_rate',
+			icon: chartBar,
 			label: __( 'Click rate', 'jetpack-premium-analytics' ),
 			value: row.clicks_rate / 100,
 			dataFormat: RATE_FORMAT,
@@ -145,7 +159,7 @@ type EmailTopRowTilesProps = {
 	isLoading?: boolean;
 	/**
 	 * When `true`, a background refetch is in progress. Existing tiles stay
-	 * visible; the container is marked busy for assistive tech.
+	 * visible; the grid is marked busy for assistive tech.
 	 */
 	isFetching?: boolean;
 	/**
@@ -156,9 +170,10 @@ type EmailTopRowTilesProps = {
 
 /**
  * Presentational top row for the "Email top row" widget. Renders the selected
- * email's headline totals as metric tiles and owns the loading, error, empty,
- * and populated states. Exported so Storybook and tests can exercise those
- * states with fixture metrics.
+ * email's headline totals as bordered metric tiles and owns the loading, error,
+ * empty, and populated states. Exported so Storybook and tests can exercise
+ * those states with fixture metrics. The emails summary has no comparison period,
+ * so each tile shows a bare formatted value with no delta.
  *
  * @param {EmailTopRowTilesProps} props - The component props.
  * @return The rendered top row.
@@ -169,39 +184,54 @@ export const EmailTopRowTiles = ( {
 	isFetching = false,
 	isError = false,
 }: EmailTopRowTilesProps ) => {
-	let body;
 	if ( isError ) {
-		body = (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ __( 'Unable to load email stats.', 'jetpack-premium-analytics' ) }</Text>
-			</Stack>
-		);
-	} else if ( isLoading && ! metrics ) {
-		body = <WidgetLoadingOverlay />;
-	} else if ( ! metrics ) {
-		body = (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>
-					{ __( 'Select an email to see its opens and clicks.', 'jetpack-premium-analytics' ) }
+		return (
+			<div className={ styles.root }>
+				<Text className={ styles.placeholder }>
+					{ __( 'Unable to load email stats.', 'jetpack-premium-analytics' ) }
 				</Text>
-			</Stack>
-		);
-	} else {
-		body = (
-			<div className={ styles.tiles } aria-busy={ isFetching }>
-				{ metrics.map( metric => (
-					<Stack key={ metric.key } direction="column" gap="xs" className={ styles.tile }>
-						<MetricValue value={ metric.value } dataFormat={ metric.dataFormat } fontSize="2xl" />
-						<Text variant="body-sm" className={ styles.caption }>
-							{ metric.label }
-						</Text>
-					</Stack>
-				) ) }
 			</div>
 		);
 	}
 
-	return <div className={ styles.root }>{ body }</div>;
+	if ( isLoading && ! metrics ) {
+		return (
+			<div className={ styles.root }>
+				<WidgetLoadingOverlay />
+			</div>
+		);
+	}
+
+	if ( ! metrics ) {
+		return (
+			<div className={ styles.root }>
+				<Text className={ styles.placeholder }>
+					{ __( 'Select an email to see its opens and clicks.', 'jetpack-premium-analytics' ) }
+				</Text>
+			</div>
+		);
+	}
+
+	return (
+		<div className={ styles.root }>
+			<div className={ styles.grid } aria-busy={ isFetching }>
+				{ metrics.map( metric => (
+					<div key={ metric.key } className={ styles.tile }>
+						<div className={ styles.tileHeader }>
+							<Icon icon={ metric.icon } size={ 24 } className={ styles.tileIcon } />
+							<Text className={ styles.tileLabel }>{ metric.label }</Text>
+						</div>
+						<MetricWithComparison
+							value={ metric.value }
+							dataFormat={ metric.dataFormat }
+							fontSize="xl"
+							className={ styles.tileValue }
+						/>
+					</div>
+				) ) }
+			</div>
+		</div>
+	);
 };
 
 type EmailTopRowReportProps = {
