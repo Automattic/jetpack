@@ -8,7 +8,7 @@ import {
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import LocationsRender from '../render';
-import widgetDefinition from '../widget';
+import widgetDefinition, { type LocationsAttributes } from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -29,6 +29,7 @@ const storyWidgetType = {
 
 interface LocationsStoryControls {
 	withComparison: boolean;
+	geoGranularity: NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
 }
 
 interface LocationsDashboardStoryProps
@@ -41,18 +42,19 @@ const withWidgetCanvas: Decorator = Story => (
 	</div>
 );
 
-function getLocationsAttributes(
-	withComparison = false
-): ComponentProps< typeof LocationsRender >[ 'attributes' ] {
+function getLocationsAttributes( {
+	withComparison,
+	geoGranularity,
+}: LocationsStoryControls ): ComponentProps< typeof LocationsRender >[ 'attributes' ] {
 	return {
-		geoGranularity: 'country',
+		geoGranularity,
 		max: 10,
 		reportParams: getDefaultQueryParams( withComparison ),
 	};
 }
 
-function renderLocationsWidget( { withComparison }: LocationsStoryControls ) {
-	return <LocationsRender attributes={ getLocationsAttributes( withComparison ) } />;
+function renderLocationsWidget( controls: LocationsStoryControls ) {
+	return <LocationsRender attributes={ getLocationsAttributes( controls ) } />;
 }
 
 function LocationsDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -61,6 +63,7 @@ function LocationsDashboardRender( props: WidgetRenderProps< unknown > ) {
 
 function LocationsDashboardStory( {
 	withComparison,
+	geoGranularity,
 	...dashboardArgs
 }: LocationsDashboardStoryProps ) {
 	return (
@@ -69,7 +72,7 @@ function LocationsDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ LOCATIONS_RENDER_MODULE }
 			renderComponent={ LocationsDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getLocationsAttributes( withComparison ) }
+			attributes={ getLocationsAttributes( { withComparison, geoGranularity } ) }
 		/>
 	);
 }
@@ -83,12 +86,17 @@ const meta = {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params.',
 		},
+		geoGranularity: {
+			control: 'radio',
+			options: [ 'country', 'city' ],
+			description: 'The "View by" toolbar attribute rendered by the widget host.',
+		},
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Locations" widget. Shows visitor views by country or city, with country drill-down into regions, using the global dashboard date range.',
+					'The "Locations" widget. Shows visitor views by country or city, with country drill-down into regions, using the global dashboard date range. The Countries/Cities view is the `geoGranularity` attribute (`relevance: \'high\'`), exposed as a control by the widget host.',
 			},
 		},
 	},
@@ -100,13 +108,20 @@ type DashboardStory = StoryObj< LocationsDashboardStoryProps >;
 
 export const Default: StoryObj< LocationsStoryControls > = {
 	render: renderLocationsWidget,
-	args: { withComparison: false },
+	args: { withComparison: false, geoGranularity: 'country' },
 	decorators: [ withWidgetCanvas ],
 };
 
 export const WithComparison: StoryObj< LocationsStoryControls > = {
 	render: renderLocationsWidget,
-	args: { withComparison: true },
+	args: { withComparison: true, geoGranularity: 'country' },
+	decorators: [ withWidgetCanvas ],
+};
+
+// Cities mode — city rows in the leaderboard, aggregated by country on the map.
+export const CitiesMode: StoryObj< LocationsStoryControls > = {
+	render: renderLocationsWidget,
+	args: { withComparison: false, geoGranularity: 'city' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -117,12 +132,18 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 		widgetWidth: 2,
 		widgetHeight: 1,
 		withComparison: true,
+		geoGranularity: 'country',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params.',
+		},
+		geoGranularity: {
+			control: 'radio',
+			options: [ 'country', 'city' ],
+			description: 'The "View by" toolbar attribute rendered by the widget host.',
 		},
 	},
 };

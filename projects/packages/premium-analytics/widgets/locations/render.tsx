@@ -12,6 +12,7 @@ import {
 	flagUrl,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	type GeoChartError,
 	type GeoData,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
@@ -159,7 +160,7 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 		return Array.from( countryRows.entries() );
 	}, [ data, useCityCountryMap ] );
 	const handleGeoChartError = useCallback(
-		( error: { id?: string; message?: string; detailedMessage?: string } ) => {
+		( error: GeoChartError ) => {
 			const message = `${ error.message ?? '' } ${ error.detailedMessage ?? '' }`;
 			// Any error during a provinces draw means this country's map is unusable —
 			// fall back regardless of the message text, which Google may localize. The
