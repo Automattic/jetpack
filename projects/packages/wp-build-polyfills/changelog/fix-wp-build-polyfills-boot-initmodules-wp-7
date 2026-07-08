@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Force-replace @wordpress/boot and wp-theme on WP 7.0 so wp-build init modules run and ThemeProvider is available.
+Force-replace @wordpress/boot and wp-theme on WordPress 7.0 so wp-build page init modules run and ThemeProvider is available without the Gutenberg plugin.

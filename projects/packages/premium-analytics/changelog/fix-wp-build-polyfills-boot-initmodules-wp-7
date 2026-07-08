@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Analytics: Emit JetpackScriptData on the wp-admin integrated dashboard page.
+Emit JetpackScriptData on the wp-admin integrated dashboard page so connection route guards work outside full-page mode.
