@@ -124,7 +124,11 @@ class ReportRegistry {
 		if ( $include_comparison ) {
 			$comparison_columns = array();
 			foreach ( $columns as $key => $label ) {
-				$comparison_columns[ ReportDataFetcher::COMPARISON_INDEX_PREFIX . $key ] = $label . ' (' . __( 'Previous Period', 'jetpack-premium-analytics' ) . ')';
+				$comparison_columns[ ReportDataFetcher::COMPARISON_INDEX_PREFIX . $key ] = sprintf(
+					/* translators: %s: the column label, e.g. "Orders". */
+					__( '%s (Previous Period)', 'jetpack-premium-analytics' ),
+					$label
+				);
 			}
 			$columns = array_merge( $columns, $comparison_columns );
 		}
