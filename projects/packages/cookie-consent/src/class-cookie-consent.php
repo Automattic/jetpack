@@ -1165,7 +1165,6 @@ class Cookie_Consent {
 			'cookiePolicyUrl' => $config['links']['cookie_policy_url'],
 			'gdprHonorsGpc'   => $config['gdpr_honors_gpc'] ?? true,
 			'forcePreview'    => $force_preview,
-			'categories'      => $frontend_categories,
 			'geoEnabled'      => (bool) $features['geo'],
 			// Always emit the full geo sub-array, even when the geo feature is off:
 			// the banner JS dereferences config.geo unconditionally, so omitting it
