@@ -774,6 +774,40 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		/*
+		 * When the user returns to the editor right after a successful plan
+		 * purchase (signalled by the `plan_upgraded` redirect argument), refresh
+		 * the locally cached plan from WordPress.com before block availability is
+		 * computed below. Otherwise `available_blocks` is derived from the stale
+		 * `jetpack_active_plan` option (only refreshed by the daily heartbeat) and
+		 * paid blocks keep showing their upgrade nudge even though the plan is now
+		 * active. Simple sites gate features live via `wpcom_site_has_feature()`,
+		 * so they neither need nor benefit from this.
+		 *
+		 * The refresh is a blocking WordPress.com request, so it is guarded to run
+		 * only on a connected, non-WPCOM site, throttled to once per minute (a
+		 * repeated or bookmarked `?plan_upgraded` URL cannot trigger a request on
+		 * every load), and time-boxed so a slow origin cannot hang the editor. The
+		 * client-side reload fallback covers a skipped or failed refresh. The value
+		 * is only used to trigger a cache refresh from an authoritative source, so
+		 * no nonce is required. See FORMS-712.
+		 */
+		if (
+			! empty( $_GET['plan_upgraded'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			&& ! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			&& Jetpack::is_connection_ready()
+			&& ! get_transient( 'jetpack_plan_upgraded_refresh' )
+		) {
+			set_transient( 'jetpack_plan_upgraded_refresh', 1, MINUTE_IN_SECONDS );
+
+			$cap_plan_refresh_timeout = static function () {
+				return 5;
+			};
+			add_filter( 'http_request_timeout', $cap_plan_refresh_timeout, PHP_INT_MAX );
+			Jetpack_Plan::refresh_from_wpcom();
+			remove_filter( 'http_request_timeout', $cap_plan_refresh_timeout, PHP_INT_MAX );
+		}
+
 		$status = new Status();
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.

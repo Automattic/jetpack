@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Editor: refresh the cached plan when returning from a plan purchase so paid blocks (such as the Forms file upload field) stop showing their upgrade nudge once the plan is active.
