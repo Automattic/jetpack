@@ -42,6 +42,6 @@
 }
 
 .reportLink {
-	color: var(--wpds-color-fg-interactive-brand, #3858e9);
+	color: var(--wpds-color-foreground-interactive-brand, #3858e9);
 	font-weight: 500;
 }
