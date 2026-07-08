@@ -337,6 +337,9 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
  * `decodedBytesKB` is the summed per-resource decodedBodySize (folded into the per-iteration
  * metrics block above): the page's runtime payload in KB. Unlike the timing fields it is
  * deterministic — throttle- and noise-independent — so the median across iterations is exact.
+ * It is aggregated for every scenario but posted only by those that list it in `metrics[]`;
+ * scenarios that don't (the dashboard) keep it as diagnostic data in `results.json` and never
+ * send it to CodeVitals.
  */
 const SUMMARY_FIELDS = [ 'lcp', 'ttfb', 'fcp', 'decodedBytesKB' ];
 
