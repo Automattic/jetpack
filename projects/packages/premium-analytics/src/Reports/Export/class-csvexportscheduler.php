@@ -296,16 +296,21 @@ class CSVExportScheduler implements RegistrableInterface {
 	 * @return void
 	 */
 	private function send_error_email( string $user_email, string $report_type ): void {
+		$report_label = $this->registry->get_label( $report_type );
+		if ( is_wp_error( $report_label ) ) {
+			$report_label = $report_type;
+		}
+
 		$subject = sprintf(
-			/* translators: %s: Report type */
+			/* translators: %s: Report label */
 			__( 'Export Failed: %s', 'jetpack-premium-analytics' ),
-			$report_type
+			$report_label
 		);
 
 		$message = sprintf(
-			/* translators: %s: Report type */
+			/* translators: %s: Report label */
 			__( 'Your export for "%s" could not be completed. Please try again later.', 'jetpack-premium-analytics' ),
-			$report_type
+			$report_label
 		);
 
 		wp_mail( $user_email, $subject, $message );
