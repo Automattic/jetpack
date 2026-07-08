@@ -107,6 +107,10 @@ class ReportCSVGenerator {
 			return $file_path;
 
 		} catch ( Exception $e ) {
+			// Remove any partially written file so it does not linger in the exports dir.
+			if ( isset( $file_path ) && is_string( $file_path ) && file_exists( $file_path ) ) {
+				wp_delete_file( $file_path );
+			}
 			$this->logger->log_exception( $e, __METHOD__ );
 			return new WP_Error(
 				'csv_generation_failed',
@@ -245,7 +249,9 @@ class ReportCSVGenerator {
 
 		// Set headers for file download.
 		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+		// Strip path + CR/LF/quotes so the filename cannot inject additional headers.
+		$safe_filename = str_replace( array( "\r", "\n", '"' ), '', basename( $filename ) );
+		header( 'Content-Disposition: attachment; filename="' . $safe_filename . '"' );
 		header( 'Content-Length: ' . filesize( $file_path ) );
 		header( 'Pragma: no-cache' );
 		header( 'Expires: 0' );

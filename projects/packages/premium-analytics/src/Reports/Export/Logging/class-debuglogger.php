@@ -5,7 +5,11 @@
  * @package automattic/jetpack-premium-analytics
  */
 
+declare( strict_types=1 );
+
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging;
+
+defined( 'ABSPATH' ) || exit;
 
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
 use Exception;
