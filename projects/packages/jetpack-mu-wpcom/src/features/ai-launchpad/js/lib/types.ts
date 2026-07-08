@@ -16,6 +16,7 @@ export interface TailoredInferred {
 	goal: GoalSlug;
 	brand_name?: string;
 	niche?: string;
+	theme_keyword?: string;
 	vibe?: string;
 	audience?: string;
 	tagline?: string;

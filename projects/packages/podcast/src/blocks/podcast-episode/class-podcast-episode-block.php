@@ -9,12 +9,9 @@ namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Status\Request;
 
 /**
  * Registers and renders the Podcast Episode block.
- *
- * The caller (Podcast::init()) is responsible for the host gate.
  */
 class Podcast_Episode_Block {
 
@@ -189,29 +186,19 @@ class Podcast_Episode_Block {
 	/**
 	 * Render callback.
 	 *
+	 * Renders the full player in every context so the RSS feed carries it — how the WPCOM Reader shows
+	 * it on Atomic/Jetpack sites. Email is handled separately by render_email().
+	 *
 	 * Pulls title, author, and date from the surrounding post — the post is
 	 * the episode. Cover art falls back to the show-level `podcasting_image`
 	 * option when the block has no episode-specific override.
 	 *
 	 * @param array     $attributes Block attributes.
-	 * @param string    $content    Inner content (fallback direct-link markup from save.js).
+	 * @param string    $content    Saved inner content from save.js; unused, the block renders its own markup.
 	 * @param \WP_Block $block      The parsed block instance, used to read post context.
 	 * @return string
 	 */
 	public static function render_block( $attributes, $content, $block = null ) {
-		// Outside the frontend, fall back to the saved direct link so RSS / email / REST export stays
-		// simple and predictable. The WPCOM Reader is the exception: it serves posts through the REST
-		// API but wants the full interactive player, so detect its render context and render normally.
-		$is_wpcom_reader = false;
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			require_once WP_CONTENT_DIR . '/lib/display-context.php';
-			$is_wpcom_reader = \A8C\Display_Context\READER === \A8C\Display_Context\get_current_context();
-		}
-
-		if ( ! Request::is_frontend() && ! $is_wpcom_reader ) {
-			return $content;
-		}
-
 		if ( empty( $attributes['mediaUrl'] ) ) {
 			return '';
 		}
@@ -344,7 +331,13 @@ class Podcast_Episode_Block {
 					<?php endif; ?>
 
 					<?php if ( $title ) : ?>
-						<h3 class="jetpack-podcast-episode__title" itemprop="name"><?php echo esc_html( $title ); ?></h3>
+						<h3 class="jetpack-podcast-episode__title" itemprop="name">
+							<?php if ( $episode_url ) : ?>
+								<a href="<?php echo esc_url( $episode_url ); ?>"><?php echo esc_html( $title ); ?></a>
+							<?php else : ?>
+								<?php echo esc_html( $title ); ?>
+							<?php endif; ?>
+						</h3>
 					<?php endif; ?>
 
 					<?php if ( $author_name || $publish_date || $duration ) : ?>
@@ -402,7 +395,7 @@ class Podcast_Episode_Block {
 								if ( $mime_type ) :
 									?>
 									data-mime="<?php echo esc_attr( $mime_type ); ?>"<?php endif; ?>
-							></video>
+							><a href="<?php echo esc_url( $media_url ); ?>"><?php esc_html_e( 'Watch the episode', 'jetpack-podcast' ); ?></a></video>
 						<?php else : ?>
 							<audio
 								class="jetpack-podcast-episode__audio"
@@ -413,7 +406,7 @@ class Podcast_Episode_Block {
 								if ( $mime_type ) :
 									?>
 									data-mime="<?php echo esc_attr( $mime_type ); ?>"<?php endif; ?>
-							></audio>
+							><a href="<?php echo esc_url( $media_url ); ?>"><?php esc_html_e( 'Listen to the episode', 'jetpack-podcast' ); ?></a></audio>
 						<?php endif; ?>
 					</div>
 

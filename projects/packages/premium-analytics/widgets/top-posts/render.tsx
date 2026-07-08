@@ -57,6 +57,7 @@ export type TopPostRow = {
 // Report params are dashboard-driven — WidgetRoot resolves them from the date
 // picker — but the host (and Storybook) may also inject them via `attributes`.
 type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
+type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
 type TopPostsReportProps = Pick< TopPostsAttributes, 'num' | 'postType' >;
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
@@ -205,9 +206,7 @@ function toTopPostRows(
  * `TopPostsLeaderboard`. The date range and comparison period come from the
  * dashboard picker via `reportParams`.
  *
- * @param props          - Component props.
- * @param props.num      - Maximum number of posts to display.
- * @param props.postType - Post type(s) to keep, or undefined/empty for all.
+ * @param {TopPostsReportProps} props - The component props.
  * @return The widget content.
  */
 function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
@@ -284,13 +283,10 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
  * range via context, the same way the other Stats widgets read them. The
  * widget's own `num`/`postType` settings are forwarded to the inner component.
  *
- * @param props            - Render props supplied by the widget host.
- * @param props.attributes - Widget attributes.
+ * @param {TopPostsWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function TopPosts( {
-	attributes = {},
-}: WidgetRenderProps< TopPostsRenderAttributes > ) {
+export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>

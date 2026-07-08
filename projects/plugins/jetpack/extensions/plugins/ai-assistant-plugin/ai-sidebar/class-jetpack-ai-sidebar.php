@@ -351,6 +351,19 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * UI feature flag for the Generate Excerpt suggestion.
+	 *
+	 * Exposed only in internal testing environments while the feature is in development.
+	 * No plan gate: the excerpt is a core editorial field, and the ability's own
+	 * permission callback (edit_posts) gates execution server-side.
+	 *
+	 * @return bool
+	 */
+	private static function is_excerpt_suggestion_enabled(): bool {
+		return jetpack_is_internal_testing_environment();
+	}
+
+	/**
 	 * Whether the site's plan includes the Jetpack SEO feature.
 	 *
 	 * Same predicate the SEO editor panel uses to decide between the SEO fields and
@@ -439,6 +452,7 @@ class Jetpack_AI_Sidebar {
 			'blockToolbarButton'      => false,
 			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
 			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
+			'excerptSuggestion'       => self::is_excerpt_suggestion_enabled(),
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
@@ -457,6 +471,7 @@ class Jetpack_AI_Sidebar {
 		$features['proofreadContent']        = self::is_proofread_content_enabled();
 		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && self::is_optimize_title_suggestion_enabled();
 		$features['seoSuggestions']          = (bool) $features['seoSuggestions'] && self::is_seo_suggestions_enabled();
+		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'] && self::is_excerpt_suggestion_enabled();
 
 		return array(
 			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),

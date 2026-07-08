@@ -3,10 +3,14 @@
  */
 import { __ } from '@wordpress/i18n';
 import { search } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-export interface SearchTermsAttributes {
+export type SearchTermsAttributes = {
+	/**
+	 * Maximum number of rows to display.
+	 */
 	max?: number;
-}
+};
 
 /**
  * Widget type definition for the Search Terms widget.
@@ -25,9 +29,9 @@ export default {
 		{
 			id: 'max',
 			label: __( 'Number of results', 'jetpack-premium-analytics' ),
-			type: 'integer' as const,
+			type: 'integer',
 		},
-	],
+	] as WidgetAttributeField< SearchTermsAttributes >[],
 	example: {
 		attributes: {
 			max: 10,

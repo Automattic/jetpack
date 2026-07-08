@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast: refresh the package-init comment to reflect the consolidated module-based load gating (no functional change).

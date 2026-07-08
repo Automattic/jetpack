@@ -1,14 +1,9 @@
 import { setLocale } from '@automattic/number-formatters';
-import { privateApis as themePrivateApis } from '@wordpress/theme';
+import { ThemeProvider } from '@wordpress/theme';
 import { useEffect, useRef, useCallback } from 'react';
 import { GlobalChartsProvider } from '../providers';
 import { CHART_THEME_MAP, DEFAULT_ACCENT_COLOR } from './theme-config';
-import { unlock } from './unlock';
 import type { Decorator } from '@storybook/react';
-
-const { ThemeProvider } = unlock( themePrivateApis ) as {
-	ThemeProvider: typeof import('@wordpress/theme').ThemeProvider;
-};
 
 /**
  * Generic StoryArgs type that extends any chart component props with themeName

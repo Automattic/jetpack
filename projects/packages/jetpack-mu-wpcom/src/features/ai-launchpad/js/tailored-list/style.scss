@@ -78,11 +78,11 @@
 	&__title {
 		font-weight: 500;
 		font-size: 14px;
-		color: var(--wpds-color-fg-interactive-neutral, #1e1e1e);
+		color: var(--wpds-color-foreground-interactive-neutral, #1e1e1e);
 
 		&.is-done {
 			text-decoration: line-through;
-			color: var(--wpds-color-fg-interactive-neutral-disabled, #8d8d8d);
+			color: var(--wpds-color-foreground-interactive-neutral-disabled, #8d8d8d);
 		}
 	}
 
@@ -92,14 +92,14 @@
 	&__icon {
 		flex-shrink: 0;
 		display: inline-flex;
-		color: var(--wpds-color-fg-interactive-neutral, #1e1e1e);
+		color: var(--wpds-color-foreground-interactive-neutral, #1e1e1e);
 
 		svg {
 			fill: currentColor;
 		}
 
 		&.is-done {
-			color: var(--wpds-color-fg-interactive-neutral-disabled, #8d8d8d);
+			color: var(--wpds-color-foreground-interactive-neutral-disabled, #8d8d8d);
 		}
 	}
 
@@ -121,7 +121,7 @@
 
 		.ai-launchpad-tailored-list__title,
 		.ai-launchpad-tailored-list__icon {
-			color: var(--wpds-color-fg-interactive-neutral-disabled, #8d8d8d);
+			color: var(--wpds-color-foreground-interactive-neutral-disabled, #8d8d8d);
 		}
 	}
 
@@ -156,7 +156,6 @@
 
 			&:hover,
 			&:focus-within {
-				border-color: var(--wp-admin-theme-color, #3858e9);
 
 				.ai-launchpad-tailored-list__preview-edit {
 					opacity: 1;
