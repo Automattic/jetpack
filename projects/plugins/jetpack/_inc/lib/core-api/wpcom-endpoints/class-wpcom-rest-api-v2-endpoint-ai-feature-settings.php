@@ -26,6 +26,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// On WordPress.com the endpoint files load from the synced jetpack-endpoints
+// directory, outside the plugin tree, so pull the settings class in via the
+// plugin dir constant (same pattern as the jetpack-ai endpoint's AI helper).
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings
  */

@@ -19,6 +19,11 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+// Required directly rather than relying on the plugin bootstrap: on
+// WordPress.com Simple the extension files load through wpcom's own loader
+// and load-jetpack.php never runs.
+require_once __DIR__ . '/../../../../_inc/lib/class-jetpack-ai-settings.php';
+
 const AM_ASSET_BASE_PATH                  = 'widgets.wp.com/agents-manager/';
 const AI_SIDEBAR_ASSET_TRANSIENT          = 'jetpack_ai_sidebar_asset';
 const AI_SIDEBAR_JS_URL                   = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
