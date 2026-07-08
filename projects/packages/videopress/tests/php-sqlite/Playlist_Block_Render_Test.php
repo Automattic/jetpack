@@ -408,6 +408,35 @@ class Playlist_Block_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'wp-block-videopress-playlist--list', $html );
 	}
 
+	/**
+	 * Tests that non-string className/align/anchor values are ignored.
+	 *
+	 * Block attributes come straight from the block comment, which anyone able
+	 * to write posts can hand-craft; array values used to interpolate as the
+	 * literal "Array" (plus PHP warnings) into the class and id attributes.
+	 */
+	public function test_render_ignores_non_string_presentation_attributes() {
+		$this->enable_studio_and_register();
+
+		$term_id = $this->create_playlist_with_members(
+			array( $this->create_video_attachment( array( 'guid' => 'sCalar01' ) ) )
+		);
+
+		$html = Playlist_Block::render(
+			array(
+				'playlistId' => $term_id,
+				'className'  => array( 'is-style-fancy' ),
+				'align'      => array( 'wide' ),
+				'anchor'     => array( 'my-playlist' ),
+			)
+		);
+
+		$this->assertStringContainsString( 'wp-block-videopress-playlist--list', $html );
+		$this->assertStringNotContainsString( 'Array', $html );
+		// The only ` id="` the wrapper can emit is the anchor passthrough.
+		$this->assertStringNotContainsString( ' id="', $html );
+	}
+
 	/** Tests the JSON config payload: ordered entries, embed URLs, autoplayNext flag. */
 	public function test_render_config_payload_and_autoplay_next() {
 		$this->enable_studio_and_register();

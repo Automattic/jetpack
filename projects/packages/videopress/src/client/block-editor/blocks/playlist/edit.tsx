@@ -1,6 +1,7 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
+import { formatNumber } from '@automattic/number-formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockIcon, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
@@ -11,6 +12,7 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { useEffect, useMemo, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import clsx from 'clsx';
@@ -96,13 +98,18 @@ function formatDuration( durationMs: number ): string {
 /**
  * Map a raw /wp/v2/media item to the slice the preview renders.
  *
+ * `title.rendered` arrives HTML-encoded (the REST API runs `the_title`
+ * filters), while React escapes on output — decode here so "Cats & Dogs"
+ * does not preview as "Cats &#038; Dogs". The frontend render is already
+ * correct: PHP escapes the raw title once with esc_html().
+ *
  * @param {ApiMediaItem} raw - The raw media item from the REST API response.
  * @return {PreviewVideo} The preview slice.
  */
 function toPreviewVideo( raw: ApiMediaItem ): PreviewVideo {
 	return {
 		id: raw.id,
-		title: raw.title?.rendered ?? raw.slug ?? '',
+		title: decodeEntities( raw.title?.rendered ?? raw.slug ?? '' ),
 		poster: raw.media_details?.videopress?.poster ?? '',
 		durationMs: raw.media_details?.videopress?.duration ?? 0,
 	};
@@ -279,17 +286,19 @@ export default function PlaylistEdit( {
 					<img className="wp-block-videopress-playlist__artwork" src={ headerArtworkUrl } alt="" />
 				) }
 				<div className="wp-block-videopress-playlist__header-text">
-					<span className="wp-block-videopress-playlist__name">{ selectedPlaylist.name }</span>
+					<span className="wp-block-videopress-playlist__name">
+						{ decodeEntities( selectedPlaylist.name ) }
+					</span>
 					{ selectedPlaylist.description !== '' && (
 						<div className="wp-block-videopress-playlist__description">
-							{ selectedPlaylist.description }
+							{ decodeEntities( selectedPlaylist.description ) }
 						</div>
 					) }
 					<span className="wp-block-videopress-playlist__count">
 						{ sprintf(
-							/* translators: %d: the number of videos in the playlist. */
-							_n( '%d video', '%d videos', orderedVideos.length, 'jetpack-videopress-pkg' ),
-							orderedVideos.length
+							/* translators: %s: the number of videos in the playlist. */
+							_n( '%s video', '%s videos', orderedVideos.length, 'jetpack-videopress-pkg' ),
+							formatNumber( orderedVideos.length )
 						) }
 					</span>
 				</div>

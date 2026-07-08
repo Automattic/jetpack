@@ -306,6 +306,44 @@ describe( 'PlaylistEdit', () => {
 		expect( screen.queryByText( '2 videos' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'decodes HTML entities in video titles and playlist names', async () => {
+		// title.rendered arrives entity-encoded from the REST API (the_title
+		// filters), and term names/descriptions can carry entities too; React
+		// escapes on output, so the preview must decode first.
+		mockApiFetch( async ( { path } ) => {
+			if ( path?.startsWith( '/wp/v2/videopress-playlists' ) ) {
+				return [
+					{
+						id: 7,
+						name: 'Cats &amp; Dogs',
+						description: 'Fur &amp; feathers',
+						count: 1,
+						meta: { vps_playlist_artwork_id: 0, vps_playlist_order: [] },
+					},
+				];
+			}
+			if ( path?.startsWith( '/wp/v2/media?' ) ) {
+				return [
+					{
+						id: 20,
+						title: { rendered: 'Cats &#038; Dogs, part 1' },
+						media_details: { videopress: { poster: '', duration: 65000 } },
+					},
+				];
+			}
+			throw new Error( `Unexpected path: ${ path }` );
+		} );
+
+		renderEdit( { playlistId: 7 } );
+
+		// Item title, header name (also a picker option label), description.
+		await expect( screen.findByText( 'Cats & Dogs, part 1' ) ).resolves.toBeInTheDocument();
+		expect( screen.getAllByText( 'Cats & Dogs' ) ).not.toHaveLength( 0 );
+		expect( screen.getByText( 'Fur & feathers' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'option', { name: 'Cats & Dogs' } ) ).toBeInTheDocument();
+		expect( screen.queryByText( /&amp;|&#038;/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'flags a selected playlist that no longer exists', async () => {
 		mockRoutes();
 

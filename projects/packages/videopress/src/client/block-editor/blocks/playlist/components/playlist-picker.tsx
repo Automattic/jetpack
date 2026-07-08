@@ -3,6 +3,7 @@
  */
 import { ComboboxControl } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Types
@@ -40,7 +41,9 @@ export default function PlaylistPicker( {
 				value: String( playlist.id ),
 				label:
 					playlist.name !== ''
-						? playlist.name
+						? // Term names can carry HTML entities; the control renders
+						  // plain text, so decode ("Cats &amp; Dogs" → "Cats & Dogs").
+						  decodeEntities( playlist.name )
 						: sprintf(
 								/* translators: %d: the playlist ID. */
 								__( 'Playlist #%d', 'jetpack-videopress-pkg' ),

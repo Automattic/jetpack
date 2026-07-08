@@ -112,15 +112,24 @@ class Playlist_Block {
 		$autoplay_next = (bool) ( $attributes['autoplayNext'] ?? true );
 		$layout        = ( $attributes['layout'] ?? 'list' ) === 'grid' ? 'grid' : 'list';
 
-		// CSS classes, mirroring the video block's wrapper conventions.
-		$align        = $attributes['align'] ?? null;
-		$align_class  = $align ? ' align' . $align : '';
-		$custom_class = isset( $attributes['className'] ) ? ' ' . $attributes['className'] : '';
+		/*
+		 * CSS classes, mirroring the video block's wrapper conventions. These
+		 * attributes come straight from the block comment, which anyone able to
+		 * write posts can hand-craft — a non-string value (e.g. an array) would
+		 * otherwise trigger "Array to string conversion" warnings and emit
+		 * markup like id="Array", so non-strings are ignored.
+		 */
+		$align        = $attributes['align'] ?? '';
+		$align_class  = is_string( $align ) && '' !== $align ? ' align' . $align : '';
+		$custom_class = isset( $attributes['className'] ) && is_string( $attributes['className'] )
+			? ' ' . $attributes['className']
+			: '';
 		$classes      = 'wp-block-videopress-playlist wp-block-videopress-playlist--' . $layout . $custom_class . $align_class;
 
 		$id_attribute = '';
-		if ( isset( $attributes['anchor'] ) && $attributes['anchor'] ) {
-			$id_attribute = sprintf( ' id="%s"', esc_attr( $attributes['anchor'] ) );
+		$anchor       = $attributes['anchor'] ?? '';
+		if ( is_string( $anchor ) && '' !== $anchor ) {
+			$id_attribute = sprintf( ' id="%s"', esc_attr( $anchor ) );
 		}
 
 		$header_html = $show_header ? self::render_header( $term, $videos ) : '';
