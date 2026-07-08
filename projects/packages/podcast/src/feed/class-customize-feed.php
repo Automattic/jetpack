@@ -29,6 +29,15 @@ class Customize_Feed {
 	private static $registered = false;
 
 	/**
+	 * Enclosure URLs already emitted in the current feed render, keyed by post
+	 * ID then URL. Reset on `rss2_head` so each feed starts clean — see
+	 * {@see self::is_duplicate_enclosure()}.
+	 *
+	 * @var array<int, array<string, true>>
+	 */
+	private static $seen_enclosures = array();
+
+	/**
 	 * Wire the late-binding `wp` action that decides whether to register the
 	 * feed-modification hooks for this request. Idempotent.
 	 */
@@ -70,6 +79,7 @@ class Customize_Feed {
 		add_action( 'rss2_ns', array( __CLASS__, 'output_namespaces' ) );
 		add_filter( 'wp_title_rss', array( __CLASS__, 'feed_title' ) );
 		add_filter( 'bloginfo_rss', array( __CLASS__, 'feed_description' ), 10, 2 );
+		add_action( 'rss2_head', array( __CLASS__, 'reset_enclosure_dedup' ), 0 );
 		add_action( 'rss2_head', array( __CLASS__, 'output_channel_tags' ) );
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
@@ -260,6 +270,7 @@ class Customize_Feed {
 		}
 
 		$original_url = $match[1];
+		$final_url    = $original_url;
 		$post_obj     = $post instanceof WP_Post ? $post : null;
 
 		/**
@@ -290,7 +301,7 @@ class Customize_Feed {
 
 			// Bail when we can't resolve a real blog ID — emit the original URL rather than a guaranteed-404 stats URL.
 			if ( $blog_id > 0 ) {
-				$stats_url = self::build_stats_url( $blog_id, (int) $post_obj->ID, $original_url );
+				$final_url = esc_url( self::build_stats_url( $blog_id, (int) $post_obj->ID, $original_url ) );
 				$enclosure = preg_replace_callback(
 					'/url="[^"]*"/i',
 					/**
@@ -301,9 +312,9 @@ class Customize_Feed {
 					 * @param array $matches Regex matches.
 					 * @return string
 					 */
-					static function ( array $matches ) use ( $stats_url ) {
+					static function ( array $matches ) use ( $final_url ) {
 						unset( $matches );
-						return 'url="' . esc_url( $stats_url ) . '"';
+						return 'url="' . $final_url . '"';
 					},
 					$enclosure,
 					1
@@ -311,7 +322,7 @@ class Customize_Feed {
 			}
 		}
 
-		if ( self::is_duplicate_enclosure( $post_obj, $enclosure ) ) {
+		if ( self::is_duplicate_enclosure( $post_obj, $final_url ) ) {
 			return '';
 		}
 
@@ -328,29 +339,32 @@ class Customize_Feed {
 	}
 
 	/**
+	 * Clear the per-render enclosure dedup registry. Hooked on `rss2_head` (at
+	 * priority 0, before any item renders) so re-generating a feed within a
+	 * single long-lived process — WP-CLI, a warm worker — starts fresh instead
+	 * of dropping every enclosure as already-seen.
+	 */
+	public static function reset_enclosure_dedup() {
+		self::$seen_enclosures = array();
+	}
+
+	/**
 	 * Whether this enclosure URL was already emitted for the current item.
 	 * Keyed per post so each item starts fresh, and by the final (rewritten)
 	 * URL so genuinely-distinct enclosures survive while repeats are dropped.
 	 *
-	 * @param WP_Post|null $post_obj  Post being rendered.
-	 * @param string       $enclosure Final enclosure markup.
+	 * @param WP_Post|null $post_obj Post being rendered.
+	 * @param string       $url      Final (rewritten) enclosure URL.
 	 * @return bool
 	 */
-	private static function is_duplicate_enclosure( $post_obj, string $enclosure ): bool {
-		static $seen = array();
-
-		if ( ! preg_match( '/url="([^"]*)"/i', $enclosure, $match ) ) {
-			return false;
-		}
-
+	private static function is_duplicate_enclosure( $post_obj, string $url ): bool {
 		$post_id = $post_obj instanceof WP_Post ? (int) $post_obj->ID : 0;
-		$url     = $match[1];
 
-		if ( isset( $seen[ $post_id ][ $url ] ) ) {
+		if ( isset( self::$seen_enclosures[ $post_id ][ $url ] ) ) {
 			return true;
 		}
 
-		$seen[ $post_id ][ $url ] = true;
+		self::$seen_enclosures[ $post_id ][ $url ] = true;
 		return false;
 	}
 

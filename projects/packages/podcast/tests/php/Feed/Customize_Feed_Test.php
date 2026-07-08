@@ -38,6 +38,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
 		Jetpack_Options::delete_option( 'id' );
+		Customize_Feed::reset_enclosure_dedup();
 		wp_cache_flush();
 		unset( $GLOBALS['post'] );
 		parent::tearDown();
@@ -389,6 +390,32 @@ class Customize_Feed_Test extends BaseTestCase {
 			$first
 		);
 		$this->assertSame( '', $second );
+	}
+
+	/**
+	 * The dedup registry is per feed render: `reset_enclosure_dedup()` (hooked
+	 * on `rss2_head`) clears it so re-generating the same feed within one
+	 * long-lived process emits enclosures again instead of dropping them all.
+	 */
+	public function test_reset_enclosure_dedup_lets_the_same_url_emit_on_a_fresh_render() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'        => 4242,
+				'post_type' => 'post',
+			)
+		);
+
+		add_filter( 'wpcom_podcasting_enable_play_tracking', '__return_false' );
+
+		$markup = '<enclosure url="https://example.com/episode.mp3" length="123" type="audio/mpeg" />';
+
+		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', Customize_Feed::rewrite_enclosure( $markup ) );
+		$this->assertSame( '', Customize_Feed::rewrite_enclosure( $markup ) );
+
+		Customize_Feed::reset_enclosure_dedup();
+
+		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', Customize_Feed::rewrite_enclosure( $markup ) );
 	}
 
 	public function test_resolve_category_id_prefers_numeric_id_over_archive_slug() {
