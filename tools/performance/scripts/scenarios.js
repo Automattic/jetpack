@@ -200,12 +200,12 @@ export const SANITY_RANGES = {
 	fcp: { min: 50, max: 30000 },
 	tbt: { min: 0, max: 10000 }, // Can legitimately be 0; >10s is catastrophic.
 	cls: { min: 0, max: 5 }, // >5 would mean the page is unusable.
-	// Summed per-resource decodedBodySize, in KB. The Forms responses wp-build dashboard
-	// measures ~8200 KB (deterministic across iterations). These are guardrails against a
-	// broken measurement, NOT a trend clip: min 1000 catches a page that failed to load its
-	// wp-build shell (a real dashboard is always well over 1MB decoded); max 51200 (50MB)
-	// catches a bytes-vs-KB scale error while staying clear of any legitimate regression, which
-	// the trend should record rather than reject.
+	// Summed per-resource decodedBodySize, in KB. This row now guards two scenarios: the Forms
+	// responses wp-build dashboard (~8200 KB) and My Jetpack (~5860 KB), so do not tighten it to
+	// either page's profile. These are guardrails against a broken measurement, NOT a trend clip:
+	// min 1000 catches a page that failed to load its wp-build shell (a real dashboard is always
+	// well over 1MB decoded); max 51200 (50MB) catches a bytes-vs-KB scale error while staying
+	// clear of any legitimate regression, which the trend should record rather than reject.
 	decodedBytesKB: { min: 1000, max: 51200 },
 };
 
