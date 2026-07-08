@@ -50,7 +50,11 @@ type GoogleChartsWindow = Window & {
 };
 
 const MISSING_MAP_ERROR_MESSAGE = 'Requested map does not exist';
-const KNOWN_UNSUPPORTED_PROVINCE_MAP_COUNTRIES = [ 'TW' ];
+// Google GeoChart has no `provinces` map file for these countries. Unknown
+// countries are detected at runtime via the GeoChart `onError` callback and
+// fall back the same way; listing a country here is just a fast path that
+// skips the failed draw (and its brief error flash) entirely.
+const KNOWN_UNSUPPORTED_PROVINCE_MAP_COUNTRIES = [ 'SG', 'TW' ];
 
 function getGeoChartCountryId( countryCode: string ): string {
 	if ( countryCode.toUpperCase() === 'TW' ) {
@@ -155,18 +159,27 @@ function LocationsInner( { max, geoGranularity }: LocationsAttributes ) {
 	}, [ data, useCityCountryMap ] );
 	const handleGeoChartError = useCallback(
 		( error: { id?: string; message?: string; detailedMessage?: string } ) => {
-			if ( ! selectedCountryCode || ! useProvinceMap ) {
-				return;
-			}
-
 			const message = `${ error.message ?? '' } ${ error.detailedMessage ?? '' }`;
+			// Any error during a provinces draw means this country's map is unusable —
+			// fall back regardless of the message text, which Google may localize. The
+			// message match only handles late duplicate events: a failing draw can fire
+			// several errors (resize and drill-down layout shifts each redraw), and the
+			// stragglers arrive after the widget already switched to the fallback map.
+			const isProvinceDrawError = !! selectedCountryCode && useProvinceMap;
 
-			if ( ! message.includes( MISSING_MAP_ERROR_MESSAGE ) ) {
+			if ( ! isProvinceDrawError && ! message.includes( MISSING_MAP_ERROR_MESSAGE ) ) {
 				return;
 			}
 
+			// Clear the error element Google injected into the chart container; the
+			// fallback redraw replaces the failed map, but the error element would
+			// otherwise linger above it.
 			if ( error.id && typeof window !== 'undefined' ) {
 				( window as GoogleChartsWindow ).google?.visualization?.errors?.removeError?.( error.id );
+			}
+
+			if ( ! isProvinceDrawError ) {
+				return;
 			}
 
 			setUnsupportedProvinceMapCountries( previous => {
