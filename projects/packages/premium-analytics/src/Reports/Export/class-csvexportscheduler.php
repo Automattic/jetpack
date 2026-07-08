@@ -133,7 +133,8 @@ class CSVExportScheduler implements RegistrableInterface {
 		if ( ! \is_email( $user_email ) ) {
 			return new \WP_Error(
 				'invalid_email',
-				__( 'Invalid email address provided.', 'jetpack-premium-analytics' )
+				__( 'Invalid email address provided.', 'jetpack-premium-analytics' ),
+				array( 'status' => 400 )
 			);
 		}
 
@@ -141,7 +142,8 @@ class CSVExportScheduler implements RegistrableInterface {
 			$this->logger->log_error( 'Action Scheduler is not available', __METHOD__ );
 			return new \WP_Error(
 				'action_scheduler_unavailable',
-				__( 'Action Scheduler is not available. Cannot schedule export.', 'jetpack-premium-analytics' )
+				__( 'Action Scheduler is not available. Cannot schedule export.', 'jetpack-premium-analytics' ),
+				array( 'status' => 503 )
 			);
 		}
 
@@ -149,7 +151,8 @@ class CSVExportScheduler implements RegistrableInterface {
 		if ( ! $this->registry->is_registered( $report_type ) ) {
 			return new \WP_Error(
 				'invalid_report_type',
-				__( 'Invalid report type.', 'jetpack-premium-analytics' )
+				__( 'Invalid report type.', 'jetpack-premium-analytics' ),
+				array( 'status' => 400 )
 			);
 		}
 
@@ -170,7 +173,8 @@ class CSVExportScheduler implements RegistrableInterface {
 			$this->logger->log_error( 'Failed to schedule CSV export action', __METHOD__ );
 			return new \WP_Error(
 				'schedule_failed',
-				__( 'Failed to schedule export job.', 'jetpack-premium-analytics' )
+				__( 'Failed to schedule export job.', 'jetpack-premium-analytics' ),
+				array( 'status' => 500 )
 			);
 		}
 
