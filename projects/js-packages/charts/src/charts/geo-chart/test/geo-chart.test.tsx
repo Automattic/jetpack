@@ -243,15 +243,6 @@ describe( 'GeoChart', () => {
 			expect( options.resolution ).toBe( 'provinces' );
 		} );
 
-		test( 'passes displayMode to Google Charts when provided', () => {
-			renderWithTheme( { displayMode: 'markers' } );
-
-			const chartOptions = screen.getByTestId( 'chart-options' );
-			const options = JSON.parse( chartOptions.textContent || '{}' );
-
-			expect( options.displayMode ).toBe( 'markers' );
-		} );
-
 		test( 'passes both region and resolution for US states view', () => {
 			const stateData = [
 				[ 'State', 'Value' ],

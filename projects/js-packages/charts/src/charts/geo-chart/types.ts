@@ -15,15 +15,6 @@ export type GeoRegion = 'world' | ( string & {} );
  */
 export type GeoResolution = 'countries' | 'provinces' | 'metros';
 
-/**
- * Display mode for the map.
- * - 'regions': Shade geographic regions.
- * - 'markers': Place sized markers at locations.
- * - 'text': Place text labels at locations.
- * - 'auto': Let Google Charts infer the display mode from the data.
- */
-export type GeoDisplayMode = 'auto' | 'regions' | 'markers' | 'text';
-
 export interface GeoChartError {
 	id?: string;
 	message?: string;
@@ -55,11 +46,6 @@ export interface GeoChartProps
 	 * @default 'countries'
 	 */
 	resolution?: GeoResolution;
-	/**
-	 * Display mode for the map.
-	 * @default 'auto'
-	 */
-	displayMode?: GeoDisplayMode;
 	/**
 	 * Callback fired when Google Charts emits a chart error.
 	 */
