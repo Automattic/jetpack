@@ -86,14 +86,6 @@
 	}
 }
 
-// Widget picker preview: the picker renders the tile inert. Constrain it to a
-// sensible aspect ratio so the preview doesn't collapse.
-:global([inert]:not([inert="true"])) .root {
-	height: auto;
-	aspect-ratio: 4 / 3;
-	overflow: hidden;
-}
-
 // The picker grid applies img { width: 100%; height: 100%; object-fit: cover }
 // to all images inside the media cell, overriding our 20px flag height.
 // Restore correct sizing for flag images in any inert context.

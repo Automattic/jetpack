@@ -6,6 +6,8 @@
 	flex: 1 1 auto;
 	min-block-size: 0;
 	overflow-y: auto;
+	// Reserve paint space for the widget host's outer focus outline.
+	padding-block-start: calc(var(--wpds-border-width-focus, 2px) + 2px);
 	// Match the horizontal padding of the tab bar and header so the widget grid
 	// lines up with them instead of sitting flush to the edge.
 	padding-block-end: 24px;

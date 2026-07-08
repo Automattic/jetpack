@@ -45,17 +45,21 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @param bool $was_ai_onboarded Whether the site already went through AI onboarding.
 	 * @param bool $enabled          Whether the site has the wpcom_ai_launchpad_enabled option set.
+	 * @param bool $dismissed        Whether the user dismissed the AI Launchpad.
 	 * @param bool $expected         Expected eligibility result.
 	 */
 	#[DataProvider( 'provide_eligibility_inputs' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_is_eligible( $was_ai_onboarded, $enabled, $expected ) {
+	public function test_is_eligible( $was_ai_onboarded, $enabled, $dismissed, $expected ) {
 		if ( $was_ai_onboarded ) {
 			update_option( 'site_intent', 'ai-assembler' );
 		}
 		if ( $enabled ) {
 			update_option( 'wpcom_ai_launchpad_enabled', true );
+		}
+		if ( $dismissed ) {
+			update_option( 'wpcom_ai_launchpad_dismissed', true );
 		}
 
 		$this->assertSame( $expected, AI_Launchpad::is_eligible() );
@@ -64,16 +68,18 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Data provider for test_is_eligible.
 	 *
-	 * The paid-plan requirement is temporarily lifted, so eligibility depends only on
-	 * the per-site enabled option and the site not already being AI-onboarded.
+	 * The paid-plan requirement is temporarily lifted, so eligibility depends on the
+	 * per-site enabled option, the site not already being AI-onboarded, and the user
+	 * not having dismissed the AI Launchpad (skipping the wizard dismisses it).
 	 *
 	 * @return array
 	 */
 	public static function provide_eligibility_inputs() {
 		return array(
-			'enabled'          => array( false, true, true ),
-			'not enabled'      => array( false, false, false ),
-			'onboarded blocks' => array( true, true, false ),
+			'enabled'          => array( false, true, false, true ),
+			'not enabled'      => array( false, false, false, false ),
+			'onboarded blocks' => array( true, true, false, false ),
+			'dismissed blocks' => array( false, true, true, false ),
 		);
 	}
 }

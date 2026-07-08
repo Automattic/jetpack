@@ -30,7 +30,10 @@ const DEFAULT_MAX = 7;
 // `reportParams`; the widget's own settings come from `VideosAttributes`.
 type VideosRenderAttributes = VideosAttributes & Partial< ReportParamsFieldAttributes >;
 
-type VideosRenderProps = WidgetRenderProps< VideosRenderAttributes > & {
+type VideosWidgetProps = WidgetRenderProps< VideosRenderAttributes > & {
+	/**
+	 * Dashboard error handler.
+	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -73,12 +76,7 @@ type VideosLeaderboardProps = {
  * played videos and is responsible only for the loading, empty, and populated
  * states.
  *
- * @param props                - Component props.
- * @param props.data           - Leaderboard rows to render.
- * @param props.isLoading      - Whether to render the initial loading overlay.
- * @param props.isRefetching   - Whether to layer a loading overlay over the chart.
- * @param props.withComparison - Whether to render previous-period deltas.
- * @param props.legendLabels   - Custom labels for the current/comparison periods.
+ * @param {VideosLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
 function VideosLeaderboard( {
@@ -113,15 +111,21 @@ function VideosLeaderboard( {
 	);
 }
 
+type VideosReportProps = {
+	/**
+	 * Maximum number of videos to display.
+	 */
+	max: number;
+};
+
 /**
  * Fetches the video-plays report through the Jetpack Stats hook, builds the
  * leaderboard rows, and hands them to the presentational `VideosLeaderboard`.
  *
- * @param props     - Component props.
- * @param props.max - Maximum number of videos to display.
+ * @param {VideosReportProps} props - The component props.
  * @return The widget content.
  */
-function VideosReport( { max }: { max: number } ) {
+function VideosReport( { max }: VideosReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
@@ -174,12 +178,10 @@ function VideosReport( { max }: { max: number } ) {
  * params consumed by the inner leaderboard — resolved from the dashboard date
  * range via context, the same way the other Stats widgets read them.
  *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
- * @param props.setError   - Dashboard error handler.
+ * @param {VideosWidgetProps} props - The widget render props.
  * @return The rendered Videos widget.
  */
-export default function Videos( { attributes = {}, setError }: VideosRenderProps ) {
+export default function Videos( { attributes = {}, setError }: VideosWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
 			<VideosReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />

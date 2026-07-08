@@ -15,8 +15,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/block-delimiter": "@dev",
-		"automattic/jetpack-device-detection": "@dev",
 		"automattic/phpunit-select-config": "@dev",
 		"automattic/jetpack-test-environment": "@dev"
 	},

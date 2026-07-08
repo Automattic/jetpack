@@ -18,7 +18,7 @@ import type { ComponentProps } from 'react';
 type StoreConversionRateBookingsRenderAttributes = StoreConversionRateBookingsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type StoreConversionRateBookingsRenderProps =
+type StoreConversionRateBookingsWidgetProps =
 	WidgetRenderProps< StoreConversionRateBookingsRenderAttributes > & {
 		setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 	};
@@ -30,11 +30,14 @@ type StoreConversionRateBookingsRenderProps =
  * client, chart theme, and resolved report params; BookingConversionRateWidget
  * fetches the conversion-rate report with bookings filters and renders the
  * funnel.
+ *
+ * @param {StoreConversionRateBookingsWidgetProps} props - The widget render props.
+ * @return The rendered widget.
  */
 export default function StoreConversionRateBookingsRender( {
 	attributes = {},
 	setError,
-}: StoreConversionRateBookingsRenderProps ) {
+}: StoreConversionRateBookingsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<BookingConversionRateWidget />

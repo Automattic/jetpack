@@ -15,6 +15,13 @@ export type GeoRegion = 'world' | ( string & {} );
  */
 export type GeoResolution = 'countries' | 'provinces' | 'metros';
 
+export interface GeoChartError {
+	id?: string;
+	message?: string;
+	detailedMessage?: string;
+	options?: Record< string, unknown >;
+}
+
 export interface GeoChartProps
 	extends Pick< BaseChartProps, 'className' | 'chartId' | 'width' | 'height' > {
 	/**
@@ -39,6 +46,10 @@ export interface GeoChartProps
 	 * @default 'countries'
 	 */
 	resolution?: GeoResolution;
+	/**
+	 * Callback fired when Google Charts emits a chart error.
+	 */
+	onError?: ( error: GeoChartError ) => void;
 	/**
 	 * Optional render function for the loading placeholder.
 	 * Called while Google Charts is loading.
