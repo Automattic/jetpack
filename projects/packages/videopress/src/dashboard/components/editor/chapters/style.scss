@@ -1,0 +1,209 @@
+// Chapters tool timeline, per the editor redesign's ChapterTimeline spec:
+// the shared strip grammar (24px tick zone over full-height gridlines,
+// playhead) with a 98px strip holding the chapter segments at top 25px,
+// accent start markers for every chapter but the pinned first, and the
+// editable rows list below. Segment/marker geometry mirrors the trim tool's
+// (segments start just under the tick zone; grab affordances are slim bars
+// centered in wider hit areas).
+
+$vp-chapters-marker-hit-width: 12px;
+$vp-chapters-marker-bar-width: 4px;
+$vp-chapters-segment-height: 26px;
+$vp-chapters-accent: var(--vp-accent, var(--wp-admin-theme-color, #3858e9));
+
+// 24px tick zone + 72px chapter zone + the scroller's 2px of borders = the
+// design's 98px strip.
+.vp-studio-timeline__track--chapters {
+	height: 72px;
+}
+
+.vp-studio-chapters {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.vp-studio-chapters__track {
+	position: relative;
+	height: 100%;
+}
+
+// One segment per chapter, spanning start → next start. Backgrounds
+// alternate; selection tints and rings. The ring is a box-shadow, not a
+// border: a border would eat into the box and shift its edges off the times
+// they represent.
+.vp-studio-chapters__segment {
+	position: absolute;
+	top: 1px; // 25px from the strip top: the ruler row above is 24px.
+	height: $vp-chapters-segment-height;
+	display: flex;
+	align-items: center;
+	padding: 0 8px;
+	border-radius: var(--vp-radius-small, 2px);
+	background: var(--vp-gray-100, #f0f0f0);
+	cursor: pointer;
+	overflow: hidden;
+
+	&--alt {
+		background: #e8eaf7;
+	}
+
+	&--selected,
+	&--selected.vp-studio-chapters__segment--alt {
+		background: rgba(56, 88, 233, 0.12);
+		box-shadow: inset 0 0 0 1px $vp-chapters-accent;
+	}
+}
+
+.vp-studio-chapters__segment-title {
+	font-size: 11px;
+	font-weight: 500;
+	color: var(--vp-gray-900, #1e1e1e);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+// A chapter-start marker: a 4px accent bar (1px white outline so it reads
+// against any segment fill) centered in an invisible 12px hit area, sitting
+// exactly on the chapter boundary.
+.vp-studio-chapters__marker {
+	position: absolute;
+	top: 25px;
+	height: $vp-chapters-segment-height;
+	width: $vp-chapters-marker-hit-width;
+	margin-left: -($vp-chapters-marker-hit-width * 0.5);
+	cursor: ew-resize;
+	pointer-events: auto;
+	z-index: 2;
+
+	&::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: ($vp-chapters-marker-hit-width - $vp-chapters-marker-bar-width) * 0.5;
+		width: $vp-chapters-marker-bar-width;
+		height: 100%;
+		border-radius: 1px;
+		background: $vp-chapters-accent;
+		box-shadow: 0 0 0 1px #fff;
+	}
+
+	&:focus-visible {
+		outline: 2px solid $vp-chapters-accent;
+		outline-offset: 1px;
+	}
+}
+
+.vp-studio-chapters__rows {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.vp-studio-chapters__row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 8px;
+	border-radius: var(--vp-radius-small, 2px);
+	box-shadow: inset 0 0 0 1px var(--vp-gray-200, #e0e0e0);
+
+	&--selected {
+		background: rgba(56, 88, 233, 0.06);
+		box-shadow: inset 0 0 0 1px $vp-chapters-accent;
+	}
+}
+
+.vp-studio-chapters__row-index {
+	flex: none;
+	width: 24px;
+	text-align: right;
+	font-family: var(--vp-font-mono, Menlo, Consolas, monaco, monospace);
+	font-size: 12px;
+	color: var(--vp-gray-700, #757575);
+	font-variant-numeric: tabular-nums;
+}
+
+// Beat wp-admin forms.css's `input[type="text"]` on padding/border, the same
+// specificity fight as the toolbar timecode box.
+input[type="text"].vp-studio-chapters__row-title {
+	flex: 1;
+	min-width: 0;
+	height: 32px;
+	padding: 0 8px;
+	border: 1px solid var(--vp-gray-600, #949494);
+	border-radius: var(--vp-radius-small, 2px);
+	background: #fff;
+	font-size: 13px;
+	color: var(--vp-gray-900, #1e1e1e);
+
+	&:focus {
+		border-color: $vp-chapters-accent;
+		box-shadow: 0 0 0 1px $vp-chapters-accent;
+		outline: none;
+	}
+}
+
+.vp-studio-chapters__row-time {
+	flex: none;
+	padding: 2px 4px;
+	border: 0;
+	background: transparent;
+	font-family: var(--vp-font-mono, Menlo, Consolas, monaco, monospace);
+	font-size: 12px;
+	color: $vp-chapters-accent;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+	cursor: pointer;
+	border-radius: var(--vp-radius-small, 2px);
+
+	&:focus-visible {
+		outline: 2px solid $vp-chapters-accent;
+		outline-offset: 1px;
+	}
+}
+
+.vp-studio-chapters__row-duration {
+	flex: none;
+	width: 56px;
+	font-size: 12px;
+	color: var(--vp-gray-700, #757575);
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.vp-studio-chapters__row-remove.components-button {
+	flex: none;
+	width: 28px;
+	height: 28px;
+	min-width: 0;
+	padding: 0;
+	justify-content: center;
+	color: var(--vp-gray-900, #1e1e1e);
+
+	&[aria-disabled="true"],
+	&:disabled {
+		opacity: 0.35;
+	}
+}
+
+.vp-studio-chapters__manual-notice {
+	margin: 0;
+	font-size: 13px;
+	color: var(--vp-gray-700, #757575);
+}
+
+.vp-studio-chapters__now {
+	font-size: 12px;
+	color: var(--vp-gray-700, #757575);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.vp-studio-chapters__help {
+	margin: 0;
+	font-size: 12px;
+	color: var(--vp-gray-700, #757575);
+}

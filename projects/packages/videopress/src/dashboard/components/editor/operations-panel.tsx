@@ -6,7 +6,7 @@
  * items without a layout change.
  */
 import { __ } from '@wordpress/i18n';
-import { Icon, crop } from '@wordpress/icons';
+import { Icon, crop, listView } from '@wordpress/icons';
 import type { StudioTool } from './state/tools';
 import type { ReactElement } from 'react';
 
@@ -38,6 +38,11 @@ export default function StudioEditorOperationsPanel( {
 			id: 'trim-cut',
 			label: __( 'Trim & cut', 'jetpack-videopress-pkg' ),
 			icon: <Icon icon={ crop } size={ 24 } />,
+		},
+		{
+			id: 'chapters',
+			label: __( 'Chapters', 'jetpack-videopress-pkg' ),
+			icon: <Icon icon={ listView } size={ 24 } />,
 		},
 	];
 

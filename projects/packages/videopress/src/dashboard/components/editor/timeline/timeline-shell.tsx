@@ -267,8 +267,15 @@ export default function StudioTimelineShell( {
 					data-testid="studio-timeline-content"
 					ref={ contentRef }
 					style={ scaledWidthStyle }
-					onPointerDownCapture={ () => {
-						gestureRef.current = true;
+					onPointerDownCapture={ event => {
+						// Primary button only: every drag gesture on the strip starts
+						// with button 0 (the drag hooks ignore the rest), and e.g. a
+						// right-click's pointerup can be swallowed by the context
+						// menu — the flag would stick and permanently suppress
+						// auto-follow.
+						if ( event.button === 0 ) {
+							gestureRef.current = true;
+						}
 					} }
 					onPointerUpCapture={ () => {
 						gestureRef.current = false;

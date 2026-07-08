@@ -1,9 +1,10 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useNavigate } from '@wordpress/route';
 import { EDITS_QUERY_KEY } from '../../../hooks/use-video-edits';
 import { mockApiFetch } from '../../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../../test-utils/query-client-wrapper';
+import { serializeDescription } from '../../../utils/chapters';
 import StudioEditorScreen from '../editor-screen';
 import type { VideoEdits } from '../../../types/edits';
 import type { ReactNode } from 'react';
@@ -67,6 +68,21 @@ jest.mock( '../timeline/use-element-width', () => ( {
 	useElementWidth: () => ( { ref: () => {}, width: 1000 } ),
 } ) );
 
+// The manual-VTT probe hits the public video API; stub it (default:
+// 'editable', set in beforeEach) and let tests flip it to 'manual'.
+const mockProbeManualTrack = jest.fn();
+jest.mock( '../../../utils/chapters-probe', () => ( {
+	probeManualTrack: ( ...args: unknown[] ) => mockProbeManualTrack( ...args ),
+} ) );
+
+// The chapters VTT sync drives the tracks endpoints through its own
+// pipeline (covered by use-update-chapters' tests); here only the calls
+// matter. It never rejects by contract.
+const mockSyncChapters = jest.fn();
+jest.mock( '../../../hooks/use-update-chapters', () => ( {
+	useUpdateChapters: () => ( { syncChapters: mockSyncChapters } ),
+} ) );
+
 // The filmstrip resolves via the storyboard endpoint plus <video> frame
 // extraction, neither of which works in jsdom; keep the track on its neutral
 // placeholder here. The hook has its own dedicated tests.
@@ -88,6 +104,7 @@ beforeAll( () => {
 
 const GUID = 'abc123';
 const EDITS_PATH = `/wpcom/v2/videopress/${ GUID }/edits`;
+const META_PATH = '/wpcom/v2/videopress/meta';
 
 /**
  * Build a raw /wp/v2/media item for useVideo.
@@ -107,6 +124,23 @@ function makeRawMedia( overrides: Record< string, unknown > = {} ) {
 		jetpack_videopress: { guid: GUID, privacy_setting: 0, is_private: false },
 		...overrides,
 	};
+}
+
+/**
+ * Build a raw media item whose description carries two chapter lines
+ * (0:00 Intro, 0:30 Middle) for the Chapters tool tests.
+ *
+ * @return A raw media item.
+ */
+function makeChapteredMedia() {
+	return makeRawMedia( {
+		jetpack_videopress: {
+			guid: GUID,
+			privacy_setting: 0,
+			is_private: false,
+			description: '00:00 Intro\n00:30 Middle',
+		},
+	} );
 }
 
 /**
@@ -134,6 +168,9 @@ type ApiState = {
 	edits: VideoEdits;
 	posts: { path?: string; method?: string; data?: unknown }[];
 	onPost?: ( options: { data?: unknown } ) => unknown;
+	/** Captured POSTs to the meta endpoint (chapters saves); lazily created. */
+	metaPosts?: { path?: string; method?: string; data?: unknown }[];
+	onMetaPost?: ( options: { data?: unknown } ) => unknown;
 };
 
 /**
@@ -147,6 +184,24 @@ function installApi( api: ApiState ) {
 		const { path = '', method = 'GET' } = options;
 		if ( path.startsWith( '/wp/v2/media/' ) ) {
 			return api.media;
+		}
+		if ( path === META_PATH && method === 'POST' ) {
+			( api.metaPosts ??= [] ).push( options );
+			if ( api.onMetaPost ) {
+				return api.onMetaPost( options );
+			}
+			// Persist the description like the real endpoint would, so the
+			// media refetch after the save's library invalidation sees the
+			// saved value instead of reverting the chapters store.
+			const patch = options.data as { description?: string } | undefined;
+			const media = api.media as { jetpack_videopress?: Record< string, unknown > };
+			if ( typeof patch?.description === 'string' && media?.jetpack_videopress ) {
+				api.media = {
+					...media,
+					jetpack_videopress: { ...media.jetpack_videopress, description: patch.description },
+				};
+			}
+			return {};
 		}
 		if ( path === EDITS_PATH ) {
 			if ( method === 'POST' ) {
@@ -204,6 +259,8 @@ describe( 'StudioEditorScreen', () => {
 		jest.clearAllMocks();
 		navigate = jest.fn();
 		mockUseNavigate.mockReturnValue( navigate );
+		mockProbeManualTrack.mockResolvedValue( 'editable' );
+		mockSyncChapters.mockResolvedValue( 'uploaded' );
 		// jsdom's media element implements neither play() nor pause(); stub
 		// them so the preview hook's state machine can run.
 		jest.spyOn( window.HTMLMediaElement.prototype, 'play' ).mockImplementation( function (
@@ -746,5 +803,418 @@ describe( 'StudioEditorScreen', () => {
 
 		await expect( screen.findByTestId( 'studio-timeline' ) ).resolves.toBeInTheDocument();
 		expect( isButtonDisabled( 'Save' ) ).toBe( true );
+	} );
+
+	describe( 'Chapters tool', () => {
+		/**
+		 * Activate the Chapters tool via the rail and flush the manual-VTT
+		 * probe (fired on first activation) inside act.
+		 *
+		 * @param user - The userEvent instance.
+		 */
+		async function switchToChapters( user: ReturnType< typeof userEvent.setup > ) {
+			await user.click( screen.getByTestId( 'studio-editor-tool-chapters' ) );
+			await waitFor( () => expect( mockProbeManualTrack ).toHaveBeenCalled() );
+		}
+
+		/**
+		 * Rename the first chapter to "Renamed" (drafts commit on blur) — the
+		 * fastest way to dirty the chapters session.
+		 *
+		 * @param user - The userEvent instance.
+		 */
+		async function renameFirstChapter( user: ReturnType< typeof userEvent.setup > ) {
+			const title = () => screen.getByLabelText( 'Chapter 1 title' );
+			await user.clear( title() );
+			await user.type( title(), 'Renamed' );
+			fireEvent.blur( title() );
+		}
+
+		/**
+		 * The description a save of the renamed chaptered media must write:
+		 * computed through the same serializer the screen uses.
+		 *
+		 * @return The expected description.
+		 */
+		function renamedDescription(): string {
+			return serializeDescription( '00:00 Intro\n00:30 Middle', [
+				{ startAtSeconds: 0, title: 'Renamed' },
+				{ startAtSeconds: 30, title: 'Middle' },
+			] );
+		}
+
+		it( 'switches tools with per-tool histories preserved, keeping the preview mounted', async () => {
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await addCut( user );
+			expect( isButtonDisabled( 'Undo' ) ).toBe( false );
+
+			await switchToChapters( user );
+			expect( screen.getByTestId( 'studio-chapters' ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'New cut' } ) ).not.toBeInTheDocument();
+			// The tool swap covers the timeline area only.
+			expect( screen.getByTestId( 'studio-editor-preview-video' ) ).toBeInTheDocument();
+			// Header undo now reflects the ACTIVE tool: chapters history is empty
+			// even though the trim history has the cut.
+			expect( isButtonDisabled( 'Undo' ) ).toBe( true );
+
+			// Rename chapter 1 (draft commits on blur).
+			const title = () => screen.getByLabelText( 'Chapter 1 title' );
+			await renameFirstChapter( user );
+			expect( isButtonDisabled( 'Undo' ) ).toBe( false );
+
+			// Header Undo/Redo act on the chapters history.
+			await user.click( screen.getByRole( 'button', { name: 'Undo' } ) );
+			expect( title() ).toHaveValue( 'Intro' );
+			expect( isButtonDisabled( 'Redo' ) ).toBe( false );
+			await user.click( screen.getByRole( 'button', { name: 'Redo' } ) );
+			expect( title() ).toHaveValue( 'Renamed' );
+
+			// Back on trim & cut: its history is intact and undo removes the cut.
+			await user.click( screen.getByTestId( 'studio-editor-tool-trim-cut' ) );
+			expect( screen.getAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 1 );
+			expect( isButtonDisabled( 'Undo' ) ).toBe( false );
+			await user.click( screen.getByRole( 'button', { name: 'Undo' } ) );
+			expect( screen.queryAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 0 );
+
+			// The chapters store survived the tool unmount.
+			await user.click( screen.getByTestId( 'studio-editor-tool-chapters' ) );
+			expect( title() ).toHaveValue( 'Renamed' );
+		} );
+
+		it( 'multiplexes mod+Z onto the active tool', async () => {
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await addCut( user );
+
+			await switchToChapters( user );
+			const title = () => screen.getByLabelText( 'Chapter 1 title' );
+			await renameFirstChapter( user );
+
+			// mod+Z with the chapters tool active undoes the RENAME…
+			// eslint-disable-next-line testing-library/prefer-user-event -- the shortcut under test listens for raw keydowns on document.
+			fireEvent.keyDown( document.body, { key: 'z', ctrlKey: true } );
+			expect( title() ).toHaveValue( 'Intro' );
+
+			// …and the trim history was untouched: the cut is still there.
+			await user.click( screen.getByTestId( 'studio-editor-tool-trim-cut' ) );
+			expect( screen.getAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 1 );
+		} );
+
+		it( 'arms the navigation guards when only the chapters session is dirty', async () => {
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await switchToChapters( user );
+
+			const cleanEvent = new Event( 'beforeunload', { cancelable: true } );
+			window.dispatchEvent( cleanEvent );
+			expect( cleanEvent.defaultPrevented ).toBe( false );
+
+			await renameFirstChapter( user );
+
+			const dirtyEvent = new Event( 'beforeunload', { cancelable: true } );
+			window.dispatchEvent( dirtyEvent );
+			expect( dirtyEvent.defaultPrevented ).toBe( true );
+			// Save = everything dirty: chapters dirtiness enables the header
+			// actions on its own.
+			expect( isButtonDisabled( 'Save' ) ).toBe( false );
+			expect( isButtonDisabled( 'Discard changes' ) ).toBe( false );
+		} );
+
+		it( 'turns the tool read-only when the probe reports a manual VTT, probing once', async () => {
+			mockProbeManualTrack.mockResolvedValue( 'manual' );
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await switchToChapters( user );
+
+			await expect(
+				screen.findByText(
+					'Chapters for this video are managed by an uploaded VTT file, so they can’t be edited here.'
+				)
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTestId( 'studio-chapters-rows' ) ).not.toBeInTheDocument();
+			expect( screen.queryAllByTestId( /^studio-chapters-marker-/ ) ).toHaveLength( 0 );
+			expect( mockProbeManualTrack ).toHaveBeenCalledWith(
+				expect.objectContaining( { guid: GUID, isPrivate: false } )
+			);
+
+			// Switching away and back must not re-probe.
+			await user.click( screen.getByTestId( 'studio-editor-tool-trim-cut' ) );
+			await user.click( screen.getByTestId( 'studio-editor-tool-chapters' ) );
+			expect( mockProbeManualTrack ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'saves chapters through the meta endpoint and the VTT sync', async () => {
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await switchToChapters( user );
+			await renameFirstChapter( user );
+			expect( isButtonDisabled( 'Save' ) ).toBe( false );
+
+			await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+			// Chapters-only dirty: the dialog talks about chapters, not edits.
+			expect( screen.getByText( 'Save chapters?' ) ).toBeInTheDocument();
+			await user.click( screen.getByRole( 'button', { name: 'Save chapters' } ) );
+
+			await waitFor( () => expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Chapters saved.' ) );
+			// The POSTed description is exactly the serializer's rewrite of the
+			// current description with the session's rows.
+			expect( api.metaPosts ).toHaveLength( 1 );
+			expect( api.metaPosts?.[ 0 ].data ).toEqual( { id: 42, description: renamedDescription() } );
+			// The clean trim session must not touch the edits endpoint.
+			expect( api.posts ).toHaveLength( 0 );
+			// The VTT sync ran with the same description that was saved.
+			expect( mockSyncChapters ).toHaveBeenCalledWith(
+				expect.objectContaining( { guid: GUID } ),
+				renamedDescription()
+			);
+
+			// Re-baselined: the rename survives, the session is clean again,
+			// and the tool's history cleared.
+			await waitFor( () => expect( isButtonDisabled( 'Save' ) ).toBe( true ) );
+			expect( screen.getByLabelText( 'Chapter 1 title' ) ).toHaveValue( 'Renamed' );
+			expect( isButtonDisabled( 'Undo' ) ).toBe( true );
+			expect( isButtonDisabled( 'Discard changes' ) ).toBe( true );
+		} );
+
+		it( 'saves chapters without waiting for the trim baseline', async () => {
+			// The edits GET never resolves, so no trim baseline exists — that
+			// must not dead-lock a chapters-only save.
+			const metaPosts: { data?: unknown }[] = [];
+			mockApiFetch( options => {
+				const { path = '', method = 'GET' } = options;
+				if ( path.startsWith( '/wp/v2/media/' ) ) {
+					return makeChapteredMedia();
+				}
+				if ( path === META_PATH && method === 'POST' ) {
+					metaPosts.push( options );
+					return {};
+				}
+				if ( path === EDITS_PATH ) {
+					return new Promise( () => {} );
+				}
+				return {};
+			} );
+			const user = userEvent.setup();
+
+			render( <StudioEditorScreen videoId="42" />, { wrapper: createTestWrapper() } );
+			await expect(
+				screen.findByTestId( 'studio-editor-preview-video' )
+			).resolves.toBeInTheDocument();
+
+			await switchToChapters( user );
+			await renameFirstChapter( user );
+			expect( isButtonDisabled( 'Save' ) ).toBe( false );
+
+			await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Save chapters' } ) );
+
+			await waitFor( () => expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Chapters saved.' ) );
+			expect( metaPosts ).toHaveLength( 1 );
+		} );
+
+		it( 'commits both dirty stores from one Save, each with its own notice', async () => {
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			api.onPost = () => {
+				api.edits = makeEdits( {
+					job: {
+						id: 'mock-job-1-1',
+						status: 'processing',
+						target_revision: 1,
+						progress: 0.5,
+						error: null,
+					},
+				} );
+				return { guid: GUID, revision: 0, job: api.edits.job };
+			};
+			installApi( api );
+			const client = createTestQueryClient();
+			const user = userEvent.setup();
+
+			await renderReadyEditor( client );
+			await addCut( user );
+			await switchToChapters( user );
+			await renameFirstChapter( user );
+
+			await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+			// Both dirty: the combined dialog copy.
+			expect( screen.getByText( 'Save changes?' ) ).toBeInTheDocument();
+			await user.click( screen.getByRole( 'button', { name: 'Save changes' } ) );
+
+			// One Save fired both requests.
+			await waitFor( () => expect( api.posts ).toHaveLength( 1 ) );
+			await waitFor( () => expect( api.metaPosts ).toHaveLength( 1 ) );
+			expect( api.posts[ 0 ].data ).toEqual( {
+				base_revision: 0,
+				operations: [ { type: 'cut', start_ms: 0, end_ms: 2000 } ],
+			} );
+			expect( api.metaPosts?.[ 0 ].data ).toEqual( { id: 42, description: renamedDescription() } );
+
+			// The chapters half completes on its own (a plain meta POST)…
+			await waitFor( () => expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Chapters saved.' ) );
+			// …while the trim half stays locked until its job's revision lands.
+			expect( screen.getByTestId( 'studio-editor-timeline-lock' ) ).toHaveAttribute(
+				'aria-busy',
+				'true'
+			);
+
+			api.edits = makeEdits( {
+				revision: 1,
+				operations: [ { type: 'cut', start_ms: 0, end_ms: 2000 } ],
+				output_duration_ms: 58000,
+				can_restore_original: true,
+				job: {
+					id: 'mock-job-1-1',
+					status: 'complete',
+					target_revision: 1,
+					progress: null,
+					error: null,
+				},
+			} );
+			await act( async () => {
+				await client.invalidateQueries( { queryKey: [ EDITS_QUERY_KEY, GUID ] } );
+			} );
+
+			await waitFor( () =>
+				expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Video edits saved.' )
+			);
+			// Everything re-baselined: nothing left to save.
+			expect( isButtonDisabled( 'Save' ) ).toBe( true );
+		} );
+
+		it( 'lands the chapters save when the trim save conflicts', async () => {
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			api.onPost = () => {
+				throw { code: 'edits_conflict', message: 'conflict', data: { current_revision: 2 } };
+			};
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await addCut( user );
+			await switchToChapters( user );
+			await renameFirstChapter( user );
+
+			await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Save changes' } ) );
+
+			// The trim half conflicts…
+			await expect(
+				screen.findByText( 'This video was edited somewhere else since you opened the editor.' )
+			).resolves.toBeInTheDocument();
+			// …but the chapters half landed regardless (isolated failures).
+			await waitFor( () => expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Chapters saved.' ) );
+			expect( api.metaPosts ).toHaveLength( 1 );
+			expect( mockSyncChapters ).toHaveBeenCalledTimes( 1 );
+			expect( screen.getByLabelText( 'Chapter 1 title' ) ).toHaveValue( 'Renamed' );
+		} );
+
+		it( 'keeps chapters dirty and skips the VTT sync when the meta save fails', async () => {
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			api.onMetaPost = () => {
+				throw new Error( 'meta save failed' );
+			};
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await switchToChapters( user );
+			await renameFirstChapter( user );
+
+			await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Save chapters' } ) );
+
+			await waitFor( () =>
+				expect( mockErrorNotice ).toHaveBeenCalledWith( 'Failed to save chapters.' )
+			);
+			// The sync must never run over a description that failed to save,
+			// and the session stays dirty for another attempt.
+			expect( mockSyncChapters ).not.toHaveBeenCalled();
+			expect( screen.getByLabelText( 'Chapter 1 title' ) ).toHaveValue( 'Renamed' );
+			expect( isButtonDisabled( 'Save' ) ).toBe( false );
+		} );
+
+		it( 'discards both dirty stores from one Discard', async () => {
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			await addCut( user );
+			await switchToChapters( user );
+			await renameFirstChapter( user );
+
+			await user.click( screen.getByRole( 'button', { name: 'Discard changes' } ) );
+			// Both dirty: the combined dialog copy.
+			expect(
+				screen.getByText(
+					'Your unsaved edits and chapter changes will be discarded and the editor will return to the last saved version.'
+				)
+			).toBeInTheDocument();
+			// Two buttons carry the "Discard changes" name while the dialog is
+			// open (header + confirm); scope to the dialog.
+			await user.click(
+				within( screen.getByRole( 'dialog' ) ).getByRole( 'button', { name: 'Discard changes' } )
+			);
+
+			// Chapters back to their baseline…
+			expect( screen.getByLabelText( 'Chapter 1 title' ) ).toHaveValue( 'Intro' );
+			// …and the cut gone from the trim session.
+			await user.click( screen.getByTestId( 'studio-editor-tool-trim-cut' ) );
+			expect( screen.queryAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 0 );
+			expect( isButtonDisabled( 'Save' ) ).toBe( true );
+			expect( isButtonDisabled( 'Discard changes' ) ).toBe( true );
+			// Nothing was posted anywhere.
+			expect( api.posts ).toHaveLength( 0 );
+			expect( api.metaPosts ?? [] ).toHaveLength( 0 );
+		} );
+
+		it( 'leaves the clean trim history alone on a chapters-only discard', async () => {
+			const api: ApiState = { media: makeChapteredMedia(), edits: makeEdits(), posts: [] };
+			installApi( api );
+			const user = userEvent.setup();
+
+			await renderReadyEditor();
+			// Trim: add a cut, then undo it — clean, but with a redo entry that
+			// a discard aimed at chapters must not wipe.
+			await addCut( user );
+			await user.click( screen.getByRole( 'button', { name: 'Undo' } ) );
+
+			await switchToChapters( user );
+			await renameFirstChapter( user );
+
+			await user.click( screen.getByRole( 'button', { name: 'Discard changes' } ) );
+			// Chapters-only dirty: the chapters dialog copy.
+			expect(
+				screen.getByText(
+					'Your unsaved chapter changes will be discarded and the chapters will return to the last saved version.'
+				)
+			).toBeInTheDocument();
+			await user.click(
+				within( screen.getByRole( 'dialog' ) ).getByRole( 'button', { name: 'Discard changes' } )
+			);
+			expect( screen.getByLabelText( 'Chapter 1 title' ) ).toHaveValue( 'Intro' );
+
+			// The trim tool's redo stack survived: the cut can be redone.
+			await user.click( screen.getByTestId( 'studio-editor-tool-trim-cut' ) );
+			expect( isButtonDisabled( 'Redo' ) ).toBe( false );
+			await user.click( screen.getByRole( 'button', { name: 'Redo' } ) );
+			expect( screen.getAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 1 );
+		} );
 	} );
 } );

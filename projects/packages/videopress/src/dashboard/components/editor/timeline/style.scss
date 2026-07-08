@@ -68,9 +68,14 @@ $vp-timeline-segment-top: 25px;
 	gap: 4px;
 }
 
-.vp-studio-timeline__timecode {
-	// 11ch: fits "H:MM:SS.t" plus the input chrome without clipping the tenths.
-	width: 11ch;
+// The extra type selector out-specifies wp-admin's forms.css
+// `input[type="text"]` (0,1,1): with a bare class (0,1,0) the admin styles
+// won its `padding: 0 8px`, and the wider chrome ate the tenths digit out of
+// the old 11ch width guess.
+input[type="text"].vp-studio-timeline__timecode {
+	// "H:MM:SS.t" is 9 monospace characters; the border-box width adds the
+	// input chrome measured explicitly: 4px padding + 1px border per side.
+	width: calc(9ch + 10px);
 	font-family: var(--vp-font-mono, Menlo, Consolas, monaco, monospace);
 	font-size: 13px;
 	color: var(--vp-gray-900, #1e1e1e);
