@@ -1,0 +1,7 @@
+{
+	"name": "jpa/wordads-earnings",
+	"title": "WordAds earnings",
+	"description": "Your WordAds ad revenue — total earnings, amount owed, and a per-period breakdown.",
+	"category": "stats",
+	"presentation": "framed"
+}

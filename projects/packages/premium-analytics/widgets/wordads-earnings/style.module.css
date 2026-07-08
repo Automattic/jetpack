@@ -1,0 +1,72 @@
+.root {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	min-height: 120px;
+}
+
+.totals {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+}
+
+.total {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	min-width: 120px;
+}
+
+.totalLabel {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
+.sectionHeading {
+	font-weight: 600;
+}
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.table th,
+.table td {
+	padding: var(--wpds-dimension-padding-sm, 8px);
+	border-bottom:
+		var(--wpds-border-width-xs, 1px) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+	text-align: start;
+	white-space: nowrap;
+}
+
+.table th {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-weight: 500;
+}
+
+.colNumeric {
+	text-align: end;
+}
+
+.colStatus {
+	text-align: end;
+}
+
+.state {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	justify-content: center;
+	min-height: 120px;
+	text-align: center;
+}

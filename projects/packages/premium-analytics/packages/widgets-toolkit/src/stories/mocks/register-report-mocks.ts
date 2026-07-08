@@ -65,6 +65,7 @@ const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/s
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
+const STATS_WORDADS_EARNINGS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/earnings';
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 
 const coreSettingsMock = {
@@ -940,6 +941,31 @@ function buildVideoPlaysResponse( requestPath: string ) {
 	return { date, period: 'day', summary: { plays: rows }, days: { [ date ]: { plays: rows } } };
 }
 
+// Raw WordAds earnings response (`{ earnings: { … } }`) matching the shape the
+// `wordAdsEarnings` sanitizer parses: cumulative headline totals plus per-period
+// breakdowns for each earnings source (WordAds, sponsored, adjustments).
+function buildWordAdsEarningsResponse() {
+	return {
+		earnings: {
+			total_earnings: '128.42',
+			total_amount_owed: '42.17',
+			wordads: {
+				'2026-06': { amount: '42.17', pageviews: '18240', status: 0 },
+				'2026-05': { amount: '38.90', pageviews: '16110', status: 1 },
+				'2026-04': { amount: '29.35', pageviews: '13205', status: 1 },
+				'2026-03': { amount: '18.00', pageviews: '9870', status: 1 },
+			},
+			sponsored: {
+				'2026-06': { amount: '25.00', pageviews: '4300', status: 3 },
+				'2026-05': { amount: '12.00', pageviews: '2100', status: 1 },
+			},
+			adjustment: {
+				'2026-05': { amount: '-4.00', pageviews: 0, status: 4 },
+			},
+		},
+	};
+}
+
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
 
@@ -971,6 +997,10 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_VIDEO_PLAYS_PATH ) ) {
 		return buildVideoPlaysResponse( requestPath );
+	}
+
+	if ( requestPath.startsWith( STATS_WORDADS_EARNINGS_PATH ) ) {
+		return buildWordAdsEarningsResponse();
 	}
 
 	if ( requestPath.startsWith( STATS_API_BASE ) ) {
