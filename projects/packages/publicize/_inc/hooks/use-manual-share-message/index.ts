@@ -1,42 +1,17 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useRegistry, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
 import { features } from '../../utils';
 import { MANUAL_SHARE_SENTINEL, type RenderItem } from '../../utils/render-messages';
-import { useRenderMessageInputs } from '../use-render-message-items';
+import { useDebouncedRenderInputs, usePostIntent } from '../use-render-message-items';
 import useSocialMediaMessage from '../use-social-media-message';
-
-// Keep in step with `useRenderMessageInputs`'s debounce so a template edit and a
-// post-intent edit settle on the same cadence.
-const MESSAGE_DEBOUNCE_MS = 1500;
 
 export type ManualShareMessage = {
 	message: string | null;
 	isLoading: boolean;
 };
-
-/**
- * Debounce a string value, mirroring the message debounce used by
- * `useRenderMessageInputs`, so typing in the global message field doesn't fire a
- * render request per keystroke. Initialises to the current value so the first
- * render (and tests) see the settled value immediately.
- *
- * @param value - The value to debounce.
- * @param delay - Debounce delay in milliseconds.
- * @return The debounced value.
- */
-function useDebouncedValue( value: string, delay: number = MESSAGE_DEBOUNCE_MS ): string {
-	const [ debounced, setDebounced ] = useState( value );
-
-	useEffect( () => {
-		const handle = setTimeout( () => setDebounced( value ), delay );
-		return () => clearTimeout( handle );
-	}, [ value, delay ] );
-
-	return debounced;
-}
 
 /**
  * Resolve the WPCOM-rendered global message for the manual-sharing buttons.
@@ -49,7 +24,9 @@ function useDebouncedValue( value: string, delay: number = MESSAGE_DEBOUNCE_MS )
  *
  * Because manual sharing can exist with zero connections, we render a dedicated
  * single item under the {@link MANUAL_SHARE_SENTINEL} `connection_id` rather than
- * piggy-backing on a connection's render item.
+ * piggy-backing on a connection's render item. Only the post intent and the
+ * debouncer are shared with the preview path — none of its connection/media/SIG
+ * plumbing is mounted here.
  *
  * @return `{ message, isLoading }`. `message` is the rendered text when available,
  * otherwise `null` (never the raw template) so the consumer can fall back to a
@@ -75,23 +52,27 @@ export function useManualShareMessage(): ManualShareMessage {
 	// Prefer the per-post global message (`_wpas_mess`), else the saved site
 	// template — matching what the preview panel renders for the global message.
 	const template = ( globalMessage || siteMessageTemplate || '' ).trim();
-	const debouncedTemplate = useDebouncedValue( template );
+	const rawPostIntent = usePostIntent();
 
-	// Reuse the already-debounced post intent (title/excerpt/content) so the cache
-	// key matches the shape the render endpoint receives, rather than re-deriving it.
-	const { postIntent } = useRenderMessageInputs();
-
-	const items = useMemo< RenderItem[] >(
-		() => [
-			{
-				connection_id: MANUAL_SHARE_SENTINEL,
-				message: debouncedTemplate,
-				// Manual sharing is a link share, not a media/social post.
-				is_social_post: false,
-			},
-		],
-		[ debouncedTemplate ]
+	const rawInputs = useMemo(
+		() => ( {
+			items: [
+				{
+					connection_id: MANUAL_SHARE_SENTINEL,
+					message: template,
+					// Manual sharing is a link share, not a media/social post.
+					is_social_post: false,
+				},
+			] as RenderItem[],
+			postIntent: rawPostIntent,
+		} ),
+		[ template, rawPostIntent ]
 	);
+
+	// Same debounce the preview path uses, so keystrokes in the message field or
+	// the post title don't fire a render request per character.
+	const { items, postIntent } = useDebouncedRenderInputs( rawInputs );
+	const debouncedTemplate = items[ 0 ]?.message ?? '';
 
 	const canRender = templatesEnabled && Boolean( postId ) && debouncedTemplate.length > 0;
 

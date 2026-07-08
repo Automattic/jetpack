@@ -26,7 +26,10 @@ jest.mock( '@wordpress/data', () => {
 } );
 
 jest.mock( '../../use-render-message-items', () => ( {
-	useRenderMessageInputs: jest.fn(),
+	usePostIntent: jest.fn(),
+	// Pass-through: the real hook returns its inputs unchanged on first render,
+	// which is all these single-render tests exercise.
+	useDebouncedRenderInputs: jest.fn( inputs => inputs ),
 } ) );
 
 jest.mock( '../../use-social-media-message', () => ( {
@@ -37,16 +40,14 @@ jest.mock( '../../use-social-media-message', () => ( {
 import { renderHook } from '@testing-library/react';
 import { useRegistry, useSelect } from '@wordpress/data';
 import { useManualShareMessage } from '../';
-import { useRenderMessageInputs } from '../../use-render-message-items';
+import { usePostIntent } from '../../use-render-message-items';
 import useSocialMediaMessage from '../../use-social-media-message';
 
 const mockSiteHasFeature = jest.requireMock( '@automattic/jetpack-script-data' )
 	.siteHasFeature as jest.Mock;
 const mockUseSelect = useSelect as jest.Mock;
 const mockUseRegistry = useRegistry as jest.Mock;
-const mockUseRenderMessageInputs = useRenderMessageInputs as jest.MockedFunction<
-	typeof useRenderMessageInputs
->;
+const mockUsePostIntent = usePostIntent as jest.MockedFunction< typeof usePostIntent >;
 const mockUseSocialMediaMessage = useSocialMediaMessage as jest.MockedFunction<
 	typeof useSocialMediaMessage
 >;
@@ -87,7 +88,7 @@ describe( 'useManualShareMessage', () => {
 		jest.clearAllMocks();
 
 		mockSiteHasFeature.mockReturnValue( true );
-		mockUseRenderMessageInputs.mockReturnValue( { items: [], postIntent: {} } );
+		mockUsePostIntent.mockReturnValue( {} );
 		mockUseSocialMediaMessage.mockReturnValue( {
 			message: 'Sharing {title}',
 			updateMessage: jest.fn(),
