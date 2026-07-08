@@ -30,11 +30,22 @@ export type CsvColumn< Row > = {
  * matching the Calypso Stats `DownloadCsv` behavior. This keeps commas,
  * newlines, and quotes inside values from breaking the row.
  *
+ * Strings starting with `=`, `+`, `-`, `@`, tab, or CR are prefixed with a
+ * single quote so spreadsheet apps render them as text instead of executing
+ * them as formulas (CSV formula injection; titles and URLs are content data).
+ * Actual numbers are exempt so numeric cells stay parseable.
+ *
  * @param value - The raw cell value.
  * @return The quoted, escaped field.
  */
 function escapeField( value: unknown ): string {
-	return `"${ String( value ?? '' ).replace( /"/g, '""' ) }"`;
+	let str = String( value ?? '' );
+
+	if ( typeof value !== 'number' && /^[=+\-@\t\r]/.test( str ) ) {
+		str = `'${ str }`;
+	}
+
+	return `"${ str.replace( /"/g, '""' ) }"`;
 }
 
 /**
@@ -59,19 +70,27 @@ export function buildCsv< Row extends Record< string, unknown > >(
 /**
  * Trigger a browser download of the given CSV text.
  *
+ * The blob is prefixed with a UTF-8 BOM so Excel on Windows decodes non-ASCII
+ * content correctly, and the object URL is revoked on the next tick because
+ * Safari has aborted downloads when the URL is revoked in the same tick as the
+ * click.
+ *
  * @param filename - Desired file name; a `.csv` extension is added if missing.
  * @param csv      - The CSV text to download.
  */
 export function saveCsv( filename: string, csv: string ): void {
-	const blob = new Blob( [ csv ], { type: 'text/csv;charset=utf-8' } );
+	const blob = new Blob( [ '\ufeff', csv ], { type: 'text/csv;charset=utf-8' } );
 	const url = window.URL.createObjectURL( blob );
 	const link = document.createElement( 'a' );
+	// Replace path separators, control characters, and Windows-reserved characters.
+	// eslint-disable-next-line no-control-regex
+	const safeName = filename.replace( /[\x00-\x1f/\\:*?"<>|]/g, '-' );
 
 	link.href = url;
-	link.download = filename.toLowerCase().endsWith( '.csv' ) ? filename : `${ filename }.csv`;
+	link.download = safeName.toLowerCase().endsWith( '.csv' ) ? safeName : `${ safeName }.csv`;
 
 	document.body.appendChild( link );
 	link.click();
 	document.body.removeChild( link );
-	window.URL.revokeObjectURL( url );
+	setTimeout( () => window.URL.revokeObjectURL( url ), 0 );
 }
