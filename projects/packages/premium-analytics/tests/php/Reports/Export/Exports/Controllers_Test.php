@@ -26,11 +26,11 @@ use PHPUnit\Framework\TestCase;
 class Controllers_Test extends TestCase {
 
 	private function orders(): Orders_Over_Time_Controller {
-		return new Orders_Over_Time_Controller( Report_Registry::instance() );
+		return new Orders_Over_Time_Controller( new Report_Registry() );
 	}
 
 	private function visitors(): Visitors_Over_Time_Controller {
-		return new Visitors_Over_Time_Controller( Report_Registry::instance() );
+		return new Visitors_Over_Time_Controller( new Report_Registry() );
 	}
 
 	public function test_orders_metadata() {
