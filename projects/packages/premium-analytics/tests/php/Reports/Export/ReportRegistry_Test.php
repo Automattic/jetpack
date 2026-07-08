@@ -13,7 +13,6 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 
 require_once __DIR__ . '/fixtures/class-fake-report-controller.php';
 require_once __DIR__ . '/fixtures/class-fake-merge-controller.php';
@@ -32,22 +31,13 @@ class ReportRegistry_Test extends TestCase {
 	private $registry;
 
 	/**
-	 * Reset the singleton so each test starts with an empty registry.
+	 * Fresh registry for each test.
 	 *
 	 * @before
 	 */
 	#[Before]
 	public function reset_registry() {
-		$prop = new ReflectionProperty( Report_Registry::class, 'instance' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$prop->setAccessible( true ); // Required before PHP 8.1; a no-op (and deprecated) after.
-		}
-		$prop->setValue( null, null );
-		$this->registry = Report_Registry::instance();
-	}
-
-	public function test_instance_is_singleton() {
-		$this->assertSame( Report_Registry::instance(), Report_Registry::instance() );
+		$this->registry = new Report_Registry();
 	}
 
 	public function test_register_controller_is_idempotent() {

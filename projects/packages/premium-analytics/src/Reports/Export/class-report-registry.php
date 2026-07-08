@@ -21,36 +21,11 @@ defined( 'ABSPATH' ) || exit;
 class Report_Registry {
 
 	/**
-	 * Singleton instance.
-	 *
-	 * @var Report_Registry|null
-	 */
-	private static $instance = null;
-
-	/**
 	 * Registered controller instances.
 	 *
 	 * @var array<string, Csv_Report_Controller_Interface>
 	 */
 	private $controllers = array();
-
-	/**
-	 * Private constructor for singleton.
-	 */
-	private function __construct() {
-	}
-
-	/**
-	 * Get singleton instance.
-	 *
-	 * @return Report_Registry
-	 */
-	public static function instance(): Report_Registry {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-		return self::$instance;
-	}
 
 	/**
 	 * Register a controller instance.

@@ -21,7 +21,7 @@ require_once __DIR__ . '/fixtures/class-fake-merge-controller.php';
 class AbstractController_Test extends TestCase {
 
 	private function controller(): Fake_Merge_Controller {
-		return new Fake_Merge_Controller( Report_Registry::instance() );
+		return new Fake_Merge_Controller( new Report_Registry() );
 	}
 
 	/**
