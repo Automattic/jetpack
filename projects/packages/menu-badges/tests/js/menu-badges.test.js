@@ -10,7 +10,8 @@ require( '../../src/js/menu-badges.js' );
  */
 function badge( slug, count, isTotal ) {
 	const hidden = count > 0 ? '' : ' style="display:none"';
-	return `<span class="menu-counter count-${ count }" data-jp-menu-badge="${ slug }" data-jp-menu-count="${ count }"${
+	const classes = isTotal ? 'awaiting-mod update-plugins menu-counter' : 'menu-counter';
+	return `<span class="${ classes } count-${ count }" data-jp-menu-badge="${ slug }" data-jp-menu-count="${ count }"${
 		isTotal ? ' data-jp-menu-badge-total="1"' : ''
 	}${ hidden }><span class="count">${ count }</span></span>`;
 }
