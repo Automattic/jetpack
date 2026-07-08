@@ -11,8 +11,8 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\ReportDataFetcher;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Report_Data_Fetcher;
 
 /**
  * Tax Rate Breakdown CSV Export Controller.
@@ -24,7 +24,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\ReportDataFetcher;
  *
  * @since $$next-version$$
  */
-class TaxRateBreakdownController extends AbstractCSVReportController {
+class Tax_Rate_Breakdown_Controller extends Abstract_Csv_Report_Controller {
 
 	/**
 	 * Cache for tax rate percentages by tax_rate_id.
@@ -194,7 +194,7 @@ class TaxRateBreakdownController extends AbstractCSVReportController {
 	public function format_row_with_comparison( array $item, ?string $interval = null ): array {
 		$row = parent::format_row_with_comparison( $item, $interval );
 
-		$prefix = ReportDataFetcher::COMPARISON_INDEX_PREFIX;
+		$prefix = Report_Data_Fetcher::COMPARISON_INDEX_PREFIX;
 		$key    = $prefix . 'tax_code';
 		if ( isset( $row['tax_code'] ) && isset( $row[ $key ] ) ) {
 			$row[ $key ] = $row['tax_code'];

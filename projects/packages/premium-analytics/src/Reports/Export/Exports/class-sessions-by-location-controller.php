@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller;
 
 /**
  * Sessions by Location CSV Export Controller.
@@ -22,7 +22,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportControll
  *
  * @since $$next-version$$
  */
-class SessionsByLocationController extends AbstractCSVReportController {
+class Sessions_By_Location_Controller extends Abstract_Csv_Report_Controller {
 
 	/**
 	 * Get the report key for this controller.

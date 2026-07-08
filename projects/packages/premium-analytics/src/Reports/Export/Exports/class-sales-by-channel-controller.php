@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API Reports Sales by Campaign controller class.
+ * REST API Reports Sales by Channel controller class.
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports
  */
@@ -11,18 +11,18 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller;
 
 /**
- * Sales by Campaign CSV Export Controller.
+ * Sales by Channel CSV Export Controller.
  *
- * Handles CSV exports for the Sales by Campaign report (order attribution data).
+ * Handles CSV exports for the Sales by Channel report (order attribution data).
  * Note: This is a ranked list report, not a time-series report.
- * Comparison mode is supported using ID-based merging (matching by campaign).
+ * Comparison mode is supported using ID-based merging (matching by channel).
  *
  * @since $$next-version$$
  */
-class SalesByCampaignController extends AbstractCSVReportController {
+class Sales_By_Channel_Controller extends Abstract_Csv_Report_Controller {
 
 	/**
 	 * Get the report key for this controller.
@@ -30,7 +30,7 @@ class SalesByCampaignController extends AbstractCSVReportController {
 	 * @return string The report key.
 	 */
 	public function get_report_key(): string {
-		return 'salesbycampaign';
+		return 'salesbychannel';
 	}
 
 	/**
@@ -39,7 +39,7 @@ class SalesByCampaignController extends AbstractCSVReportController {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Sales by Campaign', 'jetpack-premium-analytics' );
+		return __( 'Sales by Channel', 'jetpack-premium-analytics' );
 	}
 
 	/**
@@ -48,7 +48,7 @@ class SalesByCampaignController extends AbstractCSVReportController {
 	 * @return string The data endpoint.
 	 */
 	public function get_data_endpoint(): string {
-		return 'reports/order-attribution/campaign/items';
+		return 'reports/order-attribution/channel/items';
 	}
 
 	/**
@@ -59,7 +59,7 @@ class SalesByCampaignController extends AbstractCSVReportController {
 	 */
 	public function get_column_headers( ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		return array(
-			'campaign'            => __( 'Campaign', 'jetpack-premium-analytics' ),
+			'channel'             => __( 'Channel', 'jetpack-premium-analytics' ),
 			'gross_sales'         => __( 'Gross sales', 'jetpack-premium-analytics' ),
 			'coupons'             => __( 'Coupons', 'jetpack-premium-analytics' ),
 			'refunds'             => __( 'Refunds', 'jetpack-premium-analytics' ),
@@ -84,7 +84,7 @@ class SalesByCampaignController extends AbstractCSVReportController {
 		$returning_customers = max( ( $item['total_customers'] ?? $defaults['total_customers'] ) - ( $item['new_customers'] ?? $defaults['new_customers'] ), 0 );
 
 		return array(
-			'campaign'            => $item['label'] ?? $item['campaign'] ?? $defaults['campaign'],
+			'channel'             => $item['label'] ?? $item['channel'] ?? $defaults['channel'],
 			'gross_sales'         => self::format_amount( $item['gross_sales'] ?? $defaults['gross_sales'] ),
 			'coupons'             => self::format_amount( $item['coupons'] ?? $defaults['coupons'] ),
 			'refunds'             => self::format_amount( $item['refunds'] ?? $defaults['refunds'] ),
@@ -103,7 +103,7 @@ class SalesByCampaignController extends AbstractCSVReportController {
 	 */
 	public function get_default_values(): array {
 		return array(
-			'campaign'        => '',
+			'channel'         => '',
 			'label'           => '',
 			'gross_sales'     => 0,
 			'coupons'         => 0,
@@ -119,7 +119,7 @@ class SalesByCampaignController extends AbstractCSVReportController {
 	/**
 	 * Get additional request parameters for data fetching.
 	 *
-	 * Sets orderby to gross_sales and view to campaign.
+	 * Sets orderby to gross_sales and view to channel.
 	 *
 	 * @return array Additional parameters to include in data requests.
 	 */
@@ -127,7 +127,7 @@ class SalesByCampaignController extends AbstractCSVReportController {
 		return array(
 			'date_type' => self::DEFAULT_DATE_TYPE,
 			'orderby'   => 'gross_sales',
-			'view'      => 'campaign',
+			'view'      => 'channel',
 		);
 	}
 
@@ -138,7 +138,7 @@ class SalesByCampaignController extends AbstractCSVReportController {
 	 */
 	public function get_fields(): array {
 		return array(
-			'campaign',
+			'channel',
 			'label',
 			'gross_sales',
 			'coupons',
@@ -154,33 +154,24 @@ class SalesByCampaignController extends AbstractCSVReportController {
 	/**
 	 * Get the matching field for comparison data alignment.
 	 *
-	 * Sales by Campaign is a ranked report, so comparison data should be matched by campaign.
+	 * Sales by Channel is a ranked report, so comparison data should be matched by channel.
 	 *
 	 * @return string|null
 	 */
 	public function get_matching_field(): ?string {
-		return 'campaign';
+		return 'channel';
 	}
 
 	/**
 	 * Get the identifying fields that should be preserved in comparison data.
 	 *
-	 * When a campaign exists in the original period but not in the comparison period,
+	 * When a channel exists in the original period but not in the comparison period,
 	 * the label should still be shown for clarity.
 	 *
 	 * @return array Array of field names to preserve.
 	 */
 	public function get_identifying_fields(): array {
 		return array( 'label' );
-	}
-
-	/**
-	 * Get the field name to check for emptiness.
-	 *
-	 * @return array The fields to check (both campaign and label must be empty to skip).
-	 */
-	public function get_empty_row_check_field() {
-		return array( 'campaign', 'label' );
 	}
 
 	/**
@@ -192,5 +183,14 @@ class SalesByCampaignController extends AbstractCSVReportController {
 	 */
 	public function use_array_filter_format(): bool {
 		return true;
+	}
+
+	/**
+	 * Get the field name to check for emptiness.
+	 *
+	 * @return array The field names to check.
+	 */
+	public function get_empty_row_check_field() {
+		return array( 'channel' );
 	}
 }

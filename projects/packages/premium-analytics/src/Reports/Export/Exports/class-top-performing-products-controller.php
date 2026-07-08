@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller;
 
 /**
  * Top Performing Products CSV Export Controller.
@@ -22,7 +22,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportControll
  *
  * @since $$next-version$$
  */
-class TopPerformingProductsController extends AbstractCSVReportController {
+class Top_Performing_Products_Controller extends Abstract_Csv_Report_Controller {
 
 	/**
 	 * The placeholder for profit and margin columns when COGS is not available.

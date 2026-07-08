@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API Reports Sales by Device controller class.
+ * REST API Reports Sales by Source controller class.
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports
  */
@@ -11,18 +11,18 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\Jetpack\PremiumAnalytics\Reports\Export\AbstractCSVReportController;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller;
 
 /**
- * Sales by Device CSV Export Controller.
+ * Sales by Source CSV Export Controller.
  *
- * Handles CSV exports for the Sales by Device report (order attribution data).
+ * Handles CSV exports for the Sales by Source report (order attribution data).
  * Note: This is a ranked list report, not a time-series report.
- * Comparison mode is supported using ID-based merging (matching by device).
+ * Comparison mode is supported using ID-based merging (matching by source).
  *
  * @since $$next-version$$
  */
-class SalesByDeviceController extends AbstractCSVReportController {
+class Sales_By_Source_Controller extends Abstract_Csv_Report_Controller {
 
 	/**
 	 * Get the report key for this controller.
@@ -30,7 +30,7 @@ class SalesByDeviceController extends AbstractCSVReportController {
 	 * @return string The report key.
 	 */
 	public function get_report_key(): string {
-		return 'salesbydevice';
+		return 'salesbysource';
 	}
 
 	/**
@@ -39,7 +39,7 @@ class SalesByDeviceController extends AbstractCSVReportController {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Sales by Device', 'jetpack-premium-analytics' );
+		return __( 'Sales by Source', 'jetpack-premium-analytics' );
 	}
 
 	/**
@@ -48,7 +48,7 @@ class SalesByDeviceController extends AbstractCSVReportController {
 	 * @return string The data endpoint.
 	 */
 	public function get_data_endpoint(): string {
-		return 'reports/order-attribution/device/items';
+		return 'reports/order-attribution/source/items';
 	}
 
 	/**
@@ -59,7 +59,7 @@ class SalesByDeviceController extends AbstractCSVReportController {
 	 */
 	public function get_column_headers( ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		return array(
-			'device'              => __( 'Device', 'jetpack-premium-analytics' ),
+			'source'              => __( 'Source', 'jetpack-premium-analytics' ),
 			'gross_sales'         => __( 'Gross sales', 'jetpack-premium-analytics' ),
 			'coupons'             => __( 'Coupons', 'jetpack-premium-analytics' ),
 			'refunds'             => __( 'Refunds', 'jetpack-premium-analytics' ),
@@ -84,7 +84,7 @@ class SalesByDeviceController extends AbstractCSVReportController {
 		$returning_customers = max( ( $item['total_customers'] ?? $defaults['total_customers'] ) - ( $item['new_customers'] ?? $defaults['new_customers'] ), 0 );
 
 		return array(
-			'device'              => $item['label'] ?? $item['device'] ?? $defaults['device'],
+			'source'              => $item['label'] ?? $item['source'] ?? $defaults['source'],
 			'gross_sales'         => self::format_amount( $item['gross_sales'] ?? $defaults['gross_sales'] ),
 			'coupons'             => self::format_amount( $item['coupons'] ?? $defaults['coupons'] ),
 			'refunds'             => self::format_amount( $item['refunds'] ?? $defaults['refunds'] ),
@@ -103,7 +103,7 @@ class SalesByDeviceController extends AbstractCSVReportController {
 	 */
 	public function get_default_values(): array {
 		return array(
-			'device'          => '',
+			'source'          => '',
 			'label'           => '',
 			'gross_sales'     => 0,
 			'coupons'         => 0,
@@ -119,7 +119,7 @@ class SalesByDeviceController extends AbstractCSVReportController {
 	/**
 	 * Get additional request parameters for data fetching.
 	 *
-	 * Sets orderby to gross_sales and view to device.
+	 * Sets orderby to gross_sales and view to source.
 	 *
 	 * @return array Additional parameters to include in data requests.
 	 */
@@ -127,7 +127,7 @@ class SalesByDeviceController extends AbstractCSVReportController {
 		return array(
 			'date_type' => self::DEFAULT_DATE_TYPE,
 			'orderby'   => 'gross_sales',
-			'view'      => 'device',
+			'view'      => 'source',
 		);
 	}
 
@@ -138,7 +138,7 @@ class SalesByDeviceController extends AbstractCSVReportController {
 	 */
 	public function get_fields(): array {
 		return array(
-			'device',
+			'source',
 			'label',
 			'gross_sales',
 			'coupons',
@@ -154,18 +154,18 @@ class SalesByDeviceController extends AbstractCSVReportController {
 	/**
 	 * Get the matching field for comparison data alignment.
 	 *
-	 * Sales by Device is a ranked report, so comparison data should be matched by device.
+	 * Sales by Source is a ranked report, so comparison data should be matched by source.
 	 *
 	 * @return string|null
 	 */
 	public function get_matching_field(): ?string {
-		return 'device';
+		return 'source';
 	}
 
 	/**
 	 * Get the identifying fields that should be preserved in comparison data.
 	 *
-	 * When a device exists in the original period but not in the comparison period,
+	 * When a source exists in the original period but not in the comparison period,
 	 * the label should still be shown for clarity.
 	 *
 	 * @return array Array of field names to preserve.
@@ -191,6 +191,6 @@ class SalesByDeviceController extends AbstractCSVReportController {
 	 * @return array The field names to check.
 	 */
 	public function get_empty_row_check_field() {
-		return array( 'device' );
+		return array( 'source' );
 	}
 }
