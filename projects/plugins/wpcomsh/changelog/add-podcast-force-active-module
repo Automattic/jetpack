@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Podcast: force the Jetpack Podcast module on for all Atomic sites via the jetpack_active_modules filter.
+Podcast: turn the Jetpack Podcast module on for Atomic sites (default-on, user-toggleable) by exposing it and seeding it into existing sites' active modules.

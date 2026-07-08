@@ -1,27 +1,48 @@
 <?php
 /**
- * Force the Jetpack Podcast module on for Atomic sites.
+ * Turn the Jetpack Podcast module on for Atomic sites.
+ *
+ * Podcast ships as a Jetpack module that Jetpack hides (and leaves inactive)
+ * on self-hosted sites until go-live. On Atomic we want it to behave like any
+ * other default module (e.g. Newsletter): on by default, but user-toggleable.
  *
  * @package wpcomsh
  */
 
+// Un-hide the module so it's a normal, toggleable module and new sites pick it
+// up via its `Auto Activate` header.
+add_filter( 'jetpack_podcast_for_the_world', '__return_true' );
+
 /**
- * Add the Podcast module to Jetpack's active modules.
+ * Seed the Podcast module into existing sites' active modules, once.
  *
- * The filter runs after Jetpack intersects active with available modules, so
- * this forces Podcast on for every Atomic site (existing and new) regardless of
- * stored state, and keeps it on even though the module stays hidden from the
- * available list.
+ * `Auto Activate` only reaches new installs, so existing Atomic sites need a
+ * one-time nudge to turn Podcast on. We add it to the stored active-modules
+ * option (rather than forcing it via a filter) so the module stays on but
+ * remains user-toggleable. A per-site flag guards the seed, so a later manual
+ * deactivation sticks — we never re-add it.
  *
- * @param array $modules The current Jetpack active modules.
- *
- * @return array
+ * @return void
  */
-function wpcomsh_activate_podcast_module( $modules ) {
-	if ( ! in_array( 'podcast', $modules, true ) ) {
-		$modules[] = 'podcast';
+function wpcomsh_seed_podcast_module() {
+	if ( get_option( 'wpcomsh_podcast_module_seeded' ) ) {
+		return;
 	}
 
-	return $modules;
+	if ( ! class_exists( 'Jetpack_Options' ) ) {
+		return;
+	}
+
+	$active = Jetpack_Options::get_option( 'active_modules', array() );
+	if ( ! is_array( $active ) ) {
+		$active = array();
+	}
+
+	if ( ! in_array( 'podcast', $active, true ) ) {
+		$active[] = 'podcast';
+		Jetpack_Options::update_option( 'active_modules', $active );
+	}
+
+	update_option( 'wpcomsh_podcast_module_seeded', 1 );
 }
-add_filter( 'jetpack_active_modules', 'wpcomsh_activate_podcast_module' );
+add_action( 'jetpack_loaded', 'wpcomsh_seed_podcast_module' );
