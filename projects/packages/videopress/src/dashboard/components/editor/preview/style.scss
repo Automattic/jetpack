@@ -1,6 +1,7 @@
-// Preview player for the Studio editor: video stage on top, transport row
-// underneath. The stage letterboxes the video against a dark background like
-// a normal player surface; the transport row inherits admin chrome.
+// Preview player for the Studio editor: a bare video stage (the transport
+// lives in the timeline toolbar per the editor redesign). The stage
+// letterboxes the video against a dark background like a normal player
+// surface; playback failures overlay it.
 .vp-studio-editor-preview {
 	// Keep the whole editor (preview + timeline) inside the viewport on wide
 	// windows: cap the stage height against the viewport (minus admin chrome
@@ -11,7 +12,6 @@
 
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
 	min-width: 0;
 }
 
@@ -46,28 +46,15 @@
 	color: #fff;
 }
 
-.vp-studio-editor-preview__timecode {
-	// 11ch: fits "H:MM:SS.t" plus the input chrome without clipping the tenths.
-	width: 11ch;
-	font-variant-numeric: tabular-nums;
-	text-align: right;
-	border: 1px solid transparent;
-	border-radius: 2px;
-	background: transparent;
-	padding: 2px 4px;
-
-	&:hover,
-	&:focus {
-		border-color: var(--wp-admin-theme-color, #3858e9);
-	}
-}
-
-.vp-studio-editor-preview__duration {
-	font-variant-numeric: tabular-nums;
-	white-space: nowrap;
-}
-
+// Playback failures surface on the stage itself now that there is no
+// transport row here: a translucent strip pinned to the bottom edge.
 .vp-studio-editor-preview__error {
-	margin-left: auto;
-	color: #d63638;
+	position: absolute;
+	inset: auto 12px 12px;
+	padding: 6px 12px;
+	border-radius: var(--vp-radius-small, 2px);
+	background: rgba(0, 0, 0, 0.72);
+	color: #fff;
+	font-size: 13px;
+	text-align: center;
 }

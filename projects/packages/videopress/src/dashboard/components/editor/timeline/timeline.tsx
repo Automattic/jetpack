@@ -61,8 +61,17 @@ export type StudioEditorTimelineProps = {
 	currentMs: number;
 	/** Seek the preview player to a master-timeline ms. */
 	onSeek: ( ms: number ) => void;
-	/** Toggle preview playback (space bar). */
+	/** Toggle preview playback (toolbar transport button, space bar). */
 	onTogglePlay: () => void;
+	/** Whether preview playback is running (toolbar transport icon). */
+	playing: boolean;
+	/**
+	 * True while a processing job locks editing. Only the strip's scroller
+	 * region blocks pointer interaction (the toolbar's transport and zoom
+	 * stay usable); the parent's guarded dispatch drops edit dispatches
+	 * either way, and it also owns the aria-busy announcement.
+	 */
+	locked?: boolean;
 	/**
 	 * A scrub gesture started (pointer-down on empty track area). The parent
 	 * pauses playback here so per-move seeks don't fight the playback
@@ -101,6 +110,8 @@ function clampToDuration( ms: number, durationMs: number ): number {
  * @param props.currentMs        - Live playhead position in ms.
  * @param props.onSeek           - Seek the preview player.
  * @param props.onTogglePlay     - Toggle preview playback.
+ * @param props.playing          - Whether preview playback is running.
+ * @param props.locked           - Whether a processing job locks the strip.
  * @param props.onScrubStart     - A scrub gesture started.
  * @param props.onScrubEnd       - The scrub gesture ended.
  * @param props.shortcutsEnabled - Whether the document-level shortcuts attach.
@@ -113,6 +124,8 @@ export default function StudioEditorTimeline( {
 	currentMs,
 	onSeek,
 	onTogglePlay,
+	playing,
+	locked = false,
 	onScrubStart,
 	onScrubEnd,
 	shortcutsEnabled = true,
@@ -297,7 +310,10 @@ export default function StudioEditorTimeline( {
 	return (
 		<div className="vp-studio-timeline" data-testid="studio-timeline">
 			<StudioEditorTimelineToolbar
+				playing={ playing }
+				onTogglePlay={ onTogglePlay }
 				currentMs={ currentMs }
+				durationMs={ durationMs }
 				canAddCut={ currentMs >= session.trimStartMs && currentMs <= session.trimEndMs }
 				onAddCut={ () => dispatch( { type: 'ADD_CUT', atMs: currentMs } ) }
 				onSeek={ seekClamped }
@@ -307,7 +323,9 @@ export default function StudioEditorTimeline( {
 				onFit={ () => applyZoom( 1 ) }
 			/>
 			<div
-				className="vp-studio-timeline__scroller"
+				className={
+					'vp-studio-timeline__scroller' + ( locked ? ' vp-studio-timeline__scroller--locked' : '' )
+				}
 				data-testid="studio-timeline-scroller"
 				ref={ scrollerRef }
 			>

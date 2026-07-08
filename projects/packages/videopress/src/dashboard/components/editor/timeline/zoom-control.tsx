@@ -90,6 +90,9 @@ export default function StudioEditorZoomControl( {
 	const step = zoomToStep( zoom, zoomMax );
 	return (
 		<div className="vp-studio-timeline__zoom">
+			<Button size="compact" variant="tertiary" onClick={ onFit }>
+				{ __( 'Fit', 'jetpack-videopress-pkg' ) }
+			</Button>
 			<input
 				className="vp-studio-timeline__zoom-slider"
 				type="range"
@@ -107,9 +110,6 @@ export default function StudioEditorZoomControl( {
 				value={ step }
 				onChange={ event => onZoomChange( stepToZoom( Number( event.target.value ), zoomMax ) ) }
 			/>
-			<Button size="compact" variant="tertiary" onClick={ onFit }>
-				{ __( 'Fit', 'jetpack-videopress-pkg' ) }
-			</Button>
 		</div>
 	);
 }

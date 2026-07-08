@@ -1,5 +1,4 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { createRef } from 'react';
 import { makeLibraryItem } from '../../../../test-utils/library-item';
 import { mockApiFetch } from '../../../../test-utils/mock-api-fetch';
@@ -45,14 +44,19 @@ const defaultProps = {
  * Render the player inside a QueryClient wrapper.
  *
  * @param overrides - Prop overrides for this test.
- * @return The render result.
+ * @return The render result plus the imperative handle.
  */
 function renderPlayer(
 	overrides: Partial< ComponentProps< typeof StudioEditorPreviewPlayer > > = {}
 ) {
-	return render( <StudioEditorPreviewPlayer { ...defaultProps } { ...overrides } />, {
-		wrapper: createTestWrapper(),
-	} );
+	const ref = createRef< StudioEditorPreviewPlayerHandle >();
+	const view = render(
+		<StudioEditorPreviewPlayer { ...defaultProps } { ...overrides } ref={ ref } />,
+		{
+			wrapper: createTestWrapper(),
+		}
+	);
+	return { ...view, ref };
 }
 
 /**
@@ -95,61 +99,50 @@ describe( 'StudioEditorPreviewPlayer', () => {
 		expect( screen.getByText( 'This video has no playable source.' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the fallback duration in the transport row', () => {
+	it( 'renders a bare stage: the transport lives in the timeline toolbar', () => {
 		renderPlayer();
-		expect( screen.getByText( '/ 0:01:00.0' ) ).toBeInTheDocument();
+		// No play/pause button, no editable timecode, no duration label — the
+		// timeline toolbar owns all of them per the editor redesign.
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'textbox' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '/ 0:01:00.0' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'toggles between Play and Pause', async () => {
-		renderPlayer();
-		await userEvent.click( screen.getByRole( 'button', { name: 'Play' } ) );
-		expect( window.HTMLMediaElement.prototype.play ).toHaveBeenCalled();
-		await userEvent.click( screen.getByRole( 'button', { name: 'Pause' } ) );
-		expect( window.HTMLMediaElement.prototype.pause ).toHaveBeenCalled();
-		expect( screen.getByRole( 'button', { name: 'Play' } ) ).toBeInTheDocument();
+	it( 'reports playing state changes through onPlayingChange', async () => {
+		const onPlayingChange = jest.fn();
+		const { ref } = renderPlayer( { onPlayingChange } );
+		// The mount effect reports the initial paused state.
+		expect( onPlayingChange ).toHaveBeenLastCalledWith( false );
+
+		act( () => ref.current?.play() );
+		await waitFor( () => expect( onPlayingChange ).toHaveBeenLastCalledWith( true ) );
+
+		act( () => ref.current?.pause() );
+		await waitFor( () => expect( onPlayingChange ).toHaveBeenLastCalledWith( false ) );
 	} );
 
-	it( 'renders no Preview cuts toggle (skip engine is always on)', () => {
-		renderPlayer();
-		expect( screen.queryByRole( 'checkbox', { name: 'Preview cuts' } ) ).not.toBeInTheDocument();
-	} );
+	it( 'overlays playback errors on the stage', async () => {
+		const error = new Error( 'unsupported' );
+		error.name = 'NotSupportedError';
+		jest
+			.spyOn( window.HTMLMediaElement.prototype, 'play' )
+			.mockImplementation( () => Promise.reject( error ) );
+		const { ref } = renderPlayer();
 
-	it( 'commits a typed timecode on Enter and seeks the element', async () => {
-		const onTimeUpdate = jest.fn();
-		renderPlayer( { onTimeUpdate } );
-		const input = screen.getByRole( 'textbox', { name: 'Current time' } );
-		await userEvent.clear( input );
-		await userEvent.type( input, '2{Enter}' );
-		expect( getVideo().currentTime ).toBe( 2 );
-		expect( input ).toHaveValue( '0:00:02.0' );
-		expect( onTimeUpdate ).toHaveBeenLastCalledWith( 2000 );
-	} );
+		act( () => ref.current?.play() );
 
-	it( 'reverts a draft timecode on Escape', async () => {
-		renderPlayer();
-		const input = screen.getByRole( 'textbox', { name: 'Current time' } );
-		await userEvent.clear( input );
-		await userEvent.type( input, '5{Escape}' );
-		expect( input ).toHaveValue( '0:00:00.0' );
-		expect( getVideo().currentTime ).toBe( 0 );
-	} );
-
-	it( 'ignores an unparseable timecode on blur', async () => {
-		renderPlayer();
-		const input = screen.getByRole( 'textbox', { name: 'Current time' } );
-		await userEvent.clear( input );
-		await userEvent.type( input, 'not a time' );
-		await userEvent.tab();
-		expect( input ).toHaveValue( '0:00:00.0' );
-		expect( getVideo().currentTime ).toBe( 0 );
+		const alert = await screen.findByRole( 'alert' );
+		expect( alert ).toHaveTextContent( 'This video format is not supported by the browser.' );
+		// The overlay sits inside the stage, over the video surface.
+		// eslint-disable-next-line testing-library/no-node-access -- asserting the overlay's ancestor requires DOM traversal.
+		expect( alert.closest( '.vp-studio-editor-preview__stage' ) ).not.toBeNull();
 	} );
 
 	it( 'exposes seekTo through the imperative handle', () => {
-		const ref = createRef< StudioEditorPreviewPlayerHandle >();
-		render( <StudioEditorPreviewPlayer { ...defaultProps } ref={ ref } />, {
-			wrapper: createTestWrapper(),
-		} );
+		const onTimeUpdate = jest.fn();
+		const { ref } = renderPlayer( { onTimeUpdate } );
 		act( () => ref.current?.seekTo( 1500 ) );
 		expect( getVideo().currentTime ).toBe( 1.5 );
+		expect( onTimeUpdate ).toHaveBeenLastCalledWith( 1500 );
 	} );
 } );

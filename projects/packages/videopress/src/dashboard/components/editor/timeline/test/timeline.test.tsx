@@ -116,6 +116,7 @@ function renderTimeline( overrides: Partial< StudioEditorTimelineProps > = {} ) 
 		currentMs: 0,
 		onSeek,
 		onTogglePlay,
+		playing: false,
 		...overrides,
 	};
 	const view = render( <StudioEditorTimeline { ...props } /> );
@@ -480,12 +481,73 @@ describe( 'StudioEditorTimeline', () => {
 		} );
 	} );
 
-	it( 'seeks from the toolbar timecode box', async () => {
-		const { onSeek } = renderTimeline();
-		const input = screen.getByRole( 'textbox', { name: 'Playhead time' } );
-		await userEvent.clear( input );
-		await userEvent.type( input, '3{Enter}' );
-		expect( onSeek ).toHaveBeenCalledWith( 3000 );
+	describe( 'transport (relocated from the preview player)', () => {
+		it( 'toggles playback from the transport button', async () => {
+			const { onTogglePlay } = renderTimeline();
+			const button = screen.getByTestId( 'studio-timeline-transport-play' );
+			expect( button ).toHaveAccessibleName( 'Play' );
+			await userEvent.click( button );
+			expect( onTogglePlay ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'shows the pause affordance while playing', () => {
+			renderTimeline( { playing: true } );
+			expect( screen.getByTestId( 'studio-timeline-transport-play' ) ).toHaveAccessibleName(
+				'Pause'
+			);
+		} );
+
+		it( 'shows the session duration next to the timecode box', () => {
+			renderTimeline();
+			expect( screen.getByText( '/ 0:00:10.0' ) ).toBeInTheDocument();
+		} );
+
+		it( 'seeks from the toolbar timecode box', async () => {
+			const { onSeek } = renderTimeline();
+			const input = screen.getByRole( 'textbox', { name: 'Playhead time' } );
+			await userEvent.clear( input );
+			await userEvent.type( input, '3{Enter}' );
+			expect( onSeek ).toHaveBeenCalledWith( 3000 );
+		} );
+
+		it( 'reverts a draft timecode on Escape', async () => {
+			const { onSeek } = renderTimeline();
+			const input = screen.getByRole( 'textbox', { name: 'Playhead time' } );
+			await userEvent.clear( input );
+			await userEvent.type( input, '5{Escape}' );
+			expect( input ).toHaveValue( '0:00:00.0' );
+			expect( onSeek ).not.toHaveBeenCalled();
+		} );
+
+		it( 'ignores an unparseable timecode on blur', async () => {
+			const { onSeek } = renderTimeline();
+			const input = screen.getByRole( 'textbox', { name: 'Playhead time' } );
+			await userEvent.clear( input );
+			await userEvent.type( input, 'not a time' );
+			await userEvent.tab();
+			expect( input ).toHaveValue( '0:00:00.0' );
+			expect( onSeek ).not.toHaveBeenCalled();
+		} );
+	} );
+
+	describe( 'processing lock', () => {
+		it( 'scopes the locked modifier to the scroller, keeping the toolbar usable', async () => {
+			const { onTogglePlay } = renderTimeline( { locked: true } );
+			// The pointer-events block targets the scroller region only; the
+			// toolbar (transport, zoom) sits outside it and stays interactive.
+			expect( screen.getByTestId( 'studio-timeline-scroller' ) ).toHaveClass(
+				'vp-studio-timeline__scroller--locked'
+			);
+			await userEvent.click( screen.getByTestId( 'studio-timeline-transport-play' ) );
+			expect( onTogglePlay ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'leaves the scroller unlocked by default', () => {
+			renderTimeline();
+			expect( screen.getByTestId( 'studio-timeline-scroller' ) ).not.toHaveClass(
+				'vp-studio-timeline__scroller--locked'
+			);
+		} );
 	} );
 
 	describe( 'document-level shortcuts', () => {

@@ -16,16 +16,58 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 .vp-studio-timeline__toolbar {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 12px;
+	min-height: 36px;
+}
+
+// The relocated transport: a plain 36px icon button (the redesign moved
+// play/pause from the preview player into this toolbar).
+.vp-studio-timeline__transport {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	border: 0;
+	border-radius: var(--vp-radius-small, 2px);
+	background: transparent;
+	color: var(--vp-gray-900, #1e1e1e);
+	cursor: pointer;
+
+	svg {
+		fill: currentColor;
+	}
+
+	&:hover {
+		background: var(--vp-gray-100, #f0f0f0);
+	}
+
+	&:focus-visible {
+		outline: 2px solid $vp-timeline-accent;
+		outline-offset: 1px;
+	}
+}
+
+// The "current / duration" readout reads as one mono unit: the editable
+// timecode box, then the total duration.
+.vp-studio-timeline__time {
+	display: flex;
+	align-items: center;
+	gap: 4px;
 }
 
 .vp-studio-timeline__timecode {
 	// 11ch: fits "H:MM:SS.t" plus the input chrome without clipping the tenths.
 	width: 11ch;
+	font-family: var(--vp-font-mono, Menlo, Consolas, monaco, monospace);
+	font-size: 13px;
+	color: var(--vp-gray-900, #1e1e1e);
 	font-variant-numeric: tabular-nums;
 	text-align: right;
 	border: 1px solid transparent;
-	border-radius: 2px;
+	border-radius: var(--vp-radius-small, 2px);
 	background: transparent;
 	padding: 2px 4px;
 
@@ -35,15 +77,31 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 	}
 }
 
+.vp-studio-timeline__duration {
+	font-family: var(--vp-font-mono, Menlo, Consolas, monaco, monospace);
+	font-size: 13px;
+	color: var(--vp-gray-600, #949494);
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.vp-studio-timeline__toolbar-divider {
+	flex: none;
+	width: 1px;
+	height: 24px;
+	background: var(--vp-gray-300, #ddd);
+}
+
 .vp-studio-timeline__zoom {
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: 8px;
 	margin-left: auto;
 }
 
 .vp-studio-timeline__zoom-slider {
 	width: 120px;
+	accent-color: $vp-timeline-accent;
 }
 
 .vp-studio-timeline__scroller {
@@ -58,6 +116,16 @@ $vp-timeline-accent: var(--wp-admin-theme-color, #3858e9);
 	// layout (which also feeds the wider viewport back into the zoom math via
 	// the ResizeObserver, compounding the growth).
 	contain: inline-size;
+}
+
+// A processing job locks editing: pointer interaction with the strip is
+// blocked and the strip dims. Scoped to the scroller — NOT the toolbar — so
+// the transport and zoom stay usable while a job runs; the editor screen's
+// guarded dispatch drops keyboard-driven edit dispatches, and its wrapper
+// keeps the aria-busy announcement.
+.vp-studio-timeline__scroller--locked {
+	pointer-events: none;
+	opacity: 0.6;
 }
 
 .vp-studio-timeline__content {

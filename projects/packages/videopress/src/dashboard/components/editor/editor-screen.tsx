@@ -163,6 +163,9 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 	sessionRef.current = session;
 
 	const [ currentMs, setCurrentMs ] = useState( 0 );
+	// Mirrored from the preview player for the timeline toolbar's transport
+	// button (the redesign moved play/pause into the timeline).
+	const [ playing, setPlaying ] = useState( false );
 	// Rail selection; initialized once from the ?tool= deep link (the Details
 	// tab links its chapters summary at ?tool=chapters).
 	const [ activeTool, setActiveTool ] = useState( initialToolFromLocation );
@@ -596,6 +599,7 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 									session={ session }
 									onTimeUpdate={ onTimeUpdate }
 									onDurationChange={ onDurationChange }
+									onPlayingChange={ setPlaying }
 								/>
 							</div>
 							<div
@@ -612,6 +616,8 @@ function StudioEditorReady( { video }: ReadyProps ): ReactElement {
 									currentMs={ currentMs }
 									onSeek={ onSeek }
 									onTogglePlay={ onTogglePlay }
+									playing={ playing }
+									locked={ locked }
 									onScrubStart={ onScrubStart }
 									onScrubEnd={ onScrubEnd }
 									shortcutsEnabled={ confirmAction === null }

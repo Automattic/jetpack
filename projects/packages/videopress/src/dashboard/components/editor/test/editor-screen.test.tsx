@@ -334,6 +334,19 @@ describe( 'StudioEditorScreen', () => {
 		);
 		expect( isButtonDisabled( 'Save' ) ).toBe( true );
 
+		// The lock scopes to the strip's scroller: the toolbar transport stays
+		// clickable while the job runs…
+		expect( screen.getByTestId( 'studio-timeline-scroller' ) ).toHaveClass(
+			'vp-studio-timeline__scroller--locked'
+		);
+		( window.HTMLMediaElement.prototype.play as jest.Mock ).mockClear();
+		await user.click( screen.getByTestId( 'studio-timeline-transport-play' ) );
+		expect( window.HTMLMediaElement.prototype.play ).toHaveBeenCalled();
+		// …while edit dispatches are still dropped by the guarded dispatch.
+		expect( screen.getAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 1 );
+		await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+		expect( screen.getAllByTestId( /^studio-timeline-cut-cut-\d+$/ ) ).toHaveLength( 1 );
+
 		// The job completes server-side; the next refetch re-baselines.
 		api.edits = makeEdits( {
 			revision: 1,
