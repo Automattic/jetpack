@@ -1,0 +1,11 @@
+.widgetRoot {
+	height: 100%;
+}
+
+.emptyState {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 250px;
+	color: var(--wpds-color-foreground-content-neutral-weak, #646970);
+}

@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.2] - 2026-07-06
+### Changed
+- Settings: Space the Email content private-site notice from the form with a Stack gap instead of a custom CSS margin rule. [#50085]
+- Update package dependencies. [#50097] [#50183]
+
+### Fixed
+- Daily Writing Prompt: Show a branded fallback with a Reader link when no prompt is available or the request fails, instead of rendering a blank widget. [#50119]
+- Settings: Add bottom margin to the Email content private-site notice so it no longer collides with the featured image toggle. [#50072]
+
+## [0.11.1] - 2026-06-29
+### Changed
+- Settings: Link the "Button only" style hint to platform-appropriate support documentation. [#50009]
+- Update package dependencies. [#49271]
+
 ## [0.11.0] - 2026-06-25
 ### Changed
 - Introduce the modernized dashboard and WP Admin subscriber management behind the `rsm_jetpack_ui_modernization_newsletter` and `jetpack_wp_admin_subscriber_management_enabled` filters, off by default. [#49036]
@@ -257,6 +271,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.11.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.11.1...v0.11.2
+[0.11.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.9.0...v0.9.1

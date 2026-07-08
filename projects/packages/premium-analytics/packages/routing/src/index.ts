@@ -5,4 +5,5 @@ export {
 } from './search/date-range';
 
 export { deriveComparisonRange } from './search/comparison';
-export { useStagedSearch } from './hooks';
+export { REPORT_DATE_PARAM_KEYS, pickReportDateParams } from './search/report-params';
+export { useStagedSearch, useReportDateFilters, type ReportDateFilters } from './hooks';

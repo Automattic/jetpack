@@ -209,6 +209,91 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 		);
 	}
 
+	if ( ! in_array( 'default-devices-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'      => 'default-devices-widget-instance',
+			'type'      => 'jpa/devices',
+			'placement' => array(
+				'width'  => 1,
+				'height' => 2,
+				'order'  => 2,
+			),
+		);
+	}
+
+	if ( ! in_array( 'default-top-platforms-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'      => 'default-top-platforms-widget-instance',
+			'type'      => 'jpa/top-platforms',
+			'placement' => array(
+				'width'  => 2,
+				'height' => 2,
+				'order'  => 3,
+			),
+		);
+	}
+
+	if ( ! in_array( 'default-search-terms-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'       => 'default-search-terms-widget-instance',
+			'type'       => 'jpa/search-terms',
+			'attributes' => array(
+				'max' => 10,
+			),
+			'placement'  => array(
+				'width'  => 1,
+				'height' => 2,
+				'order'  => 4,
+			),
+		);
+	}
+
+	if ( ! in_array( 'default-utm-insights-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'       => 'default-utm-insights-widget-instance',
+			'type'       => 'jpa/utm-insights',
+			'attributes' => array(
+				'utmParam' => 'utm_source,utm_medium',
+				'max'      => 10,
+			),
+			'placement'  => array(
+				'width'  => 1,
+				'height' => 2,
+				'order'  => 5,
+			),
+		);
+	}
+
+	if ( ! in_array( 'default-file-downloads-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'       => 'default-file-downloads-widget-instance',
+			'type'       => 'jpa/file-downloads',
+			'attributes' => array(
+				'max' => 10,
+			),
+			'placement'  => array(
+				'width'  => 1,
+				'height' => 2,
+				'order'  => 6,
+			),
+		);
+	}
+
+	if ( ! in_array( 'default-clicks-widget-instance', $uuids, true ) ) {
+		$dashboard_layout[] = array(
+			'uuid'       => 'default-clicks-widget-instance',
+			'type'       => 'jpa/clicks',
+			'attributes' => array(
+				'max' => 10,
+			),
+			'placement'  => array(
+				'width'  => 1,
+				'height' => 2,
+				'order'  => 7,
+			),
+		);
+	}
+
 	return $dashboard_layout;
 }
 add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\seed_default_dashboard_layout', 10, 2 );

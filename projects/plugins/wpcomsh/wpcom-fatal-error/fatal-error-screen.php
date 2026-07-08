@@ -25,6 +25,13 @@
  * @return string
  */
 function wpcomsh_customize_fatal_error_message( $message, $error = array() ) {
+	// Rendering allocates memory. On a near-limit request that would itself OOM
+	// and mask the real error, so secure headroom first; if we can't, fall back
+	// to core's lighter screen.
+	if ( ! wpcomsh_fatal_ensure_render_memory() ) {
+		return (string) $message;
+	}
+
 	unset( $message );
 
 	wpcomsh_fatal_load_textdomain();

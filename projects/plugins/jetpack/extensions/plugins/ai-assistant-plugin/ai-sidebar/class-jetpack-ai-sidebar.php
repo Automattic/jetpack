@@ -14,6 +14,8 @@ namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 
 use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -313,6 +315,87 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * UI feature flag for Proofreader (spelling and grammar).
+	 *
+	 * Server-side permission checks still gate execution. This site-side flag
+	 * controls whether the Jetpack AI Sidebar exposes the Proofreader
+	 * suggestion. It follows Image Studio's internal rollout pattern.
+	 *
+	 * @return bool
+	 */
+	private static function is_proofread_content_enabled(): bool {
+		return jetpack_is_internal_testing_environment();
+	}
+
+	/**
+	 * UI feature flag for the SEO Enhancer suggestions (SEO title and meta description).
+	 *
+	 * Exposed only in internal testing environments while the feature is in development,
+	 * and only where the suggestions can actually be used: the SEO Enhancer is not
+	 * killed via its filter, the site's plan includes the Jetpack SEO feature (the
+	 * suggestions write to the plan-gated SEO title and meta description fields), and
+	 * SEO tools are usable on the site. Kept independent of the Optimize Title flag:
+	 * SEO suggestions target the SEO meta fields, not the visible post title.
+	 *
+	 * The user-facing ai_seo_enhancer_enabled *option* is deliberately not consulted —
+	 * it only governs automatic generation on publish, while these suggestions are
+	 * user-initiated.
+	 *
+	 * @return bool
+	 */
+	private static function is_seo_suggestions_enabled(): bool {
+		return jetpack_is_internal_testing_environment()
+			&& (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
+			&& self::has_seo_feature()
+			&& self::is_seo_tools_usable();
+	}
+
+	/**
+	 * UI feature flag for the Generate Excerpt suggestion.
+	 *
+	 * Exposed only in internal testing environments while the feature is in development.
+	 * No plan gate: the excerpt is a core editorial field, and the ability's own
+	 * permission callback (edit_posts) gates execution server-side.
+	 *
+	 * @return bool
+	 */
+	private static function is_excerpt_suggestion_enabled(): bool {
+		return jetpack_is_internal_testing_environment();
+	}
+
+	/**
+	 * Whether the site's plan includes the Jetpack SEO feature.
+	 *
+	 * Same predicate the SEO editor panel uses to decide between the SEO fields and
+	 * the "Optimize SEO" upgrade nudge: extensions/plugins/seo/seo.php registers
+	 * availability via Jetpack_Gutenberg::set_availability_for_plan( 'advanced-seo' ),
+	 * which resolves through Current_Plan::supports(). On WordPress.com Simple and
+	 * Atomic this delegates to wpcom_site_has_feature( 'advanced-seo' ) — Business
+	 * and higher plans; on self-hosted sites every plan includes the feature.
+	 *
+	 * @return bool
+	 */
+	private static function has_seo_feature(): bool {
+		return Current_Plan::supports( 'advanced-seo' );
+	}
+
+	/**
+	 * Whether Jetpack SEO tools are usable on this site: SEO is not disabled via the
+	 * jetpack_disable_seo_tools filter — which the seo-tools module enables itself
+	 * when a conflicting SEO plugin (Yoast, AIOSEO, Rank Math, …) owns the site's
+	 * SEO — and the seo-tools module is active, since the module registers the SEO
+	 * meta fields the suggestions write to. On WordPress.com Simple the module always
+	 * reports active, so there this reduces to the filter check.
+	 *
+	 * @return bool
+	 */
+	private static function is_seo_tools_usable(): bool {
+		/** This filter is documented in modules/seo-tools/class-jetpack-seo-utils.php */
+		return ! apply_filters( 'jetpack_disable_seo_tools', false )
+			&& ( new Modules() )->is_active( 'seo-tools' );
+	}
+
+	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
 	 * Defaults to enabled only on WordPress.com platform sites (Simple or WoA)
@@ -364,9 +447,12 @@ class Jetpack_AI_Sidebar {
 		$features = array(
 			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
 			'generateFeedback'        => self::is_generate_feedback_enabled(),
+			'proofreadContent'        => self::is_proofread_content_enabled(),
 			'blockTransformations'    => true,
 			'blockToolbarButton'      => false,
 			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
+			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
+			'excerptSuggestion'       => self::is_excerpt_suggestion_enabled(),
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
@@ -382,7 +468,10 @@ class Jetpack_AI_Sidebar {
 		// Re-assert the testing-environment gates so the generic features filter cannot
 		// expose in-development suggestions outside internal testing environments.
 		$features['generateFeedback']        = self::is_generate_feedback_enabled();
+		$features['proofreadContent']        = self::is_proofread_content_enabled();
 		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && self::is_optimize_title_suggestion_enabled();
+		$features['seoSuggestions']          = (bool) $features['seoSuggestions'] && self::is_seo_suggestions_enabled();
+		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'] && self::is_excerpt_suggestion_enabled();
 
 		return array(
 			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),
@@ -454,9 +543,8 @@ class Jetpack_AI_Sidebar {
 		$config = self::get_jetpack_ai_sidebar_preview_config();
 
 		return array(
-			'agentId'                  => AI_SIDEBAR_AGENT_ID,
-			'aiEditorialReviewEnabled' => self::is_ai_editorial_review_enabled(),
-			'jetpackAiSidebar'         => $config,
+			'agentId'          => AI_SIDEBAR_AGENT_ID,
+			'jetpackAiSidebar' => $config,
 		);
 	}
 

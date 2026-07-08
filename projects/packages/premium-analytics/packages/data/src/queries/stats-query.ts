@@ -6,20 +6,28 @@ import {
 } from '../api';
 import {
 	sanitizeStatsClicksResponse,
+	sanitizeStatsDevicesResponse,
 	sanitizeStatsFileDownloadsResponse,
 	sanitizeStatsHighlightsResponse,
 	sanitizeStatsLocationsResponse,
 	sanitizeStatsArchivesResponse,
+	sanitizeStatsCommentFollowersResponse,
+	sanitizeStatsFollowersResponse,
 	sanitizeStatsCommentsResponse,
 	sanitizeStatsInsightsResponse,
 	sanitizeStatsStreakResponse,
 	sanitizeStatsVisitsResponse,
 	sanitizeStatsTagsResponse,
 	sanitizeStatsTimeSeriesResponse,
+	sanitizeStatsEmailTimeSeriesResponse,
+	sanitizeStatsPublicizeResponse,
+	sanitizeStatsEmailBreakdownResponse,
+	sanitizeStatsEmailSummaryResponse,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsPostResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
+	sanitizeStatsSingleVideoResponse,
 	sanitizeStatsSiteResponse,
 	sanitizeStatsSubscribersCountsResponse,
 	sanitizeStatsSubscribersResponse,
@@ -27,16 +35,22 @@ import {
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsUtmResponse,
 	sanitizeStatsVideoPlaysResponse,
+	sanitizeStatsWordAdsEarningsResponse,
+	sanitizeStatsWordAdsStatsResponse,
 } from '../processing/stats';
 import {
 	reportParamsToStatsQueryParams,
 	statsQueryParamsToApiParams,
 	type StatsQueryParams,
+	type StatsQueryParamFields,
 } from '../utils/stats-params';
 import type { ReportParams } from '../utils/search';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
-export type StatsReportParams = ReportParams & StatsQueryParams;
+// Including `StatsProxyParams` confuses TypeScript because it brings in a string index signature,
+// which conflicts with `ReportParams.filters`. Endpoint-specific extras reach the proxy through
+// `statsReportQuery`'s `extraParams`, not this index signature.
+export type StatsReportParams = ReportParams & StatsQueryParamFields;
 type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQueryParams ) => TData;
 
 const statsSanitizers = {
@@ -53,15 +67,25 @@ const statsSanitizers = {
 	locations: sanitizeStatsLocationsResponse,
 	videoPlays: sanitizeStatsVideoPlaysResponse,
 	archives: sanitizeStatsArchivesResponse,
+	commentFollowers: sanitizeStatsCommentFollowersResponse,
+	followers: sanitizeStatsFollowersResponse,
 	comments: sanitizeStatsCommentsResponse,
+	devices: sanitizeStatsDevicesResponse,
 	insights: sanitizeStatsInsightsResponse,
 	streak: sanitizeStatsStreakResponse,
 	tags: sanitizeStatsTagsResponse,
 	utm: sanitizeStatsUtmResponse,
 	visits: sanitizeStatsVisitsResponse,
 	timeSeries: sanitizeStatsTimeSeriesResponse,
+	emailTimeSeries: sanitizeStatsEmailTimeSeriesResponse,
 	subscribers: sanitizeStatsSubscribersResponse,
 	subscribersCounts: sanitizeStatsSubscribersCountsResponse,
+	publicize: sanitizeStatsPublicizeResponse,
+	wordAdsStats: sanitizeStatsWordAdsStatsResponse,
+	wordAdsEarnings: sanitizeStatsWordAdsEarningsResponse,
+	emailBreakdown: sanitizeStatsEmailBreakdownResponse,
+	emailSummary: sanitizeStatsEmailSummaryResponse,
+	singleVideo: sanitizeStatsSingleVideoResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;

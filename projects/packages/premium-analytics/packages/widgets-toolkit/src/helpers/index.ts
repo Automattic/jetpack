@@ -19,6 +19,7 @@ export {
 	type ColorableItem,
 } from './segment-styles';
 export { buildSalesByDeviceData, type SalesByDeviceData } from './build-sales-by-device-data';
+export { buildSalesByUtmData } from './build-sales-by-utm-data';
 export {
 	buildSessionsByDeviceData,
 	type SessionsByDeviceData,
@@ -28,7 +29,6 @@ export {
 	type BookingsByAttendanceData,
 } from './build-bookings-by-attendance-data';
 export { buildTotalReturnsData, type TotalReturnsData } from './build-total-returns-data';
-export { buildSalesByUtmData } from './build-sales-by-utm-data';
 export { formatLegendLabels } from './format-legend-labels';
 export { calculateDelta } from './calculate-delta';
 export { buildCouponUseData, type CouponUseData } from './build-coupon-use-data';
@@ -45,3 +45,4 @@ export {
 } from './build-visitors-by-location-data';
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
+export { formatDisplayLabel } from './format-display-label';

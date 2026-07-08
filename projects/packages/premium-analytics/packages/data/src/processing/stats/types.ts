@@ -1,10 +1,14 @@
 import type { StatsArchivesItem } from './archives';
 import type { StatsClicksItem } from './clicks';
+import type { StatsCommentFollowersItem } from './comment-followers';
 import type { StatsCommentsItem } from './comments';
+import type { StatsDevicesItem } from './devices';
 import type { StatsEmailBreakdownItem } from './email-breakdown';
 import type { StatsEmailSummaryItem } from './email-summary';
 import type { StatsFileDownloadsItem } from './file-downloads';
+import type { StatsFollowersItem } from './followers';
 import type { StatsLocationsItem } from './locations';
+import type { StatsPublicizeItem } from './publicize';
 import type { StatsReferrersItem } from './referrers';
 import type { StatsSearchTermsItem } from './search-terms';
 import type { StatsTagsItem } from './tags';
@@ -25,6 +29,7 @@ export type StatsItemAction = {
 
 export type StatsNormalizedItem =
 	| StatsTopPostsItem
+	| StatsDevicesItem
 	| StatsReferrersItem
 	| StatsClicksItem
 	| StatsSearchTermsItem
@@ -36,8 +41,12 @@ export type StatsNormalizedItem =
 	| StatsEmailSummaryItem
 	| StatsEmailBreakdownItem
 	| StatsArchivesItem
+	| StatsCommentFollowersItem
+	| StatsFollowersItem
 	| StatsCommentsItem
-	| StatsTagsItem;
+	| StatsTagsItem
+	| StatsDevicesItem
+	| StatsPublicizeItem;
 
 export type StatsNormalizedDataPoint< TItem extends StatsNormalizedItem = StatsNormalizedItem > = {
 	time_interval: string;

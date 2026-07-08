@@ -230,8 +230,9 @@ class Script_Data {
 			'display_name' => $current_user->display_name,
 			'id'           => $current_user->ID,
 			'capabilities' => array(
-				'manage_options' => current_user_can( 'manage_options' ),
-				'manage_modules' => current_user_can( 'jetpack_manage_modules' ),
+				'edit_others_posts' => current_user_can( 'edit_others_posts' ),
+				'manage_options'    => current_user_can( 'manage_options' ),
+				'manage_modules'    => current_user_can( 'jetpack_manage_modules' ),
 			),
 		);
 	}

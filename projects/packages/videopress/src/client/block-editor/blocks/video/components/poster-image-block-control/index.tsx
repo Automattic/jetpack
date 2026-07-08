@@ -124,6 +124,7 @@ export default function PosterImageBlockControl( {
 							{ !! poster && (
 								<MenuItem
 									className="poster-image-block-control__remove-button"
+									// @ts-expect-error MenuItem forwards variant to the underlying Button at runtime.
 									variant="tertiary"
 									isDestructive
 									onClick={ () => {

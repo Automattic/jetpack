@@ -17,6 +17,9 @@ export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device
 export { useStatsSite } from './hooks/use-stats-site';
 export { useStatsPost } from './hooks/use-stats-post';
 export type { StatsPostField, StatsPostParams, StatsPostResponse } from './hooks/use-stats-post';
+export { useStatsQuery } from './hooks/use-stats-query';
+export { latestPostQuery } from './queries/latest-post-query';
+export type { LatestPost, LatestPostResponse } from './processing/latest-post';
 export { useStatsTopPosts } from './hooks/use-stats-top-posts';
 export { useStatsReferrers } from './hooks/use-stats-referrers';
 export { useStatsClicks } from './hooks/use-stats-clicks';
@@ -41,20 +44,46 @@ export type {
 	StatsAppPlanPriceTier,
 	StatsAppPlanUsage,
 } from './hooks/use-stats-app-plan-usage';
+export {
+	useStatsAppNotices,
+	useStatsAppNoticeMutation,
+	type StatsAppNoticeId,
+	type StatsAppNoticeMutationParams,
+	type StatsAppNoticeMutationResponse,
+	type StatsAppNotices,
+	type StatsAppNoticesParams,
+	type StatsAppNoticeStatus,
+} from './hooks/use-stats-app-notices';
+export {
+	useStatsAppPurchases,
+	type StatsAppPurchase,
+	type StatsAppPurchaseExpiryStatus,
+	type StatsAppPurchasesParams,
+	type StatsAppPurchasesResponse,
+} from './hooks/use-stats-app-purchases';
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
+export {
+	useStatsCommentFollowers,
+	type StatsCommentFollowersResponse,
+} from './hooks/use-stats-comment-followers';
+export { useStatsFollowers } from './hooks/use-stats-followers';
+export type { StatsFollowersParams, StatsFollowersResponse } from './hooks/use-stats-followers';
+export { useStatsPublicize } from './hooks/use-stats-publicize';
+export type { StatsPublicizeParams, StatsPublicizeResponse } from './hooks/use-stats-publicize';
 export {
 	useStatsComments,
 	type StatsCommentsParams,
 	type StatsCommentsResponse,
 } from './hooks/use-stats-comments';
 export {
-	useStatsSubscribers,
 	useStatsSubscribersCounts,
+	useStatsSubscribersReport,
 	type StatsSubscribersCounts,
 	type StatsSubscribersCountsParams,
 	type StatsSubscribersCountsResponse,
 	type StatsSubscribersParams,
 	type StatsSubscribersResponse,
+	type StatsSubscribersUnit,
 } from './hooks/use-stats-subscribers';
 export {
 	useStatsStreak,
@@ -79,6 +108,83 @@ export type { StatsUtmParams, StatsUtmResponse } from './hooks/use-stats-utm';
 export { useStatsHighlights } from './hooks/use-stats-highlights';
 export type { StatsHighlightsParams, StatsHighlightsResponse } from './hooks/use-stats-highlights';
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './hooks/use-stats-tags';
+export { useStatsDevices } from './hooks/use-stats-devices';
+export {
+	useStatsAppSiteHasNeverPublishedPost,
+	type StatsAppSiteHasNeverPublishedPostParams,
+	type StatsAppSiteHasNeverPublishedPostResponse,
+} from './hooks/use-stats-app-site-has-never-published-post';
+export {
+	useStatsWordAdsStats,
+	useStatsWordAdsEarnings,
+	type StatsWordAdsEarnings,
+	type StatsWordAdsEarningsBreakdown,
+	type StatsWordAdsEarningsParams,
+	type StatsWordAdsEarningsPeriod,
+	type StatsWordAdsEarningsRaw,
+	type StatsWordAdsEarningsRawBreakdown,
+	type StatsWordAdsEarningsRawPeriod,
+	type StatsWordAdsEarningsRawResponse,
+	type StatsWordAdsEarningsResponse,
+	type StatsWordAdsDataPoint,
+	type StatsWordAdsParams,
+	type StatsWordAdsRawField,
+	type StatsWordAdsRawResponse,
+	type StatsWordAdsResponse,
+} from './hooks/use-stats-wordads';
+export {
+	useStatsAppReferrersSpam,
+	useStatsAppReferrersMarkSpamMutation,
+	useStatsAppReferrersUnmarkSpamMutation,
+} from './hooks/use-stats-app-referrers-spam';
+export type {
+	StatsAppReferrersSpamMutationParams,
+	StatsAppReferrersSpamMutationResponse,
+	StatsAppReferrersSpamResponse,
+} from './hooks/use-stats-app-referrers-spam';
+export {
+	useStatsEmailOpensBreakdown,
+	useStatsEmailClicksBreakdown,
+	type StatsEmailBreakdown,
+	type StatsEmailClicksBreakdown,
+	type StatsEmailOpensBreakdown,
+} from './hooks/use-stats-email-breakdown';
+export {
+	useStatsEmailSummary,
+	type StatsEmailSummary,
+	type StatsEmailSummaryParams,
+	type StatsEmailSummarySortField,
+} from './hooks/use-stats-email-summary';
+export {
+	useStatsSingleVideo,
+	type StatsSingleVideoDataPoint,
+	type StatsSingleVideoPage,
+	type StatsSingleVideoResponse,
+} from './hooks/use-stats-single-video';
+export {
+	useStatsEmailOpensTimeSeries,
+	useStatsEmailClicksTimeSeries,
+	type StatsEmailTimeSeriesParams,
+	type StatsEmailTimeSeriesPeriod,
+	type StatsEmailTimeSeriesReport,
+	type StatsEmailTimeSeriesDataPoint,
+	type StatsEmailTimeSeriesSummary,
+} from './hooks/use-stats-email-time-series';
+export {
+	useStatsAppDashboardModules,
+	useStatsAppDashboardModulesMutation,
+} from './hooks/use-stats-app-dashboard-modules';
+export type {
+	StatsAppDashboardModules,
+	StatsAppDashboardModulesMutationResponse,
+	StatsAppDashboardModuleValue,
+	StatsAppDashboardTrafficModule,
+	StatsAppDashboardInsightsModule,
+	StatsAppDashboardSubscribersModule,
+	StatsAppDashboardWordAdsModule,
+	StatsAppDashboardStoreModule,
+} from './hooks/use-stats-app-dashboard-modules';
+export type { StatsDeviceProperty } from './queries/stats-devices-query';
 export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
@@ -95,7 +201,13 @@ export {
 	localTZDate,
 	hasProductFilters,
 	isSelectablePreset,
+	computeDateRangeFromPreset,
+	getApiErrorCode,
+	getApiErrorStatus,
+	getStatsPlanErrorReason,
+	shouldRetryApiError,
 } from './utils';
+export type { StatsPlanErrorReason } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';
 export type { FilterCondition } from './types/filter-condition';
@@ -115,6 +227,9 @@ export type {
 export type {
 	StatsArchivesItem,
 	StatsClicksItem,
+	StatsCommentFollowersItem,
+	StatsCommentFollowersRawPost,
+	StatsCommentFollowersRawResponse,
 	StatsCommentsAuthorItem,
 	StatsCommentsGroupItem,
 	StatsCommentsItem,
@@ -123,19 +238,28 @@ export type {
 	StatsCommentsRawFollowData,
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
+	StatsEmailBreakdownItem,
 	StatsFileDownloadsItem,
+	StatsFollowersItem,
+	StatsFollowersRawItem,
+	StatsFollowersRawResponse,
 	StatsItemAction,
 	StatsLocationsItem,
+	StatsDevicesItem,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItem,
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
+	StatsPostMeta,
 	StatsPostMonthValues,
 	StatsPostRawResponse,
 	StatsPostWeek,
 	StatsPostWeekDay,
 	StatsPostYear,
+	StatsPublicizeApiResponse,
+	StatsPublicizeItem,
+	StatsPublicizeService,
 	StatsReferrersItem,
 	StatsSearchTermsItem,
 	StatsSubscribersCountsRawResponse,
@@ -157,6 +281,7 @@ export type {
 	StatsUtmTopPostItem,
 	StatsVideoPlaysItem,
 } from './processing/stats';
+export type { StatsCommentFollowersParams } from './queries/stats-comment-followers-query';
 export type { StatsReportParams } from './queries/stats-query';
 export {
 	getStatsPeriodFromInterval,

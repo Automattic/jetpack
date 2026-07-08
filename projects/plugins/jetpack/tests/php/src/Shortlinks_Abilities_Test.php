@@ -141,6 +141,19 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The agent-facing description must point at the current module ability slugs.
+	 */
+	public function test_get_shortlinks_description_references_current_module_abilities() {
+		$spec        = Shortlinks_Abilities::get_abilities()['jetpack-shortlinks/get-shortlinks'];
+		$description = $spec['description'];
+
+		$this->assertStringContainsString( 'jetpack/get-modules', $description );
+		$this->assertStringContainsString( 'jetpack/set-module-status', $description );
+		$this->assertStringNotContainsString( 'jetpack-modules/get-modules', $description );
+		$this->assertStringNotContainsString( 'jetpack-modules/set-module-status', $description );
+	}
+
+	/**
 	 * When the gate filter is false, init() must not hook anything.
 	 */
 	public function test_init_registers_nothing_when_gate_filter_is_false() {

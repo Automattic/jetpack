@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: Route the is_usable_domain() IP check through Utils::ip_is_public(), so reserved and special-use ranges (CGNAT, link-local/cloud-metadata, multicast, and similar) are rejected consistently with the rest of the codebase.

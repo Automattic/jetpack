@@ -1,0 +1,6 @@
+{
+	"name": "@automattic/_strip-unminified-prod-fixture-widget-hello-world",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module"
+}

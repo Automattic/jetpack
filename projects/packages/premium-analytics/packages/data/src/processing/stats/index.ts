@@ -13,13 +13,19 @@ export { sanitizeStatsTopAuthorsResponse } from './top-authors';
 export { sanitizeStatsHighlightsResponse } from './highlights';
 export { sanitizeStatsLocationsResponse } from './locations';
 export { sanitizeStatsVideoPlaysResponse } from './video-plays';
-export { isStatsTimeSeriesPayload, sanitizeStatsTimeSeriesResponse } from './time-series';
+export {
+	isStatsTimeSeriesPayload,
+	sanitizeStatsTimeSeriesResponse,
+	sanitizeStatsEmailTimeSeriesResponse,
+} from './time-series';
 export { sanitizeStatsVisitsResponse } from './visits';
 export { sanitizeStatsInsightsResponse } from './insights';
 export { sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
 export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
 export { sanitizeStatsArchivesResponse } from './archives';
+export { sanitizeStatsCommentFollowersResponse } from './comment-followers';
+export { sanitizeStatsFollowersResponse } from './followers';
 export { sanitizeStatsCommentsResponse } from './comments';
 export {
 	sanitizeStatsSubscribersResponse,
@@ -27,8 +33,13 @@ export {
 } from './subscribers';
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
+export { sanitizeStatsDevicesResponse } from './devices';
+export { sanitizeStatsPublicizeResponse } from './publicize';
+export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
+export { sanitizeStatsSingleVideoResponse } from './single-video';
 export type { StatsTopPostsItem } from './top-posts';
 export type {
+	StatsPostMeta,
 	StatsPostMonthValues,
 	StatsPostRawResponse,
 	StatsPostResponse,
@@ -61,6 +72,29 @@ export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
 export type { StatsArchivesItem } from './archives';
 export type {
+	StatsTimeSeriesDataPoint,
+	StatsTimeSeriesReport,
+	StatsEmailTimeSeriesDataPoint,
+	StatsEmailTimeSeriesSummary,
+	StatsEmailTimeSeriesReport,
+} from './time-series';
+export type {
+	StatsCommentFollowersItem,
+	StatsCommentFollowersRawPost,
+	StatsCommentFollowersRawResponse,
+} from './comment-followers';
+export type { StatsDevicesItem } from './devices';
+export type {
+	StatsPublicizeApiResponse,
+	StatsPublicizeItem,
+	StatsPublicizeService,
+} from './publicize';
+export type {
+	StatsFollowersItem,
+	StatsFollowersRawItem,
+	StatsFollowersRawResponse,
+} from './followers';
+export type {
 	StatsCommentsAuthorItem,
 	StatsCommentsGroupItem,
 	StatsCommentsItem,
@@ -79,7 +113,6 @@ export type {
 	StatsSubscribersResponse,
 } from './subscribers';
 export type { StatsStreakRawResponse, StatsStreakResponse } from './streak';
-export type { StatsTimeSeriesDataPoint, StatsTimeSeriesReport } from './time-series';
 export type {
 	StatsTagsChildItem,
 	StatsTagsItem,
@@ -88,6 +121,25 @@ export type {
 	StatsTagsRawResponse,
 	StatsTagsRawTag,
 } from './tags';
+export type {
+	StatsWordAdsEarnings,
+	StatsWordAdsEarningsBreakdown,
+	StatsWordAdsEarningsPeriod,
+	StatsWordAdsEarningsRaw,
+	StatsWordAdsEarningsRawBreakdown,
+	StatsWordAdsEarningsRawPeriod,
+	StatsWordAdsEarningsRawResponse,
+	StatsWordAdsEarningsResponse,
+	StatsWordAdsDataPoint,
+	StatsWordAdsRawField,
+	StatsWordAdsRawResponse,
+	StatsWordAdsResponse,
+} from './wordads';
+export type {
+	StatsSingleVideoDataPoint,
+	StatsSingleVideoPage,
+	StatsSingleVideoReport,
+} from './single-video';
 export type {
 	StatsItemAction,
 	StatsNormalizedDataPoint,

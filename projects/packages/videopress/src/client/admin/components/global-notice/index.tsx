@@ -16,7 +16,7 @@ type GlobalNoticeProps = {
 	actions: Array< {
 		label: string;
 		onClick: () => void;
-		variant: string;
+		variant: 'primary' | 'secondary' | 'link';
 		noDefaultClasses: boolean;
 	} >;
 	addConnectUserLink?: boolean | string;

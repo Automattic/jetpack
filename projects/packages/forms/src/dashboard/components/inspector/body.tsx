@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import {
 	Modal,
 	Tip,
@@ -16,9 +15,8 @@ import { useSearchParams } from 'react-router';
  * Internal dependencies
  */
 import useConfigValue from '../../../hooks/use-config-value.ts';
-import useInboxData from '../../hooks/use-inbox-data.ts';
+import useMarkAsReadOnView from '../../hooks/use-mark-as-read-on-view';
 import { useMarkAsSpam } from '../../hooks/use-mark-as-spam.ts';
-import { updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils.js';
 import { store as dashboardStore } from '../../store/index.js';
 import FeedbackComments from '../feedback-comments/index.tsx';
 import PreviewFile from './preview-file/index';
@@ -48,14 +46,10 @@ const ResponseViewBody = ( {
 	isLoading,
 	onModalStateChange,
 }: ResponseViewBodyProps ): import('react').JSX.Element => {
-	const { currentQuery } = useInboxData();
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState< { url: string; name: string } | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
-	const [ hasMarkedSelfAsRead, setHasMarkedSelfAsRead ] = useState( 0 );
 	const [ searchParams, setSearchParams ] = useSearchParams();
-
-	const { editEntityRecord } = useDispatch( 'core' );
 
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 	const isNotesEnabled = useConfigValue( 'isNotesEnabled' ) ?? false;
@@ -120,61 +114,18 @@ const ResponseViewBody = ( {
 		ref.current.scrollTop = 0;
 	}, [ response ] );
 
-	// Mark feedback as read when viewing
-	useEffect( () => {
-		if ( ! response || ! response.id || ! response.is_unread ) {
-			setHasMarkedSelfAsRead( response.id );
-			return;
-		}
-		if ( hasMarkedSelfAsRead === response.id ) {
-			return;
-		}
+	// After the server confirms the read, refresh the list/tab counts so this
+	// dashboard's DataViews stay in sync.
+	const handleMarkedAsRead = useCallback(
+		( responseId: number ) => {
+			markRecordsAsInvalid( [ responseId ] );
+			invalidateCounts();
+		},
+		[ markRecordsAsInvalid, invalidateCounts ]
+	);
 
-		setHasMarkedSelfAsRead( response.id );
-
-		// Immediately update entity in store
-		editEntityRecord( 'postType', 'feedback', response.id, {
-			is_unread: false,
-		} );
-
-		// Immediately update menu counters optimistically to avoid delays
-		if ( response.status === 'publish' ) {
-			updateMenuCounterOptimistically( -1 );
-		}
-
-		// Then update on server
-		apiFetch( {
-			path: `/wp/v2/feedback/${ response.id }/read`,
-			method: 'POST',
-			data: { is_unread: false },
-		} )
-			.then( ( { count }: { count: number } ) => {
-				// Update menu counter with accurate count from server
-				updateMenuCounter( count );
-				// Mark record as invalid instead of removing from view
-				markRecordsAsInvalid( [ response.id ] );
-				// invalidate counts to refresh the counts across all status tabs
-				invalidateCounts();
-			} )
-			.catch( () => {
-				// Revert the change in the store
-				editEntityRecord( 'postType', 'feedback', response.id, {
-					is_unread: true,
-				} );
-
-				// Revert the change in the sidebar
-				if ( response.status === 'publish' ) {
-					updateMenuCounterOptimistically( 1 );
-				}
-			} );
-	}, [
-		response,
-		editEntityRecord,
-		hasMarkedSelfAsRead,
-		invalidateCounts,
-		markRecordsAsInvalid,
-		currentQuery,
-	] );
+	// Mark feedback as read when viewing, keeping the sidebar unread counter in sync.
+	useMarkAsReadOnView( response, handleMarkedAsRead );
 
 	const handelImageLoaded = useCallback( () => {
 		return setIsImageLoading( false );

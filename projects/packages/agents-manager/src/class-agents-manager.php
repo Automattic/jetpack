@@ -19,7 +19,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.5.2';
+	const PACKAGE_VERSION = '0.7.0';
 
 	/**
 	 * Help Center URL for disconnected variants.
@@ -75,6 +75,42 @@ class Agents_Manager {
 		);
 
 		return $icons[ $icon_name ] ?? '';
+	}
+
+	/**
+	 * Add the Agents Manager Help "?" node (`agents-manager`) to the admin bar, replacing the
+	 * legacy Help Center node (`help-center`).
+	 *
+	 * @param \WP_Admin_Bar $wp_admin_bar     The WP_Admin_Bar instance.
+	 * @param bool          $use_disconnected Disconnected variants link straight to the Help Center instead of opening the dropdown.
+	 */
+	public function add_help_menu( $wp_admin_bar, $use_disconnected ) {
+		$wp_admin_bar->remove_node( 'help-center' );
+
+		$menu_args = array(
+			'id'     => 'agents-manager',
+			'title'  => '<span title="' . esc_attr__( 'Help Center', 'jetpack-agents-manager' ) . '"><svg id="agents-manager-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
+						</svg></span>',
+			'parent' => 'top-secondary',
+		);
+
+		if ( $use_disconnected ) {
+			$menu_args['href'] = self::HELP_CENTER_URL;
+			$menu_args['meta'] = array(
+				'target' => '_blank',
+				'rel'    => 'noopener noreferrer',
+			);
+		} else {
+			$menu_args['meta'] = array(
+				'html'   => '<div id="agents-manager-masterbar"></div>',
+				'class'  => 'menupop',
+				'target' => '_blank',
+				'rel'    => 'noopener noreferrer',
+			);
+		}
+
+		$wp_admin_bar->add_menu( $menu_args );
 	}
 
 	/**
@@ -208,44 +244,15 @@ class Agents_Manager {
 			wp_dequeue_style( 'help-center-style' );
 		}
 
-		// For non-Gutenberg, non-CIAB environments, add to admin bar.
-		// Gutenberg doesn't have an admin bar, so JS will handle UI insertion.
-		// CIAB hides the classic admin bar and uses its own Site Hub — the JS variant handles UI there.
+		// For non-Gutenberg, non-CIAB environments, add to the admin bar. The fullscreen Gutenberg
+		// editor has no admin bar, so JS handles UI insertion — except under the omnibar, which is
+		// handled below. CIAB hides the admin bar and uses its own Site Hub.
 		$is_ciab = $this->is_ciab_environment();
 		if ( ! $is_gutenberg && ! $is_ciab ) {
 			add_action(
 				'admin_bar_menu',
 				function ( $wp_admin_bar ) use ( $use_disconnected ) {
-					// Remove the help-center menu item
-					$wp_admin_bar->remove_node( 'help-center' );
-
-					$menu_args = array(
-						'id'     => 'agents-manager',
-						'title'  => '<span title="' . __( 'Help Center', 'jetpack-agents-manager' ) . '"><svg id="agents-manager-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-										<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
-									</svg></span>',
-						'parent' => 'top-secondary',
-					);
-
-					// For disconnected variants, link directly to help center instead of showing dropdown
-					if ( $use_disconnected ) {
-						$menu_args['href'] = self::HELP_CENTER_URL;
-						$menu_args['meta'] = array(
-							'target' => '_blank',
-							'rel'    => 'noopener noreferrer',
-						);
-					} else {
-						// For full variants, show the dropdown menu panel
-						$menu_args['meta'] = array(
-							'html'   => '<div id="agents-manager-masterbar" />',
-							'class'  => 'menupop',
-							'target' => '_blank',
-							'rel'    => 'noopener noreferrer',
-						);
-					}
-
-					// Add the main agents manager menu node
-					$wp_admin_bar->add_menu( $menu_args );
+					$this->add_help_menu( $wp_admin_bar, $use_disconnected );
 				},
 				// Add the agents manager icon to the admin bar after the help center is added, so we can remove it.
 				100
@@ -258,6 +265,31 @@ class Agents_Manager {
 
 			// Standalone AI chat button, shown only in the unified experience.
 			if ( ! $use_disconnected && self::is_unified_experience() ) {
+				add_action( 'admin_bar_menu', array( $this, 'add_ai_chat_button' ), 100 );
+			}
+		}
+
+		// When Gutenberg's admin-bar-in-editor experiment is active, register the editor omnibar
+		// entry points. CIAB is excluded because it has its own Site Hub UI. The Help dropdown
+		// shows only in the full unified experience, and the Ask AI button shows whenever Agents
+		// Manager is enabled here. They stay registered on the navigation view too, because the
+		// Site Editor toggles the canvas on the client without a reload, so the frontend controls
+		// visibility there.
+		if ( ! $is_ciab && ! $use_disconnected && self::is_admin_bar_in_editor() ) {
+			// Help "?" node + dropdown panel first, matching the wp-admin admin bar order.
+			if ( self::is_unified_experience() ) {
+				add_action(
+					'admin_bar_menu',
+					function ( $wp_admin_bar ) {
+						$this->add_help_menu( $wp_admin_bar, false );
+					},
+					100
+				);
+				add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
+			}
+
+			// Ask AI button — shown whenever Agents Manager is enabled in this editor context.
+			if ( self::is_enabled() ) {
 				add_action( 'admin_bar_menu', array( $this, 'add_ai_chat_button' ), 100 );
 			}
 		}
@@ -488,6 +520,25 @@ class Agents_Manager {
 
 		$script_dependencies = $asset_file['dependencies'] ?? array();
 
+		// Load translations for connected variants from widgets.wp.com.
+		// Disconnected variants have no translatable UI, so skip them (as Help
+		// Center does). English needs no translation file.
+		if ( ! str_contains( $variant, 'disconnected' ) ) {
+			$locale = self::determine_iso_639_locale();
+
+			if ( 'en' !== $locale ) {
+				wp_enqueue_script(
+					'agents-manager-translations',
+					'https://widgets.wp.com/agents-manager/languages/' . $locale . '-v1.js',
+					array( 'wp-i18n' ),
+					$version,
+					true
+				);
+
+				$script_dependencies[] = 'agents-manager-translations';
+			}
+		}
+
 		wp_enqueue_script(
 			'agents-manager',
 			'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . '.min.js',
@@ -510,6 +561,33 @@ class Agents_Manager {
 				$version
 			);
 		}
+	}
+
+	/**
+	 * Returns the ISO 639 conforming locale string for the current user.
+	 *
+	 * Normalizes the WordPress user locale to match the widgets.wp.com translation
+	 * file naming at languages/{code}-v1.js. Preserves the region for the few locales
+	 * where it is meaningful (pt-br, zh-tw, zh-cn); strips the region for all others;
+	 * falls back to 'en' when the locale is empty.
+	 *
+	 * @return string The ISO 639 locale string, e.g. "en".
+	 */
+	private static function determine_iso_639_locale() {
+		$language = get_user_locale();
+		$language = strtolower( $language );
+
+		if ( in_array( $language, array( 'pt_br', 'pt-br', 'zh_tw', 'zh-tw', 'zh_cn', 'zh-cn' ), true ) ) {
+			$language = str_replace( '_', '-', $language );
+		} else {
+			$language = preg_replace( '/([-_].*)$/i', '', $language );
+		}
+
+		if ( empty( $language ) ) {
+			return 'en';
+		}
+
+		return $language;
 	}
 
 	/**
@@ -851,6 +929,39 @@ class Agents_Manager {
 		$current_screen = get_current_screen();
 		// The widgets screen has the block editor but no Gutenberg top bar.
 		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+	}
+
+	/**
+	 * Returns true when Gutenberg's "admin bar in editor" (omnibar) experiment is active.
+	 *
+	 * Mirrors Gutenberg core's gate in `lib/experimental/admin-bar-in-editor/load.php`, and fails
+	 * safe when `gutenberg_is_experiment_enabled()` is unavailable.
+	 *
+	 * @return bool
+	 */
+	private static function is_admin_bar_in_editor() {
+		return self::is_block_editor()
+			&& is_admin_bar_showing()
+			&& function_exists( 'gutenberg_is_experiment_enabled' )
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
+			&& \gutenberg_is_experiment_enabled( 'gutenberg-admin-bar-in-editor' );
+	}
+
+	/**
+	 * Whether the current request is the Site Editor navigation view, as opposed to
+	 * the editing canvas (`?canvas=edit`) where the chat can dock.
+	 *
+	 * @return bool
+	 */
+	public static function is_site_editor_navigation() {
+		if ( 'site-editor.php' !== ( $GLOBALS['pagenow'] ?? '' ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only layout hint; changes no state.
+		$canvas = isset( $_GET['canvas'] ) ? sanitize_text_field( wp_unslash( $_GET['canvas'] ) ) : '';
+
+		return 'edit' !== $canvas;
 	}
 
 	/**

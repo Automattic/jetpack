@@ -1,0 +1,18 @@
+.breadcrumbs {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
+.root {
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+	text-decoration: none;
+}
+
+.separator {
+	color: var(--wpds-color-foreground-content-neutral-weak, #757575);
+}
+
+.current {
+	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+}

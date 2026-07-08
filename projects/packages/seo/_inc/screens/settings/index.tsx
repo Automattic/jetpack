@@ -5,6 +5,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
+import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
 import TitleStructureField from './title-structure-field';
 import VerificationCard from './verification-card';
@@ -56,6 +57,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		local,
 		isSaving,
 		setField,
+		setSchemaSettings,
 		setVerification,
 		commit,
 		commitFields,
@@ -178,6 +180,12 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					open={ verificationOpen }
 					onOpenChange={ setVerificationOpen }
 				/>
+			</div>
+
+			{ /* Container for the site-level schema controls delivered by later
+			   issues. Own `id` so it can be deep-linked like `#verification`. */ }
+			<div id="schema" className="jetpack-seo-settings__section">
+				<SchemaCard initialSettings={ local.schema } onSave={ setSchemaSettings } />
 			</div>
 
 			<CollapsibleCard.Root defaultOpen={ false }>

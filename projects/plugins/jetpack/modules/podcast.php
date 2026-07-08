@@ -3,7 +3,7 @@
  * Module Name: Podcast
  * Module Description: Publish, manage, and grow your podcast right from your site.
  * Sort Order: 38
- * Requires Connection: Yes
+ * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Writing
  * Feature: Writing
@@ -12,13 +12,10 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Podcast\Podcast;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-// The package self-gates on the `jetpack_podcast_for_the_world` filter for
-// self-hosted sites, and the module itself is only listed when that filter is
-// true (see Jetpack::filter_available_modules_podcast()).
-Podcast::init();
+// Core (feed, settings, block) is local WordPress — no connection needed.
+// Loading is wired in Jetpack::late_initialization() (not here) so it also
+// covers disconnected sites, which load_modules() skips.

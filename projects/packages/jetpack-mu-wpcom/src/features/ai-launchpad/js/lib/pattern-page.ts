@@ -8,8 +8,7 @@ interface PtkTaxonomyTerm {
 	slug?: string;
 }
 
-// PTK returns categories/tags as a slug-keyed map of terms; an empty taxonomy
-// can come back as `[]` rather than `{}`, so both shapes must be handled.
+// PTK returns taxonomies as a slug-keyed map, or `[]` when empty, so both shapes must be handled.
 type PtkTaxonomy = Record< string, PtkTaxonomyTerm > | PtkTaxonomyTerm[];
 
 export interface PtkPattern {
@@ -23,10 +22,21 @@ interface CreatedPage {
 	id: number;
 }
 
+export type PatternVariant = 'about' | 'gallery';
+
+const VARIANT_CONFIG: Record< PatternVariant, { category: string | null; markerMeta: string } > = {
+	about: { category: null, markerMeta: '_wpcom_ai_launchpad_about_page' },
+	gallery: { category: 'gallery', markerMeta: '_wpcom_ai_launchpad_gallery_page' },
+};
+
+// An empty core/gallery block, used when the pattern library yields no gallery pattern. The class list mirrors
+// what the gallery block serializes (including the default flex layout) so the editor doesn't flag invalid markup.
+const GALLERY_FALLBACK_HTML =
+	'<!-- wp:gallery {"linkTo":"none"} --><figure class="wp-block-gallery has-nested-images columns-default is-cropped is-layout-flex wp-block-gallery-is-layout-flex"></figure><!-- /wp:gallery -->';
+
 /**
- * Tokenize the inferred niche/vibe/audience into lowercase match words. The
- * goal is intentionally excluded: it describes intent (e.g. "sell", "publish")
- * rather than topic, so it adds noise to a topical pattern match.
+ * Tokenize the inferred niche/vibe/audience into lowercase match words. Goal is
+ * excluded: it describes intent, not topic, so it adds noise.
  *
  * @param inferred - The AI-inferred site details.
  * @return The match words.
@@ -41,8 +51,7 @@ function nicheWords( inferred: TailoredInferred ): string[] {
 }
 
 /**
- * Extract the human-readable term titles from a PTK taxonomy, which may arrive
- * as a slug-keyed map or (when empty) as an array.
+ * Extract the human-readable term titles from a PTK taxonomy.
  *
  * @param taxonomy - The categories or tags collection.
  * @return The term titles.
@@ -56,8 +65,7 @@ function termTitles( taxonomy: PtkTaxonomy | undefined ): string[] {
 
 /**
  * Count how many match words appear in a pattern's title, category titles, or
- * tag titles. Categories/tags are keyed by slug, so the matchable text is the
- * term titles, not the keys.
+ * tag titles.
  *
  * @param pattern - The candidate pattern.
  * @param words   - The niche match words.
@@ -103,21 +111,80 @@ export function pickPattern(
 	return best;
 }
 
-// The full PTK library is stable within a session, so cache the parsed list in
-// module scope: repeated "Get started" clicks reuse it instead of re-downloading
-// and re-scoring it. Stays null on a failed fetch so a later click can retry.
+/**
+ * Remove heading blocks whose visible text just repeats the page title, so a page
+ * with a separately-set title doesn't show that word again as an in-content heading.
+ *
+ * @param html  - The pattern block markup.
+ * @param title - The page title to de-duplicate against.
+ * @return The markup with matching heading blocks removed.
+ */
+function stripHeadingMatching( html: string, title: string ): string {
+	const target = title.trim().toLowerCase();
+	return html.replace( /<!-- wp:heading\b[^]*?<!-- \/wp:heading -->\s*/g, block => {
+		const text = block
+			.replace( /<[^>]*>/g, '' )
+			.trim()
+			.toLowerCase();
+		return text === target ? '' : block;
+	} );
+}
+
+/**
+ * Choose the page title, block content, and marker meta for a pattern-page variant.
+ *
+ * The gallery variant filters the library to the `gallery` category before niche scoring and falls back to a bare
+ * gallery block so the page always contains a gallery. The about variant is unfiltered (current behaviour).
+ *
+ * @param patterns - The fetched patterns.
+ * @param inferred - The AI-inferred site details.
+ * @param variant  - The pattern-page variant.
+ * @return The title, content HTML, and marker meta key.
+ */
+export function selectPatternPage(
+	patterns: PtkPattern[],
+	inferred: TailoredInferred,
+	variant: PatternVariant
+): { title: string; content: string; markerMeta: string } {
+	const config = VARIANT_CONFIG[ variant ];
+	const pool =
+		config.category === null
+			? patterns
+			: patterns.filter( pattern =>
+					termTitles( pattern.categories ).some( title =>
+						title.toLowerCase().includes( config.category as string )
+					)
+			  );
+	const pattern = pickPattern( pool, inferred );
+	const fallback = variant === 'gallery' ? GALLERY_FALLBACK_HTML : '';
+	// The gallery page gets a fixed title; the pattern's own name ("Gallery: Two columns…") is not a useful title.
+	// Left untranslated on purpose: it's a placeholder on the created draft that the user renames before
+	// publishing (like WordPress core's English "Auto Draft"), not a piece of shipped UI copy.
+	const title =
+		variant === 'gallery' ? 'Gallery' : pattern?.title ?? inferred.brand_name ?? 'New page';
+	const rawContent = pattern?.html ?? fallback;
+	return {
+		title,
+		// Drop any in-pattern heading that just repeats the title, so the gallery page doesn't show "Gallery" twice.
+		content: variant === 'gallery' ? stripHeadingMatching( rawContent, title ) : rawContent,
+		markerMeta: config.markerMeta,
+	};
+}
+
+// Cache the parsed PTK library in module scope; stays null on a failed fetch so a later click can retry.
 let cachedPatterns: PtkPattern[] | null = null;
 
 /**
- * Fetch the English pattern library, pick a pattern matching the inferred
- * niche, and create a draft page from it. Returns the new page id and its
- * block-editor URL. The pattern HTML is used as-is (no AI rewrite for v1).
+ * Fetch the English pattern library, pick a pattern matching the inferred niche,
+ * and create a draft page from it.
  *
  * @param inferred - The AI-inferred site details.
+ * @param variant  - The pattern-page variant.
  * @return The created page id and its editor URL.
  */
 export async function createPatternPage(
-	inferred: TailoredInferred
+	inferred: TailoredInferred,
+	variant: PatternVariant = 'about'
 ): Promise< { page_id: number; edit_url: string } > {
 	if ( cachedPatterns === null ) {
 		try {
@@ -129,20 +196,25 @@ export async function createPatternPage(
 				}
 			}
 		} catch {
-			// Network/parse failure: leave the cache unset so a later click retries.
-			// The page is still created below (with empty content) rather than
-			// throwing and stranding the CTA.
+			// Network/parse failure: leave the cache unset so a later click retries; the page is still created below.
 		}
 	}
-	const pattern = pickPattern( cachedPatterns ?? [], inferred );
+
+	const { title, content, markerMeta } = selectPatternPage(
+		cachedPatterns ?? [],
+		inferred,
+		variant
+	);
 
 	const page = ( await apiFetch( {
 		path: '/wp/v2/pages',
 		method: 'POST',
 		data: {
-			title: pattern?.title ?? inferred.brand_name ?? 'New page',
-			content: pattern?.html ?? '',
+			title,
+			content,
 			status: 'draft',
+			// Tag as the AI Launchpad page so the server-side listener can complete the task on publish.
+			meta: { [ markerMeta ]: true },
 		},
 	} ) ) as CreatedPage;
 

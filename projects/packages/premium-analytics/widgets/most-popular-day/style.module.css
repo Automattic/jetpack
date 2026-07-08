@@ -1,0 +1,16 @@
+.root {
+	container-type: inline-size;
+	justify-content: center;
+	height: 100%;
+	overflow: hidden;
+}
+
+.caption {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.placeholder {
+	margin: auto;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+}

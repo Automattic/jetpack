@@ -1620,10 +1620,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		);
 		$this->enable_and_enqueue_block_editor();
 
-		$this->assertFalse( wp_script_is( 'image-studio-translations', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'agents-manager-translations', 'enqueued' ) );
 
 		$script = $GLOBALS['wp_scripts']->registered[ ImageStudio\FEATURE_NAME ];
-		$this->assertNotContains( 'image-studio-translations', $script->deps );
+		$this->assertNotContains( 'agents-manager-translations', $script->deps );
 	}
 
 	/**
@@ -1639,14 +1639,14 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		);
 		$this->enable_and_enqueue_block_editor();
 
-		$this->assertTrue( wp_script_is( 'image-studio-translations', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'agents-manager-translations', 'enqueued' ) );
 
-		$tr_script = $GLOBALS['wp_scripts']->registered['image-studio-translations'];
+		$tr_script = $GLOBALS['wp_scripts']->registered['agents-manager-translations'];
 		$this->assertStringContainsString( 'languages/fr-v1.js', $tr_script->src );
 		$this->assertContains( 'wp-i18n', $tr_script->deps );
 
 		$main_script = $GLOBALS['wp_scripts']->registered[ ImageStudio\FEATURE_NAME ];
-		$this->assertContains( 'image-studio-translations', $main_script->deps );
+		$this->assertContains( 'agents-manager-translations', $main_script->deps );
 	}
 
 	/**
@@ -1661,7 +1661,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		);
 		$this->enable_and_enqueue_block_editor();
 
-		$script = $GLOBALS['wp_scripts']->registered['image-studio-translations'];
+		$script = $GLOBALS['wp_scripts']->registered['agents-manager-translations'];
 		$this->assertStringContainsString( 'languages/pt-br-v1.js', $script->src );
 	}
 

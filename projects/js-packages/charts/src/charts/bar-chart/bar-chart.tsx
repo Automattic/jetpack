@@ -1,7 +1,7 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
@@ -82,6 +82,19 @@ const validateData = ( data: SeriesData[] ) => {
 };
 
 const getPatternId = ( chartId: string, index: number ) => `bar-pattern-${ chartId }-${ index }`;
+
+// A "label: value" tooltip row. The join is a translated format string so the
+// separator (a colon + space here) can be adapted per locale.
+const renderTooltipRow = ( label: string | undefined, value: string ) => (
+	<div className={ styles[ 'bar-chart__tooltip-row' ] }>
+		{ sprintf(
+			/* translators: 1: data series, period, or category label. 2: its formatted value. */
+			__( '%1$s: %2$s', 'jetpack-charts' ),
+			label,
+			value
+		) }
+	</div>
+);
 
 const BarChartInternal: FC< BarChartProps > = ( {
 	data,
@@ -188,6 +201,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const primaryKeys = useMemo(
 		() => primaryEntries.map( ( { series } ) => series.label ),
+		[ primaryEntries ]
+	);
+
+	// The keyboard-navigation index space and the highlight CSS both stride over primary
+	// bars only; the accessible tooltip must use the same list, or its datum diverges from
+	// the highlighted bar once a comparison series shifts the indices.
+	const primarySeries = useMemo(
+		() => primaryEntries.map( ( { series } ) => series ),
 		[ primaryEntries ]
 	);
 
@@ -309,20 +330,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				return (
 					<div className={ styles[ 'bar-chart__tooltip' ] }>
 						<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ categoryLabel }</div>
-						<div className={ styles[ 'bar-chart__tooltip-row' ] }>
-							<span className={ styles[ 'bar-chart__tooltip-label' ] }>{ primaryKey }:</span>
-							<span className={ styles[ 'bar-chart__tooltip-value' ] }>
-								{ formatNumber( nearestDatum.value as number ) }
-							</span>
-						</div>
-						<div className={ styles[ 'bar-chart__tooltip-row' ] }>
-							<span className={ styles[ 'bar-chart__tooltip-label' ] }>
-								{ comparisonEntry.series.label }:
-							</span>
-							<span className={ styles[ 'bar-chart__tooltip-value' ] }>
-								{ formatNumber( comparisonDatum.value as number ) }
-							</span>
-						</div>
+						{ renderTooltipRow( primaryKey, formatNumber( nearestDatum.value as number ) ) }
+						{ renderTooltipRow(
+							comparisonEntry.series.label,
+							formatNumber( comparisonDatum.value as number )
+						) }
 					</div>
 				);
 			}
@@ -330,12 +342,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			return (
 				<div className={ styles[ 'bar-chart__tooltip' ] }>
 					<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ primaryKey }</div>
-					<div className={ styles[ 'bar-chart__tooltip-row' ] }>
-						<span className={ styles[ 'bar-chart__tooltip-label' ] }>{ categoryLabel }:</span>
-						<span className={ styles[ 'bar-chart__tooltip-value' ] }>
-							{ formatNumber( nearestDatum.value as number ) }
-						</span>
-					</div>
+					{ renderTooltipRow( categoryLabel, formatNumber( nearestDatum.value as number ) ) }
 				</div>
 			);
 		},
@@ -622,7 +629,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												keyboardFocusedClassName={
 													styles[ 'bar-chart__tooltip--keyboard-focused' ]
 												}
-												series={ data }
+												series={ primarySeries }
 												mode="individual"
 											/>
 										) }
