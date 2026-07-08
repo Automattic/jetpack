@@ -23003,7 +23003,7 @@ snapshots:
 
   '@types/d3-shape@3.1.7':
     dependencies:
-      '@types/d3-path': 1.0.11
+      '@types/d3-path': 3.1.1
 
   '@types/d3-time-format@2.1.0': {}
 
