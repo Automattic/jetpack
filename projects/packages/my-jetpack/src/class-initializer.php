@@ -277,6 +277,13 @@ class Initializer {
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		// Register the wp-build-polyfills shim before the extension hook below or
+		// the app script can enqueue against wp-theme / wp-private-apis / wp-notices.
+		// WP_Build_Polyfills registers synchronously on its first caller, so calling
+		// it after a hook consumer would leave our handles recorded but unregistered
+		// for this request.
+		self::register_wp_build_polyfills();
+
 		/**
 		 * Fires after the My Jetpack page is initialized.
 		 * Allows for enqueuing additional scripts only on the My Jetpack page.
@@ -284,7 +291,6 @@ class Initializer {
 		 * @since 4.35.7
 		 */
 		do_action( 'myjetpack_enqueue_scripts' );
-		self::register_wp_build_polyfills();
 		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',
