@@ -6,11 +6,11 @@ const meta: Meta< typeof QualityControl > = {
 	title: 'Plugins/Boost/Image CDN/QualityControl',
 	component: QualityControl,
 	argTypes: {
-		label: {control: 'text'},
-		"config.lossless": {control: 'boolean'},
-		"config.quality": {control: 'number'},
-		maxValue: {control: 'number'},
-		minValue: {number: 'number'},
+		label: { control: 'text' },
+		quality: { control: 'number' },
+		lossless: { control: 'boolean' },
+		maxValue: { control: 'number' },
+		minValue: { control: 'number' },
 	},
 	decorators: [
 		Story => (
@@ -23,8 +23,8 @@ const meta: Meta< typeof QualityControl > = {
 
 const defaultValues = {
 	label: 'JPEG',
-	"config.lossless": false,
-	"config.quality": 75,
+	quality: 75,
+	lossless: false,
 	maxValue: 80,
 	minValue: 20,
 };
@@ -32,28 +32,28 @@ const defaultValues = {
 export default meta;
 
 const Template = args => {
-	const [config, setConfig] = useState( {
-		lossless: args["config.lossless"],
-		quality: args["config.quality"],
-	} );
+	const [ quality, setQuality ] = useState( args.quality );
+	const [ lossless, setLossless ] = useState( args.lossless );
 
 	useEffect( () => {
-		setConfig( {
-			lossless: args["config.lossless"],
-			quality: args["config.quality"],
-		} );
-	}, [args["config.lossless"], args["config.quality"]] );
+		setQuality( args.quality );
+	}, [ args.quality ] );
 
-	const props = {
-		label: args.label,
-		quality: config.quality,
-		lossless: config.lossless,
-		setQuality: ( value ) => setConfig( current => ( { ...current, quality: value } ) ),
-		setLossless: ( value ) => setConfig( current => ( { ...current, lossless: value } ) ),
-		maxValue: args.maxValue,
-		minValue: args.minValue,
-	}
-	return <QualityControl { ...props } />
+	useEffect( () => {
+		setLossless( args.lossless );
+	}, [ args.lossless ] );
+
+	return (
+		<QualityControl
+			label={ args.label }
+			quality={ quality }
+			lossless={ lossless }
+			setQuality={ setQuality }
+			setLossless={ setLossless }
+			maxValue={ args.maxValue }
+			minValue={ args.minValue }
+		/>
+	);
 };
 export const _default = Template.bind( {} );
 _default.args = defaultValues;
