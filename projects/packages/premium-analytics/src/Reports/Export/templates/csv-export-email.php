@@ -34,8 +34,8 @@ do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 <p>
 	<strong><?php esc_html_e( 'Date Range:', 'jetpack-premium-analytics' ); ?></strong>
 	<?php
-	$from = gmdate( 'F j, Y', strtotime( $params['from'] ) );
-	$to   = gmdate( 'F j, Y', strtotime( $params['to'] ) );
+	$from = empty( $params['from'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['from'] ) );
+	$to   = empty( $params['to'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['to'] ) );
 	/* translators: 1: Start date, 2: End date */
 	echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics' ), $from, $to ) );
 	?>
@@ -45,8 +45,8 @@ do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 	<p>
 		<strong><?php esc_html_e( 'Comparison Period:', 'jetpack-premium-analytics' ); ?></strong>
 		<?php
-		$compare_from = gmdate( 'F j, Y', strtotime( $params['compare_from'] ) );
-		$compare_to   = gmdate( 'F j, Y', strtotime( $params['compare_to'] ) );
+		$compare_from = empty( $params['compare_from'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['compare_from'] ) );
+		$compare_to   = empty( $params['compare_to'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['compare_to'] ) );
 		/* translators: 1: Start date, 2: End date */
 		echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics' ), $compare_from, $compare_to ) );
 		?>

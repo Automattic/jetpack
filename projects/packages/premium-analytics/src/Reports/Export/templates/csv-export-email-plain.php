@@ -28,16 +28,16 @@ echo "\n\n";
 echo esc_html( $report_label ) . "\n\n";
 
 echo esc_html__( 'Date Range:', 'jetpack-premium-analytics' ) . ' ';
-$from = gmdate( 'F j, Y', strtotime( $params['from'] ) );
-$to   = gmdate( 'F j, Y', strtotime( $params['to'] ) );
+$from = empty( $params['from'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['from'] ) );
+$to   = empty( $params['to'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['to'] ) );
 /* translators: 1: Start date, 2: End date */
 echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics' ), $from, $to ) );
 echo "\n\n";
 
 if ( $is_comparison ) {
 	echo esc_html__( 'Comparison Period:', 'jetpack-premium-analytics' ) . ' ';
-	$compare_from = gmdate( 'F j, Y', strtotime( $params['compare_from'] ) );
-	$compare_to   = gmdate( 'F j, Y', strtotime( $params['compare_to'] ) );
+	$compare_from = empty( $params['compare_from'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['compare_from'] ) );
+	$compare_to   = empty( $params['compare_to'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['compare_to'] ) );
 	/* translators: 1: Start date, 2: End date */
 	echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics' ), $compare_from, $compare_to ) );
 	echo "\n\n";

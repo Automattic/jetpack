@@ -242,7 +242,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 			$from_timestamp = strtotime( $value );
 			$to_timestamp   = strtotime( $to_date );
 
-			if ( $from_timestamp >= $to_timestamp ) {
+			if ( false !== $from_timestamp && false !== $to_timestamp && $from_timestamp >= $to_timestamp ) {
 				return new WP_Error(
 					'invalid_date_range',
 					__( 'The "from" date must be before the "to" date.', 'jetpack-premium-analytics' ),
@@ -288,7 +288,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		if ( $from_date ) {
 			$from_timestamp = strtotime( $from_date );
 
-			if ( $from_timestamp >= $to_timestamp ) {
+			if ( false !== $from_timestamp && false !== $to_timestamp && $from_timestamp >= $to_timestamp ) {
 				return new WP_Error(
 					'invalid_date_range',
 					__( 'The "from" date must be before the "to" date.', 'jetpack-premium-analytics' ),
@@ -384,7 +384,7 @@ class CSVExportController extends WC_REST_Controller implements RegistrableInter
 		$compare_from_timestamp = strtotime( $compare_from );
 		$compare_to_timestamp   = strtotime( $compare_to );
 
-		if ( $compare_from_timestamp >= $compare_to_timestamp ) {
+		if ( false !== $compare_from_timestamp && false !== $compare_to_timestamp && $compare_from_timestamp >= $compare_to_timestamp ) {
 			return new WP_Error(
 				'invalid_compare_date_range',
 				__( 'The "compare_from" date must be before the "compare_to" date.', 'jetpack-premium-analytics' ),

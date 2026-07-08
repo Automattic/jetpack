@@ -180,7 +180,8 @@ class CSVExportEmail extends \WC_Email implements RegistrableInterface {
 
 		// The CSV is delivered as an attachment only (no public URL). If it is missing,
 		// unreadable, or too large to attach, fail rather than send a linkless dead-end email.
-		if ( ! file_exists( $file_path ) || ! is_readable( $file_path ) || filesize( $file_path ) >= self::MAX_ATTACHMENT_SIZE ) {
+		$file_size = is_readable( $file_path ) ? filesize( $file_path ) : false;
+		if ( false === $file_size || $file_size >= self::MAX_ATTACHMENT_SIZE ) {
 			if ( null !== $this->logger ) {
 				$this->logger->log_error(
 					sprintf( 'Export file missing or too large to attach: %s', $file_path ),

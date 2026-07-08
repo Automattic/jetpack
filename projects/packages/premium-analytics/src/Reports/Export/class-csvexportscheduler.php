@@ -381,7 +381,8 @@ class CSVExportScheduler implements RegistrableInterface {
 		$deleted = 0;
 
 		foreach ( $files as $file ) {
-			if ( filemtime( $file ) < $cutoff ) {
+			$mtime = filemtime( $file );
+			if ( false !== $mtime && $mtime < $cutoff ) {
 				if ( wp_delete_file( $file ) ) {
 					++$deleted;
 				}
