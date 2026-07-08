@@ -338,7 +338,7 @@ class Password_Detection {
 							<?php
 								printf(
 									/* translators: %s: Masked email address */
-									esc_html__( 'We\'ve sent a verification code to your WordPress admin email (%s). ', 'jetpack-account-protection' ),
+									esc_html__( 'We\'ve sent a verification code to your WordPress admin email (%s).', 'jetpack-account-protection' ),
 									esc_html( $this->email_service->mask_email_address( $user->user_email ) )
 								);
 							?>
@@ -376,10 +376,13 @@ class Password_Detection {
 							</p>
 						<?php else : ?>
 							<p class="email-status">
-								<span><?php esc_html_e( "Didn't get the code? Check your spam folder or ", 'jetpack-account-protection' ); ?> </span>
-								<a class="resend-email-link" href="<?php echo esc_url( $this->get_redirect_url( $token ) . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ); ?>">
-									<?php esc_html_e( 'Resend email', 'jetpack-account-protection' ); ?>
-								</a>
+								<?php
+									printf(
+										/* translators: %s: Resend email link */
+										esc_html__( "Didn't get the code? Check your spam folder or %s.", 'jetpack-account-protection' ),
+										'<a class="resend-email-link" href="' . esc_url( $this->get_redirect_url( $token ) . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ) . '">' . esc_html__( 'Resend email', 'jetpack-account-protection' ) . '</a>'
+									);
+								?>
 							</p>
 							<p class="email-status">
 								<?php
@@ -391,7 +394,7 @@ class Password_Detection {
 								?>
 							</p>
 						<?php endif; ?>
-				
+
 					<?php endif; ?>
 				</div>
 				<?php wp_footer(); ?>
