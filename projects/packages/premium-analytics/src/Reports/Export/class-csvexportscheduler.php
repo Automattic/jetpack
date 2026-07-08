@@ -112,11 +112,9 @@ class CSVExportScheduler implements RegistrableInterface {
 		// Register export action callback.
 		add_action( self::EXPORT_ACTION_HOOK, array( $this, 'process_export_job' ), 10, 4 );
 
-		// Register cleanup action callback.
+		// Register cleanup action callback. The recurring cleanup is scheduled lazily from
+		// schedule_export() (see below), so we avoid an Action Scheduler DB query on every request.
 		add_action( self::CLEANUP_HOOK, array( $this, 'cleanup_old_exports' ) );
-
-		// Schedule daily cleanup.
-		add_action( 'init', array( $this, 'schedule_cleanup' ) );
 	}
 
 	/**
@@ -182,6 +180,9 @@ class CSVExportScheduler implements RegistrableInterface {
 			sprintf( 'Scheduled CSV export job %d for report type: %s', $action_id, $report_type ),
 			__METHOD__
 		);
+
+		// Ensure the recurring cleanup exists now that exports are actually being used.
+		$this->schedule_cleanup();
 
 		return $action_id;
 	}
