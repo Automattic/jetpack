@@ -1637,12 +1637,12 @@ class Feedback {
 		if ( ! str_starts_with( $string, '{' ) && ! str_starts_with( $string, '[' ) ) {
 			return false;
 		}
-		json_decode( $string );
-		if ( json_last_error() === JSON_ERROR_NONE ) {
+		$decoded = json_decode( $string );
+		if ( $decoded !== null && json_last_error() === JSON_ERROR_NONE ) {
 			return true;
 		}
-		json_decode( stripslashes( $string ) );
-		return json_last_error() === JSON_ERROR_NONE;
+		$decoded = json_decode( stripslashes( $string ) );
+		return $decoded !== null && json_last_error() === JSON_ERROR_NONE;
 	}
 
 	/**
