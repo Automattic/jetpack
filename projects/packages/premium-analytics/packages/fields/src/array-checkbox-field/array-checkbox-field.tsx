@@ -70,7 +70,7 @@ function useElements( { elements, getElements }: UseElementsParams ) {
 }
 
 function normalizeSelectedValues( value: unknown ): string[] {
-	return Array.isArray( value ) ? value.map( String ) : [];
+	return Array.isArray( value ) ? value.filter( ( v ): v is string => typeof v === 'string' ) : [];
 }
 
 /**
