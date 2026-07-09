@@ -73,9 +73,16 @@ The simplest geo chart requires data, width, and height. The `data` prop uses Go
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
 - **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 
+**Map Scope:**
+- **`region`**: Region to display — `'world'` (default) or an ISO 3166-1 alpha-2 country code (e.g., `'US'`)
+- **`resolution`**: Map resolution — `'countries'` (default), `'provinces'` (use with a specific region), or `'metros'` (US only)
+
 **Styling & Customization:**
 - **`className`**: Additional CSS class name for custom styling
 - **`renderPlaceholder`**: Custom render function for the loading placeholder
+
+**Error Handling:**
+- **`onError`**: Callback fired when Google Charts emits a chart error, including draw errors rendered into the chart container (e.g. a missing map file)
 
 For detailed prop information and type definitions, see the [Geo Chart API Reference](./?path=/docs/js-packages-charts-library-charts-geo-chart-api-reference--docs).
 

@@ -51,6 +51,7 @@ import {
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
 	mockStatsInsightsData,
+	mockStatsSubscribersCountsData,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -62,6 +63,9 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';
 const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/subscribers';
+// The subscribers/counts endpoint is a v2 proxy path (not under /stats), so it
+// is matched on its own rather than through routeStatsReport().
+const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/subscribers/counts';
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
@@ -121,6 +125,34 @@ const orderAttributionMockMap: Record< string, object > = {
  * `requestCount` per handler closure).
  */
 const requestCounters: Record< string, number > = {};
+
+/**
+ * Forced response state for a request path fragment, so stories can exercise a
+ * widget's loading, error, and empty UI. `error` rejects the request; `loading`
+ * returns a promise that never settles; `empty` resolves with a valid response
+ * that has no rows.
+ */
+type ReportMockState = 'error' | 'loading' | 'empty';
+
+const mockStateOverrides = new Map< string, ReportMockState >();
+
+/**
+ * Force every request whose path contains `pathFragment` into a loading or error
+ * state, or clear the override with `null`. Intended for a story's `beforeEach`
+ * (set on enter, clear on cleanup). Because the override is keyed by path, scope
+ * stories that use it out of the shared autodocs page (`tags: [ '!autodocs' ]`)
+ * so it cannot bleed into sibling stories rendered alongside it.
+ *
+ * @param pathFragment - Substring matched against the request path (e.g. `stats/search-terms`).
+ * @param state        - The forced state, or `null` to clear.
+ */
+export function setReportMockState( pathFragment: string, state: ReportMockState | null ): void {
+	if ( state === null ) {
+		mockStateOverrides.delete( pathFragment );
+	} else {
+		mockStateOverrides.set( pathFragment, state );
+	}
+}
 
 /**
  * Returns true if the current request for the given endpoint key is the
@@ -969,12 +1001,38 @@ function buildWordAdsEarningsResponse() {
 const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptions, next ) => {
 	const requestPath = options.path ?? options.url ?? '';
 
+	for ( const [ fragment, state ] of mockStateOverrides ) {
+		if ( ! requestPath.includes( fragment ) ) {
+			continue;
+		}
+		if ( state === 'loading' ) {
+			// Never settles: the query stays in its loading state.
+			return new Promise< never >( () => {} );
+		}
+		if ( state === 'empty' ) {
+			// A valid response with no rows across the shapes report sanitizers read
+			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
+			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
+		}
+		// A 403 is not retried by `shouldRetryApiError`, so the error UI shows at
+		// once instead of after the query's retry backoff.
+		return Promise.reject( {
+			code: 'stats_mock_error',
+			message: 'Mocked error response for Storybook.',
+			data: { status: 403 },
+		} );
+	}
+
 	if ( requestPath.startsWith( WP_SETTINGS_PATH ) ) {
 		return coreSettingsMock;
 	}
 
 	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {
 		return buildFollowersResponse();
+	}
+
+	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
+		return mockStatsSubscribersCountsData;
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {

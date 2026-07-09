@@ -10,6 +10,7 @@ export interface ActionItem {
 
 export interface ConnectionErrorNoticeProps {
 	message: string | ReactElement;
+	context?: string | ReactElement;
 	restoreConnectionCallback?: ( () => void ) | null;
 	isRestoringConnection?: boolean;
 	restoreConnectionError?: string | null;

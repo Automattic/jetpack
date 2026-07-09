@@ -1,10 +1,11 @@
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { Page } from '@wordpress/admin-ui';
+import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -13,7 +14,7 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // hook's own note), so the post-detail page reuses the dashboard's hook rather
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
-import { PostDetailTabs, PostSummaryCard, StatsBreadcrumbs } from './components';
+import { PostDetailTabs, PostSummaryCard } from './components';
 import { getPostDetailTabs, type PostDetailTabId } from './config';
 import { useActiveTab, usePostDetailTabLayout, usePostSummary } from './hooks';
 import { route } from './package.json';
@@ -71,6 +72,10 @@ function PostDetail(): JSX.Element {
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
+	// The breadcrumb's "Stats" crumb links back to the dashboard, carrying the
+	// current date range and comparison so returning restores the same view.
+	const dashboardLink = useDashboardLink();
+
 	// Container element for the date filters panel responsive layout.
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
@@ -96,7 +101,14 @@ function PostDetail(): JSX.Element {
 				onEditChange={ setEditMode }
 			>
 				<Page
-					breadcrumbs={ <StatsBreadcrumbs title={ summary.title } /> }
+					breadcrumbs={
+						<Breadcrumbs
+							items={ [
+								{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
+								...( summary.title ? [ { label: summary.title } ] : [] ),
+							] }
+						/>
+					}
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.page }
 				>

@@ -144,41 +144,36 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Builds an admin bar with a 'dashboard' child of 'site-name' (as core adds
-	 * on the front end) and fires `wp_before_admin_bar_render`, the hook our
-	 * Stats node listens on.
+	 * Builds an admin bar with a 'site-name' node and, optionally, a child of it
+	 * (e.g. 'dashboard' as core adds on the front end, or 'view-site' as core
+	 * adds in wp-admin), then fires `admin_bar_menu`, the hook our Stats node
+	 * listens on.
+	 *
+	 * @param string|null $site_name_child Child node id to add under 'site-name', or null for none.
 	 */
-	private static function make_test_admin_bar_with_dashboard() {
-		global $wp_admin_bar;
-
-		$admin_bar = self::make_test_admin_bar();
+	private static function make_test_admin_bar_with_site_name( $site_name_child = null ) {
+		$admin_bar = new \WP_Admin_Bar();
 		$admin_bar->add_node(
 			array(
 				'id'    => 'site-name',
 				'title' => 'Test Site',
 			)
 		);
-		$admin_bar->add_node(
-			array(
-				'id'     => 'dashboard',
-				'parent' => 'site-name',
-				'title'  => 'Dashboard',
-				'href'   => 'https://example.com/wp-admin/',
-			)
-		);
 
-		$wp_admin_bar = $admin_bar;
-		do_action( 'wp_before_admin_bar_render' );
+		if ( $site_name_child !== null ) {
+			$admin_bar->add_node(
+				array(
+					'id'     => $site_name_child,
+					'parent' => 'site-name',
+					'title'  => ucfirst( $site_name_child ),
+					'href'   => 'https://example.com/wp-admin/',
+				)
+			);
+		}
+
+		do_action( 'admin_bar_menu', $admin_bar );
 
 		return $admin_bar;
-	}
-
-	/**
-	 * Clears the `$wp_admin_bar` global so it doesn't leak between tests.
-	 */
-	private static function reset_admin_bar_global(): void {
-		global $wp_admin_bar;
-		$wp_admin_bar = null;
 	}
 
 	/**
@@ -203,13 +198,29 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 		return $allcaps;
 	}
 
-	public function test_stats_link_shown_when_user_can_view_stats() {
+	public function test_stats_link_shown_when_dashboard_node_present() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-		$admin_bar = self::make_test_admin_bar_with_dashboard();
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'dashboard' );
 		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 
 		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
-		self::reset_admin_bar_global();
+
+		$this->assertNotNull( $stats_node );
+		$this->assertSame( 'site-name', $stats_node->parent );
+		$this->assertSame( 'Stats', $stats_node->title );
+		$this->assertSame( admin_url( 'admin.php?page=stats' ), $stats_node->href );
+	}
+
+	/**
+	 * Core adds 'view-site' instead of 'dashboard' under 'site-name' in wp-admin
+	 * (is_admin() === true). The Stats link must show there too.
+	 */
+	public function test_stats_link_shown_when_view_site_node_present() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'view-site' );
+		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
 
 		$this->assertNotNull( $stats_node );
 		$this->assertSame( 'site-name', $stats_node->parent );
@@ -219,26 +230,20 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 
 	public function test_stats_link_hidden_when_user_cannot_view_stats() {
 		add_filter( 'user_has_cap', array( $this, 'deny_view_stats' ) );
-		$admin_bar = self::make_test_admin_bar_with_dashboard();
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'dashboard' );
 		remove_filter( 'user_has_cap', array( $this, 'deny_view_stats' ) );
 
 		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
-		self::reset_admin_bar_global();
 
 		$this->assertNull( $stats_node );
 	}
 
-	public function test_stats_link_hidden_when_dashboard_node_absent() {
-		global $wp_admin_bar;
-
+	public function test_stats_link_hidden_when_dashboard_and_view_site_nodes_absent() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-		$admin_bar    = self::make_test_admin_bar();
-		$wp_admin_bar = $admin_bar;
-		do_action( 'wp_before_admin_bar_render' );
+		$admin_bar = self::make_test_admin_bar_with_site_name();
 		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 
 		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
-		self::reset_admin_bar_global();
 
 		$this->assertNull( $stats_node );
 	}

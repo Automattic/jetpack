@@ -2,7 +2,7 @@
 import { render as rtlRender, RenderResult } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { Store, createStore, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 /**
  * Reducer that does nothing.

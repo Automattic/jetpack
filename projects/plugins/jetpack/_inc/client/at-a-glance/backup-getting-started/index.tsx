@@ -6,6 +6,8 @@ import Card from 'components/card';
 import { imagePath, GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { backupGettingStartedDismissed, updateSettings } from 'state/settings';
+import type { UnknownAction } from 'redux';
+import type { ThunkDispatch } from 'redux-thunk';
 import './style.scss';
 
 type Props = { isDismissed: boolean; dismiss: () => void };
@@ -71,10 +73,10 @@ const BackupGettingStarted = ( { isDismissed, dismiss }: Props ) => {
 };
 
 export default connect(
-	state => ( {
+	( state: object ) => ( {
 		isDismissed: backupGettingStartedDismissed( state ),
 	} ),
-	dispatch => ( {
+	( dispatch: ThunkDispatch< object, unknown, UnknownAction > ) => ( {
 		dismiss: () => dispatch( updateSettings( { dismiss_dash_backup_getting_started: true } ) ),
 	} )
 )( BackupGettingStarted );

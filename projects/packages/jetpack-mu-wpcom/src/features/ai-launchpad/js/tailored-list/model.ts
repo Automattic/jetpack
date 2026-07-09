@@ -53,8 +53,7 @@ export type CtaKind = 'first_post' | 'pattern_page' | 'launch' | 'deeplink';
 
 const FIRST_POST_TASK_IDS = [ 'first_post_published', 'first_post_published_newsletter' ];
 const PATTERN_PAGE_TASK_IDS = [ 'add_about_page', 'add_gallery_page' ];
-// Launch tasks with no catalog deeplink: they open the wordpress.com launch
-// flow. woo_launch_site is excluded — it has its own deeplink.
+// Launch tasks with no catalog deeplink: they open the wordpress.com launch flow.
 const LAUNCH_TASK_IDS = [
 	'site_launched',
 	'blog_launched',
