@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
-use Exception;
+use Throwable;
 
 /**
  * No-op logger that records the messages it was given, for assertions in tests.
@@ -25,10 +25,10 @@ class Spy_Logger implements Logger_Interface {
 	/**
 	 * Record an exception.
 	 *
-	 * @param Exception $exception The exception.
+	 * @param Throwable $exception The exception.
 	 * @param string    $method    Calling method.
 	 */
-	public function log_exception( Exception $exception, string $method ): void {
+	public function log_exception( Throwable $exception, string $method ): void {
 		$this->entries[] = array(
 			'level'   => 'exception',
 			'message' => $exception->getMessage(),

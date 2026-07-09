@@ -151,12 +151,16 @@ class Schema_Settings {
 				continue;
 			}
 
-			$validated = wp_http_validate_url( $url );
-			if ( false === $validated ) {
+			// Absolute http(s) URLs with a host only. Deliberately not
+			// wp_http_validate_url(): that resolves DNS (gethostbyname), which
+			// blocks front-end rendering and drops valid-but-unresolvable hosts.
+			// These URLs are emitted as markup, never fetched.
+			$scheme = strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) );
+			if ( ! in_array( $scheme, array( 'http', 'https' ), true ) || ! wp_parse_url( $url, PHP_URL_HOST ) ) {
 				continue;
 			}
 
-			$clean = esc_url_raw( $validated, array( 'http', 'https' ) );
+			$clean = esc_url_raw( $url, array( 'http', 'https' ) );
 			if ( '' !== $clean ) {
 				$urls[] = $clean;
 			}

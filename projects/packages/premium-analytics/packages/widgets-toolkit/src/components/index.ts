@@ -43,9 +43,19 @@ export {
 	type SubscriberListProps,
 } from './subscriber-list';
 export {
+	ReportPageLayout,
+	ReportPageSection,
 	ReportPageTabPanel,
 	ReportPageTabs,
+	ReportPerformanceChart,
+	ReportRecordsTable,
+	buildReportMetricSeries,
+	type ReportChartMetric,
+	type ReportPageLayoutProps,
+	type ReportPageSectionProps,
 	type ReportPageTab,
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
+	type ReportPerformanceChartProps,
+	type ReportRecordsTableProps,
 } from './report-page';

@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging;
 
 defined( 'ABSPATH' ) || exit;
 
-use Exception;
+use Throwable;
 
 /**
  * Logger contract for the report-export subsystem.
@@ -22,10 +22,10 @@ interface Logger_Interface {
 	/**
 	 * Log an exception.
 	 *
-	 * @param Exception $exception The exception to log.
+	 * @param Throwable $exception The exception to log.
 	 * @param string    $method    The method where the exception occurred.
 	 */
-	public function log_exception( Exception $exception, string $method ): void;
+	public function log_exception( Throwable $exception, string $method ): void;
 
 	/**
 	 * Log an error.

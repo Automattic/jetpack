@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging;
 
 defined( 'ABSPATH' ) || exit;
 
-use Exception;
+use Throwable;
 use WC_Log_Levels;
 use WC_Logger_Interface;
 
@@ -41,10 +41,10 @@ class Debug_Logger implements Logger_Interface {
 	/**
 	 * Log an exception.
 	 *
-	 * @param Exception $exception The exception to log.
+	 * @param Throwable $exception The exception to log.
 	 * @param string    $method    The method that threw the exception.
 	 */
-	public function log_exception( Exception $exception, string $method ): void {
+	public function log_exception( Throwable $exception, string $method ): void {
 		$this->log( $exception->getMessage(), $method, WC_Log_Levels::ERROR );
 	}
 

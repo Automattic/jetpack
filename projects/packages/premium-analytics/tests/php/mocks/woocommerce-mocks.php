@@ -82,7 +82,12 @@ if ( ! function_exists( 'as_enqueue_async_action' ) ) {
 	/**
 	 * Stub of Action Scheduler's async-action enqueue; returns a fixed action id.
 	 */
-	function as_enqueue_async_action( $hook, $args = array(), $group = '' ) {
+	function as_enqueue_async_action( $hook, $args = array(), $group = '', $unique = false, $priority = 10 ) {
+		$pre = apply_filters( 'pre_as_enqueue_async_action', null, $hook, $args, $group, $priority, $unique );
+		if ( null !== $pre ) {
+			return is_int( $pre ) ? $pre : 0;
+		}
+
 		return 555;
 	}
 }

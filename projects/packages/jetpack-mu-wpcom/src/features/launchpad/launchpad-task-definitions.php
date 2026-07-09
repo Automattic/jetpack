@@ -765,7 +765,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_woocommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
-				return site_url( '/wp-admin/admin.php?page=wc-admin&task=launch_site' );
+				return site_url( '/wp-admin/admin.php?page=wc-admin&path=%2Flaunch-your-store' );
 			},
 		),
 		'migrating_site'                  => array(
