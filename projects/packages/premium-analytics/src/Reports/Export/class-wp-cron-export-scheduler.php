@@ -205,6 +205,23 @@ class Wp_Cron_Export_Scheduler implements Registrable_Interface {
 			__METHOD__
 		);
 
+		$user = get_user_by( 'id', $user_id );
+		if ( ! $user ) {
+			$this->logger->log_error( sprintf( 'Cannot process WP-Cron CSV export for missing user: %d', $user_id ), __METHOD__ );
+			return;
+		}
+
+		$recipient_email = (string) $user->user_email;
+		if ( ! is_email( $recipient_email ) ) {
+			$this->logger->log_error( sprintf( 'Cannot process WP-Cron CSV export for user %d because their email is invalid', $user_id ), __METHOD__ );
+			return;
+		}
+
+		if ( ! user_can( $user, 'view_stats' ) && ! user_can( $user, 'manage_options' ) ) {
+			$this->logger->log_error( sprintf( 'Cannot process WP-Cron CSV export for unauthorized user: %d', $user_id ), __METHOD__ );
+			return;
+		}
+
 		$previous_user_id = \get_current_user_id();
 		\wp_set_current_user( $user_id );
 
@@ -243,7 +260,7 @@ class Wp_Cron_Export_Scheduler implements Registrable_Interface {
 				$report_label = $report_type;
 			}
 
-			$email_sent = $this->email_sender->send_export_email( $user_email, $report_label, $params, $file_path );
+			$email_sent = $this->email_sender->send_export_email( $recipient_email, $report_label, $params, $file_path );
 			$this->csv_generator->delete_file( $file_path );
 
 			if ( ! $email_sent ) {
@@ -251,12 +268,12 @@ class Wp_Cron_Export_Scheduler implements Registrable_Interface {
 			}
 
 			$this->logger->log_message(
-				sprintf( 'WP-Cron CSV export completed and emailed to: %s', $user_email ),
+				sprintf( 'WP-Cron CSV export completed and emailed to: %s', $recipient_email ),
 				__METHOD__
 			);
 		} catch ( Throwable $e ) {
 			$this->logger->log_exception( $e, __METHOD__ );
-			$this->send_error_email( $user_email, $report_type );
+			$this->send_error_email( $recipient_email, $report_type );
 		} finally {
 			\wp_set_current_user( $previous_user_id );
 		}

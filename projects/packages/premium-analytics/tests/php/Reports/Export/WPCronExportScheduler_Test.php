@@ -88,6 +88,20 @@ class WPCronExportScheduler_Test extends TestCase {
 		return $dir;
 	}
 
+	private function create_export_user( string $role, string $email ): int {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'stats_export_cron_' . wp_generate_password( 8, false ),
+				'user_pass'  => 'pass',
+				'user_email' => $email,
+				'role'       => $role,
+			)
+		);
+
+		$this->assertIsInt( $user_id );
+		return $user_id;
+	}
+
 	public function test_schedule_export_rejects_invalid_email() {
 		$result = $this->scheduler()->schedule_export( 'stats-top-posts', array(), 1, 'not-an-email' );
 		$this->assertInstanceOf( \WP_Error::class, $result );
@@ -246,6 +260,7 @@ class WPCronExportScheduler_Test extends TestCase {
 	public function test_process_export_job_emails_attachment_and_restores_user() {
 		$email     = new Fake_Wp_Mail_Email();
 		$scheduler = $this->scheduler( null, $email );
+		$user_id   = $this->create_export_user( 'administrator', 'stats-cron@example.com' );
 
 		wp_set_current_user( 0 );
 		$scheduler->process_export_job(
@@ -255,13 +270,36 @@ class WPCronExportScheduler_Test extends TestCase {
 				'to'       => '2026-01-03T00:00:00',
 				'interval' => 'day',
 			),
-			1,
-			'admin@example.com'
+			$user_id,
+			'spoofed@example.com'
 		);
 
 		$this->assertCount( 1, $email->sends );
-		$this->assertSame( 'admin@example.com', $email->sends[0]['recipient'] );
+		$this->assertSame( 'stats-cron@example.com', $email->sends[0]['recipient'] );
 		$this->assertSame( 'Top Posts & Pages', $email->sends[0]['report_label'] );
+		$this->assertSame( 0, get_current_user_id() );
+	}
+
+	public function test_process_export_job_refuses_user_without_stats_permissions() {
+		$logger    = new Spy_Logger();
+		$email     = new Fake_Wp_Mail_Email();
+		$scheduler = $this->scheduler( null, $email, $logger );
+		$user_id   = $this->create_export_user( 'subscriber', 'subscriber@example.com' );
+
+		wp_set_current_user( 0 );
+		$scheduler->process_export_job(
+			'stats-top-posts',
+			array(
+				'from' => '2026-01-01T00:00:00',
+				'to'   => '2026-01-03T00:00:00',
+			),
+			$user_id,
+			'spoofed@example.com'
+		);
+
+		$this->assertCount( 0, $email->sends );
+		$this->assertSame( 'error', $logger->entries[1]['level'] );
+		$this->assertStringContainsString( 'unauthorized user', $logger->entries[1]['message'] );
 		$this->assertSame( 0, get_current_user_id() );
 	}
 
@@ -269,6 +307,7 @@ class WPCronExportScheduler_Test extends TestCase {
 		$logger    = new Spy_Logger();
 		$email     = new Fake_Wp_Mail_Email();
 		$scheduler = $this->scheduler( new \WP_Error( 'boom', 'fetch failed' ), $email, $logger );
+		$user_id   = $this->create_export_user( 'administrator', 'stats-cron-failure@example.com' );
 
 		$error_mail = array();
 		$capture    = static function ( $return, $atts ) use ( &$error_mail ) {
@@ -285,8 +324,8 @@ class WPCronExportScheduler_Test extends TestCase {
 					'from' => '2026-01-01T00:00:00',
 					'to'   => '2026-01-03T00:00:00',
 				),
-				1,
-				'admin@example.com'
+				$user_id,
+				'spoofed@example.com'
 			);
 		} finally {
 			remove_filter( 'pre_wp_mail', $capture );
@@ -295,7 +334,7 @@ class WPCronExportScheduler_Test extends TestCase {
 		$this->assertCount( 0, $email->sends );
 		$this->assertSame( 'exception', $logger->entries[1]['level'] );
 		$this->assertSame( 'fetch failed', $logger->entries[1]['message'] );
-		$this->assertSame( 'admin@example.com', $error_mail['to'] );
+		$this->assertSame( 'stats-cron-failure@example.com', $error_mail['to'] );
 		$this->assertSame( 0, get_current_user_id() );
 	}
 }
