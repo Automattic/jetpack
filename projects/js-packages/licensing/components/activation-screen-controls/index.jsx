@@ -225,7 +225,7 @@ const ActivationScreenControls = props => {
 					variant="solid"
 					loading={ isActivating }
 					onClick={ activateLicense }
-					disabled={ ! license }
+					disabled={ ! license || isActivating }
 				>
 					{ __( 'Activate', 'jetpack-licensing' ) }
 				</Button>
