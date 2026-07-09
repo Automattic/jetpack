@@ -207,7 +207,7 @@ for PROJECT in projects/*/*; do
 	if [[ -e "$PROJECT/package.json" ]] && jq -e '.dependencies["ts-loader"] // .devDependencies["ts-loader"] // .optionalDependencies["ts-loader"]' "$PROJECT/package.json" >/dev/null; then
 		EXIT=1
 		LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["dependencies","ts-loader"] or . == ["devDependencies","ts-loader"] or . == ["optionalDependencies","ts-loader"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json" | head -1)
-		echo "::error file=$PROJECT/package.json${LINE}::For consistency we've settled on using \`@babel/preset-typescript\` (and \`fork-ts-checker-webpack-plugin\` or \`tsgo\` for definition files) rather than \`ts-loader\`. Please switch to that."
+		echo "::error file=$PROJECT/package.json${LINE}::For consistency we've settled on using \`@babel/preset-typescript\` (and \`fork-ts-checker-webpack-plugin\` or \`tsc\` for definition files) rather than \`ts-loader\`. Please switch to that."
 	fi
 
 	# - certain tsconfig options should not be used directly.

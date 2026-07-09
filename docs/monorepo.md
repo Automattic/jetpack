@@ -152,7 +152,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.extra.wp-svn-autopublish`: Set truthy to enable automatic publishing of tagged versions to WordPress.org. See [Mirror repositories > WordPress.org SVN Auto-publisher](#wordpressorg-svn-auto-publisher) for details.
 
 There are a few things in `package.json` as well:
-* `.scripts.typecheck`: If the package contains TypeScript code, this should run tsgo to check types without building. See [TypeScript type checking](#typescript-type-checking) for details.
+* `.scripts.typecheck`: If the package contains TypeScript code, this should run tsc to check types without building. See [TypeScript type checking](#typescript-type-checking) for details.
 
 Our mirroring tooling also uses `.gitattributes` to specify built files to include in the mirror and unnecessary files to exclude.
 
@@ -299,11 +299,11 @@ JavaScript tests may alternatively use `node --test`, along with `c8` for covera
 
 ### TypeScript type checking
 
-If a project contains TypeScript code, it should define `.scripts.typecheck` in `package.json` to run `tsgo` in a manner that will check types without building. The CI environment will run `pnpm install` beforehand, but if `composer install` or a build step is required before running tests the necessary commands for that should also be included in `.scripts.typecheck`.
+If a project contains TypeScript code, it should define `.scripts.typecheck` in `package.json` to run `tsc` in a manner that will check types without building. The CI environment will run `pnpm install` beforehand, but if `composer install` or a build step is required before running tests the necessary commands for that should also be included in `.scripts.typecheck`.
 
-Note the ideal configuration for a TypeScript project using `tsgo` to build will have two tsconfig files:
+Note the ideal configuration for a TypeScript project using `tsc` to build will have two tsconfig files:
 * `tsconfig.json` will be used for linting and type checking all code in the project. It will set `include` to reference all TS files and TS-containing subdirs
-* `tsconfig.build.json` will be used for the build (by passing `--project tsconfig.build.json` to `tsgo`). This will extend `tsconfig.json` to override `include` to specify only the entry point files.
+* `tsconfig.build.json` will be used for the build (by passing `--project tsconfig.build.json` to `tsc`). This will extend `tsconfig.json` to override `include` to specify only the entry point files.
 
 ### Code coverage
 

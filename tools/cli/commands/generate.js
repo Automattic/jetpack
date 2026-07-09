@@ -222,7 +222,7 @@ export function getQuestions( type ) {
 				},
 				{
 					message:
-						'This TypeScript package will contain pre-built code, built using tsgo (no bundling or minification).',
+						'This TypeScript package will contain pre-built code, built using tsc (no bundling or minification).',
 					value: 'ts-tsc',
 				},
 			],
@@ -708,14 +708,17 @@ function createPackageJson( packageJson, answers ) {
 			};
 		}
 		if ( ts ) {
-			packageJson.devDependencies.typescript = findVersionFromPnpmLock( 'typescript' );
+			/* TypeScript 7 ships no programmatic API, so tooling (eslint, fork-ts-checker) needs TS 6 under the `typescript` name. */
+			packageJson.devDependencies.typescript = `npm:@typescript/typescript6@${ findVersionFromPnpmLock(
+				'@typescript/typescript6'
+			) }`;
 			if ( answers.typescript === 'ts-tsc' ) {
-				packageJson.devDependencies[ '@typescript/native-preview' ] = findVersionFromPnpmLock(
-					'@typescript/native-preview'
-				);
+				packageJson.devDependencies[
+					'@typescript/native'
+				] = `npm:typescript@${ findVersionFromPnpmLock( 'typescript' ) }`;
 				packageJson.scripts = {
 					...packageJson.scripts,
-					build: 'pnpm run clean && pnpm exec tsgo --pretty',
+					build: 'pnpm run clean && pnpm exec tsc --pretty',
 					clean: 'rm -rf build/',
 				};
 				packageJson.exports = {
