@@ -55,6 +55,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
+		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 
 		parent::tear_down();
 	}
@@ -311,6 +312,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Built-in Premium Analytics sections are registered in the expected order.
 	 */
 	public function test_registers_built_in_dashboard_sections() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
 		register_default_dashboard_sections();
 
 		$this->assertSame(
@@ -334,6 +337,122 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array_map(
 				static function ( Dashboard_Section $section ) {
 					return $section->to_array();
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			)
+		);
+	}
+
+	/**
+	 * The WooCommerce section is registered when WooCommerce is available.
+	 */
+	public function test_registers_woocommerce_dashboard_section_when_available() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$woocommerce = get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $woocommerce );
+		$this->assertTrue( $woocommerce->is_available() );
+		$this->assertSame( 'WooCommerce', $woocommerce->label );
+		$this->assertSame( 40, $woocommerce->order );
+		$this->assertSame(
+			array(
+				'analytics/traffic',
+				'analytics/insights',
+				'analytics/subscribers',
+				'woocommerce/store',
+			),
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->id;
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			)
+		);
+		$this->assertSame(
+			array(
+				array(
+					'uuid'      => 'default-woocommerce-net-sales-over-time-widget-instance',
+					'type'      => 'jpa/net-sales-over-time',
+					'placement' => array(
+						'width'  => 1,
+						'height' => 1,
+						'order'  => 0,
+					),
+				),
+				array(
+					'uuid'      => 'default-woocommerce-gross-sales-over-time-widget-instance',
+					'type'      => 'jpa/gross-sales-over-time',
+					'placement' => array(
+						'width'  => 1,
+						'height' => 1,
+						'order'  => 1,
+					),
+				),
+				array(
+					'uuid'      => 'default-woocommerce-average-order-value-widget-instance',
+					'type'      => 'jpa/average-order-value',
+					'placement' => array(
+						'width'  => 1,
+						'height' => 1,
+						'order'  => 2,
+					),
+				),
+				array(
+					'uuid'      => 'default-woocommerce-orders-over-time-widget-instance',
+					'type'      => 'jpa/orders-over-time',
+					'placement' => array(
+						'width'  => 1,
+						'height' => 1,
+						'order'  => 3,
+					),
+				),
+				array(
+					'uuid'      => 'default-woocommerce-average-items-per-order-widget-instance',
+					'type'      => 'jpa/average-items-per-order',
+					'placement' => array(
+						'width'  => 1,
+						'height' => 1,
+						'order'  => 4,
+					),
+				),
+				array(
+					'uuid'      => 'default-woocommerce-top-performing-products-widget-instance',
+					'type'      => 'jpa/top-performing-products',
+					'placement' => array(
+						'width'  => 1,
+						'height' => 1,
+						'order'  => 5,
+					),
+				),
+			),
+			$woocommerce->get_default_layout()
+		);
+	}
+
+	/**
+	 * The WooCommerce section is omitted from available sections when WooCommerce is unavailable.
+	 */
+	public function test_omits_woocommerce_dashboard_section_when_unavailable() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		register_default_dashboard_sections();
+
+		$woocommerce = get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $woocommerce );
+		$this->assertFalse( $woocommerce->is_available() );
+		$this->assertSame(
+			array(
+				'analytics/traffic',
+				'analytics/insights',
+				'analytics/subscribers',
+			),
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->id;
 				},
 				get_available_dashboard_sections( DASHBOARD_NAME )
 			)
