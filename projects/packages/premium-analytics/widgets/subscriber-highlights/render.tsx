@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
-import { useStatsSubscribersCounts } from '@jetpack-premium-analytics/data';
+import {
+	useStatsSubscribersCounts,
+	type StatsSubscribersCounts,
+} from '@jetpack-premium-analytics/data';
 import {
 	MetricWithComparison,
 	WidgetLoadingOverlay,
@@ -16,7 +19,11 @@ import { Icon, Text } from '@wordpress/ui';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { SubscriberHighlightsAttributes } from './widget';
+import {
+	SUBSCRIBER_METRICS,
+	type SubscriberHighlightsAttributes,
+	type SubscriberMetricId,
+} from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // The subscribers/counts endpoint reports current totals and is not
@@ -38,6 +45,21 @@ const COUNT_FORMAT: DataFormat = {
 };
 
 /**
+ * Render-only config per metric: the tile icon and the counts-payload field the
+ * tile displays. Ids and labels are shared with the settings checkboxes via
+ * `SUBSCRIBER_METRICS` in `widget.ts`.
+ */
+const TILE_CONFIG: Record<
+	SubscriberMetricId,
+	{ icon: typeof people; count: ( data?: StatsSubscribersCounts ) => number }
+> = {
+	showTotal: { icon: people, count: data => data?.total_subscribers ?? 0 },
+	showPaid: { icon: payment, count: data => data?.paid_subscribers ?? 0 },
+	showFree: { icon: envelope, count: data => data?.email_subscribers ?? 0 },
+	showSocial: { icon: share, count: data => data?.social_followers ?? 0 },
+};
+
+/**
  * Fetches the subscriber counts through the designated `useStatsSubscribersCounts`
  * Stats hook and renders the totals as a grid of metric tiles. The counts module
  * has no comparison period, so each tile shows a bare formatted count. Which
@@ -46,12 +68,7 @@ const COUNT_FORMAT: DataFormat = {
  * @param {SubscriberHighlightsReportProps} props - The component props.
  * @return The widget content.
  */
-function SubscriberHighlightsReport( {
-	showTotal,
-	showPaid,
-	showFree,
-	showSocial,
-}: SubscriberHighlightsReportProps ) {
+function SubscriberHighlightsReport( props: SubscriberHighlightsReportProps ) {
 	const { data, isLoading, isError } = useStatsSubscribersCounts();
 
 	if ( isError ) {
@@ -72,36 +89,12 @@ function SubscriberHighlightsReport( {
 		);
 	}
 
-	const tiles = [
-		{
-			key: 'total',
-			icon: people,
-			label: __( 'Total subscribers', 'jetpack-premium-analytics' ),
-			value: data?.total_subscribers ?? 0,
-			enabled: showTotal,
-		},
-		{
-			key: 'paid',
-			icon: payment,
-			label: __( 'Paid subscribers', 'jetpack-premium-analytics' ),
-			value: data?.paid_subscribers ?? 0,
-			enabled: showPaid,
-		},
-		{
-			key: 'free',
-			icon: envelope,
-			label: __( 'Free subscribers', 'jetpack-premium-analytics' ),
-			value: data?.email_subscribers ?? 0,
-			enabled: showFree,
-		},
-		{
-			key: 'social',
-			icon: share,
-			label: __( 'Social followers', 'jetpack-premium-analytics' ),
-			value: data?.social_followers ?? 0,
-			enabled: showSocial,
-		},
-	].filter( tile => tile.enabled );
+	const tiles = SUBSCRIBER_METRICS.filter( ( { id } ) => props[ id ] ).map( ( { id, label } ) => ( {
+		key: id,
+		label,
+		icon: TILE_CONFIG[ id ].icon,
+		value: TILE_CONFIG[ id ].count( data ),
+	} ) );
 
 	return (
 		<div className={ styles.root }>
