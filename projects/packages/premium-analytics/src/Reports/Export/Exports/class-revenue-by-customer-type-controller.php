@@ -59,14 +59,9 @@ class Revenue_By_Customer_Type_Controller extends Abstract_Csv_Report_Controller
 	 */
 	public function get_column_headers( ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		return array(
-			'customer_type'       => __( 'Customer Type', 'jetpack-premium-analytics' ),
-			'gross_sales'         => __( 'Gross sales', 'jetpack-premium-analytics' ),
-			'discounts'           => __( 'Discounts', 'jetpack-premium-analytics' ),
-			'refunds'             => __( 'Refunds', 'jetpack-premium-analytics' ),
-			'net_sales'           => __( 'Net sales', 'jetpack-premium-analytics' ),
-			'orders_count'        => __( 'Orders', 'jetpack-premium-analytics' ),
-			'average_order_value' => __( 'Average order value', 'jetpack-premium-analytics' ),
-			'avg_items_per_order' => __( 'Average items per order', 'jetpack-premium-analytics' ),
+			'customer_type' => __( 'Customer Type', 'jetpack-premium-analytics' ),
+			'net_sales'     => __( 'Net sales', 'jetpack-premium-analytics' ),
+			'orders_count'  => __( 'Orders', 'jetpack-premium-analytics' ),
 		);
 	}
 
@@ -77,14 +72,9 @@ class Revenue_By_Customer_Type_Controller extends Abstract_Csv_Report_Controller
 	 */
 	public function get_default_values(): array {
 		return array(
-			'customer_type'       => '',
-			'gross_sales'         => 0,
-			'discounts'           => 0,
-			'refunds'             => 0,
-			'net_sales'           => 0,
-			'orders_count'        => 0,
-			'average_order_value' => 0,
-			'avg_items_per_order' => 0,
+			'customer_type' => '',
+			'net_sales'     => 0,
+			'orders_count'  => 0,
 		);
 	}
 
@@ -101,16 +91,11 @@ class Revenue_By_Customer_Type_Controller extends Abstract_Csv_Report_Controller
 		$customer_type = $item['customer_type'] ?? $defaults['customer_type'];
 
 		return array(
-			'customer_type'       => 'new' === $customer_type
+			'customer_type' => 'new' === $customer_type
 				? __( 'New Customer', 'jetpack-premium-analytics' )
 				: __( 'Returning Customer', 'jetpack-premium-analytics' ),
-			'gross_sales'         => self::format_amount( $item['gross_sales'] ?? $defaults['gross_sales'] ),
-			'discounts'           => self::format_amount( $item['discounts'] ?? $defaults['discounts'] ),
-			'refunds'             => self::format_amount( $item['refunds'] ?? $defaults['refunds'] ),
-			'net_sales'           => self::format_amount( $item['net_sales'] ?? $defaults['net_sales'] ),
-			'orders_count'        => $item['orders_count'] ?? $defaults['orders_count'],
-			'average_order_value' => self::format_amount( $item['average_order_value'] ?? $defaults['average_order_value'] ),
-			'avg_items_per_order' => number_format( (float) ( $item['avg_items_per_order'] ?? $defaults['avg_items_per_order'] ), 2, '.', '' ),
+			'net_sales'     => self::format_amount( $item['net_sales'] ?? $defaults['net_sales'] ),
+			'orders_count'  => $item['orders_count'] ?? $defaults['orders_count'],
 		);
 	}
 
@@ -122,13 +107,8 @@ class Revenue_By_Customer_Type_Controller extends Abstract_Csv_Report_Controller
 	public function get_fields(): array {
 		return array(
 			'customer_type',
-			'gross_sales',
-			'discounts',
-			'refunds',
 			'net_sales',
 			'orders_count',
-			'average_order_value',
-			'avg_items_per_order',
 		);
 	}
 

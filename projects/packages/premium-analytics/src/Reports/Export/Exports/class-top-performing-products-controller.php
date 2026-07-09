@@ -103,15 +103,20 @@ class Top_Performing_Products_Controller extends Abstract_Csv_Report_Controller 
 			'returning_customers' => $item['returning_customer_count'] ?? $defaults['returning_customer_count'],
 		);
 
-		// Calculate profit and margin if COGS data is available.
-		$epsilon               = 1e-6;
-		$net_revenue_with_cogs = floatval( $item['net_revenue_with_cogs'] ?? $defaults['net_revenue_with_cogs'] );
-		$cogs_amount           = floatval( $item['cogs_amount'] ?? $defaults['cogs_amount'] );
+		$cogs_available = array_key_exists( 'net_revenue_with_cogs', $item )
+			&& null !== $item['net_revenue_with_cogs']
+			&& array_key_exists( 'cogs_amount', $item )
+			&& null !== $item['cogs_amount'];
 
-		if ( abs( $net_revenue_with_cogs ) > $epsilon ) {
-			$profit        = $net_revenue_with_cogs - $cogs_amount;
-			$row['profit'] = self::format_amount( $profit );
-			$row['margin'] = number_format( ( $profit / $net_revenue_with_cogs ) * 100, 2, '.', '' );
+		if ( $cogs_available ) {
+			$epsilon               = 1e-6;
+			$net_revenue_with_cogs = floatval( $item['net_revenue_with_cogs'] );
+			$cogs_amount           = floatval( $item['cogs_amount'] );
+			$profit                = $net_revenue_with_cogs - $cogs_amount;
+			$row['profit']         = self::format_amount( $profit );
+			$row['margin']         = abs( $net_revenue_with_cogs ) > $epsilon
+				? number_format( ( $profit / $net_revenue_with_cogs ) * 100, 2, '.', '' )
+				: self::COGS_NOT_AVAILABLE_PLACEHOLDER;
 		} else {
 			$row['profit'] = self::COGS_NOT_AVAILABLE_PLACEHOLDER;
 			$row['margin'] = self::COGS_NOT_AVAILABLE_PLACEHOLDER;
