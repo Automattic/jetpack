@@ -99,6 +99,7 @@ The `banner`, `ccpa_page`, and `footer_links` toggles surface interactive consen
 - **Frontend module** (the Interactivity runtime and config) is enqueued when **any** of `banner`, `ccpa_page`, or `footer_links` is on. The CCPA opt-out button and the footer "Manage Privacy Preferences" link both depend on it, so disabling `banner` no longer breaks them.
 - **Preferences modal** (the `wp_footer` banner/modal markup) is rendered when `banner` **or** `footer_links` is on, since the footer link reopens it. It starts hidden and only auto-shows when `banner` is on, so a `footer_links`-only site never pops the banner.
 - **Consent-log POST** is skipped by the frontend when `consent_log` is off (its REST route is not registered), so no consent submission fires a request that 404s; the banner/CCPA UI still works client-side.
+- **Default consent state** (WP Consent API consent type, auto-granted consent in opt-out/unregulated regions, Global Privacy Control handling) is established by the banner flow. A `ccpa_page`-only setup assumes an existing CMP owns those defaults; the opt-out page still records choices through the WP Consent API so such a CMP can pick them up.
 
 #### Nested config groups
 
