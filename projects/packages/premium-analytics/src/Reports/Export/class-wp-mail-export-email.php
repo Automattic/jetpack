@@ -115,16 +115,43 @@ class Wp_Mail_Export_Email implements Registrable_Interface {
 		$body  = '<h2>' . esc_html( $heading ) . '</h2>';
 		$body .= '<p>' . esc_html__( 'The report you requested is attached to this email as a CSV file.', 'jetpack-premium-analytics' ) . '</p>';
 
-		if ( ! empty( $params['from'] ) && ! empty( $params['to'] ) ) {
+		$from_date = $this->format_request_date( $params['from'] ?? null );
+		$to_date   = $this->format_request_date( $params['to'] ?? null );
+
+		if ( null !== $from_date && null !== $to_date ) {
 			$range = sprintf(
 				/* translators: 1: Start date, 2: End date */
 				__( 'Date range: %1$s to %2$s', 'jetpack-premium-analytics' ),
-				gmdate( 'F j, Y', strtotime( (string) $params['from'] ) ),
-				gmdate( 'F j, Y', strtotime( (string) $params['to'] ) )
+				$from_date,
+				$to_date
 			);
 			$body .= '<p>' . esc_html( $range ) . '</p>';
 		}
 
 		return $body;
+	}
+
+	/**
+	 * Format a request date without applying timezone conversion.
+	 *
+	 * @param mixed $value Date-like request value.
+	 * @return string|null Formatted date, or null when unavailable.
+	 */
+	private function format_request_date( $value ): ?string {
+		if ( ! is_scalar( $value ) ) {
+			return null;
+		}
+
+		$date = (string) $value;
+		if ( ! preg_match( '/^(\d{4}-\d{2}-\d{2})/', $date, $matches ) ) {
+			return null;
+		}
+
+		$date_time = \DateTimeImmutable::createFromFormat( '!Y-m-d', $matches[1], new \DateTimeZone( 'UTC' ) );
+		if ( false === $date_time ) {
+			return null;
+		}
+
+		return $date_time->format( 'F j, Y' );
 	}
 }

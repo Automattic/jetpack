@@ -78,6 +78,64 @@ class WPMailExportEmail_Test extends TestCase {
 		$this->assertSame( 'message', $logger->entries[0]['level'] );
 	}
 
+	public function test_send_export_email_formats_request_dates_without_timezone_shift() {
+		$email = new Wp_Mail_Export_Email();
+		$file  = $this->make_file( "Title,Views\nHello,5\n" );
+		$sent  = array();
+
+		$capture = static function ( $return, $atts ) use ( &$sent ) {
+			$sent = $atts;
+			return true;
+		};
+
+		add_filter( 'pre_wp_mail', $capture, 10, 2 );
+		try {
+			$result = $email->send_export_email(
+				'admin@example.com',
+				'Top Posts & Pages',
+				array(
+					'from' => '2026-01-01T23:00:00-05:00',
+					'to'   => '2026-01-03T01:00:00+09:00',
+				),
+				$file
+			);
+		} finally {
+			remove_filter( 'pre_wp_mail', $capture );
+		}
+
+		$this->assertTrue( $result );
+		$this->assertStringContainsString( 'Date range: January 1, 2026 to January 3, 2026', $sent['message'] );
+	}
+
+	public function test_send_export_email_omits_date_range_when_request_dates_are_invalid() {
+		$email = new Wp_Mail_Export_Email();
+		$file  = $this->make_file( "Title,Views\nHello,5\n" );
+		$sent  = array();
+
+		$capture = static function ( $return, $atts ) use ( &$sent ) {
+			$sent = $atts;
+			return true;
+		};
+
+		add_filter( 'pre_wp_mail', $capture, 10, 2 );
+		try {
+			$result = $email->send_export_email(
+				'admin@example.com',
+				'Top Posts & Pages',
+				array(
+					'from' => 'not-a-date',
+					'to'   => '2026-01-03T00:00:00',
+				),
+				$file
+			);
+		} finally {
+			remove_filter( 'pre_wp_mail', $capture );
+		}
+
+		$this->assertTrue( $result );
+		$this->assertStringNotContainsString( 'Date range:', $sent['message'] );
+	}
+
 	public function test_send_export_email_fails_when_file_missing() {
 		$logger = new Spy_Logger();
 		$email  = new Wp_Mail_Export_Email( $logger );
