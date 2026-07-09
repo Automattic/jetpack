@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add Reprint full-site export support for Pressable and WordPress.com (Atomic) sites. An authenticated export client can pull a complete copy of the site through an HMAC-secured, time-limited export window opened by Jetpack-signed control requests. On Atomic it runs alongside the existing wpcomsh export via a separate ?reprint-api-v2 endpoint and jetpack/v4 REST routes, so clients can migrate at their own pace. Availability can be overridden with the jetpack_reprint_export_available filter.

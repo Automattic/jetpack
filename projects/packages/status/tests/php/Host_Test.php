@@ -106,6 +106,23 @@ class Host_Test extends TestCase {
 	}
 
 	/**
+	 * Test that a Pressable site is detected via the IS_PRESSABLE constant.
+	 */
+	public function test_pressable_site_based_on_constant() {
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		$this->assertTrue( $this->host_obj->is_pressable() );
+	}
+
+	/**
+	 * Test that a non-Pressable site is false.
+	 */
+	public function test_false_for_not_pressable() {
+		$this->assertFalse( $this->host_obj->is_pressable() );
+		Constants::set_constant( 'IS_PRESSABLE', false );
+		$this->assertFalse( $this->host_obj->is_pressable() );
+	}
+
+	/**
 	 * Tests if a Simple Site based on constant
 	 */
 	public function test_simple_site_based_on_constant() {
