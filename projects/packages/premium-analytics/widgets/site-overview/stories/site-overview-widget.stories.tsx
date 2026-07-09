@@ -10,11 +10,14 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -93,6 +96,23 @@ function renderSiteOverview( {
 	);
 }
 
+/**
+ * Renders the widget on a preset distinct from the other stories. The query key
+ * derives from the date range, so a unique preset gives the forced-state stories
+ * their own cache entry and they hit the mock fresh instead of reading another
+ * story's cached success from the shared query client.
+ *
+ * @param preset - The date-range preset for this story.
+ * @return The rendered widget.
+ */
+function renderSiteOverviewOnPreset( preset: PresetType ) {
+	return (
+		<SiteOverviewRender
+			attributes={ { reportParams: getDefaultQueryParams( false, preset ), ...ALL_METRICS_ARGS } }
+		/>
+	);
+}
+
 const METRIC_ARG_TYPES = {
 	showViews: { control: 'boolean' },
 	showVisitors: { control: 'boolean' },
@@ -153,6 +173,52 @@ export const WithComparison: Story = {
 	render: renderSiteOverview,
 	args: { withComparison: true, ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderSiteOverviewOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/summary', 'loading' );
+		return () => setReportMockState( 'stats/summary', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderSiteOverviewOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/summary', 'error' );
+		return () => setReportMockState( 'stats/summary', null );
+	},
+};
+
+/**
+ * Resolved with every metric at zero: the summary endpoint returns a flat totals
+ * object even for idle periods, so the widget derives its empty state ("No stats
+ * recorded for this period." under the neutral globe glyph) from all-zero
+ * visible metrics.
+ */
+export const Empty: Story = {
+	render: () => renderSiteOverviewOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/summary', 'empty' );
+		return () => setReportMockState( 'stats/summary', null );
+	},
 };
 
 interface SiteOverviewDashboardStoryProps
