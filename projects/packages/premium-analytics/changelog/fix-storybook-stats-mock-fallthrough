@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Storybook: let the two stats mock middlewares fall through on unknown endpoints instead of swallowing them.

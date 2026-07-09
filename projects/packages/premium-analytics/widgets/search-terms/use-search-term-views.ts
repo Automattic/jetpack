@@ -24,8 +24,10 @@ interface UseSearchTermViewsArgs {
 interface SearchTermViewsState {
 	data: SearchTermView[];
 	isLoading: boolean;
+	isFetching: boolean;
 	isError: boolean;
 	hasComparison: boolean;
+	refetch: () => void;
 }
 
 /**
@@ -42,21 +44,37 @@ export default function useSearchTermViews( {
 	reportParams,
 	max,
 }: UseSearchTermViewsArgs ): SearchTermViewsState {
-	const { comparisonRows, hasComparison, isLoading, isError } = useStatsSearchTerms(
-		reportParams as Parameters< typeof useStatsSearchTerms >[ 0 ],
-		{ maxRows: max }
-	);
+	const {
+		comparisonRows,
+		comparison,
+		hasComparison,
+		isLoading,
+		isFetching,
+		isError: hasError,
+		refetch,
+	} = useStatsSearchTerms( reportParams as Parameters< typeof useStatsSearchTerms >[ 0 ], {
+		maxRows: max,
+	} );
 
-	const rows = ( comparisonRows?.rows ?? [] ).map( ( item: StatsSearchTermsComparisonItem ) => ( {
+	const comparisonUsable = hasComparison && ! comparison.isError;
+	const items = ( comparisonRows?.rows ?? [] ).map( ( item: StatsSearchTermsComparisonItem ) => ( {
 		label: typeof item.label === 'string' ? item.label : String( item.label ),
 		views: item.views,
-		previousViews: item.previousViews,
+		previousViews: comparisonUsable ? item.previousViews : undefined,
 	} ) );
 
 	return {
-		data: rows,
+		data: items,
 		isLoading,
-		isError,
-		hasComparison,
+		isFetching,
+		// The Stats queries carry `placeholderData: previousData => previousData`, so a
+		// failed range change keeps the prior period's rows in `data` while `isError`
+		// flips true. Only surface the error when there's nothing to show, so a transient
+		// refetch failure doesn't replace populated rows with the error state.
+		isError: items.length === 0 && hasError,
+		hasComparison: comparisonUsable,
+		// The data layer's combined refetch: memoized, awaits both queries, and
+		// skips the comparison query when comparison is disabled.
+		refetch,
 	};
 }

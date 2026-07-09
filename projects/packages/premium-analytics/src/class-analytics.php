@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
@@ -70,6 +71,11 @@ class Analytics {
 		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
 		WooCommerce_Analytics_Tracker::configure();
 
+		// CSV report export pipeline (WOOA7S-1581). Must register above the is_admin() gate so its
+		// REST route hooks rest_api_init (is_admin() is false during REST requests). Self-gates on
+		// WooCommerce being active + Jetpack connected.
+		Export::configure();
+
 		// Load the widget type registry: hydration routine, registry-time and
 		// runtime filters, and the registry accessors.
 		require_once __DIR__ . '/widget-types.php';
@@ -88,6 +94,9 @@ class Analytics {
 		// Register the dashboard's default layout: the first-load preference
 		// injection and the REST route the "reset to default" action reads.
 		require_once __DIR__ . '/dashboard-layout.php';
+
+		// Register dashboard sections and expose section metadata/defaults over REST.
+		require_once __DIR__ . '/dashboard-sections.php';
 
 		// Load wp-build output (interceptor, modules, routes, page render).
 		// Must stay above the is_admin() gate: build/widgets.php defines the

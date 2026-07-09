@@ -17,7 +17,6 @@ const fileSchema = JSON.parse(
 const LAUNCH_TASKS = new Set( [
 	'site_launched',
 	'blog_launched',
-	'woo_launch_site',
 	'link_in_bio_launched',
 	'videopress_launched',
 ] );

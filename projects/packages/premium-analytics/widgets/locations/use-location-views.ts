@@ -45,6 +45,7 @@ interface LocationViewsState {
 	isFetching: boolean;
 	hasData: boolean;
 	isError: boolean;
+	isPlaceholderData: boolean;
 }
 
 /**
@@ -93,18 +94,29 @@ export default function useLocationViews( {
 		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
 	} as Parameters< typeof useStatsLocations >[ 0 ];
 
-	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError } =
-		useStatsLocations( statsParams, { maxRows: max } );
-	const rows = ( comparisonRows?.rows ?? [] )
-		.map( toLocationView )
-		.filter( ( v ): v is LocationView => v !== null );
-
-	return {
-		data: rows,
+	const {
+		primary,
+		comparison,
+		comparisonRows,
 		hasComparison,
 		isLoading,
 		isFetching,
 		hasData,
 		isError,
+	} = useStatsLocations( statsParams, { maxRows: max } );
+	const isPlaceholderData = primary.isPlaceholderData || comparison.isPlaceholderData;
+
+	const items = ( comparisonRows?.rows ?? [] )
+		.map( toLocationView )
+		.filter( ( v ): v is LocationView => v !== null );
+
+	return {
+		data: items,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		isError,
+		isPlaceholderData,
 	};
 }

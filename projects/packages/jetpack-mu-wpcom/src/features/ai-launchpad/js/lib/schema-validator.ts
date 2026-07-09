@@ -47,6 +47,7 @@ export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 				},
 				brand_name: { type: 'string', maxLength: 80 },
 				niche: { type: 'string', maxLength: 120 },
+				theme_keyword: { type: 'string', maxLength: 40 },
 				vibe: { type: 'string', maxLength: 120 },
 				audience: { type: 'string', maxLength: 200 },
 				tagline: { type: 'string', maxLength: 200 },

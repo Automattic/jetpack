@@ -5382,12 +5382,9 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
-      '@react-spring/core':
-        specifier: 9.7.5
-        version: 9.7.5(react@18.3.1)
       '@react-spring/web':
-        specifier: 9.7.5
-        version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 10.1.1
+        version: 10.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
@@ -5757,8 +5754,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       '@react-spring/web':
-        specifier: 9.7.5
-        version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 10.1.1
+        version: 10.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@visx/curve':
         specifier: 4.0.0
         version: 4.0.0
@@ -5773,7 +5770,7 @@ importers:
         version: 4.0.0
       '@visx/xychart':
         specifier: 4.0.0
-        version: 4.0.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 4.0.0(@react-spring/web@10.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/a11y':
         specifier: 4.50.0
         version: 4.50.0
@@ -5922,17 +5919,17 @@ importers:
         specifier: 15.8.1
         version: 15.8.1
       react-redux:
-        specifier: 7.2.8
-        version: 7.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 9.3.0
+        version: 9.3.0(@types/react@18.3.28)(react@18.3.1)(redux@5.0.1)
       react-router:
         specifier: 7.15.1
         version: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       redux:
-        specifier: 4.2.1
-        version: 4.2.1
+        specifier: 5.0.1
+        version: 5.0.1
       redux-thunk:
-        specifier: 2.3.0
-        version: 2.3.0(redux@4.2.1)
+        specifier: 3.1.0
+        version: 3.1.0(redux@5.0.1)
       refx:
         specifier: 3.1.1
         version: 3.1.1
@@ -8858,8 +8855,8 @@ packages:
   '@lezer/cpp@1.1.6':
     resolution: {integrity: sha512-vh9gWWJOXFVY8HBHK3Twzq8MgwG2iN4GSyzBP9sCGTe37P15x2R14VaBQk0VA0ezTRN1KHYBBsHhvpGZ2Xy/pA==}
 
-  '@lezer/css@1.3.3':
-    resolution: {integrity: sha512-RzBo8r+/6QJeow7aPHIpGVIH59xTcJXp399820gZoMo9noQDRVpJLheIBUicYwKcsbOYoBRoLZlf2720dG/4Tg==}
+  '@lezer/css@1.3.4':
+    resolution: {integrity: sha512-N+tn9tej2hPvyKgHEApMOQfHczDJCwxrRFS3SPn9QjYN+uwHvEDnCgKRrb3mxDYxRS8sKMM8fhC3+lc04Abz5Q==}
 
   '@lezer/generator@1.8.0':
     resolution: {integrity: sha512-/SF4EDWowPqV1jOgoGSGTIFsE7Ezdr7ZYxyihl5eMKVO5tlnpIhFcDavgm1hHY5GEonoOAEnJ0CU0x+tvuAuUg==}
@@ -8943,8 +8940,8 @@ packages:
     resolution: {integrity: sha512-Es6WcD0nO5l+2BOQS4uLfNPYQaNDfbot3X1XUoloz+x0mPDS3eeORZJl06HXjwBG1fOGwCRnzK88LMdxKRrd6Q==}
     engines: {node: '>=6.0.0'}
 
-  '@marijn/find-cluster-break@1.0.2':
-    resolution: {integrity: sha512-l0h88YhZFyKdXIFNfSWpyjStDjGHwZ/U7iobcK1cQQD8sejsONdQtTVU+1wVN1PBw40PiiHB1vA5S7VTfQiP9g==}
+  '@marijn/find-cluster-break@1.0.3':
+    resolution: {integrity: sha512-FY+MKLBoTsLNJF/eLWaOsXGdz6uh3Iu1axjPf6TUq92IYumcTcXWHoS747JARLkcdlJ/Waiaxc5wQfFO8jC6NA==}
 
   '@mdn/browser-compat-data@8.0.3':
     resolution: {integrity: sha512-13WbOTatswnxTsC7EZqcby/mzBB1Ll4bEyzVyMqaPrWE5MqHaq4NNexTga5LfZc1xMc7pY4A4NUhecn1QQk+2g==}
@@ -10600,6 +10597,9 @@ packages:
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
+
+  '@types/use-sync-external-store@0.0.6':
+    resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
 
   '@types/wordpress__block-editor@15.0.6':
     resolution: {integrity: sha512-XDc596rkiNLOg0SZRONHojDRd7oE/+96nCBTQq51fJpAfgtHCPXQUs5hYJNaImxqWeuNrqYGpBgU5fFS7ZqRHw==}
@@ -13019,8 +13019,8 @@ packages:
     engines: {node: '>= 0.4.0'}
     hasBin: true
 
-  crelt@1.0.6:
-    resolution: {integrity: sha512-VQ2MBenTq1fWZUH9DJNGti7kKv6EeAuYr3cLwxUWhIu1baTaXh4Ib5W2CqHVqib4/MqbYGJqiL3Zb8GJZr3l4g==}
+  crelt@1.0.7:
+    resolution: {integrity: sha512-aK6BbWfhf4U/wCcLHKPJl/xa6VkVstRaPywWtMKGwuOLc/wZTyQYuoxgvZnNsBvv7Kg3YTBQYYBCggcviQczuA==}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -15094,8 +15094,8 @@ packages:
   jquery@3.7.1:
     resolution: {integrity: sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg==}
 
-  js-base64@3.7.8:
-    resolution: {integrity: sha512-hNngCeKxIUQiEUN3GPJOkz4wF/YvdUdbNL9hsBcMQTkKzboD7T/q3OYOuuPZLUE6dBxSGpwhk5mwuDud7JVAow==}
+  js-base64@3.8.0:
+    resolution: {integrity: sha512-65kvbemyZhj+ExQt1PEFyBEjL5vAHysu1lJdW1AwhhChkO8ZBPizYk/m9GVrpbS2Je1hF+UYZ+6KywqtZV8mHw==}
 
   js-sha256@0.11.1:
     resolution: {integrity: sha512-o6WSo/LUvY2uC4j7mO50a2ms7E/EAdbP0swigLV+nzHKTTaYnaLIWJ02VdXrsJX0vGedDESQnLsOekr94ryfjg==}
@@ -16750,6 +16750,18 @@ packages:
       react-native:
         optional: true
 
+  react-redux@9.3.0:
+    resolution: {integrity: sha512-KQopgqFo/p/fgmAs5qz6p5RWaNAzq40WAu7fJIXnQpYxFPbJYtsJPWvGeF2rOBaY/kEuV77AVsX8TsQzKm+A/g==}
+    peerDependencies:
+      '@types/react': ^18.2.25 || ^19
+      react: ^18.0 || ^19
+      redux: ^5.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      redux:
+        optional: true
+
   react-refresh@0.17.0:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
@@ -16873,10 +16885,10 @@ packages:
   redux-saga@1.5.0:
     resolution: {integrity: sha512-IdnDBfgt/XuBhSwWMGwjtcOOQAmiqOc1nRGxNst2MWP9yLN0zOvaPpinm8rtKoL00kMZgczZFPNNQgy2hoBIBw==}
 
-  redux-thunk@2.3.0:
-    resolution: {integrity: sha512-km6dclyFnmcvxhAcrQV2AkZmPQjzPDjgVlQtR0EQjxZPyJ0BnMf3in1ryuR8A2qU0HldVRfxYXbFSKlI3N7Slw==}
+  redux-thunk@3.1.0:
+    resolution: {integrity: sha512-NW2r5T6ksUKXCabzhL9z+h206HQw/NJkcLm1GPImRQ8IzfXwRGqjVhKJGauHirT0DAuyy6hjdnMZaRoAcy0Klw==}
     peerDependencies:
-      redux: ^4.0.0
+      redux: ^5.0.0
 
   redux@4.2.1:
     resolution: {integrity: sha512-LAUYz4lc+Do8/g7aeRa8JkyDErK6ekstQaqWQrNRW//MY1TvCEpMtpTWvlQ+FPbWCx+Xixu/6SHt5N0HR+SB4w==}
@@ -20356,7 +20368,7 @@ snapshots:
       '@codemirror/language': 6.11.2
       '@codemirror/state': 6.5.2
       '@lezer/common': 1.3.0
-      '@lezer/css': 1.3.3
+      '@lezer/css': 1.3.4
 
   '@codemirror/lang-go@6.0.1':
     dependencies:
@@ -20375,7 +20387,7 @@ snapshots:
       '@codemirror/state': 6.5.2
       '@codemirror/view': 6.38.0
       '@lezer/common': 1.3.0
-      '@lezer/css': 1.3.3
+      '@lezer/css': 1.3.4
       '@lezer/html': 1.3.13
 
   '@codemirror/lang-java@6.0.2':
@@ -20542,22 +20554,22 @@ snapshots:
     dependencies:
       '@codemirror/state': 6.5.2
       '@codemirror/view': 6.38.0
-      crelt: 1.0.6
+      crelt: 1.0.7
 
   '@codemirror/search@6.5.11':
     dependencies:
       '@codemirror/state': 6.5.2
       '@codemirror/view': 6.38.0
-      crelt: 1.0.6
+      crelt: 1.0.7
 
   '@codemirror/state@6.5.2':
     dependencies:
-      '@marijn/find-cluster-break': 1.0.2
+      '@marijn/find-cluster-break': 1.0.3
 
   '@codemirror/view@6.38.0':
     dependencies:
       '@codemirror/state': 6.5.2
-      crelt: 1.0.6
+      crelt: 1.0.7
       style-mod: 4.1.3
       w3c-keyname: 2.2.8
 
@@ -21424,7 +21436,7 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/lr': 1.4.3
 
-  '@lezer/css@1.3.3':
+  '@lezer/css@1.3.4':
     dependencies:
       '@lezer/common': 1.3.0
       '@lezer/highlight': 1.2.3
@@ -21545,7 +21557,7 @@ snapshots:
 
   '@mapbox/whoots-js@3.1.0': {}
 
-  '@marijn/find-cluster-break@1.0.2': {}
+  '@marijn/find-cluster-break@1.0.3': {}
 
   '@mdn/browser-compat-data@8.0.3': {}
 
@@ -23197,6 +23209,8 @@ snapshots:
 
   '@types/unist@3.0.3': {}
 
+  '@types/use-sync-external-store@0.0.6': {}
+
   '@types/wordpress__block-editor@15.0.6(postcss@8.5.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@types/react': 18.3.28
@@ -23624,18 +23638,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.28
 
-  '@visx/react-spring@4.0.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react@18.3.1)':
-    dependencies:
-      '@react-spring/web': 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@visx/axis': 4.0.0(@types/react@18.3.28)(react@18.3.1)
-      '@visx/grid': 4.0.0(@types/react@18.3.28)(react@18.3.1)
-      '@visx/scale': 4.0.0
-      '@visx/text': 4.0.0(@types/react@18.3.28)(react@18.3.1)
-      classnames: 2.5.1
-      react: 18.3.1
-    optionalDependencies:
-      '@types/react': 18.3.28
-
   '@visx/responsive@4.0.0(@types/react@18.3.28)(react@18.3.1)':
     dependencies:
       react: 18.3.1
@@ -23746,15 +23748,15 @@ snapshots:
       '@types/react': 18.3.28
       '@types/react-dom': 18.3.7(@types/react@18.3.28)
 
-  '@visx/xychart@4.0.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@visx/xychart@4.0.0(@react-spring/web@10.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@react-spring/web': 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@react-spring/web': 10.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@visx/annotation': 4.0.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@visx/axis': 4.0.0(@types/react@18.3.28)(react@18.3.1)
       '@visx/event': 4.0.0(@types/react@18.3.28)(react@18.3.1)
       '@visx/glyph': 4.0.0(@types/react@18.3.28)(react@18.3.1)
       '@visx/grid': 4.0.0(@types/react@18.3.28)(react@18.3.1)
-      '@visx/react-spring': 4.0.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react@18.3.1)
+      '@visx/react-spring': 4.0.0(@react-spring/web@10.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react@18.3.1)
       '@visx/responsive': 4.0.0(@types/react@18.3.28)(react@18.3.1)
       '@visx/scale': 4.0.0
       '@visx/shape': 4.0.0(@types/react@18.3.28)(react@18.3.1)
@@ -31691,7 +31693,7 @@ snapshots:
 
   crc32@0.2.2: {}
 
-  crelt@1.0.6: {}
+  crelt@1.0.7: {}
 
   cross-spawn@7.0.6:
     dependencies:
@@ -34163,7 +34165,7 @@ snapshots:
 
   jquery@3.7.1: {}
 
-  js-base64@3.7.8: {}
+  js-base64@3.8.0: {}
 
   js-sha256@0.11.1: {}
 
@@ -36026,6 +36028,15 @@ snapshots:
     optionalDependencies:
       react-dom: 18.3.1(react@18.3.1)
 
+  react-redux@9.3.0(@types/react@18.3.28)(react@18.3.1)(redux@5.0.1):
+    dependencies:
+      '@types/use-sync-external-store': 0.0.6
+      react: 18.3.1
+      use-sync-external-store: 1.6.0(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.28
+      redux: 5.0.1
+
   react-refresh@0.17.0: {}
 
   react-remove-scroll-bar@2.3.8(@types/react@18.3.28)(react@18.3.1):
@@ -36168,9 +36179,9 @@ snapshots:
       '@babel/runtime': 7.29.7
       '@redux-saga/core': 1.5.0
 
-  redux-thunk@2.3.0(redux@4.2.1):
+  redux-thunk@3.1.0(redux@5.0.1):
     dependencies:
-      redux: 4.2.1
+      redux: 5.0.1
 
   redux@4.2.1:
     dependencies:
@@ -37700,7 +37711,7 @@ snapshots:
       buffer-from: 1.1.2
       combine-errors: 3.0.3
       is-stream: 2.0.1
-      js-base64: 3.7.8
+      js-base64: 3.8.0
       lodash.throttle: 4.1.1
       proper-lockfile: 4.1.2
       url-parse: 1.5.10
