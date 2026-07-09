@@ -15,15 +15,16 @@ export type LocationsAttributes = {
  *
  * Ported from the Jetpack Stats "Locations" module. v1 ships Countries mode
  * (with region drill-down) and Cities mode via the `location-views/{geoMode}`
- * endpoint.
+ * endpoint. City rows are listed in the leaderboard and summarized on the map
+ * by country.
  *
  * Data: fetched via the PA proxy at `stats/location-views/{country|region|city}`.
  * Date range comes from WidgetRoot's reportParams (the shared dashboard date
  * picker).
  *
  * Known limitation: Google GeoChart `provinces` resolution is unavailable for
- * some territories (e.g. Taiwan); those fall back to the world map without
- * regional detail.
+ * some countries/territories; unsupported region maps fall back at runtime to
+ * highlighting the country on the world map.
  */
 export default {
 	name: 'jpa/locations',

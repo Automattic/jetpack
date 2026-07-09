@@ -16,9 +16,31 @@
 }
 
 .backLink {
-	align-self: flex-start;
+	order: 1;
+	align-self: center;
 	min-inline-size: 0;
+	margin-inline-end: auto;
 	margin-block-end: 0;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+.bodyHeader {
+
+	/* Above WidgetLoadingOverlay (z-index: 1): body chrome like the back link
+	 * stays usable during refetches, per the widget loading-state convention. */
+	position: relative;
+	z-index: 2;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: var(--wpds-dimension-gap-sm, 8px) var(--wpds-dimension-gap-lg, 16px);
+	margin-block-end: var(--wpds-dimension-gap-md, 12px);
 }
 
 .chartArea {
@@ -32,8 +54,17 @@
 	min-height: 0;
 }
 
+.leaderboardPanel {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	min-height: 0;
+	align-self: stretch;
+}
+
 .leaderboard {
-	align-self: start;
+	flex: 1 1 0;
+	align-self: stretch;
 	min-width: 0;
 	min-height: 0;
 	overflow: hidden;
@@ -56,10 +87,6 @@
 	white-space: nowrap;
 }
 
-.noMap {
-	grid-template-columns: 1fr;
-}
-
 .geoChart {
 	min-width: 0;
 	height: 100%;
@@ -74,6 +101,14 @@
  * the map. */
 @container (max-width: 431px) {
 
+	.bodyHeader {
+		align-items: stretch;
+	}
+
+	.backLink {
+		order: 2;
+	}
+
 	.geoChart {
 		display: none;
 	}
@@ -86,19 +121,6 @@
 .leaderboardImage {
 	height: 20px;
 	border-radius: var(--wpds-border-radius-sm, 2px);
-}
-
-/* Constrain the picker preview tile to a 4:3 aspect ratio. The picker's
- * .preview wrapper uses height: 125% of an auto-height parent, so height: 100%
- * on .root also resolves to auto, leaving aspect-ratio with no anchor.
- * Setting height: auto here lets aspect-ratio derive the height from the known
- * inline size and overflow: hidden clips the chart content. Targets only the
- * picker (inert="") — not the edit-mode wrapper (inert="true") where the grid
- * tile supplies a real height. */
-:global([inert]:not([inert="true"])) .root {
-	height: auto;
-	aspect-ratio: 4 / 3;
-	overflow: hidden;
 }
 
 /* The picker grid applies img { width: 100%; height: 100%; object-fit: cover }

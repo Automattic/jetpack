@@ -89,6 +89,20 @@ describe( 'ConnectionErrorNotice', () => {
 		expect( screen.getByText( 'Second Action' ) ).toBeInTheDocument();
 	} );
 
+	it( 'should render a feature context line above the message when provided', () => {
+		render(
+			<ConnectionErrorNotice
+				message="WordPress.com reached your site but the request was blocked."
+				context="Your activity log couldn’t load."
+			/>
+		);
+
+		expect( screen.getAllByText( 'Your activity log couldn’t load.' ).length ).toBeGreaterThan( 0 );
+		expect(
+			screen.getAllByText( 'WordPress.com reached your site but the request was blocked.' ).length
+		).toBeGreaterThan( 0 );
+	} );
+
 	it( 'should render primary and secondary buttons', () => {
 		const actions = [
 			{

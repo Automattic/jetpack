@@ -543,6 +543,7 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   `<Text>` label case, `padding: var(--wpds-dimension-padding-sm)` is enough when the text
   line-height plus vertical padding yields 36px. Use `min-height: 36px` when the label content
   or typography does not naturally produce that height.
+<<<<<<< HEAD
 - Loading / error / empty state: render through `<WidgetState>` (see "Loading / error / empty
   state" above), not `LeaderboardChart`'s `emptyStateText` or a hand-rolled `data.length === 0`
   branch. Empty uses a neutral glyph distinct from the error icon.
@@ -556,3 +557,8 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
 	overflow: hidden;
 }
 ```
+=======
+- Empty state: pass `emptyStateText` to `LeaderboardChart` — do not add a separate
+  `data.length === 0` render branch in the widget, unless the widget has a composite layout
+  that needs to preserve body chrome or replace a non-leaderboard chart area.
+>>>>>>> origin/trunk

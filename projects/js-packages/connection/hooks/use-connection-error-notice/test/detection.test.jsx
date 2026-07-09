@@ -23,6 +23,7 @@ const { default: useConnectionErrorNotice } = await import( '../index' );
 const mockConnection = overrides =>
 	useConnection.mockReturnValue( {
 		connectionErrors: {},
+		connectionHealthErrors: {},
 		isRegistered: false,
 		isUserConnected: false,
 		...overrides,
@@ -98,5 +99,60 @@ describe( 'useConnectionErrorNotice — error detection', () => {
 		const { result } = renderHook( () => useConnectionErrorNotice() );
 		expect( result.current.hasConnectionError ).toBe( false );
 		expect( result.current.connectionError ).toBeUndefined();
+	} );
+
+	const HEALTH_ERROR = {
+		failed_test__connection_token_health: {
+			0: {
+				error_code: 'failed_test__connection_token_health',
+				error_message: 'The site token could not be validated.',
+				error_type: 'connection_health',
+			},
+		},
+	};
+
+	// Health-check failures are opt-in: only a consumer that ran the probe (and
+	// passes `includeHealthErrors`) surfaces them, so the page-global health slot
+	// is not silently inherited by every other consumer of the shared hook.
+	it( 'surfaces a health-check error when opted in and the store has no WPCOM error', () => {
+		mockConnection( { connectionErrors: {}, connectionHealthErrors: HEALTH_ERROR } );
+
+		const { result } = renderHook( () =>
+			useConnectionErrorNotice( { includeHealthErrors: true } )
+		);
+		expect( result.current.hasConnectionError ).toBe( true );
+		expect( result.current.connectionErrorMessage ).toBe(
+			'The site token could not be validated.'
+		);
+	} );
+
+	// The default: a consumer that never opted in does not inherit the shared
+	// health-error slot, even when it is populated.
+	it( 'ignores a health-check error by default (no opt-in)', () => {
+		mockConnection( { connectionErrors: {}, connectionHealthErrors: HEALTH_ERROR } );
+
+		const { result } = renderHook( () => useConnectionErrorNotice() );
+		expect( result.current.hasConnectionError ).toBe( false );
+		expect( result.current.connectionError ).toBeUndefined();
+	} );
+
+	// Precedence: a real WPCOM store error wins over a health-check error even when
+	// health errors are opted in.
+	it( 'prefers a store error over a health-check error', () => {
+		mockConnection( {
+			connectionErrors: {
+				real_code: { 1: { error_message: 'Real WPCOM error', error_type: 'a' } },
+			},
+			connectionHealthErrors: {
+				failed_test__outbound_https: {
+					0: { error_message: 'Health error', error_type: 'connection_health' },
+				},
+			},
+		} );
+
+		const { result } = renderHook( () =>
+			useConnectionErrorNotice( { includeHealthErrors: true } )
+		);
+		expect( result.current.connectionErrorMessage ).toBe( 'Real WPCOM error' );
 	} );
 } );

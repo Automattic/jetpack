@@ -139,6 +139,7 @@ export {
 	HeatmapChart,
 	buildCalendarHeatmapData,
 	type DataPointDate,
+	type GeoChartError,
 	type GeoData,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,

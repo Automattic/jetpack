@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: stop loading the unused legacy dashboard SPA bundle on the new (wp-build) Forms dashboard, removing a large amount of unnecessary JavaScript from the page.
