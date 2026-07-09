@@ -5,4 +5,3 @@ export {
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
 } from './report-page-tabs';
-export { StatsBreadcrumbs, type StatsBreadcrumbsProps } from './stats-breadcrumbs';

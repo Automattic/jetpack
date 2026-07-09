@@ -19,6 +19,9 @@
 		]
 	},
 	"scripts": {
+		"build-zip": [
+			"bash bin/build-zip.sh"
+		],
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],

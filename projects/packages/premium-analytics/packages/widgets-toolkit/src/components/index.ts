@@ -45,10 +45,8 @@ export {
 export {
 	ReportPageTabPanel,
 	ReportPageTabs,
-	StatsBreadcrumbs,
 	type ReportPageTab,
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
-	type StatsBreadcrumbsProps,
 } from './report-page';
 export { DownloadCsvButton, type DownloadCsvButtonProps } from './download-csv-button';
