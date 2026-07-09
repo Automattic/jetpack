@@ -17,7 +17,6 @@ use Throwable;
  * Logs export pipeline messages through the PHP/WordPress error log.
  *
  * @since $$next-version$$
- * @internal
  */
 class Error_Log_Logger implements Logger_Interface {
 

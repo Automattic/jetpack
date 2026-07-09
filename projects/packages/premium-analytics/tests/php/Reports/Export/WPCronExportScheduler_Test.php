@@ -140,8 +140,11 @@ class WPCronExportScheduler_Test extends TestCase {
 	public function test_schedule_export_treats_duplicate_wp_cron_event_as_success() {
 		$args = array( 'from' => '2026-01-01T00:00:00' );
 
-		$this->assertTrue( $this->scheduler()->schedule_export( 'stats-top-posts', $args, 1, 'admin@example.com' ) );
-		$this->assertTrue( $this->scheduler()->schedule_export( 'stats-top-posts', $args, 1, 'admin@example.com' ) );
+		$first_result  = $this->scheduler()->schedule_export( 'stats-top-posts', $args, 1, 'admin@example.com' );
+		$second_result = $this->scheduler()->schedule_export( 'stats-top-posts', $args, 1, 'admin@example.com' );
+
+		$this->assertTrue( $first_result );
+		$this->assertTrue( $second_result );
 
 		$this->assertIsInt(
 			wp_next_scheduled(
@@ -309,9 +312,11 @@ class WPCronExportScheduler_Test extends TestCase {
 		$scheduler = $this->scheduler( new \WP_Error( 'boom', 'fetch failed' ), $email, $logger );
 		$user_id   = $this->create_export_user( 'administrator', 'stats-cron-failure@example.com' );
 
-		$error_mail = array();
+		$error_mail = array(
+			'to' => '',
+		);
 		$capture    = static function ( $return, $atts ) use ( &$error_mail ) {
-			$error_mail = $atts;
+			$error_mail['to'] = (string) ( $atts['to'] ?? '' );
 			return true;
 		};
 

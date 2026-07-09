@@ -50,10 +50,18 @@ class WPMailExportEmail_Test extends TestCase {
 		$logger = new Spy_Logger();
 		$email  = new Wp_Mail_Export_Email( $logger );
 		$file   = $this->make_file( "Title,Views\nHello,5\n" );
-		$sent   = array();
+		$sent   = array(
+			'attachments' => array(),
+			'message'     => '',
+			'to'          => '',
+		);
 
 		$capture = static function ( $return, $atts ) use ( &$sent ) {
-			$sent = $atts;
+			$sent = array(
+				'attachments' => is_array( $atts['attachments'] ?? null ) ? $atts['attachments'] : array(),
+				'message'     => (string) ( $atts['message'] ?? '' ),
+				'to'          => (string) ( $atts['to'] ?? '' ),
+			);
 			return true;
 		};
 
@@ -81,10 +89,12 @@ class WPMailExportEmail_Test extends TestCase {
 	public function test_send_export_email_formats_request_dates_without_timezone_shift() {
 		$email = new Wp_Mail_Export_Email();
 		$file  = $this->make_file( "Title,Views\nHello,5\n" );
-		$sent  = array();
+		$sent  = array(
+			'message' => '',
+		);
 
 		$capture = static function ( $return, $atts ) use ( &$sent ) {
-			$sent = $atts;
+			$sent['message'] = (string) ( $atts['message'] ?? '' );
 			return true;
 		};
 
@@ -110,10 +120,12 @@ class WPMailExportEmail_Test extends TestCase {
 	public function test_send_export_email_omits_date_range_when_request_dates_are_invalid() {
 		$email = new Wp_Mail_Export_Email();
 		$file  = $this->make_file( "Title,Views\nHello,5\n" );
-		$sent  = array();
+		$sent  = array(
+			'message' => '',
+		);
 
 		$capture = static function ( $return, $atts ) use ( &$sent ) {
-			$sent = $atts;
+			$sent['message'] = (string) ( $atts['message'] ?? '' );
 			return true;
 		};
 

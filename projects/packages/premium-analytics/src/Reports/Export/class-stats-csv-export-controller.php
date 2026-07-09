@@ -444,7 +444,9 @@ class Stats_Csv_Export_Controller extends WP_REST_Controller implements Registra
 				return $served;
 			}
 
-			remove_filter( 'rest_pre_serve_request', $handler, 10 );
+			if ( null !== $handler ) {
+				remove_filter( 'rest_pre_serve_request', $handler, 10 );
+			}
 
 			$streamed = $this->csv_generator->stream_file( $file_path, $filename );
 			$this->csv_generator->delete_file( $file_path );
