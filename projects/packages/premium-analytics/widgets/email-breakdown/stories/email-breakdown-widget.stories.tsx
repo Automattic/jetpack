@@ -18,7 +18,10 @@ import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { withChartTheme } from '../../../packages/widgets-toolkit/src/stories/with-chart-theme';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -61,6 +64,24 @@ function renderEmailBreakdown( { withComparison, view, metric }: EmailBreakdownS
 				postId: MOCK_EMAIL_ID,
 				view,
 				metric,
+			} }
+		/>
+	);
+}
+
+// Renders the widget against a distinct email ID. The breakdown endpoints take
+// no date params, so (unlike the date-preset trick other widgets use) a unique
+// email ID is what gives the forced-state stories their own cache entry — they
+// hit the mock fresh instead of reading another story's cached success from the
+// shared query client.
+function renderEmailBreakdownForState( postId: number ) {
+	return (
+		<EmailBreakdownRender
+			attributes={ {
+				reportParams: getDefaultQueryParams( false ),
+				postId,
+				view: 'countries',
+				metric: 'opens',
 			} }
 		/>
 	);
@@ -113,6 +134,63 @@ export const Default: Story = {
 export const WithComparison: Story = {
 	render: renderEmailBreakdown,
 	args: { withComparison: true, view: 'countries', metric: 'opens' },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderEmailBreakdownForState( 5601 ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/opens/emails', 'loading' );
+		return () => setReportMockState( 'stats/opens/emails', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderEmailBreakdownForState( 5602 ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/opens/emails', 'error' );
+		return () => setReportMockState( 'stats/opens/emails', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state (the envelope glyph
+ * and the per-view "no data yet" copy).
+ */
+export const Empty: Story = {
+	render: () => renderEmailBreakdownForState( 5603 ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/opens/emails', 'empty' );
+		return () => setReportMockState( 'stats/opens/emails', null );
+	},
+};
+
+/**
+ * No email selected: `postId` is unset, so no request is made and the empty
+ * state prompts to select an email instead of "no data yet".
+ */
+export const NoEmailSelected: Story = {
+	render: () => (
+		<EmailBreakdownRender
+			attributes={ { reportParams: getDefaultQueryParams( false ), view: 'countries' } }
+		/>
+	),
 	decorators: [ withWidgetCanvas ],
 };
 
