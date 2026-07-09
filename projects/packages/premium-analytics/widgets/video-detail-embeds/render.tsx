@@ -27,8 +27,9 @@ type VideoDetailEmbedsWidgetProps = WidgetRenderProps< VideoDetailEmbedsRenderAt
 
 /**
  * Resolves the VideoPress post ID from the host-composed report params. The
- * value arrives as a string from the URL, so it is coerced to a positive
- * integer; anything else yields `NaN`, which signals "no video selected".
+ * `post_id` report param is typed `string | number`, so it is defensively
+ * coerced to a positive integer; anything else yields `NaN`, which signals
+ * "no video selected".
  *
  * @param postId - The `post_id` report param.
  * @return The video's post ID, or `NaN` when none is set.
@@ -49,13 +50,12 @@ type VideoEmbedsListProps = {
 /**
  * Presentational list for the "Video embeds" widget: the pages where the
  * selected video is embedded, each as an external link. Loading / error /
- * empty are owned by the surrounding `WidgetState`. Exported so Storybook
- * and tests can exercise the populated state with fixtures.
+ * empty are owned by the surrounding `WidgetState`.
  *
  * @param {VideoEmbedsListProps} props - The component props.
  * @return The rendered list.
  */
-export function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
+function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
 	return (
 		<ul className={ styles.list }>
 			{ pages.map( ( page, index ) => (
