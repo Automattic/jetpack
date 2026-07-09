@@ -984,7 +984,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			$response->get_data()
 		);
 
-		$stored = get_user_meta( $user_id, get_persisted_preferences_meta_key(), true );
+		$stored = get_stored_persisted_preferences_for_user( $user_id );
 
 		$this->assertArrayNotHasKey( DASHBOARD_SECTION_LAYOUTS_KEY, $stored[ DASHBOARD_LAYOUT_SCOPE ] );
 		$this->assertSame( 'keep-me', $stored[ DASHBOARD_LAYOUT_SCOPE ]['unrelatedPreference'] );
