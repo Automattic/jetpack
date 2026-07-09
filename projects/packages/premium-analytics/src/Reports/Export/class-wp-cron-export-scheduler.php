@@ -105,7 +105,6 @@ class Wp_Cron_Export_Scheduler implements Registrable_Interface {
 	public function register(): void {
 		add_action( self::EXPORT_ACTION_HOOK, array( $this, 'process_export_job' ), 10, 4 );
 		add_action( self::CLEANUP_HOOK, array( $this, 'cleanup_old_exports' ) );
-		add_action( 'init', array( $this, 'schedule_cleanup' ) );
 	}
 
 	/**
@@ -148,6 +147,7 @@ class Wp_Cron_Export_Scheduler implements Registrable_Interface {
 					sprintf( 'WP-Cron CSV export already scheduled for report type: %s', $report_type ),
 					__METHOD__
 				);
+				$this->schedule_cleanup();
 				return true;
 			}
 
@@ -167,6 +167,7 @@ class Wp_Cron_Export_Scheduler implements Registrable_Interface {
 					sprintf( 'WP-Cron CSV export already scheduled for report type: %s', $report_type ),
 					__METHOD__
 				);
+				$this->schedule_cleanup();
 				return true;
 			}
 
@@ -182,6 +183,8 @@ class Wp_Cron_Export_Scheduler implements Registrable_Interface {
 			sprintf( 'Scheduled WP-Cron CSV export for report type: %s', $report_type ),
 			__METHOD__
 		);
+
+		$this->schedule_cleanup();
 
 		return true;
 	}
@@ -294,8 +297,21 @@ class Wp_Cron_Export_Scheduler implements Registrable_Interface {
 	 * @return void
 	 */
 	public function schedule_cleanup(): void {
-		if ( ! wp_next_scheduled( self::CLEANUP_HOOK ) ) {
-			wp_schedule_event( time(), 'daily', self::CLEANUP_HOOK );
+		if ( wp_next_scheduled( self::CLEANUP_HOOK ) ) {
+			return;
+		}
+
+		$scheduled = wp_schedule_event( time(), 'daily', self::CLEANUP_HOOK, array(), true );
+		if ( is_wp_error( $scheduled ) ) {
+			$this->logger->log_error(
+				sprintf( 'Failed to schedule WP-Cron CSV export cleanup: %s', $scheduled->get_error_message() ),
+				__METHOD__
+			);
+			return;
+		}
+
+		if ( true !== $scheduled ) {
+			$this->logger->log_error( 'Failed to schedule WP-Cron CSV export cleanup', __METHOD__ );
 		}
 	}
 

@@ -89,6 +89,7 @@ class WPCronExportScheduler_Test extends TestCase {
 				)
 			)
 		);
+		$this->assertIsInt( wp_next_scheduled( Wp_Cron_Export_Scheduler::CLEANUP_HOOK ) );
 	}
 
 	public function test_schedule_export_treats_duplicate_wp_cron_event_as_success() {
@@ -135,6 +136,29 @@ class WPCronExportScheduler_Test extends TestCase {
 		$this->assertSame( 'cron_blocked', $result->get_error_code() );
 		$this->assertSame( 'Cron scheduling is blocked.', $result->get_error_message() );
 		$this->assertSame( array( 'status' => 500 ), $result->get_error_data() );
+	}
+
+	public function test_schedule_cleanup_logs_wp_cron_failure() {
+		$logger    = new Spy_Logger();
+		$scheduler = $this->scheduler( null, null, $logger );
+
+		$block_schedule = static function ( $pre, $event ) {
+			if ( Wp_Cron_Export_Scheduler::CLEANUP_HOOK === $event->hook ) {
+				return new \WP_Error( 'cleanup_blocked', 'Cleanup scheduling is blocked.' );
+			}
+
+			return $pre;
+		};
+
+		add_filter( 'pre_schedule_event', $block_schedule, 10, 2 );
+		try {
+			$scheduler->schedule_cleanup();
+		} finally {
+			remove_filter( 'pre_schedule_event', $block_schedule, 10 );
+		}
+
+		$this->assertSame( 'error', $logger->entries[0]['level'] );
+		$this->assertStringContainsString( 'Cleanup scheduling is blocked.', $logger->entries[0]['message'] );
 	}
 
 	public function test_process_export_job_emails_attachment_and_restores_user() {

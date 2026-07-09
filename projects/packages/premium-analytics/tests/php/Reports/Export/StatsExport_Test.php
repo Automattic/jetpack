@@ -53,7 +53,7 @@ class StatsExport_Test extends TestCase {
 		$this->assertTrue( $this->has_hook_object( 'rest_api_init', Stats_Csv_Export_Controller::class, 'register_routes' ) );
 		$this->assertTrue( $this->has_hook_object( Wp_Cron_Export_Scheduler::EXPORT_ACTION_HOOK, Wp_Cron_Export_Scheduler::class, 'process_export_job' ) );
 		$this->assertTrue( $this->has_hook_object( Wp_Cron_Export_Scheduler::CLEANUP_HOOK, Wp_Cron_Export_Scheduler::class, 'cleanup_old_exports' ) );
-		$this->assertTrue( $this->has_hook_object( 'init', Wp_Cron_Export_Scheduler::class, 'schedule_cleanup' ) );
+		$this->assertFalse( $this->has_hook_object( 'init', Wp_Cron_Export_Scheduler::class, 'schedule_cleanup' ) );
 
 		$rest_callback_count = $this->count_hook_objects( 'rest_api_init', Stats_Csv_Export_Controller::class, 'register_routes' );
 
