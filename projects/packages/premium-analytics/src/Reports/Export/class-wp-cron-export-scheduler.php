@@ -134,13 +134,42 @@ class Wp_Cron_Export_Scheduler implements Registrable_Interface {
 			);
 		}
 
+		$args      = array( $report_type, $params, $user_id, $user_email );
 		$scheduled = wp_schedule_single_event(
 			time(),
 			self::EXPORT_ACTION_HOOK,
-			array( $report_type, $params, $user_id, $user_email )
+			$args,
+			true
 		);
 
+		if ( is_wp_error( $scheduled ) ) {
+			if ( 'duplicate_event' === $scheduled->get_error_code() && wp_next_scheduled( self::EXPORT_ACTION_HOOK, $args ) ) {
+				$this->logger->log_message(
+					sprintf( 'WP-Cron CSV export already scheduled for report type: %s', $report_type ),
+					__METHOD__
+				);
+				return true;
+			}
+
+			$this->logger->log_error(
+				sprintf( 'Failed to schedule WP-Cron CSV export event: %s', $scheduled->get_error_message() ),
+				__METHOD__
+			);
+			if ( null === $scheduled->get_error_data() ) {
+				$scheduled->add_data( array( 'status' => 500 ) );
+			}
+			return $scheduled;
+		}
+
 		if ( true !== $scheduled ) {
+			if ( wp_next_scheduled( self::EXPORT_ACTION_HOOK, $args ) ) {
+				$this->logger->log_message(
+					sprintf( 'WP-Cron CSV export already scheduled for report type: %s', $report_type ),
+					__METHOD__
+				);
+				return true;
+			}
+
 			$this->logger->log_error( 'Failed to schedule WP-Cron CSV export event', __METHOD__ );
 			return new \WP_Error(
 				'schedule_failed',

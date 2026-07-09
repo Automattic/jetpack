@@ -91,6 +91,52 @@ class WPCronExportScheduler_Test extends TestCase {
 		);
 	}
 
+	public function test_schedule_export_treats_duplicate_wp_cron_event_as_success() {
+		$args = array( 'from' => '2026-01-01T00:00:00' );
+
+		$this->assertTrue( $this->scheduler()->schedule_export( 'stats-top-posts', $args, 1, 'admin@example.com' ) );
+		$this->assertTrue( $this->scheduler()->schedule_export( 'stats-top-posts', $args, 1, 'admin@example.com' ) );
+
+		$this->assertIsInt(
+			wp_next_scheduled(
+				Wp_Cron_Export_Scheduler::EXPORT_ACTION_HOOK,
+				array(
+					'stats-top-posts',
+					$args,
+					1,
+					'admin@example.com',
+				)
+			)
+		);
+	}
+
+	public function test_schedule_export_preserves_wp_cron_error_details() {
+		$block_schedule = static function ( $pre, $event ) {
+			if ( Wp_Cron_Export_Scheduler::EXPORT_ACTION_HOOK === $event->hook ) {
+				return new \WP_Error( 'cron_blocked', 'Cron scheduling is blocked.' );
+			}
+
+			return $pre;
+		};
+
+		add_filter( 'pre_schedule_event', $block_schedule, 10, 2 );
+		try {
+			$result = $this->scheduler()->schedule_export(
+				'stats-top-posts',
+				array( 'from' => '2026-01-01T00:00:00' ),
+				1,
+				'admin@example.com'
+			);
+		} finally {
+			remove_filter( 'pre_schedule_event', $block_schedule, 10 );
+		}
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'cron_blocked', $result->get_error_code() );
+		$this->assertSame( 'Cron scheduling is blocked.', $result->get_error_message() );
+		$this->assertSame( array( 'status' => 500 ), $result->get_error_data() );
+	}
+
 	public function test_process_export_job_emails_attachment_and_restores_user() {
 		$email     = new Fake_Wp_Mail_Email();
 		$scheduler = $this->scheduler( null, $email );
