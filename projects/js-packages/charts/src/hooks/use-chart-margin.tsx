@@ -114,7 +114,14 @@ export const useChartMargin = (
 			options.axis?.y?.tickFormat,
 			yAxisStyles.axisLabel
 		);
-		const yMarginValue = ( yTickWidth ?? DEFAULT_Y_TICK_WIDTH ) + ( yAxisStyles?.tickLength ?? 0 );
+		// visx's default axis theme offsets y tick labels a further 0.25em away
+		// from the axis (dx: '∓0.25em'), so reserve that on top of the measured
+		// label width — without it the widest label clips at the svg edge.
+		const yLabelFontSize = resolveFontSize( yAxisStyles?.axisLabel?.fontSize ) || DEFAULT_FONT_SIZE;
+		const yMarginValue =
+			( yTickWidth ?? DEFAULT_Y_TICK_WIDTH ) +
+			( yAxisStyles?.tickLength ?? 0 ) +
+			Math.ceil( yLabelFontSize * 0.25 );
 
 		if ( yAxisOrientation === 'right' ) {
 			defaultMargin.right = yMarginValue;
