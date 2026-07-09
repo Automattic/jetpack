@@ -1,0 +1,136 @@
+@import "@wordpress/dataviews/build-style/style.css";
+
+.root {
+	padding: 0;
+	overflow: hidden;
+}
+
+/* DataViews defaults to a fixed-height wrapper for built-in layouts. This
+ * component uses DataViews only as a provider, so let the custom list size
+ * naturally inside the consumer's card. */
+.root :global(.dataviews-wrapper) {
+	height: auto;
+}
+
+.toolbar {
+	padding: 24px 24px 16px;
+}
+
+.list {
+	opacity: 1;
+	transition: opacity 0.16s ease-in-out;
+}
+
+.isLoading {
+	opacity: 0.5;
+}
+
+.header,
+.row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(88px, max-content);
+	column-gap: 24px;
+	align-items: center;
+	padding-inline: 24px;
+}
+
+.header {
+	padding-block: 0 8px;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 16px;
+	text-transform: uppercase;
+}
+
+.valueHeader,
+.value {
+	text-align: end;
+}
+
+.row {
+	position: relative;
+	min-block-size: 44px;
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+/* Group rows toggle their drill-down from anywhere on the line (see the
+ * stretched toggle button below), so give them hover feedback. */
+.row:has(.toggleButton):hover {
+	background: var(--wpds-color-background-interactive-neutral-weak);
+}
+
+.labelCell {
+	display: flex;
+	align-items: center;
+	min-inline-size: 0;
+	min-block-size: 32px;
+	overflow: hidden;
+}
+
+/* position: static keeps the stretched hit area below anchored to .row even
+ * if the component library gives buttons their own positioning context. */
+.row .toggleButton {
+	position: static;
+	flex: 0 0 auto;
+	margin-inline-start: 4px;
+}
+
+/* The whole row is the pointer target, so a focus ring on every click is
+ * noise - keep it for keyboard focus only. */
+.row .toggleButton:focus:not(:focus-visible) {
+	outline: none;
+	box-shadow: none;
+}
+
+/* Stretch the toggle's hit area over the whole group row: the button stays
+ * the accessible control (aria-expanded), the pseudo-element makes the full
+ * line clickable. */
+.row .toggleButton::after {
+	position: absolute;
+	inset: 0;
+	cursor: pointer;
+	content: "";
+}
+
+.labelText,
+.childLink {
+	min-inline-size: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.groupLabel {
+	font-weight: 500;
+}
+
+.childRow .labelCell {
+	padding-inline-start: 24px;
+}
+
+.childLink {
+	color: var(--wpds-color-foreground-interactive-brand);
+	text-decoration: none;
+}
+
+.childLink:hover,
+.childLink:focus {
+	text-decoration: underline;
+}
+
+.value {
+	font-variant-numeric: tabular-nums;
+}
+
+.empty {
+	padding: 24px;
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.pagination {
+	padding: 16px 24px 24px;
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+}
