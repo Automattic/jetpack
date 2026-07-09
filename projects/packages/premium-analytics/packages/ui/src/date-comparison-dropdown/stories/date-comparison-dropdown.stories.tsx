@@ -13,9 +13,7 @@ const meta: Meta< typeof DateComparisonDropdown > = {
 	parameters: {
 		docs: {
 			description: {
-				component:
-					'A dropdown component for selecting date comparison ranges. ' +
-					'Supports enabling/disabling comparison and selecting from preset comparison periods.',
+				component: 'Comparison period select with a dynamic trigger label and preset options.',
 			},
 		},
 	},
@@ -53,11 +51,10 @@ function DateComparisonDropdownWithState( {
 			enabled={ enabled }
 			presetId={ presetId }
 			removeCompareToPrefix={ removeCompareToPrefix }
-			onEnable={ () => {
+			onPresetChange={ id => {
 				setEnabled( true );
-				setPresetId( 'previous-period' );
+				setPresetId( id );
 			} }
-			onPresetChange={ setPresetId }
 			onClear={ () => {
 				setEnabled( false );
 				setPresetId( undefined );
@@ -74,8 +71,7 @@ export const Default: Story = {
 };
 
 /**
- * Comparison disabled - shows "No comparison" button.
- * Clicking opens a menu to enable comparison.
+ * Comparison disabled — select shows "No comparison".
  */
 export const Disabled: Story = {
 	render: () => <DateComparisonDropdownWithState initialEnabled={ false } />,
@@ -89,8 +85,8 @@ export const PreviousMonthSelected: Story = {
 };
 
 /**
- * Without the "Compare:" prefix - just shows the date range.
+ * With an external BaseControl label instead of the built-in select label.
  */
-export const WithoutPrefix: Story = {
+export const WithExternalLabel: Story = {
 	render: () => <DateComparisonDropdownWithState removeCompareToPrefix />,
 };
