@@ -95,8 +95,17 @@ class Subscribers_Announcement {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
-		return (bool) apply_filters( Settings::MODERNIZATION_FILTER, false );
+		/**
+		 * This filter is documented in projects/packages/newsletter/src/class-settings.php
+		 *
+		 * The default must match the menu-registration call sites
+		 * (subscriptions.php, wpcom-admin-menu.php) and Settings::is_modernized(),
+		 * which all default to `true`. If this defaults to `false` while the menu
+		 * is registered, maybe_load_wp_build() bails, the wp-build render function
+		 * is never defined, and add_menu() serves the bare render_fallback() page
+		 * instead of the styled announcement app.
+		 */
+		return (bool) apply_filters( Settings::MODERNIZATION_FILTER, true );
 	}
 
 	/**
