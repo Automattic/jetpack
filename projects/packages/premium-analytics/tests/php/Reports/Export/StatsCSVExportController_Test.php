@@ -93,7 +93,7 @@ class StatsCSVExportController_Test extends TestCase {
 	}
 
 	private function serve_response( \WP_REST_Response $response, WP_REST_Request $request ): bool {
-		$previous_request_method  = $_SERVER['REQUEST_METHOD'] ?? null;
+		$previous_request_method   = $_SERVER['REQUEST_METHOD'] ?? null;
 		$_SERVER['REQUEST_METHOD'] = 'POST';
 
 		try {
