@@ -1,0 +1,50 @@
+.root {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.metrics {
+	display: flex;
+	flex-flow: row wrap;
+	gap: var(--wpds-dimension-gap-2xl, 32px);
+	align-content: center;
+	flex: 1;
+}
+
+.metric {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	min-width: 0;
+}
+
+.metricLabel {
+	font-weight: var(--wpds-typography-font-weight-medium, 500);
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.metric .metricValue {
+	font-size: var(--wpds-typography-font-size-lg, 15px);
+}
+
+.placeholder {
+	margin: auto;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+}
+
+/* Narrow tiles: tighten the gap so three tiles fit without overflowing. */
+@container widget (max-width: 599px) {
+
+	.metrics {
+		gap: var(--wpds-dimension-gap-lg, 16px);
+	}
+}
+
+:global([inert]:not([inert="true"])) .root {
+	height: auto;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+}
