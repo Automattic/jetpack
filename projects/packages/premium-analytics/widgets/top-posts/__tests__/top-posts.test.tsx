@@ -354,6 +354,21 @@ describe( 'TopPostsWidget', () => {
 		).toBe( true );
 	} );
 
+	it( 'treats num=0 as "all rows" in the archives view', async () => {
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-10',
+			summary: {
+				search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '3' } ],
+				post_type: [ { value: 'post', href: 'https://example.com/type/post/', views: '2' } ],
+			},
+		} );
+
+		render( <TopPostsWidget attributes={ { num: 0, contentView: 'archives' } } /> );
+
+		await expect( screen.findByText( 'Searches' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Post types' ) ).toBeInTheDocument();
+	} );
+
 	it( 'drills down from grouped archive rows and back', async () => {
 		mockApiFetch.mockResolvedValue( {
 			date: '2026-06-10',

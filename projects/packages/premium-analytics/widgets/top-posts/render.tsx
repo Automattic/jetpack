@@ -8,11 +8,12 @@ import {
 	type StatsNormalizedReport,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
+import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	LeaderboardChart,
 	WidgetBackLink,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	calculateDelta,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -20,8 +21,8 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
-import { useCallback, useMemo } from 'react';
+import { Link, Text } from '@wordpress/ui';
+import { useCallback, useEffect, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -142,29 +143,15 @@ function buildLeaderboardData(
 
 type TopPostsLeaderboardProps = {
 	/**
-	 * Normalized top-posts rows to render. When omitted, the empty state is shown
-	 * (unless `isLoading` is set).
+	 * Normalized top-posts rows to render.
 	 */
 	rows?: TopPostRow[];
-	/**
-	 * When `true`, a loading overlay is rendered instead of data.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When `true`, an error message is rendered in place of the chart.
-	 */
-	isError?: boolean;
 	/**
 	 * When `true`, render the comparison (previous-period) delta next to each
 	 * value, using `previousValue` from each row. Mirrors the overlay
 	 * comparison mode of the toolkit's `LeaderboardChart`.
 	 */
 	withComparison?: boolean;
-	/**
-	 * Message rendered when `isError` is set. Defaults to the Posts & pages
-	 * copy; the Archives view passes its own.
-	 */
-	errorText?: string;
 	/**
 	 * Callback fired when a row with children is selected. Rows only become
 	 * interactive when this is provided.
@@ -173,44 +160,24 @@ type TopPostsLeaderboardProps = {
 };
 
 /**
- * Presentational leaderboard for the "Top posts & pages" widget. Renders the
- * most-viewed posts and pages for the period, each row linking to the
- * published content.
- *
- * Takes already-fetched rows via props and is responsible only for the
- * loading, error, empty, and populated states.
+ * Presentational leaderboard for the "Most viewed" widget. Renders
+ * already-fetched rows; loading, error, and empty states are owned by the
+ * `<WidgetState>` wrapper in the report components.
  *
  * @param {TopPostsLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
 export const TopPostsLeaderboard = ( {
 	rows = [],
-	isLoading = false,
-	isError = false,
 	withComparison = false,
-	errorText,
 	onDrillDown,
 }: TopPostsLeaderboardProps ) => {
-	if ( isError ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ errorText ?? __( 'Unable to load top posts.', 'jetpack-premium-analytics' ) }</Text>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && ( ! rows || rows.length === 0 ) ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
 		<LeaderboardChart
 			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
-			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
-			emptyStateText={ __( 'No views in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ DATA_FORMAT }
 		/>
 	);
@@ -231,7 +198,8 @@ function toTopPostRows(
 	const items = report?.data.flatMap( point => point.items ) ?? [];
 
 	return items.map( item => ( {
-		label: String( item.label ?? '' ),
+		// A row without a title still needs a visible, clickable label.
+		label: String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics' ),
 		value: item.views,
 		...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
 		type: String( item.type ?? '' ),
@@ -259,9 +227,8 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 	// date range is owned by the dashboard picker and carried in `reportParams`.
 	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsTopPosts( statsParams );
-	const showLoading = isLoading || ( isFetching && hasData );
 
 	const primaryRows = useMemo(
 		() => toTopPostRows( primary.data as StatsNormalizedReport< StatsTopPostsItem > ),
@@ -302,12 +269,25 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 
 	return (
 		<div className={ styles.content }>
-			<TopPostsLeaderboard
-				rows={ rows }
-				isLoading={ showLoading }
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
 				isError={ isError }
-				withComparison={ withComparison }
-			/>
+				isEmpty={ rows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load top posts. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: reports,
+					description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<TopPostsLeaderboard rows={ rows } withComparison={ withComparison } />
+			</WidgetState>
 		</div>
 	);
 }
@@ -421,7 +401,9 @@ function toArchiveRows(
 				: undefined;
 
 			return {
-				label: parentPath === '' ? archiveTypeLabel( rawLabel ) : rawLabel,
+				label:
+					( parentPath === '' ? archiveTypeLabel( rawLabel ) : rawLabel ) ||
+					__( 'Untitled', 'jetpack-premium-analytics' ),
 				value: item.value,
 				type: 'archive',
 				...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
@@ -450,9 +432,8 @@ function ArchivesReport( { num }: { num: number } ) {
 	const { reportParams } = useWidgetRootContext();
 	const { drillDownItem: drillPath, drillDown, resetDrillDown } = useWidgetDrillDown< string[] >();
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsArchives( reportParams );
-	const showLoading = isLoading || ( isFetching && hasData );
 
 	const primaryItems = useMemo(
 		() => getArchiveItems( primary.data as StatsNormalizedReport< StatsArchivesItem > ),
@@ -475,22 +456,28 @@ function ArchivesReport( { num }: { num: number } ) {
 		primaryItems.some( item => comparisonLookup.has( `>${ String( item.label ?? '' ) }` ) );
 
 	const rows = useMemo(
-		() => toArchiveRows( primaryItems, comparisonLookup, withComparison ).slice( 0, num ),
+		// `num = 0` means "all rows" (see AGENTS.md `max` semantics).
+		() =>
+			toArchiveRows( primaryItems, comparisonLookup, withComparison ).slice(
+				0,
+				num > 0 ? num : undefined
+			),
 		[ primaryItems, comparisonLookup, withComparison, num ]
 	);
 
-	// Resolve the drill path against the current rows; when a step no longer
-	// resolves (e.g. the date range changed), fall back to the deepest list
-	// that still exists. The back link names the list it returns to: the root
-	// list on the first drill level, otherwise the parent row's label.
-	const { activeRows, backLabel } = useMemo( () => {
+	// Resolve the drill path against the current rows. The back link names the
+	// list it returns to: the root list on the first drill level, otherwise the
+	// parent row's label.
+	const { activeRows, backLabel, isPathResolved } = useMemo( () => {
 		let list = rows;
 		let label: string | null = null;
 		let previousStep: string | null = null;
+		let resolved = true;
 
 		for ( const step of drillPath ?? [] ) {
 			const parent = list.find( row => row.label === step );
 			if ( ! parent?.children?.length ) {
+				resolved = false;
 				break;
 			}
 			label = previousStep ?? __( 'All Archives', 'jetpack-premium-analytics' );
@@ -498,8 +485,18 @@ function ArchivesReport( { num }: { num: number } ) {
 			previousStep = step;
 		}
 
-		return { activeRows: list, backLabel: label };
+		return { activeRows: list, backLabel: label, isPathResolved: resolved };
 	}, [ rows, drillPath ] );
+
+	// When the data no longer contains the drilled path (e.g. the date range
+	// changed and the archive type disappeared), drop the stale selection so
+	// the root list is fully interactive again. Skip while a fetch is in
+	// flight: placeholder/refreshing data must not wipe a valid selection.
+	useEffect( () => {
+		if ( drillPath && ! isPathResolved && ! isLoading && ! isFetching ) {
+			resetDrillDown();
+		}
+	}, [ drillPath, isPathResolved, isLoading, isFetching, resetDrillDown ] );
 
 	const handleDrillDown = useCallback(
 		( row: TopPostRow ) => {
@@ -529,14 +526,29 @@ function ArchivesReport( { num }: { num: number } ) {
 	return (
 		<div className={ styles.content }>
 			{ backLink }
-			<TopPostsLeaderboard
-				rows={ activeRows }
-				isLoading={ showLoading }
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
 				isError={ isError }
-				withComparison={ withComparison }
-				errorText={ __( 'Unable to load archives.', 'jetpack-premium-analytics' ) }
-				onDrillDown={ handleDrillDown }
-			/>
+				isEmpty={ activeRows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load archives. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: reports,
+					description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<TopPostsLeaderboard
+					rows={ activeRows }
+					withComparison={ withComparison }
+					onDrillDown={ handleDrillDown }
+				/>
+			</WidgetState>
 		</div>
 	);
 }
