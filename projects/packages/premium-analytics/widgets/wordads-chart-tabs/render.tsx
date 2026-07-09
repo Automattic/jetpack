@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
+import { megaphone } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
 	WidgetRoot,
-	useWidgetError,
+	WidgetState,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -22,7 +23,7 @@ type WordAdsChartTabsRenderAttributes = WordAdsChartTabsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type WordAdsChartTabsWidgetProps = WidgetRenderProps< WordAdsChartTabsRenderAttributes > & {
 	/**
-	 * Host callback to surface a widget error in the dashboard frame.
+	 * Host callback to surface a widget crash in the dashboard frame.
 	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
@@ -63,9 +64,10 @@ type WordAdsChartTabsInnerProps = {
 
 /**
  * WordAds chart inner component. Reads the dashboard date range + comparison
- * state from `useWidgetRootContext()` and hands the per-metric tabs
- * (Impressions, Revenue, Avg. CPM) to the shared `MetricTabsChart`. The "Group
- * by" control is the `granularity` attribute (`relevance: 'high'`), rendered by
+ * state from `useWidgetRootContext()` and hands the per-metric tabs (Ads
+ * Served, Average CPM, Revenue) to the shared `MetricTabsChart`, with the
+ * loading/error/empty states rendered through `WidgetState`. The "Group by"
+ * control is the `granularity` attribute (`relevance: 'high'`), rendered by
  * the widget host; it only chooses the bucket size within the dashboard range.
  *
  * @param {WordAdsChartTabsInnerProps} props - The component props.
@@ -80,21 +82,36 @@ function WordAdsChartTabsInner( { granularity }: WordAdsChartTabsInnerProps ) {
 	const period: WordAdsPeriod =
 		granularity === 'auto' ? defaultPeriodForInterval( reportParams.interval ) : granularity;
 
-	const { metrics, isFetching, isError, error, refetch } = useWordAdsChart( reportParams, period );
-
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null; // Dashboard shows error UI via WidgetErrorBoundary.
-	}
+	const { metrics, isLoading, isFetching, isError, isEmpty, refetch } = useWordAdsChart(
+		reportParams,
+		period
+	);
 
 	return (
 		<div className={ styles.root }>
-			<MetricTabsChart
-				metrics={ metrics }
-				dataFormat={ DATA_FORMAT }
-				loading={ isFetching }
-				groupLabel={ __( 'WordAds metric', 'jetpack-premium-analytics' ) }
-			/>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ isEmpty }
+				error={ {
+					description: __(
+						"We couldn't load WordAds data. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: megaphone,
+					description: __( 'No WordAds data in this period.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<MetricTabsChart
+					metrics={ metrics }
+					dataFormat={ DATA_FORMAT }
+					groupLabel={ __( 'WordAds metric', 'jetpack-premium-analytics' ) }
+				/>
+			</WidgetState>
 		</div>
 	);
 }

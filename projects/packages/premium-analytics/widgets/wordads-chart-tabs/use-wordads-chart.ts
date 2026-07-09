@@ -33,14 +33,17 @@ const CURRENCY_FORMAT: DataFormat = {
 
 /**
  * Normalized WordAds chart state: one metric tab per WordAds field plus the
- * combined load/error flags of the underlying request.
+ * load/error/empty signals `WidgetState` consumes.
  */
 export interface WordAdsChartState {
 	metrics: MetricTab[];
+	/** True on the first load, while there is no data to show yet. */
+	isLoading: boolean;
 	/** True while the request is fetching, including comparison refetches. */
 	isFetching: boolean;
 	isError: boolean;
-	error: Error | null | undefined;
+	/** True when the current period resolved without any rows. */
+	isEmpty: boolean;
 	refetch: () => void;
 }
 
@@ -121,14 +124,15 @@ function toWordAdsParams( reportParams: ReportParams, period: WordAdsPeriod ): S
 
 /**
  * Fetch the WordAds time series for the dashboard's report params and expose one
- * metric tab per WordAds field (impressions, revenue, average CPM). Impressions
- * is a count; revenue and CPM are currency. The endpoint returns all three
+ * metric tab per WordAds field — Ads Served (impressions), Average CPM, and
+ * Revenue, matching the Calypso WordAds page's tab labels and order. Ads Served
+ * is a count; CPM and revenue are currency. The endpoint returns all three
  * fields in a single request, so — unlike the traffic chart's split requests —
  * one `useStatsWordAdsStats` call drives every tab.
  *
  * @param reportParams - The dashboard date range + comparison state.
  * @param period       - The selected bucket granularity (day/week/month).
- * @return The metric tabs and combined load/error state.
+ * @return The metric tabs and combined load/error/empty state.
  */
 export default function useWordAdsChart(
 	reportParams: ReportParams,
@@ -137,7 +141,7 @@ export default function useWordAdsChart(
 	// Memoize the request params so the query key is stable across renders.
 	const params = useMemo( () => toWordAdsParams( reportParams, period ), [ reportParams, period ] );
 
-	const { primary, comparison, hasComparison, isFetching, isError, error, refetch } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsWordAdsStats( params );
 
 	const primaryData = primary.data as StatsWordAdsResponse | undefined;
@@ -150,7 +154,15 @@ export default function useWordAdsChart(
 				comparisonData,
 				hasComparison,
 				'impressions',
-				__( 'Impressions', 'jetpack-premium-analytics' )
+				__( 'Ads Served', 'jetpack-premium-analytics' )
+			),
+			toMetric(
+				primaryData,
+				comparisonData,
+				hasComparison,
+				'cpm',
+				__( 'Average CPM', 'jetpack-premium-analytics' ),
+				CURRENCY_FORMAT
 			),
 			toMetric(
 				primaryData,
@@ -160,23 +172,16 @@ export default function useWordAdsChart(
 				__( 'Revenue', 'jetpack-premium-analytics' ),
 				CURRENCY_FORMAT
 			),
-			toMetric(
-				primaryData,
-				comparisonData,
-				hasComparison,
-				'cpm',
-				__( 'Avg. CPM', 'jetpack-premium-analytics' ),
-				CURRENCY_FORMAT
-			),
 		],
 		[ primaryData, comparisonData, hasComparison ]
 	);
 
 	return {
 		metrics,
+		isLoading,
 		isFetching,
 		isError,
-		error,
+		isEmpty: primaryData !== undefined && ! primaryData.data?.length,
 		refetch,
 	};
 }

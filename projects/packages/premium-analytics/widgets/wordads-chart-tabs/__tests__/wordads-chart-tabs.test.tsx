@@ -48,7 +48,7 @@ describe( 'useWordAdsChart', () => {
 		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
 	} );
 
-	it( 'builds Impressions, Revenue, and Avg. CPM tabs from the summary totals', async () => {
+	it( 'builds Ads Served, Average CPM, and Revenue tabs from the summary totals', async () => {
 		const reportParams: ReportParams = {
 			from: '2026-05-01',
 			to: '2026-06-30',
@@ -59,17 +59,18 @@ describe( 'useWordAdsChart', () => {
 
 		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
+		// Upstream tab labels and order (the Calypso WordAds page's CHARTS array).
 		const metrics = result.current.metrics;
-		expect( metrics.map( metric => metric.key ) ).toEqual( [ 'impressions', 'revenue', 'cpm' ] );
+		expect( metrics.map( metric => metric.key ) ).toEqual( [ 'impressions', 'cpm', 'revenue' ] );
 		expect( metrics.map( metric => metric.label ) ).toEqual( [
-			'Impressions',
+			'Ads Served',
+			'Average CPM',
 			'Revenue',
-			'Avg. CPM',
 		] );
 		expect( metrics[ 0 ].value ).toBe( 2000 );
-		expect( metrics[ 1 ].value ).toBeCloseTo( 9.75 );
-		expect( metrics[ 2 ].value ).toBeCloseTo( 4.875 );
-		// Currency format only on revenue/CPM; impressions falls back to the chart default.
+		expect( metrics[ 1 ].value ).toBeCloseTo( 4.875 );
+		expect( metrics[ 2 ].value ).toBeCloseTo( 9.75 );
+		// Currency format only on CPM/revenue; impressions falls back to the chart default.
 		expect( metrics[ 0 ].dataFormat ).toBeUndefined();
 		expect( metrics[ 1 ].dataFormat?.type ).toBe( 'currency' );
 		expect( metrics[ 2 ].dataFormat?.type ).toBe( 'currency' );
@@ -77,6 +78,7 @@ describe( 'useWordAdsChart', () => {
 		expect( metrics[ 0 ].current ).toHaveLength( 2 );
 		expect( metrics[ 0 ].previous ).toBeUndefined();
 		expect( metrics[ 0 ].previousValue ).toBeUndefined();
+		expect( result.current.isEmpty ).toBe( false );
 	} );
 
 	it( 'requests the wordads/stats endpoint honouring the range and granularity', async () => {
@@ -94,6 +96,33 @@ describe( 'useWordAdsChart', () => {
 		expect( requestedPath ).toContain( 'wordads/stats' );
 		expect( requestedPath ).toContain( 'unit=month' );
 		expect( requestedPath ).toContain( 'date=2026-06-30' );
+		// The bucket count spans the range — not the legacy fixed 30.
+		expect( requestedPath ).toContain( 'quantity=2' );
+	} );
+
+	it( 'reports the empty state when the period resolves without rows', async () => {
+		mockApiFetch.mockResolvedValue( {
+			unit: 'month',
+			fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
+			data: [],
+		} );
+
+		const reportParams: ReportParams = {
+			from: '2026-05-01',
+			to: '2026-06-30',
+			interval: 'month',
+		};
+
+		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month' ), { wrapper } );
+
+		// Loading (no data yet) is not empty; resolved-with-no-rows is.
+		expect( result.current.isLoading ).toBe( true );
+		expect( result.current.isEmpty ).toBe( false );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+		expect( result.current.isEmpty ).toBe( true );
+		expect( result.current.metrics[ 0 ].current ).toHaveLength( 0 );
 	} );
 
 	it( 'maps previous-period totals when comparison params are present', async () => {
@@ -116,7 +145,8 @@ describe( 'useWordAdsChart', () => {
 
 		const metrics = result.current.metrics;
 		expect( metrics[ 0 ].previous ).toHaveLength( 1 );
-		expect( metrics[ 1 ].previousValue ).toBeCloseTo( 2 );
+		expect( metrics[ 1 ].previousValue ).toBeCloseTo( 4 );
+		expect( metrics[ 2 ].previousValue ).toBeCloseTo( 2 );
 
 		const requestedPaths = mockApiFetch.mock.calls.map(
 			( [ { path } ]: [ { path: string } ] ) => path

@@ -739,7 +739,7 @@ describe( 'Stats query factories', () => {
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'date' );
 	} );
 
-	it( 'builds WordAds stats query keys with Calypso endpoint params', () => {
+	it( 'builds WordAds stats query keys with the range translated to endpoint params', () => {
 		const query = statsWordAdsStatsQuery( {
 			from: '2026-05-01',
 			to: '2026-06-30',
@@ -756,7 +756,7 @@ describe( 'Stats query factories', () => {
 			{
 				unit: 'month',
 				date: '2026-06-30',
-				quantity: 30,
+				quantity: 2,
 			},
 			undefined,
 			'wordAdsStats',
@@ -767,18 +767,18 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	it( 'uses the WordAds yearly quantity default and preserves explicit quantity params', () => {
+	it( 'sets the WordAds quantity to the bucket count spanning the range', () => {
 		expect(
 			statsWordAdsStatsQuery( {
-				from: '2026-01-01',
-				to: '2026-12-31',
-				interval: 'year',
+				from: '2026-06-01',
+				to: '2026-06-07',
+				interval: 'day',
 			} ).queryKey
 		).toEqual(
 			expect.arrayContaining( [
 				expect.objectContaining( {
-					unit: 'year',
-					quantity: 10,
+					unit: 'day',
+					quantity: 7,
 				} ),
 			] )
 		);
@@ -797,6 +797,32 @@ describe( 'Stats query factories', () => {
 				} ),
 			] )
 		);
+	} );
+
+	it( 'clamps the WordAds window end to yesterday without shortening the window', () => {
+		// WordAds stats are computed nightly, so a range ending today must end at
+		// yesterday instead — with the bucket count still matching the range.
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
+
+		try {
+			expect(
+				statsWordAdsStatsQuery( {
+					from: '2026-06-09',
+					to: '2026-06-15',
+					interval: 'day',
+				} ).queryKey
+			).toEqual(
+				expect.arrayContaining( [
+					expect.objectContaining( {
+						unit: 'day',
+						date: '2026-06-14',
+						quantity: 7,
+					} ),
+				] )
+			);
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 
 	it( 'disables WordAds stats queries until a date is available', () => {

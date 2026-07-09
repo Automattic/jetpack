@@ -1,7 +1,17 @@
 /**
+ * External dependencies
+ */
+import { format, subDays } from 'date-fns';
+/**
  * Internal dependencies
  */
-import { reportParamsToStatsQueryParams, statsQueryParamsToApiParams } from '../utils/stats-params';
+import { localTZDate } from '../utils/date';
+import {
+	getPeriodsBetweenInclusive,
+	reportParamsToStatsQueryParams,
+	statsQueryParamsToApiParams,
+	type StatsPeriod,
+} from '../utils/stats-params';
 import {
 	statsProxyQuery,
 	type StatsReportParams,
@@ -22,11 +32,29 @@ export const statsWordAdsStatsQuery = (
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const apiParams = statsQueryParamsToApiParams( statsParams );
 	const unit = String( apiParams.period ?? 'day' );
-	const date = typeof apiParams.date === 'string' ? apiParams.date : undefined;
+	const { start_date: startDate, end_date: endDate } = statsParams;
+	// The endpoint is quantity-based (`unit` buckets ending at `date`), not
+	// `from`/`to`-based, so the dashboard range is translated here: the number
+	// of buckets spanning the range becomes `quantity` (the Calypso defaults
+	// remain the range-less fallback).
+	const defaultQuantity = unit === 'year' ? 10 : 30;
+	const quantity =
+		params.quantity ??
+		( startDate && endDate
+			? getPeriodsBetweenInclusive( unit as StatsPeriod, startDate, endDate )
+			: defaultQuantity );
+	const rangeEnd = typeof apiParams.date === 'string' ? apiParams.date : undefined;
+	// WordAds stats are computed nightly for the previous day (the Calypso
+	// WordAds page never shows the current day), so a window ending today would
+	// close on an empty bucket — clamp the window end to yesterday. `quantity`
+	// still reflects the requested range, so the window keeps its length and
+	// stays comparable with the dashboard's comparison window.
+	const yesterday = format( subDays( localTZDate(), 1 ), 'yyyy-MM-dd' );
+	const date = rangeEnd && rangeEnd > yesterday ? yesterday : rangeEnd;
 	const wordAdsParams: StatsProxyParams = {
 		unit,
 		...( date ? { date } : {} ),
-		quantity: params.quantity ?? ( unit === 'year' ? 10 : 30 ),
+		quantity,
 	};
 
 	return statsProxyQuery( {

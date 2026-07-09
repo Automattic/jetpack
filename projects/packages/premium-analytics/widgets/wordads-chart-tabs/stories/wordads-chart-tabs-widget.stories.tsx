@@ -1,14 +1,17 @@
 /**
  * Internal dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import WordAdsChartTabsRender from '../render';
 import widgetDefinition from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
@@ -31,6 +34,18 @@ function renderWordAdsChartTabs( { withComparison }: WordAdsChartTabsStoryContro
 	);
 }
 
+// Renders the widget on a preset distinct from the other stories. The query key
+// derives from the date range, so a unique preset gives the forced-state stories
+// their own cache entry and they hit the mock fresh instead of reading another
+// story's cached success from the shared query client.
+function renderWordAdsChartTabsOnPreset( preset: PresetType ) {
+	return (
+		<WordAdsChartTabsRender
+			attributes={ { reportParams: getDefaultQueryParams( false, preset ) } }
+		/>
+	);
+}
+
 // Close-up canvas so the chart fills the frame outside the dashboard grid.
 const withWidgetCanvas: Decorator = Story => (
 	<div style={ { width: '100%', height: '360px' } }>
@@ -49,7 +64,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'WordAds performance over the selected period as selectable metric tabs — Impressions, Revenue, and Avg. CPM — over a comparative line chart. Impressions is a count; revenue and CPM are currency. The date range and comparison come from the dashboard controls; the "Group by" control is the `granularity` attribute (`relevance: \'high\'`), exposed by the widget host, and chooses the bucket size within that range. When comparison is on the previous period is overlaid as a same-colour dashed line and each tab shows its period-over-period delta. Data comes from the `useStatsWordAdsStats` hook (the `wordads` proxy prefix); in Storybook it is served by `registerReportMocks`. Requires WordAds to be active on the site for live data.',
+					"WordAds performance over the selected period as selectable metric tabs — Ads Served, Average CPM, and Revenue, matching the Calypso WordAds page's tabs — over a comparative line chart. Ads Served is a count; CPM and revenue are currency (WordAds pays USD). The date range and comparison come from the dashboard controls; the \"Group by\" control is the `granularity` attribute (`relevance: 'high'`), exposed by the widget host, and chooses the bucket size within that range. WordAds stats are computed nightly, so a range ending today is clamped to end at yesterday. When comparison is on the previous period is overlaid as a same-colour dashed line and each tab shows its period-over-period delta. Data comes from the `useStatsWordAdsStats` hook (the `wordads` proxy prefix); in Storybook it is served by `registerReportMocks`. Requires WordAds to be active on the site for live data.",
 			},
 		},
 	},
@@ -75,6 +90,50 @@ export const WithComparison: Story = {
 	render: renderWordAdsChartTabs,
 	args: { withComparison: true },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderWordAdsChartTabsOnPreset( 'last-90-days' ),
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'wordads/stats', 'loading' );
+		return () => setReportMockState( 'wordads/stats', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderWordAdsChartTabsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'wordads/stats', 'error' );
+		return () => setReportMockState( 'wordads/stats', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state (the neutral megaphone
+ * glyph and "No WordAds data in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderWordAdsChartTabsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'wordads/stats', 'empty' );
+		return () => setReportMockState( 'wordads/stats', null );
+	},
 };
 
 interface WordAdsChartTabsDashboardStoryProps

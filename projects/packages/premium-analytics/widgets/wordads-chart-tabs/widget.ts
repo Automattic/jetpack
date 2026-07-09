@@ -28,17 +28,18 @@ export type WordAdsChartTabsAttributes = {
  * Widget type definition.
  *
  * Ported from the Jetpack Stats `wordads-chart-tabs` card in wp-calypso (the
- * chart above the WordAds page). Renders the selected period's ad impressions,
- * revenue, and average CPM as selectable metric tabs over a comparative line
- * chart. The date range and comparison state come from the dashboard via
- * `reportParams`; the `granularity` attribute (`relevance: 'high'`) chooses the
- * bucket size within that range. Requires WordAds to be active on the site.
+ * chart above the WordAds page). Renders the selected period's ads served,
+ * average CPM, and revenue as selectable metric tabs — the upstream page's tab
+ * labels and order — over a comparative line chart. The date range and
+ * comparison state come from the dashboard via `reportParams`; the
+ * `granularity` attribute (`relevance: 'high'`) chooses the bucket size within
+ * that range. Requires WordAds to be active on the site.
  */
 export default {
 	name: 'jpa/wordads-chart-tabs',
 	title: __( 'WordAds', 'jetpack-premium-analytics' ),
 	description: __(
-		'Compare ad impressions, revenue, and average CPM over the selected period, with the previous period overlaid for comparison.',
+		'Compare ads served, average CPM, and revenue over the selected period, with the previous period overlaid for comparison.',
 		'jetpack-premium-analytics'
 	),
 	icon: chartBar,
