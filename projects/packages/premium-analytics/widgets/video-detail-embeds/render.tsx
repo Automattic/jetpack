@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	useStatsSingleVideo,
-	reportParamsToStatsQueryParams,
-	type StatsSingleVideoPage,
-} from '@jetpack-premium-analytics/data';
+import { useStatsSingleVideo, type StatsSingleVideoPage } from '@jetpack-premium-analytics/data';
 import {
 	ChartEmptyState,
 	WidgetRoot,
@@ -13,7 +9,6 @@ import {
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
 import { Link, Stack } from '@wordpress/ui';
@@ -92,14 +87,9 @@ function VideoDetailEmbedsReport() {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toVideoId( reportParams.post_id );
 
-	const statsParams = useMemo(
-		() => reportParamsToStatsQueryParams( reportParams ),
-		[ reportParams ]
-	);
-
 	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo(
 		videoId,
-		statsParams
+		reportParams
 	);
 
 	let body;
