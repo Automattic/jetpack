@@ -20,11 +20,33 @@ class Fake_Generator extends Report_Csv_Generator {
 	 */
 	public $result = '/tmp/pa-fake-export.csv';
 
+	/**
+	 * Value stream_file() returns.
+	 *
+	 * @var bool
+	 */
+	public $stream_result = true;
+
+	/**
+	 * Recorded stream_file() calls.
+	 *
+	 * @var array[]
+	 */
+	public $streams = array();
+
 	public function generate( array $data, array $columns, callable $formatter, string $filename = '' ) { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing -- Test double.
 		return $this->result;
 	}
 
 	public function delete_file( string $file_path ): bool { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing -- Test double.
 		return true;
+	}
+
+	public function stream_file( string $file_path, string $filename = '' ): bool { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing -- Test double.
+		$this->streams[] = array(
+			'file_path' => $file_path,
+			'filename'  => $filename,
+		);
+		return $this->stream_result;
 	}
 }

@@ -164,4 +164,16 @@ interface Csv_Report_Controller_Interface extends Registrable_Interface {
 	 * @return array Additional parameters to include in data requests.
 	 */
 	public function get_additional_params(): array;
+
+	/**
+	 * Transform the per-period request parameters immediately before the data request.
+	 *
+	 * Runs once per fetched period, so comparison periods are mapped independently.
+	 * Lets a report reshape the generic from/to/interval range into the query
+	 * parameters its endpoint expects. Default is identity.
+	 *
+	 * @param array $params The per-period request parameters.
+	 * @return array The transformed parameters.
+	 */
+	public function prepare_request_params( array $params ): array;
 }

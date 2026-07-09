@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a WooCommerce-free server-side CSV export pipeline for Jetpack Stats reports, using WP-Cron for scheduled email delivery and wp_mail for the attachment.

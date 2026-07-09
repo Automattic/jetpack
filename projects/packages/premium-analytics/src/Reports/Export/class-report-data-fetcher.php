@@ -49,12 +49,30 @@ class Report_Data_Fetcher {
 	const MAX_ID_FILTER_COUNT = 300;
 
 	/**
+	 * WPCOM API prefix forwarded through the package proxy.
+	 *
+	 * @var string
+	 */
+	private $proxy_prefix;
+
+	/**
+	 * WPCOM API version segment forwarded through the package proxy.
+	 *
+	 * @var string
+	 */
+	private $proxy_version;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param Logger_Interface $logger The logger instance.
+	 * @param Logger_Interface $logger        The logger instance.
+	 * @param string           $proxy_prefix  Proxy prefix for the data source.
+	 * @param string           $proxy_version WPCOM API version segment.
 	 */
-	public function __construct( Logger_Interface $logger ) {
-		$this->logger = $logger;
+	public function __construct( Logger_Interface $logger, string $proxy_prefix = 'analytics', string $proxy_version = '2' ) {
+		$this->logger        = $logger;
+		$this->proxy_prefix  = $proxy_prefix;
+		$this->proxy_version = $proxy_version;
 	}
 
 	/**
@@ -275,6 +293,10 @@ class Report_Data_Fetcher {
 		array $params,
 		Csv_Report_Controller_Interface $controller
 	) {
+		// Let each report map the generic from/to range onto its endpoint's native
+		// request shape. This runs once per period so comparison ranges map independently.
+		$params = $controller->prepare_request_params( $params );
+
 		if ( method_exists( $controller, 'fetch_data' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- Optional hook, guarded by method_exists() above; not part of the interface.
 			return $controller->fetch_data( $endpoint, $params );
@@ -422,10 +444,15 @@ class Report_Data_Fetcher {
 	 * @return array|\WP_Error The response data or error.
 	 */
 	protected function make_proxy_request( string $endpoint, array $params ) {
-		// Re-pointed from WooCommerce Analytics' own /wc/v3/<slug>/proxy route to Premium
-		// Analytics' existing data proxy, which forwards the `analytics` prefix to the WPCOM
-		// analytics API (v2 base). The endpoint lives in the route path.
-		$proxy_route = sprintf( '/jetpack-premium-analytics/v1/proxy/v2/analytics/%s', $endpoint );
+		// Re-pointed from WooCommerce Analytics' own /wc/v3/<slug>/proxy route to
+		// Premium Analytics' existing data proxy. The prefix/version are configurable
+		// so this fetcher can serve both analytics (v2) and Jetpack Stats (v1.1) endpoints.
+		$proxy_route = sprintf(
+			'/jetpack-premium-analytics/v1/proxy/v%s/%s/%s',
+			$this->proxy_version,
+			$this->proxy_prefix,
+			$endpoint
+		);
 
 		// Remaining params are forwarded as query args. They must be set as query params (the
 		// proxy reads get_query_params()), not appended to the route string, or they would
@@ -461,6 +488,18 @@ class Report_Data_Fetcher {
 		if ( isset( $data['items'] ) && ! isset( $data['data'] ) ) {
 			$data['data'] = $data['items'];
 			unset( $data['items'] );
+		}
+
+		// Jetpack Stats list endpoints can return flat rows under `summary.<key>`
+		// instead of the analytics `data`/`items` shape. Surface the first list found
+		// under summary as the report rows.
+		if ( ! isset( $data['data'] ) && isset( $data['summary'] ) && is_array( $data['summary'] ) ) {
+			foreach ( $data['summary'] as $value ) {
+				if ( is_array( $value ) && ( array() === $value || array_keys( $value ) === range( 0, count( $value ) - 1 ) ) ) {
+					$data['data'] = $value;
+					break;
+				}
+			}
 		}
 
 		// Check if the response has error status (API returned error).

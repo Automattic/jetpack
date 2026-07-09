@@ -16,6 +16,8 @@ use ReflectionMethod;
 use WP_Error;
 
 require_once __DIR__ . '/fixtures/class-spy-logger.php';
+require_once __DIR__ . '/fixtures/class-fake-report-controller.php';
+require_once __DIR__ . '/fixtures/class-fetcher-spy-controller.php';
 
 /**
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Report_Data_Fetcher
@@ -110,5 +112,151 @@ class ReportDataFetcher_Test extends TestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'proxy_response_encode_failed', $result->get_error_code() );
+	}
+
+	public function test_fetch_prepares_params_adds_fields_and_uses_controller_fetch_data() {
+		$controller = new Fetcher_Spy_Controller( new Report_Registry() );
+
+		$result = $this->fetcher->fetch(
+			array(
+				'from'       => '2026-01-01T00:00:00',
+				'to'         => '2026-01-02T00:00:00',
+				'overridden' => 'request',
+			),
+			$controller
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'bucket' => 'A',
+					'count'  => 10,
+				),
+			),
+			$result['data']
+		);
+		$this->assertCount( 1, $controller->requests );
+		$this->assertSame( 'reports/fake-report', $controller->requests[0]['endpoint'] );
+		$this->assertTrue( $controller->requests[0]['params']['prepared'] );
+		$this->assertSame( 100, $controller->requests[0]['params']['max'] );
+		$this->assertSame( 'request', $controller->requests[0]['params']['overridden'] );
+		$this->assertSame( array( 'bucket', 'count' ), $controller->requests[0]['params']['fields'] );
+	}
+
+	public function test_fetch_retries_without_fields_when_endpoint_rejects_fields_param() {
+		$controller          = new Fetcher_Spy_Controller( new Report_Registry() );
+		$controller->results = array(
+			new WP_Error(
+				'rest_invalid_param',
+				'Invalid parameter(s): fields',
+				array(
+					'params' => array(
+						'fields' => 'fields is not one of the accepted values.',
+					),
+				)
+			),
+			array(
+				'data' => array(
+					array(
+						'bucket' => 'B',
+						'count'  => 3,
+					),
+				),
+			),
+		);
+
+		$result = $this->fetcher->fetch(
+			array(
+				'from' => '2026-01-01T00:00:00',
+				'to'   => '2026-01-02T00:00:00',
+			),
+			$controller
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'bucket' => 'B',
+					'count'  => 3,
+				),
+			),
+			$result['data']
+		);
+		$this->assertCount( 2, $controller->requests );
+		$this->assertArrayHasKey( 'fields', $controller->requests[0]['params'] );
+		$this->assertArrayNotHasKey( 'fields', $controller->requests[1]['params'] );
+	}
+
+	public function test_fetch_returns_error_when_comparison_params_are_missing() {
+		$controller = new Fetcher_Spy_Controller( new Report_Registry() );
+
+		$result = $this->fetcher->fetch(
+			array(
+				'from'         => '2026-01-01T00:00:00',
+				'compare_from' => '2025-01-01T00:00:00',
+				'compare_to'   => '2025-01-02T00:00:00',
+			),
+			$controller
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'missing_comparison_param', $result->get_error_code() );
+	}
+
+	public function test_make_proxy_request_uses_configured_stats_route_and_summary_rows() {
+		$fetcher = new class( new Spy_Logger(), 'stats', '1.1' ) extends Report_Data_Fetcher {
+			public function proxy( string $endpoint, array $params ) { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing -- Test exposure.
+				return $this->make_proxy_request( $endpoint, $params );
+			}
+		};
+
+		add_action(
+			'rest_api_init',
+			static function () {
+				register_rest_route(
+					'jetpack-premium-analytics/v1',
+					'/proxy/v1.1/stats/top-posts',
+					array(
+						'methods'             => 'GET',
+						'callback'            => static function ( \WP_REST_Request $request ) {
+							return rest_ensure_response(
+								array(
+									'summary' => array(
+										'posts' => array(
+											array(
+												'title' => 'Hello World',
+												'views' => 12,
+											),
+										),
+									),
+									'query'   => $request->get_query_params(),
+								)
+							);
+						},
+						'permission_callback' => '__return_true',
+					)
+				);
+			}
+		);
+		do_action( 'rest_api_init' );
+
+		$result = $fetcher->proxy(
+			'top-posts',
+			array(
+				'endpoint' => 'ignored',
+				'period'   => 'day',
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'title' => 'Hello World',
+					'views' => 12,
+				),
+			),
+			$result['data']
+		);
+		$this->assertSame( array( 'period' => 'day' ), $result['query'] );
 	}
 }

@@ -185,6 +185,20 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 	}
 
 	/**
+	 * Transform the per-period request parameters before the data request.
+	 *
+	 * Default is identity; WooCommerce Analytics reports use the generic from/to
+	 * range as-is. Reports whose endpoint expects a different parameter shape
+	 * can override this.
+	 *
+	 * @param array $params The per-period request parameters.
+	 * @return array The transformed parameters.
+	 */
+	public function prepare_request_params( array $params ): array {
+		return $params;
+	}
+
+	/**
 	 * Get the list of fields to request from the API.
 	 *
 	 * Override in subclasses to request only the fields needed for

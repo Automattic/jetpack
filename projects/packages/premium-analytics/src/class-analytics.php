@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Stats_Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
@@ -75,6 +76,10 @@ class Analytics {
 		// REST route hooks rest_api_init (is_admin() is false during REST requests). Self-gates on
 		// WooCommerce being active + Jetpack connected.
 		Export::configure();
+
+		// Jetpack Stats CSV report export pipeline (WOOA7S-1672). This is WooCommerce-free
+		// and uses WP-Cron/wp_mail for async email delivery.
+		Stats_Export::configure();
 
 		// Load the widget type registry: hydration routine, registry-time and
 		// runtime filters, and the registry accessors.
