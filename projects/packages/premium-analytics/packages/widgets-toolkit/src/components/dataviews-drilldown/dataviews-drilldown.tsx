@@ -9,8 +9,8 @@ import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
+import styles from './dataviews-drilldown.module.scss';
 import { processTreeRows } from './process-tree-rows';
-import styles from './tree-records-table.module.scss';
 import type { DataViewRenderFieldProps, Field, SupportedLayouts, View } from '@wordpress/dataviews';
 import type { ComponentType, ReactNode } from 'react';
 
@@ -49,7 +49,7 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	config?: { perPageSizes: number[] };
 } ) => ReturnType< typeof DataViews >;
 
-export interface TreeRecordsTableProps< Item > {
+export interface DataViewsDrilldownProps< Item > {
 	/** Flat rows: parents and children mixed; children carry a parent id. */
 	data: Item[];
 	/**
@@ -235,9 +235,9 @@ function createTreeFieldRender< Item >( options: TreeFieldRenderOptions< Item > 
  * @param props.searchLabel        - Accessible label for the search input.
  * @param props.empty              - Custom empty state.
  * @param props.perPageSizes       - Page size choices.
- * @return The tree records table.
+ * @return The DataViews drilldown.
  */
-export function TreeRecordsTable< Item >( {
+export function DataViewsDrilldown< Item >( {
 	data,
 	fields,
 	getItemId,
@@ -248,7 +248,7 @@ export function TreeRecordsTable< Item >( {
 	searchLabel,
 	empty,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
-}: TreeRecordsTableProps< Item > ) {
+}: DataViewsDrilldownProps< Item > ) {
 	const [ view, setView ] = useState< View >(
 		() =>
 			( {

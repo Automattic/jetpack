@@ -4,7 +4,7 @@
  * through verbatim, so the story loads it as a side effect instead.
  */
 import '@wordpress/dataviews/build-style/style.css';
-import { TreeRecordsTable } from '../tree-records-table';
+import { DataViewsDrilldown } from '../dataviews-drilldown';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { DataViewRenderFieldProps, Field } from '@wordpress/dataviews';
 
@@ -202,15 +202,15 @@ const multipleColumnsInitialView = {
 	},
 };
 
-const meta: Meta< typeof TreeRecordsTable< ReferrerRow > > = {
-	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/TreeRecordsTable',
-	component: TreeRecordsTable< ReferrerRow >,
+const meta: Meta< typeof DataViewsDrilldown< ReferrerRow > > = {
+	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/DataViewsDrilldown',
+	component: DataViewsDrilldown< ReferrerRow >,
 	tags: [ 'autodocs' ],
 };
 
 export default meta;
 
-type Story = StoryObj< typeof TreeRecordsTable< ReferrerRow > >;
+type Story = StoryObj< typeof DataViewsDrilldown< ReferrerRow > >;
 
 export const Default: Story = {
 	args: {

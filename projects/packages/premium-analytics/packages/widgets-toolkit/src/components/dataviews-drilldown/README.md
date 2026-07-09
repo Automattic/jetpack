@@ -1,16 +1,16 @@
-# TreeRecordsTable
+# DataViewsDrilldown
 
-`TreeRecordsTable` renders flat parent/child records in a controlled DataViews table. DataViews receives the already processed page slice, so parent rows can expand children while search, sorting, and pagination stay predictable.
+`DataViewsDrilldown` renders flat parent/child records in a controlled DataViews table. DataViews receives the already processed page slice, so parent rows can expand children while search, sorting, and pagination stay predictable.
 
 ```tsx
-import { TreeRecordsTable } from '@jetpack-premium-analytics/widgets-toolkit';
+import { DataViewsDrilldown } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const rows = [
 	{ id: 'search', label: 'Search engines', views: 625 },
 	{ id: 'google', parentId: 'search', label: 'Google', views: 485 },
 ];
 
-<TreeRecordsTable
+<DataViewsDrilldown
 	data={ rows }
 	fields={ fields }
 	getItemId={ item => item.id }
