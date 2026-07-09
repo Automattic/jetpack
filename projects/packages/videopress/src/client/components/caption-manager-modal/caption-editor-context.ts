@@ -9,11 +9,6 @@ import type { MutableRefObject } from 'react';
 
 export type CaptionEditorContextValue = {
 	/**
-	 * Latest preview playback time in seconds, so a cue added from within the
-	 * editor starts at the moment the viewer is watching.
-	 */
-	getCurrentTime: () => number;
-	/**
 	 * Client ID of a freshly inserted cue whose text field should grab focus
 	 * once it mounts, so adding a cue lands the caret in the caption text
 	 * rather than on the first toolbar button.
@@ -27,7 +22,6 @@ export type CaptionEditorContextValue = {
  * can't receive as props.
  */
 export const CaptionEditorContext = createContext< CaptionEditorContextValue >( {
-	getCurrentTime: () => 0,
 	pendingFocusClientIdRef: { current: null },
 } );
 

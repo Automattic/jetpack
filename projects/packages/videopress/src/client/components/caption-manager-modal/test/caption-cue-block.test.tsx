@@ -145,7 +145,6 @@ describe( 'CaptionCueEdit', () => {
 	const setup = ( attributes = {}, context: Partial< CaptionEditorContextValue > = {} ) => {
 		const setAttributes = jest.fn();
 		const contextValue: CaptionEditorContextValue = {
-			getCurrentTime: () => 0,
 			pendingFocusClientIdRef: { current: null },
 			...context,
 		};
@@ -264,15 +263,15 @@ describe( 'CaptionCueEdit', () => {
 		);
 	} );
 
-	it( 'inserts a cue below at the current playback time', async () => {
-		setup( {}, { getCurrentTime: () => 5 } );
+	it( 'inserts a cue below that starts at this cue’s end and reuses its duration', async () => {
+		setup( { startTime: '00:00:01.000', endTime: '00:00:04.000', text: 'Hello' } );
 
 		await userEvent.click( screen.getByLabelText( 'Add subtitle below' ) );
 
 		expect( mockInsertBlock ).toHaveBeenCalledWith(
 			{
 				name: CAPTION_CUE_BLOCK_NAME,
-				attributes: { startTime: '00:00:05.000', endTime: '00:00:07.000', text: '' },
+				attributes: { startTime: '00:00:04.000', endTime: '00:00:07.000', text: '' },
 			},
 			1,
 			undefined,

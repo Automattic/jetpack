@@ -173,13 +173,7 @@ function CaptionManagerModalInner( {
 	}, [] );
 
 	// Editor-wide bits the cue blocks can't receive as props; see caption-editor-context.ts.
-	const editorContext = useMemo(
-		() => ( {
-			getCurrentTime: () => playerRef.current?.getCurrentTime() ?? 0,
-			pendingFocusClientIdRef,
-		} ),
-		[]
-	);
+	const editorContext = useMemo( () => ( { pendingFocusClientIdRef } ), [] );
 
 	const { managedTracks, setManagedTracks, previewAspectRatio } = useVideoTracks( {
 		guid,

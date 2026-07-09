@@ -18,7 +18,7 @@ import {
 	parseTimestampToSeconds,
 } from '../../lib/video-tracks/cues';
 import { useCaptionEditorContext } from './caption-editor-context';
-import { createCueAtPlayhead, createCueBlock, DEFAULT_CUE_DURATION_SECONDS } from './track-helpers';
+import { createCueBlock, DEFAULT_CUE_DURATION_SECONDS } from './track-helpers';
 /**
  * Types
  */
@@ -51,7 +51,7 @@ const CaptionCueEdit = ( {
 	clientId,
 	setAttributes,
 }: CaptionCueEditProps ): ReactElement => {
-	const { getCurrentTime, pendingFocusClientIdRef } = useCaptionEditorContext();
+	const { pendingFocusClientIdRef } = useCaptionEditorContext();
 	const { insertBlock, moveBlocksDown, moveBlocksUp, removeBlock } =
 		useDispatch( blockEditorStore );
 	const { index, count, rootClientId } = useSelect(
@@ -208,7 +208,7 @@ const CaptionCueEdit = ( {
 				label={ __( 'Add subtitle below', 'jetpack-videopress-pkg' ) }
 				showTooltip
 				onClick={ () => {
-					const block = createCueAtPlayhead( getCurrentTime() );
+					const block = createAdjacentCue();
 					pendingFocusClientIdRef.current = block.clientId;
 					insertBlock( block, index + 1, rootClientId, false );
 				} }
