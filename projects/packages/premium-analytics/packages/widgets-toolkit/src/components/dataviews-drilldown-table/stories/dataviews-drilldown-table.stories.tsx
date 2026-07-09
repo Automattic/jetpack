@@ -4,7 +4,7 @@
  * through verbatim, so the story loads it as a side effect instead.
  */
 import '@wordpress/dataviews/build-style/style.css';
-import { DataViewsDrilldown } from '../dataviews-drilldown';
+import { DataViewsDrilldownTable } from '../dataviews-drilldown-table';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { DataViewRenderFieldProps, Field } from '@wordpress/dataviews';
 
@@ -202,15 +202,15 @@ const multipleColumnsInitialView = {
 	},
 };
 
-const meta: Meta< typeof DataViewsDrilldown< ReferrerRow > > = {
-	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/DataViewsDrilldown',
-	component: DataViewsDrilldown< ReferrerRow >,
+const meta: Meta< typeof DataViewsDrilldownTable< ReferrerRow > > = {
+	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/DataViewsDrilldownTable',
+	component: DataViewsDrilldownTable< ReferrerRow >,
 	tags: [ 'autodocs' ],
 };
 
 export default meta;
 
-type Story = StoryObj< typeof DataViewsDrilldown< ReferrerRow > >;
+type Story = StoryObj< typeof DataViewsDrilldownTable< ReferrerRow > >;
 
 export const Default: Story = {
 	args: {

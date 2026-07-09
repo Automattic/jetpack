@@ -9,7 +9,7 @@ import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './dataviews-drilldown.module.scss';
+import styles from './dataviews-drilldown-table.module.scss';
 import { processTreeRows } from './process-tree-rows';
 import type { DataViewRenderFieldProps, Field, SupportedLayouts, View } from '@wordpress/dataviews';
 import type { ComponentType, ReactNode } from 'react';
@@ -49,7 +49,7 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	config?: { perPageSizes: number[] };
 } ) => ReturnType< typeof DataViews >;
 
-export interface DataViewsDrilldownProps< Item > {
+export interface DataViewsDrilldownTableProps< Item > {
 	/** Flat rows: parents and children mixed; children carry a parent id. */
 	data: Item[];
 	/**
@@ -237,7 +237,7 @@ function createTreeFieldRender< Item >( options: TreeFieldRenderOptions< Item > 
  * @param props.perPageSizes       - Page size choices.
  * @return The DataViews drilldown.
  */
-export function DataViewsDrilldown< Item >( {
+export function DataViewsDrilldownTable< Item >( {
 	data,
 	fields,
 	getItemId,
@@ -248,7 +248,7 @@ export function DataViewsDrilldown< Item >( {
 	searchLabel,
 	empty,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
-}: DataViewsDrilldownProps< Item > ) {
+}: DataViewsDrilldownTableProps< Item > ) {
 	const [ view, setView ] = useState< View >(
 		() =>
 			( {

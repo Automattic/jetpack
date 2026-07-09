@@ -28,10 +28,10 @@ export {
 	type LeaderboardLabelProps,
 } from './chart-leaderboard';
 export {
-	DataViewsDrilldown,
-	type DataViewsDrilldownProps,
+	DataViewsDrilldownTable,
+	type DataViewsDrilldownTableProps,
 	processTreeRows,
-} from './dataviews-drilldown';
+} from './dataviews-drilldown-table';
 export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';
