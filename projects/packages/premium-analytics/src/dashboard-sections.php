@@ -13,6 +13,11 @@ require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
 
 /**
+ * Filter through which WooCommerce section availability is resolved.
+ */
+const WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_woocommerce_dashboard_section_available';
+
+/**
  * Registers a dashboard section.
  *
  * @param string $dashboard_name Dashboard identifier.
@@ -46,6 +51,86 @@ function get_available_dashboard_sections( $dashboard_name ) {
 }
 
 /**
+ * Whether the WooCommerce dashboard section should be exposed.
+ *
+ * @return bool True when WooCommerce is active.
+ */
+function is_woocommerce_dashboard_section_available() {
+	$is_available = class_exists( 'WooCommerce' ) || function_exists( 'WC' );
+
+	/**
+	 * Filters whether the WooCommerce dashboard section is available.
+	 *
+	 * @param bool $is_available Whether WooCommerce was detected in the current request.
+	 */
+	return (bool) apply_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
+}
+
+/**
+ * Returns the default widget layout for the WooCommerce dashboard section.
+ *
+ * @return array Array of widget instances.
+ */
+function get_woocommerce_dashboard_section_default_layout() {
+	return array(
+		array(
+			'uuid'      => 'default-woocommerce-net-sales-over-time-widget-instance',
+			'type'      => 'jpa/net-sales-over-time',
+			'placement' => array(
+				'width'  => 1,
+				'height' => 1,
+				'order'  => 0,
+			),
+		),
+		array(
+			'uuid'      => 'default-woocommerce-gross-sales-over-time-widget-instance',
+			'type'      => 'jpa/gross-sales-over-time',
+			'placement' => array(
+				'width'  => 1,
+				'height' => 1,
+				'order'  => 1,
+			),
+		),
+		array(
+			'uuid'      => 'default-woocommerce-average-order-value-widget-instance',
+			'type'      => 'jpa/average-order-value',
+			'placement' => array(
+				'width'  => 1,
+				'height' => 1,
+				'order'  => 2,
+			),
+		),
+		array(
+			'uuid'      => 'default-woocommerce-orders-over-time-widget-instance',
+			'type'      => 'jpa/orders-over-time',
+			'placement' => array(
+				'width'  => 1,
+				'height' => 1,
+				'order'  => 3,
+			),
+		),
+		array(
+			'uuid'      => 'default-woocommerce-average-items-per-order-widget-instance',
+			'type'      => 'jpa/average-items-per-order',
+			'placement' => array(
+				'width'  => 1,
+				'height' => 1,
+				'order'  => 4,
+			),
+		),
+		array(
+			'uuid'      => 'default-woocommerce-top-performing-products-widget-instance',
+			'type'      => 'jpa/top-performing-products',
+			'placement' => array(
+				'width'  => 1,
+				'height' => 1,
+				'order'  => 5,
+			),
+		),
+	);
+}
+
+/**
  * Registers the default Premium Analytics dashboard sections.
  *
  * @return void
@@ -68,6 +153,12 @@ function register_default_dashboard_sections() {
 		'analytics/subscribers' => array(
 			'label' => __( 'Subscribers', 'jetpack-premium-analytics' ),
 			'order' => 30,
+		),
+		'woocommerce/store'     => array(
+			'label'          => __( 'WooCommerce', 'jetpack-premium-analytics' ),
+			'order'          => 40,
+			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available',
+			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
 		),
 	);
 
