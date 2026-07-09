@@ -24,6 +24,7 @@ const PrimaryLink = props => {
 	// The success-screen CTAs only navigate the current tab. Using onClick keeps
 	// a native @wordpress/ui <button> (so its styles render untouched) rather
 	// than rendering it as an anchor.
+	// TODO: replace these onClick navigations with @wordpress/ui `LinkButton` once it ships (Gutenberg #77098).
 	const navigateTo = url => () => {
 		window.location.href = url;
 	};

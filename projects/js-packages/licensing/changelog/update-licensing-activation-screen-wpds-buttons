@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Activation screen: migrate the license activation buttons and support links to @wordpress/ui primitives.
+Activation screen: migrate the buttons, form controls, error notice, and support links to @wordpress/ui primitives.

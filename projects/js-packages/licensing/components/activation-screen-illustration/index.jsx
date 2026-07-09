@@ -30,7 +30,6 @@ const ActivationScreenIllustration = props => {
 								<Link
 									openInNewTab
 									href={ getRedirectUrl( 'jetpack-support-license-activation' ) }
-									rel="noopener noreferrer"
 									children={ null }
 								/>
 							),
