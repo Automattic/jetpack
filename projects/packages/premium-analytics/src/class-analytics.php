@@ -32,6 +32,13 @@ class Analytics {
 	private static $initialized = false;
 
 	/**
+	 * Whether the dashboard sections preload middleware has been enqueued.
+	 *
+	 * @var bool
+	 */
+	private static $dashboard_sections_preload_enqueued = false;
+
+	/**
 	 * Menu title for the admin page.
 	 *
 	 * @var string
@@ -130,7 +137,10 @@ class Analytics {
 		// Remove the standalone Jetpack "Stats" menu so Premium Analytics takes its
 		// place. Runs after Stats registers itself (admin_menu priority 999).
 		add_action( 'admin_menu', array( static::class, 'remove_stats_menu' ), 1001 );
+		add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_dashboard_sections_preload' ), 20 );
 		add_filter( 'jetpack_admin_js_script_data', array( static::class, 'inject_script_data' ), 20 );
+		add_action( 'jetpack-premium-analytics_init', array( static::class, 'enqueue_dashboard_sections_preload' ) );
+		add_action( 'jetpack-premium-analytics-wp-admin_init', array( static::class, 'enqueue_dashboard_sections_preload' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
 	}
@@ -240,6 +250,52 @@ class Analytics {
 	}
 
 	/**
+	 * REST preload data for the dashboard sections endpoint.
+	 *
+	 * @return array Preload map suitable for apiFetch.createPreloadingMiddleware().
+	 */
+	public static function get_dashboard_sections_preload_data() {
+		return self::normalize_preload_paths(
+			array_reduce(
+				self::get_dashboard_sections_preload_paths(),
+				'rest_preload_api_request',
+				array()
+			)
+		);
+	}
+
+	/**
+	 * Register the dashboard sections preload directly with apiFetch.
+	 *
+	 * This mirrors wp-build's own page preload path and prevents the route from
+	 * issuing a browser fetch even if route content reads sections before the app
+	 * init module registers the script-data preload fallback.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_dashboard_sections_preload() {
+		if ( self::$dashboard_sections_preload_enqueued || ! self::is_dashboard_request() ) {
+			return;
+		}
+
+		$preload = self::get_dashboard_sections_preload_data();
+		if ( empty( $preload ) ) {
+			return;
+		}
+
+		wp_add_inline_script(
+			'wp-api-fetch',
+			sprintf(
+				'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( %s ) );',
+				wp_json_encode( $preload, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+			),
+			'after'
+		);
+
+		self::$dashboard_sections_preload_enqueued = true;
+	}
+
+	/**
 	 * Add Premium Analytics bootstrap data to JetpackScriptData.
 	 *
 	 * The sections endpoint is provided as an apiFetch preload so the dashboard
@@ -262,13 +318,7 @@ class Analytics {
 			$data['premium_analytics'] = array();
 		}
 
-		$preload = self::normalize_preload_paths(
-			array_reduce(
-				self::get_dashboard_sections_preload_paths(),
-				'rest_preload_api_request',
-				array()
-			)
-		);
+		$preload = self::get_dashboard_sections_preload_data();
 
 		$existing_preload = isset( $data['premium_analytics']['preload'] ) && is_array( $data['premium_analytics']['preload'] )
 			? $data['premium_analytics']['preload']
