@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Migrate SEO dashboard buttons from @wordpress/components to @wordpress/ui (Button/IconButton).
