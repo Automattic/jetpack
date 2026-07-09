@@ -80,6 +80,13 @@ const ActivationScreen = props => {
 		}
 	}, [ availableLicenses ] );
 
+	const onLicenseChange = useCallback( newLicense => {
+		setLicense( newLicense );
+		// Changing the license (via the select or the manual input) invalidates
+		// any prior activation error, so clear the stale notice.
+		setLicenseError( null );
+	}, [] );
+
 	const activateLicense = useCallback( () => {
 		if ( isSaving ) {
 			return Promise.resolve();
@@ -135,7 +142,7 @@ const ActivationScreen = props => {
 				isActivating={ isSaving }
 				license={ license }
 				licenseError={ licenseError }
-				onLicenseChange={ setLicense }
+				onLicenseChange={ onLicenseChange }
 				siteUrl={ siteRawUrl }
 			/>
 			<ActivationScreenIllustration imageUrl={ lockImage } showSupportLink />
