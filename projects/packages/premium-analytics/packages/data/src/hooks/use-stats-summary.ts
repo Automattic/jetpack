@@ -12,7 +12,7 @@ export function useStatsSummary( params: StatsSummaryParams, options?: UseStatsO
 	return useStatsReport< StatsSummaryParams, StatsSummaryResponse >(
 		statsSummaryQuery,
 		params,
-		[ 'stats', 'summary', '__comparison__', 'disabled' ],
+		'summary',
 		options
 	);
 }
