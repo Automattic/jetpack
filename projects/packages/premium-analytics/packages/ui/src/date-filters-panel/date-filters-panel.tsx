@@ -16,6 +16,7 @@ import { useMemo, useCallback, useState } from 'react';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateRangeFilter } from '../date-range-filter';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
+import './date-filters-panel.scss';
 
 type DateRangeFilterProps = Parameters< typeof DateRangeFilter >[ 0 ];
 
@@ -191,8 +192,9 @@ export function DateFiltersPanel( {
 	}, [ onComparisonChange ] );
 
 	return (
-		<Stack gap="sm" wrap="wrap">
+		<Stack className="date-filters-panel" direction="row" gap="sm" wrap="wrap" align="center">
 			<BaseControl
+				className="date-filters-panel__primary"
 				label={ rangeControlProps.label }
 				id="date-range-popover-button"
 				help={ rangeControlProps.help }
@@ -213,6 +215,7 @@ export function DateFiltersPanel( {
 			</BaseControl>
 
 			<BaseControl
+				className="date-filters-panel__comparison"
 				label={ comparisonControlProps.label }
 				id="date-comparison-dropdown-button"
 				help={ comparisonControlProps.help }
