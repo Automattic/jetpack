@@ -192,7 +192,11 @@ class Stats_Csv_Export_Controller extends WP_REST_Controller implements Registra
 		if ( ! is_string( $value ) || ! $this->registry->is_registered( $value ) ) {
 			return new WP_Error(
 				'invalid_report_type',
-				__( 'Invalid report type.', 'jetpack-premium-analytics' ),
+				sprintf(
+					/* translators: %s: Report type */
+					__( 'Invalid report type: %s', 'jetpack-premium-analytics' ),
+					is_string( $value ) ? $value : wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+				),
 				array( 'status' => 400 )
 			);
 		}

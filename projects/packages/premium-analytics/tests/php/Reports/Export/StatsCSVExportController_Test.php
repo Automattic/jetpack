@@ -113,8 +113,11 @@ class StatsCSVExportController_Test extends TestCase {
 		$error = $this->controller->validate_report_type( 'nope' );
 		$this->assertInstanceOf( \WP_Error::class, $error );
 		$this->assertSame( 'invalid_report_type', $error->get_error_code() );
+		$this->assertSame( 'Invalid report type: nope', $error->get_error_message() );
 
-		$this->assertInstanceOf( \WP_Error::class, $this->controller->validate_report_type( array( 'x' ) ) );
+		$error = $this->controller->validate_report_type( array( 'x' ) );
+		$this->assertInstanceOf( \WP_Error::class, $error );
+		$this->assertSame( 'Invalid report type: ["x"]', $error->get_error_message() );
 	}
 
 	public function test_check_permission_allows_view_stats_capability() {
