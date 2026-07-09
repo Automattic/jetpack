@@ -85,6 +85,11 @@ describe( 'VideoPressWidget', () => {
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ]?.[ 0 ]?.path ?? '';
 		expect( requestedPath ).toContain( 'stats/video-plays' );
+		// The query factory derives the Stats date params from `reportParams`:
+		// `to` becomes the end `date` and the inclusive range length becomes `days`.
+		expect( requestedPath ).toContain( 'start_date=2026-03-01' );
+		expect( requestedPath ).toContain( 'date=2026-03-10' );
+		expect( requestedPath ).toContain( 'days=10' );
 	} );
 
 	it( 'shows the empty state when the period has no video plays', async () => {
