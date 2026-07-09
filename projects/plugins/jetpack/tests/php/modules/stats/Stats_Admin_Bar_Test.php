@@ -30,7 +30,7 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 		);
 		wp_set_current_user( $user_id );
 
-		add_action( 'wp_before_admin_bar_render', 'stats_add_link_to_admin_bar_site_menu' );
+		add_action( 'admin_bar_menu', 'stats_add_link_to_admin_bar_site_menu', 40 );
 	}
 
 	/**
@@ -38,9 +38,9 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		self::reset_admin_bar_global();
-		remove_action( 'wp_before_admin_bar_render', 'stats_add_link_to_admin_bar_site_menu' );
+		remove_action( 'admin_bar_menu', 'stats_add_link_to_admin_bar_site_menu', 40 );
 		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-		remove_role( 'jetpack_no_stats' );
+		remove_filter( 'user_has_cap', array( $this, 'deny_view_stats' ) );
 		Constants::clear_constants();
 		Status_Cache::clear();
 		wp_set_current_user( 0 );
@@ -60,13 +60,37 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that the Stats link is added when the user can view Stats.
+	 * Forces current_user_can( 'view_stats' ) to false for the test.
+	 *
+	 * @param array $allcaps All capabilities of the user.
+	 * @return array
 	 */
-	public function test_stats_link_shown_when_user_can_view_stats() {
-		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-		$admin_bar = self::make_test_admin_bar_with_dashboard();
+	public function deny_view_stats( $allcaps ) {
+		$allcaps['view_stats'] = false;
+		return $allcaps;
+	}
 
-		do_action( 'wp_before_admin_bar_render' );
+	/**
+	 * Tests that the Stats link is added when core's Dashboard node is present.
+	 */
+	public function test_stats_link_shown_when_dashboard_node_present() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'dashboard' );
+
+		$stats_node = $admin_bar->get_node( 'jetpack-stats' );
+
+		$this->assertNotNull( $stats_node );
+		$this->assertSame( 'site-name', $stats_node->parent );
+		$this->assertSame( 'Stats', $stats_node->title );
+		$this->assertSame( admin_url( 'admin.php?page=stats' ), $stats_node->href );
+	}
+
+	/**
+	 * Tests that the Stats link is added when core's View Site node is present.
+	 */
+	public function test_stats_link_shown_when_view_site_node_present() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'view-site' );
 
 		$stats_node = $admin_bar->get_node( 'jetpack-stats' );
 
@@ -80,32 +104,22 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 	 * Tests that the Stats link is hidden when the user cannot view Stats.
 	 */
 	public function test_stats_link_hidden_when_user_cannot_view_stats() {
-		add_role( 'jetpack_no_stats', 'No Stats', array( 'read' => true ) );
-		$user_id = self::factory()->user->create(
-			array(
-				'role' => 'jetpack_no_stats',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		$admin_bar = self::make_test_admin_bar_with_dashboard();
-
-		do_action( 'wp_before_admin_bar_render' );
+		add_filter( 'user_has_cap', array( $this, 'deny_view_stats' ) );
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'dashboard' );
 
 		$stats_node = $admin_bar->get_node( 'jetpack-stats' );
 
-		$this->assertFalse( current_user_can( 'view_stats' ) );
 		$this->assertNull( $stats_node );
 	}
 
 	/**
-	 * Tests that the Stats link is hidden when core's Dashboard node is absent.
+	 * Tests that the Stats link is hidden when core's Dashboard and View Site nodes are absent.
 	 */
-	public function test_stats_link_hidden_when_dashboard_node_absent() {
+	public function test_stats_link_hidden_when_dashboard_and_view_site_nodes_absent() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		$admin_bar = self::make_test_admin_bar();
 
-		do_action( 'wp_before_admin_bar_render' );
+		do_action( 'admin_bar_menu', $admin_bar );
 
 		$stats_node = $admin_bar->get_node( 'jetpack-stats' );
 
@@ -118,9 +132,7 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 	public function test_stats_link_hidden_on_wpcom_platform() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		Constants::set_constant( 'IS_WPCOM', true );
-		$admin_bar = self::make_test_admin_bar_with_dashboard();
-
-		do_action( 'wp_before_admin_bar_render' );
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'dashboard' );
 
 		$stats_node = $admin_bar->get_node( 'jetpack-stats' );
 
@@ -148,20 +160,23 @@ class Stats_Admin_Bar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Builds a test admin bar with core's site-name and dashboard nodes.
+	 * Builds a test admin bar with core's site-name node and a child node.
 	 *
+	 * @param string $site_name_child Child node ID.
 	 * @return WP_Admin_Bar
 	 */
-	private static function make_test_admin_bar_with_dashboard() {
+	private static function make_test_admin_bar_with_site_name( $site_name_child ) {
 		$admin_bar = self::make_test_admin_bar();
 		$admin_bar->add_node(
 			array(
 				'parent' => 'site-name',
-				'id'     => 'dashboard',
-				'title'  => 'Dashboard',
+				'id'     => $site_name_child,
+				'title'  => ucfirst( $site_name_child ),
 				'href'   => admin_url(),
 			)
 		);
+
+		do_action( 'admin_bar_menu', $admin_bar );
 
 		return $admin_bar;
 	}
