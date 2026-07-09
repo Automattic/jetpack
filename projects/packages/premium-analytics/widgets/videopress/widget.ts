@@ -6,6 +6,11 @@ import { video } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
+ * Default number of videos shown when the `max` attribute is unset or invalid.
+ */
+export const DEFAULT_MAX = 7;
+
+/**
  * Configurable attributes for the VideoPress widget. Mirrors the `attributes`
  * declared on the widget definition below; the host passes the selected values
  * through to `render.tsx`.
@@ -35,7 +40,7 @@ export default {
 	] as WidgetAttributeField< VideoPressAttributes >[],
 	example: {
 		attributes: {
-			max: 7,
+			max: DEFAULT_MAX,
 		},
 	},
 };

@@ -8,6 +8,7 @@ import {
 	WidgetState,
 	calculateDelta,
 	formatLegendLabels,
+	toMaxRows,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -21,11 +22,9 @@ import { useMemo } from 'react';
  */
 import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
 import styles from './style.module.css';
-import type { VideoPressAttributes } from './widget';
+import { DEFAULT_MAX, type VideoPressAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
-
-const DEFAULT_MAX = 7;
 
 // The dashboard injects its date range and comparison state through
 // `reportParams`; the widget's own settings come from `VideoPressAttributes`.
@@ -36,15 +35,6 @@ type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
 	 * Dashboard error handler.
 	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
-
-// Resolve the `max` attribute to the row count requested from Stats. Per the
-// Stats widget contract `max = 0` means "all rows", so it passes through; only
-// negative or non-numeric values fall back to the default.
-const toMaxRows = ( value: string | number | undefined, fallback: number ) => {
-	const parsed = typeof value === 'number' ? value : Number.parseInt( value ?? '', 10 );
-
-	return Number.isFinite( parsed ) && parsed >= 0 ? parsed : fallback;
 };
 
 /**
