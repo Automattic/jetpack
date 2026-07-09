@@ -67,12 +67,15 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-/* Wide widths: lay the tiles out three across with the value stacked below the
- * icon and label. */
+/* Wide widths: lay every tile out in a single equal-width row (matching
+ * upstream's single-row highlight cards) with the value stacked below the icon
+ * and label. Auto-flow columns adapt to the tile count so the Opens view's four
+ * tiles and the Clicks view's three both stay on one row. */
 @container (min-width: 640px) {
 
 	.grid {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-auto-flow: column;
+		grid-auto-columns: minmax(0, 1fr);
 	}
 
 	.tile {
