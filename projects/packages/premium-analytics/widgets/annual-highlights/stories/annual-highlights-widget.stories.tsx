@@ -13,10 +13,7 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AnnualHighlightsRender from '../render';
-import widgetDefinition, {
-	DEFAULT_ANNUAL_HIGHLIGHT_METRICS,
-	type AnnualHighlightMetric,
-} from '../widget';
+import widgetDefinition, { DEFAULT_HIGHLIGHT_METRICS, type AnnualHighlightMetric } from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -70,7 +67,7 @@ function renderAnnualHighlights( { withComparison, metrics }: AnnualHighlightsSt
 	);
 }
 
-const METRIC_OPTIONS = DEFAULT_ANNUAL_HIGHLIGHT_METRICS.map( metric => ( {
+const METRIC_OPTIONS = DEFAULT_HIGHLIGHT_METRICS.map( metric => ( {
 	value: metric,
 	label: metric.charAt( 0 ).toUpperCase() + metric.slice( 1 ),
 } ) );
@@ -83,7 +80,7 @@ const METRIC_ARG_TYPES = {
 } as const;
 
 const ALL_METRICS_ARGS = {
-	metrics: DEFAULT_ANNUAL_HIGHLIGHT_METRICS,
+	metrics: DEFAULT_HIGHLIGHT_METRICS,
 } as const;
 
 // Close-up canvas so the grid fills the frame outside the dashboard grid.

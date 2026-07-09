@@ -21,11 +21,7 @@ import { useCallback, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import {
-	DEFAULT_ANNUAL_HIGHLIGHT_METRICS,
-	type AnnualHighlightMetric,
-	type AnnualHighlightsAttributes,
-} from './widget';
+import { type AnnualHighlightMetric, type AnnualHighlightsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // The insights endpoint is not period-scoped, so the widget ignores the
@@ -216,7 +212,7 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 export default function AnnualHighlights( { attributes = {} }: AnnualHighlightsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<AnnualHighlightsReport metrics={ attributes.metrics ?? DEFAULT_ANNUAL_HIGHLIGHT_METRICS } />
+			<AnnualHighlightsReport metrics={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }

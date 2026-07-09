@@ -26,15 +26,11 @@ export type AnnualHighlightsAttributes = {
 	metrics?: AnnualHighlightMetric[];
 };
 
-export const ANNUAL_HIGHLIGHT_METRICS: AnnualHighlightMetric[] = [
+export const DEFAULT_HIGHLIGHT_METRICS: AnnualHighlightMetric[] = [
 	'posts',
 	'words',
 	'likes',
 	'comments',
-];
-
-export const DEFAULT_ANNUAL_HIGHLIGHT_METRICS: AnnualHighlightMetric[] = [
-	...ANNUAL_HIGHLIGHT_METRICS,
 ];
 
 /**
@@ -72,16 +68,11 @@ export default {
 					label: __( 'Comments', 'jetpack-premium-analytics' ),
 				},
 			],
-			getValue: ( { item }: { item: AnnualHighlightsAttributes } ) =>
-				item.metrics ?? DEFAULT_ANNUAL_HIGHLIGHT_METRICS,
-			isValid: {
-				elements: true,
-			},
 		},
 	] as WidgetAttributeField< AnnualHighlightsAttributes >[],
 	example: {
 		attributes: {
-			metrics: DEFAULT_ANNUAL_HIGHLIGHT_METRICS,
+			metrics: DEFAULT_HIGHLIGHT_METRICS,
 		},
 	},
 };
