@@ -15,7 +15,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft, arrowRight, comment, paragraph, postList, starEmpty } from '@wordpress/icons';
-import { Button, Icon, Text } from '@wordpress/ui';
+import { Button, Icon, Stack, Text } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -82,11 +82,9 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 
 	if ( isError ) {
 		return (
-			<div className={ styles.root }>
-				<Text className={ styles.placeholder }>
-					{ __( 'Unable to load annual highlights.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</div>
+			<Stack align="center" justify="center" className={ styles.placeholder }>
+				<Text>{ __( 'Unable to load annual highlights.', 'jetpack-premium-analytics' ) }</Text>
+			</Stack>
 		);
 	}
 
@@ -100,11 +98,9 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 
 	if ( ! year ) {
 		return (
-			<div className={ styles.root }>
-				<Text className={ styles.placeholder }>
-					{ __( 'No highlights to show yet.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</div>
+			<Stack align="center" justify="center" className={ styles.placeholder }>
+				<Text>{ __( 'No highlights to show yet.', 'jetpack-premium-analytics' ) }</Text>
+			</Stack>
 		);
 	}
 
@@ -143,8 +139,8 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 	].filter( tile => tile.enabled );
 
 	return (
-		<div className={ styles.root }>
-			<div className={ styles.yearNav }>
+		<Stack direction="column" gap="lg" className={ styles.root }>
+			<Stack align="center" justify="flex-end" gap="sm">
 				<Button
 					type="button"
 					variant="minimal"
@@ -172,11 +168,14 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 				>
 					<Button.Icon icon={ arrowRight } size={ 16 } />
 				</Button>
-			</div>
+			</Stack>
+
 			{ tiles.length === 0 ? (
-				<Text className={ styles.placeholder }>
-					{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
-				</Text>
+				<Stack align="center" justify="center" className={ styles.placeholder }>
+					<Text>
+						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+					</Text>
+				</Stack>
 			) : (
 				<div className={ styles.grid }>
 					{ tiles.map( tile => (
@@ -195,7 +194,7 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 					) ) }
 				</div>
 			) }
-		</div>
+		</Stack>
 	);
 }
 
