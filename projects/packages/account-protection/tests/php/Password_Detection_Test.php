@@ -490,6 +490,13 @@ class Password_Detection_Test extends BaseTestCase {
 		);
 		$this->assertStringContainsString(
 			htmlentities(
+				'As an extra layer of security, we\'ve sent a verification code to your WordPress profile email address (j*******@e******.com).',
+				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
+			),
+			$output
+		);
+		$this->assertStringContainsString(
+			htmlentities(
 				'Please check your inbox and enter the code below to complete your login:',
 				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
 			),
