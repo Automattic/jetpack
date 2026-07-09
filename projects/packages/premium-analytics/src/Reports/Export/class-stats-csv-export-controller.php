@@ -218,12 +218,17 @@ class Stats_Csv_Export_Controller extends WP_REST_Controller implements Registra
 		}
 
 		$to_date = $request->get_param( 'to' );
-		if ( $to_date && strtotime( $value ) >= strtotime( $to_date ) ) {
-			return new WP_Error(
-				'invalid_date_range',
-				__( 'The "from" date must be before the "to" date.', 'jetpack-premium-analytics' ),
-				array( 'status' => 400 )
-			);
+		if ( $to_date ) {
+			$from_timestamp = strtotime( (string) $value );
+			$to_timestamp   = strtotime( (string) $to_date );
+
+			if ( false !== $from_timestamp && false !== $to_timestamp && $from_timestamp >= $to_timestamp ) {
+				return new WP_Error(
+					'invalid_date_range',
+					__( 'The "from" date must be before the "to" date.', 'jetpack-premium-analytics' ),
+					array( 'status' => 400 )
+				);
+			}
 		}
 
 		return true;
@@ -243,7 +248,8 @@ class Stats_Csv_Export_Controller extends WP_REST_Controller implements Registra
 			return $validated;
 		}
 
-		if ( wp_date( 'Y-m-d', strtotime( $value ) ) > current_datetime()->format( 'Y-m-d' ) ) {
+		$to_timestamp = strtotime( (string) $value );
+		if ( false !== $to_timestamp && wp_date( 'Y-m-d', $to_timestamp ) > current_datetime()->format( 'Y-m-d' ) ) {
 			return new WP_Error(
 				'future_date',
 				__( 'The "to" date cannot be later than today.', 'jetpack-premium-analytics' ),
@@ -252,12 +258,16 @@ class Stats_Csv_Export_Controller extends WP_REST_Controller implements Registra
 		}
 
 		$from_date = $request->get_param( 'from' );
-		if ( $from_date && strtotime( $from_date ) >= strtotime( $value ) ) {
-			return new WP_Error(
-				'invalid_date_range',
-				__( 'The "from" date must be before the "to" date.', 'jetpack-premium-analytics' ),
-				array( 'status' => 400 )
-			);
+		if ( $from_date ) {
+			$from_timestamp = strtotime( (string) $from_date );
+
+			if ( false !== $from_timestamp && false !== $to_timestamp && $from_timestamp >= $to_timestamp ) {
+				return new WP_Error(
+					'invalid_date_range',
+					__( 'The "from" date must be before the "to" date.', 'jetpack-premium-analytics' ),
+					array( 'status' => 400 )
+				);
+			}
 		}
 
 		return true;
@@ -303,7 +313,8 @@ class Stats_Csv_Export_Controller extends WP_REST_Controller implements Registra
 			return $validated;
 		}
 
-		if ( wp_date( 'Y-m-d', strtotime( $value ) ) > current_datetime()->format( 'Y-m-d' ) ) {
+		$compare_to_timestamp = strtotime( (string) $value );
+		if ( false !== $compare_to_timestamp && wp_date( 'Y-m-d', $compare_to_timestamp ) > current_datetime()->format( 'Y-m-d' ) ) {
 			return new WP_Error(
 				'future_date',
 				__( 'The "compare_to" date cannot be later than today.', 'jetpack-premium-analytics' ),
@@ -331,7 +342,10 @@ class Stats_Csv_Export_Controller extends WP_REST_Controller implements Registra
 	 * @return bool|WP_Error
 	 */
 	private function validate_compare_period( string $compare_from, string $compare_to ) {
-		if ( strtotime( $compare_from ) >= strtotime( $compare_to ) ) {
+		$compare_from_timestamp = strtotime( $compare_from );
+		$compare_to_timestamp   = strtotime( $compare_to );
+
+		if ( false !== $compare_from_timestamp && false !== $compare_to_timestamp && $compare_from_timestamp >= $compare_to_timestamp ) {
 			return new WP_Error(
 				'invalid_compare_date_range',
 				__( 'The "compare_from" date must be before the "compare_to" date.', 'jetpack-premium-analytics' ),

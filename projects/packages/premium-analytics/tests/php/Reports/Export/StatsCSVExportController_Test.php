@@ -177,6 +177,18 @@ class StatsCSVExportController_Test extends TestCase {
 		$this->assertSame( 'future_date', $error->get_error_code() );
 	}
 
+	public function test_validate_date_ranges_skip_ordering_when_programmatic_dates_do_not_parse() {
+		$request = new WP_REST_Request();
+		$request->set_param( 'to', '2026-01-02T00:00:00' );
+
+		$this->assertTrue( $this->controller->validate_from_date( 'not-a-date', $request, 'from' ) );
+
+		$request = new WP_REST_Request();
+		$request->set_param( 'from', 'not-a-date' );
+
+		$this->assertTrue( $this->controller->validate_to_date( '2026-01-02T00:00:00', $request, 'to' ) );
+	}
+
 	public function test_validate_comparison_date_ranges() {
 		$request = new WP_REST_Request();
 		$request->set_param( 'compare_to', '2025-01-02T00:00:00' );
@@ -209,6 +221,18 @@ class StatsCSVExportController_Test extends TestCase {
 		$error   = $this->controller->validate_compare_to_date( '2025-01-02T00:00:00', $request, 'compare_to' );
 		$this->assertInstanceOf( \WP_Error::class, $error );
 		$this->assertSame( 'missing_compare_from', $error->get_error_code() );
+	}
+
+	public function test_validate_comparison_date_ranges_skip_ordering_when_programmatic_dates_do_not_parse() {
+		$request = new WP_REST_Request();
+		$request->set_param( 'compare_to', '2025-01-02T00:00:00' );
+
+		$this->assertTrue( $this->controller->validate_compare_from_date( 'not-a-date', $request, 'compare_from' ) );
+
+		$request = new WP_REST_Request();
+		$request->set_param( 'compare_from', 'not-a-date' );
+
+		$this->assertTrue( $this->controller->validate_compare_to_date( '2025-01-02T00:00:00', $request, 'compare_to' ) );
 	}
 
 	public function test_create_export_returns_registry_error_for_unknown_report() {
