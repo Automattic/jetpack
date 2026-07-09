@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Post detail: adopt the shared @wordpress/admin-ui Breadcrumbs component in place of the custom one.
+Adopt the shared @wordpress/admin-ui Breadcrumbs in the post detail page and remove the custom StatsBreadcrumbs component.
