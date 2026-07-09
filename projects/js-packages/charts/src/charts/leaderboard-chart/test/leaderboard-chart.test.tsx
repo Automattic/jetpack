@@ -97,7 +97,8 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'New Source' ) ).toBeInTheDocument();
-		expect( screen.getByText( '-' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
 		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
 	} );
 
@@ -424,6 +425,28 @@ describe( 'LeaderboardChart', () => {
 			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() } ] } /> );
 			// mockData[0] label is 'Direct', currentValue 12500 → '12.5K'
 			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName( /Direct.*12\.5K/ );
+		} );
+
+		it( 'does not include the missing comparison dash in interactive row names', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							id: 'new',
+							label: 'New Source',
+							currentValue: 100,
+							currentShare: 1,
+							onClick: jest.fn(),
+						},
+					] }
+					withComparison={ true }
+				/>
+			);
+
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
+				/New Source.*100.*No comparison data/
+			);
+			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /-/ );
 		} );
 
 		it( 'derives the accessible name from an image label via its alt text', () => {
