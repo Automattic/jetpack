@@ -1,0 +1,23 @@
+.root {
+	width: 100%;
+}
+
+.parent {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	max-inline-size: 100%;
+}
+
+.parent-content {
+	min-inline-size: 0;
+}
+
+.toggle {
+	flex: 0 0 auto;
+}
+
+.child {
+	display: inline-block;
+	margin-inline-start: 24px;
+}
