@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use WP_Error;
+use WP_REST_Response;
 
 require_once __DIR__ . '/fixtures/class-spy-logger.php';
 
@@ -110,5 +111,32 @@ class ReportDataFetcher_Test extends TestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'proxy_response_encode_failed', $result->get_error_code() );
+	}
+
+	public function test_build_external_api_error_preserves_external_message() {
+		$response = new WP_REST_Response(
+			(object) array(
+				'code'    => 'woocommerce_analytics_bookings_error',
+				'message' => 'Failed to retrieve bookings data. Please try again later.',
+				'data'    => (object) array(
+					'status' => 500,
+				),
+			),
+			500
+		);
+
+		$result = $this->invoke( 'build_external_api_error', array( $response ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'external_api_error', $result->get_error_code() );
+		$this->assertSame( 'External API error', $result->get_error_message() );
+		$this->assertSame(
+			array(
+				'status'        => 500,
+				'message'       => 'Failed to retrieve bookings data. Please try again later.',
+				'external_code' => 'woocommerce_analytics_bookings_error',
+			),
+			$result->get_error_data()
+		);
 	}
 }
