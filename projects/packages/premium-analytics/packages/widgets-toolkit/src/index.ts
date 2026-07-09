@@ -57,12 +57,7 @@ export { WOO_COLORS, COLOR_GRAY_100 } from './constants';
 /**
  * Widget edit fields
  */
-export {
-	ReportParamsField,
-	type ReportParamsFieldAttributes,
-	MetricsField,
-	DEFAULT_METRICS,
-} from './fields';
+export { ReportParamsField, type ReportParamsFieldAttributes } from './fields';
 
 /**
  * Helpers and utilities
