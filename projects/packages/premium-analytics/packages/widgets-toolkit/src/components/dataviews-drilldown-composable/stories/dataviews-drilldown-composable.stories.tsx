@@ -182,6 +182,51 @@ const ARCHIVE_GROUPS: DataViewsDrilldownComposableGroup[] = [
 ];
 
 /**
+ * Build one child source for the paginated referrer story.
+ *
+ * @param index - The 1-based child index.
+ * @return The paginated story child.
+ */
+function getPaginatedChild( index: number ): DataViewsDrilldownComposableChild {
+	const paddedIndex = String( index ).padStart( 2, '0' );
+
+	return {
+		id: `referrer:01:source:${ paddedIndex }`,
+		label: `Referrer 01 / Source ${ paddedIndex }`,
+		value: 16 - index,
+	};
+}
+
+/**
+ * Build one group for the paginated referrer story.
+ *
+ * @param index - The 1-based group index.
+ * @return The paginated story group.
+ */
+function getPaginatedGroup( index: number ): DataViewsDrilldownComposableGroup {
+	const paddedIndex = String( index ).padStart( 2, '0' );
+	const children: DataViewsDrilldownComposableChild[] = [];
+
+	if ( index === 1 ) {
+		for ( let childIndex = 1; childIndex <= 15; childIndex++ ) {
+			children.push( getPaginatedChild( childIndex ) );
+		}
+	}
+
+	return {
+		id: `referrer:${ paddedIndex }`,
+		label: `Referrer ${ paddedIndex }`,
+		value: 130 - index * 10,
+		children,
+	};
+}
+
+const PAGINATED_GROUPS: DataViewsDrilldownComposableGroup[] = Array.from(
+	{ length: 12 },
+	( _, index ) => getPaginatedGroup( index + 1 )
+);
+
+/**
  * Resolve the referrer group type for the DataViews filter.
  *
  * @param group - The referrer drilldown group.
@@ -342,5 +387,25 @@ export const Archives: Story = {
 		defaultExpandedIds: [ 'archive:tags' ],
 		filterElements: undefined,
 		getGroupFilterValue: undefined,
+	},
+};
+
+/**
+ * Paginated group list with expanded children.
+ */
+export const Paginated: Story = {
+	args: {
+		groups: PAGINATED_GROUPS,
+		defaultExpandedIds: [ 'referrer:01' ],
+		filterElements: undefined,
+		getGroupFilterValue: undefined,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Pagination counts groups; an expanded group's children always render with their group and never split across pages.",
+			},
+		},
 	},
 };
