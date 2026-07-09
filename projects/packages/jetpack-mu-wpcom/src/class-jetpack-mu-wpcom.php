@@ -105,6 +105,10 @@ class Jetpack_Mu_Wpcom {
 		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
 		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
 
+		// Enable the `gutenberg-react-19` Gutenberg experiment for sites with the `gutenberg-react-19` blog sticker.
+		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
+		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -287,6 +291,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
 		require_once __DIR__ . '/features/admin-color-schemes/admin-color-schemes.php';
+		require_once __DIR__ . '/features/ai-launchpad/ai-launchpad.php';
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
@@ -307,7 +312,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
 		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
-		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-attachment-pages/wpcom-attachment-pages.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
@@ -344,6 +348,7 @@ class Jetpack_Mu_Wpcom {
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad::init();
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Holiday_Snow::init();
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Dashboard::init();
 
@@ -378,7 +383,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
-		require_once __DIR__ . '/features/wpcom-colourlovers-deprecate/wpcom-colourlovers-deprecate.php';
 		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';
@@ -437,10 +441,8 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
 
-		// Initialize the Podcast package here (rather than in
-		// load_wpcom_user_features) so feed-customization hooks register
-		// for anonymous requests too — Apple Podcasts / Spotify crawlers
-		// aren't logged in. Podcast::init() gates itself on host (Simple/WoA).
+		// Init here rather than in load_wpcom_user_features so feed-customization
+		// hooks register for anonymous requests too (Apple/Spotify crawlers).
 		\Automattic\Jetpack\Podcast\Podcast::init();
 	}
 
@@ -817,6 +819,26 @@ class Jetpack_Mu_Wpcom {
 		}
 
 		$experiments['gutenberg-classic-block-deprecation'] = true;
+		return $experiments;
+	}
+
+	/**
+	 * Add `gutenberg-react-19` to the list of enabled Gutenberg experiments.
+	 * Only sites with the `gutenberg-react-19` blog sticker are opted in.
+	 *
+	 * @param mixed $experiments The current value of the gutenberg-experiments option.
+	 * @return mixed Original option value or the filtered experiments.
+	 */
+	public static function enable_gutenberg_react_19_experiment( $experiments ) {
+		if ( ! wpcom_has_blog_sticker( 'gutenberg-react-19', get_wpcom_blog_id() ) ) {
+			return $experiments;
+		}
+
+		if ( ! is_array( $experiments ) ) {
+			$experiments = array();
+		}
+
+		$experiments['gutenberg-react-19'] = true;
 		return $experiments;
 	}
 

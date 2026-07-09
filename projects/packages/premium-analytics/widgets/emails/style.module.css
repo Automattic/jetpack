@@ -1,0 +1,36 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+.leaderboard {
+	flex: 1 1 0;
+	min-inline-size: 0;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+/* The label fills its row; vertical padding sets the overlay bar height (there
+   is no image to size it) and the inline padding insets the text from the bar's
+   rounded left edge. */
+.label {
+	display: block;
+	padding-block: var(--wpds-dimension-padding-md, 12px);
+	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	overflow: hidden;
+	color: inherit;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.placeholder {
+	flex: 1 1 0;
+	inline-size: 100%;
+	min-block-size: 200px;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+}

@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { Icon, info, cautionFilled as warning } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -34,7 +35,7 @@ const VideoList = ( {
 	loading = false,
 	onVideoDetailsClick,
 }: VideoListProps ) => {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	const handleClickWithIndex = ( index, callback ) => () => {
 		callback?.( videos[ index ] );
@@ -92,10 +93,10 @@ export const LocalVideoList = ( {
 	uploading = false,
 	onActionClick,
 }: LocalVideoListProps ) => {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 	const { hasVideoPressPurchase } = usePlan();
 	const { uploadedVideoCount, isFetching } = useVideos();
-	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
+	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading;
 
 	const handleClickWithIndex = index => () => {
 		onActionClick?.( videos[ index ] );

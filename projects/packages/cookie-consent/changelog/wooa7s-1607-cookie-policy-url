@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Banner: Hide policy links in the preferences modal when their URL is not configured, so the Cookie Policy and Privacy Policy links never render an empty link.

@@ -16,7 +16,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class External_Connections {
 
-	const PACKAGE_VERSION = '0.1.31';
+	const PACKAGE_VERSION = '0.1.35';
 	const BASE_FILE       = __FILE__;
 
 	/**
@@ -101,6 +101,7 @@ class External_Connections {
 			$token       = \ExternalMediaService::get_service_token( $service, get_current_user_id() );
 
 			if ( ! empty( $token->unique_id ) ) {
+				// @phan-suppress-next-line PhanTypeMismatchArgument -- $token->unique_id is an int.
 				return $connections->get_keyring_connection_item( $token->unique_id );
 			}
 		} else {

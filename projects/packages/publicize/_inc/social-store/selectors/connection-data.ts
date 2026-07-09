@@ -204,6 +204,17 @@ export function getKeyringResult( state: SocialStoreState ) {
 }
 
 /**
+ * Whether the keyring result for a completed connect request is being fetched.
+ *
+ * @param state - State object.
+ *
+ * @return Whether the keyring result is being fetched.
+ */
+export function isFetchingKeyringResult( state: SocialStoreState ) {
+	return Boolean( state.connectionData?.fetchingKeyringResult );
+}
+
+/**
  * Whether the connections modal is open.
  * @param state - State object.
  *
@@ -229,6 +240,12 @@ export const canUserManageConnection = createRegistrySelector(
 			// If the current user is the connection owner.
 			if ( current_user.wpcom?.ID === connection.wpcom_user_id ) {
 				return true;
+			}
+
+			const isEditorOrAbove = current_user.capabilities?.edit_others_posts;
+
+			if ( undefined !== isEditorOrAbove ) {
+				return isEditorOrAbove;
 			}
 
 			const { getUser } = select( coreStore );

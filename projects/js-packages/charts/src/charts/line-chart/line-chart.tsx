@@ -29,7 +29,7 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
-import { attachSubComponents } from '../../utils';
+import { attachSubComponents, resolveCssVariable } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
@@ -42,10 +42,10 @@ import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
 import type { RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
 import type { DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
+import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
-import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, Ref } from 'react';
 
 const defaultRenderGlyph = < Datum extends object >( props: RenderLineGlyphProps< Datum > ) => {
@@ -190,6 +190,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const legendPosition = legend.position ?? 'bottom';
 
 		const providerTheme = useGlobalChartsTheme();
+		// Gradient stops apply this as an SVG attribute, where CSS var() cannot
+		// resolve, so resolve the WPDS token to a concrete value first.
+		const resolvedBackgroundColor =
+			resolveCssVariable( providerTheme.backgroundColor ) ?? providerTheme.backgroundColor;
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
 		const chartRef = useRef< HTMLDivElement >( null );
@@ -485,7 +489,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 																		from={ color }
 																		fromOpacity={ 0.4 }
 																		toOpacity={ 0.1 }
-																		to={ providerTheme.backgroundColor }
+																		to={ resolvedBackgroundColor }
 																		{ ...seriesData.options?.gradient }
 																		data-testid="line-gradient"
 																	>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Launchpad: apply the second pass of design feedback — let the AI pick the theme-search keyword, add a wizard Skip that reverts to the regular launchpad, update the site title without a reload, replace the born-completed post-sharing task, consolidate the legacy design tasks onto the actionable "Choose a theme" task and always offer it (store-filtered) on sell sites, and polish the preview card and wizard icons.

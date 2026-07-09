@@ -1,0 +1,718 @@
+/* ==========================================================================
+   Cookie Consent Styles
+   Aligned with WooCommerce Bookings modal pattern for UI consistency.
+   Uses :where() selectors for low specificity (theme-friendly).
+
+   Design tokens (--jp-cookie-consent--*) drive spacing, color, and z-index.
+   They are namespaced (not theme presets like --wp--preset--*) so themes
+   cannot override structural values, and the defaults stay legible and
+   consistent across classic and block themes. The tokens are also the
+   customization surface: override them via Additional CSS / inline styles,
+   e.g. `.jetpack-cookie-consent { --jp-cookie-consent--color-text: #111; }`.
+   ========================================================================== */
+
+/* Design tokens, defined with :where() so specificity stays 0 — a plain
+   `.jetpack-cookie-consent {}` rule or inline style can override them. Covers
+   the footer-links fallback control (rendered outside the banner root). */
+:where(.jetpack-cookie-consent, .jetpack-cookie-consent-footer-links) {
+	--jp-cookie-consent--color-background: #fff;
+	--jp-cookie-consent--color-text: #1e1e1e;
+	--jp-cookie-consent--color-text-muted: #686868;
+	--jp-cookie-consent--color-border: #dcdcde;
+	--jp-cookie-consent--color-surface-hover: #f0f0f0;
+	--jp-cookie-consent--spacing: 16px;
+	--jp-cookie-consent--font-size: 16px;
+	--jp-cookie-consent--z-index: 999999;
+}
+
+/* Banner */
+.jetpack-cookie-consent__banner {
+	display: none; /* Hidden by default */
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: var(--jp-cookie-consent--z-index, 999999);
+	pointer-events: auto;
+	align-items: flex-end;
+}
+
+.jetpack-cookie-consent__banner--visible {
+	display: flex;
+	pointer-events: auto;
+}
+
+.jetpack-cookie-consent__banner-inner {
+	display: flex;
+	align-items: center;
+	margin: 0;
+	padding: var(--jp-cookie-consent--spacing, 16px);
+	width: 100%;
+	box-shadow: 0 -4px 16px 0 rgba(0, 0, 0, 0.08);
+	background: var(--jp-cookie-consent--color-background, #fff);
+	gap: var(--jp-cookie-consent--spacing, 16px);
+}
+
+.jetpack-cookie-consent__banner-content {
+	flex: 1;
+}
+
+.jetpack-cookie-consent__banner-title {
+	margin: 0 0 8px 0;
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.5;
+	color: var(--jp-cookie-consent--color-text, #1e1e1e);
+}
+
+.jetpack-cookie-consent__banner-description {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.71;
+	color: var(--jp-cookie-consent--color-text-muted, #686868);
+}
+
+.jetpack-cookie-consent__banner-actions {
+	display: flex;
+	gap: var(--jp-cookie-consent--spacing, 16px);
+	flex-shrink: 0;
+	align-items: center;
+}
+
+/* Buttons */
+.jetpack-cookie-consent__button {
+	padding: 12px 20px;
+	font-size: var(--jp-cookie-consent--font-size, 16px);
+	font-weight: 400;
+	line-height: 1;
+	border: 1px solid transparent;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	white-space: nowrap;
+}
+
+.jetpack-cookie-consent__button:focus-visible {
+	outline: 2px solid var(--jp-cookie-consent--color-text, #1e1e1e);
+	outline-offset: 2px;
+}
+
+/* Secondary/tertiary buttons set their own surface; !important keeps a classic
+   theme's high-specificity `button` reset from recoloring them. Primary buttons
+   intentionally inherit the theme button styling, so are left alone. */
+.jetpack-cookie-consent__button--secondary {
+	background: var(--jp-cookie-consent--color-background, #fff) !important;
+	color: var(--jp-cookie-consent--color-text, #1e1e1e) !important;
+	border: 1px solid var(--jp-cookie-consent--color-text, #1e1e1e) !important;
+}
+
+.jetpack-cookie-consent__button--secondary:hover {
+	opacity: 0.9;
+}
+
+.jetpack-cookie-consent__button--tertiary {
+	background: transparent !important;
+	color: var(--jp-cookie-consent--color-text, #1e1e1e) !important;
+	border: 1px solid var(--jp-cookie-consent--color-border, #dcdcde) !important;
+}
+
+.jetpack-cookie-consent__button--tertiary:hover {
+	background: var(--jp-cookie-consent--color-surface-hover, #f0f0f0) !important;
+}
+
+/* Modal Overlay - Aligned with WooCommerce Bookings modal pattern */
+:where(.jetpack-cookie-consent__modal-overlay) {
+	background-color: rgba(95, 95, 95, 0.35);
+	bottom: 0;
+	box-sizing: border-box;
+	left: 0;
+	opacity: 1;
+	position: fixed;
+	right: 0;
+	top: 0;
+	transition: opacity 0.3s;
+	z-index: var(--jp-cookie-consent--z-index, 999999);
+}
+
+:where(.jetpack-cookie-consent__modal-overlay[hidden]) {
+	display: block;
+	left: -10000px;
+	opacity: 0;
+	overflow: hidden;
+	pointer-events: none;
+	transition:
+		opacity 0.3s,
+		display 0s 0.3s;
+}
+
+:where(.jetpack-cookie-consent__modal-overlay--visible) {
+	opacity: 1;
+}
+
+/* Modal - Aligned with WooCommerce Bookings modal pattern */
+:where(.jetpack-cookie-consent__modal) {
+	background-color: var(--jp-cookie-consent--color-background, #fff);
+	border: 0;
+	bottom: 0;
+	box-sizing: border-box;
+	color: var(--jp-cookie-consent--color-text, #1e1e1e);
+	display: block;
+	left: 0;
+	right: 0;
+	opacity: 0;
+	padding: 0;
+	pointer-events: none;
+	position: fixed;
+	transform: translateY(50px);
+	width: 100%;
+	z-index: calc(var(--jp-cookie-consent--z-index, 999999) + 1);
+}
+
+:where(.jetpack-cookie-consent__modal[hidden]) {
+	display: block;
+	opacity: 0;
+	pointer-events: none;
+}
+
+:where(.jetpack-cookie-consent__modal--visible) {
+	opacity: 1;
+	pointer-events: auto;
+	transform: translateY(0);
+	transition: all 0.3s;
+}
+
+.jetpack-cookie-consent__modal:focus {
+	outline-width: 0;
+}
+
+:where(.jetpack-cookie-consent__modal-header) {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding: 25px 25px 0 25px;
+}
+
+:where(.jetpack-cookie-consent__modal-title) {
+	margin: 0;
+	font-size: 22px;
+	font-weight: 500;
+	line-height: 1.18;
+	color: var(--jp-cookie-consent--color-text, #1e1e1e);
+}
+
+:where(.jetpack-cookie-consent__modal-close) {
+
+	/* !important defeats classic-theme button fills (e.g. Twenty Twenty-One's
+	   `button:not(:hover):not(:active)`) that would otherwise paint this icon
+	   button with the theme color; specificity alone can't beat that selector. */
+	background: none !important;
+	border: none !important;
+	cursor: pointer;
+	padding: 5px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	svg {
+		fill: var(--jp-cookie-consent--color-text, #1e1e1e);
+	}
+}
+
+:where(.jetpack-cookie-consent__modal-close:hover) svg {
+	opacity: 0.66;
+}
+
+.jetpack-cookie-consent__modal-close:focus-visible {
+	outline: 2px solid var(--jp-cookie-consent--color-text, #1e1e1e);
+	outline-offset: 2px;
+}
+
+:where(.jetpack-cookie-consent__modal-body) {
+	display: flex;
+	gap: 25px;
+	flex-direction: column;
+	padding: 25px;
+	flex: 1;
+}
+
+:where(.jetpack-cookie-consent__modal-content) {
+	max-height: 60vh;
+	overflow-y: auto;
+	overflow-x: hidden;
+
+	// Work-around so if a focused element inside the container shows an outline,
+	// is fully visible.
+	margin: 0 -2px;
+	padding: 0 2px;
+
+	// Hide the scrollbar.
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* Desktop: Center modal like WooCommerce Bookings.
+   Scoped under the root class (not :where()) so the structural sizing wins over
+   classic-theme resets such as `html, body, div, … { max-width: none }`, which
+   would otherwise stretch the modal to full width. */
+@media ( min-width: 782px ) {
+
+	.jetpack-cookie-consent .jetpack-cookie-consent__modal {
+		bottom: auto;
+		height: auto;
+		left: 50%;
+		max-width: 745px;
+		right: auto;
+		top: 50%;
+		transform: translate(-50%, calc(-50% + 50px));
+		width: 100%;
+	}
+
+	.jetpack-cookie-consent .jetpack-cookie-consent__modal--visible {
+		transform: translate(-50%, -50%);
+	}
+
+	.jetpack-cookie-consent .jetpack-cookie-consent__modal-content {
+		max-height: 630px;
+	}
+}
+
+.jetpack-cookie-consent__modal-description {
+	margin: 0;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 1.71;
+	color: var(--jp-cookie-consent--color-text-muted, #686868);
+}
+
+.jetpack-cookie-consent__link {
+	color: var(--jp-cookie-consent--color-text, #1e1e1e);
+	text-decoration: underline;
+}
+
+.jetpack-cookie-consent__link:hover {
+	text-decoration: none;
+}
+
+/* Category Sections */
+.jetpack-cookie-consent__category {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.jetpack-cookie-consent__category-header {
+	display: flex;
+	align-items: center;
+}
+
+.jetpack-cookie-consent__category-controls {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 25px;
+}
+
+.jetpack-cookie-consent__description-toggle {
+	right: 0;
+	top: 0;
+	position: absolute;
+
+	/* !important defeats classic-theme button fills (see modal-close above). */
+	background: none !important;
+	border: none !important;
+	cursor: pointer;
+	padding: 0;
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--jp-cookie-consent--color-text, #1e1e1e);
+	transition: transform 0.2s ease;
+}
+
+.jetpack-cookie-consent__description-toggle--expanded {
+	transform: rotate(180deg);
+}
+
+.jetpack-cookie-consent__description-toggle svg {
+	transition: transform 0.2s ease;
+}
+
+.jetpack-cookie-consent__category-content {
+	flex: 1;
+}
+
+.jetpack-cookie-consent__category-label-text {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.71;
+	color: var(--jp-cookie-consent--color-text, #1e1e1e);
+}
+
+.jetpack-cookie-consent__category-badge {
+	display: inline-block;
+	padding: 0 8px;
+	font-size: 14px;
+	background: #ebebeb;
+	color: #686868;
+}
+
+.jetpack-cookie-consent__category-text {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.71;
+	color: var(--jp-cookie-consent--color-text-muted, #686868);
+}
+
+/* Checkbox - uses regular selectors for higher specificity.
+   The native control is fully neutralized so theme form styles (e.g. classic
+   themes that render checkboxes as bordered boxes) can't leak in and break the
+   row; the visible control is the sibling icon span. */
+.jetpack-cookie-consent__category-checkbox {
+	position: relative;
+	flex-shrink: 0;
+}
+
+.jetpack-cookie-consent .jetpack-cookie-consent__category-checkbox input[type="checkbox"] {
+
+	/* Robustly hide the native checkbox: out of flow, zero-size, clipped, and
+	   stripped of native rendering so a theme can't paint a stray box. Clicks
+	   are handled by the associated label; keyboard focus still works. Scoped
+	   under the root class so theme form rules can't win on source order. */
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	opacity: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	-webkit-appearance: none;
+	appearance: none;
+	pointer-events: none;
+}
+
+.jetpack-cookie-consent .jetpack-cookie-consent__category-checkbox label {
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
+}
+
+.jetpack-cookie-consent .jetpack-cookie-consent__category-checkbox-icon {
+	display: block;
+	box-sizing: border-box;
+	border: 0;
+	border-radius: 1px;
+	box-shadow: none;
+	width: 16.8px;
+	height: 16.8px;
+	background: #e2e2e2;
+	position: relative;
+	flex-shrink: 0;
+	transition: all 0.2s ease;
+}
+
+/* The checkmark is iconographic, not directional, so keep it identical in RTL.
+   rtl:ignore stops rtlcss from mirroring the border/rotation into a backwards
+   check. */
+
+/* rtl:ignore */
+.jetpack-cookie-consent__category-checkbox-icon::after {
+	content: "";
+	position: absolute;
+	display: none;
+	left: 6px;
+	top: 3px;
+	width: 4px;
+	height: 7px;
+	border: solid var(--jp-cookie-consent--color-text, #1e1e1e);
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+.jetpack-cookie-consent__category-checkbox
+input[type="checkbox"]:checked + label
+.jetpack-cookie-consent__category-checkbox-icon::after {
+	display: block;
+}
+
+.jetpack-cookie-consent__category-checkbox
+input[type="checkbox"]:focus-visible + label
+.jetpack-cookie-consent__category-checkbox-icon {
+	outline: 2px solid var(--jp-cookie-consent--color-text, #1e1e1e);
+	outline-offset: 2px;
+}
+
+.jetpack-cookie-consent__category-checkbox--disabled {
+	opacity: 0.66;
+}
+
+/* Root-scoped to match the (also root-scoped) label rule's specificity so the
+   disabled "Required" row shows not-allowed rather than the pointer cursor. */
+.jetpack-cookie-consent .jetpack-cookie-consent__category-checkbox--disabled label {
+	cursor: not-allowed;
+}
+
+.jetpack-cookie-consent__category-checkbox--disabled
+.jetpack-cookie-consent__category-checkbox-icon::after {
+	border-color: #686868;
+}
+
+/* Modal Footer */
+.jetpack-cookie-consent__modal-footer {
+	display: flex;
+	align-items: flex-start;
+	padding: 25px;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+/* Responsive Design */
+@media ( max-width: 781px ) {
+
+	/* Banner - mobile adjustments */
+	.jetpack-cookie-consent__banner-inner {
+		flex-direction: column;
+		align-items: stretch;
+		padding: 20px;
+	}
+
+	.jetpack-cookie-consent__banner-title {
+		font-size: var(--jp-cookie-consent--font-size, 16px);
+	}
+
+	.jetpack-cookie-consent__banner-actions {
+		flex-direction: column;
+		gap: var(--jp-cookie-consent--spacing, 16px);
+	}
+
+	.jetpack-cookie-consent__banner-actions .jetpack-cookie-consent__button {
+		width: 100%;
+	}
+
+	/* Modal - mobile adjustments (hard-coded like Bookings) */
+	:where(.jetpack-cookie-consent__modal) {
+		display: flex;
+		flex-direction: column;
+		max-height: 95vh;
+		top: 5vh;
+	}
+
+	:where(.jetpack-cookie-consent__modal-content) {
+		flex: 1;
+		max-height: none;
+		overflow-y: auto;
+	}
+
+	:where(.jetpack-cookie-consent__modal-header) {
+		padding: 20px 20px 0 20px;
+	}
+
+	:where(.jetpack-cookie-consent__modal-body) {
+		padding: 20px;
+	}
+
+	:where(.jetpack-cookie-consent__modal-footer) {
+		flex-direction: column;
+		align-items: stretch;
+		padding: 20px;
+	}
+
+	.jetpack-cookie-consent__modal-footer .jetpack-cookie-consent__button {
+		width: 100%;
+	}
+}
+
+/* ==========================================================================
+   Classic-theme fallback for required legal links
+   Fixed-corner floating control rendered on wp_footer when the Block Hooks
+   footer-nav injection did not run (classic themes / no footer nav).
+   ========================================================================== */
+
+.jetpack-cookie-consent-footer-links {
+	position: fixed;
+	bottom: 20px;
+	left: 20px;
+	z-index: var(--jp-cookie-consent--z-index, 999999);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+/* The control ships with `hidden` and is only revealed when there's a
+   region-specific required link (see data-wp-bind--hidden in the template). The
+   `display: flex` above out-specifies the UA `[hidden] { display: none }`, so
+   restore it explicitly — otherwise the control stays visible and overlaps the
+   consent banner. */
+.jetpack-cookie-consent-footer-links[hidden] {
+	display: none;
+}
+
+/* The toggle is a <button>; classic themes ship high-specificity button resets
+   (e.g. Twenty Twenty-One's `button:not(:hover):not(:active)`, 0,2,1) that
+   out-specify a single class and recolor/repad it. Style the singleton control
+   via its unique id so the token-driven appearance wins regardless of theme. */
+#jetpack-cookie-consent-footer-links-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+	padding: 8px 14px;
+	font-size: 14px;
+	line-height: 1.4;
+	cursor: pointer;
+	color: var(--jp-cookie-consent--color-text, #1e1e1e);
+	background: var(--jp-cookie-consent--color-background, #fff);
+	border: 1px solid var(--jp-cookie-consent--color-border, #dcdcde);
+	border-radius: 4px;
+	box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.12);
+}
+
+#jetpack-cookie-consent-footer-links-toggle:hover {
+	background: var(--jp-cookie-consent--color-surface-hover, #f0f0f0);
+}
+
+#jetpack-cookie-consent-footer-links-toggle:focus-visible {
+	outline: 2px solid var(--jp-cookie-consent--color-text, #1e1e1e);
+	outline-offset: 2px;
+}
+
+.jetpack-cookie-consent-footer-links__toggle-icon {
+	display: inline-flex;
+	align-items: center;
+
+	svg {
+		fill: currentColor;
+	}
+}
+
+.jetpack-cookie-consent-footer-links__panel {
+	min-width: 220px;
+	max-width: calc(100vw - 40px);
+	padding: 8px 0;
+	background: var(--jp-cookie-consent--color-background, #fff);
+	border: 1px solid var(--jp-cookie-consent--color-border, #dcdcde);
+	border-radius: 4px;
+	box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.16);
+}
+
+.jetpack-cookie-consent-footer-links__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.jetpack-cookie-consent-footer-links__item {
+	margin: 0;
+}
+
+.jetpack-cookie-consent-footer-links__link {
+	display: block;
+	padding: 8px 16px;
+	font-size: 14px;
+	line-height: 1.5;
+	text-decoration: none;
+	color: var(--jp-cookie-consent--color-text, #1e1e1e);
+}
+
+.jetpack-cookie-consent-footer-links__link:hover {
+	text-decoration: underline;
+	background: var(--jp-cookie-consent--color-surface-hover, #f0f0f0);
+}
+
+.jetpack-cookie-consent-footer-links__link:focus-visible {
+	outline: 2px solid var(--jp-cookie-consent--color-text, #1e1e1e);
+	outline-offset: -2px;
+}
+
+/* Reduced Motion */
+@media ( prefers-reduced-motion: reduce ) {
+
+	#jetpack-cookie-consent-footer-links-toggle {
+		transition: none;
+	}
+}
+
+/* Print */
+@media print {
+
+	.jetpack-cookie-consent,
+	.jetpack-cookie-consent-footer-links {
+		display: none;
+	}
+}
+
+/* Reduced Motion */
+@media ( prefers-reduced-motion: reduce ) {
+
+	.jetpack-cookie-consent__banner,
+	.jetpack-cookie-consent__modal-overlay,
+	.jetpack-cookie-consent__modal,
+	.jetpack-cookie-consent__button,
+	.jetpack-cookie-consent__category-checkbox label,
+	.jetpack-cookie-consent__description-toggle,
+	.jetpack-cookie-consent__description-toggle svg {
+		transition: none;
+		animation: none;
+	}
+}
+
+/* ==========================================================================
+   CCPA Styles
+   ========================================================================== */
+
+/* Snackbar container */
+.jetpack-cookie-consent-ccpa-snackbar {
+	position: fixed;
+	bottom: 20px;
+	left: 20px;
+	z-index: 999999;
+	max-width: calc(100% - 100px);
+}
+
+/* Snackbar content */
+.jetpack-cookie-consent-ccpa-snackbar__content {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background-color: #f1f9f3;
+	color: #1e1e1e;
+	padding: 16px;
+	border-radius: 4px;
+	border: 1px solid #c3e8cd;
+	font-size: 16px;
+}
+
+.jetpack-cookie-consent-ccpa-snackbar__dismiss {
+	background: none;
+	border: none;
+	cursor: pointer;
+	width: 24px;
+	height: 24px;
+	padding-top: 2px; /* Align with the text */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 16px;
+}
+
+.jetpack-cookie-consent-ccpa-privacy-link-hidden {
+	display: none !important;
+}
+
+.jetpack-cookie-consent-gdpr-manage-link-hidden {
+	display: none !important;
+}
+
+.jetpack-cookie-consent-scroll-lock {
+	overflow: hidden !important;
+}

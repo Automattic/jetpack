@@ -32,6 +32,10 @@ const settings = {
 	supports: {
 		reusable: false,
 		html: false,
+		// FORMS-694 (interim): disabled on the input for the same reason as the
+		// field — see shared/settings/index.js. The input is inert in every
+		// visibility mode (its rendered output is discarded by the field renderer).
+		visibility: false,
 		color: {
 			text: true,
 			background: true,

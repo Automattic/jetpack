@@ -1,6 +1,6 @@
 # Widgets
 
-Dashboard widget components for WooCommerce Analytics.
+Dashboard widget components for Jetpack Premium Analytics.
 
 ## Available Widgets
 
@@ -13,9 +13,7 @@ Dashboard widget components for WooCommerce Analytics.
 | `OrderMetricWidget`            | `ReportMetricWidget`                            | Order-based metrics (revenue, orders, AOV)        |
 | `SalesByCouponWidget`          | `SemiCircleChart`                               | Coupon sales for all product types                |
 | `SalesByDeviceWidget`          | `DonutChart`                                    | Sales breakdown by device type                    |
-| `SalesByUtmWidget`             | `LeaderboardChart`                              | Sales by UTM parameters (source/channel/campaign) |
 | `TotalReturnsWidget`           | `DonutChart`                                    | Returns/refunds for all product types             |
-| `VisitorMetricWidget`          | `ReportMetricWidget`                            | Visitor-based metrics                             |
 | `TopPerformingProductsWidget`  | `LeaderboardChart`                              | Top products by revenue                           |
 | `TopPerformingBookingsWidget`  | `LeaderboardChart`                              | Top bookings by revenue                           |
 

@@ -1,0 +1,7 @@
+{
+	"name": "jpa/visitors-by-location",
+	"title": "Visitors by location",
+	"description": "See where your store visitors are located geographically.",
+	"category": "visitors",
+	"presentation": "framed"
+}

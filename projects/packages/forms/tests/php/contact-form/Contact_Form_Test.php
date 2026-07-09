@@ -4085,18 +4085,32 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * Build a Contact_Form whose source resolves to the given post id.
 	 *
-	 * @param array $attributes Form attributes.
-	 * @param int   $source_id  Source (post) id the form should report.
+	 * @param array      $attributes  Form attributes.
+	 * @param int|string $source_id   Source id the form should report: a numeric post id, or a
+	 *                                non-numeric widget/block-template id.
+	 * @param string     $source_type Source type (single, widget, block_template, block_template_part).
 	 * @return Contact_Form
 	 */
-	private function make_form_with_source( $attributes, $source_id ) {
+	private function make_form_with_source( $attributes, $source_id, $source_type = 'single' ) {
 		$source = Feedback_Source::from_serialized(
 			array(
-				'source_id' => $source_id,
-				'title'     => 'Test Post',
+				'source_id'   => $source_id,
+				'title'       => 'Test Post',
+				'source_type' => $source_type,
 			)
 		);
 
+		return $this->make_form_with_source_object( $attributes, $source );
+	}
+
+	/**
+	 * Build a Contact_Form that reports the given (already constructed) source.
+	 *
+	 * @param array           $attributes Form attributes.
+	 * @param Feedback_Source $source     Source to report from get_source().
+	 * @return Contact_Form
+	 */
+	private function make_form_with_source_object( $attributes, $source ) {
 		return new class( $attributes, $source ) extends Contact_Form {
 			/**
 			 * Source to report from get_source().
@@ -4126,6 +4140,22 @@ class Contact_Form_Test extends BaseTestCase {
 				return $this->test_source;
 			}
 		};
+	}
+
+	/**
+	 * Resolve a Feedback_Source through get_current() with a render-scoped global set, then clear
+	 * the global. Mirrors how a real template/template-part render establishes the source type.
+	 *
+	 * @param string $global_key The render-scoped global to set (e.g. grunion_block_template_id).
+	 * @param string $value      The value to set it to (the template/part id).
+	 * @param array  $attributes Attributes to pass to get_current().
+	 * @return Feedback_Source
+	 */
+	private function source_from_render_global( $global_key, $value, $attributes = array() ) {
+		$GLOBALS[ $global_key ] = $value;
+		$source                 = Feedback_Source::get_current( $attributes );
+		unset( $GLOBALS[ $global_key ] );
+		return $source;
 	}
 
 	/**
@@ -4184,6 +4214,30 @@ class Contact_Form_Test extends BaseTestCase {
 	public function test_should_honor_content_destinations_returns_false_for_missing_post() {
 		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 0 ) );
 		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 999999 ) );
+	}
+
+	/**
+	 * Test should_honor_content_destinations honors block-template, template-part and widget
+	 * sources, whose (non-numeric) ids have no post author but require an administrator-tier
+	 * `edit_theme_options` capability to author.
+	 */
+	public function test_should_honor_content_destinations_for_admin_tier_sources() {
+		foreach ( Feedback_Source::ADMIN_TIER_SOURCE_TYPES as $source_type ) {
+			$this->assertTrue(
+				\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 'mytheme//page', $source_type ),
+				"Destinations should be honored for $source_type sources."
+			);
+		}
+	}
+
+	/**
+	 * Test should_honor_content_destinations still denies an unresolved non-numeric source whose
+	 * type is not an admin-tier authoring surface (the conservative catch-all).
+	 */
+	public function test_should_not_honor_content_destinations_for_unknown_non_numeric_source() {
+		$this->assertFalse(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( 'mytheme//page', 'single' )
+		);
 	}
 
 	/**
@@ -4271,6 +4325,114 @@ class Contact_Form_Test extends BaseTestCase {
 		// postToUrl is migrated into the webhooks collection, so both entries survive.
 		$this->assertCount( 2, $form->attributes['webhooks'], 'Configured webhook and migrated postToUrl should remain.' );
 		$this->assertSame( array( 'organizationId' => '12345' ), $form->attributes['salesforceData'], 'salesforceData should be preserved.' );
+	}
+
+	/**
+	 * Test reconcile_content_destinations keeps destinations for a block-template source built
+	 * through the real render path: the source type comes from the render-scoped global, not from
+	 * a content attribute, so this exercises a reachable state.
+	 *
+	 * Regression test for forms placed in FSE block templates, template parts and widgets whose
+	 * webhooks/postToUrl/Salesforce destinations were silently dropped from Jetpack 15.9.
+	 */
+	public function test_reconcile_content_destinations_keeps_destinations_for_block_template_source() {
+		$source = $this->source_from_render_global( 'grunion_block_template_id', 'mytheme//single' );
+
+		$this->assertSame( 'block_template', $source->get_source_type(), 'Render-scoped global should yield a block_template source.' );
+
+		$form = $this->make_form_with_source_object(
+			array(
+				'webhooks'       => array(
+					array(
+						'webhook_id' => 'w',
+						'url'        => 'https://example.com/hook',
+						'enabled'    => true,
+						'format'     => 'json',
+						'method'     => 'POST',
+					),
+				),
+				'postToUrl'      => array(
+					'url'     => 'https://example.com/post',
+					'enabled' => true,
+				),
+				'salesforceData' => array( 'organizationId' => '12345' ),
+			),
+			$source
+		);
+
+		$this->invoke_reconcile_content_destinations( $form );
+
+		// postToUrl is migrated into the webhooks collection, so both entries survive.
+		$this->assertCount( 2, $form->attributes['webhooks'], 'Configured webhook and migrated postToUrl should remain for a block-template form.' );
+		$this->assertSame( array( 'organizationId' => '12345' ), $form->attributes['salesforceData'], 'salesforceData should be preserved for a block-template form.' );
+	}
+
+	/**
+	 * Test that Feedback_Source::get_current() anchors the block_template / block_template_part
+	 * source types to render-scoped globals, NOT to content attributes.
+	 *
+	 * A content attribute can be supplied by a post author who lacks edit_theme_options, so
+	 * trusting it would let a post-content form masquerade as an admin-authored template source
+	 * and have its content-declared destinations honored. This guards that hole.
+	 */
+	public function test_content_supplied_template_markers_are_not_trusted() {
+		unset( $GLOBALS['grunion_block_template_id'], $GLOBALS['grunion_block_template_part_id'] );
+
+		foreach ( array( 'block_template', 'block_template_part' ) as $marker ) {
+			$source = Feedback_Source::get_current(
+				array(
+					$marker    => 'mytheme//evil',
+					'webhooks' => array(
+						array(
+							'webhook_id' => 'w',
+							'url'        => 'https://example.com/x',
+							'enabled'    => true,
+							'format'     => 'json',
+							'method'     => 'POST',
+						),
+					),
+				)
+			);
+
+			$this->assertNotContains(
+				$source->get_source_type(),
+				Feedback_Source::ADMIN_TIER_SOURCE_TYPES,
+				"A content-supplied $marker attribute must not yield an admin-tier source type."
+			);
+		}
+	}
+
+	/**
+	 * Test that a block_template / block_template_part source built from the render-scoped global
+	 * (the legitimate path) is honored.
+	 */
+	public function test_render_anchored_template_sources_are_trusted() {
+		$template_source = $this->source_from_render_global( 'grunion_block_template_id', 'mytheme//single' );
+
+		$this->assertSame( 'block_template', $template_source->get_source_type() );
+		$this->assertTrue(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $template_source->get_id(), $template_source->get_source_type() )
+		);
+
+		$part_source = $this->source_from_render_global( 'grunion_block_template_part_id', 'mytheme//footer' );
+
+		$this->assertSame( 'block_template_part', $part_source->get_source_type() );
+		$this->assertTrue(
+			\Automattic\Jetpack\Forms\Jetpack_Forms::should_honor_content_destinations( $part_source->get_id(), $part_source->get_source_type() )
+		);
+	}
+
+	/**
+	 * Test that get_current() still resolves a widget source from the widget attribute, which
+	 * Contact_Form::parse() sets from the server-resolved widget context (not from content).
+	 */
+	public function test_get_current_resolves_widget_source_from_attribute() {
+		unset( $GLOBALS['grunion_block_template_id'], $GLOBALS['grunion_block_template_part_id'] );
+
+		$source = Feedback_Source::get_current( array( 'widget' => 'sidebar-1' ) );
+
+		$this->assertSame( 'widget', $source->get_source_type() );
+		$this->assertSame( 'sidebar-1', (string) $source->get_id() );
 	}
 
 	/**
@@ -4588,6 +4750,79 @@ class Contact_Form_Test extends BaseTestCase {
 			'radio (via exception map)'      => array( 'radio' ),
 			'checkbox-multiple (hyphenated)' => array( 'checkbox-multiple' ),
 			'image-select (hyphenated)'      => array( 'image-select' ),
+		);
+	}
+
+	/**
+	 * A manually-set field ID that collides with another field in the same form
+	 * (e.g. from duplicating or copy/pasting the block) should be suffixed so
+	 * each field keeps a unique input name. The suffix starts at -2 to match
+	 * generateUniqueFormFieldId() on the editor side. See FORMS-724.
+	 */
+	public function test_duplicate_manual_field_ids_are_made_unique() {
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='First' type='text' id='name'/][contact-field label='Second' type='text' id='name'/][contact-field label='Third' type='text' id='name'/]"
+		);
+
+		$this->assertSame(
+			array( 'name', 'name-2', 'name-3' ),
+			array_keys( $form->fields ),
+			'Duplicate manual field IDs should be suffixed so each field stays unique.'
+		);
+	}
+
+	/**
+	 * A single, non-colliding manual field ID must be preserved verbatim — the
+	 * de-duplication should only kick in on an actual collision.
+	 */
+	public function test_unique_manual_field_id_is_preserved() {
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='First' type='text' id='full_name'/][contact-field label='Second' type='email' id='contact_email'/]"
+		);
+
+		$this->assertSame(
+			array( 'full_name', 'contact_email' ),
+			array_keys( $form->fields ),
+			'Non-colliding manual field IDs should be left untouched.'
+		);
+	}
+
+	/**
+	 * Two distinct duplicated IDs in the same form must be de-duplicated
+	 * independently — the counter is per-ID, so "tel" collisions don't inherit
+	 * the "name" count. See FORMS-724.
+	 */
+	public function test_mixed_manual_field_ids_are_deduped_independently() {
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='First' type='text' id='name'/][contact-field label='Second' type='text' id='name'/][contact-field label='Third' type='text' id='name'/][contact-field label='Fourth' type='text' id='tel'/][contact-field label='Fifth' type='text' id='tel'/][contact-field label='Sixth' type='text' id='name'/]"
+		);
+
+		$this->assertSame(
+			array( 'name', 'name-2', 'name-3', 'tel', 'tel-2', 'name-4' ),
+			array_keys( $form->fields ),
+			'Each colliding ID should be suffixed against its own base, not a shared counter.'
+		);
+	}
+
+	/**
+	 * When a form already contains suffixed IDs, generated suffixes must skip the
+	 * ones already in use rather than collide with them. See FORMS-724.
+	 */
+	public function test_pre_suffixed_manual_field_ids_stay_unique() {
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='First' type='text' id='name'/][contact-field label='Second' type='text' id='name'/][contact-field label='Third' type='text' id='name'/][contact-field label='Fourth' type='text' id='name-2'/][contact-field label='Fifth' type='text' id='tel'/][contact-field label='Sixth' type='text' id='name-3'/]"
+		);
+
+		// The explicit "name-2"/"name-3" collide with generated ones and fall back
+		// to a further suffix, but every resulting ID stays unique.
+		$this->assertSame(
+			array( 'name', 'name-2', 'name-3', 'name-2-2', 'tel', 'name-3-2' ),
+			array_keys( $form->fields ),
+			'Explicit suffixed IDs that collide with generated ones should still resolve to unique IDs.'
 		);
 	}
 }

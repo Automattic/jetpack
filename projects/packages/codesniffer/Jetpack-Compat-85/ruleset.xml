@@ -25,6 +25,7 @@
 		<exclude name="PHPCompatibility.Constants.NewConstants.eth_p_ipv6Found" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.eth_p_loopFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.filter_throw_on_failureFound" />
+		<exclude name="PHPCompatibility.Constants.NewConstants.imagetype_heifFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.imagetype_svgFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.ip_bindanyFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.ipproto_icmpFound" />

@@ -2,7 +2,12 @@
  * Types for the unified media section component
  */
 
-import type { AttachedMedia, JetpackSocialOptions, SIGSettings } from '../../utils/types';
+import type {
+	AttachedMedia,
+	FocalPoint,
+	JetpackSocialOptions,
+	SIGSettings,
+} from '../../utils/types';
 
 /**
  * Media source types
@@ -148,6 +153,32 @@ export interface MediaSourceMenuProps {
 	 * Optional children render function that receives open function
 	 */
 	children?: ( { open }: { open: () => void } ) => React.ReactNode;
+}
+
+/**
+ * Props for MediaFocalPoint component
+ */
+export interface MediaFocalPointProps {
+	/**
+	 * URL of the image to pick the focal point on
+	 */
+	url: string;
+
+	/**
+	 * The current focal point (both axes 0-1).
+	 */
+	value: FocalPoint;
+
+	/**
+	 * Called with the rounded focal point when the user commits it (release,
+	 * click, or keyboard).
+	 */
+	onChange: ( point: FocalPoint ) => void;
+
+	/**
+	 * Called with the rounded focal point while dragging, before it is committed.
+	 */
+	onDrag?: ( point: FocalPoint ) => void;
 }
 
 /**

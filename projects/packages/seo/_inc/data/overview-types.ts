@@ -5,7 +5,6 @@
 export interface SiteVisibility {
 	search_engines_visible: boolean;
 	sitemap_active: boolean;
-	sitemap_url: string;
 	seo_tools_active: boolean;
 }
 
@@ -17,9 +16,18 @@ export interface SiteVerification {
 	facebook: boolean;
 }
 
+export interface ContentCoverage {
+	total: number;
+	with_schema: number;
+	with_title: number;
+	with_description: number;
+	with_search_visible: number;
+}
+
 export interface OverviewResponse {
 	site_visibility: SiteVisibility;
 	site_verification: SiteVerification;
+	content_coverage: ContentCoverage;
 	plan: {
 		seo_enabled_for_site: boolean;
 	};

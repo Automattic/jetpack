@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update @react-spring/web to v10 and remove the unused @react-spring/core dependency for React 19 compatibility.

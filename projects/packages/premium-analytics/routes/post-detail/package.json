@@ -1,0 +1,31 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-premium-analytics-post-detail-route",
+	"route": {
+		"path": "/post/$postId",
+		"page": "jetpack-premium-analytics"
+	},
+	"dependencies": {
+		"@automattic/jetpack-premium-analytics-data": "link:../../packages/data",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@jetpack-premium-analytics/data": "workspace:*",
+		"@jetpack-premium-analytics/datetime": "workspace:*",
+		"@jetpack-premium-analytics/routing": "workspace:*",
+		"@jetpack-premium-analytics/ui": "workspace:*",
+		"@jetpack-premium-analytics/widgets-toolkit": "workspace:*",
+		"@wordpress/admin-ui": "2.5.0",
+		"@wordpress/core-data": "7.50.0",
+		"@wordpress/data": "10.50.0",
+		"@wordpress/element": "8.2.0",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/icons": "^15.0.0",
+		"@wordpress/preferences": "4.50.0",
+		"@wordpress/route": "0.16.0",
+		"@wordpress/ui": "0.17.0",
+		"@wordpress/widget-dashboard": "0.2.0",
+		"@wordpress/widget-primitives": "0.2.0",
+		"date-fns": "4.1.0",
+		"fast-deep-equal": "^3.1.3",
+		"react": "18.3.1"
+	}
+}

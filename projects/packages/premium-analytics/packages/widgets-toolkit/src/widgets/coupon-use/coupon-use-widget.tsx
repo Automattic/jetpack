@@ -78,6 +78,7 @@ export function CouponUseWidget() {
 						type: 'currency',
 						options: { useMultipliers: true, decimals: 0 },
 					} }
+					maxSize={ null }
 					emptyStateIcon={ coupon }
 					withTooltips
 				/>

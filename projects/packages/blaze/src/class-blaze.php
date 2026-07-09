@@ -90,9 +90,9 @@ class Blaze {
 		// validates the page parameter.
 		add_action( 'admin_menu', array( __CLASS__, 'redirect_legacy_advertising_url' ), 999 );
 		// Add Blaze dashboard app REST API endpoints.
-		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( Blaze_Dashboard_REST_Controller::class, 'register' ) );
 		// Add general Blaze REST API endpoints.
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( REST_Controller::class, 'register' ) );
 	}
 
 	/**
@@ -558,7 +558,7 @@ class Blaze {
 		/**
 		 * Filter the campaign statuses that should trigger the active campaign warning.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.27.23
 		 *
 		 * @param string[] $statuses Campaign statuses to check.
 		 * @param int      $blog_id  The blog ID being checked.

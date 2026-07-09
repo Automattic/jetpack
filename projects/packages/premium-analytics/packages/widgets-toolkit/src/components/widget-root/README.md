@@ -56,7 +56,7 @@ export function MyWidget() {
 | -------------- | -------------------------------------- | --------------------------------------------------------------- |
 | `attributes`   | `Partial<ReportParamsFieldAttributes>` | Widget attributes, may include `reportParams`                   |
 | `children`     | `ReactNode`                            | Child components (widgets)                                      |
-| `options.from` | `string`                               | Router path for URL params (default: `/wc-analytics/dashboard`) |
+| `options.from` | `string`                               | Deprecated/ignored — params are always read from the current matched route |
 
 ### useWidgetRootContext
 
@@ -130,7 +130,7 @@ Aligned with [Tailwind container query defaults](https://tailwindcss.com/docs/re
 
 	// >= 576px: add more spacing
 	@include widget-query( xl ) {
-		gap: var( --wpds-dimension-base );
+		gap: var( --wpds-dimension-size-5xs );
 	}
 }
 ```

@@ -2,10 +2,9 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { FC, useContext, useMemo } from 'react';
-import { Chart, type GoogleChartOptions } from 'react-google-charts';
+import { FC, useContext, useEffect, useMemo, useRef } from 'react';
+import { Chart, type GoogleChartPackages, type ReactGoogleChartEvent } from 'react-google-charts';
 /**
  * Internal dependencies
  */
@@ -13,12 +12,102 @@ import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } fro
 import { lightenHexColor, normalizeColorToHex } from '../../utils/color-utils';
 import { resolveCssVariable } from '../../utils/resolve-css-var';
 import { sanitizeHtml } from '../../utils/sanitize-html';
+import { Center } from '../private/center';
 import { withResponsive } from '../private/with-responsive';
 import styles from './geo-chart.module.scss';
-import { GeoChartProps } from './types';
+import type { GeoChartError, GeoChartProps } from './types';
 
 const DEFAULT_FEATURE_FILL_COLOR = '#ffffff';
 const DEFAULT_BACKGROUND_COLOR = '#ffffff';
+// `chartPackages` replaces (not extends) react-google-charts' default `[ 'corechart', 'controls' ]`,
+// so we restate the defaults and add `geochart`. Without it the loader backfills the geochart package
+// late, which can clash with another Google Charts version already loaded on the page.
+const GEO_CHART_PACKAGES: GoogleChartPackages[] = [ 'corechart', 'controls', 'geochart' ];
+
+type GoogleChartOptions = Record< string, unknown >;
+type GoogleChartErrorPayload = {
+	id?: unknown;
+	message?: unknown;
+	detailedMessage?: unknown;
+	options?: unknown;
+};
+
+// Google Charts renders draw errors as DOM elements injected into the chart
+// container: a wrapper `<div id="google-visualization-errors-all-N">` holding
+// one `<span id="google-visualization-errors-N">` per error. The span id is the
+// error id accepted by `google.visualization.errors.removeError()`.
+const GOOGLE_CHARTS_ERROR_ID_PREFIX = 'google-visualization-errors-';
+const GOOGLE_CHARTS_ERROR_WRAPPER_INFIX = '-all-';
+
+/**
+ * Collects Google Charts error elements rendered inside a chart container.
+ *
+ * @param container - The chart container element to scan.
+ * @return Errors found in the container, one per error span.
+ */
+function collectRenderedGeoChartErrors(
+	container: HTMLElement
+): Required< Pick< GeoChartError, 'id' | 'message' > >[] {
+	const elements = container.querySelectorAll< HTMLElement >(
+		`[id^="${ GOOGLE_CHARTS_ERROR_ID_PREFIX }"]`
+	);
+
+	return Array.from( elements )
+		.filter( element => ! element.id.includes( GOOGLE_CHARTS_ERROR_WRAPPER_INFIX ) )
+		.map( element => ( {
+			id: element.id,
+			message: element.textContent?.trim() ?? '',
+		} ) )
+		.filter( error => error.message.length > 0 );
+}
+
+/**
+ * Whether a node added to the chart container is — or contains — a Google
+ * Charts error element. Also matches text appended into an existing error
+ * span, in case Google fills the message after inserting the element.
+ *
+ * @param node - The added DOM node to inspect.
+ * @return Whether the node involves a Google Charts error element.
+ */
+function involvesGeoChartErrorElement( node: Node ): boolean {
+	if ( node.nodeType === Node.TEXT_NODE ) {
+		return !! node.parentElement?.id.startsWith( GOOGLE_CHARTS_ERROR_ID_PREFIX );
+	}
+
+	if ( ! ( node instanceof HTMLElement ) ) {
+		return false;
+	}
+
+	return (
+		node.id.startsWith( GOOGLE_CHARTS_ERROR_ID_PREFIX ) ||
+		node.querySelector( `[id^="${ GOOGLE_CHARTS_ERROR_ID_PREFIX }"]` ) !== null
+	);
+}
+
+/**
+ * Normalizes the raw Google Charts error event into the GeoChart error shape.
+ *
+ * @param eventArgs - Error event payload from react-google-charts.
+ * @return Normalized GeoChart error.
+ */
+function normalizeGeoChartError( eventArgs: unknown ): GeoChartError {
+	const payload = Array.isArray( eventArgs ) ? eventArgs[ 0 ] : eventArgs;
+
+	if ( ! payload || typeof payload !== 'object' ) {
+		return {};
+	}
+
+	const { id, message, detailedMessage, options } = payload as GoogleChartErrorPayload;
+
+	return {
+		...( typeof id === 'string' && { id } ),
+		...( typeof message === 'string' && { message } ),
+		...( typeof detailedMessage === 'string' && { detailedMessage } ),
+		...( options &&
+			typeof options === 'object' &&
+			! Array.isArray( options ) && { options: options as Record< string, unknown > } ),
+	};
+}
 
 /**
  * Renders a geographical chart using Google Charts GeoChart to visualize data.
@@ -35,6 +124,7 @@ const DEFAULT_BACKGROUND_COLOR = '#ffffff';
  * @param props.height            - Height of the chart in pixels
  * @param props.region            - Region to display ('world', 'US', or ISO 3166-1 alpha-2 code)
  * @param props.resolution        - Resolution level ('countries', 'provinces', or 'metros')
+ * @param props.onError           - Optional callback for Google Charts errors
  * @param props.className         - Additional CSS class name for the chart container
  * @param props.renderPlaceholder - Optional render function for the loading placeholder
  * @return A React component displaying an interactive map with data visualization
@@ -46,6 +136,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	height,
 	region = 'world',
 	resolution = 'countries',
+	onError,
 	renderPlaceholder,
 } ) => {
 	const {
@@ -55,18 +146,59 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			backgroundColor,
 		},
 	} = useGlobalChartsContext();
+	const containerRef = useRef< HTMLDivElement >( null );
+	const reportedErrorIdsRef = useRef< Set< string > >( new Set() );
+
+	// The ChartWrapper `error` event does not fire for every draw failure —
+	// notably not when GeoChart's asynchronous map-file load fails (e.g.
+	// `resolution: 'provinces'` for a country without a provinces map). Those
+	// errors only surface as DOM elements Google injects into the container, so
+	// watch the container and report them through the same `onError` callback.
+	useEffect( () => {
+		const container = containerRef.current;
+
+		if ( ! onError || ! container || typeof MutationObserver === 'undefined' ) {
+			return undefined;
+		}
+
+		const reportRenderedErrors = () => {
+			for ( const error of collectRenderedGeoChartErrors( container ) ) {
+				if ( reportedErrorIdsRef.current.has( error.id ) ) {
+					continue;
+				}
+
+				reportedErrorIdsRef.current.add( error.id );
+				onError( error );
+			}
+		};
+
+		// GeoChart mutates the container heavily while drawing and resizing;
+		// only rescan when an added node involves a Google error element.
+		const observer = new MutationObserver( records => {
+			const hasErrorNodes = records.some( record =>
+				Array.from( record.addedNodes ).some( involvesGeoChartErrorElement )
+			);
+
+			if ( hasErrorNodes ) {
+				reportRenderedErrors();
+			}
+		} );
+		observer.observe( container, { childList: true, subtree: true } );
+		// Report errors already rendered before the observer attached.
+		reportRenderedErrors();
+
+		return () => observer.disconnect();
+	}, [ onError ] );
 
 	// Render loading placeholder
 	const loadingPlaceholder = (
-		<Stack
-			align="center"
-			justify="center"
+		<Center
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart-loading"
 			style={ { width, height } }
 		>
 			{ renderPlaceholder ? renderPlaceholder() : __( 'Loading map', 'jetpack-charts' ) }
-		</Stack>
+		</Center>
 	);
 
 	// Google charts doesn't accept CSS variables, so we need to convert them to hex colors
@@ -146,23 +278,39 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		]
 	);
 
+	const chartEvents = useMemo< ReactGoogleChartEvent[] | undefined >( () => {
+		if ( ! onError ) {
+			return undefined;
+		}
+
+		return [
+			{
+				eventName: 'error',
+				callback: ( { eventArgs } ) => {
+					onError( normalizeGeoChartError( eventArgs ) );
+				},
+			},
+		];
+	}, [ onError ] );
+
 	return (
-		<Stack
-			align="center"
-			justify="center"
+		<Center
+			ref={ containerRef }
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart"
 			style={ { width, height, backgroundColor } }
 		>
 			<Chart
 				chartType="GeoChart"
+				chartPackages={ GEO_CHART_PACKAGES }
 				width={ width }
 				height={ height }
 				data={ sanitizedData.data }
 				options={ options }
+				chartEvents={ chartEvents }
 				loader={ loadingPlaceholder }
 			/>
-		</Stack>
+		</Center>
 	);
 };
 

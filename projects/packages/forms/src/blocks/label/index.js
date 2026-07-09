@@ -53,7 +53,9 @@ const settings = {
 				fontSize: true,
 			},
 		},
-		blockVisibility: true,
+		// The real support key is `visibility`, not `blockVisibility` (that's the
+		// per-instance saved attribute); mirrors the PHP registration. FORMS-694.
+		visibility: true,
 	},
 	attributes: {
 		label: {

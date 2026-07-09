@@ -17,8 +17,15 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	// Use file modification time to bust CDN caches when files change.
-	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ) ) );
+	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ), filemtime( __DIR__ . '/post-publish-checklist.js' ), filemtime( __DIR__ . '/post-publish-checklist.css' ) ) );
 }
+
+// Post-publish next-steps checklist, shown on the published post after a
+// Write-editor publish on a Coming Soon site.
+require_once __DIR__ . '/post-publish-checklist.php';
+
+// Email-verification launch gate backing the checklist's inline confirm-email step.
+require_once __DIR__ . '/email-verification.php';
 
 /**
  * Get the URL for a Write feature asset file.
@@ -50,6 +57,80 @@ function wpcom_write_asset_url( $file ) {
  */
 function wpcom_write_url() {
 	return admin_url( 'admin.php?page=write' );
+}
+
+/**
+ * Resolve the editor's back/close destination from the source the user arrived from.
+ *
+ * Maps a short allowlist of known source tokens to known internal destinations.
+ * Anything not in the allowlist (including an empty or inferred source) falls back
+ * to the default destination — the site dashboard — so behavior is unchanged.
+ *
+ * This is the single lookup point for back-button destinations: never echo an
+ * arbitrary return URL from the query string, only map to vetted destinations.
+ *
+ * @param string $source Sanitized source token (see wpcom_write_render_admin_page()).
+ * @return string The destination URL for the back/close button.
+ */
+function wpcom_write_resolve_back_url( $source ) {
+	$destinations = array(
+		'reader' => 'https://wordpress.com/reader',
+	);
+
+	return $destinations[ $source ] ?? admin_url();
+}
+
+/**
+ * Translated UI strings consumed by view.js as `window.wpcomWriteStrings`.
+ *
+ * Exposed as a helper so callers that render the Write editor outside the
+ * wp-admin page lifecycle (and therefore never hit the admin_enqueue_scripts
+ * hook below) can print the same strings without duplicating the list.
+ *
+ * @return array<string, string> Map of i18n key -> translated string.
+ */
+function wpcom_write_get_editor_strings() {
+	return array(
+		'caption'              => __( 'Caption', 'jetpack-mu-wpcom' ),
+		'editImage'            => __( 'Edit image', 'jetpack-mu-wpcom' ),
+		'writeCaption'         => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
+		// translators: %s is the error message from the upload failure.
+		'uploadFailed'         => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
+		'libraryLoading'       => __( 'Loading your library…', 'jetpack-mu-wpcom' ),
+		'libraryEmpty'         => __( 'No images in your library yet.', 'jetpack-mu-wpcom' ),
+		'libraryNoResults'     => __( 'No matching images.', 'jetpack-mu-wpcom' ),
+		'libraryLoadFailed'    => __( "Couldn't load your library.", 'jetpack-mu-wpcom' ),
+		// translators: %s is the alt text or filename of the selected library image.
+		'librarySelected'      => __( 'Selected %s', 'jetpack-mu-wpcom' ),
+		'invalidVideoUrl'      => __( 'Please paste a valid YouTube or Vimeo URL', 'jetpack-mu-wpcom' ),
+		'pleaseAddTitle'       => __( 'Please add a title', 'jetpack-mu-wpcom' ),
+		'pleaseWriteSomething' => __( 'Please write something', 'jetpack-mu-wpcom' ),
+		'savingDraft'          => __( 'Saving draft...', 'jetpack-mu-wpcom' ),
+		'updating'             => __( 'Updating...', 'jetpack-mu-wpcom' ),
+		'publishing'           => __( 'Publishing...', 'jetpack-mu-wpcom' ),
+		'updated'              => __( 'Updated!', 'jetpack-mu-wpcom' ),
+		'published'            => __( 'Published!', 'jetpack-mu-wpcom' ),
+		'draftSaved'           => __( 'Draft saved', 'jetpack-mu-wpcom' ),
+		'draftAutosaved'       => __( 'Draft saved', 'jetpack-mu-wpcom' ),
+		// translators: %s is the error message.
+		'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
+		'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
+		'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
+		'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
+		'preview'              => __( 'Preview', 'jetpack-mu-wpcom' ),
+		// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
+		'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
+		'untitled'             => __( 'Untitled', 'jetpack-mu-wpcom' ),
+		'addCitation'          => __( 'Add citation…', 'jetpack-mu-wpcom' ),
+		'citation'             => __( 'Citation', 'jetpack-mu-wpcom' ),
+		'postNotFound'         => __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' ),
+		'postNoPermission'     => __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' ),
+		// Labels used only when the editor is rendered for a logged-out
+		// visitor (window.wpcomWriteIsAnon). "WordPress.com" is a product
+		// mark and stays untranslated; only the feature name is localised.
+		'anonBrand'            => 'WordPress.com · ' . _x( 'Write', 'editor name in the anonymous brand label', 'jetpack-mu-wpcom' ),
+		'anonStatus'           => __( 'Not signed in', 'jetpack-mu-wpcom' ),
+	);
 }
 
 /**
@@ -123,38 +204,8 @@ add_action(
 		wp_enqueue_script_module( 'wpcom-write/view' );
 
 		// Pass translated strings to JavaScript for dynamic messages.
-		$write_strings = array(
-			'caption'              => __( 'Caption', 'jetpack-mu-wpcom' ),
-			'editImage'            => __( 'Edit image', 'jetpack-mu-wpcom' ),
-			'writeCaption'         => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
-			// translators: %s is the error message from the upload failure.
-			'uploadFailed'         => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
-			'invalidVideoUrl'      => __( 'Please paste a valid YouTube or Vimeo URL', 'jetpack-mu-wpcom' ),
-			'pleaseAddTitle'       => __( 'Please add a title', 'jetpack-mu-wpcom' ),
-			'pleaseWriteSomething' => __( 'Please write something', 'jetpack-mu-wpcom' ),
-			'savingDraft'          => __( 'Saving draft...', 'jetpack-mu-wpcom' ),
-			'updating'             => __( 'Updating...', 'jetpack-mu-wpcom' ),
-			'publishing'           => __( 'Publishing...', 'jetpack-mu-wpcom' ),
-			'updated'              => __( 'Updated!', 'jetpack-mu-wpcom' ),
-			'published'            => __( 'Published!', 'jetpack-mu-wpcom' ),
-			'draftSaved'           => __( 'Draft saved', 'jetpack-mu-wpcom' ),
-			'draftAutosaved'       => __( 'Draft saved', 'jetpack-mu-wpcom' ),
-			// translators: %s is the error message.
-			'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
-			'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
-			'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
-			'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
-			'preview'              => __( 'Preview', 'jetpack-mu-wpcom' ),
-			// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
-			'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
-			'untitled'             => __( 'Untitled', 'jetpack-mu-wpcom' ),
-			'addCitation'          => __( 'Add citation…', 'jetpack-mu-wpcom' ),
-			'citation'             => __( 'Citation', 'jetpack-mu-wpcom' ),
-			'postNotFound'         => __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' ),
-			'postNoPermission'     => __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' ),
-		);
 		wp_print_inline_script_tag(
-			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
+			'window.wpcomWriteStrings = ' . wp_json_encode( wpcom_write_get_editor_strings(), JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
 		);
 
 		wp_enqueue_style(
@@ -568,6 +619,12 @@ function wpcom_write_inline_color_marks_to_spans( $html ) {
  * @return array Array of { id: int, title: string, modified: string } objects.
  */
 function wpcom_write_get_recent_drafts( $exclude_post_id = 0 ) {
+	// Drafts always belong to the current user; without one there is nothing to
+	// return, and querying with author=0 would otherwise match orphaned drafts.
+	if ( ! is_user_logged_in() ) {
+		return array();
+	}
+
 	$args = array(
 		'post_type'      => 'post',
 		'post_status'    => 'draft',
@@ -733,8 +790,9 @@ function wpcom_write_render_admin_page() {
 	// 1. Explicit query param (highest priority).
 	// 2. Infer from HTTP referer.
 	// 3. Fall back to 'direct' (bookmarks, typed URLs, stripped referers).
-	// Note: When the /write → wp-admin redirect is implemented, it must forward the source query param.
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter used for analytics only.
+	// The /write-editor redirect forwards this param into wp-admin, so an explicit
+	// source (e.g. 'reader') survives the hop and drives the back-button destination.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter, no state change.
 	$source = isset( $_GET['source'] ) ? sanitize_key( $_GET['source'] ) : '';
 	if ( ! $source ) {
 		$referer = wp_get_referer();
@@ -752,10 +810,18 @@ function wpcom_write_render_admin_page() {
 		}
 	}
 
+	// Resolve where the back/close button should return the user, based on source.
+	$back_url = wpcom_write_resolve_back_url( $source );
+
 	if ( function_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_record_tracks_event' ) ) {
 		$event_props = array(
 			'is_new_post' => (int) ( 0 === $edit_post_id ),
 			'source'      => $source,
+			// Anon entry is the only logged-out render of this editor (the wp-admin
+			// page requires auth), so logged-out is a reliable proxy for the anon
+			// fake-door funnel. Lets the funnel scope its top-of-funnel denominator
+			// to anon traffic without depending on the client-only wpcomWriteIsAnon flag.
+			'is_anon'     => (int) ! is_user_logged_in(),
 		);
 
 		if ( $edit_post_id > 0 ) {
@@ -822,10 +888,19 @@ function wpcom_write_render_admin_page() {
 			'mediaPath'              => '/wp/v2/media',
 			'homeUrl'                => home_url( '/' ),
 			'adminUrl'               => admin_url(),
+			'backUrl'                => $back_url,
 			'writeUrl'               => wpcom_write_url(),
 			'editPostId'             => $edit_post_id,
 			'postStatus'             => $post_status,
 			'isPublishedPost'        => 'publish' === $post_status,
+			// When the site is still Coming Soon (private by default), publishing
+			// lands a private post. The publish redirect tags the post URL so the
+			// post-publish next-steps checklist can surface there.
+			'isComingSoon'           => 1 === (int) get_option( 'wpcom_public_coming_soon' ),
+			// The query arg the redirect tags onto the post URL, kept in sync with
+			// the server-side gate by sharing WPCOM_WRITE_PUBLISHED_MARKER (defined
+			// in post-publish-checklist.php) rather than hardcoding it in view.js.
+			'publishedMarker'        => WPCOM_WRITE_PUBLISHED_MARKER,
 			'title'                  => $edit_title,
 			'isSaving'               => false,
 			'isPublished'            => false,
@@ -843,6 +918,10 @@ function wpcom_write_render_admin_page() {
 			'editingImageSize'       => '',
 			'editingImageHasMediaId' => false,
 			'isUploading'            => false,
+			'showLibraryPicker'      => false,
+			'showUrlInput'           => false,
+			'librarySearch'          => '',
+			'libraryStatus'          => '',
 			'categories'             => $categories_data,
 			'catLabel'               => $cat_label,
 			'existingTagIds'         => $existing_tag_ids,
@@ -879,7 +958,7 @@ function wpcom_write_render_admin_page() {
 	);
 
 	// Output the editor UI inside wp-admin's wrapper.
-	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status, $video_placeholders, $show_cat_row, $cat_label, $recent_drafts, $open_post_error );
+	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status, $video_placeholders, $show_cat_row, $cat_label, $recent_drafts, $open_post_error, $back_url );
 }
 
 /**
@@ -898,14 +977,18 @@ function wpcom_write_render_admin_page() {
  * @param string $cat_label           Full "Writing in X, Y" label text; empty string if none selected.
  * @param array  $recent_drafts       Array of recent draft objects for the post picker.
  * @param string $open_post_error     Error message for post picker, empty if no error.
+ * @param string $back_url            Destination for the back/close button; defaults to the dashboard.
  */
-function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new', $video_placeholders = array(), $show_cat_row = false, $cat_label = '', $recent_drafts = array(), $open_post_error = '' ) {
+function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new', $video_placeholders = array(), $show_cat_row = false, $cat_label = '', $recent_drafts = array(), $open_post_error = '', $back_url = '' ) {
+	if ( '' === $back_url ) {
+		$back_url = admin_url();
+	}
 	?>
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
 	<!-- Top bar -->
 	<header class="bw-topbar">
-		<a href="<?php echo esc_url( admin_url() ); ?>" class="bw-back" title="<?php echo esc_attr__( 'Back to dashboard', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Back to dashboard', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.handleBack">&larr;</a>
+		<a href="<?php echo esc_url( $back_url ); ?>" class="bw-back" title="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.handleBack">&larr;</a>
 		<div class="bw-help-wrap" data-wp-on--keydown="actions.handleHelpKeyDown" data-wp-on--focusout="actions.handleHelpFocusOut">
 		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>"><span class="bw-help-i" aria-hidden="true">i</span></button>
 		<div class="bw-help-popover" hidden data-wp-bind--hidden="!state.showHelp">
@@ -1182,27 +1265,76 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				<span class="bw-upload-saving" style="display:none;"><?php echo esc_html__( 'Uploading...', 'jetpack-mu-wpcom' ); ?></span>
 				<input type="file" accept="image/*" data-wp-on--change="actions.uploadImage" class="bw-visually-hidden" />
 			</label>
-			<div class="bw-image-divider"><span><?php echo esc_html__( 'or', 'jetpack-mu-wpcom' ); ?></span></div>
-			<input
-				type="url"
-				class="bw-image-url-input"
-				placeholder="<?php echo esc_attr__( 'Paste an image URL...', 'jetpack-mu-wpcom' ); ?>"
-				data-wp-on--input="actions.updateImageUrl"
-				data-wp-bind--value="state.imageUrl"
-			/>
 			<input
 				type="text"
-				class="bw-image-url-input"
+				class="bw-image-url-input bw-image-alt-input"
 				placeholder="<?php echo esc_attr__( 'Alt text (describe the image)...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateImageAlt"
 				data-wp-bind--value="state.imageAlt"
-				style="margin-top:12px;"
 			/>
 			<label class="bw-featured-toggle">
 				<input type="checkbox" data-wp-on--change="actions.toggleFeaturedImage" data-wp-bind--checked="state.setAsFeatured" />
 				<span><?php echo esc_html__( 'Set as featured image', 'jetpack-mu-wpcom' ); ?></span>
 			</label>
-			<button class="bw-btn bw-btn-publish" data-wp-on--click="actions.insertImageFromUrl" style="width:100%;margin-top:12px;"><?php echo esc_html__( 'Insert image', 'jetpack-mu-wpcom' ); ?></button>
+			<button class="bw-btn bw-btn-publish bw-insert-image-btn" data-wp-on--click="actions.insertImageFromUrl"><?php echo esc_html__( 'Insert image', 'jetpack-mu-wpcom' ); ?></button>
+
+			<!-- Secondary sources: collapsed by default. -->
+			<div class="bw-source-expanders">
+				<div class="bw-source-expander">
+					<button
+						type="button"
+						class="bw-source-trigger"
+						aria-controls="bw-library-section"
+						data-wp-bind--aria-expanded="state.showLibraryPicker"
+						data-wp-on--click="actions.toggleLibraryPicker"
+					>
+						<span class="bw-source-chevron" aria-hidden="true"></span>
+						<?php echo esc_html__( 'From your library', 'jetpack-mu-wpcom' ); ?>
+					</button>
+					<div id="bw-library-section" class="bw-library-section" hidden data-wp-bind--hidden="!state.showLibraryPicker">
+						<label class="bw-visually-hidden" for="bw-library-search"><?php echo esc_html__( 'Search your media library', 'jetpack-mu-wpcom' ); ?></label>
+						<input
+							id="bw-library-search"
+							type="search"
+							class="bw-library-search"
+							placeholder="<?php echo esc_attr__( 'Search your library…', 'jetpack-mu-wpcom' ); ?>"
+							autocomplete="off"
+							data-wp-on--input="actions.searchLibrary"
+							data-wp-bind--value="state.librarySearch"
+						/>
+						<div
+							id="bw-library-grid"
+							class="bw-library-strip"
+							role="group"
+							aria-label="<?php echo esc_attr__( 'Your media library', 'jetpack-mu-wpcom' ); ?>"
+							data-wp-on--click="actions.selectLibraryImage"
+						></div>
+						<div class="bw-library-status" role="status" aria-live="polite" data-wp-text="state.libraryStatus"></div>
+					</div>
+				</div>
+				<div class="bw-source-expander">
+					<button
+						type="button"
+						class="bw-source-trigger"
+						aria-controls="bw-url-section"
+						data-wp-bind--aria-expanded="state.showUrlInput"
+						data-wp-on--click="actions.toggleUrlInput"
+					>
+						<span class="bw-source-chevron" aria-hidden="true"></span>
+						<?php echo esc_html__( 'Paste an image URL', 'jetpack-mu-wpcom' ); ?>
+					</button>
+					<div id="bw-url-section" class="bw-url-section" hidden data-wp-bind--hidden="!state.showUrlInput">
+						<input
+							type="url"
+							class="bw-image-url-input"
+							placeholder="<?php echo esc_attr__( 'https://…', 'jetpack-mu-wpcom' ); ?>"
+							data-wp-on--input="actions.updateImageUrl"
+							data-wp-bind--value="state.imageUrl"
+						/>
+					</div>
+				</div>
+			</div>
+
 		</div>
 	</div>
 

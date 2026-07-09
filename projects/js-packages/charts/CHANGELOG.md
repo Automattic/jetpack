@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2026-07-09
+### Added
+- Add GeoChart error reporting. [#50251]
+
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names and migrate the Storybook decorator to the public ThemeProvider export (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+## [1.9.0] - 2026-07-06
+### Added
+- Add HeatmapChart for matrix and calendar/contribution-style data, with a compact mode and a composition color-scale legend. [#50065]
+
+### Changed
+- Bar Chart: Declare a local process type so the comparison-bars module type-checks when imported as source by other packages. [#49205]
+- Replace hardcoded surface, foreground, and UI colors with WPDS design tokens. [#49946]
+- Tokenize box-shadow, transition, and animation values with WPDS elevation and motion tokens, making elevation and motion themeable. [#49947]
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+### Fixed
+- Conversion Funnel Chart: Let the funnel shrink to fit height-constrained cards instead of enforcing a 200px minimum that forced a scrollbar. [#50163]
+- GeoChart: Load the required Google Charts package explicitly. [#50018]
+- Line Chart: Fix typing on `.gradient.from` and `.gradient.to` to better match behavior and documentation. [#50212]
+
+## [1.8.1] - 2026-06-26
+### Fixed
+- Fix Bar Chart comparison mode — pair the keyboard tooltip with the focused bar, keep the value axis zero-based, and make the tooltip label/value separator translatable. [#49959]
+
+## [1.8.0] - 2026-06-24
+### Added
+- Add comparison mode to the Bar Chart — a translucent shadow bar (standard slot width, 50% opacity) rendered behind each primary bar, paired by group. Primary bars are narrowed to 1/widthFactor of the slot (default widthFactor 1.5 → ~67% width, centered), with widthFactor as the single control. [#49676]
+
+### Changed
+- Add an internal Center layout primitive and use it for centered chart wrappers. [#49164]
+
+## [1.7.0] - 2026-06-23
+### Added
+- Leaderboard interactive rows gain an opt-in `ariaLabel` for image-only labels, and the hover affordance now shrinks each bar in proportion to its length so small-share rows stay consistent. [#49812]
+
+### Changed
+- Add React 19 compatibility for consumers. [#49661]
+- Type `leaderboardChart.labelSpacing` as a WPDS `GapSize` token instead of `number` (the numeric value was silently ignored by `@wordpress/ui`'s Stack) to fix `@wordpress/ui` 0.15 type errors. [#49797]
+
+## [1.6.0] - 2026-06-22
+### Added
+- Allow Leaderboard items to be made interactive via a per-entry onClick, rendering the row as a keyboard-accessible button with a hover chevron. [#49733]
+
+### Changed
+- Update package dependencies. [#49594] [#49631] [#49691] [#49757]
+
 ## [1.5.3] - 2026-06-10
 ### Changed
 - Update package dependencies. [#49273]
@@ -863,6 +912,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[1.10.0]: https://github.com/Automattic/charts/compare/v1.9.0...v1.10.0
+[1.9.0]: https://github.com/Automattic/charts/compare/v1.8.1...v1.9.0
+[1.8.1]: https://github.com/Automattic/charts/compare/v1.8.0...v1.8.1
+[1.8.0]: https://github.com/Automattic/charts/compare/v1.7.0...v1.8.0
+[1.7.0]: https://github.com/Automattic/charts/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/Automattic/charts/compare/v1.5.3...v1.6.0
 [1.5.3]: https://github.com/Automattic/charts/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/Automattic/charts/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/Automattic/charts/compare/v1.5.0...v1.5.1

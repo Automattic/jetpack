@@ -476,7 +476,7 @@ const Controls = props => {
 						</Flex>
 					) }
 					<p style={ { marginTop: 24 } }>
-						<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
+						<ExternalLink href={ `https://wordpress.com/earn/${ getSiteFragment() }` }>
 							{ __( 'View donation earnings', 'jetpack' ) }
 						</ExternalLink>
 					</p>

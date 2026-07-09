@@ -86,9 +86,25 @@ class Initializer {
 
 		Module_Control::init();
 
-		new WPCOM_REST_API_V2_Endpoint_VideoPress();
-		new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
-		new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+		/*
+		 * The WPCOM REST API v2 endpoints only register routes/fields on REST
+		 * init, so defer constructing them (and autoloading their classes) until
+		 * a REST request is actually served. Registered on both REST init hooks
+		 * so the routes remain available in every context they were before, and
+		 * guarded so the endpoints are instantiated only once per request.
+		 */
+		$register_rest_api_v2_endpoints = static function () {
+			static $registered = false;
+			if ( $registered ) {
+				return;
+			}
+			$registered = true;
+			new WPCOM_REST_API_V2_Endpoint_VideoPress();
+			new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
+			new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+		};
+		add_action( 'rest_api_init', $register_rest_api_v2_endpoints, 0 );
+		add_action( 'restapi_theme_init', $register_rest_api_v2_endpoints, 0 );
 
 		if ( is_admin() ) {
 			AJAX::init();
@@ -121,15 +137,29 @@ class Initializer {
 	private static function active_initialization() {
 		Attachment_Handler::init();
 		Jwt_Token_Bridge::init();
-		Uploader_Rest_Endpoints::init();
-		Rest_Controller::init();
 		Initial_State::init();
-		VideoPress_Rest_Api_V1_Stats::init();
-		VideoPress_Rest_Api_V1_Site::init();
-		VideoPress_Rest_Api_V1_Settings::init();
-		VideoPress_Rest_Api_V1_Features::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
+
+		/*
+		 * These endpoints only add their routes on REST init, so defer calling
+		 * init() (and autoloading the endpoint classes) until a REST request is
+		 * served. Priority 0 ensures the routes still register before the
+		 * default-priority rest_api_init handlers run. Class-name strings are
+		 * used so the classes are not autoloaded on non-REST requests.
+		 */
+		foreach (
+			array(
+				Uploader_Rest_Endpoints::class,
+				Rest_Controller::class,
+				VideoPress_Rest_Api_V1_Stats::class,
+				VideoPress_Rest_Api_V1_Site::class,
+				VideoPress_Rest_Api_V1_Settings::class,
+				VideoPress_Rest_Api_V1_Features::class,
+			) as $rest_endpoint
+		) {
+			add_action( 'rest_api_init', array( $rest_endpoint, 'init' ), 0 );
+		}
 		self::register_oembed_providers();
 
 		// Enqueuethe VideoPress Iframe API script in the front-end.
@@ -320,7 +350,7 @@ class Initializer {
 				}
 
 				return sprintf(
-					'<iframe title="%1$s" aria-label="%1$s" src="%2$s" width="640" height="360" allowfullscreen data-resize-to-parent="true" allow="clipboard-write"></iframe>',
+					'<iframe title="%1$s" aria-label="%1$s" src="%2$s" width="640" height="360" allowfullscreen data-resize-to-parent="true" allow="clipboard-write; presentation"></iframe>',
 					esc_attr__( 'VideoPress Video Player', 'jetpack-videopress-pkg' ),
 					esc_url( preg_replace( '#/v/#', '/embed/', $url, 1 ) )
 				);

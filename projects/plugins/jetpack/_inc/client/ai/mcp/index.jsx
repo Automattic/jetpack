@@ -212,7 +212,9 @@ export default function McpHub( {
 			analytics.tracks.recordEvent( 'jetpack_mcp_enabled_toggled', { enabled } );
 			const abilities = {};
 			if ( enabled ) {
-				readTools.forEach( ( [ toolId ] ) => {
+				// Enable all tools (read + write) by default, matching the backend's
+				// new default-on behavior.
+				availableTools.forEach( ( [ toolId ] ) => {
 					abilities[ toolId ] = true;
 				} );
 			}
@@ -226,7 +228,7 @@ export default function McpHub( {
 				],
 			} );
 		},
-		[ blogId, onUpdate, readTools ]
+		[ blogId, onUpdate, availableTools ]
 	);
 
 	const navigateToRead = useCallback( () => onNavigate( 'read' ), [ onNavigate ] );

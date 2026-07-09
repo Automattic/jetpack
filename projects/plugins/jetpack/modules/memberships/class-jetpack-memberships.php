@@ -88,6 +88,31 @@ class Jetpack_Memberships {
 	private static $tags_allowed_in_the_button = array( 'br' => array() );
 
 	/**
+	 * Allowed HTML tags for a rendered tier description. Mirrors the wp.com
+	 * subscribe modal's allowlist so the rendered markdown stays consistent
+	 * across surfaces.
+	 *
+	 * @var array
+	 */
+	const TIER_DESCRIPTION_ALLOWED_HTML = array(
+		'p'          => array(),
+		'br'         => array(),
+		'ul'         => array(),
+		'ol'         => array(),
+		'li'         => array(),
+		'strong'     => array(),
+		'em'         => array(),
+		'del'        => array(),
+		'code'       => array(),
+		'blockquote' => array(),
+		'a'          => array(
+			'href'   => true,
+			'rel'    => true,
+			'target' => true,
+		),
+	);
+
+	/**
 	 * The minimum required plan for this Gutenberg block.
 	 *
 	 * @var string Plan slug
@@ -675,7 +700,13 @@ class Jetpack_Memberships {
 		}
 
 		$post_access_level = get_post_meta( $post_id, self::$post_access_level_meta_name, true );
-		if ( empty( $post_access_level ) ) {
+		// Defaults to "everybody" when unset, and also when the stored value is not a
+		// string. Corrupt rows (e.g. a serialized array like a:1:{i:0;s:0:"";}) can be
+		// persisted by non-REST write paths, and an array flows unchanged into the
+		// strict string-typed `earn_user_has_access` callback on WPCOM, fataling the
+		// render. Coercing here keeps this canonical accessor's documented string
+		// contract regardless of how the meta was written.
+		if ( empty( $post_access_level ) || ! is_string( $post_access_level ) ) {
 			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
@@ -1050,6 +1081,44 @@ class Jetpack_Memberships {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 		return $subscription_service->is_current_user_subscribed();
+	}
+
+	/**
+	 * Render a tier description (stored as markdown text) to safe HTML.
+	 *
+	 * Uses Jetpack's markdown parser, restores paragraph structure (the parser
+	 * strips <p> tags expecting wpautop to run later), forces links to open in a
+	 * new tab (descriptions are shown inside the subscribe modal's iframe), and
+	 * finally sanitizes the output to a small tag allowlist.
+	 *
+	 * @param mixed $description Raw tier description (markdown text). Non-scalar
+	 *                          values are treated as empty.
+	 * @return string Sanitized HTML, or an empty string for an empty description.
+	 */
+	public static function render_tier_description_html( $description ) {
+		if ( ! is_scalar( $description ) ) {
+			return '';
+		}
+		$description = (string) $description;
+		if ( '' === trim( $description ) ) {
+			return '';
+		}
+
+		if ( ! class_exists( 'WPCom_Markdown' ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'modules/markdown/easy-markdown.php';
+		}
+
+		$html = WPCom_Markdown::get_instance()->transform(
+			$description,
+			array(
+				'unslash' => false,
+				'id'      => false,
+			)
+		);
+		$html = wpautop( $html );
+		$html = links_add_target( $html, '_blank' );
+
+		return wp_kses( $html, self::TIER_DESCRIPTION_ALLOWED_HTML );
 	}
 }
 Jetpack_Memberships::get_instance();

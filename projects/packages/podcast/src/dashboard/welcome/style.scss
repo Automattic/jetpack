@@ -56,7 +56,7 @@
 }
 
 .podcast__welcome-plans {
-	padding-inline: clamp(0px, 2vw, 16px);
+	padding-inline: 0;
 }
 
 // `outline` instead of `border` so the highlight doesn't add 1px to the
@@ -64,6 +64,16 @@
 .podcast__welcome-plan--premium {
 	outline: 2px solid #3858e9;
 	outline-offset: -2px;
+}
+
+.podcast__welcome-plan-check {
+	display: inline-flex;
+	align-items: center;
+	color: #008a20;
+
+	svg {
+		fill: currentColor;
+	}
 }
 
 .podcast__welcome-plan-badge {

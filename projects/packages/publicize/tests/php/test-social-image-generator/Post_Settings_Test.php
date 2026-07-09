@@ -203,4 +203,15 @@ class Post_Settings_Test extends BaseTestCase {
 		$settings = new Post_Settings( $this->post_id );
 		$this->assertEquals( $settings->get_token(), $token );
 	}
+
+	/**
+	 * Test that the filter disables the text for generated image.
+	 */
+	public function test_filter_disables_text_for_generated_image() {
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertEquals( 'hello', $settings->get_custom_text() );
+		add_filter( 'jetpack_social_image_generator_disable_text', '__return_true' );
+		$this->assertSame( '', $settings->get_custom_text() );
+		remove_filter( 'jetpack_social_image_generator_disable_text', '__return_true' );
+	}
 }

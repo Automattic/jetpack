@@ -1,0 +1,7 @@
+{
+	"name": "@automattic/_jetpack-no-lighthouse",
+	"private": true,
+	"exports": {
+		"./core/index.cjs": "./empty.cjs"
+	}
+}

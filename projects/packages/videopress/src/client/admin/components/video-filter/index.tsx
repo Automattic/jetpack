@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import { Button, Col, Container, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Button, Col, Container, Text } from '@automattic/jetpack-components';
 import { CheckboxControl } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
@@ -79,7 +80,7 @@ export const FilterSection = ( props: {
 	className?: string;
 	filter?: FilterObject;
 } ): JSX.Element => {
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 
 	const filterIsChecked = (
 		filterName: 'uploader' | 'privacy' | 'rating',
@@ -92,7 +93,7 @@ export const FilterSection = ( props: {
 		<div className={ clsx( styles[ 'filters-section' ], props.className ) }>
 			<Container horizontalSpacing={ isSm ? 2 : 4 } horizontalGap={ 2 }>
 				<Col sm={ 4 } md={ 4 } lg={ 4 }>
-					<Text variant="body-extra-small-bold" weight="bold">
+					<Text variant="body-extra-small-bold">
 						{ __( 'Uploader', 'jetpack-videopress-pkg' ) }
 					</Text>
 					{ props.uploaders.map( uploader => (
@@ -108,9 +109,7 @@ export const FilterSection = ( props: {
 				</Col>
 
 				<Col sm={ 4 } md={ 4 } lg={ 4 }>
-					<Text variant="body-extra-small-bold" weight="bold">
-						{ __( 'Privacy', 'jetpack-videopress-pkg' ) }
-					</Text>
+					<Text variant="body-extra-small-bold">{ __( 'Privacy', 'jetpack-videopress-pkg' ) }</Text>
 					<CheckboxCheckmark
 						label={ __( 'Public', 'jetpack-videopress-pkg' ) }
 						onChange={ checked =>
@@ -142,9 +141,7 @@ export const FilterSection = ( props: {
 				</Col>
 
 				<Col sm={ 4 } md={ 4 } lg={ 4 }>
-					<Text variant="body-extra-small-bold" weight="bold">
-						{ __( 'Rating', 'jetpack-videopress-pkg' ) }
-					</Text>
+					<Text variant="body-extra-small-bold">{ __( 'Rating', 'jetpack-videopress-pkg' ) }</Text>
 					<CheckboxCheckmark
 						label={ __( 'G', 'jetpack-videopress-pkg' ) }
 						onChange={ checked => props.onChange?.( VIDEO_FILTER_RATING, VIDEO_RATING_G, checked ) }
@@ -174,14 +171,14 @@ export const ConnectFilterSection = props => {
 	const { setFilter, filter } = useVideos();
 	const searchParams = useSearchParams();
 
-	const onFilterHandler = ( ...filterArgs ) => {
+	const onFilterHandler = ( filterName: string, value: number | string, isActive: boolean ) => {
 		// clear the pagination, setting it back to page 1
 		searchParams.deleteParam( 'page' );
 		searchParams.update();
-		setFilter( ...filterArgs );
+		setFilter( filterName, value, isActive );
 	};
 
-	const { items: users } = useUsers();
+	const { items: users } = useUsers() as { items: Array< { id: number; name: string } > };
 	return (
 		<FilterSection
 			{ ...props }

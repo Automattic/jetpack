@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: Hoist buildSalesByUtmData into the widgets-toolkit so the UTM channel and campaign widgets share one copy.

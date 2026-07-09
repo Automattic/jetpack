@@ -3,11 +3,21 @@
  */
 export {
 	MetricDelta,
+	MetricValue,
 	MetricWithComparison,
 	ComparativeLineChart,
+	DonutChart,
 	Legend,
+	ReportMetricWidget,
+	MetricTabsChart,
+	type MetricTab,
+	type MetricTabDatum,
+	type MetricTabsChartProps,
 	WidgetRoot,
+	WidgetRootContext,
 	useWidgetRootContext,
+	type DonutChartData,
+	type WidgetRootContextValue,
 	type LegendItem,
 	type SeriesStyle,
 	LeaderboardChart,
@@ -20,6 +30,23 @@ export {
 	type BarChartProps,
 	type BarChartData,
 	type BarChartStyle,
+	WidgetLoadingOverlay,
+	WidgetState,
+	type WidgetStateProps,
+	type WidgetStateError,
+	type WidgetStateEmpty,
+	WidgetBackLink,
+	type WidgetBackLinkProps,
+	SubscriberList,
+	type SubscriberListItem,
+	type SubscriberListProps,
+	SemiCircleChart,
+	type SemiCircleChartData,
+	ReportPageTabPanel,
+	ReportPageTabs,
+	type ReportPageTab,
+	type ReportPageTabPanelProps,
+	type ReportPageTabsProps,
 } from './components';
 
 /**
@@ -46,11 +73,17 @@ export {
 	buildTimeSeriesChartData,
 	type TimeSeriesData,
 	calculateDelta,
+	flagUrl,
 	BOOKINGS_FILTER,
 	PHYSICAL_PRODUCTS_FILTER,
 	FULFILLED_ORDERS_FILTER,
 	UNFULFILLED_ORDERS_FILTER,
 	PAYMENT_STATUS_FILTERS,
+	buildPaymentStatusData,
+	type PaymentStatusData,
+	buildSalesByUtmData,
+	formatLegendLabels,
+	formatDisplayLabel,
 } from './helpers';
 
 /**
@@ -59,8 +92,10 @@ export {
 export {
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useSegmentStyles,
 	useSeriesStyles,
 	useWidgetError,
+	useWidgetDrillDown,
 } from './hooks';
 
 /**
@@ -77,16 +112,13 @@ export {
 	RevenueByCustomerTypeWidget,
 	NewVsReturningCustomerWidget,
 	OrderMetricWidget,
-	PaymentStatusWidget,
 	OrdersFulfillmentWidget,
 	SalesByCouponWidget,
 	TotalReturnsWidget,
-	VisitorMetricWidget,
 	VisitorsByLocationWidget,
 	SalesByDeviceWidget,
-	BookingsByDeviceWidget,
-	SessionsByDeviceWidget,
 	SalesByUtmWidget,
+	SessionsByDeviceWidget,
 	TopPerformingProductLeaderboardWidget,
 	type TopPerformingProductLeaderboardWidgetProps,
 	TopPerformingProductsWidget,
@@ -99,3 +131,21 @@ export {
  * Types
  */
 export type { OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+
+/**
+ * Charts passthrough
+ *
+ * Widgets must import chart components from here, never from
+ * `@automattic/charts` directly: the toolkit is a shared script module, so
+ * charts is bundled once instead of once per widget.
+ */
+export {
+	GeoChart,
+	HeatmapChart,
+	buildCalendarHeatmapData,
+	type DataPointDate,
+	type GeoChartError,
+	type GeoData,
+	type GoogleDataTableColumn,
+	type GoogleDataTableRow,
+} from '@automattic/charts';
