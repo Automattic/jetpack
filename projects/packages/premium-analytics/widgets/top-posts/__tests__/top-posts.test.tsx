@@ -3,8 +3,9 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -23,6 +24,22 @@ jest.mock( '@wordpress/route', () => ( {
 
 const mockGetScriptData = getScriptData as jest.Mock;
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+
+function DashboardWidgetChromeFixture( { children }: { children: ReactNode } ) {
+	return (
+		<section aria-labelledby="top-posts-widget-title">
+			<div>
+				<div id="top-posts-widget-title">Top pages by views</div>
+				<div>
+					<div data-testid="widget-toolbar">
+						<button type="button">Widget settings</button>
+					</div>
+				</div>
+			</div>
+			{ children }
+		</section>
+	);
+}
 
 // The widget requests a multi-day window, so the stats query layer summarizes
 // the views into the top-level `summary` bucket rather than per-day `days`
@@ -207,12 +224,18 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	it( 'exposes the CSV export once the fetched rows are on screen', async () => {
-		render( <TopPostsWidget attributes={ { num: 10 } } /> );
+		render(
+			<DashboardWidgetChromeFixture>
+				<TopPostsWidget attributes={ { num: 10 } } />
+			</DashboardWidgetChromeFixture>
+		);
 
 		await expect(
 			screen.findByRole( 'link', { name: /Hello World Post/ } )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+
+		const toolbar = screen.getByTestId( 'widget-toolbar' );
+		expect( within( toolbar ).getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
 	} );
 
 	it( 'hides the CSV export when the server flag is disabled', async () => {
@@ -243,9 +266,14 @@ describe( 'TopPostsWidget', () => {
 		);
 
 		const { rerender } = render(
-			<TopPostsWidget
-				attributes={ { num: 10, reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
-			/>
+			<DashboardWidgetChromeFixture>
+				<TopPostsWidget
+					attributes={ {
+						num: 10,
+						reportParams: { from: '2026-03-01', to: '2026-03-10' },
+					} }
+				/>
+			</DashboardWidgetChromeFixture>
 		);
 
 		// First range settles: rows and the export are both present.
@@ -256,9 +284,14 @@ describe( 'TopPostsWidget', () => {
 
 		// Switch date range on the same tree; the new fetch is still pending.
 		rerender(
-			<TopPostsWidget
-				attributes={ { num: 10, reportParams: { from: '2026-05-01', to: '2026-05-10' } } }
-			/>
+			<DashboardWidgetChromeFixture>
+				<TopPostsWidget
+					attributes={ {
+						num: 10,
+						reportParams: { from: '2026-05-01', to: '2026-05-10' },
+					} }
+				/>
+			</DashboardWidgetChromeFixture>
 		);
 
 		// Placeholder data keeps the prior rows visible, but the export must be

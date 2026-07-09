@@ -20,9 +20,10 @@ import {
 	type LegendLabels,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { createPortal } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -66,6 +67,38 @@ type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldA
 type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
 type TopPostsReportProps = Pick< TopPostsAttributes, 'num' | 'postType' >;
+
+// WidgetDashboard does not expose a header action slot to widget bodies yet.
+// Mount beside the settings gear so this POC action inherits the same toolbar.
+function getWidgetToolbar( anchor: HTMLElement ): HTMLElement | null {
+	const widget = anchor.closest( 'section[aria-labelledby]' );
+	if ( ! widget ) {
+		return null;
+	}
+
+	const header = widget.firstElementChild;
+	if ( ! ( header instanceof HTMLElement ) || header.children.length < 2 ) {
+		return null;
+	}
+
+	const toolbarWrapper = header.lastElementChild;
+	if ( ! ( toolbarWrapper instanceof HTMLElement ) ) {
+		return null;
+	}
+
+	const toolbar = toolbarWrapper.firstElementChild;
+	return toolbar instanceof HTMLElement ? toolbar : null;
+}
+
+function useWidgetToolbar( anchor: HTMLElement | null ): HTMLElement | null {
+	const [ toolbar, setToolbar ] = useState< HTMLElement | null >( null );
+
+	useEffect( () => {
+		setToolbar( anchor ? getWidgetToolbar( anchor ) : null );
+	}, [ anchor ] );
+
+	return toolbar;
+}
 
 function areClientSideCsvExportsEnabled(): boolean {
 	return getScriptData()?.premium_analytics?.client_side_csv_exports_enabled === true;
@@ -230,6 +263,8 @@ function toTopPostRows(
  */
 function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
+	const [ toolbarAnchor, setToolbarAnchor ] = useState< HTMLSpanElement | null >( null );
+	const toolbar = useWidgetToolbar( toolbarAnchor );
 
 	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
 	// date range is owned by the dashboard picker and carried in `reportParams`.
@@ -317,11 +352,18 @@ function TopPostsReport( { num = 10, postType }: TopPostsReportProps ) {
 
 	return (
 		<>
-			{ canExport && (
-				<div className={ styles.exportRow }>
-					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
-				</div>
-			) }
+			<span ref={ setToolbarAnchor } hidden />
+			{ canExport &&
+				toolbar &&
+				createPortal(
+					<DownloadCsvButton
+						columns={ csvColumns }
+						rows={ rows }
+						filename={ csvFilename }
+						className={ styles.headerExport }
+					/>,
+					toolbar
+				) }
 			<TopPostsLeaderboard
 				rows={ rows }
 				isLoading={ isLoading }
