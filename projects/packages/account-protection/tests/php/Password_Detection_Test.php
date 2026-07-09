@@ -473,13 +473,24 @@ class Password_Detection_Test extends BaseTestCase {
 		$sut->expects( $this->once() )
 			->method( 'exit' );
 
-		$sentence = htmlentities(
-			'This security feature was automatically activated with a recent Jetpack update to help keep your account safe. We\'ve added an extra layer of security to your login.',
-			ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
-		);
-
-		$this->expectOutputRegex( '@' . $sentence . '@' );
+		ob_start();
 		$sut->render_content( $user, 'my_cool_token' );
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString(
+			htmlentities(
+				'This security feature was automatically activated with a recent Jetpack update to help keep your account safe.',
+				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
+			),
+			$output
+		);
+		$this->assertStringContainsString(
+			htmlentities(
+				'Please check your inbox and enter the code below to complete your login:',
+				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
+			),
+			$output
+		);
 	}
 
 	public function test_render_content_shows_transient_error_if_set(): void {
