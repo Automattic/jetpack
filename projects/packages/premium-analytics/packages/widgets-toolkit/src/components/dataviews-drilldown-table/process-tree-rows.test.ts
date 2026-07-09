@@ -232,6 +232,21 @@ describe( 'processTreeRows', () => {
 		).toEqual( [ 'social', 'facebook', 'linkedin' ] );
 	} );
 
+	it( 'applies isNone filters when resolving matching children', () => {
+		expect(
+			getProcessedIds( {
+				search: 'google',
+				filters: [ { field: 'medium', operator: 'isNone', value: [ 'organic' ] } ],
+			} )
+		).toEqual( [] );
+		expect(
+			getProcessedIds( {
+				search: 'facebook',
+				filters: [ { field: 'medium', operator: 'isNone', value: [ 'organic' ] } ],
+			} )
+		).toEqual( [ 'social', 'facebook' ] );
+	} );
+
 	it( 'paginates by parent units and keeps children with the parent page', () => {
 		const result = processTreeRows(
 			rows,
@@ -258,16 +273,37 @@ describe( 'processTreeRows', () => {
 		expect( getProcessedIds( { search: 'social' } ) ).toEqual( [ 'social' ] );
 	} );
 
-	it( 'falls back to the first field when no fields enable global search', () => {
+	it( 'matches nothing when no fields enable global search', () => {
 		const fieldsWithoutSearch = fields.map( field => ( {
 			...field,
 			enableGlobalSearch: false,
 		} ) );
 
-		expect( getProcessedIds( { search: 'google' }, [], fieldsWithoutSearch ) ).toEqual( [
-			'search',
-			'google',
-		] );
+		expect( getProcessedIds( { search: 'google' }, [], fieldsWithoutSearch ) ).toEqual( [] );
 		expect( getProcessedIds( { search: 'channel' }, [], fieldsWithoutSearch ) ).toEqual( [] );
+	} );
+
+	it( 'matches accented search values with unaccented queries', () => {
+		const accentedRows: Row[] = [
+			{
+				id: 'cafe',
+				referrer: 'Café Referrals',
+				category: 'channel',
+				medium: 'referral',
+				views: 20,
+			},
+		];
+
+		const result = processTreeRows( accentedRows, view( { search: 'cafe' } ), new Set(), {
+			getItemId: item => item.id,
+			getItemParentId: item => item.parentId,
+			fields,
+		} );
+
+		expect( result.data.map( row => row.id ) ).toEqual( [ 'cafe' ] );
+	} );
+
+	it( 'preserves parent input order when no sort is set', () => {
+		expect( getProcessedIds( { sort: undefined } ) ).toEqual( [ 'search', 'social', 'direct' ] );
 	} );
 } );

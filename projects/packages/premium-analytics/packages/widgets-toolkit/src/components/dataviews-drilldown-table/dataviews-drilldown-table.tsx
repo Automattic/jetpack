@@ -303,6 +303,33 @@ export function DataViewsDrilldownTable< Item >( {
 		[ getItemId ]
 	);
 
+	const { data: pageItems, paginationInfo } = useMemo(
+		() =>
+			processTreeRows( data, view, expandedIds, {
+				getItemId,
+				getItemParentId,
+				fields,
+			} ),
+		[ data, expandedIds, fields, getItemId, getItemParentId, view ]
+	);
+
+	// The processor force-expands parents whose children match an active
+	// search or filter, so the toggle state must reflect the rendered rows,
+	// not just `expandedIds`.
+	const visibleChildParentIds = useMemo( () => {
+		const parentIds = new Set< string >();
+
+		for ( const item of pageItems ) {
+			const parentId = getItemParentId( item );
+
+			if ( parentId !== undefined ) {
+				parentIds.add( parentId );
+			}
+		}
+
+		return parentIds;
+	}, [ pageItems, getItemParentId ] );
+
 	const renderedFields = useMemo( () => {
 		const treeFieldId = view.fields?.[ 0 ];
 
@@ -321,7 +348,11 @@ export function DataViewsDrilldownTable< Item >( {
 					field,
 					hasChildren: item => childParentIds.has( getItemId( item ) ),
 					isChild: item => getItemParentId( item ) !== undefined,
-					isExpanded: item => expandedIds.has( getItemId( item ) ),
+					isExpanded: item => {
+						const id = getItemId( item );
+
+						return expandedIds.has( id ) || visibleChildParentIds.has( id );
+					},
 					onToggle: handleToggle,
 				} ),
 			};
@@ -334,17 +365,8 @@ export function DataViewsDrilldownTable< Item >( {
 		getItemParentId,
 		handleToggle,
 		view.fields,
+		visibleChildParentIds,
 	] );
-
-	const { data: pageItems, paginationInfo } = useMemo(
-		() =>
-			processTreeRows( data, view, expandedIds, {
-				getItemId,
-				getItemParentId,
-				fields,
-			} ),
-		[ data, expandedIds, fields, getItemId, getItemParentId, view ]
-	);
 
 	return (
 		<div className={ styles.root }>
