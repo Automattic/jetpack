@@ -56,6 +56,19 @@ class TopPostsExportController_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'compare_from', $params );
 	}
 
+	public function test_prepare_request_params_uses_calendar_dates_without_timezone_shift() {
+		$params = $this->controller()->prepare_request_params(
+			array(
+				'from'     => '2026-01-01T23:00:00-05:00',
+				'to'       => '2026-01-03T01:00:00+09:00',
+				'interval' => 'day',
+			)
+		);
+
+		$this->assertSame( '2026-01-03', $params['date'] );
+		$this->assertSame( 3, $params['num'] );
+	}
+
 	public function test_format_row_for_csv_maps_stats_postviews_fields() {
 		$row = $this->controller()->format_row_for_csv(
 			array(

@@ -76,19 +76,84 @@ class Top_Posts_Export_Controller extends Abstract_Csv_Report_Controller {
 	 * @return array The Stats-native parameters.
 	 */
 	public function prepare_request_params( array $params ): array {
-		$to_ts   = ! empty( $params['to'] ) ? strtotime( (string) $params['to'] ) : time();
-		$from_ts = ! empty( $params['from'] ) ? strtotime( (string) $params['from'] ) : strtotime( '-' . self::DEFAULT_DAYS . ' days', $to_ts );
+		$to_date   = $this->extract_request_date( $params['to'] ?? null );
+		$from_date = $this->extract_request_date( $params['from'] ?? null );
 
-		$days = (int) floor( ( $to_ts - $from_ts ) / DAY_IN_SECONDS ) + 1;
-		$days = max( 1, $days );
+		if ( null === $to_date ) {
+			$to_date = gmdate( 'Y-m-d' );
+		}
+
+		if ( null === $from_date ) {
+			$from_date = $this->shift_date( $to_date, '-' . ( self::DEFAULT_DAYS - 1 ) . ' days' );
+		}
+
+		$days = $this->count_inclusive_days( $from_date, $to_date );
 
 		$params['period'] = 'day';
-		$params['date']   = gmdate( 'Y-m-d', $to_ts );
+		$params['date']   = $to_date;
 		$params['num']    = $days;
 
 		unset( $params['from'], $params['to'], $params['interval'], $params['compare_from'], $params['compare_to'] );
 
 		return $params;
+	}
+
+	/**
+	 * Extract the request calendar date without applying timezone conversion.
+	 *
+	 * @param mixed $value Date-like request value.
+	 * @return string|null The YYYY-MM-DD date, or null when unavailable.
+	 */
+	private function extract_request_date( $value ): ?string {
+		if ( ! is_scalar( $value ) ) {
+			return null;
+		}
+
+		$date = (string) $value;
+		if ( preg_match( '/^(\d{4}-\d{2}-\d{2})/', $date, $matches ) ) {
+			return $matches[1];
+		}
+
+		$timestamp = strtotime( $date );
+		if ( false === $timestamp ) {
+			return null;
+		}
+
+		return gmdate( 'Y-m-d', $timestamp );
+	}
+
+	/**
+	 * Shift a YYYY-MM-DD date by a relative interval.
+	 *
+	 * @param string $date     Date in YYYY-MM-DD format.
+	 * @param string $modifier Relative date modifier.
+	 * @return string Shifted date in YYYY-MM-DD format.
+	 */
+	private function shift_date( string $date, string $modifier ): string {
+		$date_time = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date, new \DateTimeZone( 'UTC' ) );
+		if ( false === $date_time ) {
+			return gmdate( 'Y-m-d' );
+		}
+
+		return $date_time->modify( $modifier )->format( 'Y-m-d' );
+	}
+
+	/**
+	 * Count calendar days in an inclusive YYYY-MM-DD range.
+	 *
+	 * @param string $from_date Start date in YYYY-MM-DD format.
+	 * @param string $to_date   End date in YYYY-MM-DD format.
+	 * @return int Inclusive day count.
+	 */
+	private function count_inclusive_days( string $from_date, string $to_date ): int {
+		$from = \DateTimeImmutable::createFromFormat( '!Y-m-d', $from_date, new \DateTimeZone( 'UTC' ) );
+		$to   = \DateTimeImmutable::createFromFormat( '!Y-m-d', $to_date, new \DateTimeZone( 'UTC' ) );
+
+		if ( false === $from || false === $to ) {
+			return 1;
+		}
+
+		return max( 1, (int) $from->diff( $to )->format( '%r%a' ) + 1 );
 	}
 
 	/**
