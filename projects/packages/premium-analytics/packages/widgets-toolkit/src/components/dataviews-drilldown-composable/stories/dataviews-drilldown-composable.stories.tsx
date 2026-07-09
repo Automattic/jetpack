@@ -9,19 +9,19 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { DataViewsDrilldown } from '../dataviews-drilldown';
+import { DataViewsDrilldownComposable } from '../dataviews-drilldown-composable';
 import type {
-	DataViewsDrilldownChild,
-	DataViewsDrilldownColumn,
-	DataViewsDrilldownGroup,
-} from '../dataviews-drilldown';
+	DataViewsDrilldownComposableChild,
+	DataViewsDrilldownComposableColumn,
+	DataViewsDrilldownComposableGroup,
+} from '../dataviews-drilldown-composable';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type ReferrerChild = DataViewsDrilldownChild & {
+type ReferrerChild = DataViewsDrilldownComposableChild & {
 	date: string;
 };
 
-type ReferrerGroup = Omit< DataViewsDrilldownGroup, 'children' > & {
+type ReferrerGroup = Omit< DataViewsDrilldownComposableGroup, 'children' > & {
 	medium: string;
 	children: ReferrerChild[];
 };
@@ -109,7 +109,7 @@ const REFERRER_FILTER_ELEMENTS = [
 	},
 ];
 
-const ARCHIVE_GROUPS: DataViewsDrilldownGroup[] = [
+const ARCHIVE_GROUPS: DataViewsDrilldownComposableGroup[] = [
 	{
 		id: 'archive:tags',
 		label: 'Tags',
@@ -187,7 +187,7 @@ const ARCHIVE_GROUPS: DataViewsDrilldownGroup[] = [
  * @param group - The referrer drilldown group.
  * @return The group filter value.
  */
-function getReferrerGroupFilterValue( group: DataViewsDrilldownGroup ): string {
+function getReferrerGroupFilterValue( group: DataViewsDrilldownComposableGroup ): string {
 	if ( 'medium' in group && typeof group.medium === 'string' ) {
 		return group.medium;
 	}
@@ -202,7 +202,7 @@ function getReferrerGroupFilterValue( group: DataViewsDrilldownGroup ): string {
  * @return Whether the row has a date value.
  */
 function hasReferrerDate(
-	row: DataViewsDrilldownGroup | DataViewsDrilldownChild
+	row: DataViewsDrilldownComposableGroup | DataViewsDrilldownComposableChild
 ): row is ReferrerChild {
 	return 'date' in row;
 }
@@ -229,7 +229,9 @@ function formatReferrerDate( date: string ): string {
  * @param row - The referrer row.
  * @return The formatted date, or blank for groups.
  */
-function getReferrerDateValue( row: DataViewsDrilldownGroup | DataViewsDrilldownChild ): string {
+function getReferrerDateValue(
+	row: DataViewsDrilldownComposableGroup | DataViewsDrilldownComposableChild
+): string {
 	if ( hasReferrerDate( row ) ) {
 		return formatReferrerDate( row.date );
 	}
@@ -243,11 +245,13 @@ function getReferrerDateValue( row: DataViewsDrilldownGroup | DataViewsDrilldown
  * @param row - The referrer row.
  * @return The formatted views.
  */
-function getReferrerViewsValue( row: DataViewsDrilldownGroup | DataViewsDrilldownChild ): string {
+function getReferrerViewsValue(
+	row: DataViewsDrilldownComposableGroup | DataViewsDrilldownComposableChild
+): string {
 	return row.value.toLocaleString();
 }
 
-const REFERRER_COLUMNS: DataViewsDrilldownColumn[] = [
+const REFERRER_COLUMNS: DataViewsDrilldownComposableColumn[] = [
 	{
 		id: 'date',
 		header: __( 'Date', 'jetpack-premium-analytics' ),
@@ -260,9 +264,9 @@ const REFERRER_COLUMNS: DataViewsDrilldownColumn[] = [
 	},
 ];
 
-const meta: Meta< typeof DataViewsDrilldown > = {
-	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/DataViewsDrilldown',
-	component: DataViewsDrilldown,
+const meta: Meta< typeof DataViewsDrilldownComposable > = {
+	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/DataViewsDrilldownComposable',
+	component: DataViewsDrilldownComposable,
 	tags: [ 'autodocs' ],
 	argTypes: {
 		labelHeader: { control: 'text' },
@@ -280,7 +284,7 @@ const meta: Meta< typeof DataViewsDrilldown > = {
 
 export default meta;
 
-type Story = StoryObj< typeof DataViewsDrilldown >;
+type Story = StoryObj< typeof DataViewsDrilldownComposable >;
 
 /**
  * Default drilldown list.

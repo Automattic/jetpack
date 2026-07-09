@@ -1,4 +1,4 @@
-import type { DataViewsDrilldownGroup } from './dataviews-drilldown';
+import type { DataViewsDrilldownComposableGroup } from './dataviews-drilldown-composable';
 import type { View } from '@wordpress/dataviews';
 
 const DEFAULT_PER_PAGE = 10;
@@ -10,7 +10,7 @@ type DrilldownPaginationInfo = {
 };
 
 type ProcessedDrilldownGroups = {
-	groups: DataViewsDrilldownGroup[];
+	groups: DataViewsDrilldownComposableGroup[];
 	paginationInfo: DrilldownPaginationInfo;
 };
 
@@ -31,7 +31,7 @@ function normalizeSearch( value: string | undefined ): string {
  * @param query - The normalized search query.
  * @return Whether the group label matches.
  */
-function groupMatchesSearch( group: DataViewsDrilldownGroup, query: string ): boolean {
+function groupMatchesSearch( group: DataViewsDrilldownComposableGroup, query: string ): boolean {
 	return query !== '' && group.label.toLowerCase().includes( query );
 }
 
@@ -63,9 +63,9 @@ function getActiveGroupTypeFilterValues( view: View ): ReadonlySet< string > | u
  * @return Whether the group matches the active filter.
  */
 function groupMatchesTypeFilter(
-	group: DataViewsDrilldownGroup,
+	group: DataViewsDrilldownComposableGroup,
 	selectedValues: ReadonlySet< string > | undefined,
-	getGroupFilterValue?: ( group: DataViewsDrilldownGroup ) => string
+	getGroupFilterValue?: ( group: DataViewsDrilldownComposableGroup ) => string
 ): boolean {
 	if ( ! selectedValues ) {
 		return true;
@@ -91,10 +91,10 @@ function groupMatchesTypeFilter(
  * @return The visible groups and pagination metadata.
  */
 export function processDrilldownGroups(
-	groups: DataViewsDrilldownGroup[],
+	groups: DataViewsDrilldownComposableGroup[],
 	view: View,
 	expandedIds: ReadonlySet< string >,
-	getGroupFilterValue?: ( group: DataViewsDrilldownGroup ) => string
+	getGroupFilterValue?: ( group: DataViewsDrilldownComposableGroup ) => string
 ): ProcessedDrilldownGroups {
 	const query = normalizeSearch( view.search );
 	const selectedTypeValues = getActiveGroupTypeFilterValues( view );

@@ -10,7 +10,7 @@ import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './dataviews-drilldown.module.scss';
+import styles from './dataviews-drilldown-composable.module.scss';
 import { processDrilldownGroups } from './process-drilldown-groups';
 import type { Field, SupportedLayouts, View } from '@wordpress/dataviews';
 import type { CSSProperties, ReactNode } from 'react';
@@ -22,7 +22,7 @@ const GROUP_TYPE_FIELD_ID = 'type';
 /**
  * One child row inside a drilldown group.
  */
-export interface DataViewsDrilldownChild {
+export interface DataViewsDrilldownComposableChild {
 	id: string;
 	label: string;
 	value: number;
@@ -35,17 +35,17 @@ export interface DataViewsDrilldownChild {
 /**
  * One grouped row with optional child rows.
  */
-export interface DataViewsDrilldownGroup {
+export interface DataViewsDrilldownComposableGroup {
 	id: string;
 	label: string;
 	value: number;
-	children: DataViewsDrilldownChild[];
+	children: DataViewsDrilldownComposableChild[];
 }
 
 /**
  * One optional value column in a drilldown list.
  */
-export interface DataViewsDrilldownColumn {
+export interface DataViewsDrilldownComposableColumn {
 	id: string;
 	/**
 	 * Column caption, e.g. "Views", "Date".
@@ -54,14 +54,16 @@ export interface DataViewsDrilldownColumn {
 	/**
 	 * Cell content for a group or child row; empty/undefined renders blank.
 	 */
-	getValue: ( row: DataViewsDrilldownGroup | DataViewsDrilldownChild ) => ReactNode;
+	getValue: (
+		row: DataViewsDrilldownComposableGroup | DataViewsDrilldownComposableChild
+	) => ReactNode;
 }
 
 /**
  * Props for the reusable drilldown list.
  */
-export interface DataViewsDrilldownProps {
-	groups: DataViewsDrilldownGroup[];
+export interface DataViewsDrilldownComposableProps {
+	groups: DataViewsDrilldownComposableGroup[];
 	/**
 	 * Column caption over the labels, e.g. "Archive pages", "Referrer".
 	 */
@@ -84,7 +86,7 @@ export interface DataViewsDrilldownProps {
 	/**
 	 * Optional value columns rendered after the label column.
 	 */
-	columns?: DataViewsDrilldownColumn[];
+	columns?: DataViewsDrilldownComposableColumn[];
 	/**
 	 * Group ids expanded on mount.
 	 */
@@ -96,11 +98,11 @@ export interface DataViewsDrilldownProps {
 	/**
 	 * Resolves a group to one of the optional filter values.
 	 */
-	getGroupFilterValue?: ( group: DataViewsDrilldownGroup ) => string;
+	getGroupFilterValue?: ( group: DataViewsDrilldownComposableGroup ) => string;
 }
 
-type DataViewsDrilldownStyle = CSSProperties & {
-	'--dataviews-drilldown-columns': number;
+type DataViewsDrilldownComposableStyle = CSSProperties & {
+	'--dataviews-drilldown-composable-columns': number;
 };
 
 /**
@@ -126,7 +128,7 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
  * @param group - The drilldown group.
  * @return The group id.
  */
-function getDrilldownGroupId( group: DataViewsDrilldownGroup ): string {
+function getDrilldownGroupId( group: DataViewsDrilldownComposableGroup ): string {
 	return group.id;
 }
 
@@ -150,7 +152,7 @@ function formatDefaultValue( value: number ): string {
 function getDefaultColumns(
 	valueHeader: string,
 	formatValue: ( value: number ) => string
-): DataViewsDrilldownColumn[] {
+): DataViewsDrilldownComposableColumn[] {
 	return [
 		{
 			id: 'value',
@@ -173,9 +175,9 @@ function getDrilldownFields(
 	labelHeader: string,
 	valueHeader: string,
 	filterElements?: { value: string; label: string }[],
-	getGroupFilterValue?: ( group: DataViewsDrilldownGroup ) => string
-): Field< DataViewsDrilldownGroup >[] {
-	const fields: Field< DataViewsDrilldownGroup >[] = [
+	getGroupFilterValue?: ( group: DataViewsDrilldownComposableGroup ) => string
+): Field< DataViewsDrilldownComposableGroup >[] {
+	const fields: Field< DataViewsDrilldownComposableGroup >[] = [
 		{
 			id: 'label',
 			label: labelHeader,
@@ -218,7 +220,7 @@ function DrilldownGroupToggle( {
 	expanded,
 	onToggle,
 }: {
-	group: DataViewsDrilldownGroup;
+	group: DataViewsDrilldownComposableGroup;
 	expanded: boolean;
 	onToggle: ( groupId: string ) => void;
 } ): JSX.Element {
@@ -266,8 +268,8 @@ function DrilldownRow( {
 	isChild = false,
 }: {
 	children: ReactNode;
-	row: DataViewsDrilldownGroup | DataViewsDrilldownChild;
-	columns: DataViewsDrilldownColumn[];
+	row: DataViewsDrilldownComposableGroup | DataViewsDrilldownComposableChild;
+	columns: DataViewsDrilldownComposableColumn[];
 	isChild?: boolean;
 } ): JSX.Element {
 	return (
@@ -291,7 +293,11 @@ function DrilldownRow( {
  * @param props.child - The child row.
  * @return The child label.
  */
-function DrilldownChildLabel( { child }: { child: DataViewsDrilldownChild } ): JSX.Element {
+function DrilldownChildLabel( {
+	child,
+}: {
+	child: DataViewsDrilldownComposableChild;
+} ): JSX.Element {
 	if ( child.href ) {
 		return (
 			<a className={ styles.childLink } href={ child.href } target="_blank" rel="noreferrer">
@@ -327,17 +333,17 @@ function DrilldownRows( {
 	columns,
 	emptyLabel,
 }: {
-	groups: DataViewsDrilldownGroup[];
+	groups: DataViewsDrilldownComposableGroup[];
 	expandedIds: ReadonlySet< string >;
 	onToggleGroup: ( groupId: string ) => void;
 	childCounts: ReadonlyMap< string, number >;
 	isLoading: boolean;
 	labelHeader: string;
-	columns: DataViewsDrilldownColumn[];
+	columns: DataViewsDrilldownComposableColumn[];
 	emptyLabel: string;
 } ): JSX.Element {
-	const listStyle: DataViewsDrilldownStyle = {
-		'--dataviews-drilldown-columns': columns.length,
+	const listStyle: DataViewsDrilldownComposableStyle = {
+		'--dataviews-drilldown-composable-columns': columns.length,
 	};
 
 	if ( ! groups.length && ! isLoading ) {
@@ -417,7 +423,7 @@ function DrilldownRows( {
  * @param props.getGroupFilterValue - Optional group filter value resolver.
  * @return The drilldown list component.
  */
-export function DataViewsDrilldown( {
+export function DataViewsDrilldownComposable( {
 	groups,
 	labelHeader,
 	valueHeader,
@@ -430,7 +436,7 @@ export function DataViewsDrilldown( {
 	defaultExpandedIds = [],
 	filterElements,
 	getGroupFilterValue,
-}: DataViewsDrilldownProps ): JSX.Element {
+}: DataViewsDrilldownComposableProps ): JSX.Element {
 	const [ view, setView ] = useState< View >( () => ( {
 		type: 'table',
 		page: 1,
@@ -473,7 +479,7 @@ export function DataViewsDrilldown( {
 
 	return (
 		<div className={ styles.root }>
-			<GenericDataViews< DataViewsDrilldownGroup >
+			<GenericDataViews< DataViewsDrilldownComposableGroup >
 				view={ view }
 				onChangeView={ setView }
 				fields={ fields }

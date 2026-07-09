@@ -1,8 +1,8 @@
 import { processDrilldownGroups } from './process-drilldown-groups';
-import type { DataViewsDrilldownGroup } from './dataviews-drilldown';
+import type { DataViewsDrilldownComposableGroup } from './dataviews-drilldown-composable';
 import type { View } from '@wordpress/dataviews';
 
-const groups: DataViewsDrilldownGroup[] = [
+const groups: DataViewsDrilldownComposableGroup[] = [
 	{
 		id: 'group:category',
 		label: 'Categories',
@@ -79,7 +79,7 @@ function getView( overrides: Partial< View > = {} ): View {
  * @param group - The drilldown group.
  * @return The group filter value.
  */
-function getGroupFilterValue( group: DataViewsDrilldownGroup ): string {
+function getGroupFilterValue( group: DataViewsDrilldownComposableGroup ): string {
 	if ( group.id === 'group:category' ) {
 		return 'organic';
 	}
