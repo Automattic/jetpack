@@ -5,11 +5,14 @@
  */
 
 import { AdminPage } from '@automattic/jetpack-components';
-import { Spinner } from '@wordpress/components';
+import { Card, Icon, Spinner, __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { chevronRight, cog } from '@wordpress/icons';
 import { Notice, Stack } from '@wordpress/ui';
 import analytics from 'lib/analytics';
+import AiFeatures from './features/index';
+import { useFeatureSettings } from './features/use-feature-settings';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
 import McpSetup from './mcp/setup';
@@ -19,7 +22,7 @@ import McpWrite from './mcp/write';
 
 const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
 
-const VALID_VIEWS = [ 'read', 'write', 'setup' ];
+const VALID_VIEWS = [ 'read', 'write', 'setup', 'features' ];
 
 const getViewFromHash = () => {
 	const hash = window.location.hash.replace( /^#\//, '' );
@@ -31,6 +34,7 @@ const VIEW_TITLES = {
 	read: __( 'Read', 'jetpack' ),
 	write: __( 'Write', 'jetpack' ),
 	setup: __( 'Connect external AI agent', 'jetpack' ),
+	features: __( 'Features', 'jetpack' ),
 };
 
 const VIEW_DESCRIPTIONS = {
@@ -38,6 +42,7 @@ const VIEW_DESCRIPTIONS = {
 	read: __( 'View your site\u2019s content.', 'jetpack' ),
 	write: __( 'Create, update, and manage content on your site.', 'jetpack' ),
 	setup: __( 'Get instructions for connecting your external AI assistant.', 'jetpack' ),
+	features: __( 'Choose which Jetpack AI features are available on your site.', 'jetpack' ),
 };
 
 /**
@@ -81,6 +86,13 @@ export default function App() {
 	const [ saveError, setSaveError ] = useState( null );
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings();
+	const {
+		isLoading: isAiSettingsLoading,
+		savingKeys: aiSavingKeys,
+		settings: aiSettings,
+		error: aiSettingsError,
+		updateSettings: updateAiSettings,
+	} = useFeatureSettings();
 
 	useEffect( () => {
 		// Tag the initial history entry so the popstate handler can restore the hub view.
@@ -106,6 +118,16 @@ export default function App() {
 		[ updateMcpAbilities ]
 	);
 
+	const handleAiSettingsUpdate = useCallback(
+		update => {
+			setSaveError( null );
+			return updateAiSettings( update ).catch( () => {
+				setSaveError( __( 'Failed to save AI settings. Please try again.', 'jetpack' ) );
+			} );
+		},
+		[ updateAiSettings ]
+	);
+
 	const dismissSaveError = useCallback( () => setSaveError( null ), [] );
 
 	const navigateToView = useCallback( newView => {
@@ -116,6 +138,8 @@ export default function App() {
 	// The breadcrumb back link mirrors the browser Back button so the history
 	// entry for the sub-view is popped rather than a new hub entry being pushed.
 	const navigateBack = useCallback( () => window.history.back(), [] );
+
+	const navigateToFeatures = useCallback( () => navigateToView( 'features' ), [ navigateToView ] );
 
 	const isSubView = view !== 'hub';
 
@@ -160,7 +184,9 @@ export default function App() {
 					</Notice.Root>
 				) }
 
-				{ ! isLoading && ! error && !! blogId && ! hasMcpAccess && <McpUpsell /> }
+				{ ! isLoading && ! error && !! blogId && ! hasMcpAccess && view !== 'features' && (
+					<McpUpsell />
+				) }
 
 				{ ! isLoading && ! error && !! blogId && hasMcpAccess && (
 					<Stack direction="column" gap="md">
@@ -193,6 +219,66 @@ export default function App() {
 						{ view === 'setup' && <McpSetup /> }
 					</Stack>
 				) }
+
+				{ view === 'features' && isAiSettingsLoading && (
+					<div className="jetpack-ai-admin__loading">
+						<Spinner />
+					</div>
+				) }
+
+				{ view === 'features' && ! isAiSettingsLoading && aiSettingsError && (
+					<Notice.Root intent="error">
+						<Notice.Description>{ aiSettingsError }</Notice.Description>
+					</Notice.Root>
+				) }
+
+				{ view === 'features' &&
+					! isAiSettingsLoading &&
+					! aiSettingsError &&
+					( aiSettings?.host_allows_ai === false ? (
+						<Notice.Root intent="warning">
+							<Notice.Description>
+								{ __( 'AI has been turned off for this site.', 'jetpack' ) }
+							</Notice.Description>
+						</Notice.Root>
+					) : (
+						<AiFeatures
+							settings={ aiSettings }
+							savingKeys={ aiSavingKeys }
+							onUpdate={ handleAiSettingsUpdate }
+						/>
+					) ) }
+
+				{ view === 'hub' &&
+					! isAiSettingsLoading &&
+					! aiSettingsError &&
+					aiSettings?.host_allows_ai !== false && (
+						<Card className="jetpack-ai-mcp__action-card">
+							<button
+								className="jetpack-ai-mcp__connect-row"
+								onClick={ navigateToFeatures }
+								type="button"
+							>
+								<span className="jetpack-ai-mcp__connect-row-icon">
+									<Icon icon={ cog } size={ 24 } />
+								</span>
+								<span className="jetpack-ai-mcp__connect-row-text">
+									<Text as="p" className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
+										{ __( 'Features', 'jetpack' ) }
+									</Text>
+									<Text as="p" className="jetpack-ai-mcp__connect-row-description" variant="muted">
+										{ __(
+											'Choose which Jetpack AI features are available on your site.',
+											'jetpack'
+										) }
+									</Text>
+								</span>
+								<span className="jetpack-ai-mcp__connect-row-chevron">
+									<Icon icon={ chevronRight } size={ 24 } />
+								</span>
+							</button>
+						</Card>
+					) }
 			</div>
 		</AdminPage>
 	);
