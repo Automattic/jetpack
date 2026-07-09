@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { ModuleToggle } from '../index';
 
 const mockToggleModule = jest.fn();
+const mockTrackProductAction = jest.fn();
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( {
 	store: {},
@@ -45,7 +46,7 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 } ) );
 
 jest.mock( '../../my-jetpack-tab-panel/products/products-tracking-context', () => ( {
-	useProductFiltersContext: () => ( { trackProductAction: jest.fn() } ),
+	useProductFiltersContext: () => ( { trackProductAction: mockTrackProductAction } ),
 } ) );
 
 const sharedaddyModule = {
@@ -60,6 +61,7 @@ const sharedaddyModule = {
 
 describe( 'ModuleToggle', () => {
 	beforeEach( () => {
+		jest.clearAllMocks();
 		window.myJetpackInitialState = {
 			adminUrl: 'https://example.com/wp-admin/',
 			siteEditor: {
@@ -93,5 +95,14 @@ describe( 'ModuleToggle', () => {
 
 		// Deactivating legacy sharing reveals the "Add block" link ( two-step, no redirect ).
 		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'sharedaddy', active: false } );
+
+		// The switch path tracks the deactivation, like the toggle path.
+		expect( mockTrackProductAction ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				action: 'deactivate',
+				productSlug: 'sharedaddy',
+				productType: 'module',
+			} )
+		);
 	} );
 } );

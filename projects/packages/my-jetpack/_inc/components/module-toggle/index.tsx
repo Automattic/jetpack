@@ -103,12 +103,23 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	// Two-step switch: deactivate legacy sharing first ( so the site doesn't render
 	// both ), which then reveals the "Add block" link below.
 	const switchToSharingBlock = useCallback( async () => {
+		// Track the deactivation like the toggle path does, so it isn't undercounted.
+		if ( trackProductAction ) {
+			trackProductAction( {
+				action: 'deactivate',
+				productSlug: $module.module,
+				productType: 'module',
+				productStatus: 'active',
+				productData: $module,
+			} );
+		}
+
 		const success = await toggleModule( { name: $module.module, active: false } );
 		await showToggleNotice( {
 			noticeType: success ? 'success' : 'error',
 			action: 'deactivation',
 		} );
-	}, [ toggleModule, $module.module, showToggleNotice ] );
+	}, [ toggleModule, $module, showToggleNotice, trackProductAction ] );
 
 	if ( sharingBlockEditorUrl ) {
 		// Legacy still active: the button deactivates it; once inactive, the row shows

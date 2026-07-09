@@ -16,13 +16,19 @@ const buildSharingTemplateUrl = ( adminUrl: string, stylesheet: string ) =>
  * @return {string} The Site Editor URL for the Sharing Buttons block, or '' when the block path doesn't apply.
  */
 export function getSharingBlockEditorUrl( module: MyJetpackModule ): string {
-	const { adminUrl = '', siteEditor } = getMyJetpackWindowInitialState() || {};
+	const { adminUrl, siteEditor } = getMyJetpackWindowInitialState() || {};
 
-	return module.module === 'sharedaddy' &&
-		siteEditor?.isBlockTheme &&
-		siteEditor?.isSharingBlockAvailable
-		? buildSharingTemplateUrl( adminUrl, siteEditor.activeThemeStylesheet )
-		: '';
+	if (
+		module.module !== 'sharedaddy' ||
+		! adminUrl ||
+		! siteEditor?.isBlockTheme ||
+		! siteEditor?.isSharingBlockAvailable ||
+		! siteEditor?.activeThemeStylesheet
+	) {
+		return '';
+	}
+
+	return buildSharingTemplateUrl( adminUrl, siteEditor.activeThemeStylesheet );
 }
 
 /**

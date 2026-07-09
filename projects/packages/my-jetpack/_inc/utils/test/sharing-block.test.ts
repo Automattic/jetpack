@@ -43,6 +43,22 @@ describe( 'getSharingBlockEditorUrl', () => {
 		setState( { isBlockTheme: true, isSharingBlockAvailable: true, activeThemeStylesheet: 'x' } );
 		expect( getSharingBlockEditorUrl( sharedaddy( { module: 'stats' } ) ) ).toBe( '' );
 	} );
+
+	it( 'returns empty when the stylesheet is missing', () => {
+		setState( { isBlockTheme: true, isSharingBlockAvailable: true } );
+		expect( getSharingBlockEditorUrl( sharedaddy() ) ).toBe( '' );
+	} );
+
+	it( 'returns empty when adminUrl is missing', () => {
+		window.myJetpackInitialState = {
+			siteEditor: {
+				isBlockTheme: true,
+				isSharingBlockAvailable: true,
+				activeThemeStylesheet: 'x',
+			},
+		} as Window[ 'myJetpackInitialState' ];
+		expect( getSharingBlockEditorUrl( sharedaddy() ) ).toBe( '' );
+	} );
 } );
 
 describe( 'getSharingBlockNotice', () => {
