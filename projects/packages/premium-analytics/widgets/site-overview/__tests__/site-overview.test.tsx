@@ -129,7 +129,7 @@ describe( 'SiteOverviewWidget', () => {
 		).resolves.toBeInTheDocument();
 
 		// Retry re-runs the query; the next fetch succeeds and the tiles render.
-		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 		await expect( screen.findByText( '420' ) ).resolves.toBeInTheDocument();
 	} );
 
