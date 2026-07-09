@@ -91,8 +91,9 @@ function upgradeUrl(): string | undefined {
  * usage" section: a horizontal meter filled proportionally to the billable
  * views used against the plan's cycle limit, the figures and days-until-reset
  * inside the bar, and the upgrade note (with the over-limit warning when
- * applicable) below it. Renders the populated state only — `WidgetState`
- * owns loading, error, and unavailable.
+ * applicable) below it when a purchase URL or warning is available. Renders
+ * the populated state only — `WidgetState` owns loading, error, and
+ * unavailable.
  *
  * @param {PlanUsageBarProps} props - The component props.
  * @return The rendered bar.
@@ -100,6 +101,7 @@ function upgradeUrl(): string | undefined {
 function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsageBarProps ) {
 	const usageValue = usage ?? 0;
 	const isOverLimit = usageValue >= limit;
+	const upgradeHref = upgradeUrl();
 
 	return (
 		<Stack
@@ -120,7 +122,7 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 				<Text className={ styles.progressLabel } variant="body-sm">
 					{ sprintf(
 						/* translators: 1: billable views used, 2: the plan's billable views limit. */
-						__( '%1$s / %2$s views', 'jetpack-premium-analytics' ),
+						__( '%1$s / %2$s billable views', 'jetpack-premium-analytics' ),
 						formatMetricValue( usageValue, 'number', { decimals: 0 } ),
 						formatMetricValue( limit, 'number', { decimals: 0 } )
 					) }
@@ -140,20 +142,25 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 					</Text>
 				) }
 			</div>
-			<Text className={ styles.note } variant="body-sm">
-				{ overLimitMonths ? (
-					<>
-						<strong>{ overLimitMessage( overLimitMonths ) }</strong>{ ' ' }
-					</>
-				) : null }
-				{ createInterpolateElement(
-					__(
-						'Do you want to increase your views limit? <a>Upgrade now</a>',
-						'jetpack-premium-analytics'
-					),
-					{ a: <Link href={ upgradeUrl() } /> }
-				) }
-			</Text>
+			{ ( !! overLimitMonths || upgradeHref ) && (
+				<Text className={ styles.note } variant="body-sm">
+					{ overLimitMonths ? (
+						<>
+							<strong>{ overLimitMessage( overLimitMonths ) }</strong>{ ' ' }
+						</>
+					) : null }
+					{ /* Without script data there is no purchase URL, and a Link with no
+					     href renders styled but non-actionable — omit the sentence. */ }
+					{ upgradeHref &&
+						createInterpolateElement(
+							__(
+								'Do you want to increase your views limit? <a>Upgrade now</a>',
+								'jetpack-premium-analytics'
+							),
+							{ a: <Link href={ upgradeHref } /> }
+						) }
+				</Text>
+			) }
 		</Stack>
 	);
 }
@@ -170,16 +177,18 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 function PlanUsageReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsAppPlanUsage();
 
-	// Sites on legacy plans or no plan report a null limit; there is nothing to
-	// meter against, so the unavailable message renders instead of an empty bar.
+	// Sites on legacy plans or no plan report a null limit, and a zero limit
+	// gives nothing to meter against either; both render the unavailable
+	// message instead of an empty (or degenerate `max={0}`) bar.
 	const limit = data?.views_limit;
+	const hasLimit = typeof limit === 'number' && limit > 0;
 
 	return (
 		<WidgetState
 			isLoading={ isLoading }
 			isFetching={ isFetching }
 			isError={ isError }
-			isEmpty={ typeof limit !== 'number' }
+			isEmpty={ ! hasLimit }
 			error={ {
 				description: __(
 					"We couldn't load plan usage. Please try again in a moment.",
@@ -195,11 +204,13 @@ function PlanUsageReport() {
 				),
 			} }
 		>
-			{ typeof limit === 'number' && (
+			{ hasLimit && (
 				<PlanUsageBar
 					limit={ limit }
 					usage={ data?.current_usage?.views_count }
 					daysToReset={ data?.current_usage?.days_to_reset }
+					// The Stats section suppresses this warning for VIP sites; the data
+					// package exposes no site-type signal yet — pending WOOA7S-1676.
 					overLimitMonths={ data?.over_limit_months }
 				/>
 			) }
