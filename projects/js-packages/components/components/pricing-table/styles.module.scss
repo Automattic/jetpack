@@ -98,11 +98,7 @@
 			background-image: url(./gradient.svg);
 			background-repeat: no-repeat;
 			background-size: 450px;
-			background-position-x: center;
-
-			@media (max-width: gb.$break-large) {
-				background-position-x: right;
-			}
+			background-position-x: right;
 		}
 
 		> :last-child {
