@@ -333,12 +333,12 @@ class Password_Detection {
 								);
 							?>
 						</p>
-						<p><?php esc_html_e( 'This security feature was automatically activated with a recent Jetpack update to help keep your account safe. We\'ve added an extra layer of security to your login.', 'jetpack-account-protection' ); ?></p>
+						<p><?php esc_html_e( 'This security feature was automatically activated with a recent Jetpack update to help keep your account safe.', 'jetpack-account-protection' ); ?></p>
 						<p>
 							<?php
 								printf(
 									/* translators: %s: Masked email address */
-									esc_html__( 'We\'ve sent a verification code to your WordPress profile email address (%s).', 'jetpack-account-protection' ),
+									esc_html__( 'As an extra layer of security, we\'ve sent a verification code to your WordPress profile email address (%s).', 'jetpack-account-protection' ),
 									esc_html( $this->email_service->mask_email_address( $user->user_email ) )
 								);
 							?>
@@ -380,7 +380,7 @@ class Password_Detection {
 									printf(
 										/* translators: %s: Resend email link */
 										esc_html__( "Didn't get the code? Check your spam folder or %s.", 'jetpack-account-protection' ),
-										'<a class="resend-email-link" href="' . esc_url( $this->get_redirect_url( $token ) . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ) . '">' . esc_html__( 'Resend email', 'jetpack-account-protection' ) . '</a>'
+										'<a class="resend-email-link" href="' . esc_url( $this->get_redirect_url( $token ) . '&resend_email=1&_wpnonce=' . wp_create_nonce( 'resend_email_nonce' ) ) . '">' . esc_html__( 'resend the email', 'jetpack-account-protection' ) . '</a>'
 									);
 								?>
 							</p>
