@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add a connection health-check thunk that surfaces broken-connection errors through the shared connection-error notice.
