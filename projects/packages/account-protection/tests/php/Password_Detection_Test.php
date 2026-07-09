@@ -477,18 +477,8 @@ class Password_Detection_Test extends BaseTestCase {
 		$sut->render_content( $user, 'my_cool_token' );
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString(
-			htmlentities(
-				'Jetpack Account Protection',
-				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
-			),
-			$output
-		);
-		$this->assertStringContainsString(
-			htmlentities(
-				'has flagged that your password may appear in a known data breach.',
-				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
-			),
+		$this->assertMatchesRegularExpression(
+			'@Jetpack Account Protection</a>\s+has flagged that your password may appear in a known data breach\.@',
 			$output
 		);
 		$this->assertStringContainsString(
