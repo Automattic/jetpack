@@ -21,7 +21,8 @@ export type PlanUsageAttributes = Record< never, never >;
  *
  * The meter has no configurable attributes, so `attributes` is empty and the
  * `example` carries none either. `help` surfaces as an info popover in the
- * widget header, explaining what counts as a billable view.
+ * widget header; its copy mirrors the Stats "Plan usage" infotip explaining
+ * how billable views are counted and when an upgrade is needed.
  */
 export default {
 	name: 'jpa/plan-usage',
@@ -29,7 +30,7 @@ export default {
 	icon: percent,
 	help: {
 		content: __(
-			"Billable views are the views that count toward your Stats plan's monthly limit. The bar shows how many you've used in the current billing cycle and when the count restarts.",
+			"Billable views are your total views minus your two highest-traffic days each billing cycle, so big spikes won't count against your limit. You'll only need to upgrade if you exceed your limit for three cycles in a row.",
 			'jetpack-premium-analytics'
 		),
 		links: [

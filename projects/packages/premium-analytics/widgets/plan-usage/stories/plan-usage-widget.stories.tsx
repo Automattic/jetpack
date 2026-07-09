@@ -204,13 +204,7 @@ function PlanUsageDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ {
-				name: widgetDefinition.name,
-				title: widgetDefinition.title,
-				icon: widgetDefinition.icon,
-				help: widgetDefinition.help,
-				presentation: 'framed',
-			} }
+			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
 			renderModule={ PLAN_USAGE_RENDER_MODULE }
 			renderComponent={ PlanUsageRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
