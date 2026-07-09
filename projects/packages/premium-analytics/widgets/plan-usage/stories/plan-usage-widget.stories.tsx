@@ -1,19 +1,24 @@
 /**
- * All three stories render the data-connected widget through `WidgetRoot`, so
- * they need report data to resolve against. `registerReportMocks` covers the
- * shared paths, including the `jetpack-stats/usage` fixture wired into the
+ * All stories render the data-connected widget through `WidgetRoot`, so they
+ * need report data to resolve against. `registerReportMocks` covers the shared
+ * paths, including the `jetpack-stats/usage` fixture wired into the
  * report-mocks middleware. The usage endpoint is a point-in-time reading with no
  * comparison period, so `WithComparison` renders identically to `Default` even
- * though comparison report params are supplied.
+ * though comparison report params are supplied. The Loading / Error /
+ * Unavailable stories force the request into each state via
+ * `setReportMockState`.
  */
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -41,6 +46,29 @@ window.JetpackScriptData = {
 } as typeof window.JetpackScriptData;
 
 const PLAN_USAGE_RENDER_MODULE = 'storybook/plan-usage';
+
+/**
+ * Puts the plan-usage request into a forced state for a story's lifetime.
+ *
+ * The usage endpoint takes no report params, so its query key is static — the
+ * per-story date-preset trick other widgets use to isolate forced-state stories
+ * doesn't apply. Instead, drop the cached entry from the shared query client on
+ * both enter and cleanup, so this story fetches fresh (hitting the forced mock)
+ * and the sibling stories refetch their success response afterwards.
+ *
+ * @param state - The forced mock state for the plan-usage endpoint.
+ * @return A `beforeEach` implementation returning its cleanup.
+ */
+function forcePlanUsageState( state: 'loading' | 'error' | 'empty' ) {
+	return () => {
+		setReportMockState( 'jetpack-stats/usage', state );
+		queryClient.removeQueries( { queryKey: [ 'stats-app', 'plan-usage' ] } );
+		return () => {
+			setReportMockState( 'jetpack-stats/usage', null );
+			queryClient.removeQueries( { queryKey: [ 'stats-app', 'plan-usage' ] } );
+		};
+	};
+}
 
 /**
  * Story controls. `withComparison` toggles the comparison report params to
@@ -116,6 +144,46 @@ export const WithComparison: Story = {
 			},
 		},
 	},
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: renderPlanUsage,
+	args: { withComparison: false },
+	// Kept off the shared autodocs page: the mock override is keyed by path, so it
+	// would otherwise force the sibling stories on that page into the same state.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: forcePlanUsageState( 'loading' ),
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: renderPlanUsage,
+	args: { withComparison: false },
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: forcePlanUsageState( 'error' ),
+};
+
+/**
+ * Resolved without a usable limit — the forced empty response carries no
+ * `views_limit`, the same shape legacy or unplanned sites report — so the widget
+ * shows its unavailable state (the neutral percent glyph and "Plan usage isn't
+ * available for your current plan.").
+ */
+export const Unavailable: Story = {
+	render: renderPlanUsage,
+	args: { withComparison: false },
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: forcePlanUsageState( 'empty' ),
 };
 
 interface PlanUsageDashboardStoryProps
