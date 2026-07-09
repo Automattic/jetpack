@@ -3,7 +3,7 @@ Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski,
 Tags: video, video-hosting, video-player, cdn, video-streaming
 Requires at least: 6.9
 Tested up to: 7.0
-Stable tag: 3.1
+Stable tag: 3.2
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
