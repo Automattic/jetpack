@@ -3,9 +3,7 @@
 set -euo pipefail
 
 PLUGIN_SLUG="jetpack-premium-analytics"
-PACKAGE_REPO_URL="${PACKAGE_REPO_URL:-https://github.com/Automattic/jetpack-premium-analytics.git}"
-PACKAGE_REF="trunk"
-PACKAGE_PATH=""
+PROJECT="plugins/premium-analytics"
 
 SCRIPT_DIR="$(
 	cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -15,23 +13,38 @@ PLUGIN_DIR="$(
 	cd "$SCRIPT_DIR/.."
 	pwd -P
 )"
+# projects/plugins/premium-analytics -> monorepo root is three levels up.
+MONOREPO_ROOT="$(
+	cd "$PLUGIN_DIR/../../.."
+	pwd -P
+)"
+JETPACK_CLI="$MONOREPO_ROOT/tools/cli/bin/jetpack.js"
 OUTPUT_PATH="$PLUGIN_DIR/${PLUGIN_SLUG}.zip"
 
 usage() {
 	cat <<EOF
 Build an installable Jetpack Premium Analytics plugin zip.
 
+The zip is built from the current monorepo working tree: the plugin is compiled
+for production in place and staged with the same file-collection that
+\`jetpack rsync\` uses, so the archive contains exactly the production file set
+(plugin PHP, the bundled package build output, and the production autoloader).
+
 Usage:
-  composer build-zip -- [options]
+  composer build-zip
   bin/build-zip.sh [options]
 
 Options:
-  --package-ref <ref>      Branch, tag, or SHA to fetch from the package mirror. Default: trunk
-  --package-path <path>    Use a local Premium Analytics package checkout instead of cloning.
   -h, --help               Show this help text.
 
-Environment:
-  PACKAGE_REPO_URL         Override the package mirror URL. Default: ${PACKAGE_REPO_URL}
+Requirements:
+  - A monorepo dev environment (run \`pnpm install\` at the repo root first).
+  - Standard rsync. macOS ships openrsync, which cannot sync the package
+    symlinks; install real rsync with \`brew install rsync\`.
+
+Note: this performs a production build (\`composer install --no-dev\`) in your
+working tree. Re-run \`jetpack build $PROJECT\` afterwards to restore dev
+dependencies.
 EOF
 }
 
@@ -50,125 +63,23 @@ require_command() {
 	fi
 }
 
-absolute_dir() {
-	local path="$1"
+require_rsync() {
+	require_command rsync
 
-	if [[ ! -d "$path" ]]; then
-		error "Directory does not exist: $path"
+	# Apple ships a fork of openrsync that cannot properly sync the package
+	# symlinks; it silently copies nothing. Match the guidance from
+	# tools/cli/commands/rsync.js and fail fast.
+	if [[ "$(uname)" == "Darwin" ]] && rsync --version 2>/dev/null | grep -q openrsync; then
+		error "macOS's built-in rsync (openrsync) cannot sync the package symlinks. Please install standard rsync (e.g. \`brew install rsync\`)."
 	fi
-
-	(
-		cd "$path"
-		pwd -P
-	)
 }
 
-fetch_package_source() {
-	local source_dir="$1"
-
-	log "Cloning ${PACKAGE_REPO_URL} at ${PACKAGE_REF}..."
-
-	if git clone --no-tags --depth=1 --branch "$PACKAGE_REF" "$PACKAGE_REPO_URL" "$source_dir"; then
-		return
-	fi
-
-	rm -rf "$source_dir"
-
-	log "Fetching ${PACKAGE_REF} directly..."
-	git clone --no-tags --depth=1 "$PACKAGE_REPO_URL" "$source_dir"
-	git -C "$source_dir" fetch --depth=1 origin "$PACKAGE_REF"
-	git -C "$source_dir" checkout --detach FETCH_HEAD
-}
-
-validate_package_source() {
-	local package_source="$1"
-
-	[[ -f "$package_source/composer.json" ]] || error "No composer.json found in package source: $package_source"
-	[[ -f "$package_source/build/build.php" ]] || error "No build/build.php found in package source: $package_source. Use the package mirror, or build the package before using --package-path."
-}
-
-write_staged_composer_json() {
-	local composer_json="$1"
-	local package_source="$2"
-
-	php -r '
-		$composer_file = $argv[1];
-		$package_source = $argv[2];
-		$data = json_decode( file_get_contents( $composer_file ), true );
-
-		if ( ! is_array( $data ) ) {
-			fwrite( STDERR, "Unable to decode staged composer.json.\n" );
-			exit( 1 );
-		}
-
-		unset( $data["require-dev"] );
-
-		if ( isset( $data["scripts"] ) && is_array( $data["scripts"] ) ) {
-			unset( $data["scripts"]["phpunit"], $data["scripts"]["test-php"], $data["scripts"]["test-php-coverage"] );
-			if ( array() === $data["scripts"] ) {
-				unset( $data["scripts"] );
-			}
-		}
-
-		if ( ! isset( $data["extra"] ) || ! is_array( $data["extra"] ) ) {
-			$data["extra"] = array();
-		}
-		$data["extra"]["wp-plugin-slug"] = "jetpack-premium-analytics";
-
-		$plugin_file = dirname( $composer_file ) . "/jetpack-premium-analytics.php";
-		if ( is_readable( $plugin_file ) && preg_match( "/^\\s*\\*\\s*Version:\\s*([^\\r\\n]+)/m", file_get_contents( $plugin_file ), $matches ) ) {
-			$data["version"] = trim( $matches[1] );
-		}
-
-		$data["repositories"] = array(
-			array(
-				"type" => "path",
-				"url" => $package_source,
-				"options" => array(
-					"symlink" => false,
-				),
-			),
-		);
-
-		file_put_contents(
-			$composer_file,
-			json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . "\n"
-		);
-	' "$composer_json" "$package_source"
-}
-
-prune_development_artifacts() {
-	local plugin_stage="$1"
-
-	find "$plugin_stage" \
-		\( -type d \( -name .git -o -name node_modules -o -name .cache -o -name .idea -o -name tests -o -name test -o -name changelog \) -prune \) \
-		-exec rm -rf {} +
-
-	find "$plugin_stage" \
-		\( -name '.DS_Store' -o -name 'phpunit*.xml.dist' -o -name 'phpunit.xml' \) \
-		-delete
+jetpack() {
+	node "$JETPACK_CLI" "$@"
 }
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
-		--package-ref)
-			[[ $# -ge 2 ]] || error "--package-ref requires a value"
-			PACKAGE_REF="$2"
-			shift 2
-			;;
-		--package-ref=*)
-			PACKAGE_REF="${1#*=}"
-			shift
-			;;
-		--package-path)
-			[[ $# -ge 2 ]] || error "--package-path requires a value"
-			PACKAGE_PATH="$2"
-			shift 2
-			;;
-		--package-path=*)
-			PACKAGE_PATH="${1#*=}"
-			shift
-			;;
 		-h|--help)
 			usage
 			exit 0
@@ -179,16 +90,13 @@ while [[ $# -gt 0 ]]; do
 	esac
 done
 
-require_command composer
-require_command php
+require_command node
 require_command zip
+require_rsync
 
-if [[ -z "$PACKAGE_PATH" ]]; then
-	require_command git
-fi
+[[ -f "$JETPACK_CLI" ]] || error "Jetpack CLI not found at $JETPACK_CLI. Run this from a monorepo checkout."
 
 WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/${PLUGIN_SLUG}-zip.XXXXXX")"
-PACKAGE_SOURCE="$WORK_DIR/package-source"
 PLUGIN_STAGE="$WORK_DIR/$PLUGIN_SLUG"
 
 cleanup() {
@@ -196,32 +104,14 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if [[ -n "$PACKAGE_PATH" ]]; then
-	PACKAGE_SOURCE="$(absolute_dir "$PACKAGE_PATH")"
-else
-	fetch_package_source "$PACKAGE_SOURCE"
-fi
+log "Building production assets for $PROJECT..."
+# --deps also builds the bundled packages (premium-analytics, cookie-consent) so
+# their production `build/` output exists for the symlinks that rsync follows.
+jetpack build "$PROJECT" --production --deps
 
-validate_package_source "$PACKAGE_SOURCE"
-
-log "Staging plugin files..."
-mkdir -p "$PLUGIN_STAGE/src"
-cp "$PLUGIN_DIR/jetpack-premium-analytics.php" "$PLUGIN_STAGE/"
-cp "$PLUGIN_DIR/composer.json" "$PLUGIN_STAGE/"
-cp "$PLUGIN_DIR/readme.txt" "$PLUGIN_STAGE/"
-cp "$PLUGIN_DIR/README.md" "$PLUGIN_STAGE/"
-cp "$PLUGIN_DIR/src/class-jetpack-premium-analytics.php" "$PLUGIN_STAGE/src/"
-
-write_staged_composer_json "$PLUGIN_STAGE/composer.json" "$PACKAGE_SOURCE"
-
-log "Installing production dependencies..."
-(
-	cd "$PLUGIN_STAGE"
-	composer install --no-dev --no-interaction --optimize-autoloader
-)
-
-log "Pruning development artifacts..."
-prune_development_artifacts "$PLUGIN_STAGE"
+log "Staging production files via jetpack rsync..."
+mkdir -p "$PLUGIN_STAGE"
+jetpack rsync premium-analytics "$PLUGIN_STAGE/" --non-interactive
 
 log "Creating zip..."
 mkdir -p "$(dirname "$OUTPUT_PATH")"
