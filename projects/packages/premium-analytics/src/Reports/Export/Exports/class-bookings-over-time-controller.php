@@ -119,7 +119,7 @@ class Bookings_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 				array(
 					'key'     => 'product_type',
 					'compare' => 'IN',
-					'value'   => array( 'booking', 'bookable-event', 'bookable-service' ),
+					'value'   => 'booking,bookable-event,bookable-service',
 				),
 			),
 		);
