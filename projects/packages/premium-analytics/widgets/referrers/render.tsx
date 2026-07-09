@@ -368,14 +368,16 @@ function ReferrersInner( { max }: { max: number } ) {
 	);
 
 	const goBack = useCallback( () => {
-		const nextPath = ( drillPath ?? [] ).slice( 0, -1 );
+		// Step back from the resolved trail, not the raw drillPath, so a refetch
+		// that dropped the deepest row still moves the view back one visible level.
+		const nextPath = trail.slice( 0, -1 ).map( row => row.label );
 
 		if ( nextPath.length ) {
 			setDrillPath( nextPath );
 		} else {
 			resetDrillDown();
 		}
-	}, [ drillPath, setDrillPath, resetDrillDown ] );
+	}, [ trail, setDrillPath, resetDrillDown ] );
 
 	// The back link is labelled after the list it returns to: the parent row
 	// one level up, or the full top-level list. The visible label stays short
