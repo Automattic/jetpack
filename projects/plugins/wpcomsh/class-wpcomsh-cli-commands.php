@@ -1194,7 +1194,8 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 			// Resolve which of the plugin's known folder slugs is installed.
 			$plugin_file = null;
-			foreach ( get_plugins() as $file => $data ) {
+			foreach ( array_keys( get_plugins() ) as $file ) {
+				$file = (string) $file;
 				if ( in_array( dirname( $file ), $patch['folders'], true ) ) {
 					$plugin_file = $file;
 					break;
@@ -1216,7 +1217,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				WP_CLI::error( "An update to $slug $new_version is available; update the plugin instead of patching." );
 			}
 
-			$file = WP_PLUGIN_DIR . '/' . dirname( $plugin_file ) . '/' . $patch['file'];
+			$file = WP_PLUGIN_DIR . '/' . dirname( (string) $plugin_file ) . '/' . $patch['file'];
 
 			$this->apply_php83_patch( $file, $patch );
 		}
