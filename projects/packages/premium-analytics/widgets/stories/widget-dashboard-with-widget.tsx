@@ -188,6 +188,14 @@ export function WidgetDashboardWithWidget( {
 				 * wp-admin viewport. Without a definite height the page collapses to its
 				 * content height and the fixed-row-height grid resizes it back on every
 				 * vertical widget resize, so the two oscillate and the grid flickers.
+				 *
+				 * `isolation: isolate` keeps dashboard-internal z-indexes (widget
+				 * headers, resize handles) inside this box's stacking context. The
+				 * settings drawer has no z-index of its own (`--wp-ui-drawer-z-index`
+				 * defaults to `initial`), so without the isolation those `z-index: 1`
+				 * elements escalate to the document level and paint over the
+				 * body-portaled drawer — in the real dashboard the wp-admin shell
+				 * provides this containing stacking context.
 				 */ }
 				<div
 					style={ {
@@ -195,6 +203,7 @@ export function WidgetDashboardWithWidget( {
 						display: 'flex',
 						flexDirection: 'column',
 						inlineSize: '100%',
+						isolation: 'isolate',
 						overflowX: 'auto',
 					} }
 				>

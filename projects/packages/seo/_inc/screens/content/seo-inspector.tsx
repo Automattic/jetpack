@@ -1,12 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
-import {
-	Button,
-	SelectControl,
-	TextControl,
-	TextareaControl,
-	ToggleControl,
-} from '@wordpress/components';
+import { SelectControl, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
 import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
@@ -14,6 +8,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
+import { Button, IconButton } from '@wordpress/ui';
 import { coverageStore } from '../../data/coverage-store';
 import SerpPreview from './serp-preview';
 import type { ContentPostType, SchemaType, SeoPostMeta } from '../../data/content-types';
@@ -185,12 +180,14 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 				<h2 className="jetpack-seo-content__inspector-title">
 					{ __( 'Edit SEO', 'jetpack-seo' ) }
 				</h2>
-				<Button
+				<IconButton
 					icon={ close }
 					label={ __( 'Close', 'jetpack-seo' ) }
 					onClick={ onClose }
 					disabled={ isSaving }
 					size="small"
+					variant="minimal"
+					tone="neutral"
 				/>
 			</div>
 			<div className="jetpack-seo-content__inspector-body">
@@ -243,13 +240,12 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 				/>
 			</div>
 			<div className="jetpack-seo-content__inspector-actions">
-				<Button variant="tertiary" onClick={ onClose } disabled={ isSaving }>
+				<Button variant="minimal" tone="neutral" onClick={ onClose } disabled={ isSaving }>
 					{ __( 'Cancel', 'jetpack-seo' ) }
 				</Button>
 				<Button
-					variant="primary"
 					onClick={ onSave }
-					isBusy={ isSaving }
+					loading={ isSaving }
 					// Also disabled when the record failed to load (`recordMeta` never
 					// resolved): the form still holds EMPTY_META, and saving that would
 					// wipe the post's existing SEO meta.

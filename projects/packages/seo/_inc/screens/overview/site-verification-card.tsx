@@ -1,6 +1,5 @@
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Card } from '@wordpress/ui';
+import { Button, Card } from '@wordpress/ui';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
 import StatusDot from './status-dot';
 import type { SiteVerification } from '../../data/overview-types';
@@ -29,7 +28,7 @@ const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => (
 				</div>
 			) ) }
 			<div className="jetpack-seo-overview__card-footer">
-				<Button variant="secondary" onClick={ onManage }>
+				<Button variant="outline" tone="neutral" onClick={ onManage }>
 					{ __( 'Manage verification', 'jetpack-seo' ) }
 				</Button>
 			</div>

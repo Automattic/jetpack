@@ -100,8 +100,7 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 ## Component `ConnectUser`
 This component encapsulates the user connecting functionality.
 
-Upon the first rendering, it initiates the user connection flow, and either redirects the user to Calypso,
-or renders the `InPlaceConnection` component.
+Upon the first rendering, it initiates the user connection flow, redirecting the user to Calypso.
 
 ### Properties
 
@@ -118,46 +117,6 @@ import { ConnectUser } from '@automattic/jetpack-connection';
 	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"
 	redirectUri="tools.php?page=wpcom-connection-manager"
 	from="my-jetpack"
-/>
-```
-
-## Component `InPlaceConnection`
-
-__The component is deprecated and will soon be removed.__
-
-It includes:
-- the `iframe` HTML element
-- connection URL handling
-- catching the "close" message and executing the callback
-- fallback for not available cookie
-
-### Properties
-- *title* - string (required), the iframe title.
-- *isLoading* - boolean, whether to display the "Loading..." label in the component, defaults to `false`.
-- *width* - string|number, the iframe width, defaults to `100%`.
-- *height* - string|number, the iframe height, defaults to `220`.
-- *scrollToIframe* - boolean, whether after iframe rendering, window should scroll to its current position. Defaults to `false`.
-- *onComplete* - callback, to be executed after connection process has completed.
-- *onThirdPartyCookiesBlocked* - callback, to be executed if third-party cookies are blocked.
-- *connectUrl* - string (required), the connection URL.
-- *displayTOS* - boolean (required), whether the iframe should display TOS or not.
-- *location* - string, component location identifier passed to WP.com.
-
-### Usage
-```jsx
-import { InPlaceConnection } from '@automattic/jetpack-connection';
-
-<InPlaceConnection
-	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"
-	height="600"
-	width="400"
-	isLoading={ false }
-	title="Sample Connection"
-	displayTOS={ false }
-	scrollToIframe={ false }
-	onComplete={ () => alert( 'Connected' ) }
-	onThirdPartyCookiesBlocked={ () => window.location.replace( 'https://example.org/fallback-url/' ) }
-	location="sample-connection-form"
 />
 ```
 

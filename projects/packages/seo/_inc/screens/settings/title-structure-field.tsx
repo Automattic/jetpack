@@ -2,10 +2,10 @@
 
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, TextControl } from '@wordpress/components';
+import { TextControl } from '@wordpress/components';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { Badge, Button, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import {
 	PAGE_TYPES,
 	PAGE_TYPE_SUGGESTIONS,
@@ -107,8 +107,9 @@ const TitleStructureRow: FC< RowProps > = ( {
 					{ PAGE_TYPE_SUGGESTIONS[ pageTypeId ].map( tokenId => (
 						<Button
 							key={ tokenId }
-							variant="secondary"
-							size="small"
+							variant="outline"
+							tone="neutral"
+							size="compact"
 							disabled={ disabled }
 							onClick={ () => insertToken( tokenId ) }
 						>
@@ -124,7 +125,7 @@ const TitleStructureRow: FC< RowProps > = ( {
 					</div>
 				) }
 				<div className="jetpack-seo-settings__save">
-					<Button variant="primary" onClick={ onSave } disabled={ disabled || ! canSave }>
+					<Button onClick={ onSave } disabled={ disabled || ! canSave }>
 						{ saveLabel }
 					</Button>
 				</div>

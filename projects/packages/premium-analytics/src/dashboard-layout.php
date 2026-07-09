@@ -19,6 +19,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+require_once __DIR__ . '/dashboard-grammar.php';
+
 /**
  * Preferences scope under which the dashboard layout is stored. Mirrors the
  * scope read by the dashboard's JS hooks.
@@ -29,6 +31,11 @@ const DASHBOARD_LAYOUT_SCOPE = 'jetpack-premium-analytics/dashboard';
  * Preferences key under DASHBOARD_LAYOUT_SCOPE that holds the layout array.
  */
 const DASHBOARD_LAYOUT_KEY = 'dashboardLayout';
+
+/**
+ * Preferences key under DASHBOARD_LAYOUT_SCOPE that holds per-section layouts.
+ */
+const DASHBOARD_SECTION_LAYOUTS_KEY = 'dashboardSectionLayouts';
 
 /**
  * Identifier of the Premium Analytics dashboard, formatted as `<plugin>_<page>`
@@ -149,7 +156,7 @@ function get_dashboard_default_layout_response( $request ) {
 function register_dashboard_default_layout_route() {
 	register_rest_route(
 		DASHBOARD_REST_NAMESPACE,
-		'/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)+)/default-layout',
+		'/dashboards/(?P<name>' . get_dashboard_name_pattern() . ')/default-layout',
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_dashboard_default_layout_response',

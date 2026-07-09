@@ -62,11 +62,10 @@ function load_wpcom_dashboard_widgets() {
 	$checklist_slug    = get_option( 'site_intent' );
 
 	// The AI Launchpad's Site Setup screen supersedes this widget: showing both surfaces two
-	// different checklists under the same name. A user who dismissed the AI Launchpad gets
-	// this widget back — eligibility alone doesn't track the dismissal.
+	// different checklists under the same name. Eligibility covers dismissal, so a user who
+	// dismissed the AI Launchpad gets this widget back.
 	$has_ai_launchpad = function_exists( 'wpcom_ai_launchpad_is_eligible' )
-		&& wpcom_ai_launchpad_is_eligible()
-		&& ! get_option( 'wpcom_ai_launchpad_dismissed' );
+		&& wpcom_ai_launchpad_is_eligible();
 
 	if (
 		defined( 'IS_WPCOM' ) && IS_WPCOM &&

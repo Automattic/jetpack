@@ -112,6 +112,7 @@ class SchemaSettingsTest extends TestCase {
 						'mailto:hello@acme.test',
 						'https://twitter.com/acme',
 						'https://facebook.com/acme',
+						'https://unresolvable-host.example/acme',
 					),
 					'email'       => '  hello@acme.test ',
 				),
@@ -125,6 +126,7 @@ class SchemaSettingsTest extends TestCase {
 				'https://twitter.com/acme',
 				'https://bsky.app/profile/acme.example',
 				'https://facebook.com/acme',
+				'https://unresolvable-host.example/acme',
 			),
 			$clean['organization']['sameAs']
 		);

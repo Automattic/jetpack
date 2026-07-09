@@ -33,7 +33,7 @@ const fixture: TailoredOutput = {
 		{ id: 'set_up_payments', subtitle: 'Set up checkout so customers can buy.' },
 		{ id: 'site_theme_selected', subtitle: 'Pick a theme that suits a ceramics studio.' },
 		{ id: 'complete_profile', subtitle: 'Tell shoppers the story behind Terra Ceramics.' },
-		{ id: 'woo_launch_site', subtitle: 'Launch the shop and start selling.' },
+		{ id: 'site_launched', subtitle: 'Launch the shop and start selling.' },
 	],
 	inferred: {
 		goal: 'sell',
@@ -96,7 +96,8 @@ describe( 'ctaKind', () => {
 
 	it( 'routes everything else to a deeplink', () => {
 		assert.equal( ctaKind( 'site_theme_selected' ), 'deeplink' );
-		// woo_launch_site has its own wc-admin deeplink, so it is not a launch kind.
+		// woo_launch_site is dropped server-side (remapped to site_launched), but guard the client too: were a stray
+		// one to reach here it must not be treated as a launch task.
 		assert.equal( ctaKind( 'woo_launch_site' ), 'deeplink' );
 		// The synthetic store tasks navigate to their wp-admin CTAs.
 		assert.equal( ctaKind( 'install_woocommerce' ), 'deeplink' );
