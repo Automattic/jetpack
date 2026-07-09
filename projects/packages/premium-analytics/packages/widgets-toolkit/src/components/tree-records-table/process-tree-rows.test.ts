@@ -6,21 +6,63 @@ type Row = {
 	parentId?: string;
 	referrer: string;
 	category: string;
+	medium: string;
 	views: number;
 };
 
 const rows: Row[] = [
-	{ id: 'search', referrer: 'Search Engines', category: 'channel', views: 625 },
-	{ id: 'google', parentId: 'search', referrer: 'Google', category: 'search', views: 485 },
-	{ id: 'bing', parentId: 'search', referrer: 'Bing', category: 'search', views: 86 },
-	{ id: 'duckduckgo', parentId: 'search', referrer: 'DuckDuckGo', category: 'search', views: 39 },
-	{ id: 'yahoo', parentId: 'search', referrer: 'Yahoo', category: 'search', views: 14 },
-	{ id: 'social', referrer: 'Social', category: 'channel', views: 345 },
+	{
+		id: 'search',
+		referrer: 'Search Engines',
+		category: 'channel',
+		medium: 'channel',
+		views: 625,
+	},
+	{
+		id: 'google',
+		parentId: 'search',
+		referrer: 'Google',
+		category: 'search',
+		medium: 'organic',
+		views: 485,
+	},
+	{
+		id: 'bing',
+		parentId: 'search',
+		referrer: 'Bing',
+		category: 'search',
+		medium: 'organic',
+		views: 86,
+	},
+	{
+		id: 'duckduckgo',
+		parentId: 'search',
+		referrer: 'DuckDuckGo',
+		category: 'search',
+		medium: 'organic',
+		views: 39,
+	},
+	{
+		id: 'yahoo',
+		parentId: 'search',
+		referrer: 'Yahoo',
+		category: 'search',
+		medium: 'organic',
+		views: 14,
+	},
+	{
+		id: 'social',
+		referrer: 'Social',
+		category: 'channel',
+		medium: 'social',
+		views: 345,
+	},
 	{
 		id: 'facebook',
 		parentId: 'social',
 		referrer: 'Facebook',
 		category: 'social network',
+		medium: 'social',
 		views: 210,
 	},
 	{
@@ -28,9 +70,16 @@ const rows: Row[] = [
 		parentId: 'social',
 		referrer: 'LinkedIn',
 		category: 'social network',
+		medium: 'social',
 		views: 58,
 	},
-	{ id: 'direct', referrer: 'Direct', category: 'channel', views: 251 },
+	{
+		id: 'direct',
+		referrer: 'Direct',
+		category: 'channel',
+		medium: 'direct',
+		views: 251,
+	},
 ];
 
 const fields: Field< Row >[] = [
@@ -49,6 +98,12 @@ const fields: Field< Row >[] = [
 		id: 'category',
 		label: 'Category',
 		getValue: ( { item } ) => item.category,
+	},
+	{
+		id: 'medium',
+		label: 'Medium',
+		getValue: ( { item } ) => item.medium,
+		filterBy: { operators: [ 'isAny' ] },
 	},
 ];
 
@@ -143,6 +198,38 @@ describe( 'processTreeRows', () => {
 			'duckduckgo',
 			'yahoo',
 		] );
+	} );
+
+	it( 'force-expands child matches for isAny filters', () => {
+		expect(
+			getProcessedIds( {
+				filters: [ { field: 'medium', operator: 'isAny', value: [ 'organic' ] } ],
+			} )
+		).toEqual( [ 'search', 'google', 'bing', 'duckduckgo', 'yahoo' ] );
+	} );
+
+	it( 'respects normal expansion for parent isAny filter matches', () => {
+		const filterView: Partial< View > = {
+			filters: [ { field: 'medium', operator: 'isAny', value: [ 'social' ] } ],
+		};
+
+		expect( getProcessedIds( filterView ) ).toEqual( [ 'social' ] );
+		expect( getProcessedIds( filterView, [ 'social' ] ) ).toEqual( [
+			'social',
+			'facebook',
+			'linkedin',
+		] );
+	} );
+
+	it( 'requires child rows to match all active isAny filters', () => {
+		expect(
+			getProcessedIds( {
+				filters: [
+					{ field: 'medium', operator: 'isAny', value: [ 'social' ] },
+					{ field: 'category', operator: 'isAny', value: [ 'social network' ] },
+				],
+			} )
+		).toEqual( [ 'social', 'facebook', 'linkedin' ] );
 	} );
 
 	it( 'paginates by parent units and keeps children with the parent page', () => {

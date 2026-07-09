@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { Field, View } from '@wordpress/dataviews';
+import type { Field, Filter, View } from '@wordpress/dataviews';
 
 type ParentUnit< Item > = {
 	parent: Item;
@@ -17,6 +17,11 @@ type ProcessTreeRowsOptions< Item > = {
 	getItemId: ( item: Item ) => string;
 	getItemParentId: ( item: Item ) => string | undefined;
 	fields: Field< Item >[];
+};
+
+type ActiveIsAnyFilter< Item > = {
+	field: Field< Item >;
+	values: unknown[];
 };
 
 /**
@@ -81,6 +86,83 @@ function itemMatchesSearch< Item >(
 	return searchFields.some( field =>
 		stringifySearchValue( getFieldValue( item, field ) ).includes( search )
 	);
+}
+
+/**
+ * Normalize a DataViews filter value to a list of selected values.
+ *
+ * @param value - The raw DataViews filter value.
+ * @return The selected filter values.
+ */
+function getFilterValues( value: unknown ): unknown[] {
+	if ( Array.isArray( value ) ) {
+		return value;
+	}
+
+	if ( value === null || value === undefined || value === '' ) {
+		return [];
+	}
+
+	return [ value ];
+}
+
+/**
+ * Resolve active `isAny` filters with field config attached.
+ *
+ * @param filters - The DataViews filters.
+ * @param fields  - The DataViews field configs.
+ * @return Active `isAny` filters.
+ */
+function getActiveIsAnyFilters< Item >(
+	filters: Filter[] | undefined,
+	fields: Field< Item >[]
+): ActiveIsAnyFilter< Item >[] {
+	if ( ! filters?.length ) {
+		return [];
+	}
+
+	return filters.reduce< ActiveIsAnyFilter< Item >[] >( ( activeFilters, filter ) => {
+		if ( filter.operator !== 'isAny' ) {
+			return activeFilters;
+		}
+
+		const values = getFilterValues( filter.value );
+		const field = fields.find( fieldConfig => fieldConfig.id === filter.field );
+
+		if ( field && values.length ) {
+			activeFilters.push( { field, values } );
+		}
+
+		return activeFilters;
+	}, [] );
+}
+
+/**
+ * Check whether an item matches one active `isAny` filter.
+ *
+ * @param item   - The row item.
+ * @param filter - The active filter.
+ * @return Whether the item matches the filter.
+ */
+function itemMatchesIsAnyFilter< Item >( item: Item, filter: ActiveIsAnyFilter< Item > ): boolean {
+	const fieldValue = getFieldValue( item, filter.field );
+
+	if ( Array.isArray( fieldValue ) ) {
+		return filter.values.some( value => fieldValue.includes( value ) );
+	}
+
+	return filter.values.includes( fieldValue );
+}
+
+/**
+ * Check whether an item matches all active DataViews filters.
+ *
+ * @param item    - The row item.
+ * @param filters - The active filters.
+ * @return Whether the item matches every active filter.
+ */
+function itemMatchesFilters< Item >( item: Item, filters: ActiveIsAnyFilter< Item >[] ): boolean {
+	return filters.every( filter => itemMatchesIsAnyFilter( item, filter ) );
 }
 
 /**
@@ -169,7 +251,8 @@ function getParentUnits< Item >(
 }
 
 /**
- * Apply search, sort, expansion, and parent-unit pagination to flat tree rows.
+ * Apply filters, search, sort, expansion, and parent-unit pagination to flat
+ * tree rows.
  *
  * DataViews does not render tree rows itself, so this processor returns the
  * exact flat page slice to render while keeping child rows attached to their
@@ -194,13 +277,15 @@ export function processTreeRows< Item >(
 		.toLocaleLowerCase();
 	const searchFields = getSearchFields( fields );
 	const searchActive = Boolean( search );
+	const activeFilters = getActiveIsAnyFilters( view.filters, fields );
+	const filtersActive = Boolean( activeFilters.length );
 	const units: ParentUnit< Item >[] = [];
 
 	for ( const unit of getParentUnits( data, getItemId, getItemParentId ) ) {
 		const parentId = getItemId( unit.parent );
 		const children = [ ...unit.children ].sort( compareItems );
 
-		if ( ! searchActive ) {
+		if ( ! searchActive && ! filtersActive ) {
 			units.push( {
 				parent: unit.parent,
 				children: expandedIds.has( parentId ) ? children : [],
@@ -208,9 +293,13 @@ export function processTreeRows< Item >(
 			continue;
 		}
 
-		const parentMatches = itemMatchesSearch( unit.parent, search, searchFields );
-		const matchingChildren = children.filter( child =>
-			itemMatchesSearch( child, search, searchFields )
+		const parentMatches =
+			( ! searchActive || itemMatchesSearch( unit.parent, search, searchFields ) ) &&
+			itemMatchesFilters( unit.parent, activeFilters );
+		const matchingChildren = children.filter(
+			child =>
+				( ! searchActive || itemMatchesSearch( child, search, searchFields ) ) &&
+				itemMatchesFilters( child, activeFilters )
 		);
 
 		if ( ! parentMatches && ! matchingChildren.length ) {

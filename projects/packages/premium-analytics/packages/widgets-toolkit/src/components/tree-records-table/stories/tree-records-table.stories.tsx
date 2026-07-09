@@ -6,19 +6,74 @@ type ReferrerRow = {
 	id: string;
 	parentId?: string;
 	referrer: string;
+	date?: string;
+	medium: 'organic' | 'social' | 'direct';
 	views: number;
 };
 
 const rows: ReferrerRow[] = [
-	{ id: 'search', referrer: 'Search Engines', views: 625 },
-	{ id: 'google', parentId: 'search', referrer: 'Google', views: 485 },
-	{ id: 'bing', parentId: 'search', referrer: 'Bing', views: 86 },
-	{ id: 'duckduckgo', parentId: 'search', referrer: 'DuckDuckGo', views: 39 },
-	{ id: 'yahoo', parentId: 'search', referrer: 'Yahoo', views: 14 },
-	{ id: 'social', referrer: 'Social', views: 345 },
-	{ id: 'facebook', parentId: 'social', referrer: 'Facebook', views: 210 },
-	{ id: 'linkedin', parentId: 'social', referrer: 'LinkedIn', views: 58 },
-	{ id: 'direct', referrer: 'Direct', views: 251 },
+	{ id: 'search', referrer: 'Search Engines', medium: 'organic', views: 625 },
+	{
+		id: 'google',
+		parentId: 'search',
+		referrer: 'Google',
+		date: '2026-06-30',
+		medium: 'organic',
+		views: 485,
+	},
+	{
+		id: 'bing',
+		parentId: 'search',
+		referrer: 'Bing',
+		date: '2026-06-29',
+		medium: 'organic',
+		views: 86,
+	},
+	{
+		id: 'duckduckgo',
+		parentId: 'search',
+		referrer: 'DuckDuckGo',
+		date: '2026-06-28',
+		medium: 'organic',
+		views: 39,
+	},
+	{
+		id: 'yahoo',
+		parentId: 'search',
+		referrer: 'Yahoo',
+		date: '2026-06-27',
+		medium: 'organic',
+		views: 14,
+	},
+	{ id: 'social', referrer: 'Social', medium: 'social', views: 345 },
+	{
+		id: 'facebook',
+		parentId: 'social',
+		referrer: 'Facebook',
+		date: '2026-06-26',
+		medium: 'social',
+		views: 210,
+	},
+	{
+		id: 'linkedin',
+		parentId: 'social',
+		referrer: 'LinkedIn',
+		date: '2026-06-25',
+		medium: 'social',
+		views: 58,
+	},
+	{
+		id: 'direct',
+		referrer: 'Direct',
+		medium: 'direct',
+		views: 251,
+	},
+];
+
+const mediumElements = [
+	{ value: 'organic', label: 'Organic' },
+	{ value: 'social', label: 'Social' },
+	{ value: 'direct', label: 'Direct' },
 ];
 
 /**
@@ -33,6 +88,35 @@ function ReferrerField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX
 }
 
 /**
+ * Format an ISO date for display.
+ *
+ * @param value - The ISO date value.
+ * @return The localized date label.
+ */
+function formatDate( value: string ): string {
+	return new Date( value ).toLocaleDateString( undefined, {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	} );
+}
+
+/**
+ * Render the date field.
+ *
+ * @param props      - The DataViews render props.
+ * @param props.item - The referrer row.
+ * @return The rendered date.
+ */
+function DateField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Element {
+	if ( ! item.date ) {
+		return <></>;
+	}
+
+	return <>{ formatDate( item.date ) }</>;
+}
+
+/**
  * Render the views field.
  *
  * @param props      - The DataViews render props.
@@ -43,25 +127,56 @@ function ViewsField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.El
 	return <>{ item.views.toLocaleString() }</>;
 }
 
+/**
+ * Resolve the stable row id.
+ *
+ * @param item - The referrer row.
+ * @return The row id.
+ */
+function getItemId( item: ReferrerRow ): string {
+	return item.id;
+}
+
+/**
+ * Resolve the parent id for child rows.
+ *
+ * @param item - The referrer row.
+ * @return The parent row id, if present.
+ */
+function getItemParentId( item: ReferrerRow ): string | undefined {
+	return item.parentId;
+}
+
 const fields: Field< ReferrerRow >[] = [
 	{
 		id: 'referrer',
 		label: 'Referrer',
 		enableGlobalSearch: true,
-		getValue: ( { item } ) => item.referrer,
 		render: ReferrerField,
+	},
+	{
+		id: 'date',
+		label: 'Date',
+		render: DateField,
 	},
 	{
 		id: 'views',
 		label: 'Views',
-		getValue: ( { item } ) => item.views,
 		render: ViewsField,
+	},
+	{
+		id: 'medium',
+		label: 'Medium',
+		elements: mediumElements,
+		filterBy: {
+			operators: [ 'isAny' ],
+		},
 	},
 ];
 
 const initialView = {
 	sort: { field: 'views', direction: 'desc' as const },
-	fields: [ 'referrer', 'views' ],
+	fields: [ 'referrer', 'date', 'views' ],
 	layout: {
 		styles: {
 			views: {
@@ -85,9 +200,17 @@ export const Default: Story = {
 	args: {
 		data: rows,
 		fields,
-		getItemId: item => item.id,
-		getItemParentId: item => item.parentId,
+		getItemId,
+		getItemParentId,
 		initialView,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The hidden Medium field is filterable so the default DataViews filter control appears next to search.',
+			},
+		},
 	},
 };
 
