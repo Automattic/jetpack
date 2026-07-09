@@ -1034,7 +1034,15 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	if ( requestPath.startsWith( STATS_API_BASE ) ) {
 		const subPath = requestPath.slice( STATS_API_BASE.length ).split( '?' )[ 0 ];
 		const response = routeStatsReport( subPath );
-		return response !== null ? response : { data: [], summary: {} };
+
+		if ( response !== null ) {
+			return response;
+		}
+
+		// Stats endpoints this middleware doesn't route may be owned by the
+		// legacy stats mocks (register-stats-mocks.ts). Fall through so
+		// middleware registration order doesn't decide whether they load.
+		return next( options );
 	}
 
 	if ( ! requestPath.startsWith( API_BASE ) ) {
