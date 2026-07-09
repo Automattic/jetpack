@@ -94,6 +94,10 @@ export {
 	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
+	getVideoKey,
+	getVideoLabel,
+	toVideoItems,
+	toMaxRows,
 } from './helpers';
 
 /**
