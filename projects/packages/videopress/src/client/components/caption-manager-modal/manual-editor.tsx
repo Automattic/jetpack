@@ -55,6 +55,8 @@ type ManualEditorProps = {
 	cueBlocksRef: MutableRefObject< CaptionCueBlock[] >;
 	/** Video props for the preview player. */
 	preview: CaptionPreviewProps;
+	/** Languages that already have a track, left out of the language picker. */
+	excludedLanguages: string[];
 	onLanguageChange: ( tag: string, displayName: string ) => void;
 	/** Called when the editor gains or loses unsaved track edits. */
 	onDirtyChange: ( isDirty: boolean ) => void;
@@ -73,6 +75,7 @@ type ManualEditorProps = {
  * @param props.playerRef               - Imperative preview player handle.
  * @param props.cueBlocksRef            - Mirror of the live cue blocks for the modal.
  * @param props.preview                 - Video props for the preview player.
+ * @param props.excludedLanguages       - Languages left out of the language picker.
  * @param props.onLanguageChange        - Called with the selected language tag and display name.
  * @param props.onDirtyChange           - Called when the editor gains or loses unsaved track edits.
  * @param props.onTextImportOpenChange  - Toggle the paste-text panel.
@@ -85,6 +88,7 @@ export default function ManualEditor( {
 	playerRef,
 	cueBlocksRef,
 	preview,
+	excludedLanguages,
 	onLanguageChange,
 	onDirtyChange,
 	onTextImportOpenChange,
@@ -364,6 +368,7 @@ export default function ManualEditor( {
 						label={ __( 'Language', 'jetpack-videopress-pkg' ) }
 						value={ workspace.track.srcLang }
 						onChange={ onLanguageChange }
+						excludedLanguages={ excludedLanguages }
 					/>
 				</div>
 

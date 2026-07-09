@@ -126,7 +126,7 @@ jest.mock( '@wordpress/components', () => ( {
 		mockDropZoneProps = props;
 		return null;
 	},
-	ComboboxControl: ( { label, onChange, onFilterValueChange, value, help } ) => (
+	ComboboxControl: ( { label, onChange, onFilterValueChange, value, help, options } ) => (
 		<div>
 			<label htmlFor={ label }>{ label }</label>
 			<input
@@ -137,6 +137,13 @@ jest.mock( '@wordpress/components', () => ( {
 					onChange( event.target.value );
 				} }
 			/>
+			<datalist data-testid={ `${ label } options` }>
+				{ options?.map( option => (
+					<option key={ option.value } value={ option.value }>
+						{ option.label }
+					</option>
+				) ) }
+			</datalist>
 			{ help && <span>{ help }</span> }
 		</div>
 	),
@@ -473,7 +480,8 @@ describe( 'CaptionManagerModal', () => {
 		const downloadButtons = screen.getAllByRole( 'button', { name: 'Download' } );
 
 		expect( replaceButtons[ 0 ] ).toBeEnabled();
-		expect( editButtons[ 1 ] ).toBeEnabled();
+		// The generated English track isn't editable while the manual English track exists.
+		expect( editButtons[ 1 ] ).toBeDisabled();
 		expect( replaceButtons[ 1 ] ).toBeDisabled();
 		expect( editButtons[ 2 ] ).toBeDisabled();
 		expect( replaceButtons[ 2 ] ).toBeDisabled();
@@ -1380,14 +1388,20 @@ describe( 'CaptionManagerModal', () => {
 	it( 'duplicates generated captions into a manual subtitle track instead of overwriting auto tracks', async () => {
 		const user = userEvent.setup();
 		const onTracksChange = jest.fn();
-		render( <CaptionManagerModal { ...defaultProps } onTracksChange={ onTracksChange } /> );
+		render(
+			<CaptionManagerModal
+				{ ...defaultProps }
+				tracks={ [ tracks[ 1 ] ] }
+				onTracksChange={ onTracksChange }
+			/>
+		);
 
-		await user.click( screen.getAllByText( 'Edit' )[ 1 ] );
+		await user.click( screen.getByText( 'Edit' ) );
 		await waitFor( () =>
 			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracks[ 1 ], 'abc123', false )
 		);
 		expect( screen.getByLabelText( 'Language' ) ).toHaveValue( 'en' );
-		await user.click( screen.getByText( 'Update' ) );
+		await user.click( screen.getByText( 'Publish' ) );
 
 		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
 		await waitFor( () => expect( saveCaptionTrack ).toHaveBeenCalled() );
@@ -1401,12 +1415,24 @@ describe( 'CaptionManagerModal', () => {
 			} )
 		);
 		expect( onTracksChange ).toHaveBeenCalledWith( [
+			tracks[ 1 ],
 			expect.objectContaining( {
 				kind: 'subtitles',
 				srcLang: 'en',
 			} ),
-			tracks[ 1 ],
 		] );
+	} );
+
+	it( 'disables editing generated captions once their language has a manual track', async () => {
+		render( <CaptionManagerModal { ...defaultProps } /> );
+
+		// A manual English track exists, so English edits go through that track.
+		const editButtons = screen.getAllByRole( 'button', { name: 'Edit' } );
+		expect( editButtons[ 0 ] ).toBeEnabled();
+		expect( editButtons[ 1 ] ).toBeDisabled();
+		await waitFor( () =>
+			expect( screen.queryByText( /Loading subtitle tracks/ ) ).not.toBeInTheDocument()
+		);
 	} );
 
 	it( 'replaces an existing track by re-uploading, without creating another', async () => {
@@ -1507,6 +1533,55 @@ describe( 'CaptionManagerModal', () => {
 			{ kind: 'captions', srcLang: 'en' },
 			'abc123'
 		);
+	} );
+
+	it( 'omits languages that already have a track from the editor’s picker, keeping the track’s own', async () => {
+		const user = userEvent.setup();
+		const tracksWithId = [
+			{ ...tracks[ 0 ], id: 'track-1' },
+			{
+				kind: 'captions' as const,
+				srcLang: 'es',
+				label: 'Spanish',
+				src: 'spanish.vtt',
+				id: 'track-2',
+			},
+		];
+		render( <CaptionManagerModal { ...defaultProps } tracks={ tracksWithId } /> );
+
+		await user.click( screen.getAllByText( 'Edit' )[ 0 ] );
+		await waitFor( () =>
+			expect( fetchTrackContentForGuid ).toHaveBeenCalledWith( tracksWithId[ 0 ], 'abc123', false )
+		);
+
+		const languageOptions = within( screen.getByTestId( 'Language options' ) );
+		// The other track's language is taken, so it can't be chosen…
+		expect( languageOptions.queryByText( 'Spanish' ) ).not.toBeInTheDocument();
+		// …while this track's own language and free languages stay selectable.
+		expect( languageOptions.getByText( 'English' ) ).toBeInTheDocument();
+		expect( languageOptions.getByText( 'French' ) ).toBeInTheDocument();
+	} );
+
+	it( 'omits every taken language from the picker when adding a new track', async () => {
+		const user = userEvent.setup();
+		const tracksWithId = [
+			{ ...tracks[ 0 ], id: 'track-1' },
+			{
+				kind: 'captions' as const,
+				srcLang: 'es',
+				label: 'Spanish',
+				src: 'spanish.vtt',
+				id: 'track-2',
+			},
+		];
+		render( <CaptionManagerModal { ...defaultProps } tracks={ tracksWithId } /> );
+
+		await user.click( screen.getByText( 'Add track' ) );
+
+		const languageOptions = within( screen.getByTestId( 'Language options' ) );
+		expect( languageOptions.queryByText( 'English' ) ).not.toBeInTheDocument();
+		expect( languageOptions.queryByText( 'Spanish' ) ).not.toBeInTheDocument();
+		expect( languageOptions.getByText( 'French' ) ).toBeInTheDocument();
 	} );
 
 	it( 'reuses the existing caption track for a language instead of creating a duplicate', async () => {
@@ -1708,7 +1783,15 @@ describe( 'CaptionManagerModal', () => {
 				} )
 			)
 			.mockResolvedValueOnce( 'WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nSecond track text' );
-		render( <CaptionManagerModal { ...defaultProps } /> );
+		render(
+			<CaptionManagerModal
+				{ ...defaultProps }
+				tracks={ [
+					tracks[ 0 ],
+					{ kind: 'captions' as const, srcLang: 'fr', label: 'French', src: 'french.vtt' },
+				] }
+			/>
+		);
 
 		// Open the first track (its fetch stays pending), go back, open the second.
 		await user.click( screen.getAllByText( 'Edit' )[ 0 ] );
@@ -1755,34 +1838,6 @@ describe( 'CaptionManagerModal', () => {
 
 		expect( getConfirmDialog() ).toHaveTextContent( 'Discard unsaved subtitle changes?' );
 		expect( onClose ).not.toHaveBeenCalled();
-	} );
-
-	it( 'removes a published track whose kind differs from the republished track', async () => {
-		const user = userEvent.setup();
-		render(
-			<CaptionManagerModal
-				{ ...defaultProps }
-				tracks={ [ { ...tracks[ 0 ], id: 'track-1' }, tracks[ 1 ] ] }
-			/>
-		);
-
-		// Editing the generated track coerces its kind to subtitles on publish.
-		await user.click( screen.getAllByText( 'Edit' )[ 1 ] );
-		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Update' } ) ).toBeEnabled() );
-		await user.click( screen.getByRole( 'button', { name: 'Update' } ) );
-
-		await waitFor( () => expect( uploadTrackForGuid ).toHaveBeenCalled() );
-		expect( uploadTrackForGuid ).toHaveBeenCalledWith(
-			expect.objectContaining( { kind: 'subtitles', srcLang: 'en' } ),
-			'abc123'
-		);
-		// The server only replaces same-kind tracks, so the captions/en track must be deleted.
-		await waitFor( () =>
-			expect( deleteTrackForGuid ).toHaveBeenCalledWith(
-				{ kind: 'captions', srcLang: 'en' },
-				'abc123'
-			)
-		);
 	} );
 
 	it( 'disables Back to tracks while a publish is in flight', async () => {

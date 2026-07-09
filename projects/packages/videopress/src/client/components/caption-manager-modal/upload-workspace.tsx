@@ -34,6 +34,8 @@ type UploadWorkspaceProps = {
 	isSaving: boolean;
 	/** Video props for the preview player. */
 	preview: CaptionPreviewProps;
+	/** Languages that already have a track, left out of the language picker. */
+	excludedLanguages: string[];
 	onLanguageChange: ( tag: string, displayName: string ) => void;
 	onFileChange: ( file: File | null ) => void;
 	onCancelReplace: () => void;
@@ -44,20 +46,22 @@ type UploadWorkspaceProps = {
  * The subtitle file upload form: language picker, file picker, and the
  * submit/cancel actions, next to the video preview.
  *
- * @param props                  - Component props.
- * @param props.workspace        - Upload workspace state.
- * @param props.isSaving         - Whether an upload is in flight.
- * @param props.preview          - Video props for the preview player.
- * @param props.onLanguageChange - Called with the selected language tag and display name.
- * @param props.onFileChange     - Called with the chosen file.
- * @param props.onCancelReplace  - Called when a replace is cancelled.
- * @param props.onSubmit         - Called to submit the form.
+ * @param props                   - Component props.
+ * @param props.workspace         - Upload workspace state.
+ * @param props.isSaving          - Whether an upload is in flight.
+ * @param props.preview           - Video props for the preview player.
+ * @param props.excludedLanguages - Languages left out of the language picker.
+ * @param props.onLanguageChange  - Called with the selected language tag and display name.
+ * @param props.onFileChange      - Called with the chosen file.
+ * @param props.onCancelReplace   - Called when a replace is cancelled.
+ * @param props.onSubmit          - Called to submit the form.
  * @return The upload workspace.
  */
 export default function UploadWorkspace( {
 	workspace,
 	isSaving,
 	preview,
+	excludedLanguages,
 	onLanguageChange,
 	onFileChange,
 	onCancelReplace,
@@ -98,6 +102,7 @@ export default function UploadWorkspace( {
 						value={ form.srcLang }
 						onChange={ onLanguageChange }
 						disabled={ isSaving || mode === 'replace' }
+						excludedLanguages={ excludedLanguages }
 					/>
 				</div>
 

@@ -17,6 +17,8 @@ type LanguageControlProps = {
 	value: string;
 	onChange: ( tag: string, displayName: string ) => void;
 	disabled?: boolean;
+	/** Language tags to leave out of the options, e.g. languages that already have a track. */
+	excludedLanguages?: string[];
 };
 
 type LanguageOption = { value: string; label: string };
@@ -32,11 +34,12 @@ const toOption = ( tag: string ): LanguageOption => ( {
  * selecting an option reports the canonical tag and its display name (used to
  * derive the track label).
  *
- * @param props          - Component props.
- * @param props.label    - Field label.
- * @param props.value    - Current BCP-47 tag.
- * @param props.onChange - Called with the selected tag and its display name.
- * @param props.disabled - Whether the control is disabled.
+ * @param props                   - Component props.
+ * @param props.label             - Field label.
+ * @param props.value             - Current BCP-47 tag.
+ * @param props.onChange          - Called with the selected tag and its display name.
+ * @param props.disabled          - Whether the control is disabled.
+ * @param props.excludedLanguages - Language tags to leave out of the options.
  * @return Language combobox control.
  */
 export default function LanguageControl( {
@@ -45,9 +48,13 @@ export default function LanguageControl( {
 	onChange,
 	// An explicit default: `Disabled` treats an undefined `isDisabled` as true.
 	disabled = false,
+	excludedLanguages,
 }: LanguageControlProps ): ReactElement {
 	const options = useMemo( () => {
-		const tags = [ ...LANGUAGE_TAGS ];
+		// The current value always stays selectable, even when it's excluded.
+		const excluded = new Set( excludedLanguages );
+		excluded.delete( value );
+		const tags = LANGUAGE_TAGS.filter( tag => ! excluded.has( tag ) );
 
 		/*
 		 * Keep the current value selectable even if it isn't in the curated list
@@ -58,7 +65,7 @@ export default function LanguageControl( {
 		}
 
 		return tags.map( toOption ).sort( ( a, b ) => a.label.localeCompare( b.label ) );
-	}, [ value ] );
+	}, [ excludedLanguages, value ] );
 
 	return (
 		<Disabled isDisabled={ disabled }>

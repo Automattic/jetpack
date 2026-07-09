@@ -22,6 +22,8 @@ export type ManagedTrackRow = {
 	metaLabels: string[];
 	isGenerated: boolean;
 	isReady: boolean;
+	/** Whether the row offers Edit — ready, and not a generated track whose language already has a manual track. */
+	isEditable: boolean;
 	track: VideoTextTrack;
 };
 
@@ -163,7 +165,7 @@ export default function TrackList( {
 								label={ __( 'Edit', 'jetpack-videopress-pkg' ) }
 								showTooltip={ isCompact }
 								onClick={ () => onEditManaged( row.track ) }
-								disabled={ isBusy || ! row.isReady }
+								disabled={ isBusy || ! row.isEditable }
 							>
 								{ isCompact ? null : __( 'Edit', 'jetpack-videopress-pkg' ) }
 							</Button>
