@@ -1,6 +1,11 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { fireEvent, render, screen } from '@testing-library/react';
+import {
+	EMPTY_LOCAL_BUSINESS,
+	EMPTY_LOCAL_BUSINESS_DEFAULTS,
+	makeSchemaSettings,
+} from '../../../data/test/fixtures/schema-settings-fixtures';
 import type { SchemaSettings } from '../../../data/schema-settings-types';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 
@@ -8,6 +13,7 @@ import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 // `jest.unstable_mockModule`, then import the card dynamically. Mocking the hook
 // keeps the card test off the network while exercising the real section + card UI.
 const setOrganizationField = jest.fn();
+const setLocalBusinessField = jest.fn();
 const save = jest.fn();
 
 // Resettable per test so each can vary the configured state the header badge reflects.
@@ -17,9 +23,12 @@ const makeForm = ( overrides: Partial< SchemaSettingsForm > = {} ): SchemaSettin
 	// No stored override; the Site Title / Tagline come through as placeholder defaults.
 	organization: { name: '', description: '', sameAs: [], email: '' },
 	defaults: { name: 'Acme Co', description: 'We make things' },
+	localBusiness: EMPTY_LOCAL_BUSINESS,
+	localBusinessDefaults: EMPTY_LOCAL_BUSINESS_DEFAULTS,
 	isSaving: false,
 	isDirty: false,
 	setOrganizationField,
+	setLocalBusinessField,
 	save,
 	...overrides,
 } );
@@ -31,10 +40,7 @@ jest.unstable_mockModule( '../../../data/use-schema-settings', () => ( {
 const { default: SchemaCard } = await import( '../schema-card' );
 
 // The hook is mocked, so the bootstrap value is only here to satisfy the prop type.
-const bootstrap: SchemaSettings = {
-	organization: { name: '', description: '', sameAs: [], email: '' },
-	defaults: { organization: { name: 'Acme Co', description: 'We make things' } },
-};
+const bootstrap: SchemaSettings = makeSchemaSettings();
 
 const renderCard = () => render( <SchemaCard initialSettings={ bootstrap } /> );
 
@@ -76,6 +82,54 @@ describe( 'SchemaCard', () => {
 		fireEvent.click( screen.getByRole( 'button', { name: /Add profile/ } ) );
 
 		expect( setOrganizationField ).toHaveBeenCalledWith( { sameAs: [ '' ] } );
+	} );
+
+	it( 'hides LocalBusiness fields until the toggle is enabled', () => {
+		const view = renderCard();
+		expand();
+
+		expect( screen.queryByRole( 'textbox', { name: /Street address/ } ) ).not.toBeInTheDocument();
+
+		view.unmount();
+		mockForm = makeForm( {
+			localBusiness: { ...mockForm.localBusiness, enabled: true },
+		} );
+		renderCard();
+		expand();
+
+		expect( screen.getByRole( 'textbox', { name: /Street address/ } ) ).toBeInTheDocument();
+		expect( screen.getByText( /Google requires it/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'updates the LocalBusiness toggle through the hook', () => {
+		renderCard();
+		expand();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'checkbox', { name: /local business/ } ) );
+
+		expect( setLocalBusinessField ).toHaveBeenCalledWith( { enabled: true } );
+	} );
+
+	it( 'disables saving when only one geo coordinate is filled', () => {
+		mockForm = makeForm( {
+			isDirty: true,
+			localBusiness: {
+				...mockForm.localBusiness,
+				enabled: true,
+				geo: { latitude: '40.7128', longitude: '' },
+			},
+		} );
+		renderCard();
+		expand();
+
+		expect(
+			screen.getAllByText( 'Enter both latitude and longitude, or leave both blank.' )
+		).toHaveLength( 2 );
+		expect( screen.getByRole( 'button', { name: /^Save$/ } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'disables saving when a social profile URL is invalid', () => {
@@ -154,6 +208,28 @@ describe( 'SchemaCard', () => {
 		renderCard();
 
 		expect( screen.getByText( '3 of 4 set' ) ).toBeInTheDocument();
+	} );
+
+	it( 'counts LocalBusiness address as a fifth badge item only when enabled', () => {
+		mockForm = makeForm( {
+			localBusiness: {
+				...mockForm.localBusiness,
+				address: { ...mockForm.localBusiness.address, streetAddress: '123 Main St' },
+			},
+		} );
+		const view = renderCard();
+		expect( screen.getByText( '2 of 4 set' ) ).toBeInTheDocument();
+
+		view.unmount();
+		mockForm = makeForm( {
+			localBusiness: {
+				...mockForm.localBusiness,
+				enabled: true,
+				address: { ...mockForm.localBusiness.address, streetAddress: '123 Main St' },
+			},
+		} );
+		renderCard();
+		expect( screen.getByText( '3 of 5 set' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows "Not set" when nothing is configured (no site identity either)', () => {
