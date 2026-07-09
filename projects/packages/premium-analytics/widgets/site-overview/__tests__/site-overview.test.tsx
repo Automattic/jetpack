@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -64,6 +64,73 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.getByText( 'Comments' ) ).toBeInTheDocument();
 		expect( screen.getByText( '260' ) ).toBeInTheDocument();
 		expect( screen.getByText( '17' ) ).toBeInTheDocument();
+	} );
+
+	it( 'exposes the exact total on hover while the tile shows a shortened count', async () => {
+		mockApiFetch.mockResolvedValue( { ...SUMMARY_RESPONSE, views: 18400 } );
+
+		render(
+			<SiteOverviewWidget
+				attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
+			/>
+		);
+
+		// The tile abbreviates the count…
+		await expect( screen.findByText( '18K' ) ).resolves.toBeInTheDocument();
+		// …and its hover title carries the exact total.
+		expect( screen.getByTitle( ( 18400 ).toLocaleString() ) ).toBeInTheDocument();
+	} );
+
+	it( 'explains the per-day visitor aggregation on the Visitors tile', async () => {
+		render(
+			<SiteOverviewWidget
+				attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
+			/>
+		);
+
+		await expect( screen.findByText( 'Visitors' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByTitle( /Sum of daily visitors/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows the empty state when every visible metric is zero', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...SUMMARY_RESPONSE,
+			views: 0,
+			visitors: 0,
+			likes: 0,
+			comments: 0,
+		} );
+
+		render(
+			<SiteOverviewWidget
+				attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'No stats recorded for this period.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Views' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the error state with a Retry action that refetches', async () => {
+		// A 403 is not retried by the query client, so the error state is
+		// immediate; `no_connection` keeps it out of the plan-gated path.
+		mockApiFetch.mockRejectedValueOnce( { code: 'no_connection', data: { status: 403 } } );
+
+		render(
+			<SiteOverviewWidget
+				attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
+			/>
+		);
+
+		await expect(
+			screen.findByText( "We couldn't load the site overview. Please try again in a moment." )
+		).resolves.toBeInTheDocument();
+
+		// Retry re-runs the query; the next fetch succeeds and the tiles render.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		await expect( screen.findByText( '420' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'hides a metric tile toggled off in the widget settings', async () => {

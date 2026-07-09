@@ -4,14 +4,14 @@
 import { useStatsSummary, type StatsSummaryResponse } from '@jetpack-premium-analytics/data';
 import {
 	MetricWithComparison,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	useWidgetRootContext,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Icon, comment, people, seen, starEmpty } from '@wordpress/icons';
+import { Icon, comment, globe, people, seen, starEmpty } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
@@ -36,6 +36,16 @@ const COUNT_FORMAT: DataFormat = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
+type MetricKey = 'views' | 'visitors' | 'likes' | 'comments';
+
+type Metric = {
+	key: MetricKey;
+	label: string;
+	icon: typeof seen;
+	/** Optional caveat about how the total is aggregated, surfaced on hover. */
+	note?: string;
+};
+
 /**
  * The period metrics shown, in display order. Each key is a numeric field of the
  * summary response, paired with its Stats icon. `summary` totals views/visitors/
@@ -43,12 +53,22 @@ const COUNT_FORMAT: DataFormat = {
  * all-time running total, not a period metric, so it has no meaningful
  * period-over-period comparison.
  */
-const METRICS = [
+const METRICS: Metric[] = [
 	{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ), icon: seen },
-	{ key: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics' ), icon: people },
+	{
+		key: 'visitors',
+		label: __( 'Visitors', 'jetpack-premium-analytics' ),
+		icon: people,
+		// Mirrors the upstream Stats caveat: the endpoint sums each day's
+		// visitors, so a returning visitor counts once per day, not once overall.
+		note: __(
+			'Sum of daily visitors — a returning visitor is counted once per day, not once for the whole period.',
+			'jetpack-premium-analytics'
+		),
+	},
 	{ key: 'likes', label: __( 'Likes', 'jetpack-premium-analytics' ), icon: starEmpty },
 	{ key: 'comments', label: __( 'Comments', 'jetpack-premium-analytics' ), icon: comment },
-] as const;
+];
 
 /**
  * Fetches the period summary through the designated `useStatsSummary` Stats hook
@@ -71,20 +91,11 @@ function SiteOverviewReport( {
 }: SiteOverviewReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, isError } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsSummary( reportParams );
 
 	const summary = primary.data as StatsSummaryResponse | undefined;
 	const comparisonSummary = comparison.data as StatsSummaryResponse | undefined;
-
-	// The summary response is a flat object, so `useReport`'s generic `hasData`
-	// (which looks for `.summary`/`.data`/`.steps`) never matches it — gate on the
-	// summary directly. Cover the widget only on the cold load; once a period's
-	// totals are on screen, a date-range change refetches in the background and we
-	// layer the overlay over the stale tiles instead of blanking them.
-	const hasSummary = !! summary;
-	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasSummary;
-	const isRefetching = isFetching && hasSummary;
 
 	// Only wire comparison values when the comparison period actually returned a
 	// summary; otherwise the tiles render as bare current-period totals rather
@@ -101,7 +112,7 @@ function SiteOverviewReport( {
 
 	// Drop tiles the user has toggled off in the widget settings, keeping the
 	// declared display order.
-	const enabledByKey: Record< string, boolean > = {
+	const enabledByKey: Record< MetricKey, boolean > = {
 		views: showViews,
 		visitors: showVisitors,
 		likes: showLikes,
@@ -109,56 +120,70 @@ function SiteOverviewReport( {
 	};
 	const visibleMetrics = METRICS.filter( metric => enabledByKey[ metric.key ] );
 
-	let content;
-	if ( isError ) {
-		content = (
-			<div className={ styles.state }>
-				<Text>{ __( 'Unable to load site overview.', 'jetpack-premium-analytics' ) }</Text>
-			</div>
-		);
-	} else if ( isInitialLoading ) {
-		content = <WidgetLoadingOverlay />;
-	} else if ( ! summary ) {
-		content = (
-			<div className={ styles.state }>
-				<Text>{ __( 'No stats recorded for this period.', 'jetpack-premium-analytics' ) }</Text>
-			</div>
-		);
-	} else if ( visibleMetrics.length === 0 ) {
-		content = (
-			<div className={ styles.state }>
-				<Text>{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }</Text>
-			</div>
-		);
-	} else {
-		content = (
-			<div className={ styles.grid }>
-				{ visibleMetrics.map( metric => (
-					<div key={ metric.key } className={ styles.tile }>
-						<div className={ styles.tileHeader }>
-							<Icon className={ styles.tileIcon } icon={ metric.icon } size={ 24 } />
-							<Text className={ styles.tileLabel }>{ metric.label }</Text>
-						</div>
-						<MetricWithComparison
-							className={ styles.tileValue }
-							value={ summary[ metric.key ] }
-							previousValue={ previousByMetric.get( metric.key ) }
-							dataFormat={ COUNT_FORMAT }
-							fontSize="xl"
-						/>
-					</div>
-				) ) }
+	// Not a data state: the user has toggled every tile off in the widget
+	// settings, so it stays outside `WidgetState` and shows in every fetch state.
+	if ( visibleMetrics.length === 0 ) {
+		return (
+			<div className={ styles.root }>
+				<div className={ styles.state }>
+					<Text>
+						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+					</Text>
+				</div>
 			</div>
 		);
 	}
 
-	// The states share the `.root` body wrapper so sizing stays consistent
-	// whether data, a spinner, or a message shows. `.root` is positioned, so the
-	// refetch overlay layers over the tiles while a new period loads.
+	// The summary endpoint resolves to a flat totals object even for an idle
+	// period, so "empty" is every visible metric at zero, not a missing payload.
+	const isEmpty = ! summary || visibleMetrics.every( metric => summary[ metric.key ] === 0 );
+
 	return (
 		<div className={ styles.root }>
-			{ content }
-			{ isRefetching && <WidgetLoadingOverlay /> }
+			<WidgetState
+				// `isPending` covers the query being disabled before a date resolves;
+				// once a period's totals are on screen a date-range change refetches in
+				// the background and the busy overlay layers over the stale tiles.
+				isLoading={ ( isLoading || primary.isPending ) && ! summary }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ isEmpty }
+				error={ {
+					description: __(
+						"We couldn't load the site overview. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: globe,
+					description: __( 'No stats recorded for this period.', 'jetpack-premium-analytics' ),
+				} }
+			>
+				<div className={ styles.grid }>
+					{ visibleMetrics.map( metric => {
+						const value = summary?.[ metric.key ] ?? 0;
+						return (
+							<div key={ metric.key } className={ styles.tile }>
+								<div className={ styles.tileHeader } title={ metric.note }>
+									<Icon className={ styles.tileIcon } icon={ metric.icon } size={ 24 } />
+									<Text className={ styles.tileLabel }>{ metric.label }</Text>
+								</div>
+								{ /* The tile shows a shortened count (e.g. 18K); the hover title
+								     carries the exact total, as the upstream Stats tooltip does. */ }
+								<div className={ styles.tileValue } title={ value.toLocaleString() }>
+									<MetricWithComparison
+										value={ value }
+										previousValue={ previousByMetric.get( metric.key ) }
+										dataFormat={ COUNT_FORMAT }
+										fontSize="xl"
+									/>
+								</div>
+							</div>
+						);
+					} ) }
+				</div>
+			</WidgetState>
 		</div>
 	);
 }
