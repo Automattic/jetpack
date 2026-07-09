@@ -43,8 +43,25 @@ const EMAIL_BREAKDOWN_RENDER_MODULE = 'storybook/email-breakdown';
 // A representative email whose breakdown the mocks return data for.
 const MOCK_EMAIL_ID = 1234;
 
-const VIEW_OPTIONS: EmailBreakdownView[] = [ 'countries', 'devices', 'clients', 'links' ];
-const METRIC_OPTIONS: EmailBreakdownMetric[] = [ 'opens', 'clicks' ];
+/**
+ * Read an attribute's declared element values off the widget definition, so the
+ * story controls always mirror the schema (a newly added view or metric shows
+ * up as a control option without touching this file).
+ *
+ * @param id - The attribute id on the widget definition.
+ * @return The attribute's element values.
+ */
+function attributeElementValues< Value extends string >( id: string ): Value[] {
+	return (
+		widgetDefinition.attributes
+			.find( attribute => attribute.id === id )
+			?.elements?.map( element => element.value as Value ) ?? []
+	);
+}
+
+const VIEW_OPTIONS: EmailBreakdownView[] = attributeElementValues< EmailBreakdownView >( 'view' );
+const METRIC_OPTIONS: EmailBreakdownMetric[] =
+	attributeElementValues< EmailBreakdownMetric >( 'metric' );
 
 /**
  * Widget-specific controls: the comparison toggle, the breakdown view, and the
