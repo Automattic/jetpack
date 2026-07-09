@@ -7,5 +7,13 @@
 
 	@media screen and ( min-width: 780px ) {
 		flex-direction: row;
+
+		// Give each column a determinate width (and allow shrinking) so the
+		// controls don't reflow when the SelectControl's selected value length
+		// changes — its trigger ellipsis engages instead.
+		> * {
+			flex: 1;
+			min-width: 0;
+		}
 	}
 }
