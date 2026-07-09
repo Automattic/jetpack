@@ -30,7 +30,7 @@ export { sanitizeStatsVisitsResponse } from './visits';
 export { sanitizeStatsInsightsResponse } from './insights';
 export { mergeStatsUtmComparisonRows, sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
-export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
+export { compareEmailBreakdownItems, sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
 export { sanitizeStatsArchivesResponse } from './archives';
 export { sanitizeStatsCommentFollowersResponse } from './comment-followers';
 export { sanitizeStatsFollowersResponse } from './followers';

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	compareEmailBreakdownItems,
 	useStatsEmailClicksBreakdown,
 	useStatsEmailOpensBreakdown,
 	type StatsEmailBreakdown,
@@ -76,27 +77,6 @@ function toRows( report: StatsEmailBreakdown | undefined ): Omit< EmailBreakdown
 		countryFull: item.countryFull ? String( item.countryFull ) : undefined,
 		link: item.link,
 	} ) );
-}
-
-/**
- * Sort merged rows by value, keeping the aggregated "Other" row last — the same
- * order the data layer's sanitizer applies within a single report.
- *
- * @param rows - The rows to sort.
- * @return The sorted rows.
- */
-function sortRows( rows: Omit< EmailBreakdownRow, 'id' >[] ): Omit< EmailBreakdownRow, 'id' >[] {
-	return [ ...rows ].sort( ( a, b ) => {
-		if ( a.label === 'Other' ) {
-			return 1;
-		}
-
-		if ( b.label === 'Other' ) {
-			return -1;
-		}
-
-		return b.value - a.value;
-	} );
 }
 
 type UseEmailBreakdownRowsArgs = {
@@ -178,11 +158,12 @@ export default function useEmailBreakdownRows( {
 		const merged = isLinksView
 			? // Keep internal-type rows (no URL) from `link` and URL rows from
 			  // `user-content-link`, so a row can never be double-counted if an
-			  // endpoint ever answers with both payloads.
-			  sortRows( [
+			  // endpoint ever answers with both payloads. Re-sorting with the data
+			  // layer's comparator restores the single-report order across the merge.
+			  [
 					...toRows( internalLinksReport ).filter( row => ! row.link ),
 					...toRows( userContentLinksReport ).filter( row => Boolean( row.link ) ),
-			  ] )
+			  ].sort( compareEmailBreakdownItems )
 			: toRows( dimensionReport );
 
 		// `max = 0` means "all rows" (the Stats-widget convention), so only slice
