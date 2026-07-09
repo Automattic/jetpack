@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -122,6 +122,46 @@ describe( 'EmailBreakdownWidget', () => {
 		expect(
 			requestedPaths.some( path => path.includes( 'stats/clicks/emails/1234/user-content-link' ) )
 		).toBe( true );
+	} );
+
+	it( 'shows the error state when one of the two links-view queries fails on first load', async () => {
+		// The `link` breakdown fails (non-retryable 403 so React Query surfaces the
+		// error immediately) while `user-content-link` succeeds. Half a merged list
+		// with no error would silently hide the internal link types, so the widget
+		// must surface the error (with Retry) instead of the incomplete rows.
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			path.includes( '/user-content-link' )
+				? Promise.resolve( USER_CONTENT_LINKS_RESPONSE )
+				: Promise.reject( { status: 403, message: 'Forbidden' } )
+		);
+
+		render( <EmailBreakdownWidget attributes={ { postId: 1234, view: 'links' } } /> );
+
+		await expect(
+			screen.findByText( /couldn't load this email's breakdown/ )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: /https:\/\/example\.com\/spring-sale/ } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps populated rows instead of the error state when a refetch fails', async () => {
+		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
+
+		render( <EmailBreakdownWidget attributes={ { postId: 1234, view: 'countries' } } /> );
+
+		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
+
+		// The next fetch fails, but the query already has data: the widget keeps
+		// showing the populated rows rather than swapping in the error state.
+		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+		await act( async () => {
+			await queryClient.refetchQueries();
+		} );
+
+		expect( screen.getByText( 'United States' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /couldn't load this email's breakdown/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the empty state and makes no request without a selected email', async () => {

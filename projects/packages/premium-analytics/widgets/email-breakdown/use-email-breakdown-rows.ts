@@ -177,9 +177,12 @@ export default function useEmailBreakdownRows( {
 		rows,
 		isLoading: activeQueries.some( query => query.isLoading ),
 		isFetching: activeQueries.some( query => query.isFetching ),
-		// Surface the error only when there are no rows to show, so a transient
-		// refetch failure doesn't replace populated rows with the error state.
-		isError: rows.length === 0 && activeQueries.some( query => query.isError ),
+		// A query that failed before ever returning data leaves its part of the
+		// view missing (for the links view, one of the two merged breakdowns), so
+		// surface the error even when another query produced rows. Once a query
+		// has data, a transient refetch failure keeps showing the populated rows
+		// instead of replacing them with the error state.
+		isError: activeQueries.some( query => query.isError && query.data === undefined ),
 		refetch: () => activeQueries.forEach( query => query.refetch() ),
 	};
 }
