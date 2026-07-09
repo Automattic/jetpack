@@ -7,11 +7,9 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, chevronRight, external } from '@wordpress/icons';
-import { Button, Card, Link, Stack } from '@wordpress/ui';
-import clsx from 'clsx';
+import { Button, Link } from '@wordpress/ui';
 import { useCallback, useState, useEffect } from 'react';
-import type { MouseEvent, ReactNode } from 'react';
+import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import './style.scss';
 
 interface OwnerDisconnectDialogProps {
@@ -186,57 +184,6 @@ const OwnerDisconnectDialog = ( {
 				</div>
 			</Modal>
 		)
-	);
-};
-
-interface ManageConnectionActionCardProps {
-	/** Card title. */
-	title: ReactNode;
-	/** Click handler for the card link. */
-	onClick?: ( e: MouseEvent< HTMLAnchorElement > ) => void;
-	/** Whether the link points to an external destination. */
-	isExternal?: boolean;
-	/** Link target. */
-	link?: string;
-	/** Action slug appended to the card class. */
-	action?: string;
-	/** Whether the card is disabled. */
-	disabled?: boolean;
-}
-
-const ManageConnectionActionCard = ( {
-	title,
-	onClick = () => null,
-	isExternal = false,
-	link = '#',
-	action,
-	disabled = false,
-}: ManageConnectionActionCardProps ) => {
-	const disabledCallback = useCallback(
-		( e: MouseEvent< HTMLAnchorElement > ) => e.preventDefault(),
-		[]
-	);
-
-	return (
-		<Card.Root
-			className={ clsx( 'jp-connection__manage-dialog__action-card', action, { disabled } ) }
-			render={
-				<a
-					href={ link }
-					onClick={ ! disabled ? onClick : disabledCallback }
-					target={ isExternal ? '_blank' : '_self' }
-					rel="noopener noreferrer"
-					aria-disabled={ disabled || undefined }
-				/>
-			}
-		>
-			<Card.Content>
-				<Stack direction="row" align="center" justify="space-between" gap="sm">
-					{ title }
-					<Icon icon={ isExternal ? external : chevronRight } />
-				</Stack>
-			</Card.Content>
-		</Card.Root>
 	);
 };
 
