@@ -24,7 +24,7 @@ import styles from './stage.module.scss';
  * @return {JSX.Element} The Premium Analytics dashboard.
  */
 function Dashboard(): JSX.Element {
-	const { sections, updateSectionLayout, resetSectionLayout } =
+	const { sections, isResolvingSections, updateSectionLayout, resetSectionLayout } =
 		useDashboardSections( DASHBOARD_NAME );
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
 	const activeDashboardSection = useMemo(
@@ -81,6 +81,23 @@ function Dashboard(): JSX.Element {
 	// Container element for the date filters panel responsive layout.
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
+	const pageProps = {
+		title: __( 'Analytics', 'jetpack-premium-analytics' ),
+		subTitle: __(
+			'Track your site performance and visitor insights.',
+			'jetpack-premium-analytics'
+		),
+		className: styles.dashboard,
+	};
+
+	if ( isResolvingSections || ! activeDashboardSection ) {
+		return (
+			<GlobalErrorProvider>
+				<Page { ...pageProps }>{ null }</Page>
+			</GlobalErrorProvider>
+		);
+	}
+
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
@@ -93,15 +110,7 @@ function Dashboard(): JSX.Element {
 				editMode={ editMode }
 				onEditChange={ setEditMode }
 			>
-				<Page
-					title={ __( 'Analytics', 'jetpack-premium-analytics' ) }
-					subTitle={ __(
-						'Track your site performance and visitor insights.',
-						'jetpack-premium-analytics'
-					) }
-					actions={ <WidgetDashboard.Actions /> }
-					className={ styles.dashboard }
-				>
+				<Page { ...pageProps } actions={ <WidgetDashboard.Actions /> }>
 					<DashboardSections
 						sections={ sections }
 						value={ activeSection }
