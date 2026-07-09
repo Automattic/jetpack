@@ -73,3 +73,5 @@ export { mockStatsInsightsData } from './insights';
 export { mockStatsSummaryData, mockStatsSummaryComparisonData } from './summary';
 
 export { mockStatsSubscribersCountsData } from './subscriber-counts';
+
+export { buildEmailRateResponse } from './email-rate';
