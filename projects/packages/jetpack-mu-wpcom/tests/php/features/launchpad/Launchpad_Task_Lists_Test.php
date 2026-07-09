@@ -539,9 +539,15 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 		$definitions = wpcom_launchpad_get_task_definitions();
 
 		$this->assertArrayHasKey( 'woo_launch_site', $definitions );
-		$this->assertArrayHasKey( 'get_calypso_path', $definitions['woo_launch_site'] );
 
-		$url = call_user_func( $definitions['woo_launch_site']['get_calypso_path'] );
+		$get_calypso_path = $definitions['woo_launch_site']['get_calypso_path'] ?? null;
+		$this->assertIsCallable( $get_calypso_path );
+
+		if ( ! is_callable( $get_calypso_path ) ) {
+			return;
+		}
+
+		$url = call_user_func( $get_calypso_path );
 
 		$this->assertStringContainsString( 'page=wc-admin', $url );
 		$this->assertStringContainsString( 'path=%2Flaunch-your-store', $url );
