@@ -24,6 +24,13 @@ require_once __DIR__ . '/fixtures/class-fake-wp-mail-email.php';
 class WPCronExportScheduler_Test extends TestCase {
 
 	/**
+	 * Temporary upload base directories for cleanup tests.
+	 *
+	 * @var string[]
+	 */
+	private $cleanup_dirs = array();
+
+	/**
 	 * @after
 	 */
 	#[After]
@@ -31,6 +38,23 @@ class WPCronExportScheduler_Test extends TestCase {
 		wp_clear_scheduled_hook( Wp_Cron_Export_Scheduler::EXPORT_ACTION_HOOK );
 		wp_clear_scheduled_hook( Wp_Cron_Export_Scheduler::CLEANUP_HOOK );
 		wp_set_current_user( 0 );
+
+		foreach ( $this->cleanup_dirs as $dir ) {
+			$files = glob( trailingslashit( $dir ) . 'jetpack-premium-analytics-exports/*.csv' );
+			if ( is_array( $files ) ) {
+				foreach ( $files as $file ) {
+					wp_delete_file( $file );
+				}
+			}
+			$export_dir = trailingslashit( $dir ) . 'jetpack-premium-analytics-exports';
+			if ( is_dir( $export_dir ) ) {
+				rmdir( $export_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+			}
+			if ( is_dir( $dir ) ) {
+				rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+			}
+		}
+		$this->cleanup_dirs = array();
 	}
 
 	private function scheduler( $fetch_result = null, ?Fake_Wp_Mail_Email $email = null, ?Spy_Logger $logger = null ): Wp_Cron_Export_Scheduler {
@@ -55,6 +79,13 @@ class WPCronExportScheduler_Test extends TestCase {
 			$email ?? new Fake_Wp_Mail_Email( $logger ),
 			$logger
 		);
+	}
+
+	private function make_cleanup_upload_dir(): string {
+		$dir                  = trailingslashit( sys_get_temp_dir() ) . 'pa-wpcron-cleanup-' . wp_generate_password( 8, false );
+		$this->cleanup_dirs[] = $dir;
+		wp_mkdir_p( trailingslashit( $dir ) . 'jetpack-premium-analytics-exports' );
+		return $dir;
 	}
 
 	public function test_schedule_export_rejects_invalid_email() {
@@ -159,6 +190,57 @@ class WPCronExportScheduler_Test extends TestCase {
 
 		$this->assertSame( 'error', $logger->entries[0]['level'] );
 		$this->assertStringContainsString( 'Cleanup scheduling is blocked.', $logger->entries[0]['message'] );
+	}
+
+	public function test_cleanup_old_exports_bails_when_upload_dir_is_unavailable() {
+		$logger    = new Spy_Logger();
+		$scheduler = $this->scheduler( null, null, $logger );
+
+		$bad_upload_dir = static function ( $uploads ) {
+			$uploads['basedir'] = '';
+			$uploads['error']   = 'Uploads unavailable.';
+			return $uploads;
+		};
+
+		add_filter( 'upload_dir', $bad_upload_dir );
+		try {
+			$scheduler->cleanup_old_exports();
+		} finally {
+			remove_filter( 'upload_dir', $bad_upload_dir );
+		}
+
+		$this->assertSame( 'error', $logger->entries[0]['level'] );
+		$this->assertStringContainsString( 'uploads directory is unavailable', $logger->entries[0]['message'] );
+	}
+
+	public function test_cleanup_old_exports_clamps_negative_retention() {
+		$base_dir   = $this->make_cleanup_upload_dir();
+		$export_dir = trailingslashit( $base_dir ) . 'jetpack-premium-analytics-exports';
+		$file       = trailingslashit( $export_dir ) . 'future-export.csv';
+
+		file_put_contents( $file, 'csv' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		touch( $file, time() + HOUR_IN_SECONDS );
+
+		$upload_dir = static function ( $uploads ) use ( $base_dir ) {
+			$uploads['basedir'] = $base_dir;
+			$uploads['error']   = false;
+			return $uploads;
+		};
+
+		$retention = static function () {
+			return -DAY_IN_SECONDS;
+		};
+
+		add_filter( 'upload_dir', $upload_dir );
+		add_filter( 'jetpack_premium_analytics_csv_export_retention', $retention );
+		try {
+			$this->scheduler()->cleanup_old_exports();
+		} finally {
+			remove_filter( 'jetpack_premium_analytics_csv_export_retention', $retention );
+			remove_filter( 'upload_dir', $upload_dir );
+		}
+
+		$this->assertFileExists( $file );
 	}
 
 	public function test_process_export_job_emails_attachment_and_restores_user() {

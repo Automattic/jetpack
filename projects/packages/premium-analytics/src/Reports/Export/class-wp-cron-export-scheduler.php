@@ -322,6 +322,11 @@ class Wp_Cron_Export_Scheduler implements Registrable_Interface {
 	 */
 	public function cleanup_old_exports(): void {
 		$upload_dir = wp_upload_dir();
+		if ( ! empty( $upload_dir['error'] ) || empty( $upload_dir['basedir'] ) ) {
+			$this->logger->log_error( 'Cannot clean up CSV exports because the uploads directory is unavailable', __METHOD__ );
+			return;
+		}
+
 		$export_dir = trailingslashit( $upload_dir['basedir'] ) . 'jetpack-premium-analytics-exports';
 
 		if ( ! is_dir( $export_dir ) ) {
@@ -334,6 +339,7 @@ class Wp_Cron_Export_Scheduler implements Registrable_Interface {
 		 * @param int $retention_seconds Retention period in seconds. Default: 48 hours.
 		 */
 		$retention = apply_filters( 'jetpack_premium_analytics_csv_export_retention', self::DEFAULT_RETENTION_PERIOD );
+		$retention = is_numeric( $retention ) ? max( 0, (int) $retention ) : self::DEFAULT_RETENTION_PERIOD;
 
 		$files = glob( $export_dir . '/*.csv' );
 		if ( ! is_array( $files ) ) {
