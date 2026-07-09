@@ -69,6 +69,20 @@ describe( 'WordAdsEarningsWidget', () => {
 		expect( requestedPath ).toContain( 'wordads/earnings' );
 	} );
 
+	it( 'explains payment statuses via a title tooltip', async () => {
+		render( <WordAdsEarningsWidget attributes={ {} } /> );
+
+		const unpaid = await screen.findByText( 'Unpaid' );
+		expect( unpaid ).toHaveAttribute(
+			'title',
+			'Payment is on hold until the end of the current month.'
+		);
+		expect( screen.getByText( 'Pending (Missing Tax Info)' ) ).toHaveAttribute(
+			'title',
+			expect.stringContaining( 'You can provide tax information' )
+		);
+	} );
+
 	it( 'renders the empty state when there are no earnings', async () => {
 		mockApiFetch.mockResolvedValue( { earnings: {} } );
 

@@ -9,8 +9,8 @@ import {
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	MetricValue,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, _x } from '@wordpress/i18n';
@@ -42,27 +42,61 @@ const BREAKDOWN_SECTIONS = [
 	{ key: 'adjustment', label: __( 'Adjustments', 'jetpack-premium-analytics' ) },
 ] as const;
 
+type StatusInfo = {
+	label: string;
+	/**
+	 * Explanatory note shown as the label's `title` tooltip; the pending
+	 * statuses tell the user what to fix.
+	 */
+	description?: string;
+};
+
 /**
- * Payment status labels for a breakdown row, matching the codes returned by the
- * WordAds earnings endpoint. Unknown codes fall back to a generic label.
+ * Payment status label and explanatory note for a breakdown row, matching the
+ * codes returned by the WordAds earnings endpoint. Unknown codes fall back to a
+ * generic label.
  *
  * @param status - The numeric payment status code.
- * @return The translatable status label.
+ * @return The translatable status label and optional note.
  */
-function statusLabel( status: number ): string {
+function statusInfo( status: number ): StatusInfo {
 	switch ( status ) {
 		case 0:
-			return __( 'Unpaid', 'jetpack-premium-analytics' );
+			return {
+				label: __( 'Unpaid', 'jetpack-premium-analytics' ),
+				description: __(
+					'Payment is on hold until the end of the current month.',
+					'jetpack-premium-analytics'
+				),
+			};
 		case 1:
-			return __( 'Paid', 'jetpack-premium-analytics' );
+			return {
+				label: __( 'Paid', 'jetpack-premium-analytics' ),
+				description: __(
+					'Payment has been processed through PayPal.',
+					'jetpack-premium-analytics'
+				),
+			};
 		case 2:
-			return __( 'a8c-only', 'jetpack-premium-analytics' );
+			return { label: __( 'a8c-only', 'jetpack-premium-analytics' ) };
 		case 3:
-			return __( 'Pending (Missing Tax Info)', 'jetpack-premium-analytics' );
+			return {
+				label: __( 'Pending (Missing Tax Info)', 'jetpack-premium-analytics' ),
+				description: __(
+					'Payment is pending due to missing information. You can provide tax information in the settings screen.',
+					'jetpack-premium-analytics'
+				),
+			};
 		case 4:
-			return __( 'Pending (Invalid PayPal)', 'jetpack-premium-analytics' );
+			return {
+				label: __( 'Pending (Invalid PayPal)', 'jetpack-premium-analytics' ),
+				description: __(
+					'Payment processing has failed due to invalid PayPal address. You can correct the PayPal address in the settings screen.',
+					'jetpack-premium-analytics'
+				),
+			};
 		default:
-			return __( 'Unknown', 'jetpack-premium-analytics' );
+			return { label: __( 'Unknown', 'jetpack-premium-analytics' ) };
 	}
 }
 
@@ -142,18 +176,23 @@ function BreakdownSection( { label, rows }: BreakdownSectionProps ) {
 					</tr>
 				</thead>
 				<tbody>
-					{ rows.map( row => (
-						<tr key={ row.period }>
-							<td className={ styles.colPeriod }>{ formatPeriod( row.period ) }</td>
-							<td className={ styles.colNumeric }>
-								{ formatMetricValue( row.amount, 'currency' ) }
-							</td>
-							<td className={ styles.colNumeric }>
-								{ formatMetricValue( row.pageviews, 'number', COUNT_FORMAT.options ) }
-							</td>
-							<td className={ styles.colStatus }>{ statusLabel( row.status ) }</td>
-						</tr>
-					) ) }
+					{ rows.map( row => {
+						const status = statusInfo( row.status );
+						return (
+							<tr key={ row.period }>
+								<td className={ styles.colPeriod }>{ formatPeriod( row.period ) }</td>
+								<td className={ styles.colNumeric }>
+									{ formatMetricValue( row.amount, 'currency' ) }
+								</td>
+								<td className={ styles.colNumeric }>
+									{ formatMetricValue( row.pageviews, 'number', COUNT_FORMAT.options ) }
+								</td>
+								<td className={ styles.colStatus }>
+									<span title={ status.description }>{ status.label }</span>
+								</td>
+							</tr>
+						);
+					} ) }
 				</tbody>
 			</table>
 		</section>
@@ -163,12 +202,14 @@ function BreakdownSection( { label, rows }: BreakdownSectionProps ) {
 /**
  * Fetches the WordAds earnings report and renders the headline totals plus a
  * per-period breakdown for each earnings source that has data. The endpoint has
- * no comparison period, so values render without deltas.
+ * no comparison period, so values render without deltas. Loading, error, and
+ * empty are handled by `WidgetState`; a background refetch keeps the current
+ * rows visible under its busy overlay.
  *
  * @return The widget content.
  */
 function WordAdsEarningsReport() {
-	const { data, isLoading, isError } = useStatsWordAdsEarnings();
+	const { data, isLoading, isFetching, isError, refetch } = useStatsWordAdsEarnings();
 
 	const earnings = data as StatsWordAdsEarnings | undefined;
 
@@ -181,63 +222,59 @@ function WordAdsEarningsReport() {
 		[ earnings ]
 	);
 
-	const hasData = earnings !== undefined;
-
-	let content;
-	if ( isError ) {
-		content = (
-			<div className={ styles.state }>
-				<Text>{ __( 'Unable to load WordAds earnings.', 'jetpack-premium-analytics' ) }</Text>
-			</div>
-		);
-	} else if ( isLoading && ! hasData ) {
-		content = <WidgetLoadingOverlay />;
-	} else if ( ! hasData || sections.length === 0 ) {
-		content = (
-			<div className={ styles.state }>
-				<Text>
-					{ __(
+	return (
+		<div className={ styles.root }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ sections.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load WordAds earnings. Please try again in a moment.",
+						'jetpack-premium-analytics'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				} }
+				empty={ {
+					description: __(
 						'No WordAds earnings yet. Earnings appear here once your ads start generating revenue.',
 						'jetpack-premium-analytics'
-					) }
-				</Text>
-			</div>
-		);
-	} else {
-		content = (
-			<>
-				<div className={ styles.totals }>
-					<div className={ styles.total }>
-						<Text className={ styles.totalLabel }>
-							{ __( 'Total earnings', 'jetpack-premium-analytics' ) }
-						</Text>
-						<MetricValue
-							value={ earnings.total_earnings }
-							dataFormat={ CURRENCY_FORMAT }
-							fontSize="xl"
-						/>
-					</div>
-					<div className={ styles.total }>
-						<Text className={ styles.totalLabel }>
-							{ __( 'Amount owed', 'jetpack-premium-analytics' ) }
-						</Text>
-						<MetricValue
-							value={ earnings.total_amount_owed }
-							dataFormat={ CURRENCY_FORMAT }
-							fontSize="xl"
-						/>
-					</div>
-				</div>
-				{ sections.map( section => (
-					<BreakdownSection key={ section.key } label={ section.label } rows={ section.rows } />
-				) ) }
-			</>
-		);
-	}
-
-	// The states share the `.root` body wrapper so sizing stays consistent
-	// whether data, a spinner, or a message shows.
-	return <div className={ styles.root }>{ content }</div>;
+					),
+				} }
+			>
+				{ earnings && (
+					<>
+						<div className={ styles.totals }>
+							<div className={ styles.total }>
+								<Text className={ styles.totalLabel }>
+									{ __( 'Total earnings', 'jetpack-premium-analytics' ) }
+								</Text>
+								<MetricValue
+									value={ earnings.total_earnings }
+									dataFormat={ CURRENCY_FORMAT }
+									fontSize="xl"
+								/>
+							</div>
+							<div className={ styles.total }>
+								<Text className={ styles.totalLabel }>
+									{ __( 'Amount owed', 'jetpack-premium-analytics' ) }
+								</Text>
+								<MetricValue
+									value={ earnings.total_amount_owed }
+									dataFormat={ CURRENCY_FORMAT }
+									fontSize="xl"
+								/>
+							</div>
+						</div>
+						{ sections.map( section => (
+							<BreakdownSection key={ section.key } label={ section.label } rows={ section.rows } />
+						) ) }
+					</>
+				) }
+			</WidgetState>
+		</div>
+	);
 }
 
 /**
