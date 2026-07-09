@@ -51,8 +51,8 @@ import {
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
 	mockStatsInsightsData,
-	mockSiteOverviewData,
-	mockSiteOverviewComparisonData,
+	mockStatsSummaryData,
+	mockStatsSummaryComparisonData,
 	mockStatsSubscribersCountsData,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
@@ -883,8 +883,8 @@ function routeStatsReport( subPath: string ): unknown {
 			// Period summary — alternates primary/comparison so the Site overview
 			// widget shows a period-over-period delta on each tile.
 			return nextIsComparison( 'stats/summary' )
-				? mockSiteOverviewComparisonData
-				: mockSiteOverviewData;
+				? mockStatsSummaryComparisonData
+				: mockStatsSummaryData;
 		case '/search-terms':
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData

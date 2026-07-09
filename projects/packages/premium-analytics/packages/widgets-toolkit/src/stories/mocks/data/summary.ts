@@ -4,7 +4,7 @@
  * period totals; the comparison request returns the earlier period so tiles show
  * a period-over-period delta.
  */
-export const mockSiteOverviewData = {
+export const mockStatsSummaryData = {
 	date: '2026-06-22',
 	period: 'day',
 	views: 18240,
@@ -15,7 +15,7 @@ export const mockSiteOverviewData = {
 	followers: 5124,
 };
 
-export const mockSiteOverviewComparisonData = {
+export const mockStatsSummaryComparisonData = {
 	date: '2026-05-22',
 	period: 'day',
 	views: 15980,
