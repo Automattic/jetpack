@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -61,7 +61,7 @@ describe( 'EmailTopRowWidget', () => {
 			<EmailTopRowWidget
 				attributes={ {
 					postId: 2000,
-					statType: 'opens',
+					metric: 'opens',
 					reportParams: getDefaultQueryParams( false ),
 				} }
 			/>
@@ -77,12 +77,12 @@ describe( 'EmailTopRowWidget', () => {
 		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the Clicks view tiles when statType is clicks', async () => {
+	it( 'renders the Clicks view tiles when metric is clicks', async () => {
 		render(
 			<EmailTopRowWidget
 				attributes={ {
 					postId: 2000,
-					statType: 'clicks',
+					metric: 'clicks',
 					reportParams: getDefaultQueryParams( false ),
 				} }
 			/>
@@ -102,7 +102,7 @@ describe( 'EmailTopRowWidget', () => {
 			<EmailTopRowWidget
 				attributes={ {
 					postId: 9999,
-					statType: 'opens',
+					metric: 'opens',
 					reportParams: getDefaultQueryParams( false ),
 				} }
 			/>
@@ -116,7 +116,7 @@ describe( 'EmailTopRowWidget', () => {
 	it( 'prompts to select an email when no post is selected', async () => {
 		render(
 			<EmailTopRowWidget
-				attributes={ { statType: 'opens', reportParams: getDefaultQueryParams( false ) } }
+				attributes={ { metric: 'opens', reportParams: getDefaultQueryParams( false ) } }
 			/>
 		);
 
@@ -125,6 +125,33 @@ describe( 'EmailTopRowWidget', () => {
 		).resolves.toBeInTheDocument();
 		// A disabled query must not fetch.
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'shows the error state and refetches from the Retry action', async () => {
+		// Reject with a non-retryable (403) error so React Query surfaces the
+		// error state immediately instead of retrying with backoff.
+		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+
+		render(
+			<EmailTopRowWidget
+				attributes={ {
+					postId: 2000,
+					metric: 'opens',
+					reportParams: getDefaultQueryParams( false ),
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByText( "We couldn't load this email's stats. Please try again in a moment." )
+		).resolves.toBeInTheDocument();
+
+		// Retry re-runs the query; the tiles can only render from a successful
+		// refetch, since the initial request rejected.
+		mockApiFetch.mockImplementation( routeRateResponse );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+
+		await expect( screen.findByText( 'Total emails sent' ) ).resolves.toBeInTheDocument();
 	} );
 } );
 

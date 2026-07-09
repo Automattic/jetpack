@@ -8,16 +8,21 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /**
  * Which set of headline metrics the top row shows for the selected email —
  * mirrors the Opens and Clicks internal tabs on the Jetpack Stats email detail
- * page. Each view is backed by its own all-time `stats/<statType>/emails/<postId>/rate`
+ * page. Each view is backed by its own all-time `stats/<opens|clicks>/emails/<postId>/rate`
  * breakdown, so the tiles and the data source switch together.
+ *
+ * Same name and value set as `EmailMetric` in the sibling `emails` widget
+ * (`widgets/emails/widget.ts`) — the email detail page host drives both widgets
+ * from one tab state, so the attribute must stay aligned. Mirrored locally
+ * because widgets are separate workspace packages and cannot import each other.
  */
-export type EmailStatType = 'opens' | 'clicks';
+export type EmailMetric = 'opens' | 'clicks';
 
 /**
  * Configurable attributes for the "Email top row" widget.
  *
  * The widget is scoped to a single email by `postId` and to one metric view by
- * `statType`. Both are supplied by the host (the email detail page passes the
+ * `metric`. Both are supplied by the host (the email detail page passes the
  * selected email and the active Opens/Clicks tab); there is no report-param
  * scoping because the underlying rate endpoints are per-post and always all-time.
  */
@@ -31,7 +36,7 @@ export type EmailTopRowAttributes = {
 	 * Which headline metrics to show: the Opens view (sends, unique opens, opens,
 	 * open rate) or the Clicks view (opens, clicks, click rate). Defaults to `opens`.
 	 */
-	statType?: EmailStatType;
+	metric?: EmailMetric;
 };
 
 /**
@@ -40,8 +45,8 @@ export type EmailTopRowAttributes = {
  * Ported from the Jetpack Stats "Email top row" module (the header row on an
  * individual email's stats detail page). Shows one email's all-time headline
  * counts as a row of metric tiles, switching between the Opens and Clicks views
- * with the `statType` attribute (`relevance: 'high'`, so the host renders the
- * control). Data comes from the per-post `stats/<statType>/emails/<postId>/rate`
+ * with the `metric` attribute (`relevance: 'high'`, so the host renders the
+ * control). Data comes from the per-post `stats/<opens|clicks>/emails/<postId>/rate`
  * breakdown, which is all-time and returns no comparison rows, so the widget
  * ignores the dashboard date range and never shows period-over-period deltas.
  */
@@ -62,7 +67,7 @@ export default {
 			type: 'integer',
 		},
 		{
-			id: 'statType',
+			id: 'metric',
 			label: __( 'View by', 'jetpack-premium-analytics' ),
 			type: 'text',
 			elements: [
@@ -81,7 +86,7 @@ export default {
 	example: {
 		attributes: {
 			postId: 2000,
-			statType: 'opens',
+			metric: 'opens',
 		},
 	},
 };

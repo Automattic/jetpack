@@ -1,11 +1,11 @@
 /**
  * The close-up stories render the data-connected widget against a mocked per-post
- * `stats/<statType>/emails/<postId>/rate` response so the tiles populate without a
+ * `stats/<opens|clicks>/emails/<postId>/rate` response so the tiles populate without a
  * backend. `WidgetDashboardWithWidget` mounts the real dashboard with the same
  * widget.
  *
  * The widget is scoped to a single email by the `postId` attribute and to one
- * view by `statType` (Opens or Clicks). The rate breakdown is all-time and returns
+ * view by `metric` (Opens or Clicks). The rate breakdown is all-time and returns
  * no comparison rows, so the `WithComparison` story renders identically to
  * `Default` — there is no period-over-period data and no deltas are shown.
  *
@@ -29,7 +29,7 @@ import {
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import EmailTopRowRender from '../render';
 import widgetDefinition from '../widget';
-import type { EmailStatType } from '../widget';
+import type { EmailMetric } from '../widget';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -45,19 +45,19 @@ const MOCK_POST_ID = 2000;
 const OPENS_MOCK_FRAGMENT = 'stats/opens/emails';
 
 interface EmailTopRowStoryControls {
-	statType: EmailStatType;
+	metric: EmailMetric;
 	withComparison: boolean;
 }
 
 function renderEmailTopRow(
-	{ statType, withComparison }: EmailTopRowStoryControls,
+	{ metric, withComparison }: EmailTopRowStoryControls,
 	postId: number = MOCK_POST_ID
 ) {
 	return (
 		<EmailTopRowRender
 			attributes={ {
 				postId,
-				statType,
+				metric,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
 		/>
@@ -76,7 +76,7 @@ const meta = {
 	component: EmailTopRowRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
-		statType: {
+		metric: {
 			control: 'inline-radio',
 			options: [ 'opens', 'clicks' ],
 		},
@@ -86,7 +86,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Email top row" widget. Shows a single email\'s all-time headline totals as a row of metric tiles, switching between the Opens view (total sends, unique opens, total opens, open rate) and the Clicks view (total opens, total clicks, click rate) via the `statType` attribute. The email is selected by `postId`. Data comes from the per-post `stats/<statType>/emails/<postId>/rate` breakdown, which is all-time and returns no comparison rows, so the widget ignores the dashboard date range and never shows period-over-period deltas.',
+					'The "Email top row" widget. Shows a single email\'s all-time headline totals as a row of metric tiles, switching between the Opens view (total sends, unique opens, total opens, open rate) and the Clicks view (total opens, total clicks, click rate) via the `metric` attribute. The email is selected by `postId`. Data comes from the per-post `stats/<opens|clicks>/emails/<postId>/rate` breakdown, which is all-time and returns no comparison rows, so the widget ignores the dashboard date range and never shows period-over-period deltas.',
 			},
 		},
 	},
@@ -101,7 +101,7 @@ type Story = StoryObj< EmailTopRowStoryControls >;
  */
 export const Default: Story = {
 	render: args => renderEmailTopRow( args ),
-	args: { statType: 'opens', withComparison: false },
+	args: { metric: 'opens', withComparison: false },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -110,7 +110,7 @@ export const Default: Story = {
  */
 export const ClicksView: Story = {
 	render: args => renderEmailTopRow( args ),
-	args: { statType: 'clicks', withComparison: false },
+	args: { metric: 'clicks', withComparison: false },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -121,7 +121,7 @@ export const ClicksView: Story = {
  */
 export const WithComparison: Story = {
 	render: args => renderEmailTopRow( args ),
-	args: { statType: 'opens', withComparison: true },
+	args: { metric: 'opens', withComparison: true },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -133,7 +133,7 @@ export const Loading: Story = {
 	// Kept off the shared autodocs page: the mock override is keyed by path, so it
 	// would otherwise force the sibling stories on that page into the same state.
 	tags: [ '!autodocs' ],
-	args: { statType: 'opens', withComparison: false },
+	args: { metric: 'opens', withComparison: false },
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
 		setReportMockState( OPENS_MOCK_FRAGMENT, 'loading' );
@@ -148,7 +148,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: args => renderEmailTopRow( args, 2002 ),
 	tags: [ '!autodocs' ],
-	args: { statType: 'opens', withComparison: false },
+	args: { metric: 'opens', withComparison: false },
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
 		setReportMockState( OPENS_MOCK_FRAGMENT, 'error' );
@@ -163,7 +163,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: args => renderEmailTopRow( args, 2003 ),
 	tags: [ '!autodocs' ],
-	args: { statType: 'opens', withComparison: false },
+	args: { metric: 'opens', withComparison: false },
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
 		setReportMockState( OPENS_MOCK_FRAGMENT, 'empty' );
@@ -176,12 +176,12 @@ export const Empty: Story = {
  * fetching. This is how the widget renders on a report page before a row is chosen.
  */
 export const NoEmailSelected: Story = {
-	render: ( { statType, withComparison }: EmailTopRowStoryControls ) => (
+	render: ( { metric, withComparison }: EmailTopRowStoryControls ) => (
 		<EmailTopRowRender
-			attributes={ { statType, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { metric, reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	),
-	args: { statType: 'opens', withComparison: false },
+	args: { metric: 'opens', withComparison: false },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -190,7 +190,7 @@ interface EmailTopRowDashboardStoryProps
 		EmailTopRowStoryControls {}
 
 function EmailTopRowDashboardStory( {
-	statType,
+	metric,
 	withComparison,
 	...dashboardArgs
 }: EmailTopRowDashboardStoryProps ) {
@@ -202,7 +202,7 @@ function EmailTopRowDashboardStory( {
 			renderComponent={ EmailTopRowRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
 				postId: MOCK_POST_ID,
-				statType,
+				metric,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
 		/>
@@ -213,12 +213,12 @@ export const WidgetDashboardWithWidget: StoryObj< EmailTopRowDashboardStoryProps
 	render: args => <EmailTopRowDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		statType: 'opens',
+		metric: 'opens',
 		withComparison: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		statType: {
+		metric: {
 			control: 'inline-radio',
 			options: [ 'opens', 'clicks' ],
 		},
