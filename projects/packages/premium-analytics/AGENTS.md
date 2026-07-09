@@ -386,6 +386,14 @@ module has a special failure mode. Prefer adding those shapes to the existing De
 WithComparison, or WidgetDashboardWithWidget stories over creating one-off state stories unless
 the state needs direct review.
 
+To review a widget's loading / error / empty state directly, force it with
+`setReportMockState( '<endpoint>', 'loading' | 'error' | 'empty' )` in the story's `beforeEach`,
+clearing it in the returned cleanup. Keep such stories off the shared autodocs page
+(`tags: [ '!autodocs' ]`, since the override is keyed by path and would otherwise force the
+sibling stories into the same state) and give each one a date preset distinct from the other
+stories so it hits the mock fresh instead of reading their cached success. See
+`widgets/search-terms/stories/` for the reference.
+
 ### Widget pitfalls
 
 - Putting new widgets under `packages/widgets-toolkit/src/widgets/*` — that path is for the
@@ -444,18 +452,46 @@ the query factory — do not do it in the widget or the view hook.
 `max = 0` means "all rows". Use `slice( 0, max > 0 ? max : undefined )`, never
 `slice( 0, max )` (the latter returns an empty array when `max` is 0).
 
-**Loading and stale data**
+**Loading / error / empty state**
 
-Show `<WidgetLoadingOverlay />` only when there is no data yet:
-`isLoading && data.length === 0`. When stale data exists, pass `loading={ isLoading }`
-to the chart component so an in-place spinner appears without hiding the rows.
+Render these states through `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
+rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
+data/view hook's result to its four signals and pass generic descriptors:
 
-Loading, empty, and error states should live in the same body/content wrapper as the normal
-widget content so padding and sizing stay consistent. If the widget has interactive body chrome
-such as a dropdown, view selector, or drill-down back link, keep that chrome available and
-replace only the content area with the state message. Composite widgets may use a custom
-placeholder instead of `LeaderboardChart`'s `emptyStateText`, but the state should still be
-centered inside the content area.
+```tsx
+<WidgetState
+	isLoading={ isLoading }            // first load, no data yet
+	isError={ isError }
+	isEmpty={ data.length === 0 }
+	// isFetching is optional: a background refetch shows a non-blocking busy overlay
+	// over the existing rows instead of hiding them.
+	error={ {
+		description: __( "We couldn't load this data. Please try again in a moment.", 'jetpack-premium-analytics' ),
+		actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+	} }
+	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ) } }
+>
+	<LeaderboardChart … />
+</WidgetState>
+```
+
+`<WidgetState>` derives one state (error → loading → empty → ready, plus a busy overlay while
+`isFetching` and data are shown) and swaps only the content area. Notes:
+
+- Expose `refetch` from the data/view hook so the error state's Retry can re-run the query.
+- Give `empty.icon` a neutral glyph distinct from the error icon — the widget's own glyph from
+  `@jetpack-premium-analytics/icons` (e.g. `search`, `customer`); omit it for no icon. Don't use
+  a caution glyph: empty is not an error.
+- Keep interactive body chrome (dropdown, view selector, drill-down back link) as a **sibling**
+  of `<WidgetState>`, not inside it, so it stays available in every state.
+- `<WidgetState>` covers only a widget's own data state; the host still owns the crash error
+  boundary and the module-load `<Suspense>`.
+
+> Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
+> `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
+> migrated to `<WidgetState>` — follow the contract above, not those widgets.
+> `widgets/search-terms/render.tsx` is the reference. (A `describeError` mapper and a
+> `ReportWidget` wrapper that remove the per-widget error/retry boilerplate are planned follow-ups.)
 
 **Comparison data**
 
@@ -507,6 +543,6 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   `<Text>` label case, `padding: var(--wpds-dimension-padding-sm)` is enough when the text
   line-height plus vertical padding yields 36px. Use `min-height: 36px` when the label content
   or typography does not naturally produce that height.
-- Empty state: pass `emptyStateText` to `LeaderboardChart` — do not add a separate
-  `data.length === 0` render branch in the widget, unless the widget has a composite layout
-  that needs to preserve body chrome or replace a non-leaderboard chart area.
+- Loading / error / empty state: render through `<WidgetState>` (see "Loading / error / empty
+  state" above), not `LeaderboardChart`'s `emptyStateText` or a hand-rolled `data.length === 0`
+  branch. Empty uses a neutral glyph distinct from the error icon.
