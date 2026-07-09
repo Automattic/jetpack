@@ -77,7 +77,15 @@ class Jetpack_WPCom_Connection_Simulator {
 		// production, connected site. This is install-wide: flipping it shifts what EVERY
 		// scenario measures (Jetpack runs more code paths when not offline) — see the
 		// offline-mode attribution note in README.md.
+		//
+		// Two filters are needed because Status::is_offline_mode() falls back to the stored
+		// option when the filtered value is false: `$offline = (bool) apply_filters( ... );
+		// if ( ! $offline ) { $offline = (bool) get_option( 'jetpack_offline_mode' ); }`. The
+		// first filter overrides the is_local_site() result; pre_option_* forces the option
+		// read to 0 so a dirty/reused fixture DB with jetpack_offline_mode=1 can't silently
+		// turn offline mode back on and break every scenario's boot.
 		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'pre_option_jetpack_offline_mode', '__return_zero' );
 
 		// Set up fake connection on init (after Jetpack loads).
 		add_action( 'plugins_loaded', array( $this, 'setup_fake_connection' ), 1 );
