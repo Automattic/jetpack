@@ -129,7 +129,7 @@ export const Archives: Story = {
 		docs: {
 			description: {
 				story:
-					'The Archives view: one aggregate row per archive type (taxonomy, post-type, and search archives), with comparison deltas when the previous period overlaps. The homepage entry is surfaced in the Posts & pages view instead, matching the Stats card.',
+					'The Archives view: one aggregate row per archive type (taxonomy, post-type, and search archives), with comparison deltas when the previous period overlaps. Grouped rows drill down into their individual archive pages (taxonomies drill twice: taxonomy → terms) with a back link, following the Locations/Clicks drill-down convention. The homepage entry is surfaced in the Posts & pages view instead, matching the Stats card.',
 			},
 		},
 	},

@@ -10,16 +10,18 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	WidgetBackLink,
 	WidgetLoadingOverlay,
 	WidgetRoot,
 	calculateDelta,
+	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -55,6 +57,11 @@ export type TopPostRow = {
 	 * Post type, e.g. `post` or `page`.
 	 */
 	type: string;
+	/**
+	 * Child rows to drill into (the Archives view's grouped items). Rows with
+	 * children render as drill-down rows instead of links.
+	 */
+	children?: TopPostRow[];
 };
 
 // Report params are dashboard-driven — WidgetRoot resolves them from the date
@@ -72,25 +79,34 @@ const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, 
  * and per-row deltas are derived from each row's `previousValue`; otherwise
  * the comparison fields are zeroed.
  *
- * Each row's label is a link that opens the published post/page in a new tab.
- * The link fills its row so the leaderboard overlay bar gets its height from
- * the label.
+ * Each row's label is a link that opens the published post/page in a new tab
+ * — unless the row has children, in which case it becomes a drill-down row
+ * (per the widget drill-down convention: rows with children must not render
+ * as external links). The label fills its row so the leaderboard overlay bar
+ * gets its height from it.
  *
  * @param rows           - The normalized top-posts rows.
  * @param withComparison - Whether to derive previous-period shares and deltas.
+ * @param onDrillDown    - Callback fired when a row with children is selected.
  * @return The leaderboard chart data.
  */
-function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): LeaderboardChartData {
+function buildLeaderboardData(
+	rows: TopPostRow[],
+	withComparison: boolean,
+	onDrillDown?: ( row: TopPostRow ) => void
+): LeaderboardChartData {
 	// `1` guards against division by zero when every value is 0.
 	const maxCurrentViews = Math.max( ...rows.map( row => row.value ), 1 );
 	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue ?? 0;
+		const hasChildren = !! row.children?.length;
+		const shouldRenderLink = !! row.href && ! hasChildren;
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: row.href ? (
+			label: shouldRenderLink ? (
 				<Link
 					className={ styles.labelLink }
 					href={ row.href }
@@ -111,6 +127,15 @@ function buildLeaderboardData( rows: TopPostRow[], withComparison: boolean ): Le
 			previousShare:
 				withComparison && previousValue > 0 ? ( previousValue / maxPreviousViews ) * 100 : 0,
 			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
+			...( hasChildren &&
+				onDrillDown && {
+					onClick: () => onDrillDown( row ),
+					ariaLabel: sprintf(
+						/* translators: %s is an archive category label, e.g. "Searches". */
+						__( 'View %s archive pages', 'jetpack-premium-analytics' ),
+						row.label
+					),
+				} ),
 		};
 	} );
 }
@@ -140,6 +165,11 @@ type TopPostsLeaderboardProps = {
 	 * copy; the Archives view passes its own.
 	 */
 	errorText?: string;
+	/**
+	 * Callback fired when a row with children is selected. Rows only become
+	 * interactive when this is provided.
+	 */
+	onDrillDown?: ( row: TopPostRow ) => void;
 };
 
 /**
@@ -159,6 +189,7 @@ export const TopPostsLeaderboard = ( {
 	isError = false,
 	withComparison = false,
 	errorText,
+	onDrillDown,
 }: TopPostsLeaderboardProps ) => {
 	if ( isError ) {
 		return (
@@ -174,7 +205,7 @@ export const TopPostsLeaderboard = ( {
 
 	return (
 		<LeaderboardChart
-			data={ buildLeaderboardData( rows, withComparison ) }
+			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
 			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
@@ -324,90 +355,187 @@ function archiveTypeLabel( archiveType: string ): string {
 }
 
 /**
- * Flatten the normalized `stats/archives` report into keyed rows: one row per
- * archive type present in the period, with the views of its individual archive
- * pages already summed by the data layer.
+ * Top-level items of a normalized `stats/archives` report, excluding the
+ * homepage entry — it is surfaced in the Posts & pages view instead, matching
+ * the Stats "Most viewed" card.
  *
  * @param report - The normalized archives report, or undefined while loading.
- * @return The keyed archive rows.
+ * @return The archive items.
  */
-function toArchiveRows(
+function getArchiveItems(
 	report: StatsNormalizedReport< StatsArchivesItem > | undefined
-): Array< { key: string; label: string; value: number } > {
-	const items = report?.data.flatMap( point => point.items ) ?? [];
-
-	return items.map( item => {
-		const key = String( item.label ?? '' );
-
-		return { key, label: archiveTypeLabel( key ), value: item.value };
-	} );
+): StatsArchivesItem[] {
+	return ( report?.data.flatMap( point => point.items ) ?? [] ).filter(
+		item => String( item.label ) !== 'home'
+	);
 }
 
 /**
- * The Archives view: views of archive pages (home, taxonomy, post-type,
- * search, and date archives) as one aggregate row per archive type, through
- * the designated `useStatsArchives` Stats traffic hook. Mirrors
- * `TopPostsReport`: the date range and comparison period come from the
- * dashboard picker via `reportParams`, and comparison UI is gated on real
- * row overlap between the two periods.
+ * Comparison-period views for every archive node, keyed by its label path
+ * (e.g. `>tax>category>News`) so same-named terms under different parents
+ * cannot cross-match.
+ *
+ * @param items      - The comparison-period archive items.
+ * @param parentPath - The key prefix of the parent node.
+ * @param lookup     - The accumulating lookup (for recursion).
+ * @return The path-keyed view counts.
+ */
+function buildArchiveComparisonLookup(
+	items: StatsArchivesItem[],
+	parentPath = '',
+	lookup = new Map< string, number >()
+): Map< string, number > {
+	items.forEach( item => {
+		const key = `${ parentPath }>${ String( item.label ?? '' ) }`;
+		lookup.set( key, item.value );
+		buildArchiveComparisonLookup( item.children ?? [], key, lookup );
+	} );
+
+	return lookup;
+}
+
+/**
+ * Recursively map archive items onto leaderboard rows. Top-level items get
+ * the shared archive-category labels; nested items keep their own label
+ * (taxonomy name, term, search phrase, …) and carry their archive-page URL.
+ * Children are preserved so grouped rows can drill down.
+ *
+ * @param items            - The archive items at this level.
+ * @param comparisonLookup - Path-keyed comparison views from `buildArchiveComparisonLookup`.
+ * @param withPrevious     - Whether to attach `previousValue` to the rows.
+ * @param parentPath       - The key prefix of the parent node.
+ * @return The leaderboard rows, sorted by views.
+ */
+function toArchiveRows(
+	items: StatsArchivesItem[],
+	comparisonLookup: Map< string, number >,
+	withPrevious: boolean,
+	parentPath = ''
+): TopPostRow[] {
+	return items
+		.map( item => {
+			const rawLabel = String( item.label ?? '' );
+			const key = `${ parentPath }>${ rawLabel }`;
+			const children = item.children?.length
+				? toArchiveRows( item.children, comparisonLookup, withPrevious, key )
+				: undefined;
+
+			return {
+				label: parentPath === '' ? archiveTypeLabel( rawLabel ) : rawLabel,
+				value: item.value,
+				type: 'archive',
+				...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
+				...( withPrevious ? { previousValue: comparisonLookup.get( key ) ?? 0 } : {} ),
+				...( children ? { children } : {} ),
+			};
+		} )
+		.sort( ( a, b ) => b.value - a.value );
+}
+
+/**
+ * The Archives view: views of archive pages (taxonomy, post-type, search, and
+ * date archives) as one aggregate row per archive type, through the designated
+ * `useStatsArchives` Stats traffic hook. Grouped rows drill into their
+ * individual archive pages (taxonomies drill twice: taxonomy → terms), with a
+ * back link to the parent list — the same convention as the Locations and
+ * Clicks widgets. Mirrors `TopPostsReport` otherwise: the date range and
+ * comparison period come from the dashboard picker via `reportParams`, and
+ * comparison UI is gated on real row overlap between the two periods.
  *
  * @param props     - The component props.
- * @param props.num - Maximum number of rows to display.
+ * @param props.num - Maximum number of top-level rows to display.
  * @return The widget content.
  */
 function ArchivesReport( { num }: { num: number } ) {
 	const { reportParams } = useWidgetRootContext();
+	const { drillDownItem: drillPath, drillDown, resetDrillDown } = useWidgetDrillDown< string[] >();
 
 	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
 		useStatsArchives( reportParams );
 	const showLoading = isLoading || ( isFetching && hasData );
 
-	// The homepage entry is surfaced in the Posts & pages view instead, matching
-	// the Stats "Most viewed" card — keep it out of the Archives list.
-	const primaryRows = useMemo(
-		() =>
-			toArchiveRows( primary.data as StatsNormalizedReport< StatsArchivesItem > ).filter(
-				row => row.key !== 'home'
-			),
+	const primaryItems = useMemo(
+		() => getArchiveItems( primary.data as StatsNormalizedReport< StatsArchivesItem > ),
 		[ primary.data ]
 	);
 
-	const previousViewsByKey = useMemo( () => {
+	const comparisonLookup = useMemo( () => {
 		if ( ! hasComparison ) {
 			return new Map< string, number >();
 		}
-		return new Map(
-			toArchiveRows( comparison.data as StatsNormalizedReport< StatsArchivesItem > ).map( row => [
-				row.key,
-				row.value,
-			] )
+		return buildArchiveComparisonLookup(
+			getArchiveItems( comparison.data as StatsNormalizedReport< StatsArchivesItem > )
 		);
 	}, [ comparison.data, hasComparison ] );
 
 	// Same overlap gating as the Posts & pages view: no comparison UI unless a
 	// visible row has a real comparison-period match (see AGENTS.md).
 	const withComparison =
-		hasComparison && primaryRows.some( row => previousViewsByKey.has( row.key ) );
+		hasComparison &&
+		primaryItems.some( item => comparisonLookup.has( `>${ String( item.label ?? '' ) }` ) );
 
 	const rows = useMemo(
-		() =>
-			primaryRows.slice( 0, num ).map( row => ( {
-				label: row.label,
-				value: row.value,
-				type: 'archive',
-				...( withComparison ? { previousValue: previousViewsByKey.get( row.key ) ?? 0 } : {} ),
-			} ) ),
-		[ primaryRows, previousViewsByKey, withComparison, num ]
+		() => toArchiveRows( primaryItems, comparisonLookup, withComparison ).slice( 0, num ),
+		[ primaryItems, comparisonLookup, withComparison, num ]
 	);
+
+	// Resolve the drill path against the current rows; when a step no longer
+	// resolves (e.g. the date range changed), fall back to the deepest list
+	// that still exists. The back link names the list it returns to: the root
+	// list on the first drill level, otherwise the parent row's label.
+	const { activeRows, backLabel } = useMemo( () => {
+		let list = rows;
+		let label: string | null = null;
+		let previousStep: string | null = null;
+
+		for ( const step of drillPath ?? [] ) {
+			const parent = list.find( row => row.label === step );
+			if ( ! parent?.children?.length ) {
+				break;
+			}
+			label = previousStep ?? __( 'All archives', 'jetpack-premium-analytics' );
+			list = parent.children;
+			previousStep = step;
+		}
+
+		return { activeRows: list, backLabel: label };
+	}, [ rows, drillPath ] );
+
+	const handleDrillDown = useCallback(
+		( row: TopPostRow ) => {
+			drillDown( [ ...( drillPath ?? [] ), row.label ] );
+		},
+		[ drillDown, drillPath ]
+	);
+
+	const handleBack = useCallback( () => {
+		const path = drillPath ?? [];
+		if ( path.length <= 1 ) {
+			resetDrillDown();
+			return;
+		}
+		drillDown( path.slice( 0, -1 ) );
+	}, [ drillDown, drillPath, resetDrillDown ] );
+
+	const backLink =
+		activeRows === rows ? null : (
+			<WidgetBackLink
+				label={ backLabel ?? __( 'All archives', 'jetpack-premium-analytics' ) }
+				ariaLabel={ __( 'Back to the previous archive list', 'jetpack-premium-analytics' ) }
+				onClick={ handleBack }
+			/>
+		);
 
 	return (
 		<div className={ styles.content }>
+			{ backLink }
 			<TopPostsLeaderboard
-				rows={ rows }
+				rows={ activeRows }
 				isLoading={ showLoading }
 				isError={ isError }
 				withComparison={ withComparison }
 				errorText={ __( 'Unable to load archives.', 'jetpack-premium-analytics' ) }
+				onDrillDown={ handleDrillDown }
 			/>
 		</div>
 	);

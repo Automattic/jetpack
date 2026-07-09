@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -300,5 +300,64 @@ describe( 'TopPostsWidget', () => {
 
 		await expect( screen.findByText( 'Searches' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'drills down from grouped archive rows and back', async () => {
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-10',
+			summary: {
+				search: [
+					{ value: 'pricing', href: 'https://example.com/?s=pricing', views: '3' },
+					{ value: 'changelog', href: 'https://example.com/?s=changelog', views: '2' },
+				],
+			},
+		} );
+
+		render( <TopPostsWidget attributes={ { num: 10, contentView: 'archives' } } /> );
+
+		const drillDownButton = await screen.findByRole( 'button', {
+			name: /view searches archive pages/i,
+		} );
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		fireEvent.click( drillDownButton );
+
+		// Child rows are individual archive pages linking to their URL.
+		const termLink = await screen.findByRole( 'link', { name: /pricing/ } );
+		expect( termLink ).toHaveAttribute( 'href', 'https://example.com/?s=pricing' );
+
+		const backLink = screen.getByRole( 'button', { name: /back to the previous archive list/i } );
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		fireEvent.click( backLink );
+
+		await expect(
+			screen.findByRole( 'button', { name: /view searches archive pages/i } )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'drills two levels into taxonomy archives', async () => {
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-10',
+			summary: {
+				tax: {
+					category: [ { value: 'News', href: 'https://example.com/category/news/', views: '5' } ],
+				},
+			},
+		} );
+
+		render( <TopPostsWidget attributes={ { num: 10, contentView: 'archives' } } /> );
+
+		// Level 0 → taxonomy groups.
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		fireEvent.click(
+			await screen.findByRole( 'button', { name: /view taxonomies archive pages/i } )
+		);
+		// Level 1 → terms of the selected taxonomy.
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		fireEvent.click(
+			await screen.findByRole( 'button', { name: /view category archive pages/i } )
+		);
+
+		const termLink = await screen.findByRole( 'link', { name: /News/ } );
+		expect( termLink ).toHaveAttribute( 'href', 'https://example.com/category/news/' );
 	} );
 } );
