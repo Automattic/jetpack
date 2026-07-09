@@ -187,7 +187,9 @@ export const TopPostsLeaderboard = ( {
 
 /**
  * Flatten the designated `useStatsTopPosts` report into the `{ label, value,
- * href, type }` rows the leaderboard renders, dropping rows without a link.
+ * href, type }` rows the leaderboard renders. Rows without a link are kept but
+ * render unlinked — with `skip_archives=1` the API still returns the
+ * "Homepage (Latest posts)" entry, which has no URL.
  *
  * @param report - The normalized top-posts report, or undefined while loading.
  * @return The normalized top-posts rows.
@@ -197,34 +199,12 @@ function toTopPostRows(
 ): TopPostRow[] {
 	const items = report?.data.flatMap( point => point.items ) ?? [];
 
-	return items
-		.filter(
-			( item ): item is StatsTopPostsItem & { link: string } => typeof item.link === 'string'
-		)
-		.map( item => ( {
-			label: String( item.label ?? '' ),
-			value: item.views,
-			href: item.link,
-			type: String( item.type ?? '' ),
-		} ) );
-}
-
-/**
- * Views of the homepage-as-latest-posts entry in a normalized `stats/archives`
- * report, or undefined when the period has none. The top-posts endpoint is
- * queried with `skip_archives=1`, so the homepage's views only exist in the
- * archives report — but the product surfaces them in the Posts & pages list,
- * not under Archives (matching the Stats "Most viewed" card).
- *
- * @param report - The normalized archives report, or undefined while loading.
- * @return The homepage view count, or undefined.
- */
-function getArchivesHomeViews(
-	report: StatsNormalizedReport< StatsArchivesItem > | undefined
-): number | undefined {
-	const items = report?.data.flatMap( point => point.items ) ?? [];
-
-	return items.find( item => String( item.label ) === 'home' )?.value;
+	return items.map( item => ( {
+		label: String( item.label ?? '' ),
+		value: item.views,
+		...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
+		type: String( item.type ?? '' ),
+	} ) );
 }
 
 /**
@@ -233,9 +213,10 @@ function getArchivesHomeViews(
  * `TopPostsLeaderboard`. The date range and comparison period come from the
  * dashboard picker via `reportParams`.
  *
- * The archives report is fetched alongside to fold the "Homepage (Latest
- * posts)" views into the list — `skip_archives=1` keeps them out of the
- * top-posts response, and the API has no way to return them with the posts.
+ * With `skip_archives=1` the API keeps the homepage-as-latest-posts entry in
+ * `postviews` (titled "Homepage (Latest posts)", no URL), so it surfaces here
+ * in the Posts & pages list — same distribution as the Stats "Most viewed"
+ * card, where the Archives list excludes it.
  *
  * @param {TopPostsReportProps} props - The component props.
  * @return The widget content.
@@ -249,67 +230,44 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 
 	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
 		useStatsTopPosts( statsParams );
-	const archives = useStatsArchives( reportParams );
-	const showLoading =
-		isLoading || archives.isLoading || ( ( isFetching || archives.isFetching ) && hasData );
+	const showLoading = isLoading || ( isFetching && hasData );
 
 	const primaryRows = useMemo(
 		() => toTopPostRows( primary.data as StatsNormalizedReport< StatsTopPostsItem > ),
 		[ primary.data ]
 	);
 
-	// The homepage row rides on the archives report; when that report errors or
-	// is empty the posts list simply renders without it.
-	const homeViews = getArchivesHomeViews(
-		archives.primary.data as StatsNormalizedReport< StatsArchivesItem >
-	);
-	const previousHomeViews = hasComparison
-		? getArchivesHomeViews( archives.comparison.data as StatsNormalizedReport< StatsArchivesItem > )
-		: undefined;
-
-	// Comparison-period views keyed by the same post URL the primary rows use.
+	// Comparison-period views keyed the same way the primary rows are: by post
+	// URL, falling back to the label for URL-less rows (the homepage entry).
 	// Empty when comparison is disabled or the comparison query returned no rows.
-	const previousViewsByHref = useMemo( () => {
+	const previousViewsByKey = useMemo( () => {
 		if ( ! hasComparison ) {
 			return new Map< string, number >();
 		}
 		return new Map(
 			toTopPostRows( comparison.data as StatsNormalizedReport< StatsTopPostsItem > ).map( row => [
-				row.href,
+				row.href ?? row.label,
 				row.value,
 			] )
 		);
 	}, [ comparison.data, hasComparison ] );
 
-	// Only render comparison UI when at least one visible row actually overlaps
+	// Only render comparison UI when at least one primary row actually overlaps
 	// the comparison period; otherwise unmatched rows would fall to a placeholder
 	// `previousValue: 0` and the chart would show a fabricated delta (see AGENTS.md).
 	const withComparison =
-		hasComparison &&
-		( primaryRows.some( row => previousViewsByHref.has( row.href as string ) ) ||
-			( homeViews !== undefined && previousHomeViews !== undefined ) );
+		hasComparison && primaryRows.some( row => previousViewsByKey.has( row.href ?? row.label ) );
 
-	const rows = useMemo( () => {
-		const postRows = withComparison
-			? primaryRows.map( row => ( {
-					...row,
-					previousValue: previousViewsByHref.get( row.href as string ) ?? 0,
-			  } ) )
-			: primaryRows;
-
-		if ( homeViews === undefined ) {
-			return postRows;
-		}
-
-		const homeRow: TopPostRow = {
-			label: archiveTypeLabel( 'home' ),
-			value: homeViews,
-			type: 'home',
-			...( withComparison ? { previousValue: previousHomeViews ?? 0 } : {} ),
-		};
-
-		return [ ...postRows, homeRow ].sort( ( a, b ) => b.value - a.value ).slice( 0, num );
-	}, [ primaryRows, previousViewsByHref, withComparison, homeViews, previousHomeViews, num ] );
+	const rows = useMemo(
+		() =>
+			withComparison
+				? primaryRows.map( row => ( {
+						...row,
+						previousValue: previousViewsByKey.get( row.href ?? row.label ) ?? 0,
+				  } ) )
+				: primaryRows,
+		[ primaryRows, previousViewsByKey, withComparison ]
+	);
 
 	return (
 		<div className={ styles.content }>

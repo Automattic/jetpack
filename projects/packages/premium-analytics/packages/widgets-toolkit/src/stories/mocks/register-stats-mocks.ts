@@ -326,8 +326,23 @@ const MOCK_TOP_POSTS = {
 	period: 'day',
 	days: {},
 	summary: {
-		postviews: MOCK_TOP_POSTS_POSTVIEWS,
-		total_views: 11430,
+		postviews: [
+			...MOCK_TOP_POSTS_POSTVIEWS,
+			// With skip_archives=1 the API keeps the homepage-as-latest-posts
+			// entry in postviews, server-titled and without a URL.
+			{
+				id: 0,
+				href: null,
+				date: null,
+				title: 'Homepage (Latest posts)',
+				type: 'homepage',
+				status: 'publish',
+				public: true,
+				views: 2140,
+				video_play: false,
+			},
+		],
+		total_views: 13570,
 		dropped_ids: [],
 	},
 };
@@ -345,11 +360,12 @@ const MOCK_TOP_POSTS_COMPARISON = {
 
 // `stats/archives` groups archive-page views by archive type; the widget's
 // Archives view renders one aggregate row per type.
+// With skip_archives=1 (sent to both reports, mirroring the Stats card) the
+// API returns no `home` entry here — it lives in the top-posts response.
 const MOCK_ARCHIVES = {
 	date: '2026-06-29',
 	period: 'day',
 	summary: {
-		home: [ { value: 'home', href: 'https://example.com/', views: '2140' } ],
 		tax: {
 			category: [
 				{ value: 'News', href: 'https://example.com/category/news/', views: '430' },
@@ -369,7 +385,6 @@ const MOCK_ARCHIVES_COMPARISON = {
 	date: '2026-05-30',
 	period: 'day',
 	summary: {
-		home: [ { value: 'home', href: 'https://example.com/', views: '1890' } ],
 		tax: {
 			category: [ { value: 'News', href: 'https://example.com/category/news/', views: '510' } ],
 		},

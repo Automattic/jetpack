@@ -224,27 +224,38 @@ describe( 'TopPostsWidget', () => {
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'archives' );
+		// Mirrors the Stats card: the same skip_archives=1 goes to both reports,
+		// so the API keeps the homepage entry out of this one.
+		expect( requestedPath ).toContain( 'skip_archives=1' );
 	} );
 
-	it( 'folds the homepage views from the archives report into the posts list', async () => {
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-			Promise.resolve(
-				path.includes( '/archives' )
-					? {
-							date: '2026-06-10',
-							summary: {
-								home: [ { value: 'home', href: 'https://example.com/', views: '12' } ],
-							},
-					  }
-					: TOP_POSTS_RESPONSE
-			)
-		);
+	it( 'renders the homepage entry the API returns with skip_archives as an unlinked row', async () => {
+		// With skip_archives=1 the API keeps the homepage-as-latest-posts entry
+		// in postviews, titled by the server and without a URL.
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-10',
+			days: {},
+			summary: {
+				postviews: [
+					...TOP_POSTS_RESPONSE.summary.postviews,
+					{
+						id: 0,
+						href: null,
+						date: null,
+						title: 'Homepage (Latest posts)',
+						type: 'homepage',
+						views: 12,
+					},
+				],
+				total_views: 61,
+			},
+		} );
 
 		render( <TopPostsWidget attributes={ { num: 10 } } /> );
 
 		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
-		// The homepage row is an aggregate without a URL — not a link.
+		// The homepage entry has no URL — it must not render as a link.
 		expect( screen.queryByRole( 'link', { name: /Homepage/ } ) ).not.toBeInTheDocument();
 	} );
 
