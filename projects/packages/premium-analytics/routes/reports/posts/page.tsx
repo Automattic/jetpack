@@ -9,7 +9,11 @@ import {
 	type StatsPeriod,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
-import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
+import {
+	useDashboardLink,
+	useReportDateFilters,
+	useSectionTab,
+} from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	formatLegendLabels,
@@ -17,9 +21,8 @@ import {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
-	StatsBreadcrumbs,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Page } from '@wordpress/admin-ui';
+import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
@@ -223,13 +226,22 @@ function PostsReport(): JSX.Element {
 	// the shared date-filter controller — same model as the dashboard.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
+	// The breadcrumb's "Stats" crumb links back to the dashboard, carrying the
+	// current date range and comparison so returning restores the same view.
+	const dashboardLink = useDashboardLink();
+
 	// Container element for the date filters panel responsive layout.
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	return (
 		<Page
 			breadcrumbs={
-				<StatsBreadcrumbs title={ __( 'Posts & Pages', 'jetpack-premium-analytics' ) } />
+				<Breadcrumbs
+					items={ [
+						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
+						{ label: __( 'Posts & Pages', 'jetpack-premium-analytics' ) },
+					] }
+				/>
 			}
 			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ) }
 			className={ styles.page }
