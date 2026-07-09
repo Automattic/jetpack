@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+CLI: generalize `wpcomsh php83-plugin-patch` into a table-driven patcher for PHP 8.3+ duplicate-static-variable fatals; support the dash-slug mega-main-menu folder and add ninja-forms and wiziapp patches.

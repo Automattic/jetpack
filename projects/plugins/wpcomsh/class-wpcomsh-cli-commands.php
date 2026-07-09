@@ -922,15 +922,114 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		}
 
 		/**
-		 * Patch mega_main_menu plugin to work with PHP 8.3+.
+		 * Patch definitions for the php83-plugin-patch subcommand.
 		 *
-		 * The `mm_options_generator()` function declares `static $theme_option_file`
-		 * in both the `file` and `background_image` cases of the same switch. PHP 8.3
-		 * turned a repeated `static` declaration of the same variable in one function
-		 * scope into a "Duplicate declaration of static variable" fatal error. This
-		 * renames the copy in the `background_image` case so only a single declaration
-		 * of `$theme_option_file` remains. Both cases merely enqueue the media uploader
-		 * scripts, and `wp_enqueue_*` is idempotent, so behavior is unchanged.
+		 * PHP 8.3 turned a repeated `static` declaration of the same variable in one
+		 * function scope into a "Duplicate declaration of static variable" fatal
+		 * error, which old plugin versions trip over. Each entry describes a minimal,
+		 * behavior-preserving rename of the duplicate declaration (DOTCOM-17392).
+		 *
+		 * Shared keys:
+		 * - folders:        plugin directory names to look for (vendors ship the same
+		 *                   product under different folder slugs).
+		 * - file:           the file to patch, relative to the plugin directory.
+		 * - patched_marker: string that only exists after patching; makes re-runs a
+		 *                   safe no-op.
+		 * - strategy:       'split_rename' renames every occurrence of `search` after
+		 *                   `split_marker`; 'replace_once' applies exact search/replace
+		 *                   pairs that must each match exactly once.
+		 *
+		 * @return array<string,array> Patch definitions keyed by plugin slug.
+		 */
+		private static function php83_plugin_patches() {
+			return array(
+
+				/*
+				 * The `mm_options_generator()` function declares `static $theme_option_file`
+				 * in both the `file` and `background_image` cases of the same switch. This
+				 * renames the copy in the `background_image` case so only a single
+				 * declaration of `$theme_option_file` remains. Both cases merely enqueue
+				 * the media uploader scripts, and `wp_enqueue_*` is idempotent, so behavior
+				 * is unchanged. The same product ships as both `mega_main_menu` and
+				 * `mega-main-menu`.
+				 */
+				'mega_main_menu' => array(
+					'folders'        => array( 'mega_main_menu', 'mega-main-menu' ),
+					'file'           => 'framework/options_generator.php',
+					'patched_marker' => '$theme_option_file_background',
+					'strategy'       => 'split_rename',
+					'split_marker'   => "case 'background_image':",
+					'search'         => '$theme_option_file',
+					'replace'        => '$theme_option_file_background',
+				),
+
+				/*
+				 * `custom_columns()` in includes/Admin/CPT/Submission.php declares
+				 * `static $fields` in both the fieldset-repeater branch and the
+				 * numeric-column branch of the same function (unchanged 3.6.14–3.6.28).
+				 * Both are per-column memo caches keyed by `$column`; renaming the
+				 * numeric-branch copy just splits the cache in two, so behavior is
+				 * unchanged.
+				 */
+				'ninja-forms'    => array(
+					'folders'        => array( 'ninja-forms' ),
+					'file'           => 'includes/Admin/CPT/Submission.php',
+					'patched_marker' => '$fields_by_column',
+					'strategy'       => 'replace_once',
+					'replacements'   => array(
+						array(
+							"            static \$fields;\n"
+							. "            if( ! isset( \$fields[ \$column ] ) ) {\n"
+							. "                \$fields[\$column] = Ninja_Forms()->form( \$form_id )->get_field( \$column );\n"
+							. "            }\n"
+							. '            $field = $fields[$column];',
+							"            // Renamed by wpcomsh to avoid a PHP 8.3+ \"Duplicate declaration of\n"
+							. "            // static variable\" fatal: the repeater branch above also declares\n"
+							. "            // `static \$fields`.\n"
+							. "            static \$fields_by_column;\n"
+							. "            if( ! isset( \$fields_by_column[ \$column ] ) ) {\n"
+							. "                \$fields_by_column[\$column] = Ninja_Forms()->form( \$form_id )->get_field( \$column );\n"
+							. "            }\n"
+							. '            $field = $fields_by_column[$column];',
+						),
+					),
+				),
+
+				/*
+				 * `theme_list()` in modules/theme_purchase.php declares
+				 * `static $header_tags` twice — two identical, constant `wp_kses()`
+				 * allowlists in different loops of the same function (unchanged
+				 * 4.2.7–4.3.5). The second declaration is nested one level deeper, so
+				 * its 5-tab indentation uniquely identifies it. Renaming a constant
+				 * allowlist is behavior-neutral.
+				 */
+				'wiziapp-create-your-own-native-iphone-app' => array(
+					'folders'        => array( 'wiziapp-create-your-own-native-iphone-app' ),
+					'file'           => 'modules/theme_purchase.php',
+					'patched_marker' => '$header_tags_title',
+					'strategy'       => 'replace_once',
+					'replacements'   => array(
+						array(
+							"\t\t\t\t\tstatic \$header_tags = array(",
+							"\t\t\t\t\t// Renamed by wpcomsh to avoid a PHP 8.3+ \"Duplicate declaration\n"
+							. "\t\t\t\t\t// of static variable\" fatal: theme_list() declares this allowlist twice.\n"
+							. "\t\t\t\t\tstatic \$header_tags_title = array(",
+						),
+						array(
+							"\t\t\t\t\t\$theme['title'] = wp_kses(\$theme['title'], \$header_tags);",
+							"\t\t\t\t\t\$theme['title'] = wp_kses(\$theme['title'], \$header_tags_title);",
+						),
+					),
+				),
+			);
+		}
+
+		/**
+		 * Patch a plugin to work with PHP 8.3+.
+		 *
+		 * Applies a minimal, behavior-preserving rename of a duplicate `static`
+		 * variable declaration that fatals on PHP 8.3+ ("Duplicate declaration of
+		 * static variable"). See php83_plugin_patches() for the per-plugin rationale.
 		 *
 		 * ## OPTIONS
 		 *
@@ -940,15 +1039,26 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 * @subcommand php83-plugin-patch
 		 */
 		public function php_83_plugin_patch( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			if ( 'mega_main_menu' !== $args[0] ) {
-				WP_CLI::error( 'Wrong plugin to patch.' );
+			$patches = self::php83_plugin_patches();
+			$slug    = $args[0];
+
+			if ( ! isset( $patches[ $slug ] ) ) {
+				WP_CLI::error( sprintf( 'No PHP 8.3 patch for %s. Available: %s.', $slug, implode( ', ', array_keys( $patches ) ) ) );
 			}
 
-			$plugins = get_plugins();
-			$folder  = 'mega_main_menu/mega_main_menu.php';
+			$patch = $patches[ $slug ];
 
-			if ( ! isset( $plugins[ $folder ] ) ) {
-				WP_CLI::error( 'mega_main_menu plugin is not installed.' );
+			// Resolve which of the plugin's known folder slugs is installed.
+			$plugin_file = null;
+			foreach ( get_plugins() as $file => $data ) {
+				if ( in_array( dirname( $file ), $patch['folders'], true ) ) {
+					$plugin_file = $file;
+					break;
+				}
+			}
+
+			if ( null === $plugin_file ) {
+				WP_CLI::error( "$slug plugin is not installed." );
 			}
 
 			// Don't patch if an update is pending: the new version may already fix this,
@@ -957,13 +1067,27 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			wp_update_plugins();
 			$update_plugins = get_site_transient( 'update_plugins' );
 
-			if ( isset( $update_plugins->response[ $folder ] ) ) {
-				$new_version = $update_plugins->response[ $folder ]->new_version ?? 'unknown';
-				WP_CLI::error( "An update to mega_main_menu $new_version is available; update the plugin instead of patching." );
+			if ( isset( $update_plugins->response[ $plugin_file ] ) ) {
+				$new_version = $update_plugins->response[ $plugin_file ]->new_version ?? 'unknown';
+				WP_CLI::error( "An update to $slug $new_version is available; update the plugin instead of patching." );
 			}
 
-			$file = WP_PLUGIN_DIR . '/mega_main_menu/framework/options_generator.php';
+			$file = WP_PLUGIN_DIR . '/' . dirname( $plugin_file ) . '/' . $patch['file'];
 
+			$this->apply_php83_patch( $file, $patch );
+		}
+
+		/**
+		 * Apply one php83 patch definition to a file on disk.
+		 *
+		 * Exits via WP_CLI::error() when the file or any patch target does not look
+		 * exactly as expected — an unknown vendor version is a reason to stop, not
+		 * to guess.
+		 *
+		 * @param string $file  Absolute path of the file to patch.
+		 * @param array  $patch Patch definition (see php83_plugin_patches()).
+		 */
+		private function apply_php83_patch( $file, array $patch ) {
 			if ( ! file_exists( $file ) ) {
 				WP_CLI::error( 'File not found: ' . $file );
 			}
@@ -972,40 +1096,52 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			$file_content = file_get_contents( $file );
 
 			if ( false === $file_content ) {
-				WP_CLI::error( 'File not found: ' . $file );
+				WP_CLI::error( 'File not readable: ' . $file );
 			}
 
 			// Already patched: re-running is a safe no-op.
-			if ( false !== strpos( $file_content, '$theme_option_file_background' ) ) {
+			if ( false !== strpos( $file_content, $patch['patched_marker'] ) ) {
 				WP_CLI::success( 'Already patched.' );
 				return;
 			}
 
-			// The duplicate `static $theme_option_file` lives in the `background_image`
-			// case. Split the file there so we only rename that copy and leave the
-			// original declaration in the `file` case untouched.
-			$marker     = "case 'background_image':";
-			$marker_pos = strpos( $file_content, $marker );
+			if ( 'split_rename' === $patch['strategy'] ) {
+				// Rename every occurrence of `search` after `split_marker`, leaving the
+				// original declaration before the marker untouched.
+				$marker_pos = strpos( $file_content, $patch['split_marker'] );
 
-			if ( false === $marker_pos ) {
-				WP_CLI::error( 'Patch target not found in ' . $file );
-			}
+				if ( false === $marker_pos ) {
+					WP_CLI::error( 'Patch target not found in ' . $file );
+				}
 
-			$before = substr( $file_content, 0, $marker_pos );
-			$after  = substr( $file_content, $marker_pos );
+				$before = substr( $file_content, 0, $marker_pos );
+				$after  = substr( $file_content, $marker_pos );
 
-			// Within $after only the `background_image` case references
-			// `$theme_option_file` (the `file` case sits in $before, `gradient` uses a
-			// different variable), so renaming every occurrence here is surgical.
-			$count = 0;
-			$after = str_replace( '$theme_option_file', '$theme_option_file_background', $after, $count );
+				$count = 0;
+				$after = str_replace( $patch['search'], $patch['replace'], $after, $count );
 
-			if ( ! $count ) {
-				WP_CLI::error( 'String not found on ' . $file );
+				if ( ! $count ) {
+					WP_CLI::error( 'String not found on ' . $file );
+				}
+
+				$file_content = $before . $after;
+			} else {
+				// replace_once: every pair must match exactly once, or the installed
+				// version differs from the one the patch was written against.
+				foreach ( $patch['replacements'] as $replacement ) {
+					list( $search, $replace ) = $replacement;
+					$occurrences              = substr_count( $file_content, $search );
+
+					if ( 1 !== $occurrences ) {
+						WP_CLI::error( sprintf( 'Expected exactly 1 match in %s, found %d — unknown plugin version?', $file, $occurrences ) );
+					}
+
+					$file_content = str_replace( $search, $replace, $file_content );
+				}
 			}
 
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-			if ( ! file_put_contents( $file, $before . $after ) ) {
+			if ( ! file_put_contents( $file, $file_content ) ) {
 				WP_CLI::error( 'Failed to write to ' . $file );
 			}
 
