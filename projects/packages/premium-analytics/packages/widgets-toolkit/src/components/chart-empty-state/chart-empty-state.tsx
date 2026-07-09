@@ -13,9 +13,9 @@ export type ChartEmptyStateProps = {
 	/**
 	 * Icon to display in the empty state.
 	 * Should be a ReactNode (typically an SVG icon).
-	 * Defaults to cautionFilled if not provided.
+	 * Defaults to cautionFilled when omitted; pass `null` to render no icon.
 	 */
-	icon?: React.ComponentProps< typeof Icon >[ 'icon' ];
+	icon?: React.ComponentProps< typeof Icon >[ 'icon' ] | null;
 
 	/**
 	 * Text to display in the empty state.

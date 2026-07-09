@@ -241,6 +241,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						break;
 					}
 				}
+			} elseif ( isset( $form->fields[ $id ] ) ) {
+				// A manually-set field ID (including the Name field's default IDs
+				// such as "name"/"first-name") is carried verbatim when a field is
+				// duplicated or copy/pasted, so two fields can end up sharing an ID.
+				// Duplicate IDs render the same input name: browsers mirror typing
+				// across the fields and only one value survives submission, dropping
+				// the rest from stored responses and emails. Suffix the later
+				// duplicates ("name" -> "name-2" -> "name-3", …) to keep every field
+				// ID unique, matching generateUniqueFormFieldId() on the editor side.
+				// See FORMS-724.
+				$base = $id;
+				$i    = 2;
+				$id   = $base . '-' . $i;
+				while ( isset( $form->fields[ $id ] ) ) {
+					++$i;
+					$id = $base . '-' . $i;
+				}
 			}
 
 			$attributes['id'] = $id;

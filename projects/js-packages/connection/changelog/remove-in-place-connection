@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Remove the deprecated InPlaceConnection component and its export.

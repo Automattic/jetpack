@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add shared section-tab machinery to the routing and widgets-toolkit packages, and move StatsBreadcrumbs into widgets-toolkit for reuse by report pages.
