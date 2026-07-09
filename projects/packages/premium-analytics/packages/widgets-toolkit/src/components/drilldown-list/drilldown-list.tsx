@@ -17,6 +17,7 @@ import type { ReactNode } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
 const DEFAULT_LAYOUTS = { table: {} } satisfies SupportedLayouts;
+const GROUP_TYPE_FIELD_ID = 'type';
 
 /**
  * One child row inside a drilldown group.
@@ -69,6 +70,14 @@ export interface DrilldownListProps {
 	 * Group ids expanded on mount.
 	 */
 	defaultExpandedIds?: string[];
+	/**
+	 * Optional filter choices for the hidden group type field.
+	 */
+	filterElements?: { value: string; label: string }[];
+	/**
+	 * Resolves a group to one of the optional filter values.
+	 */
+	getGroupFilterValue?: ( group: DrilldownListGroup ) => string;
 }
 
 /**
@@ -111,15 +120,19 @@ function formatDefaultValue( value: number ): string {
 /**
  * Minimal DataViews field config for the drilldown context.
  *
- * @param labelHeader - The label column caption.
- * @param valueHeader - The value column caption.
+ * @param labelHeader         - The label column caption.
+ * @param valueHeader         - The value column caption.
+ * @param filterElements      - Optional filter options for the hidden group type field.
+ * @param getGroupFilterValue - Optional group filter value resolver.
  * @return The field config.
  */
 function getDrilldownFields(
 	labelHeader: string,
-	valueHeader: string
+	valueHeader: string,
+	filterElements?: { value: string; label: string }[],
+	getGroupFilterValue?: ( group: DrilldownListGroup ) => string
 ): Field< DrilldownListGroup >[] {
-	return [
+	const fields: Field< DrilldownListGroup >[] = [
 		{
 			id: 'label',
 			label: labelHeader,
@@ -133,6 +146,19 @@ function getDrilldownFields(
 			getValue: ( { item } ) => item.value,
 		},
 	];
+
+	if ( filterElements && getGroupFilterValue ) {
+		fields.push( {
+			id: GROUP_TYPE_FIELD_ID,
+			label: __( 'Type', 'jetpack-premium-analytics' ),
+			enableHiding: false,
+			elements: filterElements,
+			filterBy: { operators: [ 'isAny' ] },
+			getValue: ( { item } ) => getGroupFilterValue( item ),
+		} );
+	}
+
+	return fields;
 }
 
 /**
@@ -330,16 +356,18 @@ function DrilldownRows( {
 /**
  * Generic drill-down list using DataViews free composition.
  *
- * @param props                    - The component props.
- * @param props.groups             - The full drilldown groups.
- * @param props.labelHeader        - The label column caption.
- * @param props.valueHeader        - The value column caption.
- * @param props.searchLabel        - The search input label.
- * @param props.emptyLabel         - Empty-state message.
- * @param props.isLoading          - Whether the list is loading.
- * @param props.perPageSizes       - Available DataViews page sizes.
- * @param props.formatValue        - Formats row values.
- * @param props.defaultExpandedIds - Group ids expanded on mount.
+ * @param props                     - The component props.
+ * @param props.groups              - The full drilldown groups.
+ * @param props.labelHeader         - The label column caption.
+ * @param props.valueHeader         - The value column caption.
+ * @param props.searchLabel         - The search input label.
+ * @param props.emptyLabel          - Empty-state message.
+ * @param props.isLoading           - Whether the list is loading.
+ * @param props.perPageSizes        - Available DataViews page sizes.
+ * @param props.formatValue         - Formats row values.
+ * @param props.defaultExpandedIds  - Group ids expanded on mount.
+ * @param props.filterElements      - Optional filter options for the hidden group type field.
+ * @param props.getGroupFilterValue - Optional group filter value resolver.
  * @return The drilldown list component.
  */
 export function DrilldownList( {
@@ -352,6 +380,8 @@ export function DrilldownList( {
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
 	formatValue = formatDefaultValue,
 	defaultExpandedIds = [],
+	filterElements,
+	getGroupFilterValue,
 }: DrilldownListProps ): JSX.Element {
 	const [ view, setView ] = useState< View >( () => ( {
 		type: 'table',
@@ -364,12 +394,12 @@ export function DrilldownList( {
 		() => new Set( defaultExpandedIds )
 	);
 	const fields = useMemo(
-		() => getDrilldownFields( labelHeader, valueHeader ),
-		[ labelHeader, valueHeader ]
+		() => getDrilldownFields( labelHeader, valueHeader, filterElements, getGroupFilterValue ),
+		[ labelHeader, valueHeader, filterElements, getGroupFilterValue ]
 	);
 	const { groups: visibleGroups, paginationInfo } = useMemo(
-		() => processDrilldownGroups( groups, view, expandedIds ),
-		[ groups, view, expandedIds ]
+		() => processDrilldownGroups( groups, view, expandedIds, getGroupFilterValue ),
+		[ groups, view, expandedIds, getGroupFilterValue ]
 	);
 	const childCounts = useMemo(
 		() => new Map( groups.map( group => [ group.id, group.children.length ] ) ),
@@ -403,8 +433,17 @@ export function DrilldownList( {
 				config={ { perPageSizes } }
 			>
 				<div className={ styles.toolbar }>
-					<DataViews.Search label={ searchLabel } />
+					<div className={ styles.toolbarLeft }>
+						<DataViews.Search label={ searchLabel } />
+						<DataViews.FiltersToggle />
+					</div>
+					<div className={ styles.toolbarRight }>
+						<DataViews.ViewConfig />
+					</div>
 				</div>
+				<DataViews.FiltersToggled
+					className={ clsx( 'dataviews-filters__container', styles.filtersToggled ) }
+				/>
 				<DrilldownRows
 					groups={ visibleGroups }
 					expandedIds={ expandedIds }

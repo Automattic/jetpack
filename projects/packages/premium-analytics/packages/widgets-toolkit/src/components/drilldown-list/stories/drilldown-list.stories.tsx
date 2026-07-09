@@ -68,6 +68,21 @@ const REFERRER_GROUPS: DrilldownListGroup[] = [
 	},
 ];
 
+const REFERRER_FILTER_ELEMENTS = [
+	{
+		value: 'organic',
+		label: __( 'Organic', 'jetpack-premium-analytics' ),
+	},
+	{
+		value: 'social',
+		label: __( 'Social', 'jetpack-premium-analytics' ),
+	},
+	{
+		value: 'direct',
+		label: __( 'Direct', 'jetpack-premium-analytics' ),
+	},
+];
+
 const ARCHIVE_GROUPS: DrilldownListGroup[] = [
 	{
 		id: 'archive:tags',
@@ -140,6 +155,24 @@ const ARCHIVE_GROUPS: DrilldownListGroup[] = [
 	},
 ];
 
+/**
+ * Resolve the referrer group type for the DataViews filter.
+ *
+ * @param group - The referrer drilldown group.
+ * @return The group filter value.
+ */
+function getReferrerGroupFilterValue( group: DrilldownListGroup ): string {
+	if ( group.id === 'referrer:social' ) {
+		return 'social';
+	}
+
+	if ( group.id === 'referrer:direct' ) {
+		return 'direct';
+	}
+
+	return 'organic';
+}
+
 const meta: Meta< typeof DrilldownList > = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/DrilldownList',
 	component: DrilldownList,
@@ -153,6 +186,8 @@ const meta: Meta< typeof DrilldownList > = {
 		labelHeader: __( 'Referrer', 'jetpack-premium-analytics' ),
 		valueHeader: __( 'Views', 'jetpack-premium-analytics' ),
 		searchLabel: __( 'Search referrers', 'jetpack-premium-analytics' ),
+		filterElements: REFERRER_FILTER_ELEMENTS,
+		getGroupFilterValue: getReferrerGroupFilterValue,
 	},
 };
 
@@ -204,5 +239,7 @@ export const Archives: Story = {
 		searchLabel: __( 'Search archives', 'jetpack-premium-analytics' ),
 		emptyLabel: __( 'No archives found.', 'jetpack-premium-analytics' ),
 		defaultExpandedIds: [ 'archive:tags' ],
+		filterElements: undefined,
+		getGroupFilterValue: undefined,
 	},
 };

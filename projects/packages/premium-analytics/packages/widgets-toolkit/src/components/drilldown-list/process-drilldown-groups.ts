@@ -2,6 +2,7 @@ import type { DrilldownListGroup } from './drilldown-list';
 import type { View } from '@wordpress/dataviews';
 
 const DEFAULT_PER_PAGE = 10;
+const GROUP_TYPE_FIELD_ID = 'type';
 
 type DrilldownPaginationInfo = {
 	totalItems: number;
@@ -35,24 +36,73 @@ function groupMatchesSearch( group: DrilldownListGroup, query: string ): boolean
 }
 
 /**
+ * Read the active group type filter values from the DataViews view.
+ *
+ * @param view - The DataViews view state.
+ * @return The selected filter values, or undefined when no active filter is set.
+ */
+function getActiveGroupTypeFilterValues( view: View ): ReadonlySet< string > | undefined {
+	const filterValues = view.filters
+		?.filter( filter => filter.field === GROUP_TYPE_FIELD_ID && filter.operator === 'isAny' )
+		.flatMap( filter => ( Array.isArray( filter.value ) ? filter.value : [] ) )
+		.filter( ( value ): value is string => typeof value === 'string' );
+
+	if ( ! filterValues?.length ) {
+		return undefined;
+	}
+
+	return new Set( filterValues );
+}
+
+/**
+ * Whether a group matches the active group type filter.
+ *
+ * @param group               - The drilldown group.
+ * @param selectedValues      - The active filter values.
+ * @param getGroupFilterValue - Resolves the group filter value.
+ * @return Whether the group matches the active filter.
+ */
+function groupMatchesTypeFilter(
+	group: DrilldownListGroup,
+	selectedValues: ReadonlySet< string > | undefined,
+	getGroupFilterValue?: ( group: DrilldownListGroup ) => string
+): boolean {
+	if ( ! selectedValues ) {
+		return true;
+	}
+
+	if ( ! getGroupFilterValue ) {
+		return true;
+	}
+
+	return selectedValues.has( getGroupFilterValue( group ) );
+}
+
+/**
  * Paginate, search, and expand groups for the custom drill-down list.
  *
  * Pagination counts groups only; children are included only when their group is
  * expanded, or when a child-label search match force-expands the group.
  *
- * @param groups      - The full drilldown groups.
- * @param view        - The DataViews view state.
- * @param expandedIds - Expanded drilldown group IDs.
+ * @param groups              - The full drilldown groups.
+ * @param view                - The DataViews view state.
+ * @param expandedIds         - Expanded drilldown group IDs.
+ * @param getGroupFilterValue - Optional group filter value resolver.
  * @return The visible groups and pagination metadata.
  */
 export function processDrilldownGroups(
 	groups: DrilldownListGroup[],
 	view: View,
-	expandedIds: ReadonlySet< string >
+	expandedIds: ReadonlySet< string >,
+	getGroupFilterValue?: ( group: DrilldownListGroup ) => string
 ): ProcessedDrilldownGroups {
 	const query = normalizeSearch( view.search );
+	const selectedTypeValues = getActiveGroupTypeFilterValues( view );
+	const filteredGroups = groups.filter( group =>
+		groupMatchesTypeFilter( group, selectedTypeValues, getGroupFilterValue )
+	);
 	const matchingGroups = query
-		? groups
+		? filteredGroups
 				.map( group => {
 					const groupMatches = groupMatchesSearch( group, query );
 					const matchingChildren = group.children.filter( child =>
@@ -70,7 +120,7 @@ export function processDrilldownGroups(
 					};
 				} )
 				.filter( ( entry ): entry is NonNullable< typeof entry > => Boolean( entry ) )
-		: groups.map( group => ( {
+		: filteredGroups.map( group => ( {
 				group,
 				groupMatches: false,
 				matchingChildren: [],

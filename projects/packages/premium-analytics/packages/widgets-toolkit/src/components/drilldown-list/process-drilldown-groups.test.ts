@@ -73,6 +73,24 @@ function getView( overrides: Partial< View > = {} ): View {
 	} as View;
 }
 
+/**
+ * Resolve the test group filter value from its id.
+ *
+ * @param group - The drilldown group.
+ * @return The group filter value.
+ */
+function getGroupFilterValue( group: DrilldownListGroup ): string {
+	if ( group.id === 'group:category' ) {
+		return 'organic';
+	}
+
+	if ( group.id === 'group:post_tag' ) {
+		return 'social';
+	}
+
+	return 'direct';
+}
+
 describe( 'processDrilldownGroups', () => {
 	it( 'returns the first page of groups collapsed by default', () => {
 		const result = processDrilldownGroups( groups, getView(), new Set() );
@@ -130,5 +148,87 @@ describe( 'processDrilldownGroups', () => {
 			'/tag/react',
 			'/tag/design',
 		] );
+	} );
+
+	it( 'filters groups by active type filter values', () => {
+		const result = processDrilldownGroups(
+			groups,
+			getView( {
+				filters: [
+					{
+						field: 'type',
+						operator: 'isAny',
+						value: [ 'organic', 'direct' ],
+					},
+				],
+			} ),
+			new Set(),
+			getGroupFilterValue
+		);
+
+		expect( result.paginationInfo ).toEqual( { totalItems: 2, totalPages: 1 } );
+		expect( result.groups.map( group => group.label ) ).toEqual( [ 'Categories', 'Searches' ] );
+	} );
+
+	it( 'combines active type filters with search matching', () => {
+		const result = processDrilldownGroups(
+			groups,
+			getView( {
+				search: 'react',
+				filters: [
+					{
+						field: 'type',
+						operator: 'isAny',
+						value: [ 'organic', 'social' ],
+					},
+				],
+			} ),
+			new Set(),
+			getGroupFilterValue
+		);
+
+		expect( result.paginationInfo ).toEqual( { totalItems: 1, totalPages: 1 } );
+		expect( result.groups ).toHaveLength( 1 );
+		expect( result.groups[ 0 ].label ).toBe( 'Tags' );
+		expect( result.groups[ 0 ].children.map( child => child.label ) ).toEqual( [ '/tag/react' ] );
+	} );
+
+	it( 'treats an empty type filter selection as no filter', () => {
+		const result = processDrilldownGroups(
+			groups,
+			getView( {
+				filters: [
+					{
+						field: 'type',
+						operator: 'isAny',
+						value: [],
+					},
+				],
+			} ),
+			new Set(),
+			getGroupFilterValue
+		);
+
+		expect( result.paginationInfo ).toEqual( { totalItems: 3, totalPages: 2 } );
+		expect( result.groups.map( group => group.label ) ).toEqual( [ 'Categories', 'Tags' ] );
+	} );
+
+	it( 'ignores type filters when no filter value resolver is provided', () => {
+		const result = processDrilldownGroups(
+			groups,
+			getView( {
+				filters: [
+					{
+						field: 'type',
+						operator: 'isAny',
+						value: [ 'organic' ],
+					},
+				],
+			} ),
+			new Set()
+		);
+
+		expect( result.paginationInfo ).toEqual( { totalItems: 3, totalPages: 2 } );
+		expect( result.groups.map( group => group.label ) ).toEqual( [ 'Categories', 'Tags' ] );
 	} );
 } );

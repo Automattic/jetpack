@@ -13,7 +13,30 @@
 }
 
 .toolbar {
+	display: flex;
+	gap: 24px;
+	align-items: flex-start;
+	justify-content: space-between;
 	padding: 24px 24px 16px;
+}
+
+.toolbarLeft,
+.toolbarRight {
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+}
+
+.toolbarLeft {
+	min-inline-size: 0;
+}
+
+.toolbarRight {
+	flex: 0 0 auto;
+}
+
+.filtersToggled {
+	padding: 0 24px 16px;
 }
 
 .list {
