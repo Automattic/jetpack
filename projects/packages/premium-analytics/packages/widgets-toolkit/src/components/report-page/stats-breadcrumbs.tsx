@@ -10,12 +10,12 @@ import { Text } from '@wordpress/ui';
  */
 import styles from './stats-breadcrumbs.module.scss';
 
-type StatsBreadcrumbsProps = {
+export interface StatsBreadcrumbsProps {
 	/**
 	 * The current post/page title, shown as the trailing crumb.
 	 */
 	title?: string;
-};
+}
 
 /**
  * The "Stats / <post title>" breadcrumb shown in the page header.

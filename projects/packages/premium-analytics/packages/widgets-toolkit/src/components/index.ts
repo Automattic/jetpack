@@ -42,3 +42,12 @@ export {
 	type SubscriberListItem,
 	type SubscriberListProps,
 } from './subscriber-list';
+export {
+	ReportPageTabPanel,
+	ReportPageTabs,
+	StatsBreadcrumbs,
+	type ReportPageTab,
+	type ReportPageTabPanelProps,
+	type ReportPageTabsProps,
+	type StatsBreadcrumbsProps,
+} from './report-page';

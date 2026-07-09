@@ -42,6 +42,13 @@ export {
 	type SubscriberListProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	ReportPageTabPanel,
+	ReportPageTabs,
+	StatsBreadcrumbs,
+	type ReportPageTab,
+	type ReportPageTabPanelProps,
+	type ReportPageTabsProps,
+	type StatsBreadcrumbsProps,
 } from './components';
 
 /**
