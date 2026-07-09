@@ -1,7 +1,4 @@
-@use "@automattic/jetpack-base-styles/style";
-
 .jp-license-activation-screen-controls {
-	background: var(--jp-white);
 	padding: 32px;
 
 	// Bump the @wordpress/ui field labels from the default xs up to md.
@@ -13,32 +10,16 @@
 		padding: 64px;
 	}
 
+	// Seems useless, keeping it only as a safeguard.
 	.jp-license-activation-screen-controls--license-field,
 	.jp-license-activation-screen-controls--license-field-with-error,
 	.jp-license-activation-screen-controls--license-field-with-success {
 		max-width: 500px;
 	}
 
-	// Recolor the validation border on the underlying @wordpress/ui input
-	// without depending on component-internal class names.
-	.jp-license-activation-screen-controls--license-field-with-error {
-
-		input {
-			border-color: var(--jp-red);
-		}
-	}
-
-	.jp-license-activation-screen-controls--license-field-with-success {
-
-		input {
-			border-color: var(--jp-green);
-		}
-	}
-
 	// Layout only — the @wordpress/ui Button supplies its own Design System
 	// styling (color, sizing, hover/focus/disabled, loading indicator).
 	.jp-license-activation-screen-controls--button {
-		margin-top: 8px;
 		width: 100%;
 
 		@media screen and (min-width: 480px) {

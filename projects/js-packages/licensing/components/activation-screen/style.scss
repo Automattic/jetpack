@@ -1,9 +1,8 @@
 // The container is a @wordpress/ui Card.Root, which supplies the border,
 // border-radius, background, overflow clipping, and column flex layout. We
-// only add the elevation, min-height, and the two-column row layout on wide
-// screens (overriding Card.Root's default column direction).
+// only add the two-column row layout on wide screens (overriding Card.Root's
+// default column direction).
 .jp-license-activation-screen {
-	min-height: 540px;
 
 	@media screen and ( min-width: 780px ) {
 		flex-direction: row;
