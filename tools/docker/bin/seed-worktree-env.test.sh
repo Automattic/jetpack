@@ -13,6 +13,11 @@
 
 set -euo pipefail
 
+# Isolate every git call from the developer's / CI's config, so an inherited commit.gpgsign (which
+# dies non-interactively — CI, or gpg behind pinentry with no TTY), core.hooksPath, or template dir
+# can't make the fixture's setup commit fail before a single assertion runs.
+export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null
+
 SUT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/seed-worktree-env.sh"
 
 TMP="$( mktemp -d 2>/dev/null || mktemp -d -t seed-wt )"
@@ -102,19 +107,26 @@ printf 'COMPOSE_PROJECT_NAME=\n' > "$( env_of wt-empty )"
 run "$TMP/wt-empty"
 assert_rc nonzero "empty project name is rejected"
 
-# --- envfile can't read `export NAME=…`, so treat it as absent (concern 2) -
+# --- a name Compose would reject (space/uppercase) is refused (concern 1) ---
+add_wt wt-badname
+printf 'COMPOSE_PROJECT_NAME=jetpack_bad name\n' > "$( env_of wt-badname )"
+run "$TMP/wt-badname"
+assert_rc nonzero "a Compose-invalid project name (space) is rejected"
+case "$RUN_OUT" in *"Docker Compose rejects"* ) pass "Compose-invalid message is shown" ;; * ) bad "Compose-invalid message is shown ($RUN_OUT)" ;; esac
+
+# --- `export NAME=…` is not the plain form both parsers read → treat absent --
 add_wt wt-e
 printf 'export COMPOSE_PROJECT_NAME=jetpack_exported\n' > "$( env_of wt-e )"
 run "$TMP/wt-e"
 assert_rc zero "export-only name is treated as absent (exit 0)"
-assert_grep "$( env_of wt-e )" '^COMPOSE_PROJECT_NAME=jetpack_wt-e$' "a clean, envfile-readable name line is written"
+assert_grep "$( env_of wt-e )" '^COMPOSE_PROJECT_NAME=jetpack_wt-e$' "a clean, plain name line both parsers read is written"
 
-# --- envfile can't read an inline comment, so the port is reallocated ------
+# --- an inline comment is not the plain form → the port is reallocated ------
 add_wt wt-f
 printf 'COMPOSE_PROJECT_NAME=jetpack_feat\nPORT_WORDPRESS=9090 # note\n' > "$( env_of wt-f )"
 run "$TMP/wt-f"
 assert_rc zero "inline-comment port is reallocated (exit 0)"
-# The junk `9090 # note` value must be superseded: envfile takes the LAST assignment, so the
+# The junk `9090 # note` value must be superseded: both parsers take the LAST assignment, so the
 # final PORT_WORDPRESS line must be a clean number and must not be the junk 9090.
 last_wp="$( grep '^PORT_WORDPRESS' "$( env_of wt-f )" | tail -n1 )"
 case "$last_wp" in
@@ -123,7 +135,7 @@ case "$last_wp" in
 	* )                          bad "inline-comment port superseded by a clean value ($last_wp)" ;;
 esac
 
-# --- envfile STRIPS quotes, so a quoted name jp honors must be accepted -----
+# --- both parsers strip quotes, so a quoted name they honor must be accepted -
 # (Regression guard: treating a quoted value as unreadable would falsely reject a valid name.)
 add_wt wt-q
 printf 'COMPOSE_PROJECT_NAME="jetpack_quoted"\n' > "$( env_of wt-q )"
@@ -131,24 +143,26 @@ run "$TMP/wt-q"
 assert_rc zero "quoted name jp honors is accepted, not rejected (exit 0)"
 assert_grep "$( env_of wt-q )" '^PORT_WORDPRESS=[0-9]+$' "quoted-name worktree gets its ports backfilled"
 
-# --- envfile strips quotes on ports too: a quoted numeric port is reused ----
+# --- both parsers strip quotes on ports too: a quoted numeric port is reused -
 add_wt wt-qp
 printf 'COMPOSE_PROJECT_NAME=jetpack_qp\nPORT_WORDPRESS="8080"\n' > "$( env_of wt-qp )"
 run "$TMP/wt-qp"
 assert_rc zero "quoted numeric port is honored (exit 0)"
-# 8080 is a clean value to envfile (quotes stripped), so it is reused, not reallocated.
+# 8080 is a clean value once quotes are stripped, so it is reused, not reallocated.
 if [ "$( grep '^PORT_WORDPRESS' "$( env_of wt-qp )" | tail -n1 )" = 'PORT_WORDPRESS="8080"' ]; then
 	pass "quoted numeric port is reused as-is (no reallocation)"
 else
 	bad "quoted numeric port is reused as-is (no reallocation)"
 fi
 
-# --- envfile also splits on `:`, so a colon-set name jp honors is kept ------
+# --- a `:` delimiter is envfile-only (dotenv drops it), so it is NOT trusted --
+# `jp docker up` (dotenv) would drop this line and land on the primary, so the seeder treats it as
+# absent and writes a clean `=` line that BOTH parsers read — keeping jp and jetpack in agreement.
 add_wt wt-colon
 printf 'COMPOSE_PROJECT_NAME:jetpack_colon\n' > "$( env_of wt-colon )"
 run "$TMP/wt-colon"
-assert_rc zero "colon-delimited name is recognized (exit 0)"
-assert_absent "$( env_of wt-colon )" '^COMPOSE_PROJECT_NAME=jetpack_wt-colon$' "colon-set name is not overridden by a derived one"
+assert_rc zero "colon-delimited name is treated as absent (exit 0)"
+assert_grep "$( env_of wt-colon )" '^COMPOSE_PROJECT_NAME=jetpack_wt-colon$' "a clean = name line both parsers read is written"
 
 # --- a bare non-jetpack_ name jp ignores is rejected (concern 1) ------------
 add_wt wt-bare
@@ -178,6 +192,41 @@ printf '\xEF\xBB\xBFCOMPOSE_PROJECT_NAME=jetpack_bom\n' > "$( env_of wt-bom )"
 run "$TMP/wt-bom"
 assert_rc zero "BOM-prefixed name is read, not treated as absent (exit 0)"
 assert_absent "$( env_of wt-bom )" '^COMPOSE_PROJECT_NAME=jetpack_wt-bom$' "BOM-prefixed name is not overridden by a derived one"
+
+# --- an unbalanced quote is NOT stripped, so the Compose-invalid name is caught ---
+# (Only a matched surrounding pair is stripped; `jetpack_"x` stays, and dotenv would feed that
+# verbatim to Compose. The guard must see the un-stripped value and reject it.)
+add_wt wt-uq
+printf 'COMPOSE_PROJECT_NAME=jetpack_%sx\n' '"' > "$( env_of wt-uq )"
+run "$TMP/wt-uq"
+assert_rc nonzero "an unbalanced-quote name is rejected (Compose-invalid)"
+
+# --- sibling reservation covers the union both CLIs might bind --------------
+# A fresh repo so the reservation is isolated from ports the cases above already claimed. The
+# sibling pins base ports via a colon-space and an export form; without the lenient sibling reader
+# the fresh worktree would reuse them, colliding at `up`.
+PRIMARY2="$TMP/primary2"
+mkdir -p "$PRIMARY2/tools/docker/bin"
+git -C "$PRIMARY2" init -q
+git -C "$PRIMARY2" config user.email test@example.test
+git -C "$PRIMARY2" config user.name  seed-test
+cp "$SUT" "$PRIMARY2/tools/docker/bin/seed-worktree-env.sh"
+chmod +x "$PRIMARY2/tools/docker/bin/seed-worktree-env.sh"
+git -C "$PRIMARY2" add -A
+git -C "$PRIMARY2" commit -qm init
+git -C "$PRIMARY2" worktree add -q "$TMP/p2-sib"   -b br-p2-sib
+git -C "$PRIMARY2" worktree add -q "$TMP/p2-fresh" -b br-p2-fresh
+printf 'COMPOSE_PROJECT_NAME: jetpack_p2sib\nPORT_WORDPRESS: 8080\nexport PORT_PHPMY=8282\n' > "$TMP/p2-sib/tools/docker/.env"
+run "$TMP/p2-fresh"
+assert_rc zero "fresh worktree seeds beside a colon/export sibling (exit 0)"
+assert_absent "$TMP/p2-fresh/tools/docker/.env" '^PORT_WORDPRESS=8080$' "colon-space sibling port 8080 is reserved (not reused)"
+assert_absent "$TMP/p2-fresh/tools/docker/.env" '^PORT_PHPMY=8282$'    "export sibling port 8282 is reserved (not reused)"
+
+# A colon-space sibling NAME must also feed the duplicate-name guard.
+git -C "$PRIMARY2" worktree add -q "$TMP/p2-dupe" -b br-p2-dupe
+printf 'COMPOSE_PROJECT_NAME=jetpack_p2sib\n' > "$TMP/p2-dupe/tools/docker/.env"
+run "$TMP/p2-dupe"
+assert_rc nonzero "a name duplicating a colon-space sibling is rejected"
 
 # --- reaching the primary through a symlinked path is still a no-op ---------
 # (Guards the pwd -P handling that resolves --absolute-git-dir's symlink resolution.)

@@ -70,22 +70,22 @@ alloc_port() {
 	ALLOCATED="$port"
 }
 
-# jp parses tools/docker/.env with the `envfile` npm package (tools/cli/commands/docker.js
-# readEnvFile → envfile.parse). Its parser is one regex per line: /^([^=:#]+?)[=:](.*)/ with
-# key = match[1].trim() and value = match[2].trim() then ALL quote characters removed. So it:
-#   - splits on the first `=` OR `:`,
-#   - drops a line whose key part contains `#` (a `#`-led comment never matches),
-#   - strips surrounding (and any) single/double quotes from the value,
-#   - does NOT understand a leading `export` (the key becomes `export KEY`, i.e. unreadable),
-#   - does NOT strip an inline ` # comment` from the value.
-# envfile_parse() below is the single source of truth mirroring exactly that, so every guard here
-# agrees with what `jp docker up` will actually load: a key envfile can't read counts as absent,
-# and we append a clean line rather than no-op behind a value the CLI would drop and then fall
-# back to the primary jetpack_dev instance's name and ports for.
+# tools/docker/.env is read by two code paths that must agree: the global `jp docker up/down/stop/
+# clean` host wrapper parses it with `dotenv`, while the in-repo `jetpack docker …` (and `jp docker
+# config`) parses it with `envfile`. The two diverge on a leading `export` (dotenv reads it, envfile
+# doesn't), a `:` delimiter (envfile always; dotenv only for `KEY: value` with a space), and an
+# inline ` # comment` (dotenv strips it, envfile keeps it). To behave the same whichever command you
+# run, this script always WRITES plain `KEY=value`, which every parser reads identically. Two reads
+# of an existing file follow, with opposite biases:
+#   - OUR file (parse_env_line): trust only the plain `KEY=value` form. Anything else is treated as
+#     absent and a clean `=` line is appended — last assignment wins for both parsers, so the clean
+#     line becomes authoritative rather than the script no-opping behind a value one CLI would drop.
+#   - A SIBLING file (parse_sibling_line): reserve the UNION of what either parser might bind, so we
+#     never allocate a port/name a neighbouring worktree already occupies under its chosen command.
 
 # Trim leading and trailing whitespace (bash 3.2 parameter expansion, no external process). Also
-# strips a leading UTF-8 BOM, which JS `String.prototype.trim()` (what envfile uses) removes but
-# `[[:space:]]` does not — otherwise a BOM-prefixed first line would read as a different key.
+# strips a leading UTF-8 BOM, which JS `String.prototype.trim()` removes but `[[:space:]]` does not
+# — otherwise a BOM-prefixed first line would read as a different key.
 trim() {
 	local s="$1"
 	s="${s#$'\xEF\xBB\xBF'}"
@@ -94,35 +94,63 @@ trim() {
 	printf '%s' "$s"
 }
 
-# Parse one .env line the way envfile.parse does. On a readable assignment, set EF_KEY / EF_VAL
-# and return 0; otherwise return 1. Keep this the ONLY place the parser shape lives.
-EF_KEY=""
-EF_VAL=""
-ENVFILE_RE='^([^=:#]+)[=:](.*)$'
-envfile_parse() {
-	[[ $1 =~ $ENVFILE_RE ]] || return 1
-	EF_KEY="$( trim "${BASH_REMATCH[1]}" )"
-	EF_VAL="$( trim "${BASH_REMATCH[2]}" )"
-	EF_VAL="${EF_VAL//\"/}"   # envfile removes all quote chars
-	EF_VAL="${EF_VAL//\'/}"
+# Parse one .env line as the plain `KEY=value` shape when deciding what is already settled in OUR
+# file (used by env_has_key / env_value). This deliberately recognizes only the common form both
+# parsers read the same; a shape only one reads — a `:` delimiter, a leading `export`, an inline
+# ` # comment` — is left for the rewrite path, which appends a clean `=` line both parsers then
+# agree on. On a match set PARSED_KEY / PARSED_VAL and return 0, else return 1. (Note: a comment or
+# `:` line has no `=` and fails the regex; an `export KEY=` line DOES match but yields key
+# `export KEY`, which no lookup ever asks for — so it too is effectively absent.)
+PARSED_KEY=""
+PARSED_VAL=""
+ENV_LINE_RE='^([^=#]+)=(.*)$'
+parse_env_line() {
+	[[ $1 =~ $ENV_LINE_RE ]] || return 1
+	PARSED_KEY="$( trim "${BASH_REMATCH[1]}" )"
+	PARSED_VAL="$( trim "${BASH_REMATCH[2]}" )"
+	# Strip only a single matched surrounding quote pair — the one thing dotenv and envfile both do.
+	# Removing every quote (envfile's own behavior) would over-normalize an unbalanced value like
+	# `jetpack_"x` that dotenv keeps verbatim, hiding a Compose-invalid name from the guard below.
+	case "$PARSED_VAL" in
+		\"*\" ) PARSED_VAL="${PARSED_VAL#\"}"; PARSED_VAL="${PARSED_VAL%\"}" ;;
+		\'*\' ) PARSED_VAL="${PARSED_VAL#\'}"; PARSED_VAL="${PARSED_VAL%\'}" ;;
+	esac
 	return 0
 }
 
-# Is key $1 assigned anywhere envfile can read it in $ENV_FILE? (Present-but-empty counts.)
+# Parse one SIBLING .env line as leniently as either parser might — strip a leading `export`, split
+# on `=` OR `:`, drop an inline comment, strip quotes. This is the UNION (not the intersection):
+# for collision avoidance we must reserve any port/name a sibling's `up` could actually occupy,
+# whichever CLI ran it, and over-reserving merely skips a value (harmless). On a match set SIB_KEY /
+# SIB_VAL and return 0, else return 1.
+SIB_KEY=""
+SIB_VAL=""
+SIB_LINE_RE='^[[:space:]]*(export[[:space:]]+)?([^=:#[:space:]][^=:#]*)[[:space:]]*[=:](.*)$'
+parse_sibling_line() {
+	[[ $1 =~ $SIB_LINE_RE ]] || return 1
+	SIB_KEY="$( trim "${BASH_REMATCH[2]}" )"
+	SIB_VAL="${BASH_REMATCH[3]%%#*}"   # dotenv stops an unquoted value at the first `#`
+	SIB_VAL="$( trim "$SIB_VAL" )"
+	SIB_VAL="${SIB_VAL//\"/}"
+	SIB_VAL="${SIB_VAL//\'/}"
+	return 0
+}
+
+# Is key $1 assigned in a plain form both parsers read in $ENV_FILE? (Present-but-empty counts.)
 env_has_key() {
 	local line
 	while IFS= read -r line || [ -n "$line" ]; do
-		if envfile_parse "$line" && [ "$EF_KEY" = "$1" ]; then return 0; fi
+		if parse_env_line "$line" && [ "$PARSED_KEY" = "$1" ]; then return 0; fi
 	done < "$ENV_FILE"
 	return 1
 }
 
-# Echo the envfile value of key $1 in $ENV_FILE (last assignment wins, matching envfile), or
-# nothing when the key is absent or written in a shape envfile can't read.
+# Echo the value of key $1 in $ENV_FILE (last assignment wins), or nothing when the key is absent
+# or not written in the plain form both parsers read.
 env_value() {
 	local line val=""
 	while IFS= read -r line || [ -n "$line" ]; do
-		if envfile_parse "$line" && [ "$EF_KEY" = "$1" ]; then val="$EF_VAL"; fi
+		if parse_env_line "$line" && [ "$PARSED_KEY" = "$1" ]; then val="$PARSED_VAL"; fi
 	done < "$ENV_FILE"
 	printf '%s' "$val"
 }
@@ -185,22 +213,22 @@ while IFS= read -r line; do
 			# `|| [ -n "$kv" ]` so a final line with no trailing newline is still processed —
 			# otherwise that sibling's last PORT_ would be missed and could be re-allocated.
 			while IFS= read -r kv || [ -n "$kv" ]; do
-				# Read the line exactly as jp will (quotes/`:`/`export`/`#` handled by
-				# envfile_parse). A key envfile can't read — e.g. `export PORT_…` — is skipped;
-				# that sibling then falls back to a primary default port already reserved above.
-				envfile_parse "$kv" || continue
-				case "$EF_KEY" in
+				# Reserve anything a sibling could bind under EITHER parser (parse_sibling_line is
+				# the lenient union), so we never hand ourselves a port/name a sibling's `up`
+				# already occupies — whether that worktree runs `jp` or `jetpack`.
+				parse_sibling_line "$kv" || continue
+				case "$SIB_KEY" in
 					PORT_* )
-						case "$EF_VAL" in
-							'' | *[!0-9]* ) ;;  # not a plain number — envfile passes it to compose, which falls back to a reserved default
+						case "$SIB_VAL" in
+							'' | *[!0-9]* ) ;;  # not a plain number — no port to reserve
 							* )
-								val="$(( 10#$EF_VAL ))"  # normalize so `08080` matches `8080`
+								val="$(( 10#$SIB_VAL ))"  # normalize so `08080` matches `8080`
 								is_claimed "$val" || CLAIMED="${CLAIMED}${val} "
 								;;
 						esac
 						;;
 					COMPOSE_PROJECT_NAME )
-						[ -n "$EF_VAL" ] && CLAIMED_NAMES="${CLAIMED_NAMES}${EF_VAL} "
+						[ -n "$SIB_VAL" ] && CLAIMED_NAMES="${CLAIMED_NAMES}${SIB_VAL} "
 						;;
 				esac
 			done < "$sibling"
@@ -226,6 +254,16 @@ if env_has_key COMPOSE_PROJECT_NAME; then
 	if [ "$suffix" = "$INSTANCE" ] || [ -z "$suffix" ] || [ "$suffix" = dev ] || [ "$suffix" = e2e ]; then
 		echo "tools/docker/.env sets COMPOSE_PROJECT_NAME='${INSTANCE}', which jp docker up does not honor —" >&2
 		echo "it would fall back to the primary jetpack_dev instance. Use jetpack_<unique>, or delete the line to re-derive one." >&2
+		exit 1
+	fi
+	# Even a `jetpack_`-prefixed name is useless if Compose won't accept it (e.g. a space or an
+	# uppercase letter pasted in): the CLI honors it, then `up` dies at the Compose layer. Reject it
+	# here against Compose's own charset — the same rule normalizeProjectShortName (docker.js) checks.
+	# Unlike the `--name` flag, which lowercases first, a .env value is used verbatim, so we reject
+	# rather than repair.
+	if ! [[ "$INSTANCE" =~ ^[a-z0-9][a-z0-9_-]*$ ]]; then
+		echo "tools/docker/.env sets COMPOSE_PROJECT_NAME='${INSTANCE}', which Docker Compose rejects —" >&2
+		echo "a project name must be lowercase letters, digits, '-' and '_', starting with a letter or digit. Fix or delete the line." >&2
 		exit 1
 	fi
 	case "$CLAIMED_NAMES" in
@@ -294,7 +332,7 @@ if [ "$NAME_PRESENT" = 0 ]; then add_kv COMPOSE_PROJECT_NAME "jetpack_${SLUG}"; 
 if [ -z "$BLOCK" ]; then
 	echo "tools/docker/.env already fully configured for '${INSTANCE}' — nothing to add."
 	# Display only; `|| true` so a zero-match grep can't abort under pipefail before `exit 0`.
-	{ grep -E '^[[:space:]]*(COMPOSE_PROJECT_NAME|PORT_[A-Z]+)[[:space:]]*[=:]' "$ENV_FILE" | sed 's/^/  /'; } || true
+	{ grep -E '^[[:space:]]*(COMPOSE_PROJECT_NAME|PORT_[A-Z]+)[[:space:]]*=' "$ENV_FILE" | sed 's/^/  /'; } || true
 	exit 0
 fi
 
