@@ -204,6 +204,7 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 	 * @param int    $user_id     User ID.
 	 * @param string $user_email  User email.
 	 * @return void
+	 * @throws \Exception If export processing fails.
 	 * @throws \Throwable If export processing fails.
 	 */
 	public function process_export_job( string $report_type, array $params, int $user_id, string $user_email ): void {
