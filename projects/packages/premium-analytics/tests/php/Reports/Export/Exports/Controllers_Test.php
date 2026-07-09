@@ -10,6 +10,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Conversion_Rate_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Visitors_Over_Time_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -17,10 +18,12 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Conversion_Rate_Over_Time_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Visitors_Over_Time_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller
  */
 #[CoversClass( Orders_Over_Time_Controller::class )]
+#[CoversClass( Conversion_Rate_Over_Time_Controller::class )]
 #[CoversClass( Visitors_Over_Time_Controller::class )]
 #[CoversClass( Abstract_Csv_Report_Controller::class )]
 class Controllers_Test extends TestCase {
@@ -31,6 +34,10 @@ class Controllers_Test extends TestCase {
 
 	private function visitors(): Visitors_Over_Time_Controller {
 		return new Visitors_Over_Time_Controller( new Report_Registry() );
+	}
+
+	private function conversion_rate(): Conversion_Rate_Over_Time_Controller {
+		return new Conversion_Rate_Over_Time_Controller( new Report_Registry() );
 	}
 
 	public function test_orders_metadata() {
@@ -101,5 +108,29 @@ class Controllers_Test extends TestCase {
 		$row = $c->format_row_for_csv( array( 'date_start' => '2026-01-02 00:00:00' ) );
 		$this->assertSame( '2026-01-02', $row['time_interval'] );
 		$this->assertSame( 0, $row['visitors'] );
+	}
+
+	public function test_conversion_rate_formats_counts_and_percent() {
+		$c = $this->conversion_rate();
+
+		$row = $c->format_row_for_csv(
+			array(
+				'date_start'         => '2026-01-02 00:00:00',
+				'active_sessions'    => 3,
+				'with_cart_addition' => 2,
+				'reached_checkout'   => 2,
+				'completed_checkout' => 2,
+			)
+		);
+
+		$this->assertSame( '2026-01-02', $row['time_interval'] );
+		$this->assertSame( 3, $row['sessions'] );
+		$this->assertSame( 2, $row['cart'] );
+		$this->assertSame( 2, $row['checkout'] );
+		$this->assertSame( 2, $row['purchase'] );
+		$this->assertSame( '66.67%', $row['store_conversion_rate'] );
+
+		$row = $c->format_row_for_csv( array( 'active_sessions' => 0 ) );
+		$this->assertSame( '0.00%', $row['store_conversion_rate'] );
 	}
 }

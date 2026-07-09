@@ -107,14 +107,12 @@ class Conversion_Rate_Over_Time_Controller extends Abstract_Csv_Report_Controlle
 	public function format_row_for_csv( array $item, ?string $interval = null ): array {
 		$defaults = $this->get_default_values();
 
-		// Extract values with defaults.
-		$active_sessions    = (float) ( $item['active_sessions'] ?? $defaults['active_sessions'] );
-		$with_cart_addition = (float) ( $item['with_cart_addition'] ?? $defaults['with_cart_addition'] );
-		$reached_checkout   = (float) ( $item['reached_checkout'] ?? $defaults['reached_checkout'] );
-		$completed_checkout = (float) ( $item['completed_checkout'] ?? $defaults['completed_checkout'] );
+		$active_sessions    = (int) ( $item['active_sessions'] ?? $defaults['active_sessions'] );
+		$with_cart_addition = (int) ( $item['with_cart_addition'] ?? $defaults['with_cart_addition'] );
+		$reached_checkout   = (int) ( $item['reached_checkout'] ?? $defaults['reached_checkout'] );
+		$completed_checkout = (int) ( $item['completed_checkout'] ?? $defaults['completed_checkout'] );
 
-		// Calculate store conversion rate (purchase rate).
-		$store_conversion_rate = $active_sessions > 0 ? ( $completed_checkout / $active_sessions ) : 0;
+		$store_conversion_rate = $active_sessions > 0 ? ( $completed_checkout / $active_sessions ) * 100 : 0;
 
 		return array(
 			'time_interval'         => $this->format_time_interval( $item, $interval ),
@@ -122,7 +120,7 @@ class Conversion_Rate_Over_Time_Controller extends Abstract_Csv_Report_Controlle
 			'cart'                  => $with_cart_addition,
 			'checkout'              => $reached_checkout,
 			'purchase'              => $completed_checkout,
-			'store_conversion_rate' => $store_conversion_rate,
+			'store_conversion_rate' => number_format( $store_conversion_rate, 2, '.', '' ) . '%',
 		);
 	}
 }
