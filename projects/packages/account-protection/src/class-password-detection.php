@@ -386,10 +386,10 @@ class Password_Detection {
 							</p>
 							<p class="email-status">
 								<?php
-									printf(
-										/* translators: %s: Contact Jetpack Support link */
-										esc_html__( 'No longer have access to your WordPress admin email address or need additional help? %s.', 'jetpack-account-protection' ),
-										'<a class="contact-support-link" href="' . esc_url( 'https://jetpack.com/contact-support/?rel=support' ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Contact Jetpack Support', 'jetpack-account-protection' ) . '</a>'
+								printf(
+									/* translators: %s: Contact Jetpack Support link */
+									esc_html__( 'No longer have access to this email address or need additional help? %s.', 'jetpack-account-protection' ),
+									'<a class="contact-support-link" href="' . esc_url( 'https://jetpack.com/contact-support/?rel=support' ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Contact Jetpack Support', 'jetpack-account-protection' ) . '</a>'
 									);
 								?>
 							</p>
