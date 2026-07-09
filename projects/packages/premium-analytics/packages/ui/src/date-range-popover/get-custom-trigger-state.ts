@@ -3,6 +3,11 @@
  */
 import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 
+type TriggerDateRange = {
+	from?: Date;
+	to?: Date;
+};
+
 /**
  * Visual state for the custom date-range trigger button.
  */
@@ -55,4 +60,42 @@ export function getCustomTriggerState( {
 	}
 
 	return 'idle';
+}
+
+type GetCustomTriggerLabelArgs = {
+	triggerState: CustomTriggerState;
+	range: TriggerDateRange;
+	committedRange: TriggerDateRange;
+	rememberedCustomRange?: TriggerDateRange | null;
+	customLabel: string;
+	formatRange: ( range: TriggerDateRange ) => string;
+};
+
+/**
+ * Derives the custom trigger label from visual state and remembered ranges.
+ *
+ * @param {GetCustomTriggerLabelArgs} args - Trigger state, staged/applied ranges, and formatters.
+ * @return The trigger button label.
+ */
+export function getCustomTriggerLabel( {
+	triggerState,
+	range,
+	committedRange,
+	rememberedCustomRange,
+	customLabel,
+	formatRange,
+}: GetCustomTriggerLabelArgs ): string {
+	if ( triggerState === 'staged' ) {
+		return formatRange( range );
+	}
+
+	if ( triggerState === 'applied' ) {
+		return formatRange( committedRange );
+	}
+
+	if ( rememberedCustomRange?.from && rememberedCustomRange.to ) {
+		return formatRange( rememberedCustomRange );
+	}
+
+	return customLabel;
 }

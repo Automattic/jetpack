@@ -1,4 +1,4 @@
-import { getCustomTriggerState } from '../get-custom-trigger-state';
+import { getCustomTriggerLabel, getCustomTriggerState } from '../get-custom-trigger-state';
 
 describe( 'getCustomTriggerState', () => {
 	it( 'returns idle when a preset is applied and there is no custom draft', () => {
@@ -65,5 +65,41 @@ describe( 'getCustomTriggerState', () => {
 				isOpen: false,
 			} )
 		).toBe( 'staged' );
+	} );
+} );
+
+describe( 'getCustomTriggerLabel', () => {
+	const customLabel = 'Custom';
+	const formatRange = ( { from, to }: { from?: Date; to?: Date } ) =>
+		`${ from?.toISOString() ?? '' }–${ to?.toISOString() ?? '' }`;
+
+	const rememberedCustomRange = {
+		from: new Date( '2026-07-05T00:00:00.000Z' ),
+		to: new Date( '2026-07-10T23:59:59.000Z' ),
+	};
+
+	it( 'shows the remembered custom range while idle on a preset', () => {
+		expect(
+			getCustomTriggerLabel( {
+				triggerState: 'idle',
+				range: rememberedCustomRange,
+				committedRange: rememberedCustomRange,
+				rememberedCustomRange,
+				customLabel,
+				formatRange,
+			} )
+		).toBe( '2026-07-05T00:00:00.000Z–2026-07-10T23:59:59.000Z' );
+	} );
+
+	it( 'falls back to the custom label when nothing is remembered', () => {
+		expect(
+			getCustomTriggerLabel( {
+				triggerState: 'idle',
+				range: rememberedCustomRange,
+				committedRange: rememberedCustomRange,
+				customLabel,
+				formatRange,
+			} )
+		).toBe( customLabel );
 	} );
 } );

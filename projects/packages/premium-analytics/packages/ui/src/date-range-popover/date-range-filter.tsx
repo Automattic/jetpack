@@ -16,7 +16,12 @@ import '@automattic/ui/style.css';
  */
 import { DateRangeInput } from '../date-range-input';
 import { WIDE_CALENDAR_CONTAINER_THRESHOLD } from '../date-range-layout';
-import { getCustomTriggerState } from './get-custom-trigger-state';
+import { getCustomTriggerLabel, getCustomTriggerState } from './get-custom-trigger-state';
+import {
+	getCommittedCustomRange,
+	shouldRestoreLastCustomRange,
+	type RememberedCustomRange,
+} from './last-custom-range';
 import './date-range-filter.scss';
 
 /**
@@ -246,15 +251,37 @@ export function DateRangePopover( {
 	isWideScreen: isWideScreenProp,
 }: DateRangePopoverProps ) {
 	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
+	const [ rememberedCustomRange, setRememberedCustomRange ] =
+		useState< RememberedCustomRange | null >( null );
 
 	const [ isOpen, setIsOpen ] = useState( false );
 
+	useEffect( () => {
+		const committedCustomRange = getCommittedCustomRange( appliedPresetId, appliedRange );
+
+		if ( committedCustomRange ) {
+			setRememberedCustomRange( committedCustomRange );
+		}
+	}, [ appliedPresetId, appliedRange ] );
+
 	const handleOpenToggle = useCallback(
 		( next: boolean ) => {
+			if (
+				shouldRestoreLastCustomRange( {
+					isOpen: next,
+					appliedPresetId,
+					presetId,
+					hasLastCustomRange: rememberedCustomRange !== null,
+				} ) &&
+				rememberedCustomRange
+			) {
+				onChange( rememberedCustomRange, PRESET_CUSTOM );
+			}
+
 			setIsOpen( next );
 			onOpenChange?.( next );
 		},
-		[ onOpenChange ]
+		[ appliedPresetId, onChange, onOpenChange, presetId, rememberedCustomRange ]
 	);
 
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
@@ -289,10 +316,14 @@ export function DateRangePopover( {
 		isOpen,
 	} );
 
-	const triggerLabel =
-		triggerState === 'idle'
-			? __( 'Custom', 'jetpack-premium-analytics' )
-			: formatDateRange( triggerState === 'staged' ? range : committedRange );
+	const triggerLabel = getCustomTriggerLabel( {
+		triggerState,
+		range,
+		committedRange,
+		rememberedCustomRange,
+		customLabel: __( 'Custom', 'jetpack-premium-analytics' ),
+		formatRange: formatDateRange,
+	} );
 
 	let customDateRangeButtonVariant: typeof Button.prototype.variant = 'minimal';
 	if ( triggerState === 'applied' ) {

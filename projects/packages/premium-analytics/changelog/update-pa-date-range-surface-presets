@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Date range: Show rolling-window quick presets on the surface, add Last 24 hours, keep the custom picker calendar-only, and distinguish staged vs applied custom trigger states.
+Date range: Show rolling-window quick presets on the surface, add Last 24 hours, keep the custom picker calendar-only, distinguish staged vs applied custom trigger states, and remember the last committed custom range in the trigger label and calendar.
