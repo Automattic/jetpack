@@ -74,12 +74,12 @@ The page mounts a React app: PHP emits an empty `<div id="my-jetpack-container">
 
 These four post straight to production keys under the same owner waiver as the Dashboard and Forms keys (see Safeguards → Staging keys).
 
-#### Requires offline mode OFF (and mirror PR [#50291](https://github.com/Automattic/jetpack/pull/50291))
+#### Requires offline mode OFF (and the #50291 `wp-theme` polyfill fix present in the mirror)
 
 Two conditions must hold for My Jetpack to render in the fixture:
 
 1. **Offline mode off.** The fixture's site URL (`http://localhost:<port>`) has no dot, so `Status::is_local_site()` treats it as a local site and Jetpack enters offline mode, which makes `Initializer::should_initialize()` return false — My Jetpack never registers (no menu, no assets; the page is the generic "invalid page" admin shell). The `simulate-wpcom-connection` mu-plugin flips this with `add_filter( 'jetpack_offline_mode', '__return_false' )`. This is **install-wide** — see the attribution note below.
-2. **`wp-theme` registered.** On trunk (Jetpack 16.1+), `my_jetpack_main_app` gained a `wp-theme` script dependency via the `@wordpress/*` bump (DataViews 17.x → `@wordpress/ui` ThemeProvider → `@wordpress/theme`). WordPress < 7.0 without the Gutenberg plugin does not register `wp-theme`, so WP silently drops the app script and the container stays empty (no console error). [PR #50291](https://github.com/Automattic/jetpack/pull/50291) fixes this in `My_Jetpack\Initializer` by registering the `WP_Build_Polyfills` shim (as Forms/Social/VideoPress already do). **This scenario only measures once #50291 is in the `jetpack-production` mirror** the fixture clones; until then the My Jetpack page renders empty and the run fails its `waitForSelector`.
+2. **`wp-theme` registered.** On trunk (Jetpack 16.1+), `my_jetpack_main_app` gained a `wp-theme` script dependency via the `@wordpress/*` bump (DataViews 17.x → `@wordpress/ui` ThemeProvider → `@wordpress/theme`). WordPress < 7.0 without the Gutenberg plugin does not register `wp-theme`, so WP silently drops the app script and the container stays empty (no console error). [#50291](https://github.com/Automattic/jetpack/pull/50291) fixes this in `My_Jetpack\Initializer` by registering the `WP_Build_Polyfills` shim (as Forms/Social/VideoPress already do). It **merged to the monorepo on 2026-07-08**; the remaining prerequisite is that the fix reaches the pinned `jetpack-production` mirror the fixture clones, which lags the monorepo merge by a build cycle. **Until the mirror carries #50291**, the My Jetpack page renders empty and the run fails its `waitForSelector` (verified: as of this writing the mirror initializer still lacks the polyfill registration).
 
 ### Offline-mode flip — attribution note
 
