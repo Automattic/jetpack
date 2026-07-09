@@ -11,7 +11,7 @@
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build:wp-build && pnpm run build:strip-unminified-prod && pnpm run build:boot-asset && pnpm run validate",
 		"storybook": "cd ../../js-packages/storybook && pnpm run storybook:dev",
 		"test": "jest --config=tests/jest.config.cjs",
-		"typecheck": "tsgo --noEmit",
+		"typecheck": "tsc --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "wp-build --watch"
 	},
@@ -89,12 +89,12 @@
 		"@testing-library/react": "16.3.2",
 		"@types/jest": "30.0.0",
 		"@types/react": "18.3.28",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native": "npm:typescript@7.0.2",
 		"@wordpress/base-styles": "10.2.0",
 		"@wordpress/build": "0.19.1-next.v.202607070741.0",
 		"browserslist": "4.28.4",
 		"jest": "30.4.2",
 		"storybook": "10.4.6",
-		"typescript": "5.9.3"
+		"typescript": "npm:@typescript/typescript6@6.0.2"
 	}
 }

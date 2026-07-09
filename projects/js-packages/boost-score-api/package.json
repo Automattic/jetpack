@@ -26,7 +26,7 @@
 		"clean": "rm -rf build/",
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsgo --noEmit",
+		"typecheck": "tsc --noEmit",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {
@@ -35,7 +35,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native": "npm:typescript@7.0.2",
 		"jest": "30.4.2",
 		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1"

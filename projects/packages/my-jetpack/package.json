@@ -27,7 +27,7 @@
 		"clean": "rm -rf build/",
 		"test": "jest --config=tests/jest.config.js",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsgo --noEmit",
+		"typecheck": "tsc --noEmit",
 		"watch": "pnpm run build && pnpm webpack watch",
 		"watch:hot": "pnpm run clean && webpack serve"
 	},
@@ -77,7 +77,7 @@
 		"@types/jest": "30.0.0",
 		"@types/node": "^24.12.0",
 		"@types/react": "18.3.28",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native": "npm:typescript@7.0.2",
 		"concurrently": "10.0.3",
 		"jest": "30.4.2",
 		"react": "18.3.1",
@@ -86,7 +86,7 @@
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
 		"storybook": "10.4.6",
-		"typescript": "5.9.3",
+		"typescript": "npm:@typescript/typescript6@6.0.2",
 		"webpack": "5.107.2",
 		"webpack-cli": "6.0.1",
 		"webpack-dev-server": "5.2.5"

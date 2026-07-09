@@ -19,7 +19,7 @@
 	"scripts": {
 		"test": "jest",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsgo --noEmit"
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@automattic/jetpack-script-data": "workspace:*",
@@ -32,7 +32,7 @@
 		"@babel/runtime": "7.29.7",
 		"@types/jest": "30.0.0",
 		"@types/react": "18.3.28",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native": "npm:typescript@7.0.2",
 		"babel-jest": "30.4.1",
 		"jest": "30.4.2",
 		"jetpack-js-tools": "workspace:*",

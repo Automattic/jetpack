@@ -27,7 +27,7 @@
 		"sync:newspack-blocks": "./bin/sync-newspack-blocks.sh",
 		"test": "node --test --test-reporter spec src/features/write/test/undo-history.test.mjs",
 		"test-coverage": "c8 --report-dir=\"$COVERAGE_DIR\" --temp-directory=\"$ARTIFACTS_DIR/v8\" pnpm run test",
-		"typecheck": "tsgo --build",
+		"typecheck": "tsc --build",
 		"watch": "pnpm run build-production-js && pnpm webpack watch"
 	},
 	"dependencies": {
@@ -121,7 +121,7 @@
 		"@types/node": "^24.12.0",
 		"@types/react": "^18.3.28",
 		"@types/react-dom": "18.3.7",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native": "npm:typescript@7.0.2",
 		"@wordpress/build": "0.18.0",
 		"babel-plugin-transform-rename-properties": "0.1.0",
 		"browserslist": "^4.24.0",

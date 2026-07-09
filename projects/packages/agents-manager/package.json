@@ -21,7 +21,7 @@
 		"clean": "rm -rf build/",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.js",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsgo --noEmit",
+		"typecheck": "tsc --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "webpack --watch"
 	},
@@ -34,7 +34,7 @@
 		"@babel/runtime": "7.29.7",
 		"@jest/globals": "30.4.1",
 		"@types/jest": "30.0.0",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native": "npm:typescript@7.0.2",
 		"@wordpress/browserslist-config": "6.50.0",
 		"browserslist": "^4.24.0",
 		"concurrently": "10.0.3",

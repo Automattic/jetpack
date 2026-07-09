@@ -23,7 +23,7 @@
 		"clean": "rm -rf build/",
 		"test": "jest --config=tests/jest.config.js",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsgo --noEmit",
+		"typecheck": "tsc --noEmit",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "concurrently 'pnpm:build-client --watch' 'pnpm:watch:wp-build'",
 		"watch:wp-build": "wp-build --watch"
@@ -67,7 +67,7 @@
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",
 		"@types/react": "18.3.28",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native": "npm:typescript@7.0.2",
 		"@wordpress/browserslist-config": "6.50.0",
 		"@wordpress/build": "0.18.0",
 		"browserslist": "^4.24.0",

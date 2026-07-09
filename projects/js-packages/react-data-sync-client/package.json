@@ -28,13 +28,13 @@
 		"clean": "rm -rf build/",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsgo --noEmit",
+		"typecheck": "tsc --noEmit",
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@tanstack/react-query": "5.90.8",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native": "npm:typescript@7.0.2",
 		"jest": "30.4.2",
 		"react": "18.3.1",
 		"react-dom": "^18.0.0",

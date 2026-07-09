@@ -29,7 +29,7 @@
 		"clean": "rm -rf dist",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsgo --noEmit"
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@wordpress/date": "^5.19.0",
@@ -39,10 +39,10 @@
 		"@babel/core": "7.29.7",
 		"@jest/globals": "30.4.1",
 		"@types/jest": "30.0.0",
-		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@typescript/native": "npm:typescript@7.0.2",
 		"jest": "30.4.2",
 		"jetpack-js-tools": "workspace:*",
 		"tsdown": "0.22.2",
-		"typescript": "5.9.3"
+		"typescript": "npm:@typescript/typescript6@6.0.2"
 	}
 }
