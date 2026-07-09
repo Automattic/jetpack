@@ -1,6 +1,7 @@
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -13,7 +14,7 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // hook's own note), so the post-detail page reuses the dashboard's hook rather
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
-import { PostDetailTabs, PostSummaryCard, StatsBreadcrumbs } from './components';
+import { PostDetailTabs, PostSummaryCard } from './components';
 import { getPostDetailTabs, type PostDetailTabId } from './config';
 import { useActiveTab, usePostDetailTabLayout, usePostSummary } from './hooks';
 import { route } from './package.json';

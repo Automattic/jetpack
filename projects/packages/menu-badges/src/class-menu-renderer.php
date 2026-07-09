@@ -27,8 +27,14 @@ class Menu_Renderer {
 		// target) but ships hidden. The inline style trails the data-jp-* attributes so
 		// strip()'s idempotency regex still matches; setBadgeCount() clears it to reveal.
 		$hidden = $count > 0 ? '' : ' style="display:none"';
-		$attrs  = sprintf(
-			'class="menu-counter count-%1$d" data-jp-menu-badge="%2$s" data-jp-menu-count="%1$d"%3$s%4$s',
+		// The top-level Jetpack total badge carries the core `awaiting-mod` and
+		// `update-plugins` classes so it picks up WordPress's standard menu-bubble styling;
+		// submenu badges use only our own `menu-counter` hook. `menu-counter` is always
+		// present for CSS/JS targeting.
+		$classes = $is_total ? 'awaiting-mod update-plugins menu-counter' : 'menu-counter';
+		$attrs   = sprintf(
+			'class="%1$s count-%2$d" data-jp-menu-badge="%3$s" data-jp-menu-count="%2$d"%4$s%5$s',
+			$classes,
 			$count,
 			esc_attr( $id ),
 			$is_total ? ' data-jp-menu-badge-total="1"' : '',
@@ -48,7 +54,7 @@ class Menu_Renderer {
 	 * @return string
 	 */
 	private static function strip( $title ) {
-		return trim( (string) preg_replace( '/\s*<span class="menu-counter count-\d+" data-jp-menu-badge=.*$/s', '', (string) $title ) );
+		return trim( (string) preg_replace( '/\s*<span class="[^"]*menu-counter count-\d+" data-jp-menu-badge=.*$/s', '', (string) $title ) );
 	}
 
 	/**

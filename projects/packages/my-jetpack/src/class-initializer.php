@@ -29,6 +29,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Jetpack;
 use WP_Error;
 
@@ -248,11 +249,36 @@ class Initializer {
 	}
 
 	/**
+	 * Register polyfills for the wp-notices / wp-private-apis / wp-theme handles the
+	 * My Jetpack app bundle depends on but WP < 7.0 does not ship (or ships with an
+	 * incomplete allowlist).
+	 *
+	 * @return void
+	 */
+	public static function register_wp_build_polyfills() {
+		if ( ! class_exists( WP_Build_Polyfills::class ) ) {
+			return;
+		}
+
+		WP_Build_Polyfills::register(
+			'my-jetpack',
+			array( 'wp-notices', 'wp-private-apis', 'wp-theme' )
+		);
+	}
+
+	/**
 	 * Enqueue admin page assets.
 	 *
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		// Register the wp-build-polyfills shim before the extension hook below or
+		// the app script can enqueue against wp-theme / wp-private-apis / wp-notices.
+		// WP_Build_Polyfills registers synchronously on its first caller, so calling
+		// it after a hook consumer would leave our handles recorded but unregistered
+		// for this request.
+		self::register_wp_build_polyfills();
+
 		/**
 		 * Fires after the My Jetpack page is initialized.
 		 * Allows for enqueuing additional scripts only on the My Jetpack page.
