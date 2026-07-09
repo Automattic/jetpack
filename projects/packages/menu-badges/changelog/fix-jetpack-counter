@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Add the core `awaiting-mod` and `update-plugins` classes to the top-level Jetpack menu total badge so it uses WordPress's standard admin-menu bubble styling.
