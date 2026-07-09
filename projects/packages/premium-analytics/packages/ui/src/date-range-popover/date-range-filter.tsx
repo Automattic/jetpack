@@ -2,41 +2,22 @@
  * External dependencies
  */
 import { DateRangeCalendar } from '@automattic/ui';
-import {
-	getPresetLabel,
-	getDefaultDateRangePresets,
-	PRESET_CUSTOM,
-	type PrimaryPresetId,
-	type DateRangePreset,
-} from '@jetpack-premium-analytics/datetime';
+import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
-import {
-	Dropdown,
-	SelectControl,
-	privateApis as componentsPrivateApis,
-} from '@wordpress/components';
+import { Dropdown } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
-import { Badge, Button, Stack } from '@wordpress/ui';
+import { Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import '@automattic/ui/style.css';
 /**
  * Internal dependencies
  */
 import { DateRangeInput } from '../date-range-input';
-import { DateRangePresets } from '../date-range-presets';
-import { unlock } from '../lock/unlock';
+import { WIDE_CALENDAR_CONTAINER_THRESHOLD } from '../date-range-layout';
 import './date-range-filter.scss';
-
-const { Menu } = unlock( componentsPrivateApis );
-
-/**
- * Threshold width (in pixels) below which we consider the layout "mobile".
- * This is based on the container width, not the viewport.
- */
-const MOBILE_CONTAINER_WIDTH_THRESHOLD = 480;
 
 /**
  * Date range type from @automattic/ui.
@@ -48,11 +29,6 @@ export type DateRange = NonNullable< Parameters< typeof DateRangeCalendar >[ 0 ]
  * Props for DateRangePopoverContent component.
  */
 type DateRangePopoverContentProps = {
-	/**
-	 * Currently selected preset identifier
-	 */
-	presetId?: PrimaryPresetId;
-
 	/**
 	 * The selected date range
 	 */
@@ -84,24 +60,9 @@ type DateRangePopoverContentProps = {
 	isWideScreen?: boolean;
 
 	/**
-	 * Whether to show mobile layout (dropdown presets instead of sidebar)
-	 */
-	isMobile?: boolean;
-
-	/**
 	 * IANA timezone string (e.g., 'America/New_York', 'Europe/London').
 	 * Required for proper date/time handling.
 	 */
-	timeZone: string;
-};
-
-/**
- * Props for DateRangePresetsDropdown component.
- */
-type DateRangePresetsDropdownProps = {
-	value: PrimaryPresetId | null;
-	onRangeChange: ( range: DateRange, id: PrimaryPresetId ) => void;
-	presets?: DateRangePreset[];
 	timeZone: string;
 };
 
@@ -136,68 +97,16 @@ function DateRangePopoverActions( {
 }
 
 /**
- * Dropdown version of DateRangePresets for mobile layout.
- * Displays presets as a SelectControl instead of a menu list.
- */
-function DateRangePresetsDropdown( {
-	value,
-	onRangeChange,
-	presets: presetsProp,
-	timeZone,
-}: DateRangePresetsDropdownProps ) {
-	const defaultPresets = useMemo(
-		() => ( presetsProp ? [] : getDefaultDateRangePresets( timeZone ) ),
-		[ presetsProp, timeZone ]
-	);
-	const presets = presetsProp || defaultPresets;
-
-	const options = useMemo(
-		() => [
-			...presets.map( ( { id, label } ) => ( {
-				value: id,
-				label,
-			} ) ),
-			{
-				value: PRESET_CUSTOM,
-				label: __( 'Custom range', 'jetpack-premium-analytics' ),
-			},
-		],
-		[ presets ]
-	);
-
-	const handleChange = useCallback(
-		( selectedValue: string ) => {
-			const preset = presets.find( p => p.id === selectedValue );
-			if ( preset ) {
-				onRangeChange( preset.range, preset.id );
-			}
-		},
-		[ presets, onRangeChange ]
-	);
-
-	return (
-		<SelectControl
-			__next40pxDefaultSize
-			value={ value ?? PRESET_CUSTOM }
-			options={ options }
-			onChange={ handleChange }
-		/>
-	);
-}
-
-/**
- * Content of the DateRangePopover, extracted for Storybook visualization.
- * This component is exported for internal use only (stories, testing).
+ * Calendar-only content for the custom date-range popover.
+ * Exported for Storybook visualization.
  */
 export function DateRangePopoverContent( {
-	presetId,
 	range,
 	onChange,
 	onApply,
 	onCancel,
 	canApply,
 	isWideScreen = false,
-	isMobile = false,
 	timeZone,
 }: DateRangePopoverContentProps ) {
 	const [ displayedMonth, setDisplayedMonth ] = useState( getDisplayedMonth( range ) );
@@ -215,8 +124,7 @@ export function DateRangePopoverContent( {
 			setDisplayedMonth( getDisplayedMonth( nextRange ) );
 		}
 
-		// If nextPrimaryPresetId is undefined, the user manually changed the dates
-		// (via calendar or input fields), so we switch to PRESET_CUSTOM
+		// Manual edits always switch to the custom preset marker.
 		const effectivePrimaryPresetId = nextPrimaryPresetId ?? PRESET_CUSTOM;
 
 		onChange( nextRange, effectivePrimaryPresetId );
@@ -248,50 +156,8 @@ export function DateRangePopoverContent( {
 	// Apply commits the staged range, not the draft: disable it mid-selection.
 	const effectiveCanApply = canApply && ! draftRange;
 
-	// Mobile layout: single column with dropdown presets
-	if ( isMobile ) {
-		return (
-			<div className="date-range-popover-content date-range-popover-content--mobile">
-				<DateRangePresetsDropdown
-					value={ presetId ?? null }
-					onRangeChange={ handleChange }
-					timeZone={ timeZone }
-				/>
-
-				<DateRangeInput range={ range } onChange={ handleChange } timeZone={ timeZone } />
-
-				<DateRangeCalendar
-					className="date-range-calendar"
-					selected={ calendarRange }
-					onSelect={ handleCalendarSelect }
-					numberOfMonths={ 1 }
-					month={ displayedMonth }
-					onMonthChange={ setDisplayedMonth }
-					timeZone={ timeZone }
-				/>
-
-				<DateRangePopoverActions
-					onCancel={ onCancel }
-					onApply={ onApply }
-					canApply={ effectiveCanApply }
-				/>
-			</div>
-		);
-	}
-
-	// Desktop layout: grid with sidebar presets
 	return (
-		<div className="date-range-popover-content">
-			<div className="date-range-presets-wrapper">
-				<Menu open={ true }>
-					<DateRangePresets
-						value={ presetId ?? null }
-						onRangeChange={ handleChange }
-						timeZone={ timeZone }
-					/>
-				</Menu>
-			</div>
-
+		<div className="date-range-popover-content date-range-popover-content--calendar-only">
 			<Stack
 				className={ clsx( 'date-range-calendar-wrapper', {
 					'date-range-calendar-wrapper__wide': isWideScreen,
@@ -321,11 +187,15 @@ export function DateRangePopoverContent( {
 	);
 }
 
-type DateRangePopoverProps = Omit< DateRangePopoverContentProps, 'isWideScreen' | 'isMobile' > & {
+type DateRangePopoverProps = Omit< DateRangePopoverContentProps, 'isWideScreen' > & {
 	/**
-	 * Optional external container element for responsive calculations.
-	 * When provided, the component will measure this container's width
-	 * instead of its own wrapper to determine mobile/wide layouts.
+	 * Currently selected preset identifier
+	 */
+	presetId?: PrimaryPresetId;
+
+	/**
+	 * Optional external container element for responsive calculations when the
+	 * popover is rendered outside `DateRangeFilter`.
 	 */
 	containerElement?: HTMLElement | null;
 
@@ -348,13 +218,17 @@ type DateRangePopoverProps = Omit< DateRangePopoverContentProps, 'isWideScreen' 
 	 * (e.g. the comparison label that follows the primary range).
 	 */
 	onOpenChange?: ( isOpen: boolean ) => void;
-};
 
-/**
- * Threshold width (in pixels) for showing 2 months in calendar.
- * Based on CSS: --wca-calendar-width-wide (~500px for 2 months + presets sidebar)
- */
-const WIDE_CONTAINER_THRESHOLD = 780;
+	/**
+	 * When provided, skips the internal resize observer.
+	 */
+	isCompact?: boolean;
+
+	/**
+	 * When provided, skips the internal resize observer.
+	 */
+	isWideScreen?: boolean;
+};
 
 export function DateRangePopover( {
 	presetId,
@@ -368,11 +242,11 @@ export function DateRangePopover( {
 	timeZone,
 	containerElement,
 	onOpenChange,
+	isCompact: isCompactProp,
+	isWideScreen: isWideScreenProp,
 }: DateRangePopoverProps ) {
 	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
 
-	// Tracks whether the popover is open, to label the trigger from the live
-	// draft while open and from the applied range while closed.
 	const [ isOpen, setIsOpen ] = useState( false );
 
 	const handleOpenToggle = useCallback(
@@ -383,7 +257,6 @@ export function DateRangePopover( {
 		[ onOpenChange ]
 	);
 
-	// Callback to update container width
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
 		const entry = entries[ 0 ];
 		if ( entry ) {
@@ -391,30 +264,28 @@ export function DateRangePopover( {
 		}
 	}, [] );
 
-	// ResizeObserver for the reference container
 	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
 
-	// Attach observer to containerElement if provided, otherwise use document.body
+	const managesLayout = isCompactProp === undefined && isWideScreenProp === undefined;
+
 	useEffect( () => {
+		if ( ! managesLayout ) {
+			return;
+		}
+
 		const element = containerElement ?? document.body;
 		setObserverRef( element );
-	}, [ containerElement, setObserverRef ] );
+	}, [ containerElement, managesLayout, setObserverRef ] );
 
-	// Determine layout based on container width
-	const isMobile = containerWidth !== null && containerWidth < MOBILE_CONTAINER_WIDTH_THRESHOLD;
+	const isWideScreen =
+		isWideScreenProp ??
+		( containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD );
 
-	const isWideScreen = containerWidth !== null && containerWidth >= WIDE_CONTAINER_THRESHOLD;
-
-	/*
-	 * While open, the trigger mirrors the live draft (`range`/`presetId`). While
-	 * closed, it shows the applied range so an accidental outside-click reverts
-	 * the display — the draft itself is kept and restored on reopen.
-	 */
 	const closedRange = appliedRange ?? range;
 	const closedPresetId = appliedRange ? appliedPresetId : presetId;
 	const labelRange = isOpen ? range : closedRange;
 	const labelPresetId = isOpen ? presetId : closedPresetId;
-	const presetLabel = getPresetLabel( labelPresetId );
+	const isCustomActive = ! labelPresetId || labelPresetId === PRESET_CUSTOM;
 
 	return (
 		<Dropdown
@@ -425,20 +296,21 @@ export function DateRangePopover( {
 			renderToggle={ ( { onToggle } ) => (
 				<Button
 					className="date-filters-panel-button"
-					variant="outline"
+					variant={ isCustomActive ? 'solid' : 'outline' }
 					tone="neutral"
 					onClick={ onToggle }
 					size="compact"
 					id="date-range-popover-button"
+					aria-pressed={ isCustomActive }
 				>
 					<Button.Icon icon={ calendar } size={ 16 } />
-					{ presetLabel && <Badge>{ presetLabel }</Badge> }
-					{ formatDateRange( labelRange ) }
+					{ isCustomActive
+						? formatDateRange( labelRange )
+						: __( 'Custom range', 'jetpack-premium-analytics' ) }
 				</Button>
 			) }
 			renderContent={ ( { onClose } ) => (
 				<DateRangePopoverContent
-					presetId={ presetId }
 					range={ range }
 					onChange={ onChange }
 					onApply={ () => {
@@ -455,7 +327,6 @@ export function DateRangePopover( {
 					} }
 					canApply={ canApply }
 					isWideScreen={ isWideScreen }
-					isMobile={ isMobile }
 					timeZone={ timeZone }
 				/>
 			) }

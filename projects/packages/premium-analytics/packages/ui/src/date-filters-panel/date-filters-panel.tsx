@@ -14,12 +14,12 @@ import { useMemo, useCallback, useState } from 'react';
  * Internal dependencies
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
-import { DateRangePopover } from '../date-range-popover';
+import { DateRangeFilter } from '../date-range-filter';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 
-type DateRangePopoverProps = Parameters< typeof DateRangePopover >[ 0 ];
+type DateRangeFilterProps = Parameters< typeof DateRangeFilter >[ 0 ];
 
-export type DateRange = DateRangePopoverProps[ 'range' ];
+export type DateRange = DateRangeFilterProps[ 'range' ];
 
 export type DateFiltersPanelProps = {
 	/**
@@ -53,7 +53,7 @@ export type DateFiltersPanelProps = {
 	/**
 	 * Callback when the primary date range changes.
 	 */
-	onChange: DateRangePopoverProps[ 'onChange' ];
+	onChange: DateRangeFilterProps[ 'onChange' ];
 
 	/**
 	 * Callback when the comparison date range changes.
@@ -74,12 +74,12 @@ export type DateFiltersPanelProps = {
 	/**
 	 * Callback when the primary date range is applied.
 	 */
-	onApply: DateRangePopoverProps[ 'onApply' ];
+	onApply: DateRangeFilterProps[ 'onApply' ];
 
 	/**
 	 * Callback when the primary date range is canceled.
 	 */
-	onCancel: DateRangePopoverProps[ 'onCancel' ];
+	onCancel: DateRangeFilterProps[ 'onCancel' ];
 
 	/**
 	 * Whether the primary date range can be applied.
@@ -94,8 +94,8 @@ export type DateFiltersPanelProps = {
 
 	/**
 	 * Optional external container element for responsive calculations.
-	 * When provided, the DateRangePopover will measure this container's width
-	 * instead of its own wrapper to determine mobile/wide layouts.
+	 * When provided, the date-range filter will measure this container's width
+	 * instead of its own wrapper to determine compact/wide layouts.
 	 */
 	containerElement?: HTMLElement | null;
 };
@@ -231,7 +231,7 @@ export function DateFiltersPanel( {
 				id="date-range-popover-button"
 				help={ rangeControlProps.help }
 			>
-				<DateRangePopover
+				<DateRangeFilter
 					presetId={ validatedPresetId }
 					range={ range }
 					appliedPresetId={ validatedAppliedPresetId }

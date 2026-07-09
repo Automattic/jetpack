@@ -13,13 +13,11 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { DateRangePopover } from '../date-range-popover/date-range-filter';
 import { unlock } from '../lock/unlock';
+import type { DateRange } from '../date-range-popover';
 import './date-range-presets.scss';
 
 const { Menu } = unlock( componentsPrivateApis );
-
-type DateRange = Parameters< typeof DateRangePopover >[ 0 ][ 'range' ];
 
 /**
  * Props for the DateRangePresets component.
@@ -45,11 +43,6 @@ type DateRangePresetsProps = {
 	 * Custom presets to display instead of defaults
 	 */
 	presets?: DateRangePreset[];
-
-	/**
-	 * Whether to show the custom date option
-	 */
-	supportCustom?: boolean;
 
 	/**
 	 * Optional callback to clear/remove comparison.

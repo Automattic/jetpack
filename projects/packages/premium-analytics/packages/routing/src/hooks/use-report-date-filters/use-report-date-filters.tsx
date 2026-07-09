@@ -113,21 +113,14 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 				return;
 			}
 
-			if ( nextRange && nextRange.from && nextRange.to ) {
-				/*
-				 * Stage `from` and `to` as ISO strings. The `to` date is adjusted
-				 * to the end of the day, since the date picker core component sets
-				 * the time to 00:00:00.
-				 */
+			const patch: ReportQuerySearchParams = {};
+
+			if ( nextRange?.from && nextRange.to ) {
 				const rangeFrom = encodeDateToSearchParam( nextRange.from );
 				const rangeTo = encodeDateToSearchParam( endOfDay( nextRange.to ) );
-				const patch: ReportQuerySearchParams = { from: rangeFrom, to: rangeTo };
+				patch.from = rangeFrom;
+				patch.to = rangeTo;
 
-				/*
-				 * When comparison is enabled, re-derive the comparison window from
-				 * the new primary range so widgets compare against the matching
-				 * previous period instead of the stale dates.
-				 */
 				if ( effective.comp === '1' ) {
 					const derived = deriveComparisonRange( { ...effective, from: rangeFrom, to: rangeTo } );
 					if ( derived ) {
@@ -135,12 +128,14 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 						patch.compare_to = derived.compare_to;
 					}
 				}
-
-				stage( patch );
 			}
 
 			if ( nextPresetId ) {
-				stage( { preset: nextPresetId } );
+				patch.preset = nextPresetId;
+			}
+
+			if ( Object.keys( patch ).length > 0 ) {
+				stage( patch );
 			}
 		},
 		[ stage, effective ]

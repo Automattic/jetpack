@@ -1,0 +1,12 @@
+.date-range-quick-presets__select {
+	min-width: 12rem;
+}
+
+.date-range-quick-presets__pill {
+	white-space: nowrap;
+
+	&.is-active {
+		background-color: var(--wpds-color-background-surface-neutral-strong);
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+}
