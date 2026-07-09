@@ -7,7 +7,6 @@ import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { Dropdown } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { calendar } from '@wordpress/icons';
 import { Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState, useCallback, useEffect } from 'react';
@@ -17,6 +16,7 @@ import '@automattic/ui/style.css';
  */
 import { DateRangeInput } from '../date-range-input';
 import { WIDE_CALENDAR_CONTAINER_THRESHOLD } from '../date-range-layout';
+import { getCustomTriggerState } from './get-custom-trigger-state';
 import './date-range-filter.scss';
 
 /**
@@ -281,11 +281,25 @@ export function DateRangePopover( {
 		isWideScreenProp ??
 		( containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD );
 
-	const closedRange = appliedRange ?? range;
-	const closedPresetId = appliedRange ? appliedPresetId : presetId;
-	const labelRange = isOpen ? range : closedRange;
-	const labelPresetId = isOpen ? presetId : closedPresetId;
-	const isCustomActive = ! labelPresetId || labelPresetId === PRESET_CUSTOM;
+	const committedRange = appliedRange ?? range;
+	const triggerState = getCustomTriggerState( {
+		presetId,
+		appliedPresetId,
+		canApply,
+		isOpen,
+	} );
+
+	const triggerLabel =
+		triggerState === 'idle'
+			? __( 'Custom', 'jetpack-premium-analytics' )
+			: formatDateRange( triggerState === 'staged' ? range : committedRange );
+
+	let customDateRangeButtonVariant: typeof Button.prototype.variant = 'minimal';
+	if ( triggerState === 'applied' ) {
+		customDateRangeButtonVariant = 'solid';
+	} else if ( triggerState === 'staged' ) {
+		customDateRangeButtonVariant = 'outline';
+	}
 
 	return (
 		<Dropdown
@@ -295,18 +309,19 @@ export function DateRangePopover( {
 			onToggle={ handleOpenToggle }
 			renderToggle={ ( { onToggle } ) => (
 				<Button
-					className="date-filters-panel-button"
-					variant={ isCustomActive ? 'solid' : 'outline' }
+					className={ clsx( 'date-filters-panel-button', {
+						'date-filters-panel-button--custom': triggerState === 'applied',
+						'date-filters-panel-button--custom-staged': triggerState === 'staged',
+					} ) }
+					variant={ customDateRangeButtonVariant }
 					tone="neutral"
 					onClick={ onToggle }
 					size="compact"
 					id="date-range-popover-button"
-					aria-pressed={ isCustomActive }
+					data-state={ triggerState }
+					aria-pressed={ triggerState === 'applied' }
 				>
-					<Button.Icon icon={ calendar } size={ 16 } />
-					{ isCustomActive
-						? formatDateRange( labelRange )
-						: __( 'Custom range', 'jetpack-premium-analytics' ) }
+					{ triggerLabel }
 				</Button>
 			) }
 			renderContent={ ( { onClose } ) => (

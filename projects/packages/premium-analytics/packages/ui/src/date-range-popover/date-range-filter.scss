@@ -21,6 +21,22 @@
 
 .date-filters-panel-button {
 	background-color: #fff; // ToDo: handle this upstream.
+
+	&:hover,
+	&:active {
+		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	}
+}
+
+// Apply same styles that variant="solid" has.
+.date-filters-panel-button--custom {
+	background-color: var(--wpds-color-background-interactive-neutral-strong);
+	color: var(--wpds-color-foreground-interactive-neutral-strong-active);
+}
+
+.date-filters-panel-button--custom-staged {
+	background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	color: var(--wpds-color-foreground-content-neutral);
 }
 
 .date-range-calendar-wrapper {

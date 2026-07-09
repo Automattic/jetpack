@@ -1,8 +1,8 @@
+import { computePrimaryRange, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { useRef, useState } from 'react';
 import { DateRangeFilter } from '../date-range-filter';
 import type { DateRange } from '../../date-range-popover';
-import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof DateRangeFilter > = {
@@ -21,12 +21,6 @@ export default meta;
 
 type Story = StoryObj< typeof DateRangeFilter >;
 
-const today = new Date();
-const defaultRange: DateRange = {
-	from: startOfDay( subDays( today, 7 ) ),
-	to: endOfDay( subDays( today, 1 ) ),
-};
-
 const STORYBOOK_TIMEZONE = 'America/New_York';
 
 type FilterState = {
@@ -34,16 +28,33 @@ type FilterState = {
 	presetId: PrimaryPresetId;
 };
 
-function DateRangeFilterWithState( { initialPreset = 'last-7-days' as PrimaryPresetId } ) {
-	const customRange: DateRange = {
-		from: startOfDay( subDays( today, 14 ) ),
-		to: endOfDay( subDays( today, 3 ) ),
-	};
-	const initialRange = initialPreset === 'custom' ? customRange : defaultRange;
-	const initialState: FilterState = {
-		range: initialRange,
+function buildInitialState( initialPreset: PrimaryPresetId ): FilterState {
+	if ( initialPreset === 'custom' ) {
+		return {
+			presetId: initialPreset,
+			range: {
+				from: startOfDay( subDays( new Date(), 14 ) ),
+				to: endOfDay( subDays( new Date(), 3 ) ),
+			},
+		};
+	}
+
+	const range = computePrimaryRange( initialPreset, STORYBOOK_TIMEZONE );
+
+	return {
 		presetId: initialPreset,
+		range:
+			range?.from && range.to
+				? { from: range.from, to: range.to }
+				: {
+						from: startOfDay( subDays( new Date(), 30 ) ),
+						to: endOfDay( subDays( new Date(), 1 ) ),
+				  },
 	};
+}
+
+function DateRangeFilterWithState( { initialPreset = 'last-30-days' as PrimaryPresetId } ) {
+	const initialState = buildInitialState( initialPreset );
 
 	const [ committed, setCommitted ] = useState< FilterState >( initialState );
 	const [ staged, setStaged ] = useState< FilterState >( initialState );

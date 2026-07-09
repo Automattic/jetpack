@@ -34,7 +34,7 @@ type PrimaryFilterState = {
 	presetId: PrimaryPresetId;
 };
 
-function buildPrimaryState( presetId: PrimaryPresetId = 'last-7-days' ): PrimaryFilterState {
+function buildPrimaryState( presetId: PrimaryPresetId = 'last-30-days' ): PrimaryFilterState {
 	if ( presetId === 'custom' ) {
 		const today = new Date();
 
@@ -171,7 +171,7 @@ function DateFiltersPanelStory( {
 }
 
 /**
- * Default dashboard filters row: Last 7 days with comparison to the previous period.
+ * Default dashboard filters row: Last 30 days with comparison to the previous period.
  */
 export const DashboardFilters: Story = {
 	render: () => <DateFiltersPanelStory />,

@@ -1,7 +1,9 @@
 export {
 	SELECTABLE_PRESETS,
+	QUICK_SURFACE_PRESETS,
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
+	PRESET_LAST_24_HOURS,
 	PRESET_LAST_7_DAYS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
@@ -13,6 +15,7 @@ export {
 	isSelectablePreset,
 	isPrimaryPreset,
 	type SelectablePresetId,
+	type QuickSurfacePresetId,
 	type PrimaryPresetId,
 } from './types';
 
@@ -20,6 +23,7 @@ export {
 	PRESET_DEFINITIONS,
 	getPresetLabel,
 	getDefaultDateRangePresets,
+	getQuickSurfacePresets,
 	computePrimaryRange,
 	type DateRangePreset,
 } from './primary';
