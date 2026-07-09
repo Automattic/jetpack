@@ -128,7 +128,7 @@ function inject_dashboard_default_layout( $value, $user_id, $meta_key ) {
 
 		if ( ! empty( $section_default ) ) {
 			$section_layouts[ $section_id ] = $section_default;
-			$updated = true;
+			$updated                        = true;
 		}
 	}
 
@@ -539,15 +539,15 @@ function get_dashboard_default_section_layouts() {
  */
 function get_dashboard_default_section_id_for( $dashboard_name ) {
 	$aliases = array(
-		DASHBOARD_NAME                    => DASHBOARD_TRAFFIC_SECTION_ID,
-		DASHBOARD_TRAFFIC_SECTION_ID      => DASHBOARD_TRAFFIC_SECTION_ID,
-		'analytics/traffic'               => DASHBOARD_TRAFFIC_SECTION_ID,
-		DASHBOARD_INSIGHTS_SECTION_ID     => DASHBOARD_INSIGHTS_SECTION_ID,
-		'analytics/insights'              => DASHBOARD_INSIGHTS_SECTION_ID,
-		DASHBOARD_SUBSCRIBERS_SECTION_ID  => DASHBOARD_SUBSCRIBERS_SECTION_ID,
-		'analytics/subscribers'           => DASHBOARD_SUBSCRIBERS_SECTION_ID,
-		DASHBOARD_STORE_SECTION_ID        => DASHBOARD_STORE_SECTION_ID,
-		'woocommerce/store'               => DASHBOARD_STORE_SECTION_ID,
+		DASHBOARD_NAME                   => DASHBOARD_TRAFFIC_SECTION_ID,
+		DASHBOARD_TRAFFIC_SECTION_ID     => DASHBOARD_TRAFFIC_SECTION_ID,
+		'analytics/traffic'              => DASHBOARD_TRAFFIC_SECTION_ID,
+		DASHBOARD_INSIGHTS_SECTION_ID    => DASHBOARD_INSIGHTS_SECTION_ID,
+		'analytics/insights'             => DASHBOARD_INSIGHTS_SECTION_ID,
+		DASHBOARD_SUBSCRIBERS_SECTION_ID => DASHBOARD_SUBSCRIBERS_SECTION_ID,
+		'analytics/subscribers'          => DASHBOARD_SUBSCRIBERS_SECTION_ID,
+		DASHBOARD_STORE_SECTION_ID       => DASHBOARD_STORE_SECTION_ID,
+		'woocommerce/store'              => DASHBOARD_STORE_SECTION_ID,
 	);
 
 	return $aliases[ $dashboard_name ] ?? null;
@@ -578,7 +578,7 @@ function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' 
 	foreach ( $layouts[ $section_id ] as $widget ) {
 		if ( ! in_array( $widget['uuid'], $uuids, true ) ) {
 			$dashboard_layout[] = $widget;
-			$uuids[] = $widget['uuid'];
+			$uuids[]            = $widget['uuid'];
 		}
 	}
 
