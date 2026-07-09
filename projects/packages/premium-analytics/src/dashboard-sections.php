@@ -72,62 +72,7 @@ function is_woocommerce_dashboard_section_available() {
  * @return array Array of widget instances.
  */
 function get_woocommerce_dashboard_section_default_layout() {
-	return array(
-		array(
-			'uuid'      => 'default-woocommerce-net-sales-over-time-widget-instance',
-			'type'      => 'jpa/net-sales-over-time',
-			'placement' => array(
-				'width'  => 1,
-				'height' => 1,
-				'order'  => 0,
-			),
-		),
-		array(
-			'uuid'      => 'default-woocommerce-gross-sales-over-time-widget-instance',
-			'type'      => 'jpa/gross-sales-over-time',
-			'placement' => array(
-				'width'  => 1,
-				'height' => 1,
-				'order'  => 1,
-			),
-		),
-		array(
-			'uuid'      => 'default-woocommerce-average-order-value-widget-instance',
-			'type'      => 'jpa/average-order-value',
-			'placement' => array(
-				'width'  => 1,
-				'height' => 1,
-				'order'  => 2,
-			),
-		),
-		array(
-			'uuid'      => 'default-woocommerce-orders-over-time-widget-instance',
-			'type'      => 'jpa/orders-over-time',
-			'placement' => array(
-				'width'  => 1,
-				'height' => 1,
-				'order'  => 3,
-			),
-		),
-		array(
-			'uuid'      => 'default-woocommerce-average-items-per-order-widget-instance',
-			'type'      => 'jpa/average-items-per-order',
-			'placement' => array(
-				'width'  => 1,
-				'height' => 1,
-				'order'  => 4,
-			),
-		),
-		array(
-			'uuid'      => 'default-woocommerce-top-performing-products-widget-instance',
-			'type'      => 'jpa/top-performing-products',
-			'placement' => array(
-				'width'  => 1,
-				'height' => 1,
-				'order'  => 5,
-			),
-		),
-	);
+	return get_dashboard_default_layout_for( 'woocommerce/store' );
 }
 
 /**
@@ -143,16 +88,22 @@ function register_default_dashboard_sections() {
 			'label'          => __( 'Traffic', 'jetpack-premium-analytics' ),
 			'order'          => 10,
 			'default_layout' => static function () {
-				return get_dashboard_default_layout_for( DASHBOARD_NAME );
+				return get_dashboard_default_layout_for( 'analytics/traffic' );
 			},
 		),
 		'analytics/insights'    => array(
-			'label' => __( 'Insights', 'jetpack-premium-analytics' ),
-			'order' => 20,
+			'label'          => __( 'Insights', 'jetpack-premium-analytics' ),
+			'order'          => 20,
+			'default_layout' => static function () {
+				return get_dashboard_default_layout_for( 'analytics/insights' );
+			},
 		),
 		'analytics/subscribers' => array(
-			'label' => __( 'Subscribers', 'jetpack-premium-analytics' ),
-			'order' => 30,
+			'label'          => __( 'Subscribers', 'jetpack-premium-analytics' ),
+			'order'          => 30,
+			'default_layout' => static function () {
+				return get_dashboard_default_layout_for( 'analytics/subscribers' );
+			},
 		),
 		'woocommerce/store'     => array(
 			'label'          => __( 'WooCommerce', 'jetpack-premium-analytics' ),
