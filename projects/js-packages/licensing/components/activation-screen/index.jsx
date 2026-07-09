@@ -1,6 +1,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { __ } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
 import ActivationScreenControls from '../activation-screen-controls';
@@ -114,7 +115,7 @@ const ActivationScreen = props => {
 	}, [ isSaving, license, onActivationSuccess ] );
 
 	const renderActivationSuccess = () => (
-		<div className="jp-license-activation-screen">
+		<Card.Root className="jp-license-activation-screen">
 			<ActivationScreenSuccessInfo
 				siteRawUrl={ siteRawUrl }
 				productId={ activatedProduct }
@@ -122,11 +123,11 @@ const ActivationScreen = props => {
 				currentRecommendationsStep={ currentRecommendationsStep }
 			/>
 			<ActivationScreenIllustration imageUrl={ successImage } showSupportLink={ false } />
-		</div>
+		</Card.Root>
 	);
 
 	const renderActivationControl = () => (
-		<div className="jp-license-activation-screen">
+		<Card.Root className="jp-license-activation-screen">
 			<ActivationScreenControls
 				availableLicenses={ availableLicenses }
 				activateLicense={ activateLicense }
@@ -138,7 +139,7 @@ const ActivationScreen = props => {
 				siteUrl={ siteRawUrl }
 			/>
 			<ActivationScreenIllustration imageUrl={ lockImage } showSupportLink />
-		</div>
+		</Card.Root>
 	);
 
 	const renderGoldenTokenModal = () => {

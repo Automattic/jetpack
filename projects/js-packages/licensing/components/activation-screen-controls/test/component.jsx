@@ -62,13 +62,12 @@ describe( 'ActivationScreenControls', () => {
 			siteUrl: 'jetpack.com',
 		};
 
-		it( 'Select componet is shown', () => {
+		it( 'Select component shows the selected license', () => {
 			render( <ActivationScreenControls { ...testProps } /> );
-			const input = screen.getByText( 'jetpack-complete - key' );
-			expect(
-				// eslint-disable-next-line testing-library/no-node-access
-				input.closest( 'select' )
-			).toBeInTheDocument();
+			// The @wordpress/ui SelectControl renders a dropdown trigger (not a
+			// native <select>). The selected license label shows in the trigger
+			// (and again in the portalled listbox), so assert at least one match.
+			expect( screen.getAllByText( 'jetpack-complete - key' ).length ).toBeGreaterThan( 0 );
 		} );
 	} );
 } );

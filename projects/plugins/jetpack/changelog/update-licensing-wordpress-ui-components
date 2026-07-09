@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Update the license activation screen to use @wordpress/ui components.

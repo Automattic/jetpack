@@ -1,8 +1,8 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { Button, TextControl, SelectControl, Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Button, InputControl, SelectControl } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import ActivationScreenError from '../activation-screen-error';
@@ -23,13 +23,11 @@ const ManualLicenseKeyInput = props => {
 	const { className, disabled, onChange, value } = props;
 
 	return (
-		<TextControl
-			__nextHasNoMarginBottom={ true }
-			__next40pxDefaultSize
+		<InputControl
 			className={ className }
 			label={ __( 'License key', 'jetpack-licensing' ) }
 			value={ value }
-			onChange={ onChange }
+			onValueChange={ onChange }
 			disabled={ disabled }
 		/>
 	);
@@ -88,8 +86,17 @@ const SelectableLicenseKeyInput = props => {
 		}
 	}, [ options ] );
 
+	// The @wordpress/ui SelectControl is item-object based: `value` is the
+	// selected item and `onValueChange` receives the item, so map to/from the
+	// stored string value.
+	const activeItem = useMemo(
+		() => options.find( option => option.value === selectedOption ) ?? options[ 0 ],
+		[ options, selectedOption ]
+	);
+
 	const onSelectionChange = useCallback(
-		val => {
+		item => {
+			const val = item?.value ?? '';
 			setSelectedOption( val );
 			onChange( val );
 		},
@@ -99,24 +106,20 @@ const SelectableLicenseKeyInput = props => {
 	return (
 		<>
 			<SelectControl
-				__nextHasNoMarginBottom={ true }
-				__next40pxDefaultSize
 				className={ className }
 				disabled={ disabled }
 				label={ __( 'Select a license key', 'jetpack-licensing' ) }
-				value={ selectedOption }
-				options={ options }
-				onChange={ onSelectionChange }
+				value={ activeItem }
+				items={ options }
+				onValueChange={ onSelectionChange }
 			/>
 
 			{ ! isFetching && ! selectedOption && (
-				<TextControl
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize
+				<InputControl
 					className={ className }
 					label={ __( 'Input a license key', 'jetpack-licensing' ) }
 					value={ value }
-					onChange={ onChange }
+					onValueChange={ onChange }
 					disabled={ disabled }
 				/>
 			) }
@@ -212,10 +215,12 @@ const ActivationScreenControls = props => {
 			<div>
 				<Button
 					className="jp-license-activation-screen-controls--button"
+					variant="solid"
+					loading={ isActivating }
 					onClick={ activateLicense }
 					disabled={ ! license }
 				>
-					{ isActivating ? <Spinner /> : __( 'Activate', 'jetpack-licensing' ) }
+					{ __( 'Activate', 'jetpack-licensing' ) }
 				</Button>
 			</div>
 		</div>
