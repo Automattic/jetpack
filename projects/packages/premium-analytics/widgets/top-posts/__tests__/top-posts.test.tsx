@@ -302,6 +302,58 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'requests archive comparison data and renders deltas for overlapping types', async () => {
+		// The same archive type exists in both periods, so the comparison UI is
+		// on and the matched row shows a real delta.
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve(
+				path.includes( 'date=2026-02-10' )
+					? {
+							date: '2026-02-10',
+							summary: {
+								search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '6' } ],
+							},
+					  }
+					: {
+							date: '2026-06-10',
+							summary: {
+								search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '12' } ],
+							},
+					  }
+			)
+		);
+
+		render(
+			<TopPostsWidget
+				attributes={ {
+					num: 10,
+					contentView: 'archives',
+					reportParams: {
+						from: '2026-03-01',
+						to: '2026-03-10',
+						comp: '1',
+						compare_from: '2026-02-01',
+						compare_to: '2026-02-10',
+					},
+				} }
+			/>
+		);
+
+		await expect( screen.findByText( 'Searches' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( /%/ ) ).toBeInTheDocument();
+
+		// Both period windows were requested from the archives report.
+		const requestedPaths = mockApiFetch.mock.calls.map(
+			( [ { path } ]: [ { path: string } ] ) => path
+		);
+		expect(
+			requestedPaths.some( p => p.includes( 'archives' ) && p.includes( 'start_date=2026-03-01' ) )
+		).toBe( true );
+		expect(
+			requestedPaths.some( p => p.includes( 'archives' ) && p.includes( 'start_date=2026-02-01' ) )
+		).toBe( true );
+	} );
+
 	it( 'drills down from grouped archive rows and back', async () => {
 		mockApiFetch.mockResolvedValue( {
 			date: '2026-06-10',
