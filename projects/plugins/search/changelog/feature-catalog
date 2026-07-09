@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Register the Search feature into the Jetpack Feature Catalog when present.

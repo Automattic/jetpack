@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Feature Catalog: distribute module feature registration into per-module features.php files, discovered via a glob loader.

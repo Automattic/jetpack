@@ -111,6 +111,11 @@ if ( ! is_readable( $autoload_packages_path ) ) {
 require_once $autoload_packages_path;
 
 /**
+ * Feature Catalog: the Search plugin registers its own "search" feature (dedup demo).
+ */
+require_once plugin_dir_path( __FILE__ ) . 'features.php';
+
+/**
  * Load jetpack packages i18n map.
  */
 if ( method_exists( Assets::class, 'alias_textdomains_from_file' ) ) {
