@@ -205,6 +205,9 @@ class Wp_Cron_Export_Scheduler implements Registrable_Interface {
 			__METHOD__
 		);
 
+		// Ignore the scheduled email argument; derive the recipient from the current user record.
+		unset( $user_email );
+
 		$user = get_user_by( 'id', $user_id );
 		if ( ! $user ) {
 			$this->logger->log_error( sprintf( 'Cannot process WP-Cron CSV export for missing user: %d', $user_id ), __METHOD__ );
