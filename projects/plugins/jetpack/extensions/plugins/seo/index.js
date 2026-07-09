@@ -24,6 +24,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { isCurrentUserConnected } from '../../shared/is-current-user-connected';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import { SeoEnhancer } from '../ai-assistant-plugin/components/seo-enhancer';
 import { SeoSummary } from '../ai-assistant-plugin/components/seo-enhancer/seo-summary';
@@ -47,6 +48,7 @@ const supportsPublishSidebar =
 
 const isSeoEnhancerEnabled =
 	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
+	isCurrentUserConnected() &&
 	supportsPublishSidebar;
 
 const canHaveAutoEnhance = ! isSimpleSite();

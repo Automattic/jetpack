@@ -1,11 +1,13 @@
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { isCurrentUserConnected } from '../../shared/is-current-user-connected';
 import { CountedTextArea } from './counted-textarea';
 import { withSeoHelper } from './with-seo-helper';
 
 const isSeoEnhancerEnabled =
-	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true;
+	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
+	isCurrentUserConnected();
 
 class SeoDescriptionPanel extends Component {
 	onMessageChange = value => {

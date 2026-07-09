@@ -2,6 +2,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { applyFilters } from '@wordpress/hooks';
 import AiAssistantPluginSidebar from '..';
+import { isCurrentUserConnected } from '../../../../../shared/is-current-user-connected';
 
 const mockEditPost = jest.fn();
 const mockRecordEvent = jest.fn();
@@ -48,6 +49,10 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	PLAN_TYPE_FREE: 'free',
 	PLAN_TYPE_UNLIMITED: 'unlimited',
 	usePlanType: () => 'free',
+} ) );
+
+jest.mock( '../../../../../shared/is-current-user-connected', () => ( {
+	isCurrentUserConnected: jest.fn(),
 } ) );
 
 jest.mock( '@automattic/jetpack-shared-extension-utils/components', () => ( {
@@ -174,6 +179,18 @@ describe( 'AiAssistantPluginSidebar', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		jest.mocked( applyFilters ).mockReturnValue( null );
+		jest.mocked( isCurrentUserConnected ).mockReturnValue( true );
+	} );
+
+	describe( 'connection gating', () => {
+		it( 'renders nothing when the current user is not connected', () => {
+			jest.mocked( isCurrentUserConnected ).mockReturnValue( false );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( screen.queryByTestId( 'document-panel' ) ).not.toBeInTheDocument();
+			expect( screen.queryByTestId( 'jetpack-sidebar' ) ).not.toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'imageGenerationHandler filter', () => {
