@@ -13,7 +13,7 @@ type ReferrerRow = {
 	parentId?: string;
 	referrer: string;
 	date?: string;
-	medium: 'organic' | 'social' | 'direct';
+	medium?: 'organic' | 'social' | 'direct';
 	views: number;
 };
 
@@ -24,7 +24,6 @@ const rows: ReferrerRow[] = [
 		parentId: 'search',
 		referrer: 'Google',
 		date: '2026-06-30',
-		medium: 'organic',
 		views: 485,
 	},
 	{
@@ -32,7 +31,6 @@ const rows: ReferrerRow[] = [
 		parentId: 'search',
 		referrer: 'Bing',
 		date: '2026-06-29',
-		medium: 'organic',
 		views: 86,
 	},
 	{
@@ -40,7 +38,6 @@ const rows: ReferrerRow[] = [
 		parentId: 'search',
 		referrer: 'DuckDuckGo',
 		date: '2026-06-28',
-		medium: 'organic',
 		views: 39,
 	},
 	{
@@ -48,7 +45,6 @@ const rows: ReferrerRow[] = [
 		parentId: 'search',
 		referrer: 'Yahoo',
 		date: '2026-06-27',
-		medium: 'organic',
 		views: 14,
 	},
 	{ id: 'social', referrer: 'Social', medium: 'social', views: 345 },
@@ -57,16 +53,14 @@ const rows: ReferrerRow[] = [
 		parentId: 'social',
 		referrer: 'Facebook',
 		date: '2026-06-26',
-		medium: 'social',
 		views: 210,
 	},
 	{
-		id: 'linkedin',
+		id: 'x',
 		parentId: 'social',
-		referrer: 'LinkedIn',
+		referrer: 'X',
 		date: '2026-06-25',
-		medium: 'social',
-		views: 58,
+		views: 135,
 	},
 	{
 		id: 'direct',
@@ -180,15 +174,31 @@ const fields: Field< ReferrerRow >[] = [
 	},
 ];
 
+const layoutStyles = {
+	referrer: {
+		width: '100%',
+	},
+	date: {
+		align: 'end' as const,
+	},
+	views: {
+		align: 'end' as const,
+	},
+};
+
 const initialView = {
+	sort: { field: 'views', direction: 'desc' as const },
+	fields: [ 'referrer', 'views' ],
+	layout: {
+		styles: layoutStyles,
+	},
+};
+
+const multipleColumnsInitialView = {
 	sort: { field: 'views', direction: 'desc' as const },
 	fields: [ 'referrer', 'date', 'views' ],
 	layout: {
-		styles: {
-			views: {
-				align: 'end' as const,
-			},
-		},
+		styles: layoutStyles,
 	},
 };
 
@@ -217,6 +227,13 @@ export const Default: Story = {
 					'The hidden Medium field is filterable so the default DataViews filter control appears next to search.',
 			},
 		},
+	},
+};
+
+export const MultipleColumns: Story = {
+	args: {
+		...Default.args,
+		initialView: multipleColumnsInitialView,
 	},
 };
 
