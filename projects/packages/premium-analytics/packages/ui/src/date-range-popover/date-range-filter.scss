@@ -32,6 +32,11 @@
 .date-filters-panel-button--custom {
 	background-color: var(--wpds-color-background-interactive-neutral-strong);
 	color: var(--wpds-color-foreground-interactive-neutral-strong-active);
+
+	&:hover,
+	&:active {
+		background-color: var(--wpds-color-background-interactive-neutral-strong);
+	}
 }
 
 .date-filters-panel-button--custom-staged {
