@@ -493,7 +493,7 @@ function ArchivesReport( { num }: { num: number } ) {
 			if ( ! parent?.children?.length ) {
 				break;
 			}
-			label = previousStep ?? __( 'All archives', 'jetpack-premium-analytics' );
+			label = previousStep ?? __( 'All Archives', 'jetpack-premium-analytics' );
 			list = parent.children;
 			previousStep = step;
 		}
@@ -520,7 +520,7 @@ function ArchivesReport( { num }: { num: number } ) {
 	const backLink =
 		activeRows === rows ? null : (
 			<WidgetBackLink
-				label={ backLabel ?? __( 'All archives', 'jetpack-premium-analytics' ) }
+				label={ backLabel ?? __( 'All Archives', 'jetpack-premium-analytics' ) }
 				ariaLabel={ __( 'Back to the previous archive list', 'jetpack-premium-analytics' ) }
 				onClick={ handleBack }
 			/>
