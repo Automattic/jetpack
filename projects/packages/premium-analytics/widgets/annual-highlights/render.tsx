@@ -15,13 +15,13 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft, arrowRight, comment, paragraph, postList, starEmpty } from '@wordpress/icons';
-import { Button, Icon, Text } from '@wordpress/ui';
+import { Button, Icon, Stack, Text } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { AnnualHighlightsAttributes } from './widget';
+import { type AnnualHighlightMetric, type AnnualHighlightsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // The insights endpoint is not period-scoped, so the widget ignores the
@@ -30,11 +30,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type AnnualHighlightsRenderAttributes = AnnualHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type AnnualHighlightsWidgetProps = WidgetRenderProps< AnnualHighlightsRenderAttributes >;
-
-/**
- * The enabled-metric flags from widget attributes, with defaults applied.
- */
-type AnnualHighlightsReportProps = Required< AnnualHighlightsAttributes >;
 
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
@@ -57,18 +52,14 @@ function sortYearsDescending( data?: StatsInsightsResponse ): StatsInsightsYear[
  * hook and renders one year's totals as a grid of metric tiles. The year arrows
  * step between the years the site has published in; the insights module has no
  * comparison period, so each tile shows a bare formatted count. Which tiles
- * appear is controlled by the per-metric visibility attributes.
+ * appear is controlled by the `metrics` attribute.
  *
- * @param {AnnualHighlightsReportProps} props - The component props.
+ * @param {AnnualHighlightMetric[]} metrics - Enabled metric tile ids.
  * @return The widget content.
  */
-function AnnualHighlightsReport( {
-	showPosts,
-	showWords,
-	showLikes,
-	showComments,
-}: AnnualHighlightsReportProps ) {
+function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[] } ) {
 	const { data, isLoading, isError } = useStatsInsights();
+	const enabledMetrics = useMemo( () => new Set( metrics ), [ metrics ] );
 
 	const years = useMemo( () => sortYearsDescending( data ), [ data ] );
 	const [ selectedIndex, setSelectedIndex ] = useState( 0 );
@@ -91,11 +82,9 @@ function AnnualHighlightsReport( {
 
 	if ( isError ) {
 		return (
-			<div className={ styles.root }>
-				<Text className={ styles.placeholder }>
-					{ __( 'Unable to load annual highlights.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</div>
+			<Stack align="center" justify="center" className={ styles.placeholder }>
+				<Text>{ __( 'Unable to load annual highlights.', 'jetpack-premium-analytics' ) }</Text>
+			</Stack>
 		);
 	}
 
@@ -109,11 +98,9 @@ function AnnualHighlightsReport( {
 
 	if ( ! year ) {
 		return (
-			<div className={ styles.root }>
-				<Text className={ styles.placeholder }>
-					{ __( 'No highlights to show yet.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</div>
+			<Stack align="center" justify="center" className={ styles.placeholder }>
+				<Text>{ __( 'No highlights to show yet.', 'jetpack-premium-analytics' ) }</Text>
+			</Stack>
 		);
 	}
 
@@ -126,34 +113,34 @@ function AnnualHighlightsReport( {
 			icon: postList,
 			label: __( 'Posts', 'jetpack-premium-analytics' ),
 			value: year.total_posts,
-			enabled: showPosts,
+			enabled: enabledMetrics.has( 'posts' ),
 		},
 		{
 			key: 'words',
 			icon: paragraph,
 			label: __( 'Words', 'jetpack-premium-analytics' ),
 			value: year.total_words,
-			enabled: showWords,
+			enabled: enabledMetrics.has( 'words' ),
 		},
 		{
 			key: 'likes',
 			icon: starEmpty,
 			label: __( 'Likes', 'jetpack-premium-analytics' ),
 			value: year.total_likes,
-			enabled: showLikes,
+			enabled: enabledMetrics.has( 'likes' ),
 		},
 		{
 			key: 'comments',
 			icon: comment,
 			label: __( 'Comments', 'jetpack-premium-analytics' ),
 			value: year.total_comments,
-			enabled: showComments,
+			enabled: enabledMetrics.has( 'comments' ),
 		},
 	].filter( tile => tile.enabled );
 
 	return (
-		<div className={ styles.root }>
-			<div className={ styles.yearNav }>
+		<Stack direction="column" gap="lg" className={ styles.root }>
+			<Stack align="center" justify="flex-end" gap="sm">
 				<Button
 					type="button"
 					variant="minimal"
@@ -181,11 +168,14 @@ function AnnualHighlightsReport( {
 				>
 					<Button.Icon icon={ arrowRight } size={ 16 } />
 				</Button>
-			</div>
+			</Stack>
+
 			{ tiles.length === 0 ? (
-				<Text className={ styles.placeholder }>
-					{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
-				</Text>
+				<Stack align="center" justify="center" className={ styles.placeholder }>
+					<Text>
+						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+					</Text>
+				</Stack>
 			) : (
 				<div className={ styles.grid }>
 					{ tiles.map( tile => (
@@ -204,7 +194,7 @@ function AnnualHighlightsReport( {
 					) ) }
 				</div>
 			) }
-		</div>
+		</Stack>
 	);
 }
 
@@ -221,12 +211,7 @@ function AnnualHighlightsReport( {
 export default function AnnualHighlights( { attributes = {} }: AnnualHighlightsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<AnnualHighlightsReport
-				showPosts={ attributes.showPosts ?? true }
-				showWords={ attributes.showWords ?? true }
-				showLikes={ attributes.showLikes ?? true }
-				showComments={ attributes.showComments ?? true }
-			/>
+			<AnnualHighlightsReport metrics={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }
