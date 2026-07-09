@@ -50,8 +50,8 @@ class CLI extends WP_CLI_Command {
 				'slug'        => $feature->slug(),
 				'status'      => $r['status'],
 				'reason'      => $r['reason'],
-				'connection'  => $feature->connection(),
-				'entitlement' => (string) $feature->entitlement(),
+				'connection'  => $feature->required_connection(),
+				'entitlement' => (string) $feature->required_entitlement(),
 			);
 		}
 		if ( empty( $rows ) ) {
