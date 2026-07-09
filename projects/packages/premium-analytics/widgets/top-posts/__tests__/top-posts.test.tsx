@@ -205,6 +205,36 @@ describe( 'TopPostsWidget', () => {
 		await expect( screen.findByText( 'No views in this period.' ) ).resolves.toBeInTheDocument();
 	} );
 
+	it( 'caps the visible posts list at num including the homepage entry', async () => {
+		// The API caps postviews at max but appends the homepage entry on top,
+		// so the widget re-caps the ranked list client-side.
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-10',
+			days: {},
+			summary: {
+				postviews: [
+					...TOP_POSTS_RESPONSE.summary.postviews,
+					{
+						id: 0,
+						href: null,
+						date: null,
+						title: 'Homepage (Latest posts)',
+						type: 'homepage',
+						views: 12,
+					},
+				],
+				total_views: 61,
+			},
+		} );
+
+		render( <TopPostsWidget attributes={ { num: 2 } } /> );
+
+		// Ranked: Hello World Post (42), Homepage (12) — About Page (7) is cut.
+		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( /Hello World Post/ ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'About Page' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'renders aggregate archive rows when contentView is archives', async () => {
 		mockApiFetch.mockResolvedValue( {
 			date: '2026-06-10',

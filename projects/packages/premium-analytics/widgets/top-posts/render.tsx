@@ -256,16 +256,21 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 	const withComparison =
 		hasComparison && primaryRows.some( row => previousViewsByKey.has( row.href ?? row.label ) );
 
-	const rows = useMemo(
-		() =>
-			withComparison
-				? primaryRows.map( row => ( {
-						...row,
-						previousValue: previousViewsByKey.get( row.href ?? row.label ) ?? 0,
-				  } ) )
-				: primaryRows,
-		[ primaryRows, previousViewsByKey, withComparison ]
-	);
+	const rows = useMemo( () => {
+		const withPrevious = withComparison
+			? primaryRows.map( row => ( {
+					...row,
+					previousValue: previousViewsByKey.get( row.href ?? row.label ) ?? 0,
+			  } ) )
+			: primaryRows;
+
+		// The API caps `postviews` at `max` but appends the homepage entry on
+		// top of it, so cap the visible list here too — ranked, and `num = 0`
+		// meaning "all rows" (see AGENTS.md `max` semantics).
+		return [ ...withPrevious ]
+			.sort( ( a, b ) => b.value - a.value )
+			.slice( 0, num > 0 ? num : undefined );
+	}, [ primaryRows, previousViewsByKey, withComparison, num ] );
 
 	return (
 		<div className={ styles.content }>
