@@ -138,7 +138,6 @@ class Analytics {
 		// place. Runs after Stats registers itself (admin_menu priority 999).
 		add_action( 'admin_menu', array( static::class, 'remove_stats_menu' ), 1001 );
 		add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_dashboard_sections_preload' ), 20 );
-		add_filter( 'jetpack_admin_js_script_data', array( static::class, 'inject_script_data' ), 20 );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'enqueue_dashboard_sections_preload' ) );
 		add_action( 'jetpack-premium-analytics-wp-admin_init', array( static::class, 'enqueue_dashboard_sections_preload' ) );
 		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
@@ -267,9 +266,8 @@ class Analytics {
 	/**
 	 * Register the dashboard sections preload directly with apiFetch.
 	 *
-	 * This mirrors wp-build's own page preload path and prevents the route from
-	 * issuing a browser fetch even if route content reads sections before the app
-	 * init module registers the script-data preload fallback.
+	 * This mirrors wp-build's own page preload path and lets the route consume
+	 * sections before any browser fetch is issued.
 	 *
 	 * @return void
 	 */
@@ -293,40 +291,6 @@ class Analytics {
 		);
 
 		self::$dashboard_sections_preload_enqueued = true;
-	}
-
-	/**
-	 * Add Premium Analytics bootstrap data to JetpackScriptData.
-	 *
-	 * The sections endpoint is provided as an apiFetch preload so the dashboard
-	 * can resolve its initial section layout without a network request, while
-	 * still falling back to REST if the preload is absent.
-	 *
-	 * @param array $data Script data being injected onto the page.
-	 * @return array Script data with Premium Analytics preload data.
-	 */
-	public static function inject_script_data( $data ) {
-		if ( ! is_array( $data ) ) {
-			$data = array();
-		}
-
-		if ( ! self::is_dashboard_request() ) {
-			return $data;
-		}
-
-		if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
-			$data['premium_analytics'] = array();
-		}
-
-		$preload = self::get_dashboard_sections_preload_data();
-
-		$existing_preload = isset( $data['premium_analytics']['preload'] ) && is_array( $data['premium_analytics']['preload'] )
-			? $data['premium_analytics']['preload']
-			: array();
-
-		$data['premium_analytics']['preload'] = array_merge( $existing_preload, $preload );
-
-		return $data;
 	}
 
 	/**

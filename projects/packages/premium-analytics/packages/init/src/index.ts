@@ -7,21 +7,10 @@ import { store as bootStore } from '@wordpress/boot';
 import { dispatch } from '@wordpress/data';
 import { chartBar } from '@wordpress/icons';
 
-type PreloadedResponse = {
-	body: unknown;
-	headers?: Record< string, string >;
-};
-
-type PremiumAnalyticsScriptData = ReturnType< typeof getScriptData > & {
-	premium_analytics?: {
-		preload?: Record< string, PreloadedResponse >;
-	};
-};
-
 // apiFetch middleware registers onto a shared, process-wide chain. Guard so
 // repeated init() calls (re-mount, HMR, a future second boot) don't stack
-// duplicate root-URL/nonce/preload middleware.
-let apiFetchConfigured = false;
+// duplicate root-URL/nonce middleware.
+let authConfigured = false;
 
 /**
  * Configure the bundled apiFetch instance with the WordPress REST API root URL
@@ -29,28 +18,20 @@ let apiFetchConfigured = false;
  * render so shared packages (e.g. site-sync) can call the REST API.
  */
 function setupApiFetch(): void {
-	if ( apiFetchConfigured ) {
+	if ( authConfigured ) {
 		return;
 	}
-
-	const scriptData = getScriptData() as PremiumAnalyticsScriptData | undefined;
-	const site = scriptData?.site;
-	const preload = scriptData?.premium_analytics?.preload;
-
+	const site = getScriptData()?.site;
 	if ( site?.rest_root ) {
 		apiFetch.use( apiFetch.createRootURLMiddleware( site.rest_root ) );
 	}
 	if ( site?.rest_nonce ) {
 		apiFetch.use( apiFetch.createNonceMiddleware( site.rest_nonce ) );
 	}
-	if ( preload ) {
-		apiFetch.use( apiFetch.createPreloadingMiddleware( preload ) );
-	}
-
 	// Only latch once we actually registered, so an early call before
 	// script-data is ready doesn't permanently skip configuration.
-	if ( site?.rest_root || site?.rest_nonce || preload ) {
-		apiFetchConfigured = true;
+	if ( site?.rest_root || site?.rest_nonce ) {
+		authConfigured = true;
 	}
 }
 
