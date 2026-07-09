@@ -199,8 +199,8 @@ StepDisconnect.propTypes = {
 	isDisconnecting: PropTypes.bool,
 	/** Callback function that is triggered by clicking the "Disconnect" button. */
 	onDisconnect: PropTypes.func,
-	/** An error that occurred during a request to disconnect. */
-	disconnectError: PropTypes.bool,
+	/** An error message from a failed disconnect request, or false if none. */
+	disconnectError: PropTypes.oneOfType( [ PropTypes.string, PropTypes.bool ] ),
 	/** A component to be rendered as part of this step */
 	disconnectStepComponent: PropTypes.element,
 	/** Plugins that are using the Jetpack connection. */

@@ -1,18 +1,26 @@
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
 import { Fragment, useMemo } from 'react';
 import DisconnectCard from '../disconnect-card';
+
+interface ConnectedPlugin {
+	/** The display name of the connected plugin. */
+	name: string;
+}
+
+interface ConnectedPluginsProps {
+	/** Plugins that are using the Jetpack connection, keyed by slug. */
+	connectedPlugins?: Record< string, ConnectedPlugin >;
+	/** Slug of the plugin that has initiated the disconnect. */
+	disconnectingPlugin?: string;
+}
 
 /**
  * Render a list of connected plugins.
  *
- * @param {object} props - The properties
- * @return {import('react').Component} - The ConnectedPlugins React component
+ * @param {ConnectedPluginsProps} props - The properties.
+ * @return {import('react').ReactNode} - The ConnectedPlugins React component.
  */
-
-const ConnectedPlugins = props => {
-	const { connectedPlugins, disconnectingPlugin } = props;
-
+const ConnectedPlugins = ( { connectedPlugins, disconnectingPlugin }: ConnectedPluginsProps ) => {
 	/**
 	 * Add a slug property to each ConnectedPlugins object so they can be converted to an array.
 	 * This allows the connected plugins to be iterated over more easily for display.
@@ -55,13 +63,6 @@ const ConnectedPlugins = props => {
 
 	// Default to null if there are no connected plugins passed on the props
 	return null;
-};
-
-ConnectedPlugins.propTypes = {
-	/** Plugins that are using the Jetpack connection. */
-	connectedPlugins: PropTypes.array,
-	/** Slug of the plugin that has initiated the disconnect. */
-	disconnectingPlugin: PropTypes.string,
 };
 
 export default ConnectedPlugins;
