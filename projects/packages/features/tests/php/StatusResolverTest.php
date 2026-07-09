@@ -16,13 +16,13 @@ final class Fake_Environment implements Feature_Environment {
 	public $active         = true;
 
 	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Required by interface.
-	public function is_applicable( Feature $_f ): bool {
+	public function applies_to_site( Feature $_f ): bool {
 		return $this->applicable; }
-	public function is_entitled( ?string $_slug ): bool {
+	public function site_is_entitled( ?string $_slug ): bool {
 		return $this->entitled; }
-	public function connection_level_met( string $_level ): bool {
+	public function site_has_connection_level( string $_level ): bool {
 		return $this->connection_met; }
-	public function is_active( Feature $_f ): bool {
+	public function is_active_on_site( Feature $_f ): bool {
 		return $this->active; }
 	// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 }
@@ -40,8 +40,8 @@ final class StatusResolverTest extends PHPUnit\Framework\TestCase {
 	public function test_active_when_all_satisfied() {
 		$r = $this->resolve( new Fake_Environment() );
 		$this->assertSame( Status_Resolver::STATUS_ACTIVE, $r['status'] );
-		$this->assertTrue( $r['facets']['registered'] );
-		$this->assertTrue( $r['facets']['active'] );
+		$this->assertTrue( $r['facets']['is_registered'] );
+		$this->assertTrue( $r['facets']['is_active_on_site'] );
 	}
 
 	public function test_available_off_when_not_active() {
@@ -85,11 +85,11 @@ final class StatusResolverTest extends PHPUnit\Framework\TestCase {
 				'entitlement' => 'field-file',
 			)
 		);
-		$this->assertSame( 'user', $r['facets']['connection_required'] );
-		$this->assertFalse( $r['facets']['connection_met'] );
+		$this->assertSame( 'user', $r['facets']['required_connection'] );
+		$this->assertFalse( $r['facets']['connection_satisfied'] );
 		$this->assertSame( 'connection_missing', $r['reason'] );
-		$this->assertFalse( $r['facets']['entitled'] );
-		$this->assertTrue( $r['facets']['applicable'] );
-		$this->assertFalse( $r['facets']['active'] );
+		$this->assertFalse( $r['facets']['is_entitled_on_site'] );
+		$this->assertTrue( $r['facets']['applies_to_site'] );
+		$this->assertFalse( $r['facets']['is_active_on_site'] );
 	}
 }

@@ -142,10 +142,10 @@ class Dashboard {
 			echo '</td>';
 
 			// Connection level.
-			echo '<td>' . esc_html( $feature->connection() ) . '</td>';
+			echo '<td>' . esc_html( $feature->required_connection() ) . '</td>';
 
 			// Entitlement.
-			$entitlement = $feature->entitlement();
+			$entitlement = $feature->required_entitlement();
 			echo '<td>' . ( null === $entitlement || '' === $entitlement ? '<span class="jpfeat-muted">&mdash;</span>' : '<code>' . esc_html( $entitlement ) . '</code>' ) . '</td>';
 
 			// Category.

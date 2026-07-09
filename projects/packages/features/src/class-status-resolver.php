@@ -26,11 +26,11 @@ class Status_Resolver {
 	 * @return array{status:string,reason:string,facets:array}
 	 */
 	public function resolve( Feature $f, Feature_Environment $env ): array {
-		$applicable     = $env->is_applicable( $f );
-		$entitled       = $env->is_entitled( $f->entitlement() );
-		$connection_req = $f->connection();
-		$connection_met = $env->connection_level_met( $connection_req );
-		$active         = $env->is_active( $f );
+		$applicable     = $env->applies_to_site( $f );
+		$entitled       = $env->site_is_entitled( $f->required_entitlement() );
+		$connection_req = $f->required_connection();
+		$connection_met = $env->site_has_connection_level( $connection_req );
+		$active         = $env->is_active_on_site( $f );
 
 		// Precedence: unsupported -> needs_connection -> needs_upgrade -> available_off -> active.
 		if ( ! $applicable ) {
@@ -54,12 +54,12 @@ class Status_Resolver {
 			'status' => $status,
 			'reason' => $reason,
 			'facets' => array(
-				'registered'          => true,
-				'applicable'          => $applicable,
-				'entitled'            => $entitled,
-				'connection_required' => $connection_req,
-				'connection_met'      => $connection_met,
-				'active'              => $active,
+				'is_registered'        => true,
+				'applies_to_site'      => $applicable,
+				'is_entitled_on_site'  => $entitled,
+				'required_connection'  => $connection_req,
+				'connection_satisfied' => $connection_met,
+				'is_active_on_site'    => $active,
 			),
 		);
 	}

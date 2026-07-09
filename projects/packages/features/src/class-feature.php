@@ -117,7 +117,7 @@ class Feature {
 	 *
 	 * @return ?string
 	 */
-	public function entitlement() {
+	public function required_entitlement() {
 		return $this->args['entitlement'];
 	}
 
@@ -126,7 +126,7 @@ class Feature {
 	 *
 	 * @return string
 	 */
-	public function connection() {
+	public function required_connection() {
 		return (string) $this->args['connection'];
 	}
 
@@ -162,7 +162,7 @@ class Feature {
 	 *
 	 * @return ?callable
 	 */
-	public function is_active_callback() {
+	public function active_on_site_callback() {
 		return is_callable( $this->args['is_active'] ) ? $this->args['is_active'] : null;
 	}
 
@@ -171,7 +171,7 @@ class Feature {
 	 *
 	 * @return ?callable
 	 */
-	public function is_applicable_callback() {
+	public function applies_to_site_callback() {
 		return is_callable( $this->args['is_applicable'] ) ? $this->args['is_applicable'] : null;
 	}
 
@@ -187,8 +187,8 @@ class Feature {
 			'description'     => $this->description(),
 			'category'        => $this->category(),
 			'docs'            => $this->docs(),
-			'entitlement'     => $this->entitlement(),
-			'connection'      => $this->connection(),
+			'entitlement'     => $this->required_entitlement(),
+			'connection'      => $this->required_connection(),
 			'module'          => $this->module(),
 			'available_since' => $this->available_since(),
 			'recommend'       => $this->recommend(),
