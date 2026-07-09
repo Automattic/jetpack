@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Feature Catalog: register one feature per bundled Jetpack module (plus Forms sub-features), replacing the initial validation probes.

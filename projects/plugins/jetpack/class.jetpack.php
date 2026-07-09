@@ -1002,9 +1002,10 @@ class Jetpack {
 			add_action( 'rest_api_init', array( $this, 'maybe_initialize_rest_jsonapi' ) );
 		}
 
-		// Feature Catalog (Slice 1).
+		// Feature Catalog.
 		if ( class_exists( \Automattic\Jetpack\Features\Features::class ) ) {
-			require_once JETPACK__PLUGIN_DIR . 'features-probes.php';
+			require_once JETPACK__PLUGIN_DIR . 'features.php';
+			require_once JETPACK__PLUGIN_DIR . 'features-granular.php'; // Exploratory stress-test set; see file header.
 			\Automattic\Jetpack\Features\Features::init();
 		}
 	}
