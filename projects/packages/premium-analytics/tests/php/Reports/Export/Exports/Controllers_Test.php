@@ -185,7 +185,7 @@ class Controllers_Test extends TestCase {
 					array(
 						'key'     => 'product_type',
 						'compare' => 'IN',
-						'value'   => array( 'booking', 'bookable-event', 'bookable-service' ),
+						'value'   => 'booking,bookable-event,bookable-service',
 					),
 				),
 			),
