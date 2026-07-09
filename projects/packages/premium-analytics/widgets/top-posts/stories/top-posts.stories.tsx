@@ -98,7 +98,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Most viewed" widget. Shows the most-viewed posts and pages as a ranked leaderboard, using the global dashboard date range; each row links to the published content. The `contentView` attribute switches to aggregate archive-page views (home, taxonomy, post-type, search, and date archives).',
+					'The "Most viewed" widget. Shows the most-viewed posts and pages as a ranked leaderboard, using the global dashboard date range; each row links to the published content, and the homepage-as-latest-posts views from the archives report are folded into the list. The `contentView` attribute switches to aggregate archive-page views (taxonomy, post-type, search, and date archives).',
 			},
 		},
 	},
@@ -129,7 +129,7 @@ export const Archives: Story = {
 		docs: {
 			description: {
 				story:
-					'The Archives view: one aggregate row per archive type (home page, taxonomy, post-type, and search archives), with comparison deltas when the previous period overlaps.',
+					'The Archives view: one aggregate row per archive type (taxonomy, post-type, and search archives), with comparison deltas when the previous period overlaps. The homepage entry is surfaced in the Posts & pages view instead, matching the Stats card.',
 			},
 		},
 	},

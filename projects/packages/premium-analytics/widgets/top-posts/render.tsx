@@ -210,10 +210,32 @@ function toTopPostRows(
 }
 
 /**
+ * Views of the homepage-as-latest-posts entry in a normalized `stats/archives`
+ * report, or undefined when the period has none. The top-posts endpoint is
+ * queried with `skip_archives=1`, so the homepage's views only exist in the
+ * archives report — but the product surfaces them in the Posts & pages list,
+ * not under Archives (matching the Stats "Most viewed" card).
+ *
+ * @param report - The normalized archives report, or undefined while loading.
+ * @return The homepage view count, or undefined.
+ */
+function getArchivesHomeViews(
+	report: StatsNormalizedReport< StatsArchivesItem > | undefined
+): number | undefined {
+	const items = report?.data.flatMap( point => point.items ) ?? [];
+
+	return items.find( item => String( item.label ) === 'home' )?.value;
+}
+
+/**
  * Fetches the top-posts report through the designated `useStatsTopPosts` Stats
  * traffic hook and hands the normalized rows to the presentational
  * `TopPostsLeaderboard`. The date range and comparison period come from the
  * dashboard picker via `reportParams`.
+ *
+ * The archives report is fetched alongside to fold the "Homepage (Latest
+ * posts)" views into the list — `skip_archives=1` keeps them out of the
+ * top-posts response, and the API has no way to return them with the posts.
  *
  * @param {TopPostsReportProps} props - The component props.
  * @return The widget content.
@@ -227,12 +249,23 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 
 	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
 		useStatsTopPosts( statsParams );
-	const showLoading = isLoading || ( isFetching && hasData );
+	const archives = useStatsArchives( reportParams );
+	const showLoading =
+		isLoading || archives.isLoading || ( ( isFetching || archives.isFetching ) && hasData );
 
 	const primaryRows = useMemo(
 		() => toTopPostRows( primary.data as StatsNormalizedReport< StatsTopPostsItem > ),
 		[ primary.data ]
 	);
+
+	// The homepage row rides on the archives report; when that report errors or
+	// is empty the posts list simply renders without it.
+	const homeViews = getArchivesHomeViews(
+		archives.primary.data as StatsNormalizedReport< StatsArchivesItem >
+	);
+	const previousHomeViews = hasComparison
+		? getArchivesHomeViews( archives.comparison.data as StatsNormalizedReport< StatsArchivesItem > )
+		: undefined;
 
 	// Comparison-period views keyed by the same post URL the primary rows use.
 	// Empty when comparison is disabled or the comparison query returned no rows.
@@ -248,22 +281,35 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 		);
 	}, [ comparison.data, hasComparison ] );
 
-	// Only render comparison UI when at least one primary row actually overlaps
+	// Only render comparison UI when at least one visible row actually overlaps
 	// the comparison period; otherwise unmatched rows would fall to a placeholder
 	// `previousValue: 0` and the chart would show a fabricated delta (see AGENTS.md).
 	const withComparison =
-		hasComparison && primaryRows.some( row => previousViewsByHref.has( row.href ) );
+		hasComparison &&
+		( primaryRows.some( row => previousViewsByHref.has( row.href as string ) ) ||
+			( homeViews !== undefined && previousHomeViews !== undefined ) );
 
-	const rows = useMemo(
-		() =>
-			withComparison
-				? primaryRows.map( row => ( {
-						...row,
-						previousValue: previousViewsByHref.get( row.href ) ?? 0,
-				  } ) )
-				: primaryRows,
-		[ primaryRows, previousViewsByHref, withComparison ]
-	);
+	const rows = useMemo( () => {
+		const postRows = withComparison
+			? primaryRows.map( row => ( {
+					...row,
+					previousValue: previousViewsByHref.get( row.href as string ) ?? 0,
+			  } ) )
+			: primaryRows;
+
+		if ( homeViews === undefined ) {
+			return postRows;
+		}
+
+		const homeRow: TopPostRow = {
+			label: archiveTypeLabel( 'home' ),
+			value: homeViews,
+			type: 'home',
+			...( withComparison ? { previousValue: previousHomeViews ?? 0 } : {} ),
+		};
+
+		return [ ...postRows, homeRow ].sort( ( a, b ) => b.value - a.value ).slice( 0, num );
+	}, [ primaryRows, previousViewsByHref, withComparison, homeViews, previousHomeViews, num ] );
 
 	return (
 		<div className={ styles.content }>
@@ -358,8 +404,13 @@ function ArchivesReport( { num }: { num: number } ) {
 		useStatsArchives( reportParams );
 	const showLoading = isLoading || ( isFetching && hasData );
 
+	// The homepage entry is surfaced in the Posts & pages view instead, matching
+	// the Stats "Most viewed" card — keep it out of the Archives list.
 	const primaryRows = useMemo(
-		() => toArchiveRows( primary.data as StatsNormalizedReport< StatsArchivesItem > ),
+		() =>
+			toArchiveRows( primary.data as StatsNormalizedReport< StatsArchivesItem > ).filter(
+				row => row.key !== 'home'
+			),
 		[ primary.data ]
 	);
 

@@ -78,13 +78,15 @@ describe( 'TopPostsWidget', () => {
 			screen.findByRole( 'link', { name: /Hello World Post/ } )
 		).resolves.toBeInTheDocument();
 
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'start_date=2026-03-01' );
-		expect( requestedPath ).toContain( 'date=2026-03-10' );
+		const topPostsPath = mockApiFetch.mock.calls
+			.map( ( [ { path } ]: [ { path: string } ] ) => path )
+			.find( ( path: string ) => path.includes( 'top-posts' ) ) as string;
+		expect( topPostsPath ).toContain( 'start_date=2026-03-01' );
+		expect( topPostsPath ).toContain( 'date=2026-03-10' );
 		// List reports are day-bucketed regardless of the dashboard chart interval,
 		// and the post list excludes archive pages (they have their own view).
-		expect( requestedPath ).toContain( 'period=day' );
-		expect( requestedPath ).toContain( 'skip_archives=1' );
+		expect( topPostsPath ).toContain( 'period=day' );
+		expect( topPostsPath ).toContain( 'skip_archives=1' );
 	} );
 
 	it( 'requests the comparison window and aligns previous views by post URL', async () => {
@@ -214,13 +216,36 @@ describe( 'TopPostsWidget', () => {
 
 		render( <TopPostsWidget attributes={ { num: 10, contentView: 'archives' } } /> );
 
-		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Searches' ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'Searches' ) ).resolves.toBeInTheDocument();
 		// Aggregate rows have no URL, so they must not render as links.
-		expect( screen.queryByRole( 'link', { name: /Homepage/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Searches/ } ) ).not.toBeInTheDocument();
+		// The homepage entry belongs to the Posts & pages view, not Archives.
+		expect( screen.queryByText( 'Homepage (Latest posts)' ) ).not.toBeInTheDocument();
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'archives' );
+	} );
+
+	it( 'folds the homepage views from the archives report into the posts list', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve(
+				path.includes( '/archives' )
+					? {
+							date: '2026-06-10',
+							summary: {
+								home: [ { value: 'home', href: 'https://example.com/', views: '12' } ],
+							},
+					  }
+					: TOP_POSTS_RESPONSE
+			)
+		);
+
+		render( <TopPostsWidget attributes={ { num: 10 } } /> );
+
+		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
+		// The homepage row is an aggregate without a URL — not a link.
+		expect( screen.queryByRole( 'link', { name: /Homepage/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'gates archive comparison UI on overlapping archive types', async () => {
@@ -240,7 +265,7 @@ describe( 'TopPostsWidget', () => {
 					: {
 							date: '2026-06-10',
 							summary: {
-								home: [ { value: 'home', href: 'https://example.com/', views: '12' } ],
+								search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '12' } ],
 							},
 					  }
 			)
@@ -262,7 +287,7 @@ describe( 'TopPostsWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Searches' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 } );
