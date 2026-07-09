@@ -10,38 +10,56 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { DrilldownList } from '../drilldown-list';
-import type { DrilldownListGroup } from '../drilldown-list';
+import type {
+	DrilldownListChild,
+	DrilldownListColumn,
+	DrilldownListGroup,
+} from '../drilldown-list';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const REFERRER_GROUPS: DrilldownListGroup[] = [
+type ReferrerChild = DrilldownListChild & {
+	date: string;
+};
+
+type ReferrerGroup = Omit< DrilldownListGroup, 'children' > & {
+	medium: string;
+	children: ReferrerChild[];
+};
+
+const REFERRER_GROUPS: ReferrerGroup[] = [
 	{
 		id: 'referrer:search-engines',
 		label: 'Search Engines',
 		value: 625,
+		medium: 'organic',
 		children: [
 			{
 				id: 'referrer:google',
 				label: 'Google',
 				value: 485,
-				href: 'https://www.google.com/',
+				date: '2026-06-30',
+				href: 'https://google.com',
 			},
 			{
 				id: 'referrer:bing',
 				label: 'Bing',
 				value: 86,
-				href: 'https://www.bing.com/',
+				date: '2026-06-29',
+				href: 'https://bing.com',
 			},
 			{
 				id: 'referrer:duckduckgo',
 				label: 'DuckDuckGo',
 				value: 39,
-				href: 'https://duckduckgo.com/',
+				date: '2026-06-28',
+				href: 'https://duckduckgo.com',
 			},
 			{
 				id: 'referrer:yahoo',
 				label: 'Yahoo',
 				value: 14,
-				href: 'https://www.yahoo.com/',
+				date: '2026-06-27',
+				href: 'https://yahoo.com',
 			},
 		],
 	},
@@ -49,18 +67,21 @@ const REFERRER_GROUPS: DrilldownListGroup[] = [
 		id: 'referrer:social',
 		label: 'Social',
 		value: 345,
+		medium: 'social',
 		children: [
 			{
 				id: 'referrer:facebook',
 				label: 'Facebook',
-				value: 219,
-				href: 'https://www.facebook.com/',
+				value: 210,
+				date: '2026-06-26',
+				href: 'https://facebook.com',
 			},
 			{
-				id: 'referrer:linkedin',
-				label: 'LinkedIn',
-				value: 126,
-				href: 'https://www.linkedin.com/',
+				id: 'referrer:x',
+				label: 'X',
+				value: 135,
+				date: '2026-06-25',
+				href: 'https://x.com',
 			},
 		],
 	},
@@ -68,6 +89,7 @@ const REFERRER_GROUPS: DrilldownListGroup[] = [
 		id: 'referrer:direct',
 		label: 'Direct',
 		value: 251,
+		medium: 'direct',
 		children: [],
 	},
 ];
@@ -166,16 +188,75 @@ const ARCHIVE_GROUPS: DrilldownListGroup[] = [
  * @return The group filter value.
  */
 function getReferrerGroupFilterValue( group: DrilldownListGroup ): string {
-	if ( group.id === 'referrer:social' ) {
-		return 'social';
-	}
-
-	if ( group.id === 'referrer:direct' ) {
-		return 'direct';
+	if ( 'medium' in group && typeof group.medium === 'string' ) {
+		return group.medium;
 	}
 
 	return 'organic';
 }
+
+/**
+ * Whether a referrer row has a story-only date.
+ *
+ * @param row - The drilldown row.
+ * @return Whether the row has a date value.
+ */
+function hasReferrerDate( row: DrilldownListGroup | DrilldownListChild ): row is ReferrerChild {
+	return 'date' in row;
+}
+
+/**
+ * Format a date string for display in the multi-column story.
+ *
+ * @param date - The ISO date string.
+ * @return The formatted date.
+ */
+function formatReferrerDate( date: string ): string {
+	const [ year, month, day ] = date.split( '-' ).map( Number );
+
+	return new Date( year, month - 1, day ).toLocaleDateString( undefined, {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	} );
+}
+
+/**
+ * Read the optional referrer date column value.
+ *
+ * @param row - The referrer row.
+ * @return The formatted date, or blank for groups.
+ */
+function getReferrerDateValue( row: DrilldownListGroup | DrilldownListChild ): string {
+	if ( hasReferrerDate( row ) ) {
+		return formatReferrerDate( row.date );
+	}
+
+	return '';
+}
+
+/**
+ * Read the formatted referrer views column value.
+ *
+ * @param row - The referrer row.
+ * @return The formatted views.
+ */
+function getReferrerViewsValue( row: DrilldownListGroup | DrilldownListChild ): string {
+	return row.value.toLocaleString();
+}
+
+const REFERRER_COLUMNS: DrilldownListColumn[] = [
+	{
+		id: 'date',
+		header: __( 'Date', 'jetpack-premium-analytics' ),
+		getValue: getReferrerDateValue,
+	},
+	{
+		id: 'views',
+		header: __( 'Views', 'jetpack-premium-analytics' ),
+		getValue: getReferrerViewsValue,
+	},
+];
 
 const meta: Meta< typeof DrilldownList > = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/DrilldownList',
@@ -203,6 +284,16 @@ type Story = StoryObj< typeof DrilldownList >;
  * Default drilldown list.
  */
 export const Default: Story = {};
+
+/**
+ * Referrer list with additional value columns.
+ */
+export const MultipleColumns: Story = {
+	args: {
+		columns: REFERRER_COLUMNS,
+		defaultExpandedIds: [ 'referrer:search-engines' ],
+	},
+};
 
 /**
  * Loading state.

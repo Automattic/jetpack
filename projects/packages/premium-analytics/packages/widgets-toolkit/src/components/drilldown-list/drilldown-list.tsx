@@ -13,7 +13,7 @@ import { useCallback, useMemo, useState } from 'react';
 import styles from './drilldown-list.module.scss';
 import { processDrilldownGroups } from './process-drilldown-groups';
 import type { Field, SupportedLayouts, View } from '@wordpress/dataviews';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
 const DEFAULT_LAYOUTS = { table: {} } satisfies SupportedLayouts;
@@ -43,6 +43,21 @@ export interface DrilldownListGroup {
 }
 
 /**
+ * One optional value column in a drilldown list.
+ */
+export interface DrilldownListColumn {
+	id: string;
+	/**
+	 * Column caption, e.g. "Views", "Date".
+	 */
+	header: string;
+	/**
+	 * Cell content for a group or child row; empty/undefined renders blank.
+	 */
+	getValue: ( row: DrilldownListGroup | DrilldownListChild ) => ReactNode;
+}
+
+/**
  * Props for the reusable drilldown list.
  */
 export interface DrilldownListProps {
@@ -67,6 +82,10 @@ export interface DrilldownListProps {
 	 */
 	formatValue?: ( value: number ) => string;
 	/**
+	 * Optional value columns rendered after the label column.
+	 */
+	columns?: DrilldownListColumn[];
+	/**
 	 * Group ids expanded on mount.
 	 */
 	defaultExpandedIds?: string[];
@@ -79,6 +98,10 @@ export interface DrilldownListProps {
 	 */
 	getGroupFilterValue?: ( group: DrilldownListGroup ) => string;
 }
+
+type DrilldownListStyle = CSSProperties & {
+	'--drilldown-list-columns': number;
+};
 
 /**
  * `DataViews`' own `getItemId` prop is conditionally optional on `Item` having
@@ -115,6 +138,26 @@ function getDrilldownGroupId( group: DrilldownListGroup ): string {
  */
 function formatDefaultValue( value: number ): string {
 	return value.toLocaleString();
+}
+
+/**
+ * Build the default single value column from legacy value props.
+ *
+ * @param valueHeader - The value column caption.
+ * @param formatValue - Formats row values.
+ * @return The default value column.
+ */
+function getDefaultColumns(
+	valueHeader: string,
+	formatValue: ( value: number ) => string
+): DrilldownListColumn[] {
+	return [
+		{
+			id: 'value',
+			header: valueHeader,
+			getValue: row => formatValue( row.value ),
+		},
+	];
 }
 
 /**
@@ -209,22 +252,22 @@ function DrilldownGroupToggle( {
 /**
  * One drilldown row.
  *
- * @param props             - The component props.
- * @param props.children    - The label cell content.
- * @param props.value       - The row value.
- * @param props.formatValue - Formats row values.
- * @param props.isChild     - Whether the row is an indented child row.
+ * @param props          - The component props.
+ * @param props.children - The label cell content.
+ * @param props.row      - The row data.
+ * @param props.columns  - Value columns rendered after the label.
+ * @param props.isChild  - Whether the row is an indented child row.
  * @return The row.
  */
 function DrilldownRow( {
 	children,
-	value,
-	formatValue,
+	row,
+	columns,
 	isChild = false,
 }: {
 	children: ReactNode;
-	value: number;
-	formatValue: ( value: number ) => string;
+	row: DrilldownListGroup | DrilldownListChild;
+	columns: DrilldownListColumn[];
 	isChild?: boolean;
 } ): JSX.Element {
 	return (
@@ -232,9 +275,11 @@ function DrilldownRow( {
 			<div role="cell" className={ styles.labelCell }>
 				{ children }
 			</div>
-			<div role="cell" className={ styles.value }>
-				{ formatValue( value ) }
-			</div>
+			{ columns.map( column => (
+				<div role="cell" className={ styles.value } key={ column.id }>
+					{ column.getValue( row ) }
+				</div>
+			) ) }
 		</div>
 	);
 }
@@ -268,9 +313,8 @@ function DrilldownChildLabel( { child }: { child: DrilldownListChild } ): JSX.El
  * @param props.childCounts   - Child counts per group id from the full dataset.
  * @param props.isLoading     - Whether the list is loading.
  * @param props.labelHeader   - The label column caption.
- * @param props.valueHeader   - The value column caption.
+ * @param props.columns       - Value columns rendered after the label.
  * @param props.emptyLabel    - Empty-state message.
- * @param props.formatValue   - Formats row values.
  * @return The drilldown list.
  */
 function DrilldownRows( {
@@ -280,9 +324,8 @@ function DrilldownRows( {
 	childCounts,
 	isLoading,
 	labelHeader,
-	valueHeader,
+	columns,
 	emptyLabel,
-	formatValue,
 }: {
 	groups: DrilldownListGroup[];
 	expandedIds: ReadonlySet< string >;
@@ -290,18 +333,23 @@ function DrilldownRows( {
 	childCounts: ReadonlyMap< string, number >;
 	isLoading: boolean;
 	labelHeader: string;
-	valueHeader: string;
+	columns: DrilldownListColumn[];
 	emptyLabel: string;
-	formatValue: ( value: number ) => string;
 } ): JSX.Element {
+	const listStyle: DrilldownListStyle = {
+		'--drilldown-list-columns': columns.length,
+	};
+
 	if ( ! groups.length && ! isLoading ) {
 		return (
-			<div role="table" aria-label={ labelHeader } className={ styles.list }>
+			<div role="table" aria-label={ labelHeader } className={ styles.list } style={ listStyle }>
 				<div className={ styles.header } role="row">
 					<div role="columnheader">{ labelHeader }</div>
-					<div role="columnheader" className={ styles.valueHeader }>
-						{ valueHeader }
-					</div>
+					{ columns.map( column => (
+						<div role="columnheader" className={ styles.valueHeader } key={ column.id }>
+							{ column.header }
+						</div>
+					) ) }
 				</div>
 				<div className={ styles.empty }>{ emptyLabel }</div>
 			</div>
@@ -313,12 +361,15 @@ function DrilldownRows( {
 			role="table"
 			aria-label={ labelHeader }
 			className={ clsx( styles.list, isLoading && styles.isLoading ) }
+			style={ listStyle }
 		>
 			<div className={ styles.header } role="row">
 				<div role="columnheader">{ labelHeader }</div>
-				<div role="columnheader" className={ styles.valueHeader }>
-					{ valueHeader }
-				</div>
+				{ columns.map( column => (
+					<div role="columnheader" className={ styles.valueHeader } key={ column.id }>
+						{ column.header }
+					</div>
+				) ) }
 			</div>
 			{ groups.map( group => {
 				const isExpanded = expandedIds.has( group.id ) || group.children.length > 0;
@@ -326,7 +377,7 @@ function DrilldownRows( {
 
 				return (
 					<div role="rowgroup" key={ group.id }>
-						<DrilldownRow value={ group.value } formatValue={ formatValue }>
+						<DrilldownRow row={ group } columns={ columns }>
 							<span className={ clsx( styles.labelText, styles.groupLabel ) }>{ group.label }</span>
 							{ hasChildren ? (
 								<DrilldownGroupToggle
@@ -337,12 +388,7 @@ function DrilldownRows( {
 							) : null }
 						</DrilldownRow>
 						{ group.children.map( child => (
-							<DrilldownRow
-								key={ child.id }
-								value={ child.value }
-								formatValue={ formatValue }
-								isChild
-							>
+							<DrilldownRow key={ child.id } row={ child } columns={ columns } isChild>
 								<DrilldownChildLabel child={ child } />
 							</DrilldownRow>
 						) ) }
@@ -365,6 +411,7 @@ function DrilldownRows( {
  * @param props.isLoading           - Whether the list is loading.
  * @param props.perPageSizes        - Available DataViews page sizes.
  * @param props.formatValue         - Formats row values.
+ * @param props.columns             - Optional value columns rendered after the label.
  * @param props.defaultExpandedIds  - Group ids expanded on mount.
  * @param props.filterElements      - Optional filter options for the hidden group type field.
  * @param props.getGroupFilterValue - Optional group filter value resolver.
@@ -379,6 +426,7 @@ export function DrilldownList( {
 	isLoading = false,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
 	formatValue = formatDefaultValue,
+	columns,
 	defaultExpandedIds = [],
 	filterElements,
 	getGroupFilterValue,
@@ -396,6 +444,10 @@ export function DrilldownList( {
 	const fields = useMemo(
 		() => getDrilldownFields( labelHeader, valueHeader, filterElements, getGroupFilterValue ),
 		[ labelHeader, valueHeader, filterElements, getGroupFilterValue ]
+	);
+	const renderedColumns = useMemo(
+		() => columns ?? getDefaultColumns( valueHeader, formatValue ),
+		[ columns, valueHeader, formatValue ]
 	);
 	const { groups: visibleGroups, paginationInfo } = useMemo(
 		() => processDrilldownGroups( groups, view, expandedIds, getGroupFilterValue ),
@@ -451,9 +503,8 @@ export function DrilldownList( {
 					childCounts={ childCounts }
 					isLoading={ isLoading }
 					labelHeader={ labelHeader }
-					valueHeader={ valueHeader }
+					columns={ renderedColumns }
 					emptyLabel={ emptyLabel }
-					formatValue={ formatValue }
 				/>
 				<div className={ styles.pagination }>
 					<DataViews.Pagination />

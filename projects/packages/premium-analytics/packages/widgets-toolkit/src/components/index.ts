@@ -30,6 +30,7 @@ export {
 export {
 	DrilldownList,
 	type DrilldownListChild,
+	type DrilldownListColumn,
 	type DrilldownListGroup,
 	type DrilldownListProps,
 	processDrilldownGroups,
