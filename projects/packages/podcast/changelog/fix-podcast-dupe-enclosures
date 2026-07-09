@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast feed: emit a single <enclosure> per episode when a post has accumulated duplicate enclosure meta rows.

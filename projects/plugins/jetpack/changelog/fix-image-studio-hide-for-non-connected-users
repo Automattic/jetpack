@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Don't load the editor's AI image and media tools for users who have not connected their WordPress.com account, so they are no longer offered tools that would only error out.

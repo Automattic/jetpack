@@ -35,10 +35,3 @@
 	min-height: 120px;
 	text-align: center;
 }
-
-/* Widget picker preview: keep a sensible aspect ratio instead of collapsing. */
-:global([inert]:not([inert="true"])) .root {
-	height: auto;
-	aspect-ratio: 4 / 3;
-	overflow: hidden;
-}

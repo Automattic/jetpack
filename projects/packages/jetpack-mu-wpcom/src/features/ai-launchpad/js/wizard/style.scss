@@ -88,7 +88,6 @@
 
 	svg {
 		flex-shrink: 0;
-		margin-top: 2px;
 		fill: currentColor;
 	}
 }
@@ -122,7 +121,7 @@
 .ai-launchpad-wizard__footer {
 	display: flex;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: space-between;
 	gap: 12px;
 	margin-top: 24px;
 }
